@@ -164,7 +164,13 @@ table.detail-parameters {
   color: white;
   text-transform: uppercase;
 }
-
+.config-wrap {
+  background: aliceblue;
+  border-radius: 0 0 20px 20px;
+}
+.order {
+  border-radius: 20px 20px 0 0;
+}
 .upsale-buttons.boxs {
   position: relative;
 }
@@ -387,7 +393,7 @@ span.quantity {
       display: flex;
     }
     h5.variant.name {
-      width: 110px;
+      width: 140px;
       font-size: 13px;
       text-align: left;
     }
@@ -526,6 +532,19 @@ span.quantity {
     }
   }
 }
+.parameter-wrap.orders-5.base-config {
+  .text {
+    display: none !important;
+  }
+}
+
+.parameter-wrap.orders-6,
+.parameter-wrap.orders-7,
+.parameter-wrap.orders-8 {
+  h5.variant.name {
+    padding: 13px;
+  }
+}
 
 // table.detail-parameters {
 //   display: none;
@@ -604,11 +623,15 @@ span.quantity {
       display: flex;
     }
   }
+  .media-with-text__media img {
+    border: none !important;
+  }
   @media (min-width: 768px) {
     .text-with-icons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      width: 100%;
     }
     .twentytwenty-wrap {
       display: flex;
@@ -619,8 +642,23 @@ span.quantity {
       overflow: hidden;
     }
     .section-info {
-      width: 40%;
+      // width: 40%;
       font-size: 17px;
+    }
+    .section.section-full.bg-custom.full-width {
+      .snap-center .prose p {
+        max-width: 339px;
+        text-transform: uppercase;
+        color: #000;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    .media-with-text__item.full-width {
+      .container {
+        max-width: 1338px;
+        padding: 0;
+      }
     }
   }
   .layers-info {
@@ -636,9 +674,13 @@ span.quantity {
     }
   }
   .section.section-full.bg-custom.icons-package {
-    padding: 30px;
+    padding: 30px 0 50px;
     margin: 0 -20px;
     text-align: center;
+    margin-bottom: 30px;
+    h3 {
+      font-size: 30px !important;
+    }
     p.h5 {
       width: 100%;
       margin: 10px auto;
@@ -786,7 +828,9 @@ span.quantity {
   span.quantity {
     display: none;
   }
-
+  .prose .h2 {
+    color: var(--color-primary);
+  }
   @media screen and (min-width: 700px) {
     .timeline__controls {
       --timeline-dot-size: 1.25rem;
