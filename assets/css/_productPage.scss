@@ -192,6 +192,8 @@ table.detail-parameters {
     text-align: center;
     font-size: 25px;
     font-weight: 600;
+
+    cursor: pointer;
     img {
       max-height: 35px;
     }
@@ -1443,7 +1445,7 @@ a.p-thumbnail {
     border-radius: 15px;
   }
   .options-wrap .button.option-button {
-    width: 11%;
+    width: 13%;
     height: auto;
   }
   .orders-5 {
@@ -1565,6 +1567,28 @@ a.p-thumbnail {
     .text-with-icons__item {
       width: 100%;
     }
+  }
+  .basic-description .text-with-icons__item.snap-center {
+    width: 100%;
+  }
+  .p-detail-inner-header h1,
+  .justify-self-center h3,
+  .section-info h3,
+  h2.divider,
+  .sec-header,
+  #comparison h2 {
+    font-size: 30px !important;
+  }
+
+  .twentytwenty-wrap .container {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+  .basic-description .section.section-full.bg-custom.icons-package {
+    margin: 0;
+  }
+  .basic-description .timeline__nav-item {
+    min-width: 40px;
   }
 }
 
