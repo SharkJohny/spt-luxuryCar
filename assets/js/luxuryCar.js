@@ -188,19 +188,7 @@ function initProduct(setupData2) {
   $(".p-detail-inner .p-detail-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   $(".p-detail-inner .p-detail-inner-header").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   $(".benefitBanner.position--benefitProduct .benefitBanner__item").insertBefore(".col-xs-12.col-lg-6.p-info-wrapper");
-  const model = sessionStorage.getItem("model");
-  if (model) {
-    const modelInfo = $("<section>").attr("id", "model-info").insertBefore("section#model-selector");
-    $("section#model-selector").hide();
-    const infoWrap = $("<div>").addClass("model-info").appendTo(modelInfo);
-    $("<div>").addClass("header-info").text("Garancia kompatibility s Va\u0161\xEDm vozidlom").appendTo(infoWrap);
-    $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
-    $("<div>").addClass("setup-model").text("Upravi\u0165").appendTo(modelInfo);
-    $(".setup-model").on("click", function() {
-      $("section#model-selector").show();
-      modelInfo.remove();
-    });
-  }
+  createModelInfo();
   priplatky(setupData2);
   $(".button.btn.select-model").on("click", function() {
     const overflow = $("<div>", {
@@ -264,13 +252,13 @@ function priplatky(setupData2) {
     const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
     $('<icon class="icon">!</icon>').appendTo(bannerWrap);
     $('<div class="h4">').text("k\xFAp viac za menej").appendTo(bannerWrap);
-    $("<span>").text("Vyu\u017Ei na\u0161u akciov\xFA ponuku set s autokobercami za v\xFDhodn\xFA cenu").appendTo(bannerWrap);
+    $("<span>").text("U\u0161etri a\u017E 40\u202F% na roho\u017Ei a boxoch do kufra, ak objedn\xE1\u0161 spolu s kobercami pod sedadl\xE1.").appendTo(bannerWrap);
     if ($(".parameter-id-89")[0]) {
       const buttonWrap = $("<div>", {
         class: "upsale-buttons position-wrap parameter-cars parameter-wrap trunk"
       }).appendTo(upsaleBanner);
       $(`<div class="order">${order}</div>`).appendTo(buttonWrap);
-      $('<h5 class="variant name">\u0160pecifik\xE1cia vozidla</h5>').appendTo(buttonWrap);
+      $('<h5 class="variant name">autokoberce do kufru</h5>').appendTo(buttonWrap);
       const parameterWrap = $("<div>", {
         class: "parameter-cars"
       }).appendTo(buttonWrap);
@@ -352,6 +340,7 @@ function priplatky(setupData2) {
       console.log(pairVariantList);
     });
     $(".button.option-button").on("click", function() {
+      createModelInfo();
       $(this).parents(".parameter-wrap").removeClass("goToAction");
       $("body").removeClass("disabled-add-to-cart");
       const value = $(this).attr("data-value");
@@ -444,6 +433,7 @@ function createUpsaleButton(img, text, position, value, type, price, prefix) {
   $(".upsale-Banner").hide();
 }
 $(document).on("click", ".upsale-button", function(e) {
+  console.log("click");
   $(".image-wrap").remove();
   const trunk = $(this).closest(".upsale-buttons.trunk");
   const boxs = $(this).closest(".upsale-buttons.boxs");
@@ -504,7 +494,6 @@ $(document).on("click", ".upsale-button", function(e) {
 });
 $(document).on("click", ".box-config .close-btn", function() {
   $(this).parents(".upsale-Banner").removeClass("showConf");
-  $(this).parents(".upsale-buttons").addClass("minimalize");
 });
 function firstPage() {
   const wrap = $("<div>", {
@@ -542,10 +531,10 @@ function firstPage() {
     class: "option-wrap"
   }).appendTo(wheelWrao);
   $(
-    `<div class='button option-button active' data-value='left'><img src='https://689946.myshoptet.com/user/documents/upload/assets/image/Layer_left.png' alt='250.jpg'><div class='text'>V\u013Eavo</div></div>`
+    `<div class='button option-button active' data-value='left'><span>EU</span><img src='https://689946.myshoptet.com/user/documents/upload/assets/image/Layer_left.png' alt='250.jpg'><div class='text'>V\u013Eavo</div></div>`
   ).appendTo(wheelOption);
   $(
-    `<div class='button option-button' data-value='right'><img src='https://689946.myshoptet.com/user/documents/upload/assets/image/Layer_right.png' alt='251.jpg'><div class='text'>Vpravo</div></div>`
+    `<div class='button option-button' data-value='right'><img src='https://689946.myshoptet.com/user/documents/upload/assets/image/Layer_right.png' alt='251.jpg'><div class='text'>Vpravo</div><span>UK</span></div>`
   ).appendTo(wheelOption);
   const sitposition = $("<div>", {
     class: "parameter-cars sit-Position"
@@ -557,9 +546,9 @@ function firstPage() {
   const sitOption = $("<div>", {
     class: "option-wrap"
   }).appendTo(sitposition);
-  $(`<div class='button option-button active' data-value='pass-2'><div class='text'>2</div></div>`).appendTo(sitOption);
+  $(`<div class='button option-button ' data-value='pass-2'><div class='text'>2</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-4'><div class='text'>4</div></div>`).appendTo(sitOption);
-  $(`<div class='button option-button' data-value='pass-5'><div class='text'>5</div></div>`).appendTo(sitOption);
+  $(`<div class='button option-button active' data-value='pass-5'><div class='text'>5</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-6'><div class='text'>6</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-7'><div class='text'>7</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-8'><div class='text'>8</div></div>`).appendTo(sitOption);
@@ -688,7 +677,7 @@ function createOptions(position, orders) {
     if (textOption.includes("cm")) {
       $("<div>", {
         class: "description",
-        html: `<span>${nameSplit[0]}</span><div class='parm'> ${nameSplit[1]}</div><div class='price'>${valueText[1]}</div>`
+        html: `<span>${nameSplit[0]}</span><div class='parm'> ${nameSplit[1]}</div><div class='price'>+ ${valueText[1]}</div>`
       }).appendTo(optionButton);
       $(optionButton).addClass("text");
     } else if (textOption.includes("rad")) {
@@ -732,6 +721,22 @@ function createBoxConfig() {
   const configWrap = $("<div>", {
     class: "config-wrap"
   }).appendTo(wrap);
+}
+function createModelInfo() {
+  if ($("#model-info")[0]) return;
+  const model = sessionStorage.getItem("model");
+  if (model) {
+    const modelInfo = $("<section>").attr("id", "model-info").insertBefore("section#model-selector");
+    $("section#model-selector").hide();
+    const infoWrap = $("<div>").addClass("model-info").appendTo(modelInfo);
+    $("<div>").addClass("header-info").text("Garancia kompatibility s Va\u0161\xEDm vozidlom").appendTo(infoWrap);
+    $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
+    $("<div>").addClass("setup-model").text("Upravi\u0165").appendTo(infoWrap);
+    $(".setup-model").on("click", function() {
+      $("section#model-selector").show();
+      modelInfo.remove();
+    });
+  }
 }
 
 // assets/js/script.js

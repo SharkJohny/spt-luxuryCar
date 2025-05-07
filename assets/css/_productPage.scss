@@ -4,6 +4,10 @@
   }
 }
 
+.p-detail-inner-header {
+  order: 1;
+}
+
 .type-product {
   p[data-testid="productCardDescr"],
   .ti-dropdown-widget-inner:before,
@@ -39,7 +43,10 @@
   flex-direction: column;
   position: relative;
   section#model-selector {
-    order: 1;
+    order: 3;
+  }
+  section#model-info {
+    order: 3;
   }
   table.detail-parameters {
     order: 2;
@@ -67,7 +74,8 @@
     order: 8;
   }
   .p-short-description {
-    order: 9;
+    order: 2;
+    font-size: 20px;
   }
   p[data-testid="productCardDescr"] {
     order: 10;
@@ -204,6 +212,21 @@ table.detail-parameters {
       background-color: rgba(196, 155, 49, 1);
       /* width: fit-content; */
     }
+    span {
+      padding: 5px 5px;
+      line-height: 1;
+      top: 2px;
+      position: relative;
+    }
+  }
+}
+
+.box-config {
+  .options-wrap {
+    width: 79%;
+  }
+  .options-wrap .button.option-button .text {
+    bottom: -18px;
   }
 }
 .options-wrap {
@@ -211,9 +234,10 @@ table.detail-parameters {
   flex-direction: row;
   flex-wrap: wrap;
   padding: 10px;
+
   .button.option-button {
-    width: 50px;
-    height: 50px;
+    width: 12%;
+
     margin: 5px;
     position: relative;
     border: 2px solid transparent;
@@ -1079,8 +1103,8 @@ div#description {
 }
 
 .upsale-button.radio.active {
-  border: 3px solid rgba(196, 155, 49, 1);
-  border-radius: 20px;
+  border: 5px solid rgba(196, 155, 49, 1);
+  border-radius: 25px;
 }
 
 .button.option-button.text {
@@ -1122,6 +1146,8 @@ section.shopify-section.horiz-video.shopify-section--video {
 
 section#model-info {
   display: flex;
+  position: relative;
+  width: 100%;
   .setup-model {
     padding: 9px 20px 9px;
     background: gray;
@@ -1133,6 +1159,9 @@ section#model-info {
     text-transform: uppercase;
     margin-top: 11px;
     cursor: pointer;
+    position: absolute;
+    right: 13px;
+    top: 1px;
   }
   .model-info {
     border: 1px solid rgba(81, 140, 109, 1);
@@ -1143,6 +1172,7 @@ section#model-info {
     padding: 10px 20px 10px 70px;
     margin-bottom: 30px;
     position: relative;
+    width: 100%;
     &::before {
       content: "\e913";
       speak: none;
@@ -1246,9 +1276,11 @@ section#model-info {
     text-transform: uppercase;
     font-weight: 600;
     margin: 0;
+    margin-bottom: 10px;
   }
   span {
     font-size: 20px;
+    line-height: 1;
   }
   icon.icon {
     position: absolute;
