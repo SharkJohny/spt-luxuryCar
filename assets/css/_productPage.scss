@@ -36,6 +36,9 @@
 
     bottom: 43px;
   }
+  span.flag.flag-discount {
+    display: none;
+  }
 }
 
 .col-xs-12.col-lg-6.p-info-wrapper {
@@ -632,6 +635,7 @@ span.quantity {
     padding-top: 10px;
     padding-bottom: 10px;
     font-weight: 600;
+    min-height: 55px;
   }
   .twentytwenty-wrap {
     padding: 0px 0;
@@ -1143,7 +1147,15 @@ section.shopify-section.horiz-video.shopify-section--video {
     max-height: 800px;
   }
 }
-
+.btn.btn-cart,
+.btn.btn-conversion,
+a.btn.btn-cart,
+a.btn.btn-conversion {
+  background-color: #c49b30;
+  border-color: #c49b30;
+  color: #fff;
+  border-radius: 10px;
+}
 section#model-info {
   display: flex;
   position: relative;
@@ -1162,6 +1174,12 @@ section#model-info {
     position: absolute;
     right: 13px;
     top: 1px;
+    @media (max-width: 768px) {
+      position: static;
+      margin-top: 10px;
+      margin-left: auto;
+      width: 100%;
+    }
   }
   .model-info {
     border: 1px solid rgba(81, 140, 109, 1);
@@ -1173,6 +1191,7 @@ section#model-info {
     margin-bottom: 30px;
     position: relative;
     width: 100%;
+    max-width: 700px;
     &::before {
       content: "\e913";
       speak: none;
@@ -1201,7 +1220,10 @@ section#model-info {
     }
   }
 }
-
+.errorToCart {
+  border: 2px solid red;
+  border-radius: 25px;
+}
 .parameter-cars.patterns-wrap {
   display: flex;
   padding: 10px 10px 0;
@@ -1632,5 +1654,16 @@ a.p-thumbnail {
 .type-product {
   .image-container {
     margin-bottom: 0 !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .p-info-wrapper .add-to-cart {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    position: relative;
+    top: -75px;
   }
 }

@@ -1,6 +1,8 @@
 import { optionData } from "./option.js";
 import { intIndex } from "./components/index.js";
 import { initProduct } from "./components/productPage.js";
+import { stickyPhotos } from "./functions/stickyphotos.js";
+import { errorToCart } from "./functions/errorToCart.js";
 // import { initCart } from "./components/cart.js";
 let setupData;
 
@@ -26,6 +28,8 @@ jQuery(document).ready(function ($) {
   intIndex();
   initSignpost();
   initCart();
+  //stickyPhotos();
+  errorToCart();
 });
 
 /**
