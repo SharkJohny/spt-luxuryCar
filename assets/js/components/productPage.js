@@ -422,9 +422,9 @@ $(document).on("click", ".upsale-button", function (e) {
 
   // Ukázka, jak schovat/zobrazit nějaké prvky
   if (value[0] === "conf1") {
-    $(".parameter-wrap.parameter-29.orders-5").hide();
+    $(".parameter-wrap.parameter-101.orders-8").hide();
   } else if (value[0] === "conf2") {
-    $(".parameter-wrap.parameter-29.orders-5").show();
+    $(".parameter-wrap.parameter-101.orders-8").show();
   }
 
   // Delay for price update
@@ -795,6 +795,17 @@ function createUpsalePopup() {
 function createModelInfo() {
   if ($("#model-info")[0]) return;
   const model = sessionStorage.getItem("model");
+  console.log(model);
+  $(".content-wrap").on("click", function () {
+    const model = sessionStorage.getItem("model");
+    if (model == "Značka Model Rok výroby Typ auta") {
+      createpopup();
+    }
+  });
+
+  if (model == "Značka Model Rok výroby Typ auta") {
+    return;
+  }
 
   if (model) {
     const modelInfo = $("<section>").attr("id", "model-info").insertBefore("section#model-selector");
@@ -813,4 +824,82 @@ function createModelInfo() {
     //   "section#model-selector"
     // );
   }
+}
+
+function createpopup() {
+  const overflow = $("<div>", {
+    class: "overflow",
+    style: `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    `,
+  }).appendTo("body");
+
+  const popup = $("<div>", {
+    style: `
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 450px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: fadeIn 0.3s ease-out;
+    `,
+  }).appendTo(overflow);
+
+  $("<h3>", {
+    text: "Prosím, nejdříve vyberte model vašeho vozidla",
+    style: `
+      margin-bottom: 30px;
+      font-size: 22px;
+      color: #333;
+      font-weight: 500;
+      line-height: 1.4;
+    `,
+  }).appendTo(popup);
+
+  $("<button>", {
+    text: "Rozumím",
+    class: "btn",
+    style: `
+      padding: 12px 40px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #c49b31;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+      &:hover {
+        background: #c49b31;
+      }
+    `,
+    click: function () {
+      overflow.fadeOut(200, function () {
+        $(this).remove();
+      });
+    },
+  }).appendTo(popup);
+
+  // Add animation keyframes
+  $("<style>")
+    .text(
+      `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  `
+    )
+    .appendTo("head");
 }
