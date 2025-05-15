@@ -143,40 +143,64 @@ function initStickyPhotos() {
     return;
   }
 
+  // CSS optimalizace pro plynulost
+  imageWrapper.style.willChange = "transform";
+
+  // Odsazení od horního okraje okna při sticky efektu
+  const stickyOffset = 100;
+
   // Základní proměnné
-  const initialOffsetTop = imageWrapper.offsetTop;
   let imageWrapperHeight = imageWrapper.offsetHeight;
+  let productTopRect = productTop.getBoundingClientRect();
+  let productTopTop = productTopRect.top + window.pageYOffset;
   let productTopHeight = productTop.offsetHeight;
+  let initialOffsetTop = imageWrapper.getBoundingClientRect().top + window.pageYOffset;
 
-  // Funkce pro aktualizaci při scrollování
+  // Optimalizace scrollu pomocí requestAnimationFrame
+  let ticking = false;
   function onScroll() {
-    // Získat aktuální scroll pozici
-    const scrollY = window.scrollY || window.pageYOffset;
-
-    // Základní výpočet pro pohyb nahoru/dolů
-    // Omezíme pohyb, aby obrázek neopustil svého rodiče
-    const maxScroll = productTopHeight - imageWrapperHeight;
-    const scrollAmount = Math.min(scrollY, maxScroll);
-
-    // Aplikujeme pohyb jen když to má smysl
-    if (scrollAmount > 0 && scrollY > initialOffsetTop) {
-      imageWrapper.style.transform = `translateY(${scrollAmount}px)`;
-    } else {
-      imageWrapper.style.transform = "translateY(0)";
+    if (!ticking) {
+      window.requestAnimationFrame(updatePosition);
+      ticking = true;
     }
+  }
+
+  function updatePosition() {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    // Výška a pozice se mohou měnit (např. při resize)
+    imageWrapperHeight = imageWrapper.offsetHeight;
+    productTopHeight = productTop.offsetHeight;
+    productTopTop = productTop.getBoundingClientRect().top + window.pageYOffset;
+    initialOffsetTop = productTopTop;
+
+    // Vypočítej maximální možný posun
+    const maxScroll = productTopHeight - imageWrapperHeight;
+    let translateY = 0;
+    const stickyStart = initialOffsetTop - stickyOffset;
+
+    if (scrollY < stickyStart) {
+      translateY = 0;
+    } else {
+      translateY = Math.min(scrollY - stickyStart, maxScroll);
+    }
+
+    imageWrapper.style.transform = `translateY(${translateY}px)`;
+    ticking = false;
   }
 
   // Funkce pro aktualizaci rozměrů
   function updateDimensions() {
     imageWrapperHeight = imageWrapper.offsetHeight;
     productTopHeight = productTop.offsetHeight;
+    productTopTop = productTop.getBoundingClientRect().top + window.pageYOffset;
+    initialOffsetTop = productTopTop;
+    updatePosition();
   }
 
-  // Přidáme listenery na události
   window.addEventListener("scroll", onScroll);
   window.addEventListener("resize", updateDimensions);
 
   // Inicializace
   updateDimensions();
-  onScroll();
+  updatePosition();
 }

@@ -1106,7 +1106,7 @@ div#description {
   }
 }
 
-.upsale-button.radio.active {
+.upsale-button.active {
   border: 5px solid rgba(196, 155, 49, 1);
   border-radius: 25px;
 }
@@ -1175,10 +1175,9 @@ section#model-info {
     right: 13px;
     top: 1px;
     @media (max-width: 768px) {
-      position: static;
+      position: absolute;
       margin-top: 10px;
       margin-left: auto;
-      width: 100%;
     }
   }
   .model-info {
@@ -1356,6 +1355,12 @@ a.p-thumbnail {
 }
 
 @media (max-width: 768px) {
+  .text {
+    line-height: 1.8;
+  }
+  .parameter-cars .button.option-button {
+    font-size: 18px;
+  }
   .option-wrap {
     display: flex;
     flex-wrap: wrap;
@@ -1482,7 +1487,7 @@ a.p-thumbnail {
     min-width: 120px !important;
   }
   .parameter-cars .button.option-button img {
-    max-height: 25px;
+    max-height: 19px;
   }
   .parameter-cars .button.option-button {
     padding: 4px 8px;
@@ -1499,7 +1504,7 @@ a.p-thumbnail {
     border-radius: 15px;
   }
   .options-wrap .button.option-button {
-    width: 13%;
+    width: 17%;
     height: auto;
   }
   .orders-5 {
@@ -1644,11 +1649,28 @@ a.p-thumbnail {
   .basic-description .timeline__nav-item {
     min-width: 40px;
   }
-}
 
-.upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs {
-  .image-wrap {
-    display: none !important;
+  section#model-info .model-info {
+    padding: 10px 80px 10px 50px;
+  }
+
+  .upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs {
+    .image-wrap {
+      display: none !important;
+    }
+  }
+  .upsale-Banner .box-config .parameter-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .box-config .options-wrap {
+    width: 100%;
+  }
+  .basic-description p.h6 {
+    min-height: 30px;
+  }
+  .col-xs-12.col-lg-6.p-info-wrapper .p-short-description {
+    order: 0;
   }
 }
 .type-product {

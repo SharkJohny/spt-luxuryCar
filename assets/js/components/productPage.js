@@ -1,6 +1,21 @@
 /**
  * Initializes the product page.
  */
+
+const standartPrice = Number(
+  $(".p-final-price-wrapper .price-standard span")
+    .text()
+    .replace(/[^0-9]/g, "")
+);
+const price = Number(
+  $("span.calculated-price")
+    .text()
+    .replace(/[^0-9]/g, "")
+);
+
+const diference = standartPrice - price;
+
+console.log(diference);
 export function initProduct(setupData) {
   if ($(".id-751")[0]) {
     $(".benefitBanner__item").remove();
@@ -98,6 +113,22 @@ export function initProduct(setupData) {
   //     src,
   //   }).appendTo(image);
   // });
+
+  $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
+    if (!$(".upsale-buttons .active")[1]) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Přidej errorToCart pouze na ty upsale-buttons, kde není žádné .active tlačítko
+      $(".upsale-buttons").each(function () {
+        if (!$(this).find(".active").length) {
+          $(this).addClass("errorToCart");
+          setTimeout(() => {
+            $(this).removeClass("errorToCart");
+          }, 2000);
+        }
+      });
+    }
+  });
 }
 
 /**
@@ -261,6 +292,8 @@ function priplatky(setupData) {
         .fadeIn(1000);
       $("<img>", { src: image2 }).appendTo(imageWrap);
 
+      calculateStandartPrice(diference);
+
       if (!$(".goToAction")[0]) {
         console.log("goToAction");
 
@@ -323,12 +356,12 @@ function priplatky(setupData) {
  * @param {number} [value] - Optional value attribute for the button.
  */
 function createUpsaleButton(img, text, position, value, type, price, prefix) {
-  console.log("price", price);
+  // console.log("price", price);
   if (!img || !text || !position || !price) {
     console.error("Invalid parameters passed to createUpsaleButton");
     return;
   }
-  console.log(price.split("/"));
+  // console.log(price.split("/"));
   let priceText = price.split("/");
 
   let typeClass = type;
@@ -348,9 +381,9 @@ function createUpsaleButton(img, text, position, value, type, price, prefix) {
   const button = $(buttonHTML).appendTo(position);
   if (priceText[0] == "0") return;
   const save = priceText[1] - priceText[0];
-  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save">Ušetříte ${NumToPrice(save)}</div>`;
+  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}" >Ušetříte ${NumToPrice(save)}</div>`;
   if (prefix) {
-    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])}</div><div class="save">Ušetříte až ${NumToPrice(save)}</div>`;
+    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}>Ušetříte až ${NumToPrice(save)}</div>`;
   }
   const positionadd = $(button).find(".banner-header");
   $(priceHTML).appendTo(positionadd);
@@ -359,7 +392,7 @@ function createUpsaleButton(img, text, position, value, type, price, prefix) {
 // Single event listener for .upsale-button
 $(document).on("click", ".upsale-button", function (e) {
   // Check if the clicked element is within .upsale-buttons.trunk
-  console.log("click");
+
   $(".image-wrap").remove();
   const trunk = $(this).closest(".upsale-buttons.trunk");
   const boxs = $(this).closest(".upsale-buttons.boxs");
@@ -435,6 +468,9 @@ $(document).on("click", ".upsale-button", function (e) {
       console.warn("Funkce `shoptet.surcharges.updatePrices` není dostupná.");
     }
   }, 100);
+  setTimeout(() => {
+    calculateStandartPrice(diference);
+  }, 200);
 });
 $(document).on("click", ".box-config .close-btn", function () {
   $(this).parents(".upsale-Banner").removeClass("showConf");
@@ -549,13 +585,13 @@ function firstPage() {
   }
 
   const diamond = $(
-    `<a href="${diamondurl}" class="button option-button active" data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
+    `<a href="${diamondurl}" class="button option-button active" data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
   ).appendTo(patternsWrap);
   const hexa = $(
-    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
+    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
   ).appendTo(patternsWrap);
   const stripe = $(
-    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
+    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
   ).appendTo(patternsWrap);
 
   if (diamondurl == "active") {
@@ -902,4 +938,32 @@ function createpopup() {
   `
     )
     .appendTo("head");
+}
+
+function calculateStandartPrice(diference) {
+  console.log(diference);
+  const price = Number(
+    $("span.calculated-price")
+      .text()
+      .replace(/[^0-9]/g, "")
+  );
+
+  let newStandartPrice = price + diference;
+
+  console.log("addss");
+  $(".upsale-button.active").each(function () {
+    const priceText = $(this).find(".save").attr("data-save");
+    console.log(priceText);
+    if (priceText) {
+      const priceValue = Number(priceText.replace(/[^0-9]/g, ""));
+
+      newStandartPrice += priceValue;
+      console.log("newStandartPrice", newStandartPrice);
+    }
+  });
+  // vypočet procentualni slevy price z newStandartPrice
+  const discount = Math.round(((newStandartPrice - price) / newStandartPrice) * 100);
+  console.log("discount", discount);
+  $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
+  $(".p-final-price-wrapper .price-standard span").text(NumToPrice(newStandartPrice));
 }
