@@ -1387,11 +1387,31 @@ a.p-thumbnail {
     }
     .save {
       font-size: 10px;
-      top: -12px !important;
+      top: -50px !important;
     }
     .banner-header {
       padding-top: 13px;
+      position: relative;
+      top: 0px;
+      background: rgb(0 0 0 / 0%);
+      color: black !important;
     }
+    .upsale-Banner h5.variant.name {
+      top: 12px;
+    }
+
+    .upsale-Banner .upsale-buttons .parameter-cars {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  .upsale-button {
+    border: 1px solid #9e9e9e4f;
+  }
+  .upsale-button.active {
+    border: 2px solid #c49b31;
+    border-radius: 16px;
   }
 
   .upsale-Banner .upsale-buttons .parameter-cars .banner-header {
@@ -1671,6 +1691,10 @@ a.p-thumbnail {
   }
   .col-xs-12.col-lg-6.p-info-wrapper .p-short-description {
     order: 0;
+  }
+  section#model-selector {
+    padding: 10px;
+    margin-left: 5px;
   }
 }
 .type-product {

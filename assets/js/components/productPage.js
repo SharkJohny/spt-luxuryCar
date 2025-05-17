@@ -366,7 +366,10 @@ function createUpsaleButton(img, text, position, value, type, price, prefix) {
 
   let typeClass = type;
   if (type == "config" && value == 0) {
-    typeClass = "none";
+  }
+
+  if (value == "89-2225") {
+    typeClass = "radio none";
   }
 
   const buttonHTML = `
@@ -442,7 +445,7 @@ $(document).on("click", ".upsale-button", function (e) {
   } else {
     // Pokud je to radio, nejdřív deaktivuju ostatní
     if ($(this).hasClass("radio")) {
-      $(".upsale-button.radio").removeClass("active");
+      $(".upsale-button.radio ").removeClass("active");
     }
     $(this).addClass("active");
     $("select.surcharge-parameter.parameter-id-" + value[0]).val(value[1]);
@@ -470,6 +473,7 @@ $(document).on("click", ".upsale-button", function (e) {
   }, 100);
   setTimeout(() => {
     calculateStandartPrice(diference);
+    createUpsalePopup();
   }, 200);
 });
 $(document).on("click", ".box-config .close-btn", function () {
@@ -802,31 +806,6 @@ function condown(time, selector) {
   const countdownInterval = setInterval(updateCountdown, 1000);
   updateCountdown();
 }
-function createUpsalePopup() {
-  createPop();
-  $(".ti-widget-container").addClass("upsale");
-  $("<div>", {
-    class: "h2",
-    text: "Iba teraz za zvýhodnenú cenu!",
-  }).appendTo(".ti-widget-container");
-  $("<div>", {
-    class: "description",
-    text: " Doplňte svoju objednávku o kufrové koberčeky alebo úložné boxy s výraznou zľavou. Ponuka platí len chvíľu!",
-  }).appendTo(".ti-widget-container");
-  $("<div>", {
-    class: "button btn open-upsale",
-    text: "Využiť zvýhodnenú ponuku!",
-  }).appendTo(".ti-widget-container");
-  $("<div>", {
-    class: "prefix",
-    text: "Len počas tejto objednávky môžete získať koberčeky do kufra alebo úložné boxy za extrémne zvýhodnenú cenu. Chráňte a organizujte svoj kufor so štýlom!",
-  }).appendTo(".ti-widget-container");
-
-  $(".button.btn.open-upsale").on("click", function () {
-    $(".overflow").remove();
-    $(".upsale-wrap").addClass("active");
-  });
-}
 
 function createModelInfo() {
   if ($("#model-info")[0]) return;
@@ -923,7 +902,24 @@ function createpopup() {
     click: function () {
       overflow.fadeOut(200, function () {
         $(this).remove();
+
+        let scrollselector = ".col-xs-12.col-lg-6.p-info-wrapper";
+        if ($("body").hasClass("mobile")) {
+          scrollselector = ".p-thumbnails-wrapper";
+        }
+        // vyscrollovat na #model-selector
+        $("html, body").animate(
+          {
+            scrollTop: $(scrollselector).offset().top,
+          },
+          500
+        );
+        $("#model-selector").fadeIn(200);
       });
+      $("#model-selector").addClass("errorToCart");
+      setTimeout(() => {
+        $("#model-selector").removeClass("errorToCart");
+      }, 2000);
     },
   }).appendTo(popup);
 
@@ -966,4 +962,30 @@ function calculateStandartPrice(diference) {
   console.log("discount", discount);
   $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
   $(".p-final-price-wrapper .price-standard span").text(NumToPrice(newStandartPrice));
+}
+function createUpsalePopup() {
+  if (!$(".upsale-button.none.active")[1]) return;
+  createPop();
+  $(".ti-widget-container").addClass("upsale");
+  $("<div>", {
+    class: "h2",
+    text: "Iba teraz za zvýhodnenú cenu!",
+  }).appendTo(".ti-widget-container");
+  $("<div>", {
+    class: "description",
+    text: " Doplňte svoju objednávku o kufrové koberčeky alebo úložné boxy s výraznou zľavou. Ponuka platí len chvíľu!",
+  }).appendTo(".ti-widget-container");
+  $("<div>", {
+    class: "button btn open-upsale",
+    text: "Využiť zvýhodnenú ponuku!",
+  }).appendTo(".ti-widget-container");
+  $("<div>", {
+    class: "prefix",
+    text: "Len počas tejto objednávky môžete získať koberčeky do kufra alebo úložné boxy za extrémne zvýhodnenú cenu. Chráňte a organizujte svoj kufor so štýlom!",
+  }).appendTo(".ti-widget-container");
+
+  $(".button.btn.open-upsale").on("click", function () {
+    $(".overflow").remove();
+    $(".upsale-wrap").addClass("active");
+  });
 }
