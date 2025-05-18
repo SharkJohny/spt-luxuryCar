@@ -366,6 +366,7 @@ function createUpsaleButton(img, text, position, value, type, price, prefix) {
 
   let typeClass = type;
   if (type == "config" && value == 0) {
+    typeClass = "none";
   }
 
   if (value == "89-2225") {
