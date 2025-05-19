@@ -122,6 +122,16 @@ export function initProduct(setupData) {
       $(".upsale-buttons").each(function () {
         if (!$(this).find(".active").length) {
           $(this).addClass("errorToCart");
+          const $errorElement = $(".errorToCart:eq(0)");
+          console.log($errorElement.length);
+          if ($errorElement.length) {
+            $("html, body").animate(
+              {
+                scrollTop: $errorElement.offset().top - 100,
+              },
+              500
+            );
+          }
           setTimeout(() => {
             $(this).removeClass("errorToCart");
           }, 2000);
@@ -474,10 +484,10 @@ $(document).on("click", ".upsale-button", function (e) {
   }, 100);
   setTimeout(() => {
     calculateStandartPrice(diference);
-    createUpsalePopup();
   }, 200);
 });
 $(document).on("click", ".box-config .close-btn", function () {
+  if (!optionTest()) return;
   $(this).parents(".upsale-Banner").removeClass("showConf");
   // $(this).parents(".upsale-buttons").addClass("minimalize");
 });
@@ -816,6 +826,8 @@ function createModelInfo() {
     const model = sessionStorage.getItem("model");
     if (model == "Značka Model Rok výroby Typ auta") {
       createpopup();
+      $(".button.option-button").removeClass("active");
+      $(".image-wrap").hide();
     }
   });
 
@@ -843,6 +855,7 @@ function createModelInfo() {
 }
 
 function createpopup() {
+  if ($(".overflow")[0]) return;
   const overflow = $("<div>", {
     class: "overflow",
     style: `
@@ -901,6 +914,7 @@ function createpopup() {
       }
     `,
     click: function () {
+      $(".overflow").remove();
       overflow.fadeOut(200, function () {
         $(this).remove();
 
@@ -918,6 +932,8 @@ function createpopup() {
         $("#model-selector").fadeIn(200);
       });
       $("#model-selector").addClass("errorToCart");
+      // vzroluj o  100px nad nejvrchnější errorToCart
+
       setTimeout(() => {
         $("#model-selector").removeClass("errorToCart");
       }, 2000);
@@ -964,6 +980,13 @@ function calculateStandartPrice(diference) {
   $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
   $(".p-final-price-wrapper .price-standard span").text(NumToPrice(newStandartPrice));
 }
+$("button.btn-conversion.add-to-cart-button").on("click", function (e) {
+  if (!$(".upsale-button.none.active")[1]) return;
+  createUpsalePopup();
+  e.stopPropagation();
+  e.preventDefault();
+});
+
 function createUpsalePopup() {
   if (!$(".upsale-button.none.active")[1]) return;
   createPop();
@@ -989,4 +1012,18 @@ function createUpsalePopup() {
     $(".overflow").remove();
     $(".upsale-wrap").addClass("active");
   });
+}
+
+function optionTest() {
+  let allSelected = true;
+  $(".config-wrap .parameter-wrap:visible").each(function () {
+    if (!$(this).find(".option-button.active").length) {
+      $(this).addClass("errorToCart");
+      allSelected = false;
+      setTimeout(() => {
+        $(this).removeClass("errorToCart");
+      }, 2000);
+    }
+  });
+  return allSelected;
 }

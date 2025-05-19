@@ -47,6 +47,8 @@
   position: relative;
   section#model-selector {
     order: 3;
+    padding: 20px;
+    margin-bottom: 10px;
   }
   section#model-info {
     order: 3;
@@ -469,7 +471,10 @@ span.quantity {
     font-size: 20px;
     padding: 5px 10px;
     background: green;
-    color: white;
+
+    color: #fff;
+    border-radius: 10px;
+    text-transform: capitalize;
   }
 
   .countdown-wrap .label {
@@ -1699,6 +1704,11 @@ a.p-thumbnail {
   .upsale-button {
     border: 1px solid #8080807d;
   }
+  button.btn.btn-lg.btn-conversion.add-to-cart-button {
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+  }
 }
 .type-product {
   .image-container {
@@ -1706,6 +1716,15 @@ a.p-thumbnail {
   }
 }
 
+.box-config {
+  .image-wrap {
+    display: none !important;
+  }
+}
+.box-config {
+  background: #f6f6f6 !important;
+  border-radius: 15px;
+}
 @media (min-width: 768px) {
   .p-info-wrapper .add-to-cart {
     align-items: center;
