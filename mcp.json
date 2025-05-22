@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "browser": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@shoptet/bender-mcp",
+        "--stdio",
+        "--port",
+        "3010",
+        "--protocol",
+        "https"
+      ]
+    }
+  }
+}
