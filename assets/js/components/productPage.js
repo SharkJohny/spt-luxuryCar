@@ -20,6 +20,12 @@ export function initProduct(setupData) {
   if ($(".id-751")[0]) {
     $(".benefitBanner__item").remove();
   }
+
+  if ($("body.desktop").length) {
+    $("video.mobile").remove();
+  } else {
+    $("video.desctop").remove();
+  }
   $(".p-detail-inner .p-detail-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   $(".p-detail-inner .p-detail-inner-header").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   $(".benefitBanner.position--benefitProduct .benefitBanner__item").insertBefore(".col-xs-12.col-lg-6.p-info-wrapper");

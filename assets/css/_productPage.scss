@@ -818,7 +818,10 @@ span.quantity {
     display: grid;
   }
   .layers-info {
-    padding-bottom: 100px;
+    padding-bottom: 30px;
+  }
+  .btn.more-pictures-button {
+    margin-bottom: 50px;
   }
   .content-over-media.aspect-video.shadow-block.rounded-lg.text-custom {
     position: relative;
@@ -1496,7 +1499,7 @@ a.p-thumbnail {
   .media-with-text__item.full-width {
     .container {
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: column;
     }
   }
   .type-product .twentytwenty-wrap.full-width {
