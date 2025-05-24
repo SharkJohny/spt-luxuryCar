@@ -125,7 +125,7 @@ function initModelSelect() {
   const section = $("<section>", {
     id: "model-selector",
   });
-  if ($(".mobile")[0]) {
+  if ($("body.mobile")[0]) {
     $(section).prependTo(insertPosidion);
   } else {
     $(section).insertAfter(insertPosidion);
