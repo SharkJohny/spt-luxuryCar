@@ -17,6 +17,9 @@ const diference = standartPrice - price;
 
 console.log(diference);
 export function initProduct(setupData) {
+  setTimeout(() => {
+    $(".col-xs-12.col-lg-6.p-info-wrapper").addClass("active");
+  }, 1000);
   if ($(".id-751")[0]) {
     $(".benefitBanner__item").remove();
   }
@@ -595,25 +598,26 @@ function firstPage() {
   let hexaurl = $(".detail-parameters tr:contains('hexa') td").text();
   let stripeurl = $(".detail-parameters tr:contains('stripe') td").text();
   console.log(diamondurl);
-  if (diamondurl == "active") {
-    diamondurl = "";
-  }
-  if (hexaurl == "active") {
-    hexaurl = "";
-  }
-  if (stripeurl == "active") {
-    stripeurl = "";
-  }
+  // if (diamondurl == "active") {
+  //   diamondurl = "";
+  // }
+  // if (hexaurl == "active") {
+  //   hexaurl = "";
+  // }
+  // if (stripeurl == "active") {
+  //   stripeurl = "";
+  // }
 
   const diamond = $(
-    `<a href="${diamondurl}" class="button option-button active" data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
+    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`
   ).appendTo(patternsWrap);
   const hexa = $(
-    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
+    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`
   ).appendTo(patternsWrap);
   const stripe = $(
-    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> diamond LINE</div></a>`
+    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`
   ).appendTo(patternsWrap);
+  console.log(diamondurl);
 
   if (diamondurl == "active") {
     diamond.addClass("active");

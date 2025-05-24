@@ -1,3 +1,43 @@
+.p-detail-inner-header {
+  h1 {
+    display: none;
+  }
+}
+
+.col-xs-12.col-lg-6.p-info-wrapper:not(.active) {
+  position: relative;
+  height: 2000px;
+  overflow: hidden;
+  border-radius: 15px;
+}
+
+.col-xs-12.col-lg-6.p-info-wrapper:not(.active)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #eeeeee 25%, #dddddd 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+.col-xs-12.col-lg-6.p-info-wrapper.active::before {
+  opacity: 0;
+}
+@keyframes loading-shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
 .parameter-wrap.parameter-110 {
   .image-wrap {
     display: none !important;
