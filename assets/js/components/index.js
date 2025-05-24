@@ -1,8 +1,8 @@
 export function intIndex() {
   setTimeout(function () {
     $(".twentytwenty-container").twentytwenty({
-      before_label: "Předtím",
-      after_label: "Potom",
+      before_label: "Potom",
+      after_label: "Předtím",
     });
   }, 1000);
 

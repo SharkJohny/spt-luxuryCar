@@ -729,14 +729,25 @@ section#section1 {
 .feature-chart__value.prose.text-subdued {
   padding: 10px 0;
 }
+.more-pictures.slow {
+  display: flex;
+  justify-content: space-between;
+  .image-container {
+    width: 49%;
+    margin: 0;
+  }
+}
 @media screen and (min-width: 700px) {
   section#section6,
   section#section4,
   section#section2 {
-    padding-left: 50px;
-    padding-right: 50px;
+    // padding-left: 50px;
+    // padding-right: 50px;
     .mobile-image {
       order: 2;
+    }
+    .container {
+      padding: 0px !important;
     }
   }
 

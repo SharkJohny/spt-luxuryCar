@@ -82,8 +82,11 @@
   border-radius: 10px;
 }
 .content-over-media.aspect-video.shadow-block.rounded-lg.text-custom video {
-  border-radius: 10px;
+  border-radius: 25px;
   overflow: hidden;
+}
+.layers-info-wrap {
+  margin-bottom: 40px;
 }
 .upsale-button.config.active,
 div#wrap img,

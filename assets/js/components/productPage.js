@@ -495,7 +495,12 @@ $(document).on("click", ".upsale-button", function (e) {
     calculateStandartPrice(diference);
   }, 200);
 });
-$(document).on("click", ".box-config .close-btn", function () {
+
+$(document).on("click", ".close-btn.close", function () {
+  $(this).parents(".upsale-Banner").removeClass("showConf");
+  // $(this).parents(".upsale-buttons").addClass("minimalize");
+});
+$(document).on("click", ".box-config.return", function () {
   if (!optionTest()) return;
   $(this).parents(".upsale-Banner").removeClass("showConf");
   // $(this).parents(".upsale-buttons").addClass("minimalize");
@@ -677,8 +682,10 @@ function createOptions(position, orders) {
   //   }).appendTo("#options-wrap");
   // }
 
+  // změna upsalu
+
   let upsale = 4;
-  if (shoptetData.product.id == 3011 || shoptetData.product.id == 356) {
+  if (shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021) {
     $(".benefitBanner__content").hide();
     upsale = 5;
   }
@@ -775,14 +782,14 @@ function createOptions(position, orders) {
 
 function createBoxConfig() {
   const wrap = $("<div>", {
-    class: "box-config",
+    class: "box-config ",
   }).appendTo(".upsale-buttons.boxs");
 
   $('<div class="order">7</div>').appendTo(wrap);
   $('<h5 class="variant name">FARBA</h5>').appendTo(wrap);
 
   $("<div>", {
-    class: "close-btn",
+    class: "close-btn close",
     text: "-",
   }).appendTo(wrap);
   $("<div>", {
