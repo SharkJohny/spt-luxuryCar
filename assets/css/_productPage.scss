@@ -1692,8 +1692,15 @@ a.p-thumbnail {
     }
   }
   .basic-description .text-with-icons__item.snap-center {
-    width: 100%;
+    width: 50%;
   }
+  .section.section-blends.section-full {
+    .container {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+  }
+
   .p-detail-inner-header h1,
   .justify-self-center h3,
   .section-info h3,
