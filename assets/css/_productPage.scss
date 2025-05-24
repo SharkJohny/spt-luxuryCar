@@ -33,6 +33,11 @@ body.showBody {
   transition: opacity 0.5s ease-in-out;
   pointer-events: none;
 }
+.col-xs-12.col-lg-6.p-info-wrapper {
+  h1 {
+    display: block !important;
+  }
+}
 .col-xs-12.col-lg-6.p-info-wrapper.active::before {
   opacity: 0;
 }

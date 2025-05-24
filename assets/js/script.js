@@ -34,7 +34,7 @@ jQuery(document).ready(function ($) {
 
   setTimeout(() => {
     $("body").addClass("showBody");
-  }, 200);
+  }, 500);
 });
 
 /**
