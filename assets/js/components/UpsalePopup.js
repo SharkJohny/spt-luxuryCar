@@ -65,6 +65,7 @@ export function showUpsalePopup() {
     click: function () {
       $overlay.remove();
       $(".upsale-wrap").addClass("active");
+      upsaleBorder();
     },
   }).appendTo($btnWrap);
   $("<button>", {
@@ -75,15 +76,17 @@ export function showUpsalePopup() {
       $overlay.remove();
       window.allowDirectAddToCart = true;
       var btns = document.querySelectorAll("button.btn.btn-lg.btn-conversion.add-to-cart-button");
+      $("button.btn.btn-lg.btn-conversion.add-to-cart-button").click();
       for (var i = 0; i < btns.length; i++) {
         var btn = btns[i];
         var style = window.getComputedStyle(btn);
         if (style.display !== "none" && style.visibility !== "hidden" && btn.offsetParent !== null) {
-          btn.click();
           break;
         }
       }
-      window.location.href = "/kosik/";
+      setTimeout(function () {
+        window.location.href = "/kosik/";
+      }, 1000);
     },
   }).appendTo($btnWrap);
 
@@ -101,4 +104,22 @@ export function showUpsalePopup() {
     }
   }
   updateTimer();
+}
+
+function upsaleBorder() {
+  // Přidej overlay pro blur, pokud ještě není
+  if (!$(".upsale-blur-overlay").length) {
+    $("body").append('<div class="upsale-blur-overlay"></div>');
+  }
+  // Zvedni z-index upsale-Banner.active
+  $(".upsale-Banner").addClass("active").css("z-index", 10001);
+
+  $(".upsale-Banner.active").on("click", function () {
+    removeUpsaleBorder();
+  });
+}
+
+function removeUpsaleBorder() {
+  $(".upsale-blur-overlay").remove();
+  $(".upsale-Banner").removeClass("active").css("z-index", "");
 }

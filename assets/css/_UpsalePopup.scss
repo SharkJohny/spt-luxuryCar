@@ -9,9 +9,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
   font-family: var(--template-headings-font), sans-serif;
+}
+.upsale-popup-box,
+.upsale-popup-inner {
+  filter: none !important;
+  backdrop-filter: none !important;
 }
 .upsale-popup-box {
   position: relative;
@@ -150,4 +155,27 @@
     font-size: 1.1rem;
     font-weight: 400;
   }
+}
+body.upsale-blur {
+  filter: blur(8px);
+}
+.upsale-blur-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+.upsale-Banner.active {
+  z-index: 10001 !important;
+  position: relative;
+  filter: none !important;
+}
+.upsale-Banner.active {
+  background: white;
+  padding: 5px;
 }
