@@ -1,3 +1,5 @@
+import { showUpsalePopup } from "./UpsalePopup.js";
+
 /**
  * Initializes the product page.
  */
@@ -997,11 +999,24 @@ function calculateStandartPrice(diference) {
   $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
   $(".p-final-price-wrapper .price-standard span").text(NumToPrice(newStandartPrice));
 }
+window.allowDirectAddToCart = false;
+
 $("button.btn-conversion.add-to-cart-button").on("click", function (e) {
-  if (!$(".upsale-button.none.active")[1]) return;
-  createUpsalePopup();
-  e.stopPropagation();
-  e.preventDefault();
+  console.log(window.allowDirectAddToCart);
+  if (window.allowDirectAddToCart) {
+    console.log("allowDirectAddToCart");
+    // povolíme submit, resetujeme flag a dál nic neblokujeme
+    window.allowDirectAddToCart = false;
+    return;
+  } else if ($(".upsale-button.none.active")[1]) {
+    console.log("nenene");
+    showUpsalePopup();
+    e.stopPropagation();
+    e.preventDefault();
+    return;
+  } else {
+    window.location.href = "/kosik/";
+  }
 });
 
 function createUpsalePopup() {
@@ -1044,3 +1059,15 @@ function optionTest() {
   });
   return allSelected;
 }
+
+window.allowDirectAddToCart = false;
+
+// $("button.btn-conversion.add-to-cart-button").on("click", function (e) {
+//   if (!window.allowDirectAddToCart && $(".upsale-button.none.active")[1]) {
+//     showUpsalePopup();
+//     e.stopPropagation();
+//     e.preventDefault();
+//     return;
+//   }
+//   window.allowDirectAddToCart = false; // reset pro další kliknutí
+// });
