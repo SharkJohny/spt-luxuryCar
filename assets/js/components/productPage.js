@@ -678,7 +678,10 @@ function createOptions(position, orders) {
       text: textOption,
       class: "text",
     }).appendTo(optionButton);
-    if (textOption.includes("cm") || textOption.includes("ŽIADNY")) {
+    if (textOption.includes("ŽIADNY")) {
+      return;
+    }
+    if (textOption.includes("cm")) {
       let paramText = nameSplit[1];
       if (paramText == undefined) {
         paramText = "";
