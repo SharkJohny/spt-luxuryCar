@@ -460,7 +460,9 @@ span.quantity {
     margin: 5px;
     cursor: pointer;
     width: calc(33% - 10px);
-    border-radius: 15px;
+
+    border-radius: 25px;
+    border: 5px solid transparent;
 
     .save,
     .price,
@@ -1164,7 +1166,7 @@ div#description {
   .upsale-button.config,
   .upsale-button.radio {
     max-height: 500px;
-    transition: 1s;
+    // transition: 1s;
   }
 }
 // .upsale-buttons.boxs.minimalize,
@@ -1395,6 +1397,7 @@ section.shopify-section.horiz-video.shopify-section--video.full-width {
   background-color: rgba(128, 128, 128, 1);
   border-radius: 15px;
   overflow: hidden;
+  border: none;
   img {
     max-height: 70px;
     margin: auto;

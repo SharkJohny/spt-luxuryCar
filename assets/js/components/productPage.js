@@ -417,95 +417,22 @@ function createUpsaleButton(img, text, position, value, type, price, prefix) {
 // Single event listener for .upsale-button
 $(document).on("click", ".upsale-button", function (e) {
   // Check if the clicked element is within .upsale-buttons.trunk
-
-  $(".image-wrap").remove();
-  const trunk = $(this).closest(".upsale-buttons.trunk");
-  const boxs = $(this).closest(".upsale-buttons.boxs");
-  // Tady buď trunk už minimalizovaný je, tak ho zruším,
-  // nebo ho minimalizuju po kliknutí
-  if (trunk.length) {
-    if (trunk.hasClass("minimalize")) {
-      e.stopPropagation();
-      trunk.removeClass("minimalize");
-    } else {
-      // Zobrazím boxs
-      $(".upsale-buttons.boxs").show();
-      // Po 200ms přidám minimalize
-      setTimeout(() => {
-        trunk.addClass("minimalize");
-      }, 200);
-    }
-  } else if (boxs.length) {
-    if (boxs.hasClass("minimalize")) {
-      e.stopPropagation();
-      boxs.removeClass("minimalize");
-      setTimeout(() => {
-        $(".upsale-Banner.showConf").removeClass("showConf");
-      }, 200);
-    } else {
-    }
-  }
-
-  // Zjistím value
-  const value = $(this).attr("value")?.split("-");
-  console.log(value);
-
-  if (!value) {
-    console.error("Atribut 'value' není dostupný!");
-    return;
-  }
-
-  // Odeberu active ze všech tlačítek v boxs
-  if (boxs.length) {
-    $(".upsale-buttons.boxs .upsale-button").removeClass("active");
-  }
-
-  // Přepínání active
-  if ($(this).hasClass("active")) {
-    $(this).removeClass("active");
-    $("select.surcharge-parameter.parameter-id-" + value[0]).val(0);
-  } else {
-    // Pokud je to radio, nejdřív deaktivuju ostatní
-    if ($(this).hasClass("radio")) {
-      $(".upsale-button.radio ").removeClass("active");
-    }
-    $(this).addClass("active");
-    $("select.surcharge-parameter.parameter-id-" + value[0]).val(value[1]);
-  }
-
-  // Pokud je config, zobrazím konfiguraci
-  if ($(this).hasClass("config")) {
-    $(this).parents(".upsale-Banner").addClass("showConf");
-  }
-
-  // Ukázka, jak schovat/zobrazit nějaké prvky
-  if (value[0] === "conf1") {
-    $(".parameter-wrap.parameter-101.orders-8").hide();
-  } else if (value[0] === "conf2") {
-    $(".parameter-wrap.parameter-101.orders-8").show();
-  }
-
-  // Delay for price update
-  setTimeout(() => {
-    if (typeof shoptet !== "undefined" && shoptet.surcharges?.updatePrices) {
-      shoptet.surcharges.updatePrices();
-    } else {
-      console.warn("Funkce `shoptet.surcharges.updatePrices` není dostupná.");
-    }
-  }, 100);
-  setTimeout(() => {
-    calculateStandartPrice(diference);
-  }, 200);
+  updateUpsale(this, e);
 });
 
 $(document).on("click", ".close-btn.close", function () {
   $(this).parents(".upsale-Banner").removeClass("showConf");
-  // $(this).parents(".upsale-buttons").addClass("minimalize");
+  $("select.parameter-id-95.surcharge-parameter").val(0);
+  $("select.parameter-id-98.surcharge-parameter").val(0);
+  $("select.parameter-id-101.surcharge-parameter").val(0);
+  $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
+  $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
+  $(".config-wrap .option-button").removeClass("active");
+  updateUpsale(this);
 });
-$(document).on("click", ".box-config.return", function () {
+$(document).on("click", ".close-btn.return", function () {
   if (!optionTest()) return;
   $(this).parents(".upsale-Banner").removeClass("showConf");
-  // $(this).parents(".upsale-buttons").addClass("minimalize");
 });
 
 /**
@@ -734,6 +661,7 @@ function createOptions(position, orders) {
     class: "options-wrap",
   }).appendTo(paramerer);
 
+  console.log(options);
   $(options).each(function () {
     const value = $(this).val();
     if (value == "") return;
@@ -750,10 +678,14 @@ function createOptions(position, orders) {
       text: textOption,
       class: "text",
     }).appendTo(optionButton);
-    if (textOption.includes("cm")) {
+    if (textOption.includes("cm") || textOption.includes("ŽIADNY")) {
+      let paramText = nameSplit[1];
+      if (paramText == undefined) {
+        paramText = "";
+      }
       $("<div>", {
         class: "description",
-        html: `<span>${nameSplit[0]}</span><div class='parm'> ${nameSplit[1]}</div><div class='price'>+ ${valueText[1]}</div>`,
+        html: `<span>${nameSplit[0]}</span><div class='parm'> ${paramText}</div><div class='price'>+ ${valueText[1]}</div>`,
       }).appendTo(optionButton);
 
       $(optionButton).addClass("text");
@@ -841,9 +773,12 @@ function createModelInfo() {
   if ($("#model-info")[0]) return;
   const model = sessionStorage.getItem("model");
   console.log(model);
-  $(".content-wrap").on("click", function () {
+  $(".content-wrap").on("click", function (event) {
+    if ($(event.target).closest(".parameter-cars.patterns-wrap").length) {
+      return;
+    }
     const model = sessionStorage.getItem("model");
-    if (model == "Značka Model Rok výroby Typ auta") {
+    if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
       createpopup();
       $(".button.option-button").removeClass("active");
       $(".image-wrap").hide();
@@ -1015,7 +950,9 @@ $("button.btn-conversion.add-to-cart-button").on("click", function (e) {
     e.preventDefault();
     return;
   } else {
-    window.location.href = "/kosik/";
+    document.addEventListener("ShoptetCartUpdated", function () {
+      window.location.href = "/kosik/";
+    });
   }
 });
 
@@ -1071,3 +1008,79 @@ window.allowDirectAddToCart = false;
 //   }
 //   window.allowDirectAddToCart = false; // reset pro další kliknutí
 // });
+function updateUpsale($this, event) {
+  $(".image-wrap").remove();
+  const trunk = $($this).closest(".upsale-buttons.trunk");
+  const boxs = $($this).closest(".upsale-buttons.boxs");
+  // Tady buď trunk už minimalizovaný je, tak ho zruším,
+  // nebo ho minimalizuju po kliknutí
+  if (trunk.length) {
+    if (trunk.hasClass("minimalize")) {
+      event.stopPropagation();
+      trunk.removeClass("minimalize");
+    } else {
+      // Zobrazím boxs
+      $(".upsale-buttons.boxs").show();
+      // Po 200ms přidám minimalize
+      setTimeout(() => {
+        trunk.addClass("minimalize");
+      }, 200);
+    }
+  } else if (boxs.length) {
+    if (boxs.hasClass("minimalize")) {
+      event.stopPropagation();
+      boxs.removeClass("minimalize");
+      setTimeout(() => {
+        $(".upsale-Banner.showConf").removeClass("showConf");
+      }, 200);
+    } else {
+    }
+  }
+
+  // Zjistím value
+  const value = $($this).attr("value")?.split("-");
+  console.log(value);
+
+  if (value) {
+    // Odeberu active ze všech tlačítek v boxs
+    if (boxs.length) {
+      $(".upsale-buttons.boxs .upsale-button").removeClass("active");
+    }
+
+    // Přepínání active
+    if ($($this).hasClass("active")) {
+      $($this).removeClass("active");
+      $("select.surcharge-parameter.parameter-id-" + value[0]).val(0);
+    } else {
+      // Pokud je to radio, nejdřív deaktivuju ostatní
+      if ($($this).hasClass("radio")) {
+        $(".upsale-button.radio ").removeClass("active");
+      }
+      $($this).addClass("active");
+      $("select.surcharge-parameter.parameter-id-" + value[0]).val(value[1]);
+    }
+
+    // Pokud je config, zobrazím konfiguraci
+    if ($($this).hasClass("config")) {
+      $($this).parents(".upsale-Banner").addClass("showConf");
+    }
+
+    // Ukázka, jak schovat/zobrazit nějaké prvky
+    if (value[0] === "conf1") {
+      $(".parameter-wrap.parameter-101.orders-8").hide();
+    } else if (value[0] === "conf2") {
+      $(".parameter-wrap.parameter-101.orders-8").show();
+    }
+  }
+  // Delay for price update
+  setTimeout(() => {
+    if (typeof shoptet !== "undefined" && shoptet.surcharges?.updatePrices) {
+      shoptet.surcharges.updatePrices();
+    } else {
+      console.warn("Funkce `shoptet.surcharges.updatePrices` není dostupná.");
+    }
+  }, 100);
+  setTimeout(() => {
+    calculateStandartPrice(diference);
+  }, 200);
+}

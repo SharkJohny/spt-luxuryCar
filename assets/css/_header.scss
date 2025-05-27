@@ -555,6 +555,22 @@ button.ButtonBase__ButtonContainer-sc-p43e7i-3.euBiGU {
   border-top-color: #1a1a1a;
 }
 @media (min-width: 768px) {
+  .ordering-process {
+    #header .site-name a img {
+      display: block;
+      margin: 0 auto;
+      max-height: 49px;
+    }
+  }
+  .container {
+    position: relative;
+  }
+  .user-action-cart.popup-widget.cart-widget.loader-wrapper {
+    top: 39px;
+    left: unset;
+    z-index: 600;
+    right: -45px;
+  }
   .fitted .navigation-in ul {
     justify-content: center !important;
   }
