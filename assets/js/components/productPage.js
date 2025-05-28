@@ -783,7 +783,9 @@ function createModelInfo() {
     const model = sessionStorage.getItem("model");
     if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
       createpopup();
-      $(".button.option-button").removeClass("active");
+
+      $(".orders-" + $(event.target).closest(".parameter-wrap").find(".order").text() + " .button.option-button").removeClass("active");
+      $(".orders-3 .button.option - button").removeClass("active");
       $(".image-wrap").hide();
     }
   });

@@ -1473,6 +1473,21 @@ a.p-thumbnail {
     margin-bottom: 0 !important;
   }
 }
+.p-final-price-wrapper {
+  margin-top: 20px;
+}
+.p-info-wrapper {
+  margin-top: 20px;
+  .price-final {
+    font-size: 40px;
+    line-height: 1;
+  }
+}
+.p-info-wrapper .price-additional,
+.p-info-wrapper .price-save,
+.p-info-wrapper .price-standard {
+  font-size: 17px;
+}
 @media (min-width: 1500px) {
   .basic-description .section.section-blends.section-dubble.section-full {
     p.h2 span {
