@@ -357,9 +357,18 @@ table.detail-parameters {
         color: #c49b30;
         border-radius: 50%;
         padding: 20px 10px;
-        left: 15px;
-        top: 13px;
+        left: 22%;
+        top: 22%;
+        @media (max-width: 768px) {
+          left: 6px;
+          top: 5px;
+        }
       }
+    }
+  }
+  .button.option-button.lines.active {
+    &:before {
+      display: none;
     }
   }
 }
@@ -1459,6 +1468,11 @@ a.p-thumbnail {
 .p-thumbnails-horizontal .p-thumbnail:before {
   display: none;
 }
+.type-product {
+  .image-container {
+    margin-bottom: 0 !important;
+  }
+}
 @media (min-width: 1500px) {
   .basic-description .section.section-blends.section-dubble.section-full {
     p.h2 span {
@@ -1857,10 +1871,20 @@ a.p-thumbnail {
     width: 90%;
     margin: auto;
   }
-}
-.type-product {
-  .image-container {
-    margin-bottom: 0 !important;
+  .upsale-Banner .upsale-button {
+    border: 1px solid #8080803d;
+    border-radius: 10px;
+  }
+
+  .more-pictures {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    .image-container {
+      width: 100% !important;
+
+      margin-bottom: 10px !important;
+    }
   }
 }
 

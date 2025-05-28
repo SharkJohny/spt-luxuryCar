@@ -729,7 +729,7 @@ section#section1 {
 .feature-chart__value.prose.text-subdued {
   padding: 10px 0;
 }
-.more-pictures.slow {
+.more-pictures {
   display: flex;
   justify-content: space-between;
   .image-container {
@@ -1041,6 +1041,10 @@ section#section1 {
   .section.section-full.bg-custom.full-width .snap-center {
     margin: auto;
     margin-bottom: 0px !important;
+  }
+  section.shopify-section.horiz-video.shopify-section--video.full-width {
+    background-color: #ededed;
+    padding: 10px !important;
   }
 }
 

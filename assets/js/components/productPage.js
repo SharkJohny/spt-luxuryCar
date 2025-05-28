@@ -668,7 +668,9 @@ function createOptions(position, orders) {
     const textOption = $(this).text();
     const valueText = textOption.split("+");
     const nameSplit = valueText[0].split(":");
-
+    if (textOption.includes("ŽIADNY")) {
+      return;
+    }
     const optionButton = $("<div>", {
       class: "button option-button",
       "data-value": value,
@@ -678,9 +680,7 @@ function createOptions(position, orders) {
       text: textOption,
       class: "text",
     }).appendTo(optionButton);
-    if (textOption.includes("ŽIADNY")) {
-      return;
-    }
+
     if (textOption.includes("cm")) {
       let paramText = nameSplit[1];
       if (paramText == undefined) {
