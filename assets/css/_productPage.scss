@@ -11,6 +11,12 @@ body.showBody {
   }
 }
 
+.id-1382 {
+  .mobile-image img {
+    border: none !important;
+  }
+}
+
 a.button.option-button.active {
   pointer-events: none;
 }
@@ -1914,8 +1920,8 @@ a.p-thumbnail {
 }
 
 .upsale-buttons .options-wrap .button.option-button.active:before {
-  left: 7px;
-  top: 6px;
+  left: 17px;
+  top: 15px;
 }
 
 @media (min-width: 768px) {
@@ -1931,4 +1937,40 @@ a.p-thumbnail {
   .text-block .container {
     display: flex;
   }
+}
+
+.box-config {
+  .parameter-wrap {
+    padding: 0 20px;
+  }
+  h5.variant.name {
+    padding: 0px !important;
+  }
+  .options-wrap .button.option-button {
+    width: 17%;
+  }
+  .button.option-button.text {
+    width: 22% !important;
+  }
+  .name-wrap {
+    padding-top: 25px;
+  }
+  .price.price-standart {
+    font-size: 18px;
+    text-align: right;
+    margin-right: 34px;
+    color: #c49b30;
+  }
+}
+.close-btn.close.bottom {
+  font-size: 18px;
+  position: absolute;
+  left: 9px;
+  bottom: 7px;
+  top: unset;
+  background: gray;
+  width: fit-content;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 9px;
 }

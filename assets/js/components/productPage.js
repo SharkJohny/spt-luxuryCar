@@ -1,28 +1,37 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
+import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
 
 /**
  * Initializes the product page.
  */
 
 const standartPrice = Number(
-  $(".p-final-price-wrapper .price-standard span")
-    .text()
-    .replace(/[^0-9]/g, "")
+  $(".p-final-price-wrapper .price-standard span").length
+    ? $(".p-final-price-wrapper .price-standard span")
+        .text()
+        .replace(/[^0-9]/g, "")
+    : 0
 );
 const price = Number(
-  $("span.calculated-price")
-    .text()
-    .replace(/[^0-9]/g, "")
+  $("span.calculated-price").length
+    ? $("span.calculated-price")
+        .text()
+        .replace(/[^0-9]/g, "")
+    : 0
 );
 
 const diference = standartPrice - price;
 
 console.log(diference);
 export function initProduct(setupData) {
+  $(".p-thumbnails-horizontal").addClass("overflow-next");
+
   setTimeout(() => {
-    $(".col-xs-12.col-lg-6.p-info-wrapper").addClass("active");
+    if ($(".col-xs-12.col-lg-6.p-info-wrapper").length) {
+      $(".col-xs-12.col-lg-6.p-info-wrapper").addClass("active");
+    }
   }, 1000);
-  if ($(".id-751")[0]) {
+  if ($(".id-751").length) {
     $(".benefitBanner__item").remove();
   }
 
@@ -31,9 +40,15 @@ export function initProduct(setupData) {
   } else {
     $("video.desctop").remove();
   }
-  $(".p-detail-inner .p-detail-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
-  $(".p-detail-inner .p-detail-inner-header").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
-  $(".benefitBanner.position--benefitProduct .benefitBanner__item").insertBefore(".col-xs-12.col-lg-6.p-info-wrapper");
+  if ($(".p-detail-inner .p-detail-info").length) {
+    $(".p-detail-inner .p-detail-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
+  }
+  if ($(".p-detail-inner .p-detail-inner-header").length) {
+    $(".p-detail-inner .p-detail-inner-header").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
+  }
+  if ($(".benefitBanner.position--benefitProduct .benefitBanner__item").length) {
+    $(".benefitBanner.position--benefitProduct .benefitBanner__item").insertBefore(".col-xs-12.col-lg-6.p-info-wrapper");
+  }
   createModelInfo();
   priplatky(setupData);
 
@@ -368,52 +383,6 @@ function priplatky(setupData) {
   }
 }
 
-/**
- * Creates an upsale button with an image and text, and appends it to the specified position.
- *
- * @param {string} img - The URL of the image to be displayed on the button.
- * @param {string} text - The text to be displayed on the button.
- * @param {jQuery|HTMLElement} position - The element where the button will be appended.
- * @param {number} [value] - Optional value attribute for the button.
- */
-function createUpsaleButton(img, text, position, value, type, price, prefix) {
-  // console.log("price", price);
-  if (!img || !text || !position || !price) {
-    console.error("Invalid parameters passed to createUpsaleButton");
-    return;
-  }
-  // console.log(price.split("/"));
-  let priceText = price.split("/");
-
-  let typeClass = type;
-  if (type == "config" && value == 0) {
-    typeClass = "none";
-  }
-
-  if (value == "89-2225") {
-    typeClass = "radio none";
-  }
-
-  const buttonHTML = `
-    <div class="upsale-button  ${typeClass}" value="${value}">
-      <img src="${img}?2" alt="${text}" />
-   
-      <div class="banner-header"><span>${text}</span>
-    </div>
-  `;
-
-  //   $(position).append(buttonHTML);
-  const button = $(buttonHTML).appendTo(position);
-  if (priceText[0] == "0") return;
-  const save = priceText[1] - priceText[0];
-  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}" >Ušetříte ${NumToPrice(save)}</div>`;
-  if (prefix) {
-    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}>Ušetříte až ${NumToPrice(save)}</div>`;
-  }
-  const positionadd = $(button).find(".banner-header");
-  $(priceHTML).appendTo(positionadd);
-  $(".upsale-Banner").hide();
-}
 // Single event listener for .upsale-button
 $(document).on("click", ".upsale-button", function (e) {
   // Check if the clicked element is within .upsale-buttons.trunk
@@ -430,6 +399,7 @@ $(document).on("click", ".close-btn.close", function () {
   $(".config-wrap .option-button").removeClass("active");
   updateUpsale(this);
 });
+
 $(document).on("click", ".close-btn.return", function () {
   if (!optionTest()) return;
   $(this).parents(".upsale-Banner").removeClass("showConf");
@@ -562,180 +532,6 @@ function firstPage() {
   if (stripeurl == "active") {
     stripe.addClass("active");
   }
-}
-
-/**
- * Creates options for a given position and order.
- *
- * @param {HTMLElement} position - The position element.
- * @param {number} orders - The order number.
- */
-function createOptions(position, orders) {
-  console.log(orders);
-  let name = $(position).parents(".variant-list").find("th").text().trim();
-  if (name == "") {
-    name = $(position).parents(".surcharge-list").find("th").text().trim().replace("?", "");
-  }
-
-  const createSlug = (text) => {
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^\w\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
-  };
-  let slug = createSlug(name);
-
-  const options = $(position).find("option");
-  const parameterId = $(position).attr("data-parameter-id");
-  let optPosition = ".content-wrap";
-
-  // if (orders == 6) {
-  //   console.log("aaaaaaaaaaaaaaaaa");
-  //   const wrapOwerflow = $("<div>", {
-  //     class: "pop-ower",
-  //   }).appendTo(".content-wrap ");
-  //   const popup = $("<div>", {
-  //     class: "pop-up-options",
-  //   }).appendTo(wrapOwerflow);
-  //   $("<div>", {
-  //     class: "close-btn",
-  //     text: "+",
-  //   }).appendTo(popup);
-  //   $("<div>", {
-  //     class: "btn button-more",
-  //     text: "Něco navíc?",
-  //   }).appendTo("#options-wrap");
-  // }
-
-  // změna upsalu
-
-  let upsale = 4;
-  if (shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021) {
-    $(".benefitBanner__content").hide();
-    upsale = 5;
-  }
-  if (orders > upsale) {
-    optPosition = ".config-wrap";
-  }
-  if (orders <= upsale) {
-    $("<div>", {
-      class: `navigatte-button class${orders} ${slug} parameterNav${parameterId}`,
-      "data-option": `option-${orders}`,
-    }).appendTo(".navidation-Wrap");
-  }
-
-  $(".btn.button-more").on("click", function () {
-    $(".pop-ower").addClass("show");
-  });
-  $(".close-btn").on("click", function () {
-    $(".pop-ower").removeClass("show");
-  });
-
-  if (!$(`.orders-${orders}`)[0]) {
-    const wrap = $("<div>", {
-      class: `parameter-wrap parameter-${parameterId} orders-${orders}`,
-      "data-parameterId": parameterId,
-    }).appendTo(optPosition);
-    if (orders <= upsale) {
-      $(wrap).addClass("goToAction");
-      $(wrap).addClass("base-config");
-    }
-    $("<div>", {
-      class: "order",
-      text: orders,
-    }).appendTo(`.parameter-wrap.orders-${orders}`);
-  }
-
-  $(".navigatte-button:eq(0)").addClass("active");
-  const paramerer = `.parameter-wrap.orders-${orders}`;
-
-  $("<h5>", {
-    class: "variant name",
-    text: name,
-  }).appendTo(paramerer);
-  const optionsWrap = $("<div>", {
-    class: "options-wrap",
-  }).appendTo(paramerer);
-
-  console.log(options);
-  $(options).each(function () {
-    const value = $(this).val();
-    if (value == "") return;
-    const textOption = $(this).text();
-    const valueText = textOption.split("+");
-    const nameSplit = valueText[0].split(":");
-    if (textOption.includes("ŽIADNY")) {
-      return;
-    }
-    const optionButton = $("<div>", {
-      class: "button option-button",
-      "data-value": value,
-      "data-variant": parameterId,
-    }).appendTo(optionsWrap);
-    $("<div>", {
-      text: textOption,
-      class: "text",
-    }).appendTo(optionButton);
-
-    if (textOption.includes("cm")) {
-      let paramText = nameSplit[1];
-      if (paramText == undefined) {
-        paramText = "";
-      }
-      $("<div>", {
-        class: "description",
-        html: `<span>${nameSplit[0]}</span><div class='parm'> ${paramText}</div><div class='price'>+ ${valueText[1]}</div>`,
-      }).appendTo(optionButton);
-
-      $(optionButton).addClass("text");
-    } else if (textOption.includes("rad")) {
-      $("<img>", {
-        alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/variants/${parameterId}-${value}.png?8`,
-      }).appendTo(optionButton);
-      $("<div>", {
-        class: "banner-header",
-        html: `<span>${nameSplit[0]}</span><div class='price'>${valueText[1]}</div>`,
-      }).appendTo(optionButton);
-      $(optionButton).addClass("lines");
-    } else if (textOption == "ŽIADNY +0 Kč") {
-      $("<div>", {
-        class: "description",
-        text: valueText[0],
-      }).appendTo(optionButton);
-      $(optionButton).addClass("text");
-    } else {
-      $("<img>", {
-        alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/variants/${parameterId}-${value}.jpg?8`,
-      }).appendTo(optionButton);
-    }
-  });
-}
-
-function createBoxConfig() {
-  const wrap = $("<div>", {
-    class: "box-config ",
-  }).appendTo(".upsale-buttons.boxs");
-
-  $('<div class="order">7</div>').appendTo(wrap);
-  $('<h5 class="variant name">FARBA</h5>').appendTo(wrap);
-
-  $("<div>", {
-    class: "close-btn close",
-    text: "-",
-  }).appendTo(wrap);
-  $("<div>", {
-    class: "close-btn return",
-    text: "potvrdit",
-  }).appendTo(wrap);
-  const configWrap = $("<div>", {
-    class: "config-wrap",
-  }).appendTo(wrap);
 }
 
 function condownMessage(position, time, text) {
@@ -913,6 +709,7 @@ function createpopup() {
 }
 
 function calculateStandartPrice(diference) {
+  1;
   console.log(diference);
   const price = Number(
     $("span.calculated-price")
@@ -938,6 +735,7 @@ function calculateStandartPrice(diference) {
   console.log("discount", discount);
   $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
   $(".p-final-price-wrapper .price-standard span").text(NumToPrice(newStandartPrice));
+  updateBoxPrice();
 }
 window.allowDirectAddToCart = false;
 
@@ -1072,9 +870,13 @@ function updateUpsale($this, event) {
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
     if (value[0] === "conf1") {
-      $(".parameter-wrap.parameter-101.orders-8").hide();
+      $(".parameter-wrap.parameter-101").hide();
+      $(".price.price-standart").attr("data-price", 89);
+      $(".price.price-standart").text(NumToPrice(89));
     } else if (value[0] === "conf2") {
-      $(".parameter-wrap.parameter-101.orders-8").show();
+      $(".parameter-wrap.parameter-101").show();
+      $(".price.price-standart").attr("data-price", 79);
+      $(".price.price-standart").text(NumToPrice(79));
     }
   }
   // Delay for price update
@@ -1088,4 +890,18 @@ function updateUpsale($this, event) {
   setTimeout(() => {
     calculateStandartPrice(diference);
   }, 200);
+}
+
+function updateBoxPrice() {
+  $(".box-config .parameter-wrap").each(function () {
+    const price = Number($(this).find(".price.price-standart").attr("data-price"));
+    const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price"));
+    console.log(price, addPrice);
+    if (addPrice) {
+      $(this)
+        .find(".price.price-standart")
+
+        .text(NumToPrice(price + addPrice));
+    }
+  });
 }

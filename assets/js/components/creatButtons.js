@@ -1,0 +1,301 @@
+/**
+ * Utility functions for button creation and management
+ */
+const ButtonUtils = {
+  /**
+   * Creates a slug from text
+   * @param {string} text - Text to convert to slug
+   * @returns {string} Slugified text
+   */
+  createSlug: (text) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  },
+
+  /**
+   * Creates HTML for price display
+   * @param {number} price - Base price
+   * @param {number} save - Amount saved
+   * @param {boolean} prefix - Whether to show "od" prefix
+   * @returns {string} HTML string for price display
+   */
+  createPriceHTML: (price, save, prefix) => {
+    if (prefix) {
+      return `<div class="price">od ${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetříte až ${NumToPrice(save)}</div>`;
+    }
+    return `<div class="price">${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetříte ${NumToPrice(save)}</div>`;
+  },
+
+  /**
+   * Determines button type class
+   * @param {string} type - Button type
+   * @param {string|number} value - Button value
+   * @returns {string} CSS class for button type
+   */
+  getButtonTypeClass: (type, value) => {
+    if (type === "config" && value === 0) return "none";
+    if (value === "89-2225") return "radio none";
+    return type;
+  },
+};
+
+/**
+ * Creates an upsale button with an image and text, and appends it to the specified position.
+ *
+ * @param {string} img - The URL of the image to be displayed on the button.
+ * @param {string} text - The text to be displayed on the button.
+ * @param {jQuery|HTMLElement} position - The element where the button will be appended.
+ * @param {number} [value] - Optional value attribute for the button.
+ * @param {string} type - Type of the button (radio, config, none)
+ * @param {string} price - Price string in format "price/save"
+ * @param {boolean} prefix - Whether to show "od" prefix in price
+ */
+export function createUpsaleButton(img, text, position, value, type, price, prefix) {
+  if (!img || !text || !position || !price) {
+    console.error("Invalid parameters passed to createUpsaleButton");
+    return;
+  }
+
+  let priceText = price.split("/");
+  let typeClass = type;
+
+  if (type == "config" && value == 0) {
+    typeClass = "none";
+  }
+
+  if (value == "89-2225") {
+    typeClass = "radio none";
+  }
+
+  const buttonHTML = `
+    <div class="upsale-button ${typeClass}" value="${value}">
+      <img src="${img}?2" alt="${text}" />
+      <div class="banner-header"><span>${text}</span>
+    </div>
+  `;
+
+  const button = $(buttonHTML).appendTo(position);
+
+  if (priceText[0] == "0") return;
+
+  const save = priceText[1] - priceText[0];
+  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">Ušetříte ${NumToPrice(save)}</div>`;
+
+  if (prefix) {
+    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])} / ks</div><div class="save" data-save="${save}">Ušetříte až ${NumToPrice(
+      save
+    )}</div>`;
+  }
+
+  const positionadd = $(button).find(".banner-header");
+  $(priceHTML).appendTo(positionadd);
+  $(".upsale-Banner").hide();
+}
+
+/**
+ * Creates options for a given position and order.
+ *
+ * @param {HTMLElement} position - The position element.
+ * @param {number} orders - The order number.
+ */
+export function createOptions(position, orders) {
+  let name = $(position).parents(".variant-list").find("th").text().trim();
+  if (name == "") {
+    name = $(position).parents(".surcharge-list").find("th").text().trim().replace("?", "");
+  }
+
+  const createSlug = (text) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  };
+  let slug = createSlug(name);
+
+  const options = $(position).find("option");
+  const parameterId = $(position).attr("data-parameter-id");
+  let optPosition = ".content-wrap";
+
+  let upsale = 4;
+  if (shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021) {
+    $(".benefitBanner__content").hide();
+    upsale = 5;
+  }
+  if (orders > upsale) {
+    optPosition = ".config-wrap";
+  }
+  if (orders <= upsale) {
+    $("<div>", {
+      class: `navigatte-button class${orders} ${slug} parameterNav${parameterId}`,
+      "data-option": `option-${orders}`,
+    }).appendTo(".navidation-Wrap");
+  }
+
+  $(".btn.button-more").on("click", function () {
+    $(".pop-ower").addClass("show");
+  });
+  $(".close-btn").on("click", function () {
+    $(".pop-ower").removeClass("show");
+  });
+
+  if (!$(`.orders-${orders}`)[0]) {
+    const wrap = $("<div>", {
+      class: `parameter-wrap parameter-${parameterId} orders-${orders}`,
+      "data-parameterId": parameterId,
+    }).appendTo(optPosition);
+    if (orders <= upsale) {
+      $(wrap).addClass("goToAction");
+      $(wrap).addClass("base-config");
+    }
+    $("<div>", {
+      class: "order",
+      text: orders,
+    }).appendTo(`.parameter-wrap.orders-${orders}`);
+  }
+
+  $(".navigatte-button:eq(0)").addClass("active");
+  const paramerer = `.parameter-wrap.orders-${orders}`;
+
+  const nameWrap = $("<div>", {
+    class: "name-wrap",
+  }).appendTo(paramerer);
+  $("<h5>", {
+    class: "variant name",
+    text: name,
+  }).appendTo(nameWrap);
+  const priceWrap = $("<div>", {
+    class: "price-wrap",
+  }).appendTo(nameWrap);
+  console.log(orders);
+  if (parameterId == "98" || parameterId == "101") {
+    let price = 79;
+
+    $("<div>", {
+      class: "price price-standart",
+      text: "od " + NumToPrice(price),
+      "data-price": price,
+    }).appendTo(priceWrap);
+  }
+
+  const optionsWrap = $("<div>", {
+    class: "options-wrap",
+  }).appendTo(paramerer);
+
+  console.log(options);
+  $(options).each(function () {
+    const value = $(this).val();
+    if (value == "") return;
+    const textOption = $(this).text();
+    const valueText = textOption.split("+");
+    const nameSplit = valueText[0].split(":");
+    if (textOption.includes("ŽIADNY")) {
+      return;
+    }
+    const optionButton = $("<div>", {
+      class: "button option-button",
+      "data-value": value,
+      "data-variant": parameterId,
+    }).appendTo(optionsWrap);
+    $("<div>", {
+      text: textOption,
+      class: "text",
+    }).appendTo(optionButton);
+
+    const priceButton = {
+      2258: 0,
+      2261: 10,
+      2264: 30,
+      2267: 45,
+      2270: 0,
+      2273: 10,
+      2276: 30,
+      2279: 45,
+    };
+
+    // if (priceButton[value]) {
+    //   $(`<div class='price'>+ ${NumToPrice(priceButton[value])}</div>`).appendTo(optionButton);
+    // }
+
+    if (textOption.includes("cm")) {
+      let paramText = nameSplit[1];
+      if (paramText == undefined) {
+        paramText = "";
+      }
+      const buttonDescription = $("<div>", {
+        class: "description",
+        html: `<span>${nameSplit[0]}</span><div class='parm'> ${paramText}</div>`,
+      }).appendTo(optionButton);
+
+      let textPrice = priceButton[value] ? priceButton[value] : "";
+
+      if (priceButton[value]) {
+        textPrice = "+ " + NumToPrice(priceButton[value]);
+      }
+
+      $(`<div class='price' data-price="${priceButton[value]}">${textPrice}</div>`).appendTo(buttonDescription);
+
+      $(optionButton).addClass("text");
+    } else if (textOption.includes("rad")) {
+      $("<img>", {
+        alt: `${parameterId}-${value}.jpg`,
+        src: `/user/documents/upload/assets/variants/${parameterId}-${value}.png?8`,
+      }).appendTo(optionButton);
+      $("<div>", {
+        class: "banner-header",
+        html: `<span>${nameSplit[0]}</span><div class='price'>${valueText[1]}</div>`,
+      }).appendTo(optionButton);
+      $(optionButton).addClass("lines");
+    } else if (textOption == "ŽIADNY +0 Kč") {
+      $("<div>", {
+        class: "description",
+        text: valueText[0],
+      }).appendTo(optionButton);
+      $(optionButton).addClass("text");
+    } else {
+      $("<img>", {
+        alt: `${parameterId}-${value}.jpg`,
+        src: `/user/documents/upload/assets/variants/${parameterId}-${value}.jpg?8`,
+      }).appendTo(optionButton);
+    }
+  });
+}
+
+/**
+ * Creates a box configuration for the product page.
+ *
+ * @returns {void}
+ */
+export function createBoxConfig() {
+  const wrap = $("<div>", {
+    class: "box-config ",
+  }).appendTo(".upsale-buttons.boxs");
+
+  $('<div class="order">7</div>').appendTo(wrap);
+  $('<h5 class="variant name">FARBA</h5>').appendTo(wrap);
+
+  $("<div>", {
+    class: "close-btn close",
+    text: "-",
+  }).appendTo(wrap);
+  $("<div>", {
+    class: "close-btn close bottom",
+    text: "Nechci",
+  }).appendTo(wrap);
+  $("<div>", {
+    class: "close-btn return",
+    text: "potvrdit",
+  }).appendTo(wrap);
+  const configWrap = $("<div>", {
+    class: "config-wrap",
+  }).appendTo(wrap);
+}
