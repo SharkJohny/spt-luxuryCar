@@ -166,6 +166,7 @@ export function createOptions(position, orders) {
   $(".navigatte-button:eq(0)").addClass("active");
   const paramerer = `.parameter-wrap.orders-${orders}`;
 
+  console.log(name);
   const nameWrap = $("<div>", {
     class: "name-wrap",
   }).appendTo(paramerer);
@@ -268,6 +269,8 @@ export function createOptions(position, orders) {
       }).appendTo(optionButton);
     }
   });
+  $(".parameter-wrap.parameter-98 h5.variant.name").text("Box 1");
+  $(".parameter-wrap.parameter-101 h5.variant.name").text("Box 2");
 }
 
 /**

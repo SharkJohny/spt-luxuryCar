@@ -1547,9 +1547,7 @@ a.p-thumbnail {
   .parameter-cars.patterns-wrap a.button.option-button {
     border-radius: 32px;
   }
-  .button.option-button.lines {
-    width: 100%;
-  }
+
   .upsale-Banner .upsale-button {
     width: 32%;
 
@@ -1581,10 +1579,6 @@ a.p-thumbnail {
   }
   .upsale-button {
     border: 1px solid #9e9e9e4f;
-  }
-  .upsale-button.active {
-    border: 2px solid #c49b31;
-    border-radius: 16px;
   }
 
   .upsale-Banner .upsale-buttons .parameter-cars .banner-header {
@@ -1896,7 +1890,10 @@ a.p-thumbnail {
     border: 1px solid #8080803d;
     border-radius: 10px;
   }
-
+  .upsale-button.active {
+    border: 2px solid #c49b31;
+    border-radius: 16px;
+  }
   .more-pictures {
     display: flex;
     justify-content: space-between;
@@ -1905,6 +1902,21 @@ a.p-thumbnail {
       width: 100% !important;
 
       margin-bottom: 10px !important;
+    }
+  }
+  .button.option-button.lines {
+    width: calc(33% - 10px);
+  }
+  .box-config .options-wrap .button.option-button {
+    width: calc(20% - 10px) !important;
+    height: auto;
+  }
+  .box-config .options-wrap .button.option-button.text {
+    width: 46% !important;
+    text-align: center;
+    .parm {
+      text-align: center;
+      width: 100%;
     }
   }
 }
