@@ -16,3 +16,20 @@
 @import "upsalePopup";
 /////////////
 @import "responsive"; //responzivita
+
+body {
+  display: none;
+}
+body.showBody {
+  display: block;
+}
+// optimalizace homepage
+@media (min-width: 678px) {
+  .overall-wrapper {
+    overflow: hidden;
+  }
+}
+section#model-selector {
+  margin-left: 0px;
+  margin-right: 0px;
+}

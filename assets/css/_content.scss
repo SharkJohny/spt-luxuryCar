@@ -4,7 +4,8 @@
 .scrollable-with-controls,
 .image-header,
 .pb-col-md-4 a,
-#pobo-all-content .widget-gallery a {
+#pobo-all-content .widget-gallery a,
+.image-container {
   // img {
   //   border: 5px solid var(--color-primary);
   //   border-radius: 25px;
@@ -93,16 +94,20 @@ div#wrap img,
 a.thumbnail-image.p-main-image.cloud-zoom img,
 .media-with-text__media img,
 .slick-slide .image img,
-.image-container img,
 .twentytwenty-wrapper.twentytwenty-horizontal,
 .mobile-image img,
-.content-over-media.group.rounded-sm {
+.image-container img {
   border-radius: 10px !important;
   position: relative !important;
   border: 5px solid var(--color-primary) !important;
   border-radius: 25px !important;
 }
 
+.layers-info-wrap {
+  .image-container img {
+    border: none !important;
+  }
+}
 .main-image {
   max-width: 100%;
   height: auto;

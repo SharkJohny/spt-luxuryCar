@@ -44,51 +44,52 @@ export function intIndex() {
   $("[count-up]").each(function () {
     observer.observe(this);
   });
-  $("collection-list.collection-list").slick({
-    dots: true,
-    centerMode: false,
-    infinite: true,
-    slidesToShow: 3,
-    slidesToScroll: 2,
-    autoplay: true,
-    autoplaySpeed: 4000,
-    arrows: true,
+  setTimeout(function () {
+    $("collection-list.collection-list").slick({
+      dots: true,
+      centerMode: false,
+      infinite: true,
+      slidesToShow: 3,
+      slidesToScroll: 2,
+      autoplay: true,
+      autoplaySpeed: 4000,
+      arrows: true,
 
-    responsive: [
-      {
-        breakpoint: 1480,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
-          arrows: true,
+      responsive: [
+        {
+          breakpoint: 1480,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2,
+            arrows: true,
+          },
         },
-      },
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 3,
+        {
+          breakpoint: 1200,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 3,
+          },
         },
-      },
-      {
-        breakpoint: 770,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+        {
+          breakpoint: 770,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2,
 
-          autoplay: false,
+            autoplay: false,
+          },
         },
-      },
-      {
-        breakpoint: 350,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+        {
+          breakpoint: 350,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
         },
-      },
-    ],
-  });
-
+      ],
+    });
+  }, 1000);
   $("section.foto-slider .image-slider").slick({
     dots: true,
     centerMode: false,

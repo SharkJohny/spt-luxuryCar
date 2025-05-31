@@ -296,9 +296,7 @@ span.shape-diamond.shape--lg.place-self-center {
     font-size: 30px;
     text-transform: uppercase;
   }
-  .content-over-media.group.rounded-sm {
-    margin: 10px;
-  }
+
   .collection-card__content-wrapper.text-custom.place-self-center.text-center {
     // position: absolute;
     // top: 50%;
@@ -770,8 +768,8 @@ section#section1 {
 
 @media (max-width: 768px) {
   .footer-banner section {
-    margin-left: -30px !important;
-    margin-right: -30px;
+    // margin-left: -30px !important;
+    // margin-right: -30px;
     padding: 25px !important;
   }
   .footer-banner section#section5 .images-scrolling__content,
@@ -898,7 +896,7 @@ section#section1 {
       margin-right: -20px;
     }
     .section-stack .content-over-media.group.rounded-sm {
-      margin: 5px;
+      // margin: 5px;
     }
   }
   .banner-header {
@@ -974,7 +972,7 @@ section#section1 {
   }
   .section.section-blends.section-full,
   section#models {
-    padding: 0px 40px !important;
+    padding: 0px 0px !important;
     .scrollable-with-controls {
       padding: 0px;
     }
@@ -1277,6 +1275,76 @@ section#comparison {
     }
     .center {
       border-radius: 15px;
+    }
+  }
+}
+.gray-background {
+  background: #ededed;
+}
+
+section.full-width {
+  width: 99vw;
+}
+
+/////// optimalizovaný kód pro homepage
+
+h2.sec-header {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.slick-slide > div {
+  margin: 10px;
+}
+a.gold-border.collection-card.shadow {
+  overflow: hidden;
+}
+.welcome {
+  .more-pictures.slow {
+    margin-top: 30px;
+  }
+}
+/////
+.layers-info-wrap {
+  position: relative;
+  img {
+    border: none !important;
+  }
+  .image-container {
+    margin-right: 0;
+  }
+  .layers-text {
+    p {
+      font-size: 17px;
+      max-width: 500px;
+      color: #000;
+    }
+    h2 {
+      color: var(--color-primary);
+      font-size: 30px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+  }
+  @media (min-width: 700px) {
+    .layers-text {
+      position: absolute;
+      bottom: 0px;
+    }
+  }
+  @media (max-width: 768px) {
+    .layers-text {
+      position: relative;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 30px 20px 0;
+      p {
+        font-size: 14px;
+      }
+      h2 {
+        font-size: 20px;
+      }
     }
   }
 }

@@ -1,16 +1,16 @@
 {
   "mcpServers": {
     "browser": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@shoptet/bender-mcp",
-        "--stdio",
-        "--port",
-        "3010",
-        "--protocol",
-        "https"
-      ]
+      "defaultUrl": "https://704436.myshoptet.com/",
+      "injectCss": ["/assets/css/luxuryCar.css"],
+      "injectJs": ["/assets/js/script.js"],
+      "outputFolder": "./dist",
+      "proxyUrl": "https://localhost:3012/",
+      "command": "yarn",
+      "args": ["start", "luxurycar"],
+      "options": {
+        "cwd": "/Users/sharkjohny/Base/1.Projects/15.utilites/shoptet-bender"
+      }
     }
   }
 }

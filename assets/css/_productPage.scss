@@ -1,21 +1,14 @@
-body {
-  display: none;
-}
-body.showBody {
-  display: block;
-}
-
 .p-detail-inner-header {
   h1 {
     display: none;
   }
 }
 
-.id-1382 {
-  .mobile-image img {
-    border: none !important;
-  }
-}
+// .id-1382 {
+//   .mobile-image img {
+//     border: none !important;
+//   }
+// }
 
 a.button.option-button.active {
   pointer-events: none;
@@ -971,42 +964,7 @@ span.quantity {
   .prose .h2 {
     color: var(--color-primary);
   }
-  .layers-info-wrap {
-    position: relative;
-    img {
-      border: none !important;
-    }
-    .image-container {
-      margin-right: 0;
-    }
-    .layers-text {
-      p {
-        font-size: 17px;
-        max-width: 500px;
-      }
-      h2 {
-        color: var(--color-primary);
-        font-size: 30px;
-        text-transform: uppercase;
-        font-weight: 400;
-      }
-    }
-    @media (max-width: 768px) {
-      .layers-text {
-        position: relative;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 30px 20px 0;
-        p {
-          font-size: 14px;
-        }
-        h2 {
-          font-size: 20px;
-        }
-      }
-    }
-  }
+
   @media screen and (min-width: 700px) {
     .timeline__controls {
       --timeline-dot-size: 1.25rem;
@@ -1527,6 +1485,10 @@ a.p-thumbnail {
   }
 }
 
+.upsale-buttons .options-wrap .button.option-button.active:before {
+  left: 17px;
+  top: 15px;
+}
 @media (max-width: 768px) {
   .text {
     line-height: 1.8;
@@ -1908,16 +1870,27 @@ a.p-thumbnail {
     width: calc(33% - 10px);
   }
   .box-config .options-wrap .button.option-button {
-    width: calc(20% - 10px) !important;
-    height: auto;
+    width: 50px !important;
+    height: 50px;
   }
-  .box-config .options-wrap .button.option-button.text {
-    width: 46% !important;
-    text-align: center;
-    .parm {
+  .box-config .options-wrap {
+    .button.option-button.text {
+      width: 46% !important;
       text-align: center;
-      width: 100%;
+      .parm {
+        text-align: center;
+        width: 100%;
+      }
     }
+    .button.option-button.active:before {
+      left: 1px;
+      top: 1px;
+    }
+  }
+  .col-xs-12.col-lg-6.p-info-wrapper section#model-selector {
+    order: 3;
+    padding: 0px;
+    margin-bottom: 0px;
   }
 }
 
@@ -1929,11 +1902,6 @@ a.p-thumbnail {
 .box-config {
   background: #f6f6f6 !important;
   border-radius: 15px;
-}
-
-.upsale-buttons .options-wrap .button.option-button.active:before {
-  left: 17px;
-  top: 15px;
 }
 
 @media (min-width: 768px) {
