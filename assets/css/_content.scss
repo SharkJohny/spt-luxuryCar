@@ -102,6 +102,16 @@ a.thumbnail-image.p-main-image.cloud-zoom img,
   border: 5px solid var(--color-primary) !important;
   border-radius: 25px !important;
 }
+// .mobile-image {
+//   overflow: hidden;
+//   img {
+//     margin: -10px;
+//   }
+// }
+
+.mobile-image.no-border img {
+  border: none !important;
+}
 
 .layers-info-wrap {
   .image-container img {
