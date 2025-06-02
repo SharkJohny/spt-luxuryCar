@@ -140,7 +140,7 @@ export function initProduct(setupData) {
   //   }).appendTo(image);
   // });
 
-  $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
+  $(".upsale-buttons button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
     if (!$(".upsale-buttons .active")[1]) {
       e.preventDefault();
       e.stopPropagation();
@@ -177,21 +177,17 @@ function priplatky(setupData) {
     $("<div>", {
       class: "upsale-wrap",
     }).insertAfter(".detail-parameters");
+    createUpsaleInfo();
 
-    const upsaleBanner = $("<div>", {
-      class: "upsale-Banner",
-    }).insertAfter(".detail-parameters");
-    const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
-    $('<icon class="icon">!</icon>').appendTo(bannerWrap);
-    $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
-    $("<span>").text("Ušetri až 40 % na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
     if ($(".parameter-id-89")[0]) {
       // $(upsaleBanner).hide();
       // condownMessage(upsaleBanner, 30, "Zvýhodněná nabídka na přislušenství platí ještě: ");
 
+      $("body").addClass("upsale-page");
+
       const buttonWrap = $("<div>", {
         class: "upsale-buttons position-wrap parameter-cars parameter-wrap trunk",
-      }).appendTo(upsaleBanner);
+      }).appendTo(".upsale-Banner");
       $(`<div class="order">${order}</div>`).appendTo(buttonWrap);
       $('<h5 class="variant name">autokoberce do kufru</h5>').appendTo(buttonWrap);
       const parameterWrap = $("<div>", {
@@ -230,7 +226,7 @@ function priplatky(setupData) {
       order += 1;
       const buttonWrapBox = $("<div>", {
         class: "upsale-buttons position-wrap parameter-cars parameter-wrap boxs",
-      }).appendTo(upsaleBanner);
+      }).appendTo(".upsale-Banner");
       $(`<div class="order">${order}</div>`).appendTo(buttonWrapBox);
       $('<h5 class="variant name">boxy do kufra</h5>').appendTo(buttonWrapBox);
       const parameterWrap2 = $("<div>", {
@@ -264,7 +260,12 @@ function priplatky(setupData) {
     const pairVariantList = JSON.parse(setupData.settings.pairVariantList);
     const pairedOrders = {};
     let orders = 2;
+    const header = $("h1").text();
+    if (header.includes("box")) {
+      orders = 1;
 
+      createOptions("box", orders);
+    }
     createBoxConfig();
 
     $(".detail-parameters .variant-list select").each(function () {
@@ -272,6 +273,13 @@ function priplatky(setupData) {
       const position = this;
       createOptions(position, orders);
     });
+
+    if (header.includes("box")) {
+      orders += 1;
+      createOptions("sizes", orders);
+      return;
+    }
+
     $(".detail-parameters .surcharge-list select").each(function () {
       const id = $(this).attr("data-parameter-id");
 
@@ -300,52 +308,7 @@ function priplatky(setupData) {
       createOptions(position, orders);
       console.log(pairVariantList);
     });
-
-    $(".button.option-button").on("click", function () {
-      createModelInfo();
-      $(this).parents(".parameter-wrap").removeClass("goToAction");
-      $("body").removeClass("disabled-add-to-cart");
-      const value = $(this).attr("data-value");
-      const variant = $(this).attr("data-variant");
-      $(this).addClass("active").siblings().removeClass("active");
-      const parameterId = $(this).parents(".parameter-wrap").attr("data-parameterid");
-      const image = $(this).find("img").attr("src");
-      $(".navigatte-button.parameterNav" + parameterId).attr("style", " background-image: url(" + image + ");");
-      console.log(parameterId);
-      $(".parameter-id-" + variant).val(value);
-      shoptet.surcharges.updatePrices();
-      if (variant == 4) {
-      }
-      const image2 = $(this).find("img").attr("src");
-      console.log(image2);
-
-      $(".image-wrap").remove();
-
-      const imageWrap = $("<div>", {
-        class: "image-wrap",
-      })
-        .appendTo(".parameter-wrap.parameter-" + parameterId)
-        .fadeIn(1000);
-      $("<img>", { src: image2 }).appendTo(imageWrap);
-
-      calculateStandartPrice(diference);
-
-      if (!$(".goToAction")[0]) {
-        console.log("goToAction");
-
-        $(".upsale-Banner").fadeIn(400);
-
-        $(".upsale-Banner").show();
-        $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").hide();
-
-        if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
-          $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").show();
-        }
-        if (!$(".parameter-id-89")[0]) {
-          $(".upsale-buttons.boxs").show();
-        }
-      }
-    });
+    console.log("clickaaaa");
 
     if ($("html[lang='cs']").length) {
       $(".p-variants-block .surcharge-list:contains('Velikost boxu') option[data-index='0']").text("Zvolte velikost boxu");
@@ -435,6 +398,10 @@ function firstPage() {
     $("select.parameter-id-22.surcharge-parameter").val(value);
     typeVal = value;
   }
+
+  const header = $("h1").text();
+  if (header.includes("box")) return;
+
   const pageWrap = $("<div>", {
     class: "position-wrap parameter-cars parameter-wrap  base-config active",
   }).appendTo(".content-wrap");
@@ -578,6 +545,11 @@ function createModelInfo() {
     }
     const model = sessionStorage.getItem("model");
     if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
+      const name = $("h1").text();
+      if (name.includes("box") || name.includes("Boxy")) {
+        return;
+      }
+
       createpopup();
 
       $(".orders-" + $(event.target).closest(".parameter-wrap").find(".order").text() + " .button.option-button").removeClass("active");
@@ -709,8 +681,9 @@ function createpopup() {
 }
 
 function calculateStandartPrice(diference) {
-  1;
+  setTimeout(() => {}, 1000);
   console.log(diference);
+
   const price = Number(
     $("span.calculated-price")
       .text()
@@ -739,7 +712,7 @@ function calculateStandartPrice(diference) {
 }
 window.allowDirectAddToCart = false;
 
-$("button.btn-conversion.add-to-cart-button").on("click", function (e) {
+$(" button.btn-conversion.add-to-cart-button").on("click", function (e) {
   console.log(window.allowDirectAddToCart);
   if (window.allowDirectAddToCart) {
     console.log("allowDirectAddToCart");
@@ -903,5 +876,85 @@ function updateBoxPrice() {
 
         .text(NumToPrice(price + addPrice));
     }
+  });
+}
+
+function createUpsaleInfo() {
+  const upsaleBanner = $("<div>", {
+    class: "upsale-Banner",
+  }).insertAfter(".detail-parameters");
+  const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
+  $('<icon class="icon">!</icon>').appendTo(bannerWrap);
+
+  const productName = $("h1").text().toLowerCase();
+
+  if (productName.includes("kufr")) {
+    $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
+    $("<span>")
+      .text(
+        "Vytvorte si svoj vlastný set – rohož do kufra spolu s kobercami pod sedadlá – a získajte zľavu až 40 %. Kliknite na chcem set so zľavou a využite túto výhodnú ponuku!."
+      )
+      .appendTo(bannerWrap);
+    $('<a href="/luxusne-autokoberce-dragonskin-elite-diamond-line/" class="btn btn-lg gold-button">chcem set so zľavou</a>').appendTo(bannerWrap);
+  } else {
+    $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
+    $("<span>").text("Ušetri až 40 % na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
+  }
+}
+$("body").on("click", ".button.option-button", function () {
+  console.log("click");
+  createModelInfo();
+
+  $(this).parents(".parameter-wrap").removeClass("goToAction");
+  $("body").removeClass("disabled-add-to-cart");
+  $(this).addClass("active").siblings().removeClass("active");
+  priceActualization();
+
+  setTimeout(() => {
+    calculateStandartPrice(diference);
+  }, 100);
+
+  if (!$(".goToAction")[0]) {
+    console.log("goToAction");
+
+    $(".upsale-Banner").fadeIn(400);
+
+    $(".upsale-Banner").show();
+    $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").hide();
+
+    if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
+      $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").show();
+    }
+    if (!$(".parameter-id-89")[0]) {
+      $(".upsale-buttons.boxs").show();
+    }
+  }
+});
+function priceActualization() {
+  $(".surcharge-list select").val(0);
+  $(".button.option-button.active").each(function () {
+    const value = $(this).attr("data-value");
+    const variant = $(this).attr("data-variant");
+
+    const parameterId = $(this).parents(".parameter-wrap").attr("data-parameterid");
+    const image = $(this).find("img").attr("src");
+    $(".navigatte-button.parameterNav" + parameterId).attr("style", " background-image: url(" + image + ");");
+    console.log(parameterId);
+
+    $(".parameter-id-" + variant).val(value);
+    shoptet.surcharges.updatePrices();
+    if (variant == 4) {
+    }
+    const image2 = $(this).find("img").attr("src");
+    console.log(image2);
+
+    $(".image-wrap").remove();
+
+    const imageWrap = $("<div>", {
+      class: "image-wrap",
+    })
+      .appendTo(".parameter-wrap.parameter-" + parameterId)
+      .fadeIn(1000);
+    $("<img>", { src: image2 }).appendTo(imageWrap);
   });
 }

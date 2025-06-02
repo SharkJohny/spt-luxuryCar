@@ -115,6 +115,9 @@ function initHeader() {
 }
 
 function initModelSelect() {
+  const header = $("h1").text();
+  if (header.includes("box")) return;
+
   let insertPosidion = ".in-index .content-wrapper.container:eq(1)";
   if ($(".mobile")[0]) {
     insertPosidion = ".in-index .row.banners-content.body-banners";

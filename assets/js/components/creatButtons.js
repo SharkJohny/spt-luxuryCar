@@ -105,7 +105,14 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
  * @param {number} orders - The order number.
  */
 export function createOptions(position, orders) {
-  let name = $(position).parents(".variant-list").find("th").text().trim();
+  let name = "";
+  if (position == "box") {
+    name = "Počet boxov";
+  } else if (position == "sizes") {
+    name = "veľkosť";
+  } else {
+    name = $(position).parents(".variant-list").find("th").text().trim();
+  }
   if (name == "") {
     name = $(position).parents(".surcharge-list").find("th").text().trim().replace("?", "");
   }
@@ -147,7 +154,7 @@ export function createOptions(position, orders) {
   $(".close-btn").on("click", function () {
     $(".pop-ower").removeClass("show");
   });
-
+  // vytvorenie wrapu pre parameter
   if (!$(`.orders-${orders}`)[0]) {
     const wrap = $("<div>", {
       class: `parameter-wrap parameter-${parameterId} orders-${orders}`,
@@ -188,11 +195,117 @@ export function createOptions(position, orders) {
     }).appendTo(priceWrap);
   }
 
+  amountChoser(position, priceWrap);
+
   const optionsWrap = $("<div>", {
     class: "options-wrap",
   }).appendTo(paramerer);
 
   console.log(options);
+
+  createOptionButtons(options, parameterId, optionsWrap);
+
+  if (name == "veľkosť") {
+    $(".surcharge-list").each(function () {
+      const parameterId = $(this).find("select").attr("data-parameter-id");
+      console.log(parameterId);
+      const parametrWraps = $("<div>", {
+        class: "parameter-wrap parameter-sizes",
+        "data-parameterId": parameterId,
+      }).appendTo(optionsWrap);
+      const surchargeName = $(this).find("th").text().trim().replace("?", "");
+      $("<div>", {
+        class: "variant name",
+        text: surchargeName,
+      }).appendTo(parametrWraps);
+      const optionWrap = $("<div>", {
+        class: "option-wrap",
+      }).appendTo(parametrWraps);
+      const options = $(this).find("option");
+      createOptionButtons(options, parameterId, optionWrap);
+    });
+
+    $(".parameter-wrap.parameter-sizes").eq(2).hide();
+  }
+
+  $(".parameter-wrap.parameter-98 h5.variant.name").text("Box 1");
+  $(".parameter-wrap.parameter-101 h5.variant.name").text("Box 2");
+}
+
+/**
+ * Creates a box configuration for the product page.
+ *
+ * @returns {void}
+ */
+export function createBoxConfig() {
+  const wrap = $("<div>", {
+    class: "box-config ",
+  }).appendTo(".upsale-buttons.boxs");
+
+  $('<div class="order">7</div>').appendTo(wrap);
+  $('<h5 class="variant name">FARBA</h5>').appendTo(wrap);
+
+  $("<div>", {
+    class: "close-btn close",
+    text: "-",
+  }).appendTo(wrap);
+  $("<div>", {
+    class: "close-btn close bottom",
+    text: "Nechci",
+  }).appendTo(wrap);
+  $("<div>", {
+    class: "close-btn return",
+    text: "potvrdit",
+  }).appendTo(wrap);
+  const configWrap = $("<div>", {
+    class: "config-wrap",
+  }).appendTo(wrap);
+}
+
+function amountChoser(name, position) {
+  if (name != "box") {
+    return;
+  }
+  let amount = 3;
+  const amountWrap = $("<div>", {
+    class: "amount-wrap",
+  }).appendTo(position);
+
+  for (let i = 1; i <= amount; i++) {
+    $("<div>", {
+      class: "button option-button   amount-button" + (i === 2 ? " active" : ""),
+      text: i,
+
+      click: function () {
+        $(".amount-button").removeClass("active");
+        $(this).addClass("active");
+        amount = i;
+
+        // $("input.amount").val(i).trigger("change");
+        $(".image-wrap").hide();
+        if (i == 1) {
+          $(".parameter-wrap.parameter-sizes").eq(1).hide();
+          $(".parameter-wrap.parameter-sizes").eq(2).hide();
+          $(".parameter-wrap.parameter-sizes:eq(1) .button.option-button.text.active").removeClass("active");
+          $(".parameter-wrap.parameter-sizes:eq(2) .button.option-button.text").removeClass("active");
+          priceActualization();
+        } else if (i == 2) {
+          $(".parameter-wrap.parameter-sizes").eq(1).show();
+          $(".parameter-wrap.parameter-sizes").eq(2).hide();
+          $(".parameter-wrap.parameter-sizes:eq(2) .button.option-button.text").removeClass("active");
+          priceActualization();
+        } else if (i == 3) {
+          $(".parameter-wrap.parameter-sizes").eq(1).show();
+          $(".parameter-wrap.parameter-sizes").eq(2).show();
+          priceActualization();
+        }
+      },
+    }).appendTo(amountWrap);
+    $("input.amount").val(2);
+  }
+}
+
+function createOptionButtons(options, parameterId, optionsWrap) {
   $(options).each(function () {
     const value = $(this).val();
     if (value == "") return;
@@ -269,36 +382,4 @@ export function createOptions(position, orders) {
       }).appendTo(optionButton);
     }
   });
-  $(".parameter-wrap.parameter-98 h5.variant.name").text("Box 1");
-  $(".parameter-wrap.parameter-101 h5.variant.name").text("Box 2");
-}
-
-/**
- * Creates a box configuration for the product page.
- *
- * @returns {void}
- */
-export function createBoxConfig() {
-  const wrap = $("<div>", {
-    class: "box-config ",
-  }).appendTo(".upsale-buttons.boxs");
-
-  $('<div class="order">7</div>').appendTo(wrap);
-  $('<h5 class="variant name">FARBA</h5>').appendTo(wrap);
-
-  $("<div>", {
-    class: "close-btn close",
-    text: "-",
-  }).appendTo(wrap);
-  $("<div>", {
-    class: "close-btn close bottom",
-    text: "Nechci",
-  }).appendTo(wrap);
-  $("<div>", {
-    class: "close-btn return",
-    text: "potvrdit",
-  }).appendTo(wrap);
-  const configWrap = $("<div>", {
-    class: "config-wrap",
-  }).appendTo(wrap);
 }

@@ -13,3 +13,19 @@
   width: fit-content;
   margin-top: 20px;
 }
+
+.gold-button {
+  background: linear-gradient(to right, #aa910a, #c49b31);
+  border-radius: 15px !important;
+  color: white;
+  border-color: $colors-golden;
+  box-shadow: none;
+  &:hover {
+    background: linear-gradient(to right, #c49b31, #aa910a);
+    color: white;
+  }
+}
+a.btn.btn-lg.gold-button {
+  width: 100%;
+  margin-top: 10px;
+}
