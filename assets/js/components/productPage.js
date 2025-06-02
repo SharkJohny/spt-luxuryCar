@@ -726,6 +726,7 @@ $(" button.btn-conversion.add-to-cart-button").on("click", function (e) {
     e.preventDefault();
     return;
   } else {
+    console.log("povolíme submit");
     document.addEventListener("ShoptetCartUpdated", function () {
       window.location.href = "/kosik/";
     });
@@ -931,7 +932,10 @@ $("body").on("click", ".button.option-button", function () {
   }
 });
 function priceActualization() {
-  $(".surcharge-list select").val(0);
+  const header = $("h1").text();
+  if (header.includes("box")) {
+    $(".surcharge-list select").val(0);
+  }
   $(".button.option-button.active").each(function () {
     const value = $(this).attr("data-value");
     const variant = $(this).attr("data-variant");
