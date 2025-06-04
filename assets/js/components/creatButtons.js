@@ -3,22 +3,6 @@
  */
 const ButtonUtils = {
   /**
-   * Creates a slug from text
-   * @param {string} text - Text to convert to slug
-   * @returns {string} Slugified text
-   */
-  createSlug: (text) => {
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^\w\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
-  },
-
-  /**
    * Creates HTML for price display
    * @param {number} price - Base price
    * @param {number} save - Amount saved
@@ -362,7 +346,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else if (textOption.includes("rad")) {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/variants/${parameterId}-${value}.png?8`,
+        src: `/user/documents/upload/assets/imgConfig/${createSlug(valueText[0])}.png?8`,
       }).appendTo(optionButton);
       $("<div>", {
         class: "banner-header",
@@ -378,8 +362,24 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/variants/${parameterId}-${value}.jpg?8`,
+        src: `/user/documents/upload/assets/imgConfig/${createSlug(valueText[0])}.jpg?8`,
       }).appendTo(optionButton);
     }
   });
+}
+/**
+ * Creates a slug from text
+ * @param {string} text - Text to convert to slug
+ * @returns {string} Slugified text
+ */
+function createSlug(text) {
+  console.log(text);
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 }

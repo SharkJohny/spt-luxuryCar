@@ -992,8 +992,8 @@ section#section1 {
     left: -20px;
   }
 
-  .section-stack .slick-prev:before,
-  .section-stack .slick-next:before {
+  .slick-prev:before,
+  .slick-next:before {
     content: "\e910";
     font-size: 24px;
     speak: none;
@@ -1007,7 +1007,7 @@ section#section1 {
     text-transform: none;
     color: var(--color-primary);
   }
-  .section-stack .slick-prev:before {
+  .slick-prev:before {
     transform: rotate(180deg);
   }
   .feature-chart__table.feature-chart__table--multi-columns.divide-y.scroll-area {
@@ -1104,6 +1104,7 @@ h2.divider,
   background-color: var(--color-primary);
   text-transform: uppercase;
   font-size: 20px;
+  left: 0;
 }
 .banner-header {
   background: #000000a1;
@@ -1346,5 +1347,18 @@ a.gold-border.collection-card.shadow {
         font-size: 20px;
       }
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .banner-prefix {
+    position: absolute;
+    top: 20px;
+    color: #fff;
+    padding: 5px 7px;
+    background-color: var(--color-primary);
+    text-transform: uppercase;
+    font-size: 10px;
+    left: 0;
   }
 }

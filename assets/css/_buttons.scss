@@ -29,3 +29,21 @@ a.btn.btn-lg.gold-button {
   width: 100%;
   margin-top: 10px;
 }
+.slick-prev:before,
+.slick-next:before {
+  content: "\e910";
+  font-size: 24px;
+  speak: none;
+  display: inline-block;
+  font-family: shoptet;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 0;
+  text-decoration: none;
+  text-transform: none;
+  color: var(--color-primary);
+}
+.slick-prev:before {
+  transform: rotate(180deg);
+}

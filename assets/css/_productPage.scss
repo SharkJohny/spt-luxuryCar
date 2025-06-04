@@ -1812,7 +1812,7 @@ a.p-thumbnail {
   }
 
   section#model-info .model-info {
-    padding: 10px 80px 10px 50px;
+    padding: 10px 120px 10px 50px;
   }
 
   .upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs {
@@ -1842,8 +1842,8 @@ a.p-thumbnail {
   }
   button.btn.btn-lg.btn-conversion.add-to-cart-button {
     position: absolute;
-    right: 0;
-    bottom: 5px;
+    right: 15px;
+    bottom: 30px;
   }
   #description {
     overflow: hidden;
@@ -1855,10 +1855,20 @@ a.p-thumbnail {
   .upsale-Banner .upsale-button {
     border: 1px solid #8080803d;
     border-radius: 10px;
+    background-color: gray;
+
+    .banner-header {
+      color: white !important;
+    }
+    img {
+      border-radius: 10px;
+    }
   }
   .upsale-button.active {
-    border: 2px solid #c49b31;
-    border-radius: 16px;
+    background-color: rgba(196, 155, 49, 1);
+    .price {
+      color: white !important;
+    }
   }
   .more-pictures {
     display: flex;
@@ -1875,7 +1885,7 @@ a.p-thumbnail {
   }
   .box-config .options-wrap .button.option-button {
     width: 50px !important;
-    height: 50px;
+    // height: 80px;
   }
   .box-config .options-wrap {
     .button.option-button.text {
