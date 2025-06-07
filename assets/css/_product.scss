@@ -1,0 +1,34 @@
+.set.gold-border {
+  overflow: hidden;
+}
+.in-rozcestnik {
+  .main-product .set {
+    width: 98% !important;
+  }
+  .content-inner {
+    max-width: unset;
+  }
+  h2.model {
+    margin-top: 50px;
+    background-image: var(--gradient);
+    color: var(--color-primary);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-align: left;
+    font-size: 40px !important;
+    text-transform: uppercase;
+  }
+}
+.twentytwenty-wrapper.twentytwenty-horizontal {
+  margin-bottom: 50px;
+}
+.product-slider {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  .set.gold-border {
+    width: calc(33% - 20px) !important;
+  }
+}

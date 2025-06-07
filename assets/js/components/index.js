@@ -5,6 +5,7 @@ export function intIndex() {
       after_label: "Předtím",
     });
   }, 1000);
+  $("svg.icon.icon-circle-button-right-clipped").remove();
 
   // Funkce pro přičítání čísel
   function animateCountUp(element, targetNumber, duration) {
@@ -89,7 +90,28 @@ export function intIndex() {
         },
       ],
     });
+
+    // $(".product-slider").slick({
+    //   dots: true,
+    //   centerMode: false,
+    //   infinite: true,
+    //   slidesToShow: 2,
+    //   slidesToScroll: 1,
+    //   autoplay: true,
+    //   autoplaySpeed: 4000,
+    //   arrows: true,
+    //   responsive: [
+    //     {
+    //       breakpoint: 350,
+    //       settings: {
+    //         slidesToShow: 1,
+    //         slidesToScroll: 1,
+    //       },
+    //     },
+    //   ],
+    // });
   }, 1000);
+
   $("section.foto-slider .image-slider").slick({
     dots: true,
     centerMode: false,

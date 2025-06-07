@@ -161,6 +161,12 @@ export function createOptions(position, orders) {
   const nameWrap = $("<div>", {
     class: "name-wrap",
   }).appendTo(paramerer);
+  const getName = $("table.detail-parameters tr:contains(colorTitle) td").text().trim();
+
+  if (parameterId == "107" && getName != "") {
+    name = getName;
+  }
+
   $("<h5>", {
     class: "variant name",
     text: name,
@@ -258,9 +264,10 @@ function amountChoser(name, position) {
   for (let i = 1; i <= amount; i++) {
     $("<div>", {
       class: "button option-button   amount-button" + (i === 2 ? " active" : ""),
-      text: i,
+      text: i + " ks",
 
       click: function () {
+        ąą;
         $(".amount-button").removeClass("active");
         $(this).addClass("active");
         amount = i;
@@ -346,7 +353,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else if (textOption.includes("rad")) {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/imgConfig/${createSlug(valueText[0])}.png?8`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?8`,
       }).appendTo(optionButton);
       $("<div>", {
         class: "banner-header",
@@ -362,7 +369,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/imgConfig/${createSlug(valueText[0])}.jpg?8`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?8`,
       }).appendTo(optionButton);
     }
   });
