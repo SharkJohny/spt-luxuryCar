@@ -209,6 +209,7 @@ span.images-scrolling__counter.bold {
     margin-bottom: 20px;
     width: 70%;
     font-weight: 600;
+    text-transform: uppercase;
   }
   p {
     font-size: 20px;
@@ -661,6 +662,12 @@ video.active {
   margin: auto;
   background-size: contain;
   background-position: center;
+  span {
+    position: absolute;
+    bottom: -30px;
+    width: 100px;
+    color: #c49b30;
+  }
 }
 section.foto-slider.slick-initialized.slick-slider.slick-dotted {
   margin-top: 50px;

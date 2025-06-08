@@ -275,12 +275,29 @@ section#sets {
   section#sets .set {
     position: relative;
     width: calc(50% - 10px);
-    padding: 5px;
   }
   .order-product {
     .set-name {
       font-size: 13px !important;
     }
+  }
+
+  .product-slider {
+    justify-content: center;
+  }
+  .product-slider {
+    margin-top: 5px;
+  }
+  .product-slider .set.gold-border {
+    width: calc(50% - 20px) !important;
+    margin: 10px;
+
+    .banner-header {
+      bottom: 0px;
+    }
+  }
+  .in-rozcestnik h2.model {
+    font-size: 28px !important;
   }
 }
 

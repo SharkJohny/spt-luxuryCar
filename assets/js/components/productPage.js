@@ -889,7 +889,9 @@ function createUpsaleInfo() {
 
   const productName = $("h1").text().toLowerCase();
 
-  if (productName.includes("kufr")) {
+  const idUpsaleBanner = [3024, 3030, 3027];
+
+  if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
     $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
     $("<span>")
       .text(

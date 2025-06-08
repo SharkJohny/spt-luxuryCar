@@ -1410,13 +1410,14 @@ section.shopify-section.horiz-video.shopify-section--video.full-width {
     color: rgba(196, 155, 49, 1);
     font-size: 20px;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 400;
     margin: 0;
     margin-bottom: 10px;
   }
   span {
     font-size: 20px;
     line-height: 1;
+    font-weight: 600;
   }
   icon.icon {
     position: absolute;
@@ -1952,7 +1953,7 @@ a.p-thumbnail {
   .price.price-standart {
     font-size: 18px;
     text-align: right;
-    margin-right: 34px;
+    margin-right: 10px;
     color: #c49b30;
   }
 }
@@ -2044,4 +2045,22 @@ a.p-thumbnail {
       display: none;
     }
   }
+}
+.upsale-buttons .price-wrap {
+  display: flex;
+
+  .price.price-standart {
+    margin-left: 10px;
+  }
+}
+
+.white-background {
+  background: white !important;
+}
+
+.right-text.gray-backgroun {
+  padding: 50px;
+}
+.left-text.white-background {
+  margin-bottom: 0;
 }

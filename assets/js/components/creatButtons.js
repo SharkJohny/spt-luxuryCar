@@ -177,7 +177,7 @@ export function createOptions(position, orders) {
   console.log(orders);
   if (parameterId == "98" || parameterId == "101") {
     let price = 79;
-
+    $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
     $("<div>", {
       class: "price price-standart",
       text: "od " + NumToPrice(price),

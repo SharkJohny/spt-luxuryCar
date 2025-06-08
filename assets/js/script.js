@@ -3,6 +3,7 @@ import { intIndex } from "./components/index.js";
 import { initProduct } from "./components/productPage.js";
 import { stickyPhotos } from "./functions/stickyphotos.js";
 import { errorToCart } from "./functions/errorToCart.js";
+import { initVideoPlayAgain } from "./functions/video-play-again.js";
 // import { initCart } from "./components/cart.js";
 
 let setupData;
@@ -31,6 +32,7 @@ jQuery(document).ready(function ($) {
 
   //stickyPhotos();
   errorToCart();
+  initVideoPlayAgain();
 
   setTimeout(() => {
     $("body").addClass("showBody");

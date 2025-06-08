@@ -185,19 +185,7 @@ export function intIndex() {
     }
   });
 
-  $("video")
-    .parent()
-    .click(function () {
-      if ($(this).children("video").get(0).paused) {
-        $(this).children("video").get(0).play();
-        $(this).children("video").addClass("active");
-        $(this).children(".playpause").fadeOut();
-      } else {
-        $(this).children("video").get(0).pause();
-        $(this).children(".playpause").fadeIn();
-        $(this).children("video").removeClass("active");
-      }
-    });
+  // Video functionality moved to video-play-again.js
 
   $(".hotspot").on("click", function () {
     $(".tooltips").removeClass("show");
