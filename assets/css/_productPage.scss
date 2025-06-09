@@ -809,7 +809,7 @@ span.quantity {
   }
   .section.section-full.bg-custom.icons-package {
     padding: 30px 0 50px;
-    margin: 0 -20px;
+
     text-align: center;
     margin-bottom: 30px;
     h3 {
@@ -2063,4 +2063,8 @@ a.p-thumbnail {
 }
 .left-text.white-background {
   margin-bottom: 0;
+}
+
+.orders-1 .image-wrap {
+  display: none !important;
 }

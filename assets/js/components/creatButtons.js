@@ -267,7 +267,6 @@ function amountChoser(name, position) {
       text: i + " ks",
 
       click: function () {
-        ąą;
         $(".amount-button").removeClass("active");
         $(this).addClass("active");
         amount = i;

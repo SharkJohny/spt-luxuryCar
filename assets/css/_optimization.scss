@@ -1,0 +1,40 @@
+section,
+section#models,
+.layers-info-wrap,
+.section.section-full.bg-custom.full-width,
+.point-wrapper,
+.content-wrapper.homepage-box.middle-banners-wrapper {
+  padding: 50px;
+  margin: 0px !important;
+  .sec-prefix,
+  p {
+    font-size: 20px;
+
+    color: #000;
+  }
+}
+.footer-banners,
+.content-wrapper.homepage-box.welcome-wrapper,
+.section-stack {
+  margin-top: 0px;
+}
+
+.image-container {
+  margin-top: 0px;
+}
+.twentytwenty-wrapper.twentytwenty-horizontal,
+.slick-dotted.slick-slider {
+  margin-bottom: 0px;
+}
+.content-wrapper.homepage-box.welcome-wrapper {
+  padding: 0;
+}
+
+.snap-center .prose p {
+  font-size: 14px !important;
+}
+@media (min-width: 1440px) {
+  .container {
+    width: 1218px;
+  }
+}

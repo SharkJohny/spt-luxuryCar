@@ -1050,7 +1050,6 @@ section#section1 {
 h2.divider,
 .sec-header,
 #comparison h2 {
-  margin-top: 50px;
   background-image: var(--gradient);
   color: var(--color-primary);
   -webkit-box-decoration-break: clone;
@@ -1283,7 +1282,7 @@ section#comparison {
 }
 
 section.full-width {
-  width: 99vw;
+  width: 100vw;
 }
 
 /////// optimalizovaný kód pro homepage
@@ -1329,7 +1328,7 @@ a.gold-border.collection-card.shadow {
   @media (min-width: 700px) {
     .layers-text {
       position: absolute;
-      bottom: 0px;
+      bottom: 30px;
     }
   }
   @media (max-width: 768px) {
