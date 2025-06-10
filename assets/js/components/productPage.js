@@ -140,7 +140,8 @@ export function initProduct(setupData) {
   //   }).appendTo(image);
   // });
 
-  $(".upsale-buttons button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
+  $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
+    if (!$(".upsale-buttons")[0]) return;
     if (!$(".upsale-buttons .active")[1]) {
       e.preventDefault();
       e.stopPropagation();
@@ -163,6 +164,30 @@ export function initProduct(setupData) {
           }, 2000);
         }
       });
+    }
+  });
+
+  $(".content-wrap").on("click", function (event) {
+    console.log("click");
+    if ($(event.target).closest(".parameter-cars.patterns-wrap").length) {
+      return;
+    }
+    const model = sessionStorage.getItem("model");
+    console.log(model);
+    if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
+      const name = $("h1").text();
+      if (name.includes("box") || name.includes("Boxy")) {
+        return;
+      }
+
+      createpopup();
+      setTimeout(() => {
+        // Místo odebrání všech active buttonů v content-wrap
+        // odebereme active pouze z tlačítka, na které se kliklo
+        $(event.target).closest(".button.option-button").removeClass("active");
+      }, 1000);
+
+      $(".image-wrap").hide();
     }
   });
 }
@@ -539,26 +564,8 @@ function createModelInfo() {
   if ($("#model-info")[0]) return;
   const model = sessionStorage.getItem("model");
   console.log(model);
-  $(".content-wrap").on("click", function (event) {
-    if ($(event.target).closest(".parameter-cars.patterns-wrap").length) {
-      return;
-    }
-    const model = sessionStorage.getItem("model");
-    if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
-      const name = $("h1").text();
-      if (name.includes("box") || name.includes("Boxy")) {
-        return;
-      }
 
-      createpopup();
-
-      $(".orders-" + $(event.target).closest(".parameter-wrap").find(".order").text() + " .button.option-button").removeClass("active");
-      $(".orders-3 .button.option - button").removeClass("active");
-      $(".image-wrap").hide();
-    }
-  });
-
-  if (model == "Značka Model Rok výroby Typ auta") {
+  if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
     return;
   }
 

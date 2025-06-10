@@ -13,7 +13,9 @@ const googleRef = `<div class="HeaderContainer__Inner-sc-1532ffp-0 kfmkAH Header
 $.getJSON(optionData.downloadData, function (data) {
   setupData = data;
 
-  console.log(setupData.settings);
+  console.log("setupData:", setupData);
+  console.log("setupData.settings:", setupData.settings);
+  console.log("setupData.cars:", setupData.cars);
   initModelSelect(setupData);
   googleReviews(setupData);
   initProduct(setupData);
@@ -255,8 +257,10 @@ function initModelSelect() {
     } else {
       $(".models option:not(.notselect)").remove();
       const models_for_brand = setupData.cars[$(this).val()];
-      for (let i = 0; i < models_for_brand.length; i++) {
-        $("<option>" + models_for_brand.at(i) + "</option>").appendTo(".models select");
+      if (models_for_brand && Array.isArray(models_for_brand)) {
+        for (let i = 0; i < models_for_brand.length; i++) {
+          $("<option>" + models_for_brand.at(i) + "</option>").appendTo(".models select");
+        }
       }
     }
   });

@@ -33,8 +33,20 @@ section#models,
 .snap-center .prose p {
   font-size: 14px !important;
 }
+
+.banner-header {
+  p {
+    font-size: 14px !important;
+    color: white !important;
+  }
+}
 @media (min-width: 1440px) {
   .container {
     width: 1218px;
+  }
+}
+@media (min-width: 1640px) {
+  .container {
+    width: 1418px;
   }
 }
