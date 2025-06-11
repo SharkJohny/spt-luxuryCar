@@ -9,7 +9,27 @@
 //     border: none !important;
 //   }
 // }
-
+span.price-standard {
+  display: flex;
+}
+.recommended-price {
+  margin-right: 19px;
+}
+.recommended-price-final {
+  font-size: 20px;
+}
+span.price-save {
+  margin-left: 10px;
+}
+span.price-standard {
+  margin-bottom: 10px;
+}
+strong.price-final {
+  display: flex;
+  .recommended-price-final {
+    margin-right: 20px;
+  }
+}
 a.button.option-button.active {
   pointer-events: none;
 }

@@ -24,8 +24,14 @@ const diference = standartPrice - price;
 
 console.log(diference);
 export function initProduct(setupData) {
-  $(".p-thumbnails-horizontal").addClass("overflow-next");
+  setTimeout(() => {
+    $(".p-thumbnails-horizontal").addClass("overflow-next");
+  }, 1000);
 
+  $("<div class='recommended-price'>Doporučená cena</div>").prependTo(".p-info-wrapper span.price-standard");
+
+  $(".price-save:eq(1)").appendTo(".p-info-wrapper span.price-standard");
+  $("<div class='recommended-price-final'>Aktuálna cena</div>").prependTo(".p-info-wrapper .price-final");
   setTimeout(() => {
     if ($(".col-xs-12.col-lg-6.p-info-wrapper").length) {
       $(".col-xs-12.col-lg-6.p-info-wrapper").addClass("active");

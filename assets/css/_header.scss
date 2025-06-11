@@ -300,7 +300,7 @@ header#header {
     // }
     header#header {
       position: fixed;
-      top: 48px;
+      top: 60px;
       left: 0;
       right: 0;
     }
@@ -316,6 +316,21 @@ header#header {
     right: unset;
     top: 0px;
   }
+  a.contact-link {
+    display: block !important;
+    font-size: 20px;
+    position: relative;
+    right: 33px;
+    bottom: 10px;
+    &:before {
+      display: none;
+    }
+  }
+  // .scrolled{
+  //   a.contact-link {
+
+  //     bottom: 0px;
+  // }
 }
 div#menu-widget {
   display: none;
