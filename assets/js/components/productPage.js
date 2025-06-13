@@ -53,7 +53,7 @@ export function initProduct(setupData) {
     $(".p-detail-inner .p-detail-inner-header").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   }
   if ($(".benefitBanner.position--benefitProduct .benefitBanner__item").length) {
-    $(".benefitBanner.position--benefitProduct .benefitBanner__item").insertBefore(".col-xs-12.col-lg-6.p-info-wrapper");
+    $(".benefitBanner.position--benefitProduct .benefitBanner__item").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   }
   createModelInfo();
   priplatky(setupData);
@@ -720,7 +720,7 @@ function calculateStandartPrice(diference) {
   const discount = Math.round(((newStandartPrice - price) / newStandartPrice) * 100);
   console.log("discount", discount);
   $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
-  $(".p-final-price-wrapper .price-standard span").text(NumToPrice(newStandartPrice));
+  $(".p-final-price-wrapper .price-standard span").not(".price-save").text(NumToPrice(newStandartPrice));
   updateBoxPrice();
 }
 window.allowDirectAddToCart = false;

@@ -27,7 +27,7 @@ span.price-standard {
 strong.price-final {
   display: flex;
   .recommended-price-final {
-    margin-right: 20px;
+    margin-right: 40px;
   }
 }
 a.button.option-button.active {
@@ -163,7 +163,7 @@ a.button.option-button.active {
     order: 8;
   }
   .p-short-description {
-    order: 2;
+    order: 1;
     font-size: 20px;
   }
   p[data-testid="productCardDescr"] {
@@ -1059,36 +1059,65 @@ span.quantity {
 div#description p span.text-gradient {
   color: var(--color-primary) !important;
 }
+.col-xs-12.col-lg-6.p-info-wrapper.active {
+  @media (min-width: 480px) {
+    .benefitBanner__item {
+      flex: 0 0 50%;
+      width: 100%;
+      order: 3;
+    }
+  }
+}
 .upsale-text,
 .banner-wrap.upsale {
   position: relative;
   background-size: cover;
   background-position: center;
-  padding: 10px;
+  padding: 20px;
   color: white;
   border-radius: 10px;
+  overflow: hidden;
+  .overlay {
+    background: #00000063;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  .text {
+    z-index: 1;
+    position: relative;
+  }
   .heder.h2,
   h3 {
-    color: white;
+    color: var(--color-primary);
     margin-bottom: 20px;
-    font-size: 20px;
-    margin-top: 30px;
+    font-size: 36px !important;
+    margin-top: 0px;
+    font-weight: 600;
   }
   .btn.button.upsale,
   a.btn {
     color: white;
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
     margin: auto;
+    border-radius: 50px;
     display: block;
     width: max-content;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
+    margin-right: 0;
   }
   .prefix {
     position: absolute;
-    right: 10px;
-    top: 8px;
+    left: 0px;
+    bottom: 0;
+    font-weight: 600;
+    font-size: 17px;
   }
   p {
-    width: 60%;
+    width: 80%;
     text-align: left !important;
   }
 }
@@ -1475,7 +1504,7 @@ a.p-thumbnail {
 .p-info-wrapper .price-additional,
 .p-info-wrapper .price-save,
 .p-info-wrapper .price-standard {
-  font-size: 17px;
+  font-size: 20px;
 }
 @media (min-width: 1500px) {
   .basic-description .section.section-blends.section-dubble.section-full {
@@ -1927,6 +1956,10 @@ a.p-thumbnail {
     padding: 0px;
     margin-bottom: 0px;
   }
+
+  .container-slider .left-column {
+    padding: 0px;
+  }
 }
 
 .box-config {
@@ -1938,7 +1971,9 @@ a.p-thumbnail {
   background: #f6f6f6 !important;
   border-radius: 15px;
 }
-
+.price-standard > span {
+  text-decoration: none;
+}
 @media (min-width: 768px) {
   .p-info-wrapper .add-to-cart {
     align-items: center;

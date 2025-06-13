@@ -250,8 +250,10 @@ function initModelSelect() {
   $(".btn.choice-Model").on("click", function () {
     saveModel(true);
   });
-  $(".surcharge-list").on("change", function () {
-    saveModel(false);
+  $(".surcharge-list").on("click", function () {
+    $(".surcharge-list").on("change", function () {
+      saveModel(false);
+    });
   });
 }
 
@@ -260,14 +262,15 @@ function saveModel(redirect) {
   const Model = $(".surcharge-list.models.dm-selector select").val();
   const Year = $(".surcharge-list.years.dm-selector select").val();
   const type = $(".surcharge-list.type-selector select").val();
-  console.log(Brand + " " + Model + " " + Year);
-  sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
-  sessionStorage.setItem("Brand", Brand);
-  sessionStorage.setItem("Model", Model);
-  sessionStorage.setItem("Year", Year);
+  setTimeout(() => {
+    console.log(Brand + " " + Model + " " + Year);
+    sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
+    sessionStorage.setItem("Brand", Brand);
+    sessionStorage.setItem("Model", Model);
+    sessionStorage.setItem("Year", Year);
 
-  sessionStorage.setItem("carType", type);
-
+    sessionStorage.setItem("carType", type);
+  }, 100);
   if ($(".in-index")[0] && redirect) {
     window.location.href = "/rozcestnik/";
   }
@@ -282,7 +285,7 @@ function googleReviews() {
 
   const google = $("<section/>").attr("id", "goggle-review-wrap").html(googleRef);
   if ($(".mobile")[0]) {
-    google.insertAfter(".in-index .row.banners-content.body-banners");
+    google.appendTo(".row.banners-content.body-banners");
   } else {
     google.insertAfter(".in-index section#model-selector");
   }
