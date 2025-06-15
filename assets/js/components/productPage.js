@@ -146,33 +146,6 @@ export function initProduct(setupData) {
   //   }).appendTo(image);
   // });
 
-  $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
-    if (!$(".upsale-buttons")[0]) return;
-    if (!$(".upsale-buttons .active")[1]) {
-      e.preventDefault();
-      e.stopPropagation();
-      // Přidej errorToCart pouze na ty upsale-buttons, kde není žádné .active tlačítko
-      $(".upsale-buttons").each(function () {
-        if (!$(this).find(".active").length) {
-          $(this).addClass("errorToCart");
-          const $errorElement = $(".errorToCart:eq(0)");
-          console.log($errorElement.length);
-          if ($errorElement.length) {
-            $("html, body").animate(
-              {
-                scrollTop: $errorElement.offset().top - 100,
-              },
-              500
-            );
-          }
-          setTimeout(() => {
-            $(this).removeClass("errorToCart");
-          }, 2000);
-        }
-      });
-    }
-  });
-
   $(".content-wrap").on("click", function (event) {
     console.log("click");
     if ($(event.target).closest(".parameter-cars.patterns-wrap").length) {
@@ -567,7 +540,7 @@ function condown(time, selector) {
 }
 
 function createModelInfo() {
-  if ($("#model-info")[0]) return;
+  if ($("#model-info")[0] || $(".in-index")[0]) return;
   const model = sessionStorage.getItem("model");
   console.log(model);
 
@@ -725,27 +698,6 @@ function calculateStandartPrice(diference) {
 }
 window.allowDirectAddToCart = false;
 
-$(" button.btn-conversion.add-to-cart-button").on("click", function (e) {
-  console.log(window.allowDirectAddToCart);
-  if (window.allowDirectAddToCart) {
-    console.log("allowDirectAddToCart");
-    // povolíme submit, resetujeme flag a dál nic neblokujeme
-    window.allowDirectAddToCart = false;
-    return;
-  } else if ($(".upsale-button.none.active")[1]) {
-    console.log("nenene");
-    showUpsalePopup();
-    e.stopPropagation();
-    e.preventDefault();
-    return;
-  } else {
-    console.log("povolíme submit");
-    document.addEventListener("ShoptetCartUpdated", function () {
-      window.location.href = "/kosik/";
-    });
-  }
-});
-
 function createUpsalePopup() {
   if (!$(".upsale-button.none.active")[1]) return;
   createPop();
@@ -902,7 +854,7 @@ function createUpsaleInfo() {
 
   const productName = $("h1").text().toLowerCase();
 
-  const idUpsaleBanner = [3024, 3030, 3027, 3039, 3033, 3036];
+  const idUpsaleBanner = [3039, 3033, 3036];
 
   if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
     $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);

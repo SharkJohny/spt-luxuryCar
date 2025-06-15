@@ -22,6 +22,7 @@ $.getJSON(optionData.downloadData, function (data) {
   googleReviews(setupData);
   initProduct(setupData);
   addNote();
+  validation();
 });
 
 const logoGoogle =
@@ -38,7 +39,6 @@ jQuery(document).ready(function ($) {
   errorToCart();
   initVideoPlayAgain();
   initCart();
-  validation();
 
   setTimeout(() => {
     $("body").addClass("showBody");

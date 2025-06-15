@@ -2,9 +2,10 @@ import { showUpsalePopup } from "../components/UpsalePopup.js";
 
 export function validation() {
   $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
+    console.log("Validation triggered");
+    boxValidation(e);
     upsaleValidation(e);
     popupValidation(e);
-    boxValidation(e);
   });
 }
 
@@ -35,26 +36,26 @@ function upsaleValidation(e) {
   }
 }
 function popupValidation(e) {
-  $("button.btn-conversion.add-to-cart-button").on("click", function (e) {
-    console.log(window.allowDirectAddToCart);
-    if (window.allowDirectAddToCart) {
-      console.log("allowDirectAddToCart");
-      // povolíme submit, resetujeme flag a dál nic neblokujeme
-      window.allowDirectAddToCart = false;
-      return;
-    } else if ($(".upsale-button.none.active")[1]) {
-      console.log("nenene");
-      showUpsalePopup();
-      e.stopPropagation();
-      e.preventDefault();
-      return;
-    } else {
-      console.log("povolíme submit");
-      document.addEventListener("ShoptetCartUpdated", function () {
-        window.location.href = "/kosik/";
-      });
-    }
-  });
+  console.log("Popup validation triggered");
+
+  console.log(window.allowDirectAddToCart);
+  if (window.allowDirectAddToCart) {
+    console.log("allowDirectAddToCart");
+    // povolíme submit, resetujeme flag a dál nic neblokujeme
+    window.allowDirectAddToCart = false;
+    return;
+  } else if ($(".upsale-button.none.active")[1] || window.allowDirectAddToCart == false) {
+    console.log("nenene");
+    showUpsalePopup();
+    e.stopPropagation();
+    e.preventDefault();
+    return;
+  } else {
+    console.log("povolíme submit");
+    document.addEventListener("ShoptetCartUpdated", function () {
+      window.location.href = "/kosik/";
+    });
+  }
 }
 
 function boxValidation(e) {

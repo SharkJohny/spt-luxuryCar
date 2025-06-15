@@ -2,6 +2,7 @@ export function initCart(setupData) {
   console.log("Cart initialized");
 
   if ($(".id--9")[0]) {
+    $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
     changeDescription();
   }
 }
