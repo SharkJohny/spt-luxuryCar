@@ -2123,3 +2123,18 @@ a.p-thumbnail {
 .orders-1 .image-wrap {
   display: none !important;
 }
+@media (min-width: 1440px) {
+  .type-product .surcharge-list select,
+  .type-product .variant-list select {
+    width: 120px;
+  }
+  .parameter-cars .button.option-button {
+    font-size: 20px;
+  }
+  .upsale-text .heder.h2,
+  .upsale-text h3,
+  .banner-wrap.upsale .heder.h2,
+  .banner-wrap.upsale h3 {
+    font-size: 30px !important;
+  }
+}

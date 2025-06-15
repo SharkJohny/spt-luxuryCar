@@ -352,7 +352,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else if (textOption.includes("rad")) {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?8`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?9`,
       }).appendTo(optionButton);
       $("<div>", {
         class: "banner-header",
@@ -368,7 +368,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?8`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?9`,
       }).appendTo(optionButton);
     }
   });

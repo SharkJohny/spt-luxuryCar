@@ -5,7 +5,8 @@ import { stickyPhotos } from "./functions/stickyphotos.js";
 import { errorToCart } from "./functions/errorToCart.js";
 import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
-// import { initCart } from "./components/cart.js";
+import { initCart } from "./components/cart.js";
+import { validation } from "./functions/validation.js";
 
 let setupData;
 
@@ -36,6 +37,8 @@ jQuery(document).ready(function ($) {
   //stickyPhotos();
   errorToCart();
   initVideoPlayAgain();
+  initCart();
+  validation();
 
   setTimeout(() => {
     $("body").addClass("showBody");
