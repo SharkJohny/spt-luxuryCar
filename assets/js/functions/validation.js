@@ -6,6 +6,7 @@ export function validation() {
     boxValidation(e);
     upsaleValidation(e);
     popupValidation(e);
+    errorToCart(e);
   });
 }
 
@@ -90,5 +91,18 @@ function boxValidation(e) {
     }, 2000);
 
     return;
+  }
+}
+
+function errorToCart(e) {
+  console.log("Error to cart initialized");
+  // Inicializace při načtení DOMu
+
+  if ($(".goToAction")[0]) {
+    $(".goToAction").addClass("errorToCart");
+
+    setTimeout(() => {
+      $(".goToAction").removeClass("errorToCart");
+    }, 2000);
   }
 }

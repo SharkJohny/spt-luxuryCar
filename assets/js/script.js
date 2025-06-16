@@ -36,7 +36,7 @@ jQuery(document).ready(function ($) {
   initSignpost();
 
   //stickyPhotos();
-  errorToCart();
+  // errorToCart();
   initVideoPlayAgain();
   initCart();
 

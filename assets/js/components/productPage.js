@@ -874,7 +874,7 @@ $("body").on("click", ".button.option-button", function () {
   console.log("click");
   createModelInfo();
 
-  $(this).parents(".parameter-wrap").removeClass("goToAction");
+  $(this).parents(".parameter-wrap").removeClass("goToAction").removeClass("errorToCart");
   $("body").removeClass("disabled-add-to-cart");
   $(this).addClass("active").siblings().removeClass("active");
   priceActualization();
