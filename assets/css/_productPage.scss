@@ -4,6 +4,11 @@
   }
 }
 
+.p-info-wrapper {
+  section#model-info {
+    padding: 10px !important;
+  }
+}
 // .id-1382 {
 //   .mobile-image img {
 //     border: none !important;
@@ -1556,6 +1561,8 @@ a.p-thumbnail {
 .in-rozcestnik {
   section#model-info {
     justify-content: center;
+
+    padding: 10px;
   }
 }
 @media (max-width: 1500px) {
