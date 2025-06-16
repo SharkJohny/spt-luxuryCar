@@ -129,15 +129,19 @@ a.button.option-button.active {
     max-width: unset !important;
   }
 }
-
+.p-short-description {
+  p {
+    margin-bottom: 0;
+  }
+}
 .col-xs-12.col-lg-6.p-info-wrapper {
   display: flex;
   flex-direction: column;
   position: relative;
   section#model-selector {
     order: 3;
-    padding: 20px;
-    margin-bottom: 10px;
+    padding: 10px;
+    margin-bottom: 10px !important;
   }
   section#model-info {
     order: 3;
