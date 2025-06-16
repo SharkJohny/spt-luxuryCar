@@ -45,7 +45,7 @@ function popupValidation(e) {
     // povolíme submit, resetujeme flag a dál nic neblokujeme
     window.allowDirectAddToCart = false;
     return;
-  } else if ($(".upsale-button.none.active")[1]) {
+  } else if (!$(".goToAction")[0]) {
     console.log("nenene");
     showUpsalePopup();
     e.stopPropagation();
