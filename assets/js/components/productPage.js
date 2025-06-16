@@ -149,18 +149,17 @@ export function initProduct(setupData) {
   // });
 
   $(".content-wrap").on("click", function (event) {
-    console.log("click");
     if ($(event.target).closest(".parameter-cars.patterns-wrap").length) {
       return;
     }
     const model = sessionStorage.getItem("model");
     console.log(model);
-    if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
+    if (!model || (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta")))) {
       const name = $("h1").text();
       if (name.includes("box") || name.includes("Boxy")) {
         return;
       }
-
+      console.log("click neeeeniiii");
       createpopup();
       setTimeout(() => {
         // Místo odebrání všech active buttonů v content-wrap

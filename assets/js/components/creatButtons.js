@@ -41,6 +41,7 @@ const ButtonUtils = {
  * @param {boolean} prefix - Whether to show "od" prefix in price
  */
 export function createUpsaleButton(img, text, position, value, type, price, prefix) {
+  console.log(img, text, position, price, prefix);
   if (!img || !text || !position || !price) {
     console.error("Invalid parameters passed to createUpsaleButton");
     return;
