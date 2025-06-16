@@ -1074,6 +1074,22 @@ section#section1 {
   section.shopify-section.horiz-video.shopify-section--video.full-width {
     padding: 10px !important;
   }
+  .hotspot:after {
+    content: "+";
+    font-size: 16px !important;
+    color: #fff;
+    position: relative;
+    top: 1px;
+    left: 6px !important;
+  }
+  .hotspot:before {
+    width: 25px !important;
+    height: 25px !important;
+  }
+  .hotspot {
+    width: 20px !important;
+    height: 20px !important;
+  }
 }
 
 .p-detail-inner-header h1,
