@@ -2163,7 +2163,7 @@ a.p-thumbnail {
 @media (min-width: 1440px) {
   .type-product .surcharge-list select,
   .type-product .variant-list select {
-    width: 120px;
+    max-width: 200px;
   }
   .parameter-cars .button.option-button {
     font-size: 20px;
