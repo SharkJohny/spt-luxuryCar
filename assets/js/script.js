@@ -114,6 +114,9 @@ function initModelSelect() {
   if ($(".type-product")[0]) {
     insertPosidion = ".availability-value";
   }
+  if ($(".in-rozcestnik")[0]) {
+    insertPosidion = ".in-rozcestnik #Model-selecte";
+  }
   const getBrand = sessionStorage.getItem("Brand");
   const getModel = sessionStorage.getItem("Model");
   const getYear = sessionStorage.getItem("Year");
@@ -191,7 +194,7 @@ function initModelSelect() {
 
   const button = `<div class='btn choice-Model'>Zvolit model</div>`;
 
-  if ($(".in-index")[0]) {
+  if ($(".in-index")[0] || $(".in-rozcestnik")[0]) {
     $(znacka + model + rocnik + type + button).appendTo(choiceWrap);
   } else {
     $(znacka + model + rocnik + type).appendTo(choiceWrap);

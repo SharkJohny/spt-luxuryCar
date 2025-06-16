@@ -1543,6 +1543,36 @@ a.p-thumbnail {
   left: 17px;
   top: 15px;
 }
+.upsale-Banner .upsale-button .save {
+  top: -65px !important;
+  text-align: left;
+  left: 10px;
+}
+
+.shopify-section.shopify-section--video {
+  padding-left: 0;
+  padding-right: 0;
+}
+.in-rozcestnik {
+  section#model-info {
+    justify-content: center;
+  }
+}
+@media (max-width: 1500px) {
+  .button.option-button.lines .banner-header {
+    font-size: 13px;
+  }
+
+  .options-wrap .button.option-button.active:before {
+    left: 12%;
+    top: 13%;
+  }
+  .upsale-Banner .upsale-button .save {
+    top: -41px !important;
+    left: 20px;
+    font-size: 11px;
+  }
+}
 @media (max-width: 768px) {
   .text {
     line-height: 1.8;

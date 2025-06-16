@@ -24,6 +24,8 @@ const diference = standartPrice - price;
 
 console.log(diference);
 export function initProduct(setupData) {
+  createModelInfo();
+
   setTimeout(() => {
     $(".p-thumbnails-horizontal").addClass("overflow-next");
   }, 1000);

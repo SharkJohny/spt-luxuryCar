@@ -272,6 +272,20 @@ section#sets {
     text-align: center;
   }
 }
+.in-rozcestnik {
+  .main-product {
+    margin-bottom: 40px;
+  }
+  .twentytwenty-wrapper.twentytwenty-horizontal {
+    margin-bottom: 50px;
+  }
+  section#Model-selecte {
+    padding-bottom: 0 !important;
+  }
+  section#sets {
+    padding-top: 0;
+  }
+}
 
 @media (max-width: 768px) {
   .main-product {
