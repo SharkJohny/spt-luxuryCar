@@ -53,6 +53,7 @@ export function initVideoPlayAgain() {
 
     // Kliknutí na video - přehrát/zastavit
     $video.on("click.videoControl", function (e) {
+      console.log("Video clicked");
       e.stopPropagation();
       if (videoEl.paused) {
         pauseOtherVideos(videoEl);
