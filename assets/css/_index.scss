@@ -1119,6 +1119,13 @@ section#section1 {
   .p-image {
     margin-bottom: 20px;
   }
+  .parameter-cars.patterns-wrap {
+    display: flex;
+    padding: 10px 0px 0;
+  }
+  .parameter-cars .button.option-button {
+    margin: 0px;
+  }
 }
 
 .p-detail-inner-header h1,
