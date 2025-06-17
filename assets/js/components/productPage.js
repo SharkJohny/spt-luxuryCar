@@ -600,7 +600,7 @@ function createpopup() {
   }).appendTo(overflow);
 
   $("<h3>", {
-    text: "Prosím, nejdříve vyberte model vašeho vozidla",
+    text: "Prosím, najskôr vyberte model vášho vozidla",
     style: `
       margin-bottom: 30px;
       font-size: 22px;
@@ -611,7 +611,7 @@ function createpopup() {
   }).appendTo(popup);
 
   $("<button>", {
-    text: "Rozumím",
+    text: "Rozumiem",
     class: "btn",
     style: `
       padding: 12px 40px;
@@ -860,14 +860,14 @@ function createUpsaleInfo() {
   if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
     $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
     $("<span>")
-      .text(
-        "Vytvorte si svoj vlastný set – rohož do kufra spolu s kobercami pod sedadlá – a získajte zľavu až 40 %. Kliknite na chcem set so zľavou a využite túto výhodnú ponuku!."
+      .html(
+        "Vytvorte si svoj vlastný set – rohož do kufra spolu s kobercami pod sedadlá – a získajte zľavu <b>až 40 %</b>. Kliknite na chcem set so zľavou a využite túto výhodnú ponuku!."
       )
       .appendTo(bannerWrap);
     $('<a href="/luxusne-autokoberce-dragonskin-elite-diamond-line/" class="btn btn-lg gold-button">chcem set so zľavou</a>').appendTo(bannerWrap);
   } else {
     $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
-    $("<span>").text("Ušetri až 40 % na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
+    $("<span>").html("Ušetri<b> až 40 % </b>na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
   }
 }
 $("body").on("click", ".button.option-button", function () {

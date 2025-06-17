@@ -85,9 +85,9 @@ export function showUpsalePopup() {
           break;
         }
       }
-      setTimeout(function () {
-        window.location.href = "/kosik/";
-      }, 1000);
+      // setTimeout(function () {
+      //   window.location.href = "/kosik/";
+      // }, 1000);
     },
   }).appendTo($btnWrap);
 

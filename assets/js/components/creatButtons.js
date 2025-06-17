@@ -11,9 +11,9 @@ const ButtonUtils = {
    */
   createPriceHTML: (price, save, prefix) => {
     if (prefix) {
-      return `<div class="price">od ${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetříte až ${NumToPrice(save)}</div>`;
+      return `<div class="price">od ${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(save)}</div>`;
     }
-    return `<div class="price">${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetříte ${NumToPrice(save)}</div>`;
+    return `<div class="price">${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
   },
 
   /**
@@ -70,10 +70,10 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
   if (priceText[0] == "0") return;
 
   const save = priceText[1] - priceText[0];
-  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">Ušetříte ${NumToPrice(save)}</div>`;
+  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
 
   if (prefix) {
-    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])} / ks</div><div class="save" data-save="${save}">Ušetříte až ${NumToPrice(
+    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])} / ks</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(
       save
     )}</div>`;
   }
