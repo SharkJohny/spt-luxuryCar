@@ -1104,6 +1104,21 @@ section#section1 {
   .gray-backgroun {
     background: #e91e63;
   }
+  .wide-carousel {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+  .content-wrapper.container .row > div {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+  a.p-thumbnail {
+    padding: 0 3px !important;
+  }
+  .image360,
+  .p-image {
+    margin-bottom: 20px;
+  }
 }
 
 .p-detail-inner-header h1,
