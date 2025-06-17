@@ -1949,9 +1949,9 @@ a.p-thumbnail {
   .p-info-wrapper .add-to-cart {
     justify-content: flex-end;
   }
-  #description {
-    overflow: hidden;
-  }
+  // #description {
+  //   overflow: hidden;
+  // }
   .media-with-text__media {
     width: 90%;
     margin: auto;
@@ -2023,6 +2023,20 @@ a.p-thumbnail {
   .parameter-cars.patterns-wrap {
     padding: 10px 5px 0;
     justify-content: center;
+  }
+
+  .banner-wrap a.btn {
+    margin-top: 40px !important;
+  }
+  .upsale-text .prefix,
+  .banner-wrap.upsale .prefix {
+    bottom: 35px;
+  }
+  .images-scrolling__content p.h1 {
+    font-size: 30px;
+  }
+  .twentytwenty-wrap.full-width {
+    padding: 25px;
   }
 }
 
