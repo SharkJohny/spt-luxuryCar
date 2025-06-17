@@ -53,7 +53,7 @@ export function intIndex() {
       slidesToShow: 3,
       slidesToScroll: 2,
       autoplay: true,
-      autoplaySpeed: 4000,
+      autoplaySpeed: 3000,
       arrows: true,
 
       responsive: [
@@ -77,8 +77,6 @@ export function intIndex() {
           settings: {
             slidesToShow: 1,
             slidesToScroll: 1,
-
-            autoplay: false,
           },
         },
         {
