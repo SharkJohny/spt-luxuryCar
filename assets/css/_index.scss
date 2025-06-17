@@ -788,6 +788,7 @@ section#section1 {
     }
     section#goggle-review-wrap {
       order: 2;
+      padding: 20px 5px !important;
     }
     .col-sm-12 {
       order: 3;
@@ -1089,6 +1090,15 @@ section#section1 {
   .hotspot {
     width: 20px !important;
     height: 20px !important;
+  }
+  .twentytwenty-wrapper.twentytwenty-horizontal {
+    margin-bottom: 20px;
+  }
+  .slick-dots {
+    bottom: -10px;
+  }
+  .gray-backgroun {
+    background: #e91e63;
   }
 }
 

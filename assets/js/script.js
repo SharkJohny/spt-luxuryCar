@@ -116,9 +116,9 @@ function initModelSelect() {
     insertPosidion = ".availability-value";
   }
 
-  if ($(".mobile")[0]) {
+  if ($("body.mobile")[0]) {
     if ($(".in-index")[0]) {
-      insertPosidion = ".in-index .content-wrapper.container:eq(0)";
+      insertPosidion = ".in-index .row.banners-content.body-banners";
     }
     if ($(".in-rozcestnik")[0]) {
       insertPosidion = ".in-rozcestnik #sets";

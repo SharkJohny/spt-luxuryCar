@@ -551,6 +551,7 @@ function createModelInfo() {
 
   if (model) {
     const modelInfo = $("<section>").attr("id", "model-info").insertBefore("section#model-selector");
+
     $("section#model-selector").hide();
     const infoWrap = $("<div>").addClass("model-info").appendTo(modelInfo);
     $("<div>").addClass("header-info").text("Garancia kompatibility s Vaším vozidlom").appendTo(infoWrap);
