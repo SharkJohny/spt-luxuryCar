@@ -2038,6 +2038,13 @@ a.p-thumbnail {
   .twentytwenty-wrap.full-width {
     padding: 25px;
   }
+  .layers-info-wrap {
+    overflow: hidden;
+  }
+  section.full-width {
+    width: 100vw;
+    overflow: hidden;
+  }
 }
 
 .box-config {

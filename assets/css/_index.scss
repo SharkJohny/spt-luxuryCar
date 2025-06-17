@@ -810,7 +810,8 @@ section#section1 {
   .footer-banner section {
     // margin-left: -30px !important;
     // margin-right: -30px;
-    padding: 20px 0px !important;
+    padding: 20px 8px !important;
+    overflow: hidden;
   }
   .footer-banner section#section5 .images-scrolling__content,
   .footer-banner section#section3 .images-scrolling__content,
