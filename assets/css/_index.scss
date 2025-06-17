@@ -323,16 +323,16 @@ span.shape-diamond.shape--lg.place-self-center {
       }
     }
   }
-  .slick-prev:before,
-  .slick-next:before {
-    font-family: "slick";
-    font-size: 20px;
-    line-height: 1;
-    color: gray;
-    opacity: 0.75;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  // .slick-prev:before,
+  // .slick-next:before {
+  //   font-family: "slick";
+  //   font-size: 20px;
+  //   line-height: 1;
+  //   color: gray;
+  //   opacity: 0.75;
+  //   -webkit-font-smoothing: antialiased;
+  //   -moz-osx-font-smoothing: grayscale;
+  // }
 }
 
 .add-comment,
@@ -1406,5 +1406,10 @@ a.gold-border.collection-card.shadow {
     text-transform: uppercase;
     font-size: 10px;
     left: 0;
+  }
+  .product-slider {
+    display: flex;
+    flex-direction: column !important;
+    flex-wrap: wrap !important;
   }
 }

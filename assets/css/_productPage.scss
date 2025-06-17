@@ -93,7 +93,11 @@ a.button.option-button.active {
 .p-detail-inner-header {
   order: 1;
 }
-
+.no-border {
+  video {
+    border: none !important;
+  }
+}
 .type-product {
   p[data-testid="productCardDescr"],
   .ti-dropdown-widget-inner:before,
@@ -1615,7 +1619,9 @@ a.p-thumbnail {
     }
     .save {
       font-size: 10px;
-      top: -50px !important;
+      top: -65px !important;
+      left: 0;
+      text-align: right;
     }
     .banner-header {
       padding-top: 13px;
@@ -1922,7 +1928,8 @@ a.p-thumbnail {
     min-height: 30px;
   }
   .col-xs-12.col-lg-6.p-info-wrapper .p-short-description {
-    order: 0;
+    order: 1;
+    margin-bottom: 20px;
   }
   section#model-selector {
     padding: 10px;
@@ -1932,9 +1939,12 @@ a.p-thumbnail {
     border: 1px solid #8080807d;
   }
   button.btn.btn-lg.btn-conversion.add-to-cart-button {
-    position: absolute;
-    right: 15px;
-    bottom: 30px;
+    position: relative;
+    right: 0px;
+    bottom: -20px;
+  }
+  .p-info-wrapper .add-to-cart {
+    justify-content: flex-end;
   }
   #description {
     overflow: hidden;
@@ -1946,7 +1956,7 @@ a.p-thumbnail {
   .upsale-Banner .upsale-button {
     border: 1px solid #8080803d;
     border-radius: 10px;
-    background-color: gray;
+    background-color: #404040;
 
     .banner-header {
       color: white !important;

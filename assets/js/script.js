@@ -108,15 +108,26 @@ function initModelSelect() {
   if (header.includes("box")) return;
 
   let insertPosidion = ".in-index .content-wrapper.container:eq(1)";
-  if ($(".mobile")[0]) {
-    insertPosidion = ".in-index .row.banners-content.body-banners";
+
+  if ($(".in-rozcestnik")[0]) {
+    insertPosidion = ".in-rozcestnik #Model-selecte";
   }
   if ($(".type-product")[0]) {
     insertPosidion = ".availability-value";
   }
-  if ($(".in-rozcestnik")[0]) {
-    insertPosidion = ".in-rozcestnik #Model-selecte";
+
+  if ($(".mobile")[0]) {
+    if ($(".in-index")[0]) {
+      insertPosidion = ".in-index .content-wrapper.container:eq(0)";
+    }
+    if ($(".in-rozcestnik")[0]) {
+      insertPosidion = ".in-rozcestnik #sets";
+    }
+    if ($(".type-product")[0]) {
+      insertPosidion = ".p-info-wrapper";
+    }
   }
+
   const getBrand = sessionStorage.getItem("Brand");
   const getModel = sessionStorage.getItem("Model");
   const getYear = sessionStorage.getItem("Year");
@@ -278,6 +289,30 @@ function saveModel(redirect) {
     sessionStorage.setItem("carType", type);
   }, 100);
   if ($(".in-index")[0] && redirect) {
+    if (
+      $(".surcharge-list.brands.dm-selector select").val() === cstm_znacka[0] ||
+      $(".surcharge-list.models.dm-selector select").val() === cstm_model[0] ||
+      $(".surcharge-list.years.dm-selector select").val() === cstm_rocnik[0] ||
+      $(".surcharge-list.type-selector select").val() === "Typ auta"
+    ) {
+      if ($(".surcharge-list.brands.dm-selector select").val() === cstm_znacka[0]) {
+        $(".surcharge-list.brands.dm-selector").addClass("errorToCart");
+      }
+      if ($(".surcharge-list.models.dm-selector select").val() === cstm_model[0]) {
+        $(".surcharge-list.models.dm-selector").addClass("errorToCart");
+      }
+      if ($(".surcharge-list.years.dm-selector select").val() === cstm_rocnik[0]) {
+        $(".surcharge-list.years.dm-selector").addClass("errorToCart");
+      }
+      if ($(".surcharge-list.type-selector select").val() === "Typ auta") {
+        $(".surcharge-list.type-selector").addClass("errorToCart");
+      }
+      setTimeout(() => {
+        $(".errorToCart").removeClass("errorToCart");
+      }, 2000);
+
+      return;
+    }
     window.location.href = "/rozcestnik/";
   }
 }
