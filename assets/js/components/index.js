@@ -140,8 +140,6 @@ export function intIndex() {
         settings: {
           slidesToShow: 2,
           slidesToScroll: 2,
-
-          autoplay: false,
         },
       },
       {

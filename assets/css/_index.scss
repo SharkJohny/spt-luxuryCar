@@ -957,6 +957,7 @@ section#section1 {
   }
   .content-wrapper-in {
     background: white;
+    margin-bottom: -1px;
   }
   .feature-chart__table-row.header {
     padding-top: 200px;
@@ -1006,6 +1007,9 @@ section#section1 {
   section#section1 {
     background-color: transparent;
     padding: 0px;
+  }
+  .gray-background {
+    background: #ededed !important;
   }
   .footer-banners {
     margin-top: 0px;
