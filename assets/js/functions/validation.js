@@ -35,6 +35,9 @@ function upsaleValidation(e) {
       }
     });
   }
+  if ($(".upsale-button.radio.active").not(".none")[0]) {
+    window.allowDirectAddToCart = true;
+  }
 }
 function popupValidation(e) {
   console.log("Popup validation triggered");

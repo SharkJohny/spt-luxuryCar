@@ -325,11 +325,22 @@ table.detail-parameters {
 }
 
 .box-config {
+  .config-wrap {
+    background: transparent;
+  }
   .options-wrap {
     width: 79%;
   }
   .options-wrap .button.option-button .text {
     bottom: -18px;
+    display: none !important;
+  }
+  .parameter-wrap.parameter-95 {
+    border-bottom: 1px solid #afafaf3d;
+
+    padding: 0 0px;
+    margin: 0 20px;
+    border-radius: 0;
   }
 }
 .options-wrap {
@@ -520,6 +531,9 @@ span.quantity {
       padding: 5px;
       color: white;
     }
+    .text {
+      display: none !important;
+    }
     .price {
       top: 50%;
     }
@@ -534,6 +548,8 @@ span.quantity {
       left: 0;
       transition: 1s;
       padding-bottom: 50px;
+      border: 1px solid var(--color-primary);
+      border-radius: 24px;
     }
     .upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs {
       overflow: visible;
@@ -1472,7 +1488,7 @@ section.shopify-section.horiz-video.shopify-section--video.full-width {
     color: rgba(196, 155, 49, 1);
     font-size: 20px;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 400;
     margin: 0;
     margin-bottom: 10px;
   }
@@ -2231,5 +2247,11 @@ a.p-thumbnail {
   .banner-wrap.upsale .heder.h2,
   .banner-wrap.upsale h3 {
     font-size: 30px !important;
+  }
+}
+
+@media (max-width: 1650px) {
+  .type-product .modl-selector-wrap .surcharge-list {
+    margin-right: 20px !important;
   }
 }

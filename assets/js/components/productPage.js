@@ -167,7 +167,7 @@ export function initProduct(setupData) {
         $(event.target).closest(".button.option-button").removeClass("active");
       }, 1000);
 
-      $(".image-wrap").hide();
+      $(".image-wrap").remove();
     }
   });
 }
@@ -862,23 +862,23 @@ function createUpsaleInfo() {
     $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
     $("<span>")
       .html(
-        "Vytvorte si svoj vlastný set – rohož do kufra spolu s kobercami pod sedadlá – a získajte zľavu <b>až 40 %</b>. Kliknite na chcem set so zľavou a využite túto výhodnú ponuku!."
+        "Vytvorte si svoj vlastný set – rohož do kufra spolu s kobercami pod sedadlá – a získajte <b>zľavu až 40 %</b>. Kliknite na chcem set so zľavou a využite túto výhodnú ponuku!."
       )
       .appendTo(bannerWrap);
     $('<a href="/luxusne-autokoberce-dragonskin-elite-diamond-line/" class="btn btn-lg gold-button">chcem set so zľavou</a>').appendTo(bannerWrap);
   } else {
     $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
-    $("<span>").html("Ušetri<b> až 40 % </b>na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
+    $("<span>").html("<b>Ušetri až 40 % </b>na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
   }
 }
-$("body").on("click", ".button.option-button", function () {
+$("body").on("click", ".button.option-button", function (e) {
   console.log("click");
   createModelInfo();
 
   $(this).parents(".parameter-wrap").removeClass("goToAction").removeClass("errorToCart");
   $("body").removeClass("disabled-add-to-cart");
   $(this).addClass("active").siblings().removeClass("active");
-  priceActualization();
+  priceActualization(e);
 
   setTimeout(() => {
     calculateStandartPrice(diference);
@@ -900,7 +900,7 @@ $("body").on("click", ".button.option-button", function () {
     }
   }
 });
-function priceActualization() {
+function priceActualization(e) {
   const header = $("h1").text();
   if (header.includes("box")) {
     $(".surcharge-list select").val(0);
@@ -921,8 +921,7 @@ function priceActualization() {
     const image2 = $(this).find("img").attr("src");
     console.log(image2);
 
-    $(".image-wrap").remove();
-
+    console.log(".parameter-wrap.parameter-" + parameterId);
     const imageWrap = $("<div>", {
       class: "image-wrap",
     })
@@ -930,4 +929,6 @@ function priceActualization() {
       .fadeIn(1000);
     $("<img>", { src: image2 }).appendTo(imageWrap);
   });
+
+  $(".parameter-wrap").not($(e.target).parents(".parameter-wrap")).find(".image-wrap").remove();
 }
