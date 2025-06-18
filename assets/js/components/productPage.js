@@ -905,6 +905,7 @@ function priceActualization(e) {
   if (header.includes("box")) {
     $(".surcharge-list select").val(0);
   }
+  $(".image-wrap").remove();
   $(".button.option-button.active").each(function () {
     const value = $(this).attr("data-value");
     const variant = $(this).attr("data-variant");
