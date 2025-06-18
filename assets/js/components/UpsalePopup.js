@@ -3,6 +3,7 @@
 // Používá jQuery
 
 export function showUpsalePopup() {
+  $("body").addClass("upsale-popup-active");
   console.log("showUpsalePopup");
   if ($(".overflow.upsale-popup").length) return;
 

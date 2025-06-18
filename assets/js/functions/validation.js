@@ -3,10 +3,10 @@ import { showUpsalePopup } from "../components/UpsalePopup.js";
 export function validation() {
   $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
     console.log("Validation triggered");
-    boxValidation(e);
+    // boxValidation(e);
 
-    upsaleValidation(e);
-    popupValidation(e);
+    // upsaleValidation(e);
+    // popupValidation(e);
     errorToCart(e);
   });
 }
@@ -106,10 +106,54 @@ function errorToCart(e) {
   // Inicializace při načtení DOMu
 
   if ($(".goToAction")[0]) {
+    console.log("goToAction exists");
     $(".goToAction").addClass("errorToCart");
 
     setTimeout(() => {
       $(".goToAction").removeClass("errorToCart");
     }, 2000);
+    e.preventDefault();
+    e.stopPropagation();
   }
+  if (!$(".upsale-buttons")[0]) {
+    document.addEventListener("ShoptetCartUpdated", function () {
+      window.location.href = "/kosik/";
+    });
+    return;
+  }
+  if ($(".upsale-popup-active")[0]) {
+    document.addEventListener("ShoptetCartUpdated", function () {
+      window.location.href = "/kosik/";
+    });
+    return;
+  }
+  const length = $(".upsale-buttons .active").not(".none").length;
+  console.log("Active upsale buttons:", length);
+  if (length == 0) {
+    e.preventDefault();
+    e.stopPropagation();
+    // $(".upsale-buttons").each(function () {
+    //   if (!$(this).find(".active").length) {
+    //     $(this).addClass("errorToCart");
+    //     const $errorElement = $(".errorToCart:eq(0)");
+    //     console.log($errorElement.length);
+    //     if ($errorElement.length) {
+    //       $("html, body").animate(
+    //         {
+    //           scrollTop: $errorElement.offset().top - 100,
+    //         },
+    //         500
+    //       );
+    //     }
+    //     setTimeout(() => {
+    //       $(this).removeClass("errorToCart");
+    //     }, 2000);
+    //   }
+    // });
+    showUpsalePopup();
+  }
+  document.addEventListener("ShoptetCartUpdated", function () {
+    window.location.href = "/kosik/";
+  });
+  return;
 }

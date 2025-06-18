@@ -170,6 +170,9 @@ export function initProduct(setupData) {
       $(".image-wrap").remove();
     }
   });
+  setTimeout(() => {
+    $(".parameter-wrap.orders-1").removeClass("goToAction");
+  }, 1000);
 }
 
 /**

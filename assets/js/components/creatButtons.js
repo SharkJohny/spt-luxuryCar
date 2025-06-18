@@ -81,6 +81,9 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
   const positionadd = $(button).find(".banner-header");
   $(priceHTML).appendTo(positionadd);
   $(".upsale-Banner").hide();
+  setTimeout(() => {
+    $(".parameter-wrap.orders-1").removeClass("goToAction");
+  }, 1000);
 }
 
 /**
