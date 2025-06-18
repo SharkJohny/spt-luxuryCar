@@ -4,8 +4,9 @@ export function validation() {
   $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
     console.log("Validation triggered");
     boxValidation(e);
-    upsaleValidation(e);
     popupValidation(e);
+    upsaleValidation(e);
+
     errorToCart(e);
   });
 }
@@ -47,6 +48,7 @@ function popupValidation(e) {
     console.log("allowDirectAddToCart");
     // povolíme submit, resetujeme flag a dál nic neblokujeme
     window.allowDirectAddToCart = false;
+    window.location.href = "/kosik/";
     return;
   } else if (!$(".goToAction")[0]) {
     console.log("nenene");

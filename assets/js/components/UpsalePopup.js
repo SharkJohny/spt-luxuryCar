@@ -65,7 +65,7 @@ export function showUpsalePopup() {
     click: function () {
       $overlay.remove();
       $(".upsale-wrap").addClass("active");
-      window.allowDirectAddToCart = true;
+      // window.allowDirectAddToCart = false;
       upsaleBorder();
     },
   }).appendTo($btnWrap);

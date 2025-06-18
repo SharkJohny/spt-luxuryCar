@@ -1122,7 +1122,7 @@ div#description p span.text-gradient {
   h3 {
     color: var(--color-primary);
     margin-bottom: 20px;
-    font-size: 30px !important;
+    font-size: 36px !important;
     margin-top: 0px;
     font-weight: 600;
   }
@@ -2060,6 +2060,24 @@ a.p-thumbnail {
   section.full-width {
     width: 100vw;
     overflow: hidden;
+  }
+  .upsale-text p,
+  .banner-wrap.upsale p {
+    width: 100%;
+    text-align: left !important;
+  }
+  .upsale-text,
+  .banner-wrap.upsale {
+    padding: 15px;
+  }
+  .upsale-text .heder.h2,
+  .upsale-text h3,
+  .banner-wrap.upsale .heder.h2,
+  .banner-wrap.upsale h3 {
+    font-size: 30px !important;
+  }
+  .parameter-wrap.parameter-110 .text {
+    display: none !important;
   }
 }
 
