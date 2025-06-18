@@ -4,9 +4,9 @@ export function validation() {
   $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
     console.log("Validation triggered");
     boxValidation(e);
-    popupValidation(e);
-    upsaleValidation(e);
 
+    upsaleValidation(e);
+    popupValidation(e);
     errorToCart(e);
   });
 }
