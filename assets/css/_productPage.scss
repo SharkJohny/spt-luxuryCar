@@ -3,7 +3,9 @@
     display: none;
   }
 }
-
+.parameter-wrap.parameter-110 .text {
+  display: none !important;
+}
 .p-info-wrapper {
   section#model-info {
     padding: 10px !important;
@@ -1488,7 +1490,7 @@ section.shopify-section.horiz-video.shopify-section--video.full-width {
     color: rgba(196, 155, 49, 1);
     font-size: 20px;
     text-transform: uppercase;
-    font-weight: 400;
+    font-weight: 800;
     margin: 0;
     margin-bottom: 10px;
   }
@@ -2075,9 +2077,6 @@ a.p-thumbnail {
   .banner-wrap.upsale .heder.h2,
   .banner-wrap.upsale h3 {
     font-size: 30px !important;
-  }
-  .parameter-wrap.parameter-110 .text {
-    display: none !important;
   }
 }
 
