@@ -270,7 +270,12 @@ table.detail-parameters {
     color: black;
   }
 }
-
+.parameter-wrap.parameter-undefined.orders-3.goToAction.base-config,
+.box-config {
+  .parameter-wrap {
+    border-color: transparent;
+  }
+}
 .base-config h5.variant.name {
   position: absolute;
   top: 16px;

@@ -3,6 +3,7 @@ export function initCart(setupData) {
 
   if ($(".id--9")[0]) {
     $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
+    $(".p-label:contains(Cena za m. j.)").text("Cena za set");
     changeDescription();
   }
 }

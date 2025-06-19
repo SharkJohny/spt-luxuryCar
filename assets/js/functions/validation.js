@@ -114,6 +114,7 @@ function errorToCart(e) {
     }, 2000);
     e.preventDefault();
     e.stopPropagation();
+    return;
   }
   if (!$(".upsale-buttons")[0]) {
     document.addEventListener("ShoptetCartUpdated", function () {

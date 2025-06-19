@@ -201,14 +201,21 @@ function priplatky(setupData) {
       const parameterWrap = $("<div>", {
         class: "parameter-cars",
       }).appendTo(buttonWrap);
-
+      const name = $("h1").text();
+      console.log(name);
+      let prefix = "";
+      if (name.includes("HEXA")) {
+        prefix = "hexa-";
+      } else if (name.includes("STRIPE")) {
+        prefix = "stripe-";
+      }
       const carpetsText = setupData.settings.carpetsText.split(",");
       const carpetsValue = setupData.settings.carpetsValue.split(",");
       const carpetsImage = setupData.settings.carpetsImage.split(",");
       const carpetsPrice = setupData.settings.carpetsPrice.split(",");
       $(carpetsText).each(function (e) {
         createUpsaleButton(
-          "https://cdn.myshoptet.com/usr/689946.myshoptet.com/user/documents/upload/assets/new/" + carpetsImage[e],
+          "https://cdn.myshoptet.com/usr/689946.myshoptet.com/user/documents/upload/assets/new/" + prefix + carpetsImage[e],
           this,
           parameterWrap,
           carpetsValue[e],
@@ -240,10 +247,18 @@ function priplatky(setupData) {
       const parameterWrap2 = $("<div>", {
         class: "parameter-cars",
       }).appendTo(buttonWrapBox);
+      const name = $("h1").text();
+      console.log(name);
+      let prefix = "";
+      if (name.includes("HEXA")) {
+        prefix = "hexa-";
+      } else if (name.includes("STRIPE")) {
+        prefix = "stripe-";
+      }
 
       $(boxsText).each(function (e) {
         createUpsaleButton(
-          "https://cdn.myshoptet.com/usr/689946.myshoptet.com/user/documents/upload/assets/new/" + boxsImage[e],
+          "https://cdn.myshoptet.com/usr/704436.myshoptet.com/user/documents/upload/assets/new/" + prefix + boxsImage[e],
           this,
           parameterWrap2,
           boxsValue[e],
@@ -542,6 +557,10 @@ function condown(time, selector) {
   const countdownInterval = setInterval(updateCountdown, 1000);
   updateCountdown();
 }
+
+$("body").on("click", ".btn.choice-Model", function () {
+  createModelInfo();
+});
 
 function createModelInfo() {
   if ($("#model-info")[0] || $(".in-index")[0]) return;
