@@ -245,6 +245,8 @@ table.detail-parameters {
   margin-bottom: 10px;
   border-radius: 15px;
   overflow: hidden;
+  border: 1px solid var(--color-primary);
+  border-radius: 21px;
   .order {
     background: rgba(196, 155, 49, 1);
     /* width: fit-content; */
