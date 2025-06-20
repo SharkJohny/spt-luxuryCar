@@ -128,10 +128,19 @@ function initModelSelect() {
     }
   }
 
-  const getBrand = sessionStorage.getItem("Brand");
-  const getModel = sessionStorage.getItem("Model");
-  const getYear = sessionStorage.getItem("Year");
-  const getCarType = sessionStorage.getItem("carType");
+  let getBrand, getModel, getYear, getCarType;
+  try {
+    getBrand = sessionStorage.getItem("Brand") || null;
+    getModel = sessionStorage.getItem("Model") || null;
+    getYear = sessionStorage.getItem("Year") || null;
+    getCarType = sessionStorage.getItem("carType") || null;
+  } catch (e) {
+    console.warn("SessionStorage is not available:", e);
+    getBrand = null;
+    getModel = null;
+    getYear = null;
+    getCarType = null;
+  }
 
   const section = $("<section>", {
     id: "model-selector",
@@ -267,26 +276,32 @@ function initModelSelect() {
   $(".btn.choice-Model").on("click", function () {
     saveModel(true);
   });
-  $(".surcharge-list").on("click", function () {
-    $(".surcharge-list").on("change", function () {
+  setTimeout(() => {
+    $(".surcharge-list select").on("change", function () {
+      console.log("change");
       saveModel(false);
     });
-  });
+  }, 1000);
 }
 
 function saveModel(redirect) {
+  console.log("saveModel");
   const Brand = $(".surcharge-list.brands.dm-selector select").val();
   const Model = $(".surcharge-list.models.dm-selector select").val();
   const Year = $(".surcharge-list.years.dm-selector select").val();
   const type = $(".surcharge-list.type-selector select").val();
   setTimeout(() => {
-    console.log(Brand + " " + Model + " " + Year);
-    sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
-    sessionStorage.setItem("Brand", Brand);
-    sessionStorage.setItem("Model", Model);
-    sessionStorage.setItem("Year", Year);
-
-    sessionStorage.setItem("carType", type);
+    try {
+      console.log(Brand + " " + Model + " " + Year);
+      sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
+      sessionStorage.setItem("Brand", Brand);
+      sessionStorage.setItem("Model", Model);
+      sessionStorage.setItem("Year", Year);
+      sessionStorage.setItem("carType", type);
+    } catch (e) {
+      console.warn("Session storage is not available:", e);
+      // Fallback - could use cookies or other storage mechanism here
+    }
   }, 100);
   if ($(".in-index")[0] && redirect) {
     if (

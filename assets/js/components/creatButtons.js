@@ -60,7 +60,7 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
 
   const buttonHTML = `
     <div class="upsale-button ${typeClass}" value="${value}">
-      <img src="${img}?2" alt="${text}" />
+      <img src="${img}?6" alt="${text}" />
       <div class="banner-header"><span>${text}</span>
     </div>
   `;
