@@ -796,6 +796,7 @@ section#section1 {
   }
   .model-selector.container {
     margin-bottom: 20px;
+    padding-top: 20px;
   }
   .image-container {
     margin-bottom: 10px;
@@ -1006,8 +1007,10 @@ section#section1 {
   section#section5,
   section#section3,
   section#section1 {
-    background-color: transparent;
+    padding-top: 20px !important;
+    background-color: #ededed;
     padding: 0px;
+    margin-bottom: 20px !important;
   }
   .gray-background {
     background: #ededed !important;
@@ -1388,6 +1391,11 @@ a.gold-border.collection-card.shadow {
     margin-top: 30px;
   }
 }
+.customers {
+  h2.divider {
+    text-align: center;
+  }
+}
 /////
 .layers-info-wrap {
   position: relative;
@@ -1448,5 +1456,16 @@ a.gold-border.collection-card.shadow {
     display: flex;
     flex-direction: column !important;
     flex-wrap: wrap !important;
+  }
+
+  .point-picture {
+    overflow: hidden;
+    margin-left: -10px;
+    margin-right: -10px;
+    padding: 10px;
+    padding: 10px;
+  }
+  .basic-description .timeline__slider {
+    margin-bottom: 0px !important;
   }
 }
