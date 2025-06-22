@@ -230,8 +230,15 @@ function initModelSelect() {
     $(".surcharge-list.brands.dm-selector select").val(getBrand);
   }
   if (getModel != null) {
-    $("<option>" + getModel + "</option>").prependTo(".surcharge-list.models.dm-selector select");
-    $(".surcharge-list.models.dm-selector select").val(getModel);
+    const models_for_brand = setupData.cars[getBrand];
+    if (models_for_brand && Array.isArray(models_for_brand)) {
+      for (let i = 0; i < models_for_brand.length; i++) {
+        $("<option>" + models_for_brand[i] + "</option>").appendTo(".surcharge-list.models.dm-selector select");
+      }
+    }
+    if (getModel != null) {
+      $(".surcharge-list.models.dm-selector select").val(getModel);
+    }
   }
   if (getYear != null) {
     $("<option>" + getYear + "</option>").prependTo(".surcharge-list.years.dm-selector select");

@@ -25,13 +25,46 @@ body {
 body.showBody {
   display: block;
 }
+
+img.main-product-image.desctop {
+  display: none;
+}
+img.main-product-image.mobile {
+  display: block;
+}
+
 // optimalizace homepage
 @media (min-width: 678px) {
   .overall-wrapper {
     overflow: hidden;
   }
+  img.main-product-image.mobile {
+    display: none;
+  }
+  img.main-product-image.desctop {
+    display: block;
+  }
 }
+
 section#model-selector {
   margin-left: 0px;
   margin-right: 0px;
+}
+
+@media (max-width: 678px) {
+  section#model-info {
+    order: 1;
+  }
+  .product-slider {
+    order: 3;
+  }
+  .main-product {
+    order: 2;
+  }
+  .main-product {
+    padding: 10px;
+  }
+  .cart-widget-product-unit {
+    display: none !important;
+  }
 }
