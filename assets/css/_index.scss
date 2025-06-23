@@ -1465,6 +1465,12 @@ a.gold-border.collection-card.shadow {
     padding: 10px;
     padding: 10px;
   }
+  .point-picture.overflow-show {
+    overflow: visible;
+  }
+  .hotspot[style="top: 63%; left: 5%;"] {
+    left: 68px !important;
+  }
   .basic-description .timeline__slider {
     margin-bottom: 0px !important;
   }
