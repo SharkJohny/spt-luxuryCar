@@ -59,3 +59,10 @@ td.p-availability.p-cell {
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .cart-table tr > td:nth-child(odd) {
+    text-align: right;
+    width: 200px;
+  }
+}
