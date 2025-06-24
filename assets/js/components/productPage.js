@@ -1,6 +1,9 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
 import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
-
+let koberce = 88;
+let boxy = 91;
+let box1 = 94;
+let box2 = 97;
 /**
  * Initializes the product page.
  */
@@ -187,7 +190,7 @@ function priplatky(setupData) {
     }).insertAfter(".detail-parameters");
     createUpsaleInfo();
 
-    if ($(".parameter-id-89")[0]) {
+    if ($(".parameter-id-" + koberce)[0]) {
       // $(upsaleBanner).hide();
       // condownMessage(upsaleBanner, 30, "Zvýhodněná nabídka na přislušenství platí ještě: ");
 
@@ -232,7 +235,7 @@ function priplatky(setupData) {
     //   "conf",
     //   "config"
     // );
-    if ($(".parameter-id-95")[0]) {
+    if ($(".parameter-id-" + boxy)[0]) {
       const boxsText = setupData.settings.boxsText.split(",");
       const boxsValue = setupData.settings.boxsValue.split(",");
       const boxsImage = setupData.settings.boxsImage.split(",");
@@ -306,7 +309,7 @@ function priplatky(setupData) {
     $(".detail-parameters .surcharge-list select").each(function () {
       const id = $(this).attr("data-parameter-id");
 
-      if (id == "37" || id == "22" || id == "89") return;
+      if (id == "37" || id == "22" || id == "88") return;
 
       let sharedOrder = null;
       pairVariantList.forEach((pair) => {
@@ -377,9 +380,9 @@ $(document).on("click", ".upsale-button", function (e) {
 
 $(document).on("click", ".close-btn.close", function () {
   $(this).parents(".upsale-Banner").removeClass("showConf");
-  $("select.parameter-id-95.surcharge-parameter").val(0);
-  $("select.parameter-id-98.surcharge-parameter").val(0);
-  $("select.parameter-id-101.surcharge-parameter").val(0);
+  $("select.parameter-id-" + boxy + ".surcharge-parameter").val(0);
+  $("select.parameter-id-" + box1 + ".surcharge-parameter").val(0);
+  $("select.parameter-id-" + box2 + ".surcharge-parameter").val(0);
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
   $(".config-wrap .option-button").removeClass("active");
@@ -917,7 +920,7 @@ $("body").on("click", ".button.option-button", function (e) {
     if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
       $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").show();
     }
-    if (!$(".parameter-id-89")[0]) {
+    if (!$(".parameter-id-" + koberce)[0]) {
       $(".upsale-buttons.boxs").show();
     }
   }

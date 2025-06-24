@@ -122,7 +122,7 @@ export function createOptions(position, orders) {
   let optPosition = ".content-wrap";
 
   let upsale = 4;
-  if (shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021) {
+  if (shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607) {
     $(".benefitBanner__content").hide();
     upsale = 5;
   }
@@ -320,14 +320,14 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     }).appendTo(optionButton);
 
     const priceButton = {
-      2258: 0,
-      2261: 10,
-      2264: 30,
-      2267: 45,
-      2270: 0,
-      2273: 10,
-      2276: 30,
-      2279: 45,
+      619: 0,
+      622: 10,
+      625: 30,
+      628: 45,
+      634: 0,
+      637: 10,
+      640: 30,
+      643: 45,
     };
 
     // if (priceButton[value]) {

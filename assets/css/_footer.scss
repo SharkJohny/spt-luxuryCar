@@ -70,7 +70,12 @@ footer#footer {
     max-height: 200px;
   }
 }
-
+.custom-footer__banner4 {
+  display: none;
+}
+.content-wrapper.latest-contribution-box {
+  display: none;
+}
 @media (min-width: 900px) {
   .custom-footer > div {
     flex: 0 0 auto;
