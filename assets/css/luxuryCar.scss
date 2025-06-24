@@ -56,6 +56,16 @@ section#model-selector {
     display: none !important;
   }
 }
+.type-page .content {
+  li,
+  p {
+    a,
+    span {
+      color: black !important;
+      background: white !important;
+    }
+  }
+}
 
 @media (max-width: 678px) {
   section#model-info {
