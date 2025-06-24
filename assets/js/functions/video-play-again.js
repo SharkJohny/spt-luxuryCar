@@ -39,8 +39,8 @@ export function initVideoPlayAgain() {
     // Najdeme nebo vytvoříme play/pause tlačítko
     let $playPauseBtn = $container.find(".playpause");
     if ($playPauseBtn.length === 0) {
-      $playPauseBtn = jQuery('<div class="playpause"></div>');
-      $container.append($playPauseBtn);
+      // $playPauseBtn = jQuery('<div class="playpause"></div>');
+      // $container.append($playPauseBtn);
     }
 
     // Funkce pro aktualizaci stavu tlačítka podle stavu videa
