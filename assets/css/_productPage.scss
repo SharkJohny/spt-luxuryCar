@@ -2296,7 +2296,9 @@ a.p-thumbnail {
     font-size: 30px !important;
   }
 }
-
+video::-webkit-media-controls {
+  display: none !important;
+}
 @media (max-width: 1650px) {
   .type-product .modl-selector-wrap .surcharge-list {
     margin-right: 20px !important;

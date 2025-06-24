@@ -6,7 +6,10 @@ export function intIndex() {
     });
   }, 1000);
   $("svg.icon.icon-circle-button-right-clipped").remove();
-
+  const videos = document.querySelectorAll("video");
+  videos.forEach((video) => {
+    video.removeAttribute("controls");
+  });
   // Funkce pro přičítání čísel
   function animateCountUp(element, targetNumber, duration) {
     const $element = $(element);
