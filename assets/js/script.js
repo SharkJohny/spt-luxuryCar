@@ -229,13 +229,20 @@ function initModelSelect() {
     $("<option>" + getBrand + "</option>").prependTo(".surcharge-list.brands.dm-selector select");
     $(".surcharge-list.brands.dm-selector select").val(getBrand);
   }
+
   if (getModel != null) {
-    const models_for_brand = setupData.cars[getBrand];
-    if (models_for_brand && Array.isArray(models_for_brand)) {
-      for (let i = 0; i < models_for_brand.length; i++) {
-        $("<option>" + models_for_brand[i] + "</option>").appendTo(".surcharge-list.models.dm-selector select");
+    setTimeout(() => {
+      if (models_for_brand && Array.isArray(models_for_brand)) {
+        for (let i = 0; i < models_for_brand.length; i++) {
+          $("<option>" + models_for_brand[i] + "</option>").appendTo(".surcharge-list.models.dm-selector select");
+          if (models_for_brand[i] === getModel) {
+            $(".surcharge-list.models.dm-selector select").val(models_for_brand[i]);
+          }
+        }
       }
-    }
+    }, 1000);
+    const models_for_brand = setupData.cars[getBrand];
+
     if (getModel != null) {
       $(".surcharge-list.models.dm-selector select").val(getModel);
     }
@@ -300,9 +307,12 @@ function saveModel(redirect) {
   setTimeout(() => {
     try {
       console.log(Brand + " " + Model + " " + Year);
-      sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
+
       sessionStorage.setItem("Brand", Brand);
-      sessionStorage.setItem("Model", Model);
+      if (Model !== "Model") {
+        sessionStorage.setItem("Model", Model);
+        sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
+      }
       sessionStorage.setItem("Year", Year);
       sessionStorage.setItem("carType", type);
     } catch (e) {

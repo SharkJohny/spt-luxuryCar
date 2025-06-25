@@ -836,11 +836,11 @@ function updateUpsale($this, event) {
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
     if (value[0] === "conf1") {
-      $(".parameter-wrap.parameter-101").hide();
+      $(".parameter-wrap.parameter-" + box2).hide();
       $(".price.price-standart").attr("data-price", 89);
       $(".price.price-standart").text(NumToPrice(89));
     } else if (value[0] === "conf2") {
-      $(".parameter-wrap.parameter-101").show();
+      $(".parameter-wrap.parameter-" + box2).show();
       $(".price.price-standart").attr("data-price", 79);
       $(".price.price-standart").text(NumToPrice(79));
     }
