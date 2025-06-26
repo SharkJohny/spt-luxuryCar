@@ -359,6 +359,10 @@ function googleReviews() {
   const google = $("<section/>").attr("id", "goggle-review-wrap").html(googleRef);
   if ($(".mobile")[0]) {
     google.appendTo(".row.banners-content.body-banners");
+    google.clone().insertBefore(".in-index #footer");
+    const googleRew = $("<div/>").addClass("review-row").insertBefore(".in-index #footer");
+    const container = $('<div class="container"></div>').appendTo(googleRew);
+    $(".google-reviews").appendTo(container);
   } else {
     google.insertAfter(".in-index section#model-selector");
     google.clone().insertBefore(".in-index #footer");

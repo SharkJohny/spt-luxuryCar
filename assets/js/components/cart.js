@@ -50,6 +50,13 @@ function chechCupon() {
   }
 
   if (!chechCupon) {
+    if (!$(".alert.alert-warning")[0] && getCode == "LUX10") {
+      setTimeout(function () {
+        $(".cart-summary").before(
+          '<div class="alert alert-warning" role="alert">Kupónový kód LUX10 je možné použiť iba pri nákupe setu s doplnkami (ochrana kufra alebo boxy).</div>'
+        );
+      }, 1000);
+    }
     console.log("Coupon code is not valid, applying changes");
     $(".applied-coupon input.btn.btn-sm.btn-primary").click();
   }

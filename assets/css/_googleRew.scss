@@ -20,3 +20,23 @@
     color: #fcbf00;
   }
 }
+.review {
+  padding: 20px;
+  width: 33%;
+}
+.review-photo {
+  width: calc(50% - 4px);
+  background-size: cover;
+  margin: 2px;
+}
+.review-photos {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.review-body {
+  margin-bottom: 20px;
+}
+.review-body {
+  min-height: 96px;
+}

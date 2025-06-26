@@ -197,6 +197,48 @@ export function intIndex() {
         },
       ],
     });
+
+    $(".google-reviews").slick({
+      dots: true,
+      centerMode: false,
+      infinite: true,
+      slidesToShow: 3,
+      slidesToScroll: 1,
+      autoplay: false,
+      autoplaySpeed: 4000,
+      arrows: true,
+      responsive: [
+        {
+          breakpoint: 1480,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            arrows: true,
+          },
+        },
+        {
+          breakpoint: 1200,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 3,
+          },
+        },
+        {
+          breakpoint: 770,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
+        },
+        {
+          breakpoint: 350,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
+        },
+      ],
+    });
   }, 1000);
 
   $("button.text-with-icon.group").on("click", function () {
@@ -241,4 +283,11 @@ export function intIndex() {
       $(".tooltips").removeClass("show");
     }
   });
+  // Get all review-photo elements and set their height based on width
+  setTimeout(function () {
+    $(".review-photo").each(function () {
+      const width = $(this).width();
+      $(this).height(width);
+    });
+  }, 1000);
 }
