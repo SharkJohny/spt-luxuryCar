@@ -1,3 +1,8 @@
+let twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
+if (dataLayer[0].shoptet.projectId == "704436") {
+  twoLayersProducts = shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021;
+}
+
 /**
  * Utility functions for button creation and management
  */
@@ -40,8 +45,8 @@ const ButtonUtils = {
  * @param {string} price - Price string in format "price/save"
  * @param {boolean} prefix - Whether to show "od" prefix in price
  */
-export function createUpsaleButton(img, text, position, value, type, price, prefix) {
-  console.log(img, text, position, price, prefix);
+export function createUpsaleButton(img, text, position, value, type, price, prefix, texts) {
+  console.log("textty", texts.you_will_save);
   if (!img || !text || !position || !price) {
     console.error("Invalid parameters passed to createUpsaleButton");
     return;
@@ -70,12 +75,14 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
   if (priceText[0] == "0") return;
 
   const save = priceText[1] - priceText[0];
-  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
+  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">${texts.you_will_save} ${NumToPrice(
+    save
+  )}</div>`;
 
   if (prefix) {
-    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])} / ks</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(
-      save
-    )}</div>`;
+    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])} / ks</div><div class="save" data-save="${save}">${
+      texts.you_will_save
+    } až ${NumToPrice(save)}</div>`;
   }
 
   const positionadd = $(button).find(".banner-header");
@@ -122,7 +129,8 @@ export function createOptions(position, orders) {
   let optPosition = ".content-wrap";
 
   let upsale = 4;
-  if (shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607) {
+
+  if (twoLayersProducts) {
     $(".benefitBanner__content").hide();
     upsale = 5;
   }
@@ -356,7 +364,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else if (textOption.includes("rad")) {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?9`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?11`,
       }).appendTo(optionButton);
       $("<div>", {
         class: "banner-header",
@@ -372,7 +380,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?9`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?11`,
       }).appendTo(optionButton);
     }
   });

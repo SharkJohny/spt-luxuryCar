@@ -4,6 +4,14 @@ let koberce = 88;
 let boxy = 91;
 let box1 = 94;
 let box2 = 97;
+
+const language = shoptetData.language;
+if (dataLayer[0].shoptet.projectId == "704436") {
+  koberce = 89;
+  boxy = 95;
+  box1 = 98;
+  box2 = 101;
+}
 /**
  * Initializes the product page.
  */
@@ -26,7 +34,7 @@ const price = Number(
 const diference = standartPrice - price;
 
 console.log(diference);
-export function initProduct(setupData) {
+export function initProduct(setupData, texts) {
   createModelInfo();
 
   setTimeout(() => {
@@ -61,7 +69,7 @@ export function initProduct(setupData) {
     $(".benefitBanner.position--benefitProduct .benefitBanner__item").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
   }
   createModelInfo();
-  priplatky(setupData);
+  priplatky(setupData, texts);
 
   $(".button.btn.select-model").on("click", function () {
     const overflow = $("<div>", {
@@ -181,14 +189,14 @@ export function initProduct(setupData) {
 /**
  * Initializes the upsale section.
  */
-function priplatky(setupData) {
+function priplatky(setupData, texts) {
   let order = 6;
 
   if ($(".type-detail").length) {
     $("<div>", {
       class: "upsale-wrap",
     }).insertAfter(".detail-parameters");
-    createUpsaleInfo();
+    createUpsaleInfo(texts);
 
     if ($(".parameter-id-" + koberce)[0]) {
       // $(upsaleBanner).hide();
@@ -212,10 +220,16 @@ function priplatky(setupData) {
       } else if (name.includes("STRIPE")) {
         prefix = "stripe-";
       }
-      const carpetsText = setupData.settings.carpetsText.split(",");
-      const carpetsValue = setupData.settings.carpetsValue.split(",");
-      const carpetsImage = setupData.settings.carpetsImage.split(",");
-      const carpetsPrice = setupData.settings.carpetsPrice.split(",");
+      let carpetsText = setupData.settings.carpetsText.split(",");
+      let carpetsValue = setupData.settings.carpetsValue.split(",");
+      let carpetsImage = setupData.settings.carpetsImage.split(",");
+      let carpetsPrice = setupData.settings.carpetsPrice.split(",");
+      if (dataLayer[0].shoptet.projectId == "704436") {
+        carpetsText = setupData.settings.carpetsTextcs.split(",");
+        carpetsValue = setupData.settings.carpetsValuecs.split(",");
+
+        carpetsPrice = setupData.settings.carpetsPrice.split(",");
+      }
       $(carpetsText).each(function (e) {
         createUpsaleButton(
           "https://cdn.myshoptet.com/usr/704436.myshoptet.com/user/documents/upload/assets/new/" + prefix + carpetsImage[e],
@@ -224,7 +238,8 @@ function priplatky(setupData) {
           carpetsValue[e],
           "radio",
           carpetsPrice[e],
-          false
+          false,
+          texts
         );
       });
     }
@@ -236,11 +251,15 @@ function priplatky(setupData) {
     //   "config"
     // );
     if ($(".parameter-id-" + boxy)[0]) {
-      const boxsText = setupData.settings.boxsText.split(",");
+      let boxsText = setupData.settings.boxsText.split(",");
+
       const boxsValue = setupData.settings.boxsValue.split(",");
       const boxsImage = setupData.settings.boxsImage.split(",");
-      const boxsPrice = setupData.settings.boxsPrice.split(",");
-
+      let boxsPrice = setupData.settings.boxsPrice.split(",");
+      if (dataLayer[0].shoptet.projectId == "704436") {
+        boxsText = setupData.settings.boxsTextcs.split(",");
+        boxsPrice = setupData.settings.boxsPrice.split(",");
+      }
       order += 1;
       const buttonWrapBox = $("<div>", {
         class: "upsale-buttons position-wrap parameter-cars parameter-wrap boxs",
@@ -267,7 +286,8 @@ function priplatky(setupData) {
           boxsValue[e],
           "config",
           boxsPrice[e],
-          true
+          true,
+          texts
         );
       });
     }
@@ -309,7 +329,7 @@ function priplatky(setupData) {
     $(".detail-parameters .surcharge-list select").each(function () {
       const id = $(this).attr("data-parameter-id");
 
-      if (id == "37" || id == "22" || id == "88") return;
+      if (id == "37" || id == "22" || id == "88" || id == "89") return;
 
       let sharedOrder = null;
       pairVariantList.forEach((pair) => {
@@ -872,7 +892,7 @@ function updateBoxPrice() {
   });
 }
 
-function createUpsaleInfo() {
+function createUpsaleInfo(texts) {
   const upsaleBanner = $("<div>", {
     class: "upsale-Banner",
   }).insertAfter(".detail-parameters");
@@ -884,16 +904,12 @@ function createUpsaleInfo() {
   const idUpsaleBanner = [3039, 3033, 3036];
 
   if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
-    $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
-    $("<span>")
-      .html(
-        "Vytvorte si svoj vlastný set – rohož do kufra spolu s kobercami pod sedadlá – a získajte <b>zľavu až 40 %</b>. Kliknite na chcem set so zľavou a využite túto výhodnú ponuku!."
-      )
-      .appendTo(bannerWrap);
-    $('<a href="/luxusne-autokoberce-dragonskin-elite-diamond-line/" class="btn btn-lg gold-button">chcem set so zľavou</a>').appendTo(bannerWrap);
+    $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
+    $("<span>").html(texts.upsale_banner_text).appendTo(bannerWrap);
+    $(texts.upsale_link).appendTo(bannerWrap);
   } else {
-    $('<div class="h4">').text("kúp viac za menej").appendTo(bannerWrap);
-    $("<span>").html("<b>Ušetri až 40 % </b>na rohoži a boxoch do kufra, ak objednáš spolu s kobercami pod sedadlá.").appendTo(bannerWrap);
+    $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
+    $("<span>").html(texts.upsale_banner_text_2Layers).appendTo(bannerWrap);
   }
 }
 $("body").on("click", ".button.option-button", function (e) {
