@@ -1,8 +1,11 @@
-let twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
-if (dataLayer[0].shoptet.projectId == "704436") {
-  twoLayersProducts = shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021;
-}
+let twoLayersProducts;
 
+if ($(".type-product")[0]) {
+  twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
+  if (dataLayer[0].shoptet.projectId == "704436") {
+    twoLayersProducts = shoptetData.product.id == 3011 || shoptetData.product.id == 3018 || shoptetData.product.id == 3021;
+  }
+}
 /**
  * Utility functions for button creation and management
  */

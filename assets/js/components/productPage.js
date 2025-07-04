@@ -165,7 +165,7 @@ export function initProduct(setupData, texts) {
     }
     const model = sessionStorage.getItem("model");
     console.log(model);
-    if (!model || (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta")))) {
+    if (!model || (model && (model.includes("Značka") || model.trim() === "Model" || model.includes("Rok výroby") || model.includes("Typ auta")))) {
       const name = $("h1").text();
       if (name.includes("box") || name.includes("Boxy")) {
         return;
@@ -590,7 +590,7 @@ function createModelInfo() {
   const model = sessionStorage.getItem("model");
   console.log(model);
 
-  if (model && (model.includes("Značka") || model.includes("Model") || model.includes("Rok výroby") || model.includes("Typ auta"))) {
+  if (model && (model.includes("Značka") || model.trim() === "Model" || model.includes("Rok výroby") || model.includes("Typ auta"))) {
     return;
   }
 
