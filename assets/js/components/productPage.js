@@ -171,7 +171,7 @@ export function initProduct(setupData, texts) {
         return;
       }
       console.log("click neeeeniiii");
-      createpopup();
+      createpopup(texts);
       setTimeout(() => {
         // Místo odebrání všech active buttonů v content-wrap
         // odebereme active pouze z tlačítka, na které se kliklo
@@ -228,7 +228,7 @@ function priplatky(setupData, texts) {
         carpetsText = setupData.settings.carpetsTextcs.split(",");
         carpetsValue = setupData.settings.carpetsValuecs.split(",");
 
-        carpetsPrice = setupData.settings.carpetsPrice.split(",");
+        carpetsPrice = setupData.settings.carpetsPricecs.split(",");
       }
       $(carpetsText).each(function (e) {
         createUpsaleButton(
@@ -258,14 +258,14 @@ function priplatky(setupData, texts) {
       let boxsPrice = setupData.settings.boxsPrice.split(",");
       if (dataLayer[0].shoptet.projectId == "704436") {
         boxsText = setupData.settings.boxsTextcs.split(",");
-        boxsPrice = setupData.settings.boxsPrice.split(",");
+        boxsPrice = setupData.settings.boxsPricecs.split(",");
       }
       order += 1;
       const buttonWrapBox = $("<div>", {
         class: "upsale-buttons position-wrap parameter-cars parameter-wrap boxs",
       }).appendTo(".upsale-Banner");
       $(`<div class="order">${order}</div>`).appendTo(buttonWrapBox);
-      $('<h5 class="variant name">boxy do kufra</h5>').appendTo(buttonWrapBox);
+      $('<h5 class="variant name">' + texts.suitcase_boxes + "</h5>").appendTo(buttonWrapBox);
       const parameterWrap2 = $("<div>", {
         class: "parameter-cars",
       }).appendTo(buttonWrapBox);
@@ -301,7 +301,7 @@ function priplatky(setupData, texts) {
     //   createUpsalePopup();
     // });
 
-    firstPage();
+    firstPage(texts);
 
     const pairVariantList = JSON.parse(setupData.settings.pairVariantList);
     const pairedOrders = {};
@@ -417,7 +417,7 @@ $(document).on("click", ".close-btn.return", function () {
 /**
  * Initializes the first page of the upsale section.
  */
-function firstPage() {
+function firstPage(texts) {
   const wrap = $("<div>", {
     class: "navigatte-button class first",
     "data-option": "option-0",
@@ -452,7 +452,7 @@ function firstPage() {
     class: "position-wrap parameter-cars parameter-wrap  base-config active",
   }).appendTo(".content-wrap");
   $('<div class="order">1</div>').appendTo(pageWrap);
-  $('<h5 class="variant name">Špecifikácia vozidla</h5>').appendTo(pageWrap);
+  $('<h5 class="variant name">' + texts.vehicle_specifications + "</h5>").appendTo(pageWrap);
 
   const wheelWrao = $("<div>", {
     class: "parameter-cars wheel-Position ",
@@ -506,7 +506,7 @@ function firstPage() {
     class: "position-wrap parameter-cars parameter-wrap  base-config active",
   }).appendTo(".content-wrap");
   $('<div class="order">2</div>').appendTo(patterns);
-  $('<h5 class="variant name">vzor prešívania koberca</h5>').appendTo(patterns);
+  $('<h5 class="variant name">' + texts.carpet_quilting_pattern + "</h5>").appendTo(patterns);
 
   const patternsWrap = $("<div>", {
     class: "parameter-cars patterns-wrap",
@@ -614,7 +614,7 @@ function createModelInfo() {
   }
 }
 
-function createpopup() {
+function createpopup(texts) {
   if ($(".overflow")[0]) return;
   const overflow = $("<div>", {
     class: "overflow",
@@ -646,7 +646,7 @@ function createpopup() {
   }).appendTo(overflow);
 
   $("<h3>", {
-    text: "Prosím, najskôr vyberte model vášho vozidla",
+    text: texts.no_model_select,
     style: `
       margin-bottom: 30px;
       font-size: 22px;
@@ -657,7 +657,7 @@ function createpopup() {
   }).appendTo(popup);
 
   $("<button>", {
-    text: "Rozumiem",
+    text: texts.i_understand,
     class: "btn",
     style: `
       padding: 12px 40px;
@@ -773,16 +773,32 @@ function createUpsalePopup() {
 }
 
 function optionTest() {
+  console.log("optionTest");
   let allSelected = true;
+  let firstErrorElement = null;
+
   $(".config-wrap .parameter-wrap:visible").each(function () {
     if (!$(this).find(".option-button.active").length) {
       $(this).addClass("errorToCart");
+      if (!firstErrorElement) {
+        firstErrorElement = $(this);
+      }
       allSelected = false;
       setTimeout(() => {
         $(this).removeClass("errorToCart");
       }, 2000);
     }
   });
+
+  if (firstErrorElement) {
+    $("html, body").animate(
+      {
+        scrollTop: firstErrorElement.offset().top - 100,
+      },
+      500
+    );
+  }
+
   return allSelected;
 }
 
@@ -855,15 +871,15 @@ function updateUpsale($this, event) {
     }
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
-    if (value[0] === "conf1") {
-      $(".parameter-wrap.parameter-" + box2).hide();
-      $(".price.price-standart").attr("data-price", 89);
-      $(".price.price-standart").text(NumToPrice(89));
-    } else if (value[0] === "conf2") {
-      $(".parameter-wrap.parameter-" + box2).show();
-      $(".price.price-standart").attr("data-price", 79);
-      $(".price.price-standart").text(NumToPrice(79));
-    }
+    // if (value[0] === "conf1") {
+    //   $(".parameter-wrap.parameter-" + box2).hide();
+    //   $(".price.price-standart").attr("data-price", 89);
+    //   $(".price.price-standart").text(NumToPrice(89));
+    // } else if (value[0] === "conf2") {
+    //   $(".parameter-wrap.parameter-" + box2).show();
+    //   $(".price.price-standart").attr("data-price", 79);
+    //   $(".price.price-standart").text(NumToPrice(79));
+    // }
   }
   // Delay for price update
   setTimeout(() => {

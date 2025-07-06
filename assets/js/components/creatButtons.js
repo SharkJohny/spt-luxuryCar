@@ -190,15 +190,15 @@ export function createOptions(position, orders) {
     class: "price-wrap",
   }).appendTo(nameWrap);
   console.log(orders);
-  if (parameterId == "98" || parameterId == "101") {
-    let price = 79;
-    $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
-    $("<div>", {
-      class: "price price-standart",
-      text: "od " + NumToPrice(price),
-      "data-price": price,
-    }).appendTo(priceWrap);
-  }
+  // if (parameterId == "98" || parameterId == "101") {
+  //   let price = 79;
+  //   $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
+  //   $("<div>", {
+  //     class: "price price-standart",
+  //     text: "od " + NumToPrice(price),
+  //     "data-price": price,
+  //   }).appendTo(priceWrap);
+  // }
 
   amountChoser(position, priceWrap);
 
@@ -364,7 +364,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       $(`<div class='price' data-price="${priceButton[value]}">${textPrice}</div>`).appendTo(buttonDescription);
 
       $(optionButton).addClass("text");
-    } else if (textOption.includes("rad")) {
+    } else if (textOption.includes("rad") || textOption.includes("řada")) {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
         src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?11`,

@@ -8,6 +8,20 @@ export function validation() {
     // upsaleValidation(e);
     // popupValidation(e);
     errorToCart(e);
+    // Find highest errorToCart element and scroll to it
+    const $errorElements = $(".errorToCart");
+    if ($errorElements.length) {
+      const topElement = $errorElements.toArray().reduce((prev, curr) => {
+        return $(prev).offset().top < $(curr).offset().top ? prev : curr;
+      });
+
+      $("html, body").animate(
+        {
+          scrollTop: $(topElement).offset().top - 500,
+        },
+        500
+      );
+    }
   });
 }
 
