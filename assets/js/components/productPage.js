@@ -44,7 +44,7 @@ export function initProduct(setupData, texts) {
   $("<div class='recommended-price'>Doporučená cena</div>").prependTo(".p-info-wrapper span.price-standard");
 
   $(".price-save:eq(1)").appendTo(".p-info-wrapper span.price-standard");
-  $("<div class='recommended-price-final'>Aktuálna cena</div>").prependTo(".p-info-wrapper .price-final");
+  $("<div class='recommended-price-final'>" + texts.current_price + "</div>").prependTo(".p-info-wrapper .price-final");
   setTimeout(() => {
     if ($(".col-xs-12.col-lg-6.p-info-wrapper").length) {
       $(".col-xs-12.col-lg-6.p-info-wrapper").addClass("active");
@@ -459,7 +459,7 @@ function firstPage(texts) {
   }).appendTo(pageWrap);
   $("<div>", {
     class: "label wheel",
-    text: "pozícia volantu:",
+    text: texts.wheel_position,
   }).appendTo(wheelWrao);
   const wheelOption = $("<div>", {
     class: "option-wrap",
@@ -476,7 +476,7 @@ function firstPage(texts) {
   }).appendTo(pageWrap);
   $("<div>", {
     class: "label sit",
-    text: "miest na sedenie:",
+    text: texts.seat_position,
   }).appendTo(sitposition);
   const sitOption = $("<div>", {
     class: "option-wrap",
