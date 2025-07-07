@@ -27,12 +27,12 @@ export function initVideoPlayAgain() {
     const $container = $video.parent();
     const videoEl = $video[0];
 
-    console.log("Processing video:", {
-      videoSrc: $video.find("source").attr("src") || "no source",
-      containerClasses: $container.attr("class") || "no classes",
-      videoClasses: $video.attr("class") || "no classes",
-      isInSlider: $video.closest(".slick-slide").length > 0
-    });
+    const videoSrc = $video.find("source").attr("src") || "no source";
+    const containerClasses = $container.attr("class") || "no classes";
+    const videoClasses = $video.attr("class") || "no classes";
+    const isInSlider = $video.closest(".slick-slide").length > 0;
+
+    console.log("Processing video:", videoSrc, containerClasses, videoClasses, "isInSlider:", isInSlider);
 
     // Pokud je video ve wrapperu, povol vždy (homepage a customer-video)
     if ($container.hasClass("wrapper")) {
@@ -79,11 +79,11 @@ export function initVideoPlayAgain() {
       e.preventDefault();
 
       // Debug log pro mobil
-      console.log("Video clicked/touched:", {
-        isMobile: window.innerWidth < 768,
-        videoClass: $video.attr("class") || "no classes",
-        paused: videoEl.paused
-      });
+      const isMobile = window.innerWidth < 768;
+      const videoClass = $video.attr("class") || "no classes";
+      const paused = videoEl.paused;
+
+      console.log("Video clicked/touched:", "isMobile:", isMobile, "videoClass:", videoClass, "paused:", paused);
 
       if (videoEl.paused) {
         pauseOtherVideos(videoEl);
@@ -134,10 +134,10 @@ export function initVideoPlayAgain() {
     e.stopPropagation();
     e.preventDefault();
 
-    console.log("Slick video clicked via delegation:", {
-      src: $video.find("source").attr("src") || "no source",
-      paused: videoEl.paused
-    });
+    const src = $video.find("source").attr("src") || "no source";
+    const paused = videoEl.paused;
+
+    console.log("Slick video clicked via delegation:", "src:", src, "paused:", paused);
 
     if (videoEl.paused) {
       pauseOtherVideos(videoEl);
