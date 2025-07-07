@@ -7,7 +7,7 @@
  */
 export function initVideoPlayAgain() {
   console.log("initVideoPlayAgain called");
-  
+
   // Odstraníme existující handlery - rozšířený selektor
   jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").off(
     "click.videoControl touchend.videoControl ended.videoControl play.videoControl pause.videoControl"
@@ -26,12 +26,12 @@ export function initVideoPlayAgain() {
   function initSingleVideo($video) {
     const $container = $video.parent();
     const videoEl = $video[0];
-    
+
     console.log("Processing video:", {
-      videoSrc: $video.find('source').attr('src') || 'no source',
-      containerClasses: $container.attr('class'),
-      videoClasses: $video.attr('class') || 'no classes',
-      isInSlider: $video.closest('.slick-slide').length > 0
+      videoSrc: $video.find("source").attr("src") || "no source",
+      containerClasses: $container.attr("class"),
+      videoClasses: $video.attr("class") || "no classes",
+      isInSlider: $video.closest(".slick-slide").length > 0,
     });
 
     // Pokud je video ve wrapperu, povol vždy (homepage a customer-video)
@@ -127,18 +127,18 @@ export function initVideoPlayAgain() {
   });
 
   // Event delegation pro dynamicky přidaná videa (slick slider)
-  jQuery(document).on("click.videoControl touchend.videoControl", ".slick-slide video", function(e) {
+  jQuery(document).on("click.videoControl touchend.videoControl", ".slick-slide video", function (e) {
     const $video = jQuery(this);
     const videoEl = $video[0];
-    
+
     e.stopPropagation();
     e.preventDefault();
-    
+
     console.log("Slick video clicked via delegation:", {
-      src: $video.find('source').attr('src'),
-      paused: videoEl.paused
+      src: $video.find("source").attr("src"),
+      paused: videoEl.paused,
     });
-    
+
     if (videoEl.paused) {
       pauseOtherVideos(videoEl);
       videoEl.play().catch((error) => console.error("Video play failed:", error));
@@ -148,14 +148,14 @@ export function initVideoPlayAgain() {
   });
 
   // Pro slick slider - reinicializujeme po každé změně slidu
-  jQuery(document).on('afterChange', '.slick-initialized', function(event, slick, currentSlide) {
+  jQuery(document).on("afterChange", ".slick-initialized", function (event, slick, currentSlide) {
     console.log("Slick slide changed, reinitializing videos");
     setTimeout(() => {
-      jQuery(".slick-active video").each(function() {
+      jQuery(".slick-active video").each(function () {
         const $video = jQuery(this);
-        if (!$video.data('video-initialized')) {
+        if (!$video.data("video-initialized")) {
           initSingleVideo($video);
-          $video.data('video-initialized', true);
+          $video.data("video-initialized", true);
         }
       });
     }, 100);
