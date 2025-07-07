@@ -342,7 +342,6 @@ table.detail-parameters {
   }
   .options-wrap .button.option-button .text {
     bottom: -18px;
-    display: none !important;
   }
   .parameter-wrap.parameter-95 {
     border-bottom: 1px solid #afafaf3d;
@@ -350,6 +349,11 @@ table.detail-parameters {
     padding: 0 0px;
     margin: 0 20px;
     border-radius: 0;
+  }
+  .noText {
+    .option-button .text {
+      display: none !important;
+    }
   }
 }
 .options-wrap {

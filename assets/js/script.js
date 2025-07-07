@@ -28,6 +28,9 @@ $.getJSON(optionData.downloadData, function (data) {
   initProduct(setupData, texts);
   addNote();
   validation();
+
+  $(".config-wrap .parameter-wrap:eq(1)").addClass("noText");
+  $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");
 });
 
 const logoGoogle =
