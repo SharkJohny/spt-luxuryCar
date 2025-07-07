@@ -1527,7 +1527,7 @@ function initVideoPlayAgain() {
     const videoEl = $video[0];
     console.log("Processing video:", {
       videoSrc: $video.find("source").attr("src") || "no source",
-      containerClasses: $container.attr("class"),
+      containerClasses: $container.attr("class") || "no classes",
       videoClasses: $video.attr("class") || "no classes",
       isInSlider: $video.closest(".slick-slide").length > 0
     });
@@ -1568,7 +1568,7 @@ function initVideoPlayAgain() {
       e.preventDefault();
       console.log("Video clicked/touched:", {
         isMobile: window.innerWidth < 768,
-        videoClass: $video.attr("class"),
+        videoClass: $video.attr("class") || "no classes",
         paused: videoEl.paused
       });
       if (videoEl.paused) {
@@ -1610,7 +1610,7 @@ function initVideoPlayAgain() {
     e.stopPropagation();
     e.preventDefault();
     console.log("Slick video clicked via delegation:", {
-      src: $video.find("source").attr("src"),
+      src: $video.find("source").attr("src") || "no source",
       paused: videoEl.paused
     });
     if (videoEl.paused) {
