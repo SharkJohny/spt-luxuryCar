@@ -6,41 +6,57 @@
  * - Nově: podpora pro .wrapper > video na homepage
  */
 export function initVideoPlayAgain() {
-  // Odstraníme existující handlery
-  jQuery("video.desctop, video.mobile, .wrapper > video").off("click.videoControl ended.videoControl play.videoControl pause.videoControl");
+  console.log("initVideoPlayAgain called");
+  
+  // Odstraníme existující handlery - rozšířený selektor
+  jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").off(
+    "click.videoControl touchend.videoControl ended.videoControl play.videoControl pause.videoControl"
+  );
 
   // Funkce pro zastavení všech ostatních videí
   function pauseOtherVideos(currentVideo) {
-    jQuery("video.desctop, video.mobile, .wrapper > video").each(function () {
+    jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").each(function () {
       if (this !== currentVideo && !this.paused) {
         this.pause();
       }
     });
   }
 
-  // Aplikujeme nové handlery na všechna videa
-  jQuery("video.desctop, video.mobile, .wrapper > video").each(function () {
-    const $video = jQuery(this);
+  // Funkce pro inicializaci jednoho videa
+  function initSingleVideo($video) {
     const $container = $video.parent();
     const videoEl = $video[0];
+    
+    console.log("Processing video:", {
+      videoSrc: $video.find('source').attr('src') || 'no source',
+      containerClasses: $container.attr('class'),
+      videoClasses: $video.attr('class') || 'no classes',
+      isInSlider: $video.closest('.slick-slide').length > 0
+    });
 
-    // Pokud je video ve wrapperu, povol vždy (homepage)
+    // Pokud je video ve wrapperu, povol vždy (homepage a customer-video)
     if ($container.hasClass("wrapper")) {
       $video.show();
+      console.log("Wrapper video found:", $video.attr("class"), "in container:", $container.attr("class"));
     } else {
-      // ...původní podmínka pro desctop/mobile...
+      // Správná podmínka pro desctop/mobile videa
       const isMobile = window.innerWidth < 768;
       if ((isMobile && $video.hasClass("desctop")) || (!isMobile && $video.hasClass("mobile"))) {
         $video.css("display", "none");
         return; // Přeskočíme zpracování tohoto videa
+      } else {
+        $video.show(); // Zajistíme, že správné video je viditelné
       }
     }
 
     // Najdeme nebo vytvoříme play/pause tlačítko
     let $playPauseBtn = $container.find(".playpause");
     if ($playPauseBtn.length === 0) {
-      // $playPauseBtn = jQuery('<div class="playpause"></div>');
-      // $container.append($playPauseBtn);
+      $playPauseBtn = jQuery('<div class="playpause"></div>');
+      $container.append($playPauseBtn);
+      console.log("Created new playpause button");
+    } else {
+      console.log("Found existing playpause button");
     }
 
     // Funkce pro aktualizaci stavu tlačítka podle stavu videa
@@ -57,9 +73,18 @@ export function initVideoPlayAgain() {
       }
     }
 
-    // Kliknutí na video - přehrát/zastavit
-    $video.on("click.videoControl", function (e) {
+    // Kliknutí na video - přehrát/zastavit (včetně touch events pro mobil)
+    $video.on("click.videoControl touchend.videoControl", function (e) {
       e.stopPropagation();
+      e.preventDefault();
+
+      // Debug log pro mobil
+      console.log("Video clicked/touched:", {
+        isMobile: window.innerWidth < 768,
+        videoClass: $video.attr("class"),
+        paused: videoEl.paused,
+      });
+
       if (videoEl.paused) {
         pauseOtherVideos(videoEl);
         videoEl.play().catch((error) => console.error("Video play failed:", error));
@@ -93,5 +118,46 @@ export function initVideoPlayAgain() {
     $video.on("pause.videoControl ended.videoControl", updateButtonState);
     // Nastavení počátečního stavu
     updateButtonState();
+  }
+
+  // Aplikujeme nové handlery na všechna videa - rozšířený selektor
+  jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").each(function () {
+    const $video = jQuery(this);
+    initSingleVideo($video);
+  });
+
+  // Event delegation pro dynamicky přidaná videa (slick slider)
+  jQuery(document).on("click.videoControl touchend.videoControl", ".slick-slide video", function(e) {
+    const $video = jQuery(this);
+    const videoEl = $video[0];
+    
+    e.stopPropagation();
+    e.preventDefault();
+    
+    console.log("Slick video clicked via delegation:", {
+      src: $video.find('source').attr('src'),
+      paused: videoEl.paused
+    });
+    
+    if (videoEl.paused) {
+      pauseOtherVideos(videoEl);
+      videoEl.play().catch((error) => console.error("Video play failed:", error));
+    } else {
+      videoEl.pause();
+    }
+  });
+
+  // Pro slick slider - reinicializujeme po každé změně slidu
+  jQuery(document).on('afterChange', '.slick-initialized', function(event, slick, currentSlide) {
+    console.log("Slick slide changed, reinitializing videos");
+    setTimeout(() => {
+      jQuery(".slick-active video").each(function() {
+        const $video = jQuery(this);
+        if (!$video.data('video-initialized')) {
+          initSingleVideo($video);
+          $video.data('video-initialized', true);
+        }
+      });
+    }, 100);
   });
 }
