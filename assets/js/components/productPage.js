@@ -718,13 +718,13 @@ function calculateStandartPrice(diference) {
   console.log(diference);
 
   const price = Number(
-    $("span.calculated-price")
+    $("span.calculated-price:eq(0)")
       .text()
       .replace(/[^0-9]/g, "")
   );
 
   let newStandartPrice = price + diference;
-
+  console.log("price", price, "diference", diference);
   console.log("addss");
   $(".upsale-button.active").each(function () {
     const priceText = $(this).find(".save").attr("data-save");
@@ -737,6 +737,8 @@ function calculateStandartPrice(diference) {
     }
   });
   // vypočet procentualni slevy price z newStandartPrice
+  console.log("newStandartPrice", newStandartPrice, "price", price, "diference", diference);
+
   const discount = Math.round(((newStandartPrice - price) / newStandartPrice) * 100);
   console.log("discount", discount);
   $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
