@@ -4,6 +4,7 @@ let koberce = 88;
 let boxy = 91;
 let box1 = 94;
 let box2 = 97;
+let boxsPrice = [];
 
 const language = shoptetData.language;
 if (dataLayer[0].shoptet.projectId == "581408") {
@@ -255,7 +256,7 @@ function priplatky(setupData, texts) {
 
       const boxsValue = setupData.settings.boxsValue.split(",");
       const boxsImage = setupData.settings.boxsImage.split(",");
-      let boxsPrice = setupData.settings.boxsPrice.split(",");
+      boxsPrice = setupData.settings.boxsPrice.split(",");
       if (dataLayer[0].shoptet.projectId == "581408") {
         boxsText = setupData.settings.boxsTextcs.split(",");
         boxsPrice = setupData.settings.boxsPricecs.split(",");
@@ -873,15 +874,17 @@ function updateUpsale($this, event) {
     }
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
-    // if (value[0] === "conf1") {
-    //   $(".parameter-wrap.parameter-" + box2).hide();
-    //   $(".price.price-standart").attr("data-price", 89);
-    //   $(".price.price-standart").text(NumToPrice(89));
-    // } else if (value[0] === "conf2") {
-    //   $(".parameter-wrap.parameter-" + box2).show();
-    //   $(".price.price-standart").attr("data-price", 79);
-    //   $(".price.price-standart").text(NumToPrice(79));
-    // }
+    if (value[0] === "conf1") {
+      let prices = boxsPrice[0].split("/")[0];
+      $(".parameter-wrap.parameter-" + box2).hide();
+      $(".price.price-standart").attr("data-price", prices);
+      $(".price.price-standart").text(NumToPrice(prices));
+    } else if (value[0] === "conf2") {
+      let prices = boxsPrice[1].split("/")[0];
+      $(".parameter-wrap.parameter-" + box2).show();
+      $(".price.price-standart").attr("data-price", prices);
+      $(".price.price-standart").text(NumToPrice(prices));
+    }
   }
   // Delay for price update
   setTimeout(() => {

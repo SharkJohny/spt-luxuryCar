@@ -9,17 +9,19 @@ export function initVideoPlayAgain() {
   console.log("initVideoPlayAgain called");
 
   // Odstraníme existující handlery - rozšířený selektor
-  jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").off(
+  jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .customers-video video, .slick-slide video").off(
     "click.videoControl touchend.videoControl ended.videoControl play.videoControl pause.videoControl"
   );
 
   // Funkce pro zastavení všech ostatních videí
   function pauseOtherVideos(currentVideo) {
-    jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").each(function () {
-      if (this !== currentVideo && !this.paused) {
-        this.pause();
+    jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .customers-video video, .slick-slide video").each(
+      function () {
+        if (this !== currentVideo && !this.paused) {
+          this.pause();
+        }
       }
-    });
+    );
   }
 
   // Funkce pro inicializaci jednoho videa
@@ -118,16 +120,21 @@ export function initVideoPlayAgain() {
     $video.on("pause.videoControl ended.videoControl", updateButtonState);
     // Nastavení počátečního stavu
     updateButtonState();
+
+    // Označíme video jako inicializované
+    $video.data("video-initialized", true);
   }
 
   // Aplikujeme nové handlery na všechna videa - rozšířený selektor
-  jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .slick-slide video").each(function () {
-    const $video = jQuery(this);
-    initSingleVideo($video);
-  });
+  jQuery("video.desctop, video.mobile, .wrapper > video, .customer-video .wrapper > video, .customers-video video, .slick-slide video").each(
+    function () {
+      const $video = jQuery(this);
+      initSingleVideo($video);
+    }
+  );
 
-  // Event delegation pro dynamicky přidaná videa (slick slider)
-  jQuery(document).on("click.videoControl touchend.videoControl", ".slick-slide video", function (e) {
+  // Event delegation pro dynamicky přidaná videa (slick slider a obecně)
+  jQuery(document).on("click.videoControl touchend.videoControl", ".customers-video video, .slick-slide video, .customer-video video", function (e) {
     const $video = jQuery(this);
     const videoEl = $video[0];
 
@@ -137,7 +144,33 @@ export function initVideoPlayAgain() {
     const src = $video.find("source").attr("src") || "no source";
     const paused = videoEl.paused;
 
-    console.log("Slick video clicked via delegation:", "src:", src, "paused:", paused);
+    console.log("Video clicked via delegation:", "src:", src, "paused:", paused);
+
+    if (videoEl.paused) {
+      pauseOtherVideos(videoEl);
+      videoEl.play().catch((error) => console.error("Video play failed:", error));
+    } else {
+      videoEl.pause();
+    }
+  });
+
+  // Obecný event delegation pro všechna videa (fallback)
+  jQuery(document).on("click.videoControl touchend.videoControl", "video", function (e) {
+    const $video = jQuery(this);
+    const videoEl = $video[0];
+
+    // Pokud video již má handlery, přeskočíme
+    if ($video.data("video-initialized")) {
+      return;
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    const src = $video.find("source").attr("src") || "no source";
+    const paused = videoEl.paused;
+
+    console.log("General video clicked via delegation:", "src:", src, "paused:", paused);
 
     if (videoEl.paused) {
       pauseOtherVideos(videoEl);

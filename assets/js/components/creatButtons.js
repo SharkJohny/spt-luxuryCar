@@ -1,9 +1,12 @@
 let twoLayersProducts;
+let boxsParameterIds;
 
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
+  boxsParameterIds = [94, 97];
   if (dataLayer[0].shoptet.projectId == "581408") {
     twoLayersProducts = shoptetData.product.id == 2406 || shoptetData.product.id == 2409 || shoptetData.product.id == 2412;
+    boxsParameterIds = [66, 69];
   }
 }
 /**
@@ -189,16 +192,17 @@ export function createOptions(position, orders) {
   const priceWrap = $("<div>", {
     class: "price-wrap",
   }).appendTo(nameWrap);
-  console.log(orders);
-  // if (parameterId == "98" || parameterId == "101") {
-  //   let price = 79;
-  //   $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
-  //   $("<div>", {
-  //     class: "price price-standart",
-  //     text: "od " + NumToPrice(price),
-  //     "data-price": price,
-  //   }).appendTo(priceWrap);
-  // }
+
+  if (boxsParameterIds.includes(parseInt(parameterId))) {
+    console.log(boxsParameterIds);
+    let price = 79;
+    $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
+    $("<div>", {
+      class: "price price-standart",
+      text: "od " + NumToPrice(price),
+      "data-price": price,
+    }).appendTo(priceWrap);
+  }
 
   amountChoser(position, priceWrap);
 
@@ -330,7 +334,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       class: "text",
     }).appendTo(optionButton);
 
-    const priceButton = {
+    let priceButton = {
       619: 0,
       622: 10,
       625: 30,
@@ -340,12 +344,23 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       640: 30,
       643: 45,
     };
-
-    // if (priceButton[value]) {
-    //   $(`<div class='price'>+ ${NumToPrice(priceButton[value])}</div>`).appendTo(optionButton);
-    // }
-
+    if (dataLayer[0].shoptet.projectId == "581408") {
+      priceButton = {
+        516: 0,
+        519: 399,
+        522: 859,
+        525: 999,
+        531: 0,
+        534: 399,
+        537: 859,
+        540: 999,
+      };
+    }
     if (textOption.includes("cm")) {
+      // if (priceButton[value]) {
+      //   $(`<div class='price'>+ ${NumToPrice(priceButton[value])}</div>`).appendTo(optionButton);
+      // }
+
       let paramText = nameSplit[1];
       if (paramText == undefined) {
         paramText = "";
