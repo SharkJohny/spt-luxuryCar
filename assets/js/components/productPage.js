@@ -6,11 +6,11 @@ let box1 = 94;
 let box2 = 97;
 
 const language = shoptetData.language;
-if (dataLayer[0].shoptet.projectId == "704436") {
-  koberce = 89;
-  boxy = 95;
-  box1 = 98;
-  box2 = 101;
+if (dataLayer[0].shoptet.projectId == "581408") {
+  koberce = 60;
+  boxy = 63;
+  box1 = 66;
+  box2 = 69;
 }
 /**
  * Initializes the product page.
@@ -224,7 +224,7 @@ function priplatky(setupData, texts) {
       let carpetsValue = setupData.settings.carpetsValue.split(",");
       let carpetsImage = setupData.settings.carpetsImage.split(",");
       let carpetsPrice = setupData.settings.carpetsPrice.split(",");
-      if (dataLayer[0].shoptet.projectId == "704436") {
+      if (dataLayer[0].shoptet.projectId == "581408") {
         carpetsText = setupData.settings.carpetsTextcs.split(",");
         carpetsValue = setupData.settings.carpetsValuecs.split(",");
 
@@ -232,7 +232,7 @@ function priplatky(setupData, texts) {
       }
       $(carpetsText).each(function (e) {
         createUpsaleButton(
-          "https://cdn.myshoptet.com/usr/704436.myshoptet.com/user/documents/upload/assets/new/" + prefix + carpetsImage[e],
+          "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/" + prefix + carpetsImage[e],
           this,
           parameterWrap,
           carpetsValue[e],
@@ -244,7 +244,7 @@ function priplatky(setupData, texts) {
       });
     }
     // createUpsaleButton(
-    //   "https://cdn.myshoptet.com/usr/704436.myshoptet.com/user/documents/upload/assets/boxy.jpg",
+    //   "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/boxy.jpg",
     //   "LUXUSNÉ BOXY DO KUFRU NA MIERU",
     //   buttonWrap,
     //   "conf",
@@ -256,7 +256,7 @@ function priplatky(setupData, texts) {
       const boxsValue = setupData.settings.boxsValue.split(",");
       const boxsImage = setupData.settings.boxsImage.split(",");
       let boxsPrice = setupData.settings.boxsPrice.split(",");
-      if (dataLayer[0].shoptet.projectId == "704436") {
+      if (dataLayer[0].shoptet.projectId == "581408") {
         boxsText = setupData.settings.boxsTextcs.split(",");
         boxsPrice = setupData.settings.boxsPricecs.split(",");
       }
@@ -280,7 +280,7 @@ function priplatky(setupData, texts) {
 
       $(boxsText).each(function (e) {
         createUpsaleButton(
-          "https://cdn.myshoptet.com/usr/704436.myshoptet.com/user/documents/upload/assets/new/" + prefix + boxsImage[e],
+          "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/" + prefix + boxsImage[e],
           this,
           parameterWrap2,
           boxsValue[e],
@@ -329,7 +329,7 @@ function priplatky(setupData, texts) {
     $(".detail-parameters .surcharge-list select").each(function () {
       const id = $(this).attr("data-parameter-id");
 
-      if (id == "37" || id == "22" || id == "88" || id == "89") return;
+      if (id == "37" || id == "60" || id == "88" || id == "89") return;
 
       let sharedOrder = null;
       pairVariantList.forEach((pair) => {
@@ -465,10 +465,10 @@ function firstPage(texts) {
     class: "option-wrap",
   }).appendTo(wheelWrao);
   $(
-    `<div class='button option-button active' data-value='left'><span>EU</span><img src='https://704436.myshoptet.com/user/documents/upload/assets/image/Layer_left.png' alt='250.jpg'><div class='text'>Vľavo</div></div>`
+    `<div class='button option-button active' data-value='left'><span>EU</span><img src='https://581408.myshoptet.com/user/documents/upload/assets/image/Layer_left.png' alt='250.jpg'><div class='text'>Vľavo</div></div>`
   ).appendTo(wheelOption);
   $(
-    `<div class='button option-button' data-value='right'><img src='https://704436.myshoptet.com/user/documents/upload/assets/image/Layer_right.png' alt='251.jpg'><div class='text'>Vpravo</div><span>UK</span></div>`
+    `<div class='button option-button' data-value='right'><img src='https://581408.myshoptet.com/user/documents/upload/assets/image/Layer_right.png' alt='251.jpg'><div class='text'>Vpravo</div><span>UK</span></div>`
   ).appendTo(wheelOption);
 
   const sitposition = $("<div>", {
