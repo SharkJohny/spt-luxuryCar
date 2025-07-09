@@ -11,7 +11,8 @@ footer#footer {
   }
 
   a.facebook,
-  a.instagram {
+  a.instagram,
+  a.tiktok {
     font-size: 0;
   }
   a.facebook::before {
@@ -33,6 +34,23 @@ footer#footer {
   }
   a.instagram::before {
     content: "\e909";
+    font-size: 30px;
+    margin-right: 20px;
+    vertical-align: middle;
+    speak: none;
+    display: inline-block;
+    font-family: shoptet;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 0;
+    text-decoration: none;
+    text-transform: none;
+    height: 30px;
+    width: 30px;
+  }
+  a.tiktok::before {
+    content: "\e940";
     font-size: 30px;
     margin-right: 20px;
     vertical-align: middle;

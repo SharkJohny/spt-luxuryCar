@@ -27,7 +27,7 @@ $.getJSON(optionData.downloadData, function (data) {
   googleReviews(setupData, texts);
   initProduct(setupData, texts);
   addNote();
-  validation();
+  validation(texts);
 
   $(".config-wrap .parameter-wrap:eq(1)").addClass("noText");
   $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");

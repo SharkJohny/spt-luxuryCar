@@ -5,6 +5,7 @@ if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
   boxsParameterIds = [94, 97];
   if (dataLayer[0].shoptet.projectId == "581408") {
+    $(".custom-footer__banner10").hide();
     twoLayersProducts = shoptetData.product.id == 2406 || shoptetData.product.id == 2409 || shoptetData.product.id == 2412;
     boxsParameterIds = [66, 69];
   }

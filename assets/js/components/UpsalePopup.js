@@ -2,7 +2,7 @@
 // Samostatný popup pro upsale s odpočtem a vlastním stylem
 // Používá jQuery
 
-export function showUpsalePopup() {
+export function showUpsalePopup(texts) {
   $("body").addClass("upsale-popup-active");
   console.log("showUpsalePopup");
   if ($(".overflow.upsale-popup").length) return;
@@ -24,31 +24,31 @@ export function showUpsalePopup() {
 
   // Nadpis
   $("<div>", {
-    text: "NEZABUDOL SI NA NIEČO?",
+    text: texts.upsale_header,
     class: "upsale-popup-title",
   }).appendTo($inner);
 
   // Podnadpis
   $("<div>", {
-    html: "ROHOŽ DO KUFRA<br>ALEBO ŠTÝLOVÉ BOXY",
+    html: texts.upsale_prefix,
     class: "upsale-popup-subtitle",
   }).appendTo($inner);
 
   // Info text
   $("<div>", {
-    html: "VYUŽI ZĽAVU PRI NÁKUPE SPOLU<br>S KOBERCAMI POD SEDADLÁ – JE TO JEDINEČNÁ PRÍLEŽITOSŤ",
+    html: texts.upsale_text,
     class: "upsale-popup-info",
   }).appendTo($inner);
 
   // Zvýrazněný kód
   $("<div>", {
-    html: "POUŽI KÓD <b>LUX10</b> A ZÍSKAJ DODATOČNÚ ZĽAVU PRI NÁKUPE SETU",
+    html: texts.upsale_code,
     class: "upsale-popup-code",
   }).appendTo($inner);
 
   // Text před timerem
   $("<div>", {
-    text: "NA VYUŽITIE SLEVY VÁM OSTÁVA LEN:",
+    text: texts.upsale_timer_label,
     class: "upsale-popup-timer-label",
   }).appendTo($inner);
 
@@ -61,7 +61,7 @@ export function showUpsalePopup() {
   // Tlačítka
   const $btnWrap = $("<div>", { class: "upsale-popup-btns" }).appendTo($inner);
   $("<button>", {
-    html: "CHCEM ZĽAVU\n<span>UPRAVIŤ OBJEDNÁVKU</span>",
+    html: texts.upsale_btn_want,
     class: "upsale-popup-btn want",
     click: function () {
       $overlay.remove();
@@ -71,7 +71,7 @@ export function showUpsalePopup() {
     },
   }).appendTo($btnWrap);
   $("<button>", {
-    html: "NECHCEM ZĽAVU\n<span>PREJSŤ DO KOŠÍKA</span>",
+    html: texts.upsale_btn_dontwant,
     class: "upsale-popup-btn dontwant",
     click: function () {
       console.log("click");

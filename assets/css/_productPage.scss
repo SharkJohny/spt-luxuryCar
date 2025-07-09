@@ -2115,6 +2115,10 @@ a.p-thumbnail {
   .banner-wrap.upsale h3 {
     font-size: 30px !important;
   }
+
+  div[data-testid="widgetButtonFrame"] {
+    bottom: 70px !important;
+  }
 }
 
 .box-config {

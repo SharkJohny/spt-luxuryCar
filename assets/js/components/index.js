@@ -273,6 +273,7 @@ export function intIndex() {
   // Video functionality moved to video-play-again.js
 
   $(".hotspot").on("click", function () {
+    $(this).parents(".layers-info-wrap").addClass("show");
     $(".tooltips").removeClass("show");
     $(this).find(".tooltips").addClass("show");
   });

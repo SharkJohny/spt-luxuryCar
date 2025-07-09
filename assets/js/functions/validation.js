@@ -1,13 +1,13 @@
 import { showUpsalePopup } from "../components/UpsalePopup.js";
 
-export function validation() {
+export function validation(texts) {
   $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
     console.log("Validation triggered");
     // boxValidation(e);
 
     // upsaleValidation(e);
     // popupValidation(e);
-    errorToCart(e);
+    errorToCart(e, texts);
     // Find highest errorToCart element and scroll to it
     const $errorElements = $(".errorToCart");
     if ($errorElements.length) {
@@ -17,7 +17,7 @@ export function validation() {
 
       $("html, body").animate(
         {
-          scrollTop: $(topElement).offset().top - 500,
+          scrollTop: $(topElement).offset().top - 300,
         },
         500
       );
@@ -115,7 +115,7 @@ function boxValidation(e) {
   }
 }
 
-function errorToCart(e) {
+function errorToCart(e, texts) {
   console.log("Error to cart initialized");
   // Inicializace při načtení DOMu
 
@@ -165,7 +165,7 @@ function errorToCart(e) {
     //     }, 2000);
     //   }
     // });
-    showUpsalePopup();
+    showUpsalePopup(texts);
   }
   document.addEventListener("ShoptetCartUpdated", function () {
     window.location.href = "/kosik/";
