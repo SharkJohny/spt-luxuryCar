@@ -609,6 +609,24 @@ function createModelInfo() {
       $("section#model-selector").show();
       modelInfo.remove();
     });
+
+    const type = sessionStorage.getItem("carType");
+    console.log("type -----------", type);
+    if (type && type !== "undefined") {
+      console.log("type", type);
+      const paramId = dataLayer[0].shoptet.projectId == "581408" ? 47 : 74;
+
+      const value = $(`select.parameter-id-${paramId} option`)
+        .filter(function () {
+          return $(this).text().toLowerCase().includes(type.toLowerCase());
+        })
+        .val();
+
+      if (value) {
+        $(`select.parameter-id-${paramId}`).val(value).trigger("change");
+      }
+    }
+
     // $('<div class="model-info"> <span class="model">Model:</span> <span class="model-name">' + model + "</span></div>").insertBefore(
     //   "section#model-selector"
     // );
