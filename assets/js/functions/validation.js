@@ -63,7 +63,7 @@ function popupValidation(e) {
     // povolíme submit, resetujeme flag a dál nic neblokujeme
     window.allowDirectAddToCart = false;
     document.addEventListener("ShoptetCartUpdated", function () {
-      window.location.href = "/kosik/";
+      // window.location.href = "/kosik/";
     });
     return;
   } else if (!$(".goToAction")[0]) {
@@ -75,7 +75,7 @@ function popupValidation(e) {
   } else {
     console.log("povolíme submit");
     document.addEventListener("ShoptetCartUpdated", function () {
-      window.location.href = "/kosik/";
+      // window.location.href = "/kosik/";
     });
   }
 }
@@ -132,7 +132,7 @@ function errorToCart(e, texts) {
   }
   if (!$(".upsale-buttons")[0]) {
     document.addEventListener("ShoptetCartUpdated", function () {
-      window.location.href = "/kosik/";
+      // window.location.href = "/kosik/";
     });
     return;
   }
