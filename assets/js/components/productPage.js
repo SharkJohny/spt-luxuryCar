@@ -940,7 +940,7 @@ function createUpsaleInfo(texts) {
 
   const productName = $("h1").text().toLowerCase();
 
-  const idUpsaleBanner = [3039, 3033, 3036];
+  const idUpsaleBanner = [2403, 2415, 2418, 619, 622, 625];
 
   if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
     $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
