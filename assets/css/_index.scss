@@ -51,7 +51,19 @@ section#model-selector {
     margin-top: -10px;
   }
 }
-
+.order-button {
+  text-align: center;
+  margin-top: 50px;
+  a {
+    background-color: #c49b30;
+    border-color: #c49b30;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 10px 20px;
+    text-decoration: none;
+  }
+}
 .content-wrapper.homepage-box.before-carousel {
   .container {
     padding: 0;
