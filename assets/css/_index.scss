@@ -802,7 +802,16 @@ section#section1 {
     margin-bottom: 10px;
   }
   a.contact-link {
-    display: none;
+    font-size: 0;
+
+    position: absolute;
+    top: -47px;
+    right: 50px;
+
+    &:before {
+      content: "\e92d";
+      font-size: 22px;
+    }
   }
   .info-wrap {
     margin-top: 20px;

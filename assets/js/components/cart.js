@@ -1,15 +1,20 @@
-export function initCart(setupData) {
+export function initCart(texts) {
+  console.log("Initializing cart with texts:", texts);
   console.log("Cart initialized");
 
   if ($(".id--9")[0]) {
     $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
     $(".p-label:contains(Cena za m. j.)").text("Cena za set");
     changeDescription();
-    chechCupon();
+    chechCupon(texts);
     document.addEventListener("ShoptetDOMContentLoaded", function () {
-      chechCupon();
+      chechCupon(texts);
       $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
       $(".p-label:contains(Cena za m. j.)").text("Cena za set");
+    });
+
+    $("button.btn.btn-secondary").click(function () {
+      $(".messages").hide();
     });
   }
 }
@@ -29,7 +34,8 @@ function changeDescription() {
   });
 }
 
-function chechCupon() {
+function chechCupon(texts) {
+  console.log(texts);
   console.log("Checking coupon code in cart -----------------------");
   const getCode = shoptetData.cartInfo.discountCoupon.code;
   let chechCupon = false;
@@ -52,9 +58,7 @@ function chechCupon() {
   if (!chechCupon) {
     if (!$(".alert.alert-warning")[0] && getCode == "LUX10") {
       setTimeout(function () {
-        $(".cart-summary").before(
-          '<div class="alert alert-warning" role="alert">Kupónový kód LUX10 je možné použiť iba pri nákupe setu s doplnkami (ochrana kufra alebo boxy).</div>'
-        );
+        $(".cart-summary").before('<div class="alert alert-warning" role="alert">' + texts.cupon_message + "</div>");
       }, 1000);
     }
     console.log("Coupon code is not valid, applying changes");

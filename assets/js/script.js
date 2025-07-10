@@ -28,7 +28,7 @@ $.getJSON(optionData.downloadData, function (data) {
   initProduct(setupData, texts);
   addNote();
   validation(texts);
-
+  initCart(texts);
   $(".config-wrap .parameter-wrap:eq(1)").addClass("noText");
   $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");
 });
@@ -46,7 +46,6 @@ jQuery(document).ready(function ($) {
   //stickyPhotos();
   // errorToCart();
   initVideoPlayAgain();
-  initCart();
 
   setTimeout(() => {
     $("body").addClass("showBody");
