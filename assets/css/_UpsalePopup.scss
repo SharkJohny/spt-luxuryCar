@@ -169,7 +169,6 @@ body.upsale-blur {
   z-index: 9000;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
-  pointer-events: none;
 }
 .upsale-Banner.active {
   z-index: 10001 !important;

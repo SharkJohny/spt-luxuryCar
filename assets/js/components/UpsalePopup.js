@@ -119,6 +119,9 @@ function upsaleBorder() {
   $(".upsale-Banner.active").on("click", function () {
     removeUpsaleBorder();
   });
+  $(".upsale-blur-overlay").on("click", function () {
+    removeUpsaleBorder();
+  });
 }
 
 function removeUpsaleBorder() {
