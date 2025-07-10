@@ -330,7 +330,7 @@ function priplatky(setupData, texts) {
     $(".detail-parameters .surcharge-list select").each(function () {
       const id = $(this).attr("data-parameter-id");
 
-      if (id == "37" || id == "60" || id == "88" || id == "89") return;
+      if (id == "37" || id == "60" || id == "88" || id == "89" || id == "47" || id == "74") return;
 
       let sharedOrder = null;
       pairVariantList.forEach((pair) => {
