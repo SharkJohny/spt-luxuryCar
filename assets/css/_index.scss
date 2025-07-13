@@ -53,8 +53,8 @@ section#model-selector {
 }
 .order-button {
   text-align: center;
-  margin-top: 50px;
-  margin-bottom: 20px;
+  margin-top: 20px;
+  margin-bottom: 0px;
   a {
     background-color: #c49b30;
     border-color: #c49b30;
@@ -81,7 +81,12 @@ section#model-selector {
     }
   }
 }
-
+.row.banners-content.body-banners {
+  margin-bottom: 20px;
+}
+.footer-banner .layers-info-wrap {
+  margin-bottom: 20px !important;
+}
 div#addvideo {
   max-height: 440px;
 }
