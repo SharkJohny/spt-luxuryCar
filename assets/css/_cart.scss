@@ -62,6 +62,14 @@ td.p-availability.p-cell {
   }
 }
 
+span.p-label {
+  display: none;
+}
+
+.p-total strong[data-testid="cartPrice"] {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .cart-table tr > td:nth-child(odd) {
     text-align: right;
