@@ -1634,6 +1634,9 @@ a.p-thumbnail {
       margin: 0px 0;
     }
   }
+  section#comparison .top {
+    border-bottom: none;
+  }
   // .id--9 td.p-total {
   //   display: none;
   // }
@@ -2119,6 +2122,9 @@ a.p-thumbnail {
 
   div[data-testid="widgetButtonFrame"] {
     bottom: 70px !important;
+  }
+  #scroll-area-template--collection-list .slick-list.draggable {
+    height: 375px;
   }
 }
 
