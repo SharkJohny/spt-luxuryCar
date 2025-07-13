@@ -68,7 +68,7 @@ function popupValidation(e) {
     return;
   } else if (!$(".goToAction")[0]) {
     console.log("nenene");
-    showUpsalePopup();
+    // showUpsalePopup();
     e.stopPropagation();
     e.preventDefault();
     return;
@@ -165,7 +165,7 @@ function errorToCart(e, texts) {
     //     }, 2000);
     //   }
     // });
-    showUpsalePopup(texts);
+    // showUpsalePopup(texts);
   }
   document.addEventListener("ShoptetCartUpdated", function () {
     window.location.href = "/kosik/";
