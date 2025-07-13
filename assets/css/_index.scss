@@ -799,6 +799,12 @@ section#section1 {
   // .mobile-image {
   //   display: none;
   // }
+
+  .footer-banner.col-sm-12.col-lg-12 {
+    .order-button {
+      padding-top: 20px;
+    }
+  }
 }
 
 @media (max-width: 768px) {
