@@ -23,6 +23,11 @@ export function validation(texts) {
       );
     }
   });
+
+  $(document).on("click", ".close-btn.return", function () {
+    if (!optionTest()) return;
+    $(this).parents(".upsale-Banner").removeClass("showConf");
+  });
 }
 
 function upsaleValidation(e) {
@@ -69,8 +74,8 @@ function popupValidation(e) {
   } else if (!$(".goToAction")[0]) {
     console.log("nenene");
     // showUpsalePopup();
-    e.stopPropagation();
-    e.preventDefault();
+    // e.stopPropagation();
+    // e.preventDefault();
     return;
   } else {
     console.log("povolíme submit");
@@ -126,8 +131,8 @@ function errorToCart(e, texts) {
     setTimeout(() => {
       $(".goToAction").removeClass("errorToCart");
     }, 2000);
-    e.preventDefault();
-    e.stopPropagation();
+    // e.preventDefault();
+    // e.stopPropagation();
     return;
   }
   if (!$(".upsale-buttons")[0]) {
@@ -145,8 +150,8 @@ function errorToCart(e, texts) {
   const length = $(".upsale-buttons .active").not(".none").length;
   console.log("Active upsale buttons:", length);
   if (length == 0) {
-    e.preventDefault();
-    e.stopPropagation();
+    // e.preventDefault();
+    // e.stopPropagation();
     // $(".upsale-buttons").each(function () {
     //   if (!$(this).find(".active").length) {
     //     $(this).addClass("errorToCart");
@@ -171,4 +176,34 @@ function errorToCart(e, texts) {
     window.location.href = "/kosik/";
   });
   return;
+}
+
+function optionTest() {
+  console.log("optionTest");
+  let allSelected = true;
+  let firstErrorElement = null;
+
+  $(".config-wrap .parameter-wrap:visible").each(function () {
+    if (!$(this).find(".option-button.active").length) {
+      $(this).addClass("errorToCart");
+      if (!firstErrorElement) {
+        firstErrorElement = $(this);
+      }
+      allSelected = false;
+      // setTimeout(() => {
+      //   $(this).removeClass("errorToCart");
+      // }, 2000);
+    }
+  });
+
+  if (firstErrorElement) {
+    $("html, body").animate(
+      {
+        scrollTop: firstErrorElement.offset().top - 100,
+      },
+      500
+    );
+  }
+
+  return allSelected;
 }

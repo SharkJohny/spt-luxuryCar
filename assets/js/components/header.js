@@ -20,7 +20,7 @@ export function initHeader() {
       $("body").removeClass("showNav");
     }
   });
-  $('<a class="contact-link" href="/kontakt/">Kontakt</a>').prependTo(".navigation-buttons");
+  $('<a class="contact-link" href="/kontakty/">Kontakt</a>').prependTo(".navigation-buttons");
 
   headerFixProdukt();
 }

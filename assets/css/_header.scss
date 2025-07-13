@@ -257,7 +257,7 @@ header#header {
     }
   }
   .navigation-wrapper .search {
-    display: none;
+    display: none !important;
   }
   .search-window-visible {
     .navigation-wrapper .search {
@@ -589,6 +589,11 @@ button.ButtonBase__ButtonContainer-sc-p43e7i-3.euBiGU {
     left: unset;
     z-index: 600;
     right: -45px;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .cart-free-shipping strong {
+    color: #3c840f;
   }
   .fitted .navigation-in ul {
     justify-content: center !important;

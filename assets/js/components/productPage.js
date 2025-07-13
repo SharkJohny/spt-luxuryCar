@@ -410,11 +410,6 @@ $(document).on("click", ".close-btn.close", function () {
   updateUpsale(this);
 });
 
-$(document).on("click", ".close-btn.return", function () {
-  if (!optionTest()) return;
-  $(this).parents(".upsale-Banner").removeClass("showConf");
-});
-
 /**
  * Initializes the first page of the upsale section.
  */
@@ -791,36 +786,6 @@ function createUpsalePopup() {
     $(".overflow").remove();
     $(".upsale-wrap").addClass("active");
   });
-}
-
-function optionTest() {
-  console.log("optionTest");
-  let allSelected = true;
-  let firstErrorElement = null;
-
-  $(".config-wrap .parameter-wrap:visible").each(function () {
-    if (!$(this).find(".option-button.active").length) {
-      $(this).addClass("errorToCart");
-      if (!firstErrorElement) {
-        firstErrorElement = $(this);
-      }
-      allSelected = false;
-      setTimeout(() => {
-        $(this).removeClass("errorToCart");
-      }, 2000);
-    }
-  });
-
-  if (firstErrorElement) {
-    $("html, body").animate(
-      {
-        scrollTop: firstErrorElement.offset().top - 100,
-      },
-      500
-    );
-  }
-
-  return allSelected;
 }
 
 window.allowDirectAddToCart = false;

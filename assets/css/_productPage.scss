@@ -2293,7 +2293,9 @@ a.p-thumbnail {
 .orders-1 .image-wrap {
   display: none !important;
 }
-
+.parameter-wrap.errorToCart {
+  border-color: red;
+}
 @media (min-width: 1440px) {
   .type-product .surcharge-list select,
   .type-product .variant-list select {
