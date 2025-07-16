@@ -69,7 +69,16 @@ span.p-label {
 .p-total strong[data-testid="cartPrice"] {
   display: none;
 }
-
+.btn.btn-default,
+.btn.btn-default:hover,
+a.btn.btn-default,
+a.btn.btn-default:hover {
+  border-color: var(--color-primary);
+}
+.btn.btn-default,
+a.btn.btn-default {
+  background-color: var(--color-primary);
+}
 @media (max-width: 768px) {
   .cart-table tr > td:nth-child(odd) {
     text-align: right;

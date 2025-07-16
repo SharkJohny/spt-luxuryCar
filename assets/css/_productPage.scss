@@ -15,6 +15,19 @@
     padding: 10px !important;
   }
 }
+.p-thumbnails-inner.slick {
+  .slick-slide > div {
+    margin: 0 !important;
+    a img {
+      border: 4px solid #c49b31 !important;
+      border-radius: 10px;
+    }
+  }
+}
+
+.p-thumbnails-wrapper {
+  display: none;
+}
 // .id-1382 {
 //   .mobile-image img {
 //     border: none !important;
@@ -274,6 +287,35 @@ table.detail-parameters {
     color: black;
   }
 }
+
+.NoteDiv {
+  border-radius: 21px;
+  overflow: hidden;
+  & > div {
+    background: rgba(196, 155, 49, 1);
+    /* width: fit-content; */
+    padding-left: 20px;
+    padding-top: 13px;
+    text-align: center;
+    width: 100%;
+    height: 50px;
+    color: black;
+    font-size: 20px;
+    font-weight: 400;
+    text-align: left;
+    color: white;
+    font-family: "Exo 2";
+    .NoteNadpis {
+      color: white;
+      font-size: 110%;
+      text-transform: uppercase;
+    }
+  }
+  textarea#Note {
+    border-color: rgba(196, 155, 49, 1);
+    border-radius: 0 0 20px 20px;
+  }
+}
 .parameter-wrap.parameter-undefined.orders-3.goToAction.base-config,
 .box-config {
   .parameter-wrap {
@@ -354,6 +396,16 @@ table.detail-parameters {
     padding: 0 0px;
     margin: 0 20px;
     border-radius: 0;
+
+    &.errorToCart {
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom: 10px;
+      border-radius: 20px;
+      margin-top: 10px;
+      border: solid 2px red !important;
+      padding: 0px 15px;
+    }
   }
   .noText {
     .option-button .text {
@@ -1628,6 +1680,7 @@ a.p-thumbnail {
     font-size: 11px;
   }
 }
+
 @media (max-width: 768px) {
   .twentytwenty-wrap.full-width {
     .image-container {

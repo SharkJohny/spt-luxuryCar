@@ -37,7 +37,7 @@ const diference = standartPrice - price;
 console.log(diference);
 export function initProduct(setupData, texts) {
   createModelInfo();
-
+  changeThumbnails();
   setTimeout(() => {
     $(".p-thumbnails-horizontal").addClass("overflow-next");
   }, 1000);
@@ -977,4 +977,59 @@ function priceActualization(e) {
   });
 
   $(".parameter-wrap").not($(e.target).parents(".parameter-wrap")).find(".image-wrap").remove();
+}
+
+function changeThumbnails() {
+  $(".p-thumbnails-inner").clone().addClass("slick").appendTo(".p-image-wrapper");
+  $(".p-thumbnails-inner.slick a.cbox-gal.cboxElement").remove();
+  $(".p-thumbnails-inner.slick>div").slick({
+    dots: true,
+    centerMode: false,
+    infinite: true,
+    slidesToShow: 5.5,
+    slidesToScroll: 2,
+    autoplay: true,
+    autoplaySpeed: 8000,
+    arrows: true,
+
+    responsive: [
+      {
+        breakpoint: 1600,
+        settings: {
+          slidesToShow: 5.5,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 1480,
+        settings: {
+          slidesToShow: 5.5,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 800,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+
+          autoplay: false,
+        },
+      },
+      // {
+      //     breakpoint: 350,
+      //     settings: {
+      //         slidesToShow: 1,
+      //         slidesToScroll: 1,
+      //     },
+      // },
+    ],
+  });
 }
