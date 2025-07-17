@@ -17,6 +17,9 @@ if (dataLayer[0].shoptet.projectId == "581408") {
  * Initializes the product page.
  */
 
+sessionStorage.setItem("wheelPosition", "left");
+sessionStorage.setItem("seatPosition", "pass-5");
+
 const standartPrice = Number(
   $(".p-final-price-wrapper .price-standard span").length
     ? $(".p-final-price-wrapper .price-standard span")
@@ -185,6 +188,15 @@ export function initProduct(setupData, texts) {
   setTimeout(() => {
     $(".parameter-wrap.orders-1").removeClass("goToAction");
   }, 1000);
+  $(".parameter-cars.wheel-Position .option-wrap .option-button").on("click", function () {
+    const position = $(this).data("value");
+    sessionStorage.setItem("wheelPosition", position);
+  });
+  $(".parameter-cars.sit-Position .option-wrap .option-button").on("click", function () {
+    const position = $(this).data("value");
+    console.log(position);
+    sessionStorage.setItem("seatPosition", position);
+  });
 }
 
 /**
@@ -982,54 +994,56 @@ function priceActualization(e) {
 function changeThumbnails() {
   $(".p-thumbnails-inner").clone().addClass("slick").appendTo(".p-image-wrapper");
   $(".p-thumbnails-inner.slick a.cbox-gal.cboxElement").remove();
-  $(".p-thumbnails-inner.slick>div").slick({
-    dots: true,
-    centerMode: false,
-    infinite: true,
-    slidesToShow: 5.5,
-    slidesToScroll: 2,
-    autoplay: true,
-    autoplaySpeed: 8000,
-    arrows: true,
+  setInterval(() => {
+    $(".p-thumbnails-inner.slick>div").slick({
+      dots: true,
+      centerMode: false,
+      infinite: true,
+      slidesToShow: 5.5,
+      slidesToScroll: 2,
+      autoplay: true,
+      autoplaySpeed: 8000,
+      arrows: true,
 
-    responsive: [
-      {
-        breakpoint: 1600,
-        settings: {
-          slidesToShow: 5.5,
-          slidesToScroll: 1,
+      responsive: [
+        {
+          breakpoint: 1600,
+          settings: {
+            slidesToShow: 5.5,
+            slidesToScroll: 1,
+          },
         },
-      },
-      {
-        breakpoint: 1480,
-        settings: {
-          slidesToShow: 5.5,
-          slidesToScroll: 1,
+        {
+          breakpoint: 1480,
+          settings: {
+            slidesToShow: 5.5,
+            slidesToScroll: 5,
+          },
         },
-      },
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
+        {
+          breakpoint: 1200,
+          settings: {
+            slidesToShow: 5,
+            slidesToScroll: 1,
+          },
         },
-      },
-      {
-        breakpoint: 800,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+        {
+          breakpoint: 800,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 1,
 
-          autoplay: false,
+            autoplay: false,
+          },
         },
-      },
-      // {
-      //     breakpoint: 350,
-      //     settings: {
-      //         slidesToShow: 1,
-      //         slidesToScroll: 1,
-      //     },
-      // },
-    ],
-  });
+        // {
+        //     breakpoint: 350,
+        //     settings: {
+        //         slidesToShow: 1,
+        //         slidesToScroll: 1,
+        //     },
+        // },
+      ],
+    });
+  }, 1000);
 }

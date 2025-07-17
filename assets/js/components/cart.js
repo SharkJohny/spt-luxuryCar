@@ -17,6 +17,18 @@ export function initCart(texts) {
       $(".messages").hide();
     });
   }
+  const wheelPosition = sessionStorage.getItem("wheelPosition");
+  const seatPosition = sessionStorage.getItem("seatPosition");
+  $(
+    `<input type="text" value="` +
+      wheelPosition +
+      `" id="varchar1" name="varchar1" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
+  ).appendTo(".co-billing-address");
+  $(
+    `<input type="text" value="` +
+      seatPosition +
+      `" id="varchar2" name="varchar2" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
+  ).appendTo(".co-billing-address");
 }
 
 function changeDescription() {

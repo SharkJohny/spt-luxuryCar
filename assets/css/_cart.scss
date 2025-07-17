@@ -79,6 +79,13 @@ a.btn.btn-default:hover {
 a.btn.btn-default {
   background-color: var(--color-primary);
 }
+
+input#varchar1 {
+  display: none;
+}
+input#varchar2 {
+  display: none;
+}
 @media (max-width: 768px) {
   .cart-table tr > td:nth-child(odd) {
     text-align: right;

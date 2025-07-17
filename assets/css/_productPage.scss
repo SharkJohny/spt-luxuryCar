@@ -2177,6 +2177,9 @@ a.p-thumbnail {
   .scrollable-with-controls .collection-list {
     max-height: 360px;
   }
+  .type-product .slick-dots {
+    bottom: -40px;
+  }
 }
 
 .box-config {
