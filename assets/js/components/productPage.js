@@ -994,56 +994,55 @@ function priceActualization(e) {
 function changeThumbnails() {
   $(".p-thumbnails-inner").clone().addClass("slick").appendTo(".p-image-wrapper");
   $(".p-thumbnails-inner.slick a.cbox-gal.cboxElement").remove();
-  setInterval(() => {
-    $(".p-thumbnails-inner.slick>div").slick({
-      dots: true,
-      centerMode: false,
-      infinite: true,
-      slidesToShow: 5.5,
-      slidesToScroll: 2,
-      autoplay: true,
-      autoplaySpeed: 8000,
-      arrows: true,
+  setInterval(() => {}, 1000);
+  $(".p-thumbnails-inner.slick>div").slick({
+    dots: true,
+    centerMode: false,
+    infinite: true,
+    slidesToShow: 5.5,
+    slidesToScroll: 2,
+    autoplay: true,
+    autoplaySpeed: 8000,
+    arrows: true,
 
-      responsive: [
-        {
-          breakpoint: 1600,
-          settings: {
-            slidesToShow: 5.5,
-            slidesToScroll: 1,
-          },
+    responsive: [
+      {
+        breakpoint: 1600,
+        settings: {
+          slidesToShow: 5.5,
+          slidesToScroll: 1,
         },
-        {
-          breakpoint: 1480,
-          settings: {
-            slidesToShow: 5.5,
-            slidesToScroll: 5,
-          },
+      },
+      {
+        breakpoint: 1480,
+        settings: {
+          slidesToShow: 5.5,
+          slidesToScroll: 5,
         },
-        {
-          breakpoint: 1200,
-          settings: {
-            slidesToShow: 5,
-            slidesToScroll: 1,
-          },
+      },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
         },
-        {
-          breakpoint: 800,
-          settings: {
-            slidesToShow: 3,
-            slidesToScroll: 1,
+      },
+      {
+        breakpoint: 800,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
 
-            autoplay: false,
-          },
+          autoplay: false,
         },
-        // {
-        //     breakpoint: 350,
-        //     settings: {
-        //         slidesToShow: 1,
-        //         slidesToScroll: 1,
-        //     },
-        // },
-      ],
-    });
-  }, 1000);
+      },
+      // {
+      //     breakpoint: 350,
+      //     settings: {
+      //         slidesToShow: 1,
+      //         slidesToScroll: 1,
+      //     },
+      // },
+    ],
+  });
 }
