@@ -594,7 +594,7 @@ $("body").on("click", ".btn.choice-Model", function () {
 });
 
 function createModelInfo() {
-  if ($("#model-info")[0] || $(".in-index")[0]) return;
+  if ($("#model-info")[0] || $(".in-index")[0] || $(".type-product")[0]) return;
   const model = sessionStorage.getItem("model");
   console.log(model);
 

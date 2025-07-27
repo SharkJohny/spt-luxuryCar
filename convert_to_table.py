@@ -12,10 +12,10 @@ output_lines = []
 for brand, models in car_data.items():
     # Začni riadok názvom značky
     line = [brand]
-    
+
     # Pridaj všetky modely ako ďalšie stĺpce
     line.extend(models)
-    
+
     # Spoj pomocou tab charakteru (pre excel/google sheets)
     output_lines.append("\t".join(line))
 

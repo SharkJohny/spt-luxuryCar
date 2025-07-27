@@ -23,9 +23,10 @@ $.getJSON(optionData.downloadData, function (data) {
   }
   const texts = setupData.language[language];
   console.log("setupData.language:", texts);
+  initProduct(setupData, texts);
   initModelSelect(texts, setupData);
   googleReviews(setupData, texts);
-  initProduct(setupData, texts);
+
   addNote();
   validation(texts);
   initCart(texts);
@@ -120,7 +121,7 @@ function initModelSelect(texts) {
     insertPosidion = ".in-rozcestnik #Model-selecte";
   }
   if ($(".type-product")[0]) {
-    insertPosidion = ".availability-value";
+    insertPosidion = ".parameter-cars.wheel-Position";
   }
   if ($(".id--9 ")[0]) {
     insertPosidion = ".cart-table";
@@ -239,21 +240,32 @@ function initModelSelect(texts) {
     $(".surcharge-list.brands.dm-selector select").val(getBrand);
   }
 
-  if (getModel != null) {
-    setTimeout(() => {
-      if (models_for_brand && Array.isArray(models_for_brand)) {
-        for (let i = 0; i < models_for_brand.length; i++) {
-          $("<option>" + models_for_brand[i] + "</option>").appendTo(".surcharge-list.models.dm-selector select");
-          if (models_for_brand[i] === getModel) {
-            $(".surcharge-list.models.dm-selector select").val(models_for_brand[i]);
-          }
-        }
-      }
-    }, 1000);
+  if (getModel != null && getBrand != null) {
+    // Získej modely pro vybranou značku
     const models_for_brand = setupData.cars[getBrand];
 
-    if (getModel != null) {
-      $(".surcharge-list.models.dm-selector select").val(getModel);
+    if (models_for_brand && Array.isArray(models_for_brand)) {
+      // Přidej všechny modely do selectu
+      for (let i = 0; i < models_for_brand.length; i++) {
+        $("<option>" + models_for_brand[i] + "</option>").appendTo(".surcharge-list.models.dm-selector select");
+      }
+
+      // Nastav model vícekrát s různými časovými intervaly
+      setTimeout(() => {
+        console.log("Nastavuji model (600ms):", getModel);
+        $(".surcharge-list.models.dm-selector select").val(getModel);
+      }, 600);
+
+      setTimeout(() => {
+        console.log("Nastavuji model znovu (1200ms):", getModel);
+        $(".surcharge-list.models.dm-selector select").val(getModel);
+      }, 1200);
+
+      setTimeout(() => {
+        console.log("Poslední pokus o nastavení modelu (2000ms):", getModel);
+        $(".surcharge-list.models.dm-selector select").val(getModel);
+        console.log("Aktuální hodnota selectu:", $(".surcharge-list.models.dm-selector select").val());
+      }, 2000);
     }
   }
   if (getYear != null) {
@@ -282,7 +294,18 @@ function initModelSelect(texts) {
   $(other_option).appendTo(".type select");
   $(other_option).appendTo(".years select");
 
+  // Při inicializaci si poznač, že probíhá načítání
+  let isInitializing = true;
+
   $(".brands select").on("change", function () {
+    // Pokud probíhá inicializace, ignoruj change event
+    if (isInitializing) {
+      console.log("Ignoruji change event během inicializace pro:", $(this).val());
+      return;
+    }
+
+    console.log("Spouští se change event pro značku:", $(this).val());
+
     if ($(this).val() === cstm_znacka.at(1)) {
       $(".models option:not(.notselect)").remove();
     } else {
@@ -295,6 +318,12 @@ function initModelSelect(texts) {
       }
     }
   });
+
+  // Po dokončení inicializace povol change eventy
+  setTimeout(() => {
+    isInitializing = false;
+    console.log("Inicializace dokončena, change eventy povoleny");
+  }, 2500); // Prodlouženo na 2.5 sekundy
 
   $(".btn.choice-Model").on("click", function () {
     saveModel(true);

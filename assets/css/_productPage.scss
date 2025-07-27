@@ -6,7 +6,29 @@
 .parameter-wrap.parameter-110 .text {
   display: none !important;
 }
-
+.position-wrap.parameter-cars.parameter-wrap.base-config {
+  display: flex;
+  flex-direction: column;
+  section#model-selector {
+    order: 1;
+  }
+  .parameter-cars.wheel-Position {
+    order: 2;
+  }
+  .parameter-cars.sit-Position {
+    order: 3;
+  }
+  .modl-selector-wrap {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .surcharge-list {
+    width: 45% !important;
+    margin-bottom: 20px;
+  }
+}
 .parameter-57 .image-wrap {
   display: none !important;
 }
