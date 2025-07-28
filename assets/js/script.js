@@ -134,7 +134,7 @@ function initModelSelect(texts) {
       insertPosidion = ".in-rozcestnik #sets";
     }
     if ($(".type-product")[0]) {
-      insertPosidion = ".p-info-wrapper";
+      insertPosidion = ".parameter-cars:eq(0)";
     }
   }
 

@@ -163,7 +163,7 @@ export function initProduct(setupData, texts) {
   //   }).appendTo(image);
   // });
 
-  $(".content-wrap").on("click", function (event) {
+  $(".next-step-button").on("click", function (event) {
     if ($(event.target).closest(".parameter-cars.patterns-wrap").length) {
       return;
     }
@@ -174,7 +174,7 @@ export function initProduct(setupData, texts) {
       if (name.includes("box") || name.includes("Boxy")) {
         return;
       }
-      console.log("click neeeeniiii");
+
       createpopup(texts);
       setTimeout(() => {
         // Místo odebrání všech active buttonů v content-wrap
@@ -402,6 +402,122 @@ function priplatky(setupData, texts) {
       $(".navigatte-button").removeClass("active");
       $(`.navigatte-button:eq(${optionName})`).addClass("active");
     });
+
+    // Akordeon funkcionalita pro position-wrap a parameter-wrap elementy
+    $(document).on(
+      "click",
+      ".position-wrap .order, .position-wrap .variant.name, .parameter-wrap .order, .parameter-wrap .variant.name, .parameter-wrap h5",
+      function (e) {
+        e.preventDefault();
+        const clickedWrap = $(this).closest(".position-wrap, .parameter-wrap");
+
+        // Pokud je již aktivní, zavři ho
+        if (clickedWrap.hasClass("active")) {
+          clickedWrap.removeClass("active");
+          return;
+        }
+
+        // Zavři všechny ostatní position-wrap a parameter-wrap elementy
+        $(".position-wrap, .parameter-wrap").removeClass("active");
+
+        // Otevři kliknutý element
+        clickedWrap.addClass("active");
+
+        const elementType = clickedWrap.hasClass("position-wrap") ? "position-wrap" : "parameter-wrap";
+        const elementName = clickedWrap.find(".variant.name, h5").first().text() || "Unnamed";
+        console.log(`Otevřen ${elementType}:`, elementName);
+      }
+    );
+
+    // Funkcionalita pro tlačítko "Přejít k dalšímu kroku"
+    $(document).on("click", ".next-step-button", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const currentWrap = $(this).closest(".position-wrap, .parameter-wrap");
+      const allWraps = $(".position-wrap, .parameter-wrap");
+      const currentIndex = allWraps.index(currentWrap);
+
+      // Najdi následující wrap element
+      if (currentIndex < allWraps.length - 1) {
+        const nextWrap = allWraps.eq(currentIndex + 1);
+
+        // Zavři současný element
+        currentWrap.removeClass("active");
+
+        // Otevři následující element
+        nextWrap.addClass("active");
+
+        console.log("Přechod k dalšímu kroku:", nextWrap.find(".variant.name, h5").first().text() || "Unnamed");
+      } else {
+        console.log("Konfigurace dokončena");
+        // Zavři všechny elementy
+        allWraps.removeClass("active");
+
+        // Můžeme zde přidat další logiku pro dokončení konfigurace
+        // například zvýraznění tlačítka "Přidat do košíku" nebo zobrazení shrnutí
+      }
+    });
+
+    // Přidání tlačítek "Přejít k dalšímu kroku" do všech wrap elementů
+    function addNextStepButtons() {
+      const allWraps = $(".position-wrap, .parameter-wrap");
+
+      allWraps.each(function (index) {
+        const $wrap = $(this);
+
+        // Pokud už tlačítko existuje, nepřidávej ho znovu
+        if ($wrap.find(".next-step-button").length > 0) {
+          return;
+        }
+
+        // Určí text tlačítka podle pozice
+        const isLast = index === allWraps.length - 1;
+        const buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+        const buttonClass = isLast ? "next-step-button finish-button" : "next-step-button";
+
+        // Přidej tlačítko na konec wrap elementu
+        $("<button>", {
+          class: buttonClass,
+          text: buttonText,
+          type: "button",
+        }).appendTo($wrap);
+      });
+    }
+
+    // Spusť přidání tlačítek po načtení stránky a při změnách DOMu
+    addNextStepButtons();
+
+    // Observer pro sledování změn v DOMu a přidání tlačítek do nových elementů
+    const observer = new MutationObserver(function (mutations) {
+      let shouldAddButtons = false;
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType === 1) {
+            // Element node
+            if (
+              $(node).hasClass("position-wrap") ||
+              $(node).hasClass("parameter-wrap") ||
+              $(node).find(".position-wrap, .parameter-wrap").length > 0
+            ) {
+              shouldAddButtons = true;
+            }
+          }
+        });
+      });
+
+      if (shouldAddButtons) {
+        setTimeout(addNextStepButtons, 100); // Malé zpoždění pro jistotu
+      }
+    });
+
+    // Začni sledovat změny v DOMu
+    if (document.querySelector(".p-info-wrapper")) {
+      observer.observe(document.querySelector(".p-info-wrapper"), {
+        childList: true,
+        subtree: true,
+      });
+    }
   }
 }
 
@@ -511,7 +627,7 @@ function firstPage(texts) {
   ////// výběr vzoru
 
   const patterns = $("<div>", {
-    class: "position-wrap parameter-cars parameter-wrap  base-config active",
+    class: "position-wrap parameter-cars parameter-wrap  base-config",
   }).appendTo(".content-wrap");
   $('<div class="order">2</div>').appendTo(patterns);
   $('<h5 class="variant name">' + texts.carpet_quilting_pattern + "</h5>").appendTo(patterns);
@@ -708,14 +824,10 @@ function createpopup(texts) {
         if ($("body").hasClass("mobile")) {
           scrollselector = ".p-thumbnails-wrapper";
         }
-        // vyscrollovat na #model-selector
-        $("html, body").animate(
-          {
-            scrollTop: $(scrollselector).offset().top,
-          },
-          500
-        );
+        // Zobrazit model selector bez scrollování
         $("#model-selector").fadeIn(200);
+        $(".position-wrap.parameter-cars.parameter-wrap.base-config.active").removeClass("active");
+        $(".position-wrap.parameter-cars.parameter-wrap.base-config:eq(0)").addClass("active");
       });
       $("#model-selector").addClass("errorToCart");
       // vzroluj o  100px nad nejvrchnější errorToCart
