@@ -186,10 +186,23 @@ export function createOptions(position, orders) {
     name = getName;
   }
 
+  // Najdi tooltip informace pro tento parametr
+  const tooltipInfo =
+    $(position).parents(".surcharge-list").find(".show-tooltip").attr("title") ||
+    $(position).parents(".surcharge-list").find(".show-tooltip").attr("data-original-title");
+
   $("<h5>", {
     class: "variant name",
     text: name,
   }).appendTo(nameWrap);
+
+  // Přidej informační text pokud existuje tooltip
+  if (tooltipInfo && tooltipInfo.trim() !== "") {
+    $("<div>", {
+      class: "parameter-info",
+      html: `<i class="info-icon">i</i> ${tooltipInfo}`,
+    }).appendTo(nameWrap);
+  }
   const priceWrap = $("<div>", {
     class: "price-wrap",
   }).appendTo(nameWrap);
@@ -381,15 +394,23 @@ function createOptionButtons(options, parameterId, optionsWrap) {
 
       $(optionButton).addClass("text");
     } else if (textOption.includes("rad") || textOption.includes("řada")) {
-      $("<img>", {
-        alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?11`,
+      // Vytvoř radio input
+      $("<input>", {
+        type: "radio",
+        id: `radio-${parameterId}-${value}`,
+        name: `parameter-${parameterId}`,
+        value: value,
       }).appendTo(optionButton);
-      $("<div>", {
-        class: "banner-header",
-        html: `<span>${nameSplit[0]}</span><div class='price'>${valueText[1]}</div>`,
+
+      // Vytvoř label pro radio
+      $("<label>", {
+        for: `radio-${parameterId}-${value}`,
+        class: "radio-label",
+        html: `<span class="radio-text">${nameSplit[0]}</span><strong class="radio-price">+ ${valueText[1]}</strong>`,
       }).appendTo(optionButton);
-      $(optionButton).addClass("lines");
+
+      $(optionButton).addClass("radio-row");
+      $(optionButton).parents(".options-wrap").addClass("radio-wrap");
     } else if (textOption == "ŽIADNY +0 Kč") {
       $("<div>", {
         class: "description",

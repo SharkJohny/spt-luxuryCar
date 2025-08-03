@@ -49,10 +49,27 @@
     }
   }
 }
-
-.p-thumbnails-wrapper {
-  display: none;
+.options-wrap.radio-wrap {
+  display: flex;
+  flex-direction: column;
+  .button.option-button.radio-row {
+    width: 100%;
+  }
+  span.radio-text {
+    margin-right: 10px;
+    margin-left: 5px;
+  }
+  .button.option-button.active {
+    border-color: transparent !important;
+  }
+  .button.option-button.active:before {
+    display: none;
+  }
 }
+
+// .p-thumbnails-wrapper {
+//   display: none;
+// }
 // .id-1382 {
 //   .mobile-image img {
 //     border: none !important;
@@ -276,6 +293,20 @@ table.detail-parameters {
 .p-detail-inner-header h1 {
   margin-top: 0;
   display: inline-block;
+  margin-bottom: 50px;
+}
+.parameter-info {
+  padding: 10px 10px;
+  background: #e7e7e7;
+  margin: 20px 20px 0;
+}
+i.info-icon {
+  border-radius: 50%;
+  border: 1px solid black;
+  padding: 0px 8px;
+  margin-right: 10px;
+  font-size: 12px;
+  font-style: normal;
 }
 .p-detail-info {
   margin-bottom: 40px;
@@ -777,7 +808,8 @@ span.quantity {
 }
 
 .image-wrap {
-  max-width: 400px;
+  max-width: 50%;
+
   margin: 30px auto 10px;
 }
 
@@ -1436,10 +1468,11 @@ section.shopify-section.horiz-video.shopify-section--video {
 .btn.btn-conversion,
 a.btn.btn-cart,
 a.btn.btn-conversion {
-  background-color: #c49b30;
-  border-color: #c49b30;
+  background-color: #20b082;
+  border-color: #20b082;
   color: #fff;
   border-radius: 10px;
+  font-size: 20px;
 }
 section#model-info {
   display: flex;
@@ -2431,7 +2464,7 @@ a.p-thumbnail {
   // Tlačítko "Přejít k dalšímu kroku"
   .next-step-button {
     display: none;
-    background: var(--color-primary);
+    background: #20b082;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -2470,6 +2503,12 @@ a.p-thumbnail {
   }
 }
 
+span.price-save {
+  display: none !important;
+}
+span.price-standard span {
+  text-decoration: line-through;
+}
 @media (min-width: 1440px) {
   .type-product .surcharge-list select,
   .type-product .variant-list select {

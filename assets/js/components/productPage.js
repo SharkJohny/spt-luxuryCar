@@ -40,7 +40,7 @@ const diference = standartPrice - price;
 console.log(diference);
 export function initProduct(setupData, texts) {
   createModelInfo();
-  changeThumbnails();
+  // changeThumbnails();
   setTimeout(() => {
     $(".p-thumbnails-horizontal").addClass("overflow-next");
   }, 1000);
@@ -709,10 +709,30 @@ $("body").on("click", ".btn.choice-Model", function () {
   createModelInfo();
 });
 
+$("body").on("click", ".position-wrap ", function () {
+  createModelInfo();
+});
+
 function createModelInfo() {
-  if ($("#model-info")[0] || $(".in-index")[0] || $(".type-product")[0]) return;
   const model = sessionStorage.getItem("model");
   console.log(model);
+  const type = sessionStorage.getItem("carType");
+  console.log("type -----------", type);
+  if (type && type !== "undefined") {
+    console.log("type", type);
+    const paramId = dataLayer[0].shoptet.projectId == "581408" ? 47 : 74;
+
+    const value = $(`select.parameter-id-${paramId} option`)
+      .filter(function () {
+        return $(this).text().toLowerCase().includes(type.toLowerCase());
+      })
+      .val();
+
+    if (value) {
+      $(`select.parameter-id-${paramId}`).val(value).trigger("change");
+    }
+  }
+  if ($(".in-index")[0] || $(".type-product")[0]) return;
 
   if (model && (model.includes("Značka") || model.trim() === "Model" || model.includes("Rok výroby") || model.includes("Typ auta"))) {
     return;
@@ -729,26 +749,10 @@ function createModelInfo() {
     $("<div>").addClass("setup-model").text("Upraviť").appendTo(infoWrap);
 
     $(".setup-model").on("click", function () {
+      console.log("setup model");
       $("section#model-selector").show();
       modelInfo.remove();
     });
-
-    const type = sessionStorage.getItem("carType");
-    console.log("type -----------", type);
-    if (type && type !== "undefined") {
-      console.log("type", type);
-      const paramId = dataLayer[0].shoptet.projectId == "581408" ? 47 : 74;
-
-      const value = $(`select.parameter-id-${paramId} option`)
-        .filter(function () {
-          return $(this).text().toLowerCase().includes(type.toLowerCase());
-        })
-        .val();
-
-      if (value) {
-        $(`select.parameter-id-${paramId}`).val(value).trigger("change");
-      }
-    }
 
     // $('<div class="model-info"> <span class="model">Model:</span> <span class="model-name">' + model + "</span></div>").insertBefore(
     //   "section#model-selector"
@@ -861,25 +865,28 @@ function calculateStandartPrice(diference) {
       .replace(/[^0-9]/g, "")
   );
 
-  let newStandartPrice = price + diference;
-  console.log("price", price, "diference", diference);
-  console.log("addss");
+  // Vypočítej novou standard cenu jako aktuální cena + 60%
+  let newStandartPrice = Math.round(price * 1.6); // price + 60%
+
+  console.log("price", price, "newStandartPrice (price + 60%)", newStandartPrice);
+
+  // Přidej ceny z aktivních upsale tlačítek
   $(".upsale-button.active").each(function () {
     const priceText = $(this).find(".save").attr("data-save");
     console.log(priceText);
     if (priceText) {
       const priceValue = Number(priceText.replace(/[^0-9]/g, ""));
-
       newStandartPrice += priceValue;
-      console.log("newStandartPrice", newStandartPrice);
+      console.log("newStandartPrice s upsale", newStandartPrice);
     }
   });
-  // vypočet procentualni slevy price z newStandartPrice
-  console.log("newStandartPrice", newStandartPrice, "price", price, "diference", diference);
 
+  // Vypočítej procentuální slevu z nové standard ceny
   const discount = Math.round(((newStandartPrice - price) / newStandartPrice) * 100);
   console.log("discount", discount);
-  $(".p-final-price-wrapper .price-save").text("- " + discount + "%");
+
+  // Aktualizuj zobrazení cen
+  $(".p-final-price-wrapper .price-save").text("–" + discount + " %");
   $(".p-final-price-wrapper .price-standard span").not(".price-save").text(NumToPrice(newStandartPrice));
   updateBoxPrice();
 }
@@ -1024,21 +1031,21 @@ function createUpsaleInfo(texts) {
   const upsaleBanner = $("<div>", {
     class: "upsale-Banner",
   }).insertAfter(".detail-parameters");
-  const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
-  $('<icon class="icon">!</icon>').appendTo(bannerWrap);
+  // const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
+  // $('<icon class="icon">!</icon>').appendTo(bannerWrap);
 
   const productName = $("h1").text().toLowerCase();
 
   const idUpsaleBanner = [2424, 2430, 2433, 2421, 2436, 2439, 619, 622, 625, 628, 631, 634];
 
-  if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
-    $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
-    $("<span>").html(texts.upsale_banner_text).appendTo(bannerWrap);
-    $(texts.upsale_link).appendTo(bannerWrap);
-  } else {
-    $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
-    $("<span>").html(texts.upsale_banner_text_2Layers).appendTo(bannerWrap);
-  }
+  // if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
+  //   $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
+  //   $("<span>").html(texts.upsale_banner_text).appendTo(bannerWrap);
+  //   $(texts.upsale_link).appendTo(bannerWrap);
+  // } else {
+  //   $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
+  //   $("<span>").html(texts.upsale_banner_text_2Layers).appendTo(bannerWrap);
+  // }
 }
 $("body").on("click", ".button.option-button", function (e) {
   console.log("click");
