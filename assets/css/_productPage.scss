@@ -626,22 +626,37 @@ span.quantity {
     .parameter-cars {
       margin-top: 10px;
       display: flex;
+      flex-direction: column;
+      padding: 10px 20px;
       .banner-header {
+        position: relative;
+        background-color: transparent;
         bottom: 0;
         font-size: 15px;
         min-height: 50px;
+        width: 100%;
+        color: black;
         .price {
           color: #c49b31;
         }
       }
     }
   }
+  .upsale-button.config {
+    display: flex;
+  }
+  .upsale-button.none {
+    display: flex;
+  }
+  .upsale-button.radio {
+    display: flex;
+  }
   .upsale-button {
     overflow: hidden !important;
     position: relative;
     margin: 5px;
     cursor: pointer;
-    width: calc(33% - 10px);
+    width: 100%;
 
     border-radius: 25px;
     border: 5px solid transparent;
@@ -649,13 +664,12 @@ span.quantity {
     .save,
     .price,
     .text {
-      position: absolute;
       top: 0;
       width: 100%;
-      text-align: center;
+      text-align: center !important;
       top: 30%;
       padding: 5px;
-      color: white;
+      color: black;
     }
     .text {
       display: none !important;
@@ -1468,8 +1482,8 @@ section.shopify-section.horiz-video.shopify-section--video {
 .btn.btn-conversion,
 a.btn.btn-cart,
 a.btn.btn-conversion {
-  background-color: #20b082;
-  border-color: #20b082;
+  background-color: green($color: #000000);
+  border-color: green($color: #000000);
   color: #fff;
   border-radius: 10px;
   font-size: 20px;
@@ -1940,7 +1954,7 @@ a.p-thumbnail {
   }
   .orders-5 {
     .options-wrap .button.option-button {
-      width: calc(33% - 10px) !important;
+      width: 100% !important;
       height: auto;
       .banner-header {
         font-size: 9px;
@@ -2304,6 +2318,7 @@ a.p-thumbnail {
   }
   .options-wrap .button.option-button {
     width: 17%;
+    height: fit-content;
   }
   .button.option-button.text {
     width: 22% !important;
@@ -2464,7 +2479,7 @@ a.p-thumbnail {
   // Tlačítko "Přejít k dalšímu kroku"
   .next-step-button {
     display: none;
-    background: #20b082;
+    background: #008000;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -2508,6 +2523,11 @@ span.price-save {
 }
 span.price-standard span {
   text-decoration: line-through;
+}
+.box-config {
+  .order::after {
+    display: none;
+  }
 }
 @media (min-width: 1440px) {
   .type-product .surcharge-list select,
