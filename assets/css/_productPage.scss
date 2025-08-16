@@ -1805,12 +1805,12 @@ a.p-thumbnail {
   }
 
   .upsale-Banner .upsale-button {
-    width: 32%;
+    width: 100%;
 
     margin-left: auto;
     margin-right: auto;
     .price {
-      font-size: 10px;
+      font-size: 15px;
     }
     .save {
       font-size: 10px;
@@ -1830,9 +1830,28 @@ a.p-thumbnail {
     }
 
     .upsale-Banner .upsale-buttons .parameter-cars {
-      margin-top: 10px;
+      margin-top: 15px;
       display: flex;
       flex-direction: column;
+    }
+    .banner-header {
+      position: absolute !important;
+      background-color: rgb(20 20 20 / 67%) !important;
+      bottom: 0 !important;
+      top: unset;
+      font-size: 15px;
+      min-height: 50px;
+      width: 100%;
+      color: white;
+      height: 65px !important;
+    }
+    .save {
+      position: absolute;
+      color: #fff;
+      text-align: left;
+      left: 13px;
+      text-align: left !important;
+      top: -37px !important;
     }
   }
   .upsale-button {
@@ -1840,7 +1859,7 @@ a.p-thumbnail {
   }
 
   .upsale-Banner .upsale-buttons .parameter-cars .banner-header {
-    font-size: 11px;
+    font-size: 17px;
   }
 
   .upsale-Banner .upsale-buttons .parameter-cars {

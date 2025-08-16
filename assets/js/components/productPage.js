@@ -542,36 +542,43 @@ $(document).on("click", ".close-btn.close", function () {
  * Initializes the first page of the upsale section.
  */
 function firstPage(texts) {
-  const wrap = $("<div>", {
-    class: "navigatte-button class first",
-    "data-option": "option-0",
-  }).appendTo(".navidation-Wrap");
+  // Nejprve krok 0: výběr vzoru
+  const patterns = $("<div>", {
+    class: "position-wrap parameter-cars parameter-wrap  base-config", // krok 0 není otevřený
+  }).appendTo(".content-wrap");
+  $('<div class="order">0</div>').appendTo(patterns);
+  $('<h5 class="variant name">' + texts.carpet_quilting_pattern + "</h5>").appendTo(patterns);
 
-  const wheelval = $("select.parameter-id-37.surcharge-parameter").val();
-  let typeVal = $("select.parameter-id-22.surcharge-parameter").val();
+  const patternsWrap = $("<div>", {
+    class: "parameter-cars patterns-wrap",
+  }).appendTo(patterns);
+  let diamondurl = $(".detail-parameters tr:contains('diamond') td").text();
+  let hexaurl = $(".detail-parameters tr:contains('hexa') td").text();
+  let stripeurl = $(".detail-parameters tr:contains('stripe') td").text();
+  console.log(diamondurl);
 
-  if (wheelval == "") {
-    $("select.parameter-id-37.surcharge-parameter").val(250);
+  const diamond = $(
+    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`
+  ).appendTo(patternsWrap);
+  const hexa = $(
+    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`
+  ).appendTo(patternsWrap);
+  const stripe = $(
+    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`
+  ).appendTo(patternsWrap);
+  console.log(diamondurl);
+
+  if (diamondurl == "active") {
+    diamond.addClass("active");
   }
-  if (typeVal == "") {
-    const getModel = sessionStorage.getItem("carType");
-    console.log(getModel);
-
-    const value = $("select.parameter-id-22.surcharge-parameter option")
-      .filter(function () {
-        return $(this).text().indexOf(getModel) !== -1;
-      })
-      .val();
-
-    console.log(value);
-
-    $("select.parameter-id-22.surcharge-parameter").val(value);
-    typeVal = value;
+  if (hexaurl == "active") {
+    hexa.addClass("active");
+  }
+  if (stripeurl == "active") {
+    stripe.addClass("active");
   }
 
-  const header = $("h1").text();
-  if (header.includes("box")) return;
-
+  // Krok 1: specifikace vozidla (otevřený defaultně)
   const pageWrap = $("<div>", {
     class: "position-wrap parameter-cars parameter-wrap  base-config active",
   }).appendTo(".content-wrap");
@@ -624,51 +631,6 @@ function firstPage(texts) {
     const value = $(this).attr("data-value");
     $("select.parameter-id-22.surcharge-parameter").val(value);
   });
-  ////// výběr vzoru
-
-  const patterns = $("<div>", {
-    class: "position-wrap parameter-cars parameter-wrap  base-config",
-  }).appendTo(".content-wrap");
-  $('<div class="order">2</div>').appendTo(patterns);
-  $('<h5 class="variant name">' + texts.carpet_quilting_pattern + "</h5>").appendTo(patterns);
-
-  const patternsWrap = $("<div>", {
-    class: "parameter-cars patterns-wrap",
-  }).appendTo(patterns);
-  let diamondurl = $(".detail-parameters tr:contains('diamond') td").text();
-  let hexaurl = $(".detail-parameters tr:contains('hexa') td").text();
-  let stripeurl = $(".detail-parameters tr:contains('stripe') td").text();
-  console.log(diamondurl);
-  // if (diamondurl == "active") {
-  //   diamondurl = "";
-  // }
-  // if (hexaurl == "active") {
-  //   hexaurl = "";
-  // }
-  // if (stripeurl == "active") {
-  //   stripeurl = "";
-  // }
-
-  const diamond = $(
-    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`
-  ).appendTo(patternsWrap);
-  const hexa = $(
-    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`
-  ).appendTo(patternsWrap);
-  const stripe = $(
-    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`
-  ).appendTo(patternsWrap);
-  console.log(diamondurl);
-
-  if (diamondurl == "active") {
-    diamond.addClass("active");
-  }
-  if (hexaurl == "active") {
-    hexa.addClass("active");
-  }
-  if (stripeurl == "active") {
-    stripe.addClass("active");
-  }
 }
 
 function condownMessage(position, time, text) {
