@@ -134,7 +134,7 @@ function initModelSelect(texts) {
       insertPosidion = ".in-rozcestnik #sets";
     }
     if ($(".type-product")[0]) {
-      insertPosidion = ".parameter-cars:eq(0)";
+      insertPosidion = ".parameter-cars.wheel-Position";
     }
   }
 
@@ -157,6 +157,9 @@ function initModelSelect(texts) {
   });
   if ($("body.mobile")[0]) {
     $(section).prependTo(insertPosidion);
+    if ($(".type-product")[0]) {
+      $(section).insertAfter(insertPosidion);
+    }
   } else {
     $(section).insertAfter(insertPosidion);
   }
