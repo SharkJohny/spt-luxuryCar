@@ -457,6 +457,11 @@ function priplatky(setupData, texts) {
         // Můžeme zde přidat další logiku pro dokončení konfigurace
         // například zvýraznění tlačítka "Přidat do košíku" nebo zobrazení shrnutí
       }
+
+      // Aktualizuj texty tlačítek po každé změně
+      setTimeout(() => {
+        updateButtonTexts();
+      }, 50);
     });
 
     // Přidání tlačítek "Přejít k dalšímu kroku" do všech wrap elementů
@@ -485,8 +490,28 @@ function priplatky(setupData, texts) {
       });
     }
 
+    // Funkce pro aktualizaci textů tlačítek
+    function updateButtonTexts() {
+      const allWraps = $(".position-wrap, .parameter-wrap");
+
+      allWraps.each(function (index) {
+        const $wrap = $(this);
+        const $button = $wrap.find(".next-step-button");
+
+        if ($button.length > 0) {
+          const isLast = index === allWraps.length - 1;
+          const buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+
+          // Aktualizuj text a třídu
+          $button.text(buttonText);
+          $button.toggleClass("finish-button", isLast);
+        }
+      });
+    }
+
     // Spusť přidání tlačítek po načtení stránky a při změnách DOMu
     addNextStepButtons();
+    updateButtonTexts();
 
     // Observer pro sledování změn v DOMu a přidání tlačítek do nových elementů
     const observer = new MutationObserver(function (mutations) {
@@ -507,7 +532,10 @@ function priplatky(setupData, texts) {
       });
 
       if (shouldAddButtons) {
-        setTimeout(addNextStepButtons, 100); // Malé zpoždění pro jistotu
+        setTimeout(() => {
+          addNextStepButtons();
+          updateButtonTexts(); // Aktualizuj texty po přidání nových elementů
+        }, 100); // Malé zpoždění pro jistotu
       }
     });
 
@@ -1021,6 +1049,13 @@ $("body").on("click", ".button.option-button", function (e) {
   setTimeout(() => {
     calculateStandartPrice(diference);
   }, 100);
+
+  // Aktualizuj texty tlačítek po kliknutí na option button
+  setTimeout(() => {
+    if (typeof updateButtonTexts === "function") {
+      updateButtonTexts();
+    }
+  }, 200);
 
   if (!$(".goToAction")[0]) {
     console.log("goToAction");
