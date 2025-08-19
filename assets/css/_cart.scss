@@ -79,7 +79,11 @@ a.btn.btn-default:hover {
 a.btn.btn-default {
   background-color: var(--color-primary);
 }
-
+.ordering-process {
+  span.quantity {
+    display: block;
+  }
+}
 input#varchar1 {
   display: none;
 }

@@ -333,7 +333,7 @@ i.info-icon {
     text-align: left;
     color: white;
     font-family: "Exo 2";
-    padding: 13px 23px;
+    padding: 8px 23px;
   }
   .h4.variant.name {
     position: absolute;
@@ -380,7 +380,7 @@ i.info-icon {
 }
 .base-config h5.variant.name {
   position: absolute;
-  top: 16px;
+  top: 11px;
   left: 50px;
   color: white;
   text-transform: uppercase;
@@ -2536,7 +2536,14 @@ a.p-thumbnail {
     display: block;
   }
 }
-
+.parameter-wrap.parameter-sizes {
+  button.next-step-button {
+    display: none !important;
+  }
+  .variant.name {
+    padding: 10px 0 !important;
+  }
+}
 span.price-save {
   display: none !important;
 }
@@ -2547,6 +2554,9 @@ span.price-standard span {
   .order::after {
     display: none;
   }
+}
+.timeline__slide.reveal-invisible {
+  display: none;
 }
 @media (min-width: 1440px) {
   .type-product .surcharge-list select,

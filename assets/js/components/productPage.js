@@ -314,95 +314,6 @@ function priplatky(setupData, texts) {
     //   createUpsalePopup();
     // });
 
-    firstPage(texts);
-
-    const pairVariantList = JSON.parse(setupData.settings.pairVariantList);
-    const pairedOrders = {};
-    let orders = 2;
-    const header = $("h1").text();
-    if (header.includes("box")) {
-      orders = 1;
-
-      createOptions("box", orders);
-    }
-    createBoxConfig();
-
-    $(".detail-parameters .variant-list select").each(function () {
-      orders += 1;
-      const position = this;
-      createOptions(position, orders);
-    });
-
-    if (header.includes("box")) {
-      orders += 1;
-      createOptions("sizes", orders);
-      return;
-    }
-
-    $(".detail-parameters .surcharge-list select").each(function () {
-      const id = $(this).attr("data-parameter-id");
-
-      if (id == "37" || id == "60" || id == "88" || id == "89" || id == "47" || id == "74") return;
-
-      let sharedOrder = null;
-      pairVariantList.forEach((pair) => {
-        if (pair.includes(parseInt(id))) {
-          sharedOrder = pair;
-        }
-      });
-
-      if (sharedOrder) {
-        if (pairedOrders[sharedOrder]) {
-          orders = pairedOrders[sharedOrder];
-        } else {
-          orders += 1;
-          pairedOrders[sharedOrder] = orders;
-        }
-      } else {
-        orders += 1;
-      }
-
-      console.log(id);
-      const position = this;
-      createOptions(position, orders);
-      console.log(pairVariantList);
-    });
-    console.log("clickaaaa");
-
-    if ($("html[lang='cs']").length) {
-      $(".p-variants-block .surcharge-list:contains('Velikost boxu') option[data-index='0']").text("Zvolte velikost boxu");
-      $(".p-variants-block .surcharge-list:contains('Rozměr 2. Boxu') option[data-index='0']").text("Zvolte velikost 2.boxu");
-
-      $(".p-variants-block .surcharge-list:contains('Rozměr boxu') option[data-index='0']").text("Zvolte velikost boxu");
-      $(".p-variants-block .surcharge-list:contains('Velikost 2. Boxu') option[data-index='0']").text("Zvolte velikost 2.boxu");
-
-      $(".p-variants-block .surcharge-list:contains('Barva boxu') option[data-index='0']").text("Zvolte barvu boxu");
-      $(".p-variants-block .surcharge-list:contains('Barva 2. boxu') option[data-index='0']").text("Zvolte barvu 2.boxu");
-
-      $(".p-variants-block .surcharge-list:contains('Umístění volantu') option[data-index='0']").text("Prosím, vyberte umístění volantu");
-    }
-    if ($("html[lang='sk']").length) {
-      $(".p-variants-block .surcharge-list:contains('Veľkosť boxu') option[data-index='0']").text("Zvoľte veľkosť boxu");
-      $(".p-variants-block .surcharge-list:contains('Rozmer 2. Boxu') option[data-index='0']").text("Zvoľte veľkosť 2.boxu");
-
-      $(".p-variants-block .surcharge-list:contains('Rozmer boxu') option[data-index='0']").text("Zvoľte veľkosť boxu");
-      $(".p-variants-block .surcharge-list:contains('Veľkosť 2. Boxu') option[data-index='0']").text("Zvoľte veľkosť 2.boxu");
-
-      $(".p-variants-block .surcharge-list:contains('Farba boxu') option[data-index='0']").text("Zvoľte farbu boxu");
-      $(".p-variants-block .surcharge-list:contains('Farba 2. boxu') option[data-index='0']").text("Zvoľte farbu 2.boxu");
-
-      $(".p-variants-block .surcharge-list:contains('Umiestenie volantu') option[data-index='0']").text("Prosím,vyberte umiestnenie volantu");
-    }
-
-    $(".navigatte-button").on("click", function () {
-      const option = $(this).attr("data-option").split("-");
-      const optionName = option[1];
-      $(".parameter-wrap").removeClass("active");
-      $(`.parameter-wrap:eq(${optionName})`).addClass("active");
-      $(".navigatte-button").removeClass("active");
-      $(`.navigatte-button:eq(${optionName})`).addClass("active");
-    });
-
     // Akordeon funkcionalita pro position-wrap a parameter-wrap elementy
     $(document).on(
       "click",
@@ -509,10 +420,6 @@ function priplatky(setupData, texts) {
       });
     }
 
-    // Spusť přidání tlačítek po načtení stránky a při změnách DOMu
-    addNextStepButtons();
-    updateButtonTexts();
-
     // Observer pro sledování změn v DOMu a přidání tlačítek do nových elementů
     const observer = new MutationObserver(function (mutations) {
       let shouldAddButtons = false;
@@ -546,6 +453,102 @@ function priplatky(setupData, texts) {
         subtree: true,
       });
     }
+
+    firstPage(texts);
+
+    // Spusť přidání tlačítek po načtení firstPage (i když skončí předčasně)
+    setTimeout(() => {
+      addNextStepButtons();
+      updateButtonTexts();
+    }, 100);
+
+    const pairVariantList = JSON.parse(setupData.settings.pairVariantList);
+    const pairedOrders = {};
+    let orders = 2;
+    const header = $("h1").text();
+    if (header.includes("box")) {
+      orders = 1;
+
+      createOptions("box", orders);
+    }
+    createBoxConfig();
+
+    $(".detail-parameters .variant-list select").each(function () {
+      orders += 1;
+      const position = this;
+      createOptions(position, orders);
+    });
+
+    if (header.includes("box")) {
+      orders += 1;
+      createOptions("sizes", orders);
+      return;
+    }
+
+    $(".detail-parameters .surcharge-list select").each(function () {
+      const id = $(this).attr("data-parameter-id");
+
+      if (id == "37" || id == "60" || id == "88" || id == "89" || id == "47" || id == "74") return;
+
+      let sharedOrder = null;
+      pairVariantList.forEach((pair) => {
+        if (pair.includes(parseInt(id))) {
+          sharedOrder = pair;
+        }
+      });
+
+      if (sharedOrder) {
+        if (pairedOrders[sharedOrder]) {
+          orders = pairedOrders[sharedOrder];
+        } else {
+          orders += 1;
+          pairedOrders[sharedOrder] = orders;
+        }
+      } else {
+        orders += 1;
+      }
+
+      console.log(id);
+      const position = this;
+      createOptions(position, orders);
+      console.log(pairVariantList);
+    });
+    console.log("clickaaaa");
+
+    if ($("html[lang='cs']").length) {
+      $(".p-variants-block .surcharge-list:contains('Velikost boxu') option[data-index='0']").text("Zvolte velikost boxu");
+      $(".p-variants-block .surcharge-list:contains('Rozměr 2. Boxu') option[data-index='0']").text("Zvolte velikost 2.boxu");
+
+      $(".p-variants-block .surcharge-list:contains('Rozměr boxu') option[data-index='0']").text("Zvolte velikost boxu");
+      $(".p-variants-block .surcharge-list:contains('Velikost 2. Boxu') option[data-index='0']").text("Zvolte velikost 2.boxu");
+
+      $(".p-variants-block .surcharge-list:contains('Barva boxu') option[data-index='0']").text("Zvolte barvu boxu");
+      $(".p-variants-block .surcharge-list:contains('Barva 2. boxu') option[data-index='0']").text("Zvolte barvu 2.boxu");
+
+      $(".p-variants-block .surcharge-list:contains('Umístění volantu') option[data-index='0']").text("Prosím, vyberte umístění volantu");
+    }
+    if ($("html[lang='sk']").length) {
+      $(".p-variants-block .surcharge-list:contains('Veľkosť boxu') option[data-index='0']").text("Zvoľte veľkosť boxu");
+      $(".p-variants-block .surcharge-list:contains('Rozmer 2. Boxu') option[data-index='0']").text("Zvoľte veľkosť 2.boxu");
+
+      $(".p-variants-block .surcharge-list:contains('Rozmer boxu') option[data-index='0']").text("Zvoľte veľkosť boxu");
+      $(".p-variants-block .surcharge-list:contains('Veľkosť 2. Boxu') option[data-index='0']").text("Zvoľte veľkosť 2.boxu");
+
+      $(".p-variants-block .surcharge-list:contains('Farba boxu') option[data-index='0']").text("Zvoľte farbu boxu");
+      $(".p-variants-block .surcharge-list:contains('Farba 2. boxu') option[data-index='0']").text("Zvoľte farbu 2.boxu");
+
+      $(".p-variants-block .surcharge-list:contains('Umiestenie volantu') option[data-index='0']").text("Prosím,vyberte umiestnenie volantu");
+    }
+
+    $(".navigatte-button").on("click", function () {
+      const option = $(this).attr("data-option").split("-");
+      const optionName = option[1];
+      $(".parameter-wrap").removeClass("active");
+      $(`.parameter-wrap:eq(${optionName})`).addClass("active");
+      $(".navigatte-button").removeClass("active");
+      $(`.navigatte-button:eq(${optionName})`).addClass("active");
+    });
+    console.log("clickaaaa");
   }
 }
 
@@ -570,6 +573,12 @@ $(document).on("click", ".close-btn.close", function () {
  * Initializes the first page of the upsale section.
  */
 function firstPage(texts) {
+  if (dataLayer[0].shoptet.product.id == "2427") {
+    setTimeout(function () {
+      $(".orders-1").addClass("active");
+    }, 200);
+    return;
+  }
   // Nejprve krok 0: výběr vzoru
   const patterns = $("<div>", {
     class: "position-wrap parameter-cars parameter-wrap  base-config", // krok 0 není otevřený

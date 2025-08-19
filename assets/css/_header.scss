@@ -573,6 +573,12 @@ button.ButtonBase__ButtonContainer-sc-p43e7i-3.euBiGU {
 .top-navigation-bar {
   border-top-color: #1a1a1a;
 }
+.navigation-buttons a.toggle-window[data-target="search"] {
+  display: none;
+}
+a.contact-link {
+  margin-right: 22px;
+}
 @media (min-width: 768px) {
   .ordering-process {
     #header .site-name a img {

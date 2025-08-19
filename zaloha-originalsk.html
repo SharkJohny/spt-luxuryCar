@@ -1,165 +1,676 @@
-<!-- header -->
-
-<script type="text/javascript">
-    (function (c, l, a, r, i, t, y) {
-        c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
-        t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-        y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-    })(window, document, "clarity", "script", "r2wlz8pgh1");
-</script>
-<link rel="stylesheet" href="/user/documents/upload/DMupravy/luxurycardesign.sk.css?190">
-
-<style>
-    body.template-12 .navigation-buttons>a[data-target="cart"] i {
-        border-color: #B6934D;
-        color: #B6934D;
-    }
-</style>
-
-<!-- Štefan Mazáň -->
-<link id='SMstyle' href="/user/documents/SMupravy/dist/css/main.min.css?v=34#DEBUG_TIMESTAMP#"
-    data-author-name='Štefan Mazáň' data-author-email='stefan(a)izora.cz' data-author-website='upravy.shop'
-    rel="stylesheet" />
-
-<style>
-    @media only screen and (max-width: 991px) {
-        .scrolled .marquee {
-            position: fixed;
-            top: 0;
-        }
-
-        .marquee {
-            font-family: 'Roboto', sans-serif;
-            font-size: 12pt;
-            font-weight: 500;
-            color: #fff;
-            background: #a78a51;
-            margin-top: 0;
-            margin-bottom: 0;
-            padding: 1rem;
-            z-index: 9999;
-
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            box-sizing: border-box;
-        }
-
-        .marquee p {
-            display: inline-block;
-            padding-left: 100%;
-            animation: marquee 100s linear infinite;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .marquee p span {
-            background: #fff;
-            width: 10px;
-            height: 10px;
-            display: inline-block;
-            border-radius: 50px;
-            margin: 0 3rem;
-        }
-    }
-
-    @media only screen and (min-width: 991px) {
-        header#header {
-            margin-top: 3rem;
-        }
-
-        marquee {
-            font-family: 'Roboto', sans-serif;
-            font-size: 12pt;
-            font-weight: 500;
-            color: #fff;
-            background: #a78a51;
-            margin-bottom: 2rem;
-            padding: 1rem;
-
-            position: fixed;
-            top: 0;
-            left: 0;
-
-            z-index: 9999;
-
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            box-sizing: border-box;
-        }
-
-        marquee p {
-            display: inline-block;
-            padding-left: 100%;
-            animation: marquee 15s linear infinite;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        marquee span {
-            background: #fff;
-            width: 10px;
-            height: 10px;
-            display: inline-block;
-            border-radius: 50px;
-            margin: 0 3rem;
-        }
-    }
-
-    @keyframes marquee {
-        0% {
-            transform: translate(0, 0);
-        }
-
-        100% {
-            transform: translate(-100%, 0);
-        }
-    }
-</style>
-
-<style>
-    .admin-bar {
-        position: relative;
-        z-index: 999999;
-    }
-</style>
-
-
-
-
-
-
-<!-- footer -->
-
-
-<script src="/user/documents/upload/DMupravy/luxurycardesign.sk.js?470"></script>
-<script src="/user/documents/upload/DMupravy/cars_SK.js?140"></script>
-
-<script>
-    var kontakt_detail_nadpis = "Chcete sa k produktu na niečo spýtať?"
-    var kontakt_detail_popis = "Zavolajte alebo napíšte, radi Vám odpovieme na všetky otázky"
-    var kontakt_detail_foto = "/user/documents/upload/logo.jpg"
-    var kontakt_detail_jmeno = "Michal Švancár"
-</script>
-
-<script>
-
-    $(document).on("ready", function () {
-        if ($('body').hasClass('desktop')) {
-            $('<marquee>Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov.</marquee>').appendTo('body')
-        }
-
-        if (document.body.classList.contains('mobile')) {
-            const marqueeHTML = '<div class="marquee"><p>Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov. <span></span> Sme výhradný predajca pre Českú a Slovenskú republiku. <span></span> Garantujeme kvalitu našich produktov.</p></div>';
-            document.querySelector('header#header').insertAdjacentHTML('afterend', marqueeHTML);
-        }
-    });
-
-    $(document).ready(function () {
-        $(document).on("contextmenu", function (e) {
-            return false;
-        });
-    });
-
-</script>
+<div class="section section-blends section-full">
+    <div class="section-stack">
+        <div class="full-width">
+            <h2 class="h3">10 důvodů, proč si koupit Luxusní autokoberce</h2>
+        </div>
+        <div class="text-with-icons container">
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 1 of 5">
+                <div><img
+                        src="/user/documents/upload/assets/image/icon_custom_fit_e785ff02-5e44-4941-a08c-2c4352d1ef5a.png?v=1688987246&amp;width=300"
+                        alt="" srcset="
+              /user/documents/upload/assets/image/icon_custom_fit_e785ff02-5e44-4941-a08c-2c4352d1ef5a.png?v=1688987246&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_custom_fit_e785ff02-5e44-4941-a08c-2c4352d1ef5a.png?v=1688987246&amp;width=120 120w
+            " width="300" height="301" loading="eager" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">100% NA MÍRU</p>
+                        <p>Navrženo s laserovou přesností pro dokonalé přizpůsobení.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 2 of 5">
+                <div><img src="/user/documents/upload/assets/image/Weather-no-Winter.png" alt="" width="300"
+                        height="300" loading="eager" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">jaro, léto, podzim</p>
+                        <p>Vyrobeno tak, aby odolalo teplu a dešti.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 3 of 5">
+                <div><img src="/user/documents/upload/assets/image/icon_waterproof.png?v=1688150738&amp;width=300"
+                        alt="" srcset="
+              /user/documents/upload/assets/image/icon_waterproof.png?v=1688150738&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_waterproof.png?v=1688150738&amp;width=120 120w
+            " width="300" height="301" loading="lazy" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">VODĚODOLNÉ A ODOLNÉ PROTI SKVRNÁM</p>
+                        <p>Chrání před rozlitými tekutinami, špínou a skvrnami.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 4 of 5">
+                <div><img src="/user/documents/upload/assets/image/icon_clean.png?v=1688150753&amp;width=300" alt=""
+                        srcset="
+              /user/documents/upload/assets/image/icon_clean.png?v=1688150753&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_clean.png?v=1688150753&amp;width=120 120w
+            " width="300" height="301" loading="lazy" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">RYCHLÉ ČIŠTĚNÍ</p>
+                        <p>Bez nutnosti vysavače — stačí otřít a je hotovo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 5 of 5">
+                <div><img src="/user/documents/upload/assets/image/icon_ultra_durable.png?v=1688150778&amp;width=300"
+                        alt="" srcset="
+              /user/documents/upload/assets/image/icon_ultra_durable.png?v=1688150778&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_ultra_durable.png?v=1688150778&amp;width=120 120w
+            " width="300" height="301" loading="lazy" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">EXTRÉMNĚ ODOLNÁ KONSTRUKCE</p>
+                        <p>Navrženo s 5vrstvou zesílenou strukturou.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 1 of 5">
+                <div><img
+                        src="/user/documents/upload/assets/image/icon_sound_insulation_v2.png?v=1690314129&amp;width=300"
+                        alt="" srcset="
+              /user/documents/upload/assets/image/icon_sound_insulation_v2.png?v=1690314129&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_sound_insulation_v2.png?v=1690314129&amp;width=120 120w
+            " width="300" height="300" loading="eager" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">IZOLAČNÍ MATERIÁL</p>
+                        <p>Snižuje hluk z vozovky.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 2 of 5">
+                <div><img src="/user/documents/upload/assets/image/icon_resale.png?v=1688150809&amp;width=300" alt=""
+                        srcset="
+              /user/documents/upload/assets/image/icon_resale.png?v=1688150809&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_resale.png?v=1688150809&amp;width=120 120w
+            " width="300" height="301" loading="eager" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">ZACHOVÁVÁ HODNOTU PŘI PRODEJI</p>
+                        <p>Chrání interiér vozidla před opotřebením.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 3 of 5">
+                <div><img src="/user/documents/upload/assets/image/icon_pet_friendly.png?v=1688150911&amp;width=300"
+                        alt="" srcset="
+              /user/documents/upload/assets/image/icon_pet_friendly.png?v=1688150911&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_pet_friendly.png?v=1688150911&amp;width=120 120w
+            " width="300" height="301" loading="lazy" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">PŘÍVĚTIVÉ KE ZVÍŘATŮM A BEZ STAROSTÍ</p>
+                        <p>Odpuzuje zvířecí chlupy pro snadné čištění.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 4 of 5">
+                <div><img
+                        src="/user/documents/upload/assets/image/icon_pet_8b608abb-f45d-4151-b462-8015dcca6842.png?v=1688150930&amp;width=300"
+                        alt="" srcset="
+              /user/documents/upload/assets/image/icon_pet_8b608abb-f45d-4151-b462-8015dcca6842.png?v=1688150930&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_pet_8b608abb-f45d-4151-b462-8015dcca6842.png?v=1688150930&amp;width=120 120w
+            " width="300" height="300" loading="lazy" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">BEZ KRUTOSTI</p>
+                        <p>Vyrobeno z prémiové veganské kůže.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-with-icons__item snap-center" role="group" aria-label="Item 5 of 5">
+                <div><img src="/user/documents/upload/assets/image/icon_odor_free.png?v=1688150949&amp;width=300" alt=""
+                        srcset="
+              /user/documents/upload/assets/image/icon_odor_free.png?v=1688150949&amp;width=60   60w,
+              /user/documents/upload/assets/image/icon_odor_free.png?v=1688150949&amp;width=120 120w
+            " width="300" height="300" loading="lazy" sizes="60px"
+                        style="--mobile-icon-max-width: 60px; --icon-max-width: 60px;" class="image-icon" /></div>
+                <div class="text-with-icons__text-wrapper">
+                    <div class="prose">
+                        <p class="h6">BEZ ZÁPACHU</p>
+                        <p>Vyrobeno z prémiových materiálů bez nepříjemného zápachu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section section-full bg-custom full-width" style="--background: 242 242 242;">
+    <div>
+        <div class="impact-text impact-text--center container">
+            <div class="snap-center">
+                <h2 class="impact-text__text heading break-all"><impact-text count-up="2.5" reveal-js=""
+                        style="opacity: 1; transform: translateY(0px);"><span class="text-gradient"
+                            style="--gradient: linear-gradient(                  153deg,                  rgba(128, 130, 133, 1) 26%,                  rgba(208, 140, 60, 1) 88%,                  rgba(26, 26, 26, 0) 100%                );">95<span
+                                style="text-align: end;"></span>% </span> </impact-text></h2>
+                <div class="impact-text__content">
+                    <div class="prose">
+                        <h3 class="h4">pokrytí podlahy</h3>
+                        <p>Nejlepší pokrytí na trhu, které chrání hodnotu vašeho vozidla při prodeji.</p>
+                    </div>
+                </div>
+            </div>
+            <span class="shape-diamond shape--lg place-self-center"></span>
+            <div class="snap-center">
+                <h2 class="impact-text__text heading break-all"><impact-text count-up="3.7" reveal-js=""
+                        style="opacity: 1; transform: translateY(0px);"><span class="text-gradient"
+                            style="--gradient: linear-gradient(                  153deg,                  rgba(128, 130, 133, 1) 26%,                  rgba(208, 140, 60, 1) 88%,                  rgba(26, 26, 26, 0) 100%                );">
+                            100<span style="text-align: end;"></span>% </span> </impact-text></h2>
+                <div class="impact-text__content">
+                    <div class="prose">
+                        <h3 class="h4">vodotěsné</h3>
+                        <p>Úplná ochrana před náhodným rozlitím zaručuje bezstarostnou jízdu a maximální komfort.</p>
+                    </div>
+                </div>
+            </div>
+            <span class="shape-diamond shape--lg place-self-center"></span>
+            <div class="snap-center">
+                <h2 class="impact-text__text heading break-all"><impact-text count-up="5" reveal-js=""
+                        style="opacity: 1; transform: translateY(0px);"><span class="text-gradient"
+                            style="--gradient: linear-gradient(                  153deg,                  rgba(128, 130, 133, 1) 26%,                  rgba(208, 140, 60, 1) 88%,                  rgba(26, 26, 26, 0) 100%                );">1000<span
+                                style="text-align: end;"></span>+ </span> </impact-text></h2>
+                <div class="impact-text__content">
+                    <div class="prose">
+                        <h3 class="h4">ŠIROKÝ VÝBĚR MODELŮ</h3>
+                        <p>Vyrobeno na míru konkrétního vozidla podle naskenovaných šablon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="layers-info-wrap">
+    <div class="image-container"><img src="/user/documents/upload/assets/lazers.jpg" alt="Interaktivní obrázek"
+            class="main-image" loading="eager" /> <!-- Hotspot 1 -->
+        <div class="hotspot" style="top: 37%; left: 20%;">
+            <div class="tooltips">
+                <h4>Protiskluzová vrstva</h4>
+                <p>Materiál ze síťoviny vyrobený z nylonu s protiskluzovými vlastnostmi pomáhá upevnit koberec na
+                    podlaze auta, čímž zajišťuje, že se nebude posouvat. To zvyšuje bezpečnost a stabilitu během jízdy.
+                </p>
+            </div>
+        </div>
+        <!-- Hotspot 2 -->
+        <div class="hotspot" style="top: 43%; left: 31%;">
+            <div class="tooltips">
+                <h4>Ekologický materiál XPE</h4>
+                <p>Vrstva z propojeného polyetylenu umožňuje, aby si koberce udržely svůj původní tvar, a zároveň
+                    zlepšuje schopnost izolovat hluk. Tento materiál je šetrný k životnímu prostředí.</p>
+            </div>
+        </div>
+        <div class="hotspot" style="top: 48%; left: 40%;">
+            <div class="tooltips">
+                <h4>Prodyšná netkaná vrstva</h4>
+                <p>Třetí vrstva se skládá z ultra tenké vrstvy prodyšného netkaného materiálu, který poskytuje oporu pro
+                    vrchní vrstvy. Zajišťuje, aby vlákna použitá v kobercích zůstala pevná a stabilní i při dlouhodobém
+                    používání.</p>
+            </div>
+        </div>
+        <!-- Hotspot 4 -->
+        <div class="hotspot" style="top: 54%; left: 52%;">
+            <div class="tooltips">
+                <h4>Vysokohustotní pěna</h4>
+                <p>Další vrstva poskytuje dokonalou měkkost, která zvyšuje pohodlí a zároveň slouží jako ochranná
+                    bariéra.</p>
+            </div>
+        </div>
+        <div class="hotspot" style="top: 60%; left: 64%;">
+            <div class="tooltips">
+                <h4>Kvalitní eko-kůže</h4>
+                <p>Tato vrstva je vyrobena z prémiové, odolné umělé kůže s příjemným povrchem. Je pohodlná, snadno se
+                    čistí a je příjemná na dotek – poskytuje dokonalý luxus a eleganci.</p>
+            </div>
+        </div>
+    </div>
+    <div class="layers-text">
+        <h2 class="h2">Složení materiálu</h2>
+        <p>Naše koberce se skládají z 5 vrstev, které poskytují maximální odolnost proti poškození i v extrémních
+            podmínkách. Vrstvy zajišťují pohodlí, tlumení hluku, tepelnou izolaci, ochranu před vlhkostí a vynikající
+            přilnavost. Všechny vrstvy jsou spojeny lepením pod vysokým tlakem a teplotou a následně prošity, čímž
+            zaručujeme dlouhou životnost a bezkonkurenční komfort během jízdy.</p>
+    </div>
+</div>
+<section id="section1" class="text-block full-width">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j1.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content "><span class="images-scrolling__counter bold">01</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">Luxury
+                        Car Design Logo pravosti</span></p>
+                <p>Naše produkty jsou často napodobovány, ale nikdy nebyly a ani nebudou překonány. Abychom vám pomohli
+                    rozeznat originál od kopií, přidali jsme na naše Luxusní autokoberce jedinečné logo pravosti. Toto
+                    logo potvrzuje, že kupujete skutečný originální produkt. Ujistěte se, že toto logo najdete na
+                    výrobku, abyste měli jistotu, že vlastníte pravý produkt Luxury Car Design!</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section2" class="text-block">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j2.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content " style="opacity: 1;"><span
+                class="images-scrolling__counter bold">02</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">Nejlepší
+                        pokrytí podlahy na trhu</span></p>
+                <p>Naše luxusní autokoberce poskytují ochranu a styl tam, kde běžné autokoberce nestačí. Naše luxusní
+                    autokoberce pokrývají až 100 % podlahových a 95 % bočních ploch vašeho vozidla, čímž zajišťují
+                    výjimečnou ochranu, jakou jiné autokoberce nenabízejí.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section3" class="text-block full-width">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j3.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content opacity-0" style="opacity: 1;"><span
+                class="images-scrolling__counter bold">03</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">Dvojité
+                        uchycení pro maximální stabilitu</span></p>
+                <p>Každá rohož má na spodní části po celém obvodu našité suché zipy, které slouží k primárnímu uchycení
+                    a zajišťují pevné a bezpečné upevnění. Součástí balení jsou i klipy, které může zákazník použít pro
+                    sekundární uchycení pod plastové části ve vozidle, čímž se zajistí dodatečná stabilita.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section4" class="text-block">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j4.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content opacity-0" style="opacity: 1;"><span
+                class="images-scrolling__counter bold">04</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">Celoplošný
+                        koberec pro druhou řadu sedadel</span></p>
+                <p>Zadní autokoberec je navržen tak, aby sahal až k zadní hraně u prahu dveří a překrýval celou podlahu
+                    zadních sedadel, včetně tunelu. Tím zajišťuje minimálně 95 % pokrytí podlahových ploch a maximální
+                    ochranu vašeho vozidla. Tento autokoberec poskytuje ochranu před vodou, sněhem, špínou a jinými
+                    nečistotami.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section5" class="text-block full-width">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j5.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content "><span class="images-scrolling__counter bold">05</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">KOMFORT
+                        A ODOLNOST BEZ KOMPROMISŮ</span></p>
+                <p>Velká, vysoce kvalitní patní podložka je umístěna v oblasti, kde chodidla přirozeně spočívají, čímž
+                    se zvyšuje pohodlí a odolnost při jízdě. Objevte znovu jízdu s bezkonkurenčním komfortem a luxusem,
+                    který poskytují naše luxusní autokoberce.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section6" class="text-block">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j6.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content " style="opacity: 1;"><span
+                class="images-scrolling__counter bold">06</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">Speciální
+                        barva interiéru? Nevadí, přizpůsobíme se!</span></p>
+                <p>Nabízíme materiály, které dokonale ladí s barvou interiéru vašeho vozidla. Díky naší široké nabídce
+                    barevných možností si můžete vybrat ideální odstín pro výrobu luxusních autokoberců, který doplní a
+                    zvýrazní estetiku vašeho auta. Poskytujeme maximální přizpůsobení a styl, navržený tak, aby dokonale
+                    ladil s vaším interiérem.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section7" class="text-block full-width">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j7.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content opacity-0" style="opacity: 1;"><span
+                class="images-scrolling__counter bold">07</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">Třetí
+                        řada sedadel? Postaráme se o ni!</span></p>
+                <p>Chcete udržet třetí řadu sedadel čistou a chráněnou? S našimi luxusními autokoberci to bude
+                    jednoduché! Zapomeňte na neustálé čištění po každé jízdě. Naše autokoberce pro třetí řadu sedadel
+                    jsou navrženy tak, aby poskytovaly maximální ochranu a udržovaly vaše auto nepoškozené a čisté – ať
+                    už přepravujete domácí mazlíčky, děti, těžký náklad nebo jiné pasažéry.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="section8" class="text-block">
+    <div class="container">
+        <div class="mobile-image no-border"><img src="/user/documents/upload/assets/img/j8.jpg" alt="image1"
+                loading="eager" /></div>
+        <div class="images-scrolling__content opacity-0" style="opacity: 1;"><span
+                class="images-scrolling__counter bold">08</span>
+            <div class="prose" style="--images-scrolling-item-icon-width: 48px;">
+                <p class="h1" reveal-on-scroll="true" style="opacity: 1;"><span class="text-gradient "
+                        style="--gradient: linear-gradient(129deg, rgba(128, 130, 133, 1) 25%, rgba(208, 140, 60, 1) 75%);">PŘÁTELSKÉ
+                        KE ZVÍŘATŮM</span></p>
+                <p>Luxusní autokoberce poskytují pohodlí a ochranu pro vaše domácí mazlíčky. Jsou vyrobeny z měkkého,
+                    teplu odolného materiálu, který odpuzuje zvířecí chlupy a nečistoty. Snadno se čistí – stačí otřít
+                    vlhkou utěrkou.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="twentytwenty-wrap full-width">
+    <div class="container">
+        <div class="section-info">
+            <h3>Rozdíl s Luxusními autokoberci</h3>
+            <p>Posuňte čáru zprava doleva a sledujte, jak se interiér vašeho auta mění s Luxusními autokoberci od Luxury
+                Car Design.</p>
+        </div>
+        <div class="twentytwenty-container"><img src="/user/documents/upload/assets/new/Posuvka-after1.jpg"
+                alt="Po" /><img src="/user/documents/upload/assets/new/Posuvka-before1.jpg" alt="Před" /></div>
+        <div class="point-picture">
+            <div class="layers-info">
+                <div class="image-container"><img src="/user/documents/upload/assets/new/first.jpg"
+                        alt="Interaktivní obrázek" class="main-image" />
+                    <div class="hotspot" style="top: 41%; left: 58%;">
+                        <div class="tooltips">
+                            <h4>TECHNOLOGIE BOČNÍ OCHRANY</h4>
+                            <p>Poskytuje nepřetržitou ochranu, která pokrývá i boky podlahy vašeho vozidla. Zajišťuje
+                                měkký a příjemný pocit na dotek, což zvyšuje pohodlí při řízení naboso.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 64%; left: 48%;">
+                        <div class="tooltips">
+                            <h4>PRÉMIOVÁ PODLOŽKA</h4>
+                            <p>Strategicky umístěna pro podporu nohou během řízení, čímž zabraňuje opotřebení a
+                                předčasnému poškození.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 65%; left: 26%;">
+                        <div class="tooltips">
+                            <h4>OCHRANNÁ PODLOŽKA NA OPĚRKU NOHY</h4>
+                            <p>Navržena pro maximální ochranu a pohodlí opěrky nohy ve vozidle. Předchází opotřebení a
+                                poškození materiálu, zlepšuje komfort řidiče během jízdy a prodlužuje životnost
+                                interiéru auta.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container"><img src="/user/documents/upload/assets/new/two.jpg"
+                        alt="Interaktivní obrázek" class="main-image" loading="eager" />
+                    <div class="hotspot" style="top: 51%; left: 43%;">
+                        <div class="tooltips">
+                            <h4>POKRYTÍ POD SEDADLEM</h4>
+                            <p>Kompletní ochrana koberce v zadní části vozidla včetně prostoru pod zadními sedadly.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 35%; left: 73%;">
+                        <div class="tooltips">
+                            <h4>KOMPLETNÍ POKRYTÍ STŘEDOVÉHO TUNELU</h4>
+                            <p>Zajišťuje úplnou ochranu středového tunelu vozidla. Chrání povrch před opotřebením a
+                                poškozením, čímž zvyšuje odolnost interiéru a poskytuje lepší vzhled i pohodlí pro
+                                všechny cestující.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 24%; left: 82%;">
+                        <div class="tooltips">
+                            <h4>OCHRANA OKRAJŮ OD KRAJE KE KRAJI</h4>
+                            <p>Náš zadní koberec je navržen tak, aby pokrýval zadní okraj u prahu dveří a chránil celou
+                                zadní část podlahy vozidla před vodou, sněhem, špínou a dalšími nečistotami – zajišťuje
+                                minimálně 95 % pokrytí podlahové plochy.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 63%; left: 35%;">
+                        <div class="tooltips">
+                            <h4>VÝŘEZY PRO KOLEJNICE SEDADEL</h4>
+                            <p>Díky speciálním výřezům pro kolejnice sedadel nedochází k žádnému omezení pohybu předních
+                                sedadel při posouvání vpřed a vzad.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="more-pictures ">
+                <div class="image-container"><img src="/user/documents/upload/assets/new/four.jpg"
+                        alt="Interaktivní obrázek" class="main-image" loading="eager" />
+                    <div class="hotspot" style="top: 81%; left: 53%;">
+                        <div class="tooltips">
+                            <h4>OCHRANNÁ ROHOŽ NA DNO KUFRU</h4>
+                            <p>Rohož na dno kufru je navržena tak, aby dokonale seděla a poskytovala maximální ochranu.
+                                Je odolná vůči špíně, vlhkosti a poškození i při přepravě těžkého nákladu, což zajišťuje
+                                dlouhou životnost i při náročném používání.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 63%; left: 5%;">
+                        <div class="tooltips">
+                            <h4>OCHRANA BOKŮ</h4>
+                            <p>Tyto koberce jsou navrženy tak, aby pokryly nejen dno, ale i boky kufru a poskytly
+                                maximální ochranu celého prostoru.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 9%; left: 69%;">
+                        <div class="tooltips">
+                            <h4>OCHRANA ZADNÍ STRANY SEDADEL</h4>
+                            <p>Tyto koberce jsou navrženy tak, aby pokrývaly a chránily zadní strany sedadel, čímž
+                                poskytují maximální ochranu zavazadlového prostoru.</p>
+                        </div>
+                    </div>
+                    <div class="hotspot" style="top: 36%; left: 35%;">
+                        <div class="tooltips">
+                            <h4>ÚLOŽNÉ BOXY DO KUFRU</h4>
+                            <p>Praktické úložné boxy do kufru auta jsou navrženy tak, aby zajistily organizovaný a
+                                bezpečný prostor pro přepravu různých předmětů. Jsou odolné, snadno se čistí a poskytují
+                                dostatek místa. V případě potřeby je lze jednoduše složit.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn more-pictures-button" data-view-less="Skrýt" data-view-more="Zobrazit více">Zobrazit více
+            </div>
+        </div>
+    </div>
+</div>
+<div class="section section-full bg-custom icons-package full-width" style="--background: 242 242 242;">
+    <div class="container">
+        <div class="section-stack">
+            <div class="justify-self-center">
+                <h3>Co obsahuje balení?</h3>
+            </div>
+            <div class="text-with-icons">
+                <div id="block-template--17290811506920__7aa23920-09f5-40b7-a743-325380e22c0f-template--16750672806120__7aa23920-09f5-40b7-a743-325380e22c0f-item-1"
+                    class="text-with-icons__item snap-center" role="group" aria-label="Item 1 of 4">
+                    <div><img src="/user/documents/upload/assets/icon_2__1.png" alt="" width="300" height="300"
+                            loading="eager" sizes="84px" style="--mobile-icon-max-width: 84px; --icon-max-width: 84px;"
+                            class="image-icon" /></div>
+                    <div class="text-with-icons__text-wrapper">
+                        <div class="prose">
+                            <p class="h5">luxusní autokoberce vyrobené na míru vašeho vozidla</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="block-template--17290811506920__7aa23920-09f5-40b7-a743-325380e22c0f-template--16750672806120__7aa23920-09f5-40b7-a743-325380e22c0f-item-2"
+                    class="text-with-icons__item snap-center" role="group" aria-label="Item 2 of 4">
+                    <div><img src="/user/documents/upload/assets/icon_3.png" alt="" width="300" height="300"
+                            loading="eager" sizes="84px" style="--mobile-icon-max-width: 84px; --icon-max-width: 84px;"
+                            class="image-icon" /></div>
+                    <div class="text-with-icons__text-wrapper">
+                        <div class="prose">
+                            <p class="h5">Klipsy pro uchycení luxusních autokoberců</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="block-template--17290811506920__7aa23920-09f5-40b7-a743-325380e22c0f-template--16750672806120__7aa23920-09f5-40b7-a743-325380e22c0f-item-3"
+                    class="text-with-icons__item snap-center" role="group" aria-label="Item 3 of 4">
+                    <div><img src="/user/documents/upload/assets/image/velcro.png?v=1690575075&amp;width=300" alt=""
+                            srcset="
+              /user/documents/upload/assets/image/velcro.png?v=1690575075&amp;width=84   84w,
+              /user/documents/upload/assets/image/velcro.png?v=1690575075&amp;width=168 168w
+            " width="300" height="300" loading="lazy" sizes="84px"
+                            style="--mobile-icon-max-width: 84px; --icon-max-width: 84px;" class="image-icon" /></div>
+                    <div class="text-with-icons__text-wrapper">
+                        <div class="prose">
+                            <p class="h5">Našité suché zipy po obvodu koberců + lepicí suché zipy</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="block-template--17290811506920__7aa23920-09f5-40b7-a743-325380e22c0f-0e5e37a0-e3e4-40a2-83e6-c13f006ef4ce"
+                    class="text-with-icons__item snap-center" role="group" aria-label="Item 4 of 4">
+                    <div><img src="/user/documents/upload/assets/image/icon_2.png?v=1690399544&amp;width=300" alt=""
+                            srcset="
+              /user/documents/upload/assets/image/icon_2.png?v=1690399544&amp;width=84   84w,
+              /user/documents/upload/assets/image/icon_2.png?v=1690399544&amp;width=168 168w
+            " width="300" height="300" loading="lazy" sizes="84px"
+                            style="--mobile-icon-max-width: 84px; --icon-max-width: 84px;" class="image-icon" /></div>
+                    <div class="text-with-icons__text-wrapper">
+                        <div class="prose">
+                            <p class="h5">Instalační manuál</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<p>&nbsp;</p>
+<section id="shopify-section-template--17290811506920__aab6e9fc-fcdd-46c2-983e-108b2bd34aea"
+    class="shopify-section shopify-section--timeline">
+    <div class="section section-blends section-full text-custom" style="--text-color: 109 109 109;">
+        <div class="timeline"><effect-carousel class="timeline__slider"
+                id="timeline-carousel-template--17290811506920__aab6e9fc-fcdd-46c2-983e-108b2bd34aea">
+                <div class="timeline__slide is-selected" style="opacity: 1; visibility: visible; z-index: 1;">
+                    <div class="timeline__image-wrapper"><img
+                            src="/user/documents/upload/assets/image/craftman.png?v=1690977828&amp;width=1762" alt=""
+                            width="1762" height="710" loading="eager" class="timeline__image rounded" /></div>
+                    <div class="prose">
+                        <p class="h2">Krok 1 | Vytvoříte objednávku</p>
+                        <p>Na úvodní stránce zadáte údaje o svém vozidle (značku, model a rok). Poté si vyberete
+                            požadovaný styl a barvu z dostupných variant. V konfigurátoru produktu nastavíte, kam všude
+                            chcete umístit luxusní autokoberce, a nakonec kliknete na tlačítko „Přidat do košíku“.</p>
+                    </div>
+                </div>
+                <div class="timeline__slide reveal-invisible">
+                    <div class="timeline__image-wrapper"><img
+                            src="/user/documents/upload/assets/image/craftman.png?v=1690977828&amp;width=1762" alt=""
+                            width="1762" height="710" loading="eager" class="timeline__image rounded" /></div>
+                    <div class="prose">
+                        <p class="h2">Krok 2 | Potvrzení objednávky</p>
+                        <p>Přijmeme údaje o vašem vozidle a zvolenou barvu, zkontrolujeme dostupnost šablon. Každého
+                            zákazníka před zahájením výroby telefonicky kontaktujeme, abychom si finálně odsouhlasili
+                            objednávku a zajistili maximální spokojenost. Pokud budeme potřebovat doplňující informace,
+                            ozveme se vám e-mailem nebo telefonicky.</p>
+                    </div>
+                </div>
+                <div class="timeline__slide reveal-invisible">
+                    <div class="timeline__image-wrapper"><img
+                            src="/user/documents/upload/assets/image/craftman.png?v=1690977828&amp;width=1762" alt=""
+                            width="1762" height="710" loading="eager" class="timeline__image rounded" /></div>
+                    <div class="prose">
+                        <p class="h2">Krok 3 | Výroba</p>
+                        <p>Po odsouhlasení objednávky ji odešleme do továrny, každý set luxusních autokoberců se šije
+                            ručně. Šablona pro Vaše vozidlo se následně nahraje do CNC laserového stroje, který materiál
+                            přesně nařeže na základní části připravené pro ruční šití.</p>
+                    </div>
+                </div>
+                <div class="timeline__slide reveal-invisible">
+                    <div class="timeline__image-wrapper"><img
+                            src="/user/documents/upload/assets/image/craftman.png?v=1690977828&amp;width=1762" alt=""
+                            width="1762" height="710" loading="eager" class="timeline__image rounded" /></div>
+                    <div class="prose">
+                        <p class="h2">Krok 4 | Ruční výroba</p>
+                        <p>Naši profesionální krejčí ručně sešijí všechny základní díly materiálu podle specifikací
+                            Vašeho vozidla.</p>
+                    </div>
+                </div>
+                <div class="timeline__slide reveal-invisible">
+                    <div class="timeline__image-wrapper"><img
+                            src="/user/documents/upload/assets/image/craftman.png?v=1690977828&amp;width=1762" alt=""
+                            width="1762" height="710" loading="eager" class="timeline__image rounded" /></div>
+                    <div class="prose">
+                        <p class="h2">Krok 5 | Kontrola kvality</p>
+                        <p>Abychom se ujistili, že váš nový set luxusních autokoberců přesně odpovídá objednávce,
+                            provedeme důkladnou kontrolu kvality. K objednávce následně přibalíme všechny potřebné
+                            doplňky.</p>
+                    </div>
+                </div>
+                <div class="timeline__slide reveal-invisible">
+                    <div class="timeline__image-wrapper"><img
+                            src="/user/documents/upload/assets/image/craftman.png?v=1690977828&amp;width=1762" alt=""
+                            width="1762" height="710" loading="eager" class="timeline__image rounded" /></div>
+                    <div class="prose">
+                        <p class="h2">Krok 6 | Pečlivě zabalíme a odešleme</p>
+                        <p>Náš profesionální tým, který prošel důkladným školením, zajistí, aby byly koberce správně
+                            složeny a zabaleny tak, aby se minimalizovalo jejich pomačkání. Vaše objednávka bude
+                            následně pečlivě zabalena a předána našemu přepravnímu partnerovi k doručení.</p>
+                    </div>
+                </div>
+            </effect-carousel>
+            <div class="timeline__controls scroll-area bleed md:unbleed">
+                <div class="relative w-full"><span class="timeline__nav-bar"></span> <page-dots class="timeline__nav"
+                        aria-controls="timeline-carousel-template--17290811506920__aab6e9fc-fcdd-46c2-983e-108b2bd34aea">
+                        <button class="timeline__nav-item active" type="button" aria-current="true"><span
+                                class="sr-only">Přejít na krok 1</span><span
+                                class="timeline__nav-label text-sm bold">Krok 1</span></button> <button
+                            class="timeline__nav-item" type="button" aria-current="false"><span class="sr-only">Přejít
+                                na krok 2</span><span class="timeline__nav-label text-sm bold">Krok 2</span></button>
+                        <button class="timeline__nav-item" type="button" aria-current="false"><span
+                                class="sr-only">Přejít na krok 3</span><span
+                                class="timeline__nav-label text-sm bold">Krok 3</span></button> <button
+                            class="timeline__nav-item" type="button" aria-current="false"><span class="sr-only">Přejít
+                                na krok 4</span><span class="timeline__nav-label text-sm bold">Krok 4</span></button>
+                        <button class="timeline__nav-item" type="button" aria-current="false"><span
+                                class="sr-only">Přejít na krok 5</span><span
+                                class="timeline__nav-label text-sm bold">Krok 5</span></button> <button
+                            class="timeline__nav-item" type="button" aria-current="false"><span class="sr-only">Přejít
+                                na krok 6</span><span class="timeline__nav-label text-sm bold">Krok 6</span></button>
+                    </page-dots></div>
+                <div class="timeline__buttons md-max:hidden"><button is="prev-button"
+                        class="circle-button ring group"><span class="sr-only">Předchozí</span><span
+                            class="animated-arrow animated-arrow--reverse"></span></button> <button is="next-button"
+                        class="circle-button ring group"><span class="sr-only">Další</span><span
+                            class="animated-arrow"></span></button></div>
+            </div>
+        </div>
+    </div>
+</section>
+<section id="shopify-section-template--17290811506920__88329456-f0b8-48d8-94a4-ff658e5ef04c"
+    class="shopify-section shopify-section--video">
+    <div class="section section-blends section-full text-custom" style="--text-color: 255 255 255;">
+        <div class="content-over-media aspect-video shadow-block rounded-lg text-custom"
+            style="--text-color: 255 255 255;"><video width="100%" height="auto" class="desctop"
+                poster="/user/documents/upload/assets/new/poster2.jpg">
+                <img src="/user/documents/upload/assets/new/poster2.jpg" alt="" width="3824" height="1716"
+                    loading="lazy"
+                    sizes="(max-width: 740px) calc(100vw - 40px), (max-width: 999px) calc(100vw - 64px), min(1300px, 100vw - 96px)" />
+                <source class="desctop" src="/user/documents/upload/assets/videos/PC.MP4"
+                    allow="autoplay; encrypted-media" allowfullscreen="allowfullscreen" />
+            </video> <video width="100%" height="auto" class="mobile"
+                poster="https://704436.myshoptet.com/user/documents/upload/assets/image/video2m.jpg">
+                <img src="/user/documents/upload/assets/image/video2m.jpg" alt="" width="3824" height="1716"
+                    loading="lazy"
+                    sizes="(max-width: 740px) calc(100vw - 40px), (max-width: 999px) calc(100vw - 64px), min(1300px, 100vw - 96px)" />
+                <source src="/user/documents/upload/assets/videos/mobil.mp4" allow="autoplay; encrypted-media"
+                    allowfullscreen="allowfullscreen" />
+            </video>
+            <div class="playpause">&nbsp;</div>
+        </div>
+    </div>
+</section>
