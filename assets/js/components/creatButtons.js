@@ -181,6 +181,7 @@ export function createOptions(position, orders) {
     class: "name-wrap",
   }).appendTo(paramerer);
   const getName = $("table.detail-parameters tr:contains(colorTitle) td").text().trim();
+  console.log(getName);
 
   if (parameterId == "107" && getName != "") {
     name = getName;

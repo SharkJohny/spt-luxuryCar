@@ -568,7 +568,16 @@ $(document).on("click", ".close-btn.close", function () {
   $(".config-wrap .option-button").removeClass("active");
   updateUpsale(this);
 });
-
+$(document).on("click", ".boxs .upsale-button.none", function (e) {
+  console.log("clickaaaa");
+  // Check if the clicked element is within .upsale-buttons.  $("select.parameter-id-" + boxy + ".surcharge-parameter").val(0);
+  $("select.parameter-id-" + box1 + ".surcharge-parameter").val(0);
+  $("select.parameter-id-" + box2 + ".surcharge-parameter").val(0);
+  $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
+  $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
+  $(".config-wrap .option-button").removeClass("active");
+  updateUpsale(this);
+});
 /**
  * Initializes the first page of the upsale section.
  */

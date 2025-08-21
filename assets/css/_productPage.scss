@@ -647,6 +647,7 @@ span.quantity {
   }
   .upsale-button.none {
     display: flex;
+    background: white;
   }
   .upsale-button.radio {
     display: flex;
@@ -1366,7 +1367,19 @@ div#description {
   .upsale-button.config,
   .upsale-button.radio {
     max-height: 500px;
+    background: white;
     // transition: 1s;
+  }
+  .banner-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  img {
+    border-color: green;
+    width: 47%;
+    margin: auto;
+    margin: 20px;
   }
 }
 // .upsale-buttons.boxs.minimalize,
@@ -2557,6 +2570,16 @@ span.price-standard span {
 }
 .timeline__slide.reveal-invisible {
   display: none;
+}
+.box-config {
+  .button.option-button img {
+    max-height: unset;
+    width: 100%;
+    margin: 0;
+  }
+  .parameter-info {
+    display: none;
+  }
 }
 @media (min-width: 1440px) {
   .type-product .surcharge-list select,
