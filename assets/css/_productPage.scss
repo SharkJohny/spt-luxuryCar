@@ -394,6 +394,9 @@ i.info-icon {
 }
 .upsale-buttons.boxs {
   position: relative;
+  img {
+    border-radius: 25px;
+  }
 }
 .option-wrap {
   display: flex;
@@ -955,6 +958,7 @@ span.quantity {
   .media-with-text__media img {
     border: none !important;
   }
+
   @media (min-width: 768px) {
     .text-with-icons {
       display: flex;
@@ -1229,6 +1233,11 @@ span.quantity {
       overflow: scroll;
       padding: 10px 0;
     }
+  }
+}
+.boxs {
+  button.next-step-button {
+    display: none !important;
   }
 }
 div#description p span.text-gradient {
@@ -2579,6 +2588,21 @@ span.price-standard span {
   }
   .parameter-info {
     display: none;
+  }
+}
+.button.option-button.radio-row {
+  img {
+    background-color: gray;
+    border-radius: 10px !important;
+    max-width: 150px;
+  }
+  label.radio-label {
+    width: 300px;
+  }
+  @media (max-width: 768px) {
+    img {
+      margin-top: 20px;
+    }
   }
 }
 @media (min-width: 1440px) {

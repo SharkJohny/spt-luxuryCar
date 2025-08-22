@@ -409,7 +409,10 @@ function createOptionButtons(options, parameterId, optionsWrap) {
         class: "radio-label",
         html: `<span class="radio-text">${nameSplit[0]}</span><strong class="radio-price">+ ${valueText[1]}</strong>`,
       }).appendTo(optionButton);
-
+      $("<img>", {
+        alt: `${parameterId}-${value}.jpg`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?11`,
+      }).appendTo(optionButton);
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
     } else if (textOption == "ŽIADNY +0 Kč") {
