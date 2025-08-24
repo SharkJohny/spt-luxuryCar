@@ -32,17 +32,40 @@ export function initCart(texts) {
 }
 
 function changeDescription() {
+  const getBrand = sessionStorage.getItem("Brand");
+  const getModel = sessionStorage.getItem("Model");
+  const getYear = sessionStorage.getItem("Year");
+  const getCarType = sessionStorage.getItem("carType");
   console.log("Changing description for cart items");
   $("span.main-link-surcharges").each(function () {
     const text = $(this).text().split(",");
     let newText = "";
     if (text.length > 1) {
       $(text).each(function () {
+        if (this.includes("TYP")) return;
         newText += " <br> " + this;
       });
     }
     console.log(text);
-    $(this).html(newText);
+    const infowrap = $("<div>").addClass("info-wrap");
+    const model = $("<ul>").addClass("model").appendTo(infowrap);
+    const setup = $("<div>").addClass("setup").appendTo(infowrap);
+    $("<li>")
+      .text("Značka: " + getBrand)
+      .appendTo(model);
+    $("<li  >")
+      .text("Model: " + getModel)
+      .appendTo(model);
+    $("<li>")
+      .text("Rok: " + getYear)
+      .appendTo(model);
+    $("<li>")
+      .text("Typ: " + getCarType)
+      .appendTo(model);
+    $("<span>").html(newText).appendTo(setup);
+    $(this).html(infowrap);
+
+    // $(this).html(newText);
   });
 }
 

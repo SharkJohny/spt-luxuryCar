@@ -90,9 +90,35 @@ input#varchar1 {
 input#varchar2 {
   display: none;
 }
+
+.removeable {
+  .info-wrap {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+    .model {
+      display: flex;
+      flex-direction: column;
+      font-size: 15px;
+      margin-right: 20px;
+    }
+    .setup {
+      font-size: 15px;
+    }
+  }
+}
 @media (max-width: 768px) {
   .cart-table tr > td:nth-child(odd) {
     text-align: right;
     width: 200px;
+  }
+  .removeable .info-wrap {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+    flex-direction: column;
+  }
+  span.quantity {
+    max-width: 120px;
   }
 }

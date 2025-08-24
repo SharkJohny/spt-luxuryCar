@@ -123,9 +123,9 @@ function initModelSelect(texts) {
   if ($(".type-product")[0]) {
     insertPosidion = ".parameter-cars.wheel-Position";
   }
-  if ($(".id--9 ")[0]) {
-    insertPosidion = ".cart-table";
-  }
+  // if ($(".id--9 ")[0]) {
+  //   insertPosidion = ".cart-table";
+  // }
   if ($("body.mobile")[0]) {
     if ($(".in-index")[0]) {
       insertPosidion = ".in-index .row.banners-content.body-banners";

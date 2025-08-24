@@ -1857,15 +1857,15 @@ a.p-thumbnail {
       flex-direction: column;
     }
     .banner-header {
-      position: absolute !important;
-      background-color: rgb(20 20 20 / 67%) !important;
-      bottom: 0 !important;
-      top: unset;
-      font-size: 15px;
-      min-height: 50px;
-      width: 100%;
-      color: white;
-      height: 65px !important;
+      // position: absolute !important;
+      // background-color: rgb(20 20 20 / 67%) !important;
+      // bottom: 0 !important;
+      // top: unset;
+      // font-size: 15px;
+      // min-height: 50px;
+      // width: 100%;
+      // color: white;
+      // height: 65px !important;
     }
     .save {
       position: absolute;
@@ -1881,7 +1881,7 @@ a.p-thumbnail {
   }
 
   .upsale-Banner .upsale-buttons .parameter-cars .banner-header {
-    font-size: 17px;
+    font-size: 13px;
   }
 
   .upsale-Banner .upsale-buttons .parameter-cars {
@@ -2200,11 +2200,12 @@ a.p-thumbnail {
     border-radius: 10px;
     background-color: #404040;
 
-    .banner-header {
-      color: white !important;
-    }
+    // .banner-header {
+    //   color: white !important;
+    // }
     img {
       border-radius: 10px;
+      margin: 5px;
     }
   }
   .upsale-button.active {
