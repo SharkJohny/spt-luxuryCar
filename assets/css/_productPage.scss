@@ -319,7 +319,9 @@ i.info-icon {
   border-radius: 15px;
   overflow: hidden;
   border: 1px solid var(--color-primary);
+  background: var(--color-primary);
   border-radius: 21px;
+
   .order {
     background: rgba(196, 155, 49, 1);
     /* width: fit-content; */
@@ -1763,11 +1765,18 @@ a.p-thumbnail {
   transition: max-height 0.3s ease-in-out;
   &.active {
     max-height: 1000px;
+    background: white;
   }
 }
 .twentytwenty-wrap.full-width {
   .image-container {
     margin: 50px 0 !important;
+  }
+}
+
+.button.option-button.radio-row {
+  .text {
+    display: none !important;
   }
 }
 @media (max-width: 1600px) {
@@ -1789,7 +1798,7 @@ a.p-thumbnail {
 @media (max-width: 768px) {
   .position-wrap.parameter-cars.parameter-wrap.base-config,
   .parameter-wrap {
-    max-height: 40px;
+    max-height: 39px;
   }
   .position-wrap.parameter-cars.parameter-wrap.base-config .surcharge-list {
     width: 43% !important;
@@ -2210,9 +2219,6 @@ a.p-thumbnail {
   }
   .upsale-button.active {
     background-color: rgba(196, 155, 49, 1);
-    .price {
-      color: white !important;
-    }
   }
   .more-pictures {
     display: flex;
@@ -2311,6 +2317,24 @@ a.p-thumbnail {
   }
   .type-product .slick-dots {
     bottom: -40px;
+  }
+  .button.option-button.radio-row {
+    display: flex;
+  }
+  .button.option-button.radio-row img {
+    max-width: 100px;
+  }
+  .button.option-button.radio-row label.radio-label {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .upsale-button.active .price {
+    color: black;
+  }
+  .upsale-button.active {
+    border: 5px solid #c49b31;
   }
 }
 

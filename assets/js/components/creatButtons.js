@@ -1,12 +1,15 @@
 let twoLayersProducts;
 let boxsParameterIds;
+let oneLayerProducts;
 
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
   boxsParameterIds = [94, 97];
+  oneLayerProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
   if (dataLayer[0].shoptet.projectId == "581408") {
     $(".custom-footer__banner10").hide();
     twoLayersProducts = shoptetData.product.id == 2406 || shoptetData.product.id == 2409 || shoptetData.product.id == 2412;
+    oneLayerProducts = shoptetData.product.id == 2403 || shoptetData.product.id == 2415 || shoptetData.product.id == 2418;
     boxsParameterIds = [66, 69];
   }
 }
@@ -72,7 +75,7 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
 
   const buttonHTML = `
     <div class="upsale-button ${typeClass}" value="${value}">
-      <img src="${img}?6" alt="${text}" />
+      <img src="${img}?7" alt="${text}" />
       <div class="banner-header"><span>${text}</span>
     </div>
   `;
@@ -135,11 +138,15 @@ export function createOptions(position, orders) {
   const parameterId = $(position).attr("data-parameter-id");
   let optPosition = ".content-wrap";
 
-  let upsale = 4;
+  let upsale = 3;
+
+  if (twoLayersProducts || oneLayerProducts) {
+    $(".benefitBanner__content").hide();
+    upsale = 4;
+  }
 
   if (twoLayersProducts) {
-    $(".benefitBanner__content").hide();
-    upsale = 5;
+    upsale = 4;
   }
   if (orders > upsale) {
     optPosition = ".config-wrap";

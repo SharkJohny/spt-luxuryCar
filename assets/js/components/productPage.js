@@ -464,7 +464,7 @@ function priplatky(setupData, texts) {
 
     const pairVariantList = JSON.parse(setupData.settings.pairVariantList);
     const pairedOrders = {};
-    let orders = 2;
+    let orders = 1;
     const header = $("h1").text();
     if (header.includes("box")) {
       orders = 1;
@@ -868,10 +868,12 @@ function calculateStandartPrice(diference) {
   console.log(diference);
 
   const price = Number(
-    $("span.calculated-price:eq(0)")
+    $(".p-final-price-wrapper span.calculated-price:eq(0)")
       .text()
       .replace(/[^0-9]/g, "")
   );
+
+  console.log("price", price);
 
   // Vypočítej novou standard cenu jako aktuální cena + 60%
   let newStandartPrice = Math.round(price * 1.6); // price + 60%
@@ -884,7 +886,8 @@ function calculateStandartPrice(diference) {
     console.log(priceText);
     if (priceText) {
       const priceValue = Number(priceText.replace(/[^0-9]/g, ""));
-      newStandartPrice += priceValue;
+      console.log("priceValue", priceValue);
+      // newStandartPrice += priceValue;
       console.log("newStandartPrice s upsale", newStandartPrice);
     }
   });
@@ -1026,6 +1029,7 @@ function updateBoxPrice() {
     const price = Number($(this).find(".price.price-standart").attr("data-price"));
     const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price"));
     console.log(price, addPrice);
+
     if (addPrice) {
       $(this)
         .find(".price.price-standart")
