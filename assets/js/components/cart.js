@@ -41,10 +41,12 @@ function changeDescription() {
     const text = $(this).text().split(",");
     let newText = "";
     if (text.length > 1) {
+      newText += "<ul>";
       $(text).each(function () {
         if (this.includes("TYP")) return;
-        newText += " <br> " + this;
+        newText += "<li>" + this.replace("Příplatky:", "") + "</li>";
       });
+      newText += "</ul>";
     }
     console.log(text);
     const infowrap = $("<div>").addClass("info-wrap");

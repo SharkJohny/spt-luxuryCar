@@ -717,6 +717,7 @@ span.quantity {
     .parameter-wrap {
       display: flex;
       max-height: 500px;
+      background-color: white !important;
       button.next-step-button {
         display: none;
       }
@@ -745,6 +746,13 @@ span.quantity {
       width: max-content;
       position: relative;
       left: 5px;
+    }
+    .button.option-button.active:before {
+      left: 14px !important;
+      top: 14px !important;
+    }
+    .price {
+      height: 20px;
     }
   }
 
@@ -2490,6 +2498,7 @@ a.p-thumbnail {
 }
 .upsale-buttons .price-wrap {
   display: flex;
+  flex-direction: column;
 
   .price.price-standart {
     margin-left: 10px;

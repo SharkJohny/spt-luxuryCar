@@ -38,7 +38,7 @@ function upsaleValidation(e) {
     // Přidej errorToCart pouze na ty upsale-buttons, kde není žádné .active tlačítko
     $(".upsale-buttons").each(function () {
       if (!$(this).find(".active").length) {
-        $(this).addClass("errorToCart");
+        $(this).addClass("errorToCart").addClass("active");
         const $errorElement = $(".errorToCart:eq(0)");
         console.log($errorElement.length);
         if ($errorElement.length) {
@@ -126,7 +126,8 @@ function errorToCart(e, texts) {
 
   if ($(".goToAction")[0]) {
     console.log("goToAction exists");
-    $(".goToAction").addClass("errorToCart");
+    $(".position-wrap").removeClass("active");
+    $(".goToAction").addClass("errorToCart").addClass("active");
 
     setTimeout(() => {
       $(".goToAction").removeClass("errorToCart");

@@ -138,11 +138,11 @@ export function createOptions(position, orders) {
   const parameterId = $(position).attr("data-parameter-id");
   let optPosition = ".content-wrap";
 
-  let upsale = 3;
+  let upsale = 2;
 
   if (twoLayersProducts || oneLayerProducts) {
     $(".benefitBanner__content").hide();
-    upsale = 4;
+    upsale = 3;
   }
 
   if (twoLayersProducts) {
