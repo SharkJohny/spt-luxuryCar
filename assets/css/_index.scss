@@ -21,16 +21,24 @@
   border-top-color: rgba(0, 0, 0, 0);
 }
 
-.model-selector.container h2 {
-  font-size: 24px !important;
-  text-transform: uppercase;
-  text-align: center;
-  color: rgba(0, 0, 0, 0);
-  background-image: linear-gradient(to right, #aa910a, #c49b31);
-  background-clip: text;
-  box-decoration-break: clone;
-}
+.model-selector.container {
+  h2 {
+    font-size: 24px !important;
+    text-transform: uppercase;
+    text-align: center;
+    color: white;
 
+    background-clip: text;
+    box-decoration-break: clone;
+  }
+  .btn.choice-Model,
+  .btn.more-pictures-button {
+    background: black;
+  }
+}
+section#model-selector {
+  background: var(--color-primary);
+}
 div#videoWrapper {
   position: relative;
   top: -110px;

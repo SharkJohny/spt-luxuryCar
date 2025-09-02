@@ -403,7 +403,7 @@ function priplatky(setupData, texts) {
 
     // Funkce pro aktualizaci textů tlačítek
     function updateButtonTexts() {
-      const allWraps = $(".position-wrap, .parameter-wrap");
+      const allWraps = $(".content-wrap .parameter-wrap.parameter-undefined");
 
       allWraps.each(function (index) {
         const $wrap = $(this);
@@ -411,6 +411,8 @@ function priplatky(setupData, texts) {
 
         if ($button.length > 0) {
           const isLast = index === allWraps.length - 1;
+          console.log(index);
+          console.log(isLast);
           const buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
 
           // Aktualizuj text a třídu
@@ -440,9 +442,10 @@ function priplatky(setupData, texts) {
 
       if (shouldAddButtons) {
         setTimeout(() => {
+          console.log("Přidání tlačítek---------");
           addNextStepButtons();
           updateButtonTexts(); // Aktualizuj texty po přidání nových elementů
-        }, 100); // Malé zpoždění pro jistotu
+        }, 400); // Malé zpoždění pro jistotu
       }
     });
 
@@ -1043,21 +1046,21 @@ function createUpsaleInfo(texts) {
   const upsaleBanner = $("<div>", {
     class: "upsale-Banner",
   }).insertAfter(".detail-parameters");
-  // const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
-  // $('<icon class="icon">!</icon>').appendTo(bannerWrap);
+  const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
+  $('<icon class="icon">!</icon>').appendTo(bannerWrap);
 
   const productName = $("h1").text().toLowerCase();
 
-  const idUpsaleBanner = [2424, 2430, 2433, 2421, 2436, 2439, 619, 622, 625, 628, 631, 634];
+  const idUpsaleBanner = [2424, 2427, 2430, 2433, 2421, 2436, 2439, 619, 622, 625, 628, 631, 634];
 
-  // if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
-  //   $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
-  //   $("<span>").html(texts.upsale_banner_text).appendTo(bannerWrap);
-  //   $(texts.upsale_link).appendTo(bannerWrap);
-  // } else {
-  //   $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
-  //   $("<span>").html(texts.upsale_banner_text_2Layers).appendTo(bannerWrap);
-  // }
+  if (idUpsaleBanner.includes(dataLayer[0].shoptet.product.id)) {
+    $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
+    $("<span>").html(texts.upsale_banner_text).appendTo(bannerWrap);
+    $(texts.upsale_link).appendTo(bannerWrap);
+  } else {
+    $('<div class="h4">').text(texts.upsale_banner_header).appendTo(bannerWrap);
+    $("<span>").html(texts.upsale_banner_text_2Layers).appendTo(bannerWrap);
+  }
 }
 $("body").on("click", ".button.option-button", function (e) {
   console.log("click");

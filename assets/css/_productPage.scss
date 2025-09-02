@@ -2662,3 +2662,46 @@ video::-webkit-media-controls {
     margin-right: 20px !important;
   }
 }
+
+.boxy {
+  .button.option-button.text .text {
+    display: none;
+  }
+  .parameter-wrap.parameter-sizes {
+    background: white;
+    border-color: transparent;
+  }
+  .parameter-wrap.parameter-sizes .button.option-button.text {
+    height: min-content;
+  }
+  .parameter-wrap.parameter-sizes {
+    max-height: unset !important;
+  }
+}
+
+.parameter-57 {
+  @media (min-width: 768px) {
+    label.radio-label {
+      width: 100% !important;
+    }
+    span.radio-text {
+      width: 150px;
+      display: inline-block;
+    }
+    strong.radio-price {
+      width: 100px;
+      display: inline-block;
+    }
+  }
+
+  @media (max-width: 768px) {
+    strong.radio-price {
+      position: absolute;
+      right: 44px;
+    }
+    span.radio-text {
+      position: relative;
+      top: 14px;
+    }
+  }
+}

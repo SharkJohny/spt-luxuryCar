@@ -140,6 +140,11 @@ export function createOptions(position, orders) {
 
   let upsale = 2;
 
+  const header = $("h1").text();
+  if (header.includes("box") || header.includes("Boxy")) {
+    upsale = 3;
+    $("body").addClass("boxy");
+  }
   if (twoLayersProducts || oneLayerProducts) {
     $(".benefitBanner__content").hide();
     upsale = 3;
@@ -401,6 +406,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       $(`<div class='price' data-price="${priceButton[value]}">${textPrice}</div>`).appendTo(buttonDescription);
 
       $(optionButton).addClass("text");
+      let label;
     } else if (textOption.includes("rad") || textOption.includes("řada")) {
       // Vytvoř radio input
       $("<input>", {
@@ -419,7 +425,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
         src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?11`,
-      }).appendTo(optionButton);
+      }).appendTo(optionButton.find("label"));
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
     } else if (textOption == "ŽIADNY +0 Kč") {
