@@ -2678,7 +2678,9 @@ video::-webkit-media-controls {
     max-height: unset !important;
   }
 }
-
+.upsale-button.radio img {
+  border-radius: 20px;
+}
 .parameter-57 {
   @media (min-width: 768px) {
     label.radio-label {

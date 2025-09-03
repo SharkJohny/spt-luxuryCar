@@ -57,6 +57,14 @@
 
       background-size: cover;
     }
+    @media (max-width: 1640px) {
+      &::after {
+        right: -114px;
+      }
+      &::before {
+        left: -114px;
+      }
+    }
   }
 }
 
