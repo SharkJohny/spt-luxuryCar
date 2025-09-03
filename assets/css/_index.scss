@@ -21,24 +21,45 @@
   border-top-color: rgba(0, 0, 0, 0);
 }
 
-.model-selector.container {
+.in-index .model-selector.container {
   h2 {
     font-size: 24px !important;
     text-transform: uppercase;
     text-align: center;
-    color: white;
 
+    color: rgba(0, 0, 0, 0);
+    background-image: linear-gradient(to right, #aa910a, #c49b31);
     background-clip: text;
     box-decoration-break: clone;
   }
-  .btn.choice-Model,
-  .btn.more-pictures-button {
-    background: black;
+  .modl-selector-wrap {
+    position: relative;
+    &::after {
+      content: "";
+      background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+      width: 98px;
+      height: 81px;
+      position: absolute;
+      right: 37px;
+      top: -30px;
+      transform: rotate(83deg);
+      background-size: cover;
+    }
+    &::before {
+      content: "";
+      background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+      width: 98px;
+      height: 81px;
+      position: absolute;
+      left: 37px;
+      top: -26px;
+      transform: rotate(277deg);
+
+      background-size: cover;
+    }
   }
 }
-section#model-selector {
-  background: var(--color-primary);
-}
+
 div#videoWrapper {
   position: relative;
   top: -110px;
@@ -816,6 +837,31 @@ section#section1 {
 }
 
 @media (max-width: 768px) {
+  div#content-wrapper {
+    overflow: hidden;
+  }
+  .in-index .model-selector.container .modl-selector-wrap::after {
+    content: "";
+    background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+
+    position: absolute;
+    right: -84px;
+    top: -5px;
+    transform: rotate(83deg);
+    background-size: cover;
+  }
+
+  .in-index .model-selector.container .modl-selector-wrap::before {
+    content: "";
+    background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+
+    position: absolute;
+    left: -81px;
+    top: -7px;
+    transform: rotate(277deg);
+    background-size: cover;
+  }
+
   .row.banners-content.body-banners {
     display: flex;
     flex-direction: column;
