@@ -898,7 +898,7 @@ function calculateStandartPrice(diference) {
   // Vypočítej procentuální slevu z nové standard ceny
   const discount = Math.round(((newStandartPrice - price) / newStandartPrice) * 100);
   console.log("discount", discount);
-
+  if (newStandartPrice < 100) return;
   // Aktualizuj zobrazení cen
   $(".p-final-price-wrapper .price-save").text("–" + discount + " %");
   $(".p-final-price-wrapper .price-standard span").not(".price-save").text(NumToPrice(newStandartPrice));
