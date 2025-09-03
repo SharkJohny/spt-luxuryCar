@@ -87,7 +87,9 @@ input#varchar1 {
 input#varchar2 {
   display: none;
 }
-
+span.btn.btn-block.btn-default.toggle-contacts {
+  color: white !important;
+}
 .removeable {
   .info-wrap {
     display: flex;
