@@ -337,7 +337,6 @@ function amountChoser(name, position) {
         }
       },
     }).appendTo(amountWrap);
-    $("input.amount").val(2);
   }
 }
 
