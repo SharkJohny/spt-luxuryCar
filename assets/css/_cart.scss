@@ -1,3 +1,9 @@
+.ordering-process {
+  a.contact-link {
+    display: none;
+  }
+}
+
 .banner-wrap {
   background: #e0e4e9;
   padding: 10px;
@@ -87,7 +93,7 @@ input#varchar1 {
 input#varchar2 {
   display: none;
 }
-span.btn.btn-block.btn-default.toggle-contacts {
+span.btn.btn-block.btn-default.toggle-contacts a {
   color: white !important;
 }
 .removeable {
@@ -119,5 +125,16 @@ span.btn.btn-block.btn-default.toggle-contacts {
   }
   span.quantity {
     max-width: 120px;
+  }
+}
+.id--16 {
+  .model {
+    font-size: 12px !important;
+    margin-bottom: 20px;
+  }
+  .info-wrap {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
   }
 }

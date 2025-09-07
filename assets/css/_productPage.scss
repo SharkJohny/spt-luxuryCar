@@ -2335,8 +2335,6 @@ a.p-thumbnail {
   .button.option-button.radio-row label.radio-label {
     width: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
   .upsale-button.active .price {
     color: black;
@@ -2697,13 +2695,31 @@ video::-webkit-media-controls {
   }
 
   @media (max-width: 768px) {
-    strong.radio-price {
-      position: absolute;
-      right: 44px;
-    }
-    span.radio-text {
-      position: relative;
-      top: 14px;
+    // strong.radio-price {
+    //   position: absolute;
+    //   right: 44px;
+    // }
+    // span.radio-text {
+    //   position: relative;
+    //   top: 14px;
+    // }
+    .button.option-button.radio-row label.radio-label {
+      width: 100%;
+      img {
+        width: 100px;
+      }
+      span.radio-text {
+        width: 40%;
+        display: flex;
+        align-content: center;
+        align-items: center;
+      }
+      strong.radio-price {
+        width: 25%;
+        display: flex;
+        align-content: center;
+        align-items: center;
+      }
     }
   }
 }

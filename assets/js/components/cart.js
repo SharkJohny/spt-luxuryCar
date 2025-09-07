@@ -1,11 +1,11 @@
 export function initCart(texts) {
   console.log("Initializing cart with texts:", texts);
   console.log("Cart initialized");
-
+  changeDescription();
   if ($(".id--9")[0]) {
     $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
     $(".p-label:contains(Cena za m. j.)").text("Cena za set");
-    changeDescription();
+
     chechCupon(texts);
     document.addEventListener("ShoptetDOMContentLoaded", function () {
       chechCupon(texts);
