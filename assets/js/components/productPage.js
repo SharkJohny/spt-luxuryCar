@@ -743,32 +743,33 @@ function createModelInfo() {
       $(`select.parameter-id-${paramId}`).val(value).trigger("change");
     }
   }
-  if ($(".in-index")[0] || $(".type-product")[0]) return;
+  if ($(".in-index")[0]) return;
 
   if (model && (model.includes("Značka") || model.trim() === "Model" || model.includes("Rok výroby") || model.includes("Typ auta"))) {
     return;
   }
 
   if (model) {
-    const modelInfo = $("<section>").attr("id", "model-info").insertBefore("section#model-selector");
-
-    $("section#model-selector").hide();
-    const infoWrap = $("<div>").addClass("model-info").appendTo(modelInfo);
-    $("<div>").addClass("header-info").text("Garancia kompatibility s Vaším vozidlom").appendTo(infoWrap);
-    $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
-
-    $("<div>").addClass("setup-model").text("Upraviť").appendTo(infoWrap);
-
-    $(".setup-model").on("click", function () {
-      console.log("setup model");
-      $("section#model-selector").show();
-      modelInfo.remove();
-    });
-
-    // $('<div class="model-info"> <span class="model">Model:</span> <span class="model-name">' + model + "</span></div>").insertBefore(
-    //   "section#model-selector"
-    // );
   }
+  console.log("model", model);
+  // const modelInfo = $("<section>").attr("id", "model-info").insertBefore(".content-wrap");
+
+  if ($(".model-info")[0]) return;
+  const infoWrap = $("<div>").addClass("model-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
+  $("<div>").addClass("header-info").text("Garancia kompatibility s Vaším vozidlom").appendTo(infoWrap);
+  $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
+
+  // $("<div>").addClass("setup-model").text("Upraviť").appendTo(infoWrap);
+
+  $(".setup-model").on("click", function () {
+    console.log("setup model");
+    $("section#model-selector").show();
+    modelInfo.remove();
+  });
+
+  // $('<div class="model-info"> <span class="model">Model:</span> <span class="model-name">' + model + "</span></div>").insertBefore(
+  //   "section#model-selector"
+  // );
 }
 
 function createpopup(texts) {

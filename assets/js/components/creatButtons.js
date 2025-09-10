@@ -423,7 +423,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       }).appendTo(optionButton);
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?12`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?13`,
       }).appendTo(optionButton.find("label"));
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
@@ -436,7 +436,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?12`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?13`,
       }).appendTo(optionButton);
     }
   });

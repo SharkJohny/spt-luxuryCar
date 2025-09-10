@@ -28,6 +28,29 @@ export function validation(texts) {
     if (!optionTest()) return;
     $(this).parents(".upsale-Banner").removeClass("showConf");
   });
+
+  $(".content-wrap").on("click", function (event) {
+    if ($(event.target).closest(".modl-selector-wrap").length) {
+      return;
+    }
+    const model = sessionStorage.getItem("model");
+    console.log(model);
+    if (
+      !model ||
+      (model && (model.includes("Zna\u010Dka") || model.trim() === "Model" || model.includes("Rok v\xFDroby") || model.includes("Typ auta")))
+    ) {
+      const name = $("h1").text();
+      if (name.includes("box") || name.includes("Boxy")) {
+        return;
+      }
+      console.log("click neeeeniiii");
+      createpopup(texts);
+      setTimeout(() => {
+        $(event.target).closest(".button.option-button").removeClass("active");
+      }, 1e3);
+      $(".image-wrap").remove();
+    }
+  });
 }
 
 function upsaleValidation(e) {
@@ -68,7 +91,7 @@ function popupValidation(e) {
     // povolíme submit, resetujeme flag a dál nic neblokujeme
     window.allowDirectAddToCart = false;
     document.addEventListener("ShoptetCartUpdated", function () {
-      // window.location.href = "/kosik/";
+      //window.location.href = "/kosik/";
     });
     return;
   } else if (!$(".goToAction")[0]) {
@@ -121,7 +144,16 @@ function boxValidation(e) {
 }
 
 function errorToCart(e, texts) {
-  console.log("Error to cart initialized");
+  console.log("Error to cart initialized --------------");
+
+  const header = $("h1").text();
+  if (header.includes("box") || header.includes("Boxy")) {
+    document.addEventListener("ShoptetCartUpdated", function () {
+      console.log("Error to cart initialized xxxxxxxxxxxxxxxx");
+      window.location.href = "/kosik/";
+    });
+    return;
+  }
   // Inicializace při načtení DOMu
 
   if ($(".goToAction")[0]) {
@@ -148,6 +180,7 @@ function errorToCart(e, texts) {
     });
     return;
   }
+
   const length = $(".upsale-buttons .active").not(".none").length;
   console.log("Active upsale buttons:", length);
   if (length == 0) {
@@ -207,4 +240,98 @@ function optionTest() {
   }
 
   return allSelected;
+}
+function createpopup(texts) {
+  if ($(".overflow")[0]) return;
+  const overflow = $("<div>", {
+    class: "overflow",
+    style: `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    `,
+  }).appendTo("body");
+
+  const popup = $("<div>", {
+    style: `
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 450px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: fadeIn 0.3s ease-out;
+    `,
+  }).appendTo(overflow);
+
+  $("<h3>", {
+    text: texts.no_model_select,
+    style: `
+      margin-bottom: 30px;
+      font-size: 22px;
+      color: #333;
+      font-weight: 500;
+      line-height: 1.4;
+    `,
+  }).appendTo(popup);
+
+  $("<button>", {
+    text: texts.i_understand,
+    class: "btn",
+    style: `
+      padding: 12px 40px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #c49b31;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+      &:hover {
+        background: #c49b31;
+      }
+    `,
+    click: function () {
+      $(".overflow").remove();
+      overflow.fadeOut(200, function () {
+        $(this).remove();
+
+        let scrollselector = ".col-xs-12.col-lg-6.p-info-wrapper";
+        if ($("body").hasClass("mobile")) {
+          scrollselector = ".p-thumbnails-wrapper";
+        }
+        // Zobrazit model selector bez scrollování
+        $("#model-selector").fadeIn(200);
+        $(".position-wrap.parameter-cars.parameter-wrap.base-config.active").removeClass("active");
+        $(".position-wrap.parameter-cars.parameter-wrap.base-config:eq(1)").addClass("active");
+      });
+      $("#model-selector").addClass("errorToCart");
+      // vzroluj o  100px nad nejvrchnější errorToCart
+
+      setTimeout(() => {
+        $("#model-selector").removeClass("errorToCart");
+      }, 2000);
+    },
+  }).appendTo(popup);
+
+  // Add animation keyframes
+  $("<style>")
+    .text(
+      `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  `
+    )
+    .appendTo("head");
 }

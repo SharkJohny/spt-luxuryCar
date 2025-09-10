@@ -6,6 +6,9 @@
 .parameter-wrap.parameter-110 .text {
   display: none !important;
 }
+.model-info {
+  order: 2;
+}
 .position-wrap.parameter-cars.parameter-wrap.base-config {
   display: flex;
   flex-direction: column;
@@ -15,6 +18,7 @@
   .parameter-cars.wheel-Position {
     order: 2;
   }
+
   .parameter-cars.sit-Position {
     order: 3;
   }
@@ -31,6 +35,9 @@
     width: 45% !important;
     margin-bottom: 20px;
   }
+}
+.upsale-button.radio {
+  border: 1px solid #dadada;
 }
 .parameter-57 .image-wrap {
   display: none !important;
@@ -665,7 +672,7 @@ span.quantity {
     width: 100%;
 
     border-radius: 25px;
-    border: 5px solid transparent;
+    border: 1px solid #dadada;
 
     .save,
     .price,
@@ -1245,11 +1252,7 @@ span.quantity {
     }
   }
 }
-.boxs {
-  button.next-step-button {
-    display: none !important;
-  }
-}
+
 div#description p span.text-gradient {
   color: var(--color-primary) !important;
 }
@@ -1544,43 +1547,43 @@ section#model-info {
       margin-left: auto;
     }
   }
-  .model-info {
-    border: 1px solid rgba(81, 140, 109, 1);
-    background: rgba(241, 253, 245, 1);
+}
+.model-info {
+  border: 1px solid rgba(81, 140, 109, 1);
+  background: rgba(241, 253, 245, 1);
 
-    margin-right: 20px;
-    border-radius: 15px;
-    padding: 10px 20px 10px 70px;
-    margin-bottom: 30px;
-    position: relative;
-    width: 100%;
-    max-width: 700px;
-    &::before {
-      content: "\e913";
-      speak: none;
-      display: inline-block;
-      font-family: shoptet;
-      font-style: normal;
-      font-variant: normal;
-      font-weight: 400;
-      line-height: 0;
-      text-decoration: none;
-      text-transform: none;
-      vertical-align: middle;
-      font-size: 20px;
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: rgba(81, 140, 109, 1);
-      color: white;
-      border-radius: 50%;
-      padding: 20px 10px;
-      left: 15px;
-    }
-    .header-info {
-      font-size: 17px;
-      font-weight: 600;
-    }
+  margin-right: 20px;
+  border-radius: 15px;
+  padding: 10px 20px 10px 70px;
+  margin-bottom: 30px;
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  &::before {
+    content: "\e913";
+    speak: none;
+    display: inline-block;
+    font-family: shoptet;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 0;
+    text-decoration: none;
+    text-transform: none;
+    vertical-align: middle;
+    font-size: 20px;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: rgba(81, 140, 109, 1);
+    color: white;
+    border-radius: 50%;
+    padding: 20px 10px;
+    left: 15px;
+  }
+  .header-info {
+    font-size: 17px;
+    font-weight: 600;
   }
 }
 .errorToCart {
