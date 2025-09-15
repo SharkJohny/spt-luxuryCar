@@ -9,8 +9,8 @@ jobs:
         uses: actions/checkout@v4
 
       # Odstraní všechny console.log z JS souborů
-      - name: Remove all console.log from JS files
-        run: find . -type f -name "*.js" -exec sed -i '/console.log/d' {} +
+      # - name: Remove all console.log from JS files
+      #   run: find . -type f -name "*.js" -exec sed -i '/console.log/d' {} +
 
       # Nastavení Node.js
       - name: 🔧 Setup Node.js
