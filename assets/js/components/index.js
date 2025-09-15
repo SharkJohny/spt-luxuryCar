@@ -404,26 +404,26 @@ function accordion() {
   });
 
   // The rest of the function remains the same for CSS and click handler
-  // $(document).on("click", ".accordion", function (e) {
-  //   e.preventDefault();
-  //   console.log("Accordion clicked!");
+  $(document).on("click", ".accordion", function (e) {
+    e.preventDefault();
+    console.log("Accordion clicked!");
 
-  //   // Toggle active class for styling
-  //   $(this).toggleClass("active");
+    // Toggle active class for styling
+    $(this).toggleClass("active");
 
-  //   // Find the panel - it's the next sibling after the button
-  //   var $panel = $(this).next(".panel");
-  //   console.log("Found panel:", $panel.length);
+    // Find the panel - it's the next sibling after the button
+    var $panel = $(this).next(".panel");
+    console.log("Found panel:", $panel.length);
 
-  //   if (!$panel.length) return; // nothing to toggle
+    if (!$panel.length) return; // nothing to toggle
 
-  //   // Toggle display with direct CSS manipulation
-  //   if ($panel.css("display") === "none") {
-  //     $panel.css("display", "block");
-  //   } else {
-  //     $panel.css("display", "none");
-  //   }
-  // }); // The rest of the function for basic-description etc. remains unchanged
+    // Toggle display with direct CSS manipulation
+    if ($panel.css("display") === "none") {
+      $panel.css("display", "block");
+    } else {
+      $panel.css("display", "none");
+    }
+  }); // The rest of the function for basic-description etc. remains unchanged
   $(".basic-description").each(function () {
     let perex = $(this).html().includes("*||*");
     if (perex) {
