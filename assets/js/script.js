@@ -356,6 +356,7 @@ function saveModel(redirect) {
       }
       sessionStorage.setItem("Year", Year);
       sessionStorage.setItem("carType", type);
+      $(".model-text").text(Brand + " " + Model + " " + Year + " " + type);
     } catch (e) {
       console.warn("Session storage is not available:", e);
       // Fallback - could use cookies or other storage mechanism here

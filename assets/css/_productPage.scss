@@ -3,6 +3,15 @@
     display: none;
   }
 }
+
+.col-xs-12.col-lg-6.p-info-wrapper .faq.container {
+  order: 8;
+  width: 100%;
+  button.accordion {
+    font-size: 15px;
+  }
+}
+
 .parameter-wrap.parameter-110 .text {
   display: none !important;
 }
