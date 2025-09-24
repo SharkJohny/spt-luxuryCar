@@ -209,6 +209,7 @@ function priplatky(setupData, texts) {
     $("<div>", {
       class: "upsale-wrap",
     }).insertAfter(".detail-parameters");
+
     createUpsaleInfo(texts);
 
     if ($(".parameter-id-" + koberce)[0]) {
@@ -389,7 +390,10 @@ function priplatky(setupData, texts) {
 
         // Určí text tlačítka podle pozice
         const isLast = index === allWraps.length - 1;
-        const buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+        let buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+        if (dataLayer[0].shoptet.language == "sk") {
+          buttonText = isLast ? "Dokončiť konfiguráciu" : "Prejsť k ďalšiemu kroku";
+        }
         const buttonClass = isLast ? "next-step-button finish-button" : "next-step-button";
 
         // Přidej tlačítko na konec wrap elementu
@@ -1046,6 +1050,9 @@ function createUpsaleInfo(texts) {
   const upsaleBanner = $("<div>", {
     class: "upsale-Banner",
   }).insertAfter(".detail-parameters");
+  if ($(".surcharge-list")[4]) {
+    return;
+  }
   const bannerWrap = $('<div class="updale-banner-info"></div>').appendTo(upsaleBanner);
   $('<icon class="icon">!</icon>').appendTo(bannerWrap);
 

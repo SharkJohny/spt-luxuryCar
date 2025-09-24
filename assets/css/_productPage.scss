@@ -2742,3 +2742,16 @@ video::-webkit-media-controls {
     }
   }
 }
+
+@media (max-width: 768px) {
+  .parameter-wrap.parameter-91 {
+    .button.option-button {
+      width: 50px !important;
+      height: 50px !important;
+    }
+    .button.option-button.active:before {
+      left: 3px !important;
+      top: 2px !important;
+    }
+  }
+}
