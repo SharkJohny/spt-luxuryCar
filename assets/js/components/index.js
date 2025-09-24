@@ -313,7 +313,9 @@ export function intIndex() {
   }, 1000);
 
   const faq = $('<div class="faq container"></div>');
-  $(faq).load("/faq/ div[itemprop='about']", function () {
+  $("<div>").addClass("sec-header").text("Často kladené otázky").appendTo(faq);
+  const faqContent = $('<div class="faq-content">').appendTo(faq);
+  $(faqContent).load("/faq/ div[itemprop='about']", function () {
     accordion(); // Call accordion() after content is loaded
   });
   if ($(".in-index")[0]) {
@@ -328,8 +330,8 @@ export function intIndex() {
 }
 
 function accordion() {
-  if (!$(".acordeoncsss")[0]) {
-    $("body").addClass("acordeoncsss").append(` <style type='text/css'>
+  if (!$('.acordeoncsss')[0]) {
+    $('body').addClass('acordeoncsss').append(` <style type='text/css'>
     .accordion {
     background-color: white;
        color: #444;
@@ -380,9 +382,15 @@ function accordion() {
       animation: fadeInPanel 0.3s;
     }
     @keyframes fadeInPanel {
-      from { opacity: 0; transform: translateY(-10px);}
-      to { opacity: 1; transform: translateY(0);}
+      from { opacity: 0; transform: translateY(-10px);} 
+      to { opacity: 1; transform: translateY(0);} 
     }
+
+    /* New styles for product page limitation */
+    .faq .accordion-hidden { display: none !important; }
+    .faq .faq-show-more { text-align: center; margin-top: 8px; }
+    .faq .faq-show-more button { background: transparent; border: 1px solid #c49b30; color: #c49b30; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+
     </style> `);
   }
 
@@ -411,6 +419,42 @@ function accordion() {
       });
 
       $(this).html(html);
+
+      // If we're on a product page, hide all accordions beyond the first 4
+      if ($('.type-product').length) {
+        const $accordions = $(this).find('.accordion-wrapper');
+        if ($accordions.length > 4) {
+          $accordions.each(function (i) {
+            if (i >= 4) {
+              $(this).addClass('accordion-hidden');
+            }
+          });
+
+          // Add show more button if not present
+          if (!$(this).find('.faq-show-more').length) {
+            const showMore = $(`<div class="faq-show-more"><button type="button">Zobrazit více</button></div>`);
+            $(this).append(showMore);
+
+            showMore.on('click', 'button', function () {
+              const hidden = $(this).closest('.faq').find('.accordion-hidden');
+              if (hidden.length) {
+                hidden.removeClass('accordion-hidden');
+                $(this).text('Zobrazit méně');
+              } else {
+                const $accordions2 = $(this).closest('.faq').find('.accordion-wrapper');
+                $accordions2.each(function (i) {
+                  if (i >= 4) $(this).addClass('accordion-hidden');
+                });
+                $(this).text('Zobrazit více');
+                // Ensure first hidden ones get closed
+                $(this).closest('.faq').find('.panel').css('display','none');
+                $(this).closest('.faq').find('.accordion').removeClass('active');
+              }
+            });
+          }
+        }
+      }
+
     } catch (e) {
       // ignore elements we can't read/modify
     }
@@ -423,55 +467,5 @@ function accordion() {
     }
   });
 
-  // The rest of the function remains the same for CSS and click handler
-  // The rest of the function for basic-description etc. remains unchanged
-  $(".basic-description").each(function () {
-    let perex = $(this).html().includes("*||*");
-    if (perex) {
-      let text = $(this).html();
-      let string = text.split("[*");
-      let before = text.split("[*")[0];
-      $(string).each(function () {
-        let functionname = this.split("*||*")[0];
-        let wrapText = this.split("*||*")[1];
-        let content = this.split("*||*")[2];
-        // $(this).replaceWith("<div class=" + className + ">" + wrapText + "</div>");
-        console.log(functionname);
-        $(".basic-description").html(before);
-        if (functionname == "tables ") {
-          if ($(".desktop")[0]) {
-            $(
-              `<li class="shp-tab " >
-                <a href="#` +
-                wrapText.replaceAll(" ", "_") +
-                `" class="shp-tab-link" role="tab" data-toggle="tab">` +
-                wrapText +
-                `</a>
-            </li>`
-            ).appendTo(".shp-tabs.p-detail-tabs.visible-links");
-
-            $(
-              `<div id="` +
-                wrapText.replaceAll(" ", "_") +
-                `" class="tab-pane fade " role="tabpanel">
-        <div class="description-inner-Plus">
-
-            ` +
-                content.split("*]")[0] +
-                `
-
-        </div>
-    </div>`
-            ).appendTo("#tab-content");
-          }
-          if ($(".mobile")[0]) {
-            let wrap = $("<div/>").addClass("shp-accordion").appendTo("#accordion-content");
-            $("<a/>").addClass("shp-accordion-link").attr("href", wrapText.replaceAll(" ", "_")).text(wrapText).appendTo(wrap);
-            let contentWrap = $("<div/>").addClass("shp-accordion-content").appendTo(wrap);
-            $("<div/>").attr("id", wrapText.replaceAll(" ", "_")).html(content.split("*]")[0]).appendTo(contentWrap);
-          }
-        }
-      });
-    }
-  });
+  // Click handler moved out to global intIndex scope to prevent duplicate bindings
 }
