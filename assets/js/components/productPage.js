@@ -205,6 +205,12 @@ export function initProduct(setupData, texts) {
 function priplatky(setupData, texts) {
   let order = 6;
 
+  if (shoptetData.product.id == 598 || shoptetData.product.id == 610 || shoptetData.product.id == 613) {
+    order = 4;
+  } else if (shoptetData.product.id == 2403 || shoptetData.product.id == 2415 || shoptetData.product.id == 2418) {
+    order = 4;
+  }
+
   if ($(".type-detail").length) {
     $("<div>", {
       class: "upsale-wrap",
