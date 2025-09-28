@@ -203,6 +203,7 @@ export function initProduct(setupData, texts) {
  * Initializes the upsale section.
  */
 function priplatky(setupData, texts) {
+  if (!$(".type-detail").length) return;
   let order = 6;
 
   if (shoptetData.product.id == 598 || shoptetData.product.id == 610 || shoptetData.product.id == 613) {
