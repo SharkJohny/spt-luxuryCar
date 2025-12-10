@@ -358,19 +358,26 @@ export function intIndex() {
 
       $btn.prop("disabled", true).text("Odesílání...");
 
-      // Use fetch with no-cors mode to bypass CORS preflight
+      // Send JSON with proper headers (like the Python test)
       fetch("https://projectmanager-8352.rostiapp.cz/api/ingest/luxury-cars/proces_orders", {
         method: "POST",
-        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
+          "User-Agent": "LuxuryCar-Web/1.0",
         },
         body: JSON.stringify({ start: true }),
       })
-        .then(function () {
-          // no-cors mode doesn't return response, so we assume success
+        .then(function (response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("HTTP " + response.status);
+          }
+        })
+        .then(function (data) {
           $btn.text("✓ Odesláno").css("background", "#28a745");
-          console.log("Request sent successfully");
+          console.log("Success:", data);
           setTimeout(function () {
             $btn.prop("disabled", false).text(originalText).css("background", "#c49b30");
           }, 2000);
