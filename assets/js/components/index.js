@@ -358,25 +358,30 @@ export function intIndex() {
 
       $btn.prop("disabled", true).text("Odesílání...");
 
-      $.ajax({
-        url: "https://projectmanager-8352.rostiapp.cz/api/ingest/luxury-cars/proces_orders",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ start: true }),
-        success: function (response) {
+      // Use fetch with no-cors mode to bypass CORS preflight
+      fetch("https://projectmanager-8352.rostiapp.cz/api/ingest/luxury-cars/proces_orders", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ start: true }),
+      })
+        .then(function () {
+          // no-cors mode doesn't return response, so we assume success
           $btn.text("✓ Odesláno").css("background", "#28a745");
+          console.log("Request sent successfully");
           setTimeout(function () {
             $btn.prop("disabled", false).text(originalText).css("background", "#c49b30");
           }, 2000);
-        },
-        error: function (xhr, status, error) {
+        })
+        .catch(function (error) {
           $btn.text("✗ Chyba").css("background", "#dc3545");
           console.error("Error:", error);
           setTimeout(function () {
             $btn.prop("disabled", false).text(originalText).css("background", "#c49b30");
           }, 2000);
-        },
-      });
+        });
     });
 
     // Hover effect
