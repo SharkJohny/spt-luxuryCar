@@ -359,12 +359,12 @@ export function intIndex() {
       $btn.prop("disabled", true).text("Odesílání...");
 
       // Use local proxy to avoid CORS issues
-      fetch("/user/documents/upload/api-proxy.php", {
+      fetch("/api-proxy.php", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ start: true })
+        body: JSON.stringify({ start: true }),
       })
         .then(function (response) {
           if (response.ok) {
