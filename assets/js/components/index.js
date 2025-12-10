@@ -327,11 +327,72 @@ export function intIndex() {
   // setTimeout(function () {
   //   accordion(); // Call accordion() after content is loaded
   // }, 2000);
+
+  // Admin floating button for order generation
+  if ($(".type-index.admin-logged").length) {
+    const adminBtn = $(`
+      <button class="admin-generate-orders" type="button" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #c49b30;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 9999;
+        transition: all 0.3s;
+      ">
+        Generovat objednávky
+      </button>
+    `);
+
+    $("body").append(adminBtn);
+
+    adminBtn.on("click", function () {
+      const $btn = $(this);
+      const originalText = $btn.text();
+
+      $btn.prop("disabled", true).text("Odesílání...");
+
+      $.ajax({
+        url: "https://projectmanager-8352.rostiapp.cz/api/ingest/luxury-cars/proces_orders",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ start: true }),
+        success: function (response) {
+          $btn.text("✓ Odesláno").css("background", "#28a745");
+          setTimeout(function () {
+            $btn.prop("disabled", false).text(originalText).css("background", "#c49b30");
+          }, 2000);
+        },
+        error: function (xhr, status, error) {
+          $btn.text("✗ Chyba").css("background", "#dc3545");
+          console.error("Error:", error);
+          setTimeout(function () {
+            $btn.prop("disabled", false).text(originalText).css("background", "#c49b30");
+          }, 2000);
+        },
+      });
+    });
+
+    // Hover effect
+    adminBtn
+      .on("mouseenter", function () {
+        $(this).css("transform", "scale(1.05)");
+      })
+      .on("mouseleave", function () {
+        $(this).css("transform", "scale(1)");
+      });
+  }
 }
 
 function accordion() {
-  if (!$('.acordeoncsss')[0]) {
-    $('body').addClass('acordeoncsss').append(` <style type='text/css'>
+  if (!$(".acordeoncsss")[0]) {
+    $("body").addClass("acordeoncsss").append(` <style type='text/css'>
     .accordion {
     background-color: white;
        color: #444;
@@ -421,40 +482,39 @@ function accordion() {
       $(this).html(html);
 
       // If we're on a product page, hide all accordions beyond the first 4
-      if ($('.type-product').length) {
-        const $accordions = $(this).find('.accordion-wrapper');
+      if ($(".type-product").length) {
+        const $accordions = $(this).find(".accordion-wrapper");
         if ($accordions.length > 4) {
           $accordions.each(function (i) {
             if (i >= 4) {
-              $(this).addClass('accordion-hidden');
+              $(this).addClass("accordion-hidden");
             }
           });
 
           // Add show more button if not present
-          if (!$(this).find('.faq-show-more').length) {
+          if (!$(this).find(".faq-show-more").length) {
             const showMore = $(`<div class="faq-show-more"><button type="button">Zobrazit více</button></div>`);
             $(this).append(showMore);
 
-            showMore.on('click', 'button', function () {
-              const hidden = $(this).closest('.faq').find('.accordion-hidden');
+            showMore.on("click", "button", function () {
+              const hidden = $(this).closest(".faq").find(".accordion-hidden");
               if (hidden.length) {
-                hidden.removeClass('accordion-hidden');
-                $(this).text('Zobrazit méně');
+                hidden.removeClass("accordion-hidden");
+                $(this).text("Zobrazit méně");
               } else {
-                const $accordions2 = $(this).closest('.faq').find('.accordion-wrapper');
+                const $accordions2 = $(this).closest(".faq").find(".accordion-wrapper");
                 $accordions2.each(function (i) {
-                  if (i >= 4) $(this).addClass('accordion-hidden');
+                  if (i >= 4) $(this).addClass("accordion-hidden");
                 });
-                $(this).text('Zobrazit více');
+                $(this).text("Zobrazit více");
                 // Ensure first hidden ones get closed
-                $(this).closest('.faq').find('.panel').css('display','none');
-                $(this).closest('.faq').find('.accordion').removeClass('active');
+                $(this).closest(".faq").find(".panel").css("display", "none");
+                $(this).closest(".faq").find(".accordion").removeClass("active");
               }
             });
           }
         }
       }
-
     } catch (e) {
       // ignore elements we can't read/modify
     }
