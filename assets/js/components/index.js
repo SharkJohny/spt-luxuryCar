@@ -358,15 +358,13 @@ export function intIndex() {
 
       $btn.prop("disabled", true).text("Odesílání...");
 
-      // Send JSON with proper headers (like the Python test)
-      fetch("https://projectmanager-8352.rostiapp.cz/api/ingest/luxury-cars/proces_orders", {
+      // Use local proxy to avoid CORS issues
+      fetch("/user/documents/upload/api-proxy.php", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "User-Agent": "LuxuryCar-Web/1.0",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ start: true }),
+        body: JSON.stringify({ start: true })
       })
         .then(function (response) {
           if (response.ok) {
