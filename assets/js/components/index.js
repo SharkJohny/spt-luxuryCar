@@ -358,13 +358,14 @@ export function intIndex() {
 
       $btn.prop("disabled", true).text("Odesílání...");
 
-      // Use local proxy to avoid CORS issues
-      fetch("/api-proxy.php", {
+      // Call API directly (CORS is now configured on backend)
+      fetch("https://projectmanager-8352.rostiapp.cz/api/ingest/luxury-cars/proces_orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
-        body: JSON.stringify({ start: true }),
+        body: JSON.stringify({ start: true })
       })
         .then(function (response) {
           if (response.ok) {
