@@ -1089,6 +1089,9 @@ function updateUpsale($this, event) {
       } else {
         // conf2: show box1 and box2, hide other box params (including solo)
         allBoxIds.forEach((id) => $(`.parameter-wrap.parameter-${id}`).hide());
+        // explicitly hide solo parameter ids to be safe
+        $(`.parameter-wrap.parameter-104`).hide();
+        $(`.parameter-wrap.parameter-78`).hide();
         $(`.parameter-wrap.parameter-${box1}`).show();
         $(`.parameter-wrap.parameter-${box2}`).show();
 
