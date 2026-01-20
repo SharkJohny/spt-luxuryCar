@@ -1048,27 +1048,58 @@ function updateUpsale($this, event) {
     // Ukázka, jak schovat/zobrazit nějaké prvky
     if (value[0] === "conf1") {
       // conf1: show only Solo box (parameter 78), hide other box parameters (box1/box2)
-      const prices = (boxsPrice[0] || "0/0").split("/")[0];
-      // IDs: box1 => box1, box2 => box2, solo => 78
       const soloId = 78;
       $(".parameter-wrap.parameter-" + box1).hide();
       $(".parameter-wrap.parameter-" + box2).hide();
       $(".parameter-wrap.parameter-" + soloId).show();
-      // update solo price element specifically
-      const $soloPrice = $(".parameter-wrap.parameter-" + soloId).find('.price.price-standart');
-      $soloPrice.attr('data-price', prices);
-      if ($soloPrice.length) $soloPrice.text(NumToPrice(prices));
+
+      // read price from select (selected option or first non-empty option)
+      const $soloSelect = $(`select.parameter-id-${soloId}.surcharge-parameter`);
+      let soloPrice = 0;
+      if ($soloSelect.length) {
+        const $sel = $soloSelect.find('option:selected');
+        const raw = String($sel.attr('data-surcharge-final-price') || $sel.attr('data-surcharge-additional-price') || '');
+        if (raw && raw.replace(/[^0-9]/g, '') !== '') {
+          soloPrice = Number(raw.replace(/[^0-9]/g, ''));
+        } else {
+          const $first = $soloSelect.find('option[data-surcharge-final-price]:not([value=""])').filter(function () {
+            return Number(String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, '')) > 0;
+          }).first();
+          if ($first.length) {
+            soloPrice = Number(String($first.attr('data-surcharge-final-price') || $first.attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, ''));
+          }
+        }
+      }
+      const $soloPriceEl = $(".parameter-wrap.parameter-" + soloId).find('.price.price-standart');
+      $soloPriceEl.attr('data-price', soloPrice);
+      if ($soloPriceEl.length) $soloPriceEl.text(soloPrice > 0 ? NumToPrice(soloPrice) : '0 Kč');
     } else if (value[0] === "conf2") {
       // conf2: hide Solo box, show other box parameters (box1/box2)
-      const prices = (boxsPrice[1] || "0/0").split("/")[0];
       const soloId = 78;
       $(".parameter-wrap.parameter-" + soloId).hide();
       $(".parameter-wrap.parameter-" + box1).show();
       $(".parameter-wrap.parameter-" + box2).show();
-      // update box1 price element specifically
-      const $box1Price = $(".parameter-wrap.parameter-" + box1).find('.price.price-standart');
-      $box1Price.attr('data-price', prices);
-      if ($box1Price.length) $box1Price.text(NumToPrice(prices));
+
+      // Read price for box1 from its select (selected or first non-empty)
+      const $box1Select = $(`select.parameter-id-${box1}.surcharge-parameter`);
+      let box1Price = 0;
+      if ($box1Select.length) {
+        const $sel = $box1Select.find('option:selected');
+        const raw = String($sel.attr('data-surcharge-final-price') || $sel.attr('data-surcharge-additional-price') || '');
+        if (raw && raw.replace(/[^0-9]/g, '') !== '') {
+          box1Price = Number(raw.replace(/[^0-9]/g, ''));
+        } else {
+          const $first = $box1Select.find('option[data-surcharge-final-price]:not([value=""])').filter(function () {
+            return Number(String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, '')) > 0;
+          }).first();
+          if ($first.length) {
+            box1Price = Number(String($first.attr('data-surcharge-final-price') || $first.attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, ''));
+          }
+        }
+      }
+      const $box1PriceEl = $(".parameter-wrap.parameter-" + box1).find('.price.price-standart');
+      $box1PriceEl.attr('data-price', box1Price);
+      if ($box1PriceEl.length) $box1PriceEl.text(box1Price > 0 ? NumToPrice(box1Price) : '0 Kč');
     }
   }
   // Delay for price update

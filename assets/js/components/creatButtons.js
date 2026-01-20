@@ -221,14 +221,14 @@ export function createOptions(position, orders) {
   if (isBoxParam) {
     // Determine box base price from the first option that has a surcharge final price
     const $select = $(position);
-    const $firstWithPrice = $select
-      .find('option[data-surcharge-final-price]:not([value=""])')
-      .filter(function () {
-        return Number($(this).attr("data-surcharge-final-price") || 0) > 0;
-      })
-      .first();
+    const $firstWithPrice = $select.find('option[data-surcharge-final-price]:not([value=""])').filter(function () {
+      const raw = String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0');
+      const num = Number(raw.replace(/[^0-9]/g, ''));
+      return num > 0;
+    }).first();
     if ($firstWithPrice.length) {
-      basePrice = Number($firstWithPrice.attr("data-surcharge-final-price") || $firstWithPrice.attr("data-surcharge-additional-price") || 0);
+      const raw = String($firstWithPrice.attr('data-surcharge-final-price') || $firstWithPrice.attr('data-surcharge-additional-price') || '0');
+      basePrice = Number(raw.replace(/[^0-9]/g, ''));
     }
 
     $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
@@ -413,15 +413,35 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
         html: `<span>${nameSplit[0]}</span><div class='parm'> ${paramText}</div>`,
       }).appendTo(optionButton);
 
-      let textPrice = priceButton[value] ? priceButton[value] : "";
+      if (isBoxParam) {
+        // Use surchargeFinal and basePrice to compute diff
+        const diff = surchargeFinal - (Number(basePrice) || 0);
+        const diffText = diff > 0 ? "+ " + NumToPrice(diff) : "";
+        $(`<div class='price' data-price="${diff > 0 ? diff : 0}">${diffText}</div>`).appendTo(buttonDescription);
+      } else {
+        let textPrice = priceButton[value] ? priceButton[value] : "";
 
-      if (priceButton[value]) {
-        textPrice = "+ " + NumToPrice(priceButton[value]);
+        if (priceButton[value]) {
+          textPrice = "+ " + NumToPrice(priceButton[value]);
+        }
+
+        $(`<div class='price' data-price="${priceButton[value]}">${textPrice}</div>`).appendTo(buttonDescription);
       }
 
-      $(`<div class='price' data-price="${priceButton[value]}">${textPrice}</div>`).appendTo(buttonDescription);
-
       $(optionButton).addClass("text");
+      // If this is a box parameter, clicking option updates the price-standart for this parameter
+      if (isBoxParam) {
+        $(optionButton).on('click', function () {
+          $(this).addClass('active').siblings().removeClass('active');
+          const finalRaw = String($opt.attr('data-surcharge-final-price') || $opt.attr('data-surcharge-additional-price') || '0');
+          const finalPrice = Number(finalRaw.replace(/[^0-9]/g, ''));
+          const $priceEl = $(this).closest('.parameter-wrap').find('.price.price-standart');
+          if ($priceEl.length) {
+            $priceEl.attr('data-price', finalPrice);
+            $priceEl.text(finalPrice > 0 ? NumToPrice(finalPrice) : '0 Kč');
+          }
+        });
+      }
       let label;
     } else if (textOption.includes("rad") || textOption.includes("řada")) {
       // Vytvoř radio input
