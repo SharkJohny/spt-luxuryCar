@@ -4,13 +4,13 @@ let oneLayerProducts;
 
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
-  boxsParameterIds = [94, 97];
+  boxsParameterIds = [94, 97, 104];
   oneLayerProducts = shoptetData.product.id == 598 || shoptetData.product.id == 610 || shoptetData.product.id == 613;
   if (dataLayer[0].shoptet.projectId == "581408") {
     $(".custom-footer__banner10").hide();
     twoLayersProducts = shoptetData.product.id == 2406 || shoptetData.product.id == 2409 || shoptetData.product.id == 2412;
     oneLayerProducts = shoptetData.product.id == 2403 || shoptetData.product.id == 2415 || shoptetData.product.id == 2418;
-    boxsParameterIds = [66, 69, 78];
+    boxsParameterIds = [66, 69, 78, 104];
   }
 }
 /**
@@ -256,19 +256,6 @@ export function createOptions(position, orders) {
     $(".surcharge-list").each(function () {
       const parameterId = $(this).find("select").attr("data-parameter-id");
       console.log(parameterId);
-      const parametrWraps = $("<div>", {
-        class: "parameter-wrap parameter-sizes",
-        "data-parameterId": parameterId,
-      }).appendTo(optionsWrap);
-      const surchargeName = $(this).find("th").text().trim().replace("?", "");
-      $("<div>", {
-        class: "variant name",
-        text: surchargeName,
-      }).appendTo(parametrWraps);
-      const optionWrap = $("<div>", {
-        class: "option-wrap",
-      }).appendTo(parametrWraps);
-      const options = $(this).find("option");
       // determine if nested param is a box param and compute its base price
       const isBoxNested = boxsParameterIds.includes(parseInt(parameterId));
       let basePriceNested = 0;
@@ -284,6 +271,31 @@ export function createOptions(position, orders) {
           basePriceNested = Number(raw.replace(/[^0-9]/g, ''));
         }
       }
+
+      const parametrWraps = $("<div>", {
+        class: "parameter-wrap parameter-sizes",
+        "data-parameterId": parameterId,
+      }).appendTo(optionsWrap);
+      const surchargeName = $(this).find("th").text().trim().replace("?", "");
+      $("<div>", {
+        class: "variant name",
+        text: surchargeName,
+      }).appendTo(parametrWraps);
+      // If this nested parameter is a box-size, create a price-wrap with base price
+      const priceWrapNested = $("<div>", { class: "price-wrap" }).appendTo(parametrWraps);
+      if (isBoxNested) {
+        $("<span>", { class: "text", text: "Cena boxu" }).appendTo(priceWrapNested);
+        $("<div>", {
+          class: "price price-standart",
+          text: basePriceNested > 0 ? NumToPrice(basePriceNested) : "0 Kč",
+          "data-price": basePriceNested,
+        }).appendTo(priceWrapNested);
+      }
+
+      const optionWrap = $("<div>", {
+        class: "option-wrap",
+      }).appendTo(parametrWraps);
+      const options = $(this).find("option");
       createOptionButtons(options, parameterId, optionWrap, isBoxNested, basePriceNested);
     });
 

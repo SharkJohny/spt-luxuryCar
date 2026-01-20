@@ -1046,78 +1046,78 @@ function updateUpsale($this, event) {
     }
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
-    if (value[0] === "conf1") {
-      // conf1: show only Solo box (parameter 78), hide other box parameters (box1/box2)
-      const soloId = 78;
-      $(".parameter-wrap.parameter-" + box1).hide();
-      $(".parameter-wrap.parameter-" + box2).hide();
-      $(".parameter-wrap.parameter-" + soloId).show();
+    if (value[0] === "conf1" || value[0] === "conf2") {
+      // Use configured box parameter IDs where available
+      const allBoxIds = (typeof boxsParameterIds !== 'undefined' && Array.isArray(boxsParameterIds) && boxsParameterIds.length) ? boxsParameterIds.map(Number) : [Number(box1), Number(box2)];
 
-      // read price from select (selected option or first non-empty option)
-      const $soloSelect = $(`select.parameter-id-${soloId}.surcharge-parameter`);
-      let soloPrice = 0;
-      if ($soloSelect.length) {
-        const $sel = $soloSelect.find("option:selected");
-        const raw = String($sel.attr("data-surcharge-final-price") || $sel.attr("data-surcharge-additional-price") || "");
-        if (raw && raw.replace(/[^0-9]/g, "") !== "") {
-          soloPrice = Number(raw.replace(/[^0-9]/g, ""));
-        } else {
-          const $first = $soloSelect
-            .find('option[data-surcharge-final-price]:not([value=""])')
-            .filter(function () {
-              return (
-                Number(
-                  String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""),
-                ) > 0
-              );
-            })
-            .first();
-          if ($first.length) {
-            soloPrice = Number(
-              String($first.attr("data-surcharge-final-price") || $first.attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""),
-            );
+      // Prefer parameter 104 for Solo box if present; fallback to 78
+      let soloId = allBoxIds.includes(104) ? 104 : 78;
+
+      if (value[0] === "conf1") {
+        // show only soloId, hide other box params
+        allBoxIds.forEach((id) => {
+          if (Number(id) === Number(soloId)) {
+            $(`.parameter-wrap.parameter-${id}`).show();
+          } else {
+            $(`.parameter-wrap.parameter-${id}`).hide();
+          }
+        });
+
+        // update solo price from select
+        const $soloSelect = $(`select.parameter-id-${soloId}.surcharge-parameter`);
+        let soloPrice = 0;
+        if ($soloSelect.length) {
+          const $sel = $soloSelect.find("option:selected");
+          const raw = String($sel.attr("data-surcharge-final-price") || $sel.attr("data-surcharge-additional-price") || "");
+          if (raw && raw.replace(/[^0-9]/g, "") !== "") {
+            soloPrice = Number(raw.replace(/[^0-9]/g, ""));
+          } else {
+            const $first = $soloSelect
+              .find('option[data-surcharge-final-price]:not([value=""])')
+              .filter(function () {
+                return Number(String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, "")) > 0;
+              })
+              .first();
+            if ($first.length) {
+              soloPrice = Number(String($first.attr("data-surcharge-final-price") || $first.attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""));
+            }
           }
         }
-      }
-      const $soloPriceEl = $(".parameter-wrap.parameter-" + soloId).find(".price.price-standart");
-      $soloPriceEl.attr("data-price", soloPrice);
-      if ($soloPriceEl.length) $soloPriceEl.text(soloPrice > 0 ? NumToPrice(soloPrice) : "0 Kč");
-    } else if (value[0] === "conf2") {
-      // conf2: hide Solo box, show other box parameters (box1/box2)
-      const soloId = 78;
-      $(".parameter-wrap.parameter-" + soloId).hide();
-      $(".parameter-wrap.parameter-" + box1).show();
-      $(".parameter-wrap.parameter-" + box2).show();
+        const $soloPriceEl = $(`.parameter-wrap.parameter-${soloId}`).find(".price.price-standart");
+        $soloPriceEl.attr("data-price", soloPrice);
+        if ($soloPriceEl.length) $soloPriceEl.text(soloPrice > 0 ? NumToPrice(soloPrice) : "0 Kč");
+      } else {
+        // conf2: show box1 and box2, hide other box params (including solo)
+        allBoxIds.forEach((id) => $(`.parameter-wrap.parameter-${id}`).hide());
+        $(`.parameter-wrap.parameter-${box1}`).show();
+        $(`.parameter-wrap.parameter-${box2}`).show();
 
-      // Read price for box1 from its select (selected or first non-empty)
-      const $box1Select = $(`select.parameter-id-${box1}.surcharge-parameter`);
-      let box1Price = 0;
-      if ($box1Select.length) {
-        const $sel = $box1Select.find("option:selected");
-        const raw = String($sel.attr("data-surcharge-final-price") || $sel.attr("data-surcharge-additional-price") || "");
-        if (raw && raw.replace(/[^0-9]/g, "") !== "") {
-          box1Price = Number(raw.replace(/[^0-9]/g, ""));
-        } else {
-          const $first = $box1Select
-            .find('option[data-surcharge-final-price]:not([value=""])')
-            .filter(function () {
-              return (
-                Number(
-                  String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""),
-                ) > 0
-              );
-            })
-            .first();
-          if ($first.length) {
-            box1Price = Number(
-              String($first.attr("data-surcharge-final-price") || $first.attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""),
-            );
+        // update prices for box1 and box2
+        [box1, box2].forEach((bid) => {
+          const $selWrap = $(`select.parameter-id-${bid}.surcharge-parameter`);
+          let p = 0;
+          if ($selWrap.length) {
+            const $sel = $selWrap.find('option:selected');
+            const raw = String($sel.attr('data-surcharge-final-price') || $sel.attr('data-surcharge-additional-price') || '');
+            if (raw && raw.replace(/[^0-9]/g, '') !== '') {
+              p = Number(raw.replace(/[^0-9]/g, ''));
+            } else {
+              const $first = $selWrap
+                .find('option[data-surcharge-final-price]:not([value=""])')
+                .filter(function () {
+                  return Number(String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, '')) > 0;
+                })
+                .first();
+              if ($first.length) {
+                p = Number(String($first.attr('data-surcharge-final-price') || $first.attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, ''));
+              }
+            }
           }
-        }
+          const $priceEl = $(`.parameter-wrap.parameter-${bid}`).find('.price.price-standart');
+          $priceEl.attr('data-price', p);
+          if ($priceEl.length) $priceEl.text(p > 0 ? NumToPrice(p) : '0 Kč');
+        });
       }
-      const $box1PriceEl = $(".parameter-wrap.parameter-" + box1).find(".price.price-standart");
-      $box1PriceEl.attr("data-price", box1Price);
-      if ($box1PriceEl.length) $box1PriceEl.text(box1Price > 0 ? NumToPrice(box1Price) : "0 Kč");
     }
   }
   // Delay for price update
