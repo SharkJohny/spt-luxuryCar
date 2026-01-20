@@ -1047,15 +1047,28 @@ function updateUpsale($this, event) {
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
     if (value[0] === "conf1") {
-      let prices = boxsPrice[0].split("/")[0];
+      // conf1: show only Solo box (parameter 78), hide other box parameters (box1/box2)
+      const prices = (boxsPrice[0] || "0/0").split("/")[0];
+      // IDs: box1 => box1, box2 => box2, solo => 78
+      const soloId = 78;
+      $(".parameter-wrap.parameter-" + box1).hide();
       $(".parameter-wrap.parameter-" + box2).hide();
-      $(".price.price-standart").attr("data-price", prices);
-      $(".price.price-standart").text(NumToPrice(prices));
+      $(".parameter-wrap.parameter-" + soloId).show();
+      // update solo price element specifically
+      const $soloPrice = $(".parameter-wrap.parameter-" + soloId).find('.price.price-standart');
+      $soloPrice.attr('data-price', prices);
+      if ($soloPrice.length) $soloPrice.text(NumToPrice(prices));
     } else if (value[0] === "conf2") {
-      let prices = boxsPrice[1].split("/")[0];
+      // conf2: hide Solo box, show other box parameters (box1/box2)
+      const prices = (boxsPrice[1] || "0/0").split("/")[0];
+      const soloId = 78;
+      $(".parameter-wrap.parameter-" + soloId).hide();
+      $(".parameter-wrap.parameter-" + box1).show();
       $(".parameter-wrap.parameter-" + box2).show();
-      $(".price.price-standart").attr("data-price", prices);
-      $(".price.price-standart").text(NumToPrice(prices));
+      // update box1 price element specifically
+      const $box1Price = $(".parameter-wrap.parameter-" + box1).find('.price.price-standart');
+      $box1Price.attr('data-price', prices);
+      if ($box1Price.length) $box1Price.text(NumToPrice(prices));
     }
   }
   // Delay for price update

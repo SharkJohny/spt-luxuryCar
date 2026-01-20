@@ -45,6 +45,22 @@ const ButtonUtils = {
 };
 
 /**
+ * Creates a slug from text
+ * @param {string} text - Text to convert to slug
+ * @returns {string} Slugified text
+ */
+function createSlug(text) {
+  return String(text)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+/**
  * Creates an upsale button with an image and text, and appends it to the specified position.
  *
  * @param {string} img - The URL of the image to be displayed on the button.
@@ -56,47 +72,33 @@ const ButtonUtils = {
  * @param {boolean} prefix - Whether to show "od" prefix in price
  */
 export function createUpsaleButton(img, text, position, value, type, price, prefix, texts) {
-  console.log("textty", texts.you_will_save);
-  if (!img || !text || !position || !price) {
-    console.error("Invalid parameters passed to createUpsaleButton");
-    return;
-  }
+  if (!img || !text || !position) return;
 
-  let priceText = price.split("/");
-  let typeClass = type;
+  const priceParts = String(price || "0/0").split("/");
+  const base = Number(priceParts[0]);
+  const full = Number(priceParts[1] || 0);
 
-  if (type == "config" && value == 0) {
-    typeClass = "none";
-  }
-
-  if (value == "89-2225") {
-    typeClass = "radio none";
-  }
+  const save = full - base;
+  const typeClass = ButtonUtils.getButtonTypeClass(type, value);
 
   const buttonHTML = `
     <div class="upsale-button ${typeClass}" value="${value}">
       <img src="${img}?7" alt="${text}" />
-      <div class="banner-header"><span>${text}</span>
+      <div class="banner-header"><span>${text}</span></div>
     </div>
   `;
 
   const button = $(buttonHTML).appendTo(position);
 
-  if (priceText[0] == "0") return;
-
-  const save = priceText[1] - priceText[0];
-  let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">${texts.you_will_save} ${NumToPrice(
-    save,
-  )}</div>`;
-
-  if (prefix) {
-    priceHTML = `<div class="price">od ${NumToPrice(priceText[0])} / ks</div><div class="save" data-save="${save}">${
-      texts.you_will_save
-    } až ${NumToPrice(save)}</div>`;
+  // If base price is 0, we keep the button but don't append the price block (e.g. "Nechci" option)
+  if (base > 0) {
+    const priceHTML = ButtonUtils.createPriceHTML(base, save, !!prefix).replace(
+      /Ušetríte/,
+      texts && texts.you_will_save ? texts.you_will_save : "Ušetríte",
+    );
+    $(button).find(".banner-header").append(priceHTML);
   }
 
-  const positionadd = $(button).find(".banner-header");
-  $(priceHTML).appendTo(positionadd);
   $(".upsale-Banner").hide();
   setTimeout(() => {
     $(".parameter-wrap.orders-1").removeClass("goToAction");
@@ -122,16 +124,6 @@ export function createOptions(position, orders) {
     name = $(position).parents(".surcharge-list").find("th").text().trim().replace("?", "");
   }
 
-  const createSlug = (text) => {
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^\w\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
-  };
   let slug = createSlug(name);
 
   const options = $(position).find("option");
@@ -220,14 +212,30 @@ export function createOptions(position, orders) {
     class: "price-wrap",
   }).appendTo(nameWrap);
 
-  if (boxsParameterIds.includes(parseInt(parameterId))) {
-    console.log(boxsParameterIds);
-    //
+  const isBoxParam = boxsParameterIds.includes(parseInt(parameterId));
+  let basePrice = 0;
+  // Preserve original visual style for box parameters
+  if (isBoxParam) {
+    $(`.parameter-wrap.parameter-${parameterId}.orders-${orders}`).addClass("noText");
+  }
+  if (isBoxParam) {
+    // Determine box base price from the first option that has a surcharge final price
+    const $select = $(position);
+    const $firstWithPrice = $select
+      .find('option[data-surcharge-final-price]:not([value=""])')
+      .filter(function () {
+        return Number($(this).attr("data-surcharge-final-price") || 0) > 0;
+      })
+      .first();
+    if ($firstWithPrice.length) {
+      basePrice = Number($firstWithPrice.attr("data-surcharge-final-price") || $firstWithPrice.attr("data-surcharge-additional-price") || 0);
+    }
+
     $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
     $("<div>", {
       class: "price price-standart",
-      text: "od " + NumToPrice(price),
-      "data-price": price,
+      text: basePrice > 0 ? NumToPrice(basePrice) : "0 Kč",
+      "data-price": basePrice,
     }).appendTo(priceWrap);
   }
 
@@ -239,7 +247,7 @@ export function createOptions(position, orders) {
 
   console.log(options);
 
-  createOptionButtons(options, parameterId, optionsWrap);
+  createOptionButtons(options, parameterId, optionsWrap, isBoxParam, basePrice);
 
   if (name == "veľkosť") {
     $(".surcharge-list").each(function () {
@@ -258,7 +266,7 @@ export function createOptions(position, orders) {
         class: "option-wrap",
       }).appendTo(parametrWraps);
       const options = $(this).find("option");
-      createOptionButtons(options, parameterId, optionWrap);
+      createOptionButtons(options, parameterId, optionWrap, false, 0);
     });
 
     $(".parameter-wrap.parameter-sizes").eq(2).hide();
@@ -340,16 +348,24 @@ function amountChoser(name, position) {
   }
 }
 
-function createOptionButtons(options, parameterId, optionsWrap) {
+function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = false, basePrice = 0) {
   $(options).each(function () {
-    const value = $(this).val();
+    const $opt = $(this);
+    const value = $opt.val();
     if (value == "") return;
-    const textOption = $(this).text();
+    const textOption = $opt.text();
     const valueText = textOption.split("+");
     const nameSplit = valueText[0].split(":");
-    if (textOption.includes("ŽIADNY")) {
+
+    const surchargeFinal = Number($opt.attr("data-surcharge-final-price") || $opt.attr("data-surcharge-additional-price") || 0);
+
+    // For box parameters, skip options with zero surcharge
+    if (isBoxParam && surchargeFinal === 0) return;
+
+    if (textOption.includes("ŽIADNY") && !isBoxParam) {
       return;
     }
+
     const optionButton = $("<div>", {
       class: "button option-button",
       "data-value": value,
@@ -382,6 +398,7 @@ function createOptionButtons(options, parameterId, optionsWrap) {
         540: 999,
       };
     }
+
     if (textOption.includes("cm")) {
       // if (priceButton[value]) {
       //   $(`<div class='price'>+ ${NumToPrice(priceButton[value])}</div>`).appendTo(optionButton);
@@ -440,20 +457,4 @@ function createOptionButtons(options, parameterId, optionsWrap) {
       }).appendTo(optionButton);
     }
   });
-}
-/**
- * Creates a slug from text
- * @param {string} text - Text to convert to slug
- * @returns {string} Slugified text
- */
-function createSlug(text) {
-  console.log(text);
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 }
