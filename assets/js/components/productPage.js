@@ -25,14 +25,14 @@ const standartPrice = Number(
     ? $(".p-final-price-wrapper .price-standard span")
         .text()
         .replace(/[^0-9]/g, "")
-    : 0
+    : 0,
 );
 const price = Number(
   $("span.calculated-price").length
     ? $("span.calculated-price")
         .text()
         .replace(/[^0-9]/g, "")
-    : 0
+    : 0,
 );
 
 const diference = standartPrice - price;
@@ -244,26 +244,47 @@ function priplatky(setupData, texts) {
       let carpetsText = setupData.settings.carpetsText.split(",");
       let carpetsValue = setupData.settings.carpetsValue.split(",");
       let carpetsImage = setupData.settings.carpetsImage.split(",");
-      let carpetsPrice = setupData.settings.carpetsPrice.split(",");
+      let Price = getcarpetprice(carpetsValue);
+      let carpetsPrice = setupData.priceListEUR;
+      let priceArray = [Price[0] + "/" + carpetsPrice.classic_trunk.recommended, Price[1] + "/" + carpetsPrice.premium_trunk.recommended, "0/0"];
       if (dataLayer[0].shoptet.projectId == "581408") {
         carpetsText = setupData.settings.carpetsTextcs.split(",");
         carpetsValue = setupData.settings.carpetsValuecs.split(",");
+        Price = getcarpetprice(carpetsValue);
+        carpetsPrice = setupData.priceListCZK;
 
-        carpetsPrice = setupData.settings.carpetsPricecs.split(",");
+        priceArray = [Price[0] + "/" + carpetsPrice.classic_trunk.recommended, Price[1] + "/" + carpetsPrice.premium_trunk.recommended, "0/0"];
       }
       $(carpetsText).each(function (e) {
+        if (e == 2) {
+          prefix = "";
+        }
         createUpsaleButton(
           "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/" + prefix + carpetsImage[e],
           this,
           parameterWrap,
           carpetsValue[e],
           "radio",
-          carpetsPrice[e],
+          priceArray[e],
           false,
-          texts
+          texts,
         );
       });
     }
+
+    function getcarpetprice(carpetsValue) {
+      let array = [];
+      carpetsValue.forEach((value, index) => {
+        console.log("value-------", value);
+        const valueKey = value.split("-");
+        const getPrice = $(".parameter-id-" + valueKey[0] + " option[value='" + valueKey[1] + "']").data("surcharge-additional-price");
+
+        array.push(getPrice);
+      });
+      console.log(array);
+      return array;
+    }
+
     // createUpsaleButton(
     //   "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/boxy.jpg",
     //   "LUXUSNÉ BOXY DO KUFRU NA MIERU",
@@ -276,10 +297,22 @@ function priplatky(setupData, texts) {
 
       const boxsValue = setupData.settings.boxsValue.split(",");
       const boxsImage = setupData.settings.boxsImage.split(",");
-      boxsPrice = setupData.settings.boxsPrice.split(",");
+
+      let carpetsPrice = setupData.priceListEUR;
+      let priceArray = [
+        carpetsPrice.box_one.selling + "/" + carpetsPrice.box_one.recommended,
+        carpetsPrice.box_two.selling + "/" + carpetsPrice.box_two.recommended,
+        "0/0",
+      ];
       if (dataLayer[0].shoptet.projectId == "581408") {
         boxsText = setupData.settings.boxsTextcs.split(",");
         boxsPrice = setupData.settings.boxsPricecs.split(",");
+        carpetsPrice = setupData.priceListCZK;
+        priceArray = [
+          carpetsPrice.box_one.selling + "/" + carpetsPrice.box_one.recommended,
+          carpetsPrice.box_two.selling + "/" + carpetsPrice.box_two.recommended,
+          "0/0",
+        ];
       }
       order += 1;
       const buttonWrapBox = $("<div>", {
@@ -306,9 +339,9 @@ function priplatky(setupData, texts) {
           parameterWrap2,
           boxsValue[e],
           "config",
-          boxsPrice[e],
+          priceArray[e],
           true,
-          texts
+          texts,
         );
       });
     }
@@ -345,7 +378,7 @@ function priplatky(setupData, texts) {
         const elementType = clickedWrap.hasClass("position-wrap") ? "position-wrap" : "parameter-wrap";
         const elementName = clickedWrap.find(".variant.name, h5").first().text() || "Unnamed";
         console.log(`Otevřen ${elementType}:`, elementName);
-      }
+      },
     );
 
     // Funkcionalita pro tlačítko "Přejít k dalšímu kroku"
@@ -618,13 +651,13 @@ function firstPage(texts) {
   console.log(diamondurl);
 
   const diamond = $(
-    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`
+    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
   ).appendTo(patternsWrap);
   const hexa = $(
-    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`
+    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
   ).appendTo(patternsWrap);
   const stripe = $(
-    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`
+    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
   ).appendTo(patternsWrap);
   console.log(diamondurl);
 
@@ -656,10 +689,10 @@ function firstPage(texts) {
     class: "option-wrap",
   }).appendTo(wheelWrao);
   $(
-    `<div class='button option-button active' data-value='left'><span>EU</span><img src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>Vľavo</div></div>`
+    `<div class='button option-button active' data-value='left'><span>EU</span><img src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>Vľavo</div></div>`,
   ).appendTo(wheelOption);
   $(
-    `<div class='button option-button' data-value='right'><img src='/user/documents/upload/assets/image/Layer_right.png' ><div class='text'>Vpravo</div><span>UK</span></div>`
+    `<div class='button option-button' data-value='right'><img src='/user/documents/upload/assets/image/Layer_right.png' ><div class='text'>Vpravo</div><span>UK</span></div>`,
   ).appendTo(wheelOption);
 
   const sitposition = $("<div>", {
@@ -872,7 +905,7 @@ function createpopup(texts) {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-  `
+  `,
     )
     .appendTo("head");
 }
@@ -884,7 +917,7 @@ function calculateStandartPrice(diference) {
   const price = Number(
     $(".p-final-price-wrapper span.calculated-price:eq(0)")
       .text()
-      .replace(/[^0-9]/g, "")
+      .replace(/[^0-9]/g, ""),
   );
 
   console.log("price", price);

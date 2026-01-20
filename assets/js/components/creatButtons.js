@@ -10,7 +10,7 @@ if ($(".type-product")[0]) {
     $(".custom-footer__banner10").hide();
     twoLayersProducts = shoptetData.product.id == 2406 || shoptetData.product.id == 2409 || shoptetData.product.id == 2412;
     oneLayerProducts = shoptetData.product.id == 2403 || shoptetData.product.id == 2415 || shoptetData.product.id == 2418;
-    boxsParameterIds = [66, 69];
+    boxsParameterIds = [66, 69, 78];
   }
 }
 /**
@@ -86,7 +86,7 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
 
   const save = priceText[1] - priceText[0];
   let priceHTML = `<div class="price">${NumToPrice(priceText[0])}</div><div class="save" data-save="${save}">${texts.you_will_save} ${NumToPrice(
-    save
+    save,
   )}</div>`;
 
   if (prefix) {
@@ -222,7 +222,7 @@ export function createOptions(position, orders) {
 
   if (boxsParameterIds.includes(parseInt(parameterId))) {
     console.log(boxsParameterIds);
-    let price = 79;
+    //
     $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
     $("<div>", {
       class: "price price-standart",

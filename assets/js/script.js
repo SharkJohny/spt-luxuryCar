@@ -32,6 +32,8 @@ $.getJSON(optionData.downloadData, function (data) {
   initCart(texts);
   $(".config-wrap .parameter-wrap:eq(1)").addClass("noText");
   $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");
+
+  $(".config-wrap .parameter-wrap:eq(3)").addClass("noText");
 });
 
 const logoGoogle =
