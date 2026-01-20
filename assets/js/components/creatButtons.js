@@ -221,14 +221,17 @@ export function createOptions(position, orders) {
   if (isBoxParam) {
     // Determine box base price from the first option that has a surcharge final price
     const $select = $(position);
-    const $firstWithPrice = $select.find('option[data-surcharge-final-price]:not([value=""])').filter(function () {
-      const raw = String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0');
-      const num = Number(raw.replace(/[^0-9]/g, ''));
-      return num > 0;
-    }).first();
+    const $firstWithPrice = $select
+      .find('option[data-surcharge-final-price]:not([value=""])')
+      .filter(function () {
+        const raw = String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0");
+        const num = Number(raw.replace(/[^0-9]/g, ""));
+        return num > 0;
+      })
+      .first();
     if ($firstWithPrice.length) {
-      const raw = String($firstWithPrice.attr('data-surcharge-final-price') || $firstWithPrice.attr('data-surcharge-additional-price') || '0');
-      basePrice = Number(raw.replace(/[^0-9]/g, ''));
+      const raw = String($firstWithPrice.attr("data-surcharge-final-price") || $firstWithPrice.attr("data-surcharge-additional-price") || "0");
+      basePrice = Number(raw.replace(/[^0-9]/g, ""));
     }
 
     $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
@@ -266,7 +269,22 @@ export function createOptions(position, orders) {
         class: "option-wrap",
       }).appendTo(parametrWraps);
       const options = $(this).find("option");
-      createOptionButtons(options, parameterId, optionWrap, false, 0);
+      // determine if nested param is a box param and compute its base price
+      const isBoxNested = boxsParameterIds.includes(parseInt(parameterId));
+      let basePriceNested = 0;
+      if (isBoxNested) {
+        const $select = $(this).find('select');
+        const $firstWithPrice = $select.find('option[data-surcharge-final-price]:not([value=""])').filter(function () {
+          const raw = String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0');
+          const num = Number(raw.replace(/[^0-9]/g, ''));
+          return num > 0;
+        }).first();
+        if ($firstWithPrice.length) {
+          const raw = String($firstWithPrice.attr('data-surcharge-final-price') || $firstWithPrice.attr('data-surcharge-additional-price') || '0');
+          basePriceNested = Number(raw.replace(/[^0-9]/g, ''));
+        }
+      }
+      createOptionButtons(options, parameterId, optionWrap, isBoxNested, basePriceNested);
     });
 
     $(".parameter-wrap.parameter-sizes").eq(2).hide();
@@ -431,14 +449,14 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       $(optionButton).addClass("text");
       // If this is a box parameter, clicking option updates the price-standart for this parameter
       if (isBoxParam) {
-        $(optionButton).on('click', function () {
-          $(this).addClass('active').siblings().removeClass('active');
-          const finalRaw = String($opt.attr('data-surcharge-final-price') || $opt.attr('data-surcharge-additional-price') || '0');
-          const finalPrice = Number(finalRaw.replace(/[^0-9]/g, ''));
-          const $priceEl = $(this).closest('.parameter-wrap').find('.price.price-standart');
+        $(optionButton).on("click", function () {
+          $(this).addClass("active").siblings().removeClass("active");
+          const finalRaw = String($opt.attr("data-surcharge-final-price") || $opt.attr("data-surcharge-additional-price") || "0");
+          const finalPrice = Number(finalRaw.replace(/[^0-9]/g, ""));
+          const $priceEl = $(this).closest(".parameter-wrap").find(".price.price-standart");
           if ($priceEl.length) {
-            $priceEl.attr('data-price', finalPrice);
-            $priceEl.text(finalPrice > 0 ? NumToPrice(finalPrice) : '0 Kč');
+            $priceEl.attr("data-price", finalPrice);
+            $priceEl.text(finalPrice > 0 ? NumToPrice(finalPrice) : "0 Kč");
           }
         });
       }
