@@ -260,15 +260,18 @@ export function createOptions(position, orders) {
       const isBoxNested = boxsParameterIds.includes(parseInt(parameterId));
       let basePriceNested = 0;
       if (isBoxNested) {
-        const $select = $(this).find('select');
-        const $firstWithPrice = $select.find('option[data-surcharge-final-price]:not([value=""])').filter(function () {
-          const raw = String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0');
-          const num = Number(raw.replace(/[^0-9]/g, ''));
-          return num > 0;
-        }).first();
+        const $select = $(this).find("select");
+        const $firstWithPrice = $select
+          .find('option[data-surcharge-final-price]:not([value=""])')
+          .filter(function () {
+            const raw = String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0");
+            const num = Number(raw.replace(/[^0-9]/g, ""));
+            return num > 0;
+          })
+          .first();
         if ($firstWithPrice.length) {
-          const raw = String($firstWithPrice.attr('data-surcharge-final-price') || $firstWithPrice.attr('data-surcharge-additional-price') || '0');
-          basePriceNested = Number(raw.replace(/[^0-9]/g, ''));
+          const raw = String($firstWithPrice.attr("data-surcharge-final-price") || $firstWithPrice.attr("data-surcharge-additional-price") || "0");
+          basePriceNested = Number(raw.replace(/[^0-9]/g, ""));
         }
       }
 

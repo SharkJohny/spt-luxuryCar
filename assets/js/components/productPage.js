@@ -382,11 +382,51 @@ function priplatky(setupData, texts) {
     );
 
     // Funkcionalita pro tlačítko "Přejít k dalšímu kroku"
+    function isWrapSelectionValid($wrap) {
+      let hasSelectable = false;
+      let valid = false;
+
+      if ($wrap.find(".option-button").length) {
+        hasSelectable = true;
+        if ($wrap.find(".option-button.active").length) valid = true;
+      }
+
+      if ($wrap.find(".upsale-button").length) {
+        hasSelectable = true;
+        // consider '.none' as no selection
+        if ($wrap.find(".upsale-button.active").length && !$wrap.find(".upsale-button.active.none").length) valid = true;
+      }
+
+      if ($wrap.find("select.surcharge-parameter").length) {
+        hasSelectable = true;
+        $wrap.find("select.surcharge-parameter").each(function () {
+          const val = $(this).val();
+          if (val && val !== "0" && val !== "" && val !== null) valid = true;
+        });
+      }
+
+      if ($wrap.find("input[type='radio'], input[type='checkbox']").length) {
+        hasSelectable = true;
+        if ($wrap.find("input[type='radio']:checked, input[type='checkbox']:checked").length) valid = true;
+      }
+
+      return !hasSelectable || valid;
+    }
+
     $(document).on("click", ".next-step-button", function (e) {
       e.preventDefault();
       e.stopPropagation();
 
       const currentWrap = $(this).closest(".position-wrap, .parameter-wrap");
+
+      // Pokud v aktuálním okně jsou výběrné ovládací prvky, vyžadujeme, aby byl proveden výběr
+      if (!isWrapSelectionValid(currentWrap)) {
+        // krátká vizuální zpětná vazba
+        currentWrap.addClass("selection-required");
+        setTimeout(() => currentWrap.removeClass("selection-required"), 1200);
+        return; // nepokračuj dál
+      }
+
       const allWraps = $(".position-wrap, .parameter-wrap");
       const currentIndex = allWraps.index(currentWrap);
 
@@ -1048,7 +1088,10 @@ function updateUpsale($this, event) {
     // Ukázka, jak schovat/zobrazit nějaké prvky
     if (value[0] === "conf1" || value[0] === "conf2") {
       // Use configured box parameter IDs where available
-      const allBoxIds = (typeof boxsParameterIds !== 'undefined' && Array.isArray(boxsParameterIds) && boxsParameterIds.length) ? boxsParameterIds.map(Number) : [Number(box1), Number(box2)];
+      const allBoxIds =
+        typeof boxsParameterIds !== "undefined" && Array.isArray(boxsParameterIds) && boxsParameterIds.length
+          ? boxsParameterIds.map(Number)
+          : [Number(box1), Number(box2)];
 
       // Prefer parameter 104 for Solo box if present; fallback to 78
       let soloId = allBoxIds.includes(104) ? 104 : 78;
@@ -1075,11 +1118,20 @@ function updateUpsale($this, event) {
             const $first = $soloSelect
               .find('option[data-surcharge-final-price]:not([value=""])')
               .filter(function () {
-                return Number(String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, "")) > 0;
+                return (
+                  Number(
+                    String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0").replace(
+                      /[^0-9]/g,
+                      "",
+                    ),
+                  ) > 0
+                );
               })
               .first();
             if ($first.length) {
-              soloPrice = Number(String($first.attr("data-surcharge-final-price") || $first.attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""));
+              soloPrice = Number(
+                String($first.attr("data-surcharge-final-price") || $first.attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""),
+              );
             }
           }
         }
@@ -1100,25 +1152,34 @@ function updateUpsale($this, event) {
           const $selWrap = $(`select.parameter-id-${bid}.surcharge-parameter`);
           let p = 0;
           if ($selWrap.length) {
-            const $sel = $selWrap.find('option:selected');
-            const raw = String($sel.attr('data-surcharge-final-price') || $sel.attr('data-surcharge-additional-price') || '');
-            if (raw && raw.replace(/[^0-9]/g, '') !== '') {
-              p = Number(raw.replace(/[^0-9]/g, ''));
+            const $sel = $selWrap.find("option:selected");
+            const raw = String($sel.attr("data-surcharge-final-price") || $sel.attr("data-surcharge-additional-price") || "");
+            if (raw && raw.replace(/[^0-9]/g, "") !== "") {
+              p = Number(raw.replace(/[^0-9]/g, ""));
             } else {
               const $first = $selWrap
                 .find('option[data-surcharge-final-price]:not([value=""])')
                 .filter(function () {
-                  return Number(String($(this).attr('data-surcharge-final-price') || $(this).attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, '')) > 0;
+                  return (
+                    Number(
+                      String($(this).attr("data-surcharge-final-price") || $(this).attr("data-surcharge-additional-price") || "0").replace(
+                        /[^0-9]/g,
+                        "",
+                      ),
+                    ) > 0
+                  );
                 })
                 .first();
               if ($first.length) {
-                p = Number(String($first.attr('data-surcharge-final-price') || $first.attr('data-surcharge-additional-price') || '0').replace(/[^0-9]/g, ''));
+                p = Number(
+                  String($first.attr("data-surcharge-final-price") || $first.attr("data-surcharge-additional-price") || "0").replace(/[^0-9]/g, ""),
+                );
               }
             }
           }
-          const $priceEl = $(`.parameter-wrap.parameter-${bid}`).find('.price.price-standart');
-          $priceEl.attr('data-price', p);
-          if ($priceEl.length) $priceEl.text(p > 0 ? NumToPrice(p) : '0 Kč');
+          const $priceEl = $(`.parameter-wrap.parameter-${bid}`).find(".price.price-standart");
+          $priceEl.attr("data-price", p);
+          if ($priceEl.length) $priceEl.text(p > 0 ? NumToPrice(p) : "0 Kč");
         });
       }
     }
