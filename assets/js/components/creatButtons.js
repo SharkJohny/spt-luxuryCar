@@ -348,6 +348,30 @@ function amountChoser(name, position) {
     class: "amount-wrap",
   }).appendTo(position);
 
+  function resetBoxSizeOptions(visibleCount, resetAll = false) {
+    const wraps = $(".parameter-wrap.parameter-sizes");
+    wraps.each(function (index) {
+      const $wrap = $(this);
+      const shouldShow = index < visibleCount;
+
+      if (shouldShow) {
+        $wrap.show();
+      } else {
+        $wrap.hide();
+      }
+
+      if (resetAll || !shouldShow) {
+        $wrap.find(".button.option-button.text").removeClass("active");
+        $wrap.find("input[type='radio'], input[type='checkbox']").prop("checked", false);
+
+        const paramId = $wrap.attr("data-parameterId");
+        if (paramId) {
+          $(`select.parameter-id-${paramId}.surcharge-parameter`).val(0);
+        }
+      }
+    });
+  }
+
   for (let i = 1; i <= amount; i++) {
     $("<div>", {
       class: "button option-button   amount-button" + (i === 2 ? " active" : ""),
@@ -361,19 +385,16 @@ function amountChoser(name, position) {
         // $("input.amount").val(i).trigger("change");
         $(".image-wrap").hide();
         if (i == 1) {
-          $(".parameter-wrap.parameter-sizes").eq(1).hide();
-          $(".parameter-wrap.parameter-sizes").eq(2).hide();
-          $(".parameter-wrap.parameter-sizes:eq(1) .button.option-button.text.active").removeClass("active");
-          $(".parameter-wrap.parameter-sizes:eq(2) .button.option-button.text").removeClass("active");
+          // Show only first size, reset all to defaults
+          resetBoxSizeOptions(1, true);
           priceActualization();
         } else if (i == 2) {
-          $(".parameter-wrap.parameter-sizes").eq(1).show();
-          $(".parameter-wrap.parameter-sizes").eq(2).hide();
-          $(".parameter-wrap.parameter-sizes:eq(2) .button.option-button.text").removeClass("active");
+          // Show first two sizes, reset hidden ones
+          resetBoxSizeOptions(2);
           priceActualization();
         } else if (i == 3) {
-          $(".parameter-wrap.parameter-sizes").eq(1).show();
-          $(".parameter-wrap.parameter-sizes").eq(2).show();
+          // Show all sizes
+          resetBoxSizeOptions(3);
           priceActualization();
         }
       },

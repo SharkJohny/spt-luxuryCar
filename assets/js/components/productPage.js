@@ -645,6 +645,38 @@ $(document).on("click", ".upsale-button", function (e) {
   updateUpsale(this, e);
 });
 
+function resetBoxConfigDefaults() {
+  // reset amount buttons to default (2 ks)
+  const $amountButtons = $(".amount-button");
+  if ($amountButtons.length) {
+    $amountButtons.removeClass("active");
+    $amountButtons
+      .filter(function () {
+        return $(this).text().trim().startsWith("2");
+      })
+      .addClass("active");
+  }
+
+  // reset size selections and visibility (default: 2 sizes visible)
+  $(".parameter-wrap.parameter-sizes").each(function (index) {
+    const $wrap = $(this);
+    const shouldShow = index < 2;
+    if (shouldShow) {
+      $wrap.show();
+    } else {
+      $wrap.hide();
+    }
+
+    $wrap.find(".button.option-button.text").removeClass("active");
+    $wrap.find("input[type='radio'], input[type='checkbox']").prop("checked", false);
+
+    const paramId = $wrap.attr("data-parameterId");
+    if (paramId) {
+      $("select.parameter-id-" + paramId + ".surcharge-parameter").val(0);
+    }
+  });
+}
+
 $(document).on("click", ".close-btn.close", function () {
   $(this).parents(".upsale-Banner").removeClass("showConf");
   $("select.parameter-id-" + boxy + ".surcharge-parameter").val(0);
@@ -653,6 +685,7 @@ $(document).on("click", ".close-btn.close", function () {
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
   $(".config-wrap .option-button").removeClass("active");
+  resetBoxConfigDefaults();
   updateUpsale(this);
 });
 $(document).on("click", ".boxs .upsale-button.none", function (e) {
@@ -663,6 +696,7 @@ $(document).on("click", ".boxs .upsale-button.none", function (e) {
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
   $(".config-wrap .option-button").removeClass("active");
+  resetBoxConfigDefaults();
   updateUpsale(this);
 });
 /**
@@ -1087,14 +1121,25 @@ function updateUpsale($this, event) {
 
     // Ukázka, jak schovat/zobrazit nějaké prvky
     if (value[0] === "conf1" || value[0] === "conf2") {
-      // Use configured box parameter IDs where available
-      const allBoxIds =
-        typeof boxsParameterIds !== "undefined" && Array.isArray(boxsParameterIds) && boxsParameterIds.length
-          ? boxsParameterIds.map(Number)
+      const $boxConfig = $(".box-config");
+      const domBoxIds = $boxConfig.length
+        ? $boxConfig
+            .find(".parameter-wrap")
+            .map(function () {
+              return Number($(this).attr("data-parameterid"));
+            })
+            .get()
+            .filter((id) => !Number.isNaN(id) && id !== Number(boxy))
+        : [];
+
+      const allBoxIds = domBoxIds.length
+        ? domBoxIds
+        : typeof boxsParameterIds !== "undefined" && Array.isArray(boxsParameterIds) && boxsParameterIds.length
+          ? boxsParameterIds.map(Number).filter((id) => id !== Number(boxy))
           : [Number(box1), Number(box2)];
 
-      // Prefer parameter 104 for Solo box if present; fallback to 78
-      let soloId = allBoxIds.includes(104) ? 104 : 78;
+      // Prefer parameter 104 for Solo box if present; fallback to 78, then first available
+      let soloId = allBoxIds.includes(104) ? 104 : allBoxIds.includes(78) ? 78 : allBoxIds[0];
 
       if (value[0] === "conf1") {
         // show only soloId, hide other box params
