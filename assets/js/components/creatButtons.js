@@ -462,17 +462,10 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       }
 
       $(optionButton).addClass("text");
-      // If this is a box parameter, clicking option updates the price-standart for this parameter
+      // If this is a box parameter, keep base price unchanged to avoid double counting.
       if (isBoxParam) {
         $(optionButton).on("click", function () {
           $(this).addClass("active").siblings().removeClass("active");
-          const finalRaw = String($opt.attr("data-surcharge-final-price") || $opt.attr("data-surcharge-additional-price") || "0");
-          const finalPrice = Number(finalRaw.replace(/[^0-9]/g, ""));
-          const $priceEl = $(this).closest(".parameter-wrap").find(".price.price-standart");
-          if ($priceEl.length) {
-            $priceEl.attr("data-price", finalPrice);
-            $priceEl.text(finalPrice > 0 ? NumToPrice(finalPrice) : "0 Kč");
-          }
         });
       }
       let label;
