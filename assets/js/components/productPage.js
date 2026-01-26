@@ -1100,9 +1100,9 @@ function updateUpsale($this, event) {
         // show only soloId, hide other box params
         allBoxIds.forEach((id) => {
           if (Number(id) === Number(soloId)) {
-            $(`.parameter-wrap.parameter-${id}`).show();
+            $(`.box-config .parameter-wrap.parameter-${id}`).show();
           } else {
-            $(`.parameter-wrap.parameter-${id}`).hide();
+            $(`.box-config .parameter-wrap.parameter-${id}`).hide();
           }
         });
 
@@ -1135,17 +1135,17 @@ function updateUpsale($this, event) {
             }
           }
         }
-        const $soloPriceEl = $(`.parameter-wrap.parameter-${soloId}`).find(".price.price-standart");
+        const $soloPriceEl = $(`.box-config .parameter-wrap.parameter-${soloId}`).find(".price.price-standart");
         $soloPriceEl.attr("data-price", soloPrice);
         if ($soloPriceEl.length) $soloPriceEl.text(soloPrice > 0 ? NumToPrice(soloPrice) : "0 Kč");
       } else {
         // conf2: show box1 and box2, hide other box params (including solo)
-        allBoxIds.forEach((id) => $(`.parameter-wrap.parameter-${id}`).hide());
+        allBoxIds.forEach((id) => $(`.box-config .parameter-wrap.parameter-${id}`).hide());
         // explicitly hide solo parameter ids to be safe
-        $(`.parameter-wrap.parameter-104`).hide();
-        $(`.parameter-wrap.parameter-78`).hide();
-        $(`.parameter-wrap.parameter-${box1}`).show();
-        $(`.parameter-wrap.parameter-${box2}`).show();
+        $(`.box-config .parameter-wrap.parameter-104`).hide();
+        $(`.box-config .parameter-wrap.parameter-78`).hide();
+        $(`.box-config .parameter-wrap.parameter-${box1}`).show();
+        $(`.box-config .parameter-wrap.parameter-${box2}`).show();
 
         // update prices for box1 and box2
         [box1, box2].forEach((bid) => {
@@ -1177,7 +1177,7 @@ function updateUpsale($this, event) {
               }
             }
           }
-          const $priceEl = $(`.parameter-wrap.parameter-${bid}`).find(".price.price-standart");
+          const $priceEl = $(`.box-config .parameter-wrap.parameter-${bid}`).find(".price.price-standart");
           $priceEl.attr("data-price", p);
           if ($priceEl.length) $priceEl.text(p > 0 ? NumToPrice(p) : "0 Kč");
         });
