@@ -6,6 +6,8 @@ export function initHeader() {
 
   $('<a href="#" class="toggle-window" data-target="search" data-testid="linkSearchIcon"></a>').prependTo(".desktop  .navigation-buttons");
 
+  // Language flags for SK / CZ - prepend to navigation buttons
+
   $("<div>", {
     class: "navigation-show",
     text: "E-shop",
@@ -21,7 +23,12 @@ export function initHeader() {
     }
   });
   $('<a class="contact-link" href="/kontakty/">Kontakt</a>').prependTo(".navigation-buttons");
-
+  $("<div>", { class: "language-flags" })
+    .html(
+      '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>' +
+        '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>',
+    )
+    .prependTo(".navigation-buttons");
   headerFixProdukt();
 }
 

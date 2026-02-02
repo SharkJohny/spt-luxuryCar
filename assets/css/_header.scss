@@ -215,8 +215,8 @@ header#header {
     line-height: 11px;
     padding: 3px;
     position: absolute;
-    right: -22px;
-    top: 0;
+    right: -38px;
+    top: 19px;
     width: 17px;
     z-index: 10;
     position: absolute;
@@ -775,7 +775,28 @@ a.contact-link {
 .product.active.productVisible {
   width: 25%;
 }
-
+.language-flags {
+  font-size: 31px;
+  position: absolute;
+  right: 110px;
+  width: 90px;
+  top: -6px;
+  a {
+    margin-right: 10px;
+  }
+}
+@media (max-width: 768px) {
+  .language-flags {
+    right: unset;
+    left: 70px;
+    top: -40px;
+    width: 70px;
+    font-size: 24px;
+    a {
+      margin-right: 8px;
+    }
+  }
+}
 @media (max-width: 468px) {
   .plugin-fixed-header__basket > button {
     display: block !important;

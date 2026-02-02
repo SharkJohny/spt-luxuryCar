@@ -1,5 +1,25 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
 import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
+
+window.addEventListener(
+  "error",
+  (event) => {
+    if (event.target && event.target.tagName === "IMG") {
+      const img = event.target;
+      // Check if we already retried this image to prevent infinite loop
+      if (!img.dataset.retried) {
+        // We can't strictly check for 502 status in JS error event, so we retry on any error once
+        console.warn("Image load failed (possible 502), retrying with timestamp:", img.src);
+
+        img.dataset.retried = "true";
+        const separator = img.src.includes("?") ? "&" : "?";
+        img.src = img.src + separator + Date.now();
+      }
+    }
+  },
+  true, // Capture phase is needed because error events on elements do not bubble
+);
+
 let koberce = 88;
 let boxy = 91;
 let box1 = 94;
