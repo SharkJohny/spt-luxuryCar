@@ -787,14 +787,7 @@ a.contact-link {
 }
 @media (max-width: 768px) {
   .language-flags {
-    right: unset;
-    left: 70px;
-    top: -40px;
-    width: 70px;
-    font-size: 24px;
-    a {
-      margin-right: 8px;
-    }
+    display: none;
   }
 }
 @media (max-width: 468px) {

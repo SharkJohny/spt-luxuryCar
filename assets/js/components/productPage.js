@@ -667,7 +667,7 @@ $(document).on("click", ".upsale-button", function (e) {
 
 function resetBoxConfigDefaults() {
   // reset amount buttons to default (2 ks)
-  const $amountButtons = $(".amount-button");
+  const $amountButtons = $(".box-config .amount-button");
   if ($amountButtons.length) {
     $amountButtons.removeClass("active");
     $amountButtons
@@ -678,7 +678,7 @@ function resetBoxConfigDefaults() {
   }
 
   // reset size selections and visibility (default: 2 sizes visible)
-  $(".parameter-wrap.parameter-sizes").each(function (index) {
+  $(".box-config .parameter-wrap.parameter-sizes").each(function (index) {
     const $wrap = $(this);
     const shouldShow = index < 2;
     if (shouldShow) {
@@ -692,7 +692,24 @@ function resetBoxConfigDefaults() {
 
     const paramId = $wrap.attr("data-parameterId");
     if (paramId) {
-      $("select.parameter-id-" + paramId + ".surcharge-parameter").val(0);
+      $("select.parameter-id-" + paramId + ".surcharge-parameter").val("");
+    }
+  });
+
+  // reset all box-config parameters to default (empty value)
+  $(".box-config .parameter-wrap").each(function () {
+    const $wrap = $(this);
+
+    // reset all option buttons to inactive
+    $wrap.find(".button.option-button").removeClass("active");
+
+    // reset all inputs
+    $wrap.find("input[type='radio'], input[type='checkbox']").prop("checked", false);
+
+    // reset select to default empty value
+    const paramId = $wrap.attr("data-parameterId");
+    if (paramId) {
+      $("select.parameter-id-" + paramId + ".surcharge-parameter").val("");
     }
   });
 }

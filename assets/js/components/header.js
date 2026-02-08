@@ -23,12 +23,24 @@ export function initHeader() {
     }
   });
   $('<a class="contact-link" href="/kontakty/">Kontakt</a>').prependTo(".navigation-buttons");
-  $("<div>", { class: "language-flags" })
-    .html(
-      '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>' +
-        '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>',
-    )
-    .prependTo(".navigation-buttons");
+
+  // Language flags - add to desktop navigation, mobile menu will have them via CSS
+  if (window.innerWidth > 768) {
+    $("<div>", { class: "language-flags" })
+      .html(
+        '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>' +
+          '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>',
+      )
+      .prependTo(".navigation-buttons");
+  } else {
+    // Mobile: add flags to end of menu
+    $("<div>", { class: "language-flags-mobile" })
+      .html(
+        '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>' +
+          '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>',
+      )
+      .appendTo("#menu-widget");
+  }
   headerFixProdukt();
 }
 
