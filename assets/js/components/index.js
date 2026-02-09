@@ -24,7 +24,7 @@ export function intIndex() {
         complete: function () {
           $element.text(targetNumber); // Pro zajištění, že se zobrazí konečná hodnota
         },
-      }
+      },
     );
   }
   $(document).on("click", ".accordion", function (e) {
@@ -334,7 +334,7 @@ export function intIndex() {
       <button class="admin-generate-orders" type="button" style="
         position: fixed;
         bottom: 20px;
-        right: 20px;
+        left: 20px;
         background: #c49b30;
         color: white;
         border: none;
@@ -363,9 +363,9 @@ export function intIndex() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
-        body: JSON.stringify({ start: true })
+        body: JSON.stringify({ start: true }),
       })
         .then(function (response) {
           if (response.ok) {
