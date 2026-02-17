@@ -24,23 +24,28 @@ export function initHeader() {
   });
   $('<a class="contact-link" href="/kontakty/">Kontakt</a>').prependTo(".navigation-buttons");
 
-  // Language flags - add to desktop navigation, mobile menu will have them via CSS
-  if (window.innerWidth > 768) {
-    $("<div>", { class: "language-flags" })
-      .html(
-        '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>' +
-          '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>',
-      )
-      .prependTo(".navigation-buttons");
-  } else {
-    // Mobile: add flags to end of menu
-    $("<div>", { class: "language-flags-mobile" })
-      .html(
-        '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>' +
-          '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>',
-      )
-      .appendTo("#menu-widget");
-  }
+  // Language flags dropdown - one flag shown, click to expand
+  const isSk = window.dataLayer?.[0]?.shoptet?.projectId === 562035;
+  const current = isSk
+    ? { flag: "🇸🇰", label: "Slovenská verzia" }
+    : { flag: "🇨🇿", label: "Česká verze" };
+  const other = isSk
+    ? '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>'
+    : '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>';
+
+  const $flags = $("<div>", { class: "language-flags" }).html(
+    `<span class="flag-current" aria-label="${current.label}" role="button">${current.flag}</span>` +
+      `<div class="language-dropdown">${other}</div>`,
+  );
+  $flags.prependTo(".navigation-buttons");
+
+  $flags.on("click", ".flag-current", function (e) {
+    e.stopPropagation();
+    $flags.toggleClass("open");
+  });
+  $("body").on("click", function () {
+    $flags.removeClass("open");
+  });
   headerFixProdukt();
 }
 

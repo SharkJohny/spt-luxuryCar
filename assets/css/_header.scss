@@ -779,15 +779,45 @@ a.contact-link {
   font-size: 31px;
   position: absolute;
   right: 110px;
-  width: 90px;
+  width: 40px;
   top: -6px;
-  a {
-    margin-right: 10px;
+
+  .flag-current {
+    cursor: pointer;
+    user-select: none;
+    display: block;
+  }
+
+  .language-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 6px 8px;
+    z-index: 1000;
+
+    a {
+      display: block;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  &.open .language-dropdown {
+    display: block;
   }
 }
+
 @media (max-width: 768px) {
   .language-flags {
-    display: none;
+    font-size: 22px;
+    right: auto;
+    left: 55px;
+    top: -39px;
+    width: auto;
   }
 }
 @media (max-width: 468px) {

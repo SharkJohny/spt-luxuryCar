@@ -293,7 +293,7 @@ function intIndex() {
       <button class="admin-generate-orders" type="button" style="
         position: fixed;
         bottom: 20px;
-        right: 20px;
+        left: 20px;
         background: #c49b30;
         color: white;
         border: none;
@@ -317,7 +317,7 @@ function intIndex() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json"
         },
         body: JSON.stringify({ start: true })
       }).then(function(response) {
@@ -1349,14 +1349,14 @@ $(document).on("click", ".upsale-button", function(e) {
   updateUpsale(this, e);
 });
 function resetBoxConfigDefaults() {
-  const $amountButtons = $(".amount-button");
+  const $amountButtons = $(".box-config .amount-button");
   if ($amountButtons.length) {
     $amountButtons.removeClass("active");
     $amountButtons.filter(function() {
       return $(this).text().trim().startsWith("2");
     }).addClass("active");
   }
-  $(".parameter-wrap.parameter-sizes").each(function(index) {
+  $(".box-config .parameter-wrap.parameter-sizes").each(function(index) {
     const $wrap = $(this);
     const shouldShow = index < 2;
     if (shouldShow) {
@@ -1368,7 +1368,16 @@ function resetBoxConfigDefaults() {
     $wrap.find("input[type='radio'], input[type='checkbox']").prop("checked", false);
     const paramId = $wrap.attr("data-parameterId");
     if (paramId) {
-      $("select.parameter-id-" + paramId + ".surcharge-parameter").val(0);
+      $("select.parameter-id-" + paramId + ".surcharge-parameter").val("");
+    }
+  });
+  $(".box-config .parameter-wrap").each(function() {
+    const $wrap = $(this);
+    $wrap.find(".button.option-button").removeClass("active");
+    $wrap.find("input[type='radio'], input[type='checkbox']").prop("checked", false);
+    const paramId = $wrap.attr("data-parameterId");
+    if (paramId) {
+      $("select.parameter-id-" + paramId + ".surcharge-parameter").val("");
     }
   });
 }
@@ -1926,6 +1935,20 @@ function initHeader() {
     }
   });
   $('<a class="contact-link" href="/kontakty/">Kontakt</a>').prependTo(".navigation-buttons");
+  const isSk = window.dataLayer?.[0]?.shoptet?.projectId === 562035;
+  const current = isSk ? { flag: "\u{1F1F8}\u{1F1F0}", label: "Slovensk\xE1 verzia" } : { flag: "\u{1F1E8}\u{1F1FF}", label: "\u010Cesk\xE1 verze" };
+  const other2 = isSk ? '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="\u010Cesk\xE1 verze">\u{1F1E8}\u{1F1FF}</a>' : '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovensk\xE1 verzia">\u{1F1F8}\u{1F1F0}</a>';
+  const $flags = $("<div>", { class: "language-flags" }).html(
+    `<span class="flag-current" aria-label="${current.label}" role="button">${current.flag}</span><div class="language-dropdown">${other2}</div>`
+  );
+  $flags.prependTo(".navigation-buttons");
+  $flags.on("click", ".flag-current", function(e) {
+    e.stopPropagation();
+    $flags.toggleClass("open");
+  });
+  $("body").on("click", function() {
+    $flags.removeClass("open");
+  });
   headerFixProdukt();
 }
 headerFixProdukt();
