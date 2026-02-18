@@ -1,2 +1,9 @@
-
-
+@media screen and (min-width: 767px) {
+  .photo-row {
+    display: flex;
+    img {
+      width: 40%;
+      margin: 20px;
+    }
+  }
+}
