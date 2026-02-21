@@ -1,8 +1,9 @@
 export function intIndex() {
+  const lang = dataLayer[0].shoptet.projectId == 704436 ? "cs" : (shoptetData.language || dataLayer[0].shoptet.language);
   setTimeout(function () {
     $(".twentytwenty-container").twentytwenty({
-      before_label: "Potom",
-      after_label: "Předtím",
+      before_label: lang === "cs" ? "Potom" : "Po",
+      after_label: lang === "cs" ? "Předtím" : "Predtým",
     });
   }, 1000);
   $("svg.icon.icon-circle-button-right-clipped").remove();
@@ -504,20 +505,20 @@ function accordion() {
 
           // Add show more button if not present
           if (!$(this).find(".faq-show-more").length) {
-            const showMore = $(`<div class="faq-show-more"><button type="button">Zobrazit více</button></div>`);
+            const showMore = $(`<div class="faq-show-more"><button type="button">${lang === "sk" ? "Zobraziť viac" : "Zobrazit více"}</button></div>`);
             $(this).append(showMore);
 
             showMore.on("click", "button", function () {
               const hidden = $(this).closest(".faq").find(".accordion-hidden");
               if (hidden.length) {
                 hidden.removeClass("accordion-hidden");
-                $(this).text("Zobrazit méně");
+                $(this).text(lang === "sk" ? "Zobraziť menej" : "Zobrazit méně");
               } else {
                 const $accordions2 = $(this).closest(".faq").find(".accordion-wrapper");
                 $accordions2.each(function (i) {
                   if (i >= 4) $(this).addClass("accordion-hidden");
                 });
-                $(this).text("Zobrazit více");
+                $(this).text(lang === "sk" ? "Zobraziť viac" : "Zobrazit více");
                 // Ensure first hidden ones get closed
                 $(this).closest(".faq").find(".panel").css("display", "none");
                 $(this).closest(".faq").find(".accordion").removeClass("active");

@@ -2,6 +2,8 @@ let twoLayersProducts;
 let boxsParameterIds;
 let oneLayerProducts;
 
+const language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : (shoptetData.language || dataLayer[0].shoptet.language);
+
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
   boxsParameterIds = [94, 97, 104];
@@ -38,7 +40,7 @@ const ButtonUtils = {
    * @returns {string} CSS class for button type
    */
   getButtonTypeClass: (type, value) => {
-    if (type === "config" && value === 0) return "none";
+    if (type === "config" && value == 0) return "none";
     if (value === "89-2225") return "radio none";
     return type;
   },
@@ -114,7 +116,7 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
 export function createOptions(position, orders) {
   let name = "";
   if (position == "box") {
-    name = "Počet boxov";
+    name = language === "cs" ? "Počet boxů" : "Počet boxov";
   } else if (position == "sizes") {
     name = "veľkosť";
   } else {
@@ -328,11 +330,11 @@ export function createBoxConfig() {
   }).appendTo(wrap);
   $("<div>", {
     class: "close-btn close bottom",
-    text: "Nechci",
+    text: language === "sk" ? "Nechcem" : "Nechci",
   }).appendTo(wrap);
   $("<div>", {
     class: "close-btn return",
-    text: "potvrdit",
+    text: language === "sk" ? "potvrdiť" : "potvrdit",
   }).appendTo(wrap);
   const configWrap = $("<div>", {
     class: "config-wrap",

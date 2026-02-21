@@ -26,7 +26,7 @@ let box1 = 94;
 let box2 = 97;
 let boxsPrice = [];
 
-const language = shoptetData.language;
+const language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : (shoptetData.language || dataLayer[0].shoptet.language);
 if (dataLayer[0].shoptet.projectId == "581408") {
   koberce = 60;
   boxy = 63;
@@ -508,7 +508,7 @@ function priplatky(setupData, texts) {
         // Určí text tlačítka podle pozice
         const isLast = index === allWraps.length - 1;
         let buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
-        if (dataLayer[0].shoptet.language == "sk") {
+        if (language === "sk") {
           buttonText = isLast ? "Dokončiť konfiguráciu" : "Prejsť k ďalšiemu kroku";
         }
         const buttonClass = isLast ? "next-step-button finish-button" : "next-step-button";
@@ -534,7 +534,10 @@ function priplatky(setupData, texts) {
           const isLast = index === allWraps.length - 1;
           console.log(index);
           console.log(isLast);
-          const buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+          let buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+          if (language === "sk") {
+            buttonText = isLast ? "Dokončiť konfiguráciu" : "Prejsť k ďalšiemu kroku";
+          }
 
           // Aktualizuj text a třídu
           $button.text(buttonText);
@@ -927,7 +930,7 @@ function createModelInfo() {
 
     if ($(".model-info")[0]) return;
     const infoWrap = $("<div>").addClass("model-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
-    $("<div>").addClass("header-info").text("Garancia kompatibility s Vaším vozidlom").appendTo(infoWrap);
+    $("<div>").addClass("header-info").text(language === "cs" ? "Záruka kompatibility s Vaším vozidlem" : "Garancia kompatibility s Vaším vozidlom").appendTo(infoWrap);
     $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
 
     // $("<div>").addClass("setup-model").text("Upraviť").appendTo(infoWrap);
@@ -1084,19 +1087,23 @@ function createUpsalePopup() {
   $(".ti-widget-container").addClass("upsale");
   $("<div>", {
     class: "h2",
-    text: "Iba teraz za zvýhodnenú cenu!",
+    text: language === "cs" ? "Jen teď za zvýhodněnou cenu!" : "Iba teraz za zvýhodnenú cenu!",
   }).appendTo(".ti-widget-container");
   $("<div>", {
     class: "description",
-    text: " Doplňte svoju objednávku o kufrové koberčeky alebo úložné boxy s výraznou zľavou. Ponuka platí len chvíľu!",
+    text: language === "cs"
+      ? "Doplňte svou objednávku o kufřové koberce nebo úložné boxy s výraznou slevou. Nabídka platí jen chvíli!"
+      : "Doplňte svoju objednávku o kufrové koberčeky alebo úložné boxy s výraznou zľavou. Ponuka platí len chvíľu!",
   }).appendTo(".ti-widget-container");
   $("<div>", {
     class: "button btn open-upsale",
-    text: "Využiť zvýhodnenú ponuku!",
+    text: language === "cs" ? "Využít zvýhodněnou nabídku!" : "Využiť zvýhodnenú ponuku!",
   }).appendTo(".ti-widget-container");
   $("<div>", {
     class: "prefix",
-    text: "Len počas tejto objednávky môžete získať koberčeky do kufra alebo úložné boxy za extrémne zvýhodnenú cenu. Chráňte a organizujte svoj kufor so štýlom!",
+    text: language === "cs"
+      ? "Jen během této objednávky můžete získat koberce do kufru nebo úložné boxy za extrémně zvýhodněnou cenu. Chraňte a organizujte svůj kufr se stylem!"
+      : "Len počas tejto objednávky môžete získať koberčeky do kufra alebo úložné boxy za extrémne zvýhodnenú cenu. Chráňte a organizujte svoj kufor so štýlom!",
   }).appendTo(".ti-widget-container");
 
   $(".button.btn.open-upsale").on("click", function () {
@@ -1168,8 +1175,8 @@ function updateUpsale($this, event) {
       $("select.surcharge-parameter.parameter-id-" + value[0]).val(value[1]);
     }
 
-    // Pokud je config, zobrazím konfiguraci
-    if ($($this).hasClass("config")) {
+    // Pokud je config a ne none, zobrazím konfiguraci
+    if ($($this).hasClass("config") && !$($this).hasClass("none")) {
       $($this).parents(".upsale-Banner").addClass("showConf");
     }
 
@@ -1299,15 +1306,10 @@ function updateUpsale($this, event) {
 function updateBoxPrice() {
   $(".box-config .parameter-wrap").each(function () {
     const price = Number($(this).find(".price.price-standart").attr("data-price"));
-    const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price"));
+    const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price") || 0);
     console.log(price, addPrice);
 
-    if (addPrice) {
-      $(this)
-        .find(".price.price-standart")
-
-        .text(NumToPrice(price + addPrice));
-    }
+    $(this).find(".price.price-standart").text(NumToPrice(price + addPrice));
   });
 }
 
