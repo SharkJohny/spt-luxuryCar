@@ -389,6 +389,23 @@ function priplatky(setupData, texts) {
           return;
         }
 
+        const allWraps = $(".position-wrap, .parameter-wrap");
+        const clickedIndex = allWraps.index(clickedWrap);
+        const $activeWrap = $(".position-wrap.active, .parameter-wrap.active").first();
+        const activeIndex = $activeWrap.length ? allWraps.index($activeWrap) : -1;
+
+        // Pokud jdeme dopředu, zkontrolujeme validitu všech předchozích kroků
+        if (clickedIndex > activeIndex && activeIndex >= 0) {
+          for (let i = 0; i < clickedIndex; i++) {
+            const $wrap = allWraps.eq(i);
+            if (!isWrapSelectionValid($wrap)) {
+              $wrap.addClass("selection-required");
+              setTimeout(() => $wrap.removeClass("selection-required"), 1200);
+              return;
+            }
+          }
+        }
+
         // Zavři všechny ostatní position-wrap a parameter-wrap elementy
         $(".position-wrap, .parameter-wrap").removeClass("active");
 
