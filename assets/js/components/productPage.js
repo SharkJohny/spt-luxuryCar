@@ -676,6 +676,11 @@ function priplatky(setupData, texts) {
       $(`.navigatte-button:eq(${optionName})`).addClass("active");
     });
     console.log("clickaaaa");
+
+    // Dynamicky oprav čísla pořadí trunk a boxs podle skutečného počtu kroků v content-wrap
+    const contentStepCount = $(".content-wrap").children(".position-wrap, .parameter-wrap").length;
+    $(".upsale-buttons.trunk .order").text(contentStepCount);
+    $(".upsale-buttons.boxs .order").text(contentStepCount + 1);
   }
 }
 
@@ -683,6 +688,24 @@ function priplatky(setupData, texts) {
 $(document).on("click", ".upsale-button", function (e) {
   // Check if the clicked element is within .upsale-buttons.trunk
   updateUpsale(this, e);
+
+  // Po výběru koberce: otevři boxs sekci a zavři trunk
+  const $trunk = $(this).closest(".upsale-buttons.trunk");
+  if ($trunk.length && !$(this).hasClass("none")) {
+    setTimeout(() => {
+      const $boxs = $(".upsale-buttons.boxs");
+      if ($boxs.is(":visible")) {
+        // Nejdřív zavři trunk, pak až layout usadí otevři boxs a scrolluj
+        $trunk.removeClass("active");
+        setTimeout(() => {
+          $boxs.addClass("active");
+          setTimeout(() => {
+            $("html, body").animate({ scrollTop: $boxs.offset().top - 80 }, 400);
+          }, 400);
+        }, 500);
+      }
+    }, 600);
+  }
 });
 
 function resetBoxConfigDefaults() {
@@ -1356,20 +1379,49 @@ $("body").on("click", ".button.option-button", function (e) {
     }
   }, 200);
 
+  // Auto-postup pro kroky 2+ (kroky 0 a 1 zůstávají na tlačítko)
+  const $currentWrap = $(this).closest(".position-wrap, .parameter-wrap");
+  const orderNum = parseInt($currentWrap.find(".order").first().text());
+  if (!isNaN(orderNum) && orderNum >= 2) {
+    const allWraps = $(".content-wrap").children(".position-wrap, .parameter-wrap");
+    const currentIndex = allWraps.index($currentWrap);
+    if (currentIndex >= 0 && currentIndex < allWraps.length - 1) {
+      setTimeout(() => {
+        $currentWrap.removeClass("active");
+        setTimeout(() => {
+          const $next = allWraps.eq(currentIndex + 1);
+          $next.addClass("active");
+          $("html, body").animate({ scrollTop: $next.offset().top - 80 }, 400);
+        }, 600);
+      }, 800);
+    }
+  }
+
   if (!$(".goToAction")[0]) {
     console.log("goToAction");
 
-    $(".upsale-Banner").fadeIn(400);
+    // Nejdřív zavři aktuální krok
+    $currentWrap.removeClass("active");
 
-    $(".upsale-Banner").show();
-    $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").hide();
+    setTimeout(() => {
+      $(".upsale-Banner").fadeIn(400);
+      $(".upsale-Banner").show();
+      $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").hide();
 
-    if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
-      $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").show();
-    }
-    if (!$(".parameter-id-" + koberce)[0]) {
-      $(".upsale-buttons.boxs").show();
-    }
+      if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
+        $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").show().addClass("active");
+      } else {
+        // Otevři trunk sekci, scrolluj až po dokončení fadeIn
+        const $trunk = $(".upsale-buttons.trunk");
+        $trunk.addClass("active");
+        setTimeout(() => {
+          $("html, body").animate({ scrollTop: $trunk.offset().top - 80 }, 400);
+        }, 450);
+      }
+      if (!$(".parameter-id-" + koberce)[0]) {
+        $(".upsale-buttons.boxs").show().addClass("active");
+      }
+    }, 800);
   }
 });
 function priceActualization(e) {
