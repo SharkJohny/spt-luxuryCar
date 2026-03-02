@@ -8,10 +8,11 @@ var optionData = {
 
 // assets/js/components/index.js
 function intIndex() {
+  const lang2 = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
   setTimeout(function() {
     $(".twentytwenty-container").twentytwenty({
-      before_label: "Potom",
-      after_label: "P\u0159edt\xEDm"
+      before_label: lang2 === "cs" ? "Potom" : "Po",
+      after_label: lang2 === "cs" ? "P\u0159edt\xEDm" : "Predt\xFDm"
     });
   }, 1e3);
   $("svg.icon.icon-circle-button-right-clipped").remove();
@@ -436,19 +437,19 @@ function accordion() {
             }
           });
           if (!$(this).find(".faq-show-more").length) {
-            const showMore = $(`<div class="faq-show-more"><button type="button">Zobrazit v\xEDce</button></div>`);
+            const showMore = $(`<div class="faq-show-more"><button type="button">${lang === "sk" ? "Zobrazi\u0165 viac" : "Zobrazit v\xEDce"}</button></div>`);
             $(this).append(showMore);
             showMore.on("click", "button", function() {
               const hidden = $(this).closest(".faq").find(".accordion-hidden");
               if (hidden.length) {
                 hidden.removeClass("accordion-hidden");
-                $(this).text("Zobrazit m\xE9n\u011B");
+                $(this).text(lang === "sk" ? "Zobrazi\u0165 menej" : "Zobrazit m\xE9n\u011B");
               } else {
                 const $accordions2 = $(this).closest(".faq").find(".accordion-wrapper");
                 $accordions2.each(function(i) {
                   if (i >= 4) $(this).addClass("accordion-hidden");
                 });
-                $(this).text("Zobrazit v\xEDce");
+                $(this).text(lang === "sk" ? "Zobrazi\u0165 viac" : "Zobrazit v\xEDce");
                 $(this).closest(".faq").find(".panel").css("display", "none");
                 $(this).closest(".faq").find(".accordion").removeClass("active");
               }
@@ -470,6 +471,7 @@ function accordion() {
 var twoLayersProducts;
 var boxsParameterIds2;
 var oneLayerProducts;
+var language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
   boxsParameterIds2 = [94, 97, 104];
@@ -502,7 +504,7 @@ var ButtonUtils = {
    * @returns {string} CSS class for button type
    */
   getButtonTypeClass: (type, value) => {
-    if (type === "config" && value === 0) return "none";
+    if (type === "config" && value == 0) return "none";
     if (value === "89-2225") return "radio none";
     return type;
   }
@@ -539,7 +541,7 @@ function createUpsaleButton(img, text, position, value, type, price2, prefix, te
 function createOptions(position, orders) {
   let name = "";
   if (position == "box") {
-    name = "Po\u010Det boxov";
+    name = language === "cs" ? "Po\u010Det box\u016F" : "Po\u010Det boxov";
   } else if (position == "sizes") {
     name = "ve\u013Ekos\u0165";
   } else {
@@ -707,11 +709,11 @@ function createBoxConfig() {
   }).appendTo(wrap);
   $("<div>", {
     class: "close-btn close bottom",
-    text: "Nechci"
+    text: language === "sk" ? "Nechcem" : "Nechci"
   }).appendTo(wrap);
   $("<div>", {
     class: "close-btn return",
-    text: "potvrdit"
+    text: language === "sk" ? "potvrdi\u0165" : "potvrdit"
   }).appendTo(wrap);
   const configWrap = $("<div>", {
     class: "config-wrap"
@@ -894,7 +896,7 @@ var boxy = 91;
 var box1 = 94;
 var box2 = 97;
 var boxsPrice = [];
-var language = shoptetData.language;
+var language2 = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
 if (dataLayer[0].shoptet.projectId == "581408") {
   koberce = 60;
   boxy = 63;
@@ -1074,7 +1076,7 @@ function priplatky(setupData2, texts) {
         }
         const isLast = index === allWraps.length - 1;
         let buttonText = isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
-        if (dataLayer[0].shoptet.language == "sk") {
+        if (language2 === "sk") {
           buttonText = isLast ? "Dokon\u010Di\u0165 konfigur\xE1ciu" : "Prejs\u0165 k \u010Fal\u0161iemu kroku";
         }
         const buttonClass = isLast ? "next-step-button finish-button" : "next-step-button";
@@ -1093,7 +1095,10 @@ function priplatky(setupData2, texts) {
           const isLast = index === allWraps.length - 1;
           console.log(index);
           console.log(isLast);
-          const buttonText = isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
+          let buttonText = isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
+          if (language2 === "sk") {
+            buttonText = isLast ? "Dokon\u010Di\u0165 konfigur\xE1ciu" : "Prejs\u0165 k \u010Fal\u0161iemu kroku";
+          }
           $button.text(buttonText);
           $button.toggleClass("finish-button", isLast);
         }
@@ -1211,6 +1216,20 @@ function priplatky(setupData2, texts) {
           clickedWrap.removeClass("active");
           return;
         }
+        const allWraps = $(".position-wrap, .parameter-wrap");
+        const clickedIndex = allWraps.index(clickedWrap);
+        const $activeWrap = $(".position-wrap.active, .parameter-wrap.active").first();
+        const activeIndex = $activeWrap.length ? allWraps.index($activeWrap) : -1;
+        if (clickedIndex > activeIndex && activeIndex >= 0) {
+          for (let i = 0; i < clickedIndex; i++) {
+            const $wrap = allWraps.eq(i);
+            if (!isWrapSelectionValid($wrap)) {
+              $wrap.addClass("selection-required");
+              setTimeout(() => $wrap.removeClass("selection-required"), 1200);
+              return;
+            }
+          }
+        }
         $(".position-wrap, .parameter-wrap").removeClass("active");
         clickedWrap.addClass("active");
         const elementType = clickedWrap.hasClass("position-wrap") ? "position-wrap" : "parameter-wrap";
@@ -1231,8 +1250,7 @@ function priplatky(setupData2, texts) {
       const currentIndex = allWraps.index(currentWrap);
       if (currentIndex < allWraps.length - 1) {
         const nextWrap = allWraps.eq(currentIndex + 1);
-        currentWrap.removeClass("active");
-        nextWrap.addClass("active");
+        openNextAccordion(nextWrap);
         console.log("P\u0159echod k dal\u0161\xEDmu kroku:", nextWrap.find(".variant.name, h5").first().text() || "Unnamed");
       } else {
         console.log("Konfigurace dokon\u010Dena");
@@ -1343,10 +1361,28 @@ function priplatky(setupData2, texts) {
       $(`.navigatte-button:eq(${optionName})`).addClass("active");
     });
     console.log("clickaaaa");
+    const contentStepCount = $(".content-wrap").children(".position-wrap, .parameter-wrap").length;
+    $(".upsale-buttons.trunk .order").text(contentStepCount);
+    $(".upsale-buttons.boxs .order").text(contentStepCount + 1);
   }
+}
+function openNextAccordion($next) {
+  $next.addClass("active");
+  setTimeout(() => {
+    $("html, body").animate({ scrollTop: $next.offset().top - 80 }, 400);
+  }, 600);
 }
 $(document).on("click", ".upsale-button", function(e) {
   updateUpsale(this, e);
+  const $trunk = $(this).closest(".upsale-buttons.trunk");
+  if ($trunk.length && !$(this).hasClass("none")) {
+    setTimeout(() => {
+      const $boxs = $(".upsale-buttons.boxs");
+      if ($boxs.is(":visible")) {
+        openNextAccordion($boxs);
+      }
+    }, 600);
+  }
 });
 function resetBoxConfigDefaults() {
   const $amountButtons = $(".box-config .amount-button");
@@ -1519,7 +1555,7 @@ function createModelInfo() {
     console.log("model", model);
     if ($(".model-info")[0]) return;
     const infoWrap = $("<div>").addClass("model-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
-    $("<div>").addClass("header-info").text("Garancia kompatibility s Va\u0161\xEDm vozidlom").appendTo(infoWrap);
+    $("<div>").addClass("header-info").text(language2 === "cs" ? "Z\xE1ruka kompatibility s Va\u0161\xEDm vozidlem" : "Garancia kompatibility s Va\u0161\xEDm vozidlom").appendTo(infoWrap);
     $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
     $(".setup-model").on("click", function() {
       console.log("setup model");
@@ -1679,7 +1715,7 @@ function updateUpsale($this, event) {
       $($this).addClass("active");
       $("select.surcharge-parameter.parameter-id-" + value[0]).val(value[1]);
     }
-    if ($($this).hasClass("config")) {
+    if ($($this).hasClass("config") && !$($this).hasClass("none")) {
       $($this).parents(".upsale-Banner").addClass("showConf");
     }
     if (value[0] === "conf1" || value[0] === "conf2") {
@@ -1774,11 +1810,9 @@ function updateUpsale($this, event) {
 function updateBoxPrice() {
   $(".box-config .parameter-wrap").each(function() {
     const price2 = Number($(this).find(".price.price-standart").attr("data-price"));
-    const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price"));
+    const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price") || 0);
     console.log(price2, addPrice);
-    if (addPrice) {
-      $(this).find(".price.price-standart").text(NumToPrice(price2 + addPrice));
-    }
+    $(this).find(".price.price-standart").text(NumToPrice(price2 + addPrice));
   });
 }
 function createUpsaleInfo(texts) {
@@ -1816,17 +1850,46 @@ $("body").on("click", ".button.option-button", function(e) {
       updateButtonTexts();
     }
   }, 200);
-  if (!$(".goToAction")[0]) {
-    console.log("goToAction");
-    $(".upsale-Banner").fadeIn(400);
-    $(".upsale-Banner").show();
-    $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").hide();
-    if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
-      $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").show();
-    }
-    if (!$(".parameter-id-" + koberce)[0]) {
-      $(".upsale-buttons.boxs").show();
-    }
+  const $currentWrap = $(this).closest(".position-wrap, .parameter-wrap");
+  const orderNum = parseInt($currentWrap.find(".order").first().text());
+  const isStep0or1 = orderNum === 0 || orderNum === 1;
+  const hasNextBtn = $currentWrap.find(".next-step-button").length > 0;
+  const isInBoxConfig = !!$currentWrap.closest(".config-wrap, .box-config").length;
+  if (hasNextBtn && !isStep0or1 && !isInBoxConfig) {
+    setTimeout(() => {
+      const allContentWraps = $(".content-wrap").children(".position-wrap, .parameter-wrap");
+      const contentIndex = allContentWraps.index($currentWrap);
+      let $nextWrap = null;
+      if (contentIndex >= 0 && contentIndex < allContentWraps.length - 1) {
+        $nextWrap = allContentWraps.eq(contentIndex + 1);
+      } else if (contentIndex === -1) {
+        const $siblings = $currentWrap.parent().children(".position-wrap, .parameter-wrap");
+        const sibIndex = $siblings.index($currentWrap);
+        if (sibIndex >= 0 && sibIndex < $siblings.length - 1) {
+          $nextWrap = $siblings.eq(sibIndex + 1);
+        }
+      }
+      if ($nextWrap) {
+        openNextAccordion($nextWrap);
+      } else if (!$(".goToAction")[0]) {
+        console.log("goToAction");
+        $(".upsale-Banner").fadeIn(400);
+        $(".upsale-Banner").show();
+        $(".upsale-buttons.position-wrap.parameter-cars.parameter-wrap.boxs").hide();
+        if ($(".upsale-buttons.position-wrap.trunk .upsale-button.radio.active")[0]) {
+          const $boxs = $(".upsale-buttons.boxs");
+          $boxs.show();
+          openNextAccordion($boxs);
+        } else {
+          openNextAccordion($(".upsale-buttons.trunk"));
+        }
+        if (!$(".parameter-id-" + koberce)[0]) {
+          const $boxs = $(".upsale-buttons.boxs");
+          $boxs.show();
+          openNextAccordion($boxs);
+        }
+      }
+    }, 400);
   }
 });
 function priceActualization2(e) {
@@ -2472,11 +2535,11 @@ $.getJSON(optionData.downloadData, function(data) {
   console.log("setupData:", setupData);
   console.log("setupData.settings:", setupData.settings);
   console.log("setupData.cars:", setupData.cars);
-  let language2 = dataLayer[0].shoptet.language;
+  let language3 = dataLayer[0].shoptet.language;
   if (dataLayer[0].shoptet.projectId == 704436) {
-    language2 = "cs";
+    language3 = "cs";
   }
-  const texts = setupData.language[language2];
+  const texts = setupData.language[language3];
   console.log("setupData.language:", texts);
   initProduct(setupData, texts);
   initModelSelect2(texts, setupData);

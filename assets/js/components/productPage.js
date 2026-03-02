@@ -471,20 +471,14 @@ function priplatky(setupData, texts) {
       if (currentIndex < allWraps.length - 1) {
         const nextWrap = allWraps.eq(currentIndex + 1);
 
-        // Zavři současný element
-        currentWrap.removeClass("active");
-
-        // Otevři následující element
-        nextWrap.addClass("active");
+        // Nechej současný krok otevřený, otevři a scrolluj na další
+        openNextAccordion(nextWrap);
 
         console.log("Přechod k dalšímu kroku:", nextWrap.find(".variant.name, h5").first().text() || "Unnamed");
       } else {
         console.log("Konfigurace dokončena");
         // Zavři všechny elementy
         allWraps.removeClass("active");
-
-        // Můžeme zde přidat další logiku pro dokončení konfigurace
-        // například zvýraznění tlačítka "Přidat do košíku" nebo zobrazení shrnutí
       }
 
       // Aktualizuj texty tlačítek po každé změně
@@ -684,16 +678,9 @@ function priplatky(setupData, texts) {
   }
 }
 
-// Otevře akordeon, zachová max 2 otevřená okna (nejstarší zavře), scrolluje na nové
+// Otevře akordeon a scrolluje na něj — předchozí kroky zůstávají otevřené
 function openNextAccordion($next) {
   $next.addClass("active");
-  const $allOpen = $(
-    ".content-wrap > .position-wrap.active, .content-wrap > .parameter-wrap.active, " +
-    ".upsale-buttons.trunk.active, .upsale-buttons.boxs.active"
-  );
-  if ($allOpen.length > 2) {
-    $allOpen.first().removeClass("active");
-  }
   // Čekáme na dokončení CSS animací předchozích akordeonů, pak teprve počítáme offset
   setTimeout(() => {
     $("html, body").animate({ scrollTop: $next.offset().top - 80 }, 400);
