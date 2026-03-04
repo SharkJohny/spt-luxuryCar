@@ -56,7 +56,7 @@ jQuery(document).ready(function ($) {
 });
 
 /**
- * Dynamically updates an image based on the visible section on the screen./
+ * Dynamically updates an image based on the visible section on the screen./..
  */
 function dynamicPictures() {
   const sections = $(".text-block");
