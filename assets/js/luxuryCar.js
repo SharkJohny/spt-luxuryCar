@@ -1368,9 +1368,6 @@ function priplatky(setupData2, texts) {
 }
 function openNextAccordion($next) {
   $next.addClass("active");
-  setTimeout(() => {
-    $("html, body").animate({ scrollTop: $next.offset().top - 80 }, 400);
-  }, 600);
 }
 $(document).on("click", ".upsale-button", function(e) {
   updateUpsale(this, e);
@@ -2347,15 +2344,9 @@ function validation(texts) {
     errorToCart(e, texts);
     const $errorElements = $(".errorToCart");
     if ($errorElements.length) {
-      const topElement = $errorElements.toArray().reduce((prev, curr) => {
+      $errorElements.toArray().reduce((prev, curr) => {
         return $(prev).offset().top < $(curr).offset().top ? prev : curr;
       });
-      $("html, body").animate(
-        {
-          scrollTop: $(topElement).offset().top - 300
-        },
-        500
-      );
     }
   });
   $(document).on("click", ".close-btn.return", function() {
@@ -2434,14 +2425,6 @@ function optionTest() {
       allSelected = false;
     }
   });
-  if (firstErrorElement) {
-    $("html, body").animate(
-      {
-        scrollTop: firstErrorElement.offset().top - 100
-      },
-      500
-    );
-  }
   return allSelected;
 }
 function createpopup2(texts) {

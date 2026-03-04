@@ -11,16 +11,9 @@ export function validation(texts) {
     // Find highest errorToCart element and scroll to it
     const $errorElements = $(".errorToCart");
     if ($errorElements.length) {
-      const topElement = $errorElements.toArray().reduce((prev, curr) => {
+      $errorElements.toArray().reduce((prev, curr) => {
         return $(prev).offset().top < $(curr).offset().top ? prev : curr;
       });
-
-      $("html, body").animate(
-        {
-          scrollTop: $(topElement).offset().top - 300,
-        },
-        500
-      );
     }
   });
 
@@ -62,16 +55,6 @@ function upsaleValidation(e) {
     $(".upsale-buttons").each(function () {
       if (!$(this).find(".active").length) {
         $(this).addClass("errorToCart").addClass("active");
-        const $errorElement = $(".errorToCart:eq(0)");
-        console.log($errorElement.length);
-        if ($errorElement.length) {
-          $("html, body").animate(
-            {
-              scrollTop: $errorElement.offset().top - 100,
-            },
-            500
-          );
-        }
         setTimeout(() => {
           $(this).removeClass("errorToCart");
         }, 2000);
@@ -125,16 +108,6 @@ function boxValidation(e) {
   });
 
   if (!allWrapsHaveActive) {
-    const $errorElement = $(".errorToCart:eq(0)");
-    if ($errorElement.length) {
-      $("html, body").animate(
-        {
-          scrollTop: $errorElement.offset().top - 100,
-        },
-        500
-      );
-    }
-
     setTimeout(() => {
       $(".parameter-wrap").removeClass("errorToCart");
     }, 2000);
@@ -229,15 +202,6 @@ function optionTest() {
       // }, 2000);
     }
   });
-
-  if (firstErrorElement) {
-    $("html, body").animate(
-      {
-        scrollTop: firstErrorElement.offset().top - 100,
-      },
-      500
-    );
-  }
 
   return allSelected;
 }

@@ -471,8 +471,10 @@ function priplatky(setupData, texts) {
       if (currentIndex < allWraps.length - 1) {
         const nextWrap = allWraps.eq(currentIndex + 1);
 
-        // Nechej současný krok otevřený, otevři a scrolluj na další
         openNextAccordion(nextWrap);
+        setTimeout(() => {
+          $("html, body").animate({ scrollTop: nextWrap.offset().top - 80 }, 400);
+        }, 600);
 
         console.log("Přechod k dalšímu kroku:", nextWrap.find(".variant.name, h5").first().text() || "Unnamed");
       } else {
@@ -678,13 +680,9 @@ function priplatky(setupData, texts) {
   }
 }
 
-// Otevře akordeon a scrolluje na něj — předchozí kroky zůstávají otevřené
+// Otevře akordeon bez scrollování
 function openNextAccordion($next) {
   $next.addClass("active");
-  // Čekáme na dokončení CSS animací předchozích akordeonů, pak teprve počítáme offset
-  setTimeout(() => {
-    $("html, body").animate({ scrollTop: $next.offset().top - 80 }, 400);
-  }, 600);
 }
 
 // Single event listener for .upsale-button
