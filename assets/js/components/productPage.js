@@ -26,7 +26,7 @@ let box1 = 94;
 let box2 = 97;
 let boxsPrice = [];
 
-const language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : (shoptetData.language || dataLayer[0].shoptet.language);
+const language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
 if (dataLayer[0].shoptet.projectId == "581408") {
   koberce = 60;
   boxy = 63;
@@ -947,7 +947,10 @@ function createModelInfo() {
 
     if ($(".model-info")[0]) return;
     const infoWrap = $("<div>").addClass("model-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
-    $("<div>").addClass("header-info").text(language === "cs" ? "Záruka kompatibility s Vaším vozidlem" : "Garancia kompatibility s Vaším vozidlom").appendTo(infoWrap);
+    $("<div>")
+      .addClass("header-info")
+      .text(language === "cs" ? "Záruka kompatibility s Vaším vozidlem" : "Garancia kompatibility s Vaším vozidlom")
+      .appendTo(infoWrap);
     $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
 
     // $("<div>").addClass("setup-model").text("Upraviť").appendTo(infoWrap);
@@ -1108,9 +1111,10 @@ function createUpsalePopup() {
   }).appendTo(".ti-widget-container");
   $("<div>", {
     class: "description",
-    text: language === "cs"
-      ? "Doplňte svou objednávku o kufřové koberce nebo úložné boxy s výraznou slevou. Nabídka platí jen chvíli!"
-      : "Doplňte svoju objednávku o kufrové koberčeky alebo úložné boxy s výraznou zľavou. Ponuka platí len chvíľu!",
+    text:
+      language === "cs"
+        ? "Doplňte svou objednávku o kufřové koberce nebo úložné boxy s výraznou slevou. Nabídka platí jen chvíli!"
+        : "Doplňte svoju objednávku o kufrové koberčeky alebo úložné boxy s výraznou zľavou. Ponuka platí len chvíľu!",
   }).appendTo(".ti-widget-container");
   $("<div>", {
     class: "button btn open-upsale",
@@ -1118,9 +1122,10 @@ function createUpsalePopup() {
   }).appendTo(".ti-widget-container");
   $("<div>", {
     class: "prefix",
-    text: language === "cs"
-      ? "Jen během této objednávky můžete získat koberce do kufru nebo úložné boxy za extrémně zvýhodněnou cenu. Chraňte a organizujte svůj kufr se stylem!"
-      : "Len počas tejto objednávky môžete získať koberčeky do kufra alebo úložné boxy za extrémne zvýhodnenú cenu. Chráňte a organizujte svoj kufor so štýlom!",
+    text:
+      language === "cs"
+        ? "Jen během této objednávky můžete získat koberce do kufru nebo úložné boxy za extrémně zvýhodněnou cenu. Chraňte a organizujte svůj kufr se stylem!"
+        : "Len počas tejto objednávky môžete získať koberčeky do kufra alebo úložné boxy za extrémne zvýhodnenú cenu. Chráňte a organizujte svoj kufor so štýlom!",
   }).appendTo(".ti-widget-container");
 
   $(".button.btn.open-upsale").on("click", function () {
@@ -1326,7 +1331,9 @@ function updateBoxPrice() {
     const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price") || 0);
     console.log(price, addPrice);
 
-    $(this).find(".price.price-standart").text(NumToPrice(price + addPrice));
+    $(this)
+      .find(".price.price-standart")
+      .text(NumToPrice(price + addPrice));
   });
 }
 

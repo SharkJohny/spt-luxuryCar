@@ -295,7 +295,7 @@ function createpopup(texts) {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-  `
+  `,
     )
     .appendTo("head");
 }
