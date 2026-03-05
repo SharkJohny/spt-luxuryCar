@@ -6,6 +6,24 @@
   }
 }
 
+.photo-row {
+  .photo {
+    width: 50%;
+    position: relative;
+    img {
+      width: calc(100% - 20px);
+    }
+    .photo-info {
+      position: absolute;
+      right: 10px;
+      top: 28px;
+      color: #8982f1;
+      font-weight: 600;
+      text-shadow: 1px 1px 1px #cecece;
+    }
+  }
+}
+
 @media screen and (min-width: 767px) {
   .photo-row {
     display: flex;
