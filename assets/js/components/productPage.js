@@ -471,6 +471,7 @@ function priplatky(setupData, texts) {
       if (currentIndex < allWraps.length - 1) {
         const nextWrap = allWraps.eq(currentIndex + 1);
 
+        currentWrap.removeClass("active");
         openNextAccordion(nextWrap);
         setTimeout(() => {
           $("html, body").animate({ scrollTop: nextWrap.offset().top - 80 }, 400);
