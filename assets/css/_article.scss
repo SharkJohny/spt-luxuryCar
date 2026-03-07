@@ -23,6 +23,9 @@
     }
   }
 }
+.photo-row {
+  display: flex;
+}
 
 @media screen and (min-width: 767px) {
   .photo-row {
