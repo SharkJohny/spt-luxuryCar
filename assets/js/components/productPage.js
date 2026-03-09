@@ -430,8 +430,7 @@ function priplatky(setupData, texts) {
 
       if ($wrap.find(".upsale-button").length) {
         hasSelectable = true;
-        // consider '.none' as no selection
-        if ($wrap.find(".upsale-button.active").length && !$wrap.find(".upsale-button.active.none").length) valid = true;
+        if ($wrap.find(".upsale-button.active").length) valid = true;
       }
 
       if ($wrap.find("select.surcharge-parameter").length) {
@@ -450,6 +449,71 @@ function priplatky(setupData, texts) {
       return !hasSelectable || valid;
     }
 
+    function getNavigableWraps() {
+      return $(".position-wrap, .parameter-wrap").filter(function () {
+        return !$(this).closest(".box-config").length;
+      });
+    }
+
+    function isCartStepWrap($wrap) {
+      return $wrap.hasClass("upsale-buttons") && $wrap.hasClass("boxs");
+    }
+
+    function getStepButtonText($wrap, isLast) {
+      if (isCartStepWrap($wrap)) {
+        return language === "sk" ? "Prejsť do košíka" : "Přejít do košíku";
+      }
+
+      if (language === "sk") {
+        return isLast ? "Dokončiť konfiguráciu" : "Prejsť k ďalšiemu kroku";
+      }
+
+      return isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
+    }
+
+    function scrollToStep($wrap) {
+      if (!$wrap.length) return;
+
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const wrapTop = $wrap.offset().top;
+
+      if (window.matchMedia("(min-width: 992px)").matches) {
+        const rect = $wrap[0].getBoundingClientRect();
+        const comfortableTop = 120;
+        const comfortableBottom = viewportHeight * 0.72;
+
+        if (rect.top >= comfortableTop && rect.top <= comfortableBottom) {
+          return;
+        }
+
+        const wrapHeight = Math.min($wrap.outerHeight() || 0, viewportHeight * 0.7);
+        const targetScrollTop = Math.max(0, wrapTop - Math.max((viewportHeight - wrapHeight) / 2, 120));
+
+        $("html, body").stop(true).animate({ scrollTop: targetScrollTop }, 400);
+        return;
+      }
+
+      $("html, body").stop(true).animate({ scrollTop: Math.max(wrapTop - 80, 0) }, 400);
+    }
+
+    function proceedToCartFromStep() {
+      const $addToCartButton = $("button.btn.btn-lg.btn-conversion.add-to-cart-button")
+        .filter(function () {
+          const style = window.getComputedStyle(this);
+          return style.display !== "none" && style.visibility !== "hidden" && this.offsetParent !== null;
+        })
+        .first();
+
+      $(".upsale-Banner.showConf").removeClass("showConf");
+
+      if ($addToCartButton.length) {
+        $addToCartButton.trigger("click");
+        return;
+      }
+
+      $(".position-wrap, .parameter-wrap").removeClass("active");
+    }
+
     $(document).on("click", ".next-step-button", function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -464,7 +528,12 @@ function priplatky(setupData, texts) {
         return; // nepokračuj dál
       }
 
-      const allWraps = $(".position-wrap, .parameter-wrap");
+      if (isCartStepWrap(currentWrap)) {
+        proceedToCartFromStep();
+        return;
+      }
+
+      const allWraps = getNavigableWraps();
       const currentIndex = allWraps.index(currentWrap);
 
       // Najdi následující wrap element
@@ -474,7 +543,7 @@ function priplatky(setupData, texts) {
         currentWrap.removeClass("active");
         openNextAccordion(nextWrap);
         setTimeout(() => {
-          $("html, body").animate({ scrollTop: nextWrap.offset().top - 80 }, 400);
+          scrollToStep(nextWrap);
         }, 600);
 
         console.log("Přechod k dalšímu kroku:", nextWrap.find(".variant.name, h5").first().text() || "Unnamed");
@@ -492,7 +561,7 @@ function priplatky(setupData, texts) {
 
     // Přidání tlačítek "Přejít k dalšímu kroku" do všech wrap elementů
     function addNextStepButtons() {
-      const allWraps = $(".position-wrap, .parameter-wrap");
+      const allWraps = getNavigableWraps();
 
       allWraps.each(function (index) {
         const $wrap = $(this);
@@ -504,11 +573,8 @@ function priplatky(setupData, texts) {
 
         // Určí text tlačítka podle pozice
         const isLast = index === allWraps.length - 1;
-        let buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
-        if (language === "sk") {
-          buttonText = isLast ? "Dokončiť konfiguráciu" : "Prejsť k ďalšiemu kroku";
-        }
-        const buttonClass = isLast ? "next-step-button finish-button" : "next-step-button";
+        const buttonText = getStepButtonText($wrap, isLast);
+        const buttonClass = isLast || isCartStepWrap($wrap) ? "next-step-button finish-button" : "next-step-button";
 
         // Přidej tlačítko na konec wrap elementu
         $("<button>", {
@@ -521,7 +587,7 @@ function priplatky(setupData, texts) {
 
     // Funkce pro aktualizaci textů tlačítek
     function updateButtonTexts() {
-      const allWraps = $(".content-wrap .parameter-wrap.parameter-undefined");
+      const allWraps = getNavigableWraps();
 
       allWraps.each(function (index) {
         const $wrap = $(this);
@@ -529,16 +595,11 @@ function priplatky(setupData, texts) {
 
         if ($button.length > 0) {
           const isLast = index === allWraps.length - 1;
-          console.log(index);
-          console.log(isLast);
-          let buttonText = isLast ? "Dokončit konfiguraci" : "Přejít k dalšímu kroku";
-          if (language === "sk") {
-            buttonText = isLast ? "Dokončiť konfiguráciu" : "Prejsť k ďalšiemu kroku";
-          }
+          const buttonText = getStepButtonText($wrap, isLast);
 
           // Aktualizuj text a třídu
           $button.text(buttonText);
-          $button.toggleClass("finish-button", isLast);
+          $button.toggleClass("finish-button", isLast || isCartStepWrap($wrap));
         }
       });
     }

@@ -1053,7 +1053,7 @@ function priplatky(setupData2, texts) {
       }
       if ($wrap.find(".upsale-button").length) {
         hasSelectable = true;
-        if ($wrap.find(".upsale-button.active").length && !$wrap.find(".upsale-button.active.none").length) valid = true;
+        if ($wrap.find(".upsale-button.active").length) valid = true;
       }
       if ($wrap.find("select.surcharge-parameter").length) {
         hasSelectable = true;
@@ -1067,19 +1067,58 @@ function priplatky(setupData2, texts) {
         if ($wrap.find("input[type='radio']:checked, input[type='checkbox']:checked").length) valid = true;
       }
       return !hasSelectable || valid;
+    }, getNavigableWraps = function() {
+      return $(".position-wrap, .parameter-wrap").filter(function() {
+        return !$(this).closest(".box-config").length;
+      });
+    }, isCartStepWrap = function($wrap) {
+      return $wrap.hasClass("upsale-buttons") && $wrap.hasClass("boxs");
+    }, getStepButtonText = function($wrap, isLast) {
+      if (isCartStepWrap($wrap)) {
+        return language2 === "sk" ? "Prejs\u0165 do ko\u0161\xEDka" : "P\u0159ej\xEDt do ko\u0161\xEDku";
+      }
+      if (language2 === "sk") {
+        return isLast ? "Dokon\u010Di\u0165 konfigur\xE1ciu" : "Prejs\u0165 k \u010Fal\u0161iemu kroku";
+      }
+      return isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
+    }, scrollToStep = function($wrap) {
+      if (!$wrap.length) return;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const wrapTop = $wrap.offset().top;
+      if (window.matchMedia("(min-width: 992px)").matches) {
+        const rect = $wrap[0].getBoundingClientRect();
+        const comfortableTop = 120;
+        const comfortableBottom = viewportHeight * 0.72;
+        if (rect.top >= comfortableTop && rect.top <= comfortableBottom) {
+          return;
+        }
+        const wrapHeight = Math.min($wrap.outerHeight() || 0, viewportHeight * 0.7);
+        const targetScrollTop = Math.max(0, wrapTop - Math.max((viewportHeight - wrapHeight) / 2, 120));
+        $("html, body").stop(true).animate({ scrollTop: targetScrollTop }, 400);
+        return;
+      }
+      $("html, body").stop(true).animate({ scrollTop: Math.max(wrapTop - 80, 0) }, 400);
+    }, proceedToCartFromStep = function() {
+      const $addToCartButton = $("button.btn.btn-lg.btn-conversion.add-to-cart-button").filter(function() {
+        const style = window.getComputedStyle(this);
+        return style.display !== "none" && style.visibility !== "hidden" && this.offsetParent !== null;
+      }).first();
+      $(".upsale-Banner.showConf").removeClass("showConf");
+      if ($addToCartButton.length) {
+        $addToCartButton.trigger("click");
+        return;
+      }
+      $(".position-wrap, .parameter-wrap").removeClass("active");
     }, addNextStepButtons = function() {
-      const allWraps = $(".position-wrap, .parameter-wrap");
+      const allWraps = getNavigableWraps();
       allWraps.each(function(index) {
         const $wrap = $(this);
         if ($wrap.find(".next-step-button").length > 0) {
           return;
         }
         const isLast = index === allWraps.length - 1;
-        let buttonText = isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
-        if (language2 === "sk") {
-          buttonText = isLast ? "Dokon\u010Di\u0165 konfigur\xE1ciu" : "Prejs\u0165 k \u010Fal\u0161iemu kroku";
-        }
-        const buttonClass = isLast ? "next-step-button finish-button" : "next-step-button";
+        const buttonText = getStepButtonText($wrap, isLast);
+        const buttonClass = isLast || isCartStepWrap($wrap) ? "next-step-button finish-button" : "next-step-button";
         $("<button>", {
           class: buttonClass,
           text: buttonText,
@@ -1087,20 +1126,15 @@ function priplatky(setupData2, texts) {
         }).appendTo($wrap);
       });
     }, updateButtonTexts2 = function() {
-      const allWraps = $(".content-wrap .parameter-wrap.parameter-undefined");
+      const allWraps = getNavigableWraps();
       allWraps.each(function(index) {
         const $wrap = $(this);
         const $button = $wrap.find(".next-step-button");
         if ($button.length > 0) {
           const isLast = index === allWraps.length - 1;
-          console.log(index);
-          console.log(isLast);
-          let buttonText = isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
-          if (language2 === "sk") {
-            buttonText = isLast ? "Dokon\u010Di\u0165 konfigur\xE1ciu" : "Prejs\u0165 k \u010Fal\u0161iemu kroku";
-          }
+          const buttonText = getStepButtonText($wrap, isLast);
           $button.text(buttonText);
-          $button.toggleClass("finish-button", isLast);
+          $button.toggleClass("finish-button", isLast || isCartStepWrap($wrap));
         }
       });
     };
@@ -1246,14 +1280,18 @@ function priplatky(setupData2, texts) {
         setTimeout(() => currentWrap.removeClass("selection-required"), 1200);
         return;
       }
-      const allWraps = $(".position-wrap, .parameter-wrap");
+      if (isCartStepWrap(currentWrap)) {
+        proceedToCartFromStep();
+        return;
+      }
+      const allWraps = getNavigableWraps();
       const currentIndex = allWraps.index(currentWrap);
       if (currentIndex < allWraps.length - 1) {
         const nextWrap = allWraps.eq(currentIndex + 1);
         currentWrap.removeClass("active");
         openNextAccordion(nextWrap);
         setTimeout(() => {
-          $("html, body").animate({ scrollTop: nextWrap.offset().top - 80 }, 400);
+          scrollToStep(nextWrap);
         }, 600);
         console.log("P\u0159echod k dal\u0161\xEDmu kroku:", nextWrap.find(".variant.name, h5").first().text() || "Unnamed");
       } else {
