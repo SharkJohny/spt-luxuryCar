@@ -1388,7 +1388,7 @@ function updateUpsale($this, event) {
 }
 
 function updateBoxPrice() {
-  $(".box-config .parameter-wrap").each(function () {
+  $(".box-config .parameter-wrap, .parameter-wrap.parameter-sizes").each(function () {
     const price = Number($(this).find(".price.price-standart").attr("data-price"));
     const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price") || 0);
     console.log(price, addPrice);
@@ -1495,6 +1495,9 @@ function priceActualization(e) {
   const header = $("h1").text();
   if (header.includes("box")) {
     $(".surcharge-list select").val(0);
+  }
+  if (header.includes("box")) {
+    setTimeout(() => updateBoxPrice(), 150);
   }
   $(".image-wrap").remove();
   $(".button.option-button.active").each(function () {

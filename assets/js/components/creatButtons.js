@@ -236,7 +236,9 @@ export function createOptions(position, orders) {
       basePrice = Number(raw.replace(/[^0-9]/g, ""));
     }
 
-    $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
+    if (!header.includes("box")) {
+      $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
+    }
     $("<div>", {
       class: "price price-standart",
       text: basePrice > 0 ? NumToPrice(basePrice) : "0 Kč",
@@ -289,7 +291,9 @@ export function createOptions(position, orders) {
       // If this nested parameter is a box-size, create a price-wrap with base price
       const priceWrapNested = $("<div>", { class: "price-wrap" }).appendTo(parametrWraps);
       if (isBoxNested) {
-        $("<span>", { class: "text", text: "Cena boxu" }).appendTo(priceWrapNested);
+        if (!header.includes("box")) {
+          $("<span>", { class: "text", text: "Cena boxu" }).appendTo(priceWrapNested);
+        }
         $("<div>", {
           class: "price price-standart",
           text: basePriceNested > 0 ? NumToPrice(basePriceNested) : "0 Kč",

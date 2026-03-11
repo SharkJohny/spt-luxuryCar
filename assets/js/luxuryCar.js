@@ -637,7 +637,9 @@ function createOptions(position, orders) {
       const raw = String($firstWithPrice.attr("data-surcharge-final-price") || $firstWithPrice.attr("data-surcharge-additional-price") || "0");
       basePrice = Number(raw.replace(/[^0-9]/g, ""));
     }
-    $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
+    if (!header.includes("box")) {
+      $('<span class="text">Cena boxu</span>').appendTo(priceWrap);
+    }
     $("<div>", {
       class: "price price-standart",
       text: basePrice > 0 ? NumToPrice(basePrice) : "0 K\u010D",
@@ -679,7 +681,9 @@ function createOptions(position, orders) {
       }).appendTo(parametrWraps);
       const priceWrapNested = $("<div>", { class: "price-wrap" }).appendTo(parametrWraps);
       if (isBoxNested) {
-        $("<span>", { class: "text", text: "Cena boxu" }).appendTo(priceWrapNested);
+        if (!header.includes("box")) {
+          $("<span>", { class: "text", text: "Cena boxu" }).appendTo(priceWrapNested);
+        }
         $("<div>", {
           class: "price price-standart",
           text: basePriceNested > 0 ? NumToPrice(basePriceNested) : "0 K\u010D",
@@ -1847,7 +1851,7 @@ function updateUpsale($this, event) {
   }, 200);
 }
 function updateBoxPrice() {
-  $(".box-config .parameter-wrap").each(function() {
+  $(".box-config .parameter-wrap, .parameter-wrap.parameter-sizes").each(function() {
     const price2 = Number($(this).find(".price.price-standart").attr("data-price"));
     const addPrice = Number($(this).find(".button.option-button.text.active .price").attr("data-price") || 0);
     console.log(price2, addPrice);
@@ -1935,6 +1939,9 @@ function priceActualization2(e) {
   const header = $("h1").text();
   if (header.includes("box")) {
     $(".surcharge-list select").val(0);
+  }
+  if (header.includes("box")) {
+    setTimeout(() => updateBoxPrice(), 150);
   }
   $(".image-wrap").remove();
   $(".button.option-button.active").each(function() {
