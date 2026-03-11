@@ -26,12 +26,14 @@ export function initHeader() {
 
   // Language flags dropdown - one flag shown, click to expand
   const isSk = window.dataLayer?.[0]?.shoptet?.projectId === 562035;
+  const flagSk = '<img src="https://flagcdn.com/sk.svg" width="24" height="16" alt="SK">';
+  const flagCz = '<img src="https://flagcdn.com/cz.svg" width="24" height="16" alt="CZ">';
   const current = isSk
-    ? { flag: "🇸🇰", label: "Slovenská verzia" }
-    : { flag: "🇨🇿", label: "Česká verze" };
+    ? { flag: flagSk, label: "Slovenská verzia" }
+    : { flag: flagCz, label: "Česká verze" };
   const other = isSk
-    ? '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">🇨🇿</a>'
-    : '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">🇸🇰</a>';
+    ? `<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="Česká verze">${flagCz}</a>`
+    : `<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovenská verzia">${flagSk}</a>`;
 
   const $flags = $("<div>", { class: "language-flags" }).html(
     `<span class="flag-current" aria-label="${current.label}" role="button">${current.flag}</span>` +

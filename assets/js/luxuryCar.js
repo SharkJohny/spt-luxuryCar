@@ -2038,8 +2038,10 @@ function initHeader() {
   });
   $('<a class="contact-link" href="/kontakty/">Kontakt</a>').prependTo(".navigation-buttons");
   const isSk = window.dataLayer?.[0]?.shoptet?.projectId === 562035;
-  const current = isSk ? { flag: "\u{1F1F8}\u{1F1F0}", label: "Slovensk\xE1 verzia" } : { flag: "\u{1F1E8}\u{1F1FF}", label: "\u010Cesk\xE1 verze" };
-  const other2 = isSk ? '<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="\u010Cesk\xE1 verze">\u{1F1E8}\u{1F1FF}</a>' : '<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovensk\xE1 verzia">\u{1F1F8}\u{1F1F0}</a>';
+  const flagSk = '<img src="https://flagcdn.com/sk.svg" width="24" height="16" alt="SK">';
+  const flagCz = '<img src="https://flagcdn.com/cz.svg" width="24" height="16" alt="CZ">';
+  const current = isSk ? { flag: flagSk, label: "Slovensk\xE1 verzia" } : { flag: flagCz, label: "\u010Cesk\xE1 verze" };
+  const other2 = isSk ? `<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="\u010Cesk\xE1 verze">${flagCz}</a>` : `<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovensk\xE1 verzia">${flagSk}</a>`;
   const $flags = $("<div>", { class: "language-flags" }).html(
     `<span class="flag-current" aria-label="${current.label}" role="button">${current.flag}</span><div class="language-dropdown">${other2}</div>`
   );
