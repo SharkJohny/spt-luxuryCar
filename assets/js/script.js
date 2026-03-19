@@ -7,6 +7,7 @@ import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
 import { initCart } from "./components/cart.js";
 import { validation } from "./functions/validation.js";
+import { initContactForm } from "./components/contactForm.js";
 
 let setupData;
 
@@ -49,6 +50,7 @@ jQuery(document).ready(function ($) {
   //stickyPhotos();
   // errorToCart();
   initVideoPlayAgain();
+  initContactForm();
 
   setTimeout(() => {
     $("body").addClass("showBody");

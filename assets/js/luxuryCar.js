@@ -2562,6 +2562,62 @@ function createpopup2(texts) {
   ).appendTo("head");
 }
 
+// assets/js/components/contactForm.js
+var PHONE_LABELS = {
+  cs: {
+    label: "Mobiln\xED telefon",
+    placeholder: "+420 900 000 000",
+    error: "Vypl\u0148te telefonn\xED \u010D\xEDslo",
+    messagePrefix: "Telefon"
+  },
+  sk: {
+    label: "Mobiln\xFD telef\xF3n",
+    placeholder: "+421 900 000 000",
+    error: "Vypl\u0148te telef\xF3nne \u010D\xEDslo",
+    messagePrefix: "Telef\xF3n"
+  }
+};
+var DEFAULT_LANG = "sk";
+function initContactForm() {
+  const $form = $("#formContact");
+  if (!$form.length) return;
+  const shoptetLang = window.dataLayer?.find((item) => item.shoptet?.language)?.shoptet?.language ?? document.documentElement.lang?.slice(0, 2).toLowerCase();
+  const lang2 = shoptetLang?.slice(0, 2).toLowerCase();
+  const t = PHONE_LABELS[lang2] ?? PHONE_LABELS[DEFAULT_LANG];
+  const $phoneWrapper = $(`
+    <div class="form-group lc-phone-wrapper" id="lc-phone-wrapper">
+      <label for="lcPhone"><span class="required-asterisk">${t.label}</span></label>
+      <input type="tel" id="lcPhone" class="form-control" autocomplete="tel" placeholder="${t.placeholder}" />
+      <span class="lc-phone-error">${t.error}</span>
+    </div>
+  `);
+  $form.find("#email").closest(".form-group").after($phoneWrapper);
+  $(document).on("input", "#lcPhone", function() {
+    if ($(this).val().trim()) {
+      $("#lc-phone-wrapper").removeClass("lc-phone-invalid");
+    }
+  });
+  $form[0].addEventListener(
+    "submit",
+    function(e) {
+      const phone = document.getElementById("lcPhone").value.trim();
+      if (!phone) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        $("#lc-phone-wrapper").addClass("lc-phone-invalid");
+        document.getElementById("lcPhone").focus();
+        const top = $("#lc-phone-wrapper").offset().top - 120;
+        $("html, body").animate({ scrollTop: top }, 300);
+        return;
+      }
+      const $message = $form.find('textarea[name="message"]');
+      const original = $message.val().trim();
+      $message.val(t.messagePrefix + ": " + phone + (original ? "\n\n" + original : ""));
+    },
+    true
+  );
+}
+
 // assets/js/script.js
 var setupData;
 $.getJSON(optionData.downloadData, function(data) {
@@ -2591,6 +2647,7 @@ jQuery(document).ready(function($2) {
   intIndex();
   initSignpost();
   initVideoPlayAgain();
+  initContactForm();
   setTimeout(() => {
     $2("body").addClass("showBody");
   }, 500);

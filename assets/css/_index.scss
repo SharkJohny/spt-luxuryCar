@@ -1635,3 +1635,10 @@ a.gold-border.collection-card.shadow {
   display: none;
   overflow: hidden;
 }
+
+@media (max-width: 1640px) {
+  .layers-info-wrap .layers-text {
+    position: absolute;
+    bottom: 12%;
+  }
+}

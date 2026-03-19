@@ -89,3 +89,24 @@ section#model-selector {
 .faq.container {
   margin-top: 40px;
 }
+
+// Kontaktný formulár – vlastné pole telefónu
+.lc-phone-wrapper {
+  .lc-phone-error {
+    display: none;
+    color: #c0392b;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  &.lc-phone-invalid {
+    .form-control {
+      border-color: #c0392b;
+    }
+    .lc-phone-error {
+      display: block;
+    }
+  }
+}
+
+// --- Bender: new rules from DevTools ---
