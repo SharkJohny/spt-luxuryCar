@@ -419,8 +419,8 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
 
     const surchargeFinal = Number($opt.attr("data-surcharge-final-price") || $opt.attr("data-surcharge-additional-price") || 0);
 
-    // For box parameters, skip options with zero surcharge
-    if (isBoxParam && surchargeFinal === 0) return;
+    // For box parameters, skip options with zero surcharge – but keep size options (contain "cm")
+    if (isBoxParam && surchargeFinal === 0 && !textOption.includes("cm")) return;
 
     if (textOption.includes("ŽIADNY") && !isBoxParam) {
       return;

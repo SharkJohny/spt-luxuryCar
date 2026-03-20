@@ -783,7 +783,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
     const valueText = textOption.split("+");
     const nameSplit = valueText[0].split(":");
     const surchargeFinal = Number($opt.attr("data-surcharge-final-price") || $opt.attr("data-surcharge-additional-price") || 0);
-    if (isBoxParam && surchargeFinal === 0) return;
+    if (isBoxParam && surchargeFinal === 0 && !textOption.includes("cm")) return;
     if (textOption.includes("\u017DIADNY") && !isBoxParam) {
       return;
     }
@@ -1478,6 +1478,7 @@ $(document).on("click", ".boxs .upsale-button.none", function(e) {
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
   $(".config-wrap .option-button").removeClass("active");
+  $(".upsale-Banner").removeClass("showConf");
   resetBoxConfigDefaults();
   updateUpsale(this);
 });

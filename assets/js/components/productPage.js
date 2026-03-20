@@ -832,6 +832,7 @@ $(document).on("click", ".boxs .upsale-button.none", function (e) {
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button").removeClass("active");
   $(".upsale-buttons.parameter-wrap.boxs .upsale-button.none").addClass("active");
   $(".config-wrap .option-button").removeClass("active");
+  $(".upsale-Banner").removeClass("showConf");
   resetBoxConfigDefaults();
   updateUpsale(this);
 });
