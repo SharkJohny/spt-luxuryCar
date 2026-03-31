@@ -18,11 +18,17 @@ jobs:
         with:
           node-version: "20"
 
+      # Získání verze z git commitu (prvních 7 znaků SHA)
+      - name: 🔖 Get build version
+        id: version
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       # Instalace závislostí a build projektu
       - name: 🔨 Build Project
         run: |
           yarn install
           yarn esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm
+          echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
       - name: SFTP Upload
         uses: Dylan700/sftp-upload-action@latest
