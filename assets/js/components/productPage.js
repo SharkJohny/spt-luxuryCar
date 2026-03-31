@@ -39,6 +39,7 @@ if (dataLayer[0].shoptet.projectId == "581408") {
 
 sessionStorage.setItem("wheelPosition", "left");
 sessionStorage.setItem("seatPosition", "pass-5");
+sessionStorage.setItem("doorPosition", "doors-4");
 
 const standartPrice = Number(
   $(".p-final-price-wrapper .price-standard span").length
@@ -216,6 +217,10 @@ export function initProduct(setupData, texts) {
     const position = $(this).data("value");
     console.log(position);
     sessionStorage.setItem("seatPosition", position);
+  });
+  $(".parameter-cars.door-Position .option-wrap .option-button").on("click", function () {
+    const position = $(this).data("value");
+    sessionStorage.setItem("doorPosition", position);
   });
 }
 
@@ -927,6 +932,21 @@ function firstPage(texts) {
   $(`<div class='button option-button' data-value='pass-7'><div class='text'>7</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-8'><div class='text'>8</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-9'><div class='text'>9</div></div>`).appendTo(sitOption);
+
+  const doorposition = $("<div>", {
+    class: "parameter-cars door-Position",
+  }).appendTo(pageWrap);
+  $("<div>", {
+    class: "label door",
+    text: language === "cs" ? "Počet dveří" : "Počet dverí",
+  }).appendTo(doorposition);
+  const doorOption = $("<div>", {
+    class: "option-wrap",
+  }).appendTo(doorposition);
+  $(`<div class='button option-button' data-value='doors-2'><div class='text'>2</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-3'><div class='text'>3</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button active' data-value='doors-4'><div class='text'>4</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-5'><div class='text'>5</div></div>`).appendTo(doorOption);
 
   $(".can-toggle.wheel-option").on("click", function () {
     if ($(this).find("input").is(":checked")) {

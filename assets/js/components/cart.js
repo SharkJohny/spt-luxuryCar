@@ -19,6 +19,7 @@ export function initCart(texts) {
   }
   const wheelPosition = sessionStorage.getItem("wheelPosition");
   const seatPosition = sessionStorage.getItem("seatPosition");
+  const doorPosition = sessionStorage.getItem("doorPosition");
   $(
     `<input type="text" value="` +
       wheelPosition +
@@ -28,6 +29,11 @@ export function initCart(texts) {
     `<input type="text" value="` +
       seatPosition +
       `" id="varchar2" name="varchar2" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
+  ).appendTo(".co-billing-address");
+  $(
+    `<input type="text" value="` +
+      doorPosition +
+      `" id="varchar3" name="varchar3" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
   ).appendTo(".co-billing-address");
 }
 

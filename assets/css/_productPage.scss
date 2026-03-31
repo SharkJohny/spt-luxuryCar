@@ -37,8 +37,13 @@
   .parameter-cars.sit-Position {
     order: 3;
   }
-  button.next-step-button {
+
+  .parameter-cars.door-Position {
     order: 4;
+  }
+
+  button.next-step-button {
+    order: 5;
   }
   .modl-selector-wrap {
     display: flex;
@@ -426,6 +431,9 @@ i.info-icon {
   display: flex;
 }
 .parameter-cars.sit-Position {
+  display: flex;
+}
+.parameter-cars.door-Position {
   display: flex;
 }
 .parameter-cars {
@@ -890,6 +898,14 @@ span.quantity {
     display: flex;
     justify-content: flex-start;
     .label.wheel {
+      padding: 8px 20px;
+      margin: 0;
+    }
+  }
+  .parameter-cars.door-Position {
+    display: flex;
+    justify-content: flex-start;
+    .label.door {
       padding: 8px 20px;
       margin: 0;
     }
@@ -2111,7 +2127,8 @@ a.p-thumbnail {
     }
   }
 
-  .parameter-cars.sit-Position {
+  .parameter-cars.sit-Position,
+  .parameter-cars.door-Position {
     .button.option-button {
       padding: 0 !important;
       min-width: 28px;
@@ -2664,6 +2681,7 @@ span.price-standard span {
   }
   .parameter-cars .button.option-button {
     font-size: 20px;
+    height: 50px;
   }
   .upsale-text .heder.h2,
   .upsale-text h3,
