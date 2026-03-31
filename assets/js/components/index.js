@@ -1,11 +1,26 @@
 export function intIndex() {
   const lang = dataLayer[0].shoptet.projectId == 704436 ? "cs" : (shoptetData.language || dataLayer[0].shoptet.language);
-  setTimeout(function () {
+  function initTwentyTwenty() {
     $(".twentytwenty-container").twentytwenty({
       before_label: lang === "cs" ? "Potom" : "Po",
       after_label: lang === "cs" ? "Předtím" : "Predtým",
     });
-  }, 1000);
+  }
+
+  const $ttImages = $(".twentytwenty-container img");
+  if ($ttImages.length) {
+    const loadPromises = $ttImages.toArray().map(function (img) {
+      return new Promise(function (resolve) {
+        if (img.complete && img.naturalWidth > 0) {
+          resolve();
+        } else {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        }
+      });
+    });
+    Promise.all(loadPromises).then(initTwentyTwenty);
+  }
   $("svg.icon.icon-circle-button-right-clipped").remove();
   const videos = document.querySelectorAll("video");
   videos.forEach((video) => {

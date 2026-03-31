@@ -639,7 +639,12 @@ function priplatky(setupData, texts) {
       });
     }
 
-    firstPage(texts);
+    const header = $("h1").text();
+    const isBoxProduct = header.toLowerCase().includes("box");
+
+    if (!isBoxProduct) {
+      firstPage(texts);
+    }
 
     // Spusť přidání tlačítek po načtení firstPage (i když skončí předčasně)
     setTimeout(() => {
@@ -650,10 +655,9 @@ function priplatky(setupData, texts) {
     const pairVariantList = JSON.parse(setupData.settings.pairVariantList);
     const pairedOrders = {};
     let orders = 1;
-    const header = $("h1").text();
-    if (header.includes("box")) {
-      orders = 1;
 
+    if (isBoxProduct) {
+      orders = 1;
       createOptions("box", orders);
     }
     createBoxConfig();
@@ -664,7 +668,7 @@ function priplatky(setupData, texts) {
       createOptions(position, orders);
     });
 
-    if (header.includes("box")) {
+    if (isBoxProduct) {
       orders += 1;
       createOptions("sizes", orders);
       return;
