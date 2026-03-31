@@ -110,3 +110,25 @@ section#model-selector {
 }
 
 // --- Bender: new rules from DevTools ---
+#cboxLoadedContent {
+  background: black;
+  color: white;
+  .cookiesSetting__title {
+    color: var(--color-primary);
+  }
+  .cookiesSetting__perex {
+    color: #fff;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .cookiesSetting__data {
+    background-color: black;
+    border: 1px solid black;
+  }
+  .cookiesSetting__item__name {
+    color: #fff;
+  }
+  .cookiesSetting__item__text {
+    color: #fff;
+  }
+}

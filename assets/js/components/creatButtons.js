@@ -2,7 +2,7 @@ let twoLayersProducts;
 let boxsParameterIds;
 let oneLayerProducts;
 
-const language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : (shoptetData.language || dataLayer[0].shoptet.language);
+const language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
 
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
@@ -513,7 +513,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       }).appendTo(optionButton);
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?14`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?15`,
       }).appendTo(optionButton.find("label"));
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
