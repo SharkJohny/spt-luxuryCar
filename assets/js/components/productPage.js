@@ -936,17 +936,14 @@ function firstPage(texts) {
   const doorposition = $("<div>", {
     class: "parameter-cars door-Position",
   }).appendTo(pageWrap);
-  $("<div>", {
-    class: "label door",
-    text: language === "cs" ? "Počet dveří" : "Počet dverí",
-  }).appendTo(doorposition);
+  const doorLabel = $("<div>", { class: "label door" }).appendTo(doorposition);
+  $("<div>").text(language === "cs" ? "Počet dveří" : "Počet dverí").appendTo(doorLabel);
+  $("<div>", { class: "label-sub", text: language === "cs" ? "(bez kufru)" : "(bez kufra)" }).appendTo(doorLabel);
   const doorOption = $("<div>", {
     class: "option-wrap",
   }).appendTo(doorposition);
   $(`<div class='button option-button' data-value='doors-2'><div class='text'>2</div></div>`).appendTo(doorOption);
-  $(`<div class='button option-button' data-value='doors-3'><div class='text'>3</div></div>`).appendTo(doorOption);
   $(`<div class='button option-button active' data-value='doors-4'><div class='text'>4</div></div>`).appendTo(doorOption);
-  $(`<div class='button option-button' data-value='doors-5'><div class='text'>5</div></div>`).appendTo(doorOption);
 
   $(".can-toggle.wheel-option").on("click", function () {
     if ($(this).find("input").is(":checked")) {

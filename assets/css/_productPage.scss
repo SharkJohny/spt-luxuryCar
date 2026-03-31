@@ -435,6 +435,13 @@ i.info-icon {
 }
 .parameter-cars.door-Position {
   display: flex;
+  .label.door {
+    .label-sub {
+      font-size: 12px;
+      opacity: 0.7;
+      font-weight: normal;
+    }
+  }
 }
 .parameter-cars {
   .button.option-button {
@@ -2773,5 +2780,11 @@ video::-webkit-media-controls {
       left: 3px !important;
       top: 2px !important;
     }
+  }
+}
+
+.position-wrap.parameter-cars.parameter-wrap.base-config.active {
+  .parameter-cars .button.option-button {
+    height: unset !important;
   }
 }
