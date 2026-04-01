@@ -943,7 +943,10 @@ function firstPage(texts) {
     class: "option-wrap",
   }).appendTo(doorposition);
   $(`<div class='button option-button' data-value='doors-2'><div class='text'>2</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-3'><div class='text'>3</div></div>`).appendTo(doorOption);
   $(`<div class='button option-button active' data-value='doors-4'><div class='text'>4</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-5'><div class='text'>5</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-6'><div class='text'>6</div></div>`).appendTo(doorOption);
 
   $(".can-toggle.wheel-option").on("click", function () {
     if ($(this).find("input").is(":checked")) {

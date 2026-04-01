@@ -9,12 +9,26 @@ var optionData = {
 // assets/js/components/index.js
 function intIndex() {
   const lang2 = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
-  setTimeout(function() {
+  function initTwentyTwenty() {
     $(".twentytwenty-container").twentytwenty({
       before_label: lang2 === "cs" ? "Potom" : "Po",
       after_label: lang2 === "cs" ? "P\u0159edt\xEDm" : "Predt\xFDm"
     });
-  }, 1e3);
+  }
+  const $ttImages = $(".twentytwenty-container img");
+  if ($ttImages.length) {
+    const loadPromises = $ttImages.toArray().map(function(img) {
+      return new Promise(function(resolve) {
+        if (img.complete && img.naturalWidth > 0) {
+          resolve();
+        } else {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        }
+      });
+    });
+    Promise.all(loadPromises).then(initTwentyTwenty);
+  }
   $("svg.icon.icon-circle-button-right-clipped").remove();
   const videos = document.querySelectorAll("video");
   videos.forEach((video) => {
@@ -859,7 +873,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       }).appendTo(optionButton);
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?14`
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?15`
       }).appendTo(optionButton.find("label"));
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
@@ -872,7 +886,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?14`
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?15`
       }).appendTo(optionButton);
     }
   });
@@ -909,6 +923,7 @@ if (dataLayer[0].shoptet.projectId == "581408") {
 }
 sessionStorage.setItem("wheelPosition", "left");
 sessionStorage.setItem("seatPosition", "pass-5");
+sessionStorage.setItem("doorPosition", "doors-4");
 var standartPrice = Number(
   $(".p-final-price-wrapper .price-standard span").length ? $(".p-final-price-wrapper .price-standard span").text().replace(/[^0-9]/g, "") : 0
 );
@@ -1027,6 +1042,10 @@ function initProduct(setupData2, texts) {
     const position = $(this).data("value");
     console.log(position);
     sessionStorage.setItem("seatPosition", position);
+  });
+  $(".parameter-cars.door-Position .option-wrap .option-button").on("click", function() {
+    const position = $(this).data("value");
+    sessionStorage.setItem("doorPosition", position);
   });
 }
 function priplatky(setupData2, texts) {
@@ -1331,7 +1350,11 @@ function priplatky(setupData2, texts) {
         subtree: true
       });
     }
-    firstPage(texts);
+    const header = $("h1").text();
+    const isBoxProduct = header.toLowerCase().includes("box");
+    if (!isBoxProduct) {
+      firstPage(texts);
+    }
     setTimeout(() => {
       addNextStepButtons();
       updateButtonTexts2();
@@ -1339,8 +1362,7 @@ function priplatky(setupData2, texts) {
     const pairVariantList = JSON.parse(setupData2.settings.pairVariantList);
     const pairedOrders = {};
     let orders = 1;
-    const header = $("h1").text();
-    if (header.includes("box")) {
+    if (isBoxProduct) {
       orders = 1;
       createOptions("box", orders);
     }
@@ -1350,7 +1372,7 @@ function priplatky(setupData2, texts) {
       const position = this;
       createOptions(position, orders);
     });
-    if (header.includes("box")) {
+    if (isBoxProduct) {
       orders += 1;
       createOptions("sizes", orders);
       return;
@@ -1559,6 +1581,20 @@ function firstPage(texts) {
   $(`<div class='button option-button' data-value='pass-7'><div class='text'>7</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-8'><div class='text'>8</div></div>`).appendTo(sitOption);
   $(`<div class='button option-button' data-value='pass-9'><div class='text'>9</div></div>`).appendTo(sitOption);
+  const doorposition = $("<div>", {
+    class: "parameter-cars door-Position"
+  }).appendTo(pageWrap);
+  const doorLabel = $("<div>", { class: "label door" }).appendTo(doorposition);
+  $("<div>").text(language2 === "cs" ? "Po\u010Det dve\u0159\xED" : "Po\u010Det dver\xED").appendTo(doorLabel);
+  $("<div>", { class: "label-sub", text: language2 === "cs" ? "(bez kufru)" : "(bez kufra)" }).appendTo(doorLabel);
+  const doorOption = $("<div>", {
+    class: "option-wrap"
+  }).appendTo(doorposition);
+  $(`<div class='button option-button' data-value='doors-2'><div class='text'>2</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-3'><div class='text'>3</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button active' data-value='doors-4'><div class='text'>4</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-5'><div class='text'>5</div></div>`).appendTo(doorOption);
+  $(`<div class='button option-button' data-value='doors-6'><div class='text'>6</div></div>`).appendTo(doorOption);
   $(".can-toggle.wheel-option").on("click", function() {
     if ($(this).find("input").is(":checked")) {
       $("select.parameter-id-37.surcharge-parameter").val(253);
@@ -2327,11 +2363,15 @@ function initCart(texts) {
   }
   const wheelPosition = sessionStorage.getItem("wheelPosition");
   const seatPosition = sessionStorage.getItem("seatPosition");
+  const doorPosition = sessionStorage.getItem("doorPosition");
   $(
     `<input type="text" value="` + wheelPosition + `" id="varchar1" name="varchar1" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
   ).appendTo(".co-billing-address");
   $(
     `<input type="text" value="` + seatPosition + `" id="varchar2" name="varchar2" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
+  ).appendTo(".co-billing-address");
+  $(
+    `<input type="text" value="` + doorPosition + `" id="varchar3" name="varchar3" class="form-control short js-validate   spellcheck="false" data-ms-editor="true">`
   ).appendTo(".co-billing-address");
 }
 function changeDescription() {
