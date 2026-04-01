@@ -526,7 +526,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
     } else {
       $("<img>", {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?14`,
+        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?15`,
       }).appendTo(optionButton);
     }
   });
