@@ -222,6 +222,50 @@ export function initProduct(setupData, texts) {
     const position = $(this).data("value");
     sessionStorage.setItem("doorPosition", position);
   });
+
+  // Čeká na async načtení FAQ a přidá tlačítko "Zobrazit více"
+  const faqObserver = new MutationObserver(() => {
+    const $faqContent = $(".p-info-wrapper .faq-content");
+    if (!$faqContent.length) return;
+
+    const $accordions = $faqContent.find(".accordion-wrapper");
+    if ($accordions.length <= 4) return;
+
+    if ($faqContent.find(".faq-show-more").length) return;
+
+    faqObserver.disconnect();
+
+    $accordions.each(function (i) {
+      if (i >= 4) $(this).addClass("accordion-hidden");
+    });
+
+    const btnLabel = language === "sk" ? "Zobraziť viac" : "Zobrazit více";
+    const btnLabelLess = language === "sk" ? "Zobraziť menej" : "Zobrazit méně";
+
+    const $showMore = $(`<div class="faq-show-more" style="text-align:center;margin-top:8px;">
+      <button type="button" style="background:transparent;border:1px solid #c49b30;color:#c49b30;padding:8px 14px;border-radius:8px;cursor:pointer;">${btnLabel}</button>
+    </div>`);
+
+    $faqContent.append($showMore);
+
+    $showMore.on("click", "button", function () {
+      const $hidden = $faqContent.find(".accordion-hidden");
+      if ($hidden.length) {
+        $hidden.removeClass("accordion-hidden");
+        $(this).text(btnLabelLess);
+      } else {
+        $accordions.each(function (i) {
+          if (i >= 4) $(this).addClass("accordion-hidden");
+        });
+        $(this).text(btnLabel);
+      }
+    });
+  });
+
+  faqObserver.observe(document.querySelector(".p-info-wrapper") || document.body, {
+    childList: true,
+    subtree: true,
+  });
 }
 
 /**
