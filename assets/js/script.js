@@ -237,8 +237,25 @@ function initModelSelect(texts) {
     $(znacka + model + rocnik + type).appendTo(choiceWrap);
   }
 
-  $(setupData.settings.carVariant.split(",")).each(function () {
-    const option = $("<option>").text(this).appendTo(".type-selector .selector select");
+  const otherLabel = (typeof language !== "undefined" && language === "cs")
+    ? "Jiné, prosím napište do poznámky"
+    : "Iné, prosím napíšte do poznámky";
+  const otherVariants = ["Jiné, prosím napište do poznámky", "Iné, prosím napíšte do poznámky"];
+
+  const carVariantParts = setupData.settings.carVariant.split(",");
+  // "Jiné" a "Prosím napište do poznámky" jsou v JSONu dvě části jedné položky — sloučíme je
+  const carVariants = [];
+  for (let i = 0; i < carVariantParts.length; i++) {
+    const part = carVariantParts[i].trim();
+    if (part === "Jiné" && carVariantParts[i + 1] && carVariantParts[i + 1].trim().startsWith("Prosím")) {
+      i++;
+      carVariants.push(otherLabel);
+    } else {
+      carVariants.push(part);
+    }
+  }
+  carVariants.forEach(function (variant) {
+    $("<option>").text(variant).appendTo(".type-selector .selector select");
   });
 
   if (getBrand != null) {
@@ -275,6 +292,11 @@ function initModelSelect(texts) {
       }, 2000);
     }
   }
+  // Normalizace
+  if (getYear && otherVariants.includes(getYear)) {
+    getYear = otherLabel;
+  }
+
   if (getYear != null) {
     $("<option>" + getYear + "</option>").prependTo(".surcharge-list.years.dm-selector select");
     $(".surcharge-list.years.dm-selector select").val(getYear);
@@ -297,9 +319,12 @@ function initModelSelect(texts) {
     $("<option>" + year + "</option>").appendTo(".years select");
   }
 
-  const other_option = "<option>" + other + "</option>";
+  const other_option = "<option>" + otherLabel + "</option>";
   $(other_option).appendTo(".type select");
-  $(other_option).appendTo(".years select");
+  // Přidáme "other" do years jen pokud ještě tam není (přes sessionStorage)
+  if (!getYear || !otherVariants.includes(getYear)) {
+    $(other_option).appendTo(".years select");
+  }
 
   // Při inicializaci si poznač, že probíhá načítání
   let isInitializing = true;

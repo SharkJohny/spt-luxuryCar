@@ -110,6 +110,7 @@ export function initProduct(setupData, texts) {
 
     $("<div>", {
       class: "h3",
+      // TODO: Tato hláška "Vyberte model" ve volbě vozidla se musí přeložit do slovenštiny pomocí JS (dle proměnné `language` / `texts`)
       text: "Vyberte model",
     }).appendTo(popup);
     initModelSelect();
@@ -542,7 +543,9 @@ function priplatky(setupData, texts) {
         return;
       }
 
-      $("html, body").stop(true).animate({ scrollTop: Math.max(wrapTop - 80, 0) }, 400);
+      $("html, body")
+        .stop(true)
+        .animate({ scrollTop: Math.max(wrapTop - 80, 0) }, 400);
     }
 
     function proceedToCartFromStep() {
@@ -981,7 +984,9 @@ function firstPage(texts) {
     class: "parameter-cars door-Position",
   }).appendTo(pageWrap);
   const doorLabel = $("<div>", { class: "label door" }).appendTo(doorposition);
-  $("<div>").text(language === "cs" ? "Počet dveří" : "Počet dverí").appendTo(doorLabel);
+  $("<div>")
+    .text(language === "cs" ? "Počet dveří" : "Počet dverí")
+    .appendTo(doorLabel);
   $("<div>", { class: "label-sub", text: language === "cs" ? "(bez kufru)" : "(bez kufra)" }).appendTo(doorLabel);
   const doorOption = $("<div>", {
     class: "option-wrap",
