@@ -60,6 +60,16 @@ const diference = standartPrice - price;
 
 console.log(diference);
 export function initProduct(setupData, texts) {
+  // --- TRUCK CONFIGURATOR (isolated) ---
+  // Na URL /test-truck/ se místo standardního konfigurátoru osobáků
+  // zobrazí nový truck konfigurátor z assets/truck-konfigurator/index.html.
+  // Spouští se pouze na této jediné stránce, aby funkčnost osobáků zůstala
+  // beze změn. Napojení na košík / parametry řešíme později.
+  if (isTruckConfiguratorPage()) {
+    mountTruckConfigurator();
+    return;
+  }
+
   createModelInfo();
   // changeThumbnails();
   setTimeout(() => {
@@ -1656,4 +1666,76 @@ function changeThumbnails() {
       // },
     ],
   });
+}
+
+/* =========================================================================
+ * TRUCK KONFIGURÁTOR – izolovaný embed
+ * =========================================================================
+ * Pro jediný testovací produkt `/test-truck/` vyměníme celou plochu detailu
+ * produktu za iframe s novým konfigurátorem (standalone React app ze souboru
+ * assets/truck-konfigurator/index.html). Žádná funkcionalita osobáků se tím
+ * nemění – hlavní větev initProduct() se na truck stránce vůbec nespustí.
+ *
+ * Záměrně zatím neřešíme:
+ *  - napojení na Shoptet košík / parametry produktu
+ *  - předvýběr jazyka
+ *  - postMessage komunikaci s rodičem
+ * To doplníme v další iteraci.
+ * ========================================================================= */
+function isTruckConfiguratorPage() {
+  try {
+    return /\/test-truck(\/|$)/i.test(window.location.pathname);
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Načte zkompilovaný truck konfigurátor bundle (React + ReactDOM + Configurator
+ * v jednom IIFE souboru). Bundluje se přes `yarn build:truck` → esbuild, viz
+ * `assets/truck-konfigurator/index.jsx`. Bundle loaduje jen na /test-truck/,
+ * na ostatních stránkách se nikdy nestahuje.
+ */
+function loadTruckConfiguratorBundle() {
+  if (window.__truckKonfLoaded) return;
+  window.__truckKonfLoaded = true;
+
+  const s = document.createElement("script");
+  s.src = "/assets/truck-konfigurator/app.js";
+  s.async = false;
+  s.onerror = () => console.error("[truck-konf] nepodařilo se načíst app.js");
+  document.head.appendChild(s);
+}
+
+function mountTruckConfigurator() {
+  $("body").addClass("is-truck-konfigurator");
+
+  // Vloží mount div do pravého sloupce .p-info-wrapper. Shoptet ho může
+  // do DOMu vložit až po DOMContentLoaded, takže polluju, kdyby selhal
+  // první pokus.
+  const placeMountNode = () => {
+    const $host = $(".col-xs-12.col-lg-6.p-info-wrapper").first().length
+      ? $(".col-xs-12.col-lg-6.p-info-wrapper").first()
+      : $(".p-info-wrapper").first();
+    if (!$host.length) return false;
+
+    // Odstraň loader overlay: standardní initProduct přidává .active po
+    // 1000 ms, ale truck větev initProduct returnuje dřív – bez této
+    // třídy zůstane aktivní pseudo ::before a překrývá celý sloupec.
+    $host.addClass("active");
+    if ($host.find(".truck-konfigurator-wrap").length) return true;
+
+    const $wrap = $("<div>", { class: "truck-konfigurator-wrap" });
+    $("<div>", { id: "truck-konfigurator-root" }).appendTo($wrap);
+    $host.append($wrap);
+    return true;
+  };
+
+  if (placeMountNode()) { loadTruckConfiguratorBundle(); return; }
+
+  let tries = 0;
+  const iv = setInterval(() => {
+    if (placeMountNode()) { clearInterval(iv); loadTruckConfiguratorBundle(); return; }
+    if (++tries > 40) clearInterval(iv);
+  }, 100);
 }

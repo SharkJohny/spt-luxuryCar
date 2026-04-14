@@ -485,7 +485,7 @@ function accordion() {
 var twoLayersProducts;
 var boxsParameterIds2;
 var oneLayerProducts;
-var language = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
+var language2 = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
 if ($(".type-product")[0]) {
   twoLayersProducts = shoptetData.product.id == 601 || shoptetData.product.id == 604 || shoptetData.product.id == 607;
   boxsParameterIds2 = [94, 97, 104];
@@ -555,7 +555,7 @@ function createUpsaleButton(img, text, position, value, type, price2, prefix, te
 function createOptions(position, orders) {
   let name = "";
   if (position == "box") {
-    name = language === "cs" ? "Po\u010Det box\u016F" : "Po\u010Det boxov";
+    name = language2 === "cs" ? "Po\u010Det box\u016F" : "Po\u010Det boxov";
   } else if (position == "sizes") {
     name = "ve\u013Ekos\u0165";
   } else {
@@ -727,11 +727,11 @@ function createBoxConfig() {
   }).appendTo(wrap);
   $("<div>", {
     class: "close-btn close bottom",
-    text: language === "sk" ? "Nechcem" : "Nechci"
+    text: language2 === "sk" ? "Nechcem" : "Nechci"
   }).appendTo(wrap);
   $("<div>", {
     class: "close-btn return",
-    text: language === "sk" ? "potvrdi\u0165" : "potvrdit"
+    text: language2 === "sk" ? "potvrdi\u0165" : "potvrdit"
   }).appendTo(wrap);
   const configWrap = $("<div>", {
     class: "config-wrap"
@@ -914,7 +914,7 @@ var boxy = 91;
 var box1 = 94;
 var box2 = 97;
 var boxsPrice = [];
-var language2 = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
+var language3 = dataLayer[0].shoptet.projectId == 704436 ? "cs" : shoptetData.language || dataLayer[0].shoptet.language;
 if (dataLayer[0].shoptet.projectId == "581408") {
   koberce = 60;
   boxy = 63;
@@ -933,6 +933,10 @@ var price = Number(
 var diference = standartPrice - price;
 console.log(diference);
 function initProduct(setupData2, texts) {
+  if (isTruckConfiguratorPage()) {
+    mountTruckConfigurator();
+    return;
+  }
   createModelInfo();
   setTimeout(() => {
     $(".p-thumbnails-horizontal").addClass("overflow-next");
@@ -975,6 +979,7 @@ function initProduct(setupData2, texts) {
     }).appendTo(overflow);
     $("<div>", {
       class: "h3",
+      // TODO: Tato hláška "Vyberte model" ve volbě vozidla se musí přeložit do slovenštiny pomocí JS (dle proměnné `language` / `texts`)
       text: "Vyberte model"
     }).appendTo(popup);
     initModelSelect();
@@ -1047,6 +1052,39 @@ function initProduct(setupData2, texts) {
     const position = $(this).data("value");
     sessionStorage.setItem("doorPosition", position);
   });
+  const faqObserver = new MutationObserver(() => {
+    const $faqContent = $(".p-info-wrapper .faq-content");
+    if (!$faqContent.length) return;
+    const $accordions = $faqContent.find(".accordion-wrapper");
+    if ($accordions.length <= 4) return;
+    if ($faqContent.find(".faq-show-more").length) return;
+    faqObserver.disconnect();
+    $accordions.each(function(i) {
+      if (i >= 4) $(this).addClass("accordion-hidden");
+    });
+    const btnLabel = language3 === "sk" ? "Zobrazi\u0165 viac" : "Zobrazit v\xEDce";
+    const btnLabelLess = language3 === "sk" ? "Zobrazi\u0165 menej" : "Zobrazit m\xE9n\u011B";
+    const $showMore = $(`<div class="faq-show-more" style="text-align:center;margin-top:8px;">
+      <button type="button" style="background:transparent;border:1px solid #c49b30;color:#c49b30;padding:8px 14px;border-radius:8px;cursor:pointer;">${btnLabel}</button>
+    </div>`);
+    $faqContent.append($showMore);
+    $showMore.on("click", "button", function() {
+      const $hidden = $faqContent.find(".accordion-hidden");
+      if ($hidden.length) {
+        $hidden.removeClass("accordion-hidden");
+        $(this).text(btnLabelLess);
+      } else {
+        $accordions.each(function(i) {
+          if (i >= 4) $(this).addClass("accordion-hidden");
+        });
+        $(this).text(btnLabel);
+      }
+    });
+  });
+  faqObserver.observe(document.querySelector(".p-info-wrapper") || document.body, {
+    childList: true,
+    subtree: true
+  });
 }
 function priplatky(setupData2, texts) {
   if (!$(".type-detail").length) return;
@@ -1098,9 +1136,9 @@ function priplatky(setupData2, texts) {
       return $wrap.hasClass("upsale-buttons") && $wrap.hasClass("boxs");
     }, getStepButtonText = function($wrap, isLast) {
       if (isCartStepWrap($wrap)) {
-        return language2 === "sk" ? "Prejs\u0165 do ko\u0161\xEDka" : "P\u0159ej\xEDt do ko\u0161\xEDku";
+        return language3 === "sk" ? "Prejs\u0165 do ko\u0161\xEDka" : "P\u0159ej\xEDt do ko\u0161\xEDku";
       }
-      if (language2 === "sk") {
+      if (language3 === "sk") {
         return isLast ? "Dokon\u010Di\u0165 konfigur\xE1ciu" : "Prejs\u0165 k \u010Fal\u0161iemu kroku";
       }
       return isLast ? "Dokon\u010Dit konfiguraci" : "P\u0159ej\xEDt k dal\u0161\xEDmu kroku";
@@ -1585,8 +1623,8 @@ function firstPage(texts) {
     class: "parameter-cars door-Position"
   }).appendTo(pageWrap);
   const doorLabel = $("<div>", { class: "label door" }).appendTo(doorposition);
-  $("<div>").text(language2 === "cs" ? "Po\u010Det dve\u0159\xED" : "Po\u010Det dver\xED").appendTo(doorLabel);
-  $("<div>", { class: "label-sub", text: language2 === "cs" ? "(bez kufru)" : "(bez kufra)" }).appendTo(doorLabel);
+  $("<div>").text(language3 === "cs" ? "Po\u010Det dve\u0159\xED" : "Po\u010Det dver\xED").appendTo(doorLabel);
+  $("<div>", { class: "label-sub", text: language3 === "cs" ? "(bez kufru)" : "(bez kufra)" }).appendTo(doorLabel);
   const doorOption = $("<div>", {
     class: "option-wrap"
   }).appendTo(doorposition);
@@ -1635,7 +1673,7 @@ function createModelInfo() {
     console.log("model", model);
     if ($(".model-info")[0]) return;
     const infoWrap = $("<div>").addClass("model-info").prependTo(".col-xs-12.col-lg-6.p-info-wrapper");
-    $("<div>").addClass("header-info").text(language2 === "cs" ? "Z\xE1ruka kompatibility s Va\u0161\xEDm vozidlem" : "Garancia kompatibility s Va\u0161\xEDm vozidlom").appendTo(infoWrap);
+    $("<div>").addClass("header-info").text(language3 === "cs" ? "Z\xE1ruka kompatibility s Va\u0161\xEDm vozidlem" : "Garancia kompatibility s Va\u0161\xEDm vozidlom").appendTo(infoWrap);
     $("<div>").addClass("model-text").text(model).appendTo(infoWrap);
     $(".setup-model").on("click", function() {
       console.log("setup model");
@@ -2002,6 +2040,48 @@ function priceActualization2(e) {
   });
   $(".parameter-wrap").not($(e.target).parents(".parameter-wrap")).find(".image-wrap").remove();
 }
+function isTruckConfiguratorPage() {
+  try {
+    return /\/test-truck(\/|$)/i.test(window.location.pathname);
+  } catch (e) {
+    return false;
+  }
+}
+function loadTruckConfiguratorBundle() {
+  if (window.__truckKonfLoaded) return;
+  window.__truckKonfLoaded = true;
+  const s = document.createElement("script");
+  s.src = "/assets/truck-konfigurator/app.js";
+  s.async = false;
+  s.onerror = () => console.error("[truck-konf] nepoda\u0159ilo se na\u010D\xEDst app.js");
+  document.head.appendChild(s);
+}
+function mountTruckConfigurator() {
+  $("body").addClass("is-truck-konfigurator");
+  const placeMountNode = () => {
+    const $host = $(".col-xs-12.col-lg-6.p-info-wrapper").first().length ? $(".col-xs-12.col-lg-6.p-info-wrapper").first() : $(".p-info-wrapper").first();
+    if (!$host.length) return false;
+    $host.addClass("active");
+    if ($host.find(".truck-konfigurator-wrap").length) return true;
+    const $wrap = $("<div>", { class: "truck-konfigurator-wrap" });
+    $("<div>", { id: "truck-konfigurator-root" }).appendTo($wrap);
+    $host.append($wrap);
+    return true;
+  };
+  if (placeMountNode()) {
+    loadTruckConfiguratorBundle();
+    return;
+  }
+  let tries = 0;
+  const iv = setInterval(() => {
+    if (placeMountNode()) {
+      clearInterval(iv);
+      loadTruckConfiguratorBundle();
+      return;
+    }
+    if (++tries > 40) clearInterval(iv);
+  }, 100);
+}
 
 // assets/js/functions/stickyphotos.js
 document.addEventListener("DOMContentLoaded", function() {
@@ -2085,9 +2165,9 @@ function initHeader() {
   const flagSk = '<img src="https://flagcdn.com/sk.svg" width="24" height="16" alt="SK">';
   const flagCz = '<img src="https://flagcdn.com/cz.svg" width="24" height="16" alt="CZ">';
   const current = isSk ? { flag: flagSk, label: "Slovensk\xE1 verzia" } : { flag: flagCz, label: "\u010Cesk\xE1 verze" };
-  const other2 = isSk ? `<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="\u010Cesk\xE1 verze">${flagCz}</a>` : `<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovensk\xE1 verzia">${flagSk}</a>`;
+  const other = isSk ? `<a href="https://www.luxurycardesign.cz/" class="flag-link" data-lang="cs" aria-label="\u010Cesk\xE1 verze">${flagCz}</a>` : `<a href="https://www.luxurycardesign.sk/" class="flag-link" data-lang="sk" aria-label="Slovensk\xE1 verzia">${flagSk}</a>`;
   const $flags = $("<div>", { class: "language-flags" }).html(
-    `<span class="flag-current" aria-label="${current.label}" role="button">${current.flag}</span><div class="language-dropdown">${other2}</div>`
+    `<span class="flag-current" aria-label="${current.label}" role="button">${current.flag}</span><div class="language-dropdown">${other}</div>`
   );
   $flags.prependTo(".navigation-buttons");
   $flags.on("click", ".flag-current", function(e) {
@@ -2666,11 +2746,11 @@ $.getJSON(optionData.downloadData, function(data) {
   console.log("setupData:", setupData);
   console.log("setupData.settings:", setupData.settings);
   console.log("setupData.cars:", setupData.cars);
-  let language3 = dataLayer[0].shoptet.language;
+  let language4 = dataLayer[0].shoptet.language;
   if (dataLayer[0].shoptet.projectId == 704436) {
-    language3 = "cs";
+    language4 = "cs";
   }
-  const texts = setupData.language[language3];
+  const texts = setupData.language[language4];
   console.log("setupData.language:", texts);
   initProduct(setupData, texts);
   initModelSelect2(texts, setupData);
@@ -2792,8 +2872,21 @@ function initModelSelect2(texts) {
   } else {
     $(znacka + model + rocnik + type).appendTo(choiceWrap);
   }
-  $(setupData.settings.carVariant.split(",")).each(function() {
-    const option = $("<option>").text(this).appendTo(".type-selector .selector select");
+  const otherLabel = typeof language !== "undefined" && language === "cs" ? "Jin\xE9, pros\xEDm napi\u0161te do pozn\xE1mky" : "In\xE9, pros\xEDm nap\xED\u0161te do pozn\xE1mky";
+  const otherVariants = ["Jin\xE9, pros\xEDm napi\u0161te do pozn\xE1mky", "In\xE9, pros\xEDm nap\xED\u0161te do pozn\xE1mky"];
+  const carVariantParts = setupData.settings.carVariant.split(",");
+  const carVariants = [];
+  for (let i = 0; i < carVariantParts.length; i++) {
+    const part = carVariantParts[i].trim();
+    if (part === "Jin\xE9" && carVariantParts[i + 1] && carVariantParts[i + 1].trim().startsWith("Pros\xEDm")) {
+      i++;
+      carVariants.push(otherLabel);
+    } else {
+      carVariants.push(part);
+    }
+  }
+  carVariants.forEach(function(variant) {
+    $("<option>").text(variant).appendTo(".type-selector .selector select");
   });
   if (getBrand != null) {
     console.log(getBrand);
@@ -2821,6 +2914,9 @@ function initModelSelect2(texts) {
       }, 2e3);
     }
   }
+  if (getYear && otherVariants.includes(getYear)) {
+    getYear = otherLabel;
+  }
   if (getYear != null) {
     $("<option>" + getYear + "</option>").prependTo(".surcharge-list.years.dm-selector select");
     $(".surcharge-list.years.dm-selector select").val(getYear);
@@ -2840,9 +2936,11 @@ function initModelSelect2(texts) {
   for (let year = Number(years_from); year <= currentYear; year++) {
     $("<option>" + year + "</option>").appendTo(".years select");
   }
-  const other_option = "<option>" + other + "</option>";
+  const other_option = "<option>" + otherLabel + "</option>";
   $(other_option).appendTo(".type select");
-  $(other_option).appendTo(".years select");
+  if (!getYear || !otherVariants.includes(getYear)) {
+    $(other_option).appendTo(".years select");
+  }
   let isInitializing = true;
   $(".brands select").on("change", function() {
     if (isInitializing) {

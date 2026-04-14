@@ -1,0 +1,52 @@
+// ============================================================================
+// Truck konfigurátor
+// ----------------------------------------------------------------------------
+// Styly pro nový React konfigurátor, který se aktivuje pouze na URL
+// `/test-truck/`. Aplikují se jen pod `body.is-truck-konfigurator`, takže
+// nemají žádný vliv na stránky osobákových produktů.
+//
+// Layout:
+//  - Levý sloupec .p-info-wrapper-left (galerie, popis) → Shoptet, beze změny.
+//  - Pravý sloupec .col-xs-12.col-lg-6.p-info-wrapper → nahrazen mount nodem
+//    #truck-konfigurator-root, do kterého `assets/truck-konfigurator/app.js`
+//    renderuje React komponentu Configurator.
+//
+// Pokud v budoucnu budeme design přenášet i na konfigurátor osobáků, mělo by
+// stačit vytáhnout proměnné (barvy, radiusy, typografie) do `_variables.scss`
+// a tento partial pak bude čistě na overridy specifické pro truck.
+// ============================================================================
+
+body.is-truck-konfigurator {
+  // Schovat standardní obsah pravého sloupce (cenu, konfigurátor osobáků,
+  // parametry, banner upsale), necháme jen náš mount wrapper.
+  .p-info-wrapper > *:not(.truck-konfigurator-wrap) {
+    display: none !important;
+  }
+
+  .truck-konfigurator-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  #truck-konfigurator-root {
+    display: block;
+    width: 100%;
+
+    // Prototyp měl 2-sloupcový layout (fotka vľavo + konfigurátor vpravo).
+    // Levý stĺpec je odstraněn přímo v `konfigurator.jsx`, ale pro případ,
+    // že by tam něco zbytkového zůstalo, layout násilně sklopíme na 1 sloupec.
+    .konfig-layout {
+      display: block !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .konfig-right {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  }
+}
