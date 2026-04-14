@@ -4,7 +4,7 @@
   },
   "scripts": {
     "build:main": "esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm",
-    "build:truck": "esbuild assets/truck-konfigurator/index.jsx --bundle --outfile=assets/truck-konfigurator/app.js --format=iife --loader:.jsx=jsx",
+    "build:truck": "esbuild assets/js/truck-konfigurator/index.jsx --bundle --outfile=assets/js/truck-konfigurator/app.js --format=iife --loader:.jsx=jsx",
     "build:all": "yarn build:truck && yarn build:main",
     "build": "yarn build:truck && esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --watch"
   },

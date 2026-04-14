@@ -2051,7 +2051,7 @@ function loadTruckConfiguratorBundle() {
   if (window.__truckKonfLoaded) return;
   window.__truckKonfLoaded = true;
   const s = document.createElement("script");
-  s.src = "/assets/truck-konfigurator/app.js";
+  s.src = "/assets/js/truck-konfigurator/app.js";
   s.async = false;
   s.onerror = () => console.error("[truck-konf] nepoda\u0159ilo se na\u010D\xEDst app.js");
   document.head.appendChild(s);

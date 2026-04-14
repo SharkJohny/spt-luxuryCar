@@ -1701,7 +1701,7 @@ function loadTruckConfiguratorBundle() {
   window.__truckKonfLoaded = true;
 
   const s = document.createElement("script");
-  s.src = "/assets/truck-konfigurator/app.js";
+  s.src = "/assets/js/truck-konfigurator/app.js";
   s.async = false;
   s.onerror = () => console.error("[truck-konf] nepodařilo se načíst app.js");
   document.head.appendChild(s);
