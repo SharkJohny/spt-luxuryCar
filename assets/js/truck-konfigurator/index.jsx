@@ -1,41 +1,25 @@
 /**
  * Entry point pro truck konfigurátor.
  *
- * Bundluje se přes stejný esbuild pipeline jako hlavní `script.js`
- * (viz `package.json` → `build:truck`). Výstup je jediný soubor
- * `assets/truck-konfigurator/app.js` s React + ReactDOM + Configurator
- * komponentou (z `konfigurator.jsx` z repa `luxusnerohoze-dev/konfigurator`,
- * chirurgicky ořezaný o ĽAVÝ STĹPEC – jen výběrová pravá strana).
+ * Exportuje funkci `renderTruckConfigurator`, kterou `productPage.js`
+ * volá po vložení mount elementu do `.p-info-wrapper` (jen na /test-truck/).
+ * esbuild tenhle modul zabaluje přímo do hlavního bundlu `luxuryCar.js`
+ * stejně jako jakýkoliv jiný importovaný soubor (productPage.js, header.js…).
  *
- * Script se načítá na vyžádání z `productPage.js` pouze na stránce
- * `/test-truck/`; zbytek e-shopu není nijak ovlivněn.
+ * Konfigurátor pochází z repa `luxusnerohoze-dev/konfigurator`. Zdroj
+ * `konfigurator.jsx` má chirurgicky odebraný ĽAVÝ STĹPEC – používáme jen
+ * pravou výběrovou stranu; levý sloupec Shoptetu (galerie + popis) zůstává.
  */
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Configurator } from "./konfigurator.jsx";
 
-const MOUNT_SELECTOR = "#truck-konfigurator-root";
 const MOUNTED_ATTR = "data-tk-mounted";
-const MAX_TRIES = 60;
-const RETRY_INTERVAL_MS = 100;
 
-function tryMount() {
-  const el = document.querySelector(MOUNT_SELECTOR);
-  if (!el) return false;
-  if (el.getAttribute(MOUNTED_ATTR) === "1") return true;
-  el.setAttribute(MOUNTED_ATTR, "1");
-  createRoot(el).render(React.createElement(Configurator));
+export function renderTruckConfigurator(element) {
+  if (!element) return false;
+  if (element.getAttribute(MOUNTED_ATTR) === "1") return true;
+  element.setAttribute(MOUNTED_ATTR, "1");
+  createRoot(element).render(React.createElement(Configurator));
   return true;
 }
-
-(function bootTruckKonfigurator() {
-  if (tryMount()) return;
-
-  // Fallback – productPage.js sice nejdřív vloží #truck-konfigurator-root
-  // a teprve pak načítá tento script, ale pro jistotu polluju, kdyby se
-  // načetl dřív (cache, prefetch apod.).
-  let tries = 0;
-  const iv = setInterval(() => {
-    if (tryMount() || ++tries > MAX_TRIES) clearInterval(iv);
-  }, RETRY_INTERVAL_MS);
-})();
