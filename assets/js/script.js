@@ -144,12 +144,16 @@ function initModelSelect(texts) {
 
   let getBrand, getModel, getYear, getCarType;
   try {
-    getBrand = sessionStorage.getItem("Brand") || null;
-    getModel = sessionStorage.getItem("Model") || null;
-    getYear = sessionStorage.getItem("Year") || null;
-    getCarType = sessionStorage.getItem("carType") || null;
+    getBrand = sessionStorage.getItem("Brand");
+    getModel = sessionStorage.getItem("Model");
+    getYear = sessionStorage.getItem("Year");
+    getCarType = sessionStorage.getItem("carType");
+    // Ošetření "undefined"/"null" stringů uložených v sessionStorage
+    if (!getBrand || getBrand === "undefined" || getBrand === "null") getBrand = null;
+    if (!getModel || getModel === "undefined" || getModel === "null") getModel = null;
+    if (!getYear || getYear === "undefined" || getYear === "null") getYear = null;
+    if (!getCarType || getCarType === "undefined" || getCarType === "null") getCarType = null;
   } catch (e) {
-    console.warn("SessionStorage is not available:", e);
     getBrand = null;
     getModel = null;
     getYear = null;
