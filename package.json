@@ -3,7 +3,10 @@
     "esbuild": "^0.24.2"
   },
   "scripts": {
-    "build": "esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --watch"
+    "build:main": "esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm",
+    "build:truck": "esbuild assets/js/truck-konfigurator/index.jsx --bundle --outfile=assets/js/truck-konfigurator/app.js --format=iife --loader:.jsx=jsx",
+    "build:all": "yarn build:truck && yarn build:main",
+    "build": "yarn build:truck && esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --watch"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "dependencies": {

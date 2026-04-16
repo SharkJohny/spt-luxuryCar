@@ -1,6 +1,6 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
 import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
-import { renderTruckConfigurator } from "../truck-konfigurator/index.jsx";
+
 
 window.addEventListener(
   "error",
@@ -1691,41 +1691,46 @@ function isTruckConfiguratorPage() {
   }
 }
 
+/**
+ * Načte zkompilovaný truck konfigurátor bundle (React + ReactDOM + Configurator
+ * v jednom IIFE souboru). Bundluje se přes `yarn build:truck` → esbuild, viz
+ * `assets/js/truck-konfigurator/index.jsx`. Bundle loaduje jen na /test-truck/,
+ * na ostatních stránkách se nikdy nestahuje.
+ */
+function loadTruckConfiguratorBundle() {
+  if (window.__truckKonfLoaded) return;
+  window.__truckKonfLoaded = true;
+
+  const s = document.createElement("script");
+  s.src = "/assets/js/truck-konfigurator/app.js";
+  s.async = false;
+  s.onerror = () => console.error("[truck-konf] nepodařilo se načíst app.js");
+  document.head.appendChild(s);
+}
+
 function mountTruckConfigurator() {
   $("body").addClass("is-truck-konfigurator");
 
-  // Vloží mount div do pravého sloupce .p-info-wrapper. Shoptet ho může
-  // do DOMu vložit až po DOMContentLoaded, takže polluju, kdyby selhal
-  // první pokus.
   const placeMountNode = () => {
     const $host = $(".col-xs-12.col-lg-6.p-info-wrapper").first().length
       ? $(".col-xs-12.col-lg-6.p-info-wrapper").first()
       : $(".p-info-wrapper").first();
-    if (!$host.length) return null;
+    if (!$host.length) return false;
 
-    // Odstraň loader overlay: standardní initProduct přidává .active po
-    // 1000 ms, ale truck větev initProduct returnuje dřív – bez této
-    // třídy zůstane aktivní pseudo ::before a překrývá celý sloupec.
     $host.addClass("active");
-
-    let mountEl = document.getElementById("truck-konfigurator-root");
-    if (mountEl) return mountEl;
+    if ($host.find(".truck-konfigurator-wrap").length) return true;
 
     const $wrap = $("<div>", { class: "truck-konfigurator-wrap" });
-    mountEl = document.createElement("div");
-    mountEl.id = "truck-konfigurator-root";
-    $wrap.append(mountEl);
+    $("<div>", { id: "truck-konfigurator-root" }).appendTo($wrap);
     $host.append($wrap);
-    return mountEl;
+    return true;
   };
 
-  const mountEl = placeMountNode();
-  if (mountEl) { renderTruckConfigurator(mountEl); return; }
+  if (placeMountNode()) { loadTruckConfiguratorBundle(); return; }
 
   let tries = 0;
   const iv = setInterval(() => {
-    const el = placeMountNode();
-    if (el) { clearInterval(iv); renderTruckConfigurator(el); return; }
+    if (placeMountNode()) { clearInterval(iv); loadTruckConfiguratorBundle(); return; }
     if (++tries > 40) clearInterval(iv);
   }, 100);
 }
