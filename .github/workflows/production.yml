@@ -8,10 +8,6 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
-      # Odstraní všechny console.log z JS souborů
-      - name: Remove all console.log from JS files
-        run: find . -type f -name "*.js" -exec sed -i '/console.log/d' {} +
-
       # Nastavení Node.js
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v3
@@ -27,7 +23,7 @@ jobs:
       - name: 🔨 Build Project
         run: |
           yarn install
-          yarn esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx
+          yarn esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --drop:console
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
       - name: SFTP Upload
