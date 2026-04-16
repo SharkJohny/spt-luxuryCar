@@ -1459,13 +1459,13 @@ function updateUpsale($this, event) {
       }
     }
   }
-  // Delay for price update
+  // Trigger change on surcharge selects so Shoptet recalculates prices
   setTimeout(() => {
-    if (typeof shoptet !== "undefined" && shoptet.surcharges?.updatePrices) {
-      shoptet.surcharges.updatePrices();
-    } else {
-      console.warn("Funkce `shoptet.surcharges.updatePrices` není dostupná.");
-    }
+    $("select.surcharge-parameter").each(function () {
+      if ($(this).val()) {
+        $(this).trigger("change");
+      }
+    });
   }, 100);
   setTimeout(() => {
     calculateStandartPrice(diference);
@@ -1594,8 +1594,7 @@ function priceActualization(e) {
     $(".navigatte-button.parameterNav" + parameterId).attr("style", " background-image: url(" + image + ");");
     console.log(parameterId);
 
-    $(".parameter-id-" + variant).val(value);
-    shoptet.surcharges.updatePrices();
+    $(".parameter-id-" + variant).val(value).trigger("change");
     if (variant == 4) {
     }
     const image2 = $(this).find("img").attr("src");
