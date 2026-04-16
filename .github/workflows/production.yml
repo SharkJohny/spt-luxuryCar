@@ -27,6 +27,7 @@ jobs:
       - name: 🔨 Build Project
         run: |
           yarn install
+          yarn build:truck
           yarn esbuild assets/js/script.js --bundle --outfile=assets/js/luxuryCar.js --format=esm
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
