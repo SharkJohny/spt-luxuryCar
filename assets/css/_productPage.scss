@@ -304,11 +304,22 @@ table.detail-parameters {
 .type-product {
   section#model-selector {
     padding-bottom: 20px;
-    background: #f6f6f600;
+    background: transparent;
   }
   .surcharge-list select,
   .variant-list select {
     width: 150px;
+    border: 2px solid #e0d5b8;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-family: "Exo 2", sans-serif;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s;
+    &:focus {
+      border-color: #C5A44E;
+      outline: none;
+    }
   }
   .modl-selector-wrap .surcharge-list {
     margin-right: 5px;
@@ -426,9 +437,14 @@ i.info-icon {
 }
 .config-wrap {
   background: #fff;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 10px 10px;
+  padding: 16px;
 }
 .order {
+  border-radius: 10px;
+}
+.parameter-wrap.active .order,
+.position-wrap.active .order {
   border-radius: 10px 10px 0 0;
 }
 .upsale-buttons.boxs {
@@ -670,10 +686,11 @@ span.quantity {
 .upsale-Banner {
   display: flex;
   order: 4;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   position: relative;
   overflow: hidden;
   flex-direction: column;
+  border-radius: 10px;
   h5.variant.name {
     position: absolute;
     top: 16px;
@@ -1583,11 +1600,19 @@ section.shopify-section.horiz-video.shopify-section--video {
 .btn.btn-conversion,
 a.btn.btn-cart,
 a.btn.btn-conversion {
-  background-color: green($color: #000000);
-  border-color: green($color: #000000);
+  background: linear-gradient(135deg, #C5A44E, #A8893A);
+  border-color: #A8893A;
   color: #fff;
-  border-radius: 10px;
+  border-radius: 25px;
   font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(197, 164, 78, 0.4);
+  transition: all 0.3s ease;
+  &:hover {
+    background: linear-gradient(135deg, #d4b35e, #b8994a);
+    box-shadow: 0 6px 24px rgba(197, 164, 78, 0.6);
+  }
 }
 section#model-info {
   display: flex;
@@ -1595,9 +1620,9 @@ section#model-info {
   width: 100%;
   .setup-model {
     padding: 9px 20px 9px;
-    background: gray;
+    background: #6b6b6b;
     color: #fff;
-    border-radius: 15px;
+    border-radius: 10px;
     height: 42px;
     font-size: 18px;
     line-height: 1.5;

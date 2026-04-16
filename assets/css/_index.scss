@@ -614,9 +614,15 @@ span.bold.fixT.skiptranslate.notranslate {
 .surcharge-list.brands.dm-selector,
 .surcharge-list.type-selector {
   select {
-    border-color: $colors-golden;
-
-    border-radius: 50px;
+    border: 2px solid #e0d5b8;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    &:focus {
+      border-color: #C5A44E;
+      outline: none;
+    }
   }
 }
 
