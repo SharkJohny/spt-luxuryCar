@@ -1701,8 +1701,18 @@ function loadTruckConfiguratorBundle() {
   if (window.__truckKonfLoaded) return;
   window.__truckKonfLoaded = true;
 
+  // Zjistíme base URL z loaderu (stejný CDN prefix jako luxuryCar.js)
+  var existingScript = document.querySelector('script[src*="luxuryCar.js"]');
+  var base = "";
+  if (existingScript) {
+    base = existingScript.src.replace(/luxuryCar\.js.*$/, "");
+  } else {
+    // Fallback pro lokální dev
+    base = "/assets/js/";
+  }
+
   const s = document.createElement("script");
-  s.src = "/assets/js/truck-konfigurator/app.js";
+  s.src = base + "truck-konfigurator/app.js";
   s.async = false;
   s.onerror = () => console.error("[truck-konf] nepodařilo se načíst app.js");
   document.head.appendChild(s);
