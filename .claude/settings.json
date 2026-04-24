@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Shoptet XML validation",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; case \"$f\" in *.xml) [ -n \"$f\" ] && [ -f \"$f\" ] && case \"$f\" in \"$PWD\"/*) command -v xmllint >/dev/null 2>&1 && [ -f docs/shoptet-products-complete-v10.rng ] && { out=$(xmllint --relaxng docs/shoptet-products-complete-v10.rng \"$f\" --noout 2>&1) || { printf 'Shoptet XML validation failed for %s:\\n%s\\n' \"$f\" \"$out\" >&2; exit 2; }; };; esac;; esac; exit 0; }"
+          }
+        ]
+      }
+    ]
+  }
+}

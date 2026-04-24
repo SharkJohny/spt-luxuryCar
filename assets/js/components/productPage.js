@@ -1682,9 +1682,22 @@ function changeThumbnails() {
  *  - postMessage komunikaci s rodičem
  * To doplníme v další iteraci.
  * ========================================================================= */
+/**
+ * Truck konfigurátor sa aktivuje na produktovej stránke, ktorej H1
+ * obsahuje slovo "TRUCK" (case-insensitive). Tým pokrýva:
+ *  - test produkt /luxusne-autokoberce-truck---test-konfigurator/
+ *  - akýkoľvek budúci truck produkt s "TRUCK" v názve, bez nutnosti
+ *    pridávať URL slug do kódu.
+ *
+ * Fallback: starý slug /test-truck/ (prototyp bez reálneho Shoptet
+ * produktu na lokáli) detekujeme aj URL-om, lebo tam H1 nemusí byť.
+ */
 function isTruckConfiguratorPage() {
   try {
-    return /\/test-truck(\/|$)/i.test(window.location.pathname);
+    if (/\/test-truck(\/|$)/i.test(window.location.pathname)) return true;
+    const h1 = document.querySelector("h1");
+    if (h1 && /\btruck\b/i.test(h1.textContent || "")) return true;
+    return false;
   } catch (e) {
     return false;
   }
@@ -1692,6 +1705,21 @@ function isTruckConfiguratorPage() {
 
 function mountTruckConfigurator() {
   $("body").addClass("is-truck-konfigurator");
+
+  // Verbose log pre vývoj – každá zmena stavu konfigurátora vypíše
+  // rozpis ceny do konzoly. Na produkcii vypnuté (iba na localhoste).
+  try {
+    const host = (window.location && window.location.hostname) || "";
+    if (/^localhost$|^127\.0\.0\.1$|\.local$/i.test(host)) {
+      window.__TRUCK_KONFIG_VERBOSE__ = true;
+      // eslint-disable-next-line no-console
+      console.log(
+        "%c[truck-konfig] verbose mode ON – ceny vidíš v panele i v tomto logu. " +
+          "Aktuálny výpočet: window.__truckKonfig",
+        "color:#C5A44E;font-weight:600",
+      );
+    }
+  } catch (e) { /* ignore */ }
 
   const placeMountNode = () => {
     const $host = $(".col-xs-12.col-lg-6.p-info-wrapper").first().length
