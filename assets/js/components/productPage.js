@@ -354,15 +354,27 @@ function priplatky(setupData, texts) {
     }
 
     function getcarpetprice(carpetsValue) {
-      let array = [];
-      carpetsValue.forEach((value, index) => {
-        console.log("value-------", value);
+      // Shoptet vykresľuje na option-och dva atribúty:
+      //   data-surcharge-final-price      = cena s DPH (čo vidí zákazník v "+€129")
+      //   data-surcharge-additional-price = cena bez DPH (~104.88 = 105 po zaokrúhlení)
+      // Pre upsale tlačítka chceme cenu, ktorú zákazník reálne zaplatí ⇒ final.
+      // Fallback na additional pre prípad, že by Shoptet final neposlal
+      // (rovnako ako to robia ostatné miesta v creatButtons.js / productPage.js).
+      const array = [];
+      carpetsValue.forEach((value) => {
         const valueKey = value.split("-");
-        const getPrice = $(".parameter-id-" + valueKey[0] + " option[value='" + valueKey[1] + "']").data("surcharge-additional-price");
-
-        array.push(getPrice);
+        const $opt = $(
+          ".parameter-id-" + valueKey[0] + " option[value='" + valueKey[1] + "']",
+        );
+        const final = Number($opt.attr("data-surcharge-final-price"));
+        const additional = Number($opt.attr("data-surcharge-additional-price"));
+        const price = Number.isFinite(final) && final > 0
+          ? final
+          : Number.isFinite(additional)
+          ? additional
+          : 0;
+        array.push(price);
       });
-      console.log(array);
       return array;
     }
 
