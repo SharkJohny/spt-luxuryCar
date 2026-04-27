@@ -1861,6 +1861,21 @@ a.p-thumbnail {
   left: 10px;
 }
 
+// Doporučená cena (prečiarknutá) vedľa predajnej v upsale tlačítkach.
+// Klient: „doporučená cena stále chýba" – pridávame ju zo
+// `createPriceHTML` v creatButtons.js. Zobrazí sa iba ak save > 0.
+.upsale-Banner .upsale-button .price .price-recommended,
+.parameter-wrap .price .price-recommended,
+.position-wrap .price .price-recommended {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.85em;
+  font-weight: 400;
+  color: #999;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
 .shopify-section.shopify-section--video {
   padding-left: 0;
   padding-right: 0;

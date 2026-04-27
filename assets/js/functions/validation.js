@@ -186,7 +186,6 @@ function errorToCart(e, texts) {
 }
 
 function optionTest() {
-  console.log("optionTest");
   let allSelected = true;
   let firstErrorElement = null;
 
@@ -197,11 +196,38 @@ function optionTest() {
         firstErrorElement = $(this);
       }
       allSelected = false;
-      // setTimeout(() => {
-      //   $(this).removeClass("errorToCart");
-      // }, 2000);
     }
   });
+
+  // Klient: „posledný krok blbí — keď si nevyberie farbu, nevyroluje to tam
+  // kde má na výber farby boxov". Označíme všetky chýbajúce naraz červeným
+  // borderom (už urobené vyššie), zoskrolujeme k prvému, a po 2 s farbu
+  // zhodíme aby user vedel skúsiť znova.
+  if (!allSelected && firstErrorElement) {
+    const $err = firstErrorElement;
+
+    // Ak parent .box-config je zatvorený (display:none), otvoríme ho.
+    const $boxConfig = $err.closest(".box-config");
+    const $upsaleBanner = $err.closest(".upsale-Banner");
+    if ($upsaleBanner.length && !$upsaleBanner.hasClass("showConf")) {
+      $upsaleBanner.addClass("showConf");
+    }
+    if ($boxConfig.length && $boxConfig.css("display") === "none") {
+      $boxConfig.css("display", "");
+    }
+
+    // Scroll na první chybějící (s 100px ofsetem od horního okraje viewportu)
+    setTimeout(() => {
+      const offsetTop = $err.offset() && $err.offset().top;
+      if (offsetTop != null) {
+        $("html, body").stop(true).animate({ scrollTop: Math.max(offsetTop - 100, 0) }, 400);
+      }
+    }, 50);
+
+    setTimeout(() => {
+      $(".config-wrap .parameter-wrap.errorToCart").removeClass("errorToCart");
+    }, 2500);
+  }
 
   return allSelected;
 }
