@@ -2,11 +2,17 @@ import { showUpsalePopup } from "../components/UpsalePopup.js";
 
 export function validation(texts) {
   $("button.btn.btn-lg.btn-conversion.add-to-cart-button").on("click", function (e) {
-    console.log("Validation triggered");
-    // boxValidation(e);
+    // Klient: „byly tam validace na všechno, nemůže se přidat do košíku
+    // produkt který není nakonfigurovaný". Predtým bolo všetko
+    // (preventDefault a stopPropagation) zakomentované – Shoptet form
+    // sa odoslal bez ohľadu na chýbajúce výbery. Teraz blokujeme.
+    if (!validateProductConfig()) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return false;
+    }
 
-    // upsaleValidation(e);
-    // popupValidation(e);
     errorToCart(e, texts);
     // Find highest errorToCart element and scroll to it
     const $errorElements = $(".errorToCart");
@@ -44,6 +50,106 @@ export function validation(texts) {
       $(".image-wrap").remove();
     }
   });
+}
+
+/**
+ * Komplexná pre-cart validácia. Vracia `true` ak sa môže pokračovať
+ * do košíka, `false` ak chýba výber – v tom prípade označí chýbajúce
+ * sekcie `.errorToCart`, otvorí prípadne zatvorený `.upsale-Banner`,
+ * zoskrolnie na prvú chybu a po 2.5 s zhodí červené borders.
+ *
+ * Klient: „byly tam validace na všechno, nemůže se přidat do košíku
+ * produkt který není nakonfigurovaný do piče". Vrátené naspäť.
+ */
+function validateProductConfig() {
+  const $errors = $();
+  let $first = null;
+
+  function add($el) {
+    if (!$el || !$el.length) return;
+    $el.addClass("errorToCart");
+    $errors.push.apply($errors, $el.toArray());
+    if (!$first) $first = $el;
+  }
+
+  // 1) Všetky viditeľné `.parameter-wrap` – akordeon kroky aj box-config
+  //    musia mať aktívny výber, ak obsahujú selectable element.
+  $(".parameter-wrap:visible").each(function () {
+    const $wrap = $(this);
+    if (!isWrapValid($wrap)) add($wrap);
+  });
+
+  // 2) Skupiny upsale tlačítok (carpets, boxes, atď.) – každá viditeľná
+  //    `.upsale-buttons` musí mať aspoň jednu `.upsale-button.active`
+  //    (mimo voľby „Nechcem"/none, ktorá je `.none`).
+  $(".upsale-buttons:visible").each(function () {
+    const $group = $(this);
+    if (!$group.find(".upsale-button").length) return;
+    if (!$group.find(".upsale-button.active").not(".none").length) {
+      add($group);
+    }
+  });
+
+  // 3) Aktivuj zatvorené nadradené paneli, aby user videl chybu.
+  if ($first) {
+    const $banner = $first.closest(".upsale-Banner");
+    if ($banner.length && !$banner.hasClass("showConf")) {
+      $banner.addClass("showConf");
+    }
+    const $boxConfig = $first.closest(".box-config");
+    if ($boxConfig.length && $boxConfig.css("display") === "none") {
+      $boxConfig.css("display", "");
+    }
+
+    // 4) Scroll na prvú chybu (100 px ofset od horného okraja).
+    setTimeout(function () {
+      const top = $first.offset() && $first.offset().top;
+      if (top != null) {
+        $("html, body").stop(true).animate({ scrollTop: Math.max(top - 100, 0) }, 400);
+      }
+    }, 50);
+
+    // 5) Po 2.5 s zhoď červené orámovanie.
+    setTimeout(function () {
+      $(".errorToCart").removeClass("errorToCart");
+    }, 2500);
+  }
+
+  return $first === null;
+}
+
+/**
+ * Lokálne mirroruje `isWrapSelectionValid` z productPage.js (tam je
+ * v closure a nedá sa importovať). Wrap je validný ak nemá selectable
+ * element (info wrap), ALEBO ak má aspoň jeden aktívny.
+ */
+function isWrapValid($wrap) {
+  let hasSelectable = false;
+  let valid = false;
+
+  if ($wrap.find(".option-button").length) {
+    hasSelectable = true;
+    if ($wrap.find(".option-button.active").length) valid = true;
+  }
+  if ($wrap.find(".upsale-button").length) {
+    hasSelectable = true;
+    if ($wrap.find(".upsale-button.active").not(".none").length) valid = true;
+  }
+  if ($wrap.find("select.surcharge-parameter").length) {
+    hasSelectable = true;
+    $wrap.find("select.surcharge-parameter").each(function () {
+      const val = $(this).val();
+      if (val && val !== "0" && val !== "" && val !== null) valid = true;
+    });
+  }
+  if ($wrap.find("input[type='radio'], input[type='checkbox']").length) {
+    hasSelectable = true;
+    if ($wrap.find("input[type='radio']:checked, input[type='checkbox']:checked").length) {
+      valid = true;
+    }
+  }
+
+  return !hasSelectable || valid;
 }
 
 function upsaleValidation(e) {
