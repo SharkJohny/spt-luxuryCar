@@ -851,14 +851,21 @@ span.quantity {
     bottom: 5px;
     font-size: 20px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, #C5A44E, #A8893A);
+    // Klient: „POTVRDIŤ a ďalšie tlačítka majú byť zelené" — zjednotené
+    // s `.finish-button` štýlom.
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
 
     color: #fff;
     border-radius: 25px;
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 16px rgba(197, 164, 78, 0.4);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+
+    &:hover {
+      background: linear-gradient(135deg, #5cb85c, #449d44);
+      box-shadow: 0 6px 24px rgba(76, 175, 80, 0.6);
+    }
   }
 
   .countdown-wrap .label {
@@ -2668,10 +2675,13 @@ a.p-thumbnail {
     }
   }
 
-  // Tlačítko "Přejít k dalšímu kroku"
+  // Tlačítko "Přejít k dalšímu kroku" / "Prejsť do košíka" / dokončovací.
+  // Klient: „ďalšie tlačítka majú byť zelené" — všetky flow tlačítka
+  // majú teraz `.finish-button` zelený gradient (predtým bol gold len
+  // pre next-step a zelený len pre last-step / finish).
   .next-step-button {
     display: none;
-    background: linear-gradient(135deg, #C5A44E, #A8893A);
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
     color: white;
     border: none;
     padding: 14px 24px;
@@ -2686,19 +2696,20 @@ a.p-thumbnail {
     font-family: "Exo 2";
     width: calc(100% - 40px);
     text-align: center;
-    box-shadow: 0 4px 16px rgba(197, 164, 78, 0.4);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
 
     &:hover {
-      background: linear-gradient(135deg, #d4b35e, #b8994a);
+      background: linear-gradient(135deg, #5cb85c, #449d44);
       transform: scale(1.03);
-      box-shadow: 0 6px 24px rgba(197, 164, 78, 0.6);
+      box-shadow: 0 6px 24px rgba(76, 175, 80, 0.6);
     }
 
     &:active {
       transform: scale(1);
     }
 
-    // Speciální styling pro dokončovací tlačítko
+    // Finish-button má rovnakú zelenú – pre kompatibilitu so starým
+    // selektorom necháme override prázdny (sedí s defaultom).
     &.finish-button {
       background: linear-gradient(135deg, #4CAF50, #388E3C);
       box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
