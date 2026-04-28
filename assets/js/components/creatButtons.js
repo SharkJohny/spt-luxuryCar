@@ -26,11 +26,25 @@ const ButtonUtils = {
    * @param {boolean} prefix - Whether to show "od" prefix
    * @returns {string} HTML string for price display
    */
+  /**
+   * @param {number} price - selling price (čo zákazník platí)
+   * @param {number} save  - úspora oproti doporučenej cene (full - price)
+   * @param {boolean} prefix - prefixová "od" varianta (napr. boxy)
+   *
+   * Klient: „doporučená cena stále chýba" – pripojíme prečiarknutú
+   * doporučenú cenu (`price + save`) vedľa selling ceny, len keď je
+   * úspora > 0 (inak by sme videli rovnakú cenu dvakrát).
+   */
   createPriceHTML: (price, save, prefix) => {
+    const recommended = Number(price) + Number(save);
+    const showRecommended = Number(save) > 0 && recommended > Number(price);
+    const recommendedHTML = showRecommended
+      ? `<span class="price-recommended" data-recommended="${recommended}">${NumToPrice(recommended)}</span>`
+      : "";
     if (prefix) {
-      return `<div class="price">od ${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(save)}</div>`;
+      return `<div class="price">od ${NumToPrice(price)} ${recommendedHTML}</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(save)}</div>`;
     }
-    return `<div class="price">${NumToPrice(price)}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
+    return `<div class="price">${NumToPrice(price)} ${recommendedHTML}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
   },
 
   /**

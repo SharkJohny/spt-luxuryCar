@@ -467,15 +467,26 @@ function priplatky(setupData, texts) {
         const $activeWrap = $(".position-wrap.active, .parameter-wrap.active").first();
         const activeIndex = $activeWrap.length ? allWraps.index($activeWrap) : -1;
 
-        // Pokud jdeme dopředu, zkontrolujeme validitu všech předchozích kroků
+        // Pokud jdeme dopředu, zkontrolujeme validitu VŠECH předchozích kroků
+        // (klient: „verifikácie su pokazené – vždy sa zobrazí len posledný
+        // ktorý nevybral, mali by sa zobraziť všetky naraz").
         if (clickedIndex > activeIndex && activeIndex >= 0) {
+          let $firstInvalid = null;
           for (let i = 0; i < clickedIndex; i++) {
             const $wrap = allWraps.eq(i);
             if (!isWrapSelectionValid($wrap)) {
               $wrap.addClass("selection-required");
-              setTimeout(() => $wrap.removeClass("selection-required"), 1200);
-              return;
+              if (!$firstInvalid) $firstInvalid = $wrap;
             }
+          }
+          if ($firstInvalid) {
+            // Zoskrolujeme k prvnímu chybějícímu, ostatní zůstanou červené
+            // taky, ať uživatel okamžitě vidí kompletní seznam co chybí.
+            scrollToStep($firstInvalid);
+            setTimeout(() => {
+              $(".selection-required").removeClass("selection-required");
+            }, 2000);
+            return;
           }
         }
 
