@@ -7,6 +7,7 @@ import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
 import { initCart } from "./components/cart.js";
 import { validation } from "./functions/validation.js";
+import { initLivePrice } from "./functions/livePrice.js";
 import { initContactForm } from "./components/contactForm.js";
 
 let setupData;
@@ -30,6 +31,7 @@ $.getJSON(optionData.downloadData, function (data) {
 
   addNote();
   validation(texts);
+  initLivePrice();
   initCart(texts);
   $(".config-wrap .parameter-wrap:eq(1)").addClass("noText");
   $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");
