@@ -83,7 +83,11 @@ function validateProductConfig() {
   //      na klasickom Shoptet detaile typu "Dragonskin Diamond Line"). Bez tohto
   //      kroku validácia nezachytí prázdne TYP / rozloženie / autokoberce do kufru
   //      a submit prejde s chýbajúcimi príplatkami.
-  $("select.surcharge-parameter:visible").each(function () {
+  //
+  //      DÔLEŽITÉ: validujeme len `required` selecty. Voliteľné príplatky
+  //      (boxy, farba boxov, veľkosti boxov) zákazník vyberať NEMUSÍ — ak
+  //      nechce boxy, validácia ho nesmie blokovať.
+  $("select.surcharge-parameter[required]:visible").each(function () {
     const $sel = $(this);
     if ($sel.closest(".parameter-wrap").length) return; // už pokryté bodom 1
     const val = $sel.val();
