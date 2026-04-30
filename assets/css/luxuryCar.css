@@ -382,10 +382,12 @@ a.contact-link {
 .kfmkAH {
   display: flex;
   flex-wrap: wrap;
+  -webkit-box-align: center;
   align-items: center;
   background-color: transparent;
   padding: 0px 0px 4px;
   gap: 32px;
+  -webkit-box-pack: center;
   justify-content: center;
   text-align: center;
   background-color: rgb(246, 246, 246);
@@ -393,9 +395,9 @@ a.contact-link {
 
 .fYYhKJ {
   display: grid;
+  -webkit-box-align: center;
   align-items: center;
-  -moz-column-gap: 12px;
-       column-gap: 12px;
+  column-gap: 12px;
   grid-template-columns: 1fr max-content;
 }
 
@@ -408,6 +410,7 @@ a.contact-link {
 .iTpmcQ {
   display: flex;
   flex-wrap: wrap;
+  -webkit-box-align: center;
   align-items: center;
   gap: 6px;
 }
@@ -454,6 +457,7 @@ a.contact-link {
 .eyLxdR {
   display: inline-flex;
   flex-wrap: nowrap;
+  -webkit-box-align: center;
   align-items: center;
 }
 
@@ -472,9 +476,7 @@ a.contact-link {
 
 .euBiGU {
   position: relative;
-  height: -moz-fit-content;
   height: fit-content;
-  width: -moz-fit-content;
   width: fit-content;
   max-width: 100%;
   padding: 0px;
@@ -767,9 +769,7 @@ a.contact-link {
 }
 .language-flags .flag-current {
   cursor: pointer;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   display: block;
 }
 .language-flags .language-dropdown {
@@ -847,10 +847,8 @@ a.contact-link {
   text-align: center;
   color: rgba(0, 0, 0, 0);
   background-image: linear-gradient(to right, #aa910a, #c49b31);
-  -webkit-background-clip: text;
-          background-clip: text;
-  -webkit-box-decoration-break: clone;
-          box-decoration-break: clone;
+  background-clip: text;
+  box-decoration-break: clone;
 }
 .in-index .model-selector.container .modl-selector-wrap {
   position: relative;
@@ -951,7 +949,6 @@ div#addvideo {
 a.ti-header.source-Google {
   display: flex;
   background: white;
-  width: -moz-fit-content;
   width: fit-content;
   padding: 15px 20px 10px;
   border-radius: 5px;
@@ -980,6 +977,7 @@ a.ti-header.source-Google .ti-mob-row {
 
 .ti-dropdown-widget {
   opacity: 1;
+  display: -ms-flexbox;
   display: flex;
   height: 450px;
   position: absolute;
@@ -1280,6 +1278,7 @@ span.shape-diamond.shape--lg.place-self-center {
   width: 4px !important;
 }
 #goggle-review-wrap #google-reviews p.review-text::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px !important;
   border-radius: 10px !important;
   background: #ccc !important;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5) !important;
@@ -1355,7 +1354,6 @@ span.shape-diamond.shape--lg.place-self-center {
   --feature-chart-heading-width: 140px;
   grid-template-columns: 140px repeat(2, minmax(140px, 1fr));
   gap: 0.25rem 1.25rem;
-  min-width: -moz-min-content;
   min-width: min-content;
   padding-block-start: 1rem;
   padding-block-end: 1rem;
@@ -2115,7 +2113,6 @@ section#models a.btn {
   border-radius: 50px;
   padding: 6px 30px;
   display: block;
-  width: -moz-fit-content;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
@@ -2457,7 +2454,6 @@ a.gold-border.collection-card.shadow {
 .btn.more-pictures-button {
   margin: auto;
   display: block;
-  width: -moz-fit-content;
   width: fit-content;
   margin-top: 20px;
 }
@@ -3234,18 +3230,27 @@ table.detail-parameters {
   background: transparent;
 }
 .type-product .surcharge-list select,
-.type-product .variant-list select {
+.type-product .variant-list select,
+.type-product .dm-selector .selector select {
   width: 150px;
   border: 2px solid #e0d5b8;
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: 8px 36px 8px 12px;
   font-family: "Exo 2", sans-serif;
   font-size: 14px;
-  background: #fff;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23c5a44e' d='M6 8L0 0h12z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
   transition: border-color 0.2s;
 }
 .type-product .surcharge-list select:focus,
-.type-product .variant-list select:focus {
+.type-product .variant-list select:focus,
+.type-product .dm-selector .selector select:focus {
   border-color: #c5a44e;
   outline: none;
 }
@@ -3311,9 +3316,7 @@ i.info-icon {
   gap: 12px;
   cursor: pointer;
   transition: all 0.3s;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 .parameter-wrap .h4.variant.name {
   position: absolute;
@@ -3752,7 +3755,6 @@ span.quantity {
   max-height: unset;
 }
 .upsale-Banner .box-config .parm {
-  width: -moz-max-content;
   width: max-content;
   position: relative;
   left: 5px;
@@ -4055,7 +4057,6 @@ span.quantity {
 }
 .basic-description .timeline__nav {
   grid: auto/repeat(6, minmax(0, 1fr));
-  width: -moz-max-content;
   width: max-content;
   min-width: 100%;
   display: grid;
@@ -4274,7 +4275,6 @@ div#description p span.text-gradient {
   margin: auto;
   border-radius: 50px;
   display: block;
-  width: -moz-max-content;
   width: max-content;
   margin-bottom: 0px;
   margin-right: 0;
@@ -4327,7 +4327,6 @@ div#description p span.text-gradient {
   margin-bottom: 10px;
 }
 .ti-dropdown-widget-inner .button.btn {
-  width: -moz-fit-content;
   width: fit-content;
   margin: auto;
   margin-bottom: 23px;
@@ -4476,8 +4475,8 @@ section#model-info .setup-model {
 }
 
 .model-info {
-  border: 2px solid #e0d5b8;
-  background: #f9f7f2;
+  border: 2px solid #388e3c;
+  background: rgba(56, 142, 60, 0.1254901961);
   margin-right: 20px;
   border-radius: 10px;
   padding: 10px 20px 10px 70px;
@@ -4502,7 +4501,7 @@ section#model-info .setup-model {
   position: absolute;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #c5a44e, #a8893a);
+  background: linear-gradient(135deg, #4caf50, #388e3c);
   color: white;
   border-radius: 50%;
   padding: 20px 10px;
@@ -4516,6 +4515,18 @@ section#model-info .setup-model {
 .errorToCart {
   border: 2px solid red;
   border-radius: 10px;
+}
+
+tr.surcharge-list.errorToCart,
+.surcharge-list.errorToCart,
+.variant-list.errorToCart {
+  border: none;
+}
+tr.surcharge-list.errorToCart select,
+.surcharge-list.errorToCart select,
+.variant-list.errorToCart select {
+  border-color: red !important;
+  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.25);
 }
 
 .parameter-cars.patterns-wrap {
@@ -4841,7 +4852,6 @@ a.p-thumbnail {
     flex-direction: row;
   }
   .setup-model {
-    width: -moz-fit-content;
     width: fit-content;
     margin: auto;
   }
@@ -5262,7 +5272,6 @@ a.p-thumbnail {
 }
 .box-config .options-wrap .button.option-button {
   width: 17%;
-  height: -moz-fit-content;
   height: fit-content;
 }
 .box-config .button.option-button.text {
@@ -5285,7 +5294,6 @@ a.p-thumbnail {
   bottom: 7px;
   top: unset;
   background: gray;
-  width: -moz-fit-content;
   width: fit-content;
   color: white;
   padding: 5px 10px;
@@ -5546,7 +5554,6 @@ video::-webkit-media-controls {
   border-color: transparent;
 }
 .boxy .parameter-wrap.parameter-sizes .button.option-button.text {
-  height: -moz-min-content;
   height: min-content;
 }
 .boxy .parameter-wrap.parameter-sizes {
@@ -5683,7 +5690,6 @@ video::-webkit-media-controls {
 }
 .banner-wrap a.btn {
   display: block;
-  width: -moz-fit-content;
   width: fit-content;
   margin: 10px auto 20px;
 }
@@ -6196,9 +6202,7 @@ body.is-truck-konfigurator #truck-konfigurator-root .konfig-right {
   content: attr(data-checked);
 }
 .can-toggle label {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   position: relative;
   display: flex;
   align-items: center;
@@ -6264,6 +6268,7 @@ body.is-truck-konfigurator #truck-konfigurator-root .konfig-right {
   color: rgba(255, 255, 255, 0.5);
 }
 .can-toggle label .can-toggle__switch:after {
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0, 1, 0.5, 1);
   transition: transform 0.3s cubic-bezier(0, 1, 0.5, 1);
   color: #777;
 }
@@ -6410,6 +6415,7 @@ body.is-truck-konfigurator #truck-konfigurator-root .konfig-right {
   color: rgba(255, 255, 255, 0.6);
 }
 .can-toggle.demo-rebrand-1 label .can-toggle__switch:after {
+  -webkit-transition: -webkit-transform 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out;
   color: #b53e74;
 }
@@ -6451,6 +6457,7 @@ body.is-truck-konfigurator #truck-konfigurator-root .konfig-right {
   color: rgba(255, 255, 255, 0.7);
 }
 .can-toggle.demo-rebrand-2 label .can-toggle__switch:after {
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.86, 0, 0.07, 1);
   transition: transform 0.3s cubic-bezier(0.86, 0, 0.07, 1);
   color: #444;
 }
@@ -6751,4 +6758,4 @@ section#model-selector {
 }
 #cboxLoadedContent .cookiesSetting__item__text {
   color: #fff;
-}/*# sourceMappingURL=luxuryCar.css.map */
+}

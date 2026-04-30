@@ -79,6 +79,24 @@ function validateProductConfig() {
     if (!isWrapValid($wrap)) add($wrap);
   });
 
+  // 1.5) Surcharge selecty mimo `.parameter-wrap` (napr. `<tr class="surcharge-list">`
+  //      na klasickom Shoptet detaile typu "Dragonskin Diamond Line"). Bez tohto
+  //      kroku validácia nezachytí prázdne TYP / rozloženie / autokoberce do kufru
+  //      a submit prejde s chýbajúcimi príplatkami.
+  //
+  //      DÔLEŽITÉ: validujeme len `required` selecty. Voliteľné príplatky
+  //      (boxy, farba boxov, veľkosti boxov) zákazník vyberať NEMUSÍ — ak
+  //      nechce boxy, validácia ho nesmie blokovať.
+  $("select.surcharge-parameter[required]:visible").each(function () {
+    const $sel = $(this);
+    if ($sel.closest(".parameter-wrap").length) return; // už pokryté bodom 1
+    const val = $sel.val();
+    if (!val || val === "0") {
+      const $row = $sel.closest("tr.surcharge-list, .surcharge-list, .variant-list").first();
+      add($row.length ? $row : $sel.parent());
+    }
+  });
+
   // 2) Skupiny upsale tlačítok (carpets, boxes, atď.) – každá viditeľná
   //    `.upsale-buttons` musí mať aspoň jednu `.upsale-button.active`
   //    (mimo voľby „Nechcem"/none, ktorá je `.none`).
