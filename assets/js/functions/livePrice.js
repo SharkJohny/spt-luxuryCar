@@ -16,6 +16,7 @@
  */
 
 const PRICE_HOLDER_SEL = ".price-final-holder.calculated, .price-final-holder";
+const RECOMMENDED_MULTIPLIER = 1.4;
 let basePrice = null;
 
 function readNumber($opt, attr) {
@@ -68,6 +69,25 @@ function formatPrice(value) {
   return left ? currency + " " + numStr : numStr + " " + currency;
 }
 
+function updateRecommendedPrice(total) {
+  // Doporučená („pôvodná") cena = total × 1.4. Renderuje sa v dvoch
+  // miestach: vedľa hlavnej ceny (.p-final-price-wrapper) a v rohovom
+  // flagu na obrázku (.flags .price-standard). Oboje aktualizujeme.
+  const recommended = Math.round(total * RECOMMENDED_MULTIPLIER);
+  const formatted = formatPrice(recommended);
+  $(".price-standard > span").text(formatted);
+
+  // Úspora v percentách: (recommended - total) / recommended * 100
+  // = (1.4 - 1) / 1.4 ≈ 29 %. Zaokrúhlenie pre konzistentný UI.
+  if (recommended > 0) {
+    const savePct = Math.round(((recommended - total) / recommended) * 100);
+    $(".price-save").each(function () {
+      // Shoptet renderuje "&ndash;37 %"; zachováme rovnaký formát.
+      $(this).text("–" + savePct + " %");
+    });
+  }
+}
+
 function applyLivePrice() {
   if (basePrice == null) basePrice = readBasePriceFromDom();
   if (basePrice == null) return;
@@ -78,9 +98,10 @@ function applyLivePrice() {
   // Zachováme štruktúru – len prepíšeme text price
   // (Shoptet drží symbol v rovnakom node, takže nahradíme celý obsah).
   $holder.text(formatPrice(total));
+  updateRecommendedPrice(total);
   // Vlastný event, ak by chcel niekto reagovať (napr. ďalšie UI bloky)
   document.dispatchEvent(new CustomEvent("LuxuryCarPriceRecalculated", {
-    detail: { basePrice, surcharge, total },
+    detail: { basePrice, surcharge, total, recommended: Math.round(total * RECOMMENDED_MULTIPLIER) },
   }));
 }
 
