@@ -72,10 +72,18 @@ function validateProductConfig() {
     if (!$first) $first = $el;
   }
 
+  // Ak používateľ explicitne klikol „Nechcem" v `boxs` skupine, všetky
+  // `.parameter-wrap` v `.box-config` (veľkosti, farba boxov, …) sú
+  // irelevantné a NESMÚ blokovať košík. Bez tejto výnimky scrolluje
+  // validácia na prázdne box-config polia → klient vidí „vyjela mi
+  // konfigurácia, hoci som dal Nechcem".
+  const boxesOptedOut = !!$(".upsale-buttons.boxs .upsale-button.none.active").length;
+
   // 1) Všetky viditeľné `.parameter-wrap` – akordeon kroky aj box-config
   //    musia mať aktívny výber, ak obsahujú selectable element.
   $(".parameter-wrap:visible").each(function () {
     const $wrap = $(this);
+    if (boxesOptedOut && $wrap.closest(".box-config").length) return;
     if (!isWrapValid($wrap)) add($wrap);
   });
 
