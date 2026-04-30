@@ -98,12 +98,14 @@ function validateProductConfig() {
   });
 
   // 2) Skupiny upsale tlačítok (carpets, boxes, atď.) – každá viditeľná
-  //    `.upsale-buttons` musí mať aspoň jednu `.upsale-button.active`
-  //    (mimo voľby „Nechcem"/none, ktorá je `.none`).
+  //    `.upsale-buttons` musí mať aspoň jednu `.upsale-button.active`.
+  //    POZOR: voľba „Nechcem" (`.none`) je VALIDNÝ aktívny výber – zákazník
+  //    sa rozhodol príplatok nechcieť. Predtým bol filter `.not(".none")`,
+  //    ktorý spôsoboval, že kliknutie na „Nechci" stále hádzalo chybu.
   $(".upsale-buttons:visible").each(function () {
     const $group = $(this);
     if (!$group.find(".upsale-button").length) return;
-    if (!$group.find(".upsale-button.active").not(".none").length) {
+    if (!$group.find(".upsale-button.active").length) {
       add($group);
     }
   });
@@ -151,7 +153,8 @@ function isWrapValid($wrap) {
   }
   if ($wrap.find(".upsale-button").length) {
     hasSelectable = true;
-    if ($wrap.find(".upsale-button.active").not(".none").length) valid = true;
+    // „Nechcem" (.none) je validný výber – nefiltrovať
+    if ($wrap.find(".upsale-button.active").length) valid = true;
   }
   if ($wrap.find("select.surcharge-parameter").length) {
     hasSelectable = true;
