@@ -12,9 +12,9 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: '20'
 
-      # Získání verze z git commitu (prvních 7 znaků SHA)
+      # Získání verze z git commitu (prvních 7 znaků SHA)//
       - name: 🔖 Get build version
         id: version
         run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
