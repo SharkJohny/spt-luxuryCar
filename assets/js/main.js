@@ -988,3 +988,24 @@ function addNote() {
     }
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// SEO Fáza A — Fix #4: Lazy-load images (CWV / LCP optimization)
+// Aplikuje loading="lazy" + decoding="async" na všetky <img> okrem
+// hero (LCP image). Hero selectors: .banner img, .hero img,
+// #main-banner img — tieto musia ostať eager + fetchpriority="high".
+// ─────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", function () {
+  const heroSelectors = [".banner img", ".hero img", "#main-banner img"];
+  const heroImgs = new Set();
+  heroSelectors.forEach((sel) => {
+    document.querySelectorAll(sel).forEach((img) => heroImgs.add(img));
+  });
+
+  document.querySelectorAll("img").forEach((img) => {
+    if (!heroImgs.has(img) && !img.hasAttribute("loading")) {
+      img.setAttribute("loading", "lazy");
+      img.setAttribute("decoding", "async");
+    }
+  });
+});
