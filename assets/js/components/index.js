@@ -7,19 +7,79 @@ export function intIndex() {
     });
   }
 
-  const $ttImages = $(".twentytwenty-container img");
-  if ($ttImages.length) {
-    const loadPromises = $ttImages.toArray().map(function (img) {
+  // SEO Fáza A — TwentyTwenty race condition fix
+  // Pôvodný kód čakal iba na image natural load, čo neriešilo problém keď
+  // parent container má width=0 v moment init-u (cookie banner, late fonts,
+  // render-blocking CSS). beforeImg.width() vrátilo 0 → clip-rect 0×0 →
+  // slider invisible kým window resize neretriggerne adjustSlider().
+  //
+  // Riešenie: triple-gate (window.load + image complete + container width > 0)
+  // + ResizeObserver pre post-init reflow (cookie accept, chat widget atď.)
+  // + override loading="eager" na "lazy" pre mid-page banner images.
+  const $ttContainers = $(".twentytwenty-container");
+  if ($ttContainers.length) {
+    // Override eager → lazy (banner is mid-page, not above-the-fold)
+    $ttContainers.find('img[loading="eager"]').attr("loading", "lazy");
+
+    var waitForReady = function () {
       return new Promise(function (resolve) {
-        if (img.complete && img.naturalWidth > 0) {
-          resolve();
-        } else {
-          img.addEventListener("load", resolve, { once: true });
-          img.addEventListener("error", resolve, { once: true });
-        }
+        if (document.readyState === "complete") resolve();
+        else window.addEventListener("load", resolve, { once: true });
       });
+    };
+
+    var waitForImages = function () {
+      var $imgs = $ttContainers.find("img");
+      return Promise.all(
+        $imgs.toArray().map(function (img) {
+          return new Promise(function (res) {
+            if (img.complete && img.naturalWidth > 0) res();
+            else {
+              img.addEventListener("load", res, { once: true });
+              img.addEventListener("error", res, { once: true });
+            }
+          });
+        }),
+      );
+    };
+
+    var waitForLayout = function () {
+      return new Promise(function (resolve) {
+        var attempts = 0;
+        var maxAttempts = 120; // ~2 sec @ 60fps fallback
+        var check = function () {
+          attempts++;
+          var allHaveWidth = $ttContainers.toArray().every(function (c) {
+            return c.getBoundingClientRect().width > 0;
+          });
+          if (allHaveWidth || attempts >= maxAttempts) resolve();
+          else requestAnimationFrame(check);
+        };
+        check();
+      });
+    };
+
+    Promise.all([waitForReady(), waitForImages(), waitForLayout()]).then(function () {
+      initTwentyTwenty();
+      $ttContainers.addClass("twentytwenty-ready");
+
+      // Safety re-trigger po 100ms (cookie banner accept, late font load)
+      setTimeout(function () {
+        $(window).trigger("resize.twentytwenty");
+      }, 100);
+
+      // ResizeObserver — re-compute keď container resizne (cookie banner accept,
+      // chat widget open, viewport orientation change). Plugin reaguje iba na
+      // window resize natively, NIE na container resize.
+      if ("ResizeObserver" in window) {
+        var ro = new ResizeObserver(function () {
+          $(window).trigger("resize.twentytwenty");
+        });
+        $ttContainers.toArray().forEach(function (c) {
+          ro.observe(c);
+        });
+      }
     });
-    Promise.all(loadPromises).then(initTwentyTwenty);
   }
   $("svg.icon.icon-circle-button-right-clipped").remove();
   const videos = document.querySelectorAll("video");

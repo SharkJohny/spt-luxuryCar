@@ -118,6 +118,55 @@ Pri budúcich faktúrach prosím používajte nové údaje (uvedené vyššie).
 
 ---
 
+---
+
+## 2026-05-04 — TwentyTwenty before/after slider race condition (hotfix)
+
+### Trigger
+Klient screenshot z luxurycardesign.cz: pred/po slider sa **nezobrazí pri prvom načítaní stránky**. Iba po **manual resize okna** sa objaví. Symptom: *"obrazok sa nezobrazi ale ked sa resizne okno tak naskoci"*.
+
+### Cause (verified read-only z `assets/js/jquery.twentytwenty.js`)
+1. `$(document).ready` strieľa keď je DOM parsed
+2. Existujúca image-load gate v `components/index.js` (Promise.all čakajúce na `img.complete && naturalWidth > 0`) resolve-ne
+3. Plugin run-uje `calcOffset` ktorá používa `beforeImg.width()` — jQuery CSS width vracia **0** ak parent container ešte nemá final layout width (cookie banner, late fonts, render-blocking CSS)
+4. Clip-rect je `rect(0, 0px, 0px, 0)` → slider invisible
+5. Window resize triggert `$(window).on("resize.twentytwenty")` (line 85-87) → re-compute → visible
+
+### Fix
+**`assets/js/components/index.js`** — replace `Promise.all(image-load)` za triple-gate:
+1. **`waitForReady`** — čaká na `document.readyState === "complete"` (window.load event = fonts + CSS done)
+2. **`waitForImages`** — čaká na `img.complete && naturalWidth > 0` (existing logika, keep)
+3. **`waitForLayout`** — `requestAnimationFrame` loop kým `getBoundingClientRect().width > 0` (max 120 attempts ≈ 2s fallback)
+
+Plus:
+- **ResizeObserver** na container — re-trigger `resize.twentytwenty` keď container resizne (cookie accept, chat open)
+- **Override `loading="eager"` → `"lazy"`** na TwentyTwenty obrázkoch (mid-page banner, nie hero)
+- **Safety re-trigger** `resize.twentytwenty` 100ms po init-e ako third-line defense
+- **`twentytwenty-ready` class** na container po init
+
+**`assets/css/twentytwenty.css`** — pridané CSS pravidlo:
+```css
+.twentytwenty-container:not(.twentytwenty-ready) { visibility: hidden; }
+```
+→ žiadny FOUC flicker, slider sa zjaví až keď je plugin ready.
+
+### Build
+`./node_modules/@esbuild/win32-x64/esbuild.exe assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx`
+→ 10.4 MB bundle, 224ms.
+
+### Verification
+1. Lokálne: open luxurycardesign.cz cez Bender / Shoptet preview, network throttling Slow 4G — slider má byť viditeľný bez resize
+2. Cross-browser: Chrome / Firefox / Safari desktop + mobile
+3. Cookie banner accept test — slider má ostať OK
+4. CWV check po deploy — LCP by sa mal zlepšiť (mid-page images už nie sú eager)
+
+### Files changed
+- `assets/js/components/index.js` (lines 10-23 → expanded ~75 lines)
+- `assets/css/twentytwenty.css` (added 4 lines on top)
+- `assets/js/luxuryCar.js` (re-bundled — auto-generated)
+
+---
+
 ## Future entries
 
 Pri ďalšej SEO/dev fáze pridaj sekciu pod túto so štruktúrou:
