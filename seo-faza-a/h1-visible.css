@@ -1,0 +1,50 @@
+/*
+  SEO Fáza A — Fix #3: Viditeľný H1 (replace sr-only)
+
+  PROBLÉM:
+  Aktuálny H1 v homepage HTML je <h1 class="sr-only">Vitajte v našom obchode</h1>.
+  Pre Google to vyzerá generic, pre používateľa neviditeľné. Žiadny
+  visible value prop above-fold.
+
+  RIEŠENIE:
+  V Shoptet template (homepage šablóna — pravdepodobne `final_wellcome.html`
+  alebo `upravene pro home.html`) nahradiť sr-only H1 za:
+
+    SK: <h1 class="lcd-hero-h1">Luxusné autokoberce DragonSkin — na mieru pre vaše auto</h1>
+    CZ: <h1 class="lcd-hero-h1">Luxusní autokoberce DragonSkin — na míru pro vaše auto</h1>
+
+  Tento CSS pridať do `assets/css/luxuryCar.css` alebo nový SEO patch súbor
+  importovaný do main bundle.
+*/
+
+.lcd-hero-h1 {
+  font-family: "Exo 2", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.2;
+  text-align: center;
+  margin: 1.5rem auto 1rem;
+  max-width: 56ch;
+  letter-spacing: -0.01em;
+  color: #c49b31; /* LCD brand gold */
+}
+
+/* Pre svetlé pozadie zachovaj kontrast */
+.bg-light .lcd-hero-h1,
+.hero--light .lcd-hero-h1 {
+  color: #141414;
+}
+
+/* Mobile spacing tweak */
+@media (max-width: 600px) {
+  .lcd-hero-h1 {
+    margin: 1rem auto 0.75rem;
+    padding: 0 1rem;
+  }
+}
+
+/* Removeable: dosadiť až keď visible H1 je deployed.
+   Túto class triedu prestane Shoptet šablóna vykresľovať. */
+.sr-only.lcd-deprecated-h1 {
+  display: none !important;
+}

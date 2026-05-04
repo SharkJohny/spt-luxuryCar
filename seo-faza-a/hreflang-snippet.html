@@ -1,0 +1,38 @@
+<!--
+  hreflang trio pre cross-doménovú alternáciu sk ↔ cz.
+  Inject do <head> KAŽDEJ stránky cez Shoptet template injection.
+
+  IMPLEMENTÁCIA:
+  - Pre product pages: cez {{product.url}} alebo Shoptet template variable.
+    Mapping je automaticky reciprocal — sk produkt 'X' = cz produkt 'X'
+    (slugy ostávajú teraz slovenské na oboch doménach, slug-translate
+    sprint je separátny task).
+  - Pre static pages (homepage, /o-nas, /kontakty, /faq, /galeria):
+    nahradiť {{cesta}} hardcoded path-om per page (mapping table nižšie).
+  - Pre kategórie: cez Shoptet template loop.
+
+  VALIDÁCIA: https://www.aleydasolis.com/english/international-seo-tools/hreflang-tags-generator/
+              alebo Screaming Frog SEO Spider.
+-->
+
+<link rel="alternate" hreflang="sk-SK" href="https://www.luxurycardesign.sk/{{cesta}}">
+<link rel="alternate" hreflang="cs-CZ" href="https://www.luxurycardesign.cz/{{cesta}}">
+<link rel="alternate" hreflang="x-default" href="https://www.luxurycardesign.sk/{{cesta}}">
+
+<!--
+  ─── Static-page mapping table ──────────────────────────────────
+  | Page                | sk path                | cz path                |
+  |---------------------|------------------------|------------------------|
+  | Homepage            | /                      | /                      |
+  | O nás               | /o-nas/                | /o-nas/                |
+  | Kontakt             | /kontakty/             | /kontakty/             |
+  | FAQ                 | /faq/                  | /faq/                  |
+  | Galéria             | /galeria/              | /galeria/              |
+  | Manuál inštalácie   | /manual-na-instalaciu/ | /manual-na-instalaciu/ |
+  | Manuál fotky        | /manual-na-zaslanie-fotiek/ | /manual-na-zaslanie-fotiek/ |
+  | Návod na údržbu     | /navod-na-udrzbu/      | /navod-na-udrzbu/      |
+
+  Pre product/collection pages: slugy sú aktuálne identické na oboch
+  doménach (CZ ešte nemá preložené slovenské pravopisné varianty).
+  Po slug-translate sprint-e treba mapping aktualizovať.
+-->

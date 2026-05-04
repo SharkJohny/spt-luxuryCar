@@ -1,0 +1,46 @@
+# Luxury Car Design
+
+> Slovenská rodinná značka luxusních autokobercí na míru. Pracujeme s prémiovým Dragon Skin materiálem (5-vrstvová kompozitní konstrukce) pro 2912+ modelů aut přes 3D laserové skenování.
+
+## About
+- Founded: 2023
+- Founder: Michal Miroslav Švancár
+- Company: Luxury Car Design s.r.o.
+- IČO: 55 793 061
+- Registered office: Školský dvor 12/10, 010 09 Žilina-Bytčica, Slovakia
+- Coverage: 95% of European car models
+
+## Product lines
+- DragonSkin Diamond Line — top-tier prémium
+- DragonSkin Stripe Line — middle-tier
+- DragonSkin Hexa Line — entry prémium
+- Elite dvouvrstvová verze — exkluzivní ochrana bočních ploch
+- Kufrové koberce + boxy do kufra (doplnkový sortiment)
+
+(Aktuální ceny dodá Michal před uploadem.)
+
+## USPs
+- 3D laser scan per car model — precise fit
+- 5-layer composite (waterproof + acoustic + side protection)
+- 24-month warranty
+- 14-day return policy
+- Slovak family business, sídlo Žilina
+
+## Contact
+- Web: https://www.luxurycardesign.cz
+- Email: info@luxurycardesign.cz
+- Phone: +421 903 660 720
+- Slovak market: https://www.luxurycardesign.sk
+
+## Allowed AI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /

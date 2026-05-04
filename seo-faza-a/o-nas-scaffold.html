@@ -1,0 +1,116 @@
+<!--
+  SEO Fáza A — Fix #8: /o-nas refresh scaffold
+
+  Súčasný stav: ~150-200 slov generic boilerplate. Michal nikde nie je
+  na customer-facing pages. 856 YouTube videí osobného brandu = nevyužitý
+  asset pre Google E-E-A-T.
+
+  Tento súbor je HTML scaffold pre /o-nas stránku. Text + foto + YouTube
+  linky doplní Michal. Inline schema (Person + LocalBusiness) je už
+  pripravená.
+
+  Deploy: Paste do Shoptet admin > Stránky > /o-nas > zdrojový kód.
+  Alebo do `HTML/` šablón ako `final_o_nas.html` + protejšok v `HTML cz/`.
+-->
+
+<article class="lcd-about-page" itemscope itemtype="https://schema.org/AboutPage">
+  <header>
+    <h1>O nás — Luxury Car Design</h1>
+    <p class="lead">
+      Slovenská rodinná značka luxusných autokobercov na mieru.
+      Od roku 2023 obúvame prémiové vozidlá Dragon Skin kobercami šitými
+      cez 3D laserové skenovanie pre 2912+ modelov áut.
+    </p>
+  </header>
+
+  <section class="lcd-about-founder" itemscope itemtype="https://schema.org/Person">
+    <h2>Kto sme</h2>
+    <figure>
+      <!-- TODO Michal: high-quality portrait foto -->
+      <img src="/assets/images/michal-svancar.jpg"
+           alt="Michal Miroslav Švancár, zakladateľ Luxury Car Design"
+           itemprop="image"
+           width="400"
+           height="400"
+           fetchpriority="high">
+    </figure>
+    <p>
+      <span itemprop="name">Michal Miroslav Švancár</span>,
+      <span itemprop="jobTitle">zakladateľ &amp; konateľ</span>
+      Luxury Car Design.
+    </p>
+    <!-- TODO Michal: 3-4 vety bio (osobný príbeh, prečo luxusné autokoberce) -->
+    <p>
+      [Bio text dodá Michal — prosím napíš v 3-4 vetách:
+      • prečo si založil LCD (osobný príbeh, motivácia)
+      • čo je tvoja filozofia kvality
+      • prečo prémiový segment]
+    </p>
+    <meta itemprop="worksFor" content="Luxury Car Design, s.r.o.">
+  </section>
+
+  <section class="lcd-about-journey">
+    <h2>Naša cesta</h2>
+    <ul>
+      <li><strong>Október 2023</strong> — vznik Luxury Car Design s.r.o.</li>
+      <li><strong>Sídlo</strong> — Žilina-Bytčica, Slovensko</li>
+      <li><strong>Pokrytie</strong> — 2912+ modelov áut, 95 % európskych vozidiel</li>
+      <li><strong>Záruka</strong> — 24 mesiacov na všetky koberce</li>
+      <li><strong>Vrátenie</strong> — 14 dní bez udania dôvodu</li>
+      <!-- TODO Michal: doplniť počet doručených sád, % Elite verzií, atď. -->
+    </ul>
+  </section>
+
+  <section class="lcd-about-philosophy">
+    <h2>Prečo robíme prémiový segment</h2>
+    <!-- TODO Michal: 1-2 odstavce o filozofii kvality + prečo target prémium -->
+    <p>
+      [Text dodá Michal — prosím 1-2 odstavce o tom, prečo LCD cieli na
+      prémiový segment, aký je rozdiel medzi Dragon Skin a lacnou rohožou,
+      ako vyzerá produkčný proces od 3D scanu po doručenie.]
+    </p>
+  </section>
+
+  <section class="lcd-about-videos">
+    <h2>Pozri ako pracujeme</h2>
+    <p>Náš YouTube kanál
+       <a href="https://www.youtube.com/@Luxury_Car_Design" target="_blank" rel="noopener">@Luxury_Car_Design</a>
+       má 856+ videí o procese, materiáloch a klientskych autách.</p>
+    <div class="lcd-video-grid">
+      <!-- TODO Michal: vlož 3 youtube embed kódy (najlepšie performeri) -->
+      <!-- Príklad embed:
+      <iframe loading="lazy" width="560" height="315"
+              src="https://www.youtube-nocookie.com/embed/VIDEO_ID"
+              title="LCD video"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+      -->
+      <p><em>[3 YouTube embedy — Michal pošle linky]</em></p>
+    </div>
+  </section>
+
+  <section class="lcd-about-contact" itemscope itemtype="https://schema.org/LocalBusiness">
+    <h2>Kontakt</h2>
+    <address>
+      <p>
+        <strong itemprop="name">Luxury Car Design, s.r.o.</strong><br>
+        IČO: 55 793 061<br>
+        DIČ: 2122088243<br>
+        IČ DPH: SK2122088243
+      </p>
+      <p itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+        <span itemprop="streetAddress">Školský dvor 12/10</span><br>
+        <span itemprop="postalCode">010 09</span>
+        <span itemprop="addressLocality">Žilina-Bytčica</span><br>
+        <span itemprop="addressCountry">Slovensko</span>
+      </p>
+      <p>
+        Email:
+        <a href="mailto:info@luxurycardesign.sk" itemprop="email">info@luxurycardesign.sk</a><br>
+        Telefón:
+        <a href="tel:+421903660720" itemprop="telephone">+421 903 660 720</a>
+      </p>
+    </address>
+  </section>
+</article>
