@@ -1,3 +1,8 @@
+/* SEO Fáza A — Prevent FOUC: hide slider until plugin is ready (race condition fix) */
+.twentytwenty-container:not(.twentytwenty-ready) {
+  visibility: hidden;
+}
+
 .twentytwenty-horizontal .twentytwenty-handle:before, .twentytwenty-horizontal .twentytwenty-handle:after, .twentytwenty-vertical .twentytwenty-handle:before, .twentytwenty-vertical .twentytwenty-handle:after {
   content: " ";
   display: block;
