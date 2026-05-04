@@ -1,0 +1,66 @@
+<!--
+  JSON-LD pre luxurycardesign.cz — SITE-WIDE (Organization + WebSite)
+  Paste do: Shoptet admin (cz projekt) > Web > Custom HTML code (head)
+  Validate: https://validator.schema.org/
+
+  POZN: Logo URL predpokladá samostatný CZ CDN priečinok. Ak je realita
+  iná (zdieľaný CDN s sk doménou), uprav logo.url.
+-->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Luxury Car Design",
+  "legalName": "Luxury Car Design, s.r.o.",
+  "url": "https://www.luxurycardesign.cz",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/logos/logo-web-png-v2.png",
+    "width": 300,
+    "height": 60
+  },
+  "description": "Luxusní autokoberce na míru pro prémiová vozidla. Šijeme z prémiového Dragon Skin materiálu přes 3D laserové skenování pro 2912+ modelů aut.",
+  "foundingDate": "2023-10-10",
+  "email": "info@luxurycardesign.cz",
+  "telephone": "+421903660720",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Školský dvor 12/10",
+    "addressLocality": "Žilina-Bytčica",
+    "postalCode": "010 09",
+    "addressCountry": "SK"
+  },
+  "vatID": "SK2122088243",
+  "areaServed": [
+    {"@type": "Country", "name": "Czech Republic"},
+    {"@type": "Country", "name": "Slovakia"}
+  ],
+  "sameAs": [
+    "https://www.facebook.com/luxurycardes",
+    "https://www.instagram.com/luxury_car_design_official",
+    "https://www.tiktok.com/@luxurycardesign",
+    "https://www.youtube.com/@Luxury_Car_Design",
+    "https://www.luxurycardesign.sk"
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Luxury Car Design",
+  "url": "https://www.luxurycardesign.cz",
+  "description": "Luxusní autokoberce na míru pro všechny modely vozidel — DragonSkin Diamond Line, Stripe Line, Hexa Line.",
+  "inLanguage": "cs-CZ",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://www.luxurycardesign.cz/vyhledavani/?string={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
