@@ -871,7 +871,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     if(!bunky.length) return;
     var im=document.createElement('img');
     im.className='ts-peek'; im.alt=''; im.decoding='async';
-    document.body.appendChild(im);
+    /* musi byt vnutri #lcd-home — styl .ts-peek je scopovany nan;
+       v <body> ostavala fotka bez stylu visiet na konci stranky */
+    LCDH.appendChild(im);
     function poloz(e){
       var w=im.offsetWidth||400, h=im.offsetHeight||400;
       var x=Math.min(e.clientX+22, innerWidth-w-14);
