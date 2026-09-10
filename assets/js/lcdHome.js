@@ -142,6 +142,70 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     }, 250);
   }
 
+  /* Kontaktny formular v module 11. Shoptet vo formulari prijima len meno,
+     e-mail a spravu, takze telefon a udaje o aute pripneme na zaciatok
+     spravy — rovnako to robi aj formular na /kontakty/. Odosielame cez
+     fetch, aby clovek neodisiel z uvodnej stranky; ked to zlyha, formular
+     sa odosle klasicky a sprava sa nestrati. */
+  function lcdhKontakt(root, cz) {
+    var f = root.querySelector("#lcdKontakt");
+    if (!f) return;
+    var stav = root.querySelector("#kfStav");
+    var NL = String.fromCharCode(10);
+    var T = cz
+      ? { hotovo: "Děkujeme, zpráva odešla. Ozveme se Vám zpravidla do hodiny.",
+          odosielam: "Odesílám…", tel: "Telefon: ", auto: "Auto: " }
+      : { hotovo: "Ďakujeme, správa odišla. Ozveme sa Vám spravidla do hodiny.",
+          odosielam: "Odosielam…", tel: "Telefón: ", auto: "Auto: " };
+
+    function hodnota(id) {
+      var p = root.querySelector("#" + id);
+      return p ? p.value.trim() : "";
+    }
+    function zlozSpravu() {
+      var pole = f.querySelector('textarea[name="message"]');
+      if (!pole || pole.dataset.zlozene) return;
+      var auto = [hodnota("kfZn"), hodnota("kfMo"), hodnota("kfRo"),
+                  hodnota("kfTy")].filter(Boolean).join(" ");
+      var hlava = T.tel + hodnota("kfTel");
+      if (auto) hlava += NL + T.auto + auto;
+      pole.value = hlava + NL + NL + pole.value.trim();
+      pole.dataset.zlozene = "1";
+    }
+
+    f.addEventListener("submit", function (e) {
+      f.classList.add("overene");
+      if (!f.checkValidity()) {
+        e.preventDefault();
+        var prve = f.querySelector(":invalid");
+        if (prve) prve.focus();
+        return;
+      }
+      zlozSpravu();
+      if (!window.fetch || !window.FormData) return;
+      e.preventDefault();
+      var tl = f.querySelector('button[type="submit"]');
+      var povodny = tl.textContent;
+      tl.disabled = true;
+      tl.textContent = T.odosielam;
+      fetch(f.action, { method: "POST", body: new FormData(f),
+                        credentials: "same-origin" })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.status);
+          f.reset();
+          delete f.querySelector('textarea[name="message"]').dataset.zlozene;
+          f.classList.remove("overene");
+          if (stav) {
+            stav.textContent = T.hotovo;
+            stav.classList.remove("zle");
+            stav.hidden = false;
+          }
+        })
+        .catch(function () { f.submit(); })
+        .then(function () { tl.disabled = false; tl.textContent = povodny; });
+    });
+  }
+
   function boot() {
     /* len SK web - ceska faza ma vlastne preklady a ide zvlast */
     var lcdhCZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
@@ -189,6 +253,8 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
          Bezi hned po vlozeni noveho dizajnu, teda skor nez lcd-reviews.js stihne
          svoj DOMContentLoaded — vdaka tomu sa tie fotky vobec nezacnu stahovat. */
       lcdhCakajAUprac();
+      /* modul 11: kontaktny formular */
+      lcdhKontakt(lcdhRoot, lcdhCZ);
       /* modul 07: VSETKY SK reels z kanala (nahradza staticke dlazdice) */
       try {
         var lcdhReels = lcdhCZ && typeof LCDH_REELS_CZ !== "undefined" && LCDH_REELS_CZ.length

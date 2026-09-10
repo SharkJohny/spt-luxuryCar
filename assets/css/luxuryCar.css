@@ -12151,3 +12151,82 @@ section#model-selector {
     -webkit-mask:var(--ico-tel) center/contain no-repeat;mask:var(--ico-tel) center/contain no-repeat}}
 @media(max-width:760px){#lcd-hdr .mega{top:0;left:0;right:0;bottom:0;width:auto;max-height:none;border:0;border-radius:0}#lcd-hdr .mega .lc{padding:54px 20px 28px 14px}#lcd-hdr .mega.open .m-x{display:flex}}
 /* ===== LCD-HDR END ===== */
+
+/* ===== KONTAKTNY FORMULAR (11 — Napiste nam) ===== */
+/* ============ KONTAKTNY FORMULAR NA UVODNEJ STRANKE ============
+   Zamerne jednoduche: bledy podklad, biela karta, velke ohranicene polia
+   s popisom nad kazdym a jedno tlacidlo. Ziadne ozdoby. */
+#lcd-home .kontsec{background:var(--sand)}
+
+/* ---- telefon a e-mail nad formularom ---- */
+#lcd-home .kont-pri{display:flex;align-items:center;flex-wrap:wrap;
+  gap:10px clamp(14px,2vw,26px);margin-top:clamp(20px,2.6vw,28px)}
+#lcd-home .kp-h{font-family:var(--disp);font-weight:800;font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--mute)}
+#lcd-home .kp-r{display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+  color:var(--ink)}
+#lcd-home .kp-i{flex:none;color:var(--gold);display:flex;align-items:center}
+#lcd-home .kp-i svg{width:18px;height:18px}
+#lcd-home .kp-r b{font-family:var(--disp);font-weight:800;font-size:16px;
+  letter-spacing:.01em;word-break:break-word;
+  border-bottom:1px solid var(--line);padding-bottom:2px}
+#lcd-home .kp-r:hover b{border-bottom-color:var(--gold)}
+
+/* ---- karta formulara ---- */
+#lcd-home .kont-f{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:clamp(20px,2.8vw,34px);display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(16px,2vw,22px);align-content:start;
+  margin-top:clamp(18px,2.4vw,26px)}
+@media(max-width:760px){#lcd-home .kont-f{grid-template-columns:1fr}}
+
+#lcd-home .kf{display:block}
+#lcd-home .kf-full{grid-column:1/-1}
+#lcd-home .kf-l{display:block;font-family:var(--body);font-weight:700;font-size:14px;
+  color:var(--ink);margin-bottom:7px}
+#lcd-home .kf-l small{font-weight:400;color:var(--mute);font-size:13px;margin-left:6px}
+/* povinne pole = cervena hviezdicka pri popise, ziadne hadanie */
+#lcd-home .kf:has(input[required]) .kf-l:after,
+#lcd-home .kf:has(textarea[required]) .kf-l:after{content:" *";color:#c0392b}
+
+#lcd-home .kf input,
+#lcd-home .kf textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);
+  background:var(--paper);border:1.5px solid var(--line);border-radius:10px;
+  padding:14px 15px;transition:border-color .15s}
+#lcd-home .kf textarea{resize:vertical;min-height:130px;line-height:1.6}
+#lcd-home .kf input:focus,
+#lcd-home .kf textarea:focus{outline:none;border-color:var(--gold)}
+#lcd-home .kf input::placeholder,
+#lcd-home .kf textarea::placeholder{color:#a9a291}
+
+/* chyba sa ukaze az ked ju formular oznaci — nie hned pri nacitani */
+#lcd-home .kf-e{display:none;margin-top:6px;font-size:13px;font-style:normal;
+  color:#c0392b;font-weight:600}
+#lcd-home .kont-f.overene .kf input:invalid ~ .kf-e,
+#lcd-home .kont-f.overene .kf textarea:invalid ~ .kf-e{display:block}
+#lcd-home .kont-f.overene .kf input:invalid,
+#lcd-home .kont-f.overene .kf textarea:invalid{border-color:#c0392b}
+/* pasca na roboty — clovek ju nevidi, robot ju vyplni a sprava sa zahodi */
+#lcd-home .kf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* ---- nepovinne udaje o aute ---- */
+#lcd-home .kf-auto{grid-column:1/-1}
+#lcd-home .kf-auto-h{margin:4px 0 10px;font-family:var(--body);font-weight:700;
+  font-size:14px;color:var(--ink)}
+#lcd-home .kf-auto-h span{font-weight:400;color:var(--mute);margin-left:6px}
+#lcd-home .kf-auto-g{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(12px,1.6vw,18px)}
+@media(max-width:620px){#lcd-home .kf-auto-g{grid-template-columns:1fr 1fr}}
+
+/* ---- odoslanie ---- */
+#lcd-home .kf-akcia{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;
+  gap:clamp(12px,1.8vw,22px);margin-top:4px}
+#lcd-home .kf-akcia .btn{flex:none;height:56px;padding:0 32px;border:0;border-radius:10px;
+  background:#1f8a4c;color:#fff;box-shadow:none;text-shadow:none}
+#lcd-home .kf-akcia .btn:hover{background:#17743f}
+#lcd-home .kf-pod{margin:0;flex:1 1 240px;font-size:13px;line-height:1.6;
+  color:var(--mute)}
+#lcd-home .kf-pod a{color:#7c5f16}
+#lcd-home .kf-stav{grid-column:1/-1;margin:0;padding:14px 16px;border-radius:10px;
+  font-size:14.5px;line-height:1.5;background:#eaf6ef;
+  border:1px solid #bfe3cd;color:#1f7d4f;font-weight:600}
+#lcd-home .kf-stav.zle{background:#fdf1ef;border-color:#f0c4bd;color:#a9342a}
