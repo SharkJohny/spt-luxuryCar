@@ -71,7 +71,24 @@ const price = Number(
 const diference = standartPrice - price;
 
 console.log(diference);
+// Pole „Poznámka k objednávke“ stavia doplnok ProductNote.js (spoločný pre
+// viac e-shopov). Vloží <textarea id="Note"> bez </textarea>, takže prehliadač
+// zoberie zvyšok jeho šablóny („        </div>“) ako text poľa — zákazník potom
+// vidí „</div>“ namiesto nápovedy. Doplnok neupravujeme; keď je v poli presne
+// táto smetiarina, vyprázdnime ho (zákazník by „</div>“ sám nenapísal).
+function vycistiPoznamkuKObjednavke() {
+  function skus() {
+    var pole = document.getElementById("Note");
+    if (pole && pole.value.trim() === "</div>") pole.value = "";
+  }
+  skus();
+  if (!window.MutationObserver || !document.body) return;
+  new MutationObserver(skus).observe(document.body, { childList: true, subtree: true });
+}
+
 export function initProduct(setupData, texts) {
+  vycistiPoznamkuKObjednavke();
+
   // --- TRUCK CONFIGURATOR (isolated) ---
   // Na URL /test-truck/ se místo standardního konfigurátoru osobáků
   // zobrazí nový truck konfigurátor z assets/truck-konfigurator/index.html.
