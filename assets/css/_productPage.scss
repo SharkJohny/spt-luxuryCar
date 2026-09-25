@@ -3765,3 +3765,21 @@ video::-webkit-media-controls {
     font-size: 13px;
   }
 }
+
+/* ===== Cena vs. tlacidlo do kosika (2026-09-25) =====
+   .add-to-cart je od 768 px vytiahnute o 75 px hore vedla ceny. Stlpec je
+   vsak na PC len ~520-560 px, takze cena zasla pod tlacidlo (CZ 8 799 Kc,
+   SK 351,00 EUR). Vpravo vyhradime miesto na tlacidlo (230 px + medzera),
+   zuzime medzeru za popisom a cenu nezalomime. */
+@media (min-width: 768px) {
+  .p-info-wrapper .p-final-price-wrapper { padding-right: 246px; }
+  .p-info-wrapper .price-final { flex-wrap: nowrap; align-items: baseline; }
+  .p-info-wrapper .price-final .recommended-price-final { margin-right: 14px; white-space: nowrap; }
+  .p-info-wrapper .price-standard .recommended-price { margin-right: 14px; white-space: nowrap; }
+  .p-info-wrapper .price-final-holder { white-space: nowrap; }
+}
+/* dva stlpce (col-lg-6) = najuzsie miesto -> cena mierne mensia */
+@media (min-width: 1200px) and (max-width: 1699px) {
+  .p-info-wrapper .price-final-holder { font-size: clamp(28px, 2.2vw, 40px); }
+  .p-info-wrapper .price-final-holder .calculated-price { font-size: inherit; }
+}
