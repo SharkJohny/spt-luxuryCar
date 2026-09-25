@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function initStickyPhotos() {
   const imageWrapper = document.querySelector(".p-image-wrapper");
   const productTop = document.querySelector(".product-top");
+  const infoWrapper = document.querySelector(".p-info-wrapper");
 
   if (!imageWrapper || !productTop) {
     console.log("Produktové elementy nenalezeny");
@@ -165,7 +166,20 @@ function initStickyPhotos() {
     }
   }
 
+  // Fotka ide so scrollom len vtedy, keď je konfigurátor vedľa nej. Pod
+  // 1200 px sú stĺpce pod sebou a posun by fotku položil cez názov a kroky
+  // (body.desktop hovorí o zariadení, nie o šírke okna).
+  function vedlaSeba() {
+    if (!infoWrapper) return true;
+    return infoWrapper.getBoundingClientRect().left >= imageWrapper.getBoundingClientRect().right - 1;
+  }
+
   function updatePosition() {
+    if (!vedlaSeba()) {
+      imageWrapper.style.transform = "";
+      ticking = false;
+      return;
+    }
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
     // Výška a pozice se mohou měnit (např. při resize)
     imageWrapperHeight = imageWrapper.offsetHeight;
