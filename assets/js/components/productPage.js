@@ -10,6 +10,7 @@ import {
   mountVoucherConfigurator,
 } from "../voucher-konfigurator/index.jsx";
 import { getShoptetContext } from "../functions/shoptetContext.js";
+import { initPopisModuly } from "./popisModuly.js";
 
 window.addEventListener(
   "error",
@@ -187,6 +188,8 @@ export function initProduct(setupData, texts) {
   if (!isVzorky) {
     createModelInfo();
     priplatky(setupData, texts);
+    // popis pod produktom: scéna pred/po pri scrollovaní + farby (Michal 30. 9. 2026)
+    initPopisModuly();
   }
 
   $(".button.btn.select-model").on("click", function () {

@@ -3783,3 +3783,82 @@ video::-webkit-media-controls {
   .p-info-wrapper .price-final-holder { font-size: clamp(28px, 2.2vw, 40px); }
   .p-info-wrapper .price-final-holder .calculated-price { font-size: inherit; }
 }
+
+/* ===== Popis produktu: PRED A PO + FARBY (2026-09-30) =====
+   Pred a po: tmavý pás cez celú šírku, scéna sa pri scrollovaní prilepí
+   a zlatá čiara prejde z holej podlahy na koberce. Farby: vzorky v sekcii
+   „Farba interiéru" prepínajú fotku skutočného koberca. #description kvôli
+   prednosti pred všeobecnými štýlmi popisu (zlaté rámy obrázkov, nadpisy). */
+#description .lcd-pp{height:250vh;background:#0d0c0a;color:#f1ead9;overflow:clip!important}
+/* keď sa prilepiť nedá (mobil: .content-wrapper má overflow hidden), scéna je normálny blok */
+#description .lcd-pp.lcd-pp-bez-lepu{height:auto}
+#description .lcd-pp-bez-lepu .lcd-pp-lep{position:static;height:auto}
+#description .lcd-pp-bez-lepu .lcd-pp-in{padding-block:56px}
+#description .lcd-pp-lep{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center}
+#description .lcd-pp-in{width:100%;max-width:1200px;margin:0 auto;padding:72px clamp(16px,4vw,40px) 24px;
+  display:flex;flex-direction:column;gap:clamp(14px,2.4vh,26px)}
+#description .lcd-pp-hl{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 24px}
+#description .lcd-pp-nad{margin:0 0 6px;font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.22em;text-transform:uppercase;color:#e6c877}
+#description .lcd-pp-h{margin:0;font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:900;
+  font-size:clamp(28px,4.2vw,56px);line-height:1.02;text-transform:uppercase;color:#f1ead9;text-wrap:balance}
+#description .lcd-pp-navod{margin:0;font-size:14px;line-height:1.5;color:#a39c89;max-width:32ch}
+#description .lcd-pp-plocha{position:relative;width:100%;aspect-ratio:2000/936;max-height:56vh;border-radius:16px;
+  overflow:hidden;border:1px solid rgba(230,200,119,.28)}
+#description .lcd-pp-plocha img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;
+  margin:0;border:0;border-radius:0;box-shadow:none}
+#description .lcd-pp-plocha .lcd-pp-po{clip-path:inset(0 calc(100% - var(--p,0%)) 0 0)}
+#description .lcd-pp-hrana{position:absolute;top:0;bottom:0;left:var(--p,0%);width:2px;margin-left:-1px;
+  background:#e6c877;box-shadow:0 0 22px rgba(230,200,119,.8)}
+#description .lcd-pp-cip{position:absolute;top:14px;padding:7px 12px;border-radius:999px;background:rgba(13,12,10,.72);
+  border:1px solid rgba(230,200,119,.2);font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:800;font-size:11px;
+  line-height:1;letter-spacing:.18em;text-transform:uppercase;color:#f1ead9}
+#description .lcd-pp-cip-po{left:14px;color:#e6c877}
+#description .lcd-pp-cip-pred{right:14px}
+#description .lcd-pp-body{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.6vw,20px)}
+#description .lcd-pp-bod{border-top:1px solid rgba(230,200,119,.18);padding-top:12px;transition:border-color .4s}
+#description .lcd-pp-bod b{display:block;font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:800;
+  font-size:clamp(15px,1.3vw,18px);line-height:1.25;color:#8f8878;transition:color .4s}
+#description .lcd-pp-bod span{display:block;margin-top:4px;font-size:14px;line-height:1.45;color:#8f8878;transition:color .4s}
+#description .lcd-pp-bod.on{border-top-color:#e6c877}
+#description .lcd-pp-bod.on b{color:#f1ead9}
+#description .lcd-pp-bod.on span{color:#c2baa6}
+#description .lcd-pp-pozn{margin:0;font-size:12.5px;color:#8f8878}
+#description .twentytwenty-wrap.lcd-pp-nahradene .section-info,
+#description .twentytwenty-wrap.lcd-pp-nahradene .twentytwenty-wrapper{display:none!important}
+@media(max-width:760px){
+  #description .lcd-pp{height:220vh}
+  #description .lcd-pp-in{padding-top:64px}
+  #description .lcd-pp-body{grid-template-columns:1fr 1fr}
+}
+
+#description .lcd-farby{margin-top:18px}
+#description .lcd-farby-text{margin:0 0 16px}
+#description .lcd-farby-vzorky{display:flex;flex-wrap:wrap;gap:10px}
+#description .lcd-farby-vzorka{position:relative;width:46px;height:46px;padding:0;border-radius:50%;cursor:pointer;
+  background:var(--koza);border:2px solid transparent;box-shadow:0 0 0 1px rgba(0,0,0,.18);
+  transition:transform .2s,border-color .2s,box-shadow .2s}
+#description .lcd-farby-vzorka::after{content:"";position:absolute;inset:8px;border-radius:50%;
+  border:2px dashed var(--sitie)}
+#description .lcd-farby-vzorka:hover{transform:translateY(-3px)}
+#description .lcd-farby-vzorka:focus-visible{outline:2px solid #c49b31;outline-offset:3px}
+#description .lcd-farby-vzorka[aria-pressed="true"]{border-color:#c49b31;box-shadow:0 0 0 3px rgba(196,155,49,.28)}
+#description .lcd-farby-meno{margin:14px 0 0;font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:800;
+  font-size:18px;line-height:1.3}
+#description .lcd-farby-tl{display:inline-flex;align-items:center;gap:8px;margin-top:18px;height:48px;padding:0 22px;
+  border-radius:999px;background:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350);color:#fff;text-decoration:none;
+  font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
+  box-shadow:0 8px 20px rgba(31,115,80,.28)}
+#description .lcd-farby-tl:hover{filter:brightness(1.06)}
+#description .lcd-farby-foto{width:100%;aspect-ratio:4/5;object-fit:cover;border:3px solid #c49b31;border-radius:20px;
+  transition:opacity .35s}
+#description .lcd-farby-foto.mizne{opacity:.25}
+/* mobil: fotka pod vzorky, inak by sa menila mimo obrazovky nad textom */
+@media(max-width:767px){
+  #description .lcd-farby-sekcia .container{display:flex;flex-direction:column}
+  #description .lcd-farby-sekcia .mobile-image{order:2;margin-top:22px}
+}
+@media(prefers-reduced-motion:reduce){
+  #description .lcd-farby-foto,#description .lcd-farby-vzorka,#description .lcd-pp-bod,
+  #description .lcd-pp-bod b,#description .lcd-pp-bod span{transition:none}
+}
