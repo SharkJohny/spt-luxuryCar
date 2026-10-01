@@ -457,3 +457,11 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] `yarn vzorky:test` padá 5 kontrol (skip dlaždica, odznačenie D-2,
       LUX-01, počítadlo Diamond) — overené `git stash`om, že padá aj bez
       dnešných zmien. Samostatná regresia na doriešenie.
+
+## Zadání 1.10. — vzorky v objednávce (feedback klienta)
+- [x] Názvy vzorků: "Diamond – kůže černá, prošití červené (D-1)" místo kódu / "Černá prošívaná…"
+    - Změny: cz-import/vzorky-a-truck-cz.xml — 45× SHORT_NAME, hodnota "Chci – vratná záloha 99 Kč" → "Ano"
+    - Změny: vzorky/build-product-xml.mjs (sampleLabel, "Áno") + regenerovaný vzorky/dist/vzorky-product.xml; oba validní RELAX NG
+    - [ ] Zkontroluj: po re-importu feedu v adminu objednávka vzorku ukazuje "Diamond – kůže …, prošití … (D-x) - Ano"
+- [ ] Barva prošití u jednobarevných vzorků (D-10…D-18, S-4…S-8) — chybí v datech, čeká na klienta
+- [ ] Nasadit: merge feat/vzorky-shoptet-html → main (fix poznámky "model: undefined…") + re-import CZ i SK feedu

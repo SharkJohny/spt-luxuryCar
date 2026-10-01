@@ -85,6 +85,16 @@ function cleanLabel(label) {
   return label.replace(/^(Lux Color)\s+(\d+)\s*[—–-]\s*/, "$1 $2 – ").trim();
 }
 
+// Názov vzorky do objednávky: "koža čierna, prešitie červené" namiesto
+// "Čierna prešívaná červenou", aby bolo v objednávke jasné čo sa balí.
+function sampleLabel(s) {
+  const label = cleanLabel(s.label);
+  if (s.layer !== "1. vrstva" || /^Štandard/.test(label)) return label;
+  const m = label.match(/^Čierna prešívaná (\S+)ou$/);
+  if (m) return `koža čierna, prešitie ${m[1]}${/(iel|iern)$/.test(m[1]) ? "e" : "é"}`;
+  return `koža ${label.charAt(0).toLowerCase()}${label.slice(1)}`;
+}
+
 // --- 2. XML helpers --------------------------------------------------------
 const esc = (s) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -95,7 +105,7 @@ function surchargeParam(s) {
   const desc = `Pridať vzorku ${s.line} (${s.layer}) – ${cleanLabel(s.label)} [${s.id}] do objednávky. Vratná záloha ${DEPOSIT} € (vrátime po obdržaní vzoriek späť).`;
   const values = [
     "        <VALUE><NAME>Nechcem</NAME><PRICE>0</PRICE></VALUE>",
-    `        <VALUE><NAME>Chcem – vratná záloha ${DEPOSIT} €</NAME><PRICE>${DEPOSIT}</PRICE></VALUE>`,
+    `        <VALUE><NAME>Áno</NAME><PRICE>${DEPOSIT}</PRICE></VALUE>`,
   ].join("\n");
   return [
     "    <SURCHARGE_PARAMETER>",
@@ -104,7 +114,7 @@ function surchargeParam(s) {
     // SHORT_NAME je to, čo Shoptet ukáže zákazníkovi v riadku parametra AJ
     // v objednávke — samotné "D-10" mu nič nehovorí, musí tam byť farba kože
     // aj farba šitia. Kód necháme v zátvorke kvôli baleniu vzoriek.
-    `      <SHORT_NAME>${esc(`${s.line} – ${cleanLabel(s.label)} (${s.id})`)}</SHORT_NAME>`,
+    `      <SHORT_NAME>${esc(`${s.line} – ${sampleLabel(s)} (${s.id})`)}</SHORT_NAME>`,
     "      <CURRENCY>EUR</CURRENCY>",
     "      <INCLUDING_VAT>1</INCLUDING_VAT>",
     "      <REQUIRED_VALUE>0</REQUIRED_VALUE>",
@@ -157,7 +167,7 @@ ${paramsXml}
     <CODE>VZORKY-DRAGONSKIN</CODE>
     <CURRENCY>EUR</CURRENCY>
     <PRICE>0</PRICE>
-    <VAT>21</VAT>
+    <VAT>23</VAT>
     <STANDARD_PRICE>0</STANDARD_PRICE>
     <STOCK>
       <AMOUNT>999</AMOUNT>

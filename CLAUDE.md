@@ -13,6 +13,8 @@ Symlinky v `docs/` (`products-supplier-v10.rng`, `products-datatype-v10.rng`) js
 - `GUID` musí odpovídat regexu `[0-9a-f]{8}-…` (lowercase hex UUID). Generuj přes `uuid.uuid1()`.
 - `RECYCLING_FEE_*` tagy – buď **všechny 4 v pořadí** `CATEGORY → PRICE → CURRENCY → TYPE`, nebo **žádný**. Nikdy mix.
 - Shoptet **export** feed neprojde importní validací bez úprav (má jiné pořadí RECYCLING_FEE, obsahuje export-only tagy jako `ARUKERESO_*`).
+- `VAT` podle e-shopu: **SK = 23**, **CZ = 21**. Špatná sazba → import produkt přeskočí („Product has an incorrect tax rate“).
+- Re-import párovat podle `CODE`, ne GUID (`vzorky/build-product-xml.mjs` generuje při každém buildu nové GUID).
 - `SURCHARGE_PARAMETER` — buď máš `DESCRIPTION+SHORT_NAME+CURRENCY+INCLUDING_VAT` všechny čtyři, nebo žádnou. `REQUIRED_VALUE` a `VALUES` jsou povinné.
 
 Plná dokumentace: [`docs/SHOPTET_XML_NOTES.md`](./docs/SHOPTET_XML_NOTES.md)
