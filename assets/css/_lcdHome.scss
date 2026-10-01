@@ -2038,6 +2038,32 @@
   border:1px solid #bfe3cd;color:#1f7d4f;font-weight:600}
 #lcd-home .kf-stav.zle{background:#fdf1ef;border-color:#f0c4bd;color:#a9342a}
 
+/* ===== HP: tlačidlá pri hodnotení Google (2026-10-02) =====
+   „Napísať recenziu" zlaté s hviezdičkou a prebleskom, „Všetky recenzie" tmavé so zlatým okrajom
+   a šípkou; text vždy na stred (pri zalomení na dva riadky bol vľavo) */
+#lcd-home .revhead .cta{gap:12px}
+#lcd-home .revhead .cta .btn{justify-content:center;text-align:center;gap:10px;min-height:52px;padding:13px 26px;
+  border-radius:999px;font-size:12px;letter-spacing:.12em;line-height:1.25;transition:transform .25s,box-shadow .25s,background .25s,border-color .25s}
+#lcd-home .revhead .cta .btn.ghost{background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;border:0;
+  box-shadow:0 10px 26px rgba(140,105,25,.35),inset 0 1px 0 rgba(255,255,255,.4)}
+#lcd-home .revhead .cta .btn.ghost:before{display:block}
+#lcd-home .revhead .cta .btn.ghost:hover{background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;
+  transform:translateY(-2px);box-shadow:0 16px 34px rgba(140,105,25,.45),inset 0 1px 0 rgba(255,255,255,.4)}
+#lcd-home .revhead .cta .btn.ghost:first-child:after{content:"";order:-1;flex:none;width:15px;height:15px;background:currentColor;
+  -webkit-mask:var(--ico-star) center/contain no-repeat;mask:var(--ico-star) center/contain no-repeat}
+#lcd-home .revhead .cta .btn.ghost+.btn.ghost{background:linear-gradient(180deg,#221d14,#0f0d09);color:#f4ecd6;
+  border:1px solid rgba(230,200,119,.6);box-shadow:0 10px 24px rgba(20,15,5,.28),inset 0 1px 0 rgba(255,255,255,.07)}
+#lcd-home .revhead .cta .btn.ghost+.btn.ghost:before{background:linear-gradient(100deg,transparent,rgba(230,200,119,.3),transparent)}
+#lcd-home .revhead .cta .btn.ghost+.btn.ghost:after{content:"\2192";flex:none;color:var(--gold-hi);font-size:15px;letter-spacing:0;
+  transition:transform .25s}
+#lcd-home .revhead .cta .btn.ghost+.btn.ghost:hover{background:linear-gradient(180deg,#2a2418,#000);color:#fff;border-color:var(--gold-hi);
+  transform:translateY(-2px);box-shadow:0 16px 32px rgba(20,15,5,.35)}
+#lcd-home .revhead .cta .btn.ghost+.btn.ghost:hover:after{transform:translateX(3px)}
+@media(max-width:640px){
+  #lcd-home .revhead .cta .btn{flex:1 1 0;min-width:0;padding:12px 14px;font-size:11px;letter-spacing:.09em;min-height:54px}
+}
+@media(prefers-reduced-motion:reduce){#lcd-home .revhead .cta .btn.ghost:before{display:none}}
+
 /* ===== HP: PRED A PO + FARBY + GALÉRIA z konceptu redizajnu (2026-10-01) =====
    Postavené ako sticky scény 08 a 09 (Materiál): číslovaná hlavička, štítky (.chip),
    legenda, spodná lišta (.pinfoot/.pf-bar/.pf-cta), vzor kosoštvorcov v pozadí.
