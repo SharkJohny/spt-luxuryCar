@@ -133,7 +133,7 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
     hlava(kap && T.pp.rule, T.pp.h, T.pp.p,
       '<div class="lx-pocet"><span><span class="lx-pp-cislo">0</span>&nbsp;%</span><small>' + T.pp.pocet + "</small></div>") +
     stitky(T.pp.chips) +
-    '<div class="lx-pp-main">' +
+    '<div class="lx-pp-main"><div class="lx-pp-stage">' +
     '<div class="lx-pp-plocha" data-lx-kurzor="' + T.pp.kurzor + '">' +
     '<img src="' + obr("lcd-home/ba-before.jpg") + '" alt="' + T.pp.altPred + '" width="1400" height="655" decoding="async" loading="lazy">' +
     '<img class="lx-pp-po" src="' + obr("lcd-home/ba-after.jpg") + '" alt="' + T.pp.altPo + '" width="1400" height="655" decoding="async" loading="lazy">' +
@@ -146,7 +146,7 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
       '<span class="lx-leg-t"><b>' + b[0] + "</b><span>" + b[1] + "</span></span>" +
       '<span class="lx-leg-i">' + b[2] + '</span><span class="lx-leg-ok" aria-hidden="true"></span></li>'
     ).join("") +
-    "</ol></div>" +
+    "</ol></div></div>" +
     lista(T.pp.hint, T.pp.hint2, cta) +
     "</div></div></section>";
 

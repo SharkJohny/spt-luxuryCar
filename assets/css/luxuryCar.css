@@ -9808,9 +9808,13 @@ section#model-selector {
 #lcd-home .lx-pp-lep{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 #lcd-home .lx-pin{height:100%;max-width:1240px;margin:0 auto;display:flex;flex-direction:column;
   gap:clamp(10px,1.8vh,20px);padding:clamp(84px,10vh,104px) var(--pad) clamp(14px,2.4vh,26px)}
-#lcd-home .lx-pp-main{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);
-  gap:clamp(16px,2.4vw,34px);align-items:center}
-#lcd-home .lx-pp-plocha{position:relative;width:100%;aspect-ratio:1400/655;max-height:100%;border-radius:18px;
+/* fotka cez celú šírku, legenda pod ňou; šírka sa zmenší len vtedy, keď by sa
+   fotka s legendou nezmestila na výšku obrazovky (container query) */
+#lcd-home .lx-pp-main{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
+  container-type:size;--lx-legh:110px;--lx-pomer:2.1374}
+#lcd-home .lx-pp-stage{width:100%;width:min(100%,calc((100cqh - var(--lx-legh)) * var(--lx-pomer)));
+  display:flex;flex-direction:column;gap:14px;container-type:inline-size}
+#lcd-home .lx-pp-plocha{position:relative;width:100%;aspect-ratio:var(--lx-pomer);border-radius:18px;
   overflow:hidden;border:1px solid var(--lx-line);box-shadow:0 26px 60px rgba(0,0,0,.5)}
 #lcd-home .lx-pp-plocha img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;
   margin:0;border:0;border-radius:0}
@@ -9822,10 +9826,10 @@ section#model-selector {
   letter-spacing:.2em;text-transform:uppercase;color:var(--lx-cream)}
 #lcd-home .lx-cip-l{left:14px;color:var(--gold-hi)}
 #lcd-home .lx-cip-r{right:14px}
-/* legenda vpravo — ako vrstvy pri materiáli; bod sa rozsvieti, keď ho čiara prejde */
-#lcd-home .lx-leg{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
-#lcd-home .lx-leg-r{display:flex;align-items:center;gap:12px;padding:clamp(9px,1.7vh,16px) 10px;
-  border-bottom:1px solid var(--lx-line);border-radius:10px;transition:background .4s}
+/* legenda pod fotkou — ako vrstvy pri materiáli; bod sa rozsvieti, keď ho čiara prejde */
+#lcd-home .lx-leg{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#lcd-home .lx-leg-r{display:flex;align-items:center;gap:10px;padding:12px;min-width:0;
+  border:1px solid var(--lx-line);border-radius:12px;transition:background .4s,border-color .4s}
 #lcd-home .lx-leg-no{flex:none;width:16px;font-family:var(--disp);font-weight:800;font-size:15px;
   color:#7f7866;transition:color .4s}
 #lcd-home .lx-leg-sw{flex:none;width:44px;height:44px;border-radius:5px;background-size:cover;background-position:center;
@@ -9839,18 +9843,22 @@ section#model-selector {
   border:1.5px solid rgba(230,200,119,.35);transition:background .4s,border-color .4s}
 #lcd-home .lx-leg-ok:after{content:"";position:absolute;left:7.5px;top:4.5px;width:5px;height:9px;
   border:solid #17130a;border-width:0 2px 2px 0;transform:rotate(45deg);opacity:0;transition:opacity .3s}
-#lcd-home .lx-leg-r.on{background:rgba(230,200,119,.07)}
+#lcd-home .lx-leg-r.on{background:rgba(230,200,119,.07);border-color:rgba(230,200,119,.42)}
 #lcd-home .lx-leg-r.on .lx-leg-no{color:var(--gold-hi)}
 #lcd-home .lx-leg-r.on .lx-leg-sw{filter:none}
 #lcd-home .lx-leg-r.on .lx-leg-t b{color:var(--lx-cream)}
 #lcd-home .lx-leg-r.on .lx-leg-t span{color:#bdb39c}
 #lcd-home .lx-leg-r.on .lx-leg-ok{background:linear-gradient(135deg,var(--gold-hi),var(--gold));border-color:var(--gold-hi)}
 #lcd-home .lx-leg-r.on .lx-leg-ok:after{opacity:1}
-@media(max-width:1080px){#lcd-home .lx-leg-i{display:none}}
+#lcd-home .lx-leg .lx-leg-i{display:none}
+/* užšia scéna (nízka obrazovka, mobil): body len s nadpisom, nech sa zmestia pod fotku */
+@container (max-width:820px){#lcd-home .lx-leg-sw,#lcd-home .lx-leg-t span{display:none}}
+/* nízka obrazovka PC: štítky preč, nech ostane viac miesta fotke */
+@media(min-width:901px) and (max-height:820px){#lcd-home .lx-pp .lx-chips{display:none}}
 @media(max-width:900px){
-  #lcd-home .lx-pp-main{grid-template-columns:minmax(0,1fr);align-content:center;gap:14px}
-  #lcd-home .lx-leg{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
-  #lcd-home .lx-leg-r{padding:8px 4px;gap:8px;border-radius:8px}
+  #lcd-home .lx-pp-main{--lx-legh:150px}
+  #lcd-home .lx-leg{grid-template-columns:1fr 1fr;gap:8px}
+  #lcd-home .lx-leg-r{padding:8px 6px;gap:8px;border-radius:9px}
   #lcd-home .lx-leg-sw,#lcd-home .lx-leg-ok{display:none}
   #lcd-home .lx-leg-t span{font-size:12px}
   #lcd-home .lx-pp .lx-p{display:none}
@@ -9859,12 +9867,14 @@ section#model-selector {
   #lcd-home .lx-pp{height:260vh}
   #lcd-home .lx-pp .lx-chips{display:none}
   #lcd-home .lx-pocet{text-align:left}
-  #lcd-home .lx-pp-plocha{aspect-ratio:4/3}
+  #lcd-home .lx-pp-main{--lx-pomer:1.3333}
 }
 /* keď sa prilepiť nedá, scéna je normálny blok */
 #lcd-home .lx-pp.lx-bez-lepu{height:auto}
 #lcd-home .lx-pp.lx-bez-lepu .lx-pp-lep{position:static;height:auto}
 #lcd-home .lx-pp.lx-bez-lepu .lx-pin{height:auto;padding-block:clamp(56px,9vw,110px) 28px}
+#lcd-home .lx-pp.lx-bez-lepu .lx-pp-main{flex:none;container-type:normal}
+#lcd-home .lx-pp.lx-bez-lepu .lx-pp-stage{width:100%}
 
 /* --- farby (svetlá sekcia) --- */
 #lcd-home .lx-farby-in{display:flex;flex-direction:column;gap:clamp(12px,1.8vw,20px);padding-block:clamp(64px,8vw,112px)}
@@ -9911,11 +9921,12 @@ section#model-selector {
 /* --- galéria (sticky pás) --- */
 #lcd-home .lx-gal{height:300vh}
 #lcd-home .lx-gal-lep{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
-#lcd-home .lx-gal-pin{height:100%;display:flex;flex-direction:column;gap:clamp(12px,2vh,22px);
+#lcd-home .lx-gal-pin{height:100%;display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,2vh,22px);
   padding-block:clamp(84px,10vh,104px) clamp(14px,2.4vh,26px)}
 #lcd-home .lx-gal-hore,#lcd-home .lx-gal-dole{width:100%;max-width:1240px;margin:0 auto;padding-inline:var(--pad);
   display:flex;flex-direction:column;gap:clamp(10px,1.8vh,18px)}
-#lcd-home .lx-gal-okno{position:relative;flex:1 1 auto;min-height:180px}
+/* tenší pás: fotky nevypĺňajú celú výšku obrazovky */
+#lcd-home .lx-gal-okno{position:relative;flex:none;height:clamp(240px,42vh,420px)}
 #lcd-home .lx-gal-trat{position:absolute;top:0;bottom:0;left:0;display:flex;gap:clamp(12px,1.6vw,20px);
   padding-left:max(var(--pad),calc((100vw - 1240px) / 2 + var(--pad)));padding-right:var(--pad);will-change:transform}
 #lcd-home .lx-gal-k{flex:none;height:100%;aspect-ratio:.76;margin:0;display:flex;flex-direction:column}
@@ -9939,7 +9950,7 @@ section#model-selector {
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-lep{position:relative;height:auto;overflow:visible}
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-pin{height:auto;padding-block:clamp(56px,9vw,110px) 28px}
 @media(max-width:760px){
-  #lcd-home .lx-gal-okno{flex:none;min-height:0}
+  #lcd-home .lx-gal-okno{height:auto}
   #lcd-home .lx-gal-trat{position:static;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);
     padding-bottom:10px;transform:none!important;scrollbar-width:none}
   #lcd-home .lx-gal-trat::-webkit-scrollbar{display:none}
@@ -9947,7 +9958,7 @@ section#model-selector {
   #lcd-home .lx-gal-k:nth-child(even){padding-top:0}
   #lcd-home .lx-gal-f{flex:none;aspect-ratio:4/5}
 }
-#lcd-home .lx-gal.lx-bez-lepu .lx-gal-okno{flex:none;min-height:0}
+#lcd-home .lx-gal.lx-bez-lepu .lx-gal-okno{height:auto}
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-trat{position:static;overflow-x:auto;scroll-snap-type:x mandatory;
   padding-bottom:10px;transform:none!important}
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-k{height:auto;width:min(72vw,340px);aspect-ratio:auto;scroll-snap-align:start}
