@@ -1,5 +1,6 @@
 import { LCDH_REELS, LCDH_REELS_CZ } from "./lcdHome-reels.js";
 import { LCDH_MARKUP, LCDH_MARKUP_CZ } from "./lcdHome-markup.js";
+import { lcdhModulyPostav, lxModulyOziv } from "./lcdHomeModuly.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -220,6 +221,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       lcdhWrap.innerHTML = lcdhCZ ? LCDH_MARKUP_CZ : LCDH_MARKUP;
       var lcdhRoot = lcdhWrap.firstElementChild;
       if (!lcdhRoot) return;
+      /* pred a po, farby, galeria z konceptu redizajnu — skladaju sa este mimo
+         stranky, aby GSAP a sticky sceny pocitali pozicie uz s nimi */
+      try { lcdhModulyPostav(lcdhRoot, lcdhCZ); } catch (e) {}
       /* plynuly nastup na PC: kratky fade-in namiesto tvrdeho skoku */
       lcdhRoot.style.opacity = "0";
       lcdhRoot.style.transition = "opacity .38s ease";
@@ -255,6 +259,7 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       lcdhCakajAUprac();
       /* modul 11: kontaktny formular */
       lcdhKontakt(lcdhRoot, lcdhCZ);
+      try { lxModulyOziv(lcdhRoot, lcdhCZ); } catch (e) {}
       /* modul 07: VSETKY SK reels z kanala (nahradza staticke dlazdice) */
       try {
         var lcdhReels = lcdhCZ && typeof LCDH_REELS_CZ !== "undefined" && LCDH_REELS_CZ.length

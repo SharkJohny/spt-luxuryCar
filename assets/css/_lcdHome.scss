@@ -2038,4 +2038,144 @@
   border:1px solid #bfe3cd;color:#1f7d4f;font-weight:600}
 #lcd-home .kf-stav.zle{background:#fdf1ef;border-color:#f0c4bd;color:#a9342a}
 
+/* ===== HP: PRED A PO + FARBY + GALÉRIA z konceptu redizajnu (2026-10-01) =====
+   Tmavé pásy ako v koncepte; písmo zjednotené so zvyškom webu (Exo 2 do 800,
+   Source Sans 3). #lcd-home section má padding:0 !important, preto odsadenie
+   nesú vnútorné obaly. JS: assets/js/lcdHomeModuly.js */
+#lcd-home .lx{--lx-ink:#0d0c0a;--lx-panel:#16140f;--lx-line:rgba(230,200,119,.16);--lx-cream:#f1ead9;--lx-mute:#9d9684;
+  position:relative;background:var(--lx-ink);color:var(--lx-cream);font-family:var(--body)}
+#lcd-home .lx-wrap{max-width:1240px;margin:0 auto;padding-inline:var(--pad)}
+#lcd-home .lx-nad{font-family:var(--mono);font-weight:700;font-size:12.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--gold-hi)}
+#lcd-home .lx .lx-h{margin:10px 0 0;font-family:var(--disp);font-weight:800;text-transform:uppercase;
+  font-size:clamp(32px,4.8vw,64px);line-height:1.02;letter-spacing:.01em;color:var(--lx-cream);text-wrap:balance}
+#lcd-home .lx .lx-h b{color:var(--gold-hi);font-weight:inherit}
+#lcd-home .lx .lx-p{margin:0;max-width:44ch;font-size:clamp(15px,1.3vw,17px);line-height:1.6;color:var(--lx-mute)}
+
+/* --- pred a po --- */
+#lcd-home .lx-pp{height:320vh}
+#lcd-home .lx-pp-lep{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center}
+#lcd-home .lx-pp-in{width:100%;display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(18px,3vh,32px);padding-block:clamp(78px,9vh,96px) 28px}
+#lcd-home .lx-pp-hl{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+#lcd-home .lx-pp-hl .lx-h{margin-top:8px}
+#lcd-home .lx-pp-pocet{font-family:var(--disp);font-weight:800;font-size:clamp(28px,4vw,52px);line-height:1;
+  color:var(--gold-hi);font-variant-numeric:tabular-nums;text-align:right}
+#lcd-home .lx-pp-pocet small{display:block;margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--lx-mute)}
+#lcd-home .lx-pp-plocha{position:relative;width:100%;aspect-ratio:1400/655;max-height:58vh;margin-inline:auto;
+  border-radius:18px;overflow:hidden;border:1px solid var(--lx-line)}
+#lcd-home .lx-pp-plocha img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;
+  margin:0;border:0;border-radius:0}
+#lcd-home .lx-pp-po{clip-path:inset(0 calc(100% - var(--p,0%)) 0 0)}
+#lcd-home .lx-pp-hrana{position:absolute;top:0;bottom:0;left:var(--p,0%);width:2px;margin-left:-1px;
+  background:var(--gold-hi);box-shadow:0 0 24px rgba(230,200,119,.8)}
+#lcd-home .lx-cip{position:absolute;top:16px;padding:7px 12px;border-radius:999px;background:rgba(13,12,10,.72);
+  border:1px solid var(--lx-line);font-family:var(--disp);font-weight:800;font-size:11px;line-height:1;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--lx-cream)}
+#lcd-home .lx-cip-l{left:16px;color:var(--gold-hi)}
+#lcd-home .lx-cip-r{right:16px}
+#lcd-home .lx-pp-body{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.6vw,20px)}
+#lcd-home .lx-pp-bod{border-top:1px solid var(--lx-line);padding-top:14px;transition:border-color .4s}
+#lcd-home .lx-pp-bod b{display:block;font-family:var(--disp);font-weight:800;font-size:clamp(15px,1.4vw,19px);
+  line-height:1.25;color:var(--lx-mute);transition:color .4s}
+#lcd-home .lx-pp-bod span{display:block;margin-top:4px;font-size:14px;line-height:1.45;color:var(--lx-mute)}
+#lcd-home .lx-pp-bod.on{border-top-color:var(--gold-hi)}
+#lcd-home .lx-pp-bod.on b{color:var(--lx-cream)}
+@media(max-width:760px){
+  #lcd-home .lx-pp{height:260vh}
+  #lcd-home .lx-pp-body{grid-template-columns:1fr 1fr}
+  #lcd-home .lx-pp-pocet{text-align:left}
+}
+/* keď sa prilepiť nedá, scéna je normálny blok */
+#lcd-home .lx-pp.lx-bez-lepu{height:auto}
+#lcd-home .lx-pp.lx-bez-lepu .lx-pp-lep{position:static;height:auto}
+#lcd-home .lx-pp.lx-bez-lepu .lx-pp-in{padding-block:clamp(56px,9vw,110px)}
+
+/* --- farby --- */
+#lcd-home .lx-farby-in{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  grid-template-areas:"foto hlava" "foto vyber";column-gap:clamp(24px,4vw,60px);align-items:center;
+  padding-block:clamp(80px,11vw,140px)}
+#lcd-home .lx-farby-velka{grid-area:foto;position:relative;aspect-ratio:4/3;border-radius:18px;overflow:hidden;
+  border:1px solid var(--lx-line);background:var(--lx-panel)}
+#lcd-home .lx-farby-velka img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;
+  margin:0;border:0;border-radius:0;opacity:0;transition:opacity .6s,transform 1.2s}
+#lcd-home .lx-farby-velka img.on{opacity:1;transform:scale(1.03)}
+#lcd-home .lx-farby-hlava{grid-area:hlava;align-self:end}
+#lcd-home .lx-farby-hlava .lx-p{margin-top:16px}
+#lcd-home .lx-farby-vyber{grid-area:vyber;align-self:start}
+#lcd-home .lx-farby-vzorky{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+#lcd-home .lx-farby-vzorka{width:68px;height:68px;padding:0;border-radius:14px;overflow:hidden;cursor:pointer;
+  background:none;border:2px solid transparent;transition:transform .25s,border-color .25s}
+#lcd-home .lx-farby-vzorka img{width:100%;height:100%;max-width:none;object-fit:cover;margin:0;border:0;border-radius:0}
+#lcd-home .lx-farby-vzorka:hover{transform:translateY(-4px)}
+#lcd-home .lx-farby-vzorka[aria-pressed="true"]{border-color:var(--gold-hi)}
+#lcd-home .lx-farby-vzorka:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+#lcd-home .lx-farby-meno{margin-top:18px;font-family:var(--disp);font-weight:800;font-size:clamp(22px,2.4vw,30px);
+  line-height:1.2;color:var(--lx-cream)}
+@media(max-width:860px){
+  #lcd-home .lx-farby-in{grid-template-columns:minmax(0,1fr);grid-template-areas:"hlava" "foto" "vyber";row-gap:22px}
+  #lcd-home .lx-farby-vzorky{margin-top:0}
+}
+@media(max-width:520px){
+  #lcd-home .lx-farby-vzorky{gap:10px}
+  #lcd-home .lx-farby-vzorka{width:56px;height:56px;border-radius:12px}
+}
+
+/* --- galéria --- */
+#lcd-home .lx-gal{height:260vh}
+#lcd-home .lx-gal-lep{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;
+  flex-direction:column;justify-content:center;gap:28px;padding-block:clamp(78px,9vh,96px) 24px}
+#lcd-home .lx-gal-hl{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:20px;width:100%}
+#lcd-home .lx .lx-gal-hl .lx-h{margin:0;max-width:14ch}
+#lcd-home .lx .lx-gal-hl .lx-p{max-width:40ch}
+#lcd-home .lx-gal-trat{display:flex;align-items:flex-start;gap:clamp(12px,1.6vw,20px);width:max-content;
+  padding-inline:var(--pad);will-change:transform}
+#lcd-home .lx-gal-k{flex:none;margin:0;width:clamp(200px,min(24vw,calc((100svh - 360px) * .8)),360px)}
+#lcd-home .lx-gal-k:nth-child(even){margin-top:48px}
+#lcd-home .lx-gal-f{display:block;width:100%;aspect-ratio:4/5;padding:0;border-radius:14px;overflow:hidden;
+  border:1px solid var(--lx-line);background:var(--lx-panel);cursor:zoom-in}
+#lcd-home .lx-gal-f img{width:100%;height:100%;max-width:none;object-fit:cover;margin:0;border:0;border-radius:0;
+  transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+#lcd-home .lx-gal-f:hover img{transform:scale(1.04)}
+#lcd-home .lx-gal-f:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+#lcd-home .lx-gal-k figcaption{margin-top:10px;font-size:14px;line-height:1.4;color:var(--lx-mute)}
+/* mobil a stránky bez sticky: pás sa ťahá prstom */
+@media(max-width:760px){
+  #lcd-home .lx-gal{height:auto}
+  #lcd-home .lx-gal-lep{position:relative;height:auto;padding-block:72px 44px}
+  #lcd-home .lx-gal-trat{width:auto;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);
+    padding-bottom:12px;transform:none!important;scrollbar-width:none}
+  #lcd-home .lx-gal-trat::-webkit-scrollbar{display:none}
+  #lcd-home .lx-gal-k{width:72vw;scroll-snap-align:start}
+  #lcd-home .lx-gal-k:nth-child(even){margin-top:0}
+}
+#lcd-home .lx-gal.lx-bez-lepu{height:auto}
+#lcd-home .lx-gal.lx-bez-lepu .lx-gal-lep{position:relative;height:auto;padding-block:clamp(56px,9vw,110px) 44px}
+#lcd-home .lx-gal.lx-bez-lepu .lx-gal-trat{width:auto;overflow-x:auto;scroll-snap-type:x mandatory;transform:none!important}
+#lcd-home .lx-gal.lx-bez-lepu .lx-gal-k{scroll-snap-align:start}
+
+/* --- zväčšená fotka --- */
+#lcd-home .lx-zoom{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;
+  padding:clamp(16px,4vw,48px);background:rgba(8,7,5,.92);cursor:zoom-out}
+#lcd-home .lx-zoom[hidden]{display:none}
+#lcd-home .lx-zoom img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;border-radius:14px}
+#lcd-home .lx-zoom-x{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));right:16px;width:46px;height:46px;
+  border-radius:50%;border:1px solid rgba(230,200,119,.5);background:rgba(13,12,10,.8);color:#f1ead9;
+  font-size:26px;line-height:1;cursor:pointer}
+
+/* --- kurzor so štítkom (len PC s myšou, len nad fotkami modulov) --- */
+#lcd-home .lx-kurzor{position:fixed;left:0;top:0;z-index:96;width:0;height:0;pointer-events:none}
+#lcd-home .lx-kurzor span{position:absolute;left:-46px;top:-46px;width:92px;height:92px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;background:rgba(230,200,119,.9);color:#17130a;
+  font-family:var(--disp);font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  opacity:0;transform:scale(.3);transition:opacity .2s,transform .3s cubic-bezier(.2,.8,.2,1)}
+#lcd-home .lx-kurzor.on span{opacity:1;transform:scale(1)}
+#lcd-home.lx-mys [data-lx-kurzor]{cursor:none}
+
+@media(prefers-reduced-motion:reduce){
+  #lcd-home .lx-farby-velka img,#lcd-home .lx-farby-vzorka,#lcd-home .lx-gal-f img,
+  #lcd-home .lx-pp-bod,#lcd-home .lx-pp-bod b{transition:none}
+}
+
 /* ===== LCD-HOME END ===== */
