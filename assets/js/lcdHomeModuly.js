@@ -17,7 +17,7 @@ const TEXTY = {
     cta: "Zvoliť model vozidla", vzorky: "Objednať vzorky", zavriet: "Zavrieť",
     pp: {
       rule: "Pred a po", h: "Pred a <b>po</b>",
-      p: "Rolujte a sledujte, ako koberce zakryjú podlahu. Rovnaké auto, rovnaké svetlo, jediný rozdiel sú koberce.",
+      p: "Rolujte a sledujte, ako luxusné autokoberce zmenia vzhľad vozidla. Rovnaké auto, rovnaké svetlo, jediný rozdiel sú koberce.",
       pocet: "podlahy pod ochranou", po: "Po", pred: "Pred", kurzor: "Rolujte",
       altPred: "Interiér auta bez autokobercov", altPo: "Ten istý interiér s luxusnými autokobercami",
       chips: ["Rovnaké auto", "Rovnaké svetlo", "Rovnaký uhol", "Jediný rozdiel: koberce"],
@@ -47,7 +47,7 @@ const TEXTY = {
     cta: "Zvolit model vozidla", vzorky: "Objednat vzorky", zavriet: "Zavřít",
     pp: {
       rule: "Před a po", h: "Před a <b>po</b>",
-      p: "Posouvejte a sledujte, jak koberce zakryjí podlahu. Stejné auto, stejné světlo, jediný rozdíl jsou koberce.",
+      p: "Posouvejte a sledujte, jak luxusní autokoberce změní vzhled vozu. Stejné auto, stejné světlo, jediný rozdíl jsou koberce.",
       pocet: "podlahy pod ochranou", po: "Po", pred: "Před", kurzor: "Posouvejte",
       altPred: "Interiér auta bez autokoberců", altPo: "Tentýž interiér s luxusními autokoberci",
       chips: ["Stejné auto", "Stejné světlo", "Stejný úhel", "Jediný rozdíl: koberce"],

@@ -2193,17 +2193,20 @@
 #lcd-home .lx-farby-vzorka:hover{transform:translateY(-3px)}
 #lcd-home .lx-farby-vzorka[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 10px 22px rgba(140,105,25,.35);transform:translateY(-3px)}
 #lcd-home .lx-farby-vzorka:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-/* posledná bunka druhého radu: odkaz na ďalšie farby — tmavá dlaždica s vejárom vzoriek */
-#lcd-home .lx-farby-viac{position:relative;display:flex;align-items:center;gap:clamp(10px,1.2vw,16px);min-width:0;
-  padding:8px clamp(10px,1.2vw,16px);border-radius:12px;overflow:hidden;text-decoration:none;
-  background:radial-gradient(120% 140% at 0% 0%,#2c2519 0%,#151209 62%);border:1px solid rgba(230,200,119,.5);
-  box-shadow:0 8px 20px rgba(20,15,5,.22),inset 0 1px 0 rgba(255,255,255,.06);
-  transition:transform .25s,box-shadow .25s,border-color .25s}
-#lcd-home .lx-farby-viac:hover{transform:translateY(-3px);border-color:var(--gold-hi);box-shadow:0 14px 28px rgba(140,105,25,.35)}
+/* posledná bunka druhého radu: odkaz na ďalšie farby — svetlá karta so zlatým okrajom,
+   vejárom vzoriek a rovnakým prebleskom ako zlaté tlačidlá */
+#lcd-home .lx-farby-viac{position:relative;isolation:isolate;display:flex;align-items:center;gap:clamp(10px,1.2vw,16px);min-width:0;
+  padding:8px clamp(10px,1.2vw,16px);border-radius:12px;overflow:hidden;text-decoration:none;border:2px solid transparent;
+  background:linear-gradient(180deg,#fffdf8,#f8f1e0) padding-box,
+    linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold)) border-box;
+  box-shadow:0 8px 22px rgba(140,105,25,.3);transition:transform .25s,box-shadow .25s}
+#lcd-home .lx-farby-viac:before{content:"";position:absolute;top:0;bottom:0;left:-45%;width:38%;z-index:-1;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(230,200,119,.45),transparent);animation:sheen 3.6s ease-in-out 1.2s infinite}
+#lcd-home .lx-farby-viac:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(140,105,25,.42)}
 #lcd-home .lx-farby-viac:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 #lcd-home .lx-farby-viac-vejar{display:flex;flex:none;padding-left:8px}
 #lcd-home .lx-farby-viac-vejar i{display:block;width:clamp(24px,2.3vw,32px);aspect-ratio:1;margin-left:-8px;border-radius:7px;
-  background-size:cover;background-position:center;border:1.5px solid #efe0b4;box-shadow:0 3px 8px rgba(0,0,0,.5);
+  background-size:cover;background-position:center;border:2px solid #fff;box-shadow:0 3px 9px rgba(20,15,5,.3);
   transition:transform .3s cubic-bezier(.2,.8,.2,1),margin .3s}
 #lcd-home .lx-farby-viac-vejar i:nth-child(1){transform:rotate(-10deg)}
 #lcd-home .lx-farby-viac-vejar i:nth-child(2){transform:rotate(-3deg) translateY(-2px)}
@@ -2211,9 +2214,9 @@
 #lcd-home .lx-farby-viac-vejar i:nth-child(4){transform:rotate(11deg) translateY(1px)}
 #lcd-home .lx-farby-viac:hover .lx-farby-viac-vejar i{margin-left:-2px}
 #lcd-home .lx-farby-viac-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-#lcd-home .lx-farby-viac-txt b{font-family:var(--disp);font-weight:800;font-size:clamp(13px,1.1vw,16px);line-height:1.15;color:#f6ecd2}
+#lcd-home .lx-farby-viac-txt b{font-family:var(--disp);font-weight:800;font-size:clamp(13px,1.1vw,16px);line-height:1.15;color:var(--ink)}
 #lcd-home .lx-farby-viac-txt small{font-family:var(--mono);font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--gold-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  color:#7c5f16;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lcd-home .lx-farby-viac-sip{flex:none;position:relative;width:32px;height:32px;border-radius:50%;
   background:linear-gradient(135deg,var(--gold-hi),var(--gold));box-shadow:0 4px 12px rgba(196,155,49,.45);transition:transform .25s}
 #lcd-home .lx-farby-viac-sip:before{content:"";position:absolute;left:9px;top:15px;width:13px;height:2px;border-radius:1px;background:#17130a}
@@ -2316,6 +2319,7 @@
 @media(prefers-reduced-motion:reduce){
   #lcd-home .lx-farby-velka img,#lcd-home .lx-farby-vzorka,#lcd-home .lx-gal-f img,
   #lcd-home .lx-leg-r,#lcd-home .lx-leg-t b,#lcd-home .lx-leg-sw{transition:none}
+  #lcd-home .lx-farby-viac:before{animation:none;display:none}
 }
 
 /* ===== LCD-HOME END ===== */
