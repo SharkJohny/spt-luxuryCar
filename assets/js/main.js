@@ -12,6 +12,10 @@ import { initLivePrice } from "./functions/livePrice.js";
 import { initContactForm } from "./components/contactForm.js";
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
 import "./configurator-enhance.js"; // Konfigurátor — best-seller badge na možnostiach
+import "./lcdHome.js";
+import "./lcdHdr.js"; // Nova uvodna stranka (lcd-home)
+import "./lcdRz.js"; // Novy rozcestnik (lcd-rz)
+import "./lcdLang.js"; // Prepinac jazyka vo vlajke (ponuka namiesto okamziteho prepnutia)
 import { mergeTruckOrderSummaryIntoNote } from "./truck-konfigurator/order-summary.mjs";
 import {
   TRUCK_BRANDS,
@@ -681,6 +685,13 @@ function googleReviews(setupData, texts) {
 
   $("#goggle-review-wrap, .google-reviews").remove();
 
+  // Novy dizajn titulky (#lcd-home) ma vlastne recenzie (#revs). Stary widget by
+  // sa postavil uz len do skryteho obsahu - 1 406 prvkov a ~96 stiahnutych fotiek,
+  // ktore nikto neuvidi. Preto sa na titulke s novym dizajnom vobec nestavia.
+  // Podmienka je zamerne na #lcd-home, nie na URL: ked by novy dizajn nenabehol,
+  // stara titulka dostane recenzie presne ako doteraz.
+  if ($(".in-index")[0] && document.getElementById("lcd-home")) return;
+
   function makeWidget() {
     var title = (lang === "cz")
       ? "Co \u0159\u00EDkaj\u00ED na\u0161i z\u00E1kazn\u00EDci"
@@ -790,6 +801,11 @@ function lcdVideos() {
   // Widget YouTube videi (lcd-videos.js). Produkt: pod widgetom "Zlozenie materialu".
   var base = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/js/";
   var VV = "5";
+
+  // Novy dizajn titulky ma vlastny pas videi (#vids, 668 reels). Stary widget by
+  // postavil dalsich ~2 100 prvkov do skryteho obsahu. Rovnaka poistka ako pri
+  // recenziach: ked novy dizajn nenabehne, stara titulka ho dostane ako doteraz.
+  if ($(".in-index")[0] && document.getElementById("lcd-home")) return;
 
   function placeWidget() {
     if ($(".lcd-videos-widget").length) return true;

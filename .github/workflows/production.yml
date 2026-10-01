@@ -24,7 +24,7 @@ jobs:
         run: |
           yarn install
           node truck/build-truck-images.mjs
-          yarn esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --drop:console --legal-comments=none
+          yarn esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --minify --drop:console --legal-comments=none
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
       # Nahranie súborov cez SFTP (lftp — robí rekurzívne mkdir, funguje pre nové adresáre ako img/reviews/)

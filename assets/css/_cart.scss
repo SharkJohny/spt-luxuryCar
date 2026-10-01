@@ -121,13 +121,13 @@ span.btn.btn-block.btn-default.toggle-contacts a {
 
 .lcd-truck-cart-summary {
   display: grid;
-  width: min(780px, 100%);
+  width: min(1040px, 100%);
   margin-top: 14px;
   gap: 12px;
 }
 
 .lcd-truck-cart-summary__group {
-  padding: 14px 16px;
+  padding: 16px 20px;
   border: 1px solid #e6dcc8;
   border-radius: 10px;
   background: #fbfaf7;
@@ -142,9 +142,9 @@ span.btn.btn-block.btn-default.toggle-contacts a {
 
   dl {
     display: grid;
-    grid-template-columns: minmax(185px, 0.75fr) minmax(220px, 1.25fr);
+    grid-template-columns: minmax(165px, 0.5fr) minmax(260px, 1.5fr);
     margin: 0;
-    gap: 6px 14px;
+    gap: 8px 20px;
   }
 
   dt,

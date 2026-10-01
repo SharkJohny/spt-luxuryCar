@@ -55,6 +55,18 @@ export function initCart(texts) {
   ).appendTo(".co-billing-address");
 }
 
+/**
+ * Je tento riadok kosika kamionovy produkt?
+ *
+ * Povodne stacilo slovo "truck" v texte riadku. Michal 2026-09-01 produkt
+ * premenoval (SK "luxusne autokoberce do kamionov", CZ "do kamionu"), slovo
+ * truck zmizlo a kosik prestal riadok formatovat. Berieme obe pomenovania.
+ */
+function jeKamionovyRiadok(text) {
+  const t = String(text || "");
+  return /\btruck\b/i.test(t) || /kami[oó]n/i.test(t);
+}
+
 function changeDescription() {
   const getBrand = sessionStorage.getItem("Brand");
   const getModel = sessionStorage.getItem("Model");
@@ -69,7 +81,7 @@ function changeDescription() {
     // Storage môže byť v súkromnom režime nedostupné; použije sa pôvodný výpis.
   }
   const truckRowCount = $("span.main-link-surcharges").filter(function () {
-    return /\btruck\b/i.test($(this).closest("tr").text() || "");
+    return jeKamionovyRiadok($(this).closest("tr").text());
   }).length;
 
   // Fallback pre samostatne produkty BEZ surcharges (Premium/Klasik kufrove rohoze):
@@ -95,7 +107,7 @@ function changeDescription() {
     const text = $(this).text().split(",");
     // Truck produkt: vozidlo NIE je v sessionStorage (tú plní autokoberce
     // konfigurátor), ale v surcharge parametri "Vozidlo: <značka model>".
-    const isTruckRow = /\btruck\b/i.test($(this).closest("tr").text() || "");
+    const isTruckRow = jeKamionovyRiadok($(this).closest("tr").text());
     if (isTruckRow && truckSummary && truckRowCount === 1) {
       const groups = parseTruckOrderSummary(truckSummary);
       if (groups.length) {

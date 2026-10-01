@@ -10,6 +10,7 @@ import {
   mountVoucherConfigurator,
 } from "../voucher-konfigurator/index.jsx";
 import { getShoptetContext } from "../functions/shoptetContext.js";
+import { initPopisModuly } from "./popisModuly.js";
 
 window.addEventListener(
   "error",
@@ -71,7 +72,24 @@ const price = Number(
 const diference = standartPrice - price;
 
 console.log(diference);
+// Pole „Poznámka k objednávke“ stavia doplnok ProductNote.js (spoločný pre
+// viac e-shopov). Vloží <textarea id="Note"> bez </textarea>, takže prehliadač
+// zoberie zvyšok jeho šablóny („        </div>“) ako text poľa — zákazník potom
+// vidí „</div>“ namiesto nápovedy. Doplnok neupravujeme; keď je v poli presne
+// táto smetiarina, vyprázdnime ho (zákazník by „</div>“ sám nenapísal).
+function vycistiPoznamkuKObjednavke() {
+  function skus() {
+    var pole = document.getElementById("Note");
+    if (pole && pole.value.trim() === "</div>") pole.value = "";
+  }
+  skus();
+  if (!window.MutationObserver || !document.body) return;
+  new MutationObserver(skus).observe(document.body, { childList: true, subtree: true });
+}
+
 export function initProduct(setupData, texts) {
+  vycistiPoznamkuKObjednavke();
+
   // --- TRUCK CONFIGURATOR (isolated) ---
   // Na URL /test-truck/ se místo standardního konfigurátoru osobáků
   // zobrazí nový truck konfigurátor z assets/truck-konfigurator/index.html.
@@ -170,6 +188,8 @@ export function initProduct(setupData, texts) {
   if (!isVzorky) {
     createModelInfo();
     priplatky(setupData, texts);
+    // popis pod produktom: scéna pred/po pri scrollovaní + farby (Michal 30. 9. 2026)
+    initPopisModuly();
   }
 
   $(".button.btn.select-model").on("click", function () {
@@ -1699,9 +1719,15 @@ function changeThumbnails() {
  */
 function isTruckConfiguratorPage() {
   try {
-    if (/\/test-truck(\/|$)/i.test(window.location.pathname)) return true;
+    const cesta = window.location.pathname || "";
+    if (/\/test-truck(\/|$)/i.test(cesta)) return true;
+    // Michal 2026-09-01 premenoval produkt z "truck" na "kamiony" — H1 uz
+    // slovo truck neobsahuje a konfigurator prestal nabiehat. Berieme oboje.
+    if (/autokoberce-(truck|kamiony)(\/|$)/i.test(cesta)) return true;
     const h1 = document.querySelector("h1");
-    if (h1 && /\btruck\b/i.test(h1.textContent || "")) return true;
+    const nadpis = h1 ? h1.textContent || "" : "";
+    if (/\btruck\b/i.test(nadpis)) return true;
+    if (/kami[oó]n/i.test(nadpis)) return true;
     return false;
   } catch (e) {
     return false;

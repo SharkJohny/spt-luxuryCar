@@ -333,3 +333,105 @@ export function calculatePrice(s) {
     },
   };
 }
+
+// ============================================================
+// Ktoré nášivky sú v Shoptete povolené
+// ============================================================
+
+/**
+ * Michal 2026-09-01: „Potrebujem, aby nášivky v konfigurátore reagovali na to,
+ * ktoré sú povolené a ktoré nie — ja som ich v Shoptete povypínal, ale stále
+ * sú tam a ponúka ich ako možnosti."
+ *
+ * Zoznam nášiviek je v konfigurátore natvrdo (kód + náhľad). Shoptet o tom
+ * nevie nič — vie len, ktoré hodnoty príplatkového parametra má zapnuté.
+ * Preto zoznam pri renderi prefiltrujeme podľa toho, čo je naozaj v
+ * `<select>`-e na stránke produktu.
+ *
+ * Vypnutú hodnotu Shoptet z DOMu vynecháva; pre istotu berieme do úvahy aj
+ * `disabled` option (keby ju niektorá šablóna vykreslila len zošedenú).
+ */
+
+/** Bez diakritiky a malými písmenami — názvy sa na SK a CZ líšia. */
+function bezDiakritiky(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Parameter s DRUHOM nášivky (nie s farbou nite a nie s rozložením).
+ * SK: „Typ nášiviek na boky" · CZ: „Druh nášivky – boky"
+ */
+function jeParamDruhuNasivky(nazov, kde) {
+  const n = bezDiakritiky(nazov);
+  if (!n.includes("nasiv")) return false;
+  if (n.includes("farba") || n.includes("barva") || n.includes("nit")) return false;
+  if (kde === "boky") {
+    return (n.includes("bok") || n.includes("sofer")) &&
+      !n.includes("tapacir") && !n.includes("dver");
+  }
+  if (kde === "stred") {
+    return n.includes("stred") && !n.includes("tapacir") && !n.includes("dver");
+  }
+  return n.includes("tapacir") || n.includes("dver");
+}
+
+/** Z textu option-u vytiahne kód nášivky: „Nášivka H1 +€0" → „H1". */
+export function kodNasivky(text) {
+  const m = String(text || "").match(/\b([HN]\d{1,3})\b/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+/**
+ * Vráti množinu povolených kódov pre dané miesto, alebo `null`, keď taký
+ * parameter na stránke nie je (vývoj mimo Shoptetu) — vtedy sa nefiltruje,
+ * nech konfigurátor nikdy neskončí s prázdnou ponukou.
+ *
+ * @param {"boky"|"stred"|"dvere"} kde
+ * @param {Document} [doc]
+ * @returns {Set<string>|null}
+ */
+export function povoleneNasivky(kde, doc) {
+  const d = doc || (typeof document !== "undefined" ? document : null);
+  if (!d) return null;
+
+  const selects = [...d.querySelectorAll("select[data-parameter-id][data-parameter-name]")]
+    .filter((sel) => jeParamDruhuNasivky(sel.dataset.parameterName, kde));
+  if (!selects.length) return null;
+
+  const kody = new Set();
+  selects.forEach((sel) => {
+    [...sel.querySelectorAll("option")].forEach((opt) => {
+      if (opt.disabled) return;
+      const kod = kodNasivky(opt.textContent);
+      if (kod) kody.add(kod);
+    });
+  });
+
+  // Parameter existuje, ale nemá ani jednu nášivku (admin vypol všetky) —
+  // to je platný stav, vrátime prázdnu množinu, nie null.
+  return kody;
+}
+
+/** Naraz pre všetky tri miesta — konfigurátor si to prečíta raz pri mounte. */
+export function povoleneNasivkyVsade(doc) {
+  return {
+    boky: povoleneNasivky("boky", doc),
+    stred: povoleneNasivky("stred", doc),
+    dvere: povoleneNasivky("dvere", doc),
+  };
+}
+
+/**
+ * Prefiltruje zoznam nášiviek. `null` = nefiltrovať (parameter nenájdený).
+ * Keby filter zhodou okolností vyhodil úplne všetko a v Shoptete pritom
+ * nejaké nášivky sú, radšej vrátime pôvodný zoznam než prázdnu mriežku.
+ */
+export function filtrujNasivky(zoznam, povolene) {
+  if (!povolene) return zoznam;
+  const out = zoznam.filter((n) => povolene.has(String(n.code).toUpperCase()));
+  return out;
+}
