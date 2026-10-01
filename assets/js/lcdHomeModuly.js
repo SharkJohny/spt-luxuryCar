@@ -238,11 +238,9 @@ export function lcdhModulyPostav(root, cz) {
   });
 }
 
-/* správanie: scroll scény, prepínanie farieb, zväčšenie fotky, kurzor so štítkom */
+/* správanie: scroll scény, prepínanie farieb, zväčšenie fotky */
 export function lxModulyOziv(root, cz) {
   const T = cz ? TEXTY.cs : TEXTY.sk;
-  const tichy = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const mys = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const obmedz = (x) => Math.min(1, Math.max(0, x));
 
   /* farby — prepína sa kliknutím (prejdenie myšou meniť nebude, fotka by blikala) */
@@ -287,31 +285,7 @@ export function lxModulyOziv(root, cz) {
     }));
   }
 
-  /* kurzor so štítkom — len nad fotkami modulov, nikde inde */
-  if (mys && !tichy) {
-    const kurzor = zHTML('<div class="lx-kurzor" aria-hidden="true"><span></span></div>');
-    const stitok = kurzor.querySelector("span");
-    root.appendChild(kurzor);
-    root.classList.add("lx-mys");
-    let mx = -200, my = -200, kx = -200, ky = -200, bezi = false;
-    const slucka = () => {
-      kx += (mx - kx) * 0.2; ky += (my - ky) * 0.2;
-      kurzor.style.transform = "translate3d(" + kx + "px," + ky + "px,0)";
-      if (Math.abs(mx - kx) + Math.abs(my - ky) > 0.5 || kurzor.classList.contains("on")) requestAnimationFrame(slucka);
-      else bezi = false;
-    };
-    root.addEventListener("pointermove", (e) => {
-      mx = e.clientX; my = e.clientY;
-      const ciel = e.target.closest && e.target.closest("[data-lx-kurzor]");
-      if (ciel) {
-        if (!kurzor.classList.contains("on")) { kx = mx; ky = my; }
-        stitok.textContent = ciel.dataset.lxKurzor;
-      }
-      kurzor.classList.toggle("on", !!ciel);
-      if (!bezi) { bezi = true; requestAnimationFrame(slucka); }
-    });
-    root.addEventListener("pointerleave", () => kurzor.classList.remove("on"));
-  }
+  /* kurzor so štítkom (Farba / Pozrieť / Rolujte) Michal 2. 10. 2026 nechcel — ostáva bežná šípka */
 
   /* sekcia hneď za tmavou, ktorá má v HTML natvrdo padding-top:0, bola na mobile nalepená
      (napr. „01 — Pre osobné autá" za kamiónmi, „05 — Na vlastné oči" za pred a po):

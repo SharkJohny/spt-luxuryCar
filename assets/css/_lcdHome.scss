@@ -2338,15 +2338,6 @@
   border-radius:50%;border:1px solid rgba(230,200,119,.5);background:rgba(13,12,10,.8);color:#f1ead9;
   font-size:26px;line-height:1;cursor:pointer}
 
-/* --- kurzor so štítkom (len PC s myšou, len nad fotkami modulov) --- */
-#lcd-home .lx-kurzor{position:fixed;left:0;top:0;z-index:96;width:0;height:0;pointer-events:none}
-#lcd-home .lx-kurzor span{position:absolute;left:-46px;top:-46px;width:92px;height:92px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;background:rgba(230,200,119,.9);color:#17130a;
-  font-family:var(--disp);font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  opacity:0;transform:scale(.3);transition:opacity .2s,transform .3s cubic-bezier(.2,.8,.2,1)}
-#lcd-home .lx-kurzor.on span{opacity:1;transform:scale(1)}
-#lcd-home.lx-mys [data-lx-kurzor]{cursor:none}
-
 @media(prefers-reduced-motion:reduce){
   #lcd-home .lx-farby-velka img,#lcd-home .lx-farby-vzorka,#lcd-home .lx-gal-f img,
   #lcd-home .lx-leg-r,#lcd-home .lx-leg-t b,#lcd-home .lx-leg-sw{transition:none}
