@@ -9820,8 +9820,10 @@ section#model-selector {
   overflow:hidden;border:1px solid var(--lx-line);box-shadow:0 26px 60px rgba(0,0,0,.5)}
 #lcd-home .lx-pp-plocha img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;
   margin:0;border:0;border-radius:0}
-#lcd-home .lx-pp-po{clip-path:inset(0 calc(100% - var(--p,0%)) 0 0)}
-#lcd-home .lx-pp-hrana{position:absolute;top:0;bottom:0;left:var(--p,0%);width:2px;margin-left:-1px;
+/* „po" je v okne, ktoré JS posúva transformom — plynulé aj na telefóne */
+#lcd-home .lx-pp-okno{position:absolute;inset:0;overflow:hidden;transform:translate3d(-100%,0,0);will-change:transform}
+#lcd-home .lx-pp-okno .lx-pp-po{transform:translate3d(100%,0,0);will-change:transform}
+#lcd-home .lx-pp-hrana{position:absolute;top:0;bottom:0;left:0;width:2px;margin-left:-1px;will-change:transform;
   background:var(--gold-hi);box-shadow:0 0 24px rgba(230,200,119,.8)}
 #lcd-home .lx-cip{position:absolute;top:14px;padding:7px 12px;border-radius:999px;background:rgba(13,12,10,.72);
   border:1px solid var(--lx-line);font-family:var(--disp);font-weight:800;font-size:11px;line-height:1;
@@ -9871,7 +9873,7 @@ section#model-selector {
   #lcd-home .lx-pocet{text-align:left}
   /* mobil má vlastnú verziu: fotka na celú šírku, bez bodov */
   #lcd-home .lx-pp .lx-leg{display:none}
-  #lcd-home .lx-pp-main{--lx-pomer:1.15;--lx-legbox:0px;--lx-gapmin:0px;--lx-gapmax:0px}
+  #lcd-home .lx-pp-main{--lx-pomer:2.1374;--lx-legbox:0px;--lx-gapmin:0px;--lx-gapmax:0px}
 }
 /* keď sa prilepiť nedá, scéna je normálny blok */
 #lcd-home .lx-pp.lx-bez-lepu{height:auto}
@@ -9879,6 +9881,15 @@ section#model-selector {
 #lcd-home .lx-pp.lx-bez-lepu .lx-pin{height:auto;padding-block:clamp(56px,9vw,110px) 28px}
 #lcd-home .lx-pp.lx-bez-lepu .lx-pp-main{flex:none;container-type:normal}
 #lcd-home .lx-pp.lx-bez-lepu .lx-pp-stage{width:100%;height:auto}
+/* mobil: celá fotka bez orezania, od kraja po kraj obrazovky */
+@media(max-width:760px){
+  #lcd-home .lx-pp.lx-bez-lepu .lx-pin{padding-block:clamp(56px,12vw,80px) 10px}
+  #lcd-home .lx-pp.lx-bez-lepu .lx-pp-stage{width:calc(100% + var(--pad) * 2);margin-inline:calc(var(--pad) * -1)}
+  #lcd-home .lx-pp .lx-pp-plocha{border-radius:0;border-left:0;border-right:0;box-shadow:none}
+}
+/* sekcia za tmavou (JS jej dal triedu namiesto padding-top:0 v HTML): PC bez zmeny, mobil s odstupom */
+#lcd-home section.lx-po-tmavej{padding-top:0!important}
+@media(max-width:760px){#lcd-home section.lx-po-tmavej{padding-top:clamp(52px,14vw,76px)!important}}
 
 /* --- farby (svetlá sekcia) --- */
 #lcd-home .lx-farby-in{display:flex;flex-direction:column;gap:clamp(12px,1.8vw,20px);padding-block:clamp(64px,8vw,112px)}

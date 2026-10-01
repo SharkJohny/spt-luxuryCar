@@ -136,7 +136,7 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
     '<div class="lx-pp-main"><div class="lx-pp-stage">' +
     '<div class="lx-pp-plocha" data-lx-kurzor="' + T.pp.kurzor + '">' +
     '<img src="' + obr("lcd-home/ba-before.jpg") + '" alt="' + T.pp.altPred + '" width="1400" height="655" decoding="async" loading="lazy">' +
-    '<img class="lx-pp-po" src="' + obr("lcd-home/ba-after.jpg") + '" alt="' + T.pp.altPo + '" width="1400" height="655" decoding="async" loading="lazy">' +
+    '<div class="lx-pp-okno"><img class="lx-pp-po" src="' + obr("lcd-home/ba-after.jpg") + '" alt="' + T.pp.altPo + '" width="1400" height="655" decoding="async" loading="lazy"></div>' +
     '<div class="lx-pp-hrana" aria-hidden="true"></div>' +
     '<div class="lx-cip lx-cip-l">' + T.pp.po + '</div><div class="lx-cip lx-cip-r">' + T.pp.pred + "</div></div>" +
     '<ol class="lx-leg">' +
@@ -231,6 +231,11 @@ export function lcdhModulyPostav(root, cz) {
   const napiste = root.querySelector("#napiste");
   if (napiste) napiste.before(zHTML(h.galeria));
   lxCislujKapitoly(root);
+  /* referenčné videá: náhľad z prvej sekundy — iPhone pri preload=metadata ukáže čierny rám */
+  root.querySelectorAll(".ref-v video").forEach((v) => {
+    const src = v.getAttribute("src") || "";
+    if (!v.getAttribute("poster") && /\.mp4$/.test(src)) v.setAttribute("poster", src.replace(/\.mp4$/, ".jpg"));
+  });
 }
 
 /* správanie: scroll scény, prepínanie farieb, zväčšenie fotky, kurzor so štítkom */
@@ -308,9 +313,28 @@ export function lxModulyOziv(root, cz) {
     root.addEventListener("pointerleave", () => kurzor.classList.remove("on"));
   }
 
+  /* sekcia hneď za tmavou, ktorá má v HTML natvrdo padding-top:0, bola na mobile nalepená
+     (napr. „01 — Pre osobné autá" za kamiónmi, „05 — Na vlastné oči" za pred a po):
+     nulu presunieme do triedy lx-po-tmavej, aby ju mobil v CSS mohol prepísať; PC ostáva ako bolo */
+  const tmave = (el) => {
+    const c = (getComputedStyle(el).backgroundColor.match(/[\d.]+/g) || []).map(Number);
+    return c.length >= 3 && (c[3] === undefined || c[3] > 0.5) && 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2] < 70;
+  };
+  root.querySelectorAll("section[style]").forEach((sek) => {
+    if (!/padding-top\s*:\s*0/.test(sek.getAttribute("style"))) return;
+    const pred = sek.previousElementSibling;
+    if (!pred || !tmave(pred)) return;
+    sek.style.removeProperty("padding-top");
+    sek.classList.add("lx-po-tmavej");
+  });
+
   /* scény riadené scrollovaním */
   const pp = root.querySelector(".lx-pp");
   const plocha = pp && pp.querySelector(".lx-pp-plocha");
+  const okno = pp && pp.querySelector(".lx-pp-okno");
+  const poImg = pp && pp.querySelector(".lx-pp-po");
+  const hrana = pp && pp.querySelector(".lx-pp-hrana");
+  let ppQ = -1, ppPct = -1, galIdx = -1;
   const ppCislo = pp && pp.querySelector(".lx-pp-cislo");
   const ppBar = pp && pp.querySelector(".lx-bar");
   const body = pp ? pp.querySelectorAll(".lx-leg-r") : [];
@@ -334,7 +358,8 @@ export function lxModulyOziv(root, cz) {
         if (/(hidden|auto|scroll)/.test(cs.overflowY + " " + cs.overflowX)) { zly = true; break; }
         el = el.parentElement;
       }
-      s.classList.toggle("lx-bez-lepu", zly);
+      /* mobil: pred a po ide vždy ako normálny blok, prilepená scéna na telefóne seká */
+      s.classList.toggle("lx-bez-lepu", zly || (s === pp && innerWidth <= 760));
     });
     /* výška galérie podľa dĺžky pásu: scroll a posun idú zhruba 1 : 1 */
     if (gal && trat) {
@@ -349,18 +374,27 @@ export function lxModulyOziv(root, cz) {
     return dlzka > 0 ? obmedz(-r.top / dlzka) : 0;
   };
   const kresli = () => {
-    if (pp && plocha) {
-      let q;
-      if (pp.classList.contains("lx-bez-lepu")) {
-        const r = plocha.getBoundingClientRect();
-        q = obmedz((innerHeight * 0.85 - r.top) / (innerHeight * 0.65));
-      } else q = obmedz((postup(pp) - 0.05) / 0.85);
-      plocha.style.setProperty("--p", (q * 100).toFixed(2) + "%");
-      if (ppCislo) ppCislo.textContent = Math.round(q * 100);
-      if (ppBar) ppBar.style.width = (q * 100).toFixed(1) + "%";
-      body.forEach((b) => b.classList.toggle("on", q >= +b.dataset.od));
+    const r = plocha && plocha.getBoundingClientRect();
+    /* mimo obrazovky sa nič neprepočítava */
+    if (pp && r && r.bottom > -innerHeight && r.top < innerHeight * 2) {
+      const q = pp.classList.contains("lx-bez-lepu")
+        ? obmedz((innerHeight * 0.8 - r.top) / (innerHeight * 0.55))
+        : obmedz((postup(pp) - 0.05) / 0.85);
+      if (Math.abs(q - ppQ) > 0.0004) {
+        ppQ = q;
+        if (okno) okno.style.transform = "translate3d(" + ((q - 1) * 100).toFixed(2) + "%,0,0)";
+        if (poImg) poImg.style.transform = "translate3d(" + ((1 - q) * 100).toFixed(2) + "%,0,0)";
+        if (hrana) hrana.style.transform = "translate3d(" + (q * r.width).toFixed(1) + "px,0,0)";
+        if (ppBar) ppBar.style.width = (q * 100).toFixed(1) + "%";
+        const pct = Math.round(q * 100);
+        if (pct !== ppPct) {
+          ppPct = pct;
+          if (ppCislo) ppCislo.textContent = pct;
+          body.forEach((b) => b.classList.toggle("on", q >= +b.dataset.od));
+        }
+      }
     }
-    if (gal && trat) {
+    if (gal && trat && innerWidth > 760) {
       let g;
       if (galLepi()) {
         g = postup(gal);
@@ -373,7 +407,8 @@ export function lxModulyOziv(root, cz) {
         const max = trat.scrollWidth - trat.clientWidth;
         g = max > 0 ? obmedz(trat.scrollLeft / max) : 0;
       }
-      if (galCislo) galCislo.textContent = dve(Math.min(galPocet, Math.round(g * (galPocet - 1)) + 1));
+      const idx = Math.min(galPocet, Math.round(g * (galPocet - 1)) + 1);
+      if (galCislo && idx !== galIdx) { galIdx = idx; galCislo.textContent = dve(idx); }
       if (galBar) galBar.style.width = (g * 100).toFixed(1) + "%";
     }
   };
