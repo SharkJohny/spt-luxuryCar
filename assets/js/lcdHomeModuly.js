@@ -40,7 +40,7 @@ const TEXTY = {
       rule: "Realizácie", h: "Z áut našich zákazníkov",
       p: "Osobné autá, SUV, kufre aj kamióny. Každý set na šablóne pre konkrétny model.",
       chips: ["Osobné autá", "SUV", "Kufre", "Boxy do kufra", "Kamióny"],
-      fotka: "fotka", kurzor: "Pozrieť", hint: "Rolujte", hint2: " — fotky sa posúvajú", znak: "Realizácie",
+      fotka: "fotka", kurzor: "Pozrieť", hint: "Rolujte", hint2: " — fotky sa posúvajú",
     },
   },
   cs: {
@@ -70,7 +70,7 @@ const TEXTY = {
       rule: "Realizace", h: "Z aut našich zákazníků",
       p: "Osobní auta, SUV, kufry i kamiony. Každý set na šabloně pro konkrétní model.",
       chips: ["Osobní auta", "SUV", "Kufry", "Boxy do kufru", "Kamiony"],
-      fotka: "fotka", kurzor: "Detail", hint: "Posouvejte", hint2: " — fotky se posouvají", znak: "Realizace",
+      fotka: "fotka", kurzor: "Detail", hint: "Posouvejte", hint2: " — fotky se posouvají",
     },
   },
 };
@@ -109,7 +109,7 @@ const dve = (n) => String(n).padStart(2, "0");
 function hlava(rule, h, p, vpravo) {
   return '<div class="lx-hlava"><div class="lx-hlava-t">' +
     (rule ? '<div class="rule"><span class="n">00 — ' + rule + "</span></div>" : "") +
-    '<h2 class="lx-h">' + h + '</h2><p class="lx-p">' + p + "</p></div>" + (vpravo || "") + "</div>";
+    '<h2 class="lx-h">' + h + "</h2>" + (p ? '<p class="lx-p">' + p + "</p>" : "") + "</div>" + (vpravo || "") + "</div>";
 }
 const stitky = (chips) => '<div class="lx-chips">' + chips.map((c) => '<span class="chip">' + c + "</span>").join("") + "</div>";
 const lista = (hint, hint2, cta) =>
@@ -181,10 +181,10 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
   const galeria =
     '<section class="lx lx-tma lx-gal" id="galeria"><div class="lx-gal-lep lx-vzor"><div class="lx-gal-pin">' +
     '<div class="lx-gal-hore">' +
-    hlava(kap && T.g.rule, T.g.h, T.g.p,
+    hlava(kap && T.g.rule, T.g.h, null,
       '<div class="lx-pocet lx-gal-pocet"><span><span class="lx-gal-cislo">01</span> / ' + dve(GALERIA.length) + "</span><small>" + T.g.fotka + "</small></div>") +
-    stitky(T.g.chips) + "</div>" +
-    '<div class="lx-gal-okno"><div class="lx-gal-znak" aria-hidden="true">' + T.g.znak + '</div><div class="lx-gal-trat">' +
+    "</div>" +
+    '<div class="lx-gal-okno"><div class="lx-gal-znak" aria-hidden="true"><img src="' + obr("lcd-home/logo-velke.png") + '" alt="" decoding="async" loading="lazy"></div><div class="lx-gal-trat">' +
     GALERIA.map((g) =>
       '<figure class="lx-gal-k"><button class="lx-gal-f" type="button" data-lx-kurzor="' + T.g.kurzor + '" aria-label="' + T.g.kurzor + ": " + g[jaz] + '">' +
       '<img src="' + obr(g.f) + '" alt="' + g[jaz] + '" decoding="async" loading="lazy"></button>' +
@@ -364,8 +364,8 @@ export function lxModulyOziv(root, cz) {
         g = postup(gal);
         const cesta = Math.max(0, trat.scrollWidth - innerWidth);
         trat.style.transform = "translate3d(" + (-g * cesta).toFixed(1) + "px,0,0)";
-        /* nápis za fotkami ide pomalšie — hĺbka */
-        if (znak) znak.style.transform = "translate3d(" + (-g * cesta * 0.35).toFixed(1) + "px,-50%,0)";
+        /* logo za fotkami sa posúva len jemne — hĺbka */
+        if (znak) znak.style.setProperty("--lx-zx", ((0.5 - g) * innerWidth * 0.16).toFixed(1) + "px");
       } else {
         trat.style.transform = "";
         const max = trat.scrollWidth - trat.clientWidth;
