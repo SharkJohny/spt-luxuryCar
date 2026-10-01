@@ -9907,12 +9907,14 @@ section#model-selector {
 #lcd-home .lx-pp.lx-bez-lepu .lx-pin{height:auto;padding-block:clamp(56px,9vw,110px) 28px}
 #lcd-home .lx-pp.lx-bez-lepu .lx-pp-main{flex:none;container-type:normal}
 #lcd-home .lx-pp.lx-bez-lepu .lx-pp-stage{width:100%;height:auto}
-/* mobil: celá fotka bez orezania, od kraja po kraj obrazovky */
+/* mobil: celá fotka bez orezania, od kraja po kraj obrazovky (prilepená aj neprilepená scéna) */
 @media(max-width:760px){
   #lcd-home .lx-pp.lx-bez-lepu .lx-pin{padding-block:clamp(56px,12vw,80px) 10px}
-  #lcd-home .lx-pp.lx-bez-lepu .lx-pp-stage{width:calc(100% + var(--pad) * 2);margin-inline:calc(var(--pad) * -1)}
+  #lcd-home .lx-pp .lx-pp-stage{width:calc(100% + var(--pad) * 2);height:auto;margin-inline:calc(var(--pad) * -1)}
   #lcd-home .lx-pp .lx-pp-plocha{border-radius:0;border-left:0;border-right:0;box-shadow:none}
 }
+/* mobil s prilepenou scénou: pod nadpisom aj krátky text, nech nad fotkou nezíva prázdno (nízke telefóny bez neho) */
+@media(max-width:760px) and (min-height:700px){#lcd-home .lx-pp:not(.lx-bez-lepu) .lx-p{display:block}}
 /* sekcia za tmavou (JS jej dal triedu namiesto padding-top:0 v HTML): PC bez zmeny, mobil s odstupom */
 #lcd-home section.lx-po-tmavej{padding-top:0!important}
 @media(max-width:760px){#lcd-home section.lx-po-tmavej{padding-top:clamp(52px,14vw,76px)!important}}
@@ -9965,31 +9967,17 @@ section#model-selector {
 #lcd-home .lx-farby-viac-vejar i:nth-child(3){transform:rotate(4deg)}
 #lcd-home .lx-farby-viac-vejar i:nth-child(4){transform:rotate(11deg) translateY(1px)}
 #lcd-home .lx-farby-viac:hover .lx-farby-viac-vejar i{margin-left:-2px}
-#lcd-home .lx-farby-viac-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-#lcd-home .lx-farby-viac-txt b{font-family:var(--disp);font-weight:800;font-size:clamp(13px,1.1vw,16px);line-height:1.15;color:var(--ink)}
-#lcd-home .lx-farby-viac-txt small{font-family:var(--mono);font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
-  color:#7c5f16;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#lcd-home .lx-farby-viac-sip{flex:none;position:relative;width:32px;height:32px;border-radius:50%;
-  background:linear-gradient(135deg,var(--gold-hi),var(--gold));box-shadow:0 4px 12px rgba(196,155,49,.45);transition:transform .25s}
-#lcd-home .lx-farby-viac-sip:before{content:"";position:absolute;left:9px;top:15px;width:13px;height:2px;border-radius:1px;background:#17130a}
-#lcd-home .lx-farby-viac-sip:after{content:"";position:absolute;left:14px;top:12px;width:6px;height:6px;
-  border:solid #17130a;border-width:2px 2px 0 0;transform:rotate(45deg)}
-#lcd-home .lx-farby-viac:hover .lx-farby-viac-sip{transform:translateX(3px)}
+#lcd-home .lx-farby-viac{justify-content:center}
+#lcd-home .lx-farby-viac-txt{flex:0 1 auto;min-width:0}
+#lcd-home .lx-farby-viac-txt b{display:block;font-family:var(--disp);font-weight:800;font-size:clamp(14px,1.2vw,17px);line-height:1.15;color:var(--ink)}
 @media(max-width:520px){
-  #lcd-home .lx-farby-viac{padding:6px 8px;gap:8px}
+  #lcd-home .lx-farby-viac{padding:6px 8px;gap:9px}
   #lcd-home .lx-farby-viac-vejar i{width:20px;margin-left:-7px;border-radius:5px}
   #lcd-home .lx-farby-viac-vejar i:nth-child(4){display:none}
-  #lcd-home .lx-farby-viac-txt b{font-size:12px}
-  #lcd-home .lx-farby-viac-txt small{font-size:8.5px;letter-spacing:.06em}
-  #lcd-home .lx-farby-viac-sip{width:24px;height:24px}
-  #lcd-home .lx-farby-viac-sip:before{left:6px;top:11px;width:10px}
-  #lcd-home .lx-farby-viac-sip:after{left:10px;top:8.5px;width:5px;height:5px}
+  #lcd-home .lx-farby-viac-txt b{font-size:13px}
 }
 #lcd-home .lx-farby-akcie{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;margin-top:26px;padding-top:20px;
   border-top:1px solid rgba(155,122,36,.24)}
-#lcd-home .lx-odkaz{font-family:var(--disp);font-weight:800;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:#7c5f16;border-bottom:1px solid rgba(155,122,36,.5);padding-bottom:3px}
-#lcd-home .lx-odkaz:hover{color:var(--ink)}
 @media(max-width:860px){
   #lcd-home .lx-farby-main{grid-template-columns:minmax(0,1fr)}
   #lcd-home .lx-farby-velka{aspect-ratio:4/3}
@@ -10000,6 +9988,7 @@ section#model-selector {
   #lcd-home .lx-farby .lx-p{margin-inline:auto}
   #lcd-home .lx-farby-panel{text-align:center}
   #lcd-home .lx-farby-akcie{justify-content:center}
+  #lcd-home .lx-farby-akcie .pf-cta{margin-inline:auto}
 }
 @media(max-width:520px){
   #lcd-home .lx-farby-vzorky{gap:7px}

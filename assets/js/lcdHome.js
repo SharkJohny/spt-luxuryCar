@@ -147,7 +147,10 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
      e-mail a spravu, takze telefon a udaje o aute pripneme na zaciatok
      spravy — rovnako to robi aj formular na /kontakty/. Odosielame cez
      fetch, aby clovek neodisiel z uvodnej stranky; ked to zlyha, formular
-     sa odosle klasicky a sprava sa nestrati. */
+     sa odosle klasicky a sprava sa nestrati.
+     Povinne su len e-mail a telefon (Michal 2026-10-02): bez spravy pride
+     "Prosim, kontaktujte ma", bez mena posleme Shoptetu namiesto mena
+     telefon (jeho formular meno vyzaduje). */
   function lcdhKontakt(root, cz) {
     var f = root.querySelector("#lcdKontakt");
     if (!f) return;
@@ -158,6 +161,8 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
           odosielam: "Odesílám…", tel: "Telefon: ", auto: "Auto: " }
       : { hotovo: "Ďakujeme, správa odišla. Ozveme sa Vám spravidla do hodiny.",
           odosielam: "Odosielam…", tel: "Telefón: ", auto: "Auto: " };
+    T.mail = "E-mail: ";
+    T.prazdna = cz ? "Prosím, kontaktujte mě." : "Prosím, kontaktujte ma.";
 
     function hodnota(id) {
       var p = root.querySelector("#" + id);
@@ -168,10 +173,20 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       if (!pole || pole.dataset.zlozene) return;
       var auto = [hodnota("kfZn"), hodnota("kfMo"), hodnota("kfRo"),
                   hodnota("kfTy")].filter(Boolean).join(" ");
+      var mail = f.querySelector('input[name="email"]');
       var hlava = T.tel + hodnota("kfTel");
+      if (mail && mail.value.trim()) hlava += NL + T.mail + mail.value.trim();
       if (auto) hlava += NL + T.auto + auto;
-      pole.value = hlava + NL + NL + pole.value.trim();
+      pole.value = (pole.value.trim() || T.prazdna) + NL + NL + hlava;
       pole.dataset.zlozene = "1";
+    }
+    /* meno je nepovinne, Shoptet ho vsak vyzaduje — prazdne nahradi telefon */
+    function menoAleboTel(data) {
+      var meno = f.querySelector('input[name="fullName"]');
+      if (meno && !meno.value.trim()) {
+        if (data) data.set("fullName", hodnota("kfTel"));
+        else meno.value = hodnota("kfTel");
+      }
     }
 
     f.addEventListener("submit", function (e) {
@@ -189,7 +204,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       var povodny = tl.textContent;
       tl.disabled = true;
       tl.textContent = T.odosielam;
-      fetch(f.action, { method: "POST", body: new FormData(f),
+      var data = new FormData(f);
+      menoAleboTel(data);
+      fetch(f.action, { method: "POST", body: data,
                         credentials: "same-origin" })
         .then(function (r) {
           if (!r.ok) throw new Error(r.status);
@@ -202,7 +219,7 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
             stav.hidden = false;
           }
         })
-        .catch(function () { f.submit(); })
+        .catch(function () { menoAleboTel(); f.submit(); })
         .then(function () { tl.disabled = false; tl.textContent = povodny; });
     });
   }

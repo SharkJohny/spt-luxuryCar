@@ -14,7 +14,7 @@ const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents
 
 const TEXTY = {
   sk: {
-    cta: "Zvoliť model vozidla", vzorky: "Objednať vzorky", zavriet: "Zavrieť",
+    cta: "Zvoliť model vozidla", zavriet: "Zavrieť",
     pp: {
       rule: "Pred a po", h: "Pred a <b>po</b>",
       p: "Rolujte a sledujte, ako luxusné autokoberce zmenia vzhľad vozidla. Rovnaké auto, rovnaké svetlo, jediný rozdiel sú koberce.",
@@ -34,7 +34,7 @@ const TEXTY = {
       p: "Vyberte vzorku a pozrite si farbu na skutočných kobercoch v aute.",
       chips: ["Farba kože", "Farba šitia", "Fotky zo skutočných áut", "Vzorky aj poštou"],
       skupina: "Farebné vzorky", vzorka: "Vzorka", kurzor: "Farba",
-      viac: "Mnoho ďalších farieb", viacOdkaz: "v Elite Diamond Line",
+      viac: "Mnoho ďalších farieb",
     },
     g: {
       rule: "Realizácie", h: "Z áut našich zákazníkov",
@@ -44,7 +44,7 @@ const TEXTY = {
     },
   },
   cs: {
-    cta: "Zvolit model vozidla", vzorky: "Objednat vzorky", zavriet: "Zavřít",
+    cta: "Zvolit model vozidla", zavriet: "Zavřít",
     pp: {
       rule: "Před a po", h: "Před a <b>po</b>",
       p: "Posouvejte a sledujte, jak luxusní autokoberce změní vzhled vozu. Stejné auto, stejné světlo, jediný rozdíl jsou koberce.",
@@ -64,7 +64,7 @@ const TEXTY = {
       p: "Vyberte vzorek a podívejte se na barvu na skutečných kobercích v autě.",
       chips: ["Barva kůže", "Barva prošití", "Fotky ze skutečných aut", "Vzorky i poštou"],
       skupina: "Barevné vzorky", vzorka: "Vzorek", kurzor: "Barva",
-      viac: "Mnoho dalších barev", viacOdkaz: "v Elite Diamond Line",
+      viac: "Mnoho dalších barev",
     },
     g: {
       rule: "Realizace", h: "Z aut našich zákazníků",
@@ -118,13 +118,12 @@ const lista = (hint, hint2, cta) =>
   '<a class="btn pf-cta" href="' + cta.href + '">' + cta.text + "</a></div>";
 
 /* HTML troch modulov; `obr` premení relatívnu cestu obrázka na adresu,
-   `moznosti.cta` / `moznosti.vzorky` = kam vedú tlačidlá,
+   `moznosti.cta` = kam vedie tlačidlo, `moznosti.viac` = odkaz „Mnoho ďalších farieb",
    `moznosti.kapitoly: false` = bez čísla kapitoly (stránka, ktorá ich nepoužíva) */
 export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
   const T = cz ? TEXTY.cs : TEXTY.sk;
   const jaz = cz ? "cs" : "sk";
   const cta = moznosti.cta || { href: "#konf", text: T.cta };
-  const vzorkyHref = moznosti.vzorky || "#vzorky";
   const kap = moznosti.kapitoly !== false;
   const od = [0.12, 0.36, 0.6, 0.84];
 
@@ -170,11 +169,10 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
     '<a class="lx-farby-viac" href="' + (moznosti.viac || VIAC_HREF) + '" style="grid-column:span ' + (7 - (FARBY.length % 7 || 7) || 7) + '">' +
     '<span class="lx-farby-viac-vejar" aria-hidden="true">' +
     VIAC_VEJAR.map((v) => '<i style="background-image:url(' + obr("farby/sw-" + v + ".jpg") + ')"></i>').join("") + "</span>" +
-    '<span class="lx-farby-viac-txt"><b>' + T.f.viac + "</b><small>" + T.f.viacOdkaz + "</small></span>" +
-    '<span class="lx-farby-viac-sip" aria-hidden="true"></span></a>' +
+    '<span class="lx-farby-viac-txt"><b>' + T.f.viac + "</b></span></a>" +
     "</div>" +
-    '<div class="lx-farby-akcie"><a class="btn pf-cta" href="' + cta.href + '">' + cta.text + "</a>" +
-    '<a class="lx-odkaz" href="' + vzorkyHref + '">' + T.vzorky + "</a></div>" +
+    /* „Objednať vzorky" preč — vzorkovník je hneď pod modulom (Michal 2026-10-02) */
+    '<div class="lx-farby-akcie"><a class="btn pf-cta" href="' + cta.href + '">' + cta.text + "</a></div>" +
     "</div></div></div></div></section>";
 
   const galeria =
@@ -332,8 +330,7 @@ export function lxModulyOziv(root, cz) {
         if (/(hidden|auto|scroll)/.test(cs.overflowY + " " + cs.overflowX)) { zly = true; break; }
         el = el.parentElement;
       }
-      /* mobil: pred a po ide vždy ako normálny blok, prilepená scéna na telefóne seká */
-      s.classList.toggle("lx-bez-lepu", zly || (s === pp && innerWidth <= 760));
+      s.classList.toggle("lx-bez-lepu", zly);
     });
     /* výška galérie podľa dĺžky pásu: scroll a posun idú zhruba 1 : 1 */
     if (gal && trat) {
@@ -344,7 +341,8 @@ export function lxModulyOziv(root, cz) {
     }
   };
   const postup = (el) => {
-    const r = el.getBoundingClientRect(), dlzka = r.height - innerHeight;
+    const lep = el.firstElementChild;
+    const r = el.getBoundingClientRect(), dlzka = r.height - (lep ? lep.offsetHeight : innerHeight);
     return dlzka > 0 ? obmedz(-r.top / dlzka) : 0;
   };
   const kresli = () => {
