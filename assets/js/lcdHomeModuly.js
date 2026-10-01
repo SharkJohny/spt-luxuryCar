@@ -34,6 +34,7 @@ const TEXTY = {
       p: "Vyberte vzorku a pozrite si farbu na skutočných kobercoch v aute.",
       chips: ["Farba kože", "Farba šitia", "Fotky zo skutočných áut", "Vzorky aj poštou"],
       skupina: "Farebné vzorky", vzorka: "Vzorka", kurzor: "Farba",
+      viac: "Mnoho ďalších farieb kože aj šitia", viacOdkaz: "Pozrite si ich v Elite Diamond Line",
     },
     g: {
       rule: "Realizácie", h: "Z áut našich zákazníkov",
@@ -63,6 +64,7 @@ const TEXTY = {
       p: "Vyberte vzorek a podívejte se na barvu na skutečných kobercích v autě.",
       chips: ["Barva kůže", "Barva prošití", "Fotky ze skutečných aut", "Vzorky i poštou"],
       skupina: "Barevné vzorky", vzorka: "Vzorek", kurzor: "Barva",
+      viac: "Mnoho dalších barev kůže i prošití", viacOdkaz: "Podívejte se na ně v Elite Diamond Line",
     },
     g: {
       rule: "Realizace", h: "Z aut našich zákazníků",
@@ -78,19 +80,16 @@ const TEXTY = {
 const FARBY = [
   { id: "cierna-cervena", vzor: "Diamond Line", sk: "Čierna · červené šitie", cs: "Černá · červené prošití" },
   { id: "cierna-modra", vzor: "Diamond Line", sk: "Čierna · modré šitie", cs: "Černá · modré prošití" },
-  { id: "cierna-siva", vzor: "Diamond Line", sk: "Čierna · sivé šitie", cs: "Černá · šedé prošití" },
   { id: "cierna-bezova", vzor: "Diamond Line", sk: "Čierna · béžové šitie", cs: "Černá · béžové prošití" },
-  { id: "cierna-biela", vzor: "Diamond Line", sk: "Čierna · biele šitie", cs: "Černá · bílé prošití" },
   { id: "bezova", vzor: "Diamond Line", sk: "Béžová", cs: "Béžová" },
   { id: "hneda", vzor: "Diamond Line", sk: "Hnedá", cs: "Hnědá" },
   { id: "hneda-kava", vzor: "Diamond Line", sk: "Hnedá káva", cs: "Hnědá káva" },
   { id: "vinovo-cervena", vzor: "Diamond Line", sk: "Vínovo červená", cs: "Vínově červená" },
-  { id: "cervena", vzor: "Diamond Line", sk: "Červená", cs: "Červená" },
   { id: "oranzova", vzor: "Diamond Line", sk: "Oranžová", cs: "Oranžová" },
-  { id: "seda", vzor: "Diamond Line", sk: "Šedá", cs: "Šedá" },
   { id: "modra", vzor: "Diamond Line", sk: "Modrá", cs: "Modrá" },
-  { id: "stripe-cierna-cervena", vzor: "Stripe Line", sk: "Čierna · červené šitie", cs: "Černá · červené prošití" },
 ];
+/* koniec druhého radu vzoriek: ďalšie farby sú v konfigurátore */
+const VIAC_HREF = "/luxusne-autokoberce-dragonskin-elite-diamond-line/";
 
 const GALERIA = [
   { f: "lcd-home/f03.jpg", sk: "Osobné auto · vpredu", cs: "Osobní auto · vpředu" },
@@ -168,6 +167,8 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
       '<button class="lx-farby-vzorka" type="button" data-i="' + i + '" data-vzor="' + f.vzor + '" aria-pressed="' + (i === 0) + '" aria-label="' + f[jaz] + ", " + f.vzor + '">' +
       '<img src="' + obr("farby/sw-" + f.id + ".jpg") + '" alt="" width="68" height="68" decoding="async" loading="lazy"></button>'
     ).join("") +
+    '<a class="lx-farby-viac" href="' + (moznosti.viac || VIAC_HREF) + '" style="grid-column:span ' + (7 - (FARBY.length % 7 || 7) || 7) + '">' +
+    '<span class="lx-farby-viac-t">' + T.f.viac + '</span><span class="lx-farby-viac-o">' + T.f.viacOdkaz + " →</span></a>" +
     "</div>" +
     '<div class="lx-farby-akcie"><a class="btn pf-cta" href="' + cta.href + '">' + cta.text + "</a>" +
     '<a class="lx-odkaz" href="' + vzorkyHref + '">' + T.vzorky + "</a></div>" +
