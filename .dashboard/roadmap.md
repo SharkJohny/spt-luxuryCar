@@ -464,4 +464,4 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
     - Změny: vzorky/build-product-xml.mjs (sampleLabel, "Áno") + regenerovaný vzorky/dist/vzorky-product.xml; oba validní RELAX NG
     - [ ] Zkontroluj: po re-importu feedu v adminu objednávka vzorku ukazuje "Diamond – kůže …, prošití … (D-x) - Ano"
 - [ ] Barva prošití u jednobarevných vzorků (D-10…D-18, S-4…S-8) — chybí v datech, čeká na klienta
-- [ ] Nasadit: merge feat/vzorky-shoptet-html → main (fix poznámky "model: undefined…") + re-import CZ i SK feedu
+- [x] Nasadit: merge feat/vzorky-shoptet-html → main (fix poznámky "model: undefined…") + re-import CZ i SK feedu
