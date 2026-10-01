@@ -34,13 +34,13 @@ const TEXTY = {
       p: "Vyberte vzorku a pozrite si farbu na skutočných kobercoch v aute.",
       chips: ["Farba kože", "Farba šitia", "Fotky zo skutočných áut", "Vzorky aj poštou"],
       skupina: "Farebné vzorky", vzorka: "Vzorka", kurzor: "Farba",
-      viac: "Mnoho ďalších farieb kože aj šitia", viacOdkaz: "Pozrite si ich v Elite Diamond Line",
+      viac: "Mnoho ďalších farieb", viacOdkaz: "v Elite Diamond Line",
     },
     g: {
       rule: "Realizácie", h: "Z áut našich zákazníkov",
       p: "Osobné autá, SUV, kufre aj kamióny. Každý set na šablóne pre konkrétny model.",
       chips: ["Osobné autá", "SUV", "Kufre", "Boxy do kufra", "Kamióny"],
-      fotka: "fotka", kurzor: "Pozrieť", hint: "Rolujte", hint2: " — fotky sa posúvajú",
+      fotka: "fotka", kurzor: "Pozrieť", hint: "Rolujte", hint2: " — fotky sa posúvajú", znak: "Realizácie",
     },
   },
   cs: {
@@ -64,13 +64,13 @@ const TEXTY = {
       p: "Vyberte vzorek a podívejte se na barvu na skutečných kobercích v autě.",
       chips: ["Barva kůže", "Barva prošití", "Fotky ze skutečných aut", "Vzorky i poštou"],
       skupina: "Barevné vzorky", vzorka: "Vzorek", kurzor: "Barva",
-      viac: "Mnoho dalších barev kůže i prošití", viacOdkaz: "Podívejte se na ně v Elite Diamond Line",
+      viac: "Mnoho dalších barev", viacOdkaz: "v Elite Diamond Line",
     },
     g: {
       rule: "Realizace", h: "Z aut našich zákazníků",
       p: "Osobní auta, SUV, kufry i kamiony. Každý set na šabloně pro konkrétní model.",
       chips: ["Osobní auta", "SUV", "Kufry", "Boxy do kufru", "Kamiony"],
-      fotka: "fotka", kurzor: "Detail", hint: "Posouvejte", hint2: " — fotky se posouvají",
+      fotka: "fotka", kurzor: "Detail", hint: "Posouvejte", hint2: " — fotky se posouvají", znak: "Realizace",
     },
   },
 };
@@ -90,6 +90,7 @@ const FARBY = [
 ];
 /* koniec druhého radu vzoriek: ďalšie farby sú v konfigurátore */
 const VIAC_HREF = "/luxusne-autokoberce-dragonskin-elite-diamond-line/";
+const VIAC_VEJAR = ["x-fialova", "x-cierna-zlta", "x-seda", "x-cervena"];
 
 const GALERIA = [
   { f: "lcd-home/f03.jpg", sk: "Osobné auto · vpredu", cs: "Osobní auto · vpředu" },
@@ -168,7 +169,10 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
       '<img src="' + obr("farby/sw-" + f.id + ".jpg") + '" alt="" width="68" height="68" decoding="async" loading="lazy"></button>'
     ).join("") +
     '<a class="lx-farby-viac" href="' + (moznosti.viac || VIAC_HREF) + '" style="grid-column:span ' + (7 - (FARBY.length % 7 || 7) || 7) + '">' +
-    '<span class="lx-farby-viac-t">' + T.f.viac + '</span><span class="lx-farby-viac-o">' + T.f.viacOdkaz + " →</span></a>" +
+    '<span class="lx-farby-viac-vejar" aria-hidden="true">' +
+    VIAC_VEJAR.map((v) => '<i style="background-image:url(' + obr("farby/sw-" + v + ".jpg") + ')"></i>').join("") + "</span>" +
+    '<span class="lx-farby-viac-txt"><b>' + T.f.viac + "</b><small>" + T.f.viacOdkaz + "</small></span>" +
+    '<span class="lx-farby-viac-sip" aria-hidden="true"></span></a>' +
     "</div>" +
     '<div class="lx-farby-akcie"><a class="btn pf-cta" href="' + cta.href + '">' + cta.text + "</a>" +
     '<a class="lx-odkaz" href="' + vzorkyHref + '">' + T.vzorky + "</a></div>" +
@@ -180,7 +184,7 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
     hlava(kap && T.g.rule, T.g.h, T.g.p,
       '<div class="lx-pocet lx-gal-pocet"><span><span class="lx-gal-cislo">01</span> / ' + dve(GALERIA.length) + "</span><small>" + T.g.fotka + "</small></div>") +
     stitky(T.g.chips) + "</div>" +
-    '<div class="lx-gal-okno"><div class="lx-gal-trat">' +
+    '<div class="lx-gal-okno"><div class="lx-gal-znak" aria-hidden="true">' + T.g.znak + '</div><div class="lx-gal-trat">' +
     GALERIA.map((g) =>
       '<figure class="lx-gal-k"><button class="lx-gal-f" type="button" data-lx-kurzor="' + T.g.kurzor + '" aria-label="' + T.g.kurzor + ": " + g[jaz] + '">' +
       '<img src="' + obr(g.f) + '" alt="' + g[jaz] + '" decoding="async" loading="lazy"></button>' +
@@ -312,6 +316,7 @@ export function lxModulyOziv(root, cz) {
   const trat = gal && gal.querySelector(".lx-gal-trat");
   const galCislo = gal && gal.querySelector(".lx-gal-cislo");
   const galBar = gal && gal.querySelector(".lx-bar");
+  const znak = gal && gal.querySelector(".lx-gal-znak");
   const galPocet = gal ? gal.querySelectorAll(".lx-gal-k").length : 0;
   if (!pp && !gal) return;
 
@@ -359,6 +364,8 @@ export function lxModulyOziv(root, cz) {
         g = postup(gal);
         const cesta = Math.max(0, trat.scrollWidth - innerWidth);
         trat.style.transform = "translate3d(" + (-g * cesta).toFixed(1) + "px,0,0)";
+        /* nápis za fotkami ide pomalšie — hĺbka */
+        if (znak) znak.style.transform = "translate3d(" + (-g * cesta * 0.35).toFixed(1) + "px,-50%,0)";
       } else {
         trat.style.transform = "";
         const max = trat.scrollWidth - trat.clientWidth;
