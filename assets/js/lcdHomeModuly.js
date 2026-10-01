@@ -153,7 +153,6 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
   const farby =
     '<section class="lx lx-svetla lx-farby" id="farby"><div class="lx-vzor"><div class="lx-wrap lx-farby-in">' +
     hlava(kap && T.f.rule, T.f.h, T.f.p) +
-    stitky(T.f.chips) +
     '<div class="lx-farby-main">' +
     '<div class="lx-farby-velka" data-lx-kurzor="' + T.f.kurzor + '">' +
     FARBY.map((f, i) =>
@@ -185,11 +184,14 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
       '<div class="lx-pocet lx-gal-pocet"><span><span class="lx-gal-cislo">01</span> / ' + dve(GALERIA.length) + "</span><small>" + T.g.fotka + "</small></div>") +
     "</div>" +
     '<div class="lx-gal-okno"><div class="lx-gal-znak" aria-hidden="true"><img src="' + obr("lcd-home/logo-velke.png") + '" alt="" decoding="async" loading="lazy"></div><div class="lx-gal-trat">' +
-    GALERIA.map((g) =>
-      '<figure class="lx-gal-k"><button class="lx-gal-f" type="button" data-lx-kurzor="' + T.g.kurzor + '" aria-label="' + T.g.kurzor + ": " + g[jaz] + '">' +
-      '<img src="' + obr(g.f) + '" alt="' + g[jaz] + '" decoding="async" loading="lazy"></button>' +
-      "<figcaption>" + g[jaz] + "</figcaption></figure>"
-    ).join("") +
+    /* za originálmi ide ich kópia: na mobile z nich vznikne nekonečný pás, na PC je skrytá */
+    GALERIA.concat(GALERIA).map((g, i) => {
+      const klon = i >= GALERIA.length;
+      return '<figure class="lx-gal-k' + (klon ? ' lx-klon" aria-hidden="true' : "") + '">' +
+        '<button class="lx-gal-f" type="button"' + (klon ? ' tabindex="-1"' : "") + ' data-lx-kurzor="' + T.g.kurzor + '" aria-label="' + T.g.kurzor + ": " + g[jaz] + '">' +
+        '<img src="' + obr(g.f) + '" alt="' + (klon ? "" : g[jaz]) + '" decoding="async" loading="lazy"></button>' +
+        "<figcaption>" + g[jaz] + "</figcaption></figure>";
+    }).join("") +
     "</div></div>" +
     '<div class="lx-gal-dole">' + lista(T.g.hint, T.g.hint2, cta) + "</div>" +
     "</div></div></section>";
@@ -317,7 +319,7 @@ export function lxModulyOziv(root, cz) {
   const galCislo = gal && gal.querySelector(".lx-gal-cislo");
   const galBar = gal && gal.querySelector(".lx-bar");
   const znak = gal && gal.querySelector(".lx-gal-znak");
-  const galPocet = gal ? gal.querySelectorAll(".lx-gal-k").length : 0;
+  const galPocet = gal ? gal.querySelectorAll(".lx-gal-k:not(.lx-klon)").length : 0;
   if (!pp && !gal) return;
 
   /* position:sticky nefunguje, keď má niektorý predok overflow hidden/auto —

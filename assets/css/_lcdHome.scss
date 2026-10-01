@@ -2156,7 +2156,9 @@
   #lcd-home .lx-pp{height:260vh}
   #lcd-home .lx-pp .lx-chips{display:none}
   #lcd-home .lx-pocet{text-align:left}
-  #lcd-home .lx-pp-main{--lx-pomer:1.3333}
+  /* mobil má vlastnú verziu: fotka na celú šírku, bez bodov */
+  #lcd-home .lx-pp .lx-leg{display:none}
+  #lcd-home .lx-pp-main{--lx-pomer:1.15;--lx-legbox:0px;--lx-gapmin:0px;--lx-gapmax:0px}
 }
 /* keď sa prilepiť nedá, scéna je normálny blok */
 #lcd-home .lx-pp.lx-bez-lepu{height:auto}
@@ -2241,6 +2243,13 @@
 @media(max-width:860px){
   #lcd-home .lx-farby-main{grid-template-columns:minmax(0,1fr)}
   #lcd-home .lx-farby-velka{aspect-ratio:4/3}
+  /* mobil: texty na stred, čiara pri čísle kapitoly z oboch strán */
+  #lcd-home .lx-farby .lx-hlava{justify-content:center;text-align:center}
+  #lcd-home .lx-farby .rule{justify-content:center}
+  #lcd-home .lx-farby .rule:before{content:"";flex:1;height:1px;background:var(--line)}
+  #lcd-home .lx-farby .lx-p{margin-inline:auto}
+  #lcd-home .lx-farby-panel{text-align:center}
+  #lcd-home .lx-farby-akcie{justify-content:center}
 }
 @media(max-width:520px){
   #lcd-home .lx-farby-vzorky{gap:7px}
@@ -2263,6 +2272,7 @@
 #lcd-home .lx-gal-trat{position:absolute;top:0;bottom:0;left:0;z-index:1;display:flex;align-items:stretch;gap:clamp(12px,1.6vw,20px);
   padding-left:max(var(--pad),calc((100vw - 1240px) / 2 + var(--pad)));padding-right:var(--pad);will-change:transform}
 #lcd-home .lx-gal-k{flex:none;height:100%;width:calc(var(--lx-kh) * .76);margin:0;display:flex;flex-direction:column;justify-content:flex-start}
+#lcd-home .lx-gal-k.lx-klon{display:none}
 #lcd-home .lx-gal-k:nth-child(3n+2){justify-content:flex-end}
 #lcd-home .lx-gal-k:nth-child(3n){justify-content:center}
 #lcd-home .lx-gal-f{display:block;flex:none;height:var(--lx-kh);width:100%;padding:0;border-radius:14px;overflow:hidden;
@@ -2283,13 +2293,23 @@
 #lcd-home .lx-gal.lx-bez-lepu{height:auto}
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-lep{position:relative;height:auto;overflow:visible}
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-pin{height:auto;padding-block:clamp(56px,9vw,110px) 28px}
+/* mobil má vlastnú verziu: nekonečný pás, ktorý ide sám (na PC ostáva posúvanie scrollom);
+   podržanie prstom ho zastaví */
 @media(max-width:760px){
-  #lcd-home .lx-gal-okno{flex:none;min-height:0;max-height:none}
-  #lcd-home .lx-gal-trat{position:static;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);
-    padding-bottom:10px;transform:none!important;scrollbar-width:none}
-  #lcd-home .lx-gal-trat::-webkit-scrollbar{display:none}
-  #lcd-home .lx-gal-k{height:auto;width:72vw;scroll-snap-align:start}
+  #lcd-home .lx-gal-okno{flex:none;min-height:0;max-height:none;overflow:hidden}
+  #lcd-home .lx-gal-trat{position:static;width:max-content;gap:12px;padding:0 12px 0 0;align-items:flex-start;
+    animation:lxPas 48s linear infinite}
+  #lcd-home .lx-gal-trat:active{animation-play-state:paused}
+  #lcd-home .lx-gal-k,#lcd-home .lx-gal-k.lx-klon{display:flex;height:auto;width:62vw;justify-content:flex-start}
   #lcd-home .lx-gal-f{height:auto;aspect-ratio:4/5}
+  #lcd-home .lx-gal .pf-bar{display:none}
+  #lcd-home .lx-gal .pinfoot{justify-content:center}
+}
+@keyframes lxPas{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+@media(max-width:760px) and (prefers-reduced-motion:reduce){
+  #lcd-home .lx-gal-trat{animation:none;width:auto;overflow-x:auto;scroll-snap-type:x mandatory}
+  #lcd-home .lx-gal-k.lx-klon{display:none}
+  #lcd-home .lx-gal-k{scroll-snap-align:start}
 }
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-okno{flex:none;min-height:0;max-height:none}
 #lcd-home .lx-gal.lx-bez-lepu .lx-gal-znak{display:none}
