@@ -20,7 +20,7 @@ var T = CZ ? {
   temy: { autokoberce: "Autokoberce a kufr", modely: "Modely aut", elektro: "Elektromobily", kupa: "Koupě a prodej", trendy: "Trendy" },
   konEyebrow: "Pro Vaše auto", konH: "Autokoberce na míru pro více než 1 000 modelů",
   konP: "Vyberte značku, model a barvu — cenu uvidíte ještě před objednávkou.", konBtn: "Otevřít konfigurátor",
-  obsah: "Obsah článku", citaj: "Číst", pred: "← Předchozí článek", dalsi: "Další článek →",
+  obsah: "Obsah článku", zavriet: "Zavřít", citaj: "Číst", pred: "← Předchozí článek", dalsi: "Další článek →",
   kopiruj: "Kopírovat odkaz", skopirovane: "Odkaz zkopírován",
   suvisE: "Čtěte dál", suvisH: "Související články",
   endH: "Koberce pro Vaše auto",
@@ -42,7 +42,7 @@ var T = CZ ? {
   temy: { autokoberce: "Autokoberce a kufor", modely: "Modely áut", elektro: "Elektromobily", kupa: "Kúpa a predaj", trendy: "Trendy" },
   konEyebrow: "Pre Vaše auto", konH: "Autokoberce na mieru pre viac ako 1 000 modelov",
   konP: "Vyberte značku, model a farbu — cenu uvidíte ešte pred objednávkou.", konBtn: "Otvoriť konfigurátor",
-  obsah: "Obsah článku", citaj: "Čítať", pred: "← Predchádzajúci článok", dalsi: "Ďalší článok →",
+  obsah: "Obsah článku", zavriet: "Zavrieť", citaj: "Čítať", pred: "← Predchádzajúci článok", dalsi: "Ďalší článok →",
   kopiruj: "Kopírovať odkaz", skopirovane: "Odkaz skopírovaný",
   suvisE: "Čítajte ďalej", suvisH: "Súvisiace články",
   endH: "Koberce pre Vaše auto",
@@ -552,19 +552,59 @@ function clanok() {
     try { navigator.clipboard.writeText(location.href.split("#")[0]).then(hotovo, hotovo); } catch (e) { hotovo(); }
   });
 
+  /* obsah na telefone pri citani: tlacidlo vlavo dole + zoznam kapitol zdola */
+  var pil = null, plach = null, tocM = text.querySelector(".toc-m");
+  if (obsah.length > 1) {
+    pil = prvok("button", "toc-pil", '<span class="toc-pil-ik" aria-hidden="true"><i></i><i></i><i></i></span><span class="toc-pil-t">' +
+      '<b class="toc-pil-no"></b><em class="toc-pil-n">' + T.obsah + '</em></span><span class="toc-pil-p" aria-hidden="true"><i></i></span>');
+    pil.type = "button";
+    pil.setAttribute("aria-label", T.obsah);
+    pil.setAttribute("aria-haspopup", "dialog");
+    plach = prvok("div", "toc-plach", '<div class="toc-plach-bg"></div><div class="toc-plach-in" tabindex="-1" role="dialog" aria-modal="true" aria-label="' + T.obsah +
+      '"><nav class="toc"><div class="toc-hlava"><span class="eyebrow">' + T.obsah + '</span><span class="toc-perc" aria-hidden="true">0&nbsp;%</span>' +
+      '<button type="button" class="toc-zavri" aria-label="' + T.zavriet + '">×</button></div><div class="toc-linka" aria-hidden="true"><i></i></div><ol>' + tocLi + "</ol></nav></div>");
+    plach.hidden = true;
+    koren.appendChild(pil);
+    koren.appendChild(plach);
+    var zavri = function () {
+      plach.classList.remove("open");
+      setTimeout(function () { plach.hidden = true; }, 320);
+      pil.focus({ preventScroll: true });
+    };
+    pil.addEventListener("click", function () {
+      plach.hidden = false;
+      requestAnimationFrame(function () { requestAnimationFrame(function () { plach.classList.add("open"); }); });
+      plach.querySelector(".toc-plach-in").focus({ preventScroll: true });
+    });
+    plach.querySelector(".toc-plach-bg").addEventListener("click", zavri);
+    plach.querySelector(".toc-zavri").addEventListener("click", zavri);
+    plach.addEventListener("keydown", function (e) { if (e.key === "Escape") zavri(); });
+    [].forEach.call(plach.querySelectorAll("a"), function (a) { a.addEventListener("click", zavri); });
+    if (tocM) [].forEach.call(tocM.querySelectorAll("a"), function (a) { a.addEventListener("click", function () { tocM.open = false; }); });
+  }
+
   /* postup citania, aktivna kapitola, parallax hero */
-  var linka = koren.querySelector(".postup i"), tocI = bok.querySelector(".toc-linka i"), perc = bok.querySelector(".toc-perc"),
-    odkazy = bok.querySelectorAll(".toc a"), heroImg = heroEl.querySelector(".cl-hero-bg img"),
-    pohyb = !matchMedia("(prefers-reduced-motion: reduce)").matches, cakam = false;
+  var linka = koren.querySelector(".postup i"), linky = koren.querySelectorAll(".toc-linka i,.toc-pil-p i"), percy = koren.querySelectorAll(".toc-perc"),
+    zoznamy = [bok.querySelectorAll(".toc a"), plach ? plach.querySelectorAll(".toc a") : []], heroImg = heroEl.querySelector(".cl-hero-bg img"),
+    pohyb = !matchMedia("(prefers-reduced-motion: reduce)").matches, cakam = false, kapitol = obsah.filter(function (o) { return o.no !== "?"; }).length;
   function prepocitaj() {
     cakam = false;
     var r = text.getBoundingClientRect(), vh = innerHeight, p = Math.min(1, Math.max(0, (vh * 0.35 - r.top) / Math.max(1, r.height - vh * 0.35)));
-    linka.style.transform = "scaleX(" + p.toFixed(4) + ")";
-    if (tocI) tocI.style.transform = "scaleX(" + p.toFixed(4) + ")";
-    if (perc) perc.innerHTML = Math.round(p * 100) + "&nbsp;%";
+    var sx = "scaleX(" + p.toFixed(4) + ")";
+    linka.style.transform = sx;
+    [].forEach.call(linky, function (i) { i.style.transform = sx; });
+    [].forEach.call(percy, function (e) { e.innerHTML = Math.round(p * 100) + "&nbsp;%"; });
     var akt = -1;
     obsah.forEach(function (o, k) { var e = document.getElementById(o.id); if (e && e.getBoundingClientRect().top < 150) akt = k; });
-    [].forEach.call(odkazy, function (a, k) { a.classList.toggle("on", k === akt); });
+    zoznamy.forEach(function (z) { [].forEach.call(z, function (a, k) { a.classList.toggle("on", k === akt); }); });
+    if (pil) {
+      var o = obsah[Math.max(0, akt)];
+      pil.querySelector(".toc-pil-no").textContent = o.no === "?" ? "?" : o.no + "/" + (kapitol < 10 ? "0" + kapitol : kapitol);
+      pil.querySelector(".toc-pil-n").textContent = akt < 0 ? T.obsah : o.txt;
+      /* ukaz az za rozbalovacim obsahom na zaciatku a skry na konci clanku */
+      var zaObsahom = tocM ? tocM.getBoundingClientRect().bottom < 0 : r.top < 0;
+      pil.classList.toggle("ukaz", zaObsahom && pata.getBoundingClientRect().top > vh * 0.75);
+    }
     if (pohyb && heroImg) { var hr = heroEl.getBoundingClientRect(); if (hr.bottom > 0) heroImg.style.setProperty("--py", (-hr.top * 0.25).toFixed(1) + "px"); }
   }
   addEventListener("scroll", function () { if (!cakam) { cakam = true; requestAnimationFrame(prepocitaj); } }, { passive: true });

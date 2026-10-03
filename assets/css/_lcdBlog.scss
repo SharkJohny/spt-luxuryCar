@@ -444,6 +444,42 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .bok-cta b{font-family:var(--disp);font-size:18px;line-height:1.25}
 #lcd-blog .bok-cta .pop{font-size:14px;line-height:1.5;color:rgba(255,255,255,.66)}
 #lcd-blog .bok-cta .btn{margin-top:6px;padding:13px 16px;font-size:12px}
+/* bocny panel len na PC — toto pravidlo musi byt az za zakladnym .cl-bok{display:flex} */
+@media(max-width:1099px){#lcd-blog aside.cl-bok{display:none}}
+
+/* obsah na telefone pri citani: tlacidlo vlavo dole (kapitola + postup) a zoznam kapitol zdola */
+#lcd-blog .toc-pil{position:fixed;left:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:900;display:none;
+  align-items:center;gap:11px;max-width:calc(100% - 112px);padding:12px 18px 13px 14px;border-radius:999px;
+  border:1px solid rgba(230,200,119,.45);background:rgba(18,15,10,.94);color:#fff;font:inherit;line-height:1.2;cursor:pointer;
+  box-shadow:0 14px 34px rgba(0,0,0,.35);overflow:hidden;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;transform:translateY(18px);pointer-events:none;transition:opacity .3s,transform .35s cubic-bezier(.2,.7,.2,1)}
+@media(max-width:1099px){#lcd-blog .toc-pil{display:flex}}
+#lcd-blog .toc-pil.ukaz{opacity:1;transform:none;pointer-events:auto}
+#lcd-blog .toc-pil-ik{flex:none;display:flex;flex-direction:column;gap:3px}
+#lcd-blog .toc-pil-ik i{display:block;width:15px;height:2px;border-radius:2px;background:var(--gold-hi)}
+#lcd-blog .toc-pil-ik i:nth-child(2){width:11px}
+#lcd-blog .toc-pil-ik i:nth-child(3){width:13px}
+#lcd-blog .toc-pil-t{display:flex;align-items:baseline;gap:9px;min-width:0}
+#lcd-blog .toc-pil-no{flex:none;font-family:var(--disp);font-weight:800;font-size:12.5px;letter-spacing:.08em;color:var(--gold-hi)}
+#lcd-blog .toc-pil-n{font-style:normal;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.9)}
+#lcd-blog .toc-pil-p{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(230,200,119,.18)}
+#lcd-blog .toc-pil-p i{display:block;height:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi))}
+#lcd-blog .toc-plach{position:fixed;inset:0;z-index:2147483646}
+#lcd-blog .toc-plach-in:focus{outline:none}
+#lcd-blog .toc-plach[hidden]{display:none}
+#lcd-blog .toc-plach-bg{position:absolute;inset:0;background:rgba(10,8,6,.55);opacity:0;transition:opacity .3s}
+#lcd-blog .toc-plach-in{position:absolute;left:0;right:0;bottom:0;max-height:80vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:var(--paper);border-radius:22px 22px 0 0;padding:12px 14px calc(18px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -20px 50px rgba(0,0,0,.25);transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+#lcd-blog .toc-plach-in:before{content:"";display:block;width:42px;height:4px;border-radius:4px;background:var(--sand2);margin:0 auto 12px}
+#lcd-blog .toc-plach.open .toc-plach-bg{opacity:1}
+#lcd-blog .toc-plach.open .toc-plach-in{transform:none}
+#lcd-blog .toc-plach .toc{border:0;box-shadow:none;background:none;padding:0}
+#lcd-blog .toc-plach .toc a{font-size:16px;padding:12px 10px}
+#lcd-blog .toc-zavri{flex:none;width:34px;height:34px;margin-left:6px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+  color:var(--ink);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#lcd-blog .toc-plach .toc-hlava{padding:0 0 0 10px}
+#lcd-blog .toc-plach .toc-perc{margin-left:auto}
 
 /* obsah na telefone — rozbalovaci */
 #lcd-blog .toc-m{display:none;margin:0 0 2em;background:var(--paper);border:1px solid rgba(155,122,36,.22);border-radius:16px;overflow:hidden}
