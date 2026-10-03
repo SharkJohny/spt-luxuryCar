@@ -12655,6 +12655,10 @@ section#model-selector {
    Vsetko je pod #lcd-blog, ktory stavia assets/js/lcdBlog.js. Povodny obsah Shoptetu sa skryje,
    az ked je #lcd-blog hotovy (trieda lcd-blog-v2 na <html>). */
 
+/* LCD-BLOG-V2: zapnute — podla tejto znacky automatizacia blogu prepne generator na v2 (nemazat) */
+/* proti prebliknutiu: povodny obsah blogu je skryty, kym JS nepostavi #lcd-blog (najviac 3 s, potom sa ukaze) */
+@keyframes lbUkaz{to{opacity:1}}
+body.in-blog #content-wrapper,body.in-blog .breadcrumbs-wrapper{opacity:0;animation:lbUkaz .25s 3s forwards}
 html.lcd-blog-v2 body.in-blog #content-wrapper,
 html.lcd-blog-v2 body.in-blog .breadcrumbs-wrapper{display:none !important}
 html.lcd-blog-v2 body.in-blog{background:#eceae5}
@@ -12811,7 +12815,7 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .bl-cisla{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border-radius:18px;overflow:hidden;
   background:rgba(230,200,119,.2);border:1px solid rgba(230,200,119,.2)}
 #lcd-blog .bl-cisla div{background:rgba(18,15,10,.86);padding:18px 16px;display:flex;flex-direction:column;gap:4px}
-#lcd-blog .bl-cisla b{font-family:var(--disp);font-weight:800;font-size:clamp(26px,2.6vw,36px);line-height:1;color:var(--gold-hi)}
+#lcd-blog .bl-cisla b{font-family:var(--disp);font-weight:800;font-size:clamp(24px,2.3vw,32px);line-height:1;color:var(--gold-hi);white-space:nowrap}
 #lcd-blog .bl-cisla span{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.62)}
 @media(max-width:860px){#lcd-blog .bl-hero .in{grid-template-columns:minmax(0,1fr)}}
 

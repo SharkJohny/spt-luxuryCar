@@ -4,7 +4,7 @@
    z generatora v1, Pobo) zjednoti normalizuj(). Banner pri clanku vzdy k teme (div.cl-data alebo odhad z titulku).
    Nahlad: ?blogv2=1 zapne (zapamata sa), ?blogv2=0 vypne. CSS: assets/css/_lcdBlog.scss -> blok LCD-BLOG v luxuryCar.css. */
 
-var ZAPNUTE_PRE_VSETKYCH = false;
+var ZAPNUTE_PRE_VSETKYCH = true; /* 3. 10. 2026 zapnute pre vsetkych (SK + CZ) */
 
 var CZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
 var IMG = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/";
