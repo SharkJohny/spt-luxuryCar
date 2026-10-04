@@ -349,6 +349,8 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .cl-cta-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1s cubic-bezier(.2,.7,.2,1)}
 #lcd-blog .cl-cta:hover .cl-cta-img img{transform:scale(1.07)}
 @media(max-width:560px){#lcd-blog .cl-text .cl-cta{grid-template-columns:minmax(0,1fr)}#lcd-blog .cl-cta-img{height:150px;order:-1}}
+/* na telefone tlacidlo v karte cez celu sirku a na jeden riadok */
+@media(max-width:560px){#lcd-blog .cl-cta .btn{align-self:stretch;white-space:nowrap;font-size:12px;letter-spacing:.07em;padding:14px 16px;gap:10px}}
 
 #lcd-blog .cl-text a.btn,#lcd-blog .cl-text a.btn:hover{color:#17130a;text-decoration:none}
 #lcd-blog .cl-tlacidlo{margin:1.8em 0}
