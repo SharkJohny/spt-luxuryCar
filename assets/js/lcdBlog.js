@@ -118,9 +118,10 @@ function temyZTextu(titulok, popis) {
 /* produkt k teme, ked clanok nema div.cl-data — len podla titulku */
 function produktZTitulku(titulok) {
   var t = bezDiak(titulok);
+  /* box/organizer skor nez kufor — "Organizer do kufra" ma ukazat box, nie rohoz */
+  if (/\bbox|organiz|poriad|porad/.test(t)) return "box";
   if (/kufor|kufr|batozin|zavazadl/.test(t)) return "kufor-premium";
   if (/\bzim|snez|snih|sneh|blat|\bsol\b|dazd|\bdest|\bpes\b|\bpsa\b|\bpsi\b|deti|rodin/.test(t)) return "dvojvrstvove";
-  if (/\bbox|poriad|porad/.test(t)) return "box";
   return "jednovrstvove";
 }
 
@@ -380,6 +381,20 @@ function normalizuj(text) {
       f.innerHTML = "<cite><b>" + esc(casti[0] || "") + "</b>" + (casti[1] ? "<span>" + esc(casti.slice(1).join(" · ")) + "</span>" : "") + "</cite>";
       ci.replaceWith(f);
     }
+  });
+  /* starsi generator ulozil tabulku ako text "| a | b |" v odstavci s <br> — sprav z nej skutocnu tabulku */
+  [].forEach.call(text.querySelectorAll("p"), function (p) {
+    var riadky = p.innerHTML.split(/<br\s*\/?>/i).map(function (r) { return r.trim(); }).filter(Boolean);
+    if (riadky.length < 3) return;
+    var cisteRiadky = riadky.map(function (r) { return cisty(r.replace(/<[^>]+>/g, "")); });
+    if (!cisteRiadky.every(function (r) { return /^\|.*\|$/.test(r); })) return;
+    var sep = cisteRiadky.findIndex(function (r) { return /^[\s|:\-]+$/.test(r) && r.indexOf("---") !== -1; });
+    if (sep < 1) return;
+    var bunky = function (r) { return r.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|").map(function (c) { return c.trim(); }); };
+    var hlava = bunky(riadky[sep - 1]), telo = riadky.slice(sep + 1).map(bunky);
+    var tab = prvok("div", "cl-tab", "<table><thead><tr>" + hlava.map(function (c) { return "<th>" + c + "</th>"; }).join("") +
+      "</tr></thead><tbody>" + telo.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>");
+    p.replaceWith(tab);
   });
   [].forEach.call(text.querySelectorAll("figure"), function (f) { f.classList.add("cl-fig"); });
   [].forEach.call(text.querySelectorAll("[style]"), function (n) { n.removeAttribute("style"); });
