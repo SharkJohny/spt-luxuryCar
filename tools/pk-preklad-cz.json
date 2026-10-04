@@ -262,5 +262,7 @@
  "po 50 €": "po 1 250 Kč",
  "100 – 800 €": "2 500 – 20 000 Kč",
  "230 €": "5 799 Kč",
- "340 €": "8 744 Kč"
+ "340 €": "8 744 Kč",
+ "Dá sa poukážka rozdeliť na viac objednávok?": "Lze poukaz rozdělit na více objednávek?",
+ "Nie. Poukážka sa uplatní naraz na jednu objednávku. Ak objednávka stojí menej, ako je hodnota poukážky, nevyčerpaný zostatok prepadá. Ak stojí viac, obdarovaný rozdiel doplatí.": "Ne. Poukaz se uplatní najednou na jednu objednávku. Pokud objednávka stojí méně, než je hodnota poukazu, nevyčerpaný zůstatek propadá. Pokud stojí více, obdarovaný rozdíl doplatí."
 }
