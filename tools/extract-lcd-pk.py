@@ -81,8 +81,9 @@ KOSIK_STARY = """  /* ---- košík: maketa ---- */
   if(lKos) lKos.addEventListener('click', maketa);"""
 
 KOSIK_NOVY = """  /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / POUKAZ-7500) cez Shoptet ----
-     Úspech/chybu čítame z odpovede /action/Cart/addCartItem/ (code 200 = vložené). Shoptet po úspechu
-     stránku obnoví — suma sa preto uloží do sessionStorage a po obnovení sa ukáže potvrdenie. */
+     Úspech/chybu čítame z odpovede /action/Cart/addCartItem/ (code 200 = vložené). Po úspechu ide zákazník
+     rovno do košíka (Michal 4. 10. 2026). Shoptet po úspechu stránku obnoví a mohol by presmerovanie prebiť —
+     preto aj značka lcdPkDoKosika, podľa ktorej lcdPoukazka.js po obnovení presmeruje do košíka. */
   function ukazPridane(v){
     var bar = document.getElementById('pkPridane');
     if(!bar){
@@ -105,10 +106,10 @@ KOSIK_NOVY = """  /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / 
       if(hotovo) return; hotovo = true;
       XMLHttpRequest.prototype.open = povodny;
       if(ok){
-        try { sessionStorage.setItem('lcdPkPridane', String(suma)); } catch(_){}
+        try { sessionStorage.setItem('lcdPkDoKosika', String(Date.now())); } catch(_){}
         t.textContent = PK.textPridane;
         ukazPridane(suma);
-        setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 2600);
+        location.href = PK.kosikUrl;
       } else {
         t.textContent = (sprava && String(sprava).replace(/<[^>]+>/g, '')) || PK.textChyba;
         setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 4000);
@@ -132,11 +133,7 @@ KOSIK_NOVY = """  /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / 
   }
   kos.addEventListener('click', doKosika);
   if(lKos) lKos.addEventListener('click', doKosika);
-  /* po obnovení stránky Shoptetom: potvrdenie a zvolená suma ostane */
-  try {
-    var pridane = +sessionStorage.getItem('lcdPkPridane');
-    if(pridane){ sessionStorage.removeItem('lcdPkPridane'); setTimeout(function(){ nastav(pridane, true); ukazPridane(pridane); }, 0); }
-  } catch(_){}"""
+  try { sessionStorage.removeItem('lcdPkPridane'); } catch(_){}"""
 
 
 

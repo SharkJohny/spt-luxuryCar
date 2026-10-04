@@ -22,8 +22,25 @@ function verzia() {
   return m ? m[1] : "1";
 }
 
+/* Po vložení do košíka ide zákazník rovno do košíka (pk.js nastaví značku lcdPkDoKosika a presmeruje).
+   Shoptet po vložení stránku obnovuje a mohol by presmerovanie prebiť — preto značka: na ktorejkoľvek
+   stránke sa zmaže a na stránke poukážky (obnovenej Shoptetom) ešte presmeruje do košíka. */
+function chceDoKosika() {
+  try {
+    var t = +sessionStorage.getItem("lcdPkDoKosika");
+    if (t) sessionStorage.removeItem("lcdPkDoKosika");
+    return !!t && Date.now() - t < 30000;
+  } catch (e) { return false; }
+}
+
 function lcdPoukazkaBoot() {
+  var doKosika = chceDoKosika();
   if (window.__LCD_PK__ || !jePoukazka()) return;
+  if (doKosika) {
+    document.documentElement.classList.add("lcd-pk-cakam");
+    location.replace("/kosik/");
+    return;
+  }
   window.__LCD_PK__ = CZ
     ? { kod: "POUKAZ-", kosikUrl: "/kosik/", textPridavam: "Vkládám do košíku…", textPridane: "Vloženo do košíku ✓",
         textChyba: "Nepodařilo se, zkuste znovu", textVKosiku: "Poukaz v hodnotě %s je v košíku", textDoKosika: "Přejít do košíku" }
