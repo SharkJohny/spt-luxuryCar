@@ -17,6 +17,7 @@ import "./lcdHdr.js"; // Nova uvodna stranka (lcd-home)
 import "./lcdRz.js"; // Novy rozcestnik (lcd-rz)
 import "./lcdLang.js"; // Prepinac jazyka vo vlajke (ponuka namiesto okamziteho prepnutia)
 import "./lcdBlog.js"; // Novy blog: zoznam /blog/ a detail clanku (nahlad ?blogv2=1)
+import "./lcdPoukazka.js"; // Darcekova poukazka: stranka podla navrhu (nacita assets/poukazka/*)
 import { mergeTruckOrderSummaryIntoNote } from "./truck-konfigurator/order-summary.mjs";
 import {
   TRUCK_BRANDS,

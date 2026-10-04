@@ -1,0 +1,48 @@
+/* Darčeková poukážka (SK) / Dárkový poukaz (CZ) — stránka podľa návrhu z 3. 10. 2026.
+   Produkt v Shoptete má 15 variantov: SK POUKAZKA-100 … POUKAZKA-800 (po 50 €),
+   CZ POUKAZ-2500 … POUKAZ-20000 (po 1 250 Kč). Kód a PDF posiela automat Jána Kučeru.
+   Tu len rozpoznáme stránku poukážky (podľa kódu produktu) a načítame jej vlastné
+   štýly a skript (assets/poukazka/pk.css + pk.js / pk-cz.js, generuje tools/extract-lcd-pk.py),
+   aby ostatné stránky webu nemuseli sťahovať nič navyše. */
+
+var CZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
+var LOKAL = location.hostname === "127.0.0.1" || location.hostname === "localhost";
+var ZAKLAD = LOKAL ? "/poukazka/" : "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/poukazka/";
+
+function jePoukazka() {
+  var b = document.body;
+  if (!b || !b.classList.contains("type-detail")) return false;
+  var sku = document.querySelector('meta[itemprop="sku"]');
+  return !!(sku && /^POUKAZ/.test(sku.getAttribute("content") || ""));
+}
+
+function verzia() {
+  var s = document.querySelector('script[src*="luxuryCar.js"]');
+  var m = s && /[?&]v=([^&#]+)/.exec(s.src);
+  return m ? m[1] : "1";
+}
+
+function lcdPoukazkaBoot() {
+  if (window.__LCD_PK__ || !jePoukazka()) return;
+  window.__LCD_PK__ = CZ
+    ? { kod: "POUKAZ-", textPridavam: "Vkládám do košíku…", textPridane: "Vloženo do košíku ✓", textChyba: "Nepodařilo se, zkuste znovu" }
+    : { kod: "POUKAZKA-", textPridavam: "Vkladám do košíka…", textPridane: "Vložené do košíka ✓", textChyba: "Nepodarilo sa, skúste znova" };
+  var html = document.documentElement;
+  html.classList.add("lcd-pk-cakam");
+  var v = verzia();
+  var l = document.createElement("link");
+  l.rel = "stylesheet";
+  l.href = ZAKLAD + "pk.css?v=" + v;
+  document.head.appendChild(l);
+  var s = document.createElement("script");
+  s.src = ZAKLAD + (CZ ? "pk-cz.js" : "pk.js") + "?v=" + v;
+  s.onerror = function () { html.classList.remove("lcd-pk-cakam"); };
+  document.body.appendChild(s);
+  /* poistka: keď sa nová stránka do 8 s nepostaví, ukáž pôvodný produkt Shoptetu */
+  setTimeout(function () {
+    if (!document.getElementById("lcd-pk")) html.classList.remove("lcd-pk-cakam");
+  }, 8000);
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", lcdPoukazkaBoot);
+else lcdPoukazkaBoot();

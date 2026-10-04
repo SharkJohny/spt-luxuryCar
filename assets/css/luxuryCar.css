@@ -13167,3 +13167,12 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
   #lcd-blog .cl-hero-bg,#lcd-blog .cl-dole i,#lcd-blog .cl-faq .odp{animation:none}
 }
 /* ===== LCD-BLOG END ===== */
+
+/* ===== LCD-PK START - darcekova poukazka (assets/js/lcdPoukazka.js); vlastne styly stranky su v assets/poukazka/pk.css ===== */
+@keyframes lcdpkUkaz{to{visibility:visible}}
+html.lcd-pk-cakam body.type-detail #content-wrapper,html.lcd-pk-cakam body.type-detail .breadcrumbs-wrapper{visibility:hidden;animation:lcdpkUkaz 0s 8s forwards}
+html.lcd-pk-on body.type-detail #content-wrapper,html.lcd-pk-on body.type-detail .breadcrumbs-wrapper{display:none !important}
+html.lcd-pk-on body.type-detail{background:#eceae5}
+html.lcd-pk-on body.type-detail #header{margin-bottom:0}
+html.lcd-pk-on body.type-detail .overall-wrapper{overflow:clip}
+/* ===== LCD-PK END ===== */

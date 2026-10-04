@@ -104,8 +104,10 @@ export function initProduct(setupData, texts) {
   // Na stránke master produktu poukazu (/darcekova-poukazka/) sa namiesto
   // štandardnej produktovej stránky zobrazí konfigurátor hodnoty poukazu;
   // ten sám pridáva zodpovedajúce "mince" (VOUCHER-100…500) do košíka.
-  if (isVoucherPage()) {
-    mountVoucherConfigurator();
+  // 4. 10. 2026: starý React konfigurátor (mince VOUCHER-100…500) nahradila nová stránka
+  // podľa návrhu (assets/js/lcdPoukazka.js, produkt s variantmi POUKAZKA-100…800 / POUKAZ-2500…20000).
+  // Na stránke poukážky sa preto nič z bežného produktu nespúšťa a starý konfigurátor sa nemontuje.
+  if (isVoucherPage() || window.__LCD_PK__) {
     return;
   }
 
