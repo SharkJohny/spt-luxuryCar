@@ -3,7 +3,8 @@
 Jeden produkt, 15 variantov podľa parametra "Hodnota" (Michal 4. 10. 2026):
   SK 100 – 800 € po 50 €, kódy POUKAZKA-100 … POUKAZKA-800
   CZ 2 500 – 20 000 Kč po 1 250 Kč, kódy POUKAZ-2500 … POUKAZ-20000
-Bez DPH (LCD nie je platca DPH), bez zliav a kupónov, doprava a platba zdarma.
+Bez DPH (LCD nie je platca DPH), bez zliav a kupónov, doprava a platba zdarma, sklad 999 ks
+(pri sklade 0 Shoptet hlási „Položka nie je predajná“).
 Kód poukážky a PDF posiela automat Jána Kučeru — páruje podľa kódu variantu.
 
 Spustenie:  python voucher/build-poukazka-xml.py [--viditelnost detailOnly|visible]
@@ -73,6 +74,7 @@ def variant(t, v):
         "        <FREE_SHIPPING>1</FREE_SHIPPING>\n"
         "        <FREE_BILLING>1</FREE_BILLING>\n"
         "        <UNIT>ks</UNIT>\n"
+        "        <STOCK>\n          <AMOUNT>999</AMOUNT>\n        </STOCK>\n"
         "        <NEGATIVE_AMOUNT>1</NEGATIVE_AMOUNT>\n"
         "        <APPLY_LOYALTY_DISCOUNT>0</APPLY_LOYALTY_DISCOUNT>\n"
         "        <APPLY_VOLUME_DISCOUNT>0</APPLY_VOLUME_DISCOUNT>\n"

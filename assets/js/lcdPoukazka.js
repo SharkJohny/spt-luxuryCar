@@ -5,8 +5,8 @@
    štýly a skript (assets/poukazka/pk.css + pk.js / pk-cz.js, generuje tools/extract-lcd-pk.py),
    aby ostatné stránky webu nemuseli sťahovať nič navyše. */
 
-var CZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
 var LOKAL = location.hostname === "127.0.0.1" || location.hostname === "localhost";
+var CZ = location.hostname.indexOf("luxurycardesign.cz") !== -1 || (LOKAL && /[?&]pkcz=1/.test(location.search));
 var ZAKLAD = LOKAL ? "/poukazka/" : "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/poukazka/";
 
 function jePoukazka() {
@@ -25,8 +25,10 @@ function verzia() {
 function lcdPoukazkaBoot() {
   if (window.__LCD_PK__ || !jePoukazka()) return;
   window.__LCD_PK__ = CZ
-    ? { kod: "POUKAZ-", textPridavam: "Vkládám do košíku…", textPridane: "Vloženo do košíku ✓", textChyba: "Nepodařilo se, zkuste znovu" }
-    : { kod: "POUKAZKA-", textPridavam: "Vkladám do košíka…", textPridane: "Vložené do košíka ✓", textChyba: "Nepodarilo sa, skúste znova" };
+    ? { kod: "POUKAZ-", kosikUrl: "/kosik/", textPridavam: "Vkládám do košíku…", textPridane: "Vloženo do košíku ✓",
+        textChyba: "Nepodařilo se, zkuste znovu", textVKosiku: "Poukaz v hodnotě %s je v košíku", textDoKosika: "Přejít do košíku" }
+    : { kod: "POUKAZKA-", kosikUrl: "/kosik/", textPridavam: "Vkladám do košíka…", textPridane: "Vložené do košíka ✓",
+        textChyba: "Nepodarilo sa, skúste znova", textVKosiku: "Poukážka v hodnote %s je v košíku", textDoKosika: "Prejsť do košíka" };
   var html = document.documentElement;
   html.classList.add("lcd-pk-cakam");
   var v = verzia();

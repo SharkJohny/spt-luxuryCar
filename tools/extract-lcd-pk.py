@@ -6,11 +6,12 @@ fotky presmeruje na CDN a tlačidlo košíka napojí na Shoptet (shoptet.cartSha
 
 Výstup (načíta ho len stránka poukážky, viď assets/js/lcdPoukazka.js):
     assets/poukazka/pk.css
-    assets/poukazka/pk.js
+    assets/poukazka/pk.js (SK), assets/poukazka/pk-cz.js (CZ, preklad tools/pk-preklad-cz.json)
 
 Spustenie:  python tools/extract-lcd-pk.py --navrh <cesta k poukazka.html>
 """
 import argparse
+import html
 import importlib.util
 import io
 import json
@@ -79,26 +80,157 @@ KOSIK_STARY = """  /* ---- košík: maketa ---- */
   kos.addEventListener('click', maketa);
   if(lKos) lKos.addEventListener('click', maketa);"""
 
-KOSIK_NOVY = """  /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / POUKAZ-7500) cez Shoptet ---- */
+KOSIK_NOVY = """  /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / POUKAZ-7500) cez Shoptet ----
+     Úspech/chybu čítame z odpovede /action/Cart/addCartItem/ (code 200 = vložené). Shoptet po úspechu
+     stránku obnoví — suma sa preto uloží do sessionStorage a po obnovení sa ukáže potvrdenie. */
+  function ukazPridane(v){
+    var bar = document.getElementById('pkPridane');
+    if(!bar){
+      bar = document.createElement('div');
+      bar.id = 'pkPridane'; bar.className = 'pk-pridane'; bar.setAttribute('role', 'status');
+      kos.parentNode.insertBefore(bar, kos.nextSibling);
+    }
+    bar.innerHTML = '<span class="pk-pridane-t"></span><a class="pk-pridane-a" href="' + PK.kosikUrl + '"></a>';
+    bar.querySelector('.pk-pridane-t').textContent = PK.textVKosiku.replace('%s', eur(v));
+    bar.querySelector('.pk-pridane-a').textContent = PK.textDoKosika + ' →';
+  }
   function doKosika(e){
     e.preventDefault();
     var t = this;
     if(t.dataset.pov) return;
     t.dataset.pov = t.textContent;
     t.textContent = PK.textPridavam;
-    var hotovo = function(ok){
-      t.textContent = ok ? PK.textPridane : PK.textChyba;
-      setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 2600);
+    var povodny = XMLHttpRequest.prototype.open, hotovo = false;
+    function koniec(ok, sprava){
+      if(hotovo) return; hotovo = true;
+      XMLHttpRequest.prototype.open = povodny;
+      if(ok){
+        try { sessionStorage.setItem('lcdPkPridane', String(suma)); } catch(_){}
+        t.textContent = PK.textPridane;
+        ukazPridane(suma);
+        setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 2600);
+      } else {
+        t.textContent = (sprava && String(sprava).replace(/<[^>]+>/g, '')) || PK.textChyba;
+        setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 4000);
+      }
+    }
+    XMLHttpRequest.prototype.open = function(m, u){
+      if(/addCartItem/.test(String(u))){
+        XMLHttpRequest.prototype.open = povodny;
+        var x = this;
+        x.addEventListener('load', function(){
+          var j = {}; try { j = JSON.parse(x.responseText); } catch(_){}
+          koniec(x.status === 200 && (j.code === undefined || j.code === 200), j.message);
+        });
+        x.addEventListener('error', function(){ koniec(false); });
+      }
+      return povodny.apply(this, arguments);
     };
-    var cakam = setTimeout(function(){ hotovo(true); }, 4000);
-    document.addEventListener('ShoptetCartUpdated', function h(){
-      document.removeEventListener('ShoptetCartUpdated', h); clearTimeout(cakam); hotovo(true);
-    });
+    setTimeout(function(){ koniec(false); }, 15000);
     try { shoptet.cartShared.addToCart({ productCode: PK.kod + suma, amount: 1 }); }
-    catch(err){ clearTimeout(cakam); hotovo(false); if(window.console) console.warn('lcdPk kosik', err); }
+    catch(err){ koniec(false); if(window.console) console.warn('lcdPk kosik', err); }
   }
   kos.addEventListener('click', doKosika);
-  if(lKos) lKos.addEventListener('click', doKosika);"""
+  if(lKos) lKos.addEventListener('click', doKosika);
+  /* po obnovení stránky Shoptetom: potvrdenie a zvolená suma ostane */
+  try {
+    var pridane = +sessionStorage.getItem('lcdPkPridane');
+    if(pridane){ sessionStorage.removeItem('lcdPkPridane'); setTimeout(function(){ nastav(pridane, true); ukazPridane(pridane); }, 0); }
+  } catch(_){}"""
+
+
+
+EUR = list(range(100, 801, 50))
+KC = list(range(2500, 20001, 1250))
+FOTKY_CZ = {"pk-vysku-prazdna.jpg": "pk-cz-vysku-prazdna.jpg", "pk-sirka-300.jpg": "pk-cz-sirka-7500.jpg",
+            "pk-vysku-300-v2.jpg": "pk-cz-vysku-7500.jpg", "pk-hodnoty.jpg": "pk-cz-hodnoty.jpg",
+            "pk-email.jpg": "pk-cz-email.jpg"}
+EUR_SK = "function eur(v){ return v + ' €'; }"
+EUR_CZ = r"function eur(v){ return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Kč'; }"
+
+PRIDANE_CSS = """
+/* potvrdenie po vložení do košíka (pk.js ukazPridane) */
+#lcd-pk .pk-pridane{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin-top:12px;
+  padding:13px 16px;border-radius:14px;background:rgba(47,156,104,.1);border:1px solid rgba(47,156,104,.45);color:#14110c;font-size:15px;line-height:1.4}
+#lcd-pk .pk-pridane-t{display:inline-flex;align-items:center;gap:10px;font-weight:600}
+#lcd-pk .pk-pridane-t:before{content:"\\2713";flex:none;width:24px;height:24px;border-radius:50%;background:#2f9c68;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+#lcd-pk .pk-pridane-a{font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:#1f7d4f;text-decoration:none;white-space:nowrap}
+#lcd-pk .pk-pridane-a:hover{text-decoration:underline}
+"""
+
+
+def preloz_markup(mk, preklad):
+    for s, c in FOTKY_CZ.items():
+        mk = mk.replace("poukazka/" + s, "poukazka/" + c)
+    for e, k in zip(EUR, KC):
+        mk = mk.replace('data-v="%d"' % e, 'data-v="%d"' % k)
+
+    def text(m):
+        raw = m.group(1)
+        jadro = raw.strip()
+        if not jadro:
+            return m.group(0)
+        nove = preklad.get(jadro)
+        if nove is None:
+            nove = preklad.get(html.unescape(jadro))
+        if nove is None:
+            return m.group(0)
+        zac = raw[:len(raw) - len(raw.lstrip())]
+        kon = raw[len(raw.rstrip()):]
+        return ">" + zac + nove + kon + "<"
+    mk = re.sub(r">([^<>]+)<", text, mk)
+
+    def atr(m):
+        meno, hod = m.group(1), m.group(2)
+        nove = preklad.get(html.unescape(hod))
+        return m.group(0) if nove is None else '%s="%s"' % (meno, html.escape(nove, quote=True))
+    mk = re.sub(r'\b(alt|aria-label|data-alt|title|placeholder)="([^"]*)"', atr, mk)
+    return mk.replace("luxurycardesign.sk", "luxurycardesign.cz")
+
+
+def preloz_js(s, preklad):
+    for e, k in zip(EUR, KC):
+        s = s.replace('data-v="%d"' % e, 'data-v="%d"' % k)
+    for sk, cz in FOTKY_CZ.items():
+        s = s.replace("poukazka/" + sk, "poukazka/" + cz)
+    s = s.replace("var MIN = 100, MAX = 800, KROK = 50, PREDVOLENA = 300;",
+                  "var MIN = 2500, MAX = 20000, KROK = 1250, PREDVOLENA = 7500;")
+    s = s.replace(EUR_SK, EUR_CZ)
+
+    def lit(m):
+        q, obsah = m.group(1), m.group(2)
+        nove = preklad.get(obsah)
+        if nove is None:
+            return m.group(0)
+        return q + nove.replace("\\", "\\\\").replace(q, "\\" + q) + q
+    return re.sub(r"(['\"])((?:(?!\1)[^\\\n])*)\1", lit, s)
+
+
+def obal(markup, js):
+    bloky = ["try {\n" + s.strip() + "\n} catch (e) { if (window.console) console.warn('lcdPk skript', e); }" for s in js]
+    return (
+        "/* GENEROVANE tools/extract-lcd-pk.py z navrhu poukazka.html — needituj rucne.\n"
+        "   Spúšťa ho assets/js/lcdPoukazka.js len na stránke darčekovej poukážky. */\n"
+        "(function(){\n"
+        "  if (window.__LCD_PK_HOTOVO__) return;\n"
+        "  var PK = window.__LCD_PK__ || {};\n"
+        "  var MARKUP = " + json.dumps(markup, ensure_ascii=False) + ";\n"
+        "  function spusti(){\n"
+        "    var wrap = document.getElementById('content-wrapper');\n"
+        "    if (!wrap || document.getElementById('lcd-pk')) return;\n"
+        "    var koren = document.createElement('div');\n"
+        "    koren.id = 'lcd-pk';\n"
+        "    koren.innerHTML = MARKUP;\n"
+        "    wrap.parentNode.insertBefore(koren, wrap);\n"
+        "    window.__LCD_PK_HOTOVO__ = true;\n"
+        "    document.documentElement.classList.add('lcd-pk-on');\n"
+        + "\n".join("    " + line for b in bloky for line in b.split("\n")) + "\n"
+        "  }\n"
+        "  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', spusti); else spusti();\n"
+        "})();\n"
+    )
 
 
 def main():
@@ -118,56 +250,43 @@ def main():
     css = ex.rename_animations(css, ctx["kf"])
     css = "\n".join(ctx["imports"] + ctx["hoist"] + [css])
     css = sekcie_css(cesty(css))
-    css = "/* GENEROVANE tools/extract-lcd-pk.py z navrhu poukazka.html — needituj rucne */\n" + css + "\n"
+    css = "/* GENEROVANE tools/extract-lcd-pk.py z navrhu poukazka.html — needituj rucne */\n" + css + "\n" + PRIDANE_CSS
 
     # --- skripty (bez hamburgeru a mega menu — tie na webe rieši lcdHdr) ---
     pouzite = [s for s in skripty if "Hamburger a mega menu" not in s]
     assert len(pouzite) == len(skripty) - 1, "hamburger skript sa nenašiel"
-    js = []
+    js_sk = []
     for s in pouzite:
         s = sekcie_html(cesty(s)).replace('"section[', '"[data-s][').replace("'section[", "'[data-s][")
         if "Konfigurátor darčekovej poukážky" in s:
             assert s.count(KOSIK_STARY) == 1, "maketa košíka sa nenašla"
             s = s.replace(KOSIK_STARY, KOSIK_NOVY)
-        js.append("try {\n" + s.strip() + "\n} catch (e) { if (window.console) console.warn('lcdPk skript', e); }")
+            assert s.count(EUR_SK) == 1 and s.count("var MIN = 100, MAX = 800, KROK = 50, PREDVOLENA = 300;") == 1
+        js_sk.append(s)
+    markup_sk = sekcie_html(cesty(main_html)).strip()
 
-    markup = sekcie_html(cesty(main_html)).strip()
-
-    pk_js = (
-        "/* GENEROVANE tools/extract-lcd-pk.py z navrhu poukazka.html — needituj rucne.\n"
-        "   Spúšťa ho assets/js/lcdPoukazka.js len na stránke darčekovej poukážky. */\n"
-        "(function(){\n"
-        "  if (window.__LCD_PK_HOTOVO__) return;\n"
-        "  var PK = window.__LCD_PK__ || {};\n"
-        "  var MARKUP = " + json.dumps(markup, ensure_ascii=False) + ";\n"
-        "  function spusti(){\n"
-        "    var wrap = document.getElementById('content-wrapper');\n"
-        "    if (!wrap || document.getElementById('lcd-pk')) return;\n"
-        "    var koren = document.createElement('div');\n"
-        "    koren.id = 'lcd-pk';\n"
-        "    koren.innerHTML = PK.preloz ? PK.preloz(MARKUP) : MARKUP;\n"
-        "    wrap.parentNode.insertBefore(koren, wrap);\n"
-        "    window.__LCD_PK_HOTOVO__ = true;\n"
-        "    document.documentElement.classList.add('lcd-pk-on');\n"
-        + "\n".join("    " + line for b in js for line in b.split("\n")) + "\n"
-        "  }\n"
-        "  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', spusti); else spusti();\n"
-        "})();\n"
-    )
+    # --- CZ: preklad (tools/pk-preklad-cz.json), hodnoty v Kč, české fotky ---
+    preklad = json.load(io.open(os.path.join(KOREN, "tools", "pk-preklad-cz.json"), encoding="utf-8"))
+    markup_cz = preloz_markup(markup_sk, preklad)
+    js_cz = [preloz_js(s, preklad) for s in js_sk]
 
     ciel = os.path.join(KOREN, "assets", "poukazka")
     os.makedirs(ciel, exist_ok=True)
     io.open(os.path.join(ciel, "pk.css"), "w", encoding="utf-8", newline="\n").write(css)
-    io.open(os.path.join(ciel, "pk.js"), "w", encoding="utf-8", newline="\n").write(pk_js)
+    for meno, mk, js in (("pk.js", markup_sk, js_sk), ("pk-cz.js", markup_cz, js_cz)):
+        io.open(os.path.join(ciel, meno), "w", encoding="utf-8", newline="\n").write(obal(mk, js))
 
-    neoscopovane = [r for r in re.findall(r"^([^@\s/][^{]*)\{", css, re.M) if ROOT not in r]
-    zvysne = re.findall(r'["(](?:assets|lx)/[^")]+', markup + css + "".join(js))
-    print("pk.css %d B, pk.js %d B, mimo %s: %d, neprepisane cesty: %d, varovania: %s"
-          % (len(css), len(pk_js), ROOT, len(neoscopovane), len(zvysne), sorted(set(ctx["warns"]))[:8]))
-    if neoscopovane:
-        print("  napr.:", neoscopovane[:5])
-    if zvysne:
-        print("  napr.:", zvysne[:5])
+    zvysne = re.findall(r'["(](?:assets|lx)/[^")]+', markup_sk + css + "".join(js_sk))
+    print("pk.css %d B, pk.js + pk-cz.js, neprepisane cesty: %d" % (len(css), len(zvysne)))
+    # kontrola CZ: slovenské slová, ktoré ostali v texte stránky (recenzie zákazníkov ostávajú zámerne)
+    texty = [html.unescape(re.sub(r"\s+", " ", x)).strip()
+             for x in re.findall(r">([^<>]+)<", re.sub(r"<svg.*?</svg>", "", markup_cz, flags=re.S))]
+    sk = [x for x in texty if re.search(r"[äôĺľŕ]|\b(alebo|sa|na mieru|kufra|poukážk\w*|hodnote|košík)\b", x)]
+    print("CZ — texty so slovenčinou (%d):" % len(sk))
+    for x in sk[:40]:
+        print("   ", x[:110])
+    sk_js = sorted(set(m for s in js_cz for m in re.findall(r"'([^'\n]*[äôĺľŕ][^'\n]*)'", s)))
+    print("CZ JS — reťazce so slovenčinou (%d):" % len(sk_js), sk_js[:20])
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@
     if (!wrap || document.getElementById('lcd-pk')) return;
     var koren = document.createElement('div');
     koren.id = 'lcd-pk';
-    koren.innerHTML = PK.preloz ? PK.preloz(MARKUP) : MARKUP;
+    koren.innerHTML = MARKUP;
     wrap.parentNode.insertBefore(koren, wrap);
     window.__LCD_PK_HOTOVO__ = true;
     document.documentElement.classList.add('lcd-pk-on');
@@ -149,26 +149,63 @@
         });
       });
     
-      /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / POUKAZ-7500) cez Shoptet ---- */
+      /* ---- košík: variant podľa zvolenej sumy (POUKAZKA-300 / POUKAZ-7500) cez Shoptet ----
+         Úspech/chybu čítame z odpovede /action/Cart/addCartItem/ (code 200 = vložené). Shoptet po úspechu
+         stránku obnoví — suma sa preto uloží do sessionStorage a po obnovení sa ukáže potvrdenie. */
+      function ukazPridane(v){
+        var bar = document.getElementById('pkPridane');
+        if(!bar){
+          bar = document.createElement('div');
+          bar.id = 'pkPridane'; bar.className = 'pk-pridane'; bar.setAttribute('role', 'status');
+          kos.parentNode.insertBefore(bar, kos.nextSibling);
+        }
+        bar.innerHTML = '<span class="pk-pridane-t"></span><a class="pk-pridane-a" href="' + PK.kosikUrl + '"></a>';
+        bar.querySelector('.pk-pridane-t').textContent = PK.textVKosiku.replace('%s', eur(v));
+        bar.querySelector('.pk-pridane-a').textContent = PK.textDoKosika + ' →';
+      }
       function doKosika(e){
         e.preventDefault();
         var t = this;
         if(t.dataset.pov) return;
         t.dataset.pov = t.textContent;
         t.textContent = PK.textPridavam;
-        var hotovo = function(ok){
-          t.textContent = ok ? PK.textPridane : PK.textChyba;
-          setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 2600);
+        var povodny = XMLHttpRequest.prototype.open, hotovo = false;
+        function koniec(ok, sprava){
+          if(hotovo) return; hotovo = true;
+          XMLHttpRequest.prototype.open = povodny;
+          if(ok){
+            try { sessionStorage.setItem('lcdPkPridane', String(suma)); } catch(_){}
+            t.textContent = PK.textPridane;
+            ukazPridane(suma);
+            setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 2600);
+          } else {
+            t.textContent = (sprava && String(sprava).replace(/<[^>]+>/g, '')) || PK.textChyba;
+            setTimeout(function(){ t.textContent = t.dataset.pov; delete t.dataset.pov; }, 4000);
+          }
+        }
+        XMLHttpRequest.prototype.open = function(m, u){
+          if(/addCartItem/.test(String(u))){
+            XMLHttpRequest.prototype.open = povodny;
+            var x = this;
+            x.addEventListener('load', function(){
+              var j = {}; try { j = JSON.parse(x.responseText); } catch(_){}
+              koniec(x.status === 200 && (j.code === undefined || j.code === 200), j.message);
+            });
+            x.addEventListener('error', function(){ koniec(false); });
+          }
+          return povodny.apply(this, arguments);
         };
-        var cakam = setTimeout(function(){ hotovo(true); }, 4000);
-        document.addEventListener('ShoptetCartUpdated', function h(){
-          document.removeEventListener('ShoptetCartUpdated', h); clearTimeout(cakam); hotovo(true);
-        });
+        setTimeout(function(){ koniec(false); }, 15000);
         try { shoptet.cartShared.addToCart({ productCode: PK.kod + suma, amount: 1 }); }
-        catch(err){ clearTimeout(cakam); hotovo(false); if(window.console) console.warn('lcdPk kosik', err); }
+        catch(err){ koniec(false); if(window.console) console.warn('lcdPk kosik', err); }
       }
       kos.addEventListener('click', doKosika);
       if(lKos) lKos.addEventListener('click', doKosika);
+      /* po obnovení stránky Shoptetom: potvrdenie a zvolená suma ostane */
+      try {
+        var pridane = +sessionStorage.getItem('lcdPkPridane');
+        if(pridane){ sessionStorage.removeItem('lcdPkPridane'); setTimeout(function(){ nastav(pridane, true); ukazPridane(pridane); }, 0); }
+      } catch(_){}
     
       /* ---- lišta s cenou na telefóne ---- */
       if('IntersectionObserver' in window && buy && lista){
