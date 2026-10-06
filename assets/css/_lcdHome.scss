@@ -2379,4 +2379,128 @@
   font-size:14.5px;line-height:1.5;background:#eaf6ef;
   border:1px solid #bfe3cd;color:#1f7d4f;font-weight:600}
 #lcd-home .kf-stav.zle{background:#fdf1ef;border-color:#f0c4bd;color:#a9342a}
+
+/* --- opravy 2026-10-06: notebooky (nizke a uzke PC obrazovky), Michal --- */
+/* Notebook 1536x695 (Windows 125 %): Pred a po mal malu fotku a fajky cez texty legendy,
+   v Materiali legenda vytekala cez stitky a CTA, v 09 Co ocakavat text krokov cez stitky
+   a filmovy pas, tlacidlo v kamionoch bolo cierne a nevyrazne. Mobil a tablet (<=900 px)
+   bez zmeny okrem farby zlateho tlacidla v kamionoch. */
+
+/* (1) 04 PRED A PO na PC: legenda na celu sirku pinu (nie len na sirku fotky), fotka v strede nad nou;
+   legbox = skutocna vyska legendy (body bez popisu 70 px, s popisom 104 px), inak legenda vytecie na tlacidlo */
+@media(min-width:901px){
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-pp-main{--lx-legbox:70px;--lx-gapmin:18px}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-pp-stage{width:100%}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-pp-plocha{width:var(--lx-w);align-self:center}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg-t span{display:none}
+}
+/* uzky PC: bez vzorky, nech sa nadpis bodu nelame po jednom slove */
+@media(min-width:901px) and (max-width:1023px){#lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg-sw{display:none}}
+/* siroky PC s vyskou nad 820 px: aj popis bodu */
+@media(min-width:1112px) and (min-height:821px){
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-pp-main{--lx-legbox:104px}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg-t span{display:block}
+}
+/* nizsia obrazovka PC: bez uvodneho textu a stitkov, miesto dostane fotka */
+@media(min-width:901px) and (max-height:900px){
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-p,#lcd-home .lx-pp:not(.lx-bez-lepu) .lx-chips{display:none}
+}
+/* nizky siroky notebook: legenda ako stlpec vedla fotky (ako vrstvy pri materiali);
+   stlpec 220-270 px, ak fotke zvysi sirka (narazi na vysku), dostane ju legenda (max 300 px) */
+@media(min-width:901px) and (max-height:740px) and (min-aspect-ratio:3/2){
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-pp-main{--lx-gapmin:24px;
+    --lx-legw:clamp(clamp(220px,18vw,270px),calc(100cqw - 100cqh * var(--lx-pomer) - var(--lx-gapmin)),300px);
+    --lx-w:min(calc(100cqw - var(--lx-legw) - var(--lx-gapmin)),calc(100cqh * var(--lx-pomer)))}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-pp-stage{height:100%;flex-direction:row;align-items:center;justify-content:center}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg{flex:none;display:flex;flex-direction:column;gap:8px;
+    width:var(--lx-legw);min-height:calc(var(--lx-w) / var(--lx-pomer))}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg-r{flex:1 1 0;padding:8px 12px}
+  #lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg-sw{display:block}
+}
+/* velmi nizke okno (do 540 px): bez vzorky, nech sa 4 body zmestia na vysku fotky */
+@media(min-width:901px) and (max-height:540px) and (min-aspect-ratio:3/2){#lcd-home .lx-pp:not(.lx-bez-lepu) .lx-leg-sw{display:none}}
+
+/* (2) 10 MATERIAL na PC: legenda sa vzdy zmesti medzi hlavicku a paticku.
+   .pinmain mal riadok gridu vysoky ako obsah (legenda 371 px, s otvorenou vrstvou az 500 px) v slote 344 px
+   a align-content:center ho centroval -> legenda vytiekla hore cez stitky a dole cez CTA. Riadok = presne
+   volne miesto, stlpce ho nepresiahnu; posuvanie vnutri legendy je len poistka pre extremne male okna.
+   Na nizkej vyske hustejsie riadky, mensie vzorky, sirsi popis. */
+@media(min-width:901px){
+  #lcd-home .stage .pin .pinmain{grid-template-rows:minmax(0,1fr)}
+  #lcd-home #matWrap,#lcd-home #legend{max-height:100%}
+  #lcd-home #legend{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(155,122,36,.45) transparent;
+    justify-content:safe center}
+  #lcd-home .leg-d p{text-wrap:pretty}
+  #lcd-home .leg-h:focus-visible{outline-offset:-2px}
+}
+/* uzsie PC: popisok (Povrch, Komfort...) by zalomil nazov vrstvy na dva riadky */
+@media(min-width:901px) and (max-width:1199px){
+  #lcd-home .leg .i{display:none}
+  #lcd-home .leg-x{margin-left:auto}
+}
+/* nizka obrazovka: pri 950 px a vyssie ostava vsetko ako doteraz (vzorce pri 950 px daju presne 2vh a 42 px) */
+@media(min-width:901px) and (max-height:949px){
+  #lcd-home #legend{--sw:clamp(28px,calc(4.4vh + .2px),42px)}
+  #lcd-home .leg-h{padding-top:clamp(5px,calc(4.4vh - 22.8px),26px)!important;padding-bottom:clamp(5px,calc(4.4vh - 22.8px),26px)!important}
+  #lcd-home .leg .sw{width:var(--sw);height:var(--sw)}
+  /* popis na celu sirku legendy (56ch ho lamal na 5-6 riadkov), zaciatok pod koncom vzorky */
+  #lcd-home .leg-d p{max-width:none;padding:0 14px clamp(8px,1.6vh,16px) calc(var(--sw) + 37px)}
+}
+/* stitky opakuju uvodnu vetu - na nizkej vyske ustupia (rovnako ako v Pred a po) */
+@media(min-width:901px) and (max-height:820px){
+  #lcd-home .stage .pintop{display:none}
+  #lcd-home .stage .pin .pinmain{margin-top:clamp(6px,1.6vh,14px)}
+}
+@media(min-width:901px) and (max-height:720px){
+  #lcd-home .leg-d p{font-size:13.5px;line-height:1.5}
+}
+/* ozdobny popisok pod materialom by na 600-680 px zasahoval do rozlozenych vrstiev */
+@media(min-width:901px) and (max-height:680px){
+  #lcd-home #legend{gap:2px}
+  #lcd-home .matline{display:none}
+}
+/* pod 600 px vysky (mimo bezne notebooky) ustupi aj uvodna veta - ako na mobile a tablete */
+@media(min-width:901px) and (max-height:599px){
+  #lcd-home .stage .pinhead .lede{display:none}
+}
+
+/* (3) KAMIONY - tlacidlo Pozriet cenu pre kamion/dodavku v karte .tcard je zlate ako hlavne tlacidla webu
+   (zelene Zvolit model vedla ostava). HTML ma inline style (color:#fff; border-color),
+   preto farba textu a ramceka ide cez !important; plati na PC aj mobile (meni sa len farba). */
+#lcd-home .truck .tcard .btn.ghost{background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));
+  color:#17130a !important;border-color:transparent !important;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 10px 30px rgba(140,105,25,.35),inset 0 1px 0 rgba(255,255,255,.4);
+  justify-content:center;text-align:center}
+#lcd-home .truck .tcard .btn.ghost:before{background:linear-gradient(100deg,transparent,rgba(255,255,255,.34),transparent)}
+#lcd-home .truck .tcard .btn.ghost:hover{background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));
+  color:#17130a !important;border-color:transparent !important;transform:translateY(-2px);
+  box-shadow:0 16px 40px rgba(140,105,25,.45),inset 0 1px 0 rgba(255,255,255,.4)}
+
+/* (4) 09 CO OCAKAVAT na PC: texty krokov boli position:absolute a centrovane v .s2-texts (vyska len 230 px),
+   dlhsi text (~300 px) vytekal hore cez stitky (.pintop) a dole cez filmovy pas.
+   Teraz su vsetkych 5 textov v jednej bunke gridu -> bunka ma vysku najdlhsieho, prelinanie ostava. */
+@media(min-width:901px){
+  #lcd-home .s2-texts{display:grid}
+  #lcd-home .s2-t{position:relative;inset:auto;grid-area:1/1}
+  #lcd-home .s2-t p{text-wrap:pretty}
+}
+/* nizke okno (notebook s mierkou 125 %): fotka sa zmesti medzi stitky a spodnu listu, text krokov je kompaktnejsi */
+@media(min-width:901px) and (max-height:820px){
+  #lcd-home .s2-media{max-height:min(56svh,calc(100svh - 300px))}
+  #lcd-home .s2-col{gap:clamp(12px,2vh,22px)}
+  #lcd-home .s2-t h3{margin:10px 0 12px;font-size:clamp(21px,min(2.6vw,4.4svh),34px)}
+  #lcd-home .s2-t p{font-size:clamp(15px,min(1.4vw,2.5svh),17px);line-height:1.58;max-width:52ch}
+}
+/* velmi nizke okno: bez filmoveho pasu (kroky sa preklikavaju cislami 01-05 vedla textu) */
+@media(min-width:901px) and (max-height:660px){
+  #lcd-home .s2-thumbs{display:none}
+}
+
+/* (5) KAMIONY + VZORKY na PC: Bootstrap clearfix .row:before je vo flexe polozka a gap:14px
+   odsunul tlacidlo o 14 px doprava od nadpisu a textu */
+@media(min-width:901px){
+  #lcd-home .truck .row:before,#lcd-home .truck .row:after,
+  #lcd-home .vz .row:before,#lcd-home .vz .row:after{content:none}
+}
 /* ===== LCD-HOME END ===== */
