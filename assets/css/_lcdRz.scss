@@ -1923,6 +1923,17 @@
   #lcd-rz .duodots {display:flex
   }
 }
+/* sipky pri „Potiahnite prstom“ sa jemne hybu do stran (Michal 6. 10. 2026: napoveda na posuvanie) */
+@media(max-width:900px) and (prefers-reduced-motion:no-preference) {
+  #lcd-rz .duoswipe:before {animation:lcdrz-sipL 1.6s ease-in-out 8
+  }
+  #lcd-rz .duoswipe:after {animation:lcdrz-sipP 1.6s ease-in-out 8
+  }
+}
+@keyframes lcdrz-sipL {0%,100%{transform:translateX(0) rotate(-135deg)}50%{transform:translateX(-5px) rotate(-135deg)}
+}
+@keyframes lcdrz-sipP {0%,100%{transform:translateX(0) rotate(45deg)}50%{transform:translateX(5px) rotate(45deg)}
+}
 /* stlmena plocha s napovedou — ukaze sa hned po otvoreni, zmizne po tuknuti */
 #lcd-rz .duowrap {position:relative
 }

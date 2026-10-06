@@ -580,9 +580,18 @@ if (lcdKorene("rz").length) lcdrzOdoberPoistky();
        (#duoCoach) aj samovolny posun pasu by vtedy naskocili pod rukou zakaznika —
        Michal: „nechcem, aby niečo prekrývalo niečo“. Preto pri statickom koreni nebezia
        vobec (ani pri rychlom JS); napoveda je len staticky text .duoswipe pod kartami. */
-    if(LCDRZ_STATIC){ zavrete=true; pohol=true; coach=null }
+    /* Michal 6. 10. 2026 (rozcestník): „zmizol náhľad, ktorý ukazoval, že sa dá posúvať palcom“.
+       Stlmenie cez karty ostáva vypnuté (prekrývalo by), vráti sa len jemný pohyb pásu: najviac
+       2× a len kým sa zákazník kariet nedotkol a pás je dosť vidno — nič nič neprekrýva. */
+    var statPohyby=0;
+    if(LCDRZ_STATIC){ zavrete=true; coach=null }
     function pohniPasom(){
       if(pohol||hral||!mobil()||duo.scrollLeft>4||pokoj.matches) return;
+      if(LCDRZ_STATIC){
+        if(dotkolSa||statPohyby>=2){ prestan(); return }
+        if(!dostVidno()) return;
+        statPohyby++;
+      }
       hral=true; vlastny=true;
       duo.style.scrollSnapType='none';
       var zac=null, trvanie=1500, kam=72;

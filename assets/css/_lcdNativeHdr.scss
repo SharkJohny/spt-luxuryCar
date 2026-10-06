@@ -184,6 +184,30 @@ html body.navigation-window-visible [data-ec-promo-id] .mega-ovl{display:block}
 #mega[data-lcd-cast] .m-lang:hover svg{transform:scale(1.08)}
 #mega[data-lcd-cast] .lcdlang-menu{left:0;transform:none}
 @media(max-width:760px){#mega[data-lcd-cast] > :is(.m-lang,.lcdlang){position:fixed;top:19px;left:16px}}
+/* vlajka v páse hlavičky (lcdLang.js ju vloží za lupu; Michal 6. 10. 2026) — na PC je v páse aj pri otvorenom menu,
+   preto druhá vlajka v paneli menu ustúpi; na mobile panel prekryje pás, tam ostáva vlajka v menu */
+.top-navigation-bar .responsive-tools > .lcdlang{display:flex;align-items:center;flex:none;height:34px}
+.top-navigation-bar .lcdn-lang{display:flex;align-items:center;justify-content:center;width:30px;height:34px;padding:0;margin:0;
+  border:0;background:none;cursor:pointer;text-decoration:none;font-size:0;line-height:0}
+.top-navigation-bar .lcdn-lang svg{width:26px;height:19px;border-radius:2px;display:block;
+  box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .22s}
+.top-navigation-bar .lcdn-lang:hover svg{transform:scale(1.08)}
+.top-navigation-bar .lcdlang-menu{left:0;transform:none;z-index:100000009}
+/* telefón: plaketa loga visí do 71 px a je nad pásom — ponuka začne až pod ňou */
+@media(max-width:760px){.top-navigation-bar .lcdlang-menu{top:calc(100% + 26px)}}
+/* telefón: burger + lupa + vlajka sa musia zmestiť pred plaketu loga (360 px: logo od 125 px) — užšie boxy a medzery */
+@media(max-width:430px){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang){gap:6px !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang) > a{width:28px !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang) > a[data-target="navigation"]{width:34px !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang) > a[data-target="navigation"]:before,
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang) > a[data-target="navigation"]:after{left:2px !important}
+  .top-navigation-bar .lcdn-lang{width:24px}
+  .top-navigation-bar .lcdn-lang svg{width:22px;height:16px}
+}
+@media(max-width:345px){.top-navigation-bar .lcdn-lang svg{width:19px;height:13px}.top-navigation-bar .lcdn-lang{width:20px}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang){gap:3px !important}}
+@media(min-width:761px){html:has(.top-navigation-bar .lcdn-lang) #mega[data-lcd-cast] > :is(.m-lang,.lcdlang){display:none}}
 
 /* ---------- C) natívna hlavička Shoptetu vo vzhľade #lcd-hdr ----------
    Pás = .top-navigation-bar (burger + hľadanie vľavo, Kontakty vpravo). #header má výšku 0 a z neho

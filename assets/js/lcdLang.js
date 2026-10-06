@@ -86,7 +86,26 @@ function lcdlangUprav(a) {
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") otvor(false); });
 }
 
+/* Michal 2026-10-06: "z vrchneho menu zmizli vlajky" — natívna hlavička Shoptetu vlajku nemá
+   (v statickom menu #mega je len vo vnútri otvoreného panela). Vlajka aktuálneho webu sa preto
+   vloží do pásu vedľa lupy; klik otvorí rovnakú ponuku SK / CZ ako v menu. */
+function lcdlangHlavicka() {
+  var nastroje = document.querySelector(".top-navigation-bar .responsive-tools");
+  if (!nastroje || nastroje.querySelector(".lcdn-lang")) return;
+  if (!document.documentElement.classList.contains("lcd-native-hdr") && !document.querySelector("[data-lcd-cast]")) return;
+  var jeCZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
+  var a = document.createElement("a");
+  a.className = "lang lcdn-lang";
+  a.href = jeCZ ? "https://www.luxurycardesign.sk/" : "https://www.luxurycardesign.cz/";
+  a.innerHTML = lcdlangSvg(jeCZ ? LCDLANG_CZ : LCDLANG_SK);
+  var hladaj = nastroje.querySelector('a[data-target="search"]');
+  if (hladaj && hladaj.nextSibling) nastroje.insertBefore(a, hladaj.nextSibling);
+  else nastroje.appendChild(a);
+  lcdlangUprav(a);
+}
+
 function lcdlangBoot() {
+  lcdlangHlavicka();
   [].forEach.call(document.querySelectorAll("a.lang"), lcdlangUprav);
 }
 
