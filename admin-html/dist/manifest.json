@@ -67,10 +67,10 @@
       "koren": "#lcd-home-2",
       "ciel": {
         "typ": "banner",
-        "id": 120,
-        "kod": "banner8",
-        "nazov": "Zápatí",
-        "pozicia": "Zápätie titulky (Doplnkové bannery)",
+        "id": 131,
+        "kod": "banner28",
+        "nazov": "Zápatí 2",
+        "pozicia": "Zápätie titulky (Doplnkové bannery) — Shoptet ho vypisuje PRED „Zápatí“ (priorita null), preto nesie 1. kus tela",
         "zobrazit": "PC aj mobil"
       },
       "znaky": 28708,
@@ -86,10 +86,10 @@
       "koren": "#lcd-home-3",
       "ciel": {
         "typ": "banner",
-        "id": null,
-        "kod": null,
-        "nazov": "Top 3 (NOVÝ banner, treba založiť)",
-        "pozicia": "Zápätie titulky (Doplnkové bannery), MUSÍ byť za „Top 2“",
+        "id": 191,
+        "kod": "banner31",
+        "nazov": "Top 3",
+        "pozicia": "Zápätie titulky (Doplnkové bannery), vypisuje sa za „Top 2“ (overené 6. 10.)",
         "zobrazit": "PC aj mobil"
       },
       "znaky": 32401,
@@ -105,10 +105,10 @@
       "koren": "#lcd-home-3",
       "ciel": {
         "typ": "banner",
-        "id": null,
-        "kod": null,
-        "nazov": "Zápatí 2 (NOVÝ banner, treba založiť)",
-        "pozicia": "Zápätie titulky (Doplnkové bannery), MUSÍ byť za „Zápatí“",
+        "id": 120,
+        "kod": "banner8",
+        "nazov": "Zápatí",
+        "pozicia": "Zápätie titulky (Doplnkové bannery) — vypisuje sa ZA „Zápatí 2“",
         "zobrazit": "PC aj mobil"
       },
       "znaky": 32307,
