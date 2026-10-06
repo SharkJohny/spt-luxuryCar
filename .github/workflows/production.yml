@@ -24,8 +24,27 @@ jobs:
         run: |
           yarn install
           node truck/build-truck-images.mjs
-          yarn esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --minify --drop:console --legal-comments=none
+          node tools/perf-markup.mjs
+          yarn esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
+
+      # Verzia do vlastného priečinka (Michal 6. 10. 2026): push NEMENÍ živý web.
+      # Bundle, CSS a súbory, ktoré bundle dočítava, idú do assets/v/<sha>/ a zo spoločných
+      # ciest sa pred nahraním odstránia, takže na CDN ostanú pôvodné (živé) verzie.
+      # Živý web sa prepne až zmenou adresy v Shoptet admine (HTML kódy SK aj CZ):
+      #   .../assets/v/<sha>/js/luxuryCar.js  a  .../assets/v/<sha>/css/luxuryCar.css
+      # Návrat = vrátiť v admine predchádzajúcu adresu. Obrázky v assets/img/ sú spoločné:
+      # existujúci obrázok nikdy neprepisuj, zmenený ulož pod novým menom.
+      - name: 🗂️ Verzia do vlastného priečinka
+        run: |
+          REL=assets/v/${{ steps.version.outputs.sha }}
+          mkdir -p "$REL/js" "$REL/css" "$REL/poukazka"
+          cp assets/js/luxuryCar.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/js/version.json "$REL/js/"
+          cp assets/css/luxuryCar.css "$REL/css/"
+          cp assets/poukazka/* "$REL/poukazka/"
+          rm assets/js/luxuryCar.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/css/luxuryCar.css
+          rm -r assets/poukazka
+          echo "Verzia pripravená: $REL"; ls -la "$REL/js" "$REL/css" "$REL/poukazka"
 
       # Nahranie súborov cez SFTP (lftp — robí rekurzívne mkdir, funguje pre nové adresáre ako img/reviews/)
       - name: 📦 SFTP Upload (lftp)

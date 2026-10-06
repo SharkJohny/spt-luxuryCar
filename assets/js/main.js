@@ -1,3 +1,4 @@
+import { LCD_ZAKLAD } from "./functions/lcdZaklad.js"; // zaklad CDN: priecinok verzie alebo spolocne assets/
 import { optionData } from "./option.js";
 import { intIndex } from "./components/index.js";
 import { initProduct } from "./components/productPage.js";
@@ -28,6 +29,30 @@ import {
 
 let setupData;
 
+// poBoote(fn): spusti fn az PO boote novej titulky (lcdHome.js), aby kontrola
+// `.in-index && #lcd-home` v googleReviews/lcdVideos nevidela stav pred bootom.
+// lcdHome.js (importovany vyssie, vyhodnoteny skor) bootuje bud hned (DOM uz bol
+// sparsovany), alebo vo svojom DOMContentLoaded listeneri — ten je registrovany
+// skor nez tento, takze nas listener bezi az po nom. setTimeout(0) je poistka navyse.
+// Bez toho data.json obcas prisiel pred DOMContentLoaded a na titulke sa postavil
+// stary widget recenzii (+96 fotiek, ~10 MB) a YouTube playlist.
+let lcdPoBooteHotovo = document.readyState !== "loading";
+let lcdPoBooteFronta = [];
+if (!lcdPoBooteHotovo) {
+  document.addEventListener("DOMContentLoaded", function () {
+    lcdPoBooteHotovo = true;
+    const fronta = lcdPoBooteFronta;
+    lcdPoBooteFronta = [];
+    fronta.forEach(function (fn) {
+      setTimeout(fn, 0);
+    });
+  });
+}
+function poBoote(fn) {
+  if (lcdPoBooteHotovo) setTimeout(fn, 0);
+  else lcdPoBooteFronta.push(fn);
+}
+
 $.getJSON(optionData.downloadData, function (data) {
   setupData = data;
 
@@ -43,8 +68,10 @@ $.getJSON(optionData.downloadData, function (data) {
   console.log("setupData.language:", texts);
   initProduct(setupData, texts);
   initModelSelect(texts, setupData);
-  googleReviews(setupData, texts);
-  lcdVideos();
+  poBoote(function () {
+    googleReviews(setupData, texts);
+  });
+  poBoote(lcdVideos);
 
   addNote();
   validation(texts);
@@ -682,8 +709,9 @@ function googleReviews(setupData, texts) {
   // Homepage: za model-selector. Bezny produkt: medzi "10 dovodov" a "%".
   // Box produkt: ako prvy widget. SK/CZ cez data-lang.
   var lang = (($("html").attr("lang") || "").toLowerCase().indexOf("cs") === 0) ? "cz" : "sk";
-  var base = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/js/";
-  var WV = "9";
+  var base = LCD_ZAKLAD + "js/";
+  // WV = verzia reviews-data.js + lcd-reviews.js (cache 1 rok) — pri zmene ktoréhokoľvek zvýš.
+  var WV = "10";
 
   $("#goggle-review-wrap, .google-reviews").remove();
 
@@ -691,7 +719,7 @@ function googleReviews(setupData, texts) {
   // sa postavil uz len do skryteho obsahu - 1 406 prvkov a ~96 stiahnutych fotiek,
   // ktore nikto neuvidi. Preto sa na titulke s novym dizajnom vobec nestavia.
   // Podmienka je zamerne na #lcd-home, nie na URL: ked by novy dizajn nenabehol,
-  // stara titulka dostane recenzie presne ako doteraz.
+  // stara titulka dostane recenzie presne ako doteraz. Volane cez poBoote().
   if ($(".in-index")[0] && document.getElementById("lcd-home")) return;
 
   function makeWidget() {
@@ -756,7 +784,8 @@ function googleReviews(setupData, texts) {
     document.body.appendChild(d);
   }
 
-  loadScripts();
+  // Skripty recenzii (reviews-data.js + lcd-reviews.js) az ked je widget naozaj
+  // na stranke — inak sa stahovali aj na kosik, kategoriu, blog a rozcestnik.
   var tries = 0, extra = 0;
   (function tryPlace() {
     tries++;
@@ -765,6 +794,7 @@ function googleReviews(setupData, texts) {
     // model-selector sa na mobile vklada cez prependTo a moze widget
     // docasne premiestnit pred seba.
     if (placed) {
+      loadScripts(); // idempotentne (__lcdReviewsScriptsInjected)
       if ($(".in-index")[0] && extra < 6) { extra++; setTimeout(tryPlace, 300); }
       return;
     }
@@ -801,12 +831,14 @@ function googleReviews(setupData, texts) {
 
 function lcdVideos() {
   // Widget YouTube videi (lcd-videos.js). Produkt: pod widgetom "Zlozenie materialu".
-  var base = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/js/";
-  var VV = "5";
+  var base = LCD_ZAKLAD + "js/";
+  // VV = verzia lcd-videos.js (cache 1 rok) — pri zmene súboru zvýš.
+  var VV = "6";
 
   // Novy dizajn titulky ma vlastny pas videi (#vids, 668 reels). Stary widget by
   // postavil dalsich ~2 100 prvkov do skryteho obsahu. Rovnaka poistka ako pri
   // recenziach: ked novy dizajn nenabehne, stara titulka ho dostane ako doteraz.
+  // Volane cez poBoote(), aby #lcd-home uz existoval.
   if ($(".in-index")[0] && document.getElementById("lcd-home")) return;
 
   function placeWidget() {

@@ -391,16 +391,38 @@ export function intIndex() {
     });
   }, 1000);
 
-  const faq = $('<div class="faq container"></div>');
-  $("<div>").addClass("sec-header").text("Často kladené otázky").appendTo(faq);
-  const faqContent = $('<div class="faq-content">').appendTo(faq);
-  $(faqContent).load("/faq/ div[itemprop='about']", function () {
-    accordion(); // Call accordion() after content is loaded
-  });
-  if ($(".in-index")[0]) {
-    $(faq).insertBefore(".foto-slider");
-  } else if ($(".type-product")[0]) {
+  // FAQ sa zobrazuje len na produkte. Predtym bezal $.load("/faq/ ...") na KAZDEJ
+  // stranke: jQuery parsuje celu /faq/ v zivom dokumente, takze sa zacali stahovat
+  // vsetky jej obrazky (aj stare menu v paticke, kosik +5,6 MB). DOMParser vyrobi
+  // inertny dokument (nic nestahuje ani nespusta) a vlozi sa len div[itemprop='about'].
+  if ($(".type-product")[0] && $(".col-xs-12.col-lg-6.p-info-wrapper").length) {
+    const faq = $('<div class="faq container"></div>');
+    $("<div>").addClass("sec-header").text("Často kladené otázky").appendTo(faq);
+    const faqContent = $('<div class="faq-content">').appendTo(faq);
     $(faq).appendTo(".col-xs-12.col-lg-6.p-info-wrapper");
+    $.get("/faq/", null, null, "html")
+      .done(function (html) {
+        let about = [];
+        try {
+          const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+          about = Array.prototype.slice.call(doc.querySelectorAll("div[itemprop='about']"));
+        } catch (e) {
+          about = [];
+        }
+        if (!about.length) {
+          $(faq).remove();
+          return;
+        }
+        about.forEach(function (node) {
+          // ako predtym $.load: skripty z /faq/ sa nevkladaju
+          $(node).find("script").remove();
+          faqContent[0].appendChild(document.importNode(node, true));
+        });
+        accordion(); // Call accordion() after content is loaded
+      })
+      .fail(function () {
+        $(faq).remove(); // bez obsahu nenechavat prazdny nadpis
+      });
   }
 
   // setTimeout(function () {

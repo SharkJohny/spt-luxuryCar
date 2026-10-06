@@ -31,7 +31,17 @@ function lcdhdrBoot() {
     /* Lenis inak zoberie koliesko sebe a menu sa neposunie (len PC) */
     mega.setAttribute("data-lenis-prevent", "");
   }
-  if (bg) bg.addEventListener("click", function () { megaSet(!mega.classList.contains("open")); });
+  /* S10: obrazky v #mega su lazy (zatvorene menu nic nestahuje). Pri prvom dotyku / nabehnuti /
+     fokuse na burger ich prepneme na eager — stahuju sa uz pocas kliku, nie az po otvoreni. */
+  var megaZohriate = false;
+  function megaZohrej() {
+    if (megaZohriate || !mega) return; megaZohriate = true;
+    [].forEach.call(mega.querySelectorAll('img[loading="lazy"]'), function (im) { im.loading = "eager"; });
+  }
+  if (bg) ["pointerdown", "touchstart", "mouseenter", "focus"].forEach(function (t) {
+    bg.addEventListener(t, megaZohrej, { passive: true });
+  });
+  if (bg) bg.addEventListener("click", function () { megaZohrej(); megaSet(!mega.classList.contains("open")); });
   if (ovl) ovl.addEventListener("click", function () { megaSet(false); });
   if (mx) mx.addEventListener("click", function () { megaSet(false); });
   if (mega) [].forEach.call(mega.querySelectorAll("a"), function (a2) {

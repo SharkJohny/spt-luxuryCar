@@ -154,8 +154,10 @@ export function lxModulyHTML(cz, obr = cdnObr, moznosti = {}) {
     hlava(kap && T.f.rule, T.f.h, T.f.p) +
     '<div class="lx-farby-main">' +
     '<div class="lx-farby-velka" data-lx-kurzor="' + T.f.kurzor + '">' +
+    /* S10: src má len aktívna fotka; ostatné majú data-src a stiahnu sa až pri prepnutí
+       (alebo pri nabehnutí / dotyku na vzorku) — inak sa pri príchode sekcie stiahlo 9 fotiek (0,9 MB) */
     FARBY.map((f, i) =>
-      '<img' + (i === 0 ? ' class="on"' : "") + ' src="' + obr("farby/" + f.id + ".jpg") + '" alt="' + f[jaz] + " · " + f.vzor + '" decoding="async" loading="lazy">'
+      '<img' + (i === 0 ? ' class="on" src="' : ' data-src="') + obr("farby/" + f.id + ".jpg") + '" alt="' + f[jaz] + " · " + f.vzor + '" decoding="async" loading="lazy">'
     ).join("") +
     '<div class="lx-farby-stitok"><span class="lx-farby-cislo">01</span><span> / ' + dve(FARBY.length) + "</span></div></div>" +
     '<div class="lx-farby-panel">' +
@@ -229,9 +231,10 @@ export function lcdhModulyPostav(root, cz) {
   const napiste = root.querySelector("#napiste");
   if (napiste) napiste.before(zHTML(h.galeria));
   lxCislujKapitoly(root);
-  /* referenčné videá: náhľad z prvej sekundy — iPhone pri preload=metadata ukáže čierny rám */
+  /* referenčné videá: náhľad (poster) — bez neho iPhone ukáže čierny rám. Markup ho už má
+     (tools/perf-markup.mjs); toto je poistka. Video má src až pri zobrazení, dovtedy data-src. */
   root.querySelectorAll(".ref-v video").forEach((v) => {
-    const src = v.getAttribute("src") || "";
+    const src = v.getAttribute("data-src") || v.getAttribute("src") || "";
     if (!v.getAttribute("poster") && /\.mp4$/.test(src)) v.setAttribute("poster", src.replace(/\.mp4$/, ".jpg"));
   });
 }
@@ -248,20 +251,37 @@ export function lxModulyOziv(root, cz) {
     const meno = sek.querySelector(".lx-farby-meno");
     const vzorN = sek.querySelector(".lx-farby-vzor-n");
     const cislo = sek.querySelector(".lx-farby-cislo");
-    vzorky.forEach((v) => v.addEventListener("click", () => {
-      const i = +v.dataset.i;
-      velke.forEach((im, j) => im.classList.toggle("on", i === j));
-      vzorky.forEach((w) => w.setAttribute("aria-pressed", w === v ? "true" : "false"));
-      if (meno) meno.textContent = (v.getAttribute("aria-label") || "").split(", ")[0];
-      if (vzorN) vzorN.textContent = T.f.vzorka + " · " + v.dataset.vzor;
-      if (cislo) cislo.textContent = dve(i + 1);
-    }));
-    /* fotky ostatných farieb stiahnuť až keď je sekcia blízko */
-    const nacitaj = () => velke.forEach((im) => { im.loading = "eager"; });
-    if ("IntersectionObserver" in window) {
-      const io = new IntersectionObserver((z) => { if (z.some((x) => x.isIntersecting)) { nacitaj(); io.disconnect(); } }, { rootMargin: "600px 0px" });
-      io.observe(sek);
-    } else nacitaj();
+    /* S10: fotka farby sa stiahne až keď ju zákazník chce — nabehnutie myšou, dotyk
+       alebo fokus na vzorke (pred klikom), najneskôr klik */
+    const nacitaj = (im) => {
+      if (!im || im.getAttribute("src") || !im.dataset.src) return;
+      im.loading = "eager";
+      im.src = im.dataset.src;
+    };
+    let ziada = 0;
+    vzorky.forEach((v) => {
+      const im = velke[+v.dataset.i];
+      ["pointerenter", "pointerdown", "touchstart", "focus"].forEach((t) =>
+        v.addEventListener(t, () => nacitaj(im), { passive: true }));
+      v.addEventListener("click", () => {
+        const i = +v.dataset.i;
+        vzorky.forEach((w) => w.setAttribute("aria-pressed", w === v ? "true" : "false"));
+        if (meno) meno.textContent = (v.getAttribute("aria-label") || "").split(", ")[0];
+        if (vzorN) vzorN.textContent = T.f.vzorka + " · " + v.dataset.vzor;
+        if (cislo) cislo.textContent = dve(i + 1);
+        /* fotka sa prelína až keď je stiahnutá (inak by na chvíľu ostal prázdny rám);
+           pri pomalom sťahovaní najneskôr po 2,5 s; rýchly ďalší klik má prednosť */
+        const ja = ++ziada;
+        const prepni = () => { if (ja === ziada) velke.forEach((x, j) => x.classList.toggle("on", i === j)); };
+        nacitaj(im);
+        if (!im || (im.complete && im.naturalWidth)) prepni();
+        else {
+          im.addEventListener("load", prepni, { once: true });
+          im.addEventListener("error", prepni, { once: true });
+          setTimeout(prepni, 2500);
+        }
+      });
+    });
   });
 
   /* galéria: klik zväčší fotku */

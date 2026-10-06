@@ -651,8 +651,35 @@
   }
 
   /* --------------------------------------------------------------- init --- */
+  /* Shoptet uz na kazdej stranke nacitava Exo 2 aj Source Sans 3
+     (cdn.myshoptet.com .../font-face/exo-2.css a source-sans-3.css, rezy 300-900
+     vratane 600 a 700, ktore widget pouziva). Google Fonts by tie iste rodiny
+     stiahol druhykrat (~157 kB) a po dotiahnuti prebil rezy na celej stranke.
+     Google link sa preto vklada len tam, kde stranka tie rodiny nema
+     (napr. samostatne demo widgetu). */
+  function pageHasFonts() {
+    var exo = false, ss3 = false;
+    var links = document.querySelectorAll('link[href]');
+    for (var i = 0; i < links.length; i++) {
+      var h = links[i].getAttribute('href') || '';
+      if (/exo-2\.css|family=Exo\+2/i.test(h)) exo = true;
+      if (/source-sans-3\.css|family=Source\+Sans\+3/i.test(h)) ss3 = true;
+    }
+    if (exo && ss3) return true;
+    try {
+      if (document.fonts && document.fonts.forEach) {
+        document.fonts.forEach(function (f) {
+          var fam = String(f.family || '').replace(/["']/g, '');
+          if (fam === 'Exo 2') exo = true;
+          if (fam === 'Source Sans 3') ss3 = true;
+        });
+      }
+    } catch (e) { /* FontFaceSet nedostupny — ostane Google link */ }
+    return exo && ss3;
+  }
+
   function injectCss() {
-    if (!document.getElementById('lcdr-fonts')) {
+    if (!document.getElementById('lcdr-fonts') && !pageHasFonts()) {
       var lf = document.createElement('link');
       lf.id = 'lcdr-fonts'; lf.rel = 'stylesheet';
       lf.href = 'https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap';

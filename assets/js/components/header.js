@@ -188,6 +188,9 @@ function headerFixProdukt() {
 
       // Get submit button
       const submitButton = productForm.querySelector("button[type=submit]") || productForm.querySelector("input[type=submit]");
+      // Napr. stranka darcekovej poukazky ma #product-detail-form bez submit tlacidla
+      // -> getElementOffsetTop(null) by hodil vynimku.
+      if (!submitButton) return false;
 
       // Create fixed header element
       const fixedHeaderDiv = document.createElement("div");

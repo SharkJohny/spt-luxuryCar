@@ -7,8 +7,8 @@
     "sharp": "^0.35.2"
   },
   "scripts": {
-    "build": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --legal-comments=none --watch",
-    "build:once": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=esm --loader:.jsx=jsx --legal-comments=none",
+    "build": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=iife --loader:.jsx=jsx --legal-comments=none --watch",
+    "build:once": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=iife --loader:.jsx=jsx --legal-comments=none",
     "truck:images": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs",
     "vzorky:fetch": "bash vzorky/fetch-source.sh",
     "build:vzorky": "node vzorky/build-vzorky.mjs",

@@ -5,9 +5,11 @@
    štýly a skript (assets/poukazka/pk.css + pk.js / pk-cz.js, generuje tools/extract-lcd-pk.py),
    aby ostatné stránky webu nemuseli sťahovať nič navyše. */
 
+import { LCD_ZAKLAD } from "./functions/lcdZaklad.js";
+
 var LOKAL = location.hostname === "127.0.0.1" || location.hostname === "localhost";
 var CZ = location.hostname.indexOf("luxurycardesign.cz") !== -1 || (LOKAL && /[?&]pkcz=1/.test(location.search));
-var ZAKLAD = LOKAL ? "/poukazka/" : "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/poukazka/";
+var ZAKLAD = LOKAL ? "/poukazka/" : LCD_ZAKLAD + "poukazka/";
 
 function jePoukazka() {
   var b = document.body;

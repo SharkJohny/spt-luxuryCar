@@ -609,34 +609,46 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     }
   })();
 
-  /* nahladove slucky: na PC hraju vsetky viditelne, na telefone len to v strede */
+  /* nahladove slucky (S10): video v markupe nema src, len data-src + poster (tools/perf-markup.mjs).
+     Stiahne sa az ked je pas blizko obrazovky (rootMargin 200px). Naraz hra max 1 karta na telefone
+     a 2 na PC — tie najblizsie stredu pasu (12 dekoderov naraz drhlo scroll aj na PC).
+     Setrenie dat, pomala siet (2g/3g) alebo reduced-motion = bez autoplay: ostane poster,
+     klik na kartu otvori video v lightboxe ako doteraz. */
   (function(){
     var deck=LCDH.querySelector('.deck.refs');
     var vs=[].slice.call(LCDH.querySelectorAll('.ref-v video'));
-    if(!vs.length||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if(!vs.length) return;
+    var con=navigator.connection||{};
+    /* bez autoplay sa video nestiahne vobec; stred pasu a .mid na telefone ostavaju */
+    var autoplay = !(con.saveData || /2g|3g/.test(con.effectiveType||'') ||
+       matchMedia('(prefers-reduced-motion: reduce)').matches);
     var MOB=matchMedia('(max-width:820px)'), onScreen=false, cards=deck?[].slice.call(deck.children):[];
-    function play(v){ var r=v.play(); if(r&&r.catch) r.catch(function(){}) }
-    function mid(){
-      if(!deck) return -1;
-      var c=deck.scrollLeft+deck.clientWidth/2, best=-1, bd=1e9;
-      cards.forEach(function(el,i){
-        var d=Math.abs(el.offsetLeft+el.offsetWidth/2-c);
-        if(d<bd){ bd=d; best=i }
-      });
-      return best;
+    function nacitaj(v){ if(!v.getAttribute('src') && v.getAttribute('data-src')) v.src=v.getAttribute('data-src') }
+    function play(v){ nacitaj(v); var r=v.play(); if(r&&r.catch) r.catch(function(){}) }
+    function stoj(v){ if(!v.paused) v.pause() }
+    /* karty viditelne v pase, zoradene podla vzdialenosti od jeho stredu
+       (offsetLeft karty je od offsetParent — .deck nema position, preto odpocitame jeho offset) */
+    function poradie(){
+      if(!deck||!cards.length) return [];
+      var o = cards[0].offsetParent===deck ? 0 : deck.offsetLeft,
+          l=deck.scrollLeft, r=l+deck.clientWidth, c=l+deck.clientWidth/2;
+      return cards.map(function(el,i){
+        var a=el.offsetLeft-o, w=el.offsetWidth;
+        return { i:i, d:Math.abs(a+w/2-c), vid: a+w>l && a<r };
+      }).filter(function(x){ return x.vid }).sort(function(x,y){ return x.d-y.d });
     }
     function sync(){
       if(!deck) return;
-      var m = MOB.matches ? mid() : -1;
+      var por = onScreen || MOB.matches ? poradie() : [], chce={};
+      if(onScreen && autoplay) por.slice(0, MOB.matches ? 1 : 2).forEach(function(x){ chce[x.i]=1 });
+      var m = MOB.matches && por.length ? por[0].i : -1;
       cards.forEach(function(el,i){
         el.classList.toggle('mid', MOB.matches && i===m);
         var v=el.querySelector('video'); if(!v) return;
-        /* hraju vsetky viditelne dlazdice — aj tie po krajoch */
-        /* PC: hraju vsetky viditelne; telefon: LEN stredna (6 dekoderov drhlo swipe) */
-        var chce = onScreen && (!MOB.matches || i===m);
-        chce ? play(v) : v.pause();
+        chce[i] ? play(v) : stoj(v);
       });
     }
+    document.addEventListener('visibilitychange',function(){ if(document.hidden) vs.forEach(stoj); else sync() });
     /* stred zacina na slovenskej recenzii */
     function center(i){
       if(!deck||!cards[i]) return;
@@ -648,12 +660,13 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       MOB.addEventListener('change',function(){ if(MOB.matches) center(0); sync() });
       addEventListener('resize',function(){ clearTimeout(st); st=setTimeout(sync,160) });
       if('IntersectionObserver' in window){
+        /* 200px vopred: video sa zacne stahovat tesne pred prichodom sekcie, nie pri nacitani stranky */
         new IntersectionObserver(function(en){
           onScreen = en[0].isIntersecting; sync();
-        },{threshold:0.15}).observe(deck);
+        },{rootMargin:'200px 0px',threshold:0}).observe(deck);
       } else { onScreen=true; }
       requestAnimationFrame(function(){ if(MOB.matches) center(0); sync() });
-    } else { vs.forEach(play) }
+    } else if(autoplay) { vs.forEach(play) }
   })();
 
   /* nekonecny pas: ked sa pri kraji minu dlazdice, presunieme ich z druhej strany.
@@ -822,7 +835,17 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     bg.setAttribute('aria-expanded',o?'true':'false');document.body.style.overflow=o?'hidden':'';
     /* Lenis inak zoberie koliesko sebe a menu sa neposunie (len PC) */
     mega.setAttribute('data-lenis-prevent','');}
-  if(bg) bg.addEventListener('click',function(){megaSet(!mega.classList.contains('open'))});
+  /* S10: obrazky v #mega su lazy (zatvorene menu nic nestahuje). Pri prvom dotyku / nabehnuti /
+     fokuse na burger ich prepneme na eager — stahuju sa uz pocas kliku, nie az po otvoreni. */
+  var megaZohriate=false;
+  function megaZohrej(){
+    if(megaZohriate||!mega) return; megaZohriate=true;
+    [].forEach.call(mega.querySelectorAll('img[loading="lazy"]'),function(im){ im.loading='eager' });
+  }
+  if(bg) ['pointerdown','touchstart','mouseenter','focus'].forEach(function(t){
+    bg.addEventListener(t,megaZohrej,{passive:true});
+  });
+  if(bg) bg.addEventListener('click',function(){megaZohrej();megaSet(!mega.classList.contains('open'))});
   if(ovl) ovl.addEventListener('click',function(){megaSet(false)});
   if(mx) mx.addEventListener('click',function(){megaSet(false)});
   mega.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){megaSet(false)})});
@@ -880,8 +903,11 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
        robili zaseknuty frame presne pocas reveal animacie */
     setTimeout(function(){
       if(!matchMedia('(hover:hover)').matches) return;
+      /* lazy obrazky (S10) sa nevynucuju — dekoduju sa hned po ich stiahnuti, este pred zobrazenim */
+      function dek(im){ if(im.decode) im.decode().catch(function(){}); }
       [].forEach.call(LCDH.querySelectorAll('#lcd-home .deck img, #lcd-home .pc img, #lcd-home .mat img'),function(im){
-        if(im.decode) im.decode().catch(function(){});
+        if(im.complete && im.naturalWidth) dek(im);
+        else im.addEventListener('load',function(){ dek(im) },{once:true});
       });
     },1600);
   });

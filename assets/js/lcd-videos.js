@@ -524,10 +524,33 @@
     (document.head || document.documentElement).appendChild(s);
   }
 
+  /* Widget je hlboko pod zlomom (produkt: pod „Zloženie materiálu“). Playlist
+     z YouTube Data API (pri prvej návšteve ~10 požiadaviek, ~234 kB JSON) a náhľady
+     sa preto ťahajú až keď sa widget priblíži k obrazovke (600 px vopred).
+     Bez IntersectionObserver sa vykreslí hneď ako doteraz. */
+  var io = null;
+  function lazyObserver() {
+    if (io || typeof window.IntersectionObserver !== 'function') return io;
+    io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (!entries[i].isIntersecting) continue;
+        var host = entries[i].target;
+        io.unobserve(host);
+        host.classList.remove('lcdv-wait');
+        renderWidget(host);
+      }
+    }, { rootMargin: '600px 0px 600px 0px' });
+    return io;
+  }
+
   function initAll() {
     injectCss();
-    var hosts = document.querySelectorAll('.lcd-videos-widget');
-    for (var i = 0; i < hosts.length; i++) renderWidget(hosts[i]);
+    var hosts = document.querySelectorAll('.lcd-videos-widget:not(.lcdv-ready):not(.lcdv-wait)');
+    var obs = lazyObserver();
+    for (var i = 0; i < hosts.length; i++) {
+      if (obs) { hosts[i].classList.add('lcdv-wait'); obs.observe(hosts[i]); }
+      else renderWidget(hosts[i]);
+    }
   }
 
   /* Shoptet donačítava obsah cez AJAX — sleduj nové widgety */
@@ -538,7 +561,7 @@
       if (timer) return;
       timer = setTimeout(function () {
         timer = null;
-        if (document.querySelector('.lcd-videos-widget:not(.lcdv-ready)')) initAll();
+        if (document.querySelector('.lcd-videos-widget:not(.lcdv-ready):not(.lcdv-wait)')) initAll();
       }, 300);
     }).observe(document.body, { childList: true, subtree: true });
   }
