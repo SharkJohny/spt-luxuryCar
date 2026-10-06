@@ -163,8 +163,17 @@ function dynamicPictures() {
 }
 
 function initModelSelect(texts) {
+  // Web bez prekrývania (10/2026): titulka / rozcestník zo Shoptet adminu majú v karte
+  // konfigurátora slot <div id="konfSlot"> (nie na produkte).
+  const konfSlot =
+    !$(".type-product")[0] && ($(".in-index")[0] || $(".in-rozcestnik")[0])
+      ? document.getElementById("konfSlot")
+      : null;
+  // „box“ v H1 = produkt box do kufra (konfigurátor auta nemá). Na titulke a rozcestníku so slotom
+  // dáva H1 Shoptet z adminu (Úvodný text / názov stránky) — tam kontrola neplatí, inak by H1
+  // typu „… a boxy do kufra“ zablokoval konfigurátor a v #konfSlot by ostal len odkaz „Vybrať auto“.
   const header = $("h1").text();
-  if (header.includes("box")) return;
+  if (header.includes("box") && !konfSlot) return;
 
   let insertPosidion = ".in-index .content-wrapper.container:eq(1)";
 
@@ -207,24 +216,41 @@ function initModelSelect(texts) {
     getCarType = null;
   }
 
-  const section = $("<section>", {
-    id: "model-selector",
-  });
-  if ($("body.mobile")[0]) {
-    $(section).prependTo(insertPosidion);
-    if ($(".type-product")[0]) {
+  // Slot #konfSlot (viď začiatok funkcie): ak je, .model-selector ide ROVNO doň —
+  // na mobile aj PC, bez starých kotiev a bez adopcie (40× polling v lcdHome/lcdRz).
+  // Bez slotu (kreslená titulka, prechodné obdobie) staré kotvy ako doteraz.
+  let container;
+  if (konfSlot) {
+    // Pôvodný obsah slotu je náhrada pre návštevu bez JS (odkaz „Vybrať auto“ → /rozcestnik/).
+    // Živý konfigurátor ju v slote vystrieda — schová sa (nemaže), nič mimo slotu sa nemení.
+    Array.prototype.forEach.call(konfSlot.children, function (el) {
+      // (atribút hidden nestačí — .btn má v CSS vlastný display)
+      if (!el.classList.contains("model-selector")) el.style.setProperty("display", "none", "important");
+    });
+    container = $("<div>", {
+      class: "model-selector container",
+    }).appendTo(konfSlot);
+    konfSlot.classList.add("lcd-konf-ok");
+  } else {
+    const section = $("<section>", {
+      id: "model-selector",
+    });
+    if ($("body.mobile")[0]) {
+      $(section).prependTo(insertPosidion);
+      if ($(".type-product")[0]) {
+        $(section).insertAfter(insertPosidion);
+      }
+    } else {
       $(section).insertAfter(insertPosidion);
     }
-  } else {
-    $(section).insertAfter(insertPosidion);
-  }
 
-  const container = $("<div>", {
-    class: "model-selector container",
-  }).appendTo(section);
-  if ($(".in-index")[0]) {
-    $("<h2>").text(texts.select_car_header).appendTo(container);
-    $('<div class="prefix">' + texts.select_car_prefix + "</div>").appendTo(container);
+    container = $("<div>", {
+      class: "model-selector container",
+    }).appendTo(section);
+    if ($(".in-index")[0]) {
+      $("<h2>").text(texts.select_car_header).appendTo(container);
+      $('<div class="prefix">' + texts.select_car_prefix + "</div>").appendTo(container);
+    }
   }
   const choiceWrap = $("<div>").addClass("modl-selector-wrap").appendTo(container);
   const znacka =

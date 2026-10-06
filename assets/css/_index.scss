@@ -1049,7 +1049,9 @@ section#section1 {
     margin-top: 20px;
   }
   .point-wrapper,
-  .footer-banner section {
+  // :not(.lcd-root *) — telo statickej titulky (bannery Zápätia, 10/2026): overflow:hidden by vyplo sticky scény
+  // (rovnako v skompilovanom luxuryCar.css; zdroj pravdy pre CSS mimo LCD blokov je luxuryCar.css — admin-html/README.md)
+  .footer-banner section:not(.lcd-root *) {
     // margin-left: -30px !important;
     // margin-right: -30px;
     padding: 20px 10px !important;

@@ -12,3 +12,8 @@
 # `yarn truck:images` (beží aj v build:once). Zdroj = konfigurator*.jsx s base64.
 /assets/js/truck-konfigurator/konfigurator.gen.jsx
 /assets/js/truck-konfigurator/konfigurator.phone.gen.jsx
+
+# Pracovné poznámky a zadania pre agentov — nepatria do repa (push = deploy).
+# REVIEWS-HANDOFF.md obsahuje GitHub token -> nikdy necommitovať.
+/REVIEWS-HANDOFF.md
+/codex-task-*.txt

@@ -1,0 +1,207 @@
+{
+  "_pozn": "Generuje tools/build-admin-html.mjs z admin-html/src + admin-html/ciele.json. Needitovať ručne. Obsah dist/<subor> sa vkladá do adminu celý (banner: Text banneru; stránka: Popis cez runner, nie ručne v TinyMCE). hash = data-lcd-v v koreni = sha256 obsahu bez data-lcd-v (prvých 10 znakov).",
+  "limit": 45000,
+  "casti": [
+    {
+      "cast": "hp-vrch",
+      "web": "sk",
+      "subor": "hp-vrch.sk.html",
+      "zdroj": "src/hp-vrch.sk.html",
+      "koren": "#lcd-home",
+      "ciel": {
+        "typ": "banner",
+        "id": 178,
+        "kod": "banner6",
+        "nazov": "Top 1",
+        "pozicia": "Stred titulky (Banner v strede)",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 29991,
+      "bajty": 30486,
+      "hash": "0845de2170",
+      "obrazky": 29
+    },
+    {
+      "cast": "hp-vrch",
+      "web": "cz",
+      "subor": "hp-vrch.cz.html",
+      "zdroj": "src/hp-vrch.cz.html",
+      "koren": "#lcd-home",
+      "ciel": {
+        "typ": "banner",
+        "id": 117,
+        "kod": "banner7",
+        "nazov": "Stred",
+        "pozicia": "Stred titulky (Banner v strede)",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 29849,
+      "bajty": 30478,
+      "hash": "654722b5b1",
+      "obrazky": 29
+    },
+    {
+      "cast": "hp-telo-1",
+      "web": "sk",
+      "subor": "hp-telo-1.sk.html",
+      "zdroj": "src/hp-telo-1.sk.html",
+      "koren": "#lcd-home-2",
+      "ciel": {
+        "typ": "banner",
+        "id": 181,
+        "kod": "banner7",
+        "nazov": "Top 2",
+        "pozicia": "Zápätie titulky (Doplnkové bannery)",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 28618,
+      "bajty": 29254,
+      "hash": "39ea9f3e64",
+      "obrazky": 47
+    },
+    {
+      "cast": "hp-telo-1",
+      "web": "cz",
+      "subor": "hp-telo-1.cz.html",
+      "zdroj": "src/hp-telo-1.cz.html",
+      "koren": "#lcd-home-2",
+      "ciel": {
+        "typ": "banner",
+        "id": 120,
+        "kod": "banner8",
+        "nazov": "Zápatí",
+        "pozicia": "Zápätie titulky (Doplnkové bannery)",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 28720,
+      "bajty": 29438,
+      "hash": "eee810d60d",
+      "obrazky": 47
+    },
+    {
+      "cast": "hp-telo-2",
+      "web": "sk",
+      "subor": "hp-telo-2.sk.html",
+      "zdroj": "src/hp-telo-2.sk.html",
+      "koren": "#lcd-home-3",
+      "ciel": {
+        "typ": "banner",
+        "id": null,
+        "kod": null,
+        "nazov": "Top 3 (NOVÝ banner, treba založiť)",
+        "pozicia": "Zápätie titulky (Doplnkové bannery), MUSÍ byť za „Top 2“",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 32401,
+      "bajty": 33306,
+      "hash": "be4d635b3d",
+      "obrazky": 38
+    },
+    {
+      "cast": "hp-telo-2",
+      "web": "cz",
+      "subor": "hp-telo-2.cz.html",
+      "zdroj": "src/hp-telo-2.cz.html",
+      "koren": "#lcd-home-3",
+      "ciel": {
+        "typ": "banner",
+        "id": null,
+        "kod": null,
+        "nazov": "Zápatí 2 (NOVÝ banner, treba založiť)",
+        "pozicia": "Zápätie titulky (Doplnkové bannery), MUSÍ byť za „Zápatí“",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 32307,
+      "bajty": 33259,
+      "hash": "6c9ce65aa4",
+      "obrazky": 38
+    },
+    {
+      "cast": "mega",
+      "web": "sk",
+      "subor": "mega.sk.html",
+      "zdroj": "src/mega.sk.html",
+      "koren": "#mega",
+      "ciel": {
+        "typ": "banner",
+        "id": 172,
+        "kod": "banner4",
+        "nazov": "menu",
+        "pozicia": "Pätička (custom-footer)",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 6427,
+      "bajty": 6481,
+      "hash": "27050a61cb",
+      "obrazky": 9
+    },
+    {
+      "cast": "mega",
+      "web": "cz",
+      "subor": "mega.cz.html",
+      "zdroj": "src/mega.cz.html",
+      "koren": "#mega",
+      "ciel": {
+        "typ": "banner",
+        "id": 108,
+        "kod": "banner4",
+        "nazov": "menu.",
+        "pozicia": "Pätička (custom-footer)",
+        "zobrazit": "PC aj mobil"
+      },
+      "znaky": 5927,
+      "bajty": 5979,
+      "hash": "01233963b0",
+      "obrazky": 9
+    },
+    {
+      "cast": "rz",
+      "web": "sk",
+      "subor": "rz.sk.html",
+      "zdroj": "src/rz.sk.html",
+      "koren": "#lcd-rz",
+      "ciel": {
+        "typ": "stranka",
+        "id": 850,
+        "pole": "Popis stránky (description)",
+        "url": "/rozcestnik/"
+      },
+      "znaky": 6302,
+      "bajty": 6379,
+      "hash": "8ce719fa86",
+      "obrazky": 9
+    },
+    {
+      "cast": "rz",
+      "web": "cz",
+      "subor": "rz.cz.html",
+      "zdroj": "src/rz.cz.html",
+      "koren": "#lcd-rz",
+      "ciel": {
+        "typ": "stranka",
+        "id": 786,
+        "pole": "Popis stránky (description)",
+        "url": "/rozcestnik/"
+      },
+      "znaky": 6283,
+      "bajty": 6375,
+      "hash": "77a48ad3fd",
+      "obrazky": 9
+    }
+  ],
+  "stranky": {
+    "titulka": [
+      "mega",
+      "hp-vrch",
+      "hp-telo-1",
+      "hp-telo-2"
+    ],
+    "rozcestnik": [
+      "mega",
+      "rz"
+    ],
+    "ostatne": [
+      "mega"
+    ]
+  }
+}

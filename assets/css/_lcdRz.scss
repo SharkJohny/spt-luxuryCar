@@ -1938,7 +1938,7 @@
 }
 #lcd-rz .duocoach.pryc {opacity:0;pointer-events:none
 }
-#lcd-rz .dc-panel {position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+#lcd-rz .dc-panel {position:absolute;left:50%;top:0;transform:translate(-50%,-50%);
   display:flex;flex-direction:column;align-items:center;gap:14px;
   padding:24px 22px 20px;border-radius:20px;width:290px;max-width:calc(100% - 44px);
   background:linear-gradient(180deg,rgba(26,21,14,.96),rgba(16,13,9,.96));

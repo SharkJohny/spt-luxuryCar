@@ -312,7 +312,10 @@ export function lxModulyOziv(root, cz) {
     const c = (getComputedStyle(el).backgroundColor.match(/[\d.]+/g) || []).map(Number);
     return c.length >= 3 && (c[3] === undefined || c[3] > 0.5) && 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2] < 70;
   };
-  root.querySelectorAll("section[style]").forEach((sek) => {
+  /* statický koreň zo Shoptet adminu ([data-lcd-cast], web bez prekrývania) má triedu
+     lx-po-tmavej zapečenú v HTML (admin-html/src, #produkty a #referencie) — JS po načítaní
+     rozloženie nemení (inak by sekcia na mobile poskočila až s príchodom bundla) */
+  if (!root.hasAttribute || !root.hasAttribute("data-lcd-cast")) root.querySelectorAll("section[style]").forEach((sek) => {
     if (!/padding-top\s*:\s*0/.test(sek.getAttribute("style"))) return;
     const pred = sek.previousElementSibling;
     if (!pred || !tmave(pred)) return;

@@ -1,0 +1,109 @@
+/* =====================================================================
+   STATICKÉ KORENE V OBALOCH SHOPTETU — partial pre blok LCD-KORENE (vkladá tools/vloz-lcd-css.py)
+   Web bez prekrývania (10/2026): obsah titulky a rozcestníka prichádza v HTML zo Shoptet adminu.
+     titulka:    banner Stred 178 (SK) / 117 (CZ)      <div id="lcd-home"   class="lcd-root" data-lcd-cast="hp-vrch">
+                 bannery Zápätia 181 / 120 a ďalšie    <div id="lcd-home-2" class="lcd-root" data-lcd-cast="hp-telo-1"> …
+     rozcestník: popis stránky 850 / 786               <div id="lcd-rz"     class="lcd-root" data-lcd-cast="rz">
+   Štýly titulky platia na všetky korene (blok LCD-HOME: :is(#lcd-home,[data-lcd-cast^=hp])).
+   Tu sú len veci, ktoré vznikli presunom do obalov Shoptetu. Kreslený obsah (JS, bez data-lcd-cast,
+   mimo obalov) sa ich netýka -> dnešný stav sa nemení.
+   ===================================================================== */
+
+/* 1) Obaly Shoptetu (.container, .row, .col-*, .banner-wrapper, .footer-banner, main.content, článok
+      stránky…) okolo koreňa: bez odsadení, šírok a obtekania -> korene idú na celú šírku okna. */
+:is(.content-wrapper,.content-wrapper-in,.container,.row,.col-sm-12,.col-lg-12,.banner-wrapper,.footer-banners,
+    .footer-banner,main.content,.content-inner,.pageArticleDetail,[itemprop="about"]):has(.lcd-root){
+  box-sizing:border-box !important;width:100% !important;min-width:0 !important;max-width:none !important;
+  float:none !important;flex:0 0 100% !important;margin:0 !important;padding:0 !important;border:0 !important}
+.content-wrapper-in:has(.lcd-root){display:block !important}
+span[data-ec-promo-id]:has(> .lcd-root){display:block}
+/* koreň nededí typografiu obalov (zarovnanie, prekladanie…) — písmo, farby a veľkosti dáva blok koreňa */
+.lcd-root{display:block;clear:both;text-align:left;text-indent:0;letter-spacing:normal;word-spacing:normal;
+  text-transform:none;font-style:normal;white-space:normal}
+/* Shoptet: .banner-wrapper a, .banners-content a, .footer-banner a {display:inline-block;position:relative}
+   — v koreni platí ako v kreslenom obsahu (inline/static), pokiaľ dizajn nepovie inak; konfigurátor v #konfSlot nechávame */
+.lcd-root a:where(:not(#konfSlot *)){display:inline;position:static}
+/* staršie pravidlá šablóny (.type-page .content li a … {color:black!important}, mobil: .footer-banner section
+   {padding…!important;overflow:hidden}) sa koreňa netýkajú — majú pri sebe :not(.lcd-root *) */
+
+/* 2) Sticky scény (príbeh, pred a po, 5 vecí…) potrebujú rodiča bez overflow:hidden.
+      Kreslená titulka to rieši v gate štýle (body.lcdh-on .overall-wrapper{overflow:clip}). */
+body:has([data-lcd-cast^=hp],[data-lcd-cast=rz]) .overall-wrapper{overflow:hidden;overflow:clip !important}
+/*    Rovnako obaly priamo okolo koreňa: Shoptet dáva #content-wrapper (mobil, rozcestník) overflow:hidden ->
+      lcdHomeModuly.js by pred a po aj galériu prepol na „bez lepenia“ (krátka scéna) a sticky by nefungovalo.
+      clip orezáva rovnako, ale nevytvára rolovací kontajner (sticky ide, JS test na hidden|auto|scroll prejde). */
+:is(#content-wrapper,.content-wrapper,.content-wrapper-in,.container,.row,.col-sm-12,.col-lg-12,.banner-wrapper,.footer-banners,
+    .footer-banner,main.content,.content-inner,.pageArticleDetail,[itemprop="about"]):has(.lcd-root){overflow:clip !important}
+
+/* 3) Bez JS je všetko viditeľné. Počiatočné skryté stavy animácií (reveal .rv, karty .pc/.cmpc,
+      karta konfigurátora) platia len pod html.lcd-anim — triedu pridá JS až po označení videného obsahu.
+      #lcd-spec v :is() nič nevyberá, len dvíha špecificitu na úroveň id (pravidlá blokov sú #lcd-home …). */
+html:not(.lcd-anim) :is([data-lcd-cast^=hp],[data-lcd-cast=rz],#lcd-spec) :is(.rv,.pc,.cmpc,.konf .card){opacity:1;transform:none}
+html:not(.lcd-anim) :is([data-lcd-cast^=hp],#lcd-spec) .s2-texts:not(:has(> .s2-t.on)) > .s2-t:first-child,
+html:not(.lcd-anim) :is([data-lcd-cast^=hp],#lcd-spec) .s2-media:not(:has(> img.on)) > img:first-of-type,
+html:not(.lcd-anim) :is([data-lcd-cast^=hp],#lcd-spec) .lx-farby-velka:not(:has(> img.on)) > img:first-of-type{opacity:1;transform:none}
+
+/* 4) Poistka v HTML kódoch Záhlavia nesmie schovať statický obsah, ani keď ju JS nestihne alebo nemôže odobrať
+      (zlé poradie zápisu v admine, rollback, JS sa nenačíta) — kritik, blocker 2.
+      SK: lcdh-early (titulka) + lcdrz-early (rozcestník). CZ: JEDNA spoločná lcdh-early pre body:is(.in-index,
+      .in-rozcestnik), skrýva #header, #content-wrapper, .homepage-box aj .container -> na rozcestníku obe triedy.
+      JS ich pri statickom koreni tiež odoberá (lcdHome.js lcdh-early, lcdRz.js lcdrz-early aj lcdh-early). */
+html.lcdh-early body.in-index:has([data-lcd-cast^=hp]) :is(#header,#content-wrapper,.top-navigation-bar,.content-wrapper.homepage-box,.content-wrapper.container,.lcd-reviews-widget),
+html:is(.lcdrz-early,.lcdh-early) body.in-rozcestnik:has([data-lcd-cast=rz]) :is(#header,#content-wrapper,.content-wrapper.homepage-box,.content-wrapper.container,.top-navigation-bar,.lcd-reviews-widget){
+  visibility:visible !important}
+
+/* 5) Karta konfigurátora: slot #konfSlot (rovnaké pravidlá, aké kreslená titulka/rozcestník vkladajú v gate štýle) */
+:is(#lcd-home,[data-lcd-cast^=hp]) .lcdh-konf-slot{margin-top:16px;text-align:left}
+:is(#lcd-home,[data-lcd-cast^=hp]) .lcdh-konf-slot .model-selector > h2,
+:is(#lcd-home,[data-lcd-cast^=hp]) .lcdh-konf-slot .model-selector > .prefix{display:none}
+:is(#lcd-home,[data-lcd-cast^=hp]) .lcdh-konf-slot .model-selector,
+#lcd-rz .lcdrz-konf-slot .model-selector{margin:0;max-width:none;width:100%}
+#lcd-rz .lcdrz-konf-slot{margin-top:16px;text-align:left}
+/* náhrada bez JS: odkaz „Vybrať auto“ na rozcestník; keď príde konfigurátor, ustúpi (JS ho aj skryje) */
+#konfSlot .konf-bezjs{display:inline-flex}
+#konfSlot:is(.lcd-konf-ok,:has(.model-selector)) .konf-bezjs{display:none !important}
+
+/* 6) Titulka bez carouselu (184/123 vypnutý): obal .before-carousel má v šablóne margin-top:-92px (ťahal
+      carousel pod starú priesvitnú hlavičku) — vytiahol by hero pod pás hlavičky. Prázdny obal skryť. */
+body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.before-carousel{margin-top:0 !important}
+body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.before-carousel:not(:has(.carousel)){display:none !important}
+/* 6b) Titulka: H1 dáva Shoptet z názvu Úvodného textu ako main#content > h1.sr-only — ten ostáva (čítačky, roboty).
+      Pod telom titulky Shoptet navyše vypíše pás .welcome-wrapper: div.h1 = len vizuálna kópia toho istého textu
+      (data-testid=eshopHeader, nie je to nadpis) + popis Úvodného textu. Dnes ho kreslená titulka skrýva (gate
+      .content-wrapper.homepage-box), preto ho skrývame aj pri statickej titulke, kým Michal neschváli novú H1 frázu —
+      inak by na konci titulky pribudol nový pás „VITAJTE V NAŠOM OBCHODE“. Schová aj popis, ak ešte nie je vyprázdnený.
+      Ukázať pás ako záverečný claim (Michalova voľba) = zmazať len prvé pravidlo nižšie; štýl pod ním je pripravený. */
+body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.welcome-wrapper{display:none !important}
+body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.welcome-wrapper{margin:0 !important;padding:0 !important;
+  background:#eceae5;border:0}
+body.in-index:has([data-lcd-cast^=hp]) .welcome-wrapper :is(.content-wrapper-in,.container,.welcome-wrapper,.welcome){
+  width:auto !important;max-width:1240px !important;margin:0 auto !important;padding:0 !important;float:none !important;
+  background:none !important;border:0 !important}
+body.in-index:has([data-lcd-cast^=hp]) .welcome-wrapper .welcome{padding:clamp(28px,4vw,48px) clamp(18px,5vw,80px) !important;text-align:center}
+body.in-index:has([data-lcd-cast^=hp]) .welcome-wrapper .welcome > div.h1{margin:0 !important;padding:0 !important;
+  font:normal 700 clamp(18px,2vw,24px)/1.25 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.06em !important;
+  text-transform:uppercase !important;color:#7c5f16 !important;text-wrap:balance}
+body.in-index:has([data-lcd-cast^=hp]) .welcome-wrapper .welcome > :not(div.h1):empty{display:none !important}
+/* medzera medzi telom titulky a pätičkou (kreslená titulka: #footer{margin-top:-1px}) */
+body.in-index:has([data-lcd-cast^=hp]) #footer{margin-top:0 !important}
+
+/* 7) Rozcestník: H1 stránky (článok Shoptetu) ostáva pre vyhľadávače, vizuálne ho nahrádza hlavička #lcd-rz */
+body.in-rozcestnik .pageArticleDetail:has(#lcd-rz[data-lcd-cast]) > header{position:absolute !important;width:1px !important;
+  height:1px !important;margin:-1px !important;padding:0 !important;overflow:hidden !important;clip:rect(0 0 0 0) !important;
+  clip-path:inset(50%) !important;white-space:nowrap !important;border:0 !important}
+body.in-rozcestnik:has(#lcd-rz[data-lcd-cast]) #footer{margin-top:0 !important}
+
+/* 8) Rozcestník: hlavička podľa auta UŽ PRI PRVOM VYKRESLENÍ (bez posunu stránky, CLS).
+      Statický #lcd-rz nesie oba stavy: .rz-sa = auto poznáme (štítok, „Krok 2 z 3“, 3 kroky),
+      .rz-ba = auto nepoznáme („…pre svoje vozidlo“, „Krok 1 z 2“, 2 kroky, otvorený konfigurátor).
+      Ktorý platí, rozhodne trieda html.lcd-rz-auto: nastaví ju riadok v HTML kódoch Záhlavia (admin-html/zahlavie-riadok.html)
+      zo sessionStorage ešte pred <body>, lcdRz.js ju potom drží (výber auta, zmena). Bez triedy (bez JS, Google,
+      priamy príchod) = auto nepoznáme. Kým JS nevpíše skutočné auto, vzorové „Audi A6“ je neviditeľné (miesto ostáva). */
+html:not(.lcd-rz-auto) #lcd-rz[data-lcd-cast=rz] :is(.rz-sa,.plate){display:none !important}
+html.lcd-rz-auto #lcd-rz[data-lcd-cast=rz] .rz-ba{display:none !important}
+html:not(.lcd-rz-auto) #lcd-rz[data-lcd-cast=rz] .rz-konf[hidden]{display:block}
+html.lcd-rz-auto:not(.lcd-rz-plne) #lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.plate .v i){visibility:hidden}
+/*    Vzorové auto NIE JE v texte stránky (nadpis bez CSS/JS, roboty, čítačky = len „…pre svoje vozidlo“): je v data-vzor
+      a ::after ním len drží miesto (neviditeľne, podľa riadku vyššie), kým lcdRz.js nevpíše skutočné auto — potom prvok
+      nie je :empty (komentár <!-- --> pre TinyMCE sa do :empty neráta). */
+#lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.plate .v i)[data-vzor]:empty::after{content:attr(data-vzor)}

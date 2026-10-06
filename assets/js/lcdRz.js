@@ -1,9 +1,25 @@
 import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
+import { lcdKorene, lcdMultiKoren, lcdOdoberPoistku, lcdRevealOznacVidene,
+         lcdAnimZapni, lcdPremenujMegu } from "./functions/lcdOziv.js";
 /* lcdRz.js - GENEROVANE extract-lcd-rz.py, RUCNE NEEDITUJ.
    Zdroj: rz-tpl.html
    Obal riesi to, ze povodne <script> bloky v navrhu bezali az ZA markupom.
    V bundli luxuryCar.js sa spusta skor, preto DOMContentLoaded + guard.
-   Guard flag je vlastny (__LCD_RZ_INIT__), NIE zdielany s titulkou. */
+   Guard flag je vlastny (__LCD_RZ_INIT__), NIE zdielany s titulkou.
+
+   Web bez prekrývania (10/2026): keď je v popise stránky statický koreň
+   <div id="lcd-rz" data-lcd-cast="rz">, rozcestník sa NEKRESLÍ ani neskrýva starý obsah —
+   len sa oživí (hlavička podľa vozidla, karty, reveal; stlmenie s nápovedou nie). Konfigurátor vloží
+   main.js/initModelSelect priamo do #konfSlot. Bez statického koreňa ako doteraz. */
+/* poistku zo Záhlavia treba pri statickom koreni zhodiť čo najskôr (sama sa odoberie len
+   vtedy, keď #lcd-rz NEexistuje). SK má pre rozcestník vlastnú lcdrz-early, CZ má JEDNU
+   spoločnú lcdh-early pre titulku aj rozcestník (skrýva #header aj #content-wrapper) ->
+   odobrať obe, inak je CZ rozcestník so statickým #lcd-rz natrvalo prázdny. */
+function lcdrzOdoberPoistky() {
+  lcdOdoberPoistku("lcdrz-early");
+  lcdOdoberPoistku("lcdh-early");
+}
+if (lcdKorene("rz").length) lcdrzOdoberPoistky();
 (function () {
   if (window.__LCD_RZ_INIT__) return;
   window.__LCD_RZ_INIT__ = true;
@@ -49,6 +65,8 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
         aby si dopocital nasledujuce zoznamy tak, ako keby to klikol clovek.
      2) Po kliknuti na "Zvolit model" sa hlavicka obnovi (predtym ostavala stara).
      3) Cela karta vyberu je klikatelna, nielen tlacidlo. */
+  /* staticky #lcd-rz z popisu stranky (web bez prekryvania) — nastavi boot() */
+  var LCDRZ_STATIC = false;
   var LCDRZ_SEL = [".surcharge-list.brands.dm-selector select",
                    ".surcharge-list.models.dm-selector select",
                    ".surcharge-list.years.dm-selector select",
@@ -179,25 +197,47 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
             rok: ss.getItem("Year"), typ: ss.getItem("carType") };
     } catch (e) { v = null; }
 
-    var h1    = root.querySelector("h1");
+    /* staticky koren nema <h1> (H1 dava Shoptet z nazvu stranky) — nadpis navrhu
+       v nom moze niest data-lcd-h1 */
+    var h1    = root.querySelector("h1, [data-lcd-h1]");
     var plate = root.querySelector(".plate");
     var kroky = root.querySelector(".rzsteps");
     var orn   = root.querySelector(".orn span");
 
-    if (v && v.znacka && v.model && v.rok && v.typ) {
+    var znameAuto = !!(v && v.znacka && v.model && v.rok && v.typ);
+    if (znameAuto) {
       var em = h1 ? h1.querySelector("em") : null;
       if (em) em.textContent = v.znacka + " " + v.model;
       var pol = plate ? plate.querySelectorAll(".v i") : [];
       var hod = [v.znacka, v.model, v.rok, v.typ];
       for (var i = 0; i < pol.length && i < 4; i++) pol[i].textContent = hod[i];
+    }
+
+    /* STATICKY koren nesie oba stavy hlavicky (.rz-sa / .rz-ba) a prepina ich CSS cez
+       html.lcd-rz-auto, ktoru uz pred <body> nastavi riadok v HTML kodoch Zahlavia
+       (admin-html/zahlavie-riadok.html, rovnaka podmienka ako tu). JS triedu len drzi
+       v zhode a nic neprepisuje — stranka sa po nacitani JS neposunie (CLS). */
+    if (LCDRZ_STATIC) {
+      var hc = document.documentElement.classList;
+      if (znameAuto) {
+        if (plate) plate.style.display = "";
+        hc.add("lcd-rz-auto");
+        hc.add("lcd-rz-plne");                /* vzorove auto nahradene skutocnym */
+      } else {
+        hc.remove("lcd-rz-auto");
+        var kfs = root.querySelector("#konf");
+        if (kfs) kfs.removeAttribute("hidden");
+      }
       return;
     }
+    if (znameAuto) return;
 
     /* vozidlo nepozname - genericka hlavicka, stitok prec, krokovnik 1 z 2,
        konfigurator otvoreny, aby mal navstevnik kde vozidlo zadat */
-    if (h1) h1.textContent = "Vyberte si koberce pre svoje vozidlo";
+    /* staticky koren nesie text v data-bez-auta (SK aj CZ z markupu); kresleny ako doteraz */
+    if (h1) h1.textContent = h1.getAttribute("data-bez-auta") || "Vyberte si koberce pre svoje vozidlo";
     if (plate) plate.style.display = "none";
-    if (orn) orn.textContent = "Krok 1 z 2";
+    if (orn) orn.textContent = orn.getAttribute("data-bez-auta") || "Krok 1 z 2";
     if (kroky) kroky.innerHTML =
       '<div class="on"><b>1</b>Typ kobercov</div><s></s><div><b>2</b>Farba a pre\u0161\u00edvanie</div>';
     var kf = root.querySelector("#konf");
@@ -215,7 +255,21 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
     if (!document.body.classList.contains("type-page")) return;
     /* HP a rozcestnik sa nikdy nesmu spustit na tej istej stranke */
     if (document.body.classList.contains("in-index")) return;
-    if (document.getElementById("lcd-home")) return;
+    if (document.getElementById("lcd-home") || lcdKorene("hp").length) return;
+
+    /* ---- STATICKY KOREN (web bez prekryvania) ----
+       obsah je v HTML zo Shoptetu: nic sa nekresli, neskryva ani nemaze */
+    var rzStaticke = lcdKorene("rz");
+    var STATIC = rzStaticke.length > 0;
+    LCDRZ_STATIC = STATIC;
+    var rzRoot, LCDRZ;
+    if (STATIC) {
+      lcdrzOdoberPoistky();
+      rzRoot = LCDRZ = lcdMultiKoren(rzStaticke);
+      lcdrzHlavicka(rzRoot);
+      lcdrzKlikatelnaKarta(rzRoot);
+      setTimeout(function () { lcdrzInline(rzRoot); }, 1200);
+    } else {
     if (document.getElementById("lcd-rz")) return;
 
     /* ---- KAM SA MARKUP VLOZI (kniha A.3) ----
@@ -227,8 +281,10 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
                   || null;
     var rzWrap = document.createElement("div");
     rzWrap.innerHTML = lcdrzCZ ? LCDRZ_MARKUP_CZ : LCDRZ_MARKUP;
-    var rzRoot = rzWrap.firstElementChild;
+    rzRoot = rzWrap.firstElementChild;
     if (!rzRoot) return;
+    /* prechod: staticke #mega z banneru uz na stranke je -> id v kreslenom menu premenovat */
+    lcdPremenujMegu(rzRoot, "lcdrz-");
     rzHost.insertBefore(rzRoot, rzKotva);
 
     /* ---- GATE (kniha A.4) ----
@@ -256,11 +312,37 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
     lcdrzAdoptujSelector(rzRoot);
     lcdrzKlikatelnaKarta(rzRoot);
     setTimeout(function () { lcdrzInline(rzRoot); }, 1200);
+    LCDRZ = document.getElementById("lcd-rz");
+    }
+
+    /* Staticky obsah uz zakaznik vidi od prveho vykreslenia. Automaticky posun
+       stranky (nizsie) preto pri statickom koreni len vtedy, ked JS nabehol hned —
+       neskorsi skok by mu stranku vytrhol spod ruky. Kresleny rozcestnik ako doteraz. */
+    var rzSkokOk = !STATIC || !window.performance || performance.now() < 2500;
+    /* vyska hlavicky, ktora zakryva vrch stranky: kreslena .hdr, inak nativny #header,
+       ak je pripnuty (fixed / sticky) */
+    var rzVyskaHlavicky = function () {
+      var hdrEl = rzRoot.querySelector(".hdr");
+      if (!hdrEl && STATIC) {
+        /* nativna hlavicka: pripnuty pas je .top-navigation-bar (sticky), #header je
+           pripnuty POD nim (top = vyska pasu) — rozhoduje spodok najnizsieho pripnuteho */
+        var spodok = 0;
+        [".top-navigation-bar", "#header"].forEach(function (sel) {
+          var el = document.querySelector(sel);
+          if (el && /fixed|sticky/.test(getComputedStyle(el).position)) {
+            var r = el.getBoundingClientRect();
+            if (r.height > 0) spodok = Math.max(spodok, r.bottom);
+          }
+        });
+        return Math.max(0, spodok);
+      }
+      return hdrEl ? hdrEl.getBoundingClientRect().height : 0;
+    };
 
     /* vychodiskove zobrazenie (Michal 2026-08-27): stranka sa otvori na neviditelnej
        ciare NAD bunkami vyberu - ako prve vidno fotky a celu bunku. Len pri cerstvom
        otvoreni hore (scrollY < 60), nech sa nebije s navratom spat v prehliadaci. */
-    if (window.scrollY < 60) {
+    if (window.scrollY < 60 && rzSkokOk) {
       var rzUser = false;
       ["wheel", "touchstart", "keydown"].forEach(function (t) {
         addEventListener(t, function () { rzUser = true; }, { passive: true, once: true });
@@ -268,8 +350,7 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
       var rzNastav = function () {
         var pick = rzRoot.querySelector("#vyber, .pick");
         if (!pick) return;
-        var hdrEl = rzRoot.querySelector(".hdr");
-        var hdrV = hdrEl ? hdrEl.getBoundingClientRect().height : 0;
+        var hdrV = rzVyskaHlavicky();
         var y = pick.getBoundingClientRect().top + window.scrollY - hdrV - 14;
         if (y > 40) window.scrollTo(0, y);
       };
@@ -277,7 +358,6 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
       /* adopcia konfiguratora (poll ~250ms) posunie bunky - po ustaleni doladit */
       setTimeout(function () { if (!rzUser) rzNastav(); }, 900);
     }
-    var LCDRZ = document.getElementById("lcd-rz");
     /* smooth scroll na vnutrostrankove kotvy (nahrada za html{scroll-behavior}) */
     function lcdrzSmoothAnchor(e) {
       var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
@@ -294,6 +374,7 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
 /* Telefon: stranku posadime na vyber kobercov EST PRED prvym vykreslenim.
    Preto tu nie je ziadna animacia ani skok — prehliadac to rovno nakresli spravne. */
 (function(){
+  if(!rzSkokOk) return;
   try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(e){}
   if(!matchMedia('(max-width:900px)').matches) return;
   var w=LCDRZ.querySelector('.duowrap');
@@ -328,9 +409,13 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
 (function(){
   var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var bg=document.getElementById('burg'), mega=document.getElementById('mega'),
-      ovl=document.getElementById('megaOvl'), mx=document.getElementById('megaX');
-  function megaSet(o){ if(!mega) return;
+  /* menu kresleneho rozcestnika: hladame len vnutri korena (pri statickom #mega
+     z banneru su id v kreslenom markupe premenovane na lcdrz-*; staticke #mega
+     oziva lcdHdr.js). Staticky koren menu nema -> nic sa neviaze. */
+  function rzId(id){ return LCDRZ.querySelector('#'+id+', #lcdrz-'+id) }
+  var bg=rzId('burg'), mega=rzId('mega'),
+      ovl=rzId('megaOvl'), mx=rzId('megaX');
+  function megaSet(o){ if(!mega||!ovl||!bg) return;
     mega.classList.toggle('open',o); ovl.classList.toggle('open',o);
     bg.setAttribute('aria-expanded', o?'true':'false');
     document.body.style.overflow = o && innerWidth<=760 ? 'hidden' : '';
@@ -355,7 +440,12 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
     var io=new IntersectionObserver(function(en){
       en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target) } });
     },{threshold:0.12,rootMargin:'0px 0px -5% 0px'});
-    [].forEach.call(LCDRZ.querySelectorAll('.rv'),function(el){ io.observe(el) });
+    /* staticky obsah: co uz je vo vyreze alebo nad nim, dostane .on este pred
+       html.lcd-anim — videny obsah nesmie zmiznut */
+    var rvEls = LCDRZ.querySelectorAll('.rv');
+    if (STATIC) rvEls = lcdRevealOznacVidene(rvEls);
+    lcdAnimZapni();
+    [].forEach.call(rvEls,function(el){ io.observe(el) });
   } else {
     [].forEach.call(LCDRZ.querySelectorAll('.rv'),function(el){ el.classList.add('on') });
   }
@@ -433,9 +523,14 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
     if(!duo||!dots) return;
     var karty=[].slice.call(duo.children), bodky=[].slice.call(dots.children);
     function mobil(){ return matchMedia('(max-width:900px)').matches }
-    /* prehliadac si pri navrate na stranku pamata, kde bol pas — chceme vzdy prvu kartu */
-    var zaciatok=Date.now();
-    function naZaciatok(){ if(mobil()&&duo.scrollLeft) duo.scrollLeft=0 }
+    /* prehliadac si pri navrate na stranku pamata, kde bol pas — chceme vzdy prvu kartu.
+       Staticky koren: karty su viditelne a posuvatelne este pred JS — ked JS pride neskoro,
+       pas uz mohol posunut zakaznik, a ten mu spat nevratime (rovnaka brana ako skok stranky). */
+    var zaciatok=Date.now(), dotkolSa=false;
+    if(LCDRZ_STATIC) ['touchstart','pointerdown','wheel'].forEach(function(t){
+      duo.addEventListener(t,function(){ dotkolSa=true },{passive:true,once:true});
+    });
+    function naZaciatok(){ if(rzSkokOk&&!dotkolSa&&mobil()&&duo.scrollLeft) duo.scrollLeft=0 }
     naZaciatok();
     requestAnimationFrame(naZaciatok);
     addEventListener('load',naZaciatok);
@@ -480,6 +575,12 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
     var pohol=false, tikanie=null, zavrete=false,
         coach=document.getElementById('duoCoach'),
         pokoj=matchMedia('(prefers-reduced-motion: reduce)');
+    /* Staticky koren (web bez prekryvania): karty zakaznik vidi a pouziva od prveho
+       vykreslenia, JS moze prist az o desiatky sekund. Stlmenie s napovedou cez karty
+       (#duoCoach) aj samovolny posun pasu by vtedy naskocili pod rukou zakaznika —
+       Michal: „nechcem, aby niečo prekrývalo niečo“. Preto pri statickom koreni nebezia
+       vobec (ani pri rychlom JS); napoveda je len staticky text .duoswipe pod kartami. */
+    if(LCDRZ_STATIC){ zavrete=true; pohol=true; coach=null }
     function pohniPasom(){
       if(pohol||hral||!mobil()||duo.scrollLeft>4||pokoj.matches) return;
       hral=true; vlastny=true;
@@ -560,7 +661,9 @@ import { LCDRZ_MARKUP, LCDRZ_MARKUP_CZ } from "./lcdRz-markup.js";
       var r=duo.getBoundingClientRect(),
           hore=Math.max(r.top,0), dole=Math.min(r.bottom,innerHeight);
       if(dole<=hore) return;
-      panel.style.top=Math.round((hore+dole)/2-r.top)+'px';
+      /* poloha cez transform, nie top: panel sa pri rolovani (aj automatickom posune
+         stranky po nacitani) hybe s vyrezom a zmena top sa rata ako posun stranky (CLS) */
+      panel.style.transform='translate(-50%,calc('+Math.round((hore+dole)/2-r.top)+'px - 50%))';
     }
     var odpocet=null;
     function prehodnot(){

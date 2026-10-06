@@ -1,0 +1,5 @@
+# Obsah pre Shoptet admin: vždy LF (hash data-lcd-v a kontrola dist sa rátajú z LF, aj na Windows s core.autocrlf)
+*.html text eol=lf
+*.json text eol=lf
+*.mjs text eol=lf
+*.md text eol=lf

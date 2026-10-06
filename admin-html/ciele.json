@@ -1,0 +1,42 @@
+{
+  "_pozn": "Kam v Shoptet admine patrí ktorý súbor z admin-html/dist/. Číta to tools/build-admin-html.mjs (manifest, kontrola id po stránkach). ID a kódy bannerov sa medzi SK a CZ líšia! Zdroj: zálohy 6. 10. 2026 (C:/Users/M/Desktop/LCD/web/zalohy-admin/2026-10-06/ZOZNAM-bannerov.tsv).",
+  "limit": 45000,
+  "casti": {
+    "hp-vrch": {
+      "koren": "lcd-home",
+      "popis": "Titulka, 1. kus: hero, karta konfigurátora (#konfSlot) a prvé sekcie až po referenčné videá",
+      "sk": { "typ": "banner", "id": 178, "kod": "banner6", "nazov": "Top 1", "pozicia": "Stred titulky (Banner v strede)", "zobrazit": "PC aj mobil" },
+      "cz": { "typ": "banner", "id": 117, "kod": "banner7", "nazov": "Stred", "pozicia": "Stred titulky (Banner v strede)", "zobrazit": "PC aj mobil" }
+    },
+    "hp-telo-1": {
+      "koren": "lcd-home-2",
+      "popis": "Titulka, 2. kus: recenzie, kufor, set, realita",
+      "sk": { "typ": "banner", "id": 181, "kod": "banner7", "nazov": "Top 2", "pozicia": "Zápätie titulky (Doplnkové bannery)", "zobrazit": "PC aj mobil" },
+      "cz": { "typ": "banner", "id": 120, "kod": "banner8", "nazov": "Zápatí", "pozicia": "Zápätie titulky (Doplnkové bannery)", "zobrazit": "PC aj mobil" }
+    },
+    "hp-telo-2": {
+      "koren": "lcd-home-3",
+      "popis": "Titulka, 3. kus: čo očakávať, materiál, FAQ, galéria, kontaktný formulár, záver, lightbox videí",
+      "sk": { "typ": "banner", "id": null, "kod": null, "nazov": "Top 3 (NOVÝ banner, treba založiť)", "pozicia": "Zápätie titulky (Doplnkové bannery), MUSÍ byť za „Top 2“", "zobrazit": "PC aj mobil" },
+      "cz": { "typ": "banner", "id": null, "kod": null, "nazov": "Zápatí 2 (NOVÝ banner, treba založiť)", "pozicia": "Zápätie titulky (Doplnkové bannery), MUSÍ byť za „Zápatí“", "zobrazit": "PC aj mobil" }
+    },
+    "mega": {
+      "koren": "mega",
+      "popis": "Menu (nav#mega + #megaOvl) na každej stránke s pätičkou; obsahuje aj prepínač SK/CZ",
+      "sk": { "typ": "banner", "id": 172, "kod": "banner4", "nazov": "menu", "pozicia": "Pätička (custom-footer)", "zobrazit": "PC aj mobil" },
+      "cz": { "typ": "banner", "id": 108, "kod": "banner4", "nazov": "menu.", "pozicia": "Pätička (custom-footer)", "zobrazit": "PC aj mobil" }
+    },
+    "rz": {
+      "koren": "lcd-rz",
+      "tinymce": true,
+      "popis": "Rozcestník /rozcestnik/: celý obsah v Popise stránky (TinyMCE pole, markup ho musí prežiť)",
+      "sk": { "typ": "stranka", "id": 850, "pole": "Popis stránky (description)", "url": "/rozcestnik/" },
+      "cz": { "typ": "stranka", "id": 786, "pole": "Popis stránky (description)", "url": "/rozcestnik/" }
+    }
+  },
+  "stranky": {
+    "titulka": { "casti": ["mega", "hp-vrch", "hp-telo-1", "hp-telo-2"], "snimka": { "sk": "sk_.html", "cz": "cz_.html" } },
+    "rozcestnik": { "casti": ["mega", "rz"], "snimka": { "sk": "sk_rozcestnik_.html" }, "ignorujIdZoSnimky": ["Model-selecte", "sets"] },
+    "ostatne": { "casti": ["mega"], "snimka": { "sk": "sk_nase-produkty_.html" } }
+  }
+}

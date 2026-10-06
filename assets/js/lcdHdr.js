@@ -1,13 +1,34 @@
 /* GENEROVANE gen-lcdhdr-bundle.py - globalna dizajnova hlavicka pre cely SK e-shop.
-   HP (in-index) a rozcestnik (in-rozcestnik) maju hlavicku vo vlastnom bloku - tam sa nevklada. */
+   HP (in-index) a rozcestnik (in-rozcestnik) maju hlavicku vo vlastnom bloku - tam sa nevklada.
+
+   Web bez prekrývania (10/2026): keď je hlavička natívna (html.lcd-native-hdr alebo
+   na stránke je statický koreň [data-lcd-cast], napr. #mega z banneru 172 / 108),
+   vlastná hlavička sa NEKRESLÍ — len sa oživí statické menu #mega (functions/lcdOziv.js).
+   Bez statického koreňa a bez triedy kreslí ako doteraz (prechodné obdobie). */
 import { LCDHDR_MARKUP, LCDHDR_MARKUP_CZ } from "./lcdHdr-markup.js";
+import { lcdKorene, lcdMegaOziv, lcdNativnaHlavicka } from "./functions/lcdOziv.js";
 
 function lcdhdrBoot() {
   var lcdhdrCZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
   if (location.hostname.indexOf("luxurycardesign.sk") === -1 && !lcdhdrCZ) return;
   var b = document.body;
-  if (!b || b.classList.contains("in-index") || b.classList.contains("in-rozcestnik")) return;
+  if (!b) return;
+  /* statické menu z banneru oživ na každej stránke (aj na titulke a rozcestníku) */
+  lcdKorene("mega").forEach(function (m) {
+    try { lcdMegaOziv(m); } catch (e) {}
+  });
+  /* titulka a rozcestník: natívna hlavička až keď je statický koreň danej stránky
+     (kým ich kreslí JS, majú vlastnú .hdr a natívnu skrýva ich gate) */
+  var naHP = b.classList.contains("in-index"), naRz = b.classList.contains("in-rozcestnik");
+  var nativna = naHP ? lcdKorene("hp").length > 0
+              : naRz ? lcdKorene("rz").length > 0
+              : lcdNativnaHlavicka();
+  /* poistka: trieda býva v HTML kódoch Záhlavia; keď tam chýba, doplní ju JS,
+     aby platili štýly natívnej hlavičky */
+  if (nativna) document.documentElement.classList.add("lcd-native-hdr");
+  if (naHP || naRz) return;
   if (document.getElementById("lcd-hdr")) return;
+  if (nativna) return;
   var host = document.querySelector(".overall-wrapper") || b;
   var root = document.createElement("div");
   root.id = "lcd-hdr";

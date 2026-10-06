@@ -62,13 +62,15 @@ section#model-selector {
   }
 }
 
+// :not(.lcd-root *) — statický rozcestník (#lcd-rz v popise stránky, 10/2026) má vlastné farby
+// (rovnako v skompilovanom luxuryCar.css; zdroj pravdy pre CSS mimo LCD blokov je luxuryCar.css — admin-html/README.md)
 .type-page .content {
 
   li,
   p {
 
-    a,
-    span {
+    a:not(.lcd-root *),
+    span:not(.lcd-root *) {
       color: black !important;
       background: white !important;
     }

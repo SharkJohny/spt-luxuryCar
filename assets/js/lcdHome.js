@@ -1,6 +1,8 @@
 import { LCDH_REELS, LCDH_REELS_CZ } from "./lcdHome-reels.js";
 import { LCDH_MARKUP, LCDH_MARKUP_CZ } from "./lcdHome-markup.js";
 import { lcdhModulyPostav, lxModulyOziv } from "./lcdHomeModuly.js";
+import { lcdKorene, lcdMultiKoren, lcdOdoberPoistku, lcdRevealOznacVidene,
+         lcdAnimZapni, lcdPremenujMegu } from "./functions/lcdOziv.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -31,6 +33,10 @@ function lcdhLenisSync(){
       var lcdhROCiel = function () {
         var h = document.getElementById("lcd-home") || document.getElementById("lcd-rz");
         if (h) lcdhRO.observe(h);
+        /* staticke korene z adminu (#lcd-home-2 …) */
+        [].forEach.call(document.querySelectorAll("[data-lcd-cast]"), function (k) {
+          if (k !== h) lcdhRO.observe(k);
+        });
       };
       lcdhROCiel(); setTimeout(lcdhROCiel, 1500);
     }
@@ -56,7 +62,17 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
 /* lcdHome.js - GENEROVANE extract-lcd-home.py, RUCNE NEEDITUJ.
    Zdroj: hp-tpl.html
    Obal riesi to, ze povodny <script> v navrhu bezal az ZA markupom.
-   V bundli luxuryCar.js sa spusta skor, preto DOMContentLoaded + guard. */
+   V bundli luxuryCar.js sa spusta skor, preto DOMContentLoaded + guard.
+
+   Web bez prekryvania (10/2026): ked su na titulke staticke korene z adminu
+   ([data-lcd-cast^="hp-"]: #lcd-home = hp-vrch v banneri Stred, #lcd-home-2/-3 =
+   hp-telo-* v banneroch Zapatia), titulka sa NEKRESLI, neskryva sa stary obsah,
+   nerobi sa gate ani fade a nic sa nemaze — len sa ozivi (reveal, sceny, pasy,
+   lightbox, formular, videa, moduly). Ozivuje sa cez vsetky korene naraz
+   (lcdMultiKoren). Bez statickeho korena ako doteraz (prechodne obdobie). */
+/* poistku lcdh-early zo Zahlavia pri statickom koreni zhodit co najskor —
+   sama sa odoberie len ked #lcd-home NEexistuje (kritik, blocker 2) */
+if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
 (function () {
   if (window.__LCD_HOME_INIT__) return;
   window.__LCD_HOME_INIT__ = true;
@@ -224,13 +240,114 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     });
   }
 
+  /* modul 07: VSETKY SK reels z kanala.
+     nahrad=true  -> kreslena titulka: staticke dlazdice v #vids sa nahradia (ako doteraz)
+     nahrad=false -> staticky koren: reels sa len PRIDAJU za dlazdice, ktore uz v #vids su
+                     (rovnake data-yt sa preskoci), nic sa neprepisuje */
+  function lcdhReels(lcdhVids, lcdhCZ, nahrad) {
+    if (!lcdhVids) return 0;
+    var lcdhReels = lcdhCZ && typeof LCDH_REELS_CZ !== "undefined" && LCDH_REELS_CZ.length
+                    ? LCDH_REELS_CZ : (typeof LCDH_REELS !== "undefined" ? LCDH_REELS : []);
+    if (!lcdhReels.length) return 0;
+    var uzJe = {};
+    if (!nahrad) {
+      [].forEach.call(lcdhVids.querySelectorAll("[data-yt]"), function (v) { uzJe[v.getAttribute("data-yt")] = 1; });
+    }
+    var lcdhFrag = document.createDocumentFragment();
+    var nove = [];
+    lcdhReels.forEach(function (r) {
+      if (uzJe[r[0]]) return;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "vid"; b.setAttribute("data-yt", r[0]);
+      var im = document.createElement("img");
+      im.alt = ""; im.decoding = "async";
+      /* src sa NEnastavuje hned - 497 dekodovanych thumbnailov zabijalo iOS Safari
+         (native lazy je v horizontalnom pase nanic: vsetky su v rovnakej vyske) */
+      im.setAttribute("data-src", "https://i.ytimg.com/vi/" + r[0] + "/oar2.jpg");
+      /* fallback retaz: oar2 -> frame0 (realny prvy zaber) -> hqdefault */
+      im.onerror = function(){
+        var krok = +(this.getAttribute("data-fb") || 0) + 1;
+        this.setAttribute("data-fb", krok);
+        var u = krok === 1 ? "https://i.ytimg.com/vi/" + r[0] + "/frame0.jpg"
+              : krok === 2 ? "https://i.ytimg.com/vi/" + r[0] + "/hqdefault.jpg" : null;
+        if (!u) { this.onerror = null; return; }
+        this.setAttribute("data-src", u); this.src = u;
+      };
+      var pl = document.createElement("span"); pl.className = "play";
+      var cp = document.createElement("span"); cp.className = "cap"; cp.textContent = r[1];
+      b.appendChild(im); b.appendChild(pl); b.appendChild(cp);
+      lcdhFrag.appendChild(b);
+      nove.push(b);
+    });
+    if (nahrad) lcdhVids.innerHTML = "";
+    lcdhVids.appendChild(lcdhFrag);
+    /* okno: nacitavaj len okolie viditelneho vyseku pasu, daleke uvolni z pamate.
+       Riadi len obrazky s data-src (staticke dlazdice so src ostavaju, ako su). */
+    try {
+      var lcdhIO = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          var im2 = e.target.firstElementChild;
+          if (!im2 || im2.tagName !== "IMG" || !im2.getAttribute("data-src")) return;
+          if (e.isIntersecting) {
+            if (!im2.getAttribute("src")) im2.src = im2.getAttribute("data-src");
+          } else if (im2.getAttribute("src")) {
+            im2.removeAttribute("src");
+          }
+        });
+      }, { root: lcdhVids, rootMargin: "0px 1200px 0px 1200px", threshold: 0 });
+      (nahrad ? [].slice.call(lcdhVids.children) : nove).forEach(function (b2) { lcdhIO.observe(b2); });
+    } catch (eIO) {
+      (nahrad ? [].slice.call(lcdhVids.children) : nove).forEach(function (b2, i2) {
+        var im3 = b2.firstElementChild;
+        if (i2 < 30 && im3 && im3.getAttribute("data-src")) im3.src = im3.getAttribute("data-src");
+      });
+    }
+    return nove.length;
+  }
+
+  /* staticky koren: reels sa pridaju az ked sa pas priblizi k obrazovke —
+     dovtedy su v #vids len staticke dlazdice z adminu */
+  function lcdhReelsPriPriblizeni(lcdhVids, lcdhCZ) {
+    if (!lcdhVids) return;
+    var hotovo = false;
+    function pridaj() {
+      if (hotovo) return; hotovo = true;
+      try {
+        if (lcdhReels(lcdhVids, lcdhCZ, false)) {
+          /* coverflow a nekonecny pas si nove dlazdice prepocitaju pri scroll udalosti */
+          try { lcdhVids.dispatchEvent(new Event("scroll")); } catch (e) {}
+        }
+      } catch (e) {}
+    }
+    if (!("IntersectionObserver" in window)) { addEventListener("load", pridaj); return; }
+    var io = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); pridaj(); }
+    }, { rootMargin: "900px 0px 900px 0px", threshold: 0 });
+    io.observe(lcdhVids);
+  }
+
   function boot() {
     /* len SK web - ceska faza ma vlastne preklady a ide zvlast */
     var lcdhCZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
     if (location.hostname.indexOf("luxurycardesign.sk") === -1 && !lcdhCZ) return;
     /* len titulna stranka (Shoptet: body.in-index) */
     if (!document.body || !document.body.classList.contains("in-index")) return;
-    if (!document.getElementById("lcd-home")) {
+    /* ---- STATICKE KORENE (web bez prekryvania) ---- */
+    var lcdhStaticke = lcdKorene("hp");
+    var STATIC = lcdhStaticke.length > 0;
+    var LCDH;
+    if (STATIC) {
+      lcdOdoberPoistku("lcdh-early");
+      LCDH = lcdMultiKoren(lcdhStaticke);
+      /* modul 11: kontaktny formular */
+      try { lcdhKontakt(LCDH, lcdhCZ); } catch (e) {}
+      /* moduly su v HTML uz zlozene (pred a po, farby, galeria) -> len ozivit, kazdy koren zvlast
+         (cisla kapitol musia byt v HTML hotove — precislovanie po korenoch by zacinalo od 01) */
+      lcdhStaticke.forEach(function (k) { try { lxModulyOziv(k, lcdhCZ); } catch (e) {} });
+      /* modul 07: dalsie videa sa pridaju az pri priblizeni pasu */
+      lcdhReelsPriPriblizeni(document.getElementById("vids"), lcdhCZ);
+      /* konfigurator vklada main.js/initModelSelect priamo do #konfSlot — ziadna adopcia */
+    } else if (!document.getElementById("lcd-home")) {
       var lcdhHost  = document.querySelector(".overall-wrapper") || document.body;
       var lcdhKotva = lcdhHost.querySelector(".content-wrapper.homepage-box, .content-wrapper.container")
                       || document.getElementById("footer");
@@ -244,6 +361,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       /* plynuly nastup na PC: kratky fade-in namiesto tvrdeho skoku */
       lcdhRoot.style.opacity = "0";
       lcdhRoot.style.transition = "opacity .38s ease";
+      /* prechod: staticke #mega z banneru 172/108 uz na stranke je -> id v kreslenom
+         menu premenovat (lcdh-mega …), aby neboli dve #mega */
+      lcdPremenujMegu(lcdhRoot, "lcdh-");
       lcdhHost.insertBefore(lcdhRoot, lcdhKotva);
       requestAnimationFrame(function () { requestAnimationFrame(function () { lcdhRoot.style.opacity = "1"; }); });
       setTimeout(function () { lcdhRoot.style.opacity = "1"; }, 900);
@@ -278,63 +398,10 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       lcdhKontakt(lcdhRoot, lcdhCZ);
       try { lxModulyOziv(lcdhRoot, lcdhCZ); } catch (e) {}
       /* modul 07: VSETKY SK reels z kanala (nahradza staticke dlazdice) */
-      try {
-        var lcdhReels = lcdhCZ && typeof LCDH_REELS_CZ !== "undefined" && LCDH_REELS_CZ.length
-                        ? LCDH_REELS_CZ : (typeof LCDH_REELS !== "undefined" ? LCDH_REELS : []);
-        if (lcdhReels.length) {
-          var lcdhVids = lcdhRoot.querySelector("#vids");
-          if (lcdhVids) {
-            var lcdhFrag = document.createDocumentFragment();
-            lcdhReels.forEach(function (r) {
-              var b = document.createElement("button");
-              b.type = "button"; b.className = "vid"; b.setAttribute("data-yt", r[0]);
-              var im = document.createElement("img");
-              im.alt = ""; im.decoding = "async";
-              /* src sa NEnastavuje hned - 497 dekodovanych thumbnailov zabijalo iOS Safari
-                 (native lazy je v horizontalnom pase nanic: vsetky su v rovnakej vyske) */
-              im.setAttribute("data-src", "https://i.ytimg.com/vi/" + r[0] + "/oar2.jpg");
-              /* fallback retaz: oar2 -> frame0 (realny prvy zaber) -> hqdefault */
-              im.onerror = function(){
-                var krok = +(this.getAttribute("data-fb") || 0) + 1;
-                this.setAttribute("data-fb", krok);
-                var u = krok === 1 ? "https://i.ytimg.com/vi/" + r[0] + "/frame0.jpg"
-                      : krok === 2 ? "https://i.ytimg.com/vi/" + r[0] + "/hqdefault.jpg" : null;
-                if (!u) { this.onerror = null; return; }
-                this.setAttribute("data-src", u); this.src = u;
-              };
-              var pl = document.createElement("span"); pl.className = "play";
-              var cp = document.createElement("span"); cp.className = "cap"; cp.textContent = r[1];
-              b.appendChild(im); b.appendChild(pl); b.appendChild(cp);
-              lcdhFrag.appendChild(b);
-            });
-            lcdhVids.innerHTML = "";
-            lcdhVids.appendChild(lcdhFrag);
-            /* okno: nacitavaj len okolie viditelneho vyseku pasu, daleke uvolni z pamate */
-            try {
-              var lcdhIO = new IntersectionObserver(function (es) {
-                es.forEach(function (e) {
-                  var im2 = e.target.firstElementChild;
-                  if (!im2 || im2.tagName !== "IMG") return;
-                  if (e.isIntersecting) {
-                    if (!im2.getAttribute("src")) im2.src = im2.getAttribute("data-src");
-                  } else if (im2.getAttribute("src")) {
-                    im2.removeAttribute("src");
-                  }
-                });
-              }, { root: lcdhVids, rootMargin: "0px 1200px 0px 1200px", threshold: 0 });
-              [].forEach.call(lcdhVids.children, function (b2) { lcdhIO.observe(b2); });
-            } catch (eIO) {
-              [].forEach.call(lcdhVids.children, function (b2, i2) {
-                var im3 = b2.firstElementChild;
-                if (i2 < 30 && im3) im3.src = im3.getAttribute("data-src");
-              });
-            }
-          }
-        }
-      } catch (e) {}
+      try { lcdhReels(lcdhRoot.querySelector("#vids"), lcdhCZ, true); } catch (e) {}
       lcdhAdoptujSelector(lcdhRoot);
     }
-    var LCDH = document.getElementById("lcd-home");
+    if (!STATIC) LCDH = document.getElementById("lcd-home");
     /* smooth scroll na vnutrostrankove kotvy (nahrada za html{scroll-behavior}) */
     function lcdhSmoothAnchor(e) {
       var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
@@ -420,14 +487,23 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
         open(id, a.dataset.cap||'', a);
       });
     });
+    /* dlazdice .vid: delegovane na pas #vids — staticky koren don reels pridava
+       az pri priblizeni, nove dlazdice tak funguju bez dalsieho viazania */
+    function vidKlik(e, a){
+      var id=a.dataset.yt;
+      if(!id) return;
+      e.preventDefault();
+      var c=a.querySelector('.cap');
+      open(id, c?c.textContent.trim():'', a);
+    }
+    var vidsPas=document.getElementById('vids');
+    if(vidsPas) vidsPas.addEventListener('click',function(e){
+      var a=e.target&&e.target.closest?e.target.closest('.vid'):null;
+      if(a&&vidsPas.contains(a)) vidKlik(e,a);
+    });
     [].forEach.call(LCDH.querySelectorAll('.vid'),function(a){
-      a.addEventListener('click',function(e){
-        var id=a.dataset.yt;
-        if(!id) return;
-        e.preventDefault();
-        var c=a.querySelector('.cap');
-        open(id, c?c.textContent.trim():'', a);
-      });
+      if(vidsPas&&vidsPas.contains(a)) return;
+      a.addEventListener('click',function(e){ vidKlik(e,a) });
     });
     lb.addEventListener('click',function(e){
       if(e.target===lb||e.target===document.getElementById('lbX')||e.target.closest('.lb-x')) close();
@@ -438,8 +514,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
   var vids=document.getElementById('vids');
   if(vids){
     var vstep=function(){var c=vids.querySelector('.vid');return c?c.getBoundingClientRect().width+16:220};
-    document.getElementById('vidPrev').onclick=function(){vids.scrollBy({left:-vstep(),behavior:'smooth'})};
-    document.getElementById('vidNext').onclick=function(){vids.scrollBy({left:vstep(),behavior:'smooth'})};
+    var vidPrev=document.getElementById('vidPrev'), vidNext=document.getElementById('vidNext');
+    if(vidPrev) vidPrev.onclick=function(){vids.scrollBy({left:-vstep(),behavior:'smooth'})};
+    if(vidNext) vidNext.onclick=function(){vids.scrollBy({left:vstep(),behavior:'smooth'})};
   }
   /* coverflow: stredna karta vpredu, bocne miznu do 'strechy' */
   function lcdhCoverflow(cont, sel){
@@ -488,8 +565,13 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       if(!loop||!oneW) return;
       /* obsah je identicky, takze skok o jednu sadu je nevideitelny;
          stredne pasmo je [1.5w, 2.5w] z celkovych 5 sad */
-      while(d.scrollLeft < oneW*2.5) d.scrollLeft += oneW;
-      while(d.scrollLeft > oneW*4.5) d.scrollLeft -= oneW;
+      /* poistka proti zaseknutiu: ked sa pas posunut neda (napr. este bez stylov —
+         staticky koren bez CSS, overflow visible), scrollLeft sa nezmeni a cyklus
+         by bezal donekonecna (zamrznuta stranka, zachytene 6. 10. v A/B harnessi) */
+      var gN=0, predN;
+      while(d.scrollLeft < oneW*2.5 && gN++<20){ predN=d.scrollLeft; d.scrollLeft += oneW; if(d.scrollLeft===predN) return; }
+      gN=0;
+      while(d.scrollLeft > oneW*4.5 && gN++<20){ predN=d.scrollLeft; d.scrollLeft -= oneW; if(d.scrollLeft===predN) return; }
     }
     /* iOS: scrollLeft sa pocas momentum nedodrzi -> normalizuj az v uplnom pokoji */
     var idleT=null, lastX=-1;
@@ -722,8 +804,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
   var revs=document.getElementById('revs');
   if(revs){
     var step=function(){var c=revs.querySelector('.rev');return c?c.getBoundingClientRect().width+16:300};
-    document.getElementById('revPrev').onclick=function(){revs.scrollBy({left:-step(),behavior:'smooth'})};
-    document.getElementById('revNext').onclick=function(){revs.scrollBy({left:step(),behavior:'smooth'})};
+    var revPrev=document.getElementById('revPrev'), revNext=document.getElementById('revNext');
+    if(revPrev) revPrev.onclick=function(){revs.scrollBy({left:-step(),behavior:'smooth'})};
+    if(revNext) revNext.onclick=function(){revs.scrollBy({left:step(),behavior:'smooth'})};
   }
   /* konfigurator: polia navyse pribudaju az ked su pre dane vozidlo potrebne (ako na Shoptete).
      Tlacidlo je vzdy aktivne — chybajuci vyber sa oznaci hlaskou pri poli. */
@@ -755,7 +838,7 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
   function lcdhSyncPoznamku() {
     var n = document.getElementById('konfNote');
     if (!n) return;
-    var truck = document.querySelector('.lcdh-konf-slot .lcd-truck-wrap');
+    var truck = document.querySelector('.lcdh-konf-slot .lcd-truck-wrap, #konfSlot .lcd-truck-wrap');
     var jeKamion = !!(truck && truck.getBoundingClientRect().width > 0);
     var t = jeKamion ? NOTE.b : NOTE.a;
     if (n.textContent !== t) n.textContent = t;
@@ -829,9 +912,14 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     });
     konfReset();
   });
-  var bg=document.getElementById('burg'), mega=document.getElementById('mega'),
-      ovl=document.getElementById('megaOvl'), mx=document.getElementById('megaX');
-  function megaSet(o){mega.classList.toggle('open',o);ovl.classList.toggle('open',o);
+  /* menu kreslenej titulky: hladame len vnutri korena (pri statickom #mega z banneru su
+     id v kreslenom markupe premenovane na lcdh-*). Staticke korene menu nemaju —
+     staticke #mega oziva lcdHdr.js cez stav Shoptetu. */
+  function hpId(id){ return LCDH.querySelector('#'+id+', #lcdh-'+id) }
+  var bg=hpId('burg'), mega=hpId('mega'),
+      ovl=hpId('megaOvl'), mx=hpId('megaX');
+  function megaSet(o){if(!mega||!ovl||!bg) return;
+    mega.classList.toggle('open',o);ovl.classList.toggle('open',o);
     bg.setAttribute('aria-expanded',o?'true':'false');document.body.style.overflow=o?'hidden':'';
     /* Lenis inak zoberie koliesko sebe a menu sa neposunie (len PC) */
     mega.setAttribute('data-lenis-prevent','');}
@@ -848,7 +936,7 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
   if(bg) bg.addEventListener('click',function(){megaZohrej();megaSet(!mega.classList.contains('open'))});
   if(ovl) ovl.addEventListener('click',function(){megaSet(false)});
   if(mx) mx.addEventListener('click',function(){megaSet(false)});
-  mega.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){megaSet(false)})});
+  if(mega) mega.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){megaSet(false)})});
   LCDH.querySelectorAll('.hdr nav a').forEach(function(a){a.addEventListener('click',function(){LCDH.querySelector('.hdr').classList.remove('open')})});
   var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -887,7 +975,9 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
   ];
   var Q = location.hostname.indexOf('luxurycardesign.cz') !== -1 ? Q_CZ : Q_SK;
   var faq=document.getElementById('faq');
-  Q.forEach(function(q,i){
+  /* staticky koren: FAQ je v HTML ako <details> -> nic sa nepridava. Len keby bol
+     kontajner v HTML prazdny, doplni sa (nic existujuce sa neprepisuje). */
+  if(faq && (!STATIC || !faq.children.length)) Q.forEach(function(q,i){
     var d=document.createElement('details');
     d.innerHTML='<summary><span class="i">'+String(i+1).padStart(2,'0')+
       '</span><span class="t"></span><span class="p">+</span></summary><div class="a"></div>';
@@ -905,7 +995,8 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       if(!matchMedia('(hover:hover)').matches) return;
       /* lazy obrazky (S10) sa nevynucuju — dekoduju sa hned po ich stiahnuti, este pred zobrazenim */
       function dek(im){ if(im.decode) im.decode().catch(function(){}); }
-      [].forEach.call(LCDH.querySelectorAll('#lcd-home .deck img, #lcd-home .pc img, #lcd-home .mat img'),function(im){
+      /* bez '#lcd-home ' — pri statickych korenoch su decky aj v #lcd-home-2/-3 */
+      [].forEach.call(LCDH.querySelectorAll('.deck img, .pc img, .mat img'),function(im){
         if(im.complete && im.naturalWidth) dek(im);
         else im.addEventListener('load',function(){ dek(im) },{once:true});
       });
@@ -939,19 +1030,31 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
     });
   })();
 
-  /* --- reveal --- */
+  /* --- reveal ---
+     Staticky koren: obsah je vykresleny od prveho vykreslenia. Vsetko vo vyreze aj nad nim
+     dostane .on este PRED triedou html.lcd-anim (CSS skryva .rv/.pc/.cmpc len pod nou),
+     takze uz videny obsah nezmizne; animuje sa len to, co je pod ohybom. */
   var io=new IntersectionObserver(function(es){
     es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target);} });
   },{rootMargin:'0px 0px -6% 0px',threshold:.08});
-  LCDH.querySelectorAll('.rv,.pc,.cmpc').forEach(function(e){io.observe(e)});
+  var kc=document.getElementById('konfCard');
+  var rvEls=LCDH.querySelectorAll('.rv,.pc,.cmpc');
+  if(STATIC){
+    rvEls=lcdRevealOznacVidene(rvEls);
+    if(kc) lcdRevealOznacVidene([kc]);
+  }
+  lcdAnimZapni();
+  [].forEach.call(rvEls,function(e){io.observe(e)});
 
   /* --- konfigurator karta --- */
-  var kc=document.getElementById('konfCard');
-  new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)kc.classList.add('on')})},
-    {threshold:.25}).observe(kc);
+  if(kc && !(STATIC && kc.classList.contains('on')))
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)kc.classList.add('on')})},
+      {threshold:.25}).observe(kc);
 
   /* --- pocitadla --- */
   LCDH.querySelectorAll('[data-count]').forEach(function(el){
+    /* staticky koren: cislo, ktore uz zakaznik vidi, sa neprepisuje (nespadne na 0) */
+    if(STATIC && el.getBoundingClientRect().top < innerHeight) return;
     var done=false;
     new IntersectionObserver(function(es){
       es.forEach(function(e){
@@ -977,7 +1080,11 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
         s2cur=-1;
     /* filmovy pas piatich krokov — vyplna miesto pod textom a da sa nim preklikavat */
     var s2th=document.getElementById('s2Thumbs'), s2thumbs=[];
-    if(s2th){
+    /* staticky koren: pas uz je v HTML -> len sa navazu existujuce tlacidla */
+    if(s2th && STATIC && s2th.children.length){
+      s2thumbs=[].slice.call(s2th.querySelectorAll('button'));
+      s2thumbs.forEach(function(b,i){ if(b.dataset.i===undefined) b.dataset.i=i; });
+    } else if(s2th){
       s2imgs.forEach(function(img,i){
         var b=document.createElement('button');
         b.type='button'; b.dataset.i=i;
@@ -995,7 +1102,7 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
       s2texts.forEach(function(e,k){e.classList.toggle('on',k===i)});
       s2btns.forEach(function(e,k){e.classList.toggle('on',k===i);e.classList.toggle('done',k<i)});
       s2thumbs.forEach(function(e,k){e.classList.toggle('on',k===i)});
-      s2big.textContent=String(i+1).padStart(2,'0');
+      if(s2big) s2big.textContent=String(i+1).padStart(2,'0');
     }
     s2btns.concat(s2thumbs).forEach(function(b){
       b.addEventListener('click',function(){
@@ -1015,10 +1122,21 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
 
     /* --- mobilna verzia: rovnaky obsah, ale ako swipe karusel v normalnom toku --- */
     var mob=document.getElementById('s2Mob');
-    if(mob){
+    var track=null, dots=null;
+    if(mob && STATIC && mob.children.length){
+      /* staticky koren: karusel aj bodky su v HTML -> len navazat */
+      track=mob.querySelector('.s2m-track');
+      dots=mob.querySelector('.s2m-dots');
+      if(track && dots) [].forEach.call(dots.querySelectorAll('button'),function(b,i){
+        b.onclick=function(){
+          var c=track.children[i]; if(!c) return;
+          track.scrollTo({left:c.offsetLeft-track.offsetLeft-(track.clientWidth-c.offsetWidth)/2,behavior:'smooth'});
+        };
+      });
+    } else if(mob){
       var head=stage2.querySelector('.pinhead');
       if(head) mob.appendChild(head.cloneNode(true));
-      var track=document.createElement('div'); track.className='s2m-track';
+      track=document.createElement('div'); track.className='s2m-track';
       s2imgs.forEach(function(img,i){
         var card=document.createElement('article'); card.className='s2m-card';
         var ph=document.createElement('div'); ph.className='s2m-ph';
@@ -1032,7 +1150,7 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
         card.appendChild(ph); card.appendChild(body); track.appendChild(card);
       });
       mob.appendChild(track);
-      var dots=document.createElement('div'); dots.className='s2m-dots';
+      dots=document.createElement('div'); dots.className='s2m-dots';
       s2imgs.forEach(function(_,i){
         var b=document.createElement('button'); b.type='button';
         b.textContent=String(i+1);
@@ -1045,15 +1163,17 @@ window.__lcdhLenis = function(){ return lcdhLenis; };
         dots.appendChild(b);
       });
       mob.appendChild(dots);
+    }
+    if(track && dots){
       var mt=null;
-      function mupd(){
+      var mupd=function(){
         var mid=track.scrollLeft+track.clientWidth/2, best=0, bd=1e9;
         [].forEach.call(track.children,function(c,i){
           var cc=c.offsetLeft-track.offsetLeft+c.offsetWidth/2, dd=Math.abs(cc-mid);
           if(dd<bd){ bd=dd; best=i; }
         });
         [].forEach.call(dots.children,function(b,i){ b.classList.toggle('on',i===best) });
-      }
+      };
       track.addEventListener('scroll',function(){ clearTimeout(mt); mt=setTimeout(mupd,60) },{passive:true});
       mupd();
     }

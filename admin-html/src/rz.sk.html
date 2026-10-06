@@ -1,0 +1,110 @@
+<!-- admin-html/src/rz.sk.html = zdroj pravdy pre Shoptet admin (pozri admin-html/README.md).
+     Komentáre s textom zmaže build. Prázdny komentár (len medzera) je zámerný: drží prázdny prvok pre TinyMCE. -->
+<div id="lcd-rz" class="lcd-root" data-lcd-cast="rz">
+<!-- ================= HLAVICKA ROZCESTNIKA ================= -->
+<section class="rz">
+  <div class="bg"><img width="1800" height="577" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/hero.jpg" alt="" loading="eager" fetchpriority="high"></div>
+  <div class="in">
+    <div class="orn"><i><!-- --></i><span class="rz-sa">Krok 2 z 3</span><span class="rz-ba">Krok 1 z 2</span><i><!-- --></i></div>
+    <h2 class="lcd-h1" data-lcd-h1="" data-bez-auta="Vyberte si koberce pre svoje vozidlo">Vyberte si koberce pre <span class="rz-ba">svoje vozidlo</span><em class="rz-auto rz-sa" data-vzor="Audi A6 Avant"><!-- --></em></h2>
+
+    <div class="plate">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l1.5-4.5A2 2 0 018.4 7h7.2a2 2 0 011.9 1.5L19 13"></path><path d="M3 13h18v4a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H6v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-4z"></path><circle cx="7" cy="15.5" r=".7" fill="currentColor"></circle><circle cx="17" cy="15.5" r=".7" fill="currentColor"></circle></svg></span>
+      <span class="v"><i data-vzor="Audi"><!-- --></i><i data-vzor="A6 Avant (C7)"><!-- --></i><i data-vzor="2011 – 2018"><!-- --></i><i data-vzor="Kombi"><!-- --></i></span>
+      <button type="button" class="ch" id="rzChange">Zmeniť</button>
+    </div>
+
+    <div class="rzsteps rz-sa">
+      <div class="done"><b>✓</b>Vozidlo</div><s><!-- --></s>
+      <div class="on"><b>2</b>Typ kobercov</div><s><!-- --></s>
+      <div><b>3</b>Farba a prešívanie</div>
+    </div>
+    <div class="rzsteps rz-ba">
+      <div class="on"><b>1</b>Typ kobercov</div><s><!-- --></s>
+      <div><b>2</b>Farba a prešívanie</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KONFIGURATOR (na vyziadanie) ================= -->
+<section class="konf rz-konf" id="konf" hidden="">
+  <div class="card on" id="konfCard">
+    <div class="eyebrow">Konfigurátor</div>
+    <h2 style="margin-top:12px">Iné vozidlo?</h2>
+    <p class="konf-lede">Vyberte značku a model. Ukážeme Vám set, ktorý sadne na milimeter — aj s cenou.</p>
+    
+    <div id="konfSlot" class="lcdrz-konf-slot" style="min-height:max(148px,min(427px,(761px - 100vw)*1000))"><div id="Model-selecte" class="rz-kotva"><!-- --></div><div id="sets" class="rz-kotva"><!-- --></div></div>
+    <p class="konf-note" id="konfNote">Šablóny máme pre viac než 1000 modelov osobných áut.</p>
+  </div>
+</section>
+
+<!-- ================= VYBER ================= -->
+<section class="pick" id="vyber"><div class="wrap">
+  <div class="duowrap">
+  <div class="duo">
+
+    <article class="opt top rv">
+      <span class="top-badge">Najpredávanejšie</span>
+      <div class="ph">
+        <img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/dvoj.jpg" alt="Dvojvrstvové autokoberce" loading="lazy">
+        <span class="on-ph">
+          <span class="t">Dvojvrstvové</span>
+          <span class="s">Prešívaná vrstva + odnímateľná vrchná</span>
+        </span>
+      </div>
+      <div class="body">
+        <ul class="why">
+          <li class="sirka">Celoročne — jar, leto, jeseň, zima</li>
+          <li>Volí ho 95 % zákazníkov</li>
+          <li>Na každodenné používanie</li>
+          <li>Druhá odnímateľná vrstva</li>
+          <li class="sirka">30 farieb prvej, 16 druhej vrstvy</li>
+        </ul>
+        <div class="vzory">
+          <a href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-elite-diamond-line/"><img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/dvoj.jpg" alt="" loading="lazy"><span class="t">Diamond Line</span></a>
+          <a href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-elite-stripe-line/"><img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/dstr.jpg" alt="" loading="lazy"><span class="t">Stripe Line</span></a>
+          <a href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-elite-hexa-line/"><img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/dhex.jpg" alt="" loading="lazy"><span class="t">Hexa Line</span></a>
+        </div>
+        <div class="go">
+          <a class="btn" href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-elite-diamond-line/">Vybrať dvojvrstvové</a>
+          <p class="tip">Vzor si zvolíte v ďalšom kroku</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="opt rv">
+      <div class="ph">
+        <img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/jd-sq.jpg" alt="Jednovrstvové autokoberce" loading="lazy">
+        <span class="on-ph">
+          <span class="t">Jednovrstvové</span>
+          <span class="s">Jedna prešívaná vrstva</span>
+        </span>
+      </div>
+      <div class="body">
+        <ul class="why">
+          <li class="sirka">Sezónne — jar, leto, jeseň</li>
+          <li>Nižšia vstupná cena</li>
+          <li>Jedna prešívaná vrstva</li>
+          <li>Vzhľad pravej kože</li>
+          <li class="sirka">30 farieb prvej vrstvy</li>
+        </ul>
+        <div class="vzory">
+          <a href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-diamond-line/"><img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/jd-sq.jpg" alt="" loading="lazy"><span class="t">Diamond Line</span></a>
+          <a href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-stripe-line/"><img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/js-sq.jpg" alt="" loading="lazy"><span class="t">Stripe Line</span></a>
+          <a href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-hexa-line/"><img width="760" height="760" decoding="async" src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/jh-sq.jpg" alt="" loading="lazy"><span class="t">Hexa Line</span></a>
+        </div>
+        <div class="go">
+          <a class="btn ghost" href="https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-diamond-line/">Vybrať jednovrstvové</a>
+          <p class="tip">Vzor si zvolíte v ďalšom kroku</p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="duodots" id="duoDots" aria-hidden="true"><span class="on"><!-- --></span><span><!-- --></span></div>
+  <p class="duoswipe">Potiahnite prstom</p>
+  </div>
+
+</div></section>
+</div>

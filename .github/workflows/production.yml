@@ -23,6 +23,11 @@ jobs:
       - name: 🔨 Build Project
         run: |
           yarn install
+          # Kontroly (exit 1 = build spadne a nič sa nenahrá):
+          #   admin-html/dist musí sedieť s admin-html/src (do adminu ide dist; po zmene src spusti node tools/build-admin-html.mjs)
+          #   luxuryCar.css musí sedieť s LCD partialmi (po zmene _lcd*.scss spusti python tools/vloz-lcd-css.py)
+          node tools/build-admin-html.mjs --check
+          python3 tools/vloz-lcd-css.py --check
           node truck/build-truck-images.mjs
           node tools/perf-markup.mjs
           yarn esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none

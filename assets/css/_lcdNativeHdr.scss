@@ -1,0 +1,414 @@
+/* =====================================================================
+   HLAVIČKA A MENU — partial pre blok LCD-HDR (vkladá tools/vloz-lcd-css.py)
+   Web bez prekrývania (10/2026):
+   A) kreslená hlavička #lcd-hdr (prechod: kreslí ju lcdHdr.js, kým hlavička nie je natívna)
+      — rovnaký vzhľad dostáva aj statické menu #mega[data-lcd-cast] z banneru 172 (SK) / 108 (CZ)
+   B) statické menu: otvára ho stav Shoptetu body.navigation-window-visible (natívny burger),
+      panel je nad hlavičkou aj nad cookie lištou
+   C) natívna hlavička Shoptetu (.top-navigation-bar + #header) vo vzhľade #lcd-hdr.
+      Platí len v režime natívnej hlavičky: html.lcd-native-hdr (riadok v HTML kódoch Záhlavia,
+      prípadne doplní JS) alebo stránka so statickým koreňom [data-lcd-cast]. Inak ostáva dnešný stav.
+   ===================================================================== */
+
+/* ---------- A) kreslená hlavička #lcd-hdr + vzhľad menu (aj statického #mega) ---------- */
+#lcd-hdr, #mega[data-lcd-cast]{--ink:#14110c; --ground:#eceae5; --paper:#fff; --line:#d9d4c6;
+  --gold:#c49b31; --gold-hi:#e6c877; --gold-lo:#8f7020;
+  --mute:#6e6752; --deep:#181510;
+  --sand:#f6f4ef; --sand2:#e4e0d4;
+  --disp:"Exo 2","Segoe UI",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  --mono:"Exo 2","Segoe UI",Arial,sans-serif;
+  --pad:clamp(18px,5vw,80px);
+  --ico-tel:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 1.9.6 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.1a2 2 0 012.1-.5c.9.3 1.8.5 2.8.6a2 2 0 011.7 2z'/%3E%3C/svg%3E");
+  --ico-star:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>');}
+#lcd-hdr .hdr{position:sticky;top:0;z-index:60;background:#0d0d0d;
+  box-shadow:0 2px 20px rgba(0,0,0,.4)}
+#lcd-hdr .hdr .in{max-width:1240px;margin:0 auto;padding:0 clamp(14px,3vw,30px);height:74px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative}
+/* logo v plakete, ktora previsa pod pas a vystupuje do priestoru */
+#lcd-hdr .hdr .logo{position:absolute;left:50%;top:0;transform:translateX(-50%);z-index:2;
+  display:flex;align-items:flex-start;justify-content:center;
+  background:linear-gradient(180deg,#191919 0%,#0d0d0d 46%,#050505 100%);
+  padding:8px 30px 16px;border-radius:0 0 14px 14px;
+  border:1px solid rgba(230,200,119,.2);border-top:0;
+  box-shadow:0 18px 38px rgba(0,0,0,.72),0 3px 10px rgba(0,0,0,.5),
+    inset 0 -1px 0 rgba(230,200,119,.34),inset 1px 0 0 rgba(255,255,255,.05),
+    inset -1px 0 0 rgba(255,255,255,.05);
+  transition:padding-bottom .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s}
+#lcd-hdr .hdr .logo:after{content:"";position:absolute;left:14%;right:14%;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-hi),transparent);opacity:.85}
+#lcd-hdr .hdr .logo img{height:70px;width:auto;display:block;
+  filter:drop-shadow(0 3px 10px rgba(196,155,49,.4)) drop-shadow(0 1px 2px rgba(0,0,0,.7));
+  transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+#lcd-hdr .hdr .logo:hover{padding-bottom:21px;box-shadow:0 24px 48px rgba(0,0,0,.8),
+    inset 0 -1px 0 rgba(230,200,119,.5)}
+#lcd-hdr .hdr .logo:hover img{transform:scale(1.03)}
+#lcd-hdr .hdr .side{display:flex;align-items:center;gap:clamp(10px,1.6vw,18px);flex:none;margin-left:auto}
+#lcd-hdr .hdr .kont{font-family:var(--disp);font-weight:800;font-size:13px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold-hi);white-space:nowrap;
+  transition:color .22s}
+#lcd-hdr .hdr .kont:hover{color:#fff}
+#lcd-hdr .hdr .cart{display:flex;align-items:center;justify-content:center;width:34px;height:34px;
+  color:var(--gold-hi);transition:color .22s,transform .22s}
+#lcd-hdr .hdr .cart svg{width:24px;height:24px}
+#lcd-hdr .hdr .cart:hover{color:#fff;transform:translateY(-1px)}
+#lcd-hdr .hdr .lang{display:flex;align-items:center;border:0;background:none;padding:0;cursor:pointer;
+  margin-left:clamp(12px,2.6vw,20px)}
+#lcd-hdr .hdr .lang svg{width:26px;height:19px;border-radius:2px;display:block;
+  box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .22s}
+#lcd-hdr .hdr .lang:hover svg{transform:scale(1.08)}
+#lcd-hdr .burg{display:flex;width:40px;height:34px;border:0;background:none;border-radius:0;
+  align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer;padding:0;flex:none}
+#lcd-hdr .burg i{display:block;width:30px;height:3px;border-radius:2px;background:var(--gold-hi);
+  transition:transform .25s,opacity .2s,background .2s}
+#lcd-hdr .burg:hover i{background:#fff}
+/* hamburger otvara mega menu — stav drzi aria-expanded */
+#lcd-hdr .burg[aria-expanded="true"] i:nth-child(1){transform:translateY(9px) rotate(45deg)}
+#lcd-hdr .burg[aria-expanded="true"] i:nth-child(2){opacity:0}
+#lcd-hdr .burg[aria-expanded="true"] i:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+/* ---------- MEGA MENU (hamburger) — rovnake ako na zivom webe ---------- */
+#lcd-hdr .mega, #mega[data-lcd-cast]{position:fixed;top:82px;left:var(--pad);z-index:70;width:min(600px,calc(100vw - 24px));
+  max-height:calc(100vh - 100px);overflow-y:auto;overscroll-behavior:contain;
+  background:#eceae5;border:2px solid #c49b31;border-radius:14px;
+  box-shadow:0 14px 40px rgba(0,0,0,.22);padding:0;display:none;
+  scrollbar-width:thin;scrollbar-color:#c49b31 rgba(155,122,36,.16)}
+#lcd-hdr .mega.open{display:block}
+/* statické #mega žije v stĺpci pätičky Shoptetu — nededí jeho typografiu (text-transform:uppercase, prekladanie…);
+   kreslené menu ju dedí z #lcd-hdr / #lcd-home, kde nie je. Písmo a veľkosti dávajú pravidlá nižšie. */
+#mega[data-lcd-cast]{text-transform:none;letter-spacing:normal;word-spacing:normal;text-indent:0;text-align:left;font-style:normal;white-space:normal}
+/* šablóna: footer#footer h4, footer#footer a, footer#footer li {text-transform:uppercase} — (1,0,2); toto (1,1,1) ju prebije,
+   vlastné pravidlá menu (#mega[data-lcd-cast] .trieda …) majú vyššiu špecificitu a ostávajú */
+#mega[data-lcd-cast] :is(a,h4,li){text-transform:none}
+#lcd-hdr .mega::-webkit-scrollbar, #mega[data-lcd-cast]::-webkit-scrollbar{width:12px}
+#lcd-hdr .mega::-webkit-scrollbar-track, #mega[data-lcd-cast]::-webkit-scrollbar-track{background:rgba(155,122,36,.14);border-radius:10px;margin:8px 4px 8px 0}
+#lcd-hdr .mega::-webkit-scrollbar-thumb, #mega[data-lcd-cast]::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#e0c069,#c49b31 45%,#9b7a24);
+  border-radius:10px;border:2px solid #eceae5;min-height:60px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+#lcd-hdr .mega .lc, #mega[data-lcd-cast] .lc{position:relative;padding:22px 14px 28px;font-family:var(--body)}
+#lcd-hdr .mega .lc *, #mega[data-lcd-cast] .lc *{box-sizing:border-box}
+#lcd-hdr .lc-t, #mega[data-lcd-cast] .lc-t{text-align:center;line-height:1.22}
+#lcd-hdr .lc-t b, #mega[data-lcd-cast] .lc-t b{display:block;color:#171717;font-size:21px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+#lcd-hdr .lc-t span, #mega[data-lcd-cast] .lc-t span{display:block;color:#9b7a24;font-size:21px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+#lcd-hdr .lc-orn, #mega[data-lcd-cast] .lc-orn{display:flex;align-items:center;justify-content:center;gap:9px;margin:11px 0 4px}
+#lcd-hdr .lc-orn:before, #lcd-hdr .lc-orn:after, #mega[data-lcd-cast] .lc-orn:before, #mega[data-lcd-cast] .lc-orn:after{content:"";width:74px;height:1px;background:linear-gradient(90deg,transparent,#c49b31)}
+#lcd-hdr .lc-orn:after, #mega[data-lcd-cast] .lc-orn:after{background:linear-gradient(90deg,#c49b31,transparent)}
+#lcd-hdr .lc-orn i, #mega[data-lcd-cast] .lc-orn i{width:6px;height:6px;background:#c49b31;transform:rotate(45deg)}
+#lcd-hdr .lc-sek, #mega[data-lcd-cast] .lc-sek{display:flex;align-items:center;gap:11px;margin:22px 0 13px}
+#lcd-hdr .lc-sek:before, #lcd-hdr .lc-sek:after, #mega[data-lcd-cast] .lc-sek:before, #mega[data-lcd-cast] .lc-sek:after{content:"";flex:1;height:1px;background:rgba(155,122,36,.45)}
+#lcd-hdr .lc-sek span, #mega[data-lcd-cast] .lc-sek span{color:#9b7a24;font-size:12px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;white-space:nowrap}
+#lcd-hdr .lc-hero, #mega[data-lcd-cast] .lc-hero{border:1.5px solid #c49b31;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);background:#141210;margin-bottom:12px;display:block}
+#lcd-hdr .lc-skl, #mega[data-lcd-cast] .lc-skl{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr;align-items:center;
+  background:radial-gradient(120% 100% at 50% 0%,#241f16,#141210 72%);padding:14px 12px 12px}
+#lcd-hdr .lc-dl, #mega[data-lcd-cast] .lc-dl{text-align:center}
+#lcd-hdr .lc-dl img, #mega[data-lcd-cast] .lc-dl img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border-radius:9px;border:1.5px solid rgba(196,155,49,.75)}
+#lcd-hdr .lc-dl .lc-lbl, #mega[data-lcd-cast] .lc-dl .lc-lbl{color:#e6d3a3;font-size:8.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
+  margin-top:8px;line-height:1.3;min-height:24px;display:flex;align-items:flex-start;justify-content:center;text-align:center}
+#lcd-hdr .lc-plus, #mega[data-lcd-cast] .lc-plus{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#e6c877,#b8901f);
+  color:#1a1408;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 32px;box-shadow:0 3px 9px rgba(0,0,0,.5)}
+#lcd-hdr .lc-spodok, #mega[data-lcd-cast] .lc-spodok{background:#141210;padding:2px 14px 15px;text-align:center}
+#lcd-hdr .lc-k, #mega[data-lcd-cast] .lc-k{color:#fff;font-size:15.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;line-height:1.3}
+#lcd-hdr .lc-s, #mega[data-lcd-cast] .lc-s{color:#bda978;font-size:11.5px;margin:6px 0 12px;line-height:1.4}
+#lcd-hdr .lc-btn, #mega[data-lcd-cast] .lc-btn{display:block;background:linear-gradient(90deg,#b8901f,#f0d78f 45%,#c49b31);color:#1a1408;
+  font-size:12.5px;font-weight:900;letter-spacing:1.6px;padding:14px 0;border-radius:10px;text-transform:uppercase;
+  text-align:center;box-shadow:0 5px 16px rgba(196,155,49,.38)}
+#lcd-hdr .lc-typy, #mega[data-lcd-cast] .lc-typy{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#lcd-hdr .lc-typ, #mega[data-lcd-cast] .lc-typ{background:#fff;border:1.5px solid rgba(196,155,49,.85);border-radius:14px;overflow:hidden;
+  box-shadow:0 3px 12px rgba(0,0,0,.16);display:block}
+#lcd-hdr .lc-typ img, #mega[data-lcd-cast] .lc-typ img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+#lcd-hdr .lc-typ .lc-in, #mega[data-lcd-cast] .lc-typ .lc-in{padding:11px 9px 12px;text-align:center}
+#lcd-hdr .lc-typ .lc-n, #mega[data-lcd-cast] .lc-typ .lc-n{color:#141414;font-size:12.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  line-height:1.3;min-height:32px;display:flex;align-items:center;justify-content:center}
+#lcd-hdr .lc-g3, #mega[data-lcd-cast] .lc-g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+#lcd-hdr .lc-card, #mega[data-lcd-cast] .lc-card{background:#fff;border:1.5px solid rgba(196,155,49,.85);border-radius:14px;overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:0 3px 12px rgba(0,0,0,.16)}
+#lcd-hdr .lc-card img, #mega[data-lcd-cast] .lc-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+#lcd-hdr .lc-card .lc-b, #mega[data-lcd-cast] .lc-card .lc-b{padding:8px 6px 9px;text-align:center;display:flex;flex-direction:column;gap:5px;flex:1}
+#lcd-hdr .lc-card .lc-nm, #mega[data-lcd-cast] .lc-card .lc-nm{color:#141414;font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
+  line-height:1.3;min-height:37px;display:flex;align-items:center;justify-content:center}
+#lcd-hdr .lc-hr, #mega[data-lcd-cast] .lc-hr{height:1px;background:rgba(196,155,49,.35);width:78%;margin:0 auto}
+#lcd-hdr .lc-vars, #mega[data-lcd-cast] .lc-vars{color:#8a7940;font-size:7.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;margin-top:auto}
+#lcd-hdr .lc-truck, #mega[data-lcd-cast] .lc-truck{border:1.5px solid #c49b31;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.28);display:block}
+#lcd-hdr .lc-truck img, #mega[data-lcd-cast] .lc-truck img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+#lcd-hdr .lc-ov, #mega[data-lcd-cast] .lc-ov{position:absolute;left:0;right:0;bottom:0;padding:15px 14px 14px;text-align:center;
+  background:linear-gradient(0deg,rgba(8,6,4,.96) 42%,rgba(8,6,4,.72) 72%,transparent)}
+#lcd-hdr .lc-vz, #mega[data-lcd-cast] .lc-vz{margin:0;border-radius:16px;padding:2px;
+  background:linear-gradient(135deg,#8a6d1f,#e6c877 28%,#8a6d1f 55%,#f0d78f 78%,#8a6d1f);box-shadow:0 8px 24px rgba(0,0,0,.3);display:block}
+#lcd-hdr .lc-vzin, #mega[data-lcd-cast] .lc-vzin{background:radial-gradient(130% 100% at 50% 0%,#2c2519,#141210 70%);border-radius:14px;
+  padding:18px 15px 16px;text-align:center;position:relative;overflow:hidden}
+#lcd-hdr .lc-vzin:before, #mega[data-lcd-cast] .lc-vzin:before{content:"";position:absolute;top:-40px;left:50%;transform:translateX(-50%);
+  width:230px;height:80px;background:radial-gradient(closest-side,rgba(230,200,119,.28),transparent)}
+#lcd-hdr .lc-vzeb, #mega[data-lcd-cast] .lc-vzeb{position:relative;color:#9b7a24;font-size:9px;font-weight:700;letter-spacing:3.4px;text-transform:uppercase;margin-bottom:12px}
+#lcd-hdr .lc-fan, #mega[data-lcd-cast] .lc-fan{position:relative;display:flex;justify-content:center;align-items:flex-end;height:66px;margin-bottom:13px}
+#lcd-hdr .lc-fan i, #mega[data-lcd-cast] .lc-fan i{position:absolute;width:52px;height:52px;border-radius:9px;display:block;border:2px solid #efe0b4;
+  background-size:cover;background-position:center;box-shadow:0 5px 14px rgba(0,0,0,.6)}
+#lcd-hdr .lc-fan i:nth-child(1), #mega[data-lcd-cast] .lc-fan i:nth-child(1){transform:translateX(-96px) rotate(-14deg)}
+#lcd-hdr .lc-fan i:nth-child(2), #mega[data-lcd-cast] .lc-fan i:nth-child(2){transform:translateX(-48px) rotate(-7deg)}
+#lcd-hdr .lc-fan i:nth-child(3), #mega[data-lcd-cast] .lc-fan i:nth-child(3){transform:translateX(0) rotate(0);width:58px;height:58px;z-index:3;border-color:#fff}
+#lcd-hdr .lc-fan i:nth-child(4), #mega[data-lcd-cast] .lc-fan i:nth-child(4){transform:translateX(48px) rotate(7deg)}
+#lcd-hdr .lc-fan i:nth-child(5), #mega[data-lcd-cast] .lc-fan i:nth-child(5){transform:translateX(96px) rotate(14deg)}
+#lcd-hdr .lc-vz h3, #mega[data-lcd-cast] .lc-vz h3{position:relative;margin:0;color:#fff;font-size:18px;font-weight:800;letter-spacing:.5px;
+  font-family:var(--body);text-transform:none}
+#lcd-hdr .lc-vz p, #mega[data-lcd-cast] .lc-vz p{position:relative;margin:6px 0 14px;color:#c3b285;font-size:12px;line-height:1.45}
+#lcd-hdr .mega .m-x, #mega[data-lcd-cast] .m-x{display:none;position:fixed;top:10px;right:14px;width:38px;height:38px;border-radius:50%;
+  background:#17150f;color:var(--gold);border:1px solid rgba(196,155,49,.6);align-items:center;justify-content:center;
+  font-size:22px;line-height:1;cursor:pointer;z-index:75}
+#lcd-hdr .mega-ovl{position:fixed;inset:0;z-index:65;background:rgba(20,17,12,.35);display:none}
+#lcd-hdr .mega-ovl.open{display:block}
+@media(max-width:520px){#lcd-hdr .hdr .in{height:62px}#lcd-hdr .hdr .logo{padding:6px 18px 12px;border-radius:0 0 11px 11px}#lcd-hdr .hdr .logo img{height:52px}}
+@media(max-width:430px){#lcd-hdr .hdr .kont{font-size:0;letter-spacing:0}#lcd-hdr .hdr .kont:before{content:"";display:block;width:22px;height:22px;background:currentColor;
+    -webkit-mask:var(--ico-tel) center/contain no-repeat;mask:var(--ico-tel) center/contain no-repeat}}
+@media(max-width:760px){#lcd-hdr .mega, #mega[data-lcd-cast]{top:0;left:0;right:0;bottom:0;width:auto;max-height:none;border:0;border-radius:0}#lcd-hdr .mega .lc, #mega[data-lcd-cast] .lc{padding:54px 20px 28px 14px}#lcd-hdr .mega.open .m-x{display:flex}}
+
+/* ---------- B) statické menu #mega z banneru (pätička) ----------
+   Rodičia v pätičke (#footer, .custom-footer, .banner) nemajú transform/filter/z-index -> fixný panel
+   ide k oknu a z-index platí voči celej stránke (overené 6. 10. 2026, SK aj CZ, 390 aj 1280 px). */
+/* stĺpec pätičky s bannerom menu je skrytý (.custom-footer__banner4{display:none}) — so statickým menu
+   ostane mimo toku pätičky (rozloženie elements-5 sa nemení), panel a prekrytie sú fixné */
+.custom-footer > div:has(#mega[data-lcd-cast]){display:block !important;position:absolute !important;
+  width:0 !important;height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;
+  border:0 !important;overflow:visible !important;flex:none !important}
+#mega[data-lcd-cast]{z-index:100000010;text-align:left;font-size:16px;line-height:1.5;color:#171717;
+  font-weight:400;font-style:normal;letter-spacing:normal;text-transform:none;white-space:normal;word-break:normal}
+#mega[data-lcd-cast] a{color:inherit;text-decoration:none}
+#mega[data-lcd-cast] img{max-width:100%;height:auto;margin:0;padding:0}
+html body.navigation-window-visible #mega[data-lcd-cast]{display:block}
+#mega[data-lcd-cast] .m-x:before, #mega[data-lcd-cast] .m-x:after{content:none !important}
+@media(max-width:760px){html body.navigation-window-visible #mega[data-lcd-cast] .m-x{display:flex}}
+/* prekrytie pod panelom (statické: v obale banneru) */
+[data-ec-promo-id] .mega-ovl{position:fixed;inset:0;z-index:100000005;background:rgba(20,17,12,.35);display:none}
+html body.navigation-window-visible [data-ec-promo-id] .mega-ovl{display:block}
+/* prepínač SK/CZ v menu (lcdLang.js ho obalí do .lcdlang s ponukou) */
+#mega[data-lcd-cast] > :is(.m-lang,.lcdlang){position:absolute;top:16px;left:16px;z-index:3}
+#mega[data-lcd-cast] .m-lang{display:flex;align-items:center;border:0;background:none;padding:0;cursor:pointer}
+#mega[data-lcd-cast] .m-lang svg{width:26px;height:19px;border-radius:2px;display:block;
+  box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .22s}
+#mega[data-lcd-cast] .m-lang:hover svg{transform:scale(1.08)}
+#mega[data-lcd-cast] .lcdlang-menu{left:0;transform:none}
+@media(max-width:760px){#mega[data-lcd-cast] > :is(.m-lang,.lcdlang){position:fixed;top:19px;left:16px}}
+
+/* ---------- C) natívna hlavička Shoptetu vo vzhľade #lcd-hdr ----------
+   Pás = .top-navigation-bar (burger + hľadanie vľavo, Kontakty vpravo). #header má výšku 0 a z neho
+   „visí“ do pásu logo (plaketa v strede) a košík (vpravo). Hľadanie sa vysúva pod pás.
+   Rozmery ako #lcd-hdr: 74 px, do 520 px šírky 62 px. Na titulke a rozcestníku je pás prilepený
+   hore (ako dnes), inde odroluje (ako dnes #lcd-hdr). Vlastné JS nič nemení — žiadne preblikutie.
+   !important len tam, kde Shoptet/staršie pravidlá menia polohu, rozmery a ikony. */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])){--lcdn-h:74px;--lcdn-pad:clamp(14px,3vw,30px);
+  --lcdn-gold:#e6c877;
+  --lcdn-ico-kosik:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 8h15l-1.1 10.2a2 2 0 01-2 1.8H7.6a2 2 0 01-2-1.8z'/%3E%3Cpath d='M8.8 8V6.4a3.2 3.2 0 016.4 0V8'/%3E%3C/svg%3E");
+  --lcdn-ico-hladaj:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10.6' cy='10.6' r='6.4'/%3E%3Cpath d='M15.4 15.4L20.5 20.5'/%3E%3C/svg%3E");
+  --lcdn-ico-tel:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 1.9.6 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.1a2 2 0 012.1-.5c.9.3 1.8.5 2.8.6a2 2 0 011.7 2z'/%3E%3C/svg%3E")}
+@media(max-width:520px){html:is(.lcd-native-hdr,:has([data-lcd-cast])){--lcdn-h:62px}}
+/* Shoptet si na mobile rezervuje miesto pre svoju fixnú hlavičku (padding 50/69 px) — tu je pás v toku */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .overall-wrapper{padding-top:0 !important;overflow:hidden;overflow:clip}
+
+/* pás */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar{position:relative !important;top:0 !important;
+  left:auto !important;right:auto !important;bottom:auto !important;transform:none !important;z-index:60 !important;
+  width:auto !important;height:var(--lcdn-h) !important;min-height:0 !important;margin:0 !important;padding:0 !important;
+  border:0 !important;background:#0d0d0d !important;box-shadow:0 2px 20px rgba(0,0,0,.4) !important;
+  font-size:13px;line-height:1.4;transition:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body:is(.in-index,.in-rozcestnik) .top-navigation-bar{position:sticky !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar > .container{display:flex !important;align-items:center !important;
+  justify-content:flex-start !important;gap:clamp(10px,1.6vw,18px);position:relative;box-sizing:border-box;
+  width:auto !important;max-width:1240px !important;height:100% !important;margin:0 auto !important;padding:0 var(--lcdn-pad) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar > .container > div{display:none !important;flex:none !important;text-align:left !important}
+/* otvorené menu: pás a logo nad prekrytím (krížik v burgri zavrie menu natívne, aj bez nášho JS);
+   samotný panel #mega je ešte vyššie (na mobile cez celú obrazovku, ako v #lcd-hdr) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.navigation-window-visible .top-navigation-bar{z-index:100000007 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.navigation-window-visible #header{z-index:100000008 !important}
+/* vľavo: burger + hľadanie (prihlásenie skryté ako v #lcd-hdr) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar > .container > .top-navigation-tools{display:flex !important;
+  align-items:center;order:-1;height:100%;margin:0 !important;padding:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools{display:flex !important;align-items:center !important;
+  justify-content:flex-start !important;flex-wrap:nowrap !important;gap:clamp(12px,2.6vw,20px);position:static !important;
+  width:auto !important;height:auto !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a{position:relative !important;
+  top:auto !important;right:auto !important;bottom:auto !important;left:auto !important;transform:none !important;
+  display:flex !important;align-items:center;justify-content:center;flex:none;width:34px !important;height:34px !important;
+  margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;
+  box-shadow:none !important;color:var(--lcdn-gold) !important;font-size:0 !important;line-height:0 !important;
+  text-decoration:none !important;visibility:visible !important;opacity:1;cursor:pointer;transition:color .22s}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a:before{content:"" !important;
+  display:block !important;position:static !important;width:24px !important;height:24px !important;margin:0 !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;background:currentColor !important;box-shadow:none;
+  color:inherit !important;font-size:0 !important;line-height:0 !important;transform:none;
+  -webkit-mask:var(--lcdn-ico-hladaj) center/contain no-repeat;mask:var(--lcdn-ico-hladaj) center/contain no-repeat}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a:after{content:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a:hover{color:#fff !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a[data-target="login"],
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .top-nav-button{display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process .top-navigation-bar .responsive-tools > a[data-target="search"]{display:none !important}
+/* burger: tri zlaté pásiky (ako .burg), pri otvorenom menu krížik */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a[data-target="navigation"]{order:-1;width:40px !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a[data-target="navigation"]:before,
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a[data-target="navigation"]:after{
+  content:"" !important;display:block !important;position:absolute !important;left:5px !important;top:50% !important;
+  width:30px !important;height:3px !important;margin:-1.5px 0 0 !important;border-radius:2px !important;
+  color:inherit !important;background:currentColor !important;-webkit-mask:none !important;mask:none !important;
+  transition:transform .25s,box-shadow .2s,opacity .2s}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a[data-target="navigation"]:before{
+  box-shadow:0 -9px 0 currentColor,0 9px 0 currentColor}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools > a[data-target="navigation"]:after{opacity:0}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.navigation-window-visible .top-navigation-bar .responsive-tools > a[data-target="navigation"]:before{
+  box-shadow:none;transform:rotate(45deg)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.navigation-window-visible .top-navigation-bar .responsive-tools > a[data-target="navigation"]:after{
+  opacity:1;transform:rotate(-45deg)}
+/* vpravo: Kontakty (z horného menu Shoptetu), do 430 px ikona telefónu */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar > .container > .top-navigation-menu{display:flex !important;
+  align-items:center;position:static !important;top:auto !important;right:auto !important;bottom:auto !important;left:auto !important;
+  width:auto !important;max-width:none !important;height:auto !important;margin:0 calc(34px + clamp(10px,1.6vw,18px)) 0 auto !important;
+  padding:0 !important;border:0 !important;background:none !important;box-shadow:none !important;transform:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process .top-navigation-bar > .container > .top-navigation-menu{margin-right:0 !important}
+/* main-3g.js klonuje položky, ktoré sa „nezmestia“, do .top-navigation-bar-menu-helper — tá ostáva skrytá */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) :is(.top-navigation-menu-trigger,.top-navigation-bar-menu-helper){display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu .top-navigation-bar-menu{
+  display:flex !important;align-items:center;position:static !important;width:auto !important;height:auto !important;max-height:none !important;
+  margin:0 !important;padding:0 !important;border:0 !important;background:none !important;box-shadow:none !important;
+  list-style:none;overflow:visible !important;transform:none !important;opacity:1 !important;visibility:visible !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu .top-navigation-bar-menu > li{display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu .top-navigation-bar-menu > li:has(> a[href$="/kontakty/"]){
+  display:block !important;margin:0 !important;padding:0 !important;border:0 !important;min-width:0 !important;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu li:before,
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu li:after{content:none !important;display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu li > a[href$="/kontakty/"]{display:block !important;
+  padding:0 !important;margin:0 !important;border:0 !important;background:none !important;
+  font-family:"Exo 2","Segoe UI",Arial,sans-serif !important;font-weight:800 !important;font-size:13px !important;
+  line-height:1.2 !important;letter-spacing:.14em !important;text-transform:uppercase !important;white-space:nowrap;
+  color:var(--lcdn-gold) !important;text-decoration:none !important;transition:color .22s}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu li > a[href$="/kontakty/"]:hover{color:#fff !important}
+@media(max-width:430px){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu li > a[href$="/kontakty/"]{font-size:0 !important;letter-spacing:0 !important;line-height:0 !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-menu li > a[href$="/kontakty/"]:before{content:"";display:block;width:22px;height:22px;
+    background:currentColor;-webkit-mask:var(--lcdn-ico-tel) center/contain no-repeat;mask:var(--lcdn-ico-tel) center/contain no-repeat}
+}
+
+/* #header: výška 0, logo a košík visia do pásu nad ním */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header{position:relative !important;top:auto !important;left:auto !important;
+  right:auto !important;bottom:auto !important;transform:none !important;z-index:61 !important;width:auto !important;
+  height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;border:0 !important;
+  background:none !important;box-shadow:none !important;overflow:visible !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body:is(.in-index,.in-rozcestnik) #header{position:sticky !important;top:var(--lcdn-h) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-wrapper{position:relative !important;display:block !important;
+  box-sizing:border-box;width:auto !important;max-width:1240px !important;height:0 !important;margin:0 auto !important;
+  padding:0 var(--lcdn-pad) !important;border:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .header-top{position:static !important;display:block !important;
+  width:auto !important;height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;border:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name-wrapper{position:static !important;display:block !important;
+  width:auto !important;max-width:none !important;height:0 !important;margin:0 !important;padding:0 !important}
+/* logo v plakete, ktorá previsá pod pás */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name{position:absolute !important;left:50% !important;right:auto !important;
+  top:calc(-1 * var(--lcdn-h)) !important;bottom:auto !important;transform:translateX(-50%) !important;z-index:2;
+  display:flex !important;align-items:flex-start;justify-content:center;width:auto !important;max-width:none !important;
+  height:auto !important;margin:0 !important;padding:8px 30px 16px !important;border-radius:0 0 14px 14px !important;
+  background:linear-gradient(180deg,#191919 0%,#0d0d0d 46%,#050505 100%) !important;
+  border:1px solid rgba(230,200,119,.2) !important;border-top:0 !important;
+  box-shadow:0 18px 38px rgba(0,0,0,.72),0 3px 10px rgba(0,0,0,.5),
+    inset 0 -1px 0 rgba(230,200,119,.34),inset 1px 0 0 rgba(255,255,255,.05),
+    inset -1px 0 0 rgba(255,255,255,.05) !important;
+  transition:padding-bottom .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name:after{content:"";position:absolute;left:14%;right:14%;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--lcdn-gold),transparent);opacity:.85}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name a{display:block !important;width:auto !important;height:auto !important;
+  margin:0 !important;padding:0 !important;line-height:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name img{display:block !important;width:auto !important;height:70px !important;
+  max-width:none !important;max-height:none !important;margin:0 !important;padding:0 !important;
+  filter:drop-shadow(0 3px 10px rgba(196,155,49,.4)) drop-shadow(0 1px 2px rgba(0,0,0,.7));
+  transition:transform .3s cubic-bezier(.2,.7,.2,1) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name:hover{padding-bottom:21px !important;
+  box-shadow:0 24px 48px rgba(0,0,0,.8),inset 0 -1px 0 rgba(230,200,119,.5) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name:hover img{transform:scale(1.03) !important}
+@media(max-width:520px){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name{padding:6px 18px 12px !important;border-radius:0 0 11px 11px !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .site-name img{height:52px !important}
+}
+/* košík */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons{position:absolute !important;top:calc(-1 * var(--lcdn-h)) !important;
+  right:var(--lcdn-pad) !important;bottom:auto !important;left:auto !important;transform:none !important;z-index:3;
+  display:flex !important;align-items:center !important;justify-content:flex-end !important;gap:12px;
+  width:auto !important;height:var(--lcdn-h) !important;margin:0 !important;padding:0 !important;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > :not(.cart-count){display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count{position:relative !important;top:auto !important;
+  right:auto !important;bottom:auto !important;left:auto !important;transform:none !important;display:flex !important;
+  align-items:center;justify-content:center;width:34px !important;height:34px !important;min-width:0 !important;min-height:0 !important;
+  margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;
+  box-shadow:none !important;color:var(--lcdn-gold) !important;font-size:0 !important;line-height:0 !important;
+  text-decoration:none !important;transition:color .22s,transform .22s !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count:before{content:"" !important;display:block !important;
+  position:static !important;top:auto !important;right:auto !important;width:24px !important;height:24px !important;margin:0 !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;background:currentColor !important;background-image:none !important;
+  font-size:0 !important;line-height:0 !important;transform:none !important;
+  -webkit-mask:var(--lcdn-ico-kosik) center/contain no-repeat;mask:var(--lcdn-ico-kosik) center/contain no-repeat}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count:after{content:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count:hover{color:#fff !important;transform:translateY(-1px) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count .cart-price{display:none !important}
+/* počet kusov (Shoptet ho dá do <i>, keď je v košíku tovar) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count i{position:absolute !important;top:-3px !important;
+  right:-8px !important;bottom:auto !important;left:auto !important;display:block !important;box-sizing:border-box;
+  min-width:18px !important;width:auto !important;height:18px !important;margin:0 !important;padding:0 5px !important;
+  border:0 !important;border-radius:9px !important;background:#c49b31 !important;color:#14110c !important;
+  font:normal 800 11px/18px "Exo 2","Segoe UI",Arial,sans-serif !important;text-align:center;
+  box-shadow:0 0 0 2px #0d0d0d;transform:none !important;z-index:1}
+/* hľadanie: vysunie sa pod pás (natívne tlačidlo -> body.search-window-visible) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search{display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.search-window-visible #header .search{display:block !important;
+  position:absolute !important;top:0 !important;right:0 !important;bottom:auto !important;left:0 !important;transform:none !important;
+  z-index:1;box-sizing:border-box;width:auto !important;max-width:none !important;height:auto !important;margin:0 !important;
+  padding:clamp(28px,3vw,34px) var(--lcdn-pad) 18px !important;border:0 !important;border-top:1px solid rgba(230,200,119,.16) !important;
+  border-radius:0 0 14px 14px !important;background:#0d0d0d !important;box-shadow:0 18px 38px rgba(0,0,0,.45) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form{display:block !important;position:relative;
+  width:auto !important;max-width:760px !important;margin:0 auto !important;padding:0 !important;border:0 !important;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form fieldset{display:flex !important;align-items:stretch;gap:10px;
+  width:auto;min-width:0;margin:0 !important;padding:0 !important;border:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form .query-input{flex:1 1 auto;min-width:0;width:auto !important;
+  height:48px !important;margin:0 !important;padding:0 16px !important;border:1px solid rgba(230,200,119,.38) !important;
+  border-radius:10px !important;background:#1a1714 !important;color:#fff !important;box-shadow:none !important;outline:0;
+  font:normal 400 16px/1.2 "Source Sans 3","Segoe UI",Arial,sans-serif !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form .query-input::placeholder{color:#a99f86;opacity:1}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form .query-input:focus{border-color:var(--lcdn-gold) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form button{flex:none;position:static !important;width:auto !important;
+  height:48px !important;margin:0 !important;padding:0 22px !important;border:0 !important;border-radius:10px !important;
+  background:linear-gradient(90deg,#b8901f,#f0d78f 45%,#c49b31) !important;color:#1a1408 !important;cursor:pointer;
+  font:normal 800 13px/1 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.14em !important;
+  text-transform:uppercase !important;text-indent:0 !important;box-shadow:0 5px 16px rgba(196,155,49,.3) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form button:before{content:none !important}
+/* natívne menu: pri statickom #mega je skryté; inde (košík, objednávka — bez bannerov) je to panel ako #mega */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) :is(#navigation,.menu-helper){display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) body.navigation-window-visible #navigation{display:block !important;
+  position:fixed !important;top:82px !important;right:auto !important;bottom:auto !important;left:clamp(18px,5vw,80px) !important;
+  transform:none !important;z-index:100000010 !important;box-sizing:border-box;width:min(600px,calc(100vw - 24px)) !important;
+  height:auto !important;max-height:calc(100vh - 100px) !important;overflow-x:hidden !important;overflow-y:auto !important;
+  overscroll-behavior:contain;margin:0 !important;padding:18px 16px 22px !important;background:#eceae5 !important;
+  border:2px solid #c49b31 !important;border-radius:14px !important;box-shadow:0 14px 40px rgba(0,0,0,.22) !important;
+  transition:none !important;font-family:"Source Sans 3","Segoe UI",Arial,sans-serif;text-align:left}
+@media(max-width:760px){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) body.navigation-window-visible #navigation{top:0 !important;right:0 !important;
+    bottom:0 !important;left:0 !important;width:auto !important;max-height:none !important;border:0 !important;
+    border-radius:0 !important;padding:58px 18px 28px !important}
+}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigation-in{position:static !important;width:auto !important;
+  height:auto !important;overflow:visible !important;font-size:15px;line-height:1.3;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation ul{display:block !important;position:static !important;width:auto !important;
+  height:auto !important;margin:0 !important;padding:0 !important;list-style:none;background:none !important;border:0 !important;
+  box-shadow:none !important;transform:none !important;opacity:1 !important;visibility:visible !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation li{display:block !important;position:static !important;float:none !important;
+  width:auto !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-1 > li{border-bottom:1px solid rgba(155,122,36,.3) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-1 > li > a{display:block !important;padding:13px 6px !important;
+  color:#171717 !important;background:none !important;text-decoration:none !important;
+  font:normal 800 15px/1.3 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.06em;text-transform:uppercase !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-1 > li > a b{font-weight:inherit !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-2{margin:-4px 0 10px !important;padding:0 0 0 12px !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-2 a:not(.menu-image){display:block !important;padding:6px 6px !important;
+  color:#4a4231 !important;background:none !important;text-decoration:none !important;
+  font:normal 600 14.5px/1.35 "Source Sans 3","Segoe UI",Arial,sans-serif !important;text-transform:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation :is(.menu-level-1 > li > a,.menu-level-2 a):hover{color:#9b7a24 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation :is(.menu-image,.menu-level-3,.submenu-arrow){display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigationActions{margin-top:14px !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigationActions a{display:block;padding:8px 6px !important;
+  color:#9b7a24 !important;font-weight:700 !important;text-decoration:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigation-close{display:flex !important;position:absolute !important;
+  top:10px !important;right:12px !important;left:auto !important;bottom:auto !important;width:38px !important;height:38px !important;
+  align-items:center;justify-content:center;border-radius:50%;background:#17150f !important;color:#c49b31 !important;
+  border:1px solid rgba(196,155,49,.6);cursor:pointer;font-size:0 !important;z-index:2}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigation-close:before{content:"\00d7" !important;
+  font:normal 400 24px/1 Arial,sans-serif !important;color:#c49b31 !important}
+@media(min-width:761px){html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigation-close{position:fixed !important;display:none !important}}
