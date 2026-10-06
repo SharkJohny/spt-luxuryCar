@@ -1,0 +1,13 @@
+{
+  "_pozn": "Shoptet admin → Titulná strana → Úvodný text, SK aj CZ. Zapisuje sa v kroku 3 poradia nasadenia (admin-html/README.md) spolu s bannermi titulky. nazov = H1 titulky (Shoptet ho vypíše ako main#content > h1.sr-only a ako div.h1 v páse .welcome-wrapper, ktorý CSS skrýva); popis = prázdny (obsah titulky je v banneroch); metaDescription = explicitný meta description titulky (dnes šablóna #TITLE#. #DESCRIPTION#). H1 nesmie obsahovať „box“ (main.js by mimo #konfSlot vynechal konfigurátor) ani „Vitajte/Vítejte“ (seo-runtime.js by ho prepísal). Číta to harness (priklady/admin-bez-prekryvania.mjs simuluje výstup Shoptetu, smoke overí H1 a meta description).",
+  "sk": {
+    "nazov": "Luxusné autokoberce na mieru",
+    "popis": "",
+    "metaDescription": "Luxusné autokoberce na mieru pre viac ako 1 000 modelov áut, k nim rohož a box do kufra. Zvoľte svoje auto a uvidíte cenu. Doručenie na Slovensko aj do Česka."
+  },
+  "cz": {
+    "nazov": "Luxusní autokoberce na míru",
+    "popis": "",
+    "metaDescription": "Luxusní autokoberce na míru pro více než 1 000 modelů aut, k nim koberec a box do kufru. Zvolte svůj vůz a uvidíte cenu. Doručení po celé ČR i SR."
+  }
+}

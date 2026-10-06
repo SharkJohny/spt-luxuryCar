@@ -16,9 +16,9 @@
         "pozicia": "Stred titulky (Banner v strede)",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 29991,
-      "bajty": 30486,
-      "hash": "0845de2170",
+      "znaky": 30739,
+      "bajty": 31241,
+      "hash": "2a30c1d48e",
       "obrazky": 29
     },
     {
@@ -35,9 +35,9 @@
         "pozicia": "Stred titulky (Banner v strede)",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 29849,
-      "bajty": 30478,
-      "hash": "654722b5b1",
+      "znaky": 30597,
+      "bajty": 31230,
+      "hash": "6d3eadc28c",
       "obrazky": 29
     },
     {
@@ -54,9 +54,9 @@
         "pozicia": "Zápätie titulky (Doplnkové bannery)",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 28618,
-      "bajty": 29254,
-      "hash": "39ea9f3e64",
+      "znaky": 28605,
+      "bajty": 29241,
+      "hash": "d2cf7c0373",
       "obrazky": 47
     },
     {
@@ -73,9 +73,9 @@
         "pozicia": "Zápätie titulky (Doplnkové bannery)",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 28720,
-      "bajty": 29438,
-      "hash": "eee810d60d",
+      "znaky": 28708,
+      "bajty": 29426,
+      "hash": "6621ba4b37",
       "obrazky": 47
     },
     {
@@ -166,9 +166,9 @@
         "pole": "Popis stránky (description)",
         "url": "/rozcestnik/"
       },
-      "znaky": 6302,
-      "bajty": 6379,
-      "hash": "8ce719fa86",
+      "znaky": 6710,
+      "bajty": 6790,
+      "hash": "34ca4aaa78",
       "obrazky": 9
     },
     {
@@ -183,9 +183,9 @@
         "pole": "Popis stránky (description)",
         "url": "/rozcestnik/"
       },
-      "znaky": 6283,
-      "bajty": 6375,
-      "hash": "77a48ad3fd",
+      "znaky": 6692,
+      "bajty": 6788,
+      "hash": "bd6b1f1c42",
       "obrazky": 9
     }
   ],

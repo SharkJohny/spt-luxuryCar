@@ -63,6 +63,76 @@ html:is(.lcdrz-early,.lcdh-early) body.in-rozcestnik:has([data-lcd-cast=rz]) :is
 #konfSlot .konf-bezjs{display:inline-flex}
 #konfSlot:is(.lcd-konf-ok,:has(.model-selector)) .konf-bezjs{display:none !important}
 
+/* 5b) Sivé náhľady polí v karte konfigurátora (Michal 6. 10.): kým main.js nevloží konfigurátor, karta nie je prázdna.
+      .konf-nahlad má rozloženie hotového konfigurátora v slote (bloky LCDH / LCDRZ BRIDGE): prepínač Osobné vozidlá /
+      Kamióny (len titulka, main.js ho na rozcestníku nedáva), Značka, Model, Rok výroby, Typ karosérie, tlačidlo — rovnaké
+      odsadenia, výšky, medzery a zlom 761 px -> pri výmene za konfigurátor sa nič neposunie (CLS 0).
+      Texty sú len v data-t cez ::before ako sivé pruhy s priehľadným písmom (šírka a zalomenie ako hotový, na stránke
+      žiadny text navyše). main.js pri vložení .model-selector skryje ostatné deti slotu (display:none !important)
+      a pridá .lcd-konf-ok; pravidlo nižšie ich skryje aj samo.
+      Náhľady len pod html.lcd-js (riadok HTML kódov Záhlavia, admin-html/zahlavie-riadok.html): bez JS (alebo bez
+      riadku) ostáva len odkaz „Vybrať auto“ ako doteraz. S JS je odkaz v mieste tlačidla neviditeľný a ukáže sa až po
+      25 s — skript neprišiel alebo zlyhal (pomalý mobil v harnesse: konfigurátor v slote SK 17,1–17,2 s, CZ ~19,3 s;
+      pri 20 s by na CZ odkaz na chvíľu bliknul). Nekliknuteľné, mimo čítačiek (aria-hidden v HTML). Lesk len bez
+      prefers-reduced-motion, len transform (kompozítor, nezaťaží hlavné vlákno), po 24 s sám skončí a zmizne (opacity 0).
+      Overené 6. 10. (scratchpad nahlad/meraj-nahlad.mjs): SK aj CZ, titulka aj rozcestník, 320–1920 px — výška slotu,
+      poloha prepínača, polí aj tlačidla náhľadu = hotový konfigurátor (rozdiel 0,0 px). */
+#konfSlot:is(.lcd-konf-ok,:has(.model-selector)) .konf-nahlad{display:none !important}
+html:not(.lcd-js) #konfSlot :is(.kn-prep,.kn-pole){display:none !important}
+html:not(.lcd-js) .lcdrz-konf-slot .konf-nahlad{display:none !important}
+/*    obal = .model-selector.container: padding 0 20px, BFC (clearfix .container:before/after drží 2 px okraj prepínača
+      vnútri), do 768 px navyše padding-top 20px (šablóna, luxuryCar.css @media(max-width:768px); jej margin-bottom ruší
+      margin:0 v bloku BRIDGE) */
+html.lcd-js #konfSlot .konf-nahlad{display:flow-root;position:relative;margin:0;padding:0 20px;text-align:left;
+  pointer-events:none;-webkit-user-select:none;user-select:none}
+@media(max-width:768px){html.lcd-js #konfSlot .konf-nahlad{padding-top:20px}}
+html.lcd-js #konfSlot .kn-prep{display:flex;gap:5px;background:#f3f1ec;border:1px solid #e4e0d7;border-radius:999px;
+  padding:5px;margin:2px 0 18px}
+html.lcd-js #konfSlot .kn-tab{flex:1;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:7px;
+  border-radius:999px;padding:10px 8px;font-family:var(--disp);font-weight:700;font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;line-height:12px;text-align:center;color:transparent}
+/*    line-height = „normal“ písma Exo 2 (10,5 px -> 12 px, 12 px -> 14 px; hotový prepínač je <button> s line-height:normal).
+      Pevná hodnota: kým sa Exo 2 nenačíta, náhradné písmo by malo riadok o 2 px vyšší a po načítaní by náhľad poskočil. */
+html.lcd-js #konfSlot .kn-tab.kn-on{background:#e6e2d9}
+html.lcd-js #konfSlot .kn-ik{display:block;flex:none;width:17px;height:17px;border-radius:5px;background:#dad5c9}
+html.lcd-js #konfSlot .kn-t{display:block}
+html.lcd-js #konfSlot .kn-t::before{content:attr(data-t);background:#dcd7cb;border-radius:3px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+html.lcd-js #konfSlot .kn-polia{display:flex;flex-direction:column;gap:14px;margin:0;padding:0}
+html.lcd-js #konfSlot .kn-pole{display:block;margin:0;padding:0;width:100%;text-align:left}
+html.lcd-js #konfSlot .kn-pole::before{content:attr(data-t);display:block;width:-moz-fit-content;width:fit-content;
+  font-family:var(--disp);font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:transparent;background:#e6e2d9;border-radius:3px;margin:0 0 7px}
+html.lcd-js #konfSlot .kn-box{display:block;box-sizing:border-box;height:46px;border:1px solid #e4e0d7;border-radius:12px;
+  background:#f3f1ec}
+html.lcd-js #konfSlot .kn-box::before{content:"";display:block;width:42%;max-width:160px;height:10px;margin:17px 0 0 14px;
+  border-radius:4px;background:#e4e0d7}
+html.lcd-js #konfSlot .kn-btn{display:flex;box-sizing:border-box;width:100%;height:56px;margin:16px 0 0;border-radius:12px;
+  background:#e6e2d9}
+html.lcd-js #konfSlot .kn-btn > .konf-bezjs{display:flex !important;align-items:center;justify-content:center;
+  box-sizing:border-box;width:100%;height:56px;margin:0;padding:0 26px !important;border-radius:12px;
+  pointer-events:auto;visibility:hidden;animation:lcdKnUkaz 0s linear 25s forwards}
+@media(min-width:761px){
+  html.lcd-js #konfSlot .kn-prep{margin-bottom:22px}
+  html.lcd-js #konfSlot .kn-tab{padding:14px 10px;font-size:12px;line-height:14px;gap:9px}
+  html.lcd-js #konfSlot .kn-ik{width:19px;height:19px}
+  html.lcd-js #konfSlot .kn-polia{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:16px 18px}
+  html.lcd-js #konfSlot .kn-pole{flex:0 1 calc(25% - 14px);min-width:170px}
+  html.lcd-js #konfSlot .kn-btn{flex:0 0 100%;margin:6px 0 0}
+}
+@media(prefers-reduced-motion:no-preference){
+  /* orez len kým beží lesk (clip-path nemení rozloženie); po 25 s preč, aby tieň odkazu „Vybrať auto“ nebol odrezaný */
+  html.lcd-js #konfSlot .konf-nahlad{clip-path:inset(0);animation:lcdKnBezOrezu 0s linear 25s forwards}
+  html.lcd-js #konfSlot .konf-nahlad::after{content:"";position:absolute;top:0;bottom:0;left:0;width:100%;
+    pointer-events:none;background:linear-gradient(100deg,rgba(255,255,255,0) 25%,rgba(255,255,255,.75) 50%,rgba(255,255,255,0) 75%);
+    transform:translateX(-101%);opacity:0;animation:lcdKnLesk 1.6s ease-in-out 15;will-change:transform}
+}
+/*    opacity:1 len v kľúčových snímkach: po 15 kolách (24 s) sa ::after vráti na základ = translateX(-101%) A opacity:0.
+      Bez toho by po zrušení orezu (25 s) ostal biely pás vľavo od karty (na širokom PC viditeľný cez pozadie). */
+@keyframes lcdKnLesk{from{transform:translateX(-100%);opacity:1}to{transform:translateX(100%);opacity:1}}
+@keyframes lcdKnUkaz{to{visibility:visible}}
+@keyframes lcdKnBezOrezu{to{clip-path:none}}
+
 /* 6) Titulka bez carouselu (184/123 vypnutý): obal .before-carousel má v šablóne margin-top:-92px (ťahal
       carousel pod starú priesvitnú hlavičku) — vytiahol by hero pod pás hlavičky. Prázdny obal skryť. */
 body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.before-carousel{margin-top:0 !important}
@@ -70,8 +140,9 @@ body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.before-caro
 /* 6b) Titulka: H1 dáva Shoptet z názvu Úvodného textu ako main#content > h1.sr-only — ten ostáva (čítačky, roboty).
       Pod telom titulky Shoptet navyše vypíše pás .welcome-wrapper: div.h1 = len vizuálna kópia toho istého textu
       (data-testid=eshopHeader, nie je to nadpis) + popis Úvodného textu. Dnes ho kreslená titulka skrýva (gate
-      .content-wrapper.homepage-box), preto ho skrývame aj pri statickej titulke, kým Michal neschváli novú H1 frázu —
-      inak by na konci titulky pribudol nový pás „VITAJTE V NAŠOM OBCHODE“. Schová aj popis, ak ešte nie je vyprázdnený.
+      .content-wrapper.homepage-box), preto ho skrývame aj pri statickej titulke — inak by na konci titulky pribudol nový
+      pás s názvom (dnes „VITAJTE V NAŠOM OBCHODE“, po zápise titulna-strana.json „LUXUSNÉ AUTOKOBERCE NA MIERU“; vzhľad PO
+      schválený 6. 10. ho nemá). Schová aj popis, ak ešte nie je vyprázdnený.
       Ukázať pás ako záverečný claim (Michalova voľba) = zmazať len prvé pravidlo nižšie; štýl pod ním je pripravený. */
 body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.welcome-wrapper{display:none !important}
 body.in-index:has([data-lcd-cast^=hp]) .content-wrapper.homepage-box.welcome-wrapper{margin:0 !important;padding:0 !important;
