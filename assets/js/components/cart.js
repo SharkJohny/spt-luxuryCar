@@ -159,7 +159,7 @@ function changeDescription() {
       const $variant = $tr.find("span.main-link-variant").first();
       const riadky = lcdRozpis({ variant: $variant.text(), priplatky: $(this).text(), cz: lcdCz() });
       const auto = [getBrand, getModel, getYear, getCarType].map(lcdAutoHodnota).filter(Boolean).join(" ");
-      if (auto) riadky.unshift({ n: "Auto", h: auto });
+      if (auto && riadky.length) riadky.unshift({ n: "Auto", h: auto });
       if (riadky.length) lcdVlozRozpis($variant.length ? [this, $variant[0]] : [this], riadky);
       return;
     }

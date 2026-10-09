@@ -198,6 +198,9 @@ body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(.increase__sign,.dec
   width:auto !important;height:auto !important;margin:0 !important;font:inherit !important;color:inherit !important;line-height:1 !important;
   opacity:1 !important;visibility:visible !important;text-indent:0 !important}
 body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(button.increase,button.decrease):hover{background:var(--k-sand) !important}
+/* fokus z klávesnice dovnútra (pilulka má overflow:hidden, vonkajší rámik by sa orezal) */
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(button.increase,button.decrease,input.amount):focus-visible{
+  outline:2px solid var(--k-gold-lo) !important;outline-offset:-3px !important;border-radius:999px !important}
 body.in-kosik #cart-wrapper td.p-quantity input.amount{display:block !important;box-sizing:border-box;width:38px !important;height:42px !important;
   min-width:0;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important;
   text-align:center !important;color:var(--k-ink) !important;font:normal 700 16px/42px var(--k-disp) !important;
@@ -238,6 +241,10 @@ body.in-kosik #cart-wrapper td.p-total .remove-item:focus-visible{outline:2px so
   body.in-kosik #cart-wrapper tr.removeable > td.p-name{padding-right:0 !important}
   body.in-kosik #cart-wrapper td.p-name a.main-link{font-size:17px !important}
   body.in-kosik #cart-wrapper td.p-total form.inline{top:12px;right:10px}
+  /* kamión: súhrn konfigurácie (2 stĺpce, ~445 px) potrebuje celú šírku -> názov a súhrn cez celý riadok, množstvo a cena pod ním */
+  body.in-kosik #cart-wrapper table.cart-table tr.removeable:has(.lcd-truck-cart-summary){grid-template-areas:"img meno meno meno" "img . pocet suma"}
+  body.in-kosik #cart-wrapper table.cart-table tr.removeable:has(.lcd-truck-cart-summary):has(td.p-quantity input.amount:not([value="1"])){
+    grid-template-areas:"img meno meno meno" "img . pocet suma" "img . pocet jedn"}
 }
 /* telefón: karta s okrajom ako ponuka k setu (10 px), nie od kraja po kraj */
 @media(max-width:767px){body.in-kosik #cart-wrapper table.cart-table tr.removeable{margin:0 10px 14px}}

@@ -1271,8 +1271,9 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
       // zákazník počas výmeny klikol na „Pokračovať“ / odkaz -> teraz tam (košík je už celý vymenený)
       const kam = blok.odlozene;
       setTimeout(function () { location.assign(kam); }, 150);
-      // poistka: navigácia dokument nevymenila (súbor na stiahnutie, 204, zrušená) -> obnoviť, nech stránka nie je zablokovaná
-      setTimeout(function () { location.reload(); }, 5000);
+      // poistka: navigácia dokument nevymenila (súbor na stiahnutie, 204, zrušená) -> obnoviť, nech stránka nie je zablokovaná;
+      // 20 s, aby pomalé mobilné pripojenie stihlo prejsť na „Pokračovať“ (5 s by navigáciu zrušilo — kontrola košíka 9. 10.)
+      setTimeout(function () { location.reload(); }, 20000);
     } else {
       ssPis(KLUC_HOTOVO, JSON.stringify({ text: hotovo, typ: "ok", t: Date.now() }));
       setTimeout(function () { location.reload(); }, 150);
