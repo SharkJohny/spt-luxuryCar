@@ -862,7 +862,7 @@ function setNazov(riadok) {
 
 /**
  * Ponuka k setu ako tmavý prémiový blok (Michal 9. 10.: „vôbec mi to nepríde lákavé“): tri karty s béžovou fotkou
- * z návrhu konfigurátora — Premium, Classic, Box — so štítkom zľavy, veľkou cenou v sete a jednou vetou, čo zákazník
+ * z návrhu konfigurátora — Classic, Box, Premium — so štítkom zľavy, veľkou cenou v sete a jednou vetou, čo zákazník
  * získa. Mobil: karty sa listujú prstom (ďalšia vykukuje), PC: vedľa seba. Box má pod kartami výber počtu,
  * veľkosti a farby. Háčiky pre E2E ostávajú: .lcd-dop__volba, .lcd-dop__polozka[data-doplnok="box"] .lcd-dop__vybrat,
  * data-lcd-dop-pridat / -pocet / -velkost / -farba / -nie.
@@ -909,7 +909,7 @@ function karta(ctx, T, R, viacSetov) {
     return { li: li, obr: obr };
   };
 
-  // --- rohož: Premium prvá (najsilnejšia fotka), potom Classic
+  // --- rohož (poradie kariet nastaví koniec funkcie)
   if (ctx.ponuka.rohoz) {
     const moznosti = ["premium", "classic"].map(function (v) {
       const zm = zmena({ typ: "rohoz", varianta: v }, ctx.mapa, R);
@@ -1051,6 +1051,11 @@ function karta(ctx, T, R, viacSetov) {
     k.remove();
     if (sec && !sec.querySelector(".lcd-dop__karta, .lcd-dop__hotovo")) sec.remove();
   });
+  // poradie kariet (Michal 9. 10.): rohož Classic, box, rohož Premium
+  const PORADIE = ["classic", "box", "premium"];
+  const kluc = function (li) { return PORADIE.indexOf(li.getAttribute("data-varianta") || li.getAttribute("data-doplnok")); };
+  Array.prototype.slice.call(volby.children).sort(function (a, b) { return kluc(a) - kluc(b); })
+    .forEach(function (li) { volby.appendChild(li); });
   if (volby.children.length === 1) volby.classList.add("lcd-dop__volby--jedna");
   return ctx.zobrazene.length ? k : null;
 }

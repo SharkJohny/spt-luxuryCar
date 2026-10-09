@@ -2,7 +2,7 @@
    KOŠÍK: PONUKA K SETU — partial pre blok LCD-KOSIK (vkladá tools/vloz-lcd-css.py)
    assets/js/lcdKosikDoplnok.js: na /kosik/ pri sete autokobercov bez rohože do kufra alebo boxu
    <div id="lcd-doplnok" role="region"> v .cart-content.summary-wrapper (PC: ľavá polovica vedľa súhrnu,
-   telefón a tablet: až za súhrnom s „Pokračovať“). Tmavý blok s kartami Premium / Classic / Box (béžové fotky kufra, štítok zľavy),
+   telefón a tablet: až za súhrnom s „Pokračovať“). Tmavý blok s kartami Classic / Box / Premium (béžové fotky kufra, štítok zľavy),
    Exo 2 + Source Sans 3, zlatá linka. Zlatý text len na tmavom (na bielej má --gold kontrast 2,4 : 1).
    ===================================================================== */
 #lcd-doplnok{--ink:#14110c;--bg:#15110b;--card:#211a12;--line:rgba(196,155,49,.28);--text:#f6f0e3;--mute:#cbc1aa;
@@ -38,7 +38,7 @@
 #lcd-doplnok .lcd-dop__podnadpis{margin:6px 0 16px;font-size:14.5px;line-height:1.4;color:var(--mute)}
 #lcd-doplnok .lcd-dop__kset{margin:-8px 0 14px;font-size:14px;line-height:1.35;color:var(--mute)}
 
-/* karty Premium / Classic / Box: fotka z konfigurátora so štítkom zľavy, text, cena, tlačidlo dole */
+/* karty Classic / Box / Premium: béžová fotka kufra so štítkom zľavy, text, cena, tlačidlo dole */
 #lcd-doplnok .lcd-dop__volby{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:14px}
 #lcd-doplnok .lcd-dop__volby--jedna{grid-template-columns:minmax(0,320px)}
 #lcd-doplnok .lcd-dop__volba{display:flex;flex-direction:column;margin:0;padding:0 0 14px;background:var(--card);border:1px solid var(--line);
