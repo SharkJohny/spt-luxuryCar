@@ -1,3 +1,4 @@
+import { initAutoPamat } from "./functions/autoPamat.js"; // auto zakaznika aj v novej karte kosika a objednavky (9. 10. 2026)
 import { LCD_ZAKLAD } from "./functions/lcdZaklad.js"; // zaklad CDN: priecinok verzie alebo spolocne assets/
 import { optionData } from "./option.js";
 import { intIndex } from "./components/index.js";
@@ -29,6 +30,9 @@ import {
   TRUCK_PRODUCT_URLS,
   TRUCK_VEHICLES,
 } from "./truck-konfigurator/truck-brands.js";
+
+// PRED všetkým, čo číta auto zo sessionStorage (košík, poznámka objednávky) — functions/autoPamat.js
+initAutoPamat();
 
 let setupData;
 

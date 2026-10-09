@@ -658,13 +658,14 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-wi
   border-radius:0 !important;background:#fff !important;box-shadow:none !important;text-align:center}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.lcd-kw-viac .cart-widget-button{border-top:0 !important;
   background:var(--kw-podklad) !important}
+/* „Pokračovať“ v paneli košíka zelené ako v košíku a krokoch objednávky (Michal 9. 10.: hlavná cesta je vždy zelená) */
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button{position:relative !important;display:flex !important;
   align-items:center;justify-content:center;gap:12px;box-sizing:border-box;width:100% !important;min-height:50px;height:auto !important;
   margin:0 !important;padding:13px 18px !important;border:0 !important;border-radius:12px !important;
-  background:linear-gradient(180deg,#d6b04c 0%,#c49b31 55%,#b18822 100%) !important;color:var(--kw-ink) !important;
+  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%) !important;color:#fff !important;
   font:normal 900 14.5px/1.2 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.1em !important;text-transform:uppercase !important;
   text-align:center !important;text-decoration:none !important;white-space:normal !important;
-  box-shadow:0 10px 22px rgba(196,155,49,.30),inset 0 1px 0 rgba(255,255,255,.35) !important;transition:filter .2s}
+  box-shadow:0 10px 22px rgba(46,125,50,.30),inset 0 1px 0 rgba(255,255,255,.25) !important;transition:filter .2s}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button::before{content:none !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button::after{content:"" !important;position:static !important;
   display:block !important;flex:none;width:8px !important;height:8px !important;margin:0 0 0 2px !important;padding:0 !important;

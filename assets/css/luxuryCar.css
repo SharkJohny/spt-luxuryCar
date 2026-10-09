@@ -13290,13 +13290,14 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-wi
   border-radius:0 !important;background:#fff !important;box-shadow:none !important;text-align:center}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.lcd-kw-viac .cart-widget-button{border-top:0 !important;
   background:var(--kw-podklad) !important}
+/* „Pokračovať“ v paneli košíka zelené ako v košíku a krokoch objednávky (Michal 9. 10.: hlavná cesta je vždy zelená) */
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button{position:relative !important;display:flex !important;
   align-items:center;justify-content:center;gap:12px;box-sizing:border-box;width:100% !important;min-height:50px;height:auto !important;
   margin:0 !important;padding:13px 18px !important;border:0 !important;border-radius:12px !important;
-  background:linear-gradient(180deg,#d6b04c 0%,#c49b31 55%,#b18822 100%) !important;color:var(--kw-ink) !important;
+  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%) !important;color:#fff !important;
   font:normal 900 14.5px/1.2 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.1em !important;text-transform:uppercase !important;
   text-align:center !important;text-decoration:none !important;white-space:normal !important;
-  box-shadow:0 10px 22px rgba(196,155,49,.30),inset 0 1px 0 rgba(255,255,255,.35) !important;transition:filter .2s}
+  box-shadow:0 10px 22px rgba(46,125,50,.30),inset 0 1px 0 rgba(255,255,255,.25) !important;transition:filter .2s}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button::before{content:none !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button::after{content:"" !important;position:static !important;
   display:block !important;flex:none;width:8px !important;height:8px !important;margin:0 0 0 2px !important;padding:0 !important;
@@ -13863,18 +13864,20 @@ body.in-kosik #cart-wrapper .price-wrapper .price-label{color:var(--k-tlm) !impo
   font:normal 700 13px/1.2 var(--k-disp) !important;letter-spacing:.12em !important;text-transform:uppercase !important}
 body.in-kosik #cart-wrapper .price-wrapper .price{color:var(--k-ink) !important;font:normal 900 28px/1.1 var(--k-disp) !important;
   font-variant-numeric:tabular-nums;white-space:nowrap}
+/* „Pokračovať“ zelené (Michal 9. 10.: čo má zákazník kliknúť, je vždy zelené — ako v krokoch objednávky #388e3c;
+   o odtieň tmavšie kvôli bielemu textu, kontrast ~5 : 1). Doplnky k setu ostávajú zlaté. */
 body.in-kosik #cart-wrapper .next-step #continue-order-button{display:flex !important;align-items:center;justify-content:center;gap:12px;
   box-sizing:border-box;min-height:54px;padding:14px 20px !important;border:0 !important;border-radius:12px !important;
-  background:linear-gradient(180deg,#d6b04c 0%,#c49b31 55%,#b18822 100%) !important;color:var(--k-ink) !important;
+  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%) !important;color:#fff !important;
   font:normal 900 15px/1.2 var(--k-disp) !important;letter-spacing:.1em !important;text-transform:uppercase !important;text-decoration:none !important;
-  box-shadow:0 10px 22px rgba(196,155,49,.30),inset 0 1px 0 rgba(255,255,255,.35) !important;transition:filter .2s}
+  box-shadow:0 10px 22px rgba(46,125,50,.30),inset 0 1px 0 rgba(255,255,255,.25) !important;transition:filter .2s}
 body.in-kosik #cart-wrapper .next-step #continue-order-button:hover{filter:brightness(1.05)}
 body.in-kosik #cart-wrapper .next-step #continue-order-button .order-button-text{color:inherit !important;font:inherit !important}
 body.in-kosik #cart-wrapper .next-step #continue-order-button::before{content:none !important}
 body.in-kosik #cart-wrapper .next-step #continue-order-button::after{content:"" !important;position:static !important;display:block !important;flex:none;
   width:8px !important;height:8px !important;margin:0 0 0 2px !important;border:solid currentColor !important;border-width:2px 2px 0 0 !important;
   background:none !important;transform:rotate(45deg) !important;font-size:0 !important}
-body.in-kosik #cart-wrapper .next-step #continue-order-button:focus-visible{outline:2px solid var(--k-gold-lo) !important;outline-offset:3px !important}
+body.in-kosik #cart-wrapper .next-step #continue-order-button:focus-visible{outline:2px solid #1b5e20 !important;outline-offset:3px !important}
 body.in-kosik #cart-wrapper .next-step .next-step-back{color:var(--k-mute) !important;background:none !important;border:0 !important;box-shadow:none !important;
   font:normal 600 15px/1.3 var(--k-body) !important;text-transform:none !important;letter-spacing:0 !important}
 body.in-kosik #cart-wrapper .next-step .next-step-back .continue-shopping{text-decoration:underline;text-decoration-thickness:1px;
