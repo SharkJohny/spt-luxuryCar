@@ -26,9 +26,8 @@ export function initCart(texts) {
     $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
     $(".p-label:contains(Cena za m. j.)").text("Cena za set");
 
-    chechCupon(texts);
+    // kontrola kupónu LUX10 odstránená (Michal 10. 10. 2026: kupón nemá fungovať; doplnok Zľavové kupóny nie je aktívny)
     document.addEventListener("ShoptetDOMContentLoaded", function () {
-      chechCupon(texts);
       $(".cart-content.summary-wrapper").appendTo("div#cart-wrapper .col-md-8");
       $(".p-label:contains(Cena za m. j.)").text("Cena za set");
     });
@@ -88,7 +87,7 @@ const lcdDelPriplatky = (t) => String(t).split(/,\s*(?=[^,]*(?:\s[-–]\s|:))/);
 
 /* Rozpis položky (Michal 9. 10. 2026: košík ako náhľad v hlavičke): farby vrstiev a príplatky po riadkoch
    (functions/kosikRozpis.js — rovnaké delenie ako panel košíka), auto zo sessionStorage navrch. Zoznam ide hneď ZA odkaz
-   s názvom (nie do neho); natívne spany ostávajú so surovým textom, len skryté (číta ho chechCupon a ponuka k setu). */
+   s názvom (nie do neho); natívne spany ostávajú so surovým textom, len skryté (číta ho ponuka k setu). */
 function lcdVlozRozpis(zdroje, riadky) {
   const prvy = zdroje[0];
   const a = prvy.closest("a");
@@ -249,34 +248,3 @@ function changeDescription() {
   });
 }
 
-function chechCupon(texts) {
-  console.log(texts);
-  console.log("Checking coupon code in cart -----------------------");
-  const getCode = getShoptetContext().cartInfo?.discountCoupon?.code || "";
-  let chechCupon = false;
-  if (getCode == "LUX10") {
-    console.log("Checking coupon code:", getCode);
-    $(".main-link-surcharges").each(function () {
-      const $this = $(this);
-      if (
-        $this.text().includes("Farba boxov ") ||
-        $this.text().includes("autokoberce do kufru - Jednoduché") ||
-        $this.text().includes("Kompletní ochrana")
-      ) {
-        console.log("Coupon found in surcharge:", $this.text());
-        chechCupon = true;
-      }
-    });
-    // $(".applied-coupon input.btn.btn-sm.btn-primary").click();
-  }
-
-  if (!chechCupon) {
-    if (!$(".alert.alert-warning")[0] && getCode == "LUX10") {
-      setTimeout(function () {
-        $(".cart-summary").before('<div class="alert alert-warning" role="alert">' + texts.cupon_message + "</div>");
-      }, 1000);
-    }
-    console.log("Coupon code is not valid, applying changes");
-    $(".applied-coupon input.btn.btn-sm.btn-primary").click();
-  }
-}
