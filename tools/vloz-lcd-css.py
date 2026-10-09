@@ -8,6 +8,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-RZ     <- _lcdRz.scss         rozcestnik (vystup extract-lcd-rz.py, scope #lcd-rz)
   LCD-HDR    <- _lcdNativeHdr.scss  hlavicka: kreslena #lcd-hdr (prechod) + natívna Shoptet hlavicka + staticke #mega
   LCD-KORENE <- _lcdKorene.scss     staticke korene [data-lcd-cast] v obaloch Shoptetu (bannery, popis stranky)
+  LCD-KOSIK  <- _lcdKosik.scss      kosik: ponuka rohoze do kufra a boxu k setu (assets/js/lcdKosikDoplnok.js)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
@@ -39,6 +40,8 @@ BLOKY = [
          popis="kreslena hlavicka #lcd-hdr + nativna hlavicka Shoptetu + staticke #mega"),
     dict(meno="LCD-KORENE", zdroj="_lcdKorene.scss", home=False, h1=False,
          popis="staticke korene [data-lcd-cast] v obaloch Shoptetu"),
+    dict(meno="LCD-KOSIK", zdroj="_lcdKosik.scss", home=False, h1=False,
+         popis="kosik: ponuka rohoze a boxu k setu, #lcd-doplnok"),
 ]
 
 

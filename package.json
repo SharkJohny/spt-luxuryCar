@@ -17,7 +17,8 @@
     "vzorky:product": "node vzorky/build-product-xml.mjs && xmllint --relaxng docs/shoptet-products-complete-v10.rng vzorky/dist/vzorky-product.xml --noout",
     "truck:test": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && node assets/js/truck-konfigurator/test-order-summary.mjs && node assets/js/truck-konfigurator/test-cart-summary.mjs && node assets/js/truck-konfigurator/test-surcharge-sync.mjs && node assets/js/truck-konfigurator/test-vehicle-switch.mjs && node assets/js/truck-konfigurator/test-truck-mount.mjs",
     "voucher:product": "node voucher/build-voucher-xml.mjs && xmllint --relaxng docs/shoptet-products-complete-v10.rng voucher/dist/voucher-products.xml --noout",
-    "voucher:test": "node assets/js/voucher-konfigurator/test-voucher-mount.mjs"
+    "voucher:test": "node assets/js/voucher-konfigurator/test-voucher-mount.mjs",
+    "kosik:test": "node tools/test-kosik-doplnok.mjs"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "dependencies": {

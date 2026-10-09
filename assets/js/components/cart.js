@@ -1,10 +1,12 @@
 import { parseTruckOrderSummary } from "../truck-konfigurator/order-summary.mjs";
 import { getShoptetContext } from "../functions/shoptetContext.js";
+import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 
 export function initCart(texts) {
   console.log("Initializing cart with texts:", texts);
   console.log("Cart initialized");
   changeDescription();
+  if (document.body && document.body.classList.contains("in-kosik")) lcdBublinaMimoTlacidla();
 
   // Michal req 2026-05-18: po zmene/zmazani produktu v kosiku Shoptet AJAX-om
   // prekresli obsah — span.main-link-surcharges sa vyrenderuje surovy a
@@ -84,6 +86,41 @@ const lcdVrstva = (n) => (lcdCz() ? "Barva " : "Farba ") + n + ". vrstvy: ";
    (hodnota „prvý, druhý a tretí rad“ má čiarku vo vnútri) */
 const lcdDelPriplatky = (t) => String(t).split(/,\s*(?=[^,]*(?:\s[-–]\s|:))/);
 
+/* Rozpis položky (Michal 9. 10. 2026: košík ako náhľad v hlavičke): farby vrstiev a príplatky po riadkoch
+   (functions/kosikRozpis.js — rovnaké delenie ako panel košíka), auto zo sessionStorage navrch. Zoznam ide hneď ZA odkaz
+   s názvom (nie do neho); natívne spany ostávajú so surovým textom, len skryté (číta ho chechCupon a ponuka k setu). */
+function lcdVlozRozpis(zdroje, riadky) {
+  const prvy = zdroje[0];
+  const a = prvy.closest("a");
+  const kotva = a || prvy;
+  const stary = kotva.nextElementSibling;
+  if (stary && stary.classList.contains("lcd-rozpis")) stary.remove();
+  kotva.after(lcdRozpisEl(document, riadky, "lcd-rozpis"));
+  zdroje.forEach((e) => e.classList.add("lcd-rozpis-zdroj"));
+}
+
+/* Bublina chatu Luxia (76 × 76 vpravo dole) ležala na „Pokračovať“ (Michal, iPhone 9. 10. 2026): kým by ho prekryla,
+   ustúpi; otvorený chat (vyšší ako bublina) sa neskrýva nikdy. */
+function lcdBublinaMimoTlacidla() {
+  const H = document.documentElement;
+  const krok = function () {
+    const f = document.querySelector('iframe[title="Luxia chat"]');
+    const b = document.getElementById("continue-order-button");
+    let skry = false;
+    if (f && b) {
+      const x = f.getBoundingClientRect();
+      const y = b.getBoundingClientRect();
+      skry = x.height > 0 && x.height <= 130 && y.height > 0 &&
+        x.left < y.right && x.right > y.left && x.top < y.bottom && x.bottom > y.top;
+    }
+    if (H.classList.contains("lcd-kosik-bez-bubliny") !== skry) H.classList.toggle("lcd-kosik-bez-bubliny", skry);
+  };
+  addEventListener("scroll", krok, { passive: true });
+  addEventListener("resize", krok);
+  setInterval(krok, 1000);
+  krok();
+}
+
 function changeDescription() {
   const getBrand = sessionStorage.getItem("Brand");
   const getModel = sessionStorage.getItem("Model");
@@ -108,19 +145,24 @@ function changeDescription() {
     if ($row.find("span.main-link-surcharges").length) return; // ma surcharges, riesi nizsie
     var $variant = $row.find("span.main-link-variant").first();
     if (!$variant.length || $variant.data("lcdFormatted")) return;
-    var variantText = ($variant.text() || "").replace(/\s+/g, " ");
-    if (!/(?:farba|barva)\s*[12]\.?\s*vrstvy/i.test(variantText)) return;
-    var m1 = variantText.match(/(?:farba|barva)\s*1\.?\s*vrstvy\s*:\s*([^,]+?)(?=\s*(?:farba|barva)\s*2|\s*$)/i);
-    var m2 = variantText.match(/(?:farba|barva)\s*2\.?\s*vrstvy\s*:\s*(.+)$/i);
-    if (!m1 && !m2) return;
-    var $ul = $("<ul>").addClass("lcd-variant-bullets");
-    if (m1) $("<li>").text(lcdVrstva(1) + m1[1].trim()).appendTo($ul);
-    if (m2) $("<li>").text(lcdVrstva(2) + m2[1].trim()).appendTo($ul);
-    $variant.after($ul).hide();
+    var riadky = lcdRozpis({ variant: $variant.text(), priplatky: "", cz: lcdCz() });
+    if (!riadky.length) return;
+    lcdVlozRozpis([$variant[0]], riadky);
     $variant.data("lcdFormatted", true);
   });
 
   $("span.main-link-surcharges").each(function () {
+    const $tr = $(this).closest("tr");
+    if (!jeKamionovyRiadok($tr.text())) {
+      // osobné autá: rozpis ako v paneli košíka; kamión ide pôvodnou cestou nižšie (skupiny z truckOrderSummary)
+      if (this.classList.contains("lcd-rozpis-zdroj")) return;
+      const $variant = $tr.find("span.main-link-variant").first();
+      const riadky = lcdRozpis({ variant: $variant.text(), priplatky: $(this).text(), cz: lcdCz() });
+      const auto = [getBrand, getModel, getYear, getCarType].map(lcdAutoHodnota).filter(Boolean).join(" ");
+      if (auto) riadky.unshift({ n: "Auto", h: auto });
+      if (riadky.length) lcdVlozRozpis($variant.length ? [this, $variant[0]] : [this], riadky);
+      return;
+    }
     const text = lcdDelPriplatky($(this).text());
     // Truck produkt: vozidlo NIE je v sessionStorage (tú plní autokoberce
     // konfigurátor), ale v surcharge parametri "Vozidlo: <značka model>".

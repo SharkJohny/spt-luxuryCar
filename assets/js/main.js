@@ -7,6 +7,7 @@ import { errorToCart } from "./functions/errorToCart.js";
 import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
 import { initCart } from "./components/cart.js";
+import { initKosikDoplnok } from "./lcdKosikDoplnok.js"; // kosik: rohoz do kufra a box k setu za cenu v sete
 import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
 import { initLivePrice } from "./functions/livePrice.js";
@@ -68,6 +69,9 @@ $.getJSON(optionData.downloadData, function (data) {
   }
   const texts = setupData.language[language];
   console.log("setupData.language:", texts);
+  // Ponuka rohože/boxu k setu v košíku: musí bežať PRED initProduct/initCart — na produkte si odloží mapu
+  // príplatkov (len číta formulár), v košíku zachytí surový text príplatkov skôr, než ho cart.js prepíše.
+  initKosikDoplnok(setupData);
   initProduct(setupData, texts);
   initModelSelect(texts, setupData);
   poBoote(function () {

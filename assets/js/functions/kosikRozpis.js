@@ -58,6 +58,27 @@ export function lcdRozpis({ variant, priplatky, cz }) {
   return out.length === 1 && zvysok ? [] : out;
 }
 
+/** <ul class="{trieda}"><li><span class="{trieda}__n">Názov: </span><span class="{trieda}__h">hodnota</span></li>… (textContent, bez HTML) */
+export function lcdRozpisEl(doc, riadky, trieda) {
+  const ul = doc.createElement("ul");
+  ul.className = trieda;
+  riadky.forEach((x) => {
+    const li = doc.createElement("li");
+    if (x.n) {
+      const n = doc.createElement("span");
+      n.className = trieda + "__n";
+      n.textContent = x.n + ": ";
+      li.appendChild(n);
+    }
+    const h = doc.createElement("span");
+    h.className = trieda + "__h";
+    h.textContent = x.h;
+    li.appendChild(h);
+    ul.appendChild(li);
+  });
+  return ul;
+}
+
 /** Z HTML obsahu košíka (payload.content) -> { itemId: { v: variant, p: príplatky } }. */
 export function lcdRozpisZObsahu(html, Parser = typeof DOMParser !== "undefined" ? DOMParser : null) {
   const out = {};

@@ -1,0 +1,279 @@
+/* =====================================================================
+   KOŠÍK: PONUKA K SETU — partial pre blok LCD-KOSIK (vkladá tools/vloz-lcd-css.py)
+   assets/js/lcdKosikDoplnok.js: na /kosik/ pri sete autokobercov bez rohože do kufra alebo boxu
+   <div id="lcd-doplnok" role="region"> v .cart-content.summary-wrapper (PC: ľavá polovica vedľa súhrnu,
+   mobil: nad súhrnom, zbalené riadky). Jazyk webu: Exo 2 + Source Sans 3, zlatá linka, ink tlačidlá.
+   Text na bielej nikdy v --gold (kontrast 2,4 : 1), zvýraznenie len --gold-lo.
+   ===================================================================== */
+#lcd-doplnok{--ink:#14110c;--paper:#fff;--line:#d9d4c6;--ground:#eceae5;--sand:#f6f4ef;
+  --gold:#c49b31;--gold-lo:#8f7020;--mute:#5f5a4b;--ok:#1d6b34;--zle:#9b1c1c;
+  --disp:"Exo 2","Segoe UI",Arial,sans-serif;--body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  display:block;box-sizing:border-box;width:100%;margin:0 0 16px;padding:0;
+  font:400 15px/1.4 var(--body);color:var(--ink);text-align:left;letter-spacing:normal;text-transform:none}
+#lcd-doplnok *,#lcd-doplnok *::before,#lcd-doplnok *::after{box-sizing:border-box}
+
+/* PC: súhrn košíka je flex (justify-content:flex-end, box 400 px) -> ponuka zaberie voľnú ľavú časť,
+   tlačidlo „Pokračovať“ ostáva hore vpravo na svojom mieste */
+.desktop.id--9 .cart-content.summary-wrapper:has(> #lcd-doplnok){align-items:flex-start;gap:32px}
+.desktop.id--9 .cart-content.summary-wrapper > #lcd-doplnok{flex:1 1 0;min-width:0;max-width:720px;margin:0}
+@media (max-width:991px){
+  .desktop.id--9 .cart-content.summary-wrapper:has(> #lcd-doplnok){flex-wrap:wrap}
+  .desktop.id--9 .cart-content.summary-wrapper > #lcd-doplnok{flex:1 1 100%;max-width:none}
+}
+
+/* karta = kontajner pre @container nižšie: rozloženie podľa šírky ponuky, nie okna (PC 992–1199 px má ponuka
+   len ~460 px vedľa súhrnu). Kontajner je karta (blok), nie #lcd-doplnok, aby obmedzenie šírky nezúžilo flex položku. */
+#lcd-doplnok .lcd-dop__karta{position:relative;background:var(--paper);border:1px solid var(--line);
+  border-top:2px solid var(--gold);padding:8px 16px 10px;margin:0 0 12px;container-type:inline-size}
+#lcd-doplnok .lcd-dop__karta[aria-busy=true]{opacity:.75}
+#lcd-doplnok .lcd-dop__hlava{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;min-height:40px}
+#lcd-doplnok .lcd-dop__nadpis{margin:0;padding:0;font:600 14px/1.25 var(--disp) !important;letter-spacing:.12em !important;
+  text-transform:uppercase !important;color:var(--ink) !important;border:0;background:none}
+#lcd-doplnok .lcd-dop__nie{flex:0 0 auto;min-height:40px;margin:0 -4px 0 0;padding:0 4px;background:none;border:0;border-radius:4px;
+  font:400 14px/1.2 var(--body);color:var(--mute);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-transform:none;letter-spacing:normal}
+#lcd-doplnok .lcd-dop__nie:hover{color:var(--ink)}
+#lcd-doplnok .lcd-dop__kset{margin:-4px 0 6px;font-size:14px;line-height:1.35;color:var(--mute)}
+
+#lcd-doplnok .lcd-dop__polozka{border-top:1px solid var(--line);margin:0;padding:0}
+#lcd-doplnok .lcd-dop__riadok{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:2px 0}
+#lcd-doplnok .lcd-dop__info{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px;min-width:0}
+#lcd-doplnok .lcd-dop__nazov{margin:0;padding:0;font:600 15px/1.3 var(--disp) !important;letter-spacing:.02em !important;
+  text-transform:none !important;color:var(--ink) !important}
+#lcd-doplnok .lcd-dop__cena{font-size:15px;line-height:1.35;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+#lcd-doplnok .lcd-dop__samo{color:var(--mute);text-decoration:line-through;text-decoration-thickness:1px}
+#lcd-doplnok .lcd-dop__vsete{font-weight:600;color:var(--ink)}
+#lcd-doplnok .lcd-dop__usetri{display:inline-block;margin-left:2px;font-weight:600;color:var(--ok)}
+#lcd-doplnok .lcd-dop__vybrat{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;margin:0 -6px 0 0;padding:0 6px 0 10px;
+  background:none;border:0;border-radius:4px;font:600 12.5px/1 var(--disp);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-lo);cursor:pointer}
+#lcd-doplnok .lcd-dop__vybrat i{display:block;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);transition:transform .2s ease}
+#lcd-doplnok .lcd-dop__vybrat[aria-expanded=true] i{transform:translateY(2px) rotate(-135deg)}
+#lcd-doplnok .lcd-dop__vybrat:hover{color:var(--ink)}
+#lcd-doplnok .lcd-dop__telo{padding:0 0 12px}
+#lcd-doplnok .lcd-dop__telo[hidden]{display:none}
+#lcd-doplnok .lcd-dop__popis{margin:0 0 10px;font-size:14.5px;line-height:1.4;color:var(--mute)}
+
+/* rohož: Classic / Premium — každá s vlastným tlačidlom */
+#lcd-doplnok .lcd-dop__volby{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+#lcd-doplnok .lcd-dop__volba{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:4px 16px;
+  margin:0;padding:8px 8px 8px 14px;background:var(--sand);border:1px solid var(--ground)}
+#lcd-doplnok .lcd-dop__volba::before{content:none}
+#lcd-doplnok .lcd-dop__vtext{min-width:0;line-height:1.3}
+#lcd-doplnok .lcd-dop__vtext b{font:600 15px/1.3 var(--disp);letter-spacing:.02em}
+#lcd-doplnok .lcd-dop__vtext span{color:var(--mute);font-size:14.5px}
+#lcd-doplnok .lcd-dop__pridat{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0;padding:0 20px;
+  border:0;border-radius:999px;background:var(--ink);color:#fff;font:600 12.5px/1 var(--disp);letter-spacing:.12em;
+  text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:background-color .15s ease}
+#lcd-doplnok .lcd-dop__pridat:hover{background:#2c261c}
+#lcd-doplnok :is(.lcd-dop__pridat,.lcd-dop__select):disabled{opacity:.55;cursor:default}
+
+/* box: počet, veľkosť s rozmermi, farba */
+#lcd-doplnok .lcd-dop__fs{margin:0 0 6px;padding:0;border:0;min-width:0}
+#lcd-doplnok .lcd-dop__fs legend,#lcd-doplnok .lcd-dop__farba label{display:block;width:auto;margin:0 0 6px;padding:0;border:0;
+  font:600 11.5px/1.2 var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+#lcd-doplnok .lcd-dop__opt{position:relative;display:inline-flex;vertical-align:top;margin:0 6px 6px 0;padding:0;cursor:pointer;font-weight:400}
+#lcd-doplnok .lcd-dop__opt input{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;padding:0;opacity:0;pointer-events:none}
+#lcd-doplnok .lcd-dop__opt > span{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 16px;background:var(--paper);
+  border:1px solid var(--line);border-radius:999px;font-size:15px;line-height:1.2;color:var(--ink)}
+#lcd-doplnok .lcd-dop__opt--vel > span{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:0 10px;min-width:140px;
+  padding:6px 12px;border-radius:6px}
+#lcd-doplnok .lcd-dop__opt--vel b{grid-column:1;grid-row:1;font:600 15px/1.25 var(--disp)}
+#lcd-doplnok .lcd-dop__opt--vel em{grid-column:2;grid-row:1;font-style:normal;font-size:14.5px;font-variant-numeric:tabular-nums}
+#lcd-doplnok .lcd-dop__opt--vel small{grid-column:1 / -1;grid-row:2;font-size:12.5px;line-height:1.3;color:var(--mute)}
+#lcd-doplnok .lcd-dop__opt input:checked + span{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+#lcd-doplnok .lcd-dop__opt:hover > span{border-color:var(--mute)}
+#lcd-doplnok .lcd-dop__farba{margin:0 0 10px}
+#lcd-doplnok .lcd-dop__select{display:block;width:100%;max-width:340px;min-height:44px;margin:0;padding:0 12px;background-color:var(--paper);
+  border:1px solid var(--line);border-radius:6px;font:400 15px/1.2 var(--body);color:var(--ink)}
+#lcd-doplnok .lcd-dop__suhrn{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;
+  padding:10px 8px 10px 14px;background:var(--sand);border:1px solid var(--ground)}
+#lcd-doplnok .lcd-dop__suhrn-cena:empty::before{content:"\00a0"}
+
+#lcd-doplnok .lcd-dop__hint,#lcd-doplnok .lcd-dop__stav{margin:8px 0 0;font-size:14.5px;line-height:1.4;color:var(--ink)}
+#lcd-doplnok .lcd-dop__hint{color:var(--zle)}
+#lcd-doplnok .lcd-dop__stav--chyba{color:var(--zle)}
+#lcd-doplnok :is(.lcd-dop__hint,.lcd-dop__stav):empty{display:none}
+#lcd-doplnok .lcd-dop__hotovo{margin:0 0 12px;padding:10px 14px;background:#f1f6f1;border-left:3px solid var(--ok);font-size:15px;line-height:1.4;color:var(--ink)}
+#lcd-doplnok .lcd-dop__hotovo--chyba{background:#fbf1f1;border-left-color:var(--zle)}
+#lcd-doplnok .lcd-dop__hotovo:focus{outline:none}
+tr.lcd-dop-zvyrazni{outline:2px solid #9b1c1c;outline-offset:-2px}
+
+#lcd-doplnok :is(button,select):focus:not(:focus-visible),#lcd-doplnok .lcd-dop__opt input:focus:not(:focus-visible){outline:none}
+#lcd-doplnok :is(button,select):focus-visible,#lcd-doplnok .lcd-dop__opt input:focus-visible + span{outline:2px solid var(--gold-lo);outline-offset:2px}
+
+/* mobil / úzke okno: súhrn košíka nemá bočné odsadenie -> ponuka v rovnakej línii ako „Pokračovať“ (10 px) */
+@media (max-width:767px){
+  #lcd-doplnok{width:auto;margin:0 10px 16px}
+}
+/* úzka ponuka (mobil aj PC 992–1199 px, kde má ponuka ~460 px): Classic / Premium zložené — názov a popis hore,
+   cena pod nimi, tlačidlo vpravo. V troch stĺpcoch sa pod 600 px nezmestí cena „8 744 Kč +5 999 Kč v setu −2 745 Kč“
+   s tlačidlom a stĺpec textu by sa zúžil na 0 (prekryv „dno kufru“ s cenou v CZ). */
+@container (max-width:600px){
+  #lcd-doplnok .lcd-dop__volba{grid-template-columns:minmax(0,1fr) auto;padding:8px 6px 8px 12px}
+  #lcd-doplnok .lcd-dop__volba .lcd-dop__cena{grid-column:1;grid-row:2;white-space:normal}
+  #lcd-doplnok .lcd-dop__volba .lcd-dop__pridat{grid-column:2;grid-row:1 / span 2;padding:0 16px}
+}
+/* prehliadače bez @container (Safari < 16, Chrome < 105): rovnaké zloženie podľa šírky okna */
+@supports not (container-type:inline-size){
+  @media (max-width:599px),(min-width:992px) and (max-width:1199px){
+    #lcd-doplnok .lcd-dop__volba{grid-template-columns:minmax(0,1fr) auto;padding:8px 6px 8px 12px}
+    #lcd-doplnok .lcd-dop__volba .lcd-dop__cena{grid-column:1;grid-row:2;white-space:normal}
+    #lcd-doplnok .lcd-dop__volba .lcd-dop__pridat{grid-column:2;grid-row:1 / span 2;padding:0 16px}
+  }
+}
+/* mobil: text a cena pod sebou, tlačidlo vpravo */
+@media (max-width:599px){
+  #lcd-doplnok .lcd-dop__karta{padding:6px 14px 8px}
+  #lcd-doplnok .lcd-dop__info{flex-direction:column;align-items:flex-start;gap:0}
+  #lcd-doplnok .lcd-dop__cena{font-size:14.5px}
+  #lcd-doplnok .lcd-dop__opt--vel{width:calc(50% - 3px);margin-right:0}
+  #lcd-doplnok .lcd-dop__opt--vel:nth-of-type(odd){margin-right:6px}
+  #lcd-doplnok .lcd-dop__opt--vel > span{width:100%;min-width:0}
+  #lcd-doplnok .lcd-dop__select{max-width:none}
+  #lcd-doplnok .lcd-dop__suhrn .lcd-dop__pridat{flex:1 1 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  #lcd-doplnok *{transition:none !important}
+}
+
+/* počas pridávania doplnku (lcdKosikDoplnok.js zablokujStranku): riadky košíka a „Pokračovať“ stoja — klik na
+   „Pokračovať“ sa vykoná až po dokončení, +/−/× sa ignorujú. Stlmené, aby bolo vidieť, že sa čaká. */
+html.lcd-dop-bezi #cart-wrapper .cart-table,html.lcd-dop-bezi #continue-order-button{opacity:.55;transition:opacity .2s}
+html.lcd-dop-bezi #cart-wrapper .cart-table,html.lcd-dop-bezi #cart-wrapper .cart-table *,html.lcd-dop-bezi #continue-order-button{cursor:progress}
+@media (prefers-reduced-motion:reduce){
+  html.lcd-dop-bezi #cart-wrapper .cart-table,html.lcd-dop-bezi #continue-order-button{transition:none}
+}
+
+/* =====================================================================
+   STRÁNKA KOŠÍKA — vzhľad (Michal 9. 10. 2026: „aby to bolo pekné“, ako náhľad košíka v hlavičke)
+   položka = karta: [fotka] názov + rozpis (farby vrstiev, príplatky; cart.js -> ul.lcd-rozpis) / [− 1 +] … cena;
+   odstrániť = × vpravo hore; jednotková cena len pri 2+ kusoch; súčet a zlaté „Pokračovať“ ako v paneli košíka.
+   ===================================================================== */
+/* rozpis položky (košík aj rekapitulácia v krokoch objednávky) */
+ul.lcd-rozpis{display:flex;flex-direction:column;gap:4px;margin:8px 0 0 !important;padding:0 !important;list-style:none !important}
+ul.lcd-rozpis > li{position:relative;display:block;margin:0 !important;padding:0 0 0 14px !important;list-style:none !important;
+  color:#6b645a;font:400 14px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;letter-spacing:0;text-transform:none;text-align:left;overflow-wrap:anywhere}
+ul.lcd-rozpis > li::before{content:"";position:absolute;left:1px;top:.6em;width:5px;height:5px;border-radius:50%;background:#c49b31}
+ul.lcd-rozpis .lcd-rozpis__h{color:#14110c;font-weight:600}
+.lcd-rozpis-zdroj{display:none !important}
+
+body.in-kosik #cart-wrapper{--k-ink:#14110c;--k-line:#e8e1d1;--k-mute:#6b645a;--k-tlm:#5f574a;--k-sand:#f7f5f0;--k-gold-lo:#8f7020;
+  --k-disp:"Exo 2","Segoe UI",Arial,sans-serif;--k-body:"Source Sans 3","Segoe UI",Arial,sans-serif;--k-foto:76px}
+body.in-kosik #cart-wrapper table.cart-table,body.in-kosik #cart-wrapper table.cart-table > tbody{display:block !important;width:100% !important;
+  margin:0;border:0 !important;background:none !important}
+body.in-kosik #cart-wrapper table.cart-table tr.removeable{position:relative;display:grid !important;
+  grid-template-columns:var(--k-foto) minmax(0,1fr) auto;grid-template-areas:"img meno meno" "pocet pocet suma";
+  column-gap:14px;row-gap:14px;align-items:start;box-sizing:border-box;width:auto;margin:0 0 14px;padding:16px 14px 14px 16px;
+  border:1px solid var(--k-line) !important;border-radius:14px;background:#fff !important;box-shadow:0 6px 18px rgba(20,17,12,.06)}
+body.in-kosik #cart-wrapper tr.removeable > td{display:block !important;float:none;box-sizing:border-box;width:auto !important;min-width:0;
+  height:auto;margin:0 !important;padding:0 !important;border:0 !important;background:none !important;text-align:left !important;vertical-align:top}
+body.in-kosik #cart-wrapper tr.removeable .p-label{display:none !important}
+body.in-kosik #cart-wrapper tr.removeable > td.cart-p-image{grid-area:img}
+body.in-kosik #cart-wrapper td.cart-p-image a{display:block}
+body.in-kosik #cart-wrapper td.cart-p-image img{display:block;box-sizing:border-box;width:var(--k-foto) !important;height:var(--k-foto) !important;
+  max-width:none;object-fit:cover;border:1px solid var(--k-line);border-radius:10px}
+body.in-kosik #cart-wrapper tr.removeable > td.p-name{grid-area:meno;padding-right:30px !important}
+body.in-kosik #cart-wrapper td.p-name a.main-link{display:block;color:var(--k-ink) !important;text-decoration:none !important;
+  font:normal 700 16px/1.3 var(--k-disp) !important;letter-spacing:.005em !important;text-transform:none !important;overflow-wrap:anywhere}
+body.in-kosik #cart-wrapper td.p-name a.main-link::first-letter{text-transform:uppercase}
+body.in-kosik #cart-wrapper td.p-name a.main-link:hover{color:var(--k-gold-lo) !important}
+body.in-kosik #cart-wrapper td.p-name .CartNoteDetails:not(:empty){margin-top:6px;color:var(--k-tlm);font:400 14px/1.4 var(--k-body)}
+body.in-kosik #cart-wrapper tr.removeable > td.p-availability{display:none !important}
+/* množstvo: [− 1 +] ako pilulka (natívne tlačidlá Shoptetu, len poradie a vzhľad) */
+body.in-kosik #cart-wrapper tr.removeable > td.p-quantity{grid-area:pocet;align-self:center}
+body.in-kosik #cart-wrapper td.p-quantity form{display:block;margin:0}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity{position:relative;display:inline-flex !important;align-items:center;box-sizing:border-box;
+  width:auto !important;max-width:none !important;height:42px !important;margin:0 !important;padding:0 !important;
+  border:1px solid var(--k-line) !important;border-radius:999px !important;background:#fff !important;overflow:hidden}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity label{order:2;display:block !important;margin:0 !important;padding:0 !important}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity button.decrease{order:1}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity button.increase{order:3}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(button.increase,button.decrease){position:static !important;display:flex !important;
+  align-items:center;justify-content:center;width:42px !important;height:42px !important;min-width:0;margin:0 !important;padding:0 !important;
+  border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important;color:var(--k-ink) !important;cursor:pointer;
+  font:400 20px/1 var(--k-body) !important;transform:none !important}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(button.increase,button.decrease)::before,
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(button.increase,button.decrease)::after{content:none !important;display:none !important}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(.increase__sign,.decrease__sign){display:block !important;position:static !important;
+  width:auto !important;height:auto !important;margin:0 !important;font:inherit !important;color:inherit !important;line-height:1 !important;
+  opacity:1 !important;visibility:visible !important;text-indent:0 !important}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(button.increase,button.decrease):hover{background:var(--k-sand) !important}
+body.in-kosik #cart-wrapper td.p-quantity input.amount{display:block !important;box-sizing:border-box;width:38px !important;height:42px !important;
+  min-width:0;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important;
+  text-align:center !important;color:var(--k-ink) !important;font:normal 700 16px/42px var(--k-disp) !important;
+  -moz-appearance:textfield;appearance:textfield}
+body.in-kosik #cart-wrapper td.p-quantity input.amount::-webkit-inner-spin-button,
+body.in-kosik #cart-wrapper td.p-quantity input.amount::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+body.in-kosik #cart-wrapper td.p-quantity span.quantity :is(.increase-tooltip,.decrease-tooltip){position:absolute !important}
+/* cena: súčet riadku vpravo; jednotková cena („351 € / ks“) len pri 2+ kusoch, pod súčtom */
+body.in-kosik #cart-wrapper tr.removeable > td.p-total{grid-area:suma;align-self:center;text-align:right !important;white-space:nowrap}
+body.in-kosik #cart-wrapper td.p-total strong.price-final{display:block;color:var(--k-ink) !important;
+  font:normal 800 20px/1.15 var(--k-disp) !important;font-variant-numeric:tabular-nums;letter-spacing:0}
+body.in-kosik #cart-wrapper tr.removeable > td.p-price{display:none !important}
+body.in-kosik #cart-wrapper tr.removeable:has(td.p-quantity input.amount:not([value="1"])){grid-template-areas:"img meno meno" "pocet pocet suma" "pocet pocet jedn"}
+body.in-kosik #cart-wrapper tr.removeable:has(td.p-quantity input.amount:not([value="1"])) > td.p-price{display:block !important;grid-area:jedn;
+  margin-top:-10px !important;text-align:right !important;white-space:nowrap;color:var(--k-mute);font:400 13px/1.3 var(--k-body)}
+body.in-kosik #cart-wrapper td.p-price :is(strong.price-final,.unit-value){display:inline;color:inherit !important;font:inherit !important;border:0;text-decoration:none}
+/* odstrániť: × vpravo hore na karte */
+body.in-kosik #cart-wrapper td.p-total form.inline{position:absolute;top:6px;right:6px;margin:0}
+body.in-kosik #cart-wrapper td.p-total .remove-item{position:relative !important;display:block !important;width:36px !important;height:36px !important;
+  min-width:0;margin:0 !important;padding:0 !important;border:0 !important;border-radius:50% !important;background:none !important;
+  box-shadow:none !important;color:#8a8174 !important;cursor:pointer;font-size:0 !important;line-height:0 !important}
+body.in-kosik #cart-wrapper td.p-total .remove-item::before,
+body.in-kosik #cart-wrapper td.p-total .remove-item::after{content:"" !important;position:absolute !important;left:10px !important;top:17px !important;
+  width:16px !important;height:2px !important;margin:0 !important;border-radius:1px;background:currentColor !important;transform:rotate(45deg) !important;
+  font-size:0 !important}
+body.in-kosik #cart-wrapper td.p-total .remove-item::after{transform:rotate(-45deg) !important}
+body.in-kosik #cart-wrapper td.p-total .remove-item:hover{color:var(--k-ink) !important;background:var(--k-sand) !important}
+body.in-kosik #cart-wrapper td.p-total .remove-item:focus-visible{outline:2px solid var(--k-gold-lo);outline-offset:2px}
+/* PC a tablet na šírku: [fotka] názov + rozpis | množstvo | cena */
+@media(min-width:768px){
+  body.in-kosik #cart-wrapper{--k-foto:96px}
+  body.in-kosik #cart-wrapper table.cart-table tr.removeable{grid-template-columns:var(--k-foto) minmax(0,1fr) auto minmax(110px,auto);
+    grid-template-areas:"img meno pocet suma";column-gap:22px;padding:18px 56px 18px 18px}
+  body.in-kosik #cart-wrapper table.cart-table tr.removeable:has(td.p-quantity input.amount:not([value="1"])){
+    grid-template-areas:"img meno pocet suma" "img meno pocet jedn"}
+  body.in-kosik #cart-wrapper tr.removeable:has(td.p-quantity input.amount:not([value="1"])) > td.p-price{margin-top:-8px !important;align-self:start}
+  body.in-kosik #cart-wrapper tr.removeable > :is(td.p-quantity,td.p-total){align-self:start;margin-top:2px !important}
+  body.in-kosik #cart-wrapper tr.removeable > td.p-name{padding-right:0 !important}
+  body.in-kosik #cart-wrapper td.p-name a.main-link{font-size:17px !important}
+  body.in-kosik #cart-wrapper td.p-total form.inline{top:12px;right:10px}
+}
+/* telefón: karta s okrajom ako ponuka k setu (10 px), nie od kraja po kraj */
+@media(max-width:767px){body.in-kosik #cart-wrapper table.cart-table tr.removeable{margin:0 10px 14px}}
+/* ponuka k setu v rovnakom jazyku ako karta položky: zaoblená, jemná linka; na telefóne nižšie riadky
+   (zbalená ponuka posúvala „Pokračovať“ pod okraj iPhonu SE — kontrola UX, kolo 3) */
+body.in-kosik #lcd-doplnok .lcd-dop__karta{border-radius:14px;border-color:#e8e1d1;border-top-color:#c49b31;box-shadow:0 6px 18px rgba(20,17,12,.05)}
+@media(max-width:520px){
+  body.in-kosik #lcd-doplnok .lcd-dop__karta{padding:4px 14px 6px}
+  body.in-kosik #lcd-doplnok .lcd-dop__hlava{min-height:40px}
+  body.in-kosik #lcd-doplnok .lcd-dop__riadok{min-height:44px;padding:4px 0}
+  body.in-kosik #lcd-doplnok .lcd-dop__nazov{font-size:15px !important;line-height:1.25 !important}
+  body.in-kosik #lcd-doplnok .lcd-dop__cena{font-size:14px;line-height:1.3}
+}
+/* súčet a pokračovanie: „CELKOM ZA TOVAR“ a suma v jednom riadku */
+body.in-kosik #cart-wrapper .price-wrapper{display:flex !important;flex-wrap:nowrap;align-items:baseline;justify-content:space-between;gap:12px}
+body.in-kosik #cart-wrapper .price-wrapper .price-label{display:block !important;flex:1 1 auto;width:auto !important;float:none !important;margin:0 !important}
+body.in-kosik #cart-wrapper .price-wrapper .price{display:block !important;flex:none;width:auto !important;float:none !important;margin:0 !important;text-align:right}
+body.in-kosik #cart-wrapper .price-wrapper .price-label{color:var(--k-tlm) !important;
+  font:normal 700 13px/1.2 var(--k-disp) !important;letter-spacing:.12em !important;text-transform:uppercase !important}
+body.in-kosik #cart-wrapper .price-wrapper .price{color:var(--k-ink) !important;font:normal 900 28px/1.1 var(--k-disp) !important;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+body.in-kosik #cart-wrapper .next-step #continue-order-button{display:flex !important;align-items:center;justify-content:center;gap:12px;
+  box-sizing:border-box;min-height:54px;padding:14px 20px !important;border:0 !important;border-radius:12px !important;
+  background:linear-gradient(180deg,#d6b04c 0%,#c49b31 55%,#b18822 100%) !important;color:var(--k-ink) !important;
+  font:normal 900 15px/1.2 var(--k-disp) !important;letter-spacing:.1em !important;text-transform:uppercase !important;text-decoration:none !important;
+  box-shadow:0 10px 22px rgba(196,155,49,.30),inset 0 1px 0 rgba(255,255,255,.35) !important;transition:filter .2s}
+body.in-kosik #cart-wrapper .next-step #continue-order-button:hover{filter:brightness(1.05)}
+body.in-kosik #cart-wrapper .next-step #continue-order-button .order-button-text{color:inherit !important;font:inherit !important}
+body.in-kosik #cart-wrapper .next-step #continue-order-button::before{content:none !important}
+body.in-kosik #cart-wrapper .next-step #continue-order-button::after{content:"" !important;position:static !important;display:block !important;flex:none;
+  width:8px !important;height:8px !important;margin:0 0 0 2px !important;border:solid currentColor !important;border-width:2px 2px 0 0 !important;
+  background:none !important;transform:rotate(45deg) !important;font-size:0 !important}
+body.in-kosik #cart-wrapper .next-step #continue-order-button:focus-visible{outline:2px solid var(--k-gold-lo) !important;outline-offset:3px !important}
+body.in-kosik #cart-wrapper .next-step .next-step-back{color:var(--k-mute) !important;background:none !important;border:0 !important;box-shadow:none !important;
+  font:normal 600 15px/1.3 var(--k-body) !important;text-transform:none !important;letter-spacing:0 !important}
+body.in-kosik #cart-wrapper .next-step .next-step-back .continue-shopping{text-decoration:underline;text-decoration-thickness:1px;
+  text-decoration-color:rgba(20,17,12,.28);text-underline-offset:4px}
+/* bublina chatu Luxia by prekryla „Pokračovať“ (cart.js lcdBublinaMimoTlacidla) */
+html.lcd-kosik-bez-bubliny body.in-kosik iframe[title="Luxia chat"]{visibility:hidden !important}

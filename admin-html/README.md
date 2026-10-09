@@ -98,6 +98,7 @@ Na web ide `assets/css/luxuryCar.css` tak, ako je v repe. CI ho nekompiluje zo S
 | blok `LCD-RZ` (rozcestník) | `assets/css/_lcdRz.scss` | to isté |
 | blok `LCD-HDR` (hlavička, menu `#mega`) | `assets/css/_lcdNativeHdr.scss` | to isté |
 | blok `LCD-KORENE` (statické korene v obaloch Shoptetu) | `assets/css/_lcdKorene.scss` | to isté |
+| blok `LCD-KOSIK` (košík: ponuka rohože a boxu k setu, `assets/js/lcdKosikDoplnok.js`) | `assets/css/_lcdKosik.scss` | to isté |
 | blok `LCD-BLOG` | `assets/css/_lcdBlog.scss` | `python tools/vloz-lcd-blog-css.py` |
 | blok `LCD-PK` (poukážka) a všetko mimo blokov (šablóna) | priamo `luxuryCar.css` | ručne v `luxuryCar.css` |
 
