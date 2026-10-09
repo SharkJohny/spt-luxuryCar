@@ -13323,6 +13323,9 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process #content-wr
   background-color:#fff}}
 /* do 560 px má widget Luxie bublinu vyššie (bottom 50 px -> horný okraj 126 px nad spodkom okna) -> väčšia rezerva */
 @media(max-width:560px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process #content-wrapper{padding-bottom:144px !important}}
+/* Tab cez formular objednavky: zamerane pole cele v okne (nie 7 px pod spodnym okrajom, nie pod bublinou chatu);
+   prehliadac pri focuse posuva s touto rezervou (9. 10. 2026, test-rolovanie: billStreet 662-702 pri vyske okna 695) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process :is(input,select,textarea){scroll-margin-block:96px 120px}
 /* /kosik/ na tablete na výšku (521–991 px): súhrn so „Pokračovať“ je karta 400 px pri pravom okraji — hneď po načítaní ležala
    bublina chatu (76 × 76, 16 px od pravého okraja) na konci tlačidla (iPad mini 3 420 px², iPad 820 2 622 px²);
    vpravo rezerva 96 px ako pri lište scén titulky — tlačidlo nikdy nesiaha do pásu bubliny (kontrola 9. 10. 2026) */
