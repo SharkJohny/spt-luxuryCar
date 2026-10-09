@@ -507,5 +507,23 @@ await test("stránka vykreslená pred zmazaním pôvodného riadku (dataLayer): 
   pravda(!M.vykreslenePredZmazanim({ itemId: "a", q: 2 }, [{ itemId: "a", quantity: 1 }]));
 });
 
+await test("štítok zľavy zaokrúhľuje nadol (nikdy nesľubuje viac): SK box 54,8 % -> 54, Premium 29,7 % -> 29", () => {
+  rovne(M.zlava(197, 89), 54);
+  rovne(M.zlava(340, 239), 29);
+  rovne(M.zlava(230, 129), 43);
+  rovne(M.zlava(129, 129), 0);
+  rovne(M.zlava(null, 99), 0);
+  rovne(M.zlava(200, 180), 10); // presné celé % nespadne na 9
+  rovne(M.zlava(5799, 3299), 43); // CZ Classic
+  rovne(M.zlava(8744, 5999), 31); // CZ Premium
+});
+await test("fotky doplnkov z konfigurátora podľa vzoru setu (Diamond bez predpony, Hexa, Stripe)", () => {
+  const B = "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/";
+  rovne(M.fotoDoplnku("Luxusné autokoberce Dragonskin Elite DIAMOND LINE", M.FOTKY.classic), B + "base-p.jpg");
+  rovne(M.fotoDoplnku("Luxusné autokoberce Dragonskin Elite HEXA LINE", M.FOTKY.premium), B + "hexa-full-p.jpg");
+  rovne(M.fotoDoplnku("Luxusní autokoberce Dragonskin Elite STRIPE LINE", M.FOTKY.box2), B + "stripe-boxy2.jpg");
+  rovne(M.fotoDoplnku("", M.FOTKY.box1), B + "boxy.jpg");
+});
+
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
 process.exit(zle ? 1 : 0);

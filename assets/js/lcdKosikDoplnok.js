@@ -43,19 +43,31 @@ const SAMOSTATNE = {
 
 const TEXTY = {
   sk: {
-    nadpis: "Doplňte k setu",
+    nadpis: "Doplňte kufor v rovnakom štýle",
+    stitok: "Len k tomuto setu",
+    podnadpis: "Za cenu v sete – len pri objednávke spolu s autokobercami.",
     kSetu: "K setu: ",
     nie: "Nie, ďakujem",
+    rohozKratko: "Rohož",
+    premiumNadtitul: "Celý kufor",
+    premiumVeta: "Kryje dno, boky kufra aj chrbty zadných sedadiel.",
+    classicNadtitul: "Dno kufra",
+    classicVeta: "Ochrana dna kufra na mieru Vášho auta.",
+    boxNadtitul: "1 alebo 2 boxy",
+    boxVeta: "Poriadok v kufri pre nákupy aj výbavu auta.",
+    vybratVelkost: "Vybrať veľkosť",
+    skrytVyber: "Skryť výber",
+    boxVyber: "Box do kufra – počet, veľkosť a farba",
+    samostatne: "samostatne",
+    az: "až",
     vybrat: "Vybrať",
     skryt: "Skryť",
     rohoz: "Rohož do kufra",
-    rohozPopis: "V rovnakej farbe ako Vaše autokoberce.",
     classic: "Classic",
     classicPopis: "dno kufra",
     premium: "Premium",
     premiumPopis: "dno aj boky kufra",
     box: "Box do kufra",
-    boxPopis: "Nákup aj drobnosti ostanú na svojom mieste.",
     pocet: "Počet",
     box1: "1 box",
     box2: "2 boxy",
@@ -79,19 +91,31 @@ const TEXTY = {
     chybaKontrola: "Doplnok sa nepodarilo pridať. Skontrolujte, prosím, obsah košíka.",
   },
   cz: {
-    nadpis: "Doplňte k setu",
+    nadpis: "Doplňte kufr ve stejném stylu",
+    stitok: "Jen k tomuto setu",
+    podnadpis: "Za cenu v setu – jen při objednávce spolu s autokoberci.",
     kSetu: "K setu: ",
     nie: "Ne, děkuji",
+    rohozKratko: "Rohož",
+    premiumNadtitul: "Celý kufr",
+    premiumVeta: "Chrání dno, boky kufru i opěradla zadních sedadel.",
+    classicNadtitul: "Dno kufru",
+    classicVeta: "Ochrana dna kufru na míru Vašeho auta.",
+    boxNadtitul: "1 nebo 2 boxy",
+    boxVeta: "Pořádek v kufru pro nákupy i výbavu auta.",
+    vybratVelkost: "Vybrat velikost",
+    skrytVyber: "Skrýt výběr",
+    boxVyber: "Box do kufru – počet, velikost a barva",
+    samostatne: "samostatně",
+    az: "až",
     vybrat: "Vybrat",
     skryt: "Skrýt",
     rohoz: "Rohož do kufru",
-    rohozPopis: "Ve stejné barvě jako Vaše autokoberce.",
     classic: "Classic",
     classicPopis: "dno kufru",
     premium: "Premium",
     premiumPopis: "dno i boky kufru",
     box: "Box do kufru",
-    boxPopis: "Nákup i drobnosti zůstanou na svém místě.",
     pocet: "Počet",
     box1: "1 box",
     box2: "2 boxy",
@@ -799,17 +823,38 @@ function el(tag, attrs, deti) {
   return e;
 }
 
-/** <s>230 €</s> +129 € v sete ušetríte 101 € (zelený len rozdiel) */
+/**
+ * Cena v karte: veľké „+129 € v sete“, pod tým „samostatne 230 €“ (prečiarknuté) a „ušetríte 101 €“
+ * (Michal 7. 10.: tvar „Ušetríte …“, nie „−101 €“). kratko = „od +99 €“ bez riadku úspory (karta boxu).
+ */
 function cenovka(T, R, rozdiel, samostatne, kratko) {
-  const deti = [];
   const usetri = samostatne && samostatne > rozdiel + 0.5 ? samostatne - rozdiel : 0;
-  if (usetri) deti.push(el("s", { class: "lcd-dop__samo", text: cenaText(samostatne, R) }), " ");
-  deti.push(el("b", { class: "lcd-dop__vsete", text: (kratko ? T.od + " " : "") + cenaText(rozdiel, R, true) + (kratko ? "" : " " + T.vSete) }));
-  if (usetri && !kratko) {
-    // viditeľne „ušetríte 101 €“ (nie „−101 €“, to sa čítalo ako ďalšia zľava; Michal 7. 10.: tvar „Ušetríte …“)
-    deti.push(" ", el("span", { class: "lcd-dop__usetri" }, [T.usetrite + " " + cenaText(usetri, R)]));
+  const deti = [el("span", { class: "lcd-dop__hlavna" }, [
+    el("b", { class: "lcd-dop__vsete", text: (kratko ? T.od + " " : "") + cenaText(rozdiel, R, true) }), " ",
+    el("small", { text: T.vSete }),
+  ])];
+  if (usetri) {
+    deti.push(" ", el("span", { class: "lcd-dop__samoriadok" }, [T.samostatne + " " + (kratko ? T.od + " " : ""), el("s", { class: "lcd-dop__samo", text: cenaText(samostatne, R) })]));
+    if (!kratko) deti.push(" ", el("span", { class: "lcd-dop__usetri" }, [T.usetrite + " " + cenaText(usetri, R)]));
   }
   return el("span", { class: "lcd-dop__cena" }, deti);
+}
+
+/**
+ * Fotky doplnkov = tie isté ako v konfigurátore na stránke produktu (productPage.js: assets/new/ + predpona vzoru,
+ * 350×206): rohož Classic base-p.jpg, Premium full-p.jpg, 1 box boxy.jpg, 2 boxy boxy2.jpg. Vzor podľa názvu setu
+ * (Hexa „hexa-“, Stripe „stripe-“, Diamond bez predpony). Michal 9. 10.: ponuka bez fotiek je nudná.
+ */
+const FOTO = "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/";
+export const FOTKY = { classic: "base-p.jpg", premium: "full-p.jpg", box1: "boxy.jpg", box2: "boxy2.jpg" };
+export function fotoDoplnku(nazovSetu, subor) {
+  const n = String(nazovSetu || "");
+  return FOTO + (/hexa/i.test(n) ? "hexa-" : /stripe/i.test(n) ? "stripe-" : "") + subor;
+}
+function foto(src, alt, trieda) {
+  const i = el("img", { src: src, alt: alt || "", class: trieda, width: "350", height: "206", loading: "lazy", decoding: "async" });
+  i.addEventListener("error", function () { i.remove(); });
+  return i;
 }
 
 function setNazov(riadok) {
@@ -819,72 +864,78 @@ function setNazov(riadok) {
   return f ? n + ", " + f.toLowerCase() : n;
 }
 
-function karta(ctx, T, R, viacSetov, jePC) {
+/**
+ * Ponuka k setu ako tmavý prémiový blok (Michal 9. 10.: „vôbec mi to nepríde lákavé“): tri karty s fotkou
+ * z konfigurátora — Premium, Classic, Box — so štítkom zľavy, veľkou cenou v sete a jednou vetou, čo zákazník
+ * získa. Mobil: karty sa listujú prstom (ďalšia vykukuje), PC: vedľa seba. Box má pod kartami výber počtu,
+ * veľkosti a farby. Háčiky pre E2E ostávajú: .lcd-dop__volba, .lcd-dop__polozka[data-doplnok="box"] .lcd-dop__vybrat,
+ * data-lcd-dop-pridat / -pocet / -velkost / -farba / -nie.
+ */
+// zaokrúhlenie NADOL: štítok nesmie sľubovať viac, než je (SK box 54,8 % -> „až −54 %“, nie −55 %)
+// (+1e-9: presné celé % ako 200 -> 180 = 10 % nesmie po výpočte v pohyblivej čiarke spadnúť na 9 %)
+export function zlava(samo, s) { return samo && samo > s + 0.5 ? Math.floor((samo - s) * 100 / samo + 1e-9) : 0; }
+
+function karta(ctx, T, R, viacSetov) {
   const id = "lcd-dop-" + ++poradie;
   const k = el("article", { class: "lcd-dop__karta", "data-item": ctx.riadok.itemId, "aria-labelledby": id + "-h" });
   const hlava = el("div", { class: "lcd-dop__hlava" }, [
-    el("h2", { class: "lcd-dop__nadpis", id: id + "-h", text: T.nadpis }),
+    el("div", { class: "lcd-dop__titul" }, [
+      el("p", { class: "lcd-dop__stitok", text: T.stitok }),
+      el("h2", { class: "lcd-dop__nadpis", id: id + "-h", text: T.nadpis }),
+    ]),
     el("button", { type: "button", class: "lcd-dop__nie", "data-lcd-dop-nie": "", text: T.nie }),
   ]);
   k.appendChild(hlava);
+  k.appendChild(el("p", { class: "lcd-dop__podnadpis", text: T.podnadpis }));
   if (viacSetov) k.appendChild(el("p", { class: "lcd-dop__kset", text: T.kSetu + (ctx.kSetu || setNazov(ctx.riadok)) }));
 
-  const polozky = el("div", { class: "lcd-dop__polozky" });
-  k.appendChild(polozky);
+  const volby = el("ul", { class: "lcd-dop__volby", "aria-label": T.nadpis });
+  k.appendChild(volby);
   const stav = el("p", { class: "lcd-dop__stav", role: "status", "aria-live": "polite" });
 
-  const sekcia = function (kod, nazov, odRozdiel, odSamo, rozbalena, obsah) {
-    const tid = id + "-" + kod;
-    const napis = el("span", { text: rozbalena ? T.skryt : T.vybrat });
-    const btn = el("button", { type: "button", class: "lcd-dop__vybrat", "aria-expanded": rozbalena ? "true" : "false", "aria-controls": tid }, [
-      napis, el("i", { "aria-hidden": "true" }),
-    ]);
-    const telo = el("div", { class: "lcd-dop__telo", id: tid, hidden: !rozbalena }, obsah);
-    // div, nie section: šablóna má globálne section{margin:0 !important} (luxuryCar.css)
-    const p = el("div", { class: "lcd-dop__polozka", "data-doplnok": kod }, [
-      el("div", { class: "lcd-dop__riadok" }, [
-        el("div", { class: "lcd-dop__info" }, [el("h3", { class: "lcd-dop__nazov", text: nazov }), cenovka(T, R, odRozdiel, odSamo, true)]),
-        btn,
+  /** jedna karta: fotka so štítkom zľavy, nadtitul, názov, veta, cena, tlačidlo */
+  const ponuka = function (o) {
+    const obr = foto(o.foto, o.alt, "lcd-dop__vfoto");
+    const menoId = id + "-meno-" + (o.varianta || o.doplnok);
+    o.tlacidlo.setAttribute("aria-describedby", menoId);
+    const pct = o.zlava ? el("span", { class: "lcd-dop__zlava", text: (o.az ? T.az + " " : "") + "−" + o.zlava + " %" }) : null;
+    const li = el("li", { class: "lcd-dop__volba" + (o.trieda ? " " + o.trieda : ""), "data-doplnok": o.doplnok, "data-varianta": o.varianta || null }, [
+      el("div", { class: "lcd-dop__foto" }, [obr, pct]),
+      el("div", { class: "lcd-dop__vtext" }, [
+        el("span", { class: "lcd-dop__nadtitul", text: o.nadtitul }),
+        el("b", { class: "lcd-dop__meno", id: menoId, text: o.meno }),
+        el("span", { class: "lcd-dop__veta", text: o.veta }),
       ]),
-      telo,
+      o.cena,
+      o.tlacidlo,
     ]);
-    btn.addEventListener("click", function () {
-      const otvor = btn.getAttribute("aria-expanded") !== "true";
-      btn.setAttribute("aria-expanded", otvor ? "true" : "false");
-      napis.textContent = otvor ? T.skryt : T.vybrat;
-      telo.hidden = !otvor;
-      if (otvor) meraj("lcd_set_doplnok_klik", { lcd_doplnok: kod, lcd_varianta: "vybrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
-    });
-    polozky.appendChild(p);
-    return p;
+    volby.appendChild(li);
+    return { li: li, obr: obr };
   };
 
-  // --- rohož
+  // --- rohož: Premium prvá (najsilnejšia fotka), potom Classic
   if (ctx.ponuka.rohoz) {
-    const volby = ["classic", "premium"].map(function (v) {
+    const moznosti = ["premium", "classic"].map(function (v) {
       const zm = zmena({ typ: "rohoz", varianta: v }, ctx.mapa, R);
       return { v: v, zm: zm, rozdiel: rozdielCeny(ctx.volby, zm, ctx.mapa), samo: ctx.samostatne ? ctx.samostatne[v] : null };
     }).filter(function (o) { return o.rozdiel && o.rozdiel.s > 0; });
-    if (volby.length) {
-      const naj = volby.reduce(function (a, b) { return b.rozdiel.s < a.rozdiel.s ? b : a; });
-      const zoznam = el("ul", { class: "lcd-dop__volby" }, volby.map(function (o) {
-        const tl = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "rohoz", "data-varianta": o.v, text: T.pridat });
-        tl.addEventListener("click", function () {
-          meraj("lcd_set_doplnok_klik", { lcd_doplnok: "rohoz", lcd_varianta: o.v, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
-          spustiVymenu(ctx, { typ: "rohoz", varianta: o.v, kod: "rohoz_" + o.v, nazov: T[o.v] }, o.zm, o.rozdiel, T, R, stav, k);
-        });
-        return el("li", { class: "lcd-dop__volba" }, [
-          el("div", { class: "lcd-dop__vtext" }, [el("b", { text: T[o.v] }), " ", el("span", { text: T[o.v + "Popis"] })]),
-          cenovka(T, R, o.rozdiel.s, o.samo, false),
-          tl,
-        ]);
-      }));
-      sekcia("rohoz", T.rohoz, naj.rozdiel.s, naj.samo, jePC, [el("p", { class: "lcd-dop__popis", text: T.rohozPopis }), zoznam]);
-      ctx.zobrazene.push("rohoz");
-    }
+    moznosti.forEach(function (o) {
+      const tl = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "rohoz", "data-varianta": o.v, text: T.pridat });
+      tl.addEventListener("click", function () {
+        meraj("lcd_set_doplnok_klik", { lcd_doplnok: "rohoz", lcd_varianta: o.v, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+        spustiVymenu(ctx, { typ: "rohoz", varianta: o.v, kod: "rohoz_" + o.v, nazov: T[o.v] }, o.zm, o.rozdiel, T, R, stav, k);
+      });
+      ponuka({
+        doplnok: "rohoz", varianta: o.v, trieda: "lcd-dop__volba--" + o.v,
+        foto: fotoDoplnku(ctx.riadok.nazov, FOTKY[o.v]), alt: T.rohoz + " " + T[o.v] + " – " + T[o.v + "Popis"],
+        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: T.rohozKratko + " " + T[o.v], veta: T[o.v + "Veta"],
+        cena: cenovka(T, R, o.rozdiel.s, o.samo, false), tlacidlo: tl,
+      });
+    });
+    if (moznosti.length) ctx.zobrazene.push("rohoz");
   }
 
-  // --- box
+  // --- box: karta + výber pod kartami (počet, veľkosť s rozmermi, farba)
   if (ctx.ponuka.box) {
     const vSolo = velkostiBoxu(ctx.mapa, R.boxSolo), v1 = velkostiBoxu(ctx.mapa, R.box1), v2 = velkostiBoxu(ctx.mapa, R.box2);
     const farbaP = ctx.mapa.params[R.farbaBox];
@@ -905,9 +956,31 @@ function karta(ctx, T, R, viacSetov, jePC) {
       if (ma1.length) pocty.push(1);
       if (ma2.length) pocty.push(2);
       stavBox.pocet = pocty[0];
+      // všetky kombinácie: najnižšia cena („od“) a najväčšia zľava na štítok („až −X %“, keď sa líšia)
+      const vsetky = [];
+      pocty.forEach(function (p) { (p === 2 ? ma2 : ma1).forEach(function (v) { const i = cenaPre(p, v); vsetky.push({ s: i.rozdiel.s, samo: i.samo, z: zlava(i.samo, i.rozdiel.s) }); }); });
+      const naj = vsetky.reduce(function (a, b) { return b.s < a.s ? b : a; });
+      const zlavy = vsetky.map(function (x) { return x.z; });
+      const maxZ = Math.max.apply(null, zlavy);
+
+      const tid = n + "-box";
+      const napis = el("span", { text: T.vybratVelkost });
+      const btn = el("button", { type: "button", class: "lcd-dop__vybrat", "aria-expanded": "false", "aria-controls": tid }, [napis, el("i", { "aria-hidden": "true" })]);
+      const karticka = ponuka({
+        doplnok: "box", trieda: "lcd-dop__polozka lcd-dop__volba--box",
+        foto: fotoDoplnku(ctx.riadok.nazov, pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,
+        zlava: maxZ, az: zlavy.some(function (z) { return z !== maxZ; }),
+        nadtitul: T.boxNadtitul, meno: T.box, veta: T.boxVeta,
+        cena: cenovka(T, R, naj.s, naj.samo, true), tlacidlo: btn,
+      });
+
       const fsPocet = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--pocet" }, [el("legend", { text: T.pocet })].concat(pocty.map(function (p) {
         const i = el("input", { type: "radio", name: n + "-pocet", value: String(p), checked: p === stavBox.pocet, "data-lcd-dop-pocet": String(p) });
-        i.addEventListener("change", function () { stavBox.pocet = p; prekresli(); });
+        i.addEventListener("change", function () {
+          stavBox.pocet = p;
+          karticka.obr.src = fotoDoplnku(ctx.riadok.nazov, p === 2 ? FOTKY.box2 : FOTKY.box1);
+          prekresli();
+        });
         return el("label", { class: "lcd-dop__opt" }, [i, el("span", { text: p === 1 ? T.box1 : T.box2 })]);
       })));
       const fsVel = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--velkost" }, [el("legend", { text: T.velkost })]);
@@ -948,19 +1021,27 @@ function karta(ctx, T, R, viacSetov, jePC) {
         if (!zm || !rozdiel) { stav.textContent = T.chyba; return; }
         spustiVymenu(ctx, { typ: "box", pocet: stavBox.pocet, velkost: stavBox.velkost, kod: "box_" + stavBox.pocet }, zm, rozdiel, T, R, stav, k);
       });
-      const minRoz = function (pocet, zoznam) {
-        return zoznam.map(function (v) { const i = cenaPre(pocet, v); return { v: v, s: i.rozdiel.s, samo: i.samo }; })
-          .reduce(function (a, b) { return b.s < a.s ? b : a; });
-      };
-      const najlacnejsi = minRoz(ma1.length ? 1 : 2, ma1.length ? ma1 : ma2);
-      sekcia("box", T.box, najlacnejsi.s, najlacnejsi.samo, false, [
-        el("p", { class: "lcd-dop__popis", text: T.boxPopis }),
-        pocty.length > 1 ? fsPocet : null,
-        fsVel,
-        farbaWrap,
+
+      // výber boxu pod kartami (na celú šírku bloku), otvára ho tlačidlo na karte boxu
+      const telo = el("div", { class: "lcd-dop__telo lcd-dop__boxvyber", id: tid, hidden: true, "data-doplnok": "box" }, [
+        el("p", { class: "lcd-dop__boxtitul", text: T.boxVyber }),
+        fsPocet, fsVel, farbaWrap,
         el("div", { class: "lcd-dop__suhrn" }, [suhrnCena, tl]),
         hint,
       ]);
+      k.appendChild(telo);
+      btn.addEventListener("click", function () {
+        const otvor = btn.getAttribute("aria-expanded") !== "true";
+        btn.setAttribute("aria-expanded", otvor ? "true" : "false");
+        napis.textContent = otvor ? T.skrytVyber : T.vybratVelkost;
+        telo.hidden = !otvor;
+        karticka.li.classList.toggle("je-otvorena", otvor);
+        if (otvor) {
+          meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "vybrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+          const pokojne = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+          try { telo.scrollIntoView({ block: "nearest", behavior: pokojne ? "auto" : "smooth" }); } catch (e) { /* starý Safari */ }
+        }
+      });
       prekresli();
       ctx.zobrazene.push("box");
     }
@@ -974,6 +1055,7 @@ function karta(ctx, T, R, viacSetov, jePC) {
     k.remove();
     if (sec && !sec.querySelector(".lcd-dop__karta, .lcd-dop__hotovo")) sec.remove();
   });
+  if (volby.children.length === 1) volby.classList.add("lcd-dop__volby--jedna");
   return ctx.zobrazene.length ? k : null;
 }
 
@@ -1318,6 +1400,20 @@ function hotovoZPredchadzajucej(sec) {
     });
     if (tr) tr.classList.add("lcd-dop-zvyrazni");
   }
+  return p;
+}
+
+/** fokus na hlášku až keď je na stránke; chybovú (zákazník musí niečo v košíku opraviť) aj ukázať */
+function zameraj(p) {
+  if (!p || !p.isConnected) return;
+  if (p.classList.contains("lcd-dop__hotovo--chyba")) {
+    // po location.reload() by prehliadač po „load“ vrátil pôvodnú pozíciu (zákazník bol dole pri ponuke) a hlášku
+    // by prekryl -> obnovu pozície pre túto stránku vypnúť a posunúť k hláške aj po „load“
+    try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) {}
+    const ukaz = function () { try { p.scrollIntoView({ block: "center" }); } catch (e) {} };
+    ukaz();
+    if (document.readyState !== "complete") window.addEventListener("load", function () { setTimeout(ukaz, 0); }, { once: true });
+  }
   try { p.focus({ preventScroll: true }); } catch (e) {}
 }
 
@@ -1325,9 +1421,34 @@ function miestoSekcie() {
   return document.querySelector("#cart-wrapper .cart-content.summary-wrapper") || document.querySelector(".cart-content.summary-wrapper");
 }
 
+/**
+ * Michal 9. 10.: zákazník musí mať voľnú cestu k „Pokračovať“ — ponuka je len možnosť navyše, ak by náhodou.
+ * Kde je súhrn pod košíkom (telefón, tablet do 991 px), ide ponuka až ZA súhrn s tlačidlom „Pokračovať“;
+ * na PC je vľavo vedľa súhrnu (tlačidlo ostáva vpravo hore). Pri otočení tabletu sa presunie.
+ */
+const POD_SUHRNOM = "(max-width: 991px)";
+function podSuhrnom() { try { return !!(window.matchMedia && window.matchMedia(POD_SUHRNOM).matches); } catch (e) { return false; } }
+function umiestni(sec, m) {
+  // chybová hláška po výmene (napr. pôvodný set ostal v košíku) ide pred súhrn — zákazník ju musí vidieť pred objednaním
+  if (podSuhrnom() && !sec.querySelector(".lcd-dop__hotovo--chyba")) { if (sec.parentNode !== m || sec !== m.lastElementChild) m.appendChild(sec); }
+  else if (sec.parentNode !== m || sec !== m.firstElementChild) m.insertBefore(sec, m.firstChild);
+}
+let sledujeMiesto = false;
+function sledujMiesto() {
+  if (sledujeMiesto || !window.matchMedia) return;
+  sledujeMiesto = true;
+  const mq = window.matchMedia(POD_SUHRNOM);
+  const f = function () {
+    const sec = document.getElementById("lcd-doplnok"), m = miestoSekcie();
+    if (sec && m && sec.parentNode === m) umiestni(sec, m);
+  };
+  if (mq.addEventListener) mq.addEventListener("change", f);
+  else if (mq.addListener) mq.addListener(f);
+}
+
 function vlozSekciu(sec) {
   const m = miestoSekcie();
-  if (m) m.insertBefore(sec, m.firstChild);
+  if (m) { umiestni(sec, m); sledujMiesto(); }
   else {
     const t = document.querySelector("#cart-wrapper table.cart-table");
     if (!t) return false;
@@ -1385,7 +1506,7 @@ async function spusti(R) {
   const sec = el("div", { id: "lcd-doplnok", class: "lcd-dop", role: "region", "aria-label": T.nadpis });
   const pred = ssCitaj(KLUC_HOTOVO);
   if (!kandidati.length) {
-    if (pred) { hotovoZPredchadzajucej(sec); if (sec.firstChild) vlozSekciu(sec); }
+    if (pred) { const h = hotovoZPredchadzajucej(sec); if (sec.firstChild && vlozSekciu(sec)) zameraj(h); }
     return 0;
   }
   const kupon = (function () { try { const c = getShoptetContext().cartInfo; return c && c.discountCoupon && c.discountCoupon.code; } catch (e) { return null; } })();
@@ -1411,7 +1532,6 @@ async function spusti(R) {
     return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, samostatne: samostatne, kupon: kupon, zobrazene: [] };
   }))).filter(Boolean);
 
-  const jePC = !!(window.matchMedia && window.matchMedia("(min-width: 992px)").matches);
   // rovnaký set viackrát (napr. po rozdelení množstva) -> k názvu cena za kus, aby sa karty dali rozlíšiť
   const ceny = (function () {
     try { const e = (window.dataLayer || []).find(function (x) { return x && x.shoptet; }); return (e && e.shoptet && e.shoptet.cart) || []; } catch (e) { return []; }
@@ -1423,11 +1543,12 @@ async function spusti(R) {
     ctx.kSetu = nazvy[i] + (dup && c && typeof c.priceWithVat === "number" ? " · " + cenaText(c.priceWithVat, R) : "");
   });
   ctxs.forEach(function (ctx) {
-    const k = karta(ctx, T, R, ctxs.length > 1, jePC);
+    const k = karta(ctx, T, R, ctxs.length > 1);
     if (k) sec.appendChild(k);
   });
-  if (pred) hotovoZPredchadzajucej(sec);
+  const hlaska = pred ? hotovoZPredchadzajucej(sec) : null;
   if (!sec.firstChild || document.getElementById("lcd-doplnok") || !vlozSekciu(sec)) return 0;
+  zameraj(hlaska);
   let karty = 0;
   ctxs.forEach(function (ctx) {
     if (ctx.zobrazene.length) karty++;
