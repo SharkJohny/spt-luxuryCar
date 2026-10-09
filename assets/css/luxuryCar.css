@@ -13549,7 +13549,7 @@ html.lcd-rz-auto:not(.lcd-rz-plne) #lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.pla
    KOŠÍK: PONUKA K SETU — partial pre blok LCD-KOSIK (vkladá tools/vloz-lcd-css.py)
    assets/js/lcdKosikDoplnok.js: na /kosik/ pri sete autokobercov bez rohože do kufra alebo boxu
    <div id="lcd-doplnok" role="region"> v .cart-content.summary-wrapper (PC: ľavá polovica vedľa súhrnu,
-   telefón a tablet: až za súhrnom s „Pokračovať“). Tmavý blok s kartami Premium / Classic / Box (fotky z konfigurátora, štítok zľavy),
+   telefón a tablet: až za súhrnom s „Pokračovať“). Tmavý blok s kartami Premium / Classic / Box (béžové fotky kufra, štítok zľavy),
    Exo 2 + Source Sans 3, zlatá linka. Zlatý text len na tmavom (na bielej má --gold kontrast 2,4 : 1).
    ===================================================================== */
 #lcd-doplnok{--ink:#14110c;--bg:#15110b;--card:#211a12;--line:rgba(196,155,49,.28);--text:#f6f0e3;--mute:#cbc1aa;
@@ -13592,9 +13592,9 @@ html.lcd-rz-auto:not(.lcd-rz-plne) #lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.pla
   border-radius:14px;overflow:hidden;transition:border-color .15s ease}
 #lcd-doplnok .lcd-dop__volba:hover,#lcd-doplnok .lcd-dop__volba.je-otvorena{border-color:var(--gold)}
 #lcd-doplnok .lcd-dop__volba::before{content:none}
-#lcd-doplnok .lcd-dop__foto{position:relative;overflow:hidden;aspect-ratio:350 / 206;background:#2a2217}
-/* fotky Diamond majú vlastné biele zaoblené rohy -> mierne priblížené, orámovanie ich oreže */
-#lcd-doplnok .lcd-dop__vfoto{display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.05)}
+#lcd-doplnok .lcd-dop__foto{position:relative;overflow:hidden;aspect-ratio:4 / 3;background:#2a2217}
+/* béžové fotky kufra z návrhu konfigurátora (720×540) — celé, bez orezania */
+#lcd-doplnok .lcd-dop__vfoto{display:block;width:100%;height:100%;object-fit:cover}
 #lcd-doplnok .lcd-dop__zlava{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:999px;
   background:linear-gradient(135deg,#ecd07a,#c49b31);color:var(--ink);font:700 13px/1.2 var(--disp);letter-spacing:.02em;
   font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(0,0,0,.35)}
@@ -13705,7 +13705,7 @@ tr.lcd-dop-zvyrazni{outline:2px solid #9b1c1c;outline-offset:-2px}
   @media not (pointer:coarse){
     #lcd-doplnok .lcd-dop__volby{grid-template-columns:minmax(0,1fr)}
     #lcd-doplnok .lcd-dop__volba:last-child:nth-child(odd):not(:first-child){display:flex}
-    #lcd-doplnok .lcd-dop__volba:last-child:nth-child(odd):not(:first-child) > .lcd-dop__foto{aspect-ratio:350 / 206;min-height:0}
+    #lcd-doplnok .lcd-dop__volba:last-child:nth-child(odd):not(:first-child) > .lcd-dop__foto{aspect-ratio:4 / 3;min-height:0}
   }
 }
 /* prehliadače bez @container (Safari < 16, Chrome < 105): telefón = pás prstom, PC 992–1199 px = mriežka po dvoch */

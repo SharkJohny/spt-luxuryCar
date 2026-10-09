@@ -841,18 +841,14 @@ function cenovka(T, R, rozdiel, samostatne, kratko) {
 }
 
 /**
- * Fotky doplnkov = tie isté ako v konfigurátore na stránke produktu (productPage.js: assets/new/ + predpona vzoru,
- * 350×206): rohož Classic base-p.jpg, Premium full-p.jpg, 1 box boxy.jpg, 2 boxy boxy2.jpg. Vzor podľa názvu setu
- * (Hexa „hexa-“, Stripe „stripe-“, Diamond bez predpony). Michal 9. 10.: ponuka bez fotiek je nudná.
+ * Fotky doplnkov = béžové fotky kufra z návrhu nového konfigurátora (Michal 9. 10.: „chcem aby tam boli tieto
+ * fotky“): to isté auto s rohožou Classic, Premium, 1 a 2 boxmi. 720×540 (4 : 3), spoločné assets/img/kosik/ na CDN.
  */
-const FOTO = "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/";
-export const FOTKY = { classic: "base-p.jpg", premium: "full-p.jpg", box1: "boxy.jpg", box2: "boxy2.jpg" };
-export function fotoDoplnku(nazovSetu, subor) {
-  const n = String(nazovSetu || "");
-  return FOTO + (/hexa/i.test(n) ? "hexa-" : /stripe/i.test(n) ? "stripe-" : "") + subor;
-}
+const FOTO = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/kosik/";
+export const FOTKY = { classic: "rohoz-classic.jpg", premium: "rohoz-premium.jpg", box1: "box-1.jpg", box2: "box-2.jpg" };
+export function fotoDoplnku(subor) { return FOTO + subor; }
 function foto(src, alt, trieda) {
-  const i = el("img", { src: src, alt: alt || "", class: trieda, width: "350", height: "206", loading: "lazy", decoding: "async" });
+  const i = el("img", { src: src, alt: alt || "", class: trieda, width: "720", height: "540", loading: "lazy", decoding: "async" });
   i.addEventListener("error", function () { i.remove(); });
   return i;
 }
@@ -865,8 +861,8 @@ function setNazov(riadok) {
 }
 
 /**
- * Ponuka k setu ako tmavý prémiový blok (Michal 9. 10.: „vôbec mi to nepríde lákavé“): tri karty s fotkou
- * z konfigurátora — Premium, Classic, Box — so štítkom zľavy, veľkou cenou v sete a jednou vetou, čo zákazník
+ * Ponuka k setu ako tmavý prémiový blok (Michal 9. 10.: „vôbec mi to nepríde lákavé“): tri karty s béžovou fotkou
+ * z návrhu konfigurátora — Premium, Classic, Box — so štítkom zľavy, veľkou cenou v sete a jednou vetou, čo zákazník
  * získa. Mobil: karty sa listujú prstom (ďalšia vykukuje), PC: vedľa seba. Box má pod kartami výber počtu,
  * veľkosti a farby. Háčiky pre E2E ostávajú: .lcd-dop__volba, .lcd-dop__polozka[data-doplnok="box"] .lcd-dop__vybrat,
  * data-lcd-dop-pridat / -pocet / -velkost / -farba / -nie.
@@ -927,7 +923,7 @@ function karta(ctx, T, R, viacSetov) {
       });
       ponuka({
         doplnok: "rohoz", varianta: o.v, trieda: "lcd-dop__volba--" + o.v,
-        foto: fotoDoplnku(ctx.riadok.nazov, FOTKY[o.v]), alt: T.rohoz + " " + T[o.v] + " – " + T[o.v + "Popis"],
+        foto: fotoDoplnku(FOTKY[o.v]), alt: T.rohoz + " " + T[o.v] + " – " + T[o.v + "Popis"],
         zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: T.rohozKratko + " " + T[o.v], veta: T[o.v + "Veta"],
         cena: cenovka(T, R, o.rozdiel.s, o.samo, false), tlacidlo: tl,
       });
@@ -968,7 +964,7 @@ function karta(ctx, T, R, viacSetov) {
       const btn = el("button", { type: "button", class: "lcd-dop__vybrat", "aria-expanded": "false", "aria-controls": tid }, [napis, el("i", { "aria-hidden": "true" })]);
       const karticka = ponuka({
         doplnok: "box", trieda: "lcd-dop__polozka lcd-dop__volba--box",
-        foto: fotoDoplnku(ctx.riadok.nazov, pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,
+        foto: fotoDoplnku(pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,
         zlava: maxZ, az: zlavy.some(function (z) { return z !== maxZ; }),
         nadtitul: T.boxNadtitul, meno: T.box, veta: T.boxVeta,
         cena: cenovka(T, R, naj.s, naj.samo, true), tlacidlo: btn,
@@ -978,7 +974,7 @@ function karta(ctx, T, R, viacSetov) {
         const i = el("input", { type: "radio", name: n + "-pocet", value: String(p), checked: p === stavBox.pocet, "data-lcd-dop-pocet": String(p) });
         i.addEventListener("change", function () {
           stavBox.pocet = p;
-          karticka.obr.src = fotoDoplnku(ctx.riadok.nazov, p === 2 ? FOTKY.box2 : FOTKY.box1);
+          karticka.obr.src = fotoDoplnku(p === 2 ? FOTKY.box2 : FOTKY.box1);
           prekresli();
         });
         return el("label", { class: "lcd-dop__opt" }, [i, el("span", { text: p === 1 ? T.box1 : T.box2 })]);

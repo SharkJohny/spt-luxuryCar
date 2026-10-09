@@ -517,12 +517,12 @@ await test("štítok zľavy zaokrúhľuje nadol (nikdy nesľubuje viac): SK box 
   rovne(M.zlava(5799, 3299), 43); // CZ Classic
   rovne(M.zlava(8744, 5999), 31); // CZ Premium
 });
-await test("fotky doplnkov z konfigurátora podľa vzoru setu (Diamond bez predpony, Hexa, Stripe)", () => {
-  const B = "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/";
-  rovne(M.fotoDoplnku("Luxusné autokoberce Dragonskin Elite DIAMOND LINE", M.FOTKY.classic), B + "base-p.jpg");
-  rovne(M.fotoDoplnku("Luxusné autokoberce Dragonskin Elite HEXA LINE", M.FOTKY.premium), B + "hexa-full-p.jpg");
-  rovne(M.fotoDoplnku("Luxusní autokoberce Dragonskin Elite STRIPE LINE", M.FOTKY.box2), B + "stripe-boxy2.jpg");
-  rovne(M.fotoDoplnku("", M.FOTKY.box1), B + "boxy.jpg");
+await test("fotky doplnkov: béžové fotky kufra z návrhu konfigurátora (assets/img/kosik/)", () => {
+  const B = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/kosik/";
+  rovne(M.fotoDoplnku(M.FOTKY.classic), B + "rohoz-classic.jpg");
+  rovne(M.fotoDoplnku(M.FOTKY.premium), B + "rohoz-premium.jpg");
+  rovne(M.fotoDoplnku(M.FOTKY.box1), B + "box-1.jpg");
+  rovne(M.fotoDoplnku(M.FOTKY.box2), B + "box-2.jpg");
 });
 
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
