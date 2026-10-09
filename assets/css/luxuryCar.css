@@ -13214,6 +13214,21 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget :is(.cart-widget-pro
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-surcharges{color:var(--kw-jemna) !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget.lcd-kw-viac .cart-widget-product-surcharges{-webkit-line-clamp:1}
 @media(max-width:520px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-surcharges{-webkit-line-clamp:1}}
+/* rozpis položky (JS, plný text z obsahu košíka — Shoptet príplatky v paneli skracuje „…“): farby vrstiev a príplatky
+   po riadkoch pod názvom, ako v /kosik/; natívny skrátený text sa vtedy skryje, množstvo/cena/kôš idú o riadok nižšie */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product.lcd-kw-s-rozpisom :is(.cart-widget-product-variant,.cart-widget-product-surcharges){display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-rozpis{grid-column:2 / 6;grid-row:2;display:flex;flex-direction:column;gap:3px;min-width:0;box-sizing:border-box;
+  margin:6px 0 0 !important;padding:0 8px 0 14px !important;list-style:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-rozpis > li{position:relative;display:block;margin:0 !important;padding:0 0 0 13px !important;list-style:none !important;
+  color:var(--kw-jemna);font:normal 400 13px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;letter-spacing:0;text-transform:none;
+  overflow-wrap:anywhere}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-rozpis > li::before{content:"";position:absolute;left:1px;top:.62em;width:5px;height:5px;border-radius:50%;background:#c49b31}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-rozpis .lcd-kw-rh{color:var(--kw-ink);font-weight:600}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product.lcd-kw-s-rozpisom :is(.cart-widget-product-amount,.cart-widget-product-unit,[data-testid="cartWidgetProductPrice"],.cart-widget-product-delete){
+  grid-row:3}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product.lcd-kw-s-rozpisom :is(.cart-widget-product-amount,.cart-widget-product-unit,[data-testid="cartWidgetProductPrice"]){margin-top:8px !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product.lcd-kw-s-rozpisom .cart-widget-product-delete{margin-top:4px !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product.lcd-kw-s-rozpisom .CartWidgetNoteDetails{grid-row:4}
 /* množstvo vždy: „1 ks“ / „2 ks“ / „1 sada“ vľavo na riadku ceny (natívne pole a jednotka; zmena množstva je v /kosik/).
    ID + !important prebije globálne skrytie span.quantity (_productPage.scss) aj jednotky do 678 px (luxuryCar.scss);
    v mriežke sú to bunky (display sa zblokuje) */

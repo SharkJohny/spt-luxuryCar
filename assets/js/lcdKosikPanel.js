@@ -5,7 +5,12 @@
 //   polohu karty pod pásom / plaketou loga / lepkavou lištou (--kw-top), Esc v oboch režimoch, popis koša pre čítačky,
 //   pole množstva len na čítanie a na PC skrytie chatu Luxia, len keď by kartu zakryl alebo je väčší ako bublina
 //   (uvítanie, ponuka; na dotyku chat skrýva CSS vždy, kým je karta otvorená). Natívny obsah nemaže ani neskrýva.
+// Rozpis položky (Michal 9. 10. 2026): farby vrstiev a príplatky po riadkoch ako v /kosik/. Shoptet text príplatkov
+//   v paneli skracuje už na serveri („autokoberce do…“) -> plný text z obsahu košíka (cartContentUrl), párovanie podľa itemId,
+//   v sessionStorage pre okamžité zobrazenie; kým nepríde (alebo pri chybe), ostáva natívny text.
 // Platí len v režime natívnej hlavičky (html.lcd-native-hdr alebo statický koreň [data-lcd-cast]) — inak nič nerobí.
+import { lcdRozpis, lcdRozpisZObsahu } from "./functions/kosikRozpis.js";
+
 (function init() {
   var d = document, H = d.documentElement;
   if (window.__lcdKosikPanel) return;
@@ -94,6 +99,58 @@
     c.addEventListener("click", zavri);
     el.parentNode.insertBefore(c, el);
   }
+  // rozpis položiek: { cena: text ceny v hlavičke pri načítaní, p: { itemId: { v: variant, p: príplatky } } }
+  var KLUC = "lcdKwRozpis", rozpis = null, nacitavam = false, skusene = {};
+  try { rozpis = JSON.parse(sessionStorage.getItem(KLUC) || "null"); } catch (x) {}
+  if (!rozpis || typeof rozpis.p !== "object" || !rozpis.p) rozpis = null;
+  function zabudni() {
+    rozpis = null; skusene = {};
+    try { sessionStorage.removeItem(KLUC); } catch (x) {}
+  }
+  function nacitaj() {
+    if (nacitavam || !window.fetch || !window.DOMParser) return;
+    nacitavam = true;
+    var sp = window.shoptet, url = (sp && sp.config && sp.config.cartContentUrl) || "/action/Cart/GetCartContent/", c0 = cena();
+    fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (t) {
+        var html = t;
+        try { var j = JSON.parse(t); html = (j && j.payload && (j.payload.content || j.payload.html)) || ""; } catch (x) {}
+        rozpis = { cena: c0, p: lcdRozpisZObsahu(html) };
+        try { sessionStorage.setItem(KLUC, JSON.stringify(rozpis)); } catch (x) {}
+      })
+      .catch(function () {})
+      .then(function () { nacitavam = false; dopln(); });
+  }
+  function rozpisRiadku(r) {
+    var id = r.querySelector('input[name="itemId"]'), meno = r.querySelector(".cart-widget-product-name");
+    var strong = meno && meno.querySelector("strong"), ul = r.querySelector(".lcd-kw-rozpis");
+    var data = id && id.value && rozpis && rozpis.p[id.value];
+    if (!data) {
+      if (id && id.value && !skusene[id.value]) { skusene[id.value] = 1; nacitaj(); }
+      return;
+    }
+    var riadky = lcdRozpis({ variant: data.v, priplatky: data.p, cz: cz });
+    var sig = JSON.stringify(riadky);
+    if (!riadky.length || !strong) {
+      if (ul) ul.remove();
+      r.classList.remove("lcd-kw-s-rozpisom");
+      return;
+    }
+    if (!ul) { ul = d.createElement("ul"); ul.className = "lcd-kw-rozpis"; }
+    if (ul.__sig !== sig) {
+      ul.__sig = sig;
+      ul.textContent = "";
+      riadky.forEach(function (x) {
+        var li = d.createElement("li");
+        if (x.n) { var n = d.createElement("span"); n.className = "lcd-kw-rn"; n.textContent = x.n + ": "; li.appendChild(n); }
+        var h = d.createElement("span"); h.className = "lcd-kw-rh"; h.textContent = x.h; li.appendChild(h);
+        ul.appendChild(li);
+      });
+    }
+    if (strong.nextElementSibling !== ul) strong.parentNode.insertBefore(ul, strong.nextSibling);
+    if (!r.classList.contains("lcd-kw-s-rozpisom")) r.classList.add("lcd-kw-s-rozpisom");
+  }
   // karta = #cart-widget; Shoptet prepisuje len .cart-widget-inner, naše prvky sú mimo neho a ostávajú
   function dopln() {
     var el = panel();
@@ -111,6 +168,7 @@
         ks += q > 0 ? q : 1;
       } else ks += 1;
       r.querySelectorAll(".remove-item").forEach(function (b) { if (!b.getAttribute("aria-label")) b.setAttribute("aria-label", T.odstranit); });
+      rozpisRiadku(r);
     });
     var hl = el.querySelector(".lcd-kw-hlava");
     if (!hl) {
@@ -146,7 +204,7 @@
   function priOtvoreni() { poloha(); dopln(); luxia(); }
   var neskor = function () { setTimeout(function () { if (otvoreny()) priOtvoreni(); else dopln(); }, 0); };
   d.addEventListener("ShoptetDOMCartContentLoaded", neskor);
-  d.addEventListener("ShoptetCartUpdated", neskor);
+  d.addEventListener("ShoptetCartUpdated", function () { zabudni(); neskor(); });
   // otvorenie / zatvorenie = trieda na body; MutationObserver beží pred vykreslením -> karta neskáče
   var bolOtvoreny = otvoreny();
   new MutationObserver(function () {
@@ -169,4 +227,9 @@
   addEventListener("scroll", function () { if (otvoreny()) poloha(); }, { passive: true });
   if (panel()) dopln();
   if (otvoreny()) priOtvoreni();
+  // vopred (nečinnosť po načítaní), aby rozpis bol hneď pri prvom otvorení: len neprázdny košík a uložený rozpis k inej cene
+  if (nativna() && !/^\/(kosik|objednavka)(\/|$)/i.test(location.pathname) && cena() && (!rozpis || rozpis.cena !== cena())) {
+    if (rozpis) zabudni();
+    (window.requestIdleCallback || function (f) { return setTimeout(f, 1500); })(nacitaj, { timeout: 4000 });
+  }
 })();
