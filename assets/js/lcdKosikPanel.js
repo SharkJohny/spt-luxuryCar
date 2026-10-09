@@ -100,23 +100,26 @@ import { lcdRozpis, lcdRozpisZObsahu } from "./functions/kosikRozpis.js";
     el.parentNode.insertBefore(c, el);
   }
   // rozpis položiek: { cena: text ceny v hlavičke pri načítaní, p: { itemId: { v: variant, p: príplatky } } }
-  var KLUC = "lcdKwRozpis", rozpis = null, nacitavam = false, skusene = {};
+  var KLUC = "lcdKwRozpis", rozpis = null, nacitavam = false, skusene = {}, gen = 0;
   try { rozpis = JSON.parse(sessionStorage.getItem(KLUC) || "null"); } catch (x) {}
   if (!rozpis || typeof rozpis.p !== "object" || !rozpis.p) rozpis = null;
   function zabudni() {
-    rozpis = null; skusene = {};
+    rozpis = null; skusene = {}; gen++;
     try { sessionStorage.removeItem(KLUC); } catch (x) {}
   }
   function nacitaj() {
     if (nacitavam || !window.fetch || !window.DOMParser) return;
     nacitavam = true;
-    var sp = window.shoptet, url = (sp && sp.config && sp.config.cartContentUrl) || "/action/Cart/GetCartContent/", c0 = cena();
-    fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } })
+    var sp = window.shoptet, url = (sp && sp.config && sp.config.cartContentUrl) || "/action/Cart/GetCartContent/", c0 = cena(), g = gen;
+    fetch(url, { credentials: "same-origin", cache: "no-store", headers: { "X-Requested-With": "XMLHttpRequest" } })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then(function (t) {
         var html = t;
         try { var j = JSON.parse(t); html = (j && j.payload && (j.payload.content || j.payload.html)) || ""; } catch (x) {}
-        rozpis = { cena: c0, p: lcdRozpisZObsahu(html) };
+        var p = lcdRozpisZObsahu(html);
+        // košík sa medzitým zmenil (ShoptetCartUpdated) -> starý obsah zahodiť; prázdny výsledok neukladať ako platný
+        if (g !== gen || !Object.keys(p).length) return;
+        rozpis = { cena: c0, p: p };
         try { sessionStorage.setItem(KLUC, JSON.stringify(rozpis)); } catch (x) {}
       })
       .catch(function () {})
@@ -203,7 +206,8 @@ import { lcdRozpis, lcdRozpisZObsahu } from "./functions/kosikRozpis.js";
   }
   function priOtvoreni() { poloha(); dopln(); luxia(); }
   var neskor = function () { setTimeout(function () { if (otvoreny()) priOtvoreni(); else dopln(); }, 0); };
-  d.addEventListener("ShoptetDOMCartContentLoaded", neskor);
+  // hneď (rozpis z pamäte bez bliknutia skráteného textu) aj po dobehnutí ostatných obsluh Shoptetu
+  d.addEventListener("ShoptetDOMCartContentLoaded", function () { dopln(); neskor(); });
   d.addEventListener("ShoptetCartUpdated", function () { zabudni(); neskor(); });
   // otvorenie / zatvorenie = trieda na body; MutationObserver beží pred vykreslením -> karta neskáče
   var bolOtvoreny = otvoreny();
@@ -230,6 +234,8 @@ import { lcdRozpis, lcdRozpisZObsahu } from "./functions/kosikRozpis.js";
   // vopred (nečinnosť po načítaní), aby rozpis bol hneď pri prvom otvorení: len neprázdny košík a uložený rozpis k inej cene
   if (nativna() && !/^\/(kosik|objednavka)(\/|$)/i.test(location.pathname) && cena() && (!rozpis || rozpis.cena !== cena())) {
     if (rozpis) zabudni();
-    (window.requestIdleCallback || function (f) { return setTimeout(f, 1500); })(nacitaj, { timeout: 4000 });
+    (window.requestIdleCallback || function (f) { return setTimeout(f, 1500); })(function () {
+      if (!rozpis || rozpis.cena !== cena()) nacitaj();
+    }, { timeout: 4000 });
   }
 })();

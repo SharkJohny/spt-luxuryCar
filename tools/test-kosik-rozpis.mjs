@@ -40,6 +40,12 @@ over(JSON.stringify(lcdVrstvy("Barva 1.vrstvy: Hexa, Barva kůže: Béžová, Ba
 // bez farieb a príplatkov (poukážka) -> prázdne = natívny text ostáva
 over(lcdRozpis({ cz: false, variant: "Hodnota: 100 €", priplatky: "" }).length === 0, "poukážka: nič na rozpis");
 
+// zvyšok variantu mimo farieb sa nestratí (natívny variant je v paneli skrytý)
+r = lcdRozpis({ cz: true, variant: "Typ: Combi, Barva 1.vrstvy: Hexa", priplatky: "Příplatky: rozložení koberců - první řada" });
+over(JSON.stringify(txt(r)) === JSON.stringify(["Typ: Combi", "Barva 1. vrstvy: Hexa", "Rozložení koberců: první řada"]), "zvyšok variantu ostane", txt(r));
+r = lcdRozpis({ cz: false, variant: "Veľkosť: L", priplatky: "Príplatky: farba - čierna" });
+over(JSON.stringify(txt(r)) === JSON.stringify(["Veľkosť: L", "Farba: čierna"]), "variant bez farieb + príplatky", txt(r));
+
 // kamiónové zástupné hodnoty preč
 r = lcdRozpis({ cz: false, variant: "", priplatky: "Príplatky: Vozidlo - Vyberie sa v konfigurátore, kabína - jednoduchá" });
 over(JSON.stringify(txt(r)) === JSON.stringify(["Kabína: jednoduchá"]), "kamión: bez zástupných hodnôt", txt(r));

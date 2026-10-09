@@ -37,6 +37,11 @@ export function lcdRozpis({ variant, priplatky, cz }) {
   const out = [];
   const [v1, v2] = lcdVrstvy(variant);
   const vrstva = (n) => (cz ? "Barva " : "Farba ") + n + ". vrstvy";
+  // zvyšok variantu mimo farieb vrstiev („Typ: Combi, …“) — natívny variant sa v paneli skryje, nesmie sa stratiť
+  const zvysok = String(variant || "").replace(/\s+/g, " ")
+    .replace(/(?:farba|barva)\s*[12]\.?\s*vrstvy\s*:\s*(.+?)(?=\s*,?\s*(?:farba|barva)\s*[12]\.?\s*vrstvy|\s*$)/gi, "")
+    .replace(/^[\s,;/]+|[\s,;/]+$/g, "");
+  if (zvysok) out.push({ n: null, h: velke(hodnota(zvysok)) });
   if (v1) out.push({ n: vrstva(1), h: hodnota(v1) });
   if (v2) out.push({ n: vrstva(2), h: hodnota(v2) });
   for (const p of lcdPriplatky(priplatky)) {
@@ -49,7 +54,8 @@ export function lcdRozpis({ variant, priplatky, cz }) {
     }
     out.push({ n: null, h: velke(hodnota(p)) });
   }
-  return out;
+  // len zvyšok variantu bez farieb a príplatkov (poukážka „Hodnota: 100 €“) -> nič, panel nechá natívny text
+  return out.length === 1 && zvysok ? [] : out;
 }
 
 /** Z HTML obsahu košíka (payload.content) -> { itemId: { v: variant, p: príplatky } }. */
