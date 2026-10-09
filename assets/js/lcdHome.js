@@ -15,13 +15,22 @@ function lcdhLenisSync(){
   /* LEN desktop - Michal 2026-08-27: "Lenis nechaj len na pc nie na telefone" */
   var rezim = lcdhLenisMQ.matches ? "pc" : null;
   if (rezim && !lcdhLenis) {
-    lcdhLenis = new Lenis({ lerp: 0.12 });
+    /* naiveDimensions: koniec stranky (limit) cita Lenis pri kazdom zube kolieska NAZIVO
+       (scrollHeight - clientHeight), nie z vysky zapamatanej pri poslednom prepocte.
+       Shoptet ma html{height:100%} -> <html> ma stale vysku okna a ResizeObserver nizsie
+       na nom po starte uz nikdy nevystreli; rastie len <body>. Ked sa stranka predlzi po
+       6 s (objednavka: "Dorucit na inu adresu" +500 px, chybove hlasky; produkt: lenive
+       nahlady, rozbaleny konfigurator), koliesko sa zastavilo na starom konci a dalej
+       sa dalo len posuvnikom (Michal 2026-10-08, notebook: "nepusti ma na dorucovaciu
+       adresu"). Plynule rolovanie ostava. */
+    lcdhLenis = new Lenis({ lerp: 0.12, naiveDimensions: true });
     lcdhLenis.on("scroll", ScrollTrigger.update);
     requestAnimationFrame(lcdhLenisRaf);
     /* Lenis si vysku stranky odmeria pri starte. Markup, reels aj obrazky pribudaju
        az potom -> limit ostane nespravny (merane 2026-08-27 na live: +293 px) a stranka
        sa da doscrollovat "za koniec", co sposobuje trhanie a preblikavanie cudzieho obsahu.
-       Preto prepocet po kazdej zmene vysky. */
+       Preto prepocet po kazdej zmene vysky (limit uz cita naiveDimensions nazivo; resize()
+       len zosynchronizuje vnutorny stav Lenisu). */
     var lcdhPrepocetT = null;
     var lcdhPrepocet = function () {
       clearTimeout(lcdhPrepocetT);
