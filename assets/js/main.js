@@ -11,6 +11,7 @@ import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
 import { initLivePrice } from "./functions/livePrice.js";
 import { initContactForm } from "./components/contactForm.js";
+import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from "./functions/autoVyber.js";
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
 import "./configurator-enhance.js"; // Konfigurátor — best-seller badge na možnostiach
 import "./lcdHome.js";
@@ -198,23 +199,30 @@ function initModelSelect(texts) {
     }
   }
 
-  let getBrand, getModel, getYear, getCarType;
-  try {
-    getBrand = sessionStorage.getItem("Brand");
-    getModel = sessionStorage.getItem("Model");
-    getYear = sessionStorage.getItem("Year");
-    getCarType = sessionStorage.getItem("carType");
-    // Ošetření "undefined"/"null" stringů uložených v sessionStorage
-    if (!getBrand || getBrand === "undefined" || getBrand === "null") getBrand = null;
-    if (!getModel || getModel === "undefined" || getModel === "null") getModel = null;
-    if (!getYear || getYear === "undefined" || getYear === "null") getYear = null;
-    if (!getCarType || getCarType === "undefined" || getCarType === "null") getCarType = null;
-  } catch (e) {
-    getBrand = null;
-    getModel = null;
-    getYear = null;
-    getCarType = null;
-  }
+  // Uložené auto zo sessionStorage (pri štarte a pri návrate z bfcache — viď 'pageshow' nižšie).
+  const nacitajUlozeneAuto = function () {
+    const u = { Brand: null, Model: null, Year: null, carType: null };
+    try {
+      Object.keys(u).forEach(function (kluc) {
+        const h = sessionStorage.getItem(kluc);
+        // Ošetření "undefined"/"null" stringů uložených v sessionStorage
+        u[kluc] = !h || h === "undefined" || h === "null" ? null : h;
+      });
+    } catch (e) {
+      return { Brand: null, Model: null, Year: null, carType: null };
+    }
+    // Placeholder uložený pôvodným saveModel (do 10/2026) nie je výber auta.
+    if (u.Brand != null && lcdNorm(u.Brand) === lcdNorm(cstm_znacka[0])) u.Brand = null;
+    if (u.Model != null && lcdNorm(u.Model) === lcdNorm(cstm_model[0])) u.Model = null;
+    if (u.Year != null && lcdNorm(u.Year) === lcdNorm(cstm_rocnik[0])) u.Year = null;
+    if (u.carType != null && LCD_TYP_PLACEHOLDERY.some((p) => lcdNorm(p) === lcdNorm(u.carType))) u.carType = null;
+    return u;
+  };
+  const ulozeneAuto = nacitajUlozeneAuto();
+  let getBrand = ulozeneAuto.Brand;
+  let getModel = ulozeneAuto.Model;
+  let getYear = ulozeneAuto.Year;
+  let getCarType = ulozeneAuto.carType;
 
   // Slot #konfSlot (viď začiatok funkcie): ak je, .model-selector ide ROVNO doň —
   // na mobile aj PC, bez starých kotiev a bez adopcie (40× polling v lcdHome/lcdRz).
@@ -253,12 +261,15 @@ function initModelSelect(texts) {
     }
   }
   const choiceWrap = $("<div>").addClass("modl-selector-wrap").appendTo(container);
+  // autocomplete="off": prehliadač pri Späť/Dopredu (a Firefox aj pri obnovení stránky) inak vráti do selectov
+  // stav formulára z minulej návštevy — značka skočila na staré auto (napr. Ford), zoznam modelov ostal od
+  // nového (BMW) a po Shoptet change sa zmazal model aj v sessionStorage. Hodnoty dopĺňa len náš kód zo storage.
   const znacka =
     `
         <div class="surcharge-list brands dm-selector">
             
             <div class='selector'>
-                <select required="required">
+                <select required="required" autocomplete="off">
                     <option class='notselect'>` +
     cstm_znacka[0] +
     `</option>
@@ -272,7 +283,7 @@ function initModelSelect(texts) {
         <div class="surcharge-list models dm-selector">
           
             <div class='selector'>
-                <select required="required">
+                <select required="required" autocomplete="off">
                     <option class='notselect'>` +
     cstm_model[0] +
     `</option>
@@ -286,7 +297,7 @@ function initModelSelect(texts) {
         <div class="surcharge-list years dm-selector">
             
             <div class='selector'>
-                <select required="required">
+                <select required="required" autocomplete="off">
                     <option class='notselect'>` +
     cstm_rocnik[0] +
     `</option>
@@ -299,7 +310,7 @@ function initModelSelect(texts) {
         <div class="surcharge-list type-selector">
            
             <div class='selector'>
-                <select required="required">
+                <select required="required" autocomplete="off">
                     <option class='notselect'>Typ auta</option>
                 </select>
             </div>
@@ -335,38 +346,36 @@ function initModelSelect(texts) {
     $("<option>").text(variant).appendTo(".type-selector .selector select");
   });
 
+  // Zoznam modelov patrí vždy JEDNEJ značke — tá je v data-znacka selectu modelov (normalizovaná).
+  // Podľa nej handler značky nižšie pozná, či sa značka naozaj zmenila.
+  const $znacka = choiceWrap.find(".surcharge-list.brands select");
+  const $modely = choiceWrap.find(".surcharge-list.models select");
+  const naplnModely = function (znacka) {
+    $modely.find("option:not(.notselect)").remove();
+    $modely.prop("selectedIndex", 0).attr("data-znacka", "");
+    const kluc = lcdNajdiKluc(setupData.cars, znacka);
+    const models_for_brand = kluc != null ? setupData.cars[kluc] : null;
+    if (!Array.isArray(models_for_brand)) return false;
+    for (let i = 0; i < models_for_brand.length; i++) {
+      $("<option>" + models_for_brand[i] + "</option>").appendTo($modely);
+    }
+    $modely.attr("data-znacka", lcdNorm(znacka));
+    return true;
+  };
+
   if (getBrand != null) {
-    console.log(getBrand);
-    $("<option>" + getBrand + "</option>").prependTo(".surcharge-list.brands.dm-selector select");
-    $(".surcharge-list.brands.dm-selector select").val(getBrand);
-  }
-
-  if (getModel != null && getBrand != null) {
-    // Získej modely pro vybranou značku
-    const models_for_brand = setupData.cars[getBrand];
-
-    if (models_for_brand && Array.isArray(models_for_brand)) {
-      // Přidej všechny modely do selectu
-      for (let i = 0; i < models_for_brand.length; i++) {
-        $("<option>" + models_for_brand[i] + "</option>").appendTo(".surcharge-list.models.dm-selector select");
-      }
-
-      // Nastav model vícekrát s různými časovými intervaly
-      setTimeout(() => {
-        console.log("Nastavuji model (600ms):", getModel);
-        $(".surcharge-list.models.dm-selector select").val(getModel);
-      }, 600);
-
-      setTimeout(() => {
-        console.log("Nastavuji model znovu (1200ms):", getModel);
-        $(".surcharge-list.models.dm-selector select").val(getModel);
-      }, 1200);
-
-      setTimeout(() => {
-        console.log("Poslední pokus o nastavení modelu (2000ms):", getModel);
-        $(".surcharge-list.models.dm-selector select").val(getModel);
-        console.log("Aktuální hodnota selectu:", $(".surcharge-list.models.dm-selector select").val());
-      }, 2000);
+    $("<option>" + getBrand + "</option>").prependTo($znacka);
+    $znacka.val(getBrand);
+    // Uložený model sa nastaví HNEĎ po naplnení zoznamu (dáta už sú — sme v callbacku data.json).
+    // Predtým ho vracali len časovače 600/1200/2000 ms naslepo: neskorý change od Shoptetu
+    // ho zhodil na „Model“ a časovač vedel vrátiť model inej značky (-> "null").
+    const maZoznam = naplnModely(getBrand);
+    if (getModel != null && !(maZoznam && lcdVyberMoznost($modely[0], getModel))) {
+      // model v zozname tejto značky nie je (staré / neplatné auto) -> placeholder a nič staré v storage
+      try {
+        sessionStorage.removeItem("Model");
+        sessionStorage.removeItem("model");
+      } catch (e) { /* súkromný režim */ }
     }
   }
   // Normalizace
@@ -403,31 +412,47 @@ function initModelSelect(texts) {
     $(other_option).appendTo(".years select");
   }
 
-  // Obnova hodnot ze sessionStorage výše používá jen .val(), takže sama
-  // change nevyvolá. Handler proto může být aktivní ihned; časový zámek by
-  // blokoval skutečného uživatele, který značku vybere rychle po načtení.
-  $(".brands select").on("change", function () {
-    console.log("Spouští se change event pro značku:", $(this).val());
-
-    if ($(this).val() === cstm_znacka.at(1)) {
-      $(".models option:not(.notselect)").remove();
-    } else {
-      $(".models option:not(.notselect)").remove();
-      const models_for_brand = setupData.cars[$(this).val()];
-      if (models_for_brand && Array.isArray(models_for_brand)) {
-        for (let i = 0; i < models_for_brand.length; i++) {
-          $("<option>" + models_for_brand.at(i) + "</option>").appendTo(".models select");
-        }
-      }
-    }
+  // Zoznam modelov sa prestaví LEN pri skutočnej zmene značky. Change s tou istou značkou nič nemení:
+  // Shoptet na produkte po 'load' pošle change na každý `.surcharge-list select` (main-3g.js
+  // handleBrowserValueRestoration -> signalNativeEvent), teda aj na tento select. Predtým to zmazalo
+  // zoznam a vybraný model skočil na „Model“. Inline úprava na rozcestníku (lcdRz.js) posiela change
+  // s novou značkou — tá zoznam prestaví ako doteraz. Placeholder značky -> prázdny zoznam.
+  $znacka.on("change", function () {
+    if (lcdNorm($(this).val()) === ($modely.attr("data-znacka") || "")) return;
+    naplnModely($(this).val());
   });
 
   $(".btn.choice-Model").on("click", function () {
     saveModel(true);
   });
   // Ukládej i první rychlou změnu provedenou po vykreslení formuláře.
-  $(".surcharge-list select").on("change", function () {
-    console.log("change");
+  // Len NAŠE štyri selecty — `.surcharge-list select` chytal aj natívne selecty Shoptetu
+  // (príplatky na produkte, kamióny, vzorkovník) a každý ich change prepisoval uložené auto.
+  choiceWrap.find("select").on("change", function () {
+    saveModel(false);
+  });
+
+  // Návrat cez bfcache (Safari/iOS; Chrome pri Shoptet no-store bfcache zatiaľ nepoužíva): stránka sa ukáže
+  // presne ako pri odchode, ale auto mohlo byť medzitým zmenené na inej stránke v tej istej karte.
+  // Selecty sa zosúladia so sessionStorage (najnovší výber) a saveModel prepíše banner aj „model“
+  // na to isté auto. Change sa nevyvolá — zoznam modelov sa prestaví len pri inej značke (ako handler vyššie).
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    const u = nacitajUlozeneAuto();
+    const nastav = function (select, hodnota) {
+      if (!select) return;
+      if (hodnota == null) {
+        select.selectedIndex = 0;
+      } else if (!lcdVyberMoznost(select, hodnota)) {
+        $("<option>").text(hodnota).prependTo(select);
+        select.selectedIndex = 0;
+      }
+    };
+    nastav($znacka[0], u.Brand);
+    if (lcdNorm(u.Brand) !== ($modely.attr("data-znacka") || "")) naplnModely(u.Brand);
+    if (u.Model == null || !lcdVyberMoznost($modely[0], u.Model)) $modely.prop("selectedIndex", 0);
+    nastav(choiceWrap.find(".surcharge-list.years select")[0], u.Year);
+    nastav(choiceWrap.find(".surcharge-list.type-selector select")[0], u.carType);
     saveModel(false);
   });
 
@@ -670,52 +695,44 @@ function initVehicleKindSwitch(container, choiceWrap) {
 }
 
 function saveModel(redirect) {
-  console.log("saveModel");
-  const Brand = $(".surcharge-list.brands.dm-selector select").val();
-  const Model = $(".surcharge-list.models.dm-selector select").val();
-  const Year = $(".surcharge-list.years.dm-selector select").val();
-  const type = $(".surcharge-list.type-selector select").val();
-  setTimeout(() => {
-    try {
-      console.log(Brand + " " + Model + " " + Year);
+  const $selZnacka = $(".surcharge-list.brands.dm-selector select");
+  const $selModel = $(".surcharge-list.models.dm-selector select");
+  const $selRok = $(".surcharge-list.years.dm-selector select");
+  const $selTyp = $(".surcharge-list.type-selector select");
+  // Stránka bez konfigurátora osobných áut (kamióny, vzorkovník…): nič neukladať — inak by sa
+  // zapísalo "undefined" a taký riadok by skončil v poznámke objednávky.
+  if (!$selZnacka[0] || !$selModel[0] || !$selRok[0] || !$selTyp[0]) return;
 
-      sessionStorage.setItem("Brand", Brand);
-      if (Model !== "Model") {
-        sessionStorage.setItem("Model", Model);
-        // Na strankach bez auto-konfiguratora su vsetky selecty prazdne — bez
-        // tejto poistky sa ulozilo "undefined undefined undefined undefined"
-        // a taky riadok potom skoncil v poznamke objednavky.
-        if (Brand && Model && Year && type) {
-          sessionStorage.setItem("model", Brand + " " + Model + " " + Year + " " + type);
-        }
-      }
-      sessionStorage.setItem("Year", Year);
-      sessionStorage.setItem("carType", type);
-      $(".model-text").text(Brand + " " + Model + " " + Year + " " + type);
-    } catch (e) {
-      console.warn("Session storage is not available:", e);
-      // Fallback - could use cookies or other storage mechanism here
-    }
-  }, 100);
+  // Len skutočný výber: placeholder, selectedIndex -1 (hodnota null) ani "null"/"undefined" sa
+  // neukladá — kľúč sa odstráni. Zápis je hneď (bez setTimeout), takže nič neskoršie neprepíše
+  // novší výber starým.
+  const auto = {
+    Brand: lcdPlatnaHodnota($selZnacka[0], [cstm_znacka[0]]),
+    Model: lcdPlatnaHodnota($selModel[0], [cstm_model[0]]),
+    Year: lcdPlatnaHodnota($selRok[0], [cstm_rocnik[0]]),
+    carType: lcdPlatnaHodnota($selTyp[0], LCD_TYP_PLACEHOLDERY),
+  };
+  const kompletne = !!(auto.Brand && auto.Model && auto.Year && auto.carType);
+  // „model“ = riadok do poznámky objednávky: len s kompletným autom, nikdy so starým rokom/typom
+  const popis = kompletne ? auto.Brand + " " + auto.Model + " " + auto.Year + " " + auto.carType : null;
+  try {
+    Object.keys(auto).forEach(function (kluc) {
+      if (auto[kluc]) sessionStorage.setItem(kluc, auto[kluc]);
+      else sessionStorage.removeItem(kluc);
+    });
+    if (popis) sessionStorage.setItem("model", popis);
+    else sessionStorage.removeItem("model");
+  } catch (e) {
+    console.warn("Session storage is not available:", e);
+  }
+  if (popis) $(".model-text").text(popis);
+
   if ($(".in-index")[0] && redirect) {
-    if (
-      $(".surcharge-list.brands.dm-selector select").val() === cstm_znacka[0] ||
-      $(".surcharge-list.models.dm-selector select").val() === cstm_model[0] ||
-      $(".surcharge-list.years.dm-selector select").val() === cstm_rocnik[0] ||
-      $(".surcharge-list.type-selector select").val() === "Typ auta"
-    ) {
-      if ($(".surcharge-list.brands.dm-selector select").val() === cstm_znacka[0]) {
-        $(".surcharge-list.brands.dm-selector").addClass("errorToCart");
-      }
-      if ($(".surcharge-list.models.dm-selector select").val() === cstm_model[0]) {
-        $(".surcharge-list.models.dm-selector").addClass("errorToCart");
-      }
-      if ($(".surcharge-list.years.dm-selector select").val() === cstm_rocnik[0]) {
-        $(".surcharge-list.years.dm-selector").addClass("errorToCart");
-      }
-      if ($(".surcharge-list.type-selector select").val() === "Typ auta") {
-        $(".surcharge-list.type-selector").addClass("errorToCart");
-      }
+    if (!kompletne) {
+      if (!auto.Brand) $(".surcharge-list.brands.dm-selector").addClass("errorToCart");
+      if (!auto.Model) $(".surcharge-list.models.dm-selector").addClass("errorToCart");
+      if (!auto.Year) $(".surcharge-list.years.dm-selector").addClass("errorToCart");
+      if (!auto.carType) $(".surcharge-list.type-selector").addClass("errorToCart");
       setTimeout(() => {
         $(".errorToCart").removeClass("errorToCart");
       }, 2000);
