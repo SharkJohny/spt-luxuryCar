@@ -72,23 +72,40 @@ const TEXTY = {
     box1: "1 box",
     box2: "2 boxy",
     velkost: "Veľkosť",
+    velkost1: "Veľkosť 1. boxu",
+    velkost2: "Veľkosť 2. boxu",
     farba: "Farba",
     zvolteFarbu: "Zvoľte farbu",
     od: "od",
     vSete: "v sete",
     usetrite: "ušetríte",
+    usetriteAspon: "ušetríte aspoň",
     pridat: "Pridať do setu",
     pridavam: "Pridávam…",
     chybaVelkost: "Zvoľte, prosím, veľkosť boxu.",
+    chybaVelkost1: "Zvoľte, prosím, veľkosť 1. boxu.",
+    chybaVelkost2: "Zvoľte, prosím, veľkosť 2. boxu.",
     chybaFarba: "Zvoľte, prosím, farbu boxu.",
     hotovoRohoz: (v) => "Rohož " + v + " je pridaná k Vášmu setu.",
     hotovoBox1: "Box je pridaný k Vášmu setu.",
     hotovoBox2: "Boxy sú pridané k Vášmu setu.",
     chyba: "Doplnok sa nepodarilo pridať. Váš košík ostal bez zmeny. Skúste to, prosím, znova.",
-    chybaCiastocna: "Doplnok je pridaný, pôvodný set bez neho však ostal v košíku. Odstráňte ho, prosím, krížikom pri riadku.",
-    chybaCiastocnaViac: "Doplnok je pridaný, pôvodný set bez neho však ostal v košíku. Znížte, prosím, jeho počet o 1 kus.",
+    chybaCiastocna: "Doplnok je pridaný, pôvodný set bez neho však ostal v košíku. Odstráňte, prosím, celý zvýraznený riadok krížikom vpravo hore.",
+    chybaCiastocnaViac: "Doplnok je pridaný, pôvodný set bez neho však ostal v košíku. Znížte, prosím, počet zvýrazneného riadku o 1 kus.",
     chybaStav: "Košík sa medzitým zmenil. Skontrolujte ho, prosím.",
     chybaKontrola: "Doplnok sa nepodarilo pridať. Skontrolujte, prosím, obsah košíka.",
+    chybaKontrolaOdober: "Doplnok sa nepodarilo odstrániť. Skontrolujte, prosím, obsah košíka.",
+    // odobratie doplnku zo setu (krížik v košíku, Michal 10. 10.)
+    vSeteDoplnky: "Doplnky v sete:",
+    odstranit: "Odstrániť zo setu",
+    boxJeden: "Box",
+    odoberam: "Odstraňujem…",
+    odobraneRohoz: (v) => "Rohož " + v + " je odstránená zo setu.",
+    odobraneBox1: "Box je odstránený zo setu.",
+    odobraneBox2: "Boxy sú odstránené zo setu.",
+    chybaOdober: "Doplnok sa nepodarilo odstrániť. Váš košík ostal bez zmeny. Skúste to, prosím, znova.",
+    chybaCiastocnaOdober: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Odstráňte, prosím, celý zvýraznený riadok krížikom vpravo hore.",
+    chybaCiastocnaOdoberViac: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Znížte, prosím, počet zvýrazneného riadku o 1 kus.",
   },
   cz: {
     nadpis: "Doplňte kufr ve stejném stylu",
@@ -120,30 +137,46 @@ const TEXTY = {
     box1: "1 box",
     box2: "2 boxy",
     velkost: "Velikost",
+    velkost1: "Velikost 1. boxu",
+    velkost2: "Velikost 2. boxu",
     farba: "Barva",
     zvolteFarbu: "Zvolte barvu",
     od: "od",
     vSete: "v setu",
     usetrite: "ušetříte",
+    usetriteAspon: "ušetříte alespoň",
     pridat: "Přidat do setu",
     pridavam: "Přidávám…",
     chybaVelkost: "Zvolte prosím velikost boxu.",
+    chybaVelkost1: "Zvolte prosím velikost 1. boxu.",
+    chybaVelkost2: "Zvolte prosím velikost 2. boxu.",
     chybaFarba: "Zvolte prosím barvu boxu.",
     hotovoRohoz: (v) => "Rohož " + v + " byla přidána k Vašemu setu.",
     hotovoBox1: "Box byl přidán k Vašemu setu.",
     hotovoBox2: "Boxy byly přidány k Vašemu setu.",
     chyba: "Doplněk se nepodařilo přidat. Váš košík zůstal beze změny. Zkuste to prosím znovu.",
-    chybaCiastocna: "Doplněk je přidaný, původní set bez něj však zůstal v košíku. Odeberte ho prosím křížkem u řádku.",
-    chybaCiastocnaViac: "Doplněk je přidaný, původní set bez něj však zůstal v košíku. Snižte prosím jeho počet o 1 kus.",
+    chybaCiastocna: "Doplněk je přidaný, původní set bez něj však zůstal v košíku. Odeberte prosím celý zvýrazněný řádek křížkem vpravo nahoře.",
+    chybaCiastocnaViac: "Doplněk je přidaný, původní set bez něj však zůstal v košíku. Snižte prosím počet zvýrazněného řádku o 1 kus.",
     chybaStav: "Košík se mezitím změnil. Zkontrolujte ho prosím.",
     chybaKontrola: "Doplněk se nepodařilo přidat. Zkontrolujte prosím obsah košíku.",
+    chybaKontrolaOdober: "Doplněk se nepodařilo odebrat. Zkontrolujte prosím obsah košíku.",
+    vSeteDoplnky: "Doplňky v setu:",
+    odstranit: "Odebrat ze setu",
+    boxJeden: "Box",
+    odoberam: "Odebírám…",
+    odobraneRohoz: (v) => "Rohož " + v + " byla odebrána ze setu.",
+    odobraneBox1: "Box byl odebrán ze setu.",
+    odobraneBox2: "Boxy byly odebrány ze setu.",
+    chybaOdober: "Doplněk se nepodařilo odebrat. Váš košík zůstal beze změny. Zkuste to prosím znovu.",
+    chybaCiastocnaOdober: "Set bez doplňku je v košíku, původní set však zůstal také. Odeberte prosím celý zvýrazněný řádek křížkem vpravo nahoře.",
+    chybaCiastocnaOdoberViac: "Set bez doplňku je v košíku, původní set však zůstal také. Snižte prosím počet zvýrazněného řádku o 1 kus.",
   },
 };
 
 const VELKOSTI = ["S", "M", "L", "XL"];
 const TTL = 24 * 3600 * 1000;
 const KLUC_MAPY = "lcdPriplatky:v1:";
-const KLUC_CIEN = "lcdSamostatne:v1:";
+const KLUC_CIEN = "lcdSamostatne:v3:"; // v2: + zaklad, p1, p2 (2 boxy rôznych veľkostí); v3: p2 len kladný
 const KLUC_NIE = "lcdDoplnokNie:";
 const KLUC_HOTOVO = "lcdDoplnokHotovo";
 const KLUC_OBNOVA = "lcdDoplnokObnova:";
@@ -295,12 +328,22 @@ export function velkostiBoxu(mapa, pid) {
   return out;
 }
 
-/** Zmena príplatkov pre doplnok. rohož: {typ:"rohoz", varianta}; box: {typ:"box", pocet, velkost, farba} */
+/** Samostatná cena boxov na porovnanie: 1 box = box1[a]; 2 boxy = základ + príplatok 1. boxu a + 2. boxu b. */
+export function samostatneBoxy(sam, pocet, a, b) {
+  if (!sam || !a) return null;
+  if (pocet !== 2) return (sam.box1 && sam.box1[a]) || null;
+  const v2 = b || a;
+  if (sam.zaklad && sam.p1 && sam.p2 && sam.p1[a] != null && sam.p2[v2] != null) return sam.zaklad + sam.p1[a] + sam.p2[v2];
+  return a === v2 && sam.box2 && sam.box2[a] ? sam.box2[a] : null;
+}
+
+/** Zmena príplatkov pre doplnok. rohož: {typ:"rohoz", varianta}; box: {typ:"box", pocet, velkost, velkost2?, farba}
+ * (2 boxy: velkost = 1. box, velkost2 = 2. box — Michal 10. 10.: každý box zvlášť; bez velkost2 = rovnaká) */
 export function zmena(doplnok, mapa, R) {
   if (doplnok.typ === "rohoz") return { [R.rohoz]: doplnok.varianta === "premium" ? R.premium : R.classic };
   const z = { [R.farbaBox]: String(doplnok.farba) };
   if (doplnok.pocet === 2) {
-    const a = velkostiBoxu(mapa, R.box1)[doplnok.velkost], b = velkostiBoxu(mapa, R.box2)[doplnok.velkost];
+    const a = velkostiBoxu(mapa, R.box1)[doplnok.velkost], b = velkostiBoxu(mapa, R.box2)[doplnok.velkost2 || doplnok.velkost];
     if (!a || !b) return null;
     z[R.box1] = a.id;
     z[R.box2] = b.id;
@@ -312,14 +355,54 @@ export function zmena(doplnok, mapa, R) {
   return z;
 }
 
+/**
+ * Odobratie doplnku zo setu (Michal 10. 10.: krížik pri rohoži / boxe v košíku): rohož -> „nie“, box -> všetky
+ * parametre boxu preč (null = parameter v novom riadku vynechať, ako set, ku ktorému sa box nikdy nepridal).
+ */
+export function zmenaOdober(co, volby, R) {
+  if (co === "rohoz") return volby[R.rohoz] === R.classic || volby[R.rohoz] === R.premium ? { [R.rohoz]: R.nie } : null;
+  const z = {};
+  [R.farbaBox, R.box1, R.box2, R.boxSolo].forEach(function (id) { if (volby[id] !== undefined) z[id] = null; });
+  return Object.keys(z).length ? z : null;
+}
+
+/** Príplatky po zmene; null = parameter vynechať (payload aj očakávaný stav nového riadku). */
+export function zluc(volby, zm) {
+  const o = Object.assign({}, volby, zm);
+  Object.keys(o).forEach(function (k) { if (o[k] === null || o[k] === undefined) delete o[k]; });
+  return o;
+}
+
+/** Doplnky, ktoré set má (krížiky v košíku): [{ co, nazov, pocet }] */
+export function doplnkySetu(volby, mapa, R, T) {
+  const out = [], p = mapa.params;
+  const vr = volby[R.rohoz];
+  if (vr === R.classic || vr === R.premium) out.push({ co: "rohoz", nazov: T.rohozKratko + " " + (vr === R.premium ? T.premium : T.classic), varianta: vr === R.premium ? "premium" : "classic" });
+  const vel = function (id) {
+    const v = volby[id], o = v !== undefined && p[id] ? p[id].o[v] : null;
+    return o && velkost(o.t) ? velkost(o.t) : null;
+  };
+  const s1 = vel(R.boxSolo), a = vel(R.box1), b = vel(R.box2);
+  if (a && b) out.push({ co: "box", nazov: T.box2 + " " + a + " + " + b, pocet: 2 });
+  else if (s1 || a || b) out.push({ co: "box", nazov: T.boxJeden + " " + (s1 || a || b), pocet: 1 });
+  return out;
+}
+
 /** Rozdiel ceny riadku po zmene (s DPH aj bez) z príplatkov mapy; nevie -> null. */
 export function rozdielCeny(volby, zm, mapa) {
   let s = 0, b = 0;
   for (const pid of Object.keys(zm)) {
     const p = mapa.params[pid];
     if (!p) return null;
-    const nova = p.o[zm[pid]];
     const stara = volby[pid] !== undefined ? p.o[volby[pid]] : null;
+    if (zm[pid] === null) {
+      // parameter vynechaný (odobratie doplnku)
+      if (stara && stara.fp == null) return null;
+      s -= stara ? stara.fp : 0;
+      b -= stara ? stara.ap || 0 : 0;
+      continue;
+    }
+    const nova = p.o[zm[pid]];
     if (!nova || nova.fp == null || (stara && stara.fp == null)) return null;
     s += nova.fp - (stara ? stara.fp : 0);
     b += (nova.ap || 0) - (stara ? stara.ap || 0 : 0);
@@ -329,7 +412,7 @@ export function rozdielCeny(volby, zm, mapa) {
 
 /** Telo POST addCartItem: priceId, productId, language, VŠETKY pôvodné príplatky + zmena, amount=1. */
 export function zostavPayload(riadok, volby, zm, mapa, csrf) {
-  const vsetky = Object.assign({}, volby, zm);
+  const vsetky = zluc(volby, zm);
   const casti = ["priceId=" + encodeURIComponent(riadok.priceId), "productId=" + encodeURIComponent(mapa.pid)];
   if (mapa.lang) casti.push("language=" + encodeURIComponent(mapa.lang));
   Object.keys(vsetky).sort(function (a, b) { return a - b; }).forEach(function (pid) {
@@ -564,7 +647,7 @@ async function stiahniSamostatneCeny(dizajn, R, kluc) {
     const v = m ? parseFloat(m.getAttribute("content")) : NaN;
     return isFinite(v) && v > 0 ? v : null;
   };
-  const vys = { t: Date.now(), classic: null, premium: null, box1: {}, box2: {} };
+  const vys = { t: Date.now(), classic: null, premium: null, box1: {}, box2: {}, zaklad: null, p1: {}, p2: {} };
   const [c, p, b] = await Promise.all(["classic", "premium", "box"].map(function (k) {
     return stiahniDokument(SAMOSTATNE[k](dizajn)).catch(function () { return null; });
   }));
@@ -574,9 +657,12 @@ async function stiahniSamostatneCeny(dizajn, R, kluc) {
     const zaklad = cena(b), m = mapaZFormulara(b);
     if (zaklad && m) {
       const v1 = velkostiBoxu(m, R.box1), v2 = velkostiBoxu(m, R.box2);
+      vys.zaklad = zaklad;
       VELKOSTI.forEach(function (v) {
-        if (v1[v]) vys.box1[v] = zaklad + v1[v].fp;
-        if (v1[v] && v2[v]) vys.box2[v] = zaklad + v1[v].fp + v2[v].fp;
+        if (v1[v]) { vys.box1[v] = zaklad + v1[v].fp; vys.p1[v] = v1[v].fp; }
+        // 2. box „+0“ (CZ admin, 2. box S) by ukázal úsporu ~0 -> len kladný príplatok (kontrola kódu 10. 10.)
+        if (v2[v] && v2[v].fp > 0) vys.p2[v] = v2[v].fp;
+        if (v1[v] && v2[v] && v2[v].fp > 0) vys.box2[v] = zaklad + v1[v].fp + v2[v].fp;
       });
     }
   }
@@ -678,7 +764,7 @@ export async function vymen(c) {
     return { ok: false, krok: "zmena_kosika", reload: true };
   }
   const predQ = new Map(pred.map(function (r) { return [r.itemId, r.q]; }));
-  const ocakavane = Object.assign({}, c.volby, c.zmena);
+  const ocakavane = zluc(c.volby, c.zmena);
   const qZ = function (i) { return Number(i.quantity != null ? i.quantity : i.q); };
   // riadky TOHO ISTÉHO variantu setu, ktoré po pridaní pribudli alebo im stúplo množstvo (pôvodný riadok sa
   // nepočíta; iné produkty, napr. darček, ktorý Shoptet pridá sám, rozhodovanie neovplyvnia)
@@ -827,7 +913,7 @@ function el(tag, attrs, deti) {
  * Cena v karte: veľké „+129 € v sete“, pod tým „samostatne 230 €“ (prečiarknuté) a „ušetríte 101 €“
  * (Michal 7. 10.: tvar „Ušetríte …“, nie „−101 €“). kratko = „od +99 €“ bez riadku úspory (karta boxu).
  */
-function cenovka(T, R, rozdiel, samostatne, kratko) {
+function cenovka(T, R, rozdiel, samostatne, kratko, usetriAspon) {
   const usetri = samostatne && samostatne > rozdiel + 0.5 ? samostatne - rozdiel : 0;
   const deti = [el("span", { class: "lcd-dop__hlavna" }, [
     el("b", { class: "lcd-dop__vsete", text: (kratko ? T.od + " " : "") + cenaText(rozdiel, R, true) }), " ",
@@ -837,6 +923,8 @@ function cenovka(T, R, rozdiel, samostatne, kratko) {
     deti.push(" ", el("span", { class: "lcd-dop__samoriadok" }, [T.samostatne + " " + (kratko ? T.od + " " : ""), el("s", { class: "lcd-dop__samo", text: cenaText(samostatne, R) })]));
     if (!kratko) deti.push(" ", el("span", { class: "lcd-dop__usetri" }, [T.usetrite + " " + cenaText(usetri, R)]));
   }
+  // karta boxu („od +99 €“): najmenšia úspora zo všetkých veľkostí a počtov (Michal 10. 10.: „ušetríte aspoň …“)
+  if (kratko && usetriAspon > 0.5) deti.push(" ", el("span", { class: "lcd-dop__usetri" }, [T.usetriteAspon + " " + cenaText(usetriAspon, R)]));
   return el("span", { class: "lcd-dop__cena" }, deti);
 }
 
@@ -937,15 +1025,18 @@ function karta(ctx, T, R, viacSetov) {
     const farbaP = ctx.mapa.params[R.farbaBox];
     const farby = Object.keys(farbaP.o).filter(function (fid) { return farbaP.o[fid].fp != null; });
     const predvolena = predvolenaFarbaBoxu(ctx.riadok.variant, ctx.mapa, R);
-    const stavBox = { pocet: 1, velkost: null, farba: predvolena };
-    const cenaPre = function (pocet, v) {
+    // 2 boxy: každý box vlastná veľkosť (Michal 10. 10.) — velkost = 1. box, velkost2 = 2. box
+    const stavBox = { pocet: 1, velkost: null, velkost2: null, farba: predvolena };
+    const cenaPre = function (pocet, v, vb) {
       if (!v || !farby.length) return null;
-      const zm = zmena({ typ: "box", pocet: pocet, velkost: v, farba: stavBox.farba || farby[0] }, ctx.mapa, R);
+      const zm = zmena({ typ: "box", pocet: pocet, velkost: v, velkost2: vb || v, farba: stavBox.farba || farby[0] }, ctx.mapa, R);
       const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
-      return rozdiel && rozdiel.s > 0 ? { zm: zm, rozdiel: rozdiel, samo: ctx.samostatne ? ctx.samostatne["box" + pocet][v] : null } : null;
+      return rozdiel && rozdiel.s > 0 ? { zm: zm, rozdiel: rozdiel, samo: samostatneBoxy(ctx.samostatne, pocet, v, vb || v) } : null;
     };
-    const dostupne = function (pocet) { return VELKOSTI.filter(function (v) { return pocet === 2 ? v1[v] && v2[v] && cenaPre(2, v) : vSolo[v] && cenaPre(1, v); }); };
-    const ma1 = dostupne(1), ma2 = dostupne(2);
+    const ma1 = VELKOSTI.filter(function (v) { return vSolo[v] && cenaPre(1, v); });
+    const ma2a = VELKOSTI.filter(function (v) { return v1[v]; }), ma2b = VELKOSTI.filter(function (v) { return v2[v]; });
+    // 2 boxy len keď ide zložiť aspoň rovnakú dvojicu (a cena je známa); pre „od“ a štítok zľavy stačia rovnaké dvojice
+    const ma2 = ma2a.filter(function (v) { return v2[v] && cenaPre(2, v, v); });
     if (farby.length && (ma1.length || ma2.length)) {
       const n = "lcd-dop-" + poradie;
       const pocty = [];
@@ -956,6 +1047,12 @@ function karta(ctx, T, R, viacSetov) {
       const vsetky = [];
       pocty.forEach(function (p) { (p === 2 ? ma2 : ma1).forEach(function (v) { const i = cenaPre(p, v); vsetky.push({ s: i.rozdiel.s, samo: i.samo, z: zlava(i.samo, i.rozdiel.s) }); }); });
       const naj = vsetky.reduce(function (a, b) { return b.s < a.s ? b : a; });
+      // najmenšia úspora: všetky veľkosti 1 boxu aj všetky dvojice veľkostí 2 boxov (aj rôzne)
+      const uspory = [];
+      const uspora = function (i) { if (i && i.samo && i.samo > i.rozdiel.s + 0.5) uspory.push(i.samo - i.rozdiel.s); else if (i) uspory.push(0); };
+      if (pocty.indexOf(1) > -1) ma1.forEach(function (v) { uspora(cenaPre(1, v)); });
+      if (pocty.indexOf(2) > -1) ma2a.forEach(function (a) { ma2b.forEach(function (b) { uspora(cenaPre(2, a, b)); }); });
+      const usetriAspon = uspory.length ? Math.min.apply(null, uspory) : 0;
       const zlavy = vsetky.map(function (x) { return x.z; });
       const maxZ = Math.max.apply(null, zlavy);
 
@@ -967,19 +1064,22 @@ function karta(ctx, T, R, viacSetov) {
         foto: fotoDoplnku(pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,
         zlava: maxZ, az: zlavy.some(function (z) { return z !== maxZ; }),
         nadtitul: T.boxNadtitul, meno: T.box, veta: T.boxVeta,
-        cena: cenovka(T, R, naj.s, naj.samo, true), tlacidlo: btn,
+        cena: cenovka(T, R, naj.s, naj.samo, true, usetriAspon), tlacidlo: btn,
       });
 
       const fsPocet = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--pocet" }, [el("legend", { text: T.pocet })].concat(pocty.map(function (p) {
         const i = el("input", { type: "radio", name: n + "-pocet", value: String(p), checked: p === stavBox.pocet, "data-lcd-dop-pocet": String(p) });
         i.addEventListener("change", function () {
           stavBox.pocet = p;
+          hint.textContent = "";
           karticka.obr.src = fotoDoplnku(p === 2 ? FOTKY.box2 : FOTKY.box1);
           prekresli();
         });
         return el("label", { class: "lcd-dop__opt" }, [i, el("span", { text: p === 1 ? T.box1 : T.box2 })]);
       })));
-      const fsVel = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--velkost" }, [el("legend", { text: T.velkost })]);
+      const legVel = el("legend", { text: T.velkost }), legVel2 = el("legend", { text: T.velkost2 });
+      const fsVel = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--velkost" }, [legVel]);
+      const fsVel2 = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--velkost lcd-dop__fs--velkost2", hidden: true }, [legVel2]);
       const selFarba = el("select", { class: "lcd-dop__select", id: n + "-farba", "data-lcd-dop-farba": "" }, [
         el("option", { value: "", text: T.zvolteFarbu, disabled: true, selected: !predvolena }),
       ].concat(farby.map(function (fid) { return el("option", { value: fid, text: popisFarby(farbaP.o[fid].t), selected: fid === predvolena }); })));
@@ -988,40 +1088,57 @@ function karta(ctx, T, R, viacSetov) {
       const suhrnCena = el("div", { class: "lcd-dop__suhrn-cena" });
       const tl = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "box", text: T.pridat });
       const hint = el("p", { class: "lcd-dop__hint", "aria-live": "polite" });
-      const prekresli = function () {
-        const dost = stavBox.pocet === 2 ? ma2 : ma1;
-        if (stavBox.velkost && dost.indexOf(stavBox.velkost) < 0) stavBox.velkost = null;
-        while (fsVel.children.length > 1) fsVel.removeChild(fsVel.lastChild);
-        dost.forEach(function (v) {
-          const info = cenaPre(stavBox.pocet, v);
-          const i = el("input", { type: "radio", name: n + "-velkost", value: v, checked: v === stavBox.velkost, "data-lcd-dop-velkost": v });
-          i.addEventListener("change", function () { stavBox.velkost = v; hint.textContent = ""; prekresliSuhrn(); });
-          const rz = (stavBox.pocet === 2 ? v1[v] : vSolo[v]).rozmer;
-          fsVel.appendChild(el("label", { class: "lcd-dop__opt lcd-dop__opt--vel" }, [i, el("span", {}, [
-            el("b", { text: v }), el("small", { text: rz }), el("em", { text: cenaText(info.rozdiel.s, R, true) }),
+      // dlaždice veľkostí: pri 1 boxe cena celej zmeny, pri 2 boxoch príplatok daného boxu v sete
+      const dlazdice = function (fs, zoznam, mapaVel, kluc, attr, cena) {
+        while (fs.children.length > 1) fs.removeChild(fs.lastChild);
+        zoznam.forEach(function (v) {
+          const a = { type: "radio", name: n + "-" + kluc, value: v, checked: v === stavBox[kluc] };
+          a[attr] = v;
+          const i = el("input", a);
+          i.addEventListener("change", function () { stavBox[kluc] = v; hint.textContent = ""; prekresliSuhrn(); });
+          fs.appendChild(el("label", { class: "lcd-dop__opt lcd-dop__opt--vel" }, [i, el("span", {}, [
+            el("b", { text: v }), el("small", { text: mapaVel[v].rozmer }), el("em", { text: cenaText(cena(v), R, true) }),
           ])]));
         });
+      };
+      const prekresli = function () {
+        const dva = stavBox.pocet === 2;
+        const zoz1 = dva ? ma2a : ma1;
+        if (stavBox.velkost && zoz1.indexOf(stavBox.velkost) < 0) stavBox.velkost = null;
+        if (stavBox.velkost2 && ma2b.indexOf(stavBox.velkost2) < 0) stavBox.velkost2 = null;
+        legVel.textContent = dva ? T.velkost1 : T.velkost;
+        if (dva) {
+          dlazdice(fsVel, ma2a, v1, "velkost", "data-lcd-dop-velkost", function (v) { return v1[v].fp; });
+          dlazdice(fsVel2, ma2b, v2, "velkost2", "data-lcd-dop-velkost2", function (v) { return v2[v].fp; });
+        } else {
+          dlazdice(fsVel, ma1, vSolo, "velkost", "data-lcd-dop-velkost", function (v) { return cenaPre(1, v).rozdiel.s; });
+        }
+        fsVel2.hidden = !dva;
         prekresliSuhrn();
       };
       const prekresliSuhrn = function () {
         suhrnCena.textContent = "";
-        const info = stavBox.velkost ? cenaPre(stavBox.pocet, stavBox.velkost) : null;
+        const dva = stavBox.pocet === 2;
+        const info = stavBox.velkost && (!dva || stavBox.velkost2) ? cenaPre(stavBox.pocet, stavBox.velkost, dva ? stavBox.velkost2 : null) : null;
         if (info) suhrnCena.appendChild(cenovka(T, R, info.rozdiel.s, info.samo, false));
       };
       tl.addEventListener("click", function () {
-        meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "box_" + stavBox.pocet, lcd_velkost: stavBox.velkost, lcd_pocet: stavBox.pocet, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
-        if (!stavBox.velkost) { hint.textContent = T.chybaVelkost; const r = fsVel.querySelector("input"); if (r) r.focus(); return; }
+        const dva = stavBox.pocet === 2;
+        const velkosti = dva ? (stavBox.velkost || "?") + "+" + (stavBox.velkost2 || "?") : stavBox.velkost;
+        meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "box_" + stavBox.pocet, lcd_velkost: velkosti, lcd_pocet: stavBox.pocet, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+        if (!stavBox.velkost) { hint.textContent = dva ? T.chybaVelkost1 : T.chybaVelkost; const r = fsVel.querySelector("input"); if (r) r.focus(); return; }
+        if (dva && !stavBox.velkost2) { hint.textContent = T.chybaVelkost2; const r = fsVel2.querySelector("input"); if (r) r.focus(); return; }
         if (!stavBox.farba) { hint.textContent = T.chybaFarba; selFarba.focus(); return; }
-        const zm = zmena({ typ: "box", pocet: stavBox.pocet, velkost: stavBox.velkost, farba: stavBox.farba }, ctx.mapa, R);
+        const zm = zmena({ typ: "box", pocet: stavBox.pocet, velkost: stavBox.velkost, velkost2: dva ? stavBox.velkost2 : null, farba: stavBox.farba }, ctx.mapa, R);
         const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
         if (!zm || !rozdiel) { stav.textContent = T.chyba; return; }
-        spustiVymenu(ctx, { typ: "box", pocet: stavBox.pocet, velkost: stavBox.velkost, kod: "box_" + stavBox.pocet }, zm, rozdiel, T, R, stav, k);
+        spustiVymenu(ctx, { typ: "box", pocet: stavBox.pocet, velkost: velkosti, kod: "box_" + stavBox.pocet }, zm, rozdiel, T, R, stav, k);
       });
 
       // výber boxu pod kartami (na celú šírku bloku), otvára ho tlačidlo na karte boxu
       const telo = el("div", { class: "lcd-dop__telo lcd-dop__boxvyber", id: tid, hidden: true, "data-doplnok": "box" }, [
         el("p", { class: "lcd-dop__boxtitul", text: T.boxVyber }),
-        fsPocet, fsVel, farbaWrap,
+        fsPocet, fsVel, fsVel2, farbaWrap,
         el("div", { class: "lcd-dop__suhrn" }, [suhrnCena, tl]),
         hint,
       ]);
@@ -1133,7 +1250,7 @@ async function obnov(z, R) {
     if (!o.zmena) o.akcia = "nejasne";
   }
   if (o.akcia === "dokonci") {
-    meraj("lcd_set_doplnok_pridany", {
+    meraj(/^odober_/.test(z.kod || "") ? "lcd_set_doplnok_odobrany" : "lcd_set_doplnok_pridany", {
       lcd_doplnok: z.kod, lcd_velkost: z.velkost || null, lcd_pocet: z.pocet || null, lcd_trh: z.trh, lcd_set_sku: z.sku || null,
       lcd_value: z.rozdiel, lcd_value_wo_vat: z.rozdielB, lcd_currency: z.mena, lcd_krok: "obnova",
     });
@@ -1209,7 +1326,8 @@ function spustObnovu(R, naKosiku, pokus, sprava) {
     const zastarane = o.akcia === "zastarane" || (o.akcia === "hotove" && !!o.z && vykreslenePredZmazanim(o.z.stary, dlKosik()));
     if (sprava && o.akcia !== "zastarane" && o.akcia !== "nic") {
       const ok = o.akcia === "dokonci" || o.akcia === "hotove";
-      const text = ok ? (o.z && o.z.hotovo) || null : o.akcia === "vrat" ? T.chyba : T.chybaKontrola;
+      const odober = /^odober_/.test((o.z && o.z.kod) || "");
+      const text = ok ? (o.z && o.z.hotovo) || null : o.akcia === "vrat" ? (odober ? T.chybaOdober : T.chyba) : (odober ? T.chybaKontrolaOdober : T.chybaKontrola);
       if (text) ssPis(KLUC_HOTOVO, JSON.stringify({ text: text, typ: ok ? "ok" : "chyba", t: Date.now() }));
     }
     return { reload: mozeObnovit && !!(o.zmena || zastarane) };
@@ -1286,12 +1404,14 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   if (zamok) return;
   zamok = true;
   window.__lcdCartReloading = true; // cart.js r. 15–21: počas výmeny nič neobnovovať
-  const tlacidla = document.querySelectorAll("#lcd-doplnok button, #lcd-doplnok input, #lcd-doplnok select");
+  const tlacidla = document.querySelectorAll("#lcd-doplnok button, #lcd-doplnok input, #lcd-doplnok select, .lcd-dop-odober button");
+  const odober = doplnok.typ === "odober";
   tlacidla.forEach(function (b) { b.disabled = true; });
   kartaEl.setAttribute("aria-busy", "true");
   stav.className = "lcd-dop__stav";
-  stav.textContent = T.pridavam;
-  const hotovo = doplnok.typ === "rohoz" ? T.hotovoRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.hotovoBox2 : T.hotovoBox1;
+  stav.textContent = odober ? T.odoberam : T.pridavam;
+  const hotovo = odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
+    : doplnok.typ === "rohoz" ? T.hotovoRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.hotovoBox2 : T.hotovoBox1;
   const stary = { itemId: ctx.riadok.itemId, priceId: String(ctx.riadok.priceId), q: ctx.riadok.q };
   const aktivne = { id: null };
   const blok = zablokujStranku(aktivne);
@@ -1317,7 +1437,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
         }
         zaznamPis({
           id: id, t: Date.now(), hb: Date.now(), faza: "start", trh: R.trh, mena: R.mena, href: ctx.riadok.href, stary: stary,
-          ocakavane: Object.assign({}, ctx.volby, zm), kod: doplnok.kod, velkost: doplnok.velkost || null, pocet: doplnok.pocet || null,
+          ocakavane: zluc(ctx.volby, zm), kod: doplnok.kod, velkost: doplnok.velkost || null, pocet: doplnok.pocet || null,
           sku: ctx.riadok.sku || null, hotovo: hotovo, rozdiel: rozdiel.s, rozdielB: rozdiel.b,
         });
         let vys;
@@ -1343,7 +1463,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
     v = { ok: false, krok: "neznamy", reload: true, sprava: String((e && e.message) || e).slice(0, 120) };
   }
   if (v.ok) {
-    meraj("lcd_set_doplnok_pridany", {
+    meraj(odober ? "lcd_set_doplnok_odobrany" : "lcd_set_doplnok_pridany", {
       lcd_doplnok: doplnok.kod, lcd_velkost: doplnok.velkost || null, lcd_pocet: doplnok.pocet || null, lcd_trh: R.trh,
       lcd_set_sku: ctx.riadok.sku, lcd_value: rozdiel.s, lcd_value_wo_vat: rozdiel.b, lcd_currency: R.mena,
     });
@@ -1370,7 +1490,9 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   // ďalšie zobrazenie košíka načíta čerstvú mapu (ponuka ukáže aktuálnu cenu); táto stránka ostáva fail-closed
   if (v.krok === "kontrola_ceny" || v.krok === "kontrola_textu") zabudniMapu(ctx.riadok.href);
   // pri množstve N > 1 by krížik zmazal všetky kusy setu -> pokyn ubrať 1 kus (kontrola kódu, kolo 3)
-  const text = v.ciastocne ? (Number(ctx.riadok.q) > 1 ? T.chybaCiastocnaViac : T.chybaCiastocna) : v.krok === "zmena_kosika" ? T.chybaStav : v.reload ? T.chybaKontrola : T.chyba;
+  const text = v.ciastocne
+    ? (Number(ctx.riadok.q) > 1 ? (odober ? T.chybaCiastocnaOdoberViac : T.chybaCiastocnaViac) : (odober ? T.chybaCiastocnaOdober : T.chybaCiastocna))
+    : v.krok === "zmena_kosika" ? T.chybaStav : v.reload ? (odober ? T.chybaKontrolaOdober : T.chybaKontrola) : odober ? T.chybaOdober : T.chyba;
   if (v.reload) {
     blok.pustOdchod();
     ssPis(KLUC_HOTOVO, JSON.stringify({ text: text, typ: "chyba", stary: v.stary || null, t: Date.now() }));
@@ -1384,6 +1506,32 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   tlacidla.forEach(function (b) { b.disabled = false; });
   window.__lcdCartReloading = false;
   zamok = false;
+}
+
+/** Krížiky pri doplnkoch setu v riadku košíka: „Doplnky v sete: Rohož Premium ×  2 boxy M + L ×“. */
+function vlozOdober(ctx, T, R) {
+  const vstup = [...document.querySelectorAll('#cart-wrapper input[name="itemId"]')].find(function (i) { return i.value === ctx.riadok.itemId; });
+  const tr = vstup && vstup.closest("tr");
+  if (!tr || tr.querySelector(".lcd-dop-odober")) return;
+  const miesto = tr.querySelector("td.p-name") || tr;
+  const stav = el("span", { class: "lcd-dop__stav", role: "status", "aria-live": "polite" });
+  const box = el("div", { class: "lcd-dop-odober", "data-item": ctx.riadok.itemId }, [el("span", { class: "lcd-dop-odober__n", text: T.vSeteDoplnky })]);
+  ctx.odobrat.forEach(function (d) {
+    const b = el("button", { type: "button", class: "lcd-dop-odober__x", "data-lcd-dop-odober": d.co, "aria-label": T.odstranit + ": " + d.nazov }, [
+      el("span", { text: d.nazov }), el("i", { "aria-hidden": "true", text: "×" }),
+    ]);
+    b.addEventListener("click", function () {
+      meraj("lcd_set_doplnok_klik", { lcd_doplnok: d.co, lcd_varianta: "odobrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+      const zm = zmenaOdober(d.co, ctx.volby, R);
+      const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
+      if (!zm || !rozdiel) { stav.className = "lcd-dop__stav lcd-dop__stav--chyba"; stav.textContent = T.chybaOdober; return; }
+      spustiVymenu(ctx, { typ: "odober", co: d.co, pocet: d.pocet || null, nazov: d.co === "rohoz" ? T[d.varianta] : d.nazov, kod: "odober_" + d.co },
+        zm, rozdiel, T, R, stav, box);
+    });
+    box.appendChild(b);
+  });
+  box.appendChild(stav);
+  miesto.appendChild(box);
 }
 
 function hotovoZPredchadzajucej(sec) {
@@ -1500,12 +1648,14 @@ async function spusti(R) {
   const riadky = zachytene || [];
   const maSamostatnuRohoz = riadky.some(function (r) { return /koberced?-do-kufr/i.test(r.href || ""); });
   const maSamostatnyBox = riadky.some(function (r) { return /boxi?-do-kufr/i.test(r.href || ""); });
-  const kandidati = riadky.filter(function (r) {
+  let kandidati = riadky.filter(function (r) {
     return r.itemId && r.priceId && r.href && r.maPriplatky && r.sur && r.q >= 1 &&
       !/\btruck\b|kami[oó]n/i.test(r.text) && !/(boxi?-do-kufr|koberced?-do-kufr|vzorkovnik|poukaz|kamion)/i.test(r.href);
   });
   const sec = el("div", { id: "lcd-doplnok", class: "lcd-dop", role: "region", "aria-label": T.nadpis });
   const pred = ssCitaj(KLUC_HOTOVO);
+  const naOdstranenie = (function () { try { const h = pred && JSON.parse(pred); return (h && h.typ === "chyba" && h.stary) || null; } catch (e) { return null; } })();
+  if (naOdstranenie) kandidati = kandidati.filter(function (r) { return r.itemId !== naOdstranenie; });
   if (!kandidati.length) {
     if (pred) { const h = hotovoZPredchadzajucej(sec); if (sec.firstChild && vlozSekciu(sec)) zameraj(h); }
     return 0;
@@ -1513,7 +1663,8 @@ async function spusti(R) {
   const kupon = (function () { try { const c = getShoptetContext().cartInfo; return c && c.discountCoupon && c.discountCoupon.code; } catch (e) { return null; } })();
 
   const ctxs = (await Promise.all(kandidati.map(async function (riadok) {
-    if (ssCitaj(KLUC_NIE + riadok.itemId)) return null;
+    // „Nie, ďakujem“ skryje len ponuku; krížiky na odobratie doplnku ostávajú
+    const nie = !!ssCitaj(KLUC_NIE + riadok.itemId);
     let mapa = await ziskajMapu(riadok.href, R, false).catch(function () { return null; });
     let rozbor = mapa ? rozoberPriplatky(riadok.sur, mapa) : null;
     if (mapa && (!rozbor.ok || !jeSet(mapa, R))) {
@@ -1524,27 +1675,31 @@ async function spusti(R) {
     if (!mapa || !rozbor || !rozbor.ok) return null;
     const ch = coChyba(rozbor.volby, mapa, R);
     if (!ch) return null;
-    const ponuka = { rohoz: ch.rohoz === "chyba" && !maSamostatnuRohoz, box: ch.box === "chyba" && !maSamostatnyBox };
-    if (!ponuka.rohoz && !ponuka.box) return null;
-    const samostatne = await Promise.race([
+    const ponuka = { rohoz: !nie && ch.rohoz === "chyba" && !maSamostatnuRohoz, box: !nie && ch.box === "chyba" && !maSamostatnyBox };
+    const odobrat = doplnkySetu(rozbor.volby, mapa, R, T);
+    if (!ponuka.rohoz && !ponuka.box && !odobrat.length) return null;
+    const samostatne = ponuka.rohoz || ponuka.box ? await Promise.race([
       ziskajSamostatneCeny(dizajnZAdresy(riadok.href), R).catch(function () { return null; }),
       new Promise(function (r) { setTimeout(function () { r(null); }, 4000); }),
-    ]);
-    return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, samostatne: samostatne, kupon: kupon, zobrazene: [] };
+    ]) : null;
+    return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, odobrat: odobrat, samostatne: samostatne, kupon: kupon, zobrazene: [] };
   }))).filter(Boolean);
+  // krížiky pri doplnkoch setu (aj keď ponuka nie je); ponuka len pre sety, ktorým niečo chýba
+  ctxs.forEach(function (ctx) { if (ctx.odobrat.length) vlozOdober(ctx, T, R); });
+  const ponuky = ctxs.filter(function (c) { return c.ponuka.rohoz || c.ponuka.box; });
 
   // rovnaký set viackrát (napr. po rozdelení množstva) -> k názvu cena za kus, aby sa karty dali rozlíšiť
   const ceny = (function () {
     try { const e = (window.dataLayer || []).find(function (x) { return x && x.shoptet; }); return (e && e.shoptet && e.shoptet.cart) || []; } catch (e) { return []; }
   })();
-  const nazvy = ctxs.map(function (c) { return setNazov(c.riadok); });
-  ctxs.forEach(function (ctx, i) {
+  const nazvy = ponuky.map(function (c) { return setNazov(c.riadok); });
+  ponuky.forEach(function (ctx, i) {
     const dup = nazvy.filter(function (n) { return n === nazvy[i]; }).length > 1;
     const c = ceny.find(function (x) { return x && x.itemId === ctx.riadok.itemId; });
     ctx.kSetu = nazvy[i] + (dup && c && typeof c.priceWithVat === "number" ? " · " + cenaText(c.priceWithVat, R) : "");
   });
-  ctxs.forEach(function (ctx) {
-    const k = karta(ctx, T, R, ctxs.length > 1);
+  ponuky.forEach(function (ctx) {
+    const k = karta(ctx, T, R, ponuky.length > 1);
     if (k) sec.appendChild(k);
   });
   const hlaska = pred ? hotovoZPredchadzajucej(sec) : null;

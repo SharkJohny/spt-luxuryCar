@@ -125,6 +125,40 @@ await test("zmena boxu: 1 box = farba + 104/78, 2 boxy = farba + 94+97 / 66+69",
   rovne(M.zmena({ typ: "box", pocet: 1, velkost: "S", farba: "501" }, CZD, CZ), { 63: "501", 78: "660" });
   rovne(M.zmena({ typ: "box", pocet: 2, velkost: "XL", farba: "501" }, CZD, CZ), { 63: "501", 66: "525", 69: "540" });
 });
+await test("2 boxy rôznych veľkostí (Michal 10. 10.): 1. box M, 2. box L — každý svoj parameter; bez velkost2 = rovnaká", () => {
+  const L2 = M.velkostiBoxu(SKD, "97").L.id, M1 = M.velkostiBoxu(SKD, "94").M.id;
+  rovne(M.zmena({ typ: "box", pocet: 2, velkost: "M", velkost2: "L", farba: "604" }, SKD, SK), { 91: "604", 94: M1, 97: L2 });
+  rovne(M.zmena({ typ: "box", pocet: 2, velkost: "M", velkost2: null, farba: "604" }, SKD, SK), { 91: "604", 94: "622", 97: "637" });
+  const r = M.rozdielCeny({}, M.zmena({ typ: "box", pocet: 2, velkost: "M", velkost2: "L", farba: "604" }, SKD, SK), SKD);
+  pravda(r && r.s > M.rozdielCeny({}, { 91: "604", 94: "622", 97: "637" }, SKD).s, "M+L drahšie ako M+M");
+});
+await test("samostatná cena boxov: 1 box, 2 rovnaké, 2 rôzne (základ + príplatok 1. a 2. boxu), chýbajúce údaje -> null", () => {
+  const sam = { box1: { S: 197, M: 217 }, box2: { S: 394, M: 434 }, zaklad: 197, p1: { S: 0, M: 20 }, p2: { S: 197, M: 217, L: 247 } };
+  rovne(M.samostatneBoxy(sam, 1, "M"), 217);
+  rovne(M.samostatneBoxy(sam, 2, "S", "S"), 394);
+  rovne(M.samostatneBoxy(sam, 2, "M", "L"), 197 + 20 + 247);
+  rovne(M.samostatneBoxy({ box1: {}, box2: { S: 394 } }, 2, "S", null), 394); // starý záznam bez p1/p2
+  rovne(M.samostatneBoxy({ box1: {}, box2: { S: 394 } }, 2, "S", "M"), null);
+  rovne(M.samostatneBoxy(null, 1, "S"), null);
+});
+await test("odobratie doplnku (krížik v košíku): rohož -> „nie“, box -> parametre boxu vynechané, cena klesne", () => {
+  const T = { rohozKratko: "Rohož", classic: "Classic", premium: "Premium", box2: "2 boxy", boxJeden: "Box" };
+  const sRohozou = { 85: "586", 88: "601", 74: "485" };
+  rovne(M.zmenaOdober("rohoz", sRohozou, SK), { 88: "598" });
+  rovne(M.zmenaOdober("rohoz", { 88: "598" }, SK), null); // rohož nemá -> nič
+  rovne(M.rozdielCeny(sRohozou, { 88: "598" }, SKD).s, -239);
+  const s2Boxmi = { 85: "586", 88: "598", 74: "485", 91: "604", 94: "622", 97: "640" };
+  const zm = M.zmenaOdober("box", s2Boxmi, SK);
+  rovne(zm, { 91: null, 94: null, 97: null });
+  rovne(M.zluc(s2Boxmi, zm), { 74: "485", 85: "586", 88: "598" });
+  rovne(M.rozdielCeny(s2Boxmi, zm, SKD).s, -(99 + 119));
+  const p = new URLSearchParams(M.zostavPayload({ priceId: "1" }, s2Boxmi, zm, SKD, null));
+  pravda(![...p.keys()].some((k) => /\[(91|94|97)\]/.test(k)), "box parametre v payloade nie sú");
+  rovne(M.zmenaOdober("box", { 88: "598" }, SK), null);
+  rovne(M.doplnkySetu(s2Boxmi, SKD, SK, T).map((d) => d.nazov), ["2 boxy M + L"]);
+  rovne(M.doplnkySetu({ 88: "601", 91: "604", 104: "731" }, SKD, SK, T).map((d) => d.nazov), ["Rohož Premium", "Box S"]);
+  rovne(M.doplnkySetu({ 88: "598", 94: "631", 97: "646" }, SKD, SK, T), []); // ŽIADNY = bez boxu
+});
 await test("rozdiel ceny z mapy (aj „nie +€5“ pri Hexa, iné ceny Elite Stripe, CZ)", () => {
   rovne(M.rozdielCeny({ 88: "598" }, { 88: "595" }, SKD).s, 129);
   rovne(M.rozdielCeny({}, { 88: "601" }, SKD).s, 239);
