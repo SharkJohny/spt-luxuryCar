@@ -37,11 +37,13 @@
   var I18N = {
     sk: {
       title: 'Realita luxusných autokobercov',
-      subtitle: 'Pozrite sa, ako naše autokoberce vyzerajú a fungujú v praxi'
+      subtitle: 'Pozrite sa, ako naše autokoberce vyzerajú a fungujú v praxi',
+      nacitavam: 'Načítavam videá…'
     },
     cz: {
       title: 'Realita luxusních autokoberců',
-      subtitle: 'Podívejte se, jak naše autokoberce vypadají a fungují v praxi'
+      subtitle: 'Podívejte se, jak naše autokoberce vypadají a fungují v praxi',
+      nacitavam: 'Načítám videa…'
     }
   };
   function lcdvLang() {
@@ -503,7 +505,7 @@
     };
 
     host.textContent = '';
-    host.appendChild(el('div', { class: 'lcdv-state', text: 'Načítavam videá…' }));
+    host.appendChild(el('div', { class: 'lcdv-state', text: I18N[lcdvLang()].nacitavam }));
 
     loadVideos(cfg, function (videos) {
       host.textContent = '';

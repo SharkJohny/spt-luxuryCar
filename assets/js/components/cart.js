@@ -67,6 +67,23 @@ function jeKamionovyRiadok(text) {
   return /\btruck\b/i.test(t) || /kami[oó]n/i.test(t);
 }
 
+/* Zástupné texty selectov konfigurátora (cars.js cstm_*, „Typ auta“; configuratorEngine.js lcdPlaceholders) —
+   v košíku nie sú údaj o aute („Značka: Značka, Rok: Rok výroby“; tablet 8. 10. 2026). */
+export const LCD_AUTO_ZASTUPNE = ["Značka", "Model", "Rok výroby", "Typ auta", "Ročník", "Typ",
+  "Prosím, vyberte značku vozidla", "Prosím,vyberte model vozidla", "Prosím,vyberte rok výroby vozidla"];
+export function lcdAutoHodnota(v) {
+  if (v === null || v === undefined) return null;
+  const t = String(v).replace(/\s+/g, " ").trim();
+  if (!t || t === "undefined" || t === "null" || LCD_AUTO_ZASTUPNE.indexOf(t) !== -1) return null;
+  return t;
+}
+/* CZ košík: variant je „Barva 1.vrstvy: …“, SK „Farba 1.vrstvy: …“ — popis podľa jazyka webu */
+const lcdCz = () => /^cs/i.test(document.documentElement.lang || "") || /\.cz$/i.test(location.hostname);
+const lcdVrstva = (n) => (lcdCz() ? "Barva " : "Farba ") + n + ". vrstvy: ";
+/* príplatky „názov - hodnota, názov - hodnota“: deliť len na čiarke, za ktorou ide ďalší „názov - “ alebo „názov:“
+   (hodnota „prvý, druhý a tretí rad“ má čiarku vo vnútri) */
+const lcdDelPriplatky = (t) => String(t).split(/,\s*(?=[^,]*(?:\s[-–]\s|:))/);
+
 function changeDescription() {
   const getBrand = sessionStorage.getItem("Brand");
   const getModel = sessionStorage.getItem("Model");
@@ -92,19 +109,19 @@ function changeDescription() {
     var $variant = $row.find("span.main-link-variant").first();
     if (!$variant.length || $variant.data("lcdFormatted")) return;
     var variantText = ($variant.text() || "").replace(/\s+/g, " ");
-    if (!/farba\s*[12]\.?\s*vrstvy/i.test(variantText)) return;
-    var m1 = variantText.match(/farba\s*1\.?\s*vrstvy\s*:\s*([^,]+?)(?=\s*farba\s*2|\s*$)/i);
-    var m2 = variantText.match(/farba\s*2\.?\s*vrstvy\s*:\s*(.+)$/i);
+    if (!/(?:farba|barva)\s*[12]\.?\s*vrstvy/i.test(variantText)) return;
+    var m1 = variantText.match(/(?:farba|barva)\s*1\.?\s*vrstvy\s*:\s*([^,]+?)(?=\s*(?:farba|barva)\s*2|\s*$)/i);
+    var m2 = variantText.match(/(?:farba|barva)\s*2\.?\s*vrstvy\s*:\s*(.+)$/i);
     if (!m1 && !m2) return;
     var $ul = $("<ul>").addClass("lcd-variant-bullets");
-    if (m1) $("<li>").text("Farba 1. vrstvy: " + m1[1].trim()).appendTo($ul);
-    if (m2) $("<li>").text("Farba 2. vrstvy: " + m2[1].trim()).appendTo($ul);
+    if (m1) $("<li>").text(lcdVrstva(1) + m1[1].trim()).appendTo($ul);
+    if (m2) $("<li>").text(lcdVrstva(2) + m2[1].trim()).appendTo($ul);
     $variant.after($ul).hide();
     $variant.data("lcdFormatted", true);
   });
 
   $("span.main-link-surcharges").each(function () {
-    const text = $(this).text().split(",");
+    const text = lcdDelPriplatky($(this).text());
     // Truck produkt: vozidlo NIE je v sessionStorage (tú plní autokoberce
     // konfigurátor), ale v surcharge parametri "Vozidlo: <značka model>".
     const isTruckRow = jeKamionovyRiadok($(this).closest("tr").text());
@@ -152,7 +169,8 @@ function changeDescription() {
     // Riadok pridaj LEN keď má skutočnú hodnotu — "Značka: undefined" u
     // produktov bez auto-konfigurátora (truck, vzorkovník) nemá čo robiť.
     const addLine = (label, value) => {
-      if (!value || value === "undefined" || value === "null") return;
+      value = lcdAutoHodnota(value);
+      if (!value) return;
       $("<li>").text(label + ": " + value).appendTo(model);
     };
     if (isTruckRow) {
@@ -172,11 +190,12 @@ function changeDescription() {
     // Farba 1. a 2. vrstvy z variantu (span.main-link-variant) - nad priplatkami.
     var $variant = $(this).closest("tr").find("span.main-link-variant").first();
     var variantText = ($variant.text() || "").replace(/\s+/g, " ");
-    var m1 = variantText.match(/farba\s*1\.?\s*vrstvy\s*:\s*([^,]+)/i);
-    var m2 = variantText.match(/farba\s*2\.?\s*vrstvy\s*:\s*(.+)$/i);
-    if (m1) $("<li>").text("Farba 1. vrstvy: " + m1[1].trim()).appendTo(model);
-    if (m2) $("<li>").text("Farba 2. vrstvy: " + m2[1].trim()).appendTo(model);
-    $variant.hide();
+    var m1 = variantText.match(/(?:farba|barva)\s*1\.?\s*vrstvy\s*:\s*([^,]+)/i);
+    var m2 = variantText.match(/(?:farba|barva)\s*2\.?\s*vrstvy\s*:\s*(.+)$/i);
+    if (m1) $("<li>").text(lcdVrstva(1) + m1[1].trim()).appendTo(model);
+    if (m2) $("<li>").text(lcdVrstva(2) + m2[1].trim()).appendTo(model);
+    // variant schovať len keď farba prešla do odrážok (inak by zmizla úplne — CZ „Barva“ predtým)
+    if (m1 || m2) $variant.hide();
     $("<span>").html(newText).appendTo(setup);
     $(this).html(infowrap);
 

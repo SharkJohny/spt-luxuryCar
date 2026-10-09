@@ -1,4 +1,5 @@
 import { getShoptetContext } from "../functions/shoptetContext.js";
+import { lcdCena } from "../functions/livePrice.js";
 
 let twoLayersProducts;
 let boxsParameterIds;
@@ -44,12 +45,14 @@ const ButtonUtils = {
     const recommended = Number(price) + Number(save);
     const showRecommended = Number(save) > 0 && recommended > Number(price);
     const recommendedHTML = showRecommended
-      ? `<span class="price-recommended" data-recommended="${recommended}">${NumToPrice(recommended)}</span>`
+      ? `<span class="price-recommended" data-recommended="${recommended}">${lcdCena(recommended)}</span>`
       : "";
+    // .save ostava v tvare NumToPrice („216 €“): skript lcdFix/bx() v Zapati adminu ho cita regexom
+    // s cislom PRED menou a z neho sklada zeleny stitok „Usetrite az … −N %“ (s lcdCena stitok zmizol).
     if (prefix) {
-      return `<div class="price">od ${NumToPrice(price)} ${recommendedHTML}</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(save)}</div>`;
+      return `<div class="price">od ${lcdCena(price)} ${recommendedHTML}</div><div class="save" data-save="${save}">Ušetríte až ${NumToPrice(save)}</div>`;
     }
-    return `<div class="price">${NumToPrice(price)} ${recommendedHTML}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
+    return `<div class="price">${lcdCena(price)} ${recommendedHTML}</div><div class="save" data-save="${save}">Ušetríte ${NumToPrice(save)}</div>`;
   },
 
   /**
@@ -140,7 +143,8 @@ export function createOptions(position, orders) {
   if (position == "box") {
     name = language === "cs" ? "Počet boxů" : "Počet boxov";
   } else if (position == "sizes") {
-    name = "veľkosť";
+    // nadpis kroku sa zákazníkovi zobrazí -> podľa jazyka (CZ box ukazoval „veľkosť“; tablet 9. 10. 2026)
+    name = language === "cs" ? "Velikost" : "Veľkosť";
   } else {
     name = $(position).parents(".variant-list").find("th").text().trim();
   }
@@ -148,7 +152,8 @@ export function createOptions(position, orders) {
     name = $(position).parents(".surcharge-list").find("th").text().trim().replace("?", "");
   }
 
-  let slug = createSlug(name);
+  // trieda navigácie ostáva „velkost“ na SK aj CZ (nezávisí od jazyka nadpisu)
+  let slug = position == "sizes" ? "velkost" : createSlug(name);
 
   const options = $(position).find("option");
   const parameterId = $(position).attr("data-parameter-id");
@@ -265,7 +270,7 @@ export function createOptions(position, orders) {
     }
     $("<span>", {
       class: "price price-standart",
-      text: basePrice > 0 ? NumToPrice(basePrice) : "0 Kč",
+      text: basePrice > 0 ? lcdCena(basePrice) : lcdCena(0),
       "data-price": basePrice,
     }).appendTo(lcdMain);
     // RRP — citaj z parent box akordeon karty (.boxs .upsale-button.active
@@ -293,14 +298,8 @@ export function createOptions(position, orders) {
       if (!rrp) {
         rrp = Math.ceil((basePrice * 1.6) / 10) * 10;
       }
-      var meta = document.querySelector('meta[itemprop="priceCurrency"]');
-      var code = meta ? (meta.getAttribute("content") || "").toUpperCase() : "";
-      var lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
-      var sym = (code === "CZK" || lang.indexOf("cs") === 0) ? "Kč" : "€";
-      var loc = (code === "CZK" || lang.indexOf("cs") === 0) ? "cs-CZ" : "sk-SK";
-      var rrpFmt;
-      try { rrpFmt = Math.round(rrp).toLocaleString(loc) + " " + sym; }
-      catch (e) { rrpFmt = Math.round(rrp) + " " + sym; }
+      // rovnaký tvar ceny ako zvyšok produktu (lcdCena podľa meny v Shoptete; predtým „315 €“ vedľa „€89“)
+      var rrpFmt = lcdCena(Math.round(rrp));
       var $rrpEl = $('<div class="lcd-price-rrp" data-rrp-base="' + rrp +
                      '">cena bez setu: <strong>' + rrpFmt + '</strong></div>');
       $rrpEl.appendTo(priceWrap);
@@ -317,7 +316,7 @@ export function createOptions(position, orders) {
 
   createOptionButtons(options, parameterId, optionsWrap, isBoxParam, basePrice);
 
-  if (name == "veľkosť") {
+  if (position == "sizes") {
     $(".surcharge-list").each(function () {
       const parameterId = $(this).find("select").attr("data-parameter-id");
       console.log(parameterId);
@@ -357,7 +356,7 @@ export function createOptions(position, orders) {
         }
         $("<div>", {
           class: "price price-standart",
-          text: basePriceNested > 0 ? NumToPrice(basePriceNested) : "0 Kč",
+          text: basePriceNested > 0 ? lcdCena(basePriceNested) : lcdCena(0),
           "data-price": basePriceNested,
         }).appendTo(priceWrapNested);
       }
@@ -387,7 +386,8 @@ export function createBoxConfig() {
   }).appendTo(".upsale-buttons.boxs");
 
   $('<div class="order">7</div>').appendTo(wrap);
-  $('<h5 class="variant name">FARBA</h5>').appendTo(wrap);
+  // nadpis kroku vidí zákazník -> podľa jazyka (CZ ukazoval slovenské „FARBA“; tablet 9. 10. 2026)
+  $('<h5 class="variant name"></h5>').text(language === "cs" ? "BARVA" : "FARBA").appendTo(wrap);
 
   $("<div>", {
     class: "close-btn close",
@@ -522,7 +522,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
 
     if (textOption.includes("cm")) {
       // if (priceButton[value]) {
-      //   $(`<div class='price'>+ ${NumToPrice(priceButton[value])}</div>`).appendTo(optionButton);
+      //   $(`<div class='price'>+ ${lcdCena(priceButton[value])}</div>`).appendTo(optionButton);
       // }
 
       let paramText = nameSplit[1];
@@ -537,7 +537,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       if (isBoxParam) {
         // Use surchargeFinal and basePrice to compute diff
         const diff = surchargeFinal - (Number(basePrice) || 0);
-        const diffText = diff > 0 ? "+ " + NumToPrice(diff) : "";
+        const diffText = diff > 0 ? "+ " + lcdCena(diff) : "";
         $(`<div class='price' data-price="${diff > 0 ? diff : 0}">${diffText}</div>`).appendTo(buttonDescription);
       } else {
         // Samostatny box produkt (/luxusny-boxi-do-kufra/) nema priceButton mapu
@@ -546,7 +546,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
         var priceVal = (typeof priceButton[value] !== "undefined" && priceButton[value])
           ? priceButton[value]
           : (surchargeFinal > 0 ? surchargeFinal : 0);
-        let textPrice = priceVal > 0 ? "+ " + NumToPrice(priceVal) : "";
+        let textPrice = priceVal > 0 ? "+ " + lcdCena(priceVal) : "";
         $(`<div class='price' data-price="${priceVal}">${textPrice}</div>`).appendTo(buttonDescription);
       }
 

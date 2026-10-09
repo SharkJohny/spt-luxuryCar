@@ -629,6 +629,11 @@
 }
 #lcd-home .deck.refs, #lcd-home .vids {perspective:1000px
 }
+/* coverflow (lcdHome.js) dáva kartám inline z-index 60–100; bez vlastnej vrstvy sa na dotyku (perspective:none)
+   kreslili NAD pevnú hlavičku (pás 60, #header 61) a zakryli logo, burger aj Kontakty (tablet 9. 10. 2026).
+   isolation = karty sa prekrývajú len navzájom, celý pás ostane pod hlavičkou. */
+#lcd-home .deck.refs, #lcd-home .vids {isolation:isolate
+}
 #lcd-home .deck.refs>.ref {transition:transform .18s ease-out;will-change:transform
 }
 #lcd-home .vids>.vid {transition:transform .18s ease-out
@@ -895,7 +900,7 @@
 }
 #lcd-home .s2-t p {color:#4a4536;font-size:clamp(15.5px,1.4vw,18px);line-height:1.68;max-width:44ch
 }
-@media(max-width:900px) {
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse) {
   #lcd-home #stage2 {display:none
   }
   #lcd-home .s2-mob {display:block;padding:clamp(28px,7vw,48px) var(--pad) clamp(24px,6vw,40px)
@@ -1023,6 +1028,10 @@
   -webkit-text-stroke:0;color:rgba(155,122,36,.5);
   font-size:clamp(9px,.9vw,11px);letter-spacing:.34em;text-align:center;margin-top:10px
 }
+/* podnadpis vodoznaku („Prierez materiálom“) vytŕčal útržkom („…RIÁLOM“) spomedzi rozložených vrstiev (901–1199 px:
+   iPad Pro, iPad mini na šírku); ten istý popis je pod ilustráciou v .matline -> skrytý (tablet 9. 10. 2026) */
+#lcd-home .matmark i {display:none
+}
 /* technicka linka pod materialom */
 #lcd-home .matline {position:absolute;left:8%;right:8%;bottom:5%;z-index:2;pointer-events:none;
   display:flex;align-items:center;gap:12px;
@@ -1121,7 +1130,7 @@
   #lcd-home .mat-hint {display:none
   }
 }
-@media(max-width:900px) {
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse) {
   #lcd-home .exp {aspect-ratio:1.42/1;max-width:none;width:100%
   }
   #lcd-home #matWrap {display:block
@@ -1771,7 +1780,7 @@
 }
 #lcd-home .rv.on {opacity:1;transform:none
 }
-@media(max-width:900px) {
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse) {
   #lcd-home .story {grid-template-columns:1fr;gap:0
   }
   #lcd-home .story .sticky {height:34svh;top:96px;margin-bottom:22px
@@ -1799,7 +1808,7 @@
   }
   #lcd-home .mbox {transition:transform .75s cubic-bezier(.2,.7,.2,1)
   }
-  @media(min-width:901px) {
+  @media(min-width:901px) and (hover:hover) {
     #lcd-home .mbox {transition:none
     }
   }
@@ -1818,7 +1827,9 @@
   #lcd-home .rv, #lcd-home .pc, #lcd-home .cmpc, #lcd-home .konf .card {opacity:1;transform:none
   }
 }
-@media(max-width:760px) {
+/* telefónna titulka (len pás fotky, karta konfigurátora pod ním) len na telefónoch; 601–760 px (iPad mini na výšku,
+   Android tablety) má tabletovú titulku ako iPad 820: hero s nadpisom a tlačidlami, karta s presahom -40 px (tablet 8. 10. 2026) */
+@media(max-width:600px) {
   #lcd-home .hero {aspect-ratio:auto;min-height:0;max-height:none;display:block
   }
   #lcd-home .hero .bg {position:relative;inset:auto;transform:none!important
@@ -1835,6 +1846,8 @@
   }
   #lcd-home .konf h2 {margin-top:14px
   }
+}
+@media(max-width:760px) {
   #lcd-home .tab {font-size:10.5px;letter-spacing:.06em;padding:12px 4px;gap:6px
   }
   #lcd-home .tab svg {width:17px;height:17px
@@ -1891,7 +1904,7 @@
 #lcd-home .faqsec{padding-top:clamp(52px,7vw,104px) !important}
 #lcd-home .end{padding:clamp(66px,9vw,140px) var(--pad) !important}
 @media(max-width:900px){#lcd-home .konf{margin-top:-40px !important}}
-@media(max-width:760px){#lcd-home .konf{margin-top:26px !important}}
+@media(max-width:600px){#lcd-home .konf{margin-top:26px !important}}
 @media(max-width:760px){#lcd-home .chapter{padding-top:64px !important;padding-bottom:64px !important}}
 #lcd-home .row{margin-left:0 !important;margin-right:0 !important}
 #lcd-home .btn{line-height:inherit !important;text-align:inherit}
@@ -1899,7 +1912,14 @@
 #lcd-home .btn.go{padding:0 !important}
 #lcd-home .pf-cta{padding:0 30px !important}
 @media(max-width:640px){#lcd-home .pf-cta{padding:0 20px !important}}
+/* tablet 8. 10. 2026: pevná ikona chatu Luxia (76 × 76, 16 px od pravého okraja; na telefóne 2 px) ležala na konci
+   „Zvoliť model vozidla“ v prilepených scénach — pod 1340 px (obsah už nie je zúžený na 1240 px) lišta scény
+   nechá vpravo miesto pre ikonu; od 1340 px tlačidlo končí 139+ px od okraja okna */
+@media(max-width:1340px){#lcd-home .pinfoot{padding-right:84px !important}}
 #lcd-home .mat-toggle{padding:13px 24px !important}
+/* „Rozložiť / Zložiť materiál“ (statická scéna: telefón, tablet na výšku): tlačidlo nie je pozicované, takže ho prekrýval
+   neviditeľný box 3D kresby #exp (pozicovaný, transform) — ťuk do stredu a ľavej časti zachytil #exp (kontrola 9. 10. 2026) */
+#lcd-home .mat-toggle{position:relative;z-index:3}
 #lcd-home .btn.bigcta{padding:clamp(18px,2.2vw,24px) clamp(30px,5vw,64px) !important}
 #lcd-home .btn.zeleny{background:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350) !important;color:#fff !important}
 #lcd-home button{line-height:normal}
@@ -1962,6 +1982,9 @@
 
 /* --- opravy 2026-08-27 (Lenis/modul09/oramovanie/podpis) --- */
 @media(min-width:901px){#lcd-home .stage{height:240vh !important}}
+/* tablet na výšku nad 900 px (iPad Pro 1024 × 1366): Materiál a Čo očakávať ako do 900 px (statická scéna, mobilná verzia 05)
+   — PC rozloženie pre okno na šírku nechávalo prázdne pásy 250–300 px (tablet 8. 10. 2026); JS: MATMQ v lcdHome.js */
+@media(min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){#lcd-home .stage{height:auto !important}}
 #lcd-home video,#lcd-rz video{border:0 !important;border-radius:0 !important}
 #footer #signature{display:none !important}
 
@@ -1979,6 +2002,24 @@
 
 /* --- kamiony: vycentrovanie poli + tlacidlo cez cely riadok (2026-08-27) --- */
 @media(min-width:761px){#lcd-home .lcdh-konf-slot .lcd-truck-wrap:not([hidden]),#lcd-rz .lcdh-konf-slot .lcd-truck-wrap:not([hidden]){display:flex !important;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:16px 18px;width:100% !important;max-width:none !important;margin-left:auto !important;margin-right:auto !important}#lcd-home .lcdh-konf-slot .lcd-truck-wrap > .surcharge-list,#lcd-rz .lcdh-konf-slot .lcd-truck-wrap > .surcharge-list{flex:0 1 calc(25% - 14px);min-width:230px;max-width:none}#lcd-home .lcdh-konf-slot .lcd-truck-wrap > .btn.choice-Model,#lcd-rz .lcdh-konf-slot .lcd-truck-wrap > .btn.choice-Model{flex:0 0 100%;max-width:none;width:100%}}
+/* --- tablet 8. 10. 2026: polia konfigurátora na tabletoch (iPad mini 744, iPad 820, iPad Pro 1024) ---
+   select má z formulárov Shoptetu max-width:var(--form-fields-width-lg) = 440 px -> na 600–760 px bol užší ako karta;
+   601–1000 px: polia 2 × 2 (4 v riadku sa do ~650 px nezmestili a zalomili 3 + 1), tlačidlo na celú šírku;
+   kamióny do 760 px: tlačidlo cez oba stĺpce (_index.scss dáva 2 stĺpce do 900 px).
+   Sivý náhľad polí (.konf-nahlad, _lcdKorene.scss 5b) má rovnaké zlomy -> pri výmene sa nič neposunie. */
+#lcd-home .lcdh-konf-slot select,#lcd-rz .lcdh-konf-slot select{max-width:none}
+@media(min-width:601px) and (max-width:1000px){
+  #lcd-home .lcdh-konf-slot .modl-selector-wrap:not(.lcd-truck-wrap){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:end;gap:16px 18px}
+  #lcd-home .lcdh-konf-slot .modl-selector-wrap:not(.lcd-truck-wrap) .surcharge-list{flex:none;min-width:0;width:auto}
+  #lcd-home .lcdh-konf-slot .modl-selector-wrap:not(.lcd-truck-wrap) .btn.choice-Model{grid-column:1 / -1;margin:6px 0 0;padding:0 26px;white-space:nowrap}
+}
+@media(max-width:760px){#lcd-home .lcdh-konf-slot .lcd-truck-wrap > .btn.choice-Model,#lcd-rz .lcdh-konf-slot .lcd-truck-wrap > .btn.choice-Model{grid-column:1 / -1}}
+/* rezervácia výšky #konfSlot z adminu (inline min-height: 503 px pod 761 px) — na 601–760 px má karta tabletové polia 2 × 2,
+   preto ako od 761 px (231 px, výšku dá sivý náhľad / konfigurátor); po prepnutí na kamióny (2 polia) rezervácia preč,
+   inak pod tlačidlom ostal prázdny pás 185–283 px */
+@media(min-width:601px) and (max-width:760px){#lcd-home #konfSlot.lcdh-konf-slot{min-height:231px !important}}
+#lcd-home #konfSlot.lcdh-konf-slot.lcd-konf-ok:has(.lcd-truck-wrap:not([hidden])){min-height:0 !important}
 /* ===== HP: tlačidlá pri hodnotení Google (2026-10-02) =====
    „Napísať recenziu" zlaté s hviezdičkou a prebleskom, „Všetky recenzie" tmavé so zlatým okrajom
    a šípkou; text vždy na stred (pri zalomení na dva riadky bol vľavo) */
@@ -2143,6 +2184,9 @@
 }
 /* mobil s prilepenou scénou: pod nadpisom aj krátky text, nech nad fotkou nezíva prázdno (nízke telefóny bez neho) */
 @media(max-width:760px) and (min-height:700px){#lcd-home .lx-pp:not(.lx-bez-lepu) .lx-p{display:block}}
+/* displej na výšku (telefóny, tablety na výšku; tablet 8. 10. 2026): široká fotka 2,14 : 1 zabrala len 21–32 % výšky
+   a nad aj pod ňou zívalo 120–230 px čiernej plochy -> vyšší výrez 1,5 : 1 (object-fit:cover, stred), fotka ~30–50 % výšky */
+@media(orientation:portrait) and (max-width:1199px){#lcd-home .lx-pp .lx-pp-main{--lx-pomer:1.5}}
 /* sekcia za tmavou (JS jej dal triedu namiesto padding-top:0 v HTML): PC bez zmeny, mobil s odstupom */
 #lcd-home section.lx-po-tmavej{padding-top:0!important}
 @media(max-width:760px){#lcd-home section.lx-po-tmavej{padding-top:clamp(52px,14vw,76px)!important}}

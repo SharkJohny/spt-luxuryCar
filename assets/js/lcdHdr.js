@@ -13,6 +13,19 @@ function lcdhdrBoot() {
   if (location.hostname.indexOf("luxurycardesign.sk") === -1 && !lcdhdrCZ) return;
   var b = document.body;
   if (!b) return;
+  /* košík a objednávka (body.ordering-process): Shoptet tam bannery nevypíše, takže statické menu #mega z banneru
+     172 / 108 chýba a burger otváral natívny zoznam kategórií (iný, svetlý vzhľad, zmiešané SK/CZ názvy; tablet 8. 10. 2026).
+     Výnimka z „JS len oživuje“: obsah z adminu v objednávkovom procese existovať nemôže -> vložíme ten istý obsah menu
+     (rovnaké texty ako admin-html/src/mega.*.html) s rovnakou štruktúrou, takže platí to isté CSS aj oživenie. */
+  if (b.classList.contains("ordering-process") && !document.getElementById("mega") &&
+      (document.documentElement.classList.contains("lcd-native-hdr") || document.querySelector("[data-lcd-cast]"))) {
+    try { lcdMegaDoObjednavky(lcdhdrCZ); } catch (e) {}
+  }
+  /* odkazy horného menu Shoptetu majú target="blank" (Kontakty v páse) — na iPhone/iPade otvárali novú kartu;
+     odkazy na vlastný web ostávajú v tej istej karte */
+  [].forEach.call(document.querySelectorAll(".top-navigation-bar a[target]"), function (a) {
+    try { if (a.hostname === location.hostname) a.removeAttribute("target"); } catch (e) {}
+  });
   /* statické menu z banneru oživ na každej stránke (aj na titulke a rozcestníku) */
   lcdKorene("mega").forEach(function (m) {
     try { lcdMegaOziv(m); } catch (e) {}
@@ -68,6 +81,24 @@ function lcdhdrBoot() {
   if (mega) [].forEach.call(mega.querySelectorAll("a"), function (a2) {
     a2.addEventListener("click", function () { megaSet(false); });
   });
+}
+/* menu pre košík a objednávku: časť .mega-ovl + nav#mega z kresleného markupu, upravená na tvar banneru 172 / 108
+   (data-lcd-cast="mega", krížik ako v banneri, vlajka .m-lang pre menu cez celú obrazovku) */
+function lcdMegaDoObjednavky(cz) {
+  var src = cz ? LCDHDR_MARKUP_CZ : LCDHDR_MARKUP;
+  var i = src.indexOf('<div class="mega-ovl"');
+  if (i < 0) return null;
+  var vlajka = (src.match(/<a class="lang"[\s\S]*?<\/a>/) || [""])[0].replace('class="lang"', 'class="lang m-lang"');
+  var html = src.slice(i)
+    .replace('<nav class="mega" id="mega"', '<nav class="mega" id="mega" data-lcd-cast="mega"')
+    .replace(/<div class="m-x" id="megaX">([^<]*)<\/div>/, function (m0, x) {
+      return '<div class="m-x toggle-window hide-content-windows" id="megaX">' + x + "</div>" + vlajka;
+    });
+  var obal = document.createElement("div");
+  obal.className = "lcd-mega-js";
+  obal.innerHTML = html;
+  (document.querySelector(".overall-wrapper") || document.body).appendChild(obal);
+  return obal.querySelector("#mega");
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", lcdhdrBoot);
 else lcdhdrBoot();

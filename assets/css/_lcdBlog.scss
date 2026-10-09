@@ -262,6 +262,8 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .cl-autor{display:flex;align-items:center;gap:12px;color:#fff}
 #lcd-blog .cl-autor img{width:42px;height:42px;border-radius:50%;object-fit:contain;padding:5px;background:#0d0b08;border:1px solid rgba(230,200,119,.5)}
 #lcd-blog .cl-meta .m{display:inline-flex;align-items:center;gap:8px}
+/* dátum v hlavičke článku: šablóna Shoptetu (.news-item-detail time: block, 14 px, 300, sivá) ho vyskočila nad riadok — ako ostatné údaje */
+#lcd-blog .cl-meta time{display:inline;margin:0;padding:0;font:inherit;letter-spacing:inherit;line-height:inherit;color:inherit;text-transform:inherit}
 #lcd-blog .cl-meta svg{width:15px;height:15px;color:var(--gold-hi)}
 #lcd-blog .cl-dole{position:absolute;right:var(--pad);bottom:clamp(42px,6vw,84px);display:flex;flex-direction:column;align-items:center;gap:12px;
   font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.6)}
@@ -501,6 +503,9 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .cl-suvis .hl{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:clamp(22px,3vw,34px)}
 #lcd-blog .cl-suvis .hl .eyebrow{display:block;margin-bottom:10px}
 #lcd-blog .cl-suvis h2{font-size:clamp(25px,3vw,40px)}
+/* súvisiace: JS dá 4 karty — 3 v riadku (PC) a pod sebou (telefón) ukážu 3, tablet 2 x 2; keď sú len 3, na tablete 2 (žiadna osamotená karta) */
+#lcd-blog .cl-suvis .mriezka > :nth-child(4){display:none}
+@media(min-width:641px) and (max-width:1000px){#lcd-blog .cl-suvis .mriezka > :nth-child(4){display:block}#lcd-blog .cl-suvis .mriezka > :nth-child(3):last-child{display:none}}
 #lcd-blog .cl-suvis .hl>a{font-family:var(--disp);font-weight:800;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:#7c5f16;
   display:inline-flex;gap:10px;align-items:center}
 #lcd-blog .cl-suvis .hl>a:hover{color:var(--gold-lo)}

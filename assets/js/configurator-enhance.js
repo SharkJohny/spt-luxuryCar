@@ -9,6 +9,8 @@
 // Konfigurátor sa generuje async, preto retry interval.
 // ─────────────────────────────────────────────────────────────────────
 
+import { lcdCena } from "./functions/livePrice.js";
+
 (function configuratorEnhance() {
   "use strict";
 
@@ -66,21 +68,9 @@
     });
   }
 
-  // Detekcia meny — Shoptet priceCurrency meta + html[lang] fallback
-  function getCurrencyInfo() {
-    var meta = document.querySelector('meta[itemprop="priceCurrency"]');
-    var code = meta ? (meta.getAttribute("content") || "").toUpperCase() : "";
-    var lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
-    if (code === "CZK" || lang.indexOf("cs") === 0) {
-      return { symbol: "Kč", locale: "cs-CZ" };
-    }
-    return { symbol: "€", locale: "sk-SK" };
-  }
-
   // Box "cena mimo setu" = data-recommended / 1.6 (skutočná solo cena)
-  // Mena: CZK na luxurycardesign.cz, EUR na luxurycardesign.sk
+  // Mena a tvar podľa Shoptetu cez lcdCena (CZK na .cz, EUR na .sk)
   function fixBoxSoloPrices() {
-    var cur = getCurrencyInfo();
     document
       .querySelectorAll(".boxs .upsale-button .price-recommended")
       .forEach(function (el) {
@@ -90,11 +80,8 @@
         );
         if (!rec || isNaN(rec)) return;
         var solo = Math.round(rec / 1.6);
-        try {
-          el.textContent = solo.toLocaleString(cur.locale) + " " + cur.symbol;
-        } catch (e) {
-          el.textContent = solo + " " + cur.symbol;
-        }
+        // rovnaký tvar ako cena vedľa („od €99 €197“, nie „od €99 197 €“; tablet 9. 10. 2026)
+        el.textContent = lcdCena(solo);
         el.setAttribute("data-lcd-solo-fixed", "1");
       });
   }
@@ -299,13 +286,8 @@
     var amount = parseFloat(amountText);
     if (!amount || isNaN(amount)) return;
     var rrp = Math.ceil((amount * 1.6) / 10) * 10;
-    // Detekcia meny
-    var meta = document.querySelector('meta[itemprop="priceCurrency"]');
-    var code = meta ? (meta.getAttribute("content") || "").toUpperCase() : "";
-    var sym = (code === "CZK") ? "Kč" : "€";
-    var locale = (code === "CZK") ? "cs-CZ" : "sk-SK";
-    var rrpFmt;
-    try { rrpFmt = rrp.toLocaleString(locale) + " " + sym; } catch (e) { rrpFmt = rrp + " " + sym; }
+    // mena a tvar ako cena, ktorú píše Shoptet (lcdCena)
+    var rrpFmt = lcdCena(rrp);
     // Najst label "Aktuálna cena" / "Doporučená cena" v p-info-wrapper
     var labels = document.querySelectorAll(".p-info-wrapper .price-standard, .p-info-wrapper .price-label, .p-info-wrapper span");
     // Pridame RRP riadok PRED price-final
@@ -379,7 +361,8 @@
       if (save && rec) {
         var saveVal = parseFloat((save.getAttribute("data-save") || "").replace(",", "."));
         var recVal = parseFloat((rec.getAttribute("data-recommended") || "").replace(",", "."));
-        var m = (save.textContent || "").trim().match(/^(\D+?)\s*([\d][\d\s .,]*.*)$/);
+        // suma aj s menou vľavo („Ušetríte“ + „€216“), inak by „€“ ostalo pri popise
+        var m = (save.textContent || "").trim().match(/^(.*?)\s*((?:€|\$|EUR|CZK|Kč)?\s*\d[\d\s .,]*.*)$/);
         if (m) {
           save.innerHTML = "";
           var lbl = document.createElement("span");

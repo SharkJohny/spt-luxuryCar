@@ -64,8 +64,22 @@ function formatPrice(value) {
   const fixed = value.toFixed(decimals);
   const [intPart, decPart] = fixed.split(".");
   const intWithSep = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandSep);
-  const numStr = decPart ? intWithSep + decSep + decPart : intWithSep;
-  return left ? currency + " " + numStr : numStr + " " + currency;
+  // Rovnaký tvar ako Shoptet (shoptet.surcharges.writePrices, cena na stránke): celé číslo bez „,00“
+  // a symbol vľavo bez medzery („€219“, nie „€ 219,00“); CZ „5 664 Kč“ bez zmeny (tablet 8. 10. 2026).
+  const numStr = decPart && /[1-9]/.test(decPart) ? intWithSep + decSep + decPart : intWithSep;
+  return left ? currency + numStr : numStr + " " + currency;
+}
+
+/* Jeden tvar ceny pre všetko, čo na produkte píše náš kód (odporúčaná cena, ceny krokov a príplatkov, box) —
+   podľa nastavenia meny v Shoptete ako cena, ktorú píše Shoptet sám (SK „€219“, CZ „5 664 Kč“). Predtým externé
+   NumToPrice písalo „360 €“ vedľa Shoptetových „€219“ (3 tvary na jednej obrazovke; tablet 9. 10. 2026).
+   Keď sa formát meny zmení v admine (napr. SK na „219 €“), zmení sa všade naraz. */
+export function lcdCena(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return String(value);
+  const cfg = window.shoptet && window.shoptet.config;
+  if (cfg && cfg.currencySymbol) return formatPrice(n);
+  return typeof window.NumToPrice === "function" ? window.NumToPrice(n) : formatPrice(n);
 }
 
 function applyLivePrice() {

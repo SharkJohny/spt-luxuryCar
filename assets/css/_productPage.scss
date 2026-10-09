@@ -1615,11 +1615,14 @@ div#description p span.text-gradient {
 }
 
 .col-xs-12.col-lg-6.p-info-wrapper.active {
+  /* order na všetkých šírkach: pod 480 px bola karta „Hľadáte ešte lepšiu ochranu?“ (order 0) nad názvom produktu (order 1) */
+  .benefitBanner__item {
+    order: 3;
+  }
   @media (min-width: 480px) {
     .benefitBanner__item {
       flex: 0 0 50%;
       width: 100%;
-      order: 3;
     }
   }
 }
@@ -3861,4 +3864,51 @@ video::-webkit-media-controls {
 @media(prefers-reduced-motion:reduce){
   #description .lcd-farby-foto,#description .lcd-farby-vzorka,#description .lcd-pp-bod,
   #description .lcd-pp-bod b,#description .lcd-pp-bod span{transition:none}
+}
+
+/* ===== Produkt na tablete (2026-10-08, Michalove fotky z iPadu) ===== */
+/* Zloženie materiálu: text ležal cez kresbu vrstiev (absolútne, bottom 12-40 %) na všetkých šírkach do ~1640 px,
+   na telefóne bol navyše hore orezaný (overflow:hidden). Do 1199 px text nad kresbou v toku, od 1200 px vedľa nej. */
+@media (max-width: 1199px) {
+  .basic-description .layers-info-wrap { display: flex; flex-direction: column; }
+  .basic-description .layers-info-wrap .layers-text { order: -1; position: static !important; bottom: auto !important;
+    left: auto; width: auto; padding: 24px 20px 8px; }
+  .basic-description .layers-info-wrap .layers-text p { max-width: 62ch; }
+}
+@media (min-width: 1200px) {
+  .basic-description .layers-info-wrap { display: grid; grid-template-columns: minmax(280px, 30%) minmax(0, 1fr);
+    align-items: center; gap: 24px; }
+  .basic-description .layers-info-wrap .layers-text { grid-column: 1; grid-row: 1; position: static !important;
+    bottom: auto !important; width: auto; }
+  .basic-description .layers-info-wrap .image-container { grid-column: 2; grid-row: 1; width: auto; max-width: 100%;
+    margin: 0; }
+  .basic-description .layers-info-wrap .image-container img.main-image { width: 100%; height: auto; }
+}
+/* iPad na šírku a iPad Pro (992-1199 px): vrch produktu v dvoch stĺpcoch ako na PC — predtým len obrovská fotka
+   (972 × 1080 px), názov 1,5 obrazovky nižšie a tlačidlo do košíka mimo dohľadu (lepkavá lišta je od 992 px skrytá) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .type-detail .product-top > .p-image-wrapper,
+  .type-detail .product-top > .p-info-wrapper { width: 50%; }
+  .p-info-wrapper .price-final-holder { font-size: clamp(26px, 2.6vw, 34px); }
+  .p-info-wrapper .price-final-holder .calculated-price { font-size: inherit; }
+  /* cena a tlačidlo pod sebou: stĺpec má len ~450 px, cena vedľa tlačidla (230 px, vytiahnuté o 75 px hore) sa
+     nezmestila — „5 664 Kč“ zašla pod tlačidlo a odporúčaná cena sa lámala na dva riadky (kontrola 9. 10. 2026) */
+  .p-info-wrapper .p-final-price-wrapper { padding-right: 0; }
+  .p-info-wrapper .add-to-cart { top: 0; margin-top: 18px; justify-content: stretch; }
+  .p-info-wrapper .add-to-cart .add-to-cart-button { flex: 1 1 100%; width: 100%; min-height: 52px; }
+}
+/* lepkavá lišta (469-991 px hore): dostupnosť „(Skladom)“ nepatrí k tovaru na mieru (dodanie 25-35 dní) a inde
+   na stránke sa neukazuje; náhľad a tlačidlo nie sú nalepené na okraj okna, názov najviac na 2 riadky */
+.plugin-fixed-header .plugin-fixed-header__availability { display: none !important; }
+@media (min-width: 469px) {
+  .plugin-fixed-header .fixed-header-container { box-sizing: border-box; padding-left: 16px; padding-right: 16px; gap: 12px; }
+}
+@media (min-width: 469px) and (max-width: 991px) {
+  .plugin-fixed-header .plugin-fixed-header__name { font-size: 16px; line-height: 1.25; display: -webkit-box;
+    -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .plugin-fixed-header .plugin-fixed-header__price { font-size: 20px; }
+}
+/* časová os „Krok 1 | Vytvorte objednávku“ (769-999 px): okrúhle šípky (margin -1,5rem) ležali cez „Krok 1“ */
+@media (min-width: 769px) and (max-width: 999px) {
+  .basic-description .timeline__buttons { margin-block-start: 12px; }
 }

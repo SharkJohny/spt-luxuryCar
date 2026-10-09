@@ -1779,7 +1779,7 @@ a.gold-border.collection-card.shadow {
   overflow: hidden;
 }
 
-@media (max-width: 1640px) {
+@media (min-width: 769px) and (max-width: 1640px) {
   .layers-info-wrap .layers-text {
     position: absolute;
     bottom: 12%;

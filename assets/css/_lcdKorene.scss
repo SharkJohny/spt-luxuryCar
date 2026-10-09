@@ -120,6 +120,13 @@ html.lcd-js #konfSlot .kn-btn > .konf-bezjs{display:flex !important;align-items:
   html.lcd-js #konfSlot .kn-pole{flex:0 1 calc(25% - 14px);min-width:170px}
   html.lcd-js #konfSlot .kn-btn{flex:0 0 100%;margin:6px 0 0}
 }
+/*    tablet 8. 10. 2026: 601–1000 px polia 2 × 2 a tlačidlo na celú šírku — rovnako ako hotový konfigurátor
+      (_lcdHome.scss a _lcdRz.scss, „polia konfigurátora na tabletoch“) */
+@media(min-width:601px) and (max-width:1000px){
+  html.lcd-js #konfSlot .kn-polia{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:16px 18px}
+  html.lcd-js #konfSlot .kn-pole{flex:none;min-width:0;width:auto}
+  html.lcd-js #konfSlot .kn-btn{grid-column:1 / -1;margin:6px 0 0}
+}
 @media(prefers-reduced-motion:no-preference){
   /* orez len kým beží lesk (clip-path nemení rozloženie); po 25 s preč, aby tieň odkazu „Vybrať auto“ nebol odrezaný */
   html.lcd-js #konfSlot .konf-nahlad{clip-path:inset(0);animation:lcdKnBezOrezu 0s linear 25s forwards}

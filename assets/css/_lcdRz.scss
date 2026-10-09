@@ -2263,4 +2263,16 @@
   #lcd-rz .lcdrz-konf-slot .lcd-vehicle-switch__tab{padding:14px 10px;font-size:12px;gap:9px}
   #lcd-rz .lcdrz-konf-slot .lcd-vehicle-switch__tab svg{width:19px;height:19px}
 }
+/* --- tablet 8. 10. 2026: polia konfigurátora na tabletoch (ako titulka) ---
+   select z formulárov Shoptetu má max-width 440 px (na iPade mini užší ako karta a tlačidlo);
+   601–1000 px polia 2 × 2 namiesto 4 v riadku (na 820 px sa zalomili 3 + 1, „Typ karosérie“ sám v strede);
+   rezervácia výšky slotu z adminu (427 px pod 761 px) na 601–760 px ako od 761 px — výšku dá sivý náhľad / konfigurátor */
+#lcd-rz .lcdrz-konf-slot select{max-width:none}
+@media(min-width:601px) and (max-width:1000px){
+  #lcd-rz .lcdrz-konf-slot .modl-selector-wrap:not(.lcd-truck-wrap){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:end;gap:16px 18px}
+  #lcd-rz .lcdrz-konf-slot .modl-selector-wrap:not(.lcd-truck-wrap) .surcharge-list{flex:none;min-width:0;width:auto}
+  #lcd-rz .lcdrz-konf-slot .modl-selector-wrap:not(.lcd-truck-wrap) .btn.choice-Model{grid-column:1 / -1;margin:6px 0 0;white-space:nowrap}
+}
+@media(min-width:601px) and (max-width:760px){#lcd-rz #konfSlot.lcdrz-konf-slot{min-height:148px !important}}
 /* ===== LCD-RZ END ===== */

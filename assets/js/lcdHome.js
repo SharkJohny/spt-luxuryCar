@@ -1236,15 +1236,18 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
   }
   tilt();
   /* mobil: sekcia je v normalnom toku — rozklad sa spusti sam, ked na nu doscrollujes */
-  var MATMQ=matchMedia('(max-width:900px)'), matToggle=document.getElementById('matToggle'),
+  /* tablet na výšku nad 900 px (iPad Pro) má statickú scénu ako mobil — rovnaký zlom ako _lcdHome.scss (tablet 8. 10. 2026) */
+  var MATMQ=matchMedia('(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse)'), matToggle=document.getElementById('matToggle'),
       matOpen=0, matIO=null, matT=null;
   var matProg=document.getElementById('matProg');
+  /* text tlačidla z HTML adminu (data-rozlozit / data-zlozit; CZ „Rozložit / Složit materiál“) — predtým natvrdo po slovensky aj na CZ (tablet 9. 10. 2026) */
+  function matText(k){ var d=matToggle&&matToggle.dataset&&matToggle.dataset[k]; if(d) return d; var cz=/\.cz$/i.test(location.hostname); return k==='zlozit'?(cz?'Složit materiál':'Zložiť materiál'):(cz?'Rozložit materiál':'Rozložiť materiál'); }
   function setMat(o){
     if(matOpen===o) return;
     matOpen=o; explode(o);
     if(matToggle){
       matToggle.classList.toggle('on', o>0.5);
-      matToggle.textContent = o>0.5 ? 'Zložiť materiál' : 'Rozložiť materiál';
+      matToggle.textContent = o>0.5 ? matText('zlozit') : matText('rozlozit');
     }
   }
   if(matToggle){
@@ -1268,7 +1271,7 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
   MATMQ.addEventListener('change',function(){
     if(MATMQ.matches) lcdhStOff(); else lcdhStOn();
     matOpen=0; explode(0);
-    if(matToggle){ matToggle.classList.remove('on'); matToggle.textContent='Rozložiť materiál'; }
+    if(matToggle){ matToggle.classList.remove('on'); matToggle.textContent=matText('rozlozit'); }
     matAuto();
   });
   addEventListener('resize',function(){explode(lastOpen)});

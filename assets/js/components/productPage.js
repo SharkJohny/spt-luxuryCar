@@ -1,4 +1,5 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
+import { lcdCena } from "../functions/livePrice.js";
 import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
 import { renderTruckConfigurator } from "../truck-konfigurator/index.jsx";
 import {
@@ -1303,7 +1304,7 @@ function calculateStandartPrice(diference, explicitPrice) {
   if (newStandartPrice < 100) return;
   // Aktualizuj zobrazení cen
   $(".p-final-price-wrapper .price-save").text("–" + discount + " %");
-  $(".p-final-price-wrapper .price-standard span").not(".price-save").text(NumToPrice(newStandartPrice));
+  $(".p-final-price-wrapper .price-standard span").not(".price-save").text(lcdCena(newStandartPrice));
   updateBoxPrice();
 }
 window.allowDirectAddToCart = false;
@@ -1477,7 +1478,7 @@ function updateUpsale($this, event) {
         }
         const $soloPriceEl = $(`.box-config .parameter-wrap.parameter-${soloId}`).find(".price.price-standart");
         $soloPriceEl.attr("data-price", soloPrice);
-        if ($soloPriceEl.length) $soloPriceEl.text(soloPrice > 0 ? NumToPrice(soloPrice) : "0 Kč");
+        if ($soloPriceEl.length) $soloPriceEl.text(soloPrice > 0 ? lcdCena(soloPrice) : lcdCena(0));
       } else {
         setBoxConfigVisibleCount(2);
 
@@ -1521,7 +1522,7 @@ function updateUpsale($this, event) {
           }
           const $priceEl = $(`.box-config .parameter-wrap.parameter-${bid}`).find(".price.price-standart");
           $priceEl.attr("data-price", p);
-          if ($priceEl.length) $priceEl.text(p > 0 ? NumToPrice(p) : "0 Kč");
+          if ($priceEl.length) $priceEl.text(p > 0 ? lcdCena(p) : lcdCena(0));
         });
       }
     }
@@ -1547,7 +1548,7 @@ function updateBoxPrice() {
 
     $(this)
       .find(".price.price-standart")
-      .text(NumToPrice(price + addPrice));
+      .text(lcdCena(price + addPrice));
   });
 }
 

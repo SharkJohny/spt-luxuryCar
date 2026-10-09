@@ -67,8 +67,9 @@
 #lcd-hdr .burg[aria-expanded="true"] i:nth-child(2){opacity:0}
 #lcd-hdr .burg[aria-expanded="true"] i:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
 /* ---------- MEGA MENU (hamburger) — rovnake ako na zivom webe ---------- */
-#lcd-hdr .mega, #mega[data-lcd-cast]{position:fixed;top:82px;left:var(--pad);z-index:70;width:min(600px,calc(100vw - 24px));
-  max-height:calc(100vh - 100px);overflow-y:auto;overscroll-behavior:contain;
+/* top 104 px: pod plaketou loga (visí z pásu do 95 px) — panel ju už neodreže (tablet 8. 10. 2026) */
+#lcd-hdr .mega, #mega[data-lcd-cast]{position:fixed;top:104px;left:var(--pad);z-index:70;width:min(600px,calc(100vw - 24px));
+  max-height:calc(100vh - 122px);overflow-y:auto;overscroll-behavior:contain;
   background:#eceae5;border:2px solid #c49b31;border-radius:14px;
   box-shadow:0 14px 40px rgba(0,0,0,.22);padding:0;display:none;
   scrollbar-width:thin;scrollbar-color:#c49b31 rgba(155,122,36,.16)}
@@ -173,9 +174,14 @@
 html body.navigation-window-visible #mega[data-lcd-cast]{display:block}
 #mega[data-lcd-cast] .m-x:before, #mega[data-lcd-cast] .m-x:after{content:none !important}
 @media(max-width:760px){html body.navigation-window-visible #mega[data-lcd-cast] .m-x{display:flex}}
+/* menu cez celú obrazovku: vlajka a × sú pripnuté hore — lepkavá lišta pod nimi, aby cez ne pri posúvaní neprechádzali karty menu;
+   v toku zaberá 20 px (margin -38 px) -> nadpis menu začína na ~74 px, pod lištou (58 px) aj jej tieňom, nie cez ne (kontrola 9. 10. 2026) */
+@media(max-width:760px){#mega[data-lcd-cast]::before{content:"";display:block;position:sticky;top:0;z-index:2;height:58px;margin-bottom:-38px;
+  background:#eceae5;box-shadow:0 1px 0 rgba(155,122,36,.35),0 6px 14px rgba(20,17,12,.08)}}
 /* prekrytie pod panelom (statické: v obale banneru) */
-[data-ec-promo-id] .mega-ovl{position:fixed;inset:0;z-index:100000005;background:rgba(20,17,12,.35);display:none}
-html body.navigation-window-visible [data-ec-promo-id] .mega-ovl{display:block}
+/* .lcd-mega-js = to isté menu vložené JS-om v košíku a objednávke (lcdHdr.js), kde Shoptet bannery nevypíše */
+:is([data-ec-promo-id],.lcd-mega-js) .mega-ovl{position:fixed;inset:0;z-index:100000005;background:rgba(20,17,12,.35);display:none}
+html body.navigation-window-visible :is([data-ec-promo-id],.lcd-mega-js) .mega-ovl{display:block}
 /* prepínač SK/CZ v menu (lcdLang.js ho obalí do .lcdlang s ponukou) */
 #mega[data-lcd-cast] > :is(.m-lang,.lcdlang){position:absolute;top:16px;left:16px;z-index:3}
 #mega[data-lcd-cast] .m-lang{display:flex;align-items:center;border:0;background:none;padding:0;cursor:pointer}
@@ -397,9 +403,9 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .search .search-form butt
 /* natívne menu: pri statickom #mega je skryté; inde (košík, objednávka — bez bannerov) je to panel ako #mega */
 html:is(.lcd-native-hdr,:has([data-lcd-cast])) :is(#navigation,.menu-helper){display:none !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) body.navigation-window-visible #navigation{display:block !important;
-  position:fixed !important;top:82px !important;right:auto !important;bottom:auto !important;left:clamp(18px,5vw,80px) !important;
+  position:fixed !important;top:104px !important;right:auto !important;bottom:auto !important;left:clamp(18px,5vw,80px) !important;
   transform:none !important;z-index:100000010 !important;box-sizing:border-box;width:min(600px,calc(100vw - 24px)) !important;
-  height:auto !important;max-height:calc(100vh - 100px) !important;overflow-x:hidden !important;overflow-y:auto !important;
+  height:auto !important;max-height:calc(100vh - 122px) !important;overflow-x:hidden !important;overflow-y:auto !important;
   overscroll-behavior:contain;margin:0 !important;padding:18px 16px 22px !important;background:#eceae5 !important;
   border:2px solid #c49b31 !important;border-radius:14px !important;box-shadow:0 14px 40px rgba(0,0,0,.22) !important;
   transition:none !important;font-family:"Source Sans 3","Segoe UI",Arial,sans-serif;text-align:left}
@@ -414,7 +420,7 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #
   height:auto !important;margin:0 !important;padding:0 !important;list-style:none;background:none !important;border:0 !important;
   box-shadow:none !important;transform:none !important;opacity:1 !important;visibility:visible !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation li{display:block !important;position:static !important;float:none !important;
-  width:auto !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important}
+  visibility:visible !important;width:auto !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-1 > li{border-bottom:1px solid rgba(155,122,36,.3) !important}
 html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .menu-level-1 > li > a{display:block !important;padding:13px 6px !important;
   color:#171717 !important;background:none !important;text-decoration:none !important;
@@ -436,3 +442,263 @@ html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #
 html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigation-close:before{content:"\00d7" !important;
   font:normal 400 24px/1 Arial,sans-serif !important;color:#c49b31 !important}
 @media(min-width:761px){html:is(.lcd-native-hdr,:has([data-lcd-cast])):not(:has(#mega[data-lcd-cast])) #navigation .navigation-close{position:fixed !important;display:none !important}}
+
+/* ---------- D) panel košíka — ťuk / prejdenie myšou na ikonu košíka v hlavičke (Michal 8. 10. 2026, návrh A+) ----------
+   Natívny #cart-widget Shoptetu (rodič .user-action-in, mimo #header). Deti: .cart-widget-inner.place-cart-here (zoznam;
+   Shoptet ho pri KAŽDOM otvorení prepíše AJAXom a vyšle ShoptetDOMCartContentLoaded) a .cart-widget-button (súrodenec).
+   Otvorené = body.cart-window-visible. Karta = biela karta POD pásom hlavičky aj plaketou loga (z-index 59 < pás 60
+   < #header s logom 61), výška podľa obsahu, tlačidlo hneď pod položkami; dlhý zoznam sa roluje vnútri (hlavička karty,
+   súčet a tlačidlo stoja). lcdKosikPanel.js len DOPĹŇA mimo zoznamu: hlavičku karty, súčet, „Nakupovať ďalej“, clonu,
+   polohu (--kw-top) a na PC skrytie chatu Luxia pri prieniku. Natívny obsah sa nemaže ani neskrýva.
+   Dotyk: kým je karta otvorená, chat Luxia je skrytý vždy (bublina nad clonou by po ťuknutí otvorila chat; uvítanie
+   360 × 380 by prekrylo kartu); po zatvorení sa vráti. PC: karta končí 112 px nad spodkom okna, bublina ostáva.
+   Dva režimy (NIE podľa body.desktop/mobile — iPad s UA Macu dostane body.desktop):
+     PC  = (hover:hover) and (pointer:fine) and (min-width:900px): otvára prejdenie myšou (Shoptet), bez clony a zámku;
+     dotyk = všetko ostatné (telefóny, iPady na výšku aj na šírku, úzke okno PC): clona, zámok rolovania, ťuk na clonu zavrie.
+   Staré pravidlá (_header.scss r. 235–239, 593–600, 830–834; luxuryCar.scss r. 101–103; _productPage.scss r. 775) prebíja
+   ID + !important; upratanie je samostatný krok. */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])){--kw-foto:64px;--kw-ink:#14110c;--kw-ciara:#e8e1d1;--kw-tlmena:#5f574a;
+  --kw-jemna:#6b645a;--kw-podklad:#f7f5f0;--kw-pad:18px;
+  --kw-ico-taska:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 8h15l-1.1 10.2a2 2 0 01-2 1.8H7.6a2 2 0 01-2-1.8z'/%3E%3Cpath d='M8.8 8V6.4a3.2 3.2 0 016.4 0V8'/%3E%3C/svg%3E");
+  --kw-ico-kos:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M9.5 7V4.8h5V7M6.5 7l.9 12.2a1.6 1.6 0 001.6 1.5h6a1.6 1.6 0 001.6-1.5L17.5 7M10.2 11v6M13.8 11v6'/%3E%3C/svg%3E")}
+@media(max-width:520px){html:is(.lcd-native-hdr,:has([data-lcd-cast])){--kw-foto:56px;--kw-pad:16px}}
+
+/* karta: spoločné (poloha zhora = --kw-top z JS: spodok pása / plakety / lepkavej lišty + 12 px) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget{position:fixed !important;
+  top:var(--kw-top,107px) !important;bottom:auto !important;box-sizing:border-box !important;height:auto !important;min-height:0 !important;
+  max-height:calc(100vh - var(--kw-top,107px) - 12px) !important;max-height:calc(100dvh - var(--kw-top,107px) - 12px) !important;
+  display:flex !important;flex-direction:column !important;margin:0 !important;padding:0 !important;overflow:visible !important;
+  z-index:59 !important;background:#fff !important;border:1px solid rgba(196,155,49,.38) !important;border-radius:16px !important;
+  box-shadow:0 28px 70px rgba(0,0,0,.42),0 4px 14px rgba(0,0,0,.16) !important;
+  color:var(--kw-ink);font:400 15px/1.45 "Source Sans 3","Segoe UI",Arial,sans-serif;text-align:left;
+  /* a) do 520 px (telefóny): na šírku okna s okrajmi 12 px */
+  left:50% !important;right:auto !important;transform:translateX(-50%) !important;width:calc(100% - 24px) !important;max-width:none !important}
+@media(max-width:520px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget{
+  top:var(--kw-top,83px) !important;max-height:calc(100vh - var(--kw-top,83px) - 12px - env(safe-area-inset-bottom,0px)) !important;
+  max-height:calc(100dvh - var(--kw-top,83px) - 12px - env(safe-area-inset-bottom,0px)) !important}}
+/* b) 521–899 px (iPad mini a iPad na výšku): karta v strede */
+@media(min-width:521px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget{
+  width:min(560px,calc(100% - 48px)) !important}}
+/* c) od 900 px: 440 px vpravo pod ikonou košíka, zarovnaná s okrajom pása (max 1240 px) */
+@media(min-width:900px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget{
+  left:auto !important;transform:none !important;right:max(var(--lcdn-pad),calc((100% - 1240px) / 2 + var(--lcdn-pad))) !important;
+  width:min(440px,calc(100% - 2 * var(--lcdn-pad))) !important}}
+/* zlatá linka hore (prebije natívnu „šípku“ popupu aj spinner .ajax-pending) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget::before{content:"" !important;
+  display:block !important;position:absolute !important;z-index:2 !important;left:18px !important;right:18px !important;top:-1px !important;
+  bottom:auto !important;width:auto !important;height:3px !important;margin:0 !important;padding:0 !important;border:0 !important;
+  border-radius:0 0 3px 3px !important;box-shadow:none !important;transform:none !important;animation:none !important;opacity:1 !important;
+  pointer-events:none;background:linear-gradient(90deg,rgba(184,144,31,0),#b8901f 12%,#f0d78f 50%,#b8901f 88%,rgba(184,144,31,0)) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget::after{content:none !important}
+/* clona (vloží JS ako predchádzajúceho súrodenca karty) — len v dotykovom režime; pás s logom ostáva nad ňou */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) .lcd-kw-clona{display:none}
+@media not all and (hover:hover) and (pointer:fine) and (min-width:900px){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible .lcd-kw-clona{display:block;position:fixed;inset:0;z-index:58;
+    margin:0;padding:0;border:0;cursor:pointer;touch-action:none;background:rgba(12,10,7,.55);
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])):has(body.cart-window-visible){overflow:hidden !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible iframe[title="Luxia chat"]{visibility:hidden !important}
+}
+/* PC (myš): neviditeľný mostík od ikony ku karte, aby sa pri prechode myšou nezavrela; karta končí nad bublinou chatu
+   Luxia (76 × 76, 16–18 px od spodku) -> bublinu netreba skrývať pri každom prejdení myšou */
+@media(hover:hover) and (pointer:fine) and (min-width:900px){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget{
+    max-height:calc(100vh - var(--kw-top,107px) - 112px) !important;max-height:calc(100dvh - var(--kw-top,107px) - 112px) !important}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget::after{content:"" !important;
+    display:block !important;position:absolute !important;left:0 !important;right:0 !important;bottom:100% !important;top:auto !important;
+    width:auto !important;height:56px !important;margin:0 !important;border:0 !important;box-shadow:none !important;transform:none !important;
+    background:none !important}
+}
+@media(prefers-reduced-motion:no-preference){
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.cart-widget{animation:lcdKwIn .22s cubic-bezier(.2,.7,.2,1)}
+  html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible .lcd-kw-clona{animation:lcdKwClona .22s ease-out}
+}
+@keyframes lcdKwIn{from{opacity:0;translate:0 -8px}to{opacity:1;translate:0 0}}
+@keyframes lcdKwClona{from{opacity:0}to{opacity:1}}
+/* otvorená ikona košíka v páse */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #header .navigation-buttons > .cart-count[aria-expanded="true"]{color:#fff !important}
+
+/* hlavička karty (JS): ikona tašky, „VÁŠ KOŠÍK“ + počet položiek, zavrieť */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-hlava{flex:none;display:flex;align-items:center;gap:12px;box-sizing:border-box;
+  margin:0;padding:14px 8px 12px 16px;border:0;border-bottom:1px solid var(--kw-ciara);border-radius:15px 15px 0 0;background:#fff}
+@media(min-width:521px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-hlava{padding:16px 8px 14px 18px}}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-ikona{flex:none;position:relative;display:block;width:36px;height:36px;
+  border-radius:50%;background:var(--kw-ink);box-shadow:0 0 0 1px rgba(196,155,49,.55),0 4px 10px rgba(20,17,12,.18)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-ikona::before{content:"";position:absolute;inset:9px;background:#e6c877;
+  -webkit-mask:var(--kw-ico-taska) center/contain no-repeat;mask:var(--kw-ico-taska) center/contain no-repeat}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-texty{flex:1 1 auto;min-width:0}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #lcd-kw-titul{margin:0 !important;padding:0;color:var(--kw-ink) !important;
+  font:normal 900 15px/1.2 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.12em !important;text-transform:uppercase !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-pocet{margin:3px 0 0 !important;padding:0;color:var(--kw-tlmena) !important;
+  font:normal 400 14px/1.3 "Source Sans 3","Segoe UI",Arial,sans-serif !important;letter-spacing:0;text-transform:none}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-pocet:empty{display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-x{flex:none;position:relative;display:block;width:44px;height:44px;
+  min-width:0;margin:0;padding:0;border:0;border-radius:50%;background:none;box-shadow:none;color:var(--kw-ink);font-size:0;line-height:0;cursor:pointer}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-x::before,
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-x::after{content:"";position:absolute;left:13px;top:21px;width:18px;height:2px;
+  border-radius:1px;background:currentColor;transform:rotate(45deg)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-x::after{transform:rotate(-45deg)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-x:hover{background:#f3efe6}
+
+/* zoznam (natívny obsah z AJAXu): pri dlhom zozname sa roluje len on; tiene hore/dole len keď je čo rolovať */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget .cart-widget-inner{position:relative !important;display:block !important;
+  flex:0 1 auto !important;min-height:0 !important;box-sizing:border-box !important;width:auto !important;max-width:none !important;
+  height:auto !important;max-height:none !important;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;
+  box-shadow:none !important;overflow-x:hidden !important;overflow-y:auto !important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  background:linear-gradient(#fff 30%,rgba(255,255,255,0)) center top / 100% 28px no-repeat local,
+    linear-gradient(rgba(255,255,255,0),#fff 70%) center bottom / 100% 28px no-repeat local,
+    radial-gradient(farthest-side at 50% 0,rgba(20,17,12,.18),rgba(20,17,12,0)) center top / 100% 12px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%,rgba(20,17,12,.18),rgba(20,17,12,0)) center bottom / 100% 12px no-repeat scroll,
+    #fff !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget :is(.cart-widget-products,.cart-widget-products-inner){height:auto !important;
+  max-height:none !important;margin:0 !important;padding:0 !important;border:0 !important;overflow:visible !important;background:none !important}
+/* riadok: [fotka] [názov · výber · príplatky] / [množstvo jednotka · cena · kôš] / [poznámka] */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product[data-micro="cartItem"]{position:relative !important;
+  display:grid !important;grid-template-columns:var(--kw-foto) auto auto minmax(0,1fr) 40px;grid-template-rows:auto auto auto;
+  align-items:start;box-sizing:border-box;width:auto !important;height:auto !important;min-height:0 !important;margin:0 !important;
+  padding:12px 6px 12px 16px !important;border:0 !important;border-top:1px solid var(--kw-bez,#eceae5) !important;background:none !important;
+  table-layout:auto}
+@media(min-width:521px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product[data-micro="cartItem"]{padding:14px 6px 14px 18px !important}}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product[data-micro="cartItem"]:first-child{border-top:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-image{grid-column:1;grid-row:1 / 3;display:block !important;
+  float:none !important;width:var(--kw-foto) !important;height:var(--kw-foto) !important;margin:0 !important;padding:0 !important;text-align:left}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-image a{display:block !important;width:100% !important;height:100% !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-image img{display:block !important;box-sizing:border-box;width:100% !important;
+  height:100% !important;max-width:none !important;max-height:none !important;margin:0 !important;object-fit:cover;border-radius:10px;
+  border:1px solid var(--kw-ciara)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-name{display:contents !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-name > strong{grid-column:2 / 6;grid-row:1;display:block !important;
+  min-width:0;margin:0;padding:0 0 0 14px;font-weight:inherit}
+/* názov = textový uzol v <a>; <a> je blok, aby fungovalo ::first-letter („luxusní“ -> „Luxusní“); názov sa neoreže */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-name > strong > a{display:block !important;margin:0;padding:0;
+  color:var(--kw-ink) !important;text-decoration:none !important;overflow-wrap:anywhere;white-space:normal !important;
+  font:normal 700 15px/1.3 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.005em !important;text-transform:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-name > strong > a::first-letter{text-transform:uppercase}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget :is(.cart-widget-product-variant,.cart-widget-product-surcharges){display:-webkit-box !important;
+  -webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:4px 0 0 !important;padding:0 !important;white-space:normal !important;
+  color:var(--kw-jemna) !important;font:normal 400 13px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif !important;
+  letter-spacing:0 !important;text-transform:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-surcharges{color:var(--kw-jemna) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget.lcd-kw-viac .cart-widget-product-surcharges{-webkit-line-clamp:1}
+@media(max-width:520px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-surcharges{-webkit-line-clamp:1}}
+/* množstvo vždy: „1 ks“ / „2 ks“ / „1 sada“ vľavo na riadku ceny (natívne pole a jednotka; zmena množstva je v /kosik/).
+   ID + !important prebije globálne skrytie span.quantity (_productPage.scss) aj jednotky do 678 px (luxuryCar.scss);
+   v mriežke sú to bunky (display sa zblokuje) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product .cart-widget-product-amount{
+  display:inline !important;visibility:visible !important;grid-column:2;grid-row:2;align-self:center;float:none;width:auto !important;
+  margin:4px 0 0 !important;padding:0 0 0 14px !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product .cart-widget-product-unit{
+  display:inline !important;visibility:visible !important;grid-column:3;grid-row:2;align-self:center;float:none;width:auto !important;
+  margin:4px 0 0 !important;padding:0 0 0 4px !important;color:var(--kw-tlmena);font:normal 600 14px/20px "Source Sans 3","Segoe UI",Arial,sans-serif}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount :is(form,label){display:inline !important;position:static !important;
+  margin:0 !important;padding:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount span.quantity{display:inline-flex !important;position:static !important;
+  width:auto !important;min-width:0 !important;height:auto !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount :is(.increase,.decrease,.increase-tooltip,.decrease-tooltip){display:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount input.amount{display:inline-block !important;width:2ch !important;
+  height:20px !important;min-width:0 !important;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;
+  box-shadow:none !important;pointer-events:none;-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;text-align:left !important;
+  color:var(--kw-tlmena) !important;font:normal 600 14px/20px "Source Sans 3","Segoe UI",Arial,sans-serif !important}
+@supports (field-sizing:content){html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount input.amount{
+  field-sizing:content;width:auto !important;min-width:1ch !important}}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount input.amount::-webkit-inner-spin-button,
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-amount input.amount::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+/* cena riadku (Shoptet ju dáva za všetky kusy) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget [data-testid="cartWidgetProductPrice"]{grid-column:4;grid-row:2;justify-self:end;align-self:center;
+  display:block !important;position:static !important;margin:4px 0 0 !important;padding:0 4px 0 12px !important;white-space:nowrap;
+  color:var(--kw-ink) !important;font:normal 700 16px/20px "Exo 2","Segoe UI",Arial,sans-serif !important;font-variant-numeric:tabular-nums}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .CartWidgetNoteDetails{grid-column:2 / 6;grid-row:3;margin:0;padding:6px 12px 0 14px;
+  color:var(--kw-tlmena);font-size:13px;line-height:1.4}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .CartWidgetNoteDetails:empty{display:none !important}
+/* odstrániť: ikona koša 40 × 40 vpravo na riadku ceny (na PC ju Shoptet ukazuje až pri prejdení myšou) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-delete{grid-column:5;grid-row:2;justify-self:end;align-self:center;
+  display:block !important;visibility:visible !important;opacity:1 !important;position:static !important;float:none;width:40px !important;
+  height:40px !important;margin:0 !important;padding:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .cart-widget-product-delete :is(form,.inline){display:block !important;position:static !important;
+  width:100% !important;height:100% !important;margin:0 !important;padding:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .remove-item{position:relative !important;display:block !important;visibility:visible !important;
+  opacity:1 !important;top:auto !important;right:auto !important;bottom:auto !important;left:auto !important;transform:none !important;
+  width:40px !important;height:40px !important;min-width:0 !important;margin:0 !important;padding:0 !important;border:0 !important;
+  border-radius:50% !important;background:none !important;box-shadow:none !important;color:#8a8174 !important;
+  font-size:0 !important;line-height:0 !important;cursor:pointer}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .remove-item::before{content:"" !important;position:absolute !important;
+  inset:11px !important;width:auto !important;height:auto !important;margin:0 !important;transform:none !important;background:currentColor !important;
+  font-size:0 !important;-webkit-mask:var(--kw-ico-kos) center/contain no-repeat;mask:var(--kw-ico-kos) center/contain no-repeat}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .remove-item::after{content:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .remove-item:hover{color:var(--kw-ink) !important;background:#f3efe6 !important}
+
+/* súčet (JS; len pri 2+ položkách, text z ceny v hlavičke Shoptetu) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-suma{flex:none;position:relative;display:flex;justify-content:space-between;
+  align-items:baseline;gap:12px;box-sizing:border-box;margin:0;padding:12px var(--kw-pad) 4px;background:var(--kw-podklad);
+  border-top:1px solid var(--kw-ciara);box-shadow:0 -14px 16px -16px rgba(20,17,12,.4)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-suma > span{color:var(--kw-tlmena);
+  font:normal 700 12.5px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-suma > strong{color:var(--kw-ink);white-space:nowrap;
+  font:normal 900 22px/1.1 "Exo 2","Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums}
+/* tlačidlo hneď pod položkami (natívny text) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget .cart-widget-button{flex:none;position:static !important;
+  display:block !important;inset:auto !important;box-sizing:border-box;width:auto !important;height:auto !important;min-height:0 !important;
+  margin:0 !important;padding:12px var(--kw-pad) 0 !important;border:0 !important;border-top:1px solid var(--kw-ciara) !important;
+  border-radius:0 !important;background:#fff !important;box-shadow:none !important;text-align:center}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget.lcd-kw-viac .cart-widget-button{border-top:0 !important;
+  background:var(--kw-podklad) !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button{position:relative !important;display:flex !important;
+  align-items:center;justify-content:center;gap:12px;box-sizing:border-box;width:100% !important;min-height:50px;height:auto !important;
+  margin:0 !important;padding:13px 18px !important;border:0 !important;border-radius:12px !important;
+  background:linear-gradient(180deg,#d6b04c 0%,#c49b31 55%,#b18822 100%) !important;color:var(--kw-ink) !important;
+  font:normal 900 14.5px/1.2 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.1em !important;text-transform:uppercase !important;
+  text-align:center !important;text-decoration:none !important;white-space:normal !important;
+  box-shadow:0 10px 22px rgba(196,155,49,.30),inset 0 1px 0 rgba(255,255,255,.35) !important;transition:filter .2s}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button::before{content:none !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button::after{content:"" !important;position:static !important;
+  display:block !important;flex:none;width:8px !important;height:8px !important;margin:0 0 0 2px !important;padding:0 !important;
+  border:solid currentColor !important;border-width:2px 2px 0 0 !important;background:none !important;transform:rotate(45deg) !important;
+  font-size:0 !important;line-height:0 !important}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button:hover{filter:brightness(1.05)}
+@media(max-width:360px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget #continue-order-button{font-size:14px !important;letter-spacing:.06em !important}}
+/* „Nakupovať ďalej“ (JS) — tichý návrat, posledný prvok karty */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-spat{display:block;flex:none;box-sizing:border-box;width:100%;min-height:44px;
+  margin:2px 0 0;padding:0 12px 8px;border:0;border-radius:0 0 15px 15px;background:#fff;color:var(--kw-jemna);cursor:pointer;text-align:center;
+  font:normal 600 14.5px/44px "Source Sans 3","Segoe UI",Arial,sans-serif;letter-spacing:0;text-transform:none;
+  text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:rgba(20,17,12,.28);text-underline-offset:4px}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget.lcd-kw-viac .lcd-kw-spat{margin-top:0;padding-top:2px;background:var(--kw-podklad)}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget .lcd-kw-spat:is(:hover,:focus-visible){color:var(--kw-ink)}
+/* prázdny košík: hlavička bez počtu, veta Shoptetu na stred, bez tlačidla a súčtu, ostáva „Nakupovať ďalej“ */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget [data-testid="cartTitle"]{display:block !important;box-sizing:border-box;width:auto !important;
+  margin:0 !important;padding:22px 16px 10px !important;border:0 !important;text-align:center !important;color:var(--kw-tlmena) !important;
+  font:normal 600 15px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif !important;letter-spacing:0;text-transform:none}
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #cart-widget:is(.lcd-kw-prazdny,:has([data-testid="cartTitle"])) :is(.cart-widget-button,.lcd-kw-suma){
+  display:none !important}
+/* fokus z klávesnice (prebije biely rámik Shoptetu) */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) #cart-widget :is(.lcd-kw-x,.remove-item,#continue-order-button,.lcd-kw-spat):focus-visible{
+  outline:2px solid #8f7020 !important;outline-offset:2px !important}
+/* chat Luxia na PC: skryje sa LEN pri otvorenom košíku a len keď by kartu zakryl alebo je väčší ako bublina (uvítanie, ponuka) — JS;
+   na dotyku ho skrýva pravidlo vyššie (clona) vždy, kým je karta otvorená */
+html.lcd-kw-bez-luxie body.cart-window-visible iframe[title="Luxia chat"]{visibility:hidden !important}
+/* notifikácia ProveSource (z-index 9999) by pri otvorenej karte zakryla pás, prvý riadok aj tlačidlo -> počas otvorenia preč */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.cart-window-visible #provesrc-notification-container{visibility:hidden !important}
+
+/* ---------- E) objednávkový proces (/kosik/, /objednavka/) a prekrytia s chatom Luxia / lištou cookies (tablet 8. 10. 2026) ---------- */
+/* obsah pod plaketou loga (visí z pásu do 95 px, do 520 px do 71 px): kroky objednávky aj nadpis „Váš nákupný košík je prázdny“
+   ležali pod logom; do 767 px mal Shoptet kroky fixne na vrchu okna (top 0) — pod pásom hlavičky, preto v toku stránky */
+html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process #content-wrapper{padding-top:28px !important}
+@media(max-width:520px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process #content-wrapper{padding-top:12px !important}}
+@media(max-width:767px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process ol.cart-header{position:static !important;top:auto !important}}
+/* bublina chatu Luxia (76 × 76 vpravo dole) ležala na „Pokračovať“ a na celkovej sume; rezerva pod obsahom, aby sa dali
+   vždy odrolovať nad bublinu (na PC a tabletoch na šírku je tlačidlo v ľavom stĺpci) */
+@media(max-width:1024px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process #content-wrapper{padding-bottom:110px !important;
+  background-color:#fff}}
+/* do 560 px má widget Luxie bublinu vyššie (bottom 50 px -> horný okraj 126 px nad spodkom okna) -> väčšia rezerva */
+@media(max-width:560px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process #content-wrapper{padding-bottom:144px !important}}
+/* /kosik/ na tablete na výšku (521–991 px): súhrn so „Pokračovať“ je karta 400 px pri pravom okraji — hneď po načítaní ležala
+   bublina chatu (76 × 76, 16 px od pravého okraja) na konci tlačidla (iPad mini 3 420 px², iPad 820 2 622 px²);
+   vpravo rezerva 96 px ako pri lište scén titulky — tlačidlo nikdy nesiaha do pásu bubliny (kontrola 9. 10. 2026) */
+@media(min-width:521px) and (max-width:991px){html:is(.lcd-native-hdr,:has([data-lcd-cast])) body.ordering-process .cart-content.summary-wrapper{
+  box-sizing:border-box;padding-right:96px !important}}
+/* otvorené menu: chat Luxia (z-index 2147483000) by ležal nad panelom menu a zakryl jeho tlačidlá — kým je menu otvorené, ustúpi */
+html body.navigation-window-visible iframe[title="Luxia chat"]{visibility:hidden !important}
+/* lišta cookies Shoptetu: ikona chatu ležala na pravom tlačidle (Súhlasím / Nastavenie) — obsah lišty nechá vpravo miesto pre ikonu */
+@media(max-width:1340px){.siteCookies .siteCookies__form{padding-right:96px !important;box-sizing:border-box}}
+/* telefón (do 468 px) s lepkavou lištou „Do košíka“ dole (61 px): bublina chatu (50 px od spodku) zasahovala do lišty */
+@media(max-width:468px){body:has(#js-plugin-header.active) iframe[title="Luxia chat"]{bottom:72px !important}}

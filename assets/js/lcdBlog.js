@@ -634,7 +634,7 @@ function clanok() {
     var ine = vsetky.filter(function (p) { return p.href !== cesta; }).map(function (p, k) {
       var spol = p.temy.filter(function (t) { return temy.indexOf(t) !== -1; }).length;
       return { p: p, s: spol * 100 - k };
-    }).sort(function (a, b) { return b.s - a.s; }).slice(0, 3);
+    }).sort(function (a, b) { return b.s - a.s; }).slice(0, 4); /* 4: na tablete 2 x 2, inak CSS ukáže 3 (_lcdBlog.scss .cl-suvis) */
     if (!ine.length) return;
     var su = koren.querySelector(".cl-suvis");
     su.querySelector(".mriezka").innerHTML = ine.map(function (x, k) { return karta(x.p, k * 0.08); }).join("");

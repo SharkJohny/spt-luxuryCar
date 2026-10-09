@@ -109,24 +109,48 @@ footer#footer {
   }
 }
 
+/* Logo v pätičke do 1199 px (tablet 8. 10. 2026): v toku nad odkazmi, nie absolútne cez ne.
+   Predtým: do 768 px absolútne (šírka 50 % okna, na iPade mini 372 × 268 px) cez nadpis PRODUKTY a prvé odkazy,
+   769–1199 px logo chýbalo úplne (Shoptet display:none). Od 1200 px ostáva vľavo (pravidlo vyššie). */
+@media (max-width: 1199px) {
+  #footer .site-name {
+    display: block;
+    position: static;
+    left: auto !important;
+    transform: none !important;
+    width: min(50vw, 200px);
+    max-width: none;
+    margin: 40px auto 24px;
+    text-align: center;
+  }
+  #footer .site-name a {
+    display: block;
+  }
+  #footer .site-name img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+  }
+}
 @media (max-width: 768px) {
   #footer {
     position: relative;
-    .site-name {
-      top: 50px;
-    }
-  }
-  #footer .site-name {
-    display: block;
   }
   .custom-footer.elements-4 {
-    margin-top: 200px;
     border-top: none;
   }
   #footer .banner-wrapper {
     text-align: center;
   }
-  .custom-footer.elements-5 {
-    padding-top: 200px;
-  }
+}
+/* spodný riadok „Copyright … Všetky práva vyhradené“ dedil sivú rgb(77,77,77) na #1a1a1a (kontrast 2,06 : 1) */
+footer#footer .footer-bottom,
+footer#footer .copyright {
+  color: rgba(255, 255, 255, 0.72);
+}
+/* krátka stránka (vyhľadávanie, 404, formulár): pod tmavou pätičkou bol biely pás — plátno mimo body má farbu pätičky
+   (body ostáva biele, obsah sa nemení); len keď pätička na stránke je (košík a objednávka ju nemajú) */
+html:has(#footer) {
+  background-color: #1a1a1a;
 }

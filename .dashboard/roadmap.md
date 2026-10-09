@@ -465,3 +465,17 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
     - [ ] Zkontroluj: po re-importu feedu v adminu objednávka vzorku ukazuje "Diamond – kůže …, prošití … (D-x) - Ano"
 - [ ] Barva prošití u jednobarevných vzorků (D-10…D-18, S-4…S-8) — chybí v datech, čeká na klienta
 - [ ] Nasadit: merge feat/vzorky-shoptet-html → main (fix poznámky "model: undefined…") + re-import CZ i SK feedu
+
+## Tablet 8. 10. 2026 — chyby z iPadu (Michalove fotky) + nový panel košíka
+- [x] Panel košíka „A+“: karta pod hlavičkou, clona, súčet, „Nakupovať ďalej“, „1 ks“ vždy, Esc/×/ťuk vedľa, Luxia (dotyk: skrytá pri otvorenej karte; PC: karta nad bublinou) a ProveSource pri otvorení (lcdKosikPanel.js + blok D v _lcdNativeHdr.scss)
+- [x] Titulka 601–760 px (iPad mini na výšku) ako tablet, polia konfigurátora 2 × 2 (601–1000 px), kamióny, iPad Pro na výšku statické scény, Pred a po na výšku
+- [x] Menu v košíku a objednávke = #mega, menu pod plaketou, lepkavá lišta vlajky a ×, Kontakty bez novej karty
+- [x] Pätička: logo v toku (≤1199 px), copyright kontrast, plátno pod krátkou stránkou
+- [x] Produkt: zloženie materiálu, 2 stĺpce 992–1199 px, lepkavá lišta bez „Skladom“, SK karta pod názvom, časová os
+- [x] Košík/objednávka: kroky a nadpis pod logom, rezerva pre bublinu chatu, CZ farba, bez „Značka: Značka“, „prvý, druhý a tretí rad“
+- [x] Blog: súvisiace 2 × 2 na tablete, dátum v hlavičke článku
+- [x] Titulka: podnadpis vodoznaku Materiálu skrytý (útržok spomedzi vrstiev); CZ poukážka: české recenzie (tools/extract-lcd-pk.py --len-recenzie-cz)
+- [x] Ceny na produkte jedným tvarom podľa meny v Shoptete (lcdCena v livePrice.js namiesto externého NumToPrice: SK „€360“ aj „€219“, nie „360 €“ vedľa „€219“); CZ tlačidlo „Rozložit / Složit materiál“ z HTML adminu
+- [x] Kolo 3: karty videí „Na vlastné oči“ pod hlavičkou (isolation na .deck.refs/.vids), CZ box „Velikost“ a „BARVA“ namiesto slovenčiny, box ponuka / „cena bez setu“ / „Ušetríte“ jedným tvarom ceny (lcdCena)
+- [ ] Admin (návrh): SK mena „219 €“ (symbol za číslom, 0 desatín); ProveSource pozícia + CZ recenzie; Luxia uvítanie neotvárať samo; názvy parametrov boxov (SK „Velikost 1./2. boxu“, „Velikost Box solo“ -> „Veľkosť …“, CZ „Velokost box Solo:“ -> „Velikost boxu solo“)
+- [ ] Upratanie starých pravidiel panela (_header.scss 235–239, 593–600, 830–834; luxuryCar.scss 101–103) po overení na iPhone/iPade

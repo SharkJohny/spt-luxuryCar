@@ -9,6 +9,7 @@ Výstup (načíta ho len stránka poukážky, viď assets/js/lcdPoukazka.js):
     assets/poukazka/pk.js (SK), assets/poukazka/pk-cz.js (CZ, preklad tools/pk-preklad-cz.json)
 
 Spustenie:  python tools/extract-lcd-pk.py --navrh <cesta k poukazka.html>
+            python tools/extract-lcd-pk.py --len-recenzie-cz   (len české recenzie do hotového pk-cz.js)
 """
 import argparse
 import html
@@ -205,6 +206,57 @@ def preloz_js(s, preklad):
     return re.sub(r"(['\"])((?:(?!\1)[^\\\n])*)\1", lit, s)
 
 
+# CZ stránka: recenzie „Hodnocení přímo z Googlu“ (#revs) z návrhu boli väčšinou slovenské (tablet 8. 10. 2026) ->
+# české recenzie z assets/js/reviews-data.js (rovnaká sada ako lcd-reviews na CZ produktoch), poradie podľa ID.
+RECENZIE_CZ = ["g-38", "g-33", "g-58", "g-39", "g-48", "g-71", "g-44", "g-65", "g-19"]
+CDN_RECENZIE = CDN + "reviews/"
+
+
+def _text_recenzie(t, maxlen=300):
+    t = re.sub(r"\s+", " ", t).strip()
+    t = re.sub(r"^\d{1,2}\. \d{1,2}\. \d{4} ", "", t)          # dátum na začiatku (scraper)
+    t = re.split(r" \+\d+(?: |$)", t)[0]                        # „+2“ = počet fotiek, za ním odpoveď majiteľa
+    t = re.sub(r" (?:Upraviť|Odstrániť)\b.*$", "", t).strip()
+    if len(t) > maxlen:
+        t = t[:maxlen].rsplit(" ", 1)[0].rstrip(" ,.;") + "…"
+    return t
+
+
+def recenzie_cz(mk):
+    data = io.open(os.path.join(KOREN, "assets", "js", "reviews-data.js"), encoding="utf-8").read()
+    data = json.loads(data[data.index("{"):data.rindex("}") + 1])
+    podla_id = {r["id"]: r for r in data["reviews"]}
+    m = re.search(r'(<div class="revs" id="revs">)((?:\s*<article class="rev">.*?</article>)+)', mk, re.S)
+    assert m, "#revs sa nenašiel"
+    gsvg = re.search(r'<div class="foot">.*?(<svg.*?</svg>)</div>', m.group(2), re.S).group(1)
+    clanky = []
+    for rid in RECENZIE_CZ:
+        r = podla_id[rid]
+        assert r.get("language") == "cz", rid
+        meno = r["author"].strip()
+        inic = "".join(c[0] for c in meno.split()[:2]).upper()
+        fotky = "".join('<img src="%s" alt="" loading="lazy" width="260" height="260">'
+                        % html.escape(CDN_RECENZIE + p.split("/")[-1], quote=True) for p in (r.get("photos") or [])[:3])
+        clanky.append(
+            '\n        <article class="rev">\n          <span class="qm">&ldquo;</span>\n          <div class="st">★★★★★</div>\n'
+            '          <p>%s</p>\n' % html.escape(_text_recenzie(r["text"]), quote=False)
+            + ('          <div class="shots">%s</div>\n' % fotky if fotky else "")
+            + '          <div class="foot"><span class="av">%s</span><span class="meta"><b>%s</b><i>Ověřený zákazník</i></span>%s</div>\n'
+              '        </article>' % (html.escape(inic), html.escape(meno), gsvg))
+    return mk[:m.start(2)] + "".join(clanky) + mk[m.end(2):]
+
+
+def len_recenzie_cz():
+    """Bez návrhu: v hotovom assets/poukazka/pk-cz.js vymení len obsah #revs (rovnaká funkcia ako pri plnom behu)."""
+    cesta = os.path.join(KOREN, "assets", "poukazka", "pk-cz.js")
+    s = io.open(cesta, encoding="utf-8").read()
+    m = re.search(r'(  var MARKUP = )(".*?")(;\n)', s, re.S)
+    mk = recenzie_cz(json.loads(m.group(2)))
+    s = s[:m.start(2)] + json.dumps(mk, ensure_ascii=False) + s[m.end(2):]
+    io.open(cesta, "w", encoding="utf-8", newline="\n").write(s)
+    print("pk-cz.js: #revs = %d českých recenzií" % len(RECENZIE_CZ))
+
+
 def obal(markup, js):
     bloky = ["try {\n" + s.strip() + "\n} catch (e) { if (window.console) console.warn('lcdPk skript', e); }" for s in js]
     return (
@@ -232,8 +284,13 @@ def obal(markup, js):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--navrh", required=True)
+    ap.add_argument("--navrh")
+    ap.add_argument("--len-recenzie-cz", action="store_true", help="len vymeniť recenzie v hotovom pk-cz.js (bez návrhu)")
     a = ap.parse_args()
+    if a.len_recenzie_cz:
+        return len_recenzie_cz()
+    if not a.navrh:
+        ap.error("--navrh je povinný (alebo --len-recenzie-cz)")
     ex = nacitaj_extraktor()
     src = io.open(a.navrh, encoding="utf-8").read()
 
@@ -264,7 +321,7 @@ def main():
 
     # --- CZ: preklad (tools/pk-preklad-cz.json), hodnoty v Kč, české fotky ---
     preklad = json.load(io.open(os.path.join(KOREN, "tools", "pk-preklad-cz.json"), encoding="utf-8"))
-    markup_cz = preloz_markup(markup_sk, preklad)
+    markup_cz = recenzie_cz(preloz_markup(markup_sk, preklad))
     js_cz = [preloz_js(s, preklad) for s in js_sk]
 
     ciel = os.path.join(KOREN, "assets", "poukazka")
@@ -275,7 +332,7 @@ def main():
 
     zvysne = re.findall(r'["(](?:assets|lx)/[^")]+', markup_sk + css + "".join(js_sk))
     print("pk.css %d B, pk.js + pk-cz.js, neprepisane cesty: %d" % (len(css), len(zvysne)))
-    # kontrola CZ: slovenské slová, ktoré ostali v texte stránky (recenzie zákazníkov ostávajú zámerne)
+    # kontrola CZ: slovenské slová, ktoré ostali v texte stránky (recenzie sú české z reviews-data.js, recenzie_cz)
     texty = [html.unescape(re.sub(r"\s+", " ", x)).strip()
              for x in re.findall(r">([^<>]+)<", re.sub(r"<svg.*?</svg>", "", markup_cz, flags=re.S))]
     sk = [x for x in texty if re.search(r"[äôĺľŕ]|\b(alebo|sa|na mieru|kufra|poukážk\w*|hodnote|košík)\b", x)]
