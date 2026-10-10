@@ -1428,7 +1428,9 @@ function karta(ctx, T, R, viacSetov) {
       const naj = vsetky.reduce(function (a, b) { return b.s < a.s ? b : a; });
       // najmenšia úspora: všetky veľkosti 1 boxu aj všetky dvojice veľkostí 2 boxov (aj rôzne)
       const uspory = [];
-      const uspora = function (i) { if (i && i.samo && i.samo > i.rozdiel.s + 0.5) uspory.push(i.samo - i.rozdiel.s); else if (i) uspory.push(0); };
+      // kombinácia bez samostatnej ceny (CZ: 2. box S má na samostatnom produkte +0 Kč, preto sa nepočíta) sa vynechá —
+      // ako 0 by zhodila „ušetříte minimálně“ pre celý pás (Michal 10. 10.: „nevidím ušetríte“)
+      const uspora = function (i) { if (i && i.samo) uspory.push(i.samo > i.rozdiel.s + 0.5 ? i.samo - i.rozdiel.s : 0); };
       if (pocty.indexOf(1) > -1) ma1.forEach(function (v) { uspora(cenaPre(1, v)); });
       if (pocty.indexOf(2) > -1) ma2a.forEach(function (a) { ma2b.forEach(function (b) { uspora(cenaPre(2, a, b)); }); });
       const usetriAspon = uspory.length ? Math.min.apply(null, uspory) : 0;

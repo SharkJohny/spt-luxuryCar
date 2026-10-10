@@ -124,9 +124,16 @@ function lcdBublinaMimoTlacidla() {
     if (H.classList.contains("lcd-kosik-bez-bubliny") !== skry) H.classList.toggle("lcd-kosik-bez-bubliny", skry);
     if (H.classList.contains("lcd-kosik-bublina") !== bublina) H.classList.toggle("lcd-kosik-bublina", bublina);
   };
-  addEventListener("scroll", krok, { passive: true });
+  // Počas rolovania sa stav nemení, rozhodne sa až 320 ms po zastavení: pri každom tlačidle ponuky, ktoré pod bublinou
+  // prešlo, sa skryla a hneď ukázala -> preblikávala (Michal 10. 10. 2026)
+  let rolujeDo = 0, casovac = 0;
+  addEventListener("scroll", function () {
+    rolujeDo = Date.now() + 300;
+    clearTimeout(casovac);
+    casovac = setTimeout(krok, 320);
+  }, { passive: true });
   addEventListener("resize", krok);
-  setInterval(krok, 1000);
+  setInterval(function () { if (Date.now() > rolujeDo) krok(); }, 1000);
   krok();
 }
 
