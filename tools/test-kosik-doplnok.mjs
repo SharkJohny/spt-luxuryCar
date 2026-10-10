@@ -556,7 +556,7 @@ await test("štítok zľavy zaokrúhľuje nadol (nikdy nesľubuje viac): SK box 
 await test("fotky doplnkov: béžové fotky kufra z návrhu konfigurátora (assets/img/kosik/)", () => {
   const B = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/kosik/";
   rovne(M.fotoDoplnku(M.FOTKY.classic), B + "rohoz-classic.jpg");
-  rovne(M.fotoDoplnku(M.FOTKY.premium), B + "rohoz-premium.jpg");
+  rovne(M.FOTKY.premium, undefined, "Premium sa neponúka");
   rovne(M.fotoDoplnku(M.FOTKY.box1), B + "box-1.jpg");
   rovne(M.fotoDoplnku(M.FOTKY.box2), B + "box-2.jpg");
 });
@@ -689,63 +689,81 @@ const ctxKarty = (ponuka, R = RSK, mB = SKB, mE = SKE, volby = { 85: "589", 88: 
   if (p) { p.href = "/luxusne-autokoberce-dragonskin-elite-diamond-line/"; p.mapa = mE; }
   return { riadok, mapa: mB, volby, ponuka: Object.assign({ vrstva2: p }, ponuka), odobrat: [], samostatne: null, kupon: null, zobrazene: [] };
 };
-await test("karta: druhá vrstva je PRVÁ (pred Classic, Box, Premium), texty bez zakázaných slov", () => {
+await test("pásy: druhá vrstva PRVÁ, potom Classic a box (Premium nie), texty bez zakázaných slov", () => {
   const k = M.kartaPonuky(ctxKarty({ rohoz: true, box: true }), RSK, false);
   const poradieKariet = [...k.querySelectorAll(".lcd-dop__volby > .lcd-dop__volba")].map((li) => li.getAttribute("data-varianta") || li.getAttribute("data-doplnok"));
-  rovne(poradieKariet, ["vrstva2", "classic", "box", "premium"]);
-  rovne(M.PORADIE_KARIET[0], "vrstva2");
+  rovne(poradieKariet, ["vrstva2", "classic", "box"]);
+  rovne(M.PORADIE_KARIET, ["vrstva2", "classic", "box"]);
   const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
   const t = (s) => v.querySelector(s).textContent.replace(/\s+/g, " ").trim();
   rovne([t(".lcd-dop__nadtitul"), t(".lcd-dop__meno"), t(".lcd-dop__veta"), t(".lcd-dop__znacka")], ["Odporúčame k Vašej farbe", "Druhá vrstva · Lux 10", "Odnímateľná vrstva navrch zachytí vodu, sneh aj blato.", "Lux 10"]);
-  pravda(/^\+147\s€ v sete$/.test(t(".lcd-dop__cena")), t(".lcd-dop__cena"));
-  pravda(!/samostatne|ušetríte/.test(t(".lcd-dop__cena")), "bez porovnania");
-  rovne(v.querySelector(".lcd-dop__vfoto").getAttribute("src"), "/user/documents/upload/assets/config/lux-color-10.jpg?15");
-  rovne(v.querySelector('[data-lcd-dop-pridat="vrstva2"]').textContent, "Pridať druhú vrstvu");
+  pravda(/^\+147\s€ v sete$/.test(t(".lcd-dop__pas .lcd-dop__cena")), t(".lcd-dop__pas .lcd-dop__cena"));
+  pravda(!/samostatne|ušetríte/.test(t(".lcd-dop__pas .lcd-dop__cena")), "bez porovnania");
+  rovne([v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__vfoto").getAttribute("src")], ["/user/documents/upload/assets/config/lux-color-10.jpg?15", "/user/documents/upload/assets/config/lux-color-10.jpg?15"], "bez produktovej fotky vzorka");
+  rovne(v.querySelector('.lcd-dop__pas [data-lcd-dop-pridat="vrstva2"]').textContent, "Pridať");
+  rovne(v.querySelector('[data-lcd-dop-pridat="vrstva2-vyber"]').textContent, "Pridať druhú vrstvu");
+  const c = k.querySelector('.lcd-dop__volba[data-varianta="classic"]');
+  rovne(c.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").textContent, "Pridať");
+  pravda(/samostatne/.test(c.querySelector(".lcd-dop__detail").textContent) || !c.querySelector(".lcd-dop__samoriadok"), "samostatne len v detaile");
+  rovne(k.querySelector(".lcd-dop__volba--box .lcd-dop__vybrat").textContent, "Vybrať");
   rovne(k.querySelector(".lcd-dop__nadpis").textContent, "Doplňte svoj set");
   rovne(M.cisty(M.kartaPonuky(Object.assign(ctxKarty({ rohoz: true, box: true }), { ponuka: { rohoz: true, box: true, vrstva2: null } }), RSK, false).querySelector(".lcd-dop__nadpis").textContent), "Doplňte kufor v rovnakom štýle", "bez druhej vrstvy pôvodný nadpis");
-  pravda(!/dragon|elite|basic|milimet|vyrába|záruk|comfort|vrstiev/i.test(k.textContent), k.textContent.slice(0, 200));
+  pravda(!/dragon|elite|basic|milimet|vyrába|záruk|comfort|vrstiev|premium/i.test(k.textContent), k.textContent.slice(0, 200));
 });
-await test("karta: „Vybrať inú farbu“ -> 16 vzoriek, Lux 12 zmení fotku, názov, nadtitul; len druhá vrstva -> nadpis o vrstve", () => {
+await test("pásy: klik na pás rozbalí detail (len jeden naraz), „Vybrať“ boxu rozbalí", () => {
+  const k = M.kartaPonuky(ctxKarty({ rohoz: true, box: true }), RSK, false);
+  document.body.appendChild(k);
+  try {
+    const pas = (d) => k.querySelector(`.lcd-dop__volba[data-${d.startsWith("v") ? "doplnok" : "varianta"}="${d}"]`);
+    const det = (li) => li.querySelector(".lcd-dop__detail");
+    const v = pas("vrstva2"), c = pas("classic"), b = k.querySelector(".lcd-dop__volba--box");
+    pravda([v, c, b].every((li) => det(li).hidden), "všetko zbalené");
+    v.querySelector(".lcd-dop__nadtitul").click();
+    rovne([det(v).hidden, v.querySelector(".lcd-dop__prepni").getAttribute("aria-expanded"), v.classList.contains("je-otvorena")], [false, "true", true]);
+    c.querySelector(".lcd-dop__cena").click();
+    rovne([det(v).hidden, det(c).hidden], [true, false], "druhý pás zavrie prvý");
+    const tlb = b.querySelector(".lcd-dop__vybrat");
+    tlb.click();
+    rovne([det(c).hidden, det(b).hidden, tlb.getAttribute("aria-expanded"), tlb.textContent], [true, false, "true", "Skryť"]);
+    rovne(tlb.getAttribute("aria-controls"), det(b).id);
+    pravda(det(b).querySelector(".lcd-dop__boxvyber [data-lcd-dop-farba]"), "výber boxu v detaile");
+    tlb.click();
+    rovne([det(b).hidden, tlb.textContent], [true, "Vybrať"]);
+  } finally { k.remove(); }
+});
+await test("pás druhej vrstvy: 16 vzoriek v rozbalení, Lux 12 zmení názov, nadtitul, cenu a vzorku; CZ texty", () => {
   const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }), RSK, false);
   rovne(k.querySelector(".lcd-dop__nadpis").textContent, "Doplňte set o druhú vrstvu");
   rovne(k.querySelectorAll(".lcd-dop__volba").length, 1);
-  const ina = k.querySelector("[data-lcd-dop-ina]");
-  const telo = k.querySelector("#" + ina.getAttribute("aria-controls"));
-  pravda(telo.hidden, "zbalené");
-  ina.click();
-  rovne([telo.hidden, ina.getAttribute("aria-expanded"), k.querySelectorAll("[data-lcd-dop-lux]").length], [false, "true", 16]);
+  const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
+  rovne(v.querySelectorAll(".lcd-dop__detail [data-lcd-dop-lux]").length, 16);
   rovne(k.querySelector("[data-lcd-dop-lux]:checked").value, "10");
   const l12 = k.querySelector('[data-lcd-dop-lux="12"]');
   l12.checked = true; l12.dispatchEvent(new window.Event("change", { bubbles: true }));
-  const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
-  rovne([v.querySelector(".lcd-dop__nadtitul").textContent, v.querySelector(".lcd-dop__meno").textContent, v.querySelector(".lcd-dop__vfoto").getAttribute("src"), v.querySelector("[data-lcd-dop-pridat]").getAttribute("data-lux")],
+  rovne([v.querySelector(".lcd-dop__nadtitul").textContent, v.querySelector(".lcd-dop__meno").textContent, v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").getAttribute("data-lux")],
     ["Vami zvolená farba", "Druhá vrstva · Lux 12", "/user/documents/upload/assets/config/lux-color-12.jpg?15", "12"]);
-  pravda(/Lux 12/.test(telo.querySelector(".lcd-dop__suhrn-cena").textContent));
-  // CZ texty
+  pravda(/Lux 12/.test(v.querySelector(".lcd-dop__suhrn-cena").textContent));
   const kc = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), RCZ, false);
   const vc = kc.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
-  rovne([vc.querySelector(".lcd-dop__nadtitul").textContent, vc.querySelector("[data-lcd-dop-pridat]").textContent, kc.querySelector("[data-lcd-dop-ina]").textContent, kc.querySelector(".lcd-dop__nadpis").textContent],
-    ["Doporučujeme k Vaší barvě", "Přidat druhou vrstvu", "Vybrat jinou barvu", "Doplňte set o druhou vrstvu"]);
-  pravda(/^\+3\s636\sKč v setu$/.test(vc.querySelector(".lcd-dop__cena").textContent.replace(/\s+/g, " ").trim()), vc.querySelector(".lcd-dop__cena").textContent);
+  rovne([vc.querySelector(".lcd-dop__nadtitul").textContent, vc.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").textContent, vc.querySelector('[data-lcd-dop-pridat="vrstva2-vyber"]').textContent, kc.querySelector(".lcd-dop__nadpis").textContent],
+    ["Doporučujeme k Vaší barvě", "Přidat", "Přidat druhou vrstvu", "Doplňte set o druhou vrstvu"]);
+  pravda(/^\+3\s636\sKč v setu$/.test(vc.querySelector(".lcd-dop__pas .lcd-dop__cena").textContent.replace(/\s+/g, " ").trim()), vc.querySelector(".lcd-dop__pas .lcd-dop__cena").textContent);
 });
-
-await test("karta druhej vrstvy: zoznam pomenovaný viditeľným nadpisom, fokus na zvolenú farbu, chybná vzorka sa len skryje", () => {
-  const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }), RSK, false);
+await test("pás druhej vrstvy: produktová fotka v páse aj detaile, vzorka pri názve; chyba fotky -> vzorka zvolenej farby", () => {
+  const ctx = ctxKarty({ rohoz: false, box: false });
+  ctx.ponuka.vrstva2.foto = "https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/shop/big/601-1_x.jpg";
+  const k = M.kartaPonuky(ctx, RSK, false);
   document.body.appendChild(k);
   try {
     const h = k.querySelector(".lcd-dop__nadpis"), ul = k.querySelector(".lcd-dop__volby");
     rovne([ul.getAttribute("aria-labelledby"), ul.hasAttribute("aria-label"), h.textContent], [h.id, false, "Doplňte set o druhú vrstvu"]);
-    const ina = k.querySelector("[data-lcd-dop-ina]");
-    ina.click();
-    rovne([document.activeElement && document.activeElement.getAttribute("data-lcd-dop-lux"), document.activeElement && document.activeElement.checked], ["10", true], "fokus po otvorení výberu");
-    const obr = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"] .lcd-dop__vfoto');
+    const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
+    const mini = v.querySelector(".lcd-dop__mini"), obr = v.querySelector(".lcd-dop__vfoto"), vz = v.querySelector(".lcd-dop__meno-vz");
+    rovne([mini.getAttribute("src"), obr.getAttribute("src"), vz.getAttribute("src"), vz.hidden], [ctx.ponuka.vrstva2.foto, ctx.ponuka.vrstva2.foto, "/user/documents/upload/assets/config/lux-color-10.jpg?15", false]);
     obr.dispatchEvent(new window.Event("error"));
-    pravda(obr.isConnected && obr.style.visibility === "hidden", "pri chybe len skryť, nie odstrániť");
-    const l12 = k.querySelector('[data-lcd-dop-lux="12"]');
-    l12.checked = true; l12.dispatchEvent(new window.Event("change", { bubbles: true }));
-    rovne(k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"] .lcd-dop__vfoto'), obr, "ten istý obrázok");
+    rovne([obr.getAttribute("src"), mini.getAttribute("src"), vz.hidden], ["/user/documents/upload/assets/config/lux-color-10.jpg?15", "/user/documents/upload/assets/config/lux-color-10.jpg?15", true], "záloha vzorka");
     obr.dispatchEvent(new window.Event("load"));
-    rovne([obr.getAttribute("src"), obr.style.visibility], ["/user/documents/upload/assets/config/lux-color-12.jpg?15", ""]);
+    rovne(obr.style.visibility, "");
   } finally { k.remove(); }
 });
 await test("Lux 15 pri V-Class: auto zo sessionStorage len pri jedinom sete v košíku (inak Lux 10)", () => {

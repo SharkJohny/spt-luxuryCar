@@ -106,10 +106,12 @@ function lcdBublinaMimoTlacidla() {
     const f = document.querySelector('iframe[title="Luxia chat"]');
     // „Pokračovať“ aj tlačidlá ponuky k setu („Pridať do setu“ / „Vybrať veľkosť“ sú na mobile vpravo pod bublinou)
     const tl = document.querySelectorAll("#continue-order-button, #lcd-doplnok .lcd-dop__pridat, #lcd-doplnok .lcd-dop__vybrat");
-    let skry = false;
+    let skry = false, bublina = false;
     if (f) {
       const x = f.getBoundingClientRect();
-      if (x.height > 0 && x.height <= 130) {
+      // bublina (nie otvorený chat): pri lište dole ju CSS zdvihne nad lištu (_lcdKosik.scss .lcd-kosik-bublina)
+      bublina = x.height > 0 && x.height <= 130;
+      if (bublina) {
         skry = Array.prototype.some.call(tl, function (b) {
           const y = b.getBoundingClientRect();
           return y.height > 0 && x.left < y.right && x.right > y.left && x.top < y.bottom && x.bottom > y.top;
@@ -117,6 +119,7 @@ function lcdBublinaMimoTlacidla() {
       }
     }
     if (H.classList.contains("lcd-kosik-bez-bubliny") !== skry) H.classList.toggle("lcd-kosik-bez-bubliny", skry);
+    if (H.classList.contains("lcd-kosik-bublina") !== bublina) H.classList.toggle("lcd-kosik-bublina", bublina);
   };
   addEventListener("scroll", krok, { passive: true });
   addEventListener("resize", krok);
