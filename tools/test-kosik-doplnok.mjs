@@ -624,7 +624,7 @@ await test("ponuka druhej vrstvy SK Diamond čierna/červená, 1.+2. rad: Lux 10
   const volby = { 85: "589", 88: "598", 74: "485" };
   const p = M.ponukaVrstvy(riadokV("63487", volby, SKB), volby, SKB, SKE, RSK, "");
   pravda(p, "ponuka");
-  rovne([p.odporucana, p.v1, p.moznosti.length, p.moznosti.map((m) => m.lux).join(",")], [10, "543", 16, "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"]);
+  rovne([p.odporucana, p.v1, p.moznosti.length, p.moznosti.map((m) => m.lux).join(",")], [10, "543", 16, "10,12,11,13,14,15,16,7,4,1,8,6,3,5,9,2"]);
   const m10 = p.moznosti.find((m) => m.lux === 10), m12 = p.moznosti.find((m) => m.lux === 12);
   rovne([m10.priceId, m10.vid, m10.rozdiel.s, m12.priceId, m12.rozdiel.s], ["66983", "540", 147, "67037", 147]);
   rovne(m10.rozdiel.b, Math.round(147 / 1.23 * 100) / 100, "bez DPH");
@@ -770,7 +770,7 @@ await test("sLimitom: visiaca požiadavka -> null po limite, chyba -> null, výs
 await test("ponuka druhej vrstvy: trvalý neúspech -> stránka dvojvrstvového produktu sa nesťahuje pri každom otvorení košíka", async () => {
   const volby = { 85: "589", 88: "598", 74: "485" };
   const riadok = riadokV("63487", volby, SKB);
-  const kluc = "lcdPriplatky:v2:562035:/luxusne-autokoberce-dragonskin-elite-diamond-line/";
+  const kluc = "lcdPriplatky:v3:562035:/luxusne-autokoberce-dragonskin-elite-diamond-line/";
   const premenovany = JSON.parse(JSON.stringify(FV["sk/elite-diamond"]));
   premenovany.sels.find((x) => String(x.id) === "85").n = "rozloženie";
   const html = strankaProduktu(premenovany);
@@ -903,6 +903,56 @@ await test("obnova druhej vrstvy: pridavam -> vrátiť nový kus (cieľové pric
   rovne(M.rozhodniObnovu(Object.assign({}, z, { ciel: { priceId: "66983", lux: 12 } }), rr(), SKE, 99999).akcia, "nejasne");
   rovne(M.rozhodniObnovu(Object.assign({}, z, { ciel: null }), rr(), SKE, 99999).akcia, "nic", "bez cieľa sa hľadá pôvodné priceId (dvojvrstvový riadok sa nepočíta)");
   void riadok;
+});
+
+// ---------------------------------------------------------------- výber pod kartou, vzorky, krížik pri odrážke (10. 10.)
+await test("poradie farieb 2. vrstvy ako na produkte: zo selectu, bez poradia v mape záloha PORADIE_LUX", () => {
+  rovne(SKE.vpar["71"].p.slice(0, 3).map((v) => M.luxCislo(SKE.vpar["71"].o[v])), [10, 12, 11]);
+  const bezP = JSON.parse(JSON.stringify(SKE));
+  delete bezP.vpar["71"].p;
+  const r = riadokV("63487", { 85: "589", 88: "598", 74: "485" }, SKB);
+  const a = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, SKE, RSK, "");
+  const b = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, bezP, RSK, "");
+  rovne(a.moznosti.map((m) => m.lux), M.PORADIE_LUX);
+  rovne(b.moznosti.map((m) => m.lux), M.PORADIE_LUX);
+  const obr = JSON.parse(JSON.stringify(SKE));
+  obr.vpar["71"].p.reverse();
+  const c = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, obr, RSK, "");
+  rovne(c.moznosti.map((m) => m.lux), M.PORADIE_LUX.slice().reverse(), "poradie zo selectu má prednosť");
+  rovne(FIX["sk/luxusne-autokoberce-dragonskin-diamond-line/"].sels.find((x) => x.id === "91").o.map((o) => String(o[0])), SKD.params["91"].p, "farba boxov v poradí formulára");
+});
+await test("hlavná fotka produktu: og:image z CDN Shoptetu, iné adresy nie; ponuka vrstvy ju nesie", () => {
+  const doc = (u) => new DOMParser().parseFromString(strankaProduktu(FV["sk/elite-diamond"]).replace("<body>", `<head><meta property="og:image" content="${u}"></head><body>`), "text/html");
+  const u = "https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/shop/big/601-1_luxusne-autokoberce-v-class-2-luxury-car-design.jpg?ff=1&x=1024";
+  const m = M.mapaZFormulara(doc(u));
+  rovne(m.foto, u);
+  rovne(M.mapaZFormulara(doc("https://zly.example/a.jpg")).foto, null);
+  rovne(M.mapaZFormulara(doc("https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/front_images/ogImage/hp.jpg")).foto, null, "nie obrázok titulky");
+  rovne(SKE.foto, null);
+  const r = riadokV("63487", { 85: "589", 88: "598", 74: "485" }, SKB);
+  rovne(M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, m, RSK, "").foto, u);
+});
+await test("vzorka farby boxov ako na produkte (slug textu, SK aj CZ)", () => {
+  const z = "/user/documents/upload/assets/config/";
+  rovne(M.vzorkaFarby("Farba kože : Čierna / Farba šitia: Červená"), z + "farba-koze-cierna-farba-sitia-cervena.jpg?15");
+  rovne(M.vzorkaFarby("Farba kože : Čierna / Farba šitia : Béžová"), z + "farba-koze-cierna-farba-sitia-bezova.jpg?15");
+  rovne(M.vzorkaFarby("Farba kože : Hnedá káva"), z + "farba-koze-hneda-kava.jpg?15");
+  rovne(M.vzorkaFarby("Barva kůže: výnové červena"), z + "barva-kuze-vynove-cervena.jpg?15");
+  rovne(M.vzorkaFarby("Barva kůže: Černá / Barva šití: Bílá"), z + "barva-kuze-cerna-barva-siti-bila.jpg?15");
+  rovne(M.vzorkaFarby("Čierna + červená"), z + "cierna.jpg?15", "ako createSlug(text.split(\"+\")[0])");
+  rovne(M.vzorkaFarby(""), null);
+});
+await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, boxy -> „Farba boxov“ (inak prvá veľkosť); bez odrážky null", () => {
+  const ul = new DOMParser().parseFromString(`<ul class="lcd-rozpis">${[["Auto", "Dacia Logan"], ["Autokoberce do kufru", "Koberec na dno kufra"],
+    ["Farba boxov", "Farba kože: Béžová"], ["Velikost 1. boxu", "M: 40x32x30 cm"], ["Velikost 2. boxu", "L: 54x32x30 cm"]]
+    .map(([n, h]) => `<li><span class="lcd-rozpis__n">${n}: </span><span class="lcd-rozpis__h">${h}</span></li>`).join("")}</ul>`, "text/html").querySelector("ul");
+  const volby = { 85: "586", 88: "595", 91: "604", 94: "622", 97: "640", 74: "485" };
+  rovne(M.odrazkaDoplnku(ul, { co: "rohoz" }, volby, SKD, SK).textContent, "Autokoberce do kufru: Koberec na dno kufra");
+  rovne(M.odrazkaDoplnku(ul, { co: "box" }, volby, SKD, SK).textContent, "Farba boxov: Farba kože: Béžová");
+  rovne(M.odrazkaDoplnku(ul, { co: "box" }, { 85: "586", 94: "622", 97: "640" }, SKD, SK).textContent, "Velikost 1. boxu: M: 40x32x30 cm");
+  rovne(M.odrazkaDoplnku(null, { co: "rohoz" }, volby, SKD, SK), null);
+  ul.children[1].remove();
+  rovne(M.odrazkaDoplnku(ul, { co: "rohoz" }, volby, SKD, SK), null);
 });
 
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);

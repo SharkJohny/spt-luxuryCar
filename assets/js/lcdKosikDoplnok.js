@@ -63,6 +63,7 @@ const TEXTY = {
     vrstvaVyber: "Farba druhej vrstvy",
     vrstvaTip: "odporúčame",
     vrstvaAlt: (l) => "Vzorka druhej vrstvy " + l,
+    vrstvaFotoAlt: "Dvojvrstvové autokoberce",
     hotovoVrstva: (l) => "Druhá vrstva " + l + " je pridaná k Vášmu setu.",
     nadpis: "Doplňte kufor v rovnakom štýle",
     stitok: "Len k tomuto setu",
@@ -96,7 +97,6 @@ const TEXTY = {
     velkost1: "Veľkosť 1. boxu",
     velkost2: "Veľkosť 2. boxu",
     farba: "Farba",
-    zvolteFarbu: "Zvoľte farbu",
     od: "od",
     vSete: "v sete",
     usetrite: "ušetríte",
@@ -140,6 +140,7 @@ const TEXTY = {
     vrstvaVyber: "Barva druhé vrstvy",
     vrstvaTip: "doporučujeme",
     vrstvaAlt: (l) => "Vzorek druhé vrstvy " + l,
+    vrstvaFotoAlt: "Dvouvrstvé autokoberce",
     hotovoVrstva: (l) => "Druhá vrstva " + l + " byla přidána k Vašemu setu.",
     nadpis: "Doplňte kufr ve stejném stylu",
     stitok: "Jen k tomuto setu",
@@ -173,7 +174,6 @@ const TEXTY = {
     velkost1: "Velikost 1. boxu",
     velkost2: "Velikost 2. boxu",
     farba: "Barva",
-    zvolteFarbu: "Zvolte barvu",
     od: "od",
     vSete: "v setu",
     usetrite: "ušetříte",
@@ -208,7 +208,7 @@ const TEXTY = {
 
 const VELKOSTI = ["S", "M", "L", "XL"];
 const TTL = 24 * 3600 * 1000;
-const KLUC_MAPY = "lcdPriplatky:v2:"; // v2: + varianty (vpar) a kombinácie variantov -> priceId a cena (kom)
+const KLUC_MAPY = "lcdPriplatky:v3:"; // v2: + varianty (vpar) a kombinácie variantov -> priceId a cena (kom); v3: + poradie hodnôt (params/vpar .p) a hlavná fotka (foto)
 const KLUC_CIEN = "lcdSamostatne:v3:"; // v2: + zaklad, p1, p2 (2 boxy rôznych veľkostí); v3: p2 len kladný
 const KLUC_NIE = "lcdDoplnokNie:";
 const KLUC_HOTOVO = "lcdDoplnokHotovo";
@@ -278,14 +278,15 @@ export function mapaZFormulara(doc) {
     const id = s.getAttribute("data-parameter-id") || (/\[(\d+)\]/.exec(s.name) || [])[1];
     const n = cisty(s.getAttribute("data-parameter-name"));
     if (!id || !n) return;
-    const o = {};
+    const o = {}, poradie = [];
     s.querySelectorAll("option").forEach(function (op) {
       if (!/^\d+$/.test(op.value)) return;
       const fp = parseFloat(op.getAttribute("data-surcharge-final-price"));
       const ap = parseFloat(op.getAttribute("data-surcharge-additional-price"));
       o[op.value] = { t: bezCeny(op.textContent), fp: isFinite(fp) ? fp : null, ap: isFinite(ap) ? ap : null };
+      poradie.push(op.value);
     });
-    params[id] = { n: n, o: o };
+    params[id] = { n: n, o: o, p: poradie };
   });
   if (!pidEl || !Object.keys(params).length) return null;
   // varianty (farba 1. / 2. vrstvy): názvy hodnôt + kombinácie -> priceId a cena (pre ponuku druhej vrstvy)
@@ -293,11 +294,14 @@ export function mapaZFormulara(doc) {
   f.querySelectorAll('select[name^="parameterValueId["]').forEach(function (s) {
     const id = s.getAttribute("data-parameter-id") || (/\[(\d+)\]/.exec(s.name) || [])[1];
     if (!id) return;
-    const o = {};
-    s.querySelectorAll("option").forEach(function (op) { if (/^\d+$/.test(op.value)) o[op.value] = cisty(op.textContent); });
-    vpar[id] = { n: cisty(s.getAttribute("data-parameter-name")), o: o };
+    const o = {}, poradie = [];
+    s.querySelectorAll("option").forEach(function (op) { if (/^\d+$/.test(op.value)) { o[op.value] = cisty(op.textContent); poradie.push(op.value); } });
+    vpar[id] = { n: cisty(s.getAttribute("data-parameter-name")), o: o, p: poradie };
   });
-  return { pid: pidEl.value, lang: langEl ? langEl.value : "", params: params, vpar: vpar, kom: kombinacieVariantov(doc), t: Date.now() };
+  // hlavná fotka produktu, ako ju má web (Michal 10. 10.: karta druhej vrstvy = produktová fotka dvojvrstvového setu)
+  const og = doc.querySelector('meta[property="og:image"]');
+  const foto = og && /^https:\/\/cdn\.myshoptet\.com\/usr\/[^/]+\/user\/shop\//.test(og.getAttribute("content") || "") ? og.getAttribute("content") : null;
+  return { pid: pidEl.value, lang: langEl ? langEl.value : "", params: params, vpar: vpar, kom: kombinacieVariantov(doc), foto: foto, t: Date.now() };
 }
 
 /**
@@ -663,6 +667,17 @@ export function luxCislo(t) {
 export function luxNazov(n) { return "Lux " + (n < 10 ? "0" : "") + n; }
 /** Vzorka Lux farby (rovnaká cesta na SK aj CZ, HTTP 200 overené 10. 10. 2026; LUX-NN.jpg na CZ chýba) */
 export function luxFoto(n) { return "/user/documents/upload/assets/config/lux-color-" + (n < 10 ? "0" : "") + n + ".jpg?15"; }
+/** Poradie farieb 2. vrstvy ako na produkte (select „farba 2.vrstvy“, SK aj CZ Diamond/Hexa/Stripe, overené 10. 10. 2026) —
+ *  záloha, keď mapa poradie nemá */
+export const PORADIE_LUX = [10, 12, 11, 13, 14, 15, 16, 7, 4, 1, 8, 6, 3, 5, 9, 2];
+
+/** Vzorka farby kože (farba boxov) ako na produkte: /assets/config/<slug textu po prvé „+“>.jpg (creatButtons.js
+ *  createSlug(text.split("+")[0]); všetkých 9 SK aj CZ farieb HTTP 200 overené 10. 10. 2026) */
+export function vzorkaFarby(t) {
+  const slug = cisty(String(t == null ? "" : t).split("+")[0]).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, "")
+    .trim().replace(/\s+/g, "-").replace(/-+/g, "-");
+  return slug ? "/user/documents/upload/assets/config/" + slug + ".jpg?15" : null;
+}
 
 /** Má riadok košíka 2. vrstvu? (text variantu „…, farba 2.vrstvy: Lux Color 10“) */
 export function maDruhuVrstvu(variant) { return /(?:farba|barva)\s*2\.?\s*vrstvy/i.test(cisty(variant)); }
@@ -740,7 +755,7 @@ export function rozdielPrechodu(volby, mapaZ, mapaC, cenaZ, cenaC, dph) {
 /**
  * Ponuka druhej vrstvy pre riadok jednovrstvového setu (fail-closed: čokoľvek nesedí -> null).
  * mapaZ = jednovrstvový produkt riadku, mapaC = dvojvrstvový; volby = príplatky riadku (rozbor mapou mapaZ).
- * -> { odporucana, moznosti: [{ lux, vid, priceId, rozdiel }] (Lux 01–16 vzostupne), v1 }
+ * -> { odporucana, moznosti: [{ lux, vid, priceId, rozdiel }] (poradie ako na produkte), v1, foto }
  */
 export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R, auto) {
   if (!riadok || !mapaZ || !mapaC || !R || !R.sety) return null;
@@ -763,12 +778,14 @@ export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R, auto) {
     const rozdiel = rozdielPrechodu(volby, mapaZ, mapaC, zaklad.c, e.c, R.dph);
     if (rozdiel && rozdiel.s > 0) moznosti.push({ lux: lux, vid: vid, priceId: e.id, rozdiel: rozdiel });
   });
-  moznosti.sort(function (a, b) { return a.lux - b.lux; });
+  // poradie ako na produkte (Michal 10. 10.): poradie hodnôt v selecte dvojvrstvového produktu, inak PORADIE_LUX
+  const kde = function (m) { const i = p2.p ? p2.p.indexOf(m.vid) : -1; return i > -1 ? i : 100 + PORADIE_LUX.indexOf(m.lux); };
+  moznosti.sort(function (a, b) { return kde(a) - kde(b); });
   if (!moznosti.length) return null;
   const chce = odporucanaLux(mapaZ.vpar[R.v1].o[v1] || riadok.variant, auto);
   const odporucana = moznosti.some(function (m) { return m.lux === chce; }) ? chce : moznosti.some(function (m) { return m.lux === 10; }) ? 10 : null;
   if (odporucana == null) return null;
-  return { odporucana: odporucana, moznosti: moznosti, v1: v1 };
+  return { odporucana: odporucana, moznosti: moznosti, v1: v1, foto: mapaC.foto || null };
 }
 
 /** Poradie kariet v ponuke (Michal 10. 10.: druhá vrstva vždy prvá; potom rohož Classic, box, rohož Premium) */
@@ -1202,8 +1219,10 @@ function karta(ctx, T, R, viacSetov) {
     const obr = foto(o.foto, o.alt, "lcd-dop__vfoto");
     const menoId = id + "-meno-" + (o.varianta || o.doplnok);
     o.tlacidlo.setAttribute("aria-describedby", menoId);
-    // štítok na fotke bez zľavy (druhá vrstva: číslo Lux farby na vzorke)
-    const znacka = o.znacka ? el("span", { class: "lcd-dop__znacka", text: o.znacka }) : null;
+    // štítok na fotke bez zľavy (druhá vrstva: číslo Lux farby, na produktovej fotke aj s malou vzorkou)
+    const znackaObr = o.znackaVzorka ? el("img", { class: "lcd-dop__znacka-vz", src: o.znackaVzorka, alt: "", width: "40", height: "40", decoding: "async" }) : null;
+    const znackaText = o.znacka ? el("span", { text: o.znacka }) : null;
+    const znacka = o.znacka ? el("span", { class: "lcd-dop__znacka" }, [znackaObr, znackaText]) : null;
     const nadtitul = el("span", { class: "lcd-dop__nadtitul", text: o.nadtitul });
     const meno = el("b", { class: "lcd-dop__meno", id: menoId, text: o.meno });
     const pct = o.zlava ? el("span", { class: "lcd-dop__zlava", text: (o.az ? T.az + " " : "") + "−" + o.zlava + " %" }) : null;
@@ -1219,11 +1238,41 @@ function karta(ctx, T, R, viacSetov) {
       o.tlacidlo,
     ]);
     volby.appendChild(li);
-    return { li: li, obr: obr, nadtitul: nadtitul, meno: meno, znacka: znacka };
+    return { li: li, obr: obr, nadtitul: nadtitul, meno: meno, znacka: znacka, znackaText: znackaText, znackaObr: znackaObr };
+  };
+
+  /** Výber (farba druhej vrstvy, veľkosť boxu) hneď pod svojou kartou (Michal 10. 10.); pri kartách na listovanie
+   *  (telefón) pod kartami. Zatvorený výber v zozname nezostáva (prázdna položka by pridala medzeru). */
+  const pripniVyber = function (telo, li) {
+    const kotva = document.createComment("lcd-dop-vyber");
+    k.appendChild(kotva);
+    k.insertBefore(telo, kotva);
+    const obal = el("li", { class: "lcd-dop__vyber" });
+    const umiestni = function () {
+      let karusel = false;
+      try { karusel = getComputedStyle(volby).flexDirection === "row"; } catch (e) { /* bez štýlov -> pod kartu */ }
+      // presun prvku zahodí fokus -> vrátiť ho na tú istú voľbu (klávesnica / čítačka pri otočení tabletu)
+      const fokus = document.activeElement && telo.contains(document.activeElement) ? document.activeElement : null;
+      if (telo.hidden || karusel) {
+        if (telo.parentNode !== k) k.insertBefore(telo, kotva);
+        if (obal.parentNode) obal.parentNode.removeChild(obal);
+      } else {
+        if (li.nextSibling !== obal) volby.insertBefore(obal, li.nextSibling);
+        if (telo.parentNode !== obal) obal.appendChild(telo);
+      }
+      if (fokus && document.activeElement !== fokus) { try { fokus.focus({ preventScroll: true }); } catch (e) { fokus.focus(); } }
+    };
+    let snimok = 0;
+    window.addEventListener("resize", function () {
+      if (snimok || telo.hidden) return;
+      snimok = (window.requestAnimationFrame || setTimeout)(function () { snimok = 0; umiestni(); });
+    });
+    return umiestni;
   };
 
   // --- druhá vrstva (len jednovrstvový set; Michal 10. 10.: vždy prvá ponuka) — odporúčaná Lux farba k farbe setu,
-  //     „Vybrať inú farbu“ rozbalí výber zo vzoriek Lux pod kartami (ako výber boxu). Farba je len pre 2. vrstvu.
+  //     „Vybrať inú farbu“ rozbalí výber zo vzoriek Lux hneď pod kartou (ako výber boxu). Farba je len pre 2. vrstvu.
+  //     Fotka karty = produktová fotka dvojvrstvového setu z webu, zvolenú farbu ukazuje štítok so vzorkou.
   if (ctx.ponuka.vrstva2) {
     const pv = ctx.ponuka.vrstva2;
     const stV = { lux: pv.odporucana };
@@ -1233,9 +1282,11 @@ function karta(ctx, T, R, viacSetov) {
     const napisIna = el("span", { text: T.inaFarba });
     const ina = el("button", { type: "button", class: "lcd-dop__ina", "aria-expanded": "false", "aria-controls": tid, "data-lcd-dop-ina": "" }, [napisIna, el("i", { "aria-hidden": "true" })]);
     let cenaKarta = cenovka(T, R, moz(stV.lux).rozdiel.s, null, false);
+    let fotoSetu = pv.foto || null;
     const kv = ponuka({
       doplnok: "vrstva2", varianta: "vrstva2", trieda: "lcd-dop__volba--vrstva2",
-      foto: luxFoto(stV.lux), alt: T.vrstvaAlt(luxNazov(stV.lux)), znacka: luxNazov(stV.lux),
+      foto: fotoSetu || luxFoto(stV.lux), alt: fotoSetu ? T.vrstvaFotoAlt : T.vrstvaAlt(luxNazov(stV.lux)),
+      znacka: luxNazov(stV.lux), znackaVzorka: fotoSetu ? luxFoto(stV.lux) : null,
       nadtitul: T.vrstvaOdporucame, meno: T.vrstvaMeno(luxNazov(stV.lux)), veta: T.vrstvaVeta, extra: ina,
       cena: cenaKarta, tlacidlo: tl,
     });
@@ -1246,9 +1297,9 @@ function karta(ctx, T, R, viacSetov) {
     const prekresliV = function () {
       const m = moz(stV.lux);
       const nazov = luxNazov(stV.lux);
-      kv.obr.src = luxFoto(stV.lux);
-      kv.obr.alt = T.vrstvaAlt(nazov);
-      kv.znacka.textContent = nazov;
+      if (!fotoSetu) { kv.obr.src = luxFoto(stV.lux); kv.obr.alt = T.vrstvaAlt(nazov); }
+      if (kv.znackaObr) { kv.znackaObr.src = luxFoto(stV.lux); kv.znackaObr.hidden = !fotoSetu; }
+      kv.znackaText.textContent = nazov;
       kv.nadtitul.textContent = stV.lux === pv.odporucana ? T.vrstvaOdporucame : T.vrstvaZvolena;
       kv.meno.textContent = T.vrstvaMeno(nazov);
       const nova = cenovka(T, R, m.rozdiel.s, null, false);
@@ -1272,7 +1323,9 @@ function karta(ctx, T, R, viacSetov) {
     const teloV = el("div", { class: "lcd-dop__telo lcd-dop__luxvyber", id: tid, hidden: true, "data-doplnok": "vrstva2" }, [
       fsLux, el("div", { class: "lcd-dop__suhrn" }, [suhrnCena, tl2]),
     ]);
-    k.appendChild(teloV);
+    const umiestniV = pripniVyber(teloV, kv.li);
+    // produktová fotka sa nenačíta -> vzorka zvolenej farby (ako pred 10. 10.)
+    kv.obr.addEventListener("error", function () { if (!fotoSetu) return; fotoSetu = null; prekresliV(); });
     const pridaj = function () {
       const m = moz(stV.lux);
       if (!m) { stav.textContent = T.chyba; return; }
@@ -1290,12 +1343,13 @@ function karta(ctx, T, R, viacSetov) {
       ina.setAttribute("aria-expanded", otvor ? "true" : "false");
       napisIna.textContent = otvor ? T.skrytVyber : T.inaFarba;
       teloV.hidden = !otvor;
+      umiestniV();
       kv.li.classList.toggle("je-otvorena", otvor);
       if (otvor) {
         meraj("lcd_set_doplnok_klik", { lcd_doplnok: "vrstva2", lcd_varianta: "vybrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
         const pokojne = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
         try { teloV.scrollIntoView({ block: "nearest", behavior: pokojne ? "auto" : "smooth" }); } catch (e) { /* starý Safari */ }
-        // výber je v DOM až za všetkými kartami -> fokus rovno na zvolenú farbu (inak Tab najprv „Pridať druhú vrstvu“)
+        // výber je v DOM za „Pridať druhú vrstvu“ na karte (na telefóne až za kartami) -> fokus rovno na zvolenú farbu
         const zvolena = teloV.querySelector("input:checked");
         if (zvolena) { try { zvolena.focus({ preventScroll: true }); } catch (e) { zvolena.focus(); } }
       }
@@ -1330,7 +1384,8 @@ function karta(ctx, T, R, viacSetov) {
   if (ctx.ponuka.box) {
     const vSolo = velkostiBoxu(ctx.mapa, R.boxSolo), v1 = velkostiBoxu(ctx.mapa, R.box1), v2 = velkostiBoxu(ctx.mapa, R.box2);
     const farbaP = ctx.mapa.params[R.farbaBox];
-    const farby = Object.keys(farbaP.o).filter(function (fid) { return farbaP.o[fid].fp != null; });
+    // poradie ako na produkte (Object.keys by číselné ID zoradil vzostupne)
+    const farby = (farbaP.p || Object.keys(farbaP.o)).filter(function (fid) { return farbaP.o[fid] && farbaP.o[fid].fp != null; });
     const predvolena = predvolenaFarbaBoxu(ctx.riadok.variant, ctx.mapa, R);
     // 2 boxy: každý box vlastná veľkosť (Michal 10. 10.) — velkost = 1. box, velkost2 = 2. box
     const stavBox = { pocet: 1, velkost: null, velkost2: null, farba: predvolena };
@@ -1387,11 +1442,15 @@ function karta(ctx, T, R, viacSetov) {
       const legVel = el("legend", { text: T.velkost }), legVel2 = el("legend", { text: T.velkost2 });
       const fsVel = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--velkost" }, [legVel]);
       const fsVel2 = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--velkost lcd-dop__fs--velkost2", hidden: true }, [legVel2]);
-      const selFarba = el("select", { class: "lcd-dop__select", id: n + "-farba", "data-lcd-dop-farba": "" }, [
-        el("option", { value: "", text: T.zvolteFarbu, disabled: true, selected: !predvolena }),
-      ].concat(farby.map(function (fid) { return el("option", { value: fid, text: popisFarby(farbaP.o[fid].t), selected: fid === predvolena }); })));
-      selFarba.addEventListener("change", function () { stavBox.farba = selFarba.value || null; hint.textContent = ""; prekresli(); });
-      const farbaWrap = el("div", { class: "lcd-dop__farba" }, [el("label", { for: n + "-farba", text: T.farba }), selFarba]);
+      // farba boxov: vzorky kože ako na produkte (Michal 10. 10.: „vzorky, nie text“), popis farby pod vzorkou
+      const mriezkaFarieb = el("div", { class: "lcd-dop__farby" }, farby.map(function (fid) {
+        const i = el("input", { type: "radio", name: n + "-farba", value: fid, checked: fid === predvolena, "data-lcd-dop-farba": fid });
+        i.addEventListener("change", function () { stavBox.farba = fid; hint.textContent = ""; prekresli(); });
+        const vz = el("img", { src: vzorkaFarby(farbaP.o[fid].t), alt: "", width: "400", height: "400", loading: "lazy", decoding: "async" });
+        vz.addEventListener("error", function () { vz.style.visibility = "hidden"; });
+        return el("label", { class: "lcd-dop__opt lcd-dop__opt--farba" }, [i, el("span", {}, [vz, el("b", { text: popisFarby(farbaP.o[fid].t) })])]);
+      }));
+      const fsFarba = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--farba" }, [el("legend", { text: T.farba }), mriezkaFarieb]);
       const suhrnCena = el("div", { class: "lcd-dop__suhrn-cena" });
       const tl = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "box", text: T.pridat });
       const hint = el("p", { class: "lcd-dop__hint", "aria-live": "polite" });
@@ -1435,26 +1494,27 @@ function karta(ctx, T, R, viacSetov) {
         meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "box_" + stavBox.pocet, lcd_velkost: velkosti, lcd_pocet: stavBox.pocet, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
         if (!stavBox.velkost) { hint.textContent = dva ? T.chybaVelkost1 : T.chybaVelkost; const r = fsVel.querySelector("input"); if (r) r.focus(); return; }
         if (dva && !stavBox.velkost2) { hint.textContent = T.chybaVelkost2; const r = fsVel2.querySelector("input"); if (r) r.focus(); return; }
-        if (!stavBox.farba) { hint.textContent = T.chybaFarba; selFarba.focus(); return; }
+        if (!stavBox.farba) { hint.textContent = T.chybaFarba; const r = fsFarba.querySelector("input"); if (r) r.focus(); return; }
         const zm = zmena({ typ: "box", pocet: stavBox.pocet, velkost: stavBox.velkost, velkost2: dva ? stavBox.velkost2 : null, farba: stavBox.farba }, ctx.mapa, R);
         const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
         if (!zm || !rozdiel) { stav.textContent = T.chyba; return; }
         spustiVymenu(ctx, { typ: "box", pocet: stavBox.pocet, velkost: velkosti, kod: "box_" + stavBox.pocet }, zm, rozdiel, T, R, stav, k);
       });
 
-      // výber boxu pod kartami (na celú šírku bloku), otvára ho tlačidlo na karte boxu
+      // výber boxu hneď pod kartou boxu (na telefóne pod kartami), otvára ho tlačidlo na karte boxu
       const telo = el("div", { class: "lcd-dop__telo lcd-dop__boxvyber", id: tid, hidden: true, "data-doplnok": "box" }, [
         el("p", { class: "lcd-dop__boxtitul", text: T.boxVyber }),
-        fsPocet, fsVel, fsVel2, farbaWrap,
+        fsPocet, fsVel, fsVel2, fsFarba,
         el("div", { class: "lcd-dop__suhrn" }, [suhrnCena, tl]),
         hint,
       ]);
-      k.appendChild(telo);
+      const umiestni = pripniVyber(telo, karticka.li);
       btn.addEventListener("click", function () {
         const otvor = btn.getAttribute("aria-expanded") !== "true";
         btn.setAttribute("aria-expanded", otvor ? "true" : "false");
         napis.textContent = otvor ? T.skrytVyber : T.vybratVelkost;
         telo.hidden = !otvor;
+        umiestni();
         karticka.li.classList.toggle("je-otvorena", otvor);
         if (otvor) {
           meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "vybrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
@@ -1714,7 +1774,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   if (zamok) return;
   zamok = true;
   window.__lcdCartReloading = true; // cart.js r. 15–21: počas výmeny nič neobnovovať
-  const tlacidla = document.querySelectorAll("#lcd-doplnok button, #lcd-doplnok input, #lcd-doplnok select, .lcd-dop-odober button");
+  const tlacidla = document.querySelectorAll("#lcd-doplnok button, #lcd-doplnok input, #lcd-doplnok select, .lcd-dop-odober button, .lcd-dop-x");
   const odober = doplnok.typ === "odober";
   tlacidla.forEach(function (b) { b.disabled = true; });
   kartaEl.setAttribute("aria-busy", "true");
@@ -1823,18 +1883,43 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   zamok = false;
 }
 
-/** Krížiky pri doplnkoch setu v riadku košíka: „Doplnky v sete: Rohož Premium ×  2 boxy M + L ×“. */
-function vlozOdober(ctx, T, R) {
+/** Odrážka rozpisu (cart.js ul.lcd-rozpis) s parametrom doplnku: rohož -> „Autokoberce do kufru“, boxy -> prvá z
+ *  „Farba boxov“, „Velikost Box solo“, „Velikost 1. boxu“, „Velikost 2. boxu“ (podľa názvu parametra v mape). */
+export function odrazkaDoplnku(ul, d, volby, mapa, R) {
+  if (!ul || !mapa || !mapa.params) return null;
+  const norm = function (t) { return cisty(t).replace(/\s*:\s*$/, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); };
+  const ids = d.co === "rohoz" ? [R.rohoz] : [R.farbaBox, R.boxSolo, R.box1, R.box2];
+  for (const id of ids) {
+    const p = mapa.params[id];
+    if (!p || volby[id] === undefined) continue;
+    const li = Array.prototype.find.call(ul.children, function (x) { const n = x.querySelector(".lcd-rozpis__n"); return !!n && norm(n.textContent) === norm(p.n); });
+    if (li) return li;
+  }
+  return null;
+}
+
+/** Krížik pri doplnku setu v riadku košíka (Michal 10. 10.: odrážky ostávajú ako sú, krížik priamo pri odrážke rohože
+ *  a boxov). Bez odrážky (rozpis chýba / iný názov) -> náhradný riadok „Doplnky v sete: Rohož Premium ×  2 boxy M + L ד. */
+function vlozOdober(ctx, T, R, pokus) {
   const vstup = [...document.querySelectorAll('#cart-wrapper input[name="itemId"]')].find(function (i) { return i.value === ctx.riadok.itemId; });
   const tr = vstup && vstup.closest("tr");
-  if (!tr || tr.querySelector(".lcd-dop-odober")) return;
+  if (!tr || tr.querySelector(".lcd-dop-odober, .lcd-dop-x")) return;
+  const ul = tr.querySelector("ul.lcd-rozpis");
+  // rozpis vkladá cart.js pri načítaní košíka (ponuka beží neskôr) — keby ešte nebol, chvíľu počkať
+  if (!ul && (pokus || 0) < 10) { setTimeout(function () { vlozOdober(ctx, T, R, (pokus || 0) + 1); }, 200); return; }
+  const miesta = ctx.odobrat.map(function (d) { return odrazkaDoplnku(ul, d, ctx.volby, ctx.mapa, R); });
+  const priOdrazke = miesta.every(Boolean) && miesta.every(function (li, i) { return miesta.indexOf(li) === i; });
   const miesto = tr.querySelector("td.p-name") || tr;
   const stav = el("span", { class: "lcd-dop__stav", role: "status", "aria-live": "polite" });
-  const box = el("div", { class: "lcd-dop-odober", "data-item": ctx.riadok.itemId }, [el("span", { class: "lcd-dop-odober__n", text: T.vSeteDoplnky })]);
-  ctx.odobrat.forEach(function (d) {
-    const b = el("button", { type: "button", class: "lcd-dop-odober__x", "data-lcd-dop-odober": d.co, "aria-label": T.odstranit + ": " + d.nazov }, [
-      el("span", { text: d.nazov }), el("i", { "aria-hidden": "true", text: "×" }),
-    ]);
+  const box = priOdrazke ? ul : el("div", { class: "lcd-dop-odober", "data-item": ctx.riadok.itemId }, [el("span", { class: "lcd-dop-odober__n", text: T.vSeteDoplnky })]);
+  ctx.odobrat.forEach(function (d, poradie) {
+    const b = priOdrazke
+      ? el("button", { type: "button", class: "lcd-dop-x", "data-lcd-dop-odober": d.co, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov, title: T.odstranit + ": " + d.nazov }, [
+        el("i", { "aria-hidden": "true", text: "×" }),
+      ])
+      : el("button", { type: "button", class: "lcd-dop-odober__x", "data-lcd-dop-odober": d.co, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov }, [
+        el("span", { text: d.nazov }), el("i", { "aria-hidden": "true", text: "×" }),
+      ]);
     b.addEventListener("click", function () {
       meraj("lcd_set_doplnok_klik", { lcd_doplnok: d.co, lcd_varianta: "odobrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
       const zm = zmenaOdober(d.co, ctx.volby, R);
@@ -1843,10 +1928,11 @@ function vlozOdober(ctx, T, R) {
       spustiVymenu(ctx, { typ: "odober", co: d.co, pocet: d.pocet || null, nazov: d.co === "rohoz" ? T[d.varianta] : d.nazov, kod: "odober_" + d.co },
         zm, rozdiel, T, R, stav, box);
     });
-    box.appendChild(b);
+    if (priOdrazke) miesta[poradie].appendChild(b);
+    else box.appendChild(b);
   });
-  box.appendChild(stav);
-  miesto.appendChild(box);
+  if (priOdrazke) ul.parentNode.insertBefore(stav, ul.nextSibling);
+  else { box.appendChild(stav); miesto.appendChild(box); }
 }
 
 function hotovoZPredchadzajucej(sec) {
