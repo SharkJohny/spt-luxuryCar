@@ -144,7 +144,7 @@ await test("samostatná cena boxov: 1 box, 2 rovnaké, 2 rôzne (základ + príp
   rovne(M.samostatneBoxy(null, 1, "S"), null);
 });
 await test("odobratie doplnku (krížik v košíku): rohož -> „nie“, box -> parametre boxu vynechané, cena klesne", () => {
-  const T = { rohozKratko: "Rohož", classic: "Classic", premium: "Premium", box2: "2 boxy", boxJeden: "Box" };
+  const T = { rohozKratko: "Rohož", classic: "Classic", premium: "Premium", box2: "2 boxy", boxJeden: "Box", boxKus: (n) => n + ". box" };
   const sRohozou = { 85: "586", 88: "601", 74: "485" };
   rovne(M.zmenaOdober("rohoz", sRohozou, SK), { 88: "598" });
   rovne(M.zmenaOdober("rohoz", { 88: "598" }, SK), null); // rohož nemá -> nič
@@ -157,7 +157,18 @@ await test("odobratie doplnku (krížik v košíku): rohož -> „nie“, box ->
   const p = new URLSearchParams(M.zostavPayload({ priceId: "1" }, s2Boxmi, zm, SKD, null));
   pravda(![...p.keys()].some((k) => /\[(91|94|97)\]/.test(k)), "box parametre v payloade nie sú");
   rovne(M.zmenaOdober("box", { 88: "598" }, SK), null);
-  rovne(M.doplnkySetu(s2Boxmi, SKD, SK, T).map((d) => d.nazov), ["2 boxy M + L"]);
+  rovne(M.doplnkySetu(s2Boxmi, SKD, SK, T).map((d) => [d.nazov, d.kus, d.pocet]), [["1. box M", 1, 1], ["2. box L", 2, 1]]);
+  // 1 z 2 boxov (Michal 10. 10.: krížik pri každom boxe): ostatný box ako „solo“ = cena 1 boxu (SK M +109 €, nie +99 € ako 1. box z dvojice)
+  const bez2 = M.zmenaOdober("box", s2Boxmi, SK, 2, SKD);
+  rovne(bez2, { 94: null, 97: null, 104: "734" });
+  rovne(M.zluc(s2Boxmi, bez2), { 74: "485", 85: "586", 88: "598", 91: "604", 104: "734" }, "farba boxov ostáva");
+  rovne(M.rozdielCeny(s2Boxmi, bez2, SKD).s, 109 - 99 - 119);
+  rovne(M.zmenaOdober("box", s2Boxmi, SK, 1, SKD), { 94: null, 97: null, 104: "737" }, "odobratý 1. box -> ostane L");
+  rovne(M.zmenaOdober("box", s2Boxmi, SK, 2, null), null, "bez mapy nič");
+  rovne(M.zmenaOdober("box", { 91: "604", 104: "734" }, SK, 2, SKD), null, "1 box sa po kusoch neodoberá");
+  const cz2 = { 57: "486", 60: "495", 63: "501", 66: "519", 69: "537" };
+  rovne(M.zmenaOdober("box", cz2, CZ, 1, CZD), { 66: null, 69: null, 78: "666" });
+  rovne(M.rozdielCeny(cz2, { 66: null, 69: null, 78: "666" }, CZD).s, 3585 - 2859 - 3399);
   rovne(M.doplnkySetu({ 88: "601", 91: "604", 104: "731" }, SKD, SK, T).map((d) => d.nazov), ["Rohož Premium", "Box S"]);
   rovne(M.doplnkySetu({ 88: "598", 94: "631", 97: "646" }, SKD, SK, T), []); // ŽIADNY = bez boxu
 });
@@ -601,15 +612,17 @@ await test("hodnota 1. vrstvy z priceId riadku a kľúč kombinácie (SK aj CZ)"
   rovne(M.klucKombinacie({ 78: "543", 71: "540" }), "71-540-78-543");
   rovne(M.klucKombinacie({ 72: "546", 44: "453" }), "44-453-72-546");
 });
-await test("párovanie farby 2. vrstvy (Michal 10. 10.): všetky pravidlá SK aj CZ, V-Class, inak Lux 10", () => {
-  const sk = (t, a) => M.odporucanaLux("Diamond Farba kože : " + t, a);
-  rovne([sk("Čierna / Farba šitia: Červená"), sk("Čierna / Farba šitia: Modrá"), sk("Vínovo Červená"), sk("Oranžová"), sk("Modrá"), sk("Béžová"), sk("Hnedá"), sk("Hnedá káva")], [10, 8, 13, 3, 6, 12, 11, 11]);
-  rovne([sk("Čierna / Farba šitia : Sivá"), sk("Čierna / Farba šitia : Sivá", "Mercedes-Benz V-Class"), sk("Čierna / Farba šitia : Sivá", "Mercedes Trieda V 2019"), sk("Čierna / Farba šitia : Sivá", "Mercedes Vito")], [10, 15, 15, 10]);
-  rovne([sk("Fialová"), sk("Červená"), sk("Šedá"), sk(" čierna farba šitia zelená"), sk("čierna / Farba šitia : Béžová"), sk("Čierna / Farba šitia: Čierna"), sk("čierna / Farba šitia : bielou")], [10, 10, 10, 10, 10, 10, 10]);
-  rovne(M.odporucanaLux("Diamond Farba kože : Modrá", "Mercedes V-Class"), 6, "V-Class mení len čiernu so šedým šitím");
-  const cz = (t, a) => M.odporucanaLux("Diamond Barva kůže: " + t, a);
-  rovne([cz("Černá / Barva šití: Červená"), cz("Černá / Barva šití: Modrá"), cz("Vínově červená"), cz("Kávově hnědá"), cz("Hnědá"), cz("Béžová"), cz("Oranžová"), cz("Modrá"), cz("Černá / Barva šití: Šedá", "Mercedes-Benz V-Klasse"), cz("Černá / Barva šití: Šedá"), cz("Fialová")], [10, 8, 13, 11, 11, 12, 3, 6, 15, 10, 10]);
+await test("párovanie farby 2. vrstvy (Michal 10. 10.): len jednofarebné Lux v tóne kože, SK aj CZ, inak Lux 10", () => {
+  const sk = (x) => M.odporucanaLux("Diamond Farba kože : " + x);
+  rovne([sk("Čierna / Farba šitia: Červená"), sk("Čierna / Farba šitia: Modrá"), sk("Čierna / Farba šitia : Sivá"), sk("čierna / Farba šitia : Béžová"), sk("Čierna / Farba šitia: Čierna")], [10, 10, 10, 10, 10]);
+  rovne([sk("Béžová"), sk("Hnedá"), sk("Hnedá káva"), sk("Vínovo Červená"), sk("Červená"), sk("Šedá")], [12, 11, 11, 13, 13, 16]);
+  rovne([sk("Modrá"), sk("Oranžová"), sk("Fialová")], [10, 10, 10]);
+  const cz = (x) => M.odporucanaLux("Diamond Barva kůže: " + x);
+  rovne([cz("Černá / Barva šití: Červená"), cz("Černá / Barva šití: Modrá"), cz("Černá / Barva šití: Šedá"), cz("Vínově červená"), cz("Kávově hnědá"), cz("Hnědá"), cz("Béžová"), cz("Červená"), cz("Šedá"), cz("Oranžová"), cz("Modrá"), cz("Fialová")],
+    [10, 10, 10, 13, 11, 11, 12, 13, 16, 10, 10, 10]);
   rovne([M.odporucanaLux("diamond farba koze : CIERNA / farba sitia: cervena"), M.odporucanaLux("STRIPE FARBA KOŽE : HNEDÁ KÁVA"), M.odporucanaLux(""), M.odporucanaLux("niečo iné")], [10, 11, 10, 10]);
+  rovne(M.LUX_JEDNOFAREBNE, [10, 11, 12, 13, 16]);
+  pravda(["Čierna / Farba šitia: Modrá", "Modrá", "Oranžová", "Šedá", "Červená", "Fialová", "Béžová", "Hnedá", "Vínovo Červená"].every((x) => M.LUX_JEDNOFAREBNE.includes(sk(x))), "vždy jednofarebná");
 });
 await test("druhá vrstva z textu variantu (SK aj CZ), adresa dvojvrstvového setu", () => {
   rovne([M.maDruhuVrstvu(V1_CC), M.maDruhuVrstvu(V1_CC + ", farba 2.vrstvy: Lux Color 10"), M.maDruhuVrstvu("Barva 1.vrstvy: Diamond Barva kůže: Černá, Barva 2.vrstvy: Lux Color 09")], [false, true, true]);
@@ -622,7 +635,7 @@ await test("druhá vrstva z textu variantu (SK aj CZ), adresa dvojvrstvového se
 });
 await test("ponuka druhej vrstvy SK Diamond čierna/červená, 1.+2. rad: Lux 10 predvolená, +147 € (132 + rozloženie 50 − 35)", () => {
   const volby = { 85: "589", 88: "598", 74: "485" };
-  const p = M.ponukaVrstvy(riadokV("63487", volby, SKB), volby, SKB, SKE, RSK, "");
+  const p = M.ponukaVrstvy(riadokV("63487", volby, SKB), volby, SKB, SKE, RSK);
   pravda(p, "ponuka");
   rovne([p.odporucana, p.v1, p.moznosti.length, p.moznosti.map((m) => m.lux).join(",")], [10, "543", 16, "10,12,11,13,14,15,16,7,4,1,8,6,3,5,9,2"]);
   const m10 = p.moznosti.find((m) => m.lux === 10), m12 = p.moznosti.find((m) => m.lux === 12);
@@ -630,13 +643,12 @@ await test("ponuka druhej vrstvy SK Diamond čierna/červená, 1.+2. rad: Lux 10
   rovne(m10.rozdiel.b, Math.round(147 / 1.23 * 100) / 100, "bez DPH");
   // béžová -> Lux 12, sivé šitie + V-Class -> Lux 15
   const vb = { 85: "586", 74: "485" };
-  rovne(M.ponukaVrstvy(riadokV("63514", vb, SKB, "farba 1.vrstvy: Diamond Farba kože : Béžová"), vb, SKB, SKE, RSK, "").odporucana, 12);
-  rovne(M.ponukaVrstvy(riadokV("63499", vb, SKB), vb, SKB, SKE, RSK, "Mercedes-Benz V-Class").odporucana, 15);
-  rovne(M.ponukaVrstvy(riadokV("63499", vb, SKB), vb, SKB, SKE, RSK, "Škoda Kodiaq").odporucana, 10);
-});
+  rovne(M.ponukaVrstvy(riadokV("63514", vb, SKB, "farba 1.vrstvy: Diamond Farba kože : Béžová"), vb, SKB, SKE, RSK).odporucana, 12);
+  rovne(M.ponukaVrstvy(riadokV("63499", vb, SKB), vb, SKB, SKE, RSK).odporucana, 10, "čierna + šedé šitie (aj V-Class) -> Lux 10, nie melír 15");
+  });
 await test("rozdiel ceny SK Stripe (iné ceny príplatkov v dvojvrstvovom): rozloženie +15, rohož Premium −29, SUV −5, 2. box S −20", () => {
   const volby = { 85: "589", 88: "601", 74: "488" };
-  const p = M.ponukaVrstvy(riadokV("66866", volby, SSB, "farba 1.vrstvy: Stripe Farba kože : Čierna / Farba šitia: Červená", "/luxusne-autokoberce-dragonskin-stripe-line/"), volby, SSB, SSE, RSK, "");
+  const p = M.ponukaVrstvy(riadokV("66866", volby, SSB, "farba 1.vrstvy: Stripe Farba kože : Čierna / Farba šitia: Červená", "/luxusne-autokoberce-dragonskin-stripe-line/"), volby, SSB, SSE, RSK);
   pravda(p, "ponuka Stripe");
   rovne(p.moznosti.find((m) => m.lux === 10).rozdiel.s, 132 + 15 - 29 - 5);
   const v2 = { 85: "586", 88: "598", 74: "485", 91: "604", 94: "619", 97: "634" };
@@ -647,27 +659,27 @@ await test("rozdiel ceny SK Stripe (iné ceny príplatkov v dvojvrstvovom): rozl
 await test("ponuka CZ Diamond: priceId čítané zo stránky (nepravidelné), +3 636 Kč, kávově hnědá -> Lux 11", () => {
   const volby = { 57: "486", 60: "495", 47: "380" };
   const r = riadokV("43605", volby, CZB, "Barva 1.vrstvy: Diamond Barva kůže: Černá / Barva šití: Červená");
-  const p = M.ponukaVrstvy(r, volby, CZB, CZE, RCZ, "");
+  const p = M.ponukaVrstvy(r, volby, CZB, CZE, RCZ);
   pravda(p, "ponuka CZ");
   const m10 = p.moznosti.find((m) => m.lux === 10), m11 = p.moznosti.find((m) => m.lux === 11);
   rovne([p.odporucana, m10.priceId, m10.rozdiel.s, m11.priceId], [10, "43662", 3135 + 501, FV["cz/elite-diamond"].kom["44-588-72-546"].id + ""]);
-  const pk = M.ponukaVrstvy(riadokV("43635", volby, CZB, "Barva 1.vrstvy: Diamond Barva kůže: Kávově hnědá"), volby, CZB, CZE, RCZ, "");
+  const pk = M.ponukaVrstvy(riadokV("43635", volby, CZB, "Barva 1.vrstvy: Diamond Barva kůže: Kávově hnědá"), volby, CZB, CZE, RCZ);
   rovne([pk.odporucana, pk.moznosti.find((m) => m.lux === 11).priceId], [11, String(FV["cz/elite-diamond"].kom["44-588-72-576"].id)]);
 });
 await test("ponuka druhej vrstvy fail-closed: už dvojvrstvový, iný pár produktov, neznámy priceId, iný názov príplatku", () => {
   const volby = { 85: "589", 88: "598", 74: "485" };
   const r = riadokV("63487", volby, SKB);
-  rovne(M.ponukaVrstvy(Object.assign({}, r, { variant: V1_CC + ", farba 2.vrstvy: Lux Color 10" }), volby, SKB, SKE, RSK, ""), null, "2. vrstva už je");
-  rovne(M.ponukaVrstvy(r, volby, SKB, SSE, RSK, ""), null, "Diamond -> Stripe");
-  rovne(M.ponukaVrstvy(r, volby, SKE, SKE, RSK, ""), null, "dvojvrstvový nie je v tabuľke jednovrstvových");
-  rovne(M.ponukaVrstvy(Object.assign({}, r, { priceId: "1" }), volby, SKB, SKE, RSK, ""), null, "priceId");
+  rovne(M.ponukaVrstvy(Object.assign({}, r, { variant: V1_CC + ", farba 2.vrstvy: Lux Color 10" }), volby, SKB, SKE, RSK), null, "2. vrstva už je");
+  rovne(M.ponukaVrstvy(r, volby, SKB, SSE, RSK), null, "Diamond -> Stripe");
+  rovne(M.ponukaVrstvy(r, volby, SKE, SKE, RSK), null, "dvojvrstvový nie je v tabuľke jednovrstvových");
+  rovne(M.ponukaVrstvy(Object.assign({}, r, { priceId: "1" }), volby, SKB, SKE, RSK), null, "priceId");
   const ina = JSON.parse(JSON.stringify(SKE)); ina.params["85"].n = "rozloženie";
-  rovne(M.ponukaVrstvy(r, volby, SKB, ina, RSK, ""), null, "názov príplatku");
+  rovne(M.ponukaVrstvy(r, volby, SKB, ina, RSK), null, "názov príplatku");
   const bezKom = Object.assign({}, SKE, { kom: null });
-  rovne(M.ponukaVrstvy(r, volby, SKB, bezKom, RSK, ""), null, "bez kombinácií");
+  rovne(M.ponukaVrstvy(r, volby, SKB, bezKom, RSK), null, "bez kombinácií");
   const vypredane = JSON.parse(JSON.stringify(SKE));
   Object.keys(vypredane.kom).forEach((k) => { if (/^71-540-/.test(k)) vypredane.kom[k].x = 1; });
-  const pv = M.ponukaVrstvy(r, volby, SKB, vypredane, RSK, "");
+  const pv = M.ponukaVrstvy(r, volby, SKB, vypredane, RSK);
   rovne(pv, null, "odporúčaná aj Lux 10 vypredaná -> bez ponuky");
 });
 await test("payload druhej vrstvy: cieľový priceId + productId dvojvrstvového, VŠETKY príplatky, amount 1", () => {
@@ -685,7 +697,7 @@ await test("názov setu bez Basic / Elite / Dragonskin", () => {
 // karta ponuky v jsdom: poradie kariet a výber farby
 const ctxKarty = (ponuka, R = RSK, mB = SKB, mE = SKE, volby = { 85: "589", 88: "598", 74: "485" }, priceId = "63487") => {
   const riadok = Object.assign(riadokV(priceId, volby, mB), { itemId: "it-k" });
-  const p = M.ponukaVrstvy(riadok, volby, mB, mE, R, "");
+  const p = M.ponukaVrstvy(riadok, volby, mB, mE, R);
   if (p) { p.href = "/luxusne-autokoberce-dragonskin-elite-diamond-line/"; p.mapa = mE; }
   return { riadok, mapa: mB, volby, ponuka: Object.assign({ vrstva2: p }, ponuka), odobrat: [], samostatne: null, kupon: null, zobrazene: [] };
 };
@@ -696,7 +708,11 @@ await test("pásy: druhá vrstva PRVÁ, potom Classic a box (Premium nie), texty
   rovne(M.PORADIE_KARIET, ["vrstva2", "classic", "box"]);
   const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
   const t = (s) => v.querySelector(s).textContent.replace(/\s+/g, " ").trim();
-  rovne([t(".lcd-dop__nadtitul"), t(".lcd-dop__meno"), t(".lcd-dop__veta"), t(".lcd-dop__znacka")], ["Odporúčame k Vašej farbe", "Druhá vrstva · Lux 10", "Odnímateľná vrstva navrch zachytí vodu, sneh aj blato.", "Lux 10"]);
+  rovne([t(".lcd-dop__odp"), t(".lcd-dop__pod"), t(".lcd-dop__meno"), t(".lcd-dop__dovod"), t(".lcd-dop__veta"), t(".lcd-dop__znacka")],
+    ["Odporúčame", "16 farieb na výber", "Druhá vrstva · Lux 10", "Zachytí vodu, sneh aj blato – koberce pod ňou ostanú čisté.", "Odnímateľnú vrstvu vyberiete, vytrasiete a vložíte späť.", "Lux 10"]);
+  rovne([v.querySelector(".lcd-dop__nadtitul"), k.querySelectorAll(".lcd-dop__odp").length], [null, 1], "Odporúčame len pri druhej vrstve (Michal 10. 10.)");
+  const dov = (s) => k.querySelector(s + " .lcd-dop__pas .lcd-dop__dovod").textContent.replace(/\s+/g, " ").trim();
+  rovne([dov('.lcd-dop__volba[data-varianta="classic"]'), dov(".lcd-dop__volba--box")], ["Chráni dno kufra pred blatom, vodou aj poškriabaním.", "Nákup aj výbava auta majú v kufri svoje miesto."]);
   pravda(/^\+147\s€ v sete$/.test(t(".lcd-dop__pas .lcd-dop__cena")), t(".lcd-dop__pas .lcd-dop__cena"));
   pravda(!/samostatne|ušetríte/.test(t(".lcd-dop__pas .lcd-dop__cena")), "bez porovnania");
   rovne([v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__vfoto").getAttribute("src")], ["/user/documents/upload/assets/config/lux-color-10.jpg?15", "/user/documents/upload/assets/config/lux-color-10.jpg?15"], "bez produktovej fotky vzorka");
@@ -718,7 +734,7 @@ await test("pásy: klik na pás rozbalí detail (len jeden naraz), „Vybrať“
     const det = (li) => li.querySelector(".lcd-dop__detail");
     const v = pas("vrstva2"), c = pas("classic"), b = k.querySelector(".lcd-dop__volba--box");
     pravda([v, c, b].every((li) => det(li).hidden), "všetko zbalené");
-    v.querySelector(".lcd-dop__nadtitul").click();
+    v.querySelector(".lcd-dop__meno").click();
     rovne([det(v).hidden, v.querySelector(".lcd-dop__prepni").getAttribute("aria-expanded"), v.classList.contains("je-otvorena")], [false, "true", true]);
     c.querySelector(".lcd-dop__cena").click();
     rovne([det(v).hidden, det(c).hidden], [true, false], "druhý pás zavrie prvý");
@@ -731,7 +747,7 @@ await test("pásy: klik na pás rozbalí detail (len jeden naraz), „Vybrať“
     rovne([det(b).hidden, tlb.textContent], [true, "Vybrať"]);
   } finally { k.remove(); }
 });
-await test("pás druhej vrstvy: 16 vzoriek v rozbalení, Lux 12 zmení názov, nadtitul, cenu a vzorku; CZ texty", () => {
+await test("pás druhej vrstvy: 16 vzoriek v rozbalení, Lux 12 zmení názov, cenu a vzorku (Odporúčame ostáva); CZ texty", () => {
   const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }), RSK, false);
   rovne(k.querySelector(".lcd-dop__nadpis").textContent, "Doplňte set o druhú vrstvu");
   rovne(k.querySelectorAll(".lcd-dop__volba").length, 1);
@@ -740,13 +756,14 @@ await test("pás druhej vrstvy: 16 vzoriek v rozbalení, Lux 12 zmení názov, n
   rovne(k.querySelector("[data-lcd-dop-lux]:checked").value, "10");
   const l12 = k.querySelector('[data-lcd-dop-lux="12"]');
   l12.checked = true; l12.dispatchEvent(new window.Event("change", { bubbles: true }));
-  rovne([v.querySelector(".lcd-dop__nadtitul").textContent, v.querySelector(".lcd-dop__meno").textContent, v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").getAttribute("data-lux")],
-    ["Vami zvolená farba", "Druhá vrstva · Lux 12", "/user/documents/upload/assets/config/lux-color-12.jpg?15", "12"]);
+  rovne([v.querySelector(".lcd-dop__odp").textContent, v.querySelector(".lcd-dop__meno").textContent, v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").getAttribute("data-lux")],
+    ["Odporúčame", "Druhá vrstva · Lux 12", "/user/documents/upload/assets/config/lux-color-12.jpg?15", "12"]);
   pravda(/Lux 12/.test(v.querySelector(".lcd-dop__suhrn-cena").textContent));
   const kc = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), RCZ, false);
   const vc = kc.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
-  rovne([vc.querySelector(".lcd-dop__nadtitul").textContent, vc.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").textContent, vc.querySelector('[data-lcd-dop-pridat="vrstva2-vyber"]').textContent, kc.querySelector(".lcd-dop__nadpis").textContent],
-    ["Doporučujeme k Vaší barvě", "Přidat", "Přidat druhou vrstvu", "Doplňte set o druhou vrstvu"]);
+  rovne(M.cisty(vc.querySelector(".lcd-dop__dovod").textContent), "Zachytí vodu, sníh i bláto – koberce pod ní zůstanou čisté.");
+  rovne([vc.querySelector(".lcd-dop__odp").textContent, vc.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").textContent, vc.querySelector('[data-lcd-dop-pridat="vrstva2-vyber"]').textContent, kc.querySelector(".lcd-dop__nadpis").textContent],
+    ["Doporučujeme", "Přidat", "Přidat druhou vrstvu", "Doplňte set o druhou vrstvu"]);
   pravda(/^\+3\s636\sKč v setu$/.test(vc.querySelector(".lcd-dop__pas .lcd-dop__cena").textContent.replace(/\s+/g, " ").trim()), vc.querySelector(".lcd-dop__pas .lcd-dop__cena").textContent);
 });
 await test("pás druhej vrstvy: produktová fotka v páse aj detaile, vzorka pri názve; chyba fotky -> vzorka zvolenej farby", () => {
@@ -765,18 +782,6 @@ await test("pás druhej vrstvy: produktová fotka v páse aj detaile, vzorka pri
     obr.dispatchEvent(new window.Event("load"));
     rovne(obr.style.visibility, "");
   } finally { k.remove(); }
-});
-await test("Lux 15 pri V-Class: auto zo sessionStorage len pri jedinom sete v košíku (inak Lux 10)", () => {
-  const ss = { Brand: "Mercedes-Benz", Model: "Viano/Vito/V Class" };
-  const citaj = (x) => ss[x] || null;
-  const vb = { 85: "586", 74: "485" };
-  const r = riadokV("63499", vb, SKB);
-  pravda(/V Class/.test(M.autoKRiadku(r, 1, citaj)), M.autoKRiadku(r, 1, citaj));
-  rovne(M.autoKRiadku(r, 2, citaj), "", "2 sety -> sessionStorage sa nepoužije");
-  rovne(M.ponukaVrstvy(r, vb, SKB, SKE, RSK, M.autoKRiadku(r, 1, citaj)).odporucana, 15, "jediný set V-Class");
-  rovne(M.ponukaVrstvy(r, vb, SKB, SKE, RSK, M.autoKRiadku(r, 2, citaj)).odporucana, 10, "2 sety (napr. V-Class + Kodiaq)");
-  rovne(M.ponukaVrstvy(r, vb, SKB, SKE, RSK, M.autoKRiadku(r, 1, () => null)).odporucana, 10, "auto neznáme");
-  rovne(M.autoKRiadku(Object.assign({}, r, { text: "Mercedes-Benz V-Class" }), 2, citaj), "Mercedes-Benz V-Class", "auto v texte riadku platí aj pri viacerých setoch");
 });
 await test("sLimitom: visiaca požiadavka -> null po limite, chyba -> null, výsledok prejde", async () => {
   const t0 = Date.now();
@@ -799,22 +804,22 @@ await test("ponuka druhej vrstvy: trvalý neúspech -> stránka dvojvrstvového 
   try {
     // dobrá mapa v localStorage -> ponuka bez sťahovania
     localStorage.setItem(kluc, JSON.stringify(Object.assign({}, SKE, { t: Date.now() - 7200000 })));
-    const ok1 = await (await novyModul(1)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, "");
+    const ok1 = await (await novyModul(1)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK);
     rovne([!!ok1, ok1 && ok1.odporucana, ok1 && ok1.href, stiahnute], [true, 10, "/luxusne-autokoberce-dragonskin-elite-diamond-line/", 0]);
     // priceId riadku nie je v (čerstvej) mape jednovrstvového produktu -> null bez sťahovania dvojvrstvového
-    rovne([await (await novyModul(5)).ponukaDruhejVrstvy(Object.assign({}, riadok, { priceId: "1" }), volby, SKB, RSK, ""), stiahnute], [null, 0]);
+    rovne([await (await novyModul(5)).ponukaDruhejVrstvy(Object.assign({}, riadok, { priceId: "1" }), volby, SKB, RSK), stiahnute], [null, 0]);
     // stará nesediaca mapa -> raz čerstvá (stále nesedí) -> null
     const stara = mapaV("sk/elite-diamond"); stara.params["85"].n = "rozloženie"; stara.t = Date.now() - 7200000;
     localStorage.setItem(kluc, JSON.stringify(stara));
-    rovne(await (await novyModul(2)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, ""), null);
+    rovne(await (await novyModul(2)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK), null);
     rovne(stiahnute, 1, "raz čerstvá");
     // ďalšie otvorenie košíka o 2 min (mapa > 60 s) -> už nesťahovať
     Date.now = () => nowPred() + 120000;
-    rovne(await (await novyModul(3)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, ""), null);
+    rovne(await (await novyModul(3)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK), null);
     rovne(stiahnute, 1, "bez opakovaného sťahovania ~1 MB");
     // iná (staršia / novšia) mapa v localStorage -> smie sa raz obnoviť znova
     localStorage.setItem(kluc, JSON.stringify(stara));
-    await (await novyModul(4)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, "");
+    await (await novyModul(4)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK);
     rovne(stiahnute, 2, "nová mapa -> nový pokus");
   } finally {
     globalThis.fetch = fetchPred; Date.now = nowPred;
@@ -872,7 +877,7 @@ const pripravV = (st, q = 1) => {
   return M.rozoberRiadky(new DOMParser().parseFromString("<table>" + RIADOK(r.itemId, r.priceId, r.q, r.sur, r.href, r.variant) + "</table>", "text/html"))[0];
 };
 const vymenV = (riadok, lux = 10) => {
-  const p = M.ponukaVrstvy(riadok, VOLBY_V, SKB, SKE, RSK, "");
+  const p = M.ponukaVrstvy(riadok, VOLBY_V, SKB, SKE, RSK);
   const m = p.moznosti.find((x) => x.lux === lux);
   return M.vymen({ riadok, volby: VOLBY_V, mapa: SKE, R: RSK, zmena: {}, rozdiel: m.rozdiel, doplnok: { kod: "vrstva2" }, ciel: { priceId: m.priceId, lux } });
 };
@@ -929,13 +934,13 @@ await test("poradie farieb 2. vrstvy ako na produkte: zo selectu, bez poradia v 
   const bezP = JSON.parse(JSON.stringify(SKE));
   delete bezP.vpar["71"].p;
   const r = riadokV("63487", { 85: "589", 88: "598", 74: "485" }, SKB);
-  const a = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, SKE, RSK, "");
-  const b = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, bezP, RSK, "");
+  const a = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, SKE, RSK);
+  const b = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, bezP, RSK);
   rovne(a.moznosti.map((m) => m.lux), M.PORADIE_LUX);
   rovne(b.moznosti.map((m) => m.lux), M.PORADIE_LUX);
   const obr = JSON.parse(JSON.stringify(SKE));
   obr.vpar["71"].p.reverse();
-  const c = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, obr, RSK, "");
+  const c = M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, obr, RSK);
   rovne(c.moznosti.map((m) => m.lux), M.PORADIE_LUX.slice().reverse(), "poradie zo selectu má prednosť");
   rovne(FIX["sk/luxusne-autokoberce-dragonskin-diamond-line/"].sels.find((x) => x.id === "91").o.map((o) => String(o[0])), SKD.params["91"].p, "farba boxov v poradí formulára");
 });
@@ -948,7 +953,7 @@ await test("hlavná fotka produktu: og:image z CDN Shoptetu, iné adresy nie; po
   rovne(M.mapaZFormulara(doc("https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/front_images/ogImage/hp.jpg")).foto, null, "nie obrázok titulky");
   rovne(SKE.foto, null);
   const r = riadokV("63487", { 85: "589", 88: "598", 74: "485" }, SKB);
-  rovne(M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, m, RSK, "").foto, u);
+  rovne(M.ponukaVrstvy(r, { 85: "589", 88: "598", 74: "485" }, SKB, m, RSK).foto, u);
 });
 await test("vzorka farby boxov ako na produkte (slug textu, SK aj CZ)", () => {
   const z = "/user/documents/upload/assets/config/";
@@ -960,13 +965,21 @@ await test("vzorka farby boxov ako na produkte (slug textu, SK aj CZ)", () => {
   rovne(M.vzorkaFarby("Čierna + červená"), z + "cierna.jpg?15", "ako createSlug(text.split(\"+\")[0])");
   rovne(M.vzorkaFarby(""), null);
 });
-await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, boxy -> „Farba boxov“ (inak prvá veľkosť); bez odrážky null", () => {
+await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, box -> jeho veľkosť (nikdy „Farba boxov“); bez odrážky null", () => {
   const ul = new DOMParser().parseFromString(`<ul class="lcd-rozpis">${[["Auto", "Dacia Logan"], ["Autokoberce do kufru", "Koberec na dno kufra"],
     ["Farba boxov", "Farba kože: Béžová"], ["Velikost 1. boxu", "M: 40x32x30 cm"], ["Velikost 2. boxu", "L: 54x32x30 cm"]]
     .map(([n, h]) => `<li><span class="lcd-rozpis__n">${n}: </span><span class="lcd-rozpis__h">${h}</span></li>`).join("")}</ul>`, "text/html").querySelector("ul");
   const volby = { 85: "586", 88: "595", 91: "604", 94: "622", 97: "640", 74: "485" };
   rovne(M.odrazkaDoplnku(ul, { co: "rohoz" }, volby, SKD, SK).textContent, "Autokoberce do kufru: Koberec na dno kufra");
-  rovne(M.odrazkaDoplnku(ul, { co: "box" }, volby, SKD, SK).textContent, "Farba boxov: Farba kože: Béžová");
+  rovne(M.odrazkaDoplnku(ul, { co: "box" }, volby, SKD, SK).textContent, "Velikost 1. boxu: M: 40x32x30 cm");
+  rovne([M.odrazkaDoplnku(ul, { co: "box", kus: 1 }, volby, SKD, SK).textContent, M.odrazkaDoplnku(ul, { co: "box", kus: 2 }, volby, SKD, SK).textContent],
+    ["Velikost 1. boxu: M: 40x32x30 cm", "Velikost 2. boxu: L: 54x32x30 cm"]);
+  const ul1 = new DOMParser().parseFromString(`<ul class="lcd-rozpis">${[["Farba boxov", "Farba kože: Béžová"], ["Velikost Box solo", "M: 40x32x30 cm"]]
+    .map(([n, h]) => `<li><span class="lcd-rozpis__n">${n}: </span><span class="lcd-rozpis__h">${h}</span></li>`).join("")}</ul>`, "text/html").querySelector("ul");
+  rovne(M.odrazkaDoplnku(ul1, { co: "box" }, { 91: "727", 104: "734" }, SKD, SK).textContent, "Velikost Box solo: M: 40x32x30 cm");
+  rovne(M.odrazkaDoplnku(ul1, { co: "box" }, { 91: "727", 94: "631", 104: "734" }, SKD, SK).textContent, "Velikost Box solo: M: 40x32x30 cm", "ŽIADNY nie");
+  ul1.children[1].remove();
+  rovne(M.odrazkaDoplnku(ul1, { co: "box" }, { 91: "727", 104: "734" }, SKD, SK), null, "len farba -> náhradný riadok, nie krížik pri farbe");
   rovne(M.odrazkaDoplnku(ul, { co: "box" }, { 85: "586", 94: "622", 97: "640" }, SKD, SK).textContent, "Velikost 1. boxu: M: 40x32x30 cm");
   rovne(M.odrazkaDoplnku(null, { co: "rohoz" }, volby, SKD, SK), null);
   ul.children[1].remove();

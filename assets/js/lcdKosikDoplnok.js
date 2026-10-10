@@ -53,10 +53,11 @@ const TEXTY = {
     // druhá vrstva k jednovrstvovému setu (Michal 10. 10.: vždy prvá ponuka)
     nadpisVrstva: "Doplňte set o druhú vrstvu",
     nadpisSet: "Doplňte svoj set",
-    vrstvaOdporucame: "Odporúčame k Vašej farbe",
-    vrstvaZvolena: "Vami zvolená farba",
+    odporucame: "Odporúčame",
     vrstvaMeno: (l) => "Druhá vrstva · " + l,
-    vrstvaVeta: "Odnímateľná vrstva navrch zachytí vodu, sneh aj blato.",
+    // dôvod v páse (Michal 10. 10.: „pri každej možnosti prečo by si to mali objednať“), veta = detail po rozbalení
+    vrstvaDovod: "Zachytí vodu, sneh aj blato – koberce pod ňou ostanú čisté.",
+    vrstvaVeta: "Odnímateľnú vrstvu vyberiete, vytrasiete a vložíte späť.",
     pridatVrstvu: "Pridať druhú vrstvu",
     vrstvaVyber: "Farba druhej vrstvy",
     vrstvaTip: "odporúčame",
@@ -70,9 +71,11 @@ const TEXTY = {
     nie: "Nie, ďakujem",
     rohozKratko: "Rohož",
     classicNadtitul: "Dno kufra",
+    classicDovod: "Chráni dno kufra pred blatom, vodou aj poškriabaním.",
     classicVeta: "Ochrana dna kufra na mieru Vášho auta.",
     boxNadtitul: "1 alebo 2 boxy",
-    boxVeta: "Poriadok v kufri pre nákupy aj výbavu auta.",
+    boxDovod: "Nákup aj výbava auta majú v kufri svoje miesto.",
+    boxVeta: "Box v koži a farbe podľa Vášho výberu.",
     vybrat: "Vybrať",
     skrytVyber: "Skryť",
     vrstvaFarby: (n) => n + " farieb na výber",
@@ -94,7 +97,7 @@ const TEXTY = {
     od: "od",
     vSete: "v sete",
     usetrite: "ušetríte",
-    usetriteAspon: "ušetríte aspoň",
+    usetriteAspon: "ušetríte minimálne",
     pridat: "Pridať do setu",
     pridatKratko: "Pridať",
     celkom: "Celkom",
@@ -116,7 +119,9 @@ const TEXTY = {
     // odobratie doplnku zo setu (krížik v košíku, Michal 10. 10.)
     vSeteDoplnky: "Doplnky v sete:",
     odstranit: "Odstrániť zo setu",
+    odobrat: "Odobrať",
     boxJeden: "Box",
+    boxKus: (n) => n + ". box",
     odoberam: "Odstraňujem…",
     odobraneRohoz: (v) => "Rohož " + v + " je odstránená zo setu.",
     odobraneBox1: "Box je odstránený zo setu.",
@@ -128,10 +133,10 @@ const TEXTY = {
   cz: {
     nadpisVrstva: "Doplňte set o druhou vrstvu",
     nadpisSet: "Doplňte svůj set",
-    vrstvaOdporucame: "Doporučujeme k Vaší barvě",
-    vrstvaZvolena: "Vámi zvolená barva",
+    odporucame: "Doporučujeme",
     vrstvaMeno: (l) => "Druhá vrstva · " + l,
-    vrstvaVeta: "Odnímatelná vrstva navrch zachytí vodu, sníh i bláto.",
+    vrstvaDovod: "Zachytí vodu, sníh i bláto – koberce pod ní zůstanou čisté.",
+    vrstvaVeta: "Odnímatelnou vrstvu vyndáte, vytřepete a vložíte zpět.",
     pridatVrstvu: "Přidat druhou vrstvu",
     vrstvaVyber: "Barva druhé vrstvy",
     vrstvaTip: "doporučujeme",
@@ -145,9 +150,11 @@ const TEXTY = {
     nie: "Ne, děkuji",
     rohozKratko: "Rohož",
     classicNadtitul: "Dno kufru",
+    classicDovod: "Chrání dno kufru před blátem, vodou i poškrábáním.",
     classicVeta: "Ochrana dna kufru na míru Vašeho auta.",
     boxNadtitul: "1 nebo 2 boxy",
-    boxVeta: "Pořádek v kufru pro nákupy i výbavu auta.",
+    boxDovod: "Nákup i výbava auta mají v kufru své místo.",
+    boxVeta: "Box v kůži a barvě podle Vašeho výběru.",
     vybrat: "Vybrat",
     skrytVyber: "Skrýt",
     vrstvaFarby: (n) => n + " barev na výběr",
@@ -169,7 +176,7 @@ const TEXTY = {
     od: "od",
     vSete: "v setu",
     usetrite: "ušetříte",
-    usetriteAspon: "ušetříte alespoň",
+    usetriteAspon: "ušetříte minimálně",
     pridat: "Přidat do setu",
     pridatKratko: "Přidat",
     celkom: "Celkem",
@@ -190,7 +197,9 @@ const TEXTY = {
     chybaKontrolaOdober: "Doplněk se nepodařilo odebrat. Zkontrolujte prosím obsah košíku.",
     vSeteDoplnky: "Doplňky v setu:",
     odstranit: "Odebrat ze setu",
+    odobrat: "Odebrat",
     boxJeden: "Box",
+    boxKus: (n) => n + ". box",
     odoberam: "Odebírám…",
     odobraneRohoz: (v) => "Rohož " + v + " byla odebrána ze setu.",
     odobraneBox1: "Box byl odebrán ze setu.",
@@ -441,9 +450,17 @@ export function zmena(doplnok, mapa, R) {
 /**
  * Odobratie doplnku zo setu (Michal 10. 10.: krížik pri rohoži / boxe v košíku): rohož -> „nie“, box -> všetky
  * parametre boxu preč (null = parameter v novom riadku vynechať, ako set, ku ktorému sa box nikdy nepridal).
+ * kus 1 / 2 pri 2 boxoch (Michal 10. 10.: krížik pri každom boxe) -> 1. aj 2. box preč, ostatný box ako „Velikost Box
+ * solo“ (1 box má v sete inú cenu než 1. box z dvojice, napr. SK M +109 € vs +99 €), farba boxov ostáva.
  */
-export function zmenaOdober(co, volby, R) {
+export function zmenaOdober(co, volby, R, kus, mapa) {
   if (co === "rohoz") return volby[R.rohoz] === R.classic || volby[R.rohoz] === R.premium ? { [R.rohoz]: R.nie } : null;
+  if (kus) {
+    const ost = kus === 1 ? R.box2 : R.box1;
+    const p = mapa && mapa.params && mapa.params[ost], o = p && p.o[volby[ost]];
+    const solo = o && velkost(o.t) ? velkostiBoxu(mapa, R.boxSolo)[velkost(o.t)] : null;
+    return solo && volby[R.box1] !== undefined && volby[R.box2] !== undefined ? { [R.box1]: null, [R.box2]: null, [R.boxSolo]: solo.id } : null;
+  }
   const z = {};
   [R.farbaBox, R.box1, R.box2, R.boxSolo].forEach(function (id) { if (volby[id] !== undefined) z[id] = null; });
   return Object.keys(z).length ? z : null;
@@ -466,7 +483,8 @@ export function doplnkySetu(volby, mapa, R, T) {
     return o && velkost(o.t) ? velkost(o.t) : null;
   };
   const s1 = vel(R.boxSolo), a = vel(R.box1), b = vel(R.box2);
-  if (a && b) out.push({ co: "box", nazov: T.box2 + " " + a + " + " + b, pocet: 2 });
+  // 2 boxy: krížik pri každom (Michal 10. 10.), odobratie jedného nechá druhý ako 1 box
+  if (a && b) out.push({ co: "box", kus: 1, nazov: T.boxKus(1) + " " + a, pocet: 1 }, { co: "box", kus: 2, nazov: T.boxKus(2) + " " + b, pocet: 1 });
   else if (s1 || a || b) out.push({ co: "box", nazov: T.boxJeden + " " + (s1 || a || b), pocet: 1 });
   return out;
 }
@@ -682,28 +700,18 @@ export function luxZVariantu(variant) {
   return m ? luxCislo(m[1]) : null;
 }
 
-/** Mercedes V-Class (sessionStorage auta / poznámka): „V-Class“, „V Klasse“, „Trieda V“, „Třída V“ */
-export function jeVClass(auto) {
-  const t = cisty(auto).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-  return /(?:^|[^a-z0-9])v[\s-]?(?:class|klasse)\b/.test(t) || /\b(?:trieda|trida)\s+v\b/.test(t);
-}
+/** Jednofarebné Lux farby (Michal 10. 10. 2026: predvolene odporúčať len tieto): 10 čierna, 11 tmavohnedá, 12 béžová,
+ *  13 vínovo červená, 16 šedá. Pruhované (01–09) a melírované (14, 15) si zákazník môže vybrať sám. */
+export const LUX_JEDNOFAREBNE = [10, 11, 12, 13, 16];
 
 /**
- * Odporúčaná Lux farba 2. vrstvy k farbe 1. vrstvy (Michal 10. 10. 2026): čierna + červené šitie 10, čierna + modré
- * šitie 08, vínová 13, oranžová 03, modrá 06, béžová 12, hnedá aj hnedá káva 11, čierna + šedé šitie pri Mercedes
- * V-Class 15, všetko ostatné 10. text = text farby 1. vrstvy (SK aj CZ), auto = značka/model, ak je známe.
+ * Odporúčaná Lux farba 2. vrstvy k farbe kože 1. vrstvy, v tóne kože (Michal 10. 10. 2026): béžová 12, hnedá aj hnedá
+ * káva 11, vínová aj červená 13, šedá 16, všetko ostatné (čierna s akýmkoľvek šitím, modrá, oranžová, fialová) 10.
+ * text = text farby 1. vrstvy (SK aj CZ).
  */
-export function odporucanaLux(text, auto) {
+export function odporucanaLux(text) {
   const k = klucFarby(text);
-  if (!k) return 10;
-  const [koza, sitie] = k.split("|");
-  if (koza === "cierna") {
-    if (sitie === "cervena") return 10;
-    if (sitie === "modra") return 8;
-    if (sitie === "seda" && jeVClass(auto)) return 15;
-    return 10;
-  }
-  return { vino: 13, oranzova: 3, modra: 6, bezova: 12, hneda: 11, kava: 11 }[koza] || 10;
+  return (k && { bezova: 12, hneda: 11, kava: 11, vino: 13, cervena: 13, seda: 16 }[k.split("|")[0]]) || 10;
 }
 
 /** Kľúč kombinácie v necessaryVariantData: parametre podľa ID vzostupne („71-540-78-543“, CZ „44-453-72-546“) */
@@ -752,7 +760,7 @@ export function rozdielPrechodu(volby, mapaZ, mapaC, cenaZ, cenaC, dph) {
  * mapaZ = jednovrstvový produkt riadku, mapaC = dvojvrstvový; volby = príplatky riadku (rozbor mapou mapaZ).
  * -> { odporucana, moznosti: [{ lux, vid, priceId, rozdiel }] (poradie ako na produkte), v1, foto }
  */
-export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R, auto) {
+export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R) {
   if (!riadok || !mapaZ || !mapaC || !R || !R.sety) return null;
   if (R.sety[mapaZ.pid] == null || String(R.sety[mapaZ.pid]) !== String(mapaC.pid)) return null;
   if (maDruhuVrstvu(riadok.variant)) return null;
@@ -777,8 +785,9 @@ export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R, auto) {
   const kde = function (m) { const i = p2.p ? p2.p.indexOf(m.vid) : -1; return i > -1 ? i : 100 + PORADIE_LUX.indexOf(m.lux); };
   moznosti.sort(function (a, b) { return kde(a) - kde(b); });
   if (!moznosti.length) return null;
-  const chce = odporucanaLux(mapaZ.vpar[R.v1].o[v1] || riadok.variant, auto);
-  const odporucana = moznosti.some(function (m) { return m.lux === chce; }) ? chce : moznosti.some(function (m) { return m.lux === 10; }) ? 10 : null;
+  const chce = odporucanaLux(mapaZ.vpar[R.v1].o[v1] || riadok.variant);
+  // vždy jednofarebná: odporúčaná, inak Lux 10; ani jedna v ponuke -> bez ponuky
+  const odporucana = [chce, 10].find(function (l) { return LUX_JEDNOFAREBNE.indexOf(l) > -1 && moznosti.some(function (m) { return m.lux === l; }); });
   if (odporucana == null) return null;
   return { odporucana: odporucana, moznosti: moznosti, v1: v1, foto: mapaC.foto || null };
 }
@@ -1154,7 +1163,7 @@ function cenovka(T, R, rozdiel, samostatne) {
   return el("span", { class: "lcd-dop__cena" }, deti);
 }
 
-/** Cena v úzkom páse: „+129 € v sete“ a „ušetríte 101 €“ (box: „od +99 € v sete“, „ušetríte aspoň 97 €“). */
+/** Cena v úzkom páse: „+129 € v sete“ a „ušetríte 101 €“ (box: „od +99 € v sete“, „ušetríte minimálne 97 €“). */
 function cenovkaPas(T, R, rozdiel, samostatne, kratko, usetriAspon) {
   const usetri = kratko ? usetriAspon || 0 : samostatne && samostatne > rozdiel + 0.5 ? samostatne - rozdiel : 0;
   const deti = [el("span", { class: "lcd-dop__hlavna" }, [
@@ -1250,13 +1259,16 @@ function karta(ctx, T, R, viacSetov) {
     const mini = el("img", { class: "lcd-dop__mini", src: o.mini || o.foto, alt: "", width: "112", height: "112", decoding: "async" });
     mini.addEventListener("error", function () { mini.style.visibility = "hidden"; });
     mini.addEventListener("load", function () { mini.style.visibility = ""; });
-    const nadtitul = el("span", { class: "lcd-dop__nadtitul", text: o.nadtitul });
+    // riadok nad názvom: štítok „Odporúčame“ (druhá vrstva), nadtitul, „16 farieb na výber“; pod názvom dôvod kúpy
+    const odp = o.odporucame ? el("span", { class: "lcd-dop__odp", text: T.odporucame }) : null;
+    const nadtitul = o.nadtitul ? el("span", { class: "lcd-dop__nadtitul", text: o.nadtitul }) : null;
     const menoText = el("span", { text: o.meno });
     const menoVz = o.vzorka ? el("img", { class: "lcd-dop__meno-vz", src: o.vzorka, alt: "", width: "32", height: "32", decoding: "async" }) : null;
     const meno = el("b", { class: "lcd-dop__meno", id: menoId }, [menoText, menoVz]);
     const pod = o.pod ? el("span", { class: "lcd-dop__pod", text: o.pod }) : null;
+    const dovod = o.dovod ? el("span", { class: "lcd-dop__dovod", text: o.dovod }) : null;
     const prepni = el("button", { type: "button", class: "lcd-dop__prepni", "aria-expanded": "false", "aria-controls": did }, [
-      mini, el("span", { class: "lcd-dop__vtext" }, [nadtitul, meno, pod]),
+      mini, el("span", { class: "lcd-dop__vtext" }, [el("span", { class: "lcd-dop__vriadok" }, [odp, nadtitul, pod]), meno, dovod]),
     ]);
     const tlacidlo = o.tlacidlo || o.vybrat;
     tlacidlo.setAttribute("aria-describedby", menoId);
@@ -1286,7 +1298,7 @@ function karta(ctx, T, R, viacSetov) {
       const pokojne = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
       try { detail.scrollIntoView({ block: "nearest", behavior: pokojne ? "auto" : "smooth" }); } catch (x) { /* starý Safari */ }
     });
-    return { li: li, pas: pas, obr: obr, mini: mini, nadtitul: nadtitul, meno: menoText, menoVz: menoVz, znacka: znacka, znackaText: znackaText, znackaObr: znackaObr };
+    return { li: li, pas: pas, obr: obr, mini: mini, meno: menoText, menoVz: menoVz, znacka: znacka, znackaText: znackaText, znackaObr: znackaObr };
   };
 
   // --- druhá vrstva (len jednovrstvový set; Michal 10. 10.: vždy prvá ponuka) — odporúčaná Lux farba k farbe setu;
@@ -1311,8 +1323,8 @@ function karta(ctx, T, R, viacSetov) {
       doplnok: "vrstva2", varianta: "vrstva2", trieda: "lcd-dop__volba--vrstva2",
       foto: fotoSetu || luxFoto(stV.lux), alt: fotoSetu ? T.vrstvaFotoAlt : T.vrstvaAlt(luxNazov(stV.lux)),
       vzorka: fotoSetu ? luxFoto(stV.lux) : null, znacka: luxNazov(stV.lux), znackaVzorka: fotoSetu ? luxFoto(stV.lux) : null,
-      nadtitul: T.vrstvaOdporucame, meno: T.vrstvaMeno(luxNazov(stV.lux)), pod: pv.moznosti.length > 1 ? T.vrstvaFarby(pv.moznosti.length) : null,
-      veta: T.vrstvaVeta, extra: vyber,
+      odporucame: true, meno: T.vrstvaMeno(luxNazov(stV.lux)), pod: pv.moznosti.length > 1 ? T.vrstvaFarby(pv.moznosti.length) : null,
+      dovod: T.vrstvaDovod, veta: T.vrstvaVeta, extra: vyber,
       cena: cenaPas, tlacidlo: tl,
     });
     const prekresliV = function () {
@@ -1322,7 +1334,6 @@ function karta(ctx, T, R, viacSetov) {
       if (kv.znackaObr) { kv.znackaObr.src = luxFoto(stV.lux); kv.znackaObr.hidden = !fotoSetu; }
       if (kv.menoVz) { kv.menoVz.src = luxFoto(stV.lux); kv.menoVz.hidden = !fotoSetu; }
       kv.znackaText.textContent = nazov;
-      kv.nadtitul.textContent = stV.lux === pv.odporucana ? T.vrstvaOdporucame : T.vrstvaZvolena;
       kv.meno.textContent = T.vrstvaMeno(nazov);
       const nova = cenovkaPas(T, R, m.rozdiel.s, null, false);
       kv.pas.replaceChild(nova, cenaPas);
@@ -1378,7 +1389,8 @@ function karta(ctx, T, R, viacSetov) {
       ponuka({
         doplnok: "rohoz", varianta: o.v, trieda: "lcd-dop__volba--" + o.v,
         foto: fotoDoplnku(FOTKY[o.v]), alt: T.rohoz + " " + T[o.v] + " – " + T[o.v + "Popis"],
-        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: T.rohozKratko + " " + T[o.v], veta: T[o.v + "Veta"],
+        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: T.rohozKratko + " " + T[o.v],
+        dovod: T[o.v + "Dovod"], veta: T[o.v + "Veta"],
         cena: cenovkaPas(T, R, o.rozdiel.s, o.samo, false), cenaDetail: samostatneRiadok(T, R, o.samo, o.rozdiel.s, false), tlacidlo: tl,
       });
     });
@@ -1510,7 +1522,7 @@ function karta(ctx, T, R, viacSetov) {
         doplnok: "box", trieda: "lcd-dop__polozka lcd-dop__volba--box",
         foto: fotoDoplnku(pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,
         zlava: maxZ, az: zlavy.some(function (z) { return z !== maxZ; }),
-        nadtitul: T.boxNadtitul, meno: T.box, veta: T.boxVeta,
+        nadtitul: T.boxNadtitul, meno: T.box, dovod: T.boxDovod, veta: T.boxVeta,
         cena: cenovkaPas(T, R, naj.s, naj.samo, true, usetriAspon), cenaDetail: samostatneRiadok(T, R, naj.samo, naj.s, true),
         extra: telo, vybrat: btn, vybratText: napis,
       });
@@ -1874,15 +1886,17 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   zamok = false;
 }
 
-/** Odrážka rozpisu (cart.js ul.lcd-rozpis) s parametrom doplnku: rohož -> „Autokoberce do kufru“, boxy -> prvá z
- *  „Farba boxov“, „Velikost Box solo“, „Velikost 1. boxu“, „Velikost 2. boxu“ (podľa názvu parametra v mape). */
+/** Odrážka rozpisu (cart.js ul.lcd-rozpis) s parametrom doplnku: rohož -> „Autokoberce do kufru“, box -> riadok jeho
+ *  veľkosti („Velikost 1. boxu“ / „Velikost 2. boxu“ pri kus, inak prvá z „Velikost Box solo“, 1., 2.; podľa názvu
+ *  parametra v mape). Pri „Farba boxov“ krížik nie je (Michal 10. 10.: mýlil, akoby odoberal len farbu). */
 export function odrazkaDoplnku(ul, d, volby, mapa, R) {
   if (!ul || !mapa || !mapa.params) return null;
   const norm = function (t) { return cisty(t).replace(/\s*:\s*$/, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); };
-  const ids = d.co === "rohoz" ? [R.rohoz] : [R.farbaBox, R.boxSolo, R.box1, R.box2];
+  const ids = d.co === "rohoz" ? [R.rohoz] : d.kus ? [d.kus === 1 ? R.box1 : R.box2] : [R.boxSolo, R.box1, R.box2];
   for (const id of ids) {
     const p = mapa.params[id];
     if (!p || volby[id] === undefined) continue;
+    if (d.co === "box" && !(p.o[volby[id]] && velkost(p.o[volby[id]].t))) continue; // „ŽIADNY“ nie
     const li = Array.prototype.find.call(ul.children, function (x) { const n = x.querySelector(".lcd-rozpis__n"); return !!n && norm(n.textContent) === norm(p.n); });
     if (li) return li;
   }
@@ -1904,16 +1918,17 @@ function vlozOdober(ctx, T, R, pokus) {
   const stav = el("span", { class: "lcd-dop__stav", role: "status", "aria-live": "polite" });
   const box = priOdrazke ? ul : el("div", { class: "lcd-dop-odober", "data-item": ctx.riadok.itemId }, [el("span", { class: "lcd-dop-odober__n", text: T.vSeteDoplnky })]);
   ctx.odobrat.forEach(function (d, poradie) {
+    // box: „× Odobrať“ (Michal 10. 10.: samotný krížik pri boxe mýlil), rohož: samotný krížik
     const b = priOdrazke
-      ? el("button", { type: "button", class: "lcd-dop-x", "data-lcd-dop-odober": d.co, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov, title: T.odstranit + ": " + d.nazov }, [
-        el("i", { "aria-hidden": "true", text: "×" }),
+      ? el("button", { type: "button", class: "lcd-dop-x" + (d.co === "box" ? " lcd-dop-x--text" : ""), "data-lcd-dop-odober": d.co, "data-kus": d.kus || null, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov, title: T.odstranit + ": " + d.nazov }, [
+        el("i", { "aria-hidden": "true", text: "×" }), d.co === "box" ? el("span", { "aria-hidden": "true", text: T.odobrat }) : null,
       ])
       : el("button", { type: "button", class: "lcd-dop-odober__x", "data-lcd-dop-odober": d.co, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov }, [
         el("span", { text: d.nazov }), el("i", { "aria-hidden": "true", text: "×" }),
       ]);
     b.addEventListener("click", function () {
       meraj("lcd_set_doplnok_klik", { lcd_doplnok: d.co, lcd_varianta: "odobrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
-      const zm = zmenaOdober(d.co, ctx.volby, R);
+      const zm = zmenaOdober(d.co, ctx.volby, R, d.kus, ctx.mapa);
       const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
       if (!zm || !rozdiel) { stav.className = "lcd-dop__stav lcd-dop__stav--chyba"; stav.textContent = T.chybaOdober; return; }
       spustiVymenu(ctx, { typ: "odober", co: d.co, pocet: d.pocet || null, nazov: d.co === "rohoz" ? T[d.varianta] : d.nazov, kod: "odober_" + d.co },
@@ -2047,18 +2062,6 @@ export function initKosikDoplnok(setupData) {
   } catch (e) {}
 }
 
-/**
- * Auto k riadku košíka (pre Lux 15 pri Mercedes V-Class). sessionStorage konfigurátora (Brand / Model / model) drží
- * len POSLEDNÉ nakonfigurované auto, riadok košíka auto nenesie -> zo sessionStorage len vtedy, keď je v košíku
- * jediný set autokobercov; pri viacerých setoch len text riadku (inak všeobecné pravidlo, čierna + šedé šitie = Lux 10).
- */
-export function autoKRiadku(riadok, pocetSetov, citaj) {
-  const casti = [];
-  if (pocetSetov === 1 && citaj) ["Brand", "Model", "model"].forEach(function (k) { const v = citaj(k); if (v) casti.push(v); });
-  casti.push((riadok && riadok.text) || "");
-  return casti.join(" ").trim();
-}
-
 /** Promise s časovým limitom: nestihne -> null (pomalé / visiace spojenie nesmie zdržať celú ponuku) */
 export function sLimitom(p, ms) {
   return Promise.race([
@@ -2081,7 +2084,7 @@ function oznacSkusenu(href, m) {
  * Ponuka druhej vrstvy k riadku (jednovrstvový set): mapa dvojvrstvového produktu (z localStorage, inak stiahnuť
  * jeho stránku) + ponukaVrstvy. Nesedí -> raz s čerstvou mapou; stále nie -> null (ponuka sa neukáže).
  */
-export async function ponukaDruhejVrstvy(riadok, volby, mapa, R, auto) {
+export async function ponukaDruhejVrstvy(riadok, volby, mapa, R) {
   if (!R.sety || R.sety[mapa.pid] == null || maDruhuVrstvu(riadok.variant)) return null;
   const href = adresaDvojvrstvoveho(riadok.href);
   if (!href) return null;
@@ -2095,11 +2098,11 @@ export async function ponukaDruhejVrstvy(riadok, volby, mapa, R, auto) {
     if (!v1ZPriceId(riadok.priceId, mapa, R)) { if (f) oznacSkusenu(riadok.href, f); return null; } // sieťová chyba -> bez značky
   }
   let mc = await ziskajMapu(href, R, false);
-  let p = mc && ponukaVrstvy(riadok, volby, mapa, mc, R, auto);
+  let p = mc && ponukaVrstvy(riadok, volby, mapa, mc, R);
   if (!p && mozemObnovit(href, mc)) {
     // mapa z localStorage mohla zostarnúť (nová cena / varianta v admine) -> raz čerstvá (čerstvo stiahnutú nie znova)
     mc = await ziskajMapu(href, R, true);
-    p = mc && ponukaVrstvy(riadok, volby, mapa, mc, R, auto);
+    p = mc && ponukaVrstvy(riadok, volby, mapa, mc, R);
   }
   if (!p) { oznacSkusenu(href, mc); return null; }
   p.href = href;
@@ -2144,7 +2147,7 @@ async function spusti(R) {
     // druhá vrstva (len jednovrstvový set; stránka dvojvrstvového produktu sa sťahuje až teraz) a ceny samostatných
     // produktov súbežne, každé s limitom: chyba / nestihne -> bez ponuky druhej vrstvy, resp. bez porovnania
     const [vrstva2, samostatne] = await Promise.all([
-      nie ? null : sLimitom(ponukaDruhejVrstvy(riadok, rozbor.volby, mapa, R, autoKRiadku(riadok, kandidati.length, ssCitaj)), 5000),
+      nie ? null : sLimitom(ponukaDruhejVrstvy(riadok, rozbor.volby, mapa, R), 5000),
       ponuka.rohoz || ponuka.box ? sLimitom(ziskajSamostatneCeny(dizajnZAdresy(riadok.href), R), 4000) : null,
     ]);
     ponuka.vrstva2 = vrstva2;
