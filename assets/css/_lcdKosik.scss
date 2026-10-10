@@ -2,7 +2,7 @@
    KOŠÍK: PONUKA K SETU — partial pre blok LCD-KOSIK (vkladá tools/vloz-lcd-css.py)
    assets/js/lcdKosikDoplnok.js: na /kosik/ pri sete autokobercov bez rohože do kufra alebo boxu
    <div id="lcd-doplnok" role="region"> v .cart-content.summary-wrapper (PC: ľavá polovica vedľa súhrnu,
-   telefón a tablet: až za súhrnom s „Pokračovať“). Tmavý blok s kartami Classic / Box / Premium (béžové fotky kufra, štítok zľavy),
+   telefón a tablet: až za súhrnom s „Pokračovať“). Tmavý blok s kartami Druhá vrstva (len jednovrstvový set) / Classic / Box / Premium (béžové fotky kufra, štítok zľavy),
    Exo 2 + Source Sans 3, zlatá linka. Zlatý text len na tmavom (na bielej má --gold kontrast 2,4 : 1).
    ===================================================================== */
 #lcd-doplnok{--ink:#14110c;--bg:#15110b;--card:#211a12;--line:rgba(196,155,49,.28);--text:#f6f0e3;--mute:#cbc1aa;
@@ -62,6 +62,29 @@
 #lcd-doplnok .lcd-dop__zlava{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:999px;
   background:linear-gradient(135deg,#ecd07a,#c49b31);color:var(--ink);font:700 13px/1.2 var(--disp);letter-spacing:.02em;
   font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+/* druhá vrstva (Michal 10. 10.: vždy prvá karta): fotka = vzorka zvolenej Lux farby, na nej číslo farby */
+#lcd-doplnok .lcd-dop__znacka{position:absolute;left:10px;bottom:10px;padding:4px 10px;border-radius:999px;background:rgba(20,17,12,.82);
+  border:1px solid var(--gold);color:var(--text);font:600 13px/1.2 var(--disp);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#lcd-doplnok .lcd-dop__ina{display:inline-flex;align-items:center;align-self:flex-start;gap:8px;min-height:40px;margin:4px 0 -8px;padding:0;
+  background:none;border:0;border-radius:4px;font:600 14px/1.2 var(--body);color:var(--gold-hi);text-decoration:underline;
+  text-underline-offset:3px;text-transform:none;letter-spacing:normal;cursor:pointer}
+#lcd-doplnok .lcd-dop__ina:hover{color:var(--text)}
+#lcd-doplnok .lcd-dop__ina i{display:block;flex:none;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:translateY(-2px) rotate(45deg);transition:transform .2s ease}
+#lcd-doplnok .lcd-dop__ina[aria-expanded=true] i{transform:translateY(1px) rotate(-135deg)}
+#lcd-doplnok .lcd-dop__ina:disabled{opacity:.55;cursor:default}
+/* výber Lux farby pod kartami: dlaždice so vzorkou (ako výber veľkosti boxu) */
+#lcd-doplnok .lcd-dop__luxy{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin:0 0 6px}
+#lcd-doplnok .lcd-dop__opt.lcd-dop__opt--lux{display:block;margin:0}
+#lcd-doplnok .lcd-dop__opt.lcd-dop__opt--lux > span{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-height:0;height:100%;padding:6px 6px 8px;
+  border-radius:12px;text-align:center}
+#lcd-doplnok .lcd-dop__opt--lux img{display:block;width:100%;height:auto;aspect-ratio:1 / 1;object-fit:cover;border-radius:8px;background:#2a2217}
+#lcd-doplnok .lcd-dop__opt--lux b{font:600 14px/1.2 var(--disp);color:var(--text)}
+#lcd-doplnok .lcd-dop__opt--lux :is(small,em){font-size:12.5px;line-height:1.2;font-style:normal;color:var(--gold-hi)}
+#lcd-doplnok .lcd-dop__opt--lux em{color:var(--mute);font-variant-numeric:tabular-nums}
+#lcd-doplnok .lcd-dop__suhrn-cena:has(.lcd-dop__suhrn-lux){display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+#lcd-doplnok .lcd-dop__suhrn-lux{font:600 15px/1.3 var(--disp);color:var(--text)}
+
 #lcd-doplnok .lcd-dop__vtext{display:flex;flex-direction:column;gap:2px;min-width:0}
 #lcd-doplnok .lcd-dop__nadtitul{font:600 11.5px/1.3 var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--gold-hi)}
 #lcd-doplnok .lcd-dop__meno{font:600 18px/1.25 var(--disp);letter-spacing:.01em;color:var(--text)}
@@ -96,6 +119,7 @@
 #lcd-doplnok .lcd-dop__vybrat[aria-expanded=true] i{transform:translateY(2px) rotate(-135deg)}
 
 #lcd-doplnok :is(.lcd-dop__pridat,.lcd-dop__vybrat,.lcd-dop__select):disabled{opacity:.55;cursor:default}
+#lcd-doplnok .lcd-dop__luxvyber .lcd-dop__suhrn{margin-top:6px}
 
 /* výber boxu pod kartami: počet, veľkosť s rozmermi, farba */
 #lcd-doplnok .lcd-dop__telo{margin:14px 0 0;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:14px}
@@ -141,6 +165,10 @@ tr.lcd-dop-zvyrazni{outline:2px solid #9b1c1c;outline-offset:-2px}
 
 #lcd-doplnok :is(button,select):focus:not(:focus-visible),#lcd-doplnok .lcd-dop__opt input:focus:not(:focus-visible){outline:none}
 #lcd-doplnok :is(button,select):focus-visible,#lcd-doplnok .lcd-dop__opt input:focus-visible + span{outline:2px solid var(--gold-hi);outline-offset:2px}
+/* dlaždica (veľkosť boxu, farba druhej vrstvy): šablóna dáva label:focus-within modro-biely rámik (3px #09367e + 8px biela) —
+   v tmavom bloku vyzerá ako chyba; fokus ukazuje zlatý obrys dlaždice (pravidlo vyššie) */
+#lcd-doplnok .lcd-dop__opt input:focus,#lcd-doplnok .lcd-dop__opt input:focus-visible,
+#lcd-doplnok .lcd-dop__opt:focus-within{outline:none !important;box-shadow:none !important}
 
 /* telefón a tablet (do 991 px): ponuka je až ZA súhrnom a „Pokračovať“ (lcdKosikDoplnok.js umiestni) — cesta
    k objednávke je voľná, ponuka je len možnosť navyše; odstup od „Späť do obchodu“ */
@@ -210,6 +238,7 @@ tr.lcd-dop-zvyrazni{outline:2px solid #9b1c1c;outline-offset:-2px}
   #lcd-doplnok .lcd-dop__opt--vel:nth-of-type(odd){margin-right:6px}
   #lcd-doplnok .lcd-dop__opt--vel > span{width:100%;min-width:0}
   #lcd-doplnok .lcd-dop__select{max-width:none}
+  #lcd-doplnok .lcd-dop__luxy{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
   #lcd-doplnok .lcd-dop__suhrn .lcd-dop__pridat{flex:1 1 auto}
   #lcd-doplnok .lcd-dop__telo{padding:14px 12px}
 }

@@ -1,4 +1,8 @@
 // Ponuka v košíku: rohož do kufra a box k setu autokobercov za cenu v sete (Michal 7. 10. 2026).
+// Druhá vrstva (Michal 10. 10. 2026: „keď si vyberie jednovrstvové, tak dvojvrstvové bude vždy to prvé, čo má ponúkať“):
+// pri jednovrstvovom sete prvá karta s odporúčanou Lux farbou k farbe setu (odporucanaLux) a výberom inej. Jedno- a
+// dvojvrstvový set sú SAMOSTATNÉ produkty (ROLE.sety) -> výmena riadku na iný priceId aj productId (vymen s c.ciel);
+// priceId variantu a ceny sa čítajú zo stránky dvojvrstvového produktu (necessaryVariantData), nič sa nepočíta.
 //
 // Kedy: na /kosik/ pri riadku setu autokobercov (produkt má parameter „autokoberce do kufru“), ktorému chýba
 // rohož do kufra alebo box. Rohož Classic / Premium a box (1 alebo 2, veľkosť S–XL, farba) sa ponúkajú zvlášť.
@@ -23,14 +27,18 @@
 import { getShoptetContext } from "./functions/shoptetContext.js";
 
 // ID parametrov podľa projektu (rovnaké ako productPage.js r. 34–48 + overené na živých formulároch 7. 10. 2026)
-const ROLE = {
+// v1 / v2 = parameter variantu „farba 1. / 2. vrstvy“; sety = jednovrstvový set (productId) -> dvojvrstvový set
+// (samostatné produkty, overené na živých stránkach 10. 10. 2026); dph = sadzba na odhad ceny bez DPH v meraní
+export const ROLE = {
   562035: {
     trh: "sk", mena: "EUR", rohoz: "88", classic: "595", premium: "601", nie: "598",
     farbaBox: "91", box1: "94", box2: "97", boxSolo: "104",
+    v1: "78", v2: "71", dph: 1.23, sety: { 598: "601", 610: "604", 613: "607" },
   },
   581408: {
     trh: "cz", mena: "CZK", rohoz: "60", classic: "492", premium: "498", nie: "495",
     farbaBox: "63", box1: "66", box2: "69", boxSolo: "78",
+    v1: "72", v2: "44", dph: 1.21, sety: { 2403: "2406", 2415: "2409", 2418: "2412" },
   },
 };
 
@@ -43,6 +51,19 @@ const SAMOSTATNE = {
 
 const TEXTY = {
   sk: {
+    // druhá vrstva k jednovrstvovému setu (Michal 10. 10.: vždy prvá ponuka)
+    nadpisVrstva: "Doplňte set o druhú vrstvu",
+    nadpisSet: "Doplňte svoj set",
+    vrstvaOdporucame: "Odporúčame k Vašej farbe",
+    vrstvaZvolena: "Vami zvolená farba",
+    vrstvaMeno: (l) => "Druhá vrstva · " + l,
+    vrstvaVeta: "Odnímateľná vrstva navrch zachytí vodu, sneh aj blato.",
+    pridatVrstvu: "Pridať druhú vrstvu",
+    inaFarba: "Vybrať inú farbu",
+    vrstvaVyber: "Farba druhej vrstvy",
+    vrstvaTip: "odporúčame",
+    vrstvaAlt: (l) => "Vzorka druhej vrstvy " + l,
+    hotovoVrstva: (l) => "Druhá vrstva " + l + " je pridaná k Vášmu setu.",
     nadpis: "Doplňte kufor v rovnakom štýle",
     stitok: "Len k tomuto setu",
     podnadpis: "Za cenu v sete – len pri objednávke spolu s autokobercami.",
@@ -108,6 +129,18 @@ const TEXTY = {
     chybaCiastocnaOdoberViac: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Znížte, prosím, počet zvýrazneného riadku o 1 kus.",
   },
   cz: {
+    nadpisVrstva: "Doplňte set o druhou vrstvu",
+    nadpisSet: "Doplňte svůj set",
+    vrstvaOdporucame: "Doporučujeme k Vaší barvě",
+    vrstvaZvolena: "Vámi zvolená barva",
+    vrstvaMeno: (l) => "Druhá vrstva · " + l,
+    vrstvaVeta: "Odnímatelná vrstva navrch zachytí vodu, sníh i bláto.",
+    pridatVrstvu: "Přidat druhou vrstvu",
+    inaFarba: "Vybrat jinou barvu",
+    vrstvaVyber: "Barva druhé vrstvy",
+    vrstvaTip: "doporučujeme",
+    vrstvaAlt: (l) => "Vzorek druhé vrstvy " + l,
+    hotovoVrstva: (l) => "Druhá vrstva " + l + " byla přidána k Vašemu setu.",
     nadpis: "Doplňte kufr ve stejném stylu",
     stitok: "Jen k tomuto setu",
     podnadpis: "Za cenu v setu – jen při objednávce spolu s autokoberci.",
@@ -175,7 +208,7 @@ const TEXTY = {
 
 const VELKOSTI = ["S", "M", "L", "XL"];
 const TTL = 24 * 3600 * 1000;
-const KLUC_MAPY = "lcdPriplatky:v1:";
+const KLUC_MAPY = "lcdPriplatky:v2:"; // v2: + varianty (vpar) a kombinácie variantov -> priceId a cena (kom)
 const KLUC_CIEN = "lcdSamostatne:v3:"; // v2: + zaklad, p1, p2 (2 boxy rôznych veľkostí); v3: p2 len kladný
 const KLUC_NIE = "lcdDoplnokNie:";
 const KLUC_HOTOVO = "lcdDoplnokHotovo";
@@ -189,6 +222,9 @@ const XHR = { "X-Requested-With": "XMLHttpRequest", "X-Shoptet-XHR": "Shoptet_Co
 // faza: zamok (len zámok) -> start (nič neodoslané) -> pridavam (addCartItem odoslaný) -> mazem (nový riadok overený,
 //       mažeme pôvodný) -> hotovo (výmena dokončená; ďalšia stránka overí, či nebola vykreslená pred zmazaním)
 const KLUC_VYMENA = "lcdDoplnokVymena";
+// mapa produktu s daným t už raz čerstvo nepomohla ponuke druhej vrstvy -> znova sťahovať až s novšou mapou (TTL 24 h
+// alebo návšteva stránky produktu), nie pri každom otvorení košíka (stránka dvojvrstvového produktu má ~1 MB)
+const KLUC_SKUSENA = "lcdVrstvaSkusena:v1:";
 const ZAMOK = "lcd-kosik-doplnok";
 const HB_ZIVY = 5000; // tep starší ako 5 s = výmena už nebeží (karta zavretá / spadla)
 const OBNOVA_CAKAJ = 15000; // „pridávam“ bez stopy v košíku: do 15 s od začiatku môže byť požiadavka ešte na ceste
@@ -252,7 +288,55 @@ export function mapaZFormulara(doc) {
     params[id] = { n: n, o: o };
   });
   if (!pidEl || !Object.keys(params).length) return null;
-  return { pid: pidEl.value, lang: langEl ? langEl.value : "", params: params, t: Date.now() };
+  // varianty (farba 1. / 2. vrstvy): názvy hodnôt + kombinácie -> priceId a cena (pre ponuku druhej vrstvy)
+  const vpar = {};
+  f.querySelectorAll('select[name^="parameterValueId["]').forEach(function (s) {
+    const id = s.getAttribute("data-parameter-id") || (/\[(\d+)\]/.exec(s.name) || [])[1];
+    if (!id) return;
+    const o = {};
+    s.querySelectorAll("option").forEach(function (op) { if (/^\d+$/.test(op.value)) o[op.value] = cisty(op.textContent); });
+    vpar[id] = { n: cisty(s.getAttribute("data-parameter-name")), o: o };
+  });
+  return { pid: pidEl.value, lang: langEl ? langEl.value : "", params: params, vpar: vpar, kom: kombinacieVariantov(doc), t: Date.now() };
+}
+
+/**
+ * shoptet.variantsSplit.necessaryVariantData zo skriptu stránky (DOMParser skripty nespúšťa -> čítanie textu):
+ * { "71-540-78-543": { id: "66983", c: 351 }, … } (id = priceId, c = cena s DPH); nevie -> null.
+ */
+export function kombinacieVariantov(doc) {
+  const skripty = doc && doc.querySelectorAll ? doc.querySelectorAll("script") : [];
+  for (let i = 0; i < skripty.length; i++) {
+    const t = skripty[i].textContent || "";
+    const z = t.indexOf("necessaryVariantData");
+    if (z < 0) continue;
+    const data = jsonObjekt(t, t.indexOf("{", z));
+    if (!data || typeof data !== "object") continue;
+    const out = {};
+    Object.keys(data).forEach(function (k) {
+      const v = data[k];
+      if (!/^\d+-\d+(?:-\d+-\d+)*$/.test(k) || !v || v.id == null) return;
+      const c = typeof v.priceUnformatted === "number" ? v.priceUnformatted : parseFloat(v.priceUnformatted);
+      out[k] = { id: String(v.id), c: isFinite(c) ? c : null };
+      if (v.isNotSoldOut === false) out[k].x = 1; // vypredané
+    });
+    return Object.keys(out).length ? out : null;
+  }
+  return null;
+}
+
+/** JSON objekt od pozície „{“ po zodpovedajúcu „}“ (reťazce s úvodzovkami a \ sa preskočia); chyba -> null */
+function jsonObjekt(t, od) {
+  if (od < 0 || t[od] !== "{") return null;
+  let d = 0, s = false, e = false;
+  for (let k = od; k < t.length; k++) {
+    const c = t[k];
+    if (s) { if (e) e = false; else if (c === "\\") e = true; else if (c === '"') s = false; continue; }
+    if (c === '"') s = true;
+    else if (c === "{") d++;
+    else if (c === "}" && --d === 0) { try { return JSON.parse(t.slice(od, k + 1)); } catch (x) { return null; } }
+  }
+  return null;
 }
 
 /**
@@ -529,8 +613,11 @@ export function rozhodniObnovu(z, kosik, mapa, teraz) {
   if (!s || !Array.isArray(kosik)) return { akcia: "nejasne" };
   const X = kosik.find(function (r) { return r.itemId === s.itemId; });
   const qX = X ? X.q : 0;
+  // výmena na iný produkt (druhá vrstva): nový riadok má cieľové priceId a v texte variantu cieľovú Lux farbu
+  const cp = String(z.ciel && z.ciel.priceId ? z.ciel.priceId : s.priceId);
   const sedi = function (r) {
-    if (!mapa || !r || String(r.priceId) !== String(s.priceId)) return false;
+    if (!mapa || !r || String(r.priceId) !== cp) return false;
+    if (z.ciel && z.ciel.lux && luxZVariantu(r.variant) !== z.ciel.lux) return false;
     const rb = rozoberPriplatky(r.sur, mapa);
     return rb.ok && rovnakeVolby(rb.volby, z.ocakavane || {});
   };
@@ -543,7 +630,7 @@ export function rozhodniObnovu(z, kosik, mapa, teraz) {
   }
   if (z.faza !== "pridavam" || !z.pred) return { akcia: "nic" };
   const prib = kosik.filter(function (r) {
-    return r.itemId !== s.itemId && String(r.priceId) === String(s.priceId) && r.q > (z.pred[r.itemId] || 0);
+    return r.itemId !== s.itemId && String(r.priceId) === cp && r.q > (z.pred[r.itemId] || 0);
   });
   if (!prib.length) return qX === s.q ? { akcia: teraz - (z.t || 0) < OBNOVA_CAKAJ ? "cakaj" : "nic" } : { akcia: "nejasne" };
   const Y = prib[0];
@@ -565,6 +652,127 @@ export function dizajnZAdresy(href) {
   if (/diamond/.test(h)) return "";
   return null;
 }
+
+// ------------------------------------------------------------------ druhá vrstva (jednovrstvový -> dvojvrstvový set)
+/** „Lux Color 10“ -> 10; iné texty (aj Comfort) -> null — druhá vrstva je len Lux 01–16 */
+export function luxCislo(t) {
+  const m = /^lux\s*colou?r\s*(\d{1,2})$/i.exec(cisty(t));
+  const n = m ? parseInt(m[1], 10) : NaN;
+  return n >= 1 && n <= 16 ? n : null;
+}
+export function luxNazov(n) { return "Lux " + (n < 10 ? "0" : "") + n; }
+/** Vzorka Lux farby (rovnaká cesta na SK aj CZ, HTTP 200 overené 10. 10. 2026; LUX-NN.jpg na CZ chýba) */
+export function luxFoto(n) { return "/user/documents/upload/assets/config/lux-color-" + (n < 10 ? "0" : "") + n + ".jpg?15"; }
+
+/** Má riadok košíka 2. vrstvu? (text variantu „…, farba 2.vrstvy: Lux Color 10“) */
+export function maDruhuVrstvu(variant) { return /(?:farba|barva)\s*2\.?\s*vrstvy/i.test(cisty(variant)); }
+/** Lux farba 2. vrstvy z textu variantu riadku -> číslo alebo null */
+export function luxZVariantu(variant) {
+  const m = /(?:farba|barva)\s*2\.?\s*vrstvy\s*:\s*([^,]+)/i.exec(cisty(variant));
+  return m ? luxCislo(m[1]) : null;
+}
+
+/** Mercedes V-Class (sessionStorage auta / poznámka): „V-Class“, „V Klasse“, „Trieda V“, „Třída V“ */
+export function jeVClass(auto) {
+  const t = cisty(auto).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  return /(?:^|[^a-z0-9])v[\s-]?(?:class|klasse)\b/.test(t) || /\b(?:trieda|trida)\s+v\b/.test(t);
+}
+
+/**
+ * Odporúčaná Lux farba 2. vrstvy k farbe 1. vrstvy (Michal 10. 10. 2026): čierna + červené šitie 10, čierna + modré
+ * šitie 08, vínová 13, oranžová 03, modrá 06, béžová 12, hnedá aj hnedá káva 11, čierna + šedé šitie pri Mercedes
+ * V-Class 15, všetko ostatné 10. text = text farby 1. vrstvy (SK aj CZ), auto = značka/model, ak je známe.
+ */
+export function odporucanaLux(text, auto) {
+  const k = klucFarby(text);
+  if (!k) return 10;
+  const [koza, sitie] = k.split("|");
+  if (koza === "cierna") {
+    if (sitie === "cervena") return 10;
+    if (sitie === "modra") return 8;
+    if (sitie === "seda" && jeVClass(auto)) return 15;
+    return 10;
+  }
+  return { vino: 13, oranzova: 3, modra: 6, bezova: 12, hneda: 11, kava: 11 }[koza] || 10;
+}
+
+/** Kľúč kombinácie v necessaryVariantData: parametre podľa ID vzostupne („71-540-78-543“, CZ „44-453-72-546“) */
+export function klucKombinacie(par) {
+  return Object.keys(par).sort(function (a, b) { return a - b; }).map(function (p) { return p + "-" + par[p]; }).join("-");
+}
+
+/** Hodnota 1. vrstvy riadku podľa jeho priceId (kombinácia jednovrstvového produktu „78-543“) -> "543" alebo null */
+export function v1ZPriceId(priceId, mapa, R) {
+  const kom = mapa && mapa.kom;
+  if (!kom || !R) return null;
+  const k = Object.keys(kom).filter(function (x) { return kom[x].id === String(priceId); });
+  if (k.length !== 1) return null;
+  const m = new RegExp("^" + R.v1 + "-(\\d+)$").exec(k[0]);
+  return m ? m[1] : null;
+}
+
+/** Adresa dvojvrstvového setu k jednovrstvovému („…-dragonskin-diamond-line/“ -> „…-dragonskin-elite-diamond-line/“) */
+export function adresaDvojvrstvoveho(href) {
+  let cesta;
+  try { cesta = new URL(String(href || ""), "https://x.invalid/").pathname; } catch (e) { return null; }
+  const m = /^(\/luxusne-autokoberce-dragonskin-)((?:diamond|hexa|stripe)-line\/)$/i.exec(cesta);
+  return m ? m[1] + "elite-" + m[2] : null;
+}
+
+/**
+ * Rozdiel ceny riadku po prechode na dvojvrstvový set: (variant dvojvrstvového − jednovrstvového) + súčet rozdielov
+ * VŠETKÝCH zvolených príplatkov (ten istý príplatok má v produktoch iné ceny, napr. rozloženie, SK Stripe rohož / box / TYP).
+ * -> { s, b } (b = bez DPH = s / dph — ceny príplatkov bez DPH sú v admine nespoľahlivé, SK jednovrstvový má bez DPH
+ *    rovné s DPH) alebo null (čokoľvek chýba).
+ */
+export function rozdielPrechodu(volby, mapaZ, mapaC, cenaZ, cenaC, dph) {
+  if (!mapaZ || !mapaC || !(typeof cenaZ === "number") || !(typeof cenaC === "number") || !isFinite(cenaZ) || !isFinite(cenaC)) return null;
+  let s = cenaC - cenaZ;
+  for (const pid of Object.keys(volby)) {
+    const pz = mapaZ.params[pid], pc = mapaC.params[pid];
+    const oz = pz && pz.o[volby[pid]], oc = pc && pc.o[volby[pid]];
+    if (!oz || !oc || oz.fp == null || oc.fp == null) return null;
+    s += oc.fp - oz.fp;
+  }
+  return { s: Math.round(s * 100) / 100, b: Math.round(s / (dph || 1) * 100) / 100 };
+}
+
+/**
+ * Ponuka druhej vrstvy pre riadok jednovrstvového setu (fail-closed: čokoľvek nesedí -> null).
+ * mapaZ = jednovrstvový produkt riadku, mapaC = dvojvrstvový; volby = príplatky riadku (rozbor mapou mapaZ).
+ * -> { odporucana, moznosti: [{ lux, vid, priceId, rozdiel }] (Lux 01–16 vzostupne), v1 }
+ */
+export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R, auto) {
+  if (!riadok || !mapaZ || !mapaC || !R || !R.sety) return null;
+  if (R.sety[mapaZ.pid] == null || String(R.sety[mapaZ.pid]) !== String(mapaC.pid)) return null;
+  if (maDruhuVrstvu(riadok.variant)) return null;
+  const v1 = v1ZPriceId(riadok.priceId, mapaZ, R);
+  const p2 = mapaC.vpar && mapaC.vpar[R.v2];
+  if (!v1 || !p2 || !mapaC.kom || !mapaZ.vpar || !mapaZ.vpar[R.v1]) return null;
+  const zaklad = mapaZ.kom[klucKombinacie({ [R.v1]: v1 })];
+  if (!zaklad || zaklad.c == null) return null;
+  // príplatky riadku musia mať v dvojvrstvovom produkte rovnaké názvy (kontrola textu po pridaní ide jeho mapou)
+  const rb = rozoberPriplatky(riadok.sur, mapaC);
+  if (!rb.ok || !rovnakeVolby(rb.volby, volby)) return null;
+  const moznosti = [];
+  Object.keys(p2.o).forEach(function (vid) {
+    const lux = luxCislo(p2.o[vid]);
+    if (lux == null || moznosti.some(function (m) { return m.lux === lux; })) return;
+    const e = mapaC.kom[klucKombinacie({ [R.v1]: v1, [R.v2]: vid })];
+    if (!e || e.x || e.c == null) return;
+    const rozdiel = rozdielPrechodu(volby, mapaZ, mapaC, zaklad.c, e.c, R.dph);
+    if (rozdiel && rozdiel.s > 0) moznosti.push({ lux: lux, vid: vid, priceId: e.id, rozdiel: rozdiel });
+  });
+  moznosti.sort(function (a, b) { return a.lux - b.lux; });
+  if (!moznosti.length) return null;
+  const chce = odporucanaLux(mapaZ.vpar[R.v1].o[v1] || riadok.variant, auto);
+  const odporucana = moznosti.some(function (m) { return m.lux === chce; }) ? chce : moznosti.some(function (m) { return m.lux === 10; }) ? 10 : null;
+  if (odporucana == null) return null;
+  return { odporucana: odporucana, moznosti: moznosti, v1: v1 };
+}
+
+/** Poradie kariet v ponuke (Michal 10. 10.: druhá vrstva vždy prvá; potom rohož Classic, box, rohož Premium) */
+export const PORADIE_KARIET = ["vrstva2", "classic", "box", "premium"];
 
 // ------------------------------------------------------------------ úložisko (každý prístup v try/catch)
 function lsCitaj(k) {
@@ -749,6 +957,9 @@ function meraj(udalost, data) {
  * 1 pridaný kus. „Bez zmeny“ (ok: false bez reload) len vtedy, keď to potvrdil košík; inak reload: true.
  * c.faza(faza, údaje): zápis postupu do záznamu (obnova po odchode zo stránky) — „pridavam“ tesne pred addCartItem,
  *   „mazem“ tesne pred zmazaním pôvodného riadku.
+ * c.ciel = { priceId, lux } (druhá vrstva): nový riadok je iný produkt — payload s cieľovým priceId a productId z c.mapa
+ *   (mapa dvojvrstvového produktu), nový riadok sa hľadá podľa cieľového priceId a overí aj Lux v texte variantu;
+ *   c.rozdiel = rozdiel celej ceny riadku (variant + všetky príplatky). Bez c.ciel = rovnaký variant ako pôvodný riadok.
  * c.zamknute === false: výmena beží bez zámku medzi kartami (ani Web Locks, ani localStorage) -> pri neistom pridaní
  *   sa nič nemaže (pribudnutý kus mohla pridať iná karta), len sa obnoví stránka.
  */
@@ -766,17 +977,22 @@ export async function vymen(c) {
   const predQ = new Map(pred.map(function (r) { return [r.itemId, r.q]; }));
   const ocakavane = zluc(c.volby, c.zmena);
   const qZ = function (i) { return Number(i.quantity != null ? i.quantity : i.q); };
-  // riadky TOHO ISTÉHO variantu setu, ktoré po pridaní pribudli alebo im stúplo množstvo (pôvodný riadok sa
+  // cieľový variant: rovnaký ako pôvodný riadok (rohož, box), alebo iný produkt (druhá vrstva: c.ciel = {priceId, lux},
+  // mapa = mapa dvojvrstvového produktu — payload, productId aj rozbor textu nového riadku)
+  const cielPriceId = String(c.ciel && c.ciel.priceId ? c.ciel.priceId : stary.priceId);
+  // riadky CIEĽOVÉHO variantu setu, ktoré po pridaní pribudli alebo im stúplo množstvo (pôvodný riadok sa
   // nepočíta; iné produkty, napr. darček, ktorý Shoptet pridá sám, rozhodovanie neovplyvnia)
   const pribudnute = function (zoznam) {
     return zoznam.filter(function (i) {
-      return i.itemId !== stary.itemId && String(i.priceId) === String(stary.priceId) && (!predQ.has(i.itemId) || qZ(i) > predQ.get(i.itemId));
+      return i.itemId !== stary.itemId && String(i.priceId) === cielPriceId && (!predQ.has(i.itemId) || qZ(i) > predQ.get(i.itemId));
     });
   };
   const jednotky = function (i) { return qZ(i) - (predQ.get(i.itemId) || 0); };
-  // riadok je presne to, čo sme pridávali: rovnaký variant a text príplatkov = pôvodné voľby + doplnok
+  // riadok je presne to, čo sme pridávali: cieľový variant (pri druhej vrstve aj Lux farba v texte variantu)
+  // a text príplatkov = pôvodné voľby + doplnok
   const sedi = function (r) {
-    if (!r || String(r.priceId) !== String(stary.priceId)) return false;
+    if (!r || String(r.priceId) !== cielPriceId) return false;
+    if (c.ciel && c.ciel.lux && luxZVariantu(r.variant) !== c.ciel.lux) return false;
     const rb = rozoberPriplatky(r.sur, mapa);
     return rb.ok && rovnakeVolby(rb.volby, ocakavane);
   };
@@ -789,7 +1005,7 @@ export async function vymen(c) {
   // položku pridať a len sa stratila odpoveď -> rozhodne košík (nikdy „bez zmeny“ bez overenia)
   faza("pridavam", { pred: Object.fromEntries(predQ) });
   let add;
-  try { add = await postKosik("addCartItem", zostavPayload(stary, c.volby, c.zmena, mapa, csrf())); }
+  try { add = await postKosik("addCartItem", zostavPayload({ priceId: cielPriceId }, c.volby, c.zmena, mapa, csrf())); }
   catch (e) { add = { code: null, neiste: true, message: "sieť: " + String((e && e.message) || e).slice(0, 100) }; }
   const istePridane = !!(add && add.code === 200 && !add.neiste);
   const polozky = (istePridane && add.payload && add.payload.cartItems) || [];
@@ -937,15 +1153,19 @@ export const FOTKY = { classic: "rohoz-classic.jpg", premium: "rohoz-premium.jpg
 export function fotoDoplnku(subor) { return FOTO + subor; }
 function foto(src, alt, trieda) {
   const i = el("img", { src: src, alt: alt || "", class: trieda, width: "720", height: "540", loading: "lazy", decoding: "async" });
-  i.addEventListener("error", function () { i.remove(); });
+  // chyba -> len skryť (nie odstrániť): fotka druhej vrstvy aj boxu mení src, ďalšia vzorka sa musí dať ukázať
+  i.addEventListener("error", function () { i.style.visibility = "hidden"; });
+  i.addEventListener("load", function () { i.style.visibility = ""; });
   return i;
 }
 
-function setNazov(riadok) {
-  const m = /(elite|basic)?\s*(diamond|hexa|stripe)\s*line/i.exec(riadok.nazov || "");
-  const n = m ? ((m[1] ? m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() + " " : "") + m[2].charAt(0).toUpperCase() + m[2].slice(1).toLowerCase() + "-Line") : riadok.nazov;
+/** „K setu: Diamond-Line, čierna / červená + Lux 10“ — bez názvov materiálu (Basic / Elite / Dragonskin) */
+export function setNazov(riadok) {
+  const m = /(diamond|hexa|stripe)\s*line/i.exec(riadok.nazov || "");
+  const n = m ? m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() + "-Line" : cisty(String(riadok.nazov || "").replace(/\b(?:dragon\s*skin|elite|basic)\b/gi, ""));
   const f = popisFarby(String(riadok.variant || "").replace(/^(?:farba|barva)\s*1\.?\s*vrstvy\s*:\s*/i, "").replace(/,?\s*(?:farba|barva)\s*2\.?\s*vrstvy\s*:.*$/i, ""));
-  return f ? n + ", " + f.toLowerCase() : n;
+  const lux = luxZVariantu(riadok.variant);
+  return (f ? n + ", " + f.toLowerCase() : n) + (lux ? " + " + luxNazov(lux) : "");
 }
 
 /**
@@ -973,7 +1193,7 @@ function karta(ctx, T, R, viacSetov) {
   k.appendChild(el("p", { class: "lcd-dop__podnadpis", text: T.podnadpis }));
   if (viacSetov) k.appendChild(el("p", { class: "lcd-dop__kset", text: T.kSetu + (ctx.kSetu || setNazov(ctx.riadok)) }));
 
-  const volby = el("ul", { class: "lcd-dop__volby", "aria-label": T.nadpis });
+  const volby = el("ul", { class: "lcd-dop__volby", "aria-labelledby": id + "-h" });
   k.appendChild(volby);
   const stav = el("p", { class: "lcd-dop__stav", role: "status", "aria-live": "polite" });
 
@@ -982,20 +1202,107 @@ function karta(ctx, T, R, viacSetov) {
     const obr = foto(o.foto, o.alt, "lcd-dop__vfoto");
     const menoId = id + "-meno-" + (o.varianta || o.doplnok);
     o.tlacidlo.setAttribute("aria-describedby", menoId);
+    // štítok na fotke bez zľavy (druhá vrstva: číslo Lux farby na vzorke)
+    const znacka = o.znacka ? el("span", { class: "lcd-dop__znacka", text: o.znacka }) : null;
+    const nadtitul = el("span", { class: "lcd-dop__nadtitul", text: o.nadtitul });
+    const meno = el("b", { class: "lcd-dop__meno", id: menoId, text: o.meno });
     const pct = o.zlava ? el("span", { class: "lcd-dop__zlava", text: (o.az ? T.az + " " : "") + "−" + o.zlava + " %" }) : null;
     const li = el("li", { class: "lcd-dop__volba" + (o.trieda ? " " + o.trieda : ""), "data-doplnok": o.doplnok, "data-varianta": o.varianta || null }, [
-      el("div", { class: "lcd-dop__foto" }, [obr, pct]),
+      el("div", { class: "lcd-dop__foto" }, [obr, pct, znacka]),
       el("div", { class: "lcd-dop__vtext" }, [
-        el("span", { class: "lcd-dop__nadtitul", text: o.nadtitul }),
-        el("b", { class: "lcd-dop__meno", id: menoId, text: o.meno }),
+        nadtitul,
+        meno,
         el("span", { class: "lcd-dop__veta", text: o.veta }),
+        o.extra || null,
       ]),
       o.cena,
       o.tlacidlo,
     ]);
     volby.appendChild(li);
-    return { li: li, obr: obr };
+    return { li: li, obr: obr, nadtitul: nadtitul, meno: meno, znacka: znacka };
   };
+
+  // --- druhá vrstva (len jednovrstvový set; Michal 10. 10.: vždy prvá ponuka) — odporúčaná Lux farba k farbe setu,
+  //     „Vybrať inú farbu“ rozbalí výber zo vzoriek Lux pod kartami (ako výber boxu). Farba je len pre 2. vrstvu.
+  if (ctx.ponuka.vrstva2) {
+    const pv = ctx.ponuka.vrstva2;
+    const stV = { lux: pv.odporucana };
+    const moz = function (l) { return pv.moznosti.find(function (m) { return m.lux === l; }) || null; };
+    const tid = id + "-lux";
+    const tl = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "vrstva2", text: T.pridatVrstvu });
+    const napisIna = el("span", { text: T.inaFarba });
+    const ina = el("button", { type: "button", class: "lcd-dop__ina", "aria-expanded": "false", "aria-controls": tid, "data-lcd-dop-ina": "" }, [napisIna, el("i", { "aria-hidden": "true" })]);
+    let cenaKarta = cenovka(T, R, moz(stV.lux).rozdiel.s, null, false);
+    const kv = ponuka({
+      doplnok: "vrstva2", varianta: "vrstva2", trieda: "lcd-dop__volba--vrstva2",
+      foto: luxFoto(stV.lux), alt: T.vrstvaAlt(luxNazov(stV.lux)), znacka: luxNazov(stV.lux),
+      nadtitul: T.vrstvaOdporucame, meno: T.vrstvaMeno(luxNazov(stV.lux)), veta: T.vrstvaVeta, extra: ina,
+      cena: cenaKarta, tlacidlo: tl,
+    });
+    const suhrnCena = el("div", { class: "lcd-dop__suhrn-cena" });
+    const tl2 = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "vrstva2-vyber", text: T.pridatVrstvu });
+    const mriezka = el("div", { class: "lcd-dop__luxy" });
+    const fsLux = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--lux" }, [el("legend", { text: T.vrstvaVyber }), mriezka]);
+    const prekresliV = function () {
+      const m = moz(stV.lux);
+      const nazov = luxNazov(stV.lux);
+      kv.obr.src = luxFoto(stV.lux);
+      kv.obr.alt = T.vrstvaAlt(nazov);
+      kv.znacka.textContent = nazov;
+      kv.nadtitul.textContent = stV.lux === pv.odporucana ? T.vrstvaOdporucame : T.vrstvaZvolena;
+      kv.meno.textContent = T.vrstvaMeno(nazov);
+      const nova = cenovka(T, R, m.rozdiel.s, null, false);
+      kv.li.replaceChild(nova, cenaKarta);
+      cenaKarta = nova;
+      tl.setAttribute("data-lux", String(stV.lux));
+      suhrnCena.textContent = "";
+      suhrnCena.appendChild(el("span", { class: "lcd-dop__suhrn-lux", text: nazov }));
+      suhrnCena.appendChild(cenovka(T, R, m.rozdiel.s, null, false));
+    };
+    // dlaždice: vzorka, „Lux 10“, pri odporúčanej „odporúčame“; cena len keď sa od odporúčanej líši
+    const odp = moz(pv.odporucana);
+    pv.moznosti.forEach(function (m) {
+      const i = el("input", { type: "radio", name: tid, value: String(m.lux), checked: m.lux === stV.lux, "data-lcd-dop-lux": String(m.lux) });
+      i.addEventListener("change", function () { stV.lux = m.lux; prekresliV(); });
+      const popis = [el("img", { src: luxFoto(m.lux), alt: "", width: "400", height: "400", loading: "lazy", decoding: "async" }), el("b", { text: luxNazov(m.lux) })];
+      if (m.lux === pv.odporucana) popis.push(el("small", { text: T.vrstvaTip }));
+      else if (odp && Math.abs(odp.rozdiel.s - m.rozdiel.s) > 0.005) popis.push(el("em", { text: cenaText(m.rozdiel.s, R, true) }));
+      mriezka.appendChild(el("label", { class: "lcd-dop__opt lcd-dop__opt--lux" }, [i, el("span", {}, popis)]));
+    });
+    const teloV = el("div", { class: "lcd-dop__telo lcd-dop__luxvyber", id: tid, hidden: true, "data-doplnok": "vrstva2" }, [
+      fsLux, el("div", { class: "lcd-dop__suhrn" }, [suhrnCena, tl2]),
+    ]);
+    k.appendChild(teloV);
+    const pridaj = function () {
+      const m = moz(stV.lux);
+      if (!m) { stav.textContent = T.chyba; return; }
+      const nazov = luxNazov(m.lux);
+      meraj("lcd_set_doplnok_klik", { lcd_doplnok: "vrstva2", lcd_varianta: nazov, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+      spustiVymenu(ctx, {
+        typ: "vrstva2", kod: "vrstva2", lcdVarianta: nazov, nazov: nazov,
+        ciel: { priceId: m.priceId, lux: m.lux, href: pv.href, mapa: pv.mapa },
+      }, {}, m.rozdiel, T, R, stav, k);
+    };
+    tl.addEventListener("click", pridaj);
+    tl2.addEventListener("click", pridaj);
+    ina.addEventListener("click", function () {
+      const otvor = ina.getAttribute("aria-expanded") !== "true";
+      ina.setAttribute("aria-expanded", otvor ? "true" : "false");
+      napisIna.textContent = otvor ? T.skrytVyber : T.inaFarba;
+      teloV.hidden = !otvor;
+      kv.li.classList.toggle("je-otvorena", otvor);
+      if (otvor) {
+        meraj("lcd_set_doplnok_klik", { lcd_doplnok: "vrstva2", lcd_varianta: "vybrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+        const pokojne = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+        try { teloV.scrollIntoView({ block: "nearest", behavior: pokojne ? "auto" : "smooth" }); } catch (e) { /* starý Safari */ }
+        // výber je v DOM až za všetkými kartami -> fokus rovno na zvolenú farbu (inak Tab najprv „Pridať druhú vrstvu“)
+        const zvolena = teloV.querySelector("input:checked");
+        if (zvolena) { try { zvolena.focus({ preventScroll: true }); } catch (e) { zvolena.focus(); } }
+      }
+    });
+    prekresliV();
+    ctx.zobrazene.push("vrstva2");
+  }
 
   // --- rohož (poradie kariet nastaví koniec funkcie)
   if (ctx.ponuka.rohoz) {
@@ -1168,12 +1475,13 @@ function karta(ctx, T, R, viacSetov) {
     k.remove();
     if (sec && !sec.querySelector(".lcd-dop__karta, .lcd-dop__hotovo")) sec.remove();
   });
-  // poradie kariet (Michal 9. 10.): rohož Classic, box, rohož Premium
-  const PORADIE = ["classic", "box", "premium"];
-  const kluc = function (li) { return PORADIE.indexOf(li.getAttribute("data-varianta") || li.getAttribute("data-doplnok")); };
+  // poradie kariet (Michal 9. 10.): rohož Classic, box, rohož Premium; druhá vrstva vždy prvá (Michal 10. 10.)
+  const kluc = function (li) { return PORADIE_KARIET.indexOf(li.getAttribute("data-varianta") || li.getAttribute("data-doplnok")); };
   Array.prototype.slice.call(volby.children).sort(function (a, b) { return kluc(a) - kluc(b); })
     .forEach(function (li) { volby.appendChild(li); });
   if (volby.children.length === 1) volby.classList.add("lcd-dop__volby--jedna");
+  // s druhou vrstvou (prvá karta) nadpis o celom sete; len druhá vrstva (set má rohož aj box) -> nadpis o druhej vrstve
+  if (ctx.zobrazene.indexOf("vrstva2") > -1) k.querySelector(".lcd-dop__nadpis").textContent = ctx.zobrazene.length === 1 ? T.nadpisVrstva : T.nadpisSet;
   return ctx.zobrazene.length ? k : null;
 }
 
@@ -1238,11 +1546,13 @@ async function zamkniLS(id, max) {
 /** Opustenú výmenu (záznam z predchádzajúcej stránky / karty) dokončí alebo vráti podľa košíka. Chyba siete -> výnimka. */
 async function obnov(z, R) {
   const kosik = await nacitajKosik();
-  let mapa = z.href ? await ziskajMapu(z.href, R, false).catch(function () { return null; }) : null;
+  // nový riadok sa rozoberá mapou cieľového produktu (druhá vrstva: dvojvrstvový set), inak mapou pôvodného
+  const href = z.cielHref || z.href;
+  let mapa = href ? await ziskajMapu(href, R, false).catch(function () { return null; }) : null;
   let o = rozhodniObnovu(z, kosik, mapa, Date.now());
-  if (o.akcia === "nejasne" && z.href) {
+  if (o.akcia === "nejasne" && href) {
     // mapa z localStorage mohla zostarnúť -> raz čerstvá
-    mapa = await ziskajMapu(z.href, R, true).catch(function () { return null; });
+    mapa = await ziskajMapu(href, R, true).catch(function () { return null; });
     if (mapa) o = rozhodniObnovu(z, kosik, mapa, Date.now());
   }
   if (o.akcia === "vrat" || o.akcia === "dokonci") {
@@ -1251,7 +1561,7 @@ async function obnov(z, R) {
   }
   if (o.akcia === "dokonci") {
     meraj(/^odober_/.test(z.kod || "") ? "lcd_set_doplnok_odobrany" : "lcd_set_doplnok_pridany", {
-      lcd_doplnok: z.kod, lcd_velkost: z.velkost || null, lcd_pocet: z.pocet || null, lcd_trh: z.trh, lcd_set_sku: z.sku || null,
+      lcd_doplnok: z.kod, lcd_varianta: z.varianta || null, lcd_velkost: z.velkost || null, lcd_pocet: z.pocet || null, lcd_trh: z.trh, lcd_set_sku: z.sku || null,
       lcd_value: z.rozdiel, lcd_value_wo_vat: z.rozdielB, lcd_currency: z.mena, lcd_krok: "obnova",
     });
   } else if (o.akcia === "vrat" || o.akcia === "nejasne") {
@@ -1411,7 +1721,10 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   stav.className = "lcd-dop__stav";
   stav.textContent = odober ? T.odoberam : T.pridavam;
   const hotovo = odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
+    : doplnok.typ === "vrstva2" ? T.hotovoVrstva(doplnok.nazov)
     : doplnok.typ === "rohoz" ? T.hotovoRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.hotovoBox2 : T.hotovoBox1;
+  // druhá vrstva = výmena na iný produkt (dvojvrstvový set): cieľové priceId, Lux farba a mapa cieľového produktu
+  const ciel = doplnok.ciel || null;
   const stary = { itemId: ctx.riadok.itemId, priceId: String(ctx.riadok.priceId), q: ctx.riadok.q };
   const aktivne = { id: null };
   const blok = zablokujStranku(aktivne);
@@ -1438,12 +1751,14 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
         zaznamPis({
           id: id, t: Date.now(), hb: Date.now(), faza: "start", trh: R.trh, mena: R.mena, href: ctx.riadok.href, stary: stary,
           ocakavane: zluc(ctx.volby, zm), kod: doplnok.kod, velkost: doplnok.velkost || null, pocet: doplnok.pocet || null,
-          sku: ctx.riadok.sku || null, hotovo: hotovo, rozdiel: rozdiel.s, rozdielB: rozdiel.b,
+          sku: ctx.riadok.sku || null, hotovo: hotovo, rozdiel: rozdiel.s, rozdielB: rozdiel.b, varianta: doplnok.lcdVarianta || null,
+          ciel: ciel ? { priceId: String(ciel.priceId), lux: ciel.lux } : null, cielHref: ciel ? ciel.href : null,
         });
         let vys;
         try {
           vys = await vymen({
-            riadok: ctx.riadok, volby: ctx.volby, mapa: ctx.mapa, R: R, zmena: zm, rozdiel: rozdiel, doplnok: doplnok,
+            riadok: ctx.riadok, volby: ctx.volby, mapa: ciel ? ciel.mapa : ctx.mapa, R: R, zmena: zm, rozdiel: rozdiel, doplnok: doplnok,
+            ciel: ciel ? { priceId: String(ciel.priceId), lux: ciel.lux } : null,
             zamknute: zl.zamknute, faza: function (f, d) { zapis(Object.assign({ faza: f }, d)); },
           });
         } catch (e) {
@@ -1464,7 +1779,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   }
   if (v.ok) {
     meraj(odober ? "lcd_set_doplnok_odobrany" : "lcd_set_doplnok_pridany", {
-      lcd_doplnok: doplnok.kod, lcd_velkost: doplnok.velkost || null, lcd_pocet: doplnok.pocet || null, lcd_trh: R.trh,
+      lcd_doplnok: doplnok.kod, lcd_varianta: doplnok.lcdVarianta || null, lcd_velkost: doplnok.velkost || null, lcd_pocet: doplnok.pocet || null, lcd_trh: R.trh,
       lcd_set_sku: ctx.riadok.sku, lcd_value: rozdiel.s, lcd_value_wo_vat: rozdiel.b, lcd_currency: R.mena,
     });
     if (ctx.kupon && !(v.kupon && v.kupon.code)) meraj("lcd_set_doplnok_chyba", { lcd_krok: "kupon", lcd_trh: R.trh, lcd_sprava: String(ctx.kupon) });
@@ -1485,10 +1800,10 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   }
   meraj("lcd_set_doplnok_chyba", {
     lcd_krok: v.krok, lcd_code: v.code != null ? v.code : null, lcd_sprava: v.sprava ? String(v.sprava).replace(/<[^>]*>/g, "").slice(0, 160) : null,
-    lcd_doplnok: doplnok.kod, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku,
+    lcd_doplnok: doplnok.kod, lcd_varianta: doplnok.lcdVarianta || null, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku,
   });
   // ďalšie zobrazenie košíka načíta čerstvú mapu (ponuka ukáže aktuálnu cenu); táto stránka ostáva fail-closed
-  if (v.krok === "kontrola_ceny" || v.krok === "kontrola_textu") zabudniMapu(ctx.riadok.href);
+  if (v.krok === "kontrola_ceny" || v.krok === "kontrola_textu") { zabudniMapu(ctx.riadok.href); if (ciel) zabudniMapu(ciel.href); }
   // pri množstve N > 1 by krížik zmazal všetky kusy setu -> pokyn ubrať 1 kus (kontrola kódu, kolo 3)
   const text = v.ciastocne
     ? (Number(ctx.riadok.q) > 1 ? (odober ? T.chybaCiastocnaOdoberViac : T.chybaCiastocnaViac) : (odober ? T.chybaCiastocnaOdober : T.chybaCiastocna))
@@ -1643,6 +1958,66 @@ export function initKosikDoplnok(setupData) {
   } catch (e) {}
 }
 
+/**
+ * Auto k riadku košíka (pre Lux 15 pri Mercedes V-Class). sessionStorage konfigurátora (Brand / Model / model) drží
+ * len POSLEDNÉ nakonfigurované auto, riadok košíka auto nenesie -> zo sessionStorage len vtedy, keď je v košíku
+ * jediný set autokobercov; pri viacerých setoch len text riadku (inak všeobecné pravidlo, čierna + šedé šitie = Lux 10).
+ */
+export function autoKRiadku(riadok, pocetSetov, citaj) {
+  const casti = [];
+  if (pocetSetov === 1 && citaj) ["Brand", "Model", "model"].forEach(function (k) { const v = citaj(k); if (v) casti.push(v); });
+  casti.push((riadok && riadok.text) || "");
+  return casti.join(" ").trim();
+}
+
+/** Promise s časovým limitom: nestihne -> null (pomalé / visiace spojenie nesmie zdržať celú ponuku) */
+export function sLimitom(p, ms) {
+  return Promise.race([
+    Promise.resolve(p).catch(function () { return null; }),
+    new Promise(function (r) { setTimeout(function () { r(null); }, ms); }),
+  ]);
+}
+
+function cestaMapy(href) { return projekt() + ":" + new URL(href, location.href).pathname; }
+/** Smie sa mapa stiahnuť čerstvá? Len staršia ako 60 s a nie tá istá (t), ktorá už raz čerstvo nepomohla. */
+function mozemObnovit(href, m) {
+  if (!m || Date.now() - (m.t || 0) <= 60000) return false;
+  try { return localStorage.getItem(KLUC_SKUSENA + cestaMapy(href)) !== String(m.t); } catch (e) { return true; }
+}
+function oznacSkusenu(href, m) {
+  try { if (m && m.t) localStorage.setItem(KLUC_SKUSENA + cestaMapy(href), String(m.t)); } catch (e) {}
+}
+
+/**
+ * Ponuka druhej vrstvy k riadku (jednovrstvový set): mapa dvojvrstvového produktu (z localStorage, inak stiahnuť
+ * jeho stránku) + ponukaVrstvy. Nesedí -> raz s čerstvou mapou; stále nie -> null (ponuka sa neukáže).
+ */
+export async function ponukaDruhejVrstvy(riadok, volby, mapa, R, auto) {
+  if (!R.sety || R.sety[mapa.pid] == null || maDruhuVrstvu(riadok.variant)) return null;
+  const href = adresaDvojvrstvoveho(riadok.href);
+  if (!href) return null;
+  // jednovrstvová mapa bez priceId riadku (nová farba 1. vrstvy, mapa z iného zariadenia) -> raz čerstvá;
+  // bez neho ponuka nevznikne -> stránku dvojvrstvového produktu ani nesťahovať
+  if (!v1ZPriceId(riadok.priceId, mapa, R)) {
+    if (!mozemObnovit(riadok.href, mapa)) return null;
+    const f = await ziskajMapu(riadok.href, R, true).catch(function () { return null; });
+    const rb = f && rozoberPriplatky(riadok.sur, f);
+    if (rb && rb.ok && rovnakeVolby(rb.volby, volby)) mapa = f;
+    if (!v1ZPriceId(riadok.priceId, mapa, R)) { if (f) oznacSkusenu(riadok.href, f); return null; } // sieťová chyba -> bez značky
+  }
+  let mc = await ziskajMapu(href, R, false);
+  let p = mc && ponukaVrstvy(riadok, volby, mapa, mc, R, auto);
+  if (!p && mozemObnovit(href, mc)) {
+    // mapa z localStorage mohla zostarnúť (nová cena / varianta v admine) -> raz čerstvá (čerstvo stiahnutú nie znova)
+    mc = await ziskajMapu(href, R, true);
+    p = mc && ponukaVrstvy(riadok, volby, mapa, mc, R, auto);
+  }
+  if (!p) { oznacSkusenu(href, mc); return null; }
+  p.href = href;
+  p.mapa = mc;
+  return p;
+}
+
 async function spusti(R) {
   const T = TEXTY[R.trh];
   const riadky = zachytene || [];
@@ -1677,16 +2052,19 @@ async function spusti(R) {
     if (!ch) return null;
     const ponuka = { rohoz: !nie && ch.rohoz === "chyba" && !maSamostatnuRohoz, box: !nie && ch.box === "chyba" && !maSamostatnyBox };
     const odobrat = doplnkySetu(rozbor.volby, mapa, R, T);
-    if (!ponuka.rohoz && !ponuka.box && !odobrat.length) return null;
-    const samostatne = ponuka.rohoz || ponuka.box ? await Promise.race([
-      ziskajSamostatneCeny(dizajnZAdresy(riadok.href), R).catch(function () { return null; }),
-      new Promise(function (r) { setTimeout(function () { r(null); }, 4000); }),
-    ]) : null;
+    // druhá vrstva (len jednovrstvový set; stránka dvojvrstvového produktu sa sťahuje až teraz) a ceny samostatných
+    // produktov súbežne, každé s limitom: chyba / nestihne -> bez ponuky druhej vrstvy, resp. bez porovnania
+    const [vrstva2, samostatne] = await Promise.all([
+      nie ? null : sLimitom(ponukaDruhejVrstvy(riadok, rozbor.volby, mapa, R, autoKRiadku(riadok, kandidati.length, ssCitaj)), 5000),
+      ponuka.rohoz || ponuka.box ? sLimitom(ziskajSamostatneCeny(dizajnZAdresy(riadok.href), R), 4000) : null,
+    ]);
+    ponuka.vrstva2 = vrstva2;
+    if (!ponuka.rohoz && !ponuka.box && !ponuka.vrstva2 && !odobrat.length) return null;
     return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, odobrat: odobrat, samostatne: samostatne, kupon: kupon, zobrazene: [] };
   }))).filter(Boolean);
   // krížiky pri doplnkoch setu (aj keď ponuka nie je); ponuka len pre sety, ktorým niečo chýba
   ctxs.forEach(function (ctx) { if (ctx.odobrat.length) vlozOdober(ctx, T, R); });
-  const ponuky = ctxs.filter(function (c) { return c.ponuka.rohoz || c.ponuka.box; });
+  const ponuky = ctxs.filter(function (c) { return c.ponuka.rohoz || c.ponuka.box || c.ponuka.vrstva2; });
 
   // rovnaký set viackrát (napr. po rozdelení množstva) -> k názvu cena za kus, aby sa karty dali rozlíšiť
   const ceny = (function () {
@@ -1702,6 +2080,10 @@ async function spusti(R) {
     const k = karta(ctx, T, R, ponuky.length > 1);
     if (k) sec.appendChild(k);
   });
+  // názov oblasti pre čítačky = viditeľný nadpis (jedna karta), pri viacerých kartách so druhou vrstvou všeobecný
+  const nadpisy = sec.querySelectorAll(".lcd-dop__karta .lcd-dop__nadpis");
+  if (nadpisy.length === 1) { sec.removeAttribute("aria-label"); sec.setAttribute("aria-labelledby", nadpisy[0].id); }
+  else if (ctxs.some(function (c) { return c.zobrazene.indexOf("vrstva2") > -1; })) sec.setAttribute("aria-label", T.nadpisSet);
   const hlaska = pred ? hotovoZPredchadzajucej(sec) : null;
   if (!sec.firstChild || document.getElementById("lcd-doplnok") || !vlozSekciu(sec)) return 0;
   zameraj(hlaska);
@@ -1714,3 +2096,6 @@ async function spusti(R) {
   });
   return karty;
 }
+
+/** Karta ponuky pre testy (tools/test-kosik-doplnok.mjs): poradie kariet, texty, výber Lux farby. */
+export function kartaPonuky(ctx, R, viacSetov) { return karta(ctx, TEXTY[R.trh], R, viacSetov); }

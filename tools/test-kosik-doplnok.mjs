@@ -2,7 +2,9 @@
 // farba boxu a postup výmeny riadku proti podvrhnutému košíku Shoptetu (úspech, chyby, vrátenie späť).
 //   node tools/test-kosik-doplnok.mjs        (npm run kosik:test)
 // Fixtúra tools/test-kosik-doplnok.fixture.json = príplatky zo živých formulárov 7. 10. 2026 (SK Diamond, Hexa,
-// Elite Stripe, CZ Diamond, SK box). Živé E2E: scratchpad …/ab-harness/kosik-doplnok-e2e.mjs.
+// Elite Stripe, CZ Diamond, SK box). Druhá vrstva: tools/test-kosik-vrstva.fixture.json (10. 10. 2026, jedno- aj
+// dvojvrstvové stránky SK Diamond, SK Stripe, CZ Diamond vrátane necessaryVariantData). Živé E2E: scratchpad
+// …/ab-harness/kosik-doplnok-e2e.mjs.
 import { readFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
 
@@ -557,6 +559,350 @@ await test("fotky doplnkov: béžové fotky kufra z návrhu konfigurátora (asse
   rovne(M.fotoDoplnku(M.FOTKY.premium), B + "rohoz-premium.jpg");
   rovne(M.fotoDoplnku(M.FOTKY.box1), B + "box-1.jpg");
   rovne(M.fotoDoplnku(M.FOTKY.box2), B + "box-2.jpg");
+});
+
+// ---------------------------------------------------------------- druhá vrstva (jednovrstvový -> dvojvrstvový set)
+// Fixtúra tools/test-kosik-vrstva.fixture.json = živé stránky 10. 10. 2026 (SK Diamond, SK Stripe, CZ Diamond — jedno-
+// aj dvojvrstvový produkt): príplatky, varianty a necessaryVariantData (pri dvojvrstvovom len niekoľko farieb 1. vrstvy).
+const FV = JSON.parse(readFileSync(new URL("./test-kosik-vrstva.fixture.json", import.meta.url), "utf8"));
+const RSK = M.ROLE[562035], RCZ = M.ROLE[581408];
+function strankaProduktu(p, { bezSkriptu = false } = {}) {
+  const sur = (o) => `<option value="${o[0]}" data-surcharge-final-price="${o[2]}" data-surcharge-additional-price="${o[3]}">${o[1]}</option>`;
+  const data = Object.assign({}, p.kom);
+  // ako na živom webe: é, \/ a „}“ v reťazci nesmú rozbiť čítanie objektu
+  const k0 = Object.keys(data)[0];
+  data[k0] = Object.assign({ name: "luxusné autokoberce {Dragonskin} / \"test\" }" }, data[k0]);
+  const json = JSON.stringify(data).replace(/é/g, "\\u00e9").replace(/\//g, "\\/");
+  return `<!doctype html><html><body><form id="product-detail-form"><input type="hidden" name="productId" value="${p.pid}"><input type="hidden" name="priceId" value="${p.priceId}"><input type="hidden" name="language" value="${p.lang}">` +
+    p.vsels.map((s) => `<select name="parameterValueId[${s.id}]" class="hidden-split-parameter" data-parameter-id="${s.id}" data-parameter-name="${s.n}"><option value="">Zvoľte variant</option>${s.o.map((o) => `<option value="${o[0]}">${o[1]}</option>`).join("")}</select>`).join("") +
+    p.sels.map((s) => `<select name="surchargeParameterValueId[${s.id}]" data-parameter-id="${s.id}" data-parameter-name="${s.n}"><option value="">Vyberte príplatok</option>${s.o.map(sur).join("")}</select>`).join("") +
+    `</form>` + (bezSkriptu ? "" : `<script>\n    shoptet.variantsSplit = shoptet.variantsSplit || {};\n    shoptet.variantsSplit.necessaryVariantData = ${json};\n    var dalsi = { "a": "}" };\n</script>`) + `</body></html>`;
+}
+const mapaV = (k, o) => M.mapaZFormulara(new DOMParser().parseFromString(strankaProduktu(FV[k], o), "text/html"));
+const SKB = mapaV("sk/basic-diamond"), SKE = mapaV("sk/elite-diamond");
+const SSB = mapaV("sk/basic-stripe"), SSE = mapaV("sk/elite-stripe");
+const CZB = mapaV("cz/basic-diamond"), CZE = mapaV("cz/elite-diamond");
+const textPriplatkov = (volby, m) => "Príplatky: " + Object.keys(m.params).filter((p) => volby[p] !== undefined).map((p) => m.params[p].n + " - " + m.params[p].o[volby[p]].t).join(", ");
+const V1_CC = "farba 1.vrstvy: Diamond Farba kože : Čierna / Farba šitia: Červená";
+const riadokV = (priceId, volby, m, variant = V1_CC, href = "/luxusne-autokoberce-dragonskin-diamond-line/") => ({ itemId: "r1", priceId, q: 1, sur: textPriplatkov(volby, m), variant, href, nazov: "luxusné autokoberce Dragonskin Basic DIAMOND LINE", sku: "598/DIA", text: "" });
+
+await test("necessaryVariantData: kľúče SK „78-543“ / „71-540-78-543“, CZ „72-546“ / „44-453-72-546“, priceId a cena", () => {
+  rovne(SKB.kom["78-543"], { id: "63487", c: 219 });
+  rovne(SKE.kom["71-540-78-543"], { id: "66983", c: 351 });
+  rovne(CZB.kom["72-546"], { id: "43605", c: 5664 });
+  rovne(CZE.kom["44-453-72-546"], { id: "43662", c: 8799 });
+  rovne(Object.keys(SKB.kom).length, 18);
+  rovne([SKE.vpar["71"].n, SKE.vpar["71"].o["540"], SKE.vpar["78"].o["543"]], ["farba 2.vrstvy", "Lux Color 10", "Diamond Farba kože : Čierna / Farba šitia: Červená"]);
+  rovne([CZE.vpar["44"].n, CZE.vpar["44"].o["453"], CZE.vpar["72"].o["576"]], ["Barva 2.vrstvy", "Lux Color 10", "Diamond Barva kůže: Kávově hnědá"]);
+  rovne(mapaV("sk/basic-diamond", { bezSkriptu: true }).kom, null, "bez skriptu -> null");
+});
+await test("hodnota 1. vrstvy z priceId riadku a kľúč kombinácie (SK aj CZ)", () => {
+  rovne([M.v1ZPriceId("63487", SKB, RSK), M.v1ZPriceId(43605, CZB, RCZ), M.v1ZPriceId("99999", SKB, RSK), M.v1ZPriceId("66983", SKE, RSK)], ["543", "546", null, null]);
+  rovne(M.klucKombinacie({ 78: "543", 71: "540" }), "71-540-78-543");
+  rovne(M.klucKombinacie({ 72: "546", 44: "453" }), "44-453-72-546");
+});
+await test("párovanie farby 2. vrstvy (Michal 10. 10.): všetky pravidlá SK aj CZ, V-Class, inak Lux 10", () => {
+  const sk = (t, a) => M.odporucanaLux("Diamond Farba kože : " + t, a);
+  rovne([sk("Čierna / Farba šitia: Červená"), sk("Čierna / Farba šitia: Modrá"), sk("Vínovo Červená"), sk("Oranžová"), sk("Modrá"), sk("Béžová"), sk("Hnedá"), sk("Hnedá káva")], [10, 8, 13, 3, 6, 12, 11, 11]);
+  rovne([sk("Čierna / Farba šitia : Sivá"), sk("Čierna / Farba šitia : Sivá", "Mercedes-Benz V-Class"), sk("Čierna / Farba šitia : Sivá", "Mercedes Trieda V 2019"), sk("Čierna / Farba šitia : Sivá", "Mercedes Vito")], [10, 15, 15, 10]);
+  rovne([sk("Fialová"), sk("Červená"), sk("Šedá"), sk(" čierna farba šitia zelená"), sk("čierna / Farba šitia : Béžová"), sk("Čierna / Farba šitia: Čierna"), sk("čierna / Farba šitia : bielou")], [10, 10, 10, 10, 10, 10, 10]);
+  rovne(M.odporucanaLux("Diamond Farba kože : Modrá", "Mercedes V-Class"), 6, "V-Class mení len čiernu so šedým šitím");
+  const cz = (t, a) => M.odporucanaLux("Diamond Barva kůže: " + t, a);
+  rovne([cz("Černá / Barva šití: Červená"), cz("Černá / Barva šití: Modrá"), cz("Vínově červená"), cz("Kávově hnědá"), cz("Hnědá"), cz("Béžová"), cz("Oranžová"), cz("Modrá"), cz("Černá / Barva šití: Šedá", "Mercedes-Benz V-Klasse"), cz("Černá / Barva šití: Šedá"), cz("Fialová")], [10, 8, 13, 11, 11, 12, 3, 6, 15, 10, 10]);
+  rovne([M.odporucanaLux("diamond farba koze : CIERNA / farba sitia: cervena"), M.odporucanaLux("STRIPE FARBA KOŽE : HNEDÁ KÁVA"), M.odporucanaLux(""), M.odporucanaLux("niečo iné")], [10, 11, 10, 10]);
+});
+await test("druhá vrstva z textu variantu (SK aj CZ), adresa dvojvrstvového setu", () => {
+  rovne([M.maDruhuVrstvu(V1_CC), M.maDruhuVrstvu(V1_CC + ", farba 2.vrstvy: Lux Color 10"), M.maDruhuVrstvu("Barva 1.vrstvy: Diamond Barva kůže: Černá, Barva 2.vrstvy: Lux Color 09")], [false, true, true]);
+  rovne([M.luxZVariantu(V1_CC + ", farba 2.vrstvy: Lux Color 10"), M.luxZVariantu("Barva 1.vrstvy: X, Barva 2.vrstvy: Lux Color 09"), M.luxZVariantu("FARBA 1.VRSTVY: x, FARBA 2.VRSTVY: LUX COLOR 15"), M.luxZVariantu(V1_CC), M.luxZVariantu(V1_CC + ", farba 2.vrstvy: Comfort 3")], [10, 9, 15, null, null]);
+  rovne([M.luxCislo("Lux Color 01"), M.luxCislo("Lux Color 16"), M.luxCislo("Lux Color 17"), M.luxCislo("Comfort 03")], [1, 16, null, null]);
+  rovne(M.adresaDvojvrstvoveho("/luxusne-autokoberce-dragonskin-diamond-line/"), "/luxusne-autokoberce-dragonskin-elite-diamond-line/");
+  rovne(M.adresaDvojvrstvoveho("https://www.luxurycardesign.cz/luxusne-autokoberce-dragonskin-hexa-line/"), "/luxusne-autokoberce-dragonskin-elite-hexa-line/");
+  rovne([M.adresaDvojvrstvoveho("/luxusne-autokoberce-dragonskin-elite-stripe-line/"), M.adresaDvojvrstvoveho("/luxusny-boxi-do-kufra/"), M.adresaDvojvrstvoveho(null)], [null, null, null]);
+  rovne([M.luxNazov(8), M.luxNazov(12), M.luxFoto(8)], ["Lux 08", "Lux 12", "/user/documents/upload/assets/config/lux-color-08.jpg?15"]);
+});
+await test("ponuka druhej vrstvy SK Diamond čierna/červená, 1.+2. rad: Lux 10 predvolená, +147 € (132 + rozloženie 50 − 35)", () => {
+  const volby = { 85: "589", 88: "598", 74: "485" };
+  const p = M.ponukaVrstvy(riadokV("63487", volby, SKB), volby, SKB, SKE, RSK, "");
+  pravda(p, "ponuka");
+  rovne([p.odporucana, p.v1, p.moznosti.length, p.moznosti.map((m) => m.lux).join(",")], [10, "543", 16, "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"]);
+  const m10 = p.moznosti.find((m) => m.lux === 10), m12 = p.moznosti.find((m) => m.lux === 12);
+  rovne([m10.priceId, m10.vid, m10.rozdiel.s, m12.priceId, m12.rozdiel.s], ["66983", "540", 147, "67037", 147]);
+  rovne(m10.rozdiel.b, Math.round(147 / 1.23 * 100) / 100, "bez DPH");
+  // béžová -> Lux 12, sivé šitie + V-Class -> Lux 15
+  const vb = { 85: "586", 74: "485" };
+  rovne(M.ponukaVrstvy(riadokV("63514", vb, SKB, "farba 1.vrstvy: Diamond Farba kože : Béžová"), vb, SKB, SKE, RSK, "").odporucana, 12);
+  rovne(M.ponukaVrstvy(riadokV("63499", vb, SKB), vb, SKB, SKE, RSK, "Mercedes-Benz V-Class").odporucana, 15);
+  rovne(M.ponukaVrstvy(riadokV("63499", vb, SKB), vb, SKB, SKE, RSK, "Škoda Kodiaq").odporucana, 10);
+});
+await test("rozdiel ceny SK Stripe (iné ceny príplatkov v dvojvrstvovom): rozloženie +15, rohož Premium −29, SUV −5, 2. box S −20", () => {
+  const volby = { 85: "589", 88: "601", 74: "488" };
+  const p = M.ponukaVrstvy(riadokV("66866", volby, SSB, "farba 1.vrstvy: Stripe Farba kože : Čierna / Farba šitia: Červená", "/luxusne-autokoberce-dragonskin-stripe-line/"), volby, SSB, SSE, RSK, "");
+  pravda(p, "ponuka Stripe");
+  rovne(p.moznosti.find((m) => m.lux === 10).rozdiel.s, 132 + 15 - 29 - 5);
+  const v2 = { 85: "586", 88: "598", 74: "485", 91: "604", 94: "619", 97: "634" };
+  rovne(M.rozdielPrechodu(v2, SSB, SSE, 230, 362, 1.23).s, 132 + 0 + 0 - 20);
+  rovne(M.rozdielPrechodu({ 85: "589", 99: "1" }, SSB, SSE, 230, 362, 1.23), null, "neznámy príplatok -> null");
+  rovne(M.rozdielPrechodu({ 85: "589" }, SSB, SSE, 230, null, 1.23), null, "chýba cena variantu -> null");
+});
+await test("ponuka CZ Diamond: priceId čítané zo stránky (nepravidelné), +3 636 Kč, kávově hnědá -> Lux 11", () => {
+  const volby = { 57: "486", 60: "495", 47: "380" };
+  const r = riadokV("43605", volby, CZB, "Barva 1.vrstvy: Diamond Barva kůže: Černá / Barva šití: Červená");
+  const p = M.ponukaVrstvy(r, volby, CZB, CZE, RCZ, "");
+  pravda(p, "ponuka CZ");
+  const m10 = p.moznosti.find((m) => m.lux === 10), m11 = p.moznosti.find((m) => m.lux === 11);
+  rovne([p.odporucana, m10.priceId, m10.rozdiel.s, m11.priceId], [10, "43662", 3135 + 501, FV["cz/elite-diamond"].kom["44-588-72-546"].id + ""]);
+  const pk = M.ponukaVrstvy(riadokV("43635", volby, CZB, "Barva 1.vrstvy: Diamond Barva kůže: Kávově hnědá"), volby, CZB, CZE, RCZ, "");
+  rovne([pk.odporucana, pk.moznosti.find((m) => m.lux === 11).priceId], [11, String(FV["cz/elite-diamond"].kom["44-588-72-576"].id)]);
+});
+await test("ponuka druhej vrstvy fail-closed: už dvojvrstvový, iný pár produktov, neznámy priceId, iný názov príplatku", () => {
+  const volby = { 85: "589", 88: "598", 74: "485" };
+  const r = riadokV("63487", volby, SKB);
+  rovne(M.ponukaVrstvy(Object.assign({}, r, { variant: V1_CC + ", farba 2.vrstvy: Lux Color 10" }), volby, SKB, SKE, RSK, ""), null, "2. vrstva už je");
+  rovne(M.ponukaVrstvy(r, volby, SKB, SSE, RSK, ""), null, "Diamond -> Stripe");
+  rovne(M.ponukaVrstvy(r, volby, SKE, SKE, RSK, ""), null, "dvojvrstvový nie je v tabuľke jednovrstvových");
+  rovne(M.ponukaVrstvy(Object.assign({}, r, { priceId: "1" }), volby, SKB, SKE, RSK, ""), null, "priceId");
+  const ina = JSON.parse(JSON.stringify(SKE)); ina.params["85"].n = "rozloženie";
+  rovne(M.ponukaVrstvy(r, volby, SKB, ina, RSK, ""), null, "názov príplatku");
+  const bezKom = Object.assign({}, SKE, { kom: null });
+  rovne(M.ponukaVrstvy(r, volby, SKB, bezKom, RSK, ""), null, "bez kombinácií");
+  const vypredane = JSON.parse(JSON.stringify(SKE));
+  Object.keys(vypredane.kom).forEach((k) => { if (/^71-540-/.test(k)) vypredane.kom[k].x = 1; });
+  const pv = M.ponukaVrstvy(r, volby, SKB, vypredane, RSK, "");
+  rovne(pv, null, "odporúčaná aj Lux 10 vypredaná -> bez ponuky");
+});
+await test("payload druhej vrstvy: cieľový priceId + productId dvojvrstvového, VŠETKY príplatky, amount 1", () => {
+  const volby = { 85: "589", 88: "598", 74: "485" };
+  rovne(M.zostavPayload({ priceId: "66983" }, volby, {}, SKE, "tok"),
+    "priceId=66983&productId=601&language=sk&surchargeParameterValueId%5B74%5D=485&surchargeParameterValueId%5B85%5D=589&surchargeParameterValueId%5B88%5D=598&amount=1&__csrf__=tok");
+  rovne(M.zostavPayload({ priceId: "43662" }, { 57: "486", 47: "380" }, {}, CZE, null),
+    "priceId=43662&productId=2406&language=cs&surchargeParameterValueId%5B47%5D=380&surchargeParameterValueId%5B57%5D=486&amount=1");
+});
+await test("názov setu bez Basic / Elite / Dragonskin", () => {
+  rovne(M.setNazov({ nazov: "luxusné autokoberce Dragonskin Basic DIAMOND LINE", variant: V1_CC }), "Diamond-Line, čierna / červená");
+  rovne(M.setNazov({ nazov: "luxusné autokoberce Dragonskin Elite HEXA LINE", variant: "farba 1.vrstvy: Hexa Farba kože : Čierna / Farba šitia: Červená, farba 2.vrstvy: Lux Color 10" }), "Hexa-Line, čierna / červená + Lux 10");
+  pravda(!/basic|elite|dragon/i.test(M.setNazov({ nazov: "luxusné autokoberce Dragonskin Basic", variant: "" })));
+});
+// karta ponuky v jsdom: poradie kariet a výber farby
+const ctxKarty = (ponuka, R = RSK, mB = SKB, mE = SKE, volby = { 85: "589", 88: "598", 74: "485" }, priceId = "63487") => {
+  const riadok = Object.assign(riadokV(priceId, volby, mB), { itemId: "it-k" });
+  const p = M.ponukaVrstvy(riadok, volby, mB, mE, R, "");
+  if (p) { p.href = "/luxusne-autokoberce-dragonskin-elite-diamond-line/"; p.mapa = mE; }
+  return { riadok, mapa: mB, volby, ponuka: Object.assign({ vrstva2: p }, ponuka), odobrat: [], samostatne: null, kupon: null, zobrazene: [] };
+};
+await test("karta: druhá vrstva je PRVÁ (pred Classic, Box, Premium), texty bez zakázaných slov", () => {
+  const k = M.kartaPonuky(ctxKarty({ rohoz: true, box: true }), RSK, false);
+  const poradieKariet = [...k.querySelectorAll(".lcd-dop__volby > .lcd-dop__volba")].map((li) => li.getAttribute("data-varianta") || li.getAttribute("data-doplnok"));
+  rovne(poradieKariet, ["vrstva2", "classic", "box", "premium"]);
+  rovne(M.PORADIE_KARIET[0], "vrstva2");
+  const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
+  const t = (s) => v.querySelector(s).textContent.replace(/\s+/g, " ").trim();
+  rovne([t(".lcd-dop__nadtitul"), t(".lcd-dop__meno"), t(".lcd-dop__veta"), t(".lcd-dop__znacka")], ["Odporúčame k Vašej farbe", "Druhá vrstva · Lux 10", "Odnímateľná vrstva navrch zachytí vodu, sneh aj blato.", "Lux 10"]);
+  pravda(/^\+147\s€ v sete$/.test(t(".lcd-dop__cena")), t(".lcd-dop__cena"));
+  pravda(!/samostatne|ušetríte/.test(t(".lcd-dop__cena")), "bez porovnania");
+  rovne(v.querySelector(".lcd-dop__vfoto").getAttribute("src"), "/user/documents/upload/assets/config/lux-color-10.jpg?15");
+  rovne(v.querySelector('[data-lcd-dop-pridat="vrstva2"]').textContent, "Pridať druhú vrstvu");
+  rovne(k.querySelector(".lcd-dop__nadpis").textContent, "Doplňte svoj set");
+  rovne(M.cisty(M.kartaPonuky(Object.assign(ctxKarty({ rohoz: true, box: true }), { ponuka: { rohoz: true, box: true, vrstva2: null } }), RSK, false).querySelector(".lcd-dop__nadpis").textContent), "Doplňte kufor v rovnakom štýle", "bez druhej vrstvy pôvodný nadpis");
+  pravda(!/dragon|elite|basic|milimet|vyrába|záruk|comfort|vrstiev/i.test(k.textContent), k.textContent.slice(0, 200));
+});
+await test("karta: „Vybrať inú farbu“ -> 16 vzoriek, Lux 12 zmení fotku, názov, nadtitul; len druhá vrstva -> nadpis o vrstve", () => {
+  const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }), RSK, false);
+  rovne(k.querySelector(".lcd-dop__nadpis").textContent, "Doplňte set o druhú vrstvu");
+  rovne(k.querySelectorAll(".lcd-dop__volba").length, 1);
+  const ina = k.querySelector("[data-lcd-dop-ina]");
+  const telo = k.querySelector("#" + ina.getAttribute("aria-controls"));
+  pravda(telo.hidden, "zbalené");
+  ina.click();
+  rovne([telo.hidden, ina.getAttribute("aria-expanded"), k.querySelectorAll("[data-lcd-dop-lux]").length], [false, "true", 16]);
+  rovne(k.querySelector("[data-lcd-dop-lux]:checked").value, "10");
+  const l12 = k.querySelector('[data-lcd-dop-lux="12"]');
+  l12.checked = true; l12.dispatchEvent(new window.Event("change", { bubbles: true }));
+  const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
+  rovne([v.querySelector(".lcd-dop__nadtitul").textContent, v.querySelector(".lcd-dop__meno").textContent, v.querySelector(".lcd-dop__vfoto").getAttribute("src"), v.querySelector("[data-lcd-dop-pridat]").getAttribute("data-lux")],
+    ["Vami zvolená farba", "Druhá vrstva · Lux 12", "/user/documents/upload/assets/config/lux-color-12.jpg?15", "12"]);
+  pravda(/Lux 12/.test(telo.querySelector(".lcd-dop__suhrn-cena").textContent));
+  // CZ texty
+  const kc = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), RCZ, false);
+  const vc = kc.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
+  rovne([vc.querySelector(".lcd-dop__nadtitul").textContent, vc.querySelector("[data-lcd-dop-pridat]").textContent, kc.querySelector("[data-lcd-dop-ina]").textContent, kc.querySelector(".lcd-dop__nadpis").textContent],
+    ["Doporučujeme k Vaší barvě", "Přidat druhou vrstvu", "Vybrat jinou barvu", "Doplňte set o druhou vrstvu"]);
+  pravda(/^\+3\s636\sKč v setu$/.test(vc.querySelector(".lcd-dop__cena").textContent.replace(/\s+/g, " ").trim()), vc.querySelector(".lcd-dop__cena").textContent);
+});
+
+await test("karta druhej vrstvy: zoznam pomenovaný viditeľným nadpisom, fokus na zvolenú farbu, chybná vzorka sa len skryje", () => {
+  const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }), RSK, false);
+  document.body.appendChild(k);
+  try {
+    const h = k.querySelector(".lcd-dop__nadpis"), ul = k.querySelector(".lcd-dop__volby");
+    rovne([ul.getAttribute("aria-labelledby"), ul.hasAttribute("aria-label"), h.textContent], [h.id, false, "Doplňte set o druhú vrstvu"]);
+    const ina = k.querySelector("[data-lcd-dop-ina]");
+    ina.click();
+    rovne([document.activeElement && document.activeElement.getAttribute("data-lcd-dop-lux"), document.activeElement && document.activeElement.checked], ["10", true], "fokus po otvorení výberu");
+    const obr = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"] .lcd-dop__vfoto');
+    obr.dispatchEvent(new window.Event("error"));
+    pravda(obr.isConnected && obr.style.visibility === "hidden", "pri chybe len skryť, nie odstrániť");
+    const l12 = k.querySelector('[data-lcd-dop-lux="12"]');
+    l12.checked = true; l12.dispatchEvent(new window.Event("change", { bubbles: true }));
+    rovne(k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"] .lcd-dop__vfoto'), obr, "ten istý obrázok");
+    obr.dispatchEvent(new window.Event("load"));
+    rovne([obr.getAttribute("src"), obr.style.visibility], ["/user/documents/upload/assets/config/lux-color-12.jpg?15", ""]);
+  } finally { k.remove(); }
+});
+await test("Lux 15 pri V-Class: auto zo sessionStorage len pri jedinom sete v košíku (inak Lux 10)", () => {
+  const ss = { Brand: "Mercedes-Benz", Model: "Viano/Vito/V Class" };
+  const citaj = (x) => ss[x] || null;
+  const vb = { 85: "586", 74: "485" };
+  const r = riadokV("63499", vb, SKB);
+  pravda(/V Class/.test(M.autoKRiadku(r, 1, citaj)), M.autoKRiadku(r, 1, citaj));
+  rovne(M.autoKRiadku(r, 2, citaj), "", "2 sety -> sessionStorage sa nepoužije");
+  rovne(M.ponukaVrstvy(r, vb, SKB, SKE, RSK, M.autoKRiadku(r, 1, citaj)).odporucana, 15, "jediný set V-Class");
+  rovne(M.ponukaVrstvy(r, vb, SKB, SKE, RSK, M.autoKRiadku(r, 2, citaj)).odporucana, 10, "2 sety (napr. V-Class + Kodiaq)");
+  rovne(M.ponukaVrstvy(r, vb, SKB, SKE, RSK, M.autoKRiadku(r, 1, () => null)).odporucana, 10, "auto neznáme");
+  rovne(M.autoKRiadku(Object.assign({}, r, { text: "Mercedes-Benz V-Class" }), 2, citaj), "Mercedes-Benz V-Class", "auto v texte riadku platí aj pri viacerých setoch");
+});
+await test("sLimitom: visiaca požiadavka -> null po limite, chyba -> null, výsledok prejde", async () => {
+  const t0 = Date.now();
+  rovne(await M.sLimitom(new Promise(() => {}), 30), null);
+  pravda(Date.now() - t0 < 1000, "limit");
+  rovne(await M.sLimitom(Promise.reject(new Error("x")), 30), null);
+  rovne(await M.sLimitom(Promise.resolve(7), 30), 7);
+});
+await test("ponuka druhej vrstvy: trvalý neúspech -> stránka dvojvrstvového produktu sa nesťahuje pri každom otvorení košíka", async () => {
+  const volby = { 85: "589", 88: "598", 74: "485" };
+  const riadok = riadokV("63487", volby, SKB);
+  const kluc = "lcdPriplatky:v2:562035:/luxusne-autokoberce-dragonskin-elite-diamond-line/";
+  const premenovany = JSON.parse(JSON.stringify(FV["sk/elite-diamond"]));
+  premenovany.sels.find((x) => String(x.id) === "85").n = "rozloženie";
+  const html = strankaProduktu(premenovany);
+  const fetchPred = globalThis.fetch, nowPred = Date.now;
+  let stiahnute = 0;
+  globalThis.fetch = async () => { stiahnute++; return { ok: true, status: 200, text: async () => html }; };
+  const novyModul = (n) => import("../assets/js/lcdKosikDoplnok.js?nacitanie=" + n); // = nové načítanie stránky
+  try {
+    // dobrá mapa v localStorage -> ponuka bez sťahovania
+    localStorage.setItem(kluc, JSON.stringify(Object.assign({}, SKE, { t: Date.now() - 7200000 })));
+    const ok1 = await (await novyModul(1)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, "");
+    rovne([!!ok1, ok1 && ok1.odporucana, ok1 && ok1.href, stiahnute], [true, 10, "/luxusne-autokoberce-dragonskin-elite-diamond-line/", 0]);
+    // priceId riadku nie je v (čerstvej) mape jednovrstvového produktu -> null bez sťahovania dvojvrstvového
+    rovne([await (await novyModul(5)).ponukaDruhejVrstvy(Object.assign({}, riadok, { priceId: "1" }), volby, SKB, RSK, ""), stiahnute], [null, 0]);
+    // stará nesediaca mapa -> raz čerstvá (stále nesedí) -> null
+    const stara = mapaV("sk/elite-diamond"); stara.params["85"].n = "rozloženie"; stara.t = Date.now() - 7200000;
+    localStorage.setItem(kluc, JSON.stringify(stara));
+    rovne(await (await novyModul(2)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, ""), null);
+    rovne(stiahnute, 1, "raz čerstvá");
+    // ďalšie otvorenie košíka o 2 min (mapa > 60 s) -> už nesťahovať
+    Date.now = () => nowPred() + 120000;
+    rovne(await (await novyModul(3)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, ""), null);
+    rovne(stiahnute, 1, "bez opakovaného sťahovania ~1 MB");
+    // iná (staršia / novšia) mapa v localStorage -> smie sa raz obnoviť znova
+    localStorage.setItem(kluc, JSON.stringify(stara));
+    await (await novyModul(4)).ponukaDruhejVrstvy(riadok, volby, SKB, RSK, "");
+    rovne(stiahnute, 2, "nová mapa -> nový pokus");
+  } finally {
+    globalThis.fetch = fetchPred; Date.now = nowPred;
+    Object.keys(localStorage).filter((x) => /^lcd(Priplatky|VrstvaSkusena)/.test(x)).forEach((x) => localStorage.removeItem(x));
+  }
+});
+
+// výmena na iný produkt proti podvrhnutému košíku: pôvodný riadok jednovrstvový, cieľ dvojvrstvový (iné priceId aj ceny)
+function kosikVrstva({ luxServer = null, cenaNavyse = 0 } = {}) {
+  const st = { rows: [], n: 0, volania: [], telo: null };
+  const VAR = { "63487": { m: SKB, c: 219, variant: V1_CC, href: "/luxusne-autokoberce-dragonskin-diamond-line/" } };
+  Object.keys(SKE.kom).forEach((k) => {
+    const m = /^71-(\d+)-78-543$/.exec(k);
+    if (m) VAR[SKE.kom[k].id] = { m: SKE, c: SKE.kom[k].c, variant: V1_CC + ", farba 2.vrstvy: " + SKE.vpar["71"].o[m[1]], href: "/luxusne-autokoberce-dragonskin-elite-diamond-line/" };
+  });
+  st.pridaj = (priceId, volby, q = 1) => {
+    const d = VAR[priceId];
+    const r = { itemId: "iv" + ++st.n, priceId: String(priceId), q, volby, sur: textPriplatkov(volby, d.m), variant: d.variant, href: d.href, p: d.c + Object.keys(volby).reduce((s, p) => s + d.m.params[p].o[volby[p]].fp, 0) };
+    st.rows.push(r);
+    return r;
+  };
+  const odpoved = () => ({ ok: true, status: 200, text: async () => JSON.stringify({ code: 200, payload: { cartItems: st.rows.map((r) => ({ itemId: r.itemId, priceId: +r.priceId, quantity: r.q, priceWithVat: r.p, discounts: { finalRatio: 1 } })) } }) });
+  globalThis.fetch = async (url, opt = {}) => {
+    const akcia = String(url).split("/action/Cart/")[1].replace(/\/.*$/, "");
+    st.volania.push(akcia);
+    if (akcia === "GetCartContent") {
+      const html = "<table>" + st.rows.map((r) => RIADOK(r.itemId, r.priceId, r.q, r.sur, r.href, r.variant)).join("") + "</table>";
+      return { ok: true, status: 200, text: async () => JSON.stringify({ code: 200, payload: { content: html } }) };
+    }
+    const b = new URLSearchParams(opt.body);
+    if (akcia === "addCartItem") {
+      st.telo = opt.body;
+      const volby = {};
+      for (const [k, v] of b.entries()) { const m = /^surchargeParameterValueId\[(\d+)\]$/.exec(k); if (m) volby[m[1]] = v; }
+      const ex = st.rows.find((r) => r.priceId === b.get("priceId") && JSON.stringify(r.volby) === JSON.stringify(volby));
+      if (ex) ex.q += 1;
+      else {
+        const r = st.pridaj(b.get("priceId"), volby);
+        r.p += cenaNavyse;
+        if (luxServer) r.variant = V1_CC + ", farba 2.vrstvy: Lux Color " + luxServer;
+      }
+      return odpoved();
+    }
+    const r = st.rows.find((x) => x.itemId === b.get("itemId"));
+    if (!r) return odpoved();
+    if (akcia === "deleteCartItem") st.rows.splice(st.rows.indexOf(r), 1);
+    if (akcia === "setCartItemAmount") r.q = +b.get("amount");
+    return odpoved();
+  };
+  return st;
+}
+const VOLBY_V = { 85: "589", 88: "598", 74: "485" };
+const pripravV = (st, q = 1) => {
+  const r = st.pridaj("63487", VOLBY_V, q);
+  return M.rozoberRiadky(new DOMParser().parseFromString("<table>" + RIADOK(r.itemId, r.priceId, r.q, r.sur, r.href, r.variant) + "</table>", "text/html"))[0];
+};
+const vymenV = (riadok, lux = 10) => {
+  const p = M.ponukaVrstvy(riadok, VOLBY_V, SKB, SKE, RSK, "");
+  const m = p.moznosti.find((x) => x.lux === lux);
+  return M.vymen({ riadok, volby: VOLBY_V, mapa: SKE, R: RSK, zmena: {}, rozdiel: m.rozdiel, doplnok: { kod: "vrstva2" }, ciel: { priceId: m.priceId, lux } });
+};
+await test("výmena na druhú vrstvu: 1 riadok dvojvrstvového setu (601 / Lux 10), cena 254 + 147, príplatky rovnaké, pôvodný zmazaný", async () => {
+  const st = kosikVrstva(); const riadok = pripravV(st);
+  const v = await vymenV(riadok);
+  pravda(v.ok, JSON.stringify(v));
+  rovne(st.rows.map((r) => [r.priceId, r.p, r.q, r.volby]), [["66983", 401, 1, VOLBY_V]]);
+  pravda(/productId=601&/.test(st.telo) && /priceId=66983&/.test(st.telo), st.telo);
+  rovne(st.volania, ["GetCartContent", "addCartItem", "GetCartContent", "deleteCartItem"]);
+});
+await test("výmena na druhú vrstvu: vybraná Lux 12 -> priceId 67037", async () => {
+  const st = kosikVrstva(); const riadok = pripravV(st);
+  const v = await vymenV(riadok, 12);
+  pravda(v.ok, JSON.stringify(v));
+  rovne(st.rows.map((r) => [r.priceId, M.luxZVariantu(r.variant)]), [["67037", 12]]);
+});
+await test("výmena na druhú vrstvu: server dá inú Lux farbu -> kontrola textu, nový kus späť, košík ako predtým", async () => {
+  const st = kosikVrstva({ luxServer: "12" }); const riadok = pripravV(st);
+  const v = await vymenV(riadok);
+  rovne([v.ok, v.krok], [false, "kontrola_textu"]);
+  rovne(st.rows.map((r) => [r.itemId, r.priceId]), [[riadok.itemId, "63487"]]);
+});
+await test("výmena na druhú vrstvu: nesedí cena -> kontrola ceny, nový kus späť", async () => {
+  const st = kosikVrstva({ cenaNavyse: 5 }); const riadok = pripravV(st);
+  const v = await vymenV(riadok);
+  rovne([v.ok, v.krok, !!v.reload], [false, "kontrola_ceny", false]);
+  rovne(st.rows.map((r) => r.priceId), ["63487"]);
+});
+await test("výmena na druhú vrstvu pri množstve 2: pôvodný q1 (bez 2. vrstvy) + nový dvojvrstvový", async () => {
+  const st = kosikVrstva(); const riadok = pripravV(st, 2);
+  const v = await vymenV(riadok);
+  pravda(v.ok, JSON.stringify(v));
+  rovne(st.rows.map((r) => [r.priceId, r.q, r.p]), [["63487", 1, 254], ["66983", 1, 401]]);
+});
+await test("obnova druhej vrstvy: pridavam -> vrátiť nový kus (cieľové priceId); mazem -> dokončiť; iná Lux -> nejasné", () => {
+  const st = kosikVrstva(); const riadok = pripravV(st);
+  const stary = st.rows[0];
+  const novy = st.pridaj("66983", VOLBY_V);
+  const z = { id: "z", t: 1000, faza: "pridavam", pred: { [stary.itemId]: 1 }, stary: { itemId: stary.itemId, priceId: "63487", q: 1 }, ocakavane: VOLBY_V, ciel: { priceId: "66983", lux: 10 } };
+  const rr = () => M.rozoberRiadky(new DOMParser().parseFromString("<table>" + st.rows.map((r) => RIADOK(r.itemId, r.priceId, r.q, r.sur, r.href, r.variant)).join("") + "</table>", "text/html"));
+  const o = M.rozhodniObnovu(z, rr(), SKE, 99999);
+  rovne([o.akcia, o.kus], ["vrat", { itemId: novy.itemId, priceId: "66983", q: 1 }]);
+  const o2 = M.rozhodniObnovu(Object.assign({}, z, { faza: "mazem", novy: { itemId: novy.itemId, q: 1 } }), rr(), SKE, 99999);
+  rovne([o2.akcia, o2.kus], ["dokonci", { itemId: stary.itemId, priceId: "63487", q: 1 }]);
+  rovne(M.rozhodniObnovu(Object.assign({}, z, { ciel: { priceId: "66983", lux: 12 } }), rr(), SKE, 99999).akcia, "nejasne");
+  rovne(M.rozhodniObnovu(Object.assign({}, z, { ciel: null }), rr(), SKE, 99999).akcia, "nic", "bez cieľa sa hľadá pôvodné priceId (dvojvrstvový riadok sa nepočíta)");
+  void riadok;
 });
 
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
