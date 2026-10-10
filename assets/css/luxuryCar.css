@@ -8387,17 +8387,6 @@ section#model-selector {
 }
 :is(#lcd-home,[data-lcd-cast^=hp]) .tstrip .ts + .ts {border-left:1px solid var(--line)
 }
-:is(#lcd-home,[data-lcd-cast^=hp]) .ts-peek {position:fixed;left:0;top:0;width:min(400px,32vw);aspect-ratio:1/1;object-fit:cover;
-  border-radius:16px;border:1px solid rgba(230,200,119,.5);box-shadow:0 24px 60px rgba(20,15,5,.35);
-  pointer-events:none;z-index:120;opacity:0;
-  transition:opacity .22s ease,transform .18s ease-out;will-change:transform
-}
-:is(#lcd-home,[data-lcd-cast^=hp]) .ts-peek.on {opacity:1
-}
-@media(hover:none) {
-  :is(#lcd-home,[data-lcd-cast^=hp]) .ts-peek {display:none
-  }
-}
 :is(#lcd-home,[data-lcd-cast^=hp]) .tstrip .num {font-family:var(--disp);font-weight:800;line-height:1;color:var(--gold-lo);
   font-size:clamp(19px,2.9vw,32px);font-variant-numeric:tabular-nums;white-space:nowrap
 }

@@ -1012,32 +1012,8 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
     },1600);
   });
 
-  /* trustbar: hover zobrazi fotku pri kurzore (len hover zariadenia) */
-  (function(){
-    if(!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-    var bunky=LCDH.querySelectorAll('.tstrip .ts[data-peek]');
-    if(!bunky.length) return;
-    var im=document.createElement('img');
-    im.className='ts-peek'; im.alt=''; im.decoding='async';
-    /* musi byt vnutri #lcd-home — styl .ts-peek je scopovany nan;
-       v <body> ostavala fotka bez stylu visiet na konci stranky */
-    LCDH.appendChild(im);
-    function poloz(e){
-      var w=im.offsetWidth||400, h=im.offsetHeight||400;
-      var x=Math.min(e.clientX+22, innerWidth-w-14);
-      var y=Math.min(Math.max(e.clientY-h/2,14), innerHeight-h-14);
-      im.style.transform='translate('+x+'px,'+y+'px) scale('+(im.classList.contains('on')?1:0.94)+')';
-      im.style.left='0'; im.style.top='0';
-    }
-    [].forEach.call(bunky,function(b){
-      b.addEventListener('mouseenter',function(e){
-        if(im.getAttribute('src')!==b.dataset.peek) im.src=b.dataset.peek;
-        poloz(e); im.classList.add('on');
-      });
-      b.addEventListener('mousemove',poloz);
-      b.addEventListener('mouseleave',function(){ im.classList.remove('on'); });
-    });
-  })();
+  /* trustbar: bez fotky pri kurzore (Michal 10. 10. 2026: „tento náhľad obrázkov, keď prechádzam po %, daj preč“);
+     data-peek v HTML z adminu ostáva bez účinku */
 
   /* --- reveal ---
      Staticky koren: obsah je vykresleny od prveho vykreslenia. Vsetko vo vyreze aj nad nim
