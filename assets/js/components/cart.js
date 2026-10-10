@@ -78,6 +78,9 @@ export function lcdAutoHodnota(v) {
   if (!t || t === "undefined" || t === "null" || LCD_AUTO_ZASTUPNE.indexOf(t) !== -1) return null;
   return t;
 }
+/* Položka: v košíku riadok tabuľky (tr), v rekapitulácii krokov objednávky div.cart-item v .cart-items (Michal 10. 10.
+   2026: v pokladni ostávala farba vrstiev v zlatom názve veľkými písmenami, lebo closest("tr") nič nenašiel). */
+const LCD_POLOZKA = "tr, body.ordering-process .cart-items .cart-item";
 /* CZ košík: variant je „Barva 1.vrstvy: …“, SK „Farba 1.vrstvy: …“ — popis podľa jazyka webu */
 const lcdCz = () => /^cs/i.test(document.documentElement.lang || "") || /\.cz$/i.test(location.hostname);
 const lcdVrstva = (n) => (lcdCz() ? "Barva " : "Farba ") + n + ". vrstvy: ";
@@ -141,12 +144,12 @@ function changeDescription() {
     // Storage môže byť v súkromnom režime nedostupné; použije sa pôvodný výpis.
   }
   const truckRowCount = $("span.main-link-surcharges").filter(function () {
-    return jeKamionovyRiadok($(this).closest("tr").text());
+    return jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
   }).length;
 
   // Fallback pre samostatne produkty BEZ surcharges (Premium/Klasik kufrove rohoze):
   // formatuj span.main-link-variant na bullety "Farba 1./2. vrstvy".
-  $("tr").each(function () {
+  $(LCD_POLOZKA).each(function () {
     var $row = $(this);
     if ($row.find("span.main-link-surcharges").length) return; // ma surcharges, riesi nizsie
     var $variant = $row.find("span.main-link-variant").first();
@@ -158,7 +161,7 @@ function changeDescription() {
   });
 
   $("span.main-link-surcharges").each(function () {
-    const $tr = $(this).closest("tr");
+    const $tr = $(this).closest(LCD_POLOZKA);
     if (!jeKamionovyRiadok($tr.text())) {
       // osobné autá: rozpis ako v paneli košíka; kamión ide pôvodnou cestou nižšie (skupiny z truckOrderSummary)
       if (this.classList.contains("lcd-rozpis-zdroj")) return;
@@ -172,7 +175,7 @@ function changeDescription() {
     const text = lcdDelPriplatky($(this).text());
     // Truck produkt: vozidlo NIE je v sessionStorage (tú plní autokoberce
     // konfigurátor), ale v surcharge parametri "Vozidlo: <značka model>".
-    const isTruckRow = jeKamionovyRiadok($(this).closest("tr").text());
+    const isTruckRow = jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
     if (isTruckRow && truckSummary && truckRowCount === 1) {
       const groups = parseTruckOrderSummary(truckSummary);
       if (groups.length) {
@@ -236,7 +239,7 @@ function changeDescription() {
       addLine("Typ", getCarType);
     }
     // Farba 1. a 2. vrstvy z variantu (span.main-link-variant) - nad priplatkami.
-    var $variant = $(this).closest("tr").find("span.main-link-variant").first();
+    var $variant = $(this).closest(LCD_POLOZKA).find("span.main-link-variant").first();
     var variantText = ($variant.text() || "").replace(/\s+/g, " ");
     var m1 = variantText.match(/(?:farba|barva)\s*1\.?\s*vrstvy\s*:\s*([^,]+)/i);
     var m2 = variantText.match(/(?:farba|barva)\s*2\.?\s*vrstvy\s*:\s*(.+)$/i);

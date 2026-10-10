@@ -13856,6 +13856,11 @@ body.in-kosik #cart-wrapper tr.removeable > td.p-name{grid-area:meno;padding-rig
 body.in-kosik #cart-wrapper td.p-name a.main-link{display:block;color:var(--k-ink) !important;text-decoration:none !important;
   font:normal 700 16px/1.3 var(--k-disp) !important;letter-spacing:.005em !important;text-transform:none !important;overflow-wrap:anywhere}
 body.in-kosik #cart-wrapper td.p-name a.main-link::first-letter{text-transform:uppercase}
+/* rekapitulácia v krokoch objednávky (div.cart-item): názov ako v košíku (Exo 2, tmavý, nie zlatý veľkými písmenami),
+   farby vrstiev a príplatky v odrážkach ul.lcd-rozpis (Michal 10. 10.: „nech to korešponduje všetko spolu“) */
+body.ordering-process .cart-items .cart-item-name a.main-link{display:block;color:#14110c !important;text-decoration:none !important;
+  font:normal 700 15px/1.3 "Exo 2","Segoe UI",Arial,sans-serif !important;letter-spacing:.005em !important;text-transform:none !important;overflow-wrap:anywhere}
+body.ordering-process .cart-items .cart-item-name a.main-link::first-letter{text-transform:uppercase}
 body.in-kosik #cart-wrapper td.p-name a.main-link:hover{color:var(--k-gold-lo) !important}
 body.in-kosik #cart-wrapper td.p-name .CartNoteDetails:not(:empty){margin-top:6px;color:var(--k-tlm);font:400 14px/1.4 var(--k-body)}
 body.in-kosik #cart-wrapper tr.removeable > td.p-availability{display:none !important}
