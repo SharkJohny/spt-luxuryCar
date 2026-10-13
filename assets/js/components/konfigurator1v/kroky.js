@@ -31,7 +31,7 @@ const TEXTY = {
     postup: (z) => "Váš set v " + z + " krokoch",
     hotovo: (h, z) => "Hotovo " + h + " z " + z,
     vsetko: "Všetko vybrané",
-    kompat: "Záruka kompatibility s Vaším vozidlom",
+    kompat: "Garancia kompatibility s Vaším vozidlom", // Michal 13. 10.: ako na živom webe
     dalej: "Pokračujte ďalej",
     farbyNaVyber: (n) => n + " farieb na výber",
     kroky: {
