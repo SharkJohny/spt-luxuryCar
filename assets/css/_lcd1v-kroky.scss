@@ -1007,9 +1007,12 @@ body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button
 body.lcd-1v #product-detail-form .lcd1v-k-farba > .image-wrap {
   display: none !important;
 }
+/* Michal 13. 10.: vzorka menšia, ako na pôvodnom webe (320 × 320, v strede) */
 body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-nahlad {
   display: block;
-  margin: 16px 0 0;
+  width: 100%;
+  max-width: 320px;
+  margin: 16px auto 0;
   border-radius: 12px;
   background: linear-gradient(165deg, #231e15, #0b0a07);
   box-shadow: 0 10px 24px rgba(20, 15, 5, 0.18);
