@@ -1,0 +1,436 @@
+/* LCD-1V krok 4 (rozloženie kobercov) — nový vzhľad konfigurátora jednovrstvových podľa návrhu v26.
+   Tichý test: platí LEN pod body.lcd-1v (SK Diamond Line 598, ?novy=1). Bez triedy sa nič nemení.
+   Vlastník: assets/js/components/konfigurator1v/rozlozenie.js. Kontrakt: docs/1v-kontrakt.md.
+   Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte).
+   Rozmery a farby odmerané na návrhu (jednovrstvove.html, #sprv .krok[data-krok="4"], v26) pri 1280 a 390 px. */
+
+/* živé rádiá kroku ostávajú v DOM (ctx.zapis na ne kliká, validácia košíka z nich číta) — len sa nezobrazujú;
+   náhľad obrázka voľby (.image-wrap z productPage.js) návrh v kroku 4 nemá */
+body.lcd-1v .lcd1v-rz-krok > .options-wrap,
+body.lcd-1v .lcd1v-rz-krok > .image-wrap {
+  display: none !important;
+}
+
+body.lcd-1v .lcd1v-rz {
+  --rz-ink: #14110c;
+  --rz-text: #48412f;
+  --rz-mute: #6e6752;
+  --rz-gold: #c49b31;
+  --rz-gold-hi: #e6c877;
+  --rz-gold-lo: #8f7020;
+  --rz-gold-txt: #7c5f16;
+  --rz-ram: #d3c49a;
+  --rz-zlato: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
+  --rz-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
+  --rz-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  display: block;
+  margin: 0;
+  /* vnútorný okraj tela kroku (28 / 18 px) a medzeru pod hlavičkou dáva obal kroku (worker kroky, --kr-pad) */
+  padding: 0;
+  font-family: var(--rz-body);
+  color: var(--rz-text);
+  text-align: left;
+}
+
+/* spoločný základ tlačidiel (šablóna Shoptetu štýluje button) */
+body.lcd-1v .lcd1v-rz button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  text-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.lcd-1v .lcd1v-rz button:focus-visible {
+  outline: 3px solid var(--rz-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v .lcd1v-rz img {
+  display: block;
+  max-width: none;
+  border: 0;
+}
+
+/* podnadpis + „i“ s vysvetlením */
+body.lcd-1v .lcd1v-rz .rz-podnadpis {
+  margin: 0 0 16px;
+  padding: 0;
+  font-family: var(--rz-body);
+  font-size: 14.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--rz-text);
+}
+body.lcd-1v .lcd1v-rz .rz-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 5px;
+  padding: 0;
+  vertical-align: middle;
+  border: 1px solid var(--rz-gold);
+  border-radius: 50%;
+  background: #fff;
+  font-family: var(--rz-disp);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--rz-gold-txt);
+}
+body.lcd-1v .lcd1v-rz .rz-info::after {
+  content: "";
+  position: absolute;
+  inset: -11px; /* dotyková plocha 44 px */
+}
+body.lcd-1v .lcd1v-rz .rz-vysv {
+  margin: 0 0 16px;
+  padding: 13px 14px;
+  border: 1px solid rgba(196, 155, 49, 0.4);
+  border-radius: 12px;
+  background: #faf6ea;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--rz-text);
+}
+body.lcd-1v .lcd1v-rz .rz-vysv[hidden] {
+  display: none;
+}
+body.lcd-1v .lcd1v-rz .rz-vysv b {
+  font-weight: 700;
+  color: var(--rz-ink);
+}
+
+/* „Miest na sedenie“ — zrkadlo dlaždíc kroku 2 */
+body.lcd-1v .lcd1v-rz .rz-miesta {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 2px 0 14px;
+}
+body.lcd-1v .lcd1v-rz .rz-miesta[hidden] {
+  display: none;
+}
+body.lcd-1v .lcd1v-rz .rz-miesta-nm {
+  font-family: var(--rz-disp);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rz-gold-txt);
+}
+body.lcd-1v .lcd1v-rz .rz-dlazdice {
+  display: flex;
+  padding: 3px;
+  border: 2px solid var(--rz-ram);
+  border-radius: 12px;
+  background: #fff;
+}
+body.lcd-1v .lcd1v-rz .rz-dlazdice button {
+  flex: 1 1 0;
+  height: 44px;
+  padding: 1px 6px;
+  border-radius: 9px;
+  font-family: var(--rz-disp);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: #3d3728;
+  transition: background-color 0.2s, color 0.2s;
+}
+body.lcd-1v .lcd1v-rz .rz-dlazdice button.on {
+  background: var(--rz-zlato);
+  color: #17130a;
+  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
+}
+
+/* pôdorys auta zhora */
+body.lcd-1v .lcd1v-rz .rz-plan {
+  position: relative;
+  padding: 10px 10px 6px;
+  border: 1px solid rgba(230, 200, 119, 0.22);
+  border-radius: 12px;
+  background: linear-gradient(165deg, #2a241b, #0b0a07);
+  box-shadow: 0 14px 32px rgba(20, 15, 5, 0.24);
+}
+body.lcd-1v .lcd1v-rz .rz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+body.lcd-1v .lcd1v-rz .rzp-on,
+body.lcd-1v .lcd1v-rz .rzp-vol {
+  transition: opacity 0.42s cubic-bezier(0.4, 0.9, 0.3, 1);
+}
+/* zlaté sú len zvolené rady (data-rady = počet radov; 0 = nič) */
+body.lcd-1v .lcd1v-rz[data-rady="0"] .rzp-on,
+body.lcd-1v .lcd1v-rz[data-rady="1"] [data-rad="2"] .rzp-on,
+body.lcd-1v .lcd1v-rz[data-rady="1"] [data-rad="3"] .rzp-on,
+body.lcd-1v .lcd1v-rz[data-rady="2"] [data-rad="3"] .rzp-on {
+  opacity: 0;
+}
+/* kufor sa rozsvieti až po výbere v kroku 5 */
+body.lcd-1v .lcd1v-rz:not([data-kufor="1"]) [data-rad="k"] .rzp-on {
+  opacity: 0;
+}
+/* volant podľa kroku 2 */
+body.lcd-1v .lcd1v-rz:not([data-volant="vpravo"]) [data-vol="vpravo"],
+body.lcd-1v .lcd1v-rz[data-volant="vpravo"] [data-vol="vlavo"] {
+  opacity: 0;
+}
+/* sedadlá podľa počtu miest (data-r2 / data-r3), kufor širší, keď auto nemá 3. rad */
+body.lcd-1v .lcd1v-rz:not([data-r2="2"]) .rzp-r2[data-var="2"],
+body.lcd-1v .lcd1v-rz[data-r2="2"] .rzp-r2[data-var="3"],
+body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-r3,
+body.lcd-1v .lcd1v-rz[data-r3="2"] .rzp-r3[data-var="3"],
+body.lcd-1v .lcd1v-rz[data-r3="3"] .rzp-r3[data-var="2"],
+body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-kuf[data-var="std"],
+body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-kuf[data-var="wide"],
+body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-div[data-var="std"],
+body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-div[data-var="wide"] {
+  display: none;
+}
+body.lcd-1v .lcd1v-rz .rz-legenda {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding: 8px 2px 2px;
+}
+body.lcd-1v .lcd1v-rz .rz-je {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--rz-disp);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--rz-gold-hi);
+}
+body.lcd-1v .lcd1v-rz .rz-je::before {
+  content: "";
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #e6c877, #8f7020);
+}
+body.lcd-1v .lcd1v-rz .rz-hint {
+  margin: 0;
+  padding: 1px 4px 4px;
+  font-family: var(--rz-body);
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+}
+body.lcd-1v .lcd1v-rz .rz-hint b {
+  font-weight: 600;
+  color: var(--rz-gold-hi);
+}
+
+/* karty volieb s fotkou */
+body.lcd-1v .lcd1v-rz .rz-karty {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+body.lcd-1v .lcd1v-rz .rz-karta {
+  position: relative;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 14px 10px 10px;
+  overflow: hidden;
+  border: 2px solid var(--rz-ram);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(20, 15, 5, 0.08);
+  text-align: left;
+  color: var(--rz-ink);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background-color 0.2s;
+}
+/* auto bez 3. radu (menej ako 6 miest): karta „Všetky tri rady“ sa neponúka */
+body.lcd-1v .lcd1v-rz[data-r3="0"] .rz-karta[data-rady="3"] {
+  display: none;
+}
+body.lcd-1v .lcd1v-rz .rz-karta.on {
+  border-color: var(--rz-gold);
+  background: #fffaee;
+  box-shadow: 0 10px 26px rgba(140, 105, 25, 0.26);
+}
+body.lcd-1v .lcd1v-rz .rz-foto {
+  position: relative;
+  display: block;
+  width: 112px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #0b0a07;
+}
+body.lcd-1v .lcd1v-rz .rz-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+body.lcd-1v .lcd1v-rz .rz-foto b {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  padding: 5px 0;
+  border-radius: 7px;
+  background: var(--rz-zlato);
+  font-family: var(--rz-disp);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #17130a;
+}
+body.lcd-1v .lcd1v-rz .rz-tx {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+body.lcd-1v .lcd1v-rz .rz-nm {
+  display: block;
+  font-family: var(--rz-disp);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--rz-ink);
+}
+body.lcd-1v .lcd1v-rz .rz-po {
+  display: block;
+  font-family: var(--rz-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--rz-mute);
+}
+body.lcd-1v .lcd1v-rz .rz-cena {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 7px;
+}
+body.lcd-1v .lcd1v-rz .rz-ikona {
+  display: block;
+  flex: none;
+  height: 52px;
+}
+body.lcd-1v .lcd1v-rz .rz-ikona img {
+  width: auto;
+  height: 100%;
+}
+body.lcd-1v .lcd1v-rz .rz-pl {
+  display: block;
+  flex: none;
+  font-family: var(--rz-disp);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--rz-gold-txt);
+}
+/* krúžok vpravo, po výbere zlatý s fajkou */
+body.lcd-1v .lcd1v-rz .rz-vol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #b5a473;
+  border-radius: 50%;
+  background: #fff;
+}
+body.lcd-1v .lcd1v-rz .rz-vol svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #17130a;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol {
+  border-color: transparent;
+  background: var(--rz-zlato);
+}
+body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  body.lcd-1v .lcd1v-rz .rz-dlazdice button:not(.on):hover {
+    color: var(--rz-ink);
+    background: #faf6ea;
+  }
+  body.lcd-1v .lcd1v-rz .rz-karta:hover {
+    border-color: var(--rz-gold);
+    box-shadow: 0 8px 22px rgba(140, 105, 25, 0.18);
+    transform: translateY(-1px);
+  }
+  body.lcd-1v .lcd1v-rz .rz-karta.on:hover {
+    box-shadow: 0 10px 26px rgba(140, 105, 25, 0.26);
+  }
+}
+
+@media (max-width: 400px) {
+  body.lcd-1v .lcd1v-rz .rz-karta {
+    grid-template-columns: 104px minmax(0, 1fr) 26px;
+    gap: 12px;
+    padding: 8px 12px 8px 8px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-foto {
+    width: 104px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-nm {
+    font-size: 15px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-po {
+    font-size: 13px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-cena {
+    gap: 10px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-ikona {
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v .lcd1v-rz .rzp-on,
+  body.lcd-1v .lcd1v-rz .rzp-vol,
+  body.lcd-1v .lcd1v-rz .rz-karta,
+  body.lcd-1v .lcd1v-rz .rz-dlazdice button {
+    transition: none;
+  }
+  body.lcd-1v .lcd1v-rz .rz-karta:hover {
+    transform: none;
+  }
+}

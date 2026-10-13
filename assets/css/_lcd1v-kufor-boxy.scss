@@ -1,0 +1,665 @@
+/* LCD-1V kroky 5–6 (rohož do kufra, boxy) — nový vzhľad konfigurátora jednovrstvových podľa návrhu v26.
+   Tichý test: platí LEN pod body.lcd-1v (SK Diamond Line 598, ?novy=1). Bez triedy sa nič nemení.
+   Vlastník: assets/js/components/konfigurator1v/kufor-boxy.js. Kontrakt: docs/1v-kontrakt.md.
+   Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte).
+   Všetko visí aj na značkách, ktoré pridá kufor-boxy.js (.lcd1v-kb, .lcd1v-kb-kufor, .lcd1v-kb-boxy): keď modul
+   nenaštartuje, kroky 5–6 ostanú v živom vzhľade. Živé karty a ovládače ostávajú v DOM (len skryté / preštýlované). */
+
+body.lcd-1v .lcd1v-kb,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config,
+body.lcd-1v .lcd1v-bx-pozadie {
+  --kb-ink: #14110c;
+  --kb-line: #d9d4c6;
+  --kb-gold: #c49b31;
+  --kb-gold-hi: #e6c877;
+  --kb-gold-lo: #8f7020;
+  --kb-gold-txt: #7c5f16;
+  --kb-zelena: #23865a;
+  --kb-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
+  --kb-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --kb-pas: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
+}
+
+/* ---------- kroky 5 a 6 sú viditeľné od začiatku (naživo ich skrýva jQuery .hide() až do výberu rozloženia) ---------- */
+body.lcd-1v #product-detail-form .upsale-Banner.lcd1v-kb {
+  display: flex !important;
+  /* banner nesie aj triedu .lcd1v-kb (okraje kariet nižšie) — medzera krok 4 -> 5 má byť ako medzi ostatnými (10 px) */
+  margin: 0;
+}
+body.lcd-1v #product-detail-form .upsale-Banner.lcd1v-kb > .upsale-buttons.lcd1v-kb-kufor,
+body.lcd-1v #product-detail-form .upsale-Banner.lcd1v-kb > .upsale-buttons.lcd1v-kb-boxy {
+  display: flex !important;
+}
+/* živé karty (klik na ne robí ctx.zapis cez nové karty) */
+body.lcd-1v .upsale-buttons.lcd1v-kb-kufor > .parameter-cars,
+body.lcd-1v .upsale-buttons.lcd1v-kb-boxy > .parameter-cars {
+  display: none !important;
+}
+
+/* ---------- karty ---------- */
+body.lcd-1v .lcd1v-kb {
+  margin: 12px 0 4px;
+  color: var(--kb-ink);
+  font-family: var(--kb-body);
+  text-align: left;
+}
+body.lcd-1v .lcd1v-kb__pod {
+  margin: 0 0 16px;
+  font-family: var(--kb-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #48412f;
+}
+body.lcd-1v .lcd1v-kb__info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 5px;
+  padding: 0;
+  border: 1px solid var(--kb-gold);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--kb-gold-txt);
+  font: 700 12px/1 var(--kb-disp);
+  vertical-align: 1px;
+  cursor: pointer;
+}
+body.lcd-1v .lcd1v-kb__info[aria-expanded="true"] {
+  background: var(--kb-gold);
+  color: #fff;
+}
+body.lcd-1v .lcd1v-kb__vysv {
+  margin: -6px 0 14px;
+  padding: 10px 13px;
+  border-radius: 10px;
+  background: #f6f4ef;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #3d3728;
+}
+body.lcd-1v .lcd1v-kb__vysv[hidden] {
+  display: none;
+}
+body.lcd-1v .lcd1v-kb__vysv b {
+  font-weight: 700;
+  color: var(--kb-ink);
+}
+body.lcd-1v .lcd1v-kb__volby {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+body.lcd-1v .lcd1v-kb__karta {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
+  column-gap: 13px;
+  align-items: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--kb-line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--kb-ink);
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  box-shadow: none;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .18s, box-shadow .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+body.lcd-1v .lcd1v-kb__karta:hover {
+  border-color: #c9b98a;
+}
+body.lcd-1v .lcd1v-kb__karta:focus-visible {
+  outline: 2px solid var(--kb-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v .lcd1v-kb__karta--naj {
+  border-color: #d6bd76;
+}
+body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"] {
+  border-color: var(--kb-gold);
+  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, .18);
+}
+body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #2f9c68, #1d6b4a);
+  color: #fff;
+  font: 800 12px/1 Arial, sans-serif;
+  box-shadow: 0 3px 10px rgba(20, 15, 5, .4);
+}
+body.lcd-1v .lcd1v-kb__karta--naj[aria-pressed="true"]::after {
+  top: 37px;
+}
+/* ★ Najobjednávanejšie: zlatý pás cez celú šírku karty */
+body.lcd-1v .lcd1v-kb__top {
+  grid-column: 1 / -1;
+  display: block;
+  padding: 7px 12px 6px;
+  background: var(--kb-pas);
+  color: #17130a;
+  font: 800 11.5px/1.2 var(--kb-disp);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+body.lcd-1v .lcd1v-kb__fot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 8px 0 8px 8px;
+}
+body.lcd-1v .lcd1v-kb__fot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 9px;
+  margin: 0;
+}
+body.lcd-1v .lcd1v-kb__tx {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 11px 13px 11px 3px;
+}
+body.lcd-1v .lcd1v-kb__nm {
+  display: block;
+  padding-right: 26px;
+  font: 800 18px/1.15 var(--kb-disp);
+  color: var(--kb-ink);
+}
+body.lcd-1v .lcd1v-kb__po {
+  display: block;
+  margin-top: 3px;
+  font: 700 11px/1.3 var(--kb-body);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--kb-gold-txt);
+}
+body.lcd-1v .lcd1v-kb__ben {
+  display: block;
+  margin-top: 5px;
+  font: 400 14px/1.4 var(--kb-body);
+  color: #3d3728;
+}
+body.lcd-1v .lcd1v-kb__cn {
+  display: block;
+  margin-top: 8px;
+  font: 700 12.5px/1.2 var(--kb-disp);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--kb-gold-txt);
+}
+body.lcd-1v .lcd1v-kb__ucet {
+  display: block;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed #ddd5c2;
+}
+body.lcd-1v .lcd1v-kb__r {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 0;
+  padding: 2px 0;
+  font: 400 13.5px/1.45 var(--kb-body);
+  color: #6e6752;
+}
+body.lcd-1v .lcd1v-kb__r[hidden] {
+  display: none;
+}
+body.lcd-1v .lcd1v-kb__rn {
+  color: #4f4836;
+  white-space: nowrap;
+}
+body.lcd-1v .lcd1v-kb__rh {
+  margin-left: auto;
+  font-weight: 600;
+  color: #2b261a;
+  white-space: nowrap;
+}
+body.lcd-1v .lcd1v-kb__r--zl .lcd1v-kb__rh {
+  font-weight: 700;
+  color: var(--kb-zelena);
+}
+body.lcd-1v .lcd1v-kb__r--sum {
+  margin-top: 4px;
+  padding: 5px 0 2px;
+  border-top: 1px solid #e6e0d1;
+}
+body.lcd-1v .lcd1v-kb__r--sum .lcd1v-kb__rn {
+  font: 700 11px/1.45 var(--kb-disp);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+body.lcd-1v .lcd1v-kb__r--sum .lcd1v-kb__rh {
+  font: 800 20px/1.45 var(--kb-disp);
+  color: #2b261a;
+}
+/* „V sete“ je prvý riadok, kým nie sú ceny samostatných produktov -> bez čiary navrchu */
+body.lcd-1v .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
+  margin-top: 0;
+  border-top: 0;
+}
+/* úzky telefón (320 px): menšia fotka, nech sa riadky ceny zmestia */
+@media (max-width: 359px) {
+  body.lcd-1v .lcd1v-kb__karta {
+    grid-template-columns: minmax(0, 36%) minmax(0, 1fr);
+    column-gap: 10px;
+  }
+  body.lcd-1v .lcd1v-kb__tx {
+    padding-right: 10px;
+  }
+  body.lcd-1v .lcd1v-kb__nm {
+    font-size: 16.5px;
+  }
+  body.lcd-1v .lcd1v-kb__r {
+    font-size: 12.5px;
+  }
+  body.lcd-1v .lcd1v-kb__r--sum .lcd1v-kb__rh {
+    font-size: 18px;
+  }
+}
+@media (min-width: 721px) {
+  body.lcd-1v .lcd1v-kb__karta {
+    grid-template-columns: minmax(0, min(46%, 250px)) minmax(0, 1fr);
+  }
+  body.lcd-1v .lcd1v-kb__nm {
+    font-size: 19px;
+  }
+  body.lcd-1v .lcd1v-kb__r {
+    font-size: 14.5px;
+  }
+}
+
+/* ---------- okno boxov = živý .box-config (farba, veľkosti, validácia ostávajú) ---------- */
+/* Zatvorené okno ostáva vykreslené (validácia lcdBoxConfigUnfilled číta offsetParent), len neviditeľné. */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config {
+  position: fixed !important;
+  z-index: 2147482001;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 50% !important;
+  box-sizing: border-box;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 108px);
+  margin: 0;
+  padding: 22px 24px 24px !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0 !important;
+  border-top: 3px solid var(--kb-gold) !important;
+  border-radius: 20px !important;
+  background: #fff !important;
+  box-shadow: 0 30px 80px rgba(10, 8, 6, .45);
+  color: var(--kb-ink);
+  font-family: var(--kb-body);
+  text-align: left;
+  transform: translate(-50%, -46%);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s, visibility 0s linear .2s;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb.showConf .box-config {
+  transform: translate(-50%, -50%);
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .2s, transform .2s;
+}
+@media (max-width: 720px) {
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config {
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100%;
+    max-height: 88vh;
+    max-height: 88dvh;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 20px 20px 0 0 !important;
+    transform: translateY(32px);
+  }
+  body.lcd-1v .upsale-Banner.lcd1v-kb.showConf .box-config {
+    transform: none;
+  }
+}
+body.lcd-1v .lcd1v-bx-pozadie {
+  position: fixed;
+  inset: 0;
+  z-index: 2147482000;
+  background: rgba(10, 8, 6, .72);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .2s, visibility 0s linear .2s;
+}
+body.lcd-1v.lcd1v-bx-otvorene .lcd1v-bx-pozadie {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .2s;
+}
+body.lcd-1v.lcd1v-bx-otvorene {
+  overflow: hidden;
+}
+/* chat Luxia (z-index 2147483000) by ležal na tlačidle „Potvrďte výber boxov“ — kým je okno otvorené, ustúpi */
+body.lcd-1v.lcd1v-bx-otvorene iframe[title="Luxia chat"] {
+  visibility: hidden !important;
+}
+/* živé prvky okna, ktoré nahrádza nový nadpis / tlačidlá (ostávajú v DOM aj s handlermi) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config > .order,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config > h5.variant.name,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config > .close-btn,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap > .order,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap > .name-wrap,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap > .lcd-color-label,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap > .next-step-button,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap > .image-wrap {
+  display: none !important;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__hd {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__nadpis {
+  margin: 0;
+  padding: 10px 0 0;
+  font: 700 19px/1.2 var(--kb-disp);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--kb-ink);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__x {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--kb-line);
+  border-radius: 50%;
+  background: #fff;
+  color: #4a4433;
+  font: 400 22px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__x:hover {
+  border-color: var(--kb-gold);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__x:focus-visible,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok:focus-visible {
+  outline: 2px solid var(--kb-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pod {
+  margin: 0 0 10px;
+  font: 400 13.5px/1.5 var(--kb-body);
+  color: #4a4433;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .config-wrap {
+  display: block;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap {
+  display: block !important;
+  max-height: none !important;
+  min-height: 0;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+/* skryté veľkosti (živý kód .hide() pre iný počet boxov) ostávajú skryté */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap[style*="display: none"] {
+  display: none !important;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap.lcd1v-bx-velk {
+  margin-top: 20px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid #ece6d6 !important;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__nadp {
+  margin: 0 0 7px;
+  font: 600 10.5px/1.6 var(--kb-disp);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #3d3728;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .lcd1v-bx__nadp {
+  margin-bottom: 16px;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap {
+  display: grid !important;
+  width: 100% !important;
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .options-wrap {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .options-wrap {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+/* spoločný základ živých tlačidiel v okne (prebije živé šírky 17 % / 22 % / 46 % / 50 px a sivé pozadie) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap .button.option-button {
+  position: relative;
+  box-sizing: border-box;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  margin: 0 !important;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--kb-ink);
+  text-align: center;
+  cursor: pointer;
+  overflow: visible;
+  transform: none;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap .button.option-button::before,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap .button.option-button::after {
+  content: none !important;
+  display: none !important;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap .button.option-button:focus-visible {
+  outline: 2px solid var(--kb-gold);
+  outline-offset: 2px;
+}
+/* živé pravidlo .parameter-cars .button.option-button span (padding 5px, top 2px) — nové popisky veľkostí ho nechcú */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config :where(.options-wrap .button.option-button span) {
+  position: static;
+  top: auto;
+  padding: 0;
+  line-height: inherit;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap .button.option-button > .text,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .options-wrap .button.option-button > .description {
+  display: none !important;
+}
+/* farba: štvorcová vzorka */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button img {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: none;
+  max-height: none !important;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  margin: 0 !important;
+  border: 1px solid rgba(20, 15, 5, .3);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button.active img {
+  border-color: var(--kb-gold);
+  box-shadow: 0 0 0 2.5px rgba(196, 155, 49, .55), 0 6px 14px rgba(20, 15, 5, .3);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button.active::after {
+  content: "✓" !important;
+  display: flex !important;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--kb-gold-hi), var(--kb-gold-lo));
+  color: #17130a;
+  font: 800 10px/1 Arial, sans-serif;
+  box-shadow: 0 2px 6px rgba(20, 15, 5, .35);
+}
+/* veľkosť: karta S / M / L / XL */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 10px !important;
+  border: 1px solid var(--kb-line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  transition: border-color .18s, box-shadow .18s;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button:hover {
+  border-color: #c9b98a !important;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button.active {
+  border-color: var(--kb-gold) !important;
+  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, .18);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--kb-line);
+  border-radius: 11px;
+  background: #f5f2ea;
+  color: #4a4433;
+  font: 800 17px/1 var(--kb-disp);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .button.option-button.active .lcd1v-bx__vl {
+  border-color: transparent;
+  background: linear-gradient(150deg, var(--kb-gold-hi), var(--kb-gold-lo));
+  color: #17130a;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__rozmer {
+  font: 400 12.5px/1.15 var(--kb-body);
+  color: #4a4433;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pripl {
+  font: 800 14px/1.15 var(--kb-disp);
+  color: var(--kb-gold-txt);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__topv {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--kb-pas);
+  color: #17130a;
+  font: 800 9.5px/1 var(--kb-disp);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 3px 9px rgba(20, 15, 5, .32);
+}
+/* chyba (živá validácia: farba / veľkosť chýba -> .lcd-needs-fill na 3 s) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__chyba {
+  display: none;
+  margin: 12px 0 0;
+  padding: 11px 13px;
+  border: 2px solid #e8c3bd;
+  border-radius: 11px;
+  background: #fdf4f3;
+  color: #a9342a;
+  font: 600 13px/1.35 var(--kb-body);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap.lcd-needs-fill .lcd1v-bx__chyba,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap.selection-required .lcd1v-bx__chyba {
+  display: block;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  margin: 20px 0 0;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  color: #fff;
+  font: 900 14px/1.6 var(--kb-disp);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 26px rgba(31, 115, 80, .34), inset 0 1px 0 rgba(255, 255, 255, .22);
+  cursor: pointer;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok:hover {
+  filter: brightness(1.05);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config,
+  body.lcd-1v .lcd1v-bx-pozadie,
+  body.lcd-1v .lcd1v-kb__karta {
+    transition: none !important;
+  }
+}

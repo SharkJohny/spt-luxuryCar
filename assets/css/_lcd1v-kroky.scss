@@ -1,0 +1,1087 @@
+/* LCD-1V kroky 1–3 (vzor prešívania, Vaše auto, farba) — nový vzhľad konfigurátora jednovrstvových podľa návrhu v26.
+   Tichý test: platí LEN pod body.lcd-1v (SK Diamond Line 598, ?novy=1). Bez triedy sa nič nemení.
+   Vlastník: assets/js/components/konfigurator1v/kroky.js. Kontrakt: docs/1v-kontrakt.md.
+   Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte).
+   Rozmery a farby odmerané na návrhu (jednovrstvove.html, #sprv .krok[data-krok=1..3] + #krPostup, v26) pri 1280 a 390 px.
+
+   Obal všetkých 6 krokov (.lcd1v-krok = živý krok): karta, hlavička button.lcd1v-hd, živý .order priehľadne cez
+   hlavičku (klik = živý akordeón), zatvorená karta = len hlavička, otvorená = živá trieda .active, červený rám
+   .lcd1v-chyba (z živej validácie .lcd-needs-fill), zelené „Pokračujte ďalej“ = živé .next-step-button. */
+
+body.lcd-1v {
+  --kr-gold: #c49b31;
+  --kr-gold-lo: #8f7020;
+  --kr-gold-hi: #e6c877;
+  --kr-gold-tx: #7c5f16;
+  --kr-zlato: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
+  --kr-ink: #14110c;
+  --kr-tmava: #3d3728;
+  --kr-text: #48412f;
+  --kr-mute: #6e6752;
+  --kr-line: #d9d4c6;
+  --kr-ram: #d3c49a;
+  --kr-zelena: #2f9c68;
+  --kr-cervena: #c0392b;
+  --kr-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
+  --kr-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --kr-pad: 28px;
+}
+
+/* ---------------------------------------------------------------- zoznam krokov, pás kompatibility, postup */
+body.lcd-1v #product-detail-form .content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+/* živý banner „Garancia kompatibility…“ nahrádza .lcd1v-kompat nad krokmi */
+body.lcd-1v .p-info-wrapper .model-info {
+  display: none !important;
+}
+
+body.lcd-1v .lcd1v-kompat {
+  order: 3; /* .p-info-wrapper je flex so živým poradím (.content-wrap order 3) -> tesne nad krokmi */
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 14px 0 0;
+  padding: 14px 0 16px;
+  border-bottom: 1px solid var(--kr-line);
+  background: none;
+  font-family: var(--kr-body);
+  text-align: left;
+}
+body.lcd-1v .lcd1v-kompat[hidden] {
+  display: none;
+}
+body.lcd-1v .lcd1v-kompat-ic {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: -3px 0 0;
+  border-radius: 50%;
+  background: var(--kr-zelena);
+  color: #fff;
+  font: 700 13px/1 var(--kr-body);
+}
+body.lcd-1v .lcd1v-kompat-tx {
+  min-width: 0;
+}
+body.lcd-1v .lcd1v-kompat-tx b {
+  display: block;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 700;
+  color: var(--kr-ink);
+}
+body.lcd-1v .lcd1v-kompat-tx i {
+  display: block;
+  font-style: normal;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--kr-mute);
+  overflow-wrap: anywhere;
+}
+
+body.lcd-1v .lcd1v-postup {
+  order: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 12px;
+  margin: 24px 0 0;
+}
+body.lcd-1v .lcd1v-postup-t,
+body.lcd-1v .lcd1v-postup-st {
+  font-family: var(--kr-disp);
+  font-weight: 700;
+  font-size: 10.5px;
+  line-height: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--kr-tmava);
+}
+body.lcd-1v .lcd1v-postup-st {
+  color: var(--kr-gold-tx);
+}
+body.lcd-1v .lcd1v-postup-dl {
+  display: flex;
+  flex: 1 0 100%;
+  gap: 4px;
+  margin-top: 8px;
+}
+body.lcd-1v .lcd1v-postup-dl i {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: #dcd6c6;
+  transition: background-color 0.3s;
+}
+body.lcd-1v .lcd1v-postup-dl i.h {
+  background: var(--kr-zelena);
+}
+body.lcd-1v .lcd1v-postup-dl i.o {
+  background: linear-gradient(90deg, #8f7020, #e6c877 55%, #c49b31);
+  box-shadow: 0 2px 6px rgba(140, 105, 25, 0.3);
+}
+
+/* ---------------------------------------------------------------- karta kroku */
+body.lcd-1v #product-detail-form .lcd1v-krok {
+  position: relative;
+  max-height: none !important;
+  /* telefón, K3: živý kód po výbere rozloženia drží na kroku 0,7–2,5 s inline max-height: 50px !important;
+     min-height (výška hlavičky) má pred max-height prednosť, zatvorená karta sa teda neoreže */
+  min-height: calc(var(--lcd1v-hd-h, 0px) + 2px);
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0;
+  background: #f7f5ef;
+  border: 1px solid #e2ddd0 !important;
+  border-radius: 14px;
+  box-shadow: none !important;
+  color: var(--kr-ink);
+  font-family: var(--kr-body);
+  text-align: left;
+  transition: box-shadow 0.3s, border-color 0.3s, background-color 0.3s;
+  will-change: auto;
+}
+body.lcd-1v #product-detail-form .upsale-Banner > .lcd1v-krok {
+  margin-top: 10px !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) {
+  background: #fff;
+  border-color: var(--kr-line) !important;
+  box-shadow: 0 2px 8px rgba(20, 15, 5, 0.06) !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active {
+  padding: 0 var(--kr-pad) var(--kr-pad);
+  background: #fff;
+  border-color: var(--kr-line) !important;
+  border-top: 3px solid var(--kr-gold) !important;
+  border-radius: 16px;
+  box-shadow: 0 24px 56px rgba(20, 15, 5, 0.18) !important;
+}
+
+/* zatvorená karta = len hlavička (+ priehľadný živý .order); názov živého kroku nahrádza hlavička */
+body.lcd-1v #product-detail-form .lcd1v-krok:not(.active) > :not(.lcd1v-hd):not(.order),
+body.lcd-1v #product-detail-form .lcd1v-krok > h5.variant.name,
+body.lcd-1v #product-detail-form .lcd1v-krok > .name-wrap {
+  display: none !important;
+}
+
+/* živý .order (číslo kroku + šípka) = priehľadná plocha cez celú hlavičku: klik na hlavičku je klik na živý akordeón */
+body.lcd-1v #product-detail-form .lcd1v-krok > .order {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: 0 !important;
+  z-index: 3;
+  display: block !important;
+  width: auto !important;
+  height: var(--lcd1v-hd-h, 68px) !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 14px 14px 0 0;
+  background: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  opacity: 1 !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .order::before,
+body.lcd-1v #product-detail-form .lcd1v-krok > .order::after {
+  content: none !important;
+  display: none !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .order > * {
+  display: none !important;
+}
+
+/* poradie v karte: živé kroky sú flex stĺpce s vlastným order (napr. auto: výber auta 1, volant 2, tlačidlo 5) */
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-hd { order: -10; }
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pod { order: -9; }
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-nahlad { order: 50; }
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-chyba-tx { order: 90; }
+body.lcd-1v #product-detail-form .lcd1v-krok > .next-step-button { order: 95; }
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn { order: 99; }
+body.lcd-1v #product-detail-form .lcd1v-k-auto > .wheel-Position { order: 1; }
+body.lcd-1v #product-detail-form .lcd1v-k-auto > #model-selector { order: 2; }
+body.lcd-1v #product-detail-form .lcd1v-k-auto > .sit-Position { order: 3; }
+body.lcd-1v #product-detail-form .lcd1v-k-auto > .door-Position { order: 4; }
+
+/* ---------------------------------------------------------------- hlavička kroku */
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-hd {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 14px var(--kr-pad);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--kr-ink);
+  font: 400 17px/1.6 var(--kr-body);
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-hd:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: -3px;
+  border-radius: 14px;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) > .lcd1v-hd {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active > .lcd1v-hd {
+  align-items: flex-start;
+  width: calc(100% + 2 * var(--kr-pad));
+  margin: 0 calc(-1 * var(--kr-pad)) 22px;
+  padding: 28px var(--kr-pad) 0;
+}
+/* šípka: zatvorený krok dole (sivá), otvorený hore (zlatá); hotový zatvorený má namiesto nej „Zmeniť“ */
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-hd::after {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 9px;
+  margin: 0 0 0 auto;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23b3aa90' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 14px 9px;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active > .lcd1v-hd::after {
+  margin-top: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  transform: rotate(180deg);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) > .lcd1v-hd::after {
+  display: none;
+}
+
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-no {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #cfc8b6;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--kr-mute);
+  font: 700 12.5px/1 var(--kr-disp);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy .lcd1v-no {
+  border-color: var(--kr-zelena);
+  background: var(--kr-zelena);
+  color: transparent;
+  font-size: 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy .lcd1v-no::after {
+  content: "\2713";
+  color: #fff;
+  font: 700 13px/1 var(--kr-body);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-chyba .lcd1v-no {
+  border-color: var(--kr-cervena);
+  background: var(--kr-cervena);
+  color: #fff;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-no {
+  display: none;
+}
+
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-tx {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-ey,
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-ti {
+  display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-nm {
+  display: block;
+  color: var(--kr-tmava);
+  font: 700 15.5px/1.3 var(--kr-body);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-vy {
+  display: block;
+  margin: 1px 0 0;
+  color: #7a735e;
+  font: 400 13.5px/1.35 var(--kr-body);
+  overflow-wrap: anywhere;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-nm {
+  color: var(--kr-mute);
+  font: 600 10.5px/16.8px var(--kr-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-vy {
+  margin-top: 2px;
+  color: var(--kr-ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-nm,
+body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-vy {
+  display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ey {
+  display: block;
+  color: var(--kr-gold-tx);
+  font: 700 12.5px/20px var(--kr-disp);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active.lcd1v-chyba .lcd1v-ey {
+  color: #a9342a;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti {
+  display: block;
+  max-width: 11em;
+  margin: 10px 0 0;
+  color: var(--kr-ink);
+  font: 700 26.88px/1.22 var(--kr-disp);
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 3px;
+  margin: 14px 0 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #c49b31, #e8c96a);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-zm {
+  display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-zm {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin: 0 0 0 auto;
+  padding: 6px 0 3px;
+  border-bottom: 1px solid rgba(196, 155, 49, 0.6);
+  color: var(--kr-gold-tx);
+  font: 700 10.5px/16.8px var(--kr-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok:not(.active) > .order:hover ~ .lcd1v-hd .lcd1v-zm {
+  border-bottom-color: var(--kr-gold-tx);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok:not(.active):not(.lcd1v-hotovy):hover {
+  border-color: #d6cdb4 !important;
+  background: #f4f1e8;
+}
+
+/* ---------------------------------------------------------------- červený rám (chýbajúca voľba)
+   Živý rám .selection-required (3 s) je pod 1V potlačený pravidlami karty vyššie; rám kreslí trvalá .lcd1v-chyba. */
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-chyba {
+  --lcd1v-ram-tien: 0 14px 34px -16px rgba(150, 40, 28, 0.34);
+  background: #fff;
+  border-color: var(--kr-cervena) !important;
+  box-shadow: 0 0 0 1px var(--kr-cervena), 0 0 0 6px rgba(192, 57, 43, 0.1), var(--lcd1v-ram-tien) !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active.lcd1v-chyba {
+  --lcd1v-ram-tien: 0 24px 56px -14px rgba(120, 32, 22, 0.26);
+  border-top-color: var(--kr-cervena) !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-zablesk {
+  animation: lcd1v-kr-zablesk 1.7s cubic-bezier(0.25, 0.7, 0.3, 1) 1;
+}
+@keyframes lcd1v-kr-zablesk {
+  0%, 45.5% { box-shadow: 0 0 0 1px #c0392b, 0 0 0 0 rgba(192, 57, 43, 0.5), var(--lcd1v-ram-tien); }
+  45%, 88% { box-shadow: 0 0 0 1px #c0392b, 0 0 0 16px rgba(192, 57, 43, 0), var(--lcd1v-ram-tien); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-zablesk {
+    animation: none;
+  }
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-chyba-tx {
+  display: none;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 0 0;
+  padding: 11px 14px;
+  border: 1px solid #e8c3bd;
+  border-radius: 12px;
+  background: #fdf4f3;
+  color: #a9342a;
+  font: 600 13.5px/1.35 var(--kr-body);
+  text-align: left;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-chyba > .lcd1v-chyba-tx {
+  display: flex;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-chyba-tx::before {
+  content: "!";
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--kr-cervena);
+  color: #fff;
+  font: 700 12px/1 var(--kr-body);
+}
+
+/* ---------------------------------------------------------------- telo kroku: podnadpis, tlačidlo, poznámka */
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pod {
+  margin: 0 0 16px;
+  padding: 0;
+  color: var(--kr-text);
+  font: 400 14.5px/1.5 var(--kr-body);
+  text-align: left;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
+  margin: 16px 0 0;
+  padding: 0;
+  color: var(--kr-text);
+  font: 400 13.5px/1.6 var(--kr-body);
+  text-align: center;
+}
+
+/* „Pokračujte ďalej“ = živé tlačidlo kroku (validácia + ďalší krok = configuratorEngine.js) */
+body.lcd-1v #product-detail-form .lcd1v-krok.active > .next-step-button {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  height: 56px;
+  min-height: 0;
+  margin: 22px 0 0;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  box-shadow: 0 10px 26px rgba(31, 115, 80, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font: 900 14px/22.4px var(--kr-disp);
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active > .next-step-button:hover {
+  box-shadow: 0 14px 30px rgba(31, 115, 80, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+body.lcd-1v #product-detail-form .lcd1v-krok.active > .next-step-button:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 3px;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .next-step-button::before {
+  content: none !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .next-step-button[data-lcd1v-text] {
+  color: transparent;
+  font-size: 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .next-step-button[data-lcd1v-text]::after {
+  content: attr(data-lcd1v-text);
+  display: block;
+  color: #fff;
+  font: 900 14px/22.4px var(--kr-disp);
+  letter-spacing: 0.12em;
+}
+
+/* ---------------------------------------------------------------- krok 1: vzor prešívania */
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button {
+  position: relative;
+  display: block;
+  order: 4;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--kr-line);
+  border-radius: 12px;
+  background: #eceae5;
+  box-shadow: none;
+  overflow: hidden;
+  color: var(--kr-tmava);
+  text-decoration: none;
+  transform: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-diamond { order: 1; }
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-stripe { order: 2; }
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-hexa { order: 3; }
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button:hover {
+  border-color: var(--kr-gold);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  margin: 0;
+  border-radius: 0;
+  object-fit: cover;
+}
+/* fotky z návrhu (koberec v aute) namiesto živých bannerov 350×206; živý <img> ostáva skrytý v DOM */
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > [class*="lcd1v-vzor-"] > img {
+  display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > [class*="lcd1v-vzor-"]::before {
+  content: "";
+  display: block;
+  aspect-ratio: 1 / 1;
+  background-color: #0b0a07;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-diamond::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/kroky-vzor-diamond.jpg");
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-stripe::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/kroky-vzor-stripe.jpg");
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-hexa::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/kroky-vzor-hexa.jpg");
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .banner-header {
+  position: static;
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 11px 4px 12px;
+  background: none;
+  color: var(--kr-tmava);
+  font: 700 11px/1.25 var(--kr-disp);
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-shadow: none;
+  text-transform: uppercase;
+  transform: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active {
+  border-color: var(--kr-gold);
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--kr-gold), 0 8px 20px rgba(140, 105, 25, 0.18);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active .banner-header {
+  color: var(--kr-ink);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button::after {
+  content: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active::after {
+  content: "\2713";
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--kr-zlato);
+  color: #17130a;
+  font: 700 11px/1 var(--kr-body);
+}
+
+/* ---------------------------------------------------------------- krok 2: Vaše auto */
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position {
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position {
+  margin-top: 16px;
+}
+/* štítky (pozícia volantu, miest na sedenie, počet dverí (bez kufra)) */
+body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars > .label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.35em;
+  width: auto;
+  min-width: 0;
+  margin: 0 0 7px;
+  padding: 0 !important; /* živé .parameter-cars .label { padding: 20px 10px 0 !important } */
+  color: var(--kr-tmava);
+  font: 600 10.5px/16.8px var(--kr-disp);
+  letter-spacing: 0.14em;
+  text-align: left;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars > .label > div,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars > .label .label-sub {
+  margin: 0;
+  opacity: 1;
+  color: inherit !important;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+/* pozícia volantu: biely prepínač so zlatou „pilulkou“ */
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position > .option-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  width: auto;
+  margin: 0;
+  padding: 5px;
+  border: 2px solid var(--kr-ram);
+  border-radius: 999px;
+  background: #fff;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  min-height: 47px;
+  margin: 0;
+  padding: 14px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  box-shadow: none;
+  color: #17130a;
+  font: 700 12px/14.4px var(--kr-disp);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button img {
+  display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button .text,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button span {
+  position: static;
+  display: inline;
+  order: 1;
+  margin: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button span {
+  order: 2;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button span::before {
+  content: "\2014";
+  margin: 0 0.4em;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button.active,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button.active,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button.active {
+  background: var(--kr-zlato);
+  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
+  color: #17130a;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::before,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::after {
+  content: none !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 2px;
+}
+
+/* počet miest / dverí: biely pás dlaždíc */
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position > .option-wrap,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position > .option-wrap {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  width: auto;
+  margin: 0;
+  padding: 3px;
+  border: 2px solid var(--kr-ram);
+  border-radius: 12px;
+  background: #fff;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  height: 44px !important; /* živé .base-config.active .parameter-cars .button.option-button { height: unset !important } */
+  min-height: 0;
+  margin: 0;
+  padding: 1px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  box-shadow: none;
+  color: var(--kr-tmava);
+  font: 700 15px/1 var(--kr-disp);
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button:not(.active):hover,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button:not(.active):hover,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button:not(.active):hover {
+  background: #f7f1df;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button .text,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button .text {
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+}
+
+/* značka / model / rok / karoséria: biele polia s rámom (v21-polia), čiarkovaná deliaca čiara nad nimi */
+body.lcd-1v #product-detail-form .lcd1v-k-auto #model-selector {
+  display: block;
+  width: auto;
+  margin: 22px 0 0 !important; /* živé section { margin: 0 !important } */
+  padding: 16px 0 0;
+  border: 0;
+  border-top: 2px dashed var(--kr-line);
+  background: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto #model-selector .model-selector {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .modl-selector-wrap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .modl-selector-wrap > .lcd1v-pole {
+  display: block;
+  text-align: left; /* živý mobil centruje štítky aj text vo výbere */
+  width: auto !important; /* živé .base-config .surcharge-list { width: 45% !important } */
+  min-width: 0;
+  margin: 0 !important; /* živé pravidlo dáva poliam margin-right 20 px -> polia by boli užšie ako krok */
+  padding: 0;
+  border: 0;
+  background: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .modl-selector-wrap > .lcd1v-pole::before {
+  content: attr(data-lcd1v-stitok);
+  display: block;
+  margin: 0 0 7px;
+  color: var(--kr-tmava);
+  font: 600 10.5px/16.8px var(--kr-disp);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole .selector {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole .selector::before,
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole .selector::after {
+  content: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select {
+  display: block;
+  width: 100% !important; /* živé .parameter-cars .selector select { width: 150px !important } */
+  min-width: 0;
+  max-width: none;
+  height: 46px;
+  margin: 0;
+  padding: 0 40px 0 14px;
+  border: 2px solid var(--kr-ram);
+  border-radius: 12px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center / 14px 9px;
+  box-shadow: none;
+  color: var(--kr-ink);
+  font: 400 14px/42px var(--kr-body);
+  text-align: left;
+  text-align-last: left;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select:hover {
+  border-color: var(--kr-gold);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select:focus-visible {
+  border-color: var(--kr-gold);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(196, 155, 49, 0.3);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select option {
+  color: var(--kr-ink);
+}
+/* prázdne pole: „Vyberte značku“ (text placeholderu v selecte ostáva živý — podľa neho živý kód pozná prázdne pole) */
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-prazdne select {
+  color: transparent;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-prazdne .selector::after {
+  content: attr(data-lcd1v-prazdne);
+  position: absolute;
+  top: 0;
+  right: 40px;
+  left: 16px;
+  overflow: hidden;
+  color: #4a4433;
+  font: 400 14px/46px var(--kr-body);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+/* chýbajúce pole po „Dokončite výber“ / „Pokračujte ďalej“ */
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err select {
+  border-color: var(--kr-cervena);
+  background-color: #fdf4f3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23c0392b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err .selector::after {
+  color: #a9342a;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err::after {
+  content: attr(data-lcd1v-chyba);
+  display: block;
+  margin: 6px 0 0;
+  padding: 0 0 0 19px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='7' fill='%23c0392b'/%3E%3Crect x='6.1' y='3' width='1.8' height='5.2' rx='.9' fill='%23fff'/%3E%3Ccircle cx='7' cy='10.4' r='1' fill='%23fff'/%3E%3C/svg%3E") no-repeat left center / 14px 14px;
+  color: var(--kr-cervena);
+  font: 600 12px/15.6px var(--kr-body);
+}
+
+/* ---------------------------------------------------------------- krok 3: farba (18 vzoriek, náhľad zblízka) */
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  width: auto;
+  max-height: none !important;
+  margin: 0;
+  padding: 0 !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button {
+  position: relative;
+  display: block;
+  order: 3;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(20, 15, 5, 0.22);
+  border-radius: 12px;
+  background: #e9e5da;
+  box-shadow: none;
+  overflow: hidden;
+  cursor: pointer;
+  transform: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .lcd1v-f-sitie { order: 1; }
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .lcd1v-f-jedno { order: 2; }
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button:hover {
+  border-color: var(--kr-gold);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: cover;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button .text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button::before {
+  content: none !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button::after {
+  content: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button.active::after {
+  content: "\2713";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  left: auto;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kr-zlato);
+  color: #17130a;
+  font: 700 9px/1 var(--kr-body);
+}
+/* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad hneď pod farbami */
+body.lcd-1v #product-detail-form .lcd1v-k-farba > .image-wrap {
+  display: none !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-nahlad {
+  display: block;
+  margin: 16px 0 0;
+  border-radius: 12px;
+  background: linear-gradient(165deg, #231e15, #0b0a07);
+  box-shadow: 0 10px 24px rgba(20, 15, 5, 0.18);
+  overflow: hidden;
+}
+body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-nahlad[hidden] {
+  display: none !important;
+}
+body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-nm {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 12px 14px;
+  box-shadow: inset 0 -1px 0 rgba(230, 200, 119, 0.22);
+  color: var(--kr-gold-hi);
+  font: 700 11px/17.6px var(--kr-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-nm::before {
+  content: "";
+  flex: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #e6c877, #8f7020);
+}
+body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+/* ---------------------------------------------------------------- telefón */
+@media (max-width: 720px) {
+  body.lcd-1v {
+    --kr-pad: 18px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-krok.active > .lcd1v-hd {
+    margin-bottom: 20px;
+    padding-top: 24px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-krok.active {
+    padding-bottom: 26px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti {
+    font-size: 24px;
+  }
+}
+@media (max-width: 480px) {
+  body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .banner-header {
+    padding: 10px 2px 11px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button {
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 10.5px;
+    line-height: 12.6px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-k-auto .modl-selector-wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+}

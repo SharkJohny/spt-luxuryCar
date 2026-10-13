@@ -12,6 +12,7 @@ import { initKosikDoplnok } from "./lcdKosikDoplnok.js"; // kosik: rohoz do kufr
 import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
 import { initLivePrice } from "./functions/livePrice.js";
+import { initKonfigurator1v } from "./components/konfigurator1v/index.js"; // novy vzhlad konfiguratora 1V (len SK 598 + ?novy=1)
 import { initContactForm } from "./components/contactForm.js";
 import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from "./functions/autoVyber.js";
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
@@ -92,6 +93,12 @@ $.getJSON(optionData.downloadData, function (data) {
   $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");
 
   $(".config-wrap .parameter-wrap:eq(3)").addClass("noText");
+
+  // Nový vzhľad konfigurátora jednovrstvových (tichý test: len SK 598 a len s ?novy=1, inak hneď skončí). Až tu:
+  // konfigurátor už stojí (initProduct = kroky, initModelSelect = auto, validation = výzva na auto,
+  // initConfiguratorEngine = postup a kontrola košíka, initLivePrice = cena) — moduly len prestavujú hotový DOM
+  // a ich handlery sa registrujú až po živých (živé bežia prvé).
+  initKonfigurator1v(setupData, texts);
 });
 
 const logoGoogle =

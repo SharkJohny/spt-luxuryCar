@@ -1,0 +1,309 @@
+# Konfigurátor 1V — kontrakt pre nový vzhľad (SK Diamond Line 598, `?novy=1`)
+
+Základ z 13. 10. 2026 (worktree `spt-luxuryCar-1v`, odpojený na `5db0f33` = živý web).
+Cieľ: nový vzhľad konfigurátora a cenovej karty podľa návrhu v26 **nad živým Jánovým konfigurátorom**.
+Zapína sa len na SK 598 a len s `?novy=1` (tichý test). Kufor a boxy budú viditeľné kroky 5 a 6.
+
+Tento súbor platí pre všetkých štyroch workerov. Spoločné súbory (sekcia 10) sa po základe nemenia.
+
+---
+
+## 1. Brána (gating)
+
+| Čo | Kde | Pravidlo |
+|---|---|---|
+| Zoznam produktov | `components/konfigurator1v/index.js` `ZOZNAM_1V = { 562035: [598] }` | kľúč = `projectId` Shoptetu (SK 562035, CZ 581408). ID produktov sa medzi obchodmi líšia. CZ produkt 598 nie je Diamond. |
+| Zapnutie | `?novy=1` -> `sessionStorage.lcd1v = "1"` (platí v karte aj po prechode bez parametra) | `?novy=0` flag zmaže. Bez parametra sa nič nezapisuje. |
+| Trieda | `body.lcd-1v` | pridá sa len pri produkte zo zoznamu a so zapnutým flagom. **Všetko nové CSS musí byť pod `body.lcd-1v`.** |
+| Kontext | `window.__lcd1v` = `ctx` | slúži na ladenie a test. Bez flagu neexistuje. |
+| Poistka | výnimka v `init()` modulu | `index.js` triedu `lcd-1v` zloží, zákazník dostane starý vzhľad. Chyby sú v `window.__lcd1v.chyby`. |
+
+**Flag vypnutý = NULOVÁ zmena.** Test `nulova-zmena` porovnáva živý CDN a lokálny build (DOM krokov, počty, ceny, štýly, triedy body). Všetok nový JS kód začína až v `init(ctx)`. Volá ho len `index.js` za bránou: na úrovni modulu (pri importe) nesmie nič bežať.
+
+## 2. Poradie spustenia (`assets/js/main.js`)
+
+Callback `$.getJSON(data.json)`: `initKosikDoplnok` → `initProduct` (kroky, kufor/boxy, box-config) → `initModelSelect` (selecty auta do K1) → `validation` (výzva „vyberte model“) → `initConfiguratorEngine` (akordeón, „Prejsť k ďalšiemu kroku“, validácia košíka) → `initLivePrice` (cena) → `initCart` → **`initKonfigurator1v(setupData, texts)`** (posledný).
+
+Prečo na konci: DOM konfigurátora už stojí a živé handlery sú zaregistrované skôr ako naše. Pri tom istom kliku teda bežia prvé.
+
+**Čo pribudne až neskôr (asynchrónne), moduly s tým musia počítať** (`ctx.ked()` alebo MutationObserver):
+- `.next-step-button` v každom kroku: 100–400 ms (`productPage.js` addNextStepButtons + MutationObserver).
+- `configurator-enhance.js` beží 40× každých 600 ms (≈ 24 s):
+  - obalí číslo kroku do `span.lcd-step-num`,
+  - značí `.lcd-k3-layout` a `.lcd-najobjednavanejsie`,
+  - prerába karty kufra (`data-lcd-card`, `.lcd-card-title`, `.lcd-save-pct`, `.lcd-upsale-badge`),
+  - prepíše ceny boxov solo,
+  - pridáva `.lcd-color-label`.
+- `.image-wrap` (náhľad voľby) vzniká po kliku v kroku. Pravidlo „farba len náhľad“: hlavnú fotku nemeniť.
+- FAQ sa načíta z `/faq/`, `.model-info` („Garancia kompatibility…“) vznikne po výbere auta.
+
+## 3. DOM mapa živého konfigurátora (SK 598)
+
+Všetko je vo `form#product-detail-form` (POST `/action/Cart/addCartItem/?simple_ajax_cart=1`, AJAX Shoptetu).
+
+**Pozor, v popise produktu je duplikát** `.detail-parameters` + `.upsale-Banner` s kartami kufra a boxov (mimo formulára, skrytý). Vždy hľadajte vo formulári: `ctx.form()`, `ctx.krok()`.
+
+`.p-info-wrapper` (deti v DOM poradí):
+- `.benefitBanner__item`, `.p-detail-inner-header` (H1), `.p-detail-info`,
+- **`.p-final-price-wrapper`**, `.availability-value`, `table.detail-parameters` (skryté selecty Shoptetu),
+- **`.content-wrap`** (kroky K0–K3), **`.upsale-Banner`** (kufor + boxy),
+- `.upsale-wrap`, **`.add-to-cart`**, `.p-short-description`, `.social-buttons-wrapper`, `.faq`.
+
+| Krok (návrh) | Živý element (`ctx.krok(meno)`) | Ovládače | Select Shoptetu (`ctx.parameter(kluc)`) |
+|---|---|---|---|
+| 1 Vzor | `vzor`: `.content-wrap > .position-wrap.base-config` s `.patterns-wrap` | 3× `a.button.option-button[data-value=pattern1]`. Odkazy na sesterské produkty Hexa/Stripe, aktívny je Diamond. | — (nie je pole formulára) |
+| 2 Vaše auto | `auto`: `.content-wrap > .position-wrap.base-config.active` s `.wheel-Position` | `#model-selector .modl-selector-wrap`: `.surcharge-list.brands / .models / .years / .type-selector select`. Selecty **nemajú name**, posielajú sa cez sessionStorage. Volant `.wheel-Position .option-button[data-value=left/right]`, miesta `.sit-Position [data-value=pass-2..9]` (predvolené 5), dvere `.door-Position [data-value=doors-2..6]` (predvolené 4). Všetko to ide len do sessionStorage. | `typ` (SK 74 / CZ 47) nastaví živý kód z typu karosérie (Combi +15 € …) pri ďalšom kliku na voľbu (`productPage.js` createModelInfo) |
+| 3 Farba | `farba`: `.content-wrap > .parameter-wrap.parameter-<id>` (`.order`, `.name-wrap > h5`, `.options-wrap`) | 18× `.button.option-button[data-variant=<id>][data-value=<value>]` (text + `img`) | `farba` = variant (`parameterValueId[78]` SK / `[72]` CZ). Mení `priceId`. |
+| 4 Rozloženie | `rozlozenie`: `.parameter-wrap.parameter-<id>.lcd-k3-layout` | 3× `.option-button.radio-row[data-variant][data-value]` s `input[type=radio][name=parameter-<id>]` + `label` + `img config/<slug>.png` | `rozlozenie` (SK 85 / CZ 57). Hodnoty: len 1. rad +0, 1.+2. rad +35 €, všetky 3 rady +155 € (CZ +0 / +899 / +3 899 Kč). |
+| 5 Kufor | `kufor`: `.upsale-Banner > .upsale-buttons.trunk` (`.order`, `h5`, `.parameter-cars`, `.next-step-button`) | 3× `.upsale-button.radio[value="<id>-<value>"]` (Classic, Premium, NECHCEM) | `kufor` (SK 88 / CZ 60): dno +129 €, dno + boky +239 €, nie +0 |
+| 6 Boxy | `boxy`: `.upsale-buttons.boxs` (`.order`, `h5`, `.parameter-cars`, `.box-config`, `.next-step-button.finish-button`) | karty `.upsale-button[value=conf1]` (1×), `[value=conf2]` (2×), `.upsale-button.none[value=0]` (nechcem). Okno `boxyVyber` = `.box-config` (`.close-btn.close`, `.close-btn.close.bottom` „Nechcem“, `.close-btn.return` „potvrdiť“, `.config-wrap` s `.parameter-wrap.parameter-<id>` pre farbu, 1. box, 2. box a solo) | `farbaBoxov` (91/63), `box1` (94/66), `box2` (97/69), `boxSolo` (104/78). Veľkosti S/M/L/XL podľa textu `S : 33x32x30 cm`. |
+
+- **Cena:** `ctx.krok("cena")` = `.p-final-price-wrapper` obsahuje:
+  - `span.price-standard`: `div.recommended-price` („Doporučená cena“ z `productPage.js:141`) + `span` (odporúčaná cena) + `span.price-save` („–39 %“),
+  - `strong.price-final`: `div.recommended-price-final` („Aktuálna cena“) + `span.price-final-holder.calculated[data-price]` > `span.calculated-price`.
+  - `livePrice.js` píše do `.calculated-price` a vyšle `LuxuryCarPriceRecalculated`. `productPage.js` prepíše odporúčanú cenu a percentá.
+- **Košík:** `ctx.krok("kosik")` = `.add-to-cart > button.add-to-cart-button[type=submit]` („Pridať do košíka“). Ďalšie 2 tlačidlá s rovnakou triedou sú v plugine hlavičky `#js-plugin-header` (skryté).
+
+**Validácia a stav** (`functions/configuratorEngine.js`):
+- Poradie krokov: `lcdGetSteps()`.
+- Kroky kufor/boxy sú vždy „vyplnené“.
+- Krok auta je vyplnený, keď všetky 4 selecty majú skutočnú hodnotu.
+- Nevyplnený krok pri kliku na „Pridať do košíka“:
+  - dostane triedy **`.lcd-needs-fill.selection-required`** (na 3 s),
+  - otvorí sa a na mobile sa naň posunie,
+  - formulár sa neodošle.
+- Box-config sa kontroluje zvlášť (`lcdHandleBoxConfig`): pri vybranom boxe musí mať farbu aj veľkosť.
+
+**Ďalšie správanie živého kódu:**
+- Klik kamkoľvek do `.content-wrap` bez auta otvorí okno `.overflow` s `h3` (texts.no_model_select) a tlačidlom `button.btn` („Rozumiem“) (`validation.js`).
+- Body má na začiatku triedu `disabled-add-to-cart`, prvý klik na voľbu ju zloží.
+- Po `ShoptetCartUpdated` stránka presmeruje na `/kosik/`.
+
+**Udalosti:**
+
+| Udalosť | Kto ju vyšle | Kedy |
+|---|---|---|
+| `LuxuryCarPriceRecalculated` (detail `{ basePrice, surcharge, total }`) | livePrice | po zmene príplatku |
+| `ShoptetVariantChange` | Shoptet | po zmene farby |
+| `ShoptetCartUpdated` | Shoptet | po pridaní do košíka |
+| `lcd1v:zmena` | ctx.zapis() | interne cez `ctx.na("zmena", fn)` |
+
+**Globálne funkcie:** `window.__lcdSetStepOpen(el, bool)`, `window.__lcdMeasureStep(el)`, `window.__lcdAnchorTo(el, ms)` (akordeón engine).
+
+## 4. Objekt `ctx` (`components/konfigurator1v/ctx.js`)
+
+| Člen | Čo vráti / robí |
+|---|---|
+| `projectId`, `productId`, `jazyk` (`sk`/`cs`), `trh` (`sk`/`cz`), `setupData`, `texts` | kontext |
+| `form()` | `#product-detail-form` |
+| `parameter(kluc)` | `{ kluc, id, meno, select, variant }` podľa `data-parameter-name`. Kľúče: `farba, rozlozenie, kufor, farbaBoxov, box1, box2, boxSolo, typ` (alebo číslo ID). |
+| `moznosti(kluc)` | `[{ hodnota, text (bez „+€N“), cena (príplatok s DPH zo Shoptetu), zvolena }]` |
+| `precitaj(kluc)` | aktuálna hodnota selectu (`""` = nič) |
+| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. |
+| `krok(meno)` / `menoKroku(el)` | živý element kroku: `vzor, auto, farba, rozlozenie, kufor, boxy, boxyVyber, kosik, cena` |
+| `kroky()`, `vyplneny(el)`, `prvyNevyplneny()` | to isté pravidlo ako validácia košíka. `prvyNevyplneny() === null` znamená „Vložte do košíka“, inak „Dokončite výber“. |
+| `cena()` | `{ zaklad, priplatky, spolu, odporucana, zlava }`. Variant z `necessaryVariantData` podľa `priceId` + zvolené príplatky. Odporúčaná cena = spolu × 1,6 nahor na desiatky (ako `productPage.js`). |
+| `formatCena(n)` | tvar ceny ako Shoptet (SK `€219`, CZ `5 664 Kč`) |
+| `obrazok(meno)` | `…/eshopy/luxuryCar/assets/img/1v/<meno>` |
+| **`doKosika()`** | klik na živé „Pridať do košíka“. Validáciu aj odoslanie robí živý kód. |
+| `na(meno, fn)` / `vysli(meno, detail)` | udalosti medzi modulmi. Vlastné mená s predponou modulu (`kroky:otvoreny` …). |
+| `ked(podmienka, fn, { limit })` | čaká na asynchrónny DOM (každých 100 ms) |
+| `chyby` | chyby z `init()` modulov |
+
+## 5. Jediná schválená cesta zápisu
+
+1. Voľbu zákazníka zapíše **len `ctx.zapis(kluc, hodnota)`**. Funkcia klikne natívnym `.click()` na existujúci živý ovládač vo formulári:
+   - `.option-button[data-variant][data-value]`, alebo
+   - `.upsale-button[value="<id>-<hodnota>"]`, alebo
+   - karta počtu boxov `0 / conf1 / conf2`.
+
+   Tým bežia všetky pôvodné handlery: `priceActualization` → `$(select).val(v).trigger("change")`, variant a `priceId` Shoptetu, livePrice, TYP z auta, aktívne triedy pre validáciu, odporúčaná cena. Až keď ovládač neexistuje, nastaví select rovnakou cestou `$(select).val(v).trigger("change")`.
+2. Auto sa vyberá v živých selectoch `.modl-selector-wrap select` (natívny `change`). Ten zapíše sessionStorage `Brand/Model/Year/carType/model` a z toho vznikne poznámka objednávky `#remark` (`main.js` addNote).
+   - Nový vzhľad môže selecty preštýlovať, alebo ich ovládať vlastným prvkom.
+   - Vlastný prvok však musí nastaviť **ten istý `<select>`** a vyslať `change`.
+3. Do košíka **len `ctx.doKosika()`**. Platí aj pre lepivú lištu.
+4. **Zakázané:**
+   - vlastný POST alebo fetch na `/action/…`,
+   - ceny natvrdo (vždy `ctx.cena()` / `ctx.moznosti()` / `data-surcharge-*`),
+   - ID parametrov natvrdo (vždy `ctx.parameter(kluc)`),
+   - mazanie alebo nahrádzanie živého DOM: JS naň kotví za behu (incident 27. 8.). Dovolené je preštýlovať, presunúť a vizuálne skryť (CSS pod `body.lcd-1v`; prvok ostane v DOM aj so svojimi handlermi).
+   - nové `<input>`/`<select>` **s atribútom `name`** vo formulári (išli by do POST, test to zachytí).
+5. Opakovaný zápis tej istej hodnoty vráti `"uz"` a nič neprepína. Klik na aktívnu kartu by ju totiž odznačil.
+6. `zapis("kufor", "")` voľbu zruší. `zapis("pocetBoxov", 0|1|2)` vyberie kartu. Okno box-config (`.upsale-Banner.showConf`) potom otvorí živý kód.
+
+## 6. Kontrakt POST — čo dnes posiela živý web (zachytené 13. 10. 2026, CDN 5db0f33, 1280 aj 390 rovnako)
+
+Auto pri všetkých scenároch: Audi A6 2015 Combi. Farba je 3. voľba (549, Čierna/Čierna, `priceId` 63493).
+
+| Scenár | Telo POST (`application/x-www-form-urlencoded`) | Cena |
+|---|---|---|
+| `platne` (1.+2. rad, bez kufra a boxov) | `productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=589&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&parameter-85=589&amount=1` | 269 (odp. 440, −39 %) |
+| `kufor-classic` (len 1. rad) | `…[85]=586&…[88]=595&…[91]=&…[94]=&…[97]=&…[74]=470&…[104]=&parameter-85=586…` | 363 = 219 + 129 + 15 |
+| `kufor-premium` | `…[85]=586&…[88]=601&…[91]=&…[94]=&…[97]=&…[74]=470&…[104]=…` | 473 = 219 + 239 + 15 |
+| `box-1` (farba boxov 2., veľkosť M) | `…[85]=586&…[88]=&…[91]=610&…[94]=&…[97]=&…[74]=470&…[104]=734…` | 343 = 219 + 109 (solo M) + 15 |
+| `box-2` (Classic + 2 boxy M a S) | `…[85]=586&…[88]=595&…[91]=604&…[94]=622&…[97]=634&…[74]=470&…[104]=…` | 551 = 219 + 129 + 99 + 89 + 15 |
+| `ctx-zapis` (len `--novy`, cez ctx) | `priceId=63499&…[78]=555&…[85]=589&…[88]=595&…[91]=613&…[94]=625&…[97]=634&…[74]=470&…[104]=&amount=1` (bez `parameter-85`) | 606 |
+
+Čo z toho vyplýva:
+- **Nevybraný kufor alebo boxy = prázdna hodnota** (`[88]=`, `[91]=` …), nie „nie“ (598). Karta NECHCEM pri kufri nemá triedu `.none`, takže automatický výber „nechcem“ v `configuratorEngine.js` ju nechytí. Pri boxoch karta „nechcem“ vynuluje veľkosti. Test povoľuje prázdnu hodnotu aj hodnotu „nie/ŽIADNY“. Nový vzhľad musí poslať jedno z toho, nikdy cenu navyše.
+- **1 box** = `boxSolo` (104), nie `box1`. **2 boxy** = `box1` + `box2`. V sete stojí 1 box (solo) iné peniaze ako 1. box z dvojice: M +109 € vs +99 €.
+- **TYP** (74) ide vždy, podľa typu karosérie.
+- `parameter-85` (rádio rozloženia) pribudne len pri skutočnom kliku na rádio. Server ho ignoruje, test ho berie ako voliteľný.
+- Množina kľúčov = `productId, priceId, language, amount` + `name` všetkých selectov formulára (+ voliteľné rádio). Iný kľúč = chyba.
+
+## 7. Ponuka v košíku (`lcdKosikDoplnok.js`) vs. kroky 5–6
+
+Ponuka v košíku číta príplatky riadku setu (`coChyba(volby, mapa, R)`):
+- **rohož** = `"ma"`, keď je `kufor` Classic alebo Premium. Inak `"chyba"`.
+- **box** = `"ma"`, keď niektorý z `box1/box2/boxSolo` má veľkosť.
+
+To, čo zákazník vyberie v krokoch 5–6, ide v tom istom riadku košíka. Ponuka ho teda podľa kódu znova neponúkne. **Worker kufor-boxy to musí overiť testom** (`tools/test-kosik-doplnok.mjs` + fixture riadku s `[88]=595` a s boxmi) a strážiť. Úpravy sú dovolené len vo vlastníctve kufor-boxy. Ponuka druhej vrstvy ostáva.
+
+## 8. CSS a obrázky
+
+- Partialy sú **čisté CSS** (nekompilujú sa, `luxuryCar.scss` NIKDY nekompilovať):
+  - `assets/css/_lcd1v-kroky.scss`, `_lcd1v-rozlozenie.scss`, `_lcd1v-kufor-boxy.scss`, `_lcd1v-cena.scss`.
+  - `tools/vloz-lcd-css.py` ich vkladá do `luxuryCar.css` ako bloky `LCD-1V-KROKY`, `LCD-1V-ROZLOZENIE`, `LCD-1V-KUFOR-BOXY`, `LCD-1V-CENA` (za `LCD-KOSIK`).
+- **Každý selektor začína `body.lcd-1v`.** Žiadne `@import`, žiadne globálne premenné na `:root`. Premenné daj na `body.lcd-1v`.
+- Test si skladá CSS sám (`vloz-lcd-css.py --vystup <tmp>`), workeri teda `luxuryCar.css` počas práce nemenia.
+  - Pred commitom koordinátor spustí `python tools/vloz-lcd-css.py`.
+  - CI kontroluje `--check`.
+- Vzhľad merať na návrhu (`http://127.0.0.1:8952/jednovrstvove.html`, `#sprv .krok[data-krok=1..6]`, finál v26) cez computed styles a snímky. Patch vrstvy nekopírovať.
+- Nové obrázky ukladaj do `assets/img/1v/<nové-meno>` (nikdy neprepisovať existujúci súbor v `assets/img/`). Predpona podľa workera, aby sa mená nebili: `kroky-*`, `rozlozenie-*`, `kufor-*` / `box-*`, `cena-*`.
+  - CDN: `ctx.obrazok("meno.jpg")` = `…/eshopy/luxuryCar/assets/img/1v/meno.jpg`. Test ich servíruje lokálne.
+  - Do CSS píš absolútnu CDN adresu.
+- Luxia (iframe `luxia-*.rostiapp.cz`, `position: fixed`, 76×76 vpravo dole, na 390 px pri x 312 / y 718) **nesmie zakryť ovládače** ani lepivú lištu. Každý klik testu to overuje.
+
+## 9. Test `tools/test-konfigurator-1v.mjs`
+
+```
+node tools/test-konfigurator-1v.mjs                       # všetko, 1280 + 390, flag vypnutý
+node tools/test-konfigurator-1v.mjs --novy                # ?novy=1, ovládače `novy` (kde chýbajú -> `stary`)
+node tools/test-konfigurator-1v.mjs --novy --sirka 390 --krok platne,box-2 --snimky C:/tmp/s --vypis
+node tools/test-konfigurator-1v.mjs --zdroj cdn           # presne živý web (bez buildu)
+node tools/test-konfigurator-1v.mjs --zdroj <sha>         # verzia nahratá na CDN assets/v/<sha>/
+```
+
+Ďalšie prepínače:
+- `--paralelne N` (predvolene 3 Chromy naraz),
+- `--json <súbor>` (výsledky + POST),
+- `--okno` (Chrome s oknom),
+- `--bez-drop` (build bez `--drop:console`, pre ladenie),
+- `--url`.
+
+**Ako funguje:**
+- Chrome bez okna, surový CDP (žiadne npm balíky).
+- **Živá stránka SK 598.** Požiadavky na `…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js` a `…/css/luxuryCar.css` dostanú čerstvý lokálny build. Každý beh má vlastný dočasný priečinok, takže paralelné behy sa nebijú.
+  - JS: `esbuild assets/js/main.js --bundle --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none`, rovnako ako `production.yml`.
+  - CSS: `vloz-lcd-css.py --vystup`.
+  - `…/assets/img/1v/*` → lokálne súbory.
+- Prostredie Windows:
+  - `node_modules` v gite má len esbuild pre Mac. Test použije rovnakú verziu cez `npx esbuild@0.24.2`: cache npm, beží mimo repa.
+  - Chýbajúce `gsap` a `lenis` stiahne raz do `%LOCALAPPDATA%/lcd-1v-test/balicky-*` (verzie z `yarn.lock`, NIE do repa) a esbuild ich nájde cez `NODE_PATH`.
+  - Ak chýbajú `assets/js/truck-konfigurator/*.gen.jsx` (sú v `.gitignore`), spustí `truck/build-truck-images.mjs`. Ten existujúce obrázky neprepisuje.
+  - `tools/perf-markup.mjs` sa len kontroluje cez `--check`.
+- **Bezpečnosť:**
+  - POST `/action/Cart/addCartItem` sa zachytí (telo sa kontroluje) a zruší.
+  - Iný ne-GET na `/action/` sa zruší a test zlyhá. Výnimka: odmietnutie cookies `CustomerCookieConsent`.
+  - Merače sú zablokované, cookie lišta sa odmietne. Žiadna objednávka, žiadny admin.
+- **Konzola:** nové chyby (výnimky, `console.error`, log error) oproti načítaniu živého CDN. Zdroje tretích strán (twitter, Luxia, Google…) sa ignorujú.
+
+**Scenáre** (`--krok`):
+
+| Scenár | Čo overí |
+|---|---|
+| `brana` | bez flagu nič; `?novy=1` zapne (aj `window.__lcd1v`); platí v karte; produkt 610 nie; `?novy=0` vypne |
+| `nulova-zmena` | flag vypnutý: lokálny build = živý CDN (DOM, počty: 93 značiek, 12 selectov, ceny, štýly, triedy body). Rozmery majú toleranciu 6 px (akordeón a písmo pri načítaní), všetko ostatné sa porovnáva presne. S `--novy` vypíše aj rozdiel `?novy=1` oproti CDN (len informácia). So stubmi je jediný rozdiel `body triedy +lcd-1v`. |
+| `bez-auta` | výzva na auto, `pridajDoKosika` → POST 0, červený rám na `auto` |
+| `neuplne` | auto → červený rám `farba`; + farba → červený rám `rozlozenie`; POST 0 |
+| `platne` | auto + farba + rozloženie → POST (kľúče, `productId`, `priceId` variantu, farba, rozloženie, TYP, kufor/boxy nevybrané), zobrazená cena = variant + príplatky, odporúčaná = ×1,6 nahor na 10, % zľava, sessionStorage.model pre `#remark`. Kufor a boxy na začiatku: skryté (`stary.skryteNaZaciatku`) alebo viditeľné (nový ovládač). |
+| `kufor-classic`, `kufor-premium` | POST s `kufor`, cena |
+| `box-1`, `box-2` | 1 box (solo) / Classic + 2 boxy (farba, veľkosti) → POST, cena |
+| `ctx-zapis` | len `--novy`: `ctx.zapis` všetkých volieb, `"uz"`, zrušenie kufra, `prvyNevyplneny()`, `ctx.cena()` = Shoptet, `ctx.doKosika()` → POST |
+| `kufor-nie`, `box-nie` | Classic → Nechcem / 1 box → Nechcem: POST bez kufra / boxov (prázdne alebo „nie“), cena bez nich |
+| `rady-3` | všetky tri rady (nový vzhľad: 7 miest dlaždicou v kroku 4 = aj krok 2 a sessionStorage `seatPosition`) → POST, cena s 3. radom |
+| `box-krizik` | len nový vzhľad: nový výber boxov zavretý krížikom bez potvrdenia = žiadny box (G10b) |
+| `box-prepni` | len nový vzhľad: 1 box → 2 boxy, v POST len 1. + 2. box (živý web tu má chybu: samostatný box ostane) |
+| `miesta-5` | len nový vzhľad: 7 miest + 3 rady → 5 miest: rozloženie sa samo prepne na 1.+2. rad, krok 4 ostane otvorený (aj na telefóne), POST bez 3. radu |
+| `k-suhrnu` | len nový vzhľad: krok 6 „Pokračujte k súhrnu“ nič nevloží, zatvorí kroky a ukáže Spolu; potom košík → platný POST |
+
+Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy` ovládač:
+- štítok „Odporúčaná cena“ (ovládač `cena`),
+- kufor a boxy viditeľné od začiatku (`kuforBoxy.skryteNaZaciatku === false`).
+
+**Ovládače:** `tools/test-1v/ovladac-<krok>.mjs`. Každý exportuje `stary` (živý web, NEMENIŤ) a `novy` (zatiaľ `null` → `--novy` použije `stary`). Metódy `novy` musia mať **rovnaké mená a návratové hodnoty** ako `stary`:
+
+| Súbor | Metódy |
+|---|---|
+| `ovladac-kroky.mjs` | `vyberAuto(t, {znacka, model, rok, typ})` → sessionStorage.model · `vyberFarbu(t, {index})` → value farby · `skusBezAuta(t)` → `{vyzva}` · `zavriVyzvu(t)` · `cervenyKrok(t)` → `"auto"\|"farba"\|"rozlozenie"\|…\|null` · `hodnota(t, kluc)` |
+| `ovladac-rozlozenie.mjs` | `vyberRozlozenie(t, {index})` → value (0 = len 1. rad, 1 = 1.+2., 2 = všetky) |
+| `ovladac-kufor-boxy.mjs` | `skryteNaZaciatku` (bool) · `stav(t)` → `{kufor, boxy}` viditeľné · `vyberKufor(t, "classic"\|"premium"\|"nie")` → value · `vyberBoxy(t, {pocet, farba, velkost, velkost2})` → `{farbaBoxov, box1, box2, boxSolo}` |
+| `ovladac-cena.mjs` | `zobrazenaCena(t)` → číslo · `odporucana(t)` → `{cena, zlava, stitok}` · `pridajDoKosika(t)` (nový vzhľad môže klikať lepivú lištu) |
+
+**Pomocník `t`** (`tools/test-1v/pomocnik.mjs`):
+- `t.klikni(sel, {index, popis, vRamci})` — **skutočný klik myšou**. Prvok sa posunie do stredu, počká sa, kým stojí, a overí sa, že ho nič nezakrýva (Luxia, lišta, hlavička). Inak test zlyhá.
+- `t.nastavSelect(sel, text|index)`, `t.cakaj(expr, {ms})`, `t.ev(expr)`, `t.idParametra(kluc)`, `t.moznost(kluc, /regex/)`, `t.mobil`, `t.sirka`, `t.novy`, `t.pauza(ms)`.
+- Selektory starého vzhľadu a `otvorKrok()` sú v `tools/test-1v/stary-ui.mjs`.
+- Nový ovládač kliká na to, čo vidí zákazník v novom vzhľade. Starý DOM, ktorý je vizuálne skrytý, nie.
+
+**Pred odovzdaním každý worker:** `--novy` aj bez flagu zelené na 1280 aj 390. Pri zmenách CSS `--snimky` a porovnanie s návrhom.
+
+**Výsledok základu (13. 10. 2026):**
+- bez flagu, lokálny build: 18 OK + 2 preskočené (`ctx-zapis`), ≈ 90 s pri 3 paralelných Chromoch,
+- `--zdroj cdn` (živý web bez buildu): 16 OK + 4 preskočené,
+- `--novy` so stubmi: 20/20 OK,
+- jediný rozdiel `?novy=1` oproti CDN je `body.lcd-1v`,
+- kontrola testu: necielené CSS pravidlo v `_lcd1v-kroky.scss` (bez `body.lcd-1v`) `nulova-zmena` zachytí.
+
+## 10. Vlastníctvo súborov
+
+| Worker | Smie meniť |
+|---|---|
+| **kroky** (kroky 1–3 + spoločný obal krokov: číslovanie, otváranie, postup, „Dokončite výber“/červený rám) | `assets/js/components/konfigurator1v/kroky.js`, `assets/css/_lcd1v-kroky.scss`, `tools/test-1v/ovladac-kroky.mjs` (len `novy`), nové obrázky `assets/img/1v/kroky-*` |
+| **rozlozenie** (krok 4) | `…/konfigurator1v/rozlozenie.js`, `assets/css/_lcd1v-rozlozenie.scss`, `tools/test-1v/ovladac-rozlozenie.mjs` (len `novy`), nové obrázky `assets/img/1v/rozlozenie-*` |
+| **kufor-boxy** (kroky 5–6 + ponuka v košíku) | `…/konfigurator1v/kufor-boxy.js`, `assets/css/_lcd1v-kufor-boxy.scss`, `tools/test-1v/ovladac-kufor-boxy.mjs` (len `novy`), `assets/js/lcdKosikDoplnok.js` (+ jeho test/fixture), nové obrázky `assets/img/1v/kufor-*`, `box-*` |
+| **cena** (cenová karta + lepivá lišta) | `…/konfigurator1v/cena.js`, `assets/css/_lcd1v-cena.scss`, `tools/test-1v/ovladac-cena.mjs` (len `novy`), nové obrázky `assets/img/1v/cena-*` |
+
+**Zmrazené (spoločné, len koordinátor):**
+- `assets/js/main.js`, `assets/js/components/konfigurator1v/index.js` + `ctx.js`, `assets/js/functions/configuratorEngine.js` (exporty),
+- `tools/vloz-lcd-css.py`, `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{cdp,pomocnik,stary-ui}.mjs`,
+- tento dokument, `assets/css/luxuryCar.css` (generuje nástroj), `.dashboard/roadmap.md` (odškrtáva koordinátor).
+
+Potrebuješ zmenu v spoločnom súbore? Napíš ju koordinátorovi, nerob ju sám. Hranice medzi modulmi:
+- **kroky** vlastnia obal a postup.
+- **cena** vlastní tlačidlo košíka a lištu. Tlačidlo volá `ctx.doKosika()`, text „Dokončite výber / Vložte do košíka“ podľa `ctx.prvyNevyplneny()`.
+- Moduly si posielajú udalosti cez `ctx.na/vysli`.
+
+Git: workeri len čítajú (`status/diff/log`). Commit robí koordinátor po vymenovaných cestách (`node_modules` a build `luxuryCar.js` nikdy).
+
+## 11. Texty pre zákazníka (SK)
+
+Texty prebrať z návrhu.
+
+**Zakázané:**
+- „na milimeter“,
+- 1. osoba „vyrábame“,
+- počty vrstiev,
+- záruka ako argument,
+- názvy DragonSkin / Elite / Basic v novom texte,
+- tvrdenia o uchytení do fixačných bodov auta,
+- „Comfort“.
+
+**Povinné:**
+- cenový štítok „Odporúčaná cena“ (nie „Doporučená“), bez právnych upozornení.
+- Premium v kroku 5 áno (Michal schválil kufor Classic/Premium/Nechcem v konfigurátore).
+
+## 12. Známe nástrahy
+
+- **Mobil, K3:** klik na rozloženie po 350 ms sám zbalí krok a otvorí kufor. Do 700 ms drží na K3 inline `max-height: 50px !important`, po 2,5 s ho zruší (`configuratorEngine.js`). Desktop len odkryje `.upsale-Banner`. **Pod `body.lcd-1v` (integrácia 13. 10.) sa ani mobil sám nehýbe** (`configuratorEngine.js`, podmienka `lcd-1v` pri K3 auto-postupe): krok 4 prepína rozloženie aj pri zmene počtu miest a nesmel by zbaliť krok 2 a skočiť na kufor. Flag vypnutý = správanie bez zmeny.
+- **Krok 6 „Pokračujte k súhrnu“** (integrácia 13. 10., `kroky.js`): živé tlačidlo posledného kroku (`.next-step-button.finish-button`) by hneď vkladalo do košíka. Pod 1V ho zachytí capture handler na `document` — kroky zatvorí a posunie na `.lcd1v-suhrn`; kontrolu výberu robí tlačidlo košíka. Scenár `k-suhrnu`.
+- **Karty kufra a boxov sú prepínače.** Klik na aktívnu ju odznačí a select nastaví na prázdnu hodnotu (`productPage.js` updateUpsale). Preto `zapis` vracia `"uz"`.
+- **`conf1` / `conf2`** otvoria `.upsale-Banner.showConf` (box-config).
+  - „Nechcem“ / `.close-btn.close` vynuluje farbu aj veľkosti (`resetBoxConfigDefaults`).
+  - „potvrdiť“ (`.close-btn.return`) kontroluje farbu a veľkosť.
+- **`.order`:** text čísla kroku obalí `configurator-enhance` do `span.lcd-step-num`. `productPage.js` čísla kufra a boxov prepisuje (`contentStepCount`).
+- **Hlavičky krokov** (`.order`, `h5`, `.variant.name`) otvárajú akordeón cez delegovaný handler na `document`. Pozor na dvojité prepnutie, ak pridáte vlastný klik.
+- **Okno „vyberte model“** sa ukáže pri **akomkoľvek** kliku do `.content-wrap` bez kompletného auta. Výnimka: klik vo vnútri `.modl-selector-wrap`.
+- **FAQ:** otázky sú `button type=submit` vo formulári. Odoslaniu bráni len `preventDefault` v `components/index.js`.
+- **Štítok galérie** („€350 −37 %“) nesedí s cenou z JS (360 / −39 %). Riešenie patrí worker cena (skryť pod `body.lcd-1v`).
+- **CZ** je nedotknutá (brána). Iné ID: farba 72, rozloženie 57, kufor 60, boxy 63/66/69, solo **78**, TYP 47. Ceny v Kč. Preto nikdy ID natvrdo.

@@ -479,3 +479,14 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Kolo 3: karty videí „Na vlastné oči“ pod hlavičkou (isolation na .deck.refs/.vids), CZ box „Velikost“ a „BARVA“ namiesto slovenčiny, box ponuka / „cena bez setu“ / „Ušetríte“ jedným tvarom ceny (lcdCena)
 - [ ] Admin (návrh): SK mena „219 €“ (symbol za číslom, 0 desatín); ProveSource pozícia + CZ recenzie; Luxia uvítanie neotvárať samo; názvy parametrov boxov (SK „Velikost 1./2. boxu“, „Velikost Box solo“ -> „Veľkosť …“, CZ „Velokost box Solo:“ -> „Velikost boxu solo“)
 - [ ] Upratanie starých pravidiel panela (_header.scss 235–239, 593–600, 830–834; luxuryCar.scss 101–103) po overení na iPhone/iPade
+
+## Konfigurátor 1V — nový vzhľad SK Diamond 598 (?novy=1, tichý test) — 13. 10. 2026
+- [x] Základ: brána (ZOZNAM_1V, ?novy=1/0, body.lcd-1v), ctx s jedinou cestou zápisu, 4 prázdne moduly + 4 CSS bloky LCD-1V-* (docs/1v-kontrakt.md)
+- [x] E2E test tools/test-konfigurator-1v.mjs na živej 598 s lokálnym buildom (zachytený a zrušený addCartItem); bez flagu 18/18, --novy 18/18 + ctx-zapis
+- [x] Kroky 1–3 (vzor, auto, farba) + obal krokov — worker kroky
+- [x] Krok 4 rozloženie — worker rozlozenie
+- [x] Kroky 5–6 kufor a boxy viditeľné + ponuka v košíku bez duplicity — worker kufor-boxy
+- [x] Cenová karta (Odporúčaná cena) + lepivá lišta — worker cena
+- [x] Integrácia: krok 6 „Pokračujte k súhrnu“, mobil bez auto-skoku z K4 pod 1V, medzery krok 4→5 a polia auta, +7 scenárov testu (kufor-nie, box-nie, box-krizik, box-prepni, rady-3, miesta-5, k-suhrnu), regresia 601/610/613/CZ 2403/titulky/košíky, galéria snímok
+- [ ] Revízia, push do main, CI, prepnutie SK HTML kódov až po Michalovom „prepni“
+- [ ] Živý web (starý vzhľad; overené na SK 598 cez CDN, kód je spoločný pre všetky konfigurátory): 1 box → 2 boxy nechá v POST aj samostatný box (SK [104]=734, košík 551 € namiesto 442 €) — oprava v productPage.js updateUpsale conf2 (vynulovať box solo aj jeho .active)

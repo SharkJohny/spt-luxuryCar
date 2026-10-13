@@ -986,5 +986,91 @@ await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, box ->
   rovne(M.odrazkaDoplnku(ul, { co: "rohoz" }, volby, SKD, SK), null);
 });
 
+// ---------------------------------------------------------------- konfigurátor 1V (kroky 5–6) -> ponuka v košíku
+// Telá POST zachytené testom tools/test-konfigurator-1v.mjs --novy (13. 10. 2026, SK 598, nový vzhľad; 1280 aj 390
+// rovnako). To, čo zákazník vyberie v kroku 5 (rohož) a 6 (boxy), ide v tom istom riadku setu -> ponuka v košíku to
+// znova neponúkne (coChyba „ma“); Nechcem / nevybrané -> ponuka ostáva („chyba“).
+const POST_1V = {
+  platne: "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=589&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "kufor-classic": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=595&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "kufor-premium": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=601&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "kufor-nie": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=598&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "box-1": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=610&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=734&amount=1",
+  "box-2": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=595&surchargeParameterValueId[91]=604&surchargeParameterValueId[94]=622&surchargeParameterValueId[97]=634&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "box-nie": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "box-krizik": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "box-prepni": "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=586&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=613&surchargeParameterValueId[94]=625&surchargeParameterValueId[97]=634&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+  "ctx-zapis": "productId=598&priceId=63499&language=sk&parameterValueId[78]=555&surchargeParameterValueId[85]=589&surchargeParameterValueId[88]=595&surchargeParameterValueId[91]=613&surchargeParameterValueId[94]=625&surchargeParameterValueId[97]=634&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&amount=1",
+};
+/** Text príplatkov riadku košíka tak, ako ho Shoptet píše (názov parametra - hodnota bez ceny), z tela POST. */
+function textZPostu(body, mapa) {
+  const casti = [], volby = {};
+  for (const [k, v] of new URLSearchParams(body)) {
+    const m = /^surchargeParameterValueId\[(\d+)\]$/.exec(k);
+    if (!m || !v) continue;
+    casti.push(mapa.params[m[1]].n + " - " + mapa.params[m[1]].o[v].t);
+    volby[m[1]] = v;
+  }
+  return { text: "Príplatky: " + casti.join(", "), volby };
+}
+await test("1V kroky 5–6 -> košík: rohož / box zo setu sa znova neponúka, Nechcem a nevybrané áno", () => {
+  const ocak = {
+    platne: { rohoz: "chyba", box: "chyba" }, "kufor-classic": { rohoz: "ma", box: "chyba" }, "kufor-premium": { rohoz: "ma", box: "chyba" },
+    "kufor-nie": { rohoz: "chyba", box: "chyba" }, "box-1": { rohoz: "chyba", box: "ma" }, "box-2": { rohoz: "ma", box: "ma" },
+    "box-nie": { rohoz: "chyba", box: "chyba" }, "box-krizik": { rohoz: "chyba", box: "chyba" }, "box-prepni": { rohoz: "chyba", box: "ma" },
+    "ctx-zapis": { rohoz: "ma", box: "ma" },
+  };
+  for (const [scenar, body] of Object.entries(POST_1V)) {
+    const t = textZPostu(body, SKD);
+    const r = M.rozoberPriplatky(t.text, SKD);
+    pravda(r.ok, scenar + ": rozbor textu " + t.text);
+    rovne(r.volby, t.volby, scenar + ": voľby z textu = POST");
+    rovne(M.coChyba(r.volby, SKD, SK), ocak[scenar], scenar);
+    // krížik „Odstrániť zo setu“ ostáva pri tom, čo set má
+    const odobrat = M.doplnkySetu(r.volby, SKD, SK, { rohoz: "Rohož", box: "Box", boxJeden: "Box", boxKus: (n) => n + ". box" }).map((d) => d.co);
+    rovne(odobrat.includes("rohoz"), ocak[scenar].rohoz === "ma", scenar + ": krížik rohože");
+    rovne(odobrat.includes("box"), ocak[scenar].box === "ma", scenar + ": krížik boxu");
+  }
+});
+await test("1V: samostatneCenyKonfigurator — Classic a box z cache košíka, Premium zvlášť; chyba stránky -> null", async () => {
+  const fetchPred = globalThis.fetch;
+  const stranka = (cena, form) => `<!doctype html><html><head><meta itemprop="price" content="${cena}"></head><body>${form || ""}</body></html>`;
+  const BOXF = FIX["sk/luxusny-boxi-do-kufra/"];
+  const stiahnute = [];
+  let premiumChyba = false;
+  globalThis.fetch = async (url) => {
+    stiahnute.push(String(url));
+    if (/premium/.test(url) && premiumChyba) return { ok: false, status: 500, text: async () => "" };
+    const html = /klasik/.test(url) ? stranka("230.00") : /premium/.test(url) ? stranka("340.00") : /boxi/.test(url) ? stranka("197.00", formHtml(BOXF)) : "";
+    return { ok: true, status: 200, text: async () => html };
+  };
+  const zmaz = () => Object.keys(localStorage).filter((x) => /^lcdSamostatne/.test(x)).forEach((x) => localStorage.removeItem(x));
+  try {
+    zmaz();
+    const A = await import("../assets/js/lcdKosikDoplnok.js?samostatne1v=1");
+    const s = await A.samostatneCenyKonfigurator(562035, "/luxusne-autokoberce-dragonskin-diamond-line/");
+    rovne([s.classic, s.premium, s.zaklad, s.box1.S, s.box1.M, s.box1.XL], [230, 340, 197, 197, 207, 246]);
+    rovne([A.samostatneBoxy(s, 1, "S"), A.samostatneBoxy(s, 2, "S", "S"), A.samostatneBoxy(s, 2, "M", "L")], [197, 394, 197 + 10 + 232]);
+    rovne(stiahnute.map((u) => u.replace(/^.*?\/\/[^/]+/, "")).sort(), ["/luxusny-boxi-do-kufra/", "/luxusny-koberced-do-kufra-dragonskin-klasik/", "/luxusny-koberced-do-kufra-dragonskin-premium/"]);
+    pravda(localStorage.getItem("lcdSamostatne:v3:562035:"), "Classic + box v kľúči košíka (košík ich použije bez sťahovania)");
+    pravda(localStorage.getItem("lcdSamostatnePremium:v1:562035:"), "Premium vo vlastnom kľúči");
+    // druhé načítanie stránky: všetko z localStorage, nič sa nesťahuje
+    stiahnute.length = 0;
+    const B = await import("../assets/js/lcdKosikDoplnok.js?samostatne1v=2");
+    rovne((await B.samostatneCenyKonfigurator(562035, "/luxusne-autokoberce-dragonskin-diamond-line/")).premium, 340);
+    rovne(stiahnute.length, 0, "24 h z localStorage");
+    // Premium stránka padne -> premium null, ostatné ceny ostanú; neznámy produkt / projekt -> null bez sťahovania
+    zmaz(); premiumChyba = true; stiahnute.length = 0;
+    const C = await import("../assets/js/lcdKosikDoplnok.js?samostatne1v=3");
+    const c = await C.samostatneCenyKonfigurator(562035, "/luxusne-autokoberce-dragonskin-diamond-line/");
+    rovne([c.classic, c.premium, c.box1.S], [230, null, 197]);
+    rovne(await C.samostatneCenyKonfigurator(562035, "/vzorkovnik/"), null);
+    rovne(await C.samostatneCenyKonfigurator(999, "/luxusne-autokoberce-dragonskin-diamond-line/"), null);
+  } finally {
+    globalThis.fetch = fetchPred;
+    zmaz();
+  }
+});
+
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
 process.exit(zle ? 1 : 0);

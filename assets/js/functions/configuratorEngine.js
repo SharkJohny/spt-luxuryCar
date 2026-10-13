@@ -1,6 +1,7 @@
 /** Konfigurátor — tok krokov: model, verifikácia, scroll, handlery. */
 
-function lcdGetSteps() {
+// export: aj pre nový konfigurátor 1V (components/konfigurator1v/ctx.js) — správanie bez zmeny
+export function lcdGetSteps() {
   var steps = [];
   document
     .querySelectorAll(".content-wrap > .position-wrap, .content-wrap > .parameter-wrap")
@@ -12,7 +13,7 @@ function lcdGetSteps() {
   return steps;
 }
 
-function lcdStepFilled(stepEl) {
+export function lcdStepFilled(stepEl) {
   var $s = $(stepEl);
   // Kroky trunk (autokoberce do kufra) a boxs (boxy) su NEPOVINNE.
   // Cislo kroku K4/K5/K6 zavisi od produktu (BASIC vs ELITE),
@@ -231,7 +232,7 @@ function lcdHighlightStep(el) {
 }
 
 /** Vrati prvy nevyplneny krok 0..uptoIndex, alebo null. */
-function lcdFirstUnfilled(uptoIndex) {
+export function lcdFirstUnfilled(uptoIndex) {
   var steps = lcdGetSteps();
   var limit = (typeof uptoIndex === "number" && uptoIndex >= 0) ? uptoIndex : steps.length - 1;
   for (var i = 0; i <= limit && i < steps.length; i++) {
@@ -424,7 +425,9 @@ export function initConfiguratorEngine() {
     // rozlozenia ale ODHALI zbalene kroky kufor/boxy: banner sa prida POD
     // aktualny krok, obsah pod nim sa len posunie nizsie — nic neskace.
     // Otvorenie kroku az klikom na "Prejst k dalsiemu kroku". Mobil: povodny flow.
-    if (!window.matchMedia("(max-width: 768px)").matches) {
+    // Nový vzhľad 1V (body.lcd-1v len na SK 598 s ?novy=1): ani mobil sa sám nehýbe — kroky majú vlastné
+    // „Pokračujte ďalej“ a krok 4 prepína rozloženie aj pri zmene počtu miest (nesmie zbaliť krok 2 a skočiť na kufor).
+    if (!window.matchMedia("(max-width: 768px)").matches || document.body.classList.contains("lcd-1v")) {
       $(".upsale-Banner").show();
       return;
     }

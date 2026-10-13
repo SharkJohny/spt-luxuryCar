@@ -2,6 +2,8 @@
 
     python tools/vloz-lcd-css.py           # vlozi vsetky bloky (spustit po kazdej zmene partialu)
     python tools/vloz-lcd-css.py --check   # len over, ze luxuryCar.css sedi s partialmi (exit 1 = nesedi)
+    python tools/vloz-lcd-css.py --vystup C:/tmp/luxuryCar.css   # vysledok zapise INAM, repo ostane nezmenene
+                                           # (test tools/test-konfigurator-1v.mjs si tak zlozi CSS z aktualnych partialov)
 
 Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly):
   LCD-HOME   <- _lcdHome.scss       titulka (vystup extract-lcd-home.py, scope #lcd-home)
@@ -9,6 +11,10 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-HDR    <- _lcdNativeHdr.scss  hlavicka: kreslena #lcd-hdr (prechod) + natívna Shoptet hlavicka + staticke #mega
   LCD-KORENE <- _lcdKorene.scss     staticke korene [data-lcd-cast] v obaloch Shoptetu (bannery, popis stranky)
   LCD-KOSIK  <- _lcdKosik.scss      kosik: ponuka rohoze do kufra a boxu k setu (assets/js/lcdKosikDoplnok.js)
+  LCD-1V-KROKY      <- _lcd1v-kroky.scss       novy konfigurator 1V: kroky 1-3 (vzor, auto, farba)  } vsetko LEN pod body.lcd-1v
+  LCD-1V-ROZLOZENIE <- _lcd1v-rozlozenie.scss  novy konfigurator 1V: krok 4 rozlozenie              } (tichy test ?novy=1,
+  LCD-1V-KUFOR-BOXY <- _lcd1v-kufor-boxy.scss  novy konfigurator 1V: kroky 5-6 kufor a boxy         }  SK 598; kontrakt
+  LCD-1V-CENA       <- _lcd1v-cena.scss        novy konfigurator 1V: cenova karta + lepiva lista     }  docs/1v-kontrakt.md)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
@@ -42,6 +48,15 @@ BLOKY = [
          popis="staticke korene [data-lcd-cast] v obaloch Shoptetu"),
     dict(meno="LCD-KOSIK", zdroj="_lcdKosik.scss", home=False, h1=False,
          popis="kosik: ponuka rohoze a boxu k setu, #lcd-doplnok"),
+    # Novy konfigurator jednovrstvovych (navrh v26), tichy test ?novy=1 na SK 598 — kazde pravidlo LEN pod body.lcd-1v
+    dict(meno="LCD-1V-KROKY", zdroj="_lcd1v-kroky.scss", home=False, h1=False,
+         popis="konfigurator 1V: kroky 1-3 vzor, auto, farba; len body.lcd-1v"),
+    dict(meno="LCD-1V-ROZLOZENIE", zdroj="_lcd1v-rozlozenie.scss", home=False, h1=False,
+         popis="konfigurator 1V: krok 4 rozlozenie; len body.lcd-1v"),
+    dict(meno="LCD-1V-KUFOR-BOXY", zdroj="_lcd1v-kufor-boxy.scss", home=False, h1=False,
+         popis="konfigurator 1V: kroky 5-6 kufor a boxy; len body.lcd-1v"),
+    dict(meno="LCD-1V-CENA", zdroj="_lcd1v-cena.scss", home=False, h1=False,
+         popis="konfigurator 1V: cenova karta a lepiva lista; len body.lcd-1v"),
 ]
 
 
@@ -237,7 +252,15 @@ def vloz(text, b, blok, za):
 
 
 def main():
-    check = "--check" in sys.argv[1:]
+    argv = sys.argv[1:]
+    check = "--check" in argv
+    vystup = None
+    if "--vystup" in argv:
+        i = argv.index("--vystup")
+        if i + 1 >= len(argv):
+            print("CHYBA: --vystup potrebuje cestu k suboru")
+            return 2
+        vystup = argv[i + 1]
     povodny = io.open(CIEL, encoding="utf-8", newline="").read()
     # Windows checkout (core.autocrlf=true) da CRLF, repo a CI (Ubuntu) maju LF: porovnava sa vzdy v LF
     # a zapisuje sa v tom konci riadku, aky subor mal (ziadne zmiesane konce riadkov)
@@ -255,6 +278,11 @@ def main():
     except Chyba as e:
         print("CHYBA: %s" % e)
         return 2
+    if vystup:
+        # luxuryCar.css v repe sa nemeni; vysledok (rovnaky ako po beznom spusteni) ide do zadaneho suboru
+        io.open(vystup, "w", encoding="utf-8", newline="").write(text.replace("\n", "\r\n") if crlf else text)
+        print("vysledok zapisany do %s (%d znakov)" % (vystup, len(text)))
+        return 0
     if check:
         if text != povodny:
             print("NESEDI: luxuryCar.css nie je aktualny voci partialom - spusti python tools/vloz-lcd-css.py")

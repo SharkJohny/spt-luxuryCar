@@ -46,6 +46,8 @@ export const ROLE = {
 const SAMOSTATNE = {
   classic: (d) => "/luxusny-koberced-do-kufra-dragonskin-klasik" + d + "/",
   box: () => "/luxusny-boxi-do-kufra/",
+  // Premium košík neponúka (sťahuje ho len konfigurátor 1V, krok 5 — samostatneCenyKonfigurator)
+  premium: (d) => "/luxusny-koberced-do-kufra-dragonskin-premium" + d + "/",
 };
 
 const TEXTY = {
@@ -214,6 +216,7 @@ const VELKOSTI = ["S", "M", "L", "XL"];
 const TTL = 24 * 3600 * 1000;
 const KLUC_MAPY = "lcdPriplatky:v3:"; // v2: + varianty (vpar) a kombinácie variantov -> priceId a cena (kom); v3: + poradie hodnôt (params/vpar .p) a hlavná fotka (foto)
 const KLUC_CIEN = "lcdSamostatne:v3:"; // v2: + zaklad, p1, p2 (2 boxy rôznych veľkostí); v3: p2 len kladný
+const KLUC_PREMIUM = "lcdSamostatnePremium:v1:"; // cena samostatnej rohože Premium (len konfigurátor 1V; košík ju nečíta)
 const KLUC_NIE = "lcdDoplnokNie:";
 const KLUC_HOTOVO = "lcdDoplnokHotovo";
 const KLUC_OBNOVA = "lcdDoplnokObnova:";
@@ -870,12 +873,15 @@ async function ziskajSamostatneCeny(dizajn, R) {
   return raz(kluc, function () { return stiahniSamostatneCeny(dizajn, R, kluc); });
 }
 
+/** Cena produktu zo stiahnutej stránky ([itemprop=price] content) alebo null. */
+function cenaStranky(doc) {
+  const m = doc && doc.querySelector('[itemprop="price"]');
+  const v = m ? parseFloat(m.getAttribute("content")) : NaN;
+  return isFinite(v) && v > 0 ? v : null;
+}
+
 async function stiahniSamostatneCeny(dizajn, R, kluc) {
-  const cena = function (doc) {
-    const m = doc.querySelector('[itemprop="price"]');
-    const v = m ? parseFloat(m.getAttribute("content")) : NaN;
-    return isFinite(v) && v > 0 ? v : null;
-  };
+  const cena = cenaStranky;
   const vys = { t: Date.now(), classic: null, box1: {}, box2: {}, zaklad: null, p1: {}, p2: {} };
   const [c, b] = await Promise.all(["classic", "box"].map(function (k) {
     return stiahniDokument(SAMOSTATNE[k](dizajn)).catch(function () { return null; });
@@ -896,6 +902,44 @@ async function stiahniSamostatneCeny(dizajn, R, kluc) {
   }
   if (vys.classic || Object.keys(vys.box1).length) lsPis(kluc, vys);
   return vys;
+}
+
+/** Cena samostatnej rohože Premium pre dizajn (localStorage 24 h ako ostatné ceny). Chyba -> null. */
+async function ziskajSamostatnuPremium(dizajn) {
+  const kluc = KLUC_PREMIUM + projekt() + ":" + dizajn;
+  const ulozene = lsCitaj(kluc);
+  if (ulozene) return ulozene.cena;
+  return raz(kluc, async function () {
+    const c = cenaStranky(await stiahniDokument(SAMOSTATNE.premium(dizajn)));
+    if (c) lsPis(kluc, { t: Date.now(), cena: c });
+    return c;
+  });
+}
+
+/**
+ * Ceny samostatných produktov pre konfigurátor 1V (kroky 5–6, components/konfigurator1v/kufor-boxy.js): riadky
+ * „Samostatne / Výhoda v sete“. Rovnaký zdroj aj localStorage ako porovnanie v košíku (Classic a box podľa veľkostí
+ * zo živých stránok samostatných produktov) + Premium. Na stránke produktu sa volá LEN z nového vzhľadu (?novy=1).
+ * -> { classic, premium, box1: { S: … }, box2, zaklad, p1, p2 } (chýbajúca hodnota = null / {}) alebo null.
+ */
+export async function samostatneCenyKonfigurator(projectId, href) {
+  const R = ROLE[String(projectId)];
+  const dizajn = dizajnZAdresy(href);
+  if (!R || dizajn === null) return null;
+  const [z, premium] = await Promise.all([
+    ziskajSamostatneCeny(dizajn, R).catch(function () { return null; }),
+    ziskajSamostatnuPremium(dizajn).catch(function () { return null; }),
+  ]);
+  if (!z && !premium) return null;
+  return {
+    classic: (z && z.classic) || null,
+    premium: premium || null,
+    box1: (z && z.box1) || {},
+    box2: (z && z.box2) || {},
+    zaklad: (z && z.zaklad) || null,
+    p1: (z && z.p1) || {},
+    p2: (z && z.p2) || {},
+  };
 }
 
 async function nacitajKosik() {

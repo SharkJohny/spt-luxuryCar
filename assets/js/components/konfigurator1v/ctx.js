@@ -1,0 +1,230 @@
+// Spoločný kontext (ctx) modulov nového konfigurátora jednovrstvových (1V). SPOLOČNÝ SÚBOR — po základe
+// (13. 10. 2026) sa nemení; moduly kroky.js / rozlozenie.js / kufor-boxy.js / cena.js ho len používajú.
+// Kontrakt a pravidlá: docs/1v-kontrakt.md.
+//
+// Zlaté pravidlo: nový vzhľad NIKDY nepíše do košíka sám. Voľbu zákazníka zapíše JEDINE ctx.zapis(kluc, hodnota),
+// ktorá klikne na existujúci ovládač živého konfigurátora (tlačidlo voľby / kartu kufra či boxov) — tým bežia všetky
+// pôvodné handlery (productPage.js priceActualization: $(select).val(v).trigger("change"), Shoptet variant + priceId,
+// livePrice, TYP z auta, validácia, odporúčaná cena). Až keď ovládač neexistuje, nastaví select rovnakou cestou
+// ($(select).val(v).trigger("change")). Žiadny vlastný POST, žiadne ceny natvrdo, žiadne ID parametrov natvrdo.
+import { lcdGetSteps, lcdStepFilled, lcdFirstUnfilled } from "../../functions/configuratorEngine.js";
+import { lcdCena } from "../../functions/livePrice.js";
+
+/** Parametre formulára podľa data-parameter-name (SK aj CZ; ID sa medzi obchodmi líšia — SK 78 = farba, CZ 78 = box solo). */
+export const PARAMETRE = {
+  farba: /^(farba|barva)\s*1\.?\s*vrstv/i, // variant Shoptetu (mení priceId)
+  rozlozenie: /rozlo[žz]en/i,
+  kufor: /do\s+kufr/i,
+  farbaBoxov: /^(farba|barva)\s+box/i,
+  box1: /\b1\.\s*box/i,
+  box2: /\b2\.\s*box/i,
+  boxSolo: /box\s*solo/i,
+  typ: /^typ$/i, // príplatok za karosériu; nastavuje ho živý kód z auta (productPage.js createModelInfo)
+};
+
+/** Karty počtu boxov v živom kroku boxov (value atribút .upsale-button). */
+const KARTY_BOXOV = { 0: "0", 1: "conf1", 2: "conf2" };
+
+/** Spoločný priečinok obrázkov 1V na CDN (deploy zrkadlí assets/ repa; obrázky nie sú vo verzii v/<sha>/). */
+export const OBRAZKY_1V = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";
+
+const SUFIX_CENY = /\s*\+\s*(?:€|Kč|EUR|CZK)?\s*-?[\d\s.,]+\s*(?:€|Kč|EUR|CZK)?\s*$/i;
+
+function cenaMoznosti(o) {
+  const f = Number(o.getAttribute("data-surcharge-final-price"));
+  if (Number.isFinite(f) && f > 0) return f;
+  const a = Number(o.getAttribute("data-surcharge-additional-price"));
+  return Number.isFinite(a) ? a : 0;
+}
+
+export function vytvorCtx({ setupData, texts, kontext }) {
+  const form = () => document.getElementById("product-detail-form");
+  const jazyk = String(kontext.projectId) === "704436" ? "cs" : kontext.language || document.documentElement.lang || "sk";
+
+  /** { kluc, id, meno, select, variant } alebo null. kluc = meno z PARAMETRE alebo číselné data-parameter-id. */
+  function parameter(kluc) {
+    const f = form();
+    if (!f) return null;
+    let s = null;
+    if (/^\d+$/.test(String(kluc))) s = f.querySelector('select[data-parameter-id="' + kluc + '"]');
+    else if (PARAMETRE[kluc]) {
+      s = Array.prototype.find.call(f.querySelectorAll("select[data-parameter-name]"), function (x) {
+        return PARAMETRE[kluc].test((x.getAttribute("data-parameter-name") || "").trim());
+      }) || null;
+    }
+    if (!s) return null;
+    return { kluc: String(kluc), id: s.getAttribute("data-parameter-id"), meno: s.getAttribute("data-parameter-name"), select: s, variant: !s.classList.contains("surcharge-parameter") };
+  }
+
+  /** Možnosti parametra zo Shoptetu: [{ hodnota, text (bez „+€N“), cena (príplatok s DPH; variant 0), zvolena }]. */
+  function moznosti(kluc) {
+    const p = parameter(kluc);
+    if (!p) return [];
+    return Array.prototype.filter.call(p.select.options, (o) => o.value).map((o) => ({
+      hodnota: o.value,
+      text: o.text.replace(SUFIX_CENY, "").replace(/\s+/g, " ").trim(),
+      cena: p.variant ? 0 : cenaMoznosti(o),
+      zvolena: o.selected,
+    }));
+  }
+
+  /** Aktuálna hodnota parametra vo formulári ('' = nič). */
+  function precitaj(kluc) {
+    const p = parameter(kluc);
+    return p ? p.select.value || "" : "";
+  }
+
+  const ciel = new EventTarget();
+  /** Udalosti modulov: ctx.na("zmena", fn) — detail { kluc, hodnota, cesta }; vlastné mená len s predponou modulu. */
+  function na(meno, fn) {
+    const h = (e) => fn(e.detail, e);
+    ciel.addEventListener(meno, h);
+    return () => ciel.removeEventListener(meno, h);
+  }
+  function vysli(meno, detail) {
+    ciel.dispatchEvent(new CustomEvent(meno, { detail }));
+  }
+
+  /**
+   * JEDINÁ schválená cesta zápisu voľby. Vráti "tlacidlo" | "karta" | "select" | "uz" (už bolo zvolené) | null.
+   *   zapis("farba", "549"), zapis("rozlozenie", "589"), zapis("kufor", "595"), zapis("farbaBoxov", "604"),
+   *   zapis("box1", "622"), zapis("box2", "634"), zapis("boxSolo", "734"), zapis("pocetBoxov", 0|1|2),
+   *   zapis("kufor", "") = zrušiť voľbu (karta sa odznačí, select prázdny).
+   */
+  function zapis(kluc, hodnota) {
+    const f = form();
+    if (!f) return null;
+    const h = hodnota == null ? "" : String(hodnota);
+    let cesta = null;
+    if (kluc === "pocetBoxov") {
+      const v = KARTY_BOXOV[h];
+      const karta = v != null ? f.querySelector('.upsale-buttons.boxs > .parameter-cars > .upsale-button[value="' + v + '"]') : null;
+      if (!karta) return null;
+      if (karta.classList.contains("active")) cesta = "uz";
+      else { karta.click(); cesta = "karta"; }
+      vysli("zmena", { kluc, hodnota: h, cesta });
+      return cesta;
+    }
+    const p = parameter(kluc);
+    if (!p) return null;
+    const teraz = p.select.value || "";
+    if (h === "") {
+      const aktivna = f.querySelector('.upsale-button.active[value^="' + p.id + '-"]');
+      if (aktivna) { aktivna.click(); cesta = "karta"; }
+      else if (teraz !== "") { (window.jQuery || window.$)(p.select).val("").trigger("change"); cesta = "select"; }
+      else cesta = "uz";
+    } else {
+      const tlacidlo = f.querySelector('.option-button[data-variant="' + p.id + '"][data-value="' + h + '"]');
+      const karta = tlacidlo ? null : f.querySelector('.upsale-button[value="' + p.id + "-" + h + '"]');
+      const ovladac = tlacidlo || karta;
+      if (ovladac) {
+        if (ovladac.classList.contains("active") && teraz === h) cesta = "uz";
+        else { ovladac.click(); cesta = tlacidlo ? "tlacidlo" : "karta"; }
+      } else if (teraz !== h) { (window.jQuery || window.$)(p.select).val(h).trigger("change"); cesta = "select"; }
+      else cesta = "uz";
+    }
+    vysli("zmena", { kluc: String(kluc), hodnota: h, cesta });
+    return cesta;
+  }
+
+  /** Živý krok podľa mena: vzor | auto | farba | rozlozenie | kufor | boxy | boxyVyber | kosik | cena -> element alebo null. */
+  function krok(meno) {
+    const f = form();
+    if (!f) return null;
+    const cw = f.querySelector(".content-wrap");
+    const dieta = (sel) => (cw ? Array.prototype.find.call(cw.children, (e) => e.querySelector(sel)) || null : null);
+    switch (meno) {
+      case "vzor": return dieta(".patterns-wrap");
+      case "auto": return dieta(".wheel-Position");
+      case "farba":
+      case "rozlozenie": {
+        const p = parameter(meno);
+        return p && cw ? cw.querySelector(":scope > .parameter-wrap.parameter-" + p.id) : null;
+      }
+      case "kufor": return f.querySelector(".upsale-buttons.trunk");
+      case "boxy": return f.querySelector(".upsale-buttons.boxs");
+      case "boxyVyber": return f.querySelector(".upsale-buttons.boxs .box-config");
+      case "kosik": return f.querySelector(".add-to-cart button.add-to-cart-button");
+      case "cena": return f.querySelector(".p-final-price-wrapper") || document.querySelector(".p-info-wrapper .p-final-price-wrapper");
+      default: return null;
+    }
+  }
+
+  /** Meno živého kroku pre element (opak krok()). */
+  function menoKroku(el) {
+    if (!el) return null;
+    const mena = ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"];
+    for (let i = 0; i < mena.length; i++) if (krok(mena[i]) === el) return mena[i];
+    return el.closest && el.closest(".box-config") ? "boxy" : null;
+  }
+
+  /** Cena podľa Shoptetu (len číta): variant (necessaryVariantData podľa priceId) + zvolené príplatky. */
+  function cena() {
+    const f = form();
+    const pi = f && f.querySelector("input[name=priceId]");
+    let zaklad = null;
+    const nvd = window.shoptet && window.shoptet.variantsSplit && window.shoptet.variantsSplit.necessaryVariantData;
+    if (nvd && pi) Object.keys(nvd).forEach((k) => { if (String(nvd[k].id) === String(pi.value)) zaklad = Number(nvd[k].priceUnformatted); });
+    if (!(zaklad > 0)) {
+      const holder = document.querySelector(".price-final-holder");
+      const d = holder && Number(holder.getAttribute("data-price"));
+      if (d > 0) zaklad = d;
+    }
+    let priplatky = 0;
+    if (f) f.querySelectorAll("select.surcharge-parameter").forEach((s) => {
+      if (!s.value || s.value === "0") return;
+      const o = s.options[s.selectedIndex];
+      if (o) priplatky += cenaMoznosti(o);
+    });
+    const spolu = (zaklad || 0) + priplatky;
+    // rovnaký vzorec ako productPage.js calculateStandartPrice: spolu × 1,6 nahor na desiatky
+    const odporucana = Math.ceil((spolu * 1.6) / 10) * 10;
+    return { zaklad, priplatky, spolu, odporucana, zlava: odporucana > 0 ? Math.round(((odporucana - spolu) / odporucana) * 100) : 0 };
+  }
+
+  /** „Pridať do košíka“: klik na živé tlačidlo formulára — validáciu (červený rám, posun) a odoslanie robí živý kód. */
+  function doKosika() {
+    const b = krok("kosik");
+    if (b) b.click();
+    return !!b;
+  }
+
+  /** Čaká (každých 100 ms, max limit ms), kým podmienka() vráti niečo pravdivé, potom zavolá fn(výsledok). */
+  function ked(podmienka, fn, { limit = 10000 } = {}) {
+    const start = Date.now();
+    (function skus() {
+      let v = null;
+      try { v = podmienka(); } catch (e) { v = null; }
+      if (v) { fn(v); return; }
+      if (Date.now() - start < limit) setTimeout(skus, 100);
+    })();
+  }
+
+  return {
+    verzia: 1,
+    projectId: String(kontext.projectId || ""),
+    productId: Number(kontext.productId || 0),
+    jazyk,
+    trh: jazyk === "cs" ? "cz" : "sk",
+    setupData,
+    texts,
+    form,
+    parameter,
+    moznosti,
+    precitaj,
+    zapis,
+    krok,
+    menoKroku,
+    kroky: () => lcdGetSteps(), // živé kroky v poradí validácie (vzor, auto, farba, rozloženie, kufor, boxy)
+    vyplneny: (el) => lcdStepFilled(el), // rovnaké pravidlo ako validácia košíka
+    prvyNevyplneny: () => lcdFirstUnfilled(), // prvý chýbajúci krok (element) alebo null = dá sa pridať do košíka
+    cena,
+    formatCena: lcdCena, // tvar ceny ako Shoptet (SK „€219“, CZ „5 664 Kč“)
+    obrazok: (meno) => OBRAZKY_1V + meno,
+    doKosika,
+    na,
+    vysli,
+    ked,
+    chyby: [],
+  };
+}
