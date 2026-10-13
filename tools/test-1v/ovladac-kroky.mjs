@@ -49,6 +49,19 @@ export const stary = {
 
   /** Hodnota parametra vo formulári (pomocník pre scenáre). */
   hodnota,
+
+  /**
+   * Klik na tlačidlo na konci kroku `meno` (otvorí ho, ak je zbalený) -> text tlačidla.
+   * Starý web (T0.2, 14. 10. 2026): na poslednom kroku rohože „Dokončiť konfiguráciu“ a boxu „Prejsť k ďalšiemu
+   * kroku“ (configuratorEngine.js: posledný krok = klik na „Pridať do košíka“ -> POST, ak je všetko vyplnené).
+   */
+  async dokonci(t, meno) {
+    const sel = await otvorKrok(t, meno);
+    const tl = `${sel} > .next-step-button`;
+    const text = await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(tl)}); return b ? b.textContent.trim() : null; })()`);
+    await t.klikni(tl, { popis: "tlačidlo kroku " + meno + " „" + text + "“" });
+    return text;
+  },
 };
 
 // ------------------------------------------------------------------ nový vzhľad (?novy=1)

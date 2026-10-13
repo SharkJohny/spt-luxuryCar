@@ -1,13 +1,18 @@
 #!/usr/bin/env node
-// E2E test konfigurátora jednovrstvových autokobercov na ŽIVEJ stránke SK Diamond Line (produkt 598)
-// s LOKÁLNYM buildom (13. 10. 2026). SPOLOČNÝ SÚBOR — po základe sa nemení (scenáre aj spúšťač).
-// Ovládače krokov sú v tools/test-1v/ovladac-<krok>.mjs (každý patrí jednému workerovi), kontrakt docs/1v-kontrakt.md.
+// E2E test konfigurátora 1V na ŽIVÝCH stránkach SK produktov s LOKÁLNYM buildom (13. 10. 2026; T0.2 14. 10. 2026:
+// --produkt pre 13 SK produktov + vzorkovník 637). JADRO — mení len vydanie (scenáre typov sú v scenare-<typ>.mjs).
+// Ovládače krokov sú v tools/test-1v/ovladac-<krok>.mjs (každý patrí jednému workerovi), kontrakt docs/1v-kontrakt.md,
+// profily produktov (URL, typ, očakávané priceId a ceny z plan.md §4) v tools/test-1v/produkty.mjs.
 //
-//   node tools/test-konfigurator-1v.mjs                      # všetky scenáre, 1280 aj 390, flag vypnutý
+//   node tools/test-konfigurator-1v.mjs                      # 598, sada scenárov z profilu, 1280 aj 390, flag vypnutý
 //   node tools/test-konfigurator-1v.mjs --novy               # to isté s ?novy=1 (nový vzhľad, ovládače `novy`)
+//   node tools/test-konfigurator-1v.mjs --vyvoj --produkt 601 # ?novy=vyvoj: aj nevydané typy (rozpracovaný nový vzhľad)
+//   node tools/test-konfigurator-1v.mjs --produkt 598,610 | all | typ:dvoj | typ:kufor | jedno-hexa | boxy | vzorky
 //   node tools/test-konfigurator-1v.mjs --sirka 390 --krok platne,box-2 --snimky C:/tmp/snimky --vypis
-//   node tools/test-konfigurator-1v.mjs --zdroj cdn          # bez lokálneho buildu = presne živý web
+//   node tools/test-konfigurator-1v.mjs --zdroj cdn --produkt all --sirka 1280 --paralelne 2 --json %TEMP%/1v-baseline.json
 //   node tools/test-konfigurator-1v.mjs --zdroj 5db0f33      # verzia nahratá na CDN (assets/v/<sha>/)
+//   (--krok bez --produkt spustí scenáre na 598; scenár iného typu sa na produkte nespustí a len sa spočíta;
+//    --limit 180 = s na scenár, --opakuj 1 = zlyhaný scenár sa raz zopakuje, vo výpise „OK*“ + prvé zlyhanie)
 //
 // Ako: Chrome bez okna (surový CDP, žiadne npm balíky). Požiadavky na bundle a CSS živého webu
 // (…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js, …/css/luxuryCar.css) dostanú odpoveď z čerstvého lokálneho
@@ -16,7 +21,7 @@
 // priečinka každého behu. …/assets/img/1v/* -> lokálne assets/img/1v/*.
 // Bezpečnosť: každý POST /action/Cart/addCartItem sa zachytí a ZRUŠÍ (test kontroluje jeho telo), iný POST na /action/
 // sa zruší a test zlyhá; merače (GA, GTM, FB, TikTok, Hotjar…) sú zablokované; cookie lišta sa odmietne;
-// žiadna objednávka, žiadne prihlásenie.
+// žiadna objednávka, žiadne prihlásenie, žiadny admin. Živý web šetri: --paralelne 2.
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -25,15 +30,22 @@ import { fileURLToPath } from "node:url";
 import { spustiChrome, pauza } from "./test-1v/cdp.mjs";
 import { vytvorT } from "./test-1v/pomocnik.mjs";
 import { cislo } from "./test-1v/stary-ui.mjs";
+import { PRODUKTY, PORADIE, INY, TYPY_TEST, VSETKY_TYPY, vyberProdukty, produktPodlaUrl } from "./test-1v/produkty.mjs";
 import * as ovlKroky from "./test-1v/ovladac-kroky.mjs";
 import * as ovlRozlozenie from "./test-1v/ovladac-rozlozenie.mjs";
 import * as ovlKuforBoxy from "./test-1v/ovladac-kufor-boxy.mjs";
 import * as ovlCena from "./test-1v/ovladac-cena.mjs";
+import * as ovlFarba2 from "./test-1v/ovladac-farba2.mjs";
+import * as ovlBoxy from "./test-1v/ovladac-boxy-produkt.mjs";
+import * as ovlVzorky from "./test-1v/ovladac-vzorky.mjs";
+import * as scJedno from "./test-1v/scenare-jedno.mjs";
+import * as scDvoj from "./test-1v/scenare-dvoj.mjs";
+import * as scKufor from "./test-1v/scenare-kufor.mjs";
+import * as scBoxy from "./test-1v/scenare-boxy.mjs";
+import * as scVzorky from "./test-1v/scenare-vzorky.mjs";
 
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/";
-const URL_598 = "https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-diamond-line/";
-const URL_INY = "https://www.luxurycardesign.sk/luxusne-autokoberce-dragonskin-hexa-line/"; // 610: nie je v zozname 1V
 const AUTO = { znacka: "Audi", model: "A6", rok: "2015", typ: "Combi" }; // Combi = TYP s príplatkom
 const MERACE = [
   "*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*",
@@ -43,10 +55,13 @@ const MERACE = [
 
 // ------------------------------------------------------------------ prepínače
 function argumenty(argv) {
-  const a = { novy: false, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: URL_598, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false };
+  const a = { novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 1 };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new Error(x + " potrebuje hodnotu"); return argv[++i]; };
-    if (x === "--novy") a.novy = true;
+    if (x === "--novy") { a.novy = true; a.flag = "1"; }
+    else if (x === "--vyvoj") { a.novy = true; a.flag = "vyvoj"; }
+    else if (x === "--produkt") a.produkt = dalsi();
+    else if (x === "--zapnute") a.zapnute = dalsi().split(",").map((s) => s.trim()).filter(Boolean);
     else if (x === "--sirka") a.sirky = dalsi().split(",").map((s) => Number(s.trim())).filter(Boolean);
     else if (x === "--krok") a.kroky = dalsi().split(",").map((s) => s.trim()).filter(Boolean);
     else if (x === "--snimky") a.snimky = resolve(dalsi());
@@ -57,10 +72,39 @@ function argumenty(argv) {
     else if (x === "--vypis") a.vypis = true;
     else if (x === "--json") a.json = resolve(dalsi());
     else if (x === "--bez-drop") a.bezDrop = true;
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 9).join("\n")); process.exit(0); }
+    else if (x === "--limit") a.limit = Math.max(30, Number(dalsi()) || 180); // s na jeden scenár
+    else if (x === "--opakuj") a.opakuj = Math.max(0, Number(dalsi()) || 0); // zlyhaný scenár zopakovať N-krát (OK* vo výpise)
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 15).join("\n")); process.exit(0); }
     else throw new Error("neznámy prepínač " + x);
   }
+  if (argv.includes("--novy") && argv.includes("--vyvoj")) throw new Error("--novy a --vyvoj naraz nejde");
   return a;
+}
+
+/**
+ * Ktoré produkty má nový vzhľad zapnuté pre ?novy=1 a ?novy=vyvoj — z lokálneho zdroja brány
+ * (assets/js/components/konfigurator1v/produkty.js: PRODUKTY_1V + ZAPNUTE_TYPY; pred T0.1 index.js ZOZNAM_1V).
+ * --zapnute <typ,…> prepíše ZAPNUTE_TYPY (napr. pri --zdroj <sha> so starším stromom). -> { "1": Set, vyvoj: Set, popis }
+ */
+function zapnuteProdukty(a) {
+  const sk = PORADIE.map(Number);
+  const cesta = join(KOREN, "assets/js/components/konfigurator1v/produkty.js");
+  if (!existsSync(cesta)) {
+    const src = readFileSync(join(KOREN, "assets/js/components/konfigurator1v/index.js"), "utf8");
+    const z = /ZOZNAM_1V\s*=\s*\{\s*562035\s*:\s*\[([^\]]*)\]/.exec(src);
+    const ids = z ? z[1].split(",").map((x) => Number(x.trim())).filter(Boolean) : [];
+    return { 1: new Set(ids), vyvoj: new Set(), popis: "konfigurator1v/index.js ZOZNAM_1V 562035 = " + JSON.stringify(ids) + " (pred T0.1, ?novy=vyvoj nepozná)" };
+  }
+  const src = readFileSync(cesta, "utf8");
+  const registr = [];
+  for (const m of src.matchAll(/\b(\d{3,4})\s*:\s*\{\s*typ\s*:\s*["']([a-z-]+)["']/g)) if (sk.includes(Number(m[1])) && !registr.includes(Number(m[1]))) registr.push(Number(m[1]));
+  const z = /ZAPNUTE_TYPY\s*=\s*\[([^\]]*)\]/.exec(src);
+  if (!z && !a.zapnute) throw new Error("ZAPNUTE_TYPY v " + cesta + " nenájdené (test číta bránu zo zdroja; alebo --zapnute <typy>)");
+  const typy = a.zapnute || [...z[1].matchAll(/["']([a-z-]+)["']/g)].map((x) => x[1]);
+  return {
+    1: new Set(registr.filter((id) => typy.includes(PRODUKTY[id].typ))), vyvoj: new Set(registr),
+    popis: "konfigurator1v/produkty.js: ZAPNUTE_TYPY " + JSON.stringify(typy) + (a.zapnute ? " (--zapnute)" : "") + ", register " + registr.length + " SK produktov",
+  };
 }
 
 // ------------------------------------------------------------------ build
@@ -161,9 +205,14 @@ function rozober(body) {
 }
 
 /** Nová karta s presmerovaním bundlu/CSS na build, zachytávaním košíka a blokovaním meračov. */
-async function novaStranka(ch, sirka, build, a, log) {
+async function novaStranka(ch, sirka, build, a, log, produkt) {
   const k = await ch.novaKarta({ sirka });
-  const s = { k, posty: [], inePosty: [], podvrhnute: [], build };
+  const s = { k, posty: [], inePosty: [], podvrhnute: [], build, produkt, flagHodnota: a.flag || "1", upozornenia: [] };
+  // alert/confirm by zablokoval Runtime.evaluate (test by visel) -> zavrieť a zapísať ako upozornenie
+  k.na("Page.javascriptDialogOpening", (p) => {
+    s.upozornenia.push("dialóg na stránke (" + p.type + "): " + String(p.message || "").slice(0, 120));
+    k.posli("Page.handleJavaScriptDialog", { accept: p.type === "beforeunload" }).catch(() => {});
+  });
   await k.posli("Network.setBlockedURLs", { urls: MERACE });
   await k.posli("Network.setCacheDisabled", { cacheDisabled: true });
   const odpovedz = (p, body, typ) => k.posli("Fetch.fulfillRequest", {
@@ -205,9 +254,9 @@ async function novaStranka(ch, sirka, build, a, log) {
   return s;
 }
 
-/** Otvorí produkt, odmietne cookies, počká na postavený konfigurátor. */
-async function otvor(s, url, { novy = false, kontrola1v = novy } = {}) {
-  const ciel = novy ? url + (url.includes("?") ? "&" : "?") + "novy=1" : url;
+/** Otvorí produkt, odmietne cookies, počká na postavený konfigurátor (podľa typu produktu). */
+async function otvor(s, url, { novy = false, kontrola1v = novy, produkt = s.produkt } = {}) {
+  const ciel = novy ? url + (url.includes("?") ? "&" : "?") + "novy=" + s.flagHodnota : url;
   await s.k.posli("Page.bringToFront").catch(() => {}); // karta v popredí (časovače, requestAnimationFrame)
   await s.k.chod(ciel);
   const t = s.t;
@@ -221,24 +270,24 @@ async function otvor(s, url, { novy = false, kontrola1v = novy } = {}) {
     if (r) break;
     await pauza(250);
   }
-  await t.cakaj(`!!(function () {
-    var f = document.getElementById("product-detail-form"); if (!f) return false;
-    var z = f.querySelector(".modl-selector-wrap .brands select");
-    return f.querySelector(".content-wrap .wheel-Position") && f.querySelector(".upsale-buttons.trunk") && z && z.options.length > 5 && f.querySelector(".content-wrap .next-step-button");
-  })()`, { ms: 30000, popis: "postavený konfigurátor" });
+  t.zabudni(); // ID parametrov podľa produktu (CZ má iné)
+  await t.cakaj(TYPY_TEST[produkt.typ].pripravene, { ms: 30000, popis: "postavený konfigurátor (" + produkt.id + ", " + produkt.typ + ")" });
   await pauza(1500); // configurator-enhance (600 ms interval), tlačidlá krokov, prvé prekreslenie
   if (kontrola1v) {
     const st = await t.ev(`({ trieda: document.body.classList.contains("lcd-1v"), chyby: window.__lcd1v ? window.__lcd1v.chyby : null })`);
-    over(st.trieda, "?novy=1, ale body.lcd-1v chýba" + (st.chyby && st.chyby.length ? " — init modulu zlyhal: " + st.chyby.join("; ") : " (brána / build?)"));
+    over(st.trieda, "?novy=" + s.flagHodnota + ", ale body.lcd-1v chýba" + (st.chyby && st.chyby.length ? " — init modulu zlyhal: " + st.chyby.join("; ") : " (brána / build? typ " + produkt.typ + " zapnutý? rozpracovaný typ = --vyvoj)"));
   }
-  s.formKluce = await t.ev(`(function () {
+  // parametre, ktorých select môže v POST chýbať (box 616: nepoužitý box má selectedIndex -1)
+  const nepovinne = [];
+  for (const kluc of TYPY_TEST[produkt.typ].nepovinne) { const id = await t.maParameter(kluc); if (id) nepovinne.push(id); }
+  s.formKluce = await t.ev(`(function (nepovinne) {
     var f = document.getElementById("product-detail-form");
     var k = ["productId", "priceId", "language", "amount"], volitelne = [];
-    Array.prototype.forEach.call(f.querySelectorAll("select[name]"), function (s) { k.push(s.name); });
+    Array.prototype.forEach.call(f.querySelectorAll("select[name]"), function (s) { k.push(s.name); if (nepovinne.indexOf(s.getAttribute("data-parameter-id")) > -1) volitelne.push(s.name); });
     // rádiá rozloženia (creatButtons.js: name="parameter-<id>"): po skutočnom kliku sú zaškrtnuté a idú do POST navyše
     Array.prototype.forEach.call(f.querySelectorAll(".content-wrap input[type=radio][name^='parameter-']"), function (r) { if (volitelne.indexOf(r.name) < 0) volitelne.push(r.name); });
-    return { povinne: k.sort(), volitelne: volitelne };
-  })()`);
+    return { povinne: k.sort(), volitelne: volitelne, priceIdZaklad: (f.querySelector("input[name=priceId]") || {}).value || "" };
+  })(${JSON.stringify(nepovinne)})`);
 }
 
 // ------------------------------------------------------------------ kontroly
@@ -257,6 +306,11 @@ async function ocakavanaCena(s, post) {
     var nvd = (window.shoptet && shoptet.variantsSplit && shoptet.variantsSplit.necessaryVariantData) || {};
     var zaklad = null;
     Object.keys(nvd).forEach(function (k) { if (String(nvd[k].id) === String(p.priceId)) zaklad = Number(nvd[k].priceUnformatted); });
+    if (zaklad == null && !Object.keys(nvd).length) {
+      // produkt bez variantov (vzorkovník 637): cena produktu z dataLayer Shoptetu
+      var d = (window.dataLayer || []).find(function (x) { return x && x.shoptet && x.shoptet.product; });
+      if (d && d.shoptet.product.hasVariants === false) zaklad = Number(d.shoptet.product.priceWithVat) || 0;
+    }
     var sum = 0, rozpis = [];
     Object.keys(p).forEach(function (k) {
       var m = /^surchargeParameterValueId\\[(\\d+)\\]$/.exec(k);
@@ -279,36 +333,80 @@ async function nieHodnoty(s, kluc) {
 }
 
 /**
- * Kontrola tela POST: ocak = { farba, rozlozenie, kufor?, farbaBoxov?, box1?, box2?, boxSolo? } (chýba = „nevybrané“).
- * Vráti očakávanú cenu.
+ * Kontrola tela POST: ocak = { farba?, farba2?, rozlozenie?, kufor?, farbaBoxov?, box1?, box2?, box3?, boxSolo?,
+ * ine?: { <id príplatku>: value } } (chýba = „nevybrané“). Parametre, ktoré formulár nemá (rohož: len farba),
+ * sa neoverujú. Vráti očakávanú cenu.
  */
 async function overPost(s, post, ocak) {
-  const p = post.pole, t = s.t;
+  const p = post.pole, t = s.t, fk = s.formKluce;
+  // 1) množina kľúčov = productId, priceId, language, amount + name všetkých selectov formulára (+ voliteľné:
+  //    rádio rozloženia po kliku, select nepoužitého boxu 616 s selectedIndex -1)
   const kluce = Object.keys(p).sort();
-  const povinne = kluce.filter((k) => !s.formKluce.volitelne.includes(k));
-  over(JSON.stringify(povinne) === JSON.stringify(s.formKluce.povinne), "kľúče POST " + kluce.join(",") + " ≠ polia formulára " + s.formKluce.povinne.join(",") + " (+ voliteľné " + s.formKluce.volitelne.join(",") + ")");
+  const chybaju = fk.povinne.filter((k) => !(k in p) && !fk.volitelne.includes(k));
+  const navyse = kluce.filter((k) => !fk.povinne.includes(k) && !fk.volitelne.includes(k));
+  over(!chybaju.length && !navyse.length, "kľúče POST " + kluce.join(",") + " ≠ polia formulára " + fk.povinne.join(",") + " (+ voliteľné " + fk.volitelne.join(",") + ")" +
+    (chybaju.length ? "; chýba " + chybaju.join(",") : "") + (navyse.length ? "; navyše " + navyse.join(",") : ""));
   const ctx = await t.ev(`(function () { var d = (window.dataLayer || []).find(function (x) { return x && x.shoptet; }); d = d && d.shoptet; return { pid: String(d.product.id), jazyk: d.language }; })()`);
   over(p.productId === ctx.pid, "productId " + p.productId + " ≠ " + ctx.pid);
   over(p.language === ctx.jazyk, "language " + p.language);
   over(p.amount === "1", "amount " + p.amount);
-  const idF = await t.idParametra("farba");
-  over(p["parameterValueId[" + idF + "]"] === ocak.farba, "farba v POST " + p["parameterValueId[" + idF + "]"] + " ≠ " + ocak.farba);
-  const priceId = await t.ev(`(function () { var n = shoptet.variantsSplit.necessaryVariantData["${idF}-${ocak.farba}"]; return n ? String(n.id) : null; })()`);
-  over(priceId && p.priceId === priceId, "priceId " + p.priceId + " ≠ variant farby " + priceId);
-  const sp = async (kluc) => p["surchargeParameterValueId[" + (await t.idParametra(kluc)) + "]"];
-  over((await sp("rozlozenie")) === ocak.rozlozenie, "rozloženie v POST " + (await sp("rozlozenie")) + " ≠ " + ocak.rozlozenie);
-  const radio = "parameter-" + (await t.idParametra("rozlozenie"));
-  if (radio in p) over(p[radio] === ocak.rozlozenie, "rádio " + radio + "=" + p[radio] + " ≠ rozloženie " + ocak.rozlozenie);
-  const typ = await t.moznost("typ", new RegExp("^" + AUTO.typ + "\\b", "i"));
-  over((await sp("typ")) === typ, "TYP v POST " + (await sp("typ")) + " ≠ " + typ + " (" + AUTO.typ + ")");
-  for (const kluc of ["kufor", "farbaBoxov", "box1", "box2", "boxSolo"]) {
-    const v = await sp(kluc);
-    if (ocak[kluc]) over(v === ocak[kluc], kluc + " v POST " + v + " ≠ " + ocak[kluc]);
-    else {
-      const n = await nieHodnoty(s, kluc);
-      over(n.hodnoty.includes(v), kluc + " nevybrané, ale v POST je " + v + " (povolené: " + n.hodnoty.join("|") + ")");
+  // 2) varianty (farba, farba 2. vrstvy) a priceId = necessaryVariantData[kľúč zo VŠETKÝCH variantných selectov podľa ID]
+  for (const kluc of ["farba", "farba2"]) {
+    if (ocak[kluc] === undefined) continue;
+    const id = await t.idParametra(kluc);
+    over(p["parameterValueId[" + id + "]"] === ocak[kluc], kluc + " v POST " + p["parameterValueId[" + id + "]"] + " ≠ " + ocak[kluc]);
+  }
+  const varianty = await t.ev(`Array.prototype.map.call(document.querySelectorAll('#product-detail-form select[name^="parameterValueId["]'), function (s) { return { id: Number(s.getAttribute("data-parameter-id")), name: s.name }; })`);
+  if (varianty.length) {
+    const kluc = varianty.sort((x, y) => x.id - y.id).map((v) => v.id + "-" + p[v.name]).join("-");
+    const priceId = await t.ev(`(function () { var n = shoptet.variantsSplit.necessaryVariantData[${JSON.stringify(kluc)}]; return n ? String(n.id) : null; })()`);
+    over(priceId && p.priceId === priceId, "priceId " + p.priceId + " ≠ variant " + kluc + " (" + priceId + ")");
+  } else over(p.priceId === fk.priceIdZaklad, "priceId " + p.priceId + " ≠ priceId produktu bez variantov " + fk.priceIdZaklad);
+  // 3) príplatky, ktoré formulár má
+  const sp = (id) => p["surchargeParameterValueId[" + id + "]"];
+  const zname = [];
+  const idR = await t.maParameter("rozlozenie");
+  if (idR) {
+    zname.push(idR);
+    over(sp(idR) === ocak.rozlozenie, "rozloženie v POST " + sp(idR) + " ≠ " + ocak.rozlozenie);
+    const radio = "parameter-" + idR;
+    if (radio in p) over(p[radio] === ocak.rozlozenie, "rádio " + radio + "=" + p[radio] + " ≠ rozloženie " + ocak.rozlozenie);
+  }
+  const idT = await t.maParameter("typ");
+  if (idT) {
+    zname.push(idT);
+    const typ = await t.moznost("typ", new RegExp("^" + AUTO.typ + "\\b", "i"));
+    over(sp(idT) === typ, "TYP v POST " + sp(idT) + " ≠ " + typ + " (" + AUTO.typ + ")");
+  }
+  for (const kluc of ["kufor", "farbaBoxov", "box1", "box2", "box3", "boxSolo"]) {
+    const id = await t.maParameter(kluc);
+    if (!id) continue;
+    zname.push(id);
+    const v = sp(id);
+    if (ocak[kluc]) { over(v === ocak[kluc], kluc + " v POST " + v + " ≠ " + ocak[kluc]); continue; }
+    const vynechany = v === undefined && fk.volitelne.includes("surchargeParameterValueId[" + id + "]");
+    const n = await nieHodnoty(s, kluc);
+    over(vynechany || n.hodnoty.includes(v), kluc + " nevybrané, ale v POST je " + v + " (povolené: " + n.hodnoty.join("|") + (fk.volitelne.includes("surchargeParameterValueId[" + id + "]") ? "|bez kľúča" : "") + ")");
+    if (v) {
+      // „nie“ s cenou > 0 (610: „autokoberce do kufru: nie +€5“) — chyba v admine, D2: hlásiť, nezlyhať
+      const c = await t.ev(`(function () { var o = document.querySelector('#product-detail-form select[data-parameter-id="${id}"] option[value="${v}"]'); return o ? Number(o.getAttribute("data-surcharge-final-price")) || 0 : 0; })()`);
+      if (c > 0) (s.upozornenia || []).push(`${kluc} „nevybrané“ = voľba ${v} „nie“ s príplatkom +${c} € (chyba v admine, ${s.produkt ? s.produkt.id : ""})`);
     }
   }
+  // 4) ostatné príplatky (vzorkovník: 1 vzorka = 1 parameter): ocak.ine[id] = value, inak nevybrané (prázdne / Nechcem)
+  const ine = await t.ev(`(function (zname) {
+    var re = /^(nie|ne|nechcem|nechci|žiadny|zadny|žádný)\\b/i;
+    return Array.prototype.filter.call(document.querySelectorAll("#product-detail-form select.surcharge-parameter[name]"), function (s) { return zname.indexOf(s.getAttribute("data-parameter-id")) < 0; })
+      .map(function (s) { return { id: s.getAttribute("data-parameter-id"), meno: s.getAttribute("data-parameter-name"), name: s.name,
+        nie: Array.prototype.filter.call(s.options, function (o) { return o.value && re.test(o.text.trim()); }).map(function (o) { return o.value; }) }; });
+  })(${JSON.stringify(zname)})`);
+  const ocakIne = ocak.ine || {};
+  for (const x of ine) {
+    const v = p[x.name];
+    if (ocakIne[x.id] !== undefined) over(v === ocakIne[x.id], x.meno + " (" + x.id + ") v POST " + v + " ≠ " + ocakIne[x.id]);
+    else over(v === "" || x.nie.includes(v) || (v === undefined && fk.volitelne.includes(x.name)), x.meno + " (" + x.id + ") nevybrané, ale v POST je " + v);
+  }
+  Object.keys(ocakIne).forEach((id) => over(ine.some((x) => x.id === id), "očakávaný príplatok " + id + " vo formulári nie je"));
   const c = await ocakavanaCena(s, post);
   over(c.spolu != null, "cena variantu " + p.priceId + " nie je v necessaryVariantData");
   return c;
@@ -321,6 +419,14 @@ async function overCenu(s, ovl, cena) {
   over(videne === cena.spolu, "zobrazená cena " + videne + " ≠ " + cena.spolu + " (variant " + cena.zaklad + " + príplatky " + cena.rozpis + ")");
   const odp = await ovl.cena.odporucana(s.t);
   const ocakOdp = Math.ceil((cena.spolu * 1.6) / 10) * 10;
+  if (s.produkt && s.produkt.odporucana === false) {
+    // v admine chýba bežná cena (613, 625, 616, 637): odporúčaná sa nemá ukázať (plan §2.5)
+    if (odp && odp.cena) {
+      over(odp.cena === ocakOdp, "odporúčaná cena " + odp.cena + " ≠ " + ocakOdp + " (profil: bez bežnej ceny)");
+      s.upozornenia.push("odporúčaná cena " + odp.cena + " sa ukazuje, profil hovorí „bez bežnej ceny“ — admin doplnený? uprav tools/test-1v/produkty.mjs");
+    }
+    return { videne, odporucana: odp && odp.cena ? odp : null };
+  }
   over(odp && odp.cena === ocakOdp, "odporúčaná cena " + (odp && odp.cena) + " ≠ " + ocakOdp + " (spolu × 1,6 nahor na desiatky)");
   over(odp.zlava === Math.round(((ocakOdp - cena.spolu) / ocakOdp) * 100), "zľava " + odp.zlava + " %");
   if (s.t.novy && ovl.zdroj.cena === "novy") over(/^Odporúčaná cena/.test(odp.stitok), "štítok „" + odp.stitok + "“ ≠ Odporúčaná cena");
@@ -334,39 +440,80 @@ async function overKuforSkryty(s, ovl) {
   return st;
 }
 
-/** Spoločný začiatok: auto + farba + rozloženie -> { model, farba, rozlozenie } */
-async function zaklad(s, ovl, { farba = 2, rozlozenie = 1 } = {}) {
-  const t = s.t;
-  const model = await ovl.kroky.vyberAuto(t, AUTO);
-  over(model === [AUTO.znacka, AUTO.model, AUTO.rok, AUTO.typ].join(" "), "auto pre poznámku objednávky (#remark): sessionStorage.model = " + model);
-  const f = await ovl.kroky.vyberFarbu(t, { index: farba });
-  const r = await ovl.rozlozenie.vyberRozlozenie(t, { index: rozlozenie });
-  return { model, farba: f, rozlozenie: r };
+/**
+ * Spoločný začiatok podľa typu produktu -> { ocak (pre overPost), model?, farba, farba2?, rozlozenie?, pocet?, box1–3? }
+ *   jedno: auto + farba + rozloženie · dvoj: + farba 2. vrstvy · rohož: auto + farba · box: farba + počet + veľkosti
+ */
+async function zaklad(s, ovl, { farba = 2, rozlozenie = 1, farba2 = 0, pocet = 1, velkosti = ["M"] } = {}) {
+  const t = s.t, typ = s.produkt.typ, T = TYPY_TEST[typ];
+  if (typ === "vzorky") throw new Error("zaklad() pre vzorkovník nie je — scenáre vzorkovníka (scenare-vzorky.mjs) vyberajú vzorky samy");
+  const z = { ocak: {} };
+  if (typ === "boxy") {
+    z.farba = await ovl.boxy.vyberFarbu(t, { index: farba });
+    z.pocet = await ovl.boxy.vyberPocet(t, pocet);
+    Object.assign(z, await ovl.boxy.vyberVelkosti(t, velkosti.slice(0, pocet)));
+    z.ocak = { farba: z.farba, box1: z.box1, box2: z.box2, box3: z.box3 };
+    return z;
+  }
+  if (T.auto) {
+    z.model = await ovl.kroky.vyberAuto(t, AUTO);
+    over(z.model === [AUTO.znacka, AUTO.model, AUTO.rok, AUTO.typ].join(" "), "auto pre poznámku objednávky (#remark): sessionStorage.model = " + z.model);
+  }
+  z.farba = z.ocak.farba = await ovl.kroky.vyberFarbu(t, { index: farba });
+  if (typ === "dvoj") z.farba2 = z.ocak.farba2 = await ovl.farba2.vyberFarbu2(t, { index: farba2 });
+  if (T.set) z.rozlozenie = z.ocak.rozlozenie = await ovl.rozlozenie.vyberRozlozenie(t, { index: rozlozenie });
+  return z;
 }
 
 // ------------------------------------------------------------------ scenáre
 const SCENARE = {
-  /** Brána: bez flagu nič, ?novy=1 zapne (len SK 598), ?novy=0 vypne. */
+  /**
+   * Brána: bez flagu nič. S flagom (?novy=1 alebo ?novy=vyvoj) zapne nový vzhľad LEN na produktoch, ktorých typ je
+   * zapnutý (ZAPNUTE_TYPY; vyvoj = celý register), platí v karte, iný projekt (CZ 2403) nikdy, nezapnutý typ
+   * nie (pri ?novy=1), ?novy=0 vypne.
+   */
   async brana(s, a) {
-    const t = s.t;
+    const t = s.t, P = a.produkt;
     const stav = () => t.ev(`({ trieda: document.body.classList.contains("lcd-1v"), flag: (function () { try { return sessionStorage.getItem("lcd1v"); } catch (e) { return "x"; } })(), ctx: !!window.__lcd1v })`);
     await otvor(s, a.url);
     let st = await stav();
-    over(!st.trieda && !st.flag && !st.ctx, "bez ?novy=1 nesmie byť nič zapnuté: " + JSON.stringify(st));
+    over(!st.trieda && !st.flag && !st.ctx, "bez ?novy= nesmie byť nič zapnuté: " + JSON.stringify(st));
     if (!a.novy) return { info: "flag vypnutý: bez zmeny" };
-    await otvor(s, a.url, { novy: true });
+    const zap = a.zapnuteSet.has(P.id);
+    const info = [];
+    await otvor(s, a.url, { novy: true, kontrola1v: false });
     st = await stav();
-    over(st.trieda && st.flag === "1" && st.ctx, "?novy=1 má zapnúť body.lcd-1v + sessionStorage lcd1v=1: " + JSON.stringify(st));
-    await otvor(s, a.url);
+    if (zap) {
+      over(st.trieda && st.flag === a.flag && st.ctx, "?novy=" + a.flag + " má na " + P.id + " (" + P.typ + ") zapnúť body.lcd-1v + sessionStorage lcd1v=" + a.flag + ": " + JSON.stringify(st));
+      await otvor(s, a.url);
+      st = await stav();
+      over(st.trieda, "flag má platiť aj po prechode bez parametra (sessionStorage karty): " + JSON.stringify(st));
+      info.push("?novy=" + a.flag + " zapne, platí v karte");
+    } else {
+      over(!st.trieda && !st.ctx, "typ " + P.typ + " nie je pre ?novy=" + a.flag + " zapnutý, ale " + P.id + " dostal nový vzhľad: " + JSON.stringify(st));
+      info.push(P.id + " (" + P.typ + ") ostáva starý — typ nie je zapnutý");
+    }
+    // iný projekt: CZ Diamond 2403 (projectId 581408)
+    await otvor(s, INY.url, { novy: true, kontrola1v: false, produkt: INY });
     st = await stav();
-    over(st.trieda, "flag má platiť aj po prechode bez parametra (sessionStorage karty): " + JSON.stringify(st));
-    await otvor(s, URL_INY, { novy: true, kontrola1v: false });
-    st = await stav();
-    over(!st.trieda && !st.ctx, "iný produkt (610) nesmie dostať nový vzhľad: " + JSON.stringify(st));
+    over(!st.trieda && !st.ctx, "iný projekt (CZ " + INY.id + ") nesmie dostať nový vzhľad: " + JSON.stringify(st));
+    info.push("CZ " + INY.id + " nie");
+    // nezapnutý typ (len ?novy=1; vyvoj zapína celý register)
+    if (a.flag === "1") {
+      const id = PORADIE.find((x) => !a.zapnuteSet.has(x) && PRODUKTY[x].typ !== P.typ) || PORADIE.find((x) => !a.zapnuteSet.has(x) && x !== P.id);
+      if (id) {
+        const Q = { id, ...PRODUKTY[id] };
+        await otvor(s, Q.url, { novy: true, kontrola1v: false, produkt: Q });
+        st = await stav();
+        over(!st.trieda && !st.ctx, "nezapnutý typ " + Q.typ + " (" + id + ") nesmie dostať nový vzhľad: " + JSON.stringify(st));
+        info.push("nezapnutý " + id + " (" + Q.typ + ") nie");
+      }
+    }
     await otvor(s, a.url + "?novy=0");
     st = await stav();
     over(!st.trieda && !st.flag && !st.ctx, "?novy=0 má vypnúť: " + JSON.stringify(st));
-    return { info: "?novy=1 zapne, platí v karte, 610 nie, ?novy=0 vypne" };
+    info.push("?novy=0 vypne");
+    return { info: info.join(", ") };
   },
 
   /** Flag vypnutý = NULOVÁ zmena: živý CDN vs lokálny build (DOM konfigurátora, ceny, štýly, počty). */
@@ -386,8 +533,9 @@ const SCENARE = {
         kroky: Array.prototype.map.call(kroky, function (e) { return e.className.trim().replace(/\\s+/g, " ") + " #" + e.querySelectorAll(".option-button, .upsale-button").length; }),
         vysky: Array.prototype.map.call(kroky, function (e) { return e.scrollHeight; }),
         selecty: document.querySelectorAll("select").length,
-        znacky: f.querySelector(".modl-selector-wrap .brands select").options.length,
-        cena: (document.querySelector(".p-final-price-wrapper") || {}).textContent.replace(/\\s+/g, " ").trim(),
+        znacky: (f.querySelector(".modl-selector-wrap .brands select") || { options: [] }).options.length,
+        cena: ((document.querySelector(".p-final-price-wrapper") || {}).textContent || "").replace(/\\s+/g, " ").trim(),
+        vzorkovnik: [document.querySelectorAll(".lcd-vz-acc").length, document.querySelectorAll(".lcd-vz-swatch").length, document.querySelectorAll(".lcd-vz-swatch--preview").length],
         styly: { obsah: st("#product-detail-form .content-wrap"), krok: st("#product-detail-form .content-wrap > .parameter-wrap"), hlavicka: st("#product-detail-form .content-wrap > .parameter-wrap > .order"), auto: st("#product-detail-form .content-wrap > .position-wrap.active"), tlacidlo: st("#product-detail-form .add-to-cart button.add-to-cart-button"), cena: st(".p-final-price-wrapper"), h1: st("h1") },
         rozmery: { obsah: rm("#product-detail-form .content-wrap", true), krok: rm("#product-detail-form .content-wrap > .parameter-wrap"), hlavicka: rm("#product-detail-form .content-wrap > .parameter-wrap > .order"), auto: rm("#product-detail-form .content-wrap > .position-wrap.active", true), tlacidlo: rm("#product-detail-form .add-to-cart button.add-to-cart-button"), cena: rm(".p-final-price-wrapper"), h1: rm("h1") },
         lcd1v: document.querySelectorAll(".lcd-1v, [class*='lcd1v'], [id*='lcd1v'], [class*='lcd-1v-']").length
@@ -425,11 +573,11 @@ const SCENARE = {
     if (a.novy && s.build.js) {
       // len informácia: čo zmení ?novy=1 oproti živému webu (so stubmi má byť len trieda body.lcd-1v)
       const n = await pom.novaStranka(s.build);
-      await otvor(n, a.url, { novy: true });
+      await otvor(n, a.url, { novy: true, kontrola1v: a.zapnuteSet.has(a.produkt.id) });
       const C = await n.t.ev(USTALENE).then(() => n.t.ev(PODPIS));
       await n.k.zavri();
       const rn = rozdiel(A, C);
-      info += "; s ?novy=1 oproti CDN: " + (rn.length ? rn.join(" ; ") : "bez rozdielu");
+      info += "; s ?novy=" + a.flag + " oproti CDN: " + (rn.length ? rn.join(" ; ") : "bez rozdielu");
     }
     return { info };
   },
@@ -450,34 +598,54 @@ const SCENARE = {
     return { info: "výzva na auto + červený rám na aute, POST 0" };
   },
 
-  /** Neúplný výber: bez farby a bez rozloženia sa nedá pridať, červený rám na chýbajúcom kroku. */
+  /**
+   * Neúplný výber: po aute (ak ho typ má) postupne každý ďalší povinný krok — „Pridať do košíka“ = červený rám na ňom,
+   * potom sa vyplní (posledný nie); POST 0. jedno: farba, rozloženie · dvoj: farba, farba2, rozloženie ·
+   * rohož: farba · box: farba, veľkosť.
+   */
   async neuplne(s, a, pom, ovl) {
-    const t = s.t;
+    const t = s.t, T = TYPY_TEST[a.produkt.typ];
     await otvor(s, a.url, { novy: a.novy });
-    await ovl.kroky.vyberAuto(t, AUTO);
-    await ovl.cena.pridajDoKosika(t);
-    let c = await ovl.kroky.cervenyKrok(t);
-    over(c === "farba", "bez farby: červený rám má byť na farbe, je na: " + c);
-    await pauza(3200);
-    await ovl.kroky.vyberFarbu(t, { index: 3 });
-    await ovl.cena.pridajDoKosika(t);
-    c = await ovl.kroky.cervenyKrok(t);
-    over(c === "rozlozenie", "bez rozloženia: červený rám má byť na rozložení, je na: " + c);
+    if (T.povinne[0] === "auto") await ovl.kroky.vyberAuto(t, AUTO);
+    const kroky = T.povinne.filter((k) => k !== "auto");
+    const MENO = { rozlozenie: "rozloženie", farba2: "farba 2. vrstvy", velkost: "veľkosť" };
+    for (let i = 0; i < kroky.length; i++) {
+      if (i) await pauza(3200); // červený rám z predošlého kroku zmizne po 3 s
+      await ovl.cena.pridajDoKosika(t);
+      const c = await ovl.kroky.cervenyKrok(t);
+      over(c === kroky[i], "bez " + (MENO[kroky[i]] || kroky[i]) + ": červený rám má byť na " + kroky[i] + ", je na: " + c);
+      if (i === kroky.length - 1) break;
+      if (kroky[i] === "farba") {
+        // 4. farba (ako doteraz na 598), pri Hexa (3 farby) posledná
+        const idF = await t.idParametra("farba");
+        const pocet = await t.ev(`Array.prototype.filter.call((document.querySelector('#product-detail-form select[data-parameter-id="${idF}"]') || { options: [] }).options, function (o) { return !!o.value; }).length`);
+        const index = Math.max(0, Math.min(3, pocet - 1));
+        await (a.produkt.typ === "boxy" ? ovl.boxy.vyberFarbu(t, { index }) : ovl.kroky.vyberFarbu(t, { index }));
+      }
+      else if (kroky[i] === "farba2") await ovl.farba2.vyberFarbu2(t, { index: 0 });
+      else throw new Error("neuplne: neviem vyplniť krok " + kroky[i]);
+    }
     await pauza(1200);
     over(s.posty.length === 0, "neúplný výber odišiel do košíka: " + (s.posty[0] && s.posty[0].body));
-    return { info: "farba -> červený rám, rozloženie -> červený rám, POST 0" };
+    return { info: kroky.map((k) => (MENO[k] || k) + " -> červený rám").join(", ") + ", POST 0" };
   },
 
   /** Auto + farba + rozloženie: platný POST, kufor a boxy „nevybrané“, cena = Shoptet. */
   async platne(s, a, pom, ovl) {
+    const P = a.produkt;
     await otvor(s, a.url, { novy: a.novy });
-    const st = await overKuforSkryty(s, ovl);
+    const st = TYPY_TEST[P.typ].set ? await overKuforSkryty(s, ovl) : null;
     const z = await zaklad(s, ovl);
     await ovl.cena.pridajDoKosika(s.t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie });
+    const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `cena ${c.videne} (odporúčaná ${c.odporucana.cena}, −${c.odporucana.zlava} %), kufor/boxy na začiatku ${JSON.stringify(st)}`, post: post.body };
+    if (P.platne) {
+      over(post.pole.priceId === P.platne.priceId, "priceId " + post.pole.priceId + " ≠ plan.md §4 / produkty.mjs " + P.platne.priceId);
+      if (P.platne.odporucana) over(c.odporucana && c.odporucana.cena === P.platne.odporucana, "odporúčaná " + (c.odporucana && c.odporucana.cena) + " ≠ plan.md §4 " + P.platne.odporucana);
+    }
+    const odp = c.odporucana ? `odporúčaná ${c.odporucana.cena}, −${c.odporucana.zlava} %` : "bez odporúčanej";
+    return { info: `priceId ${post.pole.priceId}, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis || "0"} (${odp})${st ? ", kufor/boxy na začiatku " + JSON.stringify(st) : ""}`, post: post.body, spolu: cena.spolu };
   },
 
   /** Schválená cesta zápisu (window.__lcd1v = ctx z konfigurator1v/ctx.js): zapis() všetkých volieb -> doKosika() -> platný POST. */
@@ -495,6 +663,7 @@ const SCENARE = {
     const vyber = (kluc, re) => `(function () { var o = window.__lcd1v.moznosti(${JSON.stringify(kluc)}).find(function (x) { return ${re}.test(x.text); }); return o ? o.hodnota : null; })()`;
     const farba = await zapis("farba", `window.__lcd1v.moznosti("farba")[4].hodnota`);
     over((await zapis("farba", JSON.stringify(farba.h))).cesta === "uz", "opakovaný zápis tej istej farby má vrátiť „uz“");
+    const farba2 = (await t.maParameter("farba2")) ? await zapis("farba2", `window.__lcd1v.moznosti("farba2")[0].hodnota`) : null;
     const rozl = await zapis("rozlozenie", `window.__lcd1v.moznosti("rozlozenie")[1].hodnota`);
     await zapis("kufor", vyber("kufor", "/bok/i"));
     const zrus = await zapis("kufor", `""`);
@@ -508,11 +677,11 @@ const SCENARE = {
     over(!stav.chyba, "po zápise všetkých volieb ctx.prvyNevyplneny() hlási krok " + stav.chyba);
     over(await t.ev(`window.__lcd1v.doKosika()`), "ctx.doKosika() nenašiel tlačidlo");
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: farba.h, rozlozenie: rozl.h, kufor: kufor.h, farbaBoxov: fb.h, box1: b1.h, box2: b2.h });
+    const cena = await overPost(s, post, { farba: farba.h, ...(farba2 ? { farba2: farba2.h } : {}), rozlozenie: rozl.h, kufor: kufor.h, farbaBoxov: fb.h, box1: b1.h, box2: b2.h });
     over(stav.cena.spolu === cena.spolu, "ctx.cena().spolu " + stav.cena.spolu + " ≠ Shoptet " + cena.spolu);
-    over(stav.cena.odporucana === Math.ceil((cena.spolu * 1.6) / 10) * 10, "ctx.cena().odporucana " + stav.cena.odporucana);
+    if (a.produkt.odporucana !== false) over(stav.cena.odporucana === Math.ceil((cena.spolu * 1.6) / 10) * 10, "ctx.cena().odporucana " + stav.cena.odporucana);
     await overCenu(s, ovl, cena);
-    return { info: `zapis() ${[farba, rozl, kufor, fb, b1, b2].map((r) => r.cesta).join("/")}, ctx.cena ${stav.cena.spolu} = Shoptet, doKosika -> POST OK`, post: post.body };
+    return { info: `zapis() ${[farba, farba2, rozl, kufor, fb, b1, b2].filter(Boolean).map((r) => r.cesta).join("/")}, ctx.cena ${stav.cena.spolu} = Shoptet, doKosika -> POST OK`, post: post.body, spolu: cena.spolu };
   },
 
   async "kufor-classic"(s, a, pom, ovl) { return kuforBoxy(s, a, ovl, { kufor: "classic" }); },
@@ -529,9 +698,9 @@ const SCENARE = {
     over(n.hodnoty.includes(v), "Nechcem: kufor vo formulári " + v + " (povolené " + n.hodnoty.join("|") + ")");
     await ovl.cena.pridajDoKosika(s.t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie });
+    const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `Classic -> Nechcem: kufor ${JSON.stringify(v)}, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body };
+    return { info: `Classic -> Nechcem: kufor ${JSON.stringify(v)}, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
   },
 
   /** 1 box -> Nechcem: POST bez boxov (prázdne alebo ŽIADNY), cena bez boxov. */
@@ -546,9 +715,9 @@ const SCENARE = {
     }
     await ovl.cena.pridajDoKosika(s.t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie });
+    const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `1 box -> Nechcem: ${JSON.stringify(b)}, cena ${c.videne}`, post: post.body };
+    return { info: `1 box -> Nechcem: ${JSON.stringify(b)}, cena ${c.videne}`, post: post.body, spolu: cena.spolu };
   },
 
   /** G10b (len nový vzhľad): nový výber boxov zavretý krížikom bez potvrdenia = žiadny box (POST, cena aj karta Nechcem). */
@@ -564,9 +733,9 @@ const SCENARE = {
     over(!b.oznacena, "po krížiku ostala označená karta boxov: " + b.oznacena);
     await ovl.cena.pridajDoKosika(s.t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie });
+    const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `krížik: ${JSON.stringify(b.hodnoty)}, cena ${c.videne}`, post: post.body };
+    return { info: `krížik: ${JSON.stringify(b.hodnoty)}, cena ${c.videne}`, post: post.body, spolu: cena.spolu };
   },
 
   /** 1 box -> 2 boxy: v POST len 1. + 2. box, bez samostatného boxu z predošlej voľby (len nový vzhľad — starý túto
@@ -579,9 +748,9 @@ const SCENARE = {
     const b = await ovl.kuforBoxy.vyberBoxy(s.t, { pocet: 2, farba: 2, velkost: "L", velkost2: "S" });
     await ovl.cena.pridajDoKosika(s.t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie, farbaBoxov: b.farbaBoxov, box1: b.box1, box2: b.box2 });
+    const cena = await overPost(s, post, { ...z.ocak, farbaBoxov: b.farbaBoxov, box1: b.box1, box2: b.box2 });
     const c = await overCenu(s, ovl, cena);
-    return { info: `1 box M -> 2 boxy L+S: cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body };
+    return { info: `1 box M -> 2 boxy L+S: cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
   },
 
   /** 7 miest + všetky tri rady: POST rozloženie = voľba s 3. radom, cena s príplatkom 3. radu (nový vzhľad: 7 miest
@@ -598,22 +767,23 @@ const SCENARE = {
     }
     await ovl.cena.pridajDoKosika(s.t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie });
+    const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `${miesta ? "miesta " + miesta + ", " : ""}cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body };
+    return { info: `${miesta ? "miesta " + miesta + ", " : ""}cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
   },
 
-  /** Nový vzhľad: krok 6 „Pokračujte k súhrnu“ nič nevkladá do košíka — zatvorí krok a posunie na súhrn (Spolu +
-   *  tlačidlo košíka); potom „Vložte do košíka“ pošle platný POST. */
+  /** Nový vzhľad: posledný krok typu (set: krok 6 boxy, rohož: farba, box: veľkosť) „Pokračujte k súhrnu“ nič nevkladá
+   *  do košíka — zatvorí krok a posunie na súhrn (Spolu + tlačidlo košíka); potom „Vložte do košíka“ pošle platný POST. */
   async "k-suhrnu"(s, a, pom, ovl) {
-    if (ovl.zdroj.kroky !== "novy") return { preskoc: "len nový vzhľad (naživo krok 6 „Prejsť do košíka“ rovno vkladá)" };
+    const posledny = TYPY_TEST[a.produkt.typ].posledny;
+    if (ovl.zdroj.kroky !== "novy") return { preskoc: TYPY_TEST[a.produkt.typ].set ? "len nový vzhľad (naživo krok 6 „Prejsť do košíka“ rovno vkladá)" : "len nový vzhľad (naživo posledný krok rovno vkladá — scenár dokoncit)" };
     const t = s.t;
     await otvor(s, a.url, { novy: true });
     const z = await zaklad(s, ovl, { rozlozenie: 1 });
     const { otvorKartu } = await import("./test-1v/ovladac-kroky.mjs");
-    const sel = await otvorKartu(t, "boxy");
+    const sel = await otvorKartu(t, posledny);
     const text = await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(sel + " > .next-step-button")}); return b ? b.getAttribute("data-lcd1v-text") : null; })()`);
-    over(text === "Pokračujte k súhrnu", "text tlačidla kroku 6: " + text);
+    over(text === "Pokračujte k súhrnu", "text tlačidla posledného kroku (" + posledny + "): " + text);
     await t.klikni(`${sel} > .next-step-button`, { popis: "Pokračujte k súhrnu" });
     await pauza(1500);
     over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST do košíka: " + (s.posty[0] && s.posty[0].body));
@@ -623,9 +793,9 @@ const SCENARE = {
     over(st.vidno, "súhrn (Spolu) má byť po „Pokračujte k súhrnu“ na obrazovke: " + JSON.stringify(st));
     await ovl.cena.pridajDoKosika(t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: z.rozlozenie });
+    const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `krok 6 -> súhrn bez POST, kroky zatvorené, Spolu na obrazovke; potom košík: cena ${c.videne}`, post: post.body };
+    return { info: `posledný krok (${posledny}) -> súhrn bez POST, kroky zatvorené, Spolu na obrazovke; potom košík: cena ${c.videne}`, post: post.body, spolu: cena.spolu };
   },
 
   /** Nový vzhľad: 7 miest + 3 rady, potom 5 miest -> karta „Všetky tri rady“ zmizne, rozloženie sa samo prepne na
@@ -653,16 +823,67 @@ const SCENARE = {
     over(st.k4 && !st.kufor, "po zmene miest má ostať otvorený krok 4 (nie skok na kufor): " + JSON.stringify(st));
     await ovl.cena.pridajDoKosika(t);
     const post = await cakajNaPost(s);
-    const cena = await overPost(s, post, { farba: z.farba, rozlozenie: dva });
+    const cena = await overPost(s, post, { ...z.ocak, rozlozenie: dva });
     const c = await overCenu(s, ovl, cena);
-    return { info: `7 miest + 3 rady -> 5 miest: rozloženie ${dva}, krok 4 ostal otvorený, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body };
+    return { info: `7 miest + 3 rady -> 5 miest: rozloženie ${dva}, krok 4 ostal otvorený, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
+  },
+
+  /**
+   * Rohož a box, starý web: tlačidlo posledného kroku („Dokončiť konfiguráciu“ / box „Prejsť k ďalšiemu kroku“) po
+   * úplnom výbere rovno vkladá do košíka — živý POST sa zachytí a zruší, overí sa ako `platne`. Nový vzhľad posledný
+   * krok zachytí a pošle na súhrn (scenár k-suhrnu).
+   */
+  async dokoncit(s, a, pom, ovl) {
+    if (ovl.zdroj.kroky === "novy") return { preskoc: "nový vzhľad: posledný krok nevkladá do košíka (scenár k-suhrnu)" };
+    const posledny = TYPY_TEST[a.produkt.typ].posledny;
+    await otvor(s, a.url, { novy: a.novy });
+    const z = await zaklad(s, ovl);
+    const text = await ovl.kroky.dokonci(s.t, posledny);
+    const post = await cakajNaPost(s);
+    await pauza(1500); // druhý POST (telefón) prichádza tesne po prvom
+    if (s.posty.length > 1) {
+      // živý web na telefóne (14. 10. 2026, 598 krok 6 aj rohož/box): configuratorEngine.js klikne PRVÉ viditeľné
+      // button.add-to-cart-button = „Do košíka“ v lepivej hlavičke (plugin-fixed-header__basket, mimo formulára) -> 2× POST.
+      // D2: starý web neopravujeme, hlásime; nový vzhľad posledný krok zachytí (k-suhrnu).
+      over(s.posty.every((p) => p.body === s.posty[0].body), "tlačidlo posledného kroku poslalo " + s.posty.length + " rôzne POST");
+      s.upozornenia.push(`živý web: „${text}“ ${s.t.mobil ? "na telefóne" : "na PC"} poslal ${s.posty.length}× ten istý POST do košíka (configuratorEngine.js klikne prvé viditeľné tlačidlo košíka = lepivá hlavička mimo formulára)`);
+    }
+    const cena = await overPost(s, post, z.ocak);
+    const c = await overCenu(s, ovl, cena);
+    return { info: `„${text}“ (${posledny}) -> živý POST zachytený a zrušený, priceId ${post.pole.priceId}, cena ${c.videne}`, post: post.body, spolu: cena.spolu };
   },
 };
+
+// Typy produktov, na ktorých scenár jadra beží (ostatné sa na produkte nespustia, len spočítajú).
+const SET = ["jedno", "dvoj"], ROHOZ = ["kufor-classic", "kufor-premium"];
+const TYPY_JADRA = {
+  brana: VSETKY_TYPY, "nulova-zmena": VSETKY_TYPY,
+  "bez-auta": [...SET, ...ROHOZ], neuplne: [...SET, ...ROHOZ, "boxy"], platne: [...SET, ...ROHOZ, "boxy"],
+  "ctx-zapis": SET, "kufor-classic": SET, "kufor-premium": SET, "box-1": SET, "box-2": SET, "kufor-nie": SET, "box-nie": SET,
+  "box-krizik": SET, "box-prepni": SET, "rady-3": SET, "miesta-5": SET,
+  "k-suhrnu": [...SET, ...ROHOZ, "boxy"], dokoncit: [...ROHOZ, "boxy"],
+};
+
+/** Register scenárov: meno -> [{ typy, fn, zdroj }] (jadro + tools/test-1v/scenare-<typ>.mjs). */
+const REGISTER = {};
+for (const [meno, fn] of Object.entries(SCENARE)) {
+  if (!TYPY_JADRA[meno]) throw new Error("scenár jadra " + meno + " nemá typy (TYPY_JADRA)");
+  REGISTER[meno] = [{ typy: TYPY_JADRA[meno], fn, zdroj: "jadro" }];
+}
+for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky })) {
+  for (const [meno, sc] of Object.entries(mod.SCENARE || {})) {
+    if (!sc || typeof sc.fn !== "function" || !Array.isArray(sc.typy)) throw new Error(zdroj + ": scenár " + meno + " musí byť { typy: [...], fn }");
+    const kolizia = (REGISTER[meno] || []).find((x) => x.typy.some((ty) => sc.typy.includes(ty)));
+    if (kolizia) throw new Error(zdroj + ": scenár " + meno + " pre typ " + sc.typy.join(",") + " už je v " + kolizia.zdroj);
+    (REGISTER[meno] = REGISTER[meno] || []).push({ typy: sc.typy, fn: sc.fn, zdroj });
+  }
+}
+const scenarPreTyp = (meno, typ) => (REGISTER[meno] || []).find((x) => x.typy.includes(typ)) || null;
 
 async function kuforBoxy(s, a, ovl, { kufor, boxy }) {
   await otvor(s, a.url, { novy: a.novy });
   const z = await zaklad(s, ovl, { rozlozenie: 0 });
-  const ocak = { farba: z.farba, rozlozenie: z.rozlozenie };
+  const ocak = { ...z.ocak };
   if (kufor) ocak.kufor = await ovl.kuforBoxy.vyberKufor(s.t, kufor);
   if (boxy) {
     const b = await ovl.kuforBoxy.vyberBoxy(s.t, boxy);
@@ -680,7 +901,7 @@ async function kuforBoxy(s, a, ovl, { kufor, boxy }) {
   const post = await cakajNaPost(s);
   const cena = await overPost(s, post, ocak);
   const c = await overCenu(s, ovl, cena);
-  return { info: `cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body };
+  return { info: `cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
 }
 
 // ------------------------------------------------------------------ konzola
@@ -689,10 +910,16 @@ const normChyba = (c) => (c.druh + ": " + c.text).replace(/\d+/g, "#").replace(/
 const naseChyby = (chyby) => chyby.filter((c) => !SUM_ZDROJE.test(c.zdroj || "") && !SUM_ZDROJE.test(c.text || ""));
 
 // ------------------------------------------------------------------ beh
+/** Jadro pre scenáre v tools/test-1v/scenare-<typ>.mjs (piaty parameter scenára). */
+const J = { otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, over, pauza, AUTO, TYPY_TEST };
+
 async function main() {
   const a = argumenty(process.argv.slice(2));
-  const mena = a.kroky || Object.keys(SCENARE);
-  mena.forEach((m) => { if (!SCENARE[m]) throw new Error("neznámy scenár " + m + " (sú: " + Object.keys(SCENARE).join(", ") + ")"); });
+  const produkty = a.produkt ? vyberProdukty(a.produkt) : [a.url ? produktPodlaUrl(a.url) : vyberProdukty("598")[0]];
+  if (a.url && a.produkt) { if (produkty.length !== 1) throw new Error("--url ide len s jedným --produkt"); produkty[0] = { ...produkty[0], url: a.url }; }
+  if (a.kroky) a.kroky.forEach((m) => { if (!REGISTER[m]) throw new Error("neznámy scenár " + m + " (sú: " + Object.keys(REGISTER).join(", ") + ")"); });
+  const zapnute = zapnuteProdukty(a);
+  a.zapnuteSet = a.flag ? zapnute[a.flag] : new Set();
   if (a.snimky) mkdirSync(a.snimky, { recursive: true });
   // staré dočasné priečinky po prerušených behoch (> 3 h; bežiace paralelné behy sú mladšie)
   try {
@@ -703,86 +930,156 @@ async function main() {
     }
   } catch {}
   const build = await priprav(a);
-  const ovl = {
-    kroky: a.novy && ovlKroky.novy ? ovlKroky.novy : ovlKroky.stary,
-    rozlozenie: a.novy && ovlRozlozenie.novy ? ovlRozlozenie.novy : ovlRozlozenie.stary,
-    kuforBoxy: a.novy && ovlKuforBoxy.novy ? ovlKuforBoxy.novy : ovlKuforBoxy.stary,
-    cena: a.novy && ovlCena.novy ? ovlCena.novy : ovlCena.stary,
-  };
-  ovl.zdroj = Object.fromEntries(Object.entries(ovl).map(([k, v]) => [k, v === ovlKroky.novy || v === ovlRozlozenie.novy || v === ovlKuforBoxy.novy || v === ovlCena.novy ? "novy" : "stary"]));
-  console.log(`Konfigurátor 1V — ${a.url}${a.novy ? " ?novy=1" : " (flag vypnutý)"}\n  zdroj: ${build.popis}\n  ovládače: ${Object.entries(ovl.zdroj).map(([k, v]) => k + "=" + v).join(", ")}\n  šírky: ${a.sirky.join(", ")}  scenáre: ${mena.join(", ")}`);
+  const vyber = (mod) => (a.novy && mod.novy ? mod.novy : mod.stary);
+  const MODULY = { kroky: ovlKroky, rozlozenie: ovlRozlozenie, kuforBoxy: ovlKuforBoxy, cena: ovlCena, farba2: ovlFarba2, boxy: ovlBoxy, vzorky: ovlVzorky };
+  const ovl = Object.fromEntries(Object.entries(MODULY).map(([k, mod]) => [k, vyber(mod)]));
+  ovl.zdroj = Object.fromEntries(Object.entries(MODULY).map(([k, mod]) => [k, mod.novy && ovl[k] === mod.novy ? "novy" : "stary"]));
 
-  // základ konzoly pre každú šírku: živý CDN, načítanie stránky
-  const zakladKonzoly = {};
-  for (const sirka of a.sirky) {
-    zakladKonzoly[sirka] = (async () => {
+  // úlohy: produkt × šírka × scenár (bez --krok sada z profilu); scenár iného typu sa nespustí, len spočíta
+  const ulohy = [], ineTypy = [];
+  for (const P of produkty) for (const sirka of a.sirky) for (const m of a.kroky || P.scenare) {
+    const sc = scenarPreTyp(m, P.typ);
+    if (sc) ulohy.push({ P, sirka, m, fn: sc.fn });
+    else if (sirka === a.sirky[0]) ineTypy.push(P.id + ":" + m);
+  }
+  const flagText = a.flag ? " ?novy=" + a.flag : " (flag vypnutý)";
+  console.log(`Konfigurátor 1V — ${produkty.length === 1 ? produkty[0].id + " " + produkty[0].url : produkty.length + (produkty.length < 5 ? " produkty: " : " produktov: ") + produkty.map((P) => P.id).join(", ")}${flagText}
+  zdroj: ${build.popis}
+  brána: ${zapnute.popis}${a.flag ? "; zapnuté pre ?novy=" + a.flag + ": " + ([...a.zapnuteSet].join(", ") || "nič") : ""}
+  ovládače: ${Object.entries(ovl.zdroj).map(([k, v]) => k + "=" + v).join(", ")}
+  šírky: ${a.sirky.join(", ")}  úloh: ${ulohy.length}  paralelne: ${a.paralelne}${a.kroky ? "  scenáre: " + a.kroky.join(", ") : ""}`);
+
+  // základ konzoly pre produkt × šírku: živý CDN, načítanie stránky (lenivo, v slote pracovníka -> max. --paralelne Chromov)
+  const zakladKonzoly = new Map();
+  const konzola = (P, sirka) => {
+    const kluc = P.id + "|" + sirka;
+    if (!zakladKonzoly.has(kluc)) zakladKonzoly.set(kluc, (async () => {
       const ch = await spustiChrome({ okno: a.okno });
       try {
-        const s = await novaStranka(ch, sirka, { js: null, css: null }, a, () => {});
-        await otvor(s, a.url);
+        const s = await novaStranka(ch, sirka, { js: null, css: null }, a, () => {}, P);
+        await otvor(s, P.url);
         await pauza(1500);
         return new Set(naseChyby(s.k.chyby).map(normChyba));
       } finally { await ch.zavri(); }
-    })();
-  }
+    })());
+    return zakladKonzoly.get(kluc);
+  };
 
-  const ulohy = [];
-  for (const sirka of a.sirky) for (const m of mena) ulohy.push({ sirka, m });
   const vysledky = [];
   let dalsia = 0;
+  /** Časový limit: Chrome môže na živom webe spadnúť a cdp.mjs potom nikdy neodpovie (beh by visel navždy). */
+  const limit = (ms, popis) => {
+    let tm;
+    const p = new Promise((_, rej) => { tm = setTimeout(() => rej(new Zlyhanie(`časový limit ${Math.round(ms / 1000)} s: ${popis} (Chrome spadol / stránka neodpovedá)`)), ms); });
+    p.zrus = () => clearTimeout(tm);
+    return p;
+  };
+  const sLimitom = async (prom, ms, popis) => {
+    prom.catch(() => {}); // po vypršaní limitu dobehne (alebo nie) mimo behu — bez unhandled rejection
+    const l = limit(ms, popis);
+    try { return await Promise.race([prom, l]); } finally { l.zrus(); }
+  };
+
+  /** Jeden pokus úlohy -> výsledok v. */
+  async function pokus(u) {
+    const t0 = Date.now();
+    const logy = [];
+    const log = (x) => logy.push(x);
+    const v = { produkt: u.P.id, typ: u.P.typ, sirka: u.sirka, scenar: u.m, stav: "OK", sprava: "", info: "", post: null, spolu: null, upozornenia: [], chyby: [], logy };
+    let s, ch;
+    try {
+      const zakl = await sLimitom(konzola(u.P, u.sirka), a.limit * 1000, "základ konzoly " + u.P.id).catch((e) => { zakladKonzoly.delete(u.P.id + "|" + u.sirka); throw new Zlyhanie("základ konzoly (CDN " + u.P.id + "): " + e.message); });
+      ch = await sLimitom(spustiChrome({ okno: a.okno }), 60000, "spustenie Chrome");
+      s = await novaStranka(ch, u.sirka, build, a, log, u.P);
+      const pom = { novaStranka: (b) => novaStranka(ch, u.sirka, b, a, log, u.P) };
+      const aU = { ...a, url: u.P.url, produkt: u.P };
+      // --snimky: aj snímka tesne pred každým „Pridať do košíka“ (po ňom Shoptet stmaví stránku, POST je zrušený)
+      let nKosik = 0;
+      const meno = `${u.P.id}-${u.m}-${u.sirka}${a.flag ? "-novy" + (a.flag === "vyvoj" ? "-vyvoj" : "") : ""}`;
+      const ovlUloha = !a.snimky ? ovl : { ...ovl, cena: { ...ovl.cena, pridajDoKosika: async (t) => {
+        await s.k.snimka(join(a.snimky, `${meno}-pred-kosikom${++nKosik > 1 ? "-" + nKosik : ""}.png`)).catch(() => {});
+        return ovl.cena.pridajDoKosika(t);
+      } } };
+      const r = (await sLimitom(Promise.resolve().then(() => u.fn(s, aU, pom, ovlUloha, J)), a.limit * 1000, "scenár " + u.m)) || {};
+      if (r.preskoc) { v.stav = "PRESKOČENÉ"; v.sprava = r.preskoc; }
+      v.info = r.info || ""; v.post = r.post || null; v.spolu = r.spolu == null ? null : r.spolu;
+      // suma podľa profilu (plan.md §4 / produkty.mjs ceny)
+      const ocakSpolu = u.P.ceny && u.P.ceny[u.m];
+      if (v.stav === "OK" && ocakSpolu != null) over(v.spolu === ocakSpolu, `suma ${v.spolu} ≠ očakávaná ${ocakSpolu} (plan.md §4 / tools/test-1v/produkty.mjs ceny["${u.m}"])`);
+      over(s.inePosty.length === 0, "nečakaný zápis na server (zrušený): " + s.inePosty.join(", "));
+      if (s.build && (s.build.js || s.build.css)) over(s.podvrhnute.length > 0 || v.stav !== "OK", "lokálny build sa nepodvrhol — stránka nenačítala luxuryCar.js/css z assets/v/<sha>/?");
+      const nove = naseChyby(s.k.chyby).filter((c) => !zakl.has(normChyba(c)));
+      const zname = (u.P.znameChyby || []);
+      const znamaChyba = (c) => zname.some((re) => re.test(c.text || ""));
+      const popisChyby = (c) => c.druh + ": " + c.text + (c.zdroj ? " @" + c.zdroj.slice(-60) : "");
+      [...new Set(nove.filter(znamaChyba).map((c) => "známa chyba živého webu: " + popisChyby(c)))].forEach((x) => s.upozornenia.push(x));
+      v.chyby = nove.filter((c) => !znamaChyba(c)).map(popisChyby);
+      over(v.chyby.length === 0, "nové chyby v konzole:\n      " + v.chyby.join("\n      "));
+    } catch (e) {
+      v.stav = "ZLYHAL";
+      v.sprava = e instanceof Zlyhanie ? e.message : (e && e.stack ? e.stack.split("\n").slice(0, 3).join("\n      ") : String(e));
+    }
+    if (s) v.upozornenia = [...new Set(s.upozornenia)];
+    try {
+      if (a.snimky && s) {
+        await sLimitom((async () => {
+          await s.k.ev(`(function () { var e = document.querySelector("#product-detail-form .content-wrap") || document.querySelector("#product-detail-form"); if (e) e.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -90); })()`).catch(() => {});
+          await pauza(300);
+          v.snimka = await s.k.snimka(join(a.snimky, `${u.P.id}-${u.m}-${u.sirka}${a.flag ? "-novy" + (a.flag === "vyvoj" ? "-vyvoj" : "") : ""}${v.stav === "ZLYHAL" ? "-CHYBA" : ""}.png`));
+        })(), 20000, "snímka");
+      }
+    } catch {}
+    if (s) v.posty = s.posty.map((p) => p.body);
+    if (ch) await ch.zavri();
+    v.s = ((Date.now() - t0) / 1000).toFixed(1);
+    return v;
+  }
+
   async function pracovnik() {
     while (dalsia < ulohy.length) {
       const u = ulohy[dalsia++];
-      const t0 = Date.now();
-      const logy = [];
-      const log = (x) => logy.push(x);
-      const ch = await spustiChrome({ okno: a.okno });
-      let s;
-      const v = { sirka: u.sirka, scenar: u.m, stav: "OK", sprava: "", info: "", post: null, chyby: [] };
-      try {
-        s = await novaStranka(ch, u.sirka, build, a, log);
-        const pom = { novaStranka: (b) => novaStranka(ch, u.sirka, b, a, log) };
-        // --snimky: aj snímka tesne pred každým „Pridať do košíka“ (po ňom Shoptet stmaví stránku, POST je zrušený)
-        let nKosik = 0;
-        const ovlUloha = !a.snimky ? ovl : { ...ovl, cena: { ...ovl.cena, pridajDoKosika: async (t) => {
-          await s.k.snimka(join(a.snimky, `${u.m}-${u.sirka}${a.novy ? "-novy" : ""}-pred-kosikom${++nKosik > 1 ? "-" + nKosik : ""}.png`)).catch(() => {});
-          return ovl.cena.pridajDoKosika(t);
-        } } };
-        const r = (await SCENARE[u.m](s, a, pom, ovlUloha)) || {};
-        if (r.preskoc) { v.stav = "PRESKOČENÉ"; v.sprava = r.preskoc; }
-        v.info = r.info || ""; v.post = r.post || null;
-        over(s.inePosty.length === 0, "nečakaný zápis na server (zrušený): " + s.inePosty.join(", "));
-        if (s.build && (s.build.js || s.build.css)) over(s.podvrhnute.length > 0 || v.stav !== "OK", "lokálny build sa nepodvrhol — stránka nenačítala luxuryCar.js/css z assets/v/<sha>/?");
-        const zakl = await zakladKonzoly[u.sirka];
-        const nove = naseChyby(s.k.chyby).filter((c) => !zakl.has(normChyba(c)));
-        v.chyby = nove.map((c) => c.druh + ": " + c.text + (c.zdroj ? " @" + c.zdroj.slice(-60) : ""));
-        over(nove.length === 0, "nové chyby v konzole:\n      " + v.chyby.join("\n      "));
-      } catch (e) {
-        v.stav = "ZLYHAL";
-        v.sprava = e instanceof Zlyhanie ? e.message : (e && e.stack ? e.stack.split("\n").slice(0, 3).join("\n      ") : String(e));
+      let v = await pokus(u);
+      // --opakuj: živý web občas nestihne (pomalá noc, iné behy) — zlyhaný scenár sa zopakuje, prvé zlyhanie ostane vo výpise
+      const predosle = [];
+      for (let i = 0; v.stav === "ZLYHAL" && i < a.opakuj; i++) {
+        predosle.push(v.sprava.split("\n")[0]);
+        v = await pokus(u);
       }
-      try {
-        if (a.snimky && s) {
-          await s.k.ev(`(function () { var e = document.querySelector("#product-detail-form .content-wrap"); if (e) e.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -90); })()`).catch(() => {});
-          await pauza(300);
-          v.snimka = await s.k.snimka(join(a.snimky, `${u.m}-${u.sirka}${a.novy ? "-novy" : ""}${v.stav === "ZLYHAL" ? "-CHYBA" : ""}.png`));
-        }
-      } catch {}
-      if (s && a.vypis) v.posty = s.posty.map((p) => p.body);
-      await ch.zavri();
-      v.s = ((Date.now() - t0) / 1000).toFixed(1);
+      if (predosle.length) v.predosle = predosle;
       vysledky.push(v);
-      const znak = v.stav === "OK" ? "OK      " : v.stav === "ZLYHAL" ? "ZLYHAL  " : "PRESKOČ ";
-      console.log(`${znak}${String(u.sirka).padEnd(5)} ${u.m.padEnd(14)} ${v.s.padStart(5)} s  ${v.stav === "OK" ? v.info : v.sprava}`);
+      const znak = v.stav === "OK" ? (predosle.length ? "OK*     " : "OK      ") : v.stav === "ZLYHAL" ? "ZLYHAL  " : "PRESKOČ ";
+      console.log(`${znak}${String(u.sirka).padEnd(5)} ${String(u.P.id).padEnd(4)} ${u.m.padEnd(14)} ${v.s.padStart(5)} s  ${v.stav === "OK" ? v.info : v.sprava}`);
+      predosle.forEach((x, i) => console.log(`        * ${i + 1}. pokus zlyhal: ${x}`));
+      v.upozornenia.forEach((x) => console.log("        ! " + x));
       if (a.vypis && v.posty && v.posty.length) v.posty.forEach((b) => console.log("        POST " + b));
-      if (a.vypis && logy.length) logy.forEach((l) => console.log("        log " + l));
+      if (a.vypis && v.logy.length) v.logy.forEach((l) => console.log("        log " + l));
     }
   }
   await Promise.all(Array.from({ length: Math.min(a.paralelne, ulohy.length) }, pracovnik));
   if (build.tmp) try { rmSync(build.tmp, { recursive: true, force: true }); } catch {}
   const zle = vysledky.filter((v) => v.stav === "ZLYHAL").length, ok = vysledky.filter((v) => v.stav === "OK").length;
-  console.log(`\nSpolu: ${ok} OK, ${zle} zlyhalo, ${vysledky.length - ok - zle} preskočené (${a.novy ? "--novy" : "flag vypnutý"}, ${build.popis.split(" (")[0]})`);
-  if (a.json) writeFileSync(a.json, JSON.stringify({ argumenty: a, zdroj: build.popis, ovladace: ovl.zdroj, vysledky }, null, 1));
+  const upoz = vysledky.reduce((n, v) => n + v.upozornenia.length, 0);
+  const opak = vysledky.filter((v) => v.stav === "OK" && v.predosle).length;
+  console.log(`\nSpolu: ${ok} OK${opak ? " (z toho " + opak + " až na opakovaný pokus, OK*)" : ""}, ${zle} zlyhalo, ${vysledky.length - ok - zle} preskočené${upoz ? ", " + upoz + " upozornení" : ""} (${a.flag ? "?novy=" + a.flag : "flag vypnutý"}, ${build.popis.split(" (")[0]}, ${produkty.length} ${produkty.length === 1 ? "produkt" : produkty.length < 5 ? "produkty" : "produktov"})`);
+  if (ineTypy.length) console.log(`Scenáre iného typu (na produkte nespustené): ${ineTypy.length} — ${ineTypy.join(" ")}`);
+  if (a.json) {
+    // súhrn podľa produktu: živý POST scenára `platne` (prvá šírka) vs plan.md §4
+    const suhrn = {};
+    for (const P of produkty) {
+      const pl = vysledky.find((v) => v.produkt === P.id && v.scenar === "platne" && v.post);
+      const pole = pl ? Object.fromEntries(new URLSearchParams(pl.post)) : null;
+      suhrn[P.id] = {
+        nazov: P.nazov, url: P.url, typ: P.typ, vzor: P.vzor, ocakavane: P.platne || null, ceny: P.ceny || {}, postKluce: P.postKluce || null,
+        platne: pl ? { stav: pl.stav, post: pl.post, priceId: pole.priceId, spolu: pl.spolu, kluce: Object.keys(pole), info: pl.info,
+          sedi: !!(P.platne && pole.priceId === P.platne.priceId && pl.spolu === P.platne.spolu && pl.stav === "OK") } : null,
+        scenare: Object.fromEntries(vysledky.filter((v) => v.produkt === P.id && v.sirka === a.sirky[0]).map((v) => [v.scenar, { stav: v.stav, spolu: v.spolu, post: v.post, upozornenia: v.upozornenia }])),
+        upozornenia: [...new Set(vysledky.filter((v) => v.produkt === P.id).flatMap((v) => v.upozornenia))],
+      };
+    }
+    const { zapnuteSet, ...arg } = a;
+    writeFileSync(a.json, JSON.stringify({ cas: new Date().toISOString(), argumenty: arg, zdroj: build.popis, brana: zapnute.popis, ovladace: ovl.zdroj,
+      spolu: { ok, okOpakovane: opak, zlyhalo: zle, preskocene: vysledky.length - ok - zle, upozornenia: upoz, ineTypy }, suhrn, vysledky: vysledky.map(({ logy, ...v }) => v) }, null, 1));
+  }
   process.exit(zle ? 1 : 0);
 }
 

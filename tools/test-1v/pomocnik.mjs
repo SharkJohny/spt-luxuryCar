@@ -1,4 +1,5 @@
-// Pomocník pre ovládače krokov (tools/test-1v/ovladac-*.mjs). SPOLOČNÝ SÚBOR — po základe (13. 10. 2026) sa nemení.
+// Pomocník pre ovládače krokov (tools/test-1v/ovladac-*.mjs). JADRO — mení len vydanie (T0.2 14. 10. 2026: farba2,
+// box3, t.maParameter, t.zabudni pre viac produktov).
 //
 // Ovládač dostane objekt t (jedna otvorená stránka):
 //   t.ev(expr)                     -> hodnota výrazu v stránke (Runtime.evaluate, returnByValue)
@@ -10,6 +11,8 @@
 //                                     (napr. hlavička kroku: nadpis cez číslo kroku)
 //   t.nastavSelect(selektor, text|index) -> vyberie možnosť natívneho <select> a vyšle change (ako výber zo zoznamu)
 //   t.idParametra(kluc)            -> data-parameter-id selectu formulára podľa data-parameter-name (bez ID natvrdo)
+//   t.maParameter(kluc)            -> to isté, ale null (bez výnimky), keď formulár parameter nemá (rohož, box)
+//   t.zabudni()                    -> zabudne ID parametrov (po prechode na iný produkt v tej istej karte)
 //   t.moznost(kluc, vzor)          -> value možnosti selectu, ktorej text sedí na regex vzor (napr. /dno/)
 //   t.pauza(ms), t.mobil, t.sirka, t.novy (beží s ?novy=1), t.log(...)
 import { pauza } from "./cdp.mjs";
@@ -17,11 +20,13 @@ import { pauza } from "./cdp.mjs";
 // Rovnaké mená ako assets/js/components/konfigurator1v/ctx.js (PARAMETRE) — test ich má vlastné, nezávislé od kódu webu.
 export const PARAMETRE = {
   farba: "^(farba|barva)\\s*1\\.?\\s*vrstv",
+  farba2: "^(farba|barva)\\s*2\\.?\\s*vrstv", // dvojvrstvové (SK 71 „farba 2.vrstvy“)
   rozlozenie: "rozlo[žz]en",
   kufor: "do\\s+kufr",
   farbaBoxov: "^(farba|barva)\\s+box",
   box1: "\\b1\\.\\s*box",
   box2: "\\b2\\.\\s*box",
+  box3: "\\b3\\.\\s*box", // box do kufra 616 (SK 100 „Velikost 3. boxu“)
   boxSolo: "box\\s*solo",
   typ: "^typ$",
 };
@@ -105,7 +110,7 @@ export function vytvorT(k, { novy = false, log = () => {} } = {}) {
     await pauza(150);
     return r.text;
   };
-  t.idParametra = async (kluc) => {
+  t.maParameter = async (kluc) => {
     if (idCache.has(kluc)) return idCache.get(kluc);
     const vzor = PARAMETRE[kluc];
     if (!vzor) throw new Error("neznámy kľúč parametra: " + kluc);
@@ -114,10 +119,15 @@ export function vytvorT(k, { novy = false, log = () => {} } = {}) {
       var s = Array.prototype.find.call(document.querySelectorAll("#product-detail-form select[data-parameter-name]"), function (s) { return re.test((s.getAttribute("data-parameter-name") || "").trim()); });
       return s ? s.getAttribute("data-parameter-id") : null;
     })()`);
+    if (id) idCache.set(kluc, id);
+    return id || null;
+  };
+  t.idParametra = async (kluc) => {
+    const id = await t.maParameter(kluc);
     if (!id) throw new Error("parameter „" + kluc + "“ vo formulári nie je");
-    idCache.set(kluc, id);
     return id;
   };
+  t.zabudni = () => idCache.clear();
   t.moznost = async (kluc, vzor) => {
     const id = await t.idParametra(kluc);
     const v = await k.ev(`(function () {
