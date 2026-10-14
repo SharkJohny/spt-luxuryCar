@@ -1,4 +1,27 @@
-<!-- STUB (T0.3, 14. 10. 2026): „Berete aj autokoberce? Box je v sete lacnejší“ .ups + tabuľka .cenv (§6.1; čísla len box-sam-*, box-set-*, box-set2-*).
-     Vlastník: T3.3. Spec: prieskum-vsetky/navrh-boxy.md §6. Pravidlá: docs/1v-obsah.md §4 (súbor = jeden prvok
-     s data-lcd-sekcia="a-ponuka", id len p1v-, čísla a ceny len data-p1v-cislo, odkazy na iný typ data-p1v-odkaz).
-     Kým je tu len komentár, build sekciu preskočí a obsah.js ju nemá. Sekciu, ktorú návrh nemá, zmaž. -->
+<!-- 10-a-ponuka — box do kufra 616: „Berete aj autokoberce? Box je v sete lacnejší“ + tabuľka cien (návrh boxy.html r. 4029–4041, spec navrh-boxy.md §6.1).
+     Rozloženie karty .ups = skupina A (_lcd1v-obsah-a.scss); tabuľka .cenv je nová: _lcd1v-obsah-boxy.scss.
+     ŽIADNA cena natvrdo: samostatne = základ 616 + príplatok 1. boxu (box-sam-*), v sete = jednovrstvové toho istého vzoru:
+     „Box solo“ (box-set-*) a 1. box pri dvoch (box-set2-*). Hodnotu dosadí obsah-cisla.js zo živých stránok; keď ju nezistí,
+     bunka ukáže pomlčku (data-p1v-bez), aby sa tabuľka nerozsypala.
+     Odkaz „Zostavte si set“ vedie na jednovrstvové (data-p1v-odkaz) na konfigurátor (#product-detail-form).
+     Fotka: assets/img/1v/obsah/boxy-set.jpg (bx-set.jpg z návrhu). Kapitola: bez data-lcd-kap (pred prvou kapitolou). -->
+<section data-lcd-sekcia="a-ponuka" class="chapter">
+<div class="wrap">
+<div class="ups rv">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-set.jpg" alt="Boxy a rohož do kufra v jednom kufri" width="800" height="800" loading="lazy"></div>
+<div class="tx">
+<span class="od">Výhodnejšie v sete</span>
+<h3>Berete aj autokoberce? Box je v sete lacnejší</h3>
+<p>Keď si box pridáte k autokobercom v jednom konfigurátore, zaplatíte za neho výrazne menej. Rovnaký box, rovnaký materiál aj prešívanie.</p>
+<div class="cenv" role="table" aria-label="Cena boxu samostatne a v sete">
+<div class="r" role="row"><span class="h" role="columnheader"><span class="sr-only">Veľkosť</span></span><span class="h" role="columnheader">S</span><span class="h" role="columnheader">M</span><span class="h" role="columnheader">L</span><span class="h" role="columnheader">XL</span></div>
+<div class="r" role="row"><span class="l" role="rowheader">Samostatne</span><span role="cell" data-p1v-cislo="box-sam-s" data-p1v-bez="–"><!-- --></span><span role="cell" data-p1v-cislo="box-sam-m" data-p1v-bez="–"><!-- --></span><span role="cell" data-p1v-cislo="box-sam-l" data-p1v-bez="–"><!-- --></span><span role="cell" data-p1v-cislo="box-sam-xl" data-p1v-bez="–"><!-- --></span></div>
+<div class="r" role="row"><span class="l" role="rowheader">V sete s autokobercami</span><span class="z" role="cell" data-p1v-cislo="box-set-s" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set-m" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set-l" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set-xl" data-p1v-bez="–"><!-- --></span></div>
+<div class="r" role="row"><span class="l" role="rowheader">V sete, pri dvoch boxoch (každý)</span><span class="z" role="cell" data-p1v-cislo="box-set2-s" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set2-m" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set2-l" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set2-xl" data-p1v-bez="–"><!-- --></span></div>
+</div>
+<p class="cenv-note">Ceny v sete platia pri objednávke spolu s autokobercami.</p>
+<a class="btn" href="/luxusne-autokoberce-dragonskin-diamond-line/#product-detail-form" data-p1v-odkaz="jedno">Zostavte si set</a>
+</div>
+</div>
+</div>
+</section>

@@ -1,4 +1,16 @@
-<!-- STUB (T0.3, 14. 10. 2026): Záver „Poriadok v kufri na jeden klik“ (§6.12).
-     Vlastník: T3.3. Spec: prieskum-vsetky/navrh-boxy.md §6. Pravidlá: docs/1v-obsah.md §4 (súbor = jeden prvok
-     s data-lcd-sekcia="d-koniec", id len p1v-, čísla a ceny len data-p1v-cislo, odkazy na iný typ data-p1v-odkaz).
-     Kým je tu len komentár, build sekciu preskočí a obsah.js ju nemá. Sekciu, ktorú návrh nemá, zmaž. -->
+<!-- 42-d-koniec — box do kufra 616: „Poriadok v kufri na jeden klik“ (návrh boxy.html section.end r. 4429–4439, spec §6.12). Kapitola 4.
+     Rovnaký markup ako p1v-598/42-d-koniec (záver titulky section.end, oživuje obsah-d.js). Pozadie je ozdoba, nie <img>: CSS
+     (_lcd1v-obsah-boxy.scss) mu dá boxy-end.jpg (bx-end z návrhu) až pri priblížení sekcie (.p1v-blizko z obsah-d.js), bez flagu sa nestiahne.
+     Ceny v úvode len cez data-p1v-cislo (box-sam-s = základ 616, box-set-s = box S v sete s autokobercami).
+     Tlačidlá: „Vyberte farbu a veľkosť“ (data-p1v-konf) = posun na prvý nevyplnený krok konfigurátora, nič neodosiela;
+     „Pozrite si recenzie“ (data-p1v-ciel) = posun na sekciu recenzií (box nemá videá, preto len a-recenzie; bez JS kotva #p1v-recenzie). -->
+<section class="end" data-lcd-sekcia="d-koniec" data-lcd-kap="4">
+  <div class="endbg" aria-hidden="true"><!-- --></div>
+  <div class="eyebrow">Luxury Car Design</div>
+  <h2 style="margin-top:14px">Poriadok v kufri na jeden klik</h2>
+  <p class="lede">Luxusný box do kufra v štyroch veľkostiach a deviatich farbách. Samostatne od <span data-p1v-cislo="box-sam-s"><!-- --></span>, v sete s autokobercami od <span data-p1v-cislo="box-set-s"><!-- --></span>.</p>
+  <div class="end-cta">
+    <a class="btn" href="#product-detail-form" data-p1v-konf="">Vyberte farbu a veľkosť</a>
+    <a class="btn ghost" href="#p1v-recenzie" data-p1v-ciel="a-recenzie">Pozrite si recenzie</a>
+  </div>
+</section>
