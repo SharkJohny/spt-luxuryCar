@@ -47,14 +47,15 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
  *          Box 616: návrh boxy.html má farba → počet → veľkosť; v živom DOM je počet prvý (poradie mení CSS typu).
  * moduly – moduly index.js v poradí init (meno = MENO modulu); modul, ktorý v builde nie je (napr. obsah pred
  *          zlúčením), sa preskočí.
+ *          „poznamka“ (poznamka.js) = pole „Poznámka k objednávke“ podľa návrhov; vzorkovník ho nemá (návrh ho nemá).
  * obal   – prvok vo formulári, bez ktorého sa nový vzhľad nezapne (živý konfigurátor sa nepostavil); null = len formulár.
  */
 export const TYPY = {
-  jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "cena", "obsah"], obal: ".content-wrap" },
-  dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "obsah"], obal: ".content-wrap" },
-  "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "cena", "obsah"], obal: ".content-wrap" },
-  "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "cena", "obsah"], obal: ".content-wrap" },
-  boxy: { kroky: ["farba", "pocet", "velkost"], moduly: ["kroky", "boxy-produkt", "cena", "obsah"], obal: ".content-wrap" },
+  jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  boxy: { kroky: ["farba", "pocet", "velkost"], moduly: ["kroky", "boxy-produkt", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
 };
 

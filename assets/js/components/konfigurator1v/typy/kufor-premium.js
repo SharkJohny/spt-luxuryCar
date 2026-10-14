@@ -24,6 +24,11 @@ export const TYP = {
       // popis lepivej lišty (návrh kufor-premium.html lPop): „Premium · Diamond Line“ (+ „ · <farba>“)
       lista: (i) => ["Premium", i.vzor, i.farba ? i.farba.toLowerCase() : ""].filter(Boolean).join(" · "),
     },
+    // „Poznámka k objednávke“ (poznamka.js; návrh kufor-premium.html .pozn-dole, navrh-kufor-premium.md §Súhrn)
+    poznamka: {
+      ph: "Napríklad: v kufri mám aj sieťku na boku…",
+      hint: "Netypická výbava alebo iné želanie — napíšte to sem.",
+    },
     kuforProdukt: {
       nazov: "Luxusná rohož do kufra Premium",
       vzory: { diamond: "Diamond Line", stripe: "Stripe Line", hexa: "Hexa Line" },

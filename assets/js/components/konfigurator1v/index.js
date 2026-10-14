@@ -21,9 +21,10 @@ import * as farba2 from "./farba2.js";
 import * as kuforProdukt from "./kufor-produkt.js";
 import * as boxyProdukt from "./boxy-produkt.js";
 import * as vzorkyProdukt from "./vzorky-produkt.js";
+import * as poznamka from "./poznamka.js";
 
 /** Moduly podľa mena (TYPY[typ].moduly v produkty.js); meno, ktoré tu nie je, sa preskočí. */
-const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena };
+const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka };
 
 /** projectId -> produkty zapnuté pre ?novy=1 (odvodené z registra; ponechané pre spätnú kompatibilitu). */
 export const ZOZNAM_1V = zoznamZapnutych();

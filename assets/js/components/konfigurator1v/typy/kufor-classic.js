@@ -29,6 +29,11 @@ export const TYP = {
       // popis lepivej lišty (návrh kufor-classic.html lPop): „Diamond Line · rohož Classic“, po výbere farby „Diamond Line · <farba>“
       lista: (i) => [i.vzor, i.farba ? i.farba.toLowerCase() : "rohož Classic"].filter(Boolean).join(" · "),
     },
+    // „Poznámka k objednávke“ (poznamka.js; návrh kufor-classic.html .pozn-dole, navrh-kufor-classic.md §Súhrn)
+    poznamka: {
+      ph: "Napríklad: v kufri mám nadstandardnú výbavu, ktorú treba obísť…",
+      hint: "Netypická výbava kufra alebo iné želanie — napíšte to sem.",
+    },
     kuforProdukt: {
       // názov rohože len vizuálne (živý H1 ostáva v DOM pre SEO a živý kód): „Luxusná rohož do kufra Classic Diamond Line“
       nazov: "Luxusná rohož do kufra Classic",

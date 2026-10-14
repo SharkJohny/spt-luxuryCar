@@ -143,6 +143,45 @@ body.lcd-1v #product-detail-form .p-info-wrapper > .add-to-cart button.add-to-ca
   outline: 2px solid var(--c1v-gold); outline-offset: 3px;
 }
 
+/* ---------- „Poznámka k objednávke“ pod tlačidlom (návrhy .pozn-dole) ----------
+   Pole je doplnku Shoptetu ProductNote.js (.NoteDiv > div > .NoteNadpis + textarea#Note) — ostáva jeho, len
+   preštýlované: namiesto zlatého pruhu malý štítok ako „Spolu“, pilulka „nepovinné“ a veta pod poľom (pridá
+   poznamka.js), príklad v placeholdri podľa typu. order 8 = za „Spolu“, tlačidlom a riadkom pod ním (všetky order 7). */
+body.lcd-1v #product-detail-form .NoteDiv {
+  order: 8; box-sizing: border-box; width: 100%; margin: 16px 0 0; padding: 16px 0 0;
+  border: 0; border-top: 1px solid rgba(155, 122, 36, .2); border-radius: 0; overflow: visible; background: none;
+  font-family: var(--c1v-body); text-align: left;
+}
+body.lcd-1v #product-detail-form .NoteDiv > div {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+  box-sizing: border-box; width: auto; height: auto; margin: 0 0 9px; padding: 0; border: 0; background: none;
+  font: 600 10.5px/16px var(--c1v-disp); letter-spacing: .14em; text-transform: uppercase; color: var(--c1v-tm);
+}
+body.lcd-1v #product-detail-form .NoteDiv .NoteNadpis {
+  font: inherit; letter-spacing: inherit; text-transform: uppercase; color: var(--c1v-tm);
+}
+body.lcd-1v #product-detail-form .NoteDiv .lcd1v-pozn-nep {
+  padding: 2px 8px; border: 1px solid var(--c1v-line); border-radius: 999px;
+  font: normal 700 10px/14px var(--c1v-disp); letter-spacing: .06em; text-transform: none; color: var(--c1v-lb);
+}
+body.lcd-1v #product-detail-form .NoteDiv textarea#Note {
+  display: block; box-sizing: border-box; width: 100%; min-height: 74px; margin: 0; padding: 12px 13px;
+  border: 1px solid var(--c1v-line); border-radius: 12px; background: #f7f5ef; box-shadow: none; outline: none;
+  font: 400 14px/1.45 var(--c1v-body); color: var(--c1v-ink); resize: vertical;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
+}
+body.lcd-1v #product-detail-form .NoteDiv textarea#Note:hover,
+body.lcd-1v #product-detail-form .NoteDiv textarea#Note:focus { border-color: var(--c1v-gold); background: #fff; }
+body.lcd-1v #product-detail-form .NoteDiv textarea#Note:focus { box-shadow: 0 0 0 3px rgba(196, 155, 49, .2); }
+body.lcd-1v #product-detail-form .NoteDiv textarea#Note::placeholder { color: var(--c1v-lb) !important; opacity: 1; }
+body.lcd-1v #product-detail-form .NoteDiv .lcd1v-pozn-hint {
+  margin: 8px 0 0; padding: 0; font: 400 12.5px/1.5 var(--c1v-body); letter-spacing: 0; text-transform: none;
+  color: var(--c1v-lb);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v #product-detail-form .NoteDiv textarea#Note { transition: none; }
+}
+
 /* ---------- lepivá lišta na telefóne a tablete ---------- */
 body.lcd-1v .lcd1v-lista { display: none; }
 @media (max-width: 991px) {

@@ -30,6 +30,11 @@ export const TYP = {
       },
     },
     cena: { typ: "Box do kufra", zaSet: "cena za box" },
+    // „Poznámka k objednávke“ (poznamka.js; návrh boxy.html .pozn-dole, navrh-boxy.md §Súhrn)
+    poznamka: {
+      ph: "Napríklad: do kufra mi vojde šírka približne 80 cm — poraďte, ktoré veľkosti zvoliť…",
+      hint: "Otázka k veľkosti, želanie k farbe alebo iná požiadavka — napíšte to sem.",
+    },
     // boxy-produkt.js
     boxyProdukt: {
       // vizuálny názov (živý H1 „luxusný boxi do kufra“ ostáva v DOM, len vizuálne skrytý — plan.md §2.5)

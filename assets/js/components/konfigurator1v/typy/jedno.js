@@ -26,6 +26,13 @@ export const TYP = {
       },
     },
     cena: { typ: "Jednovrstvové", zaSet: "cena za set na mieru" },
+    // „Poznámka k objednávke“ pod tlačidlom košíka (poznamka.js; návrh jednovrstvove.html .pozn-dole — dvojvrstvové
+    // majú v návrhu ten istý placeholder aj vetu, preberajú ich odtiaľto)
+    poznamka: {
+      nepovinne: "nepovinné",
+      ph: "Napríklad: auto má vyhrievané sedadlá v druhom rade…",
+      hint: "Netypická výbava, tretí rad na objednávku alebo iné želanie — napíšte to sem.",
+    },
   },
   // Fotky v krokoch 4–6 sú Diamond v béžovej (plan.md §2.5: schválený návrh ich pri inom vzore nemení).
   obrazky: {

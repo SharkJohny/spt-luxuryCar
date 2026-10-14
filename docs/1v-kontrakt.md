@@ -364,7 +364,7 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 ## 10. Vlastníctvo súborov
 
 Od T0.1 (14. 10. 2026) sú moduly 598 súčasťou **jadra**. Jadro mení len vydávacia úloha vlny (T1.1, T2.1, T3.1, T4.1, T5.1; plan.md §2.1):
-- `assets/js/components/konfigurator1v/{index,ctx,produkty,ceny-ine,kroky,rozlozenie,kufor-boxy,cena,obsah,obsah-cisla}.js`,
+- `assets/js/components/konfigurator1v/{index,ctx,produkty,ceny-ine,kroky,rozlozenie,kufor-boxy,cena,poznamka,obsah,obsah-cisla}.js`,
 - spoločné partialy `assets/css/_lcd1v-{kroky,rozlozenie,kufor-boxy,cena}.scss`, `tools/vloz-lcd-css.py`, `tools/build-admin-html.mjs`,
 - `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{produkty,pomocnik,stary-ui,cdp}.mjs`,
 - `assets/js/lcdKosikDoplnok.js` (+ test a fixture), `assets/js/main.js`, `assets/js/functions/configuratorEngine.js` (exporty),
@@ -386,6 +386,8 @@ Stuby z T0.1 (modul `init(){}`, typ len so spoločnými textami, prázdny partia
 Potrebuješ zmenu v jadre? Napíš ju do výstupu, spraví ju vydanie, nerob ju sám. Hranice medzi modulmi:
 - **kroky** vlastnia obal a postup (karty, číslo, „Pokračujte ďalej“, posledný krok „Pokračujte k súhrnu“ bez košíka, červený rám). Modul typu na kroku len stavia telo a zhrnutie dáva cez `data-lcd1v-vyber`.
 - **cena** vlastní tlačidlo košíka a lištu. Tlačidlo volá `ctx.doKosika()`, text „Dokončite výber / Vložte do košíka“ podľa `ctx.prvyNevyplneny()`.
+- **poznamka** (14. 10. 2026, všetky typy okrem vzorkovníka) — „Poznámka k objednávke“ pod tlačidlom podľa návrhov (.pozn-dole): pole je doplnku Shoptetu `ProductNote.js` (`.NoteDiv > textarea#Note`, text do objednávky `#remark` ukladá doplnok, 1V nepridáva nič s `name`). Modul doplní pilulku „nepovinné“, placeholder a vetu z `ctx.texty("poznamka")` { nepovinne, ph, hint }; štýl v `_lcd1v-cena.scss`. Na PC doplnok pole vloží až pri prvom `shoptet.surcharges.updatePrices` -> modul hneď zavolá jeho `showNoteTextArea(productNoteConfig)`. Vzorkovník 637: návrh poznámku nemá -> `_lcd1v-vzorky.scss` pole skryje.
+- Starý banner „Hľadáte ešte lepšiu ochranu? … 90 % … CHCEM TO!“ mimo formulára (`.p-detail > .benefitBanner.position--benefitProduct`, vzorkovník 637) skrýva `_lcd1v-obsah.scss` pod `body.lcd-1v`.
 - Moduly si posielajú udalosti cez `ctx.na/vysli`.
 
 Git: workeri len čítajú (`status/diff/log`). Commit robí koordinátor po vymenovaných cestách (`node_modules` a build `luxuryCar.js` nikdy).

@@ -13,6 +13,9 @@
 /* ---------- živé prvky, ktoré nový vzhľad nahrádza (ostávajú v DOM aj so svojím JS) ---------- */
 /* živý widget vzoriek (dlaždice nad skrytými selectmi) — nový vzhľad píše do tých istých selectov cez ctx.zapis */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd-vz-host { display: none !important; }
+/* „Poznámka k objednávke“ (pole doplnku ProductNote.js) — návrh vzorkovnik.html ju nemá (po „Vyberte vzorky“ ide hneď
+   obsah); ostáva v DOM, prázdne pole doplnok do objednávky nič nepridá */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .NoteDiv { display: none !important; }
 /* krátky popis z adminu opisuje starý výber („zaškrtni (Chcem)“) a tyká — nahrádza ho karta ceny a kroky */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .p-short-description { display: none !important; }
 /* živý H1 ostáva v DOM (SEO, čítačka) — vizuálne ho nahrádza nadpis návrhu .lcd1v-vz-nazov (plan.md §2.5) */

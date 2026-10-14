@@ -22,6 +22,11 @@ body.lcd-1v .p1v-miesto > [data-lcd-cast^=p1v]{display:block !important;width:10
       Ostáva v DOM (main.js, popisModuly.js, productPage.js naň kotvia). */
 body.lcd-1v.lcd-1v-obsah .p-detail > .shp-tabs-wrapper{display:none !important}
 
+/* 3b) Starý banner „Hľadáte ešte lepšiu ochranu? … Preferuje až 90% zákazníkov · CHCEM TO!“ medzi konfigurátorom
+      a obsahom: vzorkovník 637 ho má mimo formulára (.p-detail > .benefitBanner.position--benefitProduct), ostatné
+      produkty vo formulári (skrývajú ho pravidlá typov). Žiadny návrh ho nemá a číslo 90 % nie je overené (D3). */
+body.lcd-1v .p-detail > .benefitBanner.position--benefitProduct{display:none !important}
+
 /* 4) Miesto obsahu na celú šírku stránky (= .overall-wrapper, bez posuvníka): --p1v-sirka a --p1v-vlavo (posun od
       obsahu rodiča .p-detail) nastaví obsah.js podľa skutočnej geometrie; záloha bez nich = šírka okna. */
 body.lcd-1v .p1v-miesto{display:block;position:relative;clear:both;box-sizing:border-box;
