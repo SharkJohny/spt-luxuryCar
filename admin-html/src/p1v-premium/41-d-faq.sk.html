@@ -1,4 +1,48 @@
-<!-- STUB (T0.3, 14. 10. 2026): FAQ, 15 otázok (§6.11).
-     Vlastník: T2.4. Spec: prieskum-vsetky/navrh-kufor-premium.md §6. Pravidlá: docs/1v-obsah.md §4 (súbor = jeden prvok
-     s data-lcd-sekcia="d-faq", id len p1v-, čísla a ceny len data-p1v-cislo, odkazy na iný typ data-p1v-odkaz).
-     Kým je tu len komentár, build sekciu preskočí a obsah.js ju nemá. Sekciu, ktorú návrh nemá, zmaž. -->
+<!-- 41-d-faq — rohož Premium: FAQ „Na čo sa nás pýtate najčastejšie“, 15 otázok (návrh kufor-premium.html r. 4501, spec §6.11).
+     Komponent ako p1v-598 (button + .p1v-faq-a, bez <details> a tried .faq/.accordion). Texty doslovne podľa spec, úpravy:
+     - 4 a 8: „nižšie“ → „vyššie“ (porovnanie aj materiál sú NAD FAQ; spec §6.11 si to sám všíma),
+     - 6: veta o kovovom štítku vynechaná (D3),
+     - 5: doslovne podľa návrhu; „239 € namiesto 340 €“ idú cez data-p1v-cislo (set-premium, cena-od), nie natvrdo,
+     - 12: len doslovná prvá veta s tromi vzormi. Vynechané (nie je ich z čoho dosadiť, nič nové sa nepíše): počty farieb 18/7/3
+       (obsah-cisla.js pozná len počet farieb TOHTO produktu, nie ostatných vzorov; 634 Stripe má v adminu 7 farieb bez Hnedej,
+       paleta sa bude opravovať) a veta „Stripe Line a Hexa Line stoja o 10 € viac“ (cena vzoru natvrdo nesmie byť, kľúč na rozdiel
+       cien vzorov v jadre nie je),
+     - 11 „Ako sa rohož uchytáva?“ ostáva ako vecná odpoveď (suché zipsy + páska + klipy v balení), nie ako argument.
+     Čísla v zbalených odpovediach: .p1v-faq-a má visibility:hidden, test-1v-obsah.mjs ju (computed) berie za „nedosadené“; kým sa
+     test v jadre neopraví, má _lcd1v-obsah-premium.scss pre [data-p1v-cislo] vo FAQ visibility:visible a obsah-premium.js dáva
+     zbaleným číslam aria-hidden. E-mail v 7 a 14 je odkaz mailto. -->
+<section class="chapter" id="p1v-faq" data-lcd-sekcia="d-faq" data-lcd-kap="4"><div class="wrap">
+  <h2 class="rv">Na čo sa nás pýtate najčastejšie</h2>
+  <div class="p1v-faq rv" style="margin-top:26px">
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-1"><span class="i">01</span><span class="t">Ako si môžem objednať?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-1"><div class="a">Vyberte vzor prešívania, zadajte značku, model a rok vozidla a zvoľte farbu. Rohož vložíte do košíka a zvyšok vybavíme my.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-2"><span class="i">02</span><span class="t">Zmestí sa rohož presne do môjho kufra?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-2"><div class="a">Áno. Šije sa podľa hotových šablón pre konkrétny model, rok a karosériu, takže kopíruje tvar Vášho kufra vrátane bokov a chrbtov zadných sedadiel.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-3"><span class="i">03</span><span class="t">Čo presne rohož Premium kryje?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-3"><div class="a">Dno kufra, jeho boky a chrbty zadných sedadiel. Nič sa nedostane do čalúnenia, keď naložíte niečo mokré alebo špinavé.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-4"><span class="i">04</span><span class="t">Aký je rozdiel medzi Premium a Classic?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-4"><div class="a">Classic kryje len dno kufra. Premium navyše obalí boky kufra a chrbty zadných sedadiel. Porovnanie nájdete vyššie, rohož Classic si pozriete <a href="/luxusny-koberced-do-kufra-dragonskin-klasik/" data-p1v-odkaz="classic">tu</a>.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-5"><span class="i">05</span><span class="t">Môžem rohož kúpiť spolu s autokobercami?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-5"><div class="a">Áno. V sete s autokobercami stojí rohož Premium + <span data-p1v-cislo="set-premium"><!-- --></span> namiesto <span data-p1v-cislo="cena-od"><!-- --></span>. Set zostavíte <a href="/luxusne-autokoberce-dragonskin-diamond-line/" data-p1v-odkaz="jedno">v konfigurátore autokobercov</a>.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-6"><span class="i">06</span><span class="t">Videl som podobne vyzerajúce rohože online. Prečo práve Luxury Car Design?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-6"><div class="a">Rozdiel je v materiáli, presnosti strihu a krytí. Originálne produkty kúpite len na našom webe.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-7"><span class="i">07</span><span class="t">Čo ak moje auto nie je v zozname?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-7"><div class="a">Máme viac než 1000 modelov. Ak Váš model v zozname nevidíte, napíšte nám na <a href="mailto:info@luxurycardesign.sk">info@luxurycardesign.sk</a> — často je šablóna hotová, len ešte nie je na e-shope. A ak ju naozaj nemáme, auto sa dá naskenovať a podľa skenu šablónu vytvoriť.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-8"><span class="i">08</span><span class="t">Z čoho je rohož vyrobená?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-8"><div class="a">Zhora nadol: prémiová ekokoža na povrchu, vysokohustotná pena pre komfort, priedušná netkaná vrstva, izolačný XPE materiál a protišmyková vrstva na spodku. Celý prierez aj s popisom každej vrstvy nájdete vyššie v sekcii Materiál.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-9"><span class="i">09</span><span class="t">Je rohož nepremokavá?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-9"><div class="a">Áno. Je nepremokavá a odolná voči škvrnám. Rozliata tekutina zostane na povrchu a stačí ju utrieť.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-10"><span class="i">10</span><span class="t">Ako sa rohož čistí?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-10"><div class="a">Stačí ju vybrať a utrieť vlhkou handrou. Vysokotlakový čistič (vapku) na ňu nepoužívajte.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-11"><span class="i">11</span><span class="t">Ako sa rohož uchytáva?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-11"><div class="a">Na spodnej strane rohože sú našité suché zipsy. V balení nájdete obojstrannú lepiacu pásku so suchým zipsom a klipy.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-12"><span class="i">12</span><span class="t">Sú dostupné aj iné prešívania alebo farby?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-12"><div class="a">Áno. Na výber sú tri vzory: Diamond Line s kosoštvorcami, Stripe Line s vodorovnými pruhmi a Hexa Line so šesťuholníkmi.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-13"><span class="i">13</span><span class="t">Koľko stojí poštovné?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-13"><div class="a">Poštovné a podmienky dopravy nájdete v košíku pri dokončení objednávky.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-14"><span class="i">14</span><span class="t">Čo robiť, ak rohož nesedí alebo ak je balík poškodený?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-14"><div class="a">Napíšte nám na <a href="mailto:info@luxurycardesign.sk">info@luxurycardesign.sk</a> a vyriešime to. Vždy sa snažíme byť na strane zákazníka.</div></div></div>
+    <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-15"><span class="i">15</span><span class="t">Aká je záruka na rohož?</span><span class="p" aria-hidden="true">+</span></button>
+      <div class="p1v-faq-a" id="p1v-faq-15"><div class="a">Záruka je 2 roky pre súkromné osoby a 1 rok pri nákupe na firmu.</div></div></div>
+  </div>
+</div></section>
