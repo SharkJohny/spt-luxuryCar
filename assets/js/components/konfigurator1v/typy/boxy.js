@@ -1,7 +1,8 @@
-// Texty a obrázky typu „boxy“ (box do kufra 616). VLASTNÍK: worker boxy (T3.2). STUB z jadra T0.1: spoločné texty
-// krokov doslovne zo špecifikácie navrh-boxy.md §3–4 a štítok ceny. Tvar a pravidlá: typy/jedno.js.
-// Kroky (produkty.js TYPY.boxy): farba → pocet → velkost (návrh); v živom DOM je počet prvý — poradie kariet rieši
-// CSS typu (_lcd1v-boxy.scss), DOM ostáva. Karty počtu a veľkostí postaví boxy-produkt.js.
+// Texty a obrázky typu „boxy“ (box do kufra 616). VLASTNÍK: worker boxy (T3.2). Tvar a pravidlá: typy/jedno.js.
+// Texty doslovne zo schváleného návrhu boxy.html (navrh-boxy.md §3–4). Kroky (produkty.js TYPY.boxy): farba → pocet →
+// velkost (návrh); v živom DOM je počet prvý — poradie kariet rieši CSS typu (_lcd1v-boxy.scss), DOM ostáva.
+// Karty počtu, veľkostí, náhľad farby, pás setu a vizuálny názov postaví boxy-produkt.js (texty: boxyProdukt nižšie).
+// D3 (rozhodnutia.md): nič o skladovosti ani o lehote dodania boxu.
 export const TYP = {
   texty: {
     kroky: {
@@ -16,18 +17,61 @@ export const TYP = {
         pocet: {
           nm: "Počet boxov",
           ti: "Prosím, vyberte počet boxov",
-          vy: "",
+          vy: "1 box",
           pod: "Do kufra môžete zvoliť až tri boxy. Veľkosť vyberiete pri každom zvlášť.",
         },
         velkost: {
           nm: "Veľkosť boxov",
           ti: "Prosím, vyberte veľkosť boxu",
           vy: "Vyberte veľkosť",
+          pod: "Dva rozmery (32 a 30 cm) sú pri všetkých veľkostiach rovnaké, líši sa len šírka. Silueta na každej karte je v skutočnom pomere.",
           chyba: "Vyberte, prosím, veľkosť každého boxu.",
         },
       },
     },
     cena: { typ: "Box do kufra", zaSet: "cena za box" },
+    // boxy-produkt.js
+    boxyProdukt: {
+      // vizuálny názov (živý H1 „luxusný boxi do kufra“ ostáva v DOM, len vizuálne skrytý — plan.md §2.5)
+      nazov: "Luxusný box do kufra",
+      rad: "Diamond Line",
+      // krok 1: náhľad farby „Diamond Line — <farba>“
+      nahlad: "Diamond Line",
+      // krok 2: karty počtu (fotka + názov + podnázov + „od“ cena zo živých príplatkov)
+      pocet: {
+        1: { nm: "1× box", po: "Praktický organizér", alt: "Jeden box v kufri", vy: "1 box" },
+        2: { nm: "2× box", po: "Dvojitá kapacita", alt: "Dva boxy v kufri", vy: "2 boxy" },
+        3: { nm: "3× box", po: "Celý kufor v poriadku", alt: "Tri boxy v kufri", vy: "3 boxy" },
+      },
+      skupinaPocet: "Počet boxov",
+      od: "od",
+      // krok 3: veľkosti
+      box: (n) => n + ". box",
+      vyberteVelkost: "vyberte veľkosť",
+      tipB: "Tip:",
+      tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
+      // pás setu pod cenou (odkaz na jednovrstvové; čísla zo živých stránok, nič natvrdo)
+      set: {
+        nadpis: (cena) => "V sete s autokobercami už od " + cena,
+        pod: (cena) => "Box S namiesto " + cena + " — zostavte si set s autokobercami",
+        dalej: "Pozrieť set",
+      },
+    },
   },
-  obrazky: {},
+  // Fotky (assets/img/1v/boxprodukt-*; reálne fotky z návrhu boxy.html). Box nemá vzor -> kľúč „diamond“.
+  // Farby podľa názvu farby (kroky.js nazovFarby, bez diakritiky): náhľad materiálu v kroku 1; farba bez fotky = vzorka.
+  obrazky: {
+    "boxprodukt-pocet-1": { diamond: "boxprodukt-pocet-1.jpg" },
+    "boxprodukt-pocet-2": { diamond: "boxprodukt-pocet-2.jpg" },
+    "boxprodukt-pocet-3": { diamond: "boxprodukt-pocet-3.jpg" },
+    "boxprodukt-farba-cierna-cervene-sitie": { diamond: "boxprodukt-farba-cierna-cervene.jpg" },
+    "boxprodukt-farba-cierna-modre-sitie": { diamond: "boxprodukt-farba-cierna-modre.jpg" },
+    "boxprodukt-farba-cierna-cierne-sitie": { diamond: "boxprodukt-farba-cierna-cierne.jpg" },
+    "boxprodukt-farba-cierna-bezove-sitie": { diamond: "boxprodukt-farba-cierna-bezove.jpg" },
+    "boxprodukt-farba-cierna-sive-sitie": { diamond: "boxprodukt-farba-cierna-sive.jpg" },
+    "boxprodukt-farba-cierna-biele-sitie": { diamond: "boxprodukt-farba-cierna-biele.jpg" },
+    "boxprodukt-farba-hneda-kava": { diamond: "boxprodukt-farba-hneda-kava.jpg" },
+    "boxprodukt-farba-vinovo-cervena": { diamond: "boxprodukt-farba-vinovo-cervena.jpg" },
+    "boxprodukt-farba-seda": { diamond: "boxprodukt-farba-seda.jpg" },
+  },
 };
