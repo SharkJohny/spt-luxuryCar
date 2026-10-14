@@ -186,24 +186,49 @@ To, čo zákazník vyberie v krokoch 5–6, ide v tom istom riadku košíka. Pon
 
 ## 9. Test `tools/test-konfigurator-1v.mjs`
 
+E2E test na **živých stránkach** 13 SK produktov a vzorkovníka 637 s lokálnym buildom. Profily produktov (URL, typ, očakávané `priceId` a ceny z plan.md §4) sú v `tools/test-1v/produkty.mjs`. Bez `--produkt` beží 598.
+
 ```
-node tools/test-konfigurator-1v.mjs                       # všetko, 1280 + 390, flag vypnutý
-node tools/test-konfigurator-1v.mjs --novy                # ?novy=1, ovládače `novy` (kde chýbajú -> `stary`)
+node tools/test-konfigurator-1v.mjs                          # 598, sada scenárov z profilu, 1280 + 390, flag vypnutý
+node tools/test-konfigurator-1v.mjs --novy                   # to isté s ?novy=1 (ovládače `novy`, kde chýbajú -> `stary`)
+node tools/test-konfigurator-1v.mjs --vyvoj --produkt 601    # ?novy=vyvoj: aj typy, ktoré ešte nie sú vydané
+node tools/test-konfigurator-1v.mjs --produkt 598,610        # id | all | typ:dvoj | typ:kufor | alias (jedno-hexa, boxy, vzorky …)
 node tools/test-konfigurator-1v.mjs --novy --sirka 390 --krok platne,box-2 --snimky C:/tmp/s --vypis
-node tools/test-konfigurator-1v.mjs --zdroj cdn           # presne živý web (bez buildu)
-node tools/test-konfigurator-1v.mjs --zdroj <sha>         # verzia nahratá na CDN assets/v/<sha>/
+node tools/test-konfigurator-1v.mjs --zdroj cdn --produkt all --sirka 1280 --paralelne 2 --json %TEMP%/1v-baseline.json
+node tools/test-konfigurator-1v.mjs --zdroj <sha>            # verzia nahratá na CDN assets/v/<sha>/
 ```
 
-Ďalšie prepínače:
-- `--paralelne N` (predvolene 3 Chromy naraz),
-- `--json <súbor>` (výsledky + POST),
-- `--okno` (Chrome s oknom),
-- `--bez-drop` (build bez `--drop:console`, pre ladenie),
-- `--url`.
+**Prepínače:**
+
+| Prepínač | Čo robí |
+|---|---|
+| `--novy` | stránky sa otvárajú s `?novy=1`, ovládače `novy` (kde ešte nie sú → `stary`) |
+| `--vyvoj` | `?novy=vyvoj`: nový vzhľad aj na typoch, ktoré ešte nie sú v `ZAPNUTE_TYPY` (rozpracovaný typ). S `--novy` naraz nejde |
+| `--produkt <zoznam>` | `598,610` · `all` · `typ:dvoj` · `typ:kufor` · alias `jedno-hexa`, `dvoj-stripe`, `classic-diamond`, `premium-hexa`, `boxy`, `vzorky` … Neznámy produkt = chyba |
+| `--zapnute <typy>` | prepíše `ZAPNUTE_TYPY` zo zdroja brány (napr. pri `--zdroj <sha>` so starším stromom) |
+| `--krok <scenáre>` | len tieto scenáre (bez `--produkt` na 598). Scenár iného typu, než má produkt, sa nespustí, len sa spočíta |
+| `--sirka <px,…>` | predvolene `1280,390` |
+| `--zdroj` | `lokal` (predvolené: čerstvý build) · `cdn` (živý web bez buildu) · `<sha>` (verzia z CDN `assets/v/<sha>/`) |
+| `--url <adresa>` | iná adresa pre jeden produkt. **Bez `--produkt` len adresa registrovaného produktu**; neznáma adresa = chyba s hláškou (nikdy ticho profil 598). Pre cudziu adresu: `--url <adresa> --produkt <id>` |
+| `--paralelne N` | počet Chromov naraz (predvolene 3; živý web šetri `2`) |
+| `--limit <s>` | časový limit jedného scenára (predvolene 180, najmenej 30) |
+| `--opakuj N` | zlyhaný scenár sa najviac N-krát zopakuje (predvolene **0**). Prešiel na opakovanie = vo výpise `OK*` + prvé zlyhanie |
+| `--tolerovat-opakovanie` | `OK*` nie je zlyhanie behu. Bez neho beh s aspoň jedným `OK*` skončí exit 1 |
+| `--snimky <priečinok>` | snímka každého scenára aj tesne pred každým „Pridať do košíka“ |
+| `--json <súbor>` | výsledky + POST + súhrn podľa produktu (živý POST scenára `platne` vs plan.md §4) |
+| `--vypis` | ku každému scenáru POST telá a log |
+| `--okno` | Chrome s oknom |
+| `--bez-drop` | build bez `--drop:console` (ladenie) |
+| `--help` | úvod z hlavičky súboru |
+
+**Výsledok behu (exit kód):**
+- `0`: všetko OK (preskočené scenáre a upozornenia `!` nevadia),
+- `1`: aspoň jeden scenár ZLYHAL, alebo aspoň jeden prešiel až na opakovaný pokus (`OK*`) bez `--tolerovat-opakovanie`,
+- `2`: chyba použitia (zlý prepínač, neznámy produkt alebo adresa, scenár) alebo infraštruktúry (build, Chrome).
 
 **Ako funguje:**
 - Chrome bez okna, surový CDP (žiadne npm balíky).
-- **Živá stránka SK 598.** Požiadavky na `…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js` a `…/css/luxuryCar.css` dostanú čerstvý lokálny build. Každý beh má vlastný dočasný priečinok, takže paralelné behy sa nebijú.
+- **Živá stránka.** Požiadavky na `…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js` a `…/css/luxuryCar.css` dostanú čerstvý lokálny build. Každý beh má vlastný dočasný priečinok, takže paralelné behy sa nebijú.
   - JS: `esbuild assets/js/main.js --bundle --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none`, rovnako ako `production.yml`.
   - CSS: `vloz-lcd-css.py --vystup`.
   - `…/assets/img/1v/*` → lokálne súbory.
@@ -212,58 +237,93 @@ node tools/test-konfigurator-1v.mjs --zdroj <sha>         # verzia nahratá na C
   - Chýbajúce `gsap` a `lenis` stiahne raz do `%LOCALAPPDATA%/lcd-1v-test/balicky-*` (verzie z `yarn.lock`, NIE do repa) a esbuild ich nájde cez `NODE_PATH`.
   - Ak chýbajú `assets/js/truck-konfigurator/*.gen.jsx` (sú v `.gitignore`), spustí `truck/build-truck-images.mjs`. Ten existujúce obrázky neprepisuje.
   - `tools/perf-markup.mjs` sa len kontroluje cez `--check`.
+- **Brána** sa číta zo zdroja: `konfigurator1v/produkty.js` (`PRODUKTY_1V` + `ZAPNUTE_TYPY`; pred T0.1 `ZOZNAM_1V` v `index.js`). Test z toho vie, na ktorých produktoch má `?novy=1` aj `?novy=vyvoj` zapnúť nový vzhľad.
 - **Bezpečnosť:**
-  - POST `/action/Cart/addCartItem` sa zachytí (telo sa kontroluje) a zruší.
+  - POST `/action/Cart/addCartItem` sa zachytí (telo sa kontroluje) a zruší. Živý web sa nikdy neobjedná.
   - Iný ne-GET na `/action/` sa zruší a test zlyhá. Výnimka: odmietnutie cookies `CustomerCookieConsent`.
-  - Merače sú zablokované, cookie lišta sa odmietne. Žiadna objednávka, žiadny admin.
-- **Konzola:** nové chyby (výnimky, `console.error`, log error) oproti načítaniu živého CDN. Zdroje tretích strán (twitter, Luxia, Google…) sa ignorujú.
+  - Merače sú zablokované, cookie lišta sa odmietne. Žiadna objednávka, žiadny admin, žiadne prihlásenie.
+- **Konzola:** nové chyby (výnimky, `console.error`, log error) oproti načítaniu živého CDN. Zdroje tretích strán (twitter, Luxia, Google…) sa ignorujú. Známe chyby živého webu (`znameChyby` v profile) idú ako upozornenie `!`.
 
-**Scenáre** (`--krok`):
+**Produkty a ich sada scenárov** (bez `--krok`; plná sada len na hlavnom produkte typu):
 
-| Scenár | Čo overí |
-|---|---|
-| `brana` | bez flagu nič; `?novy=1` zapne (aj `window.__lcd1v`); platí v karte; produkt 610 nie; `?novy=0` vypne |
-| `nulova-zmena` | flag vypnutý: lokálny build = živý CDN (DOM, počty: 93 značiek, 12 selectov, ceny, štýly, triedy body). Rozmery majú toleranciu 6 px (akordeón a písmo pri načítaní), všetko ostatné sa porovnáva presne. S `--novy` vypíše aj rozdiel `?novy=1` oproti CDN (len informácia). So stubmi je jediný rozdiel `body triedy +lcd-1v`. |
-| `bez-auta` | výzva na auto, `pridajDoKosika` → POST 0, červený rám na `auto` |
-| `neuplne` | auto → červený rám `farba`; + farba → červený rám `rozlozenie`; POST 0 |
-| `platne` | auto + farba + rozloženie → POST (kľúče, `productId`, `priceId` variantu, farba, rozloženie, TYP, kufor/boxy nevybrané), zobrazená cena = variant + príplatky, odporúčaná = ×1,6 nahor na 10, % zľava, sessionStorage.model pre `#remark`. Kufor a boxy na začiatku: skryté (`stary.skryteNaZaciatku`) alebo viditeľné (nový ovládač). |
-| `kufor-classic`, `kufor-premium` | POST s `kufor`, cena |
-| `box-1`, `box-2` | 1 box (solo) / Classic + 2 boxy (farba, veľkosti) → POST, cena |
-| `ctx-zapis` | len `--novy`: `ctx.zapis` všetkých volieb, `"uz"`, zrušenie kufra, `prvyNevyplneny()`, `ctx.cena()` = Shoptet, `ctx.doKosika()` → POST |
-| `kufor-nie`, `box-nie` | Classic → Nechcem / 1 box → Nechcem: POST bez kufra / boxov (prázdne alebo „nie“), cena bez nich |
-| `rady-3` | všetky tri rady (nový vzhľad: 7 miest dlaždicou v kroku 4 = aj krok 2 a sessionStorage `seatPosition`) → POST, cena s 3. radom |
-| `box-krizik` | len nový vzhľad: nový výber boxov zavretý krížikom bez potvrdenia = žiadny box (G10b) |
-| `box-prepni` | len nový vzhľad: 1 box → 2 boxy, v POST len 1. + 2. box (živý web tu má chybu: samostatný box ostane) |
-| `miesta-5` | len nový vzhľad: 7 miest + 3 rady → 5 miest: rozloženie sa samo prepne na 1.+2. rad, krok 4 ostane otvorený (aj na telefóne), POST bez 3. radu |
-| `k-suhrnu` | len nový vzhľad: krok 6 „Pokračujte k súhrnu“ nič nevloží, zatvorí kroky a ukáže Spolu; potom košík → platný POST |
+| Typ | Produkty | Predvolená sada |
+|---|---|---|
+| `jedno` | 598 Diamond, 613 Stripe, 610 Hexa | 598: plná (17 scenárov). 613: `brana nulova-zmena platne kufor-classic box-1`. 610: `brana nulova-zmena platne kufor-classic kufor-nie` |
+| `dvoj` | 601 Diamond, 604 Hexa, 607 Stripe | 601: plná + `farba2-prepni`. 604: `brana nulova-zmena neuplne platne kufor-classic box-2`. 607: `brana nulova-zmena platne kufor-classic box-2` |
+| `kufor-classic` | 619 Diamond, 625 Stripe, 622 Hexa | 619: `brana nulova-zmena bez-auta neuplne platne dokoncit k-suhrnu`. 625, 622: `brana nulova-zmena platne dokoncit` |
+| `kufor-premium` | 628 Diamond, 634 Stripe, 631 Hexa | 628 ako 619. 634, 631 ako 625 |
+| `boxy` | 616 Box do kufra | `brana nulova-zmena neuplne platne box-pocet-2 box-pocet-3 box-3-na-1 dokoncit k-suhrnu` |
+| `vzorky` | 637 Vzorkovník | `brana nulova-zmena platne vzorky-0` |
+
+Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktorý vráti inú sumu, ZLYHÁ. `odporucana: false` (613, 625, 616, 637): v admine chýba bežná cena, odporúčaná sa nemá ukázať (pozri Prísnosť).
+
+**Scenáre** (`--krok`). Jadro je v `tools/test-konfigurator-1v.mjs`, scenáre typov v `tools/test-1v/scenare-<typ>.mjs`:
+
+| Scenár | Typy | Čo overí |
+|---|---|---|
+| `brana` | všetky | bez flagu nič; s flagom zapne body.lcd-1v (aj `window.__lcd1v`) len na produktoch zapnutých v bráne, platí v karte; CZ Diamond (iný projekt) nikdy; nezapnutý typ (dnes 601) a **610** (rovnaký typ ako 598) nie, kým ich brána nezapne (keď ich zapne, nový vzhľad **musí** naskočiť); `?novy=0` vypne |
+| `nulova-zmena` | všetky | flag vypnutý: lokálny build = živý CDN toho istého produktu (DOM, počty selectov, ceny, štýly, triedy body). Rozmery majú toleranciu 6 px, všetko ostatné presne. S `--novy` vypíše aj rozdiel `?novy=1` oproti CDN (len informácia). Pri `--zdroj cdn` sa preskočí |
+| `bez-auta` | jedno, dvoj, kufor-* | výzva na auto, `pridajDoKosika` → POST 0, červený rám na `auto` |
+| `neuplne` | jedno, dvoj, kufor-*, boxy | postupne každý povinný krok (jedno: auto, farba, rozloženie · dvoj: + farba 2. vrstvy · rohož: auto, farba · box: farba, veľkosť): červený rám na ňom, POST 0 |
+| `platne` | jedno, dvoj, kufor-*, boxy | úplný výber → POST: kľúče = polia formulára, `productId`, `priceId` variantu, farba (aj 2. vrstvy), rozloženie, TYP, kufor/boxy nevybrané; zobrazená cena = variant + príplatky; odporúčaná = ×1,6 nahor na 10 a % zľava; `sessionStorage.model` pre `#remark`; suma a `priceId` proti profilu. Kufor a boxy na začiatku: skryté (`stary.skryteNaZaciatku`) alebo viditeľné (nový ovládač) |
+| `dokoncit` | kufor-*, boxy | starý web: „Dokončiť konfiguráciu“ / „Prejsť k ďalšiemu kroku“ na poslednom kroku rovno vkladá → živý POST, zachytený a zrušený, overí sa ako `platne`. Nový vzhľad: preskočené (scenár `k-suhrnu`) |
+| `k-suhrnu` | jedno, dvoj, kufor-*, boxy | len nový vzhľad: posledný krok typu „Pokračujte k súhrnu“ nič nevloží, zatvorí kroky a ukáže Spolu; potom košík → platný POST |
+| `ctx-zapis` | jedno, dvoj | len `--novy`: `ctx.zapis` všetkých volieb, `"uz"`, zrušenie kufra, `prvyNevyplneny()`, `ctx.cena()` = Shoptet, `ctx.doKosika()` → POST |
+| `kufor-classic`, `kufor-premium` | jedno, dvoj | POST s `kufor`, cena |
+| `box-1`, `box-2` | jedno, dvoj | 1 box (solo) / Classic + 2 boxy (farba, veľkosti) → POST, cena |
+| `kufor-nie`, `box-nie` | jedno, dvoj | Classic → Nechcem / 1 box → Nechcem: POST bez kufra / boxov (prázdne alebo „nie“), cena bez nich. Voľba „nie“ s príplatkom > 0 (610: +5 €) je upozornenie (chyba v admine), nie zlyhanie |
+| `rady-3` | jedno, dvoj | všetky tri rady (nový vzhľad: 7 miest dlaždicou v kroku 4 = aj krok 2 a `seatPosition`) → POST, cena s 3. radom |
+| `box-krizik` | jedno, dvoj | len nový vzhľad: nový výber boxov zavretý krížikom bez potvrdenia = žiadny box (G10b) |
+| `box-prepni` | jedno, dvoj | len nový vzhľad: 1 box → 2 boxy, v POST len 1. + 2. box (živý web tu má chybu: samostatný box ostane) |
+| `miesta-5` | jedno, dvoj | len nový vzhľad: 7 miest + 3 rady → 5 miest: rozloženie sa samo prepne na 1.+2. rad, krok 4 ostane otvorený, POST bez 3. radu |
+| `farba2-prepni` | dvoj | zmena farby 2. vrstvy po celom výbere: `priceId` = variant `71-<lux>-78-<farba>`, POST nesie novú Lux |
+| `box-pocet-2`, `box-pocet-3` | boxy | 2 boxy S+L, 3 boxy S+S+XL: POST, ceny podľa profilu |
+| `box-3-na-1` | boxy | 3 boxy → 1 box: 2. a 3. box prázdne/chýbajú, cena 1 × S |
+| `platne` (vzorky) | vzorky | vybrané vzorky → POST nesie presne tieto príplatky „Áno +€5“, záloha = 5 € × počet = súčet z POST; živá Shoptet cena o 5 € vyššia = upozornenie |
+| `vzorky-0` | vzorky | bez vzorky: nový vzhľad POST 0; starý pustí POST so všetkými prázdnymi (upozornenie) |
 
 Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy` ovládač:
 - štítok „Odporúčaná cena“ (ovládač `cena`),
 - kufor a boxy viditeľné od začiatku (`kuforBoxy.skryteNaZaciatku === false`).
 
-**Ovládače:** `tools/test-1v/ovladac-<krok>.mjs`. Každý exportuje `stary` (živý web, NEMENIŤ) a `novy` (zatiaľ `null` → `--novy` použije `stary`). Metódy `novy` musia mať **rovnaké mená a návratové hodnoty** ako `stary`:
+**Prísnosť** (T0.2b, 14. 10. 2026: nezávislá kontrola našla povolené miesta):
+- **Opakovanie.** `--opakuj` je predvolene 0. Scenár, ktorý prešiel až na druhý pokus (`OK*`), je nestabilný test alebo chyba, čo sa ukáže občas: beh skončí exit 1, kým nie je `--tolerovat-opakovanie` (len na pomalý živý web).
+- **Odporúčaná cena bez bežnej ceny.** Produkt s `odporucana: false` (613, 625, 616, 637) nemá v admine bežnú cenu. **Nový vzhľad** (`body.lcd-1v`) tam „Odporúčanú cenu“ ukázať nesmie (ani riadok `.lcd1v-cena__bolo`, ani viditeľný text „Odporúčaná cena“ vo formulári produktu, v cenovom bloku a v lepivej lište; `j.novaOdporucana(s)`) → scenár ZLYHÁ. Platí v `overCenu` (všetky scenáre s cenou) aj vo vzorkovníku (`platne`). **Starý vzhľad** je len upozornenie, lebo prečiarknutú cenu kreslí Shoptet.
+- **Farba sa nepreskakuje.** `overPost` pri formulári s parametrom farby (alebo farby 2. vrstvy) vyžaduje `ocak.farba` (`ocak.farba2`): scenár musí farbu zvoliť a odovzdať jej value, inak zlyhá. `priceId` sa potom overuje proti kľúču z variantných selectov a farba v POST proti zvolenej.
+- **Brána** v behu s `--novy` overí okrem P aj nezapnutý typ a 610 (pozri tabuľku scenárov).
+- **`--url`** bez `--produkt` na neregistrovanej adrese = chyba, nie tichý profil 598.
+- **Zaseknutý Chrome.** Pokus (Chrome + scenár + zatvorenie), ktorý trvá dlhšie než 2 × `--limit` + 150 s, je ZLYHAL („tvrdý časový limit“) a jeho Chrome sa zabije. Beh sa tak nikdy nezasekne bez výsledku, keď stroj zahltia iné Chromy (pozri `--paralelne`).
+
+**Ovládače:** `tools/test-1v/ovladac-<krok>.mjs`. Každý exportuje `stary` (živý web, NEMENIŤ) a `novy` (kým je `null`, `--novy` aj `--vyvoj` použijú `stary`). Metódy `novy` musia mať **rovnaké mená a návratové hodnoty** ako `stary`:
 
 | Súbor | Metódy |
 |---|---|
-| `ovladac-kroky.mjs` | `vyberAuto(t, {znacka, model, rok, typ})` → sessionStorage.model · `vyberFarbu(t, {index})` → value farby · `skusBezAuta(t)` → `{vyzva}` · `zavriVyzvu(t)` · `cervenyKrok(t)` → `"auto"\|"farba"\|"rozlozenie"\|…\|null` · `hodnota(t, kluc)` |
+| `ovladac-kroky.mjs` | `vyberAuto(t, {znacka, model, rok, typ})` → sessionStorage.model · `vyberFarbu(t, {index})` → value farby · `skusBezAuta(t)` → `{vyzva}` · `zavriVyzvu(t)` · `cervenyKrok(t)` → `"auto"\|"farba"\|"farba2"\|"rozlozenie"\|…\|null` · `hodnota(t, kluc)` · `dokonci(t, krok)` → text tlačidla posledného kroku |
 | `ovladac-rozlozenie.mjs` | `vyberRozlozenie(t, {index})` → value (0 = len 1. rad, 1 = 1.+2., 2 = všetky) |
 | `ovladac-kufor-boxy.mjs` | `skryteNaZaciatku` (bool) · `stav(t)` → `{kufor, boxy}` viditeľné · `vyberKufor(t, "classic"\|"premium"\|"nie")` → value · `vyberBoxy(t, {pocet, farba, velkost, velkost2})` → `{farbaBoxov, box1, box2, boxSolo}` |
 | `ovladac-cena.mjs` | `zobrazenaCena(t)` → číslo · `odporucana(t)` → `{cena, zlava, stitok}` · `pridajDoKosika(t)` (nový vzhľad môže klikať lepivú lištu) |
+| `ovladac-farba2.mjs` | `vyberFarbu2(t, {index})` → value farby 2. vrstvy (dvojvrstvové; `novy` zatiaľ `null`) |
+| `ovladac-boxy-produkt.mjs` | produkt Box do kufra 616: `vyberPocet(t, n)` · `pocet(t)` · `vyberFarbu(t, {index})` · `vyberVelkosti(t, [..])` · `hodnoty(t)` (`novy` zatiaľ `null`) |
+| `ovladac-vzorky.mjs` | vzorkovník 637: `vyberVzorky(t, [id, …])` · `pocet(t)` · `zaloha(t)` (`novy` zatiaľ `null`) |
 
 **Pomocník `t`** (`tools/test-1v/pomocnik.mjs`):
 - `t.klikni(sel, {index, popis, vRamci})` — **skutočný klik myšou**. Prvok sa posunie do stredu, počká sa, kým stojí, a overí sa, že ho nič nezakrýva (Luxia, lišta, hlavička). Inak test zlyhá.
-- `t.nastavSelect(sel, text|index)`, `t.cakaj(expr, {ms})`, `t.ev(expr)`, `t.idParametra(kluc)`, `t.moznost(kluc, /regex/)`, `t.mobil`, `t.sirka`, `t.novy`, `t.pauza(ms)`.
+- `t.nastavSelect(sel, text|index)`, `t.cakaj(expr, {ms})`, `t.ev(expr)`, `t.idParametra(kluc)` (výnimka, keď parameter nie je), `t.maParameter(kluc)` (`null`, keď nie je), `t.moznost(kluc, /regex/)`, `t.zabudni()`, `t.mobil`, `t.sirka`, `t.novy`, `t.pauza(ms)`.
+- Kľúče parametrov (`farba`, `farba2`, `rozlozenie`, `kufor`, `farbaBoxov`, `box1`–`box3`, `boxSolo`, `typ`) sa hľadajú podľa `data-parameter-name`, nikdy podľa ID natvrdo.
 - Selektory starého vzhľadu a `otvorKrok()` sú v `tools/test-1v/stary-ui.mjs`.
 - Nový ovládač kliká na to, čo vidí zákazník v novom vzhľade. Starý DOM, ktorý je vizuálne skrytý, nie.
 
-**Pred odovzdaním každý worker:** `--novy` aj bez flagu zelené na 1280 aj 390. Pri zmenách CSS `--snimky` a porovnanie s návrhom.
+**Scenár v `scenare-<typ>.mjs`:** `export const SCENARE = { "<meno>": { typy: ["<typ>"], async fn(s, a, pom, ovl, j) { … return { info, post, spolu } | { preskoc } } } }`. `j` = jadro `{ otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdporucana, over, pauza, AUTO, TYPY_TEST }`. `overPost(s, post, ocak)` dostane `ocak` s farbou (z `zaklad()`), inak zlyhá. Vrátené `spolu` sa porovná s `ceny[<meno>]` v profile.
 
-**Výsledok základu (13. 10. 2026):**
-- bez flagu, lokálny build: 18 OK + 2 preskočené (`ctx-zapis`), ≈ 90 s pri 3 paralelných Chromoch,
-- `--zdroj cdn` (živý web bez buildu): 16 OK + 4 preskočené,
-- `--novy` so stubmi: 20/20 OK,
+**Pred odovzdaním každý worker:** svoj typ s `--novy` (alebo `--vyvoj`, kým typ nie je zapnutý) aj bez flagu zelené na 1280 aj 390. Pri zmenách CSS `--snimky` a porovnanie s návrhom.
+
+**Výsledok behu (14. 10. 2026, worktree 8df75cd + T0.2b):**
+- `--produkt 598` (bez flagu, lokálny build): 24 OK + 10 preskočených (34 úloh = 17 scenárov × 2 šírky), exit 0, rovnako ako pred T0.2b,
+- `--novy --produkt 598`: 34 OK + 0 preskočených, exit 0, rovnako ako pred T0.2b (`brana` je dlhšia: pribudli 610 aj 601),
+- `--zdroj cdn --produkt 610,613,616,637 --sirka 1280 --paralelne 2` (živý web, starý vzhľad): 18 OK + 5 preskočených (`nulova-zmena` a `k-suhrnu` pri CDN), 8 upozornení (610 „nie“ +5 €, chýbajúca bežná cena, vzorkovník, `priceActualization`), exit 0,
+- `--zdroj cdn --produkt all --sirka 1280` (T0.2 základ): 72 OK + 27 preskočených, 8 upozornení,
 - jediný rozdiel `?novy=1` oproti CDN je `body.lcd-1v`,
-- kontrola testu: necielené CSS pravidlo v `_lcd1v-kroky.scss` (bez `body.lcd-1v`) `nulova-zmena` zachytí.
+- kontrola testu: necielené CSS pravidlo v `_lcd1v-kroky.scss` (bez `body.lcd-1v`) `nulova-zmena` zachytí; umelá chyba (iná očakávaná suma v `produkty.mjs`) → exit 1.
 
 ## 10. Vlastníctvo súborov
 

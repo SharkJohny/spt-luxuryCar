@@ -12,13 +12,17 @@
 //   scenare       – predvolená sada scenárov (bez --krok); plná sada len na hlavnom produkte typu (plan §4.7)
 //   ceny          – očakávaná suma „Spolu“ po scenári (číslo) — kontroluje sa po každom scenári, ktorý vráti spolu
 //   platne        – { priceId, spolu, odporucana } scenára `platne` (plan.md §4)
-//   odporucana    – false = v admine chýba bežná cena (613, 625, 616, 637): odporúčaná cena sa nemá ukázať;
-//                   ak sa ukáže správne (×1,6), je to upozornenie „admin doplnil bežnú cenu, uprav profil“
+//   odporucana    – false = v admine chýba bežná cena (613, 625, 616, 637): odporúčaná cena sa nemá ukázať.
+//                   NOVÝ vzhľad (body.lcd-1v) ju ukázať nesmie -> scenár ZLYHÁ (T0.2b); STARÝ vzhľad = len upozornenie
+//                   „admin doplnil bežnú cenu, uprav profil“ (prečiarknutú cenu kreslí Shoptet, nie my)
 //   postKluce     – popis živého POST (len dokumentácia; overuje overPost podľa formulára + TYPY_TEST.nepovinne)
 //   znameChyby    – chyby konzoly živého webu, ktoré scenár vyvolá (nie sú naše): upozornenie, nie zlyhanie
 //   (upozornenia: známe chyby v admine/živom webe test hlási ako „!“ riadky, nie ako zlyhanie — D2)
 
 export const SK = "https://www.luxurycardesign.sk";
+
+/** Chyba použitia testu (zlý prepínač, neznámy produkt alebo adresa): beh vypíše len správu a skončí s exit 2. */
+export class ChybaPouzitia extends Error {}
 
 /**
  * Typy produktov z pohľadu testu.
@@ -210,7 +214,7 @@ export function vyberProdukty(spec) {
   const out = [];
   const pridaj = (id) => {
     const p = PRODUKTY[id];
-    if (!p) throw new Error("neznámy produkt " + id + " (sú: " + PORADIE.join(", ") + ")");
+    if (!p) throw new ChybaPouzitia("neznámy produkt " + id + " (sú: " + PORADIE.join(", ") + ")");
     if (!out.some((x) => x.id === Number(id))) out.push({ id: Number(id), ...p });
   };
   for (const cast of String(spec || "598").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean)) {
@@ -218,18 +222,34 @@ export function vyberProdukty(spec) {
     else if (cast.startsWith("typ:")) {
       const typ = cast.slice(4);
       const ids = PORADIE.filter((id) => PRODUKTY[id].typ === typ || PRODUKTY[id].typ.startsWith(typ + "-"));
-      if (!ids.length) throw new Error("typ " + typ + " nemá produkty (typy: " + VSETKY_TYPY.join(", ") + ")");
+      if (!ids.length) throw new ChybaPouzitia("typ " + typ + " nemá produkty (typy: " + VSETKY_TYPY.join(", ") + ")");
       ids.forEach(pridaj);
     } else if (ALIASY[cast]) pridaj(ALIASY[cast]);
     else if (/^\d+$/.test(cast)) pridaj(cast);
-    else throw new Error("--produkt: nepoznám „" + cast + "“ (id, all, typ:<typ>, alias: " + Object.keys(ALIASY).join(", ") + ")");
+    else throw new ChybaPouzitia("--produkt: nepoznám „" + cast + "“ (id, all, typ:<typ>, alias: " + Object.keys(ALIASY).join(", ") + ")");
   }
   return out;
 }
 
-/** Profil podľa URL (--url bez --produkt): známy produkt, inak 598-ka s inou adresou. */
+/** Adresa na porovnanie: bez ?query a #hash, malé písmená hostu, vždy s koncovým lomítkom (https://www.luxurycardesign.sk/x/). */
+function normUrl(url) {
+  let u;
+  try { u = new URL(String(url).trim()); } catch { return null; }
+  return u.origin.toLowerCase() + (u.pathname.endsWith("/") ? u.pathname : u.pathname + "/");
+}
+
+/**
+ * Profil podľa URL (--url bez --produkt): len adresa REGISTROVANÉHO produktu (bez ohľadu na ?query a koncové lomítko).
+ * Neznáma adresa = chyba (T0.2b) — dovtedy sa ticho použil profil 598 a test by overoval cudzí produkt s cenami 598.
+ * Pre inú adresu (staging, kópia) treba povedať, ktorý profil sa má použiť: --url <adresa> --produkt <id>.
+ */
 export function produktPodlaUrl(url) {
-  const cista = String(url).split(/[?#]/)[0];
-  const id = PORADIE.find((i) => PRODUKTY[i].url === cista);
-  return id ? { id, ...PRODUKTY[id], url } : { id: 598, ...PRODUKTY[598], url };
+  const cista = normUrl(url);
+  const id = cista && PORADIE.find((i) => normUrl(PRODUKTY[i].url) === cista);
+  if (!id) {
+    throw new ChybaPouzitia("--url " + url + (cista ? "" : " (nie je platná adresa)") + " nie je adresa registrovaného produktu, test nevie, aký profil (typ, ceny, priceId) použiť. " +
+      "Pridaj --produkt <id> (napr. --url " + url + " --produkt 598), alebo použi len --produkt. Registrované adresy: " +
+      PORADIE.map((i) => i + " " + PRODUKTY[i].url.replace(SK, "")).join(", "));
+  }
+  return { id, ...PRODUKTY[id], url };
 }

@@ -12,7 +12,9 @@
 //   node tools/test-konfigurator-1v.mjs --zdroj cdn --produkt all --sirka 1280 --paralelne 2 --json %TEMP%/1v-baseline.json
 //   node tools/test-konfigurator-1v.mjs --zdroj 5db0f33      # verzia nahratá na CDN (assets/v/<sha>/)
 //   (--krok bez --produkt spustí scenáre na 598; scenár iného typu sa na produkte nespustí a len sa spočíta;
-//    --limit 180 = s na scenár, --opakuj 1 = zlyhaný scenár sa raz zopakuje, vo výpise „OK*“ + prvé zlyhanie)
+//    --limit 180 = s na scenár; --url <adresa> bez --produkt ide len na adresu registrovaného produktu, inak chyba;
+//    --opakuj N (predvolene 0) = zlyhaný scenár sa najviac N-krát zopakuje, vo výpise „OK*“ + prvé zlyhanie; beh
+//    s aspoň jedným OK* skončí exit 1, kým nie je --tolerovat-opakovanie (prešiel „na druhý pokus“ = nestabilný test))
 //
 // Ako: Chrome bez okna (surový CDP, žiadne npm balíky). Požiadavky na bundle a CSS živého webu
 // (…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js, …/css/luxuryCar.css) dostanú odpoveď z čerstvého lokálneho
@@ -30,7 +32,7 @@ import { fileURLToPath } from "node:url";
 import { spustiChrome, pauza } from "./test-1v/cdp.mjs";
 import { vytvorT } from "./test-1v/pomocnik.mjs";
 import { cislo } from "./test-1v/stary-ui.mjs";
-import { PRODUKTY, PORADIE, INY, TYPY_TEST, VSETKY_TYPY, vyberProdukty, produktPodlaUrl } from "./test-1v/produkty.mjs";
+import { PRODUKTY, PORADIE, INY, TYPY_TEST, VSETKY_TYPY, ChybaPouzitia, vyberProdukty, produktPodlaUrl } from "./test-1v/produkty.mjs";
 import * as ovlKroky from "./test-1v/ovladac-kroky.mjs";
 import * as ovlRozlozenie from "./test-1v/ovladac-rozlozenie.mjs";
 import * as ovlKuforBoxy from "./test-1v/ovladac-kufor-boxy.mjs";
@@ -55,9 +57,9 @@ const MERACE = [
 
 // ------------------------------------------------------------------ prepínače
 function argumenty(argv) {
-  const a = { novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 1 };
+  const a = { novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 0, tolerovatOpakovanie: false };
   for (let i = 0; i < argv.length; i++) {
-    const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new Error(x + " potrebuje hodnotu"); return argv[++i]; };
+    const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
     if (x === "--novy") { a.novy = true; a.flag = "1"; }
     else if (x === "--vyvoj") { a.novy = true; a.flag = "vyvoj"; }
     else if (x === "--produkt") a.produkt = dalsi();
@@ -73,11 +75,12 @@ function argumenty(argv) {
     else if (x === "--json") a.json = resolve(dalsi());
     else if (x === "--bez-drop") a.bezDrop = true;
     else if (x === "--limit") a.limit = Math.max(30, Number(dalsi()) || 180); // s na jeden scenár
-    else if (x === "--opakuj") a.opakuj = Math.max(0, Number(dalsi()) || 0); // zlyhaný scenár zopakovať N-krát (OK* vo výpise)
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 15).join("\n")); process.exit(0); }
-    else throw new Error("neznámy prepínač " + x);
+    else if (x === "--opakuj") a.opakuj = Math.max(0, Number(dalsi()) || 0); // zlyhaný scenár zopakovať najviac N-krát (OK* vo výpise); predvolene 0
+    else if (x === "--tolerovat-opakovanie") a.tolerovatOpakovanie = true; // OK* (prešlo až na opakovaný pokus) nie je zlyhanie behu
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 17).join("\n")); process.exit(0); }
+    else throw new ChybaPouzitia("neznámy prepínač " + x + " (zoznam: --help)");
   }
-  if (argv.includes("--novy") && argv.includes("--vyvoj")) throw new Error("--novy a --vyvoj naraz nejde");
+  if (argv.includes("--novy") && argv.includes("--vyvoj")) throw new ChybaPouzitia("--novy a --vyvoj naraz nejde");
   return a;
 }
 
@@ -170,7 +173,7 @@ async function priprav(a) {
     const st = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(u + " -> " + r.status); return Buffer.from(await r.arrayBuffer()); };
     return { popis: "CDN verzia " + a.zdroj, js: await st(CDN + "v/" + a.zdroj + "/js/luxuryCar.js?v=" + a.zdroj), css: await st(CDN + "v/" + a.zdroj + "/css/luxuryCar.css?v=" + a.zdroj) };
   }
-  if (a.zdroj !== "lokal") throw new Error("--zdroj je lokal | cdn | <sha>");
+  if (a.zdroj !== "lokal") throw new ChybaPouzitia("--zdroj je lokal | cdn | <sha>");
   const tmp = mkdtempSync(join(tmpdir(), "lcd-1v-build-"));
   const t0 = Date.now();
   // kroky CI pred esbuildom (production.yml): truck/build-truck-images.mjs (generuje *.gen.jsx — v .gitignore; obrázky
@@ -351,9 +354,14 @@ async function overPost(s, post, ocak) {
   over(p.language === ctx.jazyk, "language " + p.language);
   over(p.amount === "1", "amount " + p.amount);
   // 2) varianty (farba, farba 2. vrstvy) a priceId = necessaryVariantData[kľúč zo VŠETKÝCH variantných selectov podľa ID]
+  //    Farba sa NIKDY nepreskakuje (T0.2b): formulár parameter má -> scenár musí farbu zvoliť a odovzdať ocak.<kľúč>;
+  //    inak by sa priceId overovalo len proti vlastným hodnotám POST (kruh) a zlá farba by prešla.
   for (const kluc of ["farba", "farba2"]) {
-    if (ocak[kluc] === undefined) continue;
-    const id = await t.idParametra(kluc);
+    const id = await t.maParameter(kluc);
+    const zadane = ocak[kluc] !== undefined && ocak[kluc] !== "";
+    over(id || !zadane, "ocak." + kluc + " = " + ocak[kluc] + ", ale formulár parameter „" + kluc + "“ nemá (scenár zvolil farbu, ktorú produkt nemá)");
+    if (!id) continue; // formulár parameter nemá (jedno: bez farba2, vzorkovník: žiadny variant)
+    over(zadane, "overPost: scenár nezadal ocak." + kluc + ", hoci formulár má parameter " + id + " — scenár musí farbu zvoliť (zaklad() / ovládač) a odovzdať jej value; kontrola farby a priceId sa nepreskakuje");
     over(p["parameterValueId[" + id + "]"] === ocak[kluc], kluc + " v POST " + p["parameterValueId[" + id + "]"] + " ≠ " + ocak[kluc]);
   }
   const varianty = await t.ev(`Array.prototype.map.call(document.querySelectorAll('#product-detail-form select[name^="parameterValueId["]'), function (s) { return { id: Number(s.getAttribute("data-parameter-id")), name: s.name }; })`);
@@ -412,6 +420,30 @@ async function overPost(s, post, ocak) {
   return c;
 }
 
+/**
+ * Ukazuje NOVÝ vzhľad „Odporúčanú cenu“? -> { aktivny (body.lcd-1v), najdene: [popis…] }. Hľadá to, čo zákazník vidí:
+ * viditeľný riadok .lcd1v-cena__bolo, alebo viditeľný text „Odporúčaná / Doporučená cena“ (innerText = bez skrytých
+ * prvkov) vo formulári produktu, v cenovom bloku Shoptetu a v lepivej lište (.lcd1v-lista). Nezávisí od mien tried
+ * konkrétneho typu (dvoj, rohož, box, vzorkovník majú vlastné karty). V starom vzhľade (bez body.lcd-1v) sa neráta:
+ * tam prečiarknutú cenu kreslí Shoptet a rieši to upozornenie.
+ */
+async function novaOdporucana(s) {
+  return s.t.ev(`(function () {
+    var najdene = [], aktivny = document.body.classList.contains("lcd-1v");
+    if (!aktivny) return { aktivny: false, najdene: najdene };
+    function vid(e) { var r = e.getBoundingClientRect(), c = getComputedStyle(e); return !e.hidden && r.width > 0 && r.height > 0 && c.visibility !== "hidden" && c.display !== "none"; }
+    var re = /(odpor[úu]čan[áa]|doporu[čc]en[áa])\\s+cena/i;
+    Array.prototype.forEach.call(document.querySelectorAll(".lcd1v-cena__bolo"), function (e) {
+      if (vid(e)) najdene.push(".lcd1v-cena__bolo viditeľný: „" + (e.innerText || "").replace(/\\s+/g, " ").trim().slice(0, 60) + "“");
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("#product-detail-form, .p-final-price-wrapper, .lcd1v-lista"), function (e) {
+      var m = vid(e) && re.exec((e.innerText || "").replace(/\\s+/g, " "));
+      if (m) najdene.push((e.id ? "#" + e.id : "." + e.className.trim().split(/\\s+/)[0]) + " píše „" + m[0] + "“");
+    });
+    return { aktivny: true, najdene: najdene.filter(function (x, i) { return najdene.indexOf(x) === i; }) };
+  })()`);
+}
+
 async function overCenu(s, ovl, cena) {
   let videne;
   const koniec = Date.now() + 4000;
@@ -420,10 +452,19 @@ async function overCenu(s, ovl, cena) {
   const odp = await ovl.cena.odporucana(s.t);
   const ocakOdp = Math.ceil((cena.spolu * 1.6) / 10) * 10;
   if (s.produkt && s.produkt.odporucana === false) {
-    // v admine chýba bežná cena (613, 625, 616, 637): odporúčaná sa nemá ukázať (plan §2.5)
-    if (odp && odp.cena) {
+    // v admine chýba bežná cena (613, 625, 616, 637): odporúčaná sa nemá ukázať (plan §2.5).
+    //  - NOVÝ vzhľad (body.lcd-1v): „Odporúčaná cena“ = ZLYHANIE (T0.2b) — nový vzhľad ju má schovať,
+    //    nech ju vypočíta z čohokoľvek (ak admin bežnú cenu doplnil, uprav produkty.mjs: odporucana nech je true/chýba);
+    //  - STARÝ vzhľad: len upozornenie — prečiarknutú cenu kreslí Shoptet (productPage.js), nie my.
+    const nova = await novaOdporucana(s);
+    if (nova.aktivny) {
+      over(!nova.najdene.length && !(odp && odp.cena),
+        "nový vzhľad ukazuje „Odporúčanú cenu“" + (odp && odp.cena ? " " + odp.cena + " € (−" + odp.zlava + " %)" : "") + " na produkte " + s.produkt.id +
+        ", ktorý nemá v admine bežnú cenu (profil odporucana:false)" + (nova.najdene.length ? "; " + nova.najdene.join("; ") : "") +
+        " — nový vzhľad ju musí schovať (plan §2.5); ak admin bežnú cenu doplnil, uprav tools/test-1v/produkty.mjs");
+    } else if (odp && odp.cena) {
       over(odp.cena === ocakOdp, "odporúčaná cena " + odp.cena + " ≠ " + ocakOdp + " (profil: bez bežnej ceny)");
-      s.upozornenia.push("odporúčaná cena " + odp.cena + " sa ukazuje, profil hovorí „bez bežnej ceny“ — admin doplnený? uprav tools/test-1v/produkty.mjs");
+      s.upozornenia.push("odporúčaná cena " + odp.cena + " sa ukazuje (starý vzhľad = Shoptet), profil hovorí „bez bežnej ceny“ — admin doplnený? uprav tools/test-1v/produkty.mjs");
     }
     return { videne, odporucana: odp && odp.cena ? odp : null };
   }
@@ -498,15 +539,27 @@ const SCENARE = {
     st = await stav();
     over(!st.trieda && !st.ctx, "iný projekt (CZ " + INY.id + ") nesmie dostať nový vzhľad: " + JSON.stringify(st));
     info.push("CZ " + INY.id + " nie");
-    // nezapnutý typ (len ?novy=1; vyvoj zapína celý register)
+    // ďalšie produkty podľa brány (len ?novy=1; vyvoj zapína celý register). T0.2b: vždy dva referenčné produkty —
+    //  (1) nezapnutý typ: prvý produkt iného typu, než je zapnutý (dnes 601 dvojvrstvový),
+    //  (2) 610: rovnaký typ (jedno) ako zapnuté 598 — kým ho brána nezapne, nový vzhľad NESMIE naskočiť (po T0.2 sa 610
+    //      už nekontroloval); keď ho brána zapne (po T0.1: ZAPNUTE_TYPY obsahuje jedno), MUSÍ naskočiť.
     if (a.flag === "1") {
-      const id = PORADIE.find((x) => !a.zapnuteSet.has(x) && PRODUKTY[x].typ !== P.typ) || PORADIE.find((x) => !a.zapnuteSet.has(x) && x !== P.id);
-      if (id) {
+      const dalsie = [];
+      const iny = PORADIE.find((x) => !a.zapnuteSet.has(x) && PRODUKTY[x].typ !== P.typ) || PORADIE.find((x) => !a.zapnuteSet.has(x) && x !== P.id);
+      if (iny) dalsie.push(iny);
+      if (P.id !== 610 && !dalsie.includes(610)) dalsie.push(610);
+      for (const id of dalsie) {
         const Q = { id, ...PRODUKTY[id] };
+        const zapnuty = a.zapnuteSet.has(id);
         await otvor(s, Q.url, { novy: true, kontrola1v: false, produkt: Q });
         st = await stav();
-        over(!st.trieda && !st.ctx, "nezapnutý typ " + Q.typ + " (" + id + ") nesmie dostať nový vzhľad: " + JSON.stringify(st));
-        info.push("nezapnutý " + id + " (" + Q.typ + ") nie");
+        if (zapnuty) {
+          over(st.trieda && st.ctx, id + " (" + Q.typ + ") je v bráne zapnutý, ?novy=1 má zapnúť body.lcd-1v: " + JSON.stringify(st));
+          info.push(id + " (" + Q.typ + ") zapnutý — áno");
+        } else {
+          over(!st.trieda && !st.ctx, (id === 610 ? "610 (rovnaký typ ako zapnuté 598, ale brána ho nezapína)" : "nezapnutý typ " + Q.typ + " (" + id + ")") + " nesmie dostať nový vzhľad: " + JSON.stringify(st));
+          info.push("nezapnutý " + id + " (" + Q.typ + ") nie");
+        }
       }
     }
     await otvor(s, a.url + "?novy=0");
@@ -911,13 +964,13 @@ const naseChyby = (chyby) => chyby.filter((c) => !SUM_ZDROJE.test(c.zdroj || "")
 
 // ------------------------------------------------------------------ beh
 /** Jadro pre scenáre v tools/test-1v/scenare-<typ>.mjs (piaty parameter scenára). */
-const J = { otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, over, pauza, AUTO, TYPY_TEST };
+const J = { otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdporucana, over, pauza, AUTO, TYPY_TEST };
 
 async function main() {
   const a = argumenty(process.argv.slice(2));
   const produkty = a.produkt ? vyberProdukty(a.produkt) : [a.url ? produktPodlaUrl(a.url) : vyberProdukty("598")[0]];
-  if (a.url && a.produkt) { if (produkty.length !== 1) throw new Error("--url ide len s jedným --produkt"); produkty[0] = { ...produkty[0], url: a.url }; }
-  if (a.kroky) a.kroky.forEach((m) => { if (!REGISTER[m]) throw new Error("neznámy scenár " + m + " (sú: " + Object.keys(REGISTER).join(", ") + ")"); });
+  if (a.url && a.produkt) { if (produkty.length !== 1) throw new ChybaPouzitia("--url ide len s jedným --produkt (zadal si " + produkty.length + ")"); produkty[0] = { ...produkty[0], url: a.url }; }
+  if (a.kroky) a.kroky.forEach((m) => { if (!REGISTER[m]) throw new ChybaPouzitia("neznámy scenár " + m + " (sú: " + Object.keys(REGISTER).join(", ") + ")"); });
   const zapnute = zapnuteProdukty(a);
   a.zapnuteSet = a.flag ? zapnute[a.flag] : new Set();
   if (a.snimky) mkdirSync(a.snimky, { recursive: true });
@@ -990,7 +1043,8 @@ async function main() {
     try {
       const zakl = await sLimitom(konzola(u.P, u.sirka), a.limit * 1000, "základ konzoly " + u.P.id).catch((e) => { zakladKonzoly.delete(u.P.id + "|" + u.sirka); throw new Zlyhanie("základ konzoly (CDN " + u.P.id + "): " + e.message); });
       ch = await sLimitom(spustiChrome({ okno: a.okno }), 60000, "spustenie Chrome");
-      s = await novaStranka(ch, u.sirka, build, a, log, u.P);
+      u.ch = ch; // pre tvrdú poistku (pokusTvrdo): visiaci Chrome sa zabije
+      s = await sLimitom(novaStranka(ch, u.sirka, build, a, log, u.P), 60000, "otvorenie karty v Chrome");
       const pom = { novaStranka: (b) => novaStranka(ch, u.sirka, b, a, log, u.P) };
       const aU = { ...a, url: u.P.url, produkt: u.P };
       // --snimky: aj snímka tesne pred každým „Pridať do košíka“ (po ňom Shoptet stmaví stránku, POST je zrušený)
@@ -1035,15 +1089,34 @@ async function main() {
     return v;
   }
 
+  /**
+   * Tvrdá poistka (T0.2b): jeden pokus (Chrome + scenár + zatvorenie) nesmie trvať dlhšie než 2 × --limit + 150 s. Keď
+   * Chrome / CDP prestane odpovedať mimo časovaných miest (stroj zahltený inými Chromami), beh by visel navždy a nikdy
+   * by nevypísal výsledok. Pokus sa vtedy počíta ako ZLYHAL (nie ticho OK) a jeho Chrome sa zabije.
+   */
+  async function pokusTvrdo(u) {
+    const t0 = Date.now(), ms = (2 * a.limit + 150) * 1000;
+    let tm;
+    const cas = new Promise((res) => { tm = setTimeout(() => res(null), ms); });
+    const beh = pokus(u);
+    beh.catch(() => {});
+    const v = await Promise.race([beh, cas]);
+    clearTimeout(tm);
+    if (v) return v;
+    if (u.ch) u.ch.zavri().catch(() => {});
+    return { produkt: u.P.id, typ: u.P.typ, sirka: u.sirka, scenar: u.m, stav: "ZLYHAL", info: "", post: null, spolu: null, upozornenia: [], chyby: [], logy: [],
+      sprava: `tvrdý časový limit ${ms / 1000} s: pokus visí (Chrome / CDP neodpovedá — stroj zahltený inými Chromami?), Chrome zabitý`, s: ((Date.now() - t0) / 1000).toFixed(1) };
+  }
+
   async function pracovnik() {
     while (dalsia < ulohy.length) {
       const u = ulohy[dalsia++];
-      let v = await pokus(u);
+      let v = await pokusTvrdo(u);
       // --opakuj: živý web občas nestihne (pomalá noc, iné behy) — zlyhaný scenár sa zopakuje, prvé zlyhanie ostane vo výpise
       const predosle = [];
       for (let i = 0; v.stav === "ZLYHAL" && i < a.opakuj; i++) {
         predosle.push(v.sprava.split("\n")[0]);
-        v = await pokus(u);
+        v = await pokusTvrdo(u);
       }
       if (predosle.length) v.predosle = predosle;
       vysledky.push(v);
@@ -1060,7 +1133,11 @@ async function main() {
   const zle = vysledky.filter((v) => v.stav === "ZLYHAL").length, ok = vysledky.filter((v) => v.stav === "OK").length;
   const upoz = vysledky.reduce((n, v) => n + v.upozornenia.length, 0);
   const opak = vysledky.filter((v) => v.stav === "OK" && v.predosle).length;
+  // T0.2b: scenár, ktorý prešiel až na opakovaný pokus (OK*), je nestabilný test alebo skrytá chyba -> beh je neúspešný
+  const opakovanieZle = opak > 0 && !a.tolerovatOpakovanie;
   console.log(`\nSpolu: ${ok} OK${opak ? " (z toho " + opak + " až na opakovaný pokus, OK*)" : ""}, ${zle} zlyhalo, ${vysledky.length - ok - zle} preskočené${upoz ? ", " + upoz + " upozornení" : ""} (${a.flag ? "?novy=" + a.flag : "flag vypnutý"}, ${build.popis.split(" (")[0]}, ${produkty.length} ${produkty.length === 1 ? "produkt" : produkty.length < 5 ? "produkty" : "produktov"})`);
+  if (opakovanieZle) console.log(`NEÚSPEŠNÝ BEH: ${opak} scenárov prešlo až na opakovaný pokus (OK*, prvé zlyhanie je vo výpise vyššie). Ber to ako chybu — nestabilný test alebo chyba, ktorá sa ukáže len občas. Ak ide len o pomalý živý web, spusti znova s --tolerovat-opakovanie.`);
+  else if (opak) console.log(`OK* (${opak}) tolerované cez --tolerovat-opakovanie.`);
   if (ineTypy.length) console.log(`Scenáre iného typu (na produkte nespustené): ${ineTypy.length} — ${ineTypy.join(" ")}`);
   if (a.json) {
     // súhrn podľa produktu: živý POST scenára `platne` (prvá šírka) vs plan.md §4
@@ -1078,9 +1155,10 @@ async function main() {
     }
     const { zapnuteSet, ...arg } = a;
     writeFileSync(a.json, JSON.stringify({ cas: new Date().toISOString(), argumenty: arg, zdroj: build.popis, brana: zapnute.popis, ovladace: ovl.zdroj,
-      spolu: { ok, okOpakovane: opak, zlyhalo: zle, preskocene: vysledky.length - ok - zle, upozornenia: upoz, ineTypy }, suhrn, vysledky: vysledky.map(({ logy, ...v }) => v) }, null, 1));
+      spolu: { ok, okOpakovane: opak, zlyhalo: zle, preskocene: vysledky.length - ok - zle, upozornenia: upoz, ineTypy, uspech: !(zle || opakovanieZle) }, suhrn, vysledky: vysledky.map(({ logy, ...v }) => v) }, null, 1));
   }
-  process.exit(zle ? 1 : 0);
+  process.exit(zle || opakovanieZle ? 1 : 0);
 }
 
-main().catch((e) => { console.error("CHYBA:", e && e.stack ? e.stack : e); process.exit(2); });
+// chyba použitia (zlý prepínač, neznámy produkt alebo adresa) = len správa, exit 2; ostatné chyby aj so stopou
+main().catch((e) => { console.error("CHYBA:", e instanceof ChybaPouzitia ? e.message : e && e.stack ? e.stack : e); process.exit(2); });

@@ -26,6 +26,9 @@ export const SCENARE = {
       if (videne !== cena.spolu) s.upozornenia.push(`živá Shoptet cena pri ${idcka.length} vzorkách ukazuje ${videne} €, rekapitulácia aj POST ${cena.spolu} € (chyba živého webu)`);
       const odp = await ovl.cena.odporucana(s.t);
       j.over(!odp || !odp.cena, "vzorkovník ukazuje odporúčanú cenu " + JSON.stringify(odp));
+      // T0.2b: nový vzhľad nesmie „Odporúčanú cenu“ ukázať nikde (aj mimo karty ceny jednovrstvových), starý je už strážený vyššie
+      const nova = await j.novaOdporucana(s);
+      j.over(!nova.najdene.length, "nový vzhľad vzorkovníka ukazuje „Odporúčanú cenu“ (v admine nie je bežná cena): " + nova.najdene.join("; "));
       return { info: `${idcka.join(", ")}: POST ${vPost.length} príplatky „Áno“, záloha ${zaloha} € = ${cena.rozpis}; Shoptet cena ${videne}`, post: post.body, spolu: cena.spolu };
     },
   },
