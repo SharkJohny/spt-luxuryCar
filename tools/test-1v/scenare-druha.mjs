@@ -138,7 +138,9 @@ async function poPrenose(s, j, { P, cielId, farba }) {
   await t.cakaj(`document.body.classList.contains("lcd-1v") && document.body.getAttribute("data-lcd1v-typ") === "dvoj" && !!window.__lcd1v`, { ms: 30000, popis: "nový vzhľad na " + cielId });
   const idF2 = await t.idParametra("farba2");
   await t.cakaj(`(function () { var k = document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idF2}"); return !!(k && k.classList.contains("active") && k.classList.contains("lcd1v-k-farba2")); })()`, { ms: 20000, popis: "otvorený krok „Farba 2. vrstvy“ po prenose" });
-  await j.pauza(900);
+  // krok má byť po ustálení stránky na obrazovke (prenos.js dorovnáva do 2 s; z CDN sa karta farby zbalí neskôr)
+  await t.cakaj(`(function () { var k = document.querySelector(".lcd1v-k-farba2"); var r = k && k.getBoundingClientRect(); return !!r && r.top >= -2 && r.top < innerHeight - 80; })()`, { ms: 3500, popis: "otvorený krok „Farba 2. vrstvy“ na obrazovke" }).catch(() => {});
+  await j.pauza(2300); // po poslednom dorovnaní (2 s) sa už nesmie pohnúť
   const idF = await t.idParametra("farba");
   const st = await t.ev(`(function () {
     var f = document.getElementById("product-detail-form");

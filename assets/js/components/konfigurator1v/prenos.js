@@ -145,13 +145,18 @@ function otvorPrvyNevyplneny(ctx) {
   try { kroky = ctx.kroky() || []; } catch (e) { kroky = []; }
   kroky.forEach((k) => { if (k !== krok && k.classList.contains("active")) nastav(k, false); });
   if (!krok.classList.contains("active")) nastav(krok, true);
+  // zákazník sám roluje/klikne -> ďalšie dorovnania sa vynechajú (stránka mu neskočí pod rukou)
+  let vlastnyPohyb = false;
+  const stop = () => { vlastnyPohyb = true; };
+  ["wheel", "touchstart", "keydown", "mousedown"].forEach((e) => window.addEventListener(e, stop, { once: true, passive: true, capture: true }));
   const posun = () => {
-    if (!krok.isConnected) return;
+    if (vlastnyPohyb || !krok.isConnected) return;
     const y = krok.getBoundingClientRect().top - vyskaHlavicky() - 12;
     if (Math.abs(y) > 2) window.scrollTo({ top: Math.max(0, Math.round(window.pageYOffset + y)), behavior: "auto" });
   };
-  setTimeout(posun, 60);
-  setTimeout(posun, 420); // zatvorenie kroku nad ním mení výšku (prechod ~300 ms)
+  // zatvorenie krokov nad ním mení výšku (prechod ~300 ms) a živý auto-postup po farbe zbalí kartu farby až po ~350 ms
+  // + prechode; pri načítaní z CDN to dobehne neskôr než pri lokálnom builde (15. 10. 2026: nadpis kroku 195 px nad oknom)
+  [60, 420, 800, 1300, 2000].forEach((ms) => setTimeout(posun, ms));
 }
 
 /** Živý konfigurátor je postavený tak, aby sa dal výber zapísať (ovládače, okno boxov, tlačidlá krokov). */
