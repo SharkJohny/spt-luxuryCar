@@ -48,6 +48,9 @@ export const novy = {
     })()`);
     const n = cislo(r.karta);
     if (!r.vidno) return "cena nad krokmi nie je viditeľná";
+    // tvar návrhov „230 €“ (číslo, medzera/NBSP, €) v karte, „Spolu“ aj lište — nikdy Shoptetové „€230“ (integrácia 14. 10. 2026)
+    const tvar = (x) => /^\d{1,3}(?:[\s ]\d{3})*(?:,\d{2})?[\s ]€$/.test(String(x || "").trim());
+    if (![r.karta, r.spolu, r.lista].every(tvar)) return `tvar ceny nie je „230 €“: karta „${r.karta}“ / Spolu „${r.spolu}“ / lišta „${r.lista}“`;
     if (cislo(r.spolu) !== n || cislo(r.lista) !== n) return `karta ${r.karta} / Spolu ${r.spolu} / lišta ${r.lista}`;
     return n;
   },

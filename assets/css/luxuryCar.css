@@ -16238,11 +16238,9 @@ body.lcd-1v #product-detail-form a.lcd1v-hodn i {
 body.lcd-1v #product-detail-form a.lcd1v-hodn:hover i,
 body.lcd-1v #product-detail-form a.lcd1v-hodn:focus-visible i { color: var(--c1v-ink); text-decoration-color: var(--c1v-gold); }
 body.lcd-1v #product-detail-form a.lcd1v-hodn:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 2px; }
-/* krátky popis z adminu ostáva (nič sa neskrýva), len v jazyku hlavičky: text 15 px, tlmený */
-body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description {
-  margin: 14px 0 0; font: 400 15px/22px var(--c1v-body); color: var(--c1v-lb);
-}
-body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description p { margin: 0; font: inherit; color: inherit; }
+/* krátky popis z adminu pod hodnotením: žiadny schválený návrh ho nemá a na telefóne (390 px) ho prekrýva bublina Luxie ->
+   pod 1V skrytý (integrácia 14. 10. 2026). Ostáva v DOM (SEO, živý kód), len display:none; bez flagu sa nemení nič. */
+body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description { display: none !important; }
 
 /* ---------- cena nad krokmi (bez poľa) ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .lcd1v-cena {
@@ -17748,10 +17746,108 @@ body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="d-koniec"].p1v-blizko
 /* ===== LCD-1V-OBSAH-DVOJ END ===== */
 
 /* ===== LCD-1V-OBSAH-CLASSIC START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-classic.scss (obsah 1V rohoz Classic 619/622/625; len body.lcd-1v), needituj rucne ===== */
-/* LCD-1V obsah pod konfigurátorom rohože Classic (619/622/625). Vlastník: T2.3 (obsah-classic.js, admin-html/src/p1v-classic/)
-   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
-   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
-   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* LCD-1V-OBSAH-CLASSIC — obsah pod konfigurátorom 1V, rohož do kufra Classic (619/622/625). Vlastník: T2.3
+   (obsah-classic.js, admin-html/src/p1v-classic/, tools/test-1v/obsah-classic.mjs, assets/img/1v/obsah/classic-*).
+   Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css ZA bloky A–D). KAŽDÝ selektor začína
+   body.lcd-1v; flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8, pravidlá docs/1v-obsah.md §5.
+
+   Spoločné sekcie (referencie, galéria, recenzie, materiál, porovnanie, kam, domov, časová os, farby, vzorky, realita, FAQ, záver)
+   štýluje základ + skupiny A–D (v kóde ich pravidlá platia pre korene všetkých kľúčov: :is(#p1v-598-1,.p1v-obsah)).
+   Tu sú len rozdiely rohože Classic oproti 598 podľa návrhu kufor-classic.html:
+     - 8 vecí namiesto 9 (náhľady, bodky na telefóne, fotky náhľadov),
+     - Pred a po: pomer fotky 1,5 a vzorky legendy z classic-pp-*.jpg,
+     - NOVÉ: „Classic, alebo Premium?“ (.kc-cmp) a upsell boxu (.ups) s výzvou (.spat) — pravidlá skupín A–C sú viazané na mená sekcií 598,
+     - vzorky farieb, ktoré produkt nemá (obsah-classic.js ich skryje).
+   Špecificita: pravidlá titulky sú :is(#lcd-home,…) .x; predpona s id koreňov (1,3,x) ich prebije bez !important. */
+
+/* ======================================================================== 8 VECÍ (b-ocakavat) */
+/* PC: náhľady v 8 stĺpcoch (pod 1200 px v 4 = dva riadky po štyri), fotky náhľadov z CSS (v HTML len tlačidlá s číslom) */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(8,1fr)}
+@media(max-width:1200px){
+  body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(4,1fr)}
+}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="0"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-v1.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="1"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-v3.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="2"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-v4.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="3"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-v5.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="4"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-v6.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="5"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/b-ocakavat-farba-interieru.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="6"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/b-ocakavat-zvierata.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="7"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-v9.jpg)}
+/* telefón / tablet na výšku: bodky cez 8 stĺpcov karuselu (skupina B ráta s 9 — vznikol by prázdny 9. stĺpec) */
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
+  body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail{grid-column:1 / span 8}
+}
+
+/* ======================================================================== PRED A PO (b-predapo) */
+/* fotky 900×675, návrh: pomer 1,5 aj na telefóne (598 má 2,14 : 1 pre fotku 1400×655) */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:1.5}
+@media(max-width:760px){
+  body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:1.5}
+}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(1) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-pp-1.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(2) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-pp-2.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(3) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-pp-3.jpg)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(4) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-pp-4.jpg)}
+
+/* ======================================================================== CLASSIC, ALEBO PREMIUM? (classic-premium, NOVÉ) */
+/* zlaté tlačidlá bez tmavého rámika živého .btn (návrh: len prechod a tieň) */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .btn{border:0}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-premium"] .lede{margin-top:14px}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-premium"] .cmp{margin-top:34px}
+/* oba stĺpce sú „naše“ (.us); chýbajúca vlastnosť má sivú ikonu „–“ a fotky bez tmavého filtra */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) .kc-cmp .cmp-col .ic.no{background:#e2ddd1;color:#8b8373}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) .kc-cmp .cmp-col .ph img{filter:none}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-premium"] .kc-cta{display:flex;justify-content:center;margin-top:clamp(22px,3vw,34px)}
+
+/* výzva .spat (riadok vety a tlačidla; ako b-porovnanie a c-*, ktorých pravidlá sú viazané na mená sekcií 598) */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .spat{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:clamp(12px,2vw,22px);max-width:1240px;margin:0 auto;box-sizing:border-box;
+  padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
+  font-size:clamp(15px,1.6vw,19px);line-height:1.3;color:var(--ink)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
+  font-size:12px;letter-spacing:.1em}
+@media(max-width:640px){
+  body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
+  body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .spat > p{max-width:none}
+  body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia^="classic-"] .btn.spat-btn{width:100%;justify-content:center}
+}
+
+/* ======================================================================== KAM VŠADE ROHOŽ SIAHA (c-kam): tlačidlo na Premium */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="c-kam"] .kry-b .kc-link{display:inline-flex;margin-top:16px}
+
+/* ======================================================================== DOPLŇTE KUFOR O BOX (classic-box, NOVÉ): tmavá karta .ups ako a-ponuka */
+/* Odsadenie a deliacu linku nad kartou dáva základ (rytmus kapitol, _lcd1v-obsah.scss) rovnako ako v návrhu: v návrhu má sekcia síce inline
+   padding-top:0, ale .kap > section.chapter{padding-top:clamp(38px,4.8vw,68px) !important} ho prebije a medzi sekciami kapitoly je linka 1 px
+   -> nad kartou ~61 px (PC) / 38 px (telefón) a linka pod „Kam všade rohož siaha“. Tu preto nič neprepisujeme. */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups{display:grid;grid-template-columns:.9fr 1.1fr;background:var(--deep);color:#fff;
+  border-radius:20px;overflow:hidden}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups .ph{position:relative;min-height:190px}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups .ph img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups .tx{padding:clamp(20px,2.6vw,32px)}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups .od{display:inline-block;padding:6px 11px;border-radius:999px;
+  background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;
+  font-family:var(--disp);font-size:9.5px;font-weight:800;line-height:1.6;letter-spacing:.1em;text-transform:uppercase}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups h3{margin:12px 0 0;font-size:clamp(19px,2.3vw,26px);line-height:1.2;
+  color:var(--gold-hi);background:linear-gradient(100deg,#c49b31,#f0d68f 45%,#e6c877 62%,#c49b31);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups p{margin:10px 0 0;max-width:46ch;color:rgba(255,255,255,.82);font-size:14px;line-height:1.6}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups ul{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:7px 14px}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups li{position:relative;margin:0;padding:0 0 0 19px;font-size:13.5px;line-height:1.6;color:#fff}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups li:before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold))}
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups .btn{margin-top:18px;border:0}
+@media(max-width:820px){body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups{grid-template-columns:1fr}}
+@media(max-width:520px){body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .ups ul{grid-template-columns:1fr}}
+
+/* ======================================================================== FARBY (c-farby): vzorky, ktoré produkt nemá, skrýva obsah-classic.js */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="c-farby"] :is(.lx-farby-vzorka,.lx-farby-viac)[hidden]{display:none !important}
+
+/* ======================================================================== FAQ (d-faq): vety s cenami (FAQ 9, 10, 11) */
+/* Veta s cenami (data-cl-ceny) sa ukáže, až keď sú všetky jej čísla data-p1v-cislo dosadené (obsah-classic.js; veta bez cien data-cl-bez potom zmizne); inak ostáva veta bez cien.
+   Číslo v zbalenej odpovedi dedí visibility:hidden od .p1v-faq-a ako v ostatných typoch — žiadna obchádzka. */
+body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="d-faq"] [data-cl-ceny]:not([data-cl-stav="ok"]){display:none}
 /* ===== LCD-1V-OBSAH-CLASSIC END ===== */
 
 /* ===== LCD-1V-OBSAH-PREMIUM START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-premium.scss (obsah 1V rohoz Premium 628/631/634; len body.lcd-1v), needituj rucne ===== */

@@ -9,7 +9,8 @@
 //  - hlavička: nad H1 štítok „Jednovrstvové“, názov radu v H1 zlatý (text H1 ostáva rovnaký), pod H1 hodnotenie
 //    „5,0 ★★★★★ N recenzií na Google“ z window.LCD_REVIEWS (reviews-data.js; kým nepríde, riadok je skrytý);
 //  - cena „bez poľa, priamo nad krokmi“ (Michal 7. 10.): Odporúčaná cena prečiarknutá + −X % + Naša cena (od) X +
-//    Ušetríte Y · cena za set na mieru. Všetky čísla sú ZRKADLO živej ceny .p-final-price-wrapper (livePrice.js píše
+//    Ušetríte Y · cena za set na mieru. Zápis ceny ako v návrhoch „230 €“ (ctx.formatCena; Shoptet píše „€230“ len vo
+//    svojich skrytých prvkoch). Všetky čísla sú ZRKADLO živej ceny .p-final-price-wrapper (livePrice.js píše
 //    súčet do .price-final-holder, productPage.js odporúčanú cenu súčet × 1,6 nahor na desiatky a %). Nič sa
 //    nepočíta nanovo; živý blok ostáva v DOM (len vizuálne skrytý) a jeho JS beží ďalej;
 //  - „Spolu“ nad tlačidlom + živé tlačidlo „Pridať do košíka“ preštýlované; text „Dokončite výber“ / „Vložte do košíka“
@@ -296,11 +297,12 @@ export function init(ctx) {
     // kým výber nie je úplný, typ môže ukázať najnižšiu možnú sumu (box 616: 2 boxy bez veľkostí = 2 × najlacnejší box,
     // živý súčet by ukázal len zvolené boxy); úplný výber = vždy živá cena
     const odTyp = hotovo ? null : ctx.hacikom("cena:od");
-    const zobraz = Number(odTyp) > 0 && Number(odTyp) > (nTeraz || 0) ? ctx.formatCena(Number(odTyp)) : terazT;
+    // tvar návrhov „230 €“ (ctx.formatCena), nie Shoptetu „€230“: číslo je to isté, mení sa len zápis; nečitateľný text ostane ako je
+    const zobraz = Number(odTyp) > 0 && Number(odTyp) > (nTeraz || 0) ? ctx.formatCena(Number(odTyp)) : nTeraz > 0 ? ctx.formatCena(nTeraz) : terazT;
     nastav(suma, zobraz);
     nastav(suhrnSuma, zobraz);
     nastav(listaSuma, zobraz);
-    nastav(odp, odpT);
+    nastav(odp, nOdp > 0 ? ctx.formatCena(nOdp) : odpT);
     nastav(zlava, nZlava > 0 ? "−" + nZlava + " %" : "");
     zlava.hidden = !(nZlava > 0);
     bolo.hidden = !maOdp;

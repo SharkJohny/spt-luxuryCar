@@ -169,6 +169,7 @@ Dôsledky:
 |---|---|---|
 | `cena-od` | základná cena tohto produktu | `ctx.cena().zaklad`, inak `[itemprop=price]` |
 | `cena-od-jedno` / `-dvoj` / `-classic` / `-premium` / `-boxy` | základná cena produktu typu v tom istom vzore (box = 616; stránka boxu bez vzoru = Diamond) | `ceny-ine.js` `cenaTypu` (GET sesterskej stránky, `localStorage` 24 h; vlastná stránka z dokumentu) |
+| `cena-od-<typ>-<vzor>` (vzor = `diamond` / `stripe` / `hexa`) | to isté v ZADANOM vzore (Classic FAQ 11 „Diamond Line je v základnej cene 230 €, Stripe Line stojí 240 € …“; integrácia 14. 10. 2026 — nahradilo vlastné `data-cl-cena` v `obsah-classic.js`) | `cenaTypu(…, typ, vzor)` |
 | `set-classic`, `set-premium` | príplatok „autokoberce do kufru“ (dno / dno + boky) na jednovrstvovom produkte vzoru | `priplatkyTypu(…, "jedno", vzor)` |
 | `set-usetrite` | na rohoži Classic/Premium: `cena-od` − príslušný `set-*` (inde nezistené → `data-p1v-bez`) | |
 | `set-usetrite-classic` / `-premium` | kdekoľvek: `cena-od-classic` − `set-classic` (resp. Premium) | |
@@ -456,3 +457,11 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 **Veľkosti (build):** `p1v-dvoj` 33 363 + 21 576 zn., `p1v-premium` 32 413 + 26 242, `p1v-boxy` 26 312 + 22 382, `p1v-vzorky` 1 970 + 3 910 — každý kus ≤ 45 000. Spolu pre jedno pole Popisu po spustení: dvoj 54 939 (−9 939), premium 58 655 (−13 655), boxy 48 694 (−3 694), vzorky 5 880 (OK) — pri spustení pre všetkých platí sekcia 7 (rozhodne Michal, rovnako ako 598 s 57 316).
 
 **Neurobené (nie chyby, ale chýbajúce kľúče čísel — obsah ich podľa D3 vynechal):** `cena-od-<typ>-<vzor>` (cena rohože iného vzoru, Classic FAQ 11), `pocet-farieb-classic` a rozdiel ceny medzi vzormi (Premium porovnanie a FAQ 12).
+
+## 13. Finálna integrácia (14. 10. 2026) — všetky typy za `?novy=1`
+
+- **Brána:** `ZAPNUTE_TYPY` = jedno, dvoj, kufor-classic, kufor-premium, boxy, vzorky (13 SK produktov + vzorkovník). Obsah sa pre každý typ berie z CDN verzie bundle (D1 = b, `OBSAH_CDN`), nič ďalšie sa neprepína.
+- **T2.3 Classic zlúčené** (worktree `spt-luxuryCar-1v-c-classic`, `b802f8d`) + dorobené: FAQ 9/10/11 len štandardné `data-p1v-cislo` (FAQ 11 nový kľúč `cena-od-classic-<vzor>`), obchádzky zmazané (inline `visibility:visible` na číslach FAQ a CSS `display:none` zbalených čísel — test jadra berie vlastnú viditeľnosť čísla), odsadenie upsellu boxu overené proti návrhu (1280 px: linka 1 px + 61 px nad kartou, 124 px od „Kam všade rohož siaha“; 390 px: 1 px + 38 px, 77 px — zhodne s `kufor-classic.html`). D3 ostáva: žiadna dodacia lehota, „logo“ ani „kovový štítok“.
+- **Farby vlastného vzoru** (`obsah-c.js` `farbyVzoru`): na 610/613, 622/625, 631/634 sa sekcia `c-farby` (statické vzorky Diamond Line) pred oživením prestaví z farieb produktu (živý krok Farba: názov `data-lcd1v-nazov`, fotka vzorky konfigurátora), „Vzorka · Hexa Line“, počítadlo; úvodná veta o autách -> „Vyberte vzorku a pozrite si materiál aj prešívanie zblízka.“ (návrh `boxy.html`); „Mnoho ďalších farieb“ na vlastný konfigurátor sa skryje (všetky farby sú vo vzorkách), odkaz na dvojvrstvové (`data-p1v-odkaz`) ostáva. Dvojvrstvové (zmiešané skutočné fotky rôznych vzorov) a box (len Diamond) sa nemenia. Test: `tools/test-1v/obsah-c.mjs` (bez Diamond textu, fotiek `img/farby/` a s počtom vzoriek = počet farieb produktu).
+- **Tvar cien** v celom novom vzhľade „230 €“ (`ctx.formatCena` = `sumaText` v `ctx.js`, `obsah-cisla.js` `formatCena` to isté); cenová karta, „Spolu“ a lišta zrkadlia živú cenu, ale prepíšu ju do tohto tvaru. Shoptetové „€230“ ostáva len v jeho skrytých prvkoch. Testy (`ovladac-cena.mjs`, `ovladac-vzorky.mjs`) tvar vyžadujú.
+- **Test obsahu:** výška bez flagu sa porovnáva so základom meraným dvakrát (tolerancia 40 px + 2 × kolísanie základu, pri prekročení ešte jedno meranie) — znova tvrdá chyba aj pri `--miesto cdn`; každá úloha má navyše `Promise.race` s limitom 480 s (pracovník nečaká na zamrznutý Chrome).

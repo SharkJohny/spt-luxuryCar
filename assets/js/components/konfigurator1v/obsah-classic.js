@@ -11,17 +11,14 @@
 //            počítadlo „01 / 09“ sa prepočíta a „Mnoho ďalších farieb“ sa ukáže len keď produkt má aspoň 3 ďalšie farby.
 //            Zhoda podľa názvu farby (nazovFarby z kroku Farba: „Čierna / červené šitie“, „Béžová“…). Keď sa nič nezhodne alebo
 //            prvá vzorka chýba, sekcia ostane taká, aká je (radšej všetky vzorky než prázdna sekcia).
-//   d-faq    Odpovede FAQ 9, 10 a 11 majú ceny ako v návrhu. Veta s cenami (data-cl-ceny) sa ukáže, až keď sú zistené VŠETKY jej čísla; dovtedy a pri
-//            nezistenej cene platí veta bez cien (data-cl-bez) hneď pred ňou. FAQ 9 a 10 majú čísla cez data-p1v-cislo (dosadí ich obsah-cisla.js),
-//            FAQ 11 potrebuje cenu Classic vo všetkých troch vzoroch (kľúč jadra pozná len vzor tohto produktu) -> data-cl-cena="diamond|stripe|hexa",
-//            cenu zistí tento modul z ceny-ine.js (cenaTypu: GET sesterskej stránky, 24 h cache) a naformátuje formatCena z obsah-cisla.js.
+//   d-faq    Odpovede FAQ 9, 10 a 11 majú ceny ako v návrhu. Veta s cenami (data-cl-ceny) sa ukáže, až keď sú VŠETKY jej čísla dosadené; dovtedy a pri
+//            nezistenej cene platí veta bez cien (data-cl-bez) hneď pred ňou. Všetky čísla sú štandardné značky data-p1v-cislo (dosadí ich obsah-cisla.js
+//            zo živých dát; FAQ 11 kľúč cena-od-classic-<vzor> = cena Classic v zadanom vzore — integrácia 14. 10. 2026 nahradila vlastné data-cl-cena).
 // Čísla a odkazy závislé od vzoru inak dosadí obsah-cisla.js (data-p1v-cislo / data-p1v-odkaz), nie tento modul.
 // Len export function init(oc); pri importe nič nebeží; nič zo živého DOM nemazať, žiadny POST (ceny sesterských stránok len cez ceny-ine.js = GET), ceny ani ID natvrdo.
 // oc = { ctx, kluc, korene, koren, miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn, {okraj}), nacitajMedia(el),
 //        ked, na, vysli }; sekcia, ktorá je stub, nie je v DOM: oc.sekcia(meno) === null.
 import { nazovFarby } from "./kroky.js";
-import { cenaTypu } from "./ceny-ine.js";
-import { formatCena } from "./obsah-cisla.js";
 
 export const MENO = "obsah-classic";
 
@@ -41,27 +38,22 @@ export function init(oc) {
   if (faq) faqCeny(faq, oc);
 }
 
-/** Vety s cenami vo FAQ: blok data-cl-ceny nahradí vetu data-cl-bez, keď sú zistené všetky čísla v bloku (inak ostane veta bez cien). */
+/** Vety s cenami vo FAQ: blok data-cl-ceny nahradí vetu data-cl-bez, keď sú všetky čísla bloku dosadené (inak ostane veta bez cien). */
 function faqCeny(sek, oc) {
-  const trh = oc.ctx.trh;
-  const vzory = {};
-  const cenaVzoru = (vzor) => (vzory[vzor] = vzory[vzor] || cenaTypu(oc.ctx.projectId, "kufor-classic", vzor).then((c) => formatCena(c, trh)).catch(() => null));
   pole(sek.querySelectorAll("[data-cl-ceny]")).forEach((blok) => {
     const pred = blok.previousElementSibling;
     const bez = pred && pred.hasAttribute("data-cl-bez") ? pred : null;
-    const vlastne = pole(blok.querySelectorAll("[data-cl-cena]"));
-    const jadro = pole(blok.querySelectorAll("[data-p1v-cislo]"));
-    const ukaz = () => { blok.setAttribute("data-cl-stav", "ok"); if (bez) bez.hidden = true; };
-    Promise.all(vlastne.map((el) => cenaVzoru(el.getAttribute("data-cl-cena")).then((t) => { if (t) el.textContent = t; return !!t; })))
-      .then((zistene) => {
-        if (!zistene.every(Boolean)) return; // niektorá cena sa nezistila: ostane veta bez cien
-        if (!jadro.length) { ukaz(); return; }
-        // čísla jadra (obsah-cisla.js): počkať, kým nie sú všetky vybavené (ok | bez | skryte); ukázať len keď sú všetky „ok“
-        oc.ked(() => {
-          const st = jadro.map((el) => el.getAttribute("data-p1v-stav"));
-          return st.every((x) => x === "ok" || x === "bez" || x === "skryte") ? (st.every((x) => x === "ok") ? "ok" : "nie") : null;
-        }, (v) => { if (v === "ok") ukaz(); }, { limit: 15000 });
-      });
+    const cisla = pole(blok.querySelectorAll("[data-p1v-cislo]"));
+    if (!cisla.length) return; // veta bez čísiel sa neprepína (ostane veta bez cien)
+    // čísla jadra (obsah-cisla.js): počkať, kým nie sú všetky vybavené (ok | bez | skryte); ukázať len keď sú všetky „ok“
+    oc.ked(() => {
+      const st = cisla.map((el) => el.getAttribute("data-p1v-stav"));
+      return st.every((x) => x === "ok" || x === "bez" || x === "skryte") ? (st.every((x) => x === "ok") ? "ok" : "nie") : null;
+    }, (v) => {
+      if (v !== "ok") return;
+      blok.setAttribute("data-cl-stav", "ok");
+      if (bez) bez.hidden = true;
+    }, { limit: 15000 });
   });
 }
 

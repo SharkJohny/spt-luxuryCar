@@ -107,8 +107,25 @@ export async function kontroly(t) {
     await t.klikni(F + " .lx-farby-vzorka", { index: 1, popis: "2. vzorka farby", pockaj: 400 });
     await t.cakaj(`(function(){var i=document.querySelectorAll(${JSON.stringify(F + " .lx-farby-velka img")})[1];return i&&i.getAttribute("src")&&i.classList.contains("on")})()`, { ms: 5000, popis: "2. fotka farby .on" });
     const po = await t.ev(`[document.querySelector(${JSON.stringify(F + " .lx-farby-meno")}).textContent,document.querySelector(${JSON.stringify(F + " .lx-farby-cislo")}).textContent,document.querySelectorAll(${JSON.stringify(F + " .lx-farby-vzorka")})[1].getAttribute("aria-pressed")]`);
-    ok(po[0] === "Čierna · modré šitie" && po[1] === "02" && po[2] === "true", "farby: klik na 2. vzorku prepol názov, číslo aj fotku " + JSON.stringify(po));
+    // 2. farba: Diamond (598) zo statického HTML; Hexa/Stripe (610/613) = 2. farba živého kroku Farba tohto produktu
+    const vzor = (t.produkt && t.produkt.vzor) || "diamond";
+    const druhaFarba = vzor === "diamond" ? "Čierna · modré šitie"
+      : await t.ev(`(function(){var b=document.querySelectorAll(".lcd1v-k-farba .options-wrap > .option-button")[1];return b?(b.getAttribute("data-lcd1v-nazov")||"").replace(/\\s*\\/\\s*/g," · "):null})()`);
+    ok(po[0] === druhaFarba && po[1] === "02" && po[2] === "true", `farby: klik na 2. vzorku prepol názov („${druhaFarba}“), číslo aj fotku ` + JSON.stringify(po));
   } catch (e) { ok(false, "farby: " + e.message); }
+  // farby vlastného vzoru (integrácia 14. 10. 2026): na Hexa/Stripe ani jedna vzorka, fotka či popis Diamond Line
+  {
+    const vzor = (t.produkt && t.produkt.vzor) || "diamond";
+    const meno = { diamond: "Diamond Line", stripe: "Stripe Line", hexa: "Hexa Line" }[vzor];
+    const f = await t.ev(`(function(){var e=document.querySelector(${JSON.stringify(F)});var k=document.querySelectorAll(".lcd1v-k-farba .options-wrap > .option-button");
+      return { n: (e.querySelector(".lx-farby-vzor-n")||{}).textContent, vzorky: [].map.call(e.querySelectorAll(".lx-farby-vzorka"),function(b){return b.getAttribute("data-vzor")}),
+        diamond: /Diamond/.test(e.textContent + [].map.call(e.querySelectorAll("[aria-label],img[alt]"),function(x){return (x.getAttribute("aria-label")||"")+" "+(x.getAttribute("alt")||"")}).join(" ")),
+        fotkyDiamond: [].filter.call(e.querySelectorAll("img"),function(i){return /\\/img\\/farby\\/(?!sw-x-)/.test(i.getAttribute("src")||i.getAttribute("data-src")||"")}).length,
+        pocet: e.querySelectorAll(".lx-farby-vzorka").length, farbyKroku: k.length, stitok: (e.querySelector(".lx-farby-stitok")||{}).textContent }; })()`);
+    if (vzor === "diamond") ok(f.n === "Vzorka · Diamond Line", "farby 598: „" + f.n + "“");
+    else ok(f.n === "Vzorka · " + meno && f.vzorky.every((x) => x === meno) && !f.diamond && !f.fotkyDiamond && f.pocet === f.farbyKroku && f.pocet > 0,
+      `farby ${t.produkt.id}: vlastný vzor „${f.n}“, ${f.pocet} vzoriek = ${f.farbyKroku} farieb produktu, bez Diamond (text ${f.diamond}, fotky ${f.fotkyDiamond}), štítok „${(f.stitok || "").replace(/\s+/g, " ").trim()}“`);
+  }
 
   // 7) vzorky: odkaz a vejár
   await navrh(S("c-vzorky"));

@@ -11,7 +11,7 @@ export const TYP = {
     kroky: {
       postup: (z) => "Vaša rohož v " + z + " krokoch",
       kroky: {
-        // vzor: podnadpis s cenami vzorov a ceny dlaždíc („v cene / + 10 €“) dosadí kufor-produkt.js zo sesterských
+        // vzor: podnadpis s cenami vzorov a ceny dlaždíc („230 € / 240 € / 240 €“) dosadí kufor-produkt.js zo sesterských
         // stránok (ceny-ine.js) — preto tu pod: null (statická veta s číslom by bola natvrdo)
         vzor: { pod: null },
         auto: { pod: "Tvar rohože sa šije podľa šablóny dna kufra Vášho modelu." },
@@ -37,7 +37,8 @@ export const TYP = {
       vzorPod: (lacny, drahe, rozdiel) => lacny + " je v základnej cene. " + drahe.join(" a ") + " stoja o " + rozdiel + " viac.",
       // všetky vzory za rovnakú cenu (veta zo schváleného návrhu jednovrstvove.html)
       vzorPodRovnako: "Všetky tri vzory majú rovnakú cenu.",
-      // cena pod názvom vzoru na dlaždici = cena sesterskej stránky − cena tejto stránky
+      // cena pod názvom vzoru na dlaždici = PLNÁ cena rohože v tom vzore (návrh: „230 € / 240 € / 240 €“, zo sesterských stránok)
+      dlazdica: "cena",
       vCene: "v cene",
       // pás pod cenou (návrh .kc-set): „V sete s autokobercami len + 129 € (ušetríte 101 €)“ + „Zostaviť set“
       set: {

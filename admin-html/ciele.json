@@ -357,7 +357,7 @@
       "_pozn": "Obsah pod konfigurátorom 1V: počas skúšky ho obsah.js stiahne z CDN verzie bundle len pod bránou (D1 = b), po spustení je v Popise produktu. Preto: id len s predponou p1v-, žiadne triedy, na ktoré kotví živý JS (main.js placeWidget recenzií/videí, popisModuly.js, video-play-again.js, productPage.js, index.js FAQ/akordeón, konfigurátor), žiadne polia formulára, médiá odložené (img lazy, video/iframe len data-src + data-poster). Čísla závislé od vzoru/ceny len v značkách data-p1v-cislo (vnútri len <!-- -->, hodnotu dosadí obsah-cisla.js), odkazy na iný typ data-p1v-odkaz (href dosadí obsah-cisla.js podľa registra produkty.js).",
       "idPredpona": "p1v-",
       "media": "odlozene",
-      "cisla": "^(cena-od(-(jedno|dvoj|classic|premium|boxy))?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor)$",
+      "cisla": "^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor)$",
       "odkazy": ["jedno", "dvoj", "classic", "premium", "boxy"],
       "kusy": 2,
       "zakazaneTriedy": [

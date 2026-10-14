@@ -33,13 +33,13 @@ export const PRODUKTY_1V = {
     634: { typ: "kufor-premium", vzor: "stripe", url: "/luxusny-koberced-do-kufra-dragonskin-premium-stripe/", obsah: "premium" },
     631: { typ: "kufor-premium", vzor: "hexa", url: "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/", obsah: "premium" },
     616: { typ: "boxy", vzor: null, url: "/luxusny-boxi-do-kufra/", obsah: "boxy" },
-    // vzorkovník: zaregistrovaný (?novy=vyvoj), modul je stub — postaví ho T5.1 až po schválení návrhu
+    // vzorkovník: konfigurátor T5.1 + obsah T5.1b (návrh vzorkovnik.html)
     637: { typ: "vzorky", vzor: null, url: "/vzorkovnik-dragonskin---objednavka-vzoriek/", obsah: "vzorky" },
   },
 };
 
-/** Typy vydané pre ?novy=1 (zákaznícky skúšobný odkaz). Pridáva len vydanie. */
-export const ZAPNUTE_TYPY = ["jedno"];
+/** Typy vydané pre ?novy=1 (zákaznícky skúšobný odkaz). Pridáva len vydanie. Integrácia 14. 10. 2026: všetkých 13 SK produktov + vzorkovník. */
+export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", "boxy", "vzorky"];
 
 /**
  * kroky  – mená kariet v poradí, v akom ich zákazník vidí a číslujú sa („Krok N z M“, postup). Posledný krok má

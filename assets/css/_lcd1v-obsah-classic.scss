@@ -97,7 +97,6 @@ body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="classic-box"] .
 body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="c-farby"] :is(.lx-farby-vzorka,.lx-farby-viac)[hidden]{display:none !important}
 
 /* ======================================================================== FAQ (d-faq): vety s cenami (FAQ 9, 10, 11) */
-/* Veta s cenami (data-cl-ceny) sa ukáže, až keď obsah-classic.js zistí všetky jej čísla (a veta bez cien data-cl-bez zmizne); inak ostáva veta bez cien */
+/* Veta s cenami (data-cl-ceny) sa ukáže, až keď sú všetky jej čísla data-p1v-cislo dosadené (obsah-classic.js; veta bez cien data-cl-bez potom zmizne); inak ostáva veta bez cien.
+   Číslo v zbalenej odpovedi dedí visibility:hidden od .p1v-faq-a ako v ostatných typoch — žiadna obchádzka. */
 body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="d-faq"] [data-cl-ceny]:not([data-cl-stav="ok"]){display:none}
-/* číslo v zbalenej odpovedi má inline visibility:visible (test jadra berie zdedené visibility:hidden za nedosadené číslo) -> zbalené sa nezobrazuje čítačkám */
-body.lcd-1v :is(#p1v-classic-1,#p1v-classic-2) [data-lcd-sekcia="d-faq"] .p1v-faq-q[aria-expanded="false"] + .p1v-faq-a [data-p1v-cislo]{display:none}

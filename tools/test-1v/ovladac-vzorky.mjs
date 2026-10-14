@@ -114,6 +114,9 @@ export const novy = {
       return { spolu: tx("${F} .lcd1v-vz-suhrn .lcd1v-suhrn__suma"), lista: tx(".lcd1v-lista .lcd1v-lista__suma"), vidno: !!(e && e.getBoundingClientRect().height > 0) };
     })()`);
     if (!r.vidno) return "„Spolu“ nie je viditeľné";
+    // tvar návrhov „15 €“, nikdy Shoptetové „€15“ (integrácia 14. 10. 2026)
+    const tvar = (x) => /^\d{1,3}(?:[\s ]\d{3})*(?:,\d{2})?[\s ]€$/.test(String(x || "").trim());
+    if (![r.spolu, r.lista].every(tvar)) return `tvar ceny nie je „15 €“: Spolu „${r.spolu}“ / lišta „${r.lista}“`;
     const n = cislo(r.spolu);
     if (cislo(r.lista) !== n) return `Spolu ${r.spolu} / lišta ${r.lista}`;
     return n;

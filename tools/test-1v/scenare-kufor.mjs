@@ -108,13 +108,16 @@ export const SCENARE = {
       j.over(st.polia === 4, "krok auta: viditeľné polia " + st.polia + " ≠ 4");
       // dlaždice vzoru: rozdiel cien podľa profilov (plan.md §4), vlastná „v cene“; text dlaždice bez ceny
       const own = zaklad(P);
+      // základný vzor = najlacnejšia rohož toho typu (profily, plan.md §4) — Premium dlaždice sú rozdiel oproti nemu na všetkých stránkach
+      const zakladVzoru = Math.min(...VZORY.map((v) => zaklad(profil(typ, v))).filter((c) => c > 0));
       const ocakPod = {};
       for (const d of st.dlazdice) {
         const sp = profil(typ, d.vzor);
         j.over(sp && zaklad(sp) != null, "dlaždica " + d.vzor + ": profil sesterskej rohože chýba");
         ocakPod[d.vzor] = zaklad(sp);
-        const ocak = stitok(zaklad(sp) - own);
-        j.over(cisty(d.cena) === ocak, "dlaždica " + d.vzor + ": cena „" + d.cena + "“ ≠ „" + ocak + "“ (" + zaklad(sp) + " − " + own + ")");
+        // Classic (návrh kufor-classic.html): plná cena vzoru „240 €“; Premium (kufor-premium.html): „v cene / + 10 € / + 10 €“
+        const ocak = typ === "kufor-classic" ? eur(zaklad(sp)) : stitok(zaklad(sp) - zakladVzoru);
+        j.over(cisty(d.cena) === ocak, "dlaždica " + d.vzor + ": cena „" + d.cena + "“ ≠ „" + ocak + "“ (" + zaklad(sp) + (typ === "kufor-classic" ? "" : " − " + zakladVzoru) + ")");
         j.over(d.text === VZOR_NAZOV[d.vzor].toUpperCase() || cisty(d.text).toLowerCase() === VZOR_NAZOV[d.vzor].toLowerCase(), "text dlaždice " + d.vzor + " „" + d.text + "“ (cena má byť len v ::after)");
         j.over(/v cene|€/.test(d.poZnak), "cena dlaždice " + d.vzor + " sa nezobrazuje (::after " + d.poZnak + ")");
       }

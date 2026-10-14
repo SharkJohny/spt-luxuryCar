@@ -271,11 +271,17 @@ async function main() {
       const zle = (podm, sprava) => { if (!podm) v.chyby.push(sprava); };
       // tvrdá poistka (kontrola T0.3 14. 10. 2026: jedna úloha visela 20+ min na zahltenom stroji): po LIMIT_ULOHY sa
       // Chrome úlohy zavrie, čakajúce volania CDP zlyhajú a úloha skončí ako ZLYHAL (beh sa nikdy nezasekne)
-      const strazca = setTimeout(() => {
-        v.chyby.push(`časový limit ${LIMIT_ULOHY / 1000} s: Chrome neodpovedá, úloha zrušená`);
-        ch.zavri().catch(() => {});
-      }, LIMIT_ULOHY);
+      // Integrácia 14. 10. 2026: navyše Promise.race — pracovník ide na ďalšiu úlohu aj keď úloha visí mimo CDP (čakanie
+      // na základ, pauza v slučke); čakajúci na základ tejto úlohy dostanú null (nečakajú navždy).
+      let strazca;
+      const limit = new Promise((_, zamietni) => {
+        strazca = setTimeout(() => {
+          ch.zavri().catch(() => {});
+          zamietni(new Error(`časový limit ${LIMIT_ULOHY / 1000} s: Chrome neodpovedá, úloha zrušená`));
+        }, LIMIT_ULOHY);
+      });
       try {
+        await Promise.race([limit, (async () => {
         if (u.druh === "navrh") {
           const k = await ch.novaKarta({ sirka: u.sirka });
           await k.posli("Network.setBlockedURLs", { urls: MERACE });
@@ -300,8 +306,15 @@ async function main() {
           const st = await s.k.ev(STAV(p.kluc));
           const plne = p.plne.length > 0;
           if (zaklad) {
-            cakaj.get(kz(p, u.novy, u.sirka)).r({ chyby: new Set(naseChyby(s.k.chyby).map(normChyba)), st });
-            v.info.push(`základ ${novy ? "?novy=" + flag : "bez flagu"} (bez obsahu): výška ${st.docH} px, pätička ${st.paticka ? st.paticka.h + " px / " + st.paticka.stlpce + " stĺpcov" : "?"}`);
+            // výška živej stránky kolíše sama (konfigurátor, widgety recenzií/videí, pod záťažou aj +167 px): základ bez flagu
+            // sa meria DVAKRÁT (nové načítanie) — rozsah dvoch meraní je vlastné kolísanie stránky (integrácia 14. 10. 2026)
+            const vysky = [st.docH];
+            if (!novy) {
+              await otvorProdukt(s, { url: p.url, flag: null, pripravene: (TYPY_TEST[p.typ] || {}).pripravene });
+              vysky.push((await s.k.ev(STAV(p.kluc))).docH);
+            }
+            cakaj.get(kz(p, u.novy, u.sirka)).r({ chyby: new Set(naseChyby(s.k.chyby).map(normChyba)), st, vysky });
+            v.info.push(`základ ${novy ? "?novy=" + flag : "bez flagu"} (bez obsahu): výška ${vysky.join(" / ")} px, pätička ${st.paticka ? st.paticka.h + " px / " + st.paticka.stlpce + " stĺpcov" : "?"}`);
           } else {
             const vlozene = a.miesto === "paticka" || a.miesto === "popis";
             if (vlozene) zle(s.vlozene && s.vlozene.ok, "obsah sa nevložil do stránky: " + (s.vlozene ? s.vlozene.popis : "dokument produktu sa nezachytil"));
@@ -325,13 +338,22 @@ async function main() {
                 zle(!nove.length, "nové chyby v konzole: " + nove.map((c) => c.druh + ": " + c.text).join(" | "));
                 if (z.st.paticka && st.paticka) zle(z.st.paticka.stlpce === st.paticka.stlpce && Math.abs(z.st.paticka.h - st.paticka.h) <= 2,
                   `pätička sa zmenila: ${z.st.paticka.h} px / ${z.st.paticka.stlpce} stĺpcov -> ${st.paticka.h} px / ${st.paticka.stlpce}`);
-                const dH = st.docH - z.st.docH;
-                // paticka: obsah je v HTML stránky (skryté bannery) -> výška musí ostať. cdn: HTML stránky sa bez flagu nemení
-                // vôbec (rovnaká stránka ako základ), rozdiel je len kolísanie živej stránky (pod záťažou aj +167 px,
-                // kontrola T0.3 14. 10. 2026) -> upozornenie; zmenu tu stráži 0 požiadaviek na kusy a médiá vyššie.
-                if (a.miesto === "paticka") zle(Math.abs(dH) <= 40, `výška stránky sa zmenila o ${dH} px (bez obsahu ${z.st.docH}; ±10 px kolíše aj samo — konfigurátor)`);
-                else if (a.miesto === "cdn" && Math.abs(dH) > 40) v.pozor.push(`výška stránky bez flagu ${dH >= 0 ? "+" : ""}${dH} px oproti základu (${z.st.docH}) — HTML sa nemenilo, kolíše živá stránka`);
-                v.info.push(`výška ${dH >= 0 ? "+" : ""}${dH} px oproti stránke bez obsahu`);
+                // Výška bez flagu = výška základu (stránka bez obsahu), s toleranciou 40 px + 2 × vlastné kolísanie stránky
+                // (rozsah dvoch meraní základu). Mimo nej sa stránka načíta a zmeria ešte raz (náhodný výkyv živej stránky
+                // vs. trvalá zmena) a platí bližšie meranie. Platí pre paticka (obsah skrytý v HTML) aj cdn (HTML sa nemení).
+                const vz = z.vysky && z.vysky.length ? z.vysky : [z.st.docH];
+                const lo = Math.min(...vz), hi = Math.max(...vz), tol = 40 + 2 * (hi - lo);
+                const odchylka = (h) => (h < lo ? h - lo : h > hi ? h - hi : 0);
+                let h = st.docH;
+                if (Math.abs(odchylka(h)) > tol) {
+                  await otvorProdukt(s, { url: p.url, flag: null, pripravene: (TYPY_TEST[p.typ] || {}).pripravene });
+                  const h2 = (await s.k.ev(STAV(p.kluc))).docH;
+                  v.info.push(`výška mimo tolerancie (${h} px), zmeraná znova: ${h2} px`);
+                  if (Math.abs(odchylka(h2)) < Math.abs(odchylka(h))) h = h2;
+                }
+                const dH = odchylka(h);
+                zle(Math.abs(dH) <= tol, `výška stránky bez flagu ${h} px je o ${dH >= 0 ? "+" : ""}${dH} px mimo základu ${lo}–${hi} px (tolerancia ${tol} px = 40 + 2 × kolísanie základu)`);
+                v.info.push(`výška ${h} px, základ ${lo === hi ? lo : lo + "–" + hi} px, odchýlka ${dH >= 0 ? "+" : ""}${dH} px (tolerancia ${tol})`);
               }
               v.info.push(`${st.korene.length} korene${vlozene ? " skryté" : ""}, 0 požiadaviek na kusy obsahu, 0 z ${p.media.length} médií + sondy stiahnuté`);
             } else {
@@ -439,12 +461,13 @@ async function main() {
             }
           }
         }
+        })()]);
       } catch (e) {
-        v.chyby.push("výnimka: " + (e && e.stack ? e.stack.split("\n").slice(0, 3).join(" / ") : String(e)));
+        v.chyby.push(/^časový limit/.test(e && e.message) ? e.message : "výnimka: " + (e && e.stack ? e.stack.split("\n").slice(0, 3).join(" / ") : String(e)));
         if (u.druh === "zaklad") { const c = cakaj.get(kz(p, u.novy, u.sirka)); if (c) c.r(null); }
       }
       clearTimeout(strazca);
-      await ch.zavri();
+      await Promise.race([ch.zavri().catch(() => {}), pauza(15000)]);
       v.s = ((Date.now() - t0) / 1000).toFixed(1);
       v.stav = v.chyby.length ? "ZLYHAL" : "OK";
       vysledky.push(v);

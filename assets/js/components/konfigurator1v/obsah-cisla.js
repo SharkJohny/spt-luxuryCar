@@ -15,6 +15,8 @@
 //   cena-od                  základná cena tohto produktu (ctx.cena().zaklad, inak cena stránky)
 //   cena-od-<typ>            typ = jedno | dvoj | classic | premium | boxy: základná cena produktu typu v tom istom vzore
 //                            (box = 616; stránka boxu bez vzoru = Diamond), ceny-ine.js (GET sesterskej stránky, 24 h cache)
+//   cena-od-<typ>-<vzor>     to isté v ZADANOM vzore (diamond | stripe | hexa), napr. Classic FAQ 11 „Diamond Line je v základnej
+//                            cene 230 €, Stripe Line stojí 240 € …“ (integrácia 14. 10. 2026; predtým obchádzka v obsah-classic.js)
 //   set-classic | set-premium   príplatok „autokoberce do kufru“ (dno / dno + boky) na jednovrstvovom produkte toho vzoru
 //   set-usetrite             na rohoži Classic/Premium: cena-od − set-classic | set-premium
 //   set-usetrite-classic | set-usetrite-premium   kdekoľvek: cena-od-classic − set-classic (resp. premium)
@@ -28,13 +30,14 @@
 import { velkost } from "../../lcdKosikDoplnok.js";
 import { cenaProduktu, cenaTypu, priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
+import { sumaText } from "./ctx.js";
 
 export const MENO = "obsah-cisla";
 
 /** Kľúč v data-p1v-odkaz / cena-od-<x> -> typ registra. */
 export const TYPY_OBSAHU = { jedno: "jedno", dvoj: "dvoj", classic: "kufor-classic", premium: "kufor-premium", boxy: "boxy" };
 /** Platné kľúče data-p1v-cislo (zhodne s ciele.json -> pravidla.obsah-1v.cisla). */
-export const RE_KLUC = /^(cena-od(-(jedno|dvoj|classic|premium|boxy))?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor)$/;
+export const RE_KLUC = /^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor)$/;
 
 const NBSP = " ";
 const pole = (x) => Array.prototype.slice.call(x || []);
@@ -45,11 +48,7 @@ const POVODNA = new WeakMap();
 export function formatCena(n, trh) {
   const x = Number(n);
   if (!isFinite(x) || x <= 0) return null;
-  const r = Math.round(x * 100) / 100;
-  const cele = Math.abs(r - Math.round(r)) < 0.005;
-  const [c, d] = (cele ? String(Math.round(r)) : r.toFixed(2)).split(".");
-  const s = c.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP) + (d ? "," + d : "");
-  return s + NBSP + (trh === "cz" ? "Kč" : "€");
+  return sumaText(x, trh); // jeden tvar pre celý nový vzhľad (ctx.formatCena = to isté)
 }
 
 /** 1 farba, 2–4 farby, 5+ farieb (0 / neplatné -> null). */
@@ -92,11 +91,14 @@ export function hodnota(kluc, ctx) {
     try { z = ctx.cena().zaklad; } catch (e) { z = null; }
     return z > 0 ? Promise.resolve(z) : cenaProduktu(location.pathname);
   };
-  const cenaOdTypu = (t) => cenaTypu(pid, TYPY_OBSAHU[t], vzor);
+  const cenaOdTypu = (t, v) => cenaTypu(pid, TYPY_OBSAHU[t], v || vzor);
   const setTypu = (druh) => priplatkyTypu(pid, "jedno", vzor).then((m) => priplatokKufra(m, druh));
   if (!RE_KLUC.test(k)) return Promise.resolve(null);
   if (k === "cena-od") return cenaOd().then(cena);
-  if (k.indexOf("cena-od-") === 0) return cenaOdTypu(k.slice(8)).then(cena);
+  if (k.indexOf("cena-od-") === 0) {
+    const [t, v] = k.slice(8).split("-"); // „classic“ | „classic-hexa“
+    return cenaOdTypu(t, v).then(cena);
+  }
   if (k === "set-classic" || k === "set-premium") return setTypu(k.slice(4)).then(cena);
   if (k === "set-usetrite") {
     const druh = typ === "kufor-classic" ? "classic" : typ === "kufor-premium" ? "premium" : null;

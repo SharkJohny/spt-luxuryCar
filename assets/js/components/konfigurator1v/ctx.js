@@ -8,7 +8,22 @@
 // livePrice, TYP z auta, validácia, odporúčaná cena). Až keď ovládač neexistuje, nastaví select rovnakou cestou
 // ($(select).val(v).trigger("change")). Žiadny vlastný POST, žiadne ceny natvrdo, žiadne ID parametrov natvrdo.
 import { lcdGetSteps, lcdStepFilled, lcdFirstUnfilled } from "../../functions/configuratorEngine.js";
-import { lcdCena } from "../../functions/livePrice.js";
+
+/** NBSP medzi číslom a menou (návrhy: „230 €“). */
+const NBSP = " ";
+
+/**
+ * Tvar ceny v NOVOM vzhľade (všetky návrhy: číslo, NBSP, mena): 230 -> „230 €“, 1234.5 -> „1 234,50 €“, záporné „−10 €“;
+ * CZ „5 664 Kč“. Shoptetové „€230“ ostáva len v jeho vlastných (nedotknutých) prvkoch. Neplatné číslo -> "".
+ */
+export function sumaText(n, trh) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return "";
+  const r = Math.round(Math.abs(x) * 100) / 100;
+  const cele = Math.abs(r - Math.round(r)) < 0.005;
+  const [c, d] = (cele ? String(Math.round(r)) : r.toFixed(2)).split(".");
+  return (x < 0 && r > 0 ? "−" : "") + c.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP) + (d ? "," + d : "") + NBSP + (trh === "cz" ? "Kč" : "€");
+}
 
 /** Parametre formulára podľa data-parameter-name (SK aj CZ; ID sa medzi obchodmi líšia — SK 78 = farba, CZ 78 = box solo). */
 export const PARAMETRE = {
@@ -328,7 +343,7 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
     hacik,
     hacikom,
     cena,
-    formatCena: lcdCena, // tvar ceny ako Shoptet (SK „€219“, CZ „5 664 Kč“)
+    formatCena: (n) => sumaText(n, jazyk === "cs" ? "cz" : "sk"), // tvar návrhov (SK „219 €“, CZ „5 664 Kč“), nie Shoptetu („€219“)
     obrazok: (meno) => OBRAZKY_1V + meno,
     obrazokVzoru,
     texty,

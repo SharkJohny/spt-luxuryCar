@@ -35,7 +35,7 @@ export function suma(n) {
   return t.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP) + NBSP + "€";
 }
 
-/** Cena pod dlaždicou vzoru: rozdiel cien (sesterská − vlastná) -> „v cene“ | „+ 10 €“ | „− 10 €“ | null (nezistené). */
+/** Cena pod dlaždicou vzoru (Premium): rozdiel cien (vzor − základný vzor) -> „v cene“ | „+ 10 €“ | „− 10 €“ | null (nezistené). */
 export function textRozdielu(rozdiel, vCene) {
   if (rozdiel == null || !Number.isFinite(rozdiel)) return null;
   const r = Math.round(rozdiel * 100) / 100;
@@ -151,14 +151,29 @@ export function init(ctx) {
   function dlazdice(own, cenyVzorov) {
     const krok = ctx.krok("vzor");
     if (!krok || !(own > 0)) return;
+    // základný vzor = najlacnejší zo zistených cien (dnes Diamond); keď sa nič nezistilo, vlastná cena
+    const zistene = VZORY.map((x) => cenyVzorov[x]).filter((c) => c > 0);
+    const zaklad = zistene.length === VZORY.length ? Math.min.apply(null, zistene) : null;
     krok.querySelectorAll(".patterns-wrap > .option-button").forEach(function (a) {
       const v = VZORY.find((x) => a.classList.contains("lcd1v-vzor-" + x)); // triedu dáva kroky.js
       const hlava = a.querySelector(".banner-header");
       if (!v || !hlava) return;
-      const t = textRozdielu(cenyVzorov[v] > 0 ? cenyVzorov[v] - own : null, T.vCene || "");
+      // Classic (návrh kufor-classic.html): plná cena vzoru „230 € / 240 € / 240 €“; Premium (kufor-premium.html): rozdiel oproti
+      // základnému (najlacnejšiemu) vzoru „v cene / + 10 € / + 10 €“ — na všetkých troch stránkach rovnako, ako podnadpis kroku
+      const t = T.dlazdica === "cena"
+        ? (cenyVzorov[v] > 0 ? suma(cenyVzorov[v]) : null)
+        : textRozdielu(cenyVzorov[v] > 0 && zaklad > 0 ? cenyVzorov[v] - zaklad : null, T.vCene || "");
       // text cez atribút + CSS ::after: textContent dlaždice ostáva „DIAMOND LINE“ (zhrnutie kroku a popis lišty ho čítajú)
       if (t) nastavAttr(hlava, "data-lcd1v-cena", t);
     });
+    // zhrnutie v hlavičke kroku 1 ako v návrhoch: Classic „Diamond Line · 230 €“, Premium „Diamond Line“ / „Stripe Line · + 10 €“
+    const vz = T.vzory && T.vzory[P.vzor];
+    if (!vz) return;
+    let z = vz;
+    if (T.dlazdica === "cena") z = vz + " · " + suma(own);
+    else if (zaklad > 0 && own - zaklad > 0) z = vz + " · +" + NBSP + suma(own - zaklad);
+    nastavAttr(krok, "data-lcd1v-vyber", z);
+    ctx.vysli("zmena", { kluc: "vzor", hodnota: P.vzor, cesta: "kufor-produkt" }); // kroky.js prepíše zhrnutie hneď
   }
 
   function podnadpis(cenyVzorov) {

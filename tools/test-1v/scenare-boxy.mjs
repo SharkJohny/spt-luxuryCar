@@ -116,7 +116,7 @@ export const SCENARE = {
       // pás setu: cena boxu S v sete zo stránky 598 (nie natvrdo) — sťahuje sa, môže prísť neskôr
       let set = st.set;
       for (let i = 0; i < 30 && !set; i++) { await j.pauza(300); set = (await ovl.boxy.stav(t)).set; }
-      j.over(set && /V sete s autokobercami už od €?\s?\d+/.test(set), "pás setu (cena boxu v sete) sa neukázal: " + set);
+      j.over(set && /V sete s autokobercami už od \d+[\s ]€/.test(set), "pás setu (cena boxu v sete, tvar „99 €“) sa neukázal: " + set);
       await j.pauza(800);
       j.over(s.posty.length === 0, "na štarte odišiel POST: " + (s.posty[0] && s.posty[0].body));
       return { info: `1 ks, krok Farba otvorený, ${st.postup}, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, pás: ${set}` };

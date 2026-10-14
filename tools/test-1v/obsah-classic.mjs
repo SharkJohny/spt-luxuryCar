@@ -470,14 +470,14 @@ export async function kontroly(t) {
       const zbal = async (i) => {
         await t.klikni(s + " .p1v-faq-q", { index: i, popis: `faq: ${i + 1}. otázka zbaliť`, pockaj: 300 });
         await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}]; return b.nextElementSibling.getBoundingClientRect().height < 2; })()`, { ms: 4000, popis: `faq: ${i + 1}. odpoveď sa zbalila` }).catch(() => null);
-        return t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}].nextElementSibling.querySelectorAll("[data-p1v-cislo]"), function (x) { return getComputedStyle(x).display; })`);
+        return t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}].nextElementSibling.querySelectorAll("[data-p1v-cislo]"), function (x) { var c = getComputedStyle(x); return c.display === "none" || c.visibility === "hidden" ? "skryte" : c.display + "/" + c.visibility; })`);
       };
       const f9 = await odpoved(8);
       ok(f9.exp === "true" && f9.stav === "ok" && f9.cisla.length === 2 && f9.cisla.every((c) => c === "ok/visible/inline") &&
         f9.txt.includes(`namiesto ${eur(oc.cena)} ju doplníte za ${eur(oc.setClassic)}.`) && !/než keď ju kúpite samostatne/.test(f9.txt),
         `faq 9: „namiesto ${eur(oc.cena)} ju doplníte za ${eur(oc.setClassic)}“, veta bez cien skrytá (${f9.cisla.join(", ")}; „${f9.txt.slice(0, 120)}…“)`);
       const skryte9 = await zbal(8);
-      ok(skryte9.length === 2 && skryte9.every((d) => d === "none"), `faq 9: v zbalenej odpovedi je číslo display:none (${skryte9.join(", ")})`);
+      ok(skryte9.length === 2 && skryte9.every((d) => d === "skryte"), `faq 9: v zbalenej odpovedi číslo nevidno ani pre čítačky (zdedené visibility:hidden, ${skryte9.join(", ")})`);
       const f10 = await odpoved(9);
       ok(f10.exp === "true" && f10.stav === "ok" && f10.cisla.length === 2 && f10.cisla.every((c) => c === "ok/visible/inline") &&
         f10.txt.includes(`Samostatne stojí od ${eur(oc.boxCena)}, v sete s autokobercami od ${eur(oc.boxSetS)}.`) && !/v sete vychádza lacnejšie/.test(f10.txt),

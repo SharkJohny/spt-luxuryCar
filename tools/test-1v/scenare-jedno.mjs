@@ -282,7 +282,8 @@ const SCENARE = {
         j.over(odp.zlava === Math.round(((ocak - spolu) / ocak) * 100), `${kedy}: zľava ${odp.zlava} %`);
         j.over(/^Odporúčaná cena$/.test(odp.stitok), `${kedy}: štítok „${odp.stitok}“ ≠ „Odporúčaná cena“`);
         j.over(!/v[ýy]robc|doporu[čc]en|zákon|pr[áa]vn/i.test(text), `${kedy}: v karte je vysvetlenie / „výrobcu“ / „Doporučená“: ${text.slice(0, 200)}`);
-        j.over(new RegExp("U[šs]etr[ií]te\\s*€\\s*" + (ocak - spolu) + "\\b", "i").test(text), `${kedy}: „Ušetríte €${ocak - spolu}“ v karte nie je: ${text.slice(0, 200)}`);
+        // tvar návrhov „Ušetríte 171 €“ (číslo, NBSP, €), nie Shoptetu „€171“ (integrácia 14. 10. 2026)
+        j.over(new RegExp("U[šs]etr[ií]te\\s+" + (ocak - spolu) + "[\\s\\u00a0]€", "i").test(text), `${kedy}: „Ušetríte ${ocak - spolu} €“ v karte nie je: ${text.slice(0, 200)}`);
         return odp.cena + " € −" + odp.zlava + " %";
       };
       const pred = await kontrola("pred výberom", zaklad);

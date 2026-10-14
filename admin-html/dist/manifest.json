@@ -451,55 +451,55 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 153,
-      "bajty": 153,
-      "hash": "6424c36cb3",
-      "obrazky": 0,
+      "znaky": 36363,
+      "bajty": 37174,
+      "hash": "80dab31901",
+      "obrazky": 37,
       "sekcie": [
         {
           "subor": "10-a-ponuka.sk.html",
           "sekcia": "a-ponuka",
-          "znaky": 0
+          "znaky": 1274
         },
         {
           "subor": "11-a-referencie.sk.html",
           "sekcia": "a-referencie",
-          "znaky": 0
+          "znaky": 5476
         },
         {
           "subor": "12-a-galeria.sk.html",
           "sekcia": "a-galeria",
-          "znaky": 0
+          "znaky": 7646
         },
         {
           "subor": "13-a-recenzie.sk.html",
           "sekcia": "a-recenzie",
-          "znaky": 0
+          "znaky": 2143
         },
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 0
+          "znaky": 6114
         },
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 0
+          "znaky": 5689
         },
         {
           "subor": "22-b-porovnanie.sk.html",
           "sekcia": "b-porovnanie",
-          "znaky": 0
+          "znaky": 2337
         },
         {
           "subor": "23-classic-premium.sk.html",
           "sekcia": "classic-premium",
-          "znaky": 0
+          "znaky": 2649
         },
         {
           "subor": "24-b-predapo.sk.html",
           "sekcia": "b-predapo",
-          "znaky": 0
+          "znaky": 2882
         }
       ]
     },
@@ -516,60 +516,60 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 153,
-      "bajty": 153,
-      "hash": "59eb626040",
-      "obrazky": 0,
+      "znaky": 25925,
+      "bajty": 26489,
+      "hash": "87e03af141",
+      "obrazky": 35,
       "sekcie": [
         {
           "subor": "30-c-kam.sk.html",
           "sekcia": "c-kam",
-          "znaky": 0
+          "znaky": 784
         },
         {
           "subor": "31-classic-box.sk.html",
           "sekcia": "classic-box",
-          "znaky": 0
+          "znaky": 1148
         },
         {
           "subor": "32-c-domov.sk.html",
           "sekcia": "c-domov",
-          "znaky": 0
+          "znaky": 1932
         },
         {
           "subor": "33-c-casova-os.sk.html",
           "sekcia": "c-casova-os",
-          "znaky": 0
+          "znaky": 1285
         },
         {
           "subor": "34-c-farby.sk.html",
           "sekcia": "c-farby",
-          "znaky": 0
+          "znaky": 7278
         },
         {
           "subor": "35-c-vzorky.sk.html",
           "sekcia": "c-vzorky",
-          "znaky": 0
+          "znaky": 1498
         },
         {
           "subor": "40-d-realita.sk.html",
           "sekcia": "d-realita",
-          "znaky": 0
+          "znaky": 2857
         },
         {
           "subor": "41-d-faq.sk.html",
           "sekcia": "d-faq",
-          "znaky": 0
+          "znaky": 7809
         },
         {
           "subor": "42-d-koniec.sk.html",
           "sekcia": "d-koniec",
-          "znaky": 0
+          "znaky": 545
         },
         {
           "subor": "43-d-pomocne.sk.html",
           "sekcia": "d-pomocne",
-          "znaky": 0
+          "znaky": 635
         }
       ]
     },

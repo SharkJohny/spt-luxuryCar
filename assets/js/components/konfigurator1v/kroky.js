@@ -197,6 +197,35 @@ export function init(ctx) {
     });
   }
 
+  // krok 1: hlavička / „Zmeniť“ otvorí výber vzoru aj bez auta (návrhy). Živý validation.js má na .content-wrap klik,
+  // ktorý bez vybraného auta ukáže okno „Prosím, najskôr vyberte model vášho vozidla“ — pri vzore (krok pred autom)
+  // nemá zmysel. Klik na hlavičku kroku vzor preto neprejde k .content-wrap ani k document; akordeón (productPage.js:
+  // ostatné kroky zavrieť, tento prepnúť cez __lcdSetStepOpen) a SELF-HEAL max-height (configuratorEngine.js) urobí tu
+  // rovnako. Dlaždice vzorov (odkazy na sesterské produkty) ostávajú bez zmeny — majú vlastné delegované handlery.
+  if (vzor) {
+    vzor.el.addEventListener("click", function (e) {
+      if (!document.body.classList.contains("lcd-1v")) return;
+      const t = e.target && e.target.closest ? e.target.closest(".order, .lcd1v-hd, h5.variant.name") : null;
+      if (!t || t.parentNode !== vzor.el) return;
+      e.stopPropagation();
+      if (t.classList.contains("lcd1v-hd")) return; // klávesnica: handler hlavičky už klikol na .order (spracované nižšie)
+      e.preventDefault();
+      const nastavOtvoreny = (el, on) => {
+        if (typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(el, on);
+        else el.classList.toggle("active", on);
+      };
+      const otvor = !vzor.el.classList.contains("active");
+      if (otvor) {
+        form.querySelectorAll(".content-wrap > .position-wrap, .content-wrap > .parameter-wrap, .upsale-buttons.trunk, .upsale-buttons.boxs").forEach(function (w) {
+          if (w !== vzor.el && w.classList.contains("active")) nastavOtvoreny(w, false);
+        });
+      }
+      vzor.el.style.removeProperty("max-height");
+      nastavOtvoreny(vzor.el, otvor);
+      naplanuj();
+    });
+  }
+
   // krok 1: dlaždice vzorov (živé odkazy na sesterské produkty — navigácia ostáva)
   if (vzor) {
     vzor.el.querySelectorAll(".patterns-wrap > .option-button").forEach(function (a) {

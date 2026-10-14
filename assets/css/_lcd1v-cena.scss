@@ -70,11 +70,9 @@ body.lcd-1v #product-detail-form a.lcd1v-hodn i {
 body.lcd-1v #product-detail-form a.lcd1v-hodn:hover i,
 body.lcd-1v #product-detail-form a.lcd1v-hodn:focus-visible i { color: var(--c1v-ink); text-decoration-color: var(--c1v-gold); }
 body.lcd-1v #product-detail-form a.lcd1v-hodn:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 2px; }
-/* krátky popis z adminu ostáva (nič sa neskrýva), len v jazyku hlavičky: text 15 px, tlmený */
-body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description {
-  margin: 14px 0 0; font: 400 15px/22px var(--c1v-body); color: var(--c1v-lb);
-}
-body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description p { margin: 0; font: inherit; color: inherit; }
+/* krátky popis z adminu pod hodnotením: žiadny schválený návrh ho nemá a na telefóne (390 px) ho prekrýva bublina Luxie ->
+   pod 1V skrytý (integrácia 14. 10. 2026). Ostáva v DOM (SEO, živý kód), len display:none; bez flagu sa nemení nič. */
+body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description { display: none !important; }
 
 /* ---------- cena nad krokmi (bez poľa) ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .lcd1v-cena {
