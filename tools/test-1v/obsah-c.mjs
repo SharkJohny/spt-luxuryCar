@@ -122,7 +122,9 @@ export async function kontroly(t) {
         diamond: /Diamond/.test(e.textContent + [].map.call(e.querySelectorAll("[aria-label],img[alt]"),function(x){return (x.getAttribute("aria-label")||"")+" "+(x.getAttribute("alt")||"")}).join(" ")),
         fotkyDiamond: [].filter.call(e.querySelectorAll("img"),function(i){return /\\/img\\/farby\\/(?!sw-x-)/.test(i.getAttribute("src")||i.getAttribute("data-src")||"")}).length,
         pocet: e.querySelectorAll(".lx-farby-vzorka").length, farbyKroku: k.length, stitok: (e.querySelector(".lx-farby-stitok")||{}).textContent }; })()`);
-    if (vzor === "diamond") ok(f.n === "Vzorka · Diamond Line", "farby 598: „" + f.n + "“");
+    // dvojvrstvové (plugin dvoj používa aj skupinu C): sekcia má skutočné fotky RÔZNYCH vzorov s pravdivým popisom — nemení sa
+    if (new Set(f.vzorky).size > 1) ok(true, `farby ${t.produkt ? t.produkt.id : ""}: zmiešané fotky vzorov (${[...new Set(f.vzorky)].join(", ")}) — ostávajú`);
+    else if (vzor === "diamond") ok(f.vzorky.every((x) => x === "Diamond Line"), "farby " + (t.produkt ? t.produkt.id : "598") + ": vzorky Diamond Line");
     else ok(f.n === "Vzorka · " + meno && f.vzorky.every((x) => x === meno) && !f.diamond && !f.fotkyDiamond && f.pocet === f.farbyKroku && f.pocet > 0,
       `farby ${t.produkt.id}: vlastný vzor „${f.n}“, ${f.pocet} vzoriek = ${f.farbyKroku} farieb produktu, bez Diamond (text ${f.diamond}, fotky ${f.fotkyDiamond}), štítok „${(f.stitok || "").replace(/\s+/g, " ").trim()}“`);
   }

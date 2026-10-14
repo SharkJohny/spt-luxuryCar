@@ -118,7 +118,7 @@ async function ocakavane(p) {
   return {
     cenyVzorov,
     cena: ja.cena, premiumCena: prem.cena, setClassic: classic, setPremium: premium, uspora: ja.cena - classic, boxCena: box.cena, boxSetS: boxSoloS,
-    pocetFarieb: farby.length, viditelne, cestaPremium: (sestra(reg, "kufor-premium", p.vzor) || {}).cesta, cestaJedno: (sestra(reg, "jedno", p.vzor) || {}).cesta,
+    pocetFarieb: farby.length, farbyTexty: farby.map((o) => o.text), viditelne, cestaPremium: (sestra(reg, "kufor-premium", p.vzor) || {}).cesta, cestaJedno: (sestra(reg, "jedno", p.vzor) || {}).cesta,
     cestaBoxy: (sestra(reg, "boxy", p.vzor) || {}).cesta,
   };
 }
@@ -402,18 +402,35 @@ export async function kontroly(t) {
       var viac = s.querySelector(".lx-farby-viac");
       return { vsetky: v.length, vis: vis.map(function (x) { return (x.getAttribute("aria-label") || "").split(", ")[0]; }), prva: vis[0] ? vis[0].getAttribute("aria-pressed") : null,
         stitok: s.querySelector(".lx-farby-stitok").textContent.replace(/\\s+/g, " ").trim(), viac: viac ? getComputedStyle(viac).display !== "none" : null,
-        meno: s.querySelector(".lx-farby-meno").textContent.trim(), velkych: s.querySelectorAll(".lx-farby-velka img").length }; })()`);
-    ok(f.vsetky === 9 && f.velkych === 9, `farby: v HTML 9 vzoriek a 9 veľkých fotiek (${f.vsetky}/${f.velkych})`);
-    ok(JSON.stringify(f.vis) === JSON.stringify(oc.viditelne), `farby: viditeľné len vzorky, ktoré produkt ${p.id} má (${f.vis.length}): ${f.vis.join(", ")} — čakám ${oc.viditelne.length}: ${oc.viditelne.join(", ")}`);
+        meno: s.querySelector(".lx-farby-meno").textContent.trim(), velkych: s.querySelectorAll(".lx-farby-velka img").length,
+        n: (s.querySelector(".lx-farby-vzor-n") || {}).textContent, diamond: v.some(function (x) { return x.getAttribute("data-vzor") === "Diamond Line"; }) }; })()`);
+    // Diamond (619): 9 statických vzoriek Diamond Line, viditeľné len tie, ktoré produkt má. Hexa/Stripe (622/625, integrácia
+    // 14. 10. 2026): obsah-c.js sekciu prestaví na VŠETKY farby produktu vo vlastnom vzore (žiadna vzorka Diamond Line) —
+    // očakávania z GET živej stránky (počet a poradie volieb farby 1. vrstvy), nie z kódu webu.
+    const bezDia = (x) => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const zhoda = (meno, text) => { const [koza, sitie] = bezDia(meno).split(" · "); const t2 = bezDia(text);
+      return t2.includes("koze") && t2.split("koze")[1].includes(koza) && (!sitie || (t2.split("sitia")[1] || "").includes(sitie.slice(0, 4))); };
+    const viditelne = p.vzor === "diamond" ? oc.viditelne : f.vis;
+    if (p.vzor === "diamond") {
+      ok(f.vsetky === 9 && f.velkych === 9, `farby: v HTML 9 vzoriek a 9 veľkých fotiek (${f.vsetky}/${f.velkych})`);
+      ok(JSON.stringify(f.vis) === JSON.stringify(oc.viditelne), `farby: viditeľné len vzorky, ktoré produkt ${p.id} má (${f.vis.length}): ${f.vis.join(", ")} — čakám ${oc.viditelne.length}: ${oc.viditelne.join(", ")}`);
+      ok(f.viac === (oc.pocetFarieb - oc.viditelne.length >= 3), `farby: „Mnoho ďalších farieb“ ${f.viac ? "je" : "nie je"} (produkt má ${oc.pocetFarieb} farieb, vzoriek ${oc.viditelne.length})`);
+    } else {
+      ok(f.vsetky === oc.pocetFarieb && f.velkych === oc.pocetFarieb && f.vis.length === oc.pocetFarieb,
+        `farby ${p.id}: vzorky vlastného vzoru = všetky farby produktu (${f.vsetky} vzoriek / ${f.velkych} fotiek / ${f.vis.length} viditeľných, živá stránka ${oc.pocetFarieb})`);
+      const zle = f.vis.filter((n, i) => !zhoda(n, oc.farbyTexty[i]));
+      ok(!zle.length, `farby ${p.id}: názvy vzoriek v poradí volieb živej stránky (${f.vis.join(", ")})` + (zle.length ? " — nesedí: " + zle.join(", ") : ""));
+      ok(f.n === "Vzorka · " + { stripe: "Stripe Line", hexa: "Hexa Line" }[p.vzor] && !f.diamond, `farby ${p.id}: „${f.n}“, žiadna vzorka Diamond Line (${f.diamond})`);
+      ok(f.viac === false, `farby ${p.id}: „Mnoho ďalších farieb“ na vlastný konfigurátor skryté (všetky farby sú vo vzorkách)`);
+    }
     ok(f.prva === "true" && f.meno === "Čierna · červené šitie", `farby: predvolená je „${f.meno}“ (prvá vzorka vybraná ${f.prva})`);
-    ok(f.stitok.endsWith("/ " + dve(oc.viditelne.length)), `farby: počítadlo „${f.stitok}“ = / ${dve(oc.viditelne.length)}`);
-    ok(f.viac === (oc.pocetFarieb - oc.viditelne.length >= 3), `farby: „Mnoho ďalších farieb“ ${f.viac ? "je" : "nie je"} (produkt má ${oc.pocetFarieb} farieb, vzoriek ${oc.viditelne.length})`);
-    if (oc.viditelne.length > 1) {
+    ok(f.stitok.endsWith("/ " + dve(viditelne.length)), `farby: počítadlo „${f.stitok}“ = / ${dve(viditelne.length)}`);
+    if (viditelne.length > 1) {
       try {
         await t.klikni(F + " .lx-farby-vzorka", { index: 1, popis: "2. viditeľná vzorka farby", pockaj: 400 });
         await t.cakaj(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return s.querySelector(".lx-farby-meno").textContent.trim() !== "Čierna · červené šitie"; })()`, { ms: 4000, popis: "názov farby sa zmenil" });
         const po = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return { meno: s.querySelector(".lx-farby-meno").textContent.trim(), cislo: s.querySelector(".lx-farby-cislo").textContent, on: [].filter.call(s.querySelectorAll(".lx-farby-velka img"), function (i) { return i.classList.contains("on"); }).length }; })()`);
-        ok(po.meno === oc.viditelne[1] && po.cislo === "02" && po.on === 1, `farby: klik na 2. vzorku prepne názov „${po.meno}“, číslo „${po.cislo}“ (poradie medzi viditeľnými) a jednu veľkú fotku`);
+        ok(po.meno === viditelne[1] && po.cislo === "02" && po.on === 1, `farby: klik na 2. vzorku prepne názov „${po.meno}“, číslo „${po.cislo}“ (poradie medzi viditeľnými) a jednu veľkú fotku`);
       } catch (e) { ok(false, "farby: " + e.message); }
     }
   }
@@ -469,7 +486,9 @@ export async function kontroly(t) {
       };
       const zbal = async (i) => {
         await t.klikni(s + " .p1v-faq-q", { index: i, popis: `faq: ${i + 1}. otázka zbaliť`, pockaj: 300 });
-        await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}]; return b.nextElementSibling.getBoundingClientRect().height < 2; })()`, { ms: 4000, popis: `faq: ${i + 1}. odpoveď sa zbalila` }).catch(() => null);
+        await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}]; return b.nextElementSibling.getBoundingClientRect().height < 2; })()`, { ms: 4000, popis: `faq: ${i + 1}. odpoveď sa zbalila` })
+          // visibility:hidden príde až po prechode výšky (CSS skupiny D: „visibility 0s linear .3s“) — počkať naň, nie čítať hneď
+          .then(() => t.cakaj(`getComputedStyle(document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}].nextElementSibling).visibility === "hidden"`, { ms: 3000, popis: `faq: ${i + 1}. odpoveď skrytá` })).catch(() => null);
         return t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}].nextElementSibling.querySelectorAll("[data-p1v-cislo]"), function (x) { var c = getComputedStyle(x); return c.display === "none" || c.visibility === "hidden" ? "skryte" : c.display + "/" + c.visibility; })`);
       };
       const f9 = await odpoved(8);
