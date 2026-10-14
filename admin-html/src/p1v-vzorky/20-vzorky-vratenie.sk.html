@@ -1,0 +1,33 @@
+<!-- 20-vzorky-vratenie — vzorkovník 637: „Ako dostanete zálohu späť“ + výzva „Pokračujte vo výbere“ (návrh vzorkovnik.html #vratenie + .spat).
+     Meno končí na „vratenie“: konfigurátor (vzorky-produkt.js, odkaz „Ako na to“ pri vratnej záloha) sem posúva cez
+     [data-lcd-sekcia$="vratenie"]. Vlastná sekcia typu (nie je v 598), vzhľad _lcd1v-obsah-vzorky.scss. Bez JS modulu.
+     Dva bloky .kry-b na PC vedľa seba (biele karty), na telefóne pod sebou. „5 € za každú vrátenú vzorku.“ = doslovná záloha
+     (nie cena produktu). Odkaz „Formulár nájdete tu“ vedie na /moja-objednavka/ ako v návrhu. Výzva vedie na konfigurátor
+     (href="#product-detail-form"): posun na prvý nevyplnený krok robí obsah-d.js pre celý obsah. id p1v-vratenie = kotva. -->
+<div data-lcd-sekcia="vzorky-vratenie">
+<section class="chapter" id="p1v-vratenie"><div class="wrap">
+  <h2 class="rv">Ako dostanete zálohu späť</h2>
+  <div class="kry rv">
+    <div class="kry-b">
+      <h3 class="zoz-h">Vrátenie vzoriek</h3>
+      <ul class="zoz jedno">
+        <li>Vyplníte formulár na odstúpenie od zmluvy</li>
+        <li>Vzorky nám pošlete späť</li>
+      </ul>
+      <a class="btn ghost vz-form" href="/moja-objednavka/">Formulár nájdete tu</a>
+    </div>
+    <div class="kry-b">
+      <h3 class="zoz-h">Vrátenie zálohy</h3>
+      <p class="kry-note">5 € za každú vrátenú vzorku.</p>
+      <ul class="zoz jedno">
+        <li>Na Váš účet<i>po obdržaní vzoriek</i></li>
+        <li>Alebo jej hodnotu odpočítame<i>z objednávky</i></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+<div class="spat rv">
+  <p>Vyberte si vzorky a pozrite si farby naživo.</p>
+  <a class="btn spat-btn" href="#product-detail-form">Pokračujte vo výbere</a>
+</div>
+</div>

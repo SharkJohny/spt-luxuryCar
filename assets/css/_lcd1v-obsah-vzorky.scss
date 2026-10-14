@@ -1,0 +1,69 @@
+/* LCD-1V-OBSAH-VZORKY — obsah pod konfigurátorom vzorkovníka 637 (návrh vzorkovnik.html, T5.1b 14. 10. 2026).
+   Vlastník: T5.1b (+ admin-html/src/p1v-vzorky/, tools/test-1v/obsah-vzorky.mjs, assets/img/1v/obsah/vzorky-*). Pravidlá: docs/1v-obsah.md.
+   Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte; blok pridá integrátor).
+   KAŽDÝ selektor začína body.lcd-1v (flag vypnutý = nulová zmena). Korene: #p1v-vzorky-1, #p1v-vzorky-2 (po spustení v Popise
+   ostáva #p1v-vzorky-1). Základ titulky (blok LCD-HOME: --ink, --gold, --ground, .chapter, .wrap, h2, .lede, .btn, .rv) platí na
+   koreňoch obsahu cez alias; zlaté nadpisy, .lede 46ch a reveal .rv dáva základ LCD-1V-OBSAH bod 6.
+
+   Sekcie vzorkovníka (admin-html/src/p1v-vzorky/):
+     c-casova-os      „Ako k Vám vzorky prídu“  — meno zo skupiny C: oživí ju obsah-c.js, vzhľad .tml dáva _lcd1v-obsah-c.scss
+     vzorky-vratenie  „Ako dostanete zálohu späť“ + výzva — vlastná sekcia typu: vzhľad je TU (.kry/.zoz/.spat/.vz-form)
+     a-ponuka         tmavá karta „Zostavte si autokoberce na mieru“ — vzhľad .ups dáva _lcd1v-obsah-a.scss, TU len .vz-ups-cta
+     d-faq            FAQ — oživí ho obsah-d.js, vzhľad .p1v-faq-* dáva _lcd1v-obsah-d.scss
+   Pozor (pre integrátora): _lcd1v-obsah-a|c|d.scss cielia :is(#p1v-598-1,#p1v-598-2); pre vzorky musia mať v zozname aj .p1v-obsah
+   (oprava z T0.3 poznámky v docs/1v-obsah.md §2; pri integrácii T1.x už je). Tento súbor od nich nezávisí, okrem troch zdieľaných
+   sekcií vyššie.
+
+   Podklad: sekcie nemajú data-lcd-kap, takže ostáva podklad koreňa (--ground #eceae5 ako v návrhu, kap 2/4 by dali svetlejší --sand).
+   Odsadenie kapitol ako návrh: clamp(46px,6vw,86px) (LCD-HOME ARMOR dáva .chapter padding s !important, preto !important aj tu). */
+
+/* rytmus kapitol (návrh: .chapter{padding-block:clamp(46px,6vw,86px)}) */
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) section.chapter{
+  padding-top:clamp(46px,6vw,86px) !important;padding-bottom:clamp(46px,6vw,86px) !important}
+/* vlasová linka pred „Ako dostanete zálohu späť“ a pred FAQ (návrh .chapter + .chapter) */
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] > section.chapter,
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) section.chapter[data-lcd-sekcia="d-faq"]{border-top:1px solid rgba(155,122,36,.16)}
+
+/* ---------- vzorky-vratenie: dve témy (vrátenie vzoriek / vrátenie zálohy), na PC biele karty vedľa seba ---------- */
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .kry{display:grid;gap:clamp(20px,2.4vw,30px);margin-top:clamp(16px,2vw,26px)}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .zoz-h{margin:0 0 12px;font-family:var(--disp);font-weight:800;font-size:11px;
+  line-height:1.14;letter-spacing:.12em;text-transform:uppercase;color:#7c5f16}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .kry-note{margin:8px 0 0;color:var(--mute);font-size:14px;line-height:1.5}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .zoz{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;
+  gap:0 clamp(24px,3.4vw,56px)}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .zoz li{position:relative;margin:0;padding:11px 0 11px 28px;
+  font-size:14.5px;line-height:1.45;color:#3f3a2c;border-top:1px solid rgba(155,122,36,.22);list-style:none;background:none}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .zoz li:first-child{border-top:0}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .zoz li:before{content:"";position:absolute;left:2px;top:16px;width:13px;height:13px;
+  margin:0;border-radius:50%;background:linear-gradient(150deg,var(--gold-hi),var(--gold-lo));box-shadow:inset 0 0 0 3px var(--ground)}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .zoz li i{font-style:normal;margin-left:9px;padding:3px 8px;font-family:var(--disp);
+  font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7c5f16;border:1px solid rgba(155,122,36,.45);
+  border-radius:999px;white-space:nowrap;vertical-align:2px}
+@media(min-width:901px){
+  body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .kry{grid-template-columns:1fr 1fr;gap:clamp(26px,3vw,44px);align-items:start}
+  body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .kry-b{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    padding:clamp(18px,2vw,26px) clamp(20px,2.2vw,28px) clamp(18px,2vw,26px)}
+}
+/* tlačidlo „Formulár nájdete tu“ (návrh .kry-b .vz-form: biele, rám zo .btn.ghost) */
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .vz-form{margin-top:16px;background:#fff}
+
+/* výzva .spat (návrh: riadok vety a zlatého tlačidla; rám z šablóny Shoptetu (.btn border 1px) má len ghost) */
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .btn:not(.ghost){border:0}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .spat{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:clamp(12px,2vw,22px);max-width:1240px;margin:0 auto;box-sizing:border-box;
+  padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
+  font-size:clamp(15px,1.6vw,19px);line-height:1.3;color:var(--ink)}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
+  font-size:12px;letter-spacing:.1em}
+@media(max-width:640px){
+  body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
+  body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .spat > p{max-width:none}
+  body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="vzorky-vratenie"] .btn.spat-btn{width:100%;justify-content:center}
+}
+
+/* ---------- a-ponuka: dve tlačidlá vedľa seba (Jednovrstvové zlaté, Dvojvrstvové s rámom; .ups z _lcd1v-obsah-a.scss) ---------- */
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-ups-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:7px}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-ups-cta .btn{margin-top:0}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-ups-cta .btn.ghost{border:1px solid rgba(230,200,119,.45);color:#fff;background:none}
+body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-ups-cta .btn.ghost:hover{border-color:var(--gold-hi)}
