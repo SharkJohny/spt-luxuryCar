@@ -386,9 +386,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 21576,
-      "bajty": 22088,
-      "hash": "e5ffc41806",
+      "znaky": 21495,
+      "bajty": 22004,
+      "hash": "e43821b2c9",
       "obrazky": 25,
       "sekcie": [
         {
@@ -424,7 +424,7 @@
         {
           "subor": "41-d-faq.sk.html",
           "sekcia": "d-faq",
-          "znaky": 6593
+          "znaky": 6512
         },
         {
           "subor": "42-d-koniec.sk.html",

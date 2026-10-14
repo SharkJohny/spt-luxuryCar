@@ -268,11 +268,18 @@ export async function kontroly(t) {
       var a = o[2] && o[2].querySelector("a[data-p1v-odkaz]");
       return { n: b.length, typ: b.every(function (x) { return x.type === "button" && !x.closest("form") && x.getAttribute("aria-expanded") === "false" && document.getElementById(x.getAttribute("aria-controls")) === x.nextElementSibling; }),
         otazky: b.map(function (x) { return x.querySelector(".t").textContent; }), ids: new Set(b.map(function (x) { return x.getAttribute("aria-controls"); })).size,
-        href: a && a.getAttribute("href"), cisla: s.querySelectorAll("[data-p1v-cislo]").length, zakazane: s.querySelectorAll(".faq, .accordion, details").length }; })()`);
+        href: a && a.getAttribute("href"), cisla: s.querySelectorAll("[data-p1v-cislo]").length, zakazane: s.querySelectorAll(".faq, .accordion, details").length,
+        o10: o[9] ? { text: o[9].textContent, cisla: [].map.call(o[9].querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-cislo"); }) } : null }; })()`);
     ok(r.n === 13 && r.typ && r.ids === 13, `faq: 13 otázok = button type=button mimo formulára, unikátne aria-controls (${r.n}, ${r.ids})`);
     ok(r.zakazane === 0, "faq: bez .faq/.accordion/<details>");
     ok(r.otazky[2] === "Aký je rozdiel medzi jednovrstvovými a dvojvrstvovými?" && r.otazky[3] === "Z čoho je druhá vrstva?" && r.otazky[9] === "Aké farby a prešívania sú na výber?",
       "faq: nové otázky 3, 4, 10 (jedno vs dvoj, z čoho je druhá vrstva, farby a prešívania)");
+    // odpoveď 10 menuje všetky tri vzory → počet farieb tam byť nesmie (pocet-farieb = paleta len TOHTO vzoru: 604 „3 farby“, 607 „8 farieb“ by tvrdilo,
+    // že celá ponuka má 3 / 8 farieb; návrh má „18 farieb“, čo platí len pre Diamond → D3 vynechané). Doslovné znenie, nie len „číslo dosadené“.
+    const o10 = norm(r.o10 && r.o10.text);
+    ok(o10 === "Prvá vrstva má tri vzory prešívania — Diamond Line, Stripe Line a Hexa Line — a farby materiálu a nite. K nej si vyberiete jednu zo 16 farieb druhej vrstvy (Lux Color 01 – 16). Všetko zvolíte v konfigurátore."
+      && r.o10 && !r.o10.cisla.length && !/\d/.test(o10.split("K nej")[0]),
+      `faq: odpoveď 10 (tri vzory) bez počtu farieb jedného vzoru („${o10.slice(0, 110)}…“, čísla: ${(r.o10 && r.o10.cisla.join(", ")) || "žiadne"})`);
     ok(String(r.href || "").split("#")[0] === t.sestra("jedno"), `faq: odpoveď 3 vedie na jednovrstvové toho istého vzoru (${r.href}, čakám ${t.sestra("jedno")})`);
     await t.klikni(S("d-faq") + " .p1v-faq-q", { index: 2, popis: "faq: otázka 3", pockaj: 300 });
     await t.cakaj(`document.querySelectorAll(${J(S("d-faq") + " .p1v-faq-a")})[2].getBoundingClientRect().height > 40`, { ms: 6000, popis: "faq: odpoveď 3 rozbalená" }).catch(() => false);

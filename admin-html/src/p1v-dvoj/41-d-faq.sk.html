@@ -1,8 +1,10 @@
 <!-- 41-d-faq — skupina D: FAQ „Na čo sa nás pýtate najčastejšie“ (návrh dvojvrstvove.html, r. 4747–4777, navrh-dvojvrstvove.md §5.15), kapitola 4. 13 otázok.
      Ako 598 (otázka = <button type="button" aria-expanded aria-controls>, odpoveď = .p1v-faq-a s id; bez <details>, .faq, .accordion — obsah-d.js).
      Nové otázky 3 (jedno vs dvoj), 4 (z čoho je druhá vrstva), 5 (čistenie), 6 (zima), 10 (farby a prešívania). Odkaz na jednovrstvové toho istého vzoru len cez data-p1v-odkaz.
-     Čísla vo FAQ 3 (od … € jednovrstvových) a 10 (počet farieb) ako v návrhu cez data-p1v-cislo — vrátené v integrácii WB 14. 10. 2026 po oprave testu
+     Číslo vo FAQ 3 (od … € jednovrstvových toho istého vzoru) ako v návrhu cez data-p1v-cislo — vrátené v integrácii WB 14. 10. 2026 po oprave testu
      (test-1v-obsah.mjs berie vlastnú viditeľnosť čísla, nie zdedenú zo zbalenej odpovede).
+     FAQ 10 BEZ počtu farieb: veta menuje všetky tri vzory, počet farieb (pocet-farieb) patrí len k vzoru tohto produktu (604 = 3, 607 = 8) —
+     „tri vzory … a 3 farby“ by bolo nepravdivé (Diamond má 18). Návrh má „18 farieb“ (platí len pre Diamond) → podľa D3 vynechané. Stráži plugin dvoj (faq: odpoveď 10).
      Pravidlo textov: otázka 7 bez „a uchytení“ (ako 598). Záruka (13) ostáva ako vecná odpoveď — rozhodne Michal. -->
 <section class="chapter" id="p1v-faq" data-lcd-sekcia="d-faq" data-lcd-kap="4"><div class="wrap">
   <h2 class="rv">Na čo sa nás pýtate najčastejšie</h2>
@@ -26,7 +28,7 @@
     <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-9"><span class="i">09</span><span class="t">Ako sa koberce uchytávajú?</span><span class="p" aria-hidden="true">+</span></button>
       <div class="p1v-faq-a" id="p1v-faq-9"><div class="a">Na spodnej strane prešívaného koberca sú našité suché zipsy. V balení nájdete obojstrannú lepiacu pásku so suchým zipsom a klipy na uchytenie pod plastové časti.</div></div></div>
     <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-10"><span class="i">10</span><span class="t">Aké farby a prešívania sú na výber?</span><span class="p" aria-hidden="true">+</span></button>
-      <div class="p1v-faq-a" id="p1v-faq-10"><div class="a">Prvá vrstva má tri vzory prešívania — Diamond Line, Stripe Line a Hexa Line — a <span data-p1v-cislo="pocet-farieb" data-p1v-bez="široký výber farieb"><!-- --></span> materiálu a nite. K nej si vyberiete jednu zo 16 farieb druhej vrstvy (Lux Color 01 – 16). Všetko zvolíte v konfigurátore.</div></div></div>
+      <div class="p1v-faq-a" id="p1v-faq-10"><div class="a">Prvá vrstva má tri vzory prešívania — Diamond Line, Stripe Line a Hexa Line — a farby materiálu a nite. K nej si vyberiete jednu zo 16 farieb druhej vrstvy (Lux Color 01 – 16). Všetko zvolíte v konfigurátore.</div></div></div>
     <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-11"><span class="i">11</span><span class="t">Koľko stojí poštovné?</span><span class="p" aria-hidden="true">+</span></button>
       <div class="p1v-faq-a" id="p1v-faq-11"><div class="a">Poštovné a podmienky dopravy nájdete v košíku pri dokončení objednávky.</div></div></div>
     <div class="p1v-faq-o"><button type="button" class="p1v-faq-q" aria-expanded="false" aria-controls="p1v-faq-12"><span class="i">12</span><span class="t">Čo robiť, ak koberce nesedia alebo ak je balík poškodený?</span><span class="p" aria-hidden="true">+</span></button>

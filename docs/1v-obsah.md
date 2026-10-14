@@ -177,7 +177,7 @@ Dôsledky:
 | `box2-sam-S…XL` | 616: príplatok 2. boxu | stránka 616 |
 | `box-set-S…XL` | jednovrstvové vzoru (stránka boxu = 598): príplatok „Box solo“ | |
 | `box-set2-S…XL` | jednovrstvové vzoru: príplatok 1. boxu (dva boxy v sete) | |
-| `pocet-farieb`, `pocet-farieb-2` | počet farieb 1. / 2. vrstvy tohto produktu | `ctx.moznosti("farba" / "farba2")` |
+| `pocet-farieb`, `pocet-farieb-2` | počet farieb 1. / 2. vrstvy tohto produktu — **len vo vete o vzore tohto produktu**, nikdy vo vete, ktorá menuje všetky tri vzory (604 „3 farby“ by tvrdilo, že celá ponuka má 3 farby) | `ctx.moznosti("farba" / "farba2")` |
 | `vzor` | „Diamond Line“ / „Stripe Line“ / „Hexa Line“ (box: nič) | register `ctx.produkt.vzor` |
 
 Odkazy `data-p1v-odkaz="jedno|dvoj|classic|premium|boxy"` → `href` = adresa z registra (`produkty.js` `najdiProdukt`) v tom istom vzore, fragment `#…` ostane. S `?novy=1` netreba (flag je v karte). Zoznam kľúčov je v `obsah-cisla.js` (`RE_KLUC`) aj v `ciele.json` (`pravidla.obsah-1v.cisla`) — meniť oba naraz.
@@ -450,11 +450,12 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 
 **Opravy jadra:**
 - CSS: scope `.p1v-obsah` (sekcia 2), `.lede` 46ch nie pre úvod scén a záver (sekcia 5), fotky náhľadov a legendy pred a po v B len pre 598; dočasné kópie pravidiel jadra v partialoch premium a boxy zmazané; nový blok `LCD-1V-OBSAH-VZORKY` vo `vloz-lcd-css.py`.
-- Čísla vo FAQ: `test-1v-obsah.mjs` berie **vlastnú** viditeľnosť čísla (inline `visibility:hidden` z `obsah-cisla.js`, kým čaká, alebo hidden, ktoré nededí od rodiča) a stav `caka` = nedosadené. Číslo v zbalenej odpovedi FAQ dedí hidden od `.p1v-faq-a` a je v poriadku → vo FAQ sa píše štandardná značka `data-p1v-cislo` (boxy už nemá `data-p1v-faq-cislo`, premium nemá obchádzku `visibility:visible` + `aria-hidden`; dvoj má späť čísla vo FAQ 3 a 10 ako v návrhu).
+- Čísla vo FAQ: `test-1v-obsah.mjs` berie **vlastnú** viditeľnosť čísla (inline `visibility:hidden` z `obsah-cisla.js`, kým čaká, alebo hidden, ktoré nededí od rodiča) a stav `caka` = nedosadené. Číslo v zbalenej odpovedi FAQ dedí hidden od `.p1v-faq-a` a je v poriadku → vo FAQ sa píše štandardná značka `data-p1v-cislo` (boxy už nemá `data-p1v-faq-cislo`, premium nemá obchádzku `visibility:visible` + `aria-hidden`; dvoj má späť číslo vo FAQ 3 ako v návrhu).
+- Dvoj FAQ 10 (oprava po revízii WB): integrácia vrátila do vety „tri vzory prešívania — Diamond Line, Stripe Line a Hexa Line — a … farieb“ `pocet-farieb`, takže 604 tvrdilo „a 3 farby“, 607 „a 8 farieb“ (Diamond má 18). Číslo je preč (znenie ako worker `afae8e5`, „a farby materiálu a nite“; návrhové „18 farieb“ platí len pre Diamond → D3). Plugin `obsah-dvoj.mjs` kontroluje doslovné znenie odpovede 10 a že v nej nie je žiadne číslo ani `data-p1v-cislo`.
 - `data-p1v-bez` build povoľuje len spolu s `data-p1v-cislo`.
 - Test: plugin `obsah-vzorky.mjs` zapojený (`PLUGINY.vzorky`), tvrdý limit úlohy 480 s, výška bez flagu pri `cdn` len upozornenie (ako WA), snímka čaká 1,4 s na prechody lepených scén, sekcia `*-pomocne` nehlási „nemá mapu“, D (linka čítania, okno, FAQ, šípka reality, posun „Zadajte údaje o vozidle“) a B (rez materiálu na telefóne, legenda) čakajú na stav namiesto pevných pauz.
 
-**Veľkosti (build):** `p1v-dvoj` 33 363 + 21 576 zn., `p1v-premium` 32 413 + 26 242, `p1v-boxy` 26 312 + 22 382, `p1v-vzorky` 1 970 + 3 910 — každý kus ≤ 45 000. Spolu pre jedno pole Popisu po spustení: dvoj 54 939 (−9 939), premium 58 655 (−13 655), boxy 48 694 (−3 694), vzorky 5 880 (OK) — pri spustení pre všetkých platí sekcia 7 (rozhodne Michal, rovnako ako 598 s 57 316).
+**Veľkosti (build):** `p1v-dvoj` 33 363 + 21 495 zn., `p1v-premium` 32 413 + 26 242, `p1v-boxy` 26 312 + 22 382, `p1v-vzorky` 1 970 + 3 910 — každý kus ≤ 45 000. Spolu pre jedno pole Popisu po spustení: dvoj 54 858 (−9 858), premium 58 655 (−13 655), boxy 48 694 (−3 694), vzorky 5 880 (OK) — pri spustení pre všetkých platí sekcia 7 (rozhodne Michal, rovnako ako 598 s 57 316).
 
 **Neurobené (nie chyby, ale chýbajúce kľúče čísel — obsah ich podľa D3 vynechal):** `cena-od-<typ>-<vzor>` (cena rohože iného vzoru, Classic FAQ 11), `pocet-farieb-classic` a rozdiel ceny medzi vzormi (Premium porovnanie a FAQ 12).
 
