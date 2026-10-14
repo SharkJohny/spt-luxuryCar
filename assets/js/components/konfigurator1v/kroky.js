@@ -1,9 +1,11 @@
 // Nový konfigurátor 1V — kroky 1–3 (vzor prešívania, Vaše auto, farba) + spoločný „obal“ krokov (číslovanie,
 // otváranie, postup, „Dokončite výber“ / červený rám podľa živej validácie).
-// VLASTNÍK: worker „kroky“ (+ assets/css/_lcd1v-kroky.scss + tools/test-1v/ovladac-kroky.mjs).
+// JADRO od T0.1 (14. 10. 2026; mení len vydanie) + assets/css/_lcd1v-kroky.scss + tools/test-1v/ovladac-kroky.mjs.
 // Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md — DOM sa nemaže, voľby len ctx.zapis().
+// Kroky a ich poradie = ctx.produkt.kroky (produkty.js TYPY: jedno 6, dvoj 7 s farba2, rohože 3, box farba/pocet/
+// velkost); texty kariet a postupu = ctx.texty("kroky") (typy/<typ>.js, základ typy/jedno.js = návrh v26).
 //
-// Obal (všetkých 6 krokov, návrh v26 #sprv .krok):
+// Obal (všetky kroky produktu, návrh v26 #sprv .krok):
 //   - každý živý krok dostane triedy lcd1v-krok + lcd1v-k-<meno> a novú hlavičku button.lcd1v-hd (číslo / fajka,
 //     „Krok N z 6“, „Prosím, vyberte …“ so zlatou linkou, zhrnutie voľby, „Zmeniť“). Živý .order ostáva v DOM a CSS
 //     ho roztiahne priehľadne cez hlavičku: klik myšou = klik na .order = živý akordeón (productPage.js), teda aj
@@ -22,8 +24,11 @@
 //   v kroku (hlavná fotka galérie sa nemení); živý .image-wrap je pod 1V skrytý.
 // Ostatné moduly: zhrnutie voľby v hlavičke kroku si môžu prepísať cez data-lcd1v-vyber na živom kroku; po postavení
 //   obalu príde udalosť ctx.na("kroky:hotovo"), pri zmene otvoreného kroku ctx.na("kroky:otvoreny", { meno, el }).
+// Posledný krok produktu (jedno/dvoj boxy, rohož farba, box velkost): „Pokračujte k súhrnu“ — živé tlačidlo by vkladalo
+//   do košíka; pod 1V len zatvorí krok a posunie na súhrn (handler na konci súboru).
 export const MENO = "kroky";
 
+// Spoločné texty obalu. Mená a vety kariet (nm, ti, vy, pod, chyba, pozn, dalej) a postup sú v typy/<typ>.js.
 const TEXTY = {
   sk: {
     krokNz: (n, z) => "Krok " + n + " z " + z,
@@ -33,17 +38,9 @@ const TEXTY = {
     vsetko: "Všetko vybrané",
     kompat: "Garancia kompatibility s Vaším vozidlom", // Michal 13. 10.: ako na živom webe
     dalej: "Pokračujte ďalej",
-    farbyNaVyber: (n) => n + " farieb na výber",
-    kroky: {
-      // pod: null — veta návrhu „Všetky tri vzory majú rovnakú cenu.“ dnes neplatí (13. 10. 2026 SK: Diamond 598 = 219 €,
-      // Hexa 610 a Stripe 613 = 230 €). Vrátiť až po zjednotení cien v SK admine (_prieskum/plan.md).
-      vzor: { nm: "Vzor prešívania", ti: "Prosím, vyberte vzor prešívania", vy: "Diamond Line", pod: null, dalej: "Potvrďte vzor" },
-      auto: { nm: "Vaše auto", ti: "Prosím, zadajte svoje auto", vy: "Značka, model a rok výroby", chyba: "Doplňte, prosím, údaje označené červenou.", pozn: "Šablóny máme pre viac než 1000 modelov osobných áut." },
-      farba: { nm: "Farba koberca", ti: "Prosím, vyberte farbu koberca", vy: "", pod: "Po výbere uvidíte materiál zblízka.", chyba: "Vyberte, prosím, farbu koberca." },
-      rozlozenie: { nm: "Rozloženie", ti: "Prosím, vyberte rozloženie kobercov", vy: "Podľa počtu radov vo Vašom aute", chyba: "Vyberte, prosím, rozloženie kobercov." },
-      kufor: { nm: "Rohož do kufra", ti: "Prosím, vyberte rohož do kufra", vy: "Bez rohože do kufra" },
-      boxy: { nm: "Boxy do kufra", ti: "Prosím, vyberte boxy do kufra", vy: "Bez boxov", dalej: "Pokračujte k súhrnu" },
-    },
+    kSuhrnu: "Pokračujte k súhrnu", // posledný krok produktu
+    // 1 farba / 2–4 farby / 5+ farieb (návrhy rohoží: Hexa „3 farby na výber“)
+    farbyNaVyber: (n) => n + (n === 1 ? " farba" : n >= 2 && n <= 4 ? " farby" : " farieb") + " na výber",
     // polia auta: [štítok, text prázdneho poľa, chyba]
     polia: {
       brands: ["Značka", "Vyberte značku", "Vyberte, prosím, značku"],
@@ -55,8 +52,6 @@ const TEXTY = {
     dvaBoxy: "2 boxy",
   },
 };
-
-const MENA = ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"];
 
 // farba šitia (stem bez diakritiky) -> tvar pred „šitie“ (návrh: „Čierna / červené šitie“)
 const SITIE = {
@@ -104,7 +99,11 @@ function nastavAttr(e, meno, hodnota) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  const T = TEXTY[ctx.jazyk === "cs" ? "sk" : "sk"]; // CZ zatiaľ nie je v ZOZNAM_1V; texty sú len SK
+  // CZ zatiaľ nie je v registri (produkty.js); texty sú len SK. Typ: mená kariet a postup z typy/<typ>.js.
+  const TT = ctx.texty("kroky");
+  const T = Object.assign({}, TEXTY.sk, { postup: typeof TT.postup === "function" ? TT.postup : TEXTY.sk.postup, kroky: TT.kroky || {} });
+  const textKroku = (meno) => T.kroky[meno] || {};
+  const MENA = ctx.produkt && ctx.produkt.kroky ? ctx.produkt.kroky : ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"];
   const form = ctx.form();
   const cw = form && form.querySelector(".content-wrap");
   if (!cw) return;
@@ -116,7 +115,7 @@ export function init(ctx) {
 
   // ---------------------------------------------------------------- hlavičky
   zoznam.forEach(function (k, i) {
-    const t = T.kroky[k.meno];
+    const t = textKroku(k.meno);
     const krok = k.el;
     krok.classList.add("lcd1v-krok", "lcd1v-k-" + k.meno);
     const hd = el("button", "lcd1v-hd");
@@ -125,9 +124,9 @@ export function init(ctx) {
     no.setAttribute("aria-hidden", "true");
     const tx = el("span", "lcd1v-tx");
     tx.appendChild(el("span", "lcd1v-ey", T.krokNz(i + 1, spolu)));
-    tx.appendChild(el("span", "lcd1v-nm", t.nm));
-    tx.appendChild(el("span", "lcd1v-ti", t.ti));
-    const vy = el("span", "lcd1v-vy", t.vy);
+    tx.appendChild(el("span", "lcd1v-nm", t.nm || ""));
+    tx.appendChild(el("span", "lcd1v-ti", t.ti || ""));
+    const vy = el("span", "lcd1v-vy", t.vy || "");
     tx.appendChild(vy);
     hd.appendChild(no);
     hd.appendChild(tx);
@@ -146,6 +145,7 @@ export function init(ctx) {
     kroky.push({ meno: k.meno, el: krok, hd, no, vy, navstiveny: false });
   });
   const krokPodla = (meno) => kroky.find((k) => k.meno === meno) || null;
+  const posledny = kroky.length ? kroky[kroky.length - 1] : null;
 
   // výška hlavičky -> priehľadný živý .order presne cez ňu (CSS var na kroku)
   const ro = window.ResizeObserver
@@ -165,30 +165,29 @@ export function init(ctx) {
     kroky.forEach(function (k) {
       const b = k.el.querySelector(":scope > .next-step-button");
       if (!b) return;
-      // posledný krok (boxy): „Pokračujte k súhrnu“ — klik zachytí handler nižšie (zatvorí krok, posunie na súhrn)
-      const text = T.kroky[k.meno].dalej || T.dalej;
+      // posledný krok produktu: „Pokračujte k súhrnu“ — klik zachytí handler nižšie (zatvorí krok, posunie na súhrn)
+      const text = textKroku(k.meno).dalej || (k === posledny ? T.kSuhrnu : T.dalej);
       nastavAttr(b, "data-lcd1v-text", text);
       nastavAttr(b, "aria-label", text);
     });
   }
 
-  // ---------------------------------------------------------------- nové prvky v tele krokov 1–4
+  // ---------------------------------------------------------------- nové prvky v tele krokov (podľa textov typu)
   function pridajPodnadpis(k, text) {
     if (!k || !text || k.el.querySelector(":scope > .lcd1v-pod")) return;
     const p = el("p", "lcd1v-pod", text);
     k.el.insertBefore(p, k.hd.nextSibling);
   }
-  const vzor = krokPodla("vzor"), auto = krokPodla("auto"), farba = krokPodla("farba"), rozlozenie = krokPodla("rozlozenie");
-  pridajPodnadpis(vzor, T.kroky.vzor.pod);
-  pridajPodnadpis(farba, T.kroky.farba.pod);
+  const vzor = krokPodla("vzor"), auto = krokPodla("auto"), farba = krokPodla("farba");
+  kroky.forEach((k) => pridajPodnadpis(k, textKroku(k.meno).pod));
 
-  // chybový text nad „Pokračujte ďalej“ (krok 2–4) a poznámka pod ním (krok 2) — až keď živé tlačidlo existuje
+  // chybový text nad „Pokračujte ďalej“ a poznámka pod ním (krok, ktorý ich má v textoch typu) — až keď živé tlačidlo existuje
   function prvkyPriTlacidle() {
-    [auto, farba, rozlozenie].forEach(function (k) {
-      if (!k) return;
+    kroky.forEach(function (k) {
+      const t = textKroku(k.meno);
+      if (!t.chyba && !t.pozn) return;
       const b = k.el.querySelector(":scope > .next-step-button");
       if (!b) return;
-      const t = T.kroky[k.meno];
       if (t.chyba && !k.el.querySelector(":scope > .lcd1v-chyba-tx")) {
         const p = el("p", "lcd1v-chyba-tx", t.chyba);
         p.setAttribute("role", "alert");
@@ -312,7 +311,7 @@ export function init(ctx) {
   function zhrnutie(k) {
     const vlastne = k.el.getAttribute("data-lcd1v-vyber");
     if (vlastne) return vlastne;
-    const t = T.kroky[k.meno];
+    const t = textKroku(k.meno);
     switch (k.meno) {
       case "vzor": {
         const a = k.el.querySelector(".patterns-wrap > .option-button.active .banner-header");
@@ -336,7 +335,7 @@ export function init(ctx) {
         if (vybrataMoznost("boxSolo") || vybrataMoznost("box1")) return T.jedenBox;
         return t.vy;
       }
-      default: return "";
+      default: return t.vy || ""; // farba2, pocet, velkost …: modul typu píše data-lcd1v-vyber
     }
   }
 
@@ -350,8 +349,8 @@ export function init(ctx) {
         return !!vybrataMoznost("kufor") || (k.navstiveny && !otv);
       case "boxy": // (automatické „nechcem“ živého kódu pri „Pridať do košíka“ sa za hotový krok nepočíta)
         return !!(vybrataMoznost("boxSolo") || vybrataMoznost("box1")) || (k.navstiveny && !otv);
-      default:
-        return false;
+      default: // farba2, pocet, velkost …: rovnaké pravidlo ako validácia košíka
+        return !!ctx.vyplneny(k.el);
     }
   }
 
@@ -478,17 +477,19 @@ export function init(ctx) {
     }, 0);
   }, true);
 
-  // Krok 6 „Pokračujte k súhrnu“ (návrh v26): živé tlačidlo posledného kroku by hneď vkladalo do košíka — tesne nad
-  // „Spolu“ a „Vložte do košíka“ by tak boli dve zelené tlačidlá košíka. Pod 1V krok len zatvorí a posunie stránku
-  // na súhrn s tlačidlom košíka; kontrolu výberu (červený rám, posun na chýbajúci krok) robí to tlačidlo ako doteraz.
-  // Zachytené v capture fáze na document -> delegovaný handler configuratorEngine.js (bublanie na document) nebeží.
+  // Posledný krok „Pokračujte k súhrnu“ (návrh v26 krok 6; rohož krok 3 farba, box krok 3 veľkosť): živé tlačidlo
+  // posledného kroku (finish-button) by hneď vkladalo do košíka — tesne nad „Spolu“ a „Vložte do košíka“ by tak boli
+  // dve zelené tlačidlá košíka. Pod 1V krok len zatvorí a posunie stránku na súhrn s tlačidlom košíka; kontrolu výberu
+  // (červený rám, posun na chýbajúci krok) robí to tlačidlo ako doteraz.
+  // Zachytené v capture fáze na document -> handlery živého tlačidla (delegované aj priame) nebežia.
+  const selPosledny = posledny ? ".lcd1v-k-" + posledny.meno + " > .next-step-button" : null;
   document.addEventListener("click", function (e) {
     const t = e.target;
-    const b = t && t.closest && t.closest(".lcd1v-k-boxy > .next-step-button");
+    const b = selPosledny && t && t.closest && t.closest(selPosledny);
     if (!b || !document.body.classList.contains("lcd-1v")) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    const k = krokPodla("boxy");
+    const k = posledny;
     if (k) {
       k.navstiveny = true;
       if (typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(k.el, false);

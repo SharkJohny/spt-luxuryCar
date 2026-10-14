@@ -1,6 +1,10 @@
 // Nový konfigurátor 1V — kroky 5–6 (rohož do kufra Classic / Premium / Nechcem, boxy 1× / 2× / Nechcem + farba a veľkosti).
-// VLASTNÍK: worker „kufor-boxy“ (+ assets/css/_lcd1v-kufor-boxy.scss + tools/test-1v/ovladac-kufor-boxy.mjs
-// + assets/js/lcdKosikDoplnok.js: ponuka v košíku neponúkne, čo už je v sete).
+// Set autokobercov: jednovrstvové kroky 5–6, dvojvrstvové 6–7 (len typy s modulom „kufor-boxy“, produkty.js TYPY).
+// JADRO od T0.1 (14. 10. 2026; mení len vydanie) + assets/css/_lcd1v-kufor-boxy.scss + tools/test-1v/ovladac-kufor-boxy.mjs
+// (+ assets/js/lcdKosikDoplnok.js: ponuka v košíku neponúkne, čo už je v sete).
+// Texty: TEXTY nižšie (návrh v26) + prepisy typu ctx.texty("kuforBoxy"); fotky kariet: ctx.obrazokVzoru(<kľúč>).
+// „Nechcem“ pri kufri pošle to isté ako starý web (voľbu „nie“). Keď má „nie“ v admine príplatok (610 Hexa: +5 €,
+// rozhodnutia.md D2), karta ukáže tú cenu a bez výberu nie je žiadna karta označená — cena na stránke = cena v košíku.
 // Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md — DOM sa nemaže, voľby len ctx.zapis().
 //
 // Ako:
@@ -18,11 +22,12 @@
 // - Ceny: v sete zo selectov Shoptetu (ctx.moznosti), „Samostatne“ zo živých stránok samostatných produktov tým istým
 //   kódom ako porovnanie v košíku (lcdKosikDoplnok.samostatneCenyKonfigurator). Nič natvrdo.
 import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplnok.js";
+import { zluc } from "./produkty.js";
 
 export const MENO = "kufor-boxy";
 
-// Texty z návrhu v26 (jednovrstvove.html, kroky 5–6 a okno #bxBox).
-const T = {
+// Texty z návrhu v26 (jednovrstvove.html, kroky 5–6 a okno #bxBox). Typ ich môže prepísať (typy/<typ>.js texty.kuforBoxy).
+const TEXTY = {
   naj: "★ Najobjednávanejšie",
   samostatne: "Samostatne",
   vyhoda: "Výhoda v sete",
@@ -35,16 +40,16 @@ const T = {
     skupina: "Rohož do kufra",
     pod: "Len na dno kufra alebo aj na boky a operadlá.",
     vysv: [["Na dno kufra", " chráni podlahu batožinového priestoru. "], ["Na dno a boky", " obalí aj bočné steny a prah — nič sa nedostane do čalúnenia, keď naložíte niečo mokré alebo špinavé."]],
-    classic: { nm: "Classic", po: "Na dno kufra", alt: "Rohož do kufra Classic", obr: "kufor-boxy-classic.jpg", popis: "Rohož do kufra Classic" },
-    premium: { nm: "Premium", po: "Na dno, boky aj operadlá", alt: "Rohož do kufra Premium", obr: "kufor-boxy-premium.jpg", popis: "Rohož do kufra Premium" },
-    nie: { nm: "Nechcem", po: "Bez rohože do kufra", ben: "Kufor necháte tak, ako je.", alt: "Kufor bez koberca", obr: "kufor-boxy-bez-rohoze.jpg", popis: "Bez rohože do kufra" },
+    classic: { nm: "Classic", po: "Na dno kufra", alt: "Rohož do kufra Classic", kluc: "kufor-classic", obr: "kufor-boxy-classic.jpg", popis: "Rohož do kufra Classic" },
+    premium: { nm: "Premium", po: "Na dno, boky aj operadlá", alt: "Rohož do kufra Premium", kluc: "kufor-premium", obr: "kufor-boxy-premium.jpg", popis: "Rohož do kufra Premium" },
+    nie: { nm: "Nechcem", po: "Bez rohože do kufra", ben: "Kufor necháte tak, ako je.", alt: "Kufor bez koberca", kluc: "kufor-nie", obr: "kufor-boxy-bez-rohoze.jpg", popis: "Bez rohože do kufra" },
   },
   boxy: {
     skupina: "Boxy do kufra",
     pod: "Skladacie boxy z rovnakého materiálu. Veľkosť a farbu zvolíte hneď po výbere.",
-    1: { nm: "1× box", po: "Praktický organizér", alt: "Jeden box v kufri", obr: "kufor-boxy-1-box.jpg" },
-    2: { nm: "2× box", po: "Dvojitá kapacita", alt: "Dva boxy v kufri", obr: "kufor-boxy-2-boxy.jpg" },
-    0: { nm: "Nechcem", po: "Kufor bez organizérov", ben: "Kufor ostane voľný.", alt: "Kufor bez boxov", obr: "kufor-boxy-premium.jpg", popis: "Bez boxov" },
+    1: { nm: "1× box", po: "Praktický organizér", alt: "Jeden box v kufri", kluc: "boxy-1", obr: "kufor-boxy-1-box.jpg" },
+    2: { nm: "2× box", po: "Dvojitá kapacita", alt: "Dva boxy v kufri", kluc: "boxy-2", obr: "kufor-boxy-2-boxy.jpg" },
+    0: { nm: "Nechcem", po: "Kufor bez organizérov", ben: "Kufor ostane voľný.", alt: "Kufor bez boxov", kluc: "boxy-0", obr: "kufor-boxy-premium.jpg", popis: "Bez boxov" },
   },
   okno: {
     nadpis: "Vaše boxy do kufra",
@@ -116,6 +121,7 @@ export function init(ctx) {
 }
 
 function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
+  const T = zluc(TEXTY, ctx.texty ? ctx.texty("kuforBoxy") : {});
   const banner = kufor.closest(".upsale-Banner");
   if (!banner) throw new Error("kufor mimo .upsale-Banner");
   const fmt = function (n) { return ctx.formatCena(Math.round(n * 100) / 100); };
@@ -144,6 +150,8 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     nie: mk.find(function (o) { return /^(nie|ne)\b/i.test(o.text); }) || null,
   };
   if (!kv.classic || !kv.premium) throw new Error("kufor: Classic/Premium v selecte nie sú");
+  // „nie“ s príplatkom v admine (610 Hexa +5 €, D2): ukázať cenu, poslať ako starý web, bez výberu nič neoznačiť
+  const niePlatene = !!(kv.nie && kv.nie.cena > 0.5);
   const velkosti = function (kluc) {
     const o = {};
     ctx.moznosti(kluc).forEach(function (m) {
@@ -178,7 +186,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     } else tx.appendChild(riadky());
     return el("button", Object.assign({ type: "button", class: "lcd1v-kb__karta" + (naj ? " lcd1v-kb__karta--naj" : "") + (def.ben ? " lcd1v-kb__karta--nie" : ""), "aria-pressed": "false" }, data), [
       naj ? el("span", { class: "lcd1v-kb__top", text: T.naj }) : null,
-      el("span", { class: "lcd1v-kb__fot" }, [el("img", { src: ctx.obrazok(def.obr), alt: def.alt, loading: "lazy", decoding: "async", width: "480", height: "360" })]),
+      el("span", { class: "lcd1v-kb__fot" }, [el("img", { src: (def.kluc && ctx.obrazokVzoru && ctx.obrazokVzoru(def.kluc)) || ctx.obrazok(def.obr), alt: def.alt, loading: "lazy", decoding: "async", width: "480", height: "360" })]),
       tx,
     ]);
   }
@@ -197,6 +205,10 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     premium: karta(T.kufor.premium, { "data-kufor": "premium" }, false),
     nie: karta(T.kufor.nie, { "data-kufor": "nie" }, false),
   };
+  if (niePlatene) {
+    const cn = kartyK.nie.querySelector(".lcd1v-kb__cn");
+    if (cn) cn.textContent = "+ " + fmt(kv.nie.cena);
+  }
   const kbK = el("div", { class: "lcd1v-kb", "data-lcd1v-kb": "kufor" }, [
     el("p", { class: "lcd1v-kb__pod" }, [T.kufor.pod + " ", infoK]),
     vysvK,
@@ -299,9 +311,13 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   function kompletne(n) {
     return !!ctx.precitaj("farbaBoxov") && klucePoctu(n).every(function (k) { return !!velkostVyberu(k); });
   }
+  // "classic" | "premium" | "nie" | "" (nič nezvolené a „nie“ má príplatok — žiadna karta nie je označená)
   function druhKufra() {
     const v = ctx.precitaj("kufor");
-    return v && v === kv.classic.hodnota ? "classic" : v && v === kv.premium.hodnota ? "premium" : "nie";
+    if (v && v === kv.classic.hodnota) return "classic";
+    if (v && v === kv.premium.hodnota) return "premium";
+    if (niePlatene && v !== kv.nie.hodnota) return "";
+    return "nie";
   }
   function klikZivy(sel) {
     const b = vyber.querySelector(":scope > " + sel);
@@ -405,7 +421,8 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     zhrnutie(dk, n, hotovo);
   }
   function zhrnutie(dk, n, hotovo) {
-    const kt = dk === "nie" ? T.kufor.nie.popis : T.kufor[dk].popis + " · + " + fmt(kv[dk].cena);
+    const kt = dk === "classic" || dk === "premium" ? T.kufor[dk].popis + " · + " + fmt(kv[dk].cena)
+      : dk === "nie" && niePlatene ? T.kufor.nie.popis + " · + " + fmt(kv.nie.cena) : T.kufor.nie.popis;
     let bt = T.boxy[0].popis;
     if (n && hotovo) {
       const kl = klucePoctu(n);

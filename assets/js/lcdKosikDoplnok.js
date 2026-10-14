@@ -835,7 +835,8 @@ export function ulozMapuProduktu() {
 }
 
 // ------------------------------------------------------------------ sieť
-async function stiahniDokument(cesta) {
+/** GET stránky webu -> Document (DOMParser; skripty sa nespúšťajú). Export aj pre konfigurátor 1V (konfigurator1v/ceny-ine.js). */
+export async function stiahniDokument(cesta) {
   const r = await fetch(cesta, { credentials: "same-origin" });
   if (!r.ok) throw new Error("HTTP " + r.status);
   return new DOMParser().parseFromString(await r.text(), "text/html");
@@ -873,8 +874,8 @@ async function ziskajSamostatneCeny(dizajn, R) {
   return raz(kluc, function () { return stiahniSamostatneCeny(dizajn, R, kluc); });
 }
 
-/** Cena produktu zo stiahnutej stránky ([itemprop=price] content) alebo null. */
-function cenaStranky(doc) {
+/** Cena produktu zo stiahnutej stránky ([itemprop=price] content) alebo null. Export aj pre konfigurator1v/ceny-ine.js. */
+export function cenaStranky(doc) {
   const m = doc && doc.querySelector('[itemprop="price"]');
   const v = m ? parseFloat(m.getAttribute("content")) : NaN;
   return isFinite(v) && v > 0 ? v : null;

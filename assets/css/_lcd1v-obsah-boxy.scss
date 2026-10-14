@@ -1,0 +1,4 @@
+/* LCD-1V obsah pod konfigurátorom boxu do kufra 616. Vlastník: T3.3 (obsah-boxy.js, admin-html/src/p1v-boxy/)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */

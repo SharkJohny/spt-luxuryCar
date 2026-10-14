@@ -1,0 +1,4 @@
+/* LCD-1V box do kufra 616 — farba → počet → veľkosť, neutralizácia configurator-enhance; selektory body.lcd-1v[data-lcd1v-typ="boxy"]. Vlastník: T3.2 (boxy-produkt.js)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */

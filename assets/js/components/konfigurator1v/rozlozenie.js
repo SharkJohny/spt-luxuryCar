@@ -1,6 +1,8 @@
-// Nový konfigurátor 1V — krok 4 (rozloženie kobercov: len 1. rad / 1.+2. rad / všetky tri rady).
-// VLASTNÍK: worker „rozlozenie“ (+ assets/css/_lcd1v-rozlozenie.scss + tools/test-1v/ovladac-rozlozenie.mjs).
+// Nový konfigurátor 1V — krok rozloženia kobercov (len 1. rad / 1.+2. rad / všetky tri rady): jednovrstvové krok 4,
+// dvojvrstvové krok 5 (beží len pri typoch s modulom „rozlozenie“, produkty.js TYPY).
+// JADRO od T0.1 (14. 10. 2026; mení len vydanie) + assets/css/_lcd1v-rozlozenie.scss + tools/test-1v/ovladac-rozlozenie.mjs.
 // Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md — DOM sa nemaže, voľby len ctx.zapis().
+// Texty: TEXTY nižšie (návrh v26) + prepisy typu ctx.texty("rozlozenie"); fotky kariet: ctx.obrazokVzoru("rozlozenie-N").
 //
 // Podľa návrhu v26 (krok 4): podnadpis + „i“, „Miest na sedenie“ (zrkadlo dlaždíc kroku 2 oboma smermi),
 // tmavý pôdorys auta zhora (rady podľa počtu miest, zvolené rady zlaté, „Podložené“) a karty s fotkami.
@@ -36,6 +38,7 @@ const TEXTY = {
 };
 
 const OBRAZKY = {
+  // záloha, keď typ nemá kľúč rozlozenie-N (typy/jedno.js ho má: Diamond béžová pre všetky vzory, plan.md §2.5)
   foto: { 1: "rozlozenie-rad-prvy.jpg", 2: "rozlozenie-rad-vsetky.jpg", 3: "rozlozenie-rad-vsetky.jpg" },
   ikona: { 1: "rozlozenie-rad-ikona-1.png", 2: "rozlozenie-rad-ikona-2.png", 3: "rozlozenie-rad-ikona-3.png" },
   // prirodzené rozmery ikon (šírka x 156) -> width/height atribúty, nech sa karta pri načítaní nehýbe
@@ -74,7 +77,10 @@ function el(tag, trieda, html) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  const T = TEXTY[ctx.jazyk === "cs" ? "cs" : "sk"] || TEXTY.sk;
+  const zaklad = TEXTY[ctx.jazyk === "cs" ? "cs" : "sk"] || TEXTY.sk;
+  const typ = ctx.texty ? ctx.texty("rozlozenie") : {};
+  const T = Object.assign({}, zaklad, typ, { karty: Object.assign({}, zaklad.karty, typ.karty) });
+  const fotoKarty = (r) => (ctx.obrazokVzoru && ctx.obrazokVzoru("rozlozenie-" + r)) || ctx.obrazok(OBRAZKY.foto[r]);
   const param = ctx.parameter("rozlozenie");
   const krok = ctx.krok("rozlozenie");
   if (!param || !krok) throw new Error("krok rozloženia sa nenašiel");
@@ -148,7 +154,7 @@ export function init(ctx) {
     k.setAttribute("aria-pressed", "false");
     const cena = m.cena > 0 ? "+ " + ctx.formatCena(m.cena) : T.vCene;
     k.innerHTML =
-      '<span class="rz-foto"><img src="' + ctx.obrazok(OBRAZKY.foto[r]) + '" alt="" width="112" height="112" loading="lazy" decoding="async">' +
+      '<span class="rz-foto"><img src="' + fotoKarty(r) + '" alt="" width="112" height="112" loading="lazy" decoding="async">' +
       (r === 3 ? "<b>" + T.tretiRad + "</b>" : "") + "</span>" +
       '<span class="rz-tx"><span class="rz-nm">' + T.karty[r][0] + '</span><span class="rz-po">' + T.karty[r][1] + "</span>" +
       '<span class="rz-cena"><span class="rz-ikona" aria-hidden="true"><img src="' + ctx.obrazok(OBRAZKY.ikona[r]) + '" alt="" width="' +
@@ -217,10 +223,10 @@ export function init(ctx) {
     // volant
     const vol = zive("volant").find((b) => b.classList.contains("active"));
     koren.dataset.volant = vol && vol.getAttribute("data-value") === "right" ? "vpravo" : "vlavo";
-    // kufor (krok 5): rozsvieti sa, keď je zvolená platená voľba
+    // kufor (krok 5): rozsvieti sa, keď je zvolená rohož (platená voľba okrem „nie“ — 610 má v admine „nie“ +5 €)
     const kv = ctx.precitaj("kufor");
     const km = kv ? ctx.moznosti("kufor").find((m) => m.hodnota === kv) : null;
-    koren.dataset.kufor = km && km.cena > 0 ? "1" : "0";
+    koren.dataset.kufor = km && km.cena > 0 && !/^(nie|ne)\b/i.test(km.text) ? "1" : "0";
     // zvolené rozloženie = aktívne živé tlačidlo (rovnaké pravidlo ako validácia košíka)
     const akt = zive("volby").find((b) => b.classList.contains("active"));
     const hod = akt ? akt.getAttribute("data-value") : "";

@@ -1,0 +1,4 @@
+/* LCD-1V obsah pod konfigurátorom rohože Premium (628/631/634), mapa #kryje. Vlastník: T2.4 (obsah-premium.js, admin-html/src/p1v-premium/)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */

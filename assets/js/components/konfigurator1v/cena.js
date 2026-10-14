@@ -1,5 +1,7 @@
 // Nový konfigurátor 1V — cenová karta (Odporúčaná cena, % zľava, aktuálna cena) + lepivá lišta s cenou a tlačidlom.
-// VLASTNÍK: worker „cena“ (+ assets/css/_lcd1v-cena.scss + tools/test-1v/ovladac-cena.mjs).
+// JADRO od T0.1 (14. 10. 2026; mení len vydanie) + assets/css/_lcd1v-cena.scss + tools/test-1v/ovladac-cena.mjs.
+// Štítok typu nad H1 a veta pri cene podľa typu produktu: ctx.texty("cena") { typ, zaSet } (typy/<typ>.js).
+// Bez odporúčanej ceny (v admine chýba bežná cena: 613, 625, 616) ostane len veta „Cena za … na mieru“.
 // Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md — ceny len z ctx.cena() / Shoptetu,
 // košík len ctx.doKosika().
 //
@@ -93,7 +95,8 @@ function nastav(e, t) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  const T = TEXTY[ctx.trh] || TEXTY.sk;
+  // typ produktu (štítok nad H1, veta pri cene) z typy/<typ>.js — texty typov sú len SK
+  const T = Object.assign({}, TEXTY[ctx.trh] || TEXTY.sk, ctx.trh === "sk" && ctx.texty ? ctx.texty("cena") : {});
   const form = ctx.form();
   const ziva = ctx.krok("cena"); // .p-final-price-wrapper — zdroj všetkých čísel
   const kos = ctx.krok("kosik"); // živé „Pridať do košíka“
@@ -179,7 +182,8 @@ export function init(ctx) {
   bod.setAttribute("aria-hidden", "true");
   pozn.appendChild(usetrite);
   pozn.appendChild(bod);
-  pozn.appendChild(el("span", "lcd1v-cena__za", T.zaSet));
+  const za = el("span", "lcd1v-cena__za", T.zaSet);
+  pozn.appendChild(za);
   karta.appendChild(bolo);
   karta.appendChild(fig);
   karta.appendChild(pozn);
@@ -283,6 +287,8 @@ export function init(ctx) {
     nastav(us, maOdp ? ctx.formatCena(Math.round((nOdp - nTeraz) * 100) / 100) : "");
     usetrite.hidden = !maOdp;
     bod.hidden = !maOdp;
+    // bez „Ušetríte …“ stojí veta sama -> veľké písmeno („Cena za rohož na mieru“, návrh kufor-classic)
+    nastav(za, maOdp || !T.zaSet ? T.zaSet : T.zaSet.charAt(0).toUpperCase() + T.zaSet.slice(1));
 
     // „od“ a text tlačidla podľa toho istého pravidla ako validácia košíka
     let hotovo = false;

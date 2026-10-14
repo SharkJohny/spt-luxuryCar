@@ -1,0 +1,4 @@
+/* LCD-1V rohože do kufra Classic + Premium 619–634 — auto bez volantu/miest/dverí, dlaždice vzoru, pás setu; selektory body.lcd-1v[data-lcd1v-typ^="kufor"]. Vlastník: T2.2 (kufor-produkt.js)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */

@@ -1,10 +1,12 @@
-# Konfigurátor 1V — kontrakt pre nový vzhľad (SK Diamond Line 598, `?novy=1`)
+# Konfigurátor 1V — kontrakt pre nový vzhľad (SK produkty z registra, `?novy=1`)
 
 Základ z 13. 10. 2026 (worktree `spt-luxuryCar-1v`, odpojený na `5db0f33` = živý web).
-Cieľ: nový vzhľad konfigurátora a cenovej karty podľa návrhu v26 **nad živým Jánovým konfigurátorom**.
-Zapína sa len na SK 598 a len s `?novy=1` (tichý test). Kufor a boxy budú viditeľné kroky 5 a 6.
+Cieľ: nový vzhľad konfigurátora a cenovej karty podľa schválených návrhov **nad živým Jánovým konfigurátorom**.
+Zapína sa len na SK produktoch z registra (`konfigurator1v/produkty.js`) a len s flagom karty (`?novy=1`, vývoj `?novy=vyvoj`, sekcia 1). Pri sete autokobercov sú kufor a boxy viditeľné kroky 5 a 6 (dvojvrstvové 6 a 7).
 
-Tento súbor platí pre všetkých štyroch workerov. Spoločné súbory (sekcia 10) sa po základe nemenia.
+**Jadro pre všetky typy (T0.1, 14. 10. 2026):** register produktov a typov, brána po typoch, `ctx.produkt` / `ctx.texty` / `ctx.obrazokVzoru`, kroky `farba2`, `pocet`, `velkost`, moduly podľa typu, ceny sesterských stránok (`ceny-ine.js`). Dnes vydaný typ: `jedno` (598, 610, 613). 598 sa tým nezmenil (test 598 bez flagu aj s `?novy=1` rovnaký ako pred jadrom).
+
+Tento súbor platí pre všetkých workerov. Jadro (sekcia 10) mení len vydávacia úloha vlny.
 
 ---
 
@@ -12,11 +14,13 @@ Tento súbor platí pre všetkých štyroch workerov. Spoločné súbory (sekcia
 
 | Čo | Kde | Pravidlo |
 |---|---|---|
-| Zoznam produktov | `components/konfigurator1v/index.js` `ZOZNAM_1V = { 562035: [598] }` | kľúč = `projectId` Shoptetu (SK 562035, CZ 581408). ID produktov sa medzi obchodmi líšia. CZ produkt 598 nie je Diamond. |
-| Zapnutie | `?novy=1` -> `sessionStorage.lcd1v = "1"` (platí v karte aj po prechode bez parametra) | `?novy=0` flag zmaže. Bez parametra sa nič nezapisuje. |
-| Trieda | `body.lcd-1v` | pridá sa len pri produkte zo zoznamu a so zapnutým flagom. **Všetko nové CSS musí byť pod `body.lcd-1v`.** |
-| Kontext | `window.__lcd1v` = `ctx` | slúži na ladenie a test. Bez flagu neexistuje. |
-| Poistka | výnimka v `init()` modulu | `index.js` triedu `lcd-1v` zloží, zákazník dostane starý vzhľad. Chyby sú v `window.__lcd1v.chyby`. |
+| Register produktov | `components/konfigurator1v/produkty.js` `PRODUKTY_1V = { 562035: { 598: { typ: "jedno", vzor: "diamond", url, obsah }, … } }` | kľúč = `projectId` Shoptetu (SK 562035, CZ 581408 zatiaľ nie). ID produktov sa medzi obchodmi líšia. CZ produkt 598 nie je Diamond. 13 SK produktov + vzorkovník 637 (typ `vzorky`, stub). Tvar riadku `598: { typ: "…"` číta test regulárnym výrazom — nemeniť. |
+| Typy | `produkty.js` `TYPY[typ] = { kroky, moduly, obal }` | `jedno` 6 krokov, `dvoj` 7 (+ `farba2`), `kufor-classic` / `kufor-premium` 3 (vzor, auto, farba), `boxy` 3 (farba, pocet, velkost — poradie návrhu, v DOM je počet prvý), `vzorky` (bez krokov). `kroky` = poradie kariet a číslovanie, `moduly` = poradie init, `obal` = prvok formulára, bez ktorého sa nezapne. |
+| Vydané typy | `produkty.js` `ZAPNUTE_TYPY` (jednoriadkový zoznam reťazcov; test ho číta) | dnes `["jedno"]`. Typ pridáva len vydanie (T1.1, T2.1, T3.1, T4.1, T5.1). |
+| Zapnutie | `?novy=1` -> `sessionStorage.lcd1v = "1"`: len produkty vydaných typov · `?novy=vyvoj` -> `"vyvoj"`: celý register (vývoj, test `--vyvoj`, nie pre zákazníkov) · flag platí v karte aj po prechode bez parametra | `?novy=0` flag zmaže. Bez parametra sa nič nezapisuje. Zákazník s odkazom `?novy=1`, ktorý prejde na nevydaný typ, dostane starý vzhľad (zámer). |
+| Trieda a typ | `body.lcd-1v` + `data-lcd1v-typ="<typ>"` + `data-lcd1v-vzor="<vzor>"` (box a vzorkovník bez vzoru) | len pri produkte z registra so zapnutým flagom. **Všetko nové CSS musí byť pod `body.lcd-1v`**; typ cez atribút: `body.lcd-1v[data-lcd1v-typ="dvoj"]`, rohože `[data-lcd1v-typ^="kufor"]`. Atribúty, nie triedy: `lcd1v-vzor-*` už majú dlaždice vzoru. |
+| Kontext | `window.__lcd1v` = `ctx` (`ctx.produkt.typ`, …) | slúži na ladenie a test. Bez flagu (a na nevydanom type pri `?novy=1`) neexistuje. |
+| Poistka | výnimka v `init()` modulu | `index.js` triedu `lcd-1v` aj atribúty typu zloží, zákazník dostane starý vzhľad. Chyby sú v `window.__lcd1v.chyby`. |
 
 **Flag vypnutý = NULOVÁ zmena.** Test `nulova-zmena` porovnáva živý CDN a lokálny build (DOM krokov, počty, ceny, štýly, triedy body). Všetok nový JS kód začína až v `init(ctx)`. Volá ho len `index.js` za bránou: na úrovni modulu (pri importe) nesmie nič bežať.
 
@@ -96,15 +100,19 @@ Všetko je vo `form#product-detail-form` (POST `/action/Cart/addCartItem/?simple
 |---|---|
 | `projectId`, `productId`, `jazyk` (`sk`/`cs`), `trh` (`sk`/`cz`), `setupData`, `texts` | kontext |
 | `form()` | `#product-detail-form` |
-| `parameter(kluc)` | `{ kluc, id, meno, select, variant }` podľa `data-parameter-name`. Kľúče: `farba, rozlozenie, kufor, farbaBoxov, box1, box2, boxSolo, typ` (alebo číslo ID). |
+| `produkt` | `{ id, typ, vzor, url, obsah, kroky, moduly, obal, texty, obrazky }` z registra (`produkty.js` `produkt1v`). `texty` a `obrazky` = `typy/jedno.js` zlúčené s `typy/<typ>.js`. |
+| `texty(cast)` | texty typu pre časť: `"kroky"` (`{ postup(z), kroky: { <meno>: { nm, ti, vy, pod, chyba, pozn, dalej } } }`), `"cena"` (`{ typ, zaSet }`), voliteľne `"rozlozenie"`, `"kuforBoxy"` (prepisy textov modulu). Nič -> `{}`. |
+| `obrazokVzoru(kluc)` | `typ.obrazky[kluc][vzor produktu]`, inak Diamond; kľúč nie je -> `null`. Kľúče `jedno`: `rozlozenie-1..3`, `kufor-classic`, `kufor-premium`, `kufor-nie`, `boxy-0..2`. |
+| `parameter(kluc)` | `{ kluc, id, meno, select, variant }` podľa `data-parameter-name`. Kľúče: `farba, farba2, rozlozenie, kufor, farbaBoxov, box1, box2, box3, boxSolo, typ` (alebo číslo ID). `farba2` = dvojvrstvové (SK 71, variant), `box3` = box 616 (SK 100). Na boxe 616 je `farba` farba boxu. |
 | `moznosti(kluc)` | `[{ hodnota, text (bez „+€N“), cena (príplatok s DPH zo Shoptetu), zvolena }]` |
 | `precitaj(kluc)` | aktuálna hodnota selectu (`""` = nič) |
-| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. |
-| `krok(meno)` / `menoKroku(el)` | živý element kroku: `vzor, auto, farba, rozlozenie, kufor, boxy, boxyVyber, kosik, cena` |
+| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. Navyše `zapis("pocetKs", n)` (n = 1, 2 alebo 3) = počet boxov na produkte 616 (živé tlačidlo „N ks“; živý kód vyprázdni veľkosti nad počtom a hodí známu chybu `priceActualization is not defined`). |
+| `krok(meno)` / `menoKroku(el)` | živý element kroku: `vzor, auto, farba, farba2, rozlozenie, kufor, boxy, boxyVyber, kosik, cena`; box 616 `pocet` (dieťa `.content-wrap` s `.amount-wrap`) a `velkost` (dieťa `.content-wrap` s `.parameter-sizes`). `menoKroku` skúša najprv kroky produktu. |
 | `kroky()`, `vyplneny(el)`, `prvyNevyplneny()` | to isté pravidlo ako validácia košíka. `prvyNevyplneny() === null` znamená „Vložte do košíka“, inak „Dokončite výber“. |
 | `cena()` | `{ zaklad, priplatky, spolu, odporucana, zlava }`. Variant z `necessaryVariantData` podľa `priceId` + zvolené príplatky. Odporúčaná cena = spolu × 1,6 nahor na desiatky (ako `productPage.js`). |
 | `formatCena(n)` | tvar ceny ako Shoptet (SK `€219`, CZ `5 664 Kč`) |
 | `obrazok(meno)` | `…/eshopy/luxuryCar/assets/img/1v/<meno>` |
+| *`ceny-ine.js`* (modul, nie člen ctx) | ceny a príplatky **iných** produktov zo živých stránok: `cenaProduktu(url)`, `priplatkyProduktu(url)` (mapa `mapaZFormulara`), `moznostiZMapy(mapa, kluc)`, `cenaTypu(projectId, typ, vzor)`, `priplatkyTypu(…)`. GET cez `stiahniDokument` z `lcdKosikDoplnok.js`, vlastná stránka bez siete, localStorage 24 h (`lcd1vStranka:v1:<cesta>`, všetko v try/catch), chyba -> `null`. Odkaz na produkt iného typu: `produkty.js` `najdiProdukt(projectId, typ, vzor)`. |
 | **`doKosika()`** | klik na živé „Pridať do košíka“. Validáciu aj odoslanie robí živý kód. |
 | `na(meno, fn)` / `vysli(meno, detail)` | udalosti medzi modulmi. Vlastné mená s predponou modulu (`kroky:otvoreny` …). |
 | `ked(podmienka, fn, { limit })` | čaká na asynchrónny DOM (každých 100 ms) |
@@ -146,6 +154,7 @@ Auto pri všetkých scenároch: Audi A6 2015 Combi. Farba je 3. voľba (549, Či
 
 Čo z toho vyplýva:
 - **Nevybraný kufor alebo boxy = prázdna hodnota** (`[88]=`, `[91]=` …), nie „nie“ (598). Karta NECHCEM pri kufri nemá triedu `.none`, takže automatický výber „nechcem“ v `configuratorEngine.js` ju nechytí. Pri boxoch karta „nechcem“ vynuluje veľkosti. Test povoľuje prázdnu hodnotu aj hodnotu „nie/ŽIADNY“. Nový vzhľad musí poslať jedno z toho, nikdy cenu navyše.
+- **610 Hexa: „nie“ stojí v admine +5 €** (chyba adminu, rozhodnutia.md D2). Nový vzhľad posiela presne to, čo starý: klik na „Nechcem“ = voľba „nie“ `[88]=598` (+5 €), bez kliku `[88]=` (0 €). Karta „Nechcem“ ukáže „+ €5“ (nie „v cene“) a bez výberu nie je označená žiadna karta — cena na stránke = cena v košíku. Oprava je v admine (Michal).
 - **1 box** = `boxSolo` (104), nie `box1`. **2 boxy** = `box1` + `box2`. V sete stojí 1 box (solo) iné peniaze ako 1. box z dvojice: M +109 € vs +99 €.
 - **TYP** (74) ide vždy, podľa typu karosérie.
 - `parameter-85` (rádio rozloženia) pribudne len pri skutočnom kliku na rádio. Server ho ignoruje, test ho berie ako voliteľný.
@@ -164,12 +173,13 @@ To, čo zákazník vyberie v krokoch 5–6, ide v tom istom riadku košíka. Pon
 - Partialy sú **čisté CSS** (nekompilujú sa, `luxuryCar.scss` NIKDY nekompilovať):
   - `assets/css/_lcd1v-kroky.scss`, `_lcd1v-rozlozenie.scss`, `_lcd1v-kufor-boxy.scss`, `_lcd1v-cena.scss`.
   - `tools/vloz-lcd-css.py` ich vkladá do `luxuryCar.css` ako bloky `LCD-1V-KROKY`, `LCD-1V-ROZLOZENIE`, `LCD-1V-KUFOR-BOXY`, `LCD-1V-CENA` (za `LCD-KOSIK`).
+  - Typy (T0.1): `_lcd1v-dvoj.scss`, `_lcd1v-kufor.scss`, `_lcd1v-boxy.scss` -> `LCD-1V-DVOJ`, `LCD-1V-KUFOR`, `LCD-1V-BOXY`; obsah podľa typu `_lcd1v-obsah-{dvoj,classic,premium,boxy}.scss` -> `LCD-1V-OBSAH-<TYP>` (pri zlúčení so spoločnými blokmi obsahu 598 ostanú za nimi). Selektor typu: `body.lcd-1v[data-lcd1v-typ="…"]`.
 - **Každý selektor začína `body.lcd-1v`.** Žiadne `@import`, žiadne globálne premenné na `:root`. Premenné daj na `body.lcd-1v`.
 - Test si skladá CSS sám (`vloz-lcd-css.py --vystup <tmp>`), workeri teda `luxuryCar.css` počas práce nemenia.
   - Pred commitom koordinátor spustí `python tools/vloz-lcd-css.py`.
   - CI kontroluje `--check`.
 - Vzhľad merať na návrhu (`http://127.0.0.1:8952/jednovrstvove.html`, `#sprv .krok[data-krok=1..6]`, finál v26) cez computed styles a snímky. Patch vrstvy nekopírovať.
-- Nové obrázky ukladaj do `assets/img/1v/<nové-meno>` (nikdy neprepisovať existujúci súbor v `assets/img/`). Predpona podľa workera, aby sa mená nebili: `kroky-*`, `rozlozenie-*`, `kufor-*` / `box-*`, `cena-*`.
+- Nové obrázky ukladaj do `assets/img/1v/<nové-meno>` (nikdy neprepisovať existujúci súbor v `assets/img/`). Predpona podľa workera, aby sa mená nebili: `kroky-*`, `rozlozenie-*`, `kufor-*` / `box-*`, `cena-*`; typy `jedno-<vzor>-*`, `dvoj-*`, `rohoz-classic-*`, `rohoz-premium-*`, `boxprodukt-*`. Obrázok, ktorý sa líši podľa vzoru, patrí do `typy/<typ>.js` `obrazky` a modul ho číta cez `ctx.obrazokVzoru(kluc)`.
   - CDN: `ctx.obrazok("meno.jpg")` = `…/eshopy/luxuryCar/assets/img/1v/meno.jpg`. Test ich servíruje lokálne.
   - Do CSS píš absolútnu CDN adresu.
 - Luxia (iframe `luxia-*.rostiapp.cz`, `position: fixed`, 76×76 vpravo dole, na 390 px pri x 312 / y 718) **nesmie zakryť ovládače** ani lepivú lištu. Každý klik testu to overuje.
@@ -257,20 +267,28 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 
 ## 10. Vlastníctvo súborov
 
+Od T0.1 (14. 10. 2026) sú moduly 598 súčasťou **jadra**. Jadro mení len vydávacia úloha vlny (T1.1, T2.1, T3.1, T4.1, T5.1; plan.md §2.1):
+- `assets/js/components/konfigurator1v/{index,ctx,produkty,ceny-ine,kroky,rozlozenie,kufor-boxy,cena,obsah,obsah-cisla}.js`,
+- spoločné partialy `assets/css/_lcd1v-{kroky,rozlozenie,kufor-boxy,cena}.scss`, `tools/vloz-lcd-css.py`, `tools/build-admin-html.mjs`,
+- `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{produkty,pomocnik,stary-ui,cdp}.mjs`,
+- `assets/js/lcdKosikDoplnok.js` (+ test a fixture), `assets/js/main.js`, `assets/js/functions/configuratorEngine.js` (exporty),
+- tento dokument, `assets/css/luxuryCar.css` a `admin-html/dist/*` (generuje nástroj), `.dashboard/roadmap.md`.
+
+Workeri typov (každý len svoje súbory):
+
 | Worker | Smie meniť |
 |---|---|
-| **kroky** (kroky 1–3 + spoločný obal krokov: číslovanie, otváranie, postup, „Dokončite výber“/červený rám) | `assets/js/components/konfigurator1v/kroky.js`, `assets/css/_lcd1v-kroky.scss`, `tools/test-1v/ovladac-kroky.mjs` (len `novy`), nové obrázky `assets/img/1v/kroky-*` |
-| **rozlozenie** (krok 4) | `…/konfigurator1v/rozlozenie.js`, `assets/css/_lcd1v-rozlozenie.scss`, `tools/test-1v/ovladac-rozlozenie.mjs` (len `novy`), nové obrázky `assets/img/1v/rozlozenie-*` |
-| **kufor-boxy** (kroky 5–6 + ponuka v košíku) | `…/konfigurator1v/kufor-boxy.js`, `assets/css/_lcd1v-kufor-boxy.scss`, `tools/test-1v/ovladac-kufor-boxy.mjs` (len `novy`), `assets/js/lcdKosikDoplnok.js` (+ jeho test/fixture), nové obrázky `assets/img/1v/kufor-*`, `box-*` |
-| **cena** (cenová karta + lepivá lišta) | `…/konfigurator1v/cena.js`, `assets/css/_lcd1v-cena.scss`, `tools/test-1v/ovladac-cena.mjs` (len `novy`), nové obrázky `assets/img/1v/cena-*` |
+| **jedno-vzory** (T1.1: 610, 613) | `typy/jedno.js`, `tools/test-1v/scenare-jedno.mjs`, nové obrázky `assets/img/1v/jedno-<vzor>-*` |
+| **dvoj** (T1.2: 601, 604, 607) | `konfigurator1v/farba2.js`, `typy/dvoj.js`, `assets/css/_lcd1v-dvoj.scss`, `tools/test-1v/ovladac-farba2.mjs` (len `novy`), `tools/test-1v/scenare-dvoj.mjs`, `assets/img/1v/dvoj-*` |
+| **kufor** (T2.2: 619–634) | `konfigurator1v/kufor-produkt.js`, `typy/kufor-classic.js`, `typy/kufor-premium.js`, `assets/css/_lcd1v-kufor.scss`, `tools/test-1v/scenare-kufor.mjs`, `assets/img/1v/rohoz-classic-*`, `rohoz-premium-*` |
+| **boxy** (T3.2: 616) | `konfigurator1v/boxy-produkt.js`, `typy/boxy.js`, `assets/css/_lcd1v-boxy.scss`, `tools/test-1v/ovladac-boxy-produkt.mjs` (len `novy`), `tools/test-1v/scenare-boxy.mjs`, `assets/img/1v/boxprodukt-*` |
+| **vzorky** (T5.1: 637) | `konfigurator1v/vzorky-produkt.js`, `typy/vzorky.js` (+ register 637 v jadre v rámci svojho vydania) |
+| **obsah <typ>** (T1.3, T2.3, T2.4, T3.3) | `konfigurator1v/obsah-<typ>.js`, `assets/css/_lcd1v-obsah-<typ>.scss`, `admin-html/src/p1v-<typ>/*`, `tools/test-1v/obsah-<typ>.mjs`, `assets/img/1v/obsah/<typ>-*` |
 
-**Zmrazené (spoločné, len koordinátor):**
-- `assets/js/main.js`, `assets/js/components/konfigurator1v/index.js` + `ctx.js`, `assets/js/functions/configuratorEngine.js` (exporty),
-- `tools/vloz-lcd-css.py`, `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{cdp,pomocnik,stary-ui}.mjs`,
-- tento dokument, `assets/css/luxuryCar.css` (generuje nástroj), `.dashboard/roadmap.md` (odškrtáva koordinátor).
+Stuby z T0.1 (modul `init(){}`, typ len so spoločnými textami, prázdny partial) existujú pre všetky typy, takže `?novy=vyvoj` funguje na celom registri hneď (surový vzhľad nových krokov, `window.__lcd1v.chyby` prázdne).
 
-Potrebuješ zmenu v spoločnom súbore? Napíš ju koordinátorovi, nerob ju sám. Hranice medzi modulmi:
-- **kroky** vlastnia obal a postup.
+Potrebuješ zmenu v jadre? Napíš ju do výstupu, spraví ju vydanie, nerob ju sám. Hranice medzi modulmi:
+- **kroky** vlastnia obal a postup (karty, číslo, „Pokračujte ďalej“, posledný krok „Pokračujte k súhrnu“ bez košíka, červený rám). Modul typu na kroku len stavia telo a zhrnutie dáva cez `data-lcd1v-vyber`.
 - **cena** vlastní tlačidlo košíka a lištu. Tlačidlo volá `ctx.doKosika()`, text „Dokončite výber / Vložte do košíka“ podľa `ctx.prvyNevyplneny()`.
 - Moduly si posielajú udalosti cez `ctx.na/vysli`.
 

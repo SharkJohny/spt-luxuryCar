@@ -1,0 +1,4 @@
+/* LCD-1V dvojvrstvové 601/604/607 — krok Farba 2. vrstvy a texty; selektory body.lcd-1v[data-lcd1v-typ="dvoj"]. Vlastník: T1.2 (farba2.js, typy/dvoj.js)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */

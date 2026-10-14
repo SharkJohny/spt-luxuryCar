@@ -17,6 +17,11 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-CENA       <- _lcd1v-cena.scss        novy konfigurator 1V: cenova karta + lepiva lista     }  docs/1v-kontrakt.md)
   LCD-1V-OBSAH      <- _lcd1v-obsah.scss       obsah pod konfiguratorom 1V: brana, miesto, skrytie stareho popisu (docs/1v-obsah.md)
   LCD-1V-OBSAH-A..D <- _lcd1v-obsah-a..d.scss  obsah 1V po skupinach A-D (kazdy selektor pod body.lcd-1v)
+  LCD-1V-DVOJ       <- _lcd1v-dvoj.scss        1V dvojvrstvove (krok farba 2. vrstvy)  } typove bloky (T0.1 14. 10. 2026):
+  LCD-1V-KUFOR      <- _lcd1v-kufor.scss       1V rohoze do kufra Classic + Premium    } body.lcd-1v[data-lcd1v-typ=...]
+  LCD-1V-BOXY       <- _lcd1v-boxy.scss        1V box do kufra 616                     }
+  LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
+                                               (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
@@ -72,6 +77,22 @@ BLOKY = [
          popis="obsah 1V skupina C: kam siahaju, co pride domov, casova os, farby, vzorky; len body.lcd-1v"),
     dict(meno="LCD-1V-OBSAH-D", zdroj="_lcd1v-obsah-d.scss", home=False, h1=False,
          popis="obsah 1V skupina D: realita, FAQ, kupit a necakat, linka citania, lightbox; len body.lcd-1v"),
+    # Typy produktov (T0.1 14. 10. 2026): za spolocnymi blokmi 1V, kazde pravidlo pod body.lcd-1v[data-lcd1v-typ=...]
+    dict(meno="LCD-1V-DVOJ", zdroj="_lcd1v-dvoj.scss", home=False, h1=False,
+         popis="konfigurator 1V dvojvrstvove 601/604/607: krok farba 2. vrstvy; len body.lcd-1v"),
+    dict(meno="LCD-1V-KUFOR", zdroj="_lcd1v-kufor.scss", home=False, h1=False,
+         popis="konfigurator 1V rohoze do kufra Classic a Premium 619-634; len body.lcd-1v"),
+    dict(meno="LCD-1V-BOXY", zdroj="_lcd1v-boxy.scss", home=False, h1=False,
+         popis="konfigurator 1V box do kufra 616; len body.lcd-1v"),
+    # Obsah pod konfiguratorom podla typu — pri zluceni s obsahom 598 (LCD-1V-OBSAH, -A..D) ponechat AZ ZA nimi
+    dict(meno="LCD-1V-OBSAH-DVOJ", zdroj="_lcd1v-obsah-dvoj.scss", home=False, h1=False,
+         popis="obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-CLASSIC", zdroj="_lcd1v-obsah-classic.scss", home=False, h1=False,
+         popis="obsah 1V rohoz Classic 619/622/625; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-PREMIUM", zdroj="_lcd1v-obsah-premium.scss", home=False, h1=False,
+         popis="obsah 1V rohoz Premium 628/631/634; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-BOXY", zdroj="_lcd1v-obsah-boxy.scss", home=False, h1=False,
+         popis="obsah 1V box do kufra 616; len body.lcd-1v"),
 ]
 
 
