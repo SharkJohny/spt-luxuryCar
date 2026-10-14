@@ -303,6 +303,10 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `box-2-neuplne` | boxy | nový vzhľad: 2 boxy s 1 veľkosťou → červený rám na Veľkosti, POST 0; po doplnení platný POST |
 | `vzorky-odober` | vzorky | nový vzhľad: × pri vybranej vzorke ju zruší, POST len so zvyšnými |
 | `vzorky-nahlad` | vzorky | nový vzhľad: objednateľné vzorky = živý widget (30), náhľady (15) sa nedajú vybrať, názvy zo živej stránky |
+| `druha-nie` | jedno | §13: bez flagu žiadna karta ani kľúč; karta druhej vrstvy skrytá do výberu farby, bez čísla (6 krokov ostáva), „Pokračujte ďalej“ vo Farbe ju otvorí, príplatok „+ N €“, „Nie, ďakujem“ -> Rozloženie, POST = baseline (1v-baseline.json) |
+| `druha-ano` | jedno | §13: „Áno, chcem“ -> správa, zablokované tlačidlá, dvojvrstvový produkt toho istého vzoru s prenesením vzoru, auta a farby, otvorený krok „Farba 2. vrstvy“ bez predvoľby a bez vety navyše; príplatok = živý rozdiel cien; POST = baseline dvojvrstvového; Späť vráti auto aj farbu, karta nezodpovedaná |
+| `druha-vsetko` | jedno | §13: 3 rady (7 miest), rohož Classic a 2 boxy pred „Áno“ -> na dvojvrstvovom rovnaké, okno boxov zatvorené, POST platný |
+| `prenos-neplatny` | dvoj | §13: kľúč starší ako 10 min, pre iný produkt, s farbou, ktorú produkt nemá -> nič, bez chyby; chýbajúca farba = otvorený krok Farba |
 
 Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy` ovládač:
 - štítok „Odporúčaná cena“ (ovládač `cena`),
@@ -361,12 +365,17 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 - `tools/test-1v-obsah.mjs --produkt 598,610,613`: 32 OK, exit 0 (bez flagu 0 požiadaviek na kusy obsahu a 0 médií; s `?novy=1` obsah z CDN verzie, na 610/613 „od 230 €“),
 - `tools/test-boxy-prepni.mjs`: 8/8 OK, exit 0.
 
+**Po ponuke druhej vrstvy (14. 10. 2026, §13, lokálny build, každý POST zachytený a zrušený):**
+- `--novy --produkt 598,610,613,601,604,607 --sirka 1280,390 --paralelne 2`: 178 OK, 0 zlyhalo, 4 upozornenia (610 „nie“ +5 €, D2), exit 0 — z toho `druha-nie`, `druha-ano`, `druha-vsetko` na 598/610/613 a `prenos-neplatny` na 601/604/607, obe šírky; príplatok na karte 598 a 610 + 132 €, 613 + 127 € (Stripe Combi), vždy = živý rozdiel cien,
+- `--produkt 598,610,613,601,604,607 --krok brana,nulova-zmena --sirka 1280,390 --paralelne 2` (bez flagu): 24 OK, exit 0,
+- `tools/test-1v-obsah.mjs --produkt 598,610,613`: 30 OK, exit 0.
+
 ## 10. Vlastníctvo súborov
 
 Od T0.1 (14. 10. 2026) sú moduly 598 súčasťou **jadra**. Jadro mení len vydávacia úloha vlny (T1.1, T2.1, T3.1, T4.1, T5.1; plan.md §2.1):
-- `assets/js/components/konfigurator1v/{index,ctx,produkty,ceny-ine,kroky,rozlozenie,kufor-boxy,cena,poznamka,obsah,obsah-cisla}.js`,
-- spoločné partialy `assets/css/_lcd1v-{kroky,rozlozenie,kufor-boxy,cena}.scss`, `tools/vloz-lcd-css.py`, `tools/build-admin-html.mjs`,
-- `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{produkty,pomocnik,stary-ui,cdp}.mjs`,
+- `assets/js/components/konfigurator1v/{index,ctx,produkty,ceny-ine,kroky,rozlozenie,kufor-boxy,cena,poznamka,obsah,obsah-cisla,druha-vrstva,prenos}.js`,
+- spoločné partialy `assets/css/_lcd1v-{kroky,rozlozenie,kufor-boxy,cena,druha}.scss`, `tools/vloz-lcd-css.py`, `tools/build-admin-html.mjs`,
+- `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{produkty,pomocnik,stary-ui,cdp,scenare-druha}.mjs`,
 - `assets/js/lcdKosikDoplnok.js` (+ test a fixture), `assets/js/main.js`, `assets/js/functions/configuratorEngine.js` (exporty),
 - tento dokument, `assets/css/luxuryCar.css` a `admin-html/dist/*` (generuje nástroj), `.dashboard/roadmap.md`.
 
@@ -423,3 +432,22 @@ Texty prebrať z návrhu.
 - **FAQ:** otázky sú `button type=submit` vo formulári. Odoslaniu bráni len `preventDefault` v `components/index.js`.
 - **Štítok galérie** („€350 −37 %“) nesedí s cenou z JS (360 / −39 %). Riešenie patrí worker cena (skryť pod `body.lcd-1v`).
 - **CZ** je nedotknutá (brána). Iné ID: farba 72, rozloženie 57, kufor 60, boxy 63/66/69, solo **78**, TYP 47. Ceny v Kč. Preto nikdy ID natvrdo.
+
+## 13. Ponuka druhej vrstvy a prenos výberu (Michal 14. 10. 2026)
+
+Návrh: `druha-vrstva.html` (texty, dlaždice), technický rozbor `prenos` (kľúč, zápis cez živé ovládače). Rozhodnutia Michala z 14. 10. 2026 platia pred rozborom: karta NIE je číslovaný krok, na dvojvrstvovom žiadna veta navyše.
+
+| Čo | Kde | Pravidlo |
+|---|---|---|
+| Karta otázky | `konfigurator1v/druha-vrstva.js` (`TYPY.jedno.moduly`, len 598/610/613) | nový `div.lcd1v-krok.lcd1v-druha` v `.content-wrap` hneď za krokom Farba, BEZ tried `.position-wrap/.parameter-wrap` a bez `name` -> nie je v `lcdGetSteps`, validácia košíka aj „Krok N z 6“ / postup sa nemenia. Skrytá (`hidden`), kým nie je zvolená farba. Bez čísla (namiesto čísla prázdne miesto, po „Nie“ fajka). Nepovinná: bez odpovede = Nie. |
+| Otvorenie | to isté | „Pokračujte ďalej“ vo Farbe (capture na `document`, ako posledný krok v `kroky.js`) otvorí kartu namiesto Rozloženia, kým nie je zodpovedaná; nevyplnená farba = živá validácia ako doteraz. Hlavička karty ju otvára / zatvára. Otvorenie živého kroku kartu zatvorí. |
+| Áno | to isté | zlatá dlaždica (vzhľad `.lcd1v-kb__karta`, reálna fotka `assets/img/1v/dvoj-vzor-<vzor>.jpg` cez `ctx.obrazokVzoru("druha-ano")`), príplatok „+ N €“ = cena dvojvrstvového produktu pri tých istých voľbách (`ceny-ine.js priplatkyProduktu` -> `kom` variantov + rovnaké hodnoty príplatkov) − `ctx.cena().spolu`; chyba siete alebo chýbajúca hodnota = riadok sa skryje. Klik: správa „Prenášame Váš výber…“, tlačidlá zablokované, `zapisPrenos`, po 450 ms `location.assign` na `najdiProdukt(projectId, "dvoj", vzor).url` (598 -> 601, 610 -> 604, 613 -> 607). |
+| Nie | to isté | zelené „Nie, ďakujem“ (vzhľad „Pokračujte ďalej“): karta sa zbalí („Bez druhej vrstvy“) a otvorí sa ďalší živý krok (Rozloženie). |
+| Kľúč | `konfigurator1v/prenos.js` | `sessionStorage["lcd1vPrenos:v1"] = { v: 1, t, z, na, vyber, prijate }`; `vyber` = ID hodnôt (farba, rozlozenie, kufor, pocetBoxov + farbaBoxov + veľkosti len úplné, volant/miesta/dvere z aktívnych dlaždíc kroku 2). Prenos platí 10 min. |
+| Prijímač | `prenos.js` (`TYPY.jedno/dvoj.moduly`, posledný) | na cieli (`na === productId`, neprijaté): `prijate` sa zapíše hneď, potom (keď je živý konfigurátor postavený) dlaždice kroku 2 -> `ctx.zapis` farba, rozloženie, kufor -> boxy (počet, farba, veľkosti, živé „potvrdiť“) a otvorí sa `ctx.prvyNevyplneny()` (po prenose „Farba 2. vrstvy“, nič nepredvolené). Hodnota, ktorú produkt nemá, sa preskočí (chýbajúca farba = otvorí sa krok Farba). Späť na zdroji (`back_forward`, `z === productId`, do 30 min): ten istý zápis vráti výber, kľúč sa zmaže; Safari bfcache (`pageshow persisted`) kartu odblokuje. |
+| POST | — | všetko ide cez `ctx.zapis` / klik na živé ovládače -> telo POST = starý vzhľad pri tých istých voľbách (scenáre `druha-*` porovnávajú s baseline 1v-baseline.json). |
+| Texty | `typy/jedno.js` `texty.druha` | doslovne zo schválených návrhov `druha-vrstva.html` / `dvojvrstvove.html`. |
+| CSS | `assets/css/_lcd1v-druha.scss` -> blok `LCD-1V-DRUHA` (za `LCD-1V-CENA`) | len pod `body.lcd-1v`. |
+| Bez flagu | brána `index.js` | nič: žiadna karta, kľúč ani handler (`nulova-zmena`). |
+
+Neprenáša sa: poznámka k objednávke (doplnok ukladá text až pri vložení do košíka), prenos v novej karte prehliadača, pri zakázanom úložisku a po 10 minútach (auto ostáva vďaka `sessionStorage` živého kódu). Odkaz „Pozrite si dvojvrstvové“ v obsahu pod konfigurátorom kľúč nepoužíva.

@@ -26,6 +26,21 @@ export const TYP = {
       },
     },
     cena: { typ: "Jednovrstvové", zaSet: "cena za set na mieru" },
+    // Ponuka druhej vrstvy po kroku Farba (druha-vrstva.js; Michal 14. 10. 2026: skrytá karta BEZ čísla, nepovinná).
+    // Texty doslovne zo schváleného návrhu druha-vrstva.html (krok „Druhá vrstva“, dlaždice Áno / Nie, správa pri prenose);
+    // podnadpis = dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js. Cena „+ N €“ sa ráta živo (nikdy natvrdo).
+    druha: {
+      nm: "Druhá vrstva",
+      ti: "Chcete aj druhú vrstvu?",
+      vy: "Áno alebo nie",
+      vyNie: "Bez druhej vrstvy",
+      pod: "Druhá vrstva sa kladie na prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
+      naj: "★ Odporúčame",
+      ano: { nm: "Áno, chcem", po: "Dvojvrstvové koberce", ben: "Vzor, auto aj farba Vám ostanú.", alt: "Dvojvrstvové autokoberce s druhou vrstvou" },
+      priplatok: "Príplatok",
+      nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
+      prenos: "Prenášame Váš výber na dvojvrstvové koberce…",
+    },
     // „Poznámka k objednávke“ pod tlačidlom košíka (poznamka.js; návrh jednovrstvove.html .pozn-dole — dvojvrstvové
     // majú v návrhu ten istý placeholder aj vetu, preberajú ich odtiaľto)
     poznamka: {
@@ -45,5 +60,7 @@ export const TYP = {
     "boxy-1": { diamond: "kufor-boxy-1-box.jpg" },
     "boxy-2": { diamond: "kufor-boxy-2-boxy.jpg" },
     "boxy-0": { diamond: "kufor-boxy-premium.jpg" },
+    // dlaždica „Áno“ ponuky druhej vrstvy: reálna fotka dvojvrstvového koberca vo vzore produktu (už na CDN, návrh dvojvrstvove.html)
+    "druha-ano": { diamond: "dvoj-vzor-diamond.jpg", stripe: "dvoj-vzor-stripe.jpg", hexa: "dvoj-vzor-hexa.jpg" },
   },
 };

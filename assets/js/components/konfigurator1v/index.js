@@ -22,9 +22,12 @@ import * as kuforProdukt from "./kufor-produkt.js";
 import * as boxyProdukt from "./boxy-produkt.js";
 import * as vzorkyProdukt from "./vzorky-produkt.js";
 import * as poznamka from "./poznamka.js";
+// ponuka druhej vrstvy (jedno) + prenos výberu na dvojvrstvové a späť (Michal 14. 10. 2026)
+import * as druhaVrstva from "./druha-vrstva.js";
+import * as prenos from "./prenos.js";
 
 /** Moduly podľa mena (TYPY[typ].moduly v produkty.js); meno, ktoré tu nie je, sa preskočí. */
-const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka };
+const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos };
 
 /** projectId -> produkty zapnuté pre ?novy=1 (odvodené z registra; ponechané pre spätnú kompatibilitu). */
 export const ZOZNAM_1V = zoznamZapnutych();
