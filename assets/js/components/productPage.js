@@ -1435,6 +1435,11 @@ function updateUpsale($this, event) {
       // Prefer parameter 104 for Solo box if present; fallback to 78, then first available
       let soloId = allBoxIds.includes(104) ? 104 : allBoxIds.includes(78) ? 78 : allBoxIds[0];
 
+      // 1 box <-> 2 boxy: veľkosti druhej možnosti zrušiť, inak ich tlačidlo ostane .active
+      // a priceActualization (každý klik na voľbu) ich select znova nastaví -> navyše v POST aj v cene
+      // (13. 10. 2026: 1 box -> 2 boxy poslal aj samostatný box, košík 551 € namiesto 442 €).
+      lcdZrusVelkostiBoxov(value[0] === "conf1" ? ["box1", "box2"] : ["boxSolo"]);
+
       if (value[0] === "conf1") {
         setBoxConfigVisibleCount(1);
 
@@ -1538,6 +1543,25 @@ function updateUpsale($this, event) {
   setTimeout(() => {
     calculateStandartPrice(diference);
   }, 200);
+}
+
+// Veľkosti boxov podľa data-parameter-name (ID sa medzi SK a CZ líšia: solo SK 104 / CZ 78, CZ 78 != SK 78).
+const LCD_VELKOST_BOXU = { box1: /\b1\.\s*box/i, box2: /\b2\.\s*box/i, boxSolo: /box\s*solo/i };
+
+/** Zruší výber veľkosti boxov `kluce` (box1 / box2 / boxSolo): tlačidlá v box-config a select (prázdna hodnota + change). */
+function lcdZrusVelkostiBoxov(kluce) {
+  $("#product-detail-form select.surcharge-parameter[data-parameter-name]").each(function () {
+    const meno = String($(this).attr("data-parameter-name") || "");
+    if (!kluce.some((k) => LCD_VELKOST_BOXU[k].test(meno))) return;
+    const id = $(this).attr("data-parameter-id");
+    const $wrap = $(`.box-config .parameter-wrap.parameter-${id}`);
+    $wrap.find(".button.option-button").removeClass("active");
+    $wrap.find("input[type='radio'], input[type='checkbox']").prop("checked", false);
+    // aj kópia formulára v popise produktu (rovnaká trieda) -> rovnako ako ostatné zápisy v updateUpsale
+    $(`select.surcharge-parameter.parameter-id-${id}`).each(function () {
+      if ($(this).val()) $(this).val("").trigger("change");
+    });
+  });
 }
 
 function updateBoxPrice() {
