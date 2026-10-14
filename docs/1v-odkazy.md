@@ -5,7 +5,7 @@ Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.
 
 Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medzi produktmi ho drží). `?novy=0` vzhľad vypne.
 
-**sha vydania:** `SHA_DOPLNI_VYDANIE` (po vydaní vyplniť z `assets/v/<sha>/js/version.json`). Kým Michal neprepne sha v SK HTML kódoch (krok A), odkazy ukazujú starý vzhľad.
+**sha vydania:** `2e02539` (vydané 14. 10. 2026, CI zelené, CDN overené). Kým Michal neprepne sha v SK HTML kódoch (krok A), odkazy ukazujú starý vzhľad.
 
 ---
 
@@ -34,7 +34,7 @@ Všade: cena v novom vzhľade v tvare „230 €“ (nie „€230“); krátky 
 
 ## Admin kroky (Michal)
 
-**A. Povinné pre odkazy.** Shoptet **SK** admin → HTML kódy: v oboch adresách `…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js` a `…/assets/v/<sha>/css/luxuryCar.css` vymeň sha za `SHA_DOPLNI_VYDANIE`.
+**A. Povinné pre odkazy.** Shoptet **SK** admin → HTML kódy: v oboch adresách `…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js` a `…/assets/v/<sha>/css/luxuryCar.css` vymeň `fc20e3e` za `2e02539` (2× v Záhlaví, 2× v Zápätí).
 - Pred zmenou si zapíš súčasný sha (návrat).
 - **CZ HTML kódy nemeň** (ostáva `5db0f33`).
 - Bez tohto kroku odkazy ukazujú starý vzhľad.
