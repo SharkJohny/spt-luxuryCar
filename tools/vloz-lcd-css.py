@@ -20,7 +20,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-DVOJ       <- _lcd1v-dvoj.scss        1V dvojvrstvove (krok farba 2. vrstvy)  } typove bloky (T0.1 14. 10. 2026):
   LCD-1V-KUFOR      <- _lcd1v-kufor.scss       1V rohoze do kufra Classic + Premium    } body.lcd-1v[data-lcd1v-typ=...]
   LCD-1V-BOXY       <- _lcd1v-boxy.scss        1V box do kufra 616                     }
-  LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
+  LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY / -VZORKY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
                                                (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
@@ -96,6 +96,9 @@ BLOKY = [
     # Vzorkovnik 637 (T5.1, integracia WA 14. 10. 2026) — kazde pravidlo pod body.lcd-1v[data-lcd1v-typ="vzorky"]
     dict(meno="LCD-1V-VZORKY", zdroj="_lcd1v-vzorky.scss", home=False, h1=False,
          popis="konfigurator 1V vzorkovnik 637; len body.lcd-1v"),
+    # Obsah vzorkovnika 637 (T5.1b, integracia WB 14. 10. 2026) — tiez az za spolocnymi blokmi obsahu
+    dict(meno="LCD-1V-OBSAH-VZORKY", zdroj="_lcd1v-obsah-vzorky.scss", home=False, h1=False,
+         popis="obsah 1V vzorkovnik 637; len body.lcd-1v"),
 ]
 
 

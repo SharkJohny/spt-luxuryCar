@@ -24,10 +24,6 @@ body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > spa
   body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span:nth-child(-n+3){font-size:9.5px;letter-spacing:.02em;overflow-wrap:normal}
 }
 
-/* =============================================================== b-ocakavat, b-material: úvodná veta pod nadpisom je široká 70 znakov (návrh .pinhead .lede), nie 46 znakov ako .lede z bloku LCD-1V-OBSAH bod 6
-   (pri dlhom texte materiálu by inak mala 5 riadkov a štítky pod ňou by sa posunuli oproti návrhu) */
-body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) :is([data-lcd-sekcia="b-ocakavat"],[data-lcd-sekcia="b-material"]) .pinhead .lede{max-width:70ch}
-
 /* =============================================================== b-ocakavat: náhľady krokov z CSS (fotky dvojvrstvových, bez flagu sa nestiahnu) */
 body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="0"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/dvoj-ocakavat-celorocne.jpg)}
 body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="1"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/dvoj-ocakavat-druha-vrstva.jpg)}

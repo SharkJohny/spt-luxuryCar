@@ -14,9 +14,8 @@
 //   .kryv-f[data-z] = zvolená plocha (vsetko | dno | boky | operadla); SVG zóny na fotke sa podľa nej rozsvietia v CSS.
 //   Klik na .kz[data-z] ju nastaví a označí tlačidlo (.on, aria-pressed). Na PC (hover:hover + pointer:fine) ju
 //   rozsvieti aj prechod myšou; po odchode myši sa vráti zvolená. Nič neodosiela, nič z DOM nemaže.
-// d-faq (čísla v odpovediach) — DOČASNÉ do opravy kontroly „čísla nedosadené“ v test-1v-obsah.mjs (computed visibility):
-//   číslo data-p1v-cislo v ZBALENEJ odpovedi má v CSS partiali visibility:visible (zbalenú odpoveď aj tak ukryje overflow);
-//   aby ho čítačky nečítali mimo otvorenej odpovede, dostane aria-hidden, kým je tlačidlo otázky aria-expanded="false".
+// d-faq: čísla v odpovediach (data-p1v-cislo) dosadí obsah-cisla.js; v zbalenej odpovedi ich skrýva visibility:hidden odpovede
+//   (dedia ho, takže ich ani čítačky nečítajú) — od integrácie WB 14. 10. 2026 bez vlastnej obchádzky.
 export const MENO = "obsah-premium";
 
 /** povolené hodnoty data-z (ostatné ignorovať) */
@@ -61,26 +60,9 @@ function kryje(sek) {
   }
 }
 
-/** FAQ: číslo v zbalenej odpovedi je pre čítačky skryté (aria-hidden), v rozbalenej sa číta normálne. */
-function faqCisla(sek) {
-  pole(sek.querySelectorAll(".p1v-faq-q[aria-controls]")).forEach((b) => {
-    const odp = document.getElementById(b.getAttribute("aria-controls"));
-    const cisla = odp ? pole(odp.querySelectorAll("[data-p1v-cislo]")) : [];
-    if (!cisla.length) return;
-    const sync = () => cisla.forEach((c) => {
-      if (b.getAttribute("aria-expanded") === "true") c.removeAttribute("aria-hidden");
-      else c.setAttribute("aria-hidden", "true");
-    });
-    sync();
-    if (typeof MutationObserver === "function") new MutationObserver(sync).observe(b, { attributes: true, attributeFilter: ["aria-expanded"] });
-  });
-}
-
 /** @param {object} oc spoločný kontext obsahu (obsah.js) */
 export function init(oc) {
   const sek = oc.sekcia("premium-kryje");
   if (sek) kryje(sek);
-  const faq = oc.sekcia("d-faq");
-  if (faq) faqCisla(faq);
   // premium-porovnanie: len reveal .rv (spoločne robí obsah.js); ceny a odkaz na Classic dosadzuje obsah-cisla.js
 }

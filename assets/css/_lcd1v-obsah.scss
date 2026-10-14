@@ -55,7 +55,9 @@ body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-ka
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.chapter h2,.pinhead h2){color:#8f7020;
   background:linear-gradient(100deg,#8a6b1c,#c49b31 42%,#e0bd63 60%,#96751f);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lede{max-width:46ch}
+/*    b) bez úvodu scén a záveru: titulka (LCD-HOME) má .pinhead .lede 70ch, .setb .lede 54ch, .end .lede 56ch a návrhy ich
+         preberajú; 46ch s vyššou špecificitou ich prebíjalo (úvod Deväť vecí/Materiál a záver užšie než v návrhu, jadroChyby T1.3, T3.3) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lede:not(.pinhead .lede,.setb .lede,.end .lede){max-width:46ch}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia]:not(.p1v-rv) .rv,
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
 body.lcd-1v :is(.p1v-miesto .sr-only,.p1v-sr){position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;

@@ -301,19 +301,20 @@ export async function kontroly(t) {
     const o = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); var b = s.querySelectorAll(".p1v-faq-q")[2], a = document.getElementById(b.getAttribute("aria-controls"));
       return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), txt: a.textContent.trim().slice(0, 40) }; })()`);
     ok(o.exp === "true" && o.h > 15, `d-faq: klik rozbalí odpoveď (výška ${o.h}, „${o.txt}…“)`);
-    // FAQ 5 doslovne podľa návrhu (ceny zo živých dát), číslo v zbalenej odpovedi je pre čítačky skryté, v rozbalenej nie
+    // FAQ 5 doslovne podľa návrhu (ceny zo živých dát); číslo v zbalenej odpovedi dedí visibility:hidden odpovede (čítačky ho nečítajú),
+    // v rozbalenej je viditeľné (integrácia WB 14. 10. 2026: bez vlastnej obchádzky aria-hidden, test jadra berie vlastnú viditeľnosť čísla)
     const f5 = async () => t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); var b = s.querySelectorAll(".p1v-faq-q")[4], a = document.getElementById(b.getAttribute("aria-controls"));
       var c = [].slice.call(a.querySelectorAll("[data-p1v-cislo]"));
       return { exp: b.getAttribute("aria-expanded"), txt: (a.textContent || "").replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(),
         hidden: c.map(function (x) { return x.getAttribute("aria-hidden"); }), vis: c.map(function (x) { return getComputedStyle(x).visibility; }), stav: c.map(function (x) { return x.getAttribute("data-p1v-stav"); }) }; })()`);
     const z5 = await f5();
-    ok(z5.hidden.length === 2 && z5.hidden.every((h) => h === "true") && z5.stav.every((x) => x === "ok"), `d-faq 5: dve čísla dosadené, v zbalenej odpovedi aria-hidden (${z5.hidden.join(",")}; stav ${z5.stav.join(",")})`);
+    ok(z5.stav.length === 2 && z5.stav.every((x) => x === "ok") && z5.vis.every((v) => v === "hidden"), `d-faq 5: dve čísla dosadené, v zbalenej odpovedi skryté so zbalenou odpoveďou (stav ${z5.stav.join(",")}; ${z5.vis.join(",")})`);
     await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(sek)} + " .p1v-faq-q")[4]; if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
     await t.pauza(400);
     await t.klikni(sek + " .p1v-faq-q", { index: 4, popis: "FAQ 5", pockaj: 600 });
     const o5 = await f5();
     const ce5 = CENY[id];
-    ok(o5.exp === "true" && o5.hidden.every((h) => h === null) && o5.vis.every((v) => v === "visible"), `d-faq 5: po rozbalení čísla bez aria-hidden a viditeľné (${o5.hidden.join(",")}; ${o5.vis.join(",")})`);
+    ok(o5.exp === "true" && o5.hidden.every((h) => h === null) && o5.vis.every((v) => v === "visible"), `d-faq 5: po rozbalení čísla viditeľné a bez aria-hidden (${o5.vis.join(",")})`);
     ok(ce5 && new RegExp(`^Áno\\. V sete s autokobercami stojí rohož Premium \\+ \\d+ € namiesto ${ce5.premium} €\\. Set zostavíte v konfigurátore autokobercov\\.$`).test(o5.txt),
       `d-faq 5: znenie doslovne podľa návrhu so živými cenami („${o5.txt}“)`);
     const t12 = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); var a = s.querySelectorAll(".p1v-faq-a")[11]; return (a.textContent || "").replace(/\\s+/g, " ").trim(); })()`);

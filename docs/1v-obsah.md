@@ -22,11 +22,11 @@ Prečo nie banner v pätičke (D1 = a, pôvodný základ): ~55–73 kB skrytého
 | Kľúč | Produkty | Zdroj | Kusy (dist / CDN `html/`) | Návrh | Stav |
 |---|---|---|---|---|---|
 | `598` | 598 Diamond, 613 Stripe, 610 Hexa (jednovrstvové) | `admin-html/src/p1v-598/` | `p1v-598-1.sk.html` (10–29: A + B), `p1v-598-2.sk.html` (30–49: C + D) | jednovrstvove.html v26 | hotové (značky čísel a odkazov podľa vzoru doplní T1.1) |
-| `dvoj` | 601, 607, 604 | `src/p1v-dvoj/` | `p1v-dvoj-1/-2` | dvojvrstvove.html | stuby (T1.3) |
-| `classic` | 619, 625, 622 | `src/p1v-classic/` | `p1v-classic-1/-2` | kufor-classic.html | stuby (T2.3) |
-| `premium` | 628, 634, 631 | `src/p1v-premium/` | `p1v-premium-1/-2` | kufor-premium.html | stuby (T2.4) |
-| `boxy` | 616 | `src/p1v-boxy/` | `p1v-boxy-1/-2` | boxy.html | stuby (T3.3) |
-| `vzorky` | 637 | `src/p1v-vzorky/` | `p1v-vzorky-1/-2` | vzorkovnik.html | stub (T5.1, až po schválení) |
+| `dvoj` | 601, 607, 604 | `src/p1v-dvoj/` | `p1v-dvoj-1/-2` | dvojvrstvove.html | hotové (T1.3, integrácia WB 14. 10.; `23-b-predapo` stub) |
+| `classic` | 619, 625, 622 | `src/p1v-classic/` | `p1v-classic-1/-2` | kufor-classic.html | stuby — T2.3 nie je v integrácii WB (sekcia 12) |
+| `premium` | 628, 634, 631 | `src/p1v-premium/` | `p1v-premium-1/-2` | kufor-premium.html | hotové (T2.4, integrácia WB) |
+| `boxy` | 616 | `src/p1v-boxy/` | `p1v-boxy-1/-2` | boxy.html | hotové (T3.3, integrácia WB) |
+| `vzorky` | 637 | `src/p1v-vzorky/` | `p1v-vzorky-1/-2` | vzorkovnik.html | hotové (T5.1b, integrácia WB) |
 
 - Jeden obsah pre celú skupinu. Čo sa líši podľa vzoru alebo ceny (ceny, počet farieb, názov vzoru, odkazy na iný typ toho istého vzoru), je v značkách `data-p1v-cislo` / `data-p1v-odkaz` a dosadí to `obsah-cisla.js` zo živých dát (sekcia 4b). **V statickom HTML nikdy nie je cena** (build to kontroluje).
 - **Každá skupina má presne 2 kusy** (`-1` = sekcie 10–29, `-2` = 30–49; `ciele.json` → `pravidla.obsah-1v.kusy` = `KUSY` v `obsah.js`; build kontroluje). Každý kus ≤ 45 000 zn. kvôli spusteniu (limit poľa Popis).
@@ -68,7 +68,7 @@ Dôsledky:
 - Tie sú aj prvou časťou CSS návrhu. **Skupiny teda píšu len rozdiely oproti titulke**, nekopírujú 370 riadkov `lx-*`.
 - Špecificita ostáva (1,0,0). Bez flagu alias nič nevyberá.
 - `luxuryCar.css`: +~39 kB surových, +~2 kB brotli.
-- Body 5–6 základu `_lcd1v-obsah.scss` a partialy A–D cielia `:is(#p1v-598-1,#p1v-598-2,.p1v-obsah)` (integrácia WA 14. 10. 2026; predtým len id 598): `:is()` berie špecificitu najšpecifickejšieho argumentu (1,0,0), takže prebije LCD-HOME rovnako a vyberie koreň každého kľúča (`dvoj` … `boxy`).
+- **Vybavené (integrácie WA a WB 14. 10. 2026):** body 5–6 základu `_lcd1v-obsah.scss` a partialy A–D cielia `:is(#p1v-598-1,#p1v-598-2,.p1v-obsah)` — `:is()` berie špecificitu najšpecifickejšieho argumentu (1,0,0), takže prebije LCD-HOME rovnako, ale vyberie koreň každého kľúča. Typy už nemajú kópie týchto pravidiel (premium TEMP-JADRO-KOPIA a boxy ZAPLATA-ROZSAH zmazané). Fotky náhľadov Deväť vecí (data-i 0–8) a legenda pred a po (pp-1…4) v B sú viazané len na korene 598 — iný kľúč dáva vlastné.
 
 **Kapitoly návrhu** (`.kap[data-k=1–4]` = 4 tematické skupiny, 2. a 4. na svetlom podklade):
 - Obal sekcie nesie `data-lcd-kap="N"`. Kapitola 2 má totiž sekcie dvoch skupín (B + C).
@@ -92,7 +92,7 @@ Dôsledky:
 | `classic` | 19 stubov, nové `23-classic-premium`, `31-classic-box` | `obsah-classic.js` | `_lcd1v-obsah-classic.scss` | `obsah-classic.mjs` | T2.3 |
 | `premium` | 17 stubov, nové `22-premium-porovnanie`, `30-premium-kryje` | `obsah-premium.js` | `_lcd1v-obsah-premium.scss` | `obsah-premium.mjs` | T2.4 |
 | `boxy` | 15 stubov, nové `21-boxy-velkosti`, `40-boxy-cross` | `obsah-boxy.js` | `_lcd1v-obsah-boxy.scss` | `obsah-boxy.mjs` | T3.3 |
-| `vzorky` | `10-vzorky-obsah` (stub) | — | — | — | T5.1 |
+| `vzorky` | `10-c-casova-os`, `20-vzorky-vratenie` (kotva „Ako na to“), `30-a-ponuka`, `40-d-faq` | — (A, C, D stačia) | `_lcd1v-obsah-vzorky.scss` (blok `LCD-1V-OBSAH-VZORKY`) | `obsah-vzorky.mjs` | T5.1b |
 
 - Mená stubov sú návrh podľa spec typu (poradie z návrhu, mená 598 tam, kde sekciu oživuje skupina A–D). Úloha typu ich smie premenovať, zmazať alebo pridať (`NN-<meno>.sk.html`, rozsah 10–29 = kus 1, 30–49 = kus 2).
 - **Spoločné sekcie** (referencie, galéria, recenzie, deväť vecí, materiál, porovnanie, časová os, farby, vzorky, realita, FAQ, záver, pomocné) nesú **mená 598** (`a-…`, `b-…`, `c-…`, `d-…`) → oživia ich A–D bez zmeny JS. Nový komponent typu = meno `<kľúč>-<meno>` a oživuje ho modul typu.
@@ -190,7 +190,7 @@ Odkazy `data-p1v-odkaz="jedno|dvoj|classic|premium|boxy"` → `href` = adresa z 
   - Merať na návrhu (computed styles, snímky). Patch vrstvy návrhu nekopírovať.
 - **Spoločné pravidlá sú v základe `_lcd1v-obsah.scss`, skupiny ich nekopírujú:**
   - bod 5: rytmus kapitol `clamp(38px,4.8vw,68px)` so selektorom s id koreňov (prebije LCD-HOME ARMOR `.chapter{padding…!important}`), linka medzi sekciami kapitoly bez id (skupina ju vie zrušiť, napr. B pred porovnaním),
-  - bod 6: zlaté nadpisy `.chapter h2` / `.pinhead h2`, `.lede{max-width:46ch}`, reveal `.rv` viditeľné bez `.p1v-rv`, `.sr-only` / `.p1v-sr`,
+  - bod 6: zlaté nadpisy `.chapter h2` / `.pinhead h2`, `.lede{max-width:46ch}` okrem `.pinhead .lede` (70ch), `.setb .lede` (54ch) a `.end .lede` (56ch), ktoré ostávajú z titulky ako v návrhoch (integrácia WB), reveal `.rv` viditeľné bez `.p1v-rv`, `.sr-only` / `.p1v-sr`,
   - bod 7: `#content-wrapper` od 761 px `overflow:visible` (lepené scény + miesto na celú šírku), na telefóne `overflow-x:clip` + zvislo visible (pred a po lepí ako v návrhu a na titulke; `#content-wrapper` je tam na celú šírku okna, overené 360/390; celé `clip` by orezalo posledný px obsahu),
   - bod 8: starý FAQ pri konfigurátore skrytý, keď je na stránke nový `d-faq`,
   - bod 9: lepená scéna (pred a po, na tablete aj galéria) má spodok o výšku lepivej lišty konfigurátora vyššie (`body.lcd1v-lista-on`, do 991 px).
@@ -443,3 +443,16 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 
 **Integrácia WA (14. 10. 2026):** body 1 a 2 hotové — `tools/test-konfigurator-1v.mjs` a `tools/test-boxy-prepni.mjs` pri lokálnom builde vrátia na kus prázdny koreň (konfigurátor sa testuje bez obsahu, obsah.js stav „nic“), `OBSAH_CDN` predvolene `true`. Bod 3 (push, CI, `curl -sI` kusu na CDN) ostáva na vydaní. `test-1v-obsah.mjs`: výška stránky bez flagu pri `--miesto cdn` je len upozornenie (HTML stránky sa bez flagu nemení, kolíše živá stránka), každá úloha má tvrdý limit 480 s.
 
+## 12. Integrácia WB (14. 10. 2026) — obsah dvojvrstvových, Premium, boxu a vzorkovníka
+
+**Zlúčené (worktree `spt-luxuryCar-1v-int2`, základ `3cdcd96`):** T1.3 dvoj, T2.4 premium, T3.3 boxy, T5.1b vzorky. **T2.3 Classic nie je zlúčené** (stav úlohy „partial“ a kontrola neprešla — ostáva v `spt-luxuryCar-1v-c-classic`, na 619/622/625 sú zatiaľ stuby: nič sa neukáže, starý popis ostane).
+
+**Opravy jadra:**
+- CSS: scope `.p1v-obsah` (sekcia 2), `.lede` 46ch nie pre úvod scén a záver (sekcia 5), fotky náhľadov a legendy pred a po v B len pre 598; dočasné kópie pravidiel jadra v partialoch premium a boxy zmazané; nový blok `LCD-1V-OBSAH-VZORKY` vo `vloz-lcd-css.py`.
+- Čísla vo FAQ: `test-1v-obsah.mjs` berie **vlastnú** viditeľnosť čísla (inline `visibility:hidden` z `obsah-cisla.js`, kým čaká, alebo hidden, ktoré nededí od rodiča) a stav `caka` = nedosadené. Číslo v zbalenej odpovedi FAQ dedí hidden od `.p1v-faq-a` a je v poriadku → vo FAQ sa píše štandardná značka `data-p1v-cislo` (boxy už nemá `data-p1v-faq-cislo`, premium nemá obchádzku `visibility:visible` + `aria-hidden`; dvoj má späť čísla vo FAQ 3 a 10 ako v návrhu).
+- `data-p1v-bez` build povoľuje len spolu s `data-p1v-cislo`.
+- Test: plugin `obsah-vzorky.mjs` zapojený (`PLUGINY.vzorky`), tvrdý limit úlohy 480 s, výška bez flagu pri `cdn` len upozornenie (ako WA), snímka čaká 1,4 s na prechody lepených scén, sekcia `*-pomocne` nehlási „nemá mapu“, D (linka čítania, okno, FAQ, šípka reality, posun „Zadajte údaje o vozidle“) a B (rez materiálu na telefóne, legenda) čakajú na stav namiesto pevných pauz.
+
+**Veľkosti (build):** `p1v-dvoj` 33 363 + 21 576 zn., `p1v-premium` 32 413 + 26 242, `p1v-boxy` 26 312 + 22 382, `p1v-vzorky` 1 970 + 3 910 — každý kus ≤ 45 000. Spolu pre jedno pole Popisu po spustení: dvoj 54 939 (−9 939), premium 58 655 (−13 655), boxy 48 694 (−3 694), vzorky 5 880 (OK) — pri spustení pre všetkých platí sekcia 7 (rozhodne Michal, rovnako ako 598 s 57 316).
+
+**Neurobené (nie chyby, ale chýbajúce kľúče čísel — obsah ich podľa D3 vynechal):** `cena-od-<typ>-<vzor>` (cena rohože iného vzoru, Classic FAQ 11), `pocet-farieb-classic` a rozdiel ceny medzi vzormi (Premium porovnanie a FAQ 12).

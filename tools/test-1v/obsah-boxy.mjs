@@ -414,7 +414,7 @@ export async function kontroly(t) {
       return t.ev(`(async function () { var b = document.querySelectorAll(${JSON.stringify(q)})[${i}], a = b.nextElementSibling, t0 = Date.now();
         while (b.getAttribute("aria-expanded") === "true" && a.getBoundingClientRect().height < 30 && Date.now() - t0 < 6000) await new Promise(function (r) { setTimeout(r, 150); });
         return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), text: a.textContent.replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(),
-          stavy: [].map.call(a.querySelectorAll("[data-p1v-faq-cislo]"), function (x) { return x.getAttribute("data-p1v-faq-stav"); }).join(",") }; })()`);
+          stavy: [].map.call(a.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav"); }).join(",") }; })()`);
     };
     const a2 = await odpoved(1);
     ok(a2.exp === "true" && a2.h > 30 && a2.stavy === "ok,ok,ok,ok" && a2.text.includes(`S (33 × 32 × 30 cm) za ${o.sam.S}`) && a2.text.includes(`M (40 × 32 × 30 cm) za ${o.sam.M}`) && a2.text.includes(`L (54 × 32 × 30 cm) za ${o.sam.L}`) && a2.text.includes(`XL (66 × 32 × 30 cm) za ${o.sam.XL}`),

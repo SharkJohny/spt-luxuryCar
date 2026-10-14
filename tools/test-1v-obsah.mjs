@@ -48,10 +48,11 @@ import * as skDvoj from "./test-1v/obsah-dvoj.mjs";
 import * as skClassic from "./test-1v/obsah-classic.mjs";
 import * as skPremium from "./test-1v/obsah-premium.mjs";
 import * as skBoxy from "./test-1v/obsah-boxy.mjs";
+import * as skVzorky from "./test-1v/obsah-vzorky.mjs";
 
-const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClassic, premium: skPremium, boxy: skBoxy };
+const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClassic, premium: skPremium, boxy: skBoxy, vzorky: skVzorky };
 /** Kontroly skupín podľa kľúča obsahu: 598 = A–D (návrh v26); iný kľúč = vlastný plugin + skupiny, ktoré si vyžiada (zdielane). */
-const PLUGINY = { 598: ["a", "b", "c", "d"], dvoj: ["dvoj"], classic: ["classic"], premium: ["premium"], boxy: ["boxy"], vzorky: [] };
+const PLUGINY = { 598: ["a", "b", "c", "d"], dvoj: ["dvoj"], classic: ["classic"], premium: ["premium"], boxy: ["boxy"], vzorky: ["vzorky"] };
 const SERVER_NAVRHOV = "http://127.0.0.1:8952/";
 /** Tvrdý časový limit jednej úlohy (bežne do 200 s aj so snímkami). */
 const LIMIT_ULOHY = 480000;
@@ -115,7 +116,11 @@ const STAV = (kluc) => `(function () {
   var bd = document.querySelector(".basic-description");
   var o = window.__lcd1v && window.__lcd1v.obsah;
   var sekcie = m ? [].map.call(m.querySelectorAll("[data-lcd-sekcia]"), function (s) { return { meno: s.getAttribute("data-lcd-sekcia"), h: Math.round(s.getBoundingClientRect().height), rv: s.classList.contains("p1v-rv") }; }) : [];
-  var cisla = m ? [].map.call(m.querySelectorAll("[data-p1v-cislo]"), function (x) { return { kluc: x.getAttribute("data-p1v-cislo"), stav: x.getAttribute("data-p1v-stav"), text: (x.textContent || "").replace(/\\s+/g, " ").trim(), vis: getComputedStyle(x).visibility }; }) : [];
+  // VLASTNÁ viditeľnosť čísla: inline hidden (obsah-cisla.js, kým čaká) alebo hidden, ktoré nededí od rodiča. Číslo v zbalenej
+  // odpovedi FAQ dedí visibility:hidden od .p1v-faq-a — to nie je „nedosadené“ (jadroChyby T1.3, T2.3, T2.4, T3.3, 14. 10. 2026).
+  function vlastna(x) { var r = x.parentElement;
+    return x.style.visibility === "hidden" || (getComputedStyle(x).visibility === "hidden" && !(r && getComputedStyle(r).visibility === "hidden")) ? "hidden" : "visible"; }
+  var cisla = m ? [].map.call(m.querySelectorAll("[data-p1v-cislo]"), function (x) { return { kluc: x.getAttribute("data-p1v-cislo"), stav: x.getAttribute("data-p1v-stav"), text: (x.textContent || "").replace(/\\s+/g, " ").trim(), vis: vlastna(x) }; }) : [];
   var odkazy = m ? [].map.call(m.querySelectorAll("a[data-p1v-odkaz]"), function (x) { return { typ: x.getAttribute("data-p1v-odkaz"), href: x.getAttribute("href") }; }) : [];
   return {
     lcd1v: document.body.classList.contains("lcd-1v"), obsah: document.body.classList.contains("lcd-1v-obsah"),
@@ -161,7 +166,8 @@ const PRIPRAV_SNIMKU = `(async function (kusy) {
   var obr = [].concat.apply([], el.map(function (e) { return [].slice.call(e.querySelectorAll("img")); }));
   await Promise.race([Promise.all(obr.map(function (i) { return i.complete ? 0 : new Promise(function (r) { i.addEventListener("load", r); i.addEventListener("error", r); }); })), new Promise(function (r) { setTimeout(r, 4000); })]);
   scrollTo({ top: Math.max(0, spat().y - 10), behavior: "instant" });
-  await new Promise(function (r) { setTimeout(r, 400); });
+  // prechody lepených scén (deväť vecí, pred a po: 0,6 s) musia doznieť, inak sa na snímke prekrývajú kroky (jadroChyby T2.3, T3.3)
+  await new Promise(function (r) { setTimeout(r, 1400); });
   if (!document.getElementById("p1v-skry-styl")) { var s = document.createElement("style"); s.id = "p1v-skry-styl"; s.textContent = "[data-p1v-skry]{visibility:hidden !important}"; document.head.appendChild(s); }
   [].forEach.call(document.querySelectorAll("body *"), function (x) {
     var poz = getComputedStyle(x).position;
@@ -217,7 +223,7 @@ async function main() {
       p.plne = p.plne.concat("x-sonda-cisla");
     }
     console.log(`  ${p.id} ${p.nazov || ""} (${p.typ}/${p.vzor || "-"}): obsah ${p.kluc} — ${p.kusy.map((c) => c.cast).join(" + ")}, sekcie ${p.sekcie.length} (${p.sekcie.filter((s) => s.znaky > 0).length} s obsahom), médiá ${p.media.length}, kontroly ${p.pluginy.join(",") || "len základ"}${p.sonda ? ", sonda čísel " + p.sonda.cisla.length + " + odkazy " + p.sonda.odkazy.length : ""}`);
-    for (const s of p.sekcie) if (s.znaky > 0 && !p.pluginy.some((g) => SKUPINY[g].sekcie.some((x) => x.meno === s.sekcia))) console.log(`  POZOR: ${p.id} sekcia ${s.sekcia} nemá mapu v tools/test-1v/obsah-*.mjs (snímka návrhu chýba)`);
+    for (const s of p.sekcie) if (s.znaky > 0 && !/-pomocne$/.test(s.sekcia) && !p.pluginy.some((g) => SKUPINY[g].sekcie.some((x) => x.meno === s.sekcia))) console.log(`  POZOR: ${p.id} sekcia ${s.sekcia} nemá mapu v tools/test-1v/obsah-*.mjs (snímka návrhu chýba)`);
   }
 
   // návrh dostupný?
@@ -366,7 +372,7 @@ async function main() {
                 const zleSekcie = st.sekcie.filter((x) => !((x.h > 0 || /-pomocne$/.test(x.meno)) && x.rv));
                 zle(!zleSekcie.length, "sekcie bez výšky alebo bez .p1v-rv: " + zleSekcie.map((x) => x.meno + " " + x.h + " px").join(", "));
                 // čísla a odkazy (obsah-cisla.js): všetky vybavené, nič neostalo neviditeľné, odkazy v tom istom vzore
-                const nevybavene = st.cisla.filter((x) => !x.stav || (x.stav !== "skryte" && x.vis === "hidden"));
+                const nevybavene = st.cisla.filter((x) => !x.stav || x.stav === "caka" || (x.stav !== "skryte" && x.vis === "hidden"));
                 zle(!nevybavene.length, "čísla data-p1v-cislo nedosadené: " + nevybavene.map((x) => x.kluc + " „" + x.text + "“").join(", "));
                 const zleOdkazy = st.odkazy.filter((o) => {
                   const typ = { classic: "kufor-classic", premium: "kufor-premium" }[o.typ] || o.typ;

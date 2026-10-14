@@ -102,9 +102,13 @@ export async function kontroly(t) {
     if (staticka) {
       await posun(sek + " .exp", null);
       await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(sek)} + " .mat-toggle"); if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
-      await t.pauza(1300); // rez sa na telefóne rozloží sám 500 ms po zobrazení — tlačidlo ho potom zloží
+      // rez sa na telefóne rozloží sám 500 ms po zobrazení — tlačidlo ho potom zloží. Pod záťažou stroja pevná pauza nestačila
+      // (jadroChyby T1.3, 14. 10. 2026): čakať na samočinné rozloženie (max 5 s), potom na zmenu stavu po kliku (max 4 s).
+      await t.cakaj(`document.querySelector(${JSON.stringify(sek)} + " .exp").classList.contains("open")`, { ms: 5000, popis: "rez sa sám rozloží" }).catch(() => null);
+      await t.pauza(300);
       const pred = await t.ev(`document.querySelector(${JSON.stringify(sek)} + " .exp").classList.contains("open")`);
-      await t.klikni(sek + " .mat-toggle", { popis: "Rozložiť/Zložiť materiál", pockaj: 500 });
+      await t.klikni(sek + " .mat-toggle", { popis: "Rozložiť/Zložiť materiál", pockaj: 200 });
+      await t.cakaj(`document.querySelector(${JSON.stringify(sek)} + " .exp").classList.contains("open") !== ${pred}`, { ms: 4000, popis: "rez po kliku" }).catch(() => null);
       const po = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return { open: s.querySelector(".exp").classList.contains("open"), text: s.querySelector(".mat-toggle").textContent.trim() }; })()`);
       ok(po.open !== pred && po.text === (po.open ? "Zložiť materiál" : "Rozložiť materiál"), `b-material (telefón): tlačidlo prepne rez (${pred ? "rozložený" : "zložený"} -> ${po.open ? "rozložený" : "zložený"}, „${po.text}“)`);
     } else {
@@ -114,7 +118,8 @@ export async function kontroly(t) {
     }
     await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(sek)} + " .leg-h")[1]; if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
     await t.pauza(300);
-    await t.klikni(sek + " .leg-h", { index: 1, popis: "legenda 2", pockaj: 600 });
+    await t.klikni(sek + " .leg-h", { index: 1, popis: "legenda 2", pockaj: 200 });
+    await t.cakaj(`(function () { var L = document.querySelectorAll(${JSON.stringify(sek)} + " .leg"); return !!L[1] && L[1].querySelector(".leg-h").getAttribute("aria-expanded") === "true" && L[1].querySelector(".leg-d").getBoundingClientRect().height > 20; })()`, { ms: 4000, popis: "legenda 2 otvorená" }).catch(() => null);
     const l = await t.ev(`(function () { var L = document.querySelectorAll(${JSON.stringify(sek)} + " .leg"); var h = L[1].querySelector(".leg-h"), d = L[1].querySelector(".leg-d");
       return { exp: h.getAttribute("aria-expanded"), h: Math.round(d.getBoundingClientRect().height), ine: [].filter.call(L, function (x) { return x.querySelector(".leg-h").getAttribute("aria-expanded") === "true"; }).length }; })()`);
     ok(l.exp === "true" && l.h > 20 && l.ine === 1, `b-material: legenda 2 sa otvorila (výška popisu ${l.h} px, otvorených ${l.ine})`);
