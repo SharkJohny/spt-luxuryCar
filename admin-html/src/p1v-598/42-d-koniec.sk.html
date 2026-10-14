@@ -1,0 +1,19 @@
+<!-- 42-d-koniec — skupina D: „Kúpiť a nečakať!“ (návrh v26 section.end, r. 4745–4754). Kapitola 4.
+     Markup = záver titulky (section.end v hp-telo-2): štýly cez alias LCD-HOME. Pozadie je ozdoba, preto nie <img>, ale CSS
+     (_lcd1v-obsah-d.scss): lcd-home/hero.jpg (= obrázok návrhu m-11a568505834.jpg, overené md5), ktorý Záhlavie webu
+     prednačítava na každej stránke (link rel=preload) — s flagom je teda už v cache; nastaví sa až pri priblížení sekcie
+     (trieda p1v-blizko z obsah-d.js) a len pod body.lcd-1v, bez flagu ho obsah nevyžiada. Tlačidlá: obsah-d.js
+       - „Zadajte údaje o vozidle“ (data-p1v-konf): posun na prvý nevyplnený krok konfigurátora (ctx.prvyNevyplneny(),
+         otvorí ho), keď je všetko vybrané, na súhrn s tlačidlom košíka. Nič neodosiela. Bez JS kotva na formulár.
+       - „Pozrite si recenzie“ (data-p1v-ciel): posun na referenčné videá skupiny A (a-referencie, inak a-recenzie);
+         bez JS kotva na začiatok obsahu (#p1v-598-1, id iných skupín sa môžu meniť). -->
+<section class="end" data-lcd-sekcia="d-koniec" data-lcd-kap="4">
+  <div class="endbg" aria-hidden="true"><!-- --></div>
+  <div class="eyebrow">Luxury Car Design</div>
+  <h2 style="margin-top:14px">Kúpiť a nečakať!</h2>
+  <p class="lede">Luxusné autokoberce na mieru Vášho vozidla — podľa presných šablón pre Váš model. Pre osobné autá, kamióny aj dodávky.</p>
+  <div class="end-cta">
+    <a class="btn" href="#product-detail-form" data-p1v-konf="">Zadajte údaje o vozidle</a>
+    <a class="btn ghost" href="#p1v-598-1" data-p1v-ciel="a-referencie a-recenzie">Pozrite si recenzie</a>
+  </div>
+</section>

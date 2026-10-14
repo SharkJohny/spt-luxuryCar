@@ -122,7 +122,10 @@ export function init(ctx) {
     hodn.hidden = true;
     hodn.addEventListener("click", function (e) {
       e.preventDefault();
-      const w = document.querySelector(".lcd-reviews-widget");
+      // nový obsah pod konfigurátorom (docs/1v-obsah.md): recenzie z Google v sekcii a-recenzie; starý widget je vtedy
+      // v skrytých záložkách (výška 0) -> len keď nová sekcia nie je alebo je skrytá (dáta neprišli)
+      const nova = document.querySelector('.p1v-miesto [data-lcd-sekcia="a-recenzie"]');
+      const w = nova && nova.getClientRects().length ? nova : document.querySelector(".lcd-reviews-widget");
       if (!w) return;
       const plynulo = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
       window.scrollTo({ top: w.getBoundingClientRect().top + window.pageYOffset - 90, behavior: plynulo ? "smooth" : "auto" });

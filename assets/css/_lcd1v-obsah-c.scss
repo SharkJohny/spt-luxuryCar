@@ -1,0 +1,146 @@
+/* LCD-1V-OBSAH-C — obsah pod konfigurátorom 1V, SKUPINA C: kam siahajú + výzva, čo príde domov, časová os + výzva, farby, vzorky.
+   Vlastník: worker skupiny C (+ konfigurator1v/obsah-c.js, admin-html/src/p1v-598/3x-c-*.sk.html). Pravidlá: docs/1v-obsah.md.
+   Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css). KAŽDÝ selektor začína
+   body.lcd-1v (najlepšie body.lcd-1v [data-lcd-sekcia="c-…"] …). Žiadne @import, žiadne premenné na :root.
+   Základ titulky (blok LCD-HOME) na koreňoch obsahu už platí — tu len rozdiely oproti titulke podľa návrhu v26.
+   Obrázky: assets/img/1v/obsah/c-* (CDN absolútna adresa …/eshopy/luxuryCar/assets/img/1v/obsah/…).
+
+   Hodnoty sú zmerané na návrhu v26 (computed styles, 390 a 1280 px) = výsledný stav jeho patchov 24–41, nie ich kópia.
+   Selektory majú id koreňa (:is(#p1v-598-1,#p1v-598-2)), lebo pravidlá titulky (alias #lcd-home) majú špecificitu id
+   (napr. h3, .btn, .lede). Moduly titulky (.lx-farby, .vz/.fan, .btn, .lede, h2, .chapter/.wrap) sa nekopírujú.
+   Spustenie pre všetkých (docs/1v-obsah.md bod 7): stačí z každého selektora zmazať „body.lcd-1v “ — id koreňa ostáva.
+
+   Tvary nové voči titulke: .kry/.zoz (kam siahajú), .spat (výzva = riadok vety a tlačidla), .balkarta/.bal (balenie),
+   .tml (časová os so scrollom, obsah-c.js nastavuje --p a li.on). Reveal .rv (opacity z titulky) zapína obsah-c.js. */
+
+/* ---------- spoločné: reveal, text pre čítačky, zlaté nadpisy kapitol (návrh „nadpisy modulov sú zlaté“), výzva .spat ---------- */
+/* reveal .rv, .sr-only, zlaté nadpisy kapitol, .lede 46ch a rytmus kapitol dáva základ LCD-1V-OBSAH bod 5–6 */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is([data-lcd-sekcia="c-domov"],[data-lcd-sekcia="c-casova-os"]) .lede{margin-top:12px}
+/* tlačidlá: rám z šablóny Shoptetu (.btn border 1px) návrh nemá */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .btn{border:0}
+
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:clamp(12px,2vw,22px);max-width:1240px;margin:0 auto;box-sizing:border-box;
+  padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
+  font-size:clamp(15px,1.6vw,19px);line-height:1.3;color:var(--ink)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
+  font-size:12px;letter-spacing:.1em}
+@media(max-width:640px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat > p{max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .btn.spat-btn{width:100%;justify-content:center}
+}
+
+/* ---------- 30 c-kam: „Kam všade koberce siahajú“ — dve témy (interiér / kufor), na PC biele karty vedľa seba ---------- */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry{display:grid;gap:clamp(20px,2.4vw,30px);margin-top:clamp(16px,2vw,26px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz-h{margin:0 0 12px;font-family:var(--disp);font-weight:800;font-size:11px;
+  line-height:1.14;letter-spacing:.12em;text-transform:uppercase;color:#7c5f16}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry-note{margin:8px 0 0;color:var(--mute);font-size:14px;line-height:1.5}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;
+  gap:0 clamp(24px,3.4vw,56px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li{position:relative;margin:0;padding:11px 0 11px 28px;
+  font-size:14.5px;line-height:1.45;color:#3f3a2c;border-top:1px solid rgba(155,122,36,.22);list-style:none;background:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li:first-child{border-top:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li:before{content:"";position:absolute;left:2px;top:16px;width:13px;height:13px;
+  margin:0;border-radius:50%;background:linear-gradient(150deg,var(--gold-hi),var(--gold-lo));box-shadow:inset 0 0 0 3px var(--ground)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li i{font-style:normal;margin-left:9px;padding:3px 8px;font-family:var(--disp);
+  font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7c5f16;border:1px solid rgba(155,122,36,.45);
+  border-radius:999px;white-space:nowrap;vertical-align:2px}
+@media(min-width:901px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry{grid-template-columns:1fr 1fr;gap:clamp(26px,3vw,44px);align-items:start}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry-b{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    padding:clamp(18px,2vw,26px) clamp(20px,2.2vw,28px) clamp(8px,1vw,14px)}
+}
+
+/* ---------- 31 c-domov: „Čo Vám príde domov“ — balenie ako jeden doklad (karta s riadkami, manuál e-mailom pod čiarou) ---------- */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .balkarta{margin-top:26px;background:var(--paper);
+  border:1px solid rgba(155,122,36,.4);border-radius:20px;overflow:hidden;box-shadow:0 18px 44px rgba(20,15,5,.09)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal{list-style:none;margin:0;padding:0;display:block}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li{display:grid;grid-template-columns:auto 1fr;align-items:center;
+  column-gap:clamp(14px,1.8vw,20px);row-gap:2px;margin:0;padding:clamp(16px,2vw,22px) clamp(16px,2.2vw,26px);list-style:none;
+  border-top:1px solid rgba(155,122,36,.16);transition:background-color .25s}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li:first-child{border-top:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li:before{content:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li:hover{background:rgba(155,122,36,.05)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .ba-i{display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  border-radius:50%;border:1px solid rgba(155,122,36,.3)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal .ba-i{grid-row:1/span 2;width:64px;height:64px;
+  background:linear-gradient(150deg,rgba(230,200,119,.34),rgba(143,112,32,.14))}
+/* náčrty sú tenké čierne čiary — po zmenšení na 40 px ich treba stmaviť, inak zosivejú */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal .ba-i img{display:block;width:40px;height:40px;object-fit:contain;
+  filter:brightness(.22) contrast(1.7)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal b{display:block;align-self:end;font-family:var(--disp);font-weight:800;
+  font-size:clamp(15px,1.5vw,17px);line-height:1.3;color:var(--ink)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .ba-p{display:block;grid-column:2;align-self:start;color:var(--mute);
+  font-size:clamp(13px,1.25vw,14.5px);line-height:1.5}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail{display:grid;grid-template-columns:auto 1fr;column-gap:14px;
+  align-items:center;margin:0;padding:clamp(16px,2vw,20px) clamp(16px,2.2vw,26px);background:var(--sand);
+  border-top:1px dashed rgba(155,122,36,.5);font-size:clamp(13px,1.25vw,14.5px);line-height:1.5;color:var(--mute)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail .ba-i{width:52px;height:52px;
+  background:linear-gradient(150deg,rgba(230,200,119,.34),rgba(143,112,32,.16))}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail .ba-i svg{display:block;width:30px;height:30px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail b{font-family:var(--disp);font-weight:800;color:var(--ink)}
+@media(min-width:820px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li{grid-template-columns:auto 280px 1fr}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal .ba-i{grid-row:auto}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal :is(b,.ba-p){grid-column:auto;align-self:center}
+}
+@media(min-width:901px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li{row-gap:3px}
+}
+
+/* ---------- 32 c-casova-os: „Od objednávky po doručenie“ — os sa plní podľa scrollu (--p), krok sa rozsvieti (li.on) ---------- */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml{position:relative;list-style:none;max-width:840px;margin:30px 0 0;padding:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:before,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:after{content:"";position:absolute;left:17px;top:16px;width:2px;border-radius:2px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:before{bottom:16px;background:rgba(155,122,36,.22)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:after{height:calc(var(--p, 0) * (100% - 32px));
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold-lo));box-shadow:0 0 12px rgba(196,155,49,.45);transition:height .25s linear}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li{position:relative;display:grid;grid-template-columns:auto 1fr;
+  column-gap:clamp(14px,1.8vw,20px);margin:0;padding:0 0 clamp(18px,2.2vw,26px);list-style:none;background:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:before{content:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:last-child{padding-bottom:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li > i{position:relative;z-index:1;display:flex;align-items:center;
+  justify-content:center;box-sizing:border-box;width:36px;height:36px;border-radius:50%;font-style:normal;font-family:var(--disp);
+  font-weight:800;font-size:15px;line-height:1.6;color:#8a8471;background:var(--sand) no-repeat border-box;background-size:100% 100%;
+  border:2px solid rgba(155,122,36,.3);box-shadow:0 0 0 6px var(--ground);transition:background-color .3s,color .3s,border-color .3s}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li.on > i{color:#17130a;border-color:transparent;background-color:#c9a03a;
+  background-image:radial-gradient(circle at 50% 34%,var(--gold-hi) 0%,#b98f2c 62%,var(--gold-lo) 100%)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c{min-width:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c b{display:inline;font-family:var(--disp);font-weight:800;
+  font-size:clamp(15px,1.35vw,18px);line-height:1.2;color:var(--ink)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c .tt{display:inline-block;margin-left:9px;padding:3px 9px;
+  font-family:var(--disp);font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7c5f16;
+  border:1px solid rgba(155,122,36,.45);border-radius:999px;white-space:nowrap;vertical-align:2px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c p{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:#4a4433}
+/* PC: kroky sa striedajú po stranách osi; odznak času je vždy pri osi (vľavo za nadpisom, vpravo pred ním) */
+@media(min-width:901px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml{max-width:1000px;margin:30px auto 0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:before,
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:after{left:calc(50% - 1px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li{grid-template-columns:1fr 36px 1fr;
+    column-gap:clamp(20px,2.6vw,34px);align-items:start;padding-bottom:clamp(22px,2.6vw,32px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:last-child{padding-bottom:0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li > i{grid-column:2;grid-row:1}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c{display:flex;flex-wrap:wrap;align-items:baseline;padding-top:5px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(odd) .c{grid-column:1;grid-row:1;text-align:right;
+    justify-content:flex-end}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(even) .c{grid-column:3;grid-row:1}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c b{order:1}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c .tt{order:2}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(even) .c .tt{order:0;margin:0 9px 0 0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c p{order:3;flex:0 0 100%}
+}
+
+/* ---------- 33 c-farby: modul lx-farby titulky — vejár „Mnoho ďalších farieb“ má <img> namiesto background-image ---------- */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i{overflow:hidden}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* ---------- 34 c-vzorky: modul .vz titulky — vejár vzoriek má <img> namiesto background-image; nadpis svetlé zlato ---------- */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] .btn.zeleny{box-shadow:0 10px 30px rgba(140,105,25,.35)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] .fan i{overflow:hidden}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] .fan i img{display:block;width:100%;height:100%;object-fit:cover}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] h2{color:var(--gold-hi);
+  background:linear-gradient(100deg,#c49b31,#f0d68f 45%,#e6c877 62%,#c49b31);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}

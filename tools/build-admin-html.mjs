@@ -28,9 +28,20 @@
      (nie len SVG), bez <template>/<details>/<dialog>/<style>, jeden koreňový <div>.
    Upozornenia (nezastavia build): odkaz na druhý trh, kolízia id so Shoptet stránkou (--snimky).
 
+   Časti zo sekcií (13. 10. 2026, obsah pod konfigurátorom 1V — docs/1v-obsah.md): časť s "zlozka" v ciele.json
+   nemá jeden zdrojový súbor, ale zložku src/<zlozka>/NN-<sekcia>.<web>.html. Build spojí súbory s číslom NN
+   v rozsahu "sekcie": [od, do] v poradí názvov do obalu, ktorý vyrobí sám z "obal" (id = koren, trieda,
+   data-lcd-cast; "brana" -> data-lcd-brana + style="display:none"). Každý neprázdny súbor = práve jeden prvok
+   na najvyššej úrovni s data-lcd-sekcia="<sekcia>"; súbor len s komentárom (stub) sa preskočí.
+   "pravidla" (ciele.json -> pravidla.<meno>): predpona id, zakázané triedy (kotvy živého JS), tlačidlá
+   type="button", žiadne polia formulára, odložené médiá (img lazy, video/iframe bez src a poster -> data-*).
+   "naVsetkychStrankach": časť je v pätičke každej stránky -> kontrola duplicitných id aj na ostatných stránkach.
+   Časť s "<web>": null sa pre ten trh nestavia.
+
    Použitie:
      node tools/build-admin-html.mjs              postaví dist/ + manifest.json, vypíše dĺžky
      node tools/build-admin-html.mjs --check      len kontrola; navyše overí, že dist/ sedí so src/
+     node tools/build-admin-html.mjs --vystup C:/tmp/dist   dist + manifest zapíše INAM (repo sa nemení; test 1V obsahu)
      node tools/build-admin-html.mjs --limit 50000
      node tools/build-admin-html.mjs --snimky C:/Users/M/Desktop/LCD/web/zalohy-admin/2026-10-06/verejne-stranky
                                                   porovná id s verejným HTML Shoptetu (bez našich bannerov)
@@ -178,6 +189,69 @@ function vlozVerziu(html, cast, hash) {
   return cisty.replace(re, `$1 data-lcd-v="${hash}"`);
 }
 
+/* ================= časti zo sekcií (src/<zlozka>/NN-<sekcia>.<web>.html) ================= */
+const RE_SEKCIA = /^(\d\d)-([a-z0-9]+(?:-[a-z0-9]+)*)\.(sk|cz)\.html$/;
+const vRozsahu = (def, cislo) => { const [od, po] = def.sekcie || ["00", "99"]; return cislo >= od && cislo <= po; };
+
+/* súbory sekcií jednej časti v poradí názvov; null = zložka chýba */
+function nacitajSekcie(src, def, web) {
+  const dir = path.join(src, def.zlozka);
+  if (!fs.existsSync(dir)) return null;
+  return fs.readdirSync(dir).sort().map((f) => [f, f.match(RE_SEKCIA)]).filter(([, m]) => m && m[3] === web && vRozsahu(def, m[1]))
+    .map(([f, m]) => ({ subor: f, cislo: m[1], sekcia: m[2], zdroj: lf(fs.readFileSync(path.join(dir, f), "utf8")) }));
+}
+
+/* kontrola jednej sekcie: prázdna (len komentáre/biele) alebo práve 1 prvok s data-lcd-sekcia="<sekcia>" */
+function skontrolujSekciu(s) {
+  const chyby = [];
+  s.html = zhutni(s.zdroj);
+  const { koren, chyby: cp } = parsuj(s.html);
+  for (const x of cp) chyby.push(x);
+  const top = koren.deti.filter((d) => d.typ === "el");
+  const text = koren.deti.filter((d) => d.typ === "text" && !jeBiele(d.data));
+  s.prazdna = !top.length && !text.length;
+  if (s.prazdna) return chyby;
+  if (text.length) chyby.push(`text mimo prvku na najvyššej úrovni: "${text[0].data.trim().slice(0, 40)}"`);
+  if (top.length !== 1) chyby.push(`čakám práve 1 prvok na najvyššej úrovni (obal sekcie), je ich ${top.length}`);
+  else if (top[0].attrs.get("data-lcd-sekcia") !== s.sekcia) chyby.push(`prvok na najvyššej úrovni nemá data-lcd-sekcia="${s.sekcia}" (má "${top[0].attrs.get("data-lcd-sekcia") || ""}")`);
+  return chyby;
+}
+
+/* obal časti: vyrobí ho build (workeri ho nemenia); prázdny obsah drží <!-- --> (TinyMCE prázdny prvok zmaže) */
+function obalCasti(cast, def, vnutro) {
+  const o = def.obal || {};
+  const a = [`id="${def.koren}"`];
+  if (o.trieda) a.push(`class="${o.trieda}"`);
+  a.push(`data-lcd-cast="${cast}"`);
+  if (o.brana) a.push(`data-lcd-brana="${o.brana}"`, 'style="display:none"');
+  return `<div ${a.join(" ")}>\n${vnutro || "<!-- -->"}\n</div>`;
+}
+
+/* pravidlá obsahu, ktorý je na stránke skrytý (brána) a v teste aj v pätičke každej stránky */
+function skontrolujPravidla(koren, P, chyby, pozor) {
+  for (const el of prvky(koren)) {
+    const kde = popisPrvku(el);
+    const id = el.attrs.get("id");
+    if (id && P.idPredpona && !id.startsWith(P.idPredpona)) chyby.push(`${kde}: id="${id}" bez predpony „${P.idPredpona}“ (obsah je v teste v pätičke každej stránky — titulka má #galeria, #farby…)`);
+    for (const t of trieda(el)) if ((P.zakazaneTriedy || []).includes(t)) chyby.push(`${kde}: trieda „${t}“ — na ňu kotví živý JS (ciele.json pravidla.zakazaneTriedy)`);
+    if (["form", "input", "select", "textarea"].includes(el.meno)) chyby.push(`${kde}: <${el.meno}> — pole formulára nepatrí do obsahu (košík, POST)`);
+    if (el.attrs.has("name") && !el.vSvg) chyby.push(`${kde}: atribút name (išiel by do formulára / kotvy)`);
+    if (el.meno === "button" && el.attrs.get("type") !== "button") chyby.push(`${kde}: <button> bez type="button"`);
+    if (P.media !== "odlozene") continue;
+    if (el.meno === "img" && el.attrs.get("loading") !== "lazy") chyby.push(`${kde}: <img> musí mať loading="lazy" (skrytý blok nesmie nič sťahovať)`);
+    if (el.meno === "video") {
+      if (el.attrs.has("src")) chyby.push(`${kde}: <video src> — zdroj patrí do data-src (JS ho nastaví až pri zobrazení)`);
+      if (el.attrs.has("poster")) chyby.push(`${kde}: <video poster> sa stiahne aj v skrytom bloku — daj data-poster`);
+      const zdroj = el.attrs.has("data-src") || el.deti.some((d) => d.typ === "el" && d.meno === "source" && d.attrs.has("data-src"));
+      if (!zdroj) chyby.push(`${kde}: <video> bez data-src (ani <source data-src>)`);
+      if (!el.attrs.has("data-poster")) pozor.push(`${kde}: <video> bez data-poster (iPhone ukáže čierny rám)`);
+    }
+    if (el.meno === "source" && el.rodic && el.rodic.meno === "video" && el.attrs.has("src")) chyby.push(`${kde}: <source src> vo <video> — daj data-src`);
+    if (el.meno === "iframe" && el.attrs.has("src")) chyby.push(`${kde}: <iframe src> — daj data-src`);
+    if (/url\s*\(/i.test(el.attrs.get("style") || "")) pozor.push(`${kde}: url() v style — obrázok patrí do CSS alebo <img loading="lazy">`);
+  }
+}
+
 /* ================= kontroly jednej časti ================= */
 function skontrolujCast(c) {
   const { html, cast, web, def } = c;
@@ -194,7 +268,13 @@ function skontrolujCast(c) {
     if (k.rodic !== koren) chyby.push("koreň s data-lcd-cast musí byť na najvyššej úrovni");
     if (def.koren && k.attrs.get("id") !== def.koren) chyby.push(`koreň má id="${k.attrs.get("id")}", čakám "${def.koren}"`);
     if (/^lcd-/.test(def.koren || "") && !trieda(k).includes("lcd-root")) chyby.push('koreň nemá triedu "lcd-root"');
+    if (!/^lcd-/.test(def.koren || "") && trieda(k).includes("lcd-root")) chyby.push('trieda "lcd-root" len pre korene lcd-* (CSS LCD-KORENE by zmenil obaly Shoptetu okolo)');
+    if (def.obal && def.obal.brana) {
+      if (k.attrs.get("data-lcd-brana") !== def.obal.brana) chyby.push(`koreň nemá data-lcd-brana="${def.obal.brana}"`);
+      if (!/^\s*display\s*:\s*none\s*;?\s*$/i.test(k.attrs.get("style") || "")) chyby.push('koreň za bránou musí mať style="display:none" (bez flagu neviditeľný)');
+    }
   }
+  if (c.pravidla) skontrolujPravidla(koren, c.pravidla, chyby, pozor);
   for (const t of koren.deti) {
     if (t.typ === "text" && !jeBiele(t.data)) chyby.push(`text mimo prvkov na najvyššej úrovni: "${t.data.trim().slice(0, 40)}"`);
   }
@@ -233,7 +313,7 @@ function skontrolujCast(c) {
     if (el.meno === "video") {
       if (el.attrs.get("preload") !== "none") chyby.push(`${kde}: <video> bez preload="none"`);
       if (el.attrs.has("src")) pozor.push(`${kde}: <video src> sa stiahne hneď — patrí do data-src (JS ho nastaví pri zobrazení)`);
-      if (!el.attrs.has("poster")) pozor.push(`${kde}: <video> bez poster (iPhone ukáže čierny rám)`);
+      if (!el.attrs.has("poster") && !el.attrs.has("data-poster")) pozor.push(`${kde}: <video> bez poster (iPhone ukáže čierny rám)`);
     }
     /* odkaz na druhý trh (okrem prepínača jazyka) */
     const href = el.attrs.get("href") || "";
@@ -344,9 +424,40 @@ function samotest() {
     ["a v a", obal('<a href="/x">a<a href="/y">b</a></a>'), def, "vnorený v <a>"],
     ["kotva bez cieľa je kontrola stránky (v časti OK)", obal('<a href="#nic">a</a>'), def, null],
   ];
+  /* časti zo sekcií + pravidlá obsahu za bránou (obsah 1V) */
+  const P = { idPredpona: "p-", zakazaneTriedy: ["lcd-reviews-widget"], media: "odlozene" };
+  const defB = { koren: "p-x", obal: { trieda: "o", brana: "1v" } };
+  const obalB = (s) => obalCasti("x", defB, s);
+  pripady.push(
+    ["brána ok", obalB('<section data-lcd-sekcia="a" id="p-a"><img src="/a.jpg" alt="" width="1" height="1" loading="lazy"></section>'), defB, null, P],
+    ["brána prázdna (len <!-- -->)", obalB(""), { ...defB, tinymce: true }, null, P],
+    ["brána bez display:none", obalB("<p>a</p>").replace(' style="display:none"', ""), defB, "display:none", P],
+    ["id bez predpony", obalB('<p id="galeria">a</p>'), defB, "bez predpony", P],
+    ["zakázaná trieda", obalB('<div class="lcd-reviews-widget">a</div>'), defB, "kotví živý JS", P],
+    ["button bez type", obalB("<button>a</button>"), defB, 'bez type="button"', P],
+    ["pole formulára", obalB('<input type="text">'), defB, "pole formulára", P],
+    ["img eager za bránou", obalB('<img src="/a.jpg" alt="" width="1" height="1" loading="eager" fetchpriority="high">'), defB, 'loading="lazy"', P],
+    ["video poster za bránou", obalB('<video preload="none" data-src="/a.mp4" poster="/a.jpg"></video>'), defB, "data-poster", P],
+    ["video src za bránou", obalB('<video preload="none" src="/a.mp4" data-poster="/a.jpg"></video>'), defB, "data-src", P],
+    ["video ok za bránou", obalB('<video preload="none" data-src="/a.mp4" data-poster="/a.jpg"></video>'), defB, null, P],
+    ["lcd-root mimo lcd-*", '<div id="p-x" class="lcd-root" data-lcd-cast="x">a</div>', { koren: "p-x" }, "lcd-root", null],
+  );
+  for (const [meno, s, cakam] of [
+    ["sekcia prázdna", { zdroj: "<!-- stub -->\n", sekcia: "a-x" }, null],
+    ["sekcia ok", { zdroj: '<section data-lcd-sekcia="a-x"><p>a</p></section>', sekcia: "a-x" }, null],
+    ["sekcia 2 prvky", { zdroj: '<section data-lcd-sekcia="a-x">a</section><div>b</div>', sekcia: "a-x" }, "práve 1 prvok"],
+    ["sekcia zlé meno", { zdroj: '<section data-lcd-sekcia="b">a</section>', sekcia: "a-x" }, 'data-lcd-sekcia="a-x"'],
+  ]) pripady.push(["sekcia: " + meno, s, "sekcia", cakam, null]);
   let zle = 0;
-  for (const [meno, html, d, cakam] of pripady) {
-    const c = { html: zhutni(html), cast: "x", web: "sk", def: d };
+  for (const [meno, html, d, cakam, pravidla] of pripady) {
+    if (d === "sekcia") {
+      const ch = skontrolujSekciu(html);
+      const ok = cakam ? ch.some((x) => x.includes(cakam)) : ch.length === 0;
+      if (!ok) { zle++; console.log(`ZLE  ${meno}: čakal som ${cakam ? `chybu „${cakam}“` : "bez chýb"}, dostal som: ${ch.join(" | ") || "nič"}`); }
+      else console.log(`ok   ${meno}`);
+      continue;
+    }
+    const c = { html: zhutni(html), cast: "x", web: "sk", def: d, pravidla };
     const { chyby } = skontrolujCast(c);
     const ok = cakam ? chyby.some((x) => x.includes(cakam)) : chyby.length === 0;
     if (!ok) { zle++; console.log(`ZLE  ${meno}: čakal som ${cakam ? `chybu „${cakam}“` : "bez chýb"}, dostal som: ${chyby.join(" | ") || "nič"}`); }
@@ -371,32 +482,66 @@ const CHECK = ma("--check");
 const CIELE = JSON.parse(fs.readFileSync(path.join(ADMIN, "ciele.json"), "utf8"));
 const LIMIT = Number(arg("--limit", CIELE.limit || 45000));
 const SRC = path.join(ADMIN, "src");
-const DIST = path.join(ADMIN, "dist");
+const VYSTUP = arg("--vystup", null);
+const DIST = VYSTUP ? path.resolve(VYSTUP) : path.join(ADMIN, "dist");
 const SNIMKY = arg("--snimky", null);
 const fmt = (n) => n.toLocaleString("sk-SK").replace(/\u00a0/g, " ");
 
 const globalne = [];
 const casti = [];
+/* zložky sekcií -> časti, ktoré z nich berú */
+const zlozky = new Map();
+for (const [cast, def] of Object.entries(CIELE.casti)) {
+  if (!def.zlozka) continue;
+  if (!zlozky.has(def.zlozka)) zlozky.set(def.zlozka, []);
+  zlozky.get(def.zlozka).push([cast, def]);
+}
 /* neznáme súbory v src */
 for (const f of fs.existsSync(SRC) ? fs.readdirSync(SRC) : []) {
+  if (fs.statSync(path.join(SRC, f)).isDirectory()) {
+    if (!zlozky.has(f)) { globalne.push(`src/${f}/: neznáma zložka (žiadna časť v ciele.json ju nemá ako "zlozka")`); continue; }
+    const videne = new Map();
+    for (const g of fs.readdirSync(path.join(SRC, f)).sort()) {
+      const m = g.match(RE_SEKCIA);
+      if (!m) { globalne.push(`src/${f}/${g}: zlý názov (čakám NN-sekcia.sk.html, malé písmená, pomlčky)`); continue; }
+      if (!zlozky.get(f).some(([, d]) => d[m[3]] && vRozsahu(d, m[1]))) globalne.push(`src/${f}/${g}: číslo ${m[1]} nepatrí do žiadnej časti (ciele.json -> sekcie)`);
+      const kluc = m[2] + "." + m[3];
+      if (videne.has(kluc)) globalne.push(`src/${f}/${g}: sekcia „${m[2]}“ je aj v ${videne.get(kluc)}`);
+      else videne.set(kluc, g);
+    }
+    continue;
+  }
   const m = f.match(/^(.+)\.(sk|cz)\.html$/);
-  if (!m || !CIELE.casti[m[1]]) globalne.push(`src/${f}: neznáma časť (nie je v admin-html/ciele.json)`);
+  if (!m || !CIELE.casti[m[1]] || CIELE.casti[m[1]].zlozka) globalne.push(`src/${f}: neznáma časť (nie je v admin-html/ciele.json)`);
 }
 for (const [cast, def] of Object.entries(CIELE.casti)) {
   for (const web of WEBY) {
-    const subor = path.join(SRC, `${cast}.${web}.html`);
-    if (!fs.existsSync(subor)) { globalne.push(`chýba src/${cast}.${web}.html`); continue; }
-    const zdroj = lf(fs.readFileSync(subor, "utf8"));
+    if (def[web] === null) continue; // časť len pre druhý trh
+    let zdroj, sekcie = null;
+    const chybySekcii = [];
+    if (def.zlozka) {
+      sekcie = nacitajSekcie(SRC, def, web);
+      if (sekcie === null) { globalne.push(`chýba zložka src/${def.zlozka}/ (časť ${cast})`); continue; }
+      for (const s of sekcie) for (const x of skontrolujSekciu(s)) chybySekcii.push(`src/${def.zlozka}/${s.subor}: ${x}`);
+      zdroj = obalCasti(cast, def, sekcie.filter((s) => !s.prazdna).map((s) => s.html).join("\n"));
+    } else {
+      const subor = path.join(SRC, `${cast}.${web}.html`);
+      if (!fs.existsSync(subor)) { globalne.push(`chýba src/${cast}.${web}.html`); continue; }
+      zdroj = lf(fs.readFileSync(subor, "utf8"));
+    }
     const obsah = zhutni(zdroj);
     const hash = hashObsahu(obsah);
     const html = vlozVerziu(obsah, cast, hash);
-    const c = { cast, web, def, ciel: def[web], hash, html: html ?? obsah };
+    const pravidla = def.pravidla ? (CIELE.pravidla || {})[def.pravidla] : null;
+    if (def.pravidla && !pravidla) globalne.push(`${cast}: pravidlá „${def.pravidla}“ nie sú v ciele.json -> pravidla`);
+    const c = { cast, web, def, ciel: def[web], hash, html: html ?? obsah, pravidla, sekcie };
     const v = skontrolujCast(c);
+    v.chyby.unshift(...chybySekcii);
     if (html === null) v.chyby.unshift(`chýba koreň s data-lcd-cast="${cast}"`);
     for (const e of chybyParse5(c.html)) v.chyby.push("parser HTML: " + e);
     c.znaky = c.html.length;
     c.bajty = Buffer.byteLength(c.html, "utf8");
-    if (c.znaky > LIMIT) v.chyby.unshift(`dĺžka ${fmt(c.znaky)} znakov > limit ${fmt(LIMIT)}`);
+    if (c.znaky > LIMIT) v.chyby.unshift(`dĺžka ${fmt(c.znaky)} znakov > limit ${fmt(LIMIT)}` + (sekcie ? " — posuň hranicu sekcií (ciele.json -> sekcie) alebo skráť obsah" : ""));
     c.chyby = v.chyby; c.pozor = v.pozor;
     casti.push(c);
   }
@@ -405,15 +550,19 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
 /* stránky: id naprieč časťami, kotvy, Shoptet snímka */
 for (const [stranka, sd] of Object.entries(CIELE.stranky || {})) {
   for (const web of WEBY) {
-    const naStranke = casti.filter((c) => c.web === web && sd.casti.includes(c.cast));
+    /* časť v pätičke každej stránky (naVsetkychStrankach) sa ráta do kolízií id všade; kotvy sa kontrolujú len tam, kde je v zozname */
+    const naStranke = casti.filter((c) => c.web === web && (sd.casti.includes(c.cast) || c.def.naVsetkychStrankach));
     const vsetky = new Map();
+    for (const id of sd.idStranky || []) vsetky.set(id, [null, "šablóna Shoptetu"]);
     for (const c of naStranke) {
       for (const [id, kde] of c.ids || []) {
-        if (vsetky.has(id) && vsetky.get(id)[0] !== c) c.chyby.push(`id="${id}" je aj v ${vsetky.get(id)[0].cast}.${web} — na stránke „${stranka}“ by bolo 2×`);
+        const ina = vsetky.get(id);
+        if (ina && ina[0] !== c) c.chyby.push(`id="${id}" je aj v ${ina[0] ? ina[0].cast + "." + web : "šablóne Shoptetu"} — na stránke „${stranka}“ by bolo 2×`);
         else vsetky.set(id, [c, kde]);
       }
     }
     for (const c of naStranke) {
+      if (!sd.casti.includes(c.cast)) continue;
       for (const [id, kde] of c.kotvy || []) if (!vsetky.has(id)) c.chyby.push(`${kde}: href="#${id}" — na stránke „${stranka}“ také id nie je`);
     }
     const hero = naStranke.reduce((s, c) => s + (c.fetchHigh || 0), 0);
@@ -437,8 +586,10 @@ const manifest = {
     "hash = data-lcd-v v koreni = sha256 obsahu bez data-lcd-v (prvých 10 znakov).",
   limit: LIMIT,
   casti: casti.map((c) => ({
-    cast: c.cast, web: c.web, subor: `${c.cast}.${c.web}.html`, zdroj: `src/${c.cast}.${c.web}.html`,
+    cast: c.cast, web: c.web, subor: `${c.cast}.${c.web}.html`,
+    zdroj: c.sekcie ? `src/${c.def.zlozka}/${(c.def.sekcie || ["00", "99"]).join("…")}-*.${c.web}.html` : `src/${c.cast}.${c.web}.html`,
     koren: "#" + c.def.koren, ciel: c.ciel, znaky: c.znaky, bajty: c.bajty, hash: c.hash, obrazky: c.pocetImg,
+    ...(c.sekcie ? { sekcie: c.sekcie.map((s) => ({ subor: s.subor, sekcia: s.sekcia, znaky: s.prazdna ? 0 : s.html.length })) } : {}),
   })),
   stranky: Object.fromEntries(Object.entries(CIELE.stranky || {}).map(([k, v]) => [k, v.casti])),
 };
@@ -467,15 +618,24 @@ if (CHECK) {
 /* výpis */
 const popisCiela = (t) => !t ? "?" : t.typ === "banner"
   ? `banner ${t.id ?? "NOVÝ"} „${t.nazov}“${t.kod ? " (" + t.kod + ")" : ""}`
-  : `stránka ${t.id} — ${t.pole}`;
+  : t.typ === "produkt" ? `produkt ${t.id} — ${t.pole}` : `stránka ${t.id} — ${t.pole}`;
 console.log(`build-admin-html${CHECK ? " --check" : ""}: limit ${fmt(LIMIT)} znakov, parser HTML: ${parse5 ? "parse5" : "len vlastný (parse5 nenájdený)"}${SNIMKY ? ", snímky Shoptetu: " + SNIMKY : ""}`);
 for (const c of casti) {
   const stav = c.chyby.length ? "CHYBA" : c.pozor.length ? "POZOR" : "OK   ";
   console.log(`${stav} ${(c.cast + "." + c.web).padEnd(13)} ${fmt(c.znaky).padStart(7)} zn. ${fmt(c.bajty).padStart(7)} B  rezerva ${fmt(LIMIT - c.znaky).padStart(7)}  img ${String(c.pocetImg).padStart(3)}  v=${c.hash}  -> ${popisCiela(c.ciel)}`);
+  for (const s of c.sekcie || []) console.log(`        · ${s.subor.padEnd(28)} ${s.prazdna ? "  prázdna (stub)" : fmt(s.html.length).padStart(7) + " zn."}`);
   for (const x of c.chyby) console.log("        ✗ " + x);
   for (const x of c.pozor) console.log("        ! " + x);
 }
+/* časti jednej skupiny (napr. p1v-598 = kus 1 + kus 2): súčet pre cieľ po spustení (jedno pole) */
+const skupiny = new Map();
+for (const c of casti) if (c.def.skupina) { const k = c.def.skupina + "." + c.web; skupiny.set(k, (skupiny.get(k) || 0) + c.znaky); }
+for (const [k, n] of skupiny) {
+  const def = casti.find((c) => c.def.skupina + "." + c.web === k).def;
+  const lim = def.limitSpolu || LIMIT;
+  console.log(`${n > lim ? "POZOR" : "info "} ${k.padEnd(13)} ${fmt(n).padStart(7)} zn. spolu  rezerva ${fmt(lim - n).padStart(7)}  -> ${def.popisSpolu || "súčet častí skupiny"}`);
+}
 for (const x of globalne) console.log("CHYBA " + x);
 const pocetChyb = casti.reduce((s, c) => s + c.chyby.length, 0) + globalne.length;
-console.log(pocetChyb ? `\n${pocetChyb} chýb — oprav admin-html/src a spusti znova.` : CHECK ? "\nOK: src je v poriadku a dist je aktuálny." : `\nOK: dist/ (${casti.length} súborov) + dist/manifest.json zapísané.`);
+console.log(pocetChyb ? `\n${pocetChyb} chýb — oprav admin-html/src a spusti znova.` : CHECK ? "\nOK: src je v poriadku a dist je aktuálny." : `\nOK: ${VYSTUP ? DIST : "dist/"} (${casti.length} súborov) + manifest.json zapísané.`);
 process.exitCode = pocetChyb ? 1 : 0;

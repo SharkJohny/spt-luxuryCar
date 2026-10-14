@@ -98,6 +98,67 @@
         "pole": "Popis stránky (description)",
         "url": "/rozcestnik/"
       }
+    },
+    "p1v-598-1": {
+      "koren": "p1v-598-1",
+      "tinymce": true,
+      "popis": "SK Diamond Line 598: nový obsah pod konfigurátorom 1V (návrh v26), kus 1 = skupina A (ponuka dvojvrstvových, referencie, galéria, recenzie) + B (deväť vecí, materiál, porovnanie + výzva, pred a po). Za bránou ?novy=1. docs/1v-obsah.md",
+      "zlozka": "p1v-598",
+      "sekcie": ["10", "29"],
+      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "pravidla": "obsah-1v",
+      "naVsetkychStrankach": true,
+      "skupina": "p1v-598",
+      "popisSpolu": "po spustení pre všetkých: produkt 598 Popis (jedno pole, starý obsah zmazaný) — nad limitom ostane kus 2 v banneri (docs/1v-obsah.md)",
+      "sk": {
+        "typ": "banner",
+        "id": null,
+        "kod": null,
+        "nazov": "1V obsah 1 (test)",
+        "pozicia": "Pätička (custom-footer), ako menu 172 — v teste je na každej SK stránke: koreň má display:none, stĺpec pätičky skryje CSS LCD-1V-OBSAH, obsah.js ho pod ?novy=1 presunie pod konfigurátor 598",
+        "zobrazit": "PC aj mobil",
+        "poSpusteni": "produkt 598 -> Popis (description) cez runner (TinyMCE), banner vypnúť"
+      },
+      "cz": null
+    },
+    "p1v-598-2": {
+      "koren": "p1v-598-2",
+      "tinymce": true,
+      "popis": "SK Diamond Line 598: nový obsah pod konfigurátorom 1V, kus 2 = skupina C (kam siahajú + výzva, čo príde domov, časová os + výzva, farby, vzorky) + D (realita, FAQ, Kúpiť a nečakať, zlatá linka čítania, lightbox). Za bránou ?novy=1. docs/1v-obsah.md",
+      "zlozka": "p1v-598",
+      "sekcie": ["30", "49"],
+      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "pravidla": "obsah-1v",
+      "naVsetkychStrankach": true,
+      "skupina": "p1v-598",
+      "popisSpolu": "po spustení pre všetkých: produkt 598 Popis (jedno pole, starý obsah zmazaný) — nad limitom ostane kus 2 v banneri (docs/1v-obsah.md)",
+      "sk": {
+        "typ": "banner",
+        "id": null,
+        "kod": null,
+        "nazov": "1V obsah 2 (test)",
+        "pozicia": "Pätička (custom-footer), hneď za „1V obsah 1 (test)“ — ako kus 1",
+        "zobrazit": "PC aj mobil",
+        "poSpusteni": "produkt 598 -> Popis spolu s kusom 1, ak súčet <= 45 000 zn.; inak ostáva tento banner (rozhodne Michal)"
+      },
+      "cz": null
+    }
+  },
+  "pravidla": {
+    "obsah-1v": {
+      "_pozn": "Obsah pod konfigurátorom 1V je v teste v pätičke KAŽDEJ SK stránky (skrytý). Preto: id len s predponou p1v-, žiadne triedy, na ktoré kotví živý JS (main.js placeWidget recenzií/videí, popisModuly.js, video-play-again.js, productPage.js, index.js FAQ/akordeón, konfigurátor), žiadne polia formulára, médiá odložené (img lazy, video/iframe len data-src + data-poster).",
+      "idPredpona": "p1v-",
+      "media": "odlozene",
+      "zakazaneTriedy": [
+        "lcd-reviews-widget", "lcd-videos-widget", "impact-text", "layers-info-wrap", "images-scrolling__counter",
+        "twentytwenty-wrap", "twentytwenty-container", "twentytwenty-before", "twentytwenty-after", "text-block",
+        "lcd-pp", "lcd-pp-nahradene", "lcd-farby-sekcia", "sec-header", "playpause",
+        "desctop", "mobile", "wrapper", "customer-video", "customers-video", "slick-slide", "accordion", "faq", "faq-content",
+        "option-button", "parameter-wrap", "position-wrap", "content-wrap", "upsale-button", "upsale-buttons", "upsale-Banner", "upsale-wrap",
+        "next-step-button", "finish-button", "add-to-cart", "add-to-cart-button", "detail-parameters", "box-config",
+        "modl-selector-wrap", "model-selector", "model-info", "p-final-price-wrapper", "price-final", "price-standard",
+        "benefitBanner__item", "benefitBanner__content", "lcd-root", "lcd1v-suhrn"
+      ]
     }
   },
   "stranky": {
@@ -124,6 +185,19 @@
       "ignorujIdZoSnimky": [
         "Model-selecte",
         "sets"
+      ]
+    },
+    "produkt-598": {
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
       ]
     },
     "ostatne": {

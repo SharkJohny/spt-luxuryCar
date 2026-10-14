@@ -15,12 +15,16 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-ROZLOZENIE <- _lcd1v-rozlozenie.scss  novy konfigurator 1V: krok 4 rozlozenie              } (tichy test ?novy=1,
   LCD-1V-KUFOR-BOXY <- _lcd1v-kufor-boxy.scss  novy konfigurator 1V: kroky 5-6 kufor a boxy         }  SK 598; kontrakt
   LCD-1V-CENA       <- _lcd1v-cena.scss        novy konfigurator 1V: cenova karta + lepiva lista     }  docs/1v-kontrakt.md)
+  LCD-1V-OBSAH      <- _lcd1v-obsah.scss       obsah pod konfiguratorom 1V: brana, miesto, skrytie stareho popisu (docs/1v-obsah.md)
+  LCD-1V-OBSAH-A..D <- _lcd1v-obsah-a..d.scss  obsah 1V po skupinach A-D (kazdy selektor pod body.lcd-1v)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
-  - LCD-HOME: #lcd-home -> :is(#lcd-home,[data-lcd-cast^=hp])
+  - LCD-HOME: #lcd-home -> :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v])
       Telo titulky je v niekolkych banneroch (#lcd-home, #lcd-home-2, ... kazdy s data-lcd-cast="hp-...").
       :is() drzi specificitu id (1,0,0), takze kaskada sa nemeni; premenne (--ink, --gold...) platia na kazdom koreni.
+      Treti clen: korene obsahu pod konfiguratorom 1V (p1v-598-1, -2 ...; docs/1v-obsah.md) dostanu styly titulky
+      (lx-* moduly, .chapter, .wrap, h2 ...) bez kopirovania CSS — LEN pod body.lcd-1v (flag vypnuty = nic nevyberie).
   - LCD-HOME aj LCD-RZ: kazdy selektor s typom h1 dostane dvojca s .lcd-h1 (napr. "#lcd-home .hero h1" ->
       "#lcd-home .hero h1, #lcd-home .hero .lcd-h1"). V banneroch a v popise stranky nie je <h1> (H1 dava Shoptet),
       nadpis hero je <h2 class="lcd-h1">; vlastna specificita h1 selektora sa nemeni (zoznam, nie :is).
@@ -35,7 +39,7 @@ KOREN = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSS_DIR = os.path.join(KOREN, "assets", "css")
 CIEL = os.path.join(CSS_DIR, "luxuryCar.css")
 
-HOME_IS = ":is(#lcd-home,[data-lcd-cast^=hp])"
+HOME_IS = ":is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v])"
 
 BLOKY = [
     dict(meno="LCD-HOME", zdroj="_lcdHome.scss", home=True, h1=True,
@@ -57,6 +61,17 @@ BLOKY = [
          popis="konfigurator 1V: kroky 5-6 kufor a boxy; len body.lcd-1v"),
     dict(meno="LCD-1V-CENA", zdroj="_lcd1v-cena.scss", home=False, h1=False,
          popis="konfigurator 1V: cenova karta a lepiva lista; len body.lcd-1v"),
+    # Obsah pod konfiguratorom 1V (staticke HTML z adminu, admin-html/src/p1v-598/) — docs/1v-obsah.md
+    dict(meno="LCD-1V-OBSAH", zdroj="_lcd1v-obsah.scss", home=False, h1=False,
+         popis="obsah 1V: brana, miesto pod konfiguratorom, skrytie stareho popisu; okrem stlpca paticky len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-A", zdroj="_lcd1v-obsah-a.scss", home=False, h1=False,
+         popis="obsah 1V skupina A: ponuka dvojvrstvovych, referencie, galeria, recenzie; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-B", zdroj="_lcd1v-obsah-b.scss", home=False, h1=False,
+         popis="obsah 1V skupina B: devat veci, material, porovnanie, pred a po; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-C", zdroj="_lcd1v-obsah-c.scss", home=False, h1=False,
+         popis="obsah 1V skupina C: kam siahaju, co pride domov, casova os, farby, vzorky; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-D", zdroj="_lcd1v-obsah-d.scss", home=False, h1=False,
+         popis="obsah 1V skupina D: realita, FAQ, kupit a necakat, linka citania, lightbox; len body.lcd-1v"),
 ]
 
 

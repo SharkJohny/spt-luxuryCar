@@ -11,6 +11,7 @@ import * as kroky from "./kroky.js";
 import * as rozlozenie from "./rozlozenie.js";
 import * as kuforBoxy from "./kufor-boxy.js";
 import * as cena from "./cena.js";
+import * as obsah from "./obsah.js"; // obsah pod konfigurátorom (statické HTML z adminu), docs/1v-obsah.md
 
 /** projectId Shoptetu -> produkty s novým vzhľadom (ID produktov sa medzi SK a CZ obchodom líšia). */
 export const ZOZNAM_1V = { 562035: [598] };
@@ -47,7 +48,7 @@ export function initKonfigurator1v(setupData, texts) {
     document.body.classList.add(TRIEDA);
     const ctx = vytvorCtx({ setupData, texts, kontext });
     window.__lcd1v = ctx; // ladenie + test (tools/test-konfigurator-1v.mjs)
-    [kroky, rozlozenie, kuforBoxy, cena].forEach(function (modul) {
+    [kroky, rozlozenie, kuforBoxy, cena, obsah].forEach(function (modul) {
       try {
         modul.init(ctx);
       } catch (e) {

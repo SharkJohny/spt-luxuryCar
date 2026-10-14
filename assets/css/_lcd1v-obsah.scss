@@ -1,0 +1,90 @@
+/* LCD-1V-OBSAH — ZÁKLAD obsahu pod konfigurátorom 1V (návrh v26: ponuka dvojvrstvových … Kúpiť a nečakať).
+   Spoločný súbor (koordinátor), sekcie majú vlastné partialy _lcd1v-obsah-a|b|c|d.scss. Pravidlá: docs/1v-obsah.md.
+   Čisté CSS (nekompiluje sa Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte).
+
+   Korene obsahu = statické HTML zo Shoptet adminu: <div id="p1v-598-N" class="p1v-obsah" data-lcd-cast="p1v-598-N"
+   data-lcd-brana="1v" style="display:none">. Bez flagu ?novy=1 neviditeľné; JS (konfigurator1v/obsah.js) ich pod
+   body.lcd-1v presunie do .p1v-miesto pred záložky produktu a body dostane .lcd-1v-obsah.
+   Štýly titulky (blok LCD-HOME: premenné --ink/--gold…, .chapter, .wrap, h2, .lede, lx-* moduly, .deck, .revs…)
+   platia aj na korene obsahu: vloz-lcd-css.py rozširuje :is(#lcd-home,…) o „body.lcd-1v [data-lcd-cast^=p1v]“.
+   Skupiny teda píšu len to, čím sa produktová stránka v návrhu líši od titulky. */
+
+/* 1) Pre VŠETKÝCH (aj bez flagu) — jediné pravidlo mimo body.lcd-1v: v teste je obsah ako banner v pätičke každej
+      SK stránky. Jeho stĺpec pätičky (.custom-footer > div, Shoptet mu dáva šírku 33 %) sa nezobrazí; po presune
+      obsahu (obsah.js) prázdny stĺpec tiež. Po spustení (obsah v Popise produktu) pravidlo nič nevyberá. */
+.custom-footer > div:has([data-lcd-brana]),
+.custom-footer > div[data-p1v-prazdny]{display:none !important}
+
+/* 2) Brána: koreň sa ukáže len na mieste pod konfigurátorom a len pod body.lcd-1v (inline display:none prebije !important) */
+body.lcd-1v .p1v-miesto > [data-lcd-cast^=p1v]{display:block !important;width:100%}
+
+/* 3) Starý popis (záložky Popis / Diskusia vrátane Dodatočných parametrov) skrytý, keď je nový obsah na mieste.
+      Ostáva v DOM (main.js, popisModuly.js, productPage.js naň kotvia). */
+body.lcd-1v.lcd-1v-obsah .p-detail > .shp-tabs-wrapper{display:none !important}
+
+/* 4) Miesto obsahu na celú šírku stránky (= .overall-wrapper, bez posuvníka): --p1v-sirka a --p1v-vlavo (posun od
+      obsahu rodiča .p-detail) nastaví obsah.js podľa skutočnej geometrie; záloha bez nich = šírka okna. */
+body.lcd-1v .p1v-miesto{display:block;position:relative;clear:both;box-sizing:border-box;
+  width:var(--p1v-sirka, 100vw);max-width:none;
+  margin:0 0 0 var(--p1v-vlavo, calc(50% - 50vw));padding:0}
+
+/* 5) Kapitoly návrhu: .kap[data-k=1–4] = 4 tematické skupiny sekcií, 2. a 4. na svetlom podklade, medzi skupinami
+      vlasová linka (návrh r. 2297–2316). Kapitola 2 má sekcie dvoch skupín (B pred a po + C kam siahajú), preto ju
+      nesie obal každej sekcie: data-lcd-kap="N" (admin-html/src/p1v-598/*: hlavička súboru hovorí, ktorú). Vlastný
+      podklad sekcie (napr. tmavá .after-dark z bloku LCD-HOME, špecificita id) má prednosť. */
+body.lcd-1v .p1v-miesto :is([data-lcd-kap="2"],[data-lcd-kap="4"]){background:var(--sand)}
+body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="2"],[data-lcd-kap="2"] + [data-lcd-kap="3"],
+  [data-lcd-kap="3"] + [data-lcd-kap="4"]){border-top:1px solid rgba(155,122,36,.16)}
+/*    jednotný rytmus kapitol návrhu (.kap > section.chapter): menšie odsadenie než titulka. Blok LCD-HOME ARMOR dáva
+      .chapter padding s !important a špecificitou id (mobil 64 px, PC 5,4vw) -> selektor s id koreňov (1,3,2) ho prebije.
+      Sekcie skupiny A (ponuka, referencie, recenzie) sú v návrhu mimo kapitol, rytmus im dáva _lcd1v-obsah-a.scss. */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is(section.chapter[data-lcd-kap],[data-lcd-kap] > section.chapter){
+  padding-top:clamp(38px,4.8vw,68px) !important;padding-bottom:clamp(38px,4.8vw,68px) !important}
+/*    linka medzi sekciami tej istej kapitoly (bez id: skupina ju vie zrušiť, napr. B pred porovnaním za scénou materiálu) */
+body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-kap="2"] + [data-lcd-kap="2"],
+  [data-lcd-kap="3"] + [data-lcd-kap="3"],[data-lcd-kap="4"] + [data-lcd-kap="4"]):is(section.chapter,:has(> section.chapter:first-child)){
+  border-top:1px solid rgba(155,122,36,.14)}
+
+/* 6) Spoločný vzhľad návrhu pre všetky sekcie (v návrhu globálne pravidlá; titulka ich nemá):
+      a) nadpisy modulov zlaté ako kov (návrh patch27 „.chapter h2“ + „.pinhead h2“); svetlé zlato na tmavom podklade
+         (.ups, vzorky, záver) si dávajú skupiny samy s vyššou alebo rovnakou špecificitou neskôr v kaskáde;
+      b) úvodný odsek modulu krátky (návrh r. 1816 „.lede{max-width:46ch}“);
+      c) reveal .rv: titulka ho skrýva (opacity 0 až do .on). Kým obsah.js neprevezme odhaľovanie (.p1v-rv na obale
+         sekcie), je .rv viditeľné — bez JS alebo pri chybe skupiny nič neostane skryté;
+      d) text len pre čítačky (TinyMCE: tlačidlo so šípkou musí mať text). */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is(.chapter h2,.pinhead h2){color:#8f7020;
+  background:linear-gradient(100deg,#8a6b1c,#c49b31 42%,#e0bd63 60%,#96751f);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .lede{max-width:46ch}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia]:not(.p1v-rv) .rv,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
+body.lcd-1v :is(.p1v-miesto .sr-only,.p1v-sr){position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* 7) Lepené scény (galéria, pred a po, deväť vecí, materiál): Shoptet dáva #content-wrapper overflow:hidden, takže
+      position:sticky vo vnútri nelepí (lxModulyOziv dá scéne .lx-bez-lepu) a miesto obsahu na celú šírku stránky
+      (.p1v-miesto je širšie než #content-wrapper) by bolo orezané. Vodorovný posun stránky strihá .overall-wrapper (clip).
+      - od 761 px visible: clip by orezal miesto na šírku #content-wrapper (na PC 44 px z každej strany);
+      - telefón len overflow-x:clip: #content-wrapper je tam na celú šírku okna (overené 360/390 px), vodorovne orezáva
+        ako doteraz, ale nie je rolovacím kontajnerom -> pred a po lepí ako v návrhu aj na titulke. Zvislo visible:
+        obsah končí o zlomok px nižšie než #content-wrapper (Shoptet), celé clip by orezalo spodný riadok px (sonda testu).
+        Galéria sa na telefóne nelepí aj tak (LCD-HOME do 760 px position:relative). */
+@media(min-width:761px){body.lcd-1v.lcd-1v-obsah #content-wrapper{overflow:visible !important}}
+@media(max-width:760px){body.lcd-1v.lcd-1v-obsah #content-wrapper{overflow:visible !important;overflow-x:clip !important}}
+
+/* 8) Starý blok FAQ pri konfigurátore (components/index.js ho vkladá do .p-info-wrapper z /faq/) je s novým obsahom
+      dvakrát — nový FAQ je dole (skupina D). Skrytý len keď nový naozaj je; ostáva v DOM. */
+body.lcd-1v.lcd-1v-obsah:has(.p1v-miesto [data-lcd-sekcia="d-faq"]) .p-info-wrapper > .faq.container{display:none !important}
+
+/* 9) Lepivá lišta konfigurátora (telefón a tablet do 991 px, LCD-1V-CENA, z-index 60) je pod konfigurátorom stále
+      zapnutá (body.lcd1v-lista-on). Prilepená scéna má výšku okna a jej spodná lišta (.pinfoot: postup, „Zostavte si
+      set“) by ležala pod ňou -> spodok scény o výšku lišty vyššie. Pred a po lepí aj na telefóne (bod 7), galéria len od
+      761 px. Okno #p1v-lb (2147483001) a linka čítania (2147483000) sú nad lištou, hlavičkou aj chatom Luxia. */
+@media(max-width:991px){
+  body.lcd-1v.lcd1v-lista-on .p1v-miesto .lx-pp:not(.lx-bez-lepu) .lx-pin{
+    padding-bottom:calc(clamp(14px,2.4vh,26px) + var(--c1v-lista-h,71px) + env(safe-area-inset-bottom,0px)) !important}
+}
+@media(min-width:761px) and (max-width:991px){
+  body.lcd-1v.lcd1v-lista-on .p1v-miesto .lx-gal:not(.lx-bez-lepu) .lx-gal-pin{
+    padding-bottom:calc(clamp(14px,2.4vh,26px) + var(--c1v-lista-h,71px) + env(safe-area-inset-bottom,0px)) !important}
+}

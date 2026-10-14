@@ -187,6 +187,135 @@
       "bajty": 6788,
       "hash": "bd6b1f1c42",
       "obrazky": 9
+    },
+    {
+      "cast": "p1v-598-1",
+      "web": "sk",
+      "subor": "p1v-598-1.sk.html",
+      "zdroj": "src/p1v-598/10…29-*.sk.html",
+      "koren": "#p1v-598-1",
+      "ciel": {
+        "typ": "banner",
+        "id": null,
+        "kod": null,
+        "nazov": "1V obsah 1 (test)",
+        "pozicia": "Pätička (custom-footer), ako menu 172 — v teste je na každej SK stránke: koreň má display:none, stĺpec pätičky skryje CSS LCD-1V-OBSAH, obsah.js ho pod ?novy=1 presunie pod konfigurátor 598",
+        "zobrazit": "PC aj mobil",
+        "poSpusteni": "produkt 598 -> Popis (description) cez runner (TinyMCE), banner vypnúť"
+      },
+      "znaky": 34227,
+      "bajty": 35047,
+      "hash": "a7537fced3",
+      "obrazky": 36,
+      "sekcie": [
+        {
+          "subor": "10-a-ponuka.sk.html",
+          "sekcia": "a-ponuka",
+          "znaky": 991
+        },
+        {
+          "subor": "11-a-referencie.sk.html",
+          "sekcia": "a-referencie",
+          "znaky": 5476
+        },
+        {
+          "subor": "12-a-galeria.sk.html",
+          "sekcia": "a-galeria",
+          "znaky": 7124
+        },
+        {
+          "subor": "13-a-recenzie.sk.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2143
+        },
+        {
+          "subor": "20-b-ocakavat.sk.html",
+          "sekcia": "b-ocakavat",
+          "znaky": 7271
+        },
+        {
+          "subor": "21-b-material.sk.html",
+          "sekcia": "b-material",
+          "znaky": 5748
+        },
+        {
+          "subor": "22-b-porovnanie.sk.html",
+          "sekcia": "b-porovnanie",
+          "znaky": 2437
+        },
+        {
+          "subor": "23-b-predapo.sk.html",
+          "sekcia": "b-predapo",
+          "znaky": 2893
+        }
+      ]
+    },
+    {
+      "cast": "p1v-598-2",
+      "web": "sk",
+      "subor": "p1v-598-2.sk.html",
+      "zdroj": "src/p1v-598/30…49-*.sk.html",
+      "koren": "#p1v-598-2",
+      "ciel": {
+        "typ": "banner",
+        "id": null,
+        "kod": null,
+        "nazov": "1V obsah 2 (test)",
+        "pozicia": "Pätička (custom-footer), hneď za „1V obsah 1 (test)“ — ako kus 1",
+        "zobrazit": "PC aj mobil",
+        "poSpusteni": "produkt 598 -> Popis spolu s kusom 1, ak súčet <= 45 000 zn.; inak ostáva tento banner (rozhodne Michal)"
+      },
+      "znaky": 23089,
+      "bajty": 23596,
+      "hash": "eb2da686e6",
+      "obrazky": 35,
+      "sekcie": [
+        {
+          "subor": "30-c-kam.sk.html",
+          "sekcia": "c-kam",
+          "znaky": 851
+        },
+        {
+          "subor": "31-c-domov.sk.html",
+          "sekcia": "c-domov",
+          "znaky": 1901
+        },
+        {
+          "subor": "32-c-casova-os.sk.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1337
+        },
+        {
+          "subor": "33-c-farby.sk.html",
+          "sekcia": "c-farby",
+          "znaky": 7428
+        },
+        {
+          "subor": "34-c-vzorky.sk.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1498
+        },
+        {
+          "subor": "40-d-realita.sk.html",
+          "sekcia": "d-realita",
+          "znaky": 2857
+        },
+        {
+          "subor": "41-d-faq.sk.html",
+          "sekcia": "d-faq",
+          "znaky": 5854
+        },
+        {
+          "subor": "42-d-koniec.sk.html",
+          "sekcia": "d-koniec",
+          "znaky": 583
+        },
+        {
+          "subor": "43-d-pomocne.sk.html",
+          "sekcia": "d-pomocne",
+          "znaky": 635
+        }
+      ]
     }
   ],
   "stranky": {
@@ -199,6 +328,11 @@
     "rozcestnik": [
       "mega",
       "rz"
+    ],
+    "produkt-598": [
+      "mega",
+      "p1v-598-1",
+      "p1v-598-2"
     ],
     "ostatne": [
       "mega"

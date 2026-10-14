@@ -1,0 +1,190 @@
+/* LCD-1V-OBSAH-B — obsah pod konfigurátorom 1V, SKUPINA B: Deväť vecí, materiál, porovnanie + výzva, pred a po.
+   Vlastník: worker skupiny B (+ konfigurator1v/obsah-b.js, admin-html/src/p1v-598/2x-b-*.sk.html). Pravidlá: docs/1v-obsah.md.
+   Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css). KAŽDÝ selektor začína
+   body.lcd-1v (najlepšie body.lcd-1v [data-lcd-sekcia="b-…"] …). Žiadne @import, žiadne premenné na :root.
+   Základ titulky (blok LCD-HOME) na koreňoch obsahu už platí — tu len rozdiely oproti titulke podľa návrhu v26.
+   Obrázky: assets/img/1v/obsah/b-* (CDN absolútna adresa …/eshopy/luxuryCar/assets/img/1v/obsah/…).
+
+   Špecificita: pravidlá titulky sú :is(#lcd-home,…) .x = (1,1,0). Tu predpona
+   body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-…"] = (1,3,1) -> vyhrá bez !important.
+   Zlom „statická scéna“ = ako LCD-HOME: telefón do 900 px + tablet na výšku (dotyk) do 1199 px. */
+
+/* =============================================================== 0) SPOLOČNÉ PRE SEKCIE B */
+/* zlaté nadpisy (.chapter h2, .pinhead h2), .lede 46ch, reveal .rv a rytmus kapitol dáva základ LCD-1V-OBSAH bod 5–6 */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is([data-lcd-sekcia="b-ocakavat"],[data-lcd-sekcia="b-material"]) .pinhead h2{margin-bottom:10px}
+/* zlaté tlačidlá bez tmavého rámika živého .btn (návrh: len prechod a tieň) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="b-"] :is(.pf-cta,.spat-btn){border:0}
+
+/* =============================================================== 1) DEVÄŤ VECÍ (b-ocakavat) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t h3{color:var(--ink)}
+/* PC: scéna titulky (.stage2/.pin2) — rozdiely návrhu: 9 krokov, náhľady v 9 stĺpcoch (pod 1200 px v 5),
+   fotky náhľadov z CSS (v HTML len tlačidlá s číslom — bez flagu sa nič nestiahne). */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(9,1fr);gap:clamp(4px,.6vw,9px)}
+@media(max-width:1200px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(5,1fr)}
+}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button{aspect-ratio:1/1;background:#1d1a14}
+/* fotka náhľadu = pozadie ::before (obrázok nižšie podľa data-i); stlmenie ako <img> na titulke, číslo <b> ostáva ostré */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button:before{content:"";position:absolute;inset:0;
+  background-position:center;background-size:cover;background-repeat:no-repeat;filter:saturate(.5) brightness(.72);transition:filter .32s}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button:hover:before{filter:saturate(.85) brightness(.9)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button.on:before{filter:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button b{font-size:9px}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="0"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f01.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="1"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f02.jpg?v=2)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="2"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/poukazka/m-08c360575353.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="3"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f03.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="4"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f04.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="5"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f05.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="6"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/b-ocakavat-farba-interieru.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="7"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/b-ocakavat-treti-rad.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="8"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/b-ocakavat-zvierata.jpg)}
+
+/* Telefón / tablet na výšku = návrh #s2Mob, ale z TOHO ISTÉHO markupu (žiadna kópia v HTML):
+   .pinmain je vodorovný posuvný grid, obaly fotiek a textov sú display:contents, takže fotka i je v 1. riadku a
+   text i v 2. riadku stĺpca i (= karta). .s2-rail = okrúhle bodky v 3. riadku, prilepené vľavo (sticky), aby sa
+   neposúvali s kartami. Prilepená scéna, štítky, úvodná veta, veľké číslo, náhľady a spodná lišta sú skryté. */
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
+  /* odsadenie nesie .stage2 (LCD-HOME dáva sekciám padding:0 !important) */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .stage2{height:auto !important;padding:clamp(28px,7vw,48px) 0 calc(clamp(24px,6vw,40px) - 18px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pin2{position:static;height:auto;display:block;padding:0;max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pin2:before,
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] :is(.pintop,.pinhead .lede,.pinfoot,.s2-big,.s2-thumbs){display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinhead{margin:0 0 16px;padding:0 var(--pad);max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinhead h2{font-size:clamp(21px,6.4vw,30px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinmain{display:grid;grid-template-columns:none;
+    grid-auto-columns:86%;grid-template-rows:auto auto auto;column-gap:14px;row-gap:0;align-items:stretch;align-content:start;
+    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding:0 var(--pad);overscroll-behavior-x:contain;
+    padding:4px var(--pad) 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinmain::-webkit-scrollbar{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] :is(.s2-media,.s2-body,.s2-col,.s2-texts){display:contents}
+  /* stmavenie veľkej fotky z PC (.s2-media:after) by pri display:contents prekrylo celý karusel */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-media:after{display:none}
+  /* fotka = vrch karty */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-media img{grid-row:1;position:relative;inset:auto;
+    width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;opacity:1;transform:none;transition:none;
+    border-radius:18px 18px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--deep);scroll-snap-align:center}
+  /* text = spodok karty (rovnaká výška v riadku gridu) */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t{grid-area:auto;grid-row:2;position:relative;inset:auto;opacity:1;transform:none;
+    pointer-events:auto;transition:none;display:block;background:var(--paper);border:1px solid var(--line);border-top:0;
+    border-radius:0 0 18px 18px;padding:15px 16px 18px;box-shadow:0 10px 20px -8px rgba(20,15,5,.12);margin-bottom:14px}
+  /* číslo karty („01“) dole na fotke, nad stmavením */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t:before{position:absolute;left:14px;bottom:calc(100% + 6px);z-index:2;
+    font-family:var(--disp);font-weight:800;font-size:42px;line-height:1;color:rgba(255,255,255,.94);
+    font-variant-numeric:tabular-nums;text-shadow:0 3px 18px rgba(0,0,0,.5);pointer-events:none}
+  /* stmavenie spodku fotky (návrh .s2m-ph:after) — fotka je 16:10 a široká ako text, takže ju prekryje presne */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t:after{content:"";position:absolute;left:-1px;right:-1px;bottom:100%;
+    aspect-ratio:16/10;border-radius:18px 18px 0 0;background:linear-gradient(180deg,transparent 50%,rgba(8,6,4,.58));pointer-events:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="0"]:before{content:"01"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="1"]:before{content:"02"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="2"]:before{content:"03"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="3"]:before{content:"04"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="4"]:before{content:"05"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="5"]:before{content:"06"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="6"]:before{content:"07"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="7"]:before{content:"08"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="8"]:before{content:"09"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t .k{font-size:10.5px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t h3{margin:9px 0;font-size:19px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t p{margin:0;font-size:14.5px;line-height:1.6;max-width:none}
+  /* bodky: 3. riadok cez všetky karty (spodný padding = tieň zväčšenej aktívnej bodky, pás má overflow-y:hidden), prilepené na ľavom okraji posuvníka (left:0 = okraj obsahu, padding už v ňom je) */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail{grid-row:3;grid-column:1 / span 9;justify-self:start;
+    position:sticky;left:0;width:calc(100vw - 2 * var(--pad));box-sizing:border-box;
+    display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:12px;padding:8px 0 24px}
+  /* 9 bodiek v jednom riadku: na úzkom displeji sa zúžia na ovály (ako návrh) */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button{flex:0 1 46px;min-width:0;width:46px;height:46px;border-radius:50%;
+    border:1.5px solid var(--line);background:var(--paper);font-size:0;color:var(--ink);
+    box-shadow:0 3px 10px rgba(20,15,5,.08);transition:background .25s,color .25s,border-color .25s,transform .25s,box-shadow .25s}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:before{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button span{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail{counter-reset:p1v-b-bodka}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:after{counter-increment:p1v-b-bodka;content:counter(p1v-b-bodka);
+    font-family:var(--disp);font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button.on{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+    color:#17130a;border-color:var(--gold);transform:scale(1.1);box-shadow:0 6px 18px rgba(140,105,25,.42)}
+}
+
+/* =============================================================== 2) MATERIÁL (b-material) */
+/* titulka má #matWrap / #legend (id); obsah 1V id mať nesmie -> tie isté pravidlá na triedy .matwrap / .legend */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .matwrap{position:relative;perspective:2400px;perspective-origin:50% 47%;
+  display:flex;align-items:center;justify-content:center;min-height:0;isolation:isolate}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .matwrap:before{content:"";position:absolute;left:50%;top:50%;width:118%;height:74%;
+  z-index:-1;transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(ellipse at 50% 48%,rgba(255,252,244,.9),rgba(255,252,244,.42) 44%,rgba(255,252,244,0) 72%)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{justify-content:center;gap:clamp(2px,.6vh,8px)}
+/* 3D rez je na telefóne širší ako okno (náklon + zväčšenie) — orezať na okraji sekcie (clip nevytvára posuvník, sticky funguje) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"]{overflow-x:clip}
+/* body na vrstvách: poloha (na titulke inline style) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .exp .hot{left:12%;top:81%}
+/* farby hrán vrstiev (na titulke inline style, rovnaké hodnoty) */
+body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="0"]{--t:16px;--cf:rgb(50,51,63);--cb:rgb(28,28,35);--cl1:rgb(60,60,72);--cl2:rgb(37,38,47);--cr:rgb(29,30,37);--ct1:rgb(83,84,97);--ct2:rgb(55,56,67);--cbt:rgb(24,24,30)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="1"]{--t:16px;--cf:rgb(240,240,240);--cb:rgb(132,132,132);--cl1:rgb(240,240,240);--cl2:rgb(178,178,178);--cr:rgb(139,139,139);--ct1:rgb(255,255,255);--ct2:rgb(226,226,226);--cbt:rgb(115,115,115)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="2"]{--t:16px;--cf:rgb(241,241,243);--cb:rgb(133,133,134);--cl1:rgb(241,241,243);--cl2:rgb(178,178,180);--cr:rgb(140,140,141);--ct1:rgb(255,255,255);--ct2:rgb(227,227,229);--cbt:rgb(116,116,117)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="3"]{--t:16px;--cf:rgb(246,245,244);--cb:rgb(135,135,134);--cl1:rgb(246,245,244);--cl2:rgb(182,181,181);--cr:rgb(143,142,142);--ct1:rgb(255,255,255);--ct2:rgb(231,230,230);--cbt:rgb(118,118,117)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="4"]{--t:16px;--cf:rgb(30,30,30);--cb:rgb(16,16,16);--cl1:rgb(40,40,40);--cl2:rgb(22,22,22);--cr:rgb(17,17,17);--ct1:rgb(62,62,62);--ct2:rgb(37,37,37);--cbt:rgb(14,14,14)}
+/* vzorky v legende (na titulke inline style) */
+body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="0"] .sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/tex5.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="1"] .sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/tex4.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="2"] .sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/tex3.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="3"] .sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/tex2.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="4"] .sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/tex1.jpg)}
+@media(min-width:901px){
+  /* scéna kratšia ako na titulke (240 vh): návrh má 140 vh */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .stage{height:140vh !important}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] :is(.matwrap,.legend){max-height:100%}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{overflow-y:auto;scrollbar-width:thin;
+    scrollbar-color:rgba(155,122,36,.45) transparent;justify-content:safe center}
+}
+@media(min-width:901px) and (max-height:949px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{--sw:clamp(28px,calc(4.4vh + .2px),42px)}
+}
+@media(min-width:901px) and (max-height:680px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{gap:2px}
+}
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .matwrap{display:block}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{gap:2px;height:auto}
+}
+
+/* =============================================================== 3) POROVNANIE + VÝZVA (b-porovnanie) */
+/* návrh: linka medzi sekciami kapitoly len medzi dvoma .chapter — pred porovnaním je scéna materiálu, linka nie je */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"]{border-top:0}
+/* naša cena „od …“ príde zo živých dát (obsah-b.js); kým nie je, riadok sa neukáže */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .p1v-b-od:not(.ma-cenu){display:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .lede{margin-top:14px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .cmp{margin-top:34px}
+/* výzva „potichu“ (návrh patch41): jeden riadok na podklade sekcie, bez pásu */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .spat{display:flex;max-width:1240px;margin:0 auto;box-sizing:border-box;
+  align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(12px,2vw,22px);
+  padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .spat > p{margin:0;font-family:var(--disp);font-weight:800;color:var(--ink);
+  font-size:clamp(15px,1.6vw,19px);line-height:1.3}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .btn.spat-btn{flex:none;height:50px;padding:0 26px !important;font-size:12px;
+  letter-spacing:.1em;margin:0}
+@media(max-width:640px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .btn.spat-btn{width:100%;justify-content:center}
+}
+
+/* =============================================================== 4) PRED A PO (b-predapo) */
+/* modul titulky lx-pp; vzorky v legende (na titulke inline style) */
+body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(1) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/pp-1.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(2) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/pp-2.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(3) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/pp-3.jpg)}
+body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(4) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/pp-4.jpg)}
+/* Telefón: základ (LCD-1V-OBSAH bod 7) dáva #content-wrapper overflow-x:clip -> scéna lepí ako v návrhu a na titulke.
+   Záloha, keby niektorý predok predsa mal overflow:hidden (lxModulyOziv dá .lx-bez-lepu = normálny blok, posun čiary
+   podľa polohy fotky): úvodná veta, celá fotka od kraja po kraj (2,14 : 1). */
+@media(max-width:760px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-p{display:block}
+  /* pomer fotky 2,14 : 1 ako návrh (titulka má na telefóne 1,5) — v lepenej scéne aj v zálohe bez lepenia */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:2.1374}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-pp-stage{width:calc(100% + var(--pad) * 2);margin-inline:calc(var(--pad) * -1)}
+}
+
+/* =============================================================== 5) SPODNÁ LIŠTA SCÉN NA TELEFÓNE */
+/* LCD-HOME necháva pod 1340 px vpravo v lište 84 px pre ikonu chatu (prilepená scéna drží lištu dole v okne). Na telefóne
+   a tablete na výšku sú Materiál a Pred a po v normálnom toku -> lišta ako v návrhu: tlačidlo vpravo, postup na celú šírku. */
+@media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is([data-lcd-sekcia="b-material"],[data-lcd-sekcia="b-predapo"].lx-bez-lepu) .pinfoot{padding-right:0 !important}
+}

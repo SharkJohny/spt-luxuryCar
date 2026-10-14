@@ -13,6 +13,7 @@ Plán: vault `wiki/projekty/aktivne/web-a-konfigurator/web-bez-prekryvania.md` (
 | `hp-telo-2.*.html` | **NOVÝ** banner v Zápätí titulky, hneď za „Top 2“ | **NOVÝ** banner za „Zápatí“ | `#lcd-home-3`: čo očakávať, materiál, FAQ, galéria, kontakt, záver, lightbox |
 | `mega.*.html` | banner **172** „menu“ (pätička, každá stránka) | banner **108** „menu.“ | `#megaOvl` + `nav#mega` + prepínač SK/CZ |
 | `rz.*.html` | stránka **850** → Popis stránky | stránka **786** → Popis stránky | `#lcd-rz` (rozcestník `/rozcestnik/`) |
+| `p1v-598-1.sk.html`, `p1v-598-2.sk.html` | **NOVÉ** bannery „1V obsah 1/2 (test)“ v Pätičke (test `?novy=1`); po spustení produkt **598** → Popis | — | obsah pod konfigurátorom 1V (zo zložky `src/p1v-598/`, za bránou), [`docs/1v-obsah.md`](../docs/1v-obsah.md); presný postup zápisu (záloha, pole, súbor) sekcia 9 |
 
 Presné údaje (kód banneru, pozícia, stránka) sú v `ciele.json` a po builde v `dist/manifest.json`.
 
