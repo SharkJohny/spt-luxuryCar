@@ -1,6 +1,8 @@
 // Nový vzhľad 1V — obsah pod konfigurátorom, SKUPINA D: realita (videá), FAQ, Kúpiť a nečakať, zlatá linka čítania, okno.
 // VLASTNÍK: worker skupiny D (+ admin-html/src/p1v-598/4x-d-*.sk.html, assets/css/_lcd1v-obsah-d.scss,
 // tools/test-1v/obsah-d.mjs). Pravidlá: docs/1v-obsah.md (API okna: „Okno na fotky a videá #p1v-lb“).
+// Pre všetky skupiny obsahu (T0.3): sekcie D nájde podľa mena v ktoromkoľvek kľúči (598, dvoj, classic, premium,
+// boxy); sekcia, ktorá v skupine nie je (stub alebo ju návrh nemá), sa preskočí.
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ. Nič nekreslí, nič zo živého DOM nemaže, nič neodosiela.
 // Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Sekcia, ktorá ešte nie je v admine (stub), nie je

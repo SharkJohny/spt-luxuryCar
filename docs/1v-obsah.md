@@ -1,48 +1,39 @@
-# Obsah pod konfigurátorom 1V — základ pre skupiny A–D (SK Diamond Line 598, `?novy=1`)
+# Obsah pod konfigurátorom 1V — všetky SK produkty (skupiny A–D + moduly typov, `?novy=1`)
 
 Základ z 13. 10. 2026 (worktree `spt-luxuryCar-1v`, HEAD `a0d3ce8`). Skupiny A–D zlúčené 14. 10. 2026 (koordinátor): spoločné pravidlá presunuté do základu (bod 5 nižšie), jedno okno na fotky a videá, jeden reveal, stav a otvorené body v sekcii 10.
-Cieľ: všetko pod konfigurátorom vyzerá ako návrh v26 (`scratchpad/navrhy/jednovrstvove.html`, `http://127.0.0.1:8952/jednovrstvove.html`). Zatiaľ len s `?novy=1`.
-Konfigurátor sám je v [`docs/1v-kontrakt.md`](1v-kontrakt.md) (brána, `ctx`, testy). Tento súbor platí pre štyroch workerov obsahu.
+**T0.3 (14. 10. 2026): obsah pre všetky produkty z registra** — kľúč obsahu podľa produktu, kusy z CDN verzie bundle (rozhodnutia D1 = b, nie bannery v pätičke), čísla a odkazy podľa vzoru (`obsah-cisla.js`), moduly typov. Zmeny oproti základu sú v sekciách 1–4, 4b, 6, 7, 9 a 11.
+Cieľ: všetko pod konfigurátorom vyzerá ako schválený návrh typu (`scratchpad/navrhy/<návrh>.html`, server `http://127.0.0.1:8952/`): jednovrstvove.html (598/610/613), dvojvrstvove.html, kufor-classic.html, kufor-premium.html, boxy.html, (vzorkovnik.html). Zatiaľ len s `?novy=1`.
+Konfigurátor sám je v [`docs/1v-kontrakt.md`](1v-kontrakt.md) (brána, `ctx`, testy). Tento súbor platí pre workerov obsahu.
 
 Hlavička, mega menu a päta už sú naživo, tie sa nerobia.
 
 ---
 
-## 1. Kde obsah v admine je
+## 1. Kde obsah je — skúška (CDN) a spustenie (Popis produktu)
 
-**Rozhodnutie:**
-- **Test (teraz):** 2 nové SK bannery v pozícii **Pätička (custom-footer)**, ako menu 172.
-- **Po spustení pre všetkých:** Popis produktu 598.
+**Rozhodnutie D1 = b (rozhodnutia.md, 13. 10. 2026):**
+- **Skúška (teraz):** obsah je na **CDN verzie bundle**, nie v admine. Build (`admin-html/dist/p1v-*.sk.html`) skopíruje `.github/workflows/production.yml` do `assets/v/<sha>/html/`. `obsah.js` ho stiahne **len pod bránou** (flag `?novy=1` + typ v `ZAPNUTE_TYPY`, alebo `?novy=vyvoj`) a len na produktoch s daným kľúčom obsahu. Návštevník bez flagu nestiahne nič a HTML stránky je nezmenené (žiadne bannery v pätičke, žiadny skrytý HTML). Do adminu sa počas skúšky ukladá len prepnutie sha v SK HTML kódoch (plan.md §3 A).
+- **Po spustení pre všetkých:** Popis (description) každého produktu skupiny (runner, TinyMCE) — sekcie 7 a 9 B. Pravidlo „web bez prekrývania“ (obsah v admin HTML, JS len oživuje) sa splní až vtedy; CDN cesta je dočasná výnimka len pre skúšobný odkaz.
 
-Prečo:
+Prečo nie banner v pätičke (D1 = a, pôvodný základ): ~55–73 kB skrytého HTML na každej SK stránke pre všetkých a 8+ uložení v admine. Starý test v pätičke (`--miesto paticka`) ostáva v teste ako možnosť a `obsah.js` korene v DOM stále nájde (cesta a) v sekcii 2).
 
-| Možnosť | Zistené 13. 10. (živá 598 + `raw-sk.html`) | Výsledok |
-|---|---|---|
-| Popis 598 (`#description .basic-description`) | Starý obsah má **42 440 zn.**, do limitu 45 000 ostáva 2 560 zn. Návrh má v sekciách pod konfigurátorom ≈ 69 000 zn. HTML, s CDN adresami obrázkov ešte viac. | Starý aj nový obsah sa do jedného poľa nezmestí. |
-| Krátky popis (`.p-short-description`) | Je **vo vnútri `form#product-detail-form`** (formulár košíka). | Nie. Tlačidlo alebo pole by išlo do košíka. |
-| Benefit banner (`.benefitBanner.position--benefitProduct`) | `productPage.js:186` presúva jeho položky do `.p-info-wrapper` (r. 152 ich na id-751 maže). | Nie. Živý JS by ho prehadzoval. |
-| Iné pozície bannerov na detaile | Na 598 sa vypisuje len pätička: 166, 169, 172 (menu), 175, 190. | **Pätička** = jediná voľná pozícia, ktorá sa na 598 vypíše. |
+**Skupiny obsahu (kľúč = `obsah` v registri `konfigurator1v/produkty.js`):**
 
-**Cena testu:**
-- Bannery v pätičke sú na **každej SK stránke** (~+ znaky oboch kusov HTML, gzip ≈ ¼).
-- Sú neviditeľné a nič nesťahujú:
-  - koreň má `display:none`,
-  - stĺpec pätičky skryje CSS,
-  - obrázky `lazy`, videá `data-src`.
-- Preto build kontroluje kolízie id aj na titulke a rozcestníku (`naVsetkychStrankach`) a zakazuje triedy, na ktoré kotví živý JS (`ciele.json` → `pravidla.obsah-1v`).
-- Plán B, keby záťaž HTML vadila: skrytá stránka Shoptetu a `fetch` len pod flagom. Nulová cena bez flagu, ale je to JS obsah. Nie je hotové.
+| Kľúč | Produkty | Zdroj | Kusy (dist / CDN `html/`) | Návrh | Stav |
+|---|---|---|---|---|---|
+| `598` | 598 Diamond, 613 Stripe, 610 Hexa (jednovrstvové) | `admin-html/src/p1v-598/` | `p1v-598-1.sk.html` (10–29: A + B), `p1v-598-2.sk.html` (30–49: C + D) | jednovrstvove.html v26 | hotové (značky čísel a odkazov podľa vzoru doplní T1.1) |
+| `dvoj` | 601, 607, 604 | `src/p1v-dvoj/` | `p1v-dvoj-1/-2` | dvojvrstvove.html | stuby (T1.3) |
+| `classic` | 619, 625, 622 | `src/p1v-classic/` | `p1v-classic-1/-2` | kufor-classic.html | stuby (T2.3) |
+| `premium` | 628, 634, 631 | `src/p1v-premium/` | `p1v-premium-1/-2` | kufor-premium.html | stuby (T2.4) |
+| `boxy` | 616 | `src/p1v-boxy/` | `p1v-boxy-1/-2` | boxy.html | stuby (T3.3) |
+| `vzorky` | 637 | `src/p1v-vzorky/` | `p1v-vzorky-1/-2` | vzorkovnik.html | stub (T5.1, až po schválení) |
 
-**Dva kusy, každý ≤ 45 000 zn.** (`admin-html/ciele.json`):
-
-| Časť (dist) | Sekcie | Skupiny | Test: admin | Po spustení |
-|---|---|---|---|---|
-| `p1v-598-1.sk.html` | `src/p1v-598/10–29` | A + B | banner „1V obsah 1 (test)“, Pätička | Popis 598 |
-| `p1v-598-2.sk.html` | `src/p1v-598/30–49` | C + D | banner „1V obsah 2 (test)“, Pätička, hneď za kusom 1 | Popis 598 spolu s kusom 1, ak súčet ≤ 45 000. Inak ostáva banner (rozhodne Michal). |
-
-- Build vypíše riadok `p1v-598.sk … zn. spolu` = súčet pre jedno pole po spustení.
-- Keď kus pretečie, koordinátor posunie hranicu `sekcie` v `ciele.json`. Workeri súbory nepresúvajú.
-- `id`/`kod` bannerov sú v `ciele.json` `null`. Koordinátor ich doplní po vytvorení v admine, potom build + commit.
-- **Agenti do adminu nikdy nepíšu.** Zápis robí koordinátor s Michalom (runner cez Chrome, `admin-html/README.md`).
+- Jeden obsah pre celú skupinu. Čo sa líši podľa vzoru alebo ceny (ceny, počet farieb, názov vzoru, odkazy na iný typ toho istého vzoru), je v značkách `data-p1v-cislo` / `data-p1v-odkaz` a dosadí to `obsah-cisla.js` zo živých dát (sekcia 4b). **V statickom HTML nikdy nie je cena** (build to kontroluje).
+- **Každá skupina má presne 2 kusy** (`-1` = sekcie 10–29, `-2` = 30–49; `ciele.json` → `pravidla.obsah-1v.kusy` = `KUSY` v `obsah.js`; build kontroluje). Každý kus ≤ 45 000 zn. kvôli spusteniu (limit poľa Popis).
+- Kus len so stubmi build postaví ako prázdny koreň (`<!-- -->`). `obsah.js` ho stiahne a **nič neukáže** (starý popis ostane, nič sa neskryje).
+- `ciele.json`: časti `p1v-<kľúč>-<n>` majú `"cz": null` (obsah 1V je len SK; CZ súbor v zložke = chyba buildu), `"naVsetkychStrankach": false`, cieľ `"sk": { "typ": "cdn", "subor": "html/<časť>.sk.html", "poSpusteni": … }` a `"produkty"`. Stránky `produkt-<id>` (13 + 637) = `mega` + kusy kľúča → build kontroluje kolízie id a kotvy na každej stránke produktu.
+- Build vypíše riadok `p1v-<kľúč>.sk … zn. spolu` = súčet pre jedno pole Popisu po spustení.
+- **Agenti do adminu nikdy nepíšu.** Zápis (po spustení) robí koordinátor s Michalom (runner cez Chrome, `admin-html/README.md`).
 
 ## 2. Brána a umiestnenie
 
@@ -53,30 +44,31 @@ Obal vyrobí build, workeri ho nemenia:
 </div>
 ```
 
-**Bez flagu** (každý návštevník, každá SK stránka):
-- koreň `display:none`, stĺpec pätičky skrytý (`.custom-footer > div:has([data-lcd-brana])`),
-- nič sa nesťahuje,
-- nič nebeží (`obsah.js` je za bránou v `index.js`).
+**Bez flagu** (každý návštevník): `obsah.js` vôbec nebeží (je za bránou v `index.js`) → žiadna požiadavka na `…/html/p1v-*`, žiadny obrázok obsahu, HTML stránky bez zmeny. (Pri obsahu v DOM — Popis po spustení / starý test v pätičke — koreň `display:none`, stĺpec pätičky skrytý, médiá odložené.)
 
-**S `?novy=1`** (`assets/js/components/konfigurator1v/obsah.js`, posledný modul v `index.js`):
-1. Nájde korene `[data-lcd-cast^="p1v-598-"]` (pätička v teste, Popis po spustení). Keď nie sú, nerobí nič a starý popis ostáva.
-2. Vytvorí `div.p1v-miesto` **hneď pred** `.p-detail > .shp-tabs-wrapper` (záložky Popis/Diskusia). Je to priamo pod konfigurátorom, na celú šírku stránky (`.overall-wrapper`; `--p1v-sirka`, `--p1v-vlavo` podľa skutočnej geometrie).
-3. Presunie korene doň v poradí kus 1, kus 2. Prázdny stĺpec pätičky dostane `data-p1v-prazdny`.
-4. Body dostane `.lcd-1v-obsah`. CSS (blok `LCD-1V-OBSAH`):
-   - ukáže korene v `.p1v-miesto`,
-   - **skryje záložky** (starý popis, Diskusia, Dodatočné parametre). Ostávajú v DOM, JS na ne kotví.
-5. Zavolá `init(oc)` skupín A–D. Výnimka sa zapíše do `ctx.chyby`, `index.js` zloží `lcd-1v` a zákazník vidí starý vzhľad celý.
-6. Spoločný reveal `.rv` pre všetky sekcie (čo je vo výreze alebo nad ním hneď, zvyšok pri zobrazení), potom obal každej sekcie dostane `.p1v-rv`. Skupiny reveal nerobia.
+**S flagom** (`assets/js/components/konfigurator1v/obsah.js`, posledný modul v `index.js`):
+1. Kľúč = `ctx.produkt.obsah` (register), inak `productId`.
+2. **a) Korene v DOM** `[data-lcd-cast^="p1v-<kľúč>-"]` (Popis po spustení, starý test v pätičke) → tie, synchrónne (ako základ).
+   **b) Inak, keď `OBSAH_CDN` (D1 = b; v jadre predvolene `false`, zapne ho prvé vydanie T1.1 — sekcia 11; test obsahu ho zapína `--define:LCD_OBSAH_CDN=true`):** adresa bundle `…/assets/v/<sha>/js/luxuryCar.js` (skript na stránke) → `…/assets/v/<sha>/html/p1v-<kľúč>-1|2.sk.html`, `fetch` (CORS: CDN posiela `Access-Control-Allow-Origin: *`, overené 14. 10. na `assets/v/fc20e3e/js/version.json`), HTML cez inertný `<template>` (nič sa nesťahuje ani nespúšťa, kým sa koreň nevloží). Len SK (`ctx.trh`). Nevyverzovaný bundle (bez `v/<sha>/`) = nič. Kus, ktorý nepríde (404, sieť), chýba.
+   Žiadna sekcia v koreňoch (len stuby) = nič, `window.__lcd1v.obsah.stav = "nic"`.
+3. Vytvorí `div.p1v-miesto` **hneď pred** `.p-detail > .shp-tabs-wrapper` (záložky Popis/Diskusia) = priamo pod konfigurátorom, na celú šírku stránky (`.overall-wrapper`; `--p1v-sirka`, `--p1v-vlavo` podľa skutočnej geometrie).
+4. Presunie korene doň v poradí kus 1, kus 2. Prázdny stĺpec pätičky (starý test) dostane `data-p1v-prazdny`.
+5. Body dostane `.lcd-1v-obsah`. CSS (blok `LCD-1V-OBSAH`): ukáže korene v `.p1v-miesto`, **skryje záložky** (starý popis, Diskusia, Dodatočné parametre; ostávajú v DOM, JS na ne kotví).
+6. `obsah-cisla.js` (synchrónne skryje nedosadené čísla a dosadí odkazy; hodnoty asynchrónne), potom `init(oc)` skupín A–D, potom **modul typu** (`obsah-dvoj.js`, `obsah-classic.js`, `obsah-premium.js`, `obsah-boxy.js`; `598` a `vzorky` nemajú).
+7. Spoločný reveal `.rv` pre všetky sekcie (čo je vo výreze alebo nad ním hneď, zvyšok pri zobrazení), potom obal každej sekcie dostane `.p1v-rv`. Skupiny reveal nerobia.
+- **Chyby:** cesta a) — výnimka modulu → `ctx.chyby`, `index.js` zloží celý nový vzhľad (ako základ). Cesta b) beží až po stiahnutí, keď je konfigurátor hotový a `index.js` už `ctx.chyby` nekontroluje → výnimka ide do `ctx.chyby` a **vráti sa len obsah** (`.p1v-miesto`, okno a linka čítania preč, `.lcd-1v-obsah` preč = starý popis späť); konfigurátor ostane nový.
+- **Stav pre test a ladenie:** `window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|null, stav: "nic"|"caka"|"hotovo"|"chyba", kusy, hotovo (Promise, len CDN), cisla (Promise) }`.
 
 **Štýly titulky platia aj na obsahu.** `vloz-lcd-css.py` mení v bloku `LCD-HOME`:
 - pôvodne: `#lcd-home` → `:is(#lcd-home,[data-lcd-cast^=hp])`,
-- teraz: `#lcd-home` → `:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v])`.
+- teraz: `#lcd-home` → `:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v])` (všetky kľúče).
 
 Dôsledky:
 - Korene dostanú premenné (`--ink`, `--gold`, `--sand`…), písmo a všetky moduly titulky: `.chapter`, `.wrap`, `.rule`, `.lede`, `h2`, `lx-*` (galéria, farby, pred a po), `.deck`, `.revs`…
 - Tie sú aj prvou časťou CSS návrhu. **Skupiny teda píšu len rozdiely oproti titulke**, nekopírujú 370 riadkov `lx-*`.
 - Špecificita ostáva (1,0,0). Bez flagu alias nič nevyberá.
 - `luxuryCar.css`: +~39 kB surových, +~2 kB brotli.
+- **Pozor (T0.3, pre koordinátora):** body 5–6 základu `_lcd1v-obsah.scss` a partialy A–D cielia `:is(#p1v-598-1,#p1v-598-2)` → pre kľúče `dvoj` … `boxy` neplatia. Návrh opravy: `:is(#p1v-598-1,.p1v-obsah)` — `:is()` berie špecificitu najšpecifickejšieho argumentu (1,0,0), takže prebije LCD-HOME rovnako, ale vyberie koreň každého kľúča.
 
 **Kapitoly návrhu** (`.kap[data-k=1–4]` = 4 tematické skupiny, 2. a 4. na svetlom podklade):
 - Obal sekcie nesie `data-lcd-kap="N"`. Kapitola 2 má totiž sekcie dvoch skupín (B + C).
@@ -92,14 +84,27 @@ Dôsledky:
 | **C** | `30-c-kam` (+ výzva), `31-c-domov`, `32-c-casova-os` (+ výzva), `33-c-farby`, `34-c-vzorky` | `obsah-c.js` | `_lcd1v-obsah-c.scss` | `obsah-c.mjs` |
 | **D** | `40-d-realita`, `41-d-faq`, `42-d-koniec` (Kúpiť a nečakať), `43-d-pomocne` (zlatá linka `#citanie`, okno `#lb`) | `obsah-d.js` | `_lcd1v-obsah-d.scss` | `obsah-d.mjs` |
 
-- Obrázky: `assets/img/1v/obsah/<skupina>-<popisné-meno>.jpg`.
+**Moduly typov (T0.3, stuby — vlastník = obsahová úloha typu):**
+
+| Kľúč | Sekcie (`admin-html/src/p1v-<kľúč>/`) | JS (po A–D) | CSS | Test plugin | Úloha |
+|---|---|---|---|---|---|
+| `dvoj` | 17 stubov s menami 598 (`23-b-predapo` ostáva stub) | `obsah-dvoj.js` | `_lcd1v-obsah-dvoj.scss` | `tools/test-1v/obsah-dvoj.mjs` | T1.3 |
+| `classic` | 19 stubov, nové `23-classic-premium`, `31-classic-box` | `obsah-classic.js` | `_lcd1v-obsah-classic.scss` | `obsah-classic.mjs` | T2.3 |
+| `premium` | 17 stubov, nové `22-premium-porovnanie`, `30-premium-kryje` | `obsah-premium.js` | `_lcd1v-obsah-premium.scss` | `obsah-premium.mjs` | T2.4 |
+| `boxy` | 15 stubov, nové `21-boxy-velkosti`, `40-boxy-cross` | `obsah-boxy.js` | `_lcd1v-obsah-boxy.scss` | `obsah-boxy.mjs` | T3.3 |
+| `vzorky` | `10-vzorky-obsah` (stub) | — | — | — | T5.1 |
+
+- Mená stubov sú návrh podľa spec typu (poradie z návrhu, mená 598 tam, kde sekciu oživuje skupina A–D). Úloha typu ich smie premenovať, zmazať alebo pridať (`NN-<meno>.sk.html`, rozsah 10–29 = kus 1, 30–49 = kus 2).
+- **Spoločné sekcie** (referencie, galéria, recenzie, deväť vecí, materiál, porovnanie, časová os, farby, vzorky, realita, FAQ, záver, pomocné) nesú **mená 598** (`a-…`, `b-…`, `c-…`, `d-…`) → oživia ich A–D bez zmeny JS. Nový komponent typu = meno `<kľúč>-<meno>` a oživuje ho modul typu.
+- A–D sú zovšeobecnené (T0.3): sekcia, ktorú skupina nemá, sa preskočí; rez materiálu má ľubovoľný počet dosiek (medzera `pw·0,58·min(1, 4/(n−1))`, pri 5 doskách ako 598).
+- Obrázky: `assets/img/1v/obsah/<skupina>-<popisné-meno>.jpg` (typy: `dvoj-*`, `classic-*`, `premium-*`, `boxy-*`).
   - Nikdy neprepisovať existujúci súbor v `assets/img/`.
   - Max ~1600 px na šírku, JPEG q≈80 (WebP len tam, kde ho živý web už používa).
   - V HTML/CSS absolútna adresa `https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/<meno>` (v JS `oc.obrazok(meno)`). Test ich servíruje z repa.
-- **Spoločné, len koordinátor:**
-  - `obsah.js`, `assets/css/_lcd1v-obsah.scss`, `admin-html/ciele.json`,
+- **Jadro (mení len vydanie, plan.md §2.1):**
+  - `obsah.js`, `obsah-cisla.js`, `assets/css/_lcd1v-obsah.scss`, `admin-html/ciele.json`,
   - `tools/build-admin-html.mjs`, `tools/vloz-lcd-css.py`,
-  - `tools/test-1v-obsah.mjs`, `tools/test-1v/obsah-spolocne.mjs`, tento dokument,
+  - `tools/test-1v-obsah.mjs`, `tools/test-1v/obsah-spolocne.mjs`, tento dokument, `.github/workflows/production.yml`,
   - generované `admin-html/dist/*` a `assets/css/luxuryCar.css`,
   - všetko z `docs/1v-kontrakt.md` sekcia 10.
 - Okno boxov `#bxBox` a lepivá lišta `#lista` z návrhu patria konfigurátoru (kufor-boxy, cena), nie obsahu.
@@ -110,14 +115,14 @@ Dôsledky:
 - **Súbor = jeden prvok na najvyššej úrovni** s `data-lcd-sekcia="<meno>"` (meno = názov súboru bez čísla) a `data-lcd-kap` podľa hlavičky.
   - Súbor len s komentárom je stub a build ho preskočí.
   - Komentáre s textom build zmaže.
-- **id len s predponou `p1v-`.** Titulka má `#galeria`, `#farby`, `#predapo`… a banner je v teste aj na nej.
-- Kotva na konfigurátor (výzvy „Vyberte si model…“): `href="#product-detail-form"`. Iné kotvy len na `p1v-*` id na stránke 598.
+- **id len s predponou `p1v-`.** Titulka má `#galeria`, `#farby`, `#predapo`… Obsah všetkých kľúčov smie mať rovnaké id sekcií (napr. `p1v-referencie`, `p1v-lb`) — na stránke je vždy len jeden kľúč; build kolízie kontroluje po stránkach `produkt-<id>`.
+- Kotva na konfigurátor (výzvy „Vyberte si model…“): `href="#product-detail-form"`. Iné kotvy len na `p1v-*` id toho istého kľúča (napr. záloha `href="#p1v-dvoj-1"`).
 - **Zakázané triedy** (kotvy živého JS, zoznam v `ciele.json` → `pravidla.obsah-1v.zakazaneTriedy`), napr.:
   - `lcd-reviews-widget`, `lcd-videos-widget`: `main.js` by widget nevložil do starého popisu,
   - `text-block`, `twentytwenty-*`, `impact-text`, `layers-info-wrap`,
   - `wrapper`, `desctop`, `mobile` (`video-play-again.js`),
   - `faq`, `accordion`, `option-button`, `parameter-wrap`, `upsale-*`, `sec-header`, `lcd-root`.
-  - Na triedy titulky (`chapter`, `wrap`, `lx-*`, `deck`, `revs`…) sa nič zo živého JS na 598 neviaže, tie sú v poriadku.
+  - Na triedy titulky (`chapter`, `wrap`, `lx-*`, `deck`, `revs`…) sa nič zo živého JS nekotví, tie sú v poriadku.
 - Polia formulára sú zakázané:
   - žiadne `<form>`, `<input>`, `<select>`, `<textarea>`, ani atribút `name`,
   - každé `<button>` má `type="button"` a text (TinyMCE).
@@ -132,17 +137,49 @@ Dôsledky:
   - žiadny prázdny prvok (`<!-- -->` dovnútra),
   - žiadny blokový prvok v `<a>`,
   - žiadne `<h1>`, `<script>`, `on…=`, `javascript:`.
+- **Čísla a odkazy** (sekcia 4b): `data-p1v-cislo` len so známym kľúčom a **bez hodnoty vnútri** (len `<!-- -->`), `data-p1v-tvar` s `{}` a bez číslic, `data-p1v-bez` bez číslic; `data-p1v-odkaz` len na `<a href>` s typom `jedno|dvoj|classic|premium|boxy`.
 - **Texty:**
-  - Preberajú sa z návrhu.
+  - Preberajú sa zo schváleného návrhu typu (spec `prieskum-vsetky/navrh-<typ>.md`).
   - Zakázané:
     - „na milimeter“, 1. osoba „vyrábame“,
     - počty vrstiev, záruka ako argument,
     - názvy DragonSkin / Elite / Basic v novom texte,
     - uchytenie do fixačných bodov auta, „Comfort“ (druhá vrstva len „Lux“).
+  - D3: tvrdenie, ktoré nie je doslovne v schválenom návrhu ani na živom webe, sa nepíše („kovový štítok“ vs „logo“ pri rohožiach, skladom/lehota boxu).
   - Kufrová rohož „Premium“ ako produkt áno.
   - Žiadne právne upozornenia pri cenách.
-  - **Ceny nikdy natvrdo v HTML.** Cenu vpíše JS zo živých dát (`oc.ctx.cena()`, `ctx.moznosti()`), inak sa cena nezobrazí.
+  - **Ceny nikdy natvrdo v HTML.** Cenu vpíše JS zo živých dát (`data-p1v-cislo`, `oc.ctx.cena()`, `ctx.moznosti()`), inak sa cena nezobrazí.
   - Keď text návrhu porušuje pravidlo, použi najbližšie dovolené znenie a napíš ho koordinátorovi.
+
+## 4b. Čísla a odkazy podľa vzoru (`obsah-cisla.js`, plan.md §2.4)
+
+```html
+<p>Dvojvrstvové <span data-p1v-cislo="cena-od-dvoj" data-p1v-tvar="od {}"><!-- --></span></p>      <!-- „od 362 €“ na Hexa -->
+<span data-p1v-cislo="pocet-farieb"><!-- --></span>                                                  <!-- „3 farby“ -->
+<span data-p1v-cislo="set-usetrite" data-p1v-bez="v sete lacnejšie"><!-- --></span>                 <!-- náhradný text -->
+<a class="btn" href="/luxusne-autokoberce-dragonskin-diamond-line/#p1v-x" data-p1v-odkaz="jedno">…</a>  <!-- href toho istého vzoru -->
+```
+
+- Hodnota je vo formáte „351 €“ (NBSP pred €; desatinné „1 234,50 €“), počet farieb so skloňovaním (1 farba, 2–4 farby, 5+ farieb). `data-p1v-tvar="od {}"` = predpona/prípona (nedosadené číslo skryje aj ju).
+- Kým hodnota nie je zistená, je prvok `visibility:hidden` (nastaví sa v tej istej úlohe, v ktorej sa obsah ukáže → hodnota iného vzoru sa nikdy neukáže, ani na chvíľu). Nezistená: `data-p1v-bez` (náhradný text), inak `display:none`. Stav na prvku: `data-p1v-stav = caka | ok | bez | skryte` (kópie prvkov, ktoré skupiny vyrobia neskôr — napr. klony pásu galérie — dostanú hodnotu v druhom kole).
+- **plan.md §2.4 a zadanie T1.1 hovoria „text vo vnútri = hodnota Diamond“ — neplatí** (T0.3, pokyn „never prices in static HTML“): vnútri len `<!-- -->`, build hodnotu odmietne. Dôvod: po spustení je obsah v Popise viditeľný ešte pred JS → na Hexa/Stripe by bliklo číslo Diamond.
+- `obsah-cisla.js` mení len `textContent`, `href` a viditeľnosť vlastných prvkov obsahu. Nič neodosiela; ceny ani ID parametrov natvrdo nemá (parametre podľa `data-parameter-name`, `ctx.js` `PARAMETRE`).
+
+| Kľúč | Hodnota | Zdroj |
+|---|---|---|
+| `cena-od` | základná cena tohto produktu | `ctx.cena().zaklad`, inak `[itemprop=price]` |
+| `cena-od-jedno` / `-dvoj` / `-classic` / `-premium` / `-boxy` | základná cena produktu typu v tom istom vzore (box = 616; stránka boxu bez vzoru = Diamond) | `ceny-ine.js` `cenaTypu` (GET sesterskej stránky, `localStorage` 24 h; vlastná stránka z dokumentu) |
+| `set-classic`, `set-premium` | príplatok „autokoberce do kufru“ (dno / dno + boky) na jednovrstvovom produkte vzoru | `priplatkyTypu(…, "jedno", vzor)` |
+| `set-usetrite` | na rohoži Classic/Premium: `cena-od` − príslušný `set-*` (inde nezistené → `data-p1v-bez`) | |
+| `set-usetrite-classic` / `-premium` | kdekoľvek: `cena-od-classic` − `set-classic` (resp. Premium) | |
+| `box-sam-S…XL` | 616: základ + príplatok 1. boxu veľkosti | stránka 616 |
+| `box2-sam-S…XL` | 616: príplatok 2. boxu | stránka 616 |
+| `box-set-S…XL` | jednovrstvové vzoru (stránka boxu = 598): príplatok „Box solo“ | |
+| `box-set2-S…XL` | jednovrstvové vzoru: príplatok 1. boxu (dva boxy v sete) | |
+| `pocet-farieb`, `pocet-farieb-2` | počet farieb 1. / 2. vrstvy tohto produktu | `ctx.moznosti("farba" / "farba2")` |
+| `vzor` | „Diamond Line“ / „Stripe Line“ / „Hexa Line“ (box: nič) | register `ctx.produkt.vzor` |
+
+Odkazy `data-p1v-odkaz="jedno|dvoj|classic|premium|boxy"` → `href` = adresa z registra (`produkty.js` `najdiProdukt`) v tom istom vzore, fragment `#…` ostane. S `?novy=1` netreba (flag je v karte). Zoznam kľúčov je v `obsah-cisla.js` (`RE_KLUC`) aj v `ciele.json` (`pravidla.obsah-1v.cisla`) — meniť oba naraz.
 
 ## 5. CSS a JS skupiny
 
@@ -162,7 +199,7 @@ Dôsledky:
   - Len `export function init(oc)`. Pri importe nič nebeží.
   - Nič zo živého DOM nemazať, žiadny `fetch`/POST, žiadne ceny ani ID natvrdo.
   - Sekcia, ktorá je ešte stub, nie je v DOM: `oc.sekcia(meno) === null`, vtedy nerob nič.
-  - `oc` = `{ ctx, korene, koren (multi), miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn, {okraj}), nacitajMedia(el), ked, na, vysli }`.
+  - `oc` = `{ ctx, kluc (kľúč obsahu: 598 | dvoj | classic | premium | boxy | vzorky), korene, koren (multi), miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn, {okraj}), nacitajMedia(el), ked, na, vysli }`.
 - **Moduly titulky** (`assets/js/lcdHomeModuly.js`):
   - Galéria, farby a pred a po sa oživia cez `lxModulyOziv(lcdMultiKoren([sekcia]), false)` (import z `../../lcdHomeModuly.js` a `../../functions/lcdOziv.js`). Každá skupina volá len na svoju sekciu.
   - `lcdMultiKoren([sekcia]).querySelectorAll(sel)` sekciu samu nevracia (`querySelector` áno). `lcdOziv.js` sa zámerne nemení (titulka a rozcestník ho používajú tiež). Dôsledok pre galériu: `lxModulyOziv` nepostaví vlastné `.lx-zoom`, fotku otvorí jediné okno obsahu `#p1v-lb` (sekcia 8; `obsah-a.js` doplní tlačidlám `data-p1v-lb-foto` a sadu `a-galeria`).
@@ -175,37 +212,53 @@ Dôsledky:
 ## 6. Testy
 
 ```
-node tools/build-admin-html.mjs                 # build dist + manifest; vypíše dĺžky sekcií a súčet p1v-598
+node tools/build-admin-html.mjs                 # build dist + manifest; dĺžky sekcií, súčet p1v-<kľúč> (integrátor/vydanie)
+node tools/build-admin-html.mjs --vystup %TEMP%/d   # build mimo repa (workeri; dist mení len vydanie)
 node tools/build-admin-html.mjs --check         # CI
-python tools/vloz-lcd-css.py --check            # CI (luxuryCar.css generuje koordinátor)
-node tools/test-1v-obsah.mjs --snimky <scratchpad>/navrhy/_prieskum/snimky/obsah
+node tools/build-admin-html.mjs --test          # samotest kontrol (aj značky data-p1v-cislo / data-p1v-odkaz)
+python tools/vloz-lcd-css.py --check            # CI (luxuryCar.css generuje vydanie)
+node tools/test-1v-obsah.mjs                                    # 598, CDN cesta (D1 = b), bez flagu + ?novy=1, snímky
+node tools/test-1v-obsah.mjs --produkt 598,610,613              # viac produktov (id | all | typ:dvoj | alias)
+node tools/test-1v-obsah.mjs --vyvoj --produkt 601,604,607      # ?novy=vyvoj: typ, ktorý ešte nie je v ZAPNUTE_TYPY
+node tools/test-1v-obsah.mjs --len bez --produkt 598,610,601,619,616   # bez flagu: 0 požiadaviek na obsah
+node tools/test-1v-obsah.mjs --sonda-cisla --vyvoj --produkt 604 --len novy --sirka 1280 --bez-snimok   # čísla a odkazy
 node tools/test-1v-obsah.mjs --skupina b --sirka 390 --snimky-sirky 390 --snimky …   # rýchlo, len skupina B
 node tools/test-1v-obsah.mjs --miesto popis     # obsah v Popise (simulácia spustenia, brána ešte zapnutá)
-node tools/test-1v-obsah.mjs --miesto zive      # po zápise do adminu: nič sa nevkladá, porovná data-lcd-v s buildom
+node tools/test-1v-obsah.mjs --miesto paticka   # starý test D1 = a (bannery v pätičke)
+node tools/test-1v-obsah.mjs --miesto zive      # nič sa nevkladá ani neobsluhuje: obsah zo živej stránky / živej CDN verzie
 node tools/test-konfigurator-1v.mjs             # konfigurátor bez flagu (musí ostať zelený)
 node tools/test-konfigurator-1v.mjs --novy      # konfigurátor s ?novy=1 (musí ostať zelený)
 ```
 
-**`test-1v-obsah`** zostaví HTML adminu (`--vystup`), JS a CSS ako CI do dočasného priečinka. Do dokumentu živej 598 vloží kusy ako bannery pätičky + sondu (img lazy 1×1). Kontroluje:
+**`test-1v-obsah`** (T0.3) zostaví HTML obsahu (`--vystup`), JS a CSS ako CI do dočasného priečinka a otvorí živé stránky produktov z `--produkt` (register `konfigurator1v/produkty.js` sa číta zo zdroja: typ, vzor, adresa, kľúč obsahu, `ZAPNUTE_TYPY`; `?novy=1` na nezapnutom type = chyba použitia, treba `--vyvoj`). Bundle a CSS nahradí lokálnym buildom (adresa `…/assets/v/<sha>/js/luxuryCar.js` ostane, takže `obsah.js` počíta CDN adresu presne ako naživo). Miesto obsahu (`--miesto`):
+- **`cdn` (predvolené, D1 = b):** nič sa do stránky nevkladá. Požiadavky `…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html` test obslúži lokálnym dist (+ sonda), neznámy kus = 404 ako CDN. Základ „bez obsahu“ dostane prázdne korene.
+- `paticka` / `popis`: kusy vložené do dokumentu produktu (pätička = starý test, Popis = spustenie). `zive`: nič.
 
+Kontroluje:
 - **bez flagu (1280, 390):**
-  - korene `display:none`, stĺpce pätičky skryté,
-  - **žiadne** médiá obsahu ani sonda stiahnuté,
+  - žiadne `body.lcd-1v`, `.p1v-miesto`; pri `cdn` žiadne korene v DOM a **žiadna požiadavka** na `…/html/p1v-*`,
+  - **žiadne** médiá obsahu, nič z `assets/img/1v/obsah/` ani sonda,
+  - (paticka/popis: korene `display:none`, stĺpce pätičky skryté),
   - pätička a výška stránky ako bez obsahu (±40 px; konfigurátor sám kolíše ±7 px),
   - žiadne nové chyby v konzole, žiadny vodorovný posun.
-- **`?novy=1` (360, 390, 768, 1280):**
-  - `lcd-1v` + `lcd-1v-obsah`, `__lcd1v.chyby` prázdne,
-  - `.p1v-miesto` pred záložkami, korene v poradí a viditeľné,
-  - starý popis skrytý, `--gold` na koreni (alias titulky),
+- **s flagom (360, 390, 768, 1280):**
+  - `lcd-1v`, `__lcd1v.chyby` prázdne; pri `cdn` stiahnuté oba kusy kľúča,
+  - **kľúč len so stubmi:** `__lcd1v.obsah.stav = "nic"`, žiadne `.lcd-1v-obsah` ani `.p1v-miesto`, starý popis (záložky) viditeľný,
+  - inak: `__lcd1v.obsah` = `hotovo` / zdroj / kľúč, `lcd-1v-obsah`, `.p1v-miesto` pred záložkami, korene v poradí a viditeľné, starý popis skrytý, `--gold` na koreni (alias titulky),
+  - každá sekcia má výšku (okrem `*-pomocne`) a `.p1v-rv`,
+  - **čísla:** každé `[data-p1v-cislo]` má `data-p1v-stav` a nič neostalo `visibility:hidden`; **odkazy:** každé `a[data-p1v-odkaz]` vedie na produkt typu v **tom istom vzore** (register),
   - sonda sa po posune stiahne,
   - žiadny prvok za okrajom okna (okrem vnútra posuvných pásov), žiadne nové chyby v konzole,
-  - **kontroly skupín** `tools/test-1v/obsah-<x>.mjs`.
-- **Snímky** (`--snimky-sirky`, predvolene 390 a 1280): `<snimky>/<sekcia>/web-<š>.png`, `navrh-<š>.png` a `porovnanie-<š>.png` (vedľa seba). Fixné a lepivé prvky (hlavička, lišta, chat) sa na snímku skryjú.
+  - **kontroly skupín:** kľúč `598` → `tools/test-1v/obsah-a…d.mjs` (počty a správanie obsahu v26); iný kľúč → `obsah-<kľúč>.mjs` + skupiny z jeho `zdielane`.
+- **`--sonda-cisla`:** do 1. kusu sa pridá sekcia `x-sonda-cisla` so všetkými kľúčmi čísel (+ neznámy kľúč = skrytý, `set-usetrite` mimo rohože = `data-p1v-bez`) a všetkými typmi odkazov. Očakávané hodnoty test zistí **sám** (GET živých stránok sestier, `[itemprop=price]` a `data-surcharge-final-price` selectov podľa `data-parameter-name`; register zo zdroja), nie z kódu webu.
+- **Snímky** (`--snimky-sirky`, predvolene 390 a 1280): `<snimky>/<kľúč>/<sekcia>/web-<id>-<š>.png`, `navrh-<š>.png` (návrh kľúča) a `porovnanie-<id>-<š>.png`. Fixné a lepivé prvky (hlavička, lišta, chat) sa na snímku skryjú.
 
 **Plugin skupiny** `tools/test-1v/obsah-<x>.mjs`:
 - `sekcie = [{ meno, navrh: [{sel, text?, za?, pred?}] }]`: ako nájsť tú istú časť v návrhu. Snímka je spoločný obdĺžnik.
-- `async kontroly(t)` → `[{ ok, popis }]`.
-- `t` = pomocník `tools/test-1v/pomocnik.mjs` (skutočný klik s kontrolou zakrytia…) + `t.sekcia(meno)` (selektor) + `await t.je(meno)`.
+- `async kontroly(t)` → `[{ ok, popis, pozor? }]` (`pozor: true` = upozornenie, nie zlyhanie).
+- `t` = pomocník `tools/test-1v/pomocnik.mjs` (skutočný klik s kontrolou zakrytia…) + `t.sekcia(meno)` (selektor) + `await t.je(meno)` + `t.produkt` `{ id, typ, vzor, kluc, url, cesta }` + `t.sestra(typ)` (cesta produktu typu v tom istom vzore).
+- Plugin typu (`obsah-dvoj|classic|premium|boxy.mjs`): navyše `NAVRH` (súbor návrhu) a `zdielane` (skupiny A–D, ktorých kontroly platia bez zmeny).
+- `obsah-a.mjs` (T0.3, `--produkt`): tlačidlo `a-ponuka` musí viesť na dvojvrstvové **toho istého vzoru**; na 610/613 bez značky `data-p1v-odkaz` (kým ju nedoplní T1.1) = upozornenie.
 
 **Výsledok základu** (13. 10. 2026, všetky sekcie stub):
 - `build-admin-html --check` OK,
@@ -228,25 +281,33 @@ node tools/test-konfigurator-1v.mjs --novy      # konfigurátor s ?novy=1 (musí
 - `test-1v-obsah` pätička 12/12 OK (bez flagu 0 zo 73 médií), `--miesto popis` 12/12 OK,
 - `test-konfigurator-1v` bez flagu 24 OK + 10 preskočených, `--novy` 34/34 OK; `test-boxy-prepni` SK + CZ 1280 aj 390: 8/8 OK.
 
+Výsledky T0.3 sú v sekcii 11.
+
 ## 7. Spustenie pre všetkých (neskôr, s Michalom)
 
-1. **Veľkosť:** `node tools/build-admin-html.mjs` → riadok `p1v-598.sk … spolu`.
-   - **≤ 45 000:** v `ciele.json` jedna časť `p1v-598-1` so `sekcie: ["10","49"]` (kus 2 zmazať), `sk` = `{ "typ": "produkt", "id": 598, "pole": "Popis (description)" }`, `naVsetkychStrankach: false`.
-   - **> 45 000:** kus 1 → Popis, kus 2 ostáva banner v pätičke **bez brány**, ale skrytý mimo 598. Treba pravidlo podľa `body` 598 a `obsah.js` ho presunie. To je rozhodnutie pre Michala (HTML navyše na každej stránke natrvalo). Alebo obsah skrátiť.
+Platí pre každú skupinu (`598` = 598/610/613, `dvoj`, `classic`, `premium`, `boxy`). Kus obsahu ide do **Popisu každého produktu skupiny** (rovnaký `dist` pre všetky tri vzory; čísla a odkazy dosadí `obsah-cisla.js` na stránke).
+1. **Veľkosť:** `node tools/build-admin-html.mjs` → riadok `p1v-<kľúč>.sk … spolu`.
+   - **≤ 45 000:** v `ciele.json` jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]`, kus 2 zmazať — **a v `obsah.js` + `pravidla.obsah-1v.kusy` znížiť `KUSY`** (build kontroluje počet kusov skupiny), `sk` = `{ "typ": "produkt", "id": <id>, "pole": "Popis (description)" }` pre každý produkt.
+   - **> 45 000** (dnes `598`: 57 316 zn.): kus 1 → Popis, kus 2 nemá kam (pole má limit). Možnosti pre Michala: (a) obsah skrátiť o ~12 300 zn.; (b) kus 2 ostáva na CDN a `obsah.js` ho stiahne aj bez flagu (cesta b) bez brány — JS obsah, „web bez prekrývania“ len čiastočne); (c) kus 2 ako banner v pätičke, skrytý mimo produktov skupiny (HTML navyše na každej stránke natrvalo).
 2. **Zrušiť bránu** (všetko v repe, jeden commit):
    - `ciele.json` `obal` bez `brana` (build už nedá `style="display:none"` ani `data-lcd-brana`),
-   - v `index.js` pre 598 zrušiť podmienku flagu (`jeZapnute`),
+   - v `index.js` pre typ zrušiť podmienku flagu (`jeZapnute`),
    - v `vloz-lcd-css.py` alias bez `body.lcd-1v` (`[data-lcd-cast^=p1v]`, aby obsah mal štýly aj bez JS),
-   - v `_lcd1v-obsah.scss` zmazať body 1 a 2; v bodoch 3–9 a v `_lcd1v-obsah-a…d.scss` zmazať predponu `body.lcd-1v` (id koreňov `:is(#p1v-598-1,#p1v-598-2)` ostávajú; bod 6c `.rv` bez `.p1v-rv` = obsah viditeľný aj bez JS),
+   - v `_lcd1v-obsah.scss` zmazať body 1 a 2; v bodoch 3–9 a v `_lcd1v-obsah-*.scss` zmazať predponu `body.lcd-1v` (selektory koreňov `:is(#p1v-598-1,…)` ostávajú; bod 6c `.rv` bez `.p1v-rv` = obsah viditeľný aj bez JS),
    - `.lcd-1v-obsah` na body ostáva (pridáva ho `obsah.js`); kým JS nepríde, je obsah v Popise na mieste starého popisu, nie pod konfigurátorom — preto JS presun nechať, len bez flagu.
-3. **Pred zápisom:** `test-1v-obsah --miesto popis` + `test-konfigurator-1v` (oba režimy) + celý web zo smoke harnessu.
-4. **Admin (koordinátor + Michal, runner):** presne podľa sekcie 9 B.
-5. **Po zmazaní starého obsahu skontrolovať živý JS starého popisu:**
+   - Značky `data-p1v-cislo` sú v Popise prázdne → bez JS sa číslo neukáže (nič nesprávne sa neukáže); `data-p1v-odkaz` má záložný `href` (Diamond) — na Hexa/Stripe bez JS vedie na Diamond, s JS na správny vzor.
+3. **TinyMCE normalizácia (pred prvým zápisom, upozornenie z revízie):** Shoptet ukladá Popis cez TinyMCE, ktorý pri `setContent`/uložení HTML **normalizuje** — môže meniť poradie a úvodzovky atribútov, kódovať znaky na entity (`&nbsp;`, `&euro;`), mazať alebo presúvať komentáre `<!-- -->`, prázdne prvky, `<img>` bez `src` (8 fotiek farieb má len `data-src`), obaľovať inline uzly do `<p>`, prípadne odfiltrovať atribúty mimo schémy (`data-p1v-*`, `data-lcd-*`, `style`). Preto:
+   - pred zápisom replika: rovnaká verzia a konfigurácia TinyMCE (`setContent(dist)` → `getContent()`), rozdiel voči `dist` zapísať a buď upraviť build tak, aby `dist` bol už v normalizovanom tvare, alebo rozdiel vedome prijať,
+   - povinne overiť, že prežijú: `data-lcd-cast`, `data-lcd-sekcia`, `data-p1v-cislo|tvar|bez|odkaz`, `data-src`/`data-poster`, `loading="lazy"`, `<button type="button">`, `<!-- -->` v prázdnych prvkoch,
+   - po zápise `--miesto zive` porovnáva len `data-lcd-v` (hash z buildu je atribút — TinyMCE ho nezmení, aj keď zmení obsah) → **nestačí**; k nemu snímky a porovnanie počtu sekcií, značiek a médií živého koreňa s `dist` (doplniť do testu pred spustením).
+4. **Pred zápisom:** `test-1v-obsah --miesto popis --produkt <skupina>` + `test-konfigurator-1v` (oba režimy) + celý web zo smoke harnessu.
+5. **Admin (koordinátor + Michal, runner):** presne podľa sekcie 9 B.
+6. **Po zmazaní starého obsahu skontrolovať živý JS starého popisu:**
    - `main.js` lcdReviews/lcdVideos: widget sa vloží na koniec `.basic-description`, ktorá je skrytá,
    - `popisModuly.js` (nájde málo alebo nič),
    - `productPage.js` (prázdne `<p>`).
-   - Konzola bez chýb. Ak treba, vypnúť ich pre 598.
-6. **Návrat:** Popis zo zálohy, bannery späť, `?v=` predošlej verzie v HTML kódoch (poradie podľa `admin-html/README.md` „Návrat“).
+   - Konzola bez chýb. Ak treba, vypnúť ich pre dané produkty.
+7. **Návrat:** Popis zo zálohy, `?v=`/sha predošlej verzie v HTML kódoch (poradie podľa `admin-html/README.md` „Návrat“). CDN kusy predošlej verzie ostávajú v jej `assets/v/<sha>/html/`.
 
 ## 8. Okno na fotky a videá `#p1v-lb` (skupina D, pre všetky skupiny)
 
@@ -291,46 +352,33 @@ oc.vysli("obsah-d:okno", { polozky: [{ typ: "yt", src: "snb_QNjkcIs", popis: "�
 
 Platí pre SK admin (`luxurycardesign.sk`). CZ obsah 1V zatiaľ nemá. Zapisuje runner cez Michalov prihlásený Chrome (`admin-html/README.md`): **diff → Michal schváli → záloha → zápis → overenie**. Nikdy ručné vloženie do WYSIWYG ani ručné uloženie TinyMCE.
 
-### 9 A. Test fáza (teraz): 2 bannery v Pätičke, Popis 598 sa NEMENÍ
+### 9 A. Skúška (teraz, D1 = b): do adminu sa obsah NEZAPISUJE
 
-Predpoklady (v tomto poradí, inak by bol v pätičke každej SK stránky prázdny stĺpec):
-1. Kód: commit + push do `main`, CI zelené, `assets/v/<sha>/js/version.json` vracia sha. V SK HTML kódoch (Záhlavie CSS, Zápätie JS) je adresa `…/assets/v/<sha>/…` novej verzie (prepnutie len po Michalovom „prepni“, postup `docs/1v-kontrakt.md`). Až nový `luxuryCar.css` obsahuje pravidlo, ktoré stĺpec pätičky s bannerom skryje (`LCD-1V-OBSAH` bod 1).
-2. `node tools/build-admin-html.mjs --check` OK, `python tools/vloz-lcd-css.py --check` OK, `dist/` a `manifest.json` commitnuté.
+Obsah ide s verziou kódu na CDN (`assets/v/<sha>/html/`, `production.yml`). Jediný zápis v admine je prepnutie sha v SK HTML kódoch (plan.md §3 A, `docs/1v-kontrakt.md`), ktoré robí Michal po vydaní. Žiadne bannery, Popis žiadneho produktu sa nemení.
 
-Záloha (pred prvým zápisom):
-- zoznam bannerov pozície Pätička (názov, kód, poradie, zapnuté) + snímka obrazovky do `C:/Users/M/Desktop/LCD/web/zalohy-admin/<dátum>/bannery-paticka.sk.json`,
-- Popis 598 (pole „Popis“, dnes 42 440 zn.) do `…/zalohy-admin/<dátum>/produkt-598-popis.sk.html` — v test fáze sa nemení, ale je to východiskový bod pre spustenie.
+Predpoklady vydania:
+1. `node tools/build-admin-html.mjs` (vydanie) → `dist/` vrátane všetkých `p1v-*.sk.html` a `manifest.json` commitnuté; `--check` OK, `python tools/vloz-lcd-css.py --check` OK.
+2. Commit + push do `main`, CI zelené. Overenie po CI (pred prepnutím adminu):
+   - `curl -s …/assets/v/<sha>/js/version.json` = sha,
+   - `curl -sI -H "Origin: https://www.luxurycardesign.sk" …/assets/v/<sha>/html/p1v-598-1.sk.html` → `200`, `Access-Control-Allow-Origin: *` (prvé vydanie s `html/` — overiť, že CDN `.html` servíruje; `fetch` číta text bez ohľadu na Content-Type),
+   - obsah súboru = `admin-html/dist/p1v-598-1.sk.html`.
+3. Po prepnutí sha: `?novy=1` na 598 (a ďalších zapnutých typoch) obsah pod konfigurátorom (Michal na iPhone); bez flagu žiadna požiadavka na `…/html/` (DevTools → Network).
 
-Zápis:
-| Krok | Kde v admine | Pole | Obsah |
-|---|---|---|---|
-| 1 | Bannery (tam, kde je banner 172 „menu“) → nový banner, pozícia **Pätička (custom-footer)** | Názov | `1V obsah 1 (test)` |
-| | | Text banneru (HTML) | **celý** súbor `admin-html/dist/p1v-598-1.sk.html` (34 238 zn.) |
-| | | Zobraziť | PC aj mobil, zapnutý |
-| 2 | to isté, poradie **hneď za** „1V obsah 1 (test)“ | Názov | `1V obsah 2 (test)` |
-| | | Text banneru (HTML) | **celý** súbor `admin-html/dist/p1v-598-2.sk.html` (23 472 zn.) |
-| 3 | repo | `admin-html/ciele.json` | `id` a `kod` oboch bannerov (z adminu) → `node tools/build-admin-html.mjs` → commit `ciele.json` + `dist/manifest.json` |
+Návrat skúšky: sha predošlej verzie v SK HTML kódoch (obsah zmizne spolu s kódom). Nič iné sa nemenilo.
 
-Overenie hneď po zápise:
-- `node tools/test-1v-obsah.mjs --miesto zive` (nič nevkladá; porovná `data-lcd-v` v admine s buildom, bez flagu 0 stiahnutých médií),
-- bez flagu SK titulka, 598, `/kosik/`, jedna kategória: pätička vyzerá ako predtým (žiadny prázdny stĺpec), v zdrojovom kóde je `data-lcd-brana="1v"` so `style="display:none"`,
-- s `?novy=1` na 598 obsah pod konfigurátorom (Michal na iPhone).
-- Ak hash nesedí: admin (TinyMCE alebo filter bannerov) HTML zmenil → banner vypnúť, rozdiel nahlásiť, nič neopravovať ručne.
+Starý postup D1 = a (2 bannery v Pätičke, `--miesto paticka`) sa nepoužíva; `obsah.js` by korene z pätičky stále našiel (cesta a), keby ich tam niekto vložil.
 
-Návrat test fázy: oba bannery vypnúť (zmazať až po dohode). Nič iné sa nemenilo.
+### 9 B. Spustenie pre všetkých (neskôr, po Michalovom „spusti“): Popis produktov skupiny
 
-### 9 B. Spustenie pre všetkých (neskôr, po Michalovom „spusti“): Popis produktu 598
+Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyMCE replika, kód nasadený a prepnutý, testy `--miesto popis`).
 
-Predpoklady: kroky 1–3 zo sekcie 7 (veľkosť, brána zrušená v kóde, kód nasadený a prepnutý, testy `--miesto popis`).
-
-1. **Záloha:** pole „Popis“ produktu 598 (SK admin, detail produktu ID 598 „Luxusné autokoberce DragonSkin Diamond Line“; na webe `#description .basic-description`) celé do `C:/Users/M/Desktop/LCD/web/zalohy-admin/<dátum>/produkt-598-popis.sk.html` + dĺžka (dnes 42 440 zn.) + snímka. Bez zálohy sa nepokračuje.
+1. **Záloha:** pole „Popis“ každého produktu skupiny (SK admin, detail produktu; na webe `#description .basic-description`) celé do `C:/Users/M/Desktop/LCD/web/zalohy-admin/<dátum>/produkt-<id>-popis.sk.html` + dĺžka (598 dnes 42 440 zn.) + snímka. Bez zálohy sa nepokračuje.
 2. **Ktorý súbor:**
-   - súčet ≤ 45 000 zn. (riadok `p1v-598.sk … spolu` v builde): jedna časť `p1v-598-1` so `sekcie: ["10","49"]` → do Popisu ide **celý** `admin-html/dist/p1v-598-1.sk.html`;
-   - dnes je súčet **57 710 zn.** (kus 1 34 238 + kus 2 23 472) → do Popisu ide `dist/p1v-598-1.sk.html`, kus 2 ostáva banner bez brány (rozhodnutie pre Michala, sekcia 7 bod 1).
-3. **Zápis:** runner nastaví obsah poľa „Popis“ cez API TinyMCE (`setContent` celého súboru), uloží produkt. Starý obsah sa tým nahradí celý (nič sa neprikladá).
-4. **Overenie:** uložené HTML z adminu = `dist` (TinyMCE nesmie nič zmeniť; overené replikou ešte pred zápisom — pozor na `<img>` bez `src` vo farbách, sekcia 10), `node tools/test-1v-obsah.mjs --miesto zive`, `test-konfigurator-1v` oba režimy, snímky 390/1280.
-5. Testovacie bannery: kus 1 vypnúť; kus 2 podľa bodu 2.
-6. **Návrat:** Popis 598 zo zálohy (runner), bannery späť, kód podľa `admin-html/README.md` „Návrat“.
+   - súčet ≤ 45 000 zn. (riadok `p1v-<kľúč>.sk … spolu` v builde): jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]` → do Popisu **každého** produktu skupiny ide **celý** `admin-html/dist/p1v-<kľúč>-1.sk.html`;
+   - nad limitom (dnes `598`: 57 316 zn. = 34 227 + 23 089) → do Popisu ide `dist/p1v-<kľúč>-1.sk.html`, kus 2 podľa rozhodnutia v sekcii 7 bod 1.
+3. **Zápis:** runner nastaví obsah poľa „Popis“ cez API TinyMCE (`setContent` celého súboru), uloží produkt. Starý obsah sa tým nahradí celý (nič sa neprikladá). Rovnaký súbor pre všetky vzory skupiny.
+4. **Overenie:** uložené HTML z adminu proti `dist` (rozdiely len tie, ktoré replika TinyMCE v sekcii 7 bod 3 vopred ukázala a boli prijaté), `node tools/test-1v-obsah.mjs --miesto zive --produkt <skupina>`, `test-konfigurator-1v` oba režimy, snímky 390/1280 na každom vzore (čísla a odkazy podľa vzoru).
+5. **Návrat:** Popis zo zálohy (runner), kód podľa `admin-html/README.md` „Návrat“.
 
 ## 10. Integrácia 14. 10. 2026 — stav
 
@@ -364,3 +412,32 @@ Predpoklady: kroky 1–3 zo sekcie 7 (veľkosť, brána zrušená v kóde, kód 
 - TinyMCE: 8 veľkých fotiek farieb má len `data-src` (bez `src`) — overiť replikou, že ich uloženie Popisu neodstráni (v banneri nevadí),
 - `Záhlavie` každej SK stránky má `<link rel="preload" as="image" fetchpriority="high" …/lcd-home/hero.jpg>` aj mimo titulky (145 kB) — samostatná úloha, obsahu 1V sa netýka,
 - fotky recenzií z `reviews-data.js` majú 700×525 px a zobrazujú sa ako 54 px náhľady (rovnako na živom widgete) — návrh: scraper nech robí aj malé náhľady.
+
+## 11. T0.3 (14. 10. 2026) — obsah pre všetky produkty: stav
+
+**Čo pribudlo (worktree `spt-luxuryCar-1v-obsahjadro`, základ `31472c9`):**
+- `obsah.js`: kľúč z registra (`ctx.produkt.obsah`), cesta a) korene v DOM / b) kusy z CDN verzie bundle (`OBSAH_CDN` predvolene `false` = `typeof LCD_OBSAH_CDN === "boolean" ? LCD_OBSAH_CDN : false`, `KUSY = 2`), stub-only = nič, chyba v ceste b) vráti len obsah, stav `window.__lcd1v.obsah`, modul typu po A–D.
+- `obsah-cisla.js` (nový): `data-p1v-cislo` (17 kľúčov + veľkosti boxov), `data-p1v-tvar`, `data-p1v-bez`, `data-p1v-odkaz` (sekcia 4b).
+- `obsah-dvoj|classic|premium|boxy.js` (stuby), `obsah-b.js` medzera dosiek podľa počtu, A–D hlavičky (sekcia, ktorú skupina nemá = nič).
+- `admin-html/ciele.json`: 12 častí `p1v-<kľúč>-1|2` (598, dvoj, classic, premium, boxy, vzorky; `cz: null`, cieľ `cdn`, `naVsetkychStrankach: false`), pravidlá `cisla` / `odkazy` / `kusy`, 14 stránok `produkt-<id>`.
+- `admin-html/src/p1v-dvoj|classic|premium|boxy|vzorky/` stuby sekcií (sekcia 3).
+- `tools/build-admin-html.mjs`: kontroly značiek čísel a odkazov (aj samotest), skupina = presne `kusy` častí, obsah 1V len SK, výpis cieľa `cdn`, riadok „len stuby“.
+- `.github/workflows/production.yml`: `cp admin-html/dist/p1v-*.sk.html "$REL/html/"`.
+- Test: `--produkt`, `--vyvoj`, `--miesto cdn` (predvolené), `--sonda-cisla`, plugin typu + `zdielane`, upozornenia `pozor`, `t.produkt` / `t.sestra`; `obsah-a.mjs` a-ponuka podľa vzoru.
+
+**Výsledky (lokálny build, živý web, každý POST na `/action/Cart/` zachytený a zrušený):**
+- `build-admin-html --vystup %TEMP%/d` OK (22 súborov; 10 kusov typov len zo stubov, CZ pre p1v sa nestavia), `--test` samotest OK (vrátane 9 nových prípadov značiek); `p1v-598-1/-2` majú rovnaký obsah a hash ako pred T0.3 (`--check` hlási len chýbajúce nové `dist/p1v-<typ>-*` a manifest — vygeneruje vydanie).
+- `test-1v-obsah --produkt 598` (CDN): 12/12 OK — bez flagu 0 požiadaviek na kusy, 0 zo 73 médií, výška +0 px; `?novy=1` 360/390/768/1280: A 18/18/20/20, B 15, C 14/14/14/15, D 38 kontrol = rovnako ako pred zmenou (pätička 10/10), výšky stránky zhodné.
+- `--miesto paticka` 10/10 OK (zhodné so základom), `--miesto popis` 390/1280 8/8 OK.
+- `--vyvoj --produkt 610`: 12/12 OK, obsah 598 pod konfigurátorom 610 bez chýb; 4 upozornenia = `a-ponuka` vedie na elite Diamond namiesto elite Hexa (chýba `data-p1v-odkaz`, doplní T1.1).
+- `--len bez --produkt 598,610,601,619,616`: 20/20 OK — 0 požiadaviek na `…/html/p1v-*`, 0 na `img/1v/obsah/`, výška +0/+1/+8 px.
+- `--vyvoj --produkt 601,619,628,616,637` (len stuby): 10/10 OK — stav `nic`, starý popis ostal.
+- `--sonda-cisla --vyvoj --produkt 604` 390/1280: 4/4 OK — „od 362 €“, „3 farby“ a všetky ďalšie kľúče a odkazy zhodné s nezávislým GET (sekcia 4b).
+- 2. kolo (po `OBSAH_CDN` predvolene `false` + `--define` v teste a druhom kole čísel pre kópie prvkov): `--produkt 598` 12/12, `--vyvoj --produkt 610 --bez-snimok` 10/10 (4 upozornenia a-ponuka), `--len bez` 5 produktov 20/20, `--miesto paticka` 10/10, `--miesto popis` 8/8, sonda 604 4/4, stuby 601/619/628/616/637 10/10 — všetko OK.
+- `test-konfigurator-1v --produkt 598` bez flagu 24 OK + 10 preskočených; `--novy` 33/34 (1 scenár zakaždým iný — `platne` 1280 / `brana` 390 — s chybou spojenia „Chrome neodpovedal / spojenie sa zavrelo“ pri ~85 procesoch Chrome iných workerov), samostatný beh `--novy --krok brana,platne` 4/4 OK. S `OBSAH_CDN = true` a bez úpravy runnera bolo `--novy` 2/34 (len chyby CORS konzoly, viď nižšie).
+
+**Zapnutie CDN cesty (prvé vydanie, plan.md §2.6 bod 2) — v tomto poradí:**
+1. `tools/test-konfigurator-1v.mjs` (jadro, nie T0.3): runner musí obslúžiť `…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html` z lokálneho `admin-html/dist` (vzor: `tools/test-1v/obsah-spolocne.mjs` `RE_HTML_KUS` v `novaStranka`), alebo ich vrátiť ako prázdne korene. Overené 14. 10.: s `OBSAH_CDN = true` a bez tejto úpravy `test-konfigurator-1v --novy --produkt 598` = 2 OK / 32 zlyhalo, jediná príčina 2 chyby konzoly „blocked by CORS policy“ na `…/v/fc20e3e/html/p1v-598-1|2.sk.html` (živá verzia `html/` nemá, 404 CDN nemá `Access-Control-Allow-Origin`).
+2. `obsah.js`: `: false` → `: true` v `OBSAH_CDN`.
+3. Vydanie podľa §2.6 (dist s `p1v-*.sk.html` commitnutý, `production.yml` ich skopíruje do `assets/v/<sha>/html/`), po CI `curl -sI` kusu (sekcia 9 A).
+

@@ -36,7 +36,17 @@
    "pravidla" (ciele.json -> pravidla.<meno>): predpona id, zakázané triedy (kotvy živého JS), tlačidlá
    type="button", žiadne polia formulára, odložené médiá (img lazy, video/iframe bez src a poster -> data-*).
    "naVsetkychStrankach": časť je v pätičke každej stránky -> kontrola duplicitných id aj na ostatných stránkach.
-   Časť s "<web>": null sa pre ten trh nestavia.
+   Časť s "<web>": null sa pre ten trh nestavia (obsah 1V p1v-* je len SK: "cz": null je povinné).
+
+   Obsah pod konfigurátorom 1V pre všetky produkty (T0.3, 14. 10. 2026 — docs/1v-obsah.md): skupina p1v-<kľúč>
+   (598 = jednovrstvové 598/610/613, dvoj, classic, premium, boxy, vzorky) má presne "kusy" častí p1v-<kľúč>-1…N
+   (ciele.json -> pravidla.obsah-1v.kusy = KUSY v konfigurator1v/obsah.js). Počas skúšky (D1 = b) ide dist na CDN
+   verzie (production.yml -> assets/v/<sha>/html/), cieľ "sk": { "typ": "cdn" }. Časť len zo stubov sa postaví ako
+   prázdny koreň (obsah.js ho stiahne a nič neukáže). Pravidlá obsah-1v navyše:
+   - data-p1v-cislo="<kľúč>": kľúč zo zoznamu pravidla.cisla, vnútri žiadna hodnota (len <!-- -->) — číslo a cenu
+     dosadí obsah-cisla.js zo živých dát (v statickom HTML by bola cena Diamond aj na Hexa/Stripe);
+     data-p1v-tvar len s „{}“ a bez číslic, data-p1v-bez bez číslic;
+   - data-p1v-odkaz="<typ>": len na <a href>, typ zo zoznamu pravidla.odkazy (href dosadí obsah-cisla.js).
 
    Použitie:
      node tools/build-admin-html.mjs              postaví dist/ + manifest.json, vypíše dĺžky
@@ -227,6 +237,26 @@ function obalCasti(cast, def, vnutro) {
   return `<div ${a.join(" ")}>\n${vnutro || "<!-- -->"}\n</div>`;
 }
 
+/* značky čísel a odkazov obsahu 1V (obsah-cisla.js): v statickom HTML nikdy hodnota, len kľúč */
+function skontrolujZnacky(el, kde, P, chyby) {
+  const cislo = el.attrs.get("data-p1v-cislo");
+  if (el.attrs.has("data-p1v-cislo")) {
+    const re = P.cisla ? new RegExp(P.cisla) : null;
+    const k = String(cislo || "").trim().toLowerCase();
+    if (!re || !re.test(k)) chyby.push(`${kde}: data-p1v-cislo="${cislo}" — neznámy kľúč (ciele.json pravidla.cisla; docs/1v-obsah.md „Čísla a odkazy“)`);
+    const hodnota = el.deti.some((d) => d.typ === "el" || (d.typ === "text" && !jeBiele(d.data)));
+    if (hodnota) chyby.push(`${kde}: data-p1v-cislo="${cislo}" má v HTML hodnotu „${textPrvku(el).trim().slice(0, 30)}“ — vnútri len <!-- -->, číslo/cenu dosadí obsah-cisla.js (predpona/prípona do data-p1v-tvar="od {}")`);
+    const tvar = el.attrs.get("data-p1v-tvar");
+    if (el.attrs.has("data-p1v-tvar") && (!/\{\}/.test(tvar || "") || /\d/.test(tvar || ""))) chyby.push(`${kde}: data-p1v-tvar="${tvar}" — musí obsahovať {} a žiadne číslice`);
+    if (/\d/.test(el.attrs.get("data-p1v-bez") || "")) chyby.push(`${kde}: data-p1v-bez s číslom — náhradný text nesmie niesť cenu ani počet`);
+  } else if (el.attrs.has("data-p1v-tvar") || el.attrs.has("data-p1v-bez")) chyby.push(`${kde}: data-p1v-tvar / data-p1v-bez len spolu s data-p1v-cislo`);
+  if (el.attrs.has("data-p1v-odkaz")) {
+    const t = String(el.attrs.get("data-p1v-odkaz") || "").trim().toLowerCase();
+    if (!(P.odkazy || []).includes(t)) chyby.push(`${kde}: data-p1v-odkaz="${el.attrs.get("data-p1v-odkaz")}" — typ ${(P.odkazy || []).join(" | ")}`);
+    if (el.meno !== "a" || !el.attrs.get("href")) chyby.push(`${kde}: data-p1v-odkaz len na <a href="…"> (href = záloha, obsah-cisla.js ho prepíše podľa vzoru)`);
+  }
+}
+
 /* pravidlá obsahu, ktorý je na stránke skrytý (brána) a v teste aj v pätičke každej stránky */
 function skontrolujPravidla(koren, P, chyby, pozor) {
   for (const el of prvky(koren)) {
@@ -237,6 +267,7 @@ function skontrolujPravidla(koren, P, chyby, pozor) {
     if (["form", "input", "select", "textarea"].includes(el.meno)) chyby.push(`${kde}: <${el.meno}> — pole formulára nepatrí do obsahu (košík, POST)`);
     if (el.attrs.has("name") && !el.vSvg) chyby.push(`${kde}: atribút name (išiel by do formulára / kotvy)`);
     if (el.meno === "button" && el.attrs.get("type") !== "button") chyby.push(`${kde}: <button> bez type="button"`);
+    skontrolujZnacky(el, kde, P, chyby);
     if (P.media !== "odlozene") continue;
     if (el.meno === "img" && el.attrs.get("loading") !== "lazy") chyby.push(`${kde}: <img> musí mať loading="lazy" (skrytý blok nesmie nič sťahovať)`);
     if (el.meno === "video") {
@@ -425,7 +456,7 @@ function samotest() {
     ["kotva bez cieľa je kontrola stránky (v časti OK)", obal('<a href="#nic">a</a>'), def, null],
   ];
   /* časti zo sekcií + pravidlá obsahu za bránou (obsah 1V) */
-  const P = { idPredpona: "p-", zakazaneTriedy: ["lcd-reviews-widget"], media: "odlozene" };
+  const P = { idPredpona: "p-", zakazaneTriedy: ["lcd-reviews-widget"], media: "odlozene", cisla: "^(cena-od|pocet-farieb)$", odkazy: ["jedno", "dvoj"] };
   const defB = { koren: "p-x", obal: { trieda: "o", brana: "1v" } };
   const obalB = (s) => obalCasti("x", defB, s);
   pripady.push(
@@ -440,6 +471,15 @@ function samotest() {
     ["video poster za bránou", obalB('<video preload="none" data-src="/a.mp4" poster="/a.jpg"></video>'), defB, "data-poster", P],
     ["video src za bránou", obalB('<video preload="none" src="/a.mp4" data-poster="/a.jpg"></video>'), defB, "data-src", P],
     ["video ok za bránou", obalB('<video preload="none" data-src="/a.mp4" data-poster="/a.jpg"></video>'), defB, null, P],
+    ["číslo ok", obalB('<p>Cena <span data-p1v-cislo="cena-od" data-p1v-tvar="od {}"><!-- --></span>, <span data-p1v-cislo="pocet-farieb" data-p1v-bez="viac farieb"><!-- --></span></p>'), { ...defB, tinymce: true }, null, P],
+    ["číslo s hodnotou", obalB('<p><span data-p1v-cislo="cena-od">351 €</span></p>'), defB, "má v HTML hodnotu", P],
+    ["číslo neznámy kľúč", obalB('<p><span data-p1v-cislo="cena"><!-- --></span></p>'), defB, "neznámy kľúč", P],
+    ["číslo tvar s číslom", obalB('<p><span data-p1v-cislo="cena-od" data-p1v-tvar="od 351 {}"><!-- --></span></p>'), defB, "žiadne číslice", P],
+    ["číslo tvar bez {}", obalB('<p><span data-p1v-cislo="cena-od" data-p1v-tvar="od"><!-- --></span></p>'), defB, "musí obsahovať {}", P],
+    ["tvar bez čísla", obalB('<p><span data-p1v-tvar="od {}">a</span></p>'), defB, "len spolu s data-p1v-cislo", P],
+    ["odkaz ok", obalB('<p><a href="/x/#y" data-p1v-odkaz="dvoj">a</a></p>'), defB, null, P],
+    ["odkaz zlý typ", obalB('<p><a href="/x/" data-p1v-odkaz="box">a</a></p>'), defB, "typ jedno | dvoj", P],
+    ["odkaz mimo <a>", obalB('<p><span data-p1v-odkaz="dvoj">a</span></p>'), defB, "len na <a", P],
     ["lcd-root mimo lcd-*", '<div id="p-x" class="lcd-root" data-lcd-cast="x">a</div>', { koren: "p-x" }, "lcd-root", null],
   );
   for (const [meno, s, cakam] of [
@@ -495,6 +535,22 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
   if (!def.zlozka) continue;
   if (!zlozky.has(def.zlozka)) zlozky.set(def.zlozka, []);
   zlozky.get(def.zlozka).push([cast, def]);
+}
+/* obsah 1V (pravidlá s "kusy"): skupina p1v-<kľúč> = presne kusy častí p1v-<kľúč>-1…N (obsah.js KUSY), len SK */
+const skupinyObsahu = new Map();
+for (const [cast, def] of Object.entries(CIELE.casti)) {
+  const P = def.pravidla ? (CIELE.pravidla || {})[def.pravidla] : null;
+  if (!P || !P.kusy) continue;
+  const m = /^(p1v-[a-z0-9]+)-(\d+)$/.exec(cast);
+  if (!m || def.skupina !== m[1] || def.koren !== cast) globalne.push(`${cast}: časť obsahu 1V musí mať meno p1v-<kľúč>-<n>, "skupina": "p1v-<kľúč>" a "koren" = meno časti`);
+  if (def.cz !== null) globalne.push(`${cast}: obsah 1V je len SK — "cz": null`);
+  const sk = m ? m[1] : cast;
+  if (!skupinyObsahu.has(sk)) skupinyObsahu.set(sk, { kusy: P.kusy, n: [] });
+  if (m) skupinyObsahu.get(sk).n.push(Number(m[2]));
+}
+for (const [sk, s] of skupinyObsahu) {
+  const cakam = Array.from({ length: s.kusy }, (_, i) => i + 1).join(",");
+  if (s.n.sort((a, b) => a - b).join(",") !== cakam) globalne.push(`${sk}: časti ${s.n.map((n) => sk + "-" + n).join(", ")} — čakám presne ${s.kusy} (${cakam}); obsah.js sťahuje KUSY = ${s.kusy}`);
 }
 /* neznáme súbory v src */
 for (const f of fs.existsSync(SRC) ? fs.readdirSync(SRC) : []) {
@@ -618,12 +674,14 @@ if (CHECK) {
 /* výpis */
 const popisCiela = (t) => !t ? "?" : t.typ === "banner"
   ? `banner ${t.id ?? "NOVÝ"} „${t.nazov}“${t.kod ? " (" + t.kod + ")" : ""}`
-  : t.typ === "produkt" ? `produkt ${t.id} — ${t.pole}` : `stránka ${t.id} — ${t.pole}`;
+  : t.typ === "produkt" ? `produkt ${t.id} — ${t.pole}`
+  : t.typ === "cdn" ? `CDN verzie …/assets/v/<sha>/${t.subor} (bez adminu)` : `stránka ${t.id} — ${t.pole}`;
 console.log(`build-admin-html${CHECK ? " --check" : ""}: limit ${fmt(LIMIT)} znakov, parser HTML: ${parse5 ? "parse5" : "len vlastný (parse5 nenájdený)"}${SNIMKY ? ", snímky Shoptetu: " + SNIMKY : ""}`);
 for (const c of casti) {
   const stav = c.chyby.length ? "CHYBA" : c.pozor.length ? "POZOR" : "OK   ";
   console.log(`${stav} ${(c.cast + "." + c.web).padEnd(13)} ${fmt(c.znaky).padStart(7)} zn. ${fmt(c.bajty).padStart(7)} B  rezerva ${fmt(LIMIT - c.znaky).padStart(7)}  img ${String(c.pocetImg).padStart(3)}  v=${c.hash}  -> ${popisCiela(c.ciel)}`);
   for (const s of c.sekcie || []) console.log(`        · ${s.subor.padEnd(28)} ${s.prazdna ? "  prázdna (stub)" : fmt(s.html.length).padStart(7) + " zn."}`);
+  if (c.sekcie && !c.sekcie.some((s) => !s.prazdna)) console.log("        · len stuby (alebo žiadne sekcie) — prázdny koreň, obsah.js ho stiahne a nič neukáže");
   for (const x of c.chyby) console.log("        ✗ " + x);
   for (const x of c.pozor) console.log("        ! " + x);
 }

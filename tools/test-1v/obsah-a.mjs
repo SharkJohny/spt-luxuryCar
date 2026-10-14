@@ -35,13 +35,18 @@ export async function kontroly(t) {
     ok(r.h > 150 && r.rv && r.skryte === 0, `${m}: viditeľná a odhalená (výška ${Math.round(r.h)} px, .p1v-rv ${r.rv}, .rv vo výreze skryté ${r.skryte}/${r.vid})`);
   }
 
-  // --- a-ponuka: odkaz na dvojvrstvové (žiadna cena v sekcii)
+  // --- a-ponuka: odkaz na dvojvrstvové TOHO ISTÉHO vzoru (žiadna cena v sekcii). --produkt (T0.3): 598 -> elite Diamond,
+  //     610 -> elite Hexa, 613 -> elite Stripe (data-p1v-odkaz="dvoj", obsah-cisla.js). Kým značka v obsahu chýba (T1.1),
+  //     na Hexa/Stripe ostáva statický odkaz na Diamond = upozornenie, nie zlyhanie.
   if (await t.je("a-ponuka")) {
     const r = await t.ev(`(function () {
       var s = document.querySelector(${S("a-ponuka")}), a = s.querySelector("a.btn"), img = s.querySelector("img");
-      return { href: a && a.getAttribute("href"), cena: /\\d\\s*(€|eur|Kč)|(€|Kč)\\s*\\d/i.test(s.textContent), img: img && img.complete && img.naturalWidth > 0 };
+      return { href: a && a.getAttribute("href"), znacka: !!(a && a.hasAttribute("data-p1v-odkaz")), cena: /\\d\\s*(€|eur|Kč)|(€|Kč)\\s*\\d/i.test(s.textContent), img: img && img.complete && img.naturalWidth > 0 };
     })()`);
-    ok(r.href === "/luxusne-autokoberce-dragonskin-elite-diamond-line/", `a-ponuka: tlačidlo vedie na dvojvrstvové Diamond Line (${r.href})`);
+    const cakam = (t.sestra && t.sestra("dvoj")) || "/luxusne-autokoberce-dragonskin-elite-diamond-line/";
+    const href = String(r.href || "").split("#")[0];
+    const vzor = t.produkt && t.produkt.vzor ? t.produkt.vzor : "diamond";
+    out.push({ ok: href === cakam, pozor: !r.znacka && vzor !== "diamond", popis: `a-ponuka: tlačidlo vedie na dvojvrstvové toho istého vzoru ${vzor} (${r.href}, čakám ${cakam}${r.znacka ? "" : "; bez data-p1v-odkaz"})` });
     ok(!r.cena, "a-ponuka: žiadna cena v texte");
     ok(r.img, "a-ponuka: fotka sa načítala");
   }

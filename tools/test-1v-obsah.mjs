@@ -1,23 +1,33 @@
 #!/usr/bin/env node
-// E2E test OBSAHU pod konfigurátorom 1V na ŽIVEJ SK Diamond Line 598 s lokálnym buildom (13. 10. 2026, docs/1v-obsah.md).
+// E2E test OBSAHU pod konfigurátorom 1V na ŽIVÝCH SK stránkach s lokálnym buildom (docs/1v-obsah.md). JADRO (T0.3,
+// 14. 10. 2026: všetky produkty z registra, obsah z CDN verzie podľa D1 = b, sonda čísel) — mení len vydanie.
 //
-//   node tools/test-1v-obsah.mjs                          # bez flagu 1280+390, ?novy=1 na 360/390/768/1280, snímky vs návrh
-//   node tools/test-1v-obsah.mjs --skupina b --sirka 390  # len kontroly skupiny B, ?novy=1 len 390
-//   node tools/test-1v-obsah.mjs --miesto popis           # SPUSTENIE: obsah v Popise produktu namiesto banneru v pätičke
-//   node tools/test-1v-obsah.mjs --miesto zive            # nič nevkladá: obsah, ktorý už je v admine (+ porovná data-lcd-v s buildom)
-//   node tools/test-1v-obsah.mjs --snimky C:/tmp/obsah --snimky-sirky 390,1280 | --bez-snimok | --navrh <url>
-//   ďalšie: --len bez|novy · --sirka-bez 1280,390 · --bez-zakladu · --paralelne 3 · --okno · --bez-drop · --vypis
+//   node tools/test-1v-obsah.mjs                          # 598: bez flagu 1280+390, ?novy=1 na 360/390/768/1280, snímky vs návrh
+//   node tools/test-1v-obsah.mjs --produkt 598,610,613    # viac produktov (id | all | typ:dvoj | alias ako test konfigurátora)
+//   node tools/test-1v-obsah.mjs --vyvoj --produkt 601    # ?novy=vyvoj: aj typ, ktorý ešte nie je zapnutý (ZAPNUTE_TYPY)
+//   node tools/test-1v-obsah.mjs --len bez --produkt 598,610,601,619,616   # bez flagu: 0 požiadaviek na obsah
+//   node tools/test-1v-obsah.mjs --sonda-cisla --vyvoj --produkt 604 --len novy --sirka 1280 --bez-snimok   # čísla a odkazy
+//   node tools/test-1v-obsah.mjs --miesto cdn|paticka|popis|zive   # cdn = skúška D1 = b (predvolené), popis = spustenie
+//   ďalšie: --skupina b · --sirka 390 · --sirka-bez 1280,390 · --snimky C:/tmp/obsah · --snimky-sirky 390,1280 · --bez-snimok
+//           --navrh <url> · --bez-zakladu · --paralelne 3 · --okno · --bez-drop · --vypis
 //
-// Čo robí: postaví admin HTML (tools/build-admin-html.mjs --vystup), JS a CSS (ako CI) do dočasného priečinka, otvorí živú
-// 598 a do dokumentu vloží dist/p1v-598-*.sk.html (tools/test-1v/obsah-spolocne.mjs: pätička = test fáza, popis =
-// spustenie) + sondu (img lazy 1×1). Kontroluje:
-//   bez flagu: korene sú display:none, ich stĺpce pätičky skryté, ŽIADNY obrázok/video obsahu ani sonda sa nestiahli,
-//              pätička a výška stránky ako bez obsahu, žiadne nové chyby v konzole, žiadny vodorovný posun;
-//   ?novy=1:   body.lcd-1v + .lcd-1v-obsah, korene v .p1v-miesto pred záložkami v poradí, viditeľné, starý popis skrytý,
-//              štýly titulky platia aj na koreni (--gold), sonda sa po posune stiahne, žiadne chyby (konzola, __lcd1v.chyby),
-//              žiadny vodorovný posun ani prvok za okrajom okna (360/390/768/1280), kontroly skupín tools/test-1v/obsah-<a-d>.mjs;
-//   snímky:    každá neprázdna sekcia na webe + tá istá časť návrhu v26 + obe vedľa seba:
-//              <snimky>/<sekcia>/{web,navrh,porovnanie}-<šírka>.png (prázdna sekcia = stub, len návrh).
+// Čo robí: postaví HTML obsahu (tools/build-admin-html.mjs --vystup), JS a CSS (ako CI) do dočasného priečinka a otvorí
+// živé stránky produktov. Obsah dostane stránka podľa --miesto (tools/test-1v/obsah-spolocne.mjs):
+//   cdn      obsah.js si pod bránou stiahne …/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html — test ich obslúži z lokálneho
+//            dist (ako production.yml), do stránky nič nevkladá; bez flagu sa NESMIE stiahnuť nič;
+//   paticka  kusy ako bannery pätičky (starý test D1 = a); popis = kusy v Popise produktu (spustenie); zive = nič.
+// Kontroly:
+//   bez flagu: žiadne body.lcd-1v ani .p1v-miesto, ŽIADNA požiadavka na kus obsahu, obrázok/video obsahu ani sondu
+//              (paticka/popis: korene display:none, stĺpce pätičky skryté, pätička a výška ako bez obsahu),
+//              žiadne nové chyby v konzole, žiadny vodorovný posun;
+//   s flagom:  body.lcd-1v + .lcd-1v-obsah, korene v .p1v-miesto pred záložkami v poradí, viditeľné, starý popis skrytý,
+//              štýly titulky na koreni (--gold), každá sekcia viditeľná a odhalená, čísla dosadené (data-p1v-cislo) a
+//              odkazy v tom istom vzore (data-p1v-odkaz), sonda sa po posune stiahne, žiadne chyby (konzola,
+//              __lcd1v.chyby), žiadny vodorovný posun; kľúč len so stubmi = nič sa neukáže a starý popis ostane;
+//              kontroly skupín: kľúč 598 -> tools/test-1v/obsah-a…d.mjs, iný kľúč -> obsah-<kľúč>.mjs (+ jeho zdielane);
+//   --sonda-cisla: do 1. kusu sa pridá sekcia so všetkými kľúčmi čísel a typmi odkazov; očakávané hodnoty test zistí
+//              sám (GET živých stránok + register zo zdroja), nie z kódu webu;
+//   snímky:    každá neprázdna sekcia na webe + tá istá časť návrhu (server návrhov) + obe vedľa seba.
 // Bezpečnosť: POST /action/Cart/addCartItem sa ZRUŠÍ, iný POST na /action/ tiež; merače zablokované; cookies odmietnuté;
 // žiadna objednávka, žiadny admin, žiadne prihlásenie.
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -25,25 +35,39 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spustiChrome } from "./test-1v/cdp.mjs";
 import { vytvorT } from "./test-1v/pomocnik.mjs";
-import { priprav, novaStranka, otvor598, adresyMedii, SONDA, MERACE, pauza } from "./test-1v/obsah-spolocne.mjs";
+import { vyberProdukty, TYPY_TEST, ChybaPouzitia } from "./test-1v/produkty.mjs";
+import {
+  priprav, novaStranka, otvorProdukt, adresyMedii, register, sestra, ocakavaneCisla, sekciaSondyCisel, doKorena,
+  prazdnyKus, SONDA, MERACE, NAVRHY, pauza,
+} from "./test-1v/obsah-spolocne.mjs";
 import * as skA from "./test-1v/obsah-a.mjs";
 import * as skB from "./test-1v/obsah-b.mjs";
 import * as skC from "./test-1v/obsah-c.mjs";
 import * as skD from "./test-1v/obsah-d.mjs";
+import * as skDvoj from "./test-1v/obsah-dvoj.mjs";
+import * as skClassic from "./test-1v/obsah-classic.mjs";
+import * as skPremium from "./test-1v/obsah-premium.mjs";
+import * as skBoxy from "./test-1v/obsah-boxy.mjs";
 
-const SKUPINY = { a: skA, b: skB, c: skC, d: skD };
-const NAVRH = "http://127.0.0.1:8952/jednovrstvove.html";
+const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClassic, premium: skPremium, boxy: skBoxy };
+/** Kontroly skupín podľa kľúča obsahu: 598 = A–D (návrh v26); iný kľúč = vlastný plugin + skupiny, ktoré si vyžiada (zdielane). */
+const PLUGINY = { 598: ["a", "b", "c", "d"], dvoj: ["dvoj"], classic: ["classic"], premium: ["premium"], boxy: ["boxy"], vzorky: [] };
+const SERVER_NAVRHOV = "http://127.0.0.1:8952/";
 const SUM_ZDROJE = /twitter|rostiapp|luxia|recaptcha|facebook|google|gstatic|youtube|hotjar|tiktok|smartsupp|ecomail|heureka|seznam|bing|clarity|trustindex/i;
 const normChyba = (c) => (c.druh + ": " + c.text).replace(/\d+/g, "#").replace(/\s+/g, " ").slice(0, 200);
 const naseChyby = (chyby) => chyby.filter((c) => !SUM_ZDROJE.test(c.zdroj || "") && !SUM_ZDROJE.test(c.text || ""));
 const cisla = (s) => s.split(",").map((x) => Number(x.trim())).filter(Boolean);
+const nbsp = (s) => String(s == null ? "" : s).replace(/[\u00a0\u202f]/g, " ").replace(/\s+/g, " ").trim();
 
 function argumenty(argv) {
-  const a = { sirkyNovy: [360, 390, 768, 1280], sirkyBez: [1280, 390], snimkySirky: [390, 1280], skupiny: Object.keys(SKUPINY), miesto: "paticka",
-    snimky: join(tmpdir(), "lcd-1v-obsah-snimky"), bezSnimok: false, navrh: NAVRH, len: null, zaklad: true, paralelne: 3, okno: false, bezDrop: false, vypis: false };
+  const a = { produkt: "598", vyvoj: false, sondaCisel: false, sirkyNovy: [360, 390, 768, 1280], sirkyBez: [1280, 390], snimkySirky: [390, 1280], skupiny: null, miesto: "cdn",
+    snimky: join(tmpdir(), "lcd-1v-obsah-snimky"), bezSnimok: false, navrh: null, len: null, zaklad: true, paralelne: 3, okno: false, bezDrop: false, vypis: false };
   for (let i = 0; i < argv.length; i++) {
-    const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new Error(x + " potrebuje hodnotu"); return argv[++i]; };
-    if (x === "--sirka") a.sirkyNovy = cisla(dalsi());
+    const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
+    if (x === "--produkt") a.produkt = dalsi();
+    else if (x === "--vyvoj") a.vyvoj = true;
+    else if (x === "--sonda-cisla") a.sondaCisel = true;
+    else if (x === "--sirka") a.sirkyNovy = cisla(dalsi());
     else if (x === "--sirka-bez") a.sirkyBez = cisla(dalsi());
     else if (x === "--snimky-sirky") a.snimkySirky = cisla(dalsi());
     else if (x === "--skupina") a.skupiny = dalsi().split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
@@ -57,20 +81,21 @@ function argumenty(argv) {
     else if (x === "--okno") a.okno = true;
     else if (x === "--bez-drop") a.bezDrop = true;
     else if (x === "--vypis") a.vypis = true;
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 8).join("\n")); process.exit(0); }
-    else throw new Error("neznámy prepínač " + x);
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 13).join("\n")); process.exit(0); }
+    else throw new ChybaPouzitia("neznámy prepínač " + x);
   }
-  if (!["paticka", "popis", "zive"].includes(a.miesto)) throw new Error("--miesto je paticka | popis | zive");
-  a.skupiny.forEach((g) => { if (!SKUPINY[g]) throw new Error("neznáma skupina " + g + " (a, b, c, d)"); });
+  if (!["cdn", "paticka", "popis", "zive"].includes(a.miesto)) throw new ChybaPouzitia("--miesto je cdn | paticka | popis | zive");
+  if (a.sondaCisel && a.miesto !== "cdn") throw new ChybaPouzitia("--sonda-cisla len s --miesto cdn (sonda je v kuse z CDN)");
+  (a.skupiny || []).forEach((g) => { if (!SKUPINY[g]) throw new ChybaPouzitia("neznáma skupina " + g + " (" + Object.keys(SKUPINY).join(", ") + ")"); });
   if (a.len === "bez") a.sirkyNovy = [];
   if (a.len === "novy") a.sirkyBez = [];
   return a;
 }
 
 // ------------------------------------------------------------------ v stránke
-const STAV = `(function () {
+const STAV = (kluc) => `(function () {
   function disp(e) { return e ? getComputedStyle(e).display : null; }
-  var korene = [].slice.call(document.querySelectorAll('[data-lcd-cast^="p1v-598-"]'));
+  var korene = [].slice.call(document.querySelectorAll('[data-lcd-cast^="p1v-${kluc}-"]'));
   var m = document.querySelector(".p1v-miesto");
   var f = document.querySelector(".custom-footer");
   var cw = document.documentElement.clientWidth;
@@ -86,9 +111,14 @@ const STAV = `(function () {
     }
   }
   var bd = document.querySelector(".basic-description");
+  var o = window.__lcd1v && window.__lcd1v.obsah;
+  var sekcie = m ? [].map.call(m.querySelectorAll("[data-lcd-sekcia]"), function (s) { return { meno: s.getAttribute("data-lcd-sekcia"), h: Math.round(s.getBoundingClientRect().height), rv: s.classList.contains("p1v-rv") }; }) : [];
+  var cisla = m ? [].map.call(m.querySelectorAll("[data-p1v-cislo]"), function (x) { return { kluc: x.getAttribute("data-p1v-cislo"), stav: x.getAttribute("data-p1v-stav"), text: (x.textContent || "").replace(/\\s+/g, " ").trim(), vis: getComputedStyle(x).visibility }; }) : [];
+  var odkazy = m ? [].map.call(m.querySelectorAll("a[data-p1v-odkaz]"), function (x) { return { typ: x.getAttribute("data-p1v-odkaz"), href: x.getAttribute("href") }; }) : [];
   return {
     lcd1v: document.body.classList.contains("lcd-1v"), obsah: document.body.classList.contains("lcd-1v-obsah"),
     chyby1v: window.__lcd1v ? window.__lcd1v.chyby.slice() : null,
+    obsahStav: o ? { kluc: o.kluc, zdroj: o.zdroj, stav: o.stav, kusy: o.kusy } : null,
     korene: korene.map(function (k) { var st = k.closest(".custom-footer > div"); var r = k.getBoundingClientRect();
       return { cast: k.getAttribute("data-lcd-cast"), v: k.getAttribute("data-lcd-v"), display: disp(k), h: Math.round(r.height), vMieste: !!(m && k.parentNode === m), stlpec: st ? disp(st) : null, gold: getComputedStyle(k).getPropertyValue("--gold").trim() }; }),
     miesto: m ? { deti: [].map.call(m.children, function (c) { return c.getAttribute("data-lcd-cast") || c.className; }), za: m.nextElementSibling ? String(m.nextElementSibling.className) : null } : null,
@@ -96,7 +126,19 @@ const STAV = `(function () {
     staryPopisViditelny: !!(bd && bd.getClientRects().length && bd.getBoundingClientRect().height > 0),
     prazdneStlpce: [].map.call(document.querySelectorAll(".custom-footer > div[data-p1v-prazdny]"), disp),
     paticka: f ? { h: Math.round(f.getBoundingClientRect().height), stlpce: [].filter.call(f.children, function (c) { return getComputedStyle(c).display !== "none"; }).length } : null,
-    docH: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, cw: cw, presahy: presahy
+    docH: document.documentElement.scrollHeight, sw: document.documentElement.scrollWidth, cw: cw, presahy: presahy,
+    sekcie: sekcie, cisla: cisla, odkazy: odkazy
+  };
+})()`;
+
+// sonda čísel: texty a stav prvkov sekcie x-sonda-cisla
+const SONDA_CISEL = `(function () {
+  var s = document.querySelector('.p1v-miesto [data-lcd-sekcia="x-sonda-cisla"]');
+  if (!s) return null;
+  return {
+    cisla: [].map.call(s.querySelectorAll("[data-p1v-sonda]"), function (li) { var x = li.querySelector("[data-p1v-cislo]"), cs = getComputedStyle(x);
+      return { kluc: li.getAttribute("data-p1v-sonda"), text: (x.textContent || "").replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(), stav: x.getAttribute("data-p1v-stav"), display: cs.display, vis: cs.visibility }; }),
+    odkazy: [].map.call(s.querySelectorAll("a[data-p1v-odkaz]"), function (a) { return { typ: a.getAttribute("data-p1v-odkaz"), href: a.getAttribute("href"), stav: a.getAttribute("data-p1v-stav") }; })
   };
 })()`;
 
@@ -141,186 +183,283 @@ async function snimkaOblasti(k, kusy, cesta) {
 // ------------------------------------------------------------------ beh
 async function main() {
   const a = argumenty(process.argv.slice(2));
-  console.log("Test obsahu 1V — miesto: " + { popis: "Popis produktu (spustenie, vložené testom)", paticka: "banner v pätičke (test fáza, vložené testom)", zive: "živý admin (nič sa nevkladá)" }[a.miesto]);
+  const reg = register();
+  const flag = a.vyvoj ? "vyvoj" : "1";
+  const produkty = vyberProdukty(a.produkt).map((p) => {
+    const r = reg.produkty[p.id];
+    if (!r) throw new ChybaPouzitia("produkt " + p.id + " nie je v registri konfigurator1v/produkty.js");
+    return { ...p, url: r.url, cesta: r.cesta, typ: r.typ, vzor: r.vzor, kluc: r.obsah, zapnuty: reg.zapnute.includes(r.typ) };
+  });
+  if (a.sirkyNovy.length && !a.vyvoj && a.miesto !== "zive") {
+    const vypnute = produkty.filter((p) => !p.zapnuty);
+    if (vypnute.length) throw new ChybaPouzitia("?novy=1 na produktoch nezapnutého typu (" + vypnute.map((p) => p.id + " " + p.typ).join(", ") + ") nič nezapne — pridaj --vyvoj (ZAPNUTE_TYPY " + JSON.stringify(reg.zapnute) + ")");
+  }
+  console.log(`Test obsahu 1V — miesto: ${{ cdn: "CDN verzie (D1 = b, test obslúži lokálny dist)", popis: "Popis produktu (spustenie, vložené testom)", paticka: "banner v pätičke (starý test, vložené testom)", zive: "živé (nič sa nevkladá ani neobsluhuje)" }[a.miesto]}, flag ?novy=${flag}, produkty ${produkty.map((p) => p.id + " (" + p.kluc + ")").join(", ")}`);
   const build = priprav({ bezDrop: a.bezDrop });
   console.log("  " + build.popis);
-  const media = [...new Set(build.admin.casti.flatMap((c) => adresyMedii(c.html)))];
-  const sekcie = build.admin.casti.flatMap((c) => c.sekcie.map((s) => ({ ...s, cast: c.cast })));
-  const plne = sekcie.filter((s) => s.znaky > 0).map((s) => s.sekcia);
-  console.log(`  sekcie: ${sekcie.length} (${plne.length} s obsahom, ${sekcie.length - plne.length} stub), médiá v HTML: ${media.length}`);
-  const mapa = a.skupiny.flatMap((g) => SKUPINY[g].sekcie.map((s) => ({ ...s, skupina: g })));
-  for (const s of sekcie) if (!Object.values(SKUPINY).some((g) => g.sekcie.some((x) => x.meno === s.sekcia))) console.log(`  POZOR: sekcia ${s.sekcia} nemá mapu v tools/test-1v/obsah-*.mjs (snímka návrhu chýba)`);
 
-  // navrh dostupný?
+  // podľa produktu: kusy, médiá, sekcie, pluginy, sonda čísel
+  for (const p of produkty) {
+    p.kusy = build.admin.casti(p.kluc);
+    if (!p.kusy.length) throw new ChybaPouzitia(`kľúč obsahu „${p.kluc}“ (produkt ${p.id}) nemá časti v admin-html/ciele.json`);
+    p.media = [...new Set(p.kusy.flatMap((c) => adresyMedii(c.html)))];
+    p.sekcie = p.kusy.flatMap((c) => c.sekcie.map((s) => ({ ...s, cast: c.cast })));
+    p.plne = p.sekcie.filter((s) => s.znaky > 0).map((s) => s.sekcia);
+    const mena = (a.skupiny || PLUGINY[p.kluc] || []).filter((g) => (PLUGINY[p.kluc] || []).includes(g) || (a.skupiny && SKUPINY[g]));
+    p.pluginy = [...new Set(mena.flatMap((g) => [g, ...((SKUPINY[g] && SKUPINY[g].zdielane) || [])]))].filter((g) => SKUPINY[g]);
+    p.navrh = a.navrh || SERVER_NAVRHOV + (NAVRHY[p.kluc] || NAVRHY[598]);
+    if (a.sondaCisel) {
+      p.sonda = await ocakavaneCisla(reg, p);
+      const k1 = p.kusy[0];
+      p.cdnKusy = { [k1.cast]: doKorena(k1.html, sekciaSondyCisel(p.sonda)) };
+      p.plne = p.plne.concat("x-sonda-cisla");
+    }
+    console.log(`  ${p.id} ${p.nazov || ""} (${p.typ}/${p.vzor || "-"}): obsah ${p.kluc} — ${p.kusy.map((c) => c.cast).join(" + ")}, sekcie ${p.sekcie.length} (${p.sekcie.filter((s) => s.znaky > 0).length} s obsahom), médiá ${p.media.length}, kontroly ${p.pluginy.join(",") || "len základ"}${p.sonda ? ", sonda čísel " + p.sonda.cisla.length + " + odkazy " + p.sonda.odkazy.length : ""}`);
+    for (const s of p.sekcie) if (s.znaky > 0 && !p.pluginy.some((g) => SKUPINY[g].sekcie.some((x) => x.meno === s.sekcia))) console.log(`  POZOR: ${p.id} sekcia ${s.sekcia} nemá mapu v tools/test-1v/obsah-*.mjs (snímka návrhu chýba)`);
+  }
+
+  // návrh dostupný?
   let navrhOk = !a.bezSnimok;
-  if (navrhOk) try { const r = await fetch(a.navrh, { method: "HEAD" }); navrhOk = r.ok; } catch { navrhOk = false; }
-  if (!a.bezSnimok && !navrhOk) console.log(`  POZOR: návrh ${a.navrh} nie je dostupný — snímky len z webu (spusti server návrhu alebo --navrh <url>)`);
+  const navrhy = [...new Set(produkty.map((p) => p.navrh))];
+  if (navrhOk) for (const n of navrhy) { try { const r = await fetch(n, { method: "HEAD" }); navrhOk = navrhOk && r.ok; } catch { navrhOk = false; } }
+  if (!a.bezSnimok && !navrhOk) console.log(`  POZOR: návrh ${navrhy.join(", ")} nie je dostupný — snímky len z webu (spusti server návrhov alebo --navrh <url>)`);
   if (!a.bezSnimok) mkdirSync(a.snimky, { recursive: true });
 
   const ulohy = [];
-  const zaklady = new Map(); // "bez|novy-<sirka>" -> Promise({ chyby:Set, stav })
+  const zaklady = new Map(); // "<id>|bez|novy-<sirka>" -> Promise({ chyby:Set, st })
   const zakladSirka = (novy, sirka) => (novy ? (sirka < 768 ? 390 : 1280) : sirka);
-  if (a.zaklad) {
-    for (const sirka of new Set(a.sirkyBez)) ulohy.push({ druh: "zaklad", novy: false, sirka });
-    for (const sirka of new Set(a.sirkyNovy.map((w) => zakladSirka(true, w)))) ulohy.push({ druh: "zaklad", novy: true, sirka });
+  const kz = (p, novy, sirka) => p.id + "|" + (novy ? "novy-" : "bez-") + sirka;
+  for (const p of produkty) {
+    if (a.zaklad) {
+      for (const sirka of new Set(a.sirkyBez)) ulohy.push({ p, druh: "zaklad", novy: false, sirka });
+      for (const sirka of new Set(a.sirkyNovy.map((w) => zakladSirka(true, w)))) ulohy.push({ p, druh: "zaklad", novy: true, sirka });
+    }
+    for (const sirka of a.sirkyBez) ulohy.push({ p, druh: "bez", sirka });
+    for (const sirka of a.sirkyNovy) ulohy.push({ p, druh: "novy", sirka });
   }
-  for (const sirka of a.sirkyBez) ulohy.push({ druh: "bez", sirka });
-  for (const sirka of a.sirkyNovy) ulohy.push({ druh: "novy", sirka });
-  if (navrhOk) for (const sirka of a.snimkySirky) ulohy.push({ druh: "navrh", sirka });
+  // snímky návrhu: raz na návrh a šírku (sekcie z pluginov produktov s tým návrhom)
+  const navrhUlohy = new Map();
+  if (navrhOk && a.sirkyNovy.length) for (const p of produkty) for (const sirka of a.snimkySirky) {
+    const k = p.navrh + "|" + sirka;
+    if (!navrhUlohy.has(k)) navrhUlohy.set(k, { p, druh: "navrh", sirka, mapa: [] });
+    const u = navrhUlohy.get(k);
+    p.pluginy.flatMap((g) => SKUPINY[g].sekcie.map((s) => ({ ...s, skupina: g }))).forEach((s) => { if (!u.mapa.some((x) => x.meno === s.meno)) u.mapa.push(s); });
+  }
+  ulohy.push(...navrhUlohy.values());
   const cakaj = new Map();
-  for (const u of ulohy) if (u.druh === "zaklad") { let r; const p = new Promise((x) => { r = x; }); cakaj.set((u.novy ? "novy-" : "bez-") + u.sirka, { p, r }); zaklady.set((u.novy ? "novy-" : "bez-") + u.sirka, p); }
+  for (const u of ulohy) if (u.druh === "zaklad") { let r; const p = new Promise((x) => { r = x; }); cakaj.set(kz(u.p, u.novy, u.sirka), { p, r }); zaklady.set(kz(u.p, u.novy, u.sirka), p); }
 
   const vysledky = [];
   let dalsia = 0;
   async function pracovnik() {
     while (dalsia < ulohy.length) {
       const u = ulohy[dalsia++];
+      const p = u.p;
       const t0 = Date.now();
       const logy = [];
       const log = (x) => logy.push(x);
       const ch = await spustiChrome({ okno: a.okno });
-      const v = { uloha: u.druh + " " + u.sirka, chyby: [], info: [] };
+      const v = { uloha: p.id + " " + u.druh + " " + u.sirka, chyby: [], info: [], pozor: [] };
       const zle = (podm, sprava) => { if (!podm) v.chyby.push(sprava); };
       try {
         if (u.druh === "navrh") {
           const k = await ch.novaKarta({ sirka: u.sirka });
           await k.posli("Network.setBlockedURLs", { urls: MERACE });
-          await k.chod(a.navrh);
+          await k.chod(p.navrh);
           await k.ev(`document.fonts ? document.fonts.ready.then(function () { return 1; }) : 1`).catch(() => {});
           await pauza(1500);
           let n = 0;
-          for (const s of mapa) {
+          for (const s of u.mapa) {
             if (!s.navrh || !s.navrh.length) continue;
-            mkdirSync(join(a.snimky, s.meno), { recursive: true });
-            const o = await snimkaOblasti(k, s.navrh, join(a.snimky, s.meno, `navrh-${u.sirka}.png`)).catch((e) => { log(s.meno + ": " + e.message); return null; });
+            mkdirSync(join(a.snimky, p.kluc, s.meno), { recursive: true });
+            const o = await snimkaOblasti(k, s.navrh, join(a.snimky, p.kluc, s.meno, `navrh-${u.sirka}.png`)).catch((e) => { log(s.meno + ": " + e.message); return null; });
             if (o) n++; else v.info.push("návrh: " + s.meno + " nenájdené");
           }
-          v.info.unshift(`${n} snímok návrhu`);
+          v.info.unshift(`${n} snímok návrhu ${p.navrh.split("/").pop()}`);
         } else {
           const novy = u.druh === "novy" || (u.druh === "zaklad" && u.novy);
-          const s = await novaStranka(ch, u.sirka, build, { vlozit: u.druh !== "zaklad" && a.miesto !== "zive", miesto: a.miesto, log });
-          await otvor598(s, { novy });
-          const st = await s.k.ev(STAV);
-          if (u.druh === "zaklad") {
-            cakaj.get((u.novy ? "novy-" : "bez-") + u.sirka).r({ chyby: new Set(naseChyby(s.k.chyby).map(normChyba)), st });
-            v.info.push(`základ ${novy ? "?novy=1" : "bez flagu"} (bez obsahu): výška ${st.docH} px, pätička ${st.paticka ? st.paticka.h + " px / " + st.paticka.stlpce + " stĺpcov" : "?"}`);
+          // základ = stránka bez obsahu: nič sa nevkladá, z CDN prídu prázdne korene
+          const zaklad = u.druh === "zaklad";
+          const cdnKusy = zaklad ? Object.fromEntries(p.kusy.map((c) => [c.cast, prazdnyKus(c)])) : p.cdnKusy || null;
+          const s = await novaStranka(ch, u.sirka, build, { vlozit: !zaklad && a.miesto !== "zive", miesto: zaklad && a.miesto !== "zive" ? "cdn" : a.miesto, log, produkt: p, kusy: p.kusy, cdnKusy });
+          await otvorProdukt(s, { url: p.url, flag: novy ? flag : null, pripravene: (TYPY_TEST[p.typ] || {}).pripravene });
+          const st = await s.k.ev(STAV(p.kluc));
+          const plne = p.plne.length > 0;
+          if (zaklad) {
+            cakaj.get(kz(p, u.novy, u.sirka)).r({ chyby: new Set(naseChyby(s.k.chyby).map(normChyba)), st });
+            v.info.push(`základ ${novy ? "?novy=" + flag : "bez flagu"} (bez obsahu): výška ${st.docH} px, pätička ${st.paticka ? st.paticka.h + " px / " + st.paticka.stlpce + " stĺpcov" : "?"}`);
           } else {
-            if (a.miesto !== "zive") zle(s.vlozene && s.vlozene.ok, "obsah sa nevložil do stránky: " + (s.vlozene ? s.vlozene.popis : "dokument 598 sa nezachytil"));
-            zle(st.korene.length === build.admin.casti.length, `korene obsahu na stránke: ${st.korene.length}, čakám ${build.admin.casti.length}`);
-            if (a.miesto === "zive") for (const c of build.admin.casti) {
-              const k = st.korene.find((x) => x.cast === c.cast);
-              zle(k && k.v === c.hash, `${c.cast}: v admine je data-lcd-v ${k ? k.v : "—"}, build ${c.hash} (admin nie je aktuálny alebo ho niekto ručne zmenil)`);
-            }
+            const vlozene = a.miesto === "paticka" || a.miesto === "popis";
+            if (vlozene) zle(s.vlozene && s.vlozene.ok, "obsah sa nevložil do stránky: " + (s.vlozene ? s.vlozene.popis : "dokument produktu sa nezachytil"));
             zle(st.sw <= st.cw, `vodorovný posun stránky: scrollWidth ${st.sw} > ${st.cw}`);
             zle(s.inePosty.length === 0, "nečakaný zápis na server (zrušený): " + s.inePosty.join(", "));
             zle(s.posty.length === 0, "nečakané vloženie do košíka (zrušené)");
             if (u.druh === "bez") {
               zle(!st.lcd1v && !st.miesto, "bez flagu je body.lcd-1v alebo .p1v-miesto");
-              for (const k of st.korene) {
+              if (vlozene) for (const k of st.korene) {
                 zle(k.display === "none", `${k.cast}: bez flagu display ${k.display} (má byť none)`);
                 if (k.stlpec !== null) zle(k.stlpec === "none", `${k.cast}: stĺpec pätičky bez flagu display ${k.stlpec} (má byť none)`);
               }
-              const stiahnute = s.poziadavky.filter((x) => x.indexOf(SONDA) === 0 || media.some((m) => x.split("?")[0] === m.split("?")[0]));
+              if (a.miesto === "cdn") zle(st.korene.length === 0, `bez flagu sú na stránke korene obsahu (${st.korene.length}) — HTML stránky sa nemá meniť`);
+              const kusyObsahu = s.poziadavky.filter((x) => /\/html\/p1v-[^/]*\.html/.test(x));
+              zle(kusyObsahu.length === 0 && s.html.length === 0, "bez flagu sa sťahoval obsah 1V: " + kusyObsahu.concat(s.html).slice(0, 4).join(", "));
+              const stiahnute = s.poziadavky.filter((x) => x.indexOf(SONDA) === 0 || /\/img\/1v\/obsah\//.test(x) || p.media.some((m) => x.split("?")[0] === m.split("?")[0]));
               zle(stiahnute.length === 0, "bez flagu sa stiahli médiá obsahu: " + stiahnute.slice(0, 5).join(", "));
-              const z = await zaklady.get("bez-" + u.sirka);
+              const z = await zaklady.get(kz(p, false, u.sirka));
               if (z) {
                 const nove = naseChyby(s.k.chyby).filter((c) => !z.chyby.has(normChyba(c)));
                 zle(!nove.length, "nové chyby v konzole: " + nove.map((c) => c.druh + ": " + c.text).join(" | "));
                 if (z.st.paticka && st.paticka) zle(z.st.paticka.stlpce === st.paticka.stlpce && Math.abs(z.st.paticka.h - st.paticka.h) <= 2,
                   `pätička sa zmenila: ${z.st.paticka.h} px / ${z.st.paticka.stlpce} stĺpcov -> ${st.paticka.h} px / ${st.paticka.stlpce}`);
                 const dH = st.docH - z.st.docH;
-                if (a.miesto === "paticka") zle(Math.abs(dH) <= 40, `výška stránky sa zmenila o ${dH} px (bez obsahu ${z.st.docH}; ±10 px kolíše aj samo — konfigurátor)`);
+                if (a.miesto === "paticka" || a.miesto === "cdn") zle(Math.abs(dH) <= 40, `výška stránky sa zmenila o ${dH} px (bez obsahu ${z.st.docH}; ±10 px kolíše aj samo — konfigurátor)`);
                 v.info.push(`výška ${dH >= 0 ? "+" : ""}${dH} px oproti stránke bez obsahu`);
               }
-              v.info.push(`${st.korene.length} korene skryté, 0 z ${media.length} médií + sondy stiahnuté`);
+              v.info.push(`${st.korene.length} korene${vlozene ? " skryté" : ""}, 0 požiadaviek na kusy obsahu, 0 z ${p.media.length} médií + sondy stiahnuté`);
             } else {
-              zle(st.lcd1v, "?novy=1, ale body.lcd-1v chýba" + (st.chyby1v && st.chyby1v.length ? " — " + st.chyby1v.join("; ") : ""));
-              zle(st.obsah, "body.lcd-1v-obsah chýba (obsah.js nenašiel korene?)");
+              zle(st.lcd1v, `?novy=${flag}, ale body.lcd-1v chýba` + (st.chyby1v && st.chyby1v.length ? " — " + st.chyby1v.join("; ") : ""));
               zle(!st.chyby1v || !st.chyby1v.length, "window.__lcd1v.chyby: " + (st.chyby1v || []).join("; "));
-              zle(st.miesto && /shp-tabs-wrapper/.test(st.miesto.za || ""), ".p1v-miesto nie je hneď pred záložkami produktu (za ním: " + (st.miesto && st.miesto.za) + ")");
-              const poradie = st.miesto ? st.miesto.deti.join(",") : "";
-              zle(poradie === build.admin.casti.map((c) => c.cast).join(","), "poradie v .p1v-miesto: " + poradie);
-              for (const k of st.korene) {
-                zle(k.vMieste && k.display === "block", `${k.cast}: display ${k.display}, v .p1v-miesto ${k.vMieste}`);
-                zle(k.gold === "#c49b31", `${k.cast}: štýly titulky (LCD-HOME) na koreni neplatia (--gold „${k.gold}“)`);
+              const zdroj = a.miesto === "cdn" ? "cdn" : a.miesto === "zive" ? null : "dom"; // zive: Popis (dom) alebo CDN
+              if (a.miesto === "cdn") {
+                const cakam = p.kusy.map((c) => c.cast);
+                zle(cakam.every((c) => s.html.includes(c)), `obsah.js nestiahol kusy z CDN verzie (stiahnuté: ${s.html.join(", ") || "nič"}, čakám ${cakam.join(", ")})`);
               }
-              zle(st.zalozky === "none" && !st.staryPopisViditelny, `starý popis je viditeľný (záložky ${st.zalozky})`);
-              if (a.miesto === "paticka") zle(st.prazdneStlpce.length === build.admin.casti.length && st.prazdneStlpce.every((d) => d === "none"), "prázdne stĺpce pätičky: " + JSON.stringify(st.prazdneStlpce));
-              else zle(st.prazdneStlpce.every((d) => d === "none"), "prázdne stĺpce pätičky viditeľné: " + JSON.stringify(st.prazdneStlpce));
-              zle(!st.presahy.length, "prvky obsahu za okrajom okna (" + st.cw + " px): " + st.presahy.join(", "));
-              // sonda: po posune k nej sa stiahne (meranie požiadaviek funguje, brána sa otvorila)
-              const sondy = await s.k.ev(`[].map.call(document.querySelectorAll(".p1v-miesto img.p1v-sonda"), function (i) { return i.getAttribute("src"); })`);
-              for (const src of sondy) {
-                await s.k.ev(`(function () { var i = document.querySelector('.p1v-miesto img.p1v-sonda[src="${src}"]'); if (i) i.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
-                await pauza(900);
-                zle(s.poziadavky.some((x) => x === src), "sonda sa s flagom nestiahla: " + src);
+              if (!plne) {
+                // kľúč len so stubmi: nič sa neukáže, starý popis ostane
+                zle(st.obsahStav && st.obsahStav.stav === "nic", "obsah len so stubmi: čakám __lcd1v.obsah.stav „nic“, je " + JSON.stringify(st.obsahStav));
+                zle(!st.obsah && !st.miesto, "obsah len so stubmi, ale stránka má .lcd-1v-obsah / .p1v-miesto");
+                zle(st.zalozky !== "none", `obsah len so stubmi skryl starý popis (záložky ${st.zalozky})`);
+                v.info.push(`obsah ${p.kluc} len stuby: nič sa neukázalo, starý popis ostal (stav ${st.obsahStav && st.obsahStav.stav})`);
+              } else {
+                zle(st.obsahStav && st.obsahStav.stav === "hotovo" && (!zdroj || st.obsahStav.zdroj === zdroj) && st.obsahStav.kluc === p.kluc,
+                  "__lcd1v.obsah: " + JSON.stringify(st.obsahStav) + ` (čakám stav hotovo, zdroj ${zdroj || "dom/cdn"}, kľúč ${p.kluc})`);
+                zle(st.korene.length === p.kusy.length, `korene obsahu na stránke: ${st.korene.length}, čakám ${p.kusy.length}`);
+                if (a.miesto === "zive") for (const c of p.kusy) {
+                  const k = st.korene.find((x) => x.cast === c.cast);
+                  zle(k && k.v === c.hash, `${c.cast}: na stránke je data-lcd-v ${k ? k.v : "—"}, build ${c.hash} (admin/CDN nie je aktuálny alebo ho niekto zmenil)`);
+                }
+                zle(st.obsah, "body.lcd-1v-obsah chýba (obsah.js nenašiel/nestiahol korene?)");
+                zle(st.miesto && /shp-tabs-wrapper/.test(st.miesto.za || ""), ".p1v-miesto nie je hneď pred záložkami produktu (za ním: " + (st.miesto && st.miesto.za) + ")");
+                const poradie = st.miesto ? st.miesto.deti.join(",") : "";
+                zle(poradie === p.kusy.map((c) => c.cast).join(","), "poradie v .p1v-miesto: " + poradie);
+                for (const k of st.korene) {
+                  zle(k.vMieste && k.display === "block", `${k.cast}: display ${k.display}, v .p1v-miesto ${k.vMieste}`);
+                  zle(k.gold === "#c49b31", `${k.cast}: štýly titulky (LCD-HOME) na koreni neplatia (--gold „${k.gold}“)`);
+                }
+                zle(st.zalozky === "none" && !st.staryPopisViditelny, `starý popis je viditeľný (záložky ${st.zalozky})`);
+                if (a.miesto === "paticka") zle(st.prazdneStlpce.length === p.kusy.length && st.prazdneStlpce.every((d) => d === "none"), "prázdne stĺpce pätičky: " + JSON.stringify(st.prazdneStlpce));
+                else zle(st.prazdneStlpce.every((d) => d === "none"), "prázdne stĺpce pätičky viditeľné: " + JSON.stringify(st.prazdneStlpce));
+                zle(!st.presahy.length, "prvky obsahu za okrajom okna (" + st.cw + " px): " + st.presahy.join(", "));
+                // každá sekcia: má výšku a reveal ju prevzal (pomocné sekcie — okno, linka čítania v <body> — výšku nemajú)
+                const zleSekcie = st.sekcie.filter((x) => !((x.h > 0 || /-pomocne$/.test(x.meno)) && x.rv));
+                zle(!zleSekcie.length, "sekcie bez výšky alebo bez .p1v-rv: " + zleSekcie.map((x) => x.meno + " " + x.h + " px").join(", "));
+                // čísla a odkazy (obsah-cisla.js): všetky vybavené, nič neostalo neviditeľné, odkazy v tom istom vzore
+                const nevybavene = st.cisla.filter((x) => !x.stav || (x.stav !== "skryte" && x.vis === "hidden"));
+                zle(!nevybavene.length, "čísla data-p1v-cislo nedosadené: " + nevybavene.map((x) => x.kluc + " „" + x.text + "“").join(", "));
+                const zleOdkazy = st.odkazy.filter((o) => {
+                  const typ = { classic: "kufor-classic", premium: "kufor-premium" }[o.typ] || o.typ;
+                  const ses = sestra(reg, typ, p.vzor);
+                  return !ses || String(o.href || "").split("#")[0] !== ses.cesta;
+                });
+                zle(!zleOdkazy.length, "odkazy data-p1v-odkaz mimo vzoru " + p.vzor + ": " + zleOdkazy.map((o) => o.typ + " " + o.href).join(", "));
+                if (st.cisla.length || st.odkazy.length) v.info.push(`čísla ${st.cisla.filter((x) => x.stav === "ok").length}/${st.cisla.length} dosadené, odkazy ${st.odkazy.length}`);
+                // sonda: po posune k nej sa stiahne (meranie požiadaviek funguje, brána sa otvorila)
+                const sondy = await s.k.ev(`[].map.call(document.querySelectorAll(".p1v-miesto img.p1v-sonda"), function (i) { return i.getAttribute("src"); })`);
+                for (const src of sondy) {
+                  await s.k.ev(`(function () { var i = document.querySelector('.p1v-miesto img.p1v-sonda[src="${src}"]'); if (i) i.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
+                  await pauza(900);
+                  zle(s.poziadavky.some((x) => x === src), "sonda sa s flagom nestiahla: " + src);
+                }
+                // sonda čísel (--sonda-cisla): každý kľúč a každý typ odkazu proti nezávislým očakávaniam
+                if (p.sonda) {
+                  const r = await s.k.ev(SONDA_CISEL);
+                  zle(r, "sekcia sondy čísel x-sonda-cisla nie je na stránke");
+                  if (r) {
+                    for (const c of p.sonda.cisla) {
+                      const x = r.cisla.find((y) => y.kluc === c.kluc);
+                      if (!x) { zle(false, `sonda ${c.kluc}: prvok chýba`); continue; }
+                      if (c.text == null) zle(x.stav === "skryte" && x.display === "none", `sonda ${c.kluc}: čakám skrytý prvok, je ${x.stav} „${x.text}“ (${x.display})`);
+                      else zle(nbsp(x.text) === nbsp(c.text) && x.vis !== "hidden" && x.display !== "none", `sonda ${c.kluc}: „${x.text}“ (${x.stav}), čakám „${c.text}“`);
+                    }
+                    for (const o of p.sonda.odkazy) {
+                      const x = r.odkazy.find((y) => y.typ === o.typ);
+                      zle(x && x.href === o.href && x.stav === "ok", `sonda odkaz ${o.typ}: ${x ? x.href + " (" + x.stav + ")" : "chýba"}, čakám ${o.href}`);
+                    }
+                    v.info.push(`sonda čísel: ${r.cisla.map((x) => x.kluc + "=" + (x.stav === "skryte" ? "skryté" : "„" + x.text + "“")).join(", ")}; odkazy ${r.odkazy.map((x) => x.typ + "→" + x.href).join(", ")}`);
+                  }
+                }
+                // kontroly skupín
+                const t = vytvorT(s.k, { novy: true, log });
+                t.sekcia = (meno) => `[data-lcd-sekcia="${meno}"]`;
+                t.je = (meno) => s.k.ev(`!!document.querySelector('.p1v-miesto [data-lcd-sekcia="${meno}"]')`);
+                t.produkt = { id: p.id, typ: p.typ, vzor: p.vzor, kluc: p.kluc, url: p.url, cesta: p.cesta };
+                t.sestra = (typ) => { const x = sestra(reg, typ, p.vzor); return x ? x.cesta : null; };
+                for (const g of p.pluginy) {
+                  try {
+                    const r = (await SKUPINY[g].kontroly(t)) || [];
+                    for (const x of r) { if (x.ok) continue; if (x.pozor) v.pozor.push(`skupina ${g.toUpperCase()}: ${x.popis}`); else v.chyby.push(`skupina ${g.toUpperCase()}: ${x.popis}`); }
+                    if (r.length) v.info.push(`skupina ${g.toUpperCase()}: ${r.filter((x) => x.ok).length}/${r.length} kontrol OK${r.some((x) => !x.ok && x.pozor) ? " (" + r.filter((x) => !x.ok && x.pozor).length + " upozornenie)" : ""}`);
+                  } catch (e) { v.chyby.push(`skupina ${g.toUpperCase()}: výnimka ${e && e.message ? e.message : e}`); }
+                }
+                // snímky sekcií webu
+                if (!a.bezSnimok && a.snimkySirky.includes(u.sirka)) {
+                  let n = 0;
+                  for (const meno of p.plne.filter((m) => m !== "x-sonda-cisla")) {
+                    mkdirSync(join(a.snimky, p.kluc, meno), { recursive: true });
+                    const o = await snimkaOblasti(s.k, [{ sel: `.p1v-miesto [data-lcd-sekcia="${meno}"]` }], join(a.snimky, p.kluc, meno, `web-${p.id}-${u.sirka}.png`)).catch((e) => { log(meno + ": " + e.message); return null; });
+                    if (o) n++; else v.info.push("web: " + meno + " bez snímky (výška 0?)");
+                  }
+                  v.info.push(`${n} snímok sekcií`);
+                }
+                v.info.push(`${st.korene.length} korene na mieste (${st.obsahStav ? st.obsahStav.zdroj : "?"}), ${st.sekcie.length} sekcií, výška stránky ${st.docH} px`);
               }
-              // kontroly skupín
-              const t = vytvorT(s.k, { novy: true, log });
-              t.sekcia = (meno) => `[data-lcd-sekcia="${meno}"]`;
-              t.je = (meno) => s.k.ev(`!!document.querySelector('.p1v-miesto [data-lcd-sekcia="${meno}"]')`);
-              for (const g of a.skupiny) {
-                try {
-                  const r = (await SKUPINY[g].kontroly(t)) || [];
-                  for (const x of r) zle(x.ok, `skupina ${g.toUpperCase()}: ${x.popis}`);
-                  if (r.length) v.info.push(`skupina ${g.toUpperCase()}: ${r.filter((x) => x.ok).length}/${r.length} kontrol OK`);
-                } catch (e) { v.chyby.push(`skupina ${g.toUpperCase()}: výnimka ${e && e.message ? e.message : e}`); }
-              }
-              const z = await zaklady.get("novy-" + zakladSirka(true, u.sirka));
+              const z = await zaklady.get(kz(p, true, zakladSirka(true, u.sirka)));
               if (z) {
                 const nove = naseChyby(s.k.chyby).filter((c) => !z.chyby.has(normChyba(c)));
                 zle(!nove.length, "nové chyby v konzole: " + nove.map((c) => c.druh + ": " + c.text).join(" | "));
               }
-              // snímky sekcií webu
-              if (!a.bezSnimok && a.snimkySirky.includes(u.sirka)) {
-                let n = 0;
-                for (const meno of plne.filter((m) => a.skupiny.includes(m[0]))) {
-                  mkdirSync(join(a.snimky, meno), { recursive: true });
-                  const o = await snimkaOblasti(s.k, [{ sel: `.p1v-miesto [data-lcd-sekcia="${meno}"]` }], join(a.snimky, meno, `web-${u.sirka}.png`)).catch((e) => { log(meno + ": " + e.message); return null; });
-                  if (o) n++; else v.info.push("web: " + meno + " bez snímky (výška 0?)");
-                }
-                v.info.push(`${n} snímok sekcií`);
-              }
-              v.info.push(`${st.korene.length} korene na mieste, výška stránky ${st.docH} px`);
             }
           }
         }
       } catch (e) {
         v.chyby.push("výnimka: " + (e && e.stack ? e.stack.split("\n").slice(0, 3).join(" / ") : String(e)));
-        if (u.druh === "zaklad") { const c = cakaj.get((u.novy ? "novy-" : "bez-") + u.sirka); if (c) c.r(null); }
+        if (u.druh === "zaklad") { const c = cakaj.get(kz(p, u.novy, u.sirka)); if (c) c.r(null); }
       }
       await ch.zavri();
       v.s = ((Date.now() - t0) / 1000).toFixed(1);
       v.stav = v.chyby.length ? "ZLYHAL" : "OK";
       vysledky.push(v);
-      const meno = u.druh === "zaklad" ? `základ ${u.novy ? "novy" : "bez"}` : u.druh === "bez" ? "bez flagu" : u.druh === "novy" ? "?novy=1" : "návrh v26";
-      console.log(`${v.stav === "OK" ? "OK      " : "ZLYHAL  "}${String(u.sirka).padEnd(5)} ${meno.padEnd(12)} ${v.s.padStart(5)} s  ${v.info.join(" · ")}`);
+      const meno = u.druh === "zaklad" ? `základ ${u.novy ? "novy" : "bez"}` : u.druh === "bez" ? "bez flagu" : u.druh === "novy" ? "?novy=" + flag : "návrh";
+      console.log(`${v.stav === "OK" ? "OK      " : "ZLYHAL  "}${String(p.id).padEnd(4)} ${String(u.sirka).padEnd(5)} ${meno.padEnd(12)} ${v.s.padStart(5)} s  ${v.info.join(" · ")}`);
       v.chyby.forEach((x) => console.log("        ✗ " + x));
+      v.pozor.forEach((x) => console.log("        ! " + x));
       if (a.vypis) logy.forEach((l) => console.log("        log " + l));
     }
   }
   await Promise.all(Array.from({ length: Math.min(a.paralelne, ulohy.length) }, pracovnik));
 
   // porovnanie vedľa seba: web | návrh (jedna karta Chromu, obrázky ako data: URL)
-  if (!a.bezSnimok) {
+  if (!a.bezSnimok && a.sirkyNovy.length) {
     const ch = await spustiChrome({ okno: false });
     try {
       let n = 0;
       for (const sirka of a.snimkySirky) {
         const k = await ch.novaKarta({ sirka: Math.min(2 * sirka + 60, 2700), vyska: 900, mobil: false });
-        for (const meno of [...new Set([...mapa.map((x) => x.meno), ...plne.filter((m) => a.skupiny.includes(m[0]))])]) {
-          const sek = { meno };
-          const dir = join(a.snimky, sek.meno);
-          const obr = (f) => { try { return "data:image/png;base64," + readFileSync(join(dir, f)).toString("base64"); } catch { return null; } };
-          const web = obr(`web-${sirka}.png`), navrh = obr(`navrh-${sirka}.png`);
-          if (!web && !navrh) continue;
-          const stlpec = (src, nadpis) => `<div class="s"><p>${nadpis}</p>${src ? `<img src="${src}">` : `<div class="x">sekcia je zatiaľ stub (admin-html/src/p1v-598) — chýba</div>`}</div>`;
-          const html = `<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#888;font:14px system-ui}.r{display:flex;gap:20px;padding:10px;align-items:flex-start}.s{width:${sirka}px}.s p{margin:0 0 6px;color:#fff;font-weight:700}.s img{display:block;width:${sirka}px}.x{background:#fff;padding:40px 16px;color:#900}</style><div class="r">${stlpec(web, `WEB (lokálny build) · ${sek.meno} · ${sirka} px`)}${stlpec(navrh, `NÁVRH v26 · ${sirka} px`)}</div>`;
-          const { frameTree } = await k.posli("Page.getFrameTree");
-          await k.posli("Page.setDocumentContent", { frameId: frameTree.frame.id, html });
-          await k.ev(`Promise.all([].map.call(document.images, function (i) { return i.complete ? 0 : new Promise(function (r) { i.onload = i.onerror = r; }); }))`);
-          await k.snimka(join(dir, `porovnanie-${sirka}.png`), { celaStrana: true });
-          n++;
+        for (const p of produkty) {
+          const mapa = p.pluginy.flatMap((g) => SKUPINY[g].sekcie.map((s) => s.meno));
+          for (const meno of [...new Set([...mapa, ...p.plne])].filter((m) => m !== "x-sonda-cisla")) {
+            const dir = join(a.snimky, p.kluc, meno);
+            const obr = (f) => { try { return "data:image/png;base64," + readFileSync(join(dir, f)).toString("base64"); } catch { return null; } };
+            const web = obr(`web-${p.id}-${sirka}.png`), navrh = obr(`navrh-${sirka}.png`);
+            if (!web && !navrh) continue;
+            const stlpec = (src, nadpis) => `<div class="s"><p>${nadpis}</p>${src ? `<img src="${src}">` : `<div class="x">sekcia je zatiaľ stub (admin-html/src/p1v-${p.kluc}) — chýba</div>`}</div>`;
+            const html = `<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#888;font:14px system-ui}.r{display:flex;gap:20px;padding:10px;align-items:flex-start}.s{width:${sirka}px}.s p{margin:0 0 6px;color:#fff;font-weight:700}.s img{display:block;width:${sirka}px}.x{background:#fff;padding:40px 16px;color:#900}</style><div class="r">${stlpec(web, `WEB ${p.id} (lokálny build) · ${meno} · ${sirka} px`)}${stlpec(navrh, `NÁVRH ${p.navrh.split("/").pop()} · ${sirka} px`)}</div>`;
+            const { frameTree } = await k.posli("Page.getFrameTree");
+            await k.posli("Page.setDocumentContent", { frameId: frameTree.frame.id, html });
+            await k.ev(`Promise.all([].map.call(document.images, function (i) { return i.complete ? 0 : new Promise(function (r) { i.onload = i.onerror = r; }); }))`);
+            await k.snimka(join(dir, `porovnanie-${p.id}-${sirka}.png`), { celaStrana: true });
+            n++;
+          }
         }
         await k.zavri();
       }
@@ -329,8 +468,13 @@ async function main() {
   }
   try { rmSync(build.tmp, { recursive: true, force: true }); } catch {}
   const zle = vysledky.filter((v) => v.stav !== "OK").length;
-  console.log(`\nSpolu: ${vysledky.length - zle} OK, ${zle} zlyhalo (miesto ${a.miesto}, ${plne.length}/${sekcie.length} sekcií s obsahom)`);
+  const pozor = vysledky.reduce((s, v) => s + v.pozor.length, 0);
+  console.log(`\nSpolu: ${vysledky.length - zle} OK, ${zle} zlyhalo${pozor ? ", " + pozor + " upozornení" : ""} (miesto ${a.miesto}, ?novy=${flag}, ${produkty.map((p) => p.id + ": " + p.plne.length + "/" + p.sekcie.length + " sekcií s obsahom").join(", ")})`);
   process.exit(zle ? 1 : 0);
 }
 
-main().catch((e) => { console.error("CHYBA:", e && e.stack ? e.stack : e); process.exit(2); });
+main().catch((e) => {
+  if (e instanceof ChybaPouzitia) { console.error("CHYBA POUŽITIA: " + e.message); process.exit(2); }
+  console.error("CHYBA:", e && e.stack ? e.stack : e);
+  process.exit(2);
+});

@@ -1,6 +1,8 @@
 // Nový vzhľad 1V — obsah pod konfigurátorom, SKUPINA C: kam siahajú + výzva, čo príde domov, časová os + výzva, farby, vzorky.
 // VLASTNÍK: worker skupiny C (+ admin-html/src/p1v-598/3x-c-*.sk.html, assets/css/_lcd1v-obsah-c.scss,
 // tools/test-1v/obsah-c.mjs, nové obrázky assets/img/1v/obsah/c-*). Pravidlá: docs/1v-obsah.md.
+// Pre všetky skupiny obsahu (T0.3): sekcie C nájde podľa mena v ktoromkoľvek kľúči (598, dvoj, classic, premium,
+// boxy); sekcia, ktorá v skupine nie je (stub alebo ju návrh nemá), sa preskočí.
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ (animácie, posun, video pri zobrazení). Nič nekreslí
 // a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke.

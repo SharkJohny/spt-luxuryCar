@@ -43,13 +43,16 @@ jobs:
       - name: 🗂️ Verzia do vlastného priečinka
         run: |
           REL=assets/v/${{ steps.version.outputs.sha }}
-          mkdir -p "$REL/js" "$REL/css" "$REL/poukazka"
+          mkdir -p "$REL/js" "$REL/css" "$REL/poukazka" "$REL/html"
           cp assets/js/luxuryCar.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/js/version.json "$REL/js/"
           cp assets/css/luxuryCar.css "$REL/css/"
           cp assets/poukazka/* "$REL/poukazka/"
+          # Obsah pod konfigurátorom 1V (rozhodnutia D1 = b, docs/1v-obsah.md): obsah.js ho stiahne z tej istej verzie
+          # (…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html) LEN pod bránou ?novy=1 / ?novy=vyvoj. Len SK kusy obsahu 1V.
+          cp admin-html/dist/p1v-*.sk.html "$REL/html/"
           rm assets/js/luxuryCar.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/css/luxuryCar.css
           rm -r assets/poukazka
-          echo "Verzia pripravená: $REL"; ls -la "$REL/js" "$REL/css" "$REL/poukazka"
+          echo "Verzia pripravená: $REL"; ls -la "$REL/js" "$REL/css" "$REL/poukazka" "$REL/html"
 
       # Nahranie súborov cez SFTP (lftp — robí rekurzívne mkdir, funguje pre nové adresáre ako img/reviews/)
       - name: 📦 SFTP Upload (lftp)

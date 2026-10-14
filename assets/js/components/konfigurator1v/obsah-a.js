@@ -1,6 +1,8 @@
 // Nový vzhľad 1V — obsah pod konfigurátorom, SKUPINA A: ponuka dvojvrstvových, referenčné videá, galéria, recenzie.
 // VLASTNÍK: worker skupiny A (+ admin-html/src/p1v-598/1x-a-*.sk.html, assets/css/_lcd1v-obsah-a.scss,
 // tools/test-1v/obsah-a.mjs). Pravidlá: docs/1v-obsah.md.
+// Pre všetky skupiny obsahu (T0.3): sekcie A nájde podľa mena v ktoromkoľvek kľúči (598, dvoj, classic, premium,
+// boxy); sekcia, ktorá v skupine nie je (stub alebo ju návrh nemá), sa preskočí.
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ. Nič zo živého DOM nemaže, nič neodosiela, žiadny fetch.
 // Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Sekcia, ktorá ešte nie je v admine (stub), nie je

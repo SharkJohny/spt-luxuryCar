@@ -1,6 +1,8 @@
 // Nový vzhľad 1V — obsah pod konfigurátorom, SKUPINA B: Deväť vecí, materiál, porovnanie + výzva, pred a po.
 // VLASTNÍK: worker skupiny B (+ admin-html/src/p1v-598/2x-b-*.sk.html, assets/css/_lcd1v-obsah-b.scss,
 // tools/test-1v/obsah-b.mjs, nové obrázky assets/img/1v/obsah/b-*). Pravidlá: docs/1v-obsah.md.
+// Pre všetky skupiny obsahu (T0.3): sekcie B nájde podľa mena v ktoromkoľvek kľúči (598, dvoj, classic, premium,
+// boxy); chýbajúca sekcia = nič; rez materiálu má ľubovoľný počet dosiek (medzera podľa počtu, dvojvrstvové 6).
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ (animácie, posun, video pri zobrazení). Nič nekreslí
 // a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke.
@@ -160,7 +162,8 @@ function material(sek, mq, RM) {
     const pw = Math.min(W * 0.42, 460), ph = pw / 1.55;
     const th = TF.map((f) => Math.max(3, f * pw));
     const tot = th.reduce((x, y) => x + y, 0);
-    const gap = pw * 0.58;
+    // medzera medzi doskami podľa ich počtu (návrh dvojvrstvových: 6 dosiek): pri 5 a menej rovnaká ako 598
+    const gap = pw * 0.58 * Math.min(1, 4 / Math.max(1, n - 1));
     let acc = 0;
     boxy.forEach((B, i) => {
       const z = tot / 2 - acc - th[i] / 2 + ((n - 1) / 2 - i) * gap * open;
