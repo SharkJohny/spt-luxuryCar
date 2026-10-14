@@ -85,7 +85,8 @@ export async function otvorKartu(t, meno) {
 
 /** Karta s červeným rámom (nový vzhľad: trvalá lcd1v-chyba; okno boxov: živé .lcd-needs-fill v .box-config). */
 async function cervenyKrokNovy(t, { ms = 2500 } = {}) {
-  const mena = ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"];
+  // všetky mená kariet z TYPY[*].kroky (produkty.js): jedno, dvoj (+farba2), rohože do kufra, box 616 (pocet, velkost)
+  const mena = ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy", "pocet", "velkost"];
   const koniec = Date.now() + ms;
   do {
     const m = await t.ev(`(function (mena) {

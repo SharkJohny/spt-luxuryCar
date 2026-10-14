@@ -101,7 +101,8 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
    *   zapis("kufor", "") = zrušiť voľbu (karta sa odznačí, select prázdny),
    *   zapis("farba2", "540") (dvojvrstvové), zapis("box3", "706") (box 616),
    *   zapis("pocetKs", 1|2|3) = počet boxov na produkte box do kufra 616 (živé tlačidlo „N ks“: resetBoxSizeOptions
-   *   vyprázdni veľkosti nad počtom; živý web pri tom hodí známu chybu „priceActualization is not defined“).
+   *   vyprázdni veľkosti nad počtom; živý web pri tom hodí známu chybu „priceActualization is not defined“). Zvolené
+   *   veľkosti boxov v rozsahu počtu ostanú (živé „1 ks“ by zmazalo aj 1. box), vyprázdnené dostanú „change“.
    */
   function zapis(kluc, hodnota) {
     const f = form();
@@ -113,7 +114,20 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
       const tl = n > 0 ? f.querySelectorAll(".amount-wrap > .amount-button")[n - 1] : null;
       if (!tl) return null;
       if (tl.classList.contains("active")) cesta = "uz";
-      else { tl.click(); cesta = "tlacidlo"; }
+      else {
+        // Živé „N ks“ (creatButtons.js resetBoxSizeOptions) pri „1 ks“ vyprázdni aj 1. box a skryté veľkosti nastaví
+        // na 0 bez „change“ (živá cena by ostala stará). Po kliku: zvolená veľkosť boxu v rozsahu počtu sa vráti tou
+        // istou cestou (zapis -> živé tlačidlo), vyprázdnená veľkosť nad počtom dostane „change“ (prepočet ceny).
+        const pred = ["box1", "box2", "box3"].map((k) => { const p = parameter(k); return p ? { k, p, v: p.select.value || "" } : null; }).filter(Boolean);
+        tl.click();
+        cesta = "tlacidlo";
+        pred.forEach((x) => {
+          if ((x.p.select.value || "") === x.v) return;
+          const poradie = Number(x.k.slice(3));
+          if (poradie <= n && x.v !== "" && x.v !== "0") zapis(x.k, x.v);
+          else (window.jQuery || window.$)(x.p.select).trigger("change");
+        });
+      }
       vysli("zmena", { kluc, hodnota: h, cesta });
       return cesta;
     }
@@ -219,9 +233,12 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
       if (o) priplatky += cenaMoznosti(o);
     });
     const spolu = (zaklad || 0) + priplatky;
-    // rovnaký vzorec ako productPage.js calculateStandartPrice: spolu × 1,6 nahor na desiatky
-    const odporucana = Math.ceil((spolu * 1.6) / 10) * 10;
-    return { zaklad, priplatky, spolu, odporucana, zlava: odporucana > 0 ? Math.round(((odporucana - spolu) / odporucana) * 100) : 0 };
+    // Odporúčaná cena len keď produkt má v admine bežnú cenu (Shoptet vtedy vykreslí .price-standard; 613, 625, 616,
+    // 637 ju nemajú -> 0, nič nevymýšľať — D2). Vzorec ako productPage.js calculateStandartPrice: × 1,6 nahor na desiatky.
+    const ziva = krok("cena");
+    const maBeznuCenu = !!(ziva && ziva.querySelector(".price-standard"));
+    const odporucana = maBeznuCenu ? Math.ceil((spolu * 1.6) / 10) * 10 : 0;
+    return { zaklad, priplatky, spolu, odporucana, maBeznuCenu, zlava: odporucana > 0 ? Math.round(((odporucana - spolu) / odporucana) * 100) : 0 };
   }
 
   /** „Pridať do košíka“: klik na živé tlačidlo formulára — validáciu (červený rám, posun) a odoslanie robí živý kód. */

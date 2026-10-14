@@ -17018,6 +17018,55 @@ body.lcd-1v .p1v-lb :is(.p1v-lb-x,.p1v-lb-sip):focus-visible{outline:2px solid #
 }
 /* ===== LCD-1V-OBSAH-D END ===== */
 
+/* ===== LCD-1V-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-dvoj.scss (konfigurator 1V dvojvrstvove 601/604/607: krok farba 2. vrstvy; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V dvojvrstvové 601/604/607 — krok Farba 2. vrstvy a texty; selektory body.lcd-1v[data-lcd1v-typ="dvoj"]. Vlastník: T1.2 (farba2.js, typy/dvoj.js)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-DVOJ END ===== */
+
+/* ===== LCD-1V-KUFOR START - generovane tools/vloz-lcd-css.py z _lcd1v-kufor.scss (konfigurator 1V rohoze do kufra Classic a Premium 619-634; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V rohože do kufra Classic + Premium 619–634 — auto bez volantu/miest/dverí, dlaždice vzoru, pás setu; selektory body.lcd-1v[data-lcd1v-typ^="kufor"]. Vlastník: T2.2 (kufor-produkt.js)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-KUFOR END ===== */
+
+/* ===== LCD-1V-BOXY START - generovane tools/vloz-lcd-css.py z _lcd1v-boxy.scss (konfigurator 1V box do kufra 616; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V box do kufra 616 — farba → počet → veľkosť, neutralizácia configurator-enhance; selektory body.lcd-1v[data-lcd1v-typ="boxy"]. Vlastník: T3.2 (boxy-produkt.js)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-BOXY END ===== */
+
+/* ===== LCD-1V-OBSAH-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-dvoj.scss (obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V obsah pod konfigurátorom dvojvrstvových (jeden pre 601/604/607). Vlastník: T1.3 (obsah-dvoj.js, admin-html/src/p1v-dvoj/)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-OBSAH-DVOJ END ===== */
+
+/* ===== LCD-1V-OBSAH-CLASSIC START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-classic.scss (obsah 1V rohoz Classic 619/622/625; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V obsah pod konfigurátorom rohože Classic (619/622/625). Vlastník: T2.3 (obsah-classic.js, admin-html/src/p1v-classic/)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-OBSAH-CLASSIC END ===== */
+
+/* ===== LCD-1V-OBSAH-PREMIUM START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-premium.scss (obsah 1V rohoz Premium 628/631/634; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V obsah pod konfigurátorom rohože Premium (628/631/634), mapa #kryje. Vlastník: T2.4 (obsah-premium.js, admin-html/src/p1v-premium/)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-OBSAH-PREMIUM END ===== */
+
+/* ===== LCD-1V-OBSAH-BOXY START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-boxy.scss (obsah 1V box do kufra 616; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V obsah pod konfigurátorom boxu do kufra 616. Vlastník: T3.3 (obsah-boxy.js, admin-html/src/p1v-boxy/)
+   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+/* ===== LCD-1V-OBSAH-BOXY END ===== */
+
 /* ===== Cena vs. tlacidlo do kosika (2026-09-25) =====
    .add-to-cart je od 768 px vytiahnute o 75 px hore vedla ceny. Stlpec je
    vsak na PC len ~520-560 px, takze cena zasla pod tlacidlo (CZ 8 799 Kc,

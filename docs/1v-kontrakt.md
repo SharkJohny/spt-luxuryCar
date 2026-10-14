@@ -106,10 +106,10 @@ Všetko je vo `form#product-detail-form` (POST `/action/Cart/addCartItem/?simple
 | `parameter(kluc)` | `{ kluc, id, meno, select, variant }` podľa `data-parameter-name`. Kľúče: `farba, farba2, rozlozenie, kufor, farbaBoxov, box1, box2, box3, boxSolo, typ` (alebo číslo ID). `farba2` = dvojvrstvové (SK 71, variant), `box3` = box 616 (SK 100). Na boxe 616 je `farba` farba boxu. |
 | `moznosti(kluc)` | `[{ hodnota, text (bez „+€N“), cena (príplatok s DPH zo Shoptetu), zvolena }]` |
 | `precitaj(kluc)` | aktuálna hodnota selectu (`""` = nič) |
-| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. Navyše `zapis("pocetKs", n)` (n = 1, 2 alebo 3) = počet boxov na produkte 616 (živé tlačidlo „N ks“; živý kód vyprázdni veľkosti nad počtom a hodí známu chybu `priceActualization is not defined`). |
+| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. Navyše `zapis("pocetKs", n)` (n = 1, 2 alebo 3) = počet boxov na produkte 616 (živé tlačidlo „N ks“; živý kód vyprázdni veľkosti nad počtom a hodí známu chybu `priceActualization is not defined`). Zvolené veľkosti boxov v rozsahu počtu ostanú — živé „1 ks“ by zmazalo aj 1. box, `zapis` ho vráti cez živé tlačidlo; vyprázdnené veľkosti nad počtom dostanú `change` (prepočet živej ceny). |
 | `krok(meno)` / `menoKroku(el)` | živý element kroku: `vzor, auto, farba, farba2, rozlozenie, kufor, boxy, boxyVyber, kosik, cena`; box 616 `pocet` (dieťa `.content-wrap` s `.amount-wrap`) a `velkost` (dieťa `.content-wrap` s `.parameter-sizes`). `menoKroku` skúša najprv kroky produktu. |
 | `kroky()`, `vyplneny(el)`, `prvyNevyplneny()` | to isté pravidlo ako validácia košíka. `prvyNevyplneny() === null` znamená „Vložte do košíka“, inak „Dokončite výber“. |
-| `cena()` | `{ zaklad, priplatky, spolu, odporucana, zlava }`. Variant z `necessaryVariantData` podľa `priceId` + zvolené príplatky. Odporúčaná cena = spolu × 1,6 nahor na desiatky (ako `productPage.js`). |
+| `cena()` | `{ zaklad, priplatky, spolu, odporucana, maBeznuCenu, zlava }`. Variant z `necessaryVariantData` podľa `priceId` + zvolené príplatky. Odporúčaná cena = spolu × 1,6 nahor na desiatky (ako `productPage.js`), **len keď produkt má v admine bežnú cenu** (živý `.price-standard` v `.p-final-price-wrapper`, `maBeznuCenu: true`); inak `odporucana` a `zlava` = 0 (613, 625, 616, 637 — nič nevymýšľať, D2). |
 | `formatCena(n)` | tvar ceny ako Shoptet (SK `€219`, CZ `5 664 Kč`) |
 | `obrazok(meno)` | `…/eshopy/luxuryCar/assets/img/1v/<meno>` |
 | *`ceny-ine.js`* (modul, nie člen ctx) | ceny a príplatky **iných** produktov zo živých stránok: `cenaProduktu(url)`, `priplatkyProduktu(url)` (mapa `mapaZFormulara`), `moznostiZMapy(mapa, kluc)`, `cenaTypu(projectId, typ, vzor)`, `priplatkyTypu(…)`. GET cez `stiahniDokument` z `lcdKosikDoplnok.js`, vlastná stránka bez siete, localStorage 24 h (`lcd1vStranka:v1:<cesta>`, všetko v try/catch), chyba -> `null`. Odkaz na produkt iného typu: `produkty.js` `najdiProdukt(projectId, typ, vzor)`. |
@@ -320,10 +320,16 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 **Výsledok behu (14. 10. 2026, worktree 8df75cd + T0.2b):**
 - `--produkt 598` (bez flagu, lokálny build): 24 OK + 10 preskočených (34 úloh = 17 scenárov × 2 šírky), exit 0, rovnako ako pred T0.2b,
 - `--novy --produkt 598`: 34 OK + 0 preskočených, exit 0, rovnako ako pred T0.2b (`brana` je dlhšia: pribudli 610 aj 601),
-- `--zdroj cdn --produkt 610,613,616,637 --sirka 1280 --paralelne 2` (živý web, starý vzhľad): 18 OK + 5 preskočených (`nulova-zmena` a `k-suhrnu` pri CDN), 8 upozornení (610 „nie“ +5 €, chýbajúca bežná cena, vzorkovník, `priceActualization`), exit 0,
+- `--zdroj cdn --produkt 610,613,616,637 --sirka 1280 --paralelne 2` (živý web, starý vzhľad): 18 OK + 5 preskočených (`nulova-zmena` a `k-suhrnu` pri CDN), 8 upozornení (610 „nie“ +5 €, 5× `priceActualization` na 616, vzorkovník 637 cena 20 vs 15 €, 637 bez vzoriek pustí POST), exit 0,
 - `--zdroj cdn --produkt all --sirka 1280` (T0.2 základ): 72 OK + 27 preskočených, 8 upozornení,
-- jediný rozdiel `?novy=1` oproti CDN je `body.lcd-1v`,
+- bez flagu je to nulová zmena (všetkých 14 produktov); s `?novy=1` sa zapnutý produkt líši od CDN novým vzhľadom (`body.lcd-1v`, `data-lcd1v-typ`/`-vzor`, `lcd1v-bublina`, štýly 1V),
 - kontrola testu: necielené CSS pravidlo v `_lcd1v-kroky.scss` (bez `body.lcd-1v`) `nulova-zmena` zachytí; umelá chyba (iná očakávaná suma v `produkty.mjs`) → exit 1.
+
+**Po integrácii vlny W0a (14. 10. 2026, T0.1 + T0.2b + opravy integrátora):**
+- `--produkt 598 --paralelne 2`: 24 OK + 10 preskočených, exit 0; `--novy --produkt 598`: 34 OK, exit 0,
+- `--produkt all --krok brana,nulova-zmena --sirka 1280 --paralelne 2`: 28 OK (nulová zmena bez flagu na všetkých 14 produktoch), exit 0,
+- `--novy --produkt 610,613 --paralelne 2`: 20 OK, 2 upozornenia (610 „nie“ +5 €, D2), exit 0; `--novy --produkt 610,613 --krok ctx-zapis`: 4 OK (613 bez bežnej ceny: `ctx.cena().odporucana` = 0),
+- `--vyvoj --krok brana --sirka 1280` na 601, 604, 607, 619, 622, 625, 628, 631, 634, 616, 637: 11 OK, `window.__lcd1v.chyby` prázdne.
 
 ## 10. Vlastníctvo súborov
 

@@ -714,7 +714,7 @@ const SCENARE = {
       return r;
     };
     const vyber = (kluc, re) => `(function () { var o = window.__lcd1v.moznosti(${JSON.stringify(kluc)}).find(function (x) { return ${re}.test(x.text); }); return o ? o.hodnota : null; })()`;
-    const farba = await zapis("farba", `window.__lcd1v.moznosti("farba")[4].hodnota`);
+    const farba = await zapis("farba", `(function () { var m = window.__lcd1v.moznosti("farba"); return m[Math.min(4, m.length - 1)].hodnota; })()`); // Hexa 610 má len 3 farby
     over((await zapis("farba", JSON.stringify(farba.h))).cesta === "uz", "opakovaný zápis tej istej farby má vrátiť „uz“");
     const farba2 = (await t.maParameter("farba2")) ? await zapis("farba2", `window.__lcd1v.moznosti("farba2")[0].hodnota`) : null;
     const rozl = await zapis("rozlozenie", `window.__lcd1v.moznosti("rozlozenie")[1].hodnota`);
@@ -733,6 +733,7 @@ const SCENARE = {
     const cena = await overPost(s, post, { farba: farba.h, ...(farba2 ? { farba2: farba2.h } : {}), rozlozenie: rozl.h, kufor: kufor.h, farbaBoxov: fb.h, box1: b1.h, box2: b2.h });
     over(stav.cena.spolu === cena.spolu, "ctx.cena().spolu " + stav.cena.spolu + " ≠ Shoptet " + cena.spolu);
     if (a.produkt.odporucana !== false) over(stav.cena.odporucana === Math.ceil((cena.spolu * 1.6) / 10) * 10, "ctx.cena().odporucana " + stav.cena.odporucana);
+    else over(stav.cena.odporucana === 0 && stav.cena.maBeznuCenu === false, "ctx.cena() na produkte bez bežnej ceny vracia odporúčanú " + stav.cena.odporucana + " (má byť 0)");
     await overCenu(s, ovl, cena);
     return { info: `zapis() ${[farba, farba2, rozl, kufor, fb, b1, b2].filter(Boolean).map((r) => r.cesta).join("/")}, ctx.cena ${stav.cena.spolu} = Shoptet, doKosika -> POST OK`, post: post.body, spolu: cena.spolu };
   },

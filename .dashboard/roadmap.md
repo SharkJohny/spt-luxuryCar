@@ -490,3 +490,10 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Integrácia: krok 6 „Pokračujte k súhrnu“, mobil bez auto-skoku z K4 pod 1V, medzery krok 4→5 a polia auta, +7 scenárov testu (kufor-nie, box-nie, box-krizik, box-prepni, rady-3, miesta-5, k-suhrnu), regresia 601/610/613/CZ 2403/titulky/košíky, galéria snímok
 - [ ] Revízia, push do main, CI, prepnutie SK HTML kódov až po Michalovom „prepni“
 - [ ] Živý web (starý vzhľad; overené na SK 598 cez CDN, kód je spoločný pre všetky konfigurátory): 1 box → 2 boxy nechá v POST aj samostatný box (SK [104]=734, košík 551 € namiesto 442 €) — oprava v productPage.js updateUpsale conf2 (vynulovať box solo aj jeho .active)
+
+## Konfigurátor 1V — všetky SK produkty, vlna W0a (jadro + test) — 14. 10. 2026
+- [x] T0.1 jadro: register produkty.js (13 SK + vzorkovník 637), brána po typoch (ZAPNUTE_TYPY ["jedno"] = 598/610/613 s ?novy=1, ?novy=vyvoj celý register), ctx.produkt/texty/obrazokVzoru, stuby typov a modulov
+- [x] T0.2b test: --opakuj 0, OK* = exit 1, odporúčaná cena bez bežnej ceny = zlyhanie, farba v overPost povinná, brána aj 610, --url len registrované adresy
+- [x] Integrácia W0a: CDP časový limit + odmietnutie čakajúcich pri zatvorení (cdp.mjs), cervenyKrokNovy pozná farba2/pocet/velkost, ctx.cena() bez bežnej ceny = odporúčaná 0, zapis("pocetKs") nechá veľkosti v rozsahu počtu, ctx-zapis s Hexa (3 farby)
+- [ ] Zlúčiť obsah 598 (worktree spt-luxuryCar-1v, necommitnuté): index.js MODULY + obsah, poradie BLOKY vo vloz-lcd-css.py (CENA, DVOJ, KUFOR, BOXY, OBSAH, OBSAH-A..D, OBSAH-DVOJ/-CLASSIC/-PREMIUM/-BOXY)
+- [ ] Michal (admin SK, D2): 610 „nie“ +5 €, chýbajúca bežná cena 613/625/616

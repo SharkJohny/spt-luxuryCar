@@ -65,9 +65,27 @@ export async function spustiChrome({ okno = false } = {}) {
     const fns = mapa && mapa.get(m.method);
     if (fns) fns.forEach((fn) => { try { fn(m.params); } catch (err) { console.error("posluchac " + m.method, err); } });
   });
+  // Integrácia W0a (14. 10. 2026): každá požiadavka má časový limit a pri zatvorení spojenia sa všetky čakajúce
+  // odmietnu. Predtým zahltený Chrome (viac behov naraz) nechal promise visieť navždy a beh nikdy neskončil.
+  const LIMIT_CDP = 120000;
   const posli = (method, params = {}, sessionId) => new Promise((res, rej) => {
-    const i = ++id; cakaju.set(i, { res, rej, method });
-    ws.send(JSON.stringify({ id: i, method, params, ...(sessionId ? { sessionId } : {}) }));
+    const i = ++id;
+    const tm = setTimeout(() => {
+      if (!cakaju.has(i)) return;
+      cakaju.delete(i);
+      rej(new Error(method + ": Chrome neodpovedal do " + LIMIT_CDP / 1000 + " s"));
+    }, LIMIT_CDP);
+    cakaju.set(i, { res: (v) => { clearTimeout(tm); res(v); }, rej: (e) => { clearTimeout(tm); rej(e); }, method });
+    try {
+      ws.send(JSON.stringify({ id: i, method, params, ...(sessionId ? { sessionId } : {}) }));
+    } catch (e) {
+      cakaju.delete(i); clearTimeout(tm);
+      rej(new Error(method + ": spojenie s Chrome nie je otvorené (" + e.message + ")"));
+    }
+  });
+  ws.addEventListener("close", () => {
+    const c = Array.from(cakaju.values()); cakaju.clear();
+    c.forEach((x) => x.rej(new Error(x.method + ": spojenie s Chrome sa zavrelo")));
   });
 
   async function novaKarta({ sirka = 1280, vyska, mobil = sirka < 768 } = {}) {
