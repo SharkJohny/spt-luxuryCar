@@ -2,7 +2,7 @@
 // VLASTNÍK: T1.3. Pravidlá: docs/1v-obsah.md („Testy“). Spec: prieskum-vsetky/navrh-dvojvrstvove.md §5–8.
 //
 // Obsah dvojvrstvových = obsah 598 s inými textami a fotkami + nové komponenty (porovnanie .vs2, 6. doska materiálu, položka „Druhá vrstva“,
-// 4 vzorky farieb, 13 otázok FAQ). Preto plugin NESPÚŠŤA skupiny A–D cez `zdielane` (ich kontroly majú čísla 598: 12 otázok, 9 vzoriek,
+// 4 vzorky farieb; FAQ = živé FAQ z /faq/ doslovne ako pri 598 — rozhodnutie Michala 14. 10. 2026, overuje ho skupina D). Preto plugin NESPÚŠŤA skupiny A–D cez `zdielane` (ich kontroly majú čísla 598: 12 otázok, 9 vzoriek,
 // text „vrstv“ zakázaný…), ale volá ich kontroly sám a vyradí tie, ktoré pre dvojvrstvové neplatia (zoznam VYRADIT) — a nahradí ich vlastnými.
 // Základ (korene, miesto, sekcie viditeľné a odhalené, čísla data-p1v-cislo dosadené, odkazy data-p1v-odkaz v tom istom vzore, sonda, konzola,
 // vodorovný posun) overuje test-1v-obsah.mjs sám pre každý kľúč.
@@ -58,7 +58,6 @@ const VYRADIT = [
   /náhľad 09 má fotku z CSS/,                              // náhľady Deväť vecí majú fotky dvojvrstvových
   /^texty C bez zakázaných formulácií/,                    // regulárny výraz C zakazuje „vrstv“ (dvojvrstvové sú o vrstvách) a „€“ — nahradené kontrolou nižšie
   /^farby: klik na 2\. vzorku prepol/,                     // 598 má 9 vzoriek (2. = Čierna · modré šitie), dvojvrstvové 4
-  /^faq: 12 otázok/,                                       // dvojvrstvové 13
   /^koniec: ozdobné pozadie \(hero\.jpg/,                  // pozadie záveru dvojvrstvových = dvoj-koniec.jpg
   /^CSS _lcd1v-obsah-c\.scss/,                             // statická kontrola súboru skupiny C (jej vlastník ju overuje v teste 598)
 ];
@@ -108,8 +107,10 @@ export async function kontroly(t) {
   ok(!(await t.je("b-predapo")), "b-predapo (Pred a po) v dvojvrstvových nie je (návrh ju nemá)");
 
   // ---------------------------------------------------------------- texty: zakázané formulácie (docs/1v-obsah.md bod 4), cena nikdy natvrdo
+  // FAQ (d-faq) = živý text z /faq/ doslovne (rozhodnutie Michala 14. 10. 2026; skupina D ho porovnáva so živým) — pravidlá nových textov nie
   const text = await t.ev(`(function () { var m = document.querySelector(".p1v-miesto");
-    return [].map.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { return e.textContent; }).join(" \\n "); })()`);
+    return [].filter.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia") !== "d-faq"; })
+      .map(function (e) { return e.textContent; }).join(" \\n "); })()`);
   const ZAKAZ = /na\s+milimeter|vyr[aá]bame|dragon\s*skin|\belite\b|\bbasic\b|comfort|fixa[čc]n|upevnen|nezasahuj[ée]\s+do\s+fixa/i;
   const zakaz = text.match(new RegExp(ZAKAZ.source, "gi"));
   ok(!zakaz, "texty dvojvrstvových bez zakázaných formulácií (milimeter, vyrábame, DragonSkin/Elite/Basic, Comfort, fixačné body)" + (zakaz ? ": " + zakaz.join(", ") : ""));
@@ -118,7 +119,7 @@ export async function kontroly(t) {
   ok(!pocet.length, "texty dvojvrstvových bez počtu vrstiev materiálu" + (pocet.length ? ": " + pocet.join(", ") : ""));
   const zaruka = await t.ev(`(function () { var m = document.querySelector(".p1v-miesto"), n = { faq: 0, inde: 0 };
     [].forEach.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { var c = (e.textContent.match(/z[aá]ruk/gi) || []).length; if (e.getAttribute("data-lcd-sekcia") === "d-faq") n.faq += c; else n.inde += c; }); return n; })()`);
-  ok(zaruka.inde === 0 && zaruka.faq <= 2, `záruka sa spomína len ako vecná odpoveď FAQ (FAQ ${zaruka.faq}×, inde ${zaruka.inde}×), nie ako argument`);
+  ok(zaruka.inde === 0, `záruka sa mimo FAQ nespomína (inde ${zaruka.inde}×; FAQ ${zaruka.faq}× = živý text), nie je argument`);
 
   // ---------------------------------------------------------------- a-ponuka: tabuľka .vs2 + ceny z živých dát + tlačidlo na jednovrstvové toho istého vzoru
   if (await t.je("a-ponuka")) {
@@ -262,31 +263,8 @@ export async function kontroly(t) {
     }
   }
 
-  // ---------------------------------------------------------------- d-faq: 13 otázok, odkaz na jednovrstvové toho istého vzoru, otázky o druhej vrstve
-  if (await t.je("d-faq")) {
-    const r = await t.ev(`(function () { var s = document.querySelector(${J(S("d-faq"))}); var b = [].slice.call(s.querySelectorAll(".p1v-faq-q")), o = [].slice.call(s.querySelectorAll(".p1v-faq-a"));
-      var a = o[2] && o[2].querySelector("a[data-p1v-odkaz]");
-      return { n: b.length, typ: b.every(function (x) { return x.type === "button" && !x.closest("form") && x.getAttribute("aria-expanded") === "false" && document.getElementById(x.getAttribute("aria-controls")) === x.nextElementSibling; }),
-        otazky: b.map(function (x) { return x.querySelector(".t").textContent; }), ids: new Set(b.map(function (x) { return x.getAttribute("aria-controls"); })).size,
-        href: a && a.getAttribute("href"), cisla: s.querySelectorAll("[data-p1v-cislo]").length, zakazane: s.querySelectorAll(".faq, .accordion, details").length,
-        o10: o[9] ? { text: o[9].textContent, cisla: [].map.call(o[9].querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-cislo"); }) } : null }; })()`);
-    ok(r.n === 13 && r.typ && r.ids === 13, `faq: 13 otázok = button type=button mimo formulára, unikátne aria-controls (${r.n}, ${r.ids})`);
-    ok(r.zakazane === 0, "faq: bez .faq/.accordion/<details>");
-    ok(r.otazky[2] === "Aký je rozdiel medzi jednovrstvovými a dvojvrstvovými?" && r.otazky[3] === "Z čoho je druhá vrstva?" && r.otazky[9] === "Aké farby a prešívania sú na výber?",
-      "faq: nové otázky 3, 4, 10 (jedno vs dvoj, z čoho je druhá vrstva, farby a prešívania)");
-    // odpoveď 10 menuje všetky tri vzory → počet farieb tam byť nesmie (pocet-farieb = paleta len TOHTO vzoru: 604 „3 farby“, 607 „8 farieb“ by tvrdilo,
-    // že celá ponuka má 3 / 8 farieb; návrh má „18 farieb“, čo platí len pre Diamond → D3 vynechané). Doslovné znenie, nie len „číslo dosadené“.
-    const o10 = norm(r.o10 && r.o10.text);
-    ok(o10 === "Prvá vrstva má tri vzory prešívania — Diamond Line, Stripe Line a Hexa Line — a farby materiálu a nite. K nej si vyberiete jednu zo 16 farieb druhej vrstvy (Lux Color 01 – 16). Všetko zvolíte v konfigurátore."
-      && r.o10 && !r.o10.cisla.length && !/\d/.test(o10.split("K nej")[0]),
-      `faq: odpoveď 10 (tri vzory) bez počtu farieb jedného vzoru („${o10.slice(0, 110)}…“, čísla: ${(r.o10 && r.o10.cisla.join(", ")) || "žiadne"})`);
-    ok(String(r.href || "").split("#")[0] === t.sestra("jedno"), `faq: odpoveď 3 vedie na jednovrstvové toho istého vzoru (${r.href}, čakám ${t.sestra("jedno")})`);
-    await t.klikni(S("d-faq") + " .p1v-faq-q", { index: 2, popis: "faq: otázka 3", pockaj: 300 });
-    await t.cakaj(`document.querySelectorAll(${J(S("d-faq") + " .p1v-faq-a")})[2].getBoundingClientRect().height > 40`, { ms: 6000, popis: "faq: odpoveď 3 rozbalená" }).catch(() => false);
-    const o = await t.ev(`(function () { var a = document.querySelectorAll(${J(S("d-faq") + " .p1v-faq-a")})[2]; return { h: Math.round(a.getBoundingClientRect().height), vis: getComputedStyle(a).visibility }; })()`);
-    ok(o.h > 40 && o.vis === "visible", `faq: otázka 3 sa rozbalí (výška ${o.h} px)`);
-    await t.klikni(S("d-faq") + " .p1v-faq-q", { index: 2, popis: "faq: otázka 3 znova", pockaj: 400 });
-  }
+  // ---------------------------------------------------------------- d-faq: = živé FAQ z /faq/ doslovne (rozhodnutie Michala 14. 10. 2026)
+  // 12 otázok ako 598 — počet, tlačidlá, zhodu so živým FAQ a rozbalenie overujú kontroly skupiny D (skD vyššie, už nie sú vyradené).
 
   // ---------------------------------------------------------------- d-koniec: pozadie dvojvrstvových, odkaz
   if (await t.je("d-koniec")) {

@@ -8,12 +8,15 @@
 //   - tabuľka cien .cenv (Samostatne / V sete / V sete pri dvoch boxoch × S M L XL) a karty veľkostí #velkosti: čísla sa porovnávajú
 //     s NEZÁVISLÝM GET živých stránok (select 616 „Velikost 1. boxu“ + základ; jednovrstvové Diamond „Box solo“ a „1. box“), nie s kódom webu,
 //   - silueta v skutočnom pomere (šírka obdĺžnika = 33/40/54/66 z viewBox 76 × 44), gradient z <defs> s id p1v-…,
-//   - D3: o boxe nič o skladovosti ani o lehote dodania; zakázané slová; žiadna cena natvrdo v zdroji sekcií,
+//   - zdroj sekcií okrem FAQ: nič o skladovosti; lehota len „21–29 dní“ v časovej osi (rozhodnutie Michala 14. 10. 2026: box sa šije
+//     ako koberce); zakázané slová; žiadna cena natvrdo,
 //   - karty „Doplňte kufor o rohož“ (odkazy v tom istom vzore, ceny zo živých stránok, celá karta je odkaz),
-//   - 8 krokov „Osem vecí“, farby (9), časová os (4), FAQ (12, ceny v odpovediach), záver, okno fotiek, všetky obrázky boxy-* sa načítajú.
+//   - 8 krokov „Osem vecí“, farby (9), časová os (4), FAQ = živé FAQ z /faq/ doslovne (12, tools/test-1v/obsah-faq.mjs), záver, okno
+//     fotiek, všetky obrázky boxy-* sa načítajú.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { KOREN, register, sestra, zivaStranka } from "./obsah-spolocne.mjs";
+import { kontrolaFaqZive } from "./obsah-faq.mjs";
 
 export const SKUPINA = "boxy";
 export const NAVRH = "boxy.html";
@@ -145,24 +148,26 @@ async function ocakavane() {
   return o;
 }
 
-/** Zdroj sekcií (bez komentárov): žiadne ceny natvrdo, žiadne zakázané ani D3 tvrdenia, žiadny TODO-D3. */
+/** Zdroj sekcií (bez komentárov): žiadne ceny natvrdo, žiadne zakázané tvrdenia, žiadny TODO-D3. FAQ (41-d-faq) je živý text z /faq/
+ *  (rozhodnutie Michala 14. 10. 2026) — pravidlá nových textov sa naň nevzťahujú, stráži ho kontrolaFaqZive. */
 function kontrolaZdroja() {
   const dir = join(KOREN, "admin-html/src/p1v-boxy");
   const subory = readdirSync(dir).filter((f) => /\.html$/.test(f));
   const text = (h) => h.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
   const surove = subory.map((f) => ({ f, h: readFileSync(join(dir, f), "utf8") }));
   const bezKom = (h) => h.replace(/<!--[\s\S]*?-->/g, "");
-  const ceny = surove.flatMap(({ f, h }) => (text(h).match(/\d[\d  ]*\s?(€|&euro;|eur\b|Kč)/gi) || []).map((m) => f + ": " + m));
+  const noveTexty = surove.filter(({ f }) => !/faq/.test(f));
+  const ceny = noveTexty.flatMap(({ f, h }) => (text(h).match(/\d[\d  ]*\s?(€|&euro;|eur\b|Kč)/gi) || []).map((m) => f + ": " + m));
   const todo = surove.filter(({ h }) => /TODO-D3/.test(h)).map((x) => x.f);
-  const zakazane = surove.flatMap(({ f, h }) => (text(h).match(/skladom|lehot[aeuy]|dodací|dodanie|dodania|\d+\s*[–-]\s*\d+\s*dní|na milimeter|vyrábame|(?<!jedno|dvoj)vrstv|dragonskin|elite\b|basic\b|fixačn|uchyten|comfort|kovov|štítok|zadarmo/gi) || []).map((m) => f + ": " + m));
-  const zaruka = surove.filter(({ f }) => !/faq/.test(f)).reduce((n, { h }) => n + (text(h).match(/záruk/gi) || []).length, 0);
-  const zarukaFaq = surove.filter(({ f }) => /faq/.test(f)).reduce((n, { h }) => n + (text(h).match(/záruk/gi) || []).length, 0);
+  const zakazane = noveTexty.flatMap(({ f, h }) => (text(h).replace(/dodanie trvá 21–29 dní/g, "").match(/skladom|lehot[aeuy]|dodací|dodanie|dodania|\d+\s*[–-]\s*\d+\s*dní|na milimeter|vyrábame|(?<!jedno|dvoj)vrstv|dragonskin|elite\b|basic\b|fixačn|uchyten|comfort|kovov|štítok|zadarmo/gi) || []).map((m) => f + ": " + m));
+  const zaruka = noveTexty.reduce((n, { h }) => n + (text(h).match(/záruk/gi) || []).length, 0);
+  const lehota = noveTexty.reduce((n, { h }) => n + (text(h).match(/dodanie trvá 21–29 dní/g) || []).length, 0);
   const idBezPredpony = surove.flatMap(({ f, h }) => (bezKom(h).match(/\sid="(?!p1v-)[^"]*"/g) || []).map((m) => f + ":" + m.trim()));
   // každý obrázok, na ktorý sekcie a CSS odkazujú (assets/img/…), je v repe (preklep v názve = prázdne miesto)
   const css = readFileSync(join(KOREN, "assets/css/_lcd1v-obsah-boxy.scss"), "utf8");
   const odkazy = [...new Set(surove.map(({ h }) => bezKom(h)).concat(css).flatMap((h) => [...h.matchAll(/\/assets\/img\/([^"')\s?]+\.(?:jpg|png|webp))/g)].map((m) => m[1])))];
   const chybajuce = odkazy.filter((r) => !existsSync(join(KOREN, "assets/img", r)));
-  return { subory: subory.length, ceny, todo, zakazane, zaruka, zarukaFaq, idBezPredpony, odkazy: odkazy.length, chybajuce };
+  return { subory: subory.length, ceny, todo, zakazane, zaruka, lehota, idBezPredpony, odkazy: odkazy.length, chybajuce };
 }
 
 /** Kontroly s ?novy=vyvoj po vložení obsahu (raz na každú šírku). t = pomocník tools/test-1v/pomocnik.mjs + t.sekcia(meno), await t.je(meno). */
@@ -178,10 +183,11 @@ export async function kontroly(t) {
   // ---------------------------------------------------------------- zdroj sekcií (D3, ceny natvrdo, TODO-D3)
   const z = kontrolaZdroja();
   ok(z.subory >= 15, `zdroj: ${z.subory} súborov v admin-html/src/p1v-boxy`);
-  ok(!z.ceny.length, "zdroj: žiadna cena natvrdo v texte sekcií" + (z.ceny.length ? " — " + z.ceny.slice(0, 4).join(", ") : ""));
+  ok(!z.ceny.length, "zdroj: žiadna cena natvrdo v texte sekcií (mimo FAQ)" + (z.ceny.length ? " — " + z.ceny.slice(0, 4).join(", ") : ""));
   ok(!z.todo.length, "zdroj: žiadny TODO-D3" + (z.todo.length ? " — " + z.todo.join(", ") : ""));
-  ok(!z.zakazane.length, "zdroj: nič o skladovosti ani lehote dodania (D3) a žiadne zakázané slová" + (z.zakazane.length ? " — " + z.zakazane.slice(0, 4).join(", ") : ""));
-  ok(z.zaruka === 0 && z.zarukaFaq === 2, `zdroj: slovo „záruk“ len vo vecnej otázke a odpovedi FAQ 12 (inde ${z.zaruka}×, vo FAQ ${z.zarukaFaq}×)`);
+  ok(!z.zakazane.length, "zdroj (mimo FAQ): nič o skladovosti, iná lehota než „dodanie trvá 21–29 dní“ ani zakázané slová" + (z.zakazane.length ? " — " + z.zakazane.slice(0, 4).join(", ") : ""));
+  ok(z.lehota === 1, `zdroj: lehota „dodanie trvá 21–29 dní“ práve raz (časová os, rozhodnutie Michala 14. 10. 2026; ${z.lehota}×)`);
+  ok(z.zaruka === 0, `zdroj: slovo „záruk“ mimo FAQ ani raz (${z.zaruka}×)`);
   ok(!z.chybajuce.length && z.odkazy >= 40, `zdroj: všetkých ${z.odkazy} obrázkov, na ktoré sekcie a CSS odkazujú, je v assets/img` + (z.chybajuce.length ? " — chýbajú: " + z.chybajuce.join(", ") : ""));
   ok(!z.idBezPredpony.length, "zdroj: každé id má predponu p1v-" + (z.idBezPredpony.length ? " — " + z.idBezPredpony.slice(0, 3).join(", ") : ""));
 
@@ -330,7 +336,7 @@ export async function kontroly(t) {
     ok(r.im.length === 2 && r.im.every((i) => i.ok) && r.im.map((i) => i.src).join(",") === "boxy-pred.jpg,boxy-po.jpg", `b-predapo: fotky pred a po sa načítali (${r.im.map((i) => i.src + (i.ok ? "" : " ✗")).join(", ")})`);
   }
 
-  // c-casova-os: 4 kroky bez lehoty dodania (D3)
+  // c-casova-os: 4 kroky, lehota 21–29 dní (rozhodnutie Michala 14. 10. 2026: box sa šije ako koberce), nič o skladovosti
   if (await t.je("c-casova-os")) {
     await posun(t.sekcia("c-casova-os") + " .tml", "center");
     const r = await t.ev(`(function () {
@@ -339,7 +345,8 @@ export async function kontroly(t) {
         lede: s.querySelector(".lede").textContent.trim(), text: s.textContent.replace(/\\s+/g, " ") };
     })()`);
     ok(r.kroky === 4, `c-casova-os: 4 kroky (${r.kroky})`);
-    ok(!/skladom|lehot|dní|dodani|termín/i.test(r.text), `c-casova-os: o boxe nič o skladovosti ani o lehote dodania (D3); úvod „${r.lede}“, časové značky „${r.tt}“`);
+    ok(!/skladom|termín/i.test(r.text) && r.lede === "Šije sa až po objednávke, preto dodanie trvá 21–29 dní. Cenu dopravy uvidíte v košíku." && (r.text.match(/\d+\s*–\s*\d+\s*dní/g) || []).length === 1,
+      `c-casova-os: úvod s lehotou 21–29 dní, nič o skladovosti; úvod „${r.lede}“, časové značky „${r.tt}“`);
   }
 
   // c-farby: 9 farieb boxu, klik na vzorku prepne veľkú fotku a názov
@@ -392,7 +399,7 @@ export async function kontroly(t) {
     ok(r.stlpcov === (t.sirka > 820 ? 3 : 1), `boxy-cross: ${r.stlpcov} stĺpce pri ${t.sirka} px (3 nad 820 px, inak 1)`);
   }
 
-  // d-faq: 12 otázok, ceny v odpovediach 2 a 8 zo živých dát, otázka 10 bez skladovosti (D3)
+  // d-faq: = živé FAQ z /faq/ doslovne (rozhodnutie Michala 14. 10. 2026): 12 otázok, bez cien a odkazov podľa vzoru
   if (await t.je("d-faq")) {
     const q = t.sekcia("d-faq") + " .p1v-faq-q";
     await posun(t.sekcia("d-faq"), "start");
@@ -407,26 +414,18 @@ export async function kontroly(t) {
     ok(z0.otv === 0 && z0.vidne === 0, `d-faq: na začiatku sú všetky odpovede zatvorené (otvorených ${z0.otv}, viditeľných ${z0.vidne})`);
     ok(z0.holy === 0 && z0.riadok > 40 && z0.riadok < 120, `d-faq: otázky sú štýlované (bez rámika a podkladu, flex; holých ${z0.holy}, výška riadka ${z0.riadok} px)`);
     ok(r0.n === 12, `d-faq: 12 otázok (${r0.n})`);
-    ok(r0.t[9] === "Koľko stojí poštovné?" && r0.t[11] === "Aká je záruka na box?", `d-faq: otázka 10 „${r0.t[9]}“ (bez „kedy box dostanem“, D3), 12 „${r0.t[11]}“`);
-    ok(r0.mail.length === 2 && r0.mail.every((m) => m === "mailto:info@luxurycardesign.sk"), `d-faq: e-mail je odkaz mailto (${r0.mail.length}×)`);
+    const fz = await kontrolaFaqZive(t, t.sekcia("d-faq"));
+    ok(fz.ok, fz.popis);
     const odpoved = async (i) => {
       await t.klikni(q, { index: i, popis: "FAQ otázka " + (i + 1), pockaj: 700 });
       return t.ev(`(async function () { var b = document.querySelectorAll(${JSON.stringify(q)})[${i}], a = b.nextElementSibling, t0 = Date.now();
         while (b.getAttribute("aria-expanded") === "true" && a.getBoundingClientRect().height < 30 && Date.now() - t0 < 6000) await new Promise(function (r) { setTimeout(r, 150); });
-        return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), text: a.textContent.replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(),
-          stavy: [].map.call(a.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav"); }).join(",") }; })()`);
+        return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), text: a.textContent.replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim() }; })()`);
     };
-    const a2 = await odpoved(1);
-    ok(a2.exp === "true" && a2.h > 30 && a2.stavy === "ok,ok,ok,ok" && a2.text.includes(`S (33 × 32 × 30 cm) za ${o.sam.S}`) && a2.text.includes(`M (40 × 32 × 30 cm) za ${o.sam.M}`) && a2.text.includes(`L (54 × 32 × 30 cm) za ${o.sam.L}`) && a2.text.includes(`XL (66 × 32 × 30 cm) za ${o.sam.XL}`),
-      `d-faq: odpoveď 2 má ceny ${VEL.map((v) => o.sam[v]).join(" / ")} zo živých dát („${a2.text.slice(0, 70)}…“)`);
-    await odpoved(1);
-    const a8 = await odpoved(7);
-    ok(a8.exp === "true" && a8.stavy === "ok,ok,ok" && a8.text.includes(`veľkosť S od ${o.set.S}`) && a8.text.includes(`každý od ${o.set2.S}`) && a8.text.includes(`začína na ${o.sam.S}`),
-      `d-faq: odpoveď 8 má ceny ${o.set.S} / ${o.set2.S} / ${o.sam.S} zo živých dát („${a8.text.slice(0, 70)}…“)`);
-    await odpoved(7);
-    const a10 = await odpoved(9);
-    ok(a10.exp === "true" && /poštovné/i.test(a10.text) && !/skladom|kedy|lehot/i.test(a10.text), `d-faq: odpoveď 10 len o poštovnom, bez skladovosti („${a10.text}“)`);
-    await odpoved(9);
+    const a1 = await odpoved(0);
+    ok(a1.exp === "true" && a1.h > 30 && /^Objednávka je rýchla a jednoduchá/.test(a1.text), `d-faq: klik rozbalí odpoveď 1 (výška ${a1.h}, „${a1.text.slice(0, 50)}…“)`);
+    const a1z = await odpoved(0);
+    ok(a1z.exp === "false", "d-faq: druhý klik odpoveď 1 zbalí");
   }
 
   // d-koniec: záver s cenami zo živých dát, tlačidlo recenzií posunie na recenzie

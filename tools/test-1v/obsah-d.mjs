@@ -5,10 +5,13 @@
 // Kontroly (s ?novy=1, každá šírka; po nich sa stav vráti: okno zatvorené, FAQ zbalené, injektované tlačidlá preč):
 //   realita  6 dlaždíc s platným YouTube id, skutočný klik -> okno v <body> nad všetkým (klik na × nič nezakrýva),
 //            iframe youtube-nocookie + popis, fokus na ×; zatvorenie vráti fokus a posúvanie stránky; šípka posunie pás
-//   faq      12 otázok = button type=button mimo <form>, bez .faq/<details>; klik rozbalí a zbalí odpoveď
+//   faq      12 otázok = button type=button mimo <form>, bez .faq/<details>; klik rozbalí a zbalí odpoveď; otázky aj odpovede
+//            = živé FAQ z /faq/ doslovne (rozhodnutie Michala 14. 10. 2026, tools/test-1v/obsah-faq.mjs)
 //   koniec   „Zadajte údaje o vozidle“ -> prvý nevyplnený krok otvorený a pod hlavičkou, adresa bez zmeny (nič neodoslané)
 //   pomocne  linka čítania mimo obsahu skrytá, v strede obsahu viditeľná a čiastočne plná; okno ako API pre ostatné
 //            skupiny: sada 2 fotiek cez data-p1v-lb-* (šípka, počítadlo, Escape) a udalosť ctx.vysli("obsah-d:okno")
+import { kontrolaFaqZive } from "./obsah-faq.mjs";
+
 export const SKUPINA = "d";
 export const sekcie = [
   { meno: "d-realita", navrh: [{ sel: "#realita" }] },
@@ -161,6 +164,8 @@ export async function kontroly(t) {
     ok(d.n === 12 && d.typ, `faq: 12 otázok = button type=button mimo formulára košíka, aria-controls na odpoveď (${d.n})`);
     ok(d.zakazane === 0, "faq: bez .faq/.accordion/<details> (kotvy živého JS, TinyMCE)");
     ok(d.zbalene, "faq: odpovede na začiatku zbalené a skryté pred čítačkou");
+    const fz = await kontrolaFaqZive(t, s);
+    ok(fz.ok, fz.popis);
     const pred = await t.ev("location.href");
     await klik(t, s + " .p1v-faq-q", { index: 0, popis: "faq: prvá otázka", pockaj: 150 });
     await pockajNa(t, `(function () { var b = document.querySelector(${JSON.stringify(s + " .p1v-faq-q")}), a = b.nextElementSibling;
@@ -169,14 +174,19 @@ export async function kontroly(t) {
     const o = await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(s + " .p1v-faq-q")}), a = b.nextElementSibling;
       return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), vis: getComputedStyle(a).visibility,
         txt: a.textContent.trim().slice(0, 40), p: getComputedStyle(b.querySelector(".p")).transform }; })()`);
-    ok(o.exp === "true" && o.h > 30 && o.vis === "visible" && /konfigurátore/.test(o.txt), `faq: klik rozbalí odpoveď (výška ${o.h}, „${o.txt}…“)`);
+    ok(o.exp === "true" && o.h > 30 && o.vis === "visible" && o.txt.length > 10, `faq: klik rozbalí odpoveď (výška ${o.h}, „${o.txt}…“)`);
     ok(o.p !== "none", "faq: + sa otočí na ×");
     await klik(t, s + " .p1v-faq-q", { index: 0, popis: "faq: prvá otázka znova", pockaj: 150 });
-    await pockajNa(t, `(function () { var b = document.querySelector(${JSON.stringify(s + " .p1v-faq-q")});
-      return b.getAttribute("aria-expanded") === "false" && b.nextElementSibling.getBoundingClientRect().height < 2; })()`);
+    // Zbalené = aria-expanded false a riadok mriežky 0px (cieľ prechodu). Odpoveď 1 je od 14. 10. 2026 živé FAQ (6 odsekov, ~400 px):
+    // v karte na pozadí paralelného behu hodiny animácií stoja a výška ostane na ~2 px chvosta prechodu (3 z 19 behov pri 1280,
+    // namerané {"exp":"false","h":2,"vis":"visible","rows":"0px"}) — preto stačí riadok 0px alebo výška pod 2 px.
+    const zbalena = `(function () { var b = document.querySelector(${JSON.stringify(s + " .p1v-faq-q")}), a = b.nextElementSibling;
+      return b.getAttribute("aria-expanded") === "false" && (a.getBoundingClientRect().height < 2 || getComputedStyle(a).gridTemplateRows === "0px"); })()`;
+    await pockajNa(t, zbalena, 8000);
     const z = await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(s + " .p1v-faq-q")}), a = b.nextElementSibling;
-      return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height) }; })()`);
-    ok(z.exp === "false" && z.h < 2, "faq: druhý klik odpoveď zbalí");
+      return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), vis: getComputedStyle(a).visibility, rows: getComputedStyle(a).gridTemplateRows }; })()`);
+    const zbaleneOk = z.exp === "false" && (z.h < 2 || z.rows === "0px");
+    ok(zbaleneOk, "faq: druhý klik odpoveď zbalí" + (zbaleneOk ? "" : " " + JSON.stringify(z)));
     ok((await t.ev("location.href")) === pred, "faq: klik nič neodoslal ani nezmenil adresu");
   }
 

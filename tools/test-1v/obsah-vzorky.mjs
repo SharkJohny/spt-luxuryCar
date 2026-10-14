@@ -11,11 +11,14 @@
 // Lux len 10/11/12/13/16; časová os: 4 kroky, pred osou --p 0, za osou --p 1 a svieti 4 (na PC striedavo L/P); vrátenie: na PC
 // dve karty vedľa seba, na telefóne pod sebou, odkaz na formulár, kotva #p1v-vratenie a [data-lcd-sekcia$="vratenie"] pre
 // konfigurátor; ponuka: fotka stiahnutá, 2 tlačidlá na dvojvrstvové a jednovrstvové (Diamond, vzorkovník vzor nemá), PC fotka
-// vedľa textu; FAQ: 6 otázok, klik rozbalí a znova zbalí odpoveď; výzva vedie na konfigurátor (skutočný klik);
-// CSS partial = každý selektor pod body.lcd-1v.
+// vedľa textu; FAQ = živé FAQ z /faq/ doslovne (12 otázok, rozhodnutie Michala 14. 10. 2026 — živý vzorkovník ukazuje to isté FAQ ako
+// ostatné produkty; tools/test-1v/obsah-faq.mjs), klik rozbalí a znova zbalí odpoveď; odkaz „Formulár nájdete tu“ vedie na
+// /odstupenie-od-zmluvy/ (Michal 14. 10. 2026); výzva vedie na konfigurátor (skutočný klik); CSS partial = každý selektor pod body.lcd-1v.
+// Pravidlá nových textov (zakázané slová, jediná cena 5 €, Lux) platia na sekcie mimo FAQ — FAQ je živý text.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { kontrolaFaqZive } from "./obsah-faq.mjs";
 
 export const SKUPINA = "vzorky";
 export const NAVRH = "vzorkovnik.html";
@@ -59,14 +62,9 @@ export const ZNENIE = {
     "Jednovrstvové zvládnu jar, leto aj jeseň", "Dvojvrstvové majú navrchu odnímateľnú vrstvu Lux",
     "Šablóny máme pre viac než 1000 modelov osobných áut", "Jednovrstvové", "Dvojvrstvové",
   ],
+  // otázky a odpovede FAQ = živé /faq/ (kontrolaFaqZive), tu len nadpis sekcie z návrhu
   "d-faq": [
     "Na čo sa nás pýtate najčastejšie",
-    "Koľko stojí vzorka?", "Každá vzorka je za 5 €. Je to vratná záloha — vrátime ju po obdržaní vzoriek späť.",
-    "Koľko vzoriek si môžem objednať?", "Ľubovoľný počet, aj z viacerých sérií naraz. Záloha sa počíta za každú vzorku zvlášť.",
-    "Ako vzorky vrátim a ako dostanem zálohu späť?", "Vyplníte formulár na odstúpenie od zmluvy a vzorky nám pošlete späť. Zálohu Vám vrátime na účet, alebo jej hodnotu odpočítame z objednávky.",
-    "Koľko stojí poštovné?", "Poštovné a poplatok za platbu uvidíte v košíku pri dokončení objednávky.",
-    "Hodia sa vzorky aj ku kamiónu?", "Vzorky sú určené pre autokoberce do osobných áut, nie pre kamióny.",
-    "Čo je druhá vrstva Lux?", "Odnímateľná vrstva navrchu dvojvrstvových autokobercov. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou. Najlepšie vyzerá v tóne koberca — k čiernej Lux 10, k béžovej 12, k hnedej 11.",
   ],
 };
 const norm = (s) => String(s == null ? "" : s).replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
@@ -130,17 +128,15 @@ export async function kontroly(t) {
     ok(!chyba.length, `${m}: texty doslovne z návrhu (${ZNENIE[m].length} kusov)` + (chyba.length ? " — chýba: " + chyba.map((x) => "„" + x.slice(0, 50) + "“").join(", ") : ""));
   });
 
-  // 4) zakázané formulácie, ceny, Lux
-  const cely = norm(texty.join(" "));
+  // 4) zakázané formulácie, ceny, Lux — sekcie mimo FAQ (FAQ = živý text z /faq/, kontroluje ho kontrolaFaqZive nižšie)
+  const cely = norm(texty.filter((_, i) => PORADIE[i] !== "d-faq").join(" "));
   const zakaz = cely.match(new RegExp(ZAKAZANE.source, "gi"));
-  ok(!zakaz, "texty bez zakázaných formulácií (aj „zadarmo“)" + (zakaz ? ": " + zakaz.join(", ") : ""));
+  ok(!zakaz, "texty mimo FAQ bez zakázaných formulácií (aj „zadarmo“)" + (zakaz ? ": " + zakaz.join(", ") : ""));
   const ceny = (cely.match(/\d[\d ]*(?:[.,]\d+)? ?(?:€|eur)|(?:€|eur) ?\d/gi) || []).map(norm);
-  ok(ceny.length === 3 && ceny.every((c) => c === "5 €"), "jediná cena v texte je doslovná záloha „5 €“ (3×: časová os, vrátenie, FAQ 01) " + JSON.stringify(ceny));
-  // FAQ 06: „k čiernej Lux 10, k béžovej 12, k hnedej 11“ — jediné „Lux <číslo>“ v texte, ďalšie dve čísla za ním
-  const luxM = /Lux (\d+), k \S+ (\d+), k \S+ (\d+)/.exec(cely);
-  const lux = luxM ? luxM.slice(1).map(Number) : [];
-  ok(lux.length === 3 && (cely.match(/Lux \d+/g) || []).length === 1 && lux.every((n) => [10, 11, 12, 13, 16].includes(n)),
-    "druhá vrstva: len jednofarebné Lux 10/11/12/13/16 (FAQ 06: čierna 10, béžová 12, hnedá 11) " + JSON.stringify(lux));
+  ok(ceny.length === 2 && ceny.every((c) => c === "5 €"), "jediná cena v texte mimo FAQ je doslovná záloha „5 €“ (2×: časová os, vrátenie) " + JSON.stringify(ceny));
+  // druhá vrstva: ak text menuje Lux s číslom, len jednofarebné 10/11/12/13/16 (vzorkové FAQ 06 s „Lux 10/12/11“ nahradilo živé FAQ)
+  const lux = [...cely.matchAll(/Lux(?: Color)? (\d+)/g)].map((m) => Number(m[1]));
+  ok(lux.every((n) => [10, 11, 12, 13, 16].includes(n)), "druhá vrstva: v texte len jednofarebné Lux 10/11/12/13/16 " + JSON.stringify(lux));
 
   // 5) kotvy pre konfigurátor a skok na vrátenie
   const kot = await t.ev(`(function(){var a=document.getElementById("p1v-vratenie");var b=document.querySelector('.p1v-miesto [data-lcd-sekcia$="vratenie"]');return [!!a&&a.getBoundingClientRect().height>40,!!b&&b.getClientRects().length>0]})()`);
@@ -152,7 +148,7 @@ export async function kontroly(t) {
   if (sir >= 901) ok(kry.length === 2 && Math.abs(kry[0][1] - kry[1][1]) < 2 && kry[1][0] > kry[0][0] + kry[0][2], "vrátenie: na PC dve karty vedľa seba " + JSON.stringify(kry));
   else ok(kry.length === 2 && kry[1][1] > kry[0][1] + 40, "vrátenie: na telefóne témy pod sebou " + JSON.stringify(kry));
   const form = await t.ev(`(function(){var a=document.querySelector(${JSON.stringify(S("vzorky-vratenie") + " a.vz-form")});return a?[a.getAttribute("href"),Math.round(a.getBoundingClientRect().width)]:null})()`);
-  ok(form && form[0] === "/moja-objednavka/" && form[1] > 60, "vrátenie: odkaz „Formulár nájdete tu“ vedie na /moja-objednavka/ " + JSON.stringify(form));
+  ok(form && form[0] === "https://www.luxurycardesign.sk/odstupenie-od-zmluvy/" && form[1] > 60, "vrátenie: odkaz „Formulár nájdete tu“ vedie na formulár odstúpenia od zmluvy (Michal 14. 10. 2026) " + JSON.stringify(form));
 
   // 7) časová os: 4 kroky, pred osou prázdna, za osou plná
   const os = S("c-casova-os") + " .tml";
@@ -185,12 +181,14 @@ export async function kontroly(t) {
   const ramik = await t.ev(`(function(){var a=document.querySelectorAll(${JSON.stringify(S("a-ponuka") + " .vz-ups-cta .btn")});return [getComputedStyle(a[0]).borderTopWidth,getComputedStyle(a[1]).borderTopWidth]})()`);
   ok(ramik[0] === "0px" && ramik[1] === "1px", "ponuka: zlaté tlačidlo bez rámu, druhé (ghost) s rámom " + JSON.stringify(ramik));
 
-  // 9) FAQ: 6 otázok, klik rozbalí odpoveď a druhý klik ju zbalí
+  // 9) FAQ: = živé FAQ z /faq/ doslovne (12 otázok, Michal 14. 10. 2026), klik rozbalí odpoveď a druhý klik ju zbalí
   await naSekciu("d-faq");
   await t.pauza(500);
   const q = S("d-faq") + " .p1v-faq-q";
   const n = await t.ev(`document.querySelectorAll(${JSON.stringify(q)}).length`);
-  ok(n === 6, "FAQ: 6 otázok (" + n + ")");
+  ok(n === 12, "FAQ: 12 otázok (" + n + ")");
+  const fz = await kontrolaFaqZive(t, S("d-faq"));
+  ok(fz.ok, fz.popis);
   try {
     const odp = (i) => t.ev(`(function(){var b=document.querySelectorAll(${JSON.stringify(q)})[${i}],a=document.getElementById(b.getAttribute("aria-controls"));return [b.getAttribute("aria-expanded"),Math.round(a.getBoundingClientRect().height),getComputedStyle(a).visibility]})()`);
     const pred1 = await odp(0);

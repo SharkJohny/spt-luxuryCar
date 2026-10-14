@@ -210,7 +210,9 @@ async function main() {
   for (const p of produkty) {
     p.kusy = build.admin.casti(p.kluc);
     if (!p.kusy.length) throw new ChybaPouzitia(`kľúč obsahu „${p.kluc}“ (produkt ${p.id}) nemá časti v admin-html/ciele.json`);
-    p.media = [...new Set(p.kusy.flatMap((c) => adresyMedii(c.html)))];
+    // médiá obsahu 1V (bez flagu sa nesmú stiahnuť) — bez súborov živého webu z /usr/www.luxurycardesign.sk/user/documents/upload/:
+    // FAQ obsahu = živé FAQ z /faq/ doslovne (Michal 14. 10. 2026) aj s obrázkom lazers.jpg, ktorý živé FAQ (index.js) sťahuje aj bez flagu
+    p.media = [...new Set(p.kusy.flatMap((c) => adresyMedii(c.html)))].filter((m) => !/\/usr\/www\.luxurycardesign\.sk\/user\/documents\/upload\//.test(m));
     p.sekcie = p.kusy.flatMap((c) => c.sekcie.map((s) => ({ ...s, cast: c.cast })));
     p.plne = p.sekcie.filter((s) => s.znaky > 0).map((s) => s.sekcia);
     const mena = (a.skupiny || PLUGINY[p.kluc] || []).filter((g) => (PLUGINY[p.kluc] || []).includes(g) || (a.skupiny && SKUPINY[g]));
