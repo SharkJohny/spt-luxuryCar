@@ -53,6 +53,8 @@ const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClass
 /** Kontroly skupín podľa kľúča obsahu: 598 = A–D (návrh v26); iný kľúč = vlastný plugin + skupiny, ktoré si vyžiada (zdielane). */
 const PLUGINY = { 598: ["a", "b", "c", "d"], dvoj: ["dvoj"], classic: ["classic"], premium: ["premium"], boxy: ["boxy"], vzorky: [] };
 const SERVER_NAVRHOV = "http://127.0.0.1:8952/";
+/** Tvrdý časový limit jednej úlohy (bežne do 200 s aj so snímkami). */
+const LIMIT_ULOHY = 480000;
 const SUM_ZDROJE = /twitter|rostiapp|luxia|recaptcha|facebook|google|gstatic|youtube|hotjar|tiktok|smartsupp|ecomail|heureka|seznam|bing|clarity|trustindex/i;
 const normChyba = (c) => (c.druh + ": " + c.text).replace(/\d+/g, "#").replace(/\s+/g, " ").slice(0, 200);
 const naseChyby = (chyby) => chyby.filter((c) => !SUM_ZDROJE.test(c.zdroj || "") && !SUM_ZDROJE.test(c.text || ""));
@@ -261,6 +263,12 @@ async function main() {
       const ch = await spustiChrome({ okno: a.okno });
       const v = { uloha: p.id + " " + u.druh + " " + u.sirka, chyby: [], info: [], pozor: [] };
       const zle = (podm, sprava) => { if (!podm) v.chyby.push(sprava); };
+      // tvrdá poistka (kontrola T0.3 14. 10. 2026: jedna úloha visela 20+ min na zahltenom stroji): po LIMIT_ULOHY sa
+      // Chrome úlohy zavrie, čakajúce volania CDP zlyhajú a úloha skončí ako ZLYHAL (beh sa nikdy nezasekne)
+      const strazca = setTimeout(() => {
+        v.chyby.push(`časový limit ${LIMIT_ULOHY / 1000} s: Chrome neodpovedá, úloha zrušená`);
+        ch.zavri().catch(() => {});
+      }, LIMIT_ULOHY);
       try {
         if (u.druh === "navrh") {
           const k = await ch.novaKarta({ sirka: u.sirka });
@@ -312,7 +320,11 @@ async function main() {
                 if (z.st.paticka && st.paticka) zle(z.st.paticka.stlpce === st.paticka.stlpce && Math.abs(z.st.paticka.h - st.paticka.h) <= 2,
                   `pätička sa zmenila: ${z.st.paticka.h} px / ${z.st.paticka.stlpce} stĺpcov -> ${st.paticka.h} px / ${st.paticka.stlpce}`);
                 const dH = st.docH - z.st.docH;
-                if (a.miesto === "paticka" || a.miesto === "cdn") zle(Math.abs(dH) <= 40, `výška stránky sa zmenila o ${dH} px (bez obsahu ${z.st.docH}; ±10 px kolíše aj samo — konfigurátor)`);
+                // paticka: obsah je v HTML stránky (skryté bannery) -> výška musí ostať. cdn: HTML stránky sa bez flagu nemení
+                // vôbec (rovnaká stránka ako základ), rozdiel je len kolísanie živej stránky (pod záťažou aj +167 px,
+                // kontrola T0.3 14. 10. 2026) -> upozornenie; zmenu tu stráži 0 požiadaviek na kusy a médiá vyššie.
+                if (a.miesto === "paticka") zle(Math.abs(dH) <= 40, `výška stránky sa zmenila o ${dH} px (bez obsahu ${z.st.docH}; ±10 px kolíše aj samo — konfigurátor)`);
+                else if (a.miesto === "cdn" && Math.abs(dH) > 40) v.pozor.push(`výška stránky bez flagu ${dH >= 0 ? "+" : ""}${dH} px oproti základu (${z.st.docH}) — HTML sa nemenilo, kolíše živá stránka`);
                 v.info.push(`výška ${dH >= 0 ? "+" : ""}${dH} px oproti stránke bez obsahu`);
               }
               v.info.push(`${st.korene.length} korene${vlozene ? " skryté" : ""}, 0 požiadaviek na kusy obsahu, 0 z ${p.media.length} médií + sondy stiahnuté`);
@@ -425,6 +437,7 @@ async function main() {
         v.chyby.push("výnimka: " + (e && e.stack ? e.stack.split("\n").slice(0, 3).join(" / ") : String(e)));
         if (u.druh === "zaklad") { const c = cakaj.get(kz(p, u.novy, u.sirka)); if (c) c.r(null); }
       }
+      clearTimeout(strazca);
       await ch.zavri();
       v.s = ((Date.now() - t0) / 1000).toFixed(1);
       v.stav = v.chyby.length ? "ZLYHAL" : "OK";

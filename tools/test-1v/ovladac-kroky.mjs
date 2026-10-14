@@ -40,7 +40,7 @@ export const stary = {
   /** Zavrie výzvu na auto. */
   async zavriVyzvu(t) {
     await t.klikni(".overflow button.btn", { popis: "Rozumiem vo výzve" });
-    await t.cakaj(`!document.querySelector(".overflow")`, { ms: 3000, popis: "zatvorené okno výzvy" });
+    await t.cakaj(`!document.querySelector(".overflow")`, { ms: 10000, popis: "zatvorené okno výzvy" });
     await pauza(300);
   },
 
@@ -84,7 +84,7 @@ export async function otvorKartu(t, meno) {
 }
 
 /** Karta s červeným rámom (nový vzhľad: trvalá lcd1v-chyba; okno boxov: živé .lcd-needs-fill v .box-config). */
-async function cervenyKrokNovy(t, { ms = 2500 } = {}) {
+async function cervenyKrokNovy(t, { ms = 6000 } = {}) {
   // všetky mená kariet z TYPY[*].kroky (produkty.js): jedno, dvoj (+farba2), rohože do kufra, box 616 (pocet, velkost)
   const mena = ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy", "pocet", "velkost"];
   const koniec = Date.now() + ms;
@@ -117,7 +117,7 @@ export const novy = {
     await t.nastavSelect(`${w} .years select`, a.rok);
     await t.nastavSelect(`${w} .type-selector select`, a.typ);
     // nový vzhľad: zhrnutie auta v hlavičke karty + pás kompatibility nad krokmi
-    await t.cakaj(`(function () { var k = document.querySelector(".lcd1v-kompat"); return !!(k && !k.hidden && k.offsetHeight > 0); })()`, { popis: "pás kompatibility s autom" });
+    await t.cakaj(`(function () { var k = document.querySelector(".lcd1v-kompat"); return !!(k && !k.hidden && k.offsetHeight > 0); })()`, { ms: 25000, popis: "pás kompatibility s autom" });
     return t.ev(`sessionStorage.getItem("model")`);
   },
 

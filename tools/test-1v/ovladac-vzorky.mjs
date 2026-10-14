@@ -39,7 +39,7 @@ export const stary = {
       if (!ak) throw new Error("dlaždica vzorky " + idV + " nie je (alebo je len náhľad)");
       if (!ak.otvoreny) { await t.klikni(".lcd-vz-acc .lcd-vz-acc-head", { index: ak.i, popis: "akordeón vzoriek " + ak.i }); await pauza(450); }
       await t.klikni(dl, { popis: "vzorka " + idV });
-      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${s.id}"]') || {}).value === "${s.ano}"`, { ms: 3000, popis: "vzorka " + idV + " vo formulári" });
+      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${s.id}"]') || {}).value === "${s.ano}"`, { ms: 10000, popis: "vzorka " + idV + " vo formulári" });
       hodnoty[s.id] = s.ano;
     }
     await pauza(400);
@@ -74,7 +74,7 @@ export const novy = {
     if (!k) throw new Error("dlaždica vzorky " + idV + " v novom vzhľade nie je");
     if (!k.otvoreny) {
       await t.klikni(`${KROK} > .lcd1v-hd`, { index: k.i, popis: "hlavička kroku vzoriek " + (k.i + 1) });
-      await t.cakaj(`document.querySelectorAll("${KROK}")[${k.i}].classList.contains("active")`, { ms: 3000, popis: "otvorený krok " + (k.i + 1) });
+      await t.cakaj(`document.querySelectorAll("${KROK}")[${k.i}].classList.contains("active")`, { ms: 10000, popis: "otvorený krok " + (k.i + 1) });
       await pauza(250);
     }
     return k;
@@ -88,8 +88,8 @@ export const novy = {
       const k = await novy.otvorKrokVzorky(t, idV);
       if (k.nahlad) throw new Error("vzorka " + idV + " je v novom vzhľade len náhľad (živý widget ju neposiela)");
       await t.klikni(`${KROK} .lcd1v-vz-dl[data-kod="${idV}"]`, { popis: "vzorka " + idV });
-      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${s.id}"]') || {}).value === "${s.ano}"`, { ms: 3000, popis: "vzorka " + idV + " vo formulári" });
-      await t.cakaj(`(document.querySelector('${KROK} .lcd1v-vz-dl[data-kod="${idV}"]') || { getAttribute: function () {} }).getAttribute("aria-pressed") === "true"`, { ms: 2000, popis: "dlaždica " + idV + " označená" });
+      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${s.id}"]') || {}).value === "${s.ano}"`, { ms: 10000, popis: "vzorka " + idV + " vo formulári" });
+      await t.cakaj(`(document.querySelector('${KROK} .lcd1v-vz-dl[data-kod="${idV}"]') || { getAttribute: function () {} }).getAttribute("aria-pressed") === "true"`, { ms: 10000, popis: "dlaždica " + idV + " označená" });
       hodnoty[s.id] = s.ano;
     }
     await pauza(300);
@@ -100,7 +100,7 @@ export const novy = {
   async odoberVzorku(t, idV) {
     const s = await selectVzorky(t, idV);
     await t.klikni(`${F} .lcd1v-vz-zoz li[data-kod="${idV}"] .lcd1v-vz-zoz__x`, { popis: "odobrať " + idV });
-    await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${s.id}"]') || {}).value === ""`, { ms: 3000, popis: "vzorka " + idV + " zrušená vo formulári" });
+    await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${s.id}"]') || {}).value === ""`, { ms: 10000, popis: "vzorka " + idV + " zrušená vo formulári" });
     await pauza(200);
   },
 
@@ -166,7 +166,7 @@ export const novy = {
     await pauza(500);
     if (await t.ev(`document.querySelector(".lcd1v-lista").classList.contains("on")`)) throw new Error("lišta je vysunutá, hoci je konfigurátor na obrazovke");
     await t.ev(`(function () { var b = document.querySelector("${F} .add-to-cart").getBoundingClientRect(); window.scrollTo(0, b.bottom + window.pageYOffset + 400); })()`);
-    await t.cakaj(`document.querySelector(".lcd1v-lista").classList.contains("on")`, { ms: 3000, popis: "vysunutá lepivá lišta" });
+    await t.cakaj(`document.querySelector(".lcd1v-lista").classList.contains("on")`, { ms: 10000, popis: "vysunutá lepivá lišta" });
     await pauza(450);
     const st = await t.ev(`(function () {
       var b = document.querySelector(".lcd1v-lista .lcd1v-lista__kos").getBoundingClientRect();

@@ -93,6 +93,9 @@ BLOKY = [
          popis="obsah 1V rohoz Premium 628/631/634; len body.lcd-1v"),
     dict(meno="LCD-1V-OBSAH-BOXY", zdroj="_lcd1v-obsah-boxy.scss", home=False, h1=False,
          popis="obsah 1V box do kufra 616; len body.lcd-1v"),
+    # Vzorkovnik 637 (T5.1, integracia WA 14. 10. 2026) — kazde pravidlo pod body.lcd-1v[data-lcd1v-typ="vzorky"]
+    dict(meno="LCD-1V-VZORKY", zdroj="_lcd1v-vzorky.scss", home=False, h1=False,
+         popis="konfigurator 1V vzorkovnik 637; len body.lcd-1v"),
 ]
 
 

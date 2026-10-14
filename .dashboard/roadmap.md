@@ -497,3 +497,15 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Integrácia W0a: CDP časový limit + odmietnutie čakajúcich pri zatvorení (cdp.mjs), cervenyKrokNovy pozná farba2/pocet/velkost, ctx.cena() bez bežnej ceny = odporúčaná 0, zapis("pocetKs") nechá veľkosti v rozsahu počtu, ctx-zapis s Hexa (3 farby)
 - [ ] Zlúčiť obsah 598 (worktree spt-luxuryCar-1v, necommitnuté): index.js MODULY + obsah, poradie BLOKY vo vloz-lcd-css.py (CENA, DVOJ, KUFOR, BOXY, OBSAH, OBSAH-A..D, OBSAH-DVOJ/-CLASSIC/-PREMIUM/-BOXY)
 - [ ] Michal (admin SK, D2): 610 „nie“ +5 €, chýbajúca bežná cena 613/625/616
+
+## Konfigurátor 1V — vlna WA (obsah jadro + jednovrstvové 610/613 + konfigurátory dvoj, rohože, box, vzorkovník) — 14. 10. 2026
+- [x] T0.3 obsah pre všetky kľúče (obsah.js z CDN verzie bundle, obsah-cisla.js, stuby dvoj/classic/premium/boxy/vzorky, ciele.json, production.yml html/)
+- [x] T1.1 jednovrstvové 610/613: značky data-p1v-odkaz/-cislo v obsahu 598, kroky.js prazdnePole (obnovené auto = vyplnené pole), scenáre jedno
+- [x] T1.2 dvojvrstvové 601/604/607: krok Farba 2. vrstvy (16 Lux, Odporúčame, náhľad), texty typu, fotky vzorov (len ?novy=vyvoj)
+- [x] T2.2 rohože Classic/Premium 619–634: názov len vizuálne, ceny dlaždíc a pás setu zo sesterských stránok (len ?novy=vyvoj)
+- [x] T3.2 box 616: farba → počet → veľkosť, karty so siluetou, veľkosť každého boxu (len ?novy=vyvoj)
+- [x] T5.1 vzorkovník 637: 4 série ako živý widget, 5 € za vzorku, 0 vzoriek = POST 0 (len ?novy=vyvoj)
+- [x] Integrácia WA: OBSAH_CDN zapnuté (runnery obslúžia kusy obsahu), háčiky jadra ctx.pravidloKroku / ctx.hacik ("cena:od", "cena:lista") / ctx.zlozit, H1 bez „Dragonskin Basic/Elite“ (len vizuálne), CSS obsahu pre všetky kľúče (.p1v-obsah), text-wrap: balance v nadpise kroku, blok LCD-1V-VZORKY, cena „od 219 €“ v obsahu jedným mechanizmom, creatButtons.js bez volania neexistujúcej priceActualization, test: limit pokusu v t.cakaj, dlhšie čakania ovládačov, scenáre typov v profiloch, --snimky aj pre vzorkovník, test obsahu s tvrdým limitom úlohy
+- [ ] Vydanie (push, CI, version.json, curl -sI kusu html/ na CDN) a prepnutie sha v SK HTML kódoch (Michal)
+- [ ] Vydať typy dvoj / kufor-* / boxy / vzorky (ZAPNUTE_TYPY) až s obsahom T1.3, T2.3, T2.4, T3.3 a T5.1 obsahom
+- [ ] Michal: otázky v docs/1v-odkazy.md (Diamond vzorky v obsahu 610/613, okno „Vyberte model“ pri kroku Vzor) a zoznam opráv adminu (D2)

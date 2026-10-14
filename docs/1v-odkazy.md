@@ -23,8 +23,8 @@ Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača. `?novy=0` vz
 Medzi vzormi sa dá prepínať v kroku 1 (nový vzhľad ostane zapnutý, auto sa zachová).
 Obsah pod konfigurátorom je pri 610 a 613 ten istý ako pri 598 (jeden obsah pre jednovrstvové). Čo závisí od vzoru, sú značky v `admin-html/src/p1v-598/`:
 - `data-p1v-odkaz="dvoj"` (tlačidlo „Pozrite si dvojvrstvové“, odkaz „Mnoho ďalších farieb“) → na 610 `/luxusne-autokoberce-dragonskin-elite-hexa-line/`, na 613 `/…-elite-stripe-line/`, na 598 `/…-elite-diamond-line/`.
-- `data-p1v-cislo="cena-od"` (porovnanie s napodobeninami) → cena „od …“ zo živých dát: 598 `od €219`, 610 a 613 `od €230` (formát `od €230` je pôvodný zápis obsah-b.js).
-Dosadzuje to `obsah-cisla.js` z T0.3 (načítanie obsahu z CDN, D1 = b). **Bez T0.3 sa obsah na 610 a 613 vôbec nenačíta**, takže toto platí až po jeho zlúčení (overené na spojení T0.1+T1.1+T0.3: `test-1v-obsah.mjs --produkt 598,610,613`).
+- `data-p1v-cislo="cena-od"` (porovnanie s napodobeninami) → cena „od …“ zo živých dát v tvare návrhu: 598 `od 219 €`, 610 a 613 `od 230 €` (od integrácie WA dosadzuje `obsah-cisla.js`, predtým `obsah-b.js` v tvare Shoptetu „od €230“).
+Dosadzuje to `obsah-cisla.js` (T0.3, načítanie obsahu z CDN verzie bundle, D1 = b; zlúčené v integrácii WA 14. 10. 2026, `OBSAH_CDN` zapnuté). Obsah sa na CDN objaví až s vydaním (`production.yml` kopíruje `admin-html/dist/p1v-*.sk.html` do `assets/v/<sha>/html/`).
 Ostatné čísla (ceny rohože do kufra, boxu, počty farieb) v obsahu 598 nie sú, preto im nič nemusí byť značkou.
 
 ### Admin kroky (Michal)

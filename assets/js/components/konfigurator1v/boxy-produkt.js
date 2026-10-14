@@ -13,12 +13,13 @@
 // Posledný krok „Pokračujte k súhrnu“ (bez košíka) zachytáva kroky.js. „Pokračujte ďalej“ na farbe a počte ide
 // v poradí návrhu (živý kód by išiel v poradí DOM: počet -> farba -> veľkosť).
 // Košík: farba + veľkosť KAŽDÉHO boxu v počte. Živá validácia pozná len „aspoň jedna veľkosť“ -> modul rozšíri
-// ctx.vyplneny / ctx.prvyNevyplneny (krok veľkosti = všetky boxy v počte; krok počtu je „hotový“ až po potvrdení,
-// ako v návrhu „Hotovo 0 z 3“) a pred živým tlačidlom košíka zastaví neúplný výber (červený rám na kroku veľkosti,
-// do košíka nič). Úplný výber posiela živé tlačidlo ako doteraz (ctx.doKosika / živý kód). Rozšírenie ctx je
-// dočasné riešenie v module typu (jadro zatiaľ nemá háčik typu na pravidlo vyplnenia kroku — hlásené vydaniu).
-// Známa chyba živého webu: klik na „N ks“ hodí „priceActualization is not defined“ (creatButtons.js); na tú cestu sa
-// modul nespolieha — cenu prepočíta živý delegovaný handler tlačidiel a ctx.zapis („change“ na vyprázdnených selectoch).
+// pravidlá kroku cez háčik jadra ctx.pravidloKroku (krok veľkosti = všetky boxy v počte; krok počtu je „hotový“ až
+// po potvrdení, ako v návrhu „Hotovo 0 z 3“) a pred živým tlačidlom košíka zastaví neúplný výber (červený rám na kroku
+// veľkosti, do košíka nič). Úplný výber posiela živé tlačidlo ako doteraz (ctx.doKosika / živý kód). Suma „od“ pri
+// neúplných veľkostiach a popis lepivej lišty idú cez háčiky cena.js (ctx.hacik "cena:od", "cena:lista").
+// Klik na „N ks“ hádzal „priceActualization is not defined“ (creatButtons.js, opravené pri integrácii WA 14. 10. 2026 —
+// CDN do vydania ju má stále); modul sa na tú cestu nespolieha — cenu prepočíta živý delegovaný handler tlačidiel
+// a ctx.zapis („change“ na vyprázdnených selectoch).
 // Hlavička: vizuálny názov „Luxusný box do kufra Diamond Line“ (živý H1 ostáva v DOM, CSS ho len vizuálne skryje)
 // a pás „V sete s autokobercami už od …“ (cena boxu S v sete z 598 cez ceny-ine.js, odkaz z registra).
 // Nič natvrdo: ID parametrov, ceny ani hodnoty volieb. Nové prvky bez name. Text H1 sa nemení.
@@ -259,20 +260,43 @@ export function init(ctx) {
     }
 
     // ---------------------------------------------------------------- pravidlo košíka: veľkosť každého boxu v počte
-    const povVyplneny = ctx.vyplneny, povPrvy = ctx.prvyNevyplneny;
-    ctx.vyplneny = function (e) {
-      const v = povVyplneny(e);
-      if (!v || !zapnute()) return v;
-      if (e === kVelk) return velkostiHotove();
-      if (e === kPocet) return potvrdeny;
-      return v;
-    };
-    ctx.prvyNevyplneny = function () {
-      const n = povPrvy();
-      if (n || !zapnute()) return n;
-      return velkostiHotove() ? null : kVelk;
-    };
-    odhlas.push(() => { ctx.vyplneny = povVyplneny; ctx.prvyNevyplneny = povPrvy; });
+    // háčik jadra (ctx.pravidloKroku): veľkosť = všetky boxy v počte (aj košík), počet = hotový až po potvrdení (len karta)
+    const povVyplneny = ctx.vyplnenyZivo, povPrvy = ctx.prvyNevyplnenyZivo; // živé pravidlo (to pustí živé tlačidlo)
+    odhlas.push(ctx.pravidloKroku(kVelk, () => !zapnute() || velkostiHotove()));
+    odhlas.push(ctx.pravidloKroku(kPocet, () => !zapnute() || potvrdeny, { kosik: false }));
+
+    // ---------------------------------------------------------------- cena a lišta (háčiky cena.js)
+    // kým nie sú veľkosti všetkých boxov v počte, suma „od“ = variant + pre každý box zvolená alebo najlacnejšia veľkosť
+    // (živý súčet by pri 2 boxoch bez veľkostí ukázal cenu 1 boxu)
+    odhlas.push(ctx.hacik("cena:od", function () {
+      if (!zapnute()) return null;
+      const n = pocet();
+      if (velkostiHotove(n)) return null;
+      let suma = cenaVariantu();
+      if (!(suma > 0)) return null;
+      for (let i = 0; i < n; i++) {
+        const v = zvolene(boxy[i]);
+        const o = v ? ctx.moznosti(boxy[i]).find((x) => x.hodnota === v) : null;
+        suma += o ? o.cena : minCena(boxy[i]);
+      }
+      return suma;
+    }));
+    // popis lišty (návrh boxy.html): „Box do kufra ×2 · S + L · <farba>“
+    odhlas.push(ctx.hacik("cena:lista", function (info) {
+      if (!zapnute() || !T.lista) return undefined;
+      const n = pocet();
+      const casti = [T.lista + (n > 1 ? " ×" + n : "")];
+      if (velkostiHotove(n)) {
+        const v = [];
+        for (let i = 0; i < n; i++) {
+          const o = ctx.moznosti(boxy[i]).find((x) => x.hodnota === zvolene(boxy[i]));
+          if (o) v.push(velkostZTextu(o.text).v);
+        }
+        if (v.length) casti.push(v.join(" + "));
+      }
+      if (info && info.farba) casti.push(info.farba.toLowerCase());
+      return casti.join(" · ");
+    }));
 
     // ---------------------------------------------------------------- otváranie krokov v poradí návrhu
     function otvorKrok(krok) {

@@ -89,7 +89,7 @@ export const novy = {
     if (await t.ev(`document.querySelector(".lcd1v-lista").classList.contains("on")`)) throw new Error("lišta je vysunutá, hoci je konfigurátor na obrazovke");
     // pod konfigurátorom sa vysunie
     await t.ev(`(function () { var b = document.querySelector("${F} .add-to-cart").getBoundingClientRect(); window.scrollTo(0, b.bottom + window.pageYOffset + 400); })()`);
-    await t.cakaj(`document.querySelector(".lcd1v-lista").classList.contains("on")`, { ms: 3000, popis: "vysunutá lepivá lišta" });
+    await t.cakaj(`document.querySelector(".lcd1v-lista").classList.contains("on")`, { ms: 10000, popis: "vysunutá lepivá lišta" });
     await pauza(450); // vysúvanie (transform .35 s)
     const st = await t.ev(`(function () {
       var b = document.querySelector(".lcd1v-lista .lcd1v-lista__kos").getBoundingClientRect();

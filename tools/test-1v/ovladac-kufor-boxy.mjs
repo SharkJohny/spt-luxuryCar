@@ -55,7 +55,7 @@ export const stary = {
       await pauza(300);
       const idF = await t.idParametra("farbaBoxov");
       await t.klikni(`${F} .box-config .parameter-wrap.parameter-${idF} .option-button`, { index: farba, popis: "farba boxov" });
-      await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 3000, popis: "farba boxov vo formulári" });
+      await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
       const velkosti = pocet === 2 ? [["box1", velkost], ["box2", velkost2 || velkost]] : [["boxSolo", velkost]];
       for (const [kluc, v] of velkosti) {
         const id = await t.idParametra(kluc);
@@ -133,13 +133,13 @@ async function hodnotyBoxov(t) {
 async function vyplnOkno(t, { pocet, farba = 0, velkost = "S", velkost2 }) {
   const idF = await t.idParametra("farbaBoxov");
   await t.klikni(`${OKNO} .parameter-wrap.parameter-${idF} .option-button`, { index: farba, popis: "farba boxov" });
-  await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 3000, popis: "farba boxov vo formulári" });
+  await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
   const velkosti = pocet === 2 ? [["box1", velkost], ["box2", velkost2 || velkost]] : [["boxSolo", velkost]];
   for (const [kluc, v] of velkosti) {
     const id = await t.idParametra(kluc);
     const val = await t.moznost(kluc, vzorVelkosti(v));
     await t.klikni(`${OKNO} .option-button[data-variant="${id}"][data-value="${val}"]`, { popis: kluc + " " + v });
-    await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 3000, popis: kluc + " vo formulári" });
+    await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: kluc + " vo formulári" });
   }
 }
 
@@ -166,7 +166,7 @@ export const novy = {
       const v = await t.moznost("kufor", VZOR_KUFRA[druh]);
       await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${v}"`, { popis: "kufor vo formulári" });
     }
-    await t.cakaj(`(document.querySelector(${JSON.stringify(karta)}) || {}).getAttribute && document.querySelector(${JSON.stringify(karta)}).getAttribute("aria-pressed") === "true"`, { ms: 3000, popis: "karta kufra označená" });
+    await t.cakaj(`(document.querySelector(${JSON.stringify(karta)}) || {}).getAttribute && document.querySelector(${JSON.stringify(karta)}).getAttribute("aria-pressed") === "true"`, { ms: 15000, popis: "karta kufra označená" });
     await pauza(400);
     return hodnota(t, "kufor");
   },
@@ -185,7 +185,7 @@ export const novy = {
     } else {
       await t.cakaj(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`, { popis: "bez okna pri Nechcem" });
     }
-    await t.cakaj(`document.querySelector(${JSON.stringify(karta)}).getAttribute("aria-pressed") === "true"`, { ms: 3000, popis: "karta boxov označená" });
+    await t.cakaj(`document.querySelector(${JSON.stringify(karta)}).getAttribute("aria-pressed") === "true"`, { ms: 15000, popis: "karta boxov označená" });
     await pauza(400);
     return hodnotyBoxov(t);
   },

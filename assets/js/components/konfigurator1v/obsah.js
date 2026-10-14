@@ -42,14 +42,14 @@ export const OBRAZKY_OBSAH = OBRAZKY_1V + "obsah/";
 export const TRIEDA_OBSAH = "lcd-1v-obsah";
 /**
  * D1 = b: kusy z CDN verzie bundle (len pod bránou). false = len korene, ktoré už sú v DOM (Popis po spustení).
- * Predvolené FALSE, kým prvé vydanie (plan.md §2.6 bod 2, T1.1) nezmení „: false“ na „: true“ — dovtedy by bundle
- * spustený nad cudzou verziou (testy konfigurátora vymieňajú luxuryCar.js na živej stránke, ktorej v/<sha>/ nemá html/)
- * sťahoval neexistujúce kusy (404 bez CORS = chyba v konzole). Build testu obsahu (tools/test-1v/obsah-spolocne.mjs)
- * ho zapína esbuild --define:LCD_OBSAH_CDN=true a kusy obsluhuje sám. Pred zmenou na true musí aj runner
- * tools/test-konfigurator-1v.mjs obslúžiť …/v/<sha>/html/p1v-*.sk.html (docs/1v-obsah.md §11).
+ * Zapnuté pri integrácii vlny WA (14. 10. 2026, prvé vydanie podľa plan.md §2.6 bod 2): runnery, ktoré na živej
+ * stránke vymieňajú luxuryCar.js (tools/test-konfigurator-1v.mjs, tools/test-boxy-prepni.mjs), kusy
+ * …/v/<sha>/html/p1v-*.sk.html pri lokálnom builde obslúžia samy (prázdny koreň = obsah „nic“, konfigurátor sa testuje
+ * bez obsahu); test obsahu (tools/test-1v/obsah-spolocne.mjs) ich obsluhuje z lokálneho admin-html/dist.
+ * Prepnutie späť bez úpravy kódu: esbuild --define:LCD_OBSAH_CDN=false.
  */
 /* global LCD_OBSAH_CDN */
-export const OBSAH_CDN = typeof LCD_OBSAH_CDN === "boolean" ? LCD_OBSAH_CDN : false;
+export const OBSAH_CDN = typeof LCD_OBSAH_CDN === "boolean" ? LCD_OBSAH_CDN : true;
 /** Počet kusov každého kľúča: -1 = sekcie 10–29, -2 = 30–49 (admin-html/ciele.json; build to kontroluje). */
 export const KUSY = 2;
 /** Modul typu podľa kľúča obsahu (beží po A–D); "598" a "vzorky" vlastný modul nemajú. */

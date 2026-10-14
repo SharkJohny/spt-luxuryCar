@@ -34,6 +34,8 @@ export const TYP = {
     boxyProdukt: {
       // vizuálny názov (živý H1 „luxusný boxi do kufra“ ostáva v DOM, len vizuálne skrytý — plan.md §2.5)
       nazov: "Luxusný box do kufra",
+      // popis lepivej lišty (návrh boxy.html lPop): „Box do kufra ×2 · S + L · <farba>“ (háčik cena:lista v boxy-produkt.js)
+      lista: "Box do kufra",
       rad: "Diamond Line",
       // krok 1: náhľad farby „Diamond Line — <farba>“
       nahlad: "Diamond Line",

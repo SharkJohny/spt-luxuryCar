@@ -451,18 +451,17 @@ function amountChoser(name, position) {
 
         // $("input.amount").val(i).trigger("change");
         $(".image-wrap").hide();
+        // Cenu prepočíta delegovaný handler .button.option-button v productPage.js (priceActualization je tam lokálna
+        // funkcia — volanie odtiaľto hádzalo „priceActualization is not defined“ ako posledný príkaz, nič iné nerobilo).
         if (i == 1) {
           // Show only first size, reset all to defaults
           resetBoxSizeOptions(1, true);
-          priceActualization();
         } else if (i == 2) {
           // Show first two sizes, reset hidden ones
           resetBoxSizeOptions(2);
-          priceActualization();
         } else if (i == 3) {
           // Show all sizes
           resetBoxSizeOptions(3);
-          priceActualization();
         }
       },
     }).appendTo(amountWrap);

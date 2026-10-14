@@ -31,6 +31,8 @@ const WEBY = {
   cz: { url: "https://www.luxurycardesign.cz/luxusne-autokoberce-dragonskin-diamond-line/", produkt: "2403" },
 };
 const AUTO = { znacka: "Audi", model: "A6", rok: "2015", typ: /^(Combi|Kombi)\b/i };
+/** kus obsahu pod konfigurátorom na CDN verzie bundle (obsah.js, D1 = b) — rovnaký tvar ako tools/test-1v/obsah-spolocne.mjs */
+const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.sk\.html(?:[?#]|$)/;
 const MERACE = [
   "*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*",
   "*google.com/pagead*", "*facebook.net*", "*facebook.com/tr*", "*connect.facebook*", "*tiktok*", "*hotjar*",
@@ -163,6 +165,11 @@ async function novaStranka(ch, a, build, log) {
       } else if (build.css && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?css\/luxuryCar\.css(\?|$)/.test(u)) {
         s.podvrhnute.push(u);
         return await odpovedz(p, build.css, "text/css; charset=utf-8");
+      } else if (build.js && RE_HTML_KUS.test(u)) {
+        // obsah pod konfigurátorom z CDN verzie bundle (obsah.js, D1 = b; len s flagom — tento test beží bez neho):
+        // lokálny bundle nad živou stránkou bez html/ v/<sha>/ -> prázdny koreň, nie 404 bez CORS
+        const kus = RE_HTML_KUS.exec(u)[1];
+        return await odpovedz(p, Buffer.from('<div id="' + kus + '" class="p1v-obsah" data-lcd-cast="' + kus + '" style="display:none"><!-- --></div>', "utf8"), "text/html; charset=utf-8");
       }
       await k.posli("Fetch.continueRequest", { requestId: p.requestId });
     } catch (e) { log("fetch " + u.slice(0, 80) + ": " + e.message); }

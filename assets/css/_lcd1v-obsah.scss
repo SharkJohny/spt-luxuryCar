@@ -38,7 +38,7 @@ body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="2"],[data-lcd-ka
 /*    jednotný rytmus kapitol návrhu (.kap > section.chapter): menšie odsadenie než titulka. Blok LCD-HOME ARMOR dáva
       .chapter padding s !important a špecificitou id (mobil 64 px, PC 5,4vw) -> selektor s id koreňov (1,3,2) ho prebije.
       Sekcie skupiny A (ponuka, referencie, recenzie) sú v návrhu mimo kapitol, rytmus im dáva _lcd1v-obsah-a.scss. */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is(section.chapter[data-lcd-kap],[data-lcd-kap] > section.chapter){
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(section.chapter[data-lcd-kap],[data-lcd-kap] > section.chapter){
   padding-top:clamp(38px,4.8vw,68px) !important;padding-bottom:clamp(38px,4.8vw,68px) !important}
 /*    linka medzi sekciami tej istej kapitoly (bez id: skupina ju vie zrušiť, napr. B pred porovnaním za scénou materiálu) */
 body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-kap="2"] + [data-lcd-kap="2"],
@@ -52,12 +52,12 @@ body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-ka
       c) reveal .rv: titulka ho skrýva (opacity 0 až do .on). Kým obsah.js neprevezme odhaľovanie (.p1v-rv na obale
          sekcie), je .rv viditeľné — bez JS alebo pri chybe skupiny nič neostane skryté;
       d) text len pre čítačky (TinyMCE: tlačidlo so šípkou musí mať text). */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is(.chapter h2,.pinhead h2){color:#8f7020;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.chapter h2,.pinhead h2){color:#8f7020;
   background:linear-gradient(100deg,#8a6b1c,#c49b31 42%,#e0bd63 60%,#96751f);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .lede{max-width:46ch}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia]:not(.p1v-rv) .rv,
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lede{max-width:46ch}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia]:not(.p1v-rv) .rv,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
 body.lcd-1v :is(.p1v-miesto .sr-only,.p1v-sr){position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;
   overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 

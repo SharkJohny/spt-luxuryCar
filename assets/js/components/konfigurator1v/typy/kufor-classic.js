@@ -23,7 +23,12 @@ export const TYP = {
         },
       },
     },
-    cena: { typ: "Dno kufra", zaSet: "cena za rohož na mieru" },
+    cena: {
+      typ: "Dno kufra",
+      zaSet: "cena za rohož na mieru",
+      // popis lepivej lišty (návrh kufor-classic.html lPop): „Diamond Line · rohož Classic“, po výbere farby „Diamond Line · <farba>“
+      lista: (i) => [i.vzor, i.farba ? i.farba.toLowerCase() : "rohož Classic"].filter(Boolean).join(" · "),
+    },
     kuforProdukt: {
       // názov rohože len vizuálne (živý H1 ostáva v DOM pre SEO a živý kód): „Luxusná rohož do kufra Classic Diamond Line“
       nazov: "Luxusná rohož do kufra Classic",

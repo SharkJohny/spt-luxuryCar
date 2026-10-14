@@ -49,7 +49,7 @@ Obal vyrobí build, workeri ho nemenia:
 **S flagom** (`assets/js/components/konfigurator1v/obsah.js`, posledný modul v `index.js`):
 1. Kľúč = `ctx.produkt.obsah` (register), inak `productId`.
 2. **a) Korene v DOM** `[data-lcd-cast^="p1v-<kľúč>-"]` (Popis po spustení, starý test v pätičke) → tie, synchrónne (ako základ).
-   **b) Inak, keď `OBSAH_CDN` (D1 = b; v jadre predvolene `false`, zapne ho prvé vydanie T1.1 — sekcia 11; test obsahu ho zapína `--define:LCD_OBSAH_CDN=true`):** adresa bundle `…/assets/v/<sha>/js/luxuryCar.js` (skript na stránke) → `…/assets/v/<sha>/html/p1v-<kľúč>-1|2.sk.html`, `fetch` (CORS: CDN posiela `Access-Control-Allow-Origin: *`, overené 14. 10. na `assets/v/fc20e3e/js/version.json`), HTML cez inertný `<template>` (nič sa nesťahuje ani nespúšťa, kým sa koreň nevloží). Len SK (`ctx.trh`). Nevyverzovaný bundle (bez `v/<sha>/`) = nič. Kus, ktorý nepríde (404, sieť), chýba.
+   **b) Inak, keď `OBSAH_CDN` (D1 = b; od integrácie WA 14. 10. 2026 v jadre predvolene `true` — sekcia 11; vypnúť sa dá bez úpravy kódu `--define:LCD_OBSAH_CDN=false`):** adresa bundle `…/assets/v/<sha>/js/luxuryCar.js` (skript na stránke) → `…/assets/v/<sha>/html/p1v-<kľúč>-1|2.sk.html`, `fetch` (CORS: CDN posiela `Access-Control-Allow-Origin: *`, overené 14. 10. na `assets/v/fc20e3e/js/version.json`), HTML cez inertný `<template>` (nič sa nesťahuje ani nespúšťa, kým sa koreň nevloží). Len SK (`ctx.trh`). Nevyverzovaný bundle (bez `v/<sha>/`) = nič. Kus, ktorý nepríde (404, sieť), chýba.
    Žiadna sekcia v koreňoch (len stuby) = nič, `window.__lcd1v.obsah.stav = "nic"`.
 3. Vytvorí `div.p1v-miesto` **hneď pred** `.p-detail > .shp-tabs-wrapper` (záložky Popis/Diskusia) = priamo pod konfigurátorom, na celú šírku stránky (`.overall-wrapper`; `--p1v-sirka`, `--p1v-vlavo` podľa skutočnej geometrie).
 4. Presunie korene doň v poradí kus 1, kus 2. Prázdny stĺpec pätičky (starý test) dostane `data-p1v-prazdny`.
@@ -68,7 +68,7 @@ Dôsledky:
 - Tie sú aj prvou časťou CSS návrhu. **Skupiny teda píšu len rozdiely oproti titulke**, nekopírujú 370 riadkov `lx-*`.
 - Špecificita ostáva (1,0,0). Bez flagu alias nič nevyberá.
 - `luxuryCar.css`: +~39 kB surových, +~2 kB brotli.
-- **Pozor (T0.3, pre koordinátora):** body 5–6 základu `_lcd1v-obsah.scss` a partialy A–D cielia `:is(#p1v-598-1,#p1v-598-2)` → pre kľúče `dvoj` … `boxy` neplatia. Návrh opravy: `:is(#p1v-598-1,.p1v-obsah)` — `:is()` berie špecificitu najšpecifickejšieho argumentu (1,0,0), takže prebije LCD-HOME rovnako, ale vyberie koreň každého kľúča.
+- Body 5–6 základu `_lcd1v-obsah.scss` a partialy A–D cielia `:is(#p1v-598-1,#p1v-598-2,.p1v-obsah)` (integrácia WA 14. 10. 2026; predtým len id 598): `:is()` berie špecificitu najšpecifickejšieho argumentu (1,0,0), takže prebije LCD-HOME rovnako a vyberie koreň každého kľúča (`dvoj` … `boxy`).
 
 **Kapitoly návrhu** (`.kap[data-k=1–4]` = 4 tematické skupiny, 2. a 4. na svetlom podklade):
 - Obal sekcie nesie `data-lcd-kap="N"`. Kapitola 2 má totiž sekcie dvoch skupín (B + C).
@@ -406,7 +406,7 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 
 **Vedomé odchýlky od návrhu:**
 - pätka lepených scén („Zostavte si set“) má pod 1340 px vpravo 84 px pre bublinu chatu Luxia (pravidlo titulky); na telefóne by bublina nad lepivou lištou ležala na tlačidle — návrh chat nemá,
-- cena v porovnaní v tvare Shoptetu „od €219“ (návrh „od 219 €“), rovnako ako v konfigurátore.
+- cena v porovnaní: od integrácie WA (14. 10. 2026) ju dosadí `obsah-cisla.js` zo značky `data-p1v-cislo="cena-od"` v tvare návrhu „od 219 €“ (na Hexa/Stripe cena toho vzoru); `obsah-b.js` len ukáže riadok (`.ma-cenu`), keď je hodnota zistená. Konfigurátor ostáva v tvare Shoptetu „€219“.
 
 **Technické, pred spustením:**
 - TinyMCE: 8 veľkých fotiek farieb má len `data-src` (bez `src`) — overiť replikou, že ich uloženie Popisu neodstráni (v banneri nevadí),
@@ -440,4 +440,6 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 1. `tools/test-konfigurator-1v.mjs` (jadro, nie T0.3): runner musí obslúžiť `…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html` z lokálneho `admin-html/dist` (vzor: `tools/test-1v/obsah-spolocne.mjs` `RE_HTML_KUS` v `novaStranka`), alebo ich vrátiť ako prázdne korene. Overené 14. 10.: s `OBSAH_CDN = true` a bez tejto úpravy `test-konfigurator-1v --novy --produkt 598` = 2 OK / 32 zlyhalo, jediná príčina 2 chyby konzoly „blocked by CORS policy“ na `…/v/fc20e3e/html/p1v-598-1|2.sk.html` (živá verzia `html/` nemá, 404 CDN nemá `Access-Control-Allow-Origin`).
 2. `obsah.js`: `: false` → `: true` v `OBSAH_CDN`.
 3. Vydanie podľa §2.6 (dist s `p1v-*.sk.html` commitnutý, `production.yml` ich skopíruje do `assets/v/<sha>/html/`), po CI `curl -sI` kusu (sekcia 9 A).
+
+**Integrácia WA (14. 10. 2026):** body 1 a 2 hotové — `tools/test-konfigurator-1v.mjs` a `tools/test-boxy-prepni.mjs` pri lokálnom builde vrátia na kus prázdny koreň (konfigurátor sa testuje bez obsahu, obsah.js stav „nic“), `OBSAH_CDN` predvolene `true`. Bod 3 (push, CI, `curl -sI` kusu na CDN) ostáva na vydaní. `test-1v-obsah.mjs`: výška stránky bez flagu pri `--miesto cdn` je len upozornenie (HTML stránky sa bez flagu nemení, kolíše živá stránka), každá úloha má tvrdý limit 480 s.
 

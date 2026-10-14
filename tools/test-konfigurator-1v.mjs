@@ -48,6 +48,8 @@ import * as scVzorky from "./test-1v/scenare-vzorky.mjs";
 
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/";
+/** kus obsahu pod konfigurátorom na CDN verzie bundle (obsah.js, D1 = b) — rovnaký tvar ako tools/test-1v/obsah-spolocne.mjs */
+const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.sk\.html(?:[?#]|$)/;
 const AUTO = { znacka: "Audi", model: "A6", rok: "2015", typ: "Combi" }; // Combi = TYP s príplatkom
 const MERACE = [
   "*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*",
@@ -210,7 +212,7 @@ function rozober(body) {
 /** Nová karta s presmerovaním bundlu/CSS na build, zachytávaním košíka a blokovaním meračov. */
 async function novaStranka(ch, sirka, build, a, log, produkt) {
   const k = await ch.novaKarta({ sirka });
-  const s = { k, posty: [], inePosty: [], podvrhnute: [], build, produkt, flagHodnota: a.flag || "1", upozornenia: [] };
+  const s = { k, posty: [], inePosty: [], podvrhnute: [], htmlKusy: [], build, produkt, flagHodnota: a.flag || "1", upozornenia: [] };
   // alert/confirm by zablokoval Runtime.evaluate (test by visel) -> zavrieť a zapísať ako upozornenie
   k.na("Page.javascriptDialogOpening", (p) => {
     s.upozornenia.push("dialóg na stránke (" + p.type + "): " + String(p.message || "").slice(0, 120));
@@ -241,6 +243,13 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
       } else if (s.build && s.build.css && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?css\/luxuryCar\.css(\?|$)/.test(u)) {
         s.podvrhnute.push(u);
         return await odpovedz(p, s.build.css, "text/css; charset=utf-8");
+      } else if (s.build && s.build.tmp && RE_HTML_KUS.test(u)) {
+        // obsah pod konfigurátorom z CDN verzie bundle (obsah.js OBSAH_CDN, D1 = b): lokálny bundle beží nad živou
+        // stránkou, ktorej v/<sha>/ priečinok html/ nemá (404 bez CORS = chyba v konzole). Konfigurátor sa testuje
+        // bez obsahu: prázdny koreň kusu -> obsah.js stav „nic“, starý popis ostáva. Obsah testuje tools/test-1v-obsah.mjs.
+        const kus = RE_HTML_KUS.exec(u)[1];
+        s.htmlKusy.push(kus);
+        return await odpovedz(p, Buffer.from('<div id="' + kus + '" class="p1v-obsah" data-lcd-cast="' + kus + '" style="display:none"><!-- --></div>', "utf8"), "text/html; charset=utf-8");
       } else if (s.build && s.build.tmp) {
         const m = /\/eshopy\/luxuryCar\/assets\/img\/1v\/([^?#]+)/.exec(u);
         const subor = m && join(KOREN, "assets/img/1v", decodeURIComponent(m[1]));
@@ -1051,10 +1060,12 @@ async function main() {
       // --snimky: aj snímka tesne pred každým „Pridať do košíka“ (po ňom Shoptet stmaví stránku, POST je zrušený)
       let nKosik = 0;
       const meno = `${u.P.id}-${u.m}-${u.sirka}${a.flag ? "-novy" + (a.flag === "vyvoj" ? "-vyvoj" : "") : ""}`;
-      const ovlUloha = !a.snimky ? ovl : { ...ovl, cena: { ...ovl.cena, pridajDoKosika: async (t) => {
+      // ovládače s košíkom: cena (karta + lišta) aj vzorkovník (nový vzhľad 637 nemá kartu .lcd1v-cena)
+      const sKosikom = (o) => (!o || typeof o.pridajDoKosika !== "function" ? o : { ...o, pridajDoKosika: async (t) => {
         await s.k.snimka(join(a.snimky, `${meno}-pred-kosikom${++nKosik > 1 ? "-" + nKosik : ""}.png`)).catch(() => {});
-        return ovl.cena.pridajDoKosika(t);
-      } } };
+        return o.pridajDoKosika(t);
+      } });
+      const ovlUloha = !a.snimky ? ovl : { ...ovl, cena: sKosikom(ovl.cena), vzorky: sKosikom(ovl.vzorky) };
       const r = (await sLimitom(Promise.resolve().then(() => u.fn(s, aU, pom, ovlUloha, J)), a.limit * 1000, "scenár " + u.m)) || {};
       if (r.preskoc) { v.stav = "PRESKOČENÉ"; v.sprava = r.preskoc; }
       v.info = r.info || ""; v.post = r.post || null; v.spolu = r.spolu == null ? null : r.spolu;

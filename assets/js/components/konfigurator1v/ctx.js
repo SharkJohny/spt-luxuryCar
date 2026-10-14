@@ -101,7 +101,7 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
    *   zapis("kufor", "") = zrušiť voľbu (karta sa odznačí, select prázdny),
    *   zapis("farba2", "540") (dvojvrstvové), zapis("box3", "706") (box 616),
    *   zapis("pocetKs", 1|2|3) = počet boxov na produkte box do kufra 616 (živé tlačidlo „N ks“: resetBoxSizeOptions
-   *   vyprázdni veľkosti nad počtom; živý web pri tom hodí známu chybu „priceActualization is not defined“). Zvolené
+   *   vyprázdni veľkosti nad počtom; chyba „priceActualization is not defined“ opravená v creatButtons.js, WA). Zvolené
    *   veľkosti boxov v rozsahu počtu ostanú (živé „1 ks“ by zmazalo aj 1. box), vyprázdnené dostanú „change“.
    */
   function zapis(kluc, hodnota) {
@@ -248,6 +248,50 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
     return !!b;
   }
 
+  // ---- háčiky typov (integrácia WA 14. 10. 2026; predtým si ich moduly typov riešili prepisom členov ctx)
+  /**
+   * Pravidlá vyplnenia krokov z modulov typu: živá validácia (lcdStepFilled) pozná napr. na boxe 616 len „aspoň jedna
+   * veľkosť“, nový vzhľad chce veľkosť KAŽDÉHO boxu v počte. Pravidlo len sprísňuje: fn(true) -> bool sa volá, až keď
+   * živé pravidlo krok berie ako vyplnený. kosik: true = rozhoduje aj o košíku (prvyNevyplneny), false = len stav
+   * karty a postup (napr. krok počtu „hotový“ až po potvrdení). Vráti funkciu, ktorá pravidlo zruší.
+   */
+  const pravidla = [];
+  function pravidloKroku(el, fn, { kosik = true } = {}) {
+    const p = { el, fn, kosik: !!kosik };
+    pravidla.push(p);
+    return () => { const i = pravidla.indexOf(p); if (i > -1) pravidla.splice(i, 1); };
+  }
+  function vyplneny(el) {
+    let v = lcdStepFilled(el);
+    pravidla.forEach((p) => {
+      if (!v || p.el !== el) return;
+      try { v = !!p.fn(v); } catch (e) { /* chyba pravidla = živé pravidlo */ }
+    });
+    return v;
+  }
+  function prvyNevyplneny() {
+    const n = lcdFirstUnfilled();
+    if (n) return n;
+    const p = pravidla.find((x) => x.kosik && !vyplneny(x.el));
+    return p ? p.el : null;
+  }
+  /**
+   * Háčiky modulov typu pre spoločné moduly (jeden na meno, posledný vyhráva): hacik(meno, fn) -> zrušenie,
+   * hacikom(meno, ...arg) -> výsledok fn alebo undefined (háčik nie je / zlyhal). Mená (docs/1v-kontrakt.md §4):
+   *   "cena:lista" (info { vzor, rozlozenie, farba }) -> text popisu lepivej lišty na telefóne,
+   *   "cena:od"    () -> najnižšia možná suma, kým výber nie je úplný (box 616: nevybraté veľkosti v počte).
+   */
+  const hacky = {};
+  function hacik(meno, fn) {
+    hacky[meno] = fn;
+    return () => { if (hacky[meno] === fn) delete hacky[meno]; };
+  }
+  function hacikom(meno, ...arg) {
+    const fn = hacky[meno];
+    if (typeof fn !== "function") return undefined;
+    try { return fn(...arg); } catch (e) { return undefined; }
+  }
+
   /** Čaká (každých 100 ms, max limit ms), kým podmienka() vráti niečo pravdivé, potom zavolá fn(výsledok). */
   function ked(podmienka, fn, { limit = 10000 } = {}) {
     const start = Date.now();
@@ -276,8 +320,13 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
     krok,
     menoKroku,
     kroky: () => lcdGetSteps(), // živé kroky v poradí validácie (poradie DOM: .content-wrap, kufor, boxy)
-    vyplneny: (el) => lcdStepFilled(el), // rovnaké pravidlo ako validácia košíka
-    prvyNevyplneny: () => lcdFirstUnfilled(), // prvý chýbajúci krok (element) alebo null = dá sa pridať do košíka
+    vyplneny, // pravidlo validácie košíka + pravidlá typu (pravidloKroku)
+    prvyNevyplneny, // prvý chýbajúci krok (element) alebo null = dá sa pridať do košíka
+    vyplnenyZivo: (el) => lcdStepFilled(el), // len živé pravidlo (bez pravidiel typu)
+    prvyNevyplnenyZivo: () => lcdFirstUnfilled(), // to, čo pustí živé tlačidlo košíka
+    pravidloKroku,
+    hacik,
+    hacikom,
     cena,
     formatCena: lcdCena, // tvar ceny ako Shoptet (SK „€219“, CZ „5 664 Kč“)
     obrazok: (meno) => OBRAZKY_1V + meno,
@@ -288,5 +337,6 @@ export function vytvorCtx({ setupData, texts, kontext, produkt }) {
     vysli,
     ked,
     chyby: [],
+    zlozit: () => {}, // index.js: návrat na starý vzhľad (pre chybu, ktorá príde až po init — asynchrónne)
   };
 }

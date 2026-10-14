@@ -19,8 +19,7 @@
 //   kufor-nie-cena   Nechcem rohož do kufra = presne to, čo posiela živý web (D2: 610 „nie“ = +5 €, POST [88]=598, 250 €)
 //   odporucana-jedno 598/610 ukážu Odporúčanú cenu (×1,6 nahor na desiatky), 613 (v admine chýba bežná cena) ju neukáže
 //
-// Predvolená sada (bez --krok): produkty.mjs nie je môj súbor, preto sa tieto scenáre pridajú do `scenare` profilov
-// 598/610/613 tu (pri importe, idempotentne). Keď ich integrátor dopíše aj do produkty.mjs, tento blok nič nezmení.
+// Predvolená sada (bez --krok): mená sú v `scenare` profilov 598/610/613 v produkty.mjs (integrácia WA 14. 10. 2026).
 import { join } from "node:path";
 import { PRODUKTY } from "./produkty.mjs";
 import { otvorKartu } from "./ovladac-kroky.mjs";
@@ -33,16 +32,6 @@ const FARBY = { 598: 18, 610: 3, 613: 8 };
 /** Príplatok voľby „nie“ (autokoberce do kufra) = čo sa pošle aj ukáže: 610 má v admine +5 € (D2: neopravujeme, ukážeme presne to). */
 const KUFOR_NIE = { 598: 0, 610: 5, 613: 0 };
 const TYP_STITOK = "Jednovrstvové";
-
-const SADA = {
-  598: ["vzor-jedno", "odporucana-jedno"],
-  610: ["vzor-jedno", "farba-nahlad", "vzor-prechod", "kufor-nie-cena", "odporucana-jedno"],
-  613: ["vzor-jedno", "farba-nahlad", "vzor-prechod", "kufor-nie-cena", "odporucana-jedno"],
-};
-for (const id of Object.keys(SADA)) {
-  const p = PRODUKTY[id];
-  if (p && Array.isArray(p.scenare)) p.scenare = [...p.scenare, ...SADA[id].filter((m) => !p.scenare.includes(m))];
-}
 
 const preskocBez = (a) => (a.novy ? null : { preskoc: "len nový vzhľad (?novy=1 / --vyvoj)" });
 const sklon = (n) => n + (n === 1 ? " farba" : n >= 2 && n <= 4 ? " farby" : " farieb") + " na výber";

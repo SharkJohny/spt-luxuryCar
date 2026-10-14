@@ -18,7 +18,12 @@ export const TYP = {
         },
       },
     },
-    cena: { typ: "Celý kufor", zaSet: "cena za rohož na mieru" },
+    cena: {
+      typ: "Celý kufor",
+      zaSet: "cena za rohož na mieru",
+      // popis lepivej lišty (návrh kufor-premium.html lPop): „Premium · Diamond Line“ (+ „ · <farba>“)
+      lista: (i) => ["Premium", i.vzor, i.farba ? i.farba.toLowerCase() : ""].filter(Boolean).join(" · "),
+    },
     kuforProdukt: {
       nazov: "Luxusná rohož do kufra Premium",
       vzory: { diamond: "Diamond Line", stripe: "Stripe Line", hexa: "Hexa Line" },

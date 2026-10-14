@@ -101,14 +101,18 @@ Všetko je vo `form#product-detail-form` (POST `/action/Cart/addCartItem/?simple
 | `projectId`, `productId`, `jazyk` (`sk`/`cs`), `trh` (`sk`/`cz`), `setupData`, `texts` | kontext |
 | `form()` | `#product-detail-form` |
 | `produkt` | `{ id, typ, vzor, url, obsah, kroky, moduly, obal, texty, obrazky }` z registra (`produkty.js` `produkt1v`). `texty` a `obrazky` = `typy/jedno.js` zlúčené s `typy/<typ>.js`. |
-| `texty(cast)` | texty typu pre časť: `"kroky"` (`{ postup(z), kroky: { <meno>: { nm, ti, vy, pod, chyba, pozn, dalej } } }`), `"cena"` (`{ typ, zaSet }`), voliteľne `"rozlozenie"`, `"kuforBoxy"` (prepisy textov modulu). Nič -> `{}`. |
+| `texty(cast)` | texty typu pre časť: `"kroky"` (`{ postup(z), kroky: { <meno>: { nm, ti, vy, pod, chyba, pozn, dalej } } }`), `"cena"` (`{ typ, zaSet, lista(info)? }` — `lista` = popis lepivej lišty, napr. rohože „Diamond Line · rohož Classic“), voliteľne `"rozlozenie"`, `"kuforBoxy"` (prepisy textov modulu). Nič -> `{}`. |
 | `obrazokVzoru(kluc)` | `typ.obrazky[kluc][vzor produktu]`, inak Diamond; kľúč nie je -> `null`. Kľúče `jedno`: `rozlozenie-1..3`, `kufor-classic`, `kufor-premium`, `kufor-nie`, `boxy-0..2`. |
 | `parameter(kluc)` | `{ kluc, id, meno, select, variant }` podľa `data-parameter-name`. Kľúče: `farba, farba2, rozlozenie, kufor, farbaBoxov, box1, box2, box3, boxSolo, typ` (alebo číslo ID). `farba2` = dvojvrstvové (SK 71, variant), `box3` = box 616 (SK 100). Na boxe 616 je `farba` farba boxu. |
 | `moznosti(kluc)` | `[{ hodnota, text (bez „+€N“), cena (príplatok s DPH zo Shoptetu), zvolena }]` |
 | `precitaj(kluc)` | aktuálna hodnota selectu (`""` = nič) |
-| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. Navyše `zapis("pocetKs", n)` (n = 1, 2 alebo 3) = počet boxov na produkte 616 (živé tlačidlo „N ks“; živý kód vyprázdni veľkosti nad počtom a hodí známu chybu `priceActualization is not defined`). Zvolené veľkosti boxov v rozsahu počtu ostanú — živé „1 ks“ by zmazalo aj 1. box, `zapis` ho vráti cez živé tlačidlo; vyprázdnené veľkosti nad počtom dostanú `change` (prepočet živej ceny). |
+| **`zapis(kluc, hodnota)`** | **jediný zápis voľby** (sekcia 5). Vráti `"tlacidlo"`, `"karta"`, `"select"`, `"uz"` alebo `null`. Navyše `zapis("pocetKs", n)` (n = 1, 2 alebo 3) = počet boxov na produkte 616 (živé tlačidlo „N ks“; živý kód vyprázdni veľkosti nad počtom; chyba `priceActualization is not defined` z `creatButtons.js` je od integrácie WA opravená, na CDN do vydania ostáva). Zvolené veľkosti boxov v rozsahu počtu ostanú — živé „1 ks“ by zmazalo aj 1. box, `zapis` ho vráti cez živé tlačidlo; vyprázdnené veľkosti nad počtom dostanú `change` (prepočet živej ceny). |
 | `krok(meno)` / `menoKroku(el)` | živý element kroku: `vzor, auto, farba, farba2, rozlozenie, kufor, boxy, boxyVyber, kosik, cena`; box 616 `pocet` (dieťa `.content-wrap` s `.amount-wrap`) a `velkost` (dieťa `.content-wrap` s `.parameter-sizes`). `menoKroku` skúša najprv kroky produktu. |
-| `kroky()`, `vyplneny(el)`, `prvyNevyplneny()` | to isté pravidlo ako validácia košíka. `prvyNevyplneny() === null` znamená „Vložte do košíka“, inak „Dokončite výber“. |
+| `kroky()`, `vyplneny(el)`, `prvyNevyplneny()` | pravidlo validácie košíka + pravidlá typu (`pravidloKroku`). `prvyNevyplneny() === null` znamená „Vložte do košíka“, inak „Dokončite výber“. |
+| `vyplnenyZivo(el)`, `prvyNevyplnenyZivo()` | len živé pravidlo (`lcdStepFilled` / `lcdFirstUnfilled`) = to, čo pustí živé tlačidlo košíka |
+| `pravidloKroku(el, fn, { kosik })` | háčik typu (integrácia WA 14. 10. 2026): sprísni „krok vyplnený“ — `fn(true)` sa volá, až keď živé pravidlo krok berie ako vyplnený; `kosik: false` = len stav karty a postup (nie košík). Vráti zrušenie. Box 616: veľkosť KAŽDÉHO boxu v počte (`kosik: true`), počet hotový až po potvrdení (`kosik: false`). Živé tlačidlo košíka pravidlo nepozná — modul typu ho pred ním stráži sám (capture klik, `boxy-produkt.js`). |
+| `hacik(meno, fn)` / `hacikom(meno, …arg)` | háčiky modulu typu pre spoločné moduly (jeden na meno, vráti zrušenie; zlyhaný háčik = `undefined`): `"cena:lista"` (`info { vzor, rozlozenie, farba }` -> text lepivej lišty; box „Box do kufra ×2 · S + L · <farba>“), `"cena:od"` (-> najnižšia možná suma, kým výber nie je úplný; box: nevybraté veľkosti v počte = najlacnejšia) |
+| `zlozit()` | návrat na starý vzhľad (index.js) pre chybu, ktorá príde až po init. Obsah z CDN ho zámerne nevolá (pri chybe sa vráti len obsah). |
 | `cena()` | `{ zaklad, priplatky, spolu, odporucana, maBeznuCenu, zlava }`. Variant z `necessaryVariantData` podľa `priceId` + zvolené príplatky. Odporúčaná cena = spolu × 1,6 nahor na desiatky (ako `productPage.js`), **len keď produkt má v admine bežnú cenu** (živý `.price-standard` v `.p-final-price-wrapper`, `maBeznuCenu: true`); inak `odporucana` a `zlava` = 0 (613, 625, 616, 637 — nič nevymýšľať, D2). |
 | `formatCena(n)` | tvar ceny ako Shoptet (SK `€219`, CZ `5 664 Kč`) |
 | `obrazok(meno)` | `…/eshopy/luxuryCar/assets/img/1v/<meno>` |
@@ -173,7 +177,9 @@ To, čo zákazník vyberie v krokoch 5–6, ide v tom istom riadku košíka. Pon
 - Partialy sú **čisté CSS** (nekompilujú sa, `luxuryCar.scss` NIKDY nekompilovať):
   - `assets/css/_lcd1v-kroky.scss`, `_lcd1v-rozlozenie.scss`, `_lcd1v-kufor-boxy.scss`, `_lcd1v-cena.scss`.
   - `tools/vloz-lcd-css.py` ich vkladá do `luxuryCar.css` ako bloky `LCD-1V-KROKY`, `LCD-1V-ROZLOZENIE`, `LCD-1V-KUFOR-BOXY`, `LCD-1V-CENA` (za `LCD-KOSIK`).
-  - Typy (T0.1): `_lcd1v-dvoj.scss`, `_lcd1v-kufor.scss`, `_lcd1v-boxy.scss` -> `LCD-1V-DVOJ`, `LCD-1V-KUFOR`, `LCD-1V-BOXY`; obsah podľa typu `_lcd1v-obsah-{dvoj,classic,premium,boxy}.scss` -> `LCD-1V-OBSAH-<TYP>` (pri zlúčení so spoločnými blokmi obsahu 598 ostanú za nimi). Selektor typu: `body.lcd-1v[data-lcd1v-typ="…"]`.
+  - Typy (T0.1): `_lcd1v-dvoj.scss`, `_lcd1v-kufor.scss`, `_lcd1v-boxy.scss` -> `LCD-1V-DVOJ`, `LCD-1V-KUFOR`, `LCD-1V-BOXY`; obsah podľa typu `_lcd1v-obsah-{dvoj,classic,premium,boxy}.scss` -> `LCD-1V-OBSAH-<TYP>` (pri zlúčení so spoločnými blokmi obsahu 598 ostanú za nimi); vzorkovník `_lcd1v-vzorky.scss` -> `LCD-1V-VZORKY` (posledný blok, T5.1). Selektor typu: `body.lcd-1v[data-lcd1v-typ="…"]`.
+  - Obsah pod konfigurátorom: spoločné partialy (`_lcd1v-obsah.scss`, `-a` … `-d`) cielia `:is(#p1v-598-1,#p1v-598-2,.p1v-obsah)` — koreň každého kľúča (`.p1v-obsah`) so špecificitou id (prebije LCD-HOME).
+  - Živý H1 jednovrstvových a dvojvrstvových: `cena.js` obalí názov materiálu („Dragonskin Basic/Elite“) do `span.lcd1v-mat`, ktorý `_lcd1v-cena.scss` pod `body.lcd-1v` skryje (návrhy: „Luxusné autokoberce Diamond Line“); `textContent` H1 ostáva rovnaký.
 - **Každý selektor začína `body.lcd-1v`.** Žiadne `@import`, žiadne globálne premenné na `:root`. Premenné daj na `body.lcd-1v`.
 - Test si skladá CSS sám (`vloz-lcd-css.py --vystup <tmp>`), workeri teda `luxuryCar.css` počas práce nemenia.
   - Pred commitom koordinátor spustí `python tools/vloz-lcd-css.py`.
@@ -232,6 +238,7 @@ node tools/test-konfigurator-1v.mjs --zdroj <sha>            # verzia nahratá n
   - JS: `esbuild assets/js/main.js --bundle --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none`, rovnako ako `production.yml`.
   - CSS: `vloz-lcd-css.py --vystup`.
   - `…/assets/img/1v/*` → lokálne súbory.
+  - Kusy obsahu `…/assets/v/<sha>/html/p1v-*.sk.html` (obsah.js `OBSAH_CDN`, D1 = b) → prázdny koreň: konfigurátor sa testuje bez obsahu (obsah.js stav „nic“), živá stránka priečinok `html/` vo svojej verzii nemá a 404 bez CORS by bola chyba v konzole. Obsah testuje `tools/test-1v-obsah.mjs` (z lokálneho `admin-html/dist`). Pri `--zdroj <sha>` idú kusy z CDN tej verzie.
 - Prostredie Windows:
   - `node_modules` v gite má len esbuild pre Mac. Test použije rovnakú verziu cez `npx esbuild@0.24.2`: cache npm, beží mimo repa.
   - Chýbajúce `gsap` a `lenis` stiahne raz do `%LOCALAPPDATA%/lcd-1v-test/balicky-*` (verzie z `yarn.lock`, NIE do repa) a esbuild ich nájde cez `NODE_PATH`.
@@ -248,12 +255,14 @@ node tools/test-konfigurator-1v.mjs --zdroj <sha>            # verzia nahratá n
 
 | Typ | Produkty | Predvolená sada |
 |---|---|---|
-| `jedno` | 598 Diamond, 613 Stripe, 610 Hexa | 598: plná (17 scenárov). 613: `brana nulova-zmena platne kufor-classic box-1`. 610: `brana nulova-zmena platne kufor-classic kufor-nie` |
-| `dvoj` | 601 Diamond, 604 Hexa, 607 Stripe | 601: plná + `farba2-prepni`. 604: `brana nulova-zmena neuplne platne kufor-classic box-2`. 607: `brana nulova-zmena platne kufor-classic box-2` |
-| `kufor-classic` | 619 Diamond, 625 Stripe, 622 Hexa | 619: `brana nulova-zmena bez-auta neuplne platne dokoncit k-suhrnu`. 625, 622: `brana nulova-zmena platne dokoncit` |
+| `jedno` | 598 Diamond, 613 Stripe, 610 Hexa | 598: plná (17 scenárov) + `vzor-jedno odporucana-jedno`. 613: `brana nulova-zmena platne kufor-classic box-1`, 610: `brana nulova-zmena platne kufor-classic kufor-nie`, obe + `vzor-jedno farba-nahlad vzor-prechod kufor-nie-cena odporucana-jedno` |
+| `dvoj` | 601 Diamond, 604 Hexa, 607 Stripe | 601: plná + `farba2-prepni farba2-vzhlad farba2-chyba farba2-odporucanie dvoj-texty`. 604, 607: `brana nulova-zmena neuplne platne kufor-classic box-2 farba2-vzhlad farba2-odporucanie` |
+| `kufor-classic` | 619 Diamond, 625 Stripe, 622 Hexa | 619: `brana nulova-zmena bez-auta neuplne platne dokoncit k-suhrnu kufor-vzhlad vzor-auto`. 625, 622: `brana nulova-zmena neuplne platne dokoncit k-suhrnu kufor-vzhlad vzor-auto` |
 | `kufor-premium` | 628 Diamond, 634 Stripe, 631 Hexa | 628 ako 619. 634, 631 ako 625 |
-| `boxy` | 616 Box do kufra | `brana nulova-zmena neuplne platne box-pocet-2 box-pocet-3 box-3-na-1 dokoncit k-suhrnu` |
-| `vzorky` | 637 Vzorkovník | `brana nulova-zmena platne vzorky-0` |
+| `boxy` | 616 Box do kufra | `brana nulova-zmena neuplne platne box-pocet-2 box-pocet-3 box-3-na-1 dokoncit k-suhrnu box-start box-2-neuplne` |
+| `vzorky` | 637 Vzorkovník | `brana nulova-zmena platne vzorky-0 vzorky-odober vzorky-nahlad` |
+
+Scenáre typov (`scenare-<typ>.mjs`, nižšie) sú v profiloch od integrácie WA (14. 10. 2026); bez flagu sa samy preskočia.
 
 Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktorý vráti inú sumu, ZLYHÁ. `odporucana: false` (613, 625, 616, 637): v admine chýba bežná cena, odporúčaná sa nemá ukázať (pozri Prísnosť).
 
@@ -281,6 +290,19 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `box-3-na-1` | boxy | 3 boxy → 1 box: 2. a 3. box prázdne/chýbajú, cena 1 × S |
 | `platne` (vzorky) | vzorky | vybrané vzorky → POST nesie presne tieto príplatky „Áno +€5“, záloha = 5 € × počet = súčet z POST; živá Shoptet cena o 5 € vyššia = upozornenie |
 | `vzorky-0` | vzorky | bez vzorky: nový vzhľad POST 0; starý pustí POST so všetkými prázdnymi (upozornenie) |
+| `vzor-jedno` | jedno | len nový vzhľad: vzor produktu v celej karte (body `data-*`, krok 1, názov radu, štítok typu, „N farieb na výber“), nič z cudzieho vzoru |
+| `farba-nahlad` | jedno | výber farby mení len náhľad v kroku, hlavná fotka galérie ostáva |
+| `vzor-prechod` | jedno | klik na sesterský vzor: správna adresa, flag ostane, auto ostane (kroky.js `prazdnePole`) |
+| `kufor-nie-cena` | jedno | Nechcem rohož = presne to, čo pošle živý web (D2: 610 „nie“ = +5 €, POST `[88]=598`, 250 €) |
+| `odporucana-jedno` | jedno | 598/610 Odporúčaná cena (×1,6 nahor na desiatky), 613 (bez bežnej ceny) nie |
+| `farba2-vzhlad`, `farba2-chyba`, `farba2-odporucanie` | dvoj | krok 4: 16 vzoriek (7 + 9), nič predvolené, náhľad bez zmeny hlavnej fotky, chybový text; štítok „Odporúčame“ na jednofarebnej Lux v tóne 1. vrstvy |
+| `dvoj-texty` | dvoj | texty kariet a štítku typu podľa návrhu, žiadne zakázané slovo vo viditeľnom texte |
+| `kufor-vzhlad` | kufor-* | názov rohože len vizuálne (živý H1 v DOM nezmenený), 3 kroky, auto bez volantu/miest/dverí, ceny dlaždíc a príplatok setu proti sesterským stránkam, odkazy, skryté bannery |
+| `vzor-auto` | kufor-* | prechod dlaždicou na sesterskú rohož: auto ostane (tvrdá kontrola od opravy `prazdnePole`), POST sesterského produktu platný |
+| `box-start` | boxy | nový vzhľad: 1 box, krok Farba otvorený, „Hotovo 0 z 3“, „od“ ceny kariet počtu a kariet veľkostí zo živých príplatkov, pás setu |
+| `box-2-neuplne` | boxy | nový vzhľad: 2 boxy s 1 veľkosťou → červený rám na Veľkosti, POST 0; po doplnení platný POST |
+| `vzorky-odober` | vzorky | nový vzhľad: × pri vybranej vzorke ju zruší, POST len so zvyšnými |
+| `vzorky-nahlad` | vzorky | nový vzhľad: objednateľné vzorky = živý widget (30), náhľady (15) sa nedajú vybrať, názvy zo živej stránky |
 
 Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy` ovládač:
 - štítok „Odporúčaná cena“ (ovládač `cena`),
@@ -302,13 +324,14 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 | `ovladac-rozlozenie.mjs` | `vyberRozlozenie(t, {index})` → value (0 = len 1. rad, 1 = 1.+2., 2 = všetky) |
 | `ovladac-kufor-boxy.mjs` | `skryteNaZaciatku` (bool) · `stav(t)` → `{kufor, boxy}` viditeľné · `vyberKufor(t, "classic"\|"premium"\|"nie")` → value · `vyberBoxy(t, {pocet, farba, velkost, velkost2})` → `{farbaBoxov, box1, box2, boxSolo}` |
 | `ovladac-cena.mjs` | `zobrazenaCena(t)` → číslo · `odporucana(t)` → `{cena, zlava, stitok}` · `pridajDoKosika(t)` (nový vzhľad môže klikať lepivú lištu) |
-| `ovladac-farba2.mjs` | `vyberFarbu2(t, {index})` → value farby 2. vrstvy (dvojvrstvové; `novy` zatiaľ `null`) |
-| `ovladac-boxy-produkt.mjs` | produkt Box do kufra 616: `vyberPocet(t, n)` · `pocet(t)` · `vyberFarbu(t, {index})` · `vyberVelkosti(t, [..])` · `hodnoty(t)` (`novy` zatiaľ `null`) |
-| `ovladac-vzorky.mjs` | vzorkovník 637: `vyberVzorky(t, [id, …])` · `pocet(t)` · `zaloha(t)` (`novy` zatiaľ `null`) |
+| `ovladac-farba2.mjs` | `vyberFarbu2(t, {index})` → value farby 2. vrstvy (dvojvrstvové); `novy` navyše `otvor(t)`, `stav(t)`, `prepniVysvetlenie(t)` (T1.2) |
+| `ovladac-boxy-produkt.mjs` | produkt Box do kufra 616: `vyberPocet(t, n)` · `pocet(t)` · `vyberFarbu(t, {index})` · `vyberVelkosti(t, [..])` · `hodnoty(t)`; `novy` (T3.2) navyše `stav(t)` |
+| `ovladac-vzorky.mjs` | vzorkovník 637: `vyberVzorky(t, [id, …])` · `pocet(t)` · `zaloha(t)`; `novy` (T5.1) navyše `otvorKrokVzorky`, `odoberVzorku`, `zobrazenaCena`, `odporucana`, `stav`, `pridajDoKosika` (nemá kartu `.lcd1v-cena`; `--snimky` fotí aj pred jeho košíkom) |
 
 **Pomocník `t`** (`tools/test-1v/pomocnik.mjs`):
 - `t.klikni(sel, {index, popis, vRamci})` — **skutočný klik myšou**. Prvok sa posunie do stredu, počká sa, kým stojí, a overí sa, že ho nič nezakrýva (Luxia, lišta, hlavička). Inak test zlyhá.
-- `t.nastavSelect(sel, text|index)`, `t.cakaj(expr, {ms})`, `t.ev(expr)`, `t.idParametra(kluc)` (výnimka, keď parameter nie je), `t.maParameter(kluc)` (`null`, keď nie je), `t.moznost(kluc, /regex/)`, `t.zabudni()`, `t.mobil`, `t.sirka`, `t.novy`, `t.pauza(ms)`.
+- `t.cakaj(expr, {ms})`: každé zistenie podmienky má vlastný limit 10 s (zaseknuté `Runtime.evaluate` pri výmene dokumentu / zahltenom stroji sa zahodí a skúša sa znova do `ms`; integrácia WA). Čakania ovládačov na výsledok kliku majú 10–25 s (vrátia sa hneď, keď podmienka platí).
+- `t.nastavSelect(sel, text|index)`, `t.ev(expr)`, `t.idParametra(kluc)` (výnimka, keď parameter nie je), `t.maParameter(kluc)` (`null`, keď nie je), `t.moznost(kluc, /regex/)`, `t.zabudni()`, `t.mobil`, `t.sirka`, `t.novy`, `t.pauza(ms)`.
 - Kľúče parametrov (`farba`, `farba2`, `rozlozenie`, `kufor`, `farbaBoxov`, `box1`–`box3`, `boxSolo`, `typ`) sa hľadajú podľa `data-parameter-name`, nikdy podľa ID natvrdo.
 - Selektory starého vzhľadu a `otvorKrok()` sú v `tools/test-1v/stary-ui.mjs`.
 - Nový ovládač kliká na to, čo vidí zákazník v novom vzhľade. Starý DOM, ktorý je vizuálne skrytý, nie.
@@ -331,6 +354,13 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 - `--novy --produkt 610,613 --paralelne 2`: 20 OK, 2 upozornenia (610 „nie“ +5 €, D2), exit 0; `--novy --produkt 610,613 --krok ctx-zapis`: 4 OK (613 bez bežnej ceny: `ctx.cena().odporucana` = 0),
 - `--vyvoj --krok brana --sirka 1280` na 601, 604, 607, 619, 622, 625, 628, 631, 634, 616, 637: 11 OK, `window.__lcd1v.chyby` prázdne.
 
+**Po integrácii vlny WA (14. 10. 2026, T0.3 + T1.1 + T1.2 + T2.2 + T3.2 + T5.1 + opravy integrátora, lokálny build, každý POST zachytený a zrušený):**
+- `--produkt all --krok brana,nulova-zmena --sirka 1280,390 --paralelne 2`: 56 OK, exit 0 (bez flagu nulová zmena na všetkých 14 produktoch),
+- `--novy --produkt 598,610,613 --paralelne 2`: 78 OK, 4 upozornenia (610 „nie“ +5 €, D2), exit 0,
+- `--vyvoj --produkt 601,604,607,619,622,625,628,631,634,616,637 --sirka 1280,390 --paralelne 2`: 194 OK, 2 zlyhalo, 14 preskočených, exit 1 — `619 vzor-auto 1280` (POST so starým `priceId` variantu, Shoptet ho pod záťažou stroja prepísal neskôr) a `619 nulova-zmena 390` (výnimky skriptov Shoptetu `datepicker-sk.js`, `ProductNote.js` pri načítaní); opakovanie `--vyvoj --produkt 619 --krok vzor-auto,nulova-zmena --sirka 1280,390`: 4 OK, exit 0, a 2× `--vyvoj --produkt 619,622,625 --sirka 1280 --krok vzor-auto`: 3 OK, exit 0,
+- `tools/test-1v-obsah.mjs --produkt 598,610,613`: 32 OK, exit 0 (bez flagu 0 požiadaviek na kusy obsahu a 0 médií; s `?novy=1` obsah z CDN verzie, na 610/613 „od 230 €“),
+- `tools/test-boxy-prepni.mjs`: 8/8 OK, exit 0.
+
 ## 10. Vlastníctvo súborov
 
 Od T0.1 (14. 10. 2026) sú moduly 598 súčasťou **jadra**. Jadro mení len vydávacia úloha vlny (T1.1, T2.1, T3.1, T4.1, T5.1; plan.md §2.1):
@@ -348,7 +378,7 @@ Workeri typov (každý len svoje súbory):
 | **dvoj** (T1.2: 601, 604, 607) | `konfigurator1v/farba2.js`, `typy/dvoj.js`, `assets/css/_lcd1v-dvoj.scss`, `tools/test-1v/ovladac-farba2.mjs` (len `novy`), `tools/test-1v/scenare-dvoj.mjs`, `assets/img/1v/dvoj-*` |
 | **kufor** (T2.2: 619–634) | `konfigurator1v/kufor-produkt.js`, `typy/kufor-classic.js`, `typy/kufor-premium.js`, `assets/css/_lcd1v-kufor.scss`, `tools/test-1v/scenare-kufor.mjs`, `assets/img/1v/rohoz-classic-*`, `rohoz-premium-*` |
 | **boxy** (T3.2: 616) | `konfigurator1v/boxy-produkt.js`, `typy/boxy.js`, `assets/css/_lcd1v-boxy.scss`, `tools/test-1v/ovladac-boxy-produkt.mjs` (len `novy`), `tools/test-1v/scenare-boxy.mjs`, `assets/img/1v/boxprodukt-*` |
-| **vzorky** (T5.1: 637) | `konfigurator1v/vzorky-produkt.js`, `typy/vzorky.js` (+ register 637 v jadre v rámci svojho vydania) |
+| **vzorky** (T5.1: 637) | `konfigurator1v/vzorky-produkt.js`, `typy/vzorky.js`, `assets/css/_lcd1v-vzorky.scss`, `tools/test-1v/ovladac-vzorky.mjs` (len `novy`), `tools/test-1v/scenare-vzorky.mjs` (+ register 637 v jadre v rámci svojho vydania) |
 | **obsah <typ>** (T1.3, T2.3, T2.4, T3.3) | `konfigurator1v/obsah-<typ>.js`, `assets/css/_lcd1v-obsah-<typ>.scss`, `admin-html/src/p1v-<typ>/*`, `tools/test-1v/obsah-<typ>.mjs`, `assets/img/1v/obsah/<typ>-*` |
 
 Stuby z T0.1 (modul `init(){}`, typ len so spoločnými textami, prázdny partial) existujú pre všetky typy, takže `?novy=vyvoj` funguje na celom registri hneď (surový vzhľad nových krokov, `window.__lcd1v.chyby` prázdne).

@@ -48,6 +48,9 @@ body.lcd-1v #product-detail-form .p-detail-inner-header h1 .lcd1v-rad {
   display: block; margin: 2px 0 0;
   font-size: 1em; font-weight: 600; font-style: normal; letter-spacing: .04em; color: var(--c1v-zl);
 }
+/* názov materiálu v živom H1 („Dragonskin Basic / Elite“): v DOM ostáva (SEO, živý kód), nový vzhľad ho neukazuje —
+   návrhy majú „Luxusné autokoberce Diamond Line“ (cena.js zvyrazniRad) */
+body.lcd-1v #product-detail-form .p-detail-inner-header h1 .lcd1v-mat { display: none; }
 /* hodnotenie: tichý riadok, odkaz s vlasovou linkou; dotyková plocha 44 px (padding, mínus okraj dole) */
 body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn {
   display: flex; width: fit-content; max-width: 100%; align-items: baseline; flex-wrap: wrap; gap: 0 8px;

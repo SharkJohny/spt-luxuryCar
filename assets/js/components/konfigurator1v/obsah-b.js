@@ -249,7 +249,18 @@ function najnizsiaCena(ctx) {
 
 function porovnanie(sek, oc) {
   const od = sek.querySelector(".p1v-b-od");
-  if (od && oc.ctx) oc.ked(() => najnizsiaCena(oc.ctx), (cena) => {
+  if (!od || !oc.ctx) return;
+  // Značka data-p1v-cislo (admin-html/src: „od {}“): číslo a tvar „od 219 €“ dosadí obsah-cisla.js — jeden mechanizmus
+  // a jeden tvar ceny pre celý obsah (na Hexa/Stripe cena toho vzoru). Riadok sa ukáže (.ma-cenu), až keď je hodnota
+  // zistená; nezistená = riadok ostane skrytý (CSS .p1v-b-od:not(.ma-cenu)).
+  const znacka = od.querySelector("[data-p1v-cislo]");
+  if (znacka) {
+    oc.ked(() => { const st = znacka.getAttribute("data-p1v-stav"); return st === "ok" || st === "bez" ? st : null; },
+      () => od.classList.add("ma-cenu"), { limit: 15000 });
+    return;
+  }
+  // staršie HTML bez značky: najnižšia cena variantu zo Shoptetu
+  oc.ked(() => najnizsiaCena(oc.ctx), (cena) => {
     od.textContent = "od " + oc.ctx.formatCena(cena);
     od.classList.add("ma-cenu");
   }, { limit: 8000 });

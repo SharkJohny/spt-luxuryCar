@@ -19,7 +19,7 @@ const TYP_TEXT = { "kufor-classic": "Dno kufra", "kufor-premium": "Celý kufor" 
 const VZOR_NAZOV = { diamond: "Diamond Line", stripe: "Stripe Line", hexa: "Hexa Line" };
 const VZORY = ["diamond", "stripe", "hexa"];
 /** Jadro kroky.js po oprave prazdnePole (obnovené auto = vyplnené pole) -> true: vzor-auto to kontroluje natvrdo. */
-const JADRO_AUTO_OPRAVENE = false;
+const JADRO_AUTO_OPRAVENE = true; // kroky.js prazdnePole opravené (T1.1, integrácia WA 14. 10. 2026)
 const cisty = (s) => String(s == null ? "" : s).replace(/\s+/g, " ").trim(); // aj NBSP
 const eur = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(".", ",")) + " €";
 

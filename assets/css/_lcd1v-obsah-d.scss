@@ -4,7 +4,7 @@
    Základ titulky (blok LCD-HOME) na koreňoch obsahu už platí: .chapter, h2, .lede, .rv, .vids/.vid/.vidnav, .end, .btn.
    Tu len rozdiely oproti titulke podľa návrhu v26 + FAQ (vlastné triedy, .faq kotví živý JS) + linka čítania + okno.
    Pravidlá titulky majú špecificitu id (1,x,x): kde ich treba prebiť, začína selektor
-   body.lcd-1v :is(#p1v-598-1,#p1v-598-2) (korene obsahu; po spustení v Popise ostáva #p1v-598-1).
+   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) (korene obsahu; po spustení v Popise ostáva #p1v-598-1).
    Linka čítania (#p1v-citanie) a okno (#p1v-lb) sú po init priamo v <body> (obsah-d.js) — premenné koreňa tam
    neplatia, preto farby a písmo natvrdo (= --gold-lo #8f7020, --gold-hi #e6c877, --disp „Exo 2“). */
 
@@ -14,58 +14,58 @@
 
 /* ---------- d-realita: videá z praxe (návrh #realita = titulka #realita bez .rule) ---------- */
 /* šípky schová obsah-d.js atribútom hidden, keď sa pás zmestí (titulka dáva .vidnav display:flex so špecificitou id) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vidnav[hidden]{display:none !important}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vidnav[hidden]{display:none !important}
 /* titulka nemá v globálnom img height:auto pre .vid (návrh patch34): bez neho by height="960" natiahol kartu */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vid img{height:auto}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vid{cursor:pointer}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vid img{height:auto}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vid{cursor:pointer}
 @media (max-width:700px){
   /* návrh: pás na telefóne presahuje 10 px do pravého okraja (ďalšia karta naznačí posun) */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vids{margin-right:-10px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vids{margin-right:-10px}
 }
 
 /* ---------- d-faq: otázky (návrh section.chapter.faqsec, patch20 + patch33: číslo pred otázkou, odpoveď bez odsadenia) ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq{border-top:1px solid var(--line)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-o{border-bottom:1px solid var(--line)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q{appearance:none;-webkit-appearance:none;display:flex;align-items:baseline;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq{border-top:1px solid var(--line)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-o{border-bottom:1px solid var(--line)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q{appearance:none;-webkit-appearance:none;display:flex;align-items:baseline;
   gap:16px;width:100%;margin:0;padding:18px 0;border:0;border-radius:0;background:none;box-shadow:none;cursor:pointer;
   font:inherit;color:var(--ink);text-align:left;text-transform:none;letter-spacing:normal;min-height:0;height:auto}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q .i{flex:0 0 auto;min-width:20px;margin-right:14px;font-family:var(--disp);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .i{flex:0 0 auto;min-width:20px;margin-right:14px;font-family:var(--disp);
   font-weight:800;font-size:11px;line-height:1.6;letter-spacing:.08em;color:#8f7020;font-variant-numeric:tabular-nums}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:16.5px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:16.5px;
   font-weight:600;line-height:1.6;color:var(--ink);transition:color .2s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q:hover .t{color:var(--gold-lo)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q .p{flex:none;margin-left:auto;font-family:var(--body);font-size:20px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:hover .t{color:var(--gold-lo)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .p{flex:none;margin-left:auto;font-family:var(--body);font-size:20px;
   line-height:1;color:#7c5f16;transition:transform .25s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q[aria-expanded="true"] .p{transform:rotate(45deg)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q[aria-expanded="true"] .p{transform:rotate(45deg)}
 /* odpoveď: zbalená = 0 riadkov mriežky + visibility:hidden (mimo poradia Tab a čítačiek), rozbalenie plynulo */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a{display:grid;grid-template-rows:0fr;visibility:hidden;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a{display:grid;grid-template-rows:0fr;visibility:hidden;
   transition:grid-template-rows .3s cubic-bezier(.2,.7,.2,1),visibility 0s linear .3s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q[aria-expanded="true"] + .p1v-faq-a{grid-template-rows:1fr;visibility:visible;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q[aria-expanded="true"] + .p1v-faq-a{grid-template-rows:1fr;visibility:visible;
   transition:grid-template-rows .3s cubic-bezier(.2,.7,.2,1),visibility 0s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a > .a{min-height:0;overflow:hidden;max-width:70ch;padding:0;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a > .a{min-height:0;overflow:hidden;max-width:70ch;padding:0;
   font-size:14.5px;line-height:1.6;color:#4a4433}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a > .a:after{content:"";display:block;height:20px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a a{color:#7c5f16;text-decoration:underline;text-underline-offset:2px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a > .a:after{content:"";display:block;height:20px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a a{color:#7c5f16;text-decoration:underline;text-underline-offset:2px}
 @media (prefers-reduced-motion:reduce){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a{transition:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a{transition:none}
 }
 
 /* ---------- d-koniec: „Kúpiť a nečakať!“ (návrh section.end = záver titulky) ---------- */
 /* titulka od 900 px zmenšuje odsadenie záveru (clamp 44–92 px); návrh v26 má clamp(66px,9vw,140px) na všetkých šírkach */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"]{padding-top:clamp(66px,9vw,140px) !important;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"]{padding-top:clamp(66px,9vw,140px) !important;
   padding-bottom:clamp(66px,9vw,140px) !important}
 /* pozadie: v návrhu <img> s opacity .3 a filtrom; tu ozdoba v CSS. hero.jpg prednačítava Záhlavie webu na každej stránke
    (cache), trieda p1v-blizko (obsah-d.js pri priblížení) = ani bez prednačítania sa nestiahne skôr, než treba */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] .endbg{opacity:.3;filter:saturate(.82) contrast(1.04);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .endbg{opacity:.3;filter:saturate(.82) contrast(1.04);
   background:#181510 50% 50% / cover no-repeat}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"].p1v-blizko .endbg{
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"].p1v-blizko .endbg{
   background-image:url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/hero.jpg")}
 /* nadpis biely aj keby ho prefarbilo zlaté pravidlo h2 (návrh patch36) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] h2{color:#fff;background:none;-webkit-text-fill-color:#fff}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] h2{color:#fff;background:none;-webkit-text-fill-color:#fff}
 /* hlavné tlačidlo bez rámu (Shoptet .btn by mu dal 1px tmavý rám); druhé: v návrhu inline štýl (biely text, zlatý rám) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] .btn:not(.ghost){border:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] .btn.ghost{color:#fff;border-color:rgba(230,200,119,.45)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .btn:not(.ghost){border:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .btn.ghost{color:#fff;border-color:rgba(230,200,119,.45)}
 
 /* ---------- d-pomocne: zlatá linka čítania (návrh .citanie, patch20) — v <body>, nad hlavičkou ---------- */
 body.lcd-1v .p1v-citanie{position:fixed;left:0;right:0;top:0;height:2px;margin:0;padding:0;z-index:2147483000;

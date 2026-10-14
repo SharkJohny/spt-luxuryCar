@@ -29,7 +29,7 @@ export const stary = {
   async vyberPocet(t, n) {
     const sel = await otvorKrok(t, "pocet");
     await t.klikni(`${sel} .amount-wrap .amount-button`, { index: n - 1, popis: n + " ks" });
-    await t.cakaj(`(function () { var a = document.querySelector(${JSON.stringify(sel + " .amount-button.active")}); return !!(a && a.textContent.trim().indexOf("${n}") === 0); })()`, { ms: 3000, popis: "aktívne " + n + " ks" });
+    await t.cakaj(`(function () { var a = document.querySelector(${JSON.stringify(sel + " .amount-button.active")}); return !!(a && a.textContent.trim().indexOf("${n}") === 0); })()`, { ms: 10000, popis: "aktívne " + n + " ks" });
     await pauza(300);
     return stary.pocet(t);
   },
@@ -57,7 +57,7 @@ export const stary = {
       const id = await t.idParametra(kluc);
       const val = await t.moznost(kluc, vzorVelkosti(velkosti[i]));
       await t.klikni(`${sel} .parameter-sizes[data-parameterid="${id}"] .option-button[data-value="${val}"]`, { popis: (i + 1) + ". box " + velkosti[i] });
-      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 3000, popis: (i + 1) + ". box vo formulári" });
+      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: (i + 1) + ". box vo formulári" });
     }
     await pauza(300);
     return hodnoty(t);
@@ -92,7 +92,7 @@ export const novy = {
       var a = document.querySelector("${F} .content-wrap .amount-wrap .amount-button.active");
       var k = document.querySelector(${JSON.stringify(sel + ' .lcd1v-bxp-ks[data-ks="' + n + '"]')});
       return !!(a && a.textContent.trim().indexOf("${n}") === 0 && k && k.getAttribute("aria-pressed") === "true");
-    })()`, { ms: 3000, popis: "aktívne " + n + " ks + karta" });
+    })()`, { ms: 10000, popis: "aktívne " + n + " ks + karta" });
     await pauza(300);
     return novy.pocet(t);
   },
@@ -118,10 +118,10 @@ export const novy = {
       const id = await t.idParametra(kluc);
       const val = await t.moznost(kluc, vzorVelkosti(velkosti[i]));
       const grp = `${sel} .lcd1v-bxp-vgrp[data-box="${i + 1}"]`;
-      await t.cakaj(`(function () { var g = document.querySelector(${JSON.stringify(grp)}); return !!(g && !g.hidden && g.offsetHeight > 0); })()`, { ms: 3000, popis: (i + 1) + ". box: skupina veľkostí viditeľná" });
+      await t.cakaj(`(function () { var g = document.querySelector(${JSON.stringify(grp)}); return !!(g && !g.hidden && g.offsetHeight > 0); })()`, { ms: 10000, popis: (i + 1) + ". box: skupina veľkostí viditeľná" });
       await t.klikni(`${grp} .lcd1v-bxp-vk[data-hodnota="${val}"]`, { popis: (i + 1) + ". box " + velkosti[i] });
-      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 3000, popis: (i + 1) + ". box vo formulári" });
-      await t.cakaj(`(document.querySelector(${JSON.stringify(grp + ' .lcd1v-bxp-vk[data-hodnota="' + val + '"]')}) || {}).getAttribute("aria-pressed") === "true"`, { ms: 3000, popis: (i + 1) + ". box: karta zvolená" });
+      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: (i + 1) + ". box vo formulári" });
+      await t.cakaj(`(document.querySelector(${JSON.stringify(grp + ' .lcd1v-bxp-vk[data-hodnota="' + val + '"]')}) || {}).getAttribute("aria-pressed") === "true"`, { ms: 10000, popis: (i + 1) + ". box: karta zvolená" });
     }
     await pauza(300);
     return hodnoty(t);

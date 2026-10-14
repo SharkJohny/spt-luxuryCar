@@ -64,14 +64,15 @@ export const VSETKY_TYPY = Object.keys(TYPY_TEST);
 
 // sady scenárov (mená = SCENARE v test-konfigurator-1v.mjs a v scenare-<typ>.mjs)
 const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "ctx-zapis", "kufor-classic", "kufor-premium", "box-1", "box-2", "kufor-nie", "box-nie", "box-krizik", "box-prepni", "rady-3", "k-suhrnu", "miesta-5"];
-const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu"];
-const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "platne", "dokoncit"];
+// scenáre typov (scenare-<typ>.mjs) dopísané pri integrácii WA (14. 10. 2026); bez flagu sa samy preskočia
+const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto"];
+const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto"];
 
 export const PRODUKTY = {
   // ---------------------------------------------------------------- jednovrstvové
   598: {
     url: SK + "/luxusne-autokoberce-dragonskin-diamond-line/", typ: "jedno", vzor: "diamond", nazov: "Jednovrstvové Diamond",
-    scenare: JEDNO_PLNE,
+    scenare: [...JEDNO_PLNE, "vzor-jedno", "odporucana-jedno"],
     platne: { priceId: "63493", spolu: 269, odporucana: 440 },
     // docs/1v-kontrakt.md §6 + beh 14. 10. 2026 (a0d3ce8)
     ceny: { platne: 269, "kufor-classic": 363, "kufor-premium": 473, "box-1": 343, "box-2": 551, "kufor-nie": 234, "box-nie": 234, "rady-3": 389 },
@@ -79,7 +80,7 @@ export const PRODUKTY = {
   },
   613: {
     url: SK + "/luxusne-autokoberce-dragonskin-stripe-line/", typ: "jedno", vzor: "stripe", nazov: "Jednovrstvové Stripe",
-    scenare: ["brana", "nulova-zmena", "platne", "kufor-classic", "box-1"],
+    scenare: ["brana", "nulova-zmena", "platne", "kufor-classic", "box-1", "vzor-jedno", "farba-nahlad", "vzor-prechod", "kufor-nie-cena", "odporucana-jedno"],
     platne: { priceId: "66872", spolu: 280, odporucana: null },
     odporucana: false,
     ceny: { platne: 280, "kufor-classic": 374 },
@@ -87,7 +88,7 @@ export const PRODUKTY = {
   },
   610: {
     url: SK + "/luxusne-autokoberce-dragonskin-hexa-line/", typ: "jedno", vzor: "hexa", nazov: "Jednovrstvové Hexa",
-    scenare: ["brana", "nulova-zmena", "platne", "kufor-classic", "kufor-nie"],
+    scenare: ["brana", "nulova-zmena", "platne", "kufor-classic", "kufor-nie", "vzor-jedno", "farba-nahlad", "vzor-prechod", "kufor-nie-cena", "odporucana-jedno"],
     platne: { priceId: "59803", spolu: 280, odporucana: 450 },
     ceny: { platne: 280, "kufor-classic": 374 },
     // admin: „autokoberce do kufru: nie“ (88/598) stojí +5 € (598 má +0 €) — D2: ukázať, nie zlyhať. overPost to hlási
@@ -97,14 +98,14 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- dvojvrstvové
   601: {
     url: SK + "/luxusne-autokoberce-dragonskin-elite-diamond-line/", typ: "dvoj", vzor: "diamond", nazov: "Dvojvrstvové Diamond",
-    scenare: [...JEDNO_PLNE, "farba2-prepni"],
+    scenare: [...JEDNO_PLNE, "farba2-prepni", "farba2-vzhlad", "farba2-chyba", "farba2-odporucanie", "dvoj-texty"],
     platne: { priceId: "66989", spolu: 416, odporucana: 670 },
     ceny: { platne: 416, "kufor-classic": 495, "box-2": 683 },
     postKluce: "ako 598 + parameterValueId[71] (farba 2. vrstvy, variant: priceId = 71-<lux>-78-<farba>)",
   },
   604: {
     url: SK + "/luxusne-autokoberce-dragonskin-elite-hexa-line/", typ: "dvoj", vzor: "hexa", nazov: "Dvojvrstvové Hexa",
-    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "kufor-classic", "box-2"],
+    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "kufor-classic", "box-2", "farba2-vzhlad", "farba2-odporucanie"],
     platne: { priceId: "67856", spolu: 432, odporucana: 700 },
     // kufor-classic a box-2: odvodené z produkty-sk.json (plan §4: „ako 601“) — 362 + 129 + 15, 362 + 129 + 99 + 89 + 15
     ceny: { platne: 432, "kufor-classic": 506, "box-2": 694 },
@@ -112,7 +113,7 @@ export const PRODUKTY = {
   },
   607: {
     url: SK + "/luxusne-autokoberce-dragonskin-elite-stripe-line/", typ: "dvoj", vzor: "stripe", nazov: "Dvojvrstvové Stripe",
-    scenare: ["brana", "nulova-zmena", "platne", "kufor-classic", "box-2"],
+    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "kufor-classic", "box-2", "farba2-vzhlad", "farba2-odporucanie"],
     platne: { priceId: "68003", spolu: 422, odporucana: 680 },
     ceny: { platne: 422, "kufor-classic": 492, "box-2": 660 },
     postKluce: "ako 601 (vlastný cenník príplatkov: kufor 120/210, 2. box 69–114, TYP Combi +10)",
@@ -164,20 +165,21 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- box do kufra (počet 1–3 + farba 78 + veľkosti 94/97/100)
   616: {
     url: SK + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Box do kufra",
-    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu"],
+    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne"],
     platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
     odporucana: false,
     ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 643, "box-3-na-1": 197, dokoncit: 207 },
     // živý POST 14. 10. 2026: select boxu, ktorý nie je v počte, ide preč z POST (živý .val(0) -> selectedIndex -1);
     // predvolené „2 ks“ bez kliku nechá 3. box v POST prázdny ([100]=)
     postKluce: "productId priceId language amount parameterValueId[78] surchargeParameterValueId[94] (+ [97] pri 2–3 ks, + [100] pri 3 ks; nepoužitý box v POST chýba)",
-    // živý web: klik na „1 ks / 2 ks / 3 ks“ hodí výnimku (creatButtons.js amountChoser volá neexistujúcu priceActualization)
+    // živý web (CDN do vydania integrácie WA): klik na „1 ks / 2 ks / 3 ks“ hodí výnimku (creatButtons.js amountChoser volal
+    // neexistujúcu priceActualization; v repe opravené 14. 10. 2026) — ostáva ako známa, kým beží starý CDN
     znameChyby: [/priceActualization is not defined/],
   },
   // ---------------------------------------------------------------- vzorkovník (45 príplatkových selectov, 1 vzorka = 1 parameter)
   637: {
     url: SK + "/vzorkovnik-dragonskin---objednavka-vzoriek/", typ: "vzorky", vzor: null, nazov: "Vzorkovník",
-    scenare: ["brana", "nulova-zmena", "platne", "vzorky-0"],
+    scenare: ["brana", "nulova-zmena", "platne", "vzorky-0", "vzorky-odober", "vzorky-nahlad"],
     platne: { priceId: "68380", spolu: 15, odporucana: null, vzorky: ["D-3", "S-2", "LUX-10"] },
     odporucana: false,
     ceny: { platne: 15 },

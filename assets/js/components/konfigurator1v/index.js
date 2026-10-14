@@ -71,6 +71,9 @@ export function initKonfigurator1v(setupData, texts) {
     document.body.setAttribute("data-lcd1v-typ", produkt.typ);
     if (produkt.vzor) document.body.setAttribute("data-lcd1v-vzor", produkt.vzor);
     const ctx = vytvorCtx({ setupData, texts, kontext, produkt });
+    // Chyba, ktorá príde až po init (asynchrónne), zloží celý nový vzhľad cez ctx.zlozit(). Obsah z CDN (obsah.js)
+    // ho zámerne nevolá: pri jeho chybe sa vráti len obsah, konfigurátor ostáva nový.
+    ctx.zlozit = zlozit;
     window.__lcd1v = ctx; // ladenie + test (tools/test-konfigurator-1v.mjs)
     produkt.moduly.map((m) => MODULY[m]).filter(Boolean).concat([obsah]).forEach(function (modul) {
       try {

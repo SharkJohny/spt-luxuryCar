@@ -17,6 +17,9 @@
 //   t.pauza(ms), t.mobil, t.sirka, t.novy (beží s ?novy=1), t.log(...)
 import { pauza } from "./cdp.mjs";
 
+/** Najdlhšie čakanie na jedno zistenie podmienky v t.cakaj (potom sa skúša znova). */
+const LIMIT_POKUSU = 10000;
+
 // Rovnaké mená ako assets/js/components/konfigurator1v/ctx.js (PARAMETRE) — test ich má vlastné, nezávislé od kódu webu.
 export const PARAMETRE = {
   farba: "^(farba|barva)\\s*1\\.?\\s*vrstv",
@@ -73,11 +76,19 @@ export function vytvorT(k, { novy = false, log = () => {} } = {}) {
     sirka: k.sirka,
     ev: k.ev,
   };
+  // Každé zisťovanie podmienky má vlastný limit (LIMIT_POKUSU): pri výmene dokumentu alebo zahltenom stroji môže jedno
+  // Runtime.evaluate ostať bez odpovede a celé čakanie by na ňom viselo až do limitu CDP (120 s, cdp.mjs) — integrácia
+  // WA 14. 10. 2026 (hlásené T1.1, T2.2, T3.2). Zaseknutý pokus sa zahodí a podmienka sa skúša znova do `ms`.
+  // Podmienky sú len čítanie stránky, opakovanie je bezpečné.
   t.cakaj = async (expr, { ms = 8000, krok = 120, popis } = {}) => {
     const koniec = Date.now() + ms;
     let posledna;
     while (Date.now() < koniec) {
-      try { const v = await k.ev(expr); if (v) return v; } catch (e) { posledna = e; }
+      let tm;
+      try {
+        const v = await Promise.race([k.ev(expr), new Promise((_, rej) => { tm = setTimeout(() => rej(new Error("Chrome neodpovedal do " + LIMIT_POKUSU / 1000 + " s")), LIMIT_POKUSU); })]);
+        if (v) return v;
+      } catch (e) { posledna = e; } finally { clearTimeout(tm); }
       await pauza(krok);
     }
     throw new Error("Nedočkal som sa: " + (popis || expr.replace(/\s+/g, " ").slice(0, 140)) + (posledna ? " (" + posledna.message + ")" : ""));

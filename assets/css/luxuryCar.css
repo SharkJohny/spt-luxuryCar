@@ -14333,6 +14333,8 @@ body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti {
   font: 700 26.88px/1.22 var(--kr-disp);
   letter-spacing: 0.015em;
   text-transform: uppercase;
+  /* všetky návrhy (#sprv .krok.otvoreny .kr-ti): vyvážené riadky, bez osamoteného posledného slova */
+  text-wrap: balance;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti::after {
   content: "";
@@ -16214,6 +16216,9 @@ body.lcd-1v #product-detail-form .p-detail-inner-header h1 .lcd1v-rad {
   display: block; margin: 2px 0 0;
   font-size: 1em; font-weight: 600; font-style: normal; letter-spacing: .04em; color: var(--c1v-zl);
 }
+/* názov materiálu v živom H1 („Dragonskin Basic / Elite“): v DOM ostáva (SEO, živý kód), nový vzhľad ho neukazuje —
+   návrhy majú „Luxusné autokoberce Diamond Line“ (cena.js zvyrazniRad) */
+body.lcd-1v #product-detail-form .p-detail-inner-header h1 .lcd1v-mat { display: none; }
 /* hodnotenie: tichý riadok, odkaz s vlasovou linkou; dotyková plocha 44 px (padding, mínus okraj dole) */
 body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn {
   display: flex; width: fit-content; max-width: 100%; align-items: baseline; flex-wrap: wrap; gap: 0 8px;
@@ -16418,7 +16423,7 @@ body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="2"],[data-lcd-ka
 /*    jednotný rytmus kapitol návrhu (.kap > section.chapter): menšie odsadenie než titulka. Blok LCD-HOME ARMOR dáva
       .chapter padding s !important a špecificitou id (mobil 64 px, PC 5,4vw) -> selektor s id koreňov (1,3,2) ho prebije.
       Sekcie skupiny A (ponuka, referencie, recenzie) sú v návrhu mimo kapitol, rytmus im dáva _lcd1v-obsah-a.scss. */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is(section.chapter[data-lcd-kap],[data-lcd-kap] > section.chapter){
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(section.chapter[data-lcd-kap],[data-lcd-kap] > section.chapter){
   padding-top:clamp(38px,4.8vw,68px) !important;padding-bottom:clamp(38px,4.8vw,68px) !important}
 /*    linka medzi sekciami tej istej kapitoly (bez id: skupina ju vie zrušiť, napr. B pred porovnaním za scénou materiálu) */
 body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-kap="2"] + [data-lcd-kap="2"],
@@ -16432,12 +16437,12 @@ body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-ka
       c) reveal .rv: titulka ho skrýva (opacity 0 až do .on). Kým obsah.js neprevezme odhaľovanie (.p1v-rv na obale
          sekcie), je .rv viditeľné — bez JS alebo pri chybe skupiny nič neostane skryté;
       d) text len pre čítačky (TinyMCE: tlačidlo so šípkou musí mať text). */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is(.chapter h2,.pinhead h2){color:#8f7020;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.chapter h2,.pinhead h2){color:#8f7020;
   background:linear-gradient(100deg,#8a6b1c,#c49b31 42%,#e0bd63 60%,#96751f);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .lede{max-width:46ch}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia]:not(.p1v-rv) .rv,
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lede{max-width:46ch}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia]:not(.p1v-rv) .rv,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
 body.lcd-1v :is(.p1v-miesto .sr-only,.p1v-sr){position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;
   overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
@@ -16476,78 +16481,78 @@ body.lcd-1v.lcd-1v-obsah:has(.p1v-miesto [data-lcd-sekcia="d-faq"]) .p-info-wrap
    Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css). KAŽDÝ selektor začína
    body.lcd-1v. Základ titulky (blok LCD-HOME: .chapter, .wrap, h2, .lede, .btn, .deck.refs/.ref-v, lx galéria,
    .revhead/.revs/.rev) na koreňoch obsahu už platí — tu sú len rozdiely podľa návrhu v26 (merané computed styles
-   návrhu na 390 a 1280 px). Pravidlá titulky majú špecificitu id, preto :is(#p1v-598-1,#p1v-598-2) pred sekciou. */
+   návrhu na 390 a 1280 px). Pravidlá titulky majú špecificitu id, preto :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) pred sekciou. */
 
 /* --- spoločné pre sekcie A (reveal .rv, zlaté nadpisy, .lede 46ch, .sr-only a overflow pre lepené scény sú v základe
        LCD-1V-OBSAH bod 6–7) --- */
 /* rytmus sekcií mimo kapitol (návrh: .chapter{padding-top/bottom:clamp(46px,6vw,86px)}, .chapter + .chapter linka) */
 /* (blok LCD-HOME ARMOR dáva .chapter padding s !important a id — preto aj tu !important) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) section.chapter[data-lcd-sekcia^="a-"]{
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) section.chapter[data-lcd-sekcia^="a-"]{
   padding-top:clamp(46px,6vw,86px) !important;padding-bottom:clamp(46px,6vw,86px) !important}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) section.chapter[data-lcd-sekcia^="a-"] + section.chapter[data-lcd-sekcia^="a-"]{
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) section.chapter[data-lcd-sekcia^="a-"] + section.chapter[data-lcd-sekcia^="a-"]{
   border-top:1px solid rgba(155,122,36,.16)}
 
 /* --- a-ponuka: tmavá karta „Jazdíte aj v zime?“ (návrh .ups) --- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups{display:grid;grid-template-columns:.9fr 1.1fr;background:var(--deep);color:#fff;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups{display:grid;grid-template-columns:.9fr 1.1fr;background:var(--deep);color:#fff;
   border-radius:20px;overflow:hidden}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups .ph{position:relative;min-height:190px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups .ph img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups .tx{padding:clamp(20px,2.6vw,32px)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups .od{display:inline-block;padding:6px 11px;border-radius:999px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups .ph{position:relative;min-height:190px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups .ph img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups .tx{padding:clamp(20px,2.6vw,32px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups .od{display:inline-block;padding:6px 11px;border-radius:999px;
   background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;
   font-family:var(--disp);font-size:9.5px;font-weight:800;line-height:1.6;letter-spacing:.1em;text-transform:uppercase}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups h3{margin:12px 0 0;font-size:clamp(19px,2.3vw,26px);line-height:1.2;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups h3{margin:12px 0 0;font-size:clamp(19px,2.3vw,26px);line-height:1.2;
   color:var(--gold-hi);background:linear-gradient(100deg,#c49b31,#f0d68f 45%,#e6c877 62%,#c49b31);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups p{margin:10px 0 0;max-width:46ch;color:rgba(255,255,255,.82);font-size:14px;line-height:1.6}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups ul{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:7px 14px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups li{position:relative;margin:0;padding:0 0 0 19px;font-size:13.5px;line-height:1.6;color:#fff}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups li:before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups p{margin:10px 0 0;max-width:46ch;color:rgba(255,255,255,.82);font-size:14px;line-height:1.6}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups ul{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:7px 14px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups li{position:relative;margin:0;padding:0 0 0 19px;font-size:13.5px;line-height:1.6;color:#fff}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups li:before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;
   background:linear-gradient(135deg,var(--gold-hi),var(--gold))}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups .btn{margin-top:18px;border:0}
-@media(max-width:820px){body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups{grid-template-columns:1fr}}
-@media(max-width:520px){body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-ponuka"] .ups ul{grid-template-columns:1fr}}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups .btn{margin-top:18px;border:0}
+@media(max-width:820px){body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups{grid-template-columns:1fr}}
+@media(max-width:520px){body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-ponuka"] .ups ul{grid-template-columns:1fr}}
 
 /* --- a-referencie: pás 9:16 kariet (titulka) — rozdiely návrhu v26 (patch37) --- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .lede{margin-top:14px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .deckwrap{margin-top:26px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .ref-v{box-shadow:0 4px 16px rgba(20,15,5,.1)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .ref-play{box-shadow:0 6px 20px rgba(0,0,0,.35)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .ref-v:hover .ref-play{background:rgba(255,255,255,.94);border:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .ref-v:hover .ref-play:after{border-left-color:#17130a}
-@media(max-width:820px){body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-referencie"] .deck.refs{gap:10px}}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .lede{margin-top:14px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .deckwrap{margin-top:26px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .ref-v{box-shadow:0 4px 16px rgba(20,15,5,.1)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .ref-play{box-shadow:0 6px 20px rgba(0,0,0,.35)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .ref-v:hover .ref-play{background:rgba(255,255,255,.94);border:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .ref-v:hover .ref-play:after{border-left-color:#17130a}
+@media(max-width:820px){body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-referencie"] .deck.refs{gap:10px}}
 
 /* --- a-galeria: modul lx z titulky. Na telefóne sa nelepí (LCD-HOME do 760 px: nekonečný pás, karty 62vw ako titulka
        a návrh). Pravidlá .lx-bez-lepu nižšie sú záloha, keby niektorý predok predsa mal overflow:hidden (základ bod 7
        dáva #content-wrapper na telefóne overflow-x:clip) --- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-galeria"] .pf-cta{border:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"] .pf-cta{border:0}
 /*    tablet a PC: #content-wrapper bez overflow:hidden (lepenie) dáva základ LCD-1V-OBSAH bod 7 */
 @media(max-width:760px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-galeria"].lx-bez-lepu :is(.lx-gal-k,.lx-gal-k.lx-klon){width:62vw}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-galeria"].lx-bez-lepu .lx-gal-pin{padding-block:clamp(56px,12vw,80px) 28px}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-galeria"].lx-bez-lepu .lx-gal-trat{padding-bottom:0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"].lx-bez-lepu :is(.lx-gal-k,.lx-gal-k.lx-klon){width:62vw}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"].lx-bez-lepu .lx-gal-pin{padding-block:clamp(56px,12vw,80px) 28px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"].lx-bez-lepu .lx-gal-trat{padding-bottom:0}
   /* miesto pre ikonu chatu (LCD-HOME ARMOR, 84 px) treba len v prilepenej scéne na PC; tu „Zostavte si set“ vpravo ako návrh */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-galeria"] .pinfoot{padding-right:0 !important}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"] .pinfoot{padding-right:0 !important}
 }
 
 /* --- a-recenzie: hlavička a tlačidlá ako návrh v26 (titulka má novšie zlaté/tmavé tlačidlá, tie tu neplatia) --- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) section.chapter[data-lcd-sekcia="a-recenzie"]{padding-top:clamp(70px,10vw,156px) !important}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] h2 + .revhead{margin-top:clamp(16px,2.2vw,26px)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .stars{line-height:1}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta{gap:10px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn{min-height:0;padding:13px 24px !important;gap:12px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) section.chapter[data-lcd-sekcia="a-recenzie"]{padding-top:clamp(70px,10vw,156px) !important}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] h2 + .revhead{margin-top:clamp(16px,2.2vw,26px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .stars{line-height:1}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta{gap:10px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn{min-height:0;padding:13px 24px !important;gap:12px;
   font-size:11.5px;letter-spacing:.09em;border-radius:12px;justify-content:flex-start;text-align:inherit}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn:before,
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn:after{display:none;content:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost{background:var(--ink);color:#f4f0e6;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn:before,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn:after{display:none;content:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost{background:var(--ink);color:#f4f0e6;
   border:1px solid var(--ink);box-shadow:0 6px 18px rgba(20,15,5,.22)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost:hover{background:#000;border-color:#000;color:#fff}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost + .btn.ghost{background:none;color:var(--ink);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost:hover{background:#000;border-color:#000;color:#fff}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost + .btn.ghost{background:none;color:var(--ink);
   border:2px solid var(--gold);box-shadow:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost + .btn.ghost:hover{background:rgba(196,155,49,.14);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost + .btn.ghost:hover{background:rgba(196,155,49,.14);
   color:var(--ink);border-color:var(--gold-lo)}
 @media(max-width:700px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn{flex:1 1 0%;justify-content:center;font-size:11.5px;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn{flex:1 1 0%;justify-content:center;font-size:11.5px;
     letter-spacing:.09em}
 }
 /*    kým nie sú dáta (window.LCD_REVIEWS), skóre a pás neviditeľné; bez dát sekcia preč */
@@ -16564,30 +16569,30 @@ body.lcd-1v [data-lcd-sekcia="a-recenzie"].p1v-rev-bez{display:none !important}
    Obrázky: assets/img/1v/obsah/b-* (CDN absolútna adresa …/eshopy/luxuryCar/assets/img/1v/obsah/…).
 
    Špecificita: pravidlá titulky sú :is(#lcd-home,…) .x = (1,1,0). Tu predpona
-   body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-…"] = (1,3,1) -> vyhrá bez !important.
+   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-…"] = (1,3,1) -> vyhrá bez !important.
    Zlom „statická scéna“ = ako LCD-HOME: telefón do 900 px + tablet na výšku (dotyk) do 1199 px. */
 
 /* =============================================================== 0) SPOLOČNÉ PRE SEKCIE B */
 /* zlaté nadpisy (.chapter h2, .pinhead h2), .lede 46ch, reveal .rv a rytmus kapitol dáva základ LCD-1V-OBSAH bod 5–6 */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is([data-lcd-sekcia="b-ocakavat"],[data-lcd-sekcia="b-material"]) .pinhead h2{margin-bottom:10px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is([data-lcd-sekcia="b-ocakavat"],[data-lcd-sekcia="b-material"]) .pinhead h2{margin-bottom:10px}
 /* zlaté tlačidlá bez tmavého rámika živého .btn (návrh: len prechod a tieň) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="b-"] :is(.pf-cta,.spat-btn){border:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="b-"] :is(.pf-cta,.spat-btn){border:0}
 
 /* =============================================================== 1) DEVÄŤ VECÍ (b-ocakavat) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t h3{color:var(--ink)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t h3{color:var(--ink)}
 /* PC: scéna titulky (.stage2/.pin2) — rozdiely návrhu: 9 krokov, náhľady v 9 stĺpcoch (pod 1200 px v 5),
    fotky náhľadov z CSS (v HTML len tlačidlá s číslom — bez flagu sa nič nestiahne). */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(9,1fr);gap:clamp(4px,.6vw,9px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(9,1fr);gap:clamp(4px,.6vw,9px)}
 @media(max-width:1200px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(5,1fr)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs{grid-template-columns:repeat(5,1fr)}
 }
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button{aspect-ratio:1/1;background:#1d1a14}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button{aspect-ratio:1/1;background:#1d1a14}
 /* fotka náhľadu = pozadie ::before (obrázok nižšie podľa data-i); stlmenie ako <img> na titulke, číslo <b> ostáva ostré */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button:before{content:"";position:absolute;inset:0;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button:before{content:"";position:absolute;inset:0;
   background-position:center;background-size:cover;background-repeat:no-repeat;filter:saturate(.5) brightness(.72);transition:filter .32s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button:hover:before{filter:saturate(.85) brightness(.9)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button.on:before{filter:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button b{font-size:9px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button:hover:before{filter:saturate(.85) brightness(.9)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button.on:before{filter:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs button b{font-size:9px}
 body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="0"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f01.jpg)}
 body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="1"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/f02.jpg?v=2)}
 body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="2"]:before{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/poukazka/m-08c360575353.jpg)}
@@ -16604,76 +16609,76 @@ body.lcd-1v [data-lcd-sekcia="b-ocakavat"] .s2-thumbs [data-i="8"]:before{backgr
    neposúvali s kartami. Prilepená scéna, štítky, úvodná veta, veľké číslo, náhľady a spodná lišta sú skryté. */
 @media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
   /* odsadenie nesie .stage2 (LCD-HOME dáva sekciám padding:0 !important) */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .stage2{height:auto !important;padding:clamp(28px,7vw,48px) 0 calc(clamp(24px,6vw,40px) - 18px)}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pin2{position:static;height:auto;display:block;padding:0;max-width:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pin2:before,
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] :is(.pintop,.pinhead .lede,.pinfoot,.s2-big,.s2-thumbs){display:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinhead{margin:0 0 16px;padding:0 var(--pad);max-width:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinhead h2{font-size:clamp(21px,6.4vw,30px)}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinmain{display:grid;grid-template-columns:none;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .stage2{height:auto !important;padding:clamp(28px,7vw,48px) 0 calc(clamp(24px,6vw,40px) - 18px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pin2{position:static;height:auto;display:block;padding:0;max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pin2:before,
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] :is(.pintop,.pinhead .lede,.pinfoot,.s2-big,.s2-thumbs){display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pinhead{margin:0 0 16px;padding:0 var(--pad);max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pinhead h2{font-size:clamp(21px,6.4vw,30px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pinmain{display:grid;grid-template-columns:none;
     grid-auto-columns:86%;grid-template-rows:auto auto auto;column-gap:14px;row-gap:0;align-items:stretch;align-content:start;
     overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding:0 var(--pad);overscroll-behavior-x:contain;
     padding:4px var(--pad) 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .pinmain::-webkit-scrollbar{display:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] :is(.s2-media,.s2-body,.s2-col,.s2-texts){display:contents}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pinmain::-webkit-scrollbar{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] :is(.s2-media,.s2-body,.s2-col,.s2-texts){display:contents}
   /* stmavenie veľkej fotky z PC (.s2-media:after) by pri display:contents prekrylo celý karusel */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-media:after{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-media:after{display:none}
   /* fotka = vrch karty */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-media img{grid-row:1;position:relative;inset:auto;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-media img{grid-row:1;position:relative;inset:auto;
     width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;opacity:1;transform:none;transition:none;
     border-radius:18px 18px 0 0;border:1px solid var(--line);border-bottom:0;background:var(--deep);scroll-snap-align:center}
   /* text = spodok karty (rovnaká výška v riadku gridu) */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t{grid-area:auto;grid-row:2;position:relative;inset:auto;opacity:1;transform:none;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t{grid-area:auto;grid-row:2;position:relative;inset:auto;opacity:1;transform:none;
     pointer-events:auto;transition:none;display:block;background:var(--paper);border:1px solid var(--line);border-top:0;
     border-radius:0 0 18px 18px;padding:15px 16px 18px;box-shadow:0 10px 20px -8px rgba(20,15,5,.12);margin-bottom:14px}
   /* číslo karty („01“) dole na fotke, nad stmavením */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t:before{position:absolute;left:14px;bottom:calc(100% + 6px);z-index:2;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t:before{position:absolute;left:14px;bottom:calc(100% + 6px);z-index:2;
     font-family:var(--disp);font-weight:800;font-size:42px;line-height:1;color:rgba(255,255,255,.94);
     font-variant-numeric:tabular-nums;text-shadow:0 3px 18px rgba(0,0,0,.5);pointer-events:none}
   /* stmavenie spodku fotky (návrh .s2m-ph:after) — fotka je 16:10 a široká ako text, takže ju prekryje presne */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t:after{content:"";position:absolute;left:-1px;right:-1px;bottom:100%;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t:after{content:"";position:absolute;left:-1px;right:-1px;bottom:100%;
     aspect-ratio:16/10;border-radius:18px 18px 0 0;background:linear-gradient(180deg,transparent 50%,rgba(8,6,4,.58));pointer-events:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="0"]:before{content:"01"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="1"]:before{content:"02"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="2"]:before{content:"03"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="3"]:before{content:"04"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="4"]:before{content:"05"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="5"]:before{content:"06"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="6"]:before{content:"07"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="7"]:before{content:"08"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="8"]:before{content:"09"}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t .k{font-size:10.5px}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t h3{margin:9px 0;font-size:19px}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-t p{margin:0;font-size:14.5px;line-height:1.6;max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="0"]:before{content:"01"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="1"]:before{content:"02"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="2"]:before{content:"03"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="3"]:before{content:"04"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="4"]:before{content:"05"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="5"]:before{content:"06"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="6"]:before{content:"07"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="7"]:before{content:"08"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t[data-i="8"]:before{content:"09"}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t .k{font-size:10.5px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t h3{margin:9px 0;font-size:19px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-t p{margin:0;font-size:14.5px;line-height:1.6;max-width:none}
   /* bodky: 3. riadok cez všetky karty (spodný padding = tieň zväčšenej aktívnej bodky, pás má overflow-y:hidden), prilepené na ľavom okraji posuvníka (left:0 = okraj obsahu, padding už v ňom je) */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail{grid-row:3;grid-column:1 / span 9;justify-self:start;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail{grid-row:3;grid-column:1 / span 9;justify-self:start;
     position:sticky;left:0;width:calc(100vw - 2 * var(--pad));box-sizing:border-box;
     display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:12px;padding:8px 0 24px}
   /* 9 bodiek v jednom riadku: na úzkom displeji sa zúžia na ovály (ako návrh) */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button{flex:0 1 46px;min-width:0;width:46px;height:46px;border-radius:50%;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button{flex:0 1 46px;min-width:0;width:46px;height:46px;border-radius:50%;
     border:1.5px solid var(--line);background:var(--paper);font-size:0;color:var(--ink);
     box-shadow:0 3px 10px rgba(20,15,5,.08);transition:background .25s,color .25s,border-color .25s,transform .25s,box-shadow .25s}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:before{display:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button span{display:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail{counter-reset:p1v-b-bodka}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:after{counter-increment:p1v-b-bodka;content:counter(p1v-b-bodka);
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:before{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button span{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail{counter-reset:p1v-b-bodka}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:after{counter-increment:p1v-b-bodka;content:counter(p1v-b-bodka);
     font-family:var(--disp);font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-rail button.on{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button.on{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
     color:#17130a;border-color:var(--gold);transform:scale(1.1);box-shadow:0 6px 18px rgba(140,105,25,.42)}
 }
 
 /* =============================================================== 2) MATERIÁL (b-material) */
 /* titulka má #matWrap / #legend (id); obsah 1V id mať nesmie -> tie isté pravidlá na triedy .matwrap / .legend */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .matwrap{position:relative;perspective:2400px;perspective-origin:50% 47%;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .matwrap{position:relative;perspective:2400px;perspective-origin:50% 47%;
   display:flex;align-items:center;justify-content:center;min-height:0;isolation:isolate}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .matwrap:before{content:"";position:absolute;left:50%;top:50%;width:118%;height:74%;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .matwrap:before{content:"";position:absolute;left:50%;top:50%;width:118%;height:74%;
   z-index:-1;transform:translate(-50%,-50%);pointer-events:none;
   background:radial-gradient(ellipse at 50% 48%,rgba(255,252,244,.9),rgba(255,252,244,.42) 44%,rgba(255,252,244,0) 72%)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{justify-content:center;gap:clamp(2px,.6vh,8px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .legend{justify-content:center;gap:clamp(2px,.6vh,8px)}
 /* 3D rez je na telefóne širší ako okno (náklon + zväčšenie) — orezať na okraji sekcie (clip nevytvára posuvník, sticky funguje) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"]{overflow-x:clip}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"]{overflow-x:clip}
 /* body na vrstvách: poloha (na titulke inline style) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .exp .hot{left:12%;top:81%}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .exp .hot{left:12%;top:81%}
 /* farby hrán vrstiev (na titulke inline style, rovnaké hodnoty) */
 body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="0"]{--t:16px;--cf:rgb(50,51,63);--cb:rgb(28,28,35);--cl1:rgb(60,60,72);--cl2:rgb(37,38,47);--cr:rgb(29,30,37);--ct1:rgb(83,84,97);--ct2:rgb(55,56,67);--cbt:rgb(24,24,30)}
 body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="1"]{--t:16px;--cf:rgb(240,240,240);--cb:rgb(132,132,132);--cl1:rgb(240,240,240);--cl2:rgb(178,178,178);--cr:rgb(139,139,139);--ct1:rgb(255,255,255);--ct2:rgb(226,226,226);--cbt:rgb(115,115,115)}
@@ -16688,40 +16693,40 @@ body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="3"] .sw{background-image
 body.lcd-1v [data-lcd-sekcia="b-material"] .leg[data-l="4"] .sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/tex1.jpg)}
 @media(min-width:901px){
   /* scéna kratšia ako na titulke (240 vh): návrh má 140 vh */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .stage{height:140vh !important}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] :is(.matwrap,.legend){max-height:100%}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{overflow-y:auto;scrollbar-width:thin;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .stage{height:140vh !important}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] :is(.matwrap,.legend){max-height:100%}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .legend{overflow-y:auto;scrollbar-width:thin;
     scrollbar-color:rgba(155,122,36,.45) transparent;justify-content:safe center}
 }
 @media(min-width:901px) and (max-height:949px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{--sw:clamp(28px,calc(4.4vh + .2px),42px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .legend{--sw:clamp(28px,calc(4.4vh + .2px),42px)}
 }
 @media(min-width:901px) and (max-height:680px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{gap:2px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .legend{gap:2px}
 }
 @media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .matwrap{display:block}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-material"] .legend{gap:2px;height:auto}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .matwrap{display:block}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .legend{gap:2px;height:auto}
 }
 
 /* =============================================================== 3) POROVNANIE + VÝZVA (b-porovnanie) */
 /* návrh: linka medzi sekciami kapitoly len medzi dvoma .chapter — pred porovnaním je scéna materiálu, linka nie je */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"]{border-top:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"]{border-top:0}
 /* naša cena „od …“ príde zo živých dát (obsah-b.js); kým nie je, riadok sa neukáže */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .p1v-b-od:not(.ma-cenu){display:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .lede{margin-top:14px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .cmp{margin-top:34px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .p1v-b-od:not(.ma-cenu){display:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .lede{margin-top:14px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .cmp{margin-top:34px}
 /* výzva „potichu“ (návrh patch41): jeden riadok na podklade sekcie, bez pásu */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .spat{display:flex;max-width:1240px;margin:0 auto;box-sizing:border-box;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .spat{display:flex;max-width:1240px;margin:0 auto;box-sizing:border-box;
   align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(12px,2vw,22px);
   padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .spat > p{margin:0;font-family:var(--disp);font-weight:800;color:var(--ink);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .spat > p{margin:0;font-family:var(--disp);font-weight:800;color:var(--ink);
   font-size:clamp(15px,1.6vw,19px);line-height:1.3}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .btn.spat-btn{flex:none;height:50px;padding:0 26px !important;font-size:12px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .btn.spat-btn{flex:none;height:50px;padding:0 26px !important;font-size:12px;
   letter-spacing:.1em;margin:0}
 @media(max-width:640px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-porovnanie"] .btn.spat-btn{width:100%;justify-content:center}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-porovnanie"] .btn.spat-btn{width:100%;justify-content:center}
 }
 
 /* =============================================================== 4) PRED A PO (b-predapo) */
@@ -16734,17 +16739,17 @@ body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(4) .lx-leg-sw{back
    Záloha, keby niektorý predok predsa mal overflow:hidden (lxModulyOziv dá .lx-bez-lepu = normálny blok, posun čiary
    podľa polohy fotky): úvodná veta, celá fotka od kraja po kraj (2,14 : 1). */
 @media(max-width:760px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-p{display:block}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-p{display:block}
   /* pomer fotky 2,14 : 1 ako návrh (titulka má na telefóne 1,5) — v lepenej scéne aj v zálohe bez lepenia */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:2.1374}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-pp-stage{width:calc(100% + var(--pad) * 2);margin-inline:calc(var(--pad) * -1)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:2.1374}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-pp-stage{width:calc(100% + var(--pad) * 2);margin-inline:calc(var(--pad) * -1)}
 }
 
 /* =============================================================== 5) SPODNÁ LIŠTA SCÉN NA TELEFÓNE */
 /* LCD-HOME necháva pod 1340 px vpravo v lište 84 px pre ikonu chatu (prilepená scéna drží lištu dole v okne). Na telefóne
    a tablete na výšku sú Materiál a Pred a po v normálnom toku -> lišta ako v návrhu: tlačidlo vpravo, postup na celú šírku. */
 @media(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is([data-lcd-sekcia="b-material"],[data-lcd-sekcia="b-predapo"].lx-bez-lepu) .pinfoot{padding-right:0 !important}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is([data-lcd-sekcia="b-material"],[data-lcd-sekcia="b-predapo"].lx-bez-lepu) .pinfoot{padding-right:0 !important}
 }
 /* ===== LCD-1V-OBSAH-B END ===== */
 
@@ -16757,7 +16762,7 @@ body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(4) .lx-leg-sw{back
    Obrázky: assets/img/1v/obsah/c-* (CDN absolútna adresa …/eshopy/luxuryCar/assets/img/1v/obsah/…).
 
    Hodnoty sú zmerané na návrhu v26 (computed styles, 390 a 1280 px) = výsledný stav jeho patchov 24–41, nie ich kópia.
-   Selektory majú id koreňa (:is(#p1v-598-1,#p1v-598-2)), lebo pravidlá titulky (alias #lcd-home) majú špecificitu id
+   Selektory majú id koreňa (:is(#p1v-598-1,#p1v-598-2,.p1v-obsah)), lebo pravidlá titulky (alias #lcd-home) majú špecificitu id
    (napr. h3, .btn, .lede). Moduly titulky (.lx-farby, .vz/.fan, .btn, .lede, h2, .chapter/.wrap) sa nekopírujú.
    Spustenie pre všetkých (docs/1v-obsah.md bod 7): stačí z každého selektora zmazať „body.lcd-1v “ — id koreňa ostáva.
 
@@ -16766,133 +16771,133 @@ body.lcd-1v [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(4) .lx-leg-sw{back
 
 /* ---------- spoločné: reveal, text pre čítačky, zlaté nadpisy kapitol (návrh „nadpisy modulov sú zlaté“), výzva .spat ---------- */
 /* reveal .rv, .sr-only, zlaté nadpisy kapitol, .lede 46ch a rytmus kapitol dáva základ LCD-1V-OBSAH bod 5–6 */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) :is([data-lcd-sekcia="c-domov"],[data-lcd-sekcia="c-casova-os"]) .lede{margin-top:12px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is([data-lcd-sekcia="c-domov"],[data-lcd-sekcia="c-casova-os"]) .lede{margin-top:12px}
 /* tlačidlá: rám z šablóny Shoptetu (.btn border 1px) návrh nemá */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .btn{border:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .btn{border:0}
 
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .spat{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
   gap:clamp(12px,2vw,22px);max-width:1240px;margin:0 auto;box-sizing:border-box;
   padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
   font-size:clamp(15px,1.6vw,19px);line-height:1.3;color:var(--ink)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
   font-size:12px;letter-spacing:.1em}
 @media(max-width:640px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .spat > p{max-width:none}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia^="c-"] .btn.spat-btn{width:100%;justify-content:center}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .spat > p{max-width:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia^="c-"] .btn.spat-btn{width:100%;justify-content:center}
 }
 
 /* ---------- 30 c-kam: „Kam všade koberce siahajú“ — dve témy (interiér / kufor), na PC biele karty vedľa seba ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry{display:grid;gap:clamp(20px,2.4vw,30px);margin-top:clamp(16px,2vw,26px)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz-h{margin:0 0 12px;font-family:var(--disp);font-weight:800;font-size:11px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .kry{display:grid;gap:clamp(20px,2.4vw,30px);margin-top:clamp(16px,2vw,26px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .zoz-h{margin:0 0 12px;font-family:var(--disp);font-weight:800;font-size:11px;
   line-height:1.14;letter-spacing:.12em;text-transform:uppercase;color:#7c5f16}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry-note{margin:8px 0 0;color:var(--mute);font-size:14px;line-height:1.5}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .kry-note{margin:8px 0 0;color:var(--mute);font-size:14px;line-height:1.5}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .zoz{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;
   gap:0 clamp(24px,3.4vw,56px)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li{position:relative;margin:0;padding:11px 0 11px 28px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .zoz li{position:relative;margin:0;padding:11px 0 11px 28px;
   font-size:14.5px;line-height:1.45;color:#3f3a2c;border-top:1px solid rgba(155,122,36,.22);list-style:none;background:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li:first-child{border-top:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li:before{content:"";position:absolute;left:2px;top:16px;width:13px;height:13px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .zoz li:first-child{border-top:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .zoz li:before{content:"";position:absolute;left:2px;top:16px;width:13px;height:13px;
   margin:0;border-radius:50%;background:linear-gradient(150deg,var(--gold-hi),var(--gold-lo));box-shadow:inset 0 0 0 3px var(--ground)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .zoz li i{font-style:normal;margin-left:9px;padding:3px 8px;font-family:var(--disp);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .zoz li i{font-style:normal;margin-left:9px;padding:3px 8px;font-family:var(--disp);
   font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7c5f16;border:1px solid rgba(155,122,36,.45);
   border-radius:999px;white-space:nowrap;vertical-align:2px}
 @media(min-width:901px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry{grid-template-columns:1fr 1fr;gap:clamp(26px,3vw,44px);align-items:start}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-kam"] .kry-b{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .kry{grid-template-columns:1fr 1fr;gap:clamp(26px,3vw,44px);align-items:start}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-kam"] .kry-b{background:var(--paper);border:1px solid var(--line);border-radius:16px;
     padding:clamp(18px,2vw,26px) clamp(20px,2.2vw,28px) clamp(8px,1vw,14px)}
 }
 
 /* ---------- 31 c-domov: „Čo Vám príde domov“ — balenie ako jeden doklad (karta s riadkami, manuál e-mailom pod čiarou) ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .balkarta{margin-top:26px;background:var(--paper);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .balkarta{margin-top:26px;background:var(--paper);
   border:1px solid rgba(155,122,36,.4);border-radius:20px;overflow:hidden;box-shadow:0 18px 44px rgba(20,15,5,.09)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal{list-style:none;margin:0;padding:0;display:block}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li{display:grid;grid-template-columns:auto 1fr;align-items:center;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal{list-style:none;margin:0;padding:0;display:block}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal li{display:grid;grid-template-columns:auto 1fr;align-items:center;
   column-gap:clamp(14px,1.8vw,20px);row-gap:2px;margin:0;padding:clamp(16px,2vw,22px) clamp(16px,2.2vw,26px);list-style:none;
   border-top:1px solid rgba(155,122,36,.16);transition:background-color .25s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li:first-child{border-top:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li:before{content:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li:hover{background:rgba(155,122,36,.05)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .ba-i{display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal li:first-child{border-top:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal li:before{content:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal li:hover{background:rgba(155,122,36,.05)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .ba-i{display:flex;align-items:center;justify-content:center;box-sizing:border-box;
   border-radius:50%;border:1px solid rgba(155,122,36,.3)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal .ba-i{grid-row:1/span 2;width:64px;height:64px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal .ba-i{grid-row:1/span 2;width:64px;height:64px;
   background:linear-gradient(150deg,rgba(230,200,119,.34),rgba(143,112,32,.14))}
 /* náčrty sú tenké čierne čiary — po zmenšení na 40 px ich treba stmaviť, inak zosivejú */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal .ba-i img{display:block;width:40px;height:40px;object-fit:contain;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal .ba-i img{display:block;width:40px;height:40px;object-fit:contain;
   filter:brightness(.22) contrast(1.7)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal b{display:block;align-self:end;font-family:var(--disp);font-weight:800;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal b{display:block;align-self:end;font-family:var(--disp);font-weight:800;
   font-size:clamp(15px,1.5vw,17px);line-height:1.3;color:var(--ink)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .ba-p{display:block;grid-column:2;align-self:start;color:var(--mute);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .ba-p{display:block;grid-column:2;align-self:start;color:var(--mute);
   font-size:clamp(13px,1.25vw,14.5px);line-height:1.5}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail{display:grid;grid-template-columns:auto 1fr;column-gap:14px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal-mail{display:grid;grid-template-columns:auto 1fr;column-gap:14px;
   align-items:center;margin:0;padding:clamp(16px,2vw,20px) clamp(16px,2.2vw,26px);background:var(--sand);
   border-top:1px dashed rgba(155,122,36,.5);font-size:clamp(13px,1.25vw,14.5px);line-height:1.5;color:var(--mute)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail .ba-i{width:52px;height:52px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal-mail .ba-i{width:52px;height:52px;
   background:linear-gradient(150deg,rgba(230,200,119,.34),rgba(143,112,32,.16))}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail .ba-i svg{display:block;width:30px;height:30px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal-mail b{font-family:var(--disp);font-weight:800;color:var(--ink)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal-mail .ba-i svg{display:block;width:30px;height:30px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal-mail b{font-family:var(--disp);font-weight:800;color:var(--ink)}
 @media(min-width:820px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li{grid-template-columns:auto 280px 1fr}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal .ba-i{grid-row:auto}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal :is(b,.ba-p){grid-column:auto;align-self:center}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal li{grid-template-columns:auto 280px 1fr}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal .ba-i{grid-row:auto}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal :is(b,.ba-p){grid-column:auto;align-self:center}
 }
 @media(min-width:901px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-domov"] .bal li{row-gap:3px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-domov"] .bal li{row-gap:3px}
 }
 
 /* ---------- 32 c-casova-os: „Od objednávky po doručenie“ — os sa plní podľa scrollu (--p), krok sa rozsvieti (li.on) ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml{position:relative;list-style:none;max-width:840px;margin:30px 0 0;padding:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:before,
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:after{content:"";position:absolute;left:17px;top:16px;width:2px;border-radius:2px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:before{bottom:16px;background:rgba(155,122,36,.22)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:after{height:calc(var(--p, 0) * (100% - 32px));
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml{position:relative;list-style:none;max-width:840px;margin:30px 0 0;padding:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml:before,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml:after{content:"";position:absolute;left:17px;top:16px;width:2px;border-radius:2px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml:before{bottom:16px;background:rgba(155,122,36,.22)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml:after{height:calc(var(--p, 0) * (100% - 32px));
   background:linear-gradient(180deg,var(--gold-hi),var(--gold-lo));box-shadow:0 0 12px rgba(196,155,49,.45);transition:height .25s linear}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li{position:relative;display:grid;grid-template-columns:auto 1fr;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li{position:relative;display:grid;grid-template-columns:auto 1fr;
   column-gap:clamp(14px,1.8vw,20px);margin:0;padding:0 0 clamp(18px,2.2vw,26px);list-style:none;background:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:before{content:none}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:last-child{padding-bottom:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li > i{position:relative;z-index:1;display:flex;align-items:center;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li:before{content:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li:last-child{padding-bottom:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li > i{position:relative;z-index:1;display:flex;align-items:center;
   justify-content:center;box-sizing:border-box;width:36px;height:36px;border-radius:50%;font-style:normal;font-family:var(--disp);
   font-weight:800;font-size:15px;line-height:1.6;color:#8a8471;background:var(--sand) no-repeat border-box;background-size:100% 100%;
   border:2px solid rgba(155,122,36,.3);box-shadow:0 0 0 6px var(--ground);transition:background-color .3s,color .3s,border-color .3s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li.on > i{color:#17130a;border-color:transparent;background-color:#c9a03a;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li.on > i{color:#17130a;border-color:transparent;background-color:#c9a03a;
   background-image:radial-gradient(circle at 50% 34%,var(--gold-hi) 0%,#b98f2c 62%,var(--gold-lo) 100%)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c{min-width:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c b{display:inline;font-family:var(--disp);font-weight:800;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c{min-width:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c b{display:inline;font-family:var(--disp);font-weight:800;
   font-size:clamp(15px,1.35vw,18px);line-height:1.2;color:var(--ink)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c .tt{display:inline-block;margin-left:9px;padding:3px 9px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c .tt{display:inline-block;margin-left:9px;padding:3px 9px;
   font-family:var(--disp);font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#7c5f16;
   border:1px solid rgba(155,122,36,.45);border-radius:999px;white-space:nowrap;vertical-align:2px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c p{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:#4a4433}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c p{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:#4a4433}
 /* PC: kroky sa striedajú po stranách osi; odznak času je vždy pri osi (vľavo za nadpisom, vpravo pred ním) */
 @media(min-width:901px){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml{max-width:1000px;margin:30px auto 0}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:before,
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml:after{left:calc(50% - 1px)}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li{grid-template-columns:1fr 36px 1fr;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml{max-width:1000px;margin:30px auto 0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml:before,
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml:after{left:calc(50% - 1px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li{grid-template-columns:1fr 36px 1fr;
     column-gap:clamp(20px,2.6vw,34px);align-items:start;padding-bottom:clamp(22px,2.6vw,32px)}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:last-child{padding-bottom:0}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li > i{grid-column:2;grid-row:1}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c{display:flex;flex-wrap:wrap;align-items:baseline;padding-top:5px}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(odd) .c{grid-column:1;grid-row:1;text-align:right;
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li:last-child{padding-bottom:0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li > i{grid-column:2;grid-row:1}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c{display:flex;flex-wrap:wrap;align-items:baseline;padding-top:5px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(odd) .c{grid-column:1;grid-row:1;text-align:right;
     justify-content:flex-end}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(even) .c{grid-column:3;grid-row:1}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c b{order:1}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c .tt{order:2}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(even) .c .tt{order:0;margin:0 9px 0 0}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-casova-os"] .tml .c p{order:3;flex:0 0 100%}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(even) .c{grid-column:3;grid-row:1}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c b{order:1}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c .tt{order:2}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml li:nth-child(even) .c .tt{order:0;margin:0 9px 0 0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"] .tml .c p{order:3;flex:0 0 100%}
 }
 
 /* ---------- 33 c-farby: modul lx-farby titulky — vejár „Mnoho ďalších farieb“ má <img> namiesto background-image ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i{overflow:hidden}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i img{display:block;width:100%;height:100%;object-fit:cover}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i{overflow:hidden}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* ---------- 34 c-vzorky: modul .vz titulky — vejár vzoriek má <img> namiesto background-image; nadpis svetlé zlato ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] .btn.zeleny{box-shadow:0 10px 30px rgba(140,105,25,.35)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] .fan i{overflow:hidden}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] .fan i img{display:block;width:100%;height:100%;object-fit:cover}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] h2{color:var(--gold-hi);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-vzorky"] .btn.zeleny{box-shadow:0 10px 30px rgba(140,105,25,.35)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-vzorky"] .fan i{overflow:hidden}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-vzorky"] .fan i img{display:block;width:100%;height:100%;object-fit:cover}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-vzorky"] h2{color:var(--gold-hi);
   background:linear-gradient(100deg,#c49b31,#f0d68f 45%,#e6c877 62%,#c49b31);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /* ===== LCD-1V-OBSAH-C END ===== */
@@ -16904,7 +16909,7 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] h2{color:var
    Základ titulky (blok LCD-HOME) na koreňoch obsahu už platí: .chapter, h2, .lede, .rv, .vids/.vid/.vidnav, .end, .btn.
    Tu len rozdiely oproti titulke podľa návrhu v26 + FAQ (vlastné triedy, .faq kotví živý JS) + linka čítania + okno.
    Pravidlá titulky majú špecificitu id (1,x,x): kde ich treba prebiť, začína selektor
-   body.lcd-1v :is(#p1v-598-1,#p1v-598-2) (korene obsahu; po spustení v Popise ostáva #p1v-598-1).
+   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) (korene obsahu; po spustení v Popise ostáva #p1v-598-1).
    Linka čítania (#p1v-citanie) a okno (#p1v-lb) sú po init priamo v <body> (obsah-d.js) — premenné koreňa tam
    neplatia, preto farby a písmo natvrdo (= --gold-lo #8f7020, --gold-hi #e6c877, --disp „Exo 2“). */
 
@@ -16914,58 +16919,58 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="c-vzorky"] h2{color:var
 
 /* ---------- d-realita: videá z praxe (návrh #realita = titulka #realita bez .rule) ---------- */
 /* šípky schová obsah-d.js atribútom hidden, keď sa pás zmestí (titulka dáva .vidnav display:flex so špecificitou id) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vidnav[hidden]{display:none !important}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vidnav[hidden]{display:none !important}
 /* titulka nemá v globálnom img height:auto pre .vid (návrh patch34): bez neho by height="960" natiahol kartu */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vid img{height:auto}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vid{cursor:pointer}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vid img{height:auto}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vid{cursor:pointer}
 @media (max-width:700px){
   /* návrh: pás na telefóne presahuje 10 px do pravého okraja (ďalšia karta naznačí posun) */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-realita"] .vids{margin-right:-10px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-realita"] .vids{margin-right:-10px}
 }
 
 /* ---------- d-faq: otázky (návrh section.chapter.faqsec, patch20 + patch33: číslo pred otázkou, odpoveď bez odsadenia) ---------- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq{border-top:1px solid var(--line)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-o{border-bottom:1px solid var(--line)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q{appearance:none;-webkit-appearance:none;display:flex;align-items:baseline;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq{border-top:1px solid var(--line)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-o{border-bottom:1px solid var(--line)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q{appearance:none;-webkit-appearance:none;display:flex;align-items:baseline;
   gap:16px;width:100%;margin:0;padding:18px 0;border:0;border-radius:0;background:none;box-shadow:none;cursor:pointer;
   font:inherit;color:var(--ink);text-align:left;text-transform:none;letter-spacing:normal;min-height:0;height:auto}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q .i{flex:0 0 auto;min-width:20px;margin-right:14px;font-family:var(--disp);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .i{flex:0 0 auto;min-width:20px;margin-right:14px;font-family:var(--disp);
   font-weight:800;font-size:11px;line-height:1.6;letter-spacing:.08em;color:#8f7020;font-variant-numeric:tabular-nums}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:16.5px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:16.5px;
   font-weight:600;line-height:1.6;color:var(--ink);transition:color .2s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q:hover .t{color:var(--gold-lo)}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q .p{flex:none;margin-left:auto;font-family:var(--body);font-size:20px;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:hover .t{color:var(--gold-lo)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .p{flex:none;margin-left:auto;font-family:var(--body);font-size:20px;
   line-height:1;color:#7c5f16;transition:transform .25s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q[aria-expanded="true"] .p{transform:rotate(45deg)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q[aria-expanded="true"] .p{transform:rotate(45deg)}
 /* odpoveď: zbalená = 0 riadkov mriežky + visibility:hidden (mimo poradia Tab a čítačiek), rozbalenie plynulo */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a{display:grid;grid-template-rows:0fr;visibility:hidden;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a{display:grid;grid-template-rows:0fr;visibility:hidden;
   transition:grid-template-rows .3s cubic-bezier(.2,.7,.2,1),visibility 0s linear .3s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-q[aria-expanded="true"] + .p1v-faq-a{grid-template-rows:1fr;visibility:visible;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q[aria-expanded="true"] + .p1v-faq-a{grid-template-rows:1fr;visibility:visible;
   transition:grid-template-rows .3s cubic-bezier(.2,.7,.2,1),visibility 0s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a > .a{min-height:0;overflow:hidden;max-width:70ch;padding:0;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a > .a{min-height:0;overflow:hidden;max-width:70ch;padding:0;
   font-size:14.5px;line-height:1.6;color:#4a4433}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a > .a:after{content:"";display:block;height:20px}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a a{color:#7c5f16;text-decoration:underline;text-underline-offset:2px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a > .a:after{content:"";display:block;height:20px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a a{color:#7c5f16;text-decoration:underline;text-underline-offset:2px}
 @media (prefers-reduced-motion:reduce){
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2) .p1v-faq-a{transition:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a{transition:none}
 }
 
 /* ---------- d-koniec: „Kúpiť a nečakať!“ (návrh section.end = záver titulky) ---------- */
 /* titulka od 900 px zmenšuje odsadenie záveru (clamp 44–92 px); návrh v26 má clamp(66px,9vw,140px) na všetkých šírkach */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"]{padding-top:clamp(66px,9vw,140px) !important;
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"]{padding-top:clamp(66px,9vw,140px) !important;
   padding-bottom:clamp(66px,9vw,140px) !important}
 /* pozadie: v návrhu <img> s opacity .3 a filtrom; tu ozdoba v CSS. hero.jpg prednačítava Záhlavie webu na každej stránke
    (cache), trieda p1v-blizko (obsah-d.js pri priblížení) = ani bez prednačítania sa nestiahne skôr, než treba */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] .endbg{opacity:.3;filter:saturate(.82) contrast(1.04);
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .endbg{opacity:.3;filter:saturate(.82) contrast(1.04);
   background:#181510 50% 50% / cover no-repeat}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"].p1v-blizko .endbg{
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"].p1v-blizko .endbg{
   background-image:url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/hero.jpg")}
 /* nadpis biely aj keby ho prefarbilo zlaté pravidlo h2 (návrh patch36) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] h2{color:#fff;background:none;-webkit-text-fill-color:#fff}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] h2{color:#fff;background:none;-webkit-text-fill-color:#fff}
 /* hlavné tlačidlo bez rámu (Shoptet .btn by mu dal 1px tmavý rám); druhé: v návrhu inline štýl (biely text, zlatý rám) */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] .btn:not(.ghost){border:0}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="d-koniec"] .btn.ghost{color:#fff;border-color:rgba(230,200,119,.45)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .btn:not(.ghost){border:0}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .btn.ghost{color:#fff;border-color:rgba(230,200,119,.45)}
 
 /* ---------- d-pomocne: zlatá linka čítania (návrh .citanie, patch20) — v <body>, nad hlavičkou ---------- */
 body.lcd-1v .p1v-citanie{position:fixed;left:0;right:0;top:0;height:2px;margin:0;padding:0;z-index:2147483000;
@@ -17019,24 +17024,664 @@ body.lcd-1v .p1v-lb :is(.p1v-lb-x,.p1v-lb-sip):focus-visible{outline:2px solid #
 /* ===== LCD-1V-OBSAH-D END ===== */
 
 /* ===== LCD-1V-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-dvoj.scss (konfigurator 1V dvojvrstvove 601/604/607: krok farba 2. vrstvy; len body.lcd-1v), needituj rucne ===== */
-/* LCD-1V dvojvrstvové 601/604/607 — krok Farba 2. vrstvy a texty; selektory body.lcd-1v[data-lcd1v-typ="dvoj"]. Vlastník: T1.2 (farba2.js, typy/dvoj.js)
-   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+/* LCD-1V dvojvrstvové 601/604/607 — krok 4 „Farba 2. vrstvy“ (16 vzoriek Lux, štítok Odporúčame, náhľad), fotky vzorov v kroku 1.
+   Selektory body.lcd-1v[data-lcd1v-typ="dvoj"]. Vlastník: T1.2 (farba2.js, typy/dvoj.js). Návrh: dvojvrstvove.html krok 4
+   (#farby2Grp + #nahlad2, N:3964–4030), rozmery rovnaké ako krok 3 farby (kroky.js / _lcd1v-kroky.scss).
    Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
    flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+
+/* ---------------------------------------------------------------- krok 1: fotky vzorov (dvojvrstvový koberec v aute) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-diamond::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/dvoj-vzor-diamond.jpg");
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-stripe::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/dvoj-vzor-stripe.jpg");
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-hexa::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/dvoj-vzor-hexa.jpg");
+}
+
+/* nadpis otvoreného kroku: návrh dvojvrstvove.html má text-wrap: balance (#sprv .krok.otvoreny .kr-ti), takže „Prosím, vyberte
+   farbu druhej vrstvy“ sa zalomí „PROSÍM, / VYBERTE FARBU / DRUHEJ VRSTVY“ (bez osamoteného posledného slova) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-krok.active .lcd1v-ti {
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------------- krok 4: farba 2. vrstvy */
+/* poradie v karte: hlavička -10 a podnadpis -9 (kroky.js), vysvetlenie a štítok Odporúčame hneď pod ním, vzorky, náhľad 50 */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv { order: -8; }
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp { order: -7; }
+
+/* podnadpis + „i“ s vysvetlením (ako v kroku rozloženia) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 5px;
+  padding: 0;
+  vertical-align: middle;
+  border: 1px solid var(--kr-gold);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--kr-gold-tx);
+  font: 700 12px/1 var(--kr-disp);
+  cursor: pointer;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-info::after {
+  content: "";
+  position: absolute;
+  inset: -11px; /* dotyková plocha 44 px */
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-info:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv {
+  margin: 0 0 16px;
+  padding: 13px 14px;
+  border: 1px solid rgba(196, 155, 49, 0.4);
+  border-radius: 12px;
+  background: #faf6ea;
+  color: var(--kr-text);
+  font: 400 13.5px/1.55 var(--kr-body);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv[hidden] {
+  display: none;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv b {
+  font-weight: 700;
+  color: var(--kr-ink);
+}
+
+/* štítok „Odporúčame“ (rovnaký vzhľad ako v košíku: zlatá pilulka) + vzorka a názov odporúčanej Lux */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 14px;
+  color: var(--kr-ink);
+  font: 600 14.5px/1.35 var(--kr-body);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp[hidden] {
+  display: none;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-st {
+  display: inline-block;
+  padding: 3px 8px 2px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ecd07a, #c49b31);
+  color: var(--kr-ink);
+  font: 700 10.5px/1.25 var(--kr-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-vz {
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border: 1px solid rgba(20, 15, 5, 0.22);
+  border-radius: 7px;
+  object-fit: cover;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-tx {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* vzorky: jedna súvislá mriežka bez názvov (návrh: .fnad a .nm skryté, #farby2Grp = display:contents), 2 skupiny cez order
+   (7 jednofarebných a melírovaných, potom 9 s pruhmi; poradie dáva farba2.js do --f2-o) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  width: auto;
+  max-height: none !important;
+  margin: 0;
+  padding: 0 !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .lcd1v-f2-skry {
+  display: none !important;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button {
+  position: relative;
+  display: block;
+  order: var(--f2-o, 50);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(20, 15, 5, 0.22);
+  border-radius: 12px;
+  background: #e9e5da;
+  box-shadow: none;
+  overflow: hidden;
+  cursor: pointer;
+  transform: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button:hover {
+  border-color: var(--kr-gold);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: cover;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button .text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button::before {
+  content: none !important;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button::after {
+  content: none;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active::after {
+  content: "\2713";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  left: auto;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kr-zlato);
+  color: #17130a;
+  font: 700 9px/1 var(--kr-body);
+}
+/* odporúčaná vzorka: zlatý rámik a hviezdička vľavo hore (vpravo hore je fajka zvolenej) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana {
+  border-color: var(--kr-gold);
+  box-shadow: 0 0 0 1px var(--kr-gold);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana::before {
+  content: "\2605" !important;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kr-zlato);
+  color: #17130a;
+  font: 700 9px/1 var(--kr-body);
+}
+
+/* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad (kroky.js ho štýluje: 320 × 320, v strede) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .image-wrap {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------- telefón */
+@media (max-width: 480px) {
+  body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap {
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* návrh: repeat(auto-fill, minmax(50px, 1fr)) + gap 8 px = 5 stĺpcov pri 390 px */
+  }
+}
 /* ===== LCD-1V-DVOJ END ===== */
 
 /* ===== LCD-1V-KUFOR START - generovane tools/vloz-lcd-css.py z _lcd1v-kufor.scss (konfigurator 1V rohoze do kufra Classic a Premium 619-634; len body.lcd-1v), needituj rucne ===== */
 /* LCD-1V rohože do kufra Classic + Premium 619–634 — auto bez volantu/miest/dverí, dlaždice vzoru, pás setu; selektory body.lcd-1v[data-lcd1v-typ^="kufor"]. Vlastník: T2.2 (kufor-produkt.js)
-   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
    Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
-   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8.
+   Merané na návrhoch navrhy/kufor-classic.html (.kc-set, .kc-alt, .pat small) a kufor-premium.html (.setpas) pri
+   1280 a 390 px. Premenné --c1v-* a --kr-* sú z _lcd1v-cena.scss / _lcd1v-kroky.scss (na body.lcd-1v).
+   Prvky z JS (kufor-produkt.js, všetky bez name): .lcd1v-kf-nazov (názov rohože), .lcd1v-kf-pod (podnadpis kroku 1),
+   [data-lcd1v-cena] na .banner-header dlaždice vzoru, .lcd1v-kf-set (pás setu), .lcd1v-kf-alt (odkaz na Premium). */
+
+/* ---------- živé prvky, ktoré rohož v novom vzhľade nemá (ostávajú v DOM aj so svojím JS) ---------- */
+/* krok 2: volant, počet miest a dverí (návrh: len značka, model, rok, karoséria; hodnoty idú ďalej do poznámky) */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .wheel-Position,
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .sit-Position,
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .door-Position {
+  display: none !important;
+}
+/* bez volantu nad poľami: preč aj čiarkovaná deliaca čiara nad značkou/modelom (návrh: polia hneď pod podnadpisom) */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto #model-selector {
+  margin: 0 !important; /* návrh: hlavička -> polia 22 px (Premium), podnadpis -> polia 16 px (Classic) */
+  padding: 0;
+  border-top: 0;
+}
+/* živé bannery stĺpca: „Hľadáte ešte lepšiu ochranu?“ (dvojvrstvové) a „Kúp viac za menej“ — návrh ich nemá,
+   ponuku setu nahrádza .lcd1v-kf-set pod cenou */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-info-wrapper > .benefitBanner__item,
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-info-wrapper > .upsale-Banner {
+  display: none !important;
+}
+
+/* ---------- názov rohože: živý H1 (pôvodný text, SEO) len vizuálne skrytý, nový názov ako H1 v návrhu ---------- */
+body.lcd-1v[data-lcd1v-typ^="kufor"][data-lcd1v-kf-nazov] #product-detail-form .p-detail-inner-header > h1 {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-detail-inner-header > .lcd1v-kf-nazov {
+  margin: 0;
+  padding: 0;
+  font-family: var(--c1v-disp);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.14;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--c1v-ink);
+  text-wrap: balance;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-nazov .lcd1v-kf-nazov__vzor {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 1em;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  color: var(--c1v-zl);
+}
+@media (min-width: 901px) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-detail-inner-header > .lcd1v-kf-nazov { font-size: 32px; }
+}
+@media (max-width: 380px) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-detail-inner-header > .lcd1v-kf-nazov { font-size: 24px; }
+}
+@media (max-width: 340px) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-detail-inner-header > .lcd1v-kf-nazov { font-size: 22px; }
+}
+
+/* ---------- krok 1: dlaždice vzoru ---------- */
+/* Classic: fotky rohože v kufri z návrhu (kc-pat-*); Premium ostáva pri fotkách vzorov 598 (kroky-vzor-*, ako návrh) */
+body.lcd-1v[data-lcd1v-typ="kufor-classic"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-diamond::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/rohoz-classic-vzor-diamond.jpg");
+}
+body.lcd-1v[data-lcd1v-typ="kufor-classic"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-stripe::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/rohoz-classic-vzor-stripe.jpg");
+}
+body.lcd-1v[data-lcd1v-typ="kufor-classic"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-hexa::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/rohoz-classic-vzor-hexa.jpg");
+}
+/* cena pod názvom vzoru („v cene“ / „+ 10 €“): text z atribútu, textContent dlaždice ostáva len názov */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .banner-header[data-lcd1v-cena]::after {
+  content: attr(data-lcd1v-cena);
+  display: block;
+  margin: 3px 0 0;
+  font: 600 11.5px/1.3 var(--c1v-body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c1v-lb);
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active .banner-header[data-lcd1v-cena]::after {
+  color: var(--c1v-zl);
+}
+
+/* ---------- pás setu pod cenou (Classic .kc-set = riadok s odkazom, Premium .setpas = celý pás je odkaz) ---------- */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-info-wrapper > .lcd1v-kf-set {
+  order: 3; /* ako postup a kroky (.content-wrap order 3), v DOM tesne pred postupom */
+  box-sizing: border-box;
+  margin: 18px 0 0;
+  border: 1px solid rgba(196, 155, 49, 0.5);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fffaf0, #faf3df);
+  font-family: var(--c1v-body);
+  color: #3d3728;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 12px 15px;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok b {
+  font-family: var(--c1v-disp);
+  font-weight: 800;
+  color: var(--c1v-zl);
+  white-space: nowrap;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok .lcd1v-kf-set__us {
+  white-space: nowrap;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok .lcd1v-kf-set__a {
+  margin-left: auto;
+  font: 800 11px/1.45 var(--c1v-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c1v-zl);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok .lcd1v-kf-set__a:hover,
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok .lcd1v-kf-set__a:focus-visible {
+  color: var(--c1v-ink);
+}
+@media (max-width: 520px) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--riadok .lcd1v-kf-set__a { margin-left: 0; }
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form a.lcd1v-kf-set--pas {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1.5px solid rgba(196, 155, 49, 0.55);
+  background: linear-gradient(180deg, #fbf6e6, #f6efd6);
+  color: var(--c1v-ink);
+  text-decoration: none;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form a.lcd1v-kf-set--pas:hover {
+    border-color: var(--c1v-gold);
+    box-shadow: 0 8px 20px rgba(140, 105, 25, 0.2);
+    transform: translateY(-1px);
+  }
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form a.lcd1v-kf-set--pas:focus-visible {
+  outline: 2px solid var(--c1v-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__ic {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
+  color: #17130a;
+  font: 800 18px/1 var(--c1v-disp);
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__tx {
+  flex: 1;
+  min-width: 0;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__tx b {
+  display: block;
+  font: 800 13.5px/1.3 var(--c1v-disp);
+  color: var(--c1v-ink);
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__tx i {
+  display: block;
+  margin: 2px 0 0;
+  font: 400 12.5px/1.4 var(--c1v-body);
+  font-style: normal;
+  color: #4a4433;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__sp {
+  flex: none;
+  font: 800 10.5px/1.3 var(--c1v-disp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c1v-zl);
+  white-space: nowrap;
+}
+@media (max-width: 440px) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__sp { display: none; }
+}
+
+/* ---------- Classic: „Chcete chrániť aj boky kufra? Pozrite si rohož Premium“ pod tlačidlom košíka ---------- */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-info-wrapper > .lcd1v-kf-alt {
+  order: 7; /* ako „Spolu“ a tlačidlo košíka, v DOM hneď za tlačidlom */
+  margin: 14px 0 0;
+  padding: 0;
+  font: 400 13.5px/1.5 var(--c1v-body);
+  color: var(--c1v-lb);
+  text-align: center;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a {
+  color: var(--c1v-zl);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a:hover,
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a:focus-visible {
+  color: var(--c1v-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form a.lcd1v-kf-set--pas { transition: none; }
+}
 /* ===== LCD-1V-KUFOR END ===== */
 
 /* ===== LCD-1V-BOXY START - generovane tools/vloz-lcd-css.py z _lcd1v-boxy.scss (konfigurator 1V box do kufra 616; len body.lcd-1v), needituj rucne ===== */
 /* LCD-1V box do kufra 616 — farba → počet → veľkosť, neutralizácia configurator-enhance; selektory body.lcd-1v[data-lcd1v-typ="boxy"]. Vlastník: T3.2 (boxy-produkt.js)
-   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
-   Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
-   flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+   Čisté CSS (nekompiluje sa Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte). KAŽDÝ selektor
+   začína body.lcd-1v[data-lcd1v-typ="boxy"] (typ cez atribút, nie triedu); flag vypnutý = nulová zmena (test nulova-zmena).
+   Návrh: navrhy/boxy.html (#bx-extra, #bx-konf; karty počtu = vzhľad kariet kroku 6 v 598 .lcd1v-kb__karta).
+   Prvky z JS (bez name): .lcd1v-bxp-pocty, .lcd1v-bxp-velk, .lcd1v-bxp-nahlad, .lcd1v-bxp-nazov, .lcd1v-bxp-set.
+   Kontrakt: docs/1v-kontrakt.md §8. */
+
+/* ---------------------------------------------------------------- poradie krokov a neutralizácia configurator-enhance
+   Živý web (configurator-enhance.js lcdBoxReorderAndRename) dáva krokom inline order počet 1 / farba 2 / veľkosť 3;
+   návrh má farba 1 / počet 2 / veľkosť 3 (DOM ostáva, mení sa len poradie zobrazenia). */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-farba { order: 1 !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-pocet { order: 2 !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-velkost { order: 3 !important; }
+/* odporúčaná cena, ktorú by configurator-enhance (lcdAddBoxRRP) dopísal „Doporučenou cenou“ — box ju v admine nemá */
+body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-rrp-wrap,
+body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-price-rrp { display: none !important; }
+/* živé bannery nad a pod krokmi (dvojvrstvové autokoberce, „Kúp viac za menej“) — návrh má namiesto nich pás setu */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-info-wrapper > .benefitBanner__item,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-info-wrapper > .upsale-Banner { display: none !important; }
+
+/* ---------------------------------------------------------------- hlavička: vizuálny názov (živý H1 ostáva v DOM) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header h1:has(+ .lcd1v-bxp-nazov) {
+  position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important;
+  overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; border: 0 !important;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov {
+  margin: 0; padding: 0;
+  font-family: var(--c1v-disp); font-weight: 700; font-size: 26px; line-height: 1.14; letter-spacing: .02em;
+  text-transform: uppercase; color: var(--c1v-ink); text-wrap: balance;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov em {
+  display: block; margin: 2px 0 0;
+  font-size: 1em; font-weight: 600; font-style: normal; letter-spacing: .04em; color: var(--c1v-zl);
+}
+@media (min-width: 901px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 32px; }
+}
+@media (max-width: 380px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 24px; }
+}
+@media (max-width: 340px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 22px; }
+}
+
+/* „Cena za box“ len pri jednom boxe (pri 2–3 boxoch je cena súčet boxov) */
+body.lcd-1v[data-lcd1v-typ="boxy"]:has(.lcd1v-bxp-pocty[data-ks="2"], .lcd1v-bxp-pocty[data-ks="3"]) #product-detail-form .lcd1v-cena .lcd1v-cena__za {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- pás setu (návrh .sethint, B:2842–2860) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-info-wrapper > .lcd1v-bxp-set {
+  order: 1;
+  display: flex; align-items: center; gap: 12px;
+  margin: 12px 0 0; padding: 11px 14px;
+  border: 1.5px dashed rgba(155, 122, 36, .5); border-radius: 12px;
+  background: rgba(196, 155, 49, .08);
+  color: var(--c1v-ink); text-decoration: none; text-align: left;
+  transition: border-color .2s, background-color .2s, transform .2s;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-info-wrapper > .lcd1v-bxp-set[hidden] { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set:hover {
+  border-color: var(--c1v-gold); background: rgba(196, 155, 49, .15); transform: translateY(-1px);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__ic {
+  flex: none; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31); color: #17130a;
+  font: 800 15px/1 var(--c1v-disp);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__t { min-width: 0; line-height: 1.3; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__t b {
+  display: block; font: 800 13.5px/1.3 var(--c1v-disp); color: var(--c1v-ink);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__t span {
+  display: block; margin-top: 2px; font: 400 12.5px/1.3 var(--c1v-body); color: #4a4433;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__t span[hidden] { display: none; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__go {
+  flex: none; margin-left: auto;
+  font: 800 10.5px/1.2 var(--c1v-disp); letter-spacing: .1em; text-transform: uppercase; color: var(--c1v-zl);
+}
+@media (max-width: 420px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set__go { display: none; }
+}
+
+/* ---------------------------------------------------------------- krok 1: 9 vzoriek (telefón 3 × 3, inak v rade) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .options-wrap {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+@media (max-width: 520px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .options-wrap {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+/* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
+
+/* ---------------------------------------------------------------- krok 2: počet boxov (karty = vzhľad kroku 6 v 598) */
+/* živé „1 ks / 2 ks / 3 ks“ sú v .name-wrap (skrytý obalom kroky.js); prázdny živý zoznam možností preč */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-pocet > .options-wrap { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-pocty,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-velk { order: 10; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-pocty { margin: 0; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__tx {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; column-gap: 12px; row-gap: 2px;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__nm { grid-column: 1; grid-row: 1; padding-right: 0; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__po { grid-column: 1 / -1; grid-row: 2; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od {
+  grid-column: 2; grid-row: 1; align-self: baseline; padding-right: 30px;
+  font: 800 16px/1.15 var(--kb-disp); color: var(--kb-gold-txt); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+@media (max-width: 480px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__tx { grid-template-columns: minmax(0, 1fr); }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__nm { padding-right: 26px; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od { grid-column: 1; grid-row: 3; margin-top: 6px; padding-right: 0; font-size: 15px; }
+}
+
+/* ---------------------------------------------------------------- krok 3: veľkosti so siluetou (návrh #sprv .vk) */
+/* živé tlačidlá veľkostí (3 skupiny, každá s vlastným tlačidlom kroku) nahrádzajú karty; ostávajú v DOM */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-velkost > .options-wrap { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk {
+  --bxp-gold: #c49b31; --bxp-line: #d9d4c6; --bxp-zl: #7c5f16;
+  margin: 0; color: var(--kr-ink); font-family: var(--kr-body); text-align: left;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp[hidden] { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp + .lcd1v-bxp-vgrp { margin-top: 22px; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp {
+  display: flex; align-items: baseline; gap: 8px; margin: 0 0 9px; padding: 0;
+  font: 700 11px/16px var(--kr-disp); letter-spacing: .16em; text-transform: uppercase; color: var(--kr-tmava);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp em {
+  font: 600 12.5px/16px var(--kr-body); font-style: normal; letter-spacing: 0; text-transform: none; color: var(--bxp-zl);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vcards {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;
+}
+@media (max-width: 479px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vcards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  width: auto; height: auto; min-width: 0; margin: 0; padding: 11px 6px 12px;
+  background: #f7f5ef; border: 1px solid var(--bxp-line); border-radius: 12px; box-shadow: none;
+  color: var(--kr-ink); font: inherit; text-align: center; text-transform: none; letter-spacing: normal;
+  cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-gold); background: #fff; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:focus-visible { outline: 3px solid var(--bxp-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"] {
+  border-color: var(--bxp-gold); background: #fff;
+  box-shadow: 0 0 0 1px var(--bxp-gold), 0 8px 20px rgba(140, 105, 25, .18);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]::after {
+  content: "\2713"; position: absolute; top: -8px; right: -8px; z-index: 1;
+  display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31); color: #17130a;
+  font: 800 11px/1 var(--kr-body); box-shadow: 0 3px 9px rgba(20, 15, 5, .3);
+}
+@media (hover: none) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-line); background: #f7f5ef; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]:hover { border-color: var(--bxp-gold); background: #fff; }
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil { display: block; width: 100%; height: auto; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil-gr { stroke: #cfc6ae; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-l {
+  margin-top: 2px; font: 700 19px/1 var(--kr-disp); color: var(--kr-ink);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-d {
+  font: 600 11px/1.25 var(--kr-body); color: #5d5643; font-variant-numeric: tabular-nums;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-c {
+  margin-top: 1px; font: 700 14px/1.2 var(--kr-disp); color: var(--bxp-zl); font-variant-numeric: tabular-nums;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip {
+  margin: 16px 0 0; padding: 0; font: 400 13.5px/1.5 var(--kr-body); color: #48412f; text-align: left;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip b { color: var(--kr-ink); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk,
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-set { transition: none; }
+}
 /* ===== LCD-1V-BOXY END ===== */
 
 /* ===== LCD-1V-OBSAH-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-dvoj.scss (obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v), needituj rucne ===== */
@@ -17066,6 +17711,294 @@ body.lcd-1v .p1v-lb :is(.p1v-lb-x,.p1v-lb-sip):focus-visible{outline:2px solid #
    Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
    flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
 /* ===== LCD-1V-OBSAH-BOXY END ===== */
+
+/* ===== LCD-1V-VZORKY START - generovane tools/vloz-lcd-css.py z _lcd1v-vzorky.scss (konfigurator 1V vzorkovnik 637; len body.lcd-1v), needituj rucne ===== */
+/* LCD-1V vzorkovník 637 (typ „vzorky“) — nový vzhľad podľa návrhu navrhy/vzorkovnik.html (opravený 14. 10. 2026).
+   Tichý test: platí LEN pod body.lcd-1v[data-lcd1v-typ="vzorky"] (?novy=vyvoj, po vydaní ?novy=1). Bez flagu sa nič nemení.
+   Vlastník: assets/js/components/konfigurator1v/vzorky-produkt.js (T5.1). Kontrakt: docs/1v-kontrakt.md.
+   Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte; blok
+   LCD-1V-VZORKY treba zaregistrovať v BLOKY — robí integrátor).
+
+   Spoločné prvky 1V sa len použijú (ich CSS je v _lcd1v-kroky.scss a _lcd1v-cena.scss pod body.lcd-1v):
+   karta kroku .lcd1v-krok (+ .active, .lcd1v-hotovy, .lcd1v-chyba, .lcd1v-zablesk, .lcd1v-hd …), postup .lcd1v-postup,
+   náhľad .lcd1v-nahlad, chyba .lcd1v-chyba-tx, štítok .lcd1v-typ, hodnotenie .lcd1v-hodn, „Spolu“ .lcd1v-suhrn,
+   tlačidlo košíka (živé, preštýlované) a lišta .lcd1v-lista. Tu je len to, čo má iba vzorkovník.
+   .p-info-wrapper je flex stĺpec so živým poradím (hlavička 1, tabuľka parametrov 2, widget 4, cena 5, košík 7, FAQ 8). */
+
+/* ---------- živé prvky, ktoré nový vzhľad nahrádza (ostávajú v DOM aj so svojím JS) ---------- */
+/* živý widget vzoriek (dlaždice nad skrytými selectmi) — nový vzhľad píše do tých istých selectov cez ctx.zapis */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd-vz-host { display: none !important; }
+/* krátky popis z adminu opisuje starý výber („zaškrtni (Chcem)“) a tyká — nahrádza ho karta ceny a kroky */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .p-short-description { display: none !important; }
+/* živý H1 ostáva v DOM (SEO, čítačka) — vizuálne ho nahrádza nadpis návrhu .lcd1v-vz-nazov (plan.md §2.5) */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-detail-inner-header h1 {
+  position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important;
+  overflow: hidden !important; clip: rect(0 0 0 0) !important; clip-path: inset(50%) !important; white-space: nowrap !important; border: 0 !important;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-detail-inner-header { position: relative; }
+
+/* ---------- hlavička: nadpis návrhu (rovnaký tvar ako H1 nového vzhľadu, _lcd1v-cena.scss) ---------- */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-detail-inner-header .lcd1v-vz-nazov {
+  margin: 0; padding: 0;
+  font-family: var(--c1v-disp); font-weight: 700; font-size: 26px; line-height: 1.14; letter-spacing: .02em;
+  text-transform: uppercase; color: var(--c1v-ink); text-wrap: balance;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-nazov em {
+  display: block; margin: 2px 0 0; font-size: 1em; font-weight: 600; font-style: normal; letter-spacing: .04em; color: var(--c1v-zl);
+}
+
+/* ---------- cena vzorky (bez poľa, ako cena nového vzhľadu) ---------- */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd1v-vz-cena {
+  order: 1; margin: 22px 0 0; padding: 0 0 18px; border-bottom: 1px solid var(--c1v-line);
+  font-family: var(--c1v-body); color: var(--c1v-ink);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__stitok {
+  display: block; margin: 0 0 6px;
+  font: 700 10.5px/16px var(--c1v-disp); letter-spacing: .16em; text-transform: uppercase; color: var(--c1v-tm);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__suma {
+  display: block; font: 600 40px/1 var(--c1v-disp); color: var(--c1v-ink); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__pozn {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 12px 0 0; padding: 0;
+  font: 400 15px/20px var(--c1v-body); color: var(--c1v-lb);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__zal { display: inline-flex; align-items: center; gap: 7px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__zal b { color: var(--c1v-zn); font-weight: 700; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-tip {
+  margin: 12px 0 0; padding: 11px 13px; border: 1px solid #e6d7ab; border-radius: 12px; background: #faf6ea;
+  font: 400 14px/1.45 var(--c1v-body); color: var(--c1v-tm);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-tip[hidden] { display: none; }
+/* „i“ (vysvetlenie) pri zálohe a pri druhej vrstve; dotyková plocha 44 px cez ::before */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-info {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; border: 1px solid var(--c1v-gold); border-radius: 50%;
+  background: #fff; color: var(--c1v-zl); font: 800 11px/1 var(--c1v-disp); text-transform: none; letter-spacing: 0;
+  vertical-align: middle; cursor: pointer; box-shadow: none;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-info::before {
+  content: ""; position: absolute; inset: -12px; border-radius: 50%;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-info[aria-expanded="true"] { background: var(--c1v-gold); color: #17130a; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-info:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 2px; }
+
+/* pás „Zálohu dostanete späť“ (vzor .sethint návrhu boxy.html) + rozbalený postup vrátenia */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > button.lcd1v-vz-hint {
+  order: 1; display: flex; align-items: center; gap: 12px; width: 100%; height: auto; min-height: 0; margin: 14px 0 0;
+  padding: 11px 14px; border: 1.5px dashed rgba(155, 122, 36, .5); border-radius: 12px; background: rgba(196, 155, 49, .08);
+  box-shadow: none; color: var(--c1v-ink); text-align: left; text-transform: none; letter-spacing: 0;
+  font: 400 13px/1.3 var(--c1v-body); cursor: pointer; transition: border-color .2s, background-color .2s;
+}
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > button.lcd1v-vz-hint:hover { border-color: var(--c1v-gold); background: rgba(196, 155, 49, .15); }
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-hint:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-hint__ic {
+  display: flex; flex: none; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31); color: #17130a;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-hint__t { min-width: 0; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-hint__t b {
+  display: block; font: 800 13.5px/1.3 var(--c1v-disp); color: var(--c1v-ink);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-hint__t span {
+  display: block; margin: 2px 0 0; font: 400 12.5px/1.35 var(--c1v-body); color: #4a4433;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-hint__go {
+  flex: none; margin: 0 0 0 auto; font: 800 10.5px/1 var(--c1v-disp); letter-spacing: .1em; text-transform: uppercase; color: var(--c1v-zl);
+}
+@media (max-width: 420px) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-hint__go { display: none; }
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd1v-vz-vratenie {
+  order: 1; margin: 8px 0 0; padding: 12px 14px; border: 1px solid var(--c1v-line); border-radius: 12px; background: #fff;
+  font: 400 14px/1.5 var(--c1v-body); color: var(--c1v-tm);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd1v-vz-vratenie[hidden] { display: none; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-vratenie__zoz { margin: 0 0 6px; padding: 0 0 0 20px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-vratenie p { margin: 0 0 6px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form a.lcd1v-vz-vratenie__a {
+  display: inline-block; padding: 6px 0; color: var(--c1v-ink); font-weight: 700;
+  text-decoration: underline; text-decoration-color: var(--c1v-gold); text-underline-offset: 3px;
+}
+
+/* ---------- kroky (série vzoriek) ---------- */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd1v-vz-kroky {
+  order: 3; display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0;
+}
+/* postup má v _lcd1v-kroky.scss order 3 (poradie v .p-info-wrapper) — tu je prvý v stĺpci krokov */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-kroky > .lcd1v-postup { order: -1; margin: 24px 0 0; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-postup-dl i.p { background: #c9c2ae; }
+/* krok potvrdený bez vzorky = preskočený: nie zelený, zhrnutie tlmené */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-krok.lcd1v-vz-preskoceny:not(.active) .lcd1v-vy { color: #8a8471; font-style: italic; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-krok.lcd1v-vz-preskoceny:not(.active) .lcd1v-no { color: #8a8471; }
+/* podnadpis s „i“ */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-pod button.lcd1v-vz-info { margin: 0 0 0 4px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-vz-vysv {
+  margin: -6px 0 16px; padding: 11px 13px; border: 1px solid #e6d7ab; border-radius: 12px; background: #faf6ea;
+  font: 400 14px/1.45 var(--kr-body); color: var(--kr-tmava);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-vz-vysv[hidden] { display: none !important; }
+
+/* skupiny vzoriek: nadpis s linkou a počtom */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-skup + .lcd1v-vz-skup { margin-top: 18px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-fnad {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0;
+  font: 800 10.5px/1.3 var(--kr-disp); letter-spacing: .14em; text-transform: uppercase; color: #5a5240;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-fnad::after {
+  content: ""; order: 2; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(196, 155, 49, .5), transparent);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-fnad b { order: 3; flex: none; font-size: 10px; color: #8a8471; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-skup--nahlad .lcd1v-vz-fnad { color: #8a8471; }
+
+/* dlaždice: fotka vzorky, pod ňou názov farby zo živého webu a kód (ten istý je v košíku) */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-farby {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 8px; margin: 0; padding: 0;
+}
+@media (min-width: 721px) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-farby { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px 10px; }
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl {
+  position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 5px;
+  width: auto; height: auto; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0;
+  background: none; box-shadow: none; color: inherit; text-align: center; text-transform: none; letter-spacing: 0;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-sw {
+  position: relative; display: block; width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+  border: 1px solid rgba(20, 15, 5, .22); border-radius: 12px; background: #f1ede2;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-img {
+  display: block; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; object-fit: cover;
+}
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:not(.lcd1v-vz-dl--nahlad):hover .lcd1v-vz-sw {
+    transform: translateY(-2px); border-color: var(--kr-gold);
+  }
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:focus-visible { outline: 0; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:focus-visible .lcd1v-vz-sw { outline: 3px solid var(--kr-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-sw {
+  border-color: #fff; box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, .25);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-sw::after {
+  content: "\2713"; position: absolute; top: 5px; right: 5px; display: flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--kr-zlato); color: #17130a;
+  font: 800 12px/1 var(--kr-body); box-shadow: 0 2px 8px rgba(20, 15, 5, .35);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-nm {
+  display: block; margin: 0; font: 700 10.5px/1.22 var(--kr-disp); letter-spacing: .01em; color: var(--kr-tmava);
+  overflow-wrap: anywhere;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-kd {
+  display: block; margin: -2px 0 0; font: 700 9.5px/1.2 var(--kr-disp); letter-spacing: .08em; color: #9a917a;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-nm { color: var(--kr-ink); }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-kd { color: var(--kr-gold-tx); }
+/* náhľad (neposiela sa, živý widget ho nedovolí objednať): tlmený, štítok, klik len ukáže fotku */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl--nahlad { cursor: zoom-in; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-dl--nahlad .lcd1v-vz-img { filter: saturate(.75); opacity: .8; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-dl--nahlad .lcd1v-vz-nm,
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-dl--nahlad .lcd1v-vz-kd { color: #9a917a; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-tag {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 2px 2px; background: rgba(23, 19, 10, .82); color: #fff;
+  font: 800 8px/1.2 var(--kr-disp); letter-spacing: .08em; text-transform: uppercase; text-align: center; pointer-events: none;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-vz-npozn {
+  margin: 14px 0 0; padding: 0; font: 400 13.5px/1.45 var(--kr-body); color: var(--kr-mute);
+}
+/* náhľad kliknutej vzorky: nižší pás, nech súhrn neodsunie ďaleko dole (návrh) */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-nahlad > .lcd1v-nahlad-img { aspect-ratio: 2 / 1; }
+
+/* „Pokračujte ďalej“ / „Pokračujte k súhrnu“ (rovnaký vzhľad ako živé .next-step-button v 1V) */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > button.lcd1v-vz-dalej {
+  position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: 100%; max-width: none; height: 56px; min-height: 0; margin: 22px 0 0; padding: 0 26px; border: 0; border-radius: 12px;
+  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  box-shadow: 0 10px 26px rgba(31, 115, 80, .34), inset 0 1px 0 rgba(255, 255, 255, .22);
+  color: #fff; font: 900 14px/22.4px var(--kr-disp); letter-spacing: .12em; text-align: center; text-transform: uppercase;
+  cursor: pointer; transition: box-shadow .2s, transform .2s;
+}
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > button.lcd1v-vz-dalej:hover {
+    box-shadow: 0 14px 30px rgba(31, 115, 80, .42), inset 0 1px 0 rgba(255, 255, 255, .22); transform: translateY(-1px);
+  }
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > button.lcd1v-vz-dalej:focus-visible { outline: 3px solid var(--kr-gold); outline-offset: 3px; }
+
+/* ---------- vybrané vzorky, „Spolu“, poznámka (nad živým tlačidlom košíka, poradie 7) ---------- */
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd1v-vz-vyber {
+  order: 7; margin: 18px 0 0; padding: 14px 16px 12px; border: 1px solid var(--c1v-line); border-radius: 14px; background: #fff;
+  font-family: var(--c1v-body);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-vyber__hd {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0;
+  font: 800 10.5px/16px var(--c1v-disp); letter-spacing: .14em; text-transform: uppercase; color: var(--c1v-tm);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-pocet {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 7px;
+  border-radius: 999px; background: #2f9c68; color: #fff; font: 800 12px/1 var(--c1v-disp); letter-spacing: 0;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-pocet.nula { background: #d9d4c6; color: #5a5240; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-prazdne { margin: 8px 0 2px; font: 400 14px/1.4 var(--c1v-body); color: var(--c1v-lb); }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-prazdne[hidden] { display: none; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz { list-style: none; margin: 8px 0 0; padding: 0; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz:empty { display: none; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz li {
+  display: flex; align-items: center; gap: 11px; margin: 0; padding: 8px 0; border-top: 1px solid #efebe1;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz li:first-child { border-top: 0; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz__f {
+  flex: none; width: 38px; height: 38px; border: 1px solid rgba(20, 15, 5, .18); border-radius: 8px;
+  background: #f1ede2 center / cover no-repeat;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz__t { flex: 1; min-width: 0; line-height: 1.25; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz__t b {
+  display: block; overflow: hidden; font: 600 14px/1.3 var(--c1v-body); color: var(--c1v-ink); text-overflow: ellipsis; white-space: nowrap;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz__t i {
+  display: block; font: 700 10.5px/1.3 var(--c1v-disp); font-style: normal; letter-spacing: .08em; text-transform: uppercase; color: var(--c1v-zl);
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-zoz__c {
+  flex: none; font: 800 14px/1 var(--c1v-disp); color: var(--c1v-ink); font-variant-numeric: tabular-nums;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-zoz__x {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 30px; height: 30px; min-height: 0; margin: 0; padding: 0; border: 1px solid var(--c1v-line); border-radius: 50%;
+  background: #fff; box-shadow: none; color: #5a5240; font: 400 17px/1 var(--c1v-body); text-transform: none; cursor: pointer;
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-zoz__x::before { content: ""; position: absolute; inset: -7px; }
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-zoz__x:hover { border-color: #b8432f; color: #b8432f; }
+}
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-zoz__x:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > .lcd1v-vz-sumpozn {
+  order: 7; margin: 6px 0 0; padding: 0; font: 400 13px/1.4 var(--c1v-body); color: var(--c1v-lb); text-align: right;
+}
+
+/* ---------- rozmery ---------- */
+@media (min-width: 901px) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-detail-inner-header .lcd1v-vz-nazov { font-size: 32px; }
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__suma { font-size: 46px; }
+}
+@media (max-width: 380px) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-detail-inner-header .lcd1v-vz-nazov { font-size: 24px; }
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__suma { font-size: 36px; }
+}
+@media (max-width: 520px) {
+  /* telefón: poznámka pri zálohe v dvoch riadkoch bez bodky */
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__bod { display: none; }
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-cena__za { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-sw,
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > button.lcd1v-vz-dalej,
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .p-info-wrapper > button.lcd1v-vz-hint { transition: none; }
+}
+/* ===== LCD-1V-VZORKY END ===== */
 
 /* ===== Cena vs. tlacidlo do kosika (2026-09-25) =====
    .add-to-cart je od 768 px vytiahnute o 75 px hore vedla ceny. Stlpec je

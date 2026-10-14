@@ -237,12 +237,25 @@ export function init(ctx) {
     snimokListy = raf(function () { snimokListy = 0; obnovListu(); });
   }
 
+  /**
+   * Popis lepivej lišty (telefón). Základ (jedno, dvoj): „Diamond Line · 1.+2. rad“. Typ ho prepíše textom
+   * ctx.texty("cena").lista(info) (rohože: „Diamond Line · rohož Classic“ / „Premium · Diamond Line · <farba>“) alebo
+   * modul typu háčikom ctx.hacik("cena:lista", fn(info)) (box: „Box do kufra ×2 · S + L · <farba>“).
+   */
   function vzorARad() {
     const v = ctx.krok("vzor");
     const a = v && v.querySelector(".option-button.active");
     const vzor = a ? text(a).toLowerCase().replace(/(^|\s)\S/g, (x) => x.toUpperCase()) : "";
     const r = ctx.moznosti("rozlozenie").find((o) => o.zvolena);
-    return [vzor, r ? r.text.toLowerCase() : ""].filter(Boolean).join(" · ");
+    const f = ctx.krok("farba");
+    const fa = f && f.querySelector(".options-wrap > .option-button.active");
+    const info = { vzor, rozlozenie: r ? r.text.toLowerCase() : "", farba: fa ? fa.getAttribute("data-lcd1v-nazov") || "" : "" };
+    const h = ctx.hacikom("cena:lista", info);
+    if (typeof h === "string") return h;
+    if (typeof T.lista === "function") {
+      try { const t = T.lista(info); if (typeof t === "string") return t; } catch (e) { /* základ nižšie */ }
+    }
+    return [info.vzor, info.rozlozenie].filter(Boolean).join(" · ");
   }
 
   /**
@@ -277,9 +290,16 @@ export function init(ctx) {
     const odpT = text(odpEl);
     const nTeraz = cislo(terazT), nOdp = cislo(odpT), nZlava = cislo(text(zlavaEl));
     const maOdp = nOdp > 0 && nTeraz > 0 && nOdp > nTeraz;
-    nastav(suma, terazT);
-    nastav(suhrnSuma, terazT);
-    nastav(listaSuma, terazT);
+    // „od“ a text tlačidla podľa toho istého pravidla ako validácia košíka (+ pravidlá typu, ctx.pravidloKroku)
+    let hotovo = false;
+    try { hotovo = ctx.prvyNevyplneny() === null; } catch (e) { hotovo = false; }
+    // kým výber nie je úplný, typ môže ukázať najnižšiu možnú sumu (box 616: 2 boxy bez veľkostí = 2 × najlacnejší box,
+    // živý súčet by ukázal len zvolené boxy); úplný výber = vždy živá cena
+    const odTyp = hotovo ? null : ctx.hacikom("cena:od");
+    const zobraz = Number(odTyp) > 0 && Number(odTyp) > (nTeraz || 0) ? ctx.formatCena(Number(odTyp)) : terazT;
+    nastav(suma, zobraz);
+    nastav(suhrnSuma, zobraz);
+    nastav(listaSuma, zobraz);
     nastav(odp, odpT);
     nastav(zlava, nZlava > 0 ? "−" + nZlava + " %" : "");
     zlava.hidden = !(nZlava > 0);
@@ -290,9 +310,6 @@ export function init(ctx) {
     // bez „Ušetríte …“ stojí veta sama -> veľké písmeno („Cena za rohož na mieru“, návrh kufor-classic)
     nastav(za, maOdp || !T.zaSet ? T.zaSet : T.zaSet.charAt(0).toUpperCase() + T.zaSet.slice(1));
 
-    // „od“ a text tlačidla podľa toho istého pravidla ako validácia košíka
-    let hotovo = false;
-    try { hotovo = ctx.prvyNevyplneny() === null; } catch (e) { hotovo = false; }
     od.hidden = hotovo;
     const stitok = hotovo ? T.vlozte : T.dokoncite;
     nastav(kos, stitok);
@@ -354,7 +371,12 @@ export function init(ctx) {
   setTimeout(naplanuj, 1700);
 }
 
-/** Názov radu na konci H1 („… DIAMOND LINE“) do <em> — text H1 (aj pre SEO a živý kód) ostáva presne rovnaký. */
+/**
+ * Názov radu na konci H1 („… DIAMOND LINE“) do <em> — text H1 (aj pre SEO a živý kód) ostáva presne rovnaký.
+ * Názov materiálu v H1 („Dragonskin Basic“ / „Dragonskin Elite“) dostane <span class="lcd1v-mat">, ktorý CSS pod
+ * body.lcd-1v skryje: návrhy jednovrstvove.html aj dvojvrstvove.html majú „Luxusné autokoberce Diamond Line“ a názvy
+ * DragonSkin/Elite/Basic do nového vzhľadu nepatria (rozhodnutia.md). textContent H1 sa nemení.
+ */
 function zvyrazniRad(h1) {
   if (h1.querySelector(".lcd1v-rad")) return null;
   const uzol = Array.prototype.find.call(h1.childNodes, (n) => n.nodeType === 3 && /\S/.test(n.nodeValue));
@@ -362,13 +384,17 @@ function zvyrazniRad(h1) {
   const povodny = uzol.nodeValue;
   const m = /^([\s\S]*?)(\S+\s+line)(\s*)$/i.exec(povodny);
   if (!m || !/\S/.test(m[1])) return null;
+  const mat = /^([\s\S]*?\S\s+)(dragon\s*skin(?:\s+(?:basic|elite))?\s+)$/i.exec(m[1]);
+  const span = mat ? el("span", "lcd1v-mat", mat[2]) : null;
   const em = el("em", "lcd1v-rad", m[2]);
   const koniec = m[3] ? document.createTextNode(m[3]) : null;
-  uzol.nodeValue = m[1];
-  h1.insertBefore(em, uzol.nextSibling);
+  uzol.nodeValue = mat ? mat[1] : m[1];
+  if (span) h1.insertBefore(span, uzol.nextSibling);
+  h1.insertBefore(em, (span || uzol).nextSibling);
   if (koniec) h1.insertBefore(koniec, em.nextSibling);
   /** návrat: pôvodný jeden textový uzol */
   return function () {
+    if (span && span.parentNode) span.parentNode.removeChild(span);
     if (em.parentNode) em.parentNode.removeChild(em);
     if (koniec && koniec.parentNode) koniec.parentNode.removeChild(koniec);
     uzol.nodeValue = povodny;

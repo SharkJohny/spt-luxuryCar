@@ -367,6 +367,8 @@ body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti {
   font: 700 26.88px/1.22 var(--kr-disp);
   letter-spacing: 0.015em;
   text-transform: uppercase;
+  /* všetky návrhy (#sprv .krok.otvoreny .kr-ti): vyvážené riadky, bez osamoteného posledného slova */
+  text-wrap: balance;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-ti::after {
   content: "";
