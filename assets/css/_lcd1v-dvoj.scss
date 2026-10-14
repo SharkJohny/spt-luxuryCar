@@ -1,4 +1,239 @@
-/* LCD-1V dvojvrstvové 601/604/607 — krok Farba 2. vrstvy a texty; selektory body.lcd-1v[data-lcd1v-typ="dvoj"]. Vlastník: T1.2 (farba2.js, typy/dvoj.js)
-   Prázdny partial založený jadrom T0.1 (14. 10. 2026), nech tools/vloz-lcd-css.py a CI --check prejdú.
+/* LCD-1V dvojvrstvové 601/604/607 — krok 4 „Farba 2. vrstvy“ (16 vzoriek Lux, štítok Odporúčame, náhľad), fotky vzorov v kroku 1.
+   Selektory body.lcd-1v[data-lcd1v-typ="dvoj"]. Vlastník: T1.2 (farba2.js, typy/dvoj.js). Návrh: dvojvrstvove.html krok 4
+   (#farby2Grp + #nahlad2, N:3964–4030), rozmery rovnaké ako krok 3 farby (kroky.js / _lcd1v-kroky.scss).
    Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
    flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8. */
+
+/* ---------------------------------------------------------------- krok 1: fotky vzorov (dvojvrstvový koberec v aute) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-diamond::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/dvoj-vzor-diamond.jpg");
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-stripe::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/dvoj-vzor-stripe.jpg");
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-hexa::before {
+  background-image: url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/dvoj-vzor-hexa.jpg");
+}
+
+/* nadpis otvoreného kroku: návrh dvojvrstvove.html má text-wrap: balance (#sprv .krok.otvoreny .kr-ti), takže „Prosím, vyberte
+   farbu druhej vrstvy“ sa zalomí „PROSÍM, / VYBERTE FARBU / DRUHEJ VRSTVY“ (bez osamoteného posledného slova) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-krok.active .lcd1v-ti {
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------------- krok 4: farba 2. vrstvy */
+/* poradie v karte: hlavička -10 a podnadpis -9 (kroky.js), vysvetlenie a štítok Odporúčame hneď pod ním, vzorky, náhľad 50 */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv { order: -8; }
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp { order: -7; }
+
+/* podnadpis + „i“ s vysvetlením (ako v kroku rozloženia) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 5px;
+  padding: 0;
+  vertical-align: middle;
+  border: 1px solid var(--kr-gold);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--kr-gold-tx);
+  font: 700 12px/1 var(--kr-disp);
+  cursor: pointer;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-info::after {
+  content: "";
+  position: absolute;
+  inset: -11px; /* dotyková plocha 44 px */
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-info:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv {
+  margin: 0 0 16px;
+  padding: 13px 14px;
+  border: 1px solid rgba(196, 155, 49, 0.4);
+  border-radius: 12px;
+  background: #faf6ea;
+  color: var(--kr-text);
+  font: 400 13.5px/1.55 var(--kr-body);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv[hidden] {
+  display: none;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv b {
+  font-weight: 700;
+  color: var(--kr-ink);
+}
+
+/* štítok „Odporúčame“ (rovnaký vzhľad ako v košíku: zlatá pilulka) + vzorka a názov odporúčanej Lux */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 14px;
+  color: var(--kr-ink);
+  font: 600 14.5px/1.35 var(--kr-body);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp[hidden] {
+  display: none;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-st {
+  display: inline-block;
+  padding: 3px 8px 2px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ecd07a, #c49b31);
+  color: var(--kr-ink);
+  font: 700 10.5px/1.25 var(--kr-disp);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-vz {
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border: 1px solid rgba(20, 15, 5, 0.22);
+  border-radius: 7px;
+  object-fit: cover;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-tx {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* vzorky: jedna súvislá mriežka bez názvov (návrh: .fnad a .nm skryté, #farby2Grp = display:contents), 2 skupiny cez order
+   (7 jednofarebných a melírovaných, potom 9 s pruhmi; poradie dáva farba2.js do --f2-o) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  width: auto;
+  max-height: none !important;
+  margin: 0;
+  padding: 0 !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .lcd1v-f2-skry {
+  display: none !important;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button {
+  position: relative;
+  display: block;
+  order: var(--f2-o, 50);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(20, 15, 5, 0.22);
+  border-radius: 12px;
+  background: #e9e5da;
+  box-shadow: none;
+  overflow: hidden;
+  cursor: pointer;
+  transform: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button:hover {
+  border-color: var(--kr-gold);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button:focus-visible {
+  outline: 3px solid var(--kr-gold);
+  outline-offset: 2px;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: cover;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button .text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button::before {
+  content: none !important;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button::after {
+  content: none;
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active::after {
+  content: "\2713";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  left: auto;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kr-zlato);
+  color: #17130a;
+  font: 700 9px/1 var(--kr-body);
+}
+/* odporúčaná vzorka: zlatý rámik a hviezdička vľavo hore (vpravo hore je fajka zvolenej) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana {
+  border-color: var(--kr-gold);
+  box-shadow: 0 0 0 1px var(--kr-gold);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+}
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana::before {
+  content: "\2605" !important;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--kr-zlato);
+  color: #17130a;
+  font: 700 9px/1 var(--kr-body);
+}
+
+/* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad (kroky.js ho štýluje: 320 × 320, v strede) */
+body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .image-wrap {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------- telefón */
+@media (max-width: 480px) {
+  body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap {
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* návrh: repeat(auto-fill, minmax(50px, 1fr)) + gap 8 px = 5 stĺpcov pri 390 px */
+  }
+}
