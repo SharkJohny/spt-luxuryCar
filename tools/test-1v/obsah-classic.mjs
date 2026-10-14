@@ -1,22 +1,507 @@
-// Obsah 1V typu „classic“ (rohož Classic 619/622/625) — mapa sekcií (web ↔ návrh) a kontroly pre tools/test-1v-obsah.mjs. STUB (T0.3).
-// VLASTNÍK: T2.3. Pravidlá: docs/1v-obsah.md („Testy“).
+// Obsah 1V typu „classic“ (rohož do kufra Classic 619/622/625) — mapa sekcií (web ↔ návrh) a kontroly pre tools/test-1v-obsah.mjs. T2.3.
+// VLASTNÍK: T2.3. Pravidlá: docs/1v-obsah.md („Testy“). Formát sekcie[] a kontroly(t): pozri tools/test-1v/obsah-a.mjs.
 //
-// test-1v-obsah.mjs pre kľúč obsahu „classic“ spustí tento plugin (namiesto A–D, ktoré overujú obsah 598 s jeho počtami)
-// a k nemu skupiny zo zoznamu zdielane (napr. ["d"], keď sekcie D sú presne ako 598). Základ (korene, miesto, sekcie
-// viditeľné a odhalené, čísla data-p1v-cislo dosadené, odkazy data-p1v-odkaz v tom istom vzore, sonda, konzola,
-// vodorovný posun) overuje test sám pre každý kľúč.
-//   sekcie[].meno  = data-lcd-sekcia obalu sekcie v admin-html/src/p1v-classic/NN-*.sk.html
-//   sekcie[].navrh = ako nájsť to isté v návrhu kufor-classic.html: [{ sel, text?, za?, pred? }] (snímka = spoločný obdĺžnik)
-//   kontroly(t)    -> [{ ok, popis, pozor? }]; pozor: true = upozornenie (nie zlyhanie).
-//                     t = tools/test-1v/pomocnik.mjs + t.sekcia(meno), await t.je(meno), t.produkt { id, typ, vzor, kluc,
-//                     url, cesta }, t.sestra(typ) = cesta produktu typu v tom istom vzore.
+// Skupiny A–D sa nepoužijú (zdielane = []): ich kontroly platia pre počty a texty obsahu 598 (9 vecí, 12 otázok, a-ponuka vedie na dvojvrstvové…).
+// Tento plugin overuje všetky sekcie rohože Classic samostatne a s ?novy=vyvoj / ?novy=1 na každej šírke:
+//   * CSS partial (každý selektor pod body.lcd-1v), sekcie sú na stránke, viditeľné;
+//   * zdrojový text (admin-html/src/p1v-classic): žiadne zakázané formulácie (na milimeter, vyrábame, názvy materiálu, fixačné body, Comfort,
+//     počty vrstiev, záruka mimo FAQ), D3 (žiadny „kovový štítok“, „logo“, lehota dní, skladom) a žiadna cena natvrdo (okrem trhovej ceny napodobenín);
+//   * čísla a odkazy podľa vzoru proti NEZÁVISLÝM očakávaniam (GET živých stránok sestier, ako sonda čísel): vlastná cena (230/240/240),
+//     Premium toho istého vzoru (340/350/350), príplatok v sete Classic/Premium, úspora, samostatný box a box v sete; odkazy Premium/jednovrstvové/box;
+//   * funkčnosť: galéria + okno, osem vecí (PC scéna 8 × 44 vh / telefón karusel s 8 kartami a 8 bodkami), materiál, pred a po, Classic alebo Premium
+//     (dva stĺpce vedľa seba), kam siahajú, upsell boxu, balenie (3 kresby), časová os (6 krokov, bez lehoty), farby (vzorky len podľa produktu,
+//     počítadlo, „Mnoho ďalších farieb“), vzorky, realita (klik = okno), FAQ (14 otázok, odkazy), záver, výzvy vedú na konfigurátor.
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { KOREN, register, sestra, zivaStranka } from "./obsah-spolocne.mjs";
+
 export const SKUPINA = "classic";
 export const NAVRH = "kufor-classic.html";
-/** skupiny A–D, ktorých kontroly platia aj pre tento obsah (bez zmeny); predvolene žiadne */
+/** skupiny A–D sa nepoužijú: ich kontroly sú pre počty a texty obsahu 598 — tu ich nahrádza tento plugin */
 export const zdielane = [];
-export const sekcie = [];
+export const sekcie = [
+  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Potrebujete aj koberce pod nohy" }] },
+  { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
+  { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
+  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }] },
+  { meno: "b-material", navrh: [{ sel: "#material" }] },
+  { meno: "b-porovnanie", navrh: [{ sel: "#porovnanie" }] },
+  { meno: "classic-premium", navrh: [{ sel: "#premium" }, { sel: ".spat", za: "#premium" }] },
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
+  { meno: "c-kam", navrh: [{ sel: "section.chapter", text: "Kam všade rohož siaha" }] },
+  { meno: "classic-box", navrh: [{ sel: "section.chapter", text: "Doplňte kufor o box" }, { sel: ".spat", za: "#predapo" }] },
+  { meno: "c-domov", navrh: [{ sel: "section.chapter", text: "Čo Vám príde domov" }] },
+  { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", pred: "#farby" }] },
+  { meno: "c-farby", navrh: [{ sel: "#farby" }] },
+  { meno: "c-vzorky", navrh: [{ sel: "#vzorky" }] },
+  { meno: "d-realita", navrh: [{ sel: "#realita" }] },
+  { meno: "d-faq", navrh: [{ sel: "section.faqsec" }] },
+  { meno: "d-koniec", navrh: [{ sel: "section.end" }] },
+  { meno: "d-pomocne", navrh: [] },
+];
+
+/** rovnaký zlom ako obsah-b.js MQ_STATICKA / LCD-HOME */
+const MQ = "(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse)";
+const ZDROJ = join(KOREN, "admin-html/src/p1v-classic");
+const SCSS = join(KOREN, "assets/css/_lcd1v-obsah-classic.scss");
+
+/** zákaznícke texty (docs/1v-obsah.md bod 4 + rozhodnutia.md D3) */
+const ZAKAZANE = /na\s+milimeter|vyr[aá]bame|dragon\s*skin|\belite\b|\bbasic\b|comfort|fixa[čc]n|bez\s+lepenia/i;
+const POCET_VRSTIEV = /\d\s*-?\s*vrstv|päť\s*vrstiev|päťvrstv|piatich\s*vrstiev|pät\s*vrstiev/i;
+const D3 = /štítok|štítk|kovov|logo|(?<![\p{L}])dn[íi](?![\p{L}])|skladom|rýchle\s+dodanie|dodanie\s+trvá/iu;
+
+/** vzorky farieb obsahu -> regulárny výraz na text voľby živého selectu (nezávislé od kódu webu) */
+const VZORKY = [
+  ["Čierna · červené šitie", /ko[žz]e\s*:\s*čierna\s*\/?\s*farba\s+šitia\s*:\s*červená\s*$/i],
+  ["Čierna · modré šitie", /ko[žz]e\s*:\s*čierna\s*\/?\s*farba\s+šitia\s*:\s*modrá\s*$/i],
+  ["Čierna · béžové šitie", /ko[žz]e\s*:\s*čierna\s*\/?\s*farba\s+šitia\s*:\s*béžová\s*$/i],
+  ["Béžová", /ko[žz]e\s*:\s*béžová\s*$/i],
+  ["Hnedá", /ko[žz]e\s*:\s*hnedá\s*$/i],
+  ["Hnedá káva", /ko[žz]e\s*:\s*hnedá\s+káva\s*$/i],
+  ["Vínovo červená", /ko[žz]e\s*:\s*vínovo\s+červená\s*$/i],
+  ["Oranžová", /ko[žz]e\s*:\s*oranžová\s*$/i],
+  ["Modrá", /ko[žz]e\s*:\s*modrá\s*$/i],
+];
+
+const nbsp = (s) => String(s == null ? "" : s).replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
+const eur = (n) => (Number(n) > 0 ? Math.round(Number(n)) + " €" : null);
+const dve = (n) => String(n).padStart(2, "0");
+
+/** selektory partialu, ktoré nezačínajú body.lcd-1v (komentáre preč, @media rozbalené) */
+function zleSelektory() {
+  const css = readFileSync(SCSS, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const zle = [];
+  const re = /([^{}]+)\{/g;
+  let m;
+  while ((m = re.exec(css))) {
+    const s = m[1].trim();
+    if (!s || s.startsWith("@media") || s.startsWith("@supports")) continue;
+    if (s.startsWith("@")) { zle.push(s.slice(0, 40)); continue; }
+    let h = 0, kus = "";
+    const kusy = [];
+    for (const ch of s) { if (ch === "(") h++; if (ch === ")") h--; if (ch === "," && !h) { kusy.push(kus); kus = ""; } else kus += ch; }
+    kusy.push(kus);
+    kusy.map((x) => x.trim()).filter((x) => !/^body\.lcd-1v[\s.:[]/.test(x)).forEach((x) => zle.push(x.slice(0, 60)));
+  }
+  return zle;
+}
+
+/** zdrojové HTML sekcií (bez komentárov): { subor, html, text } — text = viditeľný text + alt + aria-label */
+function zdrojoveTexty() {
+  return readdirSync(ZDROJ).filter((f) => /\.sk\.html$/.test(f)).sort().map((f) => {
+    const html = readFileSync(join(ZDROJ, f), "utf8").replace(/<!--[\s\S]*?-->/g, "");
+    const atr = [...html.matchAll(/\s(?:alt|aria-label)="([^"]*)"/g)].map((m) => m[1]).join(" ");
+    const text = html.replace(/<svg[\s\S]*?<\/svg>/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&times;|&lsaquo;|&rsaquo;/g, " ") + " " + atr;
+    return { subor: f, html, text: text.replace(/\s+/g, " ") };
+  });
+}
+
+/** očakávania nezávisle od kódu webu: GET živých stránok (vlastná, Premium, jednovrstvové, box toho istého vzoru) */
+async function ocakavane(p) {
+  const reg = register();
+  const url = (typ) => { const s = sestra(reg, typ, p.vzor); return s ? s.url : null; };
+  const ja = await zivaStranka(p.url);
+  const prem = await zivaStranka(url("kufor-premium"));
+  const jedno = await zivaStranka(url("jedno"));
+  const box = await zivaStranka(url("boxy"));
+  const sel = (st, re) => { const k = Object.keys(st.selecty).find((x) => re.test(x)); return k ? st.selecty[k] : []; };
+  const kufor = sel(jedno, /do\s+kufr/i);
+  const classic = (kufor.find((o) => /dno/i.test(o.text) && !/bok/i.test(o.text)) || {}).fp;
+  const premium = (kufor.find((o) => /bok/i.test(o.text)) || {}).fp;
+  const boxSoloS = (sel(jedno, /box\s*solo/i).find((o) => /^S\s*:/i.test(o.text)) || {}).fp;
+  const farby = sel(ja, /^(farba|barva)\s*1\.?\s*vrstv/i);
+  const viditelne = VZORKY.filter(([, re]) => farby.some((o) => re.test(o.text))).map(([n]) => n);
+  // FAQ 11: cena rohože Classic v každom vzore (GET živých stránok 619 / 625 / 622)
+  const cenyVzorov = {};
+  for (const v of ["diamond", "stripe", "hexa"]) { const sv = sestra(reg, "kufor-classic", v); cenyVzorov[v] = sv ? (await zivaStranka(sv.url)).cena : null; }
+  return {
+    cenyVzorov,
+    cena: ja.cena, premiumCena: prem.cena, setClassic: classic, setPremium: premium, uspora: ja.cena - classic, boxCena: box.cena, boxSetS: boxSoloS,
+    pocetFarieb: farby.length, viditelne, cestaPremium: (sestra(reg, "kufor-premium", p.vzor) || {}).cesta, cestaJedno: (sestra(reg, "jedno", p.vzor) || {}).cesta,
+    cestaBoxy: (sestra(reg, "boxy", p.vzor) || {}).cesta,
+  };
+}
 
 export async function kontroly(t) {
-  void t;
-  return [];
+  const out = [];
+  const ok = (podm, popis) => out.push({ ok: !!podm, popis });
+  const S = (m) => `.p1v-miesto ${t.sekcia(m)}`;
+  const sj = (m) => JSON.stringify(S(m));
+  const sir = t.sirka;
+  const p = t.produkt;
+  const je = {};
+  for (const s of sekcie) je[s.meno] = await t.je(s.meno);
+  // chat Luxia (iframe tretej strany) sa na telefóne sám otvára cez stred obrazovky — pre skutočné kliky ho skryjeme (len test)
+  await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]'), function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
+  const posun = (sel, pp, { dalej = 0 } = {}) => t.ev(`(async function () {
+    var el = document.querySelector(${JSON.stringify(sel)}); if (!el) return null;
+    var r = el.getBoundingClientRect(), top = r.top + scrollY;
+    var y = ${pp === null ? "top - 80" : `top + ${pp} * Math.max(0, r.height - innerHeight)`} + ${dalej};
+    scrollTo({ top: Math.max(0, y - 400), behavior: "instant" }); await new Promise(function (z) { setTimeout(z, 120); });
+    scrollTo({ top: Math.max(0, y), behavior: "instant" }); await new Promise(function (z) { setTimeout(z, 450); });
+    return Math.round(scrollY);
+  })()`);
+  const text = (sel, i = 0) => t.ev(`(function () { var e = document.querySelectorAll(${JSON.stringify(sel)})[${i}]; return e ? e.textContent.replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim() : null; })()`);
+  const stredu = (sel) => t.ev(`(function () { var e = document.querySelector(${JSON.stringify(sel)}); if (e) e.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
+
+  // ------------------------------------------------------------------ 0) CSS partial a zdrojové texty (statické kontroly)
+  const zle = zleSelektory();
+  ok(!zle.length, "CSS _lcd1v-obsah-classic.scss: každý selektor pod body.lcd-1v" + (zle.length ? " — zlé: " + zle.join(" | ") : ""));
+  const zdroje = zdrojoveTexty();
+  const ostatne = zdroje.filter((z) => !/41-d-faq/.test(z.subor));
+  const zakaz = zdroje.map((z) => (z.text.match(ZAKAZANE) || []).map((x) => z.subor + ": " + x)).flat();
+  ok(!zakaz.length, "zdrojové texty bez zakázaných formulácií (na milimeter, vyrábame, názvy materiálu, fixačné body, Comfort)" + (zakaz.length ? ": " + zakaz.join(", ") : ""));
+  const pocty = zdroje.map((z) => (z.text.match(POCET_VRSTIEV) || []).map((x) => z.subor + ": " + x)).flat();
+  ok(!pocty.length, "zdrojové texty bez počtu vrstiev ako argumentu" + (pocty.length ? ": " + pocty.join(", ") : ""));
+  const zaruka = ostatne.map((z) => (z.text.match(/z[aá]ruk/i) || []).map(() => z.subor)).flat();
+  ok(!zaruka.length, "záruka sa nepoužíva ako argument (len vecná odpoveď vo FAQ)" + (zaruka.length ? ": " + zaruka.join(", ") : ""));
+  const d3 = zdroje.map((z) => (z.text.match(D3) || []).map((x) => z.subor + ": " + x)).flat();
+  ok(!d3.length, "D3: žiadny „kovový štítok“, „logo“, lehota dní ani „skladom“ v texte" + (d3.length ? ": " + d3.join(", ") : ""));
+  const ceny = zdroje.map((z) => (z.text.replace(/50\s*€\s*–\s*129\s*€/g, "").match(/\d\s*(?:€|eur\b|Kč)|(?:€|Kč)\s*\d/gi) || []).map((x) => z.subor + ": " + x)).flat();
+  ok(!ceny.length, "žiadna cena natvrdo v zdroji (okrem trhovej ceny napodobenín 50 € – 129 €)" + (ceny.length ? ": " + ceny.join(", ") : ""));
+  const znacky = zdroje.map((z) => [...z.html.matchAll(/data-p1v-cislo="([^"]+)"/g)].length).reduce((a, b) => a + b, 0);
+  ok(znacky >= 12, `čísla idú cez data-p1v-cislo (${znacky} značiek v zdroji)`);
+
+  // ------------------------------------------------------------------ 1) sekcie sú na stránke, viditeľné, odhalené
+  const pritomne = sekcie.filter((s) => s.meno !== "d-pomocne").map((s) => s.meno);
+  const vid = await t.ev(`(function () { var o = {}; ${JSON.stringify(pritomne)}.forEach(function (m) {
+    var e = document.querySelector('.p1v-miesto [data-lcd-sekcia="' + m + '"]'); o[m] = e ? Math.round(e.getBoundingClientRect().height) : -1; }); return o; })()`);
+  const chybaju = pritomne.filter((m) => !(vid[m] > 40));
+  ok(!chybaju.length, `všetkých ${pritomne.length} sekcií je na stránke a viditeľných (${sir} px)` + (chybaju.length ? " — chýba/neviditeľné: " + chybaju.map((m) => m + " " + vid[m]).join(", ") : ""));
+  if (chybaju.length) return out;
+
+  // ------------------------------------------------------------------ 2) čísla a odkazy podľa vzoru proti nezávislým očakávaniam
+  let oc = null;
+  try { oc = await ocakavane(p); } catch (e) { ok(false, "očakávané čísla (GET živých stránok sestier): " + e.message); }
+  if (oc) {
+    ok(oc.cena > 0 && oc.premiumCena > 0 && oc.setClassic > 0 && oc.setPremium > 0 && oc.boxCena > 0 && oc.boxSetS > 0, `nezávislé očakávania zo živých stránok: ${p.id} ${eur(oc.cena)}, Premium ${eur(oc.premiumCena)}, set Classic +${eur(oc.setClassic)} / Premium +${eur(oc.setPremium)}, box od ${eur(oc.boxCena)} / v sete od ${eur(oc.boxSetS)}`);
+    // dokumentovaná hodnota z plánu (plan.md §4): 619 230 €, 622 a 625 240 €
+    const dok = { 619: 230, 622: 240, 625: 240 }[p.id];
+    ok(!dok || oc.cena === dok, `cena produktu ${p.id} je ${dok} € (živá stránka: ${eur(oc.cena)})`);
+    const kc = `${S("classic-premium")} .kc-cmp .cmp-col`;
+    ok((await text(kc + " .price", 0)) === eur(oc.cena), `Classic alebo Premium: cena Classic „${await text(kc + " .price", 0)}“ = cena stránky ${eur(oc.cena)}`);
+    ok((await text(kc + " .price", 1)) === eur(oc.premiumCena), `Classic alebo Premium: cena Premium „${await text(kc + " .price", 1)}“ = Premium toho istého vzoru ${eur(oc.premiumCena)}`);
+    const sete = async (i) => text(`${kc}:nth-of-type(${i + 1}) li`, 3);
+    ok(nbsp(await sete(1)).endsWith("Len + " + eur(oc.setClassic)), `Classic alebo Premium: v sete s autokobercami Classic „${await sete(1)}“ (čakám Len + ${eur(oc.setClassic)})`);
+    ok(nbsp(await sete(2)).endsWith("Len + " + eur(oc.setPremium)), `Classic alebo Premium: v sete s autokobercami Premium „${await sete(2)}“ (čakám Len + ${eur(oc.setPremium)})`);
+    const up = [await text(S("a-ponuka") + " .ups li", 0), await text(S("a-ponuka") + " .ups li", 1), await text(S("a-ponuka") + " .ups li", 2), await text(S("a-ponuka") + " .ups p", 0)];
+    ok(up[0] === "Samostatne " + eur(oc.cena) && up[1] === "V sete len + " + eur(oc.setClassic) && up[2] === "Ušetríte " + eur(oc.uspora),
+      `upsell autokobercov: „${up[0]}“ / „${up[1]}“ / „${up[2]}“ (čakám ${eur(oc.cena)}, +${eur(oc.setClassic)}, ušetríte ${eur(oc.uspora)})`);
+    ok(up[3].includes("samostatne za " + eur(oc.cena)) && up[3].includes("len za " + eur(oc.setClassic)), "upsell autokobercov: veta v texte má tie isté dve ceny");
+    const bx = [await text(S("classic-box") + " .ups li", 1), await text(S("classic-box") + " .ups li", 2)];
+    ok(bx[0] === "Samostatne od " + eur(oc.boxCena) && bx[1] === "V sete s autokobercami od " + eur(oc.boxSetS), `upsell boxu: „${bx[0]}“ / „${bx[1]}“ (čakám od ${eur(oc.boxCena)}, v sete od ${eur(oc.boxSetS)})`);
+    ok((await text(S("b-porovnanie") + " .cmp-col.us .price")) === "od " + eur(oc.cena), `porovnanie: naša cena „${await text(S("b-porovnanie") + " .cmp-col.us .price")}“ = od ${eur(oc.cena)}`);
+    // odkazy: Premium / jednovrstvové / box toho istého vzoru (a pre 622 dokumentovaný Premium Hexa)
+    const odk = await t.ev(`(function () { var o = {}; [].forEach.call(document.querySelectorAll(".p1v-miesto a[data-p1v-odkaz]"), function (a) { var k = a.getAttribute("data-p1v-odkaz"); (o[k] = o[k] || []).push((a.getAttribute("href") || "").split("#")[0]); }); return o; })()`);
+    const vsetky = (k, cesta) => (odk[k] || []).length > 0 && odk[k].every((h) => h === cesta);
+    ok(vsetky("premium", oc.cestaPremium), `odkazy Premium (${(odk.premium || []).length}×) vedú na ${oc.cestaPremium}: ${[...new Set(odk.premium || [])].join(", ")}`);
+    ok(vsetky("jedno", oc.cestaJedno), `odkazy na jednovrstvové (${(odk.jedno || []).length}×) vedú na ${oc.cestaJedno}: ${[...new Set(odk.jedno || [])].join(", ")}`);
+    ok(vsetky("boxy", oc.cestaBoxy), `odkazy na box (${(odk.boxy || []).length}×) vedú na ${oc.cestaBoxy}: ${[...new Set(odk.boxy || [])].join(", ")}`);
+    if (p.id === 622) ok((odk.premium || []).every((h) => h === "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/"), "622: odkaz Premium → /luxusny-koberced-do-kufra-dragonskin-premium-hexa/");
+  }
+
+  // ------------------------------------------------------------------ 3) výzvy a tlačidlá vedú na konfigurátor
+  const kotvy = await t.ev(`(function () { var a = [].slice.call(document.querySelectorAll('.p1v-miesto :is(.spat-btn,.pf-cta,.end-cta a:first-child)'));
+    return { n: a.length, zle: a.filter(function (x) { return x.getAttribute("href") !== "#product-detail-form"; }).map(function (x) { return x.getAttribute("href"); }), ciel: !!document.getElementById("product-detail-form") }; })()`);
+  ok(kotvy.n >= 9 && !kotvy.zle.length && kotvy.ciel, `${kotvy.n} tlačidiel výzvy vedie na #product-detail-form (zlé: ${kotvy.zle.join(", ") || "—"})`);
+  for (const [m, nazov] of [["classic-premium", "Vyberte si model a farbu"], ["classic-box", "Pokračujte vo výbere"], ["c-casova-os", "Dokončite objednávku"]]) {
+    try {
+      await t.klikni(S(m) + " .spat-btn", { popis: nazov, pockaj: 1600 });
+      const r = await t.ev(`(function () { var f = document.getElementById("product-detail-form").getBoundingClientRect(); return [Math.round(f.top), Math.round(f.bottom), innerHeight]; })()`);
+      ok(r[0] < r[2] * 0.6 && r[1] > 60, `výzva „${nazov}“ posunie na konfigurátor (formulár top ${r[0]}, okno ${r[2]})`);
+    } catch (e) { ok(false, `výzva „${nazov}“: ${e.message}`); }
+  }
+
+  // ------------------------------------------------------------------ 4) galéria + okno, referencie
+  if (je["a-galeria"]) {
+    const r = await t.ev(`(async function () {
+      var s = document.querySelector(${sj("a-galeria")}), trat = s.querySelector(".lx-gal-trat");
+      var y0 = s.getBoundingClientRect().top + scrollY;
+      scrollTo({ top: y0 + 10, behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 400); });
+      var c0 = s.querySelector(".lx-gal-cislo").textContent, t0 = getComputedStyle(trat).transform;
+      scrollTo({ top: y0 + s.offsetHeight * 0.55, behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 500); });
+      var c1 = s.querySelector(".lx-gal-cislo").textContent, t1 = getComputedStyle(trat).transform;
+      var f = [].slice.call(s.querySelectorAll(".lx-gal-k:not(.lx-klon) img"));
+      return { fotky: f.length, klony: s.querySelectorAll(".lx-gal-k.lx-klon").length, c0: c0, c1: c1, t0: t0, t1: t1, h: s.offsetHeight,
+        triedaOk: f.every(function (i) { return /\\/img\\/1v\\/obsah\\/classic-[a-z0-9-]+\\.jpg$/.test(i.getAttribute("src") || ""); }) };
+    })()`);
+    ok(r.fotky === 8 && r.klony === 8 && r.triedaOk, `galéria: 8 fotiek classic-*.jpg + 8 kópií pre pás (${r.fotky} + ${r.klony})`);
+    if (sir > 760) ok(r.t0 !== r.t1 && r.c1 !== r.c0, `galéria: scroll posúva pás a počítadlo (${r.c0} -> ${r.c1}), prilepená scéna ${Math.round(r.h)} px`);
+    const z = await t.ev(`(async function () {
+      var s = document.querySelector(${sj("a-galeria")}), b = s.querySelectorAll(".lx-gal-k:not(.lx-klon) .lx-gal-f")[1], lb = document.getElementById("p1v-lb");
+      if (!lb) return { okno: false };
+      b.scrollIntoView({ block: "center", behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 300); });
+      b.click(); await new Promise(function (r) { setTimeout(r, 400); });
+      var im = lb.querySelector(".p1v-lb-ram img"), poc = (lb.querySelector(".p1v-lb-pod") || {}).textContent || "";
+      var o = { okno: true, otv: !lb.hidden, src: !!im && im.getAttribute("src") === b.getAttribute("data-p1v-lb-foto"), poc: poc.replace(/\\s+/g, " ").trim() };
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await new Promise(function (r) { setTimeout(r, 400); });
+      o.zatv = lb.hidden; return o; })()`);
+    ok(z.okno && z.otv && z.src && z.zatv && /2\s*\/\s*8/.test(z.poc), `galéria: klik na fotku ju otvorí v okne #p1v-lb (sada „${z.poc}“), Escape zavrie`);
+  }
+  if (je["a-referencie"]) {
+    await stredu(S("a-referencie"));
+    await t.pauza(900);
+    const r = await t.ev(`(function () { var s = document.querySelector(${sj("a-referencie")}); return { karty: s.querySelectorAll(".deck.refs .ref").length, yt: s.querySelectorAll("[data-p1v-lb-yt]").length }; })()`);
+    ok(r.karty === 6 && r.yt === 6, `referencie: 6 kariet s YouTube id (${r.karty}/${r.yt})`);
+  }
+
+  // ------------------------------------------------------------------ 5) osem vecí
+  if (je["b-ocakavat"]) {
+    const sek = S("b-ocakavat");
+    const staticka = await t.ev(`matchMedia(${JSON.stringify(MQ)}).matches`);
+    const n = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return { img: s.querySelectorAll(".s2-media img").length, tx: s.querySelectorAll(".s2-t").length, rail: s.querySelectorAll(".s2-rail button").length,
+      th: s.querySelectorAll(".s2-thumbs button").length, chip: s.querySelectorAll(".pintop .chip").length, h2: s.querySelector("h2").textContent.trim() }; })()`);
+    ok(n.img === 8 && n.tx === 8 && n.rail === 8 && n.th === 8 && n.chip === 8, `osem vecí: 8 fotiek, 8 textov, 8 bodiek, 8 náhľadov, 8 čipov (${JSON.stringify(n)})`);
+    ok(/^Osem vecí/.test(n.h2), `osem vecí: nadpis „${n.h2}“ (bez položky o pravosti, D3)`);
+    if (staticka) {
+      await posun(sek, null);
+      const k = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), m = s.querySelector(".pinmain"), cw = document.documentElement.clientWidth;
+        var bod = [].slice.call(s.querySelectorAll(".s2-rail button")).map(function (b) { var r = b.getBoundingClientRect(); return [Math.round((r.top + r.bottom) / 2), Math.round(r.left), Math.round(r.right)]; });
+        var im = [].slice.call(s.querySelectorAll(".s2-media img")).map(function (i) { return Math.round(i.getBoundingClientRect().top); });
+        return { posuv: m.scrollWidth > m.clientWidth + 50, karty: im.length, riadok: new Set(im).size === 1, bodky: bod.length, stlpce: getComputedStyle(m).gridTemplateColumns.split(" ").length,
+          jedenRiadok: bod.every(function (b) { return Math.abs(b[0] - bod[0][0]) <= 3; }), vOkne: bod.every(function (b) { return b[1] >= 0 && b[2] <= cw; }),
+          stage: s.querySelector(".stage2").style.height, lista: getComputedStyle(s.querySelector(".pinfoot")).display }; })()`);
+      ok(k.posuv && k.karty === 8 && k.riadok && k.stlpce === 8, `osem vecí (karusel): posuvný pás, ${k.karty} kariet v jednom riadku, ${k.stlpce} stĺpcov (bez prázdneho 9.)`);
+      ok(k.bodky === 8 && k.jedenRiadok && k.vOkne, `osem vecí (karusel): ${k.bodky} bodiek v jednom riadku v okne`);
+      ok(!k.stage && k.lista === "none", `osem vecí (karusel): bez výšky prilepenej scény (${k.stage || "auto"}) a bez spodnej lišty`);
+      await t.klikni(sek + " .s2-rail button", { index: 2, popis: "bodka 3", pockaj: 1200 });
+      const po = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), m = s.querySelector(".pinmain"), r = m.getBoundingClientRect();
+        var i = s.querySelectorAll(".s2-media img")[2].getBoundingClientRect(); var on = s.querySelector(".s2-rail button.on");
+        return { odchylka: Math.round(Math.abs(i.left + i.width / 2 - (r.left + r.width / 2))), on: on ? on.getAttribute("data-i") : null }; })()`);
+      ok(po.odchylka < 24 && po.on === "2", `osem vecí (karusel): bodka 3 posunula kartu 3 do stredu (odchýlka ${po.odchylka} px, aktívna ${po.on})`);
+    } else {
+      const v = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)} + " .stage2"); return { h: s.getBoundingClientRect().height, cak: 8 * 0.44 * innerHeight, pin: getComputedStyle(s.querySelector(".pin2")).position }; })()`);
+      ok(Math.abs(v.h - v.cak) < 3 && v.pin === "sticky", `osem vecí (PC): scéna ${Math.round(v.h)} px = 8 × 44 vh (${Math.round(v.cak)}), prilepená (${v.pin})`);
+      await posun(sek + " .stage2", 0.7);
+      const k = await t.cakaj(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); var on = s.querySelectorAll(".s2-t.on"), im = s.querySelectorAll(".s2-media img.on");
+        return on.length === 1 && im.length === 1 && on[0].getAttribute("data-i") === "5" && im[0].getAttribute("data-i") === "5" ? s.querySelector(".s2-big").textContent : ""; })()`, { ms: 3500, popis: "krok 6 pri 70 %" }).catch(() => "");
+      ok(k === "06", `osem vecí (PC): pri 70 % scény je práve jeden krok, 06 (číslo „${k || "—"}“)`);
+      await t.klikni(sek + " .s2-thumbs button", { index: 2, popis: "náhľad 03", pockaj: 200 });
+      const nn = await t.cakaj(`(function () { var on = document.querySelector(${JSON.stringify(sek)} + " .s2-t.on"); return on && on.getAttribute("data-i") === "2" ? "2" : ""; })()`, { ms: 4000, popis: "náhľad 03 posunie na krok 3" }).catch(() => "");
+      ok(nn === "2", "osem vecí (PC): klik na náhľad 03 posunie scénu na krok 3");
+      const th = await t.ev(`(function () { var b = [].slice.call(document.querySelectorAll(${JSON.stringify(sek)} + " .s2-thumbs button")); return b.map(function (x) { return getComputedStyle(x, ":before").backgroundImage; }); })()`);
+      const cakaneTh = ["classic-v1", "classic-v3", "classic-v4", "classic-v5", "classic-v6", "b-ocakavat-farba-interieru", "b-ocakavat-zvierata", "classic-v9"];
+      ok(cakaneTh.every((f, i) => (th[i] || "").includes(f + ".jpg")), `osem vecí (PC): náhľady 1–8 majú fotky z CSS (${th.map((x) => (/\/([^/]+)\.jpg/.exec(x) || [])[1]).join(", ")})`);
+    }
+  }
+
+  // ------------------------------------------------------------------ 6) materiál
+  if (je["b-material"]) {
+    const sek = S("b-material");
+    const staticka = await t.ev(`matchMedia(${JSON.stringify(MQ)}).matches`);
+    if (staticka) {
+      await posun(sek + " .exp", null);
+      await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(sek)} + " .mat-toggle"); if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
+      await t.pauza(1300);
+      const pred = await t.ev(`document.querySelector(${JSON.stringify(sek)} + " .exp").classList.contains("open")`);
+      await t.klikni(sek + " .mat-toggle", { popis: "Rozložiť/Zložiť materiál", pockaj: 500 });
+      const po = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return { open: s.querySelector(".exp").classList.contains("open"), text: s.querySelector(".mat-toggle").textContent.trim() }; })()`);
+      ok(po.open !== pred && po.text === (po.open ? "Zložiť materiál" : "Rozložiť materiál"), `materiál (telefón): tlačidlo prepne rez (${pred ? "rozložený" : "zložený"} -> ${po.open ? "rozložený" : "zložený"})`);
+    } else {
+      await posun(sek + " .stage", 0.5);
+      const o = await t.cakaj(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return s.querySelector(".exp").classList.contains("open") ? s.querySelector(".pinfoot .pf-bar i").style.width : ""; })()`, { ms: 3000, popis: "rez rozložený pri 50 %" }).catch(() => "");
+      ok(o === "100%", `materiál (PC): pri 50 % scény je rez rozložený (lišta ${o || "—"})`);
+    }
+    await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(sek)} + " .leg-h")[1]; if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
+    await t.pauza(300);
+    await t.klikni(sek + " .leg-h", { index: 1, popis: "legenda 2", pockaj: 600 });
+    const l = await t.ev(`(function () { var L = document.querySelectorAll(${JSON.stringify(sek)} + " .leg"); var h = L[1].querySelector(".leg-h"), d = L[1].querySelector(".leg-d");
+      return { n: L.length, exp: h.getAttribute("aria-expanded"), h: Math.round(d.getBoundingClientRect().height), txt: d.textContent.trim().slice(0, 30), ine: [].filter.call(L, function (x) { return x.querySelector(".leg-h").getAttribute("aria-expanded") === "true"; }).length }; })()`);
+    ok(l.n === 5 && l.exp === "true" && l.h > 20 && l.ine === 1 && /dnu kufra/.test(await text(sek + " .leg-d", 1)), `materiál: 5 položiek legendy, legenda 2 sa otvorila (výška ${l.h} px) a hovorí o dne kufra`);
+  }
+
+  // ------------------------------------------------------------------ 7) porovnanie a Classic alebo Premium
+  if (je["classic-premium"]) {
+    await stredu(S("classic-premium") + " .kc-cmp");
+    await t.pauza(500);
+    const c = await t.ev(`(function () { var s = document.querySelector(${sj("classic-premium")}), k = [].slice.call(s.querySelectorAll(".kc-cmp .cmp-col")).map(function (e) { var r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top + scrollY), Math.round(r.width)]; });
+      var no = s.querySelectorAll(".kc-cmp .ic.no"); var bg = no[0] ? getComputedStyle(no[0]).backgroundColor : "";
+      return { k: k, us: s.querySelectorAll(".kc-cmp .cmp-col.us").length, no: no.length, bg: bg, riadkov: s.querySelectorAll(".kc-cmp .cmp-col:first-of-type li, .kc-cmp .cmp-col li").length }; })()`);
+    ok(c.k.length === 2 && c.us === 2 && Math.abs(c.k[0][1] - c.k[1][1]) < 2 && c.k[1][0] > c.k[0][0] + c.k[0][2] - 2, `Classic alebo Premium: dva stĺpce .us vedľa seba (${sir} px) ${JSON.stringify(c.k)}`);
+    ok(c.no === 2 && c.bg === "rgb(226, 221, 209)", `Classic alebo Premium: 2 sivé „–“ (Boky, Chrbty) pri Classic (${c.no}, ${c.bg})`);
+  }
+  if (je["b-porovnanie"]) {
+    const n = await t.ev(`(function () { var s = document.querySelector(${sj("b-porovnanie")}); return { us: s.querySelectorAll(".cmp-col.us li").length, them: s.querySelectorAll(".cmp-col.them li").length, spat: s.querySelectorAll(".spat").length }; })()`);
+    ok(n.us === 5 && n.them === 5 && n.spat === 0, `porovnanie: 5 + 5 riadkov, výzva je až za sekciou Classic alebo Premium (${JSON.stringify(n)})`);
+  }
+
+  // ------------------------------------------------------------------ 8) pred a po
+  if (je["b-predapo"]) {
+    const sek = S("b-predapo");
+    const lep = await t.ev(`document.querySelector(${JSON.stringify(sek)}).classList.contains("lx-bez-lepu")`);
+    let cc = "";
+    for (let pokus = 0; pokus < 3 && !(Number(cc) > 0); pokus++) { // pri zaťaženom stroji (paralelné Chromy) sa scroll udalosť môže oneskoriť
+      if (lep) await t.ev(`(function () { var pl = document.querySelector(${JSON.stringify(sek)} + " .lx-pp-plocha"); var r = pl.getBoundingClientRect(); scrollTo({ top: r.top + scrollY - innerHeight * 0.2, behavior: "instant" }); })()`);
+      else await posun(sek, 0.6);
+      cc = await t.cakaj(`(function () { var n = +document.querySelector(${JSON.stringify(sek)} + " .lx-pp-cislo").textContent; return n > 0 ? String(n) : ""; })()`, { ms: 2500, popis: "pred a po: percentá" }).catch(() => "");
+    }
+    ok(Number(cc) > 0, `pred a po (${lep ? "neprilepená" : "prilepená"} scéna): pri posune ${cc || 0} % dna kufra pod ochranou`);
+    const sw = await t.ev(`[1, 2, 3, 4].map(function (i) { return getComputedStyle(document.querySelector(${JSON.stringify(sek)} + " .lx-leg-r:nth-child(" + i + ") .lx-leg-sw")).backgroundImage; })`);
+    ok(sw.every((x, i) => x.includes(`classic-pp-${i + 1}.jpg`)), "pred a po: vzorky legendy z CSS (classic-pp-1…4.jpg)");
+    const im = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return [].map.call(s.querySelectorAll(".lx-pp-plocha img"), function (i) { return /classic-(pred|po)\\.jpg$/.test(i.getAttribute("src")) && i.naturalWidth > 0; }); })()`);
+    ok(im.length === 2 && im.every(Boolean), "pred a po: obe fotky (classic-pred.jpg, classic-po.jpg) sa načítali");
+  }
+
+  // ------------------------------------------------------------------ 9) kam siahajú, upsell boxu, balenie, časová os
+  if (je["c-kam"]) {
+    const kry = await t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(S("c-kam") + " .kry-b")}), function (e) { var r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top + scrollY), Math.round(r.width)]; })`);
+    if (sir >= 901) ok(kry.length === 2 && Math.abs(kry[0][1] - kry[1][1]) < 2 && kry[1][0] > kry[0][0] + kry[0][2], "kam siahajú: na PC dve karty vedľa seba " + JSON.stringify(kry));
+    else ok(kry.length === 2 && kry[1][1] > kry[0][1] + 40, "kam siahajú: na telefóne témy pod sebou " + JSON.stringify(kry));
+    const li = await t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(S("c-kam") + " .zoz li")}), function (e) { return e.textContent.trim(); })`);
+    ok(li.length === 3 && /Classic aj Premium/.test(li[0]) && /len Premium/.test(li[1]) && /len Premium/.test(li[2]), `kam siahajú: 3 položky v kufri (${li.join(" | ")})`);
+  }
+  if (je["classic-box"]) {
+    const b = await t.ev(`(function () { var s = document.querySelector(${sj("classic-box")}), u = s.querySelector(".ups"), i = s.querySelector(".ph img");
+      return { cols: getComputedStyle(u).gridTemplateColumns.split(" ").length, bg: getComputedStyle(u).backgroundColor, li: s.querySelectorAll(".ups li").length, tx: s.textContent, foto: !!i && i.complete && i.naturalWidth > 0 }; })()`);
+    ok(b.li === 3 && b.foto && !/Jeden alebo dva boxy/.test(b.tx), `upsell boxu: 3 riadky zoznamu, fotka načítaná, bez nepravdivého „Jeden alebo dva boxy“`);
+    ok(sir > 820 ? b.cols === 2 : b.cols === 1, `upsell boxu: tmavá karta v ${b.cols} stĺpcoch (${sir > 820 ? "PC 2" : "telefón 1"})`);
+    // rytmus kapitol ako v návrhu (.kap > section.chapter{padding-top:clamp(38px,4.8vw,68px) !important} + linka 1 px medzi sekciami kapitoly):
+    // karta sa nesmie lepiť na „Kam všade rohož siaha“ (bola chyba: padding-top:0 a bez linky)
+    const sp = await t.ev(`(function () { var w = document.querySelector(${sj("classic-box")}), c = w.querySelector("section.chapter");
+      return { linka: parseFloat(getComputedStyle(w).borderTopWidth), pad: parseFloat(getComputedStyle(c).paddingTop), okno: innerWidth }; })()`);
+    const padNavrh = Math.min(68, Math.max(38, 0.048 * sp.okno));
+    ok(sp.linka >= 1 && Math.abs(sp.pad - padNavrh) <= 1.5, `upsell boxu: nad kartou deliaca linka ${sp.linka} px a odsadenie ${sp.pad.toFixed(1)} px (návrh clamp(38px,4.8vw,68px) = ${padNavrh.toFixed(1)} px)`);
+  }
+  if (je["c-domov"]) {
+    await stredu(S("c-domov") + " .balkarta");
+    const ok3 = await t.cakaj(`[].every.call(document.querySelectorAll(${JSON.stringify(S("c-domov") + " .ba-i img")}), function (i) { return i.complete && i.naturalWidth > 0; })`, { ms: 8000, popis: "kresby balenia" }).then(() => true, () => false);
+    const nn = await t.ev(`({ kresby: document.querySelectorAll(${JSON.stringify(S("c-domov") + " .ba-i img")}).length, polozky: document.querySelectorAll(${JSON.stringify(S("c-domov") + " .bal li")}).length, stlpce: getComputedStyle(document.querySelector(${JSON.stringify(S("c-domov") + " .bal li")})).gridTemplateColumns.split(" ").length })`);
+    ok(ok3 && nn.kresby === 3 && nn.polozky === 3, `balenie: 3 položky, 3 kresby stiahnuté (bez položky o logu, D3)`);
+    ok(sir >= 820 ? nn.stlpce === 3 : nn.stlpce === 2, `balenie: riadok má ${nn.stlpce} stĺpce (${sir >= 820 ? "PC 3" : "telefón 2"})`);
+  }
+  if (je["c-casova-os"]) {
+    const os = S("c-casova-os") + " .tml";
+    const osStav = `(function () { var t = document.querySelector(${JSON.stringify(os)}); return [parseFloat(t.style.getPropertyValue("--p") || "0"), t.querySelectorAll("li.on").length, t.querySelectorAll("li").length]; })()`;
+    await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(os)}); scrollTo({ top: e.getBoundingClientRect().top + scrollY - innerHeight - 40, behavior: "instant" }); })()`);
+    await t.pauza(600);
+    const pred = await t.ev(osStav);
+    ok(pred[0] === 0 && pred[1] === 0 && pred[2] === 6, `časová os pod oknom: 6 krokov, --p 0, nič nesvieti ${JSON.stringify(pred)}`);
+    let za = [0, 0, 0];
+    for (let pokus = 0; pokus < 3 && !(za[0] === 1 && za[1] === 6); pokus++) {
+      await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(os)}); scrollTo({ top: e.getBoundingClientRect().bottom + scrollY - innerHeight * 0.3, behavior: "instant" }); })()`);
+      await t.pauza(600);
+      za = await t.ev(osStav);
+    }
+    ok(za[0] === 1 && za[1] === 6, `časová os prečítaná: --p 1, svieti 6 krokov ${JSON.stringify(za)}`);
+    const tx = await text(S("c-casova-os"));
+    ok(!/(?<![\p{L}])dn[íi](?![\p{L}])/iu.test(tx) && /Šije sa až po objednávke\./.test(tx), "časová os: bez lehoty dodania (D3), úvod „Šije sa až po objednávke.“");
+    if (sir >= 901) {
+      const strany = await t.ev(`(function () { var t = document.querySelector(${JSON.stringify(os)}), x = t.getBoundingClientRect().left + t.offsetWidth / 2; return [].map.call(t.querySelectorAll("li > .c"), function (c) { var r = c.getBoundingClientRect(); return r.right <= x ? "L" : r.left >= x ? "P" : "?"; }).join(""); })()`);
+      ok(strany === "LPLPLP", `časová os na PC: kroky striedavo vľavo/vpravo od osi (${strany})`);
+    }
+  }
+
+  // ------------------------------------------------------------------ 10) farby: vzorky len podľa produktu
+  if (je["c-farby"] && oc) {
+    const F = S("c-farby");
+    await stredu(F + " .lx-farby-panel");
+    await t.pauza(400);
+    const f = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(F)});
+      var v = [].slice.call(s.querySelectorAll(".lx-farby-vzorka")), vis = v.filter(function (x) { return !x.hidden && getComputedStyle(x).display !== "none"; });
+      var viac = s.querySelector(".lx-farby-viac");
+      return { vsetky: v.length, vis: vis.map(function (x) { return (x.getAttribute("aria-label") || "").split(", ")[0]; }), prva: vis[0] ? vis[0].getAttribute("aria-pressed") : null,
+        stitok: s.querySelector(".lx-farby-stitok").textContent.replace(/\\s+/g, " ").trim(), viac: viac ? getComputedStyle(viac).display !== "none" : null,
+        meno: s.querySelector(".lx-farby-meno").textContent.trim(), velkych: s.querySelectorAll(".lx-farby-velka img").length }; })()`);
+    ok(f.vsetky === 9 && f.velkych === 9, `farby: v HTML 9 vzoriek a 9 veľkých fotiek (${f.vsetky}/${f.velkych})`);
+    ok(JSON.stringify(f.vis) === JSON.stringify(oc.viditelne), `farby: viditeľné len vzorky, ktoré produkt ${p.id} má (${f.vis.length}): ${f.vis.join(", ")} — čakám ${oc.viditelne.length}: ${oc.viditelne.join(", ")}`);
+    ok(f.prva === "true" && f.meno === "Čierna · červené šitie", `farby: predvolená je „${f.meno}“ (prvá vzorka vybraná ${f.prva})`);
+    ok(f.stitok.endsWith("/ " + dve(oc.viditelne.length)), `farby: počítadlo „${f.stitok}“ = / ${dve(oc.viditelne.length)}`);
+    ok(f.viac === (oc.pocetFarieb - oc.viditelne.length >= 3), `farby: „Mnoho ďalších farieb“ ${f.viac ? "je" : "nie je"} (produkt má ${oc.pocetFarieb} farieb, vzoriek ${oc.viditelne.length})`);
+    if (oc.viditelne.length > 1) {
+      try {
+        await t.klikni(F + " .lx-farby-vzorka", { index: 1, popis: "2. viditeľná vzorka farby", pockaj: 400 });
+        await t.cakaj(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return s.querySelector(".lx-farby-meno").textContent.trim() !== "Čierna · červené šitie"; })()`, { ms: 4000, popis: "názov farby sa zmenil" });
+        const po = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return { meno: s.querySelector(".lx-farby-meno").textContent.trim(), cislo: s.querySelector(".lx-farby-cislo").textContent, on: [].filter.call(s.querySelectorAll(".lx-farby-velka img"), function (i) { return i.classList.contains("on"); }).length }; })()`);
+        ok(po.meno === oc.viditelne[1] && po.cislo === "02" && po.on === 1, `farby: klik na 2. vzorku prepne názov „${po.meno}“, číslo „${po.cislo}“ (poradie medzi viditeľnými) a jednu veľkú fotku`);
+      } catch (e) { ok(false, "farby: " + e.message); }
+    }
+  }
+  if (je["c-vzorky"]) {
+    await stredu(S("c-vzorky"));
+    const vz = await t.cakaj(`(function () { var e = document.querySelector(${sj("c-vzorky")}), im = e.querySelectorAll(".fan img"); var hotovo = [].every.call(im, function (i) { return i.complete && i.naturalWidth > 0; }); return hotovo && [im.length, e.querySelector("a.btn").getAttribute("href")]; })()`, { ms: 8000, popis: "vejár vzoriek" }).catch((e) => [0, e.message]);
+    ok(vz[0] === 5 && /vzorkovnik/.test(vz[1]), `vzorky: 5 fotiek vejára stiahnutých, odkaz na vzorkovník (${JSON.stringify(vz)})`);
+  }
+
+  // ------------------------------------------------------------------ 11) realita, FAQ, záver
+  if (je["d-realita"]) {
+    const s = S("d-realita");
+    const d = await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(s)}); var k = [].slice.call(e.querySelectorAll(".vids > .vid"));
+      return { n: k.length, yt: k.every(function (b) { return /^[\\w-]{6,20}$/.test(b.getAttribute("data-p1v-lb-yt") || ""); }) }; })()`);
+    ok(d.n === 5 && d.yt, `realita: 5 dlaždíc s YouTube id (${d.n})`);
+    if (await t.je("d-pomocne")) {
+      await t.klikni(s + " .vids > .vid", { index: 0, popis: "realita: prvé video", pockaj: 600 });
+      const o = await t.ev(`(function () { var lb = document.getElementById("p1v-lb"), f = lb && lb.querySelector("iframe"); return { otv: !!lb && !lb.hidden, yt: !!f && /youtube-nocookie\\.com\\/embed\\//.test(f.getAttribute("src") || "") }; })()`);
+      ok(o.otv && o.yt, `realita: klik otvorí video v okne #p1v-lb (otvorené ${o.otv}, YouTube ${o.yt})`);
+      await t.ev(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))`);
+      await t.pauza(450);
+    }
+  }
+  if (je["d-faq"]) {
+    const s = S("d-faq");
+    const d = await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(s)}); var b = [].slice.call(e.querySelectorAll(".p1v-faq-q"));
+      return { n: b.length, typ: b.every(function (x) { return x.type === "button" && !x.closest("form") && x.getAttribute("aria-expanded") === "false" && document.getElementById(x.getAttribute("aria-controls")) === x.nextElementSibling; }),
+        cisla: [].map.call(e.querySelectorAll(".p1v-faq-q .i"), function (x) { return x.textContent; }).join(","), zakazane: e.querySelectorAll(".faq, .accordion, details").length,
+        odkazy: [].map.call(e.querySelectorAll("a[data-p1v-odkaz]"), function (a) { return a.getAttribute("data-p1v-odkaz") + ">" + a.getAttribute("href"); }) }; })()`);
+    ok(d.n === 14 && d.typ && d.cisla === Array.from({ length: 14 }, (_, i) => dve(i + 1)).join(","), `faq: 14 otázok (01–14) = button type=button mimo formulára, aria-controls na odpoveď (${d.n})`);
+    ok(d.zakazane === 0, "faq: bez .faq/.accordion/<details> (kotvy živého JS, TinyMCE)");
+    ok(d.odkazy.length === 3 && d.odkazy.some((x) => x.startsWith("premium>")) && d.odkazy.some((x) => x.startsWith("jedno>")) && d.odkazy.some((x) => x.startsWith("boxy>")), `faq: odkazy na Premium, jednovrstvové a box (${d.odkazy.join(", ")})`);
+    const pred = await t.ev("location.href");
+    await t.klikni(s + " .p1v-faq-q", { index: 5, popis: "faq: 6. otázka", pockaj: 300 });
+    await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5]; return b.nextElementSibling.getBoundingClientRect().height > 30; })()`, { ms: 4000, popis: "faq: odpoveď sa rozbalila" }).catch(() => null);
+    const o = await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5], a = b.nextElementSibling;
+      return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), vis: getComputedStyle(a).visibility, txt: a.textContent.trim().slice(0, 40) }; })()`);
+    ok(o.exp === "true" && o.h > 30 && o.vis === "visible" && /Classic kryje dno kufra/.test(o.txt), `faq: klik na 6. otázku rozbalí odpoveď (výška ${o.h}, „${o.txt}…“)`);
+    await t.klikni(s + " .p1v-faq-q", { index: 5, popis: "faq: 6. otázka znova", pockaj: 300 });
+    await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5]; return b.nextElementSibling.getBoundingClientRect().height < 2; })()`, { ms: 4000, popis: "faq: odpoveď sa zbalila" }).catch(() => null);
+    const z = await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5]; return { exp: b.getAttribute("aria-expanded"), h: Math.round(b.nextElementSibling.getBoundingClientRect().height) }; })()`);
+    ok(z.exp === "false" && z.h < 2 && (await t.ev("location.href")) === pred, "faq: druhý klik odpoveď zbalí, nič sa neodoslalo");
+    // FAQ 9, 10, 11: ceny ako v návrhu, nezávisle od kódu webu (GET živých stránok), veta bez cien zmizne; zbalené číslo čítačky nečítajú
+    if (oc) {
+      const vz = oc.cenyVzorov;
+      const odpoved = async (i) => {
+        await t.klikni(s + " .p1v-faq-q", { index: i, popis: `faq: ${i + 1}. otázka (ceny)`, pockaj: 300 });
+        await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}]; return b.nextElementSibling.getBoundingClientRect().height > 30; })()`, { ms: 4000, popis: `faq: ${i + 1}. odpoveď sa rozbalila` }).catch(() => null);
+        return t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}], a = b.nextElementSibling;
+          var cl = a.querySelector("[data-cl-ceny]"), cisla = [].slice.call(a.querySelectorAll("[data-p1v-cislo]"));
+          return { exp: b.getAttribute("aria-expanded"), txt: (a.innerText || "").replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(), stav: cl && cl.getAttribute("data-cl-stav"),
+            cisla: cisla.map(function (x) { return x.getAttribute("data-p1v-stav") + "/" + getComputedStyle(x).visibility + "/" + getComputedStyle(x).display; }) }; })()`);
+      };
+      const zbal = async (i) => {
+        await t.klikni(s + " .p1v-faq-q", { index: i, popis: `faq: ${i + 1}. otázka zbaliť`, pockaj: 300 });
+        await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}]; return b.nextElementSibling.getBoundingClientRect().height < 2; })()`, { ms: 4000, popis: `faq: ${i + 1}. odpoveď sa zbalila` }).catch(() => null);
+        return t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[${i}].nextElementSibling.querySelectorAll("[data-p1v-cislo]"), function (x) { return getComputedStyle(x).display; })`);
+      };
+      const f9 = await odpoved(8);
+      ok(f9.exp === "true" && f9.stav === "ok" && f9.cisla.length === 2 && f9.cisla.every((c) => c === "ok/visible/inline") &&
+        f9.txt.includes(`namiesto ${eur(oc.cena)} ju doplníte za ${eur(oc.setClassic)}.`) && !/než keď ju kúpite samostatne/.test(f9.txt),
+        `faq 9: „namiesto ${eur(oc.cena)} ju doplníte za ${eur(oc.setClassic)}“, veta bez cien skrytá (${f9.cisla.join(", ")}; „${f9.txt.slice(0, 120)}…“)`);
+      const skryte9 = await zbal(8);
+      ok(skryte9.length === 2 && skryte9.every((d) => d === "none"), `faq 9: v zbalenej odpovedi je číslo display:none (${skryte9.join(", ")})`);
+      const f10 = await odpoved(9);
+      ok(f10.exp === "true" && f10.stav === "ok" && f10.cisla.length === 2 && f10.cisla.every((c) => c === "ok/visible/inline") &&
+        f10.txt.includes(`Samostatne stojí od ${eur(oc.boxCena)}, v sete s autokobercami od ${eur(oc.boxSetS)}.`) && !/v sete vychádza lacnejšie/.test(f10.txt),
+        `faq 10: „Samostatne stojí od ${eur(oc.boxCena)}, v sete s autokobercami od ${eur(oc.boxSetS)}“ (${f10.cisla.join(", ")}; „${f10.txt.slice(0, 160)}…“)`);
+      await zbal(9);
+      const f11 = await odpoved(10);
+      ok(f11.exp === "true" && f11.stav === "ok" &&
+        f11.txt.includes(`Diamond Line je v základnej cene ${eur(vz.diamond)}, Stripe Line stojí ${eur(vz.stripe)} a Hexa Line ${eur(vz.hexa)}.`) && !/o niečo viac/.test(f11.txt),
+        `faq 11: ceny vzorov Diamond ${eur(vz.diamond)}, Stripe ${eur(vz.stripe)}, Hexa ${eur(vz.hexa)}, veta „o niečo viac“ skrytá („${f11.txt.slice(-150)}“)`);
+      await zbal(10);
+    }
+  }
+  if (je["d-koniec"]) {
+    const s = S("d-koniec");
+    await stredu(s);
+    await t.pauza(500);
+    const d = await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(s)}); var h = e.querySelector("h2");
+      return { h2: h && h.textContent.trim(), lede: e.querySelector(".lede").textContent.trim(), tl: [].map.call(e.querySelectorAll(".end-cta a"), function (a) { return a.textContent.trim(); }).join(" | ") }; })()`);
+    ok(d.h2 === "Kúpiť a nečakať!" && /^Rohož do kufra na mieru Vášho vozidla/.test(d.lede) && d.tl === "Zadajte údaje o vozidle | Pozrite si recenzie", `záver: „${d.h2}“, úvod o rohoži do kufra, tlačidlá (${d.tl})`);
+  }
+
+  await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]'), function (f) { f.style.removeProperty("visibility"); })`);
+  // pásy späť na začiatok a myš preč (snímky sekcií po kontrolách nech nemajú posunutý pás ani :hover)
+  await t.ev(`[].forEach.call(document.querySelectorAll('.p1v-miesto :is(.deck.refs, .revs, .vids)'), function (p) { p.scrollLeft = 0; })`);
+  await t.k.posli("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 }).catch(() => {});
+  return out;
 }

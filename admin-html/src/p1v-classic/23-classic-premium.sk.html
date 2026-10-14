@@ -1,4 +1,38 @@
-<!-- STUB (T0.3, 14. 10. 2026): NOVÉ: „Classic, alebo Premium?“ .cmp / .kc-cmp (§6.6) — oživuje obsah-classic.js.
-     Vlastník: T2.3. Spec: prieskum-vsetky/navrh-kufor-classic.md §6. Pravidlá: docs/1v-obsah.md §4 (súbor = jeden prvok
-     s data-lcd-sekcia="classic-premium", id len p1v-, čísla a ceny len data-p1v-cislo, odkazy na iný typ data-p1v-odkaz).
-     Kým je tu len komentár, build sekciu preskočí a obsah.js ju nemá. Sekciu, ktorú návrh nemá, zmaž. -->
+<!-- 23-classic-premium — NOVÉ: „Classic, alebo Premium?“ (návrh kufor-classic.html #premium, spec §6.6). Komponent .cmp z 598, obe strany .us, triedy .kc-cmp
+     (štýly _lcd1v-obsah-classic.scss). Ceny (Classic / Premium toho istého vzoru), príplatky v sete a odkaz na Premium len cez data-p1v-cislo / data-p1v-odkaz.
+     Štítky na fotkách (Táto rohož / Viac ochrany) návrh skrýva (.cmp-col .ph .tag{display:none}) -> nie sú v HTML. Za sekciou výzva .spat. Kapitola 1. -->
+<div data-lcd-sekcia="classic-premium" data-lcd-kap="1">
+<section class="chapter"><div class="wrap">
+<h2 class="rv">Classic, alebo Premium?</h2>
+<p class="lede rv">Classic chráni dno kufra. Premium navyše obalí boky kufra aj chrbty zadných sedadiel. Rovnaký materiál a rovnaké vzory prešívania.</p>
+<div class="cmp kc-cmp rv">
+<div class="cmp-vs">VS</div>
+<div class="cmp-col us">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-cmp-us.jpg" alt="Rohož do kufra Classic, kryje dno kufra" width="776" height="590" loading="lazy"></div>
+<div class="name">Rohož Classic</div>
+<div class="price"><span data-p1v-cislo="cena-od"><!-- --></span></div>
+<ul>
+<li><span class="ic">✓</span><span><b>Dno kufra</b>Kryje celé dno batožinového priestoru</span></li>
+<li><span class="ic no">–</span><span><b>Boky kufra</b>Zostávajú nekryté</span></li>
+<li><span class="ic no">–</span><span><b>Chrbty zadných sedadiel</b>Zostávajú nekryté</span></li>
+<li><span class="ic">✓</span><span><b>V sete s autokobercami</b><span data-p1v-cislo="set-classic" data-p1v-tvar="Len + {}" data-p1v-bez="Výhodnejšie"><!-- --></span></span></li>
+<li><span class="ic">✓</span><span><b>Hodí sa, keď</b>Stačí Vám chrániť dno kufra</span></li>
+</ul>
+</div>
+<div class="cmp-col us">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/classic-cmp-prem.jpg" alt="Rohož do kufra Premium, kryje dno, boky aj chrbty sedadiel" width="776" height="590" loading="lazy"></div>
+<div class="name">Rohož Premium</div>
+<div class="price"><span data-p1v-cislo="cena-od-premium"><!-- --></span></div>
+<ul>
+<li><span class="ic">✓</span><span><b>Dno kufra</b>Kryje celé dno batožinového priestoru</span></li>
+<li><span class="ic">✓</span><span><b>Boky kufra</b>Obalí bočné steny kufra</span></li>
+<li><span class="ic">✓</span><span><b>Chrbty zadných sedadiel</b>Kryje chrbty sedadiel od strany kufra</span></li>
+<li><span class="ic">✓</span><span><b>V sete s autokobercami</b><span data-p1v-cislo="set-premium" data-p1v-tvar="Len + {}" data-p1v-bez="Výhodnejšie"><!-- --></span></span></li>
+<li><span class="ic">✓</span><span><b>Hodí sa, keď</b>Chcete chrániť celý priestor kufra</span></li>
+</ul>
+</div>
+</div>
+<div class="kc-cta rv"><a class="btn" href="/luxusny-koberced-do-kufra-dragonskin-premium/" data-p1v-odkaz="premium">Pozrite si rohož Premium</a></div>
+</div></section>
+<div class="spat rv"><p>Vyberte si model a farbu rohože.</p><a class="btn spat-btn" href="#product-detail-form">Vyberte si model a farbu</a></div>
+</div>
