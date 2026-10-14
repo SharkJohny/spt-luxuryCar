@@ -229,9 +229,13 @@ export function init(ctx) {
     // dlaždice volantu / miest / dverí: ovládateľné aj klávesnicou
     auto.el.querySelectorAll(".wheel-Position .option-button, .sit-Position .option-button, .door-Position .option-button").forEach(klavesnica);
   }
+  // Prázdne pole = placeholder (.notselect). Auto z predošlej stránky (sessionStorage: zákazník prepol vzor alebo sa vrátil
+  // na produkt) živý kód obnoví tak, že hodnotu vloží na index 0 BEZ .notselect (functions/autoVyber.js lcdPlatnaHodnota:
+  // „obnovená značka/rok/typ JE platný výber“) — selectedIndex <= 0 by ho zle bral ako prázdne a pole by ostalo prekryté
+  // placeholderom „Vyberte značku“, pás kompatibility skrytý a postup „Hotovo 1 z 6“.
   const prazdnePole = (s) => {
     const o = s.options[s.selectedIndex];
-    return !o || s.selectedIndex <= 0 || o.classList.contains("notselect");
+    return !o || s.selectedIndex < 0 || o.classList.contains("notselect") || !String(o.text || "").trim();
   };
   const autoKompletne = () => polia.length > 0 && polia.every((p) => !prazdnePole(p.select));
 

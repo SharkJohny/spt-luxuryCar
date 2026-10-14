@@ -17,7 +17,7 @@ export const TYP = {
       kroky: {
         // pod: null — veta návrhu „Všetky tri vzory majú rovnakú cenu.“ dnes neplatí (13. 10. 2026 SK: Diamond 598 = 219 €,
         // Hexa 610 a Stripe 613 = 230 €). Vrátiť až po zjednotení cien v SK admine.
-        vzor: { nm: "Vzor prešívania", ti: "Prosím, vyberte vzor prešívania", vy: "Diamond Line", pod: null, dalej: "Potvrďte vzor" },
+        vzor: { nm: "Vzor prešívania", ti: "Prosím, vyberte vzor prešívania", vy: "", pod: null, dalej: "Potvrďte vzor" }, // vy: názov vzoru píše kroky.js z aktívnej dlaždice (598 Diamond, 610 Hexa, 613 Stripe) — nikdy natvrdo Diamond
         auto: { nm: "Vaše auto", ti: "Prosím, zadajte svoje auto", vy: "Značka, model a rok výroby", chyba: "Doplňte, prosím, údaje označené červenou.", pozn: "Šablóny máme pre viac než 1000 modelov osobných áut." },
         farba: { nm: "Farba koberca", ti: "Prosím, vyberte farbu koberca", vy: "", pod: "Po výbere uvidíte materiál zblízka.", chyba: "Vyberte, prosím, farbu koberca." },
         rozlozenie: { nm: "Rozloženie", ti: "Prosím, vyberte rozloženie kobercov", vy: "Podľa počtu radov vo Vašom aute", chyba: "Vyberte, prosím, rozloženie kobercov." },

@@ -1,6 +1,7 @@
 <!-- 22-b-porovnanie — skupina B: „Napodobeniny, ale nikdy neprekonané“ + pás s výzvou (návrh v26 #porovnanie + .spat, r. 4561–4598).
-     Markup ako titulka (hp-vrch #porovnanie), štýly LCD-HOME (.cmp…). Naša cena „od …“ NIE JE v HTML: vpíše ju obsah-b.js zo živých
-     dát Shoptetu (najnižšia cena variantu); bez nej riadok ostane prázdny a skrytý. Cena napodobenín = údaj o trhu (návrh aj titulka).
+     Markup ako titulka (hp-vrch #porovnanie), štýly LCD-HOME (.cmp…). Naša cena „od …“ je značka data-p1v-cislo="cena-od" (vnútri žiadna hodnota, predpona v data-p1v-tvar: build obsahu 1V nepustí cenu do
+     statického HTML, lebo by to bola cena Diamond aj na Hexa/Stripe): skutočnú cenu produktu vpíše JS zo živých dát (obsah-cisla.js;
+     obsah-b.js ju zapíše z najnižšej ceny variantu a odkryje riadok triedou ma-cenu); kým ju nemá, riadok ostane skrytý. Cena napodobenín = údaj o trhu (návrh aj titulka).
      Fotky = existujúce lcd-home/cmp1.jpg, cmp2.jpg (rovnaké ako v návrhu). Štítky na fotkách (.tag) návrh skrýva -> nie sú v HTML.
      Bez triedy after-dark (titulka ňou dáva sekcii za tmavou väčší vrch !important, ktorý by prebil rytmus kapitol návrhu). -->
 <div data-lcd-sekcia="b-porovnanie" data-lcd-kap="1">
@@ -12,7 +13,7 @@
 <div class="cmp-col us">
 <div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/cmp1.jpg" alt="Originálne luxusné autokoberce" width="776" height="590" loading="lazy"></div>
 <div class="name">Originálne luxusné autokoberce</div>
-<div class="price p1v-b-od"><!-- --></div>
+<div class="price p1v-b-od"><span data-p1v-cislo="cena-od" data-p1v-tvar="od {}"><!-- --></span></div>
 <ul>
 <li><span class="ic">✓</span><span><b>Materiál</b>Bez zápachu, prvotriedna ekokoža, rozpoznateľná hrúbkou a mäkkosťou</span></li>
 <li><span class="ic">✓</span><span><b>Strih</b>Presne podľa modelu, nezasahuje do pedálov ani koľajníc</span></li>
