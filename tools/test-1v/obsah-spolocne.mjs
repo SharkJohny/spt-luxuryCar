@@ -384,6 +384,10 @@ export async function ocakavaneCisla(reg, produkt) {
     { kluc: "cena-od-classic", text: NBSP_EUR(await cenaTypu("kufor-classic")) },
     { kluc: "cena-od-premium", text: NBSP_EUR(await cenaTypu("kufor-premium")) },
     { kluc: "cena-od-boxy", text: NBSP_EUR(box.cena) },
+    // cena typu v ZADANOM vzore (integrácia 14. 10. 2026, Classic FAQ 11) — nezávisle: GET stránky toho vzoru z registra
+    { kluc: "cena-od-classic-diamond", text: NBSP_EUR((await zivaStranka(sestra(reg, "kufor-classic", "diamond").url)).cena) },
+    { kluc: "cena-od-classic-hexa", text: NBSP_EUR((await zivaStranka(sestra(reg, "kufor-classic", "hexa").url)).cena) },
+    { kluc: "cena-od-premium-stripe", text: NBSP_EUR((await zivaStranka(sestra(reg, "kufor-premium", "stripe").url)).cena) },
     { kluc: "set-classic", text: NBSP_EUR(classic) },
     { kluc: "set-premium", text: NBSP_EUR(premium) },
     { kluc: "set-usetrite-classic", text: NBSP_EUR((await cenaTypu("kufor-classic")) - classic) },
