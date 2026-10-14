@@ -8,10 +8,10 @@
 //   - tabuľka cien .cenv (Samostatne / V sete / V sete pri dvoch boxoch × S M L XL) a karty veľkostí #velkosti: čísla sa porovnávajú
 //     s NEZÁVISLÝM GET živých stránok (select 616 „Velikost 1. boxu“ + základ; jednovrstvové Diamond „Box solo“ a „1. box“), nie s kódom webu,
 //   - silueta v skutočnom pomere (šírka obdĺžnika = 33/40/54/66 z viewBox 76 × 44), gradient z <defs> s id p1v-…,
-//   - zdroj sekcií okrem FAQ: nič o skladovosti; lehota len „21–29 dní“ v časovej osi (rozhodnutie Michala 14. 10. 2026: box sa šije
-//     ako koberce); zakázané slová; žiadna cena natvrdo,
+//   - zdroj sekcií okrem FAQ: nič o skladovosti; lehota len „21–29 dní“ v časovej osi — úvod + odznak „spolu 21–29 dní“ (rozhodnutie
+//     Michala 14. 10. 2026: box sa šije ako koberce; odznak a krok „Ručné šitie“ 15. 10. 2026); zakázané slová; žiadna cena natvrdo,
 //   - karty „Doplňte kufor o rohož“ (odkazy v tom istom vzore, ceny zo živých stránok, celá karta je odkaz),
-//   - 8 krokov „Osem vecí“, farby (9), časová os (4), FAQ = živé FAQ z /faq/ doslovne (12, tools/test-1v/obsah-faq.mjs), záver, okno
+//   - 8 krokov „Osem vecí“, farby (9), časová os (5, so šitím a odznakom), FAQ = živé FAQ z /faq/ doslovne (12, tools/test-1v/obsah-faq.mjs), záver, okno
 //     fotiek, všetky obrázky boxy-* sa načítajú.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -159,15 +159,16 @@ function kontrolaZdroja() {
   const noveTexty = surove.filter(({ f }) => !/faq/.test(f));
   const ceny = noveTexty.flatMap(({ f, h }) => (text(h).match(/\d[\d  ]*\s?(€|&euro;|eur\b|Kč)/gi) || []).map((m) => f + ": " + m));
   const todo = surove.filter(({ h }) => /TODO-D3/.test(h)).map((x) => x.f);
-  const zakazane = noveTexty.flatMap(({ f, h }) => (text(h).replace(/dodanie trvá 21–29 dní/g, "").match(/skladom|lehot[aeuy]|dodací|dodanie|dodania|\d+\s*[–-]\s*\d+\s*dní|na milimeter|vyrábame|(?<!jedno|dvoj)vrstv|dragonskin|elite\b|basic\b|fixačn|uchyten|comfort|kovov|štítok|zadarmo/gi) || []).map((m) => f + ": " + m));
+  const zakazane = noveTexty.flatMap(({ f, h }) => (text(h).replace(/dodanie trvá 21–29 dní|spolu 21–29 dní/g, "").match(/skladom|lehot[aeuy]|dodací|dodanie|dodania|\d+\s*[–-]\s*\d+\s*dní|na milimeter|vyrábame|(?<!jedno|dvoj)vrstv|dragonskin|elite\b|basic\b|fixačn|uchyten|comfort|kovov|štítok|zadarmo/gi) || []).map((m) => f + ": " + m));
   const zaruka = noveTexty.reduce((n, { h }) => n + (text(h).match(/záruk/gi) || []).length, 0);
   const lehota = noveTexty.reduce((n, { h }) => n + (text(h).match(/dodanie trvá 21–29 dní/g) || []).length, 0);
+  const odznak = noveTexty.reduce((n, { h }) => n + (text(h).match(/spolu 21–29 dní/g) || []).length, 0);
   const idBezPredpony = surove.flatMap(({ f, h }) => (bezKom(h).match(/\sid="(?!p1v-)[^"]*"/g) || []).map((m) => f + ":" + m.trim()));
   // každý obrázok, na ktorý sekcie a CSS odkazujú (assets/img/…), je v repe (preklep v názve = prázdne miesto)
   const css = readFileSync(join(KOREN, "assets/css/_lcd1v-obsah-boxy.scss"), "utf8");
   const odkazy = [...new Set(surove.map(({ h }) => bezKom(h)).concat(css).flatMap((h) => [...h.matchAll(/\/assets\/img\/([^"')\s?]+\.(?:jpg|png|webp))/g)].map((m) => m[1])))];
   const chybajuce = odkazy.filter((r) => !existsSync(join(KOREN, "assets/img", r)));
-  return { subory: subory.length, ceny, todo, zakazane, zaruka, lehota, idBezPredpony, odkazy: odkazy.length, chybajuce };
+  return { subory: subory.length, ceny, todo, zakazane, zaruka, lehota, odznak, idBezPredpony, odkazy: odkazy.length, chybajuce };
 }
 
 /** Kontroly s ?novy=vyvoj po vložení obsahu (raz na každú šírku). t = pomocník tools/test-1v/pomocnik.mjs + t.sekcia(meno), await t.je(meno). */
@@ -185,8 +186,9 @@ export async function kontroly(t) {
   ok(z.subory >= 15, `zdroj: ${z.subory} súborov v admin-html/src/p1v-boxy`);
   ok(!z.ceny.length, "zdroj: žiadna cena natvrdo v texte sekcií (mimo FAQ)" + (z.ceny.length ? " — " + z.ceny.slice(0, 4).join(", ") : ""));
   ok(!z.todo.length, "zdroj: žiadny TODO-D3" + (z.todo.length ? " — " + z.todo.join(", ") : ""));
-  ok(!z.zakazane.length, "zdroj (mimo FAQ): nič o skladovosti, iná lehota než „dodanie trvá 21–29 dní“ ani zakázané slová" + (z.zakazane.length ? " — " + z.zakazane.slice(0, 4).join(", ") : ""));
+  ok(!z.zakazane.length, "zdroj (mimo FAQ): nič o skladovosti, iná lehota než „dodanie trvá 21–29 dní“ / „spolu 21–29 dní“ ani zakázané slová" + (z.zakazane.length ? " — " + z.zakazane.slice(0, 4).join(", ") : ""));
   ok(z.lehota === 1, `zdroj: lehota „dodanie trvá 21–29 dní“ práve raz (časová os, rozhodnutie Michala 14. 10. 2026; ${z.lehota}×)`);
+  ok(z.odznak === 1, `zdroj: odznak „spolu 21–29 dní“ práve raz (posledný krok časovej osi, Michal 15. 10. 2026; ${z.odznak}×)`);
   ok(z.zaruka === 0, `zdroj: slovo „záruk“ mimo FAQ ani raz (${z.zaruka}×)`);
   ok(!z.chybajuce.length && z.odkazy >= 40, `zdroj: všetkých ${z.odkazy} obrázkov, na ktoré sekcie a CSS odkazujú, je v assets/img` + (z.chybajuce.length ? " — chýbajú: " + z.chybajuce.join(", ") : ""));
   ok(!z.idBezPredpony.length, "zdroj: každé id má predponu p1v-" + (z.idBezPredpony.length ? " — " + z.idBezPredpony.slice(0, 3).join(", ") : ""));
@@ -336,17 +338,20 @@ export async function kontroly(t) {
     ok(r.im.length === 2 && r.im.every((i) => i.ok) && r.im.map((i) => i.src).join(",") === "boxy-pred.jpg,boxy-po.jpg", `b-predapo: fotky pred a po sa načítali (${r.im.map((i) => i.src + (i.ok ? "" : " ✗")).join(", ")})`);
   }
 
-  // c-casova-os: 4 kroky, lehota 21–29 dní (rozhodnutie Michala 14. 10. 2026: box sa šije ako koberce), nič o skladovosti
+  // c-casova-os: 5 krokov s „Ručné šitie“, lehota 21–29 dní v úvode aj v odznaku posledného kroku (rozhodnutie Michala 14. 10. 2026: box sa
+  // šije ako koberce; krok šitia a odznak „spolu 21–29 dní“ ako pri rohožiach 15. 10. 2026), nič o skladovosti
   if (await t.je("c-casova-os")) {
     await posun(t.sekcia("c-casova-os") + " .tml", "center");
     const r = await t.ev(`(function () {
       var s = document.querySelector(${S("c-casova-os")});
-      return { kroky: s.querySelectorAll(".tml > li").length, tt: [].map.call(s.querySelectorAll(".tml .tt"), function (x) { return x.textContent.trim(); }).join("|"),
+      return { kroky: s.querySelectorAll(".tml > li").length, nazvy: [].map.call(s.querySelectorAll(".tml > li b"), function (x) { return x.textContent.trim(); }).join("|"),
+        posledny: (function () { var l = s.querySelectorAll(".tml > li"), t = l.length && l[l.length - 1].querySelector(".tt"); return t ? t.textContent.trim() : null; })(), tt: [].map.call(s.querySelectorAll(".tml .tt"), function (x) { return x.textContent.trim(); }).join("|"),
         lede: s.querySelector(".lede").textContent.trim(), text: s.textContent.replace(/\\s+/g, " ") };
     })()`);
-    ok(r.kroky === 4, `c-casova-os: 4 kroky (${r.kroky})`);
-    ok(!/skladom|termín/i.test(r.text) && r.lede === "Šije sa až po objednávke, preto dodanie trvá 21–29 dní. Cenu dopravy uvidíte v košíku." && (r.text.match(/\d+\s*–\s*\d+\s*dní/g) || []).length === 1,
-      `c-casova-os: úvod s lehotou 21–29 dní, nič o skladovosti; úvod „${r.lede}“, časové značky „${r.tt}“`);
+    ok(r.kroky === 5 && r.nazvy === "Objednávka|Potvrdenie objednávky|Ručné šitie|Kontrola a zabalenie|Doručenie", `c-casova-os: 5 krokov so šitím (${r.kroky}: ${r.nazvy})`);
+    ok(r.tt === "hneď|spolu 21–29 dní" && r.posledny === "spolu 21–29 dní", `c-casova-os: odznaky „${r.tt}“, posledný krok „${r.posledny}“ (má hneď|spolu 21–29 dní)`);
+    ok(!/skladom|termín/i.test(r.text) && r.lede === "Šije sa až po objednávke, preto dodanie trvá 21–29 dní. Cenu dopravy uvidíte v košíku." && (r.text.match(/\d+\s*–\s*\d+\s*dní/g) || []).length === 2,
+      `c-casova-os: lehota 21–29 dní v úvode a v odznaku, nič o skladovosti; úvod „${r.lede}“, časové značky „${r.tt}“`);
   }
 
   // c-farby: 9 farieb boxu, klik na vzorku prepne veľkú fotku a názov

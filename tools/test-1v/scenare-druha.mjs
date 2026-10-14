@@ -65,7 +65,7 @@ function stavKarty(t) {
       pod: tx(":scope > .lcd1v-pod"), anoText: ano ? ano.textContent.replace(/\\s+/g, " ").trim() : null, anoVidno: vid(ano),
       nieText: nie ? nie.textContent.trim() : null, nieVidno: vid(nie), pozn: tx(":scope > .lcd1v-pozn"),
       priplatok: suma && vid(suma) ? suma.textContent : null, priplatokCislo: ano ? Number(ano.getAttribute("data-lcd1v-priplatok")) || null : null,
-      foto: img ? { src: img.currentSrc || img.src, ok: img.complete && img.naturalWidth > 100 } : null,
+      foto: img ? { src: img.currentSrc || img.src, ok: img.complete && img.naturalWidth > 100, alt: img.alt } : null,
       anoZablok: !!(ano && ano.disabled), nieZablok: !!(nie && nie.disabled),
       prenos: vid(k.querySelector(".lcd1v-druha__prenos")) ? tx(".lcd1v-druha__prenos") : null,
       maName: !!k.querySelector("[name]"),
@@ -206,7 +206,9 @@ export const SCENARE = {
       j.over(otv.pod === "Druhá vrstva sa kladie na prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.", `podnadpis „${otv.pod}“`);
       j.over(/Áno, chcem/.test(otv.anoText) && /Dvojvrstvové koberce/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
       j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === "Pokračujete s doterajším výberom.", `Nie: „${otv.nieText}“ / „${otv.pozn}“`);
-      j.over(otv.foto && otv.foto.ok && otv.foto.src.endsWith("/img/1v/dvoj-vzor-" + P.vzor + ".jpg"), `fotka dlaždice Áno: ${JSON.stringify(otv.foto)} (má dvoj-vzor-${P.vzor}.jpg)`);
+      // jedna fotka pre všetky vzory (Michal 15. 10. 2026): Diamond so šedou jednofarebnou druhou vrstvou
+      j.over(otv.foto && otv.foto.ok && otv.foto.src.endsWith("/img/1v/druha-vrstva-lux.jpg"), `fotka dlaždice Áno: ${JSON.stringify(otv.foto)} (má druha-vrstva-lux.jpg pri každom vzore)`);
+      j.over(otv.foto && /šedou jednofarebnou druhou vrstvou/.test(otv.foto.alt || ""), `alt fotky dlaždice Áno: „${otv.foto && otv.foto.alt}“`);
       const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n/i;
       j.over(!zakazane.test(otv.anoText + " " + otv.pod + " " + otv.nieText + " " + otv.pozn + " " + otv.ti), "zakázané slovo v texte karty");
       await snimka(s, a, "druha-otazka", KARTA);

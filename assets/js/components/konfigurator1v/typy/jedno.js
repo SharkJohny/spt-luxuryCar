@@ -36,7 +36,7 @@ export const TYP = {
       vyNie: "Bez druhej vrstvy",
       pod: "Druhá vrstva sa kladie na prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
       naj: "★ Odporúčame",
-      ano: { nm: "Áno, chcem", po: "Dvojvrstvové koberce", ben: "Vzor, auto aj farba Vám ostanú.", alt: "Dvojvrstvové autokoberce s druhou vrstvou" },
+      ano: { nm: "Áno, chcem", po: "Dvojvrstvové koberce", ben: "Vzor, auto aj farba Vám ostanú.", alt: "Dvojvrstvové autokoberce vo vzore Diamond so šedou jednofarebnou druhou vrstvou" },
       priplatok: "Príplatok",
       nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
       prenos: "Prenášame Váš výber na dvojvrstvové koberce…",
@@ -60,7 +60,8 @@ export const TYP = {
     "boxy-1": { diamond: "kufor-boxy-1-box.jpg" },
     "boxy-2": { diamond: "kufor-boxy-2-boxy.jpg" },
     "boxy-0": { diamond: "kufor-boxy-premium.jpg" },
-    // dlaždica „Áno“ ponuky druhej vrstvy: reálna fotka dvojvrstvového koberca vo vzore produktu (už na CDN, návrh dvojvrstvove.html)
-    "druha-ano": { diamond: "dvoj-vzor-diamond.jpg", stripe: "dvoj-vzor-stripe.jpg", hexa: "dvoj-vzor-hexa.jpg" },
+    // dlaždica „Áno“ ponuky druhej vrstvy (Michal 15. 10. 2026): JEDNA reálna fotka pre všetky vzory — Diamond so šedou
+    // jednofarebnou druhou vrstvou Lux (fotka schválená v návrhu, dv-hero-1). Nový súbor (spoločné assets/img sa neprepisujú).
+    "druha-ano": { diamond: "druha-vrstva-lux.jpg", stripe: "druha-vrstva-lux.jpg", hexa: "druha-vrstva-lux.jpg" },
   },
 };
