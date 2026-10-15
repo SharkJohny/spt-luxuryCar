@@ -18863,23 +18863,24 @@ body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-up
 body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-ups-cta .btn.ghost:hover{border-color:var(--gold-hi)}
 /* ===== LCD-1V-OBSAH-VZORKY END ===== */
 
-/* ===== LCD-1V-COOKIES START - generovane tools/vloz-lcd-css.py z _lcd1v-cookies.scss (cookie lista a okno nastaveni v style C; len html.lcd1v-cookies), needituj rucne ===== */
+/* ===== LCD-1V-COOKIES START - generovane tools/vloz-lcd-css.py z _lcd1v-cookies.scss (cookie lista, okno nastaveni a odkaz v pate v style C; html:root = pre vsetkych), needituj rucne ===== */
 /* Cookie lišta Shoptetu v štýle C „Prémiová karta“ + okno nastavení v štýle C (Michal 15. 10. 2026, návrh
    scratchpad cookies/index.html #c a #nastavenia). Čisté CSS nad DOM Shoptetu — tlačidlá, triedy js-* a value ostávajú,
    súhlas ukladá Shoptet. Texty (veta, nápisy tlačidiel) sú v admine Shoptetu, tu len nadpis karty (::before).
-   TICHÝ TEST: KAŽDÝ selektor je pod html.lcd1v-cookies (trieda len s flagom 1V ?novy=1, konfigurator1v/cookies.js).
-   Bez flagu tento blok nič nevyberie — lišta aj okno nastavení ostanú ako dnes (vrátane rezervy 96 px a čierneho
-   #cboxLoadedContent z luxuryCar.scss). Zapnutie pre všetkých: docs/1v-kontrakt.md §14. */
+   PRE VŠETKÝCH (Michal 15. 10. 2026): KAŽDÝ selektor je pod html:root — štýl platí od prvého vykreslenia, len z tohto CSS
+   v <head>, bez čakania na bundle na konci <body> (s triedou z JS sa na ~0,5 s mihla modrá lišta Shoptetu).
+   html:root = vždy <html>, s váhou (0,1,1) ako predošlé html.lcd1v-cookies -> kaskáda je rovnaká ako v tichom teste.
+   Bez JS je lišta aj okno kompletné; cookies.js len zdvihne bublinu Luxie a pridá odkaz do päty. docs/1v-kontrakt.md §14. */
 
 /* ---------- 1. vrstva: čierna karta so zlatým nadpisom, dve rovnaké zlaté tlačidlá ---------- */
 /* PC: karta 960 px v strede dole, 20 px nad okrajom (návrh C); Shoptet .siteCookies--bottom (670 px, margin-left -335) prebitý */
-html.lcd1v-cookies .siteCookies {
+html:root .siteCookies {
   left: max(24px, calc(50% - 480px)); right: max(24px, calc(50% - 480px)); bottom: 20px;
   width: auto; margin: 0; transform: none; transition: none;
   color: #ece6d8; font: 400 15px/1.45 "Source Sans 3", "Segoe UI", Arial, sans-serif;
 }
 /* padding !important prebije rezervu 96 px pre bublinu (_lcdNativeHdr.scss) — bublina sa namiesto toho zdvihne nad kartu */
-html.lcd1v-cookies .siteCookies .siteCookies__form {
+html:root .siteCookies .siteCookies__form {
   position: relative; display: grid; box-sizing: border-box; max-width: none; margin: 0;
   grid-template-columns: 48px minmax(0, 1fr) 172px 172px;
   grid-template-areas: "ico text rej acc" "ico set rej acc";
@@ -18890,240 +18891,261 @@ html.lcd1v-cookies .siteCookies .siteCookies__form {
   box-shadow: 0 26px 60px rgba(0, 0, 0, .45);
 }
 /* ikona: štít s fajkou v zlatom kruhu */
-html.lcd1v-cookies .siteCookies .siteCookies__form::before {
+html:root .siteCookies .siteCookies__form::before {
   content: ""; grid-area: ico; align-self: start; width: 48px; height: 48px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='23.25' fill='%23221d12' stroke='%23c49b31' stroke-opacity='.6' stroke-width='1.5'/%3E%3Cg transform='translate(12 12)' fill='none' stroke='%23e6c877' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.5 4.5 5.5v6c0 4.6 3.2 8.4 7.5 10 4.3-1.6 7.5-5.4 7.5-10v-6z'/%3E%3Cpath d='m8.6 12.2 2.4 2.4 4.5-4.7'/%3E%3C/g%3E%3C/svg%3E") center / 48px 48px no-repeat;
 }
 /* zlatá linka na hornej hrane */
-html.lcd1v-cookies .siteCookies .siteCookies__form::after {
+html:root .siteCookies .siteCookies__form::after {
   content: ""; position: absolute; top: -1px; left: 40px; right: 40px; height: 1px;
   background: linear-gradient(90deg, transparent, #f0d78f, transparent); pointer-events: none;
 }
 /* obaly Shoptetu sa rozpustia, aby text, „Nastavenie“ a obe tlačidlá boli v jednej mriežke */
-html.lcd1v-cookies .siteCookies .siteCookies__content,
-html.lcd1v-cookies .siteCookies .siteCookies__links,
-html.lcd1v-cookies .siteCookies .siteCookies__buttonWrap { display: contents; }
-html.lcd1v-cookies .siteCookies .siteCookies__text {
+html:root .siteCookies .siteCookies__content,
+html:root .siteCookies .siteCookies__links,
+html:root .siteCookies .siteCookies__buttonWrap { display: contents; }
+html:root .siteCookies .siteCookies__text {
   grid-area: text; align-self: end; margin: 0; font-size: 15px; line-height: 1.45; color: #ece6d8;
 }
-html.lcd1v-cookies .siteCookies .siteCookies__text::before {
+html:root .siteCookies .siteCookies__text::before {
   content: "Cookies a súkromie"; display: block; margin-bottom: 3px;
   font: 700 13px/1.3 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #e6c877;
 }
-html.lcd1v-cookies[lang|="cs"] .siteCookies .siteCookies__text::before { content: "Cookies a soukromí"; }
-html.lcd1v-cookies .siteCookies .siteCookies__text a {
+html:root[lang|="cs"] .siteCookies .siteCookies__text::before { content: "Cookies a soukromí"; }
+html:root .siteCookies .siteCookies__text a {
   color: #e6c877; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
 }
-html.lcd1v-cookies .siteCookies .siteCookies__text a:hover { color: #f0d78f; }
+html:root .siteCookies .siteCookies__text a:hover { color: #f0d78f; }
 /* „Nastavenie“: zreteľný odkaz s ikonou posuvníkov (nie tretie veľké tlačidlo) */
-html.lcd1v-cookies .siteCookies .siteCookies__link {
+html:root .siteCookies .siteCookies__link {
   grid-area: set; justify-self: start; align-self: start; display: inline-block; width: auto; min-height: 24px;
   margin: 0; padding: 2px 0 2px 24px; border: 0; border-radius: 0;
   font: 600 14px/20px "Source Sans 3", "Segoe UI", Arial, sans-serif; color: #cfc6b0;
   text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cfc6b0' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1'/%3E%3Ccircle cx='15' cy='6' r='2'/%3E%3Ccircle cx='9' cy='12' r='2'/%3E%3Ccircle cx='17' cy='18' r='2'/%3E%3C/svg%3E") no-repeat 0 50% / 17px 17px;
 }
-html.lcd1v-cookies .siteCookies .siteCookies__link:hover { color: #f3eee2; background-color: transparent; }
+html:root .siteCookies .siteCookies__link:hover { color: #f3eee2; background-color: transparent; }
 /* Odmietnuť = Súhlasím: rovnaká veľkosť, farba aj váha (EDPB taskforce 2023, ÚOOÚ: „ve srovnatelném vizuálním provedení“) */
-html.lcd1v-cookies .siteCookies .siteCookies__button {
+html:root .siteCookies .siteCookies__button {
   display: flex; align-items: center; justify-content: center; width: 100%; height: 48px; margin: 0; padding: 0 12px;
   border: 0; border-radius: 10px; cursor: pointer; white-space: nowrap;
   background: linear-gradient(90deg, #b8901f, #f0d78f 45%, #c49b31); color: #15120d;
   font: 800 14px/1.1 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 6px 16px rgba(196, 155, 49, .18);
 }
-html.lcd1v-cookies .siteCookies .siteCookies__button[value="reject"] { grid-area: rej; }
-html.lcd1v-cookies .siteCookies .siteCookies__button[value="all"] { grid-area: acc; }
-html.lcd1v-cookies .siteCookies .siteCookies__button:hover {
+html:root .siteCookies .siteCookies__button[value="reject"] { grid-area: rej; }
+html:root .siteCookies .siteCookies__button[value="all"] { grid-area: acc; }
+html:root .siteCookies .siteCookies__button:hover {
   background: linear-gradient(90deg, #c39a26, #f5e09e 45%, #cfa63a); color: #15120d;
 }
-html.lcd1v-cookies .siteCookies :is(.siteCookies__button, .siteCookies__link, .siteCookies__text a):focus-visible {
+html:root .siteCookies :is(.siteCookies__button, .siteCookies__link, .siteCookies__text a):focus-visible {
   outline: 2px solid #f0d78f; outline-offset: 3px; box-shadow: none;
 }
 /* tablet: užšia karta, text cez celú šírku, „Nastavenie“ vpravo hore, tlačidlá vedľa seba pod textom */
 @media (max-width: 1023px) {
-  html.lcd1v-cookies .siteCookies { left: max(16px, calc(50% - 320px)); right: max(16px, calc(50% - 320px)); bottom: 16px; }
-  html.lcd1v-cookies .siteCookies .siteCookies__form {
+  html:root .siteCookies { left: max(16px, calc(50% - 320px)); right: max(16px, calc(50% - 320px)); bottom: 16px; }
+  html:root .siteCookies .siteCookies__form {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "text text" "rej acc";
     gap: 14px 10px; padding: 16px 16px 14px !important;
   }
-  html.lcd1v-cookies .siteCookies .siteCookies__form::before { display: none; }
-  html.lcd1v-cookies .siteCookies .siteCookies__text { font-size: 14.5px; line-height: 1.42; }
-  html.lcd1v-cookies .siteCookies .siteCookies__text::before { padding-right: 112px; }
-  html.lcd1v-cookies .siteCookies .siteCookies__link { position: absolute; top: 13px; right: 16px; }
-  html.lcd1v-cookies .siteCookies .siteCookies__button { height: 46px; font-size: 13px; letter-spacing: .03em; padding: 0 6px; }
+  html:root .siteCookies .siteCookies__form::before { display: none; }
+  html:root .siteCookies .siteCookies__text { font-size: 14.5px; line-height: 1.42; }
+  html:root .siteCookies .siteCookies__text::before { padding-right: 112px; }
+  html:root .siteCookies .siteCookies__link { position: absolute; top: 13px; right: 16px; }
+  html:root .siteCookies .siteCookies__button { height: 46px; font-size: 13px; letter-spacing: .03em; padding: 0 6px; }
 }
 /* telefón: karta 10 px od okrajov, nad spodnou lištou iPhonu */
 @media (max-width: 767px) {
-  html.lcd1v-cookies .siteCookies { left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  html:root .siteCookies { left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
   /* karta najviac ~22 % výšky telefónu (návrh C: 187 z 844 px) aj s dnešnou dlhšou vetou Shoptetu */
-  html.lcd1v-cookies .siteCookies .siteCookies__form { gap: 12px 10px; padding: 14px 16px 14px !important; }
-  html.lcd1v-cookies .siteCookies .siteCookies__text { font-size: 14px; line-height: 1.4; }
+  html:root .siteCookies .siteCookies__form { gap: 12px 10px; padding: 14px 16px 14px !important; }
+  html:root .siteCookies .siteCookies__text { font-size: 14px; line-height: 1.4; }
 }
 
 /* Chat Luxia (iframe tretej strany, z-index 2147483000) by ležal na tlačidlách karty -> kým je lišta na obrazovke,
    ZBALENÝ chat (bublina, uvítanie; trieda lcd1v-cookies-bublina z cookies.js) sa zdvihne nad kartu. Otvorený chat
    sa nehýbe. --lcd1v-cookies-vyska = horný okraj karty od spodku okna (cookies.js). :not(#lcd1v-x) = váha ID, inak by
    vyhralo body:has(#js-plugin-header.active) … {bottom:72px !important} (LCD-HDR) a lišta 1V (LCD-1V-CENA). */
-html.lcd1v-cookies.lcd1v-cookies-bublina:not(#lcd1v-x):has(.js-siteCookies .siteCookies__form) iframe[title="Luxia chat"] {
+html:root.lcd1v-cookies-bublina:not(#lcd1v-x):has(.js-siteCookies .siteCookies__form) iframe[title="Luxia chat"] {
   bottom: calc(var(--lcd1v-cookies-vyska, 220px) + 4px) !important;
 }
-/* otvorené okno nastavení: chat by ležal na „Povoliť všetko“ -> ustúpi (ako pri otvorenom menu) */
-html.lcd1v-cookies:not(#lcd1v-x):has(#cboxContent.cookiesDialog) iframe[title="Luxia chat"] { visibility: hidden !important; }
+/* otvorené okno nastavení (aj počas otváracej animácie): chat by ležal na „Povoliť všetko“ -> ustúpi (ako pri otvorenom menu) */
+html:root:not(#lcd1v-x):has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) iframe[title="Luxia chat"] { visibility: hidden !important; }
 
-/* ---------- 2. vrstva: okno „Nastavenia cookies“ (colorbox Shoptetu; #cboxContent má triedu cookiesDialog) ----------
+/* ---------- 2. vrstva: okno „Nastavenia cookies“ (colorbox Shoptetu) ----------
+   Okno cookies = #cboxContent s obsahom .cookiesSetting__form (od prvého snímku otvárania) alebo s triedou cookiesDialog
+   (Shoptet ju dá až v onComplete, ~0,3 s po kliknutí — dovtedy sa mihlo staré biele okno s čiernym obsahom a animáciou
+   výšky). :is(.cookiesDialog, :has(…)) a :has(A, B) držia váhu ako predtým samotné .cookiesDialog -> kaskáda rovnaká.
    Len okno cookies — iné colorboxy (galéria, vyskakovacie okná) sa nemenia. Rozmery a polohu dáva colorbox inline
    (PC 700 × 548, telefón 390 × 956 = tlačidlá pod okrajom okna) -> prebité cez !important: PC karta v strede okna,
    telefón spodný panel; obsah sa posúva vnútri, tlačidlá sú prilepené dole a vždy viditeľné. */
-html.lcd1v-cookies:has(#cboxContent.cookiesDialog) #cboxOverlay { background: #080705 !important; opacity: .62 !important; }
-html.lcd1v-cookies #colorbox:has(#cboxContent.cookiesDialog) {
+html:root:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) #cboxOverlay { background: #080705 !important; opacity: .62 !important; }
+html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) {
   position: fixed !important; inset: 0 !important; margin: auto !important;
   width: min(640px, calc(100% - 32px)) !important; height: fit-content !important; max-height: calc(100vh - 48px);
   overflow: visible !important;
 }
 /* #cboxWrapper je v Shoptete position:absolute -> #colorbox by mal výšku 0; tu ide do toku, výška = obsah */
-html.lcd1v-cookies #colorbox:has(#cboxContent.cookiesDialog) #cboxWrapper,
-html.lcd1v-cookies #colorbox:has(#cboxContent.cookiesDialog) #cboxWrapper > div {
+html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) #cboxWrapper,
+html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) #cboxWrapper > div {
   position: relative !important; top: auto !important; left: auto !important;
   width: auto !important; height: auto !important; overflow: visible !important; float: none !important;
 }
 /* rámové bunky colorboxu (float, inline výška) by obsah posunuli — okno cookies ich nepotrebuje */
-html.lcd1v-cookies #colorbox:has(#cboxContent.cookiesDialog) :is(#cboxTopLeft, #cboxTopCenter, #cboxTopRight, #cboxMiddleLeft, #cboxMiddleRight, #cboxBottomLeft, #cboxBottomCenter, #cboxBottomRight) {
+html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) :is(#cboxTopLeft, #cboxTopCenter, #cboxTopRight, #cboxMiddleLeft, #cboxMiddleRight, #cboxBottomLeft, #cboxBottomCenter, #cboxBottomRight) {
   display: none !important;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) {
   float: none !important; width: auto !important; height: auto !important; margin: 0 !important;
   background: linear-gradient(180deg, #1b1813, #0e0d0a) !important; color: #ece6d8;
   border: 1px solid rgba(230, 200, 119, .3) !important; border-radius: 18px !important;
   box-shadow: 0 30px 80px rgba(0, 0, 0, .5); overflow: hidden !important;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog #cboxLoadedContent {
-  width: auto !important; height: auto !important; max-height: calc(100vh - 48px) !important; max-height: calc(100dvh - 48px) !important;
+/* display: colorbox drží obsah počas otváracej animácie skrytý (jQuery hide) -> bez toho by ~0,3 s svietila v strede len
+   2 px čiara rámu; okno je tak celé hneď od prvého snímku (poloha a rozmery sú z tohto CSS, nie z animácie) */
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) #cboxLoadedContent {
+  display: block !important; width: auto !important; height: auto !important; max-height: calc(100vh - 48px) !important; max-height: calc(100dvh - 48px) !important;
   overflow: auto !important; overscroll-behavior: contain; padding: 0 !important; background: transparent !important; color: #ece6d8 !important;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .colorbox-html-content { padding: 0; }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__form {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .colorbox-html-content { padding: 0; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__form {
   padding: 0; font: 400 15px/1.45 "Source Sans 3", "Segoe UI", Arial, sans-serif; color: #ece6d8;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__title {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__title {
   margin: 0; padding: 26px 70px 0 28px; font: 800 20px/1.2 "Exo 2", "Segoe UI", Arial, sans-serif;
   letter-spacing: .08em; text-transform: uppercase; color: #e6c877;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__perex {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__perex {
   margin: 8px 0 0; padding: 0 28px; font-size: 15px; line-height: 1.45; color: #cfc6b0;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__data {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__data {
   margin: 0; padding: 8px 28px 6px; background: transparent; border: 0; border-radius: 0;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 20px;
   padding: 14px 0; border: 0; border-top: 1px solid rgba(230, 200, 119, .16);
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item:first-child { border-top: 0; }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__name {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item:first-child { border-top: 0; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__name {
   font-size: 14px; line-height: 1.35; color: #a99f86;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__name strong {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__name strong {
   margin-right: 4px; font-weight: 700; font-size: 16px; color: #f3eee2;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__text {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__text {
   margin: 2px 0 0; font-size: 14.5px; line-height: 1.45; color: #b9b09a;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__col2 { margin: 0; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__col2 { margin: 0; }
 /* Nevyhnutné (prvá položka, bez prepínača v Shoptete): stály zapnutý prepínač, stlmený = nedá sa vypnúť */
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item:first-child:not(:has(.cookiesSetting__item__checkbox))::after {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item:first-child:not(:has(.cookiesSetting__item__checkbox))::after {
   content: ""; width: 46px; height: 26px; border-radius: 13px; opacity: .5;
   background: radial-gradient(circle at 33px 13px, #15120d 9px, transparent 9.6px), linear-gradient(90deg, #b8901f, #e6c877);
 }
 /* prepínač: label Shoptetu (checkbox je skrytý, label ho prepína) = dráha 46 × 26 + gombík; vypnuté tmavé, zapnuté zlaté */
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__status {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__status {
   position: relative; display: block; width: 46px; height: 26px; margin: 0; padding: 0; border: 0; border-radius: 13px;
   font-size: 0; line-height: 0; cursor: pointer;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__status .cookiesSetting__item__state {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__status .cookiesSetting__item__state {
   position: absolute; inset: 0; display: block; width: 46px; height: 26px; margin: 0; padding: 0;
   overflow: hidden; white-space: nowrap; color: transparent; font-size: 1px; line-height: 26px; cursor: pointer;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__status .cookiesSetting__item__state::before {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__status .cookiesSetting__item__state::before {
   content: ""; position: absolute; top: 0; left: 0; width: 46px; height: 26px; transform: none;
   border: 0; border-radius: 13px; background: #2e2a21; box-shadow: inset 0 0 0 1px rgba(230, 200, 119, .45);
   transition: background .2s;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__status .cookiesSetting__item__state::after {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__status .cookiesSetting__item__state::after {
   content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; transform: none;
   border: 0; border-radius: 50%; background: #cfc6b0; transition: transform .2s, background .2s;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__checkbox:checked + .cookiesSetting__item__state::before {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__checkbox:checked + .cookiesSetting__item__state::before {
   background: linear-gradient(90deg, #b8901f, #e6c877); box-shadow: none;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__checkbox:checked + .cookiesSetting__item__state::after {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__checkbox:checked + .cookiesSetting__item__state::after {
   transform: translateX(20px); background: #15120d; border: 0; width: 20px; height: 20px; left: 3px;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__item__checkbox:focus-visible + .cookiesSetting__item__state {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__item__checkbox:focus-visible + .cookiesSetting__item__state {
   outline: 2px solid #f0d78f; outline-offset: 3px; box-shadow: none; border-radius: 13px; overflow: visible;
 }
 /* tlačidlá dole, prilepené k spodku okna: „Všetko vypnuté“ = „Povoliť všetko“ (rovnaké zlaté), „Potvrdiť moje voľby“ obrys */
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom {
   position: sticky; bottom: 0; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr) 172px 172px;
   grid-template-areas: "sel . none all"; gap: 10px; align-items: center; margin: 0; padding: 16px 28px 22px;
   background: #0e0d0a; border-top: 1px solid rgba(230, 200, 119, .16); text-align: center;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__uncheck { display: contents; }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom [value="none"] { grid-area: none; }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom [value="selection"] { grid-area: sel; }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom [value="all"] { grid-area: all; }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button) {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__uncheck { display: contents; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom [value="none"] { grid-area: none; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom [value="selection"] { grid-area: sel; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom [value="all"] { grid-area: all; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button) {
   display: flex; align-items: center; justify-content: center; height: 48px; margin: 0; border: 0; border-radius: 10px;
   white-space: nowrap; text-decoration: none; cursor: pointer;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button--green) {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button--green) {
   width: 100%; padding: 0 10px; background: linear-gradient(90deg, #b8901f, #f0d78f 45%, #c49b31); color: #15120d;
   font: 800 14px/1.1 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button--green):hover {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button--green):hover {
   background: linear-gradient(90deg, #c39a26, #f5e09e 45%, #cfa63a); color: #15120d;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom .cookiesSetting__button[value="selection"] {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom .cookiesSetting__button[value="selection"] {
   width: auto; padding: 0 18px; background: transparent; color: #f3eee2; box-shadow: inset 0 0 0 1px rgba(243, 238, 226, .5);
   font: 700 15px/1.1 "Source Sans 3", "Segoe UI", Arial, sans-serif; letter-spacing: 0; text-transform: none;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom .cookiesSetting__button[value="selection"]:hover {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom .cookiesSetting__button[value="selection"]:hover {
   background: rgba(243, 238, 226, .08); box-shadow: inset 0 0 0 1px rgba(243, 238, 226, .8);
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog :is(.cookiesSetting__uncheckLink, .cookiesSetting__button, #cboxClose):focus-visible {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) :is(.cookiesSetting__uncheckLink, .cookiesSetting__button, #cboxClose):focus-visible {
   outline: 2px solid #f0d78f; outline-offset: 3px; box-shadow: none;
 }
 /* zavrieť: zlatý krúžok s krížikom (ikona Shoptetu ::before) */
-html.lcd1v-cookies #cboxContent.cookiesDialog #cboxClose {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) #cboxClose {
   top: 18px; right: 18px; width: 38px; height: 38px; border-radius: 50%;
   background-color: transparent !important; box-shadow: inset 0 0 0 1px rgba(230, 200, 119, .55); color: #e6c877;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog #cboxClose::before {
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) #cboxClose::before {
   left: 0; top: 0; width: 38px; line-height: 38px; text-align: center; font-size: 16px; color: #e6c877;
 }
-html.lcd1v-cookies #cboxContent.cookiesDialog #cboxClose:hover { box-shadow: inset 0 0 0 1px #f0d78f; }
+html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) #cboxClose:hover { box-shadow: inset 0 0 0 1px #f0d78f; }
 /* telefón: spodný panel cez celú šírku, tlačidlá vždy na spodku obrazovky */
 @media (max-width: 767px) {
-  html.lcd1v-cookies #colorbox:has(#cboxContent.cookiesDialog) {
+  html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) {
     inset: auto 0 0 0 !important; width: 100% !important; max-height: calc(100vh - 40px);
   }
-  html.lcd1v-cookies #cboxContent.cookiesDialog { border-width: 1px 0 0 !important; border-radius: 20px 20px 0 0 !important; }
-  html.lcd1v-cookies #cboxContent.cookiesDialog #cboxLoadedContent {
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) { border-width: 1px 0 0 !important; border-radius: 20px 20px 0 0 !important; }
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) #cboxLoadedContent {
     max-height: calc(100vh - 40px) !important; max-height: calc(100dvh - 40px) !important;
   }
-  html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__title { padding: 24px 64px 0 18px; font-size: 18px; }
-  html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__perex { padding: 0 18px; }
-  html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__data { padding: 6px 18px 4px; }
-  html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom {
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__title { padding: 24px 64px 0 18px; font-size: 18px; }
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__perex { padding: 0 18px; }
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__data { padding: 6px 18px 4px; }
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "none all" "sel sel";
     padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
   }
-  html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button--green) {
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom :is(.cookiesSetting__uncheckLink, .cookiesSetting__button--green) {
     font-size: 13px; letter-spacing: .03em; padding: 0 6px;
   }
-  html.lcd1v-cookies #cboxContent.cookiesDialog .cookiesSetting__bottom .cookiesSetting__button[value="selection"] { width: 100%; }
-  html.lcd1v-cookies #cboxContent.cookiesDialog #cboxClose { top: 16px; right: 14px; }
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) .cookiesSetting__bottom .cookiesSetting__button[value="selection"] { width: 100%; }
+  html:root #cboxContent:is(.cookiesDialog, :has(.cookiesSetting__form)) #cboxClose { top: 16px; right: 14px; }
+}
+
+/* ---------- 3. trvalý odkaz „Nastavenia cookies“ v päte (GDPR čl. 7 ods. 3; cookies.js odkazVPate) ----------
+   <button class="lcd-cookies-odkaz js-cookies-settings"> na konci .copyright v riadku .footer-bottom: otvorí okno
+   nastavení Shoptetu (aj po uložení súhlasu). Nenápadný — písmo a farba copyrightu, podčiarknutý; PC v riadku za
+   copyrightom, telefón samostatný stredený riadok pod ním (dotyková plocha 28 px). Globálne štýly <button> prebité. */
+html:root #footer .footer-bottom .lcd-cookies-odkaz {
+  display: inline; width: auto; min-height: 0; margin: 0 0 0 14px; padding: 0; border: 0; border-radius: 0;
+  background: none; box-shadow: none; vertical-align: baseline; cursor: pointer;
+  font: inherit; color: inherit; letter-spacing: normal; text-transform: none; white-space: nowrap;
+  text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .4); text-underline-offset: 3px;
+}
+html:root #footer .footer-bottom .lcd-cookies-odkaz:hover { color: #e6c877; background: none; text-decoration-color: currentColor; }
+html:root #footer .footer-bottom .lcd-cookies-odkaz:focus-visible { outline: 2px solid #f0d78f; outline-offset: 3px; box-shadow: none; }
+@media (max-width: 767px) {
+  html:root #footer .footer-bottom .lcd-cookies-odkaz { display: block; margin: 8px auto 0; padding: 4px 0; line-height: 20px; }
 }
 /* ===== LCD-1V-COOKIES END ===== */
 

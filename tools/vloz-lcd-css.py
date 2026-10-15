@@ -23,7 +23,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-BOXY       <- _lcd1v-boxy.scss        1V box do kufra 616                     }
   LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY / -VZORKY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
                                                (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
-  LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C (LEN pod html.lcd1v-cookies = flag 1V, posledny blok)
+  LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C + odkaz v pate (pod html:root = PRE VSETKYCH, posledny blok)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
@@ -104,11 +104,11 @@ BLOKY = [
     # Obsah vzorkovnika 637 (T5.1b, integracia WB 14. 10. 2026) — tiez az za spolocnymi blokmi obsahu
     dict(meno="LCD-1V-OBSAH-VZORKY", zdroj="_lcd1v-obsah-vzorky.scss", home=False, h1=False,
          popis="obsah 1V vzorkovnik 637; len body.lcd-1v"),
-    # Cookie lista Shoptetu v style C + okno nastaveni (Michal 15. 10. 2026) — kazde pravidlo pod html.lcd1v-cookies
-    # (trieda len s flagom 1V na kazdej stranke, konfigurator1v/cookies.js; docs/1v-kontrakt.md §14). Posledny blok:
+    # Cookie lista Shoptetu v style C + okno nastaveni (Michal 15. 10. 2026) — kazde pravidlo pod html:root = pre vsetkych
+    # od prveho vykreslenia, bez cakania na bundle (docs/1v-kontrakt.md §14). Posledny blok:
     # bublina Luxie nad kartou musi prebit aj LCD-1V-CENA (rovnaka specificita, rozhoduje poradie).
     dict(meno="LCD-1V-COOKIES", zdroj="_lcd1v-cookies.scss", home=False, h1=False,
-         popis="cookie lista a okno nastaveni v style C; len html.lcd1v-cookies"),
+         popis="cookie lista, okno nastaveni a odkaz v pate v style C; html:root = pre vsetkych"),
 ]
 
 

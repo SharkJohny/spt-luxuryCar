@@ -1,20 +1,29 @@
 #!/usr/bin/env node
-// Test cookie lišty v štýle C „Prémiová karta“ + okna nastavení (Michal 15. 10. 2026) na ŽIVOM webe s LOKÁLNYM buildom.
-// Vzhľad je pod html.lcd1v-cookies = len s flagom 1V (?novy=1), na každej stránke (docs/1v-kontrakt.md §14).
+// Test cookie lišty v štýle C „Prémiová karta“ + okna nastavení + odkazu „Nastavenia cookies“ v päte (Michal 15. 10. 2026)
+// na ŽIVOM webe s LOKÁLNYM buildom. PRE VŠETKÝCH: vzhľad je z CSS v <head> (selektory pod html:root) od prvého vykreslenia,
+// s flagom 1V aj bez neho, na každej stránke (docs/1v-kontrakt.md §14).
 //
 //   node tools/test-cookies-1v.mjs                         # SK titulka + produkt 598 (+ CZ titulka), 1280 aj 390
 //   node tools/test-cookies-1v.mjs --sirka 390 --snimky C:/tmp/cookies --vypis
 //   (--okno = Chrome s oknom, --bez-cz = bez CZ titulky, --bez-drop = build bez --drop:console)
 //
+// Prvý snímok: skript pred načítaním stránky (Page.addScriptToEvaluateOnNewDocument) v každom requestAnimationFrame
+// (tesne pred vykreslením) zapíše štýl lišty v PRVOM snímku, v ktorom je na obrazovke — ten musí byť už karta C
+// (inak sa mihne stará modrá lišta). Rovnako každý snímok otvárania okna nastavení (žiadny snímok starého okna).
+//
 // Scenáre (pre každú šírku):
-//   bez-flagu <stránka>  bez ?novy= je lišta aj okno nastavení BEZ ZMENY: computed styles a rozmery prvkov lišty
-//                        a okna = živý CDN (rovnaká stránka bez buildu); trieda lcd1v-cookies chýba
-//   flag <stránka>       s ?novy=1: karta C (pozadie, rádius, nadpis, rovnaké Odmietnuť = Súhlasím, kontrast, podiel výšky
-//                        na telefóne, poloha na PC, rezerva 96 px preč), bublina Luxie nezakrýva tlačidlá; titulka a 598
-//                        navyše okno nastavení (v okne, tlačidlá viditeľné a nezakryté, Všetko vypnuté = Povoliť všetko,
-//                        prepínače vypnuté/zapnuté, kontrast, chat ustúpi) — všetko skutočným klikom myšou
-//   suhlas               „Súhlasím“ skutočným klikom: POST súhlasu sa ZRUŠÍ (nikdy neodíde), lišta sa správa ako dnes
-//   odmietnutie          „Odmietnuť“ skutočným klikom: POST consent=none je povolený, lišta zmizne, bublina Luxie späť dole
+//   bez-js <stránka>     bundle luxuryCar.js ZABLOKOVANÝ (len lokálne CSS): prvý snímok aj hotová lišta = karta C, trieda
+//                        lcd1v-cookies nikdy nenaskočí (štýl nezávisí od JS); okno nastavení v štýle C v každom snímku
+//   karta <stránka>      bez flagu (bežný návštevník): prvý snímok = karta C, karta C (pozadie, rádius, nadpis, rovnaké
+//                        Odmietnuť = Súhlasím, kontrast, podiel výšky na telefóne, poloha na PC, rezerva 96 px preč),
+//                        bublina Luxie nezakrýva tlačidlá; titulka a 598 navyše okno nastavení skutočným klikom (každý snímok
+//                        otvárania v štýle C, v okne, tlačidlá viditeľné a nezakryté, Všetko vypnuté = Povoliť všetko,
+//                        prepínače, kontrast, chat ustúpi) a odkaz v päte (text, otvorí okno aj pod lištou); CZ len lišta
+//                        a text odkazu „Nastavení cookies“
+//   flag 598             s ?novy=1: karta C a bublina Luxie rovnako (flag na lištu nemá vplyv)
+//   suhlas               „Súhlasím“ skutočným klikom: POST súhlasu sa ZRUŠÍ (nikdy neodíde)
+//   odmietnutie          „Odmietnuť“ skutočným klikom: POST consent=none je povolený, lišta zmizne, bublina Luxie späť dole;
+//                        potom odkaz „Nastavenia cookies“ v päte skutočným klikom otvorí okno (súhlas sa dá zmeniť aj bez lišty)
 //
 // Bezpečnosť: Chrome bez okna s dočasným profilom, pred každou stránkou zmazané cookies (čistý návštevník). Merače
 // (GA, GTM, FB, TikTok…) zablokované. POST /action/CustomerCookieConsent/ prejde LEN ako odmietnutie (consent=none);
@@ -37,9 +46,9 @@ const MERACE = [
   "*clarity.ms*", "*bat.bing.com*", "*heureka.*", "*c.seznam.cz*", "*sklik*", "*ecomail.cz/*track*",
 ];
 const STRANKY = [
-  { meno: "titulka", url: SK + "/", nadpis: "Cookies a súkromie", nastavenia: true },
-  { meno: "598", url: PRODUKTY[598].url, nadpis: "Cookies a súkromie", nastavenia: true },
-  { meno: "cz-titulka", url: CZ + "/", nadpis: "Cookies a soukromí", nastavenia: false, cz: true },
+  { meno: "titulka", url: SK + "/", nadpis: "Cookies a súkromie", odkaz: "Nastavenia cookies", nastavenia: true },
+  { meno: "598", url: PRODUKTY[598].url, nadpis: "Cookies a súkromie", odkaz: "Nastavenia cookies", nastavenia: true },
+  { meno: "cz-titulka", url: CZ + "/", nadpis: "Cookies a soukromí", odkaz: "Nastavení cookies", nastavenia: false, cz: true },
 ];
 const TELEFON_MAX = 0.225; // karta na telefóne najviac ~22 % výšky okna (návrh C: 187 px z 844 = 22,2 %)
 
@@ -57,7 +66,7 @@ function argumenty(argv) {
     else if (x === "--vypis") a.vypis = true;
     else if (x === "--bez-cz") a.bezCz = true;
     else if (x === "--bez-drop") a.bezDrop = true;
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 23).join("\n")); process.exit(0); }
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 32).join("\n")); process.exit(0); }
     else throw new ChybaPouzitia("neznámy prepínač " + x);
   }
   return a;
@@ -128,12 +137,42 @@ const rozober = (body) => { const o = []; for (const [k, v] of new URLSearchPara
 /** POST súhlasu: consent=none (odmietnutie / Všetko vypnuté) je povolený, čokoľvek iné (analytics, personalisation, all) nie. */
 const jeOdmietnutie = (body) => { const c = rozober(body).filter(([k]) => k === "consent").map(([, v]) => v); return c.length > 0 && c.every((v) => v === "none"); };
 
-async function novaStranka(ch, sirka, build) {
+/** Snímač snímok: beží pred skriptami stránky, v každom requestAnimationFrame (tesne pred vykreslením snímku). */
+const SNIMAC = `(function () {
+  if (window.__lcdCk) return;
+  var S = window.__lcdCk = { prvy: null, okno: [], sleduj: false };
+  function r4(e) { var r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; }
+  function krok() {
+    try {
+      var f = document.querySelector(".js-siteCookies .siteCookies__form");
+      if (f && !S.prvy && f.getBoundingClientRect().height > 0) {
+        var c = getComputedStyle(f), t = f.querySelector(".siteCookies__text");
+        var o = f.querySelector(".siteCookies__button[value=reject]"), a = f.querySelector(".siteCookies__button[value=all]");
+        S.prvy = { t: Math.round(performance.now()), bg: c.backgroundImage, radius: c.borderTopLeftRadius,
+          nadpis: t ? getComputedStyle(t, "::before").content : null, form: r4(f),
+          tlacidla: o && a ? r4(o).slice(2).concat(r4(a).slice(2)) : null, zlate: o ? getComputedStyle(o).backgroundImage.slice(0, 30) : null,
+          trieda: document.documentElement.classList.contains("lcd1v-cookies"), bundle: !!document.querySelector("script#JKscript") };
+      }
+      if (S.sleduj) {
+        var obs = document.getElementById("cboxContent"), cb = document.getElementById("colorbox");
+        if (obs && cb && obs.querySelector(".cookiesSetting__form") && getComputedStyle(cb).display !== "none" && getComputedStyle(cb).visibility !== "hidden") {
+          var co = getComputedStyle(obs);
+          S.okno.push({ t: Math.round(performance.now()), trieda: obs.classList.contains("cookiesDialog"), bg: co.backgroundImage.slice(0, 40), rect: r4(obs) });
+        }
+      }
+    } catch (e) {}
+    requestAnimationFrame(krok);
+  }
+  requestAnimationFrame(krok);
+})();`;
+
+async function novaStranka(ch, sirka, build, { bezJs = false } = {}) {
   const k = await ch.novaKarta({ sirka });
-  const s = { k, build, posty: [], podvrhnute: 0 };
+  const s = { k, build, posty: [], podvrhnute: 0, zablokovane: 0 };
   await k.posli("Network.clearBrowserCookies"); // čistý návštevník: lišta sa ukáže (súhlas iných kariet zabudnutý)
   await k.posli("Network.setBlockedURLs", { urls: MERACE });
   await k.posli("Network.setCacheDisabled", { cacheDisabled: true });
+  await k.posli("Page.addScriptToEvaluateOnNewDocument", { source: SNIMAC });
   k.na("Page.javascriptDialogOpening", () => k.posli("Page.handleJavaScriptDialog", { accept: false }).catch(() => {}));
   const odpovedz = (p, body, typ) => k.posli("Fetch.fulfillRequest", {
     requestId: p.requestId, responseCode: 200, body: body.toString("base64"),
@@ -150,6 +189,8 @@ async function novaStranka(ch, sirka, build) {
         if (povol) return await k.posli("Fetch.continueRequest", { requestId: p.requestId });
         return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "Aborted" });
       }
+      // bez-js: bundle sa vôbec nenačíta (štýl lišty musí byť len z CSS v <head>)
+      if (bezJs && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?js\/luxuryCar\.js(\?|$)/.test(u)) { s.zablokovane++; return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "BlockedByClient" }); }
       if (s.build && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?js\/luxuryCar\.js(\?|$)/.test(u)) { s.podvrhnute++; return await odpovedz(p, s.build.js, "application/javascript; charset=utf-8"); }
       if (s.build && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?css\/luxuryCar\.css(\?|$)/.test(u)) { s.podvrhnute++; return await odpovedz(p, s.build.css, "text/css; charset=utf-8"); }
       await k.posli("Fetch.continueRequest", { requestId: p.requestId });
@@ -182,40 +223,14 @@ const POMOC = `
   function luxia() { return document.querySelector('iframe[title="Luxia chat"]'); }
 `;
 
-/** Podpis lišty a (ak je otvorené) okna nastavení na porovnanie CDN vs. lokál bez flagu. */
-const PODPIS = `(function () {${POMOC}
-  var P = ["display","position","top","right","bottom","left","width","height","marginLeft","paddingTop","paddingRight","paddingBottom","paddingLeft","backgroundColor","backgroundImage","color","fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","textTransform","borderTopWidth","borderTopStyle","borderTopColor","borderTopLeftRadius","borderBottomRightRadius","boxShadow","zIndex","transform","gridTemplateColumns","opacity","visibility"];
-  function st(e, pseudo) { if (!e) return null; var c = getComputedStyle(e, pseudo || null); var o = {}; P.forEach(function (p) { o[p] = c[p]; }); if (pseudo) o.content = c.content; return o; }
-  var S = { bar: ".js-siteCookies", form: ".siteCookies__form", content: ".siteCookies__content", text: ".siteCookies__text", odkaz: ".siteCookies__text a", links: ".siteCookies__links", nastavenie: ".siteCookies__link", tlacidla: ".siteCookies__buttonWrap", odmietnut: ".siteCookies__button[value=reject]", suhlas: ".siteCookies__button[value=all]",
-    colorbox: "#colorbox", overlay: "#cboxOverlay", obsah: "#cboxContent", nacitane: "#cboxLoadedContent", zavriet: "#cboxClose", titul: ".cookiesSetting__title", perex: ".cookiesSetting__perex", data: ".cookiesSetting__data", polozka: ".cookiesSetting__item + .cookiesSetting__item", stav: ".cookiesSetting__item__status", vypnut: "[data-testid=buttonCookiesTurnOff]", potvrdit: "[data-testid=cookiesConfirmSelection]", povolit: "[data-testid=buttonCookiesEnableAll]", spodok: ".cookiesSetting__bottom" };
-  var o = { html: ["lcd1v-cookies", "lcd1v-cookies-bublina"].filter(function (c) { return document.documentElement.classList.contains(c); }), premenna: document.documentElement.style.getPropertyValue("--lcd1v-cookies-vyska") };
-  Object.keys(S).forEach(function (k) { var e = document.querySelector(S[k]); o[k] = e ? { st: st(e), rect: rect(e) } : null; });
-  var t = document.querySelector(".siteCookies__text"); if (t) o.textPred = st(t, "::before");
-  var l = document.querySelector(".cookiesSetting__item__state"); if (l) { o.stavPred = st(l, "::before"); o.stavPo = st(l, "::after"); }
-  var f = luxia(); o.luxia = f ? { bottom: getComputedStyle(f).bottom, inline: f.style.bottom, visibility: getComputedStyle(f).visibility } : null;
-  return o;
-})()`;
-
-function rozdiel(x, y, cesta = "", out = []) {
-  if (typeof x !== "object" || x === null || typeof y !== "object" || y === null) {
-    const px = /\/rect\//.test(cesta) && typeof x === "number" && typeof y === "number";
-    if (px ? Math.abs(x - y) > 2 : JSON.stringify(x) !== JSON.stringify(y)) out.push(cesta + ": CDN " + JSON.stringify(x) + " | lokál " + JSON.stringify(y));
-    return out;
-  }
-  for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) {
-    if (cesta === "" && k === "luxia") continue; // stav bubliny Luxie (uvítanie po pár s) nie je vec lišty
-    rozdiel(x[k], y[k], cesta + "/" + k, out);
-  }
-  return out;
-}
-
-/** Karta C na stránke s flagom: vráti merania (a zlyhá s popisom, ak niečo nesedí). */
-const KARTA = `(function (nadpis, maxPodiel) {${POMOC}
+/** Karta C (s flagom aj bez): vráti merania. sTriedou = bundle bežal (značka html.lcd1v-cookies z cookies.js). */
+const KARTA = `(function (nadpis, maxPodiel, sTriedou) {${POMOC}
   var H = document.documentElement, z = [];
   var bar = document.querySelector(".js-siteCookies"), form = bar && bar.querySelector(".siteCookies__form");
   if (!form || !vid(form)) return { chyba: "lišta cookies nie je viditeľná (čistý návštevník)" };
   var cf = getComputedStyle(form), rf = rect(form), vw = innerWidth, vh = innerHeight;
-  if (!H.classList.contains("lcd1v-cookies")) z.push("html.lcd1v-cookies chýba");
+  if (sTriedou && !H.classList.contains("lcd1v-cookies")) z.push("html.lcd1v-cookies chýba (cookies.js nebežal pre bežného návštevníka?)");
+  if (!sTriedou && H.classList.contains("lcd1v-cookies")) z.push("html.lcd1v-cookies je tu, hoci bundle je zablokovaný");
   if (!/linear-gradient/.test(cf.backgroundImage)) z.push("pozadie karty nie je čierny gradient C: " + cf.backgroundImage.slice(0, 60));
   var bg = farbyPozadia(cf); if (bg.some(function (c) { return lum(c) > 0.03; })) z.push("karta nie je tmavá: " + cf.backgroundImage.slice(0, 80));
   if (cf.borderTopLeftRadius !== "16px") z.push("rádius karty " + cf.borderTopLeftRadius + " ≠ 16px");
@@ -313,62 +328,150 @@ const STAV_PREPINACA = (id) => `(function () {${POMOC}
 })()`;
 
 // ------------------------------------------------------------------ scenáre
-async function bezFlagu(ch, sirka, build, S, a) {
-  const merat = async (s) => {
-    await otvor(s, S.url);
-    const lista = await s.t.ev(PODPIS);
-    await s.t.ev(`document.querySelector(".js-cookies-settings").click()`); // obsah okna sa nemení, stačí JS klik
-    await s.t.cakaj(`!!document.querySelector("#cboxContent.cookiesDialog .cookiesSetting__bottom")`, { ms: 15000, popis: "okno nastavení" });
-    await pauza(1200);
-    const okno = await s.t.ev(PODPIS);
-    return { lista, okno };
-  };
-  const cdn = await novaStranka(ch, sirka, null);
-  let A;
-  try { A = await merat(cdn); } finally { await cdn.k.zavri(); }
-  const lok = await novaStranka(ch, sirka, build);
-  let B;
-  try {
-    B = await merat(lok);
-    over(lok.podvrhnute >= 2, "lokálny build sa nepodvrhol (" + lok.podvrhnute + " požiadaviek)");
-  } finally { await lok.k.zavri(); }
-  over(A.lista.form, "na CDN stránke nie je lišta (čistý návštevník?)");
-  over(!B.lista.html.length && !B.lista.premenna, "bez flagu je na <html> " + JSON.stringify(B.lista.html) + " " + B.lista.premenna);
-  const r = [...rozdiel(A.lista, B.lista).map((x) => "lišta" + x), ...rozdiel(A.okno, B.okno).map((x) => "okno" + x)];
-  over(!r.length, "bez flagu sa lišta/okno líši od živého webu (" + r.length + "):\n      " + r.slice(0, 12).join("\n      "));
-  return { info: "lišta + okno nastavení = živý CDN (" + Object.keys(A.lista).filter((k) => A.lista[k]).length + " prvkov, karta " + A.lista.form.rect.w + "×" + A.lista.form.rect.h + ")" };
+const sFlagom = (S, novy) => (novy ? S.url + (S.url.includes("?") ? "&" : "?") + "novy=1" : S.url);
+const ZACNI_OKNO = `(function () { window.__lcdCk.okno = []; window.__lcdCk.sleduj = true; return 1; })()`;
+const KONIEC_OKNA = `(function () { window.__lcdCk.sleduj = false; return 1; })()`;
+const OTVORENE = `!!document.querySelector("#cboxContent.cookiesDialog .cookiesSetting__bottom")`;
+const ZATVORENE = `!document.querySelector("#cboxContent.cookiesDialog") && !document.querySelector("#cboxContent .cookiesSetting__form")`;
+const LUXIA_VIDNO = `(function () { var f = document.querySelector('iframe[title="Luxia chat"]'); return !f || getComputedStyle(f).visibility !== "hidden"; })()`;
+const LISTA_VIDNO = `(function () { var f = document.querySelector(".js-siteCookies .siteCookies__form"); return !!f && f.getBoundingClientRect().height > 0; })()`;
+
+/** Prvý snímok, v ktorom je lišta na obrazovke: musí byť už karta C (inak sa mihne stará lišta Shoptetu). */
+async function overPrvySnimok(s, S) {
+  const p = await s.t.ev("window.__lcdCk && window.__lcdCk.prvy");
+  over(p, "snímač nezachytil lištu v žiadnom snímku (čistý návštevník?)");
+  const z = [];
+  if (!/linear-gradient/.test(p.bg || "")) z.push("pozadie " + String(p.bg).slice(0, 60));
+  if (p.radius !== "16px") z.push("rádius " + p.radius);
+  if (p.nadpis !== JSON.stringify(S.nadpis)) z.push("nadpis " + p.nadpis);
+  if (!/linear-gradient/.test(p.zlate || "")) z.push("tlačidlá nie sú zlaté: " + p.zlate);
+  if (!p.tlacidla || Math.abs(p.tlacidla[0] - p.tlacidla[2]) > 1 || Math.abs(p.tlacidla[1] - p.tlacidla[3]) > 1) z.push("Odmietnuť ≠ Súhlasím " + JSON.stringify(p.tlacidla));
+  over(!z.length, "PRVÝ SNÍMOK lišty (" + p.t + " ms) nie je karta C — mihla by sa stará lišta: " + z.join("; "));
+  return p;
 }
 
-async function sFlagom(ch, sirka, build, S, a) {
+/** Snímky otvárania okna nastavení (od kliku po ustálenie): každý v štýle C a už na mieste (žiadne staré okno, žiadna animácia). */
+async function overSnimkyOkna(s) {
+  const o = await s.t.ev("window.__lcdCk.okno");
+  over(o && o.length, "snímač nezachytil okno nastavení");
+  const fin = o[o.length - 1].rect;
+  const zle = o.filter((x) => !/linear-gradient/.test(x.bg) || x.rect.some((v, i) => Math.abs(v - fin[i]) > 2));
+  over(!zle.length, zle.length + " z " + o.length + " snímok otvárania okna nie je okno C na mieste: " + JSON.stringify(zle.slice(0, 3)) + " (konečné " + JSON.stringify(fin) + ")");
+  const bezTriedy = o.filter((x) => !x.trieda).length;
+  return o.length + " snímok C" + (bezTriedy ? ", z toho " + bezTriedy + " pred triedou cookiesDialog" : "");
+}
+
+/** Otvorí okno nastavení (klik = async funkcia), overí snímky otvárania aj hotové okno. */
+async function otvorOkno(s, klik, kde) {
+  await s.t.ev(ZACNI_OKNO);
+  await klik();
+  await s.t.cakaj(OTVORENE, { ms: 15000, popis: "okno nastavení (" + kde + ")" });
+  await pauza(1200); // ustálenie (Shoptet dá triedu cookiesDialog až v onComplete)
+  await s.t.ev(KONIEC_OKNA);
+  const sn = await overSnimkyOkna(s);
+  // myš preč z okna: klik v päte (spodok stránky) necháva kurzor nad „Potvrdiť moje voľby“ a meral by sa stav :hover
+  // (priesvitné pozadie .08 sa pri výpočte kontrastu berie ako plné) — meria sa pokojový stav okna
+  await s.k.posli("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
+  await pauza(250);
+  const o = await s.t.ev(OKNO);
+  over(!o.chyba, o.chyba);
+  over(!o.chyby.length, "okno nastavení (" + kde + "): " + o.chyby.join("; "));
+  return { o, sn };
+}
+
+/** Zavrie okno skutočným klikom na krížik; chat Luxia späť. */
+async function zavriOkno(s) {
+  await s.t.klikni("#cboxClose", { popis: "zavrieť okno" });
+  await s.t.cakaj(ZATVORENE, { ms: 8000, popis: "zavreté okno" });
+  await pauza(300);
+  over(await s.t.ev(LUXIA_VIDNO), "po zavretí okna ostal chat Luxia skrytý");
+}
+
+/** Odkaz „Nastavenia cookies“ v päte: text, trieda Shoptetu, tlačidlo, nenápadný ale čitateľný. */
+const ODKAZ = `(function (text) {${POMOC}
+  var b = document.querySelector("#footer .footer-bottom .lcd-cookies-odkaz");
+  if (!b) return { chyba: "odkaz „" + text + "“ v päte (#footer .footer-bottom) chýba" };
+  var z = [], c = getComputedStyle(b), pata = getComputedStyle(document.querySelector("#footer .footer-bottom"));
+  if (b.textContent.trim() !== text) z.push("text " + JSON.stringify(b.textContent) + " ≠ " + text);
+  if (!b.classList.contains("js-cookies-settings")) z.push("chýba trieda js-cookies-settings (Shoptet ho neobslúži)");
+  if (b.tagName !== "BUTTON" || b.type !== "button") z.push("nie je <button type=button>");
+  if (document.querySelectorAll(".lcd-cookies-odkaz").length !== 1) z.push("odkaz je na stránke " + document.querySelectorAll(".lcd-cookies-odkaz").length + "×");
+  if (!vid(b)) z.push("nie je viditeľný");
+  if (c.textDecorationLine.indexOf("underline") < 0) z.push("nie je podčiarknutý");
+  var k = minKontrast(c.color, farbyPozadia(pata)); if (!(k >= 4.5)) z.push("kontrast " + k);
+  if (parseFloat(c.fontSize) < 13) z.push("malé písmo " + c.fontSize);
+  var r = rect(b); if (innerWidth < 768 && r.h < 24) z.push("telefón: dotyková plocha " + r.h + " px < 24");
+  return { chyby: z, rect: r, farba: c.color, pismo: c.fontSize };
+})`;
+async function overOdkaz(s, S) {
+  const od = await s.t.ev(ODKAZ + "(" + JSON.stringify(S.odkaz) + ")");
+  over(!od.chyba, od.chyba);
+  over(!od.chyby.length, "odkaz v päte: " + od.chyby.join("; "));
+  return od;
+}
+async function snimkaPaty(s, cesta) {
+  const k = `(function () { var b = document.querySelector("#footer .lcd-cookies-odkaz"); if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); return 1; })()`;
+  await s.t.ev(k); await pauza(900); await s.t.ev(k); await pauza(400); // lenivé obrázky nad pätou posunú stránku
+  await s.k.snimka(cesta);
+}
+
+/** bez-js: bundle zablokovaný — lišta aj okno nastavení sú karta C len z CSS v <head>, od prvého snímku. */
+async function bezJs(ch, sirka, build, S, a) {
+  const s = await novaStranka(ch, sirka, build, { bezJs: true });
+  const info = [];
+  try {
+    await otvor(s, S.url);
+    over(s.zablokovane >= 1, "bundle luxuryCar.js sa nezablokoval (" + s.zablokovane + " požiadaviek)");
+    over(s.podvrhnute >= 1, "lokálne CSS sa nepodvrhlo");
+    const p = await overPrvySnimok(s, S);
+    info.push("prvý snímok " + p.t + " ms = karta C " + p.form[2] + "×" + p.form[3]);
+    const k = await s.t.ev(KARTA + "(" + JSON.stringify(S.nadpis) + "," + TELEFON_MAX + ",false)");
+    over(!k.chyba, k.chyba);
+    over(!k.chyby.length, "karta C bez JS: " + k.chyby.join("; "));
+    info.push(`hotová ${k.karta.w}×${k.karta.h}, tlačidlá ${k.tlacidla[0]}×${k.tlacidla[1]} = ${k.tlacidla[2]}×${k.tlacidla[3]}`);
+    over(!(await s.t.ev(`!!document.querySelector(".lcd-cookies-odkaz")`)), "odkaz v päte je tu bez bundla (pridáva ho cookies.js)");
+    if (a.snimky) await s.k.snimka(join(a.snimky, `bez-js-${S.meno}-${sirka}.png`));
+    if (S.nastavenia) {
+      // klik cez DOM: bez JS sa bublina Luxie nezdvihne nad kartu — tu sa overuje len CSS okna
+      const { o, sn } = await otvorOkno(s, () => s.t.ev(`document.querySelector(".js-siteCookies .siteCookies__link").click()`), "bez JS");
+      info.push(`okno ${o.okno.w}×${o.okno.h} (${sn})`);
+    }
+    over(!(await s.t.ev(`document.documentElement.classList.contains("lcd1v-cookies")`)), "trieda lcd1v-cookies naskočila bez bundla");
+    over(!s.posty.length, "odišiel POST: " + JSON.stringify(s.posty));
+    return { info: info.join("; ") };
+  } finally { await s.k.zavri(); }
+}
+
+/** karta (bežný návštevník bez flagu; novy = s ?novy=1): prvý snímok, karta C, Luxia, odkaz v päte, okno nastavení. */
+async function karta(ch, sirka, build, S, a, { novy = false } = {}) {
   const s = await novaStranka(ch, sirka, build);
   const info = [];
   try {
-    await otvor(s, S.url + (S.url.includes("?") ? "&" : "?") + "novy=1");
+    await otvor(s, sFlagom(S, novy));
     over(s.podvrhnute >= 2, "lokálny build sa nepodvrhol");
-    const k = await s.t.ev(KARTA + "(" + JSON.stringify(S.nadpis) + "," + TELEFON_MAX + ")");
+    const p = await overPrvySnimok(s, S);
+    info.push(`prvý snímok ${p.t} ms = karta C (bundle ${p.bundle ? "už v DOM" : "ešte nenačítaný"})`);
+    const k = await s.t.ev(KARTA + "(" + JSON.stringify(S.nadpis) + "," + TELEFON_MAX + ",true)");
     over(!k.chyba, k.chyba);
     over(!k.chyby.length, "karta C: " + k.chyby.join("; "));
     info.push(`karta ${k.karta.w}×${k.karta.h} (${k.podiel} % výšky), tlačidlá ${k.tlacidla[0]}×${k.tlacidla[1]} = ${k.tlacidla[2]}×${k.tlacidla[3]}, kontrast ${k.kontrastTlacidla}`);
-    // chat Luxia: počkaj na iframe a (PC) na uvítanie — kontrola počas ~8 s, nech chytí bublinu aj uvítanie
+    // chat Luxia: počkaj na iframe a (PC) na uvítanie — kontrola počas ~8 s (s flagom ~4 s), nech chytí bublinu aj uvítanie
     await s.t.cakaj(`!!document.querySelector('iframe[title="Luxia chat"]')`, { ms: 15000, popis: "chat Luxia" }).catch(() => {});
     let L;
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < (novy ? 4 : 8); i++) {
       L = await s.t.ev(LUXIA_KARTA);
       over(!L.chyba, L.chyba);
       over(!L.chyby.length, "bublina Luxie vs. karta: " + L.chyby.join("; "));
       await pauza(1000);
     }
     info.push("Luxia " + L.luxia);
-    if (a.snimky) { await s.k.snimka(join(a.snimky, `lista-${S.meno}-${sirka}.png`)); }
-    if (!S.nastavenia) return { info: info.join("; ") };
+    if (a.snimky && !novy) await s.k.snimka(join(a.snimky, `lista-${S.meno}-${sirka}.png`));
+    const od = await overOdkaz(s, S);
+    info.push(`päta „${S.odkaz}“ ${od.rect.w}×${od.rect.h}`);
+    if (novy || !S.nastavenia) return { info: info.join("; ") };
     // okno nastavení: skutočný klik na „Nastavenie“ (nič ho nesmie zakrývať)
-    await s.t.klikni(".js-siteCookies .siteCookies__link", { popis: "Nastavenie" });
-    await s.t.cakaj(`!!document.querySelector("#cboxContent.cookiesDialog .cookiesSetting__bottom")`, { ms: 15000, popis: "okno nastavení" });
-    await pauza(1200); // animácia colorboxu
-    const o = await s.t.ev(OKNO);
-    over(!o.chyba, o.chyba);
-    over(!o.chyby.length, "okno nastavení: " + o.chyby.join("; "));
-    info.push(`okno ${o.okno.w}×${o.okno.h} na y ${o.okno.y}, Všetko vypnuté ${o.tlacidla.vypnut.w}×${o.tlacidla.vypnut.h} = Povoliť všetko ${o.tlacidla.povolit.w}×${o.tlacidla.povolit.h}, Potvrdiť ${o.tlacidla.potvrdit.w}×${o.tlacidla.potvrdit.h}`);
+    const { o, sn } = await otvorOkno(s, () => s.t.klikni(".js-siteCookies .siteCookies__link", { popis: "Nastavenie" }), "Nastavenie na lište");
+    info.push(`okno ${o.okno.w}×${o.okno.h} na y ${o.okno.y} (${sn}), Všetko vypnuté ${o.tlacidla.vypnut.w}×${o.tlacidla.vypnut.h} = Povoliť všetko ${o.tlacidla.povolit.w}×${o.tlacidla.povolit.h}, Potvrdiť ${o.tlacidla.potvrdit.w}×${o.tlacidla.potvrdit.h}`);
     if (a.snimky) await s.k.snimka(join(a.snimky, `nastavenia-${S.meno}-${sirka}.png`));
     // prepínače: skutočný klik zapne (zlatá dráha, gombík vpravo), druhý klik vypne; nič sa neodosiela
     const postyPred = s.posty.length;
@@ -387,14 +490,18 @@ async function sFlagom(ch, sirka, build, S, a) {
     }
     over(s.posty.length === postyPred, "prepínanie odoslalo POST: " + JSON.stringify(s.posty.slice(postyPred)));
     info.push("prepínače vyp -> zap -> vyp");
-    // zavrieť: skutočný klik na krížik -> karta späť, chat späť
-    await s.t.klikni("#cboxClose", { popis: "zavrieť okno" });
-    await s.t.cakaj(`!document.querySelector("#cboxContent.cookiesDialog") && (function () { var f = document.querySelector(".js-siteCookies .siteCookies__form"); return f && f.getBoundingClientRect().height > 0; })()`, { ms: 8000, popis: "zavreté okno, karta späť" });
+    // zavrieť: skutočný klik na krížik -> karta späť, chat späť a nezakrýva ju
+    await zavriOkno(s);
+    over(await s.t.ev(LISTA_VIDNO), "po zavretí okna nie je lišta späť");
     const L2 = await s.t.ev(LUXIA_KARTA);
+    over(!L2.chyba, "po zavretí okna: " + L2.chyba);
     over(!L2.chyby.length, "po zavretí okna: " + L2.chyby.join("; "));
-    const vid = await s.t.ev(`(function () { var f = document.querySelector('iframe[title="Luxia chat"]'); return !f || getComputedStyle(f).visibility !== "hidden"; })()`);
-    over(vid, "po zavretí okna ostal chat Luxia skrytý");
-    info.push("zavretie OK");
+    // odkaz v päte, kým je lišta ešte na obrazovke (päta leží pod ňou -> klik cez DOM): to isté okno Shoptetu
+    const z = await otvorOkno(s, () => s.t.ev(`document.querySelector("#footer .lcd-cookies-odkaz").click()`), "odkaz v päte pred súhlasom");
+    await zavriOkno(s);
+    over(await s.t.ev(LISTA_VIDNO), "po zavretí okna z päty zmizla lišta (súhlas nebol daný)");
+    over(!s.posty.length, "odišiel POST: " + JSON.stringify(s.posty));
+    info.push("zavretie OK; päta -> okno (" + z.sn + ")");
     return { info: info.join("; ") };
   } finally {
     if (a.vypis && s.posty.length) console.log("      POST: " + JSON.stringify(s.posty));
@@ -405,7 +512,7 @@ async function sFlagom(ch, sirka, build, S, a) {
 async function suhlas(ch, sirka, build, S, a) {
   const s = await novaStranka(ch, sirka, build);
   try {
-    await otvor(s, S.url + "?novy=1");
+    await otvor(s, S.url);
     await s.t.cakaj(`document.documentElement.classList.contains("lcd1v-cookies") && !!document.querySelector(".js-siteCookies .siteCookies__form")`, { ms: 8000, popis: "karta C" });
     await s.t.klikni(".js-siteCookies .siteCookies__button[value=all]", { popis: "Súhlasím" });
     const koniec = Date.now() + 6000;
@@ -421,7 +528,7 @@ async function suhlas(ch, sirka, build, S, a) {
 async function odmietnutie(ch, sirka, build, S, a) {
   const s = await novaStranka(ch, sirka, build);
   try {
-    await otvor(s, S.url + "?novy=1");
+    await otvor(s, S.url);
     await s.t.cakaj(`document.documentElement.classList.contains("lcd1v-cookies") && !!document.querySelector(".js-siteCookies .siteCookies__form")`, { ms: 8000, popis: "karta C" });
     await s.t.cakaj(`!!document.querySelector('iframe[title="Luxia chat"]')`, { ms: 15000, popis: "chat Luxia" }).catch(() => {});
     await pauza(1500);
@@ -435,7 +542,17 @@ async function odmietnutie(ch, sirka, build, S, a) {
     if (po) over(po.bottom === po.inline, "po odmietnutí ostal chat Luxia zdvihnutý: " + JSON.stringify({ pred, po }));
     const cookie = await s.t.ev(`/(^|;\\s*)CookiesConsent=/.test(document.cookie)`);
     over(cookie, "po odmietnutí chýba cookie CookiesConsent");
-    return { info: "Odmietnuť -> POST " + p[0].body.replace(/cookieId=[^&]+/, "cookieId=…") + " povolený, lišta preč, Luxia " + (pred ? pred.bottom + " -> " + po.bottom : "nenačítaná") };
+    const info = ["Odmietnuť -> POST " + p[0].body.replace(/cookieId=[^&]+/, "cookieId=…") + " povolený, lišta preč, Luxia " + (pred ? pred.bottom + " -> " + po.bottom : "nenačítaná")];
+    // súhlas sa dá zmeniť aj bez lišty: odkaz v päte skutočným klikom otvorí okno s uloženou voľbou (všetko vypnuté)
+    const od = await overOdkaz(s, S);
+    if (a.snimky) await snimkaPaty(s, join(a.snimky, `pata-${S.meno}-${sirka}.png`));
+    const { o, sn } = await otvorOkno(s, () => s.t.klikni("#footer .footer-bottom .lcd-cookies-odkaz", { popis: S.odkaz + " v päte" }), "odkaz v päte po odmietnutí");
+    if (a.snimky) await s.k.snimka(join(a.snimky, `pata-nastavenia-${S.meno}-${sirka}.png`));
+    await zavriOkno(s);
+    over(!(await s.t.ev(`(function () { var f = document.querySelector(".js-siteCookies"); return !!f && f.getBoundingClientRect().height > 0; })()`)), "po zavretí okna z päty sa lišta vrátila");
+    over(s.posty.length === 1, "okno z päty odoslalo POST: " + JSON.stringify(s.posty.slice(1)));
+    info.push(`päta „${S.odkaz}“ ${od.rect.w}×${od.rect.h} klik -> okno ${o.okno.w}×${o.okno.h} (${sn}), prepínače vypnuté podľa uloženého súhlasu, zavreté`);
+    return { info: info.join("; ") };
   } finally { await s.k.zavri(); }
 }
 
@@ -445,11 +562,13 @@ async function main() {
   if (a.snimky) mkdirSync(a.snimky, { recursive: true });
   const build = priprav(a);
   const stranky = STRANKY.filter((S) => !(a.bezCz && S.cz));
-  console.log(`Cookie lišta C (1V) — ${build.popis}\n  stránky: ${stranky.map((S) => S.meno).join(", ")}  šírky: ${a.sirky.join(", ")}`);
+  console.log(`Cookie lišta C pre všetkých — ${build.popis}\n  stránky: ${stranky.map((S) => S.meno).join(", ")}  šírky: ${a.sirky.join(", ")}`);
   const ulohy = [];
+  const P598 = stranky.find((x) => x.meno === "598");
   for (const sirka of a.sirky) {
-    for (const S of stranky.filter((x) => !x.cz)) ulohy.push({ m: "bez-flagu " + S.meno, sirka, fn: bezFlagu, S });
-    for (const S of stranky) ulohy.push({ m: "flag " + S.meno, sirka, fn: sFlagom, S });
+    for (const S of stranky.filter((x) => !x.cz)) ulohy.push({ m: "bez-js " + S.meno, sirka, fn: bezJs, S });
+    for (const S of stranky) ulohy.push({ m: "karta " + S.meno, sirka, fn: karta, S });
+    if (P598) ulohy.push({ m: "flag 598", sirka, fn: (c, w, b, S, x) => karta(c, w, b, S, x, { novy: true }), S: P598 });
     ulohy.push({ m: "suhlas", sirka, fn: suhlas, S: stranky[0] });
     ulohy.push({ m: "odmietnutie", sirka, fn: odmietnutie, S: stranky[0] });
   }

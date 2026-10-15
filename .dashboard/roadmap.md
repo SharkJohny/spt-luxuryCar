@@ -510,9 +510,11 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Vydať typy dvoj / kufor-* / boxy / vzorky (ZAPNUTE_TYPY) až s obsahom T1.3, T2.3, T2.4, T3.3 a T5.1 obsahom
 - [ ] Michal: otázky v docs/1v-odkazy.md (Diamond vzorky v obsahu 610/613, okno „Vyberte model“ pri kroku Vzor) a zoznam opráv adminu (D2)
 
-## Cookie lišta v štýle C (tichý test s flagom 1V ?novy=1) — 15. 10. 2026
+## Cookie lišta v štýle C (tichý test s flagom 1V ?novy=1, od 15. 10. 2026 pre všetkých) — 15. 10. 2026
 - [x] Karta C (čierna, zlatý nadpis, Odmietnuť = Súhlasím) + okno nastavení v štýle C, len pod html.lcd1v-cookies (konfigurator1v/cookies.js, _lcd1v-cookies.scss, blok LCD-1V-COOKIES)
 - [x] Bublina Luxie nad kartou (zbalený chat), chat ustúpi pri otvorenom okne nastavení; rezerva 96 px pod flagom preč
 - [x] Test tools/test-cookies-1v.mjs (bez flagu = živý CDN, karta, okno, prepínače, Súhlasím zrušený, Odmietnuť povolený)
-- [ ] Michal: texty lišty SK/CZ v admine (CZ „Dalším procházením … vyjadřujete souhlas“ je v rozpore so zákonom) + odkaz „Nastavenia cookies“ v pätičke
-- [ ] Vydanie pre všetkých: PRE_VSETKYCH / selektory bez triedy, zúžiť Bender #cboxLoadedContent, zrušiť rezervu 96 px; testy zatvárania lišty na [value=reject]
+- [ ] Michal: texty lišty SK/CZ v admine (CZ „Dalším procházením … vyjadřujete souhlas“ je v rozpore so zákonom)
+- [x] Pre všetkých (Michal 15. 10.): selektory pod html:root = karta C od prvého vykreslenia (bez ~0,5 s bliknutia starej lišty), cookies.js bez brány, okno nastavení spoznané podľa obsahu (bez bliknutia starého okna pri otváraní), odkaz „Nastavenia cookies“ / „Nastavení cookies“ v päte (GDPR čl. 7 ods. 3); test: prvý snímok, bez-js, odkaz v päte pred súhlasom aj po odmietnutí
+- [ ] Prepnutie sha v SK admine (Michal) — CZ až vlastným prepnutím (dnes 5db0f33)
+- [ ] Upratanie (nízka priorita, dnes prebité): zúžiť Bender #cboxLoadedContent na okno cookies, zrušiť rezervu 96 px v _lcdNativeHdr.scss; testy zatvárania lišty na [value=reject]

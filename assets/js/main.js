@@ -13,7 +13,7 @@ import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
 import { initLivePrice } from "./functions/livePrice.js";
 import { initKonfigurator1v } from "./components/konfigurator1v/index.js"; // novy vzhlad konfiguratora 1V (register SK produktov v konfigurator1v/produkty.js; len s ?novy=1 / ?novy=vyvoj)
-import { initCookies1v } from "./components/konfigurator1v/cookies.js"; // cookie lista v style C (len s flagom 1V ?novy=1; docs/1v-kontrakt.md §14)
+import { initCookies1v } from "./components/konfigurator1v/cookies.js"; // cookie lista v style C pre vsetkych: bublina Luxie + odkaz v pate (docs/1v-kontrakt.md §14)
 import { initContactForm } from "./components/contactForm.js";
 import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from "./functions/autoVyber.js";
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
@@ -35,7 +35,7 @@ import {
 
 // PRED všetkým, čo číta auto zo sessionStorage (košík, poznámka objednávky) — functions/autoPamat.js
 initAutoPamat();
-// Cookie lista Shoptetu v style C — len s flagom 1V (?novy=1 / ?novy=vyvoj), na kazdej stranke; bez flagu nic.
+// Cookie lista Shoptetu v style C pre vsetkych (vzhlad dava CSS v <head>): tu len bublina Luxie nad listou a odkaz v pate.
 initCookies1v();
 
 let setupData;

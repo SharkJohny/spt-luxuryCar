@@ -688,7 +688,11 @@ const SCENARE = {
         vzorkovnik: [document.querySelectorAll(".lcd-vz-acc").length, document.querySelectorAll(".lcd-vz-swatch").length, document.querySelectorAll(".lcd-vz-swatch--preview").length],
         styly: { obsah: st("#product-detail-form .content-wrap"), krok: st("#product-detail-form .content-wrap > .parameter-wrap"), hlavicka: st("#product-detail-form .content-wrap > .parameter-wrap > .order"), auto: st("#product-detail-form .content-wrap > .position-wrap.active"), tlacidlo: st("#product-detail-form .add-to-cart button.add-to-cart-button"), cena: st(".p-final-price-wrapper"), h1: st("h1") },
         rozmery: { obsah: rm("#product-detail-form .content-wrap", true), krok: rm("#product-detail-form .content-wrap > .parameter-wrap"), hlavicka: rm("#product-detail-form .content-wrap > .parameter-wrap > .order"), auto: rm("#product-detail-form .content-wrap > .position-wrap.active", true), tlacidlo: rm("#product-detail-form .add-to-cart button.add-to-cart-button"), cena: rm(".p-final-price-wrapper"), h1: rm("h1") },
-        lcd1v: document.querySelectorAll(".lcd-1v, [class*='lcd1v'], [id*='lcd1v'], [class*='lcd-1v-']").length
+        // cookie lišta je od 15. 10. 2026 pre všetkých (docs/1v-kontrakt.md §14): <html> s triedami LEN lcd1v-cookies /
+        // lcd1v-cookies-bublina (značka cookies.js) nie je 1V; každá iná trieda alebo id s lcd1v sa počíta ako doteraz
+        lcd1v: Array.prototype.filter.call(document.querySelectorAll(".lcd-1v, [class*='lcd1v'], [id*='lcd1v'], [class*='lcd-1v-']"), function (e) {
+          return e !== document.documentElement || /lcd-?1v/.test(e.id) || Array.prototype.some.call(e.classList, function (c) { return /lcd-?1v/.test(c) && c.indexOf("lcd1v-cookies") !== 0; });
+        }).length
       };
     })()`;
     const cdn = await pom.novaStranka({ js: null, css: null });

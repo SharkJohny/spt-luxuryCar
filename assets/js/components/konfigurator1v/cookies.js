@@ -2,32 +2,35 @@
 // ty, ktorá bude podľa teba najlepšia“). Vzhľad je len CSS nad DOM Shoptetu (_lcd1v-cookies.scss, blok LCD-1V-COOKIES);
 // tlačidlá, ich správanie a ukladanie súhlasu ostávajú Shoptetu. Texty sa menia v admine, nie tu.
 //
-// Brána: TICHÝ TEST spolu s 1V — LEN so zapnutým flagom karty (?novy=1 / ?novy=vyvoj -> sessionStorage lcd1v),
-// ale na KAŽDEJ stránke (titulka, kategória, produkt, košík), nie len na produktoch z registra. Bez flagu nič:
-// žiadna trieda, žiadny handler, CSS bloku LCD-1V-COOKIES nič nevyberie (každý selektor je pod html.lcd1v-cookies).
-// Zapnutie pre všetkých = PRE_VSETKYCH na true (jediné miesto; docs/1v-kontrakt.md §14).
-import { prepinac, jeZapnute } from "./index.js";
+// PRE VŠETKÝCH (Michal 15. 10. 2026, zapnuté po tichom teste): vzhľad dáva CSS v <head> od prvého vykreslenia (selektory
+// pod html:root, nečaká na tento bundle na konci <body> — inak sa na ~0,5 s mihla stará modrá lišta). Tento modul na
+// každej stránke a pre každého návštevníka (s flagom 1V aj bez neho) len:
+//   1. zdvihne zbalenú bublinu Luxie nad kartu, kým je lišta na obrazovke (bez Luxie nerobí nič),
+//   2. pridá do päty trvalý odkaz „Nastavenia cookies“ (GDPR čl. 7 ods. 3: odvolať súhlas rovnako ľahko ako ho dať) —
+//      otvorí to isté okno Shoptetu ako „Nastavenie“ na lište, aj keď lišta už zmizla (súhlas uložený).
+// Trieda html.lcd1v-cookies je už len značka „modul bežal“ (CSS ju nepotrebuje). docs/1v-kontrakt.md §14.
+import { prepinac } from "./index.js";
 
 export const TRIEDA_COOKIES = "lcd1v-cookies";
-/** true = nový vzhľad cookie lišty pre všetkých návštevníkov (bez flagu 1V). Dnes len tichý test. */
-export const PRE_VSETKYCH = false;
 /** CSS premenná na <html>: vzdialenosť horného okraja lišty od spodku okna (px) — bublina Luxie sa posunie nad ňu. */
 export const PREMENNA_VYSKY = "--lcd1v-cookies-vyska";
 /** Trieda na <html>, kým je chat Luxia zbalený (bublina alebo uvítanie) — len vtedy ho CSS zdvihne nad lištu. */
 export const TRIEDA_BUBLINA = "lcd1v-cookies-bublina";
+/** Odkaz „Nastavenia cookies“ v päte (riadok s copyrightom). js-cookies-settings = Shoptet ho obslúži sám. */
+export const TRIEDA_ODKAZ = "lcd-cookies-odkaz";
 
 /**
- * Volá main.js hneď pri štarte bundlu (každá stránka). Vráti true, ak sa nový vzhľad zapol.
- * Nikdy nehádže: pri chybe ostane lišta Shoptetu bez zmeny.
+ * Volá main.js hneď pri štarte bundlu (každá stránka, každý návštevník). Vráti true, ak modul nabehol.
+ * Nikdy nehádže: pri chybe ostane lišta v štýle C z CSS, len bez posunu bubliny / odkazu v päte.
  */
 export function initCookies1v() {
   try {
     prepinac(window.location.search); // ?novy=1 / vyvoj / 0 platí aj mimo produktu (rovnaký flag karty ako konfigurátor)
-    if (!PRE_VSETKYCH && !jeZapnute()) return false;
     const html = document.documentElement;
     html.classList.add(TRIEDA_COOKIES);
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { sleduj(html); });
-    else sleduj(html);
+    const start = function () { sleduj(html); odkazVPate(); };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+    else start();
     return true;
   } catch (e) {
     return false;
@@ -53,7 +56,7 @@ function sleduj(html) {
 /**
  * Chat Luxia (iframe tretej strany, widget.js): zbalený = bublina alebo uvítanie (top auto, bez zaoblenia),
  * otvorený = PC karta s border-radius 20px alebo mobil na celé okno (top 0, height 100 %). Kód Luxie sa nemení,
- * len sa číta jej inline štýl; otvorený chat sa nikdy neposúva.
+ * len sa číta jej inline štýl; otvorený chat sa nikdy neposúva. Bez Luxie (widget nenačítaný) sa nič nedeje.
  */
 function sledujLuxiu(html) {
   let f = null;
@@ -73,4 +76,27 @@ function sledujLuxiu(html) {
   if (najdi() || typeof MutationObserver !== "function") return;
   const mo = new MutationObserver(function () { if (najdi()) mo.disconnect(); });
   mo.observe(document.body || html, { childList: true });
+}
+
+/**
+ * Trvalý odkaz „Nastavenia cookies“ (SK) / „Nastavení cookies“ (CZ) na konci riadku s copyrightom v päte.
+ * Trieda js-cookies-settings: Shoptet má delegovaný handler $("html").on("click", ".js-cookies-settings",
+ * shoptet.consent.openCookiesSettingModal) — rovnaké okno ako „Nastavenie“ na lište, s uloženými voľbami, aj po súhlase.
+ * Len ak má e-shop zapnutý súhlas s cookies a Shoptet funkciu má; bez päty (pokladňa) nič. Nič existujúce sa neskrýva.
+ */
+function odkazVPate() {
+  try {
+    const sh = window.shoptet;
+    if (!sh || !sh.config || sh.config.cookiesConsentIsActive !== 1) return;
+    if (!sh.consent || typeof sh.consent.openCookiesSettingModal !== "function") return;
+    if (document.querySelector("." + TRIEDA_ODKAZ)) return;
+    const copyright = document.querySelector("#footer .footer-bottom .copyright");
+    if (!copyright) return;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = TRIEDA_ODKAZ + " js-cookies-settings";
+    b.setAttribute("aria-haspopup", "dialog");
+    b.textContent = /^cs/i.test(document.documentElement.lang || "") ? "Nastavení cookies" : "Nastavenia cookies";
+    copyright.appendChild(b);
+  } catch (e) { /* päta ostane ako dnes */ }
 }
