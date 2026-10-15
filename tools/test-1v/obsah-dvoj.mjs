@@ -157,7 +157,7 @@ export async function kontroly(t) {
       stav: [].map.call(s.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav"); }) }; })()`);
     ok(ch.chips.length === 9 && ch.chips[1] === "Celoročné" && ch.chips[7] === "Dve farby, jeden celok", `b-ocakavat: 9 štítkov dvojvrstvových (${ch.chips.length}: ${ch.chips.join(" · ")})`);
     ok(ch.kicker.join(",") === "Celý rok,Druhá vrstva,Údržba,Presnosť,Pravosť,Krytie,Montáž,Farba,Tretí rad", `b-ocakavat: 9 bodov v poradí návrhu (${ch.kicker.join(", ")})`);
-    if (ocak) ok(ch.farba.includes(`Prešívaná vrstva: ${ocak.farby} na výber.`) && ch.farba.includes(`jednu zo ${ocak.farby2} druhej vrstvy`),
+    if (ocak) ok(ch.farba.includes(`Prvá prešívaná vrstva: ${ocak.farby} na výber.`) && ch.farba.includes(`jednu zo ${ocak.farby2} druhej vrstvy`),
       `b-ocakavat: bod 8 má počty farieb z živých dát (${ocak.farby} / ${ocak.farby2}): „${ch.farba}“`);
     ok(ch.stav.every((x) => x === "ok"), `b-ocakavat: čísla v bode 8 dosadené (${ch.stav.join("/")})`);
   }
@@ -228,7 +228,7 @@ export async function kontroly(t) {
         druha: li[1] && li[1].querySelector(".ba-p").textContent, svg: rc ? Math.round(rc.width) + "×" + Math.round(rc.height) : null,
         img: [].every.call(s.querySelectorAll(".ba-i img"), function (i) { return i.complete && i.naturalWidth > 0; }) }; })()`);
     ok(r.n === 4 && r.mena.join("|") === "Koberce na mieru|Druhá vrstva|Klipy na uchytenie|Suché zipsy a páska", `c-domov: 4 položky balenia (${r.mena.join(" | ")})`);
-    ok(/^Prešívaná vrstva pre tie rady/.test(r.koberce) && /^Odnímateľná vrstva vo farbe/.test(r.druha), "c-domov: „Prešívaná vrstva pre tie rady…“ a „Odnímateľná vrstva vo farbe…“");
+    ok(/^Prvá prešívaná vrstva pre tie rady/.test(r.koberce) && /^Odnímateľná druhá vrstva vo farbe/.test(r.druha), "c-domov: „Prvá prešívaná vrstva pre tie rady…“ a „Odnímateľná druhá vrstva vo farbe…“ (Michal 15. 10. 2026: vrstvy vždy pomenované)");
     ok(r.svg === "40×40" && r.img, `c-domov: ikona druhej vrstvy (SVG ${r.svg}) a kresby balenia načítané (${r.img})`);
   }
   if (await t.je("c-casova-os")) {

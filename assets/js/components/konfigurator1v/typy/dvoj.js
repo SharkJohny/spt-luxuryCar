@@ -10,13 +10,13 @@ export const TYP = {
       kroky: {
         // Krok 1 (N:3834): veta návrhu „Všetky tri vzory majú rovnakú cenu.“ neplatí (SK 13. 10. 2026: Diamond 351 €, Hexa a
         // Stripe 362 €) — vypustená, ostáva len druhá veta.
-        vzor: { pod: "Vzor je na prvej vrstve — vidno ho po bokoch aj okolo druhej vrstvy." },
+        vzor: { pod: "Vzor je na prvej prešívanej vrstve — vidno ho po bokoch aj okolo druhej vrstvy." },
         // Krok 3 (N:3896): počet farieb („N farieb na výber“) dopočíta kroky.js z DOM (601: 18, 604: 3, 607: 8).
         farba: {
           nm: "Farba 1. vrstvy",
-          ti: "Prosím, vyberte farbu prvej vrstvy",
+          ti: "Prosím, vyberte farbu prvej prešívanej vrstvy",
           pod: "Prvá vrstva je prešívaný koberec. Po výbere uvidíte materiál zblízka.",
-          chyba: "Vyberte, prosím, farbu prvej vrstvy.",
+          chyba: "Vyberte, prosím, farbu prvej prešívanej vrstvy.",
         },
         // Krok 4 (N:3964): podnadpis s „i“ a vysvetlením, mriežku a náhľad dodá farba2.js. Zhrnutie v hlavičke
         // („16 farieb na výber“ / „Lux Color 10“) píše farba2.js cez data-lcd1v-vyber; tu je rovnaký text pre prípad, že ešte nebeží.
@@ -24,7 +24,7 @@ export const TYP = {
           nm: "Farba 2. vrstvy",
           ti: "Prosím, vyberte farbu druhej vrstvy",
           vy: "16 farieb na výber",
-          pod: "Druhá vrstva vyzerá najlepšie v tóne prvej — k čiernej Lux Color 10, k béžovej 12, k hnedej 11.",
+          pod: "Druhá vrstva vyzerá najlepšie v tóne prvej prešívanej vrstvy — k čiernej Lux Color 10, k béžovej 12, k hnedej 11.",
           chyba: "Vyberte, prosím, farbu druhej vrstvy.",
         },
       },

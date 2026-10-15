@@ -27,16 +27,24 @@ export const TYP = {
     },
     cena: { typ: "Jednovrstvové", zaSet: "cena za set na mieru" },
     // Ponuka druhej vrstvy po kroku Farba (druha-vrstva.js; Michal 14. 10. 2026: skrytá karta BEZ čísla, nepovinná).
-    // Texty doslovne zo schváleného návrhu druha-vrstva.html (krok „Druhá vrstva“, dlaždice Áno / Nie, správa pri prenose);
-    // podnadpis = dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js. Cena „+ N €“ sa ráta živo (nikdy natvrdo).
+    // Texty zo schváleného návrhu druha-vrstva.html (krok „Druhá vrstva“, dlaždica, Nie, správa pri prenose); podnadpis =
+    // dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js. Cena „+ N €“ sa ráta živo (nikdy natvrdo).
+    // Michal 15. 10. 2026: v dlaždici zlaté tlačidlo „Áno“ (ano.tl; nadpis dlaždice už nie je „Áno, chcem“) a vrstvy vždy
+    // pomenované: „prvá prešívaná vrstva“ / „druhá vrstva“, nikdy len „prešívaná vrstva“.
     druha: {
       nm: "Druhá vrstva",
       ti: "Chcete aj druhú vrstvu?",
       vy: "Áno alebo nie",
       vyNie: "Bez druhej vrstvy",
-      pod: "Druhá vrstva sa kladie na prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
+      pod: "Druhá vrstva sa kladie na prvú prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
       naj: "★ Odporúčame",
-      ano: { nm: "Áno, chcem", po: "Dvojvrstvové koberce", ben: "Vzor, auto aj farba Vám ostanú.", alt: "Dvojvrstvové autokoberce vo vzore Diamond so šedou jednofarebnou druhou vrstvou" },
+      ano: {
+        nm: "Dvojvrstvové koberce",
+        po: "Prvá prešívaná + druhá vrstva",
+        ben: "Vzor, auto aj farba Vám ostanú.",
+        tl: "Áno, chcem druhú vrstvu",
+        alt: "Dvojvrstvové autokoberce vo vzore Diamond so šedou jednofarebnou druhou vrstvou",
+      },
       priplatok: "Príplatok",
       nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
       prenos: "Prenášame Váš výber na dvojvrstvové koberce…",

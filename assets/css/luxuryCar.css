@@ -16426,8 +16426,9 @@ body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos:focus-visible { outline: 2px so
    Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css ako blok LCD-1V-DRUHA).
 
    Karta .lcd1v-krok.lcd1v-druha je nový prvok v .content-wrap hneď za krokom Farba: obal a hlavička ako ostatné karty
-   (_lcd1v-kroky.scss), ale BEZ čísla kroku (skrytý krok — počty „Krok N z 6“ a postup sa nemenia). Dlaždica „Áno“ má
-   vzhľad kariet kroku Rohož do kufra (.lcd1v-kb__karta, _lcd1v-kufor-boxy.scss), „Nie, ďakujem“ vzhľad zeleného
+   (_lcd1v-kroky.scss), ale BEZ čísla kroku (skrytý krok — počty „Krok N z 6“ a postup sa nemenia). Dlaždica (div) má
+   vzhľad kariet kroku Rohož do kufra (.lcd1v-kb__karta, _lcd1v-kufor-boxy.scss) a dole zlaté tlačidlo „Áno, chcem druhú
+   vrstvu“ (Michal 15. 10. 2026: aby bolo jasné, že sa na to dá kliknúť), „Nie, ďakujem“ má vzhľad zeleného
    „Pokračujte ďalej“. */
 
 body.lcd-1v #product-detail-form .lcd1v-druha[hidden],
@@ -16449,9 +16450,61 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__volby {
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-kb__ben {
   padding-right: 4px;
 }
+/* jediný riadok účtu (Príplatok): bez druhej, plnej čiary pod čiarkovanou čiarou účtu */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-kb__r--sum {
+  margin-top: 0;
+  border-top: 0;
+}
+/* zlaté tlačidlo „Áno“ = doplnok (farby ako „Pridať“ v košíku), cez celú šírku dlaždice pod fotkou a textom */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano {
+  grid-column: 1 / -1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+  height: 52px;
+  min-height: 0;
+  margin: 2px 10px 10px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #e2be5c 0%, #c49b31 55%, #b18822 100%);
+  box-shadow: 0 8px 18px rgba(196, 155, 49, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: var(--kb-ink);
+  font: 900 14px/1.2 var(--kb-disp);
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: none;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* prejdenie myšou nad dlaždicou zvýrazní aj tlačidlo (dlaždica je klikateľná celá) */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica:hover .lcd1v-druha__ano,
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 11px 22px rgba(196, 155, 49, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:focus-visible {
+  outline: 3px solid var(--kb-ink);
+  outline-offset: 3px;
+}
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:disabled {
   cursor: default;
   opacity: 1;
+  filter: none;
+  transform: none;
+}
+/* po „Áno“ (prenos): dlaždica ako zvolená karta */
+body.lcd-1v #product-detail-form .lcd1v-druha.lcd1v-druha--prenos .lcd1v-druha__dlazdica {
+  border-color: var(--kb-gold);
+  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, 0.18);
+  cursor: default;
 }
 
 /* správa pri prenose (Áno) */

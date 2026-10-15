@@ -474,3 +474,10 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 - **Tlačidlo preč:** `a.btn[data-p1v-odkaz]` („Pozrite si jednovrstvové“ / „Pozrite si dvojvrstvové“) zmazané, iný odkaz sa nepridal. Ceny v tabuľke dvoj ostávajú živé (`data-p1v-cislo`). Druhú vrstvu na 598 ponúka konfigurátor (karta „Áno“, `druha-vrstva.js`).
 - **Odsadenie:** trieda `after-dark` (väčšie odsadenie hore za tmavou galériou) presunutá z recenzií na `a-ponuka`; pravidlo v `_lcd1v-obsah-a.scss` je teraz `section.chapter.after-dark[data-lcd-sekcia^="a-"]` (classic, premium a boxy majú `after-dark` stále na recenziách → bez zmeny).
 - Ostatné kľúče (classic, premium, boxy, vzorky) sa nemenili — ich odkazy na iné produkty sú zatiaľ na mieste (zoznam v odovzdaní koordinátorovi).
+
+## 15. Vrstvy vždy pomenované, nadpis 598 bez odkazu (15. 10. 2026, Michal)
+
+- Michal: „vždy to povedz poriadne… prvá prešívaná vrstva… aby ten zákazník presne vedel, o ktorú vrstvu sa jedná, prvú a druhú.“
+- **Pravidlo pre zákaznícky text (konfigurátor aj obsah):** „prvá prešívaná vrstva“ (alebo „prvá vrstva“, keď „prešívaná“ už padlo v tej istej vete) a „druhá vrstva“ — nikdy samotné „prešívaná vrstva“, „vrchná vrstva“ ani „vrstva“, keď nie je jasné, ktorá. Vrstvy materiálu v reze (`21-b-material`: ekokoža, pena, netkaná, XPE, protišmyková) sú „vrstvy materiálu“, nie prvá/druhá; počet vrstiev materiálu sa naďalej nepíše.
+- **Výnimky:** FAQ (`41-d-faq`, `40-d-faq` vzorkovníka — doslovne ako živý web) a citované recenzie zákazníkov sa nemenia. Classic a Premium (rohože do kufra nemajú druhú vrstvu) bez zmeny.
+- **598 `13-a-ponuka`:** nadpis „Jazdíte aj v zime? Pridajte si druhú vrstvu“ (tlačidlo na dvojvrstvové je preč od § 14) + veta „Pridáte si ju v konfigurátore hneď po výbere farby.“ — bez odkazu.

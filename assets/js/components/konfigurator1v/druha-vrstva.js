@@ -6,9 +6,12 @@
 //   - karta sa ukáže hneď po kroku Farba (keď je farba zvolená) ako SKRYTÝ krok BEZ čísla: „Krok N z 6“, postup a počty
 //     krokov sa nemenia (karta nie je v ctx.produkt.kroky ani v lcdGetSteps -> validácia košíka sa nemení),
 //   - nepovinná: bez odpovede = Nie; „Pokračujte ďalej“ vo Farbe ju otvorí (kým nie je zodpovedaná), inak nič neblokuje,
-//   - zlatá dlaždica „Áno“ s reálnou fotkou dvojvrstvového koberca vo vzore produktu a príplatkom „+ N €“ rátaným živo
-//     (cena dvojvrstvového produktu pri tých istých voľbách − cena tejto stránky; chyba siete = cena sa neukáže),
-//   - zelené „Nie, ďakujem“ = hlavná cesta: karta sa zbalí („Bez druhej vrstvy“) a otvorí sa Rozloženie,
+//   - zlatá dlaždica s reálnou fotkou dvojvrstvového koberca a príplatkom „+ N €“ rátaným živo (cena dvojvrstvového
+//     produktu pri tých istých voľbách − cena tejto stránky; chyba siete = cena sa neukáže),
+//   - Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): v dlaždici je skutočné zlaté TLAČIDLO „Áno, chcem druhú
+//     vrstvu“ (<button>, klávesnica). Dlaždica je obyčajný <div> a klik na ňu (fotka, text) robí to isté — tlačidlá sa do
+//     seba nevnárajú, takže klávesnicou sa ide len na tlačidlo,
+//   - zelené tlačidlo „Nie, ďakujem“ = hlavná cesta: karta sa zbalí („Bez druhej vrstvy“) a otvorí sa Rozloženie,
 //   - „Áno“: krátka správa v karte, tlačidlá sa zablokujú, výber sa zapíše do kľúča prenosu (prenos.js) a otvorí sa
 //     dvojvrstvový produkt toho istého vzoru (598 -> 601, 610 -> 604, 613 -> 607; register produkty.js).
 // Nič s atribútom name, žiadny zápis do formulára: karta je nový prvok v .content-wrap BEZ tried .position-wrap /
@@ -123,12 +126,11 @@ export function init(ctx) {
   karta.appendChild(hd);
   if (T.pod) karta.appendChild(el("p", "lcd1v-pod", T.pod));
 
-  // zlatá dlaždica „Áno“ (vzhľad kariet kroku Rohož do kufra: .lcd1v-kb__karta)
+  // zlatá dlaždica (vzhľad kariet kroku Rohož do kufra: .lcd1v-kb__karta) — <div>, nie <button>: vnútri je skutočné
+  // tlačidlo „Áno“ (tlačidlo v tlačidle HTML nedovolí); klik kamkoľvek do dlaždice = to isté ako tlačidlo
   const volby = el("div", "lcd1v-kb lcd1v-druha__volby");
-  const ano = el("button", "lcd1v-kb__karta lcd1v-kb__karta--naj lcd1v-druha__ano");
-  ano.type = "button";
-  ano.setAttribute("aria-pressed", "false");
-  ano.appendChild(el("span", "lcd1v-kb__top", T.naj));
+  const dlazdica = el("div", "lcd1v-kb__karta lcd1v-kb__karta--naj lcd1v-druha__dlazdica");
+  dlazdica.appendChild(el("span", "lcd1v-kb__top", T.naj));
   const fot = el("span", "lcd1v-kb__fot");
   const img = el("img");
   const src = ctx.obrazokVzoru("druha-ano");
@@ -139,10 +141,10 @@ export function init(ctx) {
   img.loading = "lazy";
   img.decoding = "async";
   fot.appendChild(img);
-  ano.appendChild(fot);
+  dlazdica.appendChild(fot);
   const atx = el("span", "lcd1v-kb__tx");
   atx.appendChild(el("span", "lcd1v-kb__nm", T.ano.nm));
-  atx.appendChild(el("span", "lcd1v-kb__po", T.ano.po));
+  if (T.ano.po) atx.appendChild(el("span", "lcd1v-kb__po", T.ano.po));
   atx.appendChild(el("span", "lcd1v-kb__ben", T.ano.ben));
   const ucet = el("span", "lcd1v-kb__ucet");
   ucet.hidden = true;
@@ -152,8 +154,12 @@ export function init(ctx) {
   riadok.appendChild(suma);
   ucet.appendChild(riadok);
   atx.appendChild(ucet);
-  ano.appendChild(atx);
-  volby.appendChild(ano);
+  dlazdica.appendChild(atx);
+  // zlaté tlačidlo „Áno“ = doplnok (zelené „Nie“ pod dlaždicou je hlavná cesta)
+  const ano = el("button", "lcd1v-druha__ano", T.ano.tl);
+  ano.type = "button";
+  dlazdica.appendChild(ano);
+  volby.appendChild(dlazdica);
   karta.appendChild(volby);
 
   // správa pri prenose
@@ -245,7 +251,6 @@ export function init(ctx) {
     prepni(karta, "lcd1v-hotovy", hotova);
     prepni(karta, "lcd1v-druha--prenos", stav.prenos);
     nastavText(vy, stav.odpoved === "nie" ? T.vyNie : T.vy);
-    ano.setAttribute("aria-pressed", stav.prenos ? "true" : "false");
     obnovCenu();
   }
   let naplanovane = false;
@@ -280,7 +285,8 @@ export function init(ctx) {
     obnov();
   });
 
-  ano.addEventListener("click", function () {
+  // tlačidlo „Áno“ (myš, Enter, medzerník) aj klik kamkoľvek do dlaždice: klik na tlačidlo prebuble do dlaždice -> jeden poslucháč
+  dlazdica.addEventListener("click", function () {
     if (stav.prenos) return;
     stav.prenos = true;
     stav.odpoved = "ano";

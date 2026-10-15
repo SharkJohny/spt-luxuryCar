@@ -21,7 +21,7 @@ export const MENO = "farba2";
 // Texty z návrhu (navrh-dvojvrstvove.md §3.6) a štítok „Odporúčame“ (rovnaké slovo ako v košíku).
 const TEXTY = {
   info: "Vysvetlenie",
-  vysvetlenie: ["Druhá vrstva", " sa kladie na prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou. Farba druhej vrstvy cenu nemení."],
+  vysvetlenie: ["Druhá vrstva", " sa kladie na prvú prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou. Farba druhej vrstvy cenu nemení."],
   odporucame: "Odporúčame",
   nahladPrazdny: "Druhá vrstva — vyberte farbu",
   nahladAlt: (n) => "Druhá vrstva — " + n,

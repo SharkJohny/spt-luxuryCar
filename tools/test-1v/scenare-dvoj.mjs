@@ -100,7 +100,7 @@ export const SCENARE = {
       over(st.vzorky.every((x) => Math.abs(x.w - st.vzorky[0].w) <= 1 && x.w >= 40), "vzorky nie sú rovnako veľké / sú príliš malé: " + st.vzorky.map((x) => x.w).join(","));
       // texty: zhrnutie, podnadpis, vysvetlenie
       over(st.zhrnutie === "16 farieb na výber" && st.vyber === "16 farieb na výber", `zhrnutie v hlavičke „${st.zhrnutie}“ / data-lcd1v-vyber „${st.vyber}“ ≠ „16 farieb na výber“`);
-      over(st.podnadpis.startsWith("Druhá vrstva vyzerá najlepšie v tóne prvej — k čiernej Lux Color 10, k béžovej 12, k hnedej 11."), "podnadpis: " + st.podnadpis);
+      over(st.podnadpis.startsWith("Druhá vrstva vyzerá najlepšie v tóne prvej prešívanej vrstvy — k čiernej Lux Color 10, k béžovej 12, k hnedej 11."), "podnadpis: " + st.podnadpis);
       over(st.info && st.info.viditelne && st.info.expanded === "false" && st.vysvetlenie && !st.vysvetlenie.viditelne, "„i“ má byť viditeľné a vysvetlenie zavreté: " + JSON.stringify({ i: st.info, v: st.vysvetlenie && st.vysvetlenie.viditelne }));
       over(st.nahlad === null, "náhľad je viditeľný pred výberom farby");
       // Odporúčame: jednofarebná Lux v tóne 1. vrstvy, len jedna vzorka
@@ -203,9 +203,9 @@ export const SCENARE = {
       const pocetF = r.pocetFarieb;
       const farbyNaVyber = (n) => n + (n === 1 ? " farba" : n >= 2 && n <= 4 ? " farby" : " farieb") + " na výber";
       over(K.vzor.nm === "Vzor prešívania" && K.vzor.ti === "Prosím, vyberte vzor prešívania" && K.vzor.ey === "Krok 1 z 7", "krok 1: " + JSON.stringify(K.vzor));
-      over(K.vzor.pod === "Vzor je na prvej vrstve — vidno ho po bokoch aj okolo druhej vrstvy.", "krok 1 podnadpis: „" + K.vzor.pod + "“ (veta o rovnakej cene sa nepíše)");
-      over(K.farba.nm === "Farba 1. vrstvy" && K.farba.ti === "Prosím, vyberte farbu prvej vrstvy" && K.farba.ey === "Krok 3 z 7", "krok 3: " + JSON.stringify(K.farba));
-      over(K.farba.pod === "Prvá vrstva je prešívaný koberec. Po výbere uvidíte materiál zblízka." && K.farba.chyba === "Vyberte, prosím, farbu prvej vrstvy.", "krok 3 texty: " + JSON.stringify(K.farba));
+      over(K.vzor.pod === "Vzor je na prvej prešívanej vrstve — vidno ho po bokoch aj okolo druhej vrstvy.", "krok 1 podnadpis: „" + K.vzor.pod + "“ (veta o rovnakej cene sa nepíše)");
+      over(K.farba.nm === "Farba 1. vrstvy" && K.farba.ti === "Prosím, vyberte farbu prvej prešívanej vrstvy" && K.farba.ey === "Krok 3 z 7", "krok 3: " + JSON.stringify(K.farba));
+      over(K.farba.pod === "Prvá vrstva je prešívaný koberec. Po výbere uvidíte materiál zblízka." && K.farba.chyba === "Vyberte, prosím, farbu prvej prešívanej vrstvy.", "krok 3 texty: " + JSON.stringify(K.farba));
       over(K.farba.vy === farbyNaVyber(pocetF) && pocetF > 0, `krok 3 zhrnutie „${K.farba.vy}“ ≠ „${farbyNaVyber(pocetF)}“ (farieb ${pocetF})`);
       over(K.farba2.nm === "Farba 2. vrstvy" && K.farba2.ti === "Prosím, vyberte farbu druhej vrstvy" && K.farba2.ey === "Krok 4 z 7" && K.farba2.chyba === "Vyberte, prosím, farbu druhej vrstvy.", "krok 4: " + JSON.stringify(K.farba2));
       over(K.rozlozenie.ey === "Krok 5 z 7" && K.kufor.ey === "Krok 6 z 7" && K.boxy.ey === "Krok 7 z 7", "číslovanie krokov 5–7: " + [K.rozlozenie.ey, K.kufor.ey, K.boxy.ey].join(" | "));

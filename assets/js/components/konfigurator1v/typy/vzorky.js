@@ -101,8 +101,8 @@ export const TYP = {
         },
         second: {
           nm: "Druhá vrstva Lux",
-          pod: "Odnímateľná vrstva navrchu dvojvrstvových autokobercov. Najlepšie vyzerá v tóne koberca — k čiernej Lux 10, k béžovej 12, k hnedej 11.",
-          info: "Druhá vrstva sa kladie na prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
+          pod: "Odnímateľná druhá vrstva dvojvrstvových autokobercov. Najlepšie vyzerá v tóne prvej prešívanej vrstvy — k čiernej Lux 10, k béžovej 12, k hnedej 11.",
+          info: "Druhá vrstva sa kladie na prvú prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
           infoNadpis: "Druhá vrstva",
           // skupiny sa skladajú podľa živého widgetu: objednateľné / len náhľad
           skupiny: null,
