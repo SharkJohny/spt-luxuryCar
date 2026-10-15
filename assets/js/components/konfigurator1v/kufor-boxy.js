@@ -24,6 +24,8 @@
 // - Vzhľad karty (Michal 15. 10. 2026, návrh E v navrhy-naj): odporúčaná karta má široký zlatý pás
 //   „★ Najobjednávanejšie ★“ s vetou pod ním, krémové pozadie a zlatú žiaru; ceny ako cenovka (V sete / veľká cena /
 //   „Samostatne“ s cenou prečiarknutou červenou / zelená pilulka „Ušetríte“); karta Nechcem má väčšie texty.
+// - Poradie kariet (Michal 15. 10. 2026: „obľúbená varianta vždy v strede“): kufor Premium, Classic (★), Nechcem; boxy
+//   1×, 2× (★), Nechcem. Mení sa len poradie NOVÝCH kariet v DOM; živé karty, ich poradie a hodnoty v POST ostávajú.
 import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplnok.js";
 import { zluc } from "./produkty.js";
 
@@ -219,7 +221,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   const kbK = el("div", { class: "lcd1v-kb", "data-lcd1v-kb": "kufor" }, [
     el("p", { class: "lcd1v-kb__pod" }, [T.kufor.pod + " ", infoK]),
     vysvK,
-    el("div", { class: "lcd1v-kb__volby", role: "group", "aria-label": T.kufor.skupina }, [kartyK.classic, kartyK.premium, kartyK.nie]),
+    el("div", { class: "lcd1v-kb__volby", role: "group", "aria-label": T.kufor.skupina }, [kartyK.premium, kartyK.classic, kartyK.nie]), // ★ Classic v strede
   ]);
   vloz(kufor, kbK, zivyKufor.nextSibling);
 
@@ -232,7 +234,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   };
   const kbB = el("div", { class: "lcd1v-kb", "data-lcd1v-kb": "boxy" }, [
     el("p", { class: "lcd1v-kb__pod", text: T.boxy.pod }),
-    el("div", { class: "lcd1v-kb__volby", role: "group", "aria-label": T.boxy.skupina }, [kartyB[1], kartyB[2], kartyB[0]]),
+    el("div", { class: "lcd1v-kb__volby", role: "group", "aria-label": T.boxy.skupina }, [kartyB[1], kartyB[2], kartyB[0]]), // ★ 2× box v strede
   ]);
   vloz(boxy, kbB, zivyBoxy.nextSibling);
 

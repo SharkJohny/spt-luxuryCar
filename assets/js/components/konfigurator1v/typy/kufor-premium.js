@@ -13,7 +13,7 @@ export const TYP = {
         vzor: { pod: null }, // podnadpis s cenami vzorov dosadí kufor-produkt.js
         farba: {
           nm: "Farba rohože",
-          ti: "Prosím, vyberte farbu rohože",
+          ti: "Prosím, vyberte si farbu rohože",
           chyba: "Vyberte, prosím, farbu rohože.",
         },
       },

@@ -10,19 +10,19 @@ export const TYP = {
       kroky: {
         farba: {
           nm: "Farba boxov",
-          ti: "Prosím, vyberte farbu boxu",
+          ti: "Prosím, vyberte si farbu boxu",
           pod: "Farba platí pre všetky boxy v objednávke. Po výbere uvidíte materiál zblízka.",
           chyba: "Vyberte, prosím, farbu boxov.",
         },
         pocet: {
           nm: "Počet boxov",
-          ti: "Prosím, vyberte počet boxov",
+          ti: "Prosím, vyberte si počet boxov",
           vy: "1 box",
           pod: "Do kufra môžete zvoliť až tri boxy. Veľkosť vyberiete pri každom zvlášť.",
         },
         velkost: {
           nm: "Veľkosť boxov",
-          ti: "Prosím, vyberte veľkosť boxu",
+          ti: "Prosím, vyberte si veľkosť boxu",
           vy: "Vyberte veľkosť",
           pod: "Dva rozmery (32 a 30 cm) sú pri všetkých veľkostiach rovnaké, líši sa len šírka. Silueta na každej karte je v skutočnom pomere.",
           chyba: "Vyberte, prosím, veľkosť každého boxu.",

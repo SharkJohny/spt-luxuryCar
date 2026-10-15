@@ -17,12 +17,12 @@ export const TYP = {
       kroky: {
         // pod: null — veta návrhu „Všetky tri vzory majú rovnakú cenu.“ dnes neplatí (13. 10. 2026 SK: Diamond 598 = 219 €,
         // Hexa 610 a Stripe 613 = 230 €). Vrátiť až po zjednotení cien v SK admine.
-        vzor: { nm: "Vzor prešívania", ti: "Prosím, vyberte vzor prešívania", vy: "", pod: null, dalej: "Potvrďte vzor" }, // vy: názov vzoru píše kroky.js z aktívnej dlaždice (598 Diamond, 610 Hexa, 613 Stripe) — nikdy natvrdo Diamond
-        auto: { nm: "Vaše auto", ti: "Prosím, zadajte svoje auto", vy: "Značka, model a rok výroby", chyba: "Doplňte, prosím, údaje označené červenou.", pozn: "Šablóny máme pre viac než 1000 modelov osobných áut." },
-        farba: { nm: "Farba koberca", ti: "Prosím, vyberte farbu koberca", vy: "", pod: "Po výbere uvidíte materiál zblízka.", chyba: "Vyberte, prosím, farbu koberca." },
-        rozlozenie: { nm: "Rozloženie", ti: "Prosím, vyberte rozloženie kobercov", vy: "Podľa počtu radov vo Vašom aute", chyba: "Vyberte, prosím, rozloženie kobercov." },
-        kufor: { nm: "Rohož do kufra", ti: "Prosím, vyberte rohož do kufra", vy: "Bez rohože do kufra" },
-        boxy: { nm: "Boxy do kufra", ti: "Prosím, vyberte boxy do kufra", vy: "Bez boxov", dalej: "Pokračujte k súhrnu" },
+        vzor: { nm: "Vzor prešívania", ti: "Prosím, vyberte si vzor prešívania", vy: "", pod: null, dalej: "Potvrďte vzor" }, // vy: názov vzoru píše kroky.js z aktívnej dlaždice (598 Diamond, 610 Hexa, 613 Stripe) — nikdy natvrdo Diamond
+        auto: { nm: "Vaše auto", ti: "Prosím, vyberte si svoje auto", vy: "Značka, model a rok výroby", chyba: "Doplňte, prosím, údaje označené červenou.", pozn: "Šablóny máme pre viac než 1000 modelov osobných áut." },
+        farba: { nm: "Farba koberca", ti: "Prosím, vyberte si farbu 1. vrstvy", vy: "", pod: "Po výbere uvidíte materiál zblízka.", chyba: "Vyberte, prosím, farbu koberca." },
+        rozlozenie: { nm: "Rozloženie", ti: "Prosím, vyberte si rozloženie kobercov", vy: "Podľa počtu radov vo Vašom aute", chyba: "Vyberte, prosím, rozloženie kobercov." },
+        kufor: { nm: "Rohož do kufra", ti: "Prosím, vyberte si rohož do kufra", vy: "Bez rohože do kufra" },
+        boxy: { nm: "Boxy do kufra", ti: "Prosím, vyberte si boxy do kufra", vy: "Bez boxov", dalej: "Pokračujte k súhrnu" },
       },
     },
     cena: { typ: "Jednovrstvové", zaSet: "cena za set na mieru" },
@@ -31,12 +31,15 @@ export const TYP = {
     // dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js. Cena „+ N €“ sa ráta živo (nikdy natvrdo).
     // Michal 15. 10. 2026: v dlaždici zlaté tlačidlo „Áno“ (ano.tl; nadpis dlaždice už nie je „Áno, chcem“) a vrstvy vždy
     // pomenované: „prvá prešívaná vrstva“ / „druhá vrstva“, nikdy len „prešívaná vrstva“.
+    // Michal 15. 10. 2026 („strojové, chladné“): nadpis „Prosíte si aj druhú odnímateľnú vrstvu?“ a podnadpis ľudsky — len fakty
+    // zo živej stránky a schválených návrhov (zachytí vodu, sneh, blato aj soľ; dá sa vybrať a umyť aj vapkou; prvá
+    // prešívaná vrstva ostane čistá), žiadne nové čísla ani sľuby.
     druha: {
       nm: "Druhá vrstva",
-      ti: "Chcete aj druhú vrstvu?",
+      ti: "Prosíte si aj druhú odnímateľnú vrstvu?",
       vy: "Áno alebo nie",
       vyNie: "Bez druhej vrstvy",
-      pod: "Druhá vrstva sa kladie na prvú prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.",
+      pod: "Či prídete z dažďa, zo snehu, s deťmi z ihriska alebo so psom z prechádzky — vodu, blato aj zimnú soľ z topánok zachytí druhá vrstva skôr, než sa dostanú k prvej prešívanej vrstve. Keď sa zašpiní, jednoducho ju vyberiete, vytrasiete alebo umyjete aj vapkou a vrátite späť. Prvá prešívaná vrstva ostane čistá a interiér pôsobí stále upravene.",
       naj: "★ Odporúčame",
       ano: {
         nm: "Dvojvrstvové koberce",

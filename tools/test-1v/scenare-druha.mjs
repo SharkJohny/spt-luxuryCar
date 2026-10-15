@@ -210,9 +210,9 @@ export const SCENARE = {
       const otv = await stavKarty(t);
       const rozlOtv = await t.ev(`document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idR}").classList.contains("active")`);
       j.over(!rozlOtv, "po „Pokračujte ďalej“ vo Farbe sa otvorilo Rozloženie, má sa otvoriť karta druhej vrstvy");
-      j.over(otv.ey === "Druhá vrstva" && otv.ti === "Chcete aj druhú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
-      // Michal 15. 10. 2026: vrstvy vždy pomenované („prvá prešívaná“ / „druhá“)
-      j.over(otv.pod === "Druhá vrstva sa kladie na prvú prešívanú vrstvu tam, kde sa šliape. Zachytí vodu, sneh aj blato a dá sa vybrať a umyť aj vapkou.", `podnadpis „${otv.pod}“`);
+      j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prosíte si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
+      // Michal 15. 10. 2026: vrstvy vždy pomenované („prvá prešívaná“ / „druhá“); podnadpis ľudsky, nie „strojovo“
+      j.over(otv.pod === "Či prídete z dažďa, zo snehu, s deťmi z ihriska alebo so psom z prechádzky — vodu, blato aj zimnú soľ z topánok zachytí druhá vrstva skôr, než sa dostanú k prvej prešívanej vrstve. Keď sa zašpiní, jednoducho ju vyberiete, vytrasiete alebo umyjete aj vapkou a vrátite späť. Prvá prešívaná vrstva ostane čistá a interiér pôsobí stále upravene.", `podnadpis „${otv.pod}“`);
       j.over(/Dvojvrstvové koberce/.test(otv.anoText) && /Prvá prešívaná \+ druhá vrstva/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
       j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === "Pokračujete s doterajším výberom.", `Nie: „${otv.nieText}“ / „${otv.pozn}“`);
       // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zlaté, v dlaždici, hore) a Nie (zelené)

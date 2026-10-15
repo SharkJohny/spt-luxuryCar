@@ -16,7 +16,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-vzor .patterns-
 }
 
 /* nadpis otvoreného kroku: návrh dvojvrstvove.html má text-wrap: balance (#sprv .krok.otvoreny .kr-ti), takže „Prosím, vyberte
-   farbu druhej vrstvy“ sa zalomí „PROSÍM, / VYBERTE FARBU / DRUHEJ VRSTVY“ (bez osamoteného posledného slova) */
+   si farbu 2. vrstvy“ sa zalomí „PROSÍM, VYBERTE / SI FARBU 2. VRSTVY“ (bez osamoteného posledného slova; 15. 10. 2026) */
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-krok.active .lcd1v-ti {
   text-wrap: balance;
 }

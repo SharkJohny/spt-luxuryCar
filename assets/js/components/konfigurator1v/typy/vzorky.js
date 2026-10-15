@@ -40,7 +40,7 @@ export const TYP = {
       },
       postup: (z) => "Vaše vzorky v " + z + " krokoch",
       krokNz: (n, z) => "Krok " + n + " z " + z,
-      ti: "Prosím, vyberte vzorky",
+      ti: "Prosím, vyberte si vzorky",
       zmenit: "Zmeniť",
       dalej: "Pokračujte ďalej",
       kSuhrnu: "Pokračujte k súhrnu",

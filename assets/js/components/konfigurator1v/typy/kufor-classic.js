@@ -17,7 +17,7 @@ export const TYP = {
         auto: { pod: "Tvar rohože sa šije podľa šablóny dna kufra Vášho modelu." },
         farba: {
           nm: "Farba a šitie",
-          ti: "Prosím, vyberte farbu rohože",
+          ti: "Prosím, vyberte si farbu rohože",
           pod: "Po výbere uvidíte materiál zblízka.",
           chyba: "Vyberte, prosím, farbu rohože.",
         },

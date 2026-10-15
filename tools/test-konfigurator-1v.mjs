@@ -543,6 +543,21 @@ const SCENARE = {
       st = await stav();
       over(st.trieda, "flag má platiť aj po prechode bez parametra (sessionStorage karty): " + JSON.stringify(st));
       info.push("?novy=" + a.flag + " zapne, platí v karte");
+      // Michal 15. 10. 2026: nadpis každého kroku začína „Prosím, vyberte si …“, farby menujú vrstvu („1. / 2. vrstvy“);
+      // karta ponuky druhej vrstvy (jedno) je otázka „Prosíte si aj druhú odnímateľnú vrstvu?“
+      await t.cakaj(`document.querySelectorAll(".lcd1v-krok .lcd1v-ti").length > 0`, { ms: 15000, popis: "nadpisy krokov" });
+      const nad = await t.ev(`Array.prototype.map.call(document.querySelectorAll(".lcd1v-krok .lcd1v-ti"), function (e) {
+        var k = e.closest(".lcd1v-krok");
+        return [(/lcd1v-k-([a-z0-9]+)/i.exec(k.className) || [])[1] || (k.classList.contains("lcd1v-druha") ? "druha" : "?"), e.textContent.trim()];
+      })`);
+      const zle = nad.filter(([m, x]) => (m === "druha" ? x !== "Prosíte si aj druhú odnímateľnú vrstvu?" : !/^Prosím, vyberte si \S/.test(x)));
+      over(!zle.length, "nadpisy krokov bez „Prosím, vyberte si …“: " + JSON.stringify(zle));
+      const farby = { farba: "Prosím, vyberte si farbu 1. vrstvy", farba2: "Prosím, vyberte si farbu 2. vrstvy" };
+      if (P.typ === "jedno" || P.typ === "dvoj") {
+        over(nad.some(([m]) => m === "farba"), "krok farby bez nadpisu: " + JSON.stringify(nad));
+        nad.filter(([m]) => farby[m]).forEach(([m, x]) => over(x === farby[m], "nadpis kroku " + m + ": „" + x + "“ ≠ „" + farby[m] + "“"));
+      }
+      info.push(nad.length + "× „Prosím, vyberte si …“");
     } else {
       over(!st.trieda && !st.ctx, "typ " + P.typ + " nie je pre ?novy=" + a.flag + " zapnutý, ale " + P.id + " dostal nový vzhľad: " + JSON.stringify(st));
       info.push(P.id + " (" + P.typ + ") ostáva starý — typ nie je zapnutý");

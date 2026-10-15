@@ -131,6 +131,14 @@ async function overKartu(t, karta, { presne }) {
     var k = document.querySelector(${JSON.stringify(karta)}); if (!k) return "karta chýba";
     var veta = k.closest(".lcd1v-kb").querySelector(".lcd1v-kb__karta--naj > .lcd1v-kb__top > .lcd1v-kb__veta");
     if (!veta || !/najčastejšie/i.test(veta.textContent)) return "odporúčaná karta nemá zlatý pás s vetou „… najčastejšie“";
+    // Michal 15. 10. 2026: obľúbená varianta vždy v strede — kufor Premium, Classic (★), Nechcem; boxy 1×, 2× (★), Nechcem
+    var kb = k.closest(".lcd1v-kb"), volby = kb.querySelectorAll(".lcd1v-kb__volby > .lcd1v-kb__karta");
+    var poradie = [].map.call(volby, function (x) { return x.getAttribute("data-kufor") || x.getAttribute("data-boxy"); }).join(",");
+    var cakam = kb.getAttribute("data-lcd1v-kb") === "kufor" ? "premium,classic,nie" : "1,2,0";
+    if (poradie !== cakam) return "poradie kariet " + poradie + " ≠ " + cakam;
+    if (!volby[1].classList.contains("lcd1v-kb__karta--naj") || kb.querySelectorAll(".lcd1v-kb__karta--naj").length !== 1) return "odporúčaná karta nie je v strede";
+    var r = [].map.call(volby, function (x) { return x.getBoundingClientRect(); });
+    if (r.every(function (q) { return q.height > 0; }) && !(r[0].top < r[1].top && r[1].top < r[2].top)) return "karty nie sú na obrazovke pod sebou v poradí DOM: " + r.map(function (q) { return Math.round(q.top); }).join(" / ");
     var cb = k.querySelector(".lcd1v-kb__cb"); if (!cb) return ""; // Nechcem: bez cenovky
     var num = function (s) { var m = /(\\d[\\d\\s\\u00a0]*(?:,\\d+)?)/.exec(s || ""); return m ? Number(m[1].replace(/[\\s\\u00a0]/g, "").replace(",", ".")) : NaN; };
     var c = cb.querySelector(".lcd1v-kb__cb-c").textContent, s = cb.querySelector(".lcd1v-kb__cb-s"), u = cb.querySelector(".lcd1v-kb__cb-u");

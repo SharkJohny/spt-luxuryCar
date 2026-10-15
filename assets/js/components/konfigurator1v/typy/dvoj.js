@@ -14,7 +14,7 @@ export const TYP = {
         // Krok 3 (N:3896): počet farieb („N farieb na výber“) dopočíta kroky.js z DOM (601: 18, 604: 3, 607: 8).
         farba: {
           nm: "Farba 1. vrstvy",
-          ti: "Prosím, vyberte farbu prvej prešívanej vrstvy",
+          ti: "Prosím, vyberte si farbu 1. vrstvy",
           pod: "Prvá vrstva je prešívaný koberec. Po výbere uvidíte materiál zblízka.",
           chyba: "Vyberte, prosím, farbu prvej prešívanej vrstvy.",
         },
@@ -22,7 +22,7 @@ export const TYP = {
         // („16 farieb na výber“ / „Lux Color 10“) píše farba2.js cez data-lcd1v-vyber; tu je rovnaký text pre prípad, že ešte nebeží.
         farba2: {
           nm: "Farba 2. vrstvy",
-          ti: "Prosím, vyberte farbu druhej vrstvy",
+          ti: "Prosím, vyberte si farbu 2. vrstvy",
           vy: "16 farieb na výber",
           pod: "Druhá vrstva vyzerá najlepšie v tóne prvej prešívanej vrstvy — k čiernej Lux Color 10, k béžovej 12, k hnedej 11.",
           chyba: "Vyberte, prosím, farbu druhej vrstvy.",
