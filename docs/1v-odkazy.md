@@ -5,7 +5,7 @@ Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.
 
 Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medzi produktmi ho drží). `?novy=0` vzhľad vypne.
 
-**sha vydania:** `2e02539` (vydané 14. 10. 2026, CI zelené, CDN overené). Kým Michal neprepne sha v SK HTML kódoch (krok A), odkazy ukazujú starý vzhľad.
+**sha vydania:** `4be992b` (naživo od 15. 10. 2026 08:58; predtým `2e02539`). Nové: ponuka druhej vrstvy na 598/610/613 po výbere farby (Áno → dvojvrstvové so zachovaným výberom).
 
 ---
 
