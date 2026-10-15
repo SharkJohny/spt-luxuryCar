@@ -5,7 +5,7 @@ Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.
 
 Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medzi produktmi ho drží). `?novy=0` vzhľad vypne.
 
-**sha vydania:** `adb9eaa` (naživo od 15. 10. 2026 17:27; predtým `145a9f5`, `d582a33`, `4be992b`, `2e02539`). Nové: ponuka druhej vrstvy na 598/610/613 po výbere farby (Áno → dvojvrstvové so zachovaným výberom).
+**sha vydania:** `3d779e9` (naživo od 15. 10. 2026 23:16; predtým `e645d2c`, `adb9eaa`, `145a9f5`, `d582a33`, `4be992b`, `2e02539`). Nové: ponuka druhej vrstvy na 598/610/613 po výbere farby (Áno → dvojvrstvové so zachovaným výberom).
 
 ---
 
