@@ -55,12 +55,17 @@ export const novy = {
     return n;
   },
 
-  /** Odporúčaná (prečiarknutá) cena nad krokmi -> { cena, zlava, stitok }. */
+  /**
+   * Odporúčaná (prečiarknutá) cena v rámiku nad krokmi -> { cena, zlava, stitok }. Rámik (návrh 3, Michal 15. 10. 2026):
+   * ľavá polovica .lcd1v-cena__bolo = štítok + prečiarknutá suma, „−X %“ je v pruhu dole (.lcd1v-cena__pozn).
+   */
   async odporucana(t) {
     const r = await t.ev(`(function () {
-      var w = document.querySelector("${F} .lcd1v-cena .lcd1v-cena__bolo");
+      var k = document.querySelector("${F} .lcd1v-cena");
+      var w = k && k.querySelector(".lcd1v-cena__bolo");
       if (!w || w.hidden) return null;
-      return { cena: (w.querySelector(".lcd1v-cena__odp") || {}).textContent || "", zlava: (w.querySelector(".lcd1v-cena__zlava") || {}).textContent || "",
+      var z = k.querySelector(".lcd1v-cena__pozn .lcd1v-cena__zlava");
+      return { cena: (w.querySelector(".lcd1v-cena__odp") || {}).textContent || "", zlava: z && !z.hidden ? z.textContent : "",
         stitok: ((w.querySelector(".lcd1v-cena__stitok") || {}).textContent || "").trim() };
     })()`);
     if (!r) return null;

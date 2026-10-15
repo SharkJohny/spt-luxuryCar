@@ -101,7 +101,7 @@ Všetko je vo `form#product-detail-form` (POST `/action/Cart/addCartItem/?simple
 | `projectId`, `productId`, `jazyk` (`sk`/`cs`), `trh` (`sk`/`cz`), `setupData`, `texts` | kontext |
 | `form()` | `#product-detail-form` |
 | `produkt` | `{ id, typ, vzor, url, obsah, kroky, moduly, obal, texty, obrazky }` z registra (`produkty.js` `produkt1v`). `texty` a `obrazky` = `typy/jedno.js` zlúčené s `typy/<typ>.js`. |
-| `texty(cast)` | texty typu pre časť: `"kroky"` (`{ postup(z), kroky: { <meno>: { nm, ti, vy, pod, chyba, pozn, dalej } } }`), `"cena"` (`{ typ, zaSet, lista(info)? }` — `lista` = popis lepivej lišty, napr. rohože „Diamond Line · rohož Classic“), voliteľne `"rozlozenie"`, `"kuforBoxy"` (prepisy textov modulu). Nič -> `{}`. |
+| `texty(cast)` | texty typu pre časť: `"kroky"` (`{ postup(z), kroky: { <meno>: { nm, ti, vy, pod, chyba, pozn, dalej } } }`), `"cena"` (`{ typ, lista(info)? }` — `lista` = popis lepivej lišty, napr. rohože „Diamond Line · rohož Classic“; vetu „Cena za … na mieru“ rámik ceny nemá, Michal 15. 10. 2026), voliteľne `"rozlozenie"`, `"kuforBoxy"` (prepisy textov modulu). Nič -> `{}`. |
 | `obrazokVzoru(kluc)` | `typ.obrazky[kluc][vzor produktu]`, inak Diamond; kľúč nie je -> `null`. Kľúče `jedno`: `rozlozenie-1..3`, `kufor-classic`, `kufor-premium`, `kufor-nie`, `boxy-0..2`. |
 | `parameter(kluc)` | `{ kluc, id, meno, select, variant }` podľa `data-parameter-name`. Kľúče: `farba, farba2, rozlozenie, kufor, farbaBoxov, box1, box2, box3, boxSolo, typ` (alebo číslo ID). `farba2` = dvojvrstvové (SK 71, variant), `box3` = box 616 (SK 100). Na boxe 616 je `farba` farba boxu. |
 | `moznosti(kluc)` | `[{ hodnota, text (bez „+€N“), cena (príplatok s DPH zo Shoptetu), zvolena }]` |
@@ -327,7 +327,7 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 | `ovladac-kroky.mjs` | `vyberAuto(t, {znacka, model, rok, typ})` → sessionStorage.model · `vyberFarbu(t, {index})` → value farby · `skusBezAuta(t)` → `{vyzva}` · `zavriVyzvu(t)` · `cervenyKrok(t)` → `"auto"\|"farba"\|"farba2"\|"rozlozenie"\|…\|null` · `hodnota(t, kluc)` · `dokonci(t, krok)` → text tlačidla posledného kroku |
 | `ovladac-rozlozenie.mjs` | `vyberRozlozenie(t, {index})` → value (0 = len 1. rad, 1 = 1.+2., 2 = všetky) |
 | `ovladac-kufor-boxy.mjs` | `skryteNaZaciatku` (bool) · `stav(t)` → `{kufor, boxy}` viditeľné · `vyberKufor(t, "classic"\|"premium"\|"nie")` → value · `vyberBoxy(t, {pocet, farba, velkost, velkost2})` → `{farbaBoxov, box1, box2, boxSolo}` |
-| `ovladac-cena.mjs` | `zobrazenaCena(t)` → číslo · `odporucana(t)` → `{cena, zlava, stitok}` · `pridajDoKosika(t)` (nový vzhľad môže klikať lepivú lištu) |
+| `ovladac-cena.mjs` | `zobrazenaCena(t)` → číslo · `odporucana(t)` → `{cena, zlava, stitok}` (nový vzhľad: `−X %` z pruhu dole v rámiku) · `pridajDoKosika(t)` (nový vzhľad môže klikať lepivú lištu). Rámik hlavnej ceny (návrh 3, Michal 15. 10. 2026) stráži jadro: `overCenu` → `overRamik` (rámik je, veta „… na mieru“ v ňom nie je, Naša cena / odporúčaná / −X % / Ušetríte = živý blok Shoptetu, zápis s NBSP; bez bežnej ceny jedna polovica bez pruhu); vzorkovník `j.ramCeny(s)` v `platne` |
 | `ovladac-farba2.mjs` | `vyberFarbu2(t, {index})` → value farby 2. vrstvy (dvojvrstvové); `novy` navyše `otvor(t)`, `stav(t)`, `prepniVysvetlenie(t)` (T1.2) |
 | `ovladac-boxy-produkt.mjs` | produkt Box do kufra 616: `vyberPocet(t, n)` · `pocet(t)` · `vyberFarbu(t, {index})` · `vyberVelkosti(t, [..])` · `hodnoty(t)`; `novy` (T3.2) navyše `stav(t)` |
 | `ovladac-vzorky.mjs` | vzorkovník 637: `vyberVzorky(t, [id, …])` · `pocet(t)` · `zaloha(t)`; `novy` (T5.1) navyše `otvorKrokVzorky`, `odoberVzorku`, `zobrazenaCena`, `odporucana`, `stav`, `pridajDoKosika` (nemá kartu `.lcd1v-cena`; `--snimky` fotí aj pred jeho košíkom) |
@@ -340,7 +340,7 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 - Selektory starého vzhľadu a `otvorKrok()` sú v `tools/test-1v/stary-ui.mjs`.
 - Nový ovládač kliká na to, čo vidí zákazník v novom vzhľade. Starý DOM, ktorý je vizuálne skrytý, nie.
 
-**Scenár v `scenare-<typ>.mjs`:** `export const SCENARE = { "<meno>": { typy: ["<typ>"], async fn(s, a, pom, ovl, j) { … return { info, post, spolu } | { preskoc } } } }`. `j` = jadro `{ otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdporucana, over, pauza, AUTO, TYPY_TEST }`. `overPost(s, post, ocak)` dostane `ocak` s farbou (z `zaklad()`), inak zlyhá. Vrátené `spolu` sa porovná s `ceny[<meno>]` v profile.
+**Scenár v `scenare-<typ>.mjs`:** `export const SCENARE = { "<meno>": { typy: ["<typ>"], async fn(s, a, pom, ovl, j) { … return { info, post, spolu } | { preskoc } } } }`. `j` = jadro `{ otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdporucana, ramCeny, eur, over, pauza, AUTO, TYPY_TEST }`. `overPost(s, post, ocak)` dostane `ocak` s farbou (z `zaklad()`), inak zlyhá. Vrátené `spolu` sa porovná s `ceny[<meno>]` v profile.
 
 **Pred odovzdaním každý worker:** svoj typ s `--novy` (alebo `--vyvoj`, kým typ nie je zapnutý) aj bez flagu zelené na 1280 aj 390. Pri zmenách CSS `--snimky` a porovnanie s návrhom.
 

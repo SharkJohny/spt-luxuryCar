@@ -129,7 +129,7 @@ const SCENARE = {
         });
         return {
           typ: document.body.getAttribute("data-lcd1v-typ"), vzor: document.body.getAttribute("data-lcd1v-vzor"),
-          h1: h1 ? h1.textContent.replace(/\\s+/g, " ").trim() : null, stitok: tx(".lcd1v-typ"), za: tx(".lcd1v-cena__za"),
+          h1: h1 ? h1.textContent.replace(/\\s+/g, " ").trim() : null, stitok: tx(".lcd1v-typ"), cenaText: (document.querySelector(".lcd1v-cena") || {}).textContent || null, za: !!document.querySelector(".lcd1v-cena__za"),
           vzorVy: tx(".lcd1v-k-vzor .lcd1v-vy"), farbaVy: tx(".lcd1v-k-farba .lcd1v-vy"), postup: tx(".lcd1v-postup"),
           aktivne: Array.prototype.map.call(f.querySelectorAll(".lcd1v-k-vzor .patterns-wrap > .option-button.active"), function (a) { return a.className; }),
           dlazdice: Array.prototype.map.call(f.querySelectorAll(".lcd1v-k-vzor .patterns-wrap > .option-button"), function (a) {
@@ -142,7 +142,8 @@ const SCENARE = {
       j.over(st.typ === "jedno" && st.vzor === vzor, `body data-lcd1v-typ/-vzor = ${st.typ}/${st.vzor}, má byť jedno/${vzor}`);
       j.over(st.h1 && st.h1.toUpperCase().endsWith(VZOR[vzor].toUpperCase()), `živý H1 „${st.h1}“ nekončí na „${VZOR[vzor]}“ (H1 sa nemení; názov radu na webe sa zmenil?)`);
       j.over(st.stitok === TYP_STITOK, `štítok typu nad názvom „${st.stitok}“ ≠ „${TYP_STITOK}“`);
-      j.over(/cena za set na mieru/i.test(st.za || ""), `veta pri cene „${st.za}“`);
+      // rámik ceny (návrh 3, Michal 15. 10. 2026): veta „Cena za set na mieru“ v ňom nemá byť vôbec
+      j.over(st.cenaText && !/na\s+mier/i.test(st.cenaText) && !st.za, `v rámiku ceny je veta „… na mieru“: „${st.cenaText}“`);
       j.over(st.vzorVy === VZOR[vzor], `krok 1 (vzor) ukazuje „${st.vzorVy}“, má „${VZOR[vzor]}“`);
       j.over(/6 krokoch/.test(st.postup || ""), `postup „${st.postup}“ — jedno má 6 krokov`);
       j.over(st.dlazdice.length === 3 && ["diamond", "hexa", "stripe"].every((d) => st.dlazdice.some((x) => x.druh === d)), `dlaždice vzoru: ${JSON.stringify(st.dlazdice)}`);

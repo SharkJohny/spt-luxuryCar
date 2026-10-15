@@ -46,6 +46,16 @@ export const SCENARE = {
       j.over(zaloha === cena.spolu, (jeNovy(ovl) ? "„Spolu“ " : "„Vratná záloha spolu“ ") + zaloha + " ≠ súčet z POST " + cena.spolu);
       const videne = await cenaKosik(ovl).zobrazenaCena(s.t);
       if (jeNovy(ovl)) j.over(videne === cena.spolu, "nový vzhľad ukazuje " + videne + ", POST " + cena.spolu + " €");
+      if (jeNovy(ovl)) {
+        // cena vzorky v rámiku ako hlavná cena ostatných produktov (návrh 3, Michal 15. 10. 2026), bez vety „… na mieru“;
+        // suma = príplatok „Áno“ jednej vzorky (súčet z POST / počet), zápis „5 €“ s NBSP; pruh dole = vratná záloha
+        const r = await j.ramCeny(s);
+        j.over(r.je && r.vidno && /lcd1v-vz-cena/.test(r.trieda), "cena vzorky (.lcd1v-vz-cena) chýba alebo nie je viditeľná");
+        j.over(r.ramik, "cena vzorky nie je v rámiku (návrh 3): " + r.okraj);
+        j.over(!r.naMieru, "v rámiku ceny vzorky je „…" + r.naMieru + "…“");
+        j.over(r.suma.vidno && r.suma.text === j.eur(cena.spolu / idcka.length), "cena vzorky v rámiku „" + r.suma.text + "“ ≠ „" + j.eur(cena.spolu / idcka.length) + "“");
+        j.over(r.stitky.join("|") === "Každá vzorka" && r.pruh.vidno && /Vratná záloha/.test(r.pruh.text || ""), "rámik vzorky: štítky „" + r.stitky.join("|") + "“, pruh „" + r.pruh.text + "“");
+      }
       else if (videne !== cena.spolu) s.upozornenia.push(`živá Shoptet cena pri ${idcka.length} vzorkách ukazuje ${videne} €, rekapitulácia aj POST ${cena.spolu} € (chyba živého webu)`);
       const odp = await cenaKosik(ovl).odporucana(s.t);
       j.over(!odp || (!odp.cena && !odp.stitok), "vzorkovník ukazuje odporúčanú cenu " + JSON.stringify(odp));

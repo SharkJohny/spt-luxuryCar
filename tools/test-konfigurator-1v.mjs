@@ -457,6 +457,72 @@ async function novaOdporucana(s) {
   })()`);
 }
 
+/** Suma v zápise nového vzhľadu (ctx.formatCena / sumaText): „1 250 €“, „219 €“ — medzery NEZALOMITEĽNÉ (U+00A0). */
+function eur(n) {
+  const r = Math.round(Math.abs(n) * 100) / 100;
+  const [c, d] = (Math.abs(r - Math.round(r)) < 0.005 ? String(Math.round(r)) : r.toFixed(2)).split(".");
+  return (n < 0 && r > 0 ? "−" : "") + c.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") + (d ? "," + d : "") + "\u00a0€";
+}
+
+/**
+ * Rámik hlavnej ceny nového vzhľadu (návrh 3 „Nižší rámik“, Michal 15. 10. 2026): .lcd1v-cena (jedno, dvoj, rohože, box)
+ * alebo .lcd1v-vz-cena (vzorkovník) -> { je, vidno, ramik, okraj, naMieru, za, stlpce, stitky, odp, suma, od, zlava, us,
+ * pruh, ziva }. Texty = textContent (presný zápis vrátane NBSP), vidno = rozmery > 0 a nie display:none / visibility.
+ * naMieru = veta „… na mieru / na míru“ kdekoľvek v rámiku (aj skrytá) — Michal: „to tam nemá v tom riadku vôbec byť“.
+ */
+async function ramCeny(s) {
+  return s.t.ev(`(function () {
+    function vid(e) { if (!e) return false; var r = e.getBoundingClientRect(), c = getComputedStyle(e); return !e.hidden && r.width > 0 && r.height > 0 && c.display !== "none" && c.visibility !== "hidden"; }
+    function tx(e) { return e ? e.textContent : null; }
+    function cast(k, q) { var e = k.querySelector(q); return { text: tx(e), vidno: vid(e) }; }
+    var k = document.querySelector("#product-detail-form .lcd1v-cena") || document.querySelector("#product-detail-form .lcd1v-vz-cena");
+    if (!k) return { je: false };
+    var c = getComputedStyle(k);
+    var re = /na\\s+mier|na\\s+m[íi]r/i;
+    var m = re.exec(k.textContent || "") || re.exec(k.innerText || "");
+    var stl = k.querySelector(".lcd1v-cena__stl");
+    var std = document.querySelector(".p-final-price-wrapper .price-standard");
+    var odpZ = std && Array.prototype.find.call(std.querySelectorAll(":scope > span"), function (x) { return !x.classList.contains("price-save"); });
+    return {
+      je: true, trieda: k.className, vidno: vid(k),
+      ramik: parseFloat(c.borderTopWidth) >= 1 && c.borderTopStyle === "solid" && parseFloat(c.borderBottomWidth) >= 1 && parseFloat(c.borderLeftWidth) >= 1 && parseFloat(c.borderTopLeftRadius) >= 8,
+      okraj: c.borderTopWidth + " " + c.borderTopStyle + " " + c.borderTopColor + ", spodok " + c.borderBottomWidth + ", polomer " + c.borderTopLeftRadius,
+      naMieru: m ? m[0] : null, za: !!k.querySelector(".lcd1v-cena__za"),
+      stlpce: stl ? Array.prototype.filter.call(stl.children, vid).length : null,
+      stitky: Array.prototype.filter.call(k.querySelectorAll(".lcd1v-cena__stitok, .lcd1v-vz-cena__stitok"), vid).map(function (e) { return e.textContent.trim(); }),
+      odp: cast(k, ".lcd1v-cena__odp"), suma: cast(k, ".lcd1v-cena__suma, .lcd1v-vz-cena__suma"), od: cast(k, ".lcd1v-cena__od"),
+      zlava: cast(k, ".lcd1v-cena__zlava"), us: cast(k, ".lcd1v-cena__us"), pruh: cast(k, ".lcd1v-cena__pozn, .lcd1v-vz-cena__pozn"),
+      ziva: { teraz: tx(document.querySelector(".p-final-price-wrapper .price-final-holder")), odp: tx(odpZ), zlava: tx(std && std.querySelector(".price-save")) },
+    };
+  })()`);
+}
+
+/**
+ * Rámik hlavnej ceny (nový vzhľad, typy s .lcd1v-cena) po overení čísel v overCenu: rámik je, veta „… na mieru“ v ňom nie je,
+ * čísla = živá cena (Naša cena = súčet Shoptetu, odporúčaná = súčet × 1,6 nahor na desiatky, −X % a Ušetríte ako živý
+ * blok productPage.js), zápis „219 €“ / „−39 %“ s NBSP. Bez odporúčanej ceny: jedna polovica „Naša cena“, bez pruhu.
+ */
+async function overRamik(s, cena, ocakOdp, maOdp) {
+  const r = await ramCeny(s);
+  over(r.je && r.vidno && /\blcd1v-cena\b/.test(r.trieda), "rámik hlavnej ceny .lcd1v-cena chýba alebo nie je viditeľný (" + (r.trieda || "žiadna karta") + ")");
+  over(r.ramik, "hlavná cena nie je v rámiku (návrh 3 — okraj aj zaoblenie): " + r.okraj);
+  over(!r.naMieru && !r.za, "v rámiku ceny je veta „…" + (r.naMieru || ".lcd1v-cena__za") + "…“ — Michal 15. 10. 2026: „Cena za set na mieru“ tam nemá byť");
+  over(r.suma.vidno && r.suma.text === eur(cena.spolu), "Naša cena v rámiku „" + r.suma.text + "“ ≠ „" + eur(cena.spolu) + "“ (súčet Shoptetu, zápis s NBSP)");
+  over(cislo(r.ziva.teraz) === cena.spolu, "živá cena Shoptetu (.price-final-holder) „" + r.ziva.teraz + "“ ≠ " + cena.spolu);
+  if (!maOdp) {
+    over(r.stlpce === 1 && !r.odp.vidno && !r.pruh.vidno && r.stitky.join("|") === "Naša cena",
+      "bez odporúčanej ceny má rámik len „Naša cena“ cez celú šírku, bez pruhu: polovíc " + r.stlpce + ", štítky „" + r.stitky.join("|") + "“, odporúčaná " + r.odp.vidno + ", pruh " + r.pruh.vidno);
+    return { ramik: "bez odporúčanej (1 polovica)" };
+  }
+  const zl = Math.round(((ocakOdp - cena.spolu) / ocakOdp) * 100);
+  over(r.stlpce === 2 && r.stitky.join("|") === "Odporúčaná cena|Naša cena", "rámik má mať dve polovice „Odporúčaná cena | Naša cena“: polovíc " + r.stlpce + ", štítky „" + r.stitky.join("|") + "“");
+  over(r.odp.vidno && r.odp.text === eur(ocakOdp), "odporúčaná v rámiku „" + r.odp.text + "“ ≠ „" + eur(ocakOdp) + "“");
+  over(r.pruh.vidno && r.zlava.vidno && r.zlava.text === "−" + zl + "\u00a0%", "pruh dole: zľava „" + r.zlava.text + "“ ≠ „−" + zl + " %“ (NBSP), pruh viditeľný " + r.pruh.vidno);
+  over(r.us.vidno && r.us.text === eur(ocakOdp - cena.spolu), "pruh dole: Ušetríte „" + r.us.text + "“ ≠ „" + eur(ocakOdp - cena.spolu) + "“");
+  over(cislo(r.ziva.odp) === ocakOdp && cislo(r.ziva.zlava) === zl, "rámik ≠ živý blok Shoptetu (productPage.js): odporúčaná „" + r.ziva.odp + "“, zľava „" + r.ziva.zlava + "“, rámik " + ocakOdp + " / " + zl + " %");
+  return { ramik: eur(ocakOdp) + " | " + eur(cena.spolu) + " · −" + zl + " % · Ušetríte " + eur(ocakOdp - cena.spolu) };
+}
+
 async function overCenu(s, ovl, cena) {
   let videne;
   const koniec = Date.now() + 4000;
@@ -464,6 +530,9 @@ async function overCenu(s, ovl, cena) {
   over(videne === cena.spolu, "zobrazená cena " + videne + " ≠ " + cena.spolu + " (variant " + cena.zaklad + " + príplatky " + cena.rozpis + ")");
   const odp = await ovl.cena.odporucana(s.t);
   const ocakOdp = Math.ceil((cena.spolu * 1.6) / 10) * 10;
+  // nový vzhľad: hlavná cena v rámiku (návrh 3, Michal 15. 10. 2026) — bez vety „… na mieru“, čísla = živá cena
+  const novyRamik = s.t.novy && ovl.zdroj.cena === "novy" && (await s.t.ev(`document.body.classList.contains("lcd-1v")`));
+  if (novyRamik) await overRamik(s, cena, ocakOdp, !(s.produkt && s.produkt.odporucana === false));
   if (s.produkt && s.produkt.odporucana === false) {
     // v admine chýba bežná cena (613, 625, 616, 637): odporúčaná sa nemá ukázať (plan §2.5).
     //  - NOVÝ vzhľad (body.lcd-1v): „Odporúčaná cena“ = ZLYHANIE (T0.2b) — nový vzhľad ju má schovať,
@@ -993,7 +1062,7 @@ const naseChyby = (chyby) => chyby.filter((c) => !SUM_ZDROJE.test(c.zdroj || "")
 
 // ------------------------------------------------------------------ beh
 /** Jadro pre scenáre v tools/test-1v/scenare-<typ>.mjs (piaty parameter scenára). */
-const J = { otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdporucana, over, pauza, AUTO, TYPY_TEST };
+const J = { otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdporucana, ramCeny, eur, over, pauza, AUTO, TYPY_TEST };
 
 async function main() {
   const a = argumenty(process.argv.slice(2));

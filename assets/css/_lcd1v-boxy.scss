@@ -42,11 +42,6 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 22px; }
 }
 
-/* „Cena za box“ len pri jednom boxe (pri 2–3 boxoch je cena súčet boxov) */
-body.lcd-1v[data-lcd1v-typ="boxy"]:has(.lcd1v-bxp-pocty[data-ks="2"], .lcd1v-bxp-pocty[data-ks="3"]) #product-detail-form .lcd1v-cena .lcd1v-cena__za {
-  display: none;
-}
-
 /* ---------------------------------------------------------------- pás setu (návrh .sethint, B:2842–2860) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-info-wrapper > .lcd1v-bxp-set {
   order: 1;

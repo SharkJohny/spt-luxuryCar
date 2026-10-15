@@ -1,18 +1,20 @@
-// Nový konfigurátor 1V — cenová karta (Odporúčaná cena, % zľava, aktuálna cena) + lepivá lišta s cenou a tlačidlom.
+// Nový konfigurátor 1V — cenová karta v rámiku (Odporúčaná cena | Naša cena, dole −X % · Ušetríte Y) + lepivá lišta.
 // JADRO od T0.1 (14. 10. 2026; mení len vydanie) + assets/css/_lcd1v-cena.scss + tools/test-1v/ovladac-cena.mjs.
-// Štítok typu nad H1 a veta pri cene podľa typu produktu: ctx.texty("cena") { typ, zaSet } (typy/<typ>.js).
-// Bez odporúčanej ceny (v admine chýba bežná cena: 613, 625, 616) ostane len veta „Cena za … na mieru“.
+// Štítok typu nad H1 podľa typu produktu: ctx.texty("cena") { typ, lista? } (typy/<typ>.js).
+// Bez odporúčanej ceny (v admine chýba bežná cena: 613, 625, 616) ostane v rámiku len „Naša cena“ cez celú šírku, bez pruhu.
 // Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md — ceny len z ctx.cena() / Shoptetu,
 // košík len ctx.doKosika().
 //
 // Čo robí (návrh v26, hlavička produktu + „Spolu“ + lišta na telefóne):
 //  - hlavička: nad H1 štítok „Jednovrstvové“, názov radu v H1 zlatý (text H1 ostáva rovnaký), pod H1 hodnotenie
 //    „5,0 ★★★★★ N recenzií na Google“ z window.LCD_REVIEWS (reviews-data.js; kým nepríde, riadok je skrytý);
-//  - cena „bez poľa, priamo nad krokmi“ (Michal 7. 10.): Odporúčaná cena prečiarknutá + −X % + Naša cena (od) X +
-//    Ušetríte Y · cena za set na mieru. Zápis ceny ako v návrhoch „230 €“ (ctx.formatCena; Shoptet píše „€230“ len vo
-//    svojich skrytých prvkoch). Všetky čísla sú ZRKADLO živej ceny .p-final-price-wrapper (livePrice.js píše
-//    súčet do .price-final-holder, productPage.js odporúčanú cenu súčet × 1,6 nahor na desiatky a %). Nič sa
-//    nepočíta nanovo; živý blok ostáva v DOM (len vizuálne skrytý) a jeho JS beží ďalej;
+//  - cena nad krokmi = návrh 3 „Nižší rámik“ (Michal 15. 10. 2026, hlavna-cena/index.html): rámik s dvomi polovicami,
+//    vľavo „Odporúčaná cena“ prečiarknutá červenou, vpravo „Naša cena“ (od) X, dole jeden pruh „−X % · Ušetríte Y“.
+//    Veta „Cena za set / rohož / box na mieru“ v rámiku NIE JE (Michal: „to tam nemá v tom riadku vôbec byť“).
+//    Zápis ceny ako v návrhoch „230 €“ (ctx.formatCena, nezalomiteľná medzera; Shoptet píše „€230“ len vo svojich
+//    skrytých prvkoch). Všetky čísla sú ZRKADLO živej ceny .p-final-price-wrapper (livePrice.js píše súčet do
+//    .price-final-holder, productPage.js odporúčanú cenu súčet × 1,6 nahor na desiatky a %). Nič sa nepočíta nanovo;
+//    živý blok ostáva v DOM (len vizuálne skrytý) a jeho JS beží ďalej;
 //  - „Spolu“ nad tlačidlom + živé tlačidlo „Pridať do košíka“ preštýlované; text „Dokončite výber“ / „Vložte do košíka“
 //    podľa ctx.prvyNevyplneny(). Klik ostáva klikom na živé tlačidlo (validácia, červený rám, odoslanie = živý kód);
 //  - telefón (do 991 px): lepivá lišta dole s tou istou cenou a tlačidlom (ctx.doKosika()), keď je konfigurátor mimo
@@ -27,7 +29,6 @@ const TEXTY = {
     nasa: "Naša cena",
     od: "od",
     usetrite: "Ušetríte",
-    zaSet: "cena za set na mieru",
     spolu: "Spolu",
     dokoncite: "Dokončite výber",
     vlozte: "Vložte do košíka",
@@ -43,7 +44,6 @@ const TEXTY = {
     nasa: "Naše cena",
     od: "od",
     usetrite: "Ušetříte",
-    zaSet: "cena za set na míru",
     spolu: "Celkem",
     dokoncite: "Dokončete výběr",
     vlozte: "Vložit do košíku",
@@ -96,7 +96,7 @@ function nastav(e, t) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  // typ produktu (štítok nad H1, veta pri cene) z typy/<typ>.js — texty typov sú len SK
+  // typ produktu (štítok nad H1, popis lišty) z typy/<typ>.js — texty typov sú len SK
   const T = Object.assign({}, TEXTY[ctx.trh] || TEXTY.sk, ctx.trh === "sk" && ctx.texty ? ctx.texty("cena") : {});
   const form = ctx.form();
   const ziva = ctx.krok("cena"); // .p-final-price-wrapper — zdroj všetkých čísel
@@ -155,16 +155,15 @@ export function init(ctx) {
     }, { limit: 30000 });
   }
 
-  // ---------------------------------------------------------------- cena nad krokmi (zrkadlo živej ceny)
+  // ---------------------------------------------------------------- cena nad krokmi v rámiku (zrkadlo živej ceny)
+  // .lcd1v-cena > .__stl (dve polovice: .__bolo „Odporúčaná cena“ | .__fig „Naša cena“) + .__pozn (pruh dole)
   const karta = el("div", "lcd1v-cena");
+  const stl = el("div", "lcd1v-cena__stl");
   const bolo = el("div", "lcd1v-cena__bolo");
   bolo.appendChild(el("div", "lcd1v-cena__stitok", T.odporucana));
   const boloV = el("div", "lcd1v-cena__v");
   const odp = el("s", "lcd1v-cena__odp");
-  const zlava = el("b", "lcd1v-cena__zlava");
   boloV.appendChild(odp);
-  boloV.appendChild(document.createTextNode(" "));
-  boloV.appendChild(zlava);
   bolo.appendChild(boloV);
   const fig = el("div", "lcd1v-cena__fig");
   fig.appendChild(el("div", "lcd1v-cena__stitok lcd1v-cena__stitok--nasa", T.nasa));
@@ -174,19 +173,21 @@ export function init(ctx) {
   teraz.appendChild(od);
   teraz.appendChild(suma);
   fig.appendChild(teraz);
+  stl.appendChild(bolo);
+  stl.appendChild(fig);
+  // pruh dole: „−39 % · Ušetríte 141 €“ (bez odporúčanej ceny celý skrytý)
   const pozn = el("p", "lcd1v-cena__pozn");
+  const zlava = el("b", "lcd1v-cena__zlava");
+  const bod = el("span", "lcd1v-cena__bod", "·");
+  bod.setAttribute("aria-hidden", "true");
   const usetrite = el("span", "lcd1v-cena__us-w");
   usetrite.appendChild(document.createTextNode(T.usetrite + " "));
   const us = el("b", "lcd1v-cena__us");
   usetrite.appendChild(us);
-  const bod = el("span", "lcd1v-cena__bod", "·");
-  bod.setAttribute("aria-hidden", "true");
-  pozn.appendChild(usetrite);
+  pozn.appendChild(zlava);
   pozn.appendChild(bod);
-  const za = el("span", "lcd1v-cena__za", T.zaSet);
-  pozn.appendChild(za);
-  karta.appendChild(bolo);
-  karta.appendChild(fig);
+  pozn.appendChild(usetrite);
+  karta.appendChild(stl);
   karta.appendChild(pozn);
   // za krátky popis (oba order 1 v stĺpci -> rozhoduje poradie v DOM): názov, hodnotenie, popis, cena, kroky
   const popis = stlpec.querySelector(":scope > .p-short-description");
@@ -303,14 +304,14 @@ export function init(ctx) {
     nastav(suhrnSuma, zobraz);
     nastav(listaSuma, zobraz);
     nastav(odp, nOdp > 0 ? ctx.formatCena(nOdp) : odpT);
-    nastav(zlava, nZlava > 0 ? "−" + nZlava + " %" : "");
+    // „−39 %“ s nezalomiteľnou medzerou (ako „219 €“)
+    nastav(zlava, nZlava > 0 ? "−" + nZlava + "\u00a0%" : "");
     zlava.hidden = !(nZlava > 0);
+    bod.hidden = !(nZlava > 0);
+    // bez odporúčanej ceny: len „Naša cena“ cez celú šírku rámika (polovice sú flex), bez pruhu
     bolo.hidden = !maOdp;
     nastav(us, maOdp ? ctx.formatCena(Math.round((nOdp - nTeraz) * 100) / 100) : "");
-    usetrite.hidden = !maOdp;
-    bod.hidden = !maOdp;
-    // bez „Ušetríte …“ stojí veta sama -> veľké písmeno („Cena za rohož na mieru“, návrh kufor-classic)
-    nastav(za, maOdp || !T.zaSet ? T.zaSet : T.zaSet.charAt(0).toUpperCase() + T.zaSet.slice(1));
+    pozn.hidden = !maOdp;
 
     od.hidden = hotovo;
     const stitok = hotovo ? T.vlozte : T.dokoncite;

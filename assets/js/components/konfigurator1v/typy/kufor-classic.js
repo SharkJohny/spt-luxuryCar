@@ -25,7 +25,6 @@ export const TYP = {
     },
     cena: {
       typ: "Dno kufra",
-      zaSet: "cena za rohož na mieru",
       // popis lepivej lišty (návrh kufor-classic.html lPop): „Diamond Line · rohož Classic“, po výbere farby „Diamond Line · <farba>“
       lista: (i) => [i.vzor, i.farba ? i.farba.toLowerCase() : "rohož Classic"].filter(Boolean).join(" · "),
     },

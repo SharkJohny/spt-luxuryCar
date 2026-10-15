@@ -29,7 +29,7 @@ export const TYP = {
         },
       },
     },
-    cena: { typ: "Dvojvrstvové", zaSet: "cena za set na mieru" },
+    cena: { typ: "Dvojvrstvové" },
     // Krok 6 (N:4073): všetko ako pri jednovrstvových, iné je len vysvetlenie „i“ (#v5 v návrhu).
     kuforBoxy: {
       kufor: {

@@ -4,9 +4,9 @@
    Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte).
 
    Merané na návrhu v26 (#konf .hb-hlava, .hb-karta, .sumar, #doKosika, #lista; 1280 aj 390 px):
-   - hlavička: štítok 10,5 px · text 15 px · názov 26/32 px · cena 40/46 px (+ odznak −X % 12 px), Exo 2 + Source Sans 3;
-   - cena „bez poľa, priamo nad krokmi“ (Michal 7. 10. 2026, posledná vrstva v26 ruší bielu kartu so zlatou linkou):
-     leží na pozadí stránky, prečiarknutie červené 2 px, pod poznámkou vlasová linka;
+   - hlavička: štítok 10,5 px · text 15 px · názov 26/32 px, Exo 2 + Source Sans 3;
+   - cena nad krokmi: rámik návrhu 3 (Michal 15. 10. 2026; predtým „bez poľa“ zo 7. 10.) — suma 32/38 px, odporúčaná
+     18/20 px prečiarknutá červenou 2 px, pruh „−X % · Ušetríte Y“ 14 px;
    - tlačidlo košíka = zelené tlačidlá konfigurátora (56 px, polomer 12 px), vždy zelené, aj keď výber nie je hotový;
    - lišta na telefóne: biela 94 % s rozmazaním, cena 20 px + tlačidlo 50 px, zasunie sa, kým je konfigurátor na obrazovke.
    Prvky z JS: .lcd1v-typ, .lcd1v-rad (v H1), .lcd1v-hodn, .lcd1v-cena, .lcd1v-suhrn, .lcd1v-lista (všetko bez name). */
@@ -74,41 +74,54 @@ body.lcd-1v #product-detail-form a.lcd1v-hodn:focus-visible { outline: 2px solid
    pod 1V skrytý (integrácia 14. 10. 2026). Ostáva v DOM (SEO, živý kód), len display:none; bez flagu sa nemení nič. */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description { display: none !important; }
 
-/* ---------- cena nad krokmi (bez poľa) ---------- */
+/* ---------- cena nad krokmi v rámiku (návrh 3 „Nižší rámik“, Michal 15. 10. 2026) ----------
+   Dve polovice: vľavo „Odporúčaná cena“ prečiarknutá červenou, vpravo „Naša cena“ (od) X; dole jeden pruh
+   „−X % · Ušetríte Y“. Veta „Cena za … na mieru“ v rámiku nie je (Michal: „to tam nemá v tom riadku vôbec byť“).
+   Bez odporúčanej ceny (613, 625, 616; .__bolo a .__pozn [hidden]) ostane len „Naša cena“
+   cez celú šírku rámika, bez pruhu. Rozmery = návrh .ram--v3 (scratchpad hlavna-cena/_skript/gen.mjs). */
 body.lcd-1v #product-detail-form .p-info-wrapper > .lcd1v-cena {
-  order: 1; margin: 22px 0 0; padding: 0; font-family: var(--c1v-body); color: var(--c1v-ink); cursor: default;
+  order: 1; box-sizing: border-box; margin: 22px 0 0; padding: 0; overflow: hidden;
+  background: #fff; border: 1px solid #e2dccb; border-radius: 12px;
+  font-family: var(--c1v-body); color: var(--c1v-ink); text-align: center; cursor: default;
 }
 body.lcd-1v #product-detail-form .lcd1v-cena [hidden] { display: none !important; }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__stitok {
-  display: block; margin: 0 0 4px;
-  font: 700 10.5px/16px var(--c1v-disp); letter-spacing: .16em; text-transform: uppercase; color: var(--c1v-lb);
+/* polovice ako flex (nie mriežka): skrytá ľavá polovica = pravá sama cez celú šírku */
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__stl { display: flex; align-items: stretch; margin: 0; padding: 0; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bolo,
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__fig {
+  display: flex; flex-direction: column; align-items: center; flex: 1 1 0; min-width: 0; margin: 0; padding: 12px 8px 11px;
 }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__stitok--nasa { color: var(--c1v-tm); }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__v { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; min-width: 0; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bolo { border-right: 1px solid #e6e0d0; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__stitok {
+  display: block; margin: 0 0 5px;
+  font: 700 9.5px/14px var(--c1v-disp); letter-spacing: .14em; text-transform: uppercase; color: var(--c1v-lb); white-space: nowrap;
+}
+/* hodnota polovice zvisle v strede (ľavá menšia suma k veľkej pravej) */
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__v,
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__teraz {
+  flex: 1 0 auto; display: flex; align-items: center; justify-content: center; min-width: 0; white-space: nowrap;
+}
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__teraz { align-items: baseline; }
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__odp {
-  font: 600 15px/20px var(--c1v-disp); color: var(--c1v-lb); font-variant-numeric: tabular-nums;
+  font: 600 18px/1 var(--c1v-disp); color: #b8432f; font-variant-numeric: tabular-nums;
   text-decoration: line-through; text-decoration-color: #b8432f; text-decoration-thickness: 2px;
 }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zlava {
-  display: inline-block; padding: 2px 9px; border-radius: 999px; background: #e8f3ec; color: #1a6f46;
-  font: 700 12px/16px var(--c1v-disp); letter-spacing: .04em; font-variant-numeric: tabular-nums; white-space: nowrap;
-}
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__fig { margin: 12px 0 0; }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__teraz { display: flex; align-items: baseline; white-space: nowrap; }
 /* „od“ pri čísle v texte (nie v cene); zmizne, keď je výber hotový (cena je konečná) */
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__od {
-  margin: 0 4px 0 0; font: 600 15px/1 var(--c1v-body); font-style: normal; color: var(--c1v-lb); white-space: pre;
+  margin: 0 2px 0 0; font: 600 13.5px/1 var(--c1v-body); font-style: normal; color: var(--c1v-lb); white-space: pre;
 }
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma {
-  font: 600 40px/1 var(--c1v-disp); letter-spacing: 0; color: var(--c1v-ink); font-variant-numeric: tabular-nums;
+  font: 900 32px/1 var(--c1v-disp); letter-spacing: -.005em; color: var(--c1v-ink); font-variant-numeric: tabular-nums;
 }
+/* pruh dole: „−39 % · Ušetríte 141 €“ */
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px;
-  margin: 12px 0 0; padding: 0 0 18px; border-bottom: 1px solid var(--c1v-line);
-  font: 400 15px/20px var(--c1v-body); color: var(--c1v-lb);
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 0 6px;
+  margin: 0; padding: 8px 12px 9px; background: #f7f5ef; border: 0; border-top: 1px solid #ece6d6;
+  font: 700 14px/19px var(--c1v-disp); color: var(--c1v-zn); font-variant-numeric: tabular-nums;
 }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us-w { color: var(--c1v-tm); }
-body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us { color: var(--c1v-zn); font-weight: 700; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zlava,
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us { font: inherit; color: inherit; white-space: nowrap; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us-w { white-space: nowrap; }
 
 /* ---------- „Spolu“ + tlačidlo košíka (živé tlačidlo, preštýlované) ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .lcd1v-suhrn {
@@ -230,19 +243,20 @@ body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos:focus-visible { outline: 2px so
 /* ---------- rozmery ---------- */
 @media (min-width: 901px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 32px; }
-  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma { font-size: 46px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bolo,
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__fig { padding: 14px 10px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__odp { font-size: 20px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma { font-size: 38px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn { padding: 9px 14px 10px; }
 }
 @media (max-width: 380px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 24px; }
-  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma { font-size: 36px; }
-}
-/* úzke telefóny: poznámka pod cenou v dvoch riadkoch bez bodky */
-@media (max-width: 359px) {
-  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn { flex-direction: column; gap: 0; }
-  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bod { display: none; }
 }
 @media (max-width: 340px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 22px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__stitok { letter-spacing: .1em; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__odp { font-size: 16px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma { font-size: 28px; }
 }
 @media (prefers-reduced-motion: reduce) {
   body.lcd-1v .lcd1v-lista, body.lcd-1v .lcd1v-lista.on { transition: none; }

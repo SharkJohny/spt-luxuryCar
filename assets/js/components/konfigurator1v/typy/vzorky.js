@@ -15,7 +15,7 @@
 export const TYP = {
   texty: {
     // štítok nad nadpisom (kroky.js / cena.js na vzorkovníku nebežia; pre istotu rovnaký tvar ako ostatné typy)
-    cena: { typ: "Vzorkovník", zaSet: "vratná záloha" },
+    cena: { typ: "Vzorkovník" },
     vzorky: {
       typ: "Vzorkovník",
       // nadpis len vizuálne (živý H1 ostáva v DOM, plan.md §2.5)

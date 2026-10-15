@@ -4,7 +4,7 @@
 //
 // Tvar (rovnaký vo všetkých typy/<typ>.js):
 //   TYP.texty.kroky   { postup(z), kroky: { <meno kroku>: { nm, ti, vy, pod, chyba, pozn, dalej } } }   -> kroky.js
-//   TYP.texty.cena    { typ (štítok nad H1), zaSet (veta pri cene) }                                   -> cena.js
+//   TYP.texty.cena    { typ (štítok nad H1), lista? (popis lepivej lišty) } — vetu pri cene rámik nemá -> cena.js
 //   TYP.texty.rozlozenie, TYP.texty.kuforBoxy  — voliteľné prepisy textov modulov (kľúče ako v module)
 //   TYP.obrazky       { "<kľúč>": { diamond, stripe, hexa } } — súbory v assets/img/1v/; ctx.obrazokVzoru(kľúč)
 //                     vráti súbor vzoru produktu, inak diamond. Zoznam je explicitný (žiadne 404).
@@ -25,7 +25,7 @@ export const TYP = {
         boxy: { nm: "Boxy do kufra", ti: "Prosím, vyberte si boxy do kufra", vy: "Bez boxov", dalej: "Pokračujte k súhrnu" },
       },
     },
-    cena: { typ: "Jednovrstvové", zaSet: "cena za set na mieru" },
+    cena: { typ: "Jednovrstvové" },
     // Ponuka druhej vrstvy po kroku Farba (druha-vrstva.js; Michal 14. 10. 2026: skrytá karta BEZ čísla, nepovinná).
     // Texty zo schváleného návrhu druha-vrstva.html (krok „Druhá vrstva“, dlaždica, Nie, správa pri prenose); podnadpis =
     // dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js. Cena „+ N €“ sa ráta živo (nikdy natvrdo).

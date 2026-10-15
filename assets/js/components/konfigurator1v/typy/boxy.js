@@ -29,7 +29,7 @@ export const TYP = {
         },
       },
     },
-    cena: { typ: "Box do kufra", zaSet: "cena za box" },
+    cena: { typ: "Box do kufra" },
     // „Poznámka k objednávke“ (poznamka.js; návrh boxy.html .pozn-dole, navrh-boxy.md §Súhrn)
     poznamka: {
       ph: "Napríklad: do kufra mi vojde šírka približne 80 cm — poraďte, ktoré veľkosti zvoliť…",
