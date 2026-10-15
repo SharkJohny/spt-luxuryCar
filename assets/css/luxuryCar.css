@@ -18873,10 +18873,12 @@ body.lcd-1v :is(#p1v-vzorky-1,#p1v-vzorky-2) [data-lcd-sekcia="a-ponuka"] .vz-up
    Bez JS je lišta aj okno kompletné; cookies.js len zdvihne bublinu Luxie a pridá odkaz do päty. docs/1v-kontrakt.md §14. */
 
 /* ---------- 1. vrstva: čierna karta so zlatým nadpisom, dve rovnaké zlaté tlačidlá ---------- */
-/* PC: karta 960 px v strede dole, 20 px nad okrajom (návrh C); Shoptet .siteCookies--bottom (670 px, margin-left -335) prebitý */
+/* PC: karta 960 px v strede dole, 20 px nad okrajom (návrh C); Shoptet .siteCookies--bottom (670 px, margin-left -335) prebitý.
+   Obal bez pozadia a tieňa: Shoptet od 768 px po prvom scrolle pridá .siteCookies--scrolled (pozadie #1A1937 a modrá žiara
+   30 px) -> za zaoblenými rohmi karty boli hranaté modré rohy (kontrola 16. 10. 2026; bolo aj v 3d779e9 s flagom). */
 html:root .siteCookies {
   left: max(24px, calc(50% - 480px)); right: max(24px, calc(50% - 480px)); bottom: 20px;
-  width: auto; margin: 0; transform: none; transition: none;
+  width: auto; margin: 0; transform: none; transition: none; background: none; box-shadow: none;
   color: #ece6d8; font: 400 15px/1.45 "Source Sans 3", "Segoe UI", Arial, sans-serif;
 }
 /* padding !important prebije rezervu 96 px pre bublinu (_lcdNativeHdr.scss) — bublina sa namiesto toho zdvihne nad kartu */
@@ -19146,6 +19148,13 @@ html:root #footer .footer-bottom .lcd-cookies-odkaz:hover { color: #e6c877; back
 html:root #footer .footer-bottom .lcd-cookies-odkaz:focus-visible { outline: 2px solid #f0d78f; outline-offset: 3px; box-shadow: none; }
 @media (max-width: 767px) {
   html:root #footer .footer-bottom .lcd-cookies-odkaz { display: block; margin: 8px auto 0; padding: 4px 0; line-height: 20px; }
+}
+/* telefón (do 468 px) na produkte: lepkavá lišta „Do košíka“ Shoptetu (#js-plugin-header.active, dole, 61 px) ležala aj na
+   úplnom spodku stránky na odkaze (ťuk trafil „Do košíka“, kontrola 16. 10. 2026) -> spodný okraj riadku päty 72 px
+   (rovnaká podmienka a výška ako bublina Luxie v LCD-HDR; odkaz je 30 px nad lištou). S flagom 1V je lišta Shoptetu
+   skrytá (LCD-1V-CENA) a rezervu dáva lišta 1V (body.lcd1v-lista-on) -> tam nie. */
+@media (max-width: 468px) {
+  html:root body:not(.lcd-1v):has(#js-plugin-header.active) #footer .footer-bottom { padding-bottom: 72px; }
 }
 /* ===== LCD-1V-COOKIES END ===== */
 

@@ -516,5 +516,6 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Test tools/test-cookies-1v.mjs (bez flagu = živý CDN, karta, okno, prepínače, Súhlasím zrušený, Odmietnuť povolený)
 - [ ] Michal: texty lišty SK/CZ v admine (CZ „Dalším procházením … vyjadřujete souhlas“ je v rozpore so zákonom)
 - [x] Pre všetkých (Michal 15. 10.): selektory pod html:root = karta C od prvého vykreslenia (bez ~0,5 s bliknutia starej lišty), cookies.js bez brány, okno nastavení spoznané podľa obsahu (bez bliknutia starého okna pri otváraní), odkaz „Nastavenia cookies“ / „Nastavení cookies“ v päte (GDPR čl. 7 ods. 3); test: prvý snímok, bez-js, odkaz v päte pred súhlasom aj po odmietnutí
+- [x] Nezávislá kontrola 16. 10.: obal lišty bez modrého pozadia/žiary po scrolle (.siteCookies--scrolled), odkaz v päte na telefóne nad lepkavou lištou „Do košíka“ (rezerva 72 px); test: scroll + výrez rohu, úplný spodok stránky (titulka, 598, 598 s flagom)
 - [ ] Prepnutie sha v SK admine (Michal) — CZ až vlastným prepnutím (dnes 5db0f33)
 - [ ] Upratanie (nízka priorita, dnes prebité): zúžiť Bender #cboxLoadedContent na okno cookies, zrušiť rezervu 96 px v _lcdNativeHdr.scss; testy zatvárania lišty na [value=reject]

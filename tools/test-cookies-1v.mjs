@@ -5,6 +5,7 @@
 //
 //   node tools/test-cookies-1v.mjs                         # SK titulka + produkt 598 (+ CZ titulka), 1280 aj 390
 //   node tools/test-cookies-1v.mjs --sirka 390 --snimky C:/tmp/cookies --vypis
+//   node tools/test-cookies-1v.mjs --len odmietnutie,karta   # len scenáre, ktorých názov obsahuje niektorý text
 //   (--okno = Chrome s oknom, --bez-cz = bez CZ titulky, --bez-drop = build bez --drop:console)
 //
 // Prvý snímok: skript pred načítaním stránky (Page.addScriptToEvaluateOnNewDocument) v každom requestAnimationFrame
@@ -13,17 +14,21 @@
 //
 // Scenáre (pre každú šírku):
 //   bez-js <stránka>     bundle luxuryCar.js ZABLOKOVANÝ (len lokálne CSS): prvý snímok aj hotová lišta = karta C, trieda
-//                        lcd1v-cookies nikdy nenaskočí (štýl nezávisí od JS); okno nastavení v štýle C v každom snímku
+//                        lcd1v-cookies nikdy nenaskočí (štýl nezávisí od JS); po scrolle obal bez modrého pozadia a tieňa;
+//                        okno nastavení v štýle C v každom snímku
 //   karta <stránka>      bez flagu (bežný návštevník): prvý snímok = karta C, karta C (pozadie, rádius, nadpis, rovnaké
 //                        Odmietnuť = Súhlasím, kontrast, podiel výšky na telefóne, poloha na PC, rezerva 96 px preč),
-//                        bublina Luxie nezakrýva tlačidlá; titulka a 598 navyše okno nastavení skutočným klikom (každý snímok
+//                        bublina Luxie nezakrýva tlačidlá; po scrolle (Shoptet od 768 px pridá .siteCookies--scrolled)
+//                        obal bez pozadia #1A1937 a modrej žiary, karta sa nepohne; titulka a 598 navyše okno nastavení skutočným klikom (každý snímok
 //                        otvárania v štýle C, v okne, tlačidlá viditeľné a nezakryté, Všetko vypnuté = Povoliť všetko,
 //                        prepínače, kontrast, chat ustúpi) a odkaz v päte (text, otvorí okno aj pod lištou); CZ len lišta
 //                        a text odkazu „Nastavení cookies“
 //   flag 598             s ?novy=1: karta C a bublina Luxie rovnako (flag na lištu nemá vplyv)
 //   suhlas               „Súhlasím“ skutočným klikom: POST súhlasu sa ZRUŠÍ (nikdy neodíde)
-//   odmietnutie          „Odmietnuť“ skutočným klikom: POST consent=none je povolený, lišta zmizne, bublina Luxie späť dole;
-//                        potom odkaz „Nastavenia cookies“ v päte skutočným klikom otvorí okno (súhlas sa dá zmeniť aj bez lišty)
+//   odmietnutie <str.>   „Odmietnuť“ skutočným klikom (titulka aj 598): POST consent=none je povolený, lišta zmizne, bublina
+//                        Luxie späť dole; potom na ÚPLNOM SPODKU stránky (scrollY = max) odkaz „Nastavenia cookies“ nič
+//                        nezakrýva (598 na telefóne: lepkavá lišta „Do košíka“ je dole aktívna) a skutočný klik otvorí okno;
+//                        „odmietnutie 598 flag“ to isté s ?novy=1 (lišta Shoptetu skrytá, rezervu dáva lišta 1V)
 //
 // Bezpečnosť: Chrome bez okna s dočasným profilom, pred každou stránkou zmazané cookies (čistý návštevník). Merače
 // (GA, GTM, FB, TikTok…) zablokované. POST /action/CustomerCookieConsent/ prejde LEN ako odmietnutie (consent=none);
@@ -47,7 +52,7 @@ const MERACE = [
 ];
 const STRANKY = [
   { meno: "titulka", url: SK + "/", nadpis: "Cookies a súkromie", odkaz: "Nastavenia cookies", nastavenia: true },
-  { meno: "598", url: PRODUKTY[598].url, nadpis: "Cookies a súkromie", odkaz: "Nastavenia cookies", nastavenia: true },
+  { meno: "598", url: PRODUKTY[598].url, nadpis: "Cookies a súkromie", odkaz: "Nastavenia cookies", nastavenia: true, lista: true },
   { meno: "cz-titulka", url: CZ + "/", nadpis: "Cookies a soukromí", odkaz: "Nastavení cookies", nastavenia: false, cz: true },
 ];
 const TELEFON_MAX = 0.225; // karta na telefóne najviac ~22 % výšky okna (návrh C: 187 px z 844 = 22,2 %)
@@ -57,7 +62,7 @@ class Zlyhanie extends Error {}
 const over = (podm, sprava) => { if (!podm) throw new Zlyhanie(sprava); };
 
 function argumenty(argv) {
-  const a = { sirky: [1280, 390], snimky: null, okno: false, vypis: false, bezCz: false, bezDrop: false };
+  const a = { sirky: [1280, 390], snimky: null, okno: false, vypis: false, bezCz: false, bezDrop: false, len: null };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
     if (x === "--sirka") a.sirky = dalsi().split(",").map((s) => Number(s.trim())).filter(Boolean);
@@ -66,7 +71,8 @@ function argumenty(argv) {
     else if (x === "--vypis") a.vypis = true;
     else if (x === "--bez-cz") a.bezCz = true;
     else if (x === "--bez-drop") a.bezDrop = true;
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 32).join("\n")); process.exit(0); }
+    else if (x === "--len") a.len = dalsi().split(",").map((s) => s.trim()).filter(Boolean);
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 36).join("\n")); process.exit(0); }
     else throw new ChybaPouzitia("neznámy prepínač " + x);
   }
   return a;
@@ -409,10 +415,65 @@ async function overOdkaz(s, S) {
   over(!od.chyby.length, "odkaz v päte: " + od.chyby.join("; "));
   return od;
 }
-async function snimkaPaty(s, cesta) {
-  const k = `(function () { var b = document.querySelector("#footer .lcd-cookies-odkaz"); if (b) b.scrollIntoView({ block: "center", behavior: "instant" }); return 1; })()`;
-  await s.t.ev(k); await pauza(900); await s.t.ev(k); await pauza(400); // lenivé obrázky nad pätou posunú stránku
-  await s.k.snimka(cesta);
+
+/** Úplný spodok stránky (scrollY = max): odkaz v päte nesmie nič zakrývať. Na telefóne (do 468 px) na produkte leží dole
+    lepkavá lišta „Do košíka“ Shoptetu (#js-plugin-header.active, 61 px) — ťuk na odkaz trafil „Do košíka“ (kontrola 16. 10.). */
+const DNO = `(function () {${POMOC}
+  var b = document.querySelector("#footer .footer-bottom .lcd-cookies-odkaz");
+  if (!b) return { chyba: "odkaz v päte chýba" };
+  var h = document.getElementById("js-plugin-header"), aktivna = !!h && h.classList.contains("active") && vid(h);
+  var l1 = document.querySelector("body.lcd-1v .lcd1v-lista.on"); // s flagom 1V: lepkavá lišta 1V namiesto lišty Shoptetu
+  return { zakryte: zakryte(b), rect: rect(b), lista: aktivna ? rect(h) : null, lista1v: l1 && vid(l1) ? rect(l1) : null, scrollY: Math.round(scrollY),
+    max: Math.round(document.documentElement.scrollHeight - innerHeight), vh: innerHeight,
+    rezerva: getComputedStyle(document.querySelector("#footer .footer-bottom")).paddingBottom };
+})()`;
+async function naDno(s) {
+  let pred = -1;
+  for (let i = 0; i < 8; i++) { // lenivé obrázky nad pätou predĺžia stránku -> posúvať, kým výška stojí
+    const v = await s.t.ev(`(function () { window.scrollTo(0, document.documentElement.scrollHeight); return document.documentElement.scrollHeight; })()`);
+    await pauza(700);
+    if (v === pred) break;
+    pred = v;
+  }
+  await pauza(500); // lišta „Do košíka“ sa vysúva (transition .15s)
+  return s.t.ev(DNO);
+}
+
+/** Obal lišty (.siteCookies): Shoptet od 768 px po scrolle pridá .siteCookies--scrolled s pozadím #1A1937 a žiarou —
+    za zaoblenými rohmi karty by boli modré hranaté rohy. Obal musí ostať priehľadný a bez tieňa, karta na mieste. */
+const OBAL = `(function () {${POMOC}
+  var bar = document.querySelector(".js-siteCookies"), form = bar && bar.querySelector(".siteCookies__form");
+  if (!form || !vid(form)) return { chyba: "lišta cookies nie je viditeľná" };
+  var c = getComputedStyle(bar), bc = rgb(c.backgroundColor);
+  return { scrolled: bar.classList.contains("siteCookies--scrolled"), bg: c.backgroundColor, priehladne: !bc || bc.a === 0,
+    obrazok: c.backgroundImage, tien: c.boxShadow, form: rect(form), sx: Math.round(scrollX), sy: Math.round(scrollY) };
+})()`;
+async function overPoScrolle(s, S, sirka, a, predpona) {
+  const pred = await s.t.ev(OBAL);
+  over(!pred.chyba, pred.chyba);
+  await s.t.ev(`(function () { window.scrollBy(0, 700); return 1; })()`);
+  await pauza(900);
+  const po = await s.t.ev(OBAL);
+  over(!po.chyba, "po scrolle: " + po.chyba);
+  const z = [];
+  for (const [kde, o] of [["pred scrollom", pred], ["po scrolle", po]]) {
+    if (!o.priehladne || o.obrazok !== "none") z.push(kde + ": obal má pozadie " + o.bg + " " + o.obrazok.slice(0, 40));
+    if (o.tien !== "none") z.push(kde + ": obal má tieň " + o.tien);
+  }
+  if (sirka >= 768 && !po.scrolled) z.push("Shoptet po scrolle nepridal .siteCookies--scrolled (stav, ktorý sa má overiť, nenastal)");
+  const posun = ["x", "y", "w", "h"].filter((q) => Math.abs(pred.form[q] - po.form[q]) > 1);
+  if (posun.length) z.push("karta sa po scrolle pohla: " + JSON.stringify(pred.form) + " -> " + JSON.stringify(po.form));
+  over(!z.length, "lišta po scrolle: " + z.join("; "));
+  if (a.snimky) {
+    await s.k.snimka(join(a.snimky, `${predpona}-po-scrolle-${S.meno}-${sirka}.png`));
+    // výrez ľavého horného rohu karty zväčšený 3× (modré rohy za zaoblením by tu bolo vidieť); clip je v súradniciach stránky
+    const r = po.form, x = po.sx + Math.max(0, r.x - 24), y = po.sy + Math.max(0, r.y - 24);
+    const o = await s.k.posli("Page.captureScreenshot", { format: "png", clip: { x, y, width: 120, height: 90, scale: 3 } });
+    writeFileSync(join(a.snimky, `${predpona}-po-scrolle-roh-${S.meno}-${sirka}.png`), Buffer.from(o.data, "base64"));
+  }
+  await s.t.ev(`(function () { window.scrollTo(0, 0); return 1; })()`);
+  await pauza(400);
+  return (po.scrolled ? "--scrolled" : "bez --scrolled") + ", obal " + po.bg + " / tieň " + po.tien + ", karta stojí";
 }
 
 /** bez-js: bundle zablokovaný — lišta aj okno nastavení sú karta C len z CSS v <head>, od prvého snímku. */
@@ -431,6 +492,7 @@ async function bezJs(ch, sirka, build, S, a) {
     info.push(`hotová ${k.karta.w}×${k.karta.h}, tlačidlá ${k.tlacidla[0]}×${k.tlacidla[1]} = ${k.tlacidla[2]}×${k.tlacidla[3]}`);
     over(!(await s.t.ev(`!!document.querySelector(".lcd-cookies-odkaz")`)), "odkaz v päte je tu bez bundla (pridáva ho cookies.js)");
     if (a.snimky) await s.k.snimka(join(a.snimky, `bez-js-${S.meno}-${sirka}.png`));
+    info.push("scroll: " + (await overPoScrolle(s, S, sirka, a, "bez-js")));
     if (S.nastavenia) {
       // klik cez DOM: bez JS sa bublina Luxie nezdvihne nad kartu — tu sa overuje len CSS okna
       const { o, sn } = await otvorOkno(s, () => s.t.ev(`document.querySelector(".js-siteCookies .siteCookies__link").click()`), "bez JS");
@@ -466,6 +528,7 @@ async function karta(ch, sirka, build, S, a, { novy = false } = {}) {
     }
     info.push("Luxia " + L.luxia);
     if (a.snimky && !novy) await s.k.snimka(join(a.snimky, `lista-${S.meno}-${sirka}.png`));
+    if (!novy) info.push("scroll: " + (await overPoScrolle(s, S, sirka, a, "lista")));
     const od = await overOdkaz(s, S);
     info.push(`päta „${S.odkaz}“ ${od.rect.w}×${od.rect.h}`);
     if (novy || !S.nastavenia) return { info: info.join("; ") };
@@ -525,10 +588,10 @@ async function suhlas(ch, sirka, build, S, a) {
   } finally { await s.k.zavri(); }
 }
 
-async function odmietnutie(ch, sirka, build, S, a) {
+async function odmietnutie(ch, sirka, build, S, a, { novy = false } = {}) {
   const s = await novaStranka(ch, sirka, build);
   try {
-    await otvor(s, S.url);
+    await otvor(s, sFlagom(S, novy));
     await s.t.cakaj(`document.documentElement.classList.contains("lcd1v-cookies") && !!document.querySelector(".js-siteCookies .siteCookies__form")`, { ms: 8000, popis: "karta C" });
     await s.t.cakaj(`!!document.querySelector('iframe[title="Luxia chat"]')`, { ms: 15000, popis: "chat Luxia" }).catch(() => {});
     await pauza(1500);
@@ -545,7 +608,17 @@ async function odmietnutie(ch, sirka, build, S, a) {
     const info = ["Odmietnuť -> POST " + p[0].body.replace(/cookieId=[^&]+/, "cookieId=…") + " povolený, lišta preč, Luxia " + (pred ? pred.bottom + " -> " + po.bottom : "nenačítaná")];
     // súhlas sa dá zmeniť aj bez lišty: odkaz v päte skutočným klikom otvorí okno s uloženou voľbou (všetko vypnuté)
     const od = await overOdkaz(s, S);
-    if (a.snimky) await snimkaPaty(s, join(a.snimky, `pata-${S.meno}-${sirka}.png`));
+    // úplný spodok stránky: odkaz nič nezakrýva (598 na telefóne: lepkavá lišta „Do košíka“ je dole aktívna)
+    const d = await naDno(s);
+    over(!d.chyba, d.chyba);
+    over(Math.abs(d.scrollY - d.max) <= 2, "nie som na úplnom spodku stránky: scrollY " + d.scrollY + " / max " + d.max);
+    if (S.lista && sirka <= 468 && !novy) over(d.lista, "na spodku produktu na telefóne nie je lepkavá lišta „Do košíka“ aktívna — zakrytie by sa neoverilo");
+    if (novy) over(!d.lista, "s flagom 1V je na spodku viditeľná lišta Shoptetu „Do košíka“ (má byť skrytá)");
+    const lista = d.lista ? `lišta Do košíka y ${d.lista.y}–${d.lista.b}` : d.lista1v ? `lišta 1V y ${d.lista1v.y}–${d.lista1v.b}` : "bez lepkavej lišty";
+    if (a.snimky) await s.k.snimka(join(a.snimky, `pata-dno-${S.meno}${novy ? "-flag" : ""}-${sirka}.png`));
+    over(!d.zakryte, "na úplnom spodku stránky (scrollY " + d.scrollY + ") je odkaz „" + S.odkaz + "“ zakrytý: " + d.zakryte + " (odkaz y " + d.rect.y + "–" + d.rect.b + ", " + lista + ", rezerva päty " + d.rezerva + ")");
+    info.push(`spodok ${d.scrollY}/${d.max}: odkaz y ${d.rect.y}–${d.rect.b}, ${lista}, rezerva päty ${d.rezerva}, nezakrytý`);
+    // skutočný klik: t.klikni posúva prvok do stredu, na spodku stránky to nejde -> klik je presne v stave zo snímky
     const { o, sn } = await otvorOkno(s, () => s.t.klikni("#footer .footer-bottom .lcd-cookies-odkaz", { popis: S.odkaz + " v päte" }), "odkaz v päte po odmietnutí");
     if (a.snimky) await s.k.snimka(join(a.snimky, `pata-nastavenia-${S.meno}-${sirka}.png`));
     await zavriOkno(s);
@@ -570,7 +643,13 @@ async function main() {
     for (const S of stranky) ulohy.push({ m: "karta " + S.meno, sirka, fn: karta, S });
     if (P598) ulohy.push({ m: "flag 598", sirka, fn: (c, w, b, S, x) => karta(c, w, b, S, x, { novy: true }), S: P598 });
     ulohy.push({ m: "suhlas", sirka, fn: suhlas, S: stranky[0] });
-    ulohy.push({ m: "odmietnutie", sirka, fn: odmietnutie, S: stranky[0] });
+    for (const S of stranky.filter((x) => !x.cz)) ulohy.push({ m: "odmietnutie " + S.meno, sirka, fn: odmietnutie, S });
+    if (P598) ulohy.push({ m: "odmietnutie 598 flag", sirka, fn: (c, w, b, S, x) => odmietnutie(c, w, b, S, x, { novy: true }), S: P598 });
+  }
+  if (a.len) {
+    const pred = ulohy.length;
+    ulohy.splice(0, ulohy.length, ...ulohy.filter((u) => a.len.some((x) => u.m.includes(x))));
+    if (!ulohy.length) throw new ChybaPouzitia("--len " + a.len.join(",") + ": žiadny scenár (z " + pred + ")");
   }
   const ch = await spustiChrome({ okno: a.okno });
   let zle = 0;
