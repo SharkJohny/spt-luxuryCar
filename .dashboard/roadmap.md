@@ -509,3 +509,10 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Vydanie (push, CI, version.json, curl -sI kusu html/ na CDN) a prepnutie sha v SK HTML kódoch (Michal)
 - [ ] Vydať typy dvoj / kufor-* / boxy / vzorky (ZAPNUTE_TYPY) až s obsahom T1.3, T2.3, T2.4, T3.3 a T5.1 obsahom
 - [ ] Michal: otázky v docs/1v-odkazy.md (Diamond vzorky v obsahu 610/613, okno „Vyberte model“ pri kroku Vzor) a zoznam opráv adminu (D2)
+
+## Cookie lišta v štýle C (tichý test s flagom 1V ?novy=1) — 15. 10. 2026
+- [x] Karta C (čierna, zlatý nadpis, Odmietnuť = Súhlasím) + okno nastavení v štýle C, len pod html.lcd1v-cookies (konfigurator1v/cookies.js, _lcd1v-cookies.scss, blok LCD-1V-COOKIES)
+- [x] Bublina Luxie nad kartou (zbalený chat), chat ustúpi pri otvorenom okne nastavení; rezerva 96 px pod flagom preč
+- [x] Test tools/test-cookies-1v.mjs (bez flagu = živý CDN, karta, okno, prepínače, Súhlasím zrušený, Odmietnuť povolený)
+- [ ] Michal: texty lišty SK/CZ v admine (CZ „Dalším procházením … vyjadřujete souhlas“ je v rozpore so zákonom) + odkaz „Nastavenia cookies“ v pätičke
+- [ ] Vydanie pre všetkých: PRE_VSETKYCH / selektory bez triedy, zúžiť Bender #cboxLoadedContent, zrušiť rezervu 96 px; testy zatvárania lišty na [value=reject]
