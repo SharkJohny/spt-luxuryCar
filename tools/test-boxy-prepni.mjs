@@ -155,6 +155,8 @@ async function novaStranka(ch, a, build, log) {
           s.posty.push({ url: u, body: p.request.postData || "", pole: rozober(p.request.postData) });
           return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "Aborted" });
         }
+        // merač Mety (Shoptet FacebookCAPI, naživo od 15. 10. 2026): zrušiť, nepočítať ako zápis nášho kódu
+        if (/\/action\/FacebookCAPI\//i.test(u)) return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "Aborted" });
         if (p.request.method !== "GET" && !/\/action\/CustomerCookieConsent\//i.test(u)) {
           s.inePosty.push(p.request.method + " " + u);
           return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "Aborted" });

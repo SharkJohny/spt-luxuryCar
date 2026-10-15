@@ -233,6 +233,9 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
           s.posty.push({ cas: Date.now(), url: u, body: p.request.postData || "", pole: rozober(p.request.postData) });
           return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "Aborted" });
         }
+        // merač Mety (Shoptet FacebookCAPI, naživo od 15. 10. 2026 aj v starom vzhľade): zrušiť, aby test neposielal
+        // do Mety falošné udalosti, ale nie je to zápis nášho kódu -> nepočíta sa ako chyba
+        if (/\/action\/FacebookCAPI\//i.test(u)) return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "Aborted" });
         // odmietnutie cookies (Shoptet si uloží len súhlas „nevyhnutné“) je povolené
         if (p.request.method !== "GET" && !/\/action\/CustomerCookieConsent\//i.test(u)) {
           s.inePosty.push(p.request.method + " " + u);
