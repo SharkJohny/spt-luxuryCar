@@ -120,6 +120,32 @@ async function oknoOtvorene(t) {
   return t.ev(`(function () { var e = document.querySelector(${JSON.stringify(OKNO)}); return !!(e && e.closest(".upsale-Banner").classList.contains("showConf") && getComputedStyle(e).visibility === "visible"); })()`);
 }
 
+/**
+ * Vzhľad karty podľa návrhu E (Michal 15. 10. 2026): odporúčaná karta kroku má široký pás s vetou „… najčastejšie“;
+ * cenovka označenej karty sedí sama so sebou — veľká cena v sete, „Samostatne“ s prečiarknutou cenou a „Ušetríte“
+ * idú spolu a Ušetríte = Samostatne − V sete (presne = vybraný kufor / boxy s veľkosťou: „+ N €“). Ceny sú zo živej
+ * stránky, nič natvrdo; „Samostatne“ sa načíta neskôr (pred načítaním sa kontroluje len cena v sete).
+ */
+async function overKartu(t, karta, { presne }) {
+  const r = await t.ev(`(function () {
+    var k = document.querySelector(${JSON.stringify(karta)}); if (!k) return "karta chýba";
+    var veta = k.closest(".lcd1v-kb").querySelector(".lcd1v-kb__karta--naj > .lcd1v-kb__top > .lcd1v-kb__veta");
+    if (!veta || !/najčastejšie/i.test(veta.textContent)) return "odporúčaná karta nemá zlatý pás s vetou „… najčastejšie“";
+    var cb = k.querySelector(".lcd1v-kb__cb"); if (!cb) return ""; // Nechcem: bez cenovky
+    var num = function (s) { var m = /(\\d[\\d\\s\\u00a0]*(?:,\\d+)?)/.exec(s || ""); return m ? Number(m[1].replace(/[\\s\\u00a0]/g, "").replace(",", ".")) : NaN; };
+    var c = cb.querySelector(".lcd1v-kb__cb-c").textContent, s = cb.querySelector(".lcd1v-kb__cb-s"), u = cb.querySelector(".lcd1v-kb__cb-u");
+    if (!(num(c) > 0)) return "cena v sete chýba: " + c;
+    if (${presne ? "true" : "false"} && !/^\\+\\s/.test(c)) return "cena v sete nie je presná „+ N €“: " + c;
+    if (s.hidden !== u.hidden) return "„Samostatne“ a „Ušetríte“ nie sú zobrazené spolu";
+    if (s.hidden) return "";
+    var pr = s.querySelector("s");
+    if (!pr || getComputedStyle(pr).textDecorationLine.indexOf("line-through") < 0) return "cena samostatne nie je prečiarknutá";
+    if (${presne ? "true" : "false"} && Math.abs(num(pr.textContent) - num(c) - num(u.textContent)) > 0.01) return "Ušetríte ≠ Samostatne − V sete: " + [c, s.textContent, u.textContent].join(" / ");
+    return "";
+  })()`);
+  if (r) throw new Error("karta " + karta.replace(/^.*\[/, "[") + ": " + r);
+}
+
 async function hodnotyBoxov(t) {
   return {
     farbaBoxov: await hodnota(t, "farbaBoxov"),
@@ -168,6 +194,7 @@ export const novy = {
     }
     await t.cakaj(`(document.querySelector(${JSON.stringify(karta)}) || {}).getAttribute && document.querySelector(${JSON.stringify(karta)}).getAttribute("aria-pressed") === "true"`, { ms: 15000, popis: "karta kufra označená" });
     await pauza(400);
+    await overKartu(t, karta, { presne: true });
     return hodnota(t, "kufor");
   },
 
@@ -187,6 +214,7 @@ export const novy = {
     }
     await t.cakaj(`document.querySelector(${JSON.stringify(karta)}).getAttribute("aria-pressed") === "true"`, { ms: 15000, popis: "karta boxov označená" });
     await pauza(400);
+    await overKartu(t, karta, { presne: !!pocet });
     return hodnotyBoxov(t);
   },
 

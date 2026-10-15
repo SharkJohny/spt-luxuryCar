@@ -15798,6 +15798,154 @@ body.lcd-1v .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
   }
 }
 
+/* ---------- návrh E (Michal 15. 10. 2026, navrhy-naj): odporúčaná karta, cenovka, väčšie texty karty Nechcem ----------
+   Len karty krokov kufor a boxy (.lcd1v-kb[data-lcd1v-kb]). Dlaždica druhej vrstvy (druha-vrstva.js) zdieľa
+   .lcd1v-kb__karta--naj, .lcd1v-kb__top a .lcd1v-kb__ben — ostáva bez zmeny. */
+/* krémová karta so zlatou žiarou */
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj {
+  border: 2px solid var(--kb-gold);
+  background: #fffaef;
+  box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3);
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"] {
+  box-shadow: 0 0 0 1px var(--kb-gold), 0 0 0 5px rgba(196, 155, 49, .2), 0 14px 30px rgba(160, 120, 30, .3);
+}
+/* fajka pod pásom (pás s vetou je vysoký ~52 px) */
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"]::after {
+  top: 62px;
+}
+/* široký zlatý pás „★ Najobjednávanejšie ★“ + veta „Zákazníci si ho/ich vyberajú najčastejšie“ */
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__top {
+  position: relative;
+  overflow: hidden;
+  padding: 9px 12px 8px;
+  font-size: 13.5px;
+  letter-spacing: .14em;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__veta {
+  display: block;
+  margin-top: 3px;
+  font: 700 12.5px/1.25 var(--kb-body);
+  letter-spacing: .01em;
+  text-transform: none;
+  white-space: normal;
+}
+/* jemný lesk po páse raz za 5 s — nie pri zapnutom obmedzení pohybu (prefers-reduced-motion) */
+@media (prefers-reduced-motion: no-preference) {
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__top::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%);
+    transform: translateX(-110%);
+    animation: lcd1v-kb-lesk 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+@keyframes lcd1v-kb-lesk {
+  0%, 64% { transform: translateX(-110%); }
+  100% { transform: translateX(110%); }
+}
+/* cenovka: V SETE / veľká cena / Samostatne <s>cena</s> (červená čiara) / zelená pilulka Ušetríte */
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px dashed #ddd5c2;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb [hidden] {
+  display: none;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-l {
+  font: 700 11px/1.3 var(--kb-disp);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #4f4836;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-c {
+  margin-top: 1px;
+  font: 800 29px/1.1 var(--kb-disp);
+  letter-spacing: -.005em;
+  color: #14110c;
+  white-space: nowrap;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-s {
+  margin-top: 3px;
+  font: 400 14px/1.4 var(--kb-body);
+  color: #4f4836;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-pr {
+  font-weight: 700;
+  color: #4a4334;
+  text-decoration: line-through;
+  text-decoration-color: #c0392b;
+  text-decoration-thickness: 2px;
+  white-space: nowrap;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-u {
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e2f3e9;
+  color: #1d6b4a;
+  font: 800 13.5px/1.2 var(--kb-body);
+  white-space: nowrap;
+}
+/* karta Nechcem: veta a „V cene“ vo veľkosti textov susedných kariet (rovnocenná voľba) */
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__ben {
+  margin-top: 8px;
+  font: 600 16px/1.35 var(--kb-body);
+  color: #3d3728;
+}
+body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__cn {
+  margin-top: 10px;
+  font: 800 22px/1.1 var(--kb-disp);
+  letter-spacing: .06em;
+}
+@media (max-width: 359px) {
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__top {
+    padding-inline: 8px;
+    font-size: 12px;
+    letter-spacing: .1em;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__veta {
+    font-size: 11.5px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-c {
+    font-size: 25px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-s {
+    font-size: 13px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-u {
+    padding-inline: 8px;
+    font-size: 12.5px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__ben {
+    font-size: 15px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__cn {
+    font-size: 19px;
+  }
+}
+@media (min-width: 721px) {
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-c {
+    font-size: 32px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-s,
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-u {
+    font-size: 14.5px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__ben {
+    font-size: 17px;
+  }
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__cn {
+    font-size: 24px;
+  }
+}
+
 /* ---------- okno boxov = živý .box-config (farba, veľkosti, validácia ostávajú) ---------- */
 /* Zatvorené okno ostáva vykreslené (validácia lcdBoxConfigUnfilled číta offsetParent), len neviditeľné. */
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config {

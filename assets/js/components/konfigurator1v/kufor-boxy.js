@@ -21,6 +21,9 @@
 //   by ju pri ďalšom kliku vrátila do formulára (box navyše v cene). Farba boxov sa prenesie.
 // - Ceny: v sete zo selectov Shoptetu (ctx.moznosti), „Samostatne“ zo živých stránok samostatných produktov tým istým
 //   kódom ako porovnanie v košíku (lcdKosikDoplnok.samostatneCenyKonfigurator). Nič natvrdo.
+// - Vzhľad karty (Michal 15. 10. 2026, návrh E v navrhy-naj): odporúčaná karta má široký zlatý pás
+//   „★ Najobjednávanejšie ★“ s vetou pod ním, krémové pozadie a zlatú žiaru; ceny ako cenovka (V sete / veľká cena /
+//   „Samostatne“ s cenou prečiarknutou červenou / zelená pilulka „Ušetríte“); karta Nechcem má väčšie texty.
 import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplnok.js";
 import { zluc } from "./produkty.js";
 
@@ -28,9 +31,9 @@ export const MENO = "kufor-boxy";
 
 // Texty z návrhu v26 (jednovrstvove.html, kroky 5–6 a okno #bxBox). Typ ich môže prepísať (typy/<typ>.js texty.kuforBoxy).
 const TEXTY = {
-  naj: "★ Najobjednávanejšie",
+  naj: "★ Najobjednávanejšie ★",
   samostatne: "Samostatne",
-  vyhoda: "Výhoda v sete",
+  usetrite: "Ušetríte",
   vSete: "V sete",
   vCene: "v cene",
   od: "od",
@@ -38,14 +41,16 @@ const TEXTY = {
   info: "Vysvetlenie",
   kufor: {
     skupina: "Rohož do kufra",
+    veta: "Zákazníci si ho vyberajú najčastejšie",
     pod: "Len na dno kufra alebo aj na boky a operadlá.",
     vysv: [["Na dno kufra", " chráni podlahu batožinového priestoru. "], ["Na dno a boky", " obalí aj bočné steny a prah — nič sa nedostane do čalúnenia, keď naložíte niečo mokré alebo špinavé."]],
     classic: { nm: "Classic", po: "Na dno kufra", alt: "Rohož do kufra Classic", kluc: "kufor-classic", obr: "kufor-boxy-classic.jpg", popis: "Rohož do kufra Classic" },
     premium: { nm: "Premium", po: "Na dno, boky aj operadlá", alt: "Rohož do kufra Premium", kluc: "kufor-premium", obr: "kufor-boxy-premium.jpg", popis: "Rohož do kufra Premium" },
-    nie: { nm: "Nechcem", po: "Bez rohože do kufra", ben: "Kufor necháte tak, ako je.", alt: "Kufor bez koberca", kluc: "kufor-nie", obr: "kufor-boxy-bez-rohoze.jpg", popis: "Bez rohože do kufra" },
+    nie: { nm: "Nechcem", po: "Bez rohože do kufra", ben: "Kufor necháte tak, ako\u00a0je.", alt: "Kufor bez koberca", kluc: "kufor-nie", obr: "kufor-boxy-bez-rohoze.jpg", popis: "Bez rohože do kufra" },
   },
   boxy: {
     skupina: "Boxy do kufra",
+    veta: "Zákazníci si ich vyberajú najčastejšie",
     pod: "Skladacie boxy z rovnakého materiálu. Veľkosť a farbu zvolíte hneď po výbere.",
     1: { nm: "1× box", po: "Praktický organizér", alt: "Jeden box v kufri", kluc: "boxy-1", obr: "kufor-boxy-1-box.jpg" },
     2: { nm: "2× box", po: "Dvojitá kapacita", alt: "Dva boxy v kufri", kluc: "boxy-2", obr: "kufor-boxy-2-boxy.jpg" },
@@ -171,21 +176,23 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   };
 
   // ---------------------------------------------------------------- karty
-  function riadky() {
-    return el("span", { class: "lcd1v-kb__ucet" }, [
-      el("span", { class: "lcd1v-kb__r lcd1v-kb__r--samo", hidden: true }, [el("span", { class: "lcd1v-kb__rn", text: T.samostatne }), el("span", { class: "lcd1v-kb__rh" })]),
-      el("span", { class: "lcd1v-kb__r lcd1v-kb__r--zl", hidden: true }, [el("span", { class: "lcd1v-kb__rn", text: T.vyhoda }), el("span", { class: "lcd1v-kb__rh" })]),
-      el("span", { class: "lcd1v-kb__r lcd1v-kb__r--sum" }, [el("span", { class: "lcd1v-kb__rn", text: T.vSete }), el("span", { class: "lcd1v-kb__rh" })]),
+  // cenovka (návrh E/D): „V sete“, veľká cena, „Samostatne <s>cena</s>“ (červená čiara), zelená pilulka „Ušetríte …“
+  function cenovka() {
+    return el("span", { class: "lcd1v-kb__cb" }, [
+      el("span", { class: "lcd1v-kb__cb-l", text: T.vSete }),
+      el("span", { class: "lcd1v-kb__cb-c" }),
+      el("span", { class: "lcd1v-kb__cb-s", hidden: true }, [el("span", { class: "lcd1v-kb__cb-sn" }), el("s", { class: "lcd1v-kb__cb-pr" })]),
+      el("span", { class: "lcd1v-kb__cb-u", hidden: true }),
     ]);
   }
-  function karta(def, data, naj) {
+  function karta(def, data, naj, veta) {
     const tx = el("span", { class: "lcd1v-kb__tx" }, [el("span", { class: "lcd1v-kb__nm", text: def.nm }), el("span", { class: "lcd1v-kb__po", text: def.po })]);
     if (def.ben) {
       tx.appendChild(el("span", { class: "lcd1v-kb__ben", text: def.ben }));
       tx.appendChild(el("span", { class: "lcd1v-kb__cn", text: T.vCene }));
-    } else tx.appendChild(riadky());
+    } else tx.appendChild(cenovka());
     return el("button", Object.assign({ type: "button", class: "lcd1v-kb__karta" + (naj ? " lcd1v-kb__karta--naj" : "") + (def.ben ? " lcd1v-kb__karta--nie" : ""), "aria-pressed": "false" }, data), [
-      naj ? el("span", { class: "lcd1v-kb__top", text: T.naj }) : null,
+      naj ? el("span", { class: "lcd1v-kb__top" }, [T.naj, veta ? el("span", { class: "lcd1v-kb__veta", text: veta }) : null]) : null,
       el("span", { class: "lcd1v-kb__fot" }, [el("img", { src: (def.kluc && ctx.obrazokVzoru && ctx.obrazokVzoru(def.kluc)) || ctx.obrazok(def.obr), alt: def.alt, loading: "lazy", decoding: "async", width: "480", height: "360" })]),
       tx,
     ]);
@@ -201,7 +208,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   const infoK = el("button", { type: "button", class: "lcd1v-kb__info", "aria-label": T.info, "aria-expanded": "false", "aria-controls": "lcd1v-kb-vysv-kufor", text: "i" });
   const vysvK = vysvetlenie("lcd1v-kb-vysv-kufor", T.kufor.vysv);
   const kartyK = {
-    classic: karta(T.kufor.classic, { "data-kufor": "classic" }, true),
+    classic: karta(T.kufor.classic, { "data-kufor": "classic" }, true, T.kufor.veta),
     premium: karta(T.kufor.premium, { "data-kufor": "premium" }, false),
     nie: karta(T.kufor.nie, { "data-kufor": "nie" }, false),
   };
@@ -220,7 +227,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   const zivyBoxy = boxy.querySelector(":scope > .parameter-cars");
   const kartyB = {
     1: karta(T.boxy[1], { "data-boxy": "1" }, false),
-    2: karta(T.boxy[2], { "data-boxy": "2" }, true),
+    2: karta(T.boxy[2], { "data-boxy": "2" }, true, T.boxy.veta),
     0: karta(T.boxy[0], { "data-boxy": "0" }, false),
   };
   const kbB = el("div", { class: "lcd1v-kb", "data-lcd1v-kb": "boxy" }, [
@@ -326,27 +333,34 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   }
 
   // ---------------------------------------------------------------- ceny na kartách
-  function napis(karta, samo, zl, sum) {
-    const r = karta.querySelectorAll(".lcd1v-kb__r");
-    if (!r.length) return;
-    [samo, zl, sum].forEach(function (t, i) {
-      const h = r[i].querySelector(".lcd1v-kb__rh");
-      if (t) { if (h.textContent !== t) h.textContent = t; r[i].hidden = false; } else r[i].hidden = true;
-    });
+  function text(e, t) { if (e.textContent !== t) e.textContent = t; }
+  // set „+ 129 €“; samo ["Samostatne ", "230 €"] alebo null (cena samostatne ešte nie je / nie je vyššia); usp „Ušetríte 101 €“
+  function napis(karta, set, samo, usp) {
+    const cb = karta.querySelector(".lcd1v-kb__cb");
+    if (!cb) return;
+    const s = cb.querySelector(".lcd1v-kb__cb-s"), u = cb.querySelector(".lcd1v-kb__cb-u");
+    text(cb.querySelector(".lcd1v-kb__cb-c"), set);
+    if (samo) { text(s.querySelector(".lcd1v-kb__cb-sn"), samo[0]); text(s.querySelector(".lcd1v-kb__cb-pr"), samo[1]); }
+    if (s.hidden !== !samo) s.hidden = !samo;
+    if (usp) text(u, usp);
+    if (u.hidden !== !usp) u.hidden = !usp;
+  }
+  // presná cena (kufor, vybraný box): v sete „+ 129 €“, samostatne „230 €“, „Ušetríte 101 €“
+  function napisPresne(karta, set, s) {
+    const viac = !!(s && s > set + 0.5);
+    napis(karta, "+ " + fmt(set), viac ? [T.samostatne + " ", fmt(s)] : null, viac ? T.usetrite + " " + fmt(s - set) : null);
   }
   function cenyKarty() {
     const sam = stav.sam;
-    // kufor: „+ €129“, samostatne „€230“, výhoda „− €101“
     [["classic", kv.classic, sam && sam.classic], ["premium", kv.premium, sam && sam.premium]].forEach(function (x) {
-      const set = x[1].cena, s = x[2];
-      napis(kartyK[x[0]], s && s > set + 0.5 ? fmt(s) : null, s && s > set + 0.5 ? "− " + fmt(s - set) : null, "+ " + fmt(set));
+      napisPresne(kartyK[x[0]], x[1].cena, x[2]);
     });
     const n = pocetBoxov(), hotovo = n && kompletne(n);
     // 1 box (solo)
     const solo = VELKOSTI.filter(function (v) { return vel.boxSolo[v]; });
     if (n === 1 && hotovo) {
-      const v = velkostVyberu("boxSolo"), set = vel.boxSolo[v].cena, s = samostatneBoxy(sam, 1, v);
-      napis(kartyB[1], s && s > set + 0.5 ? fmt(s) : null, s && s > set + 0.5 ? "− " + fmt(s - set) : null, "+ " + fmt(set));
+      const v = velkostVyberu("boxSolo");
+      napisPresne(kartyB[1], vel.boxSolo[v].cena, samostatneBoxy(sam, 1, v));
     } else {
       const set = Math.min.apply(null, solo.map(function (v) { return vel.boxSolo[v].cena; }));
       const samo = solo.map(function (v) { return samostatneBoxy(sam, 1, v); }).filter(Boolean);
@@ -357,8 +371,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     const p1 = VELKOSTI.filter(function (v) { return vel.box1[v]; }), p2 = VELKOSTI.filter(function (v) { return vel.box2[v]; });
     if (n === 2 && hotovo) {
       const a = velkostVyberu("box1"), b = velkostVyberu("box2");
-      const set = vel.box1[a].cena + vel.box2[b].cena, s = samostatneBoxy(sam, 2, a, b);
-      napis(kartyB[2], s && s > set + 0.5 ? fmt(s) : null, s && s > set + 0.5 ? "− " + fmt(s - set) : null, "+ " + fmt(set));
+      napisPresne(kartyB[2], vel.box1[a].cena + vel.box2[b].cena, samostatneBoxy(sam, 2, a, b));
     } else {
       const set = Math.min.apply(null, p1.map(function (v) { return vel.box1[v].cena; })) + Math.min.apply(null, p2.map(function (v) { return vel.box2[v].cena; }));
       const samo = [], uspory = [];
@@ -369,14 +382,14 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
       napisOd(kartyB[2], samo, uspory, set);
     }
   }
-  // nevybraný počet: „od“ najnižšie ceny; výhoda „až“ najvyššia úspora (ako v návrhu), keď sa úspora medzi veľkosťami líši
+  // nevybraný počet: „od“ najnižšie ceny; „Ušetríte až“ najvyššia úspora (ako v návrhu), keď sa úspora medzi veľkosťami líši
   function napisOd(karta, samo, uspory, set) {
     const ok = samo.length && uspory.length && Math.max.apply(null, uspory) > 0.5;
     const max = ok ? Math.max.apply(null, uspory) : 0, min = ok ? Math.min.apply(null, uspory) : 0;
     napis(karta,
-      ok ? T.od + " " + fmt(Math.min.apply(null, samo)) : null,
-      ok ? (max - min > 0.5 ? T.az + " " : "") + "− " + fmt(max) : null,
-      T.od + " " + fmt(set));
+      T.od + " " + fmt(set),
+      ok ? [T.samostatne + " " + T.od + " ", fmt(Math.min.apply(null, samo))] : null,
+      ok ? T.usetrite + " " + (max - min > 0.5 ? T.az + " " : "") + fmt(max) : null);
   }
 
   // ---------------------------------------------------------------- obnova (živý DOM -> nový vzhľad)
