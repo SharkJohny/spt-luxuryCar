@@ -20,11 +20,12 @@ export const SKUPINA = "dvoj";
 export const NAVRH = "dvojvrstvove.html";
 /** skupiny A–D sa volajú priamo v kontroly() (s vyradením neplatných kontrol), nie cez zdielane */
 export const zdielane = [];
+// poradie A od 15. 10. 2026 (Michal): recenzie prvé pod konfigurátorom, porovnanie za galériou (kontrola „poradie A“ v obsah-a.mjs)
 export const sekcie = [
-  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Jednovrstvové alebo dvojvrstvové" }] },
+  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
   { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
-  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Jednovrstvové alebo dvojvrstvové" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }, { sel: "#s2Mob" }] },
   { meno: "b-material", navrh: [{ sel: "#material" }] },
   { meno: "b-porovnanie", navrh: [{ sel: "#porovnanie" }, { sel: ".spat", za: "#porovnanie" }] },
@@ -53,7 +54,7 @@ const norm = (s) => String(s == null ? "" : s).replace(/[  ]/g, " ").replace(
 
 /** kontroly A–D, ktoré platia pre obsah 598 a pre dvojvrstvové NIE (číslo / znenie iné) — nahradené vlastnými nižšie */
 const VYRADIT = [
-  /^a-ponuka: (tlačidlo|žiadna cena|fotka)/,               // dvojvrstvové: tlačidlo vedie na JEDNOVRSTVOVÉ, v tabuľke sú ceny (dosadené z živých dát)
+  /^a-ponuka: (žiadna cena|fotka)/,                        // dvojvrstvové: v tabuľke sú ceny (dosadené z živých dát), fotka sa overuje nižšie; „bez tlačidla“ z A platí
   /^b-porovnanie: naša cena/,                              // cena cez data-p1v-cislo „od 362 €“, nie .p1v-b-od „od €362“
   /náhľad 09 má fotku z CSS/,                              // náhľady Deväť vecí majú fotky dvojvrstvových
   /^texty C bez zakázaných formulácií/,                    // regulárny výraz C zakazuje „vrstv“ (dvojvrstvové sú o vrstvách) a „€“ — nahradené kontrolou nižšie
@@ -121,7 +122,7 @@ export async function kontroly(t) {
     [].forEach.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { var c = (e.textContent.match(/z[aá]ruk/gi) || []).length; if (e.getAttribute("data-lcd-sekcia") === "d-faq") n.faq += c; else n.inde += c; }); return n; })()`);
   ok(zaruka.inde === 0, `záruka sa mimo FAQ nespomína (inde ${zaruka.inde}×; FAQ ${zaruka.faq}× = živý text), nie je argument`);
 
-  // ---------------------------------------------------------------- a-ponuka: tabuľka .vs2 + ceny z živých dát + tlačidlo na jednovrstvové toho istého vzoru
+  // ---------------------------------------------------------------- a-ponuka: tabuľka .vs2 + ceny z živých dát, BEZ tlačidla na jednovrstvové (15. 10. 2026)
   if (await t.je("a-ponuka")) {
     await t.ev(`document.querySelector(${J(S("a-ponuka"))}).scrollIntoView({ block: "center", behavior: "instant" })`);
     await t.pauza(500);
@@ -142,8 +143,7 @@ export async function kontroly(t) {
       ok(r.bunky[1] === norm(`od ${eur(ocak.dvoj)}`) && r.bunky[0] === norm(`od ${eur(ocak.jedno)}`),
         `a-ponuka: ${id} má v tabuľke jednovrstvové „od ${ocak.jedno} €“ a dvojvrstvové „od ${ocak.dvoj} €“ (je ${r.bunky.join(" | ")})`);
     }
-    const jedno = t.sestra("jedno");
-    ok(r.znacka === "jedno" && String(r.href || "").split("#")[0] === jedno, `a-ponuka: tlačidlo vedie na jednovrstvové toho istého vzoru ${t.produkt.vzor} (${r.href}, čakám ${jedno})`);
+    ok(!r.href && !r.znacka, `a-ponuka: porovnanie bez tlačidla „Pozrite si jednovrstvové“ — zákazník ostáva na dvojvrstvových (${r.href || "žiadne"})`);
     ok(r.img, "a-ponuka: fotka sa načítala");
   }
 

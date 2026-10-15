@@ -79,7 +79,7 @@ Dôsledky:
 
 | Skupina | Sekcie (`admin-html/src/p1v-598/`, `data-lcd-sekcia`) | JS | CSS | Test |
 |---|---|---|---|---|
-| **A** | `10-a-ponuka` (Jazdíte aj v zime?), `11-a-referencie`, `12-a-galeria`, `13-a-recenzie` | `konfigurator1v/obsah-a.js` | `assets/css/_lcd1v-obsah-a.scss` | `tools/test-1v/obsah-a.mjs` |
+| **A** | `10-a-recenzie` (prvé pod konfigurátorom), `11-a-referencie`, `12-a-galeria`, `13-a-ponuka` (Jazdíte aj v zime?, bez tlačidla) | `konfigurator1v/obsah-a.js` | `assets/css/_lcd1v-obsah-a.scss` | `tools/test-1v/obsah-a.mjs` |
 | **B** | `20-b-ocakavat` (Deväť vecí + `#s2Mob`), `21-b-material`, `22-b-porovnanie` (+ výzva), `23-b-predapo` | `obsah-b.js` | `_lcd1v-obsah-b.scss` | `obsah-b.mjs` |
 | **C** | `30-c-kam` (+ výzva), `31-c-domov`, `32-c-casova-os` (+ výzva), `33-c-farby`, `34-c-vzorky` | `obsah-c.js` | `_lcd1v-obsah-c.scss` | `obsah-c.mjs` |
 | **D** | `40-d-realita`, `41-d-faq`, `42-d-koniec` (Kúpiť a nečakať), `43-d-pomocne` (zlatá linka `#citanie`, okno `#lb`) | `obsah-d.js` | `_lcd1v-obsah-d.scss` | `obsah-d.mjs` |
@@ -259,7 +259,7 @@ Kontroluje:
 - `async kontroly(t)` → `[{ ok, popis, pozor? }]` (`pozor: true` = upozornenie, nie zlyhanie).
 - `t` = pomocník `tools/test-1v/pomocnik.mjs` (skutočný klik s kontrolou zakrytia…) + `t.sekcia(meno)` (selektor) + `await t.je(meno)` + `t.produkt` `{ id, typ, vzor, kluc, url, cesta }` + `t.sestra(typ)` (cesta produktu typu v tom istom vzore).
 - Plugin typu (`obsah-dvoj|classic|premium|boxy.mjs`): navyše `NAVRH` (súbor návrhu) a `zdielane` (skupiny A–D, ktorých kontroly platia bez zmeny).
-- `obsah-a.mjs` (T0.3, `--produkt`): tlačidlo `a-ponuka` musí viesť na dvojvrstvové **toho istého vzoru**; na 610/613 bez značky `data-p1v-odkaz` (kým ju nedoplní T1.1) = upozornenie.
+- `obsah-a.mjs`: „poradie A“ = `a-recenzie` je prvá sekcia pod konfigurátorom, potom referencie, galéria, `a-ponuka` (platí pre 598 aj dvoj); `a-ponuka` **nemá tlačidlo ani odkaz** na iný produkt (od 15. 10. 2026; predtým T0.3: tlačidlo na dvojvrstvové toho istého vzoru).
 
 **Výsledok základu** (13. 10. 2026, všetky sekcie stub):
 - `build-admin-html --check` OK,
@@ -466,3 +466,11 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 - **Farby vlastného vzoru** (`obsah-c.js` `farbyVzoru`): na 610/613, 622/625, 631/634 sa sekcia `c-farby` (statické vzorky Diamond Line) pred oživením prestaví z farieb produktu (živý krok Farba: názov `data-lcd1v-nazov`, fotka vzorky konfigurátora), „Vzorka · Hexa Line“, počítadlo; úvodná veta o autách -> „Vyberte vzorku a pozrite si materiál aj prešívanie zblízka.“ (návrh `boxy.html`); „Mnoho ďalších farieb“ na vlastný konfigurátor sa skryje (všetky farby sú vo vzorkách), odkaz na dvojvrstvové (`data-p1v-odkaz`) ostáva. Dvojvrstvové (zmiešané skutočné fotky rôznych vzorov) a box (len Diamond) sa nemenia. Test: `tools/test-1v/obsah-c.mjs` (bez Diamond textu, fotiek `img/farby/` a s počtom vzoriek = počet farieb produktu).
 - **Tvar cien** v celom novom vzhľade „230 €“ (`ctx.formatCena` = `sumaText` v `ctx.js`, `obsah-cisla.js` `formatCena` to isté); cenová karta, „Spolu“ a lišta zrkadlia živú cenu, ale prepíšu ju do tohto tvaru. Shoptetové „€230“ ostáva len v jeho skrytých prvkoch. Testy (`ovladac-cena.mjs`, `ovladac-vzorky.mjs`) tvar vyžadujú.
 - **Test obsahu:** výška bez flagu sa porovnáva so základom meraným dvakrát (tolerancia 40 px + 2 × kolísanie základu, pri prekročení ešte jedno meranie) — znova tvrdá chyba aj pri `--miesto cdn`; každá úloha má navyše `Promise.race` s limitom 480 s (pracovník nečaká na zamrznutý Chrome).
+
+## 14. Recenzie hore, porovnanie bez tlačidla (15. 10. 2026, Michal)
+
+- Michal (snímky dvojvrstvových z telefónu): „Toto porovnanie jednovrstvové a dvojvrstvové vymeň s recenziami a nedávaj tam tlačidlo pozrieť jednovrstvové — my chceme, aby sme zákazníka nechali tu na tomto odkaze.“
+- **598 aj dvoj:** súbory prehodené — `10-a-recenzie` (Hodnotenia priamo z Google) je prvá sekcia pod konfigurátorom, `13-a-ponuka` (598 „Jazdíte aj v zime?“, dvoj „Jednovrstvové alebo dvojvrstvové?“ s tabuľkou `.vs2`) je za galériou. Obe ostávajú v kuse 1 (10–29), id, triedy a JS bez zmeny (`obsah-a.js` hľadá sekcie podľa mena, nie poradia).
+- **Tlačidlo preč:** `a.btn[data-p1v-odkaz]` („Pozrite si jednovrstvové“ / „Pozrite si dvojvrstvové“) zmazané, iný odkaz sa nepridal. Ceny v tabuľke dvoj ostávajú živé (`data-p1v-cislo`). Druhú vrstvu na 598 ponúka konfigurátor (karta „Áno“, `druha-vrstva.js`).
+- **Odsadenie:** trieda `after-dark` (väčšie odsadenie hore za tmavou galériou) presunutá z recenzií na `a-ponuka`; pravidlo v `_lcd1v-obsah-a.scss` je teraz `section.chapter.after-dark[data-lcd-sekcia^="a-"]` (classic, premium a boxy majú `after-dark` stále na recenziách → bez zmeny).
+- Ostatné kľúče (classic, premium, boxy, vzorky) sa nemenili — ich odkazy na iné produkty sú zatiaľ na mieste (zoznam v odovzdaní koordinátorovi).

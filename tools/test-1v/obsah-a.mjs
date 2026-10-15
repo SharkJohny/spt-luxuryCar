@@ -1,17 +1,21 @@
 // Skupina A obsahu 1V — mapa sekcií (web ↔ návrh v26) a kontroly pre tools/test-1v-obsah.mjs.
-// VLASTNÍK: worker skupiny A (ponuka dvojvrstvových, referenčné videá, galéria, recenzie). docs/1v-obsah.md.
+// VLASTNÍK: worker skupiny A (recenzie, referenčné videá, galéria, ponuka dvojvrstvových). docs/1v-obsah.md.
+// Poradie od 15. 10. 2026 (Michal): recenzie PRVÉ pod konfigurátorom, ponuka za galériou a bez tlačidla na iný produkt
+// (zákazník ostáva na stránke). Kontrola „poradie A“ platí aj pre dvoj (obsah-dvoj.mjs volá tieto kontroly).
 //
-// sekcie[].meno = data-lcd-sekcia obalu sekcie v admin-html/src/p1v-598/1x-a-*.sk.html
+// sekcie[].meno = data-lcd-sekcia obalu sekcie v admin-html/src/p1v-598/1x-a-*.sk.html (v poradí na stránke)
 // sekcie[].navrh = ako nájsť to isté v návrhu (jednovrstvove.html); snímka = spoločný obdĺžnik všetkých kúskov:
 //   { sel: "#referencie" } · { sel: "section", text: "Jazdíte aj v zime" } (prvý so zhodným textom)
 //   · { sel: ".spat", za: "#porovnanie" } (prvý .spat za #porovnanie v poradí dokumentu). Neviditeľný kúsok sa preskočí.
 export const SKUPINA = "a";
 export const sekcie = [
-  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Jazdíte aj v zime" }] },
+  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
   { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
-  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Jazdíte aj v zime" }] },
 ];
+/** poradie sekcií A na stránke (15. 10. 2026): recenzie hneď pod konfigurátorom, ponuka / porovnanie za galériou */
+export const PORADIE_A = sekcie.map((s) => s.meno);
 
 /** Kontroly s ?novy=1 po vložení obsahu (raz na každú šírku). t = pomocník tools/test-1v/pomocnik.mjs
  *  (t.ev, t.cakaj, t.klikni — skutočný klik s kontrolou zakrytia, t.sirka, t.mobil, t.pauza) + t.sekcia(meno) = selektor
@@ -35,18 +39,28 @@ export async function kontroly(t) {
     ok(r.h > 150 && r.rv && r.skryte === 0, `${m}: viditeľná a odhalená (výška ${Math.round(r.h)} px, .p1v-rv ${r.rv}, .rv vo výreze skryté ${r.skryte}/${r.vid})`);
   }
 
-  // --- a-ponuka: odkaz na dvojvrstvové TOHO ISTÉHO vzoru (žiadna cena v sekcii). --produkt (T0.3): 598 -> elite Diamond,
-  //     610 -> elite Hexa, 613 -> elite Stripe (data-p1v-odkaz="dvoj", obsah-cisla.js). Kým značka v obsahu chýba (T1.1),
-  //     na Hexa/Stripe ostáva statický odkaz na Diamond = upozornenie, nie zlyhanie.
+  // --- poradie A (Michal 15. 10. 2026): recenzie sú PRVÁ sekcia pod konfigurátorom, ponuka / porovnanie až za galériou;
+  //     recenzie majú rytmus ostatných A (nie väčšie odsadenie .after-dark), to má sekcia za tmavou galériou
+  {
+    const r = await t.ev(`(function () {
+      var m = document.querySelector(".p1v-miesto"), v = m ? [].map.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia"); }) : [];
+      var pad = function (n) { var e = m && m.querySelector('[data-lcd-sekcia="' + n + '"]'); return e ? parseFloat(getComputedStyle(e).paddingTop) : null; };
+      return { vsetky: v, a: v.filter(function (x) { return /^a-/.test(x); }), prva: v[0] || null, padRec: pad("a-recenzie"), padPon: pad("a-ponuka") };
+    })()`);
+    const cakam = PORADIE_A.filter((m) => r.a.indexOf(m) >= 0);
+    ok(r.prva === "a-recenzie", `poradie A: prvá sekcia pod konfigurátorom je a-recenzie (je ${r.prva})`);
+    ok(r.a.join(",") === cakam.join(","), `poradie A: ${r.a.join(" → ")} (čakám ${cakam.join(" → ")})`);
+    if (r.padRec != null && r.padPon != null) ok(r.padRec < r.padPon, `poradie A: recenzie hore bez väčšieho odsadenia za tmavou sekciou (${r.padRec} px), ponuka za galériou ho má (${r.padPon} px)`);
+  }
+
+  // --- a-ponuka: BEZ tlačidla a bez odkazu na iný produkt (Michal 15. 10. 2026: zákazník ostáva na tejto stránke; druhú vrstvu
+  //     ponúka konfigurátor), žiadna cena v sekcii (598; dvoj má ceny v tabuľke a túto kontrolu vyradí), fotka
   if (await t.je("a-ponuka")) {
     const r = await t.ev(`(function () {
-      var s = document.querySelector(${S("a-ponuka")}), a = s.querySelector("a.btn"), img = s.querySelector("img");
-      return { href: a && a.getAttribute("href"), znacka: !!(a && a.hasAttribute("data-p1v-odkaz")), cena: /\\d\\s*(€|eur|Kč)|(€|Kč)\\s*\\d/i.test(s.textContent), img: img && img.complete && img.naturalWidth > 0 };
+      var s = document.querySelector(${S("a-ponuka")}), a = [].map.call(s.querySelectorAll("a, [data-p1v-odkaz]"), function (x) { return (x.getAttribute("href") || "") + " " + x.textContent.trim(); }), img = s.querySelector("img");
+      return { odkazy: a, cena: /\\d\\s*(€|eur|Kč)|(€|Kč)\\s*\\d/i.test(s.textContent), img: img && img.complete && img.naturalWidth > 0 };
     })()`);
-    const cakam = (t.sestra && t.sestra("dvoj")) || "/luxusne-autokoberce-dragonskin-elite-diamond-line/";
-    const href = String(r.href || "").split("#")[0];
-    const vzor = t.produkt && t.produkt.vzor ? t.produkt.vzor : "diamond";
-    out.push({ ok: href === cakam, pozor: !r.znacka && vzor !== "diamond", popis: `a-ponuka: tlačidlo vedie na dvojvrstvové toho istého vzoru ${vzor} (${r.href}, čakám ${cakam}${r.znacka ? "" : "; bez data-p1v-odkaz"})` });
+    ok(!r.odkazy.length, `a-ponuka: bez tlačidla a odkazu na iný produkt${r.odkazy.length ? " — je: " + r.odkazy.join(" | ") : ""}`);
     ok(!r.cena, "a-ponuka: žiadna cena v texte");
     ok(r.img, "a-ponuka: fotka sa načítala");
   }

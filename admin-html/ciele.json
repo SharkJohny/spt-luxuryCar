@@ -102,7 +102,7 @@
     "p1v-598-1": {
       "koren": "p1v-598-1",
       "tinymce": true,
-      "popis": "Obsah pod konfigurátorom 1V: jednovrstvové Diamond/Stripe/Hexa 598/613/610 (návrh jednovrstvove.html v26), kus 1 = skupina A (ponuka dvojvrstvových, referencie, galéria, recenzie) + B (deväť vecí, materiál, porovnanie + výzva, pred a po). Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
+      "popis": "Obsah pod konfigurátorom 1V: jednovrstvové Diamond/Stripe/Hexa 598/613/610 (návrh jednovrstvove.html v26), kus 1 = skupina A (recenzie, referencie, galéria, ponuka dvojvrstvových bez tlačidla) + B (deväť vecí, materiál, porovnanie + výzva, pred a po). Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-598",
       "sekcie": ["10", "29"],
       "obal": { "trieda": "p1v-obsah", "brana": "1v" },

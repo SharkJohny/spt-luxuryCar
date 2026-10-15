@@ -16646,7 +16646,7 @@ body.lcd-1v.lcd-1v-obsah:has(.p1v-miesto [data-lcd-sekcia="d-faq"]) .p-info-wrap
 /* ===== LCD-1V-OBSAH END ===== */
 
 /* ===== LCD-1V-OBSAH-A START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-a.scss (obsah 1V skupina A: ponuka dvojvrstvovych, referencie, galeria, recenzie; len body.lcd-1v), needituj rucne ===== */
-/* LCD-1V-OBSAH-A — obsah pod konfigurátorom 1V, SKUPINA A: ponuka dvojvrstvových, referenčné videá, galéria, recenzie.
+/* LCD-1V-OBSAH-A — obsah pod konfigurátorom 1V, SKUPINA A: recenzie, referenčné videá, galéria, ponuka dvojvrstvových (poradie 598 od 15. 10. 2026).
    Vlastník: worker skupiny A (+ konfigurator1v/obsah-a.js, admin-html/src/p1v-598/1x-a-*.sk.html). Pravidlá: docs/1v-obsah.md.
    Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css). KAŽDÝ selektor začína
    body.lcd-1v. Základ titulky (blok LCD-HOME: .chapter, .wrap, h2, .lede, .btn, .deck.refs/.ref-v, lx galéria,
@@ -16705,8 +16705,11 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"] 
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-galeria"] .pinfoot{padding-right:0 !important}
 }
 
+/* --- sekcia A za tmavou galériou (.after-dark, návrh: väčšie odsadenie hore). Do 15. 10. 2026 to boli vždy recenzie; v 598
+       a dvoj sú odvtedy recenzie PRVÉ pod konfigurátorom (rytmus ako ostatné A) a za galériou je a-ponuka. Iné kľúče bez zmeny. --- */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) section.chapter.after-dark[data-lcd-sekcia^="a-"]{padding-top:clamp(70px,10vw,156px) !important}
+
 /* --- a-recenzie: hlavička a tlačidlá ako návrh v26 (titulka má novšie zlaté/tmavé tlačidlá, tie tu neplatia) --- */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) section.chapter[data-lcd-sekcia="a-recenzie"]{padding-top:clamp(70px,10vw,156px) !important}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] h2 + .revhead{margin-top:clamp(16px,2.2vw,26px)}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .stars{line-height:1}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta{gap:10px}

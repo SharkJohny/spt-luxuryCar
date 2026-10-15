@@ -201,15 +201,15 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 598, 610, 613 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 34309,
-      "bajty": 35129,
-      "hash": "c3756e23f2",
+      "znaky": 34185,
+      "bajty": 35004,
+      "hash": "5ea40abf01",
       "obrazky": 36,
       "sekcie": [
         {
-          "subor": "10-a-ponuka.sk.html",
-          "sekcia": "a-ponuka",
-          "znaky": 1013
+          "subor": "10-a-recenzie.sk.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2132
         },
         {
           "subor": "11-a-referencie.sk.html",
@@ -222,9 +222,9 @@
           "znaky": 7124
         },
         {
-          "subor": "13-a-recenzie.sk.html",
-          "sekcia": "a-recenzie",
-          "znaky": 2143
+          "subor": "13-a-ponuka.sk.html",
+          "sekcia": "a-ponuka",
+          "znaky": 900
         },
         {
           "subor": "20-b-ocakavat.sk.html",
@@ -326,15 +326,15 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 33363,
-      "bajty": 34150,
-      "hash": "4638a04b13",
+      "znaky": 33243,
+      "bajty": 34029,
+      "hash": "75b92fe934",
       "obrazky": 35,
       "sekcie": [
         {
-          "subor": "10-a-ponuka.sk.html",
-          "sekcia": "a-ponuka",
-          "znaky": 1341
+          "subor": "10-a-recenzie.sk.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2132
         },
         {
           "subor": "11-a-referencie.sk.html",
@@ -347,9 +347,9 @@
           "znaky": 7293
         },
         {
-          "subor": "13-a-recenzie.sk.html",
-          "sekcia": "a-recenzie",
-          "znaky": 2143
+          "subor": "13-a-ponuka.sk.html",
+          "sekcia": "a-ponuka",
+          "znaky": 1232
         },
         {
           "subor": "20-b-ocakavat.sk.html",
