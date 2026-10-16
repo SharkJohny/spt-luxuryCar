@@ -89,6 +89,37 @@ function lcdStepComfortable(el) {
 }
 
 /**
+ * Nový vzhľad 1V (body.lcd-1v, Michal 16. 10. 2026: „zvýrazni, čo nevybral“): verifikácia karty auta posúva na PRVÉ
+ * PRÁZDNE POLE auta (červené .lcd1v-pole z konfigurator1v/kroky.js), nie na vrch karty — na nízkom telefóne by spodné
+ * pole (Typ karosérie) ostalo pod okrajom. Prázdne = rovnaké pravidlo ako kroky.js prazdnePole. Bez 1V vždy null.
+ */
+function lcd1vPrvePrazdnePole(el) {
+  if (!document.body.classList.contains("lcd-1v") || !el.classList || !el.classList.contains("lcd1v-k-auto")) return null;
+  var sels = el.querySelectorAll(".lcd1v-pole select");
+  for (var i = 0; i < sels.length; i++) {
+    var o = sels[i].options[sels[i].selectedIndex];
+    if (!o || sels[i].selectedIndex < 0 || o.classList.contains("notselect") || !String(o.text || "").trim()) {
+      return sels[i].closest(".lcd1v-pole") || sels[i];
+    }
+  }
+  return null;
+}
+
+/** Cieľ verifikačného posunu je v pohodlnej zóne: krok (vrch, ako doteraz) alebo pole 1V (celé pod hlavičkou). */
+function lcdCielPohodlny(el) {
+  var pole = lcd1vPrvePrazdnePole(el);
+  if (!pole) return lcdStepComfortable(el);
+  var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+  var r = pole.getBoundingClientRect();
+  return r.top >= lcdHeaderH() - 8 && r.bottom <= vh - 8;
+}
+
+/** Cieľová pozícia verifikačného posunu: vrch kroku, v 1V karte auta vrch prvého prázdneho poľa. */
+function lcdCielY(el) {
+  return lcdDesiredY(lcd1vPrvePrazdnePole(el) || el);
+}
+
+/**
  * Vycentruje krok na stred. isVerify=true => priorita.
  * Pocka kym sa layout ustali, potom INSTANTNE skoci (CSS scroll-behavior:smooth
  * by inak animoval kazdy scrollTo a vznikol by 2s "skakajuci" efekt).
@@ -106,8 +137,8 @@ function lcdScrollToStep(el, isVerify) {
   if (lcdScroll.priority && !isVerify) return; // verifikacny scroll ma prednost
   // ANTI-DRIFT + POHODLNA ZONA: ak krok uz vidno v hornej casti viewportu,
   // NESCROLLUJ vobec — kazdy zbytocny scroll = "skakanie".
-  if (lcdStepComfortable(el)) return;
-  if (Math.abs(window.scrollY - lcdDesiredY(el)) < 100) return;
+  if (lcdCielPohodlny(el)) return;
+  if (Math.abs(window.scrollY - lcdCielY(el)) < 100) return;
   if (isVerify) lcdScroll.priority = true;
   var myToken = ++lcdScroll.token;
   var aborted = false;
@@ -136,16 +167,16 @@ function lcdScrollToStep(el, isVerify) {
     lastAbs = abs;
     waited += 60;
     if (stable >= 3 || waited >= 800) {
-      if (lcdStepComfortable(el)) { done(); return; }
+      if (lcdCielPohodlny(el)) { done(); return; }
       // PC: ziadna posuvacia animacia — jeden okamzity skok (len verifikacia).
       // Mobil: smooth (posun je velky, instant by dezorientoval).
       var lcdBehavior = lcdIsMobile ? "smooth" : "instant";
-      window.scrollTo({ top: lcdDesiredY(el), behavior: lcdBehavior });
+      window.scrollTo({ top: lcdCielY(el), behavior: lcdBehavior });
       // Jedina korekcia — len pri VELKOM neskorom reflowe (obrazky).
       setTimeout(function () {
         if (alive()) {
-          var w1 = lcdDesiredY(el);
-          if (Math.abs(window.scrollY - w1) > 150 && !lcdStepComfortable(el)) {
+          var w1 = lcdCielY(el);
+          if (Math.abs(window.scrollY - w1) > 150 && !lcdCielPohodlny(el)) {
             window.scrollTo({ top: w1, behavior: lcdBehavior });
           }
         }

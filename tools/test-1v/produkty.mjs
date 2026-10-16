@@ -63,7 +63,7 @@ export const TYPY_TEST = {
 export const VSETKY_TYPY = Object.keys(TYPY_TEST);
 
 // sady scenárov (mená = SCENARE v test-konfigurator-1v.mjs a v scenare-<typ>.mjs)
-const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "ctx-zapis", "kufor-classic", "kufor-premium", "box-1", "box-2", "kufor-nie", "box-nie", "box-krizik", "box-prepni", "rady-3", "k-suhrnu", "miesta-5", "miesta-podorys"];
+const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "ctx-zapis", "kufor-classic", "kufor-premium", "box-1", "box-2", "kufor-nie", "box-nie", "box-krizik", "box-prepni", "rady-3", "k-suhrnu", "miesta-5", "miesta-podorys", "auto-poradie"];
 // scenáre typov (scenare-<typ>.mjs) dopísané pri integrácii WA (14. 10. 2026); bez flagu sa samy preskočia
 // ponuka druhej vrstvy a prenos výberu na dvojvrstvové (tools/test-1v/scenare-druha.mjs, 14. 10. 2026); dvoj: prenos-neplatny
 const DRUHA = ["druha-nie", "druha-ano", "druha-vsetko"];

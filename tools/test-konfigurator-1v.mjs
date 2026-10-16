@@ -46,6 +46,7 @@ import * as scKufor from "./test-1v/scenare-kufor.mjs";
 import * as scBoxy from "./test-1v/scenare-boxy.mjs";
 import * as scVzorky from "./test-1v/scenare-vzorky.mjs";
 import * as scDruha from "./test-1v/scenare-druha.mjs"; // ponuka druhej vrstvy + prenos výberu (jedno -> dvoj, 14. 10. 2026)
+import * as scAuto from "./test-1v/scenare-auto.mjs"; // karta auta: dvere a miesta v ľubovoľnom poradí, overenie až pri Pokračovať (16. 10. 2026)
 
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/";
@@ -1116,7 +1117,7 @@ for (const [meno, fn] of Object.entries(SCENARE)) {
   if (!TYPY_JADRA[meno]) throw new Error("scenár jadra " + meno + " nemá typy (TYPY_JADRA)");
   REGISTER[meno] = [{ typy: TYPY_JADRA[meno], fn, zdroj: "jadro" }];
 }
-for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky, "scenare-druha": scDruha })) {
+for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky, "scenare-druha": scDruha, "scenare-auto": scAuto })) {
   for (const [meno, sc] of Object.entries(mod.SCENARE || {})) {
     if (!sc || typeof sc.fn !== "function" || !Array.isArray(sc.typy)) throw new Error(zdroj + ": scenár " + meno + " musí byť { typy: [...], fn }");
     const kolizia = (REGISTER[meno] || []).find((x) => x.typy.some((ty) => sc.typy.includes(ty)));

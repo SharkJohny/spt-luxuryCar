@@ -11,6 +11,13 @@ export function validation(texts) {
     if ($(event.target).closest(".modl-selector-wrap").length) {
       return;
     }
+    // Nový vzhľad 1V (body.lcd-1v, ?novy=1; Michal 16. 10. 2026): karta „Vaše auto“ je miesto, kde sa auto vyberá —
+    // volant, miesta, dvere a polia auta idú v ľubovoľnom poradí. Klik v nej bez auta výzvu neukáže a dlaždicu po 1 s
+    // neodznačí (inak zmizli zvolené dvere/miesta). Chýbajúce polia zvýrazní až „Pokračujte ďalej“ (configuratorEngine.js
+    // .lcd-needs-fill -> červený rám a polia v konfigurator1v/kroky.js). Bez flagu bez zmeny.
+    if (document.body.classList.contains("lcd-1v") && $(event.target).closest(".lcd1v-k-auto").length) {
+      return;
+    }
     const model = sessionStorage.getItem("model");
     if (
       !model ||

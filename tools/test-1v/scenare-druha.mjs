@@ -28,7 +28,7 @@ const KLUC = "lcd1vPrenos:v1";
 const NBSP = " ";
 
 /** POST starého vzhľadu (CDN, 14. 10. 2026, 1v-baseline.json scenár platne: farba index 2, 1. a 2. rad, Audi A6 2015 Combi). */
-const BASELINE = {
+export const BASELINE = {
   598: "productId=598&priceId=63493&language=sk&parameterValueId[78]=549&surchargeParameterValueId[85]=589&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&parameter-85=589&amount=1",
   610: "productId=610&priceId=59803&language=sk&parameterValueId[78]=673&surchargeParameterValueId[85]=589&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&parameter-85=589&amount=1",
   613: "productId=613&priceId=66872&language=sk&parameterValueId[78]=679&surchargeParameterValueId[85]=589&surchargeParameterValueId[88]=&surchargeParameterValueId[91]=&surchargeParameterValueId[94]=&surchargeParameterValueId[97]=&surchargeParameterValueId[74]=470&surchargeParameterValueId[104]=&parameter-85=589&amount=1",

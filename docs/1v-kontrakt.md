@@ -79,7 +79,7 @@ Všetko je vo `form#product-detail-form` (POST `/action/Cart/addCartItem/?simple
 - Box-config sa kontroluje zvlášť (`lcdHandleBoxConfig`): pri vybranom boxe musí mať farbu aj veľkosť.
 
 **Ďalšie správanie živého kódu:**
-- Klik kamkoľvek do `.content-wrap` bez auta otvorí okno `.overflow` s `h3` (texts.no_model_select) a tlačidlom `button.btn` („Rozumiem“) (`validation.js`).
+- Klik kamkoľvek do `.content-wrap` bez auta otvorí okno `.overflow` s `h3` (texts.no_model_select) a tlačidlom `button.btn` („Rozumiem“) (`validation.js`). Pod `body.lcd-1v` nie v karte auta (§15).
 - Body má na začiatku triedu `disabled-add-to-cart`, prvý klik na voľbu ju zloží.
 - Po `ShoptetCartUpdated` stránka presmeruje na `/kosik/`.
 
@@ -256,7 +256,7 @@ node tools/test-konfigurator-1v.mjs --zdroj <sha>            # verzia nahratá n
 
 | Typ | Produkty | Predvolená sada |
 |---|---|---|
-| `jedno` | 598 Diamond, 613 Stripe, 610 Hexa | 598: plná (17 scenárov) + `vzor-jedno odporucana-jedno`. 613: `brana nulova-zmena platne kufor-classic box-1`, 610: `brana nulova-zmena platne kufor-classic kufor-nie`, obe + `vzor-jedno farba-nahlad vzor-prechod kufor-nie-cena odporucana-jedno` |
+| `jedno` | 598 Diamond, 613 Stripe, 610 Hexa | 598: plná (19 scenárov, aj `auto-poradie`) + `vzor-jedno odporucana-jedno`. 613: `brana nulova-zmena platne kufor-classic box-1`, 610: `brana nulova-zmena platne kufor-classic kufor-nie`, obe + `vzor-jedno farba-nahlad vzor-prechod kufor-nie-cena odporucana-jedno` |
 | `dvoj` | 601 Diamond, 604 Hexa, 607 Stripe | 601: plná + `farba2-prepni farba2-vzhlad farba2-chyba farba2-odporucanie dvoj-texty`. 604, 607: `brana nulova-zmena neuplne platne kufor-classic box-2 farba2-vzhlad farba2-odporucanie` |
 | `kufor-classic` | 619 Diamond, 625 Stripe, 622 Hexa | 619: `brana nulova-zmena bez-auta neuplne platne dokoncit k-suhrnu kufor-vzhlad vzor-auto`. 625, 622: `brana nulova-zmena neuplne platne dokoncit k-suhrnu kufor-vzhlad vzor-auto` |
 | `kufor-premium` | 628 Diamond, 634 Stripe, 631 Hexa | 628 ako 619. 634, 631 ako 625 |
@@ -296,6 +296,7 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `vzor-prechod` | jedno | klik na sesterský vzor: správna adresa, flag ostane, auto ostane (kroky.js `prazdnePole`) |
 | `kufor-nie-cena` | jedno | Nechcem rohož = presne to, čo pošle živý web (D2: 610 „nie“ = +5 €, POST `[88]=598`, 250 €) |
 | `odporucana-jedno` | jedno | 598/610 Odporúčaná cena (×1,6 nahor na desiatky), 613 (bez bežnej ceny) nie |
+| `auto-poradie` | jedno, dvoj | len nový vzhľad (`scenare-auto.mjs`): 3 dvere + 4 miesta pred autom = bez výzvy a bez červenej, voľba drží; „Pokračujte ďalej“ bez auta = rám karty + 4 červené polia, Značka na obrazovke; pri 560 px výšky a chýbajúcom Type karosérie posun naň; doplnenie = zvýraznenie mizne po poliach; POST = baseline starého vzhľadu, `doorPosition`/`seatPosition` v sessionStorage |
 | `farba2-vzhlad`, `farba2-chyba`, `farba2-odporucanie` | dvoj | krok 4: 16 vzoriek (7 + 9), nič predvolené, náhľad bez zmeny hlavnej fotky, chybový text; štítok „Odporúčame“ na jednofarebnej Lux v tóne 1. vrstvy |
 | `dvoj-texty` | dvoj | texty kariet a štítku typu podľa návrhu, žiadne zakázané slovo vo viditeľnom texte |
 | `kufor-vzhlad` | kufor-* | názov rohože len vizuálne (živý H1 v DOM nezmenený), 3 kroky, auto bez volantu/miest/dverí, ceny dlaždíc a príplatok setu proti sesterským stránkam, odkazy, skryté bannery |
@@ -376,7 +377,7 @@ Požiadavky nového vzhľadu sa kontrolujú len keď existuje príslušný `novy
 Od T0.1 (14. 10. 2026) sú moduly 598 súčasťou **jadra**. Jadro mení len vydávacia úloha vlny (T1.1, T2.1, T3.1, T4.1, T5.1; plan.md §2.1):
 - `assets/js/components/konfigurator1v/{index,ctx,produkty,ceny-ine,kroky,rozlozenie,kufor-boxy,cena,poznamka,obsah,obsah-cisla,druha-vrstva,prenos}.js`,
 - spoločné partialy `assets/css/_lcd1v-{kroky,rozlozenie,kufor-boxy,cena,druha}.scss`, `tools/vloz-lcd-css.py`, `tools/build-admin-html.mjs`,
-- `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{produkty,pomocnik,stary-ui,cdp,scenare-druha}.mjs`,
+- `tools/test-konfigurator-1v.mjs`, `tools/test-1v/{produkty,pomocnik,stary-ui,cdp,scenare-druha,scenare-auto}.mjs`,
 - `assets/js/lcdKosikDoplnok.js` (+ test a fixture), `assets/js/main.js`, `assets/js/functions/configuratorEngine.js` (exporty),
 - tento dokument, `assets/css/luxuryCar.css` a `admin-html/dist/*` (generuje nástroj), `.dashboard/roadmap.md`.
 
@@ -429,7 +430,7 @@ Texty prebrať z návrhu.
   - „potvrdiť“ (`.close-btn.return`) kontroluje farbu a veľkosť.
 - **`.order`:** text čísla kroku obalí `configurator-enhance` do `span.lcd-step-num`. `productPage.js` čísla kufra a boxov prepisuje (`contentStepCount`).
 - **Hlavičky krokov** (`.order`, `h5`, `.variant.name`) otvárajú akordeón cez delegovaný handler na `document`. Pozor na dvojité prepnutie, ak pridáte vlastný klik.
-- **Okno „vyberte model“** sa ukáže pri **akomkoľvek** kliku do `.content-wrap` bez kompletného auta. Výnimka: klik vo vnútri `.modl-selector-wrap`.
+- **Okno „vyberte model“** sa ukáže pri **akomkoľvek** kliku do `.content-wrap` bez kompletného auta. Výnimka: klik vo vnútri `.modl-selector-wrap`; pod `body.lcd-1v` celá karta auta `.lcd1v-k-auto` (§15). Starý vzhľad po 1 s odznačí kliknutú dlaždicu (sessionStorage ostane) — preto tam „zmiznú“ dvere/miesta zvolené pred autom.
 - **FAQ:** otázky sú `button type=submit` vo formulári. Odoslaniu bráni len `preventDefault` v `components/index.js`.
 - **Štítok galérie** („€350 −37 %“) nesedí s cenou z JS (360 / −39 %). Riešenie patrí worker cena (skryť pod `body.lcd-1v`).
 - **CZ** je nedotknutá (brána). Iné ID: farba 72, rozloženie 57, kufor 60, boxy 63/66/69, solo **78**, TYP 47. Ceny v Kč. Preto nikdy ID natvrdo.
@@ -471,3 +472,13 @@ Michal: „cookie lištu vyber ty, ktorá bude podľa teba najlepšia“ -> náv
 | Test | `tools/test-cookies-1v.mjs` | živý web, lokálny build, čistý návštevník (cookies zmazané pred každou stránkou), SK titulka + 598 (+ CZ titulka), 1280 aj 390. **Prvý snímok:** skript pred stránkou v každom `requestAnimationFrame` zapíše štýl lišty v prvom snímku, kde je na obrazovke — musí byť karta C (so starým CSS zlyhá: „mihla by sa stará lišta“). `bez-js` = bundle zablokovaný, karta C aj okno len z CSS. `karta` bez flagu, `flag 598`, okno nastavení (každý snímok otvárania = okno C na mieste), odkaz v päte (pred súhlasom aj po odmietnutí skutočným klikom). Po scrolle (`bez-js`, `karta`): obal priehľadný a bez tieňa aj s `.siteCookies--scrolled`, karta stojí (+ výrez rohu 3×). `odmietnutie titulka / 598 / 598 flag`: na **úplnom spodku stránky** (scrollY = max) odkaz nič nezakrýva (598 na 390: lišta „Do košíka“ musí byť aktívna, inak by sa zakrytie neoverilo) a skutočný klik otvorí okno. So starým CSS (b1bbcc9) zlyhá: obal `rgb(26, 25, 55)` + tieň po scrolle na 1280 a „zakrytý: button#js-plugin-fixed-header-add-to-cart“ na 598/390 (overené). `--len` = len vybrané scenáre. POST súhlasu prejde len ako `consent=none`; súhlas so štatistikou/marketingom sa zruší. |
 
 **Testy, ktoré zatvárajú lištu:** `tools/test-konfigurator-1v.mjs`, `tools/test-boxy-prepni.mjs`, `tools/test-1v/obsah-spolocne.mjs` hľadajú tlačidlo podľa textu `/^(Odmietnu|Odmítnou)/` (`textContent`, CSS `text-transform` ho nemení). Ak Michal v admine zmení nápis (napr. „Len nevyhnutné“), treba ich najprv prepnúť na `.siteCookies__button[value=reject]` (vydanie — jadro).
+
+## 15. Karta auta: overenie až pri „Pokračujte ďalej“ (Michal 16. 10. 2026)
+
+Hlásenie (telefón, `?novy=1`): klik na počet miest/dverí bez značky, modelu a roku vyhodil výzvu „vyberte model“ a zvolené dvere aj miesta zmizli. Príčina: `validation.js` (klik do `.content-wrap` bez auta = výzva + po 1 s `removeClass("active")` na kliknutej dlaždici; sessionStorage `doorPosition`/`seatPosition` ostal, takže objednávka by dostala voľbu, ktorú zákazník už nevidel). Starý vzhľad to robí stále (nulová zmena).
+
+Pravidlo pod `body.lcd-1v`:
+- V karte auta sa volant, miesta, dvere a polia auta vyberajú **v ľubovoľnom poradí**. Klik v `.lcd1v-k-auto` výzvu neukáže a nič neodznačí (`validation.js`, podmienka `lcd-1v`). Počas vyberania nič nesvieti načerveno.
+- Overenie až pri „Pokračujte ďalej“ (alebo košíku): živý engine dá `.lcd-needs-fill` -> `kroky.js` trvalý rám karty + červené presne prázdne polia (`lcd1v-err`) + hláška; verifikačný posun ide na **prvé prázdne pole** (`configuratorEngine.js` `lcd1vPrvePrazdnePole`, bez 1V vrch kroku ako doteraz). Po doplnení poľa jeho zvýraznenie zmizne hneď, rám karty po poslednom.
+- Klik na hlavičku ďalšej karty bez auta (pokus prejsť ďalej) výzvu ukazuje ako doteraz (scenár `bez-auta`).
+- Košík/POST sa nemení: dvere a miesta idú len cez sessionStorage (`cart.js` varchar2/varchar3), ako zo starého vzhľadu. Test: `auto-poradie`.
