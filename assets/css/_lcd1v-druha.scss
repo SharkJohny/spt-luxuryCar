@@ -76,7 +76,8 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-kb__r--sum {
   margin-top: 0;
   border-top: 0;
 }
-/* zlaté tlačidlo „Áno“ = doplnok (farby ako „Pridať“ v košíku), cez celú šírku dlaždice pod fotkou a textom */
+/* zelené tlačidlo „Áno“ = cesta, kam chceme zákazníka (Michal 16. 10.: zelené = tam má kliknúť, „Nie“ zlaté),
+   cez celú šírku dlaždice pod videom a textom */
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano {
   grid-column: 1 / -1;
   position: relative;
@@ -91,9 +92,9 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano {
   padding: 0 16px;
   border: 0;
   border-radius: 10px;
-  background: linear-gradient(180deg, #e2be5c 0%, #c49b31 55%, #b18822 100%);
-  box-shadow: 0 8px 18px rgba(196, 155, 49, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  color: var(--kb-ink);
+  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  box-shadow: 0 8px 18px rgba(31, 115, 80, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #fff;
   font: 900 14px/1.2 var(--kb-disp);
   letter-spacing: 0.1em;
   text-align: center;
@@ -108,11 +109,11 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano {
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica:hover .lcd1v-druha__ano,
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:hover {
   filter: brightness(1.07);
-  box-shadow: 0 11px 22px rgba(196, 155, 49, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 11px 22px rgba(31, 115, 80, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   transform: translateY(-1px);
 }
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:focus-visible {
-  outline: 3px solid var(--kb-ink);
+  outline: 3px solid var(--kb-gold);
   outline-offset: 3px;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:disabled {
@@ -174,7 +175,7 @@ body.lcd-1v #product-detail-form .lcd1v-druha__prenos-t span {
   overflow-wrap: anywhere;
 }
 
-/* „Nie, ďakujem“ = zelená hlavná cesta (rovnaký vzhľad ako „Pokračujte ďalej“ v _lcd1v-kroky.scss) */
+/* „Nie, ďakujem“ = zlaté tlačidlo (Michal 16. 10.: zelené patrí „Áno“); tvar ako „Pokračujte ďalej“ v _lcd1v-kroky.scss */
 body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie {
   position: relative;
   display: flex;
@@ -188,9 +189,9 @@ body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie {
   padding: 0 26px;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
-  box-shadow: 0 10px 26px rgba(31, 115, 80, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  color: #fff;
+  background: linear-gradient(180deg, #e2be5c 0%, #c49b31 55%, #b18822 100%);
+  box-shadow: 0 10px 26px rgba(196, 155, 49, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: var(--kr-ink);
   font: 900 14px/22.4px var(--kr-disp);
   letter-spacing: 0.12em;
   text-align: center;
@@ -201,11 +202,11 @@ body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie {
   appearance: none;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie:hover {
-  box-shadow: 0 14px 30px rgba(31, 115, 80, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  box-shadow: 0 14px 30px rgba(196, 155, 49, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transform: translateY(-1px);
 }
 body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie:focus-visible {
-  outline: 3px solid var(--kr-gold);
+  outline: 3px solid var(--kr-ink);
   outline-offset: 3px;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie:disabled {

@@ -12,7 +12,7 @@
 //   - Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): v dlaždici je skutočné zlaté TLAČIDLO „Áno, chcem druhú
 //     vrstvu“ (<button>, klávesnica). Dlaždica je obyčajný <div> a klik na ňu (fotka, text) robí to isté — tlačidlá sa do
 //     seba nevnárajú, takže klávesnicou sa ide len na tlačidlo,
-//   - zelené tlačidlo „Nie, ďakujem“ = hlavná cesta: karta sa zbalí („Bez druhej vrstvy“) a otvorí sa Rozloženie,
+//   - zlaté tlačidlo „Nie, ďakujem“ (zelené je „Áno“ — Michal 16. 10.): karta sa zbalí („Bez druhej vrstvy“) a otvorí sa Rozloženie,
 //   - „Áno“: krátka správa v karte, tlačidlá sa zablokujú, výber sa zapíše do kľúča prenosu (prenos.js) a otvorí sa
 //     dvojvrstvový produkt toho istého vzoru (598 -> 601, 610 -> 604, 613 -> 607; register produkty.js).
 // Nič s atribútom name, žiadny zápis do formulára: karta je nový prvok v .content-wrap BEZ tried .position-wrap /

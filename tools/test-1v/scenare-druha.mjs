@@ -6,7 +6,7 @@
 //   druha-nie       bez flagu žiadna karta ani kľúč; s flagom karta skrytá do výberu farby, potom viditeľná BEZ čísla
 //                   (postup „Váš set v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
 //                   príplatok „+ N €“ = živý rozdiel; Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
-//                   zlaté „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zeleným „Nie, ďakujem“ (Michal 15. 10. 2026);
+//                   zelené „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zlatým „Nie, ďakujem“ (Michal 15. 10., farby prehodené 16. 10. 2026);
 //                   „Nie, ďakujem“ zbalí kartu („Bez druhej vrstvy“) a otvorí Rozloženie;
 //                   POST = baseline jednovrstvového produktu (1v-baseline.json, scenár platne);
 //                   video v dlaždici (Michal 16. 10. 2026): pred otvorením karty žiadna požiadavka na druha-video-* (ani poster),
@@ -251,13 +251,13 @@ export const SCENARE = {
       j.over(otv.pod === "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.", `podnadpis „${otv.pod}“`);
       j.over(/Dvojvrstvové koberce/.test(otv.anoText) && /Prvá prešívaná \+ druhá vrstva/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
       j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === "Pokračujete s doterajším výberom.", `Nie: „${otv.nieText}“ / „${otv.pozn}“`);
-      // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zlaté, v dlaždici, hore) a Nie (zelené)
+      // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zelené od 16. 10., v dlaždici, hore) a Nie (zlaté)
       j.over(otv.anoVidno && otv.anoTl && otv.anoTl.tag === "BUTTON" && otv.anoTl.typ === "button" && otv.anoTl.text === "Áno, chcem druhú vrstvu" && otv.anoTl.tab >= 0 && otv.anoVDlazdici,
         `tlačidlo Áno: ${JSON.stringify(otv.anoTl)}, viditeľné ${otv.anoVidno}, v dlaždici ${otv.anoVDlazdici}`);
       j.over(otv.nieTl && otv.nieTl.tag === "BUTTON" && otv.nieTl.typ === "button" && otv.nieTl.tab >= 0, `tlačidlo Nie: ${JSON.stringify(otv.nieTl)}`);
       j.over(otv.dlTag === "DIV" && otv.dlTlacidiel === 1, `dlaždica má byť div s jedným tlačidlom (žiadne tlačidlo v tlačidle): ${otv.dlTag}, tlačidiel ${otv.dlTlacidiel}`);
       j.over(otv.anoNadNie, "tlačidlo Áno má byť nad tlačidlom Nie");
-      j.over(/196, 155, 49|177, 136, 34|226, 190, 92/.test(otv.anoTl.pozadie) && /47, 156, 104|29, 107, 74/.test(otv.nieTl.pozadie), `farby: Áno zlaté (${otv.anoTl.pozadie}), Nie zelené (${otv.nieTl.pozadie})`);
+      j.over(/47, 156, 104|29, 107, 74/.test(otv.anoTl.pozadie) && /196, 155, 49|177, 136, 34|226, 190, 92/.test(otv.nieTl.pozadie), `farby: Áno zelené (${otv.anoTl.pozadie}), Nie zlaté (${otv.nieTl.pozadie})`);
       // klávesnica: obe tlačidlá dostanú fokus (Enter na Áno overí druha-vsetko pri 1280 px)
       const fokus = await t.ev(`(function () { var k = document.querySelector(${JSON.stringify(KARTA)}), r = {};
         ["ano", "nie"].forEach(function (m) { var b = k.querySelector(".lcd1v-druha__" + m); b.focus({ preventScroll: true }); r[m] = document.activeElement === b; b.blur(); });
