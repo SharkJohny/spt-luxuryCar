@@ -16662,10 +16662,84 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__video {
     grid-template-columns: minmax(0, min(40%, 210px)) minmax(0, 1fr);
   }
 }
-/* jediný riadok účtu (Príplatok): bez druhej, plnej čiary pod čiarkovanou čiarou účtu */
-body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-kb__r--sum {
-  margin-top: 0;
-  border-top: 0;
+/* cenovka (Michal 16. 10. 2026: príplatok za celú sadu druhej vrstvy + odporúčaná cena) — vzhľad cenovky rohože/boxov
+   (_lcd1v-kufor-boxy.scss .lcd1v-kb__cb): čiarkovaná čiara, „Príplatok za celú sadu druhej vrstvy“, „Odporúčaná cena
+   <s>210 €</s>“ (červená čiara), „S AUTOKOBERCAMI LEN“, veľká cena „+ 132 €“, zelená pilulka „Ušetríte 78 €“.
+   Odporúčaná a pilulka sú skryté, keď sa nedajú spočítať (613 bez bežnej ceny) — ostane príplatok. */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px dashed #ddd5c2;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-sada {
+  font: 700 13.5px/1.3 var(--kb-body);
+  color: #2b261a;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-s {
+  margin-top: 3px;
+  font: 400 14px/1.4 var(--kb-body);
+  color: #4f4836;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-pr {
+  font-weight: 700;
+  color: #4a4334;
+  text-decoration: line-through;
+  text-decoration-color: #c0392b;
+  text-decoration-thickness: 2px;
+  white-space: nowrap;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-l {
+  margin-top: 6px;
+  font: 700 11px/1.3 var(--kb-disp);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #4f4836;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-c {
+  margin-top: 1px;
+  font: 800 29px/1.1 var(--kb-disp);
+  letter-spacing: -.005em;
+  color: #14110c;
+  white-space: nowrap;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-u {
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e2f3e9;
+  color: #1d6b4a;
+  font: 800 13.5px/1.2 var(--kb-body);
+  white-space: nowrap;
+}
+@media (max-width: 359px) {
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-sada {
+    font-size: 12.5px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-s {
+    font-size: 13px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-c {
+    font-size: 25px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-u {
+    padding-inline: 8px;
+    font-size: 12.5px;
+  }
+}
+@media (min-width: 721px) {
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-sada {
+    font-size: 14.5px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-s,
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-u {
+    font-size: 14.5px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__cb-c {
+    font-size: 32px;
+  }
 }
 /* zelené tlačidlo „Áno“ = cesta, kam chceme zákazníka (Michal 16. 10.: zelené = tam má kliknúť, „Nie“ zlaté),
    cez celú šírku dlaždice pod videom a textom */

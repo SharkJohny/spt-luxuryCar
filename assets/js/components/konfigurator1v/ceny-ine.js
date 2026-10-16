@@ -4,16 +4,19 @@
 //
 // Zdroj = živá stránka produktu (GET cez stiahniDokument z lcdKosikDoplnok.js, ten istý ako porovnanie v košíku):
 //   cena      = [itemprop=price] (cenaStranky) — základná cena „od“ (variant bez príplatkov),
-//   príplatky = selecty formulára (mapaZFormulara) — { pid, params: { <id>: { n, o: { <value>: { t, fp, ap } }, p } }, vpar, kom }.
+//   príplatky = selecty formulára (mapaZFormulara) — { pid, params: { <id>: { n, o: { <value>: { t, fp, ap } }, p } }, vpar, kom },
+//   bezna     = má produkt v admine bežnú cenu (Shoptet vtedy v cene stránky vykreslí .price-standard; rovnaké pravidlo ako
+//               ctx.cena().maBeznuCenu) — bez nej web odporúčanú cenu neukazuje (613, D2), takže ju nesmie ukázať ani 1V.
 // Vlastná stránka sa nesťahuje (číta sa aktuálny dokument). Výsledok sa drží v localStorage 24 h (každý prístup
 // v try/catch; súkromný režim / plné úložisko = len bez cache). Nič natvrdo: ceny ani ID parametrov.
+// Kľúč cache v2 (16. 10. 2026): pribudlo „bezna“ — záznamy v1 ho nemajú, preto sa nečítajú.
 // Pri importe sa nič nespúšťa. Chyba siete -> null (volajúci ukáže prvok bez čísla alebo ho skryje).
 import { stiahniDokument, cenaStranky, mapaZFormulara } from "../../lcdKosikDoplnok.js";
 import { PARAMETRE } from "./ctx.js";
 import { najdiProdukt } from "./produkty.js";
 
 const TTL = 24 * 3600 * 1000;
-const KLUC = "lcd1vStranka:v1:"; // + cesta (localStorage je podľa domény -> SK a CZ sa nemiešajú)
+const KLUC = "lcd1vStranka:v2:"; // + cesta (localStorage je podľa domény -> SK a CZ sa nemiešajú)
 const bezi = new Map();
 
 function cesta(url) {
@@ -29,25 +32,32 @@ function lsPis(k, v) {
   try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* plné / zakázané úložisko: bez cache */ }
 }
 
-/** { cena, mapa } stránky produktu (cesta alebo URL); vlastná stránka z aktuálneho dokumentu. Chyba -> { cena: null, mapa: null }. */
+/** Bežná cena v admine: .price-standard v cene stránky (ako ctx.cena(); nie štítok zľavy na fotke ani iné produkty). */
+function maBeznuCenu(doc) {
+  try {
+    return !!doc.querySelector(".p-info-wrapper .p-final-price-wrapper .price-standard, #product-detail-form .p-final-price-wrapper .price-standard");
+  } catch (e) { return false; }
+}
+
+/** { cena, mapa, bezna } stránky produktu (cesta alebo URL); vlastná stránka z aktuálneho dokumentu. Chyba -> { cena: null, mapa: null, bezna: false }. */
 export function stranka(url) {
   const c = cesta(url);
-  if (!c) return Promise.resolve({ cena: null, mapa: null });
+  if (!c) return Promise.resolve({ cena: null, mapa: null, bezna: false });
   if (typeof location !== "undefined" && c === location.pathname) {
-    let v = { cena: null, mapa: null };
-    try { v = { cena: cenaStranky(document), mapa: mapaZFormulara(document) }; } catch (e) { /* nič */ }
+    let v = { cena: null, mapa: null, bezna: false };
+    try { v = { cena: cenaStranky(document), mapa: mapaZFormulara(document), bezna: maBeznuCenu(document) }; } catch (e) { /* nič */ }
     return Promise.resolve(v);
   }
   const k = KLUC + c;
   const ulozene = lsCitaj(k);
-  if (ulozene) return Promise.resolve({ cena: ulozene.cena, mapa: ulozene.mapa });
+  if (ulozene) return Promise.resolve({ cena: ulozene.cena, mapa: ulozene.mapa, bezna: ulozene.bezna === true });
   if (!bezi.has(k)) {
     bezi.set(k, stiahniDokument(c).then(function (doc) {
-      const v = { cena: cenaStranky(doc), mapa: mapaZFormulara(doc) };
-      if (v.cena || v.mapa) lsPis(k, { t: Date.now(), cena: v.cena, mapa: v.mapa });
+      const v = { cena: cenaStranky(doc), mapa: mapaZFormulara(doc), bezna: maBeznuCenu(doc) };
+      if (v.cena || v.mapa) lsPis(k, { t: Date.now(), cena: v.cena, mapa: v.mapa, bezna: v.bezna });
       return v;
     }).catch(function () {
-      return { cena: null, mapa: null };
+      return { cena: null, mapa: null, bezna: false };
     }).then(function (v) {
       bezi.delete(k);
       return v;

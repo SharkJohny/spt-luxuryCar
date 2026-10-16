@@ -5,7 +5,11 @@
 //
 //   druha-nie       bez flagu žiadna karta ani kľúč; s flagom karta skrytá do výberu farby, potom viditeľná BEZ čísla
 //                   (postup „Váš set v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
-//                   príplatok „+ N €“ = živý rozdiel; Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
+//                   príplatok „+ N €“ = živý rozdiel; cenovka (Michal 16. 10. 2026): „Príplatok za celú sadu druhej vrstvy“,
+//                   „S autokobercami od“ (výber neúplný), odporúčaná druhej vrstvy prečiarknutá červenou + zelené „Ušetríte“
+//                   = čísla, ktoré test spočíta zo stránky (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky
+//                   pre cenu + príplatok); 613 bez bežnej ceny = len príplatok; dlaždica na telefóne nie je privysoká;
+//                   Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
 //                   zelené „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zlatým „Nie, ďakujem“ (Michal 15. 10., farby prehodené 16. 10. 2026);
 //                   „Nie, ďakujem“ zbalí kartu („Bez druhej vrstvy“) a otvorí Rozloženie;
 //                   POST = baseline jednovrstvového produktu (1v-baseline.json, scenár platne);
@@ -14,16 +18,18 @@
 //                   koniec č. 1 -> č. 2 príbeh -> koniec -> znova č. 1; po „Nie“ video stojí
 //   druha-ano       prefers-reduced-motion: video len poster, bez src, nič sa nestiahne; hlavička karty -> tlačidlo „Áno, chcem druhú vrstvu“ (myš): správa v karte, tlačidlá zablokované, prechod na dvojvrstvový produkt
 //                   toho istého vzoru; tam vzor, auto, farba prenesené, otvorený krok „Farba 2. vrstvy“ bez predvoľby, žiadna
-//                   veta navyše; príplatok z karty = živý rozdiel cien (dvoj − jedno, Shoptet); úplný výber -> POST = baseline
+//                   veta navyše; príplatok z karty = živý rozdiel cien (dvoj − jedno, Shoptet); odporúčaná v karte = rozdiel
+//                   odporúčaných cien z rámikov OBOCH stránok, „Ušetríte“ = odporúčaná − príplatok; úplný výber -> POST = baseline
 //                   dvojvrstvového produktu; tlačidlo Späť -> jednovrstvový produkt s autom a farbou, karta nezodpovedaná
 //   druha-vsetko    rozloženie 3 rady (7 miest), rohož Classic a 2 boxy vybraté pred „Áno“ (390 px: ťuk na video dlaždice —
 //                   dlaždica je klikateľná celá; 1280 px: Enter na tlačidle Áno — klávesnica) -> na dvojvrstvovom všetko
-//                   rovnaké (miesta, rozloženie, kufor, farba a veľkosti boxov, okno boxov zatvorené), POST platný
+//                   rovnaké (miesta, rozloženie, kufor, farba a veľkosti boxov, okno boxov zatvorené), POST platný; cenovka
+//                   pri úplnom výbere „S autokobercami len“ a čísla = rámiky oboch stránok (s rohožou a boxmi)
 //   prenos-neplatny (dvoj) kľúč starší ako 10 min / pre iný produkt / s farbou, ktorú produkt nemá -> nič sa neprenesie,
 //                   bez chyby; pri chýbajúcej farbe sa otvorí krok Farba
 import { join } from "node:path";
 import { PRODUKTY } from "./produkty.mjs";
-import { F } from "./stary-ui.mjs";
+import { F, cislo } from "./stary-ui.mjs";
 import { stary as staryKroky } from "./ovladac-kroky.mjs";
 
 const KARTA = `${F} .lcd1v-druha`;
@@ -84,6 +90,18 @@ function stavKarty(t) {
       anoZablok: !!(ano && ano.disabled), nieZablok: !!(nie && nie.disabled),
       prenos: vid(k.querySelector(".lcd1v-druha__prenos")) ? tx(".lcd1v-druha__prenos") : null,
       maName: !!k.querySelector("[name]"),
+      dlVyska: dl ? Math.round(dl.getBoundingClientRect().height) : 0,
+      cb: (function () {
+        var b = k.querySelector(".lcd1v-druha__cb");
+        if (!b || !vid(b)) return null;
+        var pr = b.querySelector(".lcd1v-druha__cb-pr"), u = b.querySelector(".lcd1v-druha__cb-u"), sr = b.querySelector(".lcd1v-druha__cb-s"), stl = b.parentNode;
+        var cs = getComputedStyle(pr), cu = getComputedStyle(u);
+        return { sada: tx(".lcd1v-druha__cb-sada"), l: tx(".lcd1v-druha__cb-l"), c: tx(".lcd1v-druha__cb-c"),
+          odp: vid(sr) ? tx(".lcd1v-druha__cb-pr") : null, odpRiadok: vid(sr) ? tx(".lcd1v-druha__cb-s") : null, u: vid(u) ? tx(".lcd1v-druha__cb-u") : null,
+          ciara: cs.textDecorationLine + " " + cs.textDecorationColor, pilulka: cu.backgroundColor + " " + cu.color,
+          pretek: stl.scrollWidth > stl.clientWidth + 1 || b.scrollWidth > b.clientWidth + 1,
+          attrOdp: ano && ano.getAttribute("data-lcd1v-odporucana") ? Number(ano.getAttribute("data-lcd1v-odporucana")) : null };
+      })(),
       zaFarbou: !!(k.previousElementSibling && k.previousElementSibling.classList.contains("lcd1v-k-farba")),
     };
   })()`);
@@ -165,6 +183,50 @@ async function cakajPriplatok(t, j) {
   const n = st.priplatokCislo;
   j.over(n > 0 && st.priplatok === "+" + NBSP + String(n).replace(".", ",") + NBSP + "€", `príplatok v karte „${st.priplatok}“ (atribút ${n}) — tvar „+ N €“`);
   return n;
+}
+
+/**
+ * Odporúčaná cena v rámiku nad krokmi, ako ju vidí zákazník (číslo; null = rámik ju neukazuje — produkt bez bežnej ceny
+ * v admine, 613). Rámik sa po zmene ceny prepisuje s oneskorením (productPage.js setTimeout) -> čaká, kým sa ustáli.
+ */
+async function odporucanaRamika(t, ovl) {
+  let r = null;
+  const koniec = Date.now() + 8000;
+  for (;;) {
+    r = await ovl.cena.odporucana(t);
+    const ma = await t.ev(`window.__lcd1v ? window.__lcd1v.cena().odporucana : null`);
+    if ((r ? r.cena : 0) === (ma || 0) || Date.now() > koniec) break;
+    await t.pauza(250);
+  }
+  return r && r.cena > 0 ? r.cena : null;
+}
+
+/**
+ * Cenovka v dlaždici (Michal 16. 10. 2026) proti číslam zo stránky: n = príplatok (overený cakajPriplatok),
+ * odpTu = odporúčaná v rámiku tejto stránky, odpTam = odporúčaná dvojvrstvového pri tých istých voľbách (rámik jeho stránky
+ * alebo vzorec webu pre cenu + n); obe známe -> v karte odpTam − odpTu prečiarknutá a „Ušetríte“ odpTam − odpTu − n,
+ * inak (613 bez bežnej ceny) len príplatok.
+ */
+function overCenovku(j, cb, { n, odpTu, odpTam, uplny, kde }) {
+  j.over(!!cb, `${kde}: cenovka v dlaždici nie je viditeľná`);
+  if (!cb) return null;
+  j.over(cb.sada === "Príplatok za celú sadu druhej vrstvy" && /celú sadu/.test(cb.sada), `${kde}: riadok o sade „${cb.sada}“ (Michal: príplatok je za celú sadu druhej vrstvy, nie za 1 kus)`);
+  j.over(cb.l === "S autokobercami " + (uplny ? "len" : "od"), `${kde}: „${cb.l}“, má byť „S autokobercami ${uplny ? "len" : "od"}“ (${uplny ? "úplný" : "neúplný"} výber)`);
+  j.over(cb.c === "+ " + String(n).replace(".", ",") + " €", `${kde}: veľká cena „${cb.c}“ ≠ príplatok + ${n} €`);
+  j.over(!cb.pretek, `${kde}: cenovka pretŕča zo stĺpca dlaždice`);
+  const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n/i;
+  j.over(!zakazane.test([cb.sada, cb.l, cb.odpRiadok, cb.u].join(" ")), `${kde}: zakázané slovo v cenovke`);
+  if (odpTu > 0 && odpTam > 0) {
+    const odp = odpTam - odpTu, usp = odp - n;
+    j.over(cislo(cb.odp) === odp && cb.odpRiadok === "Odporúčaná cena " + String(odp) + " €" && cb.attrOdp === odp,
+      `${kde}: odporúčaná druhej vrstvy v karte „${cb.odpRiadok}“ (atribút ${cb.attrOdp}) ≠ ${odpTam} − ${odpTu} = ${odp} € (rámiky stránok)`);
+    j.over(cb.u === "Ušetríte " + String(usp).replace(".", ",") + " €", `${kde}: „${cb.u}“ ≠ Ušetríte ${odp} − ${n} = ${usp} €`);
+    j.over(/line-through/.test(cb.ciara) && /192, 57, 43/.test(cb.ciara), `${kde}: odporúčaná nie je prečiarknutá červenou: ${cb.ciara}`);
+    j.over(/226, 243, 233/.test(cb.pilulka) && /29, 107, 74/.test(cb.pilulka), `${kde}: pilulka „Ušetríte“ nie je zelená: ${cb.pilulka}`);
+    return { odp, usp };
+  }
+  j.over(!cb.odp && !cb.u && cb.attrOdp == null, `${kde}: odporúčaná cena nie je na oboch stránkach (tu ${odpTu}, dvojvrstvový ${odpTam}) — karta smie ukázať len príplatok: ${JSON.stringify(cb)}`);
+  return { odp: null, usp: null };
 }
 
 /** Na dvojvrstvovom po prenose: prijatý kľúč, otvorený krok Farba 2. vrstvy, nič predvolené. */
@@ -292,6 +354,16 @@ export const SCENARE = {
       await snimka(s, a, "druha-otazka", KARTA);
       // 4) príplatok = živý rozdiel (cena dvojvrstvového pri tých istých voľbách − táto); overí scenár druha-ano na dvoj stránke
       const n = await cakajPriplatok(t, j);
+      // 4b) cenovka (Michal 16. 10. 2026): „celú sadu“ + odporúčaná druhej vrstvy a „Ušetríte“; test čísla spočíta zo stránky:
+      //     rámik nad krokmi (cena, odporúčaná) a vzorec webu (productPage.js: × 1,6 nahor na desiatky) pre cenu + príplatok
+      const odpTu = await odporucanaRamika(t, ovl);
+      const cenaTu = await ovl.cena.zobrazenaCena(t);
+      j.over(typeof cenaTu === "number" && cenaTu > 0, `cena v rámiku nad krokmi: ${cenaTu}`);
+      const stC = await stavKarty(t);
+      const cv = overCenovku(j, stC.cb, { n, odpTu, odpTam: odpTu ? Math.ceil(((cenaTu + n) * 1.6) / 10) * 10 : null, uplny: false, kde: "karta po farbe" }) || {};
+      // telefón: dlaždica s cenovkou ostane rozumne vysoká (video 4:5 v stĺpci 44 %, text vedľa neho)
+      if (t.mobil) j.over(stC.dlVyska > 0 && stC.dlVyska <= 480, `dlaždica na telefóne je vysoká ${stC.dlVyska} px (najviac 480)`);
+      await snimka(s, a, "druha-cena", `${KARTA} .lcd1v-druha__dlazdica`);
       // 5) Nie -> karta zbalená ako hotová, otvorí sa Rozloženie; POST = baseline
       await t.klikni(`${KARTA} .lcd1v-druha__nie`, { popis: "Nie, ďakujem" });
       await t.cakaj(`document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idR}").classList.contains("active")`, { ms: 8000, popis: "otvorené Rozloženie po „Nie, ďakujem“" });
@@ -307,7 +379,7 @@ export const SCENARE = {
       rovnakyAkoBaseline(j, post, P.id);
       j.over(cena.spolu === P.platne.spolu, `suma ${cena.spolu} ≠ ${P.platne.spolu}`);
       j.over((await kluc(t)) === null, "po „Nie“ ostal kľúč prenosu v sessionStorage");
-      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok + ${n} €, Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
+      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok za celú sadu od + ${n} €${cv.odp ? ` (odporúčaná ${cv.odp} €, ušetríte ${cv.usp} €)` : " (bez odporúčanej — produkt nemá bežnú cenu)"}, dlaždica ${stC.dlVyska} px, Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
     },
   },
 
@@ -334,6 +406,8 @@ export const SCENARE = {
       j.over(!sietPokoj.videa.length, `prefers-reduced-motion: stiahlo sa video ${sietPokoj.videa.join(", ")}`);
       const n = await cakajPriplatok(t, j);
       const cenaJedno = await ctxCena(t);
+      const cbJedno = (await stavKarty(t)).cb;
+      const odpJedno = await odporucanaRamika(t, ovl);
       // Áno: správa v karte, tlačidlá zablokované (stránka sa vymení o ~0,5 s)
       await t.klikni(`${KARTA} .lcd1v-druha__ano`, { popis: "tlačidlo Áno, chcem druhú vrstvu" });
       const hned = await stavKarty(t).catch(() => null);
@@ -351,6 +425,9 @@ export const SCENARE = {
         const farba2 = await ovl.farba2.vyberFarbu2(t, { index: 0 });
         const cenaDvoj = await ctxCena(t);
         j.over(Math.round((cenaDvoj - cenaJedno) * 100) / 100 === n, `príplatok v karte + ${n} € ≠ živý rozdiel ${cenaDvoj} − ${cenaJedno} = ${cenaDvoj - cenaJedno} €`);
+        // odporúčaná v karte = rozdiel odporúčaných cien, ktoré zákazník vidí v rámikoch oboch stránok pri tých istých voľbách
+        const odpDvoj = await odporucanaRamika(t, ovl);
+        const cv = overCenovku(j, cbJedno, { n, odpTu: odpJedno, odpTam: odpDvoj, uplny: false, kde: `karta ${P.id} proti rámikom ${P.id} a ${cielId}` }) || {};
         const rozlozenie = await ovl.rozlozenie.vyberRozlozenie(t, { index: 1 });
         await ovl.cena.pridajDoKosika(t);
         const post = await j.cakajNaPost(s);
@@ -376,7 +453,7 @@ export const SCENARE = {
         j.over(spat.vidno && !spat.hotova && spat.vy === "Áno alebo nie" && !spat.anoZablok && !spat.nieZablok && !spat.prenos, `karta po Späť má byť nezodpovedaná a odblokovaná: ${JSON.stringify(spat)}`);
         j.over(!auto.chyby.length, "chyby 1V po Späť: " + auto.chyby.join("; "));
         j.over((await kluc(t)) === null, "kľúč prenosu po Späť nezmazaný");
-        return { info: `${P.id} -> ${cielId}: vzor, auto, farba ${farba} prenesené, otvorený krok 4 bez predvoľby; príplatok + ${n} € = ${cenaDvoj} − ${cenaJedno}; POST = baseline ${cielId} (${cena.spolu} €); Späť vráti auto aj farbu`, post: post.body };
+        return { info: `${P.id} -> ${cielId}: vzor, auto, farba ${farba} prenesené, otvorený krok 4 bez predvoľby; príplatok + ${n} € = ${cenaDvoj} − ${cenaJedno}; odporúčaná ${cv.odp ? cv.odp + " € = " + odpDvoj + " − " + odpJedno : "neukázaná (" + P.id + " bez bežnej ceny, rámik " + odpJedno + ")"}; POST = baseline ${cielId} (${cena.spolu} €); Späť vráti auto aj farbu`, post: post.body };
       } finally {
         s.produkt = P;
       }
@@ -398,6 +475,9 @@ export const SCENARE = {
       j.over(miesta === "pass-7", "po všetkých troch radoch nie je 7 miest: " + miesta);
       await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty druhej vrstvy" });
       await t.cakaj(`document.querySelector(${JSON.stringify(KARTA)}).classList.contains("active")`, { popis: "otvorená karta" });
+      const n = await cakajPriplatok(t, j);
+      const cbJedno = (await stavKarty(t)).cb;
+      const odpJedno = await odporucanaRamika(t, ovl);
       if (t.mobil) {
         // telefón: ťuk na video dlaždice (klikateľná je celá dlaždica, nielen tlačidlo)
         await t.klikni(`${KARTA} .lcd1v-druha__dlazdica .lcd1v-druha__fot`, { popis: "video dlaždice druhej vrstvy" });
@@ -429,11 +509,13 @@ export const SCENARE = {
         j.over(st.kufor === kufor && st.kuforKarta && st.kuforPress === "classic", `kufor na ${cielId}: ${st.kufor} (karta ${st.kuforKarta}, nový vzhľad ${st.kuforPress}), má ${kufor}`);
         j.over(st.boxKarta === "conf2" && st.farbaBoxov === b.farbaBoxov && st.box1 === b.box1 && st.box2 === b.box2 && !st.okno, `boxy na ${cielId}: ${JSON.stringify(st)}, majú byť ${JSON.stringify(b)} a okno zatvorené`);
         const farba2 = await ovl.farba2.vyberFarbu2(t, { index: 0 });
+        const odpDvoj = await odporucanaRamika(t, ovl);
+        const cv = overCenovku(j, cbJedno, { n, odpTu: odpJedno, odpTam: odpDvoj, uplny: true, kde: `karta ${P.id} (3 rady, rohož, 2 boxy) proti rámikom ${P.id} a ${cielId}` }) || {};
         await ovl.cena.pridajDoKosika(t);
         const post = await j.cakajNaPost(s);
         const cena = await j.overPost(s, post, { farba, farba2, rozlozenie, kufor, farbaBoxov: b.farbaBoxov, box1: b.box1, box2: b.box2 });
         const c = await j.overCenu(s, ovl, cena);
-        return { info: `${P.id} -> ${cielId}: 7 miest, 3 rady, rohož Classic, 2 boxy (${b.box1}+${b.box2}) prenesené, okno boxov zatvorené; POST platný, ${c.videne} € = Shoptet`, post: post.body };
+        return { info: `${P.id} -> ${cielId}: 7 miest, 3 rady, rohož Classic, 2 boxy (${b.box1}+${b.box2}) prenesené, okno boxov zatvorené; karta len + ${n} €${cv.odp ? `, odporúčaná ${cv.odp} € (${odpDvoj} − ${odpJedno})` : ""}; POST platný, ${c.videne} € = Shoptet`, post: post.body };
       } finally {
         s.produkt = P;
       }

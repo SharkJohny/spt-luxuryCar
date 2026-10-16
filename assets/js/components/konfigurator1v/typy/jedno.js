@@ -50,7 +50,20 @@ export const TYP = {
         // popis videa pre čítačky obrazovky (aria-label na <video>; video je bez zvuku a ovládania)
         alt: "Video: druhá vrstva zachytí vodu, vyberiete ju, umyjete vapkou a prvá prešívaná vrstva ostane čistá",
       },
-      priplatok: "Príplatok",
+      // Cenový blok dlaždice (Michal 16. 10. 2026: „132 je príplatok za komplet druhej vrstvy, nie len za 1 ks“ a „chýba
+      // odporúčaná cena a naša — keď si to kúpia takto, je to len ako príplatok“). Vzhľad cenovky rohože/boxov:
+      //   Príplatok za celú sadu druhej vrstvy / Odporúčaná cena <s>210 €</s> / S AUTOKOBERCAMI LEN / + 132 € / Ušetríte 78 €
+      // „od“ namiesto „len“, kým výber nie je úplný (pravidlo hlavného rámika „Naša cena od …“: rozloženie ešte môže
+      // príplatok zvýšiť). Čísla vždy živé (druha-vrstva.js obnovCenu), nikdy natvrdo; odporúčaná a „Ušetríte“ len keď
+      // obe stránky majú v admine bežnú cenu (613 nie -> len príplatok).
+      cena: {
+        sada: "Príplatok za celú sadu druhej vrstvy",
+        odporucana: "Odporúčaná cena",
+        sAuto: "S autokobercami",
+        len: "len",
+        od: "od",
+        usetrite: "Ušetríte",
+      },
       nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
       prenos: "Prenášame Váš výber na dvojvrstvové koberce…",
     },

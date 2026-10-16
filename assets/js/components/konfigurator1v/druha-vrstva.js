@@ -9,6 +9,8 @@
 //   - zlatá dlaždica s krátkym videom (od 16. 10. 2026 namiesto fotky; dve videá sa striedajú, sťahujú sa až pri zobrazení
 //     karty — blok „video v dlaždici“ nižšie) a príplatkom „+ N €“ rátaným živo (cena dvojvrstvového
 //     produktu pri tých istých voľbách − cena tejto stránky; chyba siete = cena sa neukáže),
+//   - Michal 16. 10. 2026: príplatok je za CELÚ SADU druhej vrstvy (všetky koberce zvoleného rozloženia), nie za 1 kus,
+//     a pri ňom odporúčaná cena druhej vrstvy prečiarknutá + „Ušetríte“ (cenovka ako rohož/boxy) — obnovCenu nižšie,
 //   - Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): v dlaždici je skutočné zlaté TLAČIDLO „Áno, chcem druhú
 //     vrstvu“ (<button>, klávesnica). Dlaždica je obyčajný <div> a klik na ňu (fotka, text) robí to isté — tlačidlá sa do
 //     seba nevnárajú, takže klávesnicou sa ide len na tlačidlo,
@@ -18,7 +20,7 @@
 // Nič s atribútom name, žiadny zápis do formulára: karta je nový prvok v .content-wrap BEZ tried .position-wrap /
 // .parameter-wrap. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
-import { priplatkyProduktu } from "./ceny-ine.js";
+import { stranka } from "./ceny-ine.js";
 import { PARAMETRE } from "./ctx.js";
 import { zapisPrenos } from "./prenos.js";
 import { lcdGetSteps, lcdFirstUnfilled } from "../../functions/configuratorEngine.js";
@@ -26,6 +28,9 @@ import { lcdGetSteps, lcdFirstUnfilled } from "../../functions/configuratorEngin
 export const MENO = "druha-vrstva";
 
 const NBSP = " ";
+
+/** Odporúčaná cena zo sumy — ten istý vzorec ako productPage.js calculateStandartPrice a ctx.cena(): × 1,6 nahor na desiatky. */
+const odporucanaZ = (suma) => Math.ceil((suma * 1.6) / 10) * 10;
 
 function el(tag, trieda, text) {
   const e = document.createElement(tag);
@@ -157,13 +162,26 @@ export function init(ctx) {
   atx.appendChild(el("span", "lcd1v-kb__nm", T.ano.nm));
   if (T.ano.po) atx.appendChild(el("span", "lcd1v-kb__po", T.ano.po));
   atx.appendChild(el("span", "lcd1v-kb__ben", T.ano.ben));
-  const ucet = el("span", "lcd1v-kb__ucet");
+  // cenovka (Michal 16. 10. 2026; vzhľad cenovky rohože/boxov .lcd1v-kb__cb): „Príplatok za celú sadu druhej vrstvy“,
+  // „Odporúčaná cena <s>210 €</s>“ (červená čiara), „S autokobercami len“ + veľké „+ 132 €“, zelená pilulka „Ušetríte 78 €“.
+  // Kým nie je cena dvojvrstvového známa, celý blok je skrytý; odporúčaná a pilulka len keď sa dajú spočítať (obnovCenu).
+  const TC = T.cena || {};
+  const ucet = el("span", "lcd1v-druha__cb");
   ucet.hidden = true;
-  const riadok = el("span", "lcd1v-kb__r lcd1v-kb__r--sum");
-  riadok.appendChild(el("span", "lcd1v-kb__rn", T.priplatok));
-  const suma = el("span", "lcd1v-kb__rh lcd1v-druha__suma");
-  riadok.appendChild(suma);
-  ucet.appendChild(riadok);
+  ucet.appendChild(el("span", "lcd1v-druha__cb-sada", TC.sada));
+  const cbOdp = el("span", "lcd1v-druha__cb-s");
+  cbOdp.hidden = true;
+  cbOdp.appendChild(el("span", "lcd1v-druha__cb-sn", TC.odporucana + " "));
+  const cbOdpSuma = el("s", "lcd1v-druha__cb-pr");
+  cbOdp.appendChild(cbOdpSuma);
+  ucet.appendChild(cbOdp);
+  const cbL = el("span", "lcd1v-druha__cb-l");
+  ucet.appendChild(cbL);
+  const suma = el("span", "lcd1v-druha__cb-c lcd1v-druha__suma");
+  ucet.appendChild(suma);
+  const cbU = el("span", "lcd1v-druha__cb-u");
+  cbU.hidden = true;
+  ucet.appendChild(cbU);
   atx.appendChild(ucet);
   dlazdica.appendChild(atx);
   // zlaté tlačidlo „Áno“ = doplnok (zelené „Nie“ pod dlaždicou je hlavná cesta)
@@ -266,7 +284,7 @@ export function init(ctx) {
   document.addEventListener("visibilitychange", obnovVideo);
 
   // ---------------------------------------------------------------- stav
-  const stav = { odpoved: null, prenos: false, mapa: undefined, nacitava: false };
+  const stav = { odpoved: null, prenos: false, mapa: undefined, bezna: false, nacitava: false };
   const nastavOtvoreny = (e, on) => {
     if (typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(e, on);
     else e.classList.toggle("active", on);
@@ -298,6 +316,20 @@ export function init(ctx) {
     });
     return out;
   }
+  function atribut(e, meno, hodnota) {
+    if (hodnota == null) { if (e.hasAttribute(meno)) e.removeAttribute(meno); }
+    else if (e.getAttribute(meno) !== String(hodnota)) e.setAttribute(meno, String(hodnota));
+  }
+  /**
+   * Cenovka dlaždice, všetko živo pri aktuálnych voľbách (nič natvrdo):
+   *   príplatok  = cena dvojvrstvového (cenaNaCieli) − ctx.cena().spolu = cena CELEJ sady druhej vrstvy (dvojvrstvový produkt
+   *                je jedna sada s jednou cenou: druhá vrstva na všetky koberce zvoleného rozloženia),
+   *   odporúčaná = odporúčaná dvojvrstvového (× 1,6 nahor na desiatky, ako rámik na jeho stránke) − odporúčaná tejto stránky
+   *                (ctx.cena().odporucana) = rozdiel dvoch čísel, ktoré web ukazuje v rámikoch; len keď obe stránky majú
+   *                v admine bežnú cenu (inak web odporúčanú neukazuje — 613, D2) a je vyššia než príplatok,
+   *   ušetríte   = odporúčaná − príplatok,
+   *   „len“/„od“ = pravidlo hlavného rámika („Naša cena od …“): kým výber nie je úplný (rozloženie), číslo ešte môže stúpnuť.
+   */
   function obnovCenu() {
     const p = ctx.parameter("farba");
     const v = p ? p.select.value : "";
@@ -305,16 +337,33 @@ export function init(ctx) {
     const tam = stav.mapa ? cenaNaCieli(stav.mapa, v, zvolenePriplatky()) : null;
     const rozdiel = tam != null && tu && tu.spolu > 0 ? Math.round((tam - tu.spolu) * 100) / 100 : null;
     const ok = rozdiel != null && rozdiel > 0;
-    if (ok) nastavText(suma, "+" + NBSP + ctx.formatCena(rozdiel));
+    let odp = null;
+    if (ok && stav.bezna && tu.maBeznuCenu && tu.odporucana > 0) {
+      const x = Math.round((odporucanaZ(tam) - tu.odporucana) * 100) / 100;
+      if (x > rozdiel + 0.5) odp = x;
+    }
+    let uplny = false;
+    try { uplny = ctx.prvyNevyplneny() === null; } catch (e) { uplny = false; }
+    if (ok) {
+      nastavText(suma, "+" + NBSP + ctx.formatCena(rozdiel));
+      nastavText(cbL, TC.sAuto + " " + (uplny ? TC.len : TC.od));
+      if (odp != null) {
+        nastavText(cbOdpSuma, ctx.formatCena(odp));
+        nastavText(cbU, TC.usetrite + " " + ctx.formatCena(Math.round((odp - rozdiel) * 100) / 100));
+      }
+    }
     if (ucet.hidden === ok) ucet.hidden = !ok;
-    if (ok) ano.setAttribute("data-lcd1v-priplatok", String(rozdiel));
-    else ano.removeAttribute("data-lcd1v-priplatok");
+    if (cbOdp.hidden === (odp != null)) cbOdp.hidden = odp == null;
+    if (cbU.hidden === (odp != null)) cbU.hidden = odp == null;
+    atribut(ano, "data-lcd1v-priplatok", ok ? rozdiel : null);
+    atribut(ano, "data-lcd1v-odporucana", odp);
   }
   function nacitajCenu() {
     if (stav.mapa !== undefined || stav.nacitava) return;
     stav.nacitava = true;
-    priplatkyProduktu(ciel.url).then(function (mapa) {
-      stav.mapa = mapa || null;
+    stranka(ciel.url).then(function (v) {
+      stav.mapa = (v && v.mapa) || null;
+      stav.bezna = !!(v && v.bezna);
     }, function () {
       stav.mapa = null;
     }).then(function () {
@@ -412,7 +461,7 @@ export function init(ctx) {
   const fow = farba.querySelector(":scope > .options-wrap");
   if (fow) new MutationObserver(naplanuj).observe(fow, { subtree: true, attributes: true, attributeFilter: ["class"] });
 
-  // zmeny výberu a ceny -> príplatok „+ N €“
+  // zmeny výberu a ceny -> cenovka (príplatok, odporúčaná, „len“/„od“)
   const $ = window.jQuery || window.$;
   if ($) $(form).on("change", "select", naplanuj);
   else form.addEventListener("change", naplanuj);
