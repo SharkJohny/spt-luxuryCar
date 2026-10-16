@@ -227,7 +227,7 @@ export async function kontroly(t) {
       return { n: li.length, mena: li.map(function (x) { return x.querySelector("b").textContent; }), koberce: li[0] && li[0].querySelector(".ba-p").textContent,
         druha: li[1] && li[1].querySelector(".ba-p").textContent, svg: rc ? Math.round(rc.width) + "×" + Math.round(rc.height) : null,
         img: [].every.call(s.querySelectorAll(".ba-i img"), function (i) { return i.complete && i.naturalWidth > 0; }) }; })()`);
-    ok(r.n === 4 && r.mena.join("|") === "Koberce na mieru|Druhá vrstva|Klipy na uchytenie|Suché zipsy a páska", `c-domov: 4 položky balenia (${r.mena.join(" | ")})`);
+    ok(r.n === 4 && r.mena.join("|") === "Autokoberce na mieru|Druhá vrstva|Klipy na uchytenie|Suché zipsy a páska", `c-domov: 4 položky balenia (${r.mena.join(" | ")})`);
     ok(/^Prvá prešívaná vrstva pre tie rady/.test(r.koberce) && /^Odnímateľná druhá vrstva vo farbe/.test(r.druha), "c-domov: „Prvá prešívaná vrstva pre tie rady…“ a „Odnímateľná druhá vrstva vo farbe…“ (Michal 15. 10. 2026: vrstvy vždy pomenované)");
     ok(r.svg === "40×40" && r.img, `c-domov: ikona druhej vrstvy (SVG ${r.svg}) a kresby balenia načítané (${r.img})`);
   }

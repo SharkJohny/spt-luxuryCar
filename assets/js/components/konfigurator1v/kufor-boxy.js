@@ -36,6 +36,9 @@ const TEXTY = {
   naj: "★ Najobjednávanejšie ★",
   samostatne: "Samostatne",
   usetrite: "Ušetríte",
+  // cenovka na karte kufra/boxu: ostáva „V sete“ aj po pravidle Michala 16. 10. 2026 (v zákazníckom texte vždy, kam
+  // produkt patrí) — karta je krok konfigurátora autokobercov do interiéru, set = práve zostavované autokoberce; štítok
+  // nad veľkou cenou (VERZÁLKY, 11 px) má pri 360 px vedľa fotky ~170 px, „V sete s autokobercami“ by sa zalomil
   vSete: "V sete",
   vCene: "v cene",
   od: "od",

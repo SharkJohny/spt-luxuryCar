@@ -1,4 +1,4 @@
-// Nový konfigurátor 1V — krok rozloženia kobercov (len 1. rad / 1.+2. rad / všetky tri rady): jednovrstvové krok 4,
+// Nový konfigurátor 1V — krok rozloženia autokobercov (len 1. rad / 1.+2. rad / všetky tri rady): jednovrstvové krok 4,
 // dvojvrstvové krok 5 (beží len pri typoch s modulom „rozlozenie“, produkty.js TYPY).
 // JADRO od T0.1 (14. 10. 2026; mení len vydanie) + assets/css/_lcd1v-rozlozenie.scss + tools/test-1v/ovladac-rozlozenie.mjs.
 // Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md — DOM sa nemaže, voľby len ctx.zapis().
@@ -16,17 +16,17 @@ export const MENO = "rozlozenie";
 
 const TEXTY = {
   sk: {
-    podnadpis: "Na autíčku vidíte, kde budú koberce. Na fotkách stmavená časť ostane bez nich.",
+    podnadpis: "Na autíčku vidíte, kde budú autokoberce. Na fotkách stmavená časť ostane bez nich.",
     info: "Vysvetlenie",
     vysvetlenie:
-      "<b>Prvý rad</b> = koberce pod nohami vodiča a spolujazdca. " +
+      "<b>Prvý rad</b> = autokoberce pod nohami vodiča a spolujazdca. " +
       "<b>Druhý rad</b> = zadné sedadlá vrátane prekrytia stredového tunela. " +
       "<b>Tretí rad</b> = posledný rad v sedemmiestnych autách.",
     miesta: "Miest na sedenie",
-    plan: "Pôdorys auta zhora: zlaté sú rady, kde budú koberce",
+    plan: "Pôdorys auta zhora: zlaté sú rady, kde budú autokoberce",
     podlozene: "Podložené",
     kufor: "Kufor je samostatný — vyberiete si ho v <b>ďalšom kroku</b>.",
-    skupina: "Rozloženie kobercov",
+    skupina: "Rozloženie autokobercov",
     vCene: "v cene",
     tretiRad: "+ 3. rad",
     karty: {

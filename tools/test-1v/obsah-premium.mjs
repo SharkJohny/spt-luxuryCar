@@ -144,7 +144,7 @@ export async function kontroly(t) {
         bodky: s.querySelectorAll(".s2-rail button").length, nahlady: s.querySelectorAll(".s2-thumbs button").length, chipy: s.querySelectorAll(".chip").length,
         cisloFarieb: (s.querySelector("[data-p1v-cislo='pocet-farieb']") || {}).textContent || "", vzor: ((s.querySelector("[data-p1v-cislo='vzor']") || {}).textContent || "").trim() }; })()`);
     ok(v.fotky === 5 && v.texty === 5 && v.bodky === 5 && v.nahlady === 5 && v.chipy === 6, `b-ocakavat: päť vecí (fotky ${v.fotky}, texty ${v.texty}, bodky ${v.bodky}, náhľady ${v.nahlady}, čipy ${v.chipy} s „Logo pravosti“); nadpis „${v.h2}“`);
-    ok(v.chipTexty[1] === "Logo pravosti" && v.lede === "Nie je to o materiáli na fotke. Je to o strihu, o logu Luxury Car Design, ktoré kópia nemá, a o tom, ako sa rohož správa v každodennom používaní.",
+    ok(v.chipTexty[1] === "Logo pravosti" && v.lede === "Nie je to o materiáli na fotke. Je to o strihu, o logu Luxury Car Design, ktoré kópia nemá, a o tom, ako sa rohož do kufra správa v každodennom používaní.",
       `b-ocakavat: logo podľa rozhodnutia Michala 14. 10. 2026 — čip 2 „${v.chipTexty[1]}“, úvod „${v.lede}“`);
     ok(/^\d+\s/.test(v.cisloFarieb.trim()), `b-ocakavat: počet farieb tohto vzoru zo živých dát („${v.cisloFarieb.trim().replace(/ /g, " ")}“)`);
     const vz = String((t.produkt && t.produkt.vzor) || "").toLowerCase();
@@ -234,7 +234,7 @@ export async function kontroly(t) {
       "premium-porovnanie: Premium kryje dno, boky aj chrbty; Classic nekryje boky ani chrbty");
     ok(r.filter === "none", `premium-porovnanie: fotka Classic bez šedého filtra (${r.filter})`);
     const cl = r.dalej.find((a) => /Classic/.test(a.text)), pr = r.dalej.find((a) => /Premium/.test(a.text));
-    ok(cl && String(cl.href).split("#")[0] === KLASIK[id], `premium-porovnanie: „Pozrite si rohož Classic“ vedie na ${cl && cl.href} (čakám ${KLASIK[id]})`);
+    ok(cl && String(cl.href).split("#")[0] === KLASIK[id], `premium-porovnanie: „Pozrite si rohož do kufra Classic“ vedie na ${cl && cl.href} (čakám ${KLASIK[id]})`);
     ok(pr && pr.href === "#product-detail-form" && r.spat, "premium-porovnanie: „Vyberte si Premium“ a výzva vedú na konfigurátor");
   }
 

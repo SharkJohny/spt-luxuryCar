@@ -191,13 +191,15 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lc
   font-style: normal;
   color: #4a4433;
 }
+/* „Zostavte set s autokobercami“ (16. 10. 2026) na 2 riadky vpravo — v jednom riadku (~205 px) by zúžil text pásu */
 body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__sp {
   flex: none;
+  max-width: 12.5em;
   font: 800 10.5px/1.3 var(--c1v-disp);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-align: right;
   color: var(--c1v-zl);
-  white-space: nowrap;
 }
 @media (max-width: 440px) {
   body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-set--pas .lcd1v-kf-set__sp { display: none; }

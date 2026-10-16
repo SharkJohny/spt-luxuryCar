@@ -205,7 +205,7 @@ export const SCENARE = {
       over(K.vzor.nm === "Vzor prešívania" && K.vzor.ti === "Prosím, vyberte si vzor prešívania" && K.vzor.ey === "Krok 1 z 7", "krok 1: " + JSON.stringify(K.vzor));
       over(K.vzor.pod === "Vzor je na prvej prešívanej vrstve — vidno ho po bokoch aj okolo druhej vrstvy.", "krok 1 podnadpis: „" + K.vzor.pod + "“ (veta o rovnakej cene sa nepíše)");
       over(K.farba.nm === "Farba 1. vrstvy" && K.farba.ti === "Prosím, vyberte si farbu 1. vrstvy" && K.farba.ey === "Krok 3 z 7", "krok 3: " + JSON.stringify(K.farba));
-      over(K.farba.pod === "Prvá vrstva je prešívaný koberec. Po výbere uvidíte materiál zblízka." && K.farba.chyba === "Vyberte, prosím, farbu prvej prešívanej vrstvy.", "krok 3 texty: " + JSON.stringify(K.farba));
+      over(K.farba.pod === "Prvá prešívaná vrstva dáva autokobercom farbu a vzor. Po výbere uvidíte materiál zblízka." && K.farba.chyba === "Vyberte, prosím, farbu prvej prešívanej vrstvy.", "krok 3 texty: " + JSON.stringify(K.farba));
       over(K.farba.vy === farbyNaVyber(pocetF) && pocetF > 0, `krok 3 zhrnutie „${K.farba.vy}“ ≠ „${farbyNaVyber(pocetF)}“ (farieb ${pocetF})`);
       over(K.farba2.nm === "Farba 2. vrstvy" && K.farba2.ti === "Prosím, vyberte si farbu 2. vrstvy" && K.farba2.ey === "Krok 4 z 7" && K.farba2.chyba === "Vyberte, prosím, farbu druhej vrstvy.", "krok 4: " + JSON.stringify(K.farba2));
       over(K.rozlozenie.ey === "Krok 5 z 7" && K.kufor.ey === "Krok 6 z 7" && K.boxy.ey === "Krok 7 z 7", "číslovanie krokov 5–7: " + [K.rozlozenie.ey, K.kufor.ey, K.boxy.ey].join(" | "));

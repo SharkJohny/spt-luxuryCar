@@ -201,9 +201,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 598, 610, 613 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 34408,
-      "bajty": 35242,
-      "hash": "e7ce9bd348",
+      "znaky": 34469,
+      "bajty": 35303,
+      "hash": "6a40cd9083",
       "obrazky": 36,
       "sekcie": [
         {
@@ -214,7 +214,7 @@
         {
           "subor": "11-a-referencie.sk.html",
           "sekcia": "a-referencie",
-          "znaky": 5476
+          "znaky": 5480
         },
         {
           "subor": "12-a-galeria.sk.html",
@@ -229,12 +229,12 @@
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 7292
+          "znaky": 7333
         },
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 5790
+          "znaky": 5798
         },
         {
           "subor": "22-b-porovnanie.sk.html",
@@ -244,7 +244,7 @@
         {
           "subor": "23-b-predapo.sk.html",
           "sekcia": "b-predapo",
-          "znaky": 2914
+          "znaky": 2922
         }
       ]
     },
@@ -261,30 +261,30 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 598, 610, 613 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 26385,
-      "bajty": 27126,
-      "hash": "8144f2f3fa",
+      "znaky": 26414,
+      "bajty": 27155,
+      "hash": "ae579231f8",
       "obrazky": 36,
       "sekcie": [
         {
           "subor": "30-c-kam.sk.html",
           "sekcia": "c-kam",
-          "znaky": 851
+          "znaky": 855
         },
         {
           "subor": "31-c-domov.sk.html",
           "sekcia": "c-domov",
-          "znaky": 1901
+          "znaky": 1918
         },
         {
           "subor": "32-c-casova-os.sk.html",
           "sekcia": "c-casova-os",
-          "znaky": 1341
+          "znaky": 1345
         },
         {
           "subor": "33-c-farby.sk.html",
           "sekcia": "c-farby",
-          "znaky": 7471
+          "znaky": 7475
         },
         {
           "subor": "34-c-vzorky.sk.html",
@@ -326,9 +326,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 33416,
-      "bajty": 34211,
-      "hash": "0654957c98",
+      "znaky": 33452,
+      "bajty": 34247,
+      "hash": "7da50446fb",
       "obrazky": 35,
       "sekcie": [
         {
@@ -339,7 +339,7 @@
         {
           "subor": "11-a-referencie.sk.html",
           "sekcia": "a-referencie",
-          "znaky": 5476
+          "znaky": 5480
         },
         {
           "subor": "12-a-galeria.sk.html",
@@ -354,12 +354,12 @@
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 7633
+          "znaky": 7657
         },
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 6934
+          "znaky": 6942
         },
         {
           "subor": "22-b-porovnanie.sk.html",
@@ -386,30 +386,30 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 24127,
-      "bajty": 24849,
-      "hash": "77c6af35a3",
+      "znaky": 24156,
+      "bajty": 24878,
+      "hash": "762d70fb3e",
       "obrazky": 26,
       "sekcie": [
         {
           "subor": "30-c-kam.sk.html",
           "sekcia": "c-kam",
-          "znaky": 898
+          "znaky": 902
         },
         {
           "subor": "31-c-domov.sk.html",
           "sekcia": "c-domov",
-          "znaky": 2348
+          "znaky": 2365
         },
         {
           "subor": "32-c-casova-os.sk.html",
           "sekcia": "c-casova-os",
-          "znaky": 1355
+          "znaky": 1359
         },
         {
           "subor": "33-c-farby.sk.html",
           "sekcia": "c-farby",
-          "znaky": 4717
+          "znaky": 4721
         },
         {
           "subor": "34-c-vzorky.sk.html",
@@ -451,20 +451,20 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 36517,
-      "bajty": 37338,
-      "hash": "80ce6245e2",
+      "znaky": 36674,
+      "bajty": 37496,
+      "hash": "6a6d95a4fe",
       "obrazky": 37,
       "sekcie": [
         {
           "subor": "10-a-ponuka.sk.html",
           "sekcia": "a-ponuka",
-          "znaky": 1303
+          "znaky": 1377
         },
         {
           "subor": "11-a-referencie.sk.html",
           "sekcia": "a-referencie",
-          "znaky": 5476
+          "znaky": 5480
         },
         {
           "subor": "12-a-galeria.sk.html",
@@ -479,12 +479,12 @@
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 6191
+          "znaky": 6234
         },
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 5689
+          "znaky": 5698
         },
         {
           "subor": "22-b-porovnanie.sk.html",
@@ -494,7 +494,7 @@
         {
           "subor": "23-classic-premium.sk.html",
           "sekcia": "classic-premium",
-          "znaky": 2684
+          "znaky": 2711
         },
         {
           "subor": "24-b-predapo.sk.html",
@@ -516,30 +516,30 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 27762,
-      "bajty": 28549,
-      "hash": "2276725246",
+      "znaky": 27816,
+      "bajty": 28603,
+      "hash": "73bc5cbe04",
       "obrazky": 36,
       "sekcie": [
         {
           "subor": "30-c-kam.sk.html",
           "sekcia": "c-kam",
-          "znaky": 784
+          "znaky": 802
         },
         {
           "subor": "31-classic-box.sk.html",
           "sekcia": "classic-box",
-          "znaky": 1174
+          "znaky": 1183
         },
         {
           "subor": "32-c-domov.sk.html",
           "sekcia": "c-domov",
-          "znaky": 2380
+          "znaky": 2398
         },
         {
           "subor": "33-c-casova-os.sk.html",
           "sekcia": "c-casova-os",
-          "znaky": 1354
+          "znaky": 1363
         },
         {
           "subor": "34-c-farby.sk.html",
@@ -586,20 +586,20 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 628, 631, 634 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 32638,
-      "bajty": 33290,
-      "hash": "0de68fb2a3",
+      "znaky": 32768,
+      "bajty": 33421,
+      "hash": "9f1464fcf5",
       "obrazky": 33,
       "sekcie": [
         {
           "subor": "10-a-ponuka.sk.html",
           "sekcia": "a-ponuka",
-          "znaky": 2056
+          "znaky": 2089
         },
         {
           "subor": "11-a-referencie.sk.html",
           "sekcia": "a-referencie",
-          "znaky": 5476
+          "znaky": 5480
         },
         {
           "subor": "12-a-galeria.sk.html",
@@ -614,17 +614,17 @@
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 4529
+          "znaky": 4582
         },
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 5722
+          "znaky": 5744
         },
         {
           "subor": "22-premium-porovnanie.sk.html",
           "sekcia": "premium-porovnanie",
-          "znaky": 2567
+          "znaky": 2585
         },
         {
           "subor": "23-b-predapo.sk.html",
@@ -646,25 +646,25 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 628, 631, 634 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 28237,
-      "bajty": 29019,
-      "hash": "b85c98bca9",
+      "znaky": 28264,
+      "bajty": 29046,
+      "hash": "d0203ccc45",
       "obrazky": 36,
       "sekcie": [
         {
           "subor": "30-premium-kryje.sk.html",
           "sekcia": "premium-kryje",
-          "znaky": 2550
+          "znaky": 2559
         },
         {
           "subor": "31-c-domov.sk.html",
           "sekcia": "c-domov",
-          "znaky": 2095
+          "znaky": 2104
         },
         {
           "subor": "32-c-casova-os.sk.html",
           "sekcia": "c-casova-os",
-          "znaky": 1350
+          "znaky": 1359
         },
         {
           "subor": "33-c-farby.sk.html",
@@ -711,15 +711,15 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 26444,
-      "bajty": 26929,
-      "hash": "7046051dc8",
+      "znaky": 26499,
+      "bajty": 26985,
+      "hash": "e1b23b99ae",
       "obrazky": 28,
       "sekcie": [
         {
           "subor": "10-a-ponuka.sk.html",
           "sekcia": "a-ponuka",
-          "znaky": 2563
+          "znaky": 2617
         },
         {
           "subor": "12-a-galeria.sk.html",
@@ -734,7 +734,7 @@
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 5945
+          "znaky": 5946
         },
         {
           "subor": "21-boxy-velkosti.sk.html",
@@ -761,9 +761,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 25487,
-      "bajty": 26211,
-      "hash": "8f585aceba",
+      "znaky": 25520,
+      "bajty": 26244,
+      "hash": "8c91f9b4a3",
       "obrazky": 31,
       "sekcie": [
         {
@@ -794,7 +794,7 @@
         {
           "subor": "40-boxy-cross.sk.html",
           "sekcia": "boxy-cross",
-          "znaky": 2222
+          "znaky": 2255
         },
         {
           "subor": "41-d-faq.sk.html",

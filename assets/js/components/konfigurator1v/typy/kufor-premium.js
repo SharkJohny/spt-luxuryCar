@@ -35,14 +35,14 @@ export const TYP = {
       vzorPod: (lacny, drahe, rozdiel) => lacny + " je v základnej cene, " + drahe.join(" a ") + " stoja o " + rozdiel + " viac. Ponuka farieb sa pri každom vzore líši.",
       vzorPodRovnako: "Všetky tri vzory majú rovnakú cenu. Ponuka farieb sa pri každom vzore líši.",
       vCene: "v cene",
-      // pás pod cenou (návrh .setpas, celý pás je odkaz): „V sete s autokobercami do interiéru len + 239 €“ + veta o úspore + „Zostavte set“
+      // pás pod cenou (návrh .setpas, celý pás je odkaz): „V sete s autokobercami do interiéru len + 239 €“ + veta o úspore + „Zostavte set s autokobercami“
       set: {
         tvar: "pas",
         rohoz: "premium", // voľba kufra na jednovrstvovom produkte: dno + boky
         text: "V sete s autokobercami do interiéru len",
         // návrh: „… o viac než 100 € lacnejšie …“ — platí len pri úspore nad 100 €, inak presná suma
         usetrite: (suma, n) => (n > 100 ? "Rohož do kufra Premium vyjde o viac než 100 € lacnejšie než samostatne." : "Rohož do kufra Premium vyjde o " + suma + " lacnejšie než samostatne."),
-        odkaz: "Zostavte set",
+        odkaz: "Zostavte set s autokobercami",
       },
       alt: null, // Premium nemá odkaz pod košíkom (porovnanie s Classic je v obsahu pod konfigurátorom)
     },

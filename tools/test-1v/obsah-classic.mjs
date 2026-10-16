@@ -192,7 +192,7 @@ export async function kontroly(t) {
     ok(nbsp(await sete(1)).endsWith("Len + " + eur(oc.setClassic)), `Classic alebo Premium: v sete s autokobercami Classic „${await sete(1)}“ (čakám Len + ${eur(oc.setClassic)})`);
     ok(nbsp(await sete(2)).endsWith("Len + " + eur(oc.setPremium)), `Classic alebo Premium: v sete s autokobercami Premium „${await sete(2)}“ (čakám Len + ${eur(oc.setPremium)})`);
     const up = [await text(S("a-ponuka") + " .ups li", 0), await text(S("a-ponuka") + " .ups li", 1), await text(S("a-ponuka") + " .ups li", 2), await text(S("a-ponuka") + " .ups p", 0)];
-    ok(up[0] === "Samostatne " + eur(oc.cena) && up[1] === "V sete len + " + eur(oc.setClassic) && up[2] === "Ušetríte " + eur(oc.uspora),
+    ok(up[0] === "Samostatne " + eur(oc.cena) && up[1] === "V sete s autokobercami len + " + eur(oc.setClassic) && up[2] === "Ušetríte " + eur(oc.uspora),
       `upsell autokobercov: „${up[0]}“ / „${up[1]}“ / „${up[2]}“ (čakám ${eur(oc.cena)}, +${eur(oc.setClassic)}, ušetríte ${eur(oc.uspora)})`);
     ok(up[3].includes("samostatne za " + eur(oc.cena)) && up[3].includes("len za " + eur(oc.setClassic)), "upsell autokobercov: veta v texte má tie isté dve ceny");
     const bx = [await text(S("classic-box") + " .ups li", 1), await text(S("classic-box") + " .ups li", 2)];
@@ -363,7 +363,7 @@ export async function kontroly(t) {
     ok(b.li === 3 && b.foto && !/Jeden alebo dva boxy/.test(b.tx), `upsell boxu: 3 riadky zoznamu, fotka načítaná, bez nepravdivého „Jeden alebo dva boxy“`);
     ok(sir > 820 ? b.cols === 2 : b.cols === 1, `upsell boxu: tmavá karta v ${b.cols} stĺpcoch (${sir > 820 ? "PC 2" : "telefón 1"})`);
     // rytmus kapitol ako v návrhu (.kap > section.chapter{padding-top:clamp(38px,4.8vw,68px) !important} + linka 1 px medzi sekciami kapitoly):
-    // karta sa nesmie lepiť na „Kam všade rohož siaha“ (bola chyba: padding-top:0 a bez linky)
+    // karta sa nesmie lepiť na „Kam všade rohož do kufra siaha“ (bola chyba: padding-top:0 a bez linky)
     const sp = await t.ev(`(function () { var w = document.querySelector(${sj("classic-box")}), c = w.querySelector("section.chapter");
       return { linka: parseFloat(getComputedStyle(w).borderTopWidth), pad: parseFloat(getComputedStyle(c).paddingTop), okno: innerWidth }; })()`);
     const padNavrh = Math.min(68, Math.max(38, 0.048 * sp.okno));

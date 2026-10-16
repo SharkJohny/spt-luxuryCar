@@ -46,13 +46,13 @@ export const TYP = {
       // cena pod názvom vzoru na dlaždici = PLNÁ cena rohože v tom vzore (návrh: „230 € / 240 € / 240 €“, zo sesterských stránok)
       dlazdica: "cena",
       vCene: "v cene",
-      // pás pod cenou (návrh .kc-set): „V sete s autokobercami do interiéru len + 129 € (ušetríte 101 €)“ + „Zostaviť set“
+      // pás pod cenou (návrh .kc-set): „V sete s autokobercami do interiéru len + 129 € (ušetríte 101 €)“ + „Zostaviť set s autokobercami“
       set: {
         tvar: "riadok",
         rohoz: "classic", // voľba kufra na jednovrstvovom produkte: dno (bez bokov)
         text: "V sete s autokobercami do interiéru len",
         usetrite: (suma) => "(ušetríte " + suma + ")",
-        odkaz: "Zostaviť set",
+        odkaz: "Zostaviť set s autokobercami",
       },
       // riadok pod tlačidlom košíka (návrh .kc-alt) -> rohož Premium v tom istom vzore
       alt: { text: "Chcete chrániť aj boky kufra?", odkaz: "Pozrite si rohož do kufra Premium", typ: "kufor-premium" },

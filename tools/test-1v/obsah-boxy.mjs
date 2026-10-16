@@ -10,7 +10,7 @@
 //   - silueta v skutočnom pomere (šírka obdĺžnika = 33/40/54/66 z viewBox 76 × 44), gradient z <defs> s id p1v-…,
 //   - zdroj sekcií okrem FAQ: nič o skladovosti; lehota len „21–29 dní“ v časovej osi — úvod + odznak „spolu 21–29 dní“ (rozhodnutie
 //     Michala 14. 10. 2026: box sa šije ako koberce; odznak a krok „Ručné šitie“ 15. 10. 2026); zakázané slová; žiadna cena natvrdo,
-//   - karty „Doplňte kufor o rohož“ (odkazy v tom istom vzore, ceny zo živých stránok, celá karta je odkaz),
+//   - karty „Doplňte aj rohož do kufra“ (odkazy v tom istom vzore, ceny zo živých stránok, celá karta je odkaz),
 //   - 8 krokov „Osem vecí“, farby (9), časová os (5, so šitím a odznakom), FAQ = živé FAQ z /faq/ doslovne (12, tools/test-1v/obsah-faq.mjs), záver, okno
 //     fotiek, všetky obrázky boxy-* sa načítajú.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -239,7 +239,7 @@ export async function kontroly(t) {
     })()`);
     const rad = (b) => b.map((x) => x.t);
     ok(r.rola === "table" && r.riadkov === 4 && r.hlavicka.join("|") === "Veľkosť|S|M|L|XL", `a-ponuka: tabuľka cien má hlavičku S M L XL a 3 riadky (role ${r.rola}, riadkov ${r.riadkov}, hlavička ${r.hlavicka.join("|")})`);
-    ok(r.nazvy.join("|") === "Samostatne|V sete s autokobercami do interiéru|V sete, pri dvoch boxoch (každý)", `a-ponuka: riadky tabuľky ${r.nazvy.join(" | ")}`);
+    ok(r.nazvy.join("|") === "Samostatne|V sete s autokobercami do interiéru|V sete s autokobercami, pri dvoch boxoch (každý)", `a-ponuka: riadky tabuľky ${r.nazvy.join(" | ")}`);
     const cakam = (m) => VEL.map((v) => m[v]);
     ok(nbsp(rad(r.r1).join(",")) === nbsp(cakam(o.sam).join(",")), `a-ponuka: Samostatne ${rad(r.r1).join(" ")} = živé selecty 616 (${cakam(o.sam).join(" ")})`);
     ok(nbsp(rad(r.r2).join(",")) === nbsp(cakam(o.set).join(",")), `a-ponuka: V sete ${rad(r.r2).join(" ")} = jednovrstvové „Box solo“ (${cakam(o.set).join(" ")})`);
@@ -393,11 +393,11 @@ export async function kontroly(t) {
     })()`);
     const reg = o.reg;
     const cesta = (typ) => (sestra(reg, typ, null) || {}).cesta;
-    ok(r.h2 === "Doplňte kufor o rohož" && r.k.map((c) => c.stitok).join("|") === "Classic|Premium|Autokoberce", `boxy-cross: nadpis „${r.h2}“ a karty ${r.k.map((c) => c.stitok).join(" | ")}`);
+    ok(r.h2 === "Doplňte aj rohož do kufra" && r.k.map((c) => c.stitok).join("|") === "Classic|Premium|Autokoberce", `boxy-cross: nadpis „${r.h2}“ a karty ${r.k.map((c) => c.stitok).join(" | ")}`);
     ok(r.k.map((c) => (c.href || "").split("#")[0]).join(",") === [cesta("kufor-classic"), cesta("kufor-premium"), cesta("jedno")].join(","), `boxy-cross: odkazy kariet ${r.k.map((c) => c.href).join(", ")}`);
     ok(nbsp(r.k[0].cena) === eur(o.classic) && nbsp(r.k[0].popis) === "v sete s autokobercami do interiéru + " + eur(o.setClassic), `boxy-cross: Classic ${nbsp(r.k[0].cena)}, „${nbsp(r.k[0].popis)}“ = živé stránky (${eur(o.classic)}, + ${eur(o.setClassic)})`);
     ok(nbsp(r.k[1].cena) === eur(o.premium) && nbsp(r.k[1].popis) === "v sete s autokobercami do interiéru + " + eur(o.setPremium), `boxy-cross: Premium ${nbsp(r.k[1].cena)}, „${nbsp(r.k[1].popis)}“ = živé stránky (${eur(o.premium)}, + ${eur(o.setPremium)})`);
-    ok(nbsp(r.k[2].cena) === "od " + eur(o.jedno) && nbsp(r.k[2].popis) === "box v sete od " + o.set.S, `boxy-cross: Autokoberce „${nbsp(r.k[2].cena)}“, „${nbsp(r.k[2].popis)}“ = živé stránky (od ${eur(o.jedno)}, box v sete od ${o.set.S})`);
+    ok(nbsp(r.k[2].cena) === "od " + eur(o.jedno) && nbsp(r.k[2].popis) === "box v sete s autokobercami od " + o.set.S, `boxy-cross: Autokoberce „${nbsp(r.k[2].cena)}“, „${nbsp(r.k[2].popis)}“ = živé stránky (od ${eur(o.jedno)}, box v sete od ${o.set.S})`);
     ok(r.k.every((c) => c.stavy.split(",").every((s) => s === "ok/visible")), "boxy-cross: všetky čísla kariet dosadené a viditeľné");
     ok(r.k.every((c) => c.img), "boxy-cross: fotky kariet sa načítali");
     ok(r.k.every((c) => c.cela), "boxy-cross: klik kamkoľvek na kartu zasiahne jej odkaz (natiahnutý odkaz)");

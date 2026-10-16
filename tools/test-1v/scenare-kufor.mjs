@@ -147,10 +147,10 @@ export const SCENARE = {
       j.over(st.setVidno && st.setPredPostupom, "pás setu nie je viditeľný pod cenou pred postupom krokov");
       j.over(cisty(st.set).includes("V sete s autokobercami do interiéru len + " + eur(setCena)), "pás setu „" + st.set + "“ nemá „+ " + eur(setCena) + "“");
       if (typ === "kufor-classic") {
-        j.over(cisty(st.set).includes("(ušetríte " + eur(us) + ")") && /Zostaviť set$/.test(cisty(st.set)), "pás setu Classic „" + st.set + "“ ≠ (ušetríte " + eur(us) + ") + Zostaviť set");
+        j.over(cisty(st.set).includes("(ušetríte " + eur(us) + ")") && /Zostaviť set s autokobercami$/.test(cisty(st.set)), "pás setu Classic „" + st.set + "“ ≠ (ušetríte " + eur(us) + ") + Zostaviť set s autokobercami");
       } else {
         const veta = us > 100 ? "Rohož do kufra Premium vyjde o viac než 100 € lacnejšie než samostatne." : "Rohož do kufra Premium vyjde o " + eur(us) + " lacnejšie než samostatne.";
-        j.over(cisty(st.set).includes(veta) && /Zostavte set$/.test(cisty(st.set)), "pás setu Premium „" + st.set + "“ ≠ „" + veta + "“ + Zostavte set");
+        j.over(cisty(st.set).includes(veta) && /Zostavte set s autokobercami$/.test(cisty(st.set)), "pás setu Premium „" + st.set + "“ ≠ „" + veta + "“ + Zostavte set s autokobercami");
       }
       j.over(st.setHref === cesta(jedno.url), "odkaz setu " + st.setHref + " ≠ jednovrstvové " + cesta(jedno.url));
       info.push("set + " + setCena + " € (ušetríte " + us + " €) -> " + jedno.id);

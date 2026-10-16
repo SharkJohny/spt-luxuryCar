@@ -198,7 +198,7 @@ export function init(ctx) {
     const kam = stlpec.querySelector(":scope > .lcd1v-postup") || form.querySelector(".lcd1v-postup");
     let pas;
     if (S.tvar === "pas") {
-      // Premium: celý pás je odkaz (ikona +, nadpis, veta o úspore, „Zostavte set“)
+      // Premium: celý pás je odkaz (ikona +, nadpis, veta o úspore, „Zostavte set s autokobercami“)
       pas = el("a", "lcd1v-kf-set lcd1v-kf-set--pas");
       pas.href = jedno.url;
       const ic = el("span", "lcd1v-kf-set__ic", "+");
@@ -210,7 +210,7 @@ export function init(ctx) {
       pas.appendChild(tx);
       pas.appendChild(el("span", "lcd1v-kf-set__sp", S.odkaz));
     } else {
-      // Classic: riadok s textom a odkazom „Zostaviť set“ vpravo
+      // Classic: riadok s textom a odkazom „Zostaviť set s autokobercami“ vpravo
       pas = el("p", "lcd1v-kf-set lcd1v-kf-set--riadok");
       const tx = el("span", "lcd1v-kf-set__tx");
       tx.appendChild(document.createTextNode(S.text + " "));
@@ -231,7 +231,7 @@ export function init(ctx) {
       pas.appendChild(a);
     }
     pas.setAttribute("data-lcd1v-set", String(o.cena));
-    // medzi cenu (a pás kompatibility) a postup „Vaša rohož v 3 krokoch“ (rovnaký order ako postup, pred ním v DOM)
+    // medzi cenu (a pás kompatibility) a postup „Vaša rohož do kufra v 3 krokoch“ (rovnaký order ako postup, pred ním v DOM)
     if (kam && kam.parentNode) vloz(kam.parentNode, pas, kam);
   }
 

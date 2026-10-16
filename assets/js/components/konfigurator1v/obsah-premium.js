@@ -10,7 +10,7 @@
 // oc = { ctx, kluc, korene, koren, miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn, {okraj}), nacitajMedia(el),
 //        ked, na, vysli }; sekcia, ktorá je stub, nie je v DOM: oc.sekcia(meno) === null.
 //
-// premium-kryje — „Čo všetko rohož Premium kryje“ (návrh kufor-premium.html r. 4971–4992):
+// premium-kryje — „Čo všetko rohož do kufra Premium kryje“ (návrh kufor-premium.html r. 4971–4992):
 //   .kryv-f[data-z] = zvolená plocha (vsetko | dno | boky | operadla); SVG zóny na fotke sa podľa nej rozsvietia v CSS.
 //   Klik na .kz[data-z] ju nastaví a označí tlačidlo (.on, aria-pressed). Na PC (hover:hover + pointer:fine) ju
 //   rozsvieti aj prechod myšou; po odchode myši sa vráti zvolená. Nič neodosiela, nič z DOM nemaže.

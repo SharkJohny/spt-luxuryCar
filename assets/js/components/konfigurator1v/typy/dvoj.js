@@ -1,6 +1,6 @@
 // Texty a obrázky typu „dvoj“ (dvojvrstvové 601 Diamond, 604 Hexa, 607 Stripe). VLASTNÍK: worker dvoj (T1.2).
 // Tvar a pravidlá: typy/jedno.js (základ — produkty.js zlúči jedno + dvoj, čo tu nie je, platí z jedno: krok auta, rozloženie,
-// boxy a „Váš set v N krokoch“ sú rovnaké ako pri jednovrstvových). Texty doslovne z návrhu dvojvrstvove.html
+// boxy a postup „Vaše autokoberce do interiéru v N krokoch“ sú rovnaké ako pri jednovrstvových). Texty doslovne z návrhu dvojvrstvove.html
 // (navrh-dvojvrstvove.md §3.3–3.8). Krok „Farba 2. vrstvy“ (karta 4) staví farba2.js.
 // Zákaznícky text: vykanie, bez „na milimeter“, „vyrábame“, počtu vrstiev materiálu, záruky ako argumentu,
 // DragonSkin/Elite/Basic, fixačných bodov a „Comfort“ (docs/1v-kontrakt.md §11).
@@ -15,7 +15,7 @@ export const TYP = {
         farba: {
           nm: "Farba 1. vrstvy",
           ti: "Prosím, vyberte si farbu 1. vrstvy",
-          pod: "Prvá vrstva je prešívaný koberec. Po výbere uvidíte materiál zblízka.",
+          pod: "Prvá prešívaná vrstva dáva autokobercom farbu a vzor. Po výbere uvidíte materiál zblízka.",
           chyba: "Vyberte, prosím, farbu prvej prešívanej vrstvy.",
         },
         // Krok 4 (N:3964): podnadpis s „i“ a vysvetlením, mriežku a náhľad dodá farba2.js. Zhrnutie v hlavičke
