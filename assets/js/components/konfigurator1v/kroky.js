@@ -26,6 +26,10 @@
 //   obalu príde udalosť ctx.na("kroky:hotovo"), pri zmene otvoreného kroku ctx.na("kroky:otvoreny", { meno, el }).
 // Posledný krok produktu (jedno/dvoj boxy, rohož farba, box velkost): „Pokračujte k súhrnu“ — živé tlačidlo by vkladalo
 //   do košíka; pod 1V len zatvorí krok a posunie na súhrn (handler na konci súboru).
+// Pokus prejsť na kartu za autom bez auta (hlavička, voľba) = „Pokračujte ďalej“ v karte auta, bez výzvy (Michal
+//   16. 10. 2026, docs/1v-kontrakt.md §15; handler „pokus prejsť ďalej bez auta“ nižšie, validation.js pod 1V mlčí).
+import { lcdOverKrok } from "../../functions/configuratorEngine.js";
+
 export const MENO = "kroky";
 
 // Spoločné texty obalu. Mená a vety kariet (nm, ti, vy, pod, chyba, pozn, dalej) a postup sú v typy/<typ>.js.
@@ -471,6 +475,37 @@ export function init(ctx) {
   ctx.na("zmena", naplanuj);
   // tlačidlá krokov pridáva productPage.js asynchrónne; configurator-enhance prerába DOM ~24 s
   ctx.ked(() => cw.querySelector(".next-step-button"), naplanuj, { limit: 15000 });
+
+  // ---------------------------------------------------------------- pokus prejsť ďalej bez auta
+  // Michal 16. 10. 2026: „verifikácia by sa nemala vyvolať, až keď klikne na Pokračovať a niečo nemá vybraté — tak mu
+  // zvýrazni, čo nevybral.“ Klik zákazníka na hlavičku alebo voľbu karty ZA kartou auta, kým auto nie je úplné, = to
+  // isté ako „Pokračujte ďalej“ v karte auta (configuratorEngine.js lcdOverKrok): žiadna výzva (validation.js pod 1V
+  // mlčí), nič sa neodznačí, otvorená ostane len karta auta, chýbajúce polia sú červené (obnov(): .lcd-needs-fill ->
+  // lcd1v-chyba + lcd1v-err) a stránka ide na prvé z nich. Hlavička: klik ďalej nepustíme (živý akordeón by kartu
+  // otvoril a auto zavrel; capture na document = pred .content-wrap aj delegovanými handlermi). Voľba: výber dobehne
+  // (živé handlery), až potom prechod na auto. Len skutočné kliky (isTrusted) — programové kliky modulov (prenos,
+  // rozloženie, ctx.zapis) idú bez zdržania. „Pokračujte ďalej“ kariet rieši engine sám (prvý nevyplnený krok = auto);
+  // vzor (karta pred autom) a karta auta bez zmeny. Auto úplné = nič sa nemení.
+  const zaAutom = auto ? kroky.slice(kroky.indexOf(auto) + 1) : [];
+  if (zaAutom.length) {
+    document.addEventListener("click", function (e) {
+      const t = e.target;
+      if (!e.isTrusted || !t || !t.closest || !document.body.classList.contains("lcd-1v")) return;
+      const k = zaAutom.find((x) => x.el.contains(t));
+      if (!k || t.closest(".next-step-button")) return;
+      const h = t.closest(".order, .lcd1v-hd, h5, .variant.name");
+      const hlavicka = h && h.parentNode === k.el;
+      if (!hlavicka && !t.closest(".option-button, .upsale-button, button, a[href], [role='button'], select, input, label")) return;
+      if (!lcdOverKrok(auto.el, true)) return;
+      if (hlavicka) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        lcdOverKrok(auto.el);
+      } else {
+        setTimeout(function () { lcdOverKrok(auto.el); }, 0);
+      }
+    }, true);
+  }
 
   // ---------------------------------------------------------------- posun stránky pri akordeóne
   // Zatvorenie dlhého otvoreného kroku nad kliknutým by kliknutú hlavičku vytlačilo hore mimo obrazovky

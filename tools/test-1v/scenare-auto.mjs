@@ -11,6 +11,11 @@
 //                  rám karty po poslednom; dvere a miesta stále tie isté; farba (+ 2. vrstva) + rozloženie -> POST = baseline
 //                  starého vzhľadu (scenare-druha.mjs) a v sessionStorage doorPosition doors-3 / seatPosition pass-4
 //                  (cart.js ich v pokladni zapíše do varchar2/varchar3 ako zo starého vzhľadu)
+//                  + pokus prejsť na inú kartu bez auta (nezávislá kontrola 16. 10. 2026: klik na hlavičku Farba vyhodil
+//                  výzvu, zavrel kartu auta, po „Rozumiem“ boli otvorené dve karty a vzorka farby sa po 1 s odznačila) =
+//                  to isté ako „Pokračujte ďalej“ v karte auta: hlavička Farba (2×) aj vzorka farby v otvorenej karte
+//                  farby -> bez výzvy, nič sa neodznačí, otvorená len karta auta, chýbajúce polia červené, Značka na
+//                  obrazovke; „Pokračujte ďalej“ vzoru (karta pred autom) -> karta auta bez výzvy
 import { join } from "node:path";
 import { F } from "./stary-ui.mjs";
 import { otvorKartu } from "./ovladac-kroky.mjs";
@@ -36,9 +41,11 @@ function stav(t) {
     [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"].some(function (s) { var e = document.querySelector(s); if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) { hH = e.offsetHeight; return true; } return false; });
     var prve = k.querySelector(".lcd1v-pole.lcd1v-err");
     var pr = prve && prve.getBoundingClientRect();
+    var otvorene = Array.prototype.map.call(f.querySelectorAll(".lcd1v-krok.active"), function (e) { return ((e.className.match(/lcd1v-k-([a-z0-9]+)/) || [])[1]) || e.className; });
     return {
       dvere: akt("door-Position"), miesta: akt("sit-Position"), ss: ss,
       vyzva: !!(o && o.offsetHeight > 0),
+      otvorene: otvorene,
       cervene: cervene,
       ramKarty: k.classList.contains("lcd1v-chyba"),
       hlaska: vid(hlaska),
@@ -56,6 +63,18 @@ function overTicho(j, st, kedy, { dvere, miesta } = {}) {
   if (miesta) j.over(st.miesta === miesta && st.ss.seatPosition === miesta, kedy + ": miesta " + st.miesta + " (sessionStorage " + st.ss.seatPosition + "), má " + miesta);
 }
 
+/** Pokus prejsť ďalej bez auta = „Pokračujte ďalej“ v karte auta: bez výzvy, len karta auta otvorená, chýbajúce polia červené, prvé na obrazovke. */
+function overAkoPokracovat(j, st, kedy, { dvere, miesta } = {}) {
+  j.over(!st.vyzva, kedy + ": vyskočila výzva „vyberte model“ — má len zvýrazniť, čo v karte auta chýba (ako „Pokračujte ďalej“)");
+  j.over(JSON.stringify(st.otvorene) === '["auto"]', kedy + ": otvorené karty " + JSON.stringify(st.otvorene) + ", má byť len karta auta");
+  j.over(st.ramKarty && st.hlaska, kedy + ": rám karty auta " + st.ramKarty + ", hláška " + st.hlaska);
+  j.over(JSON.stringify(st.polia) === JSON.stringify(POLIA), kedy + ": červené polia " + JSON.stringify(st.polia) + ", majú byť všetky " + JSON.stringify(POLIA));
+  j.over(st.prve && st.prve.pole === "brands" && st.prve.top >= st.prve.hH && st.prve.bottom <= st.prve.vh,
+    kedy + ": prvé chýbajúce pole (Značka) nie je na obrazovke: " + JSON.stringify(st.prve));
+  if (dvere) j.over(st.dvere === dvere && st.ss.doorPosition === dvere, kedy + ": dvere " + st.dvere + " (sessionStorage " + st.ss.doorPosition + "), má " + dvere);
+  if (miesta) j.over(st.miesta === miesta && st.ss.seatPosition === miesta, kedy + ": miesta " + st.miesta + " (sessionStorage " + st.ss.seatPosition + "), má " + miesta);
+}
+
 export const SCENARE = {
   "auto-poradie": {
     typy: ["jedno", "dvoj"], // rohože do kufra (kufor-*) majú dlaždice miest a dverí v karte auta skryté
@@ -64,9 +83,9 @@ export const SCENARE = {
       if (p) return p;
       const t = s.t, P = a.produkt;
       const info = [];
+      const chat = `document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], iframe[title="Luxia chat"], [id*="smartsupp"]')`;
       const snimka = async (meno) => {
         if (!a.snimky) return;
-        const chat = `document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], iframe[title="Luxia chat"], [id*="smartsupp"]')`;
         await t.ev(`[].forEach.call(${chat}, function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
         await j.pauza(500);
         await s.k.snimka(join(a.snimky, `${P.id}-auto-poradie-${meno}-${t.sirka}.png`)).catch(() => {});
@@ -87,11 +106,53 @@ export const SCENARE = {
       await snimka("a-dvere-miesta-pred-autom");
       info.push("dvere+miesta pred autom: ticho, voľba drží");
 
+      // 1b) klik na hlavičku inej karty (Farba) bez auta = „Pokračujte ďalej“ v karte auta (Michal: „verifikácia až keď
+      //     klikne na Pokračovať a niečo nemá vybraté — zvýrazni, čo nevybral“); 2× — druhý klik nesmie kartu otvoriť
+      let st;
+      const selF = `${F} .lcd1v-krok.lcd1v-k-farba`;
+      const zaVyzvou = `!!document.querySelector(".overflow") || !!document.querySelector(${JSON.stringify(sel + ".lcd1v-chyba")})`;
+      for (const kolo of [1, 2]) {
+        await t.klikni(`${selF} > .lcd1v-hd`, { popis: "hlavička karty Farba bez auta" + (kolo > 1 ? " (znova)" : ""), vRamci: selF });
+        await t.cakaj(zaVyzvou, { ms: 4000 }).catch(() => {});
+        await j.pauza(1600); // verifikačný posun (settle + korekcia do ~1,5 s), živé odznačenie po 1 s
+        overAkoPokracovat(j, await stav(t), "klik na hlavičku Farba bez auta" + (kolo > 1 ? " (znova)" : ""), { dvere: DVERE, miesta: MIESTA });
+        if (kolo === 1) await snimka("d-hlavicka-farby-bez-auta");
+      }
+      info.push("hlavička Farba bez auta 2×: ako Pokračujte (len karta auta, 4 polia červené, Značka na obrazovke)");
+
+      // 1c) vzorka farby v otvorenej karte farby bez auta (stav, do ktorého sa zákazník dostal starou chybou — karta farby
+      //     otvorená vedľa karty auta; test ju otvorí živým akordeónom __lcdSetStepOpen, klik na vzorku je skutočný):
+      //     výber vzorky ostane (nič sa neodznačí), potom ako „Pokračujte ďalej“ v karte auta
+      const vzorky = `Array.prototype.filter.call(document.querySelectorAll(${JSON.stringify(selF + " > .options-wrap > .option-button")}), function (b) { return b.getBoundingClientRect().height > 20; })`;
+      await t.ev(`window.__lcdSetStepOpen(document.querySelector(${JSON.stringify(selF)}), true)`);
+      const pocetVzoriek = await t.cakaj(`${vzorky}.length`, { popis: "viditeľné vzorky farby" });
+      const iVzorky = pocetVzoriek >= 6 ? 5 : 1; // iná ako neskôr v kroku 4 (index 2); Hexa má 3 farby
+      const vsetkyVzorky = `Array.prototype.slice.call(document.querySelectorAll(${JSON.stringify(selF + " > .options-wrap > .option-button")}))`;
+      const iVsetky = await t.ev(`${vsetkyVzorky}.indexOf(${vzorky}[${iVzorky}])`);
+      await j.pauza(500);
+      await t.klikni(`${selF} > .options-wrap > .option-button`, { index: iVzorky, popis: "vzorka farby " + iVzorky + " bez auta" });
+      await j.pauza(1600); // živý validation.js odznačoval vzorku po 1 s
+      st = await stav(t);
+      const vzorka = await t.ev(`${vsetkyVzorky}.map(function (b, i) { return b.classList.contains("active") ? i : -1; }).filter(function (i) { return i > -1; })`);
+      j.over(JSON.stringify(vzorka) === JSON.stringify([iVsetky]), "vzorka farby " + iVzorky + " bez auta: aktívne " + JSON.stringify(vzorka) + ", má [" + iVsetky + "] — výber zákazníka sa nesmie stratiť (živý validation.js ju po 1 s odznačil)");
+      overAkoPokracovat(j, st, "vzorka farby bez auta", { dvere: DVERE, miesta: MIESTA });
+      info.push("vzorka farby bez auta: ostane vybraná, ako Pokračujte");
+
+      // 1d) „Pokračujte ďalej“ vzoru (karta PRED autom) bez auta -> len otvorí kartu auta, bez výzvy
+      await otvorKartu(t, "vzor");
+      await t.klikni(`${F} .lcd1v-krok.lcd1v-k-vzor > .next-step-button`, { popis: "Pokračujte ďalej vo vzore bez auta" });
+      await t.cakaj(`document.querySelector(${JSON.stringify(sel)}).classList.contains("active")`, { ms: 4000, popis: "otvorená karta auta po „Pokračujte ďalej“ vzoru" });
+      await j.pauza(1200);
+      st = await stav(t);
+      j.over(!st.vyzva, "„Pokračujte ďalej“ vzoru bez auta: vyskočila výzva „vyberte model“ (karta auta sa má len otvoriť)");
+      j.over(JSON.stringify(st.otvorene) === '["auto"]', "„Pokračujte ďalej“ vzoru: otvorené karty " + JSON.stringify(st.otvorene) + ", má byť len karta auta");
+      info.push("Pokračujte vo vzore bez auta: karta auta bez výzvy");
+
       // 2) „Pokračujte ďalej“ bez auta -> zvýraznené presne chýbajúce polia, posun na prvé
       await t.klikni(`${sel} > .next-step-button`, { popis: "Pokračujte ďalej bez auta" });
       await t.cakaj(`!!document.querySelector(${JSON.stringify(sel)} + ".lcd1v-chyba")`, { ms: 4000, popis: "červený rám karty auta po „Pokračujte ďalej“" });
       await j.pauza(1600); // posun stránky (živý engine + kroky.js) dobehne
-      let st = await stav(t);
+      st = await stav(t);
       j.over(!st.vyzva, "„Pokračujte ďalej“ bez auta: výzva „vyberte model“ — má len zvýrazniť chýbajúce polia");
       j.over(st.ramKarty && st.hlaska, "„Pokračujte ďalej“ bez auta: rám karty " + st.ramKarty + ", hláška " + st.hlaska);
       j.over(JSON.stringify(st.polia) === JSON.stringify(POLIA), "„Pokračujte ďalej“ bez auta: červené polia " + JSON.stringify(st.polia) + ", majú byť všetky " + JSON.stringify(POLIA));
@@ -110,6 +171,9 @@ export const SCENARE = {
           // ukázať (vrch karty by nestačil, pole je ~600 px pod ním)
           await t.cakaj(`!document.querySelector(${JSON.stringify(sel)} + ".lcd-needs-fill")`, { ms: 6000, popis: "živé .lcd-needs-fill zmizlo (3 s)" });
           await s.k.posli("Emulation.setDeviceMetricsOverride", { width: s.k.sirka, height: 560, deviceScaleFactor: 1, mobile: !!s.k.mobil });
+          // Luxia na telefóne po ~25 s rozbalí pozdrav cez spodok okna (360×348, nie je to vec konfigurátora) — na 560 px by
+          // zakryl tlačidlo v strede okna; len na tento klik skrytý (ako na snímkach)
+          await t.ev(`[].forEach.call(${chat}, function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
           try {
             await j.pauza(400);
             await t.klikni(`${sel} > .next-step-button`, { popis: "Pokračujte ďalej bez typu karosérie (560 px)" });
@@ -120,6 +184,7 @@ export const SCENARE = {
               "nízka obrazovka: chýbajúce pole Typ karosérie nie je po „Pokračujte ďalej“ na obrazovke: " + JSON.stringify(st.prve));
             info.push("560 px: posun na Typ karosérie");
           } finally {
+            await t.ev(`[].forEach.call(${chat}, function (f) { f.style.removeProperty("visibility"); })`).catch(() => {});
             await s.k.posli("Emulation.setDeviceMetricsOverride", { width: s.k.sirka, height: s.k.vyska, deviceScaleFactor: 1, mobile: !!s.k.mobil });
             await j.pauza(300);
           }

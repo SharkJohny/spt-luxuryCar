@@ -335,6 +335,23 @@ function lcdGoToStep(el, isVerify) {
   lcdScrollToStep(el, isVerify);
 }
 
+/**
+ * Nový vzhľad 1V (components/konfigurator1v/kroky.js, Michal 16. 10. 2026): overenie kroku `el` presne ako po kliku
+ * na jeho „Pokračujte ďalej“, bez tlačidla — prvý nevyplnený krok po `el` vrátane dostane červené zvýraznenie
+ * (.lcd-needs-fill) a verifikačný prechod (otvorí len ten krok, posun; v karte auta na prvé prázdne pole) a vráti sa;
+ * všetko vyplnené -> null a nič sa nedeje. len = true: len zistí, nič nezvýrazní. Starý vzhľad ho nevolá.
+ */
+export function lcdOverKrok(el, len) {
+  var i = lcdGetSteps().indexOf(el);
+  if (i < 0) return null;
+  var bad = lcdFirstUnfilled(i);
+  if (bad && !len) {
+    lcdHighlightStep(bad);
+    lcdGoToStep(bad, true); // verifikacny scroll — priorita
+  }
+  return bad;
+}
+
 /** Prvy nevyplneny box-config pod-krok (farba/velkost boxov) — len ak je
  *  vybrany box (config, nie "nechci"). Vrati element alebo null. */
 function lcdBoxConfigUnfilled() {

@@ -11,11 +11,12 @@ export function validation(texts) {
     if ($(event.target).closest(".modl-selector-wrap").length) {
       return;
     }
-    // Nový vzhľad 1V (body.lcd-1v, ?novy=1; Michal 16. 10. 2026): karta „Vaše auto“ je miesto, kde sa auto vyberá —
-    // volant, miesta, dvere a polia auta idú v ľubovoľnom poradí. Klik v nej bez auta výzvu neukáže a dlaždicu po 1 s
-    // neodznačí (inak zmizli zvolené dvere/miesta). Chýbajúce polia zvýrazní až „Pokračujte ďalej“ (configuratorEngine.js
-    // .lcd-needs-fill -> červený rám a polia v konfigurator1v/kroky.js). Bez flagu bez zmeny.
-    if (document.body.classList.contains("lcd-1v") && $(event.target).closest(".lcd1v-k-auto").length) {
+    // Nový vzhľad 1V (body.lcd-1v, ?novy=1; Michal 16. 10. 2026: „verifikácia by sa nemala vyvolať, až keď klikne na
+    // Pokračovať a niečo nemá vybraté — tak mu zvýrazni, čo nevybral“): výzva sa neukáže a nič sa po 1 s neodznačí.
+    // Karta auta: volant, miesta, dvere a polia auta v ľubovoľnom poradí. Pokus prejsť na ďalšiu kartu bez auta (hlavička,
+    // voľba) = „Pokračujte ďalej“ v karte auta — konfigurator1v/kroky.js -> configuratorEngine.js lcdOverKrok (červený
+    // rám karty + prázdne polia, otvorená len karta auta, posun na prvé prázdne pole). Bez flagu bez zmeny.
+    if (document.body.classList.contains("lcd-1v")) {
       return;
     }
     const model = sessionStorage.getItem("model");

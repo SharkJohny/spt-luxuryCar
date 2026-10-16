@@ -131,12 +131,20 @@ export const novy = {
     return v;
   },
 
-  /** Bez auta klik na hlavičku karty farby -> { vyzva } (živé okno „vyberte model“ z validation.js). */
+  /**
+   * Bez auta klik na hlavičku karty farby -> { vyzva, otvorene, cerveny }. Od 16. 10. 2026 (docs/1v-kontrakt.md §15) je to
+   * isté ako „Pokračujte ďalej“ v karte auta: bez výzvy, otvorená len karta auta s červeným rámom
+   * ({ vyzva: false, otvorene: ["auto"], cerveny: "auto" }).
+   */
   async skusBezAuta(t) {
     const sel = selNovy("farba");
     await t.klikni(sel + " > .lcd1v-hd", { popis: "hlavička karty farby bez auta", vRamci: sel });
-    const vyzva = await t.cakaj(`!!(function () { var o = document.querySelector(".overflow"); return o && o.offsetHeight > 0 && o.querySelector("h3"); })()`, { ms: 3000 }).catch(() => false);
-    return { vyzva: !!vyzva };
+    const VYZVA = `(function () { var o = document.querySelector(".overflow"); return !!(o && o.offsetHeight > 0 && o.querySelector("h3")); })()`;
+    await t.cakaj(`${VYZVA} || !!document.querySelector("${F} .lcd1v-krok.lcd1v-chyba")`, { ms: 3000 }).catch(() => false);
+    await pauza(300);
+    const vyzva = await t.ev(VYZVA);
+    const otvorene = await t.ev(`Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-krok.active"), function (e) { return ((e.className.match(/lcd1v-k-([a-z0-9]+)/) || [])[1]) || e.className; })`);
+    return { vyzva, otvorene, cerveny: vyzva ? null : await cervenyKrokNovy(t, { ms: 1500 }) };
   },
 
   /** Zavrie výzvu na auto (okno je živé, rovnaké ako v starom vzhľade). */

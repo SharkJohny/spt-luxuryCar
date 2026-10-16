@@ -737,20 +737,32 @@ const SCENARE = {
     return { info };
   },
 
-  /** Bez auta: výzva na auto, do košíka nič, červený rám na kroku auta. */
+  /**
+   * Bez auta: klik na hlavičku farby — starý vzhľad výzva na auto; nový vzhľad (docs/1v-kontrakt.md §15) ako „Pokračujte
+   * ďalej“ v karte auta: bez výzvy, otvorená len karta auta s červeným rámom. Potom do košíka nič, červený rám na aute.
+   */
   async "bez-auta"(s, a, pom, ovl) {
     const t = s.t;
     await otvor(s, a.url, { novy: a.novy });
     const r = await ovl.kroky.skusBezAuta(t);
-    over(r.vyzva, "bez auta sa neukázala výzva na výber auta");
-    await ovl.kroky.zavriVyzvu(t);
+    let prvy;
+    if (ovl.zdroj.kroky === "novy") {
+      over(!r.vyzva, "nový vzhľad: hlavička farby bez auta ukázala výzvu „vyberte model“ (má byť ako „Pokračujte ďalej“ v karte auta)");
+      over(JSON.stringify(r.otvorene) === '["auto"]', "nový vzhľad: hlavička farby bez auta — otvorené karty " + JSON.stringify(r.otvorene) + ", má byť len karta auta");
+      over(r.cerveny === "auto", "nový vzhľad: hlavička farby bez auta — červený rám má byť na karte auta, je na: " + r.cerveny);
+      prvy = "hlavička farby: bez výzvy, len karta auta s červeným rámom";
+    } else {
+      over(r.vyzva, "bez auta sa neukázala výzva na výber auta");
+      await ovl.kroky.zavriVyzvu(t);
+      prvy = "výzva na auto";
+    }
     await pauza(3200); // červený rám z predošlých krokov zmizne po 3 s
     await ovl.cena.pridajDoKosika(t);
     const cerveny = await ovl.kroky.cervenyKrok(t);
     await pauza(1200);
     over(s.posty.length === 0, "bez auta odišiel POST do košíka: " + (s.posty[0] && s.posty[0].body));
     over(cerveny === "auto", "červený rám má byť na kroku auta, je na: " + cerveny);
-    return { info: "výzva na auto + červený rám na aute, POST 0" };
+    return { info: prvy + " + po košíku červený rám na aute, POST 0" };
   },
 
   /**
