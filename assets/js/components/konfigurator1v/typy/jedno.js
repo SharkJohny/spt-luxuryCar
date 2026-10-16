@@ -39,7 +39,8 @@ export const TYP = {
       ti: "Prosíte si aj druhú odnímateľnú vrstvu?",
       vy: "Áno alebo nie",
       vyNie: "Bez druhej vrstvy",
-      pod: "Či prídete z dažďa, zo snehu, s deťmi z ihriska alebo so psom z prechádzky — vodu, blato aj zimnú soľ z topánok zachytí druhá vrstva skôr, než sa dostanú k prvej prešívanej vrstve. Keď sa zašpiní, jednoducho ju vyberiete, vytrasiete alebo umyjete aj vapkou a vrátite späť. Prvá prešívaná vrstva ostane čistá a interiér pôsobí stále upravene.",
+      // Michal 16. 10. 2026 (telefón): podnadpis najviac 1,5 vety — presne táto veta.
+      pod: "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.",
       naj: "★ Odporúčame",
       ano: {
         nm: "Dvojvrstvové koberce",

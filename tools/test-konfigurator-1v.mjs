@@ -984,6 +984,97 @@ const SCENARE = {
   },
 
   /**
+   * Nový vzhľad (Michal 16. 10. 2026): pôdorys v kroku 4 kreslí presne zvolený počet miest — 2 = len 1. rad (bez 2. radu),
+   * 4 = 2+2, 5 = 2+3, 6 = 2+2+2, 7 = 2+3+2, 8 = 2+3+3, 9 = 3+3+3; kufor/priečka podľa posledného radu; zlaté (podložené)
+   * sú len rady zvoleného rozloženia. Karty ako starý web (počet miest s rozložením neviaže): „Prvý a druhý rad“ ostáva aj
+   * pri 2 miestach (otázka pre Michala), „Všetky tri rady“ len pri aute s 3. radom (návrh v26). Na konci 2 miesta + len
+   * 1. rad -> POST = to, čo pošle starý web (rozloženie 1. rad; počet miest ide len do sessionStorage seatPosition).
+   */
+  async "miesta-podorys"(s, a, pom, ovl) {
+    if (ovl.zdroj.rozlozenie !== "novy") return { preskoc: "len nový vzhľad (starý web pôdorys nemá)" };
+    const t = s.t, P = a.produkt;
+    const RZ = "#product-detail-form .lcd1v-rz";
+    const OCAK = { 2: [2], 4: [2, 2], 5: [2, 3], 6: [2, 2, 2], 7: [2, 3, 2], 8: [2, 3, 3], 9: [3, 3, 3] };
+    const KUFOR = (n) => (n <= 3 ? "dlhy" : n <= 5 ? "wide" : "std");
+    await otvor(s, a.url, { novy: true });
+    const z = await zaklad(s, ovl, { rozlozenie: 0 }); // len 1. rad
+    const stav = () => t.ev(`(function () {
+      var r = document.querySelector(${JSON.stringify(RZ)});
+      if (!r) return null;
+      function vid(e) { return getComputedStyle(e).display !== "none"; }
+      var rady = [];
+      Array.prototype.forEach.call(r.querySelectorAll(".rzp-z[data-rad='1'], .rzp-z[data-rad='2'], .rzp-z[data-rad='3']"), function (g) {
+        if (!vid(g)) return;
+        var on = g.querySelector(".rzp-on");
+        rady.push({ rad: Number(g.getAttribute("data-rad")), sedadla: g.querySelectorAll(".rzp-off .rzp-s").length, zlate: parseFloat(getComputedStyle(on).opacity) > 0.5 });
+      });
+      var a = document.querySelector("#product-detail-form .sit-Position .option-button.active"), zv = r.querySelector(".rz-karta.on"), dl = r.querySelector(".rz-dlazdice button.on");
+      var ss = ""; try { ss = sessionStorage.getItem("seatPosition") || ""; } catch (e) {}
+      return { rady: rady,
+        kufre: Array.prototype.filter.call(r.querySelectorAll(".rzp-kuf"), vid).map(function (g) { return g.getAttribute("data-var"); }),
+        priecky: Array.prototype.filter.call(r.querySelectorAll(".rzp-div"), vid).map(function (g) { return g.getAttribute("data-var"); }),
+        karty: Array.prototype.filter.call(r.querySelectorAll(".rz-karta"), vid).map(function (k) { return Number(k.getAttribute("data-rady")); }),
+        zvolena: zv ? Number(zv.getAttribute("data-rady")) : 0, dlazdica: dl ? dl.getAttribute("data-v") : "",
+        miesta: a ? a.getAttribute("data-value") : "", ss: ss };
+    })()`);
+    const kontrola = async (n, zvolena) => {
+      await pauza(700); // prechod zlatej (0,42 s)
+      const st = await stav();
+      over(st, "pôdorys .lcd1v-rz nie je");
+      const sed = st.rady.map((r) => r.sedadla);
+      over(JSON.stringify(sed) === JSON.stringify(OCAK[n]), `${n} miest: pôdorys kreslí rady ${JSON.stringify(sed)} (spolu ${sed.reduce((x, y) => x + y, 0)}), má ${JSON.stringify(OCAK[n])}`);
+      over(JSON.stringify(st.rady.map((r) => r.rad)) === JSON.stringify(OCAK[n].map((x, i) => i + 1)), `${n} miest: rady ${JSON.stringify(st.rady.map((r) => r.rad))}`);
+      over(st.kufre.length === 1 && st.kufre[0] === KUFOR(n) && st.priecky.length === 1 && st.priecky[0] === KUFOR(n), `${n} miest: kufor ${JSON.stringify(st.kufre)} / priečka ${JSON.stringify(st.priecky)}, má ${KUFOR(n)}`);
+      over(st.zvolena === zvolena, `${n} miest: zvolená karta ${st.zvolena}, má ${zvolena}`);
+      const zle = st.rady.filter((r) => r.zlate !== r.rad <= zvolena);
+      over(!zle.length, `${n} miest, rozloženie ${zvolena}: podložené (zlaté) rady nesedia ${JSON.stringify(st.rady)}`);
+      over(JSON.stringify(st.karty) === JSON.stringify(n >= 6 ? [1, 2, 3] : [1, 2]), `${n} miest: ponúkané karty ${JSON.stringify(st.karty)}`);
+      over(st.dlazdica === String(n) && st.miesta === "pass-" + n && st.ss === "pass-" + n, `${n} miest: dlaždica ${st.dlazdica}, krok 2 ${st.miesta}, sessionStorage ${st.ss}`);
+      return sed.join("+") + (zvolena ? " (zlaté " + st.rady.filter((r) => r.zlate).map((r) => r.rad).join(",") + ")" : "");
+    };
+    const snimka = async (meno) => {
+      if (!a.snimky) return;
+      await ovlRozlozenie.otvorKrok4(t);
+      await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(RZ + " .rz-miesta")}); if (e) e.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -90); })()`);
+      // bublina chatu (Luxia) by na telefóne zakryla karty — len na snímku (ako obsah-*.mjs)
+      const chat = `document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]')`;
+      await t.ev(`[].forEach.call(${chat}, function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
+      await pauza(700);
+      await s.k.snimka(join(a.snimky, `${P.id}-${meno}-${t.sirka}.png`)).catch(() => {});
+      await t.ev(`[].forEach.call(${chat}, function (f) { f.style.removeProperty("visibility"); })`);
+    };
+    const miesta = async (n) => {
+      await ovlRozlozenie.otvorKrok4(t);
+      await t.klikni(`${RZ} .rz-dlazdice button[data-v="${n}"]`, { popis: n + " miest (krok 4)" });
+      await t.cakaj(`!!document.querySelector('#product-detail-form .sit-Position .option-button.active[data-value="pass-${n}"]')`, { ms: 4000, popis: n + " miest aj v kroku 2" });
+    };
+    const karta = (r) => ovl.rozlozenie.vyberRozlozenie(t, { index: r - 1 });
+    const info = [];
+    // 9 -> 8 -> 7 -> 6 -> 5 -> 4 -> 2 (cestou všetky tri karty; 6 -> 5 so „Všetky tri rady“ prepne na 1.+2. rad, návrh v26)
+    await miesta(9); info.push("9: " + (await kontrola(9, 1)));
+    await karta(3); info.push("9/3 rady: " + (await kontrola(9, 3)));
+    await snimka("podorys-9-miest");
+    await miesta(8); info.push("8: " + (await kontrola(8, 3)));
+    await miesta(7); await karta(2); info.push("7: " + (await kontrola(7, 2)));
+    await snimka("podorys-7-miest");
+    await miesta(6); await karta(3); info.push("6: " + (await kontrola(6, 3)));
+    await miesta(5); info.push("5: " + (await kontrola(5, 2)));
+    await snimka("podorys-5-miest");
+    await miesta(4); info.push("4: " + (await kontrola(4, 2)));
+    await snimka("podorys-4-miest");
+    await miesta(2); info.push("2/1.+2. rad: " + (await kontrola(2, 2)));
+    await snimka("podorys-2-miest-karta-prvy-a-druhy");
+    const jeden = await karta(1); info.push("2/1. rad: " + (await kontrola(2, 1)));
+    await snimka("podorys-2-miest");
+    over(jeden === z.rozlozenie, `2 miesta + len 1. rad: rozloženie ${jeden}, má ${z.rozlozenie}`);
+    await ovl.cena.pridajDoKosika(t);
+    const post = await cakajNaPost(s);
+    const cena = await overPost(s, post, z.ocak);
+    const c = await overCenu(s, ovl, cena);
+    return { info: info.join("; ") + `; POST 2 miesta + 1. rad = ${jeden}, cena ${c.videne}`, post: post.body, spolu: cena.spolu };
+  },
+
+  /**
    * Rohož a box, starý web: tlačidlo posledného kroku („Dokončiť konfiguráciu“ / box „Prejsť k ďalšiemu kroku“) po
    * úplnom výbere rovno vkladá do košíka — živý POST sa zachytí a zruší, overí sa ako `platne`. Nový vzhľad posledný
    * krok zachytí a pošle na súhrn (scenár k-suhrnu).
@@ -1015,7 +1106,7 @@ const TYPY_JADRA = {
   brana: VSETKY_TYPY, "nulova-zmena": VSETKY_TYPY,
   "bez-auta": [...SET, ...ROHOZ], neuplne: [...SET, ...ROHOZ, "boxy"], platne: [...SET, ...ROHOZ, "boxy"],
   "ctx-zapis": SET, "kufor-classic": SET, "kufor-premium": SET, "box-1": SET, "box-2": SET, "kufor-nie": SET, "box-nie": SET,
-  "box-krizik": SET, "box-prepni": SET, "rady-3": SET, "miesta-5": SET,
+  "box-krizik": SET, "box-prepni": SET, "rady-3": SET, "miesta-5": SET, "miesta-podorys": SET,
   "k-suhrnu": [...SET, ...ROHOZ, "boxy"], dokoncit: [...ROHOZ, "boxy"],
 };
 

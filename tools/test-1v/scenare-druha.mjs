@@ -212,7 +212,7 @@ export const SCENARE = {
       j.over(!rozlOtv, "po „Pokračujte ďalej“ vo Farbe sa otvorilo Rozloženie, má sa otvoriť karta druhej vrstvy");
       j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prosíte si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
       // Michal 15. 10. 2026: vrstvy vždy pomenované („prvá prešívaná“ / „druhá“); podnadpis ľudsky, nie „strojovo“
-      j.over(otv.pod === "Či prídete z dažďa, zo snehu, s deťmi z ihriska alebo so psom z prechádzky — vodu, blato aj zimnú soľ z topánok zachytí druhá vrstva skôr, než sa dostanú k prvej prešívanej vrstve. Keď sa zašpiní, jednoducho ju vyberiete, vytrasiete alebo umyjete aj vapkou a vrátite späť. Prvá prešívaná vrstva ostane čistá a interiér pôsobí stále upravene.", `podnadpis „${otv.pod}“`);
+      j.over(otv.pod === "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.", `podnadpis „${otv.pod}“`);
       j.over(/Dvojvrstvové koberce/.test(otv.anoText) && /Prvá prešívaná \+ druhá vrstva/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
       j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === "Pokračujete s doterajším výberom.", `Nie: „${otv.nieText}“ / „${otv.pozn}“`);
       // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zlaté, v dlaždici, hore) a Nie (zelené)

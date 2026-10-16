@@ -15253,16 +15253,23 @@ body.lcd-1v .lcd1v-rz:not([data-volant="vpravo"]) [data-vol="vpravo"],
 body.lcd-1v .lcd1v-rz[data-volant="vpravo"] [data-vol="vlavo"] {
   opacity: 0;
 }
-/* sedadlá podľa počtu miest (data-r2 / data-r3), kufor širší, keď auto nemá 3. rad */
+/* sedadlá podľa počtu miest (data-r1 / data-r2 / data-r3 = sedadlá v rade, 0 = rad sa nekreslí; Michal 16. 10. 2026:
+   pôdorys ukazuje presne zvolený počet miest — 2 = len 1. rad, 9 = 3 + 3 + 3). Kufor: za 3. radom (std), za 2. radom
+   (wide), hneď za 1. radom (dlhy, auto s 2 miestami). */
+body.lcd-1v .lcd1v-rz:not([data-r1="3"]) .rzp-r1[data-var="3"],
+body.lcd-1v .lcd1v-rz[data-r1="3"] .rzp-r1[data-var="2"],
 body.lcd-1v .lcd1v-rz:not([data-r2="2"]) .rzp-r2[data-var="2"],
-body.lcd-1v .lcd1v-rz[data-r2="2"] .rzp-r2[data-var="3"],
-body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-r3,
-body.lcd-1v .lcd1v-rz[data-r3="2"] .rzp-r3[data-var="3"],
-body.lcd-1v .lcd1v-rz[data-r3="3"] .rzp-r3[data-var="2"],
+body.lcd-1v .lcd1v-rz:not([data-r2="3"]) .rzp-r2[data-var="3"],
+body.lcd-1v .lcd1v-rz:not([data-r3="2"]) .rzp-r3[data-var="2"],
+body.lcd-1v .lcd1v-rz:not([data-r3="3"]) .rzp-r3[data-var="3"],
 body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-kuf[data-var="std"],
-body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-kuf[data-var="wide"],
 body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-div[data-var="std"],
-body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-div[data-var="wide"] {
+body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-kuf[data-var="wide"],
+body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-div[data-var="wide"],
+body.lcd-1v .lcd1v-rz[data-r2="0"] .rzp-kuf[data-var="wide"],
+body.lcd-1v .lcd1v-rz[data-r2="0"] .rzp-div[data-var="wide"],
+body.lcd-1v .lcd1v-rz:not([data-r2="0"]) .rzp-kuf[data-var="dlhy"],
+body.lcd-1v .lcd1v-rz:not([data-r2="0"]) .rzp-div[data-var="dlhy"] {
   display: none;
 }
 body.lcd-1v .lcd1v-rz .rz-legenda {
