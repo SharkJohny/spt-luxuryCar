@@ -1,0 +1,53 @@
+/* LCD-1V-GALERIA — rámik fotiek v novom vzhľade produktu (Michal 16. 10. 2026 schválil návrh č. 1 „Vlasová linka“,
+   scratchpad ramik-foto/index.html). Namiesto hrubého zlatého rámu len tenučká šampanská linka, jemne zaoblené rohy
+   a ľahký tieň — rovnaký jazyk ako rámik s cenou a karty krokov. Platí na všetkých 13 SK produktoch + vzorkovníku 637.
+   Platí LEN pod body.lcd-1v (brána ?novy=1). Bez triedy sa nič nemení — starý vzhľad má hrubý zlatý rám ako doteraz.
+   Čisté CSS (súbor sa nekompiluje Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css ako blok LCD-1V-GALERIA).
+
+   Čo prebíja a prečo:
+   - hlavná fotka: _content.scss „div#wrap { border: 5px solid var(--color-primary) !important; border-radius: 25px !important }“
+     -> preto !important a selektor s id (body.lcd-1v … div#wrap má vyššiu špecificitu než holé div#wrap).
+   - náhľady: _productPage.scss „.p-thumbnails a img { border: 4px solid #c49b31 !important; border-radius: 10px }“
+     (pravidlo „.p-thumbnails-inner.slick .slick-slide a img“ naživo nič nevyberá — náhľady nemajú .slick).
+     Krúžok je border + padding vnútri 100×100 px; outline s outline-offset by orezal kontajner .p-thumbnails
+     { overflow: hidden } hore a dole. Aktívny náhľad = Shoptet trieda a.p-thumbnail.highlighted.
+   - staré fotky popisu (.mobile-image, .image-container, video, twentytwenty) sú v 1V skryté (.shp-tabs-wrapper
+     display:none, _lcd1v-obsah.scss) — blok je len poistka; „video“ je obmedzené na starý popis (.p-detail-tabs-wrapper),
+     aby nedostali rám videá nového obsahu.
+   - veľká fotka farieb v novom obsahu (.lx-farby-velka, LCD-HOME: zaoblenie 20 px, bez rámu) — zladená s hlavnou fotkou;
+     :is(#p1v-598-1, .p1v-obsah) drží špecificitu id, aby prebila pravidlo titulky (:is(#lcd-home, …) .lx-farby-velka). */
+
+/* hlavná fotka: 1 px šampanská linka, zaoblenie 14 px, veľmi jemný tieň */
+body.lcd-1v .p-image-wrapper .p-image div#wrap {
+  border: 1px solid rgba(196, 155, 49, .6) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 2px rgba(20, 15, 5, .05), 0 10px 24px -12px rgba(20, 15, 5, .22);
+}
+/* náhľady pod hlavnou fotkou: bez hrubého rámu, neaktívne stlmené, aktívny/hover = tenký krúžok s odsadením */
+body.lcd-1v .p-thumbnails a.p-thumbnail img {
+  box-sizing: border-box;
+  padding: 3px;
+  border: 1.5px solid transparent !important;
+  border-radius: 13px !important; /* fotka vnútri ≈ 9 px */
+  background: transparent;
+  opacity: .7;
+  transition: opacity .2s, border-color .2s;
+}
+body.lcd-1v .p-thumbnails a.p-thumbnail.highlighted img,
+body.lcd-1v .p-thumbnails a.p-thumbnail:hover img,
+body.lcd-1v .p-thumbnails a.p-thumbnail:focus-visible img {
+  opacity: 1;
+  border-color: rgba(196, 155, 49, .95) !important;
+}
+/* fotky v popise — staré bloky (v 1V dnes skryté, ostávajú pre istotu) */
+body.lcd-1v .p-detail-tabs-wrapper :is(.mobile-image:not(.no-border) img, .image-container img, video, .media-with-text__media img),
+body.lcd-1v .twentytwenty-wrapper.twentytwenty-horizontal {
+  border: 1px solid rgba(196, 155, 49, .6) !important;
+  border-radius: 14px !important;
+}
+/* fotky v popise — veľká fotka „Ku ktorej farbe patrí Vaše auto?“ (dnes bez rámu, zaoblenie 20 px, tieň) */
+body.lcd-1v :is(#p1v-598-1, .p1v-obsah) .lx-farby-velka {
+  border: 1px solid rgba(196, 155, 49, .6);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(20, 15, 5, .05), 0 10px 24px -12px rgba(20, 15, 5, .22);
+}

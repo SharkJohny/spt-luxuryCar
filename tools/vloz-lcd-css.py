@@ -23,6 +23,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-BOXY       <- _lcd1v-boxy.scss        1V box do kufra 616                     }
   LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY / -VZORKY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
                                                (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
+  LCD-1V-GALERIA    <- _lcd1v-galeria.scss     ramik fotiek 1V: vlasova linka namiesto hrubeho zlateho ramu (len body.lcd-1v)
   LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C + odkaz v pate (pod html:root = PRE VSETKYCH, posledny blok)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
@@ -104,6 +105,9 @@ BLOKY = [
     # Obsah vzorkovnika 637 (T5.1b, integracia WB 14. 10. 2026) — tiez az za spolocnymi blokmi obsahu
     dict(meno="LCD-1V-OBSAH-VZORKY", zdroj="_lcd1v-obsah-vzorky.scss", home=False, h1=False,
          popis="obsah 1V vzorkovnik 637; len body.lcd-1v"),
+    # Ramik fotiek (Michal 16. 10. 2026, navrh c. 1 „Vlasova linka“): hlavna fotka, nahlady, fotky popisu — vsetky typy
+    dict(meno="LCD-1V-GALERIA", zdroj="_lcd1v-galeria.scss", home=False, h1=False,
+         popis="ramik fotiek 1V: vlasova linka na hlavnej fotke, nahladoch a fotkach popisu; len body.lcd-1v"),
     # Cookie lista Shoptetu v style C + okno nastaveni (Michal 15. 10. 2026) — kazde pravidlo pod html:root = pre vsetkych
     # od prveho vykreslenia, bez cakania na bundle (docs/1v-kontrakt.md §14). Posledny blok:
     # bublina Luxie nad kartou musi prebit aj LCD-1V-CENA (rovnaka specificita, rozhoduje poradie).
