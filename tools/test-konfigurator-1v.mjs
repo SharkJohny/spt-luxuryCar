@@ -1002,9 +1002,11 @@ const SCENARE = {
    * 4 = 2+2, 5 = 2+3, 6 = 2+2+2, 7 = 2+3+2, 8 = 2+3+3, 9 = 3+3+3; kufor/priečka podľa posledného radu; zlaté (podložené)
    * sú len rady zvoleného rozloženia. Dĺžka auta podľa počtu miest (Michal 16. 10. 2026, „pri 2 miestach nech sa autíčko
    * zmenší“): 2 = krátke auto (1 rad + malý kufor), 4–5 = bežné, 6–9 = dlhé; kufor hneď za posledným radom, max ~1/3 auta,
-   * auto vycentrované v rámiku. Karty ako starý web (počet miest s rozložením neviaže): „Prvý a druhý rad“ ostáva aj
-   * pri 2 miestach (otázka pre Michala), „Všetky tri rady“ len pri aute s 3. radom (návrh v26). Na konci 2 miesta + len
-   * 1. rad -> POST = to, čo pošle starý web (rozloženie 1. rad; počet miest ide len do sessionStorage seatPosition).
+   * auto vycentrované v rámiku. Karty: „Všetky tri rady“ len pri aute s 3. radom (návrh v26); pri 2 miestach LEN „Len
+   * prvý rad“ (Michal 16. 10. 2026: „prvý aj druhý rad — to je zbytočné“) — 5 miest + „Prvý a druhý rad“ -> 2 miesta =
+   * samo „Len prvý rad“ (ctx.zapis = živé tlačidlo), cena klesne o príplatok 2. radu; späť na 5 miest sa karty vrátia,
+   * výber ostane 1. rad; 2 miesta aj z karty auta (krok 2). Na konci 2 miesta + len 1. rad -> POST = to, čo pošle starý
+   * web (rozloženie 1. rad; počet miest ide len do sessionStorage seatPosition).
    */
   async "miesta-podorys"(s, a, pom, ovl) {
     if (ovl.zdroj.rozlozenie !== "novy") return { preskoc: "len nový vzhľad (starý web pôdorys nemá)" };
@@ -1059,7 +1061,7 @@ const SCENARE = {
       over(st.zvolena === zvolena, `${n} miest: zvolená karta ${st.zvolena}, má ${zvolena}`);
       const zle = st.rady.filter((r) => r.zlate !== r.rad <= zvolena);
       over(!zle.length, `${n} miest, rozloženie ${zvolena}: podložené (zlaté) rady nesedia ${JSON.stringify(st.rady)}`);
-      over(JSON.stringify(st.karty) === JSON.stringify(n >= 6 ? [1, 2, 3] : [1, 2]), `${n} miest: ponúkané karty ${JSON.stringify(st.karty)}`);
+      over(JSON.stringify(st.karty) === JSON.stringify(n >= 6 ? [1, 2, 3] : n >= 4 ? [1, 2] : [1]), `${n} miest: ponúkané karty ${JSON.stringify(st.karty)}`);
       over(st.dlazdica === String(n) && st.miesta === "pass-" + n && st.ss === "pass-" + n, `${n} miest: dlaždica ${st.dlazdica}, krok 2 ${st.miesta}, sessionStorage ${st.ss}`);
       return sed.join("+") + (zvolena ? " (zlaté " + st.rady.filter((r) => r.zlate).map((r) => r.rad).join(",") + ")" : "");
     };
@@ -1074,10 +1076,17 @@ const SCENARE = {
       await s.k.snimka(join(a.snimky, `${P.id}-${meno}-${t.sirka}.png`)).catch(() => {});
       await t.ev(`[].forEach.call(${chat}, function (f) { f.style.removeProperty("visibility"); })`);
     };
-    const miesta = async (n) => {
-      await ovlRozlozenie.otvorKrok4(t);
-      await t.klikni(`${RZ} .rz-dlazdice button[data-v="${n}"]`, { popis: n + " miest (krok 4)" });
+    const miesta = async (n, { krok2 = false } = {}) => {
+      if (krok2) {
+        // počet miest v karte auta (krok 2): pravidlo 2 miest platí, nech sa počet zvolí kdekoľvek
+        const sel = await ovlKroky.otvorKartu(t, "auto");
+        await t.klikni(`${sel} .sit-Position .option-button[data-value="pass-${n}"]`, { popis: n + " miest (krok 2)" });
+      } else {
+        await ovlRozlozenie.otvorKrok4(t);
+        await t.klikni(`${RZ} .rz-dlazdice button[data-v="${n}"]`, { popis: n + " miest (krok 4)" });
+      }
       await t.cakaj(`!!document.querySelector('#product-detail-form .sit-Position .option-button.active[data-value="pass-${n}"]')`, { ms: 4000, popis: n + " miest aj v kroku 2" });
+      if (krok2) await ovlRozlozenie.otvorKrok4(t);
     };
     const karta = (r) => ovl.rozlozenie.vyberRozlozenie(t, { index: r - 1 });
     const info = [];
@@ -1093,10 +1102,29 @@ const SCENARE = {
     await snimka("podorys-5-miest");
     await miesta(4); info.push("4: " + (await kontrola(4, 2)));
     await snimka("podorys-4-miest");
-    await miesta(2); info.push("2/1.+2. rad: " + (await kontrola(2, 2)));
-    await snimka("podorys-2-miest-karta-prvy-a-druhy");
-    const jeden = await karta(1); info.push("2/1. rad: " + (await kontrola(2, 1)));
+    // 5 miest + „Prvý a druhý rad“ -> 2 miesta: ponúka sa len „Len prvý rad“ a výber sa naň sám prepne (cena aj POST)
+    await miesta(5); info.push("5/1.+2. rad: " + (await kontrola(5, 2)));
+    const idR = await t.idParametra("rozlozenie");
+    const hodR = `(document.querySelector('#product-detail-form select[data-parameter-id="${idR}"]') || {}).value`;
+    const dva = await t.moznost("rozlozenie", /druh/i);
+    over((await t.ev(hodR)) === dva, "5 miest: rozloženie " + (await t.ev(hodR)) + " ≠ 1.+2. rad " + dva);
+    const pripl = (h) => t.ev(`(function () { var o = document.querySelector('#product-detail-form select[data-parameter-id="${idR}"] option[value="${h}"]'); return o ? Number(o.getAttribute("data-surcharge-final-price")) || 0 : null; })()`);
+    const rozdiel = (await pripl(dva)) - (await pripl(z.rozlozenie));
+    const cena5 = await ovl.cena.zobrazenaCena(t);
+    over(typeof cena5 === "number", "5 miest + 1.+2. rad: cena " + cena5);
+    await miesta(2);
+    await t.cakaj(`${hodR} === ${JSON.stringify(z.rozlozenie)}`, { ms: 4000, popis: "2 miesta: rozloženie samo na „Len prvý rad“" });
+    info.push("2 (samo 1. rad): " + (await kontrola(2, 1)));
+    let cena2, koniecC = Date.now() + 4000;
+    do { cena2 = await ovl.cena.zobrazenaCena(t); if (cena2 === cena5 - rozdiel) break; await pauza(200); } while (Date.now() < koniecC);
+    over(rozdiel > 0 && cena2 === cena5 - rozdiel, `2 miesta: cena ${cena2} má byť ${cena5} − príplatok 2. radu ${rozdiel} = ${cena5 - rozdiel}`);
+    info.push(`cena 5 miest/1.+2. rad ${cena5} -> 2 miesta/1. rad ${cena2} (−${rozdiel})`);
+    over(s.posty.length === 0, "prepnutie rozloženia pri 2 miestach poslalo POST do košíka: " + (s.posty[0] && s.posty[0].body));
     await snimka("podorys-2-miest");
+    // späť na 5 miest: karty 1 a 2 sú znova v ponuke, výber ostane „Len prvý rad“; 2 miesta z karty auta (krok 2)
+    await miesta(5); info.push("5 späť: " + (await kontrola(5, 1)));
+    await miesta(2, { krok2: true }); info.push("2 z kroku 2: " + (await kontrola(2, 1)));
+    const jeden = await t.ev(hodR);
     // 2 miesta = výrazne kratšie auto než 5 a 9 (nie dodávka s polovičným kufrom), 4 = 5, 6 až 9 rovnako dlhé
     const pomer = (a, b) => Math.round((dlzky[a] / dlzky[b]) * 100) / 100;
     over(dlzky[2] <= dlzky[5] * 0.85 && dlzky[2] <= dlzky[9] * 0.75 && dlzky[5] <= dlzky[9] * 0.92,

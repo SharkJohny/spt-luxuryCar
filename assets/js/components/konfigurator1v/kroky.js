@@ -15,7 +15,7 @@
 //     text nového vzhľadu je v data-lcd1v-text (CSS ::after), živý text ostáva v DOM pre živý kód.
 //   - červený rám: živá validácia dáva kroku na 3 s .lcd-needs-fill — obal z neho urobí trvalý rám lcd1v-chyba
 //     (+ zablesk), ktorý zmizne, až keď je krok vyplnený (ctx.vyplneny). V kroku auta označí aj prázdne polia.
-//   - postup „Vaše autokoberce do interiéru v 6 krokoch“ (zelený = hotový, zlatý = otvorený, sivý = čaká) a zelený pás kompatibility
+//   - postup „Váš set v 6 krokoch“ (zelený = hotový, zlatý = otvorený, sivý = čaká) a zelený pás kompatibility
 //     s autom nad krokmi; živý .model-info je pod 1V skrytý (CSS).
 //   - po „Pokračujte ďalej“ / kliku na hlavičku stránka podrží kliknutú hlavičku na mieste, resp. posunie novo
 //     otvorený krok pod hlavičku webu (zatvorenie dlhého kroku nad ním by ho inak vytlačilo mimo obrazovky).
@@ -37,7 +37,7 @@ const TEXTY = {
   sk: {
     krokNz: (n, z) => "Krok " + n + " z " + z,
     zmenit: "Zmeniť",
-    postup: (z) => "Vaše autokoberce do interiéru v " + z + " krokoch",
+    postup: (z) => "Váš set v " + z + " krokoch",
     hotovo: (h, z) => "Hotovo " + h + " z " + z,
     vsetko: "Všetko vybrané",
     kompat: "Garancia kompatibility s Vaším vozidlom", // Michal 13. 10.: ako na živom webe

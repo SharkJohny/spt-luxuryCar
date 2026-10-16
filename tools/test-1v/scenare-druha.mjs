@@ -4,7 +4,7 @@
 // „bez flagu“ si scenár druha-nie overí sám na začiatku). Každý POST košíka je zachytený a zrušený (jadro testu).
 //
 //   druha-nie       bez flagu žiadna karta ani kľúč; s flagom karta skrytá do výberu farby, potom viditeľná BEZ čísla
-//                   (postup „Vaše autokoberce do interiéru v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
+//                   (postup „Váš set v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
 //                   príplatok „+ N €“ = živý rozdiel; cenovka (Michal 16. 10. 2026): „Príplatok za celú sadu druhej vrstvy“,
 //                   „S autokobercami od“ (výber neúplný), odporúčaná druhej vrstvy prečiarknutá červenou + zelené „Ušetríte“
 //                   = čísla, ktoré test spočíta zo stránky (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky

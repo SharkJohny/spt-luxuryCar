@@ -286,6 +286,7 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `box-krizik` | jedno, dvoj | len nový vzhľad: nový výber boxov zavretý krížikom bez potvrdenia = žiadny box (G10b) |
 | `box-prepni` | jedno, dvoj | len nový vzhľad: 1 box → 2 boxy, v POST len 1. + 2. box (živý web tu má chybu: samostatný box ostane) |
 | `miesta-5` | jedno, dvoj | len nový vzhľad: 7 miest + 3 rady → 5 miest: rozloženie sa samo prepne na 1.+2. rad, krok 4 ostane otvorený, POST bez 3. radu |
+| `miesta-podorys` | jedno, dvoj | len nový vzhľad: pôdorys kreslí presne zvolený počet miest (2 = 1 rad, 4 = 2+2 … 9 = 3+3+3), dĺžka auta, kufor za posledným radom; karty: 6+ miest 1/2/3, 4–5 miest 1/2, **2 miesta len „Len prvý rad“** (§16); 5 miest + 1.+2. rad → 2 miesta = samo 1. rad, cena − príplatok 2. radu, bez POST; späť 5 miest = karty 1/2, výber 1. rad; 2 miesta aj z karty auta; POST = baseline 1. rad |
 | `farba2-prepni` | dvoj | zmena farby 2. vrstvy po celom výbere: `priceId` = variant `71-<lux>-78-<farba>`, POST nesie novú Lux |
 | `box-pocet-2`, `box-pocet-3` | boxy | 2 boxy S+L, 3 boxy S+S+XL: POST, ceny podľa profilu |
 | `box-3-na-1` | boxy | 3 boxy → 1 box: 2. a 3. box prázdne/chýbajú, cena 1 × S |
@@ -418,6 +419,7 @@ Texty prebrať z návrhu.
 
 **Povinné:**
 - cenový štítok „Odporúčaná cena“ (nie „Doporučená“), bez právnych upozornení.
+- Kam produkt patrí (Michal 16. 10. 2026, upresnené večer): na **autokobercoch do interiéru** (598/610/613, dvojvrstvové 601/604/607) ostáva „set“ ako predtým — postup „Váš set v 6/7 krokoch“, tlačidlá „Zostavte si set“, „Vyberte si model a poskladajte set.“, „Set sa prekontroluje…“, „Jeden set na leto aj zimu“; holé „koberce“ = „autokoberce“. Na **rohožiach do kufra** (619–634), **boxe** (616) a **vzorkovníku** (637) vždy konkrétny produkt („rohož do kufra“, „box“) a ponuka setu s plným názvom „… s autokobercami do interiéru“ (napr. „V sete s autokobercami do interiéru len …“), nech zákazník vie, čo za tú cenu dostane.
 - Premium v kroku 5 áno (Michal schválil kufor Classic/Premium/Nechcem v konfigurátore).
 
 ## 12. Známe nástrahy
@@ -486,3 +488,13 @@ Pravidlo pod `body.lcd-1v`:
 - „Pokračujte ďalej“ ostatných kariet rieši engine sám (prvý nevyplnený krok = auto, bez výzvy); „Pokračujte ďalej“ vzoru (karta **pred** autom) len otvorí kartu auta, bez výzvy a bez červenej.
 - Košík/POST sa nemení: dvere a miesta idú len cez sessionStorage (`cart.js` varchar2/varchar3), ako zo starého vzhľadu. Testy: `auto-poradie` (dvere/miesta pred autom, hlavička Farba 2×, vzorka farby v otvorenej karte farby, „Pokračujte ďalej“ vzoru, „Pokračujte ďalej“ bez auta, 560 px, POST = baseline) a `bez-auta` (nový vzhľad: hlavička farby bez výzvy, len karta auta s červeným rámom; starý vzhľad výzva ako doteraz).
 - Starý vzhľad (bez flagu) bez zmeny: výzva + odznačenie po 1 s ostáva (`brana` + `nulova-zmena`).
+
+## 16. Rozloženie pri 2 miestach (Michal 16. 10. 2026)
+
+Hlásenie: „keď zvolím, že len dvojmiestne auto, tak mi tam nechá možnosť prvý aj druhý rad — to je zbytočné.“
+
+Pravidlo pod `body.lcd-1v` (jedno aj dvoj, `konfigurator1v/rozlozenie.js` + `_lcd1v-rozlozenie.scss`):
+- Auto bez 2. radu (2 miesta; `sedadlaPodlaMiest` = `[2, 0, 0]`, koreň `.lcd1v-rz[data-r2="0"]`) ponúka **len kartu „Len prvý rad“** — karty „Prvý a druhý rad“ aj „Všetky tri rady“ skryje CSS (`data-r2="0"` / `data-r3="0"`).
+- Bola zvolená skrytá karta → `synchronizuj()` sám zvolí „Len prvý rad“ cez `ctx.zapis("rozlozenie", …)` (klik na živé tlačidlo voľby = cena aj POST ako starý web; bez POST do košíka). Platí, nech sa počet miest zvolí kdekoľvek: dlaždice v kroku Rozloženie aj karta auta (krok 2) — zdroj pravdy je živá dlaždica `.sit-Position` / `sessionStorage.seatPosition`, modul ju sleduje cez MutationObserver.
+- Späť na 4+ miest sa karty znova ukážu; výber ostane „Len prvý rad“, kým ho zákazník nezmení. 3. rad ostáva podľa návrhu v26 (karta len pri 6+ miestach, 3 rady → menej miest = 1.+2. rad).
+- Starý vzhľad (bez flagu) počet miest s rozložením neviaže — bez zmeny (`nulova-zmena`). Test: `miesta-podorys`.

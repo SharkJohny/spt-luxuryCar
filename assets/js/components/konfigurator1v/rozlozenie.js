@@ -195,6 +195,7 @@ export function init(ctx) {
     try { return parseInt(String(sessionStorage.getItem("seatPosition") || "").replace(/^pass-/, ""), 10) || 5; } catch (e) { return 5; }
   })();
   let predR3 = null;
+  let prepina = false; // práve prepína skrytú kartu na „Len prvý rad“ (2 miesta) — bez opakovania v tom istom kole
   let zvolene = 0; // rady zvolené v živom kroku (0 = nič)
   let nahlad = null; // rady pod myšou (náhľad pred klikom)
 
@@ -263,8 +264,18 @@ export function init(ctx) {
       k.setAttribute("aria-pressed", on ? "true" : "false");
     });
     koren.dataset.rady = String(nahlad || zvolene);
+    // auto bez 2. radu (2 miesta; Michal 16. 10. 2026: „keď zvolím, že len dvojmiestne auto, tak mi tam nechá možnosť
+    // prvý aj druhý rad — to je zbytočné“): ponúka sa len „Len prvý rad“ (CSS skryje karty 2 a 3 podľa data-r2/data-r3).
+    // Zvolená skrytá karta sa sama prepne na „Len prvý rad“ cez ctx.zapis (klik na živé tlačidlo -> cena aj POST ako
+    // starý web), nech sa počet miest zvolí kdekoľvek (krok 2 alebo dlaždice tu). Späť na 4+ miest sa karty znova
+    // ukážu a výber ostane „Len prvý rad“, kým ho zákazník nezmení.
+    if (rr[1] === 0 && zvolene > 1 && volby[1] && !prepina) {
+      predR3 = rr[2];
+      prepina = true;
+      try { ctx.zapis("rozlozenie", volby[1].hodnota); synchronizuj(); } finally { prepina = false; }
+      return;
+    }
     // auto bez 3. radu: „všetky tri rady“ sa prepne na „prvý a druhý rad“ (návrh v26 aplikuj()), len pri zmene miest.
-    // Aj pri 2 miestach ostáva „Prvý a druhý rad“ v ponuke ako na starom webe (ten počet miest s rozložením neviaže).
     if (predR3 !== null && predR3 > 0 && rr[2] === 0 && zvolene === 3 && volby[2]) {
       predR3 = 0;
       ctx.zapis("rozlozenie", volby[2].hodnota);

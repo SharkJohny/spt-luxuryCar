@@ -162,7 +162,7 @@ export const SCENARE = {
 
   /**
    * Texty a obrázky typu „dvoj“ (typy/dvoj.js) podľa návrhu dvojvrstvove.html: hlavičky kariet 1, 3, 4 (názov, otázka,
-   * podnadpis, chyba), „Krok N z 7“, „Vaše autokoberce do interiéru v 7 krokoch“, štítok „Dvojvrstvové“, fotky vzorov dvoj-vzor-*.jpg, vysvetlenie
+   * podnadpis, chyba), „Krok N z 7“, „Váš set v 7 krokoch“, štítok „Dvojvrstvové“, fotky vzorov dvoj-vzor-*.jpg, vysvetlenie
    * kroku „Rohož do kufra“ (Classic / Premium), v novom texte nič zakázané (rovnakú cenu, na milimeter, vyrábame, Comfort,
    * fixačné body, záruka, DragonSkin / Elite / Basic, počet vrstiev materiálu). Živý H1 sa nekontroluje (ostáva v DOM).
    */
@@ -209,7 +209,7 @@ export const SCENARE = {
       over(K.farba.vy === farbyNaVyber(pocetF) && pocetF > 0, `krok 3 zhrnutie „${K.farba.vy}“ ≠ „${farbyNaVyber(pocetF)}“ (farieb ${pocetF})`);
       over(K.farba2.nm === "Farba 2. vrstvy" && K.farba2.ti === "Prosím, vyberte si farbu 2. vrstvy" && K.farba2.ey === "Krok 4 z 7" && K.farba2.chyba === "Vyberte, prosím, farbu druhej vrstvy.", "krok 4: " + JSON.stringify(K.farba2));
       over(K.rozlozenie.ey === "Krok 5 z 7" && K.kufor.ey === "Krok 6 z 7" && K.boxy.ey === "Krok 7 z 7", "číslovanie krokov 5–7: " + [K.rozlozenie.ey, K.kufor.ey, K.boxy.ey].join(" | "));
-      over(r.postup === "Vaše autokoberce do interiéru v 7 krokoch", "postup: " + r.postup);
+      over(r.postup === "Váš set v 7 krokoch", "postup: " + r.postup);
       over(r.typ === "Dvojvrstvové", "štítok nad názvom: " + r.typ);
       const o = { diamond: "dvoj-vzor-diamond.jpg", stripe: "dvoj-vzor-stripe.jpg", hexa: "dvoj-vzor-hexa.jpg" };
       Object.keys(o).forEach((k) => over(r.vzory[k] && r.vzory[k].includes("/assets/img/1v/" + o[k]), "fotka vzoru " + k + ": " + r.vzory[k]));

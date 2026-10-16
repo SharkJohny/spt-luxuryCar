@@ -15352,6 +15352,10 @@ body.lcd-1v .lcd1v-rz .rz-karta {
   color: var(--rz-ink);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background-color 0.2s;
 }
+/* auto bez 2. radu (2 miesta, Michal 16. 10. 2026): ponúka sa len „Len prvý rad“ (rozlozenie.js prepne skrytú voľbu) */
+body.lcd-1v .lcd1v-rz[data-r2="0"] .rz-karta[data-rady="2"] {
+  display: none;
+}
 /* auto bez 3. radu (menej ako 6 miest): karta „Všetky tri rady“ sa neponúka */
 body.lcd-1v .lcd1v-rz[data-r3="0"] .rz-karta[data-rady="3"] {
   display: none;

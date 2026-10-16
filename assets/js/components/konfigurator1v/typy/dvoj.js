@@ -1,6 +1,6 @@
 // Texty a obrázky typu „dvoj“ (dvojvrstvové 601 Diamond, 604 Hexa, 607 Stripe). VLASTNÍK: worker dvoj (T1.2).
 // Tvar a pravidlá: typy/jedno.js (základ — produkty.js zlúči jedno + dvoj, čo tu nie je, platí z jedno: krok auta, rozloženie,
-// boxy a postup „Vaše autokoberce do interiéru v N krokoch“ sú rovnaké ako pri jednovrstvových). Texty doslovne z návrhu dvojvrstvove.html
+// boxy a „Váš set v N krokoch“ sú rovnaké ako pri jednovrstvových). Texty doslovne z návrhu dvojvrstvove.html
 // (navrh-dvojvrstvove.md §3.3–3.8). Krok „Farba 2. vrstvy“ (karta 4) staví farba2.js.
 // Zákaznícky text: vykanie, bez „na milimeter“, „vyrábame“, počtu vrstiev materiálu, záruky ako argumentu,
 // DragonSkin/Elite/Basic, fixačných bodov a „Comfort“ (docs/1v-kontrakt.md §11).

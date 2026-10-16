@@ -13,7 +13,7 @@
 export const TYP = {
   texty: {
     kroky: {
-      postup: (z) => "Vaše autokoberce do interiéru v " + z + " krokoch",
+      postup: (z) => "Váš set v " + z + " krokoch",
       kroky: {
         // pod: null — veta návrhu „Všetky tri vzory majú rovnakú cenu.“ dnes neplatí (13. 10. 2026 SK: Diamond 598 = 219 €,
         // Hexa 610 a Stripe 613 = 230 €). Vrátiť až po zjednotení cien v SK admine.
