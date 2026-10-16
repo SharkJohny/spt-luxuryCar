@@ -193,23 +193,39 @@ body.lcd-1v .lcd1v-rz[data-volant="vpravo"] [data-vol="vlavo"] {
   opacity: 0;
 }
 /* sedadlá podľa počtu miest (data-r1 / data-r2 / data-r3 = sedadlá v rade, 0 = rad sa nekreslí; Michal 16. 10. 2026:
-   pôdorys ukazuje presne zvolený počet miest — 2 = len 1. rad, 9 = 3 + 3 + 3). Kufor: za 3. radom (std), za 2. radom
-   (wide), hneď za 1. radom (dlhy, auto s 2 miestami). */
+   pôdorys ukazuje presne zvolený počet miest — 2 = len 1. rad, 9 = 3 + 3 + 3); bočné okno radu len s radom */
 body.lcd-1v .lcd1v-rz:not([data-r1="3"]) .rzp-r1[data-var="3"],
 body.lcd-1v .lcd1v-rz[data-r1="3"] .rzp-r1[data-var="2"],
 body.lcd-1v .lcd1v-rz:not([data-r2="2"]) .rzp-r2[data-var="2"],
 body.lcd-1v .lcd1v-rz:not([data-r2="3"]) .rzp-r2[data-var="3"],
 body.lcd-1v .lcd1v-rz:not([data-r3="2"]) .rzp-r3[data-var="2"],
 body.lcd-1v .lcd1v-rz:not([data-r3="3"]) .rzp-r3[data-var="3"],
-body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-kuf[data-var="std"],
-body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-div[data-var="std"],
-body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-kuf[data-var="wide"],
-body.lcd-1v .lcd1v-rz:not([data-r3="0"]) .rzp-div[data-var="wide"],
-body.lcd-1v .lcd1v-rz[data-r2="0"] .rzp-kuf[data-var="wide"],
-body.lcd-1v .lcd1v-rz[data-r2="0"] .rzp-div[data-var="wide"],
-body.lcd-1v .lcd1v-rz:not([data-r2="0"]) .rzp-kuf[data-var="dlhy"],
-body.lcd-1v .lcd1v-rz:not([data-r2="0"]) .rzp-div[data-var="dlhy"] {
+body.lcd-1v .lcd1v-rz[data-r2="0"] .rzp-ok[data-okno="2"],
+body.lcd-1v .lcd1v-rz[data-r3="0"] .rzp-ok[data-okno="3"] {
   display: none;
+}
+/* dĺžka auta podľa počtu miest (data-dlzka; Michal 16. 10. 2026: pri 2 miestach malé auto, nie dodávka): zadok
+   (.rzp-zad — zadné kolesá, koniec karosérie, zadné okno, priečka, kufor, svetlá) nakreslený za 3. radom sa posunie
+   hneď za posledný rad (3. rad končí na 364, 2. na 304 = posun −60, 1. na 228 = posun −136 jednotiek viewBoxu), celé auto
+   (.rzp-auto, karoséria 40 až 458 + posun) sa vycentruje na stred viewBoxu 236. Px v transform SVG = jednotky viewBoxu. */
+body.lcd-1v .lcd1v-rz .rzp-auto,
+body.lcd-1v .lcd1v-rz .rzp-zad {
+  transition: transform 0.45s cubic-bezier(0.4, 0.9, 0.3, 1);
+}
+body.lcd-1v .lcd1v-rz .rzp-auto {
+  transform: translateX(-13px);
+}
+body.lcd-1v .lcd1v-rz[data-dlzka="bezne"] .rzp-auto {
+  transform: translateX(17px);
+}
+body.lcd-1v .lcd1v-rz[data-dlzka="bezne"] .rzp-zad {
+  transform: translateX(-60px);
+}
+body.lcd-1v .lcd1v-rz[data-dlzka="kratke"] .rzp-auto {
+  transform: translateX(55px);
+}
+body.lcd-1v .lcd1v-rz[data-dlzka="kratke"] .rzp-zad {
+  transform: translateX(-136px);
 }
 body.lcd-1v .lcd1v-rz .rz-legenda {
   display: flex;
@@ -433,6 +449,8 @@ body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
 @media (prefers-reduced-motion: reduce) {
   body.lcd-1v .lcd1v-rz .rzp-on,
   body.lcd-1v .lcd1v-rz .rzp-vol,
+  body.lcd-1v .lcd1v-rz .rzp-auto,
+  body.lcd-1v .lcd1v-rz .rzp-zad,
   body.lcd-1v .lcd1v-rz .rz-karta,
   body.lcd-1v .lcd1v-rz .rz-dlazdice button {
     transition: none;

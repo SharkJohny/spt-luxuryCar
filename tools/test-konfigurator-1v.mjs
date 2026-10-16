@@ -1000,7 +1000,9 @@ const SCENARE = {
   /**
    * Nový vzhľad (Michal 16. 10. 2026): pôdorys v kroku 4 kreslí presne zvolený počet miest — 2 = len 1. rad (bez 2. radu),
    * 4 = 2+2, 5 = 2+3, 6 = 2+2+2, 7 = 2+3+2, 8 = 2+3+3, 9 = 3+3+3; kufor/priečka podľa posledného radu; zlaté (podložené)
-   * sú len rady zvoleného rozloženia. Karty ako starý web (počet miest s rozložením neviaže): „Prvý a druhý rad“ ostáva aj
+   * sú len rady zvoleného rozloženia. Dĺžka auta podľa počtu miest (Michal 16. 10. 2026, „pri 2 miestach nech sa autíčko
+   * zmenší“): 2 = krátke auto (1 rad + malý kufor), 4–5 = bežné, 6–9 = dlhé; kufor hneď za posledným radom, max ~1/3 auta,
+   * auto vycentrované v rámiku. Karty ako starý web (počet miest s rozložením neviaže): „Prvý a druhý rad“ ostáva aj
    * pri 2 miestach (otázka pre Michala), „Všetky tri rady“ len pri aute s 3. radom (návrh v26). Na konci 2 miesta + len
    * 1. rad -> POST = to, čo pošle starý web (rozloženie 1. rad; počet miest ide len do sessionStorage seatPosition).
    */
@@ -1009,24 +1011,29 @@ const SCENARE = {
     const t = s.t, P = a.produkt;
     const RZ = "#product-detail-form .lcd1v-rz";
     const OCAK = { 2: [2], 4: [2, 2], 5: [2, 3], 6: [2, 2, 2], 7: [2, 3, 2], 8: [2, 3, 3], 9: [3, 3, 3] };
-    const KUFOR = (n) => (n <= 3 ? "dlhy" : n <= 5 ? "wide" : "std");
+    const DLZKA = (n) => (n <= 3 ? "kratke" : n <= 5 ? "bezne" : "dlhe");
+    const dlzky = {}; // počet miest -> dĺžka karosérie v px (posledné meranie)
     await otvor(s, a.url, { novy: true });
     const z = await zaklad(s, ovl, { rozlozenie: 0 }); // len 1. rad
     const stav = () => t.ev(`(function () {
       var r = document.querySelector(${JSON.stringify(RZ)});
       if (!r) return null;
       function vid(e) { return getComputedStyle(e).display !== "none"; }
+      function box(e) { var b = e.getBoundingClientRect(); return { l: b.left, r: b.right, w: b.width }; }
+      var telo = Array.prototype.map.call(r.querySelectorAll(".rzp-telo"), box);
       var rady = [];
       Array.prototype.forEach.call(r.querySelectorAll(".rzp-z[data-rad='1'], .rzp-z[data-rad='2'], .rzp-z[data-rad='3']"), function (g) {
         if (!vid(g)) return;
         var on = g.querySelector(".rzp-on");
-        rady.push({ rad: Number(g.getAttribute("data-rad")), sedadla: g.querySelectorAll(".rzp-off .rzp-s").length, zlate: parseFloat(getComputedStyle(on).opacity) > 0.5 });
+        rady.push({ rad: Number(g.getAttribute("data-rad")), sedadla: g.querySelectorAll(".rzp-off .rzp-s").length, zlate: parseFloat(getComputedStyle(on).opacity) > 0.5, r: box(g).r });
       });
       var a = document.querySelector("#product-detail-form .sit-Position .option-button.active"), zv = r.querySelector(".rz-karta.on"), dl = r.querySelector(".rz-dlazdice button.on");
       var ss = ""; try { ss = sessionStorage.getItem("seatPosition") || ""; } catch (e) {}
       return { rady: rady,
-        kufre: Array.prototype.filter.call(r.querySelectorAll(".rzp-kuf"), vid).map(function (g) { return g.getAttribute("data-var"); }),
-        priecky: Array.prototype.filter.call(r.querySelectorAll(".rzp-div"), vid).map(function (g) { return g.getAttribute("data-var"); }),
+        kufre: Array.prototype.filter.call(r.querySelectorAll(".rzp-kuf"), vid).map(box),
+        priecky: Array.prototype.filter.call(r.querySelectorAll(".rzp-div"), vid).map(box),
+        telo: telo.length ? { l: Math.min.apply(null, telo.map(function (b) { return b.l; })), r: Math.max.apply(null, telo.map(function (b) { return b.r; })) } : null,
+        svg: box(r.querySelector(".rz-svg")), dlzka: r.getAttribute("data-dlzka") || "",
         karty: Array.prototype.filter.call(r.querySelectorAll(".rz-karta"), vid).map(function (k) { return Number(k.getAttribute("data-rady")); }),
         zvolena: zv ? Number(zv.getAttribute("data-rady")) : 0, dlazdica: dl ? dl.getAttribute("data-v") : "",
         miesta: a ? a.getAttribute("data-value") : "", ss: ss };
@@ -1038,7 +1045,17 @@ const SCENARE = {
       const sed = st.rady.map((r) => r.sedadla);
       over(JSON.stringify(sed) === JSON.stringify(OCAK[n]), `${n} miest: pôdorys kreslí rady ${JSON.stringify(sed)} (spolu ${sed.reduce((x, y) => x + y, 0)}), má ${JSON.stringify(OCAK[n])}`);
       over(JSON.stringify(st.rady.map((r) => r.rad)) === JSON.stringify(OCAK[n].map((x, i) => i + 1)), `${n} miest: rady ${JSON.stringify(st.rady.map((r) => r.rad))}`);
-      over(st.kufre.length === 1 && st.kufre[0] === KUFOR(n) && st.priecky.length === 1 && st.priecky[0] === KUFOR(n), `${n} miest: kufor ${JSON.stringify(st.kufre)} / priečka ${JSON.stringify(st.priecky)}, má ${KUFOR(n)}`);
+      over(st.kufre.length === 1 && st.priecky.length === 1 && st.telo, `${n} miest: kufrov ${st.kufre.length}, priečok ${st.priecky.length}, karoséria ${JSON.stringify(st.telo)}`);
+      over(st.dlzka === DLZKA(n), `${n} miest: dĺžka auta ${st.dlzka}, má ${DLZKA(n)}`);
+      const T = st.telo, K = st.kufre[0], D = st.priecky[0], dlzka = T.r - T.l, posl = st.rady[st.rady.length - 1];
+      const zaokr = (x) => Math.round(x * 10) / 10;
+      // poradie zľava: posledný rad | priečka | kufor | koniec auta; priečka tesne za radom (nie kufor cez pol auta)
+      over(posl.r <= D.l + 1 && D.l - posl.r <= dlzka * 0.04 && D.r <= K.l + 1 && K.r <= T.r + 1,
+        `${n} miest: kufor nie je hneď za ${posl.rad}. radom (rad do ${zaokr(posl.r)}, priečka ${zaokr(D.l)}–${zaokr(D.r)}, kufor ${zaokr(K.l)}–${zaokr(K.r)}, auto do ${zaokr(T.r)})`);
+      over(K.w <= dlzka / 3, `${n} miest: kufor ${zaokr(K.w)} px je dlhší než 1/3 auta (${zaokr(dlzka)} px)`);
+      const stred = (T.l + T.r) / 2 - (st.svg.l + st.svg.r) / 2;
+      over(Math.abs(stred) <= st.svg.w * 0.02, `${n} miest: auto nie je v rámiku vycentrované (odchýlka ${zaokr(stred)} px pri šírke ${zaokr(st.svg.w)})`);
+      dlzky[n] = dlzka;
       over(st.zvolena === zvolena, `${n} miest: zvolená karta ${st.zvolena}, má ${zvolena}`);
       const zle = st.rady.filter((r) => r.zlate !== r.rad <= zvolena);
       over(!zle.length, `${n} miest, rozloženie ${zvolena}: podložené (zlaté) rady nesedia ${JSON.stringify(st.rady)}`);
@@ -1080,6 +1097,13 @@ const SCENARE = {
     await snimka("podorys-2-miest-karta-prvy-a-druhy");
     const jeden = await karta(1); info.push("2/1. rad: " + (await kontrola(2, 1)));
     await snimka("podorys-2-miest");
+    // 2 miesta = výrazne kratšie auto než 5 a 9 (nie dodávka s polovičným kufrom), 4 = 5, 6 až 9 rovnako dlhé
+    const pomer = (a, b) => Math.round((dlzky[a] / dlzky[b]) * 100) / 100;
+    over(dlzky[2] <= dlzky[5] * 0.85 && dlzky[2] <= dlzky[9] * 0.75 && dlzky[5] <= dlzky[9] * 0.92,
+      `dĺžka auta: 2 miesta ${pomer(2, 9)}, 5 miest ${pomer(5, 9)} z 9 miest — 2 miesta majú byť výrazne kratšie`);
+    over(Math.abs(dlzky[4] - dlzky[5]) < 1 && [6, 7, 8].every((k) => Math.abs(dlzky[k] - dlzky[9]) < 1),
+      `dĺžka auta: 4 a 5 miest / 6 až 9 miest majú byť rovnaké ${JSON.stringify(dlzky)}`);
+    info.push(`dĺžka 2/5/9 miest = ${pomer(2, 9)}/${pomer(5, 9)}/1`);
     over(jeden === z.rozlozenie, `2 miesta + len 1. rad: rozloženie ${jeden}, má ${z.rozlozenie}`);
     await ovl.cena.pridajDoKosika(t);
     const post = await cakajNaPost(s);
