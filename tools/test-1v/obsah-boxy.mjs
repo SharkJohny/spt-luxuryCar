@@ -239,7 +239,7 @@ export async function kontroly(t) {
     })()`);
     const rad = (b) => b.map((x) => x.t);
     ok(r.rola === "table" && r.riadkov === 4 && r.hlavicka.join("|") === "Veľkosť|S|M|L|XL", `a-ponuka: tabuľka cien má hlavičku S M L XL a 3 riadky (role ${r.rola}, riadkov ${r.riadkov}, hlavička ${r.hlavicka.join("|")})`);
-    ok(r.nazvy.join("|") === "Samostatne|V sete s autokobercami|V sete, pri dvoch boxoch (každý)", `a-ponuka: riadky tabuľky ${r.nazvy.join(" | ")}`);
+    ok(r.nazvy.join("|") === "Samostatne|V sete s autokobercami do interiéru|V sete, pri dvoch boxoch (každý)", `a-ponuka: riadky tabuľky ${r.nazvy.join(" | ")}`);
     const cakam = (m) => VEL.map((v) => m[v]);
     ok(nbsp(rad(r.r1).join(",")) === nbsp(cakam(o.sam).join(",")), `a-ponuka: Samostatne ${rad(r.r1).join(" ")} = živé selecty 616 (${cakam(o.sam).join(" ")})`);
     ok(nbsp(rad(r.r2).join(",")) === nbsp(cakam(o.set).join(",")), `a-ponuka: V sete ${rad(r.r2).join(" ")} = jednovrstvové „Box solo“ (${cakam(o.set).join(" ")})`);
@@ -247,7 +247,7 @@ export async function kontroly(t) {
     ok(r.r1.concat(r.r2, r.r3).every((c) => c.stav === "ok" && c.vis === "visible"), "a-ponuka: všetkých 12 buniek dosadených (stav ok) a viditeľných");
     ok(r.vKarte && r.sirka > 240, `a-ponuka: tabuľka sa zmestí do tmavej karty (šírka ${r.sirka} px)`);
     const jedno = o.reg.produkty && sestra(o.reg, "jedno", null);
-    ok(jedno && String(r.href || "").split("#")[0] === jedno.cesta && /#product-detail-form$/.test(r.href || "") && r.text === "Zostavte si set", `a-ponuka: „Zostavte si set“ vedie na jednovrstvové a ich konfigurátor (${r.href})`);
+    ok(jedno && String(r.href || "").split("#")[0] === jedno.cesta && /#product-detail-form$/.test(r.href || "") && r.text === "Zostavte si set s autokobercami", `a-ponuka: „${r.text}“ vedie na jednovrstvové a ich konfigurátor (${r.href})`);
   }
 
   // boxy-velkosti: 4 karty, silueta v skutočnom pomere, ceny rovnaké ako v tabuľke, tipy, výzva
@@ -395,8 +395,8 @@ export async function kontroly(t) {
     const cesta = (typ) => (sestra(reg, typ, null) || {}).cesta;
     ok(r.h2 === "Doplňte kufor o rohož" && r.k.map((c) => c.stitok).join("|") === "Classic|Premium|Autokoberce", `boxy-cross: nadpis „${r.h2}“ a karty ${r.k.map((c) => c.stitok).join(" | ")}`);
     ok(r.k.map((c) => (c.href || "").split("#")[0]).join(",") === [cesta("kufor-classic"), cesta("kufor-premium"), cesta("jedno")].join(","), `boxy-cross: odkazy kariet ${r.k.map((c) => c.href).join(", ")}`);
-    ok(nbsp(r.k[0].cena) === eur(o.classic) && nbsp(r.k[0].popis) === "v sete s autokobercami + " + eur(o.setClassic), `boxy-cross: Classic ${nbsp(r.k[0].cena)}, „${nbsp(r.k[0].popis)}“ = živé stránky (${eur(o.classic)}, + ${eur(o.setClassic)})`);
-    ok(nbsp(r.k[1].cena) === eur(o.premium) && nbsp(r.k[1].popis) === "v sete s autokobercami + " + eur(o.setPremium), `boxy-cross: Premium ${nbsp(r.k[1].cena)}, „${nbsp(r.k[1].popis)}“ = živé stránky (${eur(o.premium)}, + ${eur(o.setPremium)})`);
+    ok(nbsp(r.k[0].cena) === eur(o.classic) && nbsp(r.k[0].popis) === "v sete s autokobercami do interiéru + " + eur(o.setClassic), `boxy-cross: Classic ${nbsp(r.k[0].cena)}, „${nbsp(r.k[0].popis)}“ = živé stránky (${eur(o.classic)}, + ${eur(o.setClassic)})`);
+    ok(nbsp(r.k[1].cena) === eur(o.premium) && nbsp(r.k[1].popis) === "v sete s autokobercami do interiéru + " + eur(o.setPremium), `boxy-cross: Premium ${nbsp(r.k[1].cena)}, „${nbsp(r.k[1].popis)}“ = živé stránky (${eur(o.premium)}, + ${eur(o.setPremium)})`);
     ok(nbsp(r.k[2].cena) === "od " + eur(o.jedno) && nbsp(r.k[2].popis) === "box v sete od " + o.set.S, `boxy-cross: Autokoberce „${nbsp(r.k[2].cena)}“, „${nbsp(r.k[2].popis)}“ = živé stránky (od ${eur(o.jedno)}, box v sete od ${o.set.S})`);
     ok(r.k.every((c) => c.stavy.split(",").every((s) => s === "ok/visible")), "boxy-cross: všetky čísla kariet dosadené a viditeľné");
     ok(r.k.every((c) => c.img), "boxy-cross: fotky kariet sa načítali");
@@ -442,7 +442,7 @@ export async function kontroly(t) {
         tl: [].map.call(s.querySelectorAll(".end-cta a"), function (a) { return a.textContent.trim(); }).join(" | "), bg: getComputedStyle(s.querySelector(".endbg")).backgroundImage,
         stavy: [].map.call(s.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav") + "/" + getComputedStyle(x).visibility; }).join(",") }; })()`);
     ok(r.h2 === "Poriadok v kufri na jeden klik" && r.farba === "rgb(255, 255, 255)", `d-koniec: biely nadpis „${r.h2}“ (${r.farba})`);
-    ok(r.lede === `Luxusný box do kufra v štyroch veľkostiach a deviatich farbách. Samostatne od ${o.sam.S}, v sete s autokobercami od ${o.set.S}.` && r.stavy === "ok/visible,ok/visible", `d-koniec: úvod s cenami zo živých dát („${r.lede}“)`);
+    ok(r.lede === `Luxusný box do kufra v štyroch veľkostiach a deviatich farbách. Samostatne od ${o.sam.S}, v sete s autokobercami do interiéru od ${o.set.S}.` && r.stavy === "ok/visible,ok/visible", `d-koniec: úvod s cenami zo živých dát („${r.lede}“)`);
     ok(r.tl === "Vyberte farbu a veľkosť | Pozrite si recenzie", `d-koniec: tlačidlá (${r.tl})`);
     const le = await t.ev(`${LEDE_CH}(${S("d-koniec")} + " .lede", 56)`);
     ok(le && Math.abs(le.max - le.ocak) < 1.5, `d-koniec: úvod má šírku návrhu 56 znakov (max-width ${le && Math.round(le.max)} px, očakávané ${le && Math.round(le.ocak)} px)`);

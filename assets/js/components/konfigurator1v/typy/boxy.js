@@ -59,9 +59,9 @@ export const TYP = {
       tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
       // pás setu pod cenou (odkaz na jednovrstvové; čísla zo živých stránok, nič natvrdo)
       set: {
-        nadpis: (cena) => "V sete s autokobercami už od " + cena,
-        pod: (cena) => "Box S namiesto " + cena + " — zostavte si set s autokobercami",
-        dalej: "Pozrieť set",
+        nadpis: (cena) => "V sete s autokobercami do interiéru už od " + cena,
+        pod: (cena) => "Box S namiesto " + cena + " — zostavte si set s autokobercami do interiéru",
+        dalej: "Pozrieť autokoberce",
       },
     },
   },

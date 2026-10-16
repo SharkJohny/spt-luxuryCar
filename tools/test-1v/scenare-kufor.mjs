@@ -145,11 +145,11 @@ export const SCENARE = {
       j.over(setCena > 0, "príplatok setu na " + jedno.url + " sa nedal zistiť (test)");
       const us = own - setCena;
       j.over(st.setVidno && st.setPredPostupom, "pás setu nie je viditeľný pod cenou pred postupom krokov");
-      j.over(cisty(st.set).includes("V sete s autokobercami len + " + eur(setCena)), "pás setu „" + st.set + "“ nemá „+ " + eur(setCena) + "“");
+      j.over(cisty(st.set).includes("V sete s autokobercami do interiéru len + " + eur(setCena)), "pás setu „" + st.set + "“ nemá „+ " + eur(setCena) + "“");
       if (typ === "kufor-classic") {
         j.over(cisty(st.set).includes("(ušetríte " + eur(us) + ")") && /Zostaviť set$/.test(cisty(st.set)), "pás setu Classic „" + st.set + "“ ≠ (ušetríte " + eur(us) + ") + Zostaviť set");
       } else {
-        const veta = us > 100 ? "Rohož Premium vyjde o viac než 100 € lacnejšie než samostatne." : "Rohož Premium vyjde o " + eur(us) + " lacnejšie než samostatne.";
+        const veta = us > 100 ? "Rohož do kufra Premium vyjde o viac než 100 € lacnejšie než samostatne." : "Rohož do kufra Premium vyjde o " + eur(us) + " lacnejšie než samostatne.";
         j.over(cisty(st.set).includes(veta) && /Zostavte set$/.test(cisty(st.set)), "pás setu Premium „" + st.set + "“ ≠ „" + veta + "“ + Zostavte set");
       }
       j.over(st.setHref === cesta(jedno.url), "odkaz setu " + st.setHref + " ≠ jednovrstvové " + cesta(jedno.url));
@@ -157,7 +157,7 @@ export const SCENARE = {
       // Classic: odkaz na Premium toho istého vzoru pod košíkom; Premium bez neho
       if (typ === "kufor-classic") {
         const pr = profil("kufor-premium", P.vzor);
-        j.over(st.alt === "Chcete chrániť aj boky kufra? Pozrite si rohož Premium" && st.altVidno && st.altZaKosikom, "riadok pod košíkom „" + st.alt + "“ (vidno " + st.altVidno + ", za košíkom " + st.altZaKosikom + ")");
+        j.over(st.alt === "Chcete chrániť aj boky kufra? Pozrite si rohož do kufra Premium" && st.altVidno && st.altZaKosikom, "riadok pod košíkom „" + st.alt + "“ (vidno " + st.altVidno + ", za košíkom " + st.altZaKosikom + ")");
         j.over(st.altHref === cesta(pr.url), "odkaz na Premium " + st.altHref + " ≠ " + cesta(pr.url));
         info.push("pod košíkom -> " + pr.id);
       } else j.over(!st.alt, "Premium nemá mať riadok pod košíkom: " + st.alt);

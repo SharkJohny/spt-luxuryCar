@@ -9,7 +9,7 @@
 export const TYP = {
   texty: {
     kroky: {
-      postup: (z) => "Vaša rohož v " + z + " krokoch",
+      postup: (z) => "Vaša rohož do kufra v " + z + " krokoch",
       kroky: {
         // vzor: podnadpis s cenami vzorov a ceny dlaždíc („230 € / 240 € / 240 €“) dosadí kufor-produkt.js zo sesterských
         // stránok (ceny-ine.js) — preto tu pod: null (statická veta s číslom by bola natvrdo)
@@ -17,16 +17,18 @@ export const TYP = {
         auto: { pod: "Tvar rohože sa šije podľa šablóny dna kufra Vášho modelu." },
         farba: {
           nm: "Farba a šitie",
-          ti: "Prosím, vyberte si farbu rohože",
+          ti: "Prosím, vyberte si farbu rohože do kufra",
           pod: "Po výbere uvidíte materiál zblízka.",
-          chyba: "Vyberte, prosím, farbu rohože.",
+          chyba: "Vyberte, prosím, farbu rohože do kufra.",
         },
       },
     },
     cena: {
       typ: "Dno kufra",
-      // popis lepivej lišty (návrh kufor-classic.html lPop): „Diamond Line · rohož Classic“, po výbere farby „Diamond Line · <farba>“
-      lista: (i) => [i.vzor, i.farba ? i.farba.toLowerCase() : "rohož Classic"].filter(Boolean).join(" · "),
+      // popis lepivej lišty (návrh kufor-classic.html lPop): „Diamond Line · rohož do kufra“, po výbere farby „Diamond Line · <farba>“
+      // (Michal 16. 10. 2026: vždy povedať, kam rohož patrí; „… rohož do kufra Classic“ má 171 px a lišta pri 360/390 px
+      // dá popisu najviac 151/165 px -> orezalo by sa na „…“, preto bez „Classic“ — Classic je v názve nad konfigurátorom)
+      lista: (i) => [i.vzor, i.farba ? i.farba.toLowerCase() : "rohož do kufra"].filter(Boolean).join(" · "),
     },
     // „Poznámka k objednávke“ (poznamka.js; návrh kufor-classic.html .pozn-dole, navrh-kufor-classic.md §Súhrn)
     poznamka: {
@@ -44,16 +46,16 @@ export const TYP = {
       // cena pod názvom vzoru na dlaždici = PLNÁ cena rohože v tom vzore (návrh: „230 € / 240 € / 240 €“, zo sesterských stránok)
       dlazdica: "cena",
       vCene: "v cene",
-      // pás pod cenou (návrh .kc-set): „V sete s autokobercami len + 129 € (ušetríte 101 €)“ + „Zostaviť set“
+      // pás pod cenou (návrh .kc-set): „V sete s autokobercami do interiéru len + 129 € (ušetríte 101 €)“ + „Zostaviť set“
       set: {
         tvar: "riadok",
         rohoz: "classic", // voľba kufra na jednovrstvovom produkte: dno (bez bokov)
-        text: "V sete s autokobercami len",
+        text: "V sete s autokobercami do interiéru len",
         usetrite: (suma) => "(ušetríte " + suma + ")",
         odkaz: "Zostaviť set",
       },
       // riadok pod tlačidlom košíka (návrh .kc-alt) -> rohož Premium v tom istom vzore
-      alt: { text: "Chcete chrániť aj boky kufra?", odkaz: "Pozrite si rohož Premium", typ: "kufor-premium" },
+      alt: { text: "Chcete chrániť aj boky kufra?", odkaz: "Pozrite si rohož do kufra Premium", typ: "kufor-premium" },
     },
   },
   obrazky: {},

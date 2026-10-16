@@ -4,7 +4,7 @@
 // „bez flagu“ si scenár druha-nie overí sám na začiatku). Každý POST košíka je zachytený a zrušený (jadro testu).
 //
 //   druha-nie       bez flagu žiadna karta ani kľúč; s flagom karta skrytá do výberu farby, potom viditeľná BEZ čísla
-//                   (postup „Váš set v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
+//                   (postup „Vaše autokoberce do interiéru v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
 //                   príplatok „+ N €“ = živý rozdiel; cenovka (Michal 16. 10. 2026): „Príplatok za celú sadu druhej vrstvy“,
 //                   „S autokobercami od“ (výber neúplný), odporúčaná druhej vrstvy prečiarknutá červenou + zelené „Ušetríte“
 //                   = čísla, ktoré test spočíta zo stránky (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky
@@ -311,7 +311,7 @@ export const SCENARE = {
       j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prosíte si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
       // Michal 15. 10. 2026: vrstvy vždy pomenované („prvá prešívaná“ / „druhá“); podnadpis ľudsky, nie „strojovo“
       j.over(otv.pod === "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.", `podnadpis „${otv.pod}“`);
-      j.over(/Dvojvrstvové koberce/.test(otv.anoText) && /Prvá prešívaná \+ druhá vrstva/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
+      j.over(/Dvojvrstvové autokoberce/.test(otv.anoText) && /Prvá prešívaná \+ druhá vrstva/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
       j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === "Pokračujete s doterajším výberom.", `Nie: „${otv.nieText}“ / „${otv.pozn}“`);
       // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zelené od 16. 10., v dlaždici, hore) a Nie (zlaté)
       j.over(otv.anoVidno && otv.anoTl && otv.anoTl.tag === "BUTTON" && otv.anoTl.typ === "button" && otv.anoTl.text === "Áno, chcem druhú vrstvu" && otv.anoTl.tab >= 0 && otv.anoVDlazdici,
@@ -413,7 +413,7 @@ export const SCENARE = {
       const hned = await stavKarty(t).catch(() => null);
       if (a.snimky) await s.k.snimka(join(a.snimky, `${P.id}-druha-prenos-${t.sirka}.png`)).catch(() => {});
       if (hned && hned.je) {
-        j.over(hned.prenos && hned.prenos.startsWith("Prenášame Váš výber na dvojvrstvové koberce…"), `správa po Áno: „${hned.prenos}“`);
+        j.over(hned.prenos && hned.prenos.startsWith("Prenášame Váš výber na dvojvrstvové autokoberce…"), `správa po Áno: „${hned.prenos}“`);
         j.over(hned.anoZablok && hned.nieZablok, "po Áno nie sú tlačidlá zablokované");
       }
       s.produkt = Pc;

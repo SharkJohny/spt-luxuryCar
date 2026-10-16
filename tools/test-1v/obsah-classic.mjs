@@ -196,7 +196,7 @@ export async function kontroly(t) {
       `upsell autokobercov: „${up[0]}“ / „${up[1]}“ / „${up[2]}“ (čakám ${eur(oc.cena)}, +${eur(oc.setClassic)}, ušetríte ${eur(oc.uspora)})`);
     ok(up[3].includes("samostatne za " + eur(oc.cena)) && up[3].includes("len za " + eur(oc.setClassic)), "upsell autokobercov: veta v texte má tie isté dve ceny");
     const bx = [await text(S("classic-box") + " .ups li", 1), await text(S("classic-box") + " .ups li", 2)];
-    ok(bx[0] === "Samostatne od " + eur(oc.boxCena) && bx[1] === "V sete s autokobercami od " + eur(oc.boxSetS), `upsell boxu: „${bx[0]}“ / „${bx[1]}“ (čakám od ${eur(oc.boxCena)}, v sete od ${eur(oc.boxSetS)})`);
+    ok(bx[0] === "Samostatne od " + eur(oc.boxCena) && bx[1] === "V sete s autokobercami do interiéru od " + eur(oc.boxSetS), `upsell boxu: „${bx[0]}“ / „${bx[1]}“ (čakám od ${eur(oc.boxCena)}, v sete od ${eur(oc.boxSetS)})`);
     ok((await text(S("b-porovnanie") + " .cmp-col.us .price")) === "od " + eur(oc.cena), `porovnanie: naša cena „${await text(S("b-porovnanie") + " .cmp-col.us .price")}“ = od ${eur(oc.cena)}`);
     // odkazy: Premium / jednovrstvové / box toho istého vzoru (a pre 622 dokumentovaný Premium Hexa)
     const odk = await t.ev(`(function () { var o = {}; [].forEach.call(document.querySelectorAll(".p1v-miesto a[data-p1v-odkaz]"), function (a) { var k = a.getAttribute("data-p1v-odkaz"); (o[k] = o[k] || []).push((a.getAttribute("href") || "").split("#")[0]); }); return o; })()`);

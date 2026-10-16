@@ -128,7 +128,7 @@ export async function kontroly(t) {
     })()`);
     ok(r.n === 2, `a-ponuka: dve karty .ups (${r.n})`);
     const jedno = t.sestra("jedno");
-    ok(r.odkazy[0] === jedno && r.znacky[0] === "jedno", `a-ponuka: „Zostavte si set“ vedie na jednovrstvové toho istého vzoru (${r.odkazy[0]}, čakám ${jedno})`);
+    ok(r.odkazy[0] === jedno && r.znacky[0] === "jedno", `a-ponuka: „Zostavte si set s autokobercami“ vedie na jednovrstvové toho istého vzoru (${r.odkazy[0]}, čakám ${jedno})`);
     ok(r.odkazy[1] === "/luxusny-boxi-do-kufra/" && r.znacky[1] === "boxy", `a-ponuka: „Pozrite si boxy do kufra“ vedie na box (${r.odkazy[1]})`);
     ok(r.img.every(Boolean), `a-ponuka: obe fotky sa načítali (${r.img.join(",")})`);
     const c0 = r.cisla[0].join(" | "), c1 = r.cisla[1].join(" | ");

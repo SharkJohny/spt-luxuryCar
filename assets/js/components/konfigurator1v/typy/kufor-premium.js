@@ -8,13 +8,13 @@
 export const TYP = {
   texty: {
     kroky: {
-      postup: (z) => "Vaša rohož v " + z + " krokoch",
+      postup: (z) => "Vaša rohož do kufra v " + z + " krokoch",
       kroky: {
         vzor: { pod: null }, // podnadpis s cenami vzorov dosadí kufor-produkt.js
         farba: {
-          nm: "Farba rohože",
-          ti: "Prosím, vyberte si farbu rohože",
-          chyba: "Vyberte, prosím, farbu rohože.",
+          nm: "Farba rohože do kufra",
+          ti: "Prosím, vyberte si farbu rohože do kufra",
+          chyba: "Vyberte, prosím, farbu rohože do kufra.",
         },
       },
     },
@@ -35,13 +35,13 @@ export const TYP = {
       vzorPod: (lacny, drahe, rozdiel) => lacny + " je v základnej cene, " + drahe.join(" a ") + " stoja o " + rozdiel + " viac. Ponuka farieb sa pri každom vzore líši.",
       vzorPodRovnako: "Všetky tri vzory majú rovnakú cenu. Ponuka farieb sa pri každom vzore líši.",
       vCene: "v cene",
-      // pás pod cenou (návrh .setpas, celý pás je odkaz): „V sete s autokobercami len + 239 €“ + veta o úspore + „Zostavte set“
+      // pás pod cenou (návrh .setpas, celý pás je odkaz): „V sete s autokobercami do interiéru len + 239 €“ + veta o úspore + „Zostavte set“
       set: {
         tvar: "pas",
         rohoz: "premium", // voľba kufra na jednovrstvovom produkte: dno + boky
-        text: "V sete s autokobercami len",
+        text: "V sete s autokobercami do interiéru len",
         // návrh: „… o viac než 100 € lacnejšie …“ — platí len pri úspore nad 100 €, inak presná suma
-        usetrite: (suma, n) => (n > 100 ? "Rohož Premium vyjde o viac než 100 € lacnejšie než samostatne." : "Rohož Premium vyjde o " + suma + " lacnejšie než samostatne."),
+        usetrite: (suma, n) => (n > 100 ? "Rohož do kufra Premium vyjde o viac než 100 € lacnejšie než samostatne." : "Rohož do kufra Premium vyjde o " + suma + " lacnejšie než samostatne."),
         odkaz: "Zostavte set",
       },
       alt: null, // Premium nemá odkaz pod košíkom (porovnanie s Classic je v obsahu pod konfigurátorom)

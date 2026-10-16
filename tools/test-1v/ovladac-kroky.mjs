@@ -121,7 +121,7 @@ export const novy = {
     return t.ev(`sessionStorage.getItem("model")`);
   },
 
-  /** Karta „Farba koberca“: klik na vzorku (index viditeľnej) -> value vo variant selecte farby; náhľad sa ukáže. */
+  /** Karta „Farba autokobercov“: klik na vzorku (index viditeľnej) -> value vo variant selecte farby; náhľad sa ukáže. */
   async vyberFarbu(t, { index = 0 } = {}) {
     const sel = await otvorKartu(t, "farba");
     await t.klikni(`${sel} > .options-wrap > .option-button`, { index, popis: "vzorka farby " + index });

@@ -57,8 +57,8 @@ export const ZNENIE = {
     "Vyberte si vzorky a pozrite si farby naživo.", "Pokračujte vo výbere",
   ],
   "a-ponuka": [
-    "Máte vybratú farbu?", "Zostavte si autokoberce na mieru",
-    "Vzorky sú pre autokoberce do osobných áut. Vzor, farbu aj rozloženie potom zvolíte v konfigurátore.",
+    "Máte vybratú farbu?", "Zostavte si autokoberce do interiéru na mieru",
+    "Vzorky sú pre autokoberce do interiéru osobných áut. Vzor, farbu aj rozloženie potom zvolíte v konfigurátore.",
     "Jednovrstvové zvládnu jar, leto aj jeseň", "Dvojvrstvové majú na prvej prešívanej vrstve odnímateľnú druhú vrstvu Lux",
     "Šablóny máme pre viac než 1000 modelov osobných áut", "Jednovrstvové", "Dvojvrstvové",
   ],

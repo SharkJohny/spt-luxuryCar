@@ -43,12 +43,12 @@ const TEXTY = {
   info: "Vysvetlenie",
   kufor: {
     skupina: "Rohož do kufra",
-    veta: "Zákazníci si ho vyberajú najčastejšie",
+    veta: "Zákazníci si ju vyberajú najčastejšie",
     pod: "Len na dno kufra alebo aj na boky a operadlá.",
     vysv: [["Na dno kufra", " chráni podlahu batožinového priestoru. "], ["Na dno a boky", " obalí aj bočné steny a prah — nič sa nedostane do čalúnenia, keď naložíte niečo mokré alebo špinavé."]],
     classic: { nm: "Classic", po: "Na dno kufra", alt: "Rohož do kufra Classic", kluc: "kufor-classic", obr: "kufor-boxy-classic.jpg", popis: "Rohož do kufra Classic" },
     premium: { nm: "Premium", po: "Na dno, boky aj operadlá", alt: "Rohož do kufra Premium", kluc: "kufor-premium", obr: "kufor-boxy-premium.jpg", popis: "Rohož do kufra Premium" },
-    nie: { nm: "Nechcem", po: "Bez rohože do kufra", ben: "Kufor necháte tak, ako\u00a0je.", alt: "Kufor bez koberca", kluc: "kufor-nie", obr: "kufor-boxy-bez-rohoze.jpg", popis: "Bez rohože do kufra" },
+    nie: { nm: "Nechcem", po: "Bez rohože do kufra", ben: "Kufor necháte tak, ako\u00a0je.", alt: "Kufor bez rohože", kluc: "kufor-nie", obr: "kufor-boxy-bez-rohoze.jpg", popis: "Bez rohože do kufra" },
   },
   boxy: {
     skupina: "Boxy do kufra",

@@ -13,14 +13,14 @@
 export const TYP = {
   texty: {
     kroky: {
-      postup: (z) => "Váš set v " + z + " krokoch",
+      postup: (z) => "Vaše autokoberce do interiéru v " + z + " krokoch",
       kroky: {
         // pod: null — veta návrhu „Všetky tri vzory majú rovnakú cenu.“ dnes neplatí (13. 10. 2026 SK: Diamond 598 = 219 €,
         // Hexa 610 a Stripe 613 = 230 €). Vrátiť až po zjednotení cien v SK admine.
         vzor: { nm: "Vzor prešívania", ti: "Prosím, vyberte si vzor prešívania", vy: "", pod: null, dalej: "Potvrďte vzor" }, // vy: názov vzoru píše kroky.js z aktívnej dlaždice (598 Diamond, 610 Hexa, 613 Stripe) — nikdy natvrdo Diamond
         auto: { nm: "Vaše auto", ti: "Prosím, vyberte si svoje auto", vy: "Značka, model a rok výroby", chyba: "Doplňte, prosím, údaje označené červenou.", pozn: "Šablóny máme pre viac než 1000 modelov osobných áut." },
-        farba: { nm: "Farba koberca", ti: "Prosím, vyberte si farbu 1. vrstvy", vy: "", pod: "Po výbere uvidíte materiál zblízka.", chyba: "Vyberte, prosím, farbu koberca." },
-        rozlozenie: { nm: "Rozloženie", ti: "Prosím, vyberte si rozloženie kobercov", vy: "Podľa počtu radov vo Vašom aute", chyba: "Vyberte, prosím, rozloženie kobercov." },
+        farba: { nm: "Farba autokobercov", ti: "Prosím, vyberte si farbu 1. vrstvy", vy: "", pod: "Po výbere uvidíte materiál zblízka.", chyba: "Vyberte, prosím, farbu autokobercov." },
+        rozlozenie: { nm: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", vy: "Podľa počtu radov vo Vašom aute", chyba: "Vyberte, prosím, rozloženie autokobercov." },
         kufor: { nm: "Rohož do kufra", ti: "Prosím, vyberte si rohož do kufra", vy: "Bez rohože do kufra" },
         boxy: { nm: "Boxy do kufra", ti: "Prosím, vyberte si boxy do kufra", vy: "Bez boxov", dalej: "Pokračujte k súhrnu" },
       },
@@ -43,7 +43,7 @@ export const TYP = {
       pod: "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.",
       naj: "★ Odporúčame",
       ano: {
-        nm: "Dvojvrstvové koberce",
+        nm: "Dvojvrstvové autokoberce",
         po: "Prvá prešívaná + druhá vrstva",
         ben: "Vzor, auto aj farba Vám ostanú.",
         tl: "Áno, chcem druhú vrstvu",
@@ -65,7 +65,7 @@ export const TYP = {
         usetrite: "Ušetríte",
       },
       nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
-      prenos: "Prenášame Váš výber na dvojvrstvové koberce…",
+      prenos: "Prenášame Váš výber na dvojvrstvové autokoberce…",
     },
     // „Poznámka k objednávke“ pod tlačidlom košíka (poznamka.js; návrh jednovrstvove.html .pozn-dole — dvojvrstvové
     // majú v návrhu ten istý placeholder aj vetu, preberajú ich odtiaľto)
