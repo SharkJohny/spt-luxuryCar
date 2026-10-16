@@ -47,7 +47,8 @@ export const TYP = {
         po: "Prvá prešívaná + druhá vrstva",
         ben: "Vzor, auto aj farba Vám ostanú.",
         tl: "Áno, chcem druhú vrstvu",
-        alt: "Dvojvrstvové autokoberce vo vzore Diamond so šedou jednofarebnou druhou vrstvou",
+        // popis videa pre čítačky obrazovky (aria-label na <video>; video je bez zvuku a ovládania)
+        alt: "Video: druhá vrstva zachytí vodu, vyberiete ju, umyjete vapkou a prvá prešívaná vrstva ostane čistá",
       },
       priplatok: "Príplatok",
       nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
@@ -72,8 +73,11 @@ export const TYP = {
     "boxy-1": { diamond: "kufor-boxy-1-box.jpg" },
     "boxy-2": { diamond: "kufor-boxy-2-boxy.jpg" },
     "boxy-0": { diamond: "kufor-boxy-premium.jpg" },
-    // dlaždica „Áno“ ponuky druhej vrstvy (Michal 15. 10. 2026): JEDNA reálna fotka pre všetky vzory — Diamond so šedou
-    // jednofarebnou druhou vrstvou Lux (fotka schválená v návrhu, dv-hero-1). Nový súbor (spoločné assets/img sa neprepisujú).
-    "druha-ano": { diamond: "druha-vrstva-lux.jpg", stripe: "druha-vrstva-lux.jpg", hexa: "druha-vrstva-lux.jpg" },
+    // dlaždica „Áno“ ponuky druhej vrstvy: od 16. 10. 2026 krátke VIDEO namiesto fotky (Michal vybral č. 5 „vapka“ — najviac
+    // sa mu páči — a č. 1 „príbeh“), striedajú sa dookola: 1 -> 2 -> 1 … (druha-vrstva.js). Kľúč = .mp4 (H.264); vedľa
+    // neho rovnaké meno .webm (VP9, menšie — Chrome/Firefox/Android) a <meno>-poster.jpg (prvý snímok, 576 × 720, 4:5).
+    // Jedno video pre všetky vzory. Fotka druha-vrstva-lux.jpg (15. 10. 2026) ostáva na CDN, kód ju už nepoužíva.
+    "druha-video-1": { diamond: "druha-video-vapka.mp4" },
+    "druha-video-2": { diamond: "druha-video-pribeh.mp4" },
   },
 };

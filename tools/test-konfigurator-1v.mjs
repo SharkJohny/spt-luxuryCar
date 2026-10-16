@@ -203,7 +203,7 @@ async function priprav(a) {
 }
 
 // ------------------------------------------------------------------ stránka
-const TYP = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif", ".svg": "image/svg+xml", ".gif": "image/gif", ".mp4": "video/mp4", ".woff2": "font/woff2", ".json": "application/json" };
+const TYP = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif", ".svg": "image/svg+xml", ".gif": "image/gif", ".mp4": "video/mp4", ".webm": "video/webm", ".woff2": "font/woff2", ".json": "application/json" };
 
 function rozober(body) {
   const o = {};
@@ -214,7 +214,7 @@ function rozober(body) {
 /** Nová karta s presmerovaním bundlu/CSS na build, zachytávaním košíka a blokovaním meračov. */
 async function novaStranka(ch, sirka, build, a, log, produkt) {
   const k = await ch.novaKarta({ sirka });
-  const s = { k, posty: [], inePosty: [], podvrhnute: [], htmlKusy: [], build, produkt, flagHodnota: a.flag || "1", upozornenia: [] };
+  const s = { k, posty: [], inePosty: [], podvrhnute: [], htmlKusy: [], obrazky1v: [], build, produkt, flagHodnota: a.flag || "1", upozornenia: [] };
   // alert/confirm by zablokoval Runtime.evaluate (test by visel) -> zavrieť a zapísať ako upozornenie
   k.na("Page.javascriptDialogOpening", (p) => {
     s.upozornenia.push("dialóg na stránke (" + p.type + "): " + String(p.message || "").slice(0, 120));
@@ -257,6 +257,7 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
         return await odpovedz(p, Buffer.from('<div id="' + kus + '" class="p1v-obsah" data-lcd-cast="' + kus + '" style="display:none"><!-- --></div>', "utf8"), "text/html; charset=utf-8");
       } else if (s.build && s.build.tmp) {
         const m = /\/eshopy\/luxuryCar\/assets\/img\/1v\/([^?#]+)/.exec(u);
+        if (m) s.obrazky1v.push({ cas: Date.now(), subor: decodeURIComponent(m[1]) }); // scenáre: čo a kedy sa stiahlo (video druhej vrstvy)
         const subor = m && join(KOREN, "assets/img/1v", decodeURIComponent(m[1]));
         if (subor && existsSync(subor)) return await odpovedz(p, readFileSync(subor), TYP[extname(subor).toLowerCase()] || "application/octet-stream");
       }

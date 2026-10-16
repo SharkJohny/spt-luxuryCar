@@ -28,6 +28,49 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__volby {
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-kb__ben {
   padding-right: 4px;
 }
+/* video v dlaždici (Michal 16. 10. 2026, namiesto fotky): na výšku 4:5 v stĺpci fotky (šírka ako doteraz -> karta na
+   telefóne takmer nevyrastie), rámik ako nové fotky produktu (_lcd1v-galeria.scss: 1 px šampanská linka, zaoblenie 14 px,
+   jemný tieň). Obal .lcd1v-druha__ram orezáva rohy (Safari pri prehrávaní ignoruje border-radius samotného <video>);
+   tmavé pozadie = kým sa nenačíta poster, žiadny biely záblesk. */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__fot {
+  align-items: center;
+  padding: 10px 0 10px 10px;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ram {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid rgba(196, 155, 49, .6);
+  border-radius: 14px;
+  background: #1d1a14;
+  box-shadow: 0 1px 2px rgba(20, 15, 5, .05), 0 10px 24px -12px rgba(20, 15, 5, .22);
+  transform: translateZ(0);
+}
+/* !important: starý globálny „video { border: 5px solid var(--color-primary) !important; border-radius: 25px !important;
+   position: relative !important }“ (luxuryCar.scss) by dal videu hrubý zlatý rám */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__video {
+  position: absolute !important;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent;
+  object-fit: cover;
+}
+/* PC: video najviac 210 px široké (4:5 = 262 px na výšku), nech dlaždica nie je oveľa vyššia než text vedľa */
+@media (min-width: 721px) {
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica {
+    grid-template-columns: minmax(0, min(40%, 210px)) minmax(0, 1fr);
+  }
+}
 /* jediný riadok účtu (Príplatok): bez druhej, plnej čiary pod čiarkovanou čiarou účtu */
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-kb__r--sum {
   margin-top: 0;

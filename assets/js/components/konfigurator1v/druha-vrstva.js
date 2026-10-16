@@ -6,7 +6,8 @@
 //   - karta sa ukáže hneď po kroku Farba (keď je farba zvolená) ako SKRYTÝ krok BEZ čísla: „Krok N z 6“, postup a počty
 //     krokov sa nemenia (karta nie je v ctx.produkt.kroky ani v lcdGetSteps -> validácia košíka sa nemení),
 //   - nepovinná: bez odpovede = Nie; „Pokračujte ďalej“ vo Farbe ju otvorí (kým nie je zodpovedaná), inak nič neblokuje,
-//   - zlatá dlaždica s reálnou fotkou dvojvrstvového koberca a príplatkom „+ N €“ rátaným živo (cena dvojvrstvového
+//   - zlatá dlaždica s krátkym videom (od 16. 10. 2026 namiesto fotky; dve videá sa striedajú, sťahujú sa až pri zobrazení
+//     karty — blok „video v dlaždici“ nižšie) a príplatkom „+ N €“ rátaným živo (cena dvojvrstvového
 //     produktu pri tých istých voľbách − cena tejto stránky; chyba siete = cena sa neukáže),
 //   - Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): v dlaždici je skutočné zlaté TLAČIDLO „Áno, chcem druhú
 //     vrstvu“ (<button>, klávesnica). Dlaždica je obyčajný <div> a klik na ňu (fotka, text) robí to isté — tlačidlá sa do
@@ -131,16 +132,26 @@ export function init(ctx) {
   const volby = el("div", "lcd1v-kb lcd1v-druha__volby");
   const dlazdica = el("div", "lcd1v-kb__karta lcd1v-kb__karta--naj lcd1v-druha__dlazdica");
   dlazdica.appendChild(el("span", "lcd1v-kb__top", T.naj));
-  const fot = el("span", "lcd1v-kb__fot");
-  const img = el("img");
-  const src = ctx.obrazokVzoru("druha-ano");
-  if (src) img.src = src;
-  img.alt = (T.ano && T.ano.alt) || "";
-  img.width = 400;
-  img.height = 300;
-  img.loading = "lazy";
-  img.decoding = "async";
-  fot.appendChild(img);
+  const fot = el("span", "lcd1v-kb__fot lcd1v-druha__fot");
+  const ram = el("span", "lcd1v-druha__ram");
+  const video = document.createElement("video");
+  video.className = "lcd1v-druha__video";
+  // bez zvuku, v stránke (iPhone), bez ovládania; preload none = nič sa nestiahne, kým sa nenastaví src (zobrazenie karty)
+  video.muted = true;
+  video.defaultMuted = true;
+  video.setAttribute("muted", "");
+  video.playsInline = true;
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+  video.preload = "none";
+  video.setAttribute("preload", "none");
+  video.setAttribute("disablepictureinpicture", "");
+  video.setAttribute("disableremoteplayback", "");
+  video.setAttribute("aria-label", (T.ano && T.ano.alt) || "");
+  video.width = 576;
+  video.height = 720;
+  ram.appendChild(video);
+  fot.appendChild(ram);
   dlazdica.appendChild(fot);
   const atx = el("span", "lcd1v-kb__tx");
   atx.appendChild(el("span", "lcd1v-kb__nm", T.ano.nm));
@@ -183,6 +194,76 @@ export function init(ctx) {
   if (T.nie.pozn) karta.appendChild(el("p", "lcd1v-pozn", T.nie.pozn));
 
   farba.parentNode.insertBefore(karta, farba.nextSibling);
+
+  // ---------------------------------------------------------------- video v dlaždici (Michal 16. 10. 2026: č. 5 + č. 1)
+  // Rýchlosť: pri načítaní stránky sa nestiahne nič (preload none, bez src aj bez posteru). Keď je dlaždica na obrazovke
+  // (otvorená karta, IntersectionObserver): poster + src PRVÉHO videa a play(). Druhé video (src aj poster) až po
+  // „ended“ prvého, potom znova prvé … dookola. Mimo obrazovky, zatvorená karta alebo skrytá záložka = pauza.
+  // prefers-reduced-motion, šetrenie dát (saveData) alebo 2G/3G: len poster prvého videa, video sa nesťahuje.
+  // Prehrávanie zlyhá (iPhone v úspornom režime, zakázané automatické prehrávanie) = ostane poster, nič sa nerozbije.
+  // Súbory: typy/jedno.js obrazky „druha-video-1/2“ (.mp4) + rovnaké meno .webm a -poster.jpg v assets/img/1v/.
+  const videa = ["druha-video-1", "druha-video-2"].map((k) => ctx.obrazokVzoru(k)).filter(Boolean);
+  const vs = { i: 0, typ: "mp4", vidno: false, poster: false, src: false, chyba: false, dalsiPoster: false };
+  const maIO = typeof IntersectionObserver === "function";
+  const mm = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
+  function smiePrehravat() {
+    const con = navigator.connection || {};
+    return !mm("(prefers-reduced-motion: reduce)") && !con.saveData && !/2g|3g/.test(con.effectiveType || "");
+  }
+  const posterVidea = (i) => videa[i].replace(/\.mp4$/, "-poster.jpg");
+  const zdrojVidea = (i) => (vs.typ === "webm" ? videa[i].replace(/\.mp4$/, ".webm") : videa[i]);
+  /** WebM (VP9, o ~25 % menšie) len kde ho prehliadač isto prehrá; Safari a všetko na iPhone (WebKit) = MP4 (H.264). */
+  function typVidea() {
+    try {
+      if (!/apple/i.test(navigator.vendor || "") && video.canPlayType('video/webm; codecs="vp9"') === "probably") return "webm";
+    } catch (e) { /* MP4 */ }
+    return "mp4";
+  }
+  function nastavVideo(i) {
+    vs.i = i;
+    vs.dalsiPoster = false;
+    video.poster = posterVidea(i);
+    video.src = zdrojVidea(i); // preload none: sťahuje sa až po play()
+    vs.src = true;
+  }
+  function obnovVideo() {
+    if (!videa.length || vs.chyba) return;
+    const hrat = vs.vidno && !document.hidden;
+    if (hrat && !vs.poster) { vs.poster = true; if (!vs.src) video.poster = posterVidea(0); }
+    if (!smiePrehravat()) { if (!video.paused) video.pause(); return; }
+    if (hrat) {
+      if (!vs.src) { vs.typ = typVidea(); nastavVideo(0); }
+      if (video.paused) { const p = video.play(); if (p && p.catch) p.catch(() => { /* úsporný režim: ostane poster */ }); }
+    } else if (!video.paused) video.pause();
+  }
+  // koniec videa -> ďalšie (1 -> 2 -> 1 …); jedno video = od začiatku
+  video.addEventListener("ended", function () {
+    if (videa.length > 1) nastavVideo((vs.i + 1) % videa.length);
+    else video.currentTime = 0;
+    obnovVideo();
+  });
+  // posledná ~1,5 s: poster ďalšieho videa (~20 kB) do pamäte, aby pri prepnutí nebol prázdny rámik (video samo až po „ended“)
+  video.addEventListener("timeupdate", function () {
+    if (vs.dalsiPoster || videa.length < 2 || !(video.duration > 0) || video.duration - video.currentTime > 1.5) return;
+    vs.dalsiPoster = true;
+    new Image().src = posterVidea((vs.i + 1) % videa.length);
+  });
+  // WebM nejde (prehliadač, typ súboru na CDN) -> to isté video v MP4; nejde ani MP4 -> ostane poster, bez ďalších pokusov
+  video.addEventListener("error", function () {
+    if (!vs.src || vs.chyba) return;
+    if (vs.typ === "webm") { vs.typ = "mp4"; nastavVideo(vs.i); obnovVideo(); return; }
+    vs.chyba = true;
+    video.removeAttribute("src");
+    try { video.load(); } catch (e) { /* nič */ }
+  });
+  if (maIO) {
+    new IntersectionObserver(function (zaznamy) {
+      const z = zaznamy[zaznamy.length - 1];
+      vs.vidno = z.isIntersecting && z.intersectionRatio > 0.15;
+      obnovVideo();
+    }, { threshold: [0, 0.2, 0.5] }).observe(fot);
+  }
+  document.addEventListener("visibilitychange", obnovVideo);
 
   // ---------------------------------------------------------------- stav
   const stav = { odpoved: null, prenos: false, mapa: undefined, nacitava: false };
@@ -252,6 +333,7 @@ export function init(ctx) {
     prepni(karta, "lcd1v-druha--prenos", stav.prenos);
     nastavText(vy, stav.odpoved === "nie" ? T.vyNie : T.vy);
     obnovCenu();
+    if (!maIO) { vs.vidno = !karta.hidden && karta.classList.contains("active"); obnovVideo(); }
   }
   let naplanovane = false;
   function naplanuj() {

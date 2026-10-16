@@ -8,12 +8,15 @@
 //                   príplatok „+ N €“ = živý rozdiel; Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
 //                   zlaté „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zeleným „Nie, ďakujem“ (Michal 15. 10. 2026);
 //                   „Nie, ďakujem“ zbalí kartu („Bez druhej vrstvy“) a otvorí Rozloženie;
-//                   POST = baseline jednovrstvového produktu (1v-baseline.json, scenár platne)
-//   druha-ano       hlavička karty -> tlačidlo „Áno, chcem druhú vrstvu“ (myš): správa v karte, tlačidlá zablokované, prechod na dvojvrstvový produkt
+//                   POST = baseline jednovrstvového produktu (1v-baseline.json, scenár platne);
+//                   video v dlaždici (Michal 16. 10. 2026): pred otvorením karty žiadna požiadavka na druha-video-* (ani poster),
+//                   po otvorení hrá č. 1 vapka (WebM, muted, playsinline, bez ovládania, rámik 4:5), č. 2 sa ešte nesťahuje;
+//                   koniec č. 1 -> č. 2 príbeh -> koniec -> znova č. 1; po „Nie“ video stojí
+//   druha-ano       prefers-reduced-motion: video len poster, bez src, nič sa nestiahne; hlavička karty -> tlačidlo „Áno, chcem druhú vrstvu“ (myš): správa v karte, tlačidlá zablokované, prechod na dvojvrstvový produkt
 //                   toho istého vzoru; tam vzor, auto, farba prenesené, otvorený krok „Farba 2. vrstvy“ bez predvoľby, žiadna
 //                   veta navyše; príplatok z karty = živý rozdiel cien (dvoj − jedno, Shoptet); úplný výber -> POST = baseline
 //                   dvojvrstvového produktu; tlačidlo Späť -> jednovrstvový produkt s autom a farbou, karta nezodpovedaná
-//   druha-vsetko    rozloženie 3 rady (7 miest), rohož Classic a 2 boxy vybraté pred „Áno“ (390 px: ťuk na fotku dlaždice —
+//   druha-vsetko    rozloženie 3 rady (7 miest), rohož Classic a 2 boxy vybraté pred „Áno“ (390 px: ťuk na video dlaždice —
 //                   dlaždica je klikateľná celá; 1280 px: Enter na tlačidle Áno — klávesnica) -> na dvojvrstvovom všetko
 //                   rovnaké (miesta, rozloženie, kufor, farba a veľkosti boxov, okno boxov zatvorené), POST platný
 //   prenos-neplatny (dvoj) kľúč starší ako 10 min / pre iný produkt / s farbou, ktorú produkt nemá -> nič sa neprenesie,
@@ -59,7 +62,7 @@ function stavKarty(t) {
     if (!k) return { je: false };
     function tx(q) { var e = k.querySelector(q); return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; }
     function vid(e) { if (!e) return false; var r = e.getBoundingClientRect(), c = getComputedStyle(e); return !e.hidden && r.width > 0 && r.height > 0 && c.display !== "none" && c.visibility !== "hidden"; }
-    var dl = k.querySelector(".lcd1v-druha__dlazdica"), ano = k.querySelector(".lcd1v-druha__ano"), nie = k.querySelector(".lcd1v-druha__nie"), img = dl && dl.querySelector("img");
+    var dl = k.querySelector(".lcd1v-druha__dlazdica"), ano = k.querySelector(".lcd1v-druha__ano"), nie = k.querySelector(".lcd1v-druha__nie"), vd = dl && dl.querySelector("video"), ram = dl && dl.querySelector(".lcd1v-druha__ram");
     var suma = k.querySelector(".lcd1v-druha__suma");
     function tl(b) { return b ? { tag: b.tagName, typ: b.type, text: b.textContent.replace(/\\s+/g, " ").trim(), tab: b.tabIndex, pozadie: getComputedStyle(b).backgroundImage } : null; }
     return {
@@ -71,7 +74,13 @@ function stavKarty(t) {
       anoVDlazdici: !!(dl && ano && dl.contains(ano)), anoNadNie: !!(ano && nie && ano.getBoundingClientRect().bottom <= nie.getBoundingClientRect().top),
       nieText: nie ? nie.textContent.trim() : null, nieVidno: vid(nie), pozn: tx(":scope > .lcd1v-pozn"),
       priplatok: suma && vid(suma) ? suma.textContent : null, priplatokCislo: ano ? Number(ano.getAttribute("data-lcd1v-priplatok")) || null : null,
-      foto: img ? { src: img.currentSrc || img.src, ok: img.complete && img.naturalWidth > 100, alt: img.alt } : null,
+      foto: dl ? dl.querySelectorAll("img").length : null,
+      video: vd ? (function () { var r = ram.getBoundingClientRect(), c = getComputedStyle(ram);
+        return { src: vd.currentSrc || vd.getAttribute("src") || "", srcAttr: vd.getAttribute("src"), poster: vd.getAttribute("poster") || "", muted: vd.muted && vd.hasAttribute("muted"),
+          playsinline: vd.playsInline && vd.hasAttribute("playsinline"), controls: vd.controls, autoplay: vd.autoplay, loop: vd.loop, preload: vd.getAttribute("preload"),
+          paused: vd.paused, ready: vd.readyState, cas: vd.currentTime, dlzka: vd.duration, aria: vd.getAttribute("aria-label"), vidno: vid(vd),
+          pomer: r.height ? Math.round(r.width / r.height * 100) / 100 : 0, sirka: Math.round(r.width), vyska: Math.round(r.height),
+          linka: c.borderTopWidth + " " + c.borderTopColor, radius: c.borderTopLeftRadius, vlastnyRam: getComputedStyle(vd).borderTopWidth }; })() : null,
       anoZablok: !!(ano && ano.disabled), nieZablok: !!(nie && nie.disabled),
       prenos: vid(k.querySelector(".lcd1v-druha__prenos")) ? tx(".lcd1v-druha__prenos") : null,
       maName: !!k.querySelector("[name]"),
@@ -99,6 +108,29 @@ async function snimka(s, a, meno, sel) {
 }
 
 const ctxCena = (t) => t.ev(`window.__lcd1v ? window.__lcd1v.cena().spolu : null`);
+
+// ------------------------------------------------------------------ video v dlaždici (Michal 16. 10. 2026: č. 5 vapka + č. 1 príbeh)
+const VIDEO = `${KARTA} .lcd1v-druha__video`;
+const RE_V1 = /druha-video-vapka\.(webm|mp4)$/, RE_V2 = /druha-video-pribeh\.(webm|mp4)$/;
+/** Sieť meria harness (s.obrazky1v = požiadavky na …/assets/img/1v/, lokálny build) — inak sa jeho zoznam nekontroluje. */
+const meriaSiet = (s) => Array.isArray(s.obrazky1v) && !!(s.build && s.build.tmp);
+/** Čo sa zo súborov videa druhej vrstvy stiahlo: harness (img/1v) + Resource Timing stránky (…/img/1v/druha-video-*).
+ * Iné videá stránky (starý popis Shoptetu …/upload/assets/videos/PC.MP4, mobil.mp4 — sú v HTML stránky aj bez flagu) sem nepatria. */
+async function sietVidea(s) {
+  const zHarnessu = (s.obrazky1v || []).map((x) => x.subor).filter((x) => /^druha-video-/.test(x));
+  const zoStranky = await s.t.ev(`performance.getEntriesByType("resource").map(function (e) { return e.name; })
+    .filter(function (u) { return /\\/img\\/1v\\/druha-video-/.test(u); }).map(function (u) { return u.split("?")[0].split("/").pop(); })`).catch(() => []);
+  const vsetko = zHarnessu.concat(zoStranky || []);
+  return { vsetko, videa: vsetko.filter((x) => /\.(mp4|webm)$/i.test(x)), v1: vsetko.filter((x) => RE_V1.test(x)), v2: vsetko.filter((x) => RE_V2.test(x)) };
+}
+/** Čaká, kým video karty hrá súbor `re` (src nastavené, readyState ≥ 2, čas beží) -> stav videa zo stavKarty. */
+async function cakajVideo(t, re, popis) {
+  await t.cakaj(`(function () { var v = document.querySelector(${JSON.stringify(VIDEO)});
+    return !!(v && ${re}.test(v.currentSrc || v.getAttribute("src") || "") && !v.paused && v.readyState >= 2 && v.currentTime > 0.2); })()`, { ms: 20000, popis });
+  return (await stavKarty(t)).video;
+}
+/** Skok na koniec práve hrajúceho videa (posledných 0,4 s dobehne samo -> skutočná udalosť „ended“). */
+const naKoniec = (t) => t.ev(`(function () { var v = document.querySelector(${JSON.stringify(VIDEO)}); v.currentTime = Math.max(0, v.duration - 0.4); return v.duration; })()`);
 const kluc = (t) => t.ev(`(function () { try { return JSON.parse(sessionStorage.getItem(${JSON.stringify(KLUC)}) || "null"); } catch (e) { return "chyba"; } })()`);
 
 /** Polia formulára pre overPost na inej stránke tej istej karty (rovnaké ako j.otvor; dvoj nemá nepovinné selecty). */
@@ -202,6 +234,10 @@ export const SCENARE = {
       const po = await cislaKrokov(t);
       j.over(/6 krokoch/.test(po.postup) && po.dlazdice === 6 && /z 6$/.test(po.st) && JSON.stringify(po.ey) === JSON.stringify(pred.ey), `počty krokov sa zmenili: pred ${JSON.stringify(pred)}, po ${JSON.stringify(po)}`);
       j.over(po.ey.every((x) => /^Krok \d z 6$/.test(x)), `kroky: ${po.ey.join(" | ")}`);
+      // video: kým karta nie je otvorená, nič sa nesťahuje (ani poster); <video> bez src, preload none
+      j.over(st.video && !st.video.srcAttr && !st.video.poster && st.video.preload === "none" && st.video.paused, `video pred otvorením karty: ${JSON.stringify(st.video)} (bez src a posteru, preload none)`);
+      const sietPred = await sietVidea(s);
+      j.over(!sietPred.vsetko.length, `pred otvorením karty sa stiahlo: ${sietPred.vsetko.join(", ")} (video aj poster majú prísť až s kartou)`);
       // 3) „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie)
       const idR = await t.idParametra("rozlozenie");
       await t.klikni(`${F} .lcd1v-k-farba > .next-step-button`, { popis: "Pokračujte ďalej (Farba)" });
@@ -227,9 +263,29 @@ export const SCENARE = {
         ["ano", "nie"].forEach(function (m) { var b = k.querySelector(".lcd1v-druha__" + m); b.focus({ preventScroll: true }); r[m] = document.activeElement === b; b.blur(); });
         return r; })()`);
       j.over(fokus.ano && fokus.nie, `fokus klávesnicou: Áno ${fokus.ano}, Nie ${fokus.nie}`);
-      // jedna fotka pre všetky vzory (Michal 15. 10. 2026): Diamond so šedou jednofarebnou druhou vrstvou
-      j.over(otv.foto && otv.foto.ok && otv.foto.src.endsWith("/img/1v/druha-vrstva-lux.jpg"), `fotka dlaždice Áno: ${JSON.stringify(otv.foto)} (má druha-vrstva-lux.jpg pri každom vzore)`);
-      j.over(otv.foto && /šedou jednofarebnou druhou vrstvou/.test(otv.foto.alt || ""), `alt fotky dlaždice Áno: „${otv.foto && otv.foto.alt}“`);
+      // video namiesto fotky (Michal 16. 10. 2026): po zobrazení karty hrá č. 1 (vapka), bez zvuku, v stránke, bez ovládania;
+      // rámik 4:5 ako nové fotky produktu (1 px rgba(196,155,49,.6), zaoblenie 14 px); druhé video sa ešte nesťahuje
+      j.over(otv.foto === 0, `v dlaždici ostala fotka (<img>: ${otv.foto})`);
+      const v1 = await cakajVideo(t, RE_V1, "video č. 1 (vapka) hrá po otvorení karty");
+      j.over(v1.muted && v1.playsinline && !v1.controls && !v1.loop && v1.preload === "none", `video: muted ${v1.muted}, playsinline ${v1.playsinline}, controls ${v1.controls}, loop ${v1.loop}, preload ${v1.preload}`);
+      j.over(v1.poster.endsWith("/img/1v/druha-video-vapka-poster.jpg"), `poster videa č. 1: ${v1.poster}`);
+      j.over(/\.webm$/.test(v1.src), `Chrome má dostať WebM (menší súbor): ${v1.src}`);
+      j.over(v1.vidno && v1.pomer >= 0.78 && v1.pomer <= 0.82 && v1.linka === "1px rgba(196, 155, 49, 0.6)" && v1.radius === "14px" && v1.vlastnyRam === "0px",
+        `rámik videa: pomer ${v1.pomer} (${v1.sirka} × ${v1.vyska}), linka „${v1.linka}“, zaoblenie ${v1.radius}, rám samotného <video> ${v1.vlastnyRam} (starý globálny 5px zlatý)`);
+      j.over(/druhá vrstva zachytí vodu/.test(v1.aria || ""), `aria-label videa: „${v1.aria}“`);
+      const sietV1 = await sietVidea(s);
+      if (meriaSiet(s)) j.over(sietV1.v1.length && !sietV1.v2.length && !sietV1.vsetko.some((x) => /pribeh-poster/.test(x)), `pri otvorení karty sa stiahlo: ${sietV1.vsetko.join(", ")} (má byť len video č. 1 + jeho poster)`);
+      await j.pauza(1200); // snímka s rozbehnutým videom
+      await snimka(s, a, "druha-video", KARTA);
+      // koniec č. 1 -> č. 2 (až teraz sa stiahne) -> koniec č. 2 -> znova č. 1
+      await naKoniec(t);
+      const v2 = await cakajVideo(t, RE_V2, "po skončení videa č. 1 hrá video č. 2 (príbeh)");
+      j.over(v2.poster.endsWith("/img/1v/druha-video-pribeh-poster.jpg") && v2.muted && !v2.controls, `video č. 2: ${JSON.stringify(v2)}`);
+      const sietV2 = await sietVidea(s);
+      if (meriaSiet(s)) j.over(sietV2.v2.length > 0, `video č. 2 sa po skončení č. 1 nestiahlo: ${sietV2.vsetko.join(", ")}`);
+      if (a.snimky) { await j.pauza(1500); await snimka(s, a, "druha-video-2", KARTA); }
+      await naKoniec(t);
+      await cakajVideo(t, RE_V1, "po skončení videa č. 2 znova video č. 1 (dookola)");
       const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n/i;
       j.over(!zakazane.test(otv.anoText + " " + otv.pod + " " + otv.nieText + " " + otv.pozn + " " + otv.ti), "zakázané slovo v texte karty");
       j.over(!/prešívan\S*\s+vrstv/i.test((otv.anoText + " " + otv.pod).replace(/prv\S*\s+prešívan\S*/gi, "")), "„prešívaná vrstva“ bez „prvá“ v texte karty");
@@ -239,6 +295,7 @@ export const SCENARE = {
       // 5) Nie -> karta zbalená ako hotová, otvorí sa Rozloženie; POST = baseline
       await t.klikni(`${KARTA} .lcd1v-druha__nie`, { popis: "Nie, ďakujem" });
       await t.cakaj(`document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idR}").classList.contains("active")`, { ms: 8000, popis: "otvorené Rozloženie po „Nie, ďakujem“" });
+      await t.cakaj(`document.querySelector(${JSON.stringify(VIDEO)}).paused`, { ms: 5000, popis: "video po „Nie, ďakujem“ (zbalená karta) zastavené" });
       const poNie = await stavKarty(t);
       await snimka(s, a, "druha-po-nie", KARTA);
       j.over(!poNie.otvorena && poNie.hotova && poNie.vy === "Bez druhej vrstvy" && poNie.cisloVidno, `karta po Nie: ${JSON.stringify({ o: poNie.otvorena, h: poNie.hotova, vy: poNie.vy, fajka: poNie.cisloVidno })}`);
@@ -250,7 +307,7 @@ export const SCENARE = {
       rovnakyAkoBaseline(j, post, P.id);
       j.over(cena.spolu === P.platne.spolu, `suma ${cena.spolu} ≠ ${P.platne.spolu}`);
       j.over((await kluc(t)) === null, "po „Nie“ ostal kľúč prenosu v sessionStorage");
-      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), Pokračujte -> karta, príplatok + ${n} €, Nie -> Rozloženie; POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
+      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok + ${n} €, Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
     },
   },
 
@@ -260,11 +317,21 @@ export const SCENARE = {
       const sk = preskocBez(a); if (sk) return sk;
       const P = a.produkt, t = s.t, cielId = cielDvoj(P), Pc = { id: cielId, ...PRODUKTY[cielId] };
       j.over(cielId, "dvojvrstvový produkt vzoru " + P.vzor + " nie je v profiloch");
+      // prefers-reduced-motion: video sa neprehráva ani nesťahuje, ostane poster (vypne sa pred „Áno“)
+      await s.k.posli("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
       await j.otvor(s, a.url, { novy: true });
       const { farba } = await autoAFarba(s, ovl, j);
       // kartu otvorí aj hlavička (bez „Pokračujte ďalej“)
       await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty druhej vrstvy" });
       await t.cakaj(`document.querySelector(${JSON.stringify(KARTA)}).classList.contains("active")`, { popis: "otvorená karta" });
+      await t.ev(`document.querySelector(${JSON.stringify(VIDEO)}).scrollIntoView({ block: "center", behavior: "instant" })`);
+      await t.cakaj(`!!document.querySelector(${JSON.stringify(VIDEO)}).getAttribute("poster")`, { ms: 5000, popis: "poster videa pri prefers-reduced-motion" });
+      await j.pauza(1200);
+      const pokoj = (await stavKarty(t)).video;
+      const sietPokoj = await sietVidea(s);
+      await s.k.posli("Emulation.setEmulatedMedia", { features: [] });
+      j.over(pokoj.vidno && pokoj.poster.endsWith("/img/1v/druha-video-vapka-poster.jpg") && !pokoj.srcAttr && pokoj.paused, `prefers-reduced-motion: ${JSON.stringify(pokoj)} (len poster, bez src, nehrá)`);
+      j.over(!sietPokoj.videa.length, `prefers-reduced-motion: stiahlo sa video ${sietPokoj.videa.join(", ")}`);
       const n = await cakajPriplatok(t, j);
       const cenaJedno = await ctxCena(t);
       // Áno: správa v karte, tlačidlá zablokované (stránka sa vymení o ~0,5 s)
@@ -332,8 +399,8 @@ export const SCENARE = {
       await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty druhej vrstvy" });
       await t.cakaj(`document.querySelector(${JSON.stringify(KARTA)}).classList.contains("active")`, { popis: "otvorená karta" });
       if (t.mobil) {
-        // telefón: ťuk na fotku dlaždice (klikateľná je celá dlaždica, nielen tlačidlo)
-        await t.klikni(`${KARTA} .lcd1v-druha__dlazdica .lcd1v-kb__fot img`, { popis: "fotka dlaždice druhej vrstvy" });
+        // telefón: ťuk na video dlaždice (klikateľná je celá dlaždica, nielen tlačidlo)
+        await t.klikni(`${KARTA} .lcd1v-druha__dlazdica .lcd1v-druha__fot`, { popis: "video dlaždice druhej vrstvy" });
       } else {
         // PC: klávesnica — fokus na tlačidlo Áno a Enter
         const f = await t.ev(`(function () { var b = document.querySelector(${JSON.stringify(KARTA + " .lcd1v-druha__ano")}); b.scrollIntoView({ block: "center", behavior: "instant" }); b.focus(); return document.activeElement === b; })()`);
