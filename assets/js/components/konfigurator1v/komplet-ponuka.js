@@ -2,7 +2,7 @@
 // 616 — Michal 17. 10. 2026 vybral návrh 1 „Ponuka ako druhá vrstva“ (komplet-navrhy v1-*) a upresnil: „pri kufri skrytá
 // sekcia PREDTÝM, ako si vyberie farbu koberca; pri boxoch keď si vyberie …, tak hneď potom tam bude tá skrytá sekcia“.
 // TYPY["kufor-classic" | "kufor-premium" | "boxy"].moduly (produkty.js), len pod body.lcd-1v (brána v index.js).
-// Texty: typy/<typ>.js „komplet“; fotka autokobercov: obrazky „komplet-autokoberce“; CSS: assets/css/_lcd1v-komplet.scss
+// Texty: typy/<typ>.js „komplet“ (banner: „komplet.banner“); banner: set-banner.js; CSS: assets/css/_lcd1v-komplet.scss
 // (blok LCD-1V-KOMPLET) + vzhľad schválenej karty druhej vrstvy (_lcd1v-druha.scss — karta nesie aj triedu lcd1v-druha).
 //
 // Správanie ako karta druhej vrstvy (druha-vrstva.js, docs/1v-kontrakt.md §13):
