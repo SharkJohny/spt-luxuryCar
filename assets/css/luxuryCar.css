@@ -17959,7 +17959,8 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
 /* stuha zľavy cez pravý horný roh (Michal 17. 10. 2026: „aby tam svietila taká stuha, že zľava“): červená páska so
    zlatými okrajmi, „ZĽAVA −30 %“; obal ju oreže v rohu (banner má overflow: hidden -> nič nepreteká), pointer-events:
    none (nezakryje klik). Pravý horný roh je voľný: štítky sú vľavo (telefón) / dole vpravo (PC). Užšie ako 380 px
-   menšia stuha (inak by sa pri 360 px dotkla štítku „Autokoberce pod sedadlá“), od 380 px väčšia (aj PC). */
+   menšia stuha (inak by sa pri 360 px dotkla štítku „Autokoberce pod sedadlá“), od 380 px väčšia (aj PC).
+   Odstup štítkov od pásky drží .lcd1v-bs__side (telefón: pravý okraj stĺpca, PC: odsadenie zhora) — nižšie. */
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__stuha {
   position: absolute;
   top: 0;
@@ -18002,6 +18003,28 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
     width: 214px;
     padding: 9px 0 8px;
     font-size: 16px;
+  }
+}
+/* box: „Zľava až −50 %“ (.lcd1v-bs--az, set-banner.js) je dlhší -> páska stredom presne na uhlopriečke rohu (celá
+   dĺžka pásky pre text) a o kúsok ďalej od rohu; text 126 px (14 px písmo) / 144 px (16 px) sa zmestí celý */
+body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs--az .lcd1v-bs__stuha {
+  width: 136px;
+  height: 136px;
+}
+body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs--az .lcd1v-bs__stuha > span {
+  top: 36px;
+  right: -57px;
+  width: 220px;
+}
+@media (min-width: 380px) {
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs--az .lcd1v-bs__stuha {
+    width: 160px;
+    height: 160px;
+  }
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs--az .lcd1v-bs__stuha > span {
+    top: 43px;
+    right: -63px;
+    width: 250px;
   }
 }
 /* jemný lesk po stuhe raz za 5 s — nie pri zapnutom obmedzení pohybu (prefers-reduced-motion) */
@@ -18106,26 +18129,55 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   white-space: nowrap;
   color: #17603f;
 }
-/* štítky na fotkách: „Autokoberce pod sedadlá“ vľavo hore, pod ním „+“ a malá fotka produktu so štítkom (telefón);
-   pravý horný roh patrí stuhe */
-body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__tag {
+/* štítky na fotkách (telefón): stĺpec vľavo hore — „Autokoberce pod sedadlá“, pod ním „+“ a malá fotka produktu so
+   štítkom; pravý horný roh patrí stuhe. Pravý okraj stĺpca (right) drží štítok mimo pásky: páska siaha od rohu po
+   súčet vzdialeností od pravého a horného okraja ~125 px (malá) / ~140 px (od 380 px) / ~130 a ~151 px („až“), štítok
+   začína 12 px zhora -> right = dosah − 12 + 5 px rezerva. Kontrola 17. 10.: pri 320 px páska prešla cez koniec štítku
+   -> na úzkom telefóne sa štítok zalomí na dva riadky (fotka produktu sa posunie pod neho), pri 360 px a širšom nie;
+   pod 360 px šírka podľa textu (min-content + pevná medzera „pod sedadlá“ zo set-banner.js), bez prázdna vpravo. */
+body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__side {
   position: absolute;
-  left: 12px;
   top: 12px;
+  left: 12px;
+  right: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
+}
+body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs--az .lcd1v-bs__side {
+  right: 124px;
+}
+@media (min-width: 380px) {
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__side {
+    right: 134px;
+  }
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs--az .lcd1v-bs__side {
+    right: 145px;
+  }
+}
+body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__tag {
+  order: -1;
+  max-width: 100%;
   padding: 5px 10px;
   border: 1px solid rgba(230, 200, 119, 0.7);
-  border-radius: 999px;
+  border-radius: 13px; /* jeden riadok = ovál ako doteraz, dva riadky = zaoblený obdĺžnik */
   background: rgba(20, 17, 12, 0.78);
   font: 700 11px/1.2 var(--c1v-disp);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  white-space: nowrap;
+  text-wrap: balance;
   color: #f3e2ad;
 }
+@media (max-width: 359px) {
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__tag {
+    width: min-content;
+  }
+}
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip {
-  position: absolute;
-  left: 12px;
-  top: 50px;
+  position: relative; /* „+“ sa kotví k nej */
+  flex: none;
+  width: max-content; /* stĺpec môže byť užší (zalomený štítok) — fotka so štítkom ostáva celá */
   display: flex;
   align-items: center;
   gap: 8px;
@@ -18229,23 +18281,22 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__txt {
     grid-area: txt;
   }
+  /* stĺpec štítkov dole vpravo; margin-top = odstup od pásky (kontrola 17. 10.: pri 768–900 px bol text vľavo nižší, stĺpec
+     vyšiel hore a páska prešla cez štítok autokobercov). Štítok končí 22 px od pravého okraja -> jeho vrch musí byť
+     aspoň dosah pásky (140 / „až“ 151 px) − 22 + rezerva (aj na tieň pásky) = 22 px odsadenie banneru + 126 px. */
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__side {
+    position: static;
     grid-area: side;
     align-self: end;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 16px;
-  }
-  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__tag,
-  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip {
-    position: relative;
-    left: auto;
-    right: auto;
-    top: auto;
+    margin-top: 126px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__tag {
-    order: -1;
+    max-width: none;
+    white-space: nowrap;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip {
     flex-direction: row-reverse;

@@ -10,7 +10,8 @@
 //
 // Stuha „Zľava −30 %“ cez pravý horný roh (Michal 17. 10. 2026: „stále je to ako doplnok — chcem, aby tam svietila taká
 // stuha, že zľava“): percento = round((samostatne − v sete) / samostatne × 100) zo živých čísel volajúceho
-// (percentoZlavy), bez čísla stuha nie je. „Samostatne <s>340 €</s>“ a „Ušetríte 101 €“ sú dve väčšie bunky POD cenou
+// (percentoZlavy), bez čísla stuha nie je. Box porovnáva viac veľkostí -> „Zľava až −50 %“ (T.stuhaAz, d.zlavaAz =
+// najvyššie percento zo živých veľkostí: S 50 %, M 47 %, L 44 %, XL 39 %), rohož jednu cenu -> „Zľava −30 %“. „Samostatne <s>340 €</s>“ a „Ušetríte 101 €“ sú dve väčšie bunky POD cenou
 // v tmavej ploche (vedľa ceny boli pridrobné); malá fotka produktu je vľavo pod štítkom „Autokoberce pod sedadlá“
 // (telefón) / vpravo dole nad tlačidlom (PC), pravý horný roh patrí stuhe.
 //
@@ -61,10 +62,11 @@ function obr(src, trieda, srcset, sizes) {
 
 /**
  * Banner setu (div.lcd1v-bs). Čísla prídu už ako text („239 €“), chýbajúce sa vynechajú (žiadne vymyslené čísla).
- * @param {{ ey: string, h: string, kd: string, sam?: string, us?: string, stuha?: string, pip?: string, tag?: string,
- *           odkaz: string }} T texty
- * @param {{ cena: string, samostatne?: string|null, usetrite?: string|null, zlava?: number|null, href: string,
- *           pip?: string|null, obrazok: (meno: string) => string }} d  zlava = percentoZlavy(samostatne, v sete)
+ * @param {{ ey: string, h: string, kd: string, sam?: string, us?: string, stuha?: string, stuhaAz?: string, pip?: string,
+ *           tag?: string, odkaz: string }} T texty
+ * @param {{ cena: string, samostatne?: string|null, usetrite?: string|null, zlava?: number|null, zlavaAz?: boolean,
+ *           href: string, pip?: string|null, obrazok: (meno: string) => string }} d  zlava = percentoZlavy(samostatne,
+ *           v sete); zlavaAz = zlava je najvyššie z viacerých rôznych percent (box: veľkosti) -> T.stuhaAz
  * @returns {HTMLDivElement}
  */
 export function postavBanner(T, d) {
@@ -77,9 +79,12 @@ export function postavBanner(T, d) {
   b.appendChild(bg);
 
   // stuha cez pravý horný roh: „Zľava −30 %“ (čítačka ju prečíta ako prvú; obrys banneru ju oreže, nič nepreteká)
-  if (T.stuha && d.zlava > 0) {
+  const az = !!(d.zlavaAz && T.stuhaAz); // „Zľava až“ len keď sa percentá veľkostí líšia
+  const slovo = az ? T.stuhaAz : T.stuha;
+  if (slovo && d.zlava > 0) {
     const st = el("div", "lcd1v-bs__stuha");
-    st.appendChild(el("span", null, T.stuha + " \u2212" + d.zlava + "\u00a0%")); // „−“ (mínus), pevná medzera pred %
+    if (az) b.classList.add("lcd1v-bs--az"); // dlhší text: širšia páska a viac miesta pre štítky (CSS)
+    st.appendChild(el("span", null, slovo + " \u2212" + d.zlava + "\u00a0%")); // „−“ (mínus), pevná medzera pred %
     b.appendChild(st);
   }
 
@@ -123,7 +128,8 @@ export function postavBanner(T, d) {
       pip.appendChild(el("span", "lcd1v-bs__plus", "+"));
       pridaj(side, pip);
     }
-    if (T.tag) pridaj(side, el("span", "lcd1v-bs__tag", T.tag));
+    // posledné dve slová spolu (pevná medzera): na úzkom telefóne sa štítok zalomí „Autokoberce / pod sedadlá“
+    if (T.tag) pridaj(side, el("span", "lcd1v-bs__tag", T.tag.replace(/ (\S+)$/, "\u00a0$1")));
     pridaj(vnutro, side);
   }
 

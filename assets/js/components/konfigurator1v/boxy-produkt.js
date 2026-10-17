@@ -359,8 +359,9 @@ export function init(ctx) {
       }
       // banner setu (set-banner.js, návrh C 17. 10. 2026): cena boxu S v sete s autokobercami (598 „box solo“), box S
       // samostatne (cena variantu + príplatok S tejto stránky), úspora; odkaz na jednovrstvové (register) na konfigurátor.
-      // Box sa na jednovrstvových nepredvyberá (treba farbu aj veľkosť) -> obyčajný odkaz. Stuha „Zľava −50 %“ porovnáva
-      // to isté ako bunky pod cenou: box S v sete vs. box S samostatne (197 -> 99 = 50 %), nie „až“.
+      // Box sa na jednovrstvových nepredvyberá (treba farbu aj veľkosť) -> obyčajný odkaz. Stuha „Zľava až −50 %“ (kontrola
+      // 17. 10.: samotné „−50 %“ platí len pre S, nadpis je „už od“): pre každú veľkosť, ktorá je v sete (598 „box solo“)
+      // aj tu (príplatok 1. boxu), round((samostatne − v sete) / samostatne × 100); stuha = najvyššie, „až“ keď sa líšia.
       const jedno = najdiProdukt(ctx.projectId, "jedno", null);
       if (!jedno || !stlpec || !T.set) return;
       priplatkyTypu(ctx.projectId, "jedno", null).then(function (mapa) {
@@ -371,11 +372,17 @@ export function init(ctx) {
         const prvy = ctx.moznosti(boxy[0]);
         const samoS = prvy.find((o) => velkostZTextu(o.text).v === "S") || prvy.slice().sort((x, y) => x.cena - y.cena)[0];
         const samo = samoS ? cenaVariantu() + samoS.cena : 0;
+        const pct = solo.map(function (o) {
+          const v = velkostZTextu(o.text).v, p = prvy.find((x) => velkostZTextu(x.text).v === v);
+          return p ? percentoZlavy(cenaVariantu() + p.cena, o.cena) : null;
+        }).filter((x) => x > 0);
+        const zlava = pct.length ? Math.max.apply(null, pct) : percentoZlavy(samo, s.cena);
         const banner = postavBanner(T.set, {
           cena: ctx.formatCena(s.cena),
           samostatne: samo > s.cena ? ctx.formatCena(samo) : null,
           usetrite: samo > s.cena ? ctx.formatCena(Math.round((samo - s.cena) * 100) / 100) : null,
-          zlava: percentoZlavy(samo, s.cena),
+          zlava: zlava,
+          zlavaAz: pct.length > 1 && Math.min.apply(null, pct) !== zlava,
           href: jedno.url + "#product-detail-form",
           pip: ctx.obrazokVzoru("boxprodukt-pocet-1"),
           obrazok: ctx.obrazok,

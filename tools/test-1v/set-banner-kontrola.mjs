@@ -6,6 +6,8 @@
 // ktoré prvky banneru stuha prekrýva (presne: otočený obdĺžnik pásky proti obdĺžnikom prvkov — oddeľujúce osi),
 // veľkosti písma buniek, poloha buniek pod cenou, vodorovný posun stránky.
 // overStuhu(j, G, ocak) = kontroly v teste; percento počíta volajúci zo živých čísel (percentoZlavy nižšie).
+// Kontrola 17. 10. 2026: stuha prekryla štítok pri 320 px a 768–900 px -> testy aj pri --sirka 320,768,834,900,1024;
+// navyše štítky na fotke (štítok autokobercov, malá fotka a jej štítok) sa nesmú prekrývať navzájom ani s textom.
 
 /** Percento zľavy setu ako v set-banner.js (nezávislá kópia vzorca, test ho nepreberá z kódu webu). */
 export const percentoZlavy = (samostatne, vSete) => Math.round(((samostatne - vSete) / samostatne) * 100);
@@ -13,6 +15,9 @@ export const percentoZlavy = (samostatne, vSete) => Math.round(((samostatne - vS
 /** Prvky banneru, ktoré stuha nesmie prekryť (aj tlačidlo a cena). */
 const PRVKY = [".lcd1v-bs__ey", ".lcd1v-bs__h", ".lcd1v-bs__c", ".lcd1v-bs__kd", ".lcd1v-bs__s", ".lcd1v-bs__u", ".lcd1v-bs__tag",
   ".lcd1v-bs__pip img", ".lcd1v-bs__pip i", ".lcd1v-bs__plus", "a.lcd1v-bs__tl"];
+/** Štítky na fotke a text/tlačidlo: [štítky, s čím sa nesmú prekryť] („+“ smie zasahovať do štítku autokobercov). */
+const STITKY = [".lcd1v-bs__tag", ".lcd1v-bs__pip img", ".lcd1v-bs__pip i"];
+const TEXT = [".lcd1v-bs__ey", ".lcd1v-bs__h", ".lcd1v-bs__c", ".lcd1v-bs__kd", ".lcd1v-bs__s", ".lcd1v-bs__u", "a.lcd1v-bs__tl"];
 
 export function stavStuhy(sel) {
   return `(function () {
@@ -23,11 +28,19 @@ export function stavStuhy(sel) {
     var rb = b.getBoundingClientRect();
     var c0 = b.querySelector(".lcd1v-bs__c"), sb = b.querySelector(".lcd1v-bs__sb"), ss = b.querySelector(".lcd1v-bs__s s"), ub = b.querySelector(".lcd1v-bs__u b");
     var out = {
-      stuha: tx(sp), kolizie: [], vRohu: false, textCely: false, px: 0, cervena: false,
+      stuha: tx(sp), kolizie: [], stitky: [], vRohu: false, textCely: false, px: 0, cervena: false,
       sPx: ss ? parseFloat(getComputedStyle(ss).fontSize) : 0, uPx: ub ? parseFloat(getComputedStyle(ub).fontSize) : 0,
       bunkyPodCenou: !!(c0 && sb && sb.getBoundingClientRect().top >= c0.getBoundingClientRect().bottom - 1),
       posunStranky: document.documentElement.scrollWidth > innerWidth + 1, sirka: Math.round(rb.width)
     };
+    // štítky na fotke: navzájom a s textom bez prekrytia (obdĺžniky, 0,5 px tolerancia)
+    function obd(q) { return Array.prototype.map.call(b.querySelectorAll(q), function (e) { return { q: q, r: e.getBoundingClientRect() }; })
+      .filter(function (x) { return x.r.width >= 1 && x.r.height >= 1; }); }
+    function zraz(x, y) { return x.r.left < y.r.right - 0.5 && y.r.left < x.r.right - 0.5 && x.r.top < y.r.bottom - 0.5 && y.r.top < x.r.bottom - 0.5; }
+    var S = [].concat.apply([], ${JSON.stringify(STITKY)}.map(obd)), T = [].concat.apply([], ${JSON.stringify(TEXT)}.map(obd));
+    S.forEach(function (x, i) {
+      S.slice(i + 1).concat(T).forEach(function (y) { if (zraz(x, y)) out.stitky.push(x.q + " × " + y.q); });
+    });
     if (!sp) return out;
     var rs = st.getBoundingClientRect(), cs = getComputedStyle(sp);
     out.vRohu = Math.abs(rs.right - rb.right) < 2 && Math.abs(rs.top - rb.top) < 2 && rs.width > 40;
@@ -63,15 +76,16 @@ export function stavStuhy(sel) {
   })()`;
 }
 
-/** Kontroly stuhy a buniek; ocak = { percento, popis }. */
+/** Kontroly stuhy a buniek; ocak = { percento, popis, az? } (az = „Zľava až −X %“: najvyššie z rôznych percent). */
 export function overStuhu(j, G, ocak) {
-  const o = "Zľava −" + ocak.percento + " %";
+  const o = (ocak.az ? "Zľava až −" : "Zľava −") + ocak.percento + " %";
   j.over(!G.chyba, G.chyba);
   j.over(G.stuha === o, "stuha „" + G.stuha + "“ ≠ „" + o + "“ (" + ocak.popis + ")");
   j.over(G.vRohu && G.cervena, "stuha nie je červená páska v pravom hornom rohu banneru (roh " + G.vRohu + ", červená " + G.cervena + ")");
   j.over(G.px >= 14, "písmo stuhy " + G.px + " px < 14");
   j.over(G.textCely, "text stuhy (" + G.textSirka + " px) je v rohu orezaný");
   j.over(!G.kolizie.length, "stuha prekrýva: " + G.kolizie.join(", "));
+  j.over(!G.stitky.length, "štítky na fotke sa prekrývajú: " + G.stitky.join(", "));
   j.over(G.bunkyPodCenou, "„Samostatne / Ušetríte“ nie sú pod cenou v sete");
   j.over(G.sPx >= 20 && G.uPx >= 20, "čísla „Samostatne / Ušetríte“ majú byť ≥ 20 px: " + G.sPx + " / " + G.uPx);
   j.over(!G.posunStranky, "stránka sa posúva do strany (banner " + G.sirka + " px)");
