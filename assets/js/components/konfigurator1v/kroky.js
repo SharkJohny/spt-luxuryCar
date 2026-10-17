@@ -489,6 +489,12 @@ export function init(ctx) {
   // Výnimka (17. 10. 2026): voľby v OTVORENOM okne boxov (modálne okno .box-config v kroku boxov) sa nepresmerujú — okno
   // by sa zbalením kroku boxov skrylo a ostalo by len tmavé pozadie. Po prenose z boxu 616 bez auta (komplet-ponuka.js:
   // farbu, ktorú set nemá, zákazník vyberá v okne) sa auto otvorí až po zatvorení okna (prenos.js otvorPoPrenose).
+  // Karta počtu boxov „1× box“ / „2× box“ (kufor-boxy.js; živá conf1/conf2) bez auta (17. 10. 2026, kontrola aee13cf): jej
+  // jediný účinok je otvoriť modálne okno boxov (tmavé pozadie na body, okno v kroku boxov). Výber nechať dobehnúť a potom
+  // prejsť na auto = okno sa otvorí, prechod na auto krok boxov zbalí -> okno zmizne, tmavé pozadie a zamknuté posúvanie
+  // ostanú (stránka „stmavne“). Preto ako hlavička: klik ďalej nejde (okno sa vôbec neotvorí, box sa neoznačí) a hneď
+  // „Pokračujte ďalej“ v karte auta. Box bez farby by aj tak poistka G10b vrátila na Nechcem. Po aute okno normálne.
+  const SEL_OKNO_BOXOV = ".lcd1v-kb__karta[data-boxy]:not([data-boxy='0']), .upsale-buttons.boxs .upsale-button[value^='conf']";
   const zaAutom = auto ? kroky.slice(kroky.indexOf(auto) + 1) : [];
   if (zaAutom.length) {
     document.addEventListener("click", function (e) {
@@ -497,7 +503,7 @@ export function init(ctx) {
       const k = zaAutom.find((x) => x.el.contains(t));
       if (!k || t.closest(".next-step-button") || t.closest(".upsale-Banner.showConf .box-config")) return;
       const h = t.closest(".order, .lcd1v-hd, h5, .variant.name");
-      const hlavicka = h && h.parentNode === k.el;
+      const hlavicka = (h && h.parentNode === k.el) || !!t.closest(SEL_OKNO_BOXOV); // karta, ktorá otvára okno boxov = ako hlavička
       if (!hlavicka && !t.closest(".option-button, .upsale-button, button, a[href], [role='button'], select, input, label")) return;
       if (!lcdOverKrok(auto.el, true)) return;
       if (hlavicka) {

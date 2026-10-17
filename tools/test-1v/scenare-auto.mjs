@@ -16,6 +16,13 @@
 //                  to isté ako „Pokračujte ďalej“ v karte auta: hlavička Farba (2×) aj vzorka farby v otvorenej karte
 //                  farby -> bez výzvy, nič sa neodznačí, otvorená len karta auta, chýbajúce polia červené, Značka na
 //                  obrazovke; „Pokračujte ďalej“ vzoru (karta pred autom) -> karta auta bez výzvy
+//   box-bez-auta   karta boxov bez auta (kontrola aee13cf 17. 10. 2026: klik na „1× box“ stmavil stránku a okno boxov sa
+//                  neukázalo — živé okno sa otvorilo v kroku boxov, kroky.js hneď nato krok zbalil a prešiel na auto, takže
+//                  ostalo tmavé pozadie bez okna a stránka sa nedala posúvať): klik na „1× box“ aj „2× box“ v otvorenom
+//                  kroku Boxy bez auta = „Pokračujte ďalej“ v karte auta (ako hlavička / voľba inej karty za autom, §15):
+//                  bez výzvy, bez tmavej stránky (žiadne pozadie, okno nezačne, body sa dá posúvať), box sa neoznačí,
+//                  otvorená len karta auta, 4 polia červené, Značka na obrazovke; po aute (+ farba, rozloženie) sa okno
+//                  boxov otvorí normálne a 1 box (farba 1, M) -> POST ako box-1
 import { join } from "node:path";
 import { F } from "./stary-ui.mjs";
 import { otvorKartu } from "./ovladac-kroky.mjs";
@@ -75,7 +82,93 @@ function overAkoPokracovat(j, st, kedy, { dvere, miesta } = {}) {
   if (miesta) j.over(st.miesta === miesta && st.ss.seatPosition === miesta, kedy + ": miesta " + st.miesta + " (sessionStorage " + st.ss.seatPosition + "), má " + miesta);
 }
 
+/**
+ * Okno boxov a tmavé pozadie, ako ich vidí zákazník: { tma: pozadie viditeľné, okno: okno viditeľné na obrazovke, showConf,
+ * zamknute: body nepustí posúvanie, karta: označená karta počtu (0 = Nechcem / nič), pocet: živá karta (conf1/conf2/"") }.
+ */
+function stavOkna(t) {
+  return t.ev(`(function () {
+    var f = document.getElementById("product-detail-form");
+    var b = f.querySelector(".upsale-Banner"), o = f.querySelector(".upsale-Banner .box-config"), p = document.querySelector(".lcd1v-bx-pozadie");
+    function vid(e) {
+      if (!e) return false;
+      var c = getComputedStyle(e), r = e.getBoundingClientRect();
+      if (c.visibility !== "visible" || parseFloat(c.opacity || "1") < 0.5 || r.width < 50 || r.height < 50) return false;
+      if (r.bottom < 1 || r.top > innerHeight - 1 || r.right < 1 || r.left > innerWidth - 1) return false;
+      // okno je v kroku boxov: zbalený krok (akordeón) ho môže orezať / skryť, hoci sám je fixed
+      for (var q = e.parentElement; q && q !== document.body; q = q.parentElement) { var s = getComputedStyle(q); if (s.display === "none" || s.visibility === "hidden" || parseFloat(s.opacity || "1") < 0.05) return false; }
+      var x = document.elementFromPoint(Math.round(r.left + r.width / 2), Math.round(r.top + Math.min(r.height / 2, 60)));
+      return !!(x && (x === e || e.contains(x)));
+    }
+    var k = f.querySelector('.upsale-buttons.boxs .lcd1v-kb__karta[aria-pressed="true"]');
+    var zive = f.querySelector(".upsale-buttons.boxs > .parameter-cars > .upsale-button.active");
+    return {
+      tma: vid(p), okno: vid(o), showConf: !!(b && b.classList.contains("showConf")),
+      zamknute: getComputedStyle(document.body).overflow === "hidden" || getComputedStyle(document.body).overflowY === "hidden",
+      karta: k ? Number(k.getAttribute("data-boxy")) : 0,
+      pocet: zive ? (zive.getAttribute("value") || "") : "",
+    };
+  })()`);
+}
+
 export const SCENARE = {
+  "box-bez-auta": {
+    typy: ["jedno", "dvoj"],
+    async fn(s, a, pom, ovl, j) {
+      const p = preskocBez(a);
+      if (p) return p;
+      const t = s.t, P = a.produkt;
+      const info = [];
+      const KB = `${F} .upsale-buttons.boxs`;
+      const snimka = async (meno) => {
+        if (!a.snimky) return;
+        await j.pauza(300);
+        await s.k.snimka(join(a.snimky, `${P.id}-box-bez-auta-${meno}-${t.sirka}.png`)).catch(() => {});
+      };
+      await j.otvor(s, a.url, { novy: true });
+      const auto = `${F} .lcd1v-krok.lcd1v-k-auto`;
+      for (const pocet of [1, 2]) {
+        // krok Boxy otvorený bez auta (stav z kontroly aee13cf; hlavičku boxov bez auta kroky.js presmeruje na auto, preto
+        // ho test otvorí živým akordeónom __lcdSetStepOpen — ostatné kroky zavrie), klik na kartu počtu je skutočný
+        await t.ev(`(function () {
+          var f = document.getElementById("product-detail-form"), b = f.querySelector(".upsale-buttons.boxs");
+          f.querySelectorAll(".lcd1v-krok.active").forEach(function (k) { if (k !== b) window.__lcdSetStepOpen(k, false); });
+          window.__lcdSetStepOpen(b, true);
+        })()`);
+        const karta = `${KB} .lcd1v-kb__karta[data-boxy="${pocet}"]`;
+        await t.cakaj(`(function () { var e = document.querySelector(${JSON.stringify(karta)}); return !!(e && e.getBoundingClientRect().height > 40); })()`, { popis: "otvorený krok Boxy bez auta" });
+        await j.pauza(500);
+        await t.klikni(karta, { popis: pocet + "× box bez auta" });
+        await t.cakaj(`!!document.querySelector(".overflow") || !!document.querySelector(${JSON.stringify(auto + ".lcd1v-chyba")}) || document.body.classList.contains("lcd1v-bx-otvorene")`, { ms: 4000 }).catch(() => {});
+        await j.pauza(1600); // verifikačný posun (settle + korekcia do ~1,5 s)
+        const ok = await stavOkna(t);
+        await snimka("klik-" + pocet);
+        const kedy = "klik na „" + pocet + "× box“ bez auta";
+        // nikdy tmavá stránka bez okna (zákazník by nevidel nič a nemohol by posúvať)
+        j.over(!ok.tma || ok.okno, kedy + ": stmavená stránka bez okna boxov " + JSON.stringify(ok));
+        j.over(!ok.tma && !ok.showConf && !ok.zamknute, kedy + ": má byť ako „Pokračujte ďalej“ v karte auta — bez okna boxov a bez tmavého pozadia " + JSON.stringify(ok));
+        await j.pauza(900); // poistka G10b (kufor-boxy.js, 0,7 s) by neúplný box vrátila na Nechcem
+        const ok2 = await stavOkna(t);
+        j.over(ok2.karta === 0 && !ok2.pocet && !ok2.tma && !ok2.showConf, kedy + ": box sa nemá označiť ani otvoriť okno " + JSON.stringify(ok2));
+        overAkoPokracovat(j, await stav(t), kedy);
+        info.push(pocet + "× box bez auta: ako Pokračujte (bez okna a tmy, len karta auta, 4 polia červené)");
+      }
+
+      // po aute, farbe a rozložení sa okno boxov otvorí normálne -> 1 box (farba 1, M) -> POST ako box-1
+      const z = await j.zaklad(s, ovl, { rozlozenie: 0 });
+      const b = await ovl.kuforBoxy.vyberBoxy(t, { pocet: 1, farba: 1, velkost: "M" });
+      j.over(b.farbaBoxov && b.boxSolo, "po aute: 1 box sa nezapísal " + JSON.stringify(b));
+      const ok = await stavOkna(t);
+      j.over(!ok.tma && !ok.showConf && !ok.zamknute, "po potvrdení boxov ostalo okno / tmavé pozadie " + JSON.stringify(ok));
+      await ovl.cena.pridajDoKosika(t);
+      const post = await j.cakajNaPost(s);
+      const cena = await j.overPost(s, post, { ...z.ocak, farbaBoxov: b.farbaBoxov, boxSolo: b.boxSolo });
+      const c = await j.overCenu(s, ovl, cena);
+      info.push("po aute okno boxov normálne, POST 1 box M, cena " + c.videne);
+      return { info: info.join("; "), post: post.body, spolu: cena.spolu };
+    },
+  },
+
   "auto-poradie": {
     typy: ["jedno", "dvoj"], // rohože do kufra (kufor-*) majú dlaždice miest a dverí v karte auta skryté
     async fn(s, a, pom, ovl, j) {
