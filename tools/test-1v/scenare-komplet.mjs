@@ -567,9 +567,9 @@ export const SCENARE = {
       await ovl.boxy.vyberPocet(t, 2);
       // 2 boxy bez veľkostí (živý kód ich pri zmene počtu vyprázdni): „Boxy do kufra už od“ = najlacnejší 1. + 2. box na 598
       const odDva = Math.round((ciel.b1[najlacnejsia(ciel.b1)].cena + ciel.b2[najlacnejsia(ciel.b2)].cena) * 100) / 100;
-      await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\s+/g, " ").trim() === ${JSON.stringify(eur(odDva))}`, { ms: 10000, popis: "2 boxy bez veľkostí: „už od“ " + eur(odDva) });
+      await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\s+/g, " ").trim() === ${JSON.stringify(eur(odDva))}`, { ms: 10000, popis: "2 boxy bez veľkostí: „už od“ " + eur(odDva) }).catch(() => null); // nesúlad vypíše kontrola nižšie (aj s textom karty)
       const st2 = await stavKarty(t);
-      j.over(st2.vidno && st2.bs === null && st2.cenaTx === eur(odDva), `2 boxy bez veľkostí: karta viditeľná (zbalená) s „už od“ ${eur(odDva)}: ${JSON.stringify({ vidno: st2.vidno, c: st2.cenaTx })}`);
+      j.over(st2.vidno && st2.bs === null && st2.cenaTx === eur(odDva), `2 boxy bez veľkostí: karta viditeľná (zbalená) s „už od“ ${eur(odDva)}: ${JSON.stringify({ vidno: st2.vidno, c: st2.cenaTx, text: st2.text })}`);
       const v = await ovl.boxy.vyberVelkosti(t, ["M", "L"]);
       const vSete = Math.round((ciel.b1.M.cena + ciel.b2.L.cena) * 100) / 100;
       await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\\s+/g, " ").trim() === ${JSON.stringify(eur(vSete))}`, { ms: 10000, popis: "cena v karte prepočítaná na 2 boxy" });
