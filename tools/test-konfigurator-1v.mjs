@@ -1440,6 +1440,8 @@ async function main() {
       const znamaChyba = (c) => zname.some((re) => re.test(c.text || ""));
       const popisChyby = (c) => c.druh + ": " + c.text + (c.zdroj ? " @" + c.zdroj.slice(-60) : "");
       [...new Set(nove.filter(znamaChyba).map((c) => "známa chyba živého webu: " + popisChyby(c)))].forEach((x) => s.upozornenia.push(x));
+      // ovládač zopakoval netrafený klik (ovladac-rozlozenie.mjs) — nech to nie je ticho: upozornenie v súhrne, aj bez --vypis
+      logy.filter((x) => / — 2\. pokus$/.test(String(x))).forEach((x) => s.upozornenia.push("test zopakoval klik: " + x + " (ak sa to opakuje, test je nestabilný)"));
       v.chyby = nove.filter((c) => !znamaChyba(c)).map(popisChyby);
       over(v.chyby.length === 0, "nové chyby v konzole:\n      " + v.chyby.join("\n      "));
     } catch (e) {
