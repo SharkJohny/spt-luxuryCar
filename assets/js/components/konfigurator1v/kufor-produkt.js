@@ -24,6 +24,7 @@ import { cenaProduktu, priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
 import { postavBanner, percentoZlavy } from "./set-banner.js";
 import { zapisVyber } from "./prenos.js";
+import { volbaRohoze } from "./komplet-ponuka.js";
 
 export const MENO = "kufor-produkt";
 
@@ -192,10 +193,8 @@ export function init(ctx) {
     const S = T.set;
     const jedno = najdiProdukt(ctx.projectId, "jedno", P.vzor);
     if (!S || !jedno || !(own > 0) || !mapa) return;
-    const moznosti = moznostiZMapy(mapa, "kufor");
-    const o = S.rohoz === "premium"
-      ? moznosti.find((x) => /bok/i.test(x.text))
-      : moznosti.find((x) => /dno/i.test(x.text) && !/bok/i.test(x.text));
+    // voľba kufra podľa textu (dno / dno + boky) — tá istá funkcia ako ponuka setu v karte (komplet-ponuka.js)
+    const o = volbaRohoze(moznostiZMapy(mapa, "kufor"), S.rohoz);
     if (!o || !(o.cena > 0)) return;
     const us = Math.round((own - o.cena) * 100) / 100;
     const kam = stlpec.querySelector(":scope > .lcd1v-postup") || form.querySelector(".lcd1v-postup");

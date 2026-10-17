@@ -51,14 +51,17 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
  *          „druha-vrstva“ (druha-vrstva.js, len jedno) = ponuka druhej vrstvy po kroku Farba: karta BEZ čísla (nie je
  *          v kroky, počty krokov sa nemenia); „Áno“ prenesie výber na dvojvrstvový produkt toho istého vzoru.
  *          „prenos“ (prenos.js, jedno aj dvoj) = zápis preneseného výberu na cieli a návrat výberu po tlačidle Späť.
+ *          „komplet-ponuka“ (komplet-ponuka.js, rohože do kufra a box) = ponuka setu s autokobercami pod sedadlá: karta BEZ
+ *          čísla (nie je v kroky) — rohož medzi Autom a Farbou, box za Veľkosťou (len 1–2 boxy); „Áno“ prenesie výber na
+ *          jednovrstvové (prenos.js zapisVyber -> prijímač „prenos“ na jedno).
  * obal   – prvok vo formulári, bez ktorého sa nový vzhľad nezapne (živý konfigurátor sa nepostavil); null = len formulár.
  */
 export const TYPY = {
   jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "druha-vrstva", "cena", "poznamka", "prenos", "obsah"], obal: ".content-wrap" },
   dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "poznamka", "prenos", "obsah"], obal: ".content-wrap" },
-  "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
-  "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
-  boxy: { kroky: ["farba", "pocet", "velkost"], moduly: ["kroky", "boxy-produkt", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  boxy: { kroky: ["farba", "pocet", "velkost"], moduly: ["kroky", "boxy-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
 };
 

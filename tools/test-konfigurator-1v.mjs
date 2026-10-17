@@ -47,6 +47,7 @@ import * as scBoxy from "./test-1v/scenare-boxy.mjs";
 import * as scVzorky from "./test-1v/scenare-vzorky.mjs";
 import * as scDruha from "./test-1v/scenare-druha.mjs"; // ponuka druhej vrstvy + prenos výberu (jedno -> dvoj, 14. 10. 2026)
 import * as scAuto from "./test-1v/scenare-auto.mjs"; // karta auta: dvere a miesta v ľubovoľnom poradí, overenie až pri Pokračovať (16. 10. 2026)
+import * as scKomplet from "./test-1v/scenare-komplet.mjs"; // ponuka setu s autokobercami na rohožiach do kufra a boxe (17. 10. 2026)
 
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/";
@@ -615,13 +616,15 @@ const SCENARE = {
       over(st.trieda, "flag má platiť aj po prechode bez parametra (sessionStorage karty): " + JSON.stringify(st));
       info.push("?novy=" + a.flag + " zapne, platí v karte");
       // Michal 15. 10. 2026: nadpis každého kroku začína „Prosím, vyberte si …“, farby menujú vrstvu („1. / 2. vrstvy“);
-      // karta ponuky druhej vrstvy (jedno) je otázka „Prosíte si aj druhú odnímateľnú vrstvu?“
+      // karta ponuky druhej vrstvy (jedno) je otázka „Prosíte si aj druhú odnímateľnú vrstvu?“, karta ponuky setu na rohoži
+      // do kufra a boxe (komplet-ponuka.js, 17. 10. 2026) „Prosíte si aj autokoberce pod sedadlá?“
       await t.cakaj(`document.querySelectorAll(".lcd1v-krok .lcd1v-ti").length > 0`, { ms: 15000, popis: "nadpisy krokov" });
       const nad = await t.ev(`Array.prototype.map.call(document.querySelectorAll(".lcd1v-krok .lcd1v-ti"), function (e) {
         var k = e.closest(".lcd1v-krok");
-        return [(/lcd1v-k-([a-z0-9]+)/i.exec(k.className) || [])[1] || (k.classList.contains("lcd1v-druha") ? "druha" : "?"), e.textContent.trim()];
+        return [(/lcd1v-k-([a-z0-9]+)/i.exec(k.className) || [])[1] || (k.classList.contains("lcd1v-komplet") ? "komplet" : k.classList.contains("lcd1v-druha") ? "druha" : "?"), e.textContent.trim()];
       })`);
-      const zle = nad.filter(([m, x]) => (m === "druha" ? x !== "Prosíte si aj druhú odnímateľnú vrstvu?" : !/^Prosím, vyberte si \S/.test(x)));
+      const OTAZKY = { druha: "Prosíte si aj druhú odnímateľnú vrstvu?", komplet: "Prosíte si aj autokoberce pod sedadlá?" };
+      const zle = nad.filter(([m, x]) => (OTAZKY[m] ? x !== OTAZKY[m] : !/^Prosím, vyberte si \S/.test(x)));
       over(!zle.length, "nadpisy krokov bez „Prosím, vyberte si …“: " + JSON.stringify(zle));
       const farby = { farba: "Prosím, vyberte si farbu 1. vrstvy", farba2: "Prosím, vyberte si farbu 2. vrstvy" };
       if (P.typ === "jedno" || P.typ === "dvoj") {
@@ -956,6 +959,15 @@ const SCENARE = {
     await t.klikni(`${sel} > .next-step-button`, { popis: "Pokračujte k súhrnu" });
     await pauza(1500);
     over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST do košíka: " + (s.posty[0] && s.posty[0].body));
+    // box 616 (1–2 boxy): „Pokračujte k súhrnu“ najprv otvorí skrytú kartu ponuky setu (komplet-ponuka.js, 17. 10. 2026);
+    // „Nie, ďakujem“ pokračuje na súhrn ako doteraz (scenáre box-komplet-*)
+    let ponuka = "";
+    if (a.produkt.typ === "boxy" && (await t.ev(`!!document.querySelector("#product-detail-form .lcd1v-komplet.active")`))) {
+      await t.klikni(`#product-detail-form .lcd1v-komplet .lcd1v-komplet__nie`, { popis: "Nie, ďakujem (ponuka setu)" });
+      await pauza(1500);
+      over(s.posty.length === 0, "„Nie, ďakujem“ v ponuke setu poslal POST do košíka: " + (s.posty[0] && s.posty[0].body));
+      ponuka = " (cez kartu ponuky setu -> Nie)";
+    }
     const st = await t.ev(`(function () { var k = document.querySelector(${JSON.stringify(sel)}); var e = document.querySelector(".lcd1v-suhrn"); var r = e && e.getBoundingClientRect();
       return { otvoreny: k.classList.contains("active"), vidno: !!(r && r.top >= 0 && r.bottom <= innerHeight), aktivne: document.querySelectorAll("#product-detail-form .lcd1v-krok.active").length }; })()`);
     over(!st.otvoreny && st.aktivne === 0, "po „Pokračujte k súhrnu“ majú byť kroky zatvorené: " + JSON.stringify(st));
@@ -964,7 +976,7 @@ const SCENARE = {
     const post = await cakajNaPost(s);
     const cena = await overPost(s, post, z.ocak);
     const c = await overCenu(s, ovl, cena);
-    return { info: `posledný krok (${posledny}) -> súhrn bez POST, kroky zatvorené, Spolu na obrazovke; potom košík: cena ${c.videne}`, post: post.body, spolu: cena.spolu };
+    return { info: `posledný krok (${posledny}) -> súhrn bez POST${ponuka}, kroky zatvorené, Spolu na obrazovke; potom košík: cena ${c.videne}`, post: post.body, spolu: cena.spolu };
   },
 
   /** Nový vzhľad: 7 miest + 3 rady, potom 5 miest -> karta „Všetky tri rady“ zmizne, rozloženie sa samo prepne na
@@ -1182,7 +1194,7 @@ for (const [meno, fn] of Object.entries(SCENARE)) {
   if (!TYPY_JADRA[meno]) throw new Error("scenár jadra " + meno + " nemá typy (TYPY_JADRA)");
   REGISTER[meno] = [{ typy: TYPY_JADRA[meno], fn, zdroj: "jadro" }];
 }
-for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky, "scenare-druha": scDruha, "scenare-auto": scAuto })) {
+for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky, "scenare-druha": scDruha, "scenare-auto": scAuto, "scenare-komplet": scKomplet })) {
   for (const [meno, sc] of Object.entries(mod.SCENARE || {})) {
     if (!sc || typeof sc.fn !== "function" || !Array.isArray(sc.typy)) throw new Error(zdroj + ": scenár " + meno + " musí byť { typy: [...], fn }");
     const kolizia = (REGISTER[meno] || []).find((x) => x.typy.some((ty) => sc.typy.includes(ty)));

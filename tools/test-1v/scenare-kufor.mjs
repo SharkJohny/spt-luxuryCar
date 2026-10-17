@@ -84,7 +84,7 @@ export const SCENARE = {
         var d = new DOMParser().parseFromString(srv, "text/html");
         var h1s = d.querySelector(".p-detail-inner-header h1") || d.querySelector("h1");
         var n = document.querySelector(".lcd1v-kf-nazov");
-        var kroky = Array.prototype.map.call(f.querySelectorAll(".lcd1v-krok"), function (k) {
+        var kroky = Array.prototype.map.call(f.querySelectorAll(".lcd1v-krok:not(.lcd1v-komplet)"), function (k) {
           var m = /lcd1v-k-(\\w+)/.exec(Array.prototype.find.call(k.classList, function (c) { return /^lcd1v-k-/.test(c); }) || ""); return m ? m[1] : "?"; });
         var auto = f.querySelector(".lcd1v-k-auto");
         var set = f.querySelector(".lcd1v-bs"), alt = f.querySelector(".lcd1v-kf-alt");
@@ -96,7 +96,7 @@ export const SCENARE = {
           h1Deti: h1 ? h1.children.length : -1, h1Vidno: vid(h1), nazov: n ? n.textContent.replace(/\\s+/g, " ").trim() : null, nazovVidno: vid(n),
           nazovAria: n ? n.getAttribute("aria-hidden") : null,
           typ: (document.querySelector(".p-detail-inner-header .lcd1v-typ") || {}).textContent || null,
-          kroky: kroky, ey: Array.prototype.map.call(f.querySelectorAll(".lcd1v-krok .lcd1v-ey"), function (e) { return e.textContent; }),
+          kroky: kroky, ey: Array.prototype.map.call(f.querySelectorAll(".lcd1v-krok:not(.lcd1v-komplet) .lcd1v-ey"), function (e) { return e.textContent; }),
           volant: !!(auto && auto.querySelector(".wheel-Position")) && vid(auto.querySelector(".wheel-Position")),
           miesta: vid(auto && auto.querySelector(".sit-Position")), dvere: vid(auto && auto.querySelector(".door-Position")),
           polia: auto ? Array.prototype.filter.call(auto.querySelectorAll(".modl-selector-wrap select"), vid).length : 0,

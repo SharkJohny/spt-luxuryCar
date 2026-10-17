@@ -7,14 +7,18 @@
 //     farba, rozlozenie, kufor, pocetBoxov (1 | 2), farbaBoxov, boxSolo, box1, box2, volant, miesta, dvere
 //   Zapisuje ho druha-vrstva.js (zapisPrenos) tesne pred prechodom na dvojvrstvový produkt toho istého vzoru
 //   a kufor-produkt.js (zapisVyber, Michal 17. 10. 2026): klik na zelené tlačidlo banneru setu na rohoži do kufra
-//   (619–634) -> jednovrstvové toho istého vzoru (598 / 610 / 613) s vyber = { kufor: ID voľby Classic | Premium }.
+//   (619–634) -> jednovrstvové toho istého vzoru (598 / 610 / 613) s vyber = { kufor: ID voľby Classic | Premium },
+//   a komplet-ponuka.js (zapisVyber, Michal 17. 10. 2026): „Áno“ v skrytej karte ponuky setu na rohoži (to isté
+//   { kufor }) alebo na boxe 616 -> 598 s { pocetBoxov, boxSolo | box1 + box2, farbaBoxov len keď ju set má }.
 //
 // PRIJÍMATEĽ (init):
 //   - na cieľovom produkte (na === productId, ešte neprijaté, mladšie ako 10 min): výber sa zapíše JEDINOU schválenou
 //     cestou ctx.zapis (klik na živé ovládače, docs/1v-kontrakt.md §5) + klik na živé dlaždice volantu/miest/dverí
 //     -> POST košíka je rovnaký ako v starom vzhľade pri tých istých voľbách. Poradie: dlaždice kroku 2 -> farba ->
 //     rozloženie -> kufor -> boxy (počet -> farba -> veľkosti -> živé „potvrdiť“, ako kufor-boxy.js). Potom sa otvorí
-//     prvý nevyplnený krok (po prenose „Farba 2. vrstvy“; nič sa nepredvolí). Kľúč ostane s prijate (žiadny druhý prenos).
+//     prvý nevyplnený krok (po prenose „Farba 2. vrstvy“; nič sa nepredvolí). Boxy bez farby, ktorú produkt má (box 616
+//     vo farbe mimo setu): počet a veľkosti sa zapíšu, otvorí sa krok boxov s oknom na výber farby a prvý nevyplnený krok
+//     až po zatvorení okna. Kľúč ostane s prijate (žiadny druhý prenos).
 //   - na zdrojovom produkte po tlačidle Späť (navigation type back_forward, z === productId, do 30 min): ten istý zápis
 //     vráti výber, kľúč sa zmaže. Karta otázky je po návrate znova nezodpovedaná (druha-vrstva.js).
 //   Starý kľúč, iný produkt, nová karta, zablokované úložisko: nič sa neprenesie, bez chyby.
@@ -119,12 +123,17 @@ export function aplikujVyber(ctx, v) {
   });
   // (b) farba 1. vrstvy, (c) rozloženie a kufor
   ["farba", "rozlozenie", "kufor"].forEach((k) => { if (ma(k, v[k])) ctx.zapis(k, v[k]); });
-  // (d) boxy ako kufor-boxy.js: počet -> farba -> veľkosti -> živé „potvrdiť“ (zatvorí okno); neúplné -> živé „zrušiť“
+  // (d) boxy ako kufor-boxy.js: počet -> farba -> veľkosti -> živé „potvrdiť“ (zatvorí okno); neúplné -> živé „zrušiť“.
+  //     Bez farby, ktorú produkt má (box 616 vo farbe, ktorú set nemá — komplet-ponuka.js ju neprenesie, Michal 17. 10.
+  //     2026): počet a veľkosti sa zapíšu a živé okno boxov ostane otvorené na výber farby (zákazník ju zvolí a potvrdí;
+  //     zavretie bez farby = živé „zrušiť“, ako pri ručnom výbere).
   const n = Number(v.pocetBoxov) || 0;
   const kluce = n === 1 ? ["boxSolo"] : n === 2 ? ["box1", "box2"] : [];
-  if (kluce.length && ma("farbaBoxov", v.farbaBoxov) && kluce.every((k) => ma(k, v[k])) && ctx.zapis("pocetBoxov", n)) {
-    ctx.zapis("farbaBoxov", v.farbaBoxov);
+  if (kluce.length && kluce.every((k) => ma(k, v[k])) && ctx.zapis("pocetBoxov", n)) {
+    const sFarbou = ma("farbaBoxov", v.farbaBoxov);
+    if (sFarbou) ctx.zapis("farbaBoxov", v.farbaBoxov);
     kluce.forEach((k) => ctx.zapis(k, v[k]));
+    if (!sFarbou) return;
     const okno = ctx.krok("boxyVyber");
     const ok = okno && okno.querySelector(":scope > .close-btn.return");
     if (ok) ok.click();
@@ -145,10 +154,10 @@ function vyskaHlavicky() {
   return 0;
 }
 
-/** Otvorí prvý nevyplnený krok (po prenose „Farba 2. vrstvy“), ostatné zatvorí a posunie ho pod hlavičku webu. */
-function otvorPrvyNevyplneny(ctx) {
-  let krok = null;
-  try { krok = ctx.prvyNevyplneny(); } catch (e) { krok = null; }
+/** Otvorí prvý nevyplnený krok (po prenose „Farba 2. vrstvy“) alebo `ciel`, ostatné zatvorí a posunie ho pod hlavičku webu. */
+function otvorPrvyNevyplneny(ctx, ciel) {
+  let krok = ciel || null;
+  if (!krok) try { krok = ctx.prvyNevyplneny(); } catch (e) { krok = null; }
   const nastav = window.__lcdSetStepOpen;
   if (!krok || typeof nastav !== "function") return;
   let kroky = [];
@@ -167,6 +176,25 @@ function otvorPrvyNevyplneny(ctx) {
   // zatvorenie krokov nad ním mení výšku (prechod ~300 ms) a živý auto-postup po farbe zbalí kartu farby až po ~350 ms
   // + prechode; pri načítaní z CDN to dobehne neskôr než pri lokálnom builde (15. 10. 2026: nadpis kroku 195 px nad oknom)
   [60, 420, 800, 1300, 2000].forEach((ms) => setTimeout(posun, ms));
+}
+
+/**
+ * Po zápise: prvý nevyplnený krok. Ostalo otvorené okno boxov (farba boxu, ktorú produkt nemá — aplikujVyber ju vynechal):
+ * okno je v kroku boxov a v zbalenom kroku sa nevykreslí (CSS zbalenej karty) -> otvorí sa krok boxov, zákazník zvolí
+ * farbu a potvrdí (alebo okno zruší) a až po zatvorení okna sa otvorí prvý nevyplnený krok.
+ */
+function otvorPoPrenose(ctx) {
+  const okno = ctx.krok("boxyVyber");
+  const banner = okno && okno.closest(".upsale-Banner");
+  const boxy = ctx.krok("boxy");
+  if (!banner || !boxy || !banner.classList.contains("showConf")) { otvorPrvyNevyplneny(ctx); return; }
+  otvorPrvyNevyplneny(ctx, boxy);
+  const mo = new MutationObserver(function () {
+    if (banner.classList.contains("showConf")) return;
+    mo.disconnect();
+    otvorPrvyNevyplneny(ctx);
+  });
+  mo.observe(banner, { attributes: true, attributeFilter: ["class"] });
 }
 
 /** Živý konfigurátor je postavený tak, aby sa dal výber zapísať (ovládače, okno boxov, tlačidlá krokov). */
@@ -200,7 +228,7 @@ export function init(ctx) {
     pisKluc(Object.assign({}, k, { prijate: teraz }));
     ctx.ked(() => pripravene(ctx, k.vyber), function () {
       zapisBezpecne(ctx, k.vyber);
-      otvorPrvyNevyplneny(ctx);
+      otvorPoPrenose(ctx);
       ctx.vysli("prenos:prijaty", { z: k.z, vyber: k.vyber });
     }, { limit: 15000 });
     return;

@@ -102,7 +102,7 @@ export const SCENARE = {
       const otvoreny = await t.ev(`(function () { var a = document.querySelector("#product-detail-form .content-wrap > .lcd1v-krok.active"); return a ? a.className : ""; })()`);
       j.over(/lcd1v-k-farba/.test(otvoreny), "na začiatku má byť otvorený krok 1 Farba, je: " + otvoreny);
       // poradie kariet na obrazovke: farba, počet, veľkosť (DOM ostáva počet, farba, veľkosť)
-      const poradie = await t.ev(`Array.prototype.map.call(document.querySelectorAll("#product-detail-form .content-wrap > .lcd1v-krok"), function (e) { return { m: (/lcd1v-k-(\\w+)/.exec(e.className) || [])[1], y: Math.round(e.getBoundingClientRect().top) }; }).sort(function (x, y) { return x.y - y.y; }).map(function (x) { return x.m; }).join(",")`);
+      const poradie = await t.ev(`Array.prototype.map.call(document.querySelectorAll("#product-detail-form .content-wrap > .lcd1v-krok:not(.lcd1v-komplet)"), function (e) { return { m: (/lcd1v-k-(\\w+)/.exec(e.className) || [])[1], y: Math.round(e.getBoundingClientRect().top) }; }).sort(function (x, y) { return x.y - y.y; }).map(function (x) { return x.m; }).join(",")`);
       j.over(poradie === "farba,pocet,velkost", "poradie kariet na obrazovke " + poradie + " ≠ farba,pocet,velkost");
       // „od“ ceny kariet počtu = 1. box variant + najlacnejší príplatok, ďalší box + najlacnejší príplatok (živé selecty)
       const od = await t.ev(`(function () {

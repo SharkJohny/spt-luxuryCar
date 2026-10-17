@@ -68,8 +68,10 @@ const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "c
 // ponuka druhej vrstvy a prenos výberu na dvojvrstvové (tools/test-1v/scenare-druha.mjs, 14. 10. 2026); dvoj: prenos-neplatny
 const DRUHA = ["druha-nie", "druha-ano", "druha-vsetko"];
 // rohože: kufor-set-prenos = banner setu -> jednovrstvové s predvybranou rohožou, POST = ručný výber (17. 10. 2026)
-const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto"];
-const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto"];
+// kufor-komplet-nie/-ano = skrytá karta ponuky setu pred Farbou (scenare-komplet.mjs, 17. 10. 2026)
+const KOMPLET_ROHOZ = ["kufor-komplet-nie", "kufor-komplet-ano"];
+const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto", ...KOMPLET_ROHOZ];
+const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto", ...KOMPLET_ROHOZ];
 
 export const PRODUKTY = {
   // ---------------------------------------------------------------- jednovrstvové
@@ -168,7 +170,9 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- box do kufra (počet 1–3 + farba 78 + veľkosti 94/97/100)
   616: {
     url: SK + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Box do kufra",
-    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne"],
+    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne",
+      // skrytá karta ponuky setu po Veľkosti (scenare-komplet.mjs, 17. 10. 2026)
+      "box-komplet-nie", "box-komplet-ano", "box-komplet-seda", "box-komplet-3"],
     platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
     odporucana: false,
     ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 643, "box-3-na-1": 197, dokoncit: 207 },

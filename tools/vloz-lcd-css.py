@@ -16,6 +16,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-KUFOR-BOXY <- _lcd1v-kufor-boxy.scss  novy konfigurator 1V: kroky 5-6 kufor a boxy         }  SK 598; kontrakt
   LCD-1V-CENA       <- _lcd1v-cena.scss        novy konfigurator 1V: cenova karta + lepiva lista     }  docs/1v-kontrakt.md)
   LCD-1V-DRUHA      <- _lcd1v-druha.scss       novy konfigurator 1V: ponuka druhej vrstvy (jedno)    }
+  LCD-1V-KOMPLET    <- _lcd1v-komplet.scss     novy konfigurator 1V: ponuka setu na rohozi/boxe      }
   LCD-1V-OBSAH      <- _lcd1v-obsah.scss       obsah pod konfiguratorom 1V: brana, miesto, skrytie stareho popisu (docs/1v-obsah.md)
   LCD-1V-OBSAH-A..D <- _lcd1v-obsah-a..d.scss  obsah 1V po skupinach A-D (kazdy selektor pod body.lcd-1v)
   LCD-1V-DVOJ       <- _lcd1v-dvoj.scss        1V dvojvrstvove (krok farba 2. vrstvy)  } typove bloky (T0.1 14. 10. 2026):
@@ -72,6 +73,10 @@ BLOKY = [
     # Ponuka druhej vrstvy na jednovrstvovych (Michal 14. 10. 2026): karta bez cisla za krokom Farba
     dict(meno="LCD-1V-DRUHA", zdroj="_lcd1v-druha.scss", home=False, h1=False,
          popis="konfigurator 1V: ponuka druhej vrstvy na jednovrstvovych; len body.lcd-1v"),
+    # Ponuka setu s autokobercami na rohozach do kufra a boxe (Michal 17. 10. 2026): karta bez cisla, vzhlad karty druhej
+    # vrstvy (LCD-1V-DRUHA) + dve fotky a miesto karty na boxe — preto hned za LCD-1V-DRUHA
+    dict(meno="LCD-1V-KOMPLET", zdroj="_lcd1v-komplet.scss", home=False, h1=False,
+         popis="konfigurator 1V: ponuka setu s autokobercami na rohozach do kufra a boxe; len body.lcd-1v"),
     # Obsah pod konfiguratorom 1V (staticke HTML z adminu, admin-html/src/p1v-598/) — docs/1v-obsah.md
     dict(meno="LCD-1V-OBSAH", zdroj="_lcd1v-obsah.scss", home=False, h1=False,
          popis="obsah 1V: brana, miesto pod konfiguratorom, skrytie stareho popisu; okrem stlpca paticky len body.lcd-1v"),

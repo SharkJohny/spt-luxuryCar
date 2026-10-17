@@ -486,13 +486,16 @@ export function init(ctx) {
   // (živé handlery), až potom prechod na auto. Len skutočné kliky (isTrusted) — programové kliky modulov (prenos,
   // rozloženie, ctx.zapis) idú bez zdržania. „Pokračujte ďalej“ kariet rieši engine sám (prvý nevyplnený krok = auto);
   // vzor (karta pred autom) a karta auta bez zmeny. Auto úplné = nič sa nemení.
+  // Výnimka (17. 10. 2026): voľby v OTVORENOM okne boxov (modálne okno .box-config v kroku boxov) sa nepresmerujú — okno
+  // by sa zbalením kroku boxov skrylo a ostalo by len tmavé pozadie. Po prenose z boxu 616 bez auta (komplet-ponuka.js:
+  // farbu, ktorú set nemá, zákazník vyberá v okne) sa auto otvorí až po zatvorení okna (prenos.js otvorPoPrenose).
   const zaAutom = auto ? kroky.slice(kroky.indexOf(auto) + 1) : [];
   if (zaAutom.length) {
     document.addEventListener("click", function (e) {
       const t = e.target;
       if (!e.isTrusted || !t || !t.closest || !document.body.classList.contains("lcd-1v")) return;
       const k = zaAutom.find((x) => x.el.contains(t));
-      if (!k || t.closest(".next-step-button")) return;
+      if (!k || t.closest(".next-step-button") || t.closest(".upsale-Banner.showConf .box-config")) return;
       const h = t.closest(".order, .lcd1v-hd, h5, .variant.name");
       const hlavicka = h && h.parentNode === k.el;
       if (!hlavicka && !t.closest(".option-button, .upsale-button, button, a[href], [role='button'], select, input, label")) return;

@@ -51,6 +51,30 @@ export const TYP = {
       },
       alt: null, // Premium nemá odkaz pod košíkom (porovnanie s Classic je v obsahu pod konfigurátorom)
     },
+    // Ponuka setu ako skrytá karta bez čísla medzi kartou Auto a Farba (komplet-ponuka.js; Michal 17. 10. 2026, návrh 1).
+    // Čísla živo (cena tejto stránky vs. voľba kufra „dno + boky“ na jednovrstvových toho istého vzoru), nikdy „+ X €“.
+    komplet: {
+      nm: "Autokoberce pod sedadlá",
+      ti: "Prosíte si aj autokoberce pod sedadlá?",
+      vy: "Áno alebo nie",
+      vyNie: "Len rohož do kufra",
+      pod: (d) => "Rohož do kufra Premium len za " + d.cena + ", keď ju kúpite spolu s autokobercami pod sedadlá.",
+      naj: "★ Výhodnejšie v sete",
+      ano: {
+        nm: "Autokoberce pod sedadlá",
+        po: "+ rohož do kufra Premium",
+        ben: "Vzor aj auto Vám ostanú, rohož bude vo farbe autokobercov.",
+        tl: "Áno, chcem set s autokobercami",
+        alt: ["Autokoberce pod sedadlá", "Rohož do kufra Premium"],
+      },
+      cena: { vSete: "V sete len", samostatne: "Samostatne", usetrite: "Ušetríte" },
+      nie: { nm: "Nie, ďakujem", pozn: "Pokračujete len s rohožou do kufra." },
+      prenos: "Prenášame Váš výber na autokoberce pod sedadlá…",
+      prenosRohoz: "rohož do kufra Premium",
+    },
   },
-  obrazky: {},
+  // fotka autokobercov pod sedadlá v dlaždici ponuky setu (komplet-ponuka.js): reálna fotka vzoru (tá istá ako dlaždice vzoru)
+  obrazky: {
+    "komplet-autokoberce": { diamond: "kroky-vzor-diamond.jpg", hexa: "kroky-vzor-hexa.jpg", stripe: "kroky-vzor-stripe.jpg" },
+  },
 };
