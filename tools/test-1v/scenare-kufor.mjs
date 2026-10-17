@@ -10,28 +10,12 @@
 //   kufor-vzhlad – to, čo pridáva kufor-produkt.js + CSS typu, overené proti NEZÁVISLÉMU zdroju: ceny vzorov z profilov
 //                  (produkty.mjs, plan.md §4), príplatok setu GET-om živej stránky jednovrstvových (select „do kufru“),
 //                  živý H1 zo servera; texty z návrhov kufor-classic.html / kufor-premium.html. Farba nemení hlavnú fotku.
-//                  Banner setu C (Michal 17. 10. 2026, set-banner.js): „Rohož do kufra … len za X €“ + „keď ju kúpite
-//                  spolu s autokobercami pod sedadlá“ + „Samostatne Y €“ + „Ušetríte Z €“, nikde „+ X €“; fotka pozadia
-//                  set-banner-autokoberce-480/800.jpg (lenivo, srcset, každá ≤ 80 kB), malá fotka = og:image produktu,
-//                  zelené tlačidlo na jednovrstvové toho istého vzoru. Stuha „Zľava −X %“ cez pravý horný roh
-//                  (X = round((samostatne − v sete) / samostatne × 100) z tých istých nezávislých čísel), text celý,
-//                  neprekryje cenu, tlačidlo ani štítky; bunky „Samostatne / Ušetríte“ pod cenou, čísla ≥ 20 px
-//                  (set-banner-kontrola.mjs, pri každej šírke).
-//   kufor-set-prenos – zelené tlačidlo banneru (skutočný klik) -> jednovrstvové toho istého vzoru s PREDVYBRANOU rohožou
-//                  (Classic = dno, Premium = dno + boky; prenos.js): select, živá karta aj karta nového vzhľadu; úplný výber
-//                  (auto, farba, rozloženie) -> POST; potom tá istá stránka nanovo a rohož RUČNE kartou -> POST musí byť
-//                  rovnaký (kľúč po prenose ostáva „prijatý“, druhá návšteva nič nepreberá).
+//                  Ponuka setu s autokobercami (banner C) je LEN v skrytom medzikroku (komplet-ponuka.js, Michal
+//                  17. 10. 2026: „toto má byť v medzikroku, nie ďalší iný banner“) -> mimo karty .lcd1v-komplet banner nie je
+//                  (texty, čísla, stuha a prenos banneru: scenare-komplet.mjs).
 //   vzor-auto    – auto vybrané na rohoži ostane po prechode dlaždicou vzoru na sesterskú rohož (619 -> 622 …), nový
 //                  vzhľad tam beží ďalej a košík pošle platný POST sesterského produktu (priceId z plan.md §4).
-import { statSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { PRODUKTY } from "./produkty.mjs";
-import { stavStuhy, overStuhu, percentoZlavy } from "./set-banner-kontrola.mjs";
-
-const IMG_1V = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "assets", "img", "1v");
-const FOTKA_BANNERA = ["set-banner-autokoberce-480.jpg", "set-banner-autokoberce-800.jpg"];
-const KLUC_PRENOSU = "lcd1vPrenos:v1";
 
 const NAZOV = { "kufor-classic": "Luxusná rohož do kufra Classic", "kufor-premium": "Luxusná rohož do kufra Premium" };
 const TYP_TEXT = { "kufor-classic": "Dno kufra", "kufor-premium": "Celý kufor" };
@@ -74,8 +58,8 @@ export const SCENARE = {
       const t = s.t, P = a.produkt, typ = P.typ, info = [];
       await j.otvor(s, a.url, { novy: true });
       // prvky s cenami vznikajú až po GET sesterských stránok (ceny-ine.js)
-      await t.cakaj(`!!document.querySelector("#product-detail-form .lcd1v-bs") && document.querySelectorAll("#product-detail-form .lcd1v-k-vzor .banner-header[data-lcd1v-cena]").length === 3`,
-        { ms: 15000, popis: "banner setu a ceny dlaždíc vzoru (GET sesterských stránok)" });
+      await t.cakaj(`document.querySelectorAll("#product-detail-form .lcd1v-k-vzor .banner-header[data-lcd1v-cena]").length === 3`,
+        { ms: 15000, popis: "ceny dlaždíc vzoru (GET sesterských stránok)" });
       const st = await t.ev(`(async function () {
         function vid(e) { if (!e) return false; var r = e.getBoundingClientRect(), c = getComputedStyle(e); return r.width > 2 && r.height > 2 && c.display !== "none" && c.visibility !== "hidden"; }
         var f = document.getElementById("product-detail-form");
@@ -87,10 +71,7 @@ export const SCENARE = {
         var kroky = Array.prototype.map.call(f.querySelectorAll(".lcd1v-krok:not(.lcd1v-komplet)"), function (k) {
           var m = /lcd1v-k-(\\w+)/.exec(Array.prototype.find.call(k.classList, function (c) { return /^lcd1v-k-/.test(c); }) || ""); return m ? m[1] : "?"; });
         var auto = f.querySelector(".lcd1v-k-auto");
-        var set = f.querySelector(".lcd1v-bs"), alt = f.querySelector(".lcd1v-kf-alt");
-        var setA = set && set.querySelector("a.lcd1v-bs__tl");
-        function tx(q) { var e = set && set.querySelector(q); return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; }
-        var bg = set && set.querySelector("img.lcd1v-bs__bg"), pip = set && set.querySelector(".lcd1v-bs__pip img"), og = document.querySelector('meta[property="og:image"]');
+        var alt = f.querySelector(".lcd1v-kf-alt");
         return {
           h1: h1 ? h1.textContent.replace(/\\s+/g, " ").trim() : null, h1Server: h1s ? h1s.textContent.replace(/\\s+/g, " ").trim() : null,
           h1Deti: h1 ? h1.children.length : -1, h1Vidno: vid(h1), nazov: n ? n.textContent.replace(/\\s+/g, " ").trim() : null, nazovVidno: vid(n),
@@ -105,15 +86,9 @@ export const SCENARE = {
             return { vzor: v, text: b ? b.textContent.replace(/\\s+/g, " ").trim() : "", cena: b ? b.getAttribute("data-lcd1v-cena") : null, aktivna: a.classList.contains("active"),
               poZnak: b ? getComputedStyle(b, "::after").content : "" }; }),
           pod: (f.querySelector(".lcd1v-k-vzor > .lcd1v-pod") || {}).textContent || null,
-          set: set ? set.textContent.replace(/\\s+/g, " ").trim() : null, setVidno: vid(set), setHref: setA ? setA.getAttribute("href") : null,
-          setPredPostupom: !!(set && set.nextElementSibling && set.nextElementSibling.classList.contains("lcd1v-postup")),
+          // banner setu len v skrytom medzikroku (komplet-ponuka.js), nikde inde; starý pás setu tiež nie
+          bannerMimo: Array.prototype.filter.call(document.querySelectorAll(".lcd1v-bs"), function (b) { return !b.closest(".lcd1v-komplet"); }).length,
           starePasy: f.querySelectorAll(".lcd1v-kf-set").length,
-          bs: set ? { ey: tx(".lcd1v-bs__ey"), h: tx(".lcd1v-bs__h"), c: tx(".lcd1v-bs__c"), kd: tx(".lcd1v-bs__kd"), s: tx(".lcd1v-bs__s"), sCiara: tx(".lcd1v-bs__s s"),
-            u: tx(".lcd1v-bs__u"), tag: tx(".lcd1v-bs__tag"), pip: tx(".lcd1v-bs__pip i"), tl: tx("a.lcd1v-bs__tl"), attr: set.getAttribute("data-lcd1v-set"),
-            poradie: Array.prototype.map.call(set.querySelectorAll(".lcd1v-bs__row > *"), function (e) { return e.className; }).join(","),
-            tlPozadie: setA ? getComputedStyle(setA).backgroundImage : "", bgLoading: bg ? bg.getAttribute("loading") : null, bgSrcset: bg ? bg.getAttribute("srcset") : "",
-            pipSrc: pip ? pip.getAttribute("src") : null, og: og ? og.content : null, pipLoading: pip ? pip.getAttribute("loading") : null,
-            sirka: Math.round(set.getBoundingClientRect().width), pretek: set.scrollWidth > set.clientWidth + 1 } : null,
           alt: alt ? alt.textContent.replace(/\\s+/g, " ").trim() : null, altHref: alt && alt.querySelector("a") ? alt.querySelector("a").getAttribute("href") : null, altVidno: vid(alt),
           altZaKosikom: !!(alt && alt.previousElementSibling && alt.previousElementSibling.classList.contains("add-to-cart")),
           benefit: vid(document.querySelector(".p-info-wrapper > .benefitBanner__item")), upsale: vid(f.querySelector(".p-info-wrapper > .upsale-Banner")),
@@ -160,45 +135,8 @@ export const SCENARE = {
           : lacny + " je v základnej cene, " + dv + " stoja o " + r + " viac. Ponuka farieb sa pri každom vzore líši.";
         j.over(cisty(st.pod) === ocak, "podnadpis kroku 1 „" + st.pod + "“ ≠ „" + ocak + "“");
       } else s.upozornenia.push("ceny vzorov " + JSON.stringify(ocakPod) + " nemajú tvar návrhu — podnadpis kroku 1: " + st.pod);
-      // pás setu: príplatok voľby kufra zo živej stránky jednovrstvových toho istého vzoru (nezávislý GET + parsovanie)
-      const jedno = profil("jedno", P.vzor);
-      const setCena = await t.ev(`(async function (url, premium) {
-        var html = await fetch(url, { credentials: "same-origin" }).then(function (r) { return r.text(); });
-        var d = new DOMParser().parseFromString(html, "text/html");
-        var s = Array.prototype.find.call(d.querySelectorAll("#product-detail-form select[data-parameter-name]"), function (x) { return /do\\s+kufr/i.test(x.getAttribute("data-parameter-name")); });
-        if (!s) return null;
-        var o = Array.prototype.find.call(s.options, function (o) { var tx = o.textContent; return o.value && (premium ? /bok/i.test(tx) : /dno/i.test(tx) && !/bok/i.test(tx)); });
-        return o ? Number(o.getAttribute("data-surcharge-final-price")) || Number(o.getAttribute("data-surcharge-additional-price")) : null;
-      })(${JSON.stringify(cesta(jedno.url))}, ${typ === "kufor-premium"})`);
-      j.over(setCena > 0, "príplatok setu na " + jedno.url + " sa nedal zistiť (test)");
-      const us = own - setCena;
-      j.over(st.setVidno && st.setPredPostupom && st.starePasy === 0, "banner setu nie je viditeľný pod cenou pred postupom krokov (starý pás " + st.starePasy + "×)");
-      const B = st.bs, rohoz = typ === "kufor-classic" ? "Classic" : "Premium";
-      // texty banneru C (Michal 17. 10. 2026): cena v sete s vysvetlením, nikdy „+ X €“ (vyzerá ako príplatok k cene hore)
-      j.over(cisty(B.ey) === "★ Výhodnejšie v sete" && B.h === "Rohož do kufra " + rohoz + " len za" && cisty(B.c) === eur(setCena)
-        && B.kd === "keď ju kúpite spolu s autokobercami pod sedadlá", "banner: „" + B.h + " | " + B.c + " | " + B.kd + "“ ≠ „Rohož do kufra " + rohoz + " len za | " + eur(setCena) + " | keď ju kúpite spolu s autokobercami pod sedadlá“");
-      j.over(cisty(B.s) === "Samostatne " + eur(own) && cisty(B.sCiara) === eur(own) && cisty(B.u) === "Ušetríte " + eur(us), "banner: „" + B.s + "“ / „" + B.u + "“ ≠ Samostatne " + eur(own) + " (prečiarknuté) / Ušetríte " + eur(us));
-      j.over(B.poradie === "lcd1v-bs__c,lcd1v-bs__kd,lcd1v-bs__sb", "poradie v DOM (čítačka: cena hneď s podmienkou): " + B.poradie);
-      j.over(Number(B.attr) === setCena, "data-lcd1v-set " + B.attr + " ≠ " + setCena);
-      j.over(!/\+\s*\d/.test(cisty(st.set)) && !/do interiéru/.test(st.set), "banner obsahuje „+ číslo“ alebo „do interiéru“: " + st.set);
-      j.over(B.tag === "Autokoberce pod sedadlá" && B.pip === "Rohož do kufra " + rohoz && B.tl === "Zostaviť set s autokobercami", "štítky / tlačidlo banneru: " + JSON.stringify([B.tag, B.pip, B.tl]));
-      j.over(/29,\s*107,\s*74/.test(B.tlPozadie), "tlačidlo banneru nie je zelené: " + B.tlPozadie);
-      j.over(B.pipSrc && B.pipSrc === B.og, "malá fotka produktu " + B.pipSrc + " ≠ og:image " + B.og);
-      j.over(B.bgLoading === "lazy" && B.pipLoading === "lazy" && FOTKA_BANNERA.every((x) => B.bgSrcset.includes("/img/1v/" + x)), "fotky banneru: loading " + B.bgLoading + "/" + B.pipLoading + ", srcset " + B.bgSrcset);
-      j.over(!B.pretek, "banner preteká (" + B.sirka + " px)");
-      const velkosti = FOTKA_BANNERA.map((x) => statSync(join(IMG_1V, x)).size);
-      j.over(velkosti.every((v) => v <= 82000), "fotky pozadia banneru majú byť ≤ 80 kB: " + velkosti.join(" / ") + " B");
-      // lenivá fotka sa načíta, keď je banner na obrazovke
-      await t.ev(`document.querySelector("#product-detail-form .lcd1v-bs").scrollIntoView({ block: "center", behavior: "instant" })`);
-      await t.cakaj(`Array.prototype.every.call(document.querySelectorAll("#product-detail-form .lcd1v-bs img"), function (i) { return i.complete && i.naturalWidth > 0; })`, { ms: 15000, popis: "fotky banneru setu" });
-      const bgSrc = await t.ev(`document.querySelector("#product-detail-form .lcd1v-bs__bg").currentSrc`);
-      j.over(/\/img\/1v\/set-banner-autokoberce-(480|800)\.jpg$/.test(bgSrc), "fotka pozadia banneru: " + bgSrc);
-      // stuha „Zľava −X %“ (Michal 17. 10. 2026) a väčšie bunky pod cenou — percento z nezávislých čísel testu
-      const pct = percentoZlavy(own, setCena);
-      const G = await t.ev(stavStuhy("#product-detail-form .lcd1v-bs"));
-      overStuhu(j, G, { percento: pct, popis: "round((" + own + " − " + setCena + ") / " + own + " × 100)" });
-      j.over(st.setHref === cesta(jedno.url), "odkaz setu " + st.setHref + " ≠ jednovrstvové " + cesta(jedno.url));
-      info.push("banner: len za " + setCena + " € s autokobercami pod sedadlá, samostatne " + own + " €, ušetríte " + us + " €, stuha „" + G.stuha + "“ (" + G.px + " px, bez prekrytia) -> " + jedno.id + " (" + bgSrc.split("/").pop() + ")");
+      // Michal 17. 10. 2026: „toto má byť v medzikroku, nie ďalší iný banner“ -> pod cenou ani inde mimo medzikroku banner nie je
+      j.over(st.bannerMimo === 0 && st.starePasy === 0, "banner setu mimo medzikroku (" + st.bannerMimo + "×) / starý pás setu (" + st.starePasy + "×)");
       // Classic: odkaz na Premium toho istého vzoru pod košíkom; Premium bez neho
       if (typ === "kufor-classic") {
         const pr = profil("kufor-premium", P.vzor);
@@ -220,80 +158,6 @@ export const SCENARE = {
       j.over(s.posty.length === 0, "scenár bez košíka poslal POST: " + (s.posty[0] && s.posty[0].body));
       info.push("farba " + f1 + ": hlavná fotka bez zmeny, POST 0");
       return { info: info.join("; ") };
-    },
-  },
-
-  "kufor-set-prenos": {
-    typy: ["kufor-classic", "kufor-premium"],
-    async fn(s, a, pom, ovl, j) {
-      if (ovl.zdroj.kroky !== "novy") return { preskoc: "len nový vzhľad (?novy=1 / --vyvoj)" };
-      const t = s.t, P = a.produkt, druh = P.typ === "kufor-premium" ? "premium" : "classic";
-      const J = profil("jedno", P.vzor);
-      j.over(J, "jednovrstvové vzoru " + P.vzor + " nie sú v profiloch");
-      await j.otvor(s, a.url, { novy: true });
-      await t.cakaj(`!!document.querySelector("#product-detail-form .lcd1v-bs a.lcd1v-bs__tl")`, { ms: 15000, popis: "banner setu (GET jednovrstvových)" });
-      // očakávaná voľba kufra NEZÁVISLE: GET živej stránky jednovrstvových, select „do kufru“ (Classic = dno, Premium = boky)
-      const kuforOcak = await t.ev(`(async function (url, premium) {
-        var html = await fetch(url, { credentials: "same-origin" }).then(function (r) { return r.text(); });
-        var d = new DOMParser().parseFromString(html, "text/html");
-        var s = Array.prototype.find.call(d.querySelectorAll("#product-detail-form select[data-parameter-name]"), function (x) { return /do\\s+kufr/i.test(x.getAttribute("data-parameter-name")); });
-        var o = s && Array.prototype.find.call(s.options, function (o) { var tx = o.textContent; return o.value && (premium ? /bok/i.test(tx) : /dno/i.test(tx) && !/bok/i.test(tx)); });
-        return o ? o.value : null;
-      })(${JSON.stringify(cesta(J.url))}, ${druh === "premium"})`);
-      j.over(kuforOcak, "voľba kufra " + druh + " na " + J.url + " sa nedala zistiť (test)");
-      // skutočný klik myšou na zelené tlačidlo
-      await t.klikni("#product-detail-form .lcd1v-bs a.lcd1v-bs__tl", { popis: "zelené tlačidlo banneru setu" });
-      await t.cakaj(`location.pathname === ${JSON.stringify(cesta(J.url))}`, { ms: 40000, popis: "prechod na jednovrstvové " + J.id });
-      t.zabudni();
-      s.produkt = J;
-      try {
-        await t.cakaj(j.TYPY_TEST.jedno.pripravene, { ms: 40000, popis: "postavený konfigurátor " + J.id });
-        await t.cakaj(`document.body.classList.contains("lcd-1v") && document.body.getAttribute("data-lcd1v-typ") === "jedno" && !!window.__lcd1v`, { ms: 30000, popis: "nový vzhľad na " + J.id });
-        const idK = await t.idParametra("kufor");
-        await t.cakaj(`(document.querySelector('#product-detail-form select[data-parameter-id="${idK}"]') || {}).value === ${JSON.stringify(kuforOcak)}`, { ms: 20000, popis: "predvybraná rohož " + druh + " (" + kuforOcak + ")" });
-        await j.pauza(2300); // prenos.js dorovnáva otvorený krok do 2 s
-        const st = await t.ev(`(function () {
-          var f = document.getElementById("product-detail-form"), k = null;
-          try { k = JSON.parse(sessionStorage.getItem(${JSON.stringify(KLUC_PRENOSU)}) || "null"); } catch (e) {}
-          var p = f.querySelector('.upsale-buttons.trunk .lcd1v-kb__karta[aria-pressed="true"]');
-          return { karta: !!f.querySelector(".upsale-buttons.trunk > .parameter-cars > .upsale-button.active"), press: p ? p.getAttribute("data-kufor") : "",
-            kluc: k, chyby: window.__lcd1v ? window.__lcd1v.chyby.slice() : ["window.__lcd1v chýba"] };
-        })()`);
-        j.over(st.karta && st.press === druh, "rohož na " + J.id + ": živá karta " + st.karta + ", karta nového vzhľadu „" + st.press + "“ (má " + druh + ")");
-        j.over(st.kluc && st.kluc.z === P.id && st.kluc.na === J.id && st.kluc.prijate > 0 && JSON.stringify(st.kluc.vyber) === JSON.stringify({ kufor: kuforOcak }),
-          "kľúč prenosu " + JSON.stringify(st.kluc) + " ≠ { z: " + P.id + ", na: " + J.id + ", vyber: { kufor: " + kuforOcak + " }, prijate }");
-        j.over(!st.chyby.length, "window.__lcd1v.chyby na " + J.id + ": " + st.chyby.join("; "));
-        // formulár cieľa (kľúče POST) — j.otvor tu nebežal
-        s.formKluce = await t.ev(`(function () {
-          var f = document.getElementById("product-detail-form"), k = ["productId", "priceId", "language", "amount"], volitelne = [];
-          Array.prototype.forEach.call(f.querySelectorAll("select[name]"), function (s) { k.push(s.name); });
-          Array.prototype.forEach.call(f.querySelectorAll(".content-wrap input[type=radio][name^='parameter-']"), function (r) { if (volitelne.indexOf(r.name) < 0) volitelne.push(r.name); });
-          return { povinne: k.sort(), volitelne: volitelne, priceIdZaklad: (f.querySelector("input[name=priceId]") || {}).value || "" };
-        })()`);
-        // úplný výber bez dotyku kroku kufra -> POST
-        const z1 = await j.zaklad(s, ovl);
-        await ovl.cena.pridajDoKosika(t);
-        const post1 = await j.cakajNaPost(s);
-        const cena1 = await j.overPost(s, post1, { ...z1.ocak, kufor: kuforOcak });
-        const c1 = await j.overCenu(s, ovl, cena1);
-        // ručný výber: tá istá stránka nanovo (kľúč je prijatý -> nič sa nepreberie), rohož kartou v kroku kufra
-        s.posty.length = 0;
-        await j.otvor(s, J.url, { novy: true });
-        const pred = await t.ev(`(document.querySelector('#product-detail-form select[data-parameter-id="${idK}"]') || {}).value || ""`);
-        j.over(pred !== kuforOcak, "pri druhej návšteve " + J.id + " je rohož znova predvybraná (" + pred + ") — kľúč sa mal prijať len raz");
-        const z2 = await j.zaklad(s, ovl);
-        const kufor2 = await ovl.kuforBoxy.vyberKufor(t, druh);
-        j.over(kufor2 === kuforOcak, "ručná voľba " + druh + " = " + kufor2 + " ≠ " + kuforOcak);
-        await ovl.cena.pridajDoKosika(t);
-        const post2 = await j.cakajNaPost(s);
-        await j.overPost(s, post2, { ...z2.ocak, kufor: kufor2 });
-        const p1 = post1.pole, p2 = post2.pole, rozdiel = [];
-        new Set([...Object.keys(p1), ...Object.keys(p2)]).forEach((k) => { if (p1[k] !== p2[k]) rozdiel.push(k + ": prenos " + p1[k] + " / ručne " + p2[k]); });
-        j.over(!rozdiel.length, "POST po prenose ≠ POST pri ručnom výbere: " + rozdiel.join("; "));
-        return { info: `${P.id} -> ${J.id}: rohož ${druh} (${kuforOcak}) predvybraná, karta stlačená; POST = ručný výber (${Object.keys(p1).length} polí), ${c1.videne} €`, post: post1.body, spolu: cena1.spolu };
-      } finally {
-        s.produkt = P;
-      }
     },
   },
 

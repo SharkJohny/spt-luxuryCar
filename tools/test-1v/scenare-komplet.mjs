@@ -6,10 +6,12 @@
 //
 //   kufor-komplet-nie  karta skrytá, kým nie je auto úplné; potom viditeľná BEZ čísla medzi kartou Auto a Farba (DOM aj
 //                      obrazovka), postup „… v 3 krokoch“ a „Krok N z 3“ bez zmeny; „Pokračujte ďalej“ v Aute otvorí kartu
-//                      (nie Farbu); texty (nadpis, veta s cenou, dlaždica, tlačidlá), dve reálne fotky (autokoberce vzoru +
-//                      fotka rohože), cenovka „V sete len X €“ / „Samostatne <s>Y €</s>“ / „Ušetríte Z €“ = čísla zistené
+//                      (nie Farbu); telo karty = banner setu C (Michal 17. 10. 2026: „toto má byť v medzikroku, nie ďalší
+//                      iný banner“): „Rohož do kufra … len za X €“ + „keď ju kúpite spolu s autokobercami pod sedadlá“,
+//                      „Samostatne <s>Y €</s>“, „Ušetríte Z €“, stuha „Zľava −P %“ (bez prekrytia, set-banner-kontrola.mjs),
+//                      fotka pozadia set-banner-autokoberce-480/800 (lenivo, ≤ 80 kB), malá fotka = og:image; čísla zistené
 //                      NEZÁVISLE (GET jednovrstvových toho istého vzoru: voľba kufra dno / dno + boky; profil: cena rohože);
-//                      zelené Áno v dlaždici, zlaté Nie; Nie -> karta zbalená („Len rohož do kufra“), otvorí sa Farba;
+//                      zelené Áno v banneri, zlaté Nie pod ním; Nie -> karta zbalená („Len rohož do kufra“), otvorí sa Farba;
 //                      farba -> POST = baseline (profil platne: priceId, suma)
 //   kufor-komplet-ano  hlavička karty -> Áno -> jednovrstvové toho istého vzoru: rohož (Classic = dno, Premium = dno + boky)
 //                      predvybraná, auto prenesené, otvorená Farba bez predvoľby; farba + rozloženie -> POST; tá istá
@@ -22,16 +24,22 @@
 //                      1. box M + 2. box L na 598); farba, ktorú set má (podľa názvu); Áno -> 598: počet, farba boxov
 //                      a veľkosti prenesené, okno boxov zatvorené; auto + farba + rozloženie -> POST; nanovo ručne -> POST
 //                      rovnaký pole po poli
-//   box-komplet-seda   farba boxu, ktorú set nemá (dnes Šedá — test ju hľadá sám porovnaním názvov 616 a 598): veta v dlaždici
+//   box-komplet-seda   farba boxu, ktorú set nemá (dnes Šedá — test ju hľadá sám porovnaním názvov 616 a 598): veta pod bannerom
 //                      to povie; Áno -> 598: počet a veľkosť prenesené, farba nie — okno boxov otvorené na výber farby;
 //                      zákazník zvolí farbu a potvrdí; auto + farba + rozloženie -> POST platný (box solo, farba boxov)
 //   box-komplet-3      3 boxy: karta sa neukáže (ani keď bola pri 2 boxoch viditeľná), „Pokračujte k súhrnu“ ide rovno na
 //                      súhrn; POST 3 boxov platný
-import { join } from "node:path";
+import { statSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { PRODUKTY } from "./produkty.mjs";
+import { stavStuhy, overStuhu, percentoZlavy } from "./set-banner-kontrola.mjs";
 import { F } from "./stary-ui.mjs";
 
 const KARTA = `${F} .lcd1v-komplet`;
+const BANNER = `${KARTA} .lcd1v-bs`;
+const IMG_1V = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "assets", "img", "1v");
+const FOTKA_BANNERA = ["set-banner-autokoberce-480.jpg", "set-banner-autokoberce-800.jpg"];
 const KLUC = "lcd1vPrenos:v1";
 const OKNO = `${F} .upsale-Banner.lcd1v-kb .box-config`;
 const cisty = (s) => String(s == null ? "" : s).replace(/\s+/g, " ").trim(); // aj NBSP
@@ -65,27 +73,30 @@ function stavKarty(t) {
     function tl(b) { return b ? { tag: b.tagName, typ: b.type, text: b.textContent.replace(/\\s+/g, " ").trim(), tab: b.tabIndex, pozadie: getComputedStyle(b).backgroundImage, vidno: vid(b) } : null; }
     function box(e) { if (!e || !vid(e)) return null; var r = e.getBoundingClientRect(); return { top: Math.round(r.top), bottom: Math.round(r.bottom) }; }
     var f = document.getElementById("product-detail-form");
-    var dl = k.querySelector(".lcd1v-komplet__dlazdica"), ano = k.querySelector(".lcd1v-komplet__ano"), nie = k.querySelector(".lcd1v-komplet__nie");
-    var cb = k.querySelector(".lcd1v-komplet__cb"), s = k.querySelector(".lcd1v-komplet__cb-s"), pr = s && s.querySelector("s"), u = k.querySelector(".lcd1v-komplet__cb-u");
+    var bs = k.querySelector(".lcd1v-bs"), ano = k.querySelector(".lcd1v-komplet__ano"), nie = k.querySelector(".lcd1v-komplet__nie");
     var meno = function (e) { var m = e && /lcd1v-k-(\\w+)/.exec(e.className || ""); return m ? m[1] : (e ? (e.className || e.tagName) : null); };
+    var bg = bs && bs.querySelector("img.lcd1v-bs__bg"), pip = bs && bs.querySelector(".lcd1v-bs__pip img"), ss = bs && bs.querySelector(".lcd1v-bs__s s");
     return {
       je: true, vidno: vid(k), otvorena: k.classList.contains("active"), hotova: k.classList.contains("lcd1v-hotovy"),
       ey: tx(":scope > .lcd1v-hd .lcd1v-ey"), nm: tx(":scope > .lcd1v-hd .lcd1v-nm"), ti: tx(":scope > .lcd1v-hd .lcd1v-ti"), vy: tx(":scope > .lcd1v-hd .lcd1v-vy"),
       cislo: tx(":scope > .lcd1v-hd .lcd1v-no"), cisloVidno: vid(k.querySelector(":scope > .lcd1v-hd .lcd1v-no")),
-      pod: tx(":scope > .lcd1v-pod"), stitok: tx(".lcd1v-kb__top"), dnm: tx(".lcd1v-kb__nm"), dpo: tx(".lcd1v-kb__po"), dben: tx(".lcd1v-kb__ben"),
-      cb: vid(cb) ? { l: tx(".lcd1v-komplet__cb-l"), c: tx(".lcd1v-komplet__cb-c"), s: vid(s) ? tx(".lcd1v-komplet__cb-s") : null, pr: pr ? pr.textContent.replace(/\\s+/g, " ").trim() : null,
-        u: vid(u) ? tx(".lcd1v-komplet__cb-u") : null, ciara: pr ? getComputedStyle(pr).textDecorationLine + " " + getComputedStyle(pr).textDecorationColor : "",
-        pilulka: u ? getComputedStyle(u).backgroundColor + " " + getComputedStyle(u).color : "", cPx: Math.round(parseFloat(getComputedStyle(k.querySelector(".lcd1v-komplet__cb-c")).fontSize)),
-        pretek: cb.scrollWidth > cb.clientWidth + 1 || cb.parentNode.scrollWidth > cb.parentNode.clientWidth + 1 } : null,
-      cenaTx: tx(".lcd1v-komplet__cb-c"), // aj pri zbalenej karte (cenovka je v skrytom tele karty)
+      pod: tx(":scope > .lcd1v-pod"), ben: tx(":scope > .lcd1v-komplet__ben"),
+      // banner setu C v tele karty (set-banner.js)
+      bs: vid(bs) ? { ey: tx(".lcd1v-bs__ey"), h: tx(".lcd1v-bs__h"), c: tx(".lcd1v-bs__c"), kd: tx(".lcd1v-bs__kd"), s: tx(".lcd1v-bs__s"), pr: tx(".lcd1v-bs__s s"),
+        u: tx(".lcd1v-bs__u"), tag: tx(".lcd1v-bs__tag"), pip: tx(".lcd1v-bs__pip i"), attr: bs.getAttribute("data-lcd1v-set"),
+        poradie: Array.prototype.map.call(bs.querySelectorAll(".lcd1v-bs__row > *"), function (e) { return e.className; }).join(","),
+        ciara: ss ? getComputedStyle(ss).textDecorationLine : "", cPx: Math.round(parseFloat(getComputedStyle(bs.querySelector(".lcd1v-bs__c")).fontSize)),
+        bgSrc: bg ? bg.currentSrc || bg.getAttribute("src") : "", bgSrcset: bg ? bg.getAttribute("srcset") || "" : "", bgLoading: bg ? bg.getAttribute("loading") : null,
+        pipSrc: pip ? pip.getAttribute("src") : null, pipLoading: pip ? pip.getAttribute("loading") : null,
+        fotkyOk: Array.prototype.every.call(bs.querySelectorAll("img"), function (i) { return i.complete && i.naturalWidth > 0; }),
+        vyska: Math.round(bs.getBoundingClientRect().height), pretek: bs.scrollWidth > bs.clientWidth + 1 } : null,
+      cenaTx: tx(".lcd1v-bs__c"), // aj pri zbalenej karte (banner je v skrytom tele karty)
       ano: tl(ano), nie: tl(nie), pozn: tx(":scope > .lcd1v-pozn"),
-      anoVDlazdici: !!(dl && ano && dl.contains(ano)), dlTag: dl ? dl.tagName : null, dlTlacidiel: dl ? dl.querySelectorAll("button").length : 0,
+      anoVBanneri: !!(bs && ano && bs.contains(ano)), bsTlacidiel: bs ? bs.querySelectorAll("button, a").length : 0,
       anoNadNie: !!(ano && nie && ano.getBoundingClientRect().bottom <= nie.getBoundingClientRect().top),
-      fotky: dl ? Array.prototype.map.call(dl.querySelectorAll("img"), function (i) { return { src: i.currentSrc || i.getAttribute("src") || "", ok: i.complete && i.naturalWidth > 0, vidno: vid(i), loading: i.getAttribute("loading") }; }) : [],
       maName: !!k.querySelector("[name]"), anoZablok: !!(ano && ano.disabled), nieZablok: !!(nie && nie.disabled),
       prenos: vid(k.querySelector(".lcd1v-komplet__prenos")) ? tx(".lcd1v-komplet__prenos") : null,
       text: k.textContent.replace(/\\s+/g, " ").trim(),
-      dlVyska: dl ? Math.round(dl.getBoundingClientRect().height) : 0,
       pred: meno(k.previousElementSibling), za: meno(k.nextElementSibling),
       poloha: { karta: box(k), auto: box(f.querySelector(".lcd1v-k-auto")), farba: box(f.querySelector(".lcd1v-k-farba")), pocet: box(f.querySelector(".lcd1v-k-pocet")), velkost: box(f.querySelector(".lcd1v-k-velkost")) },
     };
@@ -122,48 +133,58 @@ async function nastavFormKluce(s) {
   })()`);
 }
 
-/** Čaká, kým je karta viditeľná a má cenovku (čísla prídu z GET jednovrstvových) -> stav karty. */
+/** Čaká, kým je karta viditeľná a má banner s cenou (čísla prídu z GET jednovrstvových) -> stav karty. */
 async function cakajKartu(t, popis) {
-  await t.cakaj(`(function () { var k = document.querySelector(${JSON.stringify(KARTA)}); var c = k && k.querySelector(".lcd1v-komplet__cb-c");
+  await t.cakaj(`(function () { var k = document.querySelector(${JSON.stringify(KARTA)}); var c = k && k.querySelector(".lcd1v-bs__c");
     return !!(k && !k.hidden && k.offsetHeight > 30 && c && c.textContent.trim()); })()`, { ms: 30000, popis });
   return stavKarty(t);
 }
 
-/** Otvorená karta (po „Pokračujte“ alebo hlavičke): výška > 200 px, fotky načítané. */
+/** Otvorená karta (po „Pokračujte“ alebo hlavičke): výška > 200 px, fotky banneru načítané. */
 async function cakajOtvorenu(t, popis) {
   await t.cakaj(`(function () { var k = document.querySelector(${JSON.stringify(KARTA)}); return !!(k && k.classList.contains("active") && k.getBoundingClientRect().height > 200); })()`, { ms: 10000, popis });
-  await t.ev(`document.querySelector(${JSON.stringify(KARTA + " .lcd1v-komplet__dlazdica")}).scrollIntoView({ block: "center", behavior: "instant" })`);
-  await t.cakaj(`Array.prototype.every.call(document.querySelectorAll(${JSON.stringify(KARTA + " .lcd1v-komplet__dlazdica img")}), function (i) { return i.complete && i.naturalWidth > 0; })`, { ms: 15000, popis: "fotky v dlaždici ponuky" });
+  await t.ev(`document.querySelector(${JSON.stringify(BANNER)}).scrollIntoView({ block: "center", behavior: "instant" })`);
+  await t.cakaj(`Array.prototype.every.call(document.querySelectorAll(${JSON.stringify(BANNER + " img")}), function (i) { return i.complete && i.naturalWidth > 0; })`, { ms: 15000, popis: "fotky banneru ponuky" });
   await t.pauza(400);
   return stavKarty(t);
 }
 
-/** Spoločné kontroly otvorenej karty: texty, tlačidlá, farby, fotky, cenovka (čísla podaj zvonka), bez „+ číslo“. */
-function overOtvorenu(j, st, { pod, dnm, dpo, dben, vSete, samostatne, pozn, foto1, foto2, kde }) {
+/** Spoločné kontroly otvorenej karty: nadpis, banner C (texty, čísla podaj zvonka, stuha, fotky), tlačidlá, bez „+ číslo“. */
+async function overOtvorenu(t, j, st, { h, kd, pip, ben, vSete, samostatne, pozn, pipSrc, kde }) {
   j.over(st.ti === "Prosíte si aj autokoberce pod sedadlá?", `${kde}: nadpis „${st.ti}“`);
   j.over(st.ey === "Autokoberce pod sedadlá" && !st.cisloVidno, `${kde}: karta bez čísla (eyebrow „${st.ey}“, číslo „${st.cislo}“ viditeľné ${st.cisloVidno})`);
-  j.over(st.pod === pod, `${kde}: veta „${st.pod}“ ≠ „${pod}“`);
-  j.over(st.stitok === "★ Výhodnejšie v sete" && st.dnm === dnm && st.dpo === dpo && st.dben === dben,
-    `${kde}: dlaždica „${st.stitok} | ${st.dnm} | ${st.dpo} | ${st.dben}“ ≠ „★ Výhodnejšie v sete | ${dnm} | ${dpo} | ${dben}“`);
+  j.over(!st.pod, `${kde}: nad bannerom nemá byť veta (banner hovorí všetko): „${st.pod}“`);
   const us = Math.round((samostatne - vSete) * 100) / 100;
-  j.over(!!st.cb, `${kde}: cenovka nie je viditeľná`);
-  j.over(st.cb.l === "V sete len" && st.cb.c === eur(vSete), `${kde}: cenovka „${st.cb.l} ${st.cb.c}“ ≠ „V sete len ${eur(vSete)}“`);
-  j.over(st.cb.s === "Samostatne " + eur(samostatne) && st.cb.pr === eur(samostatne), `${kde}: „${st.cb.s}“ ≠ Samostatne ${eur(samostatne)} (prečiarknuté)`);
-  j.over(st.cb.u === "Ušetríte " + eur(us), `${kde}: „${st.cb.u}“ ≠ Ušetríte ${eur(us)}`);
-  j.over(/line-through/.test(st.cb.ciara) && /192, 57, 43/.test(st.cb.ciara), `${kde}: samostatná cena nie je prečiarknutá červenou: ${st.cb.ciara}`);
-  j.over(/226, 243, 233/.test(st.cb.pilulka) && /29, 107, 74/.test(st.cb.pilulka), `${kde}: „Ušetríte“ nie je zelená pilulka: ${st.cb.pilulka}`);
-  j.over(st.cb.cPx >= 24, `${kde}: cena v sete má byť veľká (${st.cb.cPx} px)`);
-  j.over(!st.cb.pretek, `${kde}: cenovka pretŕča zo stĺpca dlaždice`);
-  // tlačidlá: zelené „Áno“ v dlaždici (kam chceme zákazníka), zlaté „Nie“ pod ňou; skutočné <button type=button>
-  j.over(st.ano && st.ano.tag === "BUTTON" && st.ano.typ === "button" && st.ano.text === "Áno, chcem set s autokobercami" && st.ano.tab >= 0 && st.ano.vidno && st.anoVDlazdici,
-    `${kde}: tlačidlo Áno ${JSON.stringify(st.ano)} (v dlaždici ${st.anoVDlazdici})`);
+  const B = st.bs;
+  j.over(!!B, `${kde}: banner setu v karte nie je viditeľný`);
+  if (!B) return us;
+  // texty banneru C (Michal 17. 10. 2026): cena v sete s vysvetlením, nikdy „+ X €“ (vyzerá ako príplatok k cene hore)
+  j.over(cisty(B.ey) === "★ Výhodnejšie v sete" && B.h === h && cisty(B.c) === eur(vSete) && B.kd === kd,
+    `${kde}: banner „${B.ey} | ${B.h} | ${B.c} | ${B.kd}“ ≠ „★ Výhodnejšie v sete | ${h} | ${eur(vSete)} | ${kd}“`);
+  j.over(cisty(B.s) === "Samostatne " + eur(samostatne) && cisty(B.pr) === eur(samostatne) && /line-through/.test(B.ciara) && cisty(B.u) === "Ušetríte " + eur(us),
+    `${kde}: „${B.s}“ / „${B.u}“ ≠ Samostatne ${eur(samostatne)} (prečiarknuté) / Ušetríte ${eur(us)}`);
+  j.over(B.poradie === "lcd1v-bs__c,lcd1v-bs__kd,lcd1v-bs__sb", `${kde}: poradie v DOM (čítačka: cena hneď s podmienkou): ${B.poradie}`);
+  j.over(Number(B.attr) === vSete, `${kde}: data-lcd1v-set ${B.attr} ≠ ${vSete}`);
+  j.over(B.cPx >= 40, `${kde}: cena v sete má byť veľká (${B.cPx} px)`);
+  j.over(B.tag === "Autokoberce pod sedadlá" && B.pip === pip, `${kde}: štítky banneru ${JSON.stringify([B.tag, B.pip])} ≠ Autokoberce pod sedadlá / ${pip}`);
+  j.over(!B.pretek, `${kde}: banner preteká`);
+  // fotky: pozadie = reálne autokoberce (lenivo, srcset), malá fotka = rohož (og:image) / box podľa počtu
+  j.over(B.fotkyOk && B.bgLoading === "lazy" && B.pipLoading === "lazy" && FOTKA_BANNERA.every((x) => B.bgSrcset.includes("/img/1v/" + x)) && /\/img\/1v\/set-banner-autokoberce-(480|800)\.jpg$/.test(B.bgSrc),
+    `${kde}: fotky banneru: ok ${B.fotkyOk}, loading ${B.bgLoading}/${B.pipLoading}, ${B.bgSrc}, srcset ${B.bgSrcset}`);
+  j.over(pipSrc.test(String(B.pipSrc || "").split("?")[0]), `${kde}: malá fotka ${B.pipSrc} ≠ ${pipSrc}`);
+  const velkosti = FOTKA_BANNERA.map((x) => statSync(join(IMG_1V, x)).size);
+  j.over(velkosti.every((v) => v <= 82000), `${kde}: fotky pozadia banneru majú byť ≤ 80 kB: ${velkosti.join(" / ")} B`);
+  // stuha „Zľava −X %“ (percento z nezávislých čísel testu), bez prekrytia textu, tlačidla a štítkov; bunky pod cenou ≥ 20 px
+  const G = await t.ev(stavStuhy(BANNER));
+  overStuhu(j, G, { percento: percentoZlavy(samostatne, vSete), popis: `${kde}: round((${samostatne} − ${vSete}) / ${samostatne} × 100)` });
+  j.over(st.ben === ben, `${kde}: veta pod bannerom „${st.ben}“ ≠ „${ben}“`);
+  // tlačidlá: zelené „Áno“ v banneri (kam chceme zákazníka), zlaté „Nie“ pod ním; skutočné <button type=button>
+  j.over(st.ano && st.ano.tag === "BUTTON" && st.ano.typ === "button" && st.ano.text === "Áno, chcem set s autokobercami" && st.ano.tab >= 0 && st.ano.vidno && st.anoVBanneri,
+    `${kde}: tlačidlo Áno ${JSON.stringify(st.ano)} (v banneri ${st.anoVBanneri})`);
   j.over(st.nie && st.nie.tag === "BUTTON" && st.nie.typ === "button" && st.nie.text === "Nie, ďakujem" && st.nie.vidno && st.pozn === pozn, `${kde}: tlačidlo Nie ${JSON.stringify(st.nie)} / „${st.pozn}“`);
-  j.over(st.dlTag === "DIV" && st.dlTlacidiel === 1 && st.anoNadNie, `${kde}: dlaždica ${st.dlTag} s ${st.dlTlacidiel} tlačidlami, Áno nad Nie ${st.anoNadNie}`);
+  j.over(st.bsTlacidiel === 1 && st.anoNadNie, `${kde}: banner má ${st.bsTlacidiel} tlačidiel/odkazov (1 = Áno), Áno nad Nie ${st.anoNadNie}`);
   j.over(/47, 156, 104|29, 107, 74/.test(st.ano.pozadie) && /196, 155, 49|177, 136, 34|226, 190, 92/.test(st.nie.pozadie), `${kde}: farby Áno (zelené) ${st.ano.pozadie} / Nie (zlaté) ${st.nie.pozadie}`);
-  // dve reálne fotky: autokoberce pod sedadlá vo vzore + rohož / box; lenivo
-  j.over(st.fotky.length === 2 && st.fotky.every((f) => f.ok && f.vidno && f.loading === "lazy"), `${kde}: fotky ${JSON.stringify(st.fotky)}`);
-  j.over(foto1.test(st.fotky[0].src) && foto2.test(st.fotky[1].src), `${kde}: fotky ${st.fotky.map((f) => f.src).join(" | ")} ≠ ${foto1} | ${foto2}`);
-  // ceny setu bez „+“ (Michal 17. 10. 2026: „+ X €“ vyzerá ako príplatok); „+ 2 boxy“ je počet, nie cena
+  // ceny setu bez „+“ (Michal 17. 10. 2026: „+ X €“ vyzerá ako príplatok); „2 boxy“ je počet, nie cena
   j.over(!/\+\s*\d[\d\s.,]*€/.test(st.text), `${kde}: v karte je cena s „+“: ${st.text}`);
   j.over(!ZAKAZANE.test(st.text), `${kde}: zakázané slovo v karte: ${st.text}`);
   j.over(!st.maName, `${kde}: prvok s name v karte (išiel by do POST)`);
@@ -301,16 +322,15 @@ export const SCENARE = {
       const otv = await cakajOtvorenu(t, "otvorená karta ponuky po „Pokračujte ďalej“ v Aute");
       const farbaOtv = await t.ev(`document.querySelector("${F} .lcd1v-k-farba").classList.contains("active")`);
       j.over(!farbaOtv, "po „Pokračujte ďalej“ v Aute sa otvorila Farba, má sa otvoriť karta ponuky");
-      const us = overOtvorenu(j, otv, {
-        pod: "Rohož do kufra " + rohoz + " len za " + eur(vk.cena) + ", keď ju kúpite spolu s autokobercami pod sedadlá.",
-        dnm: "Autokoberce pod sedadlá", dpo: "+ rohož do kufra " + rohoz, dben: "Vzor aj auto Vám ostanú, rohož bude vo farbe autokobercov.",
-        vSete: vk.cena, samostatne: own, pozn: "Pokračujete len s rohožou do kufra.",
-        foto1: new RegExp("/img/1v/kroky-vzor-" + P.vzor + "\\.jpg$"), foto2: /\/user\/shop\//, kde: "karta " + P.id,
-      });
       const og = await t.ev(`(document.querySelector('meta[property="og:image"]') || {}).content || ""`);
-      j.over(otv.fotky[1].src.split("?")[0] === og.split("?")[0], `fotka rohože ${otv.fotky[1].src} ≠ og:image ${og}`);
+      const us = await overOtvorenu(t, j, otv, {
+        h: "Rohož do kufra " + rohoz + " len za", kd: "keď ju kúpite spolu s autokobercami pod sedadlá", pip: "Rohož do kufra " + rohoz,
+        ben: "Vzor aj auto Vám ostanú, rohož bude vo farbe autokobercov.",
+        vSete: vk.cena, samostatne: own, pozn: "Pokračujete len s rohožou do kufra.",
+        pipSrc: new RegExp("^" + og.split("?")[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"), kde: "karta " + P.id,
+      });
       await overFokus(t, j, "karta " + P.id);
-      if (t.mobil) j.over(otv.dlVyska > 0 && otv.dlVyska <= 560, `dlaždica na telefóne je vysoká ${otv.dlVyska} px (najviac 560)`);
+      if (t.mobil && otv.bs) j.over(otv.bs.vyska > 0 && otv.bs.vyska <= 640, `banner na telefóne je vysoký ${otv.bs.vyska} px (najviac 640)`);
       await snimka(s, a, "komplet-otazka", KARTA);
       // Nie -> karta zbalená, otvorí sa Farba
       await t.klikni(`${KARTA} .lcd1v-komplet__nie`, { popis: "Nie, ďakujem" });
@@ -427,11 +447,11 @@ export const SCENARE = {
       const otv = await cakajOtvorenu(t, "otvorená karta ponuky po „Pokračujte k súhrnu“");
       const samo = await cenaStrankyBoxu(t);
       j.over(samo > 0, "cena stránky boxu sa nedala zistiť (test)");
-      const us = overOtvorenu(j, otv, {
-        pod: "Box do kufra M len za " + eur(ciel.solo.M.cena) + ", keď ho kúpite spolu s autokobercami pod sedadlá.",
-        dnm: "Autokoberce pod sedadlá", dpo: "+ box do kufra M", dben: "Farba aj veľkosť boxu Vám ostanú.",
+      const us = await overOtvorenu(t, j, otv, {
+        h: "Box do kufra M len za", kd: "keď ho kúpite spolu s autokobercami pod sedadlá", pip: "Box do kufra",
+        ben: "Farba aj veľkosť boxu Vám ostanú.",
         vSete: ciel.solo.M.cena, samostatne: samo, pozn: "Pokračujete len s boxom do kufra.",
-        foto1: /\/img\/1v\/kroky-vzor-diamond\.jpg$/, foto2: /\/img\/1v\/boxprodukt-pocet-1\.jpg$/, kde: "karta 616 (1 × M)",
+        pipSrc: /\/img\/1v\/boxprodukt-pocet-1\.jpg$/, kde: "karta 616 (1 × M)",
       });
       await overFokus(t, j, "karta 616");
       j.over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST: " + (s.posty[0] && s.posty[0].body));
@@ -475,15 +495,15 @@ export const SCENARE = {
       j.over(!(await stavKarty(t)).vidno, "pri 2 boxoch bez veľkosti 2. boxu je karta viditeľná");
       const v = await ovl.boxy.vyberVelkosti(t, ["M", "L"]);
       const vSete = Math.round((ciel.b1.M.cena + ciel.b2.L.cena) * 100) / 100;
-      await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-komplet__cb-c")}) || {}).textContent || "").replace(/\\s+/g, " ").trim() === ${JSON.stringify(eur(vSete))}`, { ms: 10000, popis: "cena v karte prepočítaná na 2 boxy" });
+      await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\\s+/g, " ").trim() === ${JSON.stringify(eur(vSete))}`, { ms: 10000, popis: "cena v karte prepočítaná na 2 boxy" });
       await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty ponuky" });
       const otv = await cakajOtvorenu(t, "otvorená karta ponuky (2 boxy)");
       const samo = await cenaStrankyBoxu(t);
-      const us = overOtvorenu(j, otv, {
-        pod: "Boxy do kufra M + L len za " + eur(vSete) + ", keď ich kúpite spolu s autokobercami pod sedadlá.",
-        dnm: "Autokoberce pod sedadlá", dpo: "+ 2 boxy do kufra M + L", dben: "Farba aj veľkosti boxov Vám ostanú.",
+      const us = await overOtvorenu(t, j, otv, {
+        h: "Boxy do kufra M + L len za", kd: "keď ich kúpite spolu s autokobercami pod sedadlá", pip: "2 boxy do kufra",
+        ben: "Farba aj veľkosti boxov Vám ostanú.",
         vSete, samostatne: samo, pozn: "Pokračujete len s boxmi do kufra.",
-        foto1: /\/img\/1v\/kroky-vzor-diamond\.jpg$/, foto2: /\/img\/1v\/boxprodukt-pocet-2\.jpg$/, kde: "karta 616 (2 × M + L)",
+        pipSrc: /\/img\/1v\/boxprodukt-pocet-2\.jpg$/, kde: "karta 616 (2 × M + L)",
       });
       await snimka(s, a, "komplet-otazka-2boxy", KARTA);
       const ocak = { pocetBoxov: 2, farbaBoxov: fv.ciel.hodnota, box1: ciel.b1.M.hodnota, box2: ciel.b2.L.hodnota };
@@ -547,10 +567,10 @@ export const SCENARE = {
       await cakajKartu(t, "karta ponuky (farba mimo setu)");
       await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty ponuky" });
       const otv = await cakajOtvorenu(t, "otvorená karta ponuky (farba mimo setu)");
-      const nazov = cisty(otv.dben).replace(/^Farba „([^“]+)“.*$/, "$1");
-      j.over(otv.dben === "Farba „" + nazov + "“ sa v sete neponúka, farbu boxu si vyberiete pri autokobercoch." && normFarby(nazov) === normFarby(bez.text),
-        `veta o farbe mimo setu: „${otv.dben}“ (farba „${bez.text}“)`);
-      j.over(otv.cb && otv.cb.c === eur(ciel.solo.S.cena), `v sete „${otv.cb && otv.cb.c}“ ≠ Box solo S ${eur(ciel.solo.S.cena)}`);
+      const nazov = cisty(otv.ben).replace(/^Farba „([^“]+)“.*$/, "$1");
+      j.over(otv.ben === "Farba „" + nazov + "“ sa v sete neponúka, farbu boxu si vyberiete pri autokobercoch." && normFarby(nazov) === normFarby(bez.text),
+        `veta o farbe mimo setu: „${otv.ben}“ (farba „${bez.text}“)`);
+      j.over(otv.cenaTx === eur(ciel.solo.S.cena), `v sete „${otv.cenaTx}“ ≠ Box solo S ${eur(ciel.solo.S.cena)}`);
       await snimka(s, a, "komplet-seda", KARTA);
       await t.klikni(`${KARTA} .lcd1v-komplet__ano`, { popis: "Áno, chcem set s autokobercami" });
       s.produkt = J;

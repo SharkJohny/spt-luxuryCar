@@ -57,21 +57,6 @@ export const TYP = {
       vyberteVelkost: "vyberte veľkosť",
       tipB: "Tip:",
       tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
-      // banner setu pod cenou (set-banner.js, návrh C, Michal 17. 10. 2026; odkaz na jednovrstvové, čísla zo živých
-      // stránok): „Box do kufra už od 99 €, keď ho kúpite spolu s autokobercami pod sedadlá“ + „Box S samostatne 197 €“
-      // (prečiarknuté) + „Ušetríte 98 €“ — nikdy „+ 99 €“ (vyzerá ako príplatok k cene hore)
-      set: {
-        ey: "Výhodnejšie v sete",
-        h: "Box do kufra už od",
-        kd: "keď ho kúpite spolu s autokobercami pod sedadlá",
-        sam: "Box S samostatne",
-        us: "Ušetríte",
-        stuha: "Zľava", // stuha cez roh banneru, keď majú všetky veľkosti rovnaké percento (živo)
-        stuhaAz: "Zľava až", // „Zľava až −50 %“ = najvyššie percento zo živých veľkostí (S 50, M 47, L 44, XL 39 %)
-        pip: "Box do kufra",
-        tag: "Autokoberce pod sedadlá",
-        odkaz: "Zostaviť set s autokobercami",
-      },
     },
     // Ponuka setu ako skrytá karta bez čísla za kartou Veľkosť (komplet-ponuka.js; Michal 17. 10. 2026: návrh 1 „Ponuka
     // ako druhá vrstva“, pri boxe „keď si vyberie … tak hneď potom tam bude tá skrytá sekcia“). Len pri 1 alebo 2 boxoch
@@ -82,21 +67,23 @@ export const TYP = {
       ti: "Prosíte si aj autokoberce pod sedadlá?",
       vy: "Áno alebo nie",
       vyNie: (d) => (d.pocet > 1 ? "Len boxy do kufra" : "Len box do kufra"),
-      pod: (d) => (d.pocet > 1
-        ? "Boxy do kufra " + d.velkosti + " len za " + d.cena + ", keď ich kúpite spolu s autokobercami pod sedadlá."
-        : "Box do kufra " + d.velkosti + " len za " + d.cena + ", keď ho kúpite spolu s autokobercami pod sedadlá."),
-      naj: "★ Výhodnejšie v sete",
-      ano: {
-        nm: "Autokoberce pod sedadlá",
-        po: (d) => (d.pocet > 1 ? "+ " + d.pocet + " boxy do kufra " : "+ box do kufra ") + d.velkosti,
-        // farba boxu, ktorú set nemá (dnes Šedá): povedať to a farbu neprenášať — zákazník ju vyberie v okne boxov
-        ben: (d) => (d.farba === "nie" ? "Farba „" + d.nazov + "“ sa v sete neponúka, farbu boxu si vyberiete pri autokobercoch."
-          : d.farba === "ziadna" ? (d.pocet > 1 ? "Veľkosti boxov Vám ostanú, farbu vyberiete pri autokobercoch." : "Veľkosť boxu Vám ostane, farbu vyberiete pri autokobercoch.")
-            : d.pocet > 1 ? "Farba aj veľkosti boxov Vám ostanú." : "Farba aj veľkosť boxu Vám ostanú."),
-        tl: "Áno, chcem set s autokobercami",
-        alt: ["Autokoberce pod sedadlá", "Box do kufra"],
+      // telo karty = banner setu C (set-banner.js; Michal 17. 10. 2026: „toto má byť v medzikroku, nie ďalší iný banner“)
+      // s číslami pre zvolený počet a veľkosti: „Box do kufra M len za 109 €“ / „Boxy do kufra M + L len za …“
+      banner: {
+        ey: "Výhodnejšie v sete",
+        h: (d) => (d.pocet > 1 ? "Boxy do kufra " : "Box do kufra ") + d.velkosti + " len za",
+        kd: (d) => (d.pocet > 1 ? "keď ich kúpite spolu s autokobercami pod sedadlá" : "keď ho kúpite spolu s autokobercami pod sedadlá"),
+        sam: "Samostatne",
+        us: "Ušetríte",
+        stuha: "Zľava", // stuha cez roh banneru: „Zľava −X %“ pre zvolené veľkosti (živo, set-banner.js)
+        pip: (d) => (d.pocet > 1 ? d.pocet + " boxy do kufra" : "Box do kufra"),
+        tag: "Autokoberce pod sedadlá",
       },
-      cena: { vSete: "V sete len", samostatne: "Samostatne", usetrite: "Ušetríte" },
+      ano: { tl: "Áno, chcem set s autokobercami" },
+      // farba boxu, ktorú set nemá (dnes Šedá): povedať to a farbu neprenášať — zákazník ju vyberie v okne boxov
+      ben: (d) => (d.farba === "nie" ? "Farba „" + d.nazov + "“ sa v sete neponúka, farbu boxu si vyberiete pri autokobercoch."
+        : d.farba === "ziadna" ? (d.pocet > 1 ? "Veľkosti boxov Vám ostanú, farbu vyberiete pri autokobercoch." : "Veľkosť boxu Vám ostane, farbu vyberiete pri autokobercoch.")
+          : d.pocet > 1 ? "Farba aj veľkosti boxov Vám ostanú." : "Farba aj veľkosť boxu Vám ostanú."),
       nie: { nm: "Nie, ďakujem", pozn: (d) => (d.pocet > 1 ? "Pokračujete len s boxmi do kufra." : "Pokračujete len s boxom do kufra.") },
       prenos: "Prenášame Váš výber na autokoberce pod sedadlá…",
     },
@@ -116,7 +103,5 @@ export const TYP = {
     "boxprodukt-farba-hneda-kava": { diamond: "boxprodukt-farba-hneda-kava.jpg" },
     "boxprodukt-farba-vinovo-cervena": { diamond: "boxprodukt-farba-vinovo-cervena.jpg" },
     "boxprodukt-farba-seda": { diamond: "boxprodukt-farba-seda.jpg" },
-    // dlaždica ponuky setu (komplet-ponuka.js): autokoberce pod sedadlá Diamond (cieľ 598) + boxprodukt-pocet-1/2 podľa počtu
-    "komplet-autokoberce": { diamond: "kroky-vzor-diamond.jpg" },
   },
 };

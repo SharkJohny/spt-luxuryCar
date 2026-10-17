@@ -46,22 +46,6 @@ export const TYP = {
       // cena pod názvom vzoru na dlaždici = PLNÁ cena rohože v tom vzore (návrh: „230 € / 240 € / 240 €“, zo sesterských stránok)
       dlazdica: "cena",
       vCene: "v cene",
-      // banner setu pod cenou (set-banner.js, návrh C „Fotka cez celú šírku“, Michal 17. 10. 2026): cena v sete NIE ako
-      // „+ 129 €“ (vyzerá ako príplatok k cene hore), ale „Rohož do kufra Classic len za 129 €, keď ju kúpite spolu
-      // s autokobercami pod sedadlá“ + „Samostatne 230 €“ (prečiarknuté) + „Ušetríte 101 €“; „pod sedadlá“, lebo
-      // interiér auta je aj kufor. Čísla dosadí kufor-produkt.js zo živých stránok.
-      set: {
-        rohoz: "classic", // voľba kufra na jednovrstvovom produkte: dno (bez bokov)
-        ey: "Výhodnejšie v sete",
-        h: "Rohož do kufra Classic len za",
-        kd: "keď ju kúpite spolu s autokobercami pod sedadlá",
-        sam: "Samostatne",
-        us: "Ušetríte",
-        stuha: "Zľava", // stuha cez roh banneru: „Zľava −30 %“ (percento živo, set-banner.js)
-        pip: "Rohož do kufra Classic", // štítok malej fotky produktu
-        tag: "Autokoberce pod sedadlá", // štítok fotky pozadia
-        odkaz: "Zostaviť set s autokobercami",
-      },
       // riadok pod tlačidlom košíka (návrh .kc-alt) -> rohož Premium v tom istom vzore
       alt: { text: "Chcete chrániť aj boky kufra?", odkaz: "Pozrite si rohož do kufra Premium", typ: "kufor-premium" },
     },
@@ -74,23 +58,23 @@ export const TYP = {
       ti: "Prosíte si aj autokoberce pod sedadlá?",
       vy: "Áno alebo nie",
       vyNie: "Len rohož do kufra",
-      pod: (d) => "Rohož do kufra Classic len za " + d.cena + ", keď ju kúpite spolu s autokobercami pod sedadlá.",
-      naj: "★ Výhodnejšie v sete",
-      ano: {
-        nm: "Autokoberce pod sedadlá",
-        po: "+ rohož do kufra Classic",
-        ben: "Vzor aj auto Vám ostanú, rohož bude vo farbe autokobercov.",
-        tl: "Áno, chcem set s autokobercami",
-        alt: ["Autokoberce pod sedadlá", "Rohož do kufra Classic"],
+      // telo karty = banner setu C (set-banner.js; Michal 17. 10. 2026: „toto má byť v medzikroku, nie ďalší iný banner“),
+      // cena v sete NIE ako „+ X €“ (vyzerá ako príplatok k cene hore); „pod sedadlá“, lebo interiér auta je aj kufor
+      banner: {
+        ey: "Výhodnejšie v sete",
+        h: "Rohož do kufra Classic len za",
+        kd: "keď ju kúpite spolu s autokobercami pod sedadlá",
+        sam: "Samostatne",
+        us: "Ušetríte",
+        stuha: "Zľava", // stuha cez roh banneru: „Zľava −30 %“ (percento živo, set-banner.js)
+        pip: "Rohož do kufra Classic", // štítok malej fotky produktu
+        tag: "Autokoberce pod sedadlá", // štítok fotky pozadia
       },
-      cena: { vSete: "V sete len", samostatne: "Samostatne", usetrite: "Ušetríte" },
+      ano: { tl: "Áno, chcem set s autokobercami" },
+      ben: "Vzor aj auto Vám ostanú, rohož bude vo farbe autokobercov.",
       nie: { nm: "Nie, ďakujem", pozn: "Pokračujete len s rohožou do kufra." },
       prenos: "Prenášame Váš výber na autokoberce pod sedadlá…",
       prenosRohoz: "rohož do kufra Classic",
     },
-  },
-  // fotka autokobercov pod sedadlá v dlaždici ponuky setu (komplet-ponuka.js): reálna fotka vzoru (tá istá ako dlaždice vzoru 598)
-  obrazky: {
-    "komplet-autokoberce": { diamond: "kroky-vzor-diamond.jpg", hexa: "kroky-vzor-hexa.jpg", stripe: "kroky-vzor-stripe.jpg" },
   },
 };

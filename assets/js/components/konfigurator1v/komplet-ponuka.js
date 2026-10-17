@@ -14,7 +14,10 @@
 //     (box) ju otvorí, kým nie je zodpovedaná (capture na window — pred kroky.js, ktorý posledný krok posiela na súhrn).
 //   - „Nie, ďakujem“ (zlaté): karta sa zbalí s fajkou; rohož -> otvorí Farbu, box -> kroky zatvorené a súhrn s košíkom
 //     (ako „Pokračujte k súhrnu“ v kroky.js).
-//   - „Áno, chcem set s autokobercami“ (zelené, v dlaždici; klik kamkoľvek do dlaždice = to isté): správa v karte,
+//   - telo karty = banner setu C (set-banner.js; Michal 17. 10. 2026 večer: „toto má byť v medzikroku, nie ďalší iný
+//     banner“ -> samostatný banner pod cenou zrušený): stuha „Zľava −X %“, „Rohož do kufra Premium len za 239 €, keď ju
+//     kúpite spolu s autokobercami pod sedadlá“, „Samostatne <s>340 €</s>“, „Ušetríte 101 €“, malá fotka produktu.
+//   - „Áno, chcem set s autokobercami“ (zelené tlačidlo banneru; klik kamkoľvek do banneru = to isté): správa v karte,
 //     tlačidlá zablokované, prenos.js zapisVyber(<táto stránka>, <jednovrstvové>, vyber) a prechod na jednovrstvové
 //     toho istého vzoru (619/628 -> 598, 622/631 -> 610, 625/634 -> 613, box -> 598). vyber = len ID hodnôt cieľa:
 //       rohož { kufor: voľba „dno“ (Classic) / „dno + boky“ (Premium) podľa textu } — farbu volí zákazník až na
@@ -23,7 +26,7 @@
 //         — farbu, ktorú set nemá (dnes Šedá), neprenáša (povie to veta v dlaždici; na cieli ostane okno boxov otvorené
 //         na výber farby, prenos.js aplikujVyber).
 //     Prijímač prenos.js na cieli zapíše výber cez ctx.zapis (klik na živé ovládače) -> POST = ručný výber.
-// Čísla vždy živo, nič natvrdo (cenovka „V sete len X €“ / „Samostatne <s>Y €</s>“ / „Ušetríte Z €“):
+// Čísla vždy živo, nič natvrdo (banner „… len za X €“ / „Samostatne <s>Y €</s>“ / „Ušetríte Z €“ / „Zľava −P %“):
 //   X = cena voľby kufra / boxov na jednovrstvových (ceny-ine.js stranka -> mapaZFormulara; box: box solo pri 1 boxe,
 //       1. box + 2. box pri 2 boxoch, + príplatok farby boxov, ak ho má), Y = ctx.cena().spolu tejto stránky, Z = Y − X.
 // Nič s atribútom name, žiadny zápis do formulára tejto stránky. Bez flagu nič (brána).
@@ -32,6 +35,7 @@ import { stranka, moznostiZMapy } from "./ceny-ine.js";
 import { zapisVyber } from "./prenos.js";
 import { nazovFarby } from "./kroky.js";
 import { velkostZTextu } from "./boxy-produkt.js";
+import { postavBanner, percentoZlavy } from "./set-banner.js";
 import { lcdGetSteps, lcdFirstUnfilled } from "../../functions/configuratorEngine.js";
 
 export const MENO = "komplet-ponuka";
@@ -96,17 +100,6 @@ function atribut(e, meno, hodnota) {
 /** Text typu: reťazec alebo funkcia údajov ponuky. */
 const text = (x, d) => (typeof x === "function" ? x(d) : x || "");
 
-/** Lenivá fotka (karta je skrytá -> stiahne sa, až keď sa ukáže). */
-function obr(alt) {
-  const i = el("img");
-  i.alt = alt || "";
-  i.loading = "lazy";
-  i.decoding = "async";
-  i.width = 400;
-  i.height = 250;
-  return i;
-}
-
 function vyskaHlavicky() {
   const sels = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
   for (let i = 0; i < sels.length; i++) {
@@ -138,14 +131,12 @@ export function init(ctx) {
   if (!ciel || !(flag === "vyvoj" || jeZapnutyTyp("jedno"))) return;
   const T = ctx.texty("komplet");
   const form = ctx.form();
-  if (!T || !T.ti || !T.ano || !form || form.querySelector(".lcd1v-komplet")) return;
+  if (!T || !T.ti || !T.ano || !T.banner || !form || form.querySelector(".lcd1v-komplet")) return;
   const kAuto = rohoz ? ctx.krok("auto") : null, kFarba = ctx.krok("farba");
   const kPocet = box ? ctx.krok("pocet") : null, kVelk = box ? ctx.krok("velkost") : null;
   const kotva = rohoz ? kAuto : kVelk; // karta ide hneď za ňu
   if (!kotva || !kotva.parentNode || !kFarba || (box && !kPocet)) return;
   const druh = P.typ === "kufor-premium" ? "premium" : "classic";
-  const TC = T.cena || {};
-  const alt = T.ano.alt || [];
 
   // ---------------------------------------------------------------- karta (bez čísla, bez name; vzhľad karty druhej vrstvy)
   const karta = el("div", "lcd1v-krok lcd1v-druha lcd1v-komplet");
@@ -167,60 +158,15 @@ export function init(ctx) {
   hd.appendChild(tx);
   hd.appendChild(el("span", "lcd1v-zm", "Zmeniť"));
   karta.appendChild(hd);
-  const pod = el("p", "lcd1v-pod lcd1v-komplet__pod");
-  karta.appendChild(pod);
 
-  // dlaždica (div — vnútri je skutočné tlačidlo „Áno“; klik kamkoľvek do dlaždice = to isté): dve reálne fotky nad sebou
-  // (autokoberce pod sedadlá vo vzore + rohož / box) so zlatým „+“, text, cenovka, zelené tlačidlo
-  const volby = el("div", "lcd1v-kb lcd1v-druha__volby");
-  const dlazdica = el("div", "lcd1v-kb__karta lcd1v-kb__karta--naj lcd1v-druha__dlazdica lcd1v-komplet__dlazdica");
-  dlazdica.appendChild(el("span", "lcd1v-kb__top", T.naj));
-  const fot = el("span", "lcd1v-kb__fot lcd1v-druha__fot lcd1v-komplet__fot");
-  const duo = el("span", "lcd1v-komplet__duo");
-  const f1 = obr(alt[0]);
-  const f2 = obr(alt[1]);
-  const srcAuto = ctx.obrazokVzoru("komplet-autokoberce");
-  if (srcAuto) f1.src = srcAuto;
-  if (rohoz) {
-    // fotka rohože = hlavná fotka produktu (og:image, tá istá ako galéria — už načítaná)
-    const og = document.querySelector('meta[property="og:image"]');
-    if (og && og.content) f2.src = og.content;
-  }
-  duo.appendChild(f1);
-  duo.appendChild(f2);
-  const plus = el("span", "lcd1v-komplet__plus", "+");
-  plus.setAttribute("aria-hidden", "true");
-  duo.appendChild(plus);
-  fot.appendChild(duo);
-  dlazdica.appendChild(fot);
-  const atx = el("span", "lcd1v-kb__tx");
-  atx.appendChild(el("span", "lcd1v-kb__nm", T.ano.nm));
-  const po = el("span", "lcd1v-kb__po");
-  atx.appendChild(po);
-  const ben = el("span", "lcd1v-kb__ben");
-  atx.appendChild(ben);
-  // cenovka (vzhľad cenovky druhej vrstvy / rohože): „V SETE LEN“, veľká cena, „Samostatne <s>Y €</s>“, pilulka „Ušetríte“
-  const cb = el("span", "lcd1v-druha__cb lcd1v-komplet__cb");
-  cb.hidden = true;
-  cb.appendChild(el("span", "lcd1v-druha__cb-l lcd1v-komplet__cb-l", TC.vSete));
-  const cbC = el("span", "lcd1v-druha__cb-c lcd1v-komplet__cb-c");
-  cb.appendChild(cbC);
-  const cbS = el("span", "lcd1v-druha__cb-s lcd1v-komplet__cb-s");
-  cbS.hidden = true;
-  cbS.appendChild(el("span", "lcd1v-druha__cb-sn", TC.samostatne + " "));
-  const cbPr = el("s", "lcd1v-druha__cb-pr");
-  cbS.appendChild(cbPr);
-  cb.appendChild(cbS);
-  const cbU = el("span", "lcd1v-druha__cb-u lcd1v-komplet__cb-u");
-  cbU.hidden = true;
-  cb.appendChild(cbU);
-  atx.appendChild(cb);
-  dlazdica.appendChild(atx);
-  const ano = el("button", "lcd1v-druha__ano lcd1v-komplet__ano", T.ano.tl);
-  ano.type = "button";
-  dlazdica.appendChild(ano);
-  volby.appendChild(dlazdica);
-  karta.appendChild(volby);
+  // banner setu C (set-banner.js) — stavia sa, až keď sú čísla (obnovTexty), pri zmene čísel nanovo. Vnútri je skutočné
+  // tlačidlo „Áno“; klik kamkoľvek do banneru = to isté (obal počúva, banner sa môže vymeniť)
+  const bsObal = el("div", "lcd1v-komplet__bs");
+  karta.appendChild(bsObal);
+  let ano = null, bsKluc = "";
+  // čo sa pri Áno prenesie / čo nie (vzor a auto ostanú; farba boxu, ktorú set nemá)
+  const ben = el("p", "lcd1v-komplet__ben");
+  karta.appendChild(ben);
 
   // správa pri prenose
   const prenos = el("div", "lcd1v-druha__prenos lcd1v-komplet__prenos");
@@ -301,26 +247,34 @@ export function init(ctx) {
   function obnovTexty(p) {
     if (!p) return;
     const d = Object.assign({ cena: ctx.formatCena(p.vSete) }, p.d);
-    nastavText(pod, text(T.pod, d));
-    nastavText(po, text(T.ano.po, d));
-    nastavText(ben, text(T.ano.ben, d));
+    nastavText(ben, text(T.ben, d));
     nastavText(pozn, text(T.nie.pozn, d));
     nastavText(vy, stav.odpoved === "nie" ? text(T.vyNie, d) : T.vy);
-    nastavText(cbC, ctx.formatCena(p.vSete));
     const us = p.samostatne > p.vSete ? Math.round((p.samostatne - p.vSete) * 100) / 100 : null;
-    if (us != null) {
-      nastavText(cbPr, ctx.formatCena(p.samostatne));
-      nastavText(cbU, (TC.usetrite || "") + " " + ctx.formatCena(us));
-    }
-    if (cbS.hidden === (us != null)) cbS.hidden = us == null;
-    if (cbU.hidden === (us != null)) cbU.hidden = us == null;
-    if (cb.hidden) cb.hidden = false;
-    atribut(ano, "data-lcd1v-set", p.vSete);
-    // box: fotka podľa počtu (1 box / 2 boxy)
-    if (box) {
-      const src = ctx.obrazokVzoru("boxprodukt-pocet-" + p.d.pocet);
-      if (src && f2.getAttribute("src") !== src) f2.setAttribute("src", src);
-    }
+    // malá fotka: rohož = hlavná fotka produktu (og:image, tá istá ako galéria — už načítaná), box = fotka podľa počtu
+    let pip = null;
+    if (rohoz) {
+      const og = document.querySelector('meta[property="og:image"]');
+      pip = (og && og.content) || null;
+    } else pip = ctx.obrazokVzoru("boxprodukt-pocet-" + p.d.pocet) || null;
+    const B = T.banner;
+    const tb = { ey: B.ey, h: text(B.h, d), kd: text(B.kd, d), sam: B.sam, us: B.us, stuha: B.stuha, pip: text(B.pip, d), tag: B.tag, tl: T.ano.tl };
+    const kluc = JSON.stringify([tb, p.vSete, p.samostatne, pip]);
+    if (kluc === bsKluc) return;
+    bsKluc = kluc;
+    const bn = postavBanner(tb, {
+      cena: ctx.formatCena(p.vSete),
+      samostatne: us != null ? ctx.formatCena(p.samostatne) : null,
+      usetrite: us != null ? ctx.formatCena(us) : null,
+      zlava: us != null ? percentoZlavy(p.samostatne, p.vSete) : null,
+      pip: pip,
+      tlTrieda: "lcd1v-komplet__ano",
+      obrazok: ctx.obrazok,
+    });
+    bn.setAttribute("data-lcd1v-set", String(p.vSete));
+    ano = bn.querySelector(".lcd1v-komplet__ano");
+    if (ano && stav.prenos) ano.disabled = true;
+    bsObal.replaceChildren(bn);
   }
 
   function obnov() {
@@ -386,13 +340,13 @@ export function init(ctx) {
     obnov();
   });
 
-  // tlačidlo „Áno“ (myš, Enter, medzerník) aj klik kamkoľvek do dlaždice: klik na tlačidlo prebuble do dlaždice
-  dlazdica.addEventListener("click", function () {
+  // tlačidlo „Áno“ (myš, Enter, medzerník) aj klik kamkoľvek do banneru: klik na tlačidlo prebuble do obalu
+  bsObal.addEventListener("click", function () {
     if (stav.prenos || !stav.ponuka) return;
     const p = stav.ponuka;
     stav.prenos = true;
     stav.odpoved = "ano";
-    ano.disabled = true;
+    if (ano) ano.disabled = true;
     nie.disabled = true;
     hd.disabled = true;
     const hlavicky = (rohoz ? ["vzor", "auto"] : ["farba", "pocet", "velkost"]).map((m) => {
@@ -453,7 +407,7 @@ export function init(ctx) {
     if (!e.persisted) return;
     stav.prenos = false;
     stav.odpoved = null;
-    ano.disabled = false;
+    if (ano) ano.disabled = false;
     nie.disabled = false;
     hd.disabled = false;
     prenos.hidden = true;

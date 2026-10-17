@@ -67,11 +67,10 @@ const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "c
 // scenáre typov (scenare-<typ>.mjs) dopísané pri integrácii WA (14. 10. 2026); bez flagu sa samy preskočia
 // ponuka druhej vrstvy a prenos výberu na dvojvrstvové (tools/test-1v/scenare-druha.mjs, 14. 10. 2026); dvoj: prenos-neplatny
 const DRUHA = ["druha-nie", "druha-ano", "druha-vsetko"];
-// rohože: kufor-set-prenos = banner setu -> jednovrstvové s predvybranou rohožou, POST = ručný výber (17. 10. 2026)
-// kufor-komplet-nie/-ano = skrytá karta ponuky setu pred Farbou (scenare-komplet.mjs, 17. 10. 2026)
+// rohože: kufor-komplet-nie/-ano = skrytá karta ponuky setu (banner C) pred Farbou (scenare-komplet.mjs, 17. 10. 2026)
 const KOMPLET_ROHOZ = ["kufor-komplet-nie", "kufor-komplet-ano"];
-const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto", ...KOMPLET_ROHOZ];
-const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto", ...KOMPLET_ROHOZ];
+const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto", ...KOMPLET_ROHOZ];
+const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto", ...KOMPLET_ROHOZ];
 
 export const PRODUKTY = {
   // ---------------------------------------------------------------- jednovrstvové

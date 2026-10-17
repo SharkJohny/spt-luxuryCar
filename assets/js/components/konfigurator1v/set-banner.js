@@ -1,8 +1,9 @@
-// Banner setu „Fotka cez celú šírku“ (návrh C, Michal schválil 17. 10. 2026) pod rámikom ceny na sólo rohožiach do kufra
-// Classic 619/622/625, Premium 628/631/634 a na boxe 616 — nahrádza pás setu na tom istom mieste. Nie je to modul ctx:
-// stavajú ho kufor-produkt.js a boxy-produkt.js, ktoré dosadia čísla zo živých stránok (ceny-ine.js) — tu nič natvrdo.
-// Texty: typy/kufor-classic.js a typy/kufor-premium.js (kuforProdukt.set), typy/boxy.js (boxyProdukt.set).
-// CSS: assets/css/_lcd1v-kufor.scss (spoločné pre rohože aj box; poradie boxu v _lcd1v-boxy.scss).
+// Banner setu „Fotka cez celú šírku“ (návrh C, Michal schválil 17. 10. 2026) — od 17. 10. 2026 večer LEN v skrytom
+// medzikroku ponuky setu (komplet-ponuka.js) na sólo rohožiach do kufra Classic 619/622/625, Premium 628/631/634 a na
+// boxe 616. Michal: „toto má byť v medzikroku, nie ďalší iný banner“ -> samostatný banner pod cenou zrušený, jeho vzhľad
+// je telom karty „Prosíte si aj autokoberce pod sedadlá?“ a zelené tlačidlo = „Áno, chcem set s autokobercami“.
+// Nie je to modul ctx: stavia ho komplet-ponuka.js s číslami zo živých stránok (ceny-ine.js) — tu nič natvrdo.
+// Texty: typy/kufor-classic.js, typy/kufor-premium.js, typy/boxy.js (komplet.banner). CSS: assets/css/_lcd1v-kufor.scss.
 //
 // Cena v sete NIE JE „+ X €“ (Michal 17. 10. 2026: vyzerá ako príplatok k cene hore): „Rohož do kufra Premium len za
 // 239 €“ + „keď ju kúpite spolu s autokobercami pod sedadlá“ + „Samostatne <s>340 €</s>“ + „Ušetríte 101 €“.
@@ -10,17 +11,17 @@
 //
 // Stuha „Zľava −30 %“ cez pravý horný roh (Michal 17. 10. 2026: „stále je to ako doplnok — chcem, aby tam svietila taká
 // stuha, že zľava“): percento = round((samostatne − v sete) / samostatne × 100) zo živých čísel volajúceho
-// (percentoZlavy), bez čísla stuha nie je. Box porovnáva viac veľkostí -> „Zľava až −50 %“ (T.stuhaAz, d.zlavaAz =
-// najvyššie percento zo živých veľkostí: S 50 %, M 47 %, L 44 %, XL 39 %), rohož jednu cenu -> „Zľava −30 %“. „Samostatne <s>340 €</s>“ a „Ušetríte 101 €“ sú dve väčšie bunky POD cenou
-// v tmavej ploche (vedľa ceny boli pridrobné); malá fotka produktu je vľavo pod štítkom „Autokoberce pod sedadlá“
-// (telefón) / vpravo dole nad tlačidlom (PC), pravý horný roh patrí stuhe.
+// (percentoZlavy), bez čísla stuha nie je. V medzikroku sú čísla pre zvolený box (veľkosť, počet), nie „až“.
+// „Samostatne <s>340 €</s>“ a „Ušetríte 101 €“ sú dve väčšie bunky POD cenou v tmavej ploche; malá fotka produktu je
+// vľavo pod štítkom „Autokoberce pod sedadlá“ (telefón) / vpravo dole nad tlačidlom (PC), pravý horný roh patrí stuhe.
 //
 // Fotky (reálne, tie isté ako v návrhu C):
 //  - pozadie = autokoberce Diamond Line béžové (galéria 598, „diamond-bezove-4“), zmenšená kópia pod novým menom
-//    assets/img/1v/set-banner-autokoberce-480.jpg (33 kB) a -800.jpg (70 kB), srcset, lenivo;
-//  - malá fotka vpravo hore = hlavná fotka produktu (og:image = tá istá adresa ako galéria, už je načítaná) / box
-//    (boxprodukt-pocet-1.jpg z kroku Počet). Bez adresy sa malá fotka vynechá.
-// Prvky bez name, nič sa neodosiela; odkaz je zelené tlačidlo (kam chceme zákazníka).
+//    assets/img/1v/set-banner-autokoberce-480.jpg (33 kB) a -800.jpg (70 kB), srcset, lenivo (karta je skrytá -> stiahne
+//    sa, až keď sa ukáže);
+//  - malá fotka = hlavná fotka produktu (og:image = tá istá adresa ako galéria, už je načítaná) / box (boxprodukt-pocet-N
+//    z kroku Počet). Bez adresy sa malá fotka vynechá.
+// Prvky bez name, nič sa neodosiela; tlačidlo je zelené (kam chceme zákazníka) a akciu mu dá volajúci.
 
 /** Fotka pozadia: [súbor v assets/img/1v/, šírka v px] — nové mená, existujúce súbory sa neprepisujú. */
 export const FOTKA = [["set-banner-autokoberce-480.jpg", 480], ["set-banner-autokoberce-800.jpg", 800]];
@@ -62,11 +63,10 @@ function obr(src, trieda, srcset, sizes) {
 
 /**
  * Banner setu (div.lcd1v-bs). Čísla prídu už ako text („239 €“), chýbajúce sa vynechajú (žiadne vymyslené čísla).
- * @param {{ ey: string, h: string, kd: string, sam?: string, us?: string, stuha?: string, stuhaAz?: string, pip?: string,
- *           tag?: string, odkaz: string }} T texty
- * @param {{ cena: string, samostatne?: string|null, usetrite?: string|null, zlava?: number|null, zlavaAz?: boolean,
- *           href: string, pip?: string|null, obrazok: (meno: string) => string }} d  zlava = percentoZlavy(samostatne,
- *           v sete); zlavaAz = zlava je najvyššie z viacerých rôznych percent (box: veľkosti) -> T.stuhaAz
+ * @param {{ ey: string, h: string, kd: string, sam?: string, us?: string, stuha?: string, pip?: string, tag?: string,
+ *           tl: string }} T texty (tl = text zeleného tlačidla)
+ * @param {{ cena: string, samostatne?: string|null, usetrite?: string|null, zlava?: number|null, pip?: string|null,
+ *           tlTrieda?: string, obrazok: (meno: string) => string }} d  zlava = percentoZlavy(samostatne, v sete)
  * @returns {HTMLDivElement}
  */
 export function postavBanner(T, d) {
@@ -79,12 +79,9 @@ export function postavBanner(T, d) {
   b.appendChild(bg);
 
   // stuha cez pravý horný roh: „Zľava −30 %“ (čítačka ju prečíta ako prvú; obrys banneru ju oreže, nič nepreteká)
-  const az = !!(d.zlavaAz && T.stuhaAz); // „Zľava až“ len keď sa percentá veľkostí líšia
-  const slovo = az ? T.stuhaAz : T.stuha;
-  if (slovo && d.zlava > 0) {
+  if (T.stuha && d.zlava > 0) {
     const st = el("div", "lcd1v-bs__stuha");
-    if (az) b.classList.add("lcd1v-bs--az"); // dlhší text: širšia páska a viac miesta pre štítky (CSS)
-    st.appendChild(el("span", null, slovo + " \u2212" + d.zlava + "\u00a0%")); // „−“ (mínus), pevná medzera pred %
+    st.appendChild(el("span", null, T.stuha +" \u2212" + d.zlava + "\u00a0%")); // „−“ (mínus), pevná medzera pred %
     b.appendChild(st);
   }
 
@@ -133,9 +130,9 @@ export function postavBanner(T, d) {
     pridaj(vnutro, side);
   }
 
-  const a = el("a", "lcd1v-bs__tl", T.odkaz);
-  a.href = d.href;
-  pridaj(vnutro, a);
+  const tl = el("button", "lcd1v-bs__tl" + (d.tlTrieda ? " " + d.tlTrieda : ""), T.tl);
+  tl.type = "button";
+  pridaj(vnutro, tl);
   b.appendChild(vnutro);
   return b;
 }

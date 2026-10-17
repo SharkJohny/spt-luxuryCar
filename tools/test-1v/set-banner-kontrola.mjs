@@ -1,5 +1,5 @@
-// Spoločná kontrola banneru setu (set-banner.js) pre scenáre kufor-vzhlad (scenare-kufor.mjs) a box-start
-// (scenare-boxy.mjs): stuha „Zľava −X %“ cez pravý horný roh (Michal 17. 10. 2026) a väčšie bunky
+// Kontrola banneru setu (set-banner.js) v skrytom medzikroku ponuky setu (scenare-komplet.mjs; Michal 17. 10. 2026: banner
+// len v medzikroku): stuha „Zľava −X %“ cez pravý horný roh (Michal 17. 10. 2026) a väčšie bunky
 // „Samostatne <s>…</s>“ / „Ušetríte …“ POD cenou.
 //
 // stavStuhy(sel) = výraz pre t.ev (beží v stránke): text stuhy, či je v rohu banneru, či jej text nie je orezaný,
@@ -14,10 +14,10 @@ export const percentoZlavy = (samostatne, vSete) => Math.round(((samostatne - vS
 
 /** Prvky banneru, ktoré stuha nesmie prekryť (aj tlačidlo a cena). */
 const PRVKY = [".lcd1v-bs__ey", ".lcd1v-bs__h", ".lcd1v-bs__c", ".lcd1v-bs__kd", ".lcd1v-bs__s", ".lcd1v-bs__u", ".lcd1v-bs__tag",
-  ".lcd1v-bs__pip img", ".lcd1v-bs__pip i", ".lcd1v-bs__plus", "a.lcd1v-bs__tl"];
+  ".lcd1v-bs__pip img", ".lcd1v-bs__pip i", ".lcd1v-bs__plus", ".lcd1v-bs__tl"];
 /** Štítky na fotke a text/tlačidlo: [štítky, s čím sa nesmú prekryť] („+“ smie zasahovať do štítku autokobercov). */
 const STITKY = [".lcd1v-bs__tag", ".lcd1v-bs__pip img", ".lcd1v-bs__pip i"];
-const TEXT = [".lcd1v-bs__ey", ".lcd1v-bs__h", ".lcd1v-bs__c", ".lcd1v-bs__kd", ".lcd1v-bs__s", ".lcd1v-bs__u", "a.lcd1v-bs__tl"];
+const TEXT = [".lcd1v-bs__ey", ".lcd1v-bs__h", ".lcd1v-bs__c", ".lcd1v-bs__kd", ".lcd1v-bs__s", ".lcd1v-bs__u", ".lcd1v-bs__tl"];
 
 export function stavStuhy(sel) {
   return `(function () {
@@ -76,9 +76,9 @@ export function stavStuhy(sel) {
   })()`;
 }
 
-/** Kontroly stuhy a buniek; ocak = { percento, popis, az? } (az = „Zľava až −X %“: najvyššie z rôznych percent). */
+/** Kontroly stuhy a buniek; ocak = { percento, popis }. */
 export function overStuhu(j, G, ocak) {
-  const o = (ocak.az ? "Zľava až −" : "Zľava −") + ocak.percento + " %";
+  const o = "Zľava −" + ocak.percento + " %";
   j.over(!G.chyba, G.chyba);
   j.over(G.stuha === o, "stuha „" + G.stuha + "“ ≠ „" + o + "“ (" + ocak.popis + ")");
   j.over(G.vRohu && G.cervena, "stuha nie je červená páska v pravom hornom rohu banneru (roh " + G.vRohu + ", červená " + G.cervena + ")");

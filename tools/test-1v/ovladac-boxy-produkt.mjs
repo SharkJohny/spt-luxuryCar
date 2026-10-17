@@ -142,10 +142,6 @@ export const novy = {
         od: Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-bxp-ks .lcd1v-bxp-od"), function (e) { return e.textContent; }),
         ceny: Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-bxp-vgrp"), function (g) { return Array.prototype.map.call(g.querySelectorAll(".lcd1v-bxp-vk-c"), function (e) { return e.textContent; }).join(" "); }),
         postup: (document.querySelector(".lcd1v-postup-st") || {}).textContent || "",
-        // banner setu (set-banner.js, 17. 10. 2026): textContent textu a tlačidla (innerText by dal VERZÁLKY), štítky na fotkách nie
-        set: vid(document.querySelector("${F} .lcd1v-bs")) ? Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-bs__txt, ${F} .lcd1v-bs__tl"), function (e) { return e.textContent; }).join(" ").replace(/\\s+/g, " ").trim() : null,
-        setHref: (document.querySelector("${F} .lcd1v-bs a.lcd1v-bs__tl") || { getAttribute: function () { return null; } }).getAttribute("href"),
-        setAttr: (document.querySelector("${F} .lcd1v-bs") || { getAttribute: function () { return null; } }).getAttribute("data-lcd1v-set"),
         setStary: document.querySelectorAll(".lcd1v-bxp-set").length
       };
     })()`);

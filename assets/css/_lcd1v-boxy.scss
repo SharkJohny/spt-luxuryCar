@@ -2,7 +2,7 @@
    Čisté CSS (nekompiluje sa Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte). KAŽDÝ selektor
    začína body.lcd-1v[data-lcd1v-typ="boxy"] (typ cez atribút, nie triedu); flag vypnutý = nulová zmena (test nulova-zmena).
    Návrh: navrhy/boxy.html (#bx-extra, #bx-konf; karty počtu = vzhľad kariet kroku 6 v 598 .lcd1v-kb__karta).
-   Prvky z JS (bez name): .lcd1v-bxp-pocty, .lcd1v-bxp-velk, .lcd1v-bxp-nahlad, .lcd1v-bxp-nazov, .lcd1v-bs (banner setu).
+   Prvky z JS (bez name): .lcd1v-bxp-pocty, .lcd1v-bxp-velk, .lcd1v-bxp-nahlad, .lcd1v-bxp-nazov.
    Kontrakt: docs/1v-kontrakt.md §8. */
 
 /* ---------------------------------------------------------------- poradie krokov a neutralizácia configurator-enhance
@@ -40,12 +40,6 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .
 }
 @media (max-width: 340px) {
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 22px; }
-}
-
-/* ---------------------------------------------------------------- banner setu (návrh C, Michal 17. 10. 2026)
-   Vzhľad je spoločný s rohožami do kufra (_lcd1v-kufor.scss, .lcd1v-bs); tu len miesto: hneď pod rámikom ceny. */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-info-wrapper > .lcd1v-bs {
-  order: 1;
 }
 
 /* ---------------------------------------------------------------- krok 1: 9 vzoriek (telefón 3 × 3, inak v rade) */
