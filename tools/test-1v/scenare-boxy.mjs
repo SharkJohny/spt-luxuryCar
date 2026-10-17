@@ -11,6 +11,8 @@
 // Scenáre len pre nový vzhľad (box-start, box-2-neuplne) sa v starom preskočia. V profile 616 (produkty.mjs, jadro)
 // zatiaľ nie sú — púšťať cez --krok box-start,box-2-neuplne (alebo ich vydanie pridá do profilu).
 
+import { stavStuhy, overStuhu, percentoZlavy } from "./set-banner-kontrola.mjs";
+
 const VELKOST = (v) => new RegExp("^" + v + "\\s*:", "i");
 
 /** Kľúče POST boxu -> „[94] [97]“ (len príplatky veľkostí, ktoré v tele sú). */
@@ -82,7 +84,8 @@ export const SCENARE = {
   /**
    * Nový vzhľad, štart: 1 box (živé „1 ks“, nie predvolené „2 ks“), otvorený krok 1 Farba, „Hotovo 0 z 3“, len
    * skupina veľkostí 1. boxu, „od“ ceny kariet počtu zo živých príplatkov, banner setu (box S v sete, samostatne,
-   * ušetríte — bez „+“, s „pod sedadlá“; 17. 10. 2026); žiadny POST.
+   * ušetríte — bez „+“, s „pod sedadlá“; 17. 10. 2026; stuha „Zľava −X %“ = box S v sete vs. samostatne, bez prekrytia,
+   * bunky pod cenou ≥ 20 px — set-banner-kontrola.mjs); žiadny POST.
    */
   "box-start": {
     typy: ["boxy"],
@@ -135,9 +138,13 @@ export const SCENARE = {
       j.over(cist(set) === cist(ocakSet), "banner setu „" + set + "“ ≠ „" + ocakSet + "“");
       j.over(!/\+\s*\d/.test(cist(set)) && stB.setStary === 0, "banner má „+ číslo“ alebo ostal starý pás (" + stB.setStary + "×): " + set);
       j.over(stB.setHref === "/luxusne-autokoberce-dragonskin-diamond-line/#product-detail-form" && Number(stB.setAttr) === oc.setS, "odkaz / data-lcd1v-set banneru: " + stB.setHref + " / " + stB.setAttr);
+      // stuha „Zľava −X %“: porovnáva to isté ako bunky (box S v sete vs. box S samostatne), nie „až“
+      const pct = percentoZlavy(oc.samS, oc.setS);
+      const G = await t.ev(stavStuhy("#product-detail-form .lcd1v-bs"));
+      overStuhu(j, G, { percento: pct, popis: "box S: round((" + oc.samS + " − " + oc.setS + ") / " + oc.samS + " × 100)" });
       await j.pauza(800);
       j.over(s.posty.length === 0, "na štarte odišiel POST: " + (s.posty[0] && s.posty[0].body));
-      return { info: `1 ks, krok Farba otvorený, ${st.postup}, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, banner: ${set}` };
+      return { info: `1 ks, krok Farba otvorený, ${st.postup}, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, banner: ${set}, stuha „${G.stuha}“` };
     },
   },
 

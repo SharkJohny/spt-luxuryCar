@@ -6,7 +6,13 @@
 //
 // Cena v sete NIE JE „+ X €“ (Michal 17. 10. 2026: vyzerá ako príplatok k cene hore): „Rohož do kufra Premium len za
 // 239 €“ + „keď ju kúpite spolu s autokobercami pod sedadlá“ + „Samostatne <s>340 €</s>“ + „Ušetríte 101 €“.
-// V DOM ide veta celá za sebou (nadpis, cena, podmienka), „Samostatne / Ušetríte“ až za ňou — na obrazovke je vedľa ceny (CSS grid).
+// V DOM ide veta celá za sebou (nadpis, cena, podmienka), „Samostatne / Ušetríte“ až za ňou.
+//
+// Stuha „Zľava −30 %“ cez pravý horný roh (Michal 17. 10. 2026: „stále je to ako doplnok — chcem, aby tam svietila taká
+// stuha, že zľava“): percento = round((samostatne − v sete) / samostatne × 100) zo živých čísel volajúceho
+// (percentoZlavy), bez čísla stuha nie je. „Samostatne <s>340 €</s>“ a „Ušetríte 101 €“ sú dve väčšie bunky POD cenou
+// v tmavej ploche (vedľa ceny boli pridrobné); malá fotka produktu je vľavo pod štítkom „Autokoberce pod sedadlá“
+// (telefón) / vpravo dole nad tlačidlom (PC), pravý horný roh patrí stuhe.
 //
 // Fotky (reálne, tie isté ako v návrhu C):
 //  - pozadie = autokoberce Diamond Line béžové (galéria 598, „diamond-bezove-4“), zmenšená kópia pod novým menom
@@ -17,6 +23,13 @@
 
 /** Fotka pozadia: [súbor v assets/img/1v/, šírka v px] — nové mená, existujúce súbory sa neprepisujú. */
 export const FOTKA = [["set-banner-autokoberce-480.jpg", 480], ["set-banner-autokoberce-800.jpg", 800]];
+
+/** Percento zľavy setu oproti samostatnej cene (celé číslo, 340 -> 239 = 30), inak null (žiadne vymyslené číslo). */
+export function percentoZlavy(samostatne, vSete) {
+  if (!(samostatne > 0) || !(vSete > 0) || !(samostatne > vSete)) return null;
+  const p = Math.round(((samostatne - vSete) / samostatne) * 100);
+  return p > 0 ? p : null;
+}
 
 /** Vloží prvok; medzi súrodencov dá medzeru (textContent a čítačka „… len za 239 € keď ju …“, nie „za239 €keď“;
  *  v grid/flex/blokových obaloch banneru sa medzera nevykreslí). */
@@ -48,9 +61,10 @@ function obr(src, trieda, srcset, sizes) {
 
 /**
  * Banner setu (div.lcd1v-bs). Čísla prídu už ako text („239 €“), chýbajúce sa vynechajú (žiadne vymyslené čísla).
- * @param {{ ey: string, h: string, kd: string, sam?: string, us?: string, pip?: string, tag?: string, odkaz: string }} T texty
- * @param {{ cena: string, samostatne?: string|null, usetrite?: string|null, href: string, pip?: string|null,
- *           obrazok: (meno: string) => string }} d
+ * @param {{ ey: string, h: string, kd: string, sam?: string, us?: string, stuha?: string, pip?: string, tag?: string,
+ *           odkaz: string }} T texty
+ * @param {{ cena: string, samostatne?: string|null, usetrite?: string|null, zlava?: number|null, href: string,
+ *           pip?: string|null, obrazok: (meno: string) => string }} d  zlava = percentoZlavy(samostatne, v sete)
  * @returns {HTMLDivElement}
  */
 export function postavBanner(T, d) {
@@ -61,6 +75,13 @@ export function postavBanner(T, d) {
   bg.height = FOTKA[FOTKA.length - 1][1];
   bg.setAttribute("aria-hidden", "true");
   b.appendChild(bg);
+
+  // stuha cez pravý horný roh: „Zľava −30 %“ (čítačka ju prečíta ako prvú; obrys banneru ju oreže, nič nepreteká)
+  if (T.stuha && d.zlava > 0) {
+    const st = el("div", "lcd1v-bs__stuha");
+    st.appendChild(el("span", null, T.stuha + " \u2212" + d.zlava + "\u00a0%")); // „−“ (mínus), pevná medzera pred %
+    b.appendChild(st);
+  }
 
   const vnutro = el("div", "lcd1v-bs__in");
   const txt = el("div", "lcd1v-bs__txt");
@@ -81,7 +102,11 @@ export function postavBanner(T, d) {
       s.appendChild(el("s", null, d.samostatne));
       pridaj(sb, s);
     }
-    if (d.usetrite) pridaj(sb, el("span", "lcd1v-bs__u", (T.us || "") + " " + d.usetrite));
+    if (d.usetrite) {
+      const u = el("span", "lcd1v-bs__u", (T.us || "") + " ");
+      u.appendChild(el("b", null, d.usetrite));
+      pridaj(sb, u);
+    }
     pridaj(rad, sb);
   }
   pridaj(txt, rad);

@@ -13,7 +13,10 @@
 //                  Banner setu C (Michal 17. 10. 2026, set-banner.js): „Rohož do kufra … len za X €“ + „keď ju kúpite
 //                  spolu s autokobercami pod sedadlá“ + „Samostatne Y €“ + „Ušetríte Z €“, nikde „+ X €“; fotka pozadia
 //                  set-banner-autokoberce-480/800.jpg (lenivo, srcset, každá ≤ 80 kB), malá fotka = og:image produktu,
-//                  zelené tlačidlo na jednovrstvové toho istého vzoru.
+//                  zelené tlačidlo na jednovrstvové toho istého vzoru. Stuha „Zľava −X %“ cez pravý horný roh
+//                  (X = round((samostatne − v sete) / samostatne × 100) z tých istých nezávislých čísel), text celý,
+//                  neprekryje cenu, tlačidlo ani štítky; bunky „Samostatne / Ušetríte“ pod cenou, čísla ≥ 20 px
+//                  (set-banner-kontrola.mjs, pri každej šírke).
 //   kufor-set-prenos – zelené tlačidlo banneru (skutočný klik) -> jednovrstvové toho istého vzoru s PREDVYBRANOU rohožou
 //                  (Classic = dno, Premium = dno + boky; prenos.js): select, živá karta aj karta nového vzhľadu; úplný výber
 //                  (auto, farba, rozloženie) -> POST; potom tá istá stránka nanovo a rohož RUČNE kartou -> POST musí byť
@@ -24,6 +27,7 @@ import { statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PRODUKTY } from "./produkty.mjs";
+import { stavStuhy, overStuhu, percentoZlavy } from "./set-banner-kontrola.mjs";
 
 const IMG_1V = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "assets", "img", "1v");
 const FOTKA_BANNERA = ["set-banner-autokoberce-480.jpg", "set-banner-autokoberce-800.jpg"];
@@ -189,8 +193,12 @@ export const SCENARE = {
       await t.cakaj(`Array.prototype.every.call(document.querySelectorAll("#product-detail-form .lcd1v-bs img"), function (i) { return i.complete && i.naturalWidth > 0; })`, { ms: 15000, popis: "fotky banneru setu" });
       const bgSrc = await t.ev(`document.querySelector("#product-detail-form .lcd1v-bs__bg").currentSrc`);
       j.over(/\/img\/1v\/set-banner-autokoberce-(480|800)\.jpg$/.test(bgSrc), "fotka pozadia banneru: " + bgSrc);
+      // stuha „Zľava −X %“ (Michal 17. 10. 2026) a väčšie bunky pod cenou — percento z nezávislých čísel testu
+      const pct = percentoZlavy(own, setCena);
+      const G = await t.ev(stavStuhy("#product-detail-form .lcd1v-bs"));
+      overStuhu(j, G, { percento: pct, popis: "round((" + own + " − " + setCena + ") / " + own + " × 100)" });
       j.over(st.setHref === cesta(jedno.url), "odkaz setu " + st.setHref + " ≠ jednovrstvové " + cesta(jedno.url));
-      info.push("banner: len za " + setCena + " € s autokobercami pod sedadlá, samostatne " + own + " €, ušetríte " + us + " € -> " + jedno.id + " (" + bgSrc.split("/").pop() + ")");
+      info.push("banner: len za " + setCena + " € s autokobercami pod sedadlá, samostatne " + own + " €, ušetríte " + us + " €, stuha „" + G.stuha + "“ (" + G.px + " px, bez prekrytia) -> " + jedno.id + " (" + bgSrc.split("/").pop() + ")");
       // Classic: odkaz na Premium toho istého vzoru pod košíkom; Premium bez neho
       if (typ === "kufor-classic") {
         const pr = profil("kufor-premium", P.vzor);

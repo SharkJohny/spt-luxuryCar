@@ -44,6 +44,7 @@ export const TYP = {
         kd: "keď ju kúpite spolu s autokobercami pod sedadlá",
         sam: "Samostatne",
         us: "Ušetríte",
+        stuha: "Zľava", // stuha cez roh banneru: „Zľava −30 %“ (percento živo, set-banner.js)
         pip: "Rohož do kufra Premium",
         tag: "Autokoberce pod sedadlá",
         odkaz: "Zostaviť set s autokobercami",

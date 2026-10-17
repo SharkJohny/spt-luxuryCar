@@ -27,7 +27,7 @@
 import { nazovFarby } from "./kroky.js";
 import { priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
-import { postavBanner } from "./set-banner.js";
+import { postavBanner, percentoZlavy } from "./set-banner.js";
 
 export const MENO = "boxy-produkt";
 
@@ -359,7 +359,8 @@ export function init(ctx) {
       }
       // banner setu (set-banner.js, návrh C 17. 10. 2026): cena boxu S v sete s autokobercami (598 „box solo“), box S
       // samostatne (cena variantu + príplatok S tejto stránky), úspora; odkaz na jednovrstvové (register) na konfigurátor.
-      // Box sa na jednovrstvových nepredvyberá (treba farbu aj veľkosť) -> obyčajný odkaz.
+      // Box sa na jednovrstvových nepredvyberá (treba farbu aj veľkosť) -> obyčajný odkaz. Stuha „Zľava −50 %“ porovnáva
+      // to isté ako bunky pod cenou: box S v sete vs. box S samostatne (197 -> 99 = 50 %), nie „až“.
       const jedno = najdiProdukt(ctx.projectId, "jedno", null);
       if (!jedno || !stlpec || !T.set) return;
       priplatkyTypu(ctx.projectId, "jedno", null).then(function (mapa) {
@@ -374,6 +375,7 @@ export function init(ctx) {
           cena: ctx.formatCena(s.cena),
           samostatne: samo > s.cena ? ctx.formatCena(samo) : null,
           usetrite: samo > s.cena ? ctx.formatCena(Math.round((samo - s.cena) * 100) / 100) : null,
+          zlava: percentoZlavy(samo, s.cena),
           href: jedno.url + "#product-detail-form",
           pip: ctx.obrazokVzoru("boxprodukt-pocet-1"),
           obrazok: ctx.obrazok,

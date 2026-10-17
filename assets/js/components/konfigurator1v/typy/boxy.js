@@ -66,6 +66,7 @@ export const TYP = {
         kd: "keď ho kúpite spolu s autokobercami pod sedadlá",
         sam: "Box S samostatne",
         us: "Ušetríte",
+        stuha: "Zľava", // stuha cez roh banneru: „Zľava −50 %“ = box S v sete vs. samostatne (živo)
         pip: "Box do kufra",
         tag: "Autokoberce pod sedadlá",
         odkaz: "Zostaviť set s autokobercami",

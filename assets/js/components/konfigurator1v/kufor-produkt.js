@@ -22,7 +22,7 @@
 //    index.js zloží (zlyhal iný modul), prvky sa odstránia (inak by ostali na stránke bez štýlov).
 import { cenaProduktu, priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
-import { postavBanner } from "./set-banner.js";
+import { postavBanner, percentoZlavy } from "./set-banner.js";
 import { zapisVyber } from "./prenos.js";
 
 export const MENO = "kufor-produkt";
@@ -200,12 +200,14 @@ export function init(ctx) {
     const us = Math.round((own - o.cena) * 100) / 100;
     const kam = stlpec.querySelector(":scope > .lcd1v-postup") || form.querySelector(".lcd1v-postup");
     // banner setu C (set-banner.js): „Rohož do kufra Premium len za 239 €“, „keď ju kúpite spolu s autokobercami pod
-    // sedadlá“, „Samostatne 340 €“ (= cena tejto stránky), „Ušetríte 101 €“ — nikdy „+ 239 €“ (Michal 17. 10. 2026)
+    // sedadlá“, „Samostatne 340 €“ (= cena tejto stránky), „Ušetríte 101 €“ — nikdy „+ 239 €“ (Michal 17. 10. 2026);
+    // stuha „Zľava −30 %“ = round((340 − 239) / 340 × 100) z tých istých živých čísel
     const og = document.querySelector('meta[property="og:image"]');
     const banner = postavBanner(S, {
       cena: suma(o.cena),
       samostatne: own > o.cena ? suma(own) : null,
       usetrite: us > 0 ? suma(us) : null,
+      zlava: percentoZlavy(own, o.cena),
       href: jedno.url,
       pip: (og && og.content) || null,
       obrazok: ctx.obrazok,
