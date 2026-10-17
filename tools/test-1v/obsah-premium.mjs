@@ -132,8 +132,9 @@ export async function kontroly(t) {
     ok(r.odkazy[1] === "/luxusny-boxi-do-kufra/" && r.znacky[1] === "boxy", `a-ponuka: „Pozrite si boxy do kufra“ vedie na box (${r.odkazy[1]})`);
     ok(r.img.every(Boolean), `a-ponuka: obe fotky sa načítali (${r.img.join(",")})`);
     const c0 = r.cisla[0].join(" | "), c1 = r.cisla[1].join(" | ");
-    ok(/set-premium=\+ \d/.test(c0) && /cena-od=\d/.test(c0), `a-ponuka: set „+ … namiesto …“ zo živých dát (${c0})`);
-    ok(/box-sam-s=\d/.test(c1) && /box-set-s=\d/.test(c1), `a-ponuka: box „Samostatne od …“ a „V sete od …“ zo živých dát (${c1})`);
+    // Michal 17. 10. 2026: cena v sete bez „+“ („stojí len 239 € namiesto 340 €“, „len za 239 € (samostatne 340 €)“)
+    ok(/set-premium=\d/.test(c0) && /cena-od=\d/.test(c0) && !/\+/.test(c0), `a-ponuka: set „len … namiesto / samostatne …“ zo živých dát, bez „+“ (${c0})`);
+    ok(/box-sam-s=\d/.test(c1) && /box-set-s=\d/.test(c1), `a-ponuka: box „Samostatne od …“ a „S autokobercami pod sedadlá už od …“ zo živých dát (${c1})`);
   }
 
   // ---------------------------------------------------------------- b-ocakavat: päť vecí
@@ -224,9 +225,10 @@ export async function kontroly(t) {
     if (ce) {
       ok(r.cenaUs === `od ${ce.premium} €`, `premium-porovnanie: Premium „${r.cenaUs}“ (čakám od ${ce.premium} €)`);
       ok(r.cenaKl === `od ${ce.classic} €`, `premium-porovnanie: Classic „${r.cenaKl}“ (čakám od ${ce.classic} €)`);
-      const klSet = r.kl.find((x) => /V sete/.test(x.t)), usSet = r.us.find((x) => /V sete/.test(x.t));
-      ok(usSet && new RegExp(`\\+ \\d+ € namiesto ${ce.premium} €`).test(usSet.t), `premium-porovnanie: Premium v sete „${usSet && usSet.t}“`);
-      ok(klSet && new RegExp(`\\+ \\d+ € namiesto ${ce.classic} €`).test(klSet.t), `premium-porovnanie: Classic v sete „${klSet && klSet.t}“`);
+      // Michal 17. 10. 2026: „Spolu s autokobercami pod sedadlá — Len za X € (samostatne Y €)“, nie „+ X € namiesto Y €“
+      const klSet = r.kl.find((x) => /pod sedadlá/.test(x.t)), usSet = r.us.find((x) => /pod sedadlá/.test(x.t));
+      ok(usSet && new RegExp(`^Spolu s autokobercami pod sedadláLen za \\d+ € \\(samostatne ${ce.premium} €\\)$`).test(usSet.t), `premium-porovnanie: Premium s autokobercami „${usSet && usSet.t}“`);
+      ok(klSet && new RegExp(`^Spolu s autokobercami pod sedadláLen za \\d+ € \\(samostatne ${ce.classic} €\\)$`).test(klSet.t), `premium-porovnanie: Classic s autokobercami „${klSet && klSet.t}“`);
     }
     ok(r.us.length === 4 && r.kl.length === 4 && ![...r.us, ...r.kl].some((x) => /Farby|Vzory/.test(x.t)),
       `premium-porovnanie: 4 riadky v každom stĺpci, bez riadku Farby/Vzory — nič, čo nie je v návrhu (${r.us.length}/${r.kl.length})`);
