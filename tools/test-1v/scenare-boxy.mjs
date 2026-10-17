@@ -81,7 +81,8 @@ export const SCENARE = {
 
   /**
    * Nový vzhľad, štart: 1 box (živé „1 ks“, nie predvolené „2 ks“), otvorený krok 1 Farba, „Hotovo 0 z 3“, len
-   * skupina veľkostí 1. boxu, „od“ ceny kariet počtu zo živých príplatkov, pás setu s cenou boxu v sete; žiadny POST.
+   * skupina veľkostí 1. boxu, „od“ ceny kariet počtu zo živých príplatkov, banner setu (box S v sete, samostatne,
+   * ušetríte — bez „+“, s „pod sedadlá“; 17. 10. 2026); žiadny POST.
    */
   "box-start": {
     typy: ["boxy"],
@@ -113,13 +114,30 @@ export const SCENARE = {
       const ceny1 = st.ceny[0].split(" ").map((x) => Number(x.replace(/[^\d]/g, "")));
       const ocak1 = await t.ev(`(function () { var c = window.__lcd1v, z = c.cena().zaklad; return c.moznosti("box1").map(function (o) { return z + o.cena; }); })()`);
       j.over(JSON.stringify(ceny1) === JSON.stringify(ocak1), "ceny kariet 1. boxu " + st.ceny[0] + " ≠ " + JSON.stringify(ocak1));
-      // pás setu: cena boxu S v sete zo stránky 598 (nie natvrdo) — sťahuje sa, môže prísť neskôr
-      let set = st.set;
-      for (let i = 0; i < 30 && !set; i++) { await j.pauza(300); set = (await ovl.boxy.stav(t)).set; }
-      j.over(set && /V sete s autokobercami do interiéru už od \d+[\s ]€/.test(set), "pás setu (cena boxu v sete, tvar „99 €“) sa neukázal: " + set);
+      // banner setu C (Michal 17. 10. 2026): cena boxu S v sete zo stránky 598 (nie natvrdo) — sťahuje sa, môže prísť neskôr.
+      // Nikdy „+ 99 €“: „Box do kufra už od 99 €, keď ho kúpite spolu s autokobercami pod sedadlá“ + Box S samostatne + Ušetríte.
+      let set = st.set, stB = st;
+      for (let i = 0; i < 30 && !set; i++) { await j.pauza(300); stB = await ovl.boxy.stav(t); set = stB.set; }
+      // nezávisle: v sete = „Box solo“ S na živej stránke jednovrstvových (GET), samostatne = cena variantu + príplatok S 1. boxu tu
+      const oc = await t.ev(`(async function () {
+        var html = await fetch("/luxusne-autokoberce-dragonskin-diamond-line/", { credentials: "same-origin" }).then(function (r) { return r.text(); });
+        var d = new DOMParser().parseFromString(html, "text/html");
+        var s = Array.prototype.find.call(d.querySelectorAll("#product-detail-form select[data-parameter-name]"), function (x) { return /box\\s*solo/i.test(x.getAttribute("data-parameter-name")); });
+        var o = s && Array.prototype.find.call(s.options, function (o) { return /^\\s*S\\s*:/i.test(o.textContent); });
+        var setS = o ? Number(o.getAttribute("data-surcharge-final-price")) || Number(o.getAttribute("data-surcharge-additional-price")) : null;
+        var c = window.__lcd1v, m = c.moznosti("box1").filter(function (x) { return /^\\s*S\\s*:/i.test(x.text); })[0];
+        return { setS: setS, samS: m ? c.cena().zaklad + m.cena : null };
+      })()`);
+      j.over(oc.setS > 0 && oc.samS > oc.setS, "očakávané ceny boxu S (test): v sete " + oc.setS + ", samostatne " + oc.samS);
+      const ocakSet = "★ Výhodnejšie v sete Box do kufra už od " + j.eur(oc.setS) + " keď ho kúpite spolu s autokobercami pod sedadlá Box S samostatne " + j.eur(oc.samS)
+        + " Ušetríte " + j.eur(oc.samS - oc.setS) + " Zostaviť set s autokobercami";
+      const cist = (x) => String(x || "").replace(/\s+/g, " ").trim();
+      j.over(cist(set) === cist(ocakSet), "banner setu „" + set + "“ ≠ „" + ocakSet + "“");
+      j.over(!/\+\s*\d/.test(cist(set)) && stB.setStary === 0, "banner má „+ číslo“ alebo ostal starý pás (" + stB.setStary + "×): " + set);
+      j.over(stB.setHref === "/luxusne-autokoberce-dragonskin-diamond-line/#product-detail-form" && Number(stB.setAttr) === oc.setS, "odkaz / data-lcd1v-set banneru: " + stB.setHref + " / " + stB.setAttr);
       await j.pauza(800);
       j.over(s.posty.length === 0, "na štarte odišiel POST: " + (s.posty[0] && s.posty[0].body));
-      return { info: `1 ks, krok Farba otvorený, ${st.postup}, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, pás: ${set}` };
+      return { info: `1 ks, krok Farba otvorený, ${st.postup}, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, banner: ${set}` };
     },
   },
 

@@ -5,7 +5,9 @@
 //   { v: 1, t: čas kliku na „Áno“, z: odkiaľ (598), na: kam (601), vyber: { … }, prijate: 0 | čas príchodu }
 //   vyber = len ID hodnôt zo živého formulára + data-value aktívnych dlaždíc kroku 2:
 //     farba, rozlozenie, kufor, pocetBoxov (1 | 2), farbaBoxov, boxSolo, box1, box2, volant, miesta, dvere
-//   Zapisuje ho druha-vrstva.js (zapisPrenos) tesne pred prechodom na dvojvrstvový produkt toho istého vzoru.
+//   Zapisuje ho druha-vrstva.js (zapisPrenos) tesne pred prechodom na dvojvrstvový produkt toho istého vzoru
+//   a kufor-produkt.js (zapisVyber, Michal 17. 10. 2026): klik na zelené tlačidlo banneru setu na rohoži do kufra
+//   (619–634) -> jednovrstvové toho istého vzoru (598 / 610 / 613) s vyber = { kufor: ID voľby Classic | Premium }.
 //
 // PRIJÍMATEĽ (init):
 //   - na cieľovom produkte (na === productId, ešte neprijaté, mladšie ako 10 min): výber sa zapíše JEDINOU schválenou
@@ -86,6 +88,14 @@ export function precitajVyber(ctx) {
 /** Zapíše kľúč prenosu (klik na „Áno“) -> true | false (úložisko zakázané: prenesie sa nanajvýš auto). */
 export function zapisPrenos(ctx, naId) {
   return pisKluc({ v: 1, t: Date.now(), z: ctx.productId, na: Number(naId), vyber: precitajVyber(ctx), prijate: 0 });
+}
+
+/**
+ * Zapíše kľúč prenosu z iného typu produktu (rohož do kufra -> jednovrstvové) -> true | false (úložisko zakázané).
+ * vyber = len ID hodnôt cieľového produktu (napr. { kufor: "595" } zo živej stránky cieľa, ceny-ine.js moznostiZMapy).
+ */
+export function zapisVyber(zId, naId, vyber) {
+  return pisKluc({ v: 1, t: Date.now(), z: Number(zId), na: Number(naId), vyber: Object.assign({}, vyber), prijate: 0 });
 }
 
 /** Typ navigácie stránky: "navigate" | "reload" | "back_forward" | … */

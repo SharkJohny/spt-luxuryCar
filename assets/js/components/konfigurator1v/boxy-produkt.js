@@ -21,11 +21,13 @@
 // CDN do vydania ju má stále); modul sa na tú cestu nespolieha — cenu prepočíta živý delegovaný handler tlačidiel
 // a ctx.zapis („change“ na vyprázdnených selectoch).
 // Hlavička: vizuálny názov „Luxusný box do kufra Diamond Line“ (živý H1 ostáva v DOM, CSS ho len vizuálne skryje)
-// a pás „V sete s autokobercami už od …“ (cena boxu S v sete z 598 cez ceny-ine.js, odkaz z registra).
+// a banner setu „Box do kufra už od …, keď ho kúpite spolu s autokobercami pod sedadlá“ (set-banner.js; cena boxu S
+// v sete z 598 cez ceny-ine.js, odkaz z registra).
 // Nič natvrdo: ID parametrov, ceny ani hodnoty volieb. Nové prvky bez name. Text H1 sa nemení.
 import { nazovFarby } from "./kroky.js";
 import { priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
+import { postavBanner } from "./set-banner.js";
 
 export const MENO = "boxy-produkt";
 
@@ -355,17 +357,11 @@ export function init(ctx) {
       if (h1 && T.nazov && !hl.querySelector(".lcd1v-bxp-nazov")) {
         vloz(h1.parentNode, el("div", { class: "lcd1v-bxp-nazov", "aria-hidden": "true" }, [T.nazov + " ", T.rad ? el("em", { text: T.rad }) : null]), h1.nextSibling);
       }
-      // pás setu: cena boxu S v sete s autokobercami (598 „box solo“) a odkaz na jednovrstvové (register)
+      // banner setu (set-banner.js, návrh C 17. 10. 2026): cena boxu S v sete s autokobercami (598 „box solo“), box S
+      // samostatne (cena variantu + príplatok S tejto stránky), úspora; odkaz na jednovrstvové (register) na konfigurátor.
+      // Box sa na jednovrstvových nepredvyberá (treba farbu aj veľkosť) -> obyčajný odkaz.
       const jedno = najdiProdukt(ctx.projectId, "jedno", null);
-      const karta = stlpec && stlpec.querySelector(":scope > .lcd1v-cena");
       if (!jedno || !stlpec || !T.set) return;
-      const nadpis = el("b"), pod = el("span");
-      const pas = el("a", { class: "lcd1v-bxp-set", href: jedno.url + "#product-detail-form", hidden: true }, [
-        el("span", { class: "lcd1v-bxp-set__ic", "aria-hidden": "true", text: "%" }),
-        el("span", { class: "lcd1v-bxp-set__t" }, [nadpis, pod]),
-        el("span", { class: "lcd1v-bxp-set__go", text: T.set.dalej }),
-      ]);
-      vloz(stlpec, pas, karta ? karta.nextSibling : hl ? hl.nextSibling : stlpec.firstChild);
       priplatkyTypu(ctx.projectId, "jedno", null).then(function (mapa) {
         if (!zapnute()) return;
         const solo = moznostiZMapy(mapa, "boxSolo").filter((o) => o.cena > 0);
@@ -373,12 +369,20 @@ export function init(ctx) {
         if (!s) return;
         const prvy = ctx.moznosti(boxy[0]);
         const samoS = prvy.find((o) => velkostZTextu(o.text).v === "S") || prvy.slice().sort((x, y) => x.cena - y.cena)[0];
-        nastavText(nadpis, T.set.nadpis(ctx.formatCena(s.cena)));
         const samo = samoS ? cenaVariantu() + samoS.cena : 0;
-        nastavText(pod, samo > s.cena ? T.set.pod(ctx.formatCena(samo)) : "");
-        pod.hidden = !(samo > s.cena);
-        pas.hidden = false;
-      }).catch(function () { /* bez ceny pás ostane skrytý */ });
+        const banner = postavBanner(T.set, {
+          cena: ctx.formatCena(s.cena),
+          samostatne: samo > s.cena ? ctx.formatCena(samo) : null,
+          usetrite: samo > s.cena ? ctx.formatCena(Math.round((samo - s.cena) * 100) / 100) : null,
+          href: jedno.url + "#product-detail-form",
+          pip: ctx.obrazokVzoru("boxprodukt-pocet-1"),
+          obrazok: ctx.obrazok,
+        });
+        banner.setAttribute("data-lcd1v-set", String(s.cena));
+        // hneď pod rámik ceny (order 1 ako karta; _lcd1v-boxy.scss)
+        const karta = stlpec.querySelector(":scope > .lcd1v-cena");
+        vloz(stlpec, banner, karta ? karta.nextSibling : hl ? hl.nextSibling : stlpec.firstChild);
+      }).catch(function () { /* bez ceny sa banner neukáže */ });
     }
 
     // ---------------------------------------------------------------- spustenie

@@ -67,8 +67,9 @@ const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "c
 // scenáre typov (scenare-<typ>.mjs) dopísané pri integrácii WA (14. 10. 2026); bez flagu sa samy preskočia
 // ponuka druhej vrstvy a prenos výberu na dvojvrstvové (tools/test-1v/scenare-druha.mjs, 14. 10. 2026); dvoj: prenos-neplatny
 const DRUHA = ["druha-nie", "druha-ano", "druha-vsetko"];
-const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto"];
-const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto"];
+// rohože: kufor-set-prenos = banner setu -> jednovrstvové s predvybranou rohožou, POST = ručný výber (17. 10. 2026)
+const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto"];
+const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "kufor-set-prenos", "vzor-auto"];
 
 export const PRODUKTY = {
   // ---------------------------------------------------------------- jednovrstvové

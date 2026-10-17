@@ -1,7 +1,7 @@
 // Texty a obrázky typu „boxy“ (box do kufra 616). VLASTNÍK: worker boxy (T3.2). Tvar a pravidlá: typy/jedno.js.
 // Texty doslovne zo schváleného návrhu boxy.html (navrh-boxy.md §3–4). Kroky (produkty.js TYPY.boxy): farba → pocet →
 // velkost (návrh); v živom DOM je počet prvý — poradie kariet rieši CSS typu (_lcd1v-boxy.scss), DOM ostáva.
-// Karty počtu, veľkostí, náhľad farby, pás setu a vizuálny názov postaví boxy-produkt.js (texty: boxyProdukt nižšie).
+// Karty počtu, veľkostí, náhľad farby, banner setu a vizuálny názov postaví boxy-produkt.js (texty: boxyProdukt nižšie).
 // D3 (rozhodnutia.md): nič o skladovosti ani o lehote dodania boxu.
 export const TYP = {
   texty: {
@@ -57,11 +57,18 @@ export const TYP = {
       vyberteVelkost: "vyberte veľkosť",
       tipB: "Tip:",
       tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
-      // pás setu pod cenou (odkaz na jednovrstvové; čísla zo živých stránok, nič natvrdo)
+      // banner setu pod cenou (set-banner.js, návrh C, Michal 17. 10. 2026; odkaz na jednovrstvové, čísla zo živých
+      // stránok): „Box do kufra už od 99 €, keď ho kúpite spolu s autokobercami pod sedadlá“ + „Box S samostatne 197 €“
+      // (prečiarknuté) + „Ušetríte 98 €“ — nikdy „+ 99 €“ (vyzerá ako príplatok k cene hore)
       set: {
-        nadpis: (cena) => "V sete s autokobercami do interiéru už od " + cena,
-        pod: (cena) => "Box S namiesto " + cena + " — zostavte si set s autokobercami do interiéru",
-        dalej: "Pozrieť autokoberce",
+        ey: "Výhodnejšie v sete",
+        h: "Box do kufra už od",
+        kd: "keď ho kúpite spolu s autokobercami pod sedadlá",
+        sam: "Box S samostatne",
+        us: "Ušetríte",
+        pip: "Box do kufra",
+        tag: "Autokoberce pod sedadlá",
+        odkaz: "Zostaviť set s autokobercami",
       },
     },
   },

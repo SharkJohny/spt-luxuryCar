@@ -3,8 +3,8 @@
 // prieskum-vsetky/navrh-kufor-classic.md §3–4). Tvar a pravidlá: typy/jedno.js (základ — čo tu nie je, platí z jedno).
 // Posledný krok (farba) dostane „Pokračujte k súhrnu“ v kroky.js (živé tlačidlo by vkladalo do košíka).
 //
-// kuforProdukt = texty modulu kufor-produkt.js (ctx.texty("kuforProdukt")). Čísla v nich (ceny vzorov, príplatok
-// setu, úspora) NIKDY natvrdo: modul ich dosadí zo živých stránok (ceny-ine.js). Keď ich nezistí, vetu/pás neukáže.
+// kuforProdukt = texty modulu kufor-produkt.js (ctx.texty("kuforProdukt")). Čísla v nich (ceny vzorov, cena v sete,
+// úspora) NIKDY natvrdo: modul ich dosadí zo živých stránok (ceny-ine.js). Keď ich nezistí, vetu/banner neukáže.
 // D3 (rozhodnutia.md): žiadne „logo“ / „kovový štítok“ ani dodacia lehota — tu nič také nie je.
 export const TYP = {
   texty: {
@@ -46,12 +46,19 @@ export const TYP = {
       // cena pod názvom vzoru na dlaždici = PLNÁ cena rohože v tom vzore (návrh: „230 € / 240 € / 240 €“, zo sesterských stránok)
       dlazdica: "cena",
       vCene: "v cene",
-      // pás pod cenou (návrh .kc-set): „V sete s autokobercami do interiéru len + 129 € (ušetríte 101 €)“ + „Zostaviť set s autokobercami“
+      // banner setu pod cenou (set-banner.js, návrh C „Fotka cez celú šírku“, Michal 17. 10. 2026): cena v sete NIE ako
+      // „+ 129 €“ (vyzerá ako príplatok k cene hore), ale „Rohož do kufra Classic len za 129 €, keď ju kúpite spolu
+      // s autokobercami pod sedadlá“ + „Samostatne 230 €“ (prečiarknuté) + „Ušetríte 101 €“; „pod sedadlá“, lebo
+      // interiér auta je aj kufor. Čísla dosadí kufor-produkt.js zo živých stránok.
       set: {
-        tvar: "riadok",
         rohoz: "classic", // voľba kufra na jednovrstvovom produkte: dno (bez bokov)
-        text: "V sete s autokobercami do interiéru len",
-        usetrite: (suma) => "(ušetríte " + suma + ")",
+        ey: "Výhodnejšie v sete",
+        h: "Rohož do kufra Classic len za",
+        kd: "keď ju kúpite spolu s autokobercami pod sedadlá",
+        sam: "Samostatne",
+        us: "Ušetríte",
+        pip: "Rohož do kufra Classic", // štítok malej fotky produktu
+        tag: "Autokoberce pod sedadlá", // štítok fotky pozadia
         odkaz: "Zostaviť set s autokobercami",
       },
       // riadok pod tlačidlom košíka (návrh .kc-alt) -> rohož Premium v tom istom vzore

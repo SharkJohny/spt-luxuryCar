@@ -1,7 +1,8 @@
 // Nový konfigurátor 1V — rohože do kufra Classic a Premium (619–634): názov rohože len vizuálne, cena pod dlaždicami
-// vzoru, podnadpis kroku 1 s cenami vzorov, pás setu pod cenou a (Classic) odkaz na rohož Premium pod košíkom.
+// vzoru, podnadpis kroku 1 s cenami vzorov, banner setu pod cenou (set-banner.js, návrh C 17. 10. 2026; tlačidlo
+// predvyberie rohož na jednovrstvových cez prenos.js) a (Classic) odkaz na rohož Premium pod košíkom.
 // VLASTNÍK: worker kufor (T2.2) (+ typy/kufor-classic.js, typy/kufor-premium.js, assets/css/_lcd1v-kufor.scss,
-// tools/test-1v/scenare-kufor.mjs, assets/img/1v/rohoz-classic-*).
+// tools/test-1v/scenare-kufor.mjs, assets/img/1v/rohoz-classic-*, set-banner-autokoberce-*).
 //
 // Čo robí jadro a tu sa neopakuje: obal 3 kariet vzor → auto → farba, texty kariet (typy/<typ>.js), posledný krok
 // „Pokračujte k súhrnu“ bez košíka (kroky.js zachytí živý finish-button), cenová karta „cena za rohož na mieru“ bez
@@ -21,6 +22,8 @@
 //    index.js zloží (zlyhal iný modul), prvky sa odstránia (inak by ostali na stránke bez štýlov).
 import { cenaProduktu, priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
+import { postavBanner } from "./set-banner.js";
+import { zapisVyber } from "./prenos.js";
 
 export const MENO = "kufor-produkt";
 
@@ -128,7 +131,7 @@ export function init(ctx) {
     if (vloz(h1.parentNode, n, h1.nextSibling)) nastavAttr(document.body, "data-lcd1v-kf-nazov", "1");
   }
 
-  // ---------------------------------------------------------------- ceny vzorov, podnadpis, pás setu
+  // ---------------------------------------------------------------- ceny vzorov, podnadpis, banner setu
   function ceny() {
     const vlastna = cenaProduktu(location.pathname);
     // ceny všetkých troch vzorov tohto typu (vlastná stránka bez siete)
@@ -145,7 +148,7 @@ export function init(ctx) {
     }).catch(function () { /* bez cien: dlaždice bez ceny, bez podnadpisu */ });
     Promise.all([vlastna, priplatkyTypu(ctx.projectId, "jedno", P.vzor)]).then(function (r) {
       pasSetu(r[0], r[1]);
-    }).catch(function () { /* bez príplatku: pás sa neukáže */ });
+    }).catch(function () { /* bez príplatku: banner sa neukáže */ });
   }
 
   function dlazdice(own, cenyVzorov) {
@@ -196,43 +199,28 @@ export function init(ctx) {
     if (!o || !(o.cena > 0)) return;
     const us = Math.round((own - o.cena) * 100) / 100;
     const kam = stlpec.querySelector(":scope > .lcd1v-postup") || form.querySelector(".lcd1v-postup");
-    let pas;
-    if (S.tvar === "pas") {
-      // Premium: celý pás je odkaz (ikona +, nadpis, veta o úspore, „Zostavte set s autokobercami“)
-      pas = el("a", "lcd1v-kf-set lcd1v-kf-set--pas");
-      pas.href = jedno.url;
-      const ic = el("span", "lcd1v-kf-set__ic", "+");
-      ic.setAttribute("aria-hidden", "true");
-      const tx = el("span", "lcd1v-kf-set__tx");
-      tx.appendChild(el("b", null, S.text + " +" + NBSP + suma(o.cena)));
-      if (us > 0 && typeof S.usetrite === "function") tx.appendChild(el("i", null, S.usetrite(suma(us), us)));
-      pas.appendChild(ic);
-      pas.appendChild(tx);
-      pas.appendChild(el("span", "lcd1v-kf-set__sp", S.odkaz));
-    } else {
-      // Classic: riadok s textom a odkazom „Zostaviť set s autokobercami“ vpravo
-      pas = el("p", "lcd1v-kf-set lcd1v-kf-set--riadok");
-      const tx = el("span", "lcd1v-kf-set__tx");
-      tx.appendChild(document.createTextNode(S.text + " "));
-      tx.appendChild(el("b", null, "+" + NBSP + suma(o.cena)));
-      if (us > 0 && typeof S.usetrite === "function") {
-        tx.appendChild(document.createTextNode(" "));
-        const u = el("span", "lcd1v-kf-set__us");
-        // „(ušetríte 101 €)“ s tučnou sumou
-        const casti = S.usetrite("\u0000").split("\u0000");
-        u.appendChild(document.createTextNode(casti[0]));
-        u.appendChild(el("b", null, suma(us)));
-        if (casti[1]) u.appendChild(document.createTextNode(casti[1]));
-        tx.appendChild(u);
-      }
-      const a = el("a", "lcd1v-kf-set__a", S.odkaz);
-      a.href = jedno.url;
-      pas.appendChild(tx);
-      pas.appendChild(a);
-    }
-    pas.setAttribute("data-lcd1v-set", String(o.cena));
+    // banner setu C (set-banner.js): „Rohož do kufra Premium len za 239 €“, „keď ju kúpite spolu s autokobercami pod
+    // sedadlá“, „Samostatne 340 €“ (= cena tejto stránky), „Ušetríte 101 €“ — nikdy „+ 239 €“ (Michal 17. 10. 2026)
+    const og = document.querySelector('meta[property="og:image"]');
+    const banner = postavBanner(S, {
+      cena: suma(o.cena),
+      samostatne: own > o.cena ? suma(own) : null,
+      usetrite: us > 0 ? suma(us) : null,
+      href: jedno.url,
+      pip: (og && og.content) || null,
+      obrazok: ctx.obrazok,
+    });
+    banner.setAttribute("data-lcd1v-set", String(o.cena));
+    // Predvýber rohože na jednovrstvových (prenos.js): obyčajný klik zapíše kľúč { kufor: ID voľby z cieľovej stránky },
+    // prijímač ho tam zapíše cez ctx.zapis (klik na živú kartu kufra = POST ako ručný výber, test kufor-set-prenos).
+    // Nová karta / okno (Ctrl, Shift, Cmd, stredné tlačidlo) = len odkaz, kľúč sa nepíše.
+    const tl = banner.querySelector("a.lcd1v-bs__tl");
+    tl.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      zapisVyber(ctx.productId, jedno.id, { kufor: o.hodnota });
+    });
     // medzi cenu (a pás kompatibility) a postup „Vaša rohož do kufra v 3 krokoch“ (rovnaký order ako postup, pred ním v DOM)
-    if (kam && kam.parentNode) vloz(kam.parentNode, pas, kam);
+    if (kam && kam.parentNode) vloz(kam.parentNode, banner, kam);
   }
 
   // ---------------------------------------------------------------- odkaz na druhú rohož pod košíkom (Classic)
