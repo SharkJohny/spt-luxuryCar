@@ -16916,12 +16916,12 @@ body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-hd:disabled {
    Karta .lcd1v-krok.lcd1v-druha.lcd1v-komplet nesie aj triedy schválenej karty druhej vrstvy (.lcd1v-druha, .lcd1v-druha__*):
    obal, hlavička BEZ čísla, zlaté „Nie“ a správa pri prenose sú z _lcd1v-druha.scss. Telo karty = banner setu C
    (.lcd1v-bs zo set-banner.js, vzhľad v _lcd1v-kufor.scss; Michal 17. 10. 2026 večer: „toto má byť v medzikroku, nie ďalší
-   iný banner“) so zeleným „Áno“. Tu len miesto karty na boxe (za kartou Veľkosť), obal banneru a veta pod ním. */
+   iný banner“) so zeleným „Áno“. Tu len miesto karty na boxe (za kartou Počet boxov), obal banneru a veta pod ním. */
 
-/* box 616: živý DOM má počet -> farba -> veľkosť, poradie kariet robí CSS typu (_lcd1v-boxy.scss, order 1–3) -> karta za
-   Veľkosťou (rohože: v DOM hneď za kartou Auto, poradie ostáva) */
+/* box 616: živý DOM má počet -> farba -> veľkosť, poradie kariet robí CSS typu (_lcd1v-boxy.scss: farba 1, počet 2,
+   veľkosť 4) -> karta medzi Počtom a Veľkosťou (Michal 17. 10. 2026 večer; rohože: v DOM hneď za kartou Auto) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-komplet {
-  order: 4 !important;
+  order: 3 !important;
 }
 
 /* obal banneru: klik kamkoľvek do banneru = „Áno“ (komplet-ponuka.js); po Áno (prenos) už nie */
@@ -18372,7 +18372,7 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a:focus-
    návrh má farba 1 / počet 2 / veľkosť 3 (DOM ostáva, mení sa len poradie zobrazenia). */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-farba { order: 1 !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-pocet { order: 2 !important; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-velkost { order: 3 !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-velkost { order: 4 !important; } /* 3 = ponuka setu (_lcd1v-komplet.scss) */
 /* odporúčaná cena, ktorú by configurator-enhance (lcdAddBoxRRP) dopísal „Doporučenou cenou“ — box ju v admine nemá */
 body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-rrp-wrap,
 body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-price-rrp { display: none !important; }

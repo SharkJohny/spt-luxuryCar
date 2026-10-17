@@ -7,13 +7,14 @@
 //
 // Správanie ako karta druhej vrstvy (druha-vrstva.js, docs/1v-kontrakt.md §13):
 //   - SKRYTÁ karta BEZ čísla (nie je v ctx.produkt.kroky ani v lcdGetSteps -> „Krok N z 3“, postup aj validácia košíka
-//     sa nemenia). Rohož: v DOM hneď za kartou Auto (pred Farbou), ukáže sa, keď je auto úplné. Box: za kartou Veľkosť
-//     (CSS order — živý DOM má počet -> farba -> veľkosť), ukáže sa, keď má každý box v počte veľkosť; pri 3 boxoch
-//     nikdy (set má najviac 2 boxy). Bez čísla v sete (chyba siete, voľba na cieli chýba) sa karta neukáže.
-//   - nepovinná: bez odpovede = Nie, nič neblokuje. „Pokračujte ďalej“ v Aute (rohož) / „Pokračujte k súhrnu“ vo Veľkosti
-//     (box) ju otvorí, kým nie je zodpovedaná (capture na window — pred kroky.js, ktorý posledný krok posiela na súhrn).
-//   - „Nie, ďakujem“ (zlaté): karta sa zbalí s fajkou; rohož -> otvorí Farbu, box -> kroky zatvorené a súhrn s košíkom
-//     (ako „Pokračujte k súhrnu“ v kroky.js).
+//     sa nemenia). Rohož: v DOM hneď za kartou Auto (pred Farbou), ukáže sa, keď je auto úplné. Box: za kartou Počet
+//     boxov, pred Veľkosťou (Michal 17. 10. 2026 večer: „toto sa má zobrazovať po kroku počet boxov“; CSS order — živý
+//     DOM má počet -> farba -> veľkosť), ukáže sa, keď je zvolená farba; pri 3 boxoch nikdy (set má najviac 2 boxy).
+//     Bez čísla v sete (chyba siete, voľba na cieli chýba) sa karta neukáže.
+//   - nepovinná: bez odpovede = Nie, nič neblokuje. „Pokračujte ďalej“ v Aute (rohož) / v Počte boxov (box) ju otvorí,
+//     kým nie je zodpovedaná (capture na window — pred kroky.js a boxy-produkt.js, ktoré by otvorili ďalší krok).
+//   - „Nie, ďakujem“ (zlaté): karta sa zbalí s fajkou; rohož -> otvorí Farbu, box -> otvorí Veľkosť (všetky veľkosti už
+//     zvolené -> kroky zatvorené a súhrn s košíkom, ako „Pokračujte k súhrnu“ v kroky.js).
 //   - telo karty = banner setu C (set-banner.js; Michal 17. 10. 2026 večer: „toto má byť v medzikroku, nie ďalší iný
 //     banner“ -> samostatný banner pod cenou zrušený): stuha „Zľava −X %“, „Rohož do kufra Premium len za 239 €, keď ju
 //     kúpite spolu s autokobercami pod sedadlá“, „Samostatne <s>340 €</s>“, „Ušetríte 101 €“, malá fotka produktu.
@@ -22,9 +23,11 @@
 //     toho istého vzoru (619/628 -> 598, 622/631 -> 610, 625/634 -> 613, box -> 598). vyber = len ID hodnôt cieľa:
 //       rohož { kufor: voľba „dno“ (Classic) / „dno + boky“ (Premium) podľa textu } — farbu volí zákazník až na
 //         autokobercoch (rohož v sete je vo farbe autokobercov; povie to veta v dlaždici), auto ide živým sessionStorage;
-//       box { pocetBoxov: 1 | 2, boxSolo | box1 + box2: veľkosť podľa písmena S/M/L/XL, farbaBoxov: farba podľa NÁZVU }
-//         — farbu, ktorú set nemá (dnes Šedá), neprenáša (povie to veta v dlaždici; na cieli ostane okno boxov otvorené
-//         na výber farby, prenos.js aplikujVyber).
+//       box { pocetBoxov: 1 | 2, boxSolo | box1 + box2: veľkosť podľa písmena S/M/L/XL (len keď je zvolená pri každom
+//         boxe), farbaBoxov: farba podľa NÁZVU } — farbu, ktorú set nemá (dnes Šedá), neprenáša (povie to veta pod
+//         bannerom); čo chýba (farba alebo veľkosti), vyberie zákazník v okne boxov na cieli (prenos.js aplikujVyber).
+//         Bez veľkostí ukáže banner cenu „už od“ = najlacnejšia veľkosť, ktorú má set aj táto stránka (dnes S), pri
+//         každom boxe; „Samostatne“ je tá istá veľkosť na tejto stránke (variant + príplatok).
 //     Prijímač prenos.js na cieli zapíše výber cez ctx.zapis (klik na živé ovládače) -> POST = ručný výber.
 // Čísla vždy živo, nič natvrdo (banner „… len za X €“ / „Samostatne <s>Y €</s>“ / „Ušetríte Z €“ / „Zľava −P %“):
 //   X = cena voľby kufra / boxov na jednovrstvových (ceny-ine.js stranka -> mapaZFormulara; box: box solo pri 1 boxe,
@@ -134,7 +137,7 @@ export function init(ctx) {
   if (!T || !T.ti || !T.ano || !T.banner || !form || form.querySelector(".lcd1v-komplet")) return;
   const kAuto = rohoz ? ctx.krok("auto") : null, kFarba = ctx.krok("farba");
   const kPocet = box ? ctx.krok("pocet") : null, kVelk = box ? ctx.krok("velkost") : null;
-  const kotva = rohoz ? kAuto : kVelk; // karta ide hneď za ňu
+  const kotva = rohoz ? kAuto : kPocet; // karta ide hneď za ňu (box: poradie robí CSS)
   if (!kotva || !kotva.parentNode || !kFarba || (box && !kPocet)) return;
   const druh = P.typ === "kufor-premium" ? "premium" : "classic";
 
@@ -212,16 +215,40 @@ export function init(ctx) {
     for (let i = 0; i < t.length; i++) if (t[i].classList.contains("active")) return i + 1;
     return 1;
   }
-  /** Box: 1 alebo 2 boxy s veľkosťou každého -> ponuka, inak null (3 boxy, chýba veľkosť, cieľ veľkosť nemá). */
+  /** Najlacnejšia veľkosť (písmeno) boxu i, ktorú má set (kľúč cieľa) aj táto stránka, alebo null. */
+  function najlacnejsia(kluc, i) {
+    const tu = ctx.moznosti(KLUCE_BOXOV[i]).map((x) => velkostZTextu(x.text).v);
+    const m = moznostiZMapy(stav.mapa, kluc).filter((o) => o.cena > 0 && tu.indexOf(velkostZTextu(o.text).v) >= 0);
+    m.sort((x, y) => x.cena - y.cena);
+    return m.length ? velkostZTextu(m[0].text).v : null;
+  }
+  /** Box: 1 alebo 2 boxy -> ponuka, inak null (3 boxy, cieľ veľkosť nemá). Veľkosť zvolená pri každom boxe = presné
+   *  čísla; inak „už od“ (najlacnejšia veľkosť pri každom boxe, „Samostatne“ = variant + jej príplatok na tejto stránke). */
   function ponukaBoxov() {
     const n = pocetBoxov();
     if (n < 1 || n > 2) return null;
-    const velkosti = [];
+    let velkosti = [];
     for (let i = 0; i < n; i++) {
       const v = ctx.precitaj(KLUCE_BOXOV[i]);
       const o = v && v !== "0" ? ctx.moznosti(KLUCE_BOXOV[i]).find((x) => x.hodnota === v) : null;
-      if (!o) return null;
+      if (!o) { velkosti = null; break; }
       velkosti.push(velkostZTextu(o.text).v);
+    }
+    const od = !velkosti;
+    const c = ctx.cena();
+    let samostatne = c && c.spolu > 0 ? c.spolu : null;
+    if (od) {
+      const kluce = n === 1 ? ["boxSolo"] : ["box1", "box2"];
+      velkosti = kluce.map(najlacnejsia);
+      if (velkosti.some((x) => !x)) return null;
+      // samostatne = variant (farba) + príplatok tej istej veľkosti pri každom boxe na tejto stránke
+      let sam = c && c.zaklad > 0 ? c.zaklad : 0;
+      for (let i = 0; i < n; i++) {
+        const o = ctx.moznosti(KLUCE_BOXOV[i]).find((x) => velkostZTextu(x.text).v === velkosti[i]);
+        if (!o) return null;
+        sam += o.cena;
+      }
+      samostatne = sam > 0 ? Math.round(sam * 100) / 100 : null;
     }
     const b = boxyNaCieli(stav.mapa, velkosti);
     if (!b) return null;
@@ -229,20 +256,20 @@ export function init(ctx) {
     const fv = ctx.precitaj("farba");
     const fo = fv ? ctx.moznosti("farba").find((x) => x.hodnota === fv) : null;
     const fc = fo ? farbaNaCieli(fo.text, moznostiZMapy(stav.mapa, "farbaBoxov")) : null;
-    const vyber = Object.assign({ pocetBoxov: n }, b.vyber);
+    // bez zvolených veľkostí sa prenesie len počet (a farba): veľkosti vyberie zákazník v okne boxov na cieli
+    const vyber = Object.assign({ pocetBoxov: n }, od ? {} : b.vyber);
     let vSete = b.cena;
     if (fc) {
       vyber.farbaBoxov = fc.hodnota;
       vSete = Math.round((vSete + (fc.cena > 0 ? fc.cena : 0)) * 100) / 100;
     }
-    const c = ctx.cena();
     return {
-      vSete, samostatne: c && c.spolu > 0 ? c.spolu : null, vyber,
-      d: { pocet: n, velkosti: velkosti.join(" + "), farba: !fo ? "ziadna" : fc ? "ok" : "nie", nazov: fo ? nazovFarby(fo.text).nazov : "" },
+      vSete, samostatne, vyber,
+      d: { pocet: n, od, velkosti: velkosti.join(" + "), farba: !fo ? "ziadna" : fc ? "ok" : "nie", nazov: fo ? nazovFarby(fo.text).nazov : "" },
     };
   }
-  /** Má sa karta ukázať? Rohož: auto úplné. Box: veľkosť každého boxu v počte (pravidlo typu cez ctx.vyplneny). */
-  const pripravena = () => (rohoz ? ctx.vyplneny(kAuto) : ctx.vyplneny(kVelk));
+  /** Má sa karta ukázať? Rohož: auto úplné. Box: zvolená farba (počet má vždy hodnotu; 3 boxy vylúči ponukaBoxov). */
+  const pripravena = () => (rohoz ? ctx.vyplneny(kAuto) : ctx.vyplneny(kFarba));
 
   function obnovTexty(p) {
     if (!p) return;
@@ -258,7 +285,7 @@ export function init(ctx) {
       pip = (og && og.content) || null;
     } else pip = ctx.obrazokVzoru("boxprodukt-pocet-" + p.d.pocet) || null;
     const B = T.banner;
-    const tb = { ey: B.ey, h: text(B.h, d), kd: text(B.kd, d), sam: B.sam, us: B.us, stuha: B.stuha, pip: text(B.pip, d), tag: B.tag, tl: T.ano.tl };
+    const tb = { ey: B.ey, h: text(B.h, d), kd: text(B.kd, d), sam: text(B.sam, d), us: text(B.us, d), stuha: B.stuha, pip: text(B.pip, d), tag: B.tag, tl: T.ano.tl };
     const kluc = JSON.stringify([tb, p.vSete, p.samostatne, pip]);
     if (kluc === bsKluc) return;
     bsKluc = kluc;
@@ -331,8 +358,14 @@ export function init(ctx) {
       if (!kFarba.classList.contains("active")) nastavOtvoreny(kFarba, true);
       setTimeout(() => posunNa(kFarba), 0);
       setTimeout(() => posunNa(kFarba), 380);
+    } else if (!ctx.vyplneny(kVelk)) {
+      // box: hlavná cesta = Veľkosť (ako „Pokračujte ďalej“ v Počte boxov)
+      lcdGetSteps().forEach((s) => { if (s !== kVelk && s.classList.contains("active")) nastavOtvoreny(s, false); });
+      if (!kVelk.classList.contains("active")) nastavOtvoreny(kVelk, true);
+      setTimeout(() => posunNa(kVelk), 0);
+      setTimeout(() => posunNa(kVelk), 380);
     } else {
-      // box: ako „Pokračujte k súhrnu“ (kroky.js) — kroky zatvorené, súhrn s tlačidlom košíka na obrazovke
+      // box s veľkosťami (karta otvorená hlavičkou neskôr): ako „Pokračujte k súhrnu“ (kroky.js) — súhrn s košíkom
       lcdGetSteps().forEach((s) => { if (s.classList.contains("active")) nastavOtvoreny(s, false); });
       const suhrn = document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik");
       if (suhrn) setTimeout(function () { suhrn.scrollIntoView({ block: "center", behavior: "smooth" }); }, 30);
@@ -361,9 +394,9 @@ export function init(ctx) {
     setTimeout(function () { window.location.assign(ciel.url); }, 450);
   });
 
-  // „Pokračujte ďalej“ v Aute (rohož) / „Pokračujte k súhrnu“ vo Veľkosti (box): kým nie je otázka zodpovedaná a ponuka
-  // platí, otvorí kartu. Capture na window = pred kroky.js (document capture posiela posledný krok na súhrn) aj pred
-  // živým enginom. Nevyplnený krok = živá validácia ako doteraz (červený rám).
+  // „Pokračujte ďalej“ v Aute (rohož) / v Počte boxov (box): kým nie je otázka zodpovedaná a ponuka platí, otvorí kartu.
+  // Capture na window = pred kroky.js a boxy-produkt.js (document capture otvára ďalší krok) aj pred živým enginom.
+  // Nevyplnený krok = živá validácia ako doteraz (červený rám).
   function naPokracuj(e) {
     const t = e.target;
     if (!zapnute() || !t || !t.closest) return;
@@ -372,7 +405,7 @@ export function init(ctx) {
     if (rohoz) {
       const i = lcdGetSteps().indexOf(kAuto);
       if (i < 0 || lcdFirstUnfilled(i)) return;
-    }
+    } else if (!ctx.vyplneny(kFarba)) return; // bez farby: boxy-produkt.js otvorí Farbu / validácia
     obnov();
     if (!stav.ponuka || karta.hidden) return;
     e.preventDefault();

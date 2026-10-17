@@ -965,15 +965,8 @@ const SCENARE = {
     await t.klikni(`${sel} > .next-step-button`, { popis: "Pokračujte k súhrnu" });
     await pauza(1500);
     over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST do košíka: " + (s.posty[0] && s.posty[0].body));
-    // box 616 (1–2 boxy): „Pokračujte k súhrnu“ najprv otvorí skrytú kartu ponuky setu (komplet-ponuka.js, 17. 10. 2026);
-    // „Nie, ďakujem“ pokračuje na súhrn ako doteraz (scenáre box-komplet-*)
-    let ponuka = "";
-    if (a.produkt.typ === "boxy" && (await t.ev(`!!document.querySelector("#product-detail-form .lcd1v-komplet.active")`))) {
-      await t.klikni(`#product-detail-form .lcd1v-komplet .lcd1v-komplet__nie`, { popis: "Nie, ďakujem (ponuka setu)" });
-      await pauza(1500);
-      over(s.posty.length === 0, "„Nie, ďakujem“ v ponuke setu poslal POST do košíka: " + (s.posty[0] && s.posty[0].body));
-      ponuka = " (cez kartu ponuky setu -> Nie)";
-    }
+    // box 616: karta ponuky setu je po Počte boxov (Michal 17. 10. 2026 večer) -> „Pokračujte k súhrnu“ ide rovno na súhrn
+    const ponuka = "";
     const st = await t.ev(`(function () { var k = document.querySelector(${JSON.stringify(sel)}); var e = document.querySelector(".lcd1v-suhrn"); var r = e && e.getBoundingClientRect();
       return { otvoreny: k.classList.contains("active"), vidno: !!(r && r.top >= 0 && r.bottom <= innerHeight), aktivne: document.querySelectorAll("#product-detail-form .lcd1v-krok.active").length }; })()`);
     over(!st.otvoreny && st.aktivne === 0, "po „Pokračujte k súhrnu“ majú byť kroky zatvorené: " + JSON.stringify(st));

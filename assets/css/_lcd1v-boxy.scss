@@ -10,7 +10,7 @@
    návrh má farba 1 / počet 2 / veľkosť 3 (DOM ostáva, mení sa len poradie zobrazenia). */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-farba { order: 1 !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-pocet { order: 2 !important; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-velkost { order: 3 !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-velkost { order: 4 !important; } /* 3 = ponuka setu (_lcd1v-komplet.scss) */
 /* odporúčaná cena, ktorú by configurator-enhance (lcdAddBoxRRP) dopísal „Doporučenou cenou“ — box ju v admine nemá */
 body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-rrp-wrap,
 body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-price-rrp { display: none !important; }

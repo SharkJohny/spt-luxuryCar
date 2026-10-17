@@ -171,7 +171,7 @@ export const PRODUKTY = {
     url: SK + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Box do kufra",
     scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne",
       // skrytá karta ponuky setu po Veľkosti (scenare-komplet.mjs, 17. 10. 2026)
-      "box-komplet-nie", "box-komplet-ano", "box-komplet-seda", "box-komplet-3"],
+      "box-komplet-nie", "box-komplet-ano", "box-komplet-od", "box-komplet-seda", "box-komplet-3"],
     platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
     odporucana: false,
     ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 643, "box-3-na-1": 197, dokoncit: 207 },

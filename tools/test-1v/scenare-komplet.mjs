@@ -16,15 +16,19 @@
 //   kufor-komplet-ano  hlavička karty -> Áno -> jednovrstvové toho istého vzoru: rohož (Classic = dno, Premium = dno + boky)
 //                      predvybraná, auto prenesené, otvorená Farba bez predvoľby; farba + rozloženie -> POST; tá istá
 //                      stránka nanovo a všetko ručne -> POST rovnaký pole po poli
-//   box-komplet-nie    karta skrytá, kým nie je zvolená veľkosť (aj pri zvolenej farbe a počte); potom za kartou Veľkosť bez
-//                      čísla; „Pokračujte k súhrnu“ otvorí kartu; 1 box M: „Box do kufra M len za X €“ (X = Box solo M na
-//                      598, GET), „Samostatne“ = cena stránky (variant + príplatok z DOM); Nie -> kroky zatvorené, súhrn na
-//                      obrazovke, POST 0; košík -> POST = baseline (profil platne 1 × M)
-//   box-komplet-ano    1 box M -> 2 boxy M + L: čísla v karte sa prepočítajú živo („Boxy do kufra M + L len za X €“, X =
-//                      1. box M + 2. box L na 598); farba, ktorú set má (podľa názvu); Áno -> 598: počet, farba boxov
-//                      a veľkosti prenesené, okno boxov zatvorené; auto + farba + rozloženie -> POST; nanovo ručne -> POST
-//                      rovnaký pole po poli
-//   box-komplet-seda   farba boxu, ktorú set nemá (dnes Šedá — test ju hľadá sám porovnaním názvov 616 a 598): veta pod bannerom
+//   box-komplet-nie    karta skrytá, kým nie je zvolená farba; potom medzi kartou Počet boxov a Veľkosť bez čísla (Michal
+//                      17. 10. 2026 večer: „toto sa má zobrazovať po kroku počet boxov“); „Pokračujte ďalej“ v Počte otvorí
+//                      kartu (nie Veľkosť); bez veľkosti „Box do kufra už od X €“ (X = najlacnejší Box solo na 598, GET),
+//                      „Box S samostatne Y €“ (Y = variant + príplatok tej istej veľkosti na 616, z DOM); Nie -> Veľkosť,
+//                      POST 0; veľkosť M + košík -> POST = baseline (profil platne 1 × M)
+//   box-komplet-ano    1 box M (presné „Box do kufra M len za“) -> 2 boxy bez veľkostí („Boxy do kufra už od“) -> M + L:
+//                      čísla v karte sa prepočítajú živo („Boxy do kufra M + L len za X €“, X = 1. box M + 2. box L na
+//                      598); farba, ktorú set má (podľa názvu); Áno -> 598: počet, farba boxov a veľkosti prenesené, okno
+//                      boxov zatvorené; auto + farba + rozloženie -> POST; nanovo ručne -> POST rovnaký pole po poli
+//   box-komplet-od     „Áno“ hneď po počte (veľkosť ešte nezvolená): 598 dostane počet a farbu, okno boxov ostane otvorené
+//                      na výber veľkosti; zákazník ju zvolí a potvrdí; auto + farba + rozloženie -> POST platný (box solo,
+//                      farba boxov)
+//   box-komplet-seda   farba boxu, ktorú set nemá (dnes Šedá — test ju hľadá sám porovnaním názvov 616 a 598), veľkosť S zvolená: veta pod bannerom
 //                      to povie; Áno -> 598: počet a veľkosť prenesené, farba nie — okno boxov otvorené na výber farby;
 //                      zákazník zvolí farbu a potvrdí; auto + farba + rozloženie -> POST platný (box solo, farba boxov)
 //   box-komplet-3      3 boxy: karta sa neukáže (ani keď bola pri 2 boxoch viditeľná), „Pokračujte k súhrnu“ ide rovno na
@@ -150,7 +154,7 @@ async function cakajOtvorenu(t, popis) {
 }
 
 /** Spoločné kontroly otvorenej karty: nadpis, banner C (texty, čísla podaj zvonka, stuha, fotky), tlačidlá, bez „+ číslo“. */
-async function overOtvorenu(t, j, st, { h, kd, pip, ben, vSete, samostatne, pozn, pipSrc, kde }) {
+async function overOtvorenu(t, j, st, { h, kd, pip, ben, vSete, samostatne, sam = "Samostatne", pozn, pipSrc, kde }) {
   j.over(st.ti === "Prosíte si aj autokoberce pod sedadlá?", `${kde}: nadpis „${st.ti}“`);
   j.over(st.ey === "Autokoberce pod sedadlá" && !st.cisloVidno, `${kde}: karta bez čísla (eyebrow „${st.ey}“, číslo „${st.cislo}“ viditeľné ${st.cisloVidno})`);
   j.over(!st.pod, `${kde}: nad bannerom nemá byť veta (banner hovorí všetko): „${st.pod}“`);
@@ -161,8 +165,8 @@ async function overOtvorenu(t, j, st, { h, kd, pip, ben, vSete, samostatne, pozn
   // texty banneru C (Michal 17. 10. 2026): cena v sete s vysvetlením, nikdy „+ X €“ (vyzerá ako príplatok k cene hore)
   j.over(cisty(B.ey) === "★ Výhodnejšie v sete" && B.h === h && cisty(B.c) === eur(vSete) && B.kd === kd,
     `${kde}: banner „${B.ey} | ${B.h} | ${B.c} | ${B.kd}“ ≠ „★ Výhodnejšie v sete | ${h} | ${eur(vSete)} | ${kd}“`);
-  j.over(cisty(B.s) === "Samostatne " + eur(samostatne) && cisty(B.pr) === eur(samostatne) && /line-through/.test(B.ciara) && cisty(B.u) === "Ušetríte " + eur(us),
-    `${kde}: „${B.s}“ / „${B.u}“ ≠ Samostatne ${eur(samostatne)} (prečiarknuté) / Ušetríte ${eur(us)}`);
+  j.over(cisty(B.s) === sam + " " + eur(samostatne) && cisty(B.pr) === eur(samostatne) && /line-through/.test(B.ciara) && cisty(B.u) === "Ušetríte " + eur(us),
+    `${kde}: „${B.s}“ / „${B.u}“ ≠ ${sam} ${eur(samostatne)} (prečiarknuté) / Ušetríte ${eur(us)}`);
   j.over(B.poradie === "lcd1v-bs__c,lcd1v-bs__kd,lcd1v-bs__sb", `${kde}: poradie v DOM (čítačka: cena hneď s podmienkou): ${B.poradie}`);
   j.over(Number(B.attr) === vSete, `${kde}: data-lcd1v-set ${B.attr} ≠ ${vSete}`);
   j.over(B.cPx >= 40, `${kde}: cena v sete má byť veľká (${B.cPx} px)`);
@@ -248,6 +252,19 @@ function cenaStrankyBoxu(t) {
     return z == null ? null : Math.round((z + p) * 100) / 100;
   })()`);
 }
+
+/** Box 616 (NEZÁVISLE z DOM): príplatok veľkosti `pismeno` pri `kluc` (box1 / box2) -> číslo alebo null. */
+async function priplatokBoxu(t, kluc, pismeno) {
+  const id = await t.idParametra(kluc);
+  return t.ev(`(function (id, p) {
+    var s = document.querySelector('${F} select[data-parameter-id="' + id + '"]');
+    var o = s && Array.prototype.find.call(s.options, function (x) { var m = /^\\s*(XL|[SML])\\s*:/.exec(x.textContent); return x.value && m && m[1] === p; });
+    return o ? (Number(o.getAttribute("data-surcharge-final-price")) || Number(o.getAttribute("data-surcharge-additional-price")) || 0) : null;
+  })(${JSON.stringify(id)}, ${JSON.stringify(pismeno)})`);
+}
+
+/** Najlacnejšia veľkosť v sete (598) z velkosti() boxyCiela -> písmeno (dnes S). */
+const najlacnejsia = (o) => Object.keys(o || {}).filter((k) => o[k].cena > 0).sort((x, y) => o[x].cena - o[y].cena)[0] || null;
 
 /** „Pokračujte k súhrnu“ / Nie na boxe: kroky zatvorené a súhrn (Spolu + košík) na obrazovke. */
 function stavSuhrnu(t) {
@@ -425,52 +442,109 @@ export const SCENARE = {
       const t = s.t, P = a.produkt, J = profil("jedno", "diamond");
       await j.otvor(s, a.url, { novy: true });
       const ciel = await boxyCiela(t, cesta(J.url));
-      j.over(ciel.solo.M && ciel.solo.M.cena > 0, "Box solo M na " + J.url + " sa nedal zistiť (test): " + JSON.stringify(ciel.solo));
+      const L = najlacnejsia(ciel.solo);
+      j.over(L && ciel.solo.M && ciel.solo.M.cena > 0, "Box solo na " + J.url + " sa nedal zistiť (test): " + JSON.stringify(ciel.solo));
       const pred = await stavKarty(t);
-      j.over(pred.je && !pred.vidno, `karta ponuky má byť pred výberom veľkosti skrytá: ${JSON.stringify({ je: pred.je, vidno: pred.vidno })}`);
+      j.over(pred.je && !pred.vidno, `karta ponuky má byť pred výberom farby skrytá: ${JSON.stringify({ je: pred.je, vidno: pred.vidno })}`);
       const kroky0 = await cislaKrokov(t);
-      // farba a počet bez veľkosti: karta stále skrytá
+      // farba (index 2, v sete je) -> karta viditeľná medzi Počtom a Veľkosťou
       const farba = await ovl.boxy.vyberFarbu(t, { index: 2 });
       await ovl.boxy.vyberPocet(t, 1);
-      await j.pauza(600);
-      j.over(!(await stavKarty(t)).vidno, "karta ponuky je viditeľná pred výberom veľkosti");
-      const v = await ovl.boxy.vyberVelkosti(t, ["M"]);
-      const st = await cakajKartu(t, "karta ponuky po výbere veľkosti");
-      j.over(st.vidno && !st.otvorena && !st.cisloVidno && st.nm === "Autokoberce pod sedadlá" && st.vy === "Áno alebo nie", `zbalená karta po veľkosti: ${JSON.stringify({ vidno: st.vidno, otvorena: st.otvorena, cislo: st.cisloVidno, nm: st.nm, vy: st.vy })}`);
+      const st = await cakajKartu(t, "karta ponuky po farbe a počte");
+      j.over(st.vidno && !st.otvorena && !st.cisloVidno && st.nm === "Autokoberce pod sedadlá" && st.vy === "Áno alebo nie", `zbalená karta po počte: ${JSON.stringify({ vidno: st.vidno, otvorena: st.otvorena, cislo: st.cisloVidno, nm: st.nm, vy: st.vy })}`);
       const pl = st.poloha;
-      j.over(pl.velkost && pl.karta && pl.velkost.bottom <= pl.karta.top + 1 && pl.pocet.bottom <= pl.velkost.top + 1, `karta na obrazovke za kartou Veľkosť: ${JSON.stringify(pl)}`);
+      j.over(pl.pocet && pl.karta && pl.velkost && pl.pocet.bottom <= pl.karta.top + 1 && pl.karta.bottom <= pl.velkost.top + 1, `karta na obrazovke medzi Počtom a Veľkosťou: ${JSON.stringify(pl)}`);
       const kroky1 = await cislaKrokov(t);
       j.over(JSON.stringify(kroky1.ey) === JSON.stringify(kroky0.ey) && /3 krokoch/.test(kroky1.postup) && kroky1.dlazdice === 3 && kroky1.ey.every((x) => /^Krok \d z 3$/.test(x)), `počty krokov sa zmenili: pred ${JSON.stringify(kroky0)}, po ${JSON.stringify(kroky1)}`);
-      await snimka(s, a, "komplet-zbalena", `${F} .lcd1v-k-velkost`); // zbalená karta za kartou Veľkosť
-      // „Pokračujte k súhrnu“ vo Veľkosti otvorí kartu (POST 0)
-      await t.klikni(`${F} .lcd1v-k-velkost > .next-step-button`, { popis: "Pokračujte k súhrnu (Veľkosť)" });
-      const otv = await cakajOtvorenu(t, "otvorená karta ponuky po „Pokračujte k súhrnu“");
-      const samo = await cenaStrankyBoxu(t);
-      j.over(samo > 0, "cena stránky boxu sa nedala zistiť (test)");
+      // „Pokračujte ďalej“ v Počte otvorí kartu, nie Veľkosť (POST 0)
+      await t.klikni(`${F} .lcd1v-k-pocet > .next-step-button`, { popis: "Pokračujte ďalej (Počet boxov)" });
+      const otv = await cakajOtvorenu(t, "otvorená karta ponuky po „Pokračujte ďalej“ v Počte");
+      j.over(!(await t.ev(`document.querySelector("${F} .lcd1v-k-velkost").classList.contains("active")`)), "po „Pokračujte ďalej“ v Počte sa otvorila Veľkosť, má sa otvoriť karta ponuky");
+      // bez veľkosti: „už od“ = najlacnejší Box solo; samostatne = variant + príplatok tej istej veľkosti na 616
+      const pr = await priplatokBoxu(t, "box1", L);
+      const variant = await cenaStrankyBoxu(t);
+      j.over(pr != null && variant > 0, `príplatok ${L} / variant 616 sa nedal zistiť (test): ${pr} / ${variant}`);
+      const samo = Math.round((variant + pr) * 100) / 100;
       const us = await overOtvorenu(t, j, otv, {
-        h: "Box do kufra M len za", kd: "keď ho kúpite spolu s autokobercami pod sedadlá", pip: "Box do kufra",
-        ben: "Farba aj veľkosť boxu Vám ostanú.",
-        vSete: ciel.solo.M.cena, samostatne: samo, pozn: "Pokračujete len s boxom do kufra.",
-        pipSrc: /\/img\/1v\/boxprodukt-pocet-1\.jpg$/, kde: "karta 616 (1 × M)",
+        h: "Box do kufra už od", kd: "keď ho kúpite spolu s autokobercami pod sedadlá", pip: "Box do kufra",
+        ben: "Farba boxu Vám ostane, veľkosť vyberiete pri autokobercoch.",
+        vSete: ciel.solo[L].cena, samostatne: samo, sam: "Box " + L + " samostatne", pozn: "Pokračujete len s boxom do kufra.",
+        pipSrc: /\/img\/1v\/boxprodukt-pocet-1\.jpg$/, kde: "karta 616 (1 box bez veľkosti)",
       });
       await overFokus(t, j, "karta 616");
-      j.over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST: " + (s.posty[0] && s.posty[0].body));
+      j.over(s.posty.length === 0, "„Pokračujte ďalej“ poslal POST: " + (s.posty[0] && s.posty[0].body));
       await snimka(s, a, "komplet-otazka", KARTA);
-      // Nie -> súhrn (kroky zatvorené), POST 0; potom košík -> baseline
+      // Nie -> otvorí sa Veľkosť, POST 0; potom veľkosť M + košík -> baseline
       await t.klikni(`${KARTA} .lcd1v-komplet__nie`, { popis: "Nie, ďakujem" });
-      await j.pauza(1500);
-      const sh = await stavSuhrnu(t);
+      await t.cakaj(`document.querySelector("${F} .lcd1v-k-velkost").classList.contains("active")`, { ms: 8000, popis: "otvorená Veľkosť po Nie" });
       const poNie = await stavKarty(t);
-      j.over(!sh.aktivne.length && sh.vidno, `po „Nie“ majú byť kroky zatvorené a súhrn na obrazovke: ${JSON.stringify(sh)}`);
       j.over(!poNie.otvorena && poNie.hotova && poNie.vy === "Len box do kufra", `karta po Nie: ${JSON.stringify({ o: poNie.otvorena, h: poNie.hotova, vy: poNie.vy })}`);
       j.over(s.posty.length === 0, "„Nie, ďakujem“ poslal POST: " + (s.posty[0] && s.posty[0].body));
+      const v = await ovl.boxy.vyberVelkosti(t, ["M"]);
       await ovl.cena.pridajDoKosika(t);
       const post = await j.cakajNaPost(s);
       const cena = await j.overPost(s, post, { farba, box1: v.box1, box2: v.box2, box3: v.box3 });
       await j.overCenu(s, ovl, cena);
       j.over(post.pole.priceId === P.platne.priceId && cena.spolu === P.platne.spolu, `POST priceId ${post.pole.priceId} / suma ${cena.spolu} ≠ profil ${P.platne.priceId} / ${P.platne.spolu}`);
       j.over((await kluc(t)) === null, "po „Nie“ ostal kľúč prenosu v sessionStorage");
-      return { info: `karta až po veľkosti, za Veľkosťou, bez čísla; Pokračujte k súhrnu -> karta; 1 × M v sete ${ciel.solo.M.cena} €, samostatne ${samo} €, ušetríte ${us} €; Nie -> súhrn; POST = baseline 616`, post: post.body, spolu: cena.spolu };
+      return { info: `karta po farbe, medzi Počtom a Veľkosťou, bez čísla; Pokračujte (Počet) -> karta; bez veľkosti „už od“ ${ciel.solo[L].cena} € (${L}), Box ${L} samostatne ${samo} €, ušetríte ${us} €; Nie -> Veľkosť; M + košík: POST = baseline 616`, post: post.body, spolu: cena.spolu };
+    },
+  },
+
+  "box-komplet-od": {
+    typy: ["boxy"],
+    async fn(s, a, pom, ovl, j) {
+      const sk = preskocBez(a); if (sk) return sk;
+      const t = s.t, P = a.produkt, J = profil("jedno", "diamond");
+      await j.otvor(s, a.url, { novy: true });
+      const ciel = await boxyCiela(t, cesta(J.url));
+      const L = najlacnejsia(ciel.solo);
+      const idF = await t.idParametra("farba");
+      const farby = (await farbyBoxu(t, idF)).map((f) => ({ ...f, ciel: ciel.farby.find((c) => normFarby(c.text) === normFarby(f.text)) || null }));
+      const fv = farby.find((f) => f.ciel);
+      j.over(fv && L, "farba v sete / Box solo na 598 sa nedali zistiť (test): " + JSON.stringify({ farby: farby.map((f) => f.text), solo: ciel.solo }));
+      await ovl.boxy.vyberFarbu(t, { index: fv.index });
+      await ovl.boxy.vyberPocet(t, 1);
+      await cakajKartu(t, "karta ponuky po farbe a počte");
+      await t.klikni(`${F} .lcd1v-k-pocet > .next-step-button`, { popis: "Pokračujte ďalej (Počet boxov)" });
+      const otv = await cakajOtvorenu(t, "otvorená karta ponuky (bez veľkosti)");
+      j.over(otv.bs && otv.bs.h === "Box do kufra už od" && otv.cenaTx === eur(ciel.solo[L].cena), `banner bez veľkosti: „${otv.bs && otv.bs.h} ${otv.cenaTx}“ ≠ „Box do kufra už od ${eur(ciel.solo[L].cena)}“`);
+      await t.klikni(`${KARTA} .lcd1v-komplet__ano`, { popis: "Áno, chcem set s autokobercami" });
+      s.produkt = J;
+      try {
+        // počet a farba prenesené, veľkosť nie -> krok Boxy s otvoreným oknom na výber veľkosti (prenos.js otvorPoPrenose)
+        const pr = await poPrichode(s, j, { J, z: P.id, krok: "boxy" });
+        j.over(JSON.stringify(pr.otvorene) === '["boxy"]', `otvorené karty na ${J.id}: ${pr.otvorene.join(", ")} (má byť krok Boxy s oknom)`);
+        j.over(JSON.stringify(pr.kluc.vyber) === JSON.stringify({ pocetBoxov: 1, farbaBoxov: fv.ciel.hodnota }), `výber v kľúči ${JSON.stringify(pr.kluc.vyber)} ≠ počet 1 + farba ${fv.ciel.hodnota} (bez veľkosti)`);
+        const ids = {};
+        for (const k of ["farbaBoxov", "boxSolo"]) ids[k] = await t.idParametra(k);
+        const st = await t.ev(`(function (ids) {
+          var f = document.getElementById("product-detail-form"), b = f.querySelector(".upsale-Banner");
+          function v(k) { var s = f.querySelector('select[data-parameter-id="' + ids[k] + '"]'); return s ? s.value : null; }
+          var o = f.querySelector(".upsale-Banner.lcd1v-kb .box-config"), c = o && getComputedStyle(o);
+          return { farbaBoxov: v("farbaBoxov"), boxSolo: v("boxSolo"), okno: b.classList.contains("showConf"), oknoVidno: !!(c && c.visibility === "visible" && c.opacity === "1"),
+            karta: (f.querySelector(".upsale-buttons.boxs > .parameter-cars > .upsale-button.active") || { getAttribute: function () { return ""; } }).getAttribute("value") };
+        })(${JSON.stringify(ids)})`);
+        j.over(st.okno && st.oknoVidno && st.karta === "conf1" && st.farbaBoxov === fv.ciel.hodnota && (!st.boxSolo || st.boxSolo === "0"), `na ${J.id} má byť otvorené okno boxov s farbou a bez veľkosti: ${JSON.stringify(st)}`);
+        if (a.snimky) await s.k.snimka(join(a.snimky, `${P.id}-komplet-od-ciel-${J.id}-${t.sirka}.png`)).catch(() => {});
+        // zákazník zvolí veľkosť (najlacnejšiu) v okne a potvrdí
+        const iV = await t.ev(`Array.prototype.findIndex.call(document.querySelectorAll("${OKNO} .parameter-wrap.parameter-${ids.boxSolo} .option-button"), function (b) { return b.getAttribute("data-value") === ${JSON.stringify(ciel.solo[L].hodnota)}; })`);
+        j.over(iV > -1, `veľkosť ${L} (${ciel.solo[L].hodnota}) nie je v okne boxov ${J.id}`);
+        await t.klikni(`${OKNO} .parameter-wrap.parameter-${ids.boxSolo} .option-button`, { index: iV, popis: "veľkosť boxu v okne" });
+        await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${ids.boxSolo}"]') || {}).value === ${JSON.stringify(ciel.solo[L].hodnota)}`, { ms: 10000, popis: "veľkosť boxu vo formulári" });
+        await t.klikni(`${OKNO} .lcd1v-bx__ok`, { popis: "Potvrďte výber boxov" });
+        await t.cakaj(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`, { ms: 8000, popis: "okno boxov zavreté po potvrdení" });
+        await t.cakaj(`!!document.querySelector("${F} .lcd1v-k-auto.active")`, { ms: 8000, popis: "otvorené Auto po potvrdení boxov" });
+        await nastavFormKluce(s);
+        const z = await j.zaklad(s, ovl);
+        await ovl.cena.pridajDoKosika(t);
+        const post = await j.cakajNaPost(s);
+        const cena = await j.overPost(s, post, { ...z.ocak, farbaBoxov: fv.ciel.hodnota, boxSolo: ciel.solo[L].hodnota });
+        const c = await j.overCenu(s, ovl, cena);
+        return { info: `Áno bez veľkosti -> ${J.id}: 1 box + farba „${fv.text}“ prenesené, okno boxov otvorené na veľkosť; ${L} + potvrdenie -> POST platný, ${c.videne} €`, post: post.body };
+      } finally {
+        s.produkt = P;
+      }
     },
   },
 
@@ -486,13 +560,16 @@ export const SCENARE = {
       const farby = (await farbyBoxu(t, idF)).map((f) => ({ ...f, ciel: ciel.farby.find((c) => normFarby(c.text) === normFarby(f.text)) || null }));
       const fv = farby.find((f) => f.ciel);
       j.over(fv, "žiadna farba boxu 616 nie je v sete 598 (test): " + JSON.stringify(farby.map((f) => f.text)));
-      // 1 × M -> karta s cenou boxu solo; potom 2 boxy M + L -> čísla sa prepočítajú
+      // 1 × M -> karta s cenou boxu solo; 2 boxy bez veľkostí -> „už od“; M + L -> čísla sa prepočítajú
       await boxVyber(t, ovl, { farba: fv.index, pocet: 1, velkosti: ["M"] });
       const st1 = await cakajKartu(t, "karta ponuky (1 × M)");
       j.over(st1.cenaTx === eur(ciel.solo.M.cena), `1 × M: v sete „${st1.cenaTx}“ ≠ ${eur(ciel.solo.M.cena)}`);
       await ovl.boxy.vyberPocet(t, 2);
-      await j.pauza(600);
-      j.over(!(await stavKarty(t)).vidno, "pri 2 boxoch bez veľkosti 2. boxu je karta viditeľná");
+      // 2 boxy bez veľkostí (živý kód ich pri zmene počtu vyprázdni): „Boxy do kufra už od“ = najlacnejší 1. + 2. box na 598
+      const odDva = Math.round((ciel.b1[najlacnejsia(ciel.b1)].cena + ciel.b2[najlacnejsia(ciel.b2)].cena) * 100) / 100;
+      await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\s+/g, " ").trim() === ${JSON.stringify(eur(odDva))}`, { ms: 10000, popis: "2 boxy bez veľkostí: „už od“ " + eur(odDva) });
+      const st2 = await stavKarty(t);
+      j.over(st2.vidno && st2.bs === null && st2.cenaTx === eur(odDva), `2 boxy bez veľkostí: karta viditeľná (zbalená) s „už od“ ${eur(odDva)}: ${JSON.stringify({ vidno: st2.vidno, c: st2.cenaTx })}`);
       const v = await ovl.boxy.vyberVelkosti(t, ["M", "L"]);
       const vSete = Math.round((ciel.b1.M.cena + ciel.b2.L.cena) * 100) / 100;
       await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\\s+/g, " ").trim() === ${JSON.stringify(eur(vSete))}`, { ms: 10000, popis: "cena v karte prepočítaná na 2 boxy" });

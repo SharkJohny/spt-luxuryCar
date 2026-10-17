@@ -58,10 +58,10 @@ export const TYP = {
       tipB: "Tip:",
       tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
     },
-    // Ponuka setu ako skrytá karta bez čísla za kartou Veľkosť (komplet-ponuka.js; Michal 17. 10. 2026: návrh 1 „Ponuka
-    // ako druhá vrstva“, pri boxe „keď si vyberie … tak hneď potom tam bude tá skrytá sekcia“). Len pri 1 alebo 2 boxoch
-    // (set má najviac 2). d = { pocet, velkosti „M“ / „M + L“, cena „109 €“, farba "ok" | "nie" (farbu set nemá) | "ziadna",
-    // nazov farby }; čísla živo (cena tejto stránky vs. box solo / 1. + 2. box na jednovrstvových 598), nikdy „+ X €“.
+    // Ponuka setu ako skrytá karta bez čísla za kartou Počet boxov (komplet-ponuka.js; Michal 17. 10. 2026 večer: „toto
+    // sa má zobrazovať po kroku počet boxov“). Len pri 1 alebo 2 boxoch (set má najviac 2). d = { pocet, od (veľkosti ešte
+    // nie sú zvolené -> „už od“ s najlacnejšou veľkosťou), velkosti „S“ / „M + L“, cena „99 €“, farba "ok" | "nie" (farbu
+    // set nemá) | "ziadna", nazov farby }; čísla živo (cena tejto stránky vs. box solo / 1. + 2. box na 598), nikdy „+ X €“.
     komplet: {
       nm: "Autokoberce pod sedadlá",
       ti: "Prosíte si aj autokoberce pod sedadlá?",
@@ -71,9 +71,10 @@ export const TYP = {
       // s číslami pre zvolený počet a veľkosti: „Box do kufra M len za 109 €“ / „Boxy do kufra M + L len za …“
       banner: {
         ey: "Výhodnejšie v sete",
-        h: (d) => (d.pocet > 1 ? "Boxy do kufra " : "Box do kufra ") + d.velkosti + " len za",
+        h: (d) => (d.pocet > 1 ? "Boxy do kufra " : "Box do kufra ") + (d.od ? "už od" : d.velkosti + " len za"),
         kd: (d) => (d.pocet > 1 ? "keď ich kúpite spolu s autokobercami pod sedadlá" : "keď ho kúpite spolu s autokobercami pod sedadlá"),
-        sam: "Samostatne",
+        // „už od“: porovnanie tej istej veľkosti („Box S samostatne 197 €“, „Boxy S + S samostatne 394 €“)
+        sam: (d) => (d.od ? (d.pocet > 1 ? "Boxy " : "Box ") + d.velkosti + " samostatne" : "Samostatne"),
         us: "Ušetríte",
         stuha: "Zľava", // stuha cez roh banneru: „Zľava −X %“ pre zvolené veľkosti (živo, set-banner.js)
         pip: (d) => (d.pocet > 1 ? d.pocet + " boxy do kufra" : "Box do kufra"),
@@ -81,9 +82,18 @@ export const TYP = {
       },
       ano: { tl: "Áno, chcem set s autokobercami" },
       // farba boxu, ktorú set nemá (dnes Šedá): povedať to a farbu neprenášať — zákazník ju vyberie v okne boxov
-      ben: (d) => (d.farba === "nie" ? "Farba „" + d.nazov + "“ sa v sete neponúka, farbu boxu si vyberiete pri autokobercoch."
-        : d.farba === "ziadna" ? (d.pocet > 1 ? "Veľkosti boxov Vám ostanú, farbu vyberiete pri autokobercoch." : "Veľkosť boxu Vám ostane, farbu vyberiete pri autokobercoch.")
-          : d.pocet > 1 ? "Farba aj veľkosti boxov Vám ostanú." : "Farba aj veľkosť boxu Vám ostanú."),
+      ben: (d) => {
+        const dva = d.pocet > 1;
+        if (d.od) {
+          // veľkosti ešte nie sú zvolené: vyberú sa pri autokobercoch (okno boxov)
+          if (d.farba === "nie") return "Farba „" + d.nazov + "“ sa v sete neponúka, farbu aj " + (dva ? "veľkosti boxov" : "veľkosť boxu") + " si vyberiete pri autokobercoch.";
+          if (d.farba === "ziadna") return (dva ? "Počet boxov Vám ostane, farbu aj veľkosti" : "Farbu aj veľkosť boxu") + " vyberiete pri autokobercoch.";
+          return dva ? "Farba a počet boxov Vám ostanú, veľkosti vyberiete pri autokobercoch." : "Farba boxu Vám ostane, veľkosť vyberiete pri autokobercoch.";
+        }
+        if (d.farba === "nie") return "Farba „" + d.nazov + "“ sa v sete neponúka, farbu boxu si vyberiete pri autokobercoch.";
+        if (d.farba === "ziadna") return dva ? "Veľkosti boxov Vám ostanú, farbu vyberiete pri autokobercoch." : "Veľkosť boxu Vám ostane, farbu vyberiete pri autokobercoch.";
+        return dva ? "Farba aj veľkosti boxov Vám ostanú." : "Farba aj veľkosť boxu Vám ostanú.";
+      },
       nie: { nm: "Nie, ďakujem", pozn: (d) => (d.pocet > 1 ? "Pokračujete len s boxmi do kufra." : "Pokračujete len s boxom do kufra.") },
       prenos: "Prenášame Váš výber na autokoberce pod sedadlá…",
     },
