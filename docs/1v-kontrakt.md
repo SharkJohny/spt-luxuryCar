@@ -221,6 +221,8 @@ node tools/test-konfigurator-1v.mjs --zdroj <sha>            # verzia nahratá n
 | `--limit <s>` | časový limit jedného scenára (predvolene 180, najmenej 30) |
 | `--opakuj N` | zlyhaný scenár sa najviac N-krát zopakuje (predvolene **0**). Prešiel na opakovanie = vo výpise `OK*` + prvé zlyhanie |
 | `--tolerovat-opakovanie` | `OK*` nie je zlyhanie behu. Bez neho beh s aspoň jedným `OK*` skončí exit 1 |
+| `--cpu N` | CPU stránky N× pomalšie (CDP `Emulation.setCPUThrottlingRate`, pomalý telefón / zahltený stroj) |
+| `--kolo N` | každú úlohu (produkt × šírka × scenár) spustiť N× — chyba, ktorá sa ukáže len občas (napr. `--krok miesta-podorys --kolo 20 --cpu 5`) |
 | `--snimky <priečinok>` | snímka každého scenára aj tesne pred každým „Pridať do košíka“ |
 | `--json <súbor>` | výsledky + POST + súhrn podľa produktu (živý POST scenára `platne` vs plan.md §4) |
 | `--vypis` | ku každému scenáru POST telá a log |
@@ -287,6 +289,7 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `box-prepni` | jedno, dvoj | len nový vzhľad: 1 box → 2 boxy, v POST len 1. + 2. box (živý web tu má chybu: samostatný box ostane) |
 | `miesta-5` | jedno, dvoj | len nový vzhľad: 7 miest + 3 rady → 5 miest: rozloženie sa samo prepne na 1.+2. rad, krok 4 ostane otvorený, POST bez 3. radu |
 | `miesta-podorys` | jedno, dvoj | len nový vzhľad: pôdorys kreslí presne zvolený počet miest (2 = 1 rad, 4 = 2+2 … 9 = 3+3+3), dĺžka auta, kufor za posledným radom; karty: 6+ miest 1/2/3, 4–5 miest 1/2, **2 miesta len „Len prvý rad“** (§16); 5 miest + 1.+2. rad → 2 miesta = samo 1. rad, cena − príplatok 2. radu, bez POST; späť 5 miest = karty 1/2, výber 1. rad; 2 miesta aj z karty auta; POST = baseline 1. rad |
+| `rozlozenie-pretek` | jedno, dvoj (v profile 601) | len nový vzhľad: CPU ≥ 4× (CDP), 20 dávok náhodných klikov v stránke (dlaždice miest kroku 4, živé miesta kroku 2, viditeľné karty; pauzy 0–60 ms aj vnútri 16 ms odkladu `synchronizuj()`); po každej dávke práve jedno aktívne živé tlačidlo = select (POST) = jedna viditeľná označená karta, 2 miesta = len 1. rad, pod 6 miest nikdy 3 rady, dlaždica = krok 2; na konci POST rozloženia = označená karta, cena = POST. Semienko vo výpise (`LCD_PRETEK_SEMIENKO`) |
 | `farba2-prepni` | dvoj | zmena farby 2. vrstvy po celom výbere: `priceId` = variant `71-<lux>-78-<farba>`, POST nesie novú Lux |
 | `box-pocet-2`, `box-pocet-3` | boxy | 2 boxy S+L, 3 boxy S+S+XL: POST, ceny podľa profilu |
 | `box-3-na-1` | boxy | 3 boxy → 1 box: 2. a 3. box prázdne/chýbajú, cena 1 × S |

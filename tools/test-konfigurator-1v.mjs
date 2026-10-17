@@ -14,7 +14,9 @@
 //   (--krok bez --produkt spustí scenáre na 598; scenár iného typu sa na produkte nespustí a len sa spočíta;
 //    --limit 180 = s na scenár; --url <adresa> bez --produkt ide len na adresu registrovaného produktu, inak chyba;
 //    --opakuj N (predvolene 0) = zlyhaný scenár sa najviac N-krát zopakuje, vo výpise „OK*“ + prvé zlyhanie; beh
-//    s aspoň jedným OK* skončí exit 1, kým nie je --tolerovat-opakovanie (prešiel „na druhý pokus“ = nestabilný test))
+//    s aspoň jedným OK* skončí exit 1, kým nie je --tolerovat-opakovanie (prešiel „na druhý pokus“ = nestabilný test);
+//    záťaž: --cpu 4 = CPU spomalené 4× (CDP Emulation.setCPUThrottlingRate, ako pomalý telefón), --kolo 20 = každú
+//    úlohu spustiť 20× (pretek / časovanie, ktoré sa ukáže len občas))
 //
 // Ako: Chrome bez okna (surový CDP, žiadne npm balíky). Požiadavky na bundle a CSS živého webu
 // (…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js, …/css/luxuryCar.css) dostanú odpoveď z čerstvého lokálneho
@@ -62,7 +64,7 @@ const MERACE = [
 
 // ------------------------------------------------------------------ prepínače
 function argumenty(argv) {
-  const a = { novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 0, tolerovatOpakovanie: false };
+  const a = { novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 0, tolerovatOpakovanie: false, cpu: 1, kolo: 1 };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
     if (x === "--novy") { a.novy = true; a.flag = "1"; }
@@ -82,7 +84,9 @@ function argumenty(argv) {
     else if (x === "--limit") a.limit = Math.max(30, Number(dalsi()) || 180); // s na jeden scenár
     else if (x === "--opakuj") a.opakuj = Math.max(0, Number(dalsi()) || 0); // zlyhaný scenár zopakovať najviac N-krát (OK* vo výpise); predvolene 0
     else if (x === "--tolerovat-opakovanie") a.tolerovatOpakovanie = true; // OK* (prešlo až na opakovaný pokus) nie je zlyhanie behu
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 17).join("\n")); process.exit(0); }
+    else if (x === "--cpu") a.cpu = Math.min(20, Math.max(1, Number(dalsi()) || 1)); // CPU spomalené N× (pomalý telefón)
+    else if (x === "--kolo") a.kolo = Math.min(100, Math.max(1, Number(dalsi()) || 1)); // každú úlohu N× (občasný pretek)
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 19).join("\n")); process.exit(0); }
     else throw new ChybaPouzitia("neznámy prepínač " + x + " (zoznam: --help)");
   }
   if (argv.includes("--novy") && argv.includes("--vyvoj")) throw new ChybaPouzitia("--novy a --vyvoj naraz nejde");
@@ -223,6 +227,8 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
   });
   await k.posli("Network.setBlockedURLs", { urls: MERACE });
   await k.posli("Network.setCacheDisabled", { cacheDisabled: true });
+  // --cpu N: hlavné vlákno stránky N× pomalšie (pomalý telefón / zahltený stroj) — preteky medzi kliknutím a zápisom
+  if (a.cpu > 1) await k.posli("Emulation.setCPUThrottlingRate", { rate: a.cpu });
   const odpovedz = (p, body, typ) => k.posli("Fetch.fulfillRequest", {
     requestId: p.requestId, responseCode: 200, body: body.toString("base64"),
     responseHeaders: [{ name: "Content-Type", value: typ }, { name: "Access-Control-Allow-Origin", value: "*" }, { name: "Cache-Control", value: "no-store" }],
@@ -1153,6 +1159,100 @@ const SCENARE = {
   },
 
   /**
+   * Nový vzhľad, pretek karty a selectu rozloženia (17. 10. 2026; raz „select 592 ≠ karta 589“ v plnom behu): CPU
+   * spomalené (aspoň 4×, CDP), náhodné dávky klikov v stránke — dlaždice miest v kroku 4, živé dlaždice miest v kroku 2
+   * (zmena mimo kroku 4 = MutationObserver + 16 ms), viditeľné karty — s pauzami 0 / 8 / 20 / 60 ms (aj vnútri
+   * odkladu synchronizuj()). Po každej z 20 dávok (350 ms na ustálenie) musí platiť: práve jedno aktívne živé tlačidlo
+   * rozloženia = select (ten ide do POST) = práve jedna označená karta, ktorá je viditeľná; 2 miesta = len 1. rad, pod
+   * 6 miest nikdy „Všetky tri rady“; dlaždica kroku 4 = krok 2. Na konci košík: POST rozloženia = označená karta,
+   * cena na stránke = POST. Semienko náhody je vo výpise (zopakovanie: LCD_PRETEK_SEMIENKO=<číslo>).
+   */
+  async "rozlozenie-pretek"(s, a, pom, ovl) {
+    if (ovl.zdroj.rozlozenie !== "novy") return { preskoc: "len nový vzhľad (karty rozloženia sú len v ?novy=1)" };
+    const t = s.t;
+    await otvor(s, a.url, { novy: true });
+    const z = await zaklad(s, ovl, { rozlozenie: 1 });
+    await ovlRozlozenie.otvorKrok4(t);
+    const id = await t.idParametra("rozlozenie");
+    const semienko = Number(process.env.LCD_PRETEK_SEMIENKO) || (Date.now() % 1000000007);
+    const cpu = Math.max(4, a.cpu || 1);
+    await s.k.posli("Emulation.setCPUThrottlingRate", { rate: cpu });
+    let r;
+    try {
+      r = await t.ev(`(function (id, kola, seed) {
+        var F = document.querySelector("#product-detail-form"), RZ = F && F.querySelector(".lcd1v-rz");
+        var sel = F && F.querySelector('select[data-parameter-id="' + id + '"]');
+        if (!RZ || !sel) return { ok: false, chyba: "krok 4 (.lcd1v-rz) alebo select rozloženia chýba" };
+        var x = seed >>> 0;
+        function rnd(n) { x = (Math.imul(x, 1664525) + 1013904223) >>> 0; return x % n; }
+        var MIESTA = [2, 4, 5, 6, 7, 8, 9], hod = {};
+        Array.prototype.forEach.call(RZ.querySelectorAll(".rz-karta"), function (k) { hod[k.getAttribute("data-rady")] = k.getAttribute("data-hodnota"); });
+        function vid(e) { return e.offsetHeight > 0 && getComputedStyle(e).display !== "none"; }
+        function stav() {
+          var m = F.querySelector(".sit-Position .option-button.active"), d = RZ.querySelector(".rz-dlazdice button.on");
+          return { select: sel.value,
+            zive: Array.prototype.map.call(F.querySelectorAll('.option-button.active[data-variant="' + id + '"]'), function (b) { return b.getAttribute("data-value"); }),
+            karty: Array.prototype.map.call(RZ.querySelectorAll(".rz-karta.on"), function (k) { return { h: k.getAttribute("data-hodnota"), vid: vid(k) }; }),
+            miesta: m ? String(m.getAttribute("data-value")).replace(/^pass-/, "") : "", dlazdica: d ? d.getAttribute("data-v") : "" };
+        }
+        function chyba(st) {
+          if (st.zive.length !== 1 || st.zive[0] !== st.select) return "aktívne živé tlačidlo " + JSON.stringify(st.zive) + " ≠ select " + st.select;
+          if (st.karty.length !== 1 || st.karty[0].h !== st.select) return "označená karta " + JSON.stringify(st.karty) + " ≠ select " + st.select;
+          if (!st.karty[0].vid) return "označená karta " + st.karty[0].h + " je skrytá";
+          var n = Number(st.miesta);
+          if (n === 2 && st.select !== hod[1]) return "2 miesta, ale rozloženie " + st.select + " (má byť len 1. rad " + hod[1] + ")";
+          if (n > 0 && n < 6 && hod[3] && st.select === hod[3]) return n + " miest, ale „Všetky tri rady“ " + st.select;
+          if (st.dlazdica !== st.miesta) return "dlaždica kroku 4 " + st.dlazdica + " ≠ krok 2 " + st.miesta;
+          return "";
+        }
+        function akcia() {
+          var druh = rnd(3), n = MIESTA[rnd(MIESTA.length)];
+          if (druh === 0) { var d = RZ.querySelector('.rz-dlazdice button[data-v="' + n + '"]'); if (d) { d.click(); return "d" + n; } }
+          if (druh === 1) { var z = F.querySelector('.sit-Position .option-button[data-value="pass-' + n + '"]'); if (z) { z.click(); return "z" + n; } }
+          var k = Array.prototype.filter.call(RZ.querySelectorAll(".rz-karta"), vid);
+          if (!k.length) return "k-";
+          var kk = k[rnd(k.length)]; kk.click(); return "k" + kk.getAttribute("data-rady");
+        }
+        return new Promise(function (hotovo) {
+          var kolo = 0, akcii = 0, okamzite = { d: 0, z: 0, k: 0 }, historia = [];
+          (function davka() {
+            if (kolo++ >= kola) return hotovo({ ok: true, akcii: akcii, okamzite: okamzite, stav: stav() });
+            var n = 2 + rnd(5), i = 0, kroky = [];
+            (function dalsia() {
+              if (i++ >= n) {
+                setTimeout(function () {
+                  var st = stav(), c = chyba(st);
+                  if (c) return hotovo({ ok: false, chyba: c, stav: st, kolo: kolo, kroky: kroky.join(" "), predtym: historia.slice(-3) });
+                  historia.push(kroky.join(" "));
+                  davka();
+                }, 350);
+                return;
+              }
+              var ak = akcia(); kroky.push(ak); akcii++;
+              // hneď po kliku (bez ustálenia): len na výpis — zmena miest v kroku 2 sa do kroku 4 dostane až po 16 ms
+              var st = stav(); if (st.karty.length !== 1 || st.karty[0].h !== st.select) okamzite[ak.charAt(0)]++;
+              var p = rnd(4); setTimeout(dalsia, p === 0 ? 0 : p === 1 ? 8 : p === 2 ? 20 : 60);
+            })();
+          })();
+        });
+      })(${JSON.stringify(id)}, 20, ${semienko})`);
+    } finally {
+      // späť na --cpu (predvolene 1); chyba tu nesmie prekryť chybu preteku
+      await s.k.posli("Emulation.setCPUThrottlingRate", { rate: a.cpu || 1 }).catch(() => {});
+    }
+    over(r && r.ok, `pretek (CPU ${cpu}×, semienko ${semienko}): ${r && r.chyba} — kolo ${r && r.kolo}, kliky „${r && r.kroky}“ (d = dlaždica kroku 4, z = krok 2, k = karta), predtým ${JSON.stringify(r && r.predtym)}, stav ${JSON.stringify(r && r.stav)}`);
+    await pauza(300);
+    // košík: POST rozloženia = označená karta (to, čo zákazník vidí), cena na stránke = POST
+    const karta = await t.ev(`(function () { var k = document.querySelectorAll("#product-detail-form .lcd1v-rz .rz-karta.on"); return k.length === 1 ? k[0].getAttribute("data-hodnota") : null; })()`);
+    over(karta, "po preteku nie je práve jedna označená karta");
+    await ovl.cena.pridajDoKosika(t);
+    const post = await cakajNaPost(s);
+    const cena = await overPost(s, post, { ...z.ocak, rozlozenie: karta });
+    const c = await overCenu(s, ovl, cena);
+    return { info: `CPU ${cpu}×, semienko ${semienko}: ${r.akcii} klikov v 20 dávkach, po každej karta = živé tlačidlo = select (hneď po kliku pred ustálením nezhoda: dlaždica kroku 4 ${r.okamzite.d}×, krok 2 ${r.okamzite.z}×, karta ${r.okamzite.k}×), koniec ${r.stav.miesta} miest / karta ${karta}; POST ${karta}, cena ${c.videne}`, post: post.body, spolu: cena.spolu };
+  },
+
+  /**
    * Rohož a box, starý web: tlačidlo posledného kroku („Dokončiť konfiguráciu“ / box „Prejsť k ďalšiemu kroku“) po
    * úplnom výbere rovno vkladá do košíka — živý POST sa zachytí a zruší, overí sa ako `platne`. Nový vzhľad posledný
    * krok zachytí a pošle na súhrn (scenár k-suhrnu).
@@ -1184,7 +1284,7 @@ const TYPY_JADRA = {
   brana: VSETKY_TYPY, "nulova-zmena": VSETKY_TYPY,
   "bez-auta": [...SET, ...ROHOZ], neuplne: [...SET, ...ROHOZ, "boxy"], platne: [...SET, ...ROHOZ, "boxy"],
   "ctx-zapis": SET, "kufor-classic": SET, "kufor-premium": SET, "box-1": SET, "box-2": SET, "kufor-nie": SET, "box-nie": SET,
-  "box-krizik": SET, "box-prepni": SET, "rady-3": SET, "miesta-5": SET, "miesta-podorys": SET,
+  "box-krizik": SET, "box-prepni": SET, "rady-3": SET, "miesta-5": SET, "miesta-podorys": SET, "rozlozenie-pretek": SET,
   "k-suhrnu": [...SET, ...ROHOZ, "boxy"], dokoncit: [...ROHOZ, "boxy"],
 };
 
@@ -1263,7 +1363,7 @@ async function main() {
   const ulohy = [], ineTypy = [];
   for (const P of produkty) for (const sirka of a.sirky) for (const m of a.kroky || P.scenare) {
     const sc = scenarPreTyp(m, P.typ);
-    if (sc) ulohy.push({ P, sirka, m, fn: sc.fn });
+    if (sc) for (let i = 0; i < a.kolo; i++) ulohy.push({ P, sirka, m, fn: sc.fn });
     else if (sirka === a.sirky[0]) ineTypy.push(P.id + ":" + m);
   }
   const flagText = a.flag ? " ?novy=" + a.flag : " (flag vypnutý)";
@@ -1271,7 +1371,7 @@ async function main() {
   zdroj: ${build.popis}
   brána: ${zapnute.popis}${a.flag ? "; zapnuté pre ?novy=" + a.flag + ": " + ([...a.zapnuteSet].join(", ") || "nič") : ""}
   ovládače: ${Object.entries(ovl.zdroj).map(([k, v]) => k + "=" + v).join(", ")}
-  šírky: ${a.sirky.join(", ")}  úloh: ${ulohy.length}  paralelne: ${a.paralelne}${a.kroky ? "  scenáre: " + a.kroky.join(", ") : ""}`);
+  šírky: ${a.sirky.join(", ")}  úloh: ${ulohy.length}  paralelne: ${a.paralelne}${a.kroky ? "  scenáre: " + a.kroky.join(", ") : ""}${a.cpu > 1 ? "  CPU: " + a.cpu + "× pomalšie" : ""}${a.kolo > 1 ? "  kolá: " + a.kolo : ""}`);
 
   // základ konzoly pre produkt × šírku: živý CDN, načítanie stránky (lenivo, v slote pracovníka -> max. --paralelne Chromov)
   const zakladKonzoly = new Map();

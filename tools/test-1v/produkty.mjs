@@ -103,7 +103,7 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- dvojvrstvové
   601: {
     url: SK + "/luxusne-autokoberce-dragonskin-elite-diamond-line/", typ: "dvoj", vzor: "diamond", nazov: "Dvojvrstvové Diamond",
-    scenare: [...JEDNO_PLNE, "farba2-prepni", "farba2-vzhlad", "farba2-chyba", "farba2-odporucanie", "dvoj-texty", "prenos-neplatny"],
+    scenare: [...JEDNO_PLNE, "farba2-prepni", "farba2-vzhlad", "farba2-chyba", "farba2-odporucanie", "dvoj-texty", "prenos-neplatny", "rozlozenie-pretek"],
     platne: { priceId: "66989", spolu: 416, odporucana: 670 },
     ceny: { platne: 416, "kufor-classic": 495, "box-2": 683 },
     postKluce: "ako 598 + parameterValueId[71] (farba 2. vrstvy, variant: priceId = 71-<lux>-78-<farba>)",
