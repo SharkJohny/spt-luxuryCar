@@ -311,3 +311,19 @@ I1 `python tools/vloz-lcd-css.py` + `node tools/build-admin-html.mjs` (dist + lu
 5. Fotky do galérie a obsahu: dnes len 30 fotiek produktu 640; fotky kabín zákazníkov s logom Scania sa nepoužijú — dodá fotky bez loga?
 6. Poradie obsahu: ART (galéria … recenzie … FAQ) vs. pravidlo 1V „recenzie hore“.
 7. Vydanie: kedy pridať `kamion` do `ZAPNUTE_TYPY` (K10) a kedy push + prepnutie verzie v SK admine (mimo tohto plánu); CZ ostáva React.
+
+---
+
+## 8. Stav časti KONFIGURÁTOR (18. 10. 2026, lokálne commity na `kamiony-1v-lokal`, bez pushu)
+
+| Krok | Stav |
+|---|---|
+| K0, K9 | hotové (`cf459d9`) — `build:once` nechá `truck-brands.js` bez obsahovej zmeny (len CRLF), `truck:test` 5/5 |
+| K1 | hotové (`88c4116`) |
+| K2–K4, K7 | hotové — `kamion/{data,texty,cena,shoptet,stav,ui,index}.js`; poistka navyše: nezhoda materiálov Shoptet ≠ konfigurátor a chyba po štarte (klik/zmena) → React |
+| K5 | hotové — `_lcd1v-kamiony.scss` 63,6 kB surovo / ~7,8 kB brotli (**nad cieľom 45 kB**: predpona `body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion` × ~340 selektorov ≈ 18 kB); Shoptet téma: `.p-detail-inner-header { order: 1 }` a `h1 { display: none }` riešené v časti RUČNE |
+| K6 | hotové — `kamion:test` (cena 68, 1 320 kombinácií, košík 194, brána 40), profil 640 + `scenare-kamion.mjs`, `--nechaj-otvorene` (nespustené — otvára okno Chromu) |
+| K8 | hotové — `kamion-*` v `obsah-cisla.js` |
+| K10 | **nespravené zámerne**: `kamion` nie je v `ZAPNUTE_TYPY` a `docs/1v-odkazy.md` bez riadku — o vydaní rozhoduje Michal (§7 bod 7). Sekcia „Kamióny“ v `docs/1v-kontrakt.md` (§17) je. |
+
+Odchýlky od plánu: lišta na telefóne sa ukazuje ako v artefakte (keď súhrn s tlačidlom nie je na obrazovke), nie až keď je celý konfigurátor mimo obrazovky; prvok a triedy sú 1V (`#lcd1v-lista`). Hlavička používa triedy artefaktu (`.k-typ`, `.k-h1`, `.k-hodn`), nie `.lcd1v-typ` / `.lcd1v-hodn`.
