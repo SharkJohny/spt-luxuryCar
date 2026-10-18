@@ -85,8 +85,8 @@ const out =
   "/** Produktová stránka truck konfigurátora (cieľ hlavného prepínača).\n" +
   " *  Ostré produkty overené zo sitemap 31.7.2026 (SK aj CZ vracajú 200). */\n" +
   'export const TRUCK_PRODUCT_URLS = {\n' +
-  '  sk: "/luxusne-autokoberce-truck/",\n' +
-  '  cs: "/luxusni-autokoberce-truck/",\n' +
+  '  sk: "/luxusne-autokoberce-kamiony/",\n' +
+  '  cs: "/luxusni-autokoberce-kamiony/",\n' +
   '};\n' +
   'export const TRUCK_PRODUCT_URL = TRUCK_PRODUCT_URLS.sk;\n';
 

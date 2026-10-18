@@ -30,7 +30,7 @@ const end = mainSrc.indexOf("\nfunction saveModel", start);
 const fnSrc = mainSrc.slice(start, end);
 
 const entry = `
-import { TRUCK_BRANDS, TRUCK_FIELD_ORDER, TRUCK_PRODUCT_URLS, TRUCK_VEHICLES } from "${join(REPO, "assets/js/truck-konfigurator/truck-brands.js")}";
+import { TRUCK_BRANDS, TRUCK_FIELD_ORDER, TRUCK_PRODUCT_URLS, TRUCK_VEHICLES } from "${join(REPO, "assets/js/truck-konfigurator/truck-brands.js").split("\\").join("/")}";
 ${fnSrc}
 window.__initVehicleKindSwitch = initVehicleKindSwitch;
 window.__TRUCK_BRANDS = TRUCK_BRANDS;
