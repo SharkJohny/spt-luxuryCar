@@ -42,7 +42,7 @@ export const PRODUKTY_1V = {
 };
 
 /** Typy vydané pre ?novy=1 (zákaznícky skúšobný odkaz). Pridáva len vydanie. Integrácia 14. 10. 2026: všetkých 13 SK produktov + vzorkovník. */
-export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", "boxy", "vzorky"];
+export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", "boxy", "vzorky", "kamion"];
 
 /**
  * kroky  – mená kariet v poradí, v akom ich zákazník vidí a číslujú sa („Krok N z M“, postup). Posledný krok má

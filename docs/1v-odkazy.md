@@ -1,7 +1,7 @@
 # Nový vzhľad 1V za `?novy=1` — odkazy a kroky v admine
 
 Testovacie odkazy pre všetkých 13 SK produktov + vzorkovník a presné kroky, ktoré robí Michal v SK admine. Claude do adminu nikdy nič neuloží.
-Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.js`, `ZAPNUTE_TYPY` = jedno, dvoj, kufor-classic, kufor-premium, boxy, vzorky).
+Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.js`, `ZAPNUTE_TYPY` = jedno, dvoj, kufor-classic, kufor-premium, boxy, vzorky, kamion).
 
 Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medzi produktmi ho drží). `?novy=0` vzhľad vypne.
 
@@ -9,7 +9,7 @@ Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medz
 
 ---
 
-## Odkazy (14)
+## Odkazy (15)
 
 | # | Produkt | Typ | Odkaz | Čo skontrolovať |
 |---|---|---|---|---|
@@ -27,6 +27,7 @@ Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medz
 | 12 | 634 Rohož do kufra Premium Stripe | kufor-premium | https://www.luxurycardesign.sk/luxusny-koberced-do-kufra-dragonskin-premium-stripe/?novy=1 | ako 628; cena „350 €“; vzorky Stripe Line; chýba farba Hnedá (C5) |
 | 13 | 616 Box do kufra | boxy | https://www.luxurycardesign.sk/luxusny-boxi-do-kufra/?novy=1 | 3 kroky (farba → počet → veľkosť); 1 box „od 197 €“, veľkosti „197 / 207 / 232 / 246 €“; 2. a 3. box; prepnutie 3 → 1 vyprázdni 2. a 3. box; bez veľkosti sa do košíka nedá; XL 246 vs 249 € (C6) |
 | 14 | 637 Vzorkovník | vzorky | https://www.luxurycardesign.sk/vzorkovnik-dragonskin---objednavka-vzoriek/?novy=1 | výber vzoriek, „5 € za vzorku · vratná záloha“; „Spolu“ = 5 € × počet; bez vzorky sa do košíka nedá; obsah o vrátení zálohy a FAQ |
+| 15 | 640 Kamióny a dodávky | kamion | https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/?novy=1 | 6 krokov (vozidlo → materiál → farba → lemovanie → nášivky → tapacír dverí); DAF XF106 2017–2021 + prešívaná + balík nášiviek + tapacír = 423 €, „Ušetríte 105 €“; dodávka bez kroku tapacíru (5 krokov); bez flagu a na CZ ostáva React; v košíku rovnaká objednávka ako z Reactu |
 
 Všade: cena v novom vzhľade v tvare „230 €“ (nie „€230“); krátky popis pod hodnotením je pod novým vzhľadom skrytý (ostáva v kóde stránky); pri farbe sa hlavná fotka nemení; v košíku presne tá cena, ktorú stránka ukáže.
 

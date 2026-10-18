@@ -47,12 +47,22 @@ console.log("2) ?novy=vyvoj = nový konfigurátor, React sa nemontuje");
   over("ctx.chyby prázdne", s.ctx && s.ctx.chyby.length === 0, s.ctx && s.ctx.chyby.join(" | "));
 }
 
-console.log("3) ?novy=1 pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React");
+// ?novy=1 sa riadi vydaním: kamion v ZAPNUTE_TYPY (K10) = nový konfigurátor, inak React.
+const { ZAPNUTE_TYPY } = await import("../assets/js/components/konfigurator1v/produkty.js");
+const vydany = ZAPNUTE_TYPY.includes("kamion");
+console.log("3) ?novy=1 " + (vydany ? "po vydaní (kamion v ZAPNUTE_TYPY) = nový konfigurátor" : "pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React"));
 {
   const s = await spustiStranku({ url: URL0 + "?novy=1" });
   const d = s.document;
-  over("React namontovaný", react(d));
-  over("bez nového UI a lcd-1v", !d.getElementById("lcd1v-kamion") && !d.body.classList.contains("lcd-1v"));
+  if (vydany) {
+    over("#lcd1v-kamion postavený, React sa nemontuje", !!d.getElementById("lcd1v-kamion") && !d.getElementById("truck-konfigurator-root"));
+    over("body.lcd-1v + data-lcd1v-typ=kamion", d.body.classList.contains("lcd-1v") && d.body.getAttribute("data-lcd1v-typ") === "kamion");
+    over("6 krokov (kamión)", d.querySelectorAll("#lcd1v-kamion .k-krok").length === 6);
+    over("bez chýb [lcd-1v]", lcdChyby(s.chyby).length === 0, lcdChyby(s.chyby).join(" | "));
+  } else {
+    over("React namontovaný", react(d));
+    over("bez nového UI a lcd-1v", !d.getElementById("lcd1v-kamion") && !d.body.classList.contains("lcd-1v"));
+  }
 }
 
 console.log("4) Poistka: chýba select Tapacír (352) -> React, nič nového");
