@@ -327,3 +327,17 @@ I1 `python tools/vloz-lcd-css.py` + `node tools/build-admin-html.mjs` (dist + lu
 | K10 | **nespravené zámerne**: `kamion` nie je v `ZAPNUTE_TYPY` a `docs/1v-odkazy.md` bez riadku — o vydaní rozhoduje Michal (§7 bod 7). Sekcia „Kamióny“ v `docs/1v-kontrakt.md` (§17) je. |
 
 Odchýlky od plánu: lišta na telefóne sa ukazuje ako v artefakte (keď súhrn s tlačidlom nie je na obrazovke), nie až keď je celý konfigurátor mimo obrazovky; prvok a triedy sú 1V (`#lcd1v-lista`). Hlavička používa triedy artefaktu (`.k-typ`, `.k-h1`, `.k-hodn`), nie `.lcd1v-typ` / `.lcd1v-hodn`.
+
+---
+
+## 9. Integrácia (18. 10. 2026, lokálny commit na `kamiony-1v-lokal`, bez pushu)
+
+| Krok | Výsledok |
+|---|---|
+| I1 | `python tools/vloz-lcd-css.py` (bloky LCD-1V-KAMIONY + LCD-1V-OBSAH-KAMIONY, `luxuryCar.css` len pridané riadky) + `node tools/build-admin-html.mjs` (`dist/p1v-kamiony-1/-2.sk.html`, manifest) |
+| I2 | `vloz-lcd-css.py --check` OK, `build-admin-html.mjs --check` OK |
+| I3 | `build:once` OK · `truck:test` 5/5 · `kamion:test` (cena 68, 1 320 kombinácií, košík 194, brána 40) · `test-konfigurator-1v` 640: `--vyvoj` 10/10, bez flagu 4/4, `--novy` 4 OK + 6 preskočené (kamion nie je v `ZAPNUTE_TYPY` → React) · `--produkt all --krok brana,nulova-zmena --sirka 1280`: bez flagu 30/30, `--novy` 30/30 · `test-1v-obsah --vyvoj --produkt 640` 10/10, sonda čísel OK |
+| I4 | Snímky živej stránky s lokálnym buildom (`?novy=vyvoj`) a bez flagu v `docs/kamiony-snimky/`; POST do košíka nového UI = POST Reactu bajt po bajte, poznámka objednávky zhodná (`docs/kamiony-snimky/post-porovnanie.json`) |
+
+Opravy testov pri integrácii: `scenare-kamion.mjs` — pri `?novy=1` pred vydaním sa scenáre preskočia (predtým zlyhali na chýbajúcom `body.lcd-1v`); `obsah-kamiony.mjs` — „vo výreze“ = nad spodnými 8 % ako reveal v `obsah.js` (na 390 px tlačidlo galérie trčalo 5 px pod hranicu).
+`?novy=1` na 640 = React až do K10 (rozhodnutie Michala). Nové UI sa dá pozrieť len cez `?novy=vyvoj`.

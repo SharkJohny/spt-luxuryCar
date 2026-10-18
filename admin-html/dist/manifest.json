@@ -872,6 +872,96 @@
           "znaky": 9086
         }
       ]
+    },
+    {
+      "cast": "p1v-kamiony-1",
+      "web": "sk",
+      "subor": "p1v-kamiony-1.sk.html",
+      "zdroj": "src/p1v-kamiony/10…29-*.sk.html",
+      "koren": "#p1v-kamiony-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-1.sk.html",
+        "nazov": "1V obsah kamióny kus 1",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
+      },
+      "znaky": 12761,
+      "bajty": 13175,
+      "hash": "e8392bf4e6",
+      "obrazky": 17,
+      "sekcie": [
+        {
+          "subor": "10-kamiony-galeria.sk.html",
+          "sekcia": "kamiony-galeria",
+          "znaky": 5000
+        },
+        {
+          "subor": "12-kamiony-co-dostanete.sk.html",
+          "sekcia": "kamiony-co-dostanete",
+          "znaky": 1541
+        },
+        {
+          "subor": "14-kamiony-materialy.sk.html",
+          "sekcia": "kamiony-materialy",
+          "znaky": 2401
+        },
+        {
+          "subor": "16-kamiony-detaily.sk.html",
+          "sekcia": "kamiony-detaily",
+          "znaky": 1909
+        },
+        {
+          "subor": "18-c-casova-os.sk.html",
+          "sekcia": "c-casova-os",
+          "znaky": 916
+        },
+        {
+          "subor": "20-kamiony-dopravcovia.sk.html",
+          "sekcia": "kamiony-dopravcovia",
+          "znaky": 844
+        }
+      ]
+    },
+    {
+      "cast": "p1v-kamiony-2",
+      "web": "sk",
+      "subor": "p1v-kamiony-2.sk.html",
+      "zdroj": "src/p1v-kamiony/30…49-*.sk.html",
+      "koren": "#p1v-kamiony-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-2.sk.html",
+        "nazov": "1V obsah kamióny kus 2",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
+      },
+      "znaky": 7575,
+      "bajty": 7781,
+      "hash": "45efd68abe",
+      "obrazky": 1,
+      "sekcie": [
+        {
+          "subor": "30-a-recenzie.sk.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2046
+        },
+        {
+          "subor": "40-d-faq.sk.html",
+          "sekcia": "d-faq",
+          "znaky": 4099
+        },
+        {
+          "subor": "42-kamiony-vyzva.sk.html",
+          "sekcia": "kamiony-vyzva",
+          "znaky": 647
+        },
+        {
+          "subor": "43-d-pomocne.sk.html",
+          "sekcia": "d-pomocne",
+          "znaky": 635
+        }
+      ]
     }
   ],
   "stranky": {
@@ -954,6 +1044,11 @@
       "mega",
       "p1v-vzorky-1",
       "p1v-vzorky-2"
+    ],
+    "produkt-640": [
+      "mega",
+      "p1v-kamiony-1",
+      "p1v-kamiony-2"
     ],
     "ostatne": [
       "mega"

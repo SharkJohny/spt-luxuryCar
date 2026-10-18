@@ -13,6 +13,8 @@ async function snimka(s, a, meno) {
   const w = await s.t.ev("window.innerWidth").catch(() => "");
   await s.k.snimka(join(a.snimky, "640-" + meno + "-" + w + ".png")).catch(() => {});
 }
+/** ?novy=1 pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React: scenár sa preskočí, nie zlyhá (body.lcd-1v sa nečaká). */
+const zapnuty = (a) => (a.zapnuteSet ? a.zapnuteSet.has(640) : !!a.novy);
 const jeNovy = (s) => s.t.ev(`!!document.getElementById("lcd1v-kamion")`);
 
 /** Postupnosť krokov v stránke: ["klik", selektor v #lcd1v-kamion] | ["vyber", pole, hodnota] | ["dalej", krok]. */
@@ -66,7 +68,7 @@ export const SCENARE = {
   "kamion-platne": {
     typy: ["kamion"],
     async fn(s, a, pom, ovl, j) {
-      await j.otvor(s, a.url, { novy: a.novy });
+      await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await snimka(s, a, "kamion-start");
       await rob(s, j, [
@@ -87,7 +89,7 @@ export const SCENARE = {
   "kamion-dodavka": {
     typy: ["kamion"],
     async fn(s, a, pom, ovl, j) {
-      await j.otvor(s, a.url, { novy: a.novy });
+      await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await rob(s, j, [
         ["klik", a_("typ", "dodavka")], ["vyber", "znacka", "Fiat (dodávka)"], ["vyber", "model", "Ducato 2007-2025"], ["dalej", "vozidlo"],
@@ -107,7 +109,7 @@ export const SCENARE = {
   "kamion-neuplne": {
     typy: ["kamion"],
     async fn(s, a, pom, ovl, j) {
-      await j.otvor(s, a.url, { novy: a.novy });
+      await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await rob(s, j, [["klik", a_("kosik")]]);
       await s.t.ev(`(function () { var b = document.querySelector('#lcd1v-lista [data-a="lista"]'); if (b) b.click(); })()`);

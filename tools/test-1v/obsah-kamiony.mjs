@@ -144,11 +144,12 @@ export async function kontroly(t) {
   const poradie = vid.map((x) => x[3]);
   ok(poradie.every((y, i) => !i || y > poradie[i - 1]), "sekcie idú za sebou v poradí vzoru " + JSON.stringify(vid.map((x) => x[0] + "@" + x[3])));
 
-  // 2) reveal: po zobrazení sekcie sú všetky jej .rv odhalené
+  // 2) reveal: po zobrazení sekcie sú všetky jej .rv odhalené. „Vo výreze“ = nad spodnými 8 % (obsah.js odhaľuje s okrajom
+  //    "0px 0px -8% 0px"; na 390 px tlačidlo galérie vykukne o 5 px pod hranicu a odhalí sa až pri ďalšom posune)
   for (const m of vid.map((x) => x[0])) {
     await naSekciu(m);
     await t.pauza(900);
-    const r = await t.ev(`(function(){var s=document.querySelector(${sek(m)});var rv=[].slice.call(s.querySelectorAll(".rv")).concat(s.classList.contains("rv")?[s]:[]);var v=rv.filter(function(x){var b=x.getBoundingClientRect();return b.top<innerHeight&&b.bottom>0});return {rv:s.classList.contains("p1v-rv"),skryte:v.filter(function(x){return getComputedStyle(x).opacity<0.9}).length,vid:v.length}})()`);
+    const r = await t.ev(`(function(){var s=document.querySelector(${sek(m)});var rv=[].slice.call(s.querySelectorAll(".rv")).concat(s.classList.contains("rv")?[s]:[]);var v=rv.filter(function(x){var b=x.getBoundingClientRect();return b.top<innerHeight*0.92&&b.bottom>0});return {rv:s.classList.contains("p1v-rv"),skryte:v.filter(function(x){return getComputedStyle(x).opacity<0.9}).length,vid:v.length}})()`);
     ok(r.rv && r.skryte === 0 && (r.vid > 0 || m === "kamiony-vyzva"), `${m}: odhalená (.p1v-rv ${r.rv}, .rv vo výreze skryté ${r.skryte}/${r.vid})`);
   }
 

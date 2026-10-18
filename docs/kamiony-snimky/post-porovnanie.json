@@ -1,0 +1,54 @@
+{
+ "popis": "Zachytené (a zrušené) POST /action/Cart/addCartItem na živej stránke 640, 18. 10. 2026. Výber: DAF (TIR) XF106 2017-2021, prešívaná 12, lemovanie 04 Čierna + Červená, balík nášiviek H19 / 2999 (stred rovnaký), tapacír Áno ako koberce, bez nášivky na dverách. Nový = lokálny build ?novy=vyvoj (1280 aj 390), React = živý CDN bez flagu (1280).",
+ "telo_zhodne_novy_pc_vs_react": true,
+ "telo_zhodne_novy_tel_vs_react": true,
+ "novy_pc": {
+  "url": "https://www.luxurycardesign.sk/action/Cart/addCartItem/?simple_ajax_cart=1",
+  "body": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=1447&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=1441&surchargeParameterValueId[406]=1558&surchargeParameterValueId[400]=1789&surchargeParameterValueId[412]=1678&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1465&surchargeParameterValueId[352]=1468&surchargeParameterValueId[346]=1360&surchargeParameterValueId[388]=1435&surchargeParameterValueId[403]=1525&surchargeParameterValueId[409]=1645&surchargeParameterValueId[397]=1711&amount=1"
+ },
+ "novy_tel": {
+  "url": "https://www.luxurycardesign.sk/action/Cart/addCartItem/?simple_ajax_cart=1",
+  "body": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=1447&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=1441&surchargeParameterValueId[406]=1558&surchargeParameterValueId[400]=1789&surchargeParameterValueId[412]=1678&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1465&surchargeParameterValueId[352]=1468&surchargeParameterValueId[346]=1360&surchargeParameterValueId[388]=1435&surchargeParameterValueId[403]=1525&surchargeParameterValueId[409]=1645&surchargeParameterValueId[397]=1711&amount=1"
+ },
+ "react": {
+  "url": "https://www.luxurycardesign.sk/action/Cart/addCartItem/?simple_ajax_cart=1",
+  "body": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=1447&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=1441&surchargeParameterValueId[406]=1558&surchargeParameterValueId[400]=1789&surchargeParameterValueId[412]=1678&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1465&surchargeParameterValueId[352]=1468&surchargeParameterValueId[346]=1360&surchargeParameterValueId[388]=1435&surchargeParameterValueId[403]=1525&surchargeParameterValueId[409]=1645&surchargeParameterValueId[397]=1711&amount=1"
+ },
+ "poznamka_novy": "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 12\n- Farba lemovania: Čierna + Červená\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – 12\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – Čierna + Červená\n- Nášivky na tapacír: Nechcem",
+ "poznamka_react": "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 12\n- Farba lemovania: Čierna + Červená\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – 12\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – Čierna + Červená\n- Nášivky na tapacír: Nechcem",
+ "selecty_novy": {
+  "379 Farba lemovania": "1426 | Vyberie sa v konfigurátore +€0",
+  "394 Farba lemovania tapacíru": "1447 | Rovnaké ako koberec +€0",
+  "376 Farba materiálu": "1423 | Vyberie sa v konfigurátore +€0",
+  "391 Farba materiálu tapacíru": "1441 | Rovnaká ako koberec +€0",
+  "406 Farba nášiviek na boky": "1558 | 2999 – Čierna +€0",
+  "400 Farba nášiviek na tapacíre": "1789 | Bez nite +€0",
+  "412 Farba nášivky na stred": "1678 | 2999 – Čierna +€0",
+  "355 Nášivky na tapacír": "1390 | Nie nechcem nášivku na dverách +€0",
+  "349 Rozloženie nášiviek": "1465 | Šofér + spolujazdec + stred (BALÍK) +€95",
+  "352 Tapacír": "1468 | Áno chcem (v konfigurátore – balík) +€119",
+  "346 Typ materiálu": "1360 | Prémiová syntetická koža – prešívaná +€10",
+  "388 Typ materiálu tapacíru": "1435 | Rovnaký ako koberec +€0",
+  "403 Typ nášiviek na boky": "1525 | Nášivka H19 +€0",
+  "409 Typ nášivky na stred": "1645 | Nášivka H19 +€0",
+  "397 Typ nášivky na tapacír": "1711 | Bez nášivky +€0"
+ },
+ "selecty_react": {
+  "379 Farba lemovania": "1426 | Vyberie sa v konfigurátore +€0",
+  "394 Farba lemovania tapacíru": "1447 | Rovnaké ako koberec +€0",
+  "376 Farba materiálu": "1423 | Vyberie sa v konfigurátore +€0",
+  "391 Farba materiálu tapacíru": "1441 | Rovnaká ako koberec +€0",
+  "406 Farba nášiviek na boky": "1558 | 2999 – Čierna +€0",
+  "400 Farba nášiviek na tapacíre": "1789 | Bez nite +€0",
+  "412 Farba nášivky na stred": "1678 | 2999 – Čierna +€0",
+  "355 Nášivky na tapacír": "1390 | Nie nechcem nášivku na dverách +€0",
+  "349 Rozloženie nášiviek": "1465 | Šofér + spolujazdec + stred (BALÍK) +€95",
+  "352 Tapacír": "1468 | Áno chcem (v konfigurátore – balík) +€119",
+  "346 Typ materiálu": "1360 | Prémiová syntetická koža – prešívaná +€10",
+  "388 Typ materiálu tapacíru": "1435 | Rovnaký ako koberec +€0",
+  "403 Typ nášiviek na boky": "1525 | Nášivka H19 +€0",
+  "409 Typ nášivky na stred": "1645 | Nášivka H19 +€0",
+  "397 Typ nášivky na tapacír": "1711 | Bez nášivky +€0"
+ },
+ "poznamka_zhodna": true
+}
