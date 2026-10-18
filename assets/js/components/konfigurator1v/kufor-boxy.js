@@ -22,8 +22,9 @@
 // - Ceny: v sete zo selectov Shoptetu (ctx.moznosti), „Samostatne“ zo živých stránok samostatných produktov tým istým
 //   kódom ako porovnanie v košíku (lcdKosikDoplnok.samostatneCenyKonfigurator). Nič natvrdo.
 // - Vzhľad karty (Michal 15. 10. 2026, návrh E v navrhy-naj): odporúčaná karta má široký zlatý pás
-//   „★ Najobjednávanejšie ★“ s vetou pod ním, krémové pozadie a zlatú žiaru; ceny ako cenovka (V sete / veľká cena /
-//   „Samostatne“ s cenou prečiarknutou červenou / zelená pilulka „Ušetríte“); karta Nechcem má väčšie texty.
+//   „★ Najobjednávanejšie ★“ s vetou pod ním, krémové pozadie a zlatú žiaru; karta Nechcem má väčšie texty.
+// - Ceny na karte v riadkoch „Samostatne / Výhoda v sete / V sete“ (Michal 18. 10. 2026: „chcel som, aby tie dlaždice
+//   mali takto tie texty“ — vzhľad pred návrhom E, verzia d582a33; cenovka s veľkou cenou a pilulkou Ušetríte preč).
 // - Poradie kariet (Michal 15. 10. 2026: „obľúbená varianta vždy v strede“): kufor Premium, Classic (★), Nechcem; boxy
 //   1×, 2× (★), Nechcem. Mení sa len poradie NOVÝCH kariet v DOM; živé karty, ich poradie a hodnoty v POST ostávajú.
 import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplnok.js";
@@ -41,7 +42,7 @@ const PREDPONA_KRESBY = "lcd1v-bxk-";
 const TEXTY = {
   naj: "★ Najobjednávanejšie ★",
   samostatne: "Samostatne",
-  usetrite: "Ušetríte",
+  vyhoda: "Výhoda v sete",
   // cenovka na karte kufra/boxu: ostáva „V sete“ aj po pravidle Michala 16. 10. 2026 (v zákazníckom texte vždy, kam
   // produkt patrí) — karta je krok konfigurátora autokobercov pod sedadlá, set = práve zostavované autokoberce; štítok
   // nad veľkou cenou (VERZÁLKY, 11 px) má pri 360 px vedľa fotky ~170 px, „V sete s autokobercami“ by sa zalomil
@@ -189,13 +190,13 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   };
 
   // ---------------------------------------------------------------- karty
-  // cenovka (návrh E/D): „V sete“, veľká cena, „Samostatne <s>cena</s>“ (červená čiara), zelená pilulka „Ušetríte …“
-  function cenovka() {
-    return el("span", { class: "lcd1v-kb__cb" }, [
-      el("span", { class: "lcd1v-kb__cb-l", text: T.vSete }),
-      el("span", { class: "lcd1v-kb__cb-c" }),
-      el("span", { class: "lcd1v-kb__cb-s", hidden: true }, [el("span", { class: "lcd1v-kb__cb-sn" }), el("s", { class: "lcd1v-kb__cb-pr" })]),
-      el("span", { class: "lcd1v-kb__cb-u", hidden: true }),
+  // ceny v riadkoch: „Samostatne … / Výhoda v sete − … (zelená) / V SETE …“ (riadky Samostatne a Výhoda až po načítaní
+  // cien samostatných produktov a len keď je samostatná cena vyššia)
+  function riadky() {
+    return el("span", { class: "lcd1v-kb__ucet" }, [
+      el("span", { class: "lcd1v-kb__r lcd1v-kb__r--samo", hidden: true }, [el("span", { class: "lcd1v-kb__rn", text: T.samostatne }), el("span", { class: "lcd1v-kb__rh" })]),
+      el("span", { class: "lcd1v-kb__r lcd1v-kb__r--zl", hidden: true }, [el("span", { class: "lcd1v-kb__rn", text: T.vyhoda }), el("span", { class: "lcd1v-kb__rh" })]),
+      el("span", { class: "lcd1v-kb__r lcd1v-kb__r--sum" }, [el("span", { class: "lcd1v-kb__rn", text: T.vSete }), el("span", { class: "lcd1v-kb__rh" })]),
     ]);
   }
   function karta(def, data, naj, veta) {
@@ -203,7 +204,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     if (def.ben) {
       tx.appendChild(el("span", { class: "lcd1v-kb__ben", text: def.ben }));
       tx.appendChild(el("span", { class: "lcd1v-kb__cn", text: T.vCene }));
-    } else tx.appendChild(cenovka());
+    } else tx.appendChild(riadky());
     return el("button", Object.assign({ type: "button", class: "lcd1v-kb__karta" + (naj ? " lcd1v-kb__karta--naj" : "") + (def.ben ? " lcd1v-kb__karta--nie" : ""), "aria-pressed": "false" }, data), [
       naj ? el("span", { class: "lcd1v-kb__top" }, [T.naj, veta ? el("span", { class: "lcd1v-kb__veta", text: veta }) : null]) : null,
       el("span", { class: "lcd1v-kb__fot" }, [el("img", { src: (def.kluc && ctx.obrazokVzoru && ctx.obrazokVzoru(def.kluc)) || ctx.obrazok(def.obr), alt: def.alt, loading: "lazy", decoding: "async", width: "480", height: "360" })]),
@@ -358,21 +359,19 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
 
   // ---------------------------------------------------------------- ceny na kartách
   function text(e, t) { if (e.textContent !== t) e.textContent = t; }
-  // set „+ 129 €“; samo ["Samostatne ", "230 €"] alebo null (cena samostatne ešte nie je / nie je vyššia); usp „Ušetríte 101 €“
-  function napis(karta, set, samo, usp) {
-    const cb = karta.querySelector(".lcd1v-kb__cb");
-    if (!cb) return;
-    const s = cb.querySelector(".lcd1v-kb__cb-s"), u = cb.querySelector(".lcd1v-kb__cb-u");
-    text(cb.querySelector(".lcd1v-kb__cb-c"), set);
-    if (samo) { text(s.querySelector(".lcd1v-kb__cb-sn"), samo[0]); text(s.querySelector(".lcd1v-kb__cb-pr"), samo[1]); }
-    if (s.hidden !== !samo) s.hidden = !samo;
-    if (usp) text(u, usp);
-    if (u.hidden !== !usp) u.hidden = !usp;
+  // riadky: samo „230 €“, zl „− 101 €“ (null = riadok skrytý), sum „+ 129 €“
+  function napis(karta, samo, zl, sum) {
+    const r = karta.querySelectorAll(".lcd1v-kb__r");
+    if (r.length !== 3) return;
+    [samo, zl, sum].forEach(function (t, i) {
+      if (t) text(r[i].querySelector(".lcd1v-kb__rh"), t);
+      if (r[i].hidden !== !t) r[i].hidden = !t;
+    });
   }
-  // presná cena (kufor, vybraný box): v sete „+ 129 €“, samostatne „230 €“, „Ušetríte 101 €“
+  // presná cena (kufor, vybraný box): samostatne „230 €“, výhoda „− 101 €“, v sete „+ 129 €“
   function napisPresne(karta, set, s) {
     const viac = !!(s && s > set + 0.5);
-    napis(karta, "+ " + fmt(set), viac ? [T.samostatne + " ", fmt(s)] : null, viac ? T.usetrite + " " + fmt(s - set) : null);
+    napis(karta, viac ? fmt(s) : null, viac ? "− " + fmt(s - set) : null, "+ " + fmt(set));
   }
   function cenyKarty() {
     const sam = stav.sam;
@@ -406,14 +405,14 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
       napisOd(kartyB[2], samo, uspory, set);
     }
   }
-  // nevybraný počet: „od“ najnižšie ceny; „Ušetríte až“ najvyššia úspora (ako v návrhu), keď sa úspora medzi veľkosťami líši
+  // nevybraný počet: „od“ najnižšie ceny; výhoda „až“ najvyššia úspora, keď sa úspora medzi veľkosťami líši
   function napisOd(karta, samo, uspory, set) {
     const ok = samo.length && uspory.length && Math.max.apply(null, uspory) > 0.5;
     const max = ok ? Math.max.apply(null, uspory) : 0, min = ok ? Math.min.apply(null, uspory) : 0;
     napis(karta,
-      T.od + " " + fmt(set),
-      ok ? [T.samostatne + " " + T.od + " ", fmt(Math.min.apply(null, samo))] : null,
-      ok ? T.usetrite + " " + (max - min > 0.5 ? T.az + " " : "") + fmt(max) : null);
+      ok ? T.od + " " + fmt(Math.min.apply(null, samo)) : null,
+      ok ? (max - min > 0.5 ? T.az + " " : "") + "− " + fmt(max) : null,
+      T.od + " " + fmt(set));
   }
 
   // ---------------------------------------------------------------- obnova (živý DOM -> nový vzhľad)

@@ -121,34 +121,27 @@ async function oknoOtvorene(t) {
 }
 
 /**
- * Vzhľad karty podľa návrhu E (Michal 15. 10. 2026): odporúčaná karta kroku má široký pás s vetou „… najčastejšie“;
- * cenovka označenej karty sedí sama so sebou — veľká cena v sete, „Samostatne“ s prečiarknutou cenou a „Ušetríte“
- * idú spolu a Ušetríte = Samostatne − V sete (presne = vybraný kufor / boxy s veľkosťou: „+ N €“). Ceny sú zo živej
- * stránky, nič natvrdo; „Samostatne“ sa načíta neskôr (pred načítaním sa kontroluje len cena v sete).
+ * Vzhľad karty: odporúčaná karta kroku má široký zlatý pás s vetou „… najčastejšie“ (návrh E, Michal 15. 10. 2026);
+ * ceny v riadkoch (Michal 18. 10. 2026, vzhľad d582a33): „V sete“ vždy s cenou; „Samostatne“ a „Výhoda v sete“ idú
+ * spolu a Výhoda = Samostatne − V sete (presne = vybraný kufor / boxy s veľkosťou: „+ N €“). Ceny sú zo živej stránky,
+ * nič natvrdo; „Samostatne“ sa načíta neskôr (pred načítaním sa kontroluje len cena v sete).
  */
 async function overKartu(t, karta, { presne }) {
   const r = await t.ev(`(function () {
     var k = document.querySelector(${JSON.stringify(karta)}); if (!k) return "karta chýba";
     var veta = k.closest(".lcd1v-kb").querySelector(".lcd1v-kb__karta--naj > .lcd1v-kb__top > .lcd1v-kb__veta");
     if (!veta || !/najčastejšie/i.test(veta.textContent)) return "odporúčaná karta nemá zlatý pás s vetou „… najčastejšie“";
-    // Michal 15. 10. 2026: obľúbená varianta vždy v strede — kufor Premium, Classic (★), Nechcem; boxy 1×, 2× (★), Nechcem
-    var kb = k.closest(".lcd1v-kb"), volby = kb.querySelectorAll(".lcd1v-kb__volby > .lcd1v-kb__karta");
-    var poradie = [].map.call(volby, function (x) { return x.getAttribute("data-kufor") || x.getAttribute("data-boxy"); }).join(",");
-    var cakam = kb.getAttribute("data-lcd1v-kb") === "kufor" ? "premium,classic,nie" : "1,2,0";
-    if (poradie !== cakam) return "poradie kariet " + poradie + " ≠ " + cakam;
-    if (!volby[1].classList.contains("lcd1v-kb__karta--naj") || kb.querySelectorAll(".lcd1v-kb__karta--naj").length !== 1) return "odporúčaná karta nie je v strede";
-    var r = [].map.call(volby, function (x) { return x.getBoundingClientRect(); });
-    if (r.every(function (q) { return q.height > 0; }) && !(r[0].top < r[1].top && r[1].top < r[2].top)) return "karty nie sú na obrazovke pod sebou v poradí DOM: " + r.map(function (q) { return Math.round(q.top); }).join(" / ");
-    var cb = k.querySelector(".lcd1v-kb__cb"); if (!cb) return ""; // Nechcem: bez cenovky
+    var r = k.querySelectorAll(".lcd1v-kb__r"); if (!r.length) return ""; // Nechcem: bez riadkov ceny
+    if (r.length !== 3) return "karta nemá 3 riadky ceny";
     var num = function (s) { var m = /(\\d[\\d\\s\\u00a0]*(?:,\\d+)?)/.exec(s || ""); return m ? Number(m[1].replace(/[\\s\\u00a0]/g, "").replace(",", ".")) : NaN; };
-    var c = cb.querySelector(".lcd1v-kb__cb-c").textContent, s = cb.querySelector(".lcd1v-kb__cb-s"), u = cb.querySelector(".lcd1v-kb__cb-u");
-    if (!(num(c) > 0)) return "cena v sete chýba: " + c;
-    if (${presne ? "true" : "false"} && !/^\\+\\s/.test(c)) return "cena v sete nie je presná „+ N €“: " + c;
-    if (s.hidden !== u.hidden) return "„Samostatne“ a „Ušetríte“ nie sú zobrazené spolu";
-    if (s.hidden) return "";
-    var pr = s.querySelector("s");
-    if (!pr || getComputedStyle(pr).textDecorationLine.indexOf("line-through") < 0) return "cena samostatne nie je prečiarknutá";
-    if (${presne ? "true" : "false"} && Math.abs(num(pr.textContent) - num(c) - num(u.textContent)) > 0.01) return "Ušetríte ≠ Samostatne − V sete: " + [c, s.textContent, u.textContent].join(" / ");
+    var h = function (i) { return r[i].querySelector(".lcd1v-kb__rh").textContent; };
+    if (r[2].hidden || !(num(h(2)) > 0)) return "cena v sete chýba: " + h(2);
+    if (!/Samostatne/.test(r[0].textContent) || !/Výhoda v sete/.test(r[1].textContent) || !/V sete/i.test(r[2].textContent)) return "riadky nie sú Samostatne / Výhoda v sete / V sete: " + k.textContent;
+    if (${presne ? "true" : "false"} && !/^\\+\\s/.test(h(2))) return "cena v sete nie je presná „+ N €“: " + h(2);
+    if (r[0].hidden !== r[1].hidden) return "„Samostatne“ a „Výhoda v sete“ nie sú zobrazené spolu";
+    if (r[0].hidden) return "";
+    if (!/^(až\\s)?−\\s/.test(h(1))) return "výhoda nie je „− N €“: " + h(1);
+    if (${presne ? "true" : "false"} && Math.abs(num(h(0)) - num(h(2)) - num(h(1))) > 0.01) return "Výhoda ≠ Samostatne − V sete: " + [h(0), h(1), h(2)].join(" / ");
     return "";
   })()`);
   if (r) throw new Error("karta " + karta.replace(/^.*\[/, "[") + ": " + r);
