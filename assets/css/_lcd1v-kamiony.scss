@@ -1,0 +1,3 @@
+/* LCD-1V-KAMIONY — konfigurátor kamiónov a dodávok SK 640 (modul konfigurator1v/kamion/, docs/kamiony-1v-plan.md §3.4).
+   Čisté CSS (nekompiluje sa Sassom; tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte).
+   KAŽDÝ selektor začína body.lcd-1v[data-lcd1v-typ="kamion"] (flag vypnutý = nulová zmena). */

@@ -37,7 +37,7 @@ export const MENO = "obsah-cisla";
 /** Kľúč v data-p1v-odkaz / cena-od-<x> -> typ registra. */
 export const TYPY_OBSAHU = { jedno: "jedno", dvoj: "dvoj", classic: "kufor-classic", premium: "kufor-premium", boxy: "boxy" };
 /** Platné kľúče data-p1v-cislo (zhodne s ciele.json -> pravidla.obsah-1v.cisla). */
-export const RE_KLUC = /^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor)$/;
+export const RE_KLUC = /^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor|kamion-(material-presivana|tapacir|tapacir-samostatne))$/;
 
 const NBSP = " ";
 const pole = (x) => Array.prototype.slice.call(x || []);

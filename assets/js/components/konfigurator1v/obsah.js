@@ -35,6 +35,7 @@ import * as typDvoj from "./obsah-dvoj.js";
 import * as typClassic from "./obsah-classic.js";
 import * as typPremium from "./obsah-premium.js";
 import * as typBoxy from "./obsah-boxy.js";
+import * as typKamiony from "./obsah-kamiony.js";
 
 export const MENO = "obsah";
 /** Obrázky obsahu: repo assets/img/1v/obsah/<meno> = CDN …/eshopy/luxuryCar/assets/img/1v/obsah/<meno> */
@@ -53,7 +54,7 @@ export const OBSAH_CDN = typeof LCD_OBSAH_CDN === "boolean" ? LCD_OBSAH_CDN : tr
 /** Počet kusov každého kľúča: -1 = sekcie 10–29, -2 = 30–49 (admin-html/ciele.json; build to kontroluje). */
 export const KUSY = 2;
 /** Modul typu podľa kľúča obsahu (beží po A–D); "598" a "vzorky" vlastný modul nemajú. */
-const MODUL_TYPU = { dvoj: typDvoj, classic: typClassic, premium: typPremium, boxy: typBoxy };
+const MODUL_TYPU = { dvoj: typDvoj, classic: typClassic, premium: typPremium, boxy: typBoxy, kamiony: typKamiony };
 /** bundle verzie: …/assets/v/<sha>/js/luxuryCar.js -> …/assets/v/<sha>/ (len https; nevyverzovaný bundle = null) */
 const RE_BUNDLE = /^(https:\/\/[^?#]+\/assets\/v\/[A-Za-z0-9._-]+\/)js\/luxuryCar\.js(?:[?#]|$)/;
 

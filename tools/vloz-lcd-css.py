@@ -22,7 +22,8 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-DVOJ       <- _lcd1v-dvoj.scss        1V dvojvrstvove (krok farba 2. vrstvy)  } typove bloky (T0.1 14. 10. 2026):
   LCD-1V-KUFOR      <- _lcd1v-kufor.scss       1V rohoze do kufra Classic + Premium    } body.lcd-1v[data-lcd1v-typ=...]
   LCD-1V-BOXY       <- _lcd1v-boxy.scss        1V box do kufra 616                     }
-  LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY / -VZORKY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
+  LCD-1V-KAMIONY    <- _lcd1v-kamiony.scss     1V kamiony a dodavky 640 (konfigurator kamion/)
+  LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY / -VZORKY / -KAMIONY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
                                                (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
   LCD-1V-GALERIA    <- _lcd1v-galeria.scss     ramik fotiek 1V: vlasova linka namiesto hrubeho zlateho ramu (len body.lcd-1v)
   LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C + odkaz v pate (pod html:root = PRE VSETKYCH, posledny blok)
@@ -95,6 +96,9 @@ BLOKY = [
          popis="konfigurator 1V rohoze do kufra Classic a Premium 619-634; len body.lcd-1v"),
     dict(meno="LCD-1V-BOXY", zdroj="_lcd1v-boxy.scss", home=False, h1=False,
          popis="konfigurator 1V box do kufra 616; len body.lcd-1v"),
+    # Kamiony a dodavky SK 640 (docs/kamiony-1v-plan.md) — kazde pravidlo pod body.lcd-1v[data-lcd1v-typ="kamion"]
+    dict(meno="LCD-1V-KAMIONY", zdroj="_lcd1v-kamiony.scss", home=False, h1=False,
+         popis="konfigurator 1V kamiony a dodavky 640; len body.lcd-1v"),
     # Obsah pod konfiguratorom podla typu — pri zluceni s obsahom 598 (LCD-1V-OBSAH, -A..D) ponechat AZ ZA nimi
     dict(meno="LCD-1V-OBSAH-DVOJ", zdroj="_lcd1v-obsah-dvoj.scss", home=False, h1=False,
          popis="obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v"),
@@ -110,6 +114,8 @@ BLOKY = [
     # Obsah vzorkovnika 637 (T5.1b, integracia WB 14. 10. 2026) — tiez az za spolocnymi blokmi obsahu
     dict(meno="LCD-1V-OBSAH-VZORKY", zdroj="_lcd1v-obsah-vzorky.scss", home=False, h1=False,
          popis="obsah 1V vzorkovnik 637; len body.lcd-1v"),
+    dict(meno="LCD-1V-OBSAH-KAMIONY", zdroj="_lcd1v-obsah-kamiony.scss", home=False, h1=False,
+         popis="obsah 1V kamiony a dodavky 640; len body.lcd-1v"),
     # Ramik fotiek (Michal 16. 10. 2026, navrh c. 1 „Vlasova linka“): hlavna fotka, nahlady, fotky popisu — vsetky typy
     dict(meno="LCD-1V-GALERIA", zdroj="_lcd1v-galeria.scss", home=False, h1=False,
          popis="ramik fotiek 1V: vlasova linka na hlavnej fotke, nahladoch a fotkach popisu; len body.lcd-1v"),

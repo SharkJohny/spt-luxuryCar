@@ -27,9 +27,11 @@ import * as druhaVrstva from "./druha-vrstva.js";
 import * as prenos from "./prenos.js";
 // ponuka setu s autokobercami pod sedadlá na rohožiach do kufra a boxe (Michal 17. 10. 2026)
 import * as kompletPonuka from "./komplet-ponuka.js";
+// kamióny a dodávky SK 640: celé UI namiesto Reactu (docs/kamiony-1v-plan.md); pri chybe zlozit() vráti React
+import * as kamion from "./kamion/index.js";
 
 /** Moduly podľa mena (TYPY[typ].moduly v produkty.js); meno, ktoré tu nie je, sa preskočí. */
-const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka };
+const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka, kamion };
 
 /** projectId -> produkty zapnuté pre ?novy=1 (odvodené z registra; ponechané pre spätnú kompatibilitu). */
 export const ZOZNAM_1V = zoznamZapnutych();
@@ -61,6 +63,20 @@ export function jeProdukt1v(kontext, flag) {
   if (!p) return null;
   return flag === "vyvoj" || jeZapnutyTyp(p.typ) ? p : null;
 }
+/**
+ * true = na tejto stránke sa postaví kamión 1V a React konfigurátor sa NEmontuje (productPage.js initProduct). Tá istá
+ * brána ako initKonfigurator1v (flag karty + register), takže nemôže nastať „oba“ ani „žiadny“. Bez ?novy= nič nezapisuje.
+ */
+export function budeKamion1v() {
+  try {
+    prepinac(window.location.search);
+    const f = jeZapnute();
+    const p = f ? jeProdukt1v(getShoptetContext(), f) : null;
+    return !!(p && p.typ === "kamion" && document.getElementById("product-detail-form"));
+  } catch (e) {
+    return false;
+  }
+}
 // ---- koniec brány
 
 /** Volá main.js po postavení živého konfigurátora (initProduct … initConfiguratorEngine, initLivePrice). */
@@ -81,7 +97,8 @@ export function initKonfigurator1v(setupData, texts) {
     // ho zámerne nevolá: pri jeho chybe sa vráti len obsah, konfigurátor ostáva nový.
     ctx.zlozit = zlozit;
     window.__lcd1v = ctx; // ladenie + test (tools/test-konfigurator-1v.mjs)
-    produkt.moduly.map((m) => MODULY[m]).filter(Boolean).concat([obsah]).forEach(function (modul) {
+    aktivne = produkt.moduly.map((m) => MODULY[m]).filter(Boolean);
+    aktivne.concat([obsah]).forEach(function (modul) {
       try {
         modul.init(ctx);
       } catch (e) {
@@ -92,13 +109,28 @@ export function initKonfigurator1v(setupData, texts) {
     if (ctx.chyby.length) zlozit();
     return ctx;
   } catch (e) {
+    // kamión: chyba skôr, než sa modul zaradil (aktivne prázdne) -> React musí aj tak nabehnúť (initProduct ho vynechal)
+    const bezModulov = aktivne.length === 0;
     try { zlozit(); } catch (x) {}
+    try { if (bezModulov && budeKamion1v()) kamion.zlozit(); } catch (x) {}
     return null;
   }
 }
 
-/** Návrat na starý vzhľad: trieda aj atribúty typu preč (moduly, ktoré sledujú body.lcd-1v, upracú svoje prvky). */
+/** Moduly typu tohto produktu (pre zlozit); prázdne, kým initKonfigurator1v nič nepostavil. */
+let aktivne = [];
+
+/**
+ * Návrat na starý vzhľad: najprv zlozit() modulov typu, ktoré ho exportujú (kamion: vráti H1 a hlavičku, namontuje React),
+ * potom trieda aj atribúty typu preč (moduly, ktoré sledujú body.lcd-1v, upracú svoje prvky).
+ */
 function zlozit() {
+  const moduly = aktivne;
+  aktivne = [];
+  moduly.forEach(function (modul) {
+    if (typeof modul.zlozit !== "function") return;
+    try { modul.zlozit(); } catch (e) { console.error("[lcd-1v] " + modul.MENO + " zlozit", e); }
+  });
   document.body.classList.remove(TRIEDA);
   document.body.removeAttribute("data-lcd1v-typ");
   document.body.removeAttribute("data-lcd1v-vzor");

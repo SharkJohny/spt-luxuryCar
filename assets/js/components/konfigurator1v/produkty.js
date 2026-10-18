@@ -16,6 +16,7 @@ import * as kuforClassic from "./typy/kufor-classic.js";
 import * as kuforPremium from "./typy/kufor-premium.js";
 import * as boxy from "./typy/boxy.js";
 import * as vzorky from "./typy/vzorky.js";
+import * as kamion from "./typy/kamion.js";
 
 /** SK = 562035. CZ (581408) zatiaľ nie: ID produktov sa medzi obchodmi líšia, nikdy ich nezamieňať. url = cesta na webe. */
 export const PRODUKTY_1V = {
@@ -35,6 +36,8 @@ export const PRODUKTY_1V = {
     616: { typ: "boxy", vzor: null, url: "/luxusny-boxi-do-kufra/", obsah: "boxy" },
     // vzorkovník: konfigurátor T5.1 + obsah T5.1b (návrh vzorkovnik.html)
     637: { typ: "vzorky", vzor: null, url: "/vzorkovnik-dragonskin---objednavka-vzoriek/", obsah: "vzorky" },
+    // kamióny a dodávky: vlastný konfigurátor kamion/ namiesto Reactu (docs/kamiony-1v-plan.md); do vydania len ?novy=vyvoj
+    640: { typ: "kamion", vzor: null, url: "/luxusne-autokoberce-kamiony/", obsah: "kamiony" },
   },
 };
 
@@ -63,10 +66,12 @@ export const TYPY = {
   "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   boxy: { kroky: ["farba", "pocet", "velkost"], moduly: ["kroky", "boxy-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
+  // kamion: celé UI stavia modul kamion/ (6 krokov vo vlastnom koreni); živé kroky 1V na 640 nie sú (React sa nemontuje)
+  kamion: { kroky: [], moduly: ["kamion"], obal: null },
 };
 
 /** Texty a obrázky typu (typy/<typ>.js). Základ = jedno (dnešné texty 598); typ prepíše, čo potrebuje. */
-const TYPY_ZDROJ = { jedno: jedno.TYP, dvoj: dvoj.TYP, "kufor-classic": kuforClassic.TYP, "kufor-premium": kuforPremium.TYP, boxy: boxy.TYP, vzorky: vzorky.TYP };
+const TYPY_ZDROJ = { jedno: jedno.TYP, dvoj: dvoj.TYP, "kufor-classic": kuforClassic.TYP, "kufor-premium": kuforPremium.TYP, boxy: boxy.TYP, vzorky: vzorky.TYP, kamion: kamion.TYP };
 
 const jeObjekt = (x) => !!x && typeof x === "object" && !Array.isArray(x);
 
