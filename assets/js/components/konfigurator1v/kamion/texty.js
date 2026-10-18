@@ -437,7 +437,6 @@ export const TEXTY = {
     "spolujazdec": "Spolujazdec",
     "stred": "Stredový koberec"
    },
-   "s_kobercami": "S kobercami",
    "volby": {
     "boky": {
      "text": "Nášivky pod sedadlá šoféra a spolujazdca",
@@ -590,8 +589,7 @@ export const TEXTY = {
    "benefit": "Môže byť v\u00a0rovnakom materiáli, farbe a\u00a0lemovaní ako koberce, alebo si ich vyberiete inak.",
    "volby": {
     "ano": {
-     "text": "Áno, chcem aj tapacír dverí",
-     "s_kobercami": "S kobercami"
+     "text": "Áno, chcem aj tapacír dverí"
     },
     "nie": {
      "text": "Nie, ďakujem",
@@ -631,7 +629,6 @@ export const TEXTY = {
     "foto_alt": "Panel dverí – nášivka v strede výplne, ilustračná fotka",
     "bod": "Sem príde nášivka",
     "otazka": "Prosíte si aj nášivku na tapacír dverí?",
-    "s_tapacirom": "S tapacírom",
     "ano": "Áno, s\u00a0nášivkou",
     "nie": "Nie, ďakujem",
     "bez_priplatku": "bez príplatku",
@@ -766,7 +763,8 @@ export const TEXTY = {
   "nahlad_bez_motivu": "Po výbere motívu sa tu ukáže veľký náhľad.",
   "schema_dvere_aria": "Schéma dverí: nášivka v strede výplne",
   "cenovka_samostatne": "Samostatne",
-  "cenovka_usetrite": "Ušetríte {x}",
+  "cenovka_vyhoda": "Výhoda v sete",
+  "cenovka_v_sete": "V sete",
   "zmenit_aria": "Zmeniť – {x}",
   "suhrn_ey": "Súhrn objednávky",
   "suhrn_bez_vozidla": "Vozidlo zatiaľ nie je vybraté",

@@ -460,8 +460,8 @@ export function vytvorUi(o) {
 
   // ------------------------------------------------------------------ kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer)
   // Krok 5: „Prosím, vyberte si, kam chcete nášivky“ — 4 výlučné voľby v poradí pod sedadlá šoféra a spolujazdca —
-  // stredový koberec — ★ všetky tri — „Nie, ďakujem“ (zvolená je zelená LEN jedna), cenovka ako rohož a box do kufra
-  // (kufor-boxy.js cenovka). Potom podotázky v kartách, vždy otvorená LEN jedna: motív + niť + veľký náhľad +
+  // stredový koberec — ★ všetky tri — „Nie, ďakujem“ (zvolená je zelená LEN jedna), ceny v riadkoch ako rohož a box do
+  // kufra (kufor-boxy.js riadky(), cenyRiadky). Potom podotázky v kartách, vždy otvorená LEN jedna: motív + niť + veľký náhľad +
   // „Pokračovať“, stredový koberec „rovnaká / iná“. Zodpovedaná sa zatvorí do riadka „✓ … — Zmeniť“. Krok 6 rovnako:
   // ponuka tapacíru → materiál, farba a lemovanie → nášivka na dvere → motív a niť. Do Shoptetu ide stále jeden zo
   // 4 stavov S.nas a tie isté polia S (košík a ceny bez zmeny); ktorá podotázka je otvorená, drží len UI stav U
@@ -506,12 +506,16 @@ export function vytvorUi(o) {
     return String(b) + (b === "stred" ? (otazkaStred() ? "q" : "x") : b === "mat" ? (otazkaMat() ? "q" : "x") : b === "dvere" ? (otazkaDvere() ? "q" : "x") : "");
   }
 
-  /** Cenovka ako rohož a box do kufra (kufor-boxy.js cenovka): štítok nad cenou, veľká cena, „Samostatne <s>70 €</s>“
-   *  s červenou čiarou, zelená pilulka „Ušetríte 11 €“ (p = ponuka() — suma, povodna, usetrite). */
-  function cenovka(stitok, suma, p) {
-    return '<span class="k-cenovka"><span class="k-cenovka__l">' + esc(stitok) + '</span><span class="k-cenovka__c">' + esc(suma) + "</span>" +
-      (p && p.povodna != null && p.povodna > p.suma ? '<span class="k-cenovka__s">' + esc(U0.cenovka_samostatne) + " <s>" + eur(p.povodna) + "</s></span>" : "") +
-      (p && p.usetrite ? '<span class="k-cenovka__u">' + esc(eurX(U0.cenovka_usetrite, p.usetrite)) + "</span>" : "") + "</span>";
+  /** Ceny v riadkoch ako rohož a box do kufra (kufor-boxy.js riadky(); Michal 18. 10. 2026 v noci): „Samostatne 70 €“ /
+   *  „Výhoda v sete − 11 €“ (zelená, tučná) / čiara / „V SETE + 59 €“. Samostatne a Výhoda sa ukážu len spolu a len pri vyššej
+   *  samostatnej cene; posledný riadok je vždy „V sete“ (nášivky aj tapacír sa kupujú so setom kobercov). Bez veľkej ceny,
+   *  prečiarknutej ceny a pilulky „Ušetríte“. suma = text posledného riadku („+ 59 €“ príplatok, „119 €“ tapacír);
+   *  p = ponuka() — suma, povodna, usetrite. */
+  function cenyRiadky(suma, p) {
+    const r = (m, nm, h) => '<span class="k-ucet__r k-ucet__r--' + m + '"><span class="k-ucet__rn">' + esc(nm) + '</span><span class="k-ucet__rh">' + esc(h) + "</span></span>";
+    const viac = !!(p && p.povodna != null && p.povodna > p.suma);
+    return '<span class="k-ucet">' + (viac ? r("samo", U0.cenovka_samostatne, eur(p.povodna)) + r("zl", U0.cenovka_vyhoda, "−" + NB + eur(p.usetrite)) : "") +
+      r("sum", U0.cenovka_v_sete, suma) + "</span>";
   }
   /** Výrez fotky kabíny cez CSS (--z zväčšenie, --fx/--fy stred výrezu) so zlatými krúžkami na nášivkách. */
   function fotkaKabiny(vyrez, miesta, alt, bokStred) {
@@ -651,7 +655,7 @@ export function vytvorUi(o) {
         const on = S.nas === id;
         return '<button type="button" class="kn-dv__b' + cls + (on ? " is-on" : "") + '" data-a="nas" data-v="' + id + '" data-f="nas:' + id + '" aria-pressed="' + on + '">' + pas + foto +
           '<span class="kn-dv__tx"><span class="kn-rad" aria-hidden="true"></span><span class="kn-dv__txt"><span class="kn-dv__nm">' + esc(V[id].text) + '</span><span class="kn-dv__po">' + esc(V[id].popis) + "</span>" +
-          cenovka(t.s_kobercami, plus(pon[id].suma), pon[id]) + "</span></span></button>";
+          cenyRiadky(plus(pon[id].suma), pon[id]) + "</span></span></button>";
       };
       // poradie podľa Michala (18. 10. 2026 večer): pod sedadlá — stredový koberec — ★ všetky tri — Nie, ďakujem
       const d1 = dl("boky", "", fotkaKabiny("--z:1.75;--fx:.537;--fy:.5", ["sofer", "spolujazdec"], V.boky.alt), "");
@@ -702,12 +706,12 @@ export function vytvorUi(o) {
     const t = T.kroky.tapacir, po = ponuka(), oz = t.otazky;
     if (b === "ponuka") {
       const a = t.volby.ano, on = S.tap === "ano", off = S.tap === "nie", pt = po.tapacir;
-      // fotka celých dverí 3:2 bez orezania, ponuka v rámiku s cenovkou, zelené Áno, zlaté Nie
+      // fotka celých dverí 3:2 bez orezania, ponuka v rámiku s cenami v riadkoch, zelené Áno, zlaté Nie
       return '<div class="kn-blok" data-blok="ponuka" tabindex="-1"><p class="k-pod">' + esc(t.vysvetlivka) + "</p>" +
         '<div class="kn-dvere"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(t.foto_alt) + '" width="1536" height="1024" loading="lazy" decoding="async">' +
         '<span class="kn-stitok" style="--x:43%;--y:21%">' + esc(t.foto_stitok) + '</span><span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span></div>" +
         sk("tapacir", "tap", "", '<div class="kn-ponuka"><span class="kn-ponuka__nm">' + esc(t.nazov) + '</span><span class="kn-ponuka__ben">' + esc(t.benefit) + "</span>" +
-          cenovka(a.s_kobercami, eur(pt.suma), pt) +
+          cenyRiadky(eur(pt.suma), pt) +
           '<button type="button" class="k-btn-zelene' + (on ? " is-on" : off ? " je-druha" : "") + '" data-a="tap" data-v="ano" data-f="tap:ano" aria-pressed="' + on + '">' + (on ? "✓ " : "") + esc(a.text) + "</button></div>" +
           '<button type="button" class="k-btn-zlate' + (off ? " is-on" : on ? " je-druha" : "") + '" data-a="tap" data-v="nie" data-f="tap:nie" aria-pressed="' + off + '">' + (off ? "✓ " : "") + esc(t.volby.nie.text) + "</button>" +
           (off ? '<p class="k-pozn">' + esc(t.volby.nie.pozn) + "</p>" : "")) + "</div>";
@@ -735,13 +739,13 @@ export function vytvorUi(o) {
     }
     const nd = t.nasivka_dvere;
     if (b === "nas") {
-      // kde presne (výrez dverí so zlatým krúžkom), otázka s cenovkou, zelené Áno / zlaté Nie
+      // kde presne (výrez dverí so zlatým krúžkom), otázka s cenami v riadkoch, zelené Áno / zlaté Nie
       const an = U.dvereInfo ? null : S.tapNas, pd = po.nasivka_dvere; // po strate vzoru otázka znova bez predvoľby
       return karta("nas", nd.nadpis, '<p class="k-pod">' + esc(nd.kde[0]) + "<b>" + esc(nd.kde[1]) + "</b>" + esc(nd.kde[2]) + "</p>" +
         '<div class="kn-dvere kn-dvere--vyrez"><span class="kn-foto kn-foto--169"><span class="kn-scena" style="--ar:3/2;--z:1.3;--fx:.433;--fy:.45"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(nd.foto_alt) + '" loading="lazy" decoding="async">' +
         '<span class="kn-bod" style="--x:43.3%;--y:45%;--d:23%"><b>' + esc(nd.bod) + '</b></span></span><span class="kn-ilu">' + esc(t.ilustracna) + "</span></span></div>" +
         sk("tapacir", "tapNas", "", (U.dvereInfo ? '<p class="tp-info">' + esc(nd.zmena_info) + "</p>" : "") +
-          '<div class="kn-ponuka kn-ponuka--nas"><span class="kn-ponuka__nm">' + esc(nd.otazka) + "</span>" + cenovka(nd.s_tapacirom, plus(pd.suma), pd) +
+          '<div class="kn-ponuka kn-ponuka--nas"><span class="kn-ponuka__nm">' + esc(nd.otazka) + "</span>" + cenyRiadky(plus(pd.suma), pd) +
           '<div class="an' + (an != null ? " an--vybrate" : "") + '" role="group" aria-label="' + attr(nd.otazka) + '">' +
           '<button type="button" class="an__b an__b--ano' + (an === true ? " is-on" : "") + '" data-a="tapNas" data-v="ano" data-f="tapNas:ano" aria-pressed="' + (an === true) + '">' + (an === true ? "✓ " : "") + esc(nd.ano) + "<small>" + plus(pd.suma) + "</small></button>" +
           '<button type="button" class="an__b an__b--nie' + (an === false ? " is-on" : "") + '" data-a="tapNas" data-v="nie" data-f="tapNas:nie" aria-pressed="' + (an === false) + '">' + (an === false ? "✓ " : "") + esc(nd.nie) + "<small>" + esc(nd.bez_priplatku) + "</small></button></div></div>"));

@@ -422,10 +422,12 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   const otvorene = (k) => qa(k + "[data-blok]").map((x) => x.getAttribute("data-blok"));
   const hot = (k) => qa(k + ".kn-hot:not(.kn-hot--vnutri)").map((x) => x.getAttribute("data-hot"));
   const zvolene5 = () => qa(K5 + '[data-a="nas"][aria-pressed="true"]').map((x) => x.getAttribute("data-v"));
-  const cen = (el) => el ? [".k-cenovka__l", ".k-cenovka__c", ".k-cenovka__s", ".k-cenovka__u"].map((c) => (el.querySelector(c) ? el.querySelector(c).textContent.replace(/\s+/g, " ").trim() : "")) : [];
+  // ceny v riadkoch ako rohož a box do kufra (Michal 18. 10. 2026 v noci): [štítok, suma] po riadkoch Samostatne / Výhoda v sete / V sete
+  const cen = (el) => el ? Array.from(el.querySelectorAll(".k-ucet__r")).map((r) => [".k-ucet__rn", ".k-ucet__rh"].map((c) => (r.querySelector(c) ? r.querySelector(c).textContent.replace(/\s+/g, " ").trim() : ""))) : [];
+  const R = (samo, zl, sum) => [["Samostatne", samo], ["Výhoda v sete", zl], ["V sete", sum]];
   const dalej5 = () => !!q('[data-a="dalej"][data-v="nasivky"]'), dalej6 = () => !!q('[data-a="dalej"][data-v="tapacir"]');
 
-  // 5.1 — kam: veľká otázka, 4 výlučné voľby v poradí 1, 2, 3, 4, cenovka ako rohož a box do kufra
+  // 5.1 — kam: veľká otázka, 4 výlučné voľby v poradí 1, 2, 3, 4, ceny v riadkoch ako rohož a box do kufra
   over("17: krok 5 otvorený len s otázkou „Prosím, vyberte si, kam chcete nášivky“", J(otvorene(K5)) === J(["kam"]) && tx(K5 + '[data-pole="nas"] .kn-ot') === "Prosím, vyberte si, kam chcete nášivky", J(otvorene(K5)) + " | " + tx(K5 + ".kn-ot"));
   over("17: voľby v poradí pod sedadlá — stredový koberec — všetky tri — Nie, ďakujem", J(qa(K5 + '[data-a="nas"]').map((x) => x.getAttribute("data-v"))) === J(["boky", "stred", "boky+stred", "nechcem"]));
   const dl = qa(".kn-dv > .kn-dv__b");
@@ -433,10 +435,10 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: každá dlaždica má fotku kabíny z assets/img/1v a „Ilustračná fotka“", dl.length === 3 && dl.every((x) => /\/assets\/img\/1v\/kamion-nasivky-kabina\.jpg$/.test(x.querySelector(".kn-scena > img").getAttribute("src")) && /Ilustračná fotka/.test(x.textContent)));
   over("17: zlaté krúžky na miestach nášiviek (2 / 1 / 3)", J(dl.map((x) => x.querySelectorAll(".kn-bod").length)) === J([2, 1, 3]));
   over("17: zlatý pás „★ Najobľúbenejšie ★“ len na všetkých troch", dl[2].querySelector(".kn-dv__top") && dl[2].querySelector(".kn-dv__top").textContent === "★ Najobľúbenejšie ★" && !dl[0].querySelector(".kn-dv__top") && !dl[1].querySelector(".kn-dv__top"));
-  over("17: cenovka pod sedadlá = S kobercami / + 59 € / Samostatne 70 € / Ušetríte 11 €", J(cen(dl[0].querySelector(".k-cenovka"))) === J(["S kobercami", "+ 59 €", "Samostatne 70 €", "Ušetríte 11 €"]), J(cen(dl[0].querySelector(".k-cenovka"))));
-  over("17: cenovka stredový koberec = S kobercami / + 59 € / Samostatne 70 € / Ušetríte 11 €", J(cen(dl[1].querySelector(".k-cenovka"))) === J(["S kobercami", "+ 59 €", "Samostatne 70 €", "Ušetríte 11 €"]), J(cen(dl[1].querySelector(".k-cenovka"))));
-  over("17: cenovka všetky tri = S kobercami / + 95 € / Samostatne 140 € / Ušetríte 45 €", J(cen(dl[2].querySelector(".k-cenovka"))) === J(["S kobercami", "+ 95 €", "Samostatne 140 €", "Ušetríte 45 €"]), J(cen(dl[2].querySelector(".k-cenovka"))));
-  over("17: prečiarknutá cena v <s> (červená čiara ako rohož a box)", dl.every((x) => x.querySelector(".k-cenovka__s > s")));
+  over("17: pod sedadlá = Samostatne 70 € / Výhoda v sete − 11 € / V sete + 59 €", J(cen(dl[0].querySelector(".k-ucet"))) === J(R("70 €", "− 11 €", "+ 59 €")), J(cen(dl[0].querySelector(".k-ucet"))));
+  over("17: stredový koberec = Samostatne 70 € / Výhoda v sete − 11 € / V sete + 59 €", J(cen(dl[1].querySelector(".k-ucet"))) === J(R("70 €", "− 11 €", "+ 59 €")), J(cen(dl[1].querySelector(".k-ucet"))));
+  over("17: všetky tri = Samostatne 140 € / Výhoda v sete − 45 € / V sete + 95 €", J(cen(dl[2].querySelector(".k-ucet"))) === J(R("140 €", "− 45 €", "+ 95 €")), J(cen(dl[2].querySelector(".k-ucet"))));
+  over("17: bez veľkej ceny, prečiarknutej ceny a pilulky „Ušetríte“ (cenovka z návrhu E preč)", !q(".k-cenovka") && !qa(".kn-dv s").length && !/Ušetríte/.test(tx(".kn-dv")));
   const nie = q(a("nas", "nechcem"));
   over("17: „Nie, ďakujem“ = zlaté tlačidlo pod dlaždicami", !!nie && nie.classList.contains("k-btn-zlate") && /koberce bez nášiviek/.test(nie.textContent));
   over("17: v dlaždiciach žiadne zelené tlačidlo, žiadne zaškrtávacie políčko, bez „Vaša voľba“", !q(".kn-dv .k-btn-zelene") && !q(".kn-dv__cta") && !q(".kn-chk") && !q(".kn-vv") && qa(".kn-dv .kn-rad").length === 3);
@@ -509,7 +511,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   // krok 6 — ponuka, materiál, nášivka na dvere, motív a niť: vždy len jedna otvorená
   const dvere = q(K6 + ".kn-dvere:not(.kn-dvere--vyrez) > img");
   over("17: krok 6 — celá fotka dverí (JPEG v assets/img/1v, 1536 × 1024 = 3:2)", !!dvere && /\/assets\/img\/1v\/kamion-dvere-tapacir\.jpg$/.test(dvere.getAttribute("src")) && dvere.getAttribute("width") === "1536" && dvere.getAttribute("height") === "1024");
-  over("17: ponuka tapacíru — cenovka S kobercami / 119 € / Samostatne 179 € / Ušetríte 60 €", J(cen(q(K6 + ".kn-ponuka .k-cenovka"))) === J(["S kobercami", "119 €", "Samostatne 179 €", "Ušetríte 60 €"]), J(cen(q(K6 + ".kn-ponuka .k-cenovka"))));
+  over("17: ponuka tapacíru — Samostatne 179 € / Výhoda v sete − 60 € / V sete 119 €", J(cen(q(K6 + ".kn-ponuka .k-ucet"))) === J(R("179 €", "− 60 €", "119 €")) && !q(K6 + ".kn-ponuka s"), J(cen(q(K6 + ".kn-ponuka .k-ucet"))));
   over("17: najprv LEN ponuka (Áno zelené, Nie zlaté), bez materiálu a nášivky na dvere", J(otvorene(K6)) === J(["ponuka"]) && q(a("tap", "ano")).classList.contains("k-btn-zelene") && q(a("tap", "nie")).classList.contains("k-btn-zlate") && !q(a("tapNas", "ano")) && !dalej6());
   t.klik(a("tap", "ano"));
   over("17: Áno -> „✓ Tapacír dverí: áno · 119 €“, karta materiálu s otázkou a dvomi voľbami (nič nepredvolené)", J(hot(K6)) === J(["ponuka"]) && /Tapacír dverí: áno · 119 €/.test(tx(K6 + '.kn-hot[data-hot="ponuka"]')) && J(otvorene(K6)) === J(["mat"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si materiál, farbu a lemovanie tapacíru" && qa(K6 + ".kn-rv__b").every((x) => x.getAttribute("aria-pressed") === "false") && /prešívaná/.test(tx(K6 + '[data-a="tapRovnake"]')) && !q(a("tapNas", "ano")));
@@ -528,7 +530,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   t.klik(a("zmenit", "mat")); t.klik(a("tapRovnake"));
   over("17: „Rovnaké ako koberce“ = hotovo, riadok ✓, potom LEN karta nášivky na dvere", S.tapRovnaky === true && J(hot(K6)) === J(["ponuka", "mat"]) && /Materiál, farba a lemovanie: rovnaké ako koberce/.test(tx(K6 + '.kn-hot[data-hot="mat"]')) && J(otvorene(K6)) === J(["nas"]));
   over("17: nášivka na dvere — výrez dverí so zlatým krúžkom „Sem príde nášivka“", /Sem príde nášivka/.test(tx(".kn-dvere--vyrez .kn-bod")) && /do stredu výplne dverí/.test(tx(K6 + ".k-krok__telo")));
-  over("17: nášivka na dvere — cenovka S tapacírom / + 49 € / Samostatne 89 € / Ušetríte 40 €", J(cen(q(".kn-ponuka--nas .k-cenovka"))) === J(["S tapacírom", "+ 49 €", "Samostatne 89 €", "Ušetríte 40 €"]), J(cen(q(".kn-ponuka--nas .k-cenovka"))));
+  over("17: nášivka na dvere — Samostatne 89 € / Výhoda v sete − 40 € / V sete + 49 €", J(cen(q(".kn-ponuka--nas .k-ucet"))) === J(R("89 €", "− 40 €", "+ 49 €")) && !q(".kn-ponuka--nas s"), J(cen(q(".kn-ponuka--nas .k-ucet"))));
   t.klik(a("tapNas", "ano"));
   const tn = qa('.kn-rv__b[data-a="tapNasRovnaka"]');
   over("17: Áno -> „✓ Nášivka na tapacír dverí: áno · + 49 €“, otázka „Rovnaká ako na kobercoch / Iná nášivka“", /Nášivka na tapacír dverí: áno · \+ 49 €/.test(tx(K6 + '.kn-hot[data-hot="nas"]')) && J(otvorene(K6)) === J(["dvere"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si nášivku na tapacír dverí" && tn.length === 2 && /Trucker \(H21\) · niť červená \(2824\)/.test(tn[0].textContent) && /Iná nášivka/.test(tn[1].textContent) && tn.every((x) => x.getAttribute("aria-pressed") === "false") && !dalej6());

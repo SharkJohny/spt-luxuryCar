@@ -21,21 +21,21 @@ const RIADKOVANIE = { text: 1.5, uvod: 1.5, faqOdpoved: 1.5 };
 export const ROLY_KONFIGURATOR = [
   // štítky verzálkami (aj vnútri dlaždíc a tlačidiel) a čísla krokov
   [".k-typ, .k-cena__stitok, .vc__h, .k-postup__t, .k-postup__st, .k-krok__ey, .k-krok.is-done .k-krok__nm, .k-stitok, .k-sk-h, .mk-var, " +
-    ".k-cenovka__l, .k-badge, .k-suhrn__lb, .sh__ey, .kn-bod b, .kn-stitok, .kn-dv__top, .kn-karta__ey, .lcd1v-lista__suma small, .k-krok__no", "stitok"],
+    ".k-ucet__r--sum > .k-ucet__rn, .k-badge, .k-suhrn__lb, .sh__ey, .kn-bod b, .kn-stitok, .kn-dv__top, .kn-karta__ey, .lcd1v-lista__suma small, .k-krok__no", "stitok"],
   // nadpisy kariet a krokov, otázky
   [".k-h1, .k-krok__ti, .kn-ot, .sh__h", "nadpis"],
   [".k-krok__nm, .k-rkarta__nm, .kn-dv__nm, .kn-rv__nm, .kn-ponuka__nm", "karta"],
   // úvodné vety pod nadpisom
   [".k-perex, .k-pod", "uvod"],
   // ceny
-  [".k-cena__suma, .k-cenovka__c, .k-suhrn__suma, .sh__c, .k-rkarta__pl, .kn-rv__plus, .lcd1v-lista__suma", "cena"],
+  [".k-cena__suma, .k-ucet__r--sum > .k-ucet__rh, .k-suhrn__suma, .sh__c, .k-rkarta__pl, .kn-rv__plus, .lcd1v-lista__suma", "cena"],
   // bežný text: súhrnné riadky ✓, súhrn objednávky, vysvetlenia, výber v poliach
   [".k-krok.is-done .k-krok__vy, .kn-hot__tx, .k-kompat__tx b, .sh__voz, .sh__t b, .sh__us, .tp-info, .kn-info, .kn-ponuka__ben, .k-select, .k-veta-pole", "text"],
   // tlačidlá
   [".k-btn-zelene, .k-btn-zlate, .an__b, .kn-hot__zm, .k-krok__zm, .k-segment > button, .lcd1v-lista__kos", "tlacidlo"],
-  // poznámky a popisky (popisky dlaždíc, ceny „Samostatne“, popisy volieb, chyby)
+  // poznámky a popisky (popisky dlaždíc, riadky cien „Samostatne“ / „Výhoda v sete“, popisy volieb, chyby)
   [".k-krok__vy, .k-pozn, .k-cena__od, .vc__l li, .k-kompat__tx i, .k-rkarta__po, .k-rkarta__foto b, .k-dlazdica__nm, .fb__nm, .fb__kod, " +
-    ".lm__nm, .lm__kod, .nt__b, .k-cenovka__s, .k-cenovka__u, .sh__t span, .sh__chyba-r, .sh__fakty li, .k-alt, .kn-ilu, .kn-dv__po, " +
+    ".lm__nm, .lm__kod, .nt__b, .k-ucet__rn, .k-ucet__rh, .sh__t span, .sh__chyba-r, .sh__fakty li, .k-alt, .kn-ilu, .kn-dv__po, " +
     ".kn-rv__po, .kn-nie small, .kn-nh__hd, .kn-nh__pop, .kn-vz p, .k-nahlad-farby__nm, .lm-nahlad p, .k-pole__chyba, .k-sk__chyba, " +
     ".k-chyba-tx, .sh__err, .k-hodn, .sh__c s, .sh__c em, .lcd1v-lista__popis", "pozn"],
 ];

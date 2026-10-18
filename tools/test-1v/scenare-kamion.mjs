@@ -109,18 +109,38 @@ const STYLY = `(function () {
   return { ano: cs(".an__b--ano", "backgroundImage"), nie: cs(".an__b--nie", "backgroundImage"), ponuka: cs(".kn-ponuka", "borderTopColor"),
     pas: cs(".kn-dv__b--bal .kn-dv__top", "backgroundImage"), dlZvol: cs(".kn-dv__b.is-on", "borderTopColor"), rad: cs(".kn-dv__b.is-on .kn-rad", "backgroundImage"),
     dlRamy: Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .kn-dv__b"), function (e) { return getComputedStyle(e).borderTopColor; }),
-    preciarknute: cs(".kn-dv__b .k-cenovka__s s", "textDecorationColor"), pilulka: cs(".kn-dv__b .k-cenovka__u", "backgroundColor"), cena: cs(".kn-dv__b .k-cenovka__c", "fontSize"),
+    // ceny v riadkoch ako rohož a box do kufra (Michal 18. 10. 2026 v noci): Výhoda zelená tučná, „V SETE“ 12 px verzálkami, cena 800 20 px Exo 2
+    vyhoda: cs(".kn-dv__b .k-ucet__r--zl .k-ucet__rh", "color"), vyhodaW: cs(".kn-dv__b .k-ucet__r--zl .k-ucet__rh", "fontWeight"),
+    sumL: cs(".kn-dv__b .k-ucet__r--sum .k-ucet__rn", "fontSize"), sumLT: cs(".kn-dv__b .k-ucet__r--sum .k-ucet__rn", "textTransform"),
+    sumC: cs(".kn-dv__b .k-ucet__r--sum .k-ucet__rh", "fontSize"), sumCW: cs(".kn-dv__b .k-ucet__r--sum .k-ucet__rh", "fontWeight"), sumCF: cs(".kn-dv__b .k-ucet__r--sum .k-ucet__rh", "fontFamily"),
+    stara: document.querySelectorAll("#lcd1v-kamion .k-cenovka, #lcd1v-kamion .kn-dv s").length,
     ot: cs(".kn-ot", "fontSize"), hotIc: cs(".kn-hot__ic", "backgroundImage"), zmenitH: zm ? zm.getBoundingClientRect().height : 0,
     motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor"), motivFit: cs(".k-dlazdice--motiv .k-dlazdica__img", "objectFit"), motivZvol: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "borderTopColor"),
     motivFajka: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "backgroundImage", "::after"), nitZvol: cs(".nt__b.is-on", "borderTopColor") };
 })()`;
 const ZELENA = "rgb(31, 122, 82)", ZLATA = "rgb(196, 155, 49)";
-/** Krok 5.1: otázka s 3 fotkovými dlaždicami (načítaná fotka kabíny, cenovka) + „Nie, ďakujem“, bez zeleného tlačidla v dlaždiciach. */
+/** Riadky cien (Samostatne / Výhoda v sete / V sete): každý na jednom riadku — štítok a suma vedľa seba, nič zalomené
+ *  (Michal 18. 10. 2026 v noci, telefón 360–480 px ako karty rohože a boxov). */
+const RIADKY_CIEN = `(function () {
+  var r = document.querySelectorAll("#lcd1v-kamion .k-ucet__r"), zle = [];
+  Array.prototype.forEach.call(r, function (x) {
+    var n = x.querySelector(".k-ucet__rn"), h = x.querySelector(".k-ucet__rh"); if (!n || !h || !x.getClientRects().length) return;
+    var a = n.getBoundingClientRect(), b = h.getBoundingClientRect();
+    if (n.getClientRects().length > 1 || h.getClientRects().length > 1 || Math.abs(a.bottom - b.bottom) > 6 || b.left < a.right) zle.push(n.textContent + " | " + h.textContent);
+  });
+  return { n: r.length, zle: zle };
+})()`;
+/** Prepínač-pilulka Kamión / Dodávka: zvolená ZLATÁ s tmavým písmom (Michal 18. 10. 2026 v noci, ako volant / miesta / dvere). */
+const SEGMENT = `(function () {
+  var b = document.querySelector("#lcd1v-kamion .k-segment > button.is-on"); if (!b) return null;
+  var c = getComputedStyle(b); return { bg: c.backgroundImage, farba: c.color, text: b.textContent };
+})()`;
+/** Krok 5.1: otázka s 3 fotkovými dlaždicami (načítaná fotka kabíny, ceny v riadkoch) + „Nie, ďakujem“, bez zeleného tlačidla v dlaždiciach. */
 const KROK5 = `(function () {
   var q = function (s) { return document.querySelectorAll("#lcd1v-kamion " + s); };
   return { dlazdic: q(".kn-dv > .kn-dv__b").length, nie: !!document.querySelector('#lcd1v-kamion [data-a="nas"][data-v="nechcem"]'),
     foto: Array.prototype.map.call(q(".kn-dv__b .kn-scena > img"), function (i) { return i.complete ? i.naturalWidth : 0; }),
-    cenovky: q(".kn-dv__b .k-cenovka").length, zelene: q(".kn-dv .k-btn-zelene").length, dalej: q('[data-a="dalej"][data-v="nasivky"]').length,
+    cenovky: q(".kn-dv__b .k-ucet").length, zelene: q(".kn-dv .k-btn-zelene").length, dalej: q('[data-a="dalej"][data-v="nasivky"]').length,
     otazka: (document.querySelector("#lcd1v-kamion .kn-ot") || {}).textContent || "",
     // revízia 18. 10. 2026 večer: výrez fotky pokrýva celé okno fotky a v rozložení fotka | text (zoznam ≥ 600 px — tablet,
     // široký PC) fotka vyplní výšku dlaždice (bez bielych pásov); užší stĺpec (PC 992–1919 px, telefón) = fotka nad textom
@@ -195,6 +215,8 @@ export const SCENARE = {
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await snimka(s, a, "kamion-start");
       await overPismo(s, j, "krok 1 + hlavička");
+      const seg = await s.t.ev(SEGMENT);
+      j.over(seg && /rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(seg.bg || "") && seg.farba === "rgb(23, 19, 10)", "prepínač Kamión / Dodávka: zvolená pilulka nie je zlatá s tmavým písmom: " + JSON.stringify(seg));
       await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"]]);
       await overPismo(s, j, "krok 1 vybrané vozidlo");
       await rob(s, j, [["dalej", "vozidlo"], ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")]]);
@@ -204,16 +226,21 @@ export const SCENARE = {
       await rob(s, j, [["dalej", "farba"], ["klik", a_("lem", "04")]]);
       await overPismo(s, j, "krok 4 lemovanie");
       await rob(s, j, [["dalej", "lemovanie"]]);
-      // 5.1 — veľká otázka, 4 výlučné voľby s cenovkou, žiadne zelené tlačidlo v dlaždiciach ani „Pokračujte ďalej“
+      // 5.1 — veľká otázka, 4 výlučné voľby s cenami v riadkoch, žiadne zelené tlačidlo v dlaždiciach ani „Pokračujte ďalej“
       await s.t.ev(`document.querySelector('#lcd1v-kamion .kn-dv').scrollIntoView({ block: "start" })`);
       const k5 = await cakaj(s, j, KROK5, (r) => r.foto.length === 3 && r.foto.every((x) => x > 0));
-      j.over(k5.dlazdic === 3 && k5.nie && k5.cenovky === 3 && !k5.zelene && !k5.dalej && k5.otazka === "Prosím, vyberte si, kam chcete nášivky", "krok 5.1: 3 fotkové dlaždice s cenovkou + „Nie, ďakujem“, bez zeleného tlačidla: " + JSON.stringify(k5));
+      j.over(k5.dlazdic === 3 && k5.nie && k5.cenovky === 3 && !k5.zelene && !k5.dalej && k5.otazka === "Prosím, vyberte si, kam chcete nášivky", "krok 5.1: 3 fotkové dlaždice s cenami v riadkoch + „Nie, ďakujem“, bez zeleného tlačidla: " + JSON.stringify(k5));
       j.over(k5.foto.length === 3 && k5.foto.every((x) => x > 0), "fotka kabíny sa nenačítala: " + JSON.stringify(k5.foto));
       j.over(k5.fotky.length === 3 && k5.fotky.every((x) => x.kryje && x.plna), "fotka v dlaždici 5.1 nevyplní okno / výšku dlaždice (biele pásy): " + JSON.stringify(k5.fotky));
       j.over(k5.fotky.every((x) => x.vedla === x.ocakVedla), "krok 5.1: rozloženie fotka | text len pri zozname ≥ 600 px (inak fotka nad textom): " + JSON.stringify(k5.fotky));
       const st5a = await s.t.ev(STYLY);
       j.over(/rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(st5a.pas || ""), "pás „★ Najobľúbenejšie ★“ nie je zlatý: " + st5a.pas);
-      j.over(st5a.preciarknute === "rgb(192, 57, 43)" && st5a.pilulka === "rgb(226, 243, 233)" && parseFloat(st5a.cena) >= 25, "cenovka nie je ako rohož a box (červená čiara, zelená pilulka, veľká cena): " + JSON.stringify([st5a.preciarknute, st5a.pilulka, st5a.cena]));
+      j.over(st5a.vyhoda === "rgb(35, 134, 90)" && Number(st5a.vyhodaW) >= 700 && parseFloat(st5a.sumL) >= 12 && st5a.sumLT === "uppercase" && parseFloat(st5a.sumC) >= 18 &&
+        Number(st5a.sumCW) >= 800 && /Exo 2/.test(st5a.sumCF || "") && !st5a.stara,
+        "ceny nie sú v riadkoch ako rohož a box (Výhoda zelená tučná, V SETE verzálkami, cena 800 Exo 2, bez cenovky a prečiarknutej): " +
+        JSON.stringify([st5a.vyhoda, st5a.vyhodaW, st5a.sumL, st5a.sumLT, st5a.sumC, st5a.sumCW, st5a.sumCF, st5a.stara]));
+      const rc5 = await s.t.ev(RIADKY_CIEN);
+      j.over(rc5.n === 9 && !rc5.zle.length, "krok 5.1: riadky cien (3 × 3) zalomené alebo chýbajú: " + JSON.stringify(rc5));
       j.over(parseFloat(st5a.ot) >= 20, "otázka „Prosím, vyberte si …“ nie je veľká (≥ 20 px, výrazne nad názvami dlaždíc 17 px): " + st5a.ot);
       j.over(st5a.dlRamy.every((x) => x !== ZELENA), "pred výberom je niektorá dlaždica zelená: " + JSON.stringify(st5a.dlRamy));
       await overPismo(s, j, "krok 5.1 kam");
@@ -257,6 +284,8 @@ export const SCENARE = {
       await s.t.ev(`document.querySelector('#lcd1v-kamion [data-krok="tapacir"]').scrollIntoView({ block: "start" })`);
       const k6 = await cakaj(s, j, KROK6, (r) => r.nw > 0);
       j.over(k6.nw > 0 && Math.abs(k6.w / k6.h - k6.nw / k6.nh) < 0.02 && Math.abs(k6.w - k6.ram) <= 2, "fotka dverí nie je celá (bez orezania) cez šírku karty: " + JSON.stringify(k6));
+      const rc6 = await s.t.ev(RIADKY_CIEN);
+      j.over(rc6.n === 3 && !rc6.zle.length, "ponuka tapacíru: riadky cien zalomené alebo chýbajú: " + JSON.stringify(rc6));
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ponuka");
       await rob(s, j, [["klik", a_("tap", "ano")]]);
       const k6a = await s.t.ev(KROK6);
@@ -271,6 +300,8 @@ export const SCENARE = {
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-zmenit");
       await rob(s, j, [["klik", a_("zmenit", "mat")]]);
       await rob(s, j, [["klik", a_("tapRovnake")]]);
+      const rcd = await s.t.ev(RIADKY_CIEN);
+      j.over(rcd.n === 3 && !rcd.zle.length, "nášivka na dvere: riadky cien zalomené alebo chýbajú: " + JSON.stringify(rcd));
       await snimkaPrvku(s, a, j, ".an", "kamion-krok6-nasivka-dvere");
       const st6 = await s.t.ev(STYLY);
       j.over(/rgb\(29, 107, 74\)/.test(st6.ano || "") && /rgb\(226, 190, 92\)/.test(st6.nie || ""), "nášivka na tapacír: Áno nie je zelené / Nie zlaté: " + st6.ano + " | " + st6.nie);
