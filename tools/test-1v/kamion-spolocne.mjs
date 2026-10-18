@@ -85,3 +85,68 @@ export function nacitajGen(subor, w) {
   return new Function("window", "document", "Event", "sessionStorage",
     kod + "\nreturn { readShoptetPrices, FALLBACK_PRICES, calculatePrice, syncToShoptet, _parseOptionPrice };")(w, w.document, w.Event, w.sessionStorage);
 }
+
+// ------------------------------------------------------------------ stránka 640 s ozajstnou cestou productPage.js + 1V
+/** Vstup bundle: presne poradie main.js (initProduct … initKonfigurator1v); nič iné z main.js (sieť, data.json). */
+const VSTUP_STRANKY = `
+import { initProduct } from "./assets/js/components/productPage.js";
+import { initKonfigurator1v } from "./assets/js/components/konfigurator1v/index.js";
+window.__spusti = function () { initProduct({}, {}); return initKonfigurator1v({}, {}); };
+`;
+let bundleStranky = null;
+async function bundle() {
+  if (!bundleStranky) bundleStranky = await bundlePrehliadaca(VSTUP_STRANKY);
+  return bundleStranky;
+}
+
+/**
+ * Otvorí fixture 640 v jsdom, vloží jQuery a bundle a spustí initProduct + initKonfigurator1v (ako main.js).
+ * o.url (napr. ?novy=vyvoj), o.uprav(html), o.session { kľúč: hodnota } pred štartom, o.pred(window) pred spustením.
+ * Natívne tlačidlo košíka dostane počítadlo klikov a FormData formulára v okamihu kliku (odoslanie sa zruší).
+ * Vráti { window, document, chyby, kliky: [{ data: [[k, v]] }], ctx, kamion }.
+ */
+export async function spustiStranku(o = {}) {
+  const s = stranka({ url: o.url, uprav: o.uprav });
+  const w = s.window;
+  Object.entries(o.session || {}).forEach(([k, v]) => w.sessionStorage.setItem(k, v));
+  // inline skripty fixture (dataLayer s projectId / product.id) — jsdom ich pri runScripts "outside-only" nespúšťa
+  Array.prototype.forEach.call(w.document.querySelectorAll("script:not([src])"), (x) => w.eval(x.textContent));
+  w.eval(jquery());
+  const kliky = [];
+  const tl = w.document.querySelector("#product-detail-form .add-to-cart button.add-to-cart-button");
+  const form = w.document.getElementById("product-detail-form");
+  if (form) form.addEventListener("submit", (e) => { e.preventDefault(); });
+  if (tl) tl.addEventListener("click", (e) => {
+    e.preventDefault();
+    kliky.push({ data: Array.from(new w.FormData(form).entries()) });
+  });
+  if (o.pred) o.pred(w);
+  w.eval(await bundle());
+  let ctx = null;
+  try { ctx = w.__spusti(); } catch (e) { s.chyby.push("__spusti: " + ((e && e.stack) || e)); }
+  await pauza(o.cakaj == null ? 150 : o.cakaj);
+  return { window: w, document: w.document, chyby: s.chyby, kliky, ctx, kamion: w.__lcd1vKamion || null };
+}
+
+/** Klik na prvok nového UI podľa selektora (chyba, ak neexistuje). */
+export function klik(document, sel) {
+  const el = document.querySelector(sel);
+  if (!el) throw new Error("neexistuje " + sel);
+  el.dispatchEvent(new document.defaultView.MouseEvent("click", { bubbles: true, cancelable: true }));
+  return el;
+}
+/** Výber v select-e nového UI (data-p = pole) a udalosť change. */
+export function vyber(document, pole, hodnota) {
+  const s = document.querySelector('#lcd1v-kamion select[data-p="' + pole + '"]');
+  if (!s) throw new Error("neexistuje pole " + pole);
+  s.value = hodnota;
+  if (s.value !== hodnota) throw new Error("pole " + pole + " nemá možnosť " + hodnota);
+  s.dispatchEvent(new document.defaultView.Event("change", { bubbles: true }));
+}
+/** Zaškrtávacie pole nového UI (data-a). */
+export function zaskrtni(document, akcia, hodnota) {
+  const c = document.querySelector('#lcd1v-kamion input[data-a="' + akcia + '"]');
+  if (!c) throw new Error("neexistuje " + akcia);
+  c.checked = hodnota;
+  c.dispatchEvent(new document.defaultView.Event("change", { bubbles: true }));
+}
