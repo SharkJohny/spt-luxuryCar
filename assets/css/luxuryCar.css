@@ -18363,7 +18363,8 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a:focus-
 /* LCD-1V box do kufra 616 — farba → počet → veľkosť, neutralizácia configurator-enhance; selektory body.lcd-1v[data-lcd1v-typ="boxy"]. Vlastník: T3.2 (boxy-produkt.js)
    Čisté CSS (nekompiluje sa Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte). KAŽDÝ selektor
    začína body.lcd-1v[data-lcd1v-typ="boxy"] (typ cez atribút, nie triedu); flag vypnutý = nulová zmena (test nulova-zmena).
-   Návrh: navrhy/boxy.html (#bx-extra, #bx-konf; karty počtu = vzhľad kariet kroku 6 v 598 .lcd1v-kb__karta).
+   Návrh: navrhy/boxy.html (#bx-extra, #bx-konf); dlaždice počtu = návrh C „Fotka cez celú dlaždicu“ a kresba boxu v kroku 3
+   = návrh B „Realistický pohľad zhora“ (Michal 18. 10. 2026, artefakt H5ttn7fKzXBupUczU5JhNS).
    Prvky z JS (bez name): .lcd1v-bxp-pocty, .lcd1v-bxp-velk, .lcd1v-bxp-nahlad, .lcd1v-bxp-nazov.
    Kontrakt: docs/1v-kontrakt.md §8. */
 
@@ -18417,32 +18418,76 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .option
 /* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
 
-/* ---------------------------------------------------------------- krok 2: počet boxov (karty = vzhľad kroku 6 v 598) */
+/* ---------------------------------------------------------------- krok 2: počet boxov (návrh C, Michal 18. 10. 2026)
+   dlaždica = reálna fotka v pravej časti, vľavo tmavý prechod s textom (štýl banneru setu); vybraná = zlatý rám + zelená fajka */
 /* živé „1 ks / 2 ks / 3 ks“ sú v .name-wrap (skrytý obalom kroky.js); prázdny živý zoznam možností preč */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-pocet > .options-wrap { display: none !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-pocty,
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-velk { order: 10; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-pocty { margin: 0; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__tx {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; column-gap: 12px; row-gap: 2px;
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ksz { display: grid; gap: 10px; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks {
+  position: relative; isolation: isolate; display: block; box-sizing: border-box;
+  width: 100%; height: auto; min-width: 0; min-height: 134px; margin: 0; padding: 14px 16px;
+  border: 0; border-radius: 14px; overflow: hidden; background: #14110b;
+  box-shadow: inset 0 0 0 1px rgba(196, 155, 49, .35);
+  color: #fff; font: inherit; line-height: normal; text-align: left; text-transform: none; letter-spacing: normal;
+  cursor: pointer; transition: box-shadow .2s; -webkit-tap-highlight-color: transparent;
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__nm { grid-column: 1; grid-row: 1; padding-right: 0; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__po { grid-column: 1 / -1; grid-row: 2; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-img {
+  position: absolute; z-index: 0; top: 0; right: 0; bottom: 0;
+  display: block; width: 66%; height: 100%; max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0;
+  object-fit: cover; object-position: center 38%;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks::before {
+  content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, #14110b 0%, #14110b 34%, rgba(20, 17, 11, .6) 50%, rgba(20, 17, 11, 0) 70%);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 3px #c49b31, 0 8px 22px rgba(0, 0, 0, .22);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"]::after {
+  content: "\2713"; position: absolute; z-index: 3; top: 10px; right: 10px;
+  display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, #1d6b4a 0%, #2f9c68 52%, #1f7350 100%); color: #fff;
+  font: 800 13px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0, 0, 0, .25);
+}
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:hover { box-shadow: inset 0 0 0 2px rgba(196, 155, 49, .75); }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"]:hover { box-shadow: inset 0 0 0 3px #c49b31, 0 8px 22px rgba(0, 0, 0, .22); }
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:focus-visible { outline: 3px solid #c49b31; outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-in {
+  position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; max-width: 60%;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font: 700 22px/1.1 var(--kr-disp); color: #fff; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font: 400 14.5px/1.35 var(--kr-body); color: #ece3cc; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-c { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-top: 6px; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od {
-  grid-column: 2; grid-row: 1; align-self: baseline; padding-right: 30px;
-  font: 800 16px/1.15 var(--kb-disp); color: var(--kb-gold-txt); white-space: nowrap; font-variant-numeric: tabular-nums;
+  font: 700 19px/1 var(--kr-disp); color: #e8c766; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-@media (max-width: 480px) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__tx { grid-template-columns: minmax(0, 1fr); }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-kb__nm { padding-right: 26px; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od { grid-column: 1; grid-row: 3; margin-top: 6px; padding-right: 0; font-size: 15px; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po { font: 400 12.5px/1.2 var(--kr-body); color: #cfc3a6; white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po:empty { display: none; }
+@media (min-width: 768px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks { min-height: 150px; padding: 18px 22px; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-img { width: 58%; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks::before {
+    background: linear-gradient(90deg, #14110b 0%, #14110b 42%, rgba(20, 17, 11, .55) 55%, rgba(20, 17, 11, 0) 72%);
+  }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-in { max-width: 52%; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font-size: 25px; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font-size: 15.5px; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od { font-size: 21px; }
 }
 
-/* ---------------------------------------------------------------- krok 3: veľkosti so siluetou (návrh #sprv .vk) */
+/* ---------------------------------------------------------------- krok 3: veľkosti s kresbou boxu (návrh B, 18. 10. 2026) */
 /* živé tlačidlá veľkostí (3 skupiny, každá s vlastným tlačidlom kroku) nahrádzajú karty; ostávajú v DOM */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-velkost > .options-wrap { display: none !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk {
   --bxp-gold: #c49b31; --bxp-line: #d9d4c6; --bxp-zl: #7c5f16;
+  /* farba kresby boxu (boxy-produkt.js nastaví podľa farby z kroku 1; predvolená čierna s béžovým šitím) */
+  --bxp-lth: #2a2b30; --bxp-sp: #55585f; --bxp-edge: #0e0f11; --bxp-st: #dcc59c;
   margin: 0; color: var(--kr-ink); font-family: var(--kr-body); text-align: left;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
@@ -18485,8 +18530,15 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-press
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-line); background: #f7f5ef; }
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]:hover { border-color: var(--bxp-gold); background: #fff; }
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil { display: block; width: 100%; height: auto; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil-gr { stroke: #cfc6ae; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil { display: block; width: 100%; height: auto; overflow: visible; }
+/* kresba boxu: koža, obrys/lem, rúčka, šitie (premenné --bxp-* na .lcd1v-bxp-velk; vzory v <defs> v tom istom obale) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-l { fill: var(--bxp-lth); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-e { stroke: var(--bxp-edge); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-s { fill: var(--bxp-sp); stroke: var(--bxp-edge); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-ef { fill: var(--bxp-edge); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-t,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-qs { stroke: var(--bxp-st); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-qg { stroke: #000; stroke-opacity: .42; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-l {
   margin-top: 2px; font: 700 19px/1 var(--kr-disp); color: var(--kr-ink);
 }

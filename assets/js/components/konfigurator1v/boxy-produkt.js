@@ -5,10 +5,13 @@
 // Kroky farba → počet → veľkosť (živý DOM má počet → farba → veľkosť; poradie kariet mení len CSS typu, DOM ostáva):
 //   krok 1 Farba   živé vzorky (kroky.js) + náhľad materiálu „Diamond Line — <farba>“ (fotka podľa názvu farby,
 //                  hlavná fotka produktu sa nemení);
-//   krok 2 Počet   karty 1 / 2 / 3 boxy -> ctx.zapis("pocetKs", n) = živé tlačidlo „N ks“ (živý kód vyprázdni
+//   krok 2 Počet   dlaždice 1 / 2 / 3 boxy (návrh C „Fotka cez celú dlaždicu“, Michal 18. 10. 2026: reálna fotka cez
+//                  dlaždicu, text na tmavom prechode) -> ctx.zapis("pocetKs", n) = živé tlačidlo „N ks“ (živý kód vyprázdni
 //                  veľkosti nad počtom: select bez voľby -> kľúč v POST chýba ako pri starom vzhľade; ctx vráti
 //                  zvolený 1. box, ktorý živé „1 ks“ zmaže). Pri štarte 1 box (živý web má predvolené „2 ks“);
-//   krok 3 Veľkosť pre každý box v počte 4 karty so siluetou (šírka = cm z textu možnosti) -> ctx.zapis("box1|2|3", v);
+//   krok 3 Veľkosť pre každý box v počte 4 karty s kresbou boxu (návrh B „Realistický pohľad zhora“, Michal 18. 10. 2026:
+//                  prešívaný box s vekom, plochou rúčkou a štítkom vo farbe z kroku 1; šírka = cm z textu možnosti,
+//                  všetky karty v rovnakej mierke) -> ctx.zapis("box1|2|3", v);
 //                  ceny kariet z ctx.moznosti (1. box = cena variantu + príplatok, 2. a 3. box = príplatok).
 // Posledný krok „Pokračujte k súhrnu“ (bez košíka) zachytáva kroky.js. „Pokračujte ďalej“ na farbe a počte ide
 // v poradí návrhu (živý kód by išiel v poradí DOM: počet -> farba -> veľkosť).
@@ -21,8 +24,8 @@
 // CDN do vydania ju má stále); modul sa na tú cestu nespolieha — cenu prepočíta živý delegovaný handler tlačidiel
 // a ctx.zapis („change“ na vyprázdnených selectoch).
 // Hlavička: vizuálny názov „Luxusný box do kufra Diamond Line“ (živý H1 ostáva v DOM, CSS ho len vizuálne skryje).
-// Ponuka setu s autokobercami (banner C) je LEN v skrytom medzikroku za Veľkosťou (komplet-ponuka.js; Michal 17. 10. 2026:
-// „toto má byť v medzikroku, nie ďalší iný banner“).
+// Ponuka setu s autokobercami (banner C) je LEN v skrytom medzikroku za Počtom boxov (komplet-ponuka.js; Michal 17. 10.
+// 2026: „toto má byť v medzikroku, nie ďalší iný banner“, „toto sa má zobrazovať po kroku počet boxov“).
 // Nič natvrdo: ID parametrov, ceny ani hodnoty volieb. Nové prvky bez name. Text H1 sa nemení.
 import { nazovFarby } from "./kroky.js";
 
@@ -72,32 +75,95 @@ export function velkostZTextu(text) {
   return { v: m[1].toUpperCase(), sirka: Number(m[2].replace(",", ".")), rozmer: m[2] + " × " + m[3] + " × " + m[4] + " cm" };
 }
 
-/** Silueta boxu v mierke: šírka obdĺžnika = šírka boxu v cm (viewBox 76 × 44 ako návrh, B:3970–4011). */
-function silueta(sirka) {
-  const w = Math.max(12, Math.min(70, Number(sirka) || 40));
-  const x = Math.round(((76 - w) / 2) * 10) / 10;
-  const s = svg("svg", { class: "lcd1v-bxp-sil", viewBox: "0 0 76 44", "aria-hidden": "true", focusable: "false" });
-  s.appendChild(svg("path", { class: "lcd1v-bxp-sil-gr", d: "M2 40.5H74", fill: "none", "stroke-width": 1, "stroke-linecap": "round" }));
-  s.appendChild(svg("rect", { x: 32, y: 3.6, width: 12, height: 5.4, rx: 2.7, fill: "none", stroke: "#8f7020", "stroke-width": 1.5 }));
-  s.appendChild(svg("rect", { x, y: 9, width: w, height: 31, rx: 3.6, fill: "url(#lcd1v-bxp-g)", stroke: "#8f7020", "stroke-width": 1 }));
-  s.appendChild(svg("rect", { x, y: 9, width: w, height: 31, rx: 3.6, fill: "url(#lcd1v-bxp-q)" }));
-  s.appendChild(svg("rect", { x: x + 3, y: 13.5, width: w - 6, height: 5, rx: 2, fill: "#17130a", "fill-opacity": 0.16 }));
-  return s;
+// ---------------------------------------------------------------- kresba boxu (krok 3)
+// Návrh B „Realistický pohľad zhora“ (Michal 18. 10. 2026 namiesto zlatého kufríka: „toto nezodpovedá tomu, ako boxíky
+// v skutočnosti vyzerajú“; podľa fotiek boxprodukt-pocet-*.jpg): telo a veko prešité do kosoštvorcov (vypuklé
+// „vankúšiky“), veko prekrýva hornú časť prednej steny a končí zaobleným lemom so šitím, plochý pás rúčky na veku,
+// kovový štítok, tieň na podlahe. Jednotky = cm (šírka boxu z textu možnosti, výška 30), všetky karty v rovnakej
+// mierke (viewBox 72 cm široký). Kosoštvorec 8,25 × 5,8 cm (o trochu väčší než skutočný, aby sa na telefóne
+// neslieval). Farby kože, šitia a lemu = CSS premenné --bxp-* na .lcd1v-bxp-velk (obnov() podľa farby z kroku 1,
+// typy/boxy.js farbyKresby); vzory sú v jednom <defs> vnútri .lcd1v-bxp-velk, aby premenné zdedili.
+const QW = 8.25, QH = 5.8;
+const MIERKA = 1.75; // px na cm na karte (telefón 2 karty v rade ~2, PC 4 v rade ~1,5) — hrúbky čiar sa rátajú v px
+const IDK = "lcd1v-bxp-";
+const f2 = (n) => Math.round(n * 100) / 100;
+const QD = "M" + f2(QW / 2) + " 0L" + QW + " " + f2(QH / 2) + "L" + f2(QW / 2) + " " + QH + "L0 " + f2(QH / 2) + "Z";
+
+/** Reťazec SVG -> prvok (parser HTML vloží <svg> do správneho menného priestoru). */
+function zoSvg(retazec) {
+  const t = document.createElement("template");
+  t.innerHTML = retazec;
+  return t.content.firstElementChild;
 }
-/** Prechod a mriežka siluet (jeden raz na stránke; nie display:none, inak by sa výplň nevykreslila). */
-function definicieSiluet() {
-  const s = svg("svg", { class: "lcd1v-bxp-defs", width: 0, height: 0, "aria-hidden": "true", focusable: "false" });
-  const defs = svg("defs", {});
-  const g = svg("linearGradient", { id: "lcd1v-bxp-g", x1: 0, y1: 0, x2: 0.38, y2: 1 });
-  g.appendChild(svg("stop", { offset: 0, "stop-color": "#fbf1d2" }));
-  g.appendChild(svg("stop", { offset: 0.45, "stop-color": "#e4c46f" }));
-  g.appendChild(svg("stop", { offset: 1, "stop-color": "#ab8120" }));
-  const p = svg("pattern", { id: "lcd1v-bxp-q", width: 5.2, height: 5.2, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
-  p.appendChild(svg("path", { d: "M0 0V5.2M0 0H5.2", fill: "none", stroke: "#8a6a17", "stroke-opacity": 0.5, "stroke-width": 0.5 }));
-  defs.appendChild(g);
-  defs.appendChild(p);
-  s.appendChild(defs);
-  return s;
+/** Prešívanie: vypuklé vankúšiky, ryha a šitie (farba šitia = --bxp-st cez triedu). */
+function vzorKresby(id, x, y, tf) {
+  const s = MIERKA;
+  const e = (cx, cy) => '<ellipse cx="' + f2(cx) + '" cy="' + f2(cy) + '" rx="' + f2(QW * 0.42) + '" ry="' + f2(QH * 0.42) + '" fill="url(#' + IDK + 'puff)"/>';
+  return '<pattern id="' + IDK + id + '" patternUnits="userSpaceOnUse" x="' + f2(x) + '" y="' + f2(y) + '" width="' + QW + '" height="' + QH + '"' + (tf ? ' patternTransform="' + tf + '"' : "") + ">"
+    + e(QW / 2, QH / 2) + e(0, 0) + e(QW, 0) + e(0, QH) + e(QW, QH)
+    + '<path d="' + QD + '" class="lcd1v-bxp-k-qg" fill="none" stroke-width="' + f2(2 / s) + '"/>'
+    + '<path d="' + QD + '" class="lcd1v-bxp-k-qs" fill="none" stroke-width="' + f2(0.95 / s) + '" stroke-opacity=".92"/></pattern>';
+}
+function prechod(id, stopy) {
+  return '<linearGradient id="' + IDK + id + '" x1="0" y1="0" x2="0" y2="1">'
+    + stopy.map((st) => '<stop offset="' + st[0] + '" stop-color="' + st[1] + '" stop-opacity="' + st[2] + '"/>').join("") + "</linearGradient>";
+}
+/** Prechody a vzory kresby (jeden raz na stránke; nie display:none, inak by sa výplň nevykreslila). */
+function definicieKresby() {
+  return zoSvg('<svg class="lcd1v-bxp-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>'
+    + '<radialGradient id="' + IDK + 'puff"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>'
+    + '<radialGradient id="' + IDK + 'floor"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset=".6" stop-color="#000" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>'
+    + prechod("body", [[0, "#fff", 0.04], [0.5, "#000", 0], [1, "#000", 0.28]])
+    + prechod("flap", [[0, "#fff", 0.26], [0.08, "#fff", 0.07], [0.55, "#000", 0], [1, "#000", 0.14]])
+    + prechod("top", [[0, "#000", 0.16], [1, "#fff", 0.13]])
+    + prechod("shade", [[0, "#000", 0.5], [1, "#000", 0]])
+    + '<linearGradient id="' + IDK + 'metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfbf9"/><stop offset=".45" stop-color="#b8b8b4"/><stop offset=".7" stop-color="#ececea"/><stop offset="1" stop-color="#8d8d89"/></linearGradient>'
+    + vzorKresby("qb", 36 - QW / 2, 16.2) + vzorKresby("qf", 36, 15.4) + vzorKresby("qt", 36 - QW / 2, 0, "translate(0 7.6) scale(1 .55)")
+    + "</defs></svg>");
+}
+/** Obdĺžnik so zaoblením hore (rt) a dole (rb). */
+function rr(x0, y0, x1, y1, rt, rb) {
+  return "M" + f2(x0) + " " + f2(y0 + rt) + "Q" + f2(x0) + " " + f2(y0) + " " + f2(x0 + rt) + " " + f2(y0) + "H" + f2(x1 - rt) + "Q" + f2(x1) + " " + f2(y0) + " " + f2(x1) + " " + f2(y0 + rt)
+    + "V" + f2(y1 - rb) + "Q" + f2(x1) + " " + f2(y1) + " " + f2(x1 - rb) + " " + f2(y1) + "H" + f2(x0 + rb) + "Q" + f2(x0) + " " + f2(y1) + " " + f2(x0) + " " + f2(y1 - rb) + "Z";
+}
+/** Otvorené „U“ (šitie lemu veka). */
+function openU(x0, ys, x1, y1, r) {
+  return "M" + f2(x0) + " " + f2(ys) + "V" + f2(y1 - r) + "Q" + f2(x0) + " " + f2(y1) + " " + f2(x0 + r) + " " + f2(y1) + "H" + f2(x1 - r) + "Q" + f2(x1) + " " + f2(y1) + " " + f2(x1) + " " + f2(y1 - r) + "V" + f2(ys);
+}
+/** Vrch veka: vpredu široký ako veko, vzadu mierne užší, zaoblené rohy. */
+function vrchVeka(fx0, fx1, yb, yf, ins, r) {
+  return "M" + f2(fx0) + " " + f2(yf + 0.8) + "V" + f2(yf - 0.3) + "Q" + f2(fx0 + 0.15) + " " + f2(yb) + " " + f2(fx0 + ins + r) + " " + f2(yb)
+    + "H" + f2(fx1 - ins - r) + "Q" + f2(fx1 - 0.15) + " " + f2(yb) + " " + f2(fx1) + " " + f2(yf - 0.3) + "V" + f2(yf + 0.8) + "Z";
+}
+/** Plochá rúčka položená na veku: tieň, pás, dve prišité koncovky. */
+function rucka(cx, y, h) {
+  const sw = f2(0.9 / MIERKA);
+  return '<rect x="' + f2(cx - 7) + '" y="' + f2(y + 0.45) + '" width="14" height="' + f2(h) + '" rx="' + f2(h / 2) + '" fill="#000" fill-opacity=".35"/>'
+    + '<rect x="' + f2(cx - 6.8) + '" y="' + f2(y) + '" width="13.6" height="' + f2(h) + '" rx="' + f2(h / 2) + '" class="lcd1v-bxp-k-s" stroke-width="' + sw + '"/>'
+    + '<path d="M' + f2(cx - 5.6) + " " + f2(y + h * 0.3) + "H" + f2(cx + 5.6) + '" stroke="#fff" stroke-opacity=".28" stroke-width="' + sw + '" stroke-linecap="round"/>'
+    + '<rect x="' + f2(cx - 7.6) + '" y="' + f2(y - 0.12) + '" width="1.7" height="' + f2(h + 0.24) + '" rx=".4" class="lcd1v-bxp-k-ef"/>'
+    + '<rect x="' + f2(cx + 5.9) + '" y="' + f2(y - 0.12) + '" width="1.7" height="' + f2(h + 0.24) + '" rx=".4" class="lcd1v-bxp-k-ef"/>';
+}
+/** Kresba boxu šírky `sirka` cm (výška 30 cm) v jednotnej mierke kariet. */
+function kresba(sirka) {
+  const s = MIERKA;
+  const w = Math.max(12, Math.min(70, Number(sirka) || 40));
+  const cx = 36, x0 = cx - w / 2, x1 = cx + w / 2, yb = 7.6, yf = 15, o = 0.35, fx0 = x0 - o, fx1 = x1 + o, fy1 = 33, yB = 45, di = 1.05;
+  const telo = rr(x0, yf + 1, x1, yB, 0.01, 1.3), veko = rr(fx0, yf - 0.3, fx1, fy1, 1.1, 1.7), vrch = vrchVeka(fx0, fx1, yb, yf, 2.2, 1.4);
+  const u = (id) => "url(#" + IDK + id + ")";
+  return zoSvg('<svg class="lcd1v-bxp-sil" viewBox="0 5.8 72 41.6" aria-hidden="true" focusable="false">'
+    + '<ellipse cx="36" cy="' + f2(yB + 0.15) + '" rx="' + f2(w / 2 + 3.2) + '" ry="1.9" fill="' + u("floor") + '"/>'
+    + '<path d="' + telo + '" class="lcd1v-bxp-k-l"/><path d="' + telo + '" fill="' + u("qb") + '"/>'
+    + '<path d="' + telo + '" fill="' + u("body") + '" class="lcd1v-bxp-k-e" stroke-width="' + f2(1.1 / s) + '"/>'
+    + '<rect x="' + f2(x0) + '" y="' + f2(fy1 - 0.2) + '" width="' + f2(w) + '" height="2.8" fill="' + u("shade") + '"/>'
+    + '<path d="' + vrch + '" class="lcd1v-bxp-k-l"/><path d="' + vrch + '" fill="' + u("qt") + '"/>'
+    + '<path d="' + vrch + '" fill="' + u("top") + '" class="lcd1v-bxp-k-e" stroke-width="' + f2(1.1 / s) + '"/>'
+    + rucka(cx, 10.3, 2)
+    + '<path d="' + veko + '" class="lcd1v-bxp-k-l"/><path d="' + veko + '" fill="' + u("qf") + '"/>'
+    + '<path d="' + veko + '" fill="' + u("flap") + '" class="lcd1v-bxp-k-e" stroke-width="' + f2(Math.max(1.3 / s, 0.42)) + '"/>'
+    + '<path d="' + openU(fx0 + di, yf + 1.6, fx1 - di, fy1 - di, 1.1) + '" class="lcd1v-bxp-k-t" fill="none" stroke-width="' + f2(0.95 / s) + '" stroke-dasharray="' + f2(2.3 / s) + " " + f2(1.5 / s) + '" stroke-linecap="round"/>'
+    + '<rect x="' + f2(cx - 3.1) + '" y="' + f2(fy1 - 3.6) + '" width="6.2" height="1.55" rx=".75" fill="' + u("metal") + '" stroke="#000" stroke-opacity=".4" stroke-width="' + f2(0.6 / s) + '"/>'
+    + "</svg>");
 }
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
@@ -140,35 +206,42 @@ export function init(ctx) {
   const minCena = (kluc) => ctx.moznosti(kluc).reduce((m, o) => (m == null || o.cena < m ? o.cena : m), null) || 0;
 
   try {
-    // ---------------------------------------------------------------- krok 2: karty počtu
+    // ---------------------------------------------------------------- krok 2: dlaždice počtu (návrh C, Michal 18. 10. 2026)
+    // reálna fotka cez pravú časť dlaždice, vľavo tmavý prechod s názvom, vetou a cenou „od“ (+ „2 × od 197 €“, keď
+    // je každý box od rovnakej sumy); vybraná dlaždica = zlatý rám a zelená fajka
     const kartyPoctu = [];
-    const volby = el("div", { class: "lcd1v-kb__volby", role: "group", "aria-label": T.skupinaPocet || null });
+    const volby = el("div", { class: "lcd1v-bxp-ksz", role: "group", "aria-label": T.skupinaPocet || null });
     for (let n = 1; n <= maxKs; n++) {
-      const d = (T.pocet && T.pocet[n]) || { nm: n + "× box", po: "", alt: "" };
+      const d = (T.pocet && T.pocet[n]) || { nm: n + "× box", ben: "", alt: "" };
       const src = ctx.obrazokVzoru("boxprodukt-pocet-" + n);
-      const cn = el("span", { class: "lcd1v-bxp-od" });
-      const b = el("button", { type: "button", class: "lcd1v-kb__karta lcd1v-bxp-ks", "data-ks": n, "aria-pressed": "false" }, [
-        src ? el("span", { class: "lcd1v-kb__fot" }, [el("img", { src, alt: d.alt || "", loading: "lazy", decoding: "async", width: 480, height: 360 })]) : null,
-        el("span", { class: "lcd1v-kb__tx" }, [el("span", { class: "lcd1v-kb__nm", text: d.nm }), cn, d.po ? el("span", { class: "lcd1v-kb__po", text: d.po }) : null]),
+      const cn = el("b", { class: "lcd1v-bxp-od" });
+      const po = el("small", { class: "lcd1v-bxp-ks-po" });
+      const b = el("button", { type: "button", class: "lcd1v-bxp-ks", "data-ks": n, "aria-pressed": "false" }, [
+        src ? el("img", { class: "lcd1v-bxp-ks-img", src, alt: d.alt || "", loading: "lazy", decoding: "async", width: 480, height: 360 }) : null,
+        el("span", { class: "lcd1v-bxp-ks-in" }, [
+          el("span", { class: "lcd1v-bxp-ks-nm", text: d.nm }),
+          d.ben ? el("span", { class: "lcd1v-bxp-ks-ben", text: d.ben }) : null,
+          el("span", { class: "lcd1v-bxp-ks-c" }, [cn, po]),
+        ]),
       ]);
       b.addEventListener("click", function (e) {
         e.preventDefault();
         vyberPocet(n);
       });
       volby.appendChild(b);
-      kartyPoctu.push({ n, b, cn });
+      kartyPoctu.push({ n, b, cn, po });
     }
-    const pocty = el("div", { class: "lcd1v-kb lcd1v-bxp-pocty", "data-ks": "" }, [volby]);
+    const pocty = el("div", { class: "lcd1v-bxp-pocty", "data-ks": "" }, [volby]);
     vloz(kPocet, pocty, kPocet.querySelector(":scope > .next-step-button"));
 
-    // ---------------------------------------------------------------- krok 3: veľkosti so siluetou
-    const velk = el("div", { class: "lcd1v-bxp-velk" }, [definicieSiluet()]);
+    // ---------------------------------------------------------------- krok 3: veľkosti s kresbou boxu (návrh B, 18. 10. 2026)
+    const velk = el("div", { class: "lcd1v-bxp-velk" }, [definicieKresby()]);
     const skupiny = boxy.slice(0, maxKs).map(function (kluc, i) {
       const karty = ctx.moznosti(kluc).map(function (o) {
         const v = velkostZTextu(o.text);
         const cn = el("span", { class: "lcd1v-bxp-vk-c" });
         const b = el("button", { type: "button", class: "lcd1v-bxp-vk", "data-hodnota": o.hodnota, "aria-pressed": "false", "aria-label": (T.box ? T.box(i + 1) : i + 1 + ". box") + ": " + v.v + (v.rozmer ? ", " + v.rozmer : "") }, [
-          silueta(v.sirka),
+          kresba(v.sirka),
           el("span", { class: "lcd1v-bxp-vk-l", text: v.v }),
           v.rozmer ? el("span", { class: "lcd1v-bxp-vk-d", text: v.rozmer }) : null,
           cn,
@@ -208,11 +281,17 @@ export function init(ctx) {
       const pocetOtvoreny = kPocet.classList.contains("active");
       if (pocetOtvoreny) pocetVidel = true;
       if (!potvrdeny && ((pocetVidel && !pocetOtvoreny) || boxy.some((k) => zvolene(k)))) potvrdeny = true;
-      // karty počtu: aktívna + „od“ (1. box variant + najlacnejší príplatok, každý ďalší + najlacnejší príplatok)
+      // karty počtu: aktívna + „od“ (1. box variant + najlacnejší príplatok, každý ďalší + najlacnejší príplatok);
+      // „2 × od 197 €“ len keď je každý box od rovnakej sumy (inak by násobok klamal)
       let od = zaklad;
+      const naBox = [];
       kartyPoctu.forEach(function (k) {
+        const jeden = (k.n === 1 ? zaklad : 0) + minCena(boxy[k.n - 1]);
+        naBox.push(jeden);
         od += minCena(boxy[k.n - 1]);
         nastavText(k.cn, (T.od ? T.od + " " : "") + ctx.formatCena(od));
+        const rovnake = k.n > 1 && jeden > 0 && naBox.every((x) => x === naBox[0]);
+        nastavText(k.po, rovnake && T.krat ? T.krat(k.n, ctx.formatCena(naBox[0])) : "");
         nastavAttr(k.b, "aria-pressed", k.n === n ? "true" : "false");
       });
       nastavAttr(pocty, "data-ks", n);
@@ -241,10 +320,29 @@ export function init(ctx) {
         const im = a.querySelector("img");
         const src = ctx.obrazokVzoru("boxprodukt-farba-" + slug(nazov)) || (im && im.getAttribute("src")) || "";
         nastavText(nahladNm, (T.nahlad ? T.nahlad + " — " : "") + nazov);
+        farbaKresby(slug(nazov));
         if (src && nahladImg.getAttribute("src") !== src) nahladImg.setAttribute("src", src);
         nahladImg.alt = nazov;
         if (nahlad.hidden !== !src) nahlad.hidden = !src;
-      } else if (!nahlad.hidden) nahlad.hidden = true;
+      } else {
+        if (!nahlad.hidden) nahlad.hidden = true;
+        farbaKresby(null);
+      }
+    }
+    // farba kresby boxu v kroku 3 podľa farby z kroku 1 (typy/boxy.js farbyKresby, kľúč = názov farby bez diakritiky);
+    // bez farby / neznáma farba = predvolená (čierna, béžové šitie)
+    let farbaK = "";
+    function farbaKresby(kluc) {
+      const F = T.farbyKresby || {};
+      const k = kluc && F[kluc] ? kluc : T.farbaKresbyPredvolena;
+      const c = F[k];
+      if (!c || k === farbaK) return;
+      farbaK = k;
+      velk.style.setProperty("--bxp-lth", c.koza);
+      velk.style.setProperty("--bxp-sp", c.rucka);
+      velk.style.setProperty("--bxp-edge", c.lem);
+      velk.style.setProperty("--bxp-st", c.sitie);
+      nastavAttr(velk, "data-lcd1v-farba", k);
     }
 
     // ---------------------------------------------------------------- voľby (len ctx.zapis)

@@ -24,7 +24,7 @@ export const TYP = {
           nm: "Veľkosť boxov",
           ti: "Prosím, vyberte si veľkosť boxu",
           vy: "Vyberte veľkosť",
-          pod: "Dva rozmery (32 a 30 cm) sú pri všetkých veľkostiach rovnaké, líši sa len šírka. Silueta na každej karte je v skutočnom pomere.",
+          pod: "Dva rozmery (32 a 30 cm) sú pri všetkých veľkostiach rovnaké, líši sa len šírka. Kresba boxu na každej karte je v skutočnom pomere a vo farbe, ktorú ste si vybrali.",
           chyba: "Vyberte, prosím, veľkosť každého boxu.",
         },
       },
@@ -44,12 +44,14 @@ export const TYP = {
       rad: "Diamond Line",
       // krok 1: náhľad farby „Diamond Line — <farba>“
       nahlad: "Diamond Line",
-      // krok 2: karty počtu (fotka + názov + podnázov + „od“ cena zo živých príplatkov)
+      // krok 2: dlaždice počtu (návrh C „Fotka cez celú dlaždicu“, Michal 18. 10. 2026): názov, veta o využití, cena „od“
+      // zo živých príplatkov a pod ňou „2 × od 197 €“ (len keď je každý box od rovnakej sumy)
       pocet: {
-        1: { nm: "1× box", po: "Praktický organizér", alt: "Jeden box v kufri", vy: "1 box" },
-        2: { nm: "2× box", po: "Dvojitá kapacita", alt: "Dva boxy v kufri", vy: "2 boxy" },
-        3: { nm: "3× box", po: "Celý kufor v poriadku", alt: "Tri boxy v kufri", vy: "3 boxy" },
+        1: { nm: "1 box", ben: "Na nákup a drobnosti, ktoré by sa inak v kufri kotúľali.", alt: "Jeden box v kufri", vy: "1 box" },
+        2: { nm: "2 boxy", ben: "Dva vedľa seba — miesto aj na väčší nákup.", alt: "Dva boxy v kufri", vy: "2 boxy" },
+        3: { nm: "3 boxy", ben: "Celý kufor rozdelený, každá vec má svoje miesto.", alt: "Tri boxy v kufri", vy: "3 boxy" },
       },
+      krat: (n, cena) => n + " × od " + cena,
       skupinaPocet: "Počet boxov",
       od: "od",
       // krok 3: veľkosti
@@ -57,6 +59,20 @@ export const TYP = {
       vyberteVelkost: "vyberte veľkosť",
       tipB: "Tip:",
       tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
+      // farby kresby boxu v kroku 3 podľa farby z kroku 1 (kľúč = názov farby bez diakritiky, ako fotky boxprodukt-farba-*;
+      // odtiene odčítané z fotiek vzoriek): koža, rúčka, lem/obrys, šitie
+      farbyKresby: {
+        "cierna-cervene-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#d63a46" },
+        "cierna-modre-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#3f74d6" },
+        "cierna-cierne-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#5a5d65" },
+        "cierna-bezove-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#dcc59c" },
+        "cierna-sive-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#a9adb5" },
+        "cierna-biele-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#f2f2ef" },
+        "hneda-kava": { koza: "#4b3934", rucka: "#68534b", lem: "#22180f", sitie: "#dccdbf" },
+        "vinovo-cervena": { koza: "#922c3d", rucka: "#ad4255", lem: "#4a1019", sitie: "#f0dcdf" },
+        "seda": { koza: "#cbc4c4", rucka: "#b3abac", lem: "#857c7e", sitie: "#f7f4f3" },
+      },
+      farbaKresbyPredvolena: "cierna-bezove-sitie",
     },
     // Ponuka setu ako skrytá karta bez čísla za kartou Počet boxov (komplet-ponuka.js; Michal 17. 10. 2026 večer: „toto
     // sa má zobrazovať po kroku počet boxov“). Len pri 1 alebo 2 boxoch (set má najviac 2). d = { pocet, od (veľkosti ešte
