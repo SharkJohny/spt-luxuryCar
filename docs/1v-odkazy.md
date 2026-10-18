@@ -5,7 +5,7 @@ Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.
 
 Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medzi produktmi ho drží). `?novy=0` vzhľad vypne.
 
-**sha vydania:** `d65c8fd` (naživo od 17. 10. 2026 23:40; box: medzikrok ponuky setu hneď po Počte boxov, bez veľkosti „už od“; predtým `7b776bb` = banner setu C len v skrytom medzikroku, `a8076f0`, `aee13cf`, `9afd18f`, `eb75c93`, `ac0cbf4`, `55c44a9`, `6deb86d`, `507cfff`, `59afeef`, `0d90539`, `ad9dca8`, `25af280`, predtým `3d779e9`, `e645d2c`, `adb9eaa`, `145a9f5`, `d582a33`, `4be992b`, `2e02539`). Nové: ponuka druhej vrstvy na 598/610/613 po výbere farby (Áno → dvojvrstvové so zachovaným výberom).
+**sha vydania:** `ad26f11` (naživo od 18. 10. 2026; box: dlaždice počtu = návrh C, kresba boxu v kroku 3 = návrh B vo farbe z kroku 1; predtým `ebb8dd8` = kamióny 640 za ?novy=1, `d65c8fd` = box: medzikrok ponuky setu hneď po Počte boxov, bez veľkosti „už od“; predtým `7b776bb` = banner setu C len v skrytom medzikroku, `a8076f0`, `aee13cf`, `9afd18f`, `eb75c93`, `ac0cbf4`, `55c44a9`, `6deb86d`, `507cfff`, `59afeef`, `0d90539`, `ad9dca8`, `25af280`, predtým `3d779e9`, `e645d2c`, `adb9eaa`, `145a9f5`, `d582a33`, `4be992b`, `2e02539`). Nové: ponuka druhej vrstvy na 598/610/613 po výbere farby (Áno → dvojvrstvové so zachovaným výberom).
 
 ---
 
