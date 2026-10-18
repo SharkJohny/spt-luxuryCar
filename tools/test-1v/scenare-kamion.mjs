@@ -120,15 +120,23 @@ const STYLY = `(function () {
 })()`;
 const ZELENA = "rgb(31, 122, 82)", ZLATA = "rgb(196, 155, 49)";
 /** Riadky cien (Samostatne / Výhoda v sete / V sete): každý na jednom riadku — štítok a suma vedľa seba, nič zalomené
- *  (Michal 18. 10. 2026 v noci, telefón 360–480 px ako karty rohože a boxov). */
+ *  (Michal 18. 10. 2026 v noci, telefón 360–480 px ako karty rohože a boxov). Blok cien ide cez celú šírku obsahu rámika
+ *  (ponuka tapacíru, nášivka na dvere) aj textu dlaždice 5.1 ako .lcd1v-kb__ucet na karte rohože: pravý okraj bloku = pravý
+ *  okraj obsahu rodiča ± 1 px (revízia 19. 10. 2026: max-width 340 px nechal sumy v polovici rámika na tablete a PC). */
 const RIADKY_CIEN = `(function () {
-  var r = document.querySelectorAll("#lcd1v-kamion .k-ucet__r"), zle = [];
+  var r = document.querySelectorAll("#lcd1v-kamion .k-ucet__r"), zle = [], okraj = [];
   Array.prototype.forEach.call(r, function (x) {
     var n = x.querySelector(".k-ucet__rn"), h = x.querySelector(".k-ucet__rh"); if (!n || !h || !x.getClientRects().length) return;
     var a = n.getBoundingClientRect(), b = h.getBoundingClientRect();
     if (n.getClientRects().length > 1 || h.getClientRects().length > 1 || Math.abs(a.bottom - b.bottom) > 6 || b.left < a.right) zle.push(n.textContent + " | " + h.textContent);
   });
-  return { n: r.length, zle: zle };
+  Array.prototype.forEach.call(document.querySelectorAll("#lcd1v-kamion .k-ucet"), function (u) {
+    if (!u.getClientRects().length) return;
+    var p = u.parentElement, pr = p.getBoundingClientRect(), pc = getComputedStyle(p), ur = u.getBoundingClientRect();
+    var prav = pr.right - parseFloat(pc.borderRightWidth) - parseFloat(pc.paddingRight);
+    if (Math.abs(ur.right - prav) > 1) okraj.push(p.className + ": blok " + Math.round(ur.right) + " ≠ obsah " + Math.round(prav));
+  });
+  return { n: r.length, zle: zle, okraj: okraj };
 })()`;
 /** Prepínač-pilulka Kamión / Dodávka: zvolená ZLATÁ s tmavým písmom (Michal 18. 10. 2026 v noci, ako volant / miesta / dvere). */
 const SEGMENT = `(function () {
@@ -240,7 +248,7 @@ export const SCENARE = {
         "ceny nie sú v riadkoch ako rohož a box (Výhoda zelená tučná, V SETE verzálkami, cena 800 Exo 2, bez cenovky a prečiarknutej): " +
         JSON.stringify([st5a.vyhoda, st5a.vyhodaW, st5a.sumL, st5a.sumLT, st5a.sumC, st5a.sumCW, st5a.sumCF, st5a.stara]));
       const rc5 = await s.t.ev(RIADKY_CIEN);
-      j.over(rc5.n === 9 && !rc5.zle.length, "krok 5.1: riadky cien (3 × 3) zalomené alebo chýbajú: " + JSON.stringify(rc5));
+      j.over(rc5.n === 9 && !rc5.zle.length && !rc5.okraj.length, "krok 5.1: riadky cien (3 × 3) zalomené, chýbajú alebo nesiahajú po pravý okraj textu: " + JSON.stringify(rc5));
       j.over(parseFloat(st5a.ot) >= 20, "otázka „Prosím, vyberte si …“ nie je veľká (≥ 20 px, výrazne nad názvami dlaždíc 17 px): " + st5a.ot);
       j.over(st5a.dlRamy.every((x) => x !== ZELENA), "pred výberom je niektorá dlaždica zelená: " + JSON.stringify(st5a.dlRamy));
       await overPismo(s, j, "krok 5.1 kam");
@@ -285,7 +293,7 @@ export const SCENARE = {
       const k6 = await cakaj(s, j, KROK6, (r) => r.nw > 0);
       j.over(k6.nw > 0 && Math.abs(k6.w / k6.h - k6.nw / k6.nh) < 0.02 && Math.abs(k6.w - k6.ram) <= 2, "fotka dverí nie je celá (bez orezania) cez šírku karty: " + JSON.stringify(k6));
       const rc6 = await s.t.ev(RIADKY_CIEN);
-      j.over(rc6.n === 3 && !rc6.zle.length, "ponuka tapacíru: riadky cien zalomené alebo chýbajú: " + JSON.stringify(rc6));
+      j.over(rc6.n === 3 && !rc6.zle.length && !rc6.okraj.length, "ponuka tapacíru: riadky cien zalomené, chýbajú alebo nesiahajú po pravý okraj rámika: " + JSON.stringify(rc6));
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ponuka");
       await rob(s, j, [["klik", a_("tap", "ano")]]);
       const k6a = await s.t.ev(KROK6);
@@ -301,7 +309,7 @@ export const SCENARE = {
       await rob(s, j, [["klik", a_("zmenit", "mat")]]);
       await rob(s, j, [["klik", a_("tapRovnake")]]);
       const rcd = await s.t.ev(RIADKY_CIEN);
-      j.over(rcd.n === 3 && !rcd.zle.length, "nášivka na dvere: riadky cien zalomené alebo chýbajú: " + JSON.stringify(rcd));
+      j.over(rcd.n === 3 && !rcd.zle.length && !rcd.okraj.length, "nášivka na dvere: riadky cien zalomené, chýbajú alebo nesiahajú po pravý okraj rámika: " + JSON.stringify(rcd));
       await snimkaPrvku(s, a, j, ".an", "kamion-krok6-nasivka-dvere");
       const st6 = await s.t.ev(STYLY);
       j.over(/rgb\(29, 107, 74\)/.test(st6.ano || "") && /rgb\(226, 190, 92\)/.test(st6.nie || ""), "nášivka na tapacír: Áno nie je zelené / Nie zlaté: " + st6.ano + " | " + st6.nie);

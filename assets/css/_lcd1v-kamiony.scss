@@ -358,7 +358,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__tx { display: grid; g
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__txt { display: block; min-width: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-top: 1px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad::after { content: "\2713"; color: #fff; font: 800 14px/1 var(--k-body); opacity: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__txt .k-ucet { margin-top: 10px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { display: block; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po { display: block; margin-top: 3px; color: var(--k-mute); font: 400 14px/1.4 var(--k-body); }
 /* ★ všetky tri: zlatý pás „★ Najobľúbenejšie ★“ cez celú šírku dlaždice (ako odporúčaná karta rohože a boxu do kufra) */
@@ -525,7 +524,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene.is-on, body.lcd
 /* ===== Ceny v riadkoch ako rohož a box do kufra (Michal 18. 10. 2026 v noci; vzor kufor-boxy.js riadky() a .lcd1v-kb__ucet
    v _lcd1v-kufor-boxy.scss): „Samostatne 70 €“ / „Výhoda v sete − 11 €“ (zelená, tučná) / čiara / „V SETE + 59 €“ (štítok
    verzálkami 12 px, cena 800 20 px Exo 2). Samostatne a Výhoda len spolu (ui.js cenyRiadky). Dlaždice nášiviek 5.1, ponuka
-   tapacíru a nášivka na dvere; na telefóne 360–480 px sa riadok nezalomí (kontrola RIADKY_CIEN v scenare-kamion.mjs). ===== */
+   tapacíru a nášivka na dvere; na telefóne 360–480 px sa riadok nezalomí. Blok ide cez celú šírku textu dlaždice / obsahu
+   rámika ako na karte rohože, sumy sedia s pravým okrajom (revízia 19. 10.; obe kontroluje RIADKY_CIEN v scenare-kamion.mjs). ===== */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet { display: block; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #ddd5c2; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 10px; row-gap: 0; padding: 2px 0; font: 400 15px/1.45 var(--k-body); color: var(--k-mute); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__rn { color: var(--k-hneda); white-space: nowrap; }
@@ -536,8 +536,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum .k-ucet__rn {
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum .k-ucet__rh { font: 800 20px/1.45 var(--k-disp); color: #2b261a; }
 /* „V sete“ je jediný riadok (samostatná cena nie je vyššia) -> bez čiary navrchu */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum:first-child { margin-top: 0; border-top: 0; }
-/* ponuka tapacíru a nášivky na dvere (rámik cez celú šírku stĺpca): riadky úzke ako na karte rohože, nie roztiahnuté na PC */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .k-ucet { max-width: 340px; }
 @media (max-width: 359px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r { font-size: 14.5px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum .k-ucet__rh { font-size: 18px; }
