@@ -249,9 +249,10 @@ export async function kontroly(t) {
   const fp = vypisNalezy(pis), vl = (x) => !x.z, sp = (x) => x.z;
   ok(pis.n > 40 && !pis.zle.filter(vl).length && !pis.riadky.filter(vl).length,
     `písmo obsahu kamiónov podľa mierky (${sir} px, ${pis.n} textov)` + (pis.zle.filter(vl).length || pis.riadky.filter(vl).length ? ": " + fp(pis.zle.filter(vl).concat(pis.riadky.filter(vl))) : ""));
-  ok(!pis.zlom.filter(vl).length && !pis.pretek.filter(vl).length && !pis.strana, "obsah kamiónov: žiadne slovo zalomené uprostred / pretečené, bez vodorovného posuvníka" +
-    (pis.zlom.length || pis.pretek.length ? ": " + fp(pis.zlom.concat(pis.pretek)) : ""));
-  const spol = pis.zle.filter(sp).concat(pis.riadky.filter(sp));
+  ok(!pis.zlom.filter(vl).length && !pis.pretek.filter(vl).length && !pis.orez.filter(vl).length && !pis.strana,
+    "obsah kamiónov: žiadne slovo zalomené uprostred / pretečené / čiastočne orezané, bez vodorovného posuvníka" +
+    (pis.zlom.filter(vl).length || pis.pretek.filter(vl).length || pis.orez.filter(vl).length ? ": " + fp(pis.zlom.concat(pis.pretek, pis.orez).filter(vl)) : ""));
+  const spol = pis.zle.filter(sp).concat(pis.riadky.filter(sp), pis.orez.filter(sp));
   ok(!spol.length, "písmo spoločných častí pod kamiónmi (spoločné partialy)" + (spol.length ? ": " + fp(spol) : ""), true);
 
   // 12) „Vybrať materiál“ (data-p1v-kamion-krok="material") otvorí krok Materiál; bez vozidla krok 1 s červeným rámom (ako ART)

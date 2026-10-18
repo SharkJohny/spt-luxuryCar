@@ -395,7 +395,8 @@ export function vytvorUi(o) {
     const nie = esc(T.hlavicka.kompatibilita.nie_je_v_zozname)
       .replace("+421 903 660 720", '<a href="tel:+421903660720">+421 903 660 720</a>')
       .replace("info@luxurycardesign.sk", '<a href="mailto:info@luxurycardesign.sk">info@luxurycardesign.sk</a>');
-    html += '<p class="k-pozn">' + esc(t.poznamka) + "<br>" + nie + "</p>";
+    // číslo ostane pri slove („7 modelov“ sa nerozdelí na konci riadka); telefón celý drží CSS (white-space: nowrap)
+    html += '<p class="k-pozn">' + esc(t.poznamka).replace(/(\d) /g, "$1 ") + "<br>" + nie + "</p>";
     return html;
   }
 

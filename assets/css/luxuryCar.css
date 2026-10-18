@@ -19171,7 +19171,11 @@ body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista button.lcd1v-lista__kos[disabl
 
 /* ===== Kroky 5 (nášivky) a 6 (tapacír) — návrh C 18. 10. 2026 + otázky po jednej (Michal 18. 10. 2026 večer; ui.js blokNasivky / blokTapacir) ===== */
 /* krok 5: 4 výlučné voľby — dlaždice s fotkou kabíny (výrez cez CSS: --z zväčšenie, --fx/--fy stred výrezu), krúžky na nášivkách */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+/* rozloženie fotka | text len keď je ZOZNAM dlaždíc dosť široký (kontajner kn-dv ≥ 600 px: tablet 768–991 px, PC 1920 px).
+   Pri užšom stĺpci konfigurátora (PC 992–1919 px: 388–491 px) by fotka mala len 46 % šírky a bola by vyššia ako široká:
+   štítky Spolujazdec / Stredový koberec by orezal okraj fotky (revízia 18. 10. 2026) -> fotka nad textom ako na telefóne.
+   Prehliadač bez dotazov na kontajner ostane pri fotke nad textom. */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; container: kn-dv / inline-size; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .08); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
 @media (hover: hover) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b:hover { border-color: var(--k-gold); box-shadow: 0 8px 22px rgba(140, 105, 25, .18); }
@@ -19206,18 +19210,18 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { display: block;
 @media (max-width: 359px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { padding-inline: 8px; font-size: 12px; letter-spacing: .1em; }
 }
-@media (min-width: 600px) {
+@container kn-dv (min-width: 600px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { display: grid; grid-template-columns: 46% minmax(0, 1fr); align-items: center; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b > .kn-foto { aspect-ratio: 4 / 3; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { grid-column: 1 / -1; align-self: stretch; }
 }
-/* PC: fotka vyplní celú výšku dlaždice (text s cenovkou je vyšší než 4:3 -> predtým biele pásy nad a pod fotkou).
+/* fotka | text (kontajner kn-dv ≥ 600 px): fotka vyplní celú výšku dlaždice (text s cenovkou je vyšší než 4:3 -> predtým biele pásy nad a pod fotkou).
    Zväčšenie ostane z --z (krúžky a štítky Šofér / Spolujazdec celé), scéna je najmenej taká vysoká ako okno fotky
    (height max(z·75cqw, 100,5 %), šírka z pomeru 4:3) a výrez sa len posunie tak, aby pri okraji nevznikla medzera
    (clamp). Výška okna len v % (cqh pri výške z min-height Chrome vyhodnotil ako 0); šírka okna = 100cqw. Prehliadač
    bez jednotiek kontajnera ostane pri 4:3 vyššie. */
 @supports (width: 1cqw) {
-  @media (min-width: 600px) {
+  @container kn-dv (min-width: 600px) {
     body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { align-items: stretch; }
     body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b > .kn-foto { aspect-ratio: auto; min-height: 210px; container-type: inline-size; }
     body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b > .kn-foto .kn-scena { --hs: max(calc(var(--z) * 75cqw), 100.5%); width: auto; height: var(--hs); left: clamp(calc(100% - var(--z) * 100%), calc(50% - var(--fx) * var(--z) * 100%), 0px); top: clamp(calc(100% - var(--hs)), calc(50% - var(--fy) * var(--hs)), 0px); transform: none; }
@@ -19323,6 +19327,17 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot--vnutri { margin: 0 0
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot + .k-chyba-tx, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot + .k-btn-zelene { margin-top: 18px; }
 @media (max-width: 400px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { padding: 14px 12px 16px; }
+  /* „rovnaké / inak“ na úzkom telefóne (360 px): užšie okraje, aby sa „spolujazdca“ v názve 18 px zmestilo do dlaždice */
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv { gap: 10px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__tx { padding: 10px 8px 12px; }
+}
+/* najužšie telefóny (320 px): „Zmeniť“ pod text riadka ✓ (inak by nezalomiteľný koniec „koberec · + 95 €“ pretiekol) a
+   „rovnaké / inak“ pod sebou (názov 18 px „…spolujazdca“ by sa do polovice karty nezmestil) */
+@media (max-width: 340px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv { grid-template-columns: minmax(0, 1fr); }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot { flex-wrap: wrap; row-gap: 6px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { flex-basis: calc(100% - 38px); }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm { margin-left: 38px; }
 }
 /* farby tapacíru v karte („Vybrať inak“): karta zúži mriežku (telefón, aj úzky stĺpec na tablete / PC 1024 px) ->
    stĺpce aspoň 86 px, aby sa názvy (Tmavohnedá, Karamelová …) nelámali uprostred slova */
@@ -19376,6 +19391,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open)
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open) .k-krok__zm { font-size: 14px; letter-spacing: .08em; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pod { font-size: 17px; line-height: 1.55; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pozn { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pozn a[href^="tel:"] { white-space: nowrap; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-chyba-tx, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__err { font-size: 15px; line-height: 1.4; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-stitok, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sk-h, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-oddiel > .k-sk-h { font-size: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-select { font-size: 16px; }
@@ -19386,7 +19402,9 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-segment > button { font-si
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm { font-size: 14px; letter-spacing: .04em; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm small { margin-top: 4px; font-size: 14px; line-height: 1.2; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--mat .k-dlazdica__nm { padding: 9px 3px 10px; font-size: 14px; letter-spacing: 0; text-transform: none; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--mat { --k-dl-n: 3; }
+/* materiály tapacíru v karte („Vybrať inak“): stĺpec najmenej 104 px, aby sa „jednofarebná / jednofarebný“ (14–15 px, bez
+   verzálok) zmestili celé — telefón 2 v rade, PC 3–4, tablet 768 px všetkých 5 (pevných 5 v rade orezalo „jednofarebná“) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--mat { grid-template-columns: repeat(auto-fit, minmax(min(100%, 104px), 1fr)); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-nahlad-farby__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm-nahlad p { font-size: 14px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto b { font-size: 14px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__nm { font-size: 18px; }
@@ -19408,7 +19426,9 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c s, body.lcd-1v[data-lc
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-info, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-info { font-size: 16px; line-height: 1.5; }
 body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista .lcd1v-lista__suma small { font-size: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-stitok { font-size: 12px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--bok b { max-width: 104px; }
+/* štítok vedľa krúžku (Stredový koberec v karte všetkých troch): šírka = najdlhšie slovo, každé slovo na svojom riadku (pri 12 px
+   by pevná šírka 104 px na PC presahovala okraj fotky) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--bok b { width: min-content; max-width: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu { font-size: 14px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__nm { font-size: 18px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font-size: 14px; line-height: 1.4; }

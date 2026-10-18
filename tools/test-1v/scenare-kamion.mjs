@@ -8,9 +8,21 @@
 //   kamion-neuplne  nič nevybraté -> „Pridať do košíka“ aj lišta: žiadny POST, krok 1 červený
 // Automatický posun (Michal 18. 10. 2026): po poslednej otázke kroku 5 / 6 sa krok sám zavrie a otvorí ďalší (súhrn).
 // Mierka písma (Michal 18. 10. 2026): v každom stave kroku getComputedStyle všetkých textov konfigurátora a lišty
-// (tools/test-1v/pismo-kamion.mjs) — na 390 aj 1280 px, slová sa nelámu uprostred a nepretečú.
-import { join } from "node:path";
+// (tools/test-1v/pismo-kamion.mjs) — na 390 aj 1280 px (revízia: aj --sirka 360,1024), slová sa nelámu uprostred, nepretečú
+// a neoreže ich okraj fotky / dlaždice.
+// Telo POST do košíka sa porovná bajt po bajte s docs/kamiony-snimky/post-porovnanie.json (platne = react.body, dodávka =
+// revizia_2026_10_18.posty) — košík a ceny sa nesmú zmeniť.
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { pismoVyraz, vypisNalezy, ROLY_KONFIGURATOR } from "./pismo-kamion.mjs";
+
+const POROVNANIE = join(dirname(fileURLToPath(import.meta.url)), "../../docs/kamiony-snimky/post-porovnanie.json");
+/** Očakávané telo POST (zachytené z Reactu 18. 10. 2026 a po revízii; pre všetky šírky rovnaké). */
+function vzorPost(meno) {
+  const p = JSON.parse(readFileSync(POROVNANIE, "utf8"));
+  return meno === "kamion-platne" ? p.react.body : p.revizia_2026_10_18.posty["1280 " + meno];
+}
 
 /** --snimky: snímka s menom podľa šírky okna (640-<meno>-<šírka>.png). */
 async function snimka(s, a, meno) {
@@ -32,6 +44,7 @@ async function overPismo(s, j, meno) {
   j.over(r.n > 20 && !r.zle.length, `písmo ${meno} (${w}): ${r.zle.length} z ${r.n} textov pod mierkou: ` + f(r.zle));
   j.over(!r.riadky.length, `písmo ${meno} (${w}): riadkovanie súvislého textu < 1,5: ` + f(r.riadky));
   j.over(!r.zlom.length && !r.pretek.length, `písmo ${meno} (${w}): slovo zalomené uprostred / pretečie z rámika: ` + f(r.zlom.concat(r.pretek)));
+  j.over(!r.orez.length, `písmo ${meno} (${w}): slovo čiastočne oreže okraj fotky / dlaždice (overflow hidden): ` + f(r.orez));
   j.over(!r.strana, `${meno} (${w}): stránka má vodorovný posuvník`);
 }
 /** Otvorený krok a „Pokračujte“ krokov 5 / 6 (automatický posun) + poloha novo otvoreného kroku v okne. */
@@ -109,13 +122,16 @@ const KROK5 = `(function () {
     foto: Array.prototype.map.call(q(".kn-dv__b .kn-scena > img"), function (i) { return i.complete ? i.naturalWidth : 0; }),
     cenovky: q(".kn-dv__b .k-cenovka").length, zelene: q(".kn-dv .k-btn-zelene").length, dalej: q('[data-a="dalej"][data-v="nasivky"]').length,
     otazka: (document.querySelector("#lcd1v-kamion .kn-ot") || {}).textContent || "",
-    // revízia 18. 10. 2026 večer: výrez fotky pokrýva celé okno fotky a na PC (≥ 600 px) fotka vyplní výšku dlaždice (bez bielych pásov)
+    // revízia 18. 10. 2026 večer: výrez fotky pokrýva celé okno fotky a v rozložení fotka | text (zoznam ≥ 600 px — tablet,
+    // široký PC) fotka vyplní výšku dlaždice (bez bielych pásov); užší stĺpec (PC 992–1919 px, telefón) = fotka nad textom
     fotky: Array.prototype.map.call(q(".kn-dv > .kn-dv__b"), function (b) {
       var f = b.querySelector(".kn-foto"), sc = b.querySelector(".kn-scena"), top = b.querySelector(".kn-dv__top");
       var fr = f.getBoundingClientRect(), sr = sc.getBoundingClientRect(), br = b.getBoundingClientRect();
       var kryje = sr.left <= fr.left + 1 && sr.right >= fr.right - 1 && sr.top <= fr.top + 1 && sr.bottom >= fr.bottom - 1;
       var vnutro = br.height - 4 - (top ? top.getBoundingClientRect().height : 0);
-      return { kryje: kryje, plna: innerWidth < 600 || fr.height >= vnutro - 2, h: Math.round(fr.height), dl: Math.round(vnutro) };
+      var vedla = getComputedStyle(b).display === "grid", zoznam = b.parentElement.getBoundingClientRect().width;
+      return { kryje: kryje, plna: vedla ? fr.height >= vnutro - 2 : Math.abs(fr.width - (br.width - 4)) <= 1, vedla: vedla, ocakVedla: zoznam >= 600,
+        h: Math.round(fr.height), dl: Math.round(vnutro) };
     }) };
 })()`;
 /** Farby tapacíru v karte („Vybrať inak“): žiadny názov farby sa nesmie zalomiť uprostred slova (revízia 18. 10. 2026 večer). */
@@ -194,6 +210,7 @@ export const SCENARE = {
       j.over(k5.dlazdic === 3 && k5.nie && k5.cenovky === 3 && !k5.zelene && !k5.dalej && k5.otazka === "Prosím, vyberte si, kam chcete nášivky", "krok 5.1: 3 fotkové dlaždice s cenovkou + „Nie, ďakujem“, bez zeleného tlačidla: " + JSON.stringify(k5));
       j.over(k5.foto.length === 3 && k5.foto.every((x) => x > 0), "fotka kabíny sa nenačítala: " + JSON.stringify(k5.foto));
       j.over(k5.fotky.length === 3 && k5.fotky.every((x) => x.kryje && x.plna), "fotka v dlaždici 5.1 nevyplní okno / výšku dlaždice (biele pásy): " + JSON.stringify(k5.fotky));
+      j.over(k5.fotky.every((x) => x.vedla === x.ocakVedla), "krok 5.1: rozloženie fotka | text len pri zozname ≥ 600 px (inak fotka nad textom): " + JSON.stringify(k5.fotky));
       const st5a = await s.t.ev(STYLY);
       j.over(/rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(st5a.pas || ""), "pás „★ Najobľúbenejšie ★“ nie je zlatý: " + st5a.pas);
       j.over(st5a.preciarknute === "rgb(192, 57, 43)" && st5a.pilulka === "rgb(226, 243, 233)" && parseFloat(st5a.cena) >= 25, "cenovka nie je ako rohož a box (červená čiara, zelená pilulka, veľká cena): " + JSON.stringify([st5a.preciarknute, st5a.pilulka, st5a.cena]));
@@ -268,8 +285,9 @@ export const SCENARE = {
       const ocak = { 346: "Prémiová syntetická koža – prešívaná", 349: "Šofér + spolujazdec + stred (BALÍK)", 403: "Nášivka H19", 406: "2999 – Čierna", 409: "Nášivka H19", 412: "2999 – Čierna", 352: "Áno chcem (v konfigurátore – balík)", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" };
       Object.entries(ocak).forEach(([id, t]) => j.over(st.sel[id] === t, id + " „" + st.sel[id] + "“ ≠ „" + t + "“"));
       j.over(st.vozidlo === "DAF (TIR) XF106 2017-2021", "truckVehicle " + st.vozidlo);
-      // telo POST do výsledku (--json): porovnanie bajt po bajte s docs/kamiony-snimky/post-porovnanie.json (= React)
-      return { info: "423 € = " + cena.zaklad + " + " + cena.rozpis, post: post ? post.body : null, spolu: cena.spolu };
+      // telo POST bajt po bajte = docs/kamiony-snimky/post-porovnanie.json (= React); aj do výsledku (--json)
+      j.over(post && post.body === vzorPost("kamion-platne"), "telo POST ≠ post-porovnanie.json react.body: " + (post ? post.body.slice(0, 160) : "žiadny POST"));
+      return { info: "423 € = " + cena.zaklad + " + " + cena.rozpis + " · POST = vzor", post: post ? post.body : null, spolu: cena.spolu };
     },
   },
   "kamion-dodavka": {
@@ -294,7 +312,8 @@ export const SCENARE = {
       const { post, st, cena } = await doKosika(s, a, j, "kamion-dodavka");
       j.over(st.sel[352] === "Nie nechcem tapacír dverí" && st.sel[355] === "Nie nechcem nášivku na dverách", "tapacír v selectoch: " + st.sel[352] + " / " + st.sel[355]);
       j.over(st.spolu === 258, "spolu " + st.spolu + " ≠ 258 €");
-      return { info: "258 € = " + cena.zaklad + " + " + cena.rozpis, post: post ? post.body : null, spolu: cena.spolu };
+      j.over(post && post.body === vzorPost("kamion-dodavka"), "telo POST ≠ post-porovnanie.json revizia_2026_10_18: " + (post ? post.body.slice(0, 160) : "žiadny POST"));
+      return { info: "258 € = " + cena.zaklad + " + " + cena.rozpis + " · POST = vzor", post: post ? post.body : null, spolu: cena.spolu };
     },
   },
   "kamion-neuplne": {

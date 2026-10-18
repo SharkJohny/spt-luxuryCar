@@ -115,12 +115,12 @@ const nalezy = [];
 async function pismo(k, meno, korene, roly, spolocne = []) {
   const r = await k.ev(pismoVyraz(korene, roly, spolocne));
   const f = vypisNalezy(r), ostre = (x) => !x.z;
-  const zle = r.zle.filter(ostre), riadky = r.riadky.filter(ostre), zlom = r.zlom.filter(ostre), pretek = r.pretek.filter(ostre);
-  const spol = r.zle.concat(r.riadky).filter((x) => x.z);
-  const chyba = zle.length || riadky.length || zlom.length || pretek.length || r.strana;
+  const zle = r.zle.filter(ostre), riadky = r.riadky.filter(ostre), zlom = r.zlom.filter(ostre), pretek = r.pretek.filter(ostre), orez = r.orez.filter(ostre);
+  const spol = r.zle.concat(r.riadky, r.orez).filter((x) => x.z);
+  const chyba = zle.length || riadky.length || zlom.length || pretek.length || orez.length || r.strana;
   if (chyba) nalezy.push(meno + "-" + (r.pc ? "pc" : "tel"));
   console.log("    písmo " + meno + ": " + r.n + " textov" + (chyba ? "" : " OK") + (zle.length ? " · MALÉ: " + f(zle) : "") + (riadky.length ? " · RIADKOVANIE: " + f(riadky) : "") +
-    (zlom.length ? " · ZLOM SLOVA: " + f(zlom) : "") + (pretek.length ? " · PRETEČIE: " + f(pretek) : "") + (r.strana ? " · VODOROVNÝ POSUVNÍK" : "") +
+    (zlom.length ? " · ZLOM SLOVA: " + f(zlom) : "") + (pretek.length ? " · PRETEČIE: " + f(pretek) : "") + (orez.length ? " · OREZANÉ: " + f(orez) : "") + (r.strana ? " · VODOROVNÝ POSUVNÍK" : "") +
     (spol.length ? " · ! spoločné časti (iná session): " + f(spol) : ""));
 }
 const KONF = ["#lcd1v-kamion"];
