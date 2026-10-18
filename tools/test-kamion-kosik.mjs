@@ -413,9 +413,14 @@ console.log("17) Kroky 5 a 6 podľa návrhu C (Michal 18. 10. 2026): fotkové dl
   // zaškrtávanie miest -> stále jeden zo 4 stavov Shoptetu
   t.klik(a("nas", "boky"));
   over("17: pred sedadlá -> boky, Vaša voľba s tipom na balík", S.nas === "boky" && /Vaša voľba/.test(tx(".kn-vv")) && /všetky tri nášivky spolu len za 95\s€/.test(tx(".kn-vv__tip")), S.nas + " | " + tx(".kn-vv"));
+  over("17: prístupnosť — fotka v dlaždici je pre čítačku skrytá (meno = názov + cena), Vaša voľba aria-live", qa(".kn-dv > .kn-dv__b").every((x) => x.querySelector(".kn-foto").getAttribute("aria-hidden") === "true") && q(".kn-vv").getAttribute("aria-live") === "polite");
+  t.klik(a("nas", "boky"));
+  over("17: ťuk na jediné zvolené miesto nič nemení (výber sa nevráti na prázdny, Shoptet ostane zhodný)", S.nas === "boky" && q(a("nas", "boky")).getAttribute("aria-pressed") === "true" && t.s.chyby.length === 0, S.nas + " | " + t.s.chyby.join(" | "));
   t.klik(a("nas", "stred"));
   over("17: + stredový koberec -> boky+stred (balík), všetky 3 dlaždice zvolené", S.nas === "boky+stred" && qa(".kn-dv__b").every((x) => x.classList.contains("is-on") && x.getAttribute("aria-pressed") === "true"), S.nas);
   over("17: strany v balíku ukazujú „v balíku všetkých troch“", /v balíku všetkých troch/.test(tx('.kn-dv__b[data-v="boky"]')) && /Vybraté – všetky tri koberce/.test(tx(".kn-dv__cta")));
+  t.klik(a("nas", "boky+stred"));
+  over("17: ťuk na zvolený balík nič nemení, pás „✓ Vybraté“ je stav (nie zelené tlačidlo)", S.nas === "boky+stred" && q(".kn-dv__cta").classList.contains("kn-dv__cta--stav") && t.s.chyby.length === 0, S.nas + " | " + t.s.chyby.join(" | "));
   over("17: farby nite — prvých 6 + „Ďalšie farby (+5)“", qa('[data-a="nit"][data-m="boky"]').length === 6 && /Ďalšie farby \(\+5\)/.test(tx('[data-a="viac"][data-m="boky"]')));
   t.klik(a("motiv", "H21", "boky")); nit(t, "2824", "boky");
   over("17: po „Ďalšie farby“ všetkých 11, vybraná červená", qa('[data-a="nit"][data-m="boky"]').length === 11 && !q('[data-a="viac"][data-m="boky"]') && q(a("nit", "2824", "boky")).getAttribute("aria-pressed") === "true");
@@ -429,18 +434,28 @@ console.log("17) Kroky 5 a 6 podľa návrhu C (Michal 18. 10. 2026): fotkové dl
   t.klik(a("stredRovnaky", "1"));
   t.klik(a("nas", "boky"));
   over("17: odobratie nášiviek pred sedadlami -> len stred, motív a niť ostanú (H21 / 2824)", S.nas === "stred" && S.nasStred.motiv === "H21" && S.nasStred.nit === "2824", J(S.nasStred));
+  t.klik(a("nas", "stred"));
+  over("17: ťuk na jediný zvolený stredový koberec nič nemení", S.nas === "stred" && S.nasStred.motiv === "H21", S.nas);
   t.klik(a("nas", "boky+stred"));
   over("17: ★ Všetky tri -> balík, motív prevzatý zo stredu", S.nas === "boky+stred" && S.nasBoky.motiv === "H21" && S.nasBoky.nit === "2824" && S.stredRovnaky === true, J(S));
   t.dalej("nasivky");
   // krok 6: celá fotka dverí, ponuka v rámiku, rovnaké / inak, nášivka na dvere s miestom a úsporou
   const dvere = q('[data-krok="tapacir"] .kn-dvere:not(.kn-dvere--vyrez) > img');
-  over("17: krok 6 — celá fotka dverí (FOTKA_DVERI, 1536 × 1024 = 3:2)", !!dvere && /t894b009d54832cbd\.png$/.test(dvere.getAttribute("src")) && dvere.getAttribute("width") === "1536" && dvere.getAttribute("height") === "1024" && !q(".k-ponuka__ram"));
+  over("17: krok 6 — celá fotka dverí (JPEG v assets/img/1v, 1536 × 1024 = 3:2)", !!dvere && /\/assets\/img\/1v\/kamion-dvere-tapacir\.jpg$/.test(dvere.getAttribute("src")) && dvere.getAttribute("width") === "1536" && dvere.getAttribute("height") === "1024" && !q(".k-ponuka__ram"));
   over("17: ponuka tapacíru v rámiku 119 € / Samostatne 179 € / Ušetríte 60 €", /S kobercami len\s?119\s€\s?Samostatne 179\s€\s?Ušetríte 60\s€/.test(tx('[data-krok="tapacir"] .kn-ponuka .kn-cenovka')), tx('[data-krok="tapacir"] .kn-ponuka .kn-cenovka'));
   t.klik(a("tap", "ano"));
   const tr = qa('.kn-rv__b[data-a="tapRovnake"], .kn-rv__b[data-a="tapZmenit"]');
   over("17: materiál tapacíru — 2 zjavné voľby, predvolene „Rovnaké ako koberce“ s popisom kobercov", tr.length === 2 && tr[0].getAttribute("aria-pressed") === "true" && /Rovnaké ako koberce/.test(tr[0].textContent) && /prešívaná/.test(tr[0].textContent) && /Vybrať inak/.test(tr[1].textContent));
   t.klik(a("tapZmenit"));
   over("17: „Vybrať inak“ -> materiál, farba a lemovanie tapacíru vopred ako koberce", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "12" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz"));
+  over("17: lemovanie uprostred vety malým písmom (lemovanie čierna + červená (04))", /lemovanie čierna \+ červená \(04\)/.test(tx(".kn-vz")), tx(".kn-vz"));
+  // revízia 18. 10. 2026: opätovný ťuk na zvolené „Vybrať inak“ po dvojfarebnom mikrosemiši zhodil zhrnutie (farba 12 k nemu nepatrí)
+  t.klik(a("tapMat", "Mikrosemiš – dvojfarebný"));
+  over("17: dvojfarebný mikrosemiš -> farba kobercov 12 sa zruší", S.tapMat === "Mikrosemiš – dvojfarebný" && S.tapFarba === null, J([S.tapMat, S.tapFarba]));
+  t.klik(a("tapZmenit"));
+  over("17: opätovný ťuk na „Vybrať inak“ nič nemení — UI stojí, krok 6 neúplný (chýba farba)", S.tapRovnaky === false && S.tapFarba === null && !!q('[data-pole="tapFarba"]') && !q('[data-krok="tapacir"].is-done') && t.s.chyby.length === 0, J([S.tapFarba]) + " | " + t.s.chyby.join(" | "));
+  t.klik(a("tapRovnake")); t.klik(a("tapZmenit"));
+  over("17: Rovnaké -> Vybrať inak pri dvojfarebnom: farba kobercov sa nedoplní (nepatrí k materiálu)", S.tapRovnaky === false && S.tapMat === "Mikrosemiš – dvojfarebný" && S.tapFarba === null && t.s.chyby.length === 0, J([S.tapMat, S.tapFarba]) + " | " + t.s.chyby.join(" | "));
   t.klik(a("tapRovnake"));
   over("17: „Rovnaké ako koberce“ späť", S.tapRovnaky === true && !q('[data-pole="tapMat"]'));
   over("17: nášivka na dvere — výrez dverí so zlatým krúžkom „Sem príde nášivka“", /Sem príde nášivka/.test(tx(".kn-dvere--vyrez .kn-bod")) && /do stredu výplne dverí/.test(tx('[data-krok="tapacir"] .k-krok__telo')));

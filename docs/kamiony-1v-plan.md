@@ -428,3 +428,19 @@ Michal vybral návrh C (`scratchpad/kamiony-nasivky/navrh-c.html`, 5 pripomienok
 | Zvolené = zelené (celé kamióny) | blok na konci `_lcd1v-kamiony.scss` (RUČNE): rám #1f7a52 3 px (rám + box-shadow), fajka so zeleným prechodom a bielou fajkou — segment Kamión/Dodávka, materiál, farba, lemovanie, motív, niť, dlaždice nášiviek, rovnaké/inak, Áno/Nie. Zlatá ostáva na štítkoch (★ Najobľúbenejšie, Odporúčame), ponukách v rámiku a „Nie, ďakujem“. |
 
 Testy po zmene: `kamion:test` (cena 68, ceny vs gen.jsx 1 320 kombinácií NÁLEZ 0, košík **274 OK** — nová cesta 17 = kontroly návrhu C, brána 42) · `truck:test` OK · `test-konfigurator-1v --novy --produkt 640 --sirka 1280,390` 10/10 (POST 423 € a 258 € ako predtým; nové kontroly: zelené zvolené, 3 fotkové dlaždice s načítanou fotkou, plátno ≥ 2× CSS šírky cez celú kartu, celá fotka dverí, dve voľby tapacíru) · `--produkt all --krok brana,nulova-zmena --sirka 1280` bez flagu 30/30 · POST do košíka (kamion-platne 423 €, kamion-dodavka 258 €; 1280 aj 390) bajt po bajte = telá revízie v `post-porovnanie.json` → `revizia_2026_10_18` (= React) · `test-1v-obsah --produkt 640` 10/10. Snímky `docs/kamiony-snimky/c-krok5-*.png`, `c-krok6-*.png` (390, 1280; `node tools/snimky-kamion-kroky.mjs docs/kamiony-snimky`).
+
+### 11.1 Opravy po dvojitej revízii (18. 10. 2026, lokálne, bez pushu)
+
+Vetva zosúladená s `origin/main` (`git rebase origin/main` na `eb13dcf` — box-kresba, „zvolené = zelené“ ostatných 1V; bez konfliktu, `vloz-lcd-css.py --check` OK).
+
+| Nález | Oprava |
+|---|---|
+| Vysoká: „Vybrať inak“ → dvojfarebný mikrosemiš → znova „Vybrať inak“ = pád zhrnutia (farba 12 k materiálu nepatrí) → React | `tapZmenit` pri už zvolenom „Vybrať inak“ nič nerobí; farba kobercov sa doplní len ak patrí k materiálu tapacíru; `chyba("tapacir")` vráti chybu farby aj pri farbe z iného materiálu; `zhrnutie` bez pádu. |
+| Stredná: odznačenie dlaždice → `S.nas = null` → selecty Shoptetu na starej hodnote, `console.error` ceny | Výber sa nikdy nevráti na prázdny: ťuk na jediné zvolené miesto ani na zvolený balík nič nemení. Zmena = iné miesto (balík ↔ jedna strana) alebo „Nie, ďakujem“. `shoptet.js`/`index.js` bez zmeny. |
+| Stredná: zelený pás „✓ Vybraté“ na balíku odznačoval všetko | pás je po výbere stav (`.kn-dv__cta--stav`, svetlozelený, bez účinku). |
+| Stredná (vzhľad): dlaždice motívov slabšie než návrh C | motív cez celú dlaždicu (`cover`), béžový podklad `#f0edda`, mriežka max 380 px; mozaika „Iný motív“ béžová. |
+| Nízke | fotka dverí ako JPEG `assets/img/1v/kamion-dvere-tapacir.jpg` (1536 × 1024, 212 kB namiesto PNG 2,7 MB); pulz krúžkov cez `transform`/`opacity`; fotka v dlaždici `aria-hidden` (meno = názov + cena), „Vaša voľba“ `aria-live`; NBSP za jednopísmenovými predložkami v texte kroku 6 („Áno, s nášivkou“); „pred sedadlá“; lemovanie uprostred vety malým písmom (krok 6 aj súhrn); súhrn „Nášivky na všetky tri koberce“ / „Nášivky pred sedadlá (šofér a spolujazdec)“; úvodná veta kroku 5 „… – pred sedadlá, na stredový koberec alebo na všetky tri.“ |
+
+Testy: `kamion:test` (cena 68, NÁLEZ 0, košík **282 OK** — +8 kontrol v ceste 17; na starej logike 8 ZLE, brána 42) · `truck:test` OK · `test-konfigurator-1v --novy --produkt 640 --sirka 1280,390` 10/10 (kontrola dlaždice motívu = béžový podklad + cover) · POST kamion-platne 423 € a kamion-dodavka 258 € na 1280 aj 390 bajt po bajte = `post-porovnanie.json` → `revizia_2026_10_18` · bez flagu `--produkt all --krok brana,nulova-zmena` 30/30 · `test-1v-obsah --produkt 640` 10/10. Snímky `docs/kamiony-snimky/c-krok5-*`, `c-krok6-*` (390, 1280) nové.
+
+Pred vydaním na web: push nahrá aj `kamion-nasivky-kabina.jpg` a `kamion-dvere-tapacir.jpg` do `…/assets/img/1v/` — overiť HTTP 200 oboch ešte pred prepnutím sha v SK admine.

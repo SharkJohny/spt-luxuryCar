@@ -19005,11 +19005,11 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-foto--169 { aspect-ratio:
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-scena { position: absolute; left: 50%; top: 50%; display: block; width: calc(var(--z) * 100%); aspect-ratio: var(--ar, 4 / 3); transform: translate(calc(var(--fx) * -100%), calc(var(--fy) * -100%)); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-scena > img { display: block; width: 100%; max-width: none; height: 100%; margin: 0; object-fit: cover; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod { position: absolute; left: var(--x); top: var(--y); width: var(--d); aspect-ratio: 1 / 1; transform: translate(-50%, -50%); border: 2.5px solid #f0d68f; border-radius: 50%; box-shadow: 0 0 0 2px rgba(20, 15, 5, .45), 0 0 16px rgba(230, 200, 119, .6); pointer-events: none; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod::after { content: ""; position: absolute; inset: -3px; border: 3px solid rgba(240, 214, 143, .8); border-radius: 50%; opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: no-preference) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod::after { animation: kn-pulz 2.2s ease-out infinite; }
 }
-@keyframes kn-pulz { 0% { box-shadow: 0 0 0 0 rgba(240, 214, 143, .75); } 70%, 100% { box-shadow: 0 0 0 14px rgba(240, 214, 143, 0); } }
+@keyframes kn-pulz { 0% { transform: scale(1); opacity: .9; } 70%, 100% { transform: scale(1.32); opacity: 0; } }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod b { position: absolute; left: 50%; top: 100%; transform: translate(-50%, 6px); padding: 3px 8px 2px; border-radius: 999px; background: var(--k-zlato); color: #17130a; font: 800 10.5px/1.25 var(--k-disp); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 3px 8px rgba(0, 0, 0, .45); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--hore b { top: auto; bottom: 100%; transform: translate(-50%, -6px); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--r b { left: auto; right: 0; transform: translate(0, 6px); }
@@ -19030,6 +19030,9 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-dv__nm { f
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-cena b { font-size: 27px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-cena i { font-size: 14.5px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta { display: flex; align-items: center; justify-content: center; min-height: 52px; margin: 0; padding: 10px 16px; border-radius: 0 0 14px 14px; background: var(--k-zelene); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22); color: #fff; font: 900 13.5px/1.25 var(--k-disp); letter-spacing: .09em; text-align: center; text-transform: uppercase; }
+/* zvolený balík: pás „✓ Vybraté – všetky tri koberce“ je stav, nie tlačidlo (ťuk nič nemení — ui.js akcia nas) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal.is-on { cursor: default; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta--stav { background: #e3f1e9; box-shadow: inset 0 1px 0 rgba(31, 122, 82, .22); color: var(--k-zvol, #1f7a52); font-weight: 800; }
 @media (min-width: 600px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { display: grid; grid-template-columns: 46% minmax(0, 1fr); align-items: center; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b > .kn-foto { aspect-ratio: 4 / 3; }
@@ -19092,7 +19095,12 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__lem { position: absol
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika i { display: block; background: center / cover no-repeat; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv { grid-template-rows: 1fr; gap: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv i { margin: 8px 4px; background-color: #ededed; background-size: contain; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv { background: #f0edda; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv i { margin: 6px 4px; background-color: #f0edda; background-size: contain; }
+/* dlaždice motívov (krok 5 aj nášivka na dvere) ako návrh C: motív cez celú dlaždicu 3:2 (orez 16,7–83,3 % výšky necháva
+   H19 22–70 % aj H21 31–69 % celé), mriežka najviac 380 px, béžové pozadie ako PNG motívu */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv { max-width: 380px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv .k-dlazdica__img { padding: 0; object-fit: cover; background: #f0edda; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__plus { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; transform: translate(-50%, -50%); border-radius: 50%; background: #fff; box-shadow: 0 3px 10px rgba(0, 0, 0, .35); color: var(--k-gold-tx); font: 800 22px/1 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__cv { display: block; width: 100%; max-width: none; height: 100%; margin: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }

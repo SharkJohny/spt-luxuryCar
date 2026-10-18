@@ -72,7 +72,7 @@ const STYLY = `(function () {
   function cs(sel, p, ps) { var el = document.querySelector("#lcd1v-kamion " + sel); return el ? getComputedStyle(el, ps || null)[p] : null; }
   return { ano: cs(".an__b--ano", "backgroundImage"), nie: cs(".an__b--nie", "backgroundImage"), ponuka: cs(".kn-ponuka", "borderTopColor"),
     balRam: cs(".kn-dv__b--bal", "borderTopColor"), balStitok: cs(".kn-dv__b--bal .k-badge", "backgroundImage"),
-    motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor"), motivZvol: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "borderTopColor"),
+    motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor"), motivFit: cs(".k-dlazdice--motiv .k-dlazdica__img", "objectFit"), motivZvol: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "borderTopColor"),
     motivFajka: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "backgroundImage", "::after"), nitZvol: cs(".nt__b.is-on", "borderTopColor"),
     chk: cs(".kn-dv__b.is-on .kn-chk", "backgroundImage") };
 })()`;
@@ -133,7 +133,8 @@ export const SCENARE = {
       j.over(/rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(st5.balStitok || ""), "„★ Najobľúbenejšie“ na balíku nie je zlaté: " + st5.balStitok);
       j.over(st5.balRam === ZELENA && st5.motivZvol === ZELENA && st5.nitZvol === ZELENA, "zvolené nie je zelené (balík " + st5.balRam + ", motív " + st5.motivZvol + ", niť " + st5.nitZvol + ")");
       j.over(/rgb\(29, 107, 74\)/.test(st5.motivFajka || "") && /rgb\(29, 107, 74\)/.test(st5.chk || ""), "fajka zvolenej voľby nie je zelená: " + st5.motivFajka + " | " + st5.chk);
-      j.over(st5.motiv === "rgb(255, 255, 255)", "dlaždica motívu bez bieleho podkladu: " + st5.motiv);
+      // revízia 18. 10. 2026 (ako návrh C): motív cez celú dlaždicu (cover) na béžovom podklade PNG motívu #f0edda
+      j.over(st5.motiv === "rgb(240, 237, 218)" && st5.motivFit === "cover", "dlaždica motívu nie je ako návrh C (béžový podklad, cover): " + st5.motiv + " | " + st5.motivFit);
       await s.t.ev(`document.querySelector('#lcd1v-kamion .kn-dv').scrollIntoView({ block: "start" })`);
       const k5 = await cakaj(s, j, KROK5, (r) => r.foto.length === 3 && r.foto.every((x) => x > 0) && r.cvW > 0);
       j.over(k5.dlazdic === 3 && k5.nie, "krok 5: má byť 3 fotkové dlaždice + „Nie, ďakujem“: " + JSON.stringify(k5));

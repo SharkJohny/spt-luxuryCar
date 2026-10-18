@@ -14,8 +14,12 @@ const img = (f) => IMG_BASE + f;
 /** Prečiarknuté „samostatne“ ceny (EUR) — v Shoptete nie sú, natvrdo v konfigurator.gen.jsx FALLBACK_PRICES_EUR. */
 export const PRECIARKNUTE_EUR = { nasivky_balik: 140, nasivky_sofer_spolujazdec: 70, nasivky_len_stred: 70, tapacir: 179, nasivka_na_dverach: 89 };
 
-/** Fotka tapacíru dverí (React krok 5/A, IMG_BASE) — celý panel dverí 3:2, nášivka v strede výplne (~43 % / 45 %). */
-export const FOTKA_DVERI = img("t894b009d54832cbd.png");
+/**
+ * Fotka tapacíru dverí — celý panel dverí 3:2, nášivka v strede výplne (~43 % / 45 %). Tá istá fotka ako React krok 5/A
+ * (IMG_BASE t894b009d54832cbd.png, PNG 2,7 MB), uložená ako JPEG 1536 × 1024 (~210 kB) v assets/img/1v/ (adresa =
+ * OBRAZKY_1V z ../ctx.js + tento názov; ui.js). Revízia 18. 10. 2026: PNG bol na telefóne cez dáta príliš ťažký.
+ */
+export const FOTKA_DVERI_SUBOR = "kamion-dvere-tapacir.jpg";
 
 /**
  * Fotka kabíny zhora so všetkými tremi nášivkami (krok 5, návrh C schválený 18. 10. 2026) — súbor v assets/img/1v/

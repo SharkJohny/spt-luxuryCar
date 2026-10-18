@@ -428,7 +428,7 @@ export const TEXTY = {
    "pomocna_veta": [
     "Nášivka je motív vyšitý priamo na koberci, vo farbe nite podľa Vášho výberu. ",
     "Zaškrtnite, kam ju chcete",
-    " – jedno miesto alebo všetky tri nášivky."
+    " – pred sedadlá, na stredový koberec alebo na všetky tri."
    ],
    "kam": "Kam chcete nášivku?",
    "ilustracna": "Ilustračná fotka",
@@ -579,7 +579,7 @@ export const TEXTY = {
    },
    "kam_pride": {
     "boky+stred": "na všetky tri koberce – pred sedadlá šoféra a spolujazdca aj na stredový koberec.",
-    "boky": "na koberec šoféra aj spolujazdca, pred sedadlo.",
+    "boky": "na koberec šoféra aj spolujazdca, pred sedadlá.",
     "stred": "na stredový koberec medzi sedadlami."
    },
    "podklad": "farba Vašich kobercov – {x}.",
@@ -602,11 +602,11 @@ export const TEXTY = {
    "kicker": "Krok 6 z 6",
    "nazov": "Tapacír dverí",
    "otazka": "Prosíte si aj tapacír dverí?",
-   "vysvetlivka": "Tapacír je výplň v strede panelu dverí – na fotke béžová s červeným lemovaním. Ladí s Vašimi kobercami.",
+   "vysvetlivka": "Tapacír je výplň v\u00a0strede panelu dverí – na fotke béžová s\u00a0červeným lemovaním. Ladí s\u00a0Vašimi kobercami.",
    "foto_alt": "Celý panel dverí kamióna s tapacírom a nášivkou v strede, ilustračná fotka",
    "foto_stitok": "Tapacír dverí",
    "ilustracna": "Ilustračná fotka",
-   "benefit": "Ak nič nezmeníte, bude v rovnakom materiáli, farbe a lemovaní ako koberce. Môžete si ich však vybrať aj inak.",
+   "benefit": "Ak nič nezmeníte, bude v\u00a0rovnakom materiáli, farbe a\u00a0lemovaní ako koberce. Môžete si ich však vybrať aj inak.",
    "volby": {
     "ano": {
      "text": "Áno, chcem aj tapacír dverí",
@@ -647,7 +647,7 @@ export const TEXTY = {
     "s_tapacirom": "S tapacírom len",
     "samostatne": "Samostatne",
     "usetrite": "Ušetríte {x}",
-    "ano": "Áno, s nášivkou",
+    "ano": "Áno, s\u00a0nášivkou",
     "nie": "Nie, ďakujem",
     "bez_priplatku": "bez príplatku",
     "zmena_info": "Na kobercoch už nášivka nie je. Prosím, vyberte, či chcete nášivku na tapacír dverí.",
@@ -703,8 +703,8 @@ export const TEXTY = {
     "popis": "lemovanie {lemovanie}"
    },
    "nasivky": {
-    "nazov_vsetky": "Nášivky na 3 koberce",
-    "nazov_boky": "Nášivky na koberce šoféra a spolujazdca",
+    "nazov_vsetky": "Nášivky na všetky tri koberce",
+    "nazov_boky": "Nášivky pred sedadlá (šofér a spolujazdec)",
     "nazov_stred": "Nášivka na stredový koberec",
     "popis": "{motiv} · niť {nit}",
     "popis_iny_stred": "stred: {motiv_stred} · niť {nit_stred}"
