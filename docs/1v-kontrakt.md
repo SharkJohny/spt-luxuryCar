@@ -400,7 +400,7 @@ Workeri typov (každý len svoje súbory):
 | **jedno-vzory** (T1.1: 610, 613) | `typy/jedno.js`, `tools/test-1v/scenare-jedno.mjs`, nové obrázky `assets/img/1v/jedno-<vzor>-*` |
 | **dvoj** (T1.2: 601, 604, 607) | `konfigurator1v/farba2.js`, `typy/dvoj.js`, `assets/css/_lcd1v-dvoj.scss`, `tools/test-1v/ovladac-farba2.mjs` (len `novy`), `tools/test-1v/scenare-dvoj.mjs`, `assets/img/1v/dvoj-*` |
 | **kufor** (T2.2: 619–634) | `konfigurator1v/kufor-produkt.js`, `typy/kufor-classic.js`, `typy/kufor-premium.js`, `assets/css/_lcd1v-kufor.scss`, `tools/test-1v/scenare-kufor.mjs`, `assets/img/1v/rohoz-classic-*`, `rohoz-premium-*` |
-| **boxy** (T3.2: 616) | `konfigurator1v/boxy-produkt.js`, `typy/boxy.js`, `assets/css/_lcd1v-boxy.scss`, `tools/test-1v/ovladac-boxy-produkt.mjs` (len `novy`), `tools/test-1v/scenare-boxy.mjs`, `assets/img/1v/boxprodukt-*` |
+| **boxy** (T3.2: 616) | `konfigurator1v/boxy-produkt.js`, `konfigurator1v/box-kresba.js` (kresba boxu a farby kresby — používa ju aj okno boxov `kufor-boxy.js` na 598/610/613/601/604/607, 18. 10. 2026), `typy/boxy.js`, `assets/css/_lcd1v-boxy.scss`, `tools/test-1v/ovladac-boxy-produkt.mjs` (len `novy`), `tools/test-1v/scenare-boxy.mjs`, `assets/img/1v/boxprodukt-*` |
 | **vzorky** (T5.1: 637) | `konfigurator1v/vzorky-produkt.js`, `typy/vzorky.js`, `assets/css/_lcd1v-vzorky.scss`, `tools/test-1v/ovladac-vzorky.mjs` (len `novy`), `tools/test-1v/scenare-vzorky.mjs` (+ register 637 v jadre v rámci svojho vydania) |
 | **obsah <typ>** (T1.3, T2.3, T2.4, T3.3) | `konfigurator1v/obsah-<typ>.js`, `assets/css/_lcd1v-obsah-<typ>.scss`, `admin-html/src/p1v-<typ>/*`, `tools/test-1v/obsah-<typ>.mjs`, `assets/img/1v/obsah/<typ>-*` |
 

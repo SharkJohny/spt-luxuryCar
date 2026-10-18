@@ -196,10 +196,10 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:disabled {
   filter: none;
   transform: none;
 }
-/* po „Áno“ (prenos): dlaždica ako zvolená karta */
+/* po „Áno“ (prenos): dlaždica ako zvolená karta — zelený rám (Michal 18. 10. 2026: zvolené = zelené) */
 body.lcd-1v #product-detail-form .lcd1v-druha.lcd1v-druha--prenos .lcd1v-druha__dlazdica {
-  border-color: var(--kb-gold);
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, 0.18);
+  border-color: var(--kr-zvol);
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
   cursor: default;
 }
 

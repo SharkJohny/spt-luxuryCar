@@ -171,16 +171,19 @@ body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-img {
   body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:not(.lcd1v-vz-dl--nahlad):hover .lcd1v-vz-sw {
     transform: translateY(-2px); border-color: var(--kr-gold);
   }
+  /* zvolená ostáva pri prejdení myšou so zeleným rámom (biely lem vnútri, nie zlatý) */
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on:not(.lcd1v-vz-dl--nahlad):hover .lcd1v-vz-sw { border-color: #fff; }
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:focus-visible { outline: 0; }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:focus-visible .lcd1v-vz-sw { outline: 3px solid var(--kr-gold); outline-offset: 2px; }
+/* zvolená vzorka: zelený rám + zelená fajka (Michal 18. 10. 2026: zvolené = zelené) */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-sw {
-  border-color: #fff; box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, .25);
+  border-color: #fff; box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, .25);
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-sw::after {
   content: "\2713"; position: absolute; top: 5px; right: 5px; display: flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px; border-radius: 50%; background: var(--kr-zlato); color: #17130a;
-  font: 800 12px/1 var(--kr-body); box-shadow: 0 2px 8px rgba(20, 15, 5, .35);
+  width: 20px; height: 20px; border-radius: 50%; background: var(--kr-zvol-fajka); color: #fff;
+  font: 800 12px/1 var(--kr-body); box-shadow: 0 0 0 1.5px #fff, 0 2px 8px rgba(20, 15, 5, .35);
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-nm {
   display: block; margin: 0; font: 700 10.5px/1.22 var(--kr-disp); letter-spacing: .01em; color: var(--kr-tmava);
@@ -190,7 +193,7 @@ body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-kd {
   display: block; margin: -2px 0 0; font: 700 9.5px/1.2 var(--kr-disp); letter-spacing: .08em; color: #9a917a;
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-nm { color: var(--kr-ink); }
-body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-kd { color: var(--kr-gold-tx); }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-kd { color: var(--kr-zvol); }
 /* náhľad (neposiela sa, živý widget ho nedovolí objednať): tlmený, štítok, klik len ukáže fotku */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl--nahlad { cursor: zoom-in; }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-dl--nahlad .lcd1v-vz-img { filter: saturate(.75); opacity: .8; }

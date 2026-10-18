@@ -28,8 +28,14 @@
 //   1×, 2× (★), Nechcem. Mení sa len poradie NOVÝCH kariet v DOM; živé karty, ich poradie a hodnoty v POST ostávajú.
 import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplnok.js";
 import { zluc } from "./produkty.js";
+import { nazovFarby } from "./kroky.js";
+import { definicieKresby, kresba, nastavFarbuKresby, zrusFarbuKresby, slugFarby } from "./box-kresba.js";
 
 export const MENO = "kufor-boxy";
+
+// Kresba boxu v kartách veľkostí okna (box-kresba.js, ako krok 3 na boxe 616; Michal 18. 10. 2026: veľkosti a farby boxov
+// premietnuť aj do konfigurátora autokobercov). Vlastná predpona ID vzorov (jedna sada na stránke, defs v okne).
+const PREDPONA_KRESBY = "lcd1v-bxk-";
 
 // Texty z návrhu v26 (jednovrstvove.html, kroky 5–6 a okno #bxBox). Typ ich môže prepísať (typy/<typ>.js texty.kuforBoxy).
 const TEXTY = {
@@ -91,10 +97,12 @@ function el(tag, attrs, deti) {
   return e;
 }
 
-/** „M : 40x32x30 cm“ -> { v: "M", rozmer: "40 × 32 × 30 cm" }; ŽIADNY a iné -> null */
+/** „M : 40x32x30 cm“ -> { v: "M", rozmer: "40 × 32 × 30 cm", sirka: 40 }; ŽIADNY a iné -> null (sirka = prvé číslo, pre kresbu) */
 export function velkostZTextu(t) {
   const m = /^(XL|S|M|L)\s*:\s*(.*)$/i.exec(String(t == null ? "" : t).replace(/\s+/g, " ").trim());
-  return m ? { v: m[1].toUpperCase(), rozmer: m[2].replace(/\s*[x×]\s*/gi, " × ").trim() } : null;
+  if (!m) return null;
+  const s = /^(\d+(?:[.,]\d+)?)/.exec(m[2]);
+  return { v: m[1].toUpperCase(), rozmer: m[2].replace(/\s*[x×]\s*/gi, " × ").trim(), sirka: s ? Number(s[1].replace(",", ".")) : null };
 }
 
 /** „Farba kože : Čierna / Farba šitia: Červená“ -> „Čierna / Červená“ (súhrn kroku) */
@@ -166,7 +174,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     const o = {};
     ctx.moznosti(kluc).forEach(function (m) {
       const x = velkostZTextu(m.text);
-      if (x && !o[x.v]) o[x.v] = { hodnota: m.hodnota, cena: m.cena, rozmer: x.rozmer };
+      if (x && !o[x.v]) o[x.v] = { hodnota: m.hodnota, cena: m.cena, rozmer: x.rozmer, sirka: x.sirka };
     });
     return o;
   };
@@ -281,7 +289,9 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
       if (!v) return;
       const o = vel[kluc][v];
       const pripl = o.cena - s.cena;
+      // kresba boxu v skutočnom pomere šírky namiesto zlatého štvorčeka; písmeno ostáva ako text pod ňou (ako na 616)
       vloz(b, el("span", { class: "lcd1v-bx__vel", "aria-hidden": "true" }, [
+        kresba(o.sirka, PREDPONA_KRESBY),
         el("span", { class: "lcd1v-bx__vl", text: v }),
         el("span", { class: "lcd1v-bx__rozmer", text: o.rozmer }),
         el("span", { class: "lcd1v-bx__pripl" + (pripl > 0.5 ? "" : " lcd1v-bx__pripl--v-cene"), text: pripl > 0.5 ? "+ " + fmt(pripl) : T.vCene }),
@@ -290,6 +300,15 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
       ovladacePopis.push([b, v + ", " + o.rozmer + ", " + (pripl > 0.5 ? "+ " + fmt(pripl) : T.vCene)]);
     });
   });
+  // vzory kresby: jedna sada v okne (premenné farby --bxp-* sú na okne, vzory ich dedia podľa miesta v DOM)
+  vloz(vyber, definicieKresby(PREDPONA_KRESBY), okBtn);
+  vytvorene.push(function () { zrusFarbuKresby(vyber); });
+  /** Farba kresby = farba boxov zvolená v okne (živý select), bez farby predvolená (Michal 18. 10. 2026). */
+  function farbaKresby() {
+    const v = ctx.precitaj("farbaBoxov");
+    const fo = v ? ctx.moznosti("farbaBoxov").find(function (m) { return m.hodnota === v; }) : null;
+    nastavFarbuKresby(vyber, fo ? slugFarby(nazovFarby(fo.text).nazov) : null);
+  }
   // živé ovládače okna (div) -> prístupné ako tlačidlá: rola, fokus, Enter/medzerník = ten istý klik
   ovladacePopis.forEach(function (x) {
     atribut(x[0], "role", "button");
@@ -408,6 +427,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     const n = pocetBoxov(), otvorene = banner.classList.contains("showConf"), hotovo = n && kompletne(n);
     [0, 1, 2].forEach(function (k) { stlac(kartyB[k], k === n); });
     ovladacePopis.forEach(function (x) { stlac(x[0], x[0].classList.contains("active")); });
+    farbaKresby();
     const pod = n === 2 ? T.okno.pod2 : T.okno.pod1;
     if (podOkna.textContent !== pod) podOkna.textContent = pod;
     // okno: fokus dnu pri otvorení, späť na kartu pri zatvorení; chat Luxia a rolovanie stránky ustúpia (CSS)

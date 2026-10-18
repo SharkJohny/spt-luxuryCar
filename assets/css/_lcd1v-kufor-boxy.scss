@@ -124,9 +124,10 @@ body.lcd-1v .lcd1v-kb__karta:focus-visible {
 body.lcd-1v .lcd1v-kb__karta--naj {
   border-color: #d6bd76;
 }
+/* zvolená karta: zelený rám (Michal 18. 10. 2026: „orámovalo zeleným pásikom“; --kr-zvol* z _lcd1v-kroky.scss) */
 body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"] {
-  border-color: var(--kb-gold);
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, .18);
+  border-color: var(--kr-zvol);
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"]::after {
   content: "✓";
@@ -142,7 +143,7 @@ body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"]::after {
   box-sizing: border-box;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: linear-gradient(150deg, #2f9c68, #1d6b4a);
+  background: var(--kr-zvol-fajka);
   color: #fff;
   font: 800 12px/1 Arial, sans-serif;
   box-shadow: 0 3px 10px rgba(20, 15, 5, .4);
@@ -307,8 +308,10 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj {
   background: #fffaef;
   box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3);
 }
+/* zvolená odporúčaná: rám zelený ako pri ostatných kartách, zlatý pás „Najobjednávanejšie“ ostáva (Michal 18. 10. 2026) */
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"] {
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 0 0 5px rgba(196, 155, 49, .2), 0 14px 30px rgba(160, 120, 30, .3);
+  border-color: var(--kr-zvol);
+  box-shadow: 0 0 0 1px var(--kr-zvol), 0 0 0 5px rgba(31, 122, 82, .16), 0 14px 30px var(--kr-zvol-tien);
 }
 /* fajka pod pásom (pás s vetou je vysoký ~52 px) */
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"]::after {
@@ -682,8 +685,8 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-b
   box-sizing: border-box;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button.active img {
-  border-color: var(--kb-gold);
-  box-shadow: 0 0 0 2.5px rgba(196, 155, 49, .55), 0 6px 14px rgba(20, 15, 5, .3);
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, .3);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button.active::after {
   content: "✓" !important;
@@ -696,10 +699,10 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-b
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(150deg, var(--kb-gold-hi), var(--kb-gold-lo));
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  color: #fff;
   font: 800 10px/1 Arial, sans-serif;
-  box-shadow: 0 2px 6px rgba(20, 15, 5, .35);
+  box-shadow: 0 0 0 1.5px #fff, 0 2px 6px rgba(20, 15, 5, .35);
 }
 /* veľkosť: karta S / M / L / XL */
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button {
@@ -707,7 +710,8 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-bu
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 14px 10px !important;
+  /* menší okraj ako pri štvorčeku (kresba boxu je vyššia), karta na telefóne narastie len o ~30 px */
+  padding: 10px 8px 12px !important;
   border: 1px solid var(--kb-line) !important;
   border-radius: 12px !important;
   background: #fff !important;
@@ -717,33 +721,73 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-bu
   border-color: #c9b98a !important;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button.active {
-  border-color: var(--kb-gold) !important;
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, .18);
+  border-color: var(--kr-zvol) !important;
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel {
   display: flex;
   flex-direction: column;
+  align-self: stretch;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
 }
+/* kresba boxu (box-kresba.js) namiesto zlatého štvorčeka s písmenom — skutočný pomer šírky, všetky karty v rovnakej
+   mierke, farba = farba boxov z okna (Michal 18. 10. 2026: veľkosti a farby boxov aj pri autokobercoch) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel > .lcd1v-bxp-sil {
+  display: block;
+  width: 100%;
+  max-width: 104px;
+  height: auto;
+  margin: 0 auto 1px;
+  overflow: visible;
+}
+@media (min-width: 721px) {
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel > .lcd1v-bxp-sil {
+    max-width: 136px;
+  }
+}
+/* písmeno veľkosti = text pod kresbou (ako na boxe 616); zvolená karta má zelený rám, písmeno zelené */
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vl {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 8px;
-  box-sizing: border-box;
-  border: 1px solid var(--kb-line);
-  border-radius: 11px;
-  background: #f5f2ea;
-  color: #4a4433;
+  display: block;
+  color: var(--kb-ink);
   font: 800 17px/1 var(--kb-disp);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .button.option-button.active .lcd1v-bx__vl {
-  border-color: transparent;
-  background: linear-gradient(150deg, var(--kb-gold-hi), var(--kb-gold-lo));
-  color: #17130a;
+  color: var(--kr-zvol);
+}
+/* farby kresby: premenné na okne (kufor-boxy.js -> box-kresba.js nastavFarbuKresby; predvolená čierna s béžovým šitím),
+   vzory <defs> sú v okne, aby premenné zdedili; rovnaké triedy ako krok 3 boxu 616 (_lcd1v-boxy.scss) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config {
+  --bxp-lth: #2a2b30;
+  --bxp-sp: #55585f;
+  --bxp-edge: #0e0f11;
+  --bxp-st: #dcc59c;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config > .lcd1v-bxp-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-l {
+  fill: var(--bxp-lth);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-e {
+  stroke: var(--bxp-edge);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-s {
+  fill: var(--bxp-sp);
+  stroke: var(--bxp-edge);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-ef {
+  fill: var(--bxp-edge);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-t,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-qs {
+  stroke: var(--bxp-st);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-qg {
+  stroke: var(--bxp-gr, rgba(0, 0, 0, .42));
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__rozmer {
   font: 400 12.5px/1.15 var(--kb-body);

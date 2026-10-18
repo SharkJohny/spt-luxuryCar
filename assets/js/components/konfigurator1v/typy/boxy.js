@@ -59,20 +59,8 @@ export const TYP = {
       vyberteVelkost: "vyberte veľkosť",
       tipB: "Tip:",
       tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
-      // farby kresby boxu v kroku 3 podľa farby z kroku 1 (kľúč = názov farby bez diakritiky, ako fotky boxprodukt-farba-*;
-      // odtiene odčítané z fotiek vzoriek): koža, rúčka, lem/obrys, šitie
-      farbyKresby: {
-        "cierna-cervene-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#d63a46" },
-        "cierna-modre-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#3f74d6" },
-        "cierna-cierne-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#5a5d65" },
-        "cierna-bezove-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#dcc59c" },
-        "cierna-sive-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#a9adb5" },
-        "cierna-biele-sitie": { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11", sitie: "#f2f2ef" },
-        "hneda-kava": { koza: "#4b3934", rucka: "#68534b", lem: "#22180f", sitie: "#dccdbf" },
-        "vinovo-cervena": { koza: "#922c3d", rucka: "#ad4255", lem: "#4a1019", sitie: "#f0dcdf" },
-        "seda": { koza: "#cbc4c4", rucka: "#b3abac", lem: "#857c7e", sitie: "#f7f4f3" },
-      },
-      farbaKresbyPredvolena: "cierna-bezove-sitie",
+      // farby kresby boxu v kroku 3: mapa je v box-kresba.js FARBY_KRESBY (spoločná s oknom boxov na autokobercoch,
+      // Michal 18. 10. 2026)
     },
     // Ponuka setu ako skrytá karta bez čísla za kartou Počet boxov (komplet-ponuka.js; Michal 17. 10. 2026 večer: „toto
     // sa má zobrazovať po kroku počet boxov“). Len pri 1 alebo 2 boxoch (set má najviac 2). d = { pocet, od (veľkosti ešte

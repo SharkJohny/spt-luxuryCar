@@ -181,7 +181,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .optio
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active {
   border-color: #fff;
-  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, 0.25);
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active::after {
   content: "\2713";
@@ -196,34 +196,54 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .optio
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--kr-zlato);
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(20, 15, 5, 0.3); /* biely lem: fajka viditeľná aj na zelenej vzorke */
+  color: #fff;
   font: 700 9px/1 var(--kr-body);
 }
-/* odporúčaná vzorka: zlatý rámik a hviezdička vľavo hore (vpravo hore je fajka zvolenej) */
+/* odporúčaná vzorka: zlatý rámik (kým nie je zvolená) a hviezdička vľavo dole (vpravo hore je fajka zvolenej) */
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana {
   border-color: var(--kr-gold);
   box-shadow: 0 0 0 1px var(--kr-gold);
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana.active {
   border-color: #fff;
-  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, 0.25);
 }
+/* hviezdička = pevný kruh 20 px (Michal 18. 10. 2026: „tá hviezdička sa tak divne deformuje“). Príčina: na zvolenej vzorke
+   platí aj živé .options-wrap .button.option-button.active:before { padding: 20px 10px; line-height: 0; top/left 22 % }
+   a do 768 px { top: 3px !important } — padding natiahol 16 px kruh na ovál cez výšku vzorky. Preto tu padding 0,
+   border-box, pevné min/max rozmery a top: auto !important (inak by živé !important vrátilo hviezdičku hore k fajke). */
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana::before {
   content: "\2605" !important;
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: auto !important;
+  right: auto;
+  bottom: 3px;
+  left: 3px !important;
   z-index: 1;
+  box-sizing: border-box;
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: var(--kr-zlato);
+  background: linear-gradient(135deg, #ecd07a, #c49b31);
+  box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(20, 15, 5, 0.3);
   color: #17130a;
-  font: 700 9px/1 var(--kr-body);
+  font: 700 11px/1 var(--kr-body);
+  text-indent: 0;
+  vertical-align: top;
+  transform: none;
 }
 
 /* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad (kroky.js ho štýluje: 320 × 320, v strede) */

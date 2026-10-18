@@ -21,6 +21,12 @@ body.lcd-1v {
   --kr-line: #d9d4c6;
   --kr-ram: #d3c49a;
   --kr-zelena: #2f9c68;
+  /* zvolená voľba = zelený rám + zelená fajka (Michal 18. 10. 2026: „orámovalo zeleným pásikom, nech je to kontrastnejšie“);
+     platí pre všetky kroky 1V (premenné na body.lcd-1v, preto ich používajú aj ostatné partialy); zlatá ostáva na hover,
+     nezvolených obrysoch a štítkoch Odporúčame / Najčastejšie */
+  --kr-zvol: #1f7a52;
+  --kr-zvol-fajka: linear-gradient(135deg, #1d6b4a 0%, #2f9c68 52%, #1f7350 100%);
+  --kr-zvol-tien: rgba(31, 122, 82, 0.22);
   --kr-cervena: #c0392b;
   --kr-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
   --kr-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
@@ -599,10 +605,12 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .
   text-transform: uppercase;
   transform: none;
 }
+/* zvolený vzor: zelený rám 3 px (Michal 18. 10. 2026); rám kreslí živé .patterns-wrap a.button.option-button.active
+   { border: 3px solid #c5a44e !important }, preto tu len jeho farba cez !important (vyššia špecificita vyhrá) */
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active {
-  border-color: var(--kr-gold);
+  border-color: var(--kr-zvol) !important;
   background: #fff;
-  box-shadow: 0 0 0 1px var(--kr-gold), 0 8px 20px rgba(140, 105, 25, 0.18);
+  box-shadow: 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active .banner-header {
   color: var(--kr-ink);
@@ -622,8 +630,9 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.a
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  background: var(--kr-zlato);
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(20, 15, 5, 0.3);
+  color: #fff;
   font: 700 11px/1 var(--kr-body);
 }
 
@@ -725,9 +734,10 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button sp
 body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button.active,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button.active,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button.active {
-  background: var(--kr-zlato);
-  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
-  color: #17130a;
+  /* zvolená pilulka zelená (Michal 18. 10. 2026: zvolené = zelené, kontrastnejšie) */
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 4px 12px var(--kr-zvol-tien);
+  color: #fff;
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::before,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::after {
@@ -986,7 +996,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button
 }
 body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button.active {
   border-color: #fff;
-  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, 0.25);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button.active::after {
   content: "\2713";
@@ -1001,8 +1011,9 @@ body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--kr-zlato);
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(20, 15, 5, 0.3); /* biely lem: fajka viditeľná aj na zelenej vzorke */
+  color: #fff;
   font: 700 9px/1 var(--kr-body);
 }
 /* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad hneď pod farbami */

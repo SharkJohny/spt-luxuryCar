@@ -151,10 +151,11 @@ body.lcd-1v .lcd1v-rz .rz-dlazdice button {
   color: #3d3728;
   transition: background-color 0.2s, color 0.2s;
 }
+/* zvolená dlaždica zelená ako pilulky kroku Vaše auto (Michal 18. 10. 2026: zvolené = zelené; premenné z _lcd1v-kroky.scss) */
 body.lcd-1v .lcd1v-rz .rz-dlazdice button.on {
-  background: var(--rz-zlato);
-  color: #17130a;
-  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
+  background: var(--kr-zvol-fajka);
+  color: #fff;
+  box-shadow: 0 4px 12px var(--kr-zvol-tien);
 }
 
 /* pôdorys auta zhora */
@@ -299,10 +300,11 @@ body.lcd-1v .lcd1v-rz[data-r2="0"] .rz-karta[data-rady="2"] {
 body.lcd-1v .lcd1v-rz[data-r3="0"] .rz-karta[data-rady="3"] {
   display: none;
 }
+/* zvolená karta: zelený rám 2 + 1 px a jemne zelený podklad (Michal 18. 10. 2026) */
 body.lcd-1v .lcd1v-rz .rz-karta.on {
-  border-color: var(--rz-gold);
-  background: #fffaee;
-  box-shadow: 0 10px 26px rgba(140, 105, 25, 0.26);
+  border-color: var(--kr-zvol);
+  background: #f4faf6;
+  box-shadow: 0 0 0 1px var(--kr-zvol), 0 10px 26px var(--kr-zvol-tien);
 }
 body.lcd-1v .lcd1v-rz .rz-foto {
   position: relative;
@@ -382,7 +384,7 @@ body.lcd-1v .lcd1v-rz .rz-pl {
   white-space: nowrap;
   color: var(--rz-gold-txt);
 }
-/* krúžok vpravo, po výbere zlatý s fajkou */
+/* krúžok vpravo, po výbere zelený s fajkou (Michal 18. 10. 2026: zvolené = zelený rám) */
 body.lcd-1v .lcd1v-rz .rz-vol {
   display: flex;
   align-items: center;
@@ -406,9 +408,10 @@ body.lcd-1v .lcd1v-rz .rz-vol svg {
 }
 body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol {
   border-color: transparent;
-  background: var(--rz-zlato);
+  background: var(--kr-zvol-fajka);
 }
 body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
+  stroke: #fff;
   opacity: 1;
 }
 
@@ -423,7 +426,8 @@ body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
     transform: translateY(-1px);
   }
   body.lcd-1v .lcd1v-rz .rz-karta.on:hover {
-    box-shadow: 0 10px 26px rgba(140, 105, 25, 0.26);
+    border-color: var(--kr-zvol);
+    box-shadow: 0 0 0 1px var(--kr-zvol), 0 10px 26px var(--kr-zvol-tien);
   }
 }
 

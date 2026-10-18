@@ -13987,6 +13987,12 @@ body.lcd-1v {
   --kr-line: #d9d4c6;
   --kr-ram: #d3c49a;
   --kr-zelena: #2f9c68;
+  /* zvolená voľba = zelený rám + zelená fajka (Michal 18. 10. 2026: „orámovalo zeleným pásikom, nech je to kontrastnejšie“);
+     platí pre všetky kroky 1V (premenné na body.lcd-1v, preto ich používajú aj ostatné partialy); zlatá ostáva na hover,
+     nezvolených obrysoch a štítkoch Odporúčame / Najčastejšie */
+  --kr-zvol: #1f7a52;
+  --kr-zvol-fajka: linear-gradient(135deg, #1d6b4a 0%, #2f9c68 52%, #1f7350 100%);
+  --kr-zvol-tien: rgba(31, 122, 82, 0.22);
   --kr-cervena: #c0392b;
   --kr-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
   --kr-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
@@ -14565,10 +14571,12 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .
   text-transform: uppercase;
   transform: none;
 }
+/* zvolený vzor: zelený rám 3 px (Michal 18. 10. 2026); rám kreslí živé .patterns-wrap a.button.option-button.active
+   { border: 3px solid #c5a44e !important }, preto tu len jeho farba cez !important (vyššia špecificita vyhrá) */
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active {
-  border-color: var(--kr-gold);
+  border-color: var(--kr-zvol) !important;
   background: #fff;
-  box-shadow: 0 0 0 1px var(--kr-gold), 0 8px 20px rgba(140, 105, 25, 0.18);
+  box-shadow: 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active .banner-header {
   color: var(--kr-ink);
@@ -14588,8 +14596,9 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.a
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  background: var(--kr-zlato);
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(20, 15, 5, 0.3);
+  color: #fff;
   font: 700 11px/1 var(--kr-body);
 }
 
@@ -14691,9 +14700,10 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button sp
 body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button.active,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button.active,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button.active {
-  background: var(--kr-zlato);
-  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
-  color: #17130a;
+  /* zvolená pilulka zelená (Michal 18. 10. 2026: zvolené = zelené, kontrastnejšie) */
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 4px 12px var(--kr-zvol-tien);
+  color: #fff;
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::before,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::after {
@@ -14952,7 +14962,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button
 }
 body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button.active {
   border-color: #fff;
-  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, 0.25);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button.active::after {
   content: "\2713";
@@ -14967,8 +14977,9 @@ body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--kr-zlato);
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(20, 15, 5, 0.3); /* biely lem: fajka viditeľná aj na zelenej vzorke */
+  color: #fff;
   font: 700 9px/1 var(--kr-body);
 }
 /* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad hneď pod farbami */
@@ -15212,10 +15223,11 @@ body.lcd-1v .lcd1v-rz .rz-dlazdice button {
   color: #3d3728;
   transition: background-color 0.2s, color 0.2s;
 }
+/* zvolená dlaždica zelená ako pilulky kroku Vaše auto (Michal 18. 10. 2026: zvolené = zelené; premenné z _lcd1v-kroky.scss) */
 body.lcd-1v .lcd1v-rz .rz-dlazdice button.on {
-  background: var(--rz-zlato);
-  color: #17130a;
-  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
+  background: var(--kr-zvol-fajka);
+  color: #fff;
+  box-shadow: 0 4px 12px var(--kr-zvol-tien);
 }
 
 /* pôdorys auta zhora */
@@ -15360,10 +15372,11 @@ body.lcd-1v .lcd1v-rz[data-r2="0"] .rz-karta[data-rady="2"] {
 body.lcd-1v .lcd1v-rz[data-r3="0"] .rz-karta[data-rady="3"] {
   display: none;
 }
+/* zvolená karta: zelený rám 2 + 1 px a jemne zelený podklad (Michal 18. 10. 2026) */
 body.lcd-1v .lcd1v-rz .rz-karta.on {
-  border-color: var(--rz-gold);
-  background: #fffaee;
-  box-shadow: 0 10px 26px rgba(140, 105, 25, 0.26);
+  border-color: var(--kr-zvol);
+  background: #f4faf6;
+  box-shadow: 0 0 0 1px var(--kr-zvol), 0 10px 26px var(--kr-zvol-tien);
 }
 body.lcd-1v .lcd1v-rz .rz-foto {
   position: relative;
@@ -15443,7 +15456,7 @@ body.lcd-1v .lcd1v-rz .rz-pl {
   white-space: nowrap;
   color: var(--rz-gold-txt);
 }
-/* krúžok vpravo, po výbere zlatý s fajkou */
+/* krúžok vpravo, po výbere zelený s fajkou (Michal 18. 10. 2026: zvolené = zelený rám) */
 body.lcd-1v .lcd1v-rz .rz-vol {
   display: flex;
   align-items: center;
@@ -15467,9 +15480,10 @@ body.lcd-1v .lcd1v-rz .rz-vol svg {
 }
 body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol {
   border-color: transparent;
-  background: var(--rz-zlato);
+  background: var(--kr-zvol-fajka);
 }
 body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
+  stroke: #fff;
   opacity: 1;
 }
 
@@ -15484,7 +15498,8 @@ body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
     transform: translateY(-1px);
   }
   body.lcd-1v .lcd1v-rz .rz-karta.on:hover {
-    box-shadow: 0 10px 26px rgba(140, 105, 25, 0.26);
+    border-color: var(--kr-zvol);
+    box-shadow: 0 0 0 1px var(--kr-zvol), 0 10px 26px var(--kr-zvol-tien);
   }
 }
 
@@ -15653,9 +15668,10 @@ body.lcd-1v .lcd1v-kb__karta:focus-visible {
 body.lcd-1v .lcd1v-kb__karta--naj {
   border-color: #d6bd76;
 }
+/* zvolená karta: zelený rám (Michal 18. 10. 2026: „orámovalo zeleným pásikom“; --kr-zvol* z _lcd1v-kroky.scss) */
 body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"] {
-  border-color: var(--kb-gold);
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, .18);
+  border-color: var(--kr-zvol);
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"]::after {
   content: "✓";
@@ -15671,7 +15687,7 @@ body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"]::after {
   box-sizing: border-box;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: linear-gradient(150deg, #2f9c68, #1d6b4a);
+  background: var(--kr-zvol-fajka);
   color: #fff;
   font: 800 12px/1 Arial, sans-serif;
   box-shadow: 0 3px 10px rgba(20, 15, 5, .4);
@@ -15836,8 +15852,10 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj {
   background: #fffaef;
   box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3);
 }
+/* zvolená odporúčaná: rám zelený ako pri ostatných kartách, zlatý pás „Najobjednávanejšie“ ostáva (Michal 18. 10. 2026) */
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"] {
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 0 0 5px rgba(196, 155, 49, .2), 0 14px 30px rgba(160, 120, 30, .3);
+  border-color: var(--kr-zvol);
+  box-shadow: 0 0 0 1px var(--kr-zvol), 0 0 0 5px rgba(31, 122, 82, .16), 0 14px 30px var(--kr-zvol-tien);
 }
 /* fajka pod pásom (pás s vetou je vysoký ~52 px) */
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"]::after {
@@ -16211,8 +16229,8 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-b
   box-sizing: border-box;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button.active img {
-  border-color: var(--kb-gold);
-  box-shadow: 0 0 0 2.5px rgba(196, 155, 49, .55), 0 6px 14px rgba(20, 15, 5, .3);
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, .3);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-button.active::after {
   content: "✓" !important;
@@ -16225,10 +16243,10 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-farby .button.option-b
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(150deg, var(--kb-gold-hi), var(--kb-gold-lo));
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  color: #fff;
   font: 800 10px/1 Arial, sans-serif;
-  box-shadow: 0 2px 6px rgba(20, 15, 5, .35);
+  box-shadow: 0 0 0 1.5px #fff, 0 2px 6px rgba(20, 15, 5, .35);
 }
 /* veľkosť: karta S / M / L / XL */
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button {
@@ -16236,7 +16254,8 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-bu
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 14px 10px !important;
+  /* menší okraj ako pri štvorčeku (kresba boxu je vyššia), karta na telefóne narastie len o ~30 px */
+  padding: 10px 8px 12px !important;
   border: 1px solid var(--kb-line) !important;
   border-radius: 12px !important;
   background: #fff !important;
@@ -16246,33 +16265,73 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-bu
   border-color: #c9b98a !important;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button.active {
-  border-color: var(--kb-gold) !important;
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, .18);
+  border-color: var(--kr-zvol) !important;
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel {
   display: flex;
   flex-direction: column;
+  align-self: stretch;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
 }
+/* kresba boxu (box-kresba.js) namiesto zlatého štvorčeka s písmenom — skutočný pomer šírky, všetky karty v rovnakej
+   mierke, farba = farba boxov z okna (Michal 18. 10. 2026: veľkosti a farby boxov aj pri autokobercoch) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel > .lcd1v-bxp-sil {
+  display: block;
+  width: 100%;
+  max-width: 104px;
+  height: auto;
+  margin: 0 auto 1px;
+  overflow: visible;
+}
+@media (min-width: 721px) {
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel > .lcd1v-bxp-sil {
+    max-width: 136px;
+  }
+}
+/* písmeno veľkosti = text pod kresbou (ako na boxe 616); zvolená karta má zelený rám, písmeno zelené */
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vl {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 8px;
-  box-sizing: border-box;
-  border: 1px solid var(--kb-line);
-  border-radius: 11px;
-  background: #f5f2ea;
-  color: #4a4433;
+  display: block;
+  color: var(--kb-ink);
   font: 800 17px/1 var(--kb-disp);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .button.option-button.active .lcd1v-bx__vl {
-  border-color: transparent;
-  background: linear-gradient(150deg, var(--kb-gold-hi), var(--kb-gold-lo));
-  color: #17130a;
+  color: var(--kr-zvol);
+}
+/* farby kresby: premenné na okne (kufor-boxy.js -> box-kresba.js nastavFarbuKresby; predvolená čierna s béžovým šitím),
+   vzory <defs> sú v okne, aby premenné zdedili; rovnaké triedy ako krok 3 boxu 616 (_lcd1v-boxy.scss) */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config {
+  --bxp-lth: #2a2b30;
+  --bxp-sp: #55585f;
+  --bxp-edge: #0e0f11;
+  --bxp-st: #dcc59c;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config > .lcd1v-bxp-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-l {
+  fill: var(--bxp-lth);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-e {
+  stroke: var(--bxp-edge);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-s {
+  fill: var(--bxp-sp);
+  stroke: var(--bxp-edge);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-ef {
+  fill: var(--bxp-edge);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-t,
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-qs {
+  stroke: var(--bxp-st);
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-qg {
+  stroke: var(--bxp-gr, rgba(0, 0, 0, .42));
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__rozmer {
   font: 400 12.5px/1.15 var(--kb-body);
@@ -16809,10 +16868,10 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:disabled {
   filter: none;
   transform: none;
 }
-/* po „Áno“ (prenos): dlaždica ako zvolená karta */
+/* po „Áno“ (prenos): dlaždica ako zvolená karta — zelený rám (Michal 18. 10. 2026: zvolené = zelené) */
 body.lcd-1v #product-detail-form .lcd1v-druha.lcd1v-druha--prenos .lcd1v-druha__dlazdica {
-  border-color: var(--kb-gold);
-  box-shadow: 0 0 0 1px var(--kb-gold), 0 8px 20px rgba(140, 105, 25, 0.18);
+  border-color: var(--kr-zvol);
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
   cursor: default;
 }
 
@@ -17778,7 +17837,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .optio
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active {
   border-color: #fff;
-  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, 0.25);
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.active::after {
   content: "\2713";
@@ -17793,34 +17852,54 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .optio
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--kr-zlato);
-  color: #17130a;
+  background: var(--kr-zvol-fajka);
+  box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(20, 15, 5, 0.3); /* biely lem: fajka viditeľná aj na zelenej vzorke */
+  color: #fff;
   font: 700 9px/1 var(--kr-body);
 }
-/* odporúčaná vzorka: zlatý rámik a hviezdička vľavo hore (vpravo hore je fajka zvolenej) */
+/* odporúčaná vzorka: zlatý rámik (kým nie je zvolená) a hviezdička vľavo dole (vpravo hore je fajka zvolenej) */
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana {
   border-color: var(--kr-gold);
   box-shadow: 0 0 0 1px var(--kr-gold);
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana.active {
   border-color: #fff;
-  box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, 0.25);
+  box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, 0.25);
 }
+/* hviezdička = pevný kruh 20 px (Michal 18. 10. 2026: „tá hviezdička sa tak divne deformuje“). Príčina: na zvolenej vzorke
+   platí aj živé .options-wrap .button.option-button.active:before { padding: 20px 10px; line-height: 0; top/left 22 % }
+   a do 768 px { top: 3px !important } — padding natiahol 16 px kruh na ovál cez výšku vzorky. Preto tu padding 0,
+   border-box, pevné min/max rozmery a top: auto !important (inak by živé !important vrátilo hviezdičku hore k fajke). */
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana::before {
   content: "\2605" !important;
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: auto !important;
+  right: auto;
+  bottom: 3px;
+  left: 3px !important;
   z-index: 1;
+  box-sizing: border-box;
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: var(--kr-zlato);
+  background: linear-gradient(135deg, #ecd07a, #c49b31);
+  box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(20, 15, 5, 0.3);
   color: #17130a;
-  font: 700 9px/1 var(--kr-body);
+  font: 700 11px/1 var(--kr-body);
+  text-indent: 0;
+  vertical-align: top;
+  transform: none;
 }
 
 /* živý náhľad (.image-wrap + .lcd-color-label) nahrádza .lcd1v-nahlad (kroky.js ho štýluje: 320 × 320, v strede) */
@@ -18421,7 +18500,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .option
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
 
 /* ---------------------------------------------------------------- krok 2: počet boxov (návrh C, Michal 18. 10. 2026)
-   dlaždica = reálna fotka v pravej časti, vľavo tmavý prechod s textom (štýl banneru setu); vybraná = zlatý rám + zelená fajka */
+   dlaždica = reálna fotka v pravej časti, vľavo tmavý prechod s textom (štýl banneru setu); vybraná = zelený rám + zelená fajka (rám zelený od 18. 10. 2026) */
 /* živé „1 ks / 2 ks / 3 ks“ sú v .name-wrap (skrytý obalom kroky.js); prázdny živý zoznam možností preč */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-pocet > .options-wrap { display: none !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-pocty,
@@ -18450,11 +18529,12 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ram {
   border: 1px solid rgba(196, 155, 49, .35); border-radius: inherit; transition: border-color .2s, border-width .2s;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] { box-shadow: 0 8px 22px rgba(0, 0, 0, .22); }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] > .lcd1v-bxp-ks-ram { border: 3px solid #c49b31; }
+/* zvolená = zelený rám (Michal 18. 10. 2026); na tmavej dlaždici svetlejšia zelená #2f9c68 (kontrast s #14110b ~5,4 : 1, #1f7a52 len ~3,5 : 1) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] > .lcd1v-bxp-ks-ram { border: 3px solid var(--kr-zelena); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"]::after {
   content: "\2713"; position: absolute; z-index: 4; top: 10px; right: 10px;
   display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
-  background: linear-gradient(135deg, #1d6b4a 0%, #2f9c68 52%, #1f7350 100%); color: #fff;
+  background: var(--kr-zvol-fajka); color: #fff;
   font: 800 13px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0, 0, 0, .25);
 }
 @media (hover: hover) {
@@ -18520,29 +18600,32 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk {
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-gold); background: #fff; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:focus-visible { outline: 3px solid var(--bxp-gold); outline-offset: 2px; }
+/* zvolená veľkosť: zelený rám + zelená fajka (Michal 18. 10. 2026) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"] {
-  border-color: var(--bxp-gold); background: #fff;
-  box-shadow: 0 0 0 1px var(--bxp-gold), 0 8px 20px rgba(140, 105, 25, .18);
+  border-color: var(--kr-zvol); background: #fff;
+  box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]::after {
   content: "\2713"; position: absolute; top: -8px; right: -8px; z-index: 1;
   display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
-  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31); color: #17130a;
-  font: 800 11px/1 var(--kr-body); box-shadow: 0 3px 9px rgba(20, 15, 5, .3);
+  background: var(--kr-zvol-fajka); color: #fff;
+  font: 800 11px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 3px 9px rgba(20, 15, 5, .3);
 }
 @media (hover: none) {
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-line); background: #f7f5ef; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]:hover { border-color: var(--bxp-gold); background: #fff; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]:hover { border-color: var(--kr-zvol); background: #fff; }
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil { display: block; width: 100%; height: auto; overflow: visible; }
-/* kresba boxu: koža, obrys/lem, rúčka, šitie (premenné --bxp-* na .lcd1v-bxp-velk; vzory v <defs> v tom istom obale) */
+/* kresba boxu (box-kresba.js): koža, obrys/lem, rúčka, šitie (premenné --bxp-* na .lcd1v-bxp-velk; vzory v <defs> v tom
+   istom obale); rovnaké triedy v okne boxov na autokobercoch štýluje _lcd1v-kufor-boxy.scss */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-l { fill: var(--bxp-lth); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-e { stroke: var(--bxp-edge); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-s { fill: var(--bxp-sp); stroke: var(--bxp-edge); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-ef { fill: var(--bxp-edge); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-t,
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-qs { stroke: var(--bxp-st); }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-qg { stroke: #000; stroke-opacity: .42; }
+/* ryha prešívania: --bxp-gr z box-kresba.js (béžová má teplú hnedú, čierna ryha robila zo svetlej kože sivú — Michal 18. 10. 2026) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk .lcd1v-bxp-k-qg { stroke: var(--bxp-gr, rgba(0, 0, 0, .42)); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-l {
   margin-top: 2px; font: 700 19px/1 var(--kr-disp); color: var(--kr-ink);
 }
@@ -19598,16 +19681,19 @@ body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-img {
   body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:not(.lcd1v-vz-dl--nahlad):hover .lcd1v-vz-sw {
     transform: translateY(-2px); border-color: var(--kr-gold);
   }
+  /* zvolená ostáva pri prejdení myšou so zeleným rámom (biely lem vnútri, nie zlatý) */
+  body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on:not(.lcd1v-vz-dl--nahlad):hover .lcd1v-vz-sw { border-color: #fff; }
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:focus-visible { outline: 0; }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl:focus-visible .lcd1v-vz-sw { outline: 3px solid var(--kr-gold); outline-offset: 2px; }
+/* zvolená vzorka: zelený rám + zelená fajka (Michal 18. 10. 2026: zvolené = zelené) */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-sw {
-  border-color: #fff; box-shadow: 0 0 0 2px var(--kr-gold), 0 6px 14px rgba(20, 15, 5, .25);
+  border-color: #fff; box-shadow: 0 0 0 3px var(--kr-zvol), 0 6px 14px rgba(20, 15, 5, .25);
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-sw::after {
   content: "\2713"; position: absolute; top: 5px; right: 5px; display: flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px; border-radius: 50%; background: var(--kr-zlato); color: #17130a;
-  font: 800 12px/1 var(--kr-body); box-shadow: 0 2px 8px rgba(20, 15, 5, .35);
+  width: 20px; height: 20px; border-radius: 50%; background: var(--kr-zvol-fajka); color: #fff;
+  font: 800 12px/1 var(--kr-body); box-shadow: 0 0 0 1.5px #fff, 0 2px 8px rgba(20, 15, 5, .35);
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-nm {
   display: block; margin: 0; font: 700 10.5px/1.22 var(--kr-disp); letter-spacing: .01em; color: var(--kr-tmava);
@@ -19617,7 +19703,7 @@ body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-kd {
   display: block; margin: -2px 0 0; font: 700 9.5px/1.2 var(--kr-disp); letter-spacing: .08em; color: #9a917a;
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-nm { color: var(--kr-ink); }
-body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-kd { color: var(--kr-gold-tx); }
+body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl.on .lcd1v-vz-kd { color: var(--kr-zvol); }
 /* náhľad (neposiela sa, živý widget ho nedovolí objednať): tlmený, štítok, klik len ukáže fotku */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-dl--nahlad { cursor: zoom-in; }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-dl--nahlad .lcd1v-vz-img { filter: saturate(.75); opacity: .8; }
