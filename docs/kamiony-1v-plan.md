@@ -233,6 +233,14 @@ Fixture (K8): `tools/test-1v/kamion-640.fixture.html` = zo živej stránky (GET)
 | 8 | Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovanie 11, vlastný motív H21 / 2840 | 388/391/394 „Vyberie sa v konfigurátore“, 397 „Nášivka H21“, 400 „2840 – Zelená“; poznámka „TAPACÍR DVERÍ … Mikrosemiš – dvojfarebný – 3N“ |
 | 9 | Nič nevybraté → Do košíka (aj z lišty) | 0 klikov na natívne tlačidlo, otvorí sa krok 1 s červeným rámikom |
 | 10 | Predvýber `truckBrand/truckModel/truckExtras` (aj neplatný model) | vozidlo predvyplnené len platnými hodnotami |
+| 11 | (N1) TIR, tapacír Áno + vlastná nášivka H21 / 2824 → prepnúť na Fiat (dodávka) Ducato | 352/355 „Nie …“, 388/391/394/397/400 prázdne (ako čerstvá dodávka), 209 € |
+| 12 | (N3) „Pridať do košíka“ a do 100 ms iný materiál | 0 klikov, poznámka sa nezapíše, tlačidlo znova aktívne |
+| 13 | (N4) dve ťuknutia 300 ms po sebe (súhrn aj lišta) | 1 klik; tlačidlo aj lišta `disabled` + `aria-busy`; po `ShoptetCartUpdated` alebo 3 s znova aktívne |
+| 14 | (N2, časť) povinný select bez hodnoty | 0 klikov, poznámka položky, ktorá už je v košíku, ostane |
+| 15 | (R3) výzva `a[href="#product-detail-form"][data-p1v-kamion-krok]` | bez vozidla krok 1 červený, s vozidlom „material“, bez nápovedy / neznámy krok → vozidlo |
+| 16 | (R5) „… recenzií na Google“ pod H1 | `href="#p1v-recenzie"`, klik posunie na `[data-lcd-sekcia="a-recenzie"]` − 90 px |
+
+Od revízie 18. 10. (N1) sa „15 selectov = React“ porovnáva so zrkadlom krok po kroku, ale detaily tapacíru (388–400) bez tapacíru s Reactom na **čistej** stránke; navyše každá cesta kontroluje, že 15 selectov nezávisí od histórie (= React z čistej stránky len s finálnym stavom).
 
 V každej ceste: všetkých 5 povinných selectov (346, 376, 379, 349, 352) má hodnotu; text zvolenej možnosti každého z 15 selectov = tabuľka 2.1; **hodnoty selectov = výsledok vyrezaného gen.jsx `syncToShoptet(naStavReactu(S))` na čistej kópii fixture** (parita s Reactom); kľúče `FormData` = `productId, priceId, language, amount` + 15 × `surchargeParameterValueId[N]`; `sessionStorage.truckOrderSummary` = `buildTruckOrderSummary(naStavReactu(S))` a `mergeTruckOrderSummaryIntoNote("", …)` má značky `[KONFIGURÁCIA KAMIÓNA]`; `truckVehicle` = „<značka> <model>“; `ctx.cena().spolu` = súčet modulu; 1 klik na natívne tlačidlo; žiadny `console.error`.
 
@@ -305,7 +313,7 @@ I1 `python tools/vloz-lcd-css.py` + `node tools/build-admin-html.mjs` (dist + lu
 
 **Na Michala (rozhodnutia a admin):**
 1. Úspora pri „Šofér + spolujazdec“ / „Len stred“ (11 €): nové UI ju počíta do „Ušetríte“ (ART), React nie (Z2, `na_overenie` 14).
-2. Po prepnutí tapacíru na Nie nechá React v selectoch 388/391/394 „Rovnaký/á/é ako koberec“ (za 0 €, ale v košíku viditeľné). Nové UI robí to isté kvôli rovnakej objednávke — má sa to vyčistiť?
+2. ~~Po prepnutí tapacíru na Nie nechá React v selectoch 388/391/394 „Rovnaký/á/é ako koberec“ (za 0 €, ale v košíku viditeľné).~~ **Vyriešené revíziou 18. 10. (N1):** nové UI bez tapacíru detaily tapacíru (388/391/394/397/400) vyprázdni — rovnako ako keby zákazník tapacír nikdy nevybral. React to robí naďalej po starom (mení sa len po vydaní nového UI).
 3. Admin pred spustením pre všetkých: názov produktu/H1 („Luxusné autokoberce do kamiónov a dodávok“), SEO titulok a meta popis (`texty.json seo`, dnes „Testovací produkt…“), dostupnosť „Na dotaz“, kód `TEST-TRUCK`, bežná cena (dnes žiadna → bez Odporúčanej ceny).
 4. Otvorené body ART `texty.json na_overenie` (21): lehota 20–30 vs 21–29 dní, čo je v základe 199 €, mená farieb a motívov (návrh), dve farby lemovania, vlastné logo/motívy (25 vs H19/H21), garancia, potvrdenie objednávky, čistenie mikrosemišu, štítok „Najobľúbenejšie“, odpoveď do hodiny, platba, doprava, „samostatne“ ceny (179/140/70/89 € sú len v kóde, nie v Shoptete), Scania R sedadlá, CINEMA, Actros MP2/MP3 roky, vodoodolnosť.
 5. Fotky do galérie a obsahu: dnes len 30 fotiek produktu 640; fotky kabín zákazníkov s logom Scania sa nepoužijú — dodá fotky bez loga?
@@ -341,3 +349,64 @@ Odchýlky od plánu: lišta na telefóne sa ukazuje ako v artefakte (keď súhrn
 
 Opravy testov pri integrácii: `scenare-kamion.mjs` — pri `?novy=1` pred vydaním sa scenáre preskočia (predtým zlyhali na chýbajúcom `body.lcd-1v`); `obsah-kamiony.mjs` — „vo výreze“ = nad spodnými 8 % ako reveal v `obsah.js` (na 390 px tlačidlo galérie trčalo 5 px pod hranicu).
 `?novy=1` na 640 = React až do K10 (rozhodnutie Michala). Nové UI sa dá pozrieť len cez `?novy=vyvoj`.
+
+---
+
+## 10. Stav a nasadenie (18. 10. 2026, po revízii; lokálne commity na `kamiony-1v-lokal`, bez pushu)
+
+### 10.1 Čo je hotové
+
+Celý nový konfigurátor kamiónov a dodávok (6 krokov ako schválený artefakt, ozajstný košík Shoptetu) + obsah pod ním, za bránou. Bez flagu sa pre zákazníka nemení nič (`nulova-zmena` na všetkých 15 produktoch OK). Na 640 dnes: bez flagu aj s `?novy=1` = React (kamion nie je v `ZAPNUTE_TYPY`), nové UI len s `?novy=vyvoj`.
+
+Revízia (2 modely, 9 nálezov) — každý nález som zopakoval (jsdom alebo kód/CSS), výsledok:
+
+| Nález | Overené | Stav |
+|---|---|---|
+| R1 náhľad nášivky neprefarbí motív (canvas „tainted“) | áno — `nacitaj()` bez `crossOrigin` | **opravené**: `i.crossOrigin = "anonymous"` (ako React); živý test: náhľad je červený pri niti 2824 a béžový pri 3546, canvas nie je tainted |
+| R2 v CSS chýbali pravidlá tried s `--` (Áno/Nie sivé, ponuka tapacíru, „Najobľúbenejšie“, dlaždice motívov a materiálov) | áno — 0 výskytov v SCSS, príčina regex `tools/kamion-css-z-artefaktu.mjs:39` | **opravené**: regex `(?:--\|-\|__)`, prevod znova spustený (len +13 pravidiel + 1 `@media`, inak bez zmeny), `vloz-lcd-css.py`; živý test kontroluje farby (Áno zelené, Nie zlaté, zlatý rám, biely podklad motívu) |
+| R3 „Vybrať materiál“ v obsahu otvorí krok Vozidlo | áno | **opravené**: `naVyzvu` číta `data-p1v-kamion-krok`; `otvorKrok` pri neznámom kroku → Vozidlo; košík cesta 15 + `obsah-kamiony.mjs` (živá stránka) |
+| R4 okno Luxie zakrýva konfigurátor a chybové hlásenie | v mojich behoch (Chrome bez okna) sa uvítanie ani VIP okno neukázalo, len bublina; revízia ho má na snímkach | **neopravené — rozhodnutie Michala** (celý web, modul Luxia je iné repo); návrh v 10.4 |
+| R5 „… recenzií na Google“ nikam nevedie | áno — `href="#"`, bez poslucháča | **opravené**: `href="#p1v-recenzie"` + posun na `[data-lcd-sekcia="a-recenzie"]` − 90 px (ako 1V `cena.js`); košík cesta 16 |
+| N1 TIR s tapacírom → dodávka: 388–400 nesú starú nášivku na dverách | áno — POST `[397]=1765`, `[400]=1813` pri `[352]=1384` | **opravené** v novom module (`shoptet.js upratTapacir`; doslovná kópia Reactu nedotknutá): bez tapacíru sa 388/391/394/397/400 vrátia na „Vyberte príplatok“ = rovnaký stav, ako keď zákazník tapacír nikdy nevybral; vyrieši aj starý bod §7.2; cesty 7 a 11 + v každej ceste kontrola „15 selectov nezávisí od histórie“ |
+| N2 dve konfigurácie v jednom košíku → poznámka len poslednej | áno (2 POST, poznámka len „– 10“); aj prepis poznámky pri nepodarenom pridaní | **čiastočne**: poznámka sa zapíše až tesne pred klikom (nepodarené pridanie ju už neprepíše, cesta 14). Viac konfigurácií = **rozhodnutie Michala** (týka sa aj Reactu, `order-summary.mjs` je spoločný) |
+| N3 zmena výberu do 100 ms po „Pridať do košíka“ | áno — POST s Mikrosemišom, poznámka s prešívanou | **opravené**: každá zmena zruší čakajúci klik; pred klikom kontrola, že sa výber nezmenil; cesta 12 |
+| N4 dvojité ťuknutie = 2× v košíku | áno — 2 kliky pri 300 ms | **opravené**: po „Pridať do košíka“ sú tlačidlo aj lišta `disabled` + `aria-busy`, kým nepríde `ShoptetCartUpdated` (najviac 3 s); zmena výberu ich zapne hneď; cesta 13 |
+
+React (`truck-konfigurator/*`, `order-summary.mjs`) sa nemenil — N1, N3, N4 tam ostávajú, kým je React naživo.
+
+### 10.2 Výsledky testov (18. 10. 2026, po opravách)
+
+| Test | Výsledok |
+|---|---|
+| `build:once` | OK. Na Windows `npm run build:once` nenájde `esbuild` (cmd), bundle preto rovnakým príkazom cez `node node_modules/esbuild/bin/esbuild …`; `yarn` na PC nie je. `truck-brands.js` bez obsahovej zmeny |
+| `npm run truck:test` | 5/5, VÝSLEDOK: OK |
+| `kamion:test` | cena 68 OK · ceny vs gen.jsx 1 320 kombinácií, NÁLEZ 0 (len zámerné Z1/Z2) · košík **244 OK** (cesty 1–16) · brána 40 OK |
+| `vloz-lcd-css.py --check`, `build-admin-html.mjs --check` | OK |
+| `test-konfigurator-1v --vyvoj --produkt 640 --sirka 1280,390` | 10/10 (kamion-platne 423 €, kamion-dodavka 258 €, kamion-neuplne, brana, nulova-zmena) |
+| `test-konfigurator-1v --produkt 640` bez flagu / `--novy` | 4 OK + 6 preskočené / 4 OK + 6 preskočené (React) |
+| `test-konfigurator-1v --produkt all --krok brana,nulova-zmena --sirka 1280` bez flagu / `--novy` | 30/30 / 30/30 |
+| `test-1v-obsah --vyvoj --produkt 640` / `--len bez` | 10/10 (skupina KAMIONY 40–41 kontrol, vrátane „Vybrať materiál“) / 4/4 |
+
+POST šťastnej cesty (DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, tapacír ako koberce) na živej 640 s lokálnym buildom, zachytený a zrušený: **423 €**, telo na 1280 aj 390 **bajt po bajte = React** (`docs/kamiony-snimky/post-porovnanie.json` → `revizia_2026_10_18`).
+
+Snímky `docs/kamiony-snimky/` (lokálny build, `?novy=vyvoj`): `pc-vrch`, `tel-vrch`, `pc-kroky` (krok 5, zlatý „Najobľúbenejšie“), `pc-nahlad` + `tel-nasivky` (náhľad v červenej niti), `pc-tapacir` (ponuka 119 €), `pc-tapacir-zmenit` (5 materiálov v rade), `pc-tapacir-nasivka` + `tel-tapacir` (nášivka na tapacír: Áno zelené, Nie zlaté), `pc-suhrn` + `tel-suhrn` (423 €), `tel-dodavka-suhrn` (258 €); `bez-flagu`, `obsah-pc`, `obsah-tel` z integrácie (bez zmeny).
+
+### 10.3 Postup nasadenia (len na Michalov pokyn)
+
+1. **Vydanie pre `?novy=1` (K10)** — v `assets/js/components/konfigurator1v/produkty.js` pridať `"kamion"` do `ZAPNUTE_TYPY`; do `docs/1v-odkazy.md` riadok „15 · 640 Kamióny a dodávky · kamion · https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/?novy=1 · 6 krokov, 423 € pri DAF XF106 + balík + tapacír; dodávka bez kroku tapacíru“. Potom `kamion:test` (brána: `?novy=1` → kamión), `test-konfigurator-1v --novy --produkt 640` (scenáre sa už nepreskočia) a `--produkt all --krok brana,nulova-zmena` bez flagu. Commit.
+2. **Zosúladiť s main:** `git fetch origin` → `git rebase origin/main` (medzitým mohla pushnúť iná session; konflikt v `luxuryCar.css` vyriešiť znova cez `python tools/vloz-lcd-css.py`, v `admin-html/dist` cez `node tools/build-admin-html.mjs`) → znova celá sada 10.2.
+3. **Push do `main`** (`SharkJohny/spt-luxuryCar`, iba main). GitHub Actions `production.yml` zbalí `luxuryCar.js` (`--minify --drop:console`) a `luxuryCar.css` a nahrá ich spolu s `html/p1v-*.sk.html` do `…/eshopy/luxuryCar/assets/v/<sha>/` (sha = `git rev-parse --short HEAD`). Overiť `assets/js/version.json` (prepis CDN z inej vetvy).
+4. **Kontrola verzie z CDN pred prepnutím:** `node tools/test-konfigurator-1v.mjs --zdroj <sha> --novy --produkt 640` a `--zdroj <sha> --produkt all --krok brana,nulova-zmena --sirka 1280` (bez flagu 30/30).
+5. **Prepnutie SK:** Shoptet **SK** admin → HTML kódy: v `…/assets/v/<sha>/js/luxuryCar.js` a `…/assets/v/<sha>/css/luxuryCar.css` vymeniť súčasný sha (dnes `d65c8fd`; zapísať si ho na návrat) za nový — 2× Záhlavie, 2× Zápätie. Prepnutie sha po zelených testoch má Michal schválené natrvalo (15. 10.), urobí ho Michal alebo Claude. **CZ HTML kódy nemeniť** (CZ ostáva `5db0f33`, kamióny na CZ = React). Nový sha nesie aj všetky zmeny main od `d65c8fd` (dnes len tento projekt + docs).
+6. **Po prepnutí:** odkaz **https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/?novy=1** (bez flagu React, `?novy=0` vypne); `test-konfigurator-1v --zdroj cdn --novy --produkt 640` a kontrola na telefóne. Skutočná objednávka len s Michalom (živý test s Michalom).
+7. **Návrat:** sha v SK HTML kódoch späť na zapísaný. Nič iné.
+
+Spustenie pre všetkých (bez flagu) je samostatné rozhodnutie neskôr (§7 bod 3 — admin: názov/H1, SEO, dostupnosť, kód `TEST-TRUCK`, bežná cena; obsah do Popisu produktu).
+
+### 10.4 Čo čaká na Michala
+
+1. **Pripomienky k artefaktu** — ak ešte nejaké pošle, premietnuť do `kamion/texty.js` / `ui.js` / CSS a zopakovať 10.2.
+2. **K10 + push + prepnutie sha** (10.3) — kedy.
+3. **N2 – viac konfigurácií v jednom košíku** (React aj nové UI: poznámka objednávky opisuje len poslednú pridanú konfiguráciu; farba, lemovanie a vozidlo sú len v poznámke). Možnosti: (a) poznámka ako zoznam všetkých pridaných konfigurácií (`order-summary.mjs`, spoločné pre React aj nové UI) — odporúčam, najlacnejšie; (b) po pridaní ďalšiu 640 v tej istej relácii zablokovať alebo upozorniť; (c) farbu a lemovanie písať aj do selectov 376/379 (treba nové možnosti v admine).
+4. **R4 – okno Luxie** (uvítanie a VIP výzva) na stránke s konfigurátorom zakrýva chybové hlásenia a tlačidlá, kým ho zákazník nezavrie. Návrh: na stránkach s konfigurátorom 1V potlačiť automatické uvítanie a VIP výzvu (ostane bublina, ktorú 1V už zdvíha nad lištu), alebo ich ukázať až po pridaní do košíka. Týka sa celého webu a modulu Luxia (iné repo).
+5. Body §7 3–6 (admin pred spustením pre všetkých, `na_overenie` z artefaktu, fotky bez loga Scania — logo má aj ilustračná fotka tapacíru v kroku 6, poradie obsahu).

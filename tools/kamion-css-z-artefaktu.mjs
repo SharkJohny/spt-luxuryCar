@@ -36,7 +36,7 @@ function triedyJs() {
     .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:"'\\])\/\/[^\n]*/g, "$1");
   const set = new Set();
   // všetky slová s pomlčkami / dvojitým podčiarknikom v kóde (triedy aj stavy " is-on"; radšej viac než menej)
-  (t.match(/[a-z][a-z0-9]*(?:(?:-|__)[a-z0-9]+)*/gi) || []).forEach((x) => set.add(x));
+  (t.match(/[a-z][a-z0-9]*(?:(?:--|-|__)[a-z0-9]+)*/gi) || []).forEach((x) => set.add(x));
   return set;
 }
 

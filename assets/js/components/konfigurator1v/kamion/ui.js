@@ -33,7 +33,7 @@ export function vytvorUi(o) {
   const doc = root.ownerDocument;
   const D = { ceny: o.ceny, vozidla: { znacky: ZNACKY } };
   const S = novyStav();
-  const U = { otvoreny: "vozidlo", chyby: {}, chybaKosik: false, zablesk: null, dvereInfo: false };
+  const U = { otvoreny: "vozidlo", chyby: {}, chybaKosik: false, zablesk: null, dvereInfo: false, odosiela: false };
   if (o.predvyber) {
     S.typ = o.predvyber.typ || S.typ;
     S.znacka = o.predvyber.znacka;
@@ -192,8 +192,9 @@ export function vytvorUi(o) {
     typ.textContent = h.kicker;
     const hodn = doc.createElement("a");
     hodn.className = "k-hodn";
-    hodn.href = "#";
+    hodn.href = "#p1v-recenzie";
     hodn.hidden = true;
+    hodn.addEventListener("click", naHodnotenie);
     if (h1) {
       h1.classList.add("k-h1");
       h1.innerHTML = esc(h.h1[0]) + " <em>" + esc(h.h1[1]) + "</em>";
@@ -218,6 +219,16 @@ export function vytvorUi(o) {
       '<div data-k="kompat"></div><div data-k="postup"></div><div class="k-kroky" data-k="kroky"></div><div data-k="suhrn"></div>';
     root.appendChild(zvysok);
     return hodn;
+  }
+
+  /** Klik na hodnotenie pod H1 -> sekcia Recenzie pod konfigurátorom (ako 1V cena.js; starý widget, ak nová nie je). */
+  function naHodnotenie(e) {
+    e.preventDefault();
+    const nova = doc.querySelector('.p1v-miesto [data-lcd-sekcia="a-recenzie"]');
+    const ciel = nova && nova.getClientRects().length ? nova : doc.querySelector(".lcd-reviews-widget");
+    if (!ciel) return;
+    const plynulo = !(w.matchMedia && w.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    try { w.scrollTo({ top: ciel.getBoundingClientRect().top + w.pageYOffset - 90, behavior: plynulo ? "smooth" : "auto" }); } catch (x) { /* staré prehliadače */ }
   }
 
   /** Hodnotenie z Google (window.LCD_REVIEWS, ako 1V cena.js); kým dáta nie sú, riadok je skrytý. */
@@ -603,7 +614,8 @@ export function vytvorUi(o) {
     if (c.usetrene > 0) html += '<p class="sh__us">' + esc(eurX(ts.usetrili, c.usetrene)) + "</p>";
     if (U.chybaKosik && !hot) html += '<p class="sh__err" role="alert">' + esc(T.kroky.chyba_kosik) + "</p>";
     if (U.chybaPrenosu) html += '<p class="sh__err" role="alert">' + esc(U0.chyba_kosiku) + "</p>";
-    html += '<button type="button" class="k-btn-zelene k-kosik" data-a="kosik" data-f="kosik">' + esc(hot ? ts.tlacidlo : T.kroky.tlacidla.dokoncite) + "</button>";
+    const zaneprazdnene = U.odosiela ? ' disabled aria-disabled="true" aria-busy="true"' : "";
+    html += '<button type="button" class="k-btn-zelene k-kosik" data-a="kosik" data-f="kosik"' + zaneprazdnene + ">" + esc(hot ? ts.tlacidlo : T.kroky.tlacidla.dokoncite) + "</button>";
     html += '<ul class="sh__fakty">' + ts.fakty.map((f) => "<li>" + esc(f) + "</li>").join("") + "</ul>";
     html += '<p class="k-alt">' + esc(dod ? ts.dopravcovia.text_dodavka : ts.dopravcovia.text) + ' <a href="#p1v-kamiony-dopravcovia" data-a="skok" data-v="p1v-kamiony-dopravcovia">' + esc(ts.dopravcovia.odkaz) + "</a></p>";
     html += "</div>";
@@ -618,13 +630,13 @@ export function vytvorUi(o) {
       mt ? (/Mikrosemiš/.test(mt.nazov) ? U0.mikrosemis : U0.koza) + ", " + mt.variant : ""].filter(Boolean).join(" · ");
     lst.innerHTML = '<div class="lcd1v-lista__c"><b class="lcd1v-lista__suma"><small>' + esc(t.spolu) + " </small>" + (hot ? "" : esc(t.od) + " ") + eur(c.spolu) + "</b>" +
       '<small class="lcd1v-lista__popis">' + esc(popis) + "</small></div>" +
-      '<button type="button" class="lcd1v-lista__kos" data-a="lista" data-f="lista">' + esc(hot ? t.do_kosika : t.pokracovat) + "</button>";
+      '<button type="button" class="lcd1v-lista__kos" data-a="lista" data-f="lista"' + (U.odosiela ? ' disabled aria-disabled="true" aria-busy="true"' : "") + ">" + esc(hot ? t.do_kosika : t.pokracovat) + "</button>";
   }
 
   // ------------------------------------------------------------------ náhľad motívu v nití (canvas, artefakt ř. 868–900)
   const imgCache = {};
   function nacitaj(src) {
-    if (!imgCache[src]) imgCache[src] = new Promise((res, rej) => { const i = new w.Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+    if (!imgCache[src]) imgCache[src] = new Promise((res, rej) => { const i = new w.Image(); i.crossOrigin = "anonymous"; /* CDN posiela ACAO * -> canvas nie je „tainted“, motív sa prefarbí na niť (ako React) */ i.onload = () => res(i); i.onerror = rej; i.src = src; });
     return imgCache[src];
   }
   function kresliNahlady() {
@@ -699,6 +711,7 @@ export function vytvorUi(o) {
     return null;
   }
   function otvorKrok(id) {
+    if (kroky().indexOf(id) < 0) id = "vozidlo"; // neznámy krok (napr. tapacír pri dodávke) -> prvý
     const pred = prvyNehotovyPred(id);
     if (pred) { U.chyby[pred] = chyba(pred); U.zablesk = pred; U.otvoreny = pred; render(); posunPole(pred, U.chyby[pred].pole); return; }
     U.otvoreny = id; render(); posunKrok(id, true);
@@ -722,6 +735,7 @@ export function vytvorUi(o) {
   }
   /** „Pridať do košíka“: prvý nevyplnený krok sa otvorí s červeným rámom, inak odovzdá výber (index.js doKosika). */
   function kosik() {
+    if (U.odosiela) return false; // výber už odišiel do košíka, čaká sa na Shoptet (N4)
     const ks = kroky();
     let prvy = null;
     ks.forEach((k) => { if (!hotovy(k)) { U.chyby[k] = chyba(k); if (!prvy) prvy = k; } });
@@ -732,6 +746,7 @@ export function vytvorUi(o) {
     return ok;
   }
   function lista() {
+    if (U.odosiela) return;
     if (vsetkoHotove()) { kosik(); return; }
     const x = U.otvoreny;
     if (x && !hotovy(x)) { posunPole(x, chyba(x).pole); return; }
@@ -828,6 +843,17 @@ export function vytvorUi(o) {
   root.addEventListener("change", naZmenuPola);
   lst.addEventListener("click", naKlik);
 
+  /** „Odosiela sa“: tlačidlá košíka vypnuté; samé sa zapnú po 3 s (index.js ich zapne skôr po ShoptetCartUpdated). */
+  let odosielaCas = 0;
+  function odosiela(on) {
+    clearTimeout(odosielaCas);
+    if (on) odosielaCas = setTimeout(() => odosiela(false), 3000);
+    if (U.odosiela === !!on) return;
+    U.odosiela = !!on;
+    renderSuhrn();
+    renderLista();
+  }
+
   const hodn = renderHlavicka();
   render();
   return {
@@ -836,12 +862,15 @@ export function vytvorUi(o) {
     render,
     otvorKrok,
     kosik,
+    odosiela,
     hotovo: vsetkoHotove,
     cena,
     hodnotenie: (p) => nastavHodnotenie(hodn, p),
     /** súhrn s tlačidlom (lišta sa skryje, keď je na obrazovke) */
     suhrn: () => $('[data-k="suhrn"]'),
     zrus() {
+      clearTimeout(odosielaCas);
+      hodn.removeEventListener("click", naHodnotenie);
       root.removeEventListener("click", naKlik);
       root.removeEventListener("change", naZmenuPola);
       lst.removeEventListener("click", naKlik);

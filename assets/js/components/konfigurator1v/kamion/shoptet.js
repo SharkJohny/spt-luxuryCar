@@ -181,6 +181,33 @@ export function klikniKosik(doc) {
   return true;
 }
 
+/** Selecty detailov tapacíru (materiál, farba, lemovanie, nášivka a niť na dverách). */
+const TAPACIR_DETAILY = ["tapMaterial", "tapFarba", "tapLem", "tapNasTyp", "tapNasNit"];
+
+/**
+ * Upratanie po syncToShoptet (oprava N1, nové UI navyše oproti Reactu): bez tapacíru (doorPanelChoice !== "ano" —
+ * tapacír Nie alebo vozidlo bez „(TIR)“) syncToShoptet nechá v detailoch tapacíru starú hodnotu, kde resolveValue
+ * vráti null (napr. TIR s nášivkou na dverách -> dodávka: 397 „Nášivka H21“, 400 „2824 – Červená“). Takýto select sa
+ * vráti na prázdnu hodnotu „Vyberte príplatok“ — rovnako, ako keď zákazník tapacír nikdy nevybral (čerstvá dodávka,
+ * tapacír Nie hneď). Povinné a jednohodnotové selecty sa nemenia. Vráti počet upratnutých selectov.
+ */
+export function upratTapacir(state, doc) {
+  const d = dokument(doc);
+  if (!d || !state || state.doorPanelChoice === "ano") return 0;
+  let n = 0;
+  TAPACIR_DETAILY.forEach((k) => {
+    const s = select(k, d);
+    if (!s || s.required || !s.value) return;
+    const realne = Array.prototype.filter.call(s.querySelectorAll("option"), (o) => o.getAttribute("value"));
+    if (realne.length === 1) return;
+    if (resolveValue(menoSelectu(s), state) !== null) return;
+    s.value = "";
+    s.dispatchEvent(new d.defaultView.Event("change", { bubbles: true }));
+    n++;
+  });
+  return n;
+}
+
 // ================================================================ DOSLOVNÁ KÓPIA konfigurator.gen.jsx (nemeniť ručne)
 export function normalizeOptionText(value) {
   return String(value || "")

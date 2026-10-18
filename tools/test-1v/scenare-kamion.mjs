@@ -13,6 +13,13 @@ async function snimka(s, a, meno) {
   const w = await s.t.ev("window.innerWidth").catch(() => "");
   await s.k.snimka(join(a.snimky, "640-" + meno + "-" + w + ".png")).catch(() => {});
 }
+/** --snimky: prvok #lcd1v-kamion <sel> hore v okne (pod hlavičkou webu), potom snímka okna. */
+async function snimkaPrvku(s, a, j, sel, meno) {
+  if (!a.snimky) return;
+  await s.t.ev(`(function () { var e = document.querySelector(${JSON.stringify("#lcd1v-kamion " + sel)}); if (e) window.scrollTo({ top: e.getBoundingClientRect().top + scrollY - 70, behavior: "instant" }); })()`);
+  await j.pauza(700);
+  await snimka(s, a, meno);
+}
 /** ?novy=1 pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React: scenár sa preskočí, nie zlyhá (body.lcd-1v sa nečaká). */
 const zapnuty = (a) => (a.zapnuteSet ? a.zapnuteSet.has(640) : !!a.novy);
 const jeNovy = (s) => s.t.ev(`!!document.getElementById("lcd1v-kamion")`);
@@ -48,8 +55,27 @@ const STAV = `(function () {
     krokov: document.querySelectorAll("#lcd1v-kamion .k-krok").length };
 })()`;
 
+/** R1: náhľad nášivky (canvas) nie je „tainted“ a motív je v farbe nite (počet pixelov blízkych farbe rgb). */
+const NAHLAD = (rgb) => `(function (c) {
+  var cv = document.querySelector("#lcd1v-kamion canvas[data-motiv]"); if (!cv) return { chyba: "canvas náhľadu chýba" };
+  var d; try { d = cv.getContext("2d").getImageData(0, 0, cv.width, cv.height).data; } catch (e) { return { chyba: "canvas tainted: " + e.message }; }
+  var n = 0; for (var i = 0; i < d.length; i += 4) if (Math.abs(d[i] - c[0]) < 40 && Math.abs(d[i + 1] - c[1]) < 40 && Math.abs(d[i + 2] - c[2]) < 40) n++;
+  return { n: n };
+})(${JSON.stringify(rgb)})`;
+async function overNahlad(s, j, rgb, meno) {
+  let r = null;
+  for (let i = 0; i < 20; i++) { r = await s.t.ev(NAHLAD(rgb)); if (r && !r.chyba && r.n > 50) break; await j.pauza(250); }
+  j.over(r && !r.chyba && r.n > 50, "náhľad nášivky " + meno + ": " + JSON.stringify(r));
+}
+/** R2: pravidlá s BEM modifikátorom „--“ z artefaktu sú v CSS (computed style). */
+const STYLY = `(function () {
+  function cs(sel, p) { var el = document.querySelector("#lcd1v-kamion " + sel); return el ? getComputedStyle(el)[p] : null; }
+  return { ano: cs(".an__b--ano", "backgroundImage"), nie: cs(".an__b--nie", "backgroundImage"), naj: cs(".k-kkarta--naj", "borderTopColor"),
+    nvNaj: cs(".nv__b--naj", "borderTopColor"), motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor") };
+})()`;
+
 async function doKosika(s, a, j, meno) {
-  await snimka(s, a, meno + "-pred-kosikom");
+  await snimkaPrvku(s, a, j, '[data-k="suhrn"]', meno + "-pred-kosikom");
   await rob(s, j, [["klik", a_("kosik")]]);
   const post = await j.cakajNaPost(s);
   const st = await s.t.ev(STAV);
@@ -76,9 +102,28 @@ export const SCENARE = {
         ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"],
         ["klik", a_("farba", "12")], ["dalej", "farba"],
         ["klik", a_("lem", "04")], ["dalej", "lemovanie"],
-        ["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2999", "boky")], ["dalej", "nasivky"],
-        ["klik", a_("tap", "ano")], ["klik", a_("tapNas", "nie")],
+        ["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2824", "boky")],
       ]);
+      const st5 = await s.t.ev(STYLY);
+      j.over(st5.nvNaj === "rgb(196, 155, 49)", "„Najobľúbenejšie“ (nv__b--naj) rám " + st5.nvNaj + " ≠ zlatá");
+      j.over(st5.motiv === "rgb(255, 255, 255)", "dlaždica motívu bez bieleho podkladu: " + st5.motiv);
+      await overNahlad(s, j, [200, 30, 40], "v nití 2824 (červená)");
+      await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-nasivky");
+      await snimkaPrvku(s, a, j, ".k-dlazdice--motiv", "kamion-krok5-nahlad");
+      await rob(s, j, [["klik", a_("nit", "2999", "boky")], ["dalej", "nasivky"]]);
+      j.over((await s.t.ev(STYLY)).naj === "rgb(196, 155, 49)", "ponuka tapacíru (k-kkarta--naj) bez zlatého rámu");
+      await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ponuka");
+      await rob(s, j, [["klik", a_("tap", "ano")]]);
+      await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ano");
+      await snimkaPrvku(s, a, j, ".an", "kamion-krok6-nasivka-dvere");
+      if (a.snimky) {
+        await rob(s, j, [["klik", a_("tapZmenit")]]);
+        await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-zmenit");
+        await rob(s, j, [["klik", a_("tapRovnake")]]);
+      }
+      const st6 = await s.t.ev(STYLY);
+      j.over(/rgb\(29, 107, 74\)/.test(st6.ano || "") && /rgb\(226, 190, 92\)/.test(st6.nie || ""), "nášivka na tapacír: Áno nie je zelené / Nie zlaté: " + st6.ano + " | " + st6.nie);
+      await rob(s, j, [["klik", a_("tapNas", "nie")]]);
       const { st, cena } = await doKosika(s, a, j, "kamion-platne");
       const ocak = { 346: "Prémiová syntetická koža – prešívaná", 349: "Šofér + spolujazdec + stred (BALÍK)", 403: "Nášivka H19", 406: "2999 – Čierna", 409: "Nášivka H19", 412: "2999 – Čierna", 352: "Áno chcem (v konfigurátore – balík)", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" };
       Object.entries(ocak).forEach(([id, t]) => j.over(st.sel[id] === t, id + " „" + st.sel[id] + "“ ≠ „" + t + "“"));
@@ -96,8 +141,10 @@ export const SCENARE = {
         ["klik", a_("mat", "Prémiová syntetická koža – jednofarebná")], ["dalej", "material"],
         ["klik", a_("farba", "10G")], ["dalej", "farba"],
         ["klik", a_("lem", "09")], ["dalej", "lemovanie"],
-        ["klik", a_("nas", "stred")], ["klik", a_("motiv", "H21", "stred")], ["klik", a_("nit", "3546", "stred")], ["dalej", "nasivky"],
+        ["klik", a_("nas", "stred")], ["klik", a_("motiv", "H21", "stred")], ["klik", a_("nit", "3546", "stred")],
       ]);
+      await overNahlad(s, j, [220, 200, 168], "v nití 3546 (béžová)");
+      await rob(s, j, [["dalej", "nasivky"]]);
       const pred = await s.t.ev(STAV);
       j.over(pred.krokov === 5, "dodávka má mať 5 krokov (bez tapacíru), je " + pred.krokov);
       const { st, cena } = await doKosika(s, a, j, "kamion-dodavka");

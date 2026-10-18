@@ -19,6 +19,17 @@ const HTML = readFileSync(FIXTURE, "utf8");
 const URL1 = "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/?novy=vyvoj";
 const ID = [346, 376, 379, 349, 403, 406, 409, 412, 352, 388, 391, 394, 355, 397, 400];
 const POVINNE = [346, 376, 379, 349, 352];
+/** Detaily tapacíru: bez tapacíru ich nové UI uprace na prázdne (oprava N1); React nechá staré hodnoty. */
+const TAP_DETAILY = [388, 391, 394, 397, 400];
+
+/** React (gen.jsx syncToShoptet) na ČISTEJ kópii fixture len s finálnym stavom = zákazník, ktorý išiel rovno. */
+function reactCisty(stav) {
+  const w = new JSDOM(HTML, { url: URL1 }).window;
+  nacitajGen("konfigurator.gen.jsx", w).syncToShoptet(stav);
+  const out = {};
+  ID.forEach((id) => { out[id] = zvolene(w.document, id); });
+  return out;
+}
 
 let ok = 0, zle = 0;
 const over = (nazov, podm, detail) => {
@@ -72,7 +83,11 @@ async function kontrolaKosika(t, meno, ocak = {}) {
   over(meno + ": povinné selecty majú hodnotu", POVINNE.every((id) => zvolene(d, id)), POVINNE.map((id) => id + "=" + zvolene(d, id)).join(", "));
   const nase = {}, react = {};
   ID.forEach((id) => { nase[id] = zvolene(d, id); react[id] = zvolene(wz.document, id); });
-  over(meno + ": 15 selectov = React (zrkadlo gen.jsx)", J(nase) === J(react), "\n        nové  " + J(nase) + "\n        React " + J(react));
+  // zámerný rozdiel N1: bez tapacíru detaily tapacíru = React z čistej stránky (nie staré hodnoty z histórie)
+  const cisty = reactCisty(stav);
+  if (stav.doorPanelChoice !== "ano") TAP_DETAILY.forEach((id) => { react[id] = cisty[id]; });
+  over(meno + ": 15 selectov = React (zrkadlo gen.jsx; N1 bez tapacíru = čistá stránka)", J(nase) === J(react), "\n        nové  " + J(nase) + "\n        React " + J(react));
+  over(meno + ": 15 selectov nezávisí od histórie (= React z čistej stránky)", J(nase) === J(cisty), "\n        nové  " + J(nase) + "\n        čistý " + J(cisty));
   Object.entries(ocak.selecty || {}).forEach(([id, txt]) => over(meno + ": " + id + " = „" + txt + "“", nase[id] === txt, "je „" + nase[id] + "“"));
   const posledny = s.kliky[s.kliky.length - 1];
   const kluce = posledny ? posledny.data.map((x) => x[0]).sort() : [];
@@ -209,8 +224,8 @@ console.log("7) Tapacír áno -> nášivka áno -> tapacír Nie (oprava Z1)");
   t.klik(a("tap", "nie"));
   const po = t.k.ui.cena().spolu;
   over("7: spolu kleslo o 119 + 49", pred - po === 119 + 49, pred + " -> " + po);
-  await kontrolaKosika(t, "7", { spolu: 304, selecty: { 352: "Nie nechcem tapacír dverí", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" } });
-  console.log("     (388/391/394 po Nie: „" + [388, 391, 394].map((id) => zvolene(t.d, id)).join("“, „") + "“ — ako React)");
+  // N1: 388/391/394 po Nie prázdne ako pri tapacíri Nie hneď (React tu nechá „Rovnaký/á/é ako koberec“ za 0 €)
+  await kontrolaKosika(t, "7", { spolu: 304, selecty: { 352: "Nie nechcem tapacír dverí", 355: "Nie nechcem nášivku na dverách", 388: "", 391: "", 394: "", 397: "Bez nášivky", 400: "Bez nite" } });
 }
 
 console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovanie 11, vlastný motív H21 / 2840");
@@ -262,6 +277,113 @@ console.log("10) Predvýber vozidla zo session (prepínač na titulke)");
   const t4 = await otvor({ session: { truckBrand: "Fiat (dodávka)", truckModel: "Ducato 2007-2025" } });
   over("10: dodávka -> prepínač Dodávka, bez kroku tapacíru", t4.k.ui.S.typ === "dodavka" && !t4.d.querySelector('[data-krok="tapacir"]'));
   over("10: modul kľúče prepínača nepíše", t4.s.window.sessionStorage.getItem("truckBrand") === "Fiat (dodávka)");
+}
+
+console.log("11) N1: TIR s tapacírom a vlastnou nášivkou na dverách -> prepnúť na dodávku");
+{
+  const t = await otvor();
+  zaklad(t, DAF);
+  t.klik(a("nas", "nechcem"));
+  t.klik(a("tap", "ano")); t.klik(a("tapZmenit")); t.klik(a("tapNas", "ano"));
+  t.klik(a("motiv", "H21", "dvere")); t.klik(a("nit", "2824", "dvere"));
+  over("11: pred prepnutím 397 „Nášivka H21“, 400 „2824 – Červená“", zvolene(t.d, 397) === "Nášivka H21" && zvolene(t.d, 400) === "2824 – Červená");
+  t.klik(a("krok", "vozidlo")); t.klik(a("typ", "dodavka"));
+  t.vyber("znacka", "Fiat (dodávka)"); t.vyber("model", "Ducato 2007-2025"); t.dalej("vozidlo");
+  await kontrolaKosika(t, "11", { spolu: 209, selecty: { 352: "Nie nechcem tapacír dverí", 355: "Nie nechcem nášivku na dverách", 388: "", 391: "", 394: "", 397: "", 400: "" } });
+}
+
+/** DAF 12/04, nášivky Nechcem, tapacír Nie = hotový výber za 209 €. */
+function hotovyDaf(t) { zaklad(t, DAF); t.klik(a("nas", "nechcem")); t.klik(a("tap", "nie")); }
+const tlacidlo = (t) => t.d.querySelector('#lcd1v-kamion [data-a="kosik"]');
+
+console.log("12) N3: zmena výberu do 100 ms po „Pridať do košíka“ -> nič neodíde");
+{
+  const t = await otvor();
+  hotovyDaf(t);
+  t.klik(a("kosik"));
+  t.klik(a("krok", "material")); t.klik(a("mat", "Mikrosemiš – dvojfarebný"));
+  await pauza(250);
+  over("12: 0 klikov na natívne tlačidlo", t.s.kliky.length === 0, "klikov " + t.s.kliky.length);
+  over("12: poznámka sa nezapísala", t.s.window.sessionStorage.getItem("truckOrderSummary") === null);
+  over("12: tlačidlo znova aktívne", !tlacidlo(t).disabled);
+}
+
+console.log("13) N4: dve ťuknutia na „Pridať do košíka“ 300 ms po sebe -> 1 pridanie");
+{
+  const t = await otvor();
+  hotovyDaf(t);
+  t.klik(a("kosik")); await pauza(300);
+  const b = tlacidlo(t), bl = t.d.querySelector('#lcd1v-lista [data-a="lista"]');
+  over("13: tlačidlo aj lišta vypnuté, aria-busy", b.disabled && b.getAttribute("aria-busy") === "true" && bl.disabled, b.outerHTML.slice(0, 160));
+  t.klik(a("kosik"));
+  bl.dispatchEvent(new t.s.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+  await pauza(300);
+  over("13: 1 klik na natívne tlačidlo", t.s.kliky.length === 1, "klikov " + t.s.kliky.length);
+  t.d.dispatchEvent(new t.s.window.Event("ShoptetCartUpdated"));
+  over("13: po ShoptetCartUpdated tlačidlo aktívne", !tlacidlo(t).disabled);
+  t.klik(a("kosik")); await pauza(250);
+  over("13: vedomé ďalšie pridanie po odpovedi košíka prejde", t.s.kliky.length === 2, "klikov " + t.s.kliky.length);
+  const t2 = await otvor();
+  hotovyDaf(t2);
+  t2.klik(a("kosik")); await pauza(3200);
+  over("13: bez odpovede košíka sa tlačidlo zapne samé po 3 s", !tlacidlo(t2).disabled);
+  over("13: žiadny console.error", t.s.chyby.length === 0 && t2.s.chyby.length === 0, t.s.chyby.concat(t2.s.chyby).join(" | "));
+}
+
+console.log("14) N2 (časť): nepodarené pridanie neprepíše poznámku položky, ktorá už je v košíku");
+{
+  const t = await otvor({ session: { truckOrderSummary: "PREDOSLA" } });
+  hotovyDaf(t);
+  const x = t.d.createElement("select");
+  x.setAttribute("data-parameter-id", "999");
+  x.required = true;
+  x.innerHTML = "<option value=\"\">-</option><option value=\"1\">a</option><option value=\"2\">b</option>";
+  t.d.getElementById("product-detail-form").appendChild(x);
+  t.klik(a("kosik")); await pauza(250);
+  over("14: 0 klikov, poznámka ostala", t.s.kliky.length === 0 && t.s.window.sessionStorage.getItem("truckOrderSummary") === "PREDOSLA");
+}
+
+console.log("15) R3: výzvy obsahu otvárajú krok z data-p1v-kamion-krok");
+{
+  const t = await otvor();
+  const vyzva = (krok) => {
+    const x = t.d.createElement("a");
+    x.href = "#product-detail-form";
+    if (krok) x.setAttribute("data-p1v-kamion-krok", krok);
+    t.d.body.appendChild(x);
+    x.dispatchEvent(new t.s.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+    x.remove();
+  };
+  vyzva("material");
+  over("15: bez vozidla -> krok 1 s červeným rámom", t.k.ui.U.otvoreny === "vozidlo" && !!t.d.querySelector('#lcd1v-kamion [data-krok="vozidlo"].is-error'));
+  t.vyber("znacka", "DAF (TIR)"); t.vyber("model", "XF106 2017-2021"); t.dalej("vozidlo");
+  vyzva("material");
+  over("15: s vozidlom „Vybrať materiál“ -> krok Materiál", t.k.ui.U.otvoreny === "material", t.k.ui.U.otvoreny);
+  vyzva(null);
+  over("15: výzva bez nápovedy -> Vozidlo", t.k.ui.U.otvoreny === "vozidlo", t.k.ui.U.otvoreny);
+  vyzva("neexistuje");
+  over("15: neznámy krok -> Vozidlo", t.k.ui.U.otvoreny === "vozidlo", t.k.ui.U.otvoreny);
+  const html = readFileSync(new URL("../admin-html/src/p1v-kamiony/14-kamiony-materialy.sk.html", import.meta.url), "utf8");
+  over("15: obsah „Vybrať materiál“ nesie data-p1v-kamion-krok=material", /href="#product-detail-form" data-p1v-kamion-krok="material"/.test(html));
+}
+
+console.log("16) R5: „… recenzií na Google“ pod H1 vedie na sekciu Recenzie");
+{
+  const t = await otvor();
+  const h = t.d.querySelector(".k-hodn");
+  over("16: href #p1v-recenzie", !!h && h.getAttribute("href") === "#p1v-recenzie");
+  const sek = t.d.createElement("div");
+  sek.className = "p1v-miesto";
+  sek.innerHTML = "<section data-lcd-sekcia=\"a-recenzie\" id=\"p1v-recenzie\"></section>";
+  t.d.body.appendChild(sek);
+  const ciel = sek.firstChild;
+  ciel.getClientRects = () => [{}];
+  ciel.getBoundingClientRect = () => ({ top: 6830, left: 0, width: 10, height: 10, bottom: 6840, right: 10 });
+  let posun = null;
+  t.s.window.scrollTo = (o) => { posun = o; };
+  const e = new t.s.window.MouseEvent("click", { bubbles: true, cancelable: true });
+  h.dispatchEvent(e);
+  over("16: klik posunie na recenzie (− 90 px hlavička)", !!posun && posun.top === 6830 - 90 && e.defaultPrevented, J(posun));
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);

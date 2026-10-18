@@ -240,5 +240,15 @@ export async function kontroly(t) {
   await naSekciu("kamiony-vyzva", "center");
   const end = await t.cakaj(`(function(){var s=document.querySelector(${sek("kamiony-vyzva")});var i=s&&s.querySelector(".endbg img");if(!i||!i.complete||!i.naturalWidth)return false;return [getComputedStyle(s).color,/640-27_/.test(i.getAttribute("src")),Math.round(s.getBoundingClientRect().height)]})()`, { ms: 12000, popis: "fotka záveru" }).catch((e) => ({ chyba: e.message }));
   ok(Array.isArray(end) && end[0] === "rgb(255, 255, 255)" && end[1] && end[2] > 200, "záver: biely text na tmavom, fotka kabíny 640 stiahnutá " + JSON.stringify(end));
+
+  // 12) „Vybrať materiál“ (data-p1v-kamion-krok="material") otvorí krok Materiál; bez vozidla krok 1 s červeným rámom (ako ART)
+  if (await t.ev(`!!window.__lcd1vKamion`)) {
+    const vyzva = `(function(){var a=document.querySelector('.p1v-miesto a[href="#product-detail-form"][data-p1v-kamion-krok="material"]');if(!a)return null;a.click();var k=window.__lcd1vKamion.ui;return [k.U.otvoreny,!!document.querySelector('#lcd1v-kamion [data-krok="vozidlo"].is-error')]})()`;
+    const bez = await t.ev(vyzva);
+    await t.ev(`(function(){var r=document.getElementById("lcd1v-kamion");function v(p,x){var s=r.querySelector('select[data-p="'+p+'"]');s.value=x;s.dispatchEvent(new Event("change",{bubbles:true}))}v("znacka","DAF (TIR)");v("model","XF106 2017-2021");r.querySelector('[data-a="dalej"][data-v="vozidlo"]').click()})()`);
+    await t.pauza(300);
+    const s = await t.ev(vyzva);
+    ok(JSON.stringify(bez) === JSON.stringify(["vozidlo", true]) && s && s[0] === "material", "„Vybrať materiál“: bez vozidla krok 1 červený, s vozidlom krok Materiál " + JSON.stringify([bez, s]));
+  }
   return out;
 }

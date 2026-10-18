@@ -10,13 +10,15 @@
 //   3. body.is-truck-konfigurator + .p-info-wrapper.active (to isté ako React: skryje starý obsah stĺpca), koreň
 //      .truck-konfigurator-wrap.lcd1v-kamion > #lcd1v-kamion na konci .p-info-wrapper, hlavička produktu presunutá
 //      do koreňa, H1 s textom artefaktu (pôvodný sa vráti pri zlozit), lepivá lišta #lcd1v-lista ako 1V;
-//   4. každá zmena výberu -> syncToShoptet(naStavReactu(S)) (doslovne React) + kontrola ceny (Shoptet = cena.js);
-//      „Pridať do košíka“ -> finálny sync, persistTruckOrderSummary (poznámka objednávky ako React), kontrola povinných
-//      selectov, o 100 ms klik na natívne tlačidlo (ako React).
+//   4. každá zmena výberu -> syncToShoptet(naStavReactu(S)) (doslovne React) + upratTapacir (bez tapacíru prázdne
+//      detaily tapacíru, oprava N1) + kontrola ceny (Shoptet = cena.js);
+//      „Pridať do košíka“ -> finálny sync, kontrola povinných selectov, o 100 ms (ako React) kontrola, že sa výber
+//      medzitým nezmenil (N3), persistTruckOrderSummary (poznámka objednávky ako React — až tesne pred klikom, N2) a klik
+//      na natívne tlačidlo; potom ~3 s „odosiela sa“ (tlačidlá vypnuté, N4), kým nepríde ShoptetCartUpdated.
 // zlozit(): všetko vlastné preč, hlavička a H1 späť, poslucháči preč, mountTruckConfigurator() -> zákazník dostane React.
 import { mountTruckConfigurator } from "../../../truck-konfigurator/mount.js";
 import { persistTruckOrderSummary } from "../../../truck-konfigurator/order-summary.mjs";
-import { chybajuce, citajCeny, povoleneMotivy, syncToShoptet, sucetShoptetu, povinneBezHodnoty, klikniKosik } from "./shoptet.js";
+import { chybajuce, citajCeny, povoleneMotivy, syncToShoptet, upratTapacir, sucetShoptetu, povinneBezHodnoty, klikniKosik } from "./shoptet.js";
 import { naStavReactu, naStavCeny, predvyber } from "./stav.js";
 import { vypocitajCenu } from "./cena.js";
 import { ZNACKY, MATERIALY } from "./data.js";
@@ -94,26 +96,41 @@ export function init(ctx) {
   function sync(S) {
     const stav = naStavReactu(S);
     syncToShoptet(stav);
+    upratTapacir(stav, document);
     const shoptet = sucetShoptetu(document);
     const nase = vypocitajCenu(naStavCeny(S), data).spolu;
     if (shoptet !== nase) console.error("[lcd-1v] kamion: cena Shoptetu " + shoptet + " € ≠ konfigurátor " + nase + " €");
     return stav;
   }
+  /** Každá zmena výberu: zruší čakajúci klik do košíka a stav „odosiela sa“ (N3, N4), potom sync. */
+  function naZmenu(S) {
+    clearTimeout(casovac);
+    if (ui) ui.odosiela(false);
+    return sync(S);
+  }
   function doKosika(S) {
     const stav = sync(S);
-    persistTruckOrderSummary(stav);
     const chybaju = povinneBezHodnoty(document);
     if (chybaju.length) {
       console.error("[lcd-1v] kamion: povinné selecty bez hodnoty — do košíka sa nepridá:", chybaju);
       return false;
     }
+    const odtlacok = JSON.stringify(stav);
     clearTimeout(casovac);
-    casovac = setTimeout(function () { if (!zruseny) klikniKosik(document); }, 100);
+    ui.odosiela(true); // hneď: tlačidlá vypnuté, druhé ťuknutie nič nepošle (N4)
+    casovac = setTimeout(function () {
+      if (zruseny) return;
+      // výber sa za 100 ms zmenil (naZmenu klik zruší; toto je poistka) -> nič neodíde, zákazník klikne znova
+      const teraz = naStavReactu(ui.S);
+      if (JSON.stringify(teraz) !== odtlacok || !ui.hotovo()) { ui.odosiela(false); return; }
+      persistTruckOrderSummary(teraz);
+      if (!klikniKosik(document)) ui.odosiela(false);
+    }, 100);
     return true;
   }
 
   try {
-    ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: predvyber(), naZmenu: sync, doKosika,
+    ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: predvyber(), naZmenu, doKosika,
       priChybe: function (e) {
         console.error("[lcd-1v] kamion: chyba po štarte — návrat na React", e);
         if (!zruseny) ctx.zlozit();
@@ -128,15 +145,20 @@ export function init(ctx) {
       return p && Number(p.rating) > 0 && Number(p.totalReviews) > 0 ? p : null;
     }, function (p) { if (!zruseny) ui.hodnotenie(p); }, { limit: 30000 });
 
-    // výzvy obsahu pod konfigurátorom (a[href="#product-detail-form"]) -> krok Vozidlo
+    // výzvy obsahu pod konfigurátorom (a[href="#product-detail-form"]) -> krok z data-p1v-kamion-krok (napr. „Vybrať
+    // materiál“ -> material), inak Vozidlo; otvorKrok otvorí prvý nehotový krok pred ním s červeným rámom (ako ART)
     const naVyzvu = function (e) {
       const a = e.target && e.target.closest && e.target.closest('a[href="#product-detail-form"]');
       if (!a || root.contains(a)) return;
       e.preventDefault();
-      ui.otvorKrok("vozidlo");
+      ui.otvorKrok(a.getAttribute("data-p1v-kamion-krok") || "vozidlo");
     };
     document.addEventListener("click", naVyzvu, true);
     spat.push(() => document.removeEventListener("click", naVyzvu, true));
+    // košík Shoptetu odpovedal -> tlačidlá znova aktívne (inak po 3 s samé, ui.odosiela)
+    const naKosikShoptetu = function () { if (!zruseny) ui.odosiela(false); };
+    document.addEventListener("ShoptetCartUpdated", naKosikShoptetu);
+    spat.push(() => document.removeEventListener("ShoptetCartUpdated", naKosikShoptetu));
 
     // lišta: telefón, keď súhrn s tlačidlom nie je na obrazovke (artefakt; prvok a triedy ako 1V)
     const mobil = window.matchMedia ? window.matchMedia(MOBIL) : { matches: false };

@@ -50,5 +50,16 @@
   "409 Typ nášivky na stred": "1645 | Nášivka H19 +€0",
   "397 Typ nášivky na tapacír": "1711 | Bez nášivky +€0"
  },
- "poznamka_zhodna": true
+ "poznamka_zhodna": true,
+ "revizia_2026_10_18": {
+  "popis": "Po opravách revízie (N1–N4, R1–R3, R5): lokálny build ?novy=vyvoj, kamion-platne zachytený POST (zrušený) na 1280 aj 390 = React body vyššie bajt po bajte; kamion-dodavka 258 € pre úplnosť.",
+  "platne_1280_zhodne_s_react": true,
+  "platne_390_zhodne_s_react": true,
+  "posty": {
+   "1280 kamion-platne": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=1447&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=1441&surchargeParameterValueId[406]=1558&surchargeParameterValueId[400]=1789&surchargeParameterValueId[412]=1678&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1465&surchargeParameterValueId[352]=1468&surchargeParameterValueId[346]=1360&surchargeParameterValueId[388]=1435&surchargeParameterValueId[403]=1525&surchargeParameterValueId[409]=1645&surchargeParameterValueId[397]=1711&amount=1",
+   "1280 kamion-dodavka": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=&surchargeParameterValueId[406]=1555&surchargeParameterValueId[400]=&surchargeParameterValueId[412]=1687&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1375&surchargeParameterValueId[352]=1384&surchargeParameterValueId[346]=1357&surchargeParameterValueId[388]=&surchargeParameterValueId[403]=1474&surchargeParameterValueId[409]=1648&surchargeParameterValueId[397]=&amount=1",
+   "390 kamion-platne": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=1447&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=1441&surchargeParameterValueId[406]=1558&surchargeParameterValueId[400]=1789&surchargeParameterValueId[412]=1678&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1465&surchargeParameterValueId[352]=1468&surchargeParameterValueId[346]=1360&surchargeParameterValueId[388]=1435&surchargeParameterValueId[403]=1525&surchargeParameterValueId[409]=1645&surchargeParameterValueId[397]=1711&amount=1",
+   "390 kamion-dodavka": "productId=640&priceId=68383&language=sk&surchargeParameterValueId[379]=1426&surchargeParameterValueId[394]=&surchargeParameterValueId[376]=1423&surchargeParameterValueId[391]=&surchargeParameterValueId[406]=1555&surchargeParameterValueId[400]=&surchargeParameterValueId[412]=1687&surchargeParameterValueId[355]=1390&surchargeParameterValueId[349]=1375&surchargeParameterValueId[352]=1384&surchargeParameterValueId[346]=1357&surchargeParameterValueId[388]=&surchargeParameterValueId[403]=1474&surchargeParameterValueId[409]=1648&surchargeParameterValueId[397]=&amount=1"
+  }
+ }
 }
