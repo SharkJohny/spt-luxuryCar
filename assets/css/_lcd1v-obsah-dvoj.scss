@@ -7,21 +7,37 @@
    Čo sem patrí: iba to, čo je oproti obsahu 598 INÉ (tabuľka .vs2, 6. doska materiálu a jej farby, náhľady „Deväť vecí“ s fotkami dvojvrstvových,
    ikona „Druhá vrstva“, pozadie záveru). Všetko ostatné (rytmus kapitol, karty, galéria, FAQ, časová os…) dávajú bloky A–D.
    Špecificita: pravidlá A–D majú id koreňa (1,x,x) a idú pred týmto blokom; kde tu prepisujem ich pravidlo, je selektor rovnako špecifický a vyhrá poradím. */
+/* Väčšie písmo (Michal 18. 10. 2026): veľkosti textov podľa mierky v _lcd1v-obsah.scss bod 10 (len zväčšené, nič zmenšené). */
 
 /* =============================================================== a-ponuka: „Jednovrstvové alebo dvojvrstvové?“ — tabuľka .vs2 (návrh N:2838–2849) */
 body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2{margin:14px 0 0;display:grid;
   grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1fr);border:1px solid rgba(230,200,119,.28);border-radius:12px;overflow:hidden;
-  font-size:13px;line-height:1.4}
+  font-size:clamp(15px,calc(13px + .4vw),16px);line-height:1.4}
 body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span{padding:8px 10px;border-top:1px solid rgba(230,200,119,.16);
-  color:rgba(255,255,255,.8);overflow-wrap:anywhere}
+  color:rgba(255,255,255,.8)}
 body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span:nth-child(-n+3){border-top:0;font-family:var(--disp);font-weight:800;
-  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-hi);background:rgba(230,200,119,.08)}
-body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span.r{color:rgba(255,255,255,.58);font-family:var(--disp);font-weight:700;font-size:12px}
+  font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-hi);background:rgba(230,200,119,.08)}
+body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span.r{color:rgba(255,255,255,.66);font-family:var(--disp);font-weight:700;font-size:clamp(15px,calc(13px + .4vw),16px)}
 body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span.my{color:#fff;font-weight:600;background:rgba(230,200,119,.07)}
-@media(max-width:520px){
-  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2{font-size:12px;grid-template-columns:minmax(0,.82fr) minmax(0,1fr) minmax(0,1fr)}
-  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span{padding:7px 6px}
-  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span:nth-child(-n+3){font-size:9.5px;letter-spacing:.02em;overflow-wrap:normal}
+/* väčšie písmo (18. 10. 2026): tri stĺpce sa na telefóne (a v úzkej karte 820–919 px) nezmestia -> názov riadku nad dvoma hodnotami.
+   Mriežka ostáva trojstĺpcová (1. stĺpec 0 px: prázdna bunka hlavičky skrytá, názov riadku cez celú šírku), bunky majú stĺpec určený. */
+@media(max-width:520px), (min-width:820px) and (max-width:919px){
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2{grid-template-columns:0 minmax(0,1fr) minmax(0,1fr)}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span{padding:4px 8px 10px;border-top:0}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span:first-child{display:none}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span:nth-child(-n+3){padding:8px;letter-spacing:.02em}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > :is(span:nth-child(2),span.r + span){grid-column:2}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > :is(span:nth-child(3),span.r + span + span){grid-column:3}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span.r{grid-column:1 / -1;padding:10px 8px 2px;
+    border-top:1px solid rgba(230,200,119,.16)}
+}
+/* slovo sa nedelí uprostred (bez overflow-wrap:anywhere): hlavička „JEDNOVRSTVOVÉ“ 13 px verzálkami má ~109–112 px, stĺpec pri
+   320 px len 105 px -> pod 360 px hlavička bez prestrkania, karta s užším okrajom a všetky bunky s bočným odsadením 6 px
+   (hlavička aj hodnoty zarovnané; stĺpec 113 px, rezerva ~4 px) */
+@media(max-width:359px){
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .ups .tx{padding:20px 16px}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > :is(span,span.r){padding-inline:6px}
+  body.lcd-1v :is(#p1v-dvoj-1,#p1v-dvoj-2) [data-lcd-sekcia="a-ponuka"] .vs2 > span:nth-child(-n+3){padding:8px 6px;letter-spacing:0}
 }
 
 /* =============================================================== b-ocakavat: náhľady krokov z CSS (fotky dvojvrstvových, bez flagu sa nestiahnu) */

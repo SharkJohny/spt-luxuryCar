@@ -95,3 +95,95 @@ body.lcd-1v.lcd-1v-obsah:has(.p1v-miesto [data-lcd-sekcia="d-faq"]) .p-info-wrap
   body.lcd-1v.lcd1v-lista-on .p1v-miesto .lx-gal:not(.lx-bez-lepu) .lx-gal-pin{
     padding-bottom:calc(clamp(14px,2.4vh,26px) + var(--c1v-lista-h,71px) + env(safe-area-inset-bottom,0px)) !important}
 }
+
+/* 10) Väčšie písmo (Michal 18. 10. 2026: „v popisoch treba celkovo zväčšiť písmenká, lebo sa to pomerne nedá ani čítať“).
+       Tu len moduly titulky (blok LCD-HOME), ktoré obsah dedí; čo nastavujú partialy skupín a typov, je zväčšené priamo v nich.
+       Mierka telefón / PC (od 768 px): text 16 / 17 (riadkovanie ≥ 1,5) · úvod pod nadpisom 17 / 18 · bunka tabuľky 15 / 16,
+       hlavička stĺpca 13 · poznámka a popisok 14 / 15 · nadpis karty 18 · FAQ otázka 17, odpoveď 16 / 17 · štítok verzálkami 12 ·
+       tlačidlo 14. Plynulé hodnoty (pri 768 px už PC minimum): text clamp(16px,calc(14px + .4vw),17px), úvod
+       clamp(17px,calc(15.2px + .37vw),19px), bunka clamp(15px,calc(13px + .4vw),16px), popisok clamp(14px,calc(12px + .4vw),15px).
+       Len zväčšuje (nič nezmenšuje), farby bez zmeny. Selektor s id koreňa a body.lcd-1v prebije alias LCD-HOME (1,1,x). */
+/*    a) úvod pod nadpisom (.lede, aj v prilepených scénach a v závere; .lx-p v moduloch lx) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.lede,.lx-p){font-size:clamp(17px,calc(15.2px + .37vw),19px)}
+/*    b) tlačidlá a ovládače */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.btn,.mat-toggle){font-size:14px}
+/*    c) štítky verzálkami (prilepené scény, galéria, pred a po, farby, vzorky, referencie, Deväť vecí) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.pf-hint,.chip,.matline,.lx-pocet small,.lx-cip,.lx-farby-vzor-n,.vz .note,.ref-cap i,.s2-t .k){
+  font-size:12px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .s2-rail button span{font-size:12px}
+/*    d) popisky pod fotkou a na videu */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.ref-cap,.vid .cap,.lx-gal-k figcaption){font-size:clamp(14px,calc(12px + .4vw),15px)}
+/*       popisky galérie pri väčšom písme: radšej 2 riadky než „…“ */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-gal-k figcaption{white-space:normal;text-overflow:clip;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/*    e) recenzie (karty a hlavička) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev p{font-size:clamp(16px,calc(14px + .4vw),17px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .meta b{font-size:clamp(15px,calc(13px + .4vw),16px);white-space:normal;text-overflow:clip;overflow:visible;overflow-wrap:normal}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .meta i{font-size:14px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .revhead .sub{font-size:clamp(14px,calc(12px + .4vw),15px)}
+/*    f) porovnanie .cmp (b-porovnanie, Classic/Premium): bunky, hlavičky stĺpcov, cena nie menšia než text pod ňou */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col li{font-size:clamp(15px,calc(13px + .4vw),16px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col li b{font-size:12px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .name{font-size:clamp(13px,1.3vw,15px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .price{font-size:clamp(16px,1.7vw,20px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .ic{font-size:12px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-vs{font-size:clamp(13px,1.3vw,15px)}
+/*    dva stĺpce na telefóne: slovo sa NIKDY nedelí uprostred (zalamuje sa len medzi slovami, bez overflow-wrap:anywhere).
+      Najdlhšie slová pri 15 px / štítku 12 px: „AUTOKOBERCAMI“ (Classic/Premium, ~102 px pri .02em), „NAPODOBENINY“ (názov),
+      „rozpoznateľná“, „batožinového“ (~90 px). Do 600 px štítok s menším prestrkaním (.02em namiesto .1em z LCD-HOME) a menšie
+      bočné odsadenie; pod 420 px ikona nad textom (text má celú šírku bunky) a užší okraj karty -> pri 320 px ostane textu 110 px. */
+@media(max-width:600px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col li{padding:10px 8px;gap:6px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col li b{letter-spacing:.02em}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .name{padding:12px 8px 0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .price{padding:5px 8px 12px}
+}
+@media(max-width:419px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col{padding:6px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col li{flex-direction:column;align-items:flex-start;gap:5px;padding:10px 6px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .ic{margin-top:0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .name{padding:12px 6px 0;letter-spacing:.01em}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col .price{padding:5px 6px 12px}
+}
+/*    g) legenda materiálu (b-material) a pred a po (lx-leg) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .leg .k{font-size:clamp(15px,calc(13px + .4vw),16px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .leg .i{font-size:14px}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .leg-d p{font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.6}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-leg-t b{font-size:clamp(15px,1.2vw,16.5px)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-leg-t span{font-size:clamp(14px,calc(12px + .4vw),15px)}
+/*    pred a po v štyroch stĺpcoch (PC): so vzorkou (44 px) ostane nadpisu pri scéne do ~1100 px len 79–115 px a „NEPREMOKAVÁ“
+      (~114 px pri 15 px, ~125 px pri 16,5 px), „PRIEHRADKY“ (~95 px) vytiekli pod fajku. Kontajner = .lx-pp-stage (LCD-HOME
+      skrýva vzorku do 820 px); scéna je nižšia na nízkej obrazovke, preto postupne podľa jej šírky S (nadpis má S/4 − x):
+      do 1100 px bez vzorky (S/4 − 93), do 880 px menšie medzery (S/4 − 81; len PC, do 900 px má LCD-HOME 2 stĺpce s vlastnými),
+      do 800 px bez fajky (S/4 − 51). Fajka nič neprekrýva. */
+@container (max-width:1100px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-leg-sw{display:none}
+}
+@media(min-width:901px){
+  @container (max-width:880px){
+    body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-leg-r{gap:6px;padding-inline:10px}
+  }
+}
+@container (max-width:800px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-leg-ok{display:none}
+}
+/*    nízky široký notebook (LCD-HOME: legenda ako stĺpec 220–300 px vedľa fotky, vzorku tam zapína so špecificitou (1,3,0)):
+      so vzorkou má nadpis len 80–160 px (1280 × 720: 90 px) -> bez vzorky má aspoň 134 px */
+@media(min-width:901px) and (max-height:740px) and (min-aspect-ratio:3/2){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-pp:not(.lx-bez-lepu) .lx-leg-sw{display:none}
+}
+/*    h) farby (dlaždica „Mnoho ďalších farieb“) a vzorky na tmavom podklade */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-farby-viac-txt b{font-size:clamp(15px,calc(13px + .4vw),18px)}
+/*    dlaždica je kontajner: v úzkej (dvojvrstvové: 3 stĺpce mriežky = 118 px pri 320, ~150–160 px pri 860–900) by vejár
+      vzoriek (PC 4 × 24–32 px) nechal textu menej než najdlhšie slovo („ďalších“ 54–64 px) a text vytiekol.
+      Obsah dlaždice do 200 px: malý vejár ako na telefóne (3 vzorky po 20 px = 47 px; text má aspoň 200 − 47 − 16 − 64 > 0),
+      do 128 px bez vejára (text na stred). Širšia dlaždica: veľký vejár sa zmestí vždy (104 + 16 + 64 = 184 px). */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-farby-viac{container:lxviac / inline-size}
+@container lxviac (max-width:200px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-farby-viac-vejar i{width:20px;margin-left:-7px;border-radius:5px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-farby-viac-vejar i:nth-child(4){display:none}
+}
+@container lxviac (max-width:128px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-farby-viac-vejar{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-farby-viac-txt b{text-align:center}
+}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .vz p{font-size:clamp(16px,calc(14px + .4vw),17px)}

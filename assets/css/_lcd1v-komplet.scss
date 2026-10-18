@@ -27,7 +27,7 @@ body.lcd-1v #product-detail-form .lcd1v-komplet.lcd1v-druha--prenos > .lcd1v-kom
 body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-bs__in > .lcd1v-komplet__ben {
   grid-column: 1 / -1;
   margin: 10px 0 0;
-  font: 600 14.5px/1.4 var(--c1v-body, inherit);
+  font: 600 16px/1.45 var(--c1v-body, inherit); /* väčšie písmo (Michal 18. 10. 2026), PC 17 px dole */
   text-align: center;
   color: #e9dfc6;
 }
@@ -36,4 +36,9 @@ body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-komplet__ben:empty {
 }
 body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__bs + .lcd1v-komplet__nie {
   margin-top: 12px;
+}
+@media (min-width: 768px) {
+  body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-bs__in > .lcd1v-komplet__ben {
+    font-size: 17px;
+  }
 }

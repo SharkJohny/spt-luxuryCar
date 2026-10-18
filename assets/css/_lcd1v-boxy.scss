@@ -96,12 +96,12 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-in {
   text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font: 700 22px/1.1 var(--kr-disp); color: #fff; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font: 400 14.5px/1.35 var(--kr-body); color: #ece3cc; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font: 400 16px/1.4 var(--kr-body); color: #ece3cc; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-c { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-top: 6px; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od {
   font: 700 19px/1 var(--kr-disp); color: #e8c766; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po { font: 400 12.5px/1.2 var(--kr-body); color: #cfc3a6; white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po { font: 400 14px/1.2 var(--kr-body); color: #d8cdb2; white-space: nowrap; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po:empty { display: none; }
 @media (min-width: 768px) {
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks { min-height: 150px; padding: 18px 22px; }
@@ -111,7 +111,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po:empty {
   }
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-in { max-width: 52%; }
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font-size: 25px; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font-size: 15.5px; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font-size: 17px; }
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od { font-size: 21px; }
 }
 
@@ -129,10 +129,10 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp[hidden] 
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp + .lcd1v-bxp-vgrp { margin-top: 22px; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp {
   display: flex; align-items: baseline; gap: 8px; margin: 0 0 9px; padding: 0;
-  font: 700 11px/16px var(--kr-disp); letter-spacing: .16em; text-transform: uppercase; color: var(--kr-tmava);
+  font: 700 12px/18px var(--kr-disp); letter-spacing: .14em; text-transform: uppercase; color: var(--kr-tmava);
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp em {
-  font: 600 12.5px/16px var(--kr-body); font-style: normal; letter-spacing: 0; text-transform: none; color: var(--bxp-zl);
+  font: 600 14px/18px var(--kr-body); font-style: normal; letter-spacing: 0; text-transform: none; color: var(--bxp-zl);
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vcards {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;
@@ -180,15 +180,20 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-l {
   margin-top: 2px; font: 700 19px/1 var(--kr-disp); color: var(--kr-ink);
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-d {
-  font: 600 11px/1.25 var(--kr-body); color: #5d5643; font-variant-numeric: tabular-nums;
+  font: 600 13px/1.25 var(--kr-body); color: #5d5643; font-variant-numeric: tabular-nums; text-wrap: balance; /* rozmer boxu (Michal 18. 10. 2026: väčšie písmo) */
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-c {
   margin-top: 1px; font: 700 14px/1.2 var(--kr-disp); color: var(--bxp-zl); font-variant-numeric: tabular-nums;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip {
-  margin: 16px 0 0; padding: 0; font: 400 13.5px/1.5 var(--kr-body); color: #48412f; text-align: left;
+  margin: 16px 0 0; padding: 0; font: 400 15px/1.5 var(--kr-body); color: #48412f; text-align: left;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip b { color: var(--kr-ink); font-weight: 700; }
 @media (prefers-reduced-motion: reduce) {
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk { transition: none; }
+}
+/* väčšie písmo na PC (Michal 18. 10. 2026) */
+@media (min-width: 768px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-d { font-size: 14px; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip { font-size: 16px; }
 }

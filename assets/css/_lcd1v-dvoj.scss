@@ -60,7 +60,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v
   border-radius: 12px;
   background: #faf6ea;
   color: var(--kr-text);
-  font: 400 13.5px/1.55 var(--kr-body);
+  font: 400 16px/1.5 var(--kr-body); /* väčšie písmo (Michal 18. 10. 2026), PC 17 px dole */
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv[hidden] {
   display: none;
@@ -78,7 +78,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v
   gap: 8px 10px;
   margin: 0 0 14px;
   color: var(--kr-ink);
-  font: 600 14.5px/1.35 var(--kr-body);
+  font: 600 16px/1.4 var(--kr-body);
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp[hidden] {
   display: none;
@@ -89,8 +89,8 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f
   border-radius: 999px;
   background: linear-gradient(135deg, #ecd07a, #c49b31);
   color: var(--kr-ink);
-  font: 700 10.5px/1.25 var(--kr-disp);
-  letter-spacing: 0.12em;
+  font: 700 12px/1.25 var(--kr-disp);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f2-odp-vz {
@@ -255,5 +255,13 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .image
 @media (max-width: 480px) {
   body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap {
     grid-template-columns: repeat(5, minmax(0, 1fr)); /* návrh: repeat(auto-fill, minmax(50px, 1fr)) + gap 8 px = 5 stĺpcov pri 390 px */
+  }
+}
+
+/* ---------------------------------------------------------------- väčšie písmo na PC (Michal 18. 10. 2026) */
+@media (min-width: 768px) {
+  body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-vysv,
+  body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .lcd1v-f2-odp {
+    font-size: 17px;
   }
 }

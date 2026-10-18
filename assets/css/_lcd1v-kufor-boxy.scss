@@ -46,7 +46,7 @@ body.lcd-1v .lcd1v-kb {
 body.lcd-1v .lcd1v-kb__pod {
   margin: 0 0 16px;
   font-family: var(--kb-body);
-  font-size: 14.5px;
+  font-size: 17px; /* úvodná veta pod nadpisom (Michal 18. 10. 2026: väčšie písmo), PC 18 px dole */
   line-height: 1.5;
   color: #48412f;
 }
@@ -75,7 +75,7 @@ body.lcd-1v .lcd1v-kb__vysv {
   padding: 10px 13px;
   border-radius: 10px;
   background: #f6f4ef;
-  font-size: 13.5px;
+  font-size: 16px;
   line-height: 1.5;
   color: #3d3728;
 }
@@ -158,8 +158,8 @@ body.lcd-1v .lcd1v-kb__top {
   padding: 7px 12px 6px;
   background: var(--kb-pas);
   color: #17130a;
-  font: 800 11.5px/1.2 var(--kb-disp);
-  letter-spacing: .12em;
+  font: 800 12.5px/1.2 var(--kb-disp);
+  letter-spacing: .1em;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
@@ -196,15 +196,15 @@ body.lcd-1v .lcd1v-kb__nm {
 body.lcd-1v .lcd1v-kb__po {
   display: block;
   margin-top: 3px;
-  font: 700 11px/1.3 var(--kb-body);
-  letter-spacing: .06em;
+  font: 700 12.5px/1.3 var(--kb-body);
+  letter-spacing: .05em;
   text-transform: uppercase;
   color: var(--kb-gold-txt);
 }
 body.lcd-1v .lcd1v-kb__ben {
   display: block;
   margin-top: 5px;
-  font: 400 14px/1.4 var(--kb-body);
+  font: 400 15.5px/1.4 var(--kb-body);
   color: #3d3728;
 }
 body.lcd-1v .lcd1v-kb__cn {
@@ -229,7 +229,7 @@ body.lcd-1v .lcd1v-kb__r {
   column-gap: 10px;
   row-gap: 0;
   padding: 2px 0;
-  font: 400 13.5px/1.45 var(--kb-body);
+  font: 400 15px/1.45 var(--kb-body);
   color: #6e6752;
 }
 body.lcd-1v .lcd1v-kb__r[hidden] {
@@ -255,8 +255,8 @@ body.lcd-1v .lcd1v-kb__r--sum {
   border-top: 1px solid #e6e0d1;
 }
 body.lcd-1v .lcd1v-kb__r--sum .lcd1v-kb__rn {
-  font: 700 11px/1.45 var(--kb-disp);
-  letter-spacing: .08em;
+  font: 700 12px/1.45 var(--kb-disp);
+  letter-spacing: .07em;
   text-transform: uppercase;
 }
 body.lcd-1v .lcd1v-kb__r--sum .lcd1v-kb__rh {
@@ -278,10 +278,10 @@ body.lcd-1v .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
     padding-right: 10px;
   }
   body.lcd-1v .lcd1v-kb__nm {
-    font-size: 16.5px;
+    font-size: 18px;
   }
   body.lcd-1v .lcd1v-kb__r {
-    font-size: 12.5px;
+    font-size: 14.5px;
   }
   body.lcd-1v .lcd1v-kb__r--sum .lcd1v-kb__rh {
     font-size: 18px;
@@ -295,7 +295,7 @@ body.lcd-1v .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
     font-size: 19px;
   }
   body.lcd-1v .lcd1v-kb__r {
-    font-size: 14.5px;
+    font-size: 16px;
   }
 }
 
@@ -328,7 +328,7 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__top {
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__veta {
   display: block;
   margin-top: 3px;
-  font: 700 12.5px/1.25 var(--kb-body);
+  font: 700 14px/1.25 var(--kb-body);
   letter-spacing: .01em;
   text-transform: none;
   white-space: normal;
@@ -362,7 +362,7 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb [hidden] {
   display: none;
 }
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-l {
-  font: 700 11px/1.3 var(--kb-disp);
+  font: 700 12px/1.3 var(--kb-disp);
   letter-spacing: .1em;
   text-transform: uppercase;
   color: #4f4836;
@@ -376,7 +376,7 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-c {
 }
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-s {
   margin-top: 3px;
-  font: 400 14px/1.4 var(--kb-body);
+  font: 400 15px/1.4 var(--kb-body);
   color: #4f4836;
 }
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-pr {
@@ -393,7 +393,7 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-u {
   border-radius: 999px;
   background: #e2f3e9;
   color: #1d6b4a;
-  font: 800 13.5px/1.2 var(--kb-body);
+  font: 800 15px/1.2 var(--kb-body);
   white-space: nowrap;
 }
 /* karta Nechcem: veta a „V cene“ vo veľkosti textov susedných kariet (rovnocenná voľba) */
@@ -414,20 +414,20 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__cn {
     letter-spacing: .1em;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__veta {
-    font-size: 11.5px;
+    font-size: 14px;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-c {
     font-size: 25px;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-s {
-    font-size: 13px;
+    font-size: 14.5px;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-u {
     padding-inline: 8px;
-    font-size: 12.5px;
+    font-size: 14px;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__ben {
-    font-size: 15px;
+    font-size: 16px;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__cn {
     font-size: 19px;
@@ -439,7 +439,7 @@ body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__cn {
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-s,
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__cb-u {
-    font-size: 14.5px;
+    font-size: 16px;
   }
   body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--nie .lcd1v-kb__ben {
     font-size: 17px;
@@ -574,7 +574,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok:focus-visible {
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pod {
   margin: 0 0 10px;
-  font: 400 13.5px/1.5 var(--kb-body);
+  font: 400 16px/1.5 var(--kb-body);
   color: #4a4433;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .config-wrap {
@@ -607,8 +607,8 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap.lcd1v-bx-velk {
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__nadp {
   margin: 0 0 7px;
-  font: 600 10.5px/1.6 var(--kb-disp);
-  letter-spacing: .14em;
+  font: 600 12px/1.6 var(--kb-disp);
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: #3d3728;
 }
@@ -790,7 +790,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bxp-k-qg {
   stroke: var(--bxp-gr, rgba(0, 0, 0, .42));
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__rozmer {
-  font: 400 12.5px/1.15 var(--kb-body);
+  font: 400 14px/1.2 var(--kb-body); /* rozmer boxu (Michal 18. 10. 2026: väčšie písmo) */
   color: #4a4433;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pripl {
@@ -806,8 +806,8 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__topv {
   border-radius: 999px;
   background: var(--kb-pas);
   color: #17130a;
-  font: 800 9.5px/1 var(--kb-disp);
-  letter-spacing: .06em;
+  font: 800 12px/1 var(--kb-disp);
+  letter-spacing: .04em;
   text-transform: uppercase;
   white-space: nowrap;
   box-shadow: 0 3px 9px rgba(20, 15, 5, .32);
@@ -821,7 +821,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__chyba {
   border-radius: 11px;
   background: #fdf4f3;
   color: #a9342a;
-  font: 600 13px/1.35 var(--kb-body);
+  font: 600 15px/1.4 var(--kb-body);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap.lcd-needs-fill .lcd1v-bx__chyba,
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .parameter-wrap.selection-required .lcd1v-bx__chyba {
@@ -853,5 +853,21 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok:hover {
   body.lcd-1v .lcd1v-bx-pozadie,
   body.lcd-1v .lcd1v-kb__karta {
     transition: none !important;
+  }
+}
+/* ---------- väčšie písmo na PC (Michal 18. 10. 2026) ---------- */
+@media (min-width: 768px) {
+  body.lcd-1v .lcd1v-kb__pod {
+    font-size: 18px;
+  }
+  body.lcd-1v .lcd1v-kb__vysv,
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pod {
+    font-size: 17px;
+  }
+  body.lcd-1v .lcd1v-kb__ben {
+    font-size: 16px;
+  }
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__rozmer {
+    font-size: 15px;
   }
 }

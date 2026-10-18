@@ -7,20 +7,30 @@
    8 krokov namiesto 9 (náhľady), vlastné fotky legendy pred a po, vlastné pozadie záveru, ikony balenia ako SVG, výzva .spat po veľkostiach.
    Obrázky: assets/img/1v/obsah/boxy-* (CDN absolútna adresa …/eshopy/luxuryCar/assets/img/1v/obsah/…). Spustenie pre všetkých
    (docs/1v-obsah.md bod 7): z každého selektora stačí zmazať „body.lcd-1v “ — id koreňa ostáva. */
+/* Väčšie písmo (Michal 18. 10. 2026): veľkosti textov podľa mierky v _lcd1v-obsah.scss bod 10 (len zväčšené, nič zmenšené). */
 
 /* =============================================================== a-ponuka: tabuľka cien .cenv (v tmavej karte .ups) */
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv{margin-top:16px;display:grid;
-  grid-template-columns:minmax(78px,1.45fr) repeat(4,minmax(0,1fr));border:1px solid rgba(230,200,119,.28);border-radius:14px;
+  grid-template-columns:minmax(0,45%) repeat(4,minmax(52px,1fr));border:1px solid rgba(230,200,119,.28);border-radius:14px;
   overflow:hidden;font-variant-numeric:tabular-nums}
+/* 1. stĺpec (názov riadku) do 45 % šírky tabuľky: pri 1280 px „Spolu s autokobercami, pri dvoch boxoch (každý)“ najviac na 2 riadky;
+   cenové stĺpce aspoň 52 px (cena „129 €“ 16 px), v úzkej tabuľke (karta vedľa fotky 821–1000 px) si zvyšok berie názov */
 /* riadok tabuľky = len ARIA obal, bunky ležia priamo v mriežke */
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r{display:contents}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > *{padding:9px 4px;font-size:13.5px;line-height:1.25;text-align:center;
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > *{padding:9px 4px;font-size:clamp(15px,calc(13px + .4vw),16px);line-height:1.25;text-align:center;
   border-top:1px solid rgba(230,200,119,.16);color:#fff}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .h{border-top:0;font-family:var(--disp);font-weight:800;font-size:11px;
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .h{border-top:0;font-family:var(--disp);font-weight:800;font-size:13px;
   letter-spacing:.1em;color:var(--gold-hi);background:rgba(255,255,255,.05)}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .l{text-align:left;padding-left:12px;font-size:12px;color:rgba(255,255,255,.78)}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .l{text-align:left;padding-left:12px;font-size:clamp(15px,calc(13px + .4vw),16px);color:rgba(255,255,255,.82)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .z{color:#8fe0b4;font-weight:700}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .ups .cenv-note{margin-top:10px;font-size:12px;color:rgba(255,255,255,.62);max-width:none}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .ups .cenv-note{margin-top:10px;font-size:clamp(14px,calc(12px + .4vw),15px);line-height:1.5;color:rgba(255,255,255,.7);max-width:none}
+/* telefón (väčšie písmo 18. 10. 2026): 5 stĺpcov by sa do 320–390 px nezmestilo -> názov riadku nad jeho štyrmi cenami */
+@media(max-width:600px){
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv{grid-template-columns:repeat(4,minmax(0,1fr))}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r:first-child > .h:first-child{display:none}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .l{grid-column:1 / -1;padding:10px 12px 2px}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="a-ponuka"] .cenv .r > .l ~ *{border-top:0;padding:4px 4px 10px}
+}
 
 /* =============================================================== 20 b-ocakavat: 8 krokov (skupina B má 9) */
 /* PC: náhľady v 8 stĺpcoch (pod 1200 px v 4), fotky náhľadov z CSS — bez flagu sa nestiahnu */
@@ -53,15 +63,17 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-s
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-s{display:flex;align-items:baseline;gap:8px;margin-top:4px}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-s b{font-family:var(--disp);font-weight:800;font-size:clamp(26px,3vw,38px);
   line-height:1;color:var(--ink)}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-s span{font-family:var(--mono);font-size:10.5px;font-weight:700;
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-s span{font-family:var(--mono);font-size:12px;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;color:#7c5f16}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-d{font-size:14px;font-weight:600;color:#3d3728;font-variant-numeric:tabular-nums}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-p{margin:0;font-size:13px;line-height:1.45;color:var(--mute)}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-d{font-size:clamp(15px,calc(13px + .4vw),16px);font-weight:600;color:#3d3728;font-variant-numeric:tabular-nums}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-p{margin:0;font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.5;color:var(--mute)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-r{margin-top:auto;padding-top:9px;border-top:1px solid var(--line);
-  display:grid;gap:3px;font-size:13px;color:#4a4433}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-r div{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  display:grid;gap:3px;font-size:clamp(15px,calc(13px + .4vw),16px);line-height:1.4;color:#4a4433}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-r div{display:flex;justify-content:space-between;gap:0 10px;align-items:baseline;flex-wrap:wrap}
+/* úzka karta (2 v riadku na 320–360 px): cena radšej pod popis, vpravo, než by pretiekla */
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-r div b{margin-left:auto}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-r b{white-space:nowrap;font-family:var(--disp);font-weight:800;
-  font-variant-numeric:tabular-nums;color:var(--ink);font-size:15px}
+  font-variant-numeric:tabular-nums;color:var(--ink);font-size:clamp(16px,calc(14px + .4vw),17px)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vc-r .z b{color:#1f8057}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   gap:clamp(10px,1.4vw,18px);margin-top:clamp(14px,1.8vw,22px)}
@@ -71,10 +83,10 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz .p{display:grid;grid-template-columns:auto 1fr;gap:3px 13px;align-items:start;
   padding:14px 16px;border:1px dashed rgba(155,122,36,.5);border-radius:14px}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz .p i{font-style:normal;grid-row:1/span 2;width:30px;height:30px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:13px;color:#17130a;
+  display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:14px;color:#17130a;
   background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold))}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz .p b{font-family:var(--disp);font-weight:800;font-size:15px;line-height:1.25;align-self:end}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz .p span{font-size:13.5px;line-height:1.5;color:var(--mute)}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz .p b{font-family:var(--disp);font-weight:800;font-size:18px;line-height:1.25;align-self:end}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .vpoz .p span{font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.5;color:var(--mute)}
 
 /* výzva .spat po veľkostiach: sekcia nemá meno c-…, preto ju štýl skupiny C nevyberie — rovnaké hodnoty ako c-kam / c-casova-os */
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .btn{border:0}
@@ -82,9 +94,9 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .spat
   gap:clamp(12px,2vw,22px);max-width:1240px;margin:0 auto;box-sizing:border-box;
   padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
-  font-size:clamp(15px,1.6vw,19px);line-height:1.3;color:var(--ink)}
+  font-size:clamp(17px,calc(15.2px + .37vw),19px);line-height:1.3;color:var(--ink)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
-  font-size:12px;letter-spacing:.1em}
+  font-size:14px;letter-spacing:.1em}
 @media(max-width:640px){
   body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
   body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .spat > p{max-width:none}
@@ -115,19 +127,19 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr img{
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-t{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr .od{align-self:flex-start;
   background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;font-family:var(--disp);font-weight:800;
-  font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3{margin:4px 0 0;font-size:clamp(16px,1.5vw,19px)}
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3{margin:4px 0 0;font-size:clamp(18px,1.5vw,20px)}
 /* odkaz je len v nadpise (TinyMCE nepustí blokové prvky do <a>); ::after ho natiahne na celú kartu */
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3 a{color:inherit;text-decoration:none;-webkit-text-fill-color:currentColor}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3 a:after{content:"";position:absolute;inset:0;z-index:1}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3 a:focus-visible{outline:none}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr:has(h3 a:focus-visible){outline:2px solid var(--gold);outline-offset:3px}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr p{margin:0;font-size:13.5px;line-height:1.5;color:var(--mute)}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr p{margin:0;font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.5;color:var(--mute)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-c{margin-top:auto;padding-top:10px;display:flex;align-items:baseline;
   gap:10px;flex-wrap:wrap}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-c b{font-family:var(--disp);font-weight:800;font-size:22px;color:var(--ink);
   font-variant-numeric:tabular-nums}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-c i{font-style:normal;font-size:12.5px;font-weight:600;color:#7c5f16}
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-c i{font-style:normal;font-size:clamp(14px,calc(12px + .4vw),15px);font-weight:600;color:#7c5f16}
 
 /* =============================================================== 42 d-koniec: pozadie záveru = fotka boxov (skupina D dáva hero.jpg) */
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="d-koniec"].p1v-blizko .endbg{

@@ -65,7 +65,7 @@ body.lcd-1v .lcd1v-rz .rz-podnadpis {
   margin: 0 0 16px;
   padding: 0;
   font-family: var(--rz-body);
-  font-size: 14.5px;
+  font-size: 17px; /* úvodná veta pod nadpisom (Michal 18. 10. 2026: väčšie písmo), PC 18 px dole */
   font-weight: 400;
   line-height: 1.5;
   color: var(--rz-text);
@@ -100,8 +100,8 @@ body.lcd-1v .lcd1v-rz .rz-vysv {
   border: 1px solid rgba(196, 155, 49, 0.4);
   border-radius: 12px;
   background: #faf6ea;
-  font-size: 13.5px;
-  line-height: 1.55;
+  font-size: 16px;
+  line-height: 1.5;
   color: var(--rz-text);
 }
 body.lcd-1v .lcd1v-rz .rz-vysv[hidden] {
@@ -124,7 +124,7 @@ body.lcd-1v .lcd1v-rz .rz-miesta[hidden] {
 }
 body.lcd-1v .lcd1v-rz .rz-miesta-nm {
   font-family: var(--rz-disp);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   line-height: 1.6;
   letter-spacing: 0.1em;
@@ -239,10 +239,10 @@ body.lcd-1v .lcd1v-rz .rz-je {
   align-items: center;
   gap: 7px;
   font-family: var(--rz-disp);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1.6;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--rz-gold-hi);
 }
@@ -258,10 +258,10 @@ body.lcd-1v .lcd1v-rz .rz-hint {
   margin: 0;
   padding: 1px 4px 4px;
   font-family: var(--rz-body);
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.45;
   text-align: center;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.72); /* svetlejšie = lepší kontrast na tmavom */
 }
 body.lcd-1v .lcd1v-rz .rz-hint b {
   font-weight: 600;
@@ -329,10 +329,10 @@ body.lcd-1v .lcd1v-rz .rz-foto b {
   border-radius: 7px;
   background: var(--rz-zlato);
   font-family: var(--rz-disp);
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.04em;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
   text-align: center;
   color: #17130a;
 }
@@ -346,7 +346,7 @@ body.lcd-1v .lcd1v-rz .rz-tx {
 body.lcd-1v .lcd1v-rz .rz-nm {
   display: block;
   font-family: var(--rz-disp);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
   line-height: 1.2;
   color: var(--rz-ink);
@@ -354,9 +354,9 @@ body.lcd-1v .lcd1v-rz .rz-nm {
 body.lcd-1v .lcd1v-rz .rz-po {
   display: block;
   font-family: var(--rz-body);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--rz-mute);
 }
 body.lcd-1v .lcd1v-rz .rz-cena {
@@ -441,10 +441,10 @@ body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
     width: 104px;
   }
   body.lcd-1v .lcd1v-rz .rz-nm {
-    font-size: 15px;
+    font-size: 18px;
   }
   body.lcd-1v .lcd1v-rz .rz-po {
-    font-size: 13px;
+    font-size: 15.5px;
   }
   body.lcd-1v .lcd1v-rz .rz-cena {
     gap: 10px;
@@ -465,5 +465,36 @@ body.lcd-1v .lcd1v-rz .rz-karta.on .rz-vol svg {
   }
   body.lcd-1v .lcd1v-rz .rz-karta:hover {
     transform: none;
+  }
+}
+
+/* úzky telefón: menšia fotka, nech väčší text karty má miesto (Michal 18. 10. 2026: väčšie písmo) */
+@media (max-width: 359px) {
+  body.lcd-1v .lcd1v-rz .rz-karta {
+    grid-template-columns: 84px minmax(0, 1fr) 24px;
+    gap: 10px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-foto {
+    width: 84px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-cena {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+}
+/* väčšie písmo na PC (Michal 18. 10. 2026) */
+@media (min-width: 768px) {
+  body.lcd-1v .lcd1v-rz .rz-podnadpis {
+    font-size: 18px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-vysv,
+  body.lcd-1v .lcd1v-rz .rz-po {
+    font-size: 17px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-nm {
+    font-size: 19px;
+  }
+  body.lcd-1v .lcd1v-rz .rz-hint {
+    font-size: 15px;
   }
 }

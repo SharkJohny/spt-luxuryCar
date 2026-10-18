@@ -7,6 +7,7 @@
    body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) (korene obsahu; po spustení v Popise ostáva #p1v-598-1).
    Linka čítania (#p1v-citanie) a okno (#p1v-lb) sú po init priamo v <body> (obsah-d.js) — premenné koreňa tam
    neplatia, preto farby a písmo natvrdo (= --gold-lo #8f7020, --gold-hi #e6c877, --disp „Exo 2“). */
+/* Väčšie písmo (Michal 18. 10. 2026): veľkosti textov podľa mierky v _lcd1v-obsah.scss bod 10 (len zväčšené, nič zmenšené). */
 
 /* text len pre čítačky (.p1v-sr, aj v okne a linke presunutých do <body>), rytmus kapitol, zlaté nadpisy, .lede 46ch a
    reveal .rv dáva základ LCD-1V-OBSAH bod 5–6 */
@@ -31,8 +32,8 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q{appearance:none;-we
   font:inherit;color:var(--ink);text-align:left;text-transform:none;letter-spacing:normal;min-height:0;height:auto}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .i{flex:0 0 auto;min-width:20px;margin-right:14px;font-family:var(--disp);
-  font-weight:800;font-size:11px;line-height:1.6;letter-spacing:.08em;color:#8f7020;font-variant-numeric:tabular-nums}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:16.5px;
+  font-weight:800;font-size:12px;line-height:1.6;letter-spacing:.08em;color:#8f7020;font-variant-numeric:tabular-nums}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:clamp(17px,calc(15.2px + .37vw),18px);
   font-weight:600;line-height:1.6;color:var(--ink);transition:color .2s}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:hover .t{color:var(--gold-lo)}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .p{flex:none;margin-left:auto;font-family:var(--body);font-size:20px;
@@ -44,7 +45,7 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a{display:grid;grid-t
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q[aria-expanded="true"] + .p1v-faq-a{grid-template-rows:1fr;visibility:visible;
   transition:grid-template-rows .3s cubic-bezier(.2,.7,.2,1),visibility 0s}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a > .a{min-height:0;overflow:hidden;max-width:70ch;padding:0;
-  font-size:14.5px;line-height:1.6;color:#4a4433}
+  font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.6;color:#4a4433}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a > .a:after{content:"";display:block;height:20px}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a a{color:#7c5f16;text-decoration:underline;text-underline-offset:2px}
 @media (prefers-reduced-motion:reduce){
@@ -98,7 +99,7 @@ body.lcd-1v .p1v-lb-ram.je-foto img{display:block;width:auto;height:auto;object-
   max-width:min(1400px, calc(100vw - 2 * clamp(14px, 4vw, 52px)));
   max-height:calc(84vh - 48px);max-height:calc(84svh - 48px)}
 body.lcd-1v .p1v-lb-pod{margin-top:12px;max-width:60ch;text-align:center;color:#e8e1d1;
-  font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-size:13.5px;line-height:1.4;letter-spacing:.05em}
+  font-family:"Exo 2","Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.4;letter-spacing:.05em}
 body.lcd-1v .p1v-lb :is(.p1v-lb-x,.p1v-lb-sip){position:absolute;z-index:2;display:flex;align-items:center;
   justify-content:center;width:46px;height:46px;margin:0;padding:0;border-radius:50%;
   border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font:400 22px/1 Arial,sans-serif;

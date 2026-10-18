@@ -9,6 +9,7 @@
    - NOVÉ: „Premium alebo Classic?“ (.cmp-col.klas, .cmp-dalej) a „Čo všetko rohož Premium kryje“ (.kryv, .kz, SVG zóny),
    - ikona rohože v „Čo Vám príde domov“ je inline SVG.
    Špecificita: pravidlá titulky (LCD-HOME) majú id; predpona s id koreňov (1,x,x) ich prebije bez !important. */
+/* Väčšie písmo (Michal 18. 10. 2026): veľkosti textov podľa mierky v _lcd1v-obsah.scss bod 10 (len zväčšené, nič zmenšené). */
 
 /* =============================================================== a-ponuka: dve karty pod sebou */
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="a-ponuka"] .ups + .ups{margin-top:clamp(14px,2vw,22px)}
@@ -41,9 +42,9 @@ body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia^="premium-"] .sp
   gap:clamp(12px,2vw,22px);max-width:1240px;margin:0 auto;box-sizing:border-box;
   padding:clamp(20px,2.6vw,30px) var(--pad) clamp(32px,4vw,50px)}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia^="premium-"] .spat > p{margin:0;max-width:34ch;font-family:var(--disp);font-weight:800;
-  font-size:clamp(15px,1.6vw,19px);line-height:1.3;color:var(--ink)}
+  font-size:clamp(17px,calc(15.2px + .37vw),19px);line-height:1.3;color:var(--ink)}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia^="premium-"] .btn.spat-btn{flex:none;height:50px;margin:0;padding:0 26px !important;
-  font-size:12px;letter-spacing:.1em;border:0}
+  font-size:14px;letter-spacing:.1em;border:0}
 @media(max-width:640px){
   body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia^="premium-"] .spat{flex-direction:column;align-items:stretch;text-align:center;gap:14px}
   body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia^="premium-"] .spat > p{max-width:none}
@@ -104,18 +105,18 @@ body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"]
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz:hover{border-color:rgba(196,155,49,.7);transform:translateY(-1px)}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz.on{border-color:var(--gold);box-shadow:0 8px 22px rgba(140,105,25,.22)}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz .no{grid-row:1/span 3;width:30px;height:30px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:13px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:14px;background:#fff;
   border:2px solid var(--line);color:#6b6450;margin-top:2px}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz.on .no{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
   border-color:transparent;color:#17130a}
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz b{font-family:var(--disp);font-weight:800;font-size:15px;
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz b{font-family:var(--disp);font-weight:800;font-size:clamp(17px,calc(15.2px + .37vw),18px);
   letter-spacing:.03em;text-transform:uppercase;color:var(--ink);line-height:1.2}
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz i{font-style:normal;font-size:14px;line-height:1.5;color:#4a4433}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz i{font-style:normal;font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.5;color:#4a4433}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz .tg{justify-self:start;font-family:var(--disp);font-weight:800;
-  font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#ece8dc;color:#6b6450}
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#ece8dc;color:#6b6450}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz .tg.pr{background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz.vsetko{grid-template-columns:1fr;text-align:center;padding:11px 16px;border-style:dashed}
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz.vsetko b{font-size:12px;letter-spacing:.1em}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz.vsetko b{font-size:14px;letter-spacing:.1em}
 
 /* =============================================================== c-domov: ikona rohože je inline SVG (C ráta s obrázkom 40 px) */
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="c-domov"] .bal .ba-i svg{display:block;width:40px;height:40px}

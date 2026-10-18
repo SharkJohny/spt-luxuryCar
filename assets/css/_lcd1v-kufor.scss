@@ -87,7 +87,7 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .pattern
   content: attr(data-lcd1v-cena);
   display: block;
   margin: 3px 0 0;
-  font: 600 11.5px/1.3 var(--c1v-body);
+  font: 600 14px/1.3 var(--c1v-body); /* väčšie písmo (Michal 18. 10. 2026) */
   letter-spacing: 0;
   text-transform: none;
   color: var(--c1v-lb);
@@ -217,8 +217,8 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
 }
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__ey {
   display: block;
-  font: 800 11.5px/1.2 var(--c1v-disp);
-  letter-spacing: 0.16em;
+  font: 800 12.5px/1.2 var(--c1v-disp);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #e6c877;
 }
@@ -331,8 +331,8 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   border: 1px solid rgba(230, 200, 119, 0.7);
   border-radius: 13px; /* jeden riadok = ovál ako doteraz, dva riadky = zaoblený obdĺžnik */
   background: rgba(20, 17, 12, 0.78);
-  font: 700 11px/1.2 var(--c1v-disp);
-  letter-spacing: 0.08em;
+  font: 700 12px/1.2 var(--c1v-disp);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-wrap: balance;
   color: #f3e2ad;
@@ -365,7 +365,7 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   padding: 4px 7px;
   border-radius: 6px;
   background: rgba(20, 17, 12, 0.8);
-  font: 700 9.5px/1.25 var(--c1v-disp);
+  font: 700 12px/1.25 var(--c1v-disp);
   font-style: normal;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -499,6 +499,10 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__c {
     font-size: 52px;
   }
+  /* bunky „Samostatne / Ušetríte“ na PC väčšie (Michal 18. 10. 2026) */
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form :is(.lcd1v-bs__s, .lcd1v-bs__u) {
+    font-size: 16px;
+  }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__tl {
     grid-area: tl;
     margin-top: 0;
@@ -510,7 +514,7 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-info-wrapper > .lcd
   order: 7; /* ako „Spolu“ a tlačidlo košíka, v DOM hneď za tlačidlom */
   margin: 14px 0 0;
   padding: 0;
-  font: 400 13.5px/1.5 var(--c1v-body);
+  font: 400 15px/1.5 var(--c1v-body);
   color: var(--c1v-lb);
   text-align: center;
 }
@@ -524,4 +528,8 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a:hover,
 body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-kf-alt a:focus-visible {
   color: var(--c1v-ink);
 }
-
+@media (min-width: 768px) {
+  body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .p-info-wrapper > .lcd1v-kf-alt {
+    font-size: 16px; /* väčšie písmo na PC (Michal 18. 10. 2026) */
+  }
+}

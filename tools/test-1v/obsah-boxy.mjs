@@ -199,8 +199,10 @@ export async function kontroly(t) {
     const r = await t.ev(`(async function () {
       var s = document.querySelector(${S(m)}); s.scrollIntoView({ block: "start", behavior: "instant" });
       var t0 = Date.now(), vid, skryte; // SPEVNENIE-CAKANIA: čaká na odhalenie (max 8 s), nie fixných 1,1 s — pri zaťaženom stroji (iné testy) trvá dlhšie
+      // výrez ako pozorovateľ odhalenia v obsah.js (rootMargin dole -8 %): prvok, ktorého vrch je v spodných 8 % okna, sa odhalí až po ďalšom posune
+      // (väčšie písmo 18. 10. 2026 posunulo výzvu .spat práve do tohto pásu)
       do { await new Promise(function (r) { setTimeout(r, 300); });
-        vid = [].slice.call(s.querySelectorAll(".rv")).filter(function (x) { var b = x.getBoundingClientRect(); return b.top < innerHeight && b.bottom > 0; });
+        vid = [].slice.call(s.querySelectorAll(".rv")).filter(function (x) { var b = x.getBoundingClientRect(); return b.top < innerHeight * 0.92 && b.bottom > 0; });
         skryte = vid.filter(function (x) { return getComputedStyle(x).opacity < 0.9; }).length;
       } while ((skryte > 0 || !s.classList.contains("p1v-rv")) && Date.now() - t0 < 8000);
       return { h: s.getBoundingClientRect().height, rv: s.classList.contains("p1v-rv"), skryte: skryte, vid: vid.length };

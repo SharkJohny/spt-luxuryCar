@@ -80,16 +80,16 @@ body.lcd-1v .lcd1v-kompat-tx {
 }
 body.lcd-1v .lcd1v-kompat-tx b {
   display: block;
-  font-size: 15px;
-  line-height: 20px;
+  font-size: 16px; /* väčšie písmo (Michal 18. 10. 2026), PC 17 px dole */
+  line-height: 1.35;
   font-weight: 700;
   color: var(--kr-ink);
 }
 body.lcd-1v .lcd1v-kompat-tx i {
   display: block;
   font-style: normal;
-  font-size: 15px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 1.5;
   color: var(--kr-mute);
   overflow-wrap: anywhere;
 }
@@ -107,9 +107,9 @@ body.lcd-1v .lcd1v-postup-t,
 body.lcd-1v .lcd1v-postup-st {
   font-family: var(--kr-disp);
   font-weight: 700;
-  font-size: 10.5px;
-  line-height: 16px;
-  letter-spacing: 0.16em;
+  font-size: 12px; /* väčšie písmo (Michal 18. 10. 2026): štítky verzálkami min. 12 px */
+  line-height: 18px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--kr-tmava);
 }
@@ -330,25 +330,26 @@ body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-ti {
 body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-nm {
   display: block;
   color: var(--kr-tmava);
-  font: 700 15.5px/1.3 var(--kr-body);
+  font: 700 17px/1.3 var(--kr-body);
 }
 body.lcd-1v #product-detail-form .lcd1v-krok .lcd1v-vy {
   display: block;
   margin: 1px 0 0;
-  color: #7a735e;
-  font: 400 13.5px/1.35 var(--kr-body);
+  color: #6e6752; /* o odtieň tmavšia (kontrast) */
+  font: 400 15px/1.4 var(--kr-body);
   overflow-wrap: anywhere;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-nm {
   color: var(--kr-mute);
-  font: 600 10.5px/16.8px var(--kr-disp);
-  letter-spacing: 0.14em;
+  font: 600 12px/18px var(--kr-disp);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-vy {
   margin-top: 2px;
   color: var(--kr-ink);
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 1.4;
   font-weight: 600;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.active .lcd1v-nm,
@@ -396,8 +397,8 @@ body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-zm
   padding: 6px 0 3px;
   border-bottom: 1px solid rgba(196, 155, 49, 0.6);
   color: var(--kr-gold-tx);
-  font: 700 10.5px/16.8px var(--kr-disp);
-  letter-spacing: 0.14em;
+  font: 700 12px/18px var(--kr-disp);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok:not(.active) > .order:hover ~ .lcd1v-hd .lcd1v-zm {
@@ -442,7 +443,7 @@ body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-chyba-tx {
   border-radius: 12px;
   background: #fdf4f3;
   color: #a9342a;
-  font: 600 13.5px/1.35 var(--kr-body);
+  font: 600 15px/1.4 var(--kr-body);
   text-align: left;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-chyba > .lcd1v-chyba-tx {
@@ -467,14 +468,14 @@ body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pod {
   margin: 0 0 16px;
   padding: 0;
   color: var(--kr-text);
-  font: 400 14.5px/1.5 var(--kr-body);
+  font: 400 17px/1.5 var(--kr-body); /* úvodná veta pod nadpisom kroku (PC 18 px dole) */
   text-align: left;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
   margin: 16px 0 0;
   padding: 0;
   color: var(--kr-text);
-  font: 400 13.5px/1.6 var(--kr-body);
+  font: 400 14px/1.6 var(--kr-body);
   text-align: center;
 }
 
@@ -598,8 +599,8 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .
   padding: 11px 4px 12px;
   background: none;
   color: var(--kr-tmava);
-  font: 700 11px/1.25 var(--kr-disp);
-  letter-spacing: 0.1em;
+  font: 700 12.5px/1.25 var(--kr-disp);
+  letter-spacing: 0.08em;
   text-align: center;
   text-shadow: none;
   text-transform: uppercase;
@@ -661,8 +662,8 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars > .label {
   margin: 0 0 7px;
   padding: 0 !important; /* živé .parameter-cars .label { padding: 20px 10px 0 !important } */
   color: var(--kr-tmava);
-  font: 600 10.5px/16.8px var(--kr-disp);
-  letter-spacing: 0.14em;
+  font: 600 12px/18px var(--kr-disp);
+  letter-spacing: 0.12em;
   text-align: left;
   text-transform: uppercase;
 }
@@ -702,8 +703,8 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button {
   background: none;
   box-shadow: none;
   color: #17130a;
-  font: 700 12px/14.4px var(--kr-disp);
-  letter-spacing: 0.06em;
+  font: 700 13px/1.2 var(--kr-disp);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background-color 0.2s, box-shadow 0.2s;
@@ -838,7 +839,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .modl-selector-wrap > .lcd1v-pole
   display: block;
   margin: 0 0 7px;
   color: var(--kr-tmava);
-  font: 600 10.5px/16.8px var(--kr-disp);
+  font: 600 12px/18px var(--kr-disp);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -869,7 +870,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select {
   background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center / 14px 9px;
   box-shadow: none;
   color: var(--kr-ink);
-  font: 400 14px/42px var(--kr-body);
+  font: 400 16px/42px var(--kr-body); /* 16 px: čitateľné a iPhone pri ťuknutí nezväčší stránku */
   text-align: left;
   text-align-last: left;
   text-overflow: ellipsis;
@@ -901,7 +902,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-prazdne .select
   left: 16px;
   overflow: hidden;
   color: #4a4433;
-  font: 400 14px/46px var(--kr-body);
+  font: 400 16px/46px var(--kr-body);
   white-space: nowrap;
   text-overflow: ellipsis;
   pointer-events: none;
@@ -922,7 +923,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err::after {
   padding: 0 0 0 19px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='7' fill='%23c0392b'/%3E%3Crect x='6.1' y='3' width='1.8' height='5.2' rx='.9' fill='%23fff'/%3E%3Ccircle cx='7' cy='10.4' r='1' fill='%23fff'/%3E%3C/svg%3E") no-repeat left center / 14px 14px;
   color: var(--kr-cervena);
-  font: 600 12px/15.6px var(--kr-body);
+  font: 600 14px/1.35 var(--kr-body);
 }
 
 /* ---------------------------------------------------------------- krok 3: farba (18 vzoriek, náhľad zblízka) */
@@ -1042,8 +1043,8 @@ body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-nm {
   padding: 12px 14px;
   box-shadow: inset 0 -1px 0 rgba(230, 200, 119, 0.22);
   color: var(--kr-gold-hi);
-  font: 700 11px/17.6px var(--kr-disp);
-  letter-spacing: 0.1em;
+  font: 700 12.5px/18px var(--kr-disp);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-nm::before {
@@ -1084,14 +1085,15 @@ body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-img {
 @media (max-width: 480px) {
   body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button .banner-header {
     padding: 10px 2px 11px;
-    font-size: 10px;
-    letter-spacing: 0.05em;
+    font-size: 12px;
+    letter-spacing: 0.03em;
   }
   body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button {
     min-height: 44px;
     padding: 10px 8px;
-    font-size: 10.5px;
-    line-height: 12.6px;
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
   }
   body.lcd-1v #product-detail-form .lcd1v-k-auto .modl-selector-wrap {
     grid-template-columns: minmax(0, 1fr);
@@ -1099,5 +1101,25 @@ body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-img {
   body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 10px;
+  }
+}
+
+/* ---------------------------------------------------------------- väčšie písmo na PC (Michal 18. 10. 2026) */
+@media (min-width: 768px) {
+  body.lcd-1v .lcd1v-kompat-tx b,
+  body.lcd-1v .lcd1v-kompat-tx i {
+    font-size: 17px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-vy {
+    font-size: 17px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pod {
+    font-size: 18px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
+    font-size: 15px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err::after {
+    font-size: 15px;
   }
 }
