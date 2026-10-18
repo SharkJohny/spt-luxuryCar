@@ -93,8 +93,8 @@ export const TYP = {
         sam: (d) => (d.od ? (d.pocet > 1 ? "Boxy " : "Box ") + d.velkosti + " samostatne" : "Samostatne"),
         us: "Ušetríte",
         stuha: "Zľava", // stuha cez roh banneru: „Zľava −X %“ pre zvolené veľkosti (živo, set-banner.js)
-        pip: (d) => (d.pocet > 1 ? d.pocet + " boxy do kufra" : "Box do kufra"),
-        tag: "Autokoberce pod sedadlá",
+        // bez štítkov na fotkách („Autokoberce pod sedadlá“, „2 boxy do kufra“) — Michal 18. 10. 2026: „tie texty daj preč,
+        // radšej daj tú fotku väčšiu“ (veta v banneri hovorí to isté)
       },
       ano: { tl: "Áno, chcem set s autokobercami" },
       // farba boxu, ktorú set nemá (dnes Šedá): povedať to a farbu neprenášať — zákazník ju vyberie v okne boxov

@@ -91,7 +91,7 @@ function stavKarty(t) {
         poradie: Array.prototype.map.call(bs.querySelectorAll(".lcd1v-bs__row > *"), function (e) { return e.className; }).join(","),
         ciara: ss ? getComputedStyle(ss).textDecorationLine : "", cPx: Math.round(parseFloat(getComputedStyle(bs.querySelector(".lcd1v-bs__c")).fontSize)),
         bgSrc: bg ? bg.currentSrc || bg.getAttribute("src") : "", bgSrcset: bg ? bg.getAttribute("srcset") || "" : "", bgLoading: bg ? bg.getAttribute("loading") : null,
-        pipSrc: pip ? pip.getAttribute("src") : null, pipLoading: pip ? pip.getAttribute("loading") : null,
+        pipSrc: pip ? pip.getAttribute("src") : null, pipLoading: pip ? pip.getAttribute("loading") : null, pipPx: pip ? Math.round(pip.getBoundingClientRect().width) : 0,
         fotkyOk: Array.prototype.every.call(bs.querySelectorAll("img"), function (i) { return i.complete && i.naturalWidth > 0; }),
         vyska: Math.round(bs.getBoundingClientRect().height), pretek: bs.scrollWidth > bs.clientWidth + 1 } : null,
       cenaTx: tx(".lcd1v-bs__c"), // aj pri zbalenej karte (banner je v skrytom tele karty)
@@ -170,7 +170,8 @@ async function overOtvorenu(t, j, st, { h, kd, pip, ben, vSete, samostatne, sam 
   j.over(B.poradie === "lcd1v-bs__c,lcd1v-bs__kd,lcd1v-bs__sb", `${kde}: poradie v DOM (čítačka: cena hneď s podmienkou): ${B.poradie}`);
   j.over(Number(B.attr) === vSete, `${kde}: data-lcd1v-set ${B.attr} ≠ ${vSete}`);
   j.over(B.cPx >= 40, `${kde}: cena v sete má byť veľká (${B.cPx} px)`);
-  j.over(B.tag === "Autokoberce pod sedadlá" && B.pip === pip, `${kde}: štítky banneru ${JSON.stringify([B.tag, B.pip])} ≠ Autokoberce pod sedadlá / ${pip}`);
+  // bez štítkov na fotkách, malá fotka produktu väčšia (Michal 18. 10. 2026: „tie texty daj preč, radšej daj tú fotku väčšiu“)
+  j.over(!B.tag && !B.pip && B.pipPx >= 88, `${kde}: banner má byť bez štítkov na fotkách a s väčšou fotkou produktu: ${JSON.stringify({ tag: B.tag, pip: B.pip, px: B.pipPx })}`);
   j.over(!B.pretek, `${kde}: banner preteká`);
   // fotky: pozadie = reálne autokoberce (lenivo, srcset), malá fotka = rohož (og:image) / box podľa počtu
   j.over(B.fotkyOk && B.bgLoading === "lazy" && B.pipLoading === "lazy" && FOTKA_BANNERA.every((x) => B.bgSrcset.includes("/img/1v/" + x)) && /\/img\/1v\/set-banner-autokoberce-(480|800)\.jpg$/.test(B.bgSrc),

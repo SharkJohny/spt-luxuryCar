@@ -216,8 +216,11 @@ export function init(ctx) {
       const src = ctx.obrazokVzoru("boxprodukt-pocet-" + n);
       const cn = el("b", { class: "lcd1v-bxp-od" });
       const po = el("small", { class: "lcd1v-bxp-ks-po" });
+      // rám je samostatná vrstva NAVRCHU (outline aj vnútorný tieň tlačidla prekryje fotka a prechod — Michal 18. 10.:
+      // „keď je vybratý počet boxov, tak sa to neorámuje“)
       const b = el("button", { type: "button", class: "lcd1v-bxp-ks", "data-ks": n, "aria-pressed": "false" }, [
         src ? el("img", { class: "lcd1v-bxp-ks-img", src, alt: d.alt || "", loading: "lazy", decoding: "async", width: 480, height: 360 }) : null,
+        el("span", { class: "lcd1v-bxp-ks-ram", "aria-hidden": "true" }),
         el("span", { class: "lcd1v-bxp-ks-in" }, [
           el("span", { class: "lcd1v-bxp-ks-nm", text: d.nm }),
           d.ben ? el("span", { class: "lcd1v-bxp-ks-ben", text: d.ben }) : null,

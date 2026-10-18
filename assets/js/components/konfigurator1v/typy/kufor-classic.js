@@ -67,8 +67,8 @@ export const TYP = {
         sam: "Samostatne",
         us: "Ušetríte",
         stuha: "Zľava", // stuha cez roh banneru: „Zľava −30 %“ (percento živo, set-banner.js)
-        pip: "Rohož do kufra Classic", // štítok malej fotky produktu
-        tag: "Autokoberce pod sedadlá", // štítok fotky pozadia
+        // bez štítkov na fotkách („Autokoberce pod sedadlá“, „Rohož do kufra …“) — Michal 18. 10. 2026: „tie texty daj preč,
+        // radšej daj tú fotku väčšiu“ (veta v banneri hovorí to isté)
       },
       ano: { tl: "Áno, chcem set s autokobercami" },
       ben: "Vzor aj auto Vám ostanú, rohož bude vo farbe autokobercov.",

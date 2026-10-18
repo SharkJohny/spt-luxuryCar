@@ -349,10 +349,11 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   align-items: center;
   gap: 8px;
 }
+/* malá fotka produktu je bez štítkov väčšia (Michal 18. 10. 2026: „tie texty daj preč, radšej daj tú fotku väčšiu“) */
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip img {
   flex: none;
-  width: 60px;
-  height: 60px;
+  width: 92px;
+  height: 92px;
   object-fit: cover;
   border: 2px solid #e6c877;
   border-radius: 10px;
@@ -373,8 +374,9 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
 /* „+“ medzi štítkom autokobercov a fotkou produktu (stred hornej hrany malej fotky) */
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__plus {
   position: absolute;
-  left: 18px;
-  top: -14px;
+  left: 50%;
+  top: -12px;
+  margin-left: -12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -476,15 +478,15 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
     flex-direction: row-reverse;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip img {
-    width: 68px;
-    height: 68px;
+    width: 104px;
+    height: 104px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip i {
     text-align: right;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__pip .lcd1v-bs__plus {
-    left: auto;
-    right: 22px;
+    left: 50%;
+    right: auto;
     top: -14px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__h {
