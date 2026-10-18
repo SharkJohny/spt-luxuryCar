@@ -553,7 +553,7 @@ export const TEXTY = {
    "hotove": {
     "boky": "Pod sedadlá šoféra a spolujazdca:",
     "stred": "Stredový koberec:",
-    "stred_rovnaka": "rovnaká ako pod sedadlami – {x}",
+    "stred_rovnaka": "rovnaká nášivka ako pod sedadlami – {x}",
     "bez_priplatku": "bez príplatku"
    },
    "kam_pride": {
@@ -587,7 +587,7 @@ export const TEXTY = {
    "foto_alt": "Celý panel dverí kamióna s tapacírom a nášivkou v strede, ilustračná fotka",
    "foto_stitok": "Tapacír dverí",
    "ilustracna": "Ilustračná fotka",
-   "benefit": "Ak nič nezmeníte, bude v\u00a0rovnakom materiáli, farbe a\u00a0lemovaní ako koberce. Môžete si ich však vybrať aj inak.",
+   "benefit": "Môže byť v\u00a0rovnakom materiáli, farbe a\u00a0lemovaní ako koberce, alebo si ich vyberiete inak.",
    "volby": {
     "ano": {
      "text": "Áno, chcem aj tapacír dverí",
@@ -601,7 +601,8 @@ export const TEXTY = {
    "rovnake": {
     "ano": "Rovnaké ako koberce",
     "inak": "Vybrať inak",
-    "inak_popis": "iný materiál, farbu alebo lemovanie"
+    "inak_popis": "iný materiál, farbu alebo lemovanie",
+    "inak_hotove": "Iný materiál, farba alebo lemovanie"
    },
    "otazky": {
     "mat": "Prosím, vyberte si materiál, farbu a lemovanie tapacíru",
@@ -621,6 +622,7 @@ export const TEXTY = {
    },
    "nasivka_dvere": {
     "nadpis": "Nášivka na tapacír dverí",
+    "nadpis_motiv": "Motív nášivky na tapacír dverí",
     "kde": [
      "Motív bude vyšitý ",
      "do stredu výplne dverí",
@@ -644,13 +646,13 @@ export const TEXTY = {
    },
    "hotove": {
     "ponuka": "Tapacír dverí:",
-    "ano": "áno · {x}",
+    "ano": "áno\u00a0·\u00a0{x}",
     "nie": "nie, ďakujem",
     "mat": "Materiál, farba a lemovanie:",
     "mat_rovnake": "rovnaké ako koberce",
     "nas": "Nášivka na tapacír dverí:",
-    "dvere": "Motív na tapacíre dverí:",
-    "dvere_rovnaka": "rovnaká ako na kobercoch – {x}"
+    "dvere": "Motív nášivky na tapacír dverí:",
+    "dvere_rovnaka": "rovnaký ako na kobercoch – {x}"
    },
    "zhrnutie_ano": "Áno · ako na kobercoch",
    "zhrnutie_ano_vlastne": "Áno · {nazov}, {variant} · {farba}",

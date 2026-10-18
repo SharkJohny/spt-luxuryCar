@@ -462,14 +462,20 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   t.klik(a("zmenit", "stred"));
   over("17: Zmeniť stred -> otázka znova, zvolená „Iná nášivka“", J(otvorene(K5)) === J(["stred"]) && q(a("stredRovnaky", "0")).getAttribute("aria-pressed") === "true" && q(a("stredRovnaky", "1")).getAttribute("aria-pressed") === "false");
   t.klik(a("stredRovnaky", "1"));
-  over("17: „Rovnaká“ = hotovo, karta sa zatvorí, stred v selectoch = pod sedadlami", J(otvorene(K5)) === "[]" && /Stredový koberec: rovnaká ako pod sedadlami – Trucker \(H21\) · niť červená \(2824\)/.test(tx(K5 + '.kn-hot[data-hot="stred"]')) && zvolene(t.d, 409) === "Nášivka H21" && zvolene(t.d, 412) === "2824 – Červená");
+  over("17: „Rovnaká“ = hotovo, karta sa zatvorí, stred v selectoch = pod sedadlami", J(otvorene(K5)) === "[]" && /Stredový koberec: rovnaká nášivka ako pod sedadlami – Trucker \(H21\) · niť červená \(2824\)/.test(tx(K5 + '.kn-hot[data-hot="stred"]')) && zvolene(t.d, 409) === "Nášivka H21" && zvolene(t.d, 412) === "2824 – Červená", tx(K5 + '.kn-hot[data-hot="stred"]'));
+  // revízia 18. 10. 2026 večer: znova otvorená otázka na hotovom kroku má pod sebou „Pokračujte ďalej“; zatvorenie a
+  // otvorenie hlavičky ju zavrie (riadky ✓ + „Pokračujte ďalej“)
+  t.klik(a("zmenit", "kam"));
+  over("17: Zmeniť kam na hotovom kroku -> otázka kam a pod ňou „Pokračujte ďalej“", J(otvorene(K5)) === J(["kam"]) && dalej5(), J(otvorene(K5)));
+  t.klik(a("krok", "nasivky")); t.klik(a("krok", "nasivky"));
+  over("17: hlavička zavrieť / otvoriť -> riadky ✓ (kam, pod sedadlá, stred) a „Pokračujte ďalej“, otázka zavretá", J(hot(K5)) === J(["kam", "boky", "stred"]) && J(otvorene(K5)) === "[]" && dalej5() && U.znova.nasivky === null && U.otvoreny === "nasivky", J([hot(K5), otvorene(K5), U.znova]));
   // zmena voľby 5.1: motív a niť sa prenesú, zvolená je stále len jedna
   t.klik(a("zmenit", "kam")); t.klik(a("nas", "boky"));
   over("17: všetky tri -> pod sedadlá: potvrdené ostane, hotovo bez ďalšej otázky", S.nas === "boky" && J(hot(K5)) === J(["kam", "boky"]) && J(otvorene(K5)) === "[]" && dalej5());
   t.klik(a("zmenit", "kam"));
   over("17: zvolená len „pod sedadlá“", J(zvolene5()) === J(["boky"]) && qa(K5 + ".kn-dv__b.is-on").length === 1);
   t.klik(a("nas", "stred"));
-  over("17: pod sedadlá -> stredový koberec: karta stredu s motívom a niťou na potvrdenie", S.nas === "stred" && J(otvorene(K5)) === J(["stred"]) && tx(K5 + ".kn-karta__ey") === "Nášivka na stredový koberec" && !!q(a("potvrd", "stred")), J(otvorene(K5)) + " " + J(S.nasStred));
+  over("17: pod sedadlá -> stredový koberec: karta stredu s motívom a niťou spod sedadiel (H21 / 2824, nie starý vlastný stred H19 / 2999) na potvrdenie", S.nas === "stred" && S.nasStred.motiv === "H21" && S.nasStred.nit === "2824" && J(otvorene(K5)) === J(["stred"]) && tx(K5 + ".kn-karta__ey") === "Nášivka na stredový koberec" && !!q(a("potvrd", "stred")), J(otvorene(K5)) + " " + J(S.nasStred));
   potvrd(t, "stred");
   t.klik(a("zmenit", "kam")); t.klik(a("nas", "boky+stred"));
   over("17: stred -> všetky tri: motív a niť prevzaté zo stredu, karta pod sedadlami na potvrdenie", S.nas === "boky+stred" && S.nasBoky.motiv === S.nasStred.motiv && S.nasBoky.nit === S.nasStred.nit && J(otvorene(K5)) === J(["boky"]), J(S.nasBoky) + " " + J(S.nasStred));
@@ -487,6 +493,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: Áno -> „✓ Tapacír dverí: áno · 119 €“, karta materiálu s otázkou a dvomi voľbami (nič nepredvolené)", J(hot(K6)) === J(["ponuka"]) && /Tapacír dverí: áno · 119 €/.test(tx(K6 + '.kn-hot[data-hot="ponuka"]')) && J(otvorene(K6)) === J(["mat"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si materiál, farbu a lemovanie tapacíru" && qa(K6 + ".kn-rv__b").every((x) => x.getAttribute("aria-pressed") === "false") && /prešívaná/.test(tx(K6 + '[data-a="tapRovnake"]')) && !q(a("tapNas", "ano")));
   t.klik(a("tapZmenit"));
   over("17: „Vybrať inak“ -> materiál, farba a lemovanie vopred ako koberce + Pokračovať", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "12" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz") && !!q(a("potvrd", "tapMat")) && !q(a("tapNas", "ano")));
+  over("17: vnorený riadok voľby = podstatné meno „✓ Iný materiál, farba alebo lemovanie“ (nie „Vybrať inak“)", tx(K6 + '.kn-hot--vnutri[data-hot="mat"] .kn-hot__tx') === "Iný materiál, farba alebo lemovanie", tx(K6 + '.kn-hot--vnutri[data-hot="mat"]'));
   over("17: lemovanie uprostred vety malým písmom (lemovanie čierna + červená (04))", /lemovanie čierna \+ červená \(04\)/.test(tx(".kn-vz")), tx(".kn-vz"));
   t.klik(a("tapMat", "Mikrosemiš – dvojfarebný"));
   over("17: dvojfarebný mikrosemiš -> farba kobercov 12 sa zruší", S.tapMat === "Mikrosemiš – dvojfarebný" && S.tapFarba === null, J([S.tapMat, S.tapFarba]));
@@ -502,20 +509,26 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: nášivka na dvere — cenovka S tapacírom / + 49 € / Samostatne 89 € / Ušetríte 40 €", J(cen(q(".kn-ponuka--nas .k-cenovka"))) === J(["S tapacírom", "+ 49 €", "Samostatne 89 €", "Ušetríte 40 €"]), J(cen(q(".kn-ponuka--nas .k-cenovka"))));
   t.klik(a("tapNas", "ano"));
   const tn = qa('.kn-rv__b[data-a="tapNasRovnaka"]');
-  over("17: Áno -> „✓ Nášivka na tapacír dverí: áno · + 49 €“, otázka „Rovnaká ako na kobercoch / Iná nášivka“", /Nášivka na tapacír dverí: áno · \+ 49 €/.test(tx(K6 + '.kn-hot[data-hot="nas"]')) && J(otvorene(K6)) === J(["dvere"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si nášivku na tapacír dverí" && tn.length === 2 && /Kamión \(H19\) · niť čierna \(2999\)/.test(tn[0].textContent) && /Iná nášivka/.test(tn[1].textContent) && tn.every((x) => x.getAttribute("aria-pressed") === "false") && !dalej6());
+  over("17: Áno -> „✓ Nášivka na tapacír dverí: áno · + 49 €“, otázka „Rovnaká ako na kobercoch / Iná nášivka“", /Nášivka na tapacír dverí: áno · \+ 49 €/.test(tx(K6 + '.kn-hot[data-hot="nas"]')) && J(otvorene(K6)) === J(["dvere"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si nášivku na tapacír dverí" && tn.length === 2 && /Trucker \(H21\) · niť červená \(2824\)/.test(tn[0].textContent) && /Iná nášivka/.test(tn[1].textContent) && tn.every((x) => x.getAttribute("aria-pressed") === "false") && !dalej6());
+  over("17: karta motívu má vlastný nadpis „Motív nášivky na tapacír dverí“ (nie ten istý ako riadok ✓ nad ňou)", tx(K6 + '[data-blok="dvere"] .kn-karta__ey') === "Motív nášivky na tapacír dverí", tx(K6 + ".kn-karta__ey"));
   t.klik(a("tapNasRovnaka", "0"));
   over("17: „Iná nášivka“ -> motív, niť, veľký náhľad na farbe tapacíru, Pokračovať", !!q('[data-pole="dvereMotiv"]') && !!q('[data-pole="dvereNit"]') && !!q(a("potvrd", "dvere")) && !q(K6 + ".kn-nh__cv"));
   t.klik(a("motiv", "H19", "dvere")); nit(t, "2840", "dvere");
   over("17: veľký náhľad nášivky na dverách", !!q(K6 + ".kn-nh__cv") && /Kam príde: do stredu výplne dverí/.test(tx(K6 + ".kn-nh__pop")));
   potvrd(t, "dvere");
-  over("17: hotovo -> 4 riadky ✓ a „Pokračujte k súhrnu“", J(hot(K6)) === J(["ponuka", "mat", "nas", "dvere"]) && J(otvorene(K6)) === "[]" && dalej6() && /Pokračujte k súhrnu/.test(tx(a("dalej", "tapacir"))) && /Motív na tapacíre dverí: Kamión \(H19\) · niť zelená \(2840\)/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && t.k.ui.hotovo());
-  t.klik(a("zmenit", "dvere")); t.klik(a("tapNasRovnaka", "1"));
-  over("17: Zmeniť -> „Rovnaká ako na kobercoch“ = hotovo, v selectoch 397 / 400 „Rovnaká ako koberec“", J(otvorene(K6)) === "[]" && /rovnaká ako na kobercoch – Kamión \(H19\) · niť čierna \(2999\)/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && zvolene(t.d, 397) === "Rovnaká ako koberec" && zvolene(t.d, 400) === "Rovnaká ako koberec");
+  over("17: hotovo -> 4 riadky ✓ a „Pokračujte k súhrnu“", J(hot(K6)) === J(["ponuka", "mat", "nas", "dvere"]) && J(otvorene(K6)) === "[]" && dalej6() && /Pokračujte k súhrnu/.test(tx(a("dalej", "tapacir"))) && /Motív nášivky na tapacír dverí: Kamión \(H19\) · niť zelená \(2840\)/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && t.k.ui.hotovo(), tx(K6 + '.kn-hot[data-hot="dvere"]'));
+  t.klik(a("zmenit", "dvere"));
+  over("17: Zmeniť pri hotovom kroku 6 -> otázka „Rovnaká / Iná“ a pod ňou „Pokračujte k súhrnu“", J(otvorene(K6)) === J(["dvere"]) && dalej6());
+  t.klik(a("tapNasRovnaka", "1"));
+  over("17: Zmeniť -> „Rovnaká ako na kobercoch“ = hotovo, v selectoch 397 / 400 „Rovnaká ako koberec“", J(otvorene(K6)) === "[]" && /Motív nášivky na tapacír dverí: rovnaký ako na kobercoch – Trucker \(H21\) · niť červená \(2824\)/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && zvolene(t.d, 397) === "Rovnaká ako koberec" && zvolene(t.d, 400) === "Rovnaká ako koberec", tx(K6 + '.kn-hot[data-hot="dvere"]'));
   over("17: všetky ovládače kroku 6 sú type=button bez name", qa('[data-krok="tapacir"] button').every((x) => x.getAttribute("type") === "button") && !qa('[data-krok="tapacir"] [name]').length);
   // koberce bez nášiviek -> nášivka na dvere „ako na kobercoch“ stratila vzor -> otázka na dvere znova s vysvetlením
   t.klik(a("krok", "nasivky")); t.klik(a("zmenit", "kam")); t.klik(a("nas", "nechcem"));
   over("17: Nie, ďakujem -> krok 5 „Bez nášiviek“, krok 6 znova pýta nášivku na dvere s vysvetlením (Áno ani Nie nepredvolené)", S.nas === "nechcem" && t.k.ui.U.otvoreny === "tapacir" && J(otvorene(K6)) === J(["nas"]) && /Na kobercoch už nášivka nie je/.test(tx(K6 + ".tp-info")) && !q(K6 + ".an__b.is-on") && !t.k.ui.hotovo(), J([S.tapNas, t.k.ui.U.otvoreny, otvorene(K6)]));
   over("17: cena Shoptetu = konfigurátor aj počas otázky (S.tapNas ostane, kým zákazník neodpovie)", SH.sucetShoptetu(t.d) === t.k.ui.cena().spolu, SH.sucetShoptetu(t.d) + " vs " + t.k.ui.cena().spolu);
+  // revízia 18. 10. 2026 večer: Zmeniť ponuku a znova „Áno“ otázku na dvere s vysvetlením neobíde
+  t.klik(a("zmenit", "ponuka")); t.klik(a("tap", "ano"));
+  over("17: Zmeniť ponuku + znova Áno -> stále otázka na nášivku na dvere s vysvetlením, bez predvoľby", S.tap === "ano" && J(otvorene(K6)) === J(["nas"]) && /Na kobercoch už nášivka nie je/.test(tx(K6 + ".tp-info")) && !q(K6 + ".an__b.is-on") && !t.k.ui.hotovo() && !dalej6() && SH.sucetShoptetu(t.d) === t.k.ui.cena().spolu, J([otvorene(K6), S.tapNas]));
   t.klik(a("tapNas", "ano"));
   over("17: Áno -> motív a niť na dvere (na kobercoch nášivka nie je)", J(otvorene(K6)) === J(["dvere"]) && !!q('[data-pole="dvereMotiv"]') && /nášivku nemáte/.test(tx(K6 + ".kn-info")) && !q(K6 + ".tp-info"));
   t.klik(a("zmenit", "nas")); t.klik(a("tapNas", "nie"));
@@ -531,6 +544,12 @@ console.log("18) Otázky po jednej: lišta „Pokračovať“ potvrdí kartu, ko
   const lista = () => t.d.querySelector('#lcd1v-lista [data-a="lista"]').dispatchEvent(new t.s.window.MouseEvent("click", { bubbles: true, cancelable: true }));
   t.klik(a("nas", "boky+stred"));
   t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky");
+  // revízia 18. 10. 2026 večer: otázka kam znova otvorená cez Zmeniť zakrýva nepotvrdenú kartu -> lišta ju zavrie a ukáže kartu
+  t.klik(a("zmenit", "kam"));
+  const blok18 = () => Array.from(t.d.querySelectorAll('#lcd1v-kamion [data-krok="nasivky"] [data-blok]')).map((x) => x.getAttribute("data-blok"));
+  over("18: Zmeniť kam -> otvorená len otázka kam (karta pod sedadlami zakrytá)", JSON.stringify(blok18()) === JSON.stringify(["kam"]));
+  lista();
+  over("18: lišta pri znova otvorenej otázke -> otázka sa zavrie, otvorí sa nepotvrdená karta pod sedadlami (nič sa nepotvrdí)", t.k.ui.U.znova.nasivky === null && JSON.stringify(blok18()) === JSON.stringify(["boky"]) && t.k.ui.U.n5.boky === false, JSON.stringify([blok18(), t.k.ui.U.znova]));
   t.klik(a("kosik")); await pauza(200);
   over("18: bez Pokračovať a odpovede na stred -> 0 klikov, krok 5 červený pri Pokračovať", t.s.kliky.length === 0 && t.k.ui.U.otvoreny === "nasivky" && !!q('[data-krok="nasivky"].is-error [data-pole="bokyDalej"].is-chyba'), t.k.ui.U.otvoreny);
   lista();
@@ -541,6 +560,26 @@ console.log("18) Otázky po jednej: lišta „Pokračovať“ potvrdí kartu, ko
   lista();
   over("18: všetko zodpovedané -> lišta otvorí krok 6", t.k.ui.U.otvoreny === "tapacir");
   over("18: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
+}
+
+console.log("19) Zmena voľby 5.1 všetky tri (iný stred) -> pod sedadlá -> stredový koberec: stred prevezme motív a niť spod sedadiel");
+{
+  const t = await otvor();
+  zaklad(t, DAF);
+  const S = t.k.ui.S;
+  t.klik(a("nas", "boky+stred"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky"); potvrd(t, "boky");
+  t.klik(a("stredRovnaky", "0"));
+  t.klik(a("motiv", "H21", "stred")); nit(t, "3546", "stred"); potvrd(t, "stred");
+  t.klik(a("zmenit", "kam")); t.klik(a("nas", "boky"));
+  over("19: všetky tri -> pod sedadlá: pod sedadlami H19 / 2999", S.nas === "boky" && S.nasBoky.motiv === "H19" && S.nasBoky.nit === "2999");
+  t.klik(a("zmenit", "kam")); t.klik(a("nas", "stred"));
+  const on = (akcia, m) => { const e = t.d.querySelector('#lcd1v-kamion [data-a="' + akcia + '"][data-m="' + m + '"][aria-pressed="true"]'); return e && e.getAttribute("data-v"); };
+  over("19: pod sedadlá -> stredový koberec: karta stredu má H19 / 2999 (práve videné), nie starý H21 / 3546", S.nas === "stred" && S.nasStred.motiv === "H19" && S.nasStred.nit === "2999" && on("motiv", "stred") === "H19" && on("nit", "stred") === "2999" && !t.k.ui.hotovo(), JSON.stringify(S.nasStred));
+  potvrd(t, "stred");
+  t.dalej("nasivky");
+  t.klik(a("tap", "nie"));
+  await kontrolaKosika(t, "19", { selecty: { 349: "Len stred", 409: "Nášivka H19", 412: "2999 – Čierna" } });
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);

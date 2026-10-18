@@ -169,7 +169,9 @@ export function vytvorUi(o) {
           if (!S.tapLem) return { pole: "tapLem", msg: c.lemovanie };
           if (!U.n6.mat) return { pole: "tapMatDalej", msg: c.pokracovat };
         }
-        if (S.tapNas == null) return { pole: "tapNas", msg: c.nasivka };
+        /* U.dvereInfo: nášivka na dvere „ako na kobercoch“ stratila vzor -> otázka Áno / Nie platí znova (s vysvetlením),
+           kým na ňu zákazník neodpovie — ani znova „Áno“ pri tapacíri ju neobíde (revízia 18. 10. 2026 večer). */
+        if (S.tapNas == null || U.dvereInfo) return { pole: "tapNas", msg: c.nasivka };
         if (S.tapNas) {
           if (koberecNas() && !U.n6.nasOdp) return { pole: "tapNasVolba", msg: c.nasivka_volba };
           if (!(S.tapNasRovnaka && koberecNas())) {
@@ -616,14 +618,16 @@ export function vytvorUi(o) {
     return '<div class="k-sk kn-potvrd' + (msg ? " is-chyba" : "") + '" data-pole="' + pole + '"><button type="button" class="k-btn-zelene" data-a="potvrd" data-v="' + v + '" data-f="potvrd:' + v + '">' +
       esc(T.kroky.tlacidla.pokracovat) + '</button><p class="k-sk__chyba">' + esc(msg) + "</p></div>";
   }
-  /** Zodpovedaná podotázka: „✓ <b>nadpis</b> hodnota — Zmeniť“ (vnutri = riadok voľby „iné“ v otvorenej karte). */
+  /** Zodpovedaná podotázka: „✓ <b>nadpis</b> hodnota — Zmeniť“ (vnutri = riadok voľby „iné“ v otvorenej karte).
+   *  Hodnota „· + 95 €“ sa pripojí nezalomiteľnou medzerou (na telefóne nový riadok nezačne bodkou a cenou). */
   function riadokHot(zmenit, nadpis, hodnota, vnutri) {
     return '<div class="kn-hot' + (vnutri ? " kn-hot--vnutri" : "") + '" data-hot="' + zmenit + '"><span class="kn-hot__ic" aria-hidden="true"></span><span class="kn-hot__tx"><b>' + esc(nadpis) + "</b>" +
-      (hodnota ? " " + esc(hodnota) : "") + '</span><button type="button" class="kn-hot__zm" data-a="zmenit" data-v="' + zmenit + '" data-f="zmenit:' + zmenit + (vnutri ? ":v" : "") +
+      (hodnota ? (/^·/.test(hodnota) ? NB : " ") + esc(hodnota) : "") + '</span><button type="button" class="kn-hot__zm" data-a="zmenit" data-v="' + zmenit + '" data-f="zmenit:' + zmenit + (vnutri ? ":v" : "") +
       '" aria-label="' + attr(fill(U0.zmenit_aria, { x: String(nadpis).replace(/:$/, "") })) + '">' + esc(T.kroky.tlacidla.zmenit) + "</button></div>";
   }
   const karta = (blok, nadpis, obsah) => '<div class="kn-karta" data-blok="' + blok + '" tabindex="-1"><p class="kn-karta__ey">' + esc(nadpis) + "</p>" + obsah + "</div>";
-  /** Zodpovedané riadky, otvorený blok (len jeden), za ním nič; „Pokračujte“ až keď je všetko zodpovedané. */
+  /** Zodpovedané riadky, otvorený blok (len jeden), za ním nič; „Pokračujte“ až keď je všetko zodpovedané — aj pod
+   *  otázkou znova otvorenou cez „Zmeniť“ (revízia 18. 10. 2026 večer: inak hotový krok ostal bez tlačidla). */
   function telo56(id, posledny, blok, riadok) {
     const otv = otvorenyBlok(id), bl = blokyKroku(id);
     let html = "";
@@ -631,7 +635,7 @@ export function vytvorUi(o) {
       if (bl[i] === otv) { html += blok(otv); break; }
       html += riadok(bl[i]);
     }
-    return html + koniecKroku(id, posledny, !!otv);
+    return html + koniecKroku(id, posledny, !hotovy(id));
   }
   const teloNasivky = (posledny) => telo56("nasivky", posledny, blokNasivky, riadokNasivky);
   const teloTapacir = (posledny) => telo56("tapacir", posledny, blokTapacir, riadokTapacir);
@@ -684,9 +688,9 @@ export function vytvorUi(o) {
   function riadokNasivky(b) {
     const t = T.kroky.nasivky, h = t.hotove;
     if (b === "kam") {
-      if (S.nas === "nechcem") return riadokHot("kam", t.zhrnutie_nie, "· " + h.bez_priplatku);
+      if (S.nas === "nechcem") return riadokHot("kam", t.zhrnutie_nie, "·" + NB + h.bez_priplatku);
       const p = ponuka().nasivky[S.nas];
-      return riadokHot("kam", t.volby[S.nas].text, p && p.suma ? "· " + plus(p.suma) : "");
+      return riadokHot("kam", t.volby[S.nas].text, p && p.suma ? "·" + NB + plus(p.suma) : "");
     }
     if (b === "boky") return riadokHot("boky", h.boky, motivTxt(S.nasBoky));
     if (S.nas === "boky+stred" && S.stredRovnaky) return riadokHot("stred", h.stred, fill(h.stred_rovnaka, { x: motivTxt(S.nasBoky) }));
@@ -716,7 +720,7 @@ export function vytvorUi(o) {
             popisTx(S.material ? matKratko(S.material) : "") + popisTx([fk ? farbaTx(fk) : "", lk ? lemTx(lk) : ""].filter(Boolean).join(" · "))) +
           rvDlazdica("tapZmenit", null, odp && !S.tapRovnaky, mozaikaMaterialov(), r.inak, popisTx(r.inak_popis)) + "</div>"));
       }
-      let html = riadokHot("mat", r.inak, "", true) + skOt("tapacir", "tapMat", oz.material, '<div class="k-dlazdice k-dlazdice--mat" role="group" aria-labelledby="' + P + 'ot-tapMat">' + MATERIALY.map((m, i) => {
+      let html = riadokHot("mat", r.inak_hotove, "", true) + skOt("tapacir", "tapMat", oz.material, '<div class="k-dlazdice k-dlazdice--mat" role="group" aria-labelledby="' + P + 'ot-tapMat">' + MATERIALY.map((m, i) => {
         const v = matT(m.nazov), x = S.tapMat === m.nazov, fx = x && S.tapFarba ? farba(m.nazov, S.tapFarba) : null;
         return '<button type="button" class="k-dlazdica' + (x ? " is-on" : "") + '" data-a="tapMat" data-v="' + attr(m.nazov) + '" data-f="tapMat:' + i + '" aria-pressed="' + x + '">' +
           '<img class="k-dlazdica__img" src="' + attr(fx ? fx.full : m.karta_obrazok) + '" alt="" loading="lazy"><span class="k-dlazdica__nm">' + esc(v.variant) + "<small>" + esc(v.nazov === "Mikrosemiš" ? U0.mikrosemis : U0.syntetika) + "</small></span></button>";
@@ -746,13 +750,14 @@ export function vytvorUi(o) {
     const ft = tm ? (tk && farba(tm, tk)) || null : null;
     const bgT = ft ? ft.full : tm ? matD(tm).karta_obrazok : "";
     const podT = tm ? fill(nd.podklad, { x: matKratko(tm) + (ft ? ", " + farbaTx(ft) : "") }) : "";
+    // karta motívu má vlastný nadpis (nie ten istý ako zatvorená otázka Áno / Nie hneď nad ňou)
     if (otazkaDvere()) {
       const odp = U.n6.nasOdp;
-      return karta("dvere", nd.nadpis, skOt("tapacir", "tapNasVolba", oz.nasivka, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-tapNasVolba">' +
+      return karta("dvere", nd.nadpis_motiv, skOt("tapacir", "tapNasVolba", oz.nasivka, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-tapNasVolba">' +
         rvDlazdica("tapNasRovnaka", "1", odp && S.tapNasRovnaka, platno("kn-rv__cv", kn, bgT, ".92", 600, 400), nd.rovnaka, popisTx(motivTxt(kn))) +
         rvDlazdica("tapNasRovnaka", "0", odp && !S.tapNasRovnaka, mozaikaMotivov("dvere"), nd.ina, popisTx(nd.ina_popis)) + "</div>"));
     }
-    return karta("dvere", nd.nadpis, (kn ? riadokHot("dvere", nd.ina, "", true) : '<p class="kn-info">' + esc(S.nas == null ? nd.bez_kobercov_nevybrate : nd.bez_kobercov) + "</p>") +
+    return karta("dvere", nd.nadpis_motiv, (kn ? riadokHot("dvere", nd.ina, "", true) : '<p class="kn-info">' + esc(S.nas == null ? nd.bez_kobercov_nevybrate : nd.bez_kobercov) + "</p>") +
       skOt("tapacir", "dvereMotiv", oz.motiv, dlazdiceMotivov("dvere", S.tapNasMotiv, "dvere")) +
       skOt("tapacir", "dvereNit", oz.nit, cipyNiti("dvere", S.tapNasNit)) +
       nahladVelky({ motiv: S.tapNasMotiv, nit: S.tapNasNit }, bgT, nd.kam_pride, podT, schemaDvere()) +
@@ -942,14 +947,18 @@ export function vytvorUi(o) {
     for (let j = 0; j < i; j++) if (!hotovy(ks[j])) return ks[j];
     return null;
   }
+  /** Otázky znova otvorené cez „Zmeniť“ platia len kým je krok otvorený: zatvorenie hlavičky alebo iný krok ich zavrie
+   *  (revízia 18. 10. 2026 večer — po návrate bol krok bez riadkov ✓ a bez „Pokračujte“). */
+  const zavriZnova = () => { U.znova.nasivky = null; U.znova.tapacir = null; };
   function otvorKrok(id) {
     if (kroky().indexOf(id) < 0) id = "vozidlo"; // neznámy krok (napr. tapacír pri dodávke) -> prvý
+    zavriZnova();
     const pred = prvyNehotovyPred(id);
     if (pred) { U.chyby[pred] = chyba(pred); U.znova[pred] = null; U.zablesk = pred; U.otvoreny = pred; render(); posunPole(pred, U.chyby[pred].pole); return; }
     U.otvoreny = id; render(); posunKrok(id, true);
   }
   function klikHlavicka(id) {
-    if (U.otvoreny === id) { U.otvoreny = null; render(); return; }
+    if (U.otvoreny === id) { U.otvoreny = null; zavriZnova(); render(); return; }
     otvorKrok(id);
   }
   function pokracuj(id) {
@@ -983,6 +992,8 @@ export function vytvorUi(o) {
     if (vsetkoHotove()) { kosik(); return; }
     const x = U.otvoreny;
     if (x && !hotovy(x)) {
+      /* otázka znova otvorená cez „Zmeniť“ zakrýva nezodpovedanú podotázku -> lišta ju zavrie a posunie na tú podotázku */
+      if (U.znova[x]) { U.znova[x] = null; render(); posunNaBlok(x); return; }
       /* v karte kroku 5 / 6 čaká len „Pokračovať“ -> lišta „Pokračovať“ urobí to isté */
       const ch = chyba(x), pv = POTVRD_POLA[ch.pole];
       if (pv && otvorenyBlok(x) === BLOK_POLA[x][ch.pole]) { const k0 = kluc(x); potvrd(pv); if (kluc(x) !== k0) posunNaBlok(x); return; }
@@ -999,15 +1010,15 @@ export function vytvorUi(o) {
     fn();
     if (!tapDostupny()) {
       S.tap = null; S.tapNas = null;
-      U.n6 = { matOdp: false, mat: false, nasOdp: false, nas: false }; U.znova.tapacir = null;
+      U.n6 = { matOdp: false, mat: false, nasOdp: false, nas: false }; U.znova.tapacir = null; U.dvereInfo = false;
     }
     /* Nášivka na tapacír „ako na kobercoch“ stratila vzor -> otázka na dvere sa ukáže znova s vysvetlením. S.tapNas ostane
        (predtým null: select Shoptetu ostal na „Áno“ = cena Shoptetu o 49 € vyššia, console.error); krok 6 je neúplný,
-       kým zákazník neodpovie Áno (potom motív a niť) alebo Nie. */
+       kým zákazník neodpovie Áno (potom motív a niť) alebo Nie — otázku otvára chyba() (pole tapNas), nie U.znova. */
     if (malNas && !koberecNas() && S.tap === "ano" && S.tapNas === true && S.tapNasRovnaka && U.n6.nasOdp) {
-      U.dvereInfo = true; U.n6.nasOdp = false; U.n6.nas = false; U.znova.tapacir = "nas";
+      U.dvereInfo = true; U.n6.nasOdp = false; U.n6.nas = false;
     }
-    if (U.dvereInfo && koberecNas()) { U.dvereInfo = false; if (U.znova.tapacir === "nas") U.znova.tapacir = null; } // vzor je späť
+    if (U.dvereInfo && koberecNas()) U.dvereInfo = false; // vzor je späť
     prepocitajChyby();
     render();
     o.naZmenu(S);
@@ -1017,10 +1028,12 @@ export function vytvorUi(o) {
   function pridajBoky() {
     if (S.nas === "stred" && (S.nasStred.motiv || S.nasStred.nit)) { S.nasBoky = { motiv: S.nasStred.motiv, nit: S.nasStred.nit }; S.stredRovnaky = true; }
   }
-  /** Odobratie nášiviek pod sedadlami: stredový koberec si nechá ich motív a niť, ak bol „rovnaký“ alebo ešte nemá vlastný. */
+  /** Odobratie nášiviek pod sedadlami: stredový koberec prevezme ich motív a niť, ak bol „rovnaký“, ak ešte nemá vlastný,
+   *  alebo pri prechode z „pod sedadlá“ (zákazník práve videl ich motív a niť, nie starý výber stredu z histórie). */
   function odoberBoky() {
     if (!(S.nasBoky.motiv || S.nasBoky.nit)) return;
-    if ((S.nas === "boky+stred" && S.stredRovnaky) || (S.nas === "boky" && !S.nasStred.motiv && !S.nasStred.nit)) S.nasStred = { motiv: S.nasBoky.motiv, nit: S.nasBoky.nit };
+    const bokyCele = !!(S.nasBoky.motiv && S.nasBoky.nit), stredPrazdny = !S.nasStred.motiv && !S.nasStred.nit;
+    if ((S.nas === "boky+stred" && S.stredRovnaky) || (S.nas === "boky" && (bokyCele || stredPrazdny))) S.nasStred = { motiv: S.nasBoky.motiv, nit: S.nasBoky.nit };
   }
   /** „Pokračovať“ v karte kroku 5 / 6: karta sa zatvorí, ak je v nej všetko vybraté; inak červený rám chýbajúceho poľa. */
   function potvrd(v) {
@@ -1108,7 +1121,8 @@ export function vytvorUi(o) {
       case "stredRovnaky": zmena(() => { S.stredRovnaky = v === "1"; U.n5.stredOdp = true; U.n5.stred = v === "1"; U.znova.nasivky = null; }); return;
       case "tapNasRovnaka": zmena(() => { S.tapNasRovnaka = v === "1"; U.n6.nasOdp = true; U.n6.nas = v === "1"; U.znova.tapacir = null; }); return;
       case "tap":
-        zmena(() => { S.tap = v; U.znova.tapacir = null; U.dvereInfo = false; });
+        /* U.dvereInfo ostáva: otázku na nášivku na dvere s vysvetlením zruší až odpoveď Áno / Nie (akcia tapNas) */
+        zmena(() => { S.tap = v; U.znova.tapacir = null; });
         if (v === "nie") pokracuj("tapacir");
         return;
       case "tapZmenit":

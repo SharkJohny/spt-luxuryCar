@@ -87,7 +87,30 @@ const KROK5 = `(function () {
   return { dlazdic: q(".kn-dv > .kn-dv__b").length, nie: !!document.querySelector('#lcd1v-kamion [data-a="nas"][data-v="nechcem"]'),
     foto: Array.prototype.map.call(q(".kn-dv__b .kn-scena > img"), function (i) { return i.complete ? i.naturalWidth : 0; }),
     cenovky: q(".kn-dv__b .k-cenovka").length, zelene: q(".kn-dv .k-btn-zelene").length, dalej: q('[data-a="dalej"][data-v="nasivky"]').length,
-    otazka: (document.querySelector("#lcd1v-kamion .kn-ot") || {}).textContent || "" };
+    otazka: (document.querySelector("#lcd1v-kamion .kn-ot") || {}).textContent || "",
+    // revízia 18. 10. 2026 večer: výrez fotky pokrýva celé okno fotky a na PC (≥ 600 px) fotka vyplní výšku dlaždice (bez bielych pásov)
+    fotky: Array.prototype.map.call(q(".kn-dv > .kn-dv__b"), function (b) {
+      var f = b.querySelector(".kn-foto"), sc = b.querySelector(".kn-scena"), top = b.querySelector(".kn-dv__top");
+      var fr = f.getBoundingClientRect(), sr = sc.getBoundingClientRect(), br = b.getBoundingClientRect();
+      var kryje = sr.left <= fr.left + 1 && sr.right >= fr.right - 1 && sr.top <= fr.top + 1 && sr.bottom >= fr.bottom - 1;
+      var vnutro = br.height - 4 - (top ? top.getBoundingClientRect().height : 0);
+      return { kryje: kryje, plna: innerWidth < 600 || fr.height >= vnutro - 2, h: Math.round(fr.height), dl: Math.round(vnutro) };
+    }) };
+})()`;
+/** Farby tapacíru v karte („Vybrať inak“): žiadny názov farby sa nesmie zalomiť uprostred slova (revízia 18. 10. 2026 večer). */
+const ZLOM_FARIEB = `(function () {
+  var nm = document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-karta .fb__nm'), zlomene = [];
+  Array.prototype.forEach.call(nm, function (el) {
+    var tn = el.firstChild; if (!tn || tn.nodeType !== 3) return;
+    var re = /\\S+/g, m, t = tn.textContent;
+    while ((m = re.exec(t))) {
+      var r = document.createRange(); r.setStart(tn, m.index); r.setEnd(tn, m.index + m[0].length);
+      var tops = {}; Array.prototype.forEach.call(r.getClientRects(), function (x) { if (x.width > 0) tops[Math.round(x.top)] = 1; });
+      if (Object.keys(tops).length > 1) zlomene.push(m[0]);
+    }
+  });
+  var g = document.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-karta .fb');
+  return { n: nm.length, zlomene: zlomene, stlpce: g ? getComputedStyle(g).gridTemplateColumns.split(" ").length : 0 };
 })()`;
 /** Karta podotázky kroku 5: otvorené bloky, veľký náhľad cez celú šírku karty v ≥ 2× rozlíšení. */
 const KARTA5 = `(function () {
@@ -145,10 +168,11 @@ export const SCENARE = {
       const k5 = await cakaj(s, j, KROK5, (r) => r.foto.length === 3 && r.foto.every((x) => x > 0));
       j.over(k5.dlazdic === 3 && k5.nie && k5.cenovky === 3 && !k5.zelene && !k5.dalej && k5.otazka === "Prosím, vyberte si, kam chcete nášivky", "krok 5.1: 3 fotkové dlaždice s cenovkou + „Nie, ďakujem“, bez zeleného tlačidla: " + JSON.stringify(k5));
       j.over(k5.foto.length === 3 && k5.foto.every((x) => x > 0), "fotka kabíny sa nenačítala: " + JSON.stringify(k5.foto));
+      j.over(k5.fotky.length === 3 && k5.fotky.every((x) => x.kryje && x.plna), "fotka v dlaždici 5.1 nevyplní okno / výšku dlaždice (biele pásy): " + JSON.stringify(k5.fotky));
       const st5a = await s.t.ev(STYLY);
       j.over(/rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(st5a.pas || ""), "pás „★ Najobľúbenejšie ★“ nie je zlatý: " + st5a.pas);
       j.over(st5a.preciarknute === "rgb(192, 57, 43)" && st5a.pilulka === "rgb(226, 243, 233)" && parseFloat(st5a.cena) >= 25, "cenovka nie je ako rohož a box (červená čiara, zelená pilulka, veľká cena): " + JSON.stringify([st5a.preciarknute, st5a.pilulka, st5a.cena]));
-      j.over(parseFloat(st5a.ot) >= 18, "otázka „Prosím, vyberte si …“ nie je veľká: " + st5a.ot);
+      j.over(parseFloat(st5a.ot) >= 20, "otázka „Prosím, vyberte si …“ nie je veľká (≥ 20 px, výrazne nad názvami dlaždíc 17 px): " + st5a.ot);
       j.over(st5a.dlRamy.every((x) => x !== ZELENA), "pred výberom je niektorá dlaždica zelená: " + JSON.stringify(st5a.dlRamy));
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-kam");
       await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("viac", null, "boky")], ["klik", a_("nit", "2824", "boky")]]);
@@ -184,11 +208,12 @@ export const SCENARE = {
       const k6a = await s.t.ev(KROK6);
       j.over(JSON.stringify(k6a.rv) === JSON.stringify(["tapRovnake:false", "tapZmenit:false"]), "tapacír: chýba otázka „Rovnaké ako koberce / Vybrať inak“ bez predvoľby: " + JSON.stringify(k6a.rv));
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ano");
-      if (a.snimky) {
-        await rob(s, j, [["klik", a_("tapZmenit")]]);
-        await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-zmenit");
-        await rob(s, j, [["klik", a_("zmenit", "mat")]]);
-      }
+      // „Vybrať inak“ (S.tapRovnaky potom znova true -> tapacír ako koberce, POST bez zmeny): názvy farieb v karte celé
+      await rob(s, j, [["klik", a_("tapZmenit")]]);
+      const zl = await cakaj(s, j, ZLOM_FARIEB, (r) => r.n > 0);
+      j.over(zl && zl.n > 0 && !zl.zlomene.length, "farby tapacíru v karte: názov zalomený uprostred slova " + JSON.stringify(zl));
+      await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-zmenit");
+      await rob(s, j, [["klik", a_("zmenit", "mat")]]);
       await rob(s, j, [["klik", a_("tapRovnake")]]);
       await snimkaPrvku(s, a, j, ".an", "kamion-krok6-nasivka-dvere");
       const st6 = await s.t.ev(STYLY);
