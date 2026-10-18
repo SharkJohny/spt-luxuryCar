@@ -36,7 +36,9 @@ export function vytvorUi(o) {
   const doc = root.ownerDocument;
   const D = { ceny: o.ceny, vozidla: { znacky: ZNACKY } };
   const S = novyStav();
-  const U = { otvoreny: "vozidlo", chyby: {}, chybaKosik: false, zablesk: null, dvereInfo: false, odosiela: false, viac: {} };
+  const U = { otvoreny: "vozidlo", chyby: {}, chybaKosik: false, zablesk: null, dvereInfo: false, odosiela: false, viac: {},
+    // kroky 5 a 6 — otázky po jednej: čo je zodpovedané / potvrdené „Pokračovať“ a čo je znova otvorené cez „Zmeniť“ (len UI, nie S)
+    n5: { boky: false, stred: false, stredOdp: false }, n6: { matOdp: false, mat: false, nasOdp: false, nas: false }, znova: { nasivky: null, tapacir: null } };
   if (o.predvyber) {
     S.typ = o.predvyber.typ || S.typ;
     S.znacka = o.predvyber.znacka;
@@ -137,34 +139,44 @@ export function vytvorUi(o) {
         return S.farba ? null : { pole: "farba", msg: tk.farba.chyba };
       case "lemovanie": return S.lem ? null : { pole: "lem", msg: tk.lemovanie.chyba };
       case "nasivky":
+        /* Otázky po jednej (Michal 18. 10. 2026 večer): krok je hotový až po „Pokračovať“ v každej karte a odpovedi na
+           stredový koberec pri všetkých troch (U.n5). Košík to nemení — S.nas a motívy idú do Shoptetu ako doteraz. */
         c = tk.nasivky.chyby;
         if (!S.nas) return { pole: "nas", msg: c.volba };
+        if (S.nas === "nechcem") return null;
         if (S.nas === "boky" || S.nas === "boky+stred") {
           if (!S.nasBoky.motiv) return { pole: "bokyMotiv", msg: c.motiv };
           if (!S.nasBoky.nit) return { pole: "bokyNit", msg: c.nit };
+          if (!U.n5.boky) return { pole: "bokyDalej", msg: c.pokracovat };
+          if (S.nas === "boky") return null;
         }
-        if (S.nas === "stred") {
-          if (!S.nasStred.motiv) return { pole: "stredMotiv", msg: c.motiv };
-          if (!S.nasStred.nit) return { pole: "stredNit", msg: c.nit };
+        if (S.nas === "boky+stred") {
+          if (!U.n5.stredOdp) return { pole: "stredVolba", msg: c.stred_volba };
+          if (S.stredRovnaky) return null;
         }
-        if (S.nas === "boky+stred" && !S.stredRovnaky) {
-          if (!S.nasStred.motiv) return { pole: "stredMotiv", msg: c.motiv_stred };
-          if (!S.nasStred.nit) return { pole: "stredNit", msg: c.nit_stred };
-        }
+        if (!S.nasStred.motiv) return { pole: "stredMotiv", msg: S.nas === "stred" ? c.motiv : c.motiv_stred };
+        if (!S.nasStred.nit) return { pole: "stredNit", msg: S.nas === "stred" ? c.nit : c.nit_stred };
+        if (!U.n5.stred) return { pole: "stredDalej", msg: c.pokracovat };
         return null;
       case "tapacir":
         c = tk.tapacir.chyby;
         if (!S.tap) return { pole: "tap", msg: c.volba };
         if (S.tap === "nie") return null;
+        if (!U.n6.matOdp) return { pole: "tapRovn", msg: c.rovnake };
         if (!S.tapRovnaky) {
           if (!S.tapMat) return { pole: "tapMat", msg: c.material };
           if (!S.tapFarba || !farba(S.tapMat, S.tapFarba)) return { pole: "tapFarba", msg: c.farba };
           if (!S.tapLem) return { pole: "tapLem", msg: c.lemovanie };
+          if (!U.n6.mat) return { pole: "tapMatDalej", msg: c.pokracovat };
         }
         if (S.tapNas == null) return { pole: "tapNas", msg: c.nasivka };
-        if (S.tapNas && !(S.tapNasRovnaka && koberecNas())) {
-          if (!S.tapNasMotiv) return { pole: "dvereMotiv", msg: c.motiv };
-          if (!S.tapNasNit) return { pole: "dvereNit", msg: c.nit };
+        if (S.tapNas) {
+          if (koberecNas() && !U.n6.nasOdp) return { pole: "tapNasVolba", msg: c.nasivka_volba };
+          if (!(S.tapNasRovnaka && koberecNas())) {
+            if (!S.tapNasMotiv) return { pole: "dvereMotiv", msg: c.motiv };
+            if (!S.tapNasNit) return { pole: "dvereNit", msg: c.nit };
+            if (!U.n6.nas) return { pole: "dvereDalej", msg: c.pokracovat };
+          }
         }
         return null;
     }
@@ -443,15 +455,16 @@ export function vytvorUi(o) {
     return html;
   }
 
-  // ------------------------------------------------------------------ kroky 5 a 6 — návrh C (Michal 18. 10. 2026)
-  // Krok 5: tri dlaždice so skutočnou fotkou kabíny a zlatými krúžkami presne na nášivkách (pred sedadlá — ★ všetky tri
-  // v strede — stredový koberec) + „Nie, ďakujem“; do Shoptetu ide stále jeden zo 4 stavov S.nas (bez / len stred /
-  // šofér + spolujazdec / všetky tri). Veľký náhľad motívu v nití cez celú šírku karty. Krok 6: fotka celých dverí,
-  // ponuka v rámiku, „Rovnaké ako koberce / Vybrať inak“ a „Rovnaká ako na kobercoch / Iný motív a niť“ ako dve
-  // rovnocenné dlaždice, výrez dverí so zlatým krúžkom na mieste nášivky.
+  // ------------------------------------------------------------------ kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer)
+  // Krok 5: „Prosím, vyberte si, kam chcete nášivky“ — 4 výlučné voľby v poradí pod sedadlá šoféra a spolujazdca —
+  // stredový koberec — ★ všetky tri — „Nie, ďakujem“ (zvolená je zelená LEN jedna), cenovka ako rohož a box do kufra
+  // (kufor-boxy.js cenovka). Potom podotázky v kartách, vždy otvorená LEN jedna: motív + niť + veľký náhľad +
+  // „Pokračovať“, stredový koberec „rovnaká / iná“. Zodpovedaná sa zatvorí do riadka „✓ … — Zmeniť“. Krok 6 rovnako:
+  // ponuka tapacíru → materiál, farba a lemovanie → nášivka na dvere → motív a niť. Do Shoptetu ide stále jeden zo
+  // 4 stavov S.nas a tie isté polia S (košík a ceny bez zmeny); ktorá podotázka je otvorená, drží len UI stav U
+  // (U.n5, U.n6 = zodpovedané / potvrdené, U.znova = znova otvorené cez „Zmeniť“).
   const jeBoky = () => S.nas === "boky" || S.nas === "boky+stred";
   const jeStred = () => S.nas === "stred" || S.nas === "boky+stred";
-  const naNas = (b, s) => (b && s ? "boky+stred" : b ? "boky" : s ? "stred" : null);
   /** Miesta na fotke kabíny (FOTKA_KABINY 4:3, % šírky / výšky; data.js FOTKA_KABINY_NASIVKY). */
   const BOD = {
     sofer: { x: "33.8%", y: "59%", d: "11.5%", tr: " kn-bod--hore" },
@@ -460,18 +473,42 @@ export function vytvorUi(o) {
   };
   /** Mozaika „Vybrať inak“ (tapacír): materiál + kód farby. */
   const MOZAIKA_MAT = [["presivana", "12"], ["tonovana", "PES5"], ["jednofarebna", "1G"], ["mikro-jedno", "5NUB"]];
-
-  /** Cena v rámiku: veľká suma, prečiarknutá pôvodná červenou, zelený štítok „Ušetríte“ (p = ponuka().nasivky[id]). */
-  function cenaRamik(p, usetrite) {
-    if (!p || !p.suma) return "";
-    return '<span class="kn-cena"><b>' + plus(p.suma) + "</b>" + (p.povodna != null ? "<s>" + eur(p.povodna) + "</s>" : "") +
-      (p.usetrite ? "<i>" + esc(eurX(usetrite, p.usetrite)) + "</i>" : "") + "</span>";
+  /** Pole z chyba() -> blok (podotázka) kroku, v ktorom je. */
+  const BLOK_POLA = {
+    nasivky: { nas: "kam", bokyMotiv: "boky", bokyNit: "boky", bokyDalej: "boky", stredVolba: "stred", stredMotiv: "stred", stredNit: "stred", stredDalej: "stred" },
+    tapacir: { tap: "ponuka", tapRovn: "mat", tapMat: "mat", tapFarba: "mat", tapLem: "mat", tapMatDalej: "mat", tapNas: "nas", tapNasVolba: "dvere", dvereMotiv: "dvere", dvereNit: "dvere", dvereDalej: "dvere" },
+  };
+  /** Pole „Pokračovať“ v karte -> hodnota akcie potvrd (aj lišta „Pokračovať“ na telefóne). */
+  const POTVRD_POLA = { bokyDalej: "boky", stredDalej: "stred", tapMatDalej: "tapMat", dvereDalej: "dvere" };
+  function blokyKroku(id) {
+    if (id === "nasivky") return ["kam"].concat(jeBoky() ? ["boky"] : [], jeStred() ? ["stred"] : []);
+    return ["ponuka"].concat(S.tap === "ano" ? ["mat", "nas"] : [], S.tap === "ano" && S.tapNas === true ? ["dvere"] : []);
   }
-  /** Cenovka ponuky (tapacír, nášivka na dvere): „S kobercami len 119 €  Samostatne 179 €  Ušetríte 60 €“. */
-  function cenovka(l, sumaHtml, samostatne, p, usetrite) {
-    return '<span class="k-cenovka kn-cenovka"><span class="k-cenovka__l">' + esc(l) + '</span><span class="k-cenovka__c">' + sumaHtml + "</span>" +
-      (p.povodna != null ? '<span class="k-cenovka__s">' + esc(samostatne) + " <s>" + eur(p.povodna) + "</s></span>" : "") +
-      (p.usetrite ? '<span class="k-cenovka__u">' + esc(eurX(usetrite, p.usetrite)) + "</span>" : "") + "</span>";
+  /** Otvorený blok kroku 5 / 6: znova otvorený cez „Zmeniť“, inak prvý nezodpovedaný (chyba()); null = všetko hotové. */
+  function otvorenyBlok(id) {
+    if (id !== "nasivky" && id !== "tapacir") return null;
+    const bl = blokyKroku(id), ch = chyba(id);
+    const zCh = ch ? BLOK_POLA[id][ch.pole] || null : null;
+    const zn = U.znova[id];
+    if (zn && bl.indexOf(zn) >= 0 && (!zCh || bl.indexOf(zn) <= bl.indexOf(zCh))) return zn;
+    return zCh;
+  }
+  /** V bloku je otázka „rovnaké / iné“ (nie podrobnosti voľby „iné“). */
+  const otazkaStred = () => S.nas === "boky+stred" && (U.znova.nasivky === "stred" || !U.n5.stredOdp);
+  const otazkaMat = () => U.znova.tapacir === "mat" || !U.n6.matOdp;
+  const otazkaDvere = () => !!koberecNas() && (U.znova.tapacir === "dvere" || !U.n6.nasOdp);
+  /** Kľúč zobrazenia (blok + otázka / podrobnosti): keď sa po akcii zmení, posunie sa na novo otvorenú podotázku. */
+  function kluc(id) {
+    const b = otvorenyBlok(id);
+    return String(b) + (b === "stred" ? (otazkaStred() ? "q" : "x") : b === "mat" ? (otazkaMat() ? "q" : "x") : b === "dvere" ? (otazkaDvere() ? "q" : "x") : "");
+  }
+
+  /** Cenovka ako rohož a box do kufra (kufor-boxy.js cenovka): štítok nad cenou, veľká cena, „Samostatne <s>70 €</s>“
+   *  s červenou čiarou, zelená pilulka „Ušetríte 11 €“ (p = ponuka() — suma, povodna, usetrite). */
+  function cenovka(stitok, suma, p) {
+    return '<span class="k-cenovka"><span class="k-cenovka__l">' + esc(stitok) + '</span><span class="k-cenovka__c">' + esc(suma) + "</span>" +
+      (p && p.povodna != null && p.povodna > p.suma ? '<span class="k-cenovka__s">' + esc(U0.cenovka_samostatne) + " <s>" + eur(p.povodna) + "</s></span>" : "") +
+      (p && p.usetrite ? '<span class="k-cenovka__u">' + esc(eurX(U0.cenovka_usetrite, p.usetrite)) + "</span>" : "") + "</span>";
   }
   /** Výrez fotky kabíny cez CSS (--z zväčšenie, --fx/--fy stred výrezu) so zlatými krúžkami na nášivkách. */
   function fotkaKabiny(vyrez, miesta, alt, bokStred) {
@@ -485,7 +522,7 @@ export function vytvorUi(o) {
   }
   /** Schéma kabíny zhora (vlastná kresba): s = šofér, p = spolujazdec, c = stredový koberec. */
   function schemaKabiny(sel, tmava) {
-    const vv = T.kroky.nasivky.vasa_volba, mm = vv.schema_miesta;
+    const sc = T.kroky.nasivky.schema, mm = sc.miesta;
     const ln = tmava ? "#8a826a" : "#b5ab8f", bg = tmava ? "rgba(255,255,255,.04)" : "#fff", mat = tmava ? "rgba(255,255,255,.07)" : "#efebe0";
     const sed = tmava ? "rgba(255,255,255,.1)" : "#ddd6c4";
     const kob = (x, y, w2, h, on) => '<rect x="' + x + '" y="' + y + '" width="' + w2 + '" height="' + h + '" rx="4" fill="' + (on ? "rgba(230,200,119,.28)" : mat) + '" stroke="' + (on ? "#c49b31" : ln) + '" stroke-width="' + (on ? 1.6 : 1) + '"/>';
@@ -493,7 +530,7 @@ export function vytvorUi(o) {
       ? '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r + 3) + '" fill="rgba(230,200,119,.35)"/><circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#e6c877" stroke="#8f7020" stroke-width="1"/>'
       : '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + ln + '" stroke-width="1" stroke-dasharray="2 2"/>');
     const popis = [sel.s ? mm.sofer : "", sel.p ? mm.spolujazdec : "", sel.c ? mm.stred : ""].filter(Boolean).join(", ") || mm.nic;
-    return '<svg class="kn-schema" viewBox="0 0 100 92" role="img" aria-label="' + attr(fill(vv.schema_aria, { x: popis })) + '">' +
+    return '<svg class="kn-schema" viewBox="0 0 100 92" role="img" aria-label="' + attr(fill(sc.aria, { x: popis })) + '">' +
       '<rect x="1.5" y="1.5" width="97" height="89" rx="12" fill="' + bg + '" stroke="' + ln + '"/><path d="M6 16 Q50 6 94 16" fill="none" stroke="' + ln + '" stroke-width="1.2"/>' +
       '<circle cx="21" cy="19" r="7" fill="none" stroke="' + ln + '" stroke-width="1.6"/>' +
       kob(7, 30, 27, 30, sel.s) + kob(66, 30, 27, 30, sel.p) + kob(38, 30, 24, 56, sel.c) +
@@ -547,7 +584,7 @@ export function vytvorUi(o) {
       (n ? "" : "<p><b>" + esc(U0.nahlad_bez_nite[0]) + "</b>" + esc(U0.nahlad_bez_nite[1]) + "</p>") +
       "<p><i>" + esc(U0.nahlad_ilustr) + "</i></p></div></div></figure>";
   }
-  /** Dve rovnocenné dlaždice „rovnaké / inak“ (zjavná voľba namiesto skrytého odkazu či zaškrtávacieho políčka). */
+  /** Dve rovnocenné dlaždice „rovnaké / iné“ (zjavná voľba namiesto skrytého odkazu či zaškrtávacieho políčka). */
   function rvDlazdica(akcia, v, on, viz, nm, poHtml) {
     return '<button type="button" class="kn-rv__b' + (on ? " is-on" : "") + '" data-a="' + akcia + '"' + (v != null ? ' data-v="' + v + '"' : "") +
       ' data-f="' + akcia + (v != null ? ":" + v : "") + '" aria-pressed="' + on + '"><span class="kn-rv__viz">' + viz + '<span class="kn-rv__r" aria-hidden="true"></span></span>' +
@@ -567,135 +604,172 @@ export function vytvorUi(o) {
   const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: l.menoUi.toLowerCase() + " (" + l.kod + ")" });
 
-  function teloNasivky(posledny) {
-    const t = T.kroky.nasivky, V = t.volby, pon = ponuka().nasivky;
-    const b = jeBoky(), s = jeStred(), bal = b && s, nie = S.nas === "nechcem";
-    let html = '<p class="k-pod">' + esc(t.pomocna_veta[0]) + "<b>" + esc(t.pomocna_veta[1]) + "</b>" + esc(t.pomocna_veta[2]) + "</p>";
-    const cenaStrany = (id) => (bal ? '<span class="kn-cena"><em>' + esc(t.v_baliku) + "</em></span>" : cenaRamik(pon[id], t.usetrite));
-    const dlazdica = (id, on, cls, foto, cenaHtml, pred, po) =>
-      '<button type="button" class="kn-dv__b' + cls + (on ? " is-on" : "") + '" data-a="nas" data-v="' + id + '" data-f="nas:' + id + '" aria-pressed="' + on + '">' + pred + foto +
-      '<span class="kn-dv__tx"><span class="kn-chk" aria-hidden="true"></span><span><span class="kn-dv__nm">' + esc(V[id].text) + '</span><span class="kn-dv__po">' + esc(V[id].popis) + "</span></span>" +
-      cenaHtml + "</span>" + po + "</button>";
-    // poradie: pred sedadlá — ★ všetky tri (najobľúbenejšie v strede) — stredový koberec
-    const tB = dlazdica("boky", b, "", fotkaKabiny("--z:1.75;--fx:.537;--fy:.5", ["sofer", "spolujazdec"], V.boky.alt), cenaStrany("boky"), "", "");
-    const tBal = dlazdica("boky+stred", bal, " kn-dv__b--bal", fotkaKabiny("--z:1.4;--fx:.537;--fy:.64", ["sofer", "spolujazdec", "stred"], V["boky+stred"].alt, true),
-      cenaRamik(pon["boky+stred"], t.usetrite), '<span class="k-badge">' + esc(V["boky+stred"].stitok) + "</span>",
-      '<span class="kn-dv__cta' + (bal ? " kn-dv__cta--stav" : "") + '">' + esc(bal ? V["boky+stred"].vybrate : V["boky+stred"].ano) + "</span>");
-    const tS = dlazdica("stred", s, "", fotkaKabiny("--z:2.5;--fx:.531;--fy:.8", ["stred"], V.stred.alt), cenaStrany("stred"), "", "");
-    const tlNie = '<button type="button" class="k-btn-zlate kn-nie' + (nie ? " is-on" : S.nas ? " je-druha" : "") + '" data-a="nas" data-v="nechcem" data-f="nas:nechcem" aria-pressed="' + nie + '">' +
-      (nie ? "✓ " : "") + esc(V.nechcem.text) + "<small>" + esc(V.nechcem.popis) + "</small></button>";
-    // „Vaša voľba“ — až po výbere, pod všetkými voľbami
-    let vyber = "";
-    if (S.nas && !nie) {
-      const vv = t.vasa_volba, x = vv[S.nas], pA = pon["boky+stred"];
-      const tip = S.nas === "boky" ? vv.tip_boky : S.nas === "stred" ? vv.tip_stred : null;
-      vyber = '<div class="kn-vv" aria-live="polite">' + schemaKabiny({ s: b, p: b, c: s }, false) + '<div class="kn-vv__tx"><span class="kn-vv__l">' + esc(vv.label) + '</span><span class="kn-vv__nm">' + esc(x[0]) +
-        '</span><span class="kn-vv__po">' + esc(x[1]) + "</span>" + cenaRamik(pon[S.nas], t.usetrite) + "</div>" +
-        (tip && pA && pA.suma && pA.povodna != null ? '<p class="kn-vv__tip">' + esc(tip[0]) + "<b>" + esc(fill(tip[1], { suma: eur(pA.suma) })) + "</b>" + esc(fill(tip[2], { povodna: eur(pA.povodna) })) + "</p>" : "") +
-        "</div>";
-    } else if (nie) vyber = '<p class="k-pozn">' + esc(V.nechcem.pozn) + "</p>";
-    html += sk("nasivky", "nas", t.kam, '<div class="kn-dv" role="group" aria-label="' + attr(t.kam) + '">' + tB + tBal + tS + "</div>" + tlNie + vyber);
+  /** Čiastková otázka „Prosím, vyberte si …“ veľkým písmom + obsah; červený rám pri chybe poľa (ako sk). */
+  function skOt(id, pole, otazka, obsah) {
+    const msg = chybaSk(id, pole);
+    return '<div class="k-sk' + (msg ? " is-chyba" : "") + '" data-pole="' + pole + '"><p class="kn-ot" id="' + P + "ot-" + pole + '">' + esc(otazka) + "</p>" +
+      obsah + '<p class="k-sk__chyba">' + esc(msg) + "</p></div>";
+  }
+  /** Zelené „Pokračovať“ na konci karty — zatvorí podotázku (akcia potvrd). */
+  function potvrdTl(id, pole, v) {
+    const msg = chybaSk(id, pole);
+    return '<div class="k-sk kn-potvrd' + (msg ? " is-chyba" : "") + '" data-pole="' + pole + '"><button type="button" class="k-btn-zelene" data-a="potvrd" data-v="' + v + '" data-f="potvrd:' + v + '">' +
+      esc(T.kroky.tlacidla.pokracovat) + '</button><p class="k-sk__chyba">' + esc(msg) + "</p></div>";
+  }
+  /** Zodpovedaná podotázka: „✓ <b>nadpis</b> hodnota — Zmeniť“ (vnutri = riadok voľby „iné“ v otvorenej karte). */
+  function riadokHot(zmenit, nadpis, hodnota, vnutri) {
+    return '<div class="kn-hot' + (vnutri ? " kn-hot--vnutri" : "") + '" data-hot="' + zmenit + '"><span class="kn-hot__ic" aria-hidden="true"></span><span class="kn-hot__tx"><b>' + esc(nadpis) + "</b>" +
+      (hodnota ? " " + esc(hodnota) : "") + '</span><button type="button" class="kn-hot__zm" data-a="zmenit" data-v="' + zmenit + '" data-f="zmenit:' + zmenit + (vnutri ? ":v" : "") +
+      '" aria-label="' + attr(fill(U0.zmenit_aria, { x: String(nadpis).replace(/:$/, "") })) + '">' + esc(T.kroky.tlacidla.zmenit) + "</button></div>";
+  }
+  const karta = (blok, nadpis, obsah) => '<div class="kn-karta" data-blok="' + blok + '" tabindex="-1"><p class="kn-karta__ey">' + esc(nadpis) + "</p>" + obsah + "</div>";
+  /** Zodpovedané riadky, otvorený blok (len jeden), za ním nič; „Pokračujte“ až keď je všetko zodpovedané. */
+  function telo56(id, posledny, blok, riadok) {
+    const otv = otvorenyBlok(id), bl = blokyKroku(id);
+    let html = "";
+    for (let i = 0; i < bl.length; i++) {
+      if (bl[i] === otv) { html += blok(otv); break; }
+      html += riadok(bl[i]);
+    }
+    return html + koniecKroku(id, posledny, !!otv);
+  }
+  const teloNasivky = (posledny) => telo56("nasivky", posledny, blokNasivky, riadokNasivky);
+  const teloTapacir = (posledny) => telo56("tapacir", posledny, blokTapacir, riadokTapacir);
 
-    // motív a niť + veľký náhľad na farbe kobercov (krok 3)
+  function blokNasivky(b) {
+    const t = T.kroky.nasivky, V = t.volby, pon = ponuka().nasivky;
     const fk = S.material && S.farba ? farba(S.material, S.farba) : null;
     const bg = fk ? fk.full : "", podklad = fk ? fill(t.podklad, { x: farbaTx(fk) }) : "";
-    if (b) {
-      const vsetky = s && S.stredRovnaky;
-      html += '<div class="tp-oddiel"><span class="k-sk-h">' + esc(vsetky ? t.oddiel.vsetky : t.oddiel.boky) + "</span>" +
-        sk("nasivky", "bokyMotiv", t.motiv.label, dlazdiceMotivov("boky", S.nasBoky.motiv, "boky")) +
-        sk("nasivky", "bokyNit", t.nit.label, cipyNiti("boky", S.nasBoky.nit)) +
-        nahladVelky(S.nasBoky, bg, t.kam_pride[vsetky ? "boky+stred" : "boky"], podklad, schemaKabiny({ s: true, p: true, c: vsetky }, true)) + "</div>";
-      if (s) {
-        const kb = S.nasBoky.motiv && S.nasBoky.nit ? S.nasBoky : null, sr = t.stred_rovnaky;
-        html += '<div class="tp-oddiel"><span class="k-sk-h">' + esc(t.oddiel.stred_pri_bokoch) + '</span><div class="kn-rv" role="group" aria-label="' + attr(t.oddiel.stred_pri_bokoch) + '">' +
-          rvDlazdica("stredRovnaky", "1", S.stredRovnaky, kb ? platno("kn-rv__cv", kb, bg, ".92", 600, 400) : vizMat(bg, ""), sr.ano, popisTx(kb ? motivTxt(kb) : sr.ano_bez_vyberu)) +
-          rvDlazdica("stredRovnaky", "0", !S.stredRovnaky, mozaikaMotivov("stred"), sr.inak, popisTx(sr.inak_popis)) + "</div>";
-        if (!S.stredRovnaky) {
-          html += sk("nasivky", "stredMotiv", t.stred_iny.motiv, dlazdiceMotivov("stred", S.nasStred.motiv, "stred")) +
-            sk("nasivky", "stredNit", t.stred_iny.nit, cipyNiti("stred", S.nasStred.nit)) +
-            nahladVelky(S.nasStred, bg, t.kam_pride.stred, podklad, schemaKabiny({ s: false, p: false, c: true }, true));
-        }
-        html += "</div>";
-      }
-    } else if (s) {
-      html += '<div class="tp-oddiel"><span class="k-sk-h">' + esc(t.oddiel.stred) + "</span>" +
-        sk("nasivky", "stredMotiv", t.motiv.label, dlazdiceMotivov("stred", S.nasStred.motiv, "stred")) +
-        sk("nasivky", "stredNit", t.nit.label, cipyNiti("stred", S.nasStred.nit)) +
-        nahladVelky(S.nasStred, bg, t.kam_pride.stred, podklad, schemaKabiny({ s: false, p: false, c: true }, true)) + "</div>";
+    if (b === "kam") {
+      const nie = S.nas === "nechcem";
+      const dl = (id, cls, foto, pas) => {
+        const on = S.nas === id;
+        return '<button type="button" class="kn-dv__b' + cls + (on ? " is-on" : "") + '" data-a="nas" data-v="' + id + '" data-f="nas:' + id + '" aria-pressed="' + on + '">' + pas + foto +
+          '<span class="kn-dv__tx"><span class="kn-rad" aria-hidden="true"></span><span class="kn-dv__txt"><span class="kn-dv__nm">' + esc(V[id].text) + '</span><span class="kn-dv__po">' + esc(V[id].popis) + "</span>" +
+          cenovka(t.s_kobercami, plus(pon[id].suma), pon[id]) + "</span></span></button>";
+      };
+      // poradie podľa Michala (18. 10. 2026 večer): pod sedadlá — stredový koberec — ★ všetky tri — Nie, ďakujem
+      const d1 = dl("boky", "", fotkaKabiny("--z:1.75;--fx:.537;--fy:.5", ["sofer", "spolujazdec"], V.boky.alt), "");
+      const d2 = dl("stred", "", fotkaKabiny("--z:2.5;--fx:.531;--fy:.8", ["stred"], V.stred.alt), "");
+      const d3 = dl("boky+stred", " kn-dv__b--bal", fotkaKabiny("--z:1.4;--fx:.537;--fy:.64", ["sofer", "spolujazdec", "stred"], V["boky+stred"].alt, true),
+        '<span class="kn-dv__top">' + esc(V["boky+stred"].stitok) + "</span>");
+      const tlNie = '<button type="button" class="k-btn-zlate kn-nie' + (nie ? " is-on" : S.nas ? " je-druha" : "") + '" data-a="nas" data-v="nechcem" data-f="nas:nechcem" aria-pressed="' + nie + '">' +
+        (nie ? "✓ " : "") + esc(V.nechcem.text) + "<small>" + esc(V.nechcem.popis) + "</small></button>";
+      return '<div class="kn-blok" data-blok="kam" tabindex="-1"><p class="k-pod">' + esc(t.pomocna_veta[0]) + "<b>" + esc(t.pomocna_veta[1]) + "</b>" + esc(t.pomocna_veta[2]) + "</p>" +
+        skOt("nasivky", "nas", t.kam, '<div class="kn-dv" role="group" aria-labelledby="' + P + 'ot-nas">' + d1 + d2 + d3 + "</div>" + tlNie) + "</div>";
     }
-    html += koniecKroku("nasivky", posledny);
-    return html;
+    if (b === "boky") {
+      const vsetky = S.nas === "boky+stred" && U.n5.stredOdp && S.stredRovnaky;
+      return karta("boky", t.karta.boky,
+        skOt("nasivky", "bokyMotiv", t.otazky.motiv, dlazdiceMotivov("boky", S.nasBoky.motiv, "boky")) +
+        skOt("nasivky", "bokyNit", t.otazky.nit, cipyNiti("boky", S.nasBoky.nit)) +
+        nahladVelky(S.nasBoky, bg, t.kam_pride[vsetky ? "boky+stred" : "boky"], podklad, schemaKabiny({ s: true, p: true, c: vsetky }, true)) +
+        potvrdTl("nasivky", "bokyDalej", "boky"));
+    }
+    // stredový koberec: pri všetkých troch najprv „rovnaká / iná“, pri samotnom strede rovno motív a niť
+    const sr = t.stred_rovnaky;
+    if (otazkaStred()) {
+      const kb = S.nasBoky.motiv && S.nasBoky.nit ? S.nasBoky : null, odp = U.n5.stredOdp;
+      return karta("stred", t.karta.stred, skOt("nasivky", "stredVolba", t.otazky.stred, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-stredVolba">' +
+        rvDlazdica("stredRovnaky", "1", odp && S.stredRovnaky, kb ? platno("kn-rv__cv", kb, bg, ".92", 600, 400) : vizMat(bg, ""), sr.ano, popisTx(kb ? motivTxt(kb) : sr.ano_bez_vyberu)) +
+        rvDlazdica("stredRovnaky", "0", odp && !S.stredRovnaky, mozaikaMotivov("stred"), sr.inak, popisTx(sr.inak_popis)) + "</div>"));
+    }
+    const bal = S.nas === "boky+stred";
+    return karta("stred", bal ? t.karta.stred : t.karta.stred_len, (bal ? riadokHot("stred", sr.inak, "", true) : "") +
+      skOt("nasivky", "stredMotiv", t.otazky.motiv, dlazdiceMotivov("stred", S.nasStred.motiv, "stred")) +
+      skOt("nasivky", "stredNit", t.otazky.nit, cipyNiti("stred", S.nasStred.nit)) +
+      nahladVelky(S.nasStred, bg, t.kam_pride.stred, podklad, schemaKabiny({ s: false, p: false, c: true }, true)) +
+      potvrdTl("nasivky", "stredDalej", "stred"));
+  }
+  function riadokNasivky(b) {
+    const t = T.kroky.nasivky, h = t.hotove;
+    if (b === "kam") {
+      if (S.nas === "nechcem") return riadokHot("kam", t.zhrnutie_nie, "· " + h.bez_priplatku);
+      const p = ponuka().nasivky[S.nas];
+      return riadokHot("kam", t.volby[S.nas].text, p && p.suma ? "· " + plus(p.suma) : "");
+    }
+    if (b === "boky") return riadokHot("boky", h.boky, motivTxt(S.nasBoky));
+    if (S.nas === "boky+stred" && S.stredRovnaky) return riadokHot("stred", h.stred, fill(h.stred_rovnaka, { x: motivTxt(S.nasBoky) }));
+    return riadokHot("stred", h.stred, motivTxt(S.nasStred));
   }
 
-  function teloTapacir(posledny) {
-    const t = T.kroky.tapacir, a = t.volby.ano;
-    const on = S.tap === "ano", off = S.tap === "nie", po = ponuka(), pt = po.tapacir;
-    let html = '<p class="k-pod">' + esc(t.vysvetlivka) + "</p>";
-    // fotka celých dverí 3:2 bez orezania
-    html += '<div class="kn-dvere"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(t.foto_alt) + '" width="1536" height="1024" loading="lazy" decoding="async">' +
-      '<span class="kn-stitok" style="--x:43%;--y:21%">' + esc(t.foto_stitok) + '</span><span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span></div>";
-    const ponukaHtml = '<div class="kn-ponuka"><span class="kn-ponuka__nm">' + esc(t.nazov) + '</span><span class="kn-ponuka__ben">' + esc(t.benefit) + "</span>" +
-      cenovka(a.s_kobercami, eur(pt.suma), a.samostatne, pt, a.usetrite) +
-      '<button type="button" class="k-btn-zelene' + (on ? " is-on" : off ? " je-druha" : "") + '" data-a="tap" data-v="ano" data-f="tap:ano" aria-pressed="' + on + '">' + (on ? "✓ " : "") + esc(a.text) + "</button></div>" +
-      '<button type="button" class="k-btn-zlate' + (off ? " is-on" : on ? " je-druha" : "") + '" data-a="tap" data-v="nie" data-f="tap:nie" aria-pressed="' + off + '">' + (off ? "✓ " : "") + esc(t.volby.nie.text) + "</button>" +
-      (off ? '<p class="k-pozn">' + esc(t.volby.nie.pozn) + "</p>" : "");
-    html += sk("tapacir", "tap", "", ponukaHtml);
-
-    if (on) {
-      // 1) materiál, farba, lemovanie: rovnaké ako koberce / vybrať inak
-      const r = t.rovnake, vl = t.vlastne;
-      const fk = S.material && S.farba ? farba(S.material, S.farba) : null, lk = S.lem ? lem(S.lem) : null;
-      html += '<div class="tp-oddiel"><span class="k-sk-h">' + esc(U0.tap_oddiel) + '</span><div class="kn-rv" role="group" aria-label="' + attr(U0.tap_oddiel) + '">' +
-        rvDlazdica("tapRovnake", null, S.tapRovnaky, vizMat(fk ? fk.full : "", lk ? lk.full : ""), r.ano,
-          popisTx(S.material ? matKratko(S.material) : "") + popisTx([fk ? farbaTx(fk) : "", lk ? lemTx(lk) : ""].filter(Boolean).join(" · "))) +
-        rvDlazdica("tapZmenit", null, !S.tapRovnaky, mozaikaMaterialov(), r.inak, popisTx(r.inak_popis)) + "</div>";
-      if (!S.tapRovnaky) {
-        html += sk("tapacir", "tapMat", vl.material, '<div class="k-dlazdice k-dlazdice--mat" role="group" aria-label="' + attr(vl.material) + '">' + MATERIALY.map((m, i) => {
-          const v = matT(m.nazov), x = S.tapMat === m.nazov, fx = x && S.tapFarba ? farba(m.nazov, S.tapFarba) : null;
-          return '<button type="button" class="k-dlazdica' + (x ? " is-on" : "") + '" data-a="tapMat" data-v="' + attr(m.nazov) + '" data-f="tapMat:' + i + '" aria-pressed="' + x + '">' +
-            '<img class="k-dlazdica__img" src="' + attr(fx ? fx.full : m.karta_obrazok) + '" alt="" loading="lazy"><span class="k-dlazdica__nm">' + esc(v.variant) + "<small>" + esc(v.nazov === "Mikrosemiš" ? U0.mikrosemis : U0.syntetika) + "</small></span></button>";
-        }).join("") + "</div>");
-        if (S.tapMat) html += sk("tapacir", "tapFarba", vl.farba, mriezkaFarieb(S.tapMat, S.tapFarba, "tapFarba", "tf:"));
-        html += sk("tapacir", "tapLem", vl.lemovanie, mriezkaLem(S.tapLem, "tapLem", "tl:", null));
-        const tm = S.tapMat, tf = tm && S.tapFarba ? farba(tm, S.tapFarba) : null, tl = S.tapLem ? lem(S.tapLem) : null;
-        html += '<div class="kn-vz"><span class="kn-rv__viz">' + vizMat(tf ? tf.full : tm ? matD(tm).karta_obrazok : "", tl ? tl.full : "") + "</span><p><b>" + esc(vl.vybrate) + "</b>" +
-          esc(tm ? matKratko(tm) : vl.bez_materialu) + "<br>" + esc(tf ? fill(vl.farba_x, { x: farbaTx(tf) }) : vl.bez_farby) + "<br>" + esc(tl ? lemTx(tl) : vl.bez_lemovania) + "</p></div>";
-      }
-      html += "</div>";
-
-      // 2) nášivka na tapacír: kde presne (výrez dverí so zlatým krúžkom), otázka s cenou v rámiku, rovnaká / iná
-      const nd = t.nasivka_dvere, an = S.tapNas, pd = po.nasivka_dvere;
-      html += '<div class="tp-oddiel"><span class="k-sk-h">' + esc(nd.nadpis) + "</span>" +
-        '<p class="k-pod">' + esc(nd.kde[0]) + "<b>" + esc(nd.kde[1]) + "</b>" + esc(nd.kde[2]) + "</p>" +
-        '<div class="kn-dvere kn-dvere--vyrez"><span class="kn-foto kn-foto--169"><span class="kn-scena" style="--ar:3/2;--z:1.3;--fx:.433;--fy:.45"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(nd.foto_alt) + '" loading="lazy" decoding="async">' +
-        '<span class="kn-bod" style="--x:43.3%;--y:45%;--d:23%"><b>' + esc(nd.bod) + '</b></span></span><span class="kn-ilu">' + esc(t.ilustracna) + "</span></span></div>";
-      html += sk("tapacir", "tapNas", "", (U.dvereInfo && an == null ? '<p class="tp-info">' + esc(nd.zmena_info) + "</p>" : "") +
-        '<div class="kn-ponuka kn-ponuka--nas"><span class="kn-ponuka__nm">' + esc(nd.otazka) + "</span>" + cenovka(nd.s_tapacirom, plus(pd.suma), nd.samostatne, pd, nd.usetrite) +
-        '<div class="an' + (an != null ? " an--vybrate" : "") + '" role="group" aria-label="' + attr(nd.otazka) + '">' +
-        '<button type="button" class="an__b an__b--ano' + (an === true ? " is-on" : "") + '" data-a="tapNas" data-v="ano" data-f="tapNas:ano" aria-pressed="' + (an === true) + '">' + (an === true ? "✓ " : "") + esc(nd.ano) + "<small>" + plus(pd.suma) + "</small></button>" +
-        '<button type="button" class="an__b an__b--nie' + (an === false ? " is-on" : "") + '" data-a="tapNas" data-v="nie" data-f="tapNas:nie" aria-pressed="' + (an === false) + '">' + (an === false ? "✓ " : "") + esc(nd.nie) + "<small>" + esc(nd.bez_priplatku) + "</small></button></div></div>");
-      if (an === true) {
-        const kn = koberecNas(), tm = tapMaterial(), tk = tapFarbaKod();
-        const ft = tm ? (tk && farba(tm, tk)) || null : null;
-        const bgT = ft ? ft.full : tm ? matD(tm).karta_obrazok : "";
-        const podT = tm ? fill(nd.podklad, { x: matKratko(tm) + (ft ? ", " + farbaTx(ft) : "") }) : "";
-        if (kn) {
-          html += '<div class="kn-rv kn-rv--dvere" role="group" aria-label="' + attr(nd.nadpis) + '">' +
-            rvDlazdica("tapNasRovnaka", "1", S.tapNasRovnaka, platno("kn-rv__cv", kn, bgT, ".92", 600, 400), nd.rovnaka, popisTx(motivTxt(kn))) +
-            rvDlazdica("tapNasRovnaka", "0", !S.tapNasRovnaka, mozaikaMotivov("dvere"), nd.ina, popisTx(nd.ina_popis)) + "</div>";
-        } else {
-          html += '<p class="kn-info">' + esc(S.nas == null ? nd.bez_kobercov_nevybrate : nd.bez_kobercov) + "</p>";
-        }
-        if (!kn || !S.tapNasRovnaka) {
-          html += sk("tapacir", "dvereMotiv", nd.motiv, dlazdiceMotivov("dvere", S.tapNasMotiv, "dvere")) +
-            sk("tapacir", "dvereNit", nd.nit, cipyNiti("dvere", S.tapNasNit));
-        }
-        html += nahladVelky(kn && S.tapNasRovnaka ? kn : { motiv: S.tapNasMotiv, nit: S.tapNasNit }, bgT, nd.kam_pride, podT, schemaDvere());
-      }
-      html += "</div>";
+  function blokTapacir(b) {
+    const t = T.kroky.tapacir, po = ponuka(), oz = t.otazky;
+    if (b === "ponuka") {
+      const a = t.volby.ano, on = S.tap === "ano", off = S.tap === "nie", pt = po.tapacir;
+      // fotka celých dverí 3:2 bez orezania, ponuka v rámiku s cenovkou, zelené Áno, zlaté Nie
+      return '<div class="kn-blok" data-blok="ponuka" tabindex="-1"><p class="k-pod">' + esc(t.vysvetlivka) + "</p>" +
+        '<div class="kn-dvere"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(t.foto_alt) + '" width="1536" height="1024" loading="lazy" decoding="async">' +
+        '<span class="kn-stitok" style="--x:43%;--y:21%">' + esc(t.foto_stitok) + '</span><span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span></div>" +
+        sk("tapacir", "tap", "", '<div class="kn-ponuka"><span class="kn-ponuka__nm">' + esc(t.nazov) + '</span><span class="kn-ponuka__ben">' + esc(t.benefit) + "</span>" +
+          cenovka(a.s_kobercami, eur(pt.suma), pt) +
+          '<button type="button" class="k-btn-zelene' + (on ? " is-on" : off ? " je-druha" : "") + '" data-a="tap" data-v="ano" data-f="tap:ano" aria-pressed="' + on + '">' + (on ? "✓ " : "") + esc(a.text) + "</button></div>" +
+          '<button type="button" class="k-btn-zlate' + (off ? " is-on" : on ? " je-druha" : "") + '" data-a="tap" data-v="nie" data-f="tap:nie" aria-pressed="' + off + '">' + (off ? "✓ " : "") + esc(t.volby.nie.text) + "</button>" +
+          (off ? '<p class="k-pozn">' + esc(t.volby.nie.pozn) + "</p>" : "")) + "</div>";
     }
-    html += koniecKroku("tapacir", posledny, !on);
-    return html;
+    if (b === "mat") {
+      const r = t.rovnake, vl = t.vlastne;
+      if (otazkaMat()) {
+        const fk = S.material && S.farba ? farba(S.material, S.farba) : null, lk = S.lem ? lem(S.lem) : null, odp = U.n6.matOdp;
+        return karta("mat", U0.tap_oddiel, skOt("tapacir", "tapRovn", oz.mat, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-tapRovn">' +
+          rvDlazdica("tapRovnake", null, odp && S.tapRovnaky, vizMat(fk ? fk.full : "", lk ? lk.full : ""), r.ano,
+            popisTx(S.material ? matKratko(S.material) : "") + popisTx([fk ? farbaTx(fk) : "", lk ? lemTx(lk) : ""].filter(Boolean).join(" · "))) +
+          rvDlazdica("tapZmenit", null, odp && !S.tapRovnaky, mozaikaMaterialov(), r.inak, popisTx(r.inak_popis)) + "</div>"));
+      }
+      let html = riadokHot("mat", r.inak, "", true) + skOt("tapacir", "tapMat", oz.material, '<div class="k-dlazdice k-dlazdice--mat" role="group" aria-labelledby="' + P + 'ot-tapMat">' + MATERIALY.map((m, i) => {
+        const v = matT(m.nazov), x = S.tapMat === m.nazov, fx = x && S.tapFarba ? farba(m.nazov, S.tapFarba) : null;
+        return '<button type="button" class="k-dlazdica' + (x ? " is-on" : "") + '" data-a="tapMat" data-v="' + attr(m.nazov) + '" data-f="tapMat:' + i + '" aria-pressed="' + x + '">' +
+          '<img class="k-dlazdica__img" src="' + attr(fx ? fx.full : m.karta_obrazok) + '" alt="" loading="lazy"><span class="k-dlazdica__nm">' + esc(v.variant) + "<small>" + esc(v.nazov === "Mikrosemiš" ? U0.mikrosemis : U0.syntetika) + "</small></span></button>";
+      }).join("") + "</div>");
+      if (S.tapMat) html += skOt("tapacir", "tapFarba", oz.farba, mriezkaFarieb(S.tapMat, S.tapFarba, "tapFarba", "tf:"));
+      html += skOt("tapacir", "tapLem", oz.lemovanie, mriezkaLem(S.tapLem, "tapLem", "tl:", null));
+      const tm = S.tapMat, tf = tm && S.tapFarba ? farba(tm, S.tapFarba) : null, tl = S.tapLem ? lem(S.tapLem) : null;
+      html += '<div class="kn-vz"><span class="kn-rv__viz">' + vizMat(tf ? tf.full : tm ? matD(tm).karta_obrazok : "", tl ? tl.full : "") + "</span><p><b>" + esc(vl.vybrate) + "</b>" +
+        esc(tm ? matKratko(tm) : vl.bez_materialu) + "<br>" + esc(tf ? fill(vl.farba_x, { x: farbaTx(tf) }) : vl.bez_farby) + "<br>" + esc(tl ? lemTx(tl) : vl.bez_lemovania) + "</p></div>";
+      return karta("mat", U0.tap_oddiel, html + potvrdTl("tapacir", "tapMatDalej", "tapMat"));
+    }
+    const nd = t.nasivka_dvere;
+    if (b === "nas") {
+      // kde presne (výrez dverí so zlatým krúžkom), otázka s cenovkou, zelené Áno / zlaté Nie
+      const an = U.dvereInfo ? null : S.tapNas, pd = po.nasivka_dvere; // po strate vzoru otázka znova bez predvoľby
+      return karta("nas", nd.nadpis, '<p class="k-pod">' + esc(nd.kde[0]) + "<b>" + esc(nd.kde[1]) + "</b>" + esc(nd.kde[2]) + "</p>" +
+        '<div class="kn-dvere kn-dvere--vyrez"><span class="kn-foto kn-foto--169"><span class="kn-scena" style="--ar:3/2;--z:1.3;--fx:.433;--fy:.45"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(nd.foto_alt) + '" loading="lazy" decoding="async">' +
+        '<span class="kn-bod" style="--x:43.3%;--y:45%;--d:23%"><b>' + esc(nd.bod) + '</b></span></span><span class="kn-ilu">' + esc(t.ilustracna) + "</span></span></div>" +
+        sk("tapacir", "tapNas", "", (U.dvereInfo ? '<p class="tp-info">' + esc(nd.zmena_info) + "</p>" : "") +
+          '<div class="kn-ponuka kn-ponuka--nas"><span class="kn-ponuka__nm">' + esc(nd.otazka) + "</span>" + cenovka(nd.s_tapacirom, plus(pd.suma), pd) +
+          '<div class="an' + (an != null ? " an--vybrate" : "") + '" role="group" aria-label="' + attr(nd.otazka) + '">' +
+          '<button type="button" class="an__b an__b--ano' + (an === true ? " is-on" : "") + '" data-a="tapNas" data-v="ano" data-f="tapNas:ano" aria-pressed="' + (an === true) + '">' + (an === true ? "✓ " : "") + esc(nd.ano) + "<small>" + plus(pd.suma) + "</small></button>" +
+          '<button type="button" class="an__b an__b--nie' + (an === false ? " is-on" : "") + '" data-a="tapNas" data-v="nie" data-f="tapNas:nie" aria-pressed="' + (an === false) + '">' + (an === false ? "✓ " : "") + esc(nd.nie) + "<small>" + esc(nd.bez_priplatku) + "</small></button></div></div>"));
+    }
+    // motív a niť nášivky na tapacíri: rovnaká ako na kobercoch / iná (bez nášivky na kobercoch rovno motív a niť)
+    const kn = koberecNas(), tm = tapMaterial(), tk = tapFarbaKod();
+    const ft = tm ? (tk && farba(tm, tk)) || null : null;
+    const bgT = ft ? ft.full : tm ? matD(tm).karta_obrazok : "";
+    const podT = tm ? fill(nd.podklad, { x: matKratko(tm) + (ft ? ", " + farbaTx(ft) : "") }) : "";
+    if (otazkaDvere()) {
+      const odp = U.n6.nasOdp;
+      return karta("dvere", nd.nadpis, skOt("tapacir", "tapNasVolba", oz.nasivka, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-tapNasVolba">' +
+        rvDlazdica("tapNasRovnaka", "1", odp && S.tapNasRovnaka, platno("kn-rv__cv", kn, bgT, ".92", 600, 400), nd.rovnaka, popisTx(motivTxt(kn))) +
+        rvDlazdica("tapNasRovnaka", "0", odp && !S.tapNasRovnaka, mozaikaMotivov("dvere"), nd.ina, popisTx(nd.ina_popis)) + "</div>"));
+    }
+    return karta("dvere", nd.nadpis, (kn ? riadokHot("dvere", nd.ina, "", true) : '<p class="kn-info">' + esc(S.nas == null ? nd.bez_kobercov_nevybrate : nd.bez_kobercov) + "</p>") +
+      skOt("tapacir", "dvereMotiv", oz.motiv, dlazdiceMotivov("dvere", S.tapNasMotiv, "dvere")) +
+      skOt("tapacir", "dvereNit", oz.nit, cipyNiti("dvere", S.tapNasNit)) +
+      nahladVelky({ motiv: S.tapNasMotiv, nit: S.tapNasNit }, bgT, nd.kam_pride, podT, schemaDvere()) +
+      potvrdTl("tapacir", "dvereDalej", "dvere"));
+  }
+  function riadokTapacir(b) {
+    const t = T.kroky.tapacir, h = t.hotove, po = ponuka();
+    if (b === "ponuka") return riadokHot("ponuka", h.ponuka, S.tap === "ano" ? fill(h.ano, { x: eur(po.tapacir.suma) }) : h.nie);
+    if (b === "mat") {
+      if (S.tapRovnaky) return riadokHot("mat", h.mat, h.mat_rovnake);
+      const f = S.tapMat && S.tapFarba ? farba(S.tapMat, S.tapFarba) : null, l = S.tapLem ? lem(S.tapLem) : null;
+      return riadokHot("mat", h.mat, [S.tapMat ? matKratko(S.tapMat) : "", f ? fill(t.vlastne.farba_x, { x: farbaTx(f) }) : "", l ? lemTx(l) : ""].filter(Boolean).join(" · "));
+    }
+    if (b === "nas") return riadokHot("nas", h.nas, S.tapNas ? fill(h.ano, { x: plus(po.nasivka_dvere.suma) }) : h.nie);
+    const kn = koberecNas();
+    if (kn && S.tapNasRovnaka) return riadokHot("dvere", h.dvere, fill(h.dvere_rovnaka, { x: motivTxt(kn) }));
+    return riadokHot("dvere", h.dvere, motivTxt({ motiv: S.tapNasMotiv, nit: S.tapNasNit }));
   }
 
   // ------------------------------------------------------------------ súhrn (artefakt ř. 625–679, bez ukážky košíka)
@@ -845,6 +919,16 @@ export function vytvorUi(o) {
     posun(el);
     if (fokus && el) { const h = el.querySelector(".k-krok__hd"); try { h.focus({ preventScroll: true }); } catch (e) { /* */ } }
   }
+  /** Po zatvorení podotázky: plynulo na novo otvorenú kartu (fokus na ňu), inak na „Pokračujte“ kroku. */
+  function posunNaBlok(id) {
+    const k = root.querySelector('[data-krok="' + id + '"]');
+    if (!k) return;
+    const b = otvorenyBlok(id);
+    const el = (b && k.querySelector('[data-blok="' + b + '"]')) || k.querySelector('[data-a="dalej"]');
+    if (!el) return;
+    posun(el, b ? "start" : "center");
+    try { el.focus({ preventScroll: true }); } catch (e) { /* */ }
+  }
   function posunPole(id, pole) {
     const el = root.querySelector('[data-krok="' + id + '"] [data-pole="' + pole + '"]') || root.querySelector('[data-krok="' + id + '"]');
     posun(el, "center");
@@ -861,7 +945,7 @@ export function vytvorUi(o) {
   function otvorKrok(id) {
     if (kroky().indexOf(id) < 0) id = "vozidlo"; // neznámy krok (napr. tapacír pri dodávke) -> prvý
     const pred = prvyNehotovyPred(id);
-    if (pred) { U.chyby[pred] = chyba(pred); U.zablesk = pred; U.otvoreny = pred; render(); posunPole(pred, U.chyby[pred].pole); return; }
+    if (pred) { U.chyby[pred] = chyba(pred); U.znova[pred] = null; U.zablesk = pred; U.otvoreny = pred; render(); posunPole(pred, U.chyby[pred].pole); return; }
     U.otvoreny = id; render(); posunKrok(id, true);
   }
   function klikHlavicka(id) {
@@ -870,8 +954,9 @@ export function vytvorUi(o) {
   }
   function pokracuj(id) {
     const ch = chyba(id);
-    if (ch) { U.chyby[id] = ch; U.zablesk = id; render(); posunPole(id, ch.pole); return; }
+    if (ch) { U.chyby[id] = ch; U.znova[id] = null; U.zablesk = id; render(); posunPole(id, ch.pole); return; }
     delete U.chyby[id];
+    if (U.znova[id]) U.znova[id] = null;
     const ks = kroky(), i = ks.indexOf(id);
     let dalsi = null, j;
     for (j = i + 1; j < ks.length; j++) if (!hotovy(ks[j])) { dalsi = ks[j]; break; }
@@ -886,7 +971,7 @@ export function vytvorUi(o) {
     if (U.odosiela) return false; // výber už odišiel do košíka, čaká sa na Shoptet (N4)
     const ks = kroky();
     let prvy = null;
-    ks.forEach((k) => { if (!hotovy(k)) { U.chyby[k] = chyba(k); if (!prvy) prvy = k; } });
+    ks.forEach((k) => { if (!hotovy(k)) { U.chyby[k] = chyba(k); if (U.znova[k]) U.znova[k] = null; if (!prvy) prvy = k; } });
     if (prvy) { U.chybaKosik = true; U.otvoreny = prvy; U.zablesk = prvy; render(); posunPole(prvy, U.chyby[prvy].pole); return false; }
     U.chybaPrenosu = false;
     const ok = o.doKosika(S) !== false;
@@ -897,7 +982,12 @@ export function vytvorUi(o) {
     if (U.odosiela) return;
     if (vsetkoHotove()) { kosik(); return; }
     const x = U.otvoreny;
-    if (x && !hotovy(x)) { posunPole(x, chyba(x).pole); return; }
+    if (x && !hotovy(x)) {
+      /* v karte kroku 5 / 6 čaká len „Pokračovať“ -> lišta „Pokračovať“ urobí to isté */
+      const ch = chyba(x), pv = POTVRD_POLA[ch.pole];
+      if (pv && otvorenyBlok(x) === BLOK_POLA[x][ch.pole]) { const k0 = kluc(x); potvrd(pv); if (kluc(x) !== k0) posunNaBlok(x); return; }
+      posunPole(x, ch.pole); return;
+    }
     if (x && hotovy(x)) { pokracuj(x); return; }
     const p = kroky().filter((k) => !hotovy(k))[0];
     U.otvoreny = p; render(); posunKrok(p, true);
@@ -907,27 +997,73 @@ export function vytvorUi(o) {
   function zmena(fn) {
     const malNas = !!koberecNas();
     fn();
-    if (!tapDostupny()) { S.tap = null; S.tapNas = null; }
-    /* Nášivka na tapacír „ako na kobercoch“ stratila vzor -> otázka na dvere sa ukáže znova s vysvetlením. */
-    if (malNas && !koberecNas() && S.tap === "ano" && S.tapNas === true && S.tapNasRovnaka) {
-      S.tapNas = null; U.dvereInfo = true; U.chyby.tapacir = chyba("tapacir");
+    if (!tapDostupny()) {
+      S.tap = null; S.tapNas = null;
+      U.n6 = { matOdp: false, mat: false, nasOdp: false, nas: false }; U.znova.tapacir = null;
     }
-    if (S.tapNas != null) U.dvereInfo = false;
+    /* Nášivka na tapacír „ako na kobercoch“ stratila vzor -> otázka na dvere sa ukáže znova s vysvetlením. S.tapNas ostane
+       (predtým null: select Shoptetu ostal na „Áno“ = cena Shoptetu o 49 € vyššia, console.error); krok 6 je neúplný,
+       kým zákazník neodpovie Áno (potom motív a niť) alebo Nie. */
+    if (malNas && !koberecNas() && S.tap === "ano" && S.tapNas === true && S.tapNasRovnaka && U.n6.nasOdp) {
+      U.dvereInfo = true; U.n6.nasOdp = false; U.n6.nas = false; U.znova.tapacir = "nas";
+    }
+    if (U.dvereInfo && koberecNas()) { U.dvereInfo = false; if (U.znova.tapacir === "nas") U.znova.tapacir = null; } // vzor je späť
     prepocitajChyby();
     render();
     o.naZmenu(S);
   }
   const resetVozidla = () => { S.znacka = null; S.model = null; S.polia = {}; };
-  /** Pridanie nášiviek pred sedadlá k stredovému kobercu: prevezmú jeho motív a niť (vybraté sa nestratí). */
+  /** Pridanie nášiviek pod sedadlá k stredovému kobercu: prevezmú jeho motív a niť (vybraté sa nestratí). */
   function pridajBoky() {
     if (S.nas === "stred" && (S.nasStred.motiv || S.nasStred.nit)) { S.nasBoky = { motiv: S.nasStred.motiv, nit: S.nasStred.nit }; S.stredRovnaky = true; }
   }
-  /** Odobratie nášiviek pred sedadlami: stredový koberec „rovnaký ako pred sedadlami“ si nechá ich motív a niť. */
+  /** Odobratie nášiviek pod sedadlami: stredový koberec si nechá ich motív a niť, ak bol „rovnaký“ alebo ešte nemá vlastný. */
   function odoberBoky() {
-    if (S.nas === "boky+stred" && S.stredRovnaky && (S.nasBoky.motiv || S.nasBoky.nit)) S.nasStred = { motiv: S.nasBoky.motiv, nit: S.nasBoky.nit };
+    if (!(S.nasBoky.motiv || S.nasBoky.nit)) return;
+    if ((S.nas === "boky+stred" && S.stredRovnaky) || (S.nas === "boky" && !S.nasStred.motiv && !S.nasStred.nit)) S.nasStred = { motiv: S.nasBoky.motiv, nit: S.nasBoky.nit };
+  }
+  /** „Pokračovať“ v karte kroku 5 / 6: karta sa zatvorí, ak je v nej všetko vybraté; inak červený rám chýbajúceho poľa. */
+  function potvrd(v) {
+    const krok = v === "boky" || v === "stred" ? "nasivky" : "tapacir";
+    const ok = v === "boky" ? S.nasBoky.motiv && S.nasBoky.nit : v === "stred" ? S.nasStred.motiv && S.nasStred.nit
+      : v === "tapMat" ? S.tapMat && S.tapFarba && farba(S.tapMat, S.tapFarba) && S.tapLem : v === "dvere" ? S.tapNasMotiv && S.tapNasNit : false;
+    if (!ok) {
+      const ch = chyba(krok);
+      if (ch) { U.chyby[krok] = ch; render(); posunPole(krok, ch.pole); }
+      return;
+    }
+    if (v === "boky") U.n5.boky = true;
+    else if (v === "stred") U.n5.stred = true;
+    else if (v === "tapMat") U.n6.mat = true;
+    else U.n6.nas = true;
+    U.znova[krok] = null;
+    prepocitajChyby();
+    render();
+  }
+  /** „Zmeniť“ pri zodpovedanej podotázke: znova ju otvorí (výber ostane, kým zákazník nezvolí iné). */
+  function zmenit(v) {
+    if (v === "kam") U.znova.nasivky = "kam";
+    else if (v === "boky") { U.n5.boky = false; U.znova.nasivky = null; }
+    else if (v === "stred") { if (S.nas === "boky+stred") U.znova.nasivky = "stred"; else { U.n5.stred = false; U.znova.nasivky = null; } }
+    else if (v === "ponuka" || v === "mat" || v === "nas") U.znova.tapacir = v;
+    else if (v === "dvere") { if (koberecNas()) U.znova.tapacir = "dvere"; else { U.n6.nas = false; U.znova.tapacir = null; } }
+    render();
+  }
+  /** Krok, ktorého podotázky akcia otvára / zatvára (posun na novo otvorenú kartu). */
+  function krokAkcie(a, v) {
+    if (a === "nas" || a === "stredRovnaky") return "nasivky";
+    if (a === "tap" || a === "tapRovnake" || a === "tapZmenit" || a === "tapNas" || a === "tapNasRovnaka") return "tapacir";
+    if (a === "potvrd") return v === "boky" || v === "stred" ? "nasivky" : "tapacir";
+    if (a === "zmenit") return v === "kam" || v === "boky" || v === "stred" ? "nasivky" : "tapacir";
+    return null;
+  }
+  function akcia(a, el) {
+    const kp = krokAkcie(a, el.getAttribute("data-v")), k0 = kp ? kluc(kp) : null;
+    akciaVyberu(a, el);
+    if (kp && U.otvoreny === kp && kluc(kp) !== k0) posunNaBlok(kp);
   }
 
-  function akcia(a, el) {
+  function akciaVyberu(a, el) {
     const v = el.getAttribute("data-v"), m = el.getAttribute("data-m");
     switch (a) {
       case "krok": klikHlavicka(v); return;
@@ -937,23 +1073,28 @@ export function vytvorUi(o) {
       case "farba": zmena(() => { S.farba = v; }); return;
       case "lem": zmena(() => { S.lem = v; }); return;
       case "nas": {
-        /* Dlaždice miest sa zaškrtávajú (návrh C): „pred sedadlá“ a „stredový koberec“ prepínajú svoje miesto, „všetky
-           tri“ zapne obe; z prázdneho výberu = presne ten stav (boky / stred / boky+stred / nechcem). Výber sa nikdy
-           nevráti na prázdny (revízia 18. 10. 2026): ťuk na jediné zvolené miesto ani na zvolený balík nič nemení —
-           inak by selecty Shoptetu ostali na starej hodnote (sync s null nič nenastaví). Zmena = iné miesto alebo „Nie“. */
-        const b = jeBoky(), s = jeStred();
-        if ((v === "boky+stred" && b && s) || (v === "boky" && b && !s) || (v === "stred" && s && !b)) return;
+        /* 4 výlučné voľby (Michal 18. 10. 2026 večer): zvolená je LEN jedna. Výber sa nikdy nevráti na prázdny (revízia
+           18. 10. 2026): ťuk na už zvolenú voľbu S nemení — inak by selecty Shoptetu ostali na starej hodnote. Pri zmene
+           voľby sa motív a niť prenesú (pridajBoky / odoberBoky); potvrdenie „pod sedadlami“ ostane len pri voľbe, ktorá
+           ich mala aj predtým, stredový koberec sa pýta znova. */
+        if (v === S.nas) {
+          if (U.znova.nasivky === "kam") { U.znova.nasivky = null; render(); }
+          if (v === "nechcem") pokracuj("nasivky");
+          return;
+        }
+        const b = jeBoky();
         zmena(() => {
-          if (v === "nechcem") { if (b) odoberBoky(); S.nas = "nechcem"; }
-          else if (v === "boky+stred") { if (!b) pridajBoky(); S.nas = "boky+stred"; }
-          else if (v === "boky") { if (b) { odoberBoky(); S.nas = naNas(false, s); } else { pridajBoky(); S.nas = naNas(true, s); } }
-          else if (v === "stred") S.nas = naNas(b, !s);
+          if (v === "nechcem" || v === "stred") { if (b) odoberBoky(); }
+          else if (!b) pridajBoky();
+          S.nas = v;
+          U.n5.boky = b && jeBoky() && U.n5.boky;
+          U.n5.stred = false; U.n5.stredOdp = false; U.znova.nasivky = null;
         });
         if (v === "nechcem") pokracuj("nasivky");
         return;
       }
-      case "motiv": zmena(() => { if (m === "boky") S.nasBoky.motiv = v; else if (m === "stred") S.nasStred.motiv = v; else { S.tapNasMotiv = v; if (!koberecNas()) S.tapNasRovnaka = false; } }); return;
-      case "nit": zmena(() => { if (m === "boky") S.nasBoky.nit = v; else if (m === "stred") S.nasStred.nit = v; else { S.tapNasNit = v; if (!koberecNas()) S.tapNasRovnaka = false; } }); return;
+      case "motiv": zmena(() => { if (m === "boky") S.nasBoky.motiv = v; else if (m === "stred") S.nasStred.motiv = v; else { S.tapNasMotiv = v; if (!koberecNas()) { S.tapNasRovnaka = false; U.n6.nasOdp = true; } } }); return;
+      case "nit": zmena(() => { if (m === "boky") S.nasBoky.nit = v; else if (m === "stred") S.nasStred.nit = v; else { S.tapNasNit = v; if (!koberecNas()) { S.tapNasRovnaka = false; U.n6.nasOdp = true; } } }); return;
       case "viac": {
         U.viac[m] = true;
         render();
@@ -961,27 +1102,33 @@ export function vytvorUi(o) {
         if (prvy) try { prvy.focus({ preventScroll: true }); } catch (e) { /* */ }
         return;
       }
-      case "stredRovnaky": zmena(() => { S.stredRovnaky = v === "1"; }); return;
-      case "tapNasRovnaka": zmena(() => { S.tapNasRovnaka = v === "1"; }); return;
+      case "potvrd": potvrd(v); return;
+      case "zmenit": zmenit(v); return;
+      /* „Rovnaká ako pod sedadlami“ = hotovo (karta sa zatvorí); „Iná nášivka“ = motív, niť, Pokračovať */
+      case "stredRovnaky": zmena(() => { S.stredRovnaky = v === "1"; U.n5.stredOdp = true; U.n5.stred = v === "1"; U.znova.nasivky = null; }); return;
+      case "tapNasRovnaka": zmena(() => { S.tapNasRovnaka = v === "1"; U.n6.nasOdp = true; U.n6.nas = v === "1"; U.znova.tapacir = null; }); return;
       case "tap":
-        zmena(() => { S.tap = v; });
+        zmena(() => { S.tap = v; U.znova.tapacir = null; U.dvereInfo = false; });
         if (v === "nie") pokracuj("tapacir");
         return;
       case "tapZmenit":
-        /* Už zvolené „Vybrať inak“ -> bez účinku. Vopred sa doplní materiál, farba a lemovanie kobercov, farba len ak patrí
-           k materiálu tapacíru (revízia 18. 10. 2026: inak „12“ pri dvojfarebnom mikrosemiši zhodilo zhrnutie -> React). */
-        if (!S.tapRovnaky) return;
+        /* Už zvolené „Vybrať inak“ S nemení (len otvorí materiál, farbu a lemovanie). Inak sa vopred doplní materiál, farba
+           a lemovanie kobercov, farba len ak patrí k materiálu tapacíru (revízia 18. 10. 2026: inak „12“ pri dvojfarebnom
+           mikrosemiši zhodilo zhrnutie -> React). */
         zmena(() => {
-          S.tapRovnaky = false; S.tapMat = S.tapMat || S.material;
-          if (!S.tapFarba && S.tapMat && S.farba && farba(S.tapMat, S.farba)) S.tapFarba = S.farba;
-          S.tapLem = S.tapLem || S.lem;
+          if (S.tapRovnaky) {
+            S.tapRovnaky = false; S.tapMat = S.tapMat || S.material;
+            if (!S.tapFarba && S.tapMat && S.farba && farba(S.tapMat, S.farba)) S.tapFarba = S.farba;
+            S.tapLem = S.tapLem || S.lem;
+          }
+          U.n6.matOdp = true; U.n6.mat = false; U.znova.tapacir = null;
         });
         return;
-      case "tapRovnake": zmena(() => { S.tapRovnaky = true; }); return;
+      case "tapRovnake": zmena(() => { S.tapRovnaky = true; U.n6.matOdp = true; U.n6.mat = true; U.znova.tapacir = null; }); return;
       case "tapMat": zmena(() => { if (S.tapMat !== v) { S.tapMat = v; if (S.tapFarba && !farba(v, S.tapFarba)) S.tapFarba = null; } }); return;
       case "tapFarba": zmena(() => { S.tapFarba = v; }); return;
       case "tapLem": zmena(() => { S.tapLem = v; }); return;
-      case "tapNas": zmena(() => { S.tapNas = v === "ano"; }); return;
+      case "tapNas": zmena(() => { S.tapNas = v === "ano"; U.znova.tapacir = null; U.dvereInfo = false; }); return;
       case "kosik": kosik(); return;
       case "lista": lista(); return;
       case "skok": posun(doc.getElementById(v)); return;

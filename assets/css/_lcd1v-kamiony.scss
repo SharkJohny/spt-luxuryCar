@@ -342,8 +342,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista .lcd1v-lista__suma small { dis
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kosik[disabled],
 body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista button.lcd1v-lista__kos[disabled] { opacity: .6; cursor: progress; transform: none; }
 
-/* ===== Kroky 5 (nášivky) a 6 (tapacír) — návrh C schválený Michalom 18. 10. 2026 (ui.js teloNasivky / teloTapacir) ===== */
-/* krok 5: tri dlaždice s fotkou kabíny (výrez cez CSS: --z zväčšenie, --fx/--fy stred výrezu), krúžky na nášivkách */
+/* ===== Kroky 5 (nášivky) a 6 (tapacír) — návrh C 18. 10. 2026 + otázky po jednej (Michal 18. 10. 2026 večer; ui.js blokNasivky / blokTapacir) ===== */
+/* krok 5: 4 výlučné voľby — dlaždice s fotkou kabíny (výrez cez CSS: --z zväčšenie, --fx/--fy stred výrezu), krúžky na nášivkách */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .08); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
 @media (hover: hover) {
@@ -368,49 +368,23 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--bok b { left: 100%; 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu { position: absolute; left: 8px; top: 8px; z-index: 2; padding: 2px 7px; border-radius: 6px; background: rgba(10, 8, 5, .62); color: #ece6d6; font: italic 400 11.5px/1.4 var(--k-body); pointer-events: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu--dole { top: auto; bottom: 8px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__tx { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 13px 14px 14px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-chk { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-top: 1px; border: 2px solid #b5a473; border-radius: 7px; background: #fff; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-chk::after { content: "\2713"; color: #fff; font: 800 14px/1 var(--k-body); opacity: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__txt { display: block; min-width: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-top: 1px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad::after { content: "\2713"; color: #fff; font: 800 14px/1 var(--k-body); opacity: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__txt .k-cenovka { margin-top: 10px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { display: block; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po { display: block; margin-top: 3px; color: var(--k-mute); font: 400 14px/1.4 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__tx .kn-cena { grid-column: 2; margin-top: 8px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal { overflow: visible; margin-top: 6px; border-color: var(--k-gold); background: #fffdf6; box-shadow: 0 0 0 1px rgba(196, 155, 49, .45), 0 10px 26px rgba(140, 105, 25, .2); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal > .kn-foto { aspect-ratio: 4 / 3; border-radius: 14px 14px 0 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .k-badge { top: -12px; padding: 5px 11px; font-size: 10.5px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-dv__nm { font-size: 18px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-cena b { font-size: 27px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-cena i { font-size: 14.5px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta { display: flex; align-items: center; justify-content: center; min-height: 52px; margin: 0; padding: 10px 16px; border-radius: 0 0 14px 14px; background: var(--k-zelene); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22); color: #fff; font: 900 13.5px/1.25 var(--k-disp); letter-spacing: .09em; text-align: center; text-transform: uppercase; }
-/* zvolený balík: pás „✓ Vybraté – všetky tri koberce“ je stav, nie tlačidlo (ťuk nič nemení — ui.js akcia nas) */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal.is-on { cursor: default; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta--stav { background: #e3f1e9; box-shadow: inset 0 1px 0 rgba(31, 122, 82, .22); color: var(--k-zvol, #1f7a52); font-weight: 800; }
+/* ★ všetky tri: zlatý pás „★ Najobľúbenejšie ★“ cez celú šírku dlaždice (ako odporúčaná karta rohože a boxu do kufra) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { display: block; padding: 8px 12px 7px; background: var(--k-zlato); color: #17130a; font: 800 12px/1.2 var(--k-disp); letter-spacing: .12em; text-align: center; text-transform: uppercase; white-space: nowrap; }
 @media (min-width: 600px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { display: grid; grid-template-columns: 46% minmax(0, 1fr); align-items: center; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b > .kn-foto { aspect-ratio: 4 / 3; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal > .kn-foto { border-radius: 14px 0 0 0; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta { grid-column: 1 / -1; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .k-badge { left: auto; right: 18px; transform: none; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { grid-column: 1 / -1; align-self: stretch; }
 }
-/* cena v rámiku: veľká suma, prečiarknutá pôvodná červenou, zelený štítok „Ušetríte“ */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena b { color: var(--k-ink); font: 800 21px/1 var(--k-disp); white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena s { color: #4a4334; font: 700 14px/1 var(--k-body); text-decoration: line-through; text-decoration-color: var(--k-cervena); text-decoration-thickness: 2px; white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena i, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena em { padding: 4px 10px; border-radius: 999px; background: var(--k-zelena-pill); color: var(--k-zelena-pill-tx); font: 800 13.5px/1.2 var(--k-body); font-style: normal; white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena em { border-radius: 10px; font-weight: 700; white-space: normal; }
 /* „Nie, ďakujem“ s popisom pod textom */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.kn-nie { flex-direction: column; gap: 3px; height: auto; min-height: 56px; margin-top: 14px; padding-top: 10px; padding-bottom: 10px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font: 600 13px/1.3 var(--k-body); letter-spacing: 0; text-transform: none; opacity: .95; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene.je-druha, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.je-druha { opacity: .6; box-shadow: none; }
-/* Vaša voľba (až po výbere) so schémou kabíny */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; align-items: center; margin: 16px 0 0; padding: 14px 16px 14px 12px; border: 2px solid var(--k-gold); border-radius: 14px; background: #fffaee; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv .kn-schema { display: block; width: 92px; height: auto; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__tx { min-width: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__l { display: block; color: var(--k-gold-tx); font: 700 10.5px/1.4 var(--k-disp); letter-spacing: .14em; text-transform: uppercase; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__nm { display: block; margin-top: 2px; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__po { display: block; margin-top: 2px; color: var(--k-mute); font: 400 13.5px/1.4 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv .kn-cena { margin-top: 8px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv .kn-cena b { font-size: 26px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__tip { grid-column: 1 / -1; margin: 0; padding: 9px 12px; border-left: 3px solid var(--k-gold); border-radius: 6px; background: #fff; color: var(--k-tmava); font: 600 14px/1.45 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__tip b { color: var(--k-zelena-tx); }
 /* farby nite: prvých 6 + „Ďalšie farby“; ťuk-plocha 44 px */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b { min-height: 44px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b--viac { padding: 4px 14px; border-style: dashed; border-color: #c9b98a; background: #faf6ea; color: var(--k-gold-tx); font-weight: 700; }
@@ -432,7 +406,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop i { color: #b9b19
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-info { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--k-gold); border-radius: 6px; background: #faf6ea; color: var(--k-ink); font: 600 14px/1.45 var(--k-body); }
 /* „rovnaké / inak“ — dve rovnocenné dlaždice */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv--dvere { margin-top: 16px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 14px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .07); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
 @media (hover: hover) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b:hover { border-color: var(--k-gold); }
@@ -475,12 +448,47 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka__ben { display: bl
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .k-btn-zelene { height: auto; min-height: 56px; margin-top: 14px; padding: 8px 18px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka + .k-btn-zlate { margin-top: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .an { margin-top: 14px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin-top: 10px; padding-top: 10px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__l { flex: 1 0 100%; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__c, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__s { margin-top: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__u { margin-top: 2px; }
 @media (max-width: 380px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { font-size: 16px; }
+}
+
+/* ===== Otázky po jednej (Michal 18. 10. 2026 večer): veľká otázka „Prosím, vyberte si …“, podotázka v karte, zodpovedané
+   sa zatvorí do riadka „✓ … — Zmeniť“, zelené „Pokračovať“ na konci karty (ui.js skOt / karta / riadokHot / potvrdTl) ===== */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-blok, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { scroll-margin-top: 72px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-blok:focus, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta:focus { outline: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ot { margin: 0 0 12px; padding: 0; color: var(--k-ink); font: 800 19px/1.25 var(--k-disp); letter-spacing: .005em; text-transform: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { margin: 14px 0 0; padding: 16px 16px 18px; border: 2px solid var(--k-ram); border-radius: 16px; background: #fff; box-shadow: 0 8px 22px rgba(20, 15, 5, .08); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta:first-child { margin-top: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta__ey { margin: 0 0 14px; padding: 0 0 10px; border-bottom: 1px solid var(--k-line); color: var(--k-gold-tx); font: 800 12px/1.35 var(--k-disp); letter-spacing: .12em; text-transform: uppercase; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-sk { margin-top: 22px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .kn-karta__ey + .k-sk, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .kn-hot--vnutri + .k-sk { margin-top: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--motiv { max-width: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--motiv .k-dlazdica__nm { font-size: 15px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-potvrd { margin-top: 20px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-potvrd .k-btn-zelene { margin: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .kn-dvere--vyrez { margin-bottom: 16px; }
+/* zodpovedaná podotázka: zelená fajka, čo je vybraté, „Zmeniť“ (ťuk-plocha 44 px) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot { display: flex; align-items: center; gap: 12px; margin: 10px 0 0; padding: 8px 8px 8px 12px; border: 1.5px solid #cfe5d8; border-radius: 12px; background: var(--k-zvol-bg); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot:first-child { margin-top: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__ic { display: flex; flex: none; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--k-zvol-grad); box-shadow: 0 2px 6px rgba(31, 122, 82, .3); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__ic::after { content: "\2713"; color: #fff; font: 800 13px/1 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { flex: 1 1 auto; min-width: 0; color: var(--k-ink); font: 400 14.5px/1.4 var(--k-body); overflow-wrap: anywhere; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx b { font-weight: 700; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm { flex: none; min-width: 44px; min-height: 44px; margin: 0; padding: 0 14px; border: 1.5px solid var(--k-line); border-radius: 10px; background: #fff; box-shadow: none; color: var(--k-tmava); font: 800 12px/1 var(--k-disp); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; -webkit-appearance: none; appearance: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm:hover { border-color: var(--k-gold); color: var(--k-ink); }
+}
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot--vnutri { margin: 0 0 18px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot + .k-chyba-tx, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot + .k-btn-zelene { margin-top: 18px; }
+@media (max-width: 400px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { padding: 14px 12px 16px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ot { font-size: 18px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { font-size: 14px; }
+}
+@media (min-width: 721px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ot { font-size: 21px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { padding: 18px 20px 20px; }
 }
 
 /* ===== Zvolená voľba = ZELENÁ (Michal 18. 10. 2026, celý nový konfigurátor): zelený rám #1f7a52 3 px bez skákania
@@ -496,8 +504,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on { border-color: 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw { border-color: #fff; box-shadow: 0 0 0 3px var(--k-zvol), 0 6px 14px rgba(20, 15, 5, .25); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__nm { color: var(--k-zvol); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw::after,
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-chk { border-color: transparent; background: var(--k-zvol-grad); color: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-rad { border-color: transparent; background: var(--k-zvol-grad); color: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r { border-color: #fff; background: var(--k-zvol-grad); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol::after { color: #fff; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-chk::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r::after { opacity: 1; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-rad::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r::after { opacity: 1; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--k-zvol); }

@@ -1,8 +1,8 @@
-// Snímky krokov 5 (nášivky) a 6 (tapacír dverí) kamiónov 640 v novom vzhľade (?novy=1) pre ľudskú kontrolu — návrh C
-// (Michal 18. 10. 2026). Živá stránka s LOKÁLNYM buildom (esbuild assets/js/main.js + vloz-lcd-css.py --vystup, ako
+// Snímky krokov 5 (nášivky) a 6 (tapacír dverí) kamiónov 640 v novom vzhľade (?novy=1) pre ľudskú kontrolu — otázky po
+// jednej (Michal 18. 10. 2026 večer; JPEG kvôli veľkosti repa). Živá stránka s LOKÁLNYM buildom (esbuild assets/js/main.js + vloz-lcd-css.py --vystup, ako
 // tools/test-konfigurator-1v.mjs): bundle, CSS a assets/img/1v/* sa podvrhnú z repa. Nič neodosiela: do košíka sa
 // neklikne a každý POST na /action/ (okrem odmietnutia cookies) sa zruší; merače sú zablokované.
-//   node tools/snimky-kamion-kroky.mjs <priečinok> [--sirka 390,1280] [--predpona c-]
+//   node tools/snimky-kamion-kroky.mjs <priečinok> [--sirka 390,1280] [--predpona d-] [--kvalita 82]
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -13,10 +13,11 @@ import { spustiChrome, pauza } from "./test-1v/cdp.mjs";
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = process.argv.slice(2);
 const kam = arg[0];
-if (!kam) throw new Error("použitie: node tools/snimky-kamion-kroky.mjs <priečinok> [--sirka 390,1280] [--predpona c-]");
+if (!kam) throw new Error("použitie: node tools/snimky-kamion-kroky.mjs <priečinok> [--sirka 390,1280] [--predpona d-] [--kvalita 82]");
 const hodnota = (meno, pred) => { const i = arg.indexOf(meno); return i > -1 ? arg[i + 1] : pred; };
 const sirky = hodnota("--sirka", "390,1280").split(",").map(Number);
-const PRED = hodnota("--predpona", "c-");
+const PRED = hodnota("--predpona", "d-");
+const KVALITA = Number(hodnota("--kvalita", "82"));
 mkdirSync(kam, { recursive: true });
 const URL_640 = "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/?novy=1";
 const MERACE = ["*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*", "*google.com/pagead*",
@@ -99,9 +100,9 @@ async function snimkaPrvku(k, sel, subor) {
   const r = await k.ev(`(function () { if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     var e = document.querySelector(${JSON.stringify(sel)}); e.scrollIntoView({ block: "start", behavior: "instant" }); var b = e.getBoundingClientRect();
     return { x: Math.max(0, b.left - 12), y: b.top + scrollY - 12, w: Math.min(innerWidth, b.width + 24), h: b.height + 24 }; })()`);
-  const s = await k.posli("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: r.x, y: r.y, width: r.w, height: Math.min(r.h, 15000), scale: 1 } });
+  const s = await k.posli("Page.captureScreenshot", { format: "jpeg", quality: KVALITA, captureBeyondViewport: true, clip: { x: r.x, y: r.y, width: r.w, height: Math.min(r.h, 15000), scale: 1 } });
   writeFileSync(join(kam, subor), Buffer.from(s.data, "base64"));
-  console.log("  " + subor + "  " + Math.round(r.w) + " × " + Math.round(r.h));
+  console.log("  " + subor + "  " + Math.round(r.w) + " × " + Math.round(r.h) + "  " + Math.round(Buffer.from(s.data, "base64").length / 1024) + " kB");
 }
 
 const ch = await spustiChrome();
@@ -123,30 +124,43 @@ try {
     await klik(k, a("farba", "10")); await dalej(k, "farba");
     await klik(k, a("lem", "08")); await dalej(k, "lemovanie");
     const K5 = '#lcd1v-kamion [data-krok="nasivky"]', K6 = '#lcd1v-kamion [data-krok="tapacir"]';
-    await snimkaPrvku(k, K5, `${PRED}krok5-1-vyber-${sirka}.png`);
+    const sn = (sel, meno) => snimkaPrvku(k, sel, `${PRED}${meno}-${sirka}.jpg`);
+    // krok 5: 5.1 kam (4 výlučné voľby) -> 5.2 motív + niť pod sedadlami -> 5.3 stredový koberec -> hotovo
+    await sn(K5, "krok5-1-bez-vyberu");
+    await klik(k, a("nas", "boky+stred"));
+    await klik(k, a("zmenit", "kam")); // 5.1 znova otvorená: zvolená LEN dlaždica všetkých troch
+    await sn(K5, "krok5-2-vybrate-3");
     await klik(k, a("nas", "boky+stred"));
     await klik(k, a("motiv", "H21", "boky"));
     await klik(k, a("viac", null, "boky"));
     await klik(k, a("nit", "2824", "boky"));
-    await snimkaPrvku(k, K5, `${PRED}krok5-2-vsetky-tri-${sirka}.png`);
-    await klik(k, a("nas", "stred")); // odškrtne stredový koberec -> len pred sedadlá (Vaša voľba s tipom na balík)
-    await snimkaPrvku(k, '#lcd1v-kamion [data-krok="nasivky"] [data-pole="nas"]', `${PRED}krok5-3-pred-sedadla-${sirka}.png`);
-    await klik(k, a("nas", "stred"));
+    await sn(K5, "krok5-3-motiv-nit-nahlad");
+    await klik(k, a("potvrd", "boky"));
+    await sn(K5, "krok5-4-stred-otazka");
     await klik(k, a("stredRovnaky", "0"));
-    await snimkaPrvku(k, '#lcd1v-kamion [data-krok="nasivky"] .tp-oddiel:last-of-type', `${PRED}krok5-4-stred-inak-${sirka}.png`);
+    await klik(k, a("motiv", "H19", "stred"));
+    await klik(k, a("nit", "2999", "stred"));
+    await sn(K5, "krok5-5-stred-ina");
+    await klik(k, a("zmenit", "stred"));
     await klik(k, a("stredRovnaky", "1"));
+    await sn(K5, "krok5-6-hotove");
     await dalej(k, "nasivky");
-    await snimkaPrvku(k, K6, `${PRED}krok6-1-ponuka-${sirka}.png`);
+    // krok 6: ponuka -> materiál, farba a lemovanie -> nášivka na dvere -> motív a niť -> hotovo
+    await sn(K6, "krok6-1-ponuka");
     await klik(k, a("tap", "ano"));
-    await klik(k, a("tapNas", "ano"));
-    await snimkaPrvku(k, K6, `${PRED}krok6-2-ano-${sirka}.png`);
+    await sn(K6, "krok6-2-material");
     await klik(k, a("tapZmenit"));
-    await snimkaPrvku(k, K6, `${PRED}krok6-3-vybrat-inak-${sirka}.png`);
+    await sn(K6, "krok6-3-vybrat-inak");
+    await klik(k, a("zmenit", "mat"));
     await klik(k, a("tapRovnake"));
+    await sn(K6, "krok6-4-nasivka-dvere");
+    await klik(k, a("tapNas", "ano"));
     await klik(k, a("tapNasRovnaka", "0"));
     await klik(k, a("motiv", "H19", "dvere"));
     await klik(k, a("nit", "3546", "dvere"));
-    await snimkaPrvku(k, '#lcd1v-kamion [data-krok="tapacir"] .tp-oddiel:last-of-type', `${PRED}krok6-4-nasivka-ina-${sirka}.png`);
+    await sn(K6, "krok6-5-dvere-ina");
+    await klik(k, a("potvrd", "dvere"));
+    await sn(K6, "krok6-6-hotove");
     const info = await k.ev(`(function () { var k = window.__lcd1vKamion; return { nas: k && k.ui.S.nas, tap: k && k.ui.S.tap, spolu: k && k.ui.cena().spolu, pretek: document.documentElement.scrollWidth > innerWidth + 1 }; })()`);
     console.log(sirka + " px: " + JSON.stringify(info) + (zrusene.length ? " · zrušené POST: " + zrusene.length : "") + (k.chyby.length ? " · chyby: " + JSON.stringify(k.chyby.slice(0, 3)) : ""));
     await k.zavri();
