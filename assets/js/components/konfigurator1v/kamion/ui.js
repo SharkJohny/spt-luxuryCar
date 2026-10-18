@@ -996,7 +996,7 @@ export function vytvorUi(o) {
       if (U.znova[x]) { U.znova[x] = null; render(); posunNaBlok(x); return; }
       /* v karte kroku 5 / 6 čaká len „Pokračovať“ -> lišta „Pokračovať“ urobí to isté */
       const ch = chyba(x), pv = POTVRD_POLA[ch.pole];
-      if (pv && otvorenyBlok(x) === BLOK_POLA[x][ch.pole]) { const k0 = kluc(x); potvrd(pv); if (kluc(x) !== k0) posunNaBlok(x); return; }
+      if (pv && otvorenyBlok(x) === BLOK_POLA[x][ch.pole]) { const k0 = kluc(x); potvrd(pv); if (poOtazke(x, true)) return; if (kluc(x) !== k0) posunNaBlok(x); return; }
       posunPole(x, ch.pole); return;
     }
     if (x && hotovy(x)) { pokracuj(x); return; }
@@ -1070,9 +1070,21 @@ export function vytvorUi(o) {
     if (a === "zmenit") return v === "kam" || v === "boky" || v === "stred" ? "nasivky" : "tapacir";
     return null;
   }
+  /** Kroky 5 a 6 — automatický posun (Michal 18. 10. 2026: „…vyberám si na stred koberca, rovnaké alebo iné. Hotovo.“):
+   *  odpoveď na poslednú otvorenú podotázku (Pokračovať v poslednej karte, „Rovnaká ako …“, Nie pri nášivke na dvere,
+   *  aj podotázka znova otvorená cez „Zmeniť“) krok rovno uzavrie a otvorí ďalší — ako „Nie, ďakujem“. S ani košík sa
+   *  nemenia (len U.otvoreny cez pokracuj). Znova otvorený hotový krok bez otvorenej podotázky má „Pokračujte“ ako zálohu.
+   *  bolaOtazka = pred akciou bola v kroku otvorená podotázka (prvá nezodpovedaná alebo znova otvorená cez „Zmeniť“). */
+  function poOtazke(kp, bolaOtazka) {
+    if (!bolaOtazka || U.otvoreny !== kp || !hotovy(kp) || otvorenyBlok(kp)) return false;
+    pokracuj(kp);
+    return true;
+  }
   function akcia(a, el) {
     const kp = krokAkcie(a, el.getAttribute("data-v")), k0 = kp ? kluc(kp) : null;
+    const bolaOtazka = !!kp && a !== "zmenit" && U.otvoreny === kp && !!otvorenyBlok(kp);
     akciaVyberu(a, el);
+    if (kp && poOtazke(kp, bolaOtazka)) return;
     if (kp && U.otvoreny === kp && kluc(kp) !== k0) posunNaBlok(kp);
   }
 

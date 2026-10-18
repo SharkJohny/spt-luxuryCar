@@ -19273,7 +19273,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r { position: absolut
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r::after { content: "\2713"; color: #fff; font: 800 13px/1 var(--k-body); opacity: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__tx { display: block; padding: 10px 12px 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__nm { display: block; color: var(--k-ink); font: 800 15.5px/1.2 var(--k-disp); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po { display: block; margin-top: 4px; color: var(--k-mute); font: 400 13px/1.38 var(--k-body); overflow-wrap: anywhere; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po { display: block; margin-top: 4px; color: var(--k-mute); font: 400 13px/1.38 var(--k-body); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po span { display: block; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; align-items: center; margin: 18px 0 0; padding: 10px; border-radius: 12px; background: linear-gradient(165deg, #231e15, #0b0a07); color: #e9e4d6; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz .kn-rv__viz { border-radius: 8px; }
@@ -19291,9 +19291,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka__ben { display: bl
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .k-btn-zelene { height: auto; min-height: 56px; margin-top: 14px; padding: 8px 18px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka + .k-btn-zlate { margin-top: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .an { margin-top: 14px; }
-@media (max-width: 380px) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { font-size: 16px; }
-}
 
 /* ===== Otázky po jednej (Michal 18. 10. 2026 večer): veľká otázka „Prosím, vyberte si …“, podotázka v karte, zodpovedané
    sa zatvorí do riadka „✓ … — Zmeniť“, zelené „Pokračovať“ na konci karty (ui.js skOt / karta / riadokHot / potvrdTl) ===== */
@@ -19315,7 +19312,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot { display: flex; alig
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot:first-child { margin-top: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__ic { display: flex; flex: none; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--k-zvol-grad); box-shadow: 0 2px 6px rgba(31, 122, 82, .3); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__ic::after { content: "\2713"; color: #fff; font: 800 13px/1 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { flex: 1 1 auto; min-width: 0; color: var(--k-ink); font: 400 14.5px/1.4 var(--k-body); overflow-wrap: anywhere; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { flex: 1 1 auto; min-width: 0; color: var(--k-ink); font: 400 14.5px/1.4 var(--k-body); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx b { font-weight: 700; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm { flex: none; min-width: 44px; min-height: 44px; margin: 0; padding: 0 14px; border: 1.5px solid var(--k-line); border-radius: 10px; background: #fff; box-shadow: none; color: var(--k-tmava); font: 800 12px/1 var(--k-disp); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; -webkit-appearance: none; appearance: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
@@ -19326,7 +19323,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot--vnutri { margin: 0 0
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot + .k-chyba-tx, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot + .k-btn-zelene { margin-top: 18px; }
 @media (max-width: 400px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { padding: 14px 12px 16px; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { font-size: 14px; }
 }
 /* farby tapacíru v karte („Vybrať inak“): karta zúži mriežku (telefón, aj úzky stĺpec na tablete / PC 1024 px) ->
    stĺpce aspoň 86 px, aby sa názvy (Tmavohnedá, Karamelová …) nelámali uprostred slova */
@@ -19354,6 +19350,92 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r { b
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol::after { color: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-rad::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r::after { opacity: 1; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--k-zvol); }
+
+/* ===== Mierka písma (Michal 18. 10. 2026: „malé texty si ľudia neprečítajú“) — minimá telefón / PC (≥ 768 px), len
+   zväčšovať: bežný text 16 / 17 (line-height ≥ 1,5), úvodná veta pod nadpisom 17 / 18, poznámky a popisky 14 / 15,
+   nadpisy kariet ≥ 18, štítky verzálkami ≥ 12, text tlačidiel ≥ 14. Prebíja hodnoty vyššie aj ich zmenšenia na úzkych
+   telefónoch (rovnaká špecifickosť, neskôr v súbore — nový prevod z artefaktu ich nevráti). Bez overflow-wrap: anywhere:
+   slová sa lámu len medzi slovami; kde by sa nezmestili, je upravené rozloženie. Kontrola: PISMO
+   v tools/test-1v/scenare-kamion.mjs (getComputedStyle na 390 aj 1280 px). ===== */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-typ { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-perex { font-size: 17px; line-height: 1.55; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__stitok { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__od { font-size: 15px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn__st, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn i { font-size: 16px; line-height: 22px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .vc__h { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .vc__l li { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kompat__tx b { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kompat__tx i { font-size: 16px; line-height: 1.5; overflow-wrap: normal; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-postup__t, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-postup__st { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok__no { font-size: 13px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok__nm { font-size: 18px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok__vy { font-size: 14px; line-height: 1.4; overflow-wrap: normal; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open) .k-krok__nm { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open) .k-krok__vy { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open) .k-krok__zm { font-size: 14px; letter-spacing: .08em; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pod { font-size: 17px; line-height: 1.55; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pozn { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-chyba-tx, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__err { font-size: 15px; line-height: 1.4; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-stitok, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sk-h, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-oddiel > .k-sk-h { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-select { font-size: 16px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pole.is-error .k-pole__chyba { padding-left: 20px; font-size: 14px; line-height: 1.4; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sk__chyba { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-veta-pole { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-segment > button { font-size: 14px; line-height: 1.2; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm { font-size: 14px; letter-spacing: .04em; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm small { margin-top: 4px; font-size: 14px; line-height: 1.2; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--mat .k-dlazdica__nm { padding: 9px 3px 10px; font-size: 14px; letter-spacing: 0; text-transform: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--mat { --k-dl-n: 3; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-nahlad-farby__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm-nahlad p { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto b { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__nm { font-size: 18px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mk-var { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__po { font-size: 14px; line-height: 1.4; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__pl { font-size: 16px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__nm { font-size: 14px; overflow-wrap: normal; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__kod, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__kod { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b small { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b small { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-badge { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__l { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__s, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__u { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__ey, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-suhrn__lb { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__voz, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__t b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__us { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c { font-size: 16px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__t span { font-size: 14px; overflow-wrap: normal; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c s, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c em, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__chyba-r, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__fakty li, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-alt { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-info, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-info { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista .lcd1v-lista__suma small { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-stitok { font-size: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--bok b { max-width: 104px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu { font-size: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__nm { font-size: 18px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font-size: 14px; line-height: 1.4; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p b { font-size: 15px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka__ben { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { font-size: 16px; line-height: 1.5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm { font-size: 14px; letter-spacing: .06em; }
+@media (min-width: 721px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__s, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__u { font-size: 15px; }
+}
+@media (min-width: 768px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion { font-size: 17px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-typ, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .vc__h, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-postup__t, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-postup__st, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open) .k-krok__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-open .k-krok__ey, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-stitok, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sk-h, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-oddiel > .k-sk-h, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mk-var, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__l, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__ey, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-suhrn__lb, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta__ey { font-size: 13px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-perex, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pod { font-size: 18px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .vc__l li, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok__vy, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pozn, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pole.is-error .k-pole__chyba, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sk__chyba { font-size: 15px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kompat__tx b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kompat__tx i, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-done:not(.is-open) .k-krok__vy, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-select, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-veta-pole { font-size: 17px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn__st, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn i { font-size: 17px; line-height: 24px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-chyba-tx, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__err { font-size: 16px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm small, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--mat .k-dlazdica__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-nahlad-farby__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm-nahlad p { font-size: 15px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__kod, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__nm, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__kod, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b small, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b small { font-size: 15px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__pl { font-size: 17px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__voz, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__t b, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__us { font-size: 17px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__t span, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c s, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__c em, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__chyba-r, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__fakty li, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-alt { font-size: 15px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-info, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-info, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka__ben, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__tx { font-size: 17px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font-size: 15px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p b { font-size: 16px; }
+}
 /* ===== LCD-1V-KAMIONY END ===== */
 
 /* ===== LCD-1V-OBSAH-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-dvoj.scss (obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v), needituj rucne ===== */
@@ -20249,7 +20331,7 @@ body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-galeria
   object-fit:cover;border-radius:12px;border:1px solid rgba(196,155,49,.45);transition:transform .3s,box-shadow .3s}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-galeria"] .kg-f:hover img{box-shadow:0 10px 24px -12px rgba(20,15,5,.35)}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-galeria"] .kg figcaption{margin:6px 2px 0;font-family:var(--body);
-  font-size:12.5px;line-height:1.4;color:var(--mute)}
+  font-size:14px;line-height:1.4;color:var(--mute)}
 @media(min-width:901px){
   body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-galeria"] .kg{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 }
@@ -20263,12 +20345,12 @@ body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-b{min-width:0}
     padding:clamp(18px,2vw,26px) clamp(20px,2.2vw,28px) clamp(8px,1vw,14px)}
   body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-b.kk-foto{padding-bottom:clamp(18px,2vw,26px)}
 }
-body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-h{margin:0 0 12px;font-family:var(--disp);font-weight:800;font-size:11px;line-height:1.14;
-  letter-spacing:.12em;text-transform:uppercase;color:#7c5f16}
+body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-h{margin:0 0 12px;font-family:var(--disp);font-weight:800;font-size:14px;line-height:1.3;
+  letter-spacing:.1em;text-transform:uppercase;color:#7c5f16}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-h.kk-za{margin-top:20px}
-body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:#3f3a2c;max-width:none}
+body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-t{margin:0 0 10px;font-size:16px;line-height:1.5;color:#3f3a2c;max-width:none}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr}
-body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz li{position:relative;margin:0;padding:11px 0 11px 28px;font-size:14.5px;line-height:1.45;
+body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz li{position:relative;margin:0;padding:11px 0 11px 28px;font-size:16px;line-height:1.5;
   color:#3f3a2c;border-top:1px solid rgba(155,122,36,.22);list-style:none}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz li:first-child{border-top:0}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz li:before{content:"";position:absolute;left:2px;top:16px;width:13px;height:13px;border-radius:50%;
@@ -20278,7 +20360,7 @@ body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz a{color:inherit;text-deco
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz a:hover b{color:#8f7020}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-foto figure{margin:0}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-foto img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:12px}
-body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-foto figcaption{margin:8px 2px 0;font-size:13px;line-height:1.4;color:var(--mute)}
+body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-foto figcaption{margin:8px 2px 0;font-size:14px;line-height:1.4;color:var(--mute)}
 
 /* ---------- 14 kamiony-materialy: 5 kariet (telefón 1 stĺpec s vzorkou vľavo, od 640 px 2, od 1000 px 5 so vzorkou hore; ART .om) */
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km{display:grid;grid-template-columns:1fr;gap:12px;margin:22px 0 0}
@@ -20287,11 +20369,11 @@ body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materia
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-k img{flex:none;width:76px;height:76px;object-fit:cover;border-radius:10px}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-t{min-width:0}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-t b{display:block;font-family:var(--disp);font-weight:800;
-  font-size:14px;line-height:1.25;color:var(--ink)}
+  font-size:18px;line-height:1.25;color:var(--ink)}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-pill{display:inline-block;margin:6px 0 0;padding:3px 8px;
-  font-family:var(--disp);font-weight:800;font-size:9.5px;line-height:1.6;font-style:normal;letter-spacing:.08em;text-transform:uppercase;
+  font-family:var(--disp);font-weight:800;font-size:12px;line-height:1.5;font-style:normal;letter-spacing:.08em;text-transform:uppercase;
   color:#7c5f16;border:1px solid rgba(155,122,36,.45);border-radius:999px;white-space:nowrap}
-body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-t p{margin:6px 0 0;font-size:13.5px;line-height:1.45;color:#48412f}
+body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-t p{margin:6px 0 0;font-size:16px;line-height:1.5;color:#48412f}
 @media(min-width:640px){
   body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -20307,7 +20389,7 @@ body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily"] .kn figure{flex:1 1 0;min-width:0;margin:0;text-align:center}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily"] .kn img{display:block;width:100%;max-width:120px;height:auto;margin:0 auto 4px;
   border-radius:10px;border:1px solid var(--line);background:var(--paper)}
-body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily"] .kn figcaption{font-size:12.5px;line-height:1.3;font-weight:600;color:#3d3728}
+body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily"] .kn figcaption{font-size:14px;line-height:1.3;font-weight:600;color:#3d3728}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily"] .kk-h.kk-za{margin-top:18px}
 
 /* ---------- 20 kamiony-dopravcovia: karta vždy s rámčekom (max 640 px), dve tlačidlá (ART .k-karta--vzdy, .od-tl) */
@@ -20330,6 +20412,20 @@ body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-vyzva"]
   -webkit-text-fill-color:#fff}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-vyzva"] .endbg img{display:block;width:100%;height:100%;object-fit:cover}
 body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-vyzva"] .btn{border:0}
+
+/* ---------- mierka písma (Michal 18. 10. 2026): telefón vyššie, PC (≥ 768 px) o 1 px viac — bežný text 16 / 17, popisky
+   fotiek 14 / 15, štítky verzálkami ≥ 12, nadpisy kariet ≥ 18. Spoločné časti (štítok, nadpis, úvod, recenzie, časová
+   os, FAQ, tlačidlá) štýlujú spoločné partialy titulky / 1V obsahu. */
+@media(min-width:768px){
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-galeria"] .kg figcaption,
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-foto figcaption,
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-detaily"] .kn figcaption,
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-h{font-size:15px}
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-t,
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) .kk-zoz li,
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-t p{font-size:17px}
+  body.lcd-1v :is(#p1v-kamiony-1,#p1v-kamiony-2) [data-lcd-sekcia="kamiony-materialy"] .km-pill{font-size:13px}
+}
 /* ===== LCD-1V-OBSAH-KAMIONY END ===== */
 
 /* ===== LCD-1V-GALERIA START - generovane tools/vloz-lcd-css.py z _lcd1v-galeria.scss (ramik fotiek 1V: vlasova linka na hlavnej fotke, nahladoch a fotkach popisu; len body.lcd-1v), needituj rucne ===== */

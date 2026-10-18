@@ -6,7 +6,11 @@
 //                   (kroky 5–6 otázky po jednej, Michal 18. 10. 2026 večer: kam -> motív + niť -> Pokračovať -> stred rovnaký)
 //   kamion-dodavka  Fiat Ducato, jednofarebná 10G, lem 09, len stred H21/3546 -> 258 €, bez kroku tapacíru, POST
 //   kamion-neuplne  nič nevybraté -> „Pridať do košíka“ aj lišta: žiadny POST, krok 1 červený
+// Automatický posun (Michal 18. 10. 2026): po poslednej otázke kroku 5 / 6 sa krok sám zavrie a otvorí ďalší (súhrn).
+// Mierka písma (Michal 18. 10. 2026): v každom stave kroku getComputedStyle všetkých textov konfigurátora a lišty
+// (tools/test-1v/pismo-kamion.mjs) — na 390 aj 1280 px, slová sa nelámu uprostred a nepretečú.
 import { join } from "node:path";
+import { pismoVyraz, vypisNalezy, ROLY_KONFIGURATOR } from "./pismo-kamion.mjs";
 
 /** --snimky: snímka s menom podľa šírky okna (640-<meno>-<šírka>.png). */
 async function snimka(s, a, meno) {
@@ -21,6 +25,23 @@ async function snimkaPrvku(s, a, j, sel, meno) {
   await j.pauza(700);
   await snimka(s, a, meno);
 }
+/** Mierka písma v aktuálnom stave konfigurátora (a lišty na telefóne): minimá podľa roly textu, riadkovanie, zlomy slov. */
+async function overPismo(s, j, meno) {
+  const r = await s.t.ev(pismoVyraz(["#lcd1v-kamion", "#lcd1v-lista"], ROLY_KONFIGURATOR));
+  const f = vypisNalezy(r), w = r.pc ? "PC" : "telefón";
+  j.over(r.n > 20 && !r.zle.length, `písmo ${meno} (${w}): ${r.zle.length} z ${r.n} textov pod mierkou: ` + f(r.zle));
+  j.over(!r.riadky.length, `písmo ${meno} (${w}): riadkovanie súvislého textu < 1,5: ` + f(r.riadky));
+  j.over(!r.zlom.length && !r.pretek.length, `písmo ${meno} (${w}): slovo zalomené uprostred / pretečie z rámika: ` + f(r.zlom.concat(r.pretek)));
+  j.over(!r.strana, `${meno} (${w}): stránka má vodorovný posuvník`);
+}
+/** Otvorený krok a „Pokračujte“ krokov 5 / 6 (automatický posun) + poloha novo otvoreného kroku v okne. */
+const OTVORENY = `(function () {
+  var k = window.__lcd1vKamion, o = k ? k.ui.U.otvoreny : "?", q = function (s) { return document.querySelector("#lcd1v-kamion " + s); };
+  var el = o ? q('[data-krok="' + o + '"]') : null, r = el ? el.getBoundingClientRect() : null;
+  return { otvoreny: o, hotovy5: !!q('[data-krok="nasivky"].is-done'), hotovy6: !!q('[data-krok="tapacir"].is-done'),
+    dalej5: !!q('[data-a="dalej"][data-v="nasivky"]'), dalej6: !!q('[data-a="dalej"][data-v="tapacir"]'), top: r ? Math.round(r.top) : null, vh: innerHeight };
+})()`;
+
 /** ?novy=1 pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React: scenár sa preskočí, nie zlyhá (body.lcd-1v sa nečaká). */
 const zapnuty = (a) => (a.zapnuteSet ? a.zapnuteSet.has(640) : !!a.novy);
 const jeNovy = (s) => s.t.ev(`!!document.getElementById("lcd1v-kamion")`);
@@ -157,12 +178,16 @@ export const SCENARE = {
       await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await snimka(s, a, "kamion-start");
-      await rob(s, j, [
-        ["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"], ["dalej", "vozidlo"],
-        ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"],
-        ["klik", a_("farba", "12")], ["dalej", "farba"],
-        ["klik", a_("lem", "04")], ["dalej", "lemovanie"],
-      ]);
+      await overPismo(s, j, "krok 1 + hlavička");
+      await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"]]);
+      await overPismo(s, j, "krok 1 vybrané vozidlo");
+      await rob(s, j, [["dalej", "vozidlo"], ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")]]);
+      await overPismo(s, j, "krok 2 materiál");
+      await rob(s, j, [["dalej", "material"], ["klik", a_("farba", "12")]]);
+      await overPismo(s, j, "krok 3 farba");
+      await rob(s, j, [["dalej", "farba"], ["klik", a_("lem", "04")]]);
+      await overPismo(s, j, "krok 4 lemovanie");
+      await rob(s, j, [["dalej", "lemovanie"]]);
       // 5.1 — veľká otázka, 4 výlučné voľby s cenovkou, žiadne zelené tlačidlo v dlaždiciach ani „Pokračujte ďalej“
       await s.t.ev(`document.querySelector('#lcd1v-kamion .kn-dv').scrollIntoView({ block: "start" })`);
       const k5 = await cakaj(s, j, KROK5, (r) => r.foto.length === 3 && r.foto.every((x) => x > 0));
@@ -174,6 +199,7 @@ export const SCENARE = {
       j.over(st5a.preciarknute === "rgb(192, 57, 43)" && st5a.pilulka === "rgb(226, 243, 233)" && parseFloat(st5a.cena) >= 25, "cenovka nie je ako rohož a box (červená čiara, zelená pilulka, veľká cena): " + JSON.stringify([st5a.preciarknute, st5a.pilulka, st5a.cena]));
       j.over(parseFloat(st5a.ot) >= 20, "otázka „Prosím, vyberte si …“ nie je veľká (≥ 20 px, výrazne nad názvami dlaždíc 17 px): " + st5a.ot);
       j.over(st5a.dlRamy.every((x) => x !== ZELENA), "pred výberom je niektorá dlaždica zelená: " + JSON.stringify(st5a.dlRamy));
+      await overPismo(s, j, "krok 5.1 kam");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-kam");
       await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("viac", null, "boky")], ["klik", a_("nit", "2824", "boky")]]);
       const st5 = await s.t.ev(STYLY);
@@ -186,19 +212,30 @@ export const SCENARE = {
       j.over(JSON.stringify(kk.otvorene) === JSON.stringify(["boky"]), "po výbere všetkých troch má byť otvorená LEN karta „pod sedadlami“: " + JSON.stringify(kk.otvorene));
       j.over(kk.cvCss >= kk.vnutro - 2 && kk.cvW >= 2 * kk.cvCss - 1 && Math.abs(kk.cvW * 2 - kk.cvH * 3) <= 3, "veľký náhľad: plátno " + kk.cvW + "×" + kk.cvH + " px, CSS " + kk.cvCss + " px, karta " + kk.vnutro + " px");
       await overNahlad(s, j, [200, 30, 40], "v nití 2824 (červená)");
+      await overPismo(s, j, "krok 5 karta pod sedadlá");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-nasivky");
       await snimkaPrvku(s, a, j, ".k-dlazdice--motiv", "kamion-krok5-nahlad");
       await rob(s, j, [["klik", a_("nit", "2999", "boky")], ["klik", a_("potvrd", "boky")]]);
       await j.pauza(900);
       const ps = await s.t.ev(POSUN("stred"));
       j.over(ps && ps.top >= 0 && ps.top < ps.vh * 0.6, "po „Pokračovať“ sa karta stredového koberca neposunula do okna: " + JSON.stringify(ps));
+      await overPismo(s, j, "krok 5 stredový koberec");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-stred");
-      await rob(s, j, [["klik", a_("stredRovnaky", "1")], ["klik", a_("zmenit", "kam")]]);
+      // automatický posun: „Rovnaká ako pod sedadlami“ = posledná otázka -> krok 5 sa sám zavrie, otvorí sa krok 6 (posunutý do okna)
+      await rob(s, j, [["klik", a_("stredRovnaky", "1")]]);
+      await j.pauza(900);
+      const po5 = await s.t.ev(OTVORENY);
+      j.over(po5.otvoreny === "tapacir" && po5.hotovy5 && !po5.dalej5, "po „Rovnaká ako pod sedadlami“ sa krok 5 nezavrel sám / neotvoril sa krok 6: " + JSON.stringify(po5));
+      j.over(po5.top != null && po5.top >= 0 && po5.top < po5.vh * 0.6, "krok 6 po automatickom posune nie je v okne: " + JSON.stringify(po5));
+      await overPismo(s, j, "krok 5 zavretý, krok 6 ponuka");
+      await rob(s, j, [["klik", '[data-a="krok"][data-v="nasivky"]'], ["klik", a_("zmenit", "kam")]]);
       const st5z = await s.t.ev(STYLY);
       j.over(st5z.dlRamy.filter((x) => x === ZELENA).length === 1 && st5z.dlZvol === ZELENA && /rgb\(29, 107, 74\)/.test(st5z.rad || ""), "zvolená má byť zelená LEN jedna dlaždica: " + JSON.stringify(st5z.dlRamy) + " | " + st5z.rad);
+      // otázka znova otvorená cez „Zmeniť“ a tá istá odpoveď = hotovo -> krok 5 sa znova sám zavrie
       await rob(s, j, [["klik", a_("nas", "boky+stred")]]);
+      const po5b = await s.t.ev(OTVORENY);
+      j.over(po5b.otvoreny === "tapacir" && !po5b.dalej5, "Zmeniť kam + tá istá voľba: krok 5 sa nezavrel sám " + JSON.stringify(po5b));
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-hotove");
-      await rob(s, j, [["dalej", "nasivky"]]);
       j.over((await s.t.ev(STYLY)).ponuka === ZLATA, "ponuka tapacíru (kn-ponuka) bez zlatého rámu");
       await s.t.ev(`document.querySelector('#lcd1v-kamion [data-krok="tapacir"]').scrollIntoView({ block: "start" })`);
       const k6 = await cakaj(s, j, KROK6, (r) => r.nw > 0);
@@ -207,18 +244,26 @@ export const SCENARE = {
       await rob(s, j, [["klik", a_("tap", "ano")]]);
       const k6a = await s.t.ev(KROK6);
       j.over(JSON.stringify(k6a.rv) === JSON.stringify(["tapRovnake:false", "tapZmenit:false"]), "tapacír: chýba otázka „Rovnaké ako koberce / Vybrať inak“ bez predvoľby: " + JSON.stringify(k6a.rv));
+      await overPismo(s, j, "krok 6 materiál tapacíru");
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ano");
       // „Vybrať inak“ (S.tapRovnaky potom znova true -> tapacír ako koberce, POST bez zmeny): názvy farieb v karte celé
       await rob(s, j, [["klik", a_("tapZmenit")]]);
       const zl = await cakaj(s, j, ZLOM_FARIEB, (r) => r.n > 0);
       j.over(zl && zl.n > 0 && !zl.zlomene.length, "farby tapacíru v karte: názov zalomený uprostred slova " + JSON.stringify(zl));
+      await overPismo(s, j, "krok 6 vybrať inak (materiál, farba, lemovanie)");
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-zmenit");
       await rob(s, j, [["klik", a_("zmenit", "mat")]]);
       await rob(s, j, [["klik", a_("tapRovnake")]]);
       await snimkaPrvku(s, a, j, ".an", "kamion-krok6-nasivka-dvere");
       const st6 = await s.t.ev(STYLY);
       j.over(/rgb\(29, 107, 74\)/.test(st6.ano || "") && /rgb\(226, 190, 92\)/.test(st6.nie || ""), "nášivka na tapacír: Áno nie je zelené / Nie zlaté: " + st6.ano + " | " + st6.nie);
+      await overPismo(s, j, "krok 6 nášivka na dvere");
+      // posledná odpoveď kroku 6 -> krok sa sám zavrie, ďalej súhrn (bez „Pokračujte k súhrnu“)
       await rob(s, j, [["klik", a_("tapNas", "nie")]]);
+      await j.pauza(700);
+      const po6 = await s.t.ev(OTVORENY);
+      j.over(po6.otvoreny === null && po6.hotovy6 && !po6.dalej6, "po „Nie“ pri nášivke na dvere sa krok 6 nezavrel sám: " + JSON.stringify(po6));
+      await overPismo(s, j, "súhrn objednávky");
       const { post, st, cena } = await doKosika(s, a, j, "kamion-platne");
       const ocak = { 346: "Prémiová syntetická koža – prešívaná", 349: "Šofér + spolujazdec + stred (BALÍK)", 403: "Nášivka H19", 406: "2999 – Čierna", 409: "Nášivka H19", 412: "2999 – Čierna", 352: "Áno chcem (v konfigurátore – balík)", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" };
       Object.entries(ocak).forEach(([id, t]) => j.over(st.sel[id] === t, id + " „" + st.sel[id] + "“ ≠ „" + t + "“"));
@@ -240,7 +285,10 @@ export const SCENARE = {
         ["klik", a_("nas", "stred")], ["klik", a_("motiv", "H21", "stred")], ["klik", a_("nit", "3546", "stred")],
       ]);
       await overNahlad(s, j, [220, 200, 168], "v nití 3546 (béžová)");
-      await rob(s, j, [["klik", a_("potvrd", "stred")], ["dalej", "nasivky"]]);
+      await rob(s, j, [["klik", a_("potvrd", "stred")]]);
+      const po5 = await s.t.ev(OTVORENY);
+      j.over(po5.otvoreny === null && po5.hotovy5 && !po5.dalej5, "dodávka: Pokračovať v poslednej karte kroku 5 krok nezavrel (súhrn): " + JSON.stringify(po5));
+      await overPismo(s, j, "dodávka súhrn");
       const pred = await s.t.ev(STAV);
       j.over(pred.krokov === 5, "dodávka má mať 5 krokov (bez tapacíru), je " + pred.krokov);
       const { post, st, cena } = await doKosika(s, a, j, "kamion-dodavka");

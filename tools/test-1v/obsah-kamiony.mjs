@@ -9,10 +9,12 @@
 // texty doslovne zo vzoru; žiadne zakázané formulácie; žiadna suma „N €“ mimo značiek data-p1v-cislo; veta o tapacíri celá
 // (s číslami alebo bez nich); kotva #p1v-kamiony-dopravcovia, telefón a e-mail; 3 výzvy na konfigurátor (#product-detail-form);
 // galéria: 6 fotiek stiahnutých, 2 / 3 stĺpce, klik otvorí okno #p1v-lb s fotkou a zatvorí ho; materiály 5 kariet (od 1000 px v rade);
-// časová os 4 kroky (pred osou --p 0, za osou --p 1); FAQ 7 otázok zo vzoru, klik rozbalí a zbalí; záver s fotkou kabíny.
+// časová os 4 kroky (pred osou --p 0, za osou --p 1); FAQ 7 otázok zo vzoru, klik rozbalí a zbalí; záver s fotkou kabíny;
+// mierka písma (Michal 18. 10. 2026, tools/test-1v/pismo-kamion.mjs): vlastné triedy ostro, spoločné časti ako upozornenie.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { pismoVyraz, vypisNalezy, ROLY_OBSAH, ROLY_SPOLOCNE } from "./pismo-kamion.mjs";
 
 export const SKUPINA = "kamiony";
 export const NAVRH = null;
@@ -240,6 +242,17 @@ export async function kontroly(t) {
   await naSekciu("kamiony-vyzva", "center");
   const end = await t.cakaj(`(function(){var s=document.querySelector(${sek("kamiony-vyzva")});var i=s&&s.querySelector(".endbg img");if(!i||!i.complete||!i.naturalWidth)return false;return [getComputedStyle(s).color,/640-27_/.test(i.getAttribute("src")),Math.round(s.getBoundingClientRect().height)]})()`, { ms: 12000, popis: "fotka záveru" }).catch((e) => ({ chyba: e.message }));
   ok(Array.isArray(end) && end[0] === "rgb(255, 255, 255)" && end[1] && end[2] > 200, "záver: biely text na tmavom, fotka kabíny 640 stiahnutá " + JSON.stringify(end));
+
+  // 13) mierka písma (Michal 18. 10. 2026): vlastné triedy kamiónov (.kg, .kk, .km, .kn) ostro, spoločné časti titulky /
+  //     1V obsahu (štítok, nadpis, úvod, recenzie, časová os, FAQ, tlačidlá) len ako upozornenie (spoločné partialy)
+  const pis = await t.ev(pismoVyraz(["#p1v-kamiony-1", "#p1v-kamiony-2"], ROLY_OBSAH, ROLY_SPOLOCNE));
+  const fp = vypisNalezy(pis), vl = (x) => !x.z, sp = (x) => x.z;
+  ok(pis.n > 40 && !pis.zle.filter(vl).length && !pis.riadky.filter(vl).length,
+    `písmo obsahu kamiónov podľa mierky (${sir} px, ${pis.n} textov)` + (pis.zle.filter(vl).length || pis.riadky.filter(vl).length ? ": " + fp(pis.zle.filter(vl).concat(pis.riadky.filter(vl))) : ""));
+  ok(!pis.zlom.filter(vl).length && !pis.pretek.filter(vl).length && !pis.strana, "obsah kamiónov: žiadne slovo zalomené uprostred / pretečené, bez vodorovného posuvníka" +
+    (pis.zlom.length || pis.pretek.length ? ": " + fp(pis.zlom.concat(pis.pretek)) : ""));
+  const spol = pis.zle.filter(sp).concat(pis.riadky.filter(sp));
+  ok(!spol.length, "písmo spoločných častí pod kamiónmi (spoločné partialy)" + (spol.length ? ": " + fp(spol) : ""), true);
 
   // 12) „Vybrať materiál“ (data-p1v-kamion-krok="material") otvorí krok Materiál; bez vozidla krok 1 s červeným rámom (ako ART)
   if (await t.ev(`!!window.__lcd1vKamion`)) {
