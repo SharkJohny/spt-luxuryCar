@@ -167,9 +167,16 @@ export function init(ctx) {
   const bsObal = el("div", "lcd1v-komplet__bs");
   karta.appendChild(bsObal);
   let ano = null, bsKluc = "";
-  // čo sa pri Áno prenesie / čo nie (vzor a auto ostanú; farba boxu, ktorú set nemá)
+  // čo sa pri Áno prenesie / čo nie (vzor a auto ostanú; farba boxu, ktorú set nemá) — veta je V banneri pod zeleným
+  // tlačidlom (pripojí ju obnovTexty pri každom postavení banneru), zlaté „Nie“ ide hneď pod banner (Michal 18. 10. 2026)
   const ben = el("p", "lcd1v-komplet__ben");
-  karta.appendChild(ben);
+
+  // zlaté „Nie, ďakujem“ (zelené je „Áno“ — Michal: zelené = kam chceme zákazníka), pod ním veta
+  const nie = el("button", "lcd1v-druha__nie lcd1v-komplet__nie", T.nie.nm);
+  nie.type = "button";
+  karta.appendChild(nie);
+  const pozn = el("p", "lcd1v-pozn");
+  karta.appendChild(pozn);
 
   // správa pri prenose
   const prenos = el("div", "lcd1v-druha__prenos lcd1v-komplet__prenos");
@@ -184,13 +191,6 @@ export function init(ctx) {
   prenos.appendChild(toc);
   prenos.appendChild(ptx);
   karta.appendChild(prenos);
-
-  // zlaté „Nie, ďakujem“ (zelené je „Áno“ — Michal: zelené = kam chceme zákazníka), pod ním veta
-  const nie = el("button", "lcd1v-druha__nie lcd1v-komplet__nie", T.nie.nm);
-  nie.type = "button";
-  karta.appendChild(nie);
-  const pozn = el("p", "lcd1v-pozn");
-  karta.appendChild(pozn);
 
   kotva.parentNode.insertBefore(karta, kotva.nextSibling);
 
@@ -301,6 +301,8 @@ export function init(ctx) {
     bn.setAttribute("data-lcd1v-set", String(p.vSete));
     ano = bn.querySelector(".lcd1v-komplet__ano");
     if (ano && stav.prenos) ano.disabled = true;
+    const vnutro = bn.querySelector(".lcd1v-bs__in");
+    if (vnutro) vnutro.appendChild(ben);
     bsObal.replaceChildren(bn);
   }
 

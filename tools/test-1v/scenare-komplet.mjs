@@ -84,7 +84,7 @@ function stavKarty(t) {
       je: true, vidno: vid(k), otvorena: k.classList.contains("active"), hotova: k.classList.contains("lcd1v-hotovy"),
       ey: tx(":scope > .lcd1v-hd .lcd1v-ey"), nm: tx(":scope > .lcd1v-hd .lcd1v-nm"), ti: tx(":scope > .lcd1v-hd .lcd1v-ti"), vy: tx(":scope > .lcd1v-hd .lcd1v-vy"),
       cislo: tx(":scope > .lcd1v-hd .lcd1v-no"), cisloVidno: vid(k.querySelector(":scope > .lcd1v-hd .lcd1v-no")),
-      pod: tx(":scope > .lcd1v-pod"), ben: tx(":scope > .lcd1v-komplet__ben"),
+      pod: tx(":scope > .lcd1v-pod"), ben: tx(".lcd1v-bs .lcd1v-komplet__ben"),
       // banner setu C v tele karty (set-banner.js)
       bs: vid(bs) ? { ey: tx(".lcd1v-bs__ey"), h: tx(".lcd1v-bs__h"), c: tx(".lcd1v-bs__c"), kd: tx(".lcd1v-bs__kd"), s: tx(".lcd1v-bs__s"), pr: tx(".lcd1v-bs__s s"),
         u: tx(".lcd1v-bs__u"), tag: tx(".lcd1v-bs__tag"), pip: tx(".lcd1v-bs__pip i"), attr: bs.getAttribute("data-lcd1v-set"),

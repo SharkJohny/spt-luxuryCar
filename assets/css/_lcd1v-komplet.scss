@@ -22,12 +22,18 @@ body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__bs {
 body.lcd-1v #product-detail-form .lcd1v-komplet.lcd1v-druha--prenos > .lcd1v-komplet__bs {
   cursor: default;
 }
-/* veta pod bannerom: čo ostane pri prenose („Vzor aj auto Vám ostanú…“, farba boxu, ktorú set nemá) */
-body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__ben {
-  margin: 12px 2px 0;
-  font: 500 14px/1.45 var(--c1v-body, inherit);
-  color: #5b5446;
+/* veta k „Áno“ (čo ostane pri prenose — „Vzor aj auto Vám ostanú…“, farba boxu, ktorú set nemá) je V banneri pod zeleným
+   tlačidlom; zlaté „Nie“ ide hneď pod banner (Michal 18. 10. 2026: tlačidlo Nie bolo „odstúpené“, nepôsobilo klikateľne) */
+body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-bs__in > .lcd1v-komplet__ben {
+  grid-column: 1 / -1;
+  margin: 10px 0 0;
+  font: 600 14.5px/1.4 var(--c1v-body, inherit);
+  text-align: center;
+  color: #e9dfc6;
 }
-body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__ben:empty {
+body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-komplet__ben:empty {
   display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__bs + .lcd1v-komplet__nie {
+  margin-top: 12px;
 }

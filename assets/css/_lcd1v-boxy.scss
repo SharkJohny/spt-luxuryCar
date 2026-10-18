@@ -43,16 +43,9 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 22px; }
 }
 
-/* ---------------------------------------------------------------- krok 1: 9 vzoriek (telefón 3 × 3, inak v rade) */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .options-wrap {
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-}
-@media (max-width: 520px) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .options-wrap {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
-}
+/* ---------------------------------------------------------------- krok 1: vzorky farby
+   rovnaká veľkosť ako na autokobercoch a rohožiach do kufra (Michal 18. 10. 2026) = spoločná mriežka kroku farby
+   z _lcd1v-kroky.scss (telefón 5 v rade ~58 px, PC 7 v rade ~63 px); vlastná mriežka boxu (3 × 3 / 9 v rade) zrušená */
 /* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
 

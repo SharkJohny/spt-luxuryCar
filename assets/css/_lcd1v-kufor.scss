@@ -226,7 +226,7 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   display: block;
   margin-top: 6px;
   text-wrap: balance;
-  font: 700 17px/1.3 var(--c1v-body);
+  font: 700 19px/1.3 var(--c1v-body);
   color: #fff;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
@@ -251,12 +251,13 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+/* veta „keď ju/ich kúpite spolu s autokobercami pod sedadlá“ väčšia (Michal 18. 10. 2026: „malé texty si ľudia neprečítajú“) */
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__kd {
   grid-area: kd;
   display: block;
   margin-top: 2px;
   text-wrap: balance; /* PC: bez osamoteného „sedadlá“ na druhom riadku */
-  font: 600 15px/1.35 var(--c1v-body);
+  font: 600 18px/1.35 var(--c1v-body);
   color: #f3ecdc;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
 }
@@ -276,7 +277,7 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   min-width: 0;
   padding: 8px 10px 9px;
   border-radius: 10px;
-  font: 700 13.5px/1.25 var(--c1v-body);
+  font: 700 15px/1.25 var(--c1v-body);
   text-align: center;
 }
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__s {
@@ -490,7 +491,10 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
     top: -14px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__h {
-    font-size: 18px;
+    font-size: 21px;
+  }
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__kd {
+    font-size: 19px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__c {
     font-size: 52px;

@@ -16991,14 +16991,20 @@ body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__bs {
 body.lcd-1v #product-detail-form .lcd1v-komplet.lcd1v-druha--prenos > .lcd1v-komplet__bs {
   cursor: default;
 }
-/* veta pod bannerom: čo ostane pri prenose („Vzor aj auto Vám ostanú…“, farba boxu, ktorú set nemá) */
-body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__ben {
-  margin: 12px 2px 0;
-  font: 500 14px/1.45 var(--c1v-body, inherit);
-  color: #5b5446;
+/* veta k „Áno“ (čo ostane pri prenose — „Vzor aj auto Vám ostanú…“, farba boxu, ktorú set nemá) je V banneri pod zeleným
+   tlačidlom; zlaté „Nie“ ide hneď pod banner (Michal 18. 10. 2026: tlačidlo Nie bolo „odstúpené“, nepôsobilo klikateľne) */
+body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-bs__in > .lcd1v-komplet__ben {
+  grid-column: 1 / -1;
+  margin: 10px 0 0;
+  font: 600 14.5px/1.4 var(--c1v-body, inherit);
+  text-align: center;
+  color: #e9dfc6;
 }
-body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__ben:empty {
+body.lcd-1v #product-detail-form .lcd1v-komplet .lcd1v-komplet__ben:empty {
   display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-komplet > .lcd1v-komplet__bs + .lcd1v-komplet__nie {
+  margin-top: 12px;
 }
 /* ===== LCD-1V-KOMPLET END ===== */
 
@@ -18144,7 +18150,7 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   display: block;
   margin-top: 6px;
   text-wrap: balance;
-  font: 700 17px/1.3 var(--c1v-body);
+  font: 700 19px/1.3 var(--c1v-body);
   color: #fff;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
@@ -18169,12 +18175,13 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+/* veta „keď ju/ich kúpite spolu s autokobercami pod sedadlá“ väčšia (Michal 18. 10. 2026: „malé texty si ľudia neprečítajú“) */
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__kd {
   grid-area: kd;
   display: block;
   margin-top: 2px;
   text-wrap: balance; /* PC: bez osamoteného „sedadlá“ na druhom riadku */
-  font: 600 15px/1.35 var(--c1v-body);
+  font: 600 18px/1.35 var(--c1v-body);
   color: #f3ecdc;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
 }
@@ -18194,7 +18201,7 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
   min-width: 0;
   padding: 8px 10px 9px;
   border-radius: 10px;
-  font: 700 13.5px/1.25 var(--c1v-body);
+  font: 700 15px/1.25 var(--c1v-body);
   text-align: center;
 }
 body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__s {
@@ -18408,7 +18415,10 @@ body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-deta
     top: -14px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__h {
-    font-size: 18px;
+    font-size: 21px;
+  }
+  body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__kd {
+    font-size: 19px;
   }
   body.lcd-1v:is([data-lcd1v-typ^="kufor"], [data-lcd1v-typ="boxy"]) #product-detail-form .lcd1v-bs__c {
     font-size: 52px;
@@ -18486,16 +18496,9 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 22px; }
 }
 
-/* ---------------------------------------------------------------- krok 1: 9 vzoriek (telefón 3 × 3, inak v rade) */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .options-wrap {
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-}
-@media (max-width: 520px) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .options-wrap {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
-}
+/* ---------------------------------------------------------------- krok 1: vzorky farby
+   rovnaká veľkosť ako na autokobercoch a rohožiach do kufra (Michal 18. 10. 2026) = spoločná mriežka kroku farby
+   z _lcd1v-kroky.scss (telefón 5 v rade ~58 px, PC 7 v rade ~63 px); vlastná mriežka boxu (3 × 3 / 9 v rade) zrušená */
 /* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
 
