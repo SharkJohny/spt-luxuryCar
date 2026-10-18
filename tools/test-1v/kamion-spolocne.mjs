@@ -68,3 +68,20 @@ export function jquery() {
 }
 
 export { writeFileSync };
+
+/**
+ * Cenová a sync logika Reactu vyrezaná zo ŽIVÉHO konfigurator.gen.jsx / .phone.gen.jsx (hranice ako artefakt
+ * kontrola-cien.mjs: FIELD_META … FIELD_ORDER + isCzechTruckConfigurator … function Configurator()), spustená
+ * nad oknom w (jsdom). Vráti { readShoptetPrices, FALLBACK_PRICES, calculatePrice, syncToShoptet, _parseOptionPrice }.
+ */
+export function nacitajGen(subor, w) {
+  const src = readFileSync(join(KOREN, "assets", "js", "truck-konfigurator", subor), "utf8");
+  const i1 = src.indexOf("const FIELD_META"), j1 = src.indexOf("\n", src.indexOf("const FIELD_ORDER"));
+  const i2 = src.indexOf("function isCzechTruckConfigurator"), j2 = src.indexOf("function Configurator()");
+  if ([i1, j1, i2, j2].some((x) => x < 0)) throw new Error(subor + ": nenašiel som hranice cenovej logiky");
+  const kod = src.slice(i1, j1) + "\n" + src.slice(i2, j2);
+  for (const f of ["function calculatePrice(state, PRICES)", "function readShoptetPrices", "function syncToShoptet", "function _parseOptionPrice"])
+    if (!kod.includes(f)) throw new Error(subor + ": chýba " + f);
+  return new Function("window", "document", "Event", "sessionStorage",
+    kod + "\nreturn { readShoptetPrices, FALLBACK_PRICES, calculatePrice, syncToShoptet, _parseOptionPrice };")(w, w.document, w.Event, w.sessionStorage);
+}
