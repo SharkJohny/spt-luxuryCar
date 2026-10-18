@@ -151,11 +151,11 @@ body.lcd-1v .lcd1v-rz .rz-dlazdice button {
   color: #3d3728;
   transition: background-color 0.2s, color 0.2s;
 }
-/* zvolená dlaždica zelená ako pilulky kroku Vaše auto (Michal 18. 10. 2026: zvolené = zelené; premenné z _lcd1v-kroky.scss) */
+/* zvolená dlaždica „Miest na sedenie“ ZLATÁ ako pilulky kroku Vaše auto (Michal 18. 10. 2026 večer: prepínače ostávajú zlaté) */
 body.lcd-1v .lcd1v-rz .rz-dlazdice button.on {
-  background: var(--kr-zvol-fajka);
-  color: #fff;
-  box-shadow: 0 4px 12px var(--kr-zvol-tien);
+  background: var(--rz-zlato);
+  color: #17130a;
+  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
 }
 
 /* pôdorys auta zhora */

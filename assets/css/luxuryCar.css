@@ -14701,10 +14701,11 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button sp
 body.lcd-1v #product-detail-form .lcd1v-k-auto .wheel-Position .option-button.active,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .sit-Position .option-button.active,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button.active {
-  /* zvolená pilulka zelená (Michal 18. 10. 2026: zvolené = zelené, kontrastnejšie) */
-  background: var(--kr-zvol-fajka);
-  box-shadow: 0 4px 12px var(--kr-zvol-tien);
-  color: #fff;
+  /* prepínače volant / miesta / dvere ostávajú ZLATÉ (Michal 18. 10. 2026 večer: „tieto prvky mali ostať zlaté“);
+     zelený rám + fajka platí pre karty a dlaždice voľby, nie pre tieto pilulky */
+  background: var(--kr-zlato);
+  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
+  color: #17130a;
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::before,
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::after {
@@ -15245,11 +15246,11 @@ body.lcd-1v .lcd1v-rz .rz-dlazdice button {
   color: #3d3728;
   transition: background-color 0.2s, color 0.2s;
 }
-/* zvolená dlaždica zelená ako pilulky kroku Vaše auto (Michal 18. 10. 2026: zvolené = zelené; premenné z _lcd1v-kroky.scss) */
+/* zvolená dlaždica „Miest na sedenie“ ZLATÁ ako pilulky kroku Vaše auto (Michal 18. 10. 2026 večer: prepínače ostávajú zlaté) */
 body.lcd-1v .lcd1v-rz .rz-dlazdice button.on {
-  background: var(--kr-zvol-fajka);
-  color: #fff;
-  box-shadow: 0 4px 12px var(--kr-zvol-tien);
+  background: var(--rz-zlato);
+  color: #17130a;
+  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
 }
 
 /* pôdorys auta zhora */
