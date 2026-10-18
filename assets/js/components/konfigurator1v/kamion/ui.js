@@ -8,7 +8,7 @@ import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, stredEff as seS, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
 
-const NB = " ";
+const NB = " "; // nezalomiteľná medzera „423 €“ (ako artefakt a 1V)
 const P = "k1v-"; // predpona id prvkov (stránka Shoptetu má vlastné id)
 
 function esc(s) {

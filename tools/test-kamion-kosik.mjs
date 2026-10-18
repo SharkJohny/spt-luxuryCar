@@ -92,7 +92,7 @@ async function kontrolaKosika(t, meno, ocak = {}) {
   if (ocak.spolu != null) over(meno + ": spolu " + ocak.spolu + " €", spolu === ocak.spolu, "je " + spolu);
   if (ocak.usetrene != null) over(meno + ": ušetríte " + ocak.usetrene + " € (" + ocak.pct + " %)", k.ui.cena().usetrene === ocak.usetrene && k.ui.cena().usetrenePercent === ocak.pct, J(k.ui.cena()));
   const suma = d.querySelector("#lcd1v-kamion .k-suhrn__suma");
-  over(meno + ": súhrn ukazuje " + spolu + " €", suma && suma.textContent === spolu + " €", suma && suma.textContent);
+  over(meno + ": súhrn ukazuje " + spolu + " €", suma && suma.textContent === spolu + " €", suma && suma.textContent);
   over(meno + ": žiadny console.error", s.chyby.length === 0, s.chyby.join(" | "));
 }
 
@@ -245,7 +245,7 @@ console.log("9) Nič nevybraté -> Pridať do košíka (súhrn aj lišta)");
   over("9: 0 klikov na natívne tlačidlo", t.s.kliky.length === 0);
   over("9: otvorený krok 1 s červeným rámom", !!t.d.querySelector('#lcd1v-kamion [data-krok="vozidlo"].is-open.is-error'));
   over("9: hláška „dokončite kroky“ v súhrne", /dokončite kroky označené červenou/.test(t.d.querySelector("#lcd1v-kamion .sh__err") ? t.d.querySelector("#lcd1v-kamion .sh__err").textContent : ""));
-  over("9: lišta „Spolu od 199 € · Pokračovať“", /Spolu\s+od 199 €/.test(t.d.querySelector("#lcd1v-lista .lcd1v-lista__suma").textContent) && t.d.querySelector("#lcd1v-lista .lcd1v-lista__kos").textContent === "Pokračovať");
+  over("9: lišta „Spolu od 199 € · Pokračovať“", /Spolu\s+od\s199\s€/.test(t.d.querySelector("#lcd1v-lista .lcd1v-lista__suma").textContent) && t.d.querySelector("#lcd1v-lista .lcd1v-lista__kos").textContent === "Pokračovať");
   over("9: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
 }
 

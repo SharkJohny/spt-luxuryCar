@@ -52,6 +52,9 @@ const PRIPRAVENY_VZORKOVNIK = `!!(function () {
   return f.querySelectorAll("select.surcharge-parameter").length >= 40 && document.querySelector(".lcd-vz-swatch") && document.querySelector(".lcd-vz-acc-head");
 })()`;
 
+/** kamióny 640: bez flagu React (#truck-konfigurator-root), s ?novy=vyvoj nový konfigurátor #lcd1v-kamion */
+const PRIPRAVENY_KAMION = `!!(document.querySelector('#truck-konfigurator-root[data-tk-mounted="1"]') || document.querySelector("#lcd1v-kamion .k-krok"))`;
+
 export const TYPY_TEST = {
   jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], povinne: ["auto", "farba", "rozlozenie"], posledny: "boxy", nepovinne: [], pripravene: PRIPRAVENY_SET, auto: true, set: true },
   dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], povinne: ["auto", "farba", "farba2", "rozlozenie"], posledny: "boxy", nepovinne: [], pripravene: PRIPRAVENY_SET, auto: true, set: true },
@@ -59,6 +62,7 @@ export const TYPY_TEST = {
   "kufor-premium": { kroky: ["vzor", "auto", "farba"], povinne: ["auto", "farba"], posledny: "farba", nepovinne: [], pripravene: PRIPRAVENA_ROHOZ, auto: true, set: false },
   boxy: { kroky: ["pocet", "farba", "velkost"], povinne: ["farba", "velkost"], posledny: "velkost", nepovinne: ["box1", "box2", "box3"], pripravene: PRIPRAVENY_BOX, auto: false, set: false },
   vzorky: { kroky: [], povinne: [], posledny: null, nepovinne: [], pripravene: PRIPRAVENY_VZORKOVNIK, auto: false, set: false },
+  kamion: { kroky: [], povinne: [], posledny: null, nepovinne: [], pripravene: PRIPRAVENY_KAMION, auto: false, set: false },
 };
 export const VSETKY_TYPY = Object.keys(TYPY_TEST);
 
@@ -194,6 +198,15 @@ export const PRODUKTY = {
     // nevybraná = prázdne. Základ 0 €, každá vzorka +5 €.
     postKluce: "productId priceId language amount + 45 × surchargeParameterValueId[NNN] (vybraná = „Áno +€5“, inak prázdne)",
   },
+  // ---------------------------------------------------------------- kamióny a dodávky (docs/kamiony-1v-plan.md; scenare-kamion.mjs)
+  640: {
+    url: SK + "/luxusne-autokoberce-kamiony/", typ: "kamion", vzor: null, nazov: "Kamióny a dodávky",
+    scenare: ["brana", "nulova-zmena", "kamion-platne", "kamion-dodavka", "kamion-neuplne"],
+    platne: null,
+    odporucana: false,
+    ceny: { "kamion-platne": 423, "kamion-dodavka": 258 },
+    postKluce: "productId priceId language amount + 15 × surchargeParameterValueId[NNN] (346 … 412; ako React syncToShoptet)",
+  },
 };
 
 /** Iný produkt pre test brány: CZ Diamond (iný projectId 581408) — ?novy=1 nesmie nič zapnúť. */
@@ -202,7 +215,7 @@ export const INY = {
 };
 
 /** Hlavný produkt typu (plná sada scenárov). */
-export const HLAVNY = { jedno: 598, dvoj: 601, "kufor-classic": 619, "kufor-premium": 628, boxy: 616, vzorky: 637 };
+export const HLAVNY = { jedno: 598, dvoj: 601, "kufor-classic": 619, "kufor-premium": 628, boxy: 616, vzorky: 637, kamion: 640 };
 
 export const ALIASY = {
   "jedno-diamond": 598, "jedno-stripe": 613, "jedno-hexa": 610,
@@ -211,11 +224,11 @@ export const ALIASY = {
   "kufor-classic-diamond": 619, "kufor-classic-stripe": 625, "kufor-classic-hexa": 622,
   "premium-diamond": 628, "premium-stripe": 634, "premium-hexa": 631,
   "kufor-premium-diamond": 628, "kufor-premium-stripe": 634, "kufor-premium-hexa": 631,
-  boxy: 616, box: 616, vzorky: 637, vzorkovnik: 637,
+  boxy: 616, box: 616, vzorky: 637, vzorkovnik: 637, kamion: 640, kamiony: 640,
 };
 
 /** Poradie produktov (all): hlavné produkty typov skôr, vzorkovník na koniec. */
-export const PORADIE = [598, 613, 610, 601, 607, 604, 619, 625, 622, 628, 634, 631, 616, 637];
+export const PORADIE = [598, 613, 610, 601, 607, 604, 619, 625, 622, 628, 634, 631, 616, 637, 640];
 
 /** "598,610" | "all" | "typ:dvoj" | "typ:kufor" | alias -> [profil s id]. */
 export function vyberProdukty(spec) {

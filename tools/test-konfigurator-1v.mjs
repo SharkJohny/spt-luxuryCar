@@ -49,6 +49,7 @@ import * as scBoxy from "./test-1v/scenare-boxy.mjs";
 import * as scVzorky from "./test-1v/scenare-vzorky.mjs";
 import * as scDruha from "./test-1v/scenare-druha.mjs"; // ponuka druhej vrstvy + prenos výberu (jedno -> dvoj, 14. 10. 2026)
 import * as scAuto from "./test-1v/scenare-auto.mjs"; // karta auta: dvere a miesta v ľubovoľnom poradí, overenie až pri Pokračovať (16. 10. 2026)
+import * as scKamion from "./test-1v/scenare-kamion.mjs"; // kamióny a dodávky 640 (docs/kamiony-1v-plan.md, 18. 10. 2026)
 import * as scKomplet from "./test-1v/scenare-komplet.mjs"; // ponuka setu s autokobercami na rohožiach do kufra a boxe (17. 10. 2026)
 
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -624,6 +625,13 @@ const SCENARE = {
       // Michal 15. 10. 2026: nadpis každého kroku začína „Prosím, vyberte si …“, farby menujú vrstvu („1. / 2. vrstvy“);
       // karta ponuky druhej vrstvy (jedno) je otázka „Prosíte si aj druhú odnímateľnú vrstvu?“, karta ponuky setu na rohoži
       // do kufra a boxe (komplet-ponuka.js, 17. 10. 2026) „Prosíte si aj autokoberce pod sedadlá?“
+      if (P.typ === "kamion") {
+        // kamióny: vlastné kroky (#lcd1v-kamion), otázky „Prosím, vyberte si …“ / „Prosíte si …?“; React sa nesmie namontovať
+        const nk = await t.ev(`Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .k-krok__ti"), function (e) { return e.textContent.trim(); })`);
+        over(nk.length >= 5 && nk.every((x) => /^Prosím, vyberte si \S|^Prosíte si \S.*\?$/.test(x)), "nadpisy krokov kamiónov: " + JSON.stringify(nk));
+        over(await t.ev(`!document.getElementById("truck-konfigurator-root")`), "s ?novy=" + a.flag + " sa na kamiónoch namontoval aj React");
+        info.push(nk.length + " krokov kamiónov, React nie");
+      } else {
       await t.cakaj(`document.querySelectorAll(".lcd1v-krok .lcd1v-ti").length > 0`, { ms: 15000, popis: "nadpisy krokov" });
       const nad = await t.ev(`Array.prototype.map.call(document.querySelectorAll(".lcd1v-krok .lcd1v-ti"), function (e) {
         var k = e.closest(".lcd1v-krok");
@@ -638,6 +646,7 @@ const SCENARE = {
         nad.filter(([m]) => farby[m]).forEach(([m, x]) => over(x === farby[m], "nadpis kroku " + m + ": „" + x + "“ ≠ „" + farby[m] + "“"));
       }
       info.push(nad.length + "× „Prosím, vyberte si …“");
+      }
     } else {
       over(!st.trieda && !st.ctx, "typ " + P.typ + " nie je pre ?novy=" + a.flag + " zapnutý, ale " + P.id + " dostal nový vzhľad: " + JSON.stringify(st));
       info.push(P.id + " (" + P.typ + ") ostáva starý — typ nie je zapnutý");
@@ -1287,7 +1296,7 @@ for (const [meno, fn] of Object.entries(SCENARE)) {
   if (!TYPY_JADRA[meno]) throw new Error("scenár jadra " + meno + " nemá typy (TYPY_JADRA)");
   REGISTER[meno] = [{ typy: TYPY_JADRA[meno], fn, zdroj: "jadro" }];
 }
-for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky, "scenare-druha": scDruha, "scenare-auto": scAuto, "scenare-komplet": scKomplet })) {
+for (const [zdroj, mod] of Object.entries({ "scenare-jedno": scJedno, "scenare-dvoj": scDvoj, "scenare-kufor": scKufor, "scenare-boxy": scBoxy, "scenare-vzorky": scVzorky, "scenare-druha": scDruha, "scenare-auto": scAuto, "scenare-komplet": scKomplet, "scenare-kamion": scKamion })) {
   for (const [meno, sc] of Object.entries(mod.SCENARE || {})) {
     if (!sc || typeof sc.fn !== "function" || !Array.isArray(sc.typy)) throw new Error(zdroj + ": scenár " + meno + " musí byť { typy: [...], fn }");
     const kolizia = (REGISTER[meno] || []).find((x) => x.typy.some((ty) => sc.typy.includes(ty)));
