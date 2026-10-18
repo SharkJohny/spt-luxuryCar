@@ -67,12 +67,37 @@ async function overNahlad(s, j, rgb, meno) {
   for (let i = 0; i < 20; i++) { r = await s.t.ev(NAHLAD(rgb)); if (r && !r.chyba && r.n > 50) break; await j.pauza(250); }
   j.over(r && !r.chyba && r.n > 50, "náhľad nášivky " + meno + ": " + JSON.stringify(r));
 }
-/** R2: pravidlá s BEM modifikátorom „--“ z artefaktu sú v CSS (computed style). */
+/** R2: pravidlá s BEM modifikátorom „--“ sú v CSS (computed style); návrh C a „zvolené = zelené“ (Michal 18. 10. 2026). */
 const STYLY = `(function () {
-  function cs(sel, p) { var el = document.querySelector("#lcd1v-kamion " + sel); return el ? getComputedStyle(el)[p] : null; }
-  return { ano: cs(".an__b--ano", "backgroundImage"), nie: cs(".an__b--nie", "backgroundImage"), naj: cs(".k-kkarta--naj", "borderTopColor"),
-    nvNaj: cs(".nv__b--naj", "borderTopColor"), motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor") };
+  function cs(sel, p, ps) { var el = document.querySelector("#lcd1v-kamion " + sel); return el ? getComputedStyle(el, ps || null)[p] : null; }
+  return { ano: cs(".an__b--ano", "backgroundImage"), nie: cs(".an__b--nie", "backgroundImage"), ponuka: cs(".kn-ponuka", "borderTopColor"),
+    balRam: cs(".kn-dv__b--bal", "borderTopColor"), balStitok: cs(".kn-dv__b--bal .k-badge", "backgroundImage"),
+    motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor"), motivZvol: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "borderTopColor"),
+    motivFajka: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "backgroundImage", "::after"), nitZvol: cs(".nt__b.is-on", "borderTopColor"),
+    chk: cs(".kn-dv__b.is-on .kn-chk", "backgroundImage") };
 })()`;
+const ZELENA = "rgb(31, 122, 82)", ZLATA = "rgb(196, 155, 49)";
+/** Návrh C, krok 5: 3 fotkové dlaždice s načítanou fotkou kabíny, „Nie, ďakujem“, veľký náhľad cez celú šírku karty v ≥ 2× rozlíšení. */
+const KROK5 = `(function () {
+  var telo = document.querySelector('#lcd1v-kamion [data-krok="nasivky"] .k-krok__telo'), cv = document.querySelector('#lcd1v-kamion [data-krok="nasivky"] .kn-nh__cv');
+  var cs = telo ? getComputedStyle(telo) : null;
+  return { dlazdic: document.querySelectorAll("#lcd1v-kamion .kn-dv > .kn-dv__b").length, nie: !!document.querySelector('#lcd1v-kamion [data-a="nas"][data-v="nechcem"]'),
+    foto: Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .kn-dv__b .kn-scena > img"), function (i) { return i.complete ? i.naturalWidth : 0; }),
+    vnutro: telo ? telo.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) : 0, cvCss: cv ? cv.clientWidth : 0, cvW: cv ? cv.width : 0, cvH: cv ? cv.height : 0 };
+})()`;
+/** Návrh C, krok 6: celá fotka dverí (pomer vykreslenia = pomer súboru, bez orezania), dve zjavné voľby „rovnaké / inak“. */
+const KROK6 = `(function () {
+  var i = document.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-dvere:not(.kn-dvere--vyrez) > img'); if (!i) return { chyba: "fotka dverí chýba" };
+  var b = i.getBoundingClientRect(), r = i.parentElement.getBoundingClientRect();
+  return { nw: i.complete ? i.naturalWidth : 0, nh: i.naturalHeight, w: b.width, h: b.height, ram: r.width, fit: getComputedStyle(i).objectFit,
+    rv: Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-rv__b'), function (x) { return x.getAttribute("data-a") + ":" + x.getAttribute("aria-pressed"); }) };
+})()`;
+/** Opakuje vyhodnotenie (lenivé načítanie fotiek, kreslenie plátna), kým podmienka neplatí, najviac ~6 s. */
+async function cakaj(s, j, vyraz, ok) {
+  let r = null;
+  for (let i = 0; i < 24; i++) { r = await s.t.ev(vyraz); if (r && ok(r)) break; await j.pauza(250); }
+  return r;
+}
 
 async function doKosika(s, a, j, meno) {
   await snimkaPrvku(s, a, j, '[data-k="suhrn"]', meno + "-pred-kosikom");
@@ -102,18 +127,30 @@ export const SCENARE = {
         ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"],
         ["klik", a_("farba", "12")], ["dalej", "farba"],
         ["klik", a_("lem", "04")], ["dalej", "lemovanie"],
-        ["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2824", "boky")],
+        ["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("viac", null, "boky")], ["klik", a_("nit", "2824", "boky")],
       ]);
       const st5 = await s.t.ev(STYLY);
-      j.over(st5.nvNaj === "rgb(196, 155, 49)", "„Najobľúbenejšie“ (nv__b--naj) rám " + st5.nvNaj + " ≠ zlatá");
+      j.over(/rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(st5.balStitok || ""), "„★ Najobľúbenejšie“ na balíku nie je zlaté: " + st5.balStitok);
+      j.over(st5.balRam === ZELENA && st5.motivZvol === ZELENA && st5.nitZvol === ZELENA, "zvolené nie je zelené (balík " + st5.balRam + ", motív " + st5.motivZvol + ", niť " + st5.nitZvol + ")");
+      j.over(/rgb\(29, 107, 74\)/.test(st5.motivFajka || "") && /rgb\(29, 107, 74\)/.test(st5.chk || ""), "fajka zvolenej voľby nie je zelená: " + st5.motivFajka + " | " + st5.chk);
       j.over(st5.motiv === "rgb(255, 255, 255)", "dlaždica motívu bez bieleho podkladu: " + st5.motiv);
+      await s.t.ev(`document.querySelector('#lcd1v-kamion .kn-dv').scrollIntoView({ block: "start" })`);
+      const k5 = await cakaj(s, j, KROK5, (r) => r.foto.length === 3 && r.foto.every((x) => x > 0) && r.cvW > 0);
+      j.over(k5.dlazdic === 3 && k5.nie, "krok 5: má byť 3 fotkové dlaždice + „Nie, ďakujem“: " + JSON.stringify(k5));
+      j.over(k5.foto.length === 3 && k5.foto.every((x) => x > 0), "fotka kabíny sa nenačítala: " + JSON.stringify(k5.foto));
+      j.over(k5.cvCss >= k5.vnutro - 2 && k5.cvW >= 2 * k5.cvCss - 1 && Math.abs(k5.cvW * 2 - k5.cvH * 3) <= 3, "veľký náhľad: plátno " + k5.cvW + "×" + k5.cvH + " px, CSS " + k5.cvCss + " px, karta " + k5.vnutro + " px");
       await overNahlad(s, j, [200, 30, 40], "v nití 2824 (červená)");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-nasivky");
       await snimkaPrvku(s, a, j, ".k-dlazdice--motiv", "kamion-krok5-nahlad");
       await rob(s, j, [["klik", a_("nit", "2999", "boky")], ["dalej", "nasivky"]]);
-      j.over((await s.t.ev(STYLY)).naj === "rgb(196, 155, 49)", "ponuka tapacíru (k-kkarta--naj) bez zlatého rámu");
+      j.over((await s.t.ev(STYLY)).ponuka === ZLATA, "ponuka tapacíru (kn-ponuka) bez zlatého rámu");
+      await s.t.ev(`document.querySelector('#lcd1v-kamion [data-krok="tapacir"]').scrollIntoView({ block: "start" })`);
+      const k6 = await cakaj(s, j, KROK6, (r) => r.nw > 0);
+      j.over(k6.nw > 0 && Math.abs(k6.w / k6.h - k6.nw / k6.nh) < 0.02 && Math.abs(k6.w - k6.ram) <= 2, "fotka dverí nie je celá (bez orezania) cez šírku karty: " + JSON.stringify(k6));
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ponuka");
       await rob(s, j, [["klik", a_("tap", "ano")]]);
+      const k6a = await s.t.ev(KROK6);
+      j.over(JSON.stringify(k6a.rv) === JSON.stringify(["tapRovnake:true", "tapZmenit:false"]), "tapacír: chýbajú dve zjavné voľby „Rovnaké ako koberce / Vybrať inak“: " + JSON.stringify(k6a.rv));
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ano");
       await snimkaPrvku(s, a, j, ".an", "kamion-krok6-nasivka-dvere");
       if (a.snimky) {

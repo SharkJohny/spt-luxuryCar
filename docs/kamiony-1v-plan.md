@@ -410,3 +410,21 @@ Spustenie pre všetkých (bez flagu) je samostatné rozhodnutie neskôr (§7 bod
 3. **N2 – viac konfigurácií v jednom košíku** (React aj nové UI: poznámka objednávky opisuje len poslednú pridanú konfiguráciu; farba, lemovanie a vozidlo sú len v poznámke). Možnosti: (a) poznámka ako zoznam všetkých pridaných konfigurácií (`order-summary.mjs`, spoločné pre React aj nové UI) — odporúčam, najlacnejšie; (b) po pridaní ďalšiu 640 v tej istej relácii zablokovať alebo upozorniť; (c) farbu a lemovanie písať aj do selectov 376/379 (treba nové možnosti v admine).
 4. **R4 – okno Luxie** (uvítanie a VIP výzva) na stránke s konfigurátorom zakrýva chybové hlásenia a tlačidlá, kým ho zákazník nezavrie. Návrh: na stránkach s konfigurátorom 1V potlačiť automatické uvítanie a VIP výzvu (ostane bublina, ktorú 1V už zdvíha nad lištu), alebo ich ukázať až po pridaní do košíka. Týka sa celého webu a modulu Luxia (iné repo).
 5. Body §7 3–6 (admin pred spustením pre všetkých, `na_overenie` z artefaktu, fotky bez loga Scania — logo má aj ilustračná fotka tapacíru v kroku 6, poradie obsahu).
+
+---
+
+## 11. Kroky 5 a 6 podľa návrhu C + „zvolené = zelené“ (18. 10. 2026, lokálny commit na `kamiony-1v-lokal`, bez pushu)
+
+Michal vybral návrh C (`scratchpad/kamiony-nasivky/navrh-c.html`, 5 pripomienok k nášivkám a tapacíru). Košík a ceny sa nemenia: tie isté 4 stavy `S.nas` (`nechcem` / `stred` / `boky` / `boky+stred`), tie isté selecty a poznámka, `cena.js`, `stav.js` a `shoptet.js` bez zmeny.
+
+| Čo | Ako |
+|---|---|
+| Krok 5 — kde budú nášivky | 3 fotkové dlaždice (pred sedadlá — ★ všetky tri v strede — stredový koberec) so skutočnou fotkou kabíny a zlatými krúžkami na nášivkách, „Nie, ďakujem“ zlaté pod nimi. Dlaždice sa zaškrtávajú (`data-a="nas"`, `data-v` = miesto); z prázdneho výberu klik = presne ten stav ako predtým, preto testy košíka ostali. Fotka `assets/img/1v/kamion-nasivky-kabina.jpg` (1160 × 870, 291 kB, z Michalovho `91ThIMeaukL.jpg` otočená podľa EXIF), adresa `OBRAZKY_1V` + `data.js FOTKA_KABINY_NASIVKY`; výrez dlaždíc cez CSS (`--z`, `--fx`, `--fy`), text „Ilustračná fotka“. |
+| Vaša voľba | až po výbere, schéma kabíny, cena v rámiku, pri jednom mieste tip na balík (suma z `ponuka()`). |
+| Veľký náhľad | `canvas.kn-nh__cv` cez celú šírku karty (PC ~515 px, telefón ~325 px), rozlíšenie = šírka × max(2, DPR) (≤ 1600 px), 3:2; prefarbenie nite ako predtým, motív na fotke materiálu (cover) s tieňom; pod ním „Kam príde“ so schémou a „Podklad“. |
+| Nite | prvých 6 + „Ďalšie farby (+5)“ (`data-a="viac"`); vybraná sa nikdy neskryje. |
+| Stred pri balíku, tapacír, nášivka na dvere | dve rovnocenné dlaždice namiesto políčka / odkazu: `stredRovnaky` 1/0, `tapRovnake` / `tapZmenit`, `tapNasRovnaka` 1/0. Vlastný motív dverí (bez nášivky na kobercoch) sa neskôr neprepíše motívom kobercov. |
+| Krok 6 | celá fotka dverí 3:2 bez orezania (`FOTKA_DVERI`), ponuka 119 € v rámiku, výrez dverí so zlatým krúžkom „Sem príde nášivka“, otázka na nášivku s cenou v rámiku (+ 49 €, 89 €, Ušetríte 40 €). |
+| Zvolené = zelené (celé kamióny) | blok na konci `_lcd1v-kamiony.scss` (RUČNE): rám #1f7a52 3 px (rám + box-shadow), fajka so zeleným prechodom a bielou fajkou — segment Kamión/Dodávka, materiál, farba, lemovanie, motív, niť, dlaždice nášiviek, rovnaké/inak, Áno/Nie. Zlatá ostáva na štítkoch (★ Najobľúbenejšie, Odporúčame), ponukách v rámiku a „Nie, ďakujem“. |
+
+Testy po zmene: `kamion:test` (cena 68, ceny vs gen.jsx 1 320 kombinácií NÁLEZ 0, košík **274 OK** — nová cesta 17 = kontroly návrhu C, brána 42) · `truck:test` OK · `test-konfigurator-1v --novy --produkt 640 --sirka 1280,390` 10/10 (POST 423 € a 258 € ako predtým; nové kontroly: zelené zvolené, 3 fotkové dlaždice s načítanou fotkou, plátno ≥ 2× CSS šírky cez celú kartu, celá fotka dverí, dve voľby tapacíru) · `--produkt all --krok brana,nulova-zmena --sirka 1280` bez flagu 30/30 · POST do košíka (kamion-platne 423 €, kamion-dodavka 258 €; 1280 aj 390) bajt po bajte = telá revízie v `post-porovnanie.json` → `revizia_2026_10_18` (= React) · `test-1v-obsah --produkt 640` 10/10. Snímky `docs/kamiony-snimky/c-krok5-*.png`, `c-krok6-*.png` (390, 1280; `node tools/snimky-kamion-kroky.mjs docs/kamiony-snimky`).

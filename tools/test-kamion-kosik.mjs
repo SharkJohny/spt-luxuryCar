@@ -58,6 +58,11 @@ async function otvor(opt = {}) {
   };
 }
 const a = (akcia, v, m) => '[data-a="' + akcia + '"]' + (m ? '[data-m="' + m + '"]' : "") + (v != null ? '[data-v="' + v + '"]' : "");
+/** Farba nite ako zákazník: farby za „Ďalšie farby (+5)“ (návrh C, 18. 10. 2026) najprv rozbalí, potom klikne. */
+function nit(t, kod, m) {
+  if (!t.d.querySelector("#lcd1v-kamion " + a("nit", kod, m))) t.klik(a("viac", null, m));
+  t.klik(a("nit", kod, m));
+}
 
 /** Vozidlo + materiál + farba + lemovanie (kroky 1–4). */
 function zaklad(t, { typ = "kamion", znacka, model, polia = {}, material, farba, lem }) {
@@ -120,7 +125,7 @@ console.log("1) DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999,
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "boky+stred"));
-  t.klik(a("motiv", "H19", "boky")); t.klik(a("nit", "2999", "boky"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky");
   t.dalej("nasivky");
   t.klik(a("tap", "ano")); t.klik(a("tapNas", "nie"));
   await kontrolaKosika(t, "1", {
@@ -135,7 +140,7 @@ console.log("2) Fiat (dodávka) Ducato 2007–2025, jednofarebná 10G, lem 09, l
   zaklad(t, { typ: "dodavka", znacka: "Fiat (dodávka)", model: "Ducato 2007-2025", material: "Prémiová syntetická koža – jednofarebná", farba: "10G", lem: "09" });
   over("2: krok tapacíru nie je (5 krokov)", t.d.querySelectorAll("#lcd1v-kamion .k-krok").length === 5 && !t.d.querySelector('[data-krok="tapacir"]'));
   t.klik(a("nas", "stred"));
-  t.klik(a("motiv", "H21", "stred")); t.klik(a("nit", "3546", "stred"));
+  t.klik(a("motiv", "H21", "stred")); nit(t, "3546", "stred");
   t.dalej("nasivky");
   await kontrolaKosika(t, "2", {
     spolu: 258,
@@ -169,7 +174,7 @@ console.log("4) Len stred (TIR, tapacír nie)");
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "stred"));
-  t.klik(a("motiv", "H21", "stred")); t.klik(a("nit", "2840", "stred"));
+  t.klik(a("motiv", "H21", "stred")); nit(t, "2840", "stred");
   t.dalej("nasivky");
   t.klik(a("tap", "nie"));
   await kontrolaKosika(t, "4", { spolu: 199 + 10 + 59, selecty: { 403: "Bez nášivky", 406: "Bez nite", 409: "Nášivka H21", 412: "2840 – Zelená", 397: "Bez nášivky", 400: "Bez nite", 355: "Nie nechcem nášivku na dverách" } });
@@ -180,7 +185,7 @@ console.log("5) Šofér + spolujazdec (nie BALÍK)");
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "boky"));
-  t.klik(a("motiv", "H19", "boky")); t.klik(a("nit", "2901", "boky"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2901", "boky");
   t.dalej("nasivky");
   t.klik(a("tap", "nie"));
   await kontrolaKosika(t, "5", { spolu: 199 + 10 + 59, selecty: { 349: "Šofér + spolujazdec", 403: "Nášivka H19", 406: "2901 – Strieborná", 409: "Bez nášivky", 412: "Bez nite" } });
@@ -191,7 +196,7 @@ console.log("6a) Tapacír áno, nášivka na dverách áno (rovnaká ako na kobe
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "boky+stred"));
-  t.klik(a("motiv", "H19", "boky")); t.klik(a("nit", "2999", "boky"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky");
   t.dalej("nasivky");
   t.klik(a("tap", "ano")); t.klik(a("tapNas", "ano"));
   await kontrolaKosika(t, "6a", {
@@ -206,7 +211,7 @@ console.log("6b) Tapacír áno, nášivka na dverách nie");
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "boky+stred"));
-  t.klik(a("motiv", "H19", "boky")); t.klik(a("nit", "2999", "boky"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky");
   t.dalej("nasivky");
   t.klik(a("tap", "ano")); t.klik(a("tapNas", "nie"));
   await kontrolaKosika(t, "6b", { spolu: 423, selecty: { 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" } });
@@ -217,7 +222,7 @@ console.log("7) Tapacír áno -> nášivka áno -> tapacír Nie (oprava Z1)");
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "boky+stred"));
-  t.klik(a("motiv", "H19", "boky")); t.klik(a("nit", "2999", "boky"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky");
   t.dalej("nasivky");
   t.klik(a("tap", "ano")); t.klik(a("tapNas", "ano"));
   const pred = t.k.ui.cena().spolu;
@@ -233,7 +238,7 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   const t = await otvor();
   zaklad(t, DAF);
   t.klik(a("nas", "boky+stred"));
-  t.klik(a("motiv", "H19", "boky")); t.klik(a("nit", "2999", "boky"));
+  t.klik(a("motiv", "H19", "boky")); nit(t, "2999", "boky");
   t.dalej("nasivky");
   t.klik(a("tap", "ano"));
   t.klik(a("tapZmenit"));
@@ -241,8 +246,8 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   t.klik(a("tapFarba", "3N"));
   t.klik(a("tapLem", "11"));
   t.klik(a("tapNas", "ano"));
-  t.zaskrtni("tapNasRovnaka", false);
-  t.klik(a("motiv", "H21", "dvere")); t.klik(a("nit", "2840", "dvere"));
+  t.klik(a("tapNasRovnaka", "0")); // dlaždica „Iný motív a niť“ (návrh C; predtým zaškrtávacie políčko)
+  t.klik(a("motiv", "H21", "dvere")); nit(t, "2840", "dvere");
   await kontrolaKosika(t, "8", {
     poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – 3N", "- Farba lemovania: Béžová + Hnedá", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
     selecty: { 388: "Vyberie sa v konfigurátore", 391: "Vyberie sa v konfigurátore", 394: "Vyberie sa v konfigurátore", 397: "Nášivka H21", 400: "2840 – Zelená", 355: "Áno chcem nášivku na dverách" },
@@ -285,7 +290,7 @@ console.log("11) N1: TIR s tapacírom a vlastnou nášivkou na dverách -> prepn
   zaklad(t, DAF);
   t.klik(a("nas", "nechcem"));
   t.klik(a("tap", "ano")); t.klik(a("tapZmenit")); t.klik(a("tapNas", "ano"));
-  t.klik(a("motiv", "H21", "dvere")); t.klik(a("nit", "2824", "dvere"));
+  t.klik(a("motiv", "H21", "dvere")); nit(t, "2824", "dvere");
   over("11: pred prepnutím 397 „Nášivka H21“, 400 „2824 – Červená“", zvolene(t.d, 397) === "Nášivka H21" && zvolene(t.d, 400) === "2824 – Červená");
   t.klik(a("krok", "vozidlo")); t.klik(a("typ", "dodavka"));
   t.vyber("znacka", "Fiat (dodávka)"); t.vyber("model", "Ducato 2007-2025"); t.dalej("vozidlo");
@@ -384,6 +389,68 @@ console.log("16) R5: „… recenzií na Google“ pod H1 vedie na sekciu Recenz
   const e = new t.s.window.MouseEvent("click", { bubbles: true, cancelable: true });
   h.dispatchEvent(e);
   over("16: klik posunie na recenzie (− 90 px hlavička)", !!posun && posun.top === 6830 - 90 && e.defaultPrevented, J(posun));
+}
+
+console.log("17) Kroky 5 a 6 podľa návrhu C (Michal 18. 10. 2026): fotkové dlaždice, veľký náhľad, celá fotka dverí, zjavné voľby");
+{
+  const t = await otvor();
+  zaklad(t, DAF);
+  const q = (sel) => t.d.querySelector("#lcd1v-kamion " + sel);
+  const qa = (sel) => Array.from(t.d.querySelectorAll("#lcd1v-kamion " + sel));
+  const tx = (sel) => (q(sel) ? q(sel).textContent.replace(/\s+/g, " ").trim() : "");
+  const S = t.k.ui.S;
+  // krok 5: 3 fotkové dlaždice (pred sedadlá — ★ všetky tri v strede — stredový koberec) + „Nie, ďakujem“
+  const dl = qa(".kn-dv > .kn-dv__b");
+  over("17: 3 fotkové dlaždice v poradí boky, ★ všetky tri, stred", J(dl.map((x) => x.getAttribute("data-v"))) === J(["boky", "boky+stred", "stred"]), J(dl.map((x) => x.getAttribute("data-v"))));
+  over("17: každá dlaždica má fotku kabíny z assets/img/1v a „Ilustračná fotka“", dl.length === 3 && dl.every((x) => /\/assets\/img\/1v\/kamion-nasivky-kabina\.jpg$/.test(x.querySelector(".kn-scena > img").getAttribute("src")) && /Ilustračná fotka/.test(x.textContent)));
+  over("17: zlaté krúžky na miestach nášiviek (2 / 3 / 1)", J(dl.map((x) => x.querySelectorAll(".kn-bod").length)) === J([2, 3, 1]));
+  over("17: ★ Najobľúbenejšie len na balíku v strede", dl[1].querySelector(".k-badge") && /Najobľúbenejšie/.test(dl[1].querySelector(".k-badge").textContent) && !dl[0].querySelector(".k-badge") && !dl[2].querySelector(".k-badge"));
+  over("17: cena v rámiku balíka + 95 € / 140 € / Ušetríte 45 €", /\+\s95\s€/.test(dl[1].querySelector(".kn-cena b").textContent) && /^140\s€$/.test(dl[1].querySelector(".kn-cena s").textContent) && /^Ušetríte 45\s€$/.test(dl[1].querySelector(".kn-cena i").textContent));
+  over("17: ceny strán + 59 € / 70 € / Ušetríte 11 €", [dl[0], dl[2]].every((x) => /\+\s59\s€/.test(x.querySelector(".kn-cena b").textContent) && /^70\s€$/.test(x.querySelector(".kn-cena s").textContent) && /^Ušetríte 11\s€$/.test(x.querySelector(".kn-cena i").textContent)));
+  const nie = q(a("nas", "nechcem"));
+  over("17: „Nie, ďakujem“ = zlaté tlačidlo pod dlaždicami", !!nie && nie.classList.contains("k-btn-zlate") && nie.getAttribute("type") === "button" && /koberce bez nášiviek/.test(nie.textContent));
+  over("17: všetky ovládače kroku 5 sú type=button bez name", qa('[data-krok="nasivky"] button').every((x) => x.getAttribute("type") === "button") && !qa('[data-krok="nasivky"] [name]').length);
+  // zaškrtávanie miest -> stále jeden zo 4 stavov Shoptetu
+  t.klik(a("nas", "boky"));
+  over("17: pred sedadlá -> boky, Vaša voľba s tipom na balík", S.nas === "boky" && /Vaša voľba/.test(tx(".kn-vv")) && /všetky tri nášivky spolu len za 95\s€/.test(tx(".kn-vv__tip")), S.nas + " | " + tx(".kn-vv"));
+  t.klik(a("nas", "stred"));
+  over("17: + stredový koberec -> boky+stred (balík), všetky 3 dlaždice zvolené", S.nas === "boky+stred" && qa(".kn-dv__b").every((x) => x.classList.contains("is-on") && x.getAttribute("aria-pressed") === "true"), S.nas);
+  over("17: strany v balíku ukazujú „v balíku všetkých troch“", /v balíku všetkých troch/.test(tx('.kn-dv__b[data-v="boky"]')) && /Vybraté – všetky tri koberce/.test(tx(".kn-dv__cta")));
+  over("17: farby nite — prvých 6 + „Ďalšie farby (+5)“", qa('[data-a="nit"][data-m="boky"]').length === 6 && /Ďalšie farby \(\+5\)/.test(tx('[data-a="viac"][data-m="boky"]')));
+  t.klik(a("motiv", "H21", "boky")); nit(t, "2824", "boky");
+  over("17: po „Ďalšie farby“ všetkých 11, vybraná červená", qa('[data-a="nit"][data-m="boky"]').length === 11 && !q('[data-a="viac"][data-m="boky"]') && q(a("nit", "2824", "boky")).getAttribute("aria-pressed") === "true");
+  const cv = q(".kn-nh__cv");
+  over("17: veľký náhľad — plátno 3:2 s rozlíšením ≥ 960 px, niť červená na farbe kobercov", !!cv && +cv.getAttribute("width") >= 960 && +cv.getAttribute("width") * 2 === +cv.getAttribute("height") * 3 && cv.getAttribute("data-hex") === "#c82030" && /te69da20|t8131265/.test(cv.getAttribute("data-bg")) && /Náhľad: Trucker \(H21\) · niť červená \(2824\)/.test(tx(".kn-nh__hd")), cv && cv.outerHTML.slice(0, 200));
+  over("17: pod náhľadom „Kam príde“ so schémou kabíny", /Kam príde: na všetky tri koberce/.test(tx(".kn-nh__pop")) && !!q(".kn-nh__pop svg.kn-schema"));
+  const rv = qa('.kn-rv__b[data-a="stredRovnaky"]');
+  over("17: stredový koberec — 2 zjavné voľby, predvolene „Rovnaká ako pred sedadlami“", rv.length === 2 && rv[0].getAttribute("data-v") === "1" && rv[0].getAttribute("aria-pressed") === "true" && rv[1].getAttribute("aria-pressed") === "false");
+  t.klik(a("stredRovnaky", "0"));
+  over("17: „Iný motív alebo niť“ -> výber motívu a nite pre stred", S.stredRovnaky === false && !!q('[data-pole="stredMotiv"]') && !!q('[data-pole="stredNit"]'));
+  t.klik(a("stredRovnaky", "1"));
+  t.klik(a("nas", "boky"));
+  over("17: odobratie nášiviek pred sedadlami -> len stred, motív a niť ostanú (H21 / 2824)", S.nas === "stred" && S.nasStred.motiv === "H21" && S.nasStred.nit === "2824", J(S.nasStred));
+  t.klik(a("nas", "boky+stred"));
+  over("17: ★ Všetky tri -> balík, motív prevzatý zo stredu", S.nas === "boky+stred" && S.nasBoky.motiv === "H21" && S.nasBoky.nit === "2824" && S.stredRovnaky === true, J(S));
+  t.dalej("nasivky");
+  // krok 6: celá fotka dverí, ponuka v rámiku, rovnaké / inak, nášivka na dvere s miestom a úsporou
+  const dvere = q('[data-krok="tapacir"] .kn-dvere:not(.kn-dvere--vyrez) > img');
+  over("17: krok 6 — celá fotka dverí (FOTKA_DVERI, 1536 × 1024 = 3:2)", !!dvere && /t894b009d54832cbd\.png$/.test(dvere.getAttribute("src")) && dvere.getAttribute("width") === "1536" && dvere.getAttribute("height") === "1024" && !q(".k-ponuka__ram"));
+  over("17: ponuka tapacíru v rámiku 119 € / Samostatne 179 € / Ušetríte 60 €", /S kobercami len\s?119\s€\s?Samostatne 179\s€\s?Ušetríte 60\s€/.test(tx('[data-krok="tapacir"] .kn-ponuka .kn-cenovka')), tx('[data-krok="tapacir"] .kn-ponuka .kn-cenovka'));
+  t.klik(a("tap", "ano"));
+  const tr = qa('.kn-rv__b[data-a="tapRovnake"], .kn-rv__b[data-a="tapZmenit"]');
+  over("17: materiál tapacíru — 2 zjavné voľby, predvolene „Rovnaké ako koberce“ s popisom kobercov", tr.length === 2 && tr[0].getAttribute("aria-pressed") === "true" && /Rovnaké ako koberce/.test(tr[0].textContent) && /prešívaná/.test(tr[0].textContent) && /Vybrať inak/.test(tr[1].textContent));
+  t.klik(a("tapZmenit"));
+  over("17: „Vybrať inak“ -> materiál, farba a lemovanie tapacíru vopred ako koberce", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "12" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz"));
+  t.klik(a("tapRovnake"));
+  over("17: „Rovnaké ako koberce“ späť", S.tapRovnaky === true && !q('[data-pole="tapMat"]'));
+  over("17: nášivka na dvere — výrez dverí so zlatým krúžkom „Sem príde nášivka“", /Sem príde nášivka/.test(tx(".kn-dvere--vyrez .kn-bod")) && /do stredu výplne dverí/.test(tx('[data-krok="tapacir"] .k-krok__telo')));
+  over("17: nášivka na dvere — úspora v rámiku + 49 € / 89 € / Ušetríte 40 €", /S tapacírom len\s?\+\s49\s€\s?Samostatne 89\s€\s?Ušetríte 40\s€/.test(tx(".kn-ponuka--nas .kn-cenovka")), tx(".kn-ponuka--nas .kn-cenovka"));
+  t.klik(a("tapNas", "ano"));
+  const tn = qa('.kn-rv__b[data-a="tapNasRovnaka"]');
+  over("17: nášivka na dvere — 2 zjavné voľby „Rovnaká ako na kobercoch“ / „Iný motív a niť“", tn.length === 2 && tn[0].getAttribute("aria-pressed") === "true" && /Trucker \(H21\)/.test(tn[0].textContent) && /Iný motív a niť/.test(tn[1].textContent));
+  over("17: veľký náhľad nášivky na dverách (na farbe tapacíru)", !!q('[data-krok="tapacir"] .kn-nh__cv') && /Kam príde: do stredu výplne dverí/.test(tx('[data-krok="tapacir"] .kn-nh__pop')));
+  over("17: všetky ovládače kroku 6 sú type=button bez name", qa('[data-krok="tapacir"] button').every((x) => x.getAttribute("type") === "button") && !qa('[data-krok="tapacir"] [name]').length);
+  over("17: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);

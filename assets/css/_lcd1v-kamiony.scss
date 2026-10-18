@@ -188,24 +188,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vo
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__nm { font-size: 15px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__po { font-size: 13px; }
 }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta { position: relative; display: grid; grid-template-columns: minmax(0, 44%) minmax(0, 1fr); column-gap: 13px; align-items: stretch; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 1px solid var(--k-line); border-radius: 12px; background: #fff; box-shadow: none; color: var(--k-ink); font: inherit; text-align: left; text-transform: none; letter-spacing: normal; cursor: pointer; transition: border-color .18s, box-shadow .18s; -webkit-tap-highlight-color: transparent; -webkit-appearance: none; appearance: none; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta:hover { border-color: #c9b98a; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta:focus-visible { outline: 2px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta--naj { border: 2px solid var(--k-gold); background: #fffaef; box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta.is-on { border-color: var(--k-gold); box-shadow: var(--k-tien-zvolena); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta--naj.is-on { box-shadow: 0 0 0 1px var(--k-gold), 0 0 0 5px rgba(196, 155, 49, .2), 0 14px 30px rgba(160, 120, 30, .3); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta.is-on::after { content: "\2713"; position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid #fff; border-radius: 50%; background: linear-gradient(150deg, #2f9c68, #1d6b4a); color: #fff; font: 800 12px/1 Arial, sans-serif; box-shadow: 0 3px 10px rgba(20, 15, 5, .4); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta--naj.is-on::after { top: 62px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-naj { grid-column: 1 / -1; position: relative; display: block; overflow: hidden; padding: 9px 12px 8px; background: var(--k-zlato); color: #17130a; font: 800 13.5px/1.2 var(--k-disp); letter-spacing: .14em; text-transform: uppercase; text-align: center; white-space: nowrap; }
-@media (prefers-reduced-motion: no-preference) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-naj::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-110%); animation: k-lesk 5s ease-in-out infinite; }
-}
-@keyframes k-lesk { 0%, 64% { transform: translateX(-110%); } 100% { transform: translateX(110%); } }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__fot { display: flex; align-items: center; min-width: 0; padding: 8px 0 8px 8px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__fot img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 9px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__tx { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 11px 13px 11px 3px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__nm { display: block; padding-right: 26px; font: 800 18px/1.15 var(--k-disp); color: var(--k-ink); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__ben { display: block; margin-top: 5px; font: 400 14px/1.4 var(--k-body); color: var(--k-tmava); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; padding-top: 7px; border-top: 1px dashed #ddd5c2; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka [hidden] { display: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__l { font: 700 11px/1.3 var(--k-disp); letter-spacing: .1em; text-transform: uppercase; color: var(--k-hneda); }
@@ -214,29 +196,16 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__s { margin-top: 3
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__s s { font-weight: 700; color: #4a4334; text-decoration: line-through; text-decoration-color: var(--k-cervena); text-decoration-thickness: 2px; white-space: nowrap; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__u { margin-top: 6px; padding: 4px 10px; border-radius: 999px; background: var(--k-zelena-pill); color: var(--k-zelena-pill-tx); font: 800 13.5px/1.2 var(--k-body); white-space: nowrap; }
 @media (max-width: 359px) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta { grid-template-columns: minmax(0, 36%) minmax(0, 1fr); column-gap: 10px; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__tx { padding-right: 10px; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__nm { font-size: 16.5px; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-naj { padding-inline: 8px; font-size: 12px; letter-spacing: .1em; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__c { font-size: 25px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__s { font-size: 13px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__u { padding-inline: 8px; font-size: 12.5px; }
 }
 @media (min-width: 721px) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta { grid-template-columns: minmax(0, min(46%, 250px)) minmax(0, 1fr); }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta__nm { font-size: 19px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__c { font-size: 32px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__s,
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cenovka__u { font-size: 14.5px; }
 }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-badge { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 4px 10px; border-radius: 999px; background: var(--k-zlato); color: #17130a; font: 800 9.5px/1 var(--k-disp); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 3px 9px rgba(20, 15, 5, .32); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__fot { align-items: center; padding: 10px 0 10px 10px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__ram { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid rgba(196, 155, 49, .6); border-radius: 14px; background: #1d1a14; box-shadow: var(--k-tien-fotky); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__ram > img,
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__ram > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__ano { grid-column: 1 / -1; position: relative; display: flex; align-items: center; justify-content: center; height: 52px; margin: 2px 10px 10px; padding: 0 16px; border: 0; border-radius: 10px; background: var(--k-zelene); box-shadow: 0 8px 18px rgba(31, 115, 80, .32), inset 0 1px 0 rgba(255, 255, 255, .22); color: #fff; font: 900 14px/1.2 var(--k-disp); letter-spacing: .1em; text-align: center; text-transform: uppercase; cursor: pointer; transition: filter .15s, transform .15s, box-shadow .15s; -webkit-appearance: none; appearance: none; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__ano:hover { filter: brightness(1.07); box-shadow: 0 11px 22px rgba(31, 115, 80, .4), inset 0 1px 0 rgba(255, 255, 255, .22); transform: translateY(-1px); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka__ano:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 3px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-suhrn { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 26px 0 0; padding: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-suhrn__lb { font: 600 10.5px/16px var(--k-disp); letter-spacing: .14em; text-transform: uppercase; color: var(--k-tmava); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-suhrn__suma { font: 700 24px/1 var(--k-disp); font-size: clamp(24px, 3vw, 32px); color: var(--k-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -248,12 +217,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-alt { margin: 14px 0 0; pa
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-alt a { color: var(--k-gold-tx); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-alt a:hover { color: var(--k-ink); }
 @media (prefers-reduced-motion: reduce) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-naj::after { animation: none; display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-krok.is-zablesk { animation: none; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta,
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kkarta,
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn i,
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene,
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate { transition: none; }
@@ -306,30 +271,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm .k-badge { top: -9px; lef
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm-nahlad { margin: 16px 0 0; padding: 12px 14px 14px; border-radius: 12px; background: linear-gradient(165deg, #231e15, #0b0a07); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm-nahlad p { margin: 0 0 10px; color: var(--k-gold-hi); font: 700 13px/1.3 var(--k-disp); letter-spacing: .02em; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm-nahlad img { display: block; width: 100%; height: auto; border-radius: 6px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv { display: flex; flex-direction: column; gap: 10px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b { position: relative; display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; margin: 0; padding: 12px 14px; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 14px; background: #fff; color: var(--k-ink); text-align: left; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b:hover { border-color: var(--k-gold); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b.is-on { border-color: var(--k-gold); background: #fffaee; box-shadow: 0 10px 26px rgba(140, 105, 25, .22); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b--naj { padding-top: 0; border-color: var(--k-gold); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b--naj .k-naj { grid-column: 1 / -1; margin: 0 -14px 4px; font-size: 12px; padding: 7px 10px 6px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__r { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__r::after { content: "\2713"; color: #17130a; font: 700 12px/1 var(--k-body); opacity: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b.is-on .nv__r { border-color: transparent; background: var(--k-zlato); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b.is-on .nv__r::after { opacity: 1; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__tx { min-width: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__nm { display: block; font: 800 15.5px/1.2 var(--k-disp); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__po { display: block; margin-top: 2px; font: 400 13.5px/1.35 var(--k-body); color: var(--k-mute); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__c { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; text-align: right; white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__c s { font: 600 12.5px/1 var(--k-body); color: #4a4334; text-decoration-color: var(--k-cervena); text-decoration-thickness: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__c b { font: 800 17px/1 var(--k-disp); color: var(--k-ink); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__c i { font-style: normal; padding: 3px 8px; border-radius: 999px; background: var(--k-zelena-pill); color: var(--k-zelena-pill-tx); font: 800 11.5px/1.2 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__c em { font-style: normal; font: 700 12px/1 var(--k-disp); letter-spacing: .08em; text-transform: uppercase; color: var(--k-gold-tx); }
-@media (max-width: 380px) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 9px; padding-inline: 11px; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__b--naj .k-naj { margin-inline: -11px; }
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nv__nm { font-size: 14.5px; }
-}
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sk-h { display: block; margin: 0 0 8px; font: 700 11px/1.4 var(--k-disp); letter-spacing: .12em; text-transform: uppercase; color: var(--k-tmava); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv .k-dlazdica__img { background: #fff; object-fit: contain; padding: 8px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm small { display: block; margin-top: 3px; font: 600 10.5px/1 var(--k-body); letter-spacing: 0; text-transform: none; color: var(--k-mute); }
@@ -340,25 +281,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b:focus-visible { outlin
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b i { display: block; flex: none; width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b small { color: var(--k-mute); font-weight: 400; font-size: 11px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on { border-color: var(--k-gold); background: #fffaee; box-shadow: var(--k-tien-zvolena); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .zas { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0 0; padding: 12px 14px; border: 1px solid rgba(196, 155, 49, .45); border-radius: 12px; background: #faf6ea; cursor: pointer; font: 600 14.5px/1.4 var(--k-body); color: var(--k-ink); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .zas input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: #2f9c68; cursor: pointer; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .zas small { display: block; margin-top: 2px; font-weight: 400; font-size: 13px; color: var(--k-mute); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .zas:focus-within { outline: 3px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mn { display: flex; align-items: center; gap: 14px; margin: 16px 0 0; padding: 10px; border-radius: 12px; background: var(--k-krem); border: 1px solid var(--k-line); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mn canvas,
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mn img { flex: none; width: 96px; height: 96px; border-radius: 10px; background: #fff; border: 1px solid var(--k-line); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mn p { margin: 0; font: 400 13.5px/1.45 var(--k-body); color: var(--k-text); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mn p b { display: block; color: var(--k-ink); font: 700 14px/1.3 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-oddiel { margin: 22px 0 0; padding: 18px 0 0; border-top: 2px dashed var(--k-line); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-oddiel > .k-sk-h { font-size: 12px; color: var(--k-gold-tx); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-rov { display: flex; align-items: flex-start; gap: 12px; padding: 13px 14px; border: 2px solid var(--k-zelena); border-radius: 12px; background: #f1f8f3; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-rov__ic { flex: none; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--k-zelena); color: #fff; font: 700 12px/1 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-rov__tx { flex: 1 1 auto; min-width: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-rov__tx b { display: block; font: 700 14.5px/1.35 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-rov__tx span { display: block; margin-top: 2px; font: 400 13px/1.4 var(--k-body); color: var(--k-mute); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-odkaz { flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: 0; padding: 0 2px; border: 0; border-bottom: 1px solid rgba(196, 155, 49, .7); background: none; color: var(--k-gold-tx); cursor: pointer; font: 700 11px/1.4 var(--k-disp); letter-spacing: .12em; text-transform: uppercase; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-odkaz:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-spat { margin-top: 14px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--mat { --k-dl-n: 3; }
 @media (min-width: 560px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--mat { --k-dl-n: 5; }
@@ -372,16 +296,6 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b--nie { background: var
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 3px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an--vybrate .an__b:not(.is-on) { opacity: .55; box-shadow: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--k-gold); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b.is-on::before { content: "\2713"; position: absolute; top: 6px; right: 8px; font: 800 14px/1 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an-info { margin: 8px 0 0; font: 400 13px/1.45 var(--k-body); color: var(--k-mute); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an-info s { text-decoration-color: var(--k-cervena); text-decoration-thickness: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an-info b { color: var(--k-zelena-tx); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-kkarta { cursor: default; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-kkarta__nm { padding-right: 30px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-ponuka__ano.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--k-gold); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-btn-zlate.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--k-gold); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-btn-zlate.je-druha,
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-ponuka__ano.je-druha { opacity: .6; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh { margin: 26px 0 0; padding: 20px var(--k-pad) 22px; border: 1px solid var(--k-line); border-top: 3px solid var(--k-gold); border-radius: 16px; background: #fff; box-shadow: 0 14px 34px rgba(20, 15, 5, .08); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__ey { margin: 0; font: 700 11px/1.4 var(--k-disp); letter-spacing: .16em; text-transform: uppercase; color: var(--k-gold-tx); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__h { margin: 4px 0 0; font: 700 22px/1.2 var(--k-disp); text-transform: uppercase; letter-spacing: .02em; color: var(--k-ink); }
@@ -404,9 +318,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__err { display: flex; ali
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .sh__err::before { content: "!"; display: flex; flex: none; align-items: center; justify-content: center; width: 19px; height: 19px; border-radius: 50%; background: var(--k-cervena); color: #fff; font: 700 12px/1 var(--k-body); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pozn a { color: var(--k-gold-tx); font-weight: 700; text-underline-offset: 3px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-perex { margin: 14px 0 0; color: var(--k-text); font: 400 15px/1.55 var(--k-body); max-width: 52ch; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ponuka-k .k-kkarta::after { display: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv .k-dlazdica__img { aspect-ratio: 3 / 2; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-foto-pozn { display: block; margin-top: 4px; font: italic 400 12.5px/1.4 var(--k-body); color: var(--k-mute); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .tp-info { margin: 0 0 10px; padding: 10px 12px; border-left: 3px solid var(--k-cervena); border-radius: 6px; background: #fdf3f1; font: 600 14px/1.45 var(--k-body); color: var(--k-ink); }
 @media (prefers-reduced-motion: reduce) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kosik { transition: none; }
@@ -426,8 +338,158 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion > .p-detail-inner-header { or
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion > .p-detail-inner-header h1.k-h1 { display: block; }
 /* lepivá lišta 1V (#lcd1v-lista, _lcd1v-cena.scss): „Spolu“ malým písmom nad sumou ako v artefakte */
 body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista .lcd1v-lista__suma small { display: block; font: 600 10.5px/1.2 var(--k-disp); letter-spacing: .12em; text-transform: uppercase; color: var(--k-mute); }
-/* canvas náhľadu nášivky nikdy širší ako karta */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .mn canvas { max-width: 100%; height: auto; }
 /* „odosiela sa“ po Pridať do košíka (~3 s alebo do ShoptetCartUpdated): tlačidlá vypnuté, druhé ťuknutie nič nepošle */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-kosik[disabled],
 body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista button.lcd1v-lista__kos[disabled] { opacity: .6; cursor: progress; transform: none; }
+
+/* ===== Kroky 5 (nášivky) a 6 (tapacír) — návrh C schválený Michalom 18. 10. 2026 (ui.js teloNasivky / teloTapacir) ===== */
+/* krok 5: tri dlaždice s fotkou kabíny (výrez cez CSS: --z zväčšenie, --fx/--fy stred výrezu), krúžky na nášivkách */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .08); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b:hover { border-color: var(--k-gold); box-shadow: 0 8px 22px rgba(140, 105, 25, .18); }
+}
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-foto { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; background: #1d1a14; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-foto--169 { aspect-ratio: 16 / 9; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-scena { position: absolute; left: 50%; top: 50%; display: block; width: calc(var(--z) * 100%); aspect-ratio: var(--ar, 4 / 3); transform: translate(calc(var(--fx) * -100%), calc(var(--fy) * -100%)); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-scena > img { display: block; width: 100%; max-width: none; height: 100%; margin: 0; object-fit: cover; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod { position: absolute; left: var(--x); top: var(--y); width: var(--d); aspect-ratio: 1 / 1; transform: translate(-50%, -50%); border: 2.5px solid #f0d68f; border-radius: 50%; box-shadow: 0 0 0 2px rgba(20, 15, 5, .45), 0 0 16px rgba(230, 200, 119, .6); pointer-events: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; }
+@media (prefers-reduced-motion: no-preference) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod::after { animation: kn-pulz 2.2s ease-out infinite; }
+}
+@keyframes kn-pulz { 0% { box-shadow: 0 0 0 0 rgba(240, 214, 143, .75); } 70%, 100% { box-shadow: 0 0 0 14px rgba(240, 214, 143, 0); } }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod b { position: absolute; left: 50%; top: 100%; transform: translate(-50%, 6px); padding: 3px 8px 2px; border-radius: 999px; background: var(--k-zlato); color: #17130a; font: 800 10.5px/1.25 var(--k-disp); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 3px 8px rgba(0, 0, 0, .45); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--hore b { top: auto; bottom: 100%; transform: translate(-50%, -6px); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--r b { left: auto; right: 0; transform: translate(0, 6px); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--hore.kn-bod--r b { transform: translate(0, -6px); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-bod--bok b { left: 100%; top: 50%; width: max-content; max-width: 84px; transform: translate(6px, -50%); border-radius: 8px; text-align: left; white-space: normal; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu { position: absolute; left: 8px; top: 8px; z-index: 2; padding: 2px 7px; border-radius: 6px; background: rgba(10, 8, 5, .62); color: #ece6d6; font: italic 400 11.5px/1.4 var(--k-body); pointer-events: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu--dole { top: auto; bottom: 8px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__tx { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 13px 14px 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-chk { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-top: 1px; border: 2px solid #b5a473; border-radius: 7px; background: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-chk::after { content: "\2713"; color: #fff; font: 800 14px/1 var(--k-body); opacity: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { display: block; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po { display: block; margin-top: 3px; color: var(--k-mute); font: 400 14px/1.4 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__tx .kn-cena { grid-column: 2; margin-top: 8px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal { overflow: visible; margin-top: 6px; border-color: var(--k-gold); background: #fffdf6; box-shadow: 0 0 0 1px rgba(196, 155, 49, .45), 0 10px 26px rgba(140, 105, 25, .2); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal > .kn-foto { aspect-ratio: 4 / 3; border-radius: 14px 14px 0 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .k-badge { top: -12px; padding: 5px 11px; font-size: 10.5px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-dv__nm { font-size: 18px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-cena b { font-size: 27px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .kn-cena i { font-size: 14.5px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta { display: flex; align-items: center; justify-content: center; min-height: 52px; margin: 0; padding: 10px 16px; border-radius: 0 0 14px 14px; background: var(--k-zelene); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22); color: #fff; font: 900 13.5px/1.25 var(--k-disp); letter-spacing: .09em; text-align: center; text-transform: uppercase; }
+@media (min-width: 600px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { display: grid; grid-template-columns: 46% minmax(0, 1fr); align-items: center; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b > .kn-foto { aspect-ratio: 4 / 3; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal > .kn-foto { border-radius: 14px 0 0 0; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__cta { grid-column: 1 / -1; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b--bal .k-badge { left: auto; right: 18px; transform: none; }
+}
+/* cena v rámiku: veľká suma, prečiarknutá pôvodná červenou, zelený štítok „Ušetríte“ */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena b { color: var(--k-ink); font: 800 21px/1 var(--k-disp); white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena s { color: #4a4334; font: 700 14px/1 var(--k-body); text-decoration: line-through; text-decoration-color: var(--k-cervena); text-decoration-thickness: 2px; white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena i, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena em { padding: 4px 10px; border-radius: 999px; background: var(--k-zelena-pill); color: var(--k-zelena-pill-tx); font: 800 13.5px/1.2 var(--k-body); font-style: normal; white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cena em { border-radius: 10px; font-weight: 700; white-space: normal; }
+/* „Nie, ďakujem“ s popisom pod textom */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.kn-nie { flex-direction: column; gap: 3px; height: auto; min-height: 56px; margin-top: 14px; padding-top: 10px; padding-bottom: 10px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font: 600 13px/1.3 var(--k-body); letter-spacing: 0; text-transform: none; opacity: .95; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene.je-druha, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.je-druha { opacity: .6; box-shadow: none; }
+/* Vaša voľba (až po výbere) so schémou kabíny */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; align-items: center; margin: 16px 0 0; padding: 14px 16px 14px 12px; border: 2px solid var(--k-gold); border-radius: 14px; background: #fffaee; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv .kn-schema { display: block; width: 92px; height: auto; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__tx { min-width: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__l { display: block; color: var(--k-gold-tx); font: 700 10.5px/1.4 var(--k-disp); letter-spacing: .14em; text-transform: uppercase; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__nm { display: block; margin-top: 2px; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__po { display: block; margin-top: 2px; color: var(--k-mute); font: 400 13.5px/1.4 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv .kn-cena { margin-top: 8px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv .kn-cena b { font-size: 26px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__tip { grid-column: 1 / -1; margin: 0; padding: 9px 12px; border-left: 3px solid var(--k-gold); border-radius: 6px; background: #fff; color: var(--k-tmava); font: 600 14px/1.45 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vv__tip b { color: var(--k-zelena-tx); }
+/* farby nite: prvých 6 + „Ďalšie farby“; ťuk-plocha 44 px */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b { min-height: 44px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b--viac { padding: 4px 14px; border-style: dashed; border-color: #c9b98a; background: #faf6ea; color: var(--k-gold-tx); font-weight: 700; }
+/* veľký náhľad motívu v nití — cez celú šírku karty (rozlíšenie plátna nastaví ui.js na >= 2× CSS šírky) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh { margin: 18px 0 0; padding: 0; overflow: hidden; border-radius: 14px; background: linear-gradient(165deg, #231e15, #0b0a07); box-shadow: 0 10px 24px rgba(20, 15, 5, .2); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd { display: flex; align-items: center; gap: 9px; margin: 0; padding: 12px 14px; box-shadow: inset 0 -1px 0 rgba(230, 200, 119, .22); color: var(--k-gold-hi); font: 700 13.5px/1.35 var(--k-disp); letter-spacing: .02em; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd::before { content: ""; flex: none; width: 13px; height: 13px; border-radius: 3px; background: linear-gradient(135deg, #e6c877, #8f7020); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__cv { display: block; width: 100%; max-width: none; height: auto; aspect-ratio: 3 / 2; margin: 0; background: #2a241a; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px 14px; color: #e9e4d6; font: 400 13.5px/1.5 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop .kn-schema { display: block; width: 74px; height: auto; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop p { margin: 0; padding: 0; color: #e9e4d6; font: inherit; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop p + p { margin-top: 4px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop b { color: var(--k-gold-hi); font-weight: 700; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop i { color: #b9b19c; }
+@media (min-width: 600px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 14px 18px 16px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop .kn-schema { width: 96px; }
+}
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-info { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--k-gold); border-radius: 6px; background: #faf6ea; color: var(--k-ink); font: 600 14px/1.45 var(--k-body); }
+/* „rovnaké / inak“ — dve rovnocenné dlaždice */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv--dvere { margin-top: 16px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 14px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .07); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b:hover { border-color: var(--k-gold); }
+}
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__viz { position: relative; display: block; width: 100%; aspect-ratio: 3 / 2; overflow: hidden; background: #eceae5; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mat { position: absolute; inset: 0 0 24% 0; background: #d9d4c6 center / cover no-repeat; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mat--cela { bottom: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__lem { position: absolute; left: 0; right: 0; bottom: 0; height: 24%; background: center / cover no-repeat; box-shadow: 0 -2px 6px rgba(0, 0, 0, .35); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika i { display: block; background: center / cover no-repeat; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv { grid-template-rows: 1fr; gap: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv i { margin: 8px 4px; background-color: #ededed; background-size: contain; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__plus { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; transform: translate(-50%, -50%); border-radius: 50%; background: #fff; box-shadow: 0 3px 10px rgba(0, 0, 0, .35); color: var(--k-gold-tx); font: 800 22px/1 var(--k-disp); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__cv { display: block; width: 100%; max-width: none; height: 100%; margin: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r::after { content: "\2713"; color: #fff; font: 800 13px/1 var(--k-body); opacity: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__tx { display: block; padding: 10px 12px 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__nm { display: block; color: var(--k-ink); font: 800 15.5px/1.2 var(--k-disp); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po { display: block; margin-top: 4px; color: var(--k-mute); font: 400 13px/1.38 var(--k-body); overflow-wrap: anywhere; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po span { display: block; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; align-items: center; margin: 18px 0 0; padding: 10px; border-radius: 12px; background: linear-gradient(165deg, #231e15, #0b0a07); color: #e9e4d6; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz .kn-rv__viz { border-radius: 8px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p { margin: 0; padding: 0; color: #e9e4d6; font: 400 13.5px/1.45 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p b { display: block; margin-bottom: 2px; color: var(--k-gold-hi); font: 700 13px/1.3 var(--k-disp); }
+/* krok 6: celá fotka dverí 3:2 (bez orezania), ponuka v rámiku, výrez dverí s krúžkom na mieste nášivky */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dvere { position: relative; margin: 0 0 16px; overflow: hidden; border: 1px solid rgba(196, 155, 49, .6); border-radius: 14px; background: #1d1a14; box-shadow: var(--k-tien-fotky); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dvere > img { display: block; width: 100%; max-width: none; height: auto; aspect-ratio: 3 / 2; margin: 0; object-fit: contain; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dvere--vyrez { margin: 0 0 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-stitok { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -100%); padding: 5px 11px 4px; border-radius: 999px; background: var(--k-zlato); color: #17130a; font: 800 11.5px/1.2 var(--k-disp); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 4px 10px rgba(0, 0, 0, .45); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-stitok::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: #d9b75c; border-bottom: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka { padding: 14px 16px 16px; border: 2px solid var(--k-gold); border-radius: 16px; background: #fffaef; box-shadow: 0 0 0 4px rgba(196, 155, 49, .14); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka__nm { display: block; color: var(--k-ink); font: 800 19px/1.2 var(--k-disp); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka__ben { display: block; margin-top: 4px; color: var(--k-tmava); font: 400 14.5px/1.45 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .k-btn-zelene { height: auto; min-height: 56px; margin-top: 14px; padding: 8px 18px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka + .k-btn-zlate { margin-top: 12px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ponuka .an { margin-top: 14px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin-top: 10px; padding-top: 10px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__l { flex: 1 0 100%; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__c, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__s { margin-top: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-cenovka .k-cenovka__u { margin-top: 2px; }
+@media (max-width: 380px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { font-size: 16px; }
+}
+
+/* ===== Zvolená voľba = ZELENÁ (Michal 18. 10. 2026, celý nový konfigurátor): zelený rám #1f7a52 3 px bez skákania
+   (rám prvku + box-shadow), zelená fajka s prechodom a bielou fajkou. Zlatá ostáva len na štítky a odporúčania
+   (★ Najobľúbenejšie, Odporúčame, ponuka v rámiku) a tlačidlá „Nie, ďakujem“. Prebíja zlaté pravidlá vyššie
+   (rovnaká špecifickosť, neskôr v súbore) — nový prevod z artefaktu ich teda nevráti. ===== */
+body.lcd-1v[data-lcd1v-typ="kamion"] { --k-zvol: #1f7a52; --k-zvol-grad: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350); --k-zvol-bg: #f2f9f5; --k-zvol-tien: 0 10px 24px rgba(31, 122, 82, .18); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-segment > button.is-on { background: var(--k-zvol-grad); box-shadow: 0 4px 12px rgba(31, 122, 82, .3); color: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on { border-color: var(--k-zvol); background: #fff; box-shadow: 0 0 0 2px var(--k-zvol), var(--k-zvol-tien); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on:hover, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 1px var(--k-zvol), var(--k-zvol-tien); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 2px var(--k-zvol), var(--k-zvol-tien); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 1.5px var(--k-zvol), 0 6px 14px rgba(31, 122, 82, .16); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw { border-color: #fff; box-shadow: 0 0 0 3px var(--k-zvol), 0 6px 14px rgba(20, 15, 5, .25); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__nm { color: var(--k-zvol); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw::after,
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-chk { border-color: transparent; background: var(--k-zvol-grad); color: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r { border-color: #fff; background: var(--k-zvol-grad); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol::after { color: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-chk::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r::after { opacity: 1; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zelene.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-btn-zlate.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .an__b.is-on { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--k-zvol); }

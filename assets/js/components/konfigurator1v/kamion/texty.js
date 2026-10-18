@@ -425,33 +425,84 @@ export const TEXTY = {
    "kicker": "Krok 5 z 6",
    "nazov": "Nášivky",
    "otazka": "Prosíte si nášivky na koberce?",
-   "pomocna_veta": "Motív vo farbe nite podľa Vášho výberu – na koberce šoféra a spolujazdca, na stredový koberec alebo na všetky tri.",
+   "pomocna_veta": [
+    "Nášivka je motív vyšitý priamo na koberci, vo farbe nite podľa Vášho výberu. ",
+    "Zaškrtnite, kam ju chcete",
+    " – jedno miesto alebo všetky tri nášivky."
+   ],
+   "kam": "Kam chcete nášivku?",
+   "ilustracna": "Ilustračná fotka",
+   "miesta": {
+    "sofer": "Šofér",
+    "spolujazdec": "Spolujazdec",
+    "stred": "Stredový koberec"
+   },
    "stitok_najoblubenejsie": "★ Najobľúbenejšie",
    "usetrite": "Ušetríte {x}",
-   "volby": [
-    {
-     "id": "boky+stred",
-     "text": "Áno, na všetky tri koberce",
-     "popis": "šofér, spolujazdec aj stred",
-     "stitok": "★ Najobľúbenejšie"
+   "v_baliku": "✓ v balíku všetkých troch",
+   "volby": {
+    "boky": {
+     "text": "Nášivka pred sedadlá",
+     "popis": "na koberec šoféra aj spolujazdca – dve menšie nášivky",
+     "alt": "Kabína zhora – nášivky na koberci šoféra a spolujazdca, pred sedadlami"
     },
-    {
-     "id": "boky",
-     "text": "Áno, len na koberce šoféra a spolujazdca",
-     "popis": "koberec šoféra a koberec spolujazdca"
+    "boky+stred": {
+     "text": "Všetky tri nášivky",
+     "popis": "na koberec šoféra, spolujazdca aj na stredový koberec",
+     "alt": "Kabína zhora – nášivky na koberci šoféra, spolujazdca aj na stredovom koberci",
+     "stitok": "★ Najobľúbenejšie",
+     "ano": "Áno, na všetky tri koberce",
+     "vybrate": "✓ Vybraté – všetky tri koberce"
     },
-    {
-     "id": "stred",
-     "text": "Áno, len na stredový koberec",
-     "popis": "motív len na stredovom koberci"
+    "stred": {
+     "text": "Nášivka na stredový koberec",
+     "popis": "medzi sedadlami – jedna väčšia nášivka",
+     "alt": "Kabína zhora – nášivka na stredovom koberci medzi sedadlami"
     },
-    {
-     "id": "nechcem",
+    "nechcem": {
      "text": "Nie, ďakujem",
-     "popis": "koberce bez nášiviek",
-     "cena_text": "bez príplatku"
+     "popis": "koberce bez nášiviek, bez príplatku",
+     "pozn": "Pokračujete bez nášiviek."
     }
-   ],
+   },
+   "vasa_volba": {
+    "label": "Vaša voľba",
+    "boky+stred": [
+     "Všetky tri nášivky – výhodný balík",
+     "šofér, spolujazdec aj stredový koberec"
+    ],
+    "boky": [
+     "Nášivka pred sedadlá",
+     "šofér a spolujazdec"
+    ],
+    "stred": [
+     "Nášivka na stredový koberec",
+     "medzi sedadlami"
+    ],
+    "tip_boky": [
+     "Tip: pridajte aj stredový koberec – ",
+     "všetky tri nášivky spolu len za {suma}",
+     " namiesto {povodna}."
+    ],
+    "tip_stred": [
+     "Tip: pridajte aj nášivky pred sedadlá – ",
+     "všetky tri spolu len za {suma}",
+     " namiesto {povodna}."
+    ],
+    "schema_aria": "Schéma kabíny zhora: {x}",
+    "schema_miesta": {
+     "sofer": "šofér",
+     "spolujazdec": "spolujazdec",
+     "stred": "stredový koberec",
+     "nic": "bez nášiviek"
+    }
+   },
+   "oddiel": {
+    "vsetky": "Motív a niť na všetky tri koberce",
+    "boky": "Nášivka pred sedadlá – motív a niť",
+    "stred_pri_bokoch": "Nášivka na stredovom koberci",
+    "stred": "Nášivka na stredový koberec – motív a niť"
+   },
    "motiv": {
     "label": "Motív",
     "volby": [
@@ -513,23 +564,34 @@ export const TEXTY = {
       "meno": "Zelená"
      }
     ],
-    "viac": "+{n}"
+    "prve": 6,
+    "viac": "Ďalšie farby (+{n})"
    },
-   "stred_rovnaky": "Na stredovom koberci rovnaký motív a niť",
-   "stred_rovnaky_pozn": "Pre iný motív alebo farbu nite na stredovom koberci zrušte zaškrtnutie.",
+   "stred_rovnaky": {
+    "ano": "Rovnaká ako pred sedadlami",
+    "ano_bez_vyberu": "rovnaký motív aj farba nite",
+    "inak": "Iný motív alebo niť",
+    "inak_popis": "vyberiete nižšie"
+   },
    "stred_iny": {
     "motiv": "Motív na stredovom koberci",
     "nit": "Farba nite na stredovom koberci"
    },
+   "kam_pride": {
+    "boky+stred": "na všetky tri koberce – pred sedadlá šoféra a spolujazdca aj na stredový koberec.",
+    "boky": "na koberec šoféra aj spolujazdca, pred sedadlo.",
+    "stred": "na stredový koberec medzi sedadlami."
+   },
+   "podklad": "farba Vašich kobercov – {x}.",
    "zhrnutie": "{rozsah} · {motiv} · niť {nit}",
    "rozsah": {
     "boky+stred": "Na všetky tri koberce",
-    "boky": "Na koberce šoféra a spolujazdca",
+    "boky": "Pred sedadlá (šofér a spolujazdec)",
     "stred": "Na stredový koberec"
    },
    "zhrnutie_nie": "Bez nášiviek",
    "chyby": {
-    "volba": "Prosím, vyberte jednu z možností.",
+    "volba": "Prosím, vyberte, kam chcete nášivku, alebo „Nie, ďakujem“.",
     "motiv": "Prosím, vyberte motív nášivky.",
     "nit": "Prosím, vyberte farbu nite.",
     "motiv_stred": "Prosím, vyberte motív na stredový koberec.",
@@ -540,9 +602,11 @@ export const TEXTY = {
    "kicker": "Krok 6 z 6",
    "nazov": "Tapacír dverí",
    "otazka": "Prosíte si aj tapacír dverí?",
-   "vysvetlivka": "Tapacír dverí je výplň do panelu dverí, ladená s kobercami.",
-   "benefit": "Výplne dverí – predvolene v rovnakom materiáli ako koberce.",
-   "foto_pozn": "Ilustračná fotka. Motív nášivky si vyberiete nižšie.",
+   "vysvetlivka": "Tapacír je výplň v strede panelu dverí – na fotke béžová s červeným lemovaním. Ladí s Vašimi kobercami.",
+   "foto_alt": "Celý panel dverí kamióna s tapacírom a nášivkou v strede, ilustračná fotka",
+   "foto_stitok": "Tapacír dverí",
+   "ilustracna": "Ilustračná fotka",
+   "benefit": "Ak nič nezmeníte, bude v rovnakom materiáli, farbe a lemovaní ako koberce. Môžete si ich však vybrať aj inak.",
    "volby": {
     "ano": {
      "text": "Áno, chcem aj tapacír dverí",
@@ -555,28 +619,47 @@ export const TEXTY = {
      "pozn": "Pokračujete bez tapacíru."
     }
    },
-   "predvolene": {
-    "text": "Materiál, farba a lemovanie ako na kobercoch",
-    "zmenit": "Zmeniť"
+   "rovnake": {
+    "ano": "Rovnaké ako koberce",
+    "inak": "Vybrať inak",
+    "inak_popis": "iný materiál, farbu alebo lemovanie"
    },
    "vlastne": {
     "material": "Materiál tapacíru",
     "farba": "Farba tapacíru",
     "lemovanie": "Lemovanie tapacíru",
-    "spat": "Rovnaké ako na kobercoch"
+    "vybrate": "Vybraté pre tapacír",
+    "bez_materialu": "materiál vyberte vyššie",
+    "bez_farby": "farbu vyberte vyššie",
+    "bez_lemovania": "lemovanie vyberte vyššie",
+    "farba_x": "farba {x}"
    },
    "nasivka_dvere": {
+    "nadpis": "Nášivka na tapacír dverí",
+    "kde": [
+     "Motív bude vyšitý ",
+     "do stredu výplne dverí",
+     " – tam, kde je na fotke zlatý krúžok."
+    ],
+    "foto_alt": "Panel dverí – nášivka v strede výplne, ilustračná fotka",
+    "bod": "Sem príde nášivka",
     "otazka": "Prosíte si aj nášivku na tapacír dverí?",
+    "s_tapacirom": "S tapacírom len",
+    "samostatne": "Samostatne",
+    "usetrite": "Ušetríte {x}",
     "ano": "Áno, s nášivkou",
-    "info_samostatne": "Samostatne",
-    "info_s_tapacirom": "s tapacírom len",
-    "usetrite": "ušetríte {x}",
+    "nie": "Nie, ďakujem",
     "bez_priplatku": "bez príplatku",
     "zmena_info": "Na kobercoch už nášivka nie je. Prosím, vyberte, či chcete nášivku na tapacír dverí.",
-    "nie": "Nie, ďakujem",
-    "rovnaka": "Rovnaký motív a niť ako na kobercoch",
-    "motiv": "Motív nášivky na tapacír dverí",
-    "nit": "Farba nite na tapacír dverí"
+    "rovnaka": "Rovnaká ako na kobercoch",
+    "ina": "Iný motív a niť",
+    "ina_popis": "vyberiete nižšie",
+    "bez_kobercov_nevybrate": "Nášivku na koberce ste ešte nevybrali, preto si motív a farbu nite pre dvere vyberte tu.",
+    "bez_kobercov": "Na kobercoch nášivku nemáte, preto si motív a farbu nite pre dvere vyberte tu.",
+    "motiv": "Motív na tapacír dverí",
+    "nit": "Farba nite na tapacír dverí",
+    "kam_pride": "do stredu výplne dverí.",
+    "podklad": "tapacír – {x}."
    },
    "zhrnutie_ano": "Áno · ako na kobercoch",
    "zhrnutie_ano_vlastne": "Áno · {nazov}, {variant} · {farba}",
@@ -671,16 +754,20 @@ export const TEXTY = {
   "farba_bez_materialu": "Najprv vyberte materiál v predchádzajúcom kroku.",
   "vybrate": "Vybraté: {x}",
   "lem_zblizka": "Lemovanie {x} zblízka",
-  "motiv_boky_oba": "Motív na kobercoch šoféra a spolujazdca",
   "tap_oddiel": "Materiál, farba a lemovanie tapacíru",
   "tap_s_nasivkou": " · s nášivkou",
-  "tap_foto_alt": "Tapacír dverí kamióna, ilustračná fotka",
   "nahlad_aria": "Náhľad motívu {x}",
   "nahlad": "Náhľad: {meno} ({kod})",
-  "nahlad_nit": "Niť {nit} ({kod})",
-  "nahlad_na": ", na materiáli {farba} ({kod})",
-  "nahlad_bez_nite": "Farbu nite vyberte vyššie.",
-  "nahlad_ilustr": " Ilustračný náhľad.",
+  "nahlad_nit": " · niť {nit} ({kod})",
+  "nahlad_kam": "Kam príde:",
+  "nahlad_podklad": "Podklad:",
+  "nahlad_bez_nite": [
+   "Farbu nite",
+   " vyberte vyššie."
+  ],
+  "nahlad_ilustr": "Ilustračný náhľad.",
+  "nahlad_bez_motivu": "Po výbere motívu sa tu ukáže veľký náhľad.",
+  "schema_dvere_aria": "Schéma dverí: nášivka v strede výplne",
   "suhrn_ey": "Súhrn objednávky",
   "suhrn_bez_vozidla": "Vozidlo zatiaľ nie je vybraté",
   "suhrn_bez_nasiviek": "Bez nášiviek",
