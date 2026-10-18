@@ -858,22 +858,30 @@
 }
 #lcd-home .s2-thumbs button.on {transform:translateY(-4px);box-shadow:0 12px 26px rgba(140,105,25,.32)
 }
-#lcd-home .s2-rail {display:flex;flex-direction:column;justify-content:center;gap:0;flex:none;padding:4px 0
+/* čísla krokov ako štvorčeky s pozadím a rámikom, aktívny krok zlatý; spojnica medzi nimi sa po prejdení kroku
+   zafarbí (18. 10. 2026: „okolo čísel dať štvorčeky s bg a borderom a nech ukazuje aktívny bod“) */
+#lcd-home .s2-rail {display:flex;flex-direction:column;justify-content:center;gap:12px;flex:none;padding:4px 0
 }
-#lcd-home .s2-rail button {position:relative;width:34px;height:52px;border:0;background:none;cursor:pointer;padding:0;
-  font-family:var(--disp);font-size:11px;font-weight:700;color:var(--mute);letter-spacing:.06em;
-  font-variant-numeric:tabular-nums;transition:color .3s
+#lcd-home .s2-rail button {position:relative;display:grid;place-items:center;width:40px;height:40px;
+  border:1px solid rgba(155,122,36,.32);border-radius:8px;background:var(--paper);cursor:pointer;padding:0;
+  font-family:var(--disp);font-size:13px;font-weight:700;color:var(--mute);letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;transition:color .3s,background .3s,border-color .3s,box-shadow .3s
 }
-#lcd-home .s2-rail button:before {content:"";position:absolute;left:50%;top:6px;bottom:6px;width:2px;margin-left:-1px;
+#lcd-home .s2-rail button:before {content:"";position:absolute;left:50%;top:100%;width:2px;height:12px;margin-left:-1px;
   background:rgba(155,122,36,.26);border-radius:2px;transition:background .3s
 }
-#lcd-home .s2-rail button span {position:relative;z-index:2;background:var(--ground);display:block;padding:6px 0
+#lcd-home .s2-rail button:last-child:before {display:none
 }
-#lcd-home .s2-rail button.on {color:var(--ink)
+#lcd-home .s2-rail button span {position:relative;z-index:2;display:block
 }
-#lcd-home .s2-rail button.on:before {background:var(--gold)
+#lcd-home .s2-rail button:hover {border-color:var(--gold);color:var(--ink)
+}
+#lcd-home .s2-rail button.done {border-color:rgba(196,155,49,.65);color:var(--gold-lo)
 }
 #lcd-home .s2-rail button.done:before {background:rgba(196,155,49,.6)
+}
+#lcd-home .s2-rail button.on {background:var(--gold);border-color:var(--gold);color:var(--deep);
+  box-shadow:0 6px 16px rgba(140,105,25,.3)
 }
 #lcd-home .s2-texts {position:relative;flex:1;min-height:clamp(230px,30svh,320px)
 }
@@ -950,13 +958,11 @@
   }
   #lcd-home .s2-texts {min-height:210px
   }
-  #lcd-home .s2-rail {flex-direction:row;justify-content:flex-start;gap:0
+  #lcd-home .s2-rail {flex-direction:row;justify-content:flex-start;gap:10px
   }
-  #lcd-home .s2-rail button {width:46px;height:34px
+  #lcd-home .s2-rail button {width:36px;height:36px
   }
-  #lcd-home .s2-rail button:before {left:6px;right:6px;top:50%;bottom:auto;width:auto;height:2px;margin:-1px 0 0
-  }
-  #lcd-home .s2-rail button span {padding:0 6px;display:inline-block
+  #lcd-home .s2-rail button:before {left:100%;top:50%;width:10px;height:2px;margin:-1px 0 0
   }
   #lcd-home .s2-body {flex-direction:column;gap:14px
   }
@@ -2176,8 +2182,9 @@
 /* displej na výšku (telefóny, tablety na výšku; tablet 8. 10. 2026): široká fotka 2,14 : 1 zabrala len 21–32 % výšky
    a nad aj pod ňou zívalo 120–230 px čiernej plochy -> vyšší výrez 1,5 : 1 (object-fit:cover, stred), fotka ~30–50 % výšky */
 @media(orientation:portrait) and (max-width:1199px){#lcd-home .lx-pp .lx-pp-main{--lx-pomer:1.5}}
-/* sekcia za tmavou (JS jej dal triedu namiesto padding-top:0 v HTML): PC bez zmeny, mobil s odstupom */
-#lcd-home section.lx-po-tmavej{padding-top:0!important}
+/* sekcia za tmavou (JS jej dal triedu namiesto padding-top:0 v HTML): odstup nad nadpisom aj na PC
+   (18. 10. 2026: „01 — Pre osobné autá“ a „05 — Na vlastné oči“ lepili na tmavý pás nad sebou), mobil s odstupom */
+#lcd-home section.lx-po-tmavej{padding-top:clamp(44px,5.4vw,84px)!important}
 @media(max-width:760px){#lcd-home section.lx-po-tmavej{padding-top:clamp(52px,14vw,76px)!important}}
 
 /* --- farby (svetlá sekcia) --- */

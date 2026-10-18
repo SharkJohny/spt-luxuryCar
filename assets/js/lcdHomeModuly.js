@@ -344,6 +344,7 @@ export function lxModulyOziv(root, cz) {
   /* position:sticky nefunguje, keď má niektorý predok overflow hidden/auto —
      vtedy scéna beží ako normálny blok a postup sa ráta podľa polohy fotky */
   const galLepi = () => gal && innerWidth > 760 && !gal.classList.contains("lx-bez-lepu");
+  const GAL_POMER = 2.2; // px rolovania na 1 px posunu pásu
   const rezim = () => {
     [pp, gal].forEach((s) => {
       if (!s) return;
@@ -355,11 +356,12 @@ export function lxModulyOziv(root, cz) {
       }
       s.classList.toggle("lx-bez-lepu", zly);
     });
-    /* výška galérie podľa dĺžky pásu: scroll a posun idú zhruba 1 : 1 */
+    /* výška galérie podľa dĺžky pásu: na 1 px posunu fotiek pripadá GAL_POMER px rolovania
+       (18. 10. 2026 pri 1 : 1 „scroll je veľmi citlivý“ — 8 fotiek prebehlo za ~12 zubov kolieska) */
     if (gal && trat) {
       if (galLepi()) {
         const cesta = Math.max(0, trat.scrollWidth - innerWidth);
-        gal.style.height = Math.round(innerHeight * 1.2 + cesta) + "px";
+        gal.style.height = Math.round(innerHeight * 1.2 + cesta * GAL_POMER) + "px";
       } else gal.style.height = "";
     }
   };
