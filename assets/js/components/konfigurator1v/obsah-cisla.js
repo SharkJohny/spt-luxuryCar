@@ -26,11 +26,18 @@
 //   box-set2-S…XL            jednovrstvové toho vzoru: príplatok 1. boxu (dva boxy v sete)
 //   pocet-farieb | pocet-farieb-2   počet farieb 1. / 2. vrstvy tohto produktu so skloňovaním (1 farba, 2–4 farby, 5+ farieb)
 //   vzor                     vzor tohto produktu: „Diamond Line“ | „Stripe Line“ | „Hexa Line“ (box: nič)
+//   kamion-material-presivana   kamióny 640: príplatok materiálu „Prémiová syntetická koža – prešívaná“ (živý select)
+//   kamion-tapacir              kamióny 640: tapacír dverí s kobercami (príplatok „Áno chcem (v konfigurátore – balík)“)
+//   kamion-tapacir-samostatne   kamióny 640: prečiarknutá cena tapacíru samostatne (kamion/data.js PRECIARKNUTE_EUR, ako React)
+//   (kamion-*: kamion/cena.js ponuka(citajCeny()) — tie isté čísla ako karty konfigurátora; mimo stránky 640 nič)
 // Odkazy data-p1v-odkaz = jedno | dvoj | classic | premium | boxy -> adresa z registra (produkty.js) v tom istom vzore.
 import { velkost } from "../../lcdKosikDoplnok.js";
 import { cenaProduktu, cenaTypu, priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
 import { sumaText } from "./ctx.js";
+import { ponuka as ponukaKamion } from "./kamion/cena.js";
+import { citajCeny as cenyKamion } from "./kamion/shoptet.js";
+import { ZNACKY as ZNACKY_KAMION } from "./kamion/data.js";
 
 export const MENO = "obsah-cisla";
 
@@ -79,6 +86,17 @@ function priplatokVelkosti(mapa, param, v) {
 }
 
 /** Hodnota kľúča -> Promise(text | null). */
+/** Číslo kľúča kamion-* zo živých selectov stránky 640 (karty konfigurátora kamiónov) alebo null. */
+function cisloKamion(k) {
+  try {
+    const p = ponukaKamion({ ceny: cenyKamion(document), vozidla: { znacky: ZNACKY_KAMION } });
+    if (k === "kamion-material-presivana") { const x = p.material["Prémiová syntetická koža – prešívaná"]; return x > 0 ? x : null; }
+    if (k === "kamion-tapacir") return p.tapacir ? p.tapacir.suma : null;
+    if (k === "kamion-tapacir-samostatne") return p.tapacir ? p.tapacir.povodna : null;
+  } catch (e) { /* iná stránka alebo chýba select -> nezistené */ }
+  return null;
+}
+
 export function hodnota(kluc, ctx) {
   const k = String(kluc || "").trim().toLowerCase();
   const pid = ctx.projectId;
@@ -126,6 +144,7 @@ export function hodnota(kluc, ctx) {
     return Promise.resolve(formatFarby(n));
   }
   if (k === "vzor") return Promise.resolve(formatVzor(vzor));
+  if (k.indexOf("kamion-") === 0) return Promise.resolve(cena(cisloKamion(k)));
   return Promise.resolve(null);
 }
 

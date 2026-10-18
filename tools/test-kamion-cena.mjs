@@ -132,5 +132,23 @@ select("tapNasivka", doc3).remove();
 hodil = false; try { citajCeny(doc3); } catch { hodil = true; }
 over("chýba select Nášivky na tapacír -> citajCeny vyhodí chybu (poistka)", hodil, true);
 
+console.log("9) Čísla v obsahu pod konfigurátorom (obsah-cisla.js kamion-*) = karty konfigurátora");
+{
+  const w4 = new JSDOM(readFileSync(FIXTURE, "utf8"), { url: "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/" }).window;
+  const doc4 = w4.document;
+  globalThis.window = w4; globalThis.document = doc4; // obsah-cisla.js (a lcdKosikDoplnok.js) čakajú prehliadač
+  const OC = await nacitajModul("assets/js/components/konfigurator1v/obsah-cisla.js");
+  const ctx = { projectId: "562035", produkt: { typ: "kamion", vzor: null }, trh: "sk", cena: () => ({ zaklad: 199 }) };
+  const h = async (k) => OC.hodnota(k, ctx);
+  over("RE_KLUC pozná kamion-*", ["kamion-material-presivana", "kamion-tapacir", "kamion-tapacir-samostatne"].every((k) => OC.RE_KLUC.test(k)), true);
+  over("kamion-material-presivana", await h("kamion-material-presivana"), "10 €");
+  over("kamion-tapacir", await h("kamion-tapacir"), "119 €");
+  over("kamion-tapacir-samostatne", await h("kamion-tapacir-samostatne"), "179 €");
+  over("cena-od (základ)", await h("cena-od"), "199 €");
+  select("tapacir", doc4).remove();
+  over("chýba select tapacíru -> nezistené (null)", await h("kamion-tapacir"), null);
+  delete globalThis.document; delete globalThis.window;
+}
+
 console.log(`\n${ok} OK, ${zle} ZLE`);
 process.exit(zle ? 1 : 0);

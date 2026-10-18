@@ -7,6 +7,12 @@
 //   kamion-neuplne  nič nevybraté -> „Pridať do košíka“ aj lišta: žiadny POST, krok 1 červený
 import { join } from "node:path";
 
+/** --snimky: snímka s menom podľa šírky okna (640-<meno>-<šírka>.png). */
+async function snimka(s, a, meno) {
+  if (!a.snimky) return;
+  const w = await s.t.ev("window.innerWidth").catch(() => "");
+  await s.k.snimka(join(a.snimky, "640-" + meno + "-" + w + ".png")).catch(() => {});
+}
 const jeNovy = (s) => s.t.ev(`!!document.getElementById("lcd1v-kamion")`);
 
 /** Postupnosť krokov v stránke: ["klik", selektor v #lcd1v-kamion] | ["vyber", pole, hodnota] | ["dalej", krok]. */
@@ -41,11 +47,15 @@ const STAV = `(function () {
 })()`;
 
 async function doKosika(s, a, j, meno) {
-  if (a.snimky) await s.k.snimka(join(a.snimky, `640-${meno}-${s.sirka || ""}-pred-kosikom.png`)).catch(() => {});
+  await snimka(s, a, meno + "-pred-kosikom");
   await rob(s, j, [["klik", a_("kosik")]]);
   const post = await j.cakajNaPost(s);
   const st = await s.t.ev(STAV);
-  const cena = await j.overPost(s, post, { ine: st.ine });
+  // „Rozloženie nášiviek“ (349) jadro testu berie ako krok rozloženia autokobercov (PARAMETRE.rozlozenie) -> ocak.rozlozenie
+  const idR = await s.t.maParameter("rozlozenie");
+  const ine = Object.assign({}, st.ine);
+  if (idR) delete ine[idR];
+  const cena = await j.overPost(s, post, { ine, rozlozenie: idR ? st.ine[idR] : undefined });
   j.over(cena.spolu === st.spolu, "cena v košíku Shoptetu " + cena.spolu + " € (" + cena.rozpis + ") ≠ konfigurátor " + st.spolu + " €");
   j.over(st.suma === j.eur(st.spolu), "súhrn „" + st.suma + "“ ≠ " + j.eur(st.spolu));
   j.over(/^ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: /.test(st.poznamka || ""), "poznámka objednávky chýba: " + st.poznamka);
@@ -58,6 +68,7 @@ export const SCENARE = {
     async fn(s, a, pom, ovl, j) {
       await j.otvor(s, a.url, { novy: a.novy });
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
+      await snimka(s, a, "kamion-start");
       await rob(s, j, [
         ["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"], ["dalej", "vozidlo"],
         ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"],

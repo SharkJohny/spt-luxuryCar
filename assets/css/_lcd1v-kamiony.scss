@@ -404,7 +404,10 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion [hidden] { display: none !imp
 /* koreň v stĺpci .p-info-wrapper (ako React .truck-konfigurator-wrap): celá šírka, bez okrajov Shoptetu */
 body.lcd-1v[data-lcd1v-typ="kamion"] #product-detail-form .p-info-wrapper > .truck-konfigurator-wrap.lcd1v-kamion { width: 100%; max-width: 100%; margin: 0; padding: 0; }
 /* hlavička produktu presunutá do koreňa: bez okrajov Shoptetu; H1 = text artefaktu (štýl .k-h1) */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion > .p-detail-inner-header { margin: 0; padding: 0; border: 0; }
+/* Shoptet téma: .p-detail-inner-header { order: 1 } (koreň je flex stĺpec -> hlavička by skončila dole) a
+   .p-detail-inner-header h1 { display: none } (React má vlastný nadpis) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion > .p-detail-inner-header { order: 0; display: block; margin: 0; padding: 0; border: 0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion > .p-detail-inner-header h1.k-h1 { display: block; }
 /* lepivá lišta 1V (#lcd1v-lista, _lcd1v-cena.scss): „Spolu“ malým písmom nad sumou ako v artefakte */
 body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista .lcd1v-lista__suma small { display: block; font: 600 10.5px/1.2 var(--k-disp); letter-spacing: .12em; text-transform: uppercase; color: var(--k-mute); }
 /* canvas náhľadu nášivky nikdy širší ako karta */
