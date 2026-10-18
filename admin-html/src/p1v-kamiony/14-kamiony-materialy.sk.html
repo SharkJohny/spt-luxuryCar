@@ -1,0 +1,21 @@
+<!-- 14-kamiony-materialy — kamióny a dodávky SK 640: „Dva materiály v piatich prevedeniach“ (ART texty.json obsah.materialy). Kapitola 1.
+     5 kariet: vzorka = obrázok konfigurátora, ktorý web už má (IMG_BASE …/www.luxurycardesign.cz/user/documents/upload/assets/config/
+     + zdroj_full PRVEJ farby materiálu, ako karta v kroku 2 ART a gen.jsx MATERIALS[mat][0].full; overené GET 200 18. 10. 2026).
+     Počty farieb = texty ART (farby_text). Pilulka s príplatkom z ART (v cene / +10 / +40 / +40 / +50 €) tu NIE JE: cena v HTML je zakázaná
+     a zmluva §4.3 má len kľúč kamion-material-presivana — príplatky ostatných materiálov ukáže krok Materiál konfigurátora
+     (otvorený bod pre koordinátora: kľúče kamion-material-<slug>, potom pilulku doplniť).
+     „Vybrať materiál“ vedie na konfigurátor (#product-detail-form); data-p1v-kamion-krok="material" = nápoveda pre konfigurátor,
+     ktorý krok otvoriť (ART data-v="material"), bez neho sa otvorí krok Vozidlo. Vzhľad: _lcd1v-obsah-kamiony.scss (.km). -->
+<section class="chapter" data-lcd-sekcia="kamiony-materialy" data-lcd-kap="1"><div class="wrap">
+  <div class="eyebrow rv">Materiály</div>
+  <h2 class="rv">Dva materiály v piatich prevedeniach</h2>
+  <p class="lede rv">Každé prevedenie je v niekoľkých farbách. Príplatok za materiál platíte raz – za všetky tri koberce spolu.</p>
+  <div class="km rv">
+    <div class="km-k"><img src="https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/t3e47c28253d486bf.jpg" alt="Vzorka: Prémiová syntetická koža – jednofarebná" loading="lazy" width="353" height="353"><div class="km-t"><b>Prémiová syntetická koža – jednofarebná</b><i class="km-pill">13 farieb</i><p>Hladký povrch v jednej farbe. Pôsobí čisto a nadčasovo.</p></div></div>
+    <div class="km-k"><img src="https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/te69da20aa41cfff3.jpg" alt="Vzorka: Prémiová syntetická koža – prešívaná" loading="lazy" width="400" height="400"><div class="km-t"><b>Prémiová syntetická koža – prešívaná</b><i class="km-pill">14 farieb</i><p>Prešívaný kosoštvorcový vzor dodá kabíne luxusnejší vzhľad.</p></div></div>
+    <div class="km-k"><img src="https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/tf1503ccd74e74267.jpg" alt="Vzorka: Prémiová syntetická koža – tónovaná" loading="lazy" width="400" height="400"><div class="km-t"><b>Prémiová syntetická koža – tónovaná</b><i class="km-pill">5 farieb</i><p>Povrch s jemne žíhaným, vintage vzhľadom.</p></div></div>
+    <div class="km-k"><img src="https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/t4e39131904cb5a1c.jpg" alt="Vzorka: Mikrosemiš – jednofarebný" loading="lazy" width="400" height="400"><div class="km-t"><b>Mikrosemiš – jednofarebný</b><i class="km-pill">5 farieb</i><p>Mäkký, jemný povrch v jednej farbe.</p></div></div>
+    <div class="km-k"><img src="https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/t53ca6a0f2fcb0a10.jpg" alt="Vzorka: Mikrosemiš – dvojfarebný" loading="lazy" width="400" height="400"><div class="km-t"><b>Mikrosemiš – dvojfarebný</b><i class="km-pill">6 farieb</i><p>Mikrosemiš s melírovaným dvojfarebným efektom.</p></div></div>
+  </div>
+  <div class="k-cta rv"><a class="btn" href="#product-detail-form" data-p1v-kamion-krok="material">Vybrať materiál</a></div>
+</div></section>

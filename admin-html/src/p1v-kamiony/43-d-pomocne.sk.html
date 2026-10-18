@@ -1,0 +1,16 @@
+<!-- 43-d-pomocne — kamióny a dodávky SK 640: pomocné prvky skupiny D, kópia p1v-598/43-d-pomocne (bez zmeny markupu). Bez kapitoly.
+     - #p1v-citanie: tenká zlatá linka čítania obsahu pod konfigurátorom;
+     - #p1v-lb: okno na fotky (galéria kamiony-galeria cez data-p1v-lb-foto, obsah-d.js).
+     obsah-d.js ich pod body.lcd-1v presunie do <body> a drží skryté atribútom hidden, kým nie sú potrebné. -->
+<div class="p1v-pomocne" data-lcd-sekcia="d-pomocne">
+  <div class="p1v-citanie" id="p1v-citanie" aria-hidden="true"><i><!-- --></i></div>
+  <div class="p1v-lb" id="p1v-lb" role="dialog" aria-modal="true" aria-label="Fotka alebo video">
+    <button type="button" class="p1v-lb-x" aria-label="Zavrieť">&times;</button>
+    <button type="button" class="p1v-lb-sip p1v-lb-spat" aria-label="Predchádzajúca fotka">&lsaquo;</button>
+    <button type="button" class="p1v-lb-sip p1v-lb-dalej" aria-label="Ďalšia fotka">&rsaquo;</button>
+    <div class="p1v-lb-in">
+      <div class="p1v-lb-ram"><!-- --></div>
+      <div class="p1v-lb-pod"><!-- --></div>
+    </div>
+  </div>
+</div>

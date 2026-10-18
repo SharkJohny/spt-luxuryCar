@@ -49,10 +49,11 @@ import * as skClassic from "./test-1v/obsah-classic.mjs";
 import * as skPremium from "./test-1v/obsah-premium.mjs";
 import * as skBoxy from "./test-1v/obsah-boxy.mjs";
 import * as skVzorky from "./test-1v/obsah-vzorky.mjs";
+import * as skKamiony from "./test-1v/obsah-kamiony.mjs";
 
-const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClassic, premium: skPremium, boxy: skBoxy, vzorky: skVzorky };
+const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClassic, premium: skPremium, boxy: skBoxy, vzorky: skVzorky, kamiony: skKamiony };
 /** Kontroly skupín podľa kľúča obsahu: 598 = A–D (návrh v26); iný kľúč = vlastný plugin + skupiny, ktoré si vyžiada (zdielane). */
-const PLUGINY = { 598: ["a", "b", "c", "d"], dvoj: ["dvoj"], classic: ["classic"], premium: ["premium"], boxy: ["boxy"], vzorky: ["vzorky"] };
+const PLUGINY = { 598: ["a", "b", "c", "d"], dvoj: ["dvoj"], classic: ["classic"], premium: ["premium"], boxy: ["boxy"], vzorky: ["vzorky"], kamiony: ["kamiony"] };
 const SERVER_NAVRHOV = "http://127.0.0.1:8952/";
 /** Tvrdý časový limit jednej úlohy (bežne do 200 s aj so snímkami). */
 const LIMIT_ULOHY = 480000;

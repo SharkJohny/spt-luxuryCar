@@ -351,13 +351,56 @@
       },
       "cz": null
     }
+,
+    "p1v-kamiony-1": {
+      "koren": "p1v-kamiony-1",
+      "tinymce": true,
+      "popis": "Obsah pod konfigurátorom 1V: kamióny a dodávky 640 (schválený vzor kamiony-app, texty.json obsah.*; docs/kamiony-1v-plan.md §4), kus 1 = sekcie 10–29. Za bránou (?novy=1 po vydaní typu kamion / ?novy=vyvoj). docs/1v-obsah.md",
+      "zlozka": "p1v-kamiony",
+      "sekcie": ["10", "29"],
+      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "pravidla": "obsah-1v",
+      "naVsetkychStrankach": false,
+      "skupina": "p1v-kamiony",
+      "produkty": [640],
+      "popisSpolu": "po spustení pre všetkých: Popis produktu 640 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
+      "sk": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-1.sk.html",
+        "nazov": "1V obsah kamióny kus 1",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
+      },
+      "cz": null
+    },
+    "p1v-kamiony-2": {
+      "koren": "p1v-kamiony-2",
+      "tinymce": true,
+      "popis": "Obsah pod konfigurátorom 1V: kamióny a dodávky 640 (schválený vzor kamiony-app, texty.json obsah.*; docs/kamiony-1v-plan.md §4), kus 2 = sekcie 30–49. Za bránou (?novy=1 po vydaní typu kamion / ?novy=vyvoj). docs/1v-obsah.md",
+      "zlozka": "p1v-kamiony",
+      "sekcie": ["30", "49"],
+      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "pravidla": "obsah-1v",
+      "naVsetkychStrankach": false,
+      "skupina": "p1v-kamiony",
+      "produkty": [640],
+      "popisSpolu": "po spustení pre všetkých: Popis produktu 640 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
+      "sk": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-2.sk.html",
+        "nazov": "1V obsah kamióny kus 2",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
+      },
+      "cz": null
+    }
   },
   "pravidla": {
     "obsah-1v": {
       "_pozn": "Obsah pod konfigurátorom 1V: počas skúšky ho obsah.js stiahne z CDN verzie bundle len pod bránou (D1 = b), po spustení je v Popise produktu. Preto: id len s predponou p1v-, žiadne triedy, na ktoré kotví živý JS (main.js placeWidget recenzií/videí, popisModuly.js, video-play-again.js, productPage.js, index.js FAQ/akordeón, konfigurátor), žiadne polia formulára, médiá odložené (img lazy, video/iframe len data-src + data-poster). Čísla závislé od vzoru/ceny len v značkách data-p1v-cislo (vnútri len <!-- -->, hodnotu dosadí obsah-cisla.js), odkazy na iný typ data-p1v-odkaz (href dosadí obsah-cisla.js podľa registra produkty.js).",
       "idPredpona": "p1v-",
       "media": "odlozene",
-      "cisla": "^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor)$",
+      "cisla": "^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor|kamion-(material-presivana|tapacir|tapacir-samostatne))$",
       "odkazy": ["jedno", "dvoj", "classic", "premium", "boxy"],
       "kusy": 2,
       "zakazaneTriedy": [
@@ -452,6 +495,10 @@
     },
     "produkt-637": {
       "casti": ["mega", "p1v-vzorky-1", "p1v-vzorky-2"],
+      "idStranky": ["product-detail-form", "content", "description", "footer"]
+    },
+    "produkt-640": {
+      "casti": ["mega", "p1v-kamiony-1", "p1v-kamiony-2"],
       "idStranky": ["product-detail-form", "content", "description", "footer"]
     },
     "ostatne": {
