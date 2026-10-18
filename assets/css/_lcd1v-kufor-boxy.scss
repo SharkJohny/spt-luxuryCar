@@ -287,6 +287,20 @@ body.lcd-1v .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
     font-size: 18px;
   }
 }
+/* telefón 360–480 px: fotka 39 % (namiesto 44 %), aby sa „Výhoda v sete  až − 226 €“ a „Samostatne  od 394 €“ zmestili
+   na jeden riadok aj pri väčšom písme (zmerané 360 / 375 / 390 / 412 px: 0 zalomených riadkov) */
+@media (min-width: 360px) and (max-width: 480px) {
+  body.lcd-1v .lcd1v-kb__karta {
+    grid-template-columns: minmax(0, 39%) minmax(0, 1fr);
+    column-gap: 10px;
+  }
+  body.lcd-1v .lcd1v-kb__tx {
+    padding-right: 10px;
+  }
+  body.lcd-1v .lcd1v-kb__r {
+    column-gap: 6px;
+  }
+}
 @media (min-width: 721px) {
   body.lcd-1v .lcd1v-kb__karta {
     grid-template-columns: minmax(0, min(46%, 250px)) minmax(0, 1fr);
