@@ -9,6 +9,8 @@
 //   node tools/test-konfigurator-1v.mjs --vyvoj --produkt 601 # ?novy=vyvoj: aj nevydané typy (rozpracovaný nový vzhľad)
 //   node tools/test-konfigurator-1v.mjs --produkt 598,610 | all | typ:dvoj | typ:kufor | jedno-hexa | boxy | vzorky
 //   node tools/test-konfigurator-1v.mjs --sirka 390 --krok platne,box-2 --snimky C:/tmp/snimky --vypis
+//   node tools/test-konfigurator-1v.mjs --vyvoj --produkt 640 --krok brana --nechaj-otvorene   # ručná kontrola: po scenároch
+//     ostane otvorené okno Chromu s lokálnym buildom a rovnakým zachytávaním (POST do košíka sa zruší a vypíše), kým beží proces
 //   node tools/test-konfigurator-1v.mjs --zdroj cdn --produkt all --sirka 1280 --paralelne 2 --json %TEMP%/1v-baseline.json
 //   node tools/test-konfigurator-1v.mjs --zdroj 5db0f33      # verzia nahratá na CDN (assets/v/<sha>/)
 //   (--krok bez --produkt spustí scenáre na 598; scenár iného typu sa na produkte nespustí a len sa spočíta;
@@ -79,6 +81,7 @@ function argumenty(argv) {
     else if (x === "--url") a.url = dalsi();
     else if (x === "--paralelne") a.paralelne = Math.max(1, Number(dalsi()) || 1);
     else if (x === "--okno") a.okno = true;
+    else if (x === "--nechaj-otvorene") a.nechajOtvorene = true;
     else if (x === "--vypis") a.vypis = true;
     else if (x === "--json") a.json = resolve(dalsi());
     else if (x === "--bez-drop") a.bezDrop = true;
@@ -1506,6 +1509,7 @@ async function main() {
     }
   }
   await Promise.all(Array.from({ length: Math.min(a.paralelne, ulohy.length) }, pracovnik));
+  if (a.nechajOtvorene) await nechajOtvorene(a, build, produkty[0]);
   if (build.tmp) try { rmSync(build.tmp, { recursive: true, force: true }); } catch {}
   const zle = vysledky.filter((v) => v.stav === "ZLYHAL").length, ok = vysledky.filter((v) => v.stav === "OK").length;
   const upoz = vysledky.reduce((n, v) => n + v.upozornenia.length, 0);
@@ -1535,6 +1539,22 @@ async function main() {
       spolu: { ok, okOpakovane: opak, zlyhalo: zle, preskocene: vysledky.length - ok - zle, upozornenia: upoz, ineTypy, uspech: !(zle || opakovanieZle) }, suhrn, vysledky: vysledky.map(({ logy, ...v }) => v) }, null, 1));
   }
   process.exit(zle || opakovanieZle ? 1 : 0);
+}
+
+/**
+ * --nechaj-otvorene: okno Chromu (s oknom) na prvom produkte s lokálnym buildom a tým istým zachytávaním ako scenáre —
+ * POST do košíka sa zruší a jeho telo sa vypíše sem, merače blokované. Čaká, kým sa proces neukončí (Ctrl+C).
+ */
+async function nechajOtvorene(a, build, P) {
+  const ch = await spustiChrome({ okno: true });
+  const s = await novaStranka(ch, a.sirky[0], build, a, (x) => { if (a.vypis) console.log("  log " + x); }, P);
+  await otvor(s, P.url, { novy: a.novy, kontrola1v: false });
+  console.log("\nOkno je otvorené: " + P.url + (a.flag ? "?novy=" + a.flag : "") + " (lokálny build, POST do košíka sa zruší). Ukonči Ctrl+C.");
+  let n = 0;
+  for (;;) {
+    while (s.posty.length > n) console.log("  POST zachytený a zrušený: " + s.posty[n++].body);
+    await pauza(500);
+  }
 }
 
 // chyba použitia (zlý prepínač, neznámy produkt alebo adresa) = len správa, exit 2; ostatné chyby aj so stopou
