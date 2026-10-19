@@ -57,8 +57,15 @@ export function nastavFarbuKresby(obal, slug) {
   const k = slug && FARBY_KRESBY[slug] ? slug : PREDVOLENA;
   if (!obal || obal.getAttribute("data-lcd1v-farba") === k) return k;
   const c = FARBY_KRESBY[k];
+  const predtym = obal.hasAttribute("data-lcd1v-farba");
   [c.koza, c.rucka, c.lem, c.sitie, c.ryha || RYHA].forEach((v, i) => obal.style.setProperty(PREMENNE[i], v));
   obal.setAttribute("data-lcd1v-farba", k);
+  // iPhone (WebKit; Michal 19. 10. 2026): keď sa zmení len farba šitia (čierna / červené -> čierna / modré šitie), vzory
+  // <pattern> sa neprekreslili všade — časť boxu ostala v starej farbe (Chrome to prekreslí sám). Nová kópia <defs>
+  // (rovnaké ID) prinúti prehliadač prekresliť všetky kresby, ktoré vzory používajú. Obal <svg class="lcd1v-bxp-defs">
+  // ostáva ten istý uzol (kufor-boxy.js ho pri návrate na starý vzhľad odstraňuje podľa odkazu).
+  const defs = predtym && obal.querySelector(".lcd1v-bxp-defs > defs");
+  if (defs) defs.replaceWith(defs.cloneNode(true));
   return k;
 }
 /** Návrat na starý vzhľad: premenné a značka farby z obalu preč. */
