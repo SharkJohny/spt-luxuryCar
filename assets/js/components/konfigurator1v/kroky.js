@@ -79,6 +79,17 @@ export function nazovFarby(text) {
   return { vzor: m[1].trim(), nazov: koza + " / " + sitie + " šitie" };
 }
 
+/**
+ * Vybraná farba slovami pre zákazníka (popis pod vzorkami farby boxov; Michal 19. 10. 2026: „aby sa aj pri výbere farby
+ * zobrazovala niekde dole s kontextom, že aká je to farba“). Názov z nazovFarby (text možnosti zo živého selectu):
+ * koža so šitím -> „Čierna koža, béžové šitie“; jednofarebná ostáva názvom z adminu („Hnedá káva“, „Šedá“).
+ */
+export function popisFarby(text) {
+  const n = nazovFarby(text).nazov;
+  const c = n.split(" / ");
+  return c.length === 2 && / šitie$/.test(c[1]) ? c[0] + " koža, " + c[1] : n;
+}
+
 /** „ DIAMOND LINE“ -> „Diamond Line“ */
 const nazovVzoru = (s) => String(s || "").normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase().replace(/(^|\s)\S/g, (x) => x.toUpperCase());
 

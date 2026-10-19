@@ -31,11 +31,15 @@ const CIERNA = { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11" };
 // šitie béžové/krémové o tón tmavšie a teplejšie, lem tmavšia béžová, rúčka o tón tmavšia ako koža, ryha teplá hnedá
 // (čierna ryha robila zo svetlej kože sivú). Svetlý box 616 („Šedá“) aj svetlý box setu („Béžová“) kreslíme rovnako.
 const BEZOVA = { koza: "#d4cbbb", rucka: "#c2b59f", lem: "#9a8463", sitie: "#c9b08a", ryha: "rgba(92, 68, 36, .24)" };
+// Béžové šitie na čiernej (Michal 19. 10. 2026, iPhone: „čierna prešívaná béžovou je skôr žltá a môže to mýliť“; predtým
+// #dcc59c): na fotke vzorky (assets/config/farba-koze-cierna-farba-sitia-bezova.jpg) je niť krémová, takmer biela, len
+// teplejšia než biela niť na tej istej fotke (vyvážené podľa bielej nite: ~0,98 / 0,94 / 0,90 jasu bielej) -> svetlá
+// krémová, o tón teplejšia než biele šitie (#f2f2ef) a svetlejšia než sivé (#a9adb5), aby sa na malej kresbe nemiešali.
 export const FARBY_KRESBY = {
   "cierna-cervene-sitie": Object.assign({ sitie: "#d63a46" }, CIERNA),
   "cierna-modre-sitie": Object.assign({ sitie: "#3f74d6" }, CIERNA),
   "cierna-cierne-sitie": Object.assign({ sitie: "#5a5d65" }, CIERNA),
-  "cierna-bezove-sitie": Object.assign({ sitie: "#dcc59c" }, CIERNA),
+  "cierna-bezove-sitie": Object.assign({ sitie: "#eae0d0" }, CIERNA),
   "cierna-sive-sitie": Object.assign({ sitie: "#a9adb5" }, CIERNA),
   "cierna-sede-sitie": Object.assign({ sitie: "#a9adb5" }, CIERNA), // sety: „Farba šitia: Šedá“ = 616 „Sivá“
   "cierna-biele-sitie": Object.assign({ sitie: "#f2f2ef" }, CIERNA),

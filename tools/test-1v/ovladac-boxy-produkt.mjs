@@ -12,6 +12,7 @@
 //   Skrytý box dostane .val(0) -> select bez voľby „0“ -> selectedIndex -1 -> kľúč v POST chýba.
 import { pauza } from "./cdp.mjs";
 import { F, otvorKrok, hodnota } from "./stary-ui.mjs";
+import { overPopisFarby } from "./ovladac-kufor-boxy.mjs";
 
 const KLUCE = ["box1", "box2", "box3"];
 const vzorVelkosti = (v) => new RegExp("^" + v + "\\s*:", "i");
@@ -107,6 +108,8 @@ export const novy = {
     const id = await t.idParametra("farba");
     const v = await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value`, { popis: "farba boxov vo formulári" });
     await t.cakaj(`(function () { var n = document.querySelector("${sel} > .lcd1v-bxp-nahlad"); var i = n && n.querySelector("img"); return !!(n && !n.hidden && n.offsetHeight > 100 && i && i.getAttribute("src")); })()`, { popis: "náhľad materiálu boxu" });
+    // vybraná farba slovami pod vzorkami (Michal 19. 10. 2026) = text zvolenej možnosti živého selectu
+    await overPopisFarby(t, `${sel} > .lcd1v-bxp-farba-popis`, "farba");
     return v;
   },
 

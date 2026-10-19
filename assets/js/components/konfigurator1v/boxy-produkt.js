@@ -3,8 +3,9 @@
 // assets/img/1v/boxprodukt-*). Beží len pod body.lcd-1v (brána v index.js). Pravidlá: docs/1v-kontrakt.md §5.
 //
 // Kroky farba → počet → veľkosť (živý DOM má počet → farba → veľkosť; poradie kariet mení len CSS typu, DOM ostáva):
-//   krok 1 Farba   živé vzorky (kroky.js) + náhľad materiálu „Diamond Line — <farba>“ (fotka podľa názvu farby,
-//                  hlavná fotka produktu sa nemení);
+//   krok 1 Farba   živé vzorky (kroky.js) + pod nimi vybraná farba slovami „Vybraná farba: Čierna koža, béžové šitie“
+//                  (kroky.js popisFarby, text zo živého selectu; Michal 19. 10. 2026) + náhľad materiálu
+//                  so štítkom „Diamond Line“ (fotka podľa názvu farby, hlavná fotka produktu sa nemení);
 //   krok 2 Počet   dlaždice 1 / 2 / 3 boxy (návrh C „Fotka cez celú dlaždicu“, Michal 18. 10. 2026: reálna fotka cez
 //                  dlaždicu, text na tmavom prechode) -> ctx.zapis("pocetKs", n) = živé tlačidlo „N ks“ (živý kód vyprázdni
 //                  veľkosti nad počtom: select bez voľby -> kľúč v POST chýba ako pri starom vzhľade; ctx vráti
@@ -27,7 +28,7 @@
 // Ponuka setu s autokobercami (banner C) je LEN v skrytom medzikroku za Počtom boxov (komplet-ponuka.js; Michal 17. 10.
 // 2026: „toto má byť v medzikroku, nie ďalší iný banner“, „toto sa má zobrazovať po kroku počet boxov“).
 // Nič natvrdo: ID parametrov, ceny ani hodnoty volieb. Nové prvky bez name. Text H1 sa nemení.
-import { nazovFarby } from "./kroky.js";
+import { nazovFarby, popisFarby } from "./kroky.js";
 import { definicieKresby, kresba, nastavFarbuKresby } from "./box-kresba.js";
 
 export const MENO = "boxy-produkt";
@@ -186,6 +187,10 @@ export function init(ctx) {
     const nahlad = el("div", { class: "lcd1v-nahlad lcd1v-bxp-nahlad", hidden: true }, [nahladNm, nahladImg]);
     const ow = kFarba.querySelector(":scope > .options-wrap");
     vloz(kFarba, nahlad, ow ? ow.nextSibling : null);
+    // vybraná farba slovami tesne pod vzorkami (pred náhľadom; bez voľby skrytá) — rovnaké ako v okne boxov na autokobercoch
+    const farbaNazov = el("b", { class: "lcd1v-bxp-farba-nm" });
+    const farbaPopis = el("p", { class: "lcd1v-bxp-farba-popis", "aria-live": "polite", hidden: true }, [el("span", { class: "lcd1v-bxp-farba-l", text: T.vybranaFarba || "" }), " ", farbaNazov]);
+    vloz(kFarba, farbaPopis, nahlad);
 
     // ---------------------------------------------------------------- obnova (číta živý DOM, píše len do nových prvkov)
     let potvrdeny = false; // krok počtu „hotový“ až po potvrdení (návrh: na začiatku Hotovo 0 z 3)
@@ -230,6 +235,12 @@ export function init(ctx) {
       nastavAttr(kPocet, "data-lcd1v-vyber", tp.vy || n + " ×");
       nastavAttr(kVelk, "data-lcd1v-vyber", velkostiHotove(n) && vyber.length ? vyber.join(" + ") : (TK.velkost && TK.velkost.vy) || "");
       nastavAttr(pocty, "data-lcd1v-potvrdene", potvrdeny ? "1" : null);
+      // vybraná farba slovami: zo živého selectu farby (zdroj pravdy pre košík), bez voľby skrytá
+      const fv = ctx.precitaj("farba");
+      const fo = fv ? ctx.moznosti("farba").find((o) => o.hodnota === fv) : null;
+      const popis = fo ? popisFarby(fo.text) : "";
+      if (popis) nastavText(farbaNazov, popis);
+      if (farbaPopis.hidden !== !popis) farbaPopis.hidden = !popis;
       // náhľad farby: fotka materiálu podľa názvu farby, inak živá vzorka
       const a = kFarba.querySelector(":scope > .options-wrap > .option-button.active");
       if (a) {
@@ -237,7 +248,8 @@ export function init(ctx) {
         const nazov = a.getAttribute("data-lcd1v-nazov") || nazovFarby(tx ? tx.textContent : a.textContent).nazov;
         const im = a.querySelector("img");
         const src = ctx.obrazokVzoru("boxprodukt-farba-" + slug(nazov)) || (im && im.getAttribute("src")) || "";
-        nastavText(nahladNm, (T.nahlad ? T.nahlad + " — " : "") + nazov);
+        // farbu slovami ukazuje riadok „Vybraná farba: …“ hneď nad náhľadom -> štítok náhľadu len rad (bez farby dvakrát)
+        nastavText(nahladNm, T.nahlad || nazov);
         farbaKresby(slug(nazov));
         if (src && nahladImg.getAttribute("src") !== src) nahladImg.setAttribute("src", src);
         nahladImg.alt = nazov;

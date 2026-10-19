@@ -711,7 +711,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config {
   --bxp-lth: #2a2b30;
   --bxp-sp: #55585f;
   --bxp-edge: #0e0f11;
-  --bxp-st: #dcc59c;
+  --bxp-st: #eae0d0; /* béžové šitie = krémová, nie žltá (box-kresba.js, Michal 19. 10. 2026) */
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config > .lcd1v-bxp-defs {
   position: absolute;
@@ -761,6 +761,27 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__topv {
   text-transform: uppercase;
   white-space: nowrap;
   box-shadow: 0 3px 9px rgba(20, 15, 5, .32);
+}
+/* vybraná farba slovami pod vzorkami (kufor-boxy.js; Michal 19. 10. 2026: „aby sa aj pri výbere farby zobrazovala niekde
+   dole s kontextom, že aká je to farba“) — „Vybraná farba: Čierna koža, béžové šitie“, bez voľby skrytá */
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__farba-popis {
+  margin: 12px 0 0;
+  padding: 0;
+  color: #4a4433;
+  font: 400 16px/1.45 var(--kb-body);
+  text-align: left;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__farba-popis[hidden] {
+  display: none !important;
+}
+body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__farba-nm {
+  color: var(--kb-ink);
+  font-weight: 700;
+}
+@media (min-width: 721px) {
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__farba-popis {
+    font-size: 17px;
+  }
 }
 /* chyba (živá validácia: farba / veľkosť chýba -> .lcd-needs-fill na 3 s) */
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__chyba {

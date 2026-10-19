@@ -48,6 +48,16 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .
    z _lcd1v-kroky.scss (telefón 5 v rade ~58 px, PC 7 v rade ~63 px); vlastná mriežka boxu (3 × 3 / 9 v rade) zrušená */
 /* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
+/* vybraná farba slovami tesne pod vzorkami, nad náhľadom (boxy-produkt.js; Michal 19. 10. 2026) — rovnaká ako v okne boxov
+   na autokobercoch: „Vybraná farba: Čierna koža, béžové šitie“, bez voľby skrytá */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-farba-popis {
+  order: 45; margin: 14px 0 0; padding: 0; color: var(--kr-text); font: 400 16px/1.45 var(--kr-body); text-align: left;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-farba-popis[hidden] { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-farba-nm { color: var(--kr-ink); font-weight: 700; }
+@media (min-width: 721px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-farba-popis { font-size: 17px; }
+}
 
 /* ---------------------------------------------------------------- krok 2: počet boxov (návrh C, Michal 18. 10. 2026)
    dlaždica = reálna fotka v pravej časti, vľavo tmavý prechod s textom (štýl banneru setu); vybraná = zelený rám + zelená fajka (rám zelený od 18. 10. 2026) */
@@ -121,7 +131,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-velkost > .opti
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk {
   --bxp-gold: #c49b31; --bxp-line: #d9d4c6; --bxp-zl: #7c5f16;
   /* farba kresby boxu (boxy-produkt.js nastaví podľa farby z kroku 1; predvolená čierna s béžovým šitím) */
-  --bxp-lth: #2a2b30; --bxp-sp: #55585f; --bxp-edge: #0e0f11; --bxp-st: #dcc59c;
+  --bxp-lth: #2a2b30; --bxp-sp: #55585f; --bxp-edge: #0e0f11; --bxp-st: #eae0d0; /* béžové šitie = krémová, nie žltá (box-kresba.js) */
   margin: 0; color: var(--kr-ink); font-family: var(--kr-body); text-align: left;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-defs { position: absolute; width: 0; height: 0; overflow: hidden; }

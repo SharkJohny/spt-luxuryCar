@@ -42,8 +42,10 @@ export const TYP = {
       // popis lepivej lišty (návrh boxy.html lPop): „Box do kufra ×2 · S + L · <farba>“ (háčik cena:lista v boxy-produkt.js)
       lista: "Box do kufra",
       rad: "Diamond Line",
-      // krok 1: náhľad farby „Diamond Line — <farba>“
+      // krok 1: štítok náhľadu materiálu (farbu slovami ukazuje riadok vybranaFarba nad ním)
       nahlad: "Diamond Line",
+      // krok 1: pod vzorkami vybraná farba slovami „Vybraná farba: Čierna koža, béžové šitie“ (kroky.js popisFarby)
+      vybranaFarba: "Vybraná farba:",
       // krok 2: dlaždice počtu (návrh C „Fotka cez celú dlaždicu“, Michal 18. 10. 2026): názov, veta o využití, cena „od“
       // zo živých príplatkov a pod ňou „2 × od 197 €“ (len keď je každý box od rovnakej sumy)
       pocet: {

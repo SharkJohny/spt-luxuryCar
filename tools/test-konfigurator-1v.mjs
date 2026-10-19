@@ -943,6 +943,19 @@ const SCENARE = {
     return { info: `1 box M -> 2 boxy L+S: cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
   },
 
+  /** Popis vybranej farby boxov pod vzorkami v okne boxov (Michal 19. 10. 2026): bez voľby skrytý, po kliku na čiernu
+   *  s béžovým šitím „Vybraná farba: Čierna koža, béžové šitie“ (text zo živého selectu), po zmene v živom selecte nový
+   *  popis aj kresba, po krížiku skrytý; do košíka nič (len nový vzhľad). */
+  async "box-farba"(s, a, pom, ovl) {
+    if (!ovl.kuforBoxy.skusPopisFarby) return { preskoc: "len nový vzhľad (ovládač kufor-boxy novy)" };
+    await otvor(s, a.url, { novy: a.novy });
+    await ovl.kroky.vyberAuto(s.t, AUTO); // karta boxov bez auta presmeruje na auto (scenár box-bez-auta)
+    const r = await ovl.kuforBoxy.skusPopisFarby(s.t);
+    await pauza(600);
+    over(s.posty.length === 0, "popis farby boxov: do košíka nemá ísť nič, odišlo: " + (s.posty[0] && s.posty[0].body));
+    return { info: `klik: „${r.bezova}“ · živý select: „${r.zivy}“ · kresba ${r.kresba.join(" -> ")} · pred výberom aj po krížiku skrytý` };
+  },
+
   /** 7 miest + všetky tri rady: POST rozloženie = voľba s 3. radom, cena s príplatkom 3. radu (nový vzhľad: 7 miest
    *  dlaždicou v kroku 4 = aj živá dlaždica v kroku 2 a sessionStorage seatPosition). */
   async "rady-3"(s, a, pom, ovl) {
@@ -1289,7 +1302,7 @@ const TYPY_JADRA = {
   brana: VSETKY_TYPY, "nulova-zmena": VSETKY_TYPY,
   "bez-auta": [...SET, ...ROHOZ], neuplne: [...SET, ...ROHOZ, "boxy"], platne: [...SET, ...ROHOZ, "boxy"],
   "ctx-zapis": SET, "kufor-classic": SET, "kufor-premium": SET, "box-1": SET, "box-2": SET, "kufor-nie": SET, "box-nie": SET,
-  "box-krizik": SET, "box-prepni": SET, "rady-3": SET, "miesta-5": SET, "miesta-podorys": SET, "rozlozenie-pretek": SET,
+  "box-krizik": SET, "box-prepni": SET, "box-farba": SET, "rady-3": SET, "miesta-5": SET, "miesta-podorys": SET, "rozlozenie-pretek": SET,
   "k-suhrnu": [...SET, ...ROHOZ, "boxy"], dokoncit: [...ROHOZ, "boxy"],
 };
 

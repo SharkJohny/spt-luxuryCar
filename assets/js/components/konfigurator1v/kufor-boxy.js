@@ -29,7 +29,7 @@
 //   1×, 2× (★), Nechcem. Mení sa len poradie NOVÝCH kariet v DOM; živé karty, ich poradie a hodnoty v POST ostávajú.
 import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplnok.js";
 import { zluc } from "./produkty.js";
-import { nazovFarby } from "./kroky.js";
+import { nazovFarby, popisFarby } from "./kroky.js";
 import { definicieKresby, kresba, nastavFarbuKresby, zrusFarbuKresby, slugFarby } from "./box-kresba.js";
 
 export const MENO = "kufor-boxy";
@@ -74,6 +74,8 @@ const TEXTY = {
     pod1: "Vyberte farbu a veľkosť boxu.",
     pod2: "Vyberte farbu a veľkosť oboch boxov.",
     farba: "Farba boxov",
+    // pod vzorkami: vybraná farba slovami (kroky.js popisFarby, text zo živého selectu), kým nie je vybraná, nie je vidno
+    vybranaFarba: "Vybraná farba:",
     velkost: { boxSolo: "Veľkosť boxu", box1: "Veľkosť 1. boxu", box2: "Veľkosť 2. boxu" },
     najcastejsie: "Najčastejšie",
     potvrdit: "Potvrďte výber boxov",
@@ -266,10 +268,14 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   const idF = idParam("farbaBoxov");
   const wrapFarby = vyber.querySelector(".parameter-wrap.parameter-" + idF);
   const ovladacePopis = []; // [prvok, aria-label]
+  // vybraná farba slovami pod vzorkami (Michal 19. 10. 2026: béžové šitie na malej vzorke vyzerá ako žlté/biele)
+  const farbaNazov = el("b", { class: "lcd1v-bx__farba-nm" });
+  const farbaPopis = el("p", { class: "lcd1v-bx__farba-popis", "aria-live": "polite", hidden: true }, [el("span", { class: "lcd1v-bx__farba-l", text: T.okno.vybranaFarba }), " ", farbaNazov]);
   if (wrapFarby) {
     const ow = wrapFarby.querySelector(":scope > .options-wrap");
     vloz(wrapFarby, el("p", { class: "lcd1v-bx__nadp", text: T.okno.farba }), ow);
     vloz(wrapFarby, el("p", { class: "lcd1v-bx__chyba", role: "alert", text: T.okno.chybaFarba }), ow ? ow.nextSibling : null);
+    vloz(wrapFarby, farbaPopis, ow ? ow.nextSibling : null); // medzi vzorkami a chybovou vetou
     trieda(wrapFarby, "lcd1v-bx-farby");
     wrapFarby.querySelectorAll(".option-button").forEach(function (b) {
       const t = b.querySelector(".text");
@@ -304,11 +310,17 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   // vzory kresby: jedna sada v okne (premenné farby --bxp-* sú na okne, vzory ich dedia podľa miesta v DOM)
   vloz(vyber, definicieKresby(PREDPONA_KRESBY), okBtn);
   vytvorene.push(function () { zrusFarbuKresby(vyber); });
-  /** Farba kresby = farba boxov zvolená v okne (živý select), bez farby predvolená (Michal 18. 10. 2026). */
+  /**
+   * Farba kresby = farba boxov zvolená v okne (živý select), bez farby predvolená (Michal 18. 10. 2026); popis pod
+   * vzorkami = tá istá voľba slovami (bez voľby skrytý).
+   */
   function farbaKresby() {
     const v = ctx.precitaj("farbaBoxov");
     const fo = v ? ctx.moznosti("farbaBoxov").find(function (m) { return m.hodnota === v; }) : null;
     nastavFarbuKresby(vyber, fo ? slugFarby(nazovFarby(fo.text).nazov) : null);
+    const popis = fo ? popisFarby(fo.text) : "";
+    if (popis) text(farbaNazov, popis);
+    if (farbaPopis.hidden !== !popis) farbaPopis.hidden = !popis;
   }
   // živé ovládače okna (div) -> prístupné ako tlačidlá: rola, fokus, Enter/medzerník = ten istý klik
   ovladacePopis.forEach(function (x) {
@@ -576,6 +588,15 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   vytvorene.push(function () { document.removeEventListener("LuxuryCarPriceRecalculated", naCenu); });
   const odhlas = ctx.na("zmena", naplanuj);
   vytvorene.push(odhlas);
+  // farba boxov zmenená priamo v živom selecte (natívny change aj jQuery .trigger("change"), ktorý natívny nevyšle)
+  const pFarby = ctx.parameter("farbaBoxov");
+  const selFarby = pFarby && pFarby.select;
+  if (selFarby) {
+    selFarby.addEventListener("change", naplanuj);
+    vytvorene.push(function () { selFarby.removeEventListener("change", naplanuj); });
+    const $ = window.jQuery || window.$;
+    if ($) { $(selFarby).on("change.lcd1vbx", naplanuj); vytvorene.push(function () { $(selFarby).off("change.lcd1vbx"); }); }
+  }
 
   obnov();
 
