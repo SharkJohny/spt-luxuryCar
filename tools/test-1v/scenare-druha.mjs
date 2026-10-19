@@ -5,10 +5,13 @@
 //
 //   druha-nie       bez flagu žiadna karta ani kľúč; s flagom karta skrytá do výberu farby, potom viditeľná BEZ čísla
 //                   (postup „Váš set v 6 krokoch“, kroky „N z 6“); „Pokračujte ďalej“ vo Farbe otvorí kartu (nie Rozloženie),
-//                   príplatok „+ N €“ = živý rozdiel; cenovka (Michal 16. 10. 2026): „Príplatok za celú sadu druhej vrstvy“,
-//                   „S autokobercami od“ (výber neúplný), odporúčaná druhej vrstvy prečiarknutá červenou + zelené „Ušetríte“
-//                   = čísla, ktoré test spočíta zo stránky (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky
-//                   pre cenu + príplatok); 613 bez bežnej ceny = len príplatok; dlaždica na telefóne nie je privysoká;
+//                   príplatok „+ N €“ = živý rozdiel; dlaždica podľa návrhu A (Michal 19. 10. 2026, „Video A“): nadpis
+//                   „Druhá vrstva“, štítok „Na celú sadu autokobercov“, riadky cien ako rohož do kufra (.lcd1v-kb__ucet/__r,
+//                   písmo a farby = riadky karty kufra na tej istej stránke): „Odporúčaná cena“, „Ušetríte −“ (zelené),
+//                   „Príplatok od + N €“ (výber neúplný), Odporúčaná − Ušetríte = Príplatok, čísla spočítané zo stránky
+//                   (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky pre cenu + príplatok); 613 bez bežnej
+//                   ceny = len riadok Príplatok; žiadna prečiarknutá cena, pilulka, „Vzor, auto aj farba…“ ani veta pod Nie;
+//                   dlaždica na telefóne nie je privysoká;
 //                   Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
 //                   zelené „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zlatým „Nie, ďakujem“ (Michal 15. 10., farby prehodené 16. 10. 2026);
 //                   „Nie, ďakujem“ zbalí kartu („Bez druhej vrstvy“) a otvorí Rozloženie;
@@ -23,8 +26,8 @@
 //                   dvojvrstvového produktu; tlačidlo Späť -> jednovrstvový produkt s autom a farbou, karta nezodpovedaná
 //   druha-vsetko    rozloženie 3 rady (7 miest), rohož Classic a 2 boxy vybraté pred „Áno“ (390 px: ťuk na video dlaždice —
 //                   dlaždica je klikateľná celá; 1280 px: Enter na tlačidle Áno — klávesnica) -> na dvojvrstvovom všetko
-//                   rovnaké (miesta, rozloženie, kufor, farba a veľkosti boxov, okno boxov zatvorené), POST platný; cenovka
-//                   pri úplnom výbere „S autokobercami len“ a čísla = rámiky oboch stránok (s rohožou a boxmi)
+//                   rovnaké (miesta, rozloženie, kufor, farba a veľkosti boxov, okno boxov zatvorené), POST platný; riadky
+//                   cien pri úplnom výbere „Príplatok“ (bez „od“) a čísla = rámiky oboch stránok (s rohožou a boxmi)
 //   prenos-neplatny (dvoj) kľúč starší ako 10 min / pre iný produkt / s farbou, ktorú produkt nemá -> nič sa neprenesie,
 //                   bez chyby; pri chýbajúcej farbe sa otvorí krok Farba
 import { join } from "node:path";
@@ -91,15 +94,31 @@ function stavKarty(t) {
       prenos: vid(k.querySelector(".lcd1v-druha__prenos")) ? tx(".lcd1v-druha__prenos") : null,
       maName: !!k.querySelector("[name]"),
       dlVyska: dl ? Math.round(dl.getBoundingClientRect().height) : 0,
+      // riadky cien (Michal 19. 10. 2026, návrh A): .lcd1v-kb__ucet > .lcd1v-kb__r (.lcd1v-kb__rn + .lcd1v-kb__rh) ako karty
+      // rohože do kufra; vzhľad každého riadku sa porovná s rovnakým riadkom karty kufra na tej istej stránke
       cb: (function () {
-        var b = k.querySelector(".lcd1v-druha__cb");
+        var b = dl && dl.querySelector(".lcd1v-kb__tx > .lcd1v-kb__ucet");
         if (!b || !vid(b)) return null;
-        var pr = b.querySelector(".lcd1v-druha__cb-pr"), u = b.querySelector(".lcd1v-druha__cb-u"), sr = b.querySelector(".lcd1v-druha__cb-s"), stl = b.parentNode;
-        var cs = getComputedStyle(pr), cu = getComputedStyle(u);
-        return { sada: tx(".lcd1v-druha__cb-sada"), l: tx(".lcd1v-druha__cb-l"), c: tx(".lcd1v-druha__cb-c"),
-          odp: vid(sr) ? tx(".lcd1v-druha__cb-pr") : null, odpRiadok: vid(sr) ? tx(".lcd1v-druha__cb-s") : null, u: vid(u) ? tx(".lcd1v-druha__cb-u") : null,
-          ciara: cs.textDecorationLine + " " + cs.textDecorationColor, pilulka: cu.backgroundColor + " " + cu.color,
-          pretek: stl.scrollWidth > stl.clientWidth + 1 || b.scrollWidth > b.clientWidth + 1,
+        function t2(e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; }
+        function styl(e) { if (!e) return null; var c = getComputedStyle(e); return c.fontSize + " " + c.fontWeight + " " + c.color + " " + c.textTransform; }
+        var kuf = document.querySelector("${F} .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta .lcd1v-kb__ucet");
+        function vzor(r) {
+          if (!kuf) return null;
+          var q = r.classList.contains("lcd1v-kb__r--sum") ? ".lcd1v-kb__r--sum" : r.classList.contains("lcd1v-kb__r--zl") ? ".lcd1v-kb__r--zl" : ".lcd1v-kb__r--samo";
+          var x = kuf.querySelector(q);
+          return x ? { n: styl(x.querySelector(".lcd1v-kb__rn")), h: styl(x.querySelector(".lcd1v-kb__rh")) } : null;
+        }
+        var stl = b.parentNode, tl = dl.querySelector(".lcd1v-kb__po");
+        var riadky = Array.prototype.filter.call(b.children, vid).map(function (r) {
+          var n = r.querySelector(":scope > .lcd1v-kb__rn"), h = r.querySelector(":scope > .lcd1v-kb__rh");
+          var rn = n.getBoundingClientRect(), rh = h.getBoundingClientRect();
+          return { n: t2(n), h: t2(h), trieda: r.className, zl: r.classList.contains("lcd1v-kb__r--zl"), sum: r.classList.contains("lcd1v-kb__r--sum"),
+            jedenRiadok: Math.abs(rn.top - rh.top) < 6 || Math.abs(rn.bottom - rh.bottom) < 6, prekryv: rn.right > rh.left + 0.5,
+            styl: { n: styl(n), h: styl(h) }, vzor: vzor(r), farbaH: getComputedStyle(h).color, mimo: rh.right > stl.getBoundingClientRect().right + 0.5 };
+        });
+        return { riadky: riadky, nm: t2(dl.querySelector(".lcd1v-kb__tx > .lcd1v-kb__nm")), stitok: t2(tl), stitokStyl: tl ? styl(tl) : null,
+          kufor: !!kuf, pretek: stl.scrollWidth > stl.clientWidth + 1 || b.scrollWidth > b.clientWidth + 1,
+          stare: dl.querySelectorAll("s, .lcd1v-druha__cb, .lcd1v-kb__ben").length,
           attrOdp: ano && ano.getAttribute("data-lcd1v-odporucana") ? Number(ano.getAttribute("data-lcd1v-odporucana")) : null };
       })(),
       zaFarbou: !!(k.previousElementSibling && k.previousElementSibling.classList.contains("lcd1v-k-farba")),
@@ -201,31 +220,51 @@ async function odporucanaRamika(t, ovl) {
   return r && r.cena > 0 ? r.cena : null;
 }
 
+/** Suma ako ju píše web (ctx.formatCena, medzery normalizované): 210 -> „210 €“, 132.5 -> „132,50 €“. */
+const eur = (x) => {
+  const r = Math.round(Math.abs(x) * 100) / 100;
+  return (Math.abs(r - Math.round(r)) < 0.005 ? String(Math.round(r)) : r.toFixed(2).replace(".", ",")).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " €";
+};
+
 /**
- * Cenovka v dlaždici (Michal 16. 10. 2026) proti číslam zo stránky: n = príplatok (overený cakajPriplatok),
- * odpTu = odporúčaná v rámiku tejto stránky, odpTam = odporúčaná dvojvrstvového pri tých istých voľbách (rámik jeho stránky
- * alebo vzorec webu pre cenu + n); obe známe -> v karte odpTam − odpTu prečiarknutá a „Ušetríte“ odpTam − odpTu − n,
- * inak (613 bez bežnej ceny) len príplatok.
+ * Riadky cien v dlaždici (Michal 19. 10. 2026, návrh A — štýl rohože do kufra) proti číslam zo stránky: n = príplatok
+ * (overený cakajPriplatok), odpTu = odporúčaná v rámiku tejto stránky, odpTam = odporúčaná dvojvrstvového pri tých istých
+ * voľbách (rámik jeho stránky alebo vzorec webu pre cenu + n); obe známe -> „Odporúčaná cena odpTam − odpTu“,
+ * „Ušetríte − (odporúčaná − n)“ (zelené), „Príplatok (od) + n“ a Odporúčaná − Ušetríte = Príplatok; inak (613 bez bežnej
+ * ceny) len riadok Príplatok. Každý riadok na jednom riadku a s rovnakým písmom/farbou ako ten istý riadok karty kufra.
  */
 function overCenovku(j, cb, { n, odpTu, odpTam, uplny, kde }) {
-  j.over(!!cb, `${kde}: cenovka v dlaždici nie je viditeľná`);
+  j.over(!!cb, `${kde}: riadky cien v dlaždici nie sú viditeľné`);
   if (!cb) return null;
-  j.over(cb.sada === "Príplatok za celú sadu druhej vrstvy" && /celú sadu/.test(cb.sada), `${kde}: riadok o sade „${cb.sada}“ (Michal: príplatok je za celú sadu druhej vrstvy, nie za 1 kus)`);
-  j.over(cb.l === "S autokobercami " + (uplny ? "len" : "od"), `${kde}: „${cb.l}“, má byť „S autokobercami ${uplny ? "len" : "od"}“ (${uplny ? "úplný" : "neúplný"} výber)`);
-  j.over(cb.c === "+ " + String(n).replace(".", ",") + " €", `${kde}: veľká cena „${cb.c}“ ≠ príplatok + ${n} €`);
-  j.over(!cb.pretek, `${kde}: cenovka pretŕča zo stĺpca dlaždice`);
-  const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n/i;
-  j.over(!zakazane.test([cb.sada, cb.l, cb.odpRiadok, cb.u].join(" ")), `${kde}: zakázané slovo v cenovke`);
+  const R = cb.riadky || [];
+  j.over(cb.nm === "Druhá vrstva", `${kde}: nadpis dlaždice „${cb.nm}“, má byť „Druhá vrstva“`);
+  j.over(cb.stitok === "Na celú sadu autokobercov" && /uppercase/.test(cb.stitokStyl || ""), `${kde}: štítok „${cb.stitok}“ (${cb.stitokStyl}) — má byť zlatý štítok veľkými „Na celú sadu autokobercov“ (Michal: príplatok je za celú sadu, nie za 1 kus)`);
+  j.over(!cb.stare, `${kde}: v dlaždici ostala stará cenovka (prečiarknutá cena, pilulka alebo veta): ${cb.stare}`);
+  j.over(!cb.pretek && R.every((r) => !r.mimo), `${kde}: riadky cien pretŕčajú zo stĺpca dlaždice`);
+  R.forEach((r) => j.over(r.jedenRiadok && !r.prekryv, `${kde}: riadok „${r.n} | ${r.h}“ je zalomený alebo sa prekrýva`));
+  // jeden štýl s rohožou do kufra: písmo a farba riadkov = ten istý riadok karty kufra na tej istej stránke
+  j.over(cb.kufor, `${kde}: karta rohože do kufra na stránke nie je (porovnanie štýlu riadkov)`);
+  R.forEach((r) => j.over(!r.vzor || (r.styl.n === r.vzor.n && r.styl.h === r.vzor.h), `${kde}: riadok „${r.n}“ má iný vzhľad ako rohož do kufra: ${JSON.stringify(r.styl)} ≠ ${JSON.stringify(r.vzor)}`));
+  const sum = R[R.length - 1];
+  const nazovSum = uplny ? "Príplatok" : "Príplatok od";
+  j.over(sum && sum.sum && sum.n.toLowerCase() === nazovSum.toLowerCase(), `${kde}: posledný riadok „${sum && sum.n}“ (${sum && sum.trieda}), má byť --sum „${nazovSum}“ (${uplny ? "úplný" : "neúplný"} výber)`);
+  j.over(sum && sum.h === "+ " + eur(n), `${kde}: príplatok „${sum && sum.h}“ ≠ + ${eur(n)}`);
+  const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n|s dph/i;
+  j.over(!zakazane.test(R.map((r) => r.n + " " + r.h).join(" ") + " " + cb.stitok), `${kde}: zakázané slovo v riadkoch cien`);
   if (odpTu > 0 && odpTam > 0) {
-    const odp = odpTam - odpTu, usp = odp - n;
-    j.over(cislo(cb.odp) === odp && cb.odpRiadok === "Odporúčaná cena " + String(odp) + " €" && cb.attrOdp === odp,
-      `${kde}: odporúčaná druhej vrstvy v karte „${cb.odpRiadok}“ (atribút ${cb.attrOdp}) ≠ ${odpTam} − ${odpTu} = ${odp} € (rámiky stránok)`);
-    j.over(cb.u === "Ušetríte " + String(usp).replace(".", ",") + " €", `${kde}: „${cb.u}“ ≠ Ušetríte ${odp} − ${n} = ${usp} €`);
-    j.over(/line-through/.test(cb.ciara) && /192, 57, 43/.test(cb.ciara), `${kde}: odporúčaná nie je prečiarknutá červenou: ${cb.ciara}`);
-    j.over(/226, 243, 233/.test(cb.pilulka) && /29, 107, 74/.test(cb.pilulka), `${kde}: pilulka „Ušetríte“ nie je zelená: ${cb.pilulka}`);
+    const odp = odpTam - odpTu, usp = Math.round((odp - n) * 100) / 100;
+    j.over(R.length === 3, `${kde}: riadkov cien ${R.length} (${R.map((r) => r.n).join(" / ")}), majú byť 3: Odporúčaná cena / Ušetríte / ${nazovSum}`);
+    const [o, u] = R;
+    j.over(o && o.n === "Odporúčaná cena" && !o.zl && !o.sum && o.h === eur(odp) && cb.attrOdp === odp,
+      `${kde}: „${o && o.n} | ${o && o.h}“ (atribút ${cb.attrOdp}) ≠ Odporúčaná cena ${odpTam} − ${odpTu} = ${eur(odp)} (rámiky stránok)`);
+    j.over(u && u.n === "Ušetríte" && u.zl && u.h === "− " + eur(usp), `${kde}: „${u && u.n} | ${u && u.h}“ (${u && u.trieda}) ≠ Ušetríte − ${eur(usp)} (--zl)`);
+    const zelena = /rgb\((\d+), (\d+), (\d+)\)/.exec((u && u.farbaH) || "");
+    j.over(zelena && +zelena[2] > +zelena[1] + 40 && +zelena[2] > +zelena[3], `${kde}: Ušetríte nie je zelené: ${u && u.farbaH}`);
+    const num = (x) => Number(String(x || "").replace(/[^\d,]/g, "").replace(",", "."));
+    j.over(o && u && Math.round((num(o.h) - num(u.h)) * 100) / 100 === n, `${kde}: Odporúčaná ${o && o.h} − Ušetríte ${u && u.h} ≠ Príplatok ${eur(n)}`);
     return { odp, usp };
   }
-  j.over(!cb.odp && !cb.u && cb.attrOdp == null, `${kde}: odporúčaná cena nie je na oboch stránkach (tu ${odpTu}, dvojvrstvový ${odpTam}) — karta smie ukázať len príplatok: ${JSON.stringify(cb)}`);
+  j.over(R.length === 1 && cb.attrOdp == null, `${kde}: odporúčaná cena nie je na oboch stránkach (tu ${odpTu}, dvojvrstvový ${odpTam}) — karta smie ukázať len riadok Príplatok: ${JSON.stringify(R.map((r) => r.n + " | " + r.h))}`);
   return { odp: null, usp: null };
 }
 
@@ -311,8 +350,12 @@ export const SCENARE = {
       j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prosíte si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
       // Michal 15. 10. 2026: vrstvy vždy pomenované („prvá prešívaná“ / „druhá“); podnadpis ľudsky, nie „strojovo“
       j.over(otv.pod === "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.", `podnadpis „${otv.pod}“`);
-      j.over(/Dvojvrstvové autokoberce/.test(otv.anoText) && /Prvá prešívaná \+ druhá vrstva/.test(otv.anoText) && /Vzor, auto aj farba Vám ostanú\./.test(otv.anoText) && /Odporúčame/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
-      j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === "Pokračujete s doterajším výberom.", `Nie: „${otv.nieText}“ / „${otv.pozn}“`);
+      // Michal 19. 10. 2026 (návrh A, „Video A“): pás „★ Odporúčame“, nadpis „Druhá vrstva“, štítok „Na celú sadu autokobercov“,
+      // riadky cien ako rohož do kufra; preč „Vzor, auto aj farba Vám ostanú.“, „Prvá prešívaná + druhá vrstva“, „S autokobercami
+      // od“, prečiarknutá cena, pilulka „Ušetríte“ aj veta pod „Nie“ („Pokračujete s doterajším výberom.“)
+      j.over(/^★ Odporúčame\s*Druhá vrstva\s*Na celú sadu autokobercov/.test(otv.anoText) && /Áno, chcem druhú vrstvu$/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
+      j.over(!/Vzor, auto aj farba|Prvá prešívaná \+ druhá vrstva|Dvojvrstvové autokoberce|S autokobercami|celú sadu druhej vrstvy/.test(otv.anoText), `v dlaždici ostal starý text: „${otv.anoText}“`);
+      j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === null, `Nie: „${otv.nieText}“, veta pod ním „${otv.pozn}“ (má byť bez vety)`);
       // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zelené od 16. 10., v dlaždici, hore) a Nie (zlaté)
       j.over(otv.anoVidno && otv.anoTl && otv.anoTl.tag === "BUTTON" && otv.anoTl.typ === "button" && otv.anoTl.text === "Áno, chcem druhú vrstvu" && otv.anoTl.tab >= 0 && otv.anoVDlazdici,
         `tlačidlo Áno: ${JSON.stringify(otv.anoTl)}, viditeľné ${otv.anoVidno}, v dlaždici ${otv.anoVDlazdici}`);
@@ -348,20 +391,20 @@ export const SCENARE = {
       if (a.snimky) { await j.pauza(1500); await snimka(s, a, "druha-video-2", KARTA); }
       await naKoniec(t);
       await cakajVideo(t, RE_V1, "po skončení videa č. 2 znova video č. 1 (dookola)");
-      const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n/i;
-      j.over(!zakazane.test(otv.anoText + " " + otv.pod + " " + otv.nieText + " " + otv.pozn + " " + otv.ti), "zakázané slovo v texte karty");
+      const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n|s dph/i;
+      j.over(!zakazane.test(otv.anoText + " " + otv.pod + " " + otv.nieText + " " + otv.ti), "zakázané slovo v texte karty");
       j.over(!/prešívan\S*\s+vrstv/i.test((otv.anoText + " " + otv.pod).replace(/prv\S*\s+prešívan\S*/gi, "")), "„prešívaná vrstva“ bez „prvá“ v texte karty");
       await snimka(s, a, "druha-otazka", KARTA);
       // 4) príplatok = živý rozdiel (cena dvojvrstvového pri tých istých voľbách − táto); overí scenár druha-ano na dvoj stránke
       const n = await cakajPriplatok(t, j);
-      // 4b) cenovka (Michal 16. 10. 2026): „celú sadu“ + odporúčaná druhej vrstvy a „Ušetríte“; test čísla spočíta zo stránky:
+      // 4b) riadky cien (návrh A, 19. 10. 2026): odporúčaná druhej vrstvy, „Ušetríte“, „Príplatok od“; test čísla spočíta zo stránky:
       //     rámik nad krokmi (cena, odporúčaná) a vzorec webu (productPage.js: × 1,6 nahor na desiatky) pre cenu + príplatok
       const odpTu = await odporucanaRamika(t, ovl);
       const cenaTu = await ovl.cena.zobrazenaCena(t);
       j.over(typeof cenaTu === "number" && cenaTu > 0, `cena v rámiku nad krokmi: ${cenaTu}`);
       const stC = await stavKarty(t);
       const cv = overCenovku(j, stC.cb, { n, odpTu, odpTam: odpTu ? Math.ceil(((cenaTu + n) * 1.6) / 10) * 10 : null, uplny: false, kde: "karta po farbe" }) || {};
-      // telefón: dlaždica s cenovkou ostane rozumne vysoká (video 4:5 v stĺpci 44 %, text vedľa neho)
+      // telefón: dlaždica s riadkami cien ostane rozumne vysoká (video 4:5 v stĺpci fotky, text vedľa neho)
       if (t.mobil) j.over(stC.dlVyska > 0 && stC.dlVyska <= 480, `dlaždica na telefóne je vysoká ${stC.dlVyska} px (najviac 480)`);
       await snimka(s, a, "druha-cena", `${KARTA} .lcd1v-druha__dlazdica`);
       // 5) Nie -> karta zbalená ako hotová, otvorí sa Rozloženie; POST = baseline
@@ -515,7 +558,7 @@ export const SCENARE = {
         const post = await j.cakajNaPost(s);
         const cena = await j.overPost(s, post, { farba, farba2, rozlozenie, kufor, farbaBoxov: b.farbaBoxov, box1: b.box1, box2: b.box2 });
         const c = await j.overCenu(s, ovl, cena);
-        return { info: `${P.id} -> ${cielId}: 7 miest, 3 rady, rohož Classic, 2 boxy (${b.box1}+${b.box2}) prenesené, okno boxov zatvorené; karta len + ${n} €${cv.odp ? `, odporúčaná ${cv.odp} € (${odpDvoj} − ${odpJedno})` : ""}; POST platný, ${c.videne} € = Shoptet`, post: post.body };
+        return { info: `${P.id} -> ${cielId}: 7 miest, 3 rady, rohož Classic, 2 boxy (${b.box1}+${b.box2}) prenesené, okno boxov zatvorené; karta „Príplatok + ${n} €“${cv.odp ? `, odporúčaná ${cv.odp} € (${odpDvoj} − ${odpJedno})` : ""}; POST platný, ${c.videne} € = Shoptet`, post: post.body };
       } finally {
         s.produkt = P;
       }

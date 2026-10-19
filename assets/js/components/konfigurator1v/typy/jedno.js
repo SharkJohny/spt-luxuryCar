@@ -42,29 +42,29 @@ export const TYP = {
       // Michal 16. 10. 2026 (telefón): podnadpis najviac 1,5 vety — presne táto veta.
       pod: "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.",
       naj: "★ Odporúčame",
+      // Michal 19. 10. 2026 (návrh A, „Video A“): nadpis dlaždice „Druhá vrstva“, pod ním zlatý štítok „Na celú sadu
+      // autokobercov“ (príplatok je za celú sadu, nie za 1 kus — Michal 16. 10.); veta „Vzor, auto aj farba Vám ostanú.“
+      // a „Prvá prešívaná + druhá vrstva“ preč („zbytočne písané“).
       ano: {
-        nm: "Dvojvrstvové autokoberce",
-        po: "Prvá prešívaná + druhá vrstva",
-        ben: "Vzor, auto aj farba Vám ostanú.",
+        nm: "Druhá vrstva",
+        po: "Na celú sadu autokobercov",
         tl: "Áno, chcem druhú vrstvu",
         // popis videa pre čítačky obrazovky (aria-label na <video>; video je bez zvuku a ovládania)
         alt: "Video: druhá vrstva zachytí vodu, vyberiete ju, umyjete vapkou a prvá prešívaná vrstva ostane čistá",
       },
-      // Cenový blok dlaždice (Michal 16. 10. 2026: „132 je príplatok za komplet druhej vrstvy, nie len za 1 ks“ a „chýba
-      // odporúčaná cena a naša — keď si to kúpia takto, je to len ako príplatok“). Vzhľad cenovky rohože/boxov:
-      //   Príplatok za celú sadu druhej vrstvy / Odporúčaná cena <s>210 €</s> / S AUTOKOBERCAMI LEN / + 132 € / Ušetríte 78 €
-      // „od“ namiesto „len“, kým výber nie je úplný (pravidlo hlavného rámika „Naša cena od …“: rozloženie ešte môže
-      // príplatok zvýšiť). Čísla vždy živé (druha-vrstva.js obnovCenu), nikdy natvrdo; odporúčaná a „Ušetríte“ len keď
-      // obe stránky majú v admine bežnú cenu (613 nie -> len príplatok).
+      // Riadky cien dlaždice v štýle rohože do kufra (Michal 19. 10. 2026: „držme jeden štýl … ako pri rohožiach do kufra,
+      // kde to je pekne vyratané“):
+      //   Odporúčaná cena 210 € / Ušetríte − 78 € (zelené) / PRÍPLATOK OD + 132 €
+      // „Príplatok od“, kým výber nie je úplný (pravidlo hlavného rámika „Naša cena od …“: rozloženie ešte môže príplatok
+      // zvýšiť), potom „Príplatok“. Čísla vždy živé (druha-vrstva.js obnovCenu), nikdy natvrdo; Odporúčaná a Ušetríte len
+      // keď obe stránky majú v admine bežnú cenu (613 nie -> len Príplatok).
       cena: {
-        sada: "Príplatok za celú sadu druhej vrstvy",
         odporucana: "Odporúčaná cena",
-        sAuto: "S autokobercami",
-        len: "len",
-        od: "od",
         usetrite: "Ušetríte",
+        priplatok: "Príplatok",
+        od: "od",
       },
-      nie: { nm: "Nie, ďakujem", pozn: "Pokračujete s doterajším výberom." },
+      nie: { nm: "Nie, ďakujem" },
       prenos: "Prenášame Váš výber na dvojvrstvové autokoberce…",
     },
     // „Poznámka k objednávke“ pod tlačidlom košíka (poznamka.js; návrh jednovrstvove.html .pozn-dole — dvojvrstvové
