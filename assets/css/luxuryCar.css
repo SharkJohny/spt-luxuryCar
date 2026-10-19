@@ -15619,7 +15619,7 @@ body.lcd-1v .lcd1v-bx-pozadie {
   --kb-gold-hi: #e6c877;
   --kb-gold-lo: #8f7020;
   --kb-gold-txt: #7c5f16;
-  --kb-zelena: #23865a;
+  --kb-zelena: #1f7a52; /* tmavšia kvôli kontrastu 4,5:1 na krémovej (Michal 19. 10. 2026; predtým #23865a) */
   --kb-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
   --kb-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
   --kb-pas: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
@@ -19339,6 +19339,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on { border-co
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on:hover, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 1px var(--k-zvol), var(--k-zvol-tien); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 2px var(--k-zvol), var(--k-zvol-tien); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 1.5px var(--k-zvol), 0 6px 14px rgba(31, 122, 82, .16); }
+/* farba nite: zelený rám + fajka ako farby autokobercov (Michal 19. 10. 2026) — fajka je posledná položka pilulky, bez absolútneho umiestnenia */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on::after { content: "\2713"; display: flex; flex: none; align-items: center; justify-content: center; width: 20px; height: 20px; margin-left: 1px; border-radius: 50%; background: var(--k-zvol-grad); color: #fff; font: 700 11px/1 var(--k-body); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw { border-color: #fff; box-shadow: 0 0 0 3px var(--k-zvol), 0 6px 14px rgba(20, 15, 5, .25); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__nm { color: var(--k-zvol); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw::after,
@@ -19357,7 +19359,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet { display: block; mar
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 10px; row-gap: 0; padding: 2px 0; font: 400 15px/1.45 var(--k-body); color: var(--k-mute); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__rn { color: var(--k-hneda); white-space: nowrap; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__rh { margin-left: auto; font-weight: 600; color: #2b261a; white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--zl .k-ucet__rh { font-weight: 700; color: #23865a; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--zl .k-ucet__rh { font-weight: 700; color: #1f7a52; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum { margin-top: 4px; padding: 5px 0 2px; border-top: 1px solid #e6e0d1; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum .k-ucet__rn { font: 700 12px/1.45 var(--k-disp); letter-spacing: .07em; text-transform: uppercase; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-ucet__r--sum .k-ucet__rh { font: 800 20px/1.45 var(--k-disp); color: #2b261a; }

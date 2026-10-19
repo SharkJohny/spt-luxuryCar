@@ -66,11 +66,11 @@ export const ZNENIE = {
   ],
   "c-casova-os": [
     "Ako to prebieha", "Od konfigurácie po doručenie",
-    "Koberce sa šijú až po objednávke. Príprava, výroba aj doprava trvajú spolu približne 20–30 dní, podľa aktuálnej vyťaženosti.",
+    "Koberce sa šijú až po objednávke. Príprava, výroba aj doprava trvajú spolu približne 14–25 dní, podľa aktuálnej vyťaženosti.",
     "Konfigurácia", "Vyberiete vozidlo, materiál, farbu, lemovanie, nášivky a pri kamiónoch aj tapacír dverí. Cenu vidíte hneď.",
     "Potvrdenie", "Objednávku Vám potvrdíme e-mailom.",
     "Šitie", "Koberce sa šijú podľa šablóny Vášho modelu a podľa Vášho výberu.",
-    "Doručenie", "Keď bude zásielka na ceste, pošleme Vám e-mail. Spolu približne 20–30 dní od objednávky.",
+    "Doručenie", "Keď bude zásielka na ceste, pošleme Vám e-mail. Spolu približne 14–25 dní od objednávky.",
   ],
   "kamiony-dopravcovia": [
     "Pre dopravcov", "Máte vo firme viac kamiónov?",
@@ -90,7 +90,7 @@ export const ZNENIE = {
     "Ako sa koberce čistia?",
     "Syntetickú kožu stačí utrieť mikrovláknovou handričkou alebo uterákom s mydlovou vodou či jemným čistiacim prostriedkom. S čistením mikrosemišu Vám radi poradíme telefonicky alebo e-mailom.",
     "Ako dlho trvá dodanie?",
-    "Koberce sa šijú až po objednávke, podľa Vášho výberu. Od zadania objednávky trvá príprava, výroba aj doprava spolu približne 20–30 dní, podľa aktuálnej vyťaženosti. Keď bude zásielka na ceste, pošleme Vám e-mail.",
+    "Koberce sa šijú až po objednávke, podľa Vášho výberu. Od zadania objednávky trvá príprava, výroba aj doprava spolu približne 14–25 dní, podľa aktuálnej vyťaženosti. Keď bude zásielka na ceste, pošleme Vám e-mail.",
     "Dá sa objednať pre viac kamiónov naraz a na firmu?",
     "Áno. Pri objednávke zadáte údaje firmy (IČO, DIČ) a faktúru dostanete na firmu. Ak objednávate pre viac vozidiel, napíšte nám názov firmy, kontakt, počet a typy vozidiel a pošleme Vám ponuku.",
     "Môžem mať iný motív nášivky, než je v ponuke?",

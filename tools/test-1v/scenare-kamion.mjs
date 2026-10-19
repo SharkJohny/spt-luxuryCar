@@ -243,7 +243,7 @@ export const SCENARE = {
       j.over(k5.fotky.every((x) => x.vedla === x.ocakVedla), "krok 5.1: rozloženie fotka | text len pri zozname ≥ 600 px (inak fotka nad textom): " + JSON.stringify(k5.fotky));
       const st5a = await s.t.ev(STYLY);
       j.over(/rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(st5a.pas || ""), "pás „★ Najobľúbenejšie ★“ nie je zlatý: " + st5a.pas);
-      j.over(st5a.vyhoda === "rgb(35, 134, 90)" && Number(st5a.vyhodaW) >= 700 && parseFloat(st5a.sumL) >= 12 && st5a.sumLT === "uppercase" && parseFloat(st5a.sumC) >= 18 &&
+      j.over(st5a.vyhoda === "rgb(31, 122, 82)" && Number(st5a.vyhodaW) >= 700 && parseFloat(st5a.sumL) >= 12 && st5a.sumLT === "uppercase" && parseFloat(st5a.sumC) >= 18 &&
         Number(st5a.sumCW) >= 800 && /Exo 2/.test(st5a.sumCF || "") && !st5a.stara,
         "ceny nie sú v riadkoch ako rohož a box (Výhoda zelená tučná, V SETE verzálkami, cena 800 Exo 2, bez cenovky a prečiarknutej): " +
         JSON.stringify([st5a.vyhoda, st5a.vyhodaW, st5a.sumL, st5a.sumLT, st5a.sumC, st5a.sumCW, st5a.sumCF, st5a.stara]));

@@ -529,7 +529,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: opätovné „Vybrať inak“ S nemení (revízia: bez pádu zhrnutia) — farba stále chýba", S.tapRovnaky === false && S.tapFarba === null && !!q('[data-pole="tapFarba"]') && t.s.chyby.length === 0, J([S.tapFarba]) + " | " + t.s.chyby.join(" | "));
   t.klik(a("zmenit", "mat")); t.klik(a("tapRovnake"));
   over("17: „Rovnaké ako koberce“ = hotovo, riadok ✓, potom LEN karta nášivky na dvere", S.tapRovnaky === true && J(hot(K6)) === J(["ponuka", "mat"]) && /Materiál, farba a lemovanie: rovnaké ako koberce/.test(tx(K6 + '.kn-hot[data-hot="mat"]')) && J(otvorene(K6)) === J(["nas"]));
-  over("17: nášivka na dvere — výrez dverí so zlatým krúžkom „Sem príde nášivka“", /Sem príde nášivka/.test(tx(".kn-dvere--vyrez .kn-bod")) && /do stredu výplne dverí/.test(tx(K6 + ".k-krok__telo")));
+  over("17: nášivka na dvere — výrez dverí so zlatým krúžkom „Sem príde nášivka“", /Sem príde nášivka/.test(tx(".kn-dvere--vyrez .kn-bod")) && /do stredu výplne oboch dverí/.test(tx(K6 + ".k-krok__telo")));
   over("17: nášivka na dvere — Samostatne 89 € / Výhoda v sete − 40 € / V sete + 49 €", J(cen(q(".kn-ponuka--nas .k-ucet"))) === J(R("89 €", "− 40 €", "+ 49 €")) && !q(".kn-ponuka--nas s"), J(cen(q(".kn-ponuka--nas .k-ucet"))));
   t.klik(a("tapNas", "ano"));
   const tn = qa('.kn-rv__b[data-a="tapNasRovnaka"]');
@@ -538,7 +538,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   t.klik(a("tapNasRovnaka", "0"));
   over("17: „Iná nášivka“ -> motív, niť, veľký náhľad na farbe tapacíru, Pokračovať", !!q('[data-pole="dvereMotiv"]') && !!q('[data-pole="dvereNit"]') && !!q(a("potvrd", "dvere")) && !q(K6 + ".kn-nh__cv"));
   t.klik(a("motiv", "H19", "dvere")); nit(t, "2840", "dvere");
-  over("17: veľký náhľad nášivky na dverách", !!q(K6 + ".kn-nh__cv") && /Kam príde: do stredu výplne dverí/.test(tx(K6 + ".kn-nh__pop")));
+  over("17: veľký náhľad nášivky na dverách", !!q(K6 + ".kn-nh__cv") && /Kam príde: do stredu výplne oboch dverí/.test(tx(K6 + ".kn-nh__pop")));
   potvrd(t, "dvere");
   over("17: posledné potvrdenie kroku 6 -> krok sa sám zavrie, ďalej súhrn (U.otvoreny null, bez „Pokračujte k súhrnu“)", U.otvoreny === null && !!q('[data-krok="tapacir"].is-done') && !dalej6() && t.k.ui.hotovo(), U.otvoreny);
   t.klik(a("krok", "tapacir"));

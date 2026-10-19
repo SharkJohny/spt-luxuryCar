@@ -586,7 +586,7 @@ export const TEXTY = {
    "foto_alt": "Celý panel dverí kamióna s tapacírom a nášivkou v strede, ilustračná fotka",
    "foto_stitok": "Tapacír dverí",
    "ilustracna": "Ilustračná fotka",
-   "benefit": "Môže byť v\u00a0rovnakom materiáli, farbe a\u00a0lemovaní ako koberce, alebo si ich vyberiete inak.",
+   "benefit": "Cena platí pre obe dvere – šoféra aj spolujazdca. Môže byť v\u00a0rovnakom materiáli, farbe a\u00a0lemovaní ako koberce, alebo si ich vyberiete inak.",
    "volby": {
     "ano": {
      "text": "Áno, chcem aj tapacír dverí"
@@ -623,7 +623,7 @@ export const TEXTY = {
     "nadpis_motiv": "Motív nášivky na tapacír dverí",
     "kde": [
      "Motív bude vyšitý ",
-     "do stredu výplne dverí",
+     "do stredu výplne oboch dverí",
      " – tam, kde je na fotke zlatý krúžok."
     ],
     "foto_alt": "Panel dverí – nášivka v strede výplne, ilustračná fotka",
@@ -638,7 +638,7 @@ export const TEXTY = {
     "ina_popis": "iný motív alebo farba nite",
     "bez_kobercov_nevybrate": "Nášivku na koberce ste ešte nevybrali, preto si motív a farbu nite pre dvere vyberte tu.",
     "bez_kobercov": "Na kobercoch nášivku nemáte, preto si motív a farbu nite pre dvere vyberte tu.",
-    "kam_pride": "do stredu výplne dverí.",
+    "kam_pride": "do stredu výplne oboch dverí.",
     "podklad": "tapacír – {x}."
    },
    "hotove": {
@@ -718,7 +718,7 @@ export const TEXTY = {
   "spolu": "Spolu",
   "usetrili": "Ušetríte {x} oproti samostatnému nákupu",
   "fakty": [
-   "Dodanie približne 20–30 dní",
+   "Dodanie približne 14–25 dní",
    "Platba kartou alebo prevodom",
    "Odpovedáme spravidla do hodiny"
   ],
