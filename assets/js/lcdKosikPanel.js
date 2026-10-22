@@ -21,8 +21,8 @@ import { lcdRozpis, lcdRozpisZObsahu } from "./functions/kosikRozpis.js";
 
   var cz = /^cs/i.test(H.lang || "") || /\.cz$/i.test(host);
   var T = cz
-    ? { titul: "Váš košík", spat: "Nakupovat dál", suma: "Celkem s DPH", zavriet: "Zavřít košík", odstranit: "Odebrat z košíku", pol: ["položka", "položky", "položek"] }
-    : { titul: "Váš košík", spat: "Nakupovať ďalej", suma: "Spolu s DPH", zavriet: "Zavrieť košík", odstranit: "Odstrániť z košíka", pol: ["položka", "položky", "položiek"] };
+    ? { titul: "Váš košík", spat: "Nakupovat dál", suma: "Celkem", zavriet: "Zavřít košík", odstranit: "Odebrat z košíku", pol: ["položka", "položky", "položek"] }
+    : { titul: "Váš košík", spat: "Nakupovať ďalej", suma: "Spolu", zavriet: "Zavrieť košík", odstranit: "Odstrániť z košíka", pol: ["položka", "položky", "položiek"] };
   var tvar = function (n) { return n === 1 ? T.pol[0] : n >= 2 && n <= 4 ? T.pol[1] : T.pol[2]; };
   var nativna = function () { return H.classList.contains("lcd-native-hdr") || !!d.querySelector("[data-lcd-cast]"); };
   var panel = function () { return d.getElementById("cart-widget"); };

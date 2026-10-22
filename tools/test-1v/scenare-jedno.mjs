@@ -16,7 +16,7 @@
 //                    598/610/613 nemení ani starý vzhľad, scenár stráži, aby ju nový nezačal meniť; náhľad musí byť pri každej farbe iný)
 //   vzor-prechod     klik na sesterský vzor: správna adresa, nový vzhľad ostane zapnutý, správny vzor a farby a auto zostane
 //                    (nájdená chyba: kroky.js bral auto obnovené z sessionStorage ako prázdne — prazdnePole)
-//   kufor-nie-cena   Nechcem rohož do kufra = presne to, čo posiela živý web (D2: 610 „nie“ = +5 €, POST [88]=598, 250 €)
+//   kufor-nie-cena   Nechcem rohož do kufra = presne to, čo posiela živý web (POST [88]=598; 610 „nie“ +5 € opravené v admine 22. 10. 2026)
 //   odporucana-jedno 598/610 ukážu Odporúčanú cenu (×1,6 nahor na desiatky), 613 (v admine chýba bežná cena) ju neukáže
 //
 // Predvolená sada (bez --krok): mená sú v `scenare` profilov 598/610/613 v produkty.mjs (integrácia WA 14. 10. 2026).
@@ -29,8 +29,8 @@ import { F, hodnota } from "./stary-ui.mjs";
 const VZOR = { diamond: "Diamond Line", hexa: "Hexa Line", stripe: "Stripe Line" };
 /** Počet farieb 1. vrstvy naživo (produkty-sk.md, GET 13. 10. 2026) — nepravdivé „N farieb na výber“ by klamalo zákazníka. */
 const FARBY = { 598: 18, 610: 3, 613: 8 };
-/** Príplatok voľby „nie“ (autokoberce do kufra) = čo sa pošle aj ukáže: 610 má v admine +5 € (D2: neopravujeme, ukážeme presne to). */
-const KUFOR_NIE = { 598: 0, 610: 5, 613: 0 };
+/** Príplatok voľby „nie“ (autokoberce do kufra) = čo sa pošle aj ukáže. 610 mal v admine +5 € (D2), Michal 22. 10. 2026 dal opraviť na 0 €. */
+const KUFOR_NIE = { 598: 0, 610: 0, 613: 0 };
 const TYP_STITOK = "Jednovrstvové";
 
 const preskocBez = (a) => (a.novy ? null : { preskoc: "len nový vzhľad (?novy=1 / --vyvoj)" });
@@ -232,8 +232,8 @@ const SCENARE = {
 
   /**
    * Nechcem rohož do kufra = presne to, čo posiela živý starý web (baseline 14. 10. 2026): [88] = hodnota „nie“, nie prázdne.
-   * D2: 610 má „nie“ s príplatkom +5 € (chyba v admine) — nový vzhľad cenu neskrýva, POST aj cena v karte sedia (250 €);
-   * 598 a 613 majú „nie“ za 0 €. Zoznam chýb v admine pôjde Michalovi.
+   * D2: 610 mal „nie“ s príplatkom +5 € (chyba v admine, opravené 22. 10. 2026) — teraz majú 598, 610 aj 613 „nie“ za 0 €;
+   * nový vzhľad cenu nikdy neskrýva, POST aj cena v karte sedia.
    */
   "kufor-nie-cena": {
     typy: ["jedno"],

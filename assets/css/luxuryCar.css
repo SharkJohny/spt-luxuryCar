@@ -9782,7 +9782,8 @@ section#model-selector {
    — PC rozloženie pre okno na šírku nechávalo prázdne pásy 250–300 px (tablet 8. 10. 2026); JS: MATMQ v lcdHome.js */
 @media(min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .stage{height:auto !important}}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) video,#lcd-rz video{border:0 !important;border-radius:0 !important}
-#footer #signature{display:none !important}
+/* podpis Shoptetu v päte (#footer #signature) sa NESKRÝVA — VOP Shoptet čl. 11.3 zakazuje ho meniť, zakrývať alebo doň
+   zasahovať (pokuta 4 000 € / 100 000 Kč); pravidlo display:none z 27. 8. 2026 zmazané 22. 10. 2026 */
 
 /* --- opravy 2026-08-27 vecer: hero na plnu sirku + prepinac jazyka --- */
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .hero,#lcd-rz .hero{width:100% !important}
@@ -20779,6 +20780,12 @@ html:root #footer .footer-bottom .lcd-cookies-odkaz:hover { color: #e6c877; back
 html:root #footer .footer-bottom .lcd-cookies-odkaz:focus-visible { outline: 2px solid #f0d78f; outline-offset: 3px; box-shadow: none; }
 @media (max-width: 767px) {
   html:root #footer .footer-bottom .lcd-cookies-odkaz { display: block; margin: 8px auto 0; padding: 4px 0; line-height: 20px; }
+}
+/* autor webu (cookies.js autorVPate, Michal 22. 10. 2026) v tom istom riadku: písmo a farba copyrightu; PC za copyrightom,
+   telefón samostatný stredený riadok pod ním. Podpis Shoptetu (#signature) sa nemení ani neskrýva (VOP Shoptet čl. 11.3). */
+html:root #footer .footer-bottom .lcd-pata-autor { display: inline; margin-left: 14px; }
+@media (max-width: 767px) {
+  html:root #footer .footer-bottom .lcd-pata-autor { display: block; margin: 8px auto 0; }
 }
 /* telefón (do 468 px) na produkte: lepkavá lišta „Do košíka“ Shoptetu (#js-plugin-header.active, dole, 61 px) ležala aj na
    úplnom spodku stránky na odkaze (ťuk trafil „Do košíka“, kontrola 16. 10. 2026) -> spodný okraj riadku päty 72 px

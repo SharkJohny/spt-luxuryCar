@@ -7,7 +7,8 @@
 // každej stránke a pre každého návštevníka (s flagom 1V aj bez neho) len:
 //   1. zdvihne zbalenú bublinu Luxie nad kartu, kým je lišta na obrazovke (bez Luxie nerobí nič),
 //   2. pridá do päty trvalý odkaz „Nastavenia cookies“ (GDPR čl. 7 ods. 3: odvolať súhlas rovnako ľahko ako ho dať) —
-//      otvorí to isté okno Shoptetu ako „Nastavenie“ na lište, aj keď lišta už zmizla (súhlas uložený).
+//      otvorí to isté okno Shoptetu ako „Nastavenie“ na lište, aj keď lišta už zmizla (súhlas uložený),
+//   3. pridá do toho istého riadku päty autora webu (Michal 22. 10. 2026) — podpis Shoptetu ostáva nedotknutý.
 // Trieda html.lcd1v-cookies je už len značka „modul bežal“ (CSS ju nepotrebuje). docs/1v-kontrakt.md §14.
 import { prepinac } from "./index.js";
 
@@ -18,6 +19,8 @@ export const PREMENNA_VYSKY = "--lcd1v-cookies-vyska";
 export const TRIEDA_BUBLINA = "lcd1v-cookies-bublina";
 /** Odkaz „Nastavenia cookies“ v päte (riadok s copyrightom). js-cookies-settings = Shoptet ho obslúži sám. */
 export const TRIEDA_ODKAZ = "lcd-cookies-odkaz";
+/** Autor webu v päte (riadok s copyrightom), pred odkazom „Nastavenia cookies“. */
+export const TRIEDA_AUTOR = "lcd-pata-autor";
 
 /**
  * Volá main.js hneď pri štarte bundlu (každá stránka, každý návštevník). Vráti true, ak modul nabehol.
@@ -28,7 +31,7 @@ export function initCookies1v() {
     prepinac(window.location.search); // ?novy=1 / vyvoj / 0 platí aj mimo produktu (rovnaký flag karty ako konfigurátor)
     const html = document.documentElement;
     html.classList.add(TRIEDA_COOKIES);
-    const start = function () { sleduj(html); odkazVPate(); };
+    const start = function () { sleduj(html); autorVPate(); odkazVPate(); };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
     else start();
     return true;
@@ -76,6 +79,25 @@ function sledujLuxiu(html) {
   if (najdi() || typeof MutationObserver !== "function") return;
   const mo = new MutationObserver(function () { if (najdi()) mo.disconnect(); });
   mo.observe(document.body || html, { childList: true });
+}
+
+/**
+ * Autor webu na konci riadku s copyrightom (Michal 22. 10. 2026, znenie A): „Dizajn a vývoj webu: Luxury Car Design ·
+ * beží na platforme Shoptet“. Podpis Shoptetu (#signature) sa nemení ani neskrýva — VOP Shoptet čl. 11.3 zakazuje ho
+ * meniť, zakrývať alebo doň zasahovať (pokuta 4 000 € / 100 000 Kč za porušenie). Bez päty (pokladňa) nič.
+ */
+function autorVPate() {
+  try {
+    if (document.querySelector("." + TRIEDA_AUTOR)) return;
+    const copyright = document.querySelector("#footer .footer-bottom .copyright");
+    if (!copyright) return;
+    const s = document.createElement("span");
+    s.className = TRIEDA_AUTOR;
+    s.textContent = /^cs/i.test(document.documentElement.lang || "")
+      ? "Design a vývoj webu: Luxury Car Design · běží na platformě Shoptet"
+      : "Dizajn a vývoj webu: Luxury Car Design · beží na platforme Shoptet";
+    copyright.appendChild(s);
+  } catch (e) { /* päta ostane ako dnes */ }
 }
 
 /**

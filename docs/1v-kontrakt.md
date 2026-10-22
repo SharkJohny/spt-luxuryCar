@@ -158,7 +158,7 @@ Auto pri všetkých scenároch: Audi A6 2015 Combi. Farba je 3. voľba (549, Či
 
 Čo z toho vyplýva:
 - **Nevybraný kufor alebo boxy = prázdna hodnota** (`[88]=`, `[91]=` …), nie „nie“ (598). Karta NECHCEM pri kufri nemá triedu `.none`, takže automatický výber „nechcem“ v `configuratorEngine.js` ju nechytí. Pri boxoch karta „nechcem“ vynuluje veľkosti. Test povoľuje prázdnu hodnotu aj hodnotu „nie/ŽIADNY“. Nový vzhľad musí poslať jedno z toho, nikdy cenu navyše.
-- **610 Hexa: „nie“ stojí v admine +5 €** (chyba adminu, rozhodnutia.md D2). Nový vzhľad posiela presne to, čo starý: klik na „Nechcem“ = voľba „nie“ `[88]=598` (+5 €), bez kliku `[88]=` (0 €). Karta „Nechcem“ ukáže „+ €5“ (nie „v cene“) a bez výberu nie je označená žiadna karta — cena na stránke = cena v košíku. Oprava je v admine (Michal).
+- **610 Hexa: „nie“ stálo v admine +5 €** (chyba adminu, rozhodnutia.md D2; **opravené v admine 22. 10. 2026 na 0 €**, Michal). Pôvodne: Nový vzhľad posiela presne to, čo starý: klik na „Nechcem“ = voľba „nie“ `[88]=598` (+5 €), bez kliku `[88]=` (0 €). Karta „Nechcem“ ukáže „+ €5“ (nie „v cene“) a bez výberu nie je označená žiadna karta — cena na stránke = cena v košíku. Oprava je v admine (Michal).
 - **1 box** = `boxSolo` (104), nie `box1`. **2 boxy** = `box1` + `box2`. V sete stojí 1 box (solo) iné peniaze ako 1. box z dvojice: M +109 € vs +99 €.
 - **TYP** (74) ide vždy, podľa typu karosérie.
 - `parameter-85` (rádio rozloženia) pribudne len pri skutočnom kliku na rádio. Server ho ignoruje, test ho berie ako voliteľný.
@@ -283,7 +283,7 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `ctx-zapis` | jedno, dvoj | len `--novy`: `ctx.zapis` všetkých volieb, `"uz"`, zrušenie kufra, `prvyNevyplneny()`, `ctx.cena()` = Shoptet, `ctx.doKosika()` → POST |
 | `kufor-classic`, `kufor-premium` | jedno, dvoj | POST s `kufor`, cena |
 | `box-1`, `box-2` | jedno, dvoj | 1 box (solo) / Classic + 2 boxy (farba, veľkosti) → POST, cena |
-| `kufor-nie`, `box-nie` | jedno, dvoj | Classic → Nechcem / 1 box → Nechcem: POST bez kufra / boxov (prázdne alebo „nie“), cena bez nich. Voľba „nie“ s príplatkom > 0 (610: +5 €) je upozornenie (chyba v admine), nie zlyhanie |
+| `kufor-nie`, `box-nie` | jedno, dvoj | Classic → Nechcem / 1 box → Nechcem: POST bez kufra / boxov (prázdne alebo „nie“), cena bez nich. Voľba „nie“ s príplatkom > 0 (610 mal +5 € do 22. 10. 2026) je upozornenie (chyba v admine), nie zlyhanie |
 | `rady-3` | jedno, dvoj | všetky tri rady (nový vzhľad: 7 miest dlaždicou v kroku 4 = aj krok 2 a `seatPosition`) → POST, cena s 3. radom |
 | `box-krizik` | jedno, dvoj | len nový vzhľad: nový výber boxov zavretý krížikom bez potvrdenia = žiadny box (G10b) |
 | `box-prepni` | jedno, dvoj | len nový vzhľad: 1 box → 2 boxy, v POST len 1. + 2. box (živý web tu má chybu: samostatný box ostane) |
@@ -299,7 +299,7 @@ Profil nesie aj očakávané `priceId` a sumy (`platne`, `ceny`): scenár, ktor�
 | `vzor-jedno` | jedno | len nový vzhľad: vzor produktu v celej karte (body `data-*`, krok 1, názov radu, štítok typu, „N farieb na výber“), nič z cudzieho vzoru |
 | `farba-nahlad` | jedno | výber farby mení len náhľad v kroku, hlavná fotka galérie ostáva |
 | `vzor-prechod` | jedno | klik na sesterský vzor: správna adresa, flag ostane, auto ostane (kroky.js `prazdnePole`) |
-| `kufor-nie-cena` | jedno | Nechcem rohož = presne to, čo pošle živý web (D2: 610 „nie“ = +5 €, POST `[88]=598`, 250 €) |
+| `kufor-nie-cena` | jedno | Nechcem rohož = presne to, čo pošle živý web (POST `[88]=598`; 610 „nie“ = 0 € od 22. 10. 2026, predtým +5 €, D2) |
 | `odporucana-jedno` | jedno | 598/610 Odporúčaná cena (×1,6 nahor na desiatky), 613 (bez bežnej ceny) nie |
 | `box-bez-auta` | jedno, dvoj | len nový vzhľad (`scenare-auto.mjs`, kontrola aee13cf 17. 10. 2026): v otvorenom kroku Boxy bez auta klik na „1× box“ aj „2× box“ = ako „Pokračujte ďalej“ v karte auta (§15): bez výzvy, **bez tmavého pozadia a okna boxov**, posúvanie stránky nezamknuté, box sa neoznačí (ani po 0,9 s), len karta auta, 4 červené polia, Značka na obrazovke; nikdy tmavá stránka bez okna; po aute + farbe + rozložení okno boxov normálne, 1 box (farba 1, M) -> POST ako `box-1` |
 | `auto-poradie` | jedno, dvoj | len nový vzhľad (`scenare-auto.mjs`): 3 dvere + 4 miesta pred autom = bez výzvy a bez červenej, voľba drží; hlavička Farba bez auta (2×) a vzorka farby v otvorenej karte farby = ako „Pokračujte ďalej“ v karte auta (bez výzvy, len karta auta, 4 červené polia, Značka na obrazovke, vzorka ostane vybraná); „Pokračujte ďalej“ vzoru bez auta = len karta auta bez výzvy; „Pokračujte ďalej“ bez auta = rám karty + 4 červené polia, Značka na obrazovke; pri 560 px výšky a chýbajúcom Type karosérie posun naň; doplnenie = zvýraznenie mizne po poliach; POST = baseline starého vzhľadu, `doorPosition`/`seatPosition` v sessionStorage |

@@ -1981,7 +1981,8 @@
    — PC rozloženie pre okno na šírku nechávalo prázdne pásy 250–300 px (tablet 8. 10. 2026); JS: MATMQ v lcdHome.js */
 @media(min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse){#lcd-home .stage{height:auto !important}}
 #lcd-home video,#lcd-rz video{border:0 !important;border-radius:0 !important}
-#footer #signature{display:none !important}
+/* podpis Shoptetu v päte (#footer #signature) sa NESKRÝVA — VOP Shoptet čl. 11.3 zakazuje ho meniť, zakrývať alebo doň
+   zasahovať (pokuta 4 000 € / 100 000 Kč); pravidlo display:none z 27. 8. 2026 zmazané 22. 10. 2026 */
 
 /* --- opravy 2026-08-27 vecer: hero na plnu sirku + prepinac jazyka --- */
 #lcd-home .hero,#lcd-rz .hero{width:100% !important}

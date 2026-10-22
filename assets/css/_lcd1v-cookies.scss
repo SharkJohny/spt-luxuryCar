@@ -283,6 +283,12 @@ html:root #footer .footer-bottom .lcd-cookies-odkaz:focus-visible { outline: 2px
 @media (max-width: 767px) {
   html:root #footer .footer-bottom .lcd-cookies-odkaz { display: block; margin: 8px auto 0; padding: 4px 0; line-height: 20px; }
 }
+/* autor webu (cookies.js autorVPate, Michal 22. 10. 2026) v tom istom riadku: písmo a farba copyrightu; PC za copyrightom,
+   telefón samostatný stredený riadok pod ním. Podpis Shoptetu (#signature) sa nemení ani neskrýva (VOP Shoptet čl. 11.3). */
+html:root #footer .footer-bottom .lcd-pata-autor { display: inline; margin-left: 14px; }
+@media (max-width: 767px) {
+  html:root #footer .footer-bottom .lcd-pata-autor { display: block; margin: 8px auto 0; }
+}
 /* telefón (do 468 px) na produkte: lepkavá lišta „Do košíka“ Shoptetu (#js-plugin-header.active, dole, 61 px) ležala aj na
    úplnom spodku stránky na odkaze (ťuk trafil „Do košíka“, kontrola 16. 10. 2026) -> spodný okraj riadku päty 72 px
    (rovnaká podmienka a výška ako bublina Luxie v LCD-HDR; odkaz je 30 px nad lištou). S flagom 1V je lišta Shoptetu
