@@ -122,10 +122,10 @@ export const PRODUKTY = {
   607: {
     url: SK + "/luxusne-autokoberce-dragonskin-elite-stripe-line/", typ: "dvoj", vzor: "stripe", nazov: "Dvojvrstvové Stripe",
     scenare: ["brana", "nulova-zmena", "neuplne", "platne", "kufor-classic", "box-2", "farba2-vzhlad", "farba2-odporucanie", "prenos-neplatny"],
-    platne: { priceId: "68003", spolu: 427, odporucana: 690 },
-    // príplatky zjednotené s 613 v admine 22. 10. 2026 (Michal; predtým kufor 120/210, 2. box 69–114, TYP Combi +10):
-    // 362 + 50 + 15, 362 + 129 + 15, 362 + 129 + 99 + 89 + 15
-    ceny: { platne: 427, "kufor-classic": 506, "box-2": 694 },
+    platne: { priceId: "68003", spolu: 432, odporucana: 700 },
+    // príplatky zjednotené s 613 v admine 22. 10. 2026 (Michal; predtým kufor 120/210, 2. box 69–114, TYP Combi +10),
+    // prvý a druhý rad + 55 € ako 604 Hexa („Hexa a Stripe sú drahšie ako Diamond“): 362 + 55 + 15, 362 + 129 + 15, 362 + 129 + 99 + 89 + 15
+    ceny: { platne: 432, "kufor-classic": 506, "box-2": 694 },
     postKluce: "ako 601",
   },
   // ---------------------------------------------------------------- rohože do kufra (len farba 78, žiadny TYP/rozloženie/upsale)
