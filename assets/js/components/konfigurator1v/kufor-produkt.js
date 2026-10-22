@@ -7,7 +7,7 @@
 // Čo robí jadro a tu sa neopakuje: obal 3 kariet vzor → auto → farba, texty kariet (typy/<typ>.js), posledný krok
 // „Pokračujte k súhrnu“ bez košíka (kroky.js zachytí živý finish-button), cenová karta „cena za rohož na mieru“ bez
 // riadku odporúčanej, keď ju živý web nemá (625; cena.js), košík len ctx.doKosika() (cena.js).
-// Auto bez volantu, miest a dverí: živé prvky ostávajú v DOM, skrýva ich CSS typu (_lcd1v-kufor.scss).
+// Auto bez volantu (počet miest a dverí áno, Michal 23. 10. 2026): živý volant ostáva v DOM, skrýva ho CSS typu (_lcd1v-kufor.scss).
 //
 // Pravidlá (docs/1v-kontrakt.md §5, §11; plan.md §2.3–2.5):
 //  - nič sa nezapisuje do formulára (rohož má len farbu, tú volí kroky.js cez živé tlačidlá); žiadne prvky s name;

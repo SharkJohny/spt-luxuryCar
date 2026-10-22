@@ -7,7 +7,7 @@
 // konzola, vodorovný posun) overuje test sám pre každý kľúč; tu je to, čo je špecifické pre box:
 //   - tabuľka cien .cenv (Samostatne / V sete / V sete pri dvoch boxoch × S M L XL) a karty veľkostí #velkosti: čísla sa porovnávajú
 //     s NEZÁVISLÝM GET živých stránok (select 616 „Velikost 1. boxu“ + základ; jednovrstvové Diamond „Box solo“ a „1. box“), nie s kódom webu,
-//   - silueta v skutočnom pomere (šírka obdĺžnika = 33/40/54/66 z viewBox 76 × 44), gradient z <defs> s id p1v-…,
+//   - kresba boxu (box-kresba.js) so šírkou 33/40/54/66 cm a 9 farieb na klik (prefarbia kresby),
 //   - zdroj sekcií okrem FAQ: nič o skladovosti; lehota len „21–29 dní“ v časovej osi — úvod + odznak „spolu 21–29 dní“ (rozhodnutie
 //     Michala 14. 10. 2026: box sa šije ako koberce; odznak a krok „Ručné šitie“ 15. 10. 2026); zakázané slová; žiadna cena natvrdo,
 //   - karty „Doplňte aj rohož do kufra“ (odkazy v tom istom vzore, ceny zo živých stránok, celá karta je odkaz),
@@ -29,8 +29,8 @@ export const sekcie = [
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }] },
   { meno: "boxy-velkosti", navrh: [{ sel: "#velkosti" }, { sel: ".spat", za: "#velkosti" }] },
   { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
-  { meno: "c-kam", navrh: [{ sel: "section.chapter", text: "Čo sa doň zmestí" }, { sel: ".spat", za: "#predapo" }] },
-  { meno: "c-domov", navrh: [{ sel: "section.chapter", text: "Čo dostanete" }] },
+  // c-kam „Čo sa doň zmestí“ a c-domov „Čo dostanete“ zmazané 23. 10. 2026 (Michal: „veľakrát za sebou … veľmi podobný“ obsah —
+  // všetko z nich je v „Osem vecí“ b-ocakavat)
   { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", za: "#tml" }] },
   { meno: "c-farby", navrh: [{ sel: "#farby" }] },
   { meno: "c-vzorky", navrh: [{ sel: "#vzorky" }] },
@@ -183,7 +183,7 @@ export async function kontroly(t) {
 
   // ---------------------------------------------------------------- zdroj sekcií (D3, ceny natvrdo, TODO-D3)
   const z = kontrolaZdroja();
-  ok(z.subory >= 15, `zdroj: ${z.subory} súborov v admin-html/src/p1v-boxy`);
+  ok(z.subory >= 13, `zdroj: ${z.subory} súborov v admin-html/src/p1v-boxy`); // 13 od 23. 10. 2026 (c-kam a c-domov zmazané)
   ok(!z.ceny.length, "zdroj: žiadna cena natvrdo v texte sekcií (mimo FAQ)" + (z.ceny.length ? " — " + z.ceny.slice(0, 4).join(", ") : ""));
   ok(!z.todo.length, "zdroj: žiadny TODO-D3" + (z.todo.length ? " — " + z.todo.join(", ") : ""));
   ok(!z.zakazane.length, "zdroj (mimo FAQ): nič o skladovosti, iná lehota než „dodanie trvá 21–29 dní“ / „spolu 21–29 dní“ ani zakázané slová" + (z.zakazane.length ? " — " + z.zakazane.slice(0, 4).join(", ") : ""));
@@ -214,7 +214,7 @@ export async function kontroly(t) {
   {
     const v = await t.ev(SKEN_VZHLADU);
     const kapOk = v.kapitoly.filter((k) => k.ok).length;
-    ok(v.kapitoly.length >= 6 && kapOk === v.kapitoly.length, `vzhľad: kapitoly majú odsadenie návrhu ${v.ocak} px (clamp 38–68 px) — ${kapOk}/${v.kapitoly.length}` + (kapOk < v.kapitoly.length ? " — zle: " + v.kapitoly.filter((k) => !k.ok).slice(0, 3).map((k) => `${k.sek} ${k.hore}/${k.dole}`).join(", ") : ""));
+    ok(v.kapitoly.length >= 4 && kapOk === v.kapitoly.length, `vzhľad: kapitoly majú odsadenie návrhu ${v.ocak} px (clamp 38–68 px) — ${kapOk}/${v.kapitoly.length}` + (kapOk < v.kapitoly.length ? " — zle: " + v.kapitoly.filter((k) => !k.ok).slice(0, 3).map((k) => `${k.sek} ${k.hore}/${k.dole}`).join(", ") : "")); // 4 od 23. 10. 2026 (c-kam a c-domov boli kapitoly)
     const nadSv = v.nadpisy.filter((h) => h.svetle), nadZl = nadSv.filter((h) => h.zlate);
     ok(nadSv.length >= 5 && nadZl.length === nadSv.length, `vzhľad: nadpisy modulov na svetlom podklade sú zlaté (prechod, priehľadná výplň) — ${nadZl.length}/${nadSv.length}` + (nadZl.length < nadSv.length ? " — čierne/nezlaté: " + nadSv.filter((h) => !h.zlate).slice(0, 4).map((h) => `${h.sek} „${h.txt}“ ${h.farba}`).join(", ") : ""));
     ok(v.ups !== null && v.ups < 0.1, `vzhľad: karta ponuky (.ups) je tmavá (relatívna svetlosť ${v.ups == null ? "?" : v.ups.toFixed(3)} < 0,1)`);
@@ -259,24 +259,31 @@ export async function kontroly(t) {
     const r = await t.ev(`(function () {
       var s = document.querySelector(${S("boxy-velkosti")});
       var k = [].map.call(s.querySelectorAll(".vel4 .vc"), function (c) {
-        var rects = c.querySelectorAll(".sil rect"), telo = rects[1], kr = telo && telo.getBoundingClientRect(), sv = c.querySelector(".sil").getBoundingClientRect();
+        var svg = c.querySelector(".vc-sil svg.lcd1v-bxp-sil"), telo = svg && svg.querySelector("path.lcd1v-bxp-k-l"), bb = telo ? telo.getBBox() : null;
         var b = c.querySelectorAll(".vc-r b");
         return { v: c.querySelector(".vc-s b").textContent.trim(), dim: c.querySelector(".vc-d").textContent.trim(), pouzitie: c.querySelector(".vc-p").textContent.trim(),
-          w: telo ? +telo.getAttribute("width") : 0, vpx: kr ? kr.width : 0, svg: sv.width, fill: telo ? telo.getAttribute("fill") : "", fill2: rects[2] ? rects[2].getAttribute("fill") : "",
+          w: bb ? Math.round(bb.width) : 0, sirka: +c.querySelector(".vc-sil").getAttribute("data-p1v-sirka"), koza: telo ? getComputedStyle(telo).fill : "",
           sam: (b[0] || {}).textContent, set: (b[1] || {}).textContent, stavy: [].map.call(c.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav") + "/" + getComputedStyle(x).visibility; }) };
       });
       var tipy = [].map.call(s.querySelectorAll(".vpoz .p"), function (p) { return p.querySelector("b").textContent.trim(); });
       var btn = s.querySelector(".spat .btn"), cw = document.documentElement.clientWidth, vel = s.querySelector(".vel4").getBoundingClientRect();
-      var def = document.getElementById("p1v-bxg"), vz = document.getElementById("p1v-bxq");
+      var far = [].slice.call(s.querySelectorAll(".vfar [data-p1v-farba]")), pred = s.getAttribute("data-lcd1v-farba"), vin = far.filter(function (b) { return b.getAttribute("data-p1v-farba") === "vinovo-cervena"; })[0];
+      if (vin) vin.click();
+      var po = s.getAttribute("data-lcd1v-farba"), stlacene = far.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).length, meno = (s.querySelector("[data-p1v-farba-nazov]") || {}).textContent;
+      var kozaPo = k.length ? getComputedStyle(s.querySelector(".vc-sil path.lcd1v-bxp-k-l")).fill : "";
+      var def = document.getElementById("p1v-bxk-qb");
       return { k: k, tipy: tipy, stlpcov: getComputedStyle(s.querySelector(".vel4")).gridTemplateColumns.split(" ").length, spat: btn ? btn.textContent.trim() : null,
-        spatHref: btn ? btn.getAttribute("href") : null, vOkne: vel.left >= -1 && vel.right <= cw + 1, def: !!def && def.tagName.toLowerCase() === "lineargradient", pattern: !!vz,
+        spatHref: btn ? btn.getAttribute("href") : null, vOkne: vel.left >= -1 && vel.right <= cw + 1, def: !!def, far: far.length, pred: pred, po: po, stlacene: stlacene, meno: meno, kozaPo: kozaPo,
         spatDisp: btn ? getComputedStyle(btn.parentNode).display : "", sir: s.querySelector(".lede").textContent.trim() };
     })()`);
     ok(r.k.map((c) => c.v).join(",") === "S,M,L,XL", `boxy-velkosti: 4 karty ${r.k.map((c) => c.v).join(" ")}`);
     ok(r.k.every((c) => c.dim === `${SIRKA_CM[c.v]} × 32 × 30 cm`), `boxy-velkosti: rozmery ${r.k.map((c) => c.dim).join(" | ")}`);
-    ok(r.k.every((c) => c.w === SIRKA_CM[c.v]), `boxy-velkosti: silueta má šírku ${r.k.map((c) => c.w).join("/")} z 76 (33/40/54/66)`);
-    ok(r.k.every((c) => Math.abs(c.vpx / c.svg - SIRKA_CM[c.v] / 76) < 0.01), `boxy-velkosti: silueta je vykreslená v skutočnom pomere (${r.k.map((c) => (c.vpx / c.svg * 76).toFixed(1)).join("/")} z 76)`);
-    ok(r.def && r.pattern && r.k.every((c) => c.fill === "url(#p1v-bxg)" && c.fill2 === "url(#p1v-bxq)"), "boxy-velkosti: farebný prechod a prešívanie z <defs> s id p1v-bxg / p1v-bxq");
+    // kresba boxu ako v konfigurátore (box-kresba.js, Michal 23. 10. 2026 namiesto zlatých kufríkov): telo široké presne 33/40/54/66 cm v rovnakej mierke
+    ok(r.k.every((c) => c.sirka === SIRKA_CM[c.v] && c.w === SIRKA_CM[c.v]), `boxy-velkosti: kresba boxu má šírku ${r.k.map((c) => c.w).join("/")} cm (33/40/54/66)`);
+    ok(r.def, "boxy-velkosti: vzory kresby v <defs> s predponou p1v-bxk-");
+    ok(r.far === 9 && r.pred === "cierna-bezove-sitie", `boxy-velkosti: ${r.far} farieb na klik, predvolená ${r.pred}`);
+    ok(r.po === "vinovo-cervena" && r.stlacene === 1 && /Vínovo červená/.test(r.meno || "") && r.kozaPo === "rgb(146, 44, 61)",
+      `boxy-velkosti: klik na Vínovo červenú prefarbí kresby (farba ${r.po}, koža ${r.kozaPo}, stlačené ${r.stlacene}, „${r.meno}“)`);
     ok(r.k.map((c) => nbsp(c.sam)).join(",") === VEL.map((v) => o.sam[v]).join(",") && r.k.map((c) => nbsp(c.set)).join(",") === VEL.map((v) => o.set[v]).join(","),
       `boxy-velkosti: ceny kariet Samostatne ${r.k.map((c) => nbsp(c.sam)).join(" ")} / V sete ${r.k.map((c) => nbsp(c.set)).join(" ")} = živé selecty`);
     ok(r.k.every((c) => c.stavy.length === 2 && c.stavy.every((s) => s === "ok/visible")), "boxy-velkosti: všetky čísla kariet dosadené a viditeľné");

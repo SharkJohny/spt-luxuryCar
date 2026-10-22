@@ -104,10 +104,10 @@ export const SCENARE = {
       j.over(st.nazov === nazov && st.nazovVidno && st.nazovAria === "true", "nový názov „" + st.nazov + "“ (vidno " + st.nazovVidno + ", aria-hidden " + st.nazovAria + ") ≠ „" + nazov + "“");
       j.over(st.typ === TYP_TEXT[typ], "štítok typu „" + st.typ + "“ ≠ „" + TYP_TEXT[typ] + "“");
       info.push("názov „" + nazov + "“ (H1 v DOM)");
-      // 3 kroky bez volantu, miest a dverí
+      // 3 kroky; auto bez volantu, ale s počtom miest a dverí (Michal 23. 10. 2026)
       j.over(JSON.stringify(st.kroky) === JSON.stringify(["vzor", "auto", "farba"]), "kroky " + JSON.stringify(st.kroky) + " ≠ vzor, auto, farba");
       j.over(st.ey[0] === "Krok 1 z 3" && st.ey[2] === "Krok 3 z 3", "číslovanie kariet " + JSON.stringify(st.ey));
-      j.over(!st.volant && !st.miesta && !st.dvere, "krok auta má byť bez volantu, miest a dverí: " + JSON.stringify({ volant: st.volant, miesta: st.miesta, dvere: st.dvere }));
+      j.over(!st.volant && st.miesta && st.dvere, "krok auta: bez volantu, s počtom miest a dverí: " + JSON.stringify({ volant: st.volant, miesta: st.miesta, dvere: st.dvere }));
       j.over(st.polia === 4, "krok auta: viditeľné polia " + st.polia + " ≠ 4");
       // dlaždice vzoru: rozdiel cien podľa profilov (plan.md §4), vlastná „v cene“; text dlaždice bez ceny
       const own = zaklad(P);

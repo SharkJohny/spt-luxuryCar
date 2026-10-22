@@ -711,9 +711,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 26501,
-      "bajty": 26990,
-      "hash": "3a7a66410f",
+      "znaky": 25289,
+      "bajty": 25843,
+      "hash": "959e229ed8",
       "obrazky": 28,
       "sekcie": [
         {
@@ -734,17 +734,17 @@
         {
           "subor": "20-b-ocakavat.sk.html",
           "sekcia": "b-ocakavat",
-          "znaky": 5946
+          "znaky": 5805
         },
         {
           "subor": "21-boxy-velkosti.sk.html",
           "sekcia": "boxy-velkosti",
-          "znaky": 5490
+          "znaky": 4410
         },
         {
           "subor": "23-b-predapo.sk.html",
           "sekcia": "b-predapo",
-          "znaky": 2736
+          "znaky": 2745
         }
       ]
     },
@@ -761,21 +761,11 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 25534,
-      "bajty": 26265,
-      "hash": "91af489fa3",
+      "znaky": 23143,
+      "bajty": 23808,
+      "hash": "5a932bf6d3",
       "obrazky": 31,
       "sekcie": [
-        {
-          "subor": "30-c-kam.sk.html",
-          "sekcia": "c-kam",
-          "znaky": 870
-        },
-        {
-          "subor": "31-c-domov.sk.html",
-          "sekcia": "c-domov",
-          "znaky": 1519
-        },
         {
           "subor": "32-c-casova-os.sk.html",
           "sekcia": "c-casova-os",

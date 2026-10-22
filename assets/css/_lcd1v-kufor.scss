@@ -1,4 +1,4 @@
-/* LCD-1V rohože do kufra Classic + Premium 619–634 — auto bez volantu/miest/dverí, dlaždice vzoru, pás setu; selektory body.lcd-1v[data-lcd1v-typ^="kufor"]. Vlastník: T2.2 (kufor-produkt.js)
+/* LCD-1V rohože do kufra Classic + Premium 619–634 — auto bez volantu (miesta a dvere áno), dlaždice vzoru, pás setu; selektory body.lcd-1v[data-lcd1v-typ^="kufor"]. Vlastník: T2.2 (kufor-produkt.js)
    Čisté CSS (nekompiluje sa Sassom). KAŽDÝ selektor začína body.lcd-1v (typ cez atribút data-lcd1v-typ, nie triedu);
    flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8.
    Merané na návrhoch navrhy/kufor-classic.html (.kc-set, .kc-alt, .pat small) a kufor-premium.html (.setpas) pri
@@ -8,10 +8,10 @@
    set-banner.js v skrytom medzikroku komplet-ponuka.js — aj pre box 616). */
 
 /* ---------- živé prvky, ktoré rohož v novom vzhľade nemá (ostávajú v DOM aj so svojím JS) ---------- */
-/* krok 2: volant, počet miest a dverí (návrh: len značka, model, rok, karoséria; hodnoty idú ďalej do poznámky) */
-body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .wheel-Position,
-body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .sit-Position,
-body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .door-Position {
+/* krok 2: bez volantu (návrh: značka, model, rok, karoséria). Počet miest a dverí áno — Michal 23. 10. 2026: „aj pri
+   rohožiach do kufra je potrebné vedieť, koľko je tam miest na sedenie a koľko je dverové to auto“ (Classic aj Premium;
+   hodnoty idú do poznámky košíka, cart.js seatPosition/doorPosition) */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-auto .wheel-Position {
   display: none !important;
 }
 /* bez volantu nad poľami: preč aj čiarkovaná deliaca čiara nad značkou/modelom (návrh: polia hneď pod podnadpisom) */
