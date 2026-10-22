@@ -22,6 +22,13 @@ export const PRECIARKNUTE_EUR = { nasivky_balik: 140, nasivky_sofer_spolujazdec:
 export const FOTKA_DVERI_SUBOR = "kamion-dvere-tapacir.jpg";
 
 /**
+ * Fotky v ponuke tapacíru (krok 6), v poradí zobrazenia — súbory v assets/img/1v/ (JPEG 1536 × 1024 = 3:2, ~200 kB).
+ * Prvá je FOTKA_DVERI_SUBOR so štítkom „Tapacír dverí“ (len na nej). Pri 2 a viac fotkách ui.js ukáže prelínanie
+ * s bodkami (autoplay 3 s); pri jednej ostane jedna fotka ako doteraz. Výrez nášivky na dvere ostáva na FOTKA_DVERI_SUBOR.
+ */
+export const FOTKY_DVERI = [FOTKA_DVERI_SUBOR];
+
+/**
  * Fotka kabíny zhora so všetkými tremi nášivkami (krok 5, návrh C schválený 18. 10. 2026) — súbor v assets/img/1v/
  * (adresa = OBRAZKY_1V z ../ctx.js + tento názov; ui.js). Fotka zákazníka (logo Scania), v UI vždy „Ilustračná fotka“.
  * 1160 × 870 (4:3); nášivky: šofér 33,8 % / 59 %, spolujazdec 73,6 % / 59 %, stredový koberec 53,1 % / 80,7 %.
@@ -42,8 +49,9 @@ export const NASIVKY = [["H1","t97aba50e89494538.png","tae6af2a2426f3396.png"],[
 /** Keď select druhu nášivky na stránke nie je: zoznam schváleného artefaktu (v Shoptete sú zapnuté len tieto). */
 export const NASIVKY_ZALOHA = ["H19", "H21"];
 
-/** Farby nite v poradí ponuky: kód, meno (Shoptet), farba čipu (NITE_FARBY.color). */
-export const NITE = [["2999","Čierna","#2a2a2a"],["2901","Strieborná","#b0b0b0"],["3738","Svetlo sivá","#c0c0c0"],["3546","Béžová","#dcc8a8"],["3617","Svetlohnedá","#c9a06a"],["3504","Tmavohnedá","#5a3520"],["3501","Horčicová","#c49a40"],["2824","Červená","#c82030"],["2866","Fialová","#6b3a6b"],["3842","Modrá","#3a6a9a"],["2840","Zelená","#4a8a4a"]].map((n) => ({ kod: n[0], meno: n[1], hex: n[2] }));
+/** Farby nite v poradí ponuky (paleta 4 v rade, Michal 22. 10. 2026: Horčicová pred Tmavohnedou): kód, meno (Shoptet),
+ *  farba čipu (NITE_FARBY.color). Poradie mení len zobrazenie — do Shoptetu ide kód (stav.js). */
+export const NITE = [["2999","Čierna","#2a2a2a"],["2901","Strieborná","#b0b0b0"],["3738","Svetlo sivá","#c0c0c0"],["3546","Béžová","#dcc8a8"],["3617","Svetlohnedá","#c9a06a"],["3501","Horčicová","#c49a40"],["3504","Tmavohnedá","#5a3520"],["2824","Červená","#c82030"],["2866","Fialová","#6b3a6b"],["3842","Modrá","#3a6a9a"],["2840","Zelená","#4a8a4a"]].map((n) => ({ kod: n[0], meno: n[1], hex: n[2] }));
 
 /** Polia vozidla (label a placeholder kódu; texty UI sú v texty.js). */
 export const POLIA = {"prevodovka":{"label":"Typ prevodovky","placeholder":"Vyberte typ prevodovky..."},"sedadlo":{"label":"Typ sedadla spolujazdca","placeholder":"Vyberte typ sedadla spolujazdca..."},"zasuvky":{"label":"Počet zásuviek (šuplíkov)","placeholder":"Vyberte počet zásuviek (šuplíkov)..."},"brzda":{"label":"Typ parkovacej (ručnej) brzdy","placeholder":"Vyberte typ parkovacej (ručnej) brzdy..."},"podlaha":{"label":"Typ podlahy","placeholder":"Vyberte typ podlahy..."}};

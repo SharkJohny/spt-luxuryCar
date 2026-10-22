@@ -157,14 +157,13 @@ try {
     await klik(k, a("lem", "08"));
     await sn('#lcd1v-kamion [data-krok="lemovanie"]', "krok4-lemovanie");
     await dalej(k, "lemovanie");
-    // krok 5: 5.1 kam (4 výlučné voľby) -> 5.2 motív + niť pod sedadlami -> 5.3 stredový koberec -> sám sa zavrie
+    // krok 5: 5.1 kam (4 výlučné voľby) -> 5.2 motív + niť pod sedadlami -> 5.3 stred -> sám sa zavrie
     await sn(K5, "krok5-1-bez-vyberu");
     await klik(k, a("nas", "boky+stred"));
     await klik(k, a("zmenit", "kam")); // 5.1 znova otvorená: zvolená LEN dlaždica všetkých troch
     await sn(K5, "krok5-2-vybrate-3");
     await klik(k, a("nas", "boky+stred"));
     await klik(k, a("motiv", "H21", "boky"));
-    await klik(k, a("viac", null, "boky"));
     await klik(k, a("nit", "2824", "boky"));
     await sn(K5, "krok5-3-motiv-nit-nahlad");
     await klik(k, a("potvrd", "boky"));

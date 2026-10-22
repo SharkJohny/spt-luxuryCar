@@ -116,7 +116,19 @@ const STYLY = `(function () {
     stara: document.querySelectorAll("#lcd1v-kamion .k-cenovka, #lcd1v-kamion .kn-dv s").length,
     ot: cs(".kn-ot", "fontSize"), hotIc: cs(".kn-hot__ic", "backgroundImage"), zmenitH: zm ? zm.getBoundingClientRect().height : 0,
     motiv: cs(".k-dlazdice--motiv .k-dlazdica__img", "backgroundColor"), motivFit: cs(".k-dlazdice--motiv .k-dlazdica__img", "objectFit"), motivZvol: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "borderTopColor"),
-    motivFajka: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "backgroundImage", "::after"), nitZvol: cs(".nt__b.is-on", "borderTopColor") };
+    motivFajka: cs(".k-dlazdice--motiv .k-dlazdica.is-on", "backgroundImage", "::after"),
+    // farby nite (3B, Michal 22. 10. 2026): paleta 4 v rade, krúžok 46 px, zvolená = zelený prstenec + zelená ✓ na krúžku
+    nitZvol: (cs(".nt__b.is-on i", "boxShadow") || "").indexOf("rgb(31, 122, 82)") >= 0 ? "rgb(31, 122, 82)" : cs(".nt__b.is-on i", "boxShadow"),
+    ntStlpce: (cs(".nt", "gridTemplateColumns") || "").split(" ").length, ntKruh: cs(".nt__b i", "width"), ntFajka: cs(".nt__b.is-on i", "backgroundImage", "::after"),
+    ntMeno: cs(".nt__b.is-on .nt__nm", "color"), ntKod: cs(".nt__kod", "fontSize"),
+    ntRiadky: (function () { var b = document.querySelectorAll('#lcd1v-kamion [data-krok="nasivky"] .nt__b'), t = {}; Array.prototype.forEach.call(b, function (x) { var r = Math.round(x.getBoundingClientRect().top); t[r] = (t[r] || 0) + 1; }); return Object.keys(t).sort(function (a, c) { return a - c; }).map(function (k) { return t[k]; }); })(),
+    ntMin: Math.min.apply(null, Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .nt__b"), function (x) { var r = x.getBoundingClientRect(); return Math.min(r.width, r.height); }).concat([999])) };
+})()`;
+/** 1B hlavička: cenový box s dvomi vetami „V cene …“ (✓ 18 px zelená), bez úvodnej vety a čipov. */
+const HLAVICKA = `(function () {
+  var q = function (s) { return document.querySelector("#lcd1v-kamion " + s); };
+  var v = Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .k-cena .k-cena__vr"), function (x) { return { t: x.textContent, w: getComputedStyle(x, "::before").width, bg: getComputedStyle(x, "::before").backgroundImage, vid: x.getClientRects().length > 0 }; });
+  return { perex: !!q(".k-perex"), vc: !!q(".vc"), riadky: v, ciara: (q(".k-cena__vc") && getComputedStyle(q(".k-cena__vc")).borderTopStyle) || "" };
 })()`;
 const ZELENA = "rgb(31, 122, 82)", ZLATA = "rgb(196, 155, 49)";
 /** Riadky cien (Samostatne / Výhoda v sete / V sete): každý na jednom riadku — štítok a suma vedľa seba, nič zalomené
@@ -223,6 +235,9 @@ export const SCENARE = {
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await snimka(s, a, "kamion-start");
       await overPismo(s, j, "krok 1 + hlavička");
+      const hl = await s.t.ev(HLAVICKA);
+      j.over(!hl.perex && !hl.vc && hl.ciara === "dashed" && hl.riadky.length === 2 && hl.riadky.every((x) => x.vid && x.w === "18px" && /rgb\(29, 107, 74\)/.test(x.bg)) &&
+        hl.riadky[0].t === "V cene: šofér, spolujazdec aj stred" && hl.riadky[1].t === "Farba a lemovanie bez príplatku", "hlavička 1B (cenový box s dvomi vetami ✓, bez úvodnej vety a čipov): " + JSON.stringify(hl));
       const seg = await s.t.ev(SEGMENT);
       j.over(seg && /rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(seg.bg || "") && seg.farba === "rgb(23, 19, 10)", "prepínač Kamión / Dodávka: zvolená pilulka nie je zlatá s tmavým písmom: " + JSON.stringify(seg));
       await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"]]);
@@ -253,9 +268,11 @@ export const SCENARE = {
       j.over(st5a.dlRamy.every((x) => x !== ZELENA), "pred výberom je niektorá dlaždica zelená: " + JSON.stringify(st5a.dlRamy));
       await overPismo(s, j, "krok 5.1 kam");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-kam");
-      await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("viac", null, "boky")], ["klik", a_("nit", "2824", "boky")]]);
+      await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2824", "boky")]]);
       const st5 = await s.t.ev(STYLY);
       j.over(st5.motivZvol === ZELENA && st5.nitZvol === ZELENA, "zvolené nie je zelené (motív " + st5.motivZvol + ", niť " + st5.nitZvol + ")");
+      j.over(st5.ntStlpce === 4 && JSON.stringify(st5.ntRiadky) === "[4,4,3]" && st5.ntKruh === "46px" && /rgb\(29, 107, 74\)/.test(st5.ntFajka || "") && st5.ntMeno === ZELENA && st5.ntKod === "12px" && st5.ntMin >= 44,
+        "farby nite: paleta 4 v rade (11 = 4 + 4 + 3), krúžok 46 px, zelená ✓ a meno, kód 12 px, ťuk-plocha ≥ 44 px: " + JSON.stringify([st5.ntStlpce, st5.ntRiadky, st5.ntKruh, st5.ntFajka, st5.ntMeno, st5.ntKod, st5.ntMin]));
       j.over(/rgb\(29, 107, 74\)/.test(st5.motivFajka || "") && /rgb\(29, 107, 74\)/.test(st5.hotIc || ""), "fajka zvolenej voľby nie je zelená: " + st5.motivFajka + " | " + st5.hotIc);
       j.over(st5.zmenitH >= 44, "„Zmeniť“ má ťuk-plochu " + st5.zmenitH + " px (< 44)");
       // revízia 18. 10. 2026 (ako návrh C): motív cez celú dlaždicu (cover) na béžovom podklade PNG motívu #f0edda
@@ -270,8 +287,8 @@ export const SCENARE = {
       await rob(s, j, [["klik", a_("nit", "2999", "boky")], ["klik", a_("potvrd", "boky")]]);
       await j.pauza(900);
       const ps = await s.t.ev(POSUN("stred"));
-      j.over(ps && ps.top >= 0 && ps.top < ps.vh * 0.6, "po „Pokračovať“ sa karta stredového koberca neposunula do okna: " + JSON.stringify(ps));
-      await overPismo(s, j, "krok 5 stredový koberec");
+      j.over(ps && ps.top >= 0 && ps.top < ps.vh * 0.6, "po „Pokračovať“ sa karta stredu neposunula do okna: " + JSON.stringify(ps));
+      await overPismo(s, j, "krok 5 stred");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-stred");
       // automatický posun: „Rovnaká ako pod sedadlami“ = posledná otázka -> krok 5 sa sám zavrie, otvorí sa krok 6 (posunutý do okna)
       await rob(s, j, [["klik", a_("stredRovnaky", "1")]]);

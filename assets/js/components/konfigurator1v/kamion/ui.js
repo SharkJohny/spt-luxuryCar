@@ -4,7 +4,7 @@
 // Všetky tlačidlá type="button", žiadne name (koreň je vo <form>). Ceny len z cena.js (živé ceny Shoptetu).
 // Do košíka nič nepíše: zmenu výberu a „Pridať do košíka“ odovzdá cez naZmenu / doKosika (index.js -> shoptet.js).
 import { TEXTY } from "./texty.js";
-import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA_DVERI_SUBOR, FOTKA_KABINY_NASIVKY } from "./data.js";
+import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA_DVERI_SUBOR, FOTKY_DVERI, FOTKA_KABINY_NASIVKY } from "./data.js";
 import { OBRAZKY_1V } from "../ctx.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
@@ -36,7 +36,7 @@ export function vytvorUi(o) {
   const doc = root.ownerDocument;
   const D = { ceny: o.ceny, vozidla: { znacky: ZNACKY } };
   const S = novyStav();
-  const U = { otvoreny: "vozidlo", chyby: {}, chybaKosik: false, zablesk: null, dvereInfo: false, odosiela: false, viac: {},
+  const U = { otvoreny: "vozidlo", chyby: {}, chybaKosik: false, zablesk: null, dvereInfo: false, odosiela: false,
     // kroky 5 a 6 — otázky po jednej: čo je zodpovedané / potvrdené „Pokračovať“ a čo je znova otvorené cez „Zmeniť“ (len UI, nie S)
     n5: { boky: false, stred: false, stredOdp: false }, n6: { matOdp: false, mat: false, nasOdp: false, nas: false }, znova: { nasivky: null, tapacir: null } };
   if (o.predvyber) {
@@ -108,7 +108,6 @@ export function vytvorUi(o) {
   const eurX = (t, x) => fill(t, { x: eur(x) });
   const tapMaterial = () => (S.tapRovnaky ? S.material : S.tapMat);
   const tapFarbaKod = () => (S.tapRovnaky ? S.farba : S.tapFarba);
-  const tapLemKod = () => (S.tapRovnaky ? S.lem : S.tapLem);
   function odporucanyLem() {
     if (!S.material || !S.farba) return null;
     const f = farba(S.material, S.farba);
@@ -227,11 +226,11 @@ export function vytvorUi(o) {
     }
     const zvysok = doc.createElement("div");
     zvysok.className = "k-info-telo";
+    // 1B (Michal 22. 10. 2026): bez úvodnej vety a čipov „V základnej cene“ — čo je v cene, povedia dve vety s ✓ v cenovom boxe
     zvysok.innerHTML =
-      '<p class="k-perex">' + esc(h.perex) + "</p>" +
       '<div class="k-cena"><div class="k-cena__stl"><div class="k-cena__fig"><div class="k-cena__stitok">' + esc(h.cena_popis.stitok) +
-      '</div><div class="k-cena__teraz"><i class="k-cena__od">' + esc(h.cena_popis.od) + ' </i><b class="k-cena__suma">' + eur(D.ceny.zaklad_eur) + "</b></div></div></div></div>" +
-      '<div class="vc"><span class="vc__h">' + esc(h.v_cene.nadpis) + '</span><ul class="vc__l">' + h.v_cene.chipy.map((c) => "<li>" + esc(c) + "</li>").join("") + "</ul></div>" +
+      '</div><div class="k-cena__teraz"><i class="k-cena__od">' + esc(h.cena_popis.od) + ' </i><b class="k-cena__suma">' + eur(D.ceny.zaklad_eur) + "</b></div></div></div>" +
+      '<ul class="k-cena__vc">' + h.cena_popis.v_cene.map((x) => '<li class="k-cena__vr">' + esc(x) + "</li>").join("") + "</ul></div>" +
       '<div data-k="kompat"></div><div data-k="postup"></div><div class="k-kroky" data-k="kroky"></div><div data-k="suhrn"></div>';
     root.appendChild(zvysok);
     return hodn;
@@ -273,30 +272,43 @@ export function vytvorUi(o) {
     }
     return "";
   }
+  /** Hlavička hotového kroku = „čo je vybraté · cena“ ako autokoberce (6A, Michal 22. 10. 2026; súhrn bez riadkov):
+   *  cena na konci za nezalomiteľnou medzerou (na telefóne nový riadok nezačne „· + 119 €“). Ceny len z cena.js (živé
+   *  ceny Shoptetu). Pole = viac riadkov (tapacír + nášivka na dvere). */
+  const sCenou = (s, c) => s + NB + "·" + NB + c;
   function zhrnutie(id) {
-    const tk = T.kroky;
+    const tk = T.kroky, vCene = T.suhrn.v_cene, po = ponuka();
     let t, f, l, s;
     switch (id) {
-      case "vozidlo": s = nazovVozidla(); t = detailyVozidla(); return t ? s + " · " + t : s;
+      case "vozidlo": s = nazovVozidla(); t = detailyVozidla(); return sCenou(t ? s + " · " + t : s, eur(D.ceny.zaklad_eur));
       case "material": t = matT(S.material); return fill(tk.material.zhrnutie, { nazov: t.nazov, variant: t.variant, cena_text: cenaMaterialu(S.material) });
-      case "farba": f = farba(S.material, S.farba); return fill(tk.farba.zhrnutie, { farba: f.meno, kod: f.kod });
-      case "lemovanie": l = lem(S.lem); return l.menoUi + " (" + l.kod + ")";
+      case "farba": f = farba(S.material, S.farba); return sCenou(fill(tk.farba.zhrnutie, { farba: f.meno, kod: f.kod }), vCene);
+      case "lemovanie": l = lem(S.lem); return sCenou(l.menoUi + " (" + l.kod + ")", vCene);
       case "nasivky": {
-        if (S.nas === "nechcem") return tk.nasivky.zhrnutie_nie;
+        if (S.nas === "nechcem") return sCenou(tk.nasivky.zhrnutie_nie, tk.nasivky.hotove.bez_priplatku);
         const rozsah = tk.nasivky.rozsah[S.nas];
         const x = S.nas === "stred" ? S.nasStred : S.nasBoky;
         s = rozsah + " · " + motiv(x.motiv).meno + " · " + fill(U0.nit, { x: mala(nit(x.nit).menoUi) });
         if (S.nas === "boky+stred" && !S.stredRovnaky) s += " · stred: " + motiv(S.nasStred.motiv).meno + ", " + fill(U0.nit, { x: mala(nit(S.nasStred.nit).menoUi) });
-        return s;
+        return sCenou(s, plus(po.nasivky[S.nas].suma));
       }
-      case "tapacir":
+      case "tapacir": {
         if (S.tap === "nie") return tk.tapacir.zhrnutie_nie;
         f = S.tapRovnaky ? null : farba(S.tapMat, S.tapFarba);
-        s = S.tapRovnaky ? tk.tapacir.zhrnutie_ano : fill(tk.tapacir.zhrnutie_ano_vlastne, { nazov: matT(S.tapMat).nazov, variant: matT(S.tapMat).variant, farba: f ? mala(f.meno) : "" });
-        return s + (S.tapNas ? U0.tap_s_nasivkou : "");
+        l = S.tapRovnaky ? null : lem(S.tapLem);
+        s = S.tapRovnaky ? tk.tapacir.zhrnutie_ano
+          : fill(tk.tapacir.zhrnutie_ano_vlastne, { nazov: matT(S.tapMat).nazov, variant: matT(S.tapMat).variant, farba: f ? farbaTx(f) : "", lemovanie: l ? lemTx(l) : "" });
+        const r = [sCenou(s, plus(po.tapacir.suma))];
+        if (S.tapNas) {
+          const dn = S.tapNasRovnaka && koberecNas() ? koberecNas() : { motiv: S.tapNasMotiv, nit: S.tapNasNit };
+          r.push(sCenou(fill(tk.tapacir.zhrnutie_nasivka, { x: motivTxt(dn) }), plus(po.nasivka_dvere.suma)));
+        }
+        return r.length > 1 ? r : r[0];
+      }
     }
     return "";
   }
+  const vyHtml = (vy) => (Array.isArray(vy) ? vy.map((x) => '<span class="k-krok__vr">' + esc(x) + "</span>").join("") : esc(vy));
 
   function renderKroky() {
     const ks = kroky(), M = ks.length;
@@ -309,7 +321,7 @@ export function vytvorUi(o) {
         '<button type="button" class="k-krok__hd" data-a="krok" data-v="' + id + '" data-f="hd:' + id + '" aria-expanded="' + open + '" aria-controls="' + P + "telo-" + id + '">' +
         '<span class="k-krok__no" aria-hidden="true">' + (i + 1) + '</span><span class="k-krok__tx">' +
         '<span class="k-krok__ey">' + esc(fill(U0.krok_ey, { n: i + 1, m: M })) + '</span><span class="k-krok__ti">' + esc(t.otazka) + "</span>" +
-        '<span class="k-krok__nm">' + esc(t.nazov) + (done && !open ? '<span class="k-sr">' + esc(U0.krok_hotove) + "</span>" : "") + '</span><span class="k-krok__vy">' + esc(vy) + "</span></span>" +
+        '<span class="k-krok__nm">' + esc(t.nazov) + (done && !open ? '<span class="k-sr">' + esc(U0.krok_hotove) + "</span>" : "") + '</span><span class="k-krok__vy">' + vyHtml(vy) + "</span></span>" +
         '<span class="k-krok__zm" aria-hidden="true">' + esc(T.kroky.tlacidla.zmenit) + "</span></button>" +
         '<div class="k-krok__telo" id="' + P + "telo-" + id + '" role="group" aria-label="' + attr(t.nazov) + '">' + (open ? telo(id, i === M - 1) : "") + "</div></section>";
     }).join("");
@@ -366,8 +378,7 @@ export function vytvorUi(o) {
 
   function teloVozidlo(posledny) {
     const t = T.kroky.vozidlo, PP = t.polia;
-    let html = '<p class="k-pod">' + esc(t.pomocna_veta) + "</p>";
-    html += '<div class="k-skupina"><span class="k-stitok" id="' + P + 'lbl-typ">' + esc(t.prepinac.popis) + '</span><div class="k-segment" role="group" aria-labelledby="' + P + 'lbl-typ">' +
+    let html = '<div class="k-skupina"><span class="k-stitok" id="' + P + 'lbl-typ">' + esc(t.prepinac.popis) + '</span><div class="k-segment" role="group" aria-labelledby="' + P + 'lbl-typ">' +
       ["kamion", "dodavka"].map((v) => {
         const on = S.typ === v;
         return '<button type="button" class="' + (on ? "is-on" : "") + '" data-a="typ" data-v="' + v + '" data-f="typ:' + v + '" aria-pressed="' + on + '">' + esc(t.prepinac[v]) + "</button>";
@@ -561,18 +572,14 @@ export function vytvorUi(o) {
         '<img class="k-dlazdica__img" src="' + attr(m.full) + '" alt="' + attr(fill(U0.motiv_alt, { x: m.meno })) + '" loading="lazy"><span class="k-dlazdica__nm">' + esc(m.meno) + "<small>" + m.kod + "</small></span></button>";
     }).join("") + "</div>";
   }
-  /** Farby nite: prvých N v poradí ponuky + „Ďalšie farby (+n)“ (krok je na telefóne kratší); vybraná sa nikdy neskryje. */
+  /** Farby nite (3B, Michal 22. 10. 2026): paleta všetkých 11 farieb, 4 v rade — krúžok vo farbe nite, pod ním meno a kód
+   *  (bez „Ďalšie farby“). Nášivky na koberce aj nášivka na dvere. */
   function cipyNiti(prefix, vybrata) {
-    const tn = T.kroky.nasivky.nit, vsetky = nite(), prve = tn.prve || vsetky.length;
-    let idx = -1;
-    vsetky.forEach((n, i) => { if (n.kod === vybrata) idx = i; });
-    const ukaz = U.viac[prefix] || idx >= prve || vsetky.length <= prve + 1 ? vsetky : vsetky.slice(0, prve);
-    return '<div class="nt" role="group" aria-label="' + attr(U0.nit_aria) + '">' + ukaz.map((n) => {
+    return '<div class="nt" role="group" aria-label="' + attr(U0.nit_aria) + '">' + nite().map((n) => {
       const on = vybrata === n.kod;
       return '<button type="button" class="nt__b' + (on ? " is-on" : "") + '" data-a="nit" data-m="' + prefix + '" data-v="' + n.kod + '" data-f="nit:' + prefix + n.kod + '" aria-pressed="' + on + '">' +
-        '<i style="background:' + n.hex + '" aria-hidden="true"></i>' + esc(n.menoUi) + " <small>" + n.kod + "</small></button>";
-    }).join("") + (ukaz.length < vsetky.length ? '<button type="button" class="nt__b nt__b--viac" data-a="viac" data-m="' + prefix + '" data-f="viac:' + prefix + '" aria-expanded="false">' +
-      esc(fill(tn.viac, { n: vsetky.length - ukaz.length })) + "</button>" : "") + "</div>";
+        '<i style="background:' + n.hex + '" aria-hidden="true"></i><span class="nt__nm">' + esc(n.menoUi) + '</span><span class="nt__kod">' + n.kod + "</span></button>";
+    }).join("") + "</div>";
   }
   /** Plátno náhľadu: motív prefarbený na niť na fotke materiálu (kreslí kresliNahlady; rozlíšenie podľa šírky). */
   function platno(cls, x, bg, k, w2, h2, aria) {
@@ -610,6 +617,21 @@ export function vytvorUi(o) {
   const popisTx = (x) => "<span>" + esc(x) + "</span>";
   const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: l.menoUi.toLowerCase() + " (" + l.kod + ")" });
+  /** Výhody v rámiku ponuky (krok 6): krátke riadky so zelenou ✓ namiesto dlhej vety (Michal 22. 10. 2026). */
+  const benefity = (zoz) => '<ul class="kn-ponuka__ben">' + zoz.map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
+  /** Fotka tapacíru v ponuke (data.js FOTKY_DVERI): jedna = celá fotka 3:2 ako doteraz; 2 a viac = prelínanie (opacity
+   *  .7 s), bodky pod fotkou, autoplay 3 s (nastavGaleriu). Štítok „Tapacír dverí“ len na prvej fotke. galI = zobrazená. */
+  function fotkyDveri(t) {
+    const stitok = '<span class="kn-stitok" style="--x:43%;--y:21%">' + esc(t.foto_stitok) + "</span>", ilu = '<span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span>";
+    const img = (f, alt) => '<img src="' + attr(OBRAZKY_1V + f) + '" alt="' + attr(alt) + '" width="1536" height="1024" loading="lazy" decoding="async">';
+    if (FOTKY_DVERI.length < 2) return '<div class="kn-dvere">' + img(FOTKY_DVERI[0] || FOTKA_DVERI_SUBOR, t.foto_alt) + stitok + ilu + "</div>";
+    if (galI >= FOTKY_DVERI.length) galI = 0;
+    return '<div class="kn-gal" data-gal><div class="kn-dvere kn-dvere--gal">' + FOTKY_DVERI.map((f, i) =>
+      '<span class="kn-gal__s' + (i === galI ? " is-on" : "") + '"' + (i === galI ? "" : ' aria-hidden="true"') + ">" + img(f, i ? t.foto_alt_dalsia : t.foto_alt) + (i ? "" : stitok) + "</span>").join("") + ilu +
+      '</div><div class="kn-gal__bodky" role="group" aria-label="' + attr(t.fotky_aria) + '">' + FOTKY_DVERI.map((f, i) =>
+      '<button type="button" class="kn-gal__b' + (i === galI ? " is-on" : "") + '" data-a="foto" data-v="' + i + '" data-f="foto:' + i + '" aria-pressed="' + (i === galI) + '" aria-label="' +
+        attr(fill(t.fotka_aria, { n: i + 1 })) + '"></button>').join("") + "</div></div>";
+  }
 
   /** Čiastková otázka „Prosím, vyberte si …“ veľkým písmom + obsah; červený rám pri chybe poľa (ako sk). */
   function skOt(id, pole, otazka, obsah) {
@@ -706,11 +728,10 @@ export function vytvorUi(o) {
     const t = T.kroky.tapacir, po = ponuka(), oz = t.otazky;
     if (b === "ponuka") {
       const a = t.volby.ano, on = S.tap === "ano", off = S.tap === "nie", pt = po.tapacir;
-      // fotka celých dverí 3:2 bez orezania, ponuka v rámiku s cenami v riadkoch, zelené Áno, zlaté Nie
-      return '<div class="kn-blok" data-blok="ponuka" tabindex="-1"><p class="k-pod">' + esc(t.vysvetlivka) + "</p>" +
-        '<div class="kn-dvere"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(t.foto_alt) + '" width="1536" height="1024" loading="lazy" decoding="async">' +
-        '<span class="kn-stitok" style="--x:43%;--y:21%">' + esc(t.foto_stitok) + '</span><span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span></div>" +
-        sk("tapacir", "tap", "", '<div class="kn-ponuka"><span class="kn-ponuka__nm">' + esc(t.nazov) + '</span><span class="kn-ponuka__ben">' + esc(t.benefit) + "</span>" +
+      // fotka celých dverí 3:2 bez orezania (pri 2+ fotkách prelínanie s bodkami), ponuka v rámiku s ✓ výhodami a cenami
+      // v riadkoch, zelené Áno, zlaté Nie
+      return '<div class="kn-blok" data-blok="ponuka" tabindex="-1"><p class="k-pod">' + esc(t.vysvetlivka) + "</p>" + fotkyDveri(t) +
+        sk("tapacir", "tap", "", '<div class="kn-ponuka"><span class="kn-ponuka__nm">' + esc(t.nazov) + "</span>" + benefity(t.benefity) +
           cenyRiadky(eur(pt.suma), pt) +
           '<button type="button" class="k-btn-zelene' + (on ? " is-on" : off ? " je-druha" : "") + '" data-a="tap" data-v="ano" data-f="tap:ano" aria-pressed="' + on + '">' + (on ? "✓ " : "") + esc(a.text) + "</button></div>" +
           '<button type="button" class="k-btn-zlate' + (off ? " is-on" : on ? " je-druha" : "") + '" data-a="tap" data-v="nie" data-f="tap:nie" aria-pressed="' + off + '">' + (off ? "✓ " : "") + esc(t.volby.nie.text) + "</button>" +
@@ -745,7 +766,7 @@ export function vytvorUi(o) {
         '<div class="kn-dvere kn-dvere--vyrez"><span class="kn-foto kn-foto--169"><span class="kn-scena" style="--ar:3/2;--z:1.3;--fx:.433;--fy:.45"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(nd.foto_alt) + '" loading="lazy" decoding="async">' +
         '<span class="kn-bod" style="--x:43.3%;--y:45%;--d:23%"><b>' + esc(nd.bod) + '</b></span></span><span class="kn-ilu">' + esc(t.ilustracna) + "</span></span></div>" +
         sk("tapacir", "tapNas", "", (U.dvereInfo ? '<p class="tp-info">' + esc(nd.zmena_info) + "</p>" : "") +
-          '<div class="kn-ponuka kn-ponuka--nas"><span class="kn-ponuka__nm">' + esc(nd.otazka) + "</span>" + cenyRiadky(plus(pd.suma), pd) +
+          '<div class="kn-ponuka kn-ponuka--nas"><span class="kn-ponuka__nm">' + esc(nd.otazka) + "</span>" + benefity(nd.benefity) + cenyRiadky(plus(pd.suma), pd) +
           '<div class="an' + (an != null ? " an--vybrate" : "") + '" role="group" aria-label="' + attr(nd.otazka) + '">' +
           '<button type="button" class="an__b an__b--ano' + (an === true ? " is-on" : "") + '" data-a="tapNas" data-v="ano" data-f="tapNas:ano" aria-pressed="' + (an === true) + '">' + (an === true ? "✓ " : "") + esc(nd.ano) + "<small>" + plus(pd.suma) + "</small></button>" +
           '<button type="button" class="an__b an__b--nie' + (an === false ? " is-on" : "") + '" data-a="tapNas" data-v="nie" data-f="tapNas:nie" aria-pressed="' + (an === false) + '">' + (an === false ? "✓ " : "") + esc(nd.nie) + "<small>" + esc(nd.bez_priplatku) + "</small></button></div></div>"));
@@ -782,45 +803,16 @@ export function vytvorUi(o) {
     return riadokHot("dvere", h.dvere, motivTxt({ motiv: S.tapNasMotiv, nit: S.tapNasNit }));
   }
 
-  // ------------------------------------------------------------------ súhrn (artefakt ř. 625–679, bez ukážky košíka)
+  // ------------------------------------------------------------------ súhrn (6A, Michal 22. 10. 2026): bez karty a riadkov
+  // „Súhrn objednávky“ — čo je vybraté a za koľko, ukazujú hlavičky krokov (zhrnutie); pod krokmi ostáva „Spolu“, čo ešte
+  // chýba, úspora, tlačidlo košíka, fakty a odkaz pre dopravcov (ako .lcd1v-suhrn autokobercov)
   function renderSuhrn() {
-    const c = cena(), ts = T.suhrn, r = {};
-    c.riadky.forEach((x) => { r[x.id] = x; });
+    const c = cena(), ts = T.suhrn;
     const z = znacka(), dod = z ? z.typ === "dodavka" : S.typ === "dodavka";
-    let html = '<div class="sh" aria-labelledby="' + P + 'sh-h"><p class="sh__ey">' + esc(U0.suhrn_ey) + '</p><h2 class="sh__h" id="' + P + 'sh-h">' + esc(dod ? ts.nadpis_dodavka : ts.nadpis_kamion) + "</h2>";
-    html += '<p class="sh__voz">' + esc(S.model ? nazovVozidla() + (detailyVozidla() ? " · " + detailyVozidla() : "") : U0.suhrn_bez_vozidla) + "</p>";
-    const riadok = (b, span, cHtml) => '<div class="sh__r"><div class="sh__t"><b>' + esc(b) + "</b>" + (span ? "<span>" + esc(span) + "</span>" : "") + '</div><div class="sh__c">' + cHtml + "</div></div>";
-    const cen = (x) => (x.povodna != null ? "<s>" + eur(x.povodna) + "</s>" : "") + "<span>" + (x.suma ? plus(x.suma) : "0" + NB + "€") + "</span>";
-    const bezSpolujazdca = /^Bez sedadla/.test(S.polia.sedadlo || "");
-    html += riadok(ts.riadky.koberce.nazov, bezSpolujazdca ? ts.riadky.koberce.popis_bez_spolujazdca : ts.riadky.koberce.popis, "<span>" + eur(r.zaklad.suma) + "</span>");
-    if (S.material) {
-      const f = S.farba && farba(S.material, S.farba), l = S.lem && lem(S.lem);
-      html += riadok(matKratko(S.material) + (f ? " · " + mala(f.meno) + " (" + f.kod + ")" : ""), l ? lemTx(l) : "",
-        r.material.suma ? "<span>" + plus(r.material.suma) + "</span>" : "<em>" + esc(ts.v_cene) + "</em>");
-    }
-    if (S.nas === "nechcem") html += riadok(U0.suhrn_bez_nasiviek, "", "<span>0" + NB + "€</span>");
-    else if (S.nas && r.nasivky) {
-      const nz = { "boky+stred": ts.riadky.nasivky.nazov_vsetky, boky: ts.riadky.nasivky.nazov_boky, stred: ts.riadky.nasivky.nazov_stred }[S.nas];
-      const x = S.nas === "stred" ? S.nasStred : S.nasBoky;
-      let popis = "";
-      if (x.motiv && x.nit) popis = motivTxt(x);
-      if (S.nas === "boky+stred" && !S.stredRovnaky && S.nasStred.motiv && S.nasStred.nit) popis += fill(U0.suhrn_stred, { x: motivTxt(S.nasStred) });
-      html += riadok(nz, popis, cen(r.nasivky));
-    }
-    if (tapDostupny() && S.tap === "nie") html += riadok(U0.suhrn_bez_tapaciru, "", "<span>0" + NB + "€</span>");
-    if (r.tapacir) {
-      const tm = tapMaterial(), tf = tapFarbaKod() && tm && farba(tm, tapFarbaKod()), tl = tapLemKod() && lem(tapLemKod());
-      html += riadok(ts.riadky.tapacir.nazov, S.tapRovnaky ? ts.riadky.tapacir.popis_rovnaky :
-        (tm ? matKratko(tm) : "") + (tf ? " · " + mala(tf.meno) + " (" + tf.kod + ")" : "") + (tl ? " · " + lemTx(tl) : ""), cen(r.tapacir));
-    }
-    if (r.nasivka_dvere) {
-      const dn = S.tapNasRovnaka && koberecNas() ? koberecNas() : { motiv: S.tapNasMotiv, nit: S.tapNasNit };
-      html += riadok(ts.riadky.nasivka_dvere.nazov, dn.motiv && dn.nit ? motivTxt(dn) : "", cen(r.nasivka_dvere));
-    }
-    const chybaju = kroky().filter((k) => !hotovy(k));
-    if (chybaju.length) html += '<p class="sh__chyba-r">' + esc(fill(U0.suhrn_niet, { x: chybaju.map((k) => mala(T.kroky[k].nazov)).join(", ") })) + "</p>";
-    const hot = !chybaju.length;
+    const chybaju = kroky().filter((k) => !hotovy(k)), hot = !chybaju.length;
+    let html = '<div class="sh">';
     html += '<div class="k-suhrn"><span class="k-suhrn__lb">' + esc(ts.spolu) + (hot ? "" : esc(U0.suhrn_zatial)) + '</span><b class="k-suhrn__suma" aria-live="polite">' + eur(c.spolu) + "</b></div>";
+    if (!hot) html += '<p class="sh__chyba-r">' + esc(fill(U0.suhrn_niet, { x: chybaju.map((k) => mala(T.kroky[k].nazov)).join(", ") })) + "</p>";
     if (c.usetrene > 0) html += '<p class="sh__us">' + esc(eurX(ts.usetrili, c.usetrene)) + "</p>";
     if (U.chybaKosik && !hot) html += '<p class="sh__err" role="alert">' + esc(T.kroky.chyba_kosik) + "</p>";
     if (U.chybaPrenosu) html += '<p class="sh__err" role="alert">' + esc(U0.chyba_kosiku) + "</p>";
@@ -900,11 +892,44 @@ export function vytvorUi(o) {
     });
   }
 
+  // ------------------------------------------------------------------ fotky tapacíru (krok 6, len pri 2+ fotkách v FOTKY_DVERI)
+  // Autoplay každé 3 s len kým je fotka v okne (IntersectionObserver) a zákazník nechce menej pohybu (prefers-reduced-motion
+  // = bez autoplay, bodky fungujú). Každé render() časovač aj observer zruší a nastaví znova (krok zatvorený / prekreslený
+  // = žiadny bežiaci interval); zrus() ich zruší tiež.
+  const GAL_MS = 3000;
+  let galI = 0, galCas = 0, galIo = null, galVidno = false;
+  const menejPohybu = () => !!(w.matchMedia && w.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function galZastav() { if (galCas) { clearInterval(galCas); galCas = 0; } }
+  function galZrus() { galZastav(); if (galIo) { galIo.disconnect(); galIo = null; } galVidno = false; }
+  /** Zobrazí fotku i (dookola): prelínanie cez triedu is-on, bodky aria-pressed; bez prekreslenia kroku. */
+  function galUkaz(i) {
+    const g = root.querySelector("[data-gal]");
+    if (!g) return;
+    const s = g.querySelectorAll(".kn-gal__s"), b = g.querySelectorAll(".kn-gal__b"), n = s.length;
+    if (!n) return;
+    galI = ((i % n) + n) % n;
+    Array.prototype.forEach.call(s, (x, j) => { x.classList.toggle("is-on", j === galI); if (j === galI) x.removeAttribute("aria-hidden"); else x.setAttribute("aria-hidden", "true"); });
+    Array.prototype.forEach.call(b, (x, j) => { x.classList.toggle("is-on", j === galI); x.setAttribute("aria-pressed", String(j === galI)); });
+  }
+  function galSpusti() {
+    galZastav();
+    if (galVidno && !menejPohybu() && root.querySelector("[data-gal]")) galCas = setInterval(() => galUkaz(galI + 1), GAL_MS);
+  }
+  function nastavGaleriu() {
+    galZrus();
+    const g = root.querySelector("[data-gal]");
+    if (!g) { galI = 0; return; }
+    if (menejPohybu() || typeof w.IntersectionObserver !== "function") return;
+    galIo = new w.IntersectionObserver((en) => { en.forEach((x) => { galVidno = x.isIntersecting; }); galSpusti(); }, { threshold: 0.3 });
+    galIo.observe(g.querySelector(".kn-dvere"));
+  }
+
   // ------------------------------------------------------------------ vykreslenie
   function render() {
     const ae = doc.activeElement;
     const f = ae && (root.contains(ae) || lst.contains(ae)) ? ae.getAttribute("data-f") : null;
     renderKroky();
+    nastavGaleriu();
     renderSuhrn();
     renderLista();
     kresliNahlady();
@@ -1125,13 +1150,7 @@ export function vytvorUi(o) {
       }
       case "motiv": zmena(() => { if (m === "boky") S.nasBoky.motiv = v; else if (m === "stred") S.nasStred.motiv = v; else { S.tapNasMotiv = v; if (!koberecNas()) { S.tapNasRovnaka = false; U.n6.nasOdp = true; } } }); return;
       case "nit": zmena(() => { if (m === "boky") S.nasBoky.nit = v; else if (m === "stred") S.nasStred.nit = v; else { S.tapNasNit = v; if (!koberecNas()) { S.tapNasRovnaka = false; U.n6.nasOdp = true; } } }); return;
-      case "viac": {
-        U.viac[m] = true;
-        render();
-        const zoz = root.querySelectorAll('[data-a="nit"][data-m="' + m + '"]'), prvy = zoz[T.kroky.nasivky.nit.prve || 0];
-        if (prvy) try { prvy.focus({ preventScroll: true }); } catch (e) { /* */ }
-        return;
-      }
+      case "foto": galUkaz(+v); galSpusti(); return; // bodka pod fotkou tapacíru: bez prekreslenia, autoplay odznova
       case "potvrd": potvrd(v); return;
       case "zmenit": zmenit(v); return;
       /* „Rovnaká ako pod sedadlami“ = hotovo (karta sa zatvorí); „Iná nášivka“ = motív, niť, Pokračovať */
@@ -1226,6 +1245,7 @@ export function vytvorUi(o) {
     suhrn: () => $('[data-k="suhrn"]'),
     zrus() {
       clearTimeout(odosielaCas);
+      galZrus();
       hodn.removeEventListener("click", naHodnotenie);
       root.removeEventListener("click", naKlik);
       root.removeEventListener("change", naZmenuPola);

@@ -93,15 +93,17 @@ import { initProduct } from "./assets/js/components/productPage.js";
 import { initKonfigurator1v } from "./assets/js/components/konfigurator1v/index.js";
 window.__spusti = function () { initProduct({}, {}); return initKonfigurator1v({}, {}); };
 `;
-let bundleStranky = null;
-async function bundle() {
-  if (!bundleStranky) bundleStranky = await bundlePrehliadaca(VSTUP_STRANKY);
-  return bundleStranky;
+const bundleStranky = new Map();
+/** navyse = kód pred vstupom (napr. import dát modulu a ich úprava pre test) — vlastný bundle, rovnaká inštancia modulov. */
+async function bundle(navyse = "") {
+  if (!bundleStranky.has(navyse)) bundleStranky.set(navyse, await bundlePrehliadaca(navyse + VSTUP_STRANKY));
+  return bundleStranky.get(navyse);
 }
 
 /**
  * Otvorí fixture 640 v jsdom, vloží jQuery a bundle a spustí initProduct + initKonfigurator1v (ako main.js).
- * o.url (napr. ?novy=vyvoj), o.uprav(html), o.session { kľúč: hodnota } pred štartom, o.pred(window) pred spustením.
+ * o.url (napr. ?novy=vyvoj), o.uprav(html), o.session { kľúč: hodnota } pred štartom, o.pred(window) pred spustením,
+ * o.vstup = kód pred vstupom bundle (napr. 'import { FOTKY_DVERI } from "./assets/…/kamion/data.js"; FOTKY_DVERI.push(…);').
  * Natívne tlačidlo košíka dostane počítadlo klikov a FormData formulára v okamihu kliku (odoslanie sa zruší).
  * Vráti { window, document, chyby, kliky: [{ data: [[k, v]] }], ctx, kamion }.
  */
@@ -121,7 +123,7 @@ export async function spustiStranku(o = {}) {
     kliky.push({ data: Array.from(new w.FormData(form).entries()) });
   });
   if (o.pred) o.pred(w);
-  w.eval(await bundle());
+  w.eval(await bundle(o.vstup || ""));
   let ctx = null;
   try { ctx = w.__spusti(); } catch (e) { s.chyby.push("__spusti: " + ((e && e.stack) || e)); }
   await pauza(o.cakaj == null ? 150 : o.cakaj);
