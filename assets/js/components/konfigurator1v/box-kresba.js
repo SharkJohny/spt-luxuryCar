@@ -25,11 +25,13 @@ export const slugFarby = (s) => bezDiakritiky(s).replace(/[^a-z0-9]+/g, "-").rep
 // Farby kresby podľa farby boxu (kľúč = slugFarby(nazovFarby(text možnosti).nazov), ako fotky boxprodukt-farba-*;
 // odtiene odčítané z fotiek vzoriek): koža, rúčka, lem/obrys, šitie, (ryha prešívania, inak čierna .42).
 // Názvy farieb boxov naživo (GET 18. 10. 2026): 616 select farby; 598/610/613 a 601/604/607 select „farba boxov“
-// (rovnakých 9 možností) — 616 má „Čierna / Sivá“ a „Šedá“, sety „Čierna / Šedá“ a „Béžová“.
+// (rovnakých 9 možností) — 616 má „Čierna / Sivá“ (= setov „Čierna / Šedá“ šitie) a svetlý box, sety „Béžová“.
+// Svetlý box 616 bol v admine „Farba kože : Šedá“ (558) — chyba, je béžový (Michal 22. 10. 2026: „Tam, kde je box
+// so šedou farbou, daj preč, to je chyba. Má to byť v béžovej farbe.“) -> prestavuje sa na „Farba kože : Béžová“ (561).
 const CIERNA = { koza: "#2a2b30", rucka: "#55585f", lem: "#0e0f11" };
 // Béžová (Michal 18. 10. 2026: „Ten béžový box treba spraviť naozaj béžový“, podľa jeho vzorky): svetlá teplá béžová koža,
 // šitie béžové/krémové o tón tmavšie a teplejšie, lem tmavšia béžová, rúčka o tón tmavšia ako koža, ryha teplá hnedá
-// (čierna ryha robila zo svetlej kože sivú). Svetlý box 616 („Šedá“) aj svetlý box setu („Béžová“) kreslíme rovnako.
+// (čierna ryha robila zo svetlej kože sivú). Svetlý box 616 aj svetlý box setu sú „Béžová“ a kreslia sa rovnako.
 const BEZOVA = { koza: "#d4cbbb", rucka: "#c2b59f", lem: "#9a8463", sitie: "#c9b08a", ryha: "rgba(92, 68, 36, .24)" };
 // Béžové šitie na čiernej (Michal 19. 10. 2026, iPhone: „čierna prešívaná béžovou je skôr žltá a môže to mýliť“; predtým
 // #dcc59c): na fotke vzorky (assets/config/farba-koze-cierna-farba-sitia-bezova.jpg) je niť krémová, takmer biela, len
@@ -45,8 +47,8 @@ export const FARBY_KRESBY = {
   "cierna-biele-sitie": Object.assign({ sitie: "#f2f2ef" }, CIERNA),
   "hneda-kava": { koza: "#4b3934", rucka: "#68534b", lem: "#22180f", sitie: "#dccdbf" },
   "vinovo-cervena": { koza: "#922c3d", rucka: "#ad4255", lem: "#4a1019", sitie: "#f0dcdf" },
-  "bezova": BEZOVA, // sety: „Farba kože : Béžová“
-  "seda": BEZOVA, // 616: „Farba kože : Šedá“ (svetlý box; predtým svetlošedá #cbc4c4)
+  "bezova": BEZOVA, // sety aj 616: „Farba kože : Béžová“
+  "seda": BEZOVA, // len prechod: 616, kým admin ešte hovorí „Farba kože : Šedá“ (558) — je to ten istý béžový box
 };
 /** Bez farby / neznáma farba: čierna s béžovým šitím. */
 export const PREDVOLENA = "cierna-bezove-sitie";

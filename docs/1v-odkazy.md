@@ -47,7 +47,7 @@ Všade: cena v novom vzhľade v tvare „230 €“ (nie „€230“); krátky 
 2. **604 Elite Hexa**: parameter 85, „1.+2. rad“ +55 € (601 má +50 €) — ak to nie je zámer.
 3. **607 Elite Stripe**: príplatky rohože do kufra (88), boxov (94, 97) a karosérie (74) sú iné ako pri 601 — ak to nie je zámer, zjednotiť (zoznam v `plan.md` §3 C3).
 4. **Bežná cena** chýba pri 613 Stripe a 625 Classic Stripe — preto sa neukáže odporúčaná cena ani zľava.
-5. **Palety farieb:** 619 Classic Diamond nemá bielu, žltú, zelenú a bronzovú niť; 634 Premium Stripe nemá Hnedú; 616 box má Šedú namiesto Béžovej („Farba boxov“ v sete).
+5. **Palety farieb:** 619 Classic Diamond nemá bielu, žltú, zelenú a bronzovú niť; 634 Premium Stripe nemá Hnedú; 616 box mal svetlý box ako „Šedá“ (558) namiesto Béžovej („Farba boxov“ v sete má Béžovú 727) — Michal 22. 10. 2026: „to je chyba, má to byť v béžovej farbe“ → variant 616/DIA15 (66968) prestavený v admine na „Diamond Farba kože : Béžová“ (561; naživo overené 22. 10. 2026, „Šedá“ na 616 už nie je); 1V zvládne obe hodnoty (`box-farby`, `box-komplet-bezova`).
 6. **Box 616 XL**: 1. box 246 €, 2. a 3. box +249 €.
 7. Voliteľné: preklepy v názvoch rohoží a boxu („Luxusný koberce…“, „luxusný boxi“) — prejaví sa aj v košíku, na faktúrach a vo feede; v H1 boxu musí ostať slovo „box“.
 

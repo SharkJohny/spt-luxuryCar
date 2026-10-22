@@ -761,9 +761,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 25528,
-      "bajty": 26256,
-      "hash": "59dd4eacac",
+      "znaky": 25534,
+      "bajty": 26265,
+      "hash": "91af489fa3",
       "obrazky": 31,
       "sekcie": [
         {
@@ -784,7 +784,7 @@
         {
           "subor": "33-c-farby.sk.html",
           "sekcia": "c-farby",
-          "znaky": 7589
+          "znaky": 7595
         },
         {
           "subor": "34-c-vzorky.sk.html",

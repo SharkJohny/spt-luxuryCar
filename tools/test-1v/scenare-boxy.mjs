@@ -11,6 +11,7 @@
 // Scenáre len pre nový vzhľad (box-start, box-2-neuplne) sa v starom preskočia. V profile 616 (produkty.mjs, jadro)
 // zatiaľ nie sú — púšťať cez --krok box-start,box-2-neuplne (alebo ich vydanie pridá do profilu).
 
+import { join } from "node:path";
 
 const VELKOST = (v) => new RegExp("^" + v + "\\s*:", "i");
 
@@ -166,6 +167,58 @@ export const SCENARE = {
       const ocak = a.produkt.ceny && a.produkt.ceny["box-pocet-2"];
       if (ocak != null) j.over(cena.spolu === ocak, "S + L = " + cena.spolu + " ≠ plan §4 " + ocak);
       return { info: `2 boxy, len 1. veľkosť -> červený rám Veľkosť, POST 0; + 2. box L -> ${st2.velkostVyber}, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
+    },
+  },
+
+  /**
+   * Nový vzhľad: každá farba boxu má vlastnú fotku materiálu (assets/img/1v/boxprodukt-farba-*.jpg, nie len živú vzorku),
+   * kresbu boxu v kroku Veľkosť vo svojej farbe (box-kresba.js FARBY_KRESBY: kľúč = názov farby bez diakritiky, nie
+   * predvolená) a „Vybraná farba“ slovami. Svetlý box je Béžová (Michal 22. 10. 2026: „Tam, kde je box so šedou farbou,
+   * daj preč, to je chyba. Má to byť v béžovej farbe.“): fotka boxprodukt-farba-bezova.jpg, koža kresby #d4cbbb.
+   * Kým admin 616 hovorí „Diamond Farba kože : Šedá“ (558), test to len vypíše (po prestavení na Béžovú 561 spustiť znova).
+   * Do košíka nič.
+   */
+  "box-farby": {
+    typy: ["boxy"],
+    async fn(s, a, pom, ovl, j) {
+      if (ovl.zdroj.boxy !== "novy") return { preskoc: "len nový vzhľad" };
+      const t = s.t;
+      await j.otvor(s, a.url, { novy: true });
+      const n = await t.ev(`document.querySelectorAll("#product-detail-form .lcd1v-k-farba > .options-wrap > .option-button").length`);
+      j.over(n >= 9, "farieb boxu je " + n + " (čakám 9)");
+      const kluc = (x) => String(x || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      const farby = [];
+      for (let i = 0; i < n; i++) {
+        await ovl.boxy.vyberFarbu(t, { index: i });
+        await j.pauza(200);
+        const r = await t.ev(`(function () {
+          var f = document.getElementById("product-detail-form"), k = f.querySelector(".lcd1v-krok.lcd1v-k-farba");
+          var b = k.querySelector(":scope > .options-wrap > .option-button.active"), im = k.querySelector(":scope > .lcd1v-bxp-nahlad img");
+          var v = f.querySelector(".lcd1v-bxp-velk"), p = k.querySelector(":scope > .lcd1v-bxp-farba-popis");
+          return { nazov: b ? b.getAttribute("data-lcd1v-nazov") || "" : "", src: im ? im.getAttribute("src") || "" : "",
+            kresba: v ? v.getAttribute("data-lcd1v-farba") || "" : "", koza: v ? v.style.getPropertyValue("--bxp-lth").trim() : "",
+            popis: p && !p.hidden ? p.textContent.replace(/\\s+/g, " ").trim() : "" };
+        })()`);
+        farby.push(r);
+        const subor = r.src.split("/").pop();
+        j.over(/\/img\/1v\/boxprodukt-farba-[a-z-]+\.jpg$/.test(r.src), `farba „${r.nazov}“: náhľad nie je fotka materiálu boxprodukt-farba-*.jpg, ale ${r.src}`);
+        j.over(r.kresba === kluc(r.nazov), `farba „${r.nazov}“: kresba boxu má farbu „${r.kresba}“ (čakám „${kluc(r.nazov)}“ — farba chýba v FARBY_KRESBY)`);
+        j.over(!!r.popis, `farba „${r.nazov}“: chýba „Vybraná farba“ slovami`);
+        if (/^(bezova|seda)$/.test(kluc(r.nazov)))
+          j.over(subor === "boxprodukt-farba-bezova.jpg" && r.koza.toLowerCase() === "#d4cbbb", `svetlý box „${r.nazov}“: fotka ${subor}, koža kresby ${r.koza} (čakám boxprodukt-farba-bezova.jpg, #d4cbbb)`);
+        if (a.snimky && /^(bezova|seda)$/.test(kluc(r.nazov))) {
+          // snímka pre ľudskú kontrolu: krok 1 so svetlým boxom (vzorka + náhľad materiálu)
+          await t.ev(`(function () { var k = document.querySelector("#product-detail-form .lcd1v-krok.lcd1v-k-farba"); if (k) { k.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -80); } })()`);
+          await j.pauza(700);
+          await s.k.snimka(join(a.snimky, `${a.produkt.id}-box-farby-${kluc(r.nazov)}-${t.sirka}.png`)).catch(() => {});
+        }
+      }
+      await j.pauza(400);
+      j.over(s.posty.length === 0, "pri výbere farieb odišiel POST: " + (s.posty[0] && s.posty[0].body));
+      const svetla = farby.find((r) => /^(bezova|seda)$/.test(kluc(r.nazov)));
+      j.over(svetla, "616 nemá svetlý box (Béžová): " + farby.map((r) => r.nazov).join(", "));
+      const admin = svetla && svetla.nazov === "Šedá" ? " — POZOR: admin 616 ešte „Šedá“ (558), po prestavení na „Béžová“ (561) spustiť znova" : "";
+      return { info: `${n} farieb: každá s fotkou materiálu a kresbou vo svojej farbe; svetlý box „${svetla && svetla.nazov}“ = béžová fotka a kresba${admin}` };
     },
   },
 };

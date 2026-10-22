@@ -28,9 +28,14 @@
 //   box-komplet-od     „Áno“ hneď po počte (veľkosť ešte nezvolená): 598 dostane počet a farbu, okno boxov ostane otvorené
 //                      na výber veľkosti; zákazník ju zvolí a potvrdí; auto + farba + rozloženie -> POST platný (box solo,
 //                      farba boxov)
-//   box-komplet-seda   farba boxu, ktorú set nemá (dnes Šedá — test ju hľadá sám porovnaním názvov 616 a 598), veľkosť S zvolená: veta pod bannerom
+//   box-komplet-seda   farba boxu, ktorú set nemá (test ju hľadá sám porovnaním názvov 616 a 598; do 22. 10. 2026 „Šedá“,
+//                      po prestavení svetlého boxu na Béžovú žiadna -> preskočí sa), veľkosť S zvolená: veta pod bannerom
 //                      to povie; Áno -> 598: počet a veľkosť prenesené, farba nie — okno boxov otvorené na výber farby;
 //                      zákazník zvolí farbu a potvrdí; auto + farba + rozloženie -> POST platný (box solo, farba boxov)
+//   box-komplet-bezova svetlý box „Béžová“ (Michal 22. 10. 2026: šedý box je chyba; admin 616 558 „Šedá“ -> 561 „Béžová“),
+//                      1 box S: veta „Farba aj veľkosť boxu Vám ostanú.“; Áno -> 598: kľúč prenosu a selecty = Box solo S
+//                      + farba boxov Béžová (727, podľa názvu nezávisle od kódu), kresba v okne boxov béžová; POST 0.
+//                      Kým admin 616 hovorí „Šedá“, preskočí sa (s pokynom spustiť znova)
 //   box-komplet-3      3 boxy: karta sa neukáže (ani keď bola pri 2 boxoch viditeľná), „Pokračujte k súhrnu“ ide rovno na
 //                      súhrn; POST 3 boxov platný
 import { statSync } from "node:fs";
@@ -683,6 +688,54 @@ export const SCENARE = {
         const cena = await j.overPost(s, post, { ...z.ocak, farbaBoxov: fb, boxSolo: ciel.solo.S.hodnota });
         const c = await j.overCenu(s, ovl, cena);
         return { info: `farba „${bez.text}“ mimo setu: veta v dlaždici, Áno -> ${J.id}: 1 box S prenesený, okno boxov otvorené na farbu; po farbe a potvrdení POST platný, ${c.videne} €`, post: post.body };
+      } finally {
+        s.produkt = P;
+      }
+    },
+  },
+
+  "box-komplet-bezova": {
+    typy: ["boxy"],
+    async fn(s, a, pom, ovl, j) {
+      const sk = preskocBez(a); if (sk) return sk;
+      const t = s.t, P = a.produkt, J = profil("jedno", "diamond");
+      await j.otvor(s, a.url, { novy: true });
+      const idF = await t.idParametra("farba");
+      const farby = await farbyBoxu(t, idF);
+      const seda = farby.find((f) => normFarby(f.text) === "sed");
+      const bez = farby.find((f) => normFarby(f.text) === "bezov");
+      if (!bez) return { preskoc: seda ? `admin 616 ešte „${seda.text}“ (${seda.hodnota}) — po prestavení na „Diamond Farba kože : Béžová“ (561) spustiť znova` : "616 nemá Béžovú: " + farby.map((f) => f.text).join(", ") };
+      j.over(!seda, `616 ponúka aj Béžovú (${bez.hodnota}) aj Šedú (${seda && seda.hodnota}) — šedý box sa nemá ponúkať`);
+      const ciel = await boxyCiela(t, cesta(J.url));
+      const fc = ciel.farby.find((c) => normFarby(c.text) === "bezov");
+      j.over(fc, `set ${J.id} nemá Béžovú vo „Farbe boxov“: ${ciel.farby.map((c) => c.text).join(", ")}`);
+      await boxVyber(t, ovl, { farba: bez.index, pocet: 1, velkosti: ["S"] });
+      await cakajKartu(t, "karta ponuky (Béžová)");
+      await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty ponuky" });
+      const otv = await cakajOtvorenu(t, "otvorená karta ponuky (Béžová)");
+      j.over(otv.ben === "Farba aj veľkosť boxu Vám ostanú.", `veta pod bannerom pri Béžovej: „${otv.ben}“ (Béžová je v sete, nemá byť „sa v sete neponúka“)`);
+      await snimka(s, a, "komplet-bezova", KARTA);
+      await t.klikni(`${KARTA} .lcd1v-komplet__ano`, { popis: "Áno, chcem set s autokobercami" });
+      s.produkt = J;
+      try {
+        const pr = await poPrichode(s, j, { J, z: P.id, krok: "auto" });
+        const kv = pr.kluc.vyber;
+        j.over(kv.pocetBoxov === 1 && kv.boxSolo === ciel.solo.S.hodnota && kv.farbaBoxov === fc.hodnota && !kv.box1 && !kv.box2,
+          `výber v kľúči ${JSON.stringify(kv)} ≠ 1 box S ${ciel.solo.S.hodnota} + farba boxov „${fc.text}“ ${fc.hodnota}`);
+        const ids = {};
+        for (const k of ["farbaBoxov", "boxSolo"]) ids[k] = await t.idParametra(k);
+        const st = await t.ev(`(function (ids) {
+          var f = document.getElementById("product-detail-form");
+          function v(k) { var s = f.querySelector('select[data-parameter-id="' + ids[k] + '"]'); return s ? s.value : null; }
+          var kb = f.querySelector(".upsale-Banner.lcd1v-kb [data-lcd1v-farba]");
+          return { farbaBoxov: v("farbaBoxov"), boxSolo: v("boxSolo"), kresba: kb ? kb.getAttribute("data-lcd1v-farba") : "" };
+        })(${JSON.stringify(ids)})`);
+        j.over(st.farbaBoxov === fc.hodnota && st.boxSolo === ciel.solo.S.hodnota && st.kresba === "bezova",
+          `na ${J.id}: farba boxov ${st.farbaBoxov} (čakám ${fc.hodnota}), Box solo ${st.boxSolo} (čakám ${ciel.solo.S.hodnota}), kresba v okne boxov „${st.kresba}“ (čakám bezova)`);
+        if (a.snimky) await s.k.snimka(join(a.snimky, `${P.id}-komplet-bezova-ciel-${J.id}-${t.sirka}.png`)).catch(() => {});
+        await j.pauza(500);
+        j.over(s.posty.length === 0, "po prenose odišiel POST: " + (s.posty[0] && s.posty[0].body));
+        return { info: `616 „${bez.text}“ (${bez.hodnota}), 1 box S: veta „${otv.ben}“; Áno -> ${J.id}: farba boxov „${fc.text}“ (${fc.hodnota}) + Box solo S prenesené, kresba béžová` };
       } finally {
         s.produkt = P;
       }

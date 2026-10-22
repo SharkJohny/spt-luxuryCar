@@ -366,7 +366,10 @@ export async function kontroly(t) {
       mena: [].map.call(s.querySelectorAll(".lx-farby-vzorka"), function (b) { return b.getAttribute("aria-label").replace(", Diamond Line", ""); }).join("|"),
       viac: s.querySelector(".lx-farby-viac").getAttribute("href"), viacTxt: s.querySelector(".lx-farby-viac-txt").textContent.trim(), cta: s.querySelector(".lx-farby-akcie .btn").textContent.trim() }; })()`);
     ok(r0.vz === 9 && r0.vel === 9 && /01\s*\/\s*09/.test(r0.stitok), `c-farby: 9 vzoriek a 9 veľkých fotiek (${r0.vz}/${r0.vel}, štítok „${r0.stitok}“)`);
-    ok(r0.mena === "Čierna · červené šitie|Čierna · modré šitie|Čierna · čierne šitie|Čierna · béžové šitie|Čierna · sivé šitie|Čierna · biele šitie|Hnedá káva|Vínovo červená|Šedá", `c-farby: názvy farieb ${r0.mena}`);
+    ok(r0.mena === "Čierna · červené šitie|Čierna · modré šitie|Čierna · čierne šitie|Čierna · béžové šitie|Čierna · sivé šitie|Čierna · biele šitie|Hnedá káva|Vínovo červená|Béžová", `c-farby: názvy farieb ${r0.mena}`);
+    // svetlý box je Béžová (Michal 22. 10. 2026: „Tam, kde je box so šedou farbou, daj preč, to je chyba.“)
+    const sedaC = await t.ev(`/Šed[áa]/.test(document.querySelector(${JSON.stringify(sek)}).innerHTML)`);
+    ok(!sedaC, "c-farby: nikde „Šedá“ (svetlý box je Béžová)");
     ok(/vzorkovnik-dragonskin---objednavka-vzoriek\/$/.test(r0.viac) && r0.viacTxt === "Vzorky pošleme domov" && r0.cta === "Vyberte si box", `c-farby: odkaz „${r0.viacTxt}“ → ${r0.viac}, tlačidlo „${r0.cta}“`);
     await t.klikni(sek + " .lx-farby-vzorka", { index: 6, popis: "vzorka Hnedá káva", pockaj: 1400 });
     const r1 = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), on = s.querySelector(".lx-farby-velka > img.on");

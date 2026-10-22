@@ -24,7 +24,8 @@
 //       rohož { kufor: voľba „dno“ (Classic) / „dno + boky“ (Premium) podľa textu } — farbu volí zákazník až na
 //         autokobercoch (rohož v sete je vo farbe autokobercov; povie to veta v dlaždici), auto ide živým sessionStorage;
 //       box { pocetBoxov: 1 | 2, boxSolo | box1 + box2: veľkosť podľa písmena S/M/L/XL (len keď je zvolená pri každom
-//         boxe), farbaBoxov: farba podľa NÁZVU } — farbu, ktorú set nemá (dnes Šedá), neprenáša (povie to veta pod
+//         boxe), farbaBoxov: farba podľa NÁZVU — 616 „Béžová“ (561) = set „Béžová“ (727) } — farbu, ktorú set nemá (do
+//         22. 10. 2026 „Šedá“ 616, odvtedy Béžová), neprenáša (povie to veta pod
 //         bannerom); čo chýba (farba alebo veľkosti), vyberie zákazník v okne boxov na cieli (prenos.js aplikujVyber).
 //         Bez veľkostí ukáže banner cenu „už od“ = najlacnejšia veľkosť, ktorú má set aj táto stránka (dnes S), pri
 //         každom boxe; „Samostatne“ je tá istá veľkosť na tejto stránke (variant + príplatok).

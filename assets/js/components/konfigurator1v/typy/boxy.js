@@ -87,7 +87,8 @@ export const TYP = {
         // radšej daj tú fotku väčšiu“ (veta v banneri hovorí to isté)
       },
       ano: { tl: "Áno, chcem set s autokobercami" },
-      // farba boxu, ktorú set nemá (dnes Šedá): povedať to a farbu neprenášať — zákazník ju vyberie v okne boxov
+      // farba boxu, ktorú set nemá: povedať to a farbu neprenášať — zákazník ju vyberie v okne boxov (do 22. 10. 2026
+      // to bola „Šedá“ 616; po prestavení na Béžovú má set všetky farby boxu a veta je len poistka)
       ben: (d) => {
         const dva = d.pocet > 1;
         if (d.od) {
@@ -118,6 +119,10 @@ export const TYP = {
     "boxprodukt-farba-cierna-biele-sitie": { diamond: "boxprodukt-farba-cierna-biele.jpg" },
     "boxprodukt-farba-hneda-kava": { diamond: "boxprodukt-farba-hneda-kava.jpg" },
     "boxprodukt-farba-vinovo-cervena": { diamond: "boxprodukt-farba-vinovo-cervena.jpg" },
-    "boxprodukt-farba-seda": { diamond: "boxprodukt-farba-seda.jpg" },
+    // svetlý box = Béžová (Michal 22. 10. 2026: „Tam, kde je box so šedou farbou, daj preč, to je chyba. Má to byť
+    // v béžovej farbe.“): variant 616 sa v admine prestavuje z „Diamond Farba kože : Šedá“ (558) na „… : Béžová“ (561).
+    // Fotka je tá istá vzorka béžovej kože (= sw-bezova.jpg webu); „seda“ ostáva len ako prechod, kým admin hovorí „Šedá“.
+    "boxprodukt-farba-bezova": { diamond: "boxprodukt-farba-bezova.jpg" },
+    "boxprodukt-farba-seda": { diamond: "boxprodukt-farba-bezova.jpg" },
   },
 };

@@ -45,7 +45,7 @@ try {
     await otvor(k, "velkost");
     await posunNa(k, "#product-detail-form .lcd1v-bxp-velk");
     await k.snimka(join(kam, `krok3-cervene-${sirka}.png`));
-    for (const [meno, re] of [["kava", "/Hnedá káva/i"], ["seda", "/Šedá/i"], ["biele", "/Čierna.*Biel/i"]]) {
+    for (const [meno, re] of [["kava", "/Hnedá káva/i"], ["bezova", "/Béžová|Šedá/i"], ["biele", "/Čierna.*Biel/i"]]) {
       await otvor(k, "farba");
       await farba(k, re);
       await pauza(900);
