@@ -15,6 +15,7 @@ import { FIXTURE, spustiStranku, klik, vyber, zaskrtni, pauza, zvolene, nacitajM
 const ST = await nacitajModul("assets/js/components/konfigurator1v/kamion/stav.js");
 const OS = await nacitajModul("assets/js/truck-konfigurator/order-summary.mjs");
 const SH = await nacitajModul("assets/js/components/konfigurator1v/kamion/shoptet.js");
+const DT = await nacitajModul("assets/js/components/konfigurator1v/kamion/data.js");
 const HTML = readFileSync(FIXTURE, "utf8");
 const URL1 = "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/?novy=vyvoj";
 const ID = [346, 376, 379, 349, 403, 406, 409, 412, 352, 388, 391, 394, 355, 397, 400];
@@ -525,19 +526,44 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: ponuka tapacíru — Samostatne 179 € / Výhoda v sete − 60 € / V sete 119 €", J(cen(q(K6 + ".kn-ponuka .k-ucet"))) === J(R("179 €", "− 60 €", "119 €")) && !q(K6 + ".kn-ponuka s"), J(cen(q(K6 + ".kn-ponuka .k-ucet"))));
   over("17: najprv LEN ponuka (Áno zelené, Nie zlaté), bez materiálu a nášivky na dvere", J(otvorene(K6)) === J(["ponuka"]) && q(a("tap", "ano")).classList.contains("k-btn-zelene") && q(a("tap", "nie")).classList.contains("k-btn-zlate") && !q(a("tapNas", "ano")) && !dalej6());
   t.klik(a("tap", "ano"));
-  over("17: Áno -> „✓ Tapacír dverí: áno · 119 €“, karta materiálu s otázkou a dvomi voľbami (nič nepredvolené)", J(hot(K6)) === J(["ponuka"]) && /Tapacír dverí: áno · 119 €/.test(tx(K6 + '.kn-hot[data-hot="ponuka"]')) && J(otvorene(K6)) === J(["mat"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si materiál, farbu a lemovanie tapacíru" && qa(K6 + ".kn-rv__b").every((x) => x.getAttribute("aria-pressed") === "false") && /prešívaná/.test(tx(K6 + '[data-a="tapRovnake"]')) && !q(a("tapNas", "ano")));
+  over("17: Áno -> „✓ Tapacír dverí: áno · 119 €“, karta materiálu s otázkou a dvomi voľbami (nič nepredvolené)", J(hot(K6)) === J(["ponuka"]) && /Tapacír dverí: áno · 119 €/.test(tx(K6 + '.kn-hot[data-hot="ponuka"]')) && J(otvorene(K6)) === J(["mat"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si materiál, farbu a lemovanie tapacíru" && qa(K6 + ".kn-tv__b").length === 2 && qa(K6 + ".kn-tv__b").every((x) => x.getAttribute("aria-pressed") === "false") && !q(a("tapNas", "ano")));
+  // 22. 10. 2026 (Michal): čiernobiela fotka výplne dverí bez čísel a štítkov, pod ňou dve karty; materiál a lemovanie
+  // kobercov ako DVE samostatné dlaždice (nikdy pás lemovania cez fotku materiálu)
+  const tvF = q(K6 + ".kn-tvfoto > img");
+  over("17: nad voľbami čiernobiela fotka výplne dverí (kamion-dvere-tapacir.jpg) len s „Ilustračná fotka“", !!tvF && /\/assets\/img\/1v\/kamion-dvere-tapacir\.jpg$/.test(tvF.getAttribute("src")) &&
+    tx(K6 + ".kn-tvfoto") === "Ilustračná fotka" && !q(K6 + ".kn-tvfoto .kn-bod, " + K6 + ".kn-tvfoto .kn-stitok") && q(K6 + ".kn-tvfoto").nextElementSibling === q(K6 + ".kn-tv"), tx(K6 + ".kn-tvfoto"));
+  const tvA = q(a("tapRovnake")), tvB = q(a("tapZmenit")), tvD = tvA ? Array.from(tvA.querySelectorAll(".kn-tv__d")) : [];
+  const f12 = DT.MATERIALY.filter((m) => m.nazov === PRES)[0].farby.filter((f) => f.kod === "12")[0], l04 = DT.LEMOVANIE.filter((l) => l.kod === "04")[0];
+  const dTx = (d, c) => (d.querySelector(c) ? d.querySelector(c).textContent : "");
+  over("17: karta A „Rovnaké ako koberce / Ladí s Vašimi kobercami“ — tlačidlo s krúžkom", !!tvA && tvA.tagName === "BUTTON" && tvA.getAttribute("type") === "button" && dTx(tvA, ".kn-tv__nm") === "Rovnaké ako koberce" && dTx(tvA, ".kn-tv__po") === "Ladí s Vašimi kobercami" && !!tvA.querySelector(".kn-tv__r"));
+  over("17: karta A — dlaždica Materiál (fotka farby kobercov) a dlaždica Lemovanie (pás lemovania kobercov), každá s jedným obrázkom",
+    tvD.length === 2 && J(tvD.map((d) => dTx(d, ".kn-tv__st"))) === J(["Materiál", "Lemovanie"]) && tvD.every((d) => d.querySelectorAll("img").length === 1) &&
+    tvD[0].querySelector("img.kn-tv__foto").getAttribute("src") === f12.full && tvD[1].querySelector(".kn-tv__pas > img").getAttribute("src") === l04.full,
+    J(tvD.map((d) => Array.from(d.querySelectorAll("img")).map((i) => i.getAttribute("src")))));
+  over("17: karta A — „Prešívaná syntetická koža / čierna (12)“ a „čierna + červená (04) / páska po celom okraji“",
+    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "čierna (12)"], ["čierna + červená (04)", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
+  const lemB = tvB ? Array.from(tvB.querySelectorAll(".kn-tv__lt")).map((i) => i.getAttribute("src")) : [];
+  over("17: karta B „Vlastná kombinácia“ — 4 vzorky materiálu, čiara, 2 pásy lemovania iné ako na kobercoch",
+    !!tvB && dTx(tvB, ".kn-tv__nm") === "Vlastná kombinácia" && dTx(tvB, ".kn-tv__po") === "Iný materiál, farba alebo lemovanie" && tvB.querySelectorAll(".kn-tv__mm > img.kn-tv__mt").length === 4 &&
+    !!tvB.querySelector(".kn-tv__mm + .kn-tv__del + .kn-tv__ml") && J(lemB) === J(["05", "09"].map((k) => DT.LEMOVANIE.filter((l) => l.kod === k)[0].swatch)), J(lemB));
+  over("17: v kroku 6 nič nekladie lemovanie cez materiál (bez .kn-rv__lem, mozaiky materiálov a „+“)", !q(K6 + ".kn-rv__lem, " + K6 + ".kn-rv__plus, " + K6 + ".kn-rv__mozaika:not(.kn-rv__mozaika--motiv)"));
   t.klik(a("tapZmenit"));
-  over("17: „Vybrať inak“ -> materiál, farba a lemovanie vopred ako koberce + Pokračovať", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "12" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz") && !!q(a("potvrd", "tapMat")) && !q(a("tapNas", "ano")));
-  over("17: vnorený riadok voľby = podstatné meno „✓ Iný materiál, farba alebo lemovanie“ (nie „Vybrať inak“)", tx(K6 + '.kn-hot--vnutri[data-hot="mat"] .kn-hot__tx') === "Iný materiál, farba alebo lemovanie", tx(K6 + '.kn-hot--vnutri[data-hot="mat"]'));
-  over("17: lemovanie uprostred vety malým písmom (lemovanie čierna + červená (04))", /lemovanie čierna \+ červená \(04\)/.test(tx(".kn-vz")), tx(".kn-vz"));
+  over("17: „Vlastná kombinácia“ -> materiál, farba a lemovanie vopred ako koberce + Pokračovať", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "12" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz") && !!q(a("potvrd", "tapMat")) && !q(a("tapNas", "ano")));
+  over("17: vnorený riadok voľby = podstatné meno „✓ Iný materiál, farba alebo lemovanie“ (nie „Vlastná kombinácia“)", tx(K6 + '.kn-hot--vnutri[data-hot="mat"] .kn-hot__tx') === "Iný materiál, farba alebo lemovanie", tx(K6 + '.kn-hot--vnutri[data-hot="mat"]'));
+  over("17: lemovanie uprostred vety malým písmom (lemovanie čierna + červená (04))", /lemovanie čierna \+ červená \(04\)/.test(tx(".kn-vz p")), tx(".kn-vz p"));
+  const vzO = qa(".kn-vz .kn-vz__obr > .kn-vz__o");
+  over("17: „Vybraté pre tapacír“ — materiál a lemovanie ako dve samostatné fotky vedľa seba so štítkami (nie pás cez materiál)",
+    vzO.length === 2 && J(vzO.map((o) => o.querySelector(".kn-vz__st").textContent)) === J(["Materiál", "Lemovanie"]) && vzO.every((o) => o.querySelectorAll("img").length === 1) &&
+    vzO[0].querySelector(".kn-vz__mat > img").getAttribute("src") === f12.full && vzO[1].querySelector(".kn-vz__lem > img").getAttribute("src") === l04.full && !q(".kn-vz .kn-rv__viz"),
+    J(vzO.map((o) => Array.from(o.querySelectorAll("img")).map((i) => i.getAttribute("src")))));
   t.klik(a("tapMat", "Mikrosemiš – dvojfarebný"));
   over("17: dvojfarebný mikrosemiš -> farba kobercov 12 sa zruší", S.tapMat === "Mikrosemiš – dvojfarebný" && S.tapFarba === null, J([S.tapMat, S.tapFarba]));
   potvrd(t, "tapMat");
   over("17: Pokračovať bez farby -> karta ostane, červený rám pri farbe", U.n6.mat === false && !!q(K6 + '[data-pole="tapFarba"].is-chyba') && t.s.chyby.length === 0);
   t.klik(a("zmenit", "mat"));
-  over("17: Zmeniť -> otázka „rovnaké / inak“, zvolené „Vybrať inak“", J(otvorene(K6)) === J(["mat"]) && q(a("tapZmenit")).getAttribute("aria-pressed") === "true" && q(a("tapRovnake")).getAttribute("aria-pressed") === "false");
+  over("17: Zmeniť -> otázka „rovnaké / inak“, zvolená „Vlastná kombinácia“ (zelená)", J(otvorene(K6)) === J(["mat"]) && q(a("tapZmenit")).getAttribute("aria-pressed") === "true" && q(a("tapZmenit")).classList.contains("is-on") && q(a("tapRovnake")).getAttribute("aria-pressed") === "false" && !q(a("tapRovnake")).classList.contains("is-on"));
   t.klik(a("tapZmenit"));
-  over("17: opätovné „Vybrať inak“ S nemení (revízia: bez pádu zhrnutia) — farba stále chýba", S.tapRovnaky === false && S.tapFarba === null && !!q('[data-pole="tapFarba"]') && t.s.chyby.length === 0, J([S.tapFarba]) + " | " + t.s.chyby.join(" | "));
+  over("17: opätovná „Vlastná kombinácia“ S nemení (revízia: bez pádu zhrnutia) — farba stále chýba", S.tapRovnaky === false && S.tapFarba === null && !!q('[data-pole="tapFarba"]') && t.s.chyby.length === 0, J([S.tapFarba]) + " | " + t.s.chyby.join(" | "));
   t.klik(a("zmenit", "mat")); t.klik(a("tapRovnake"));
   over("17: „Rovnaké ako koberce“ = hotovo, riadok ✓, potom LEN karta nášivky na dvere", S.tapRovnaky === true && J(hot(K6)) === J(["ponuka", "mat"]) && /Materiál, farba a lemovanie: rovnaké ako koberce/.test(tx(K6 + '.kn-hot[data-hot="mat"]')) && J(otvorene(K6)) === J(["nas"]));
   over("17: nášivka na dvere — výrez dverí so zlatým krúžkom „Sem príde nášivka“", /Sem príde nášivka/.test(tx(".kn-dvere--vyrez .kn-bod")) && /do stredu výplne oboch dverí/.test(tx(K6 + ".k-krok__telo")));

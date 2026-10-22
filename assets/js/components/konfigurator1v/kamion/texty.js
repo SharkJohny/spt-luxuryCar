@@ -595,9 +595,15 @@ export const TEXTY = {
    },
    "rovnake": {
     "ano": "Rovnaké ako koberce",
-    "inak": "Vybrať inak",
-    "inak_popis": "iný materiál, farbu alebo lemovanie",
-    "inak_hotove": "Iný materiál, farba alebo lemovanie"
+    "ano_popis": "Ladí s Vašimi kobercami",
+    "inak": "Vlastná kombinácia",
+    "inak_popis": "Iný materiál, farba alebo lemovanie",
+    "inak_hotove": "Iný materiál, farba alebo lemovanie",
+    "stitok_material": "Materiál",
+    "stitok_lemovanie": "Lemovanie",
+    "lem_popis": "páska po celom okraji",
+    "nevybrate": "zatiaľ nevybraté",
+    "foto_alt": "Výplň dverí kamióna, kam príde tapacír – čiernobiela ilustračná fotka"
    },
    "otazky": {
     "mat": "Prosím, vyberte si materiál, farbu a lemovanie tapacíru",

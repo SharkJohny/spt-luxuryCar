@@ -197,12 +197,27 @@ const KARTA5 = `(function () {
 })()`;
 /** Po „Pokračovať“ je novo otvorená karta plynulo posunutá hore do okna (pod hlavičku webu). */
 const POSUN = (blok) => `(function () { var e = document.querySelector('#lcd1v-kamion [data-blok="${blok}"]'); if (!e) return null; var r = e.getBoundingClientRect(); return { top: Math.round(r.top), vh: innerHeight }; })()`;
-/** Krok 6: celá fotka dverí v ponuke (pomer vykreslenia = pomer súboru, bez orezania), dve zjavné voľby „rovnaké / inak“ (aj po zatvorení ponuky). */
+/** Krok 6: celá fotka dverí v ponuke (pomer vykreslenia = pomer súboru, bez orezania), dve zjavné voľby „Rovnaké ako koberce /
+ *  Vlastná kombinácia“ (karty .kn-tv__b, aj po zatvorení ponuky). */
 const KROK6 = `(function () {
-  var rv = Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-rv__b'), function (x) { return x.getAttribute("data-a") + ":" + x.getAttribute("aria-pressed"); });
+  var rv = Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-tv__b'), function (x) { return x.getAttribute("data-a") + ":" + x.getAttribute("aria-pressed"); });
   var i = document.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-dvere:not(.kn-dvere--vyrez) > img'); if (!i) return { chyba: "fotka dverí chýba", rv: rv };
   var b = i.getBoundingClientRect(), r = i.parentElement.getBoundingClientRect();
   return { nw: i.complete ? i.naturalWidth : 0, nh: i.naturalHeight, w: b.width, h: b.height, ram: r.width, fit: getComputedStyle(i).objectFit, rv: rv };
+})()`;
+/** Krok 6, materiál tapacíru (Michal 22. 10. 2026): čiernobiela fotka výplne dverí 815:500, karty ≥ 44 px s krúžkom 28 px,
+ *  fotka materiálu a pás lemovania sa NEPREKRÝVAJÚ (karta „Rovnaké ako koberce“ aj tmavý box „Vybraté pre tapacír“). */
+const TAP_MAT = `(function () {
+  var k = document.querySelector('#lcd1v-kamion [data-krok="tapacir"]'); if (!k) return null;
+  function rc(e) { if (!e) return null; var r = e.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height }; }
+  function prekryv(a, b) { return !!(a && b && a.l < b.r - 0.5 && b.l < a.r - 0.5 && a.t < b.b - 0.5 && b.t < a.b - 0.5); }
+  var f = k.querySelector(".kn-tvfoto"), fi = f && f.querySelector("img"), fr = rc(f);
+  var karty = Array.prototype.map.call(k.querySelectorAll(".kn-tv__b"), function (b) { var r = b.querySelector(".kn-tv__r"); return { h: Math.round(b.getBoundingClientRect().height), r: r ? Math.round(r.getBoundingClientRect().width) : 0 }; });
+  var mA = rc(k.querySelector(".kn-tv__d .kn-tv__foto")), pA = rc(k.querySelector(".kn-tv__pas")), lA = rc(k.querySelector(".kn-tv__pas > img"));
+  var mV = rc(k.querySelector(".kn-vz__mat")), lV = rc(k.querySelector(".kn-vz__lem"));
+  return { foto: !!fi, filter: fi ? getComputedStyle(fi).filter : "", pomer: fr && fr.h ? Math.round(fr.w / fr.h * 1000) / 1000 : 0, nw: fi && fi.complete ? fi.naturalWidth : 0,
+    karty: karty, a: { prekryv: prekryv(mA, pA), stvorec: mA ? Math.abs(mA.w - mA.h) <= 1 : null, pasH: lA ? Math.round(lA.h) : 0, pasW: lA && pA ? Math.abs(lA.w - (pA.w - 2)) <= 1 : null },
+    vz: mV || lV ? { prekryv: prekryv(mV, lV) } : null };
 })()`;
 /** Opakuje vyhodnotenie (lenivé načítanie fotiek, kreslenie plátna), kým podmienka neplatí, najviac ~6 s. */
 async function cakaj(s, j, vyraz, ok) {
@@ -314,13 +329,19 @@ export const SCENARE = {
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ponuka");
       await rob(s, j, [["klik", a_("tap", "ano")]]);
       const k6a = await s.t.ev(KROK6);
-      j.over(JSON.stringify(k6a.rv) === JSON.stringify(["tapRovnake:false", "tapZmenit:false"]), "tapacír: chýba otázka „Rovnaké ako koberce / Vybrať inak“ bez predvoľby: " + JSON.stringify(k6a.rv));
+      j.over(JSON.stringify(k6a.rv) === JSON.stringify(["tapRovnake:false", "tapZmenit:false"]), "tapacír: chýba otázka „Rovnaké ako koberce / Vlastná kombinácia“ bez predvoľby: " + JSON.stringify(k6a.rv));
+      const tm = await cakaj(s, j, TAP_MAT, (x) => x && x.nw > 0);
+      j.over(tm && tm.foto && /grayscale\(1\)/.test(tm.filter) && Math.abs(tm.pomer - 815 / 500) < 0.02, "tapacír: fotka výplne dverí nie je čiernobiela 815:500: " + JSON.stringify(tm));
+      j.over(tm && tm.karty.length === 2 && tm.karty.every((x) => x.h >= 44 && x.r === 28), "tapacír: karty volieb < 44 px alebo krúžok ≠ 28 px: " + JSON.stringify(tm && tm.karty));
+      j.over(tm && tm.a.prekryv === false && tm.a.stvorec === true && tm.a.pasH === 46 && tm.a.pasW === true, "tapacír: materiál a lemovanie v karte sa prekrývajú / nie sú štvorce / pás ≠ 46 px cez celú šírku: " + JSON.stringify(tm && tm.a));
       await overPismo(s, j, "krok 6 materiál tapacíru");
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ano");
       // „Vybrať inak“ (S.tapRovnaky potom znova true -> tapacír ako koberce, POST bez zmeny): názvy farieb v karte celé
       await rob(s, j, [["klik", a_("tapZmenit")]]);
       const zl = await cakaj(s, j, ZLOM_FARIEB, (r) => r.n > 0);
       j.over(zl && zl.n > 0 && !zl.zlomene.length, "farby tapacíru v karte: názov zalomený uprostred slova " + JSON.stringify(zl));
+      const tmv = await s.t.ev(TAP_MAT);
+      j.over(tmv && tmv.vz && tmv.vz.prekryv === false, "„Vybraté pre tapacír“: fotka materiálu a lemovania sa prekrývajú: " + JSON.stringify(tmv && tmv.vz));
       await overPismo(s, j, "krok 6 vybrať inak (materiál, farba, lemovanie)");
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-zmenit");
       await rob(s, j, [["klik", a_("zmenit", "mat")]]);

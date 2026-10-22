@@ -485,8 +485,10 @@ export function vytvorUi(o) {
     spolujazdec: { x: "73.6%", y: "59%", d: "11.5%", tr: " kn-bod--hore kn-bod--r" },
     stred: { x: "53.1%", y: "80.7%", d: "16%", tr: "" },
   };
-  /** Mozaika „Vybrať inak“ (tapacír): materiál + kód farby. */
+  /** Malé vzorky v karte „Vlastná kombinácia“ (tapacír): materiál + kód farby. */
   const MOZAIKA_MAT = [["presivana", "12"], ["tonovana", "PES5"], ["jednofarebna", "1G"], ["mikro-jedno", "5NUB"]];
+  /** Lemovania na ukážku v karte „Vlastná kombinácia“: prvé dve, ktoré nie sú lemovanie kobercov. */
+  const LEM_UKAZKA = ["05", "09", "01", "11"];
   /** Pole z chyba() -> blok (podotázka) kroku, v ktorom je. */
   const BLOK_POLA = {
     nasivky: { nas: "kam", bokyMotiv: "boky", bokyNit: "boky", bokyDalej: "boky", stredVolba: "stred", stredMotiv: "stred", stredNit: "stred", stredDalej: "stred" },
@@ -604,19 +606,64 @@ export function vytvorUi(o) {
       ' data-f="' + akcia + (v != null ? ":" + v : "") + '" aria-pressed="' + on + '"><span class="kn-rv__viz">' + viz + '<span class="kn-rv__r" aria-hidden="true"></span></span>' +
       '<span class="kn-rv__tx"><span class="kn-rv__nm">' + esc(nm) + '</span><span class="kn-rv__po">' + poHtml + "</span></span></button>";
   }
-  const vizMat = (matSrc, lemSrc) => '<span class="kn-rv__mat' + (lemSrc ? "" : " kn-rv__mat--cela") + '"' + (matSrc ? ' style="background-image:url(' + attr(matSrc) + ')"' : "") + "></span>" +
-    (lemSrc ? '<span class="kn-rv__lem" style="background-image:url(' + attr(lemSrc) + ')"></span>' : "");
+  /** Materiál cez celú plochu dlaždice — LEN materiál, lemovanie sa naň nikdy nekladie (Michal 22. 10. 2026). */
+  const vizMaterial = (src) => '<span class="kn-rv__mat"' + (src ? ' style="background-image:url(' + attr(src) + ')"' : "") + "></span>";
   const mozaikaMotivov = (miesto) => '<span class="kn-rv__mozaika kn-rv__mozaika--motiv">' + motivy(miesto).slice(0, 2).map((m) => '<i style="background-image:url(' + attr(m.full) + ')"></i>').join("") + "</span>";
-  function mozaikaMaterialov() {
-    return '<span class="kn-rv__mozaika">' + MOZAIKA_MAT.map((x) => {
-      const m = MATERIALY.filter((y) => y.slug === x[0])[0];
-      const f = m && (m.farby.filter((y) => y.kod === x[1])[0] || m.farby[0]);
-      return f ? '<i style="background-image:url(' + attr(f.full) + ')"></i>' : "";
-    }).join("") + '</span><span class="kn-rv__plus" aria-hidden="true">+</span>';
-  }
   const popisTx = (x) => "<span>" + esc(x) + "</span>";
   const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
-  const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: l.menoUi.toLowerCase() + " (" + l.kod + ")" });
+  const lemMeno = (l) => l.menoUi.toLowerCase() + " (" + l.kod + ")";
+  const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: lemMeno(l) });
+  /** „Prešívaná syntetická koža“, „Jednofarebný mikrosemiš“ — variant + druh materiálu (ako dlaždice materiálu tapacíru). */
+  function matMeno(nazov) {
+    const v = matT(nazov);
+    return v ? v.variant.charAt(0).toUpperCase() + v.variant.slice(1) + " " + (v.nazov === "Mikrosemiš" ? U0.mikrosemis : U0.syntetika) : nazov;
+  }
+
+  // Krok 6 — otázka „materiál, farba a lemovanie tapacíru“ (Michal 22. 10. 2026): čiernobiela fotka výplne dverí (len kde
+  // tapacír je, nie jeho farba), pod ňou dve karty — „Rovnaké ako koberce“ (materiál a lemovanie kobercov) a „Vlastná
+  // kombinácia“ (malé vzorky). PRAVIDLO: fotka materiálu a fotka lemovania sa NIKDY neprekrývajú (žiadny pás lemovania cez
+  // materiál, žiadny rám) — vždy dve samostatné fotky vedľa seba alebo pod sebou, každá s popisom.
+  /** Výrez fotky dverí na tapacír (zdroj x 290–1105, y 200–700) v odtieňoch sivej + „Ilustračná fotka“; bez čísel a štítkov. */
+  function fotkaTapaciru(t) {
+    return '<div class="kn-tvfoto"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(t.rovnake.foto_alt) + '" width="1536" height="1024" loading="lazy" decoding="async">' +
+      '<span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span></div>";
+  }
+  /** Karta voľby (celá je tlačidlo): krúžok 28 px vpravo hore, názov, popis, obsah. */
+  function tvKarta(akcia, on, nm, po, obsah) {
+    return '<button type="button" class="kn-tv__b' + (on ? " is-on" : "") + '" data-a="' + akcia + '" data-f="' + akcia + '" aria-pressed="' + on + '">' +
+      '<span class="kn-tv__r" aria-hidden="true"></span><span class="kn-tv__nm">' + esc(nm) + '</span><span class="kn-tv__po">' + esc(po) + "</span>" + obsah + "</button>";
+  }
+  /** „Rovnaké ako koberce“: dve samostatné dlaždice Materiál | Lemovanie z výberu kobercov (živé dáta krokov 2–4). */
+  function tvRovnake(r, on) {
+    const fk = S.material && S.farba ? farba(S.material, S.farba) : null, lk = S.lem ? lem(S.lem) : null;
+    const src = fk ? fk.full : S.material && matD(S.material) ? matD(S.material).karta_obrazok : "";
+    const dl = (stitok, viz, nm, po) => '<span class="kn-tv__d"><span class="kn-tv__st">' + esc(stitok) + "</span>" + viz +
+      '<span class="kn-tv__dn">' + esc(nm) + '</span><span class="kn-tv__dp">' + esc(po) + "</span></span>";
+    return tvKarta("tapRovnake", on, r.ano, r.ano_popis, '<span class="kn-tv__dl">' +
+      dl(r.stitok_material, src ? '<img class="kn-tv__foto" src="' + attr(src) + '" alt="" loading="lazy" decoding="async">' : '<span class="kn-tv__foto"></span>',
+        S.material ? matMeno(S.material) : r.nevybrate, fk ? farbaTx(fk) : "") +
+      dl(r.stitok_lemovanie, '<span class="kn-tv__pas">' + (lk ? '<img src="' + attr(lk.full) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>",
+        lk ? lemMeno(lk) : r.nevybrate, r.lem_popis) + "</span>");
+  }
+  /** „Vlastná kombinácia“: 4 malé vzorky materiálu | čiara | 2 pásy lemovania pod sebou (iné ako na kobercoch). */
+  function tvVlastna(r, on) {
+    const mat = MOZAIKA_MAT.map((x) => {
+      const m = MATERIALY.filter((y) => y.slug === x[0])[0];
+      const f = m && (m.farby.filter((y) => y.kod === x[1])[0] || m.farby[0]);
+      return f ? '<img class="kn-tv__mt" src="' + attr(f.swatch) + '" alt="" width="34" height="34" loading="lazy" decoding="async">' : "";
+    }).join("");
+    const lm = LEM_UKAZKA.filter((k) => k !== S.lem).slice(0, 2).map((k) => lem(k)).filter(Boolean)
+      .map((l) => '<img class="kn-tv__lt" src="' + attr(l.swatch) + '" alt="" width="56" height="16" loading="lazy" decoding="async">').join("");
+    return tvKarta("tapZmenit", on, r.inak, r.inak_popis, '<span class="kn-tv__mini" aria-hidden="true"><span class="kn-tv__mm">' + mat +
+      '</span><span class="kn-tv__del"></span><span class="kn-tv__ml">' + lm + "</span></span>");
+  }
+  /** „Vybraté pre tapacír“ (tmavý box pri vlastnej kombinácii): materiál a lemovanie ako dve samostatné fotky vedľa seba,
+   *  každá so štítkom (predtým pás lemovania cez fotku materiálu). */
+  function vzorkyVz(matSrc, lemSrc, r) {
+    return '<span class="kn-vz__obr"><span class="kn-vz__o"><span class="kn-vz__st">' + esc(r.stitok_material) + '</span><span class="kn-vz__mat">' +
+      (matSrc ? '<img src="' + attr(matSrc) + '" alt="" loading="lazy" decoding="async">' : "") + '</span></span><span class="kn-vz__o"><span class="kn-vz__st">' +
+      esc(r.stitok_lemovanie) + '</span><span class="kn-vz__lem">' + (lemSrc ? '<img src="' + attr(lemSrc) + '" alt="" loading="lazy" decoding="async">' : "") + "</span></span></span>";
+  }
   /** Výhody v rámiku ponuky (krok 6): krátke riadky so zelenou ✓ namiesto dlhej vety (Michal 22. 10. 2026). */
   const benefity = (zoz) => '<ul class="kn-ponuka__ben">' + zoz.map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
   /** Fotka tapacíru v ponuke (data.js FOTKY_DVERI): jedna = celá fotka 3:2 ako doteraz; 2 a viac = prelínanie (opacity
@@ -702,7 +749,7 @@ export function vytvorUi(o) {
     if (otazkaStred()) {
       const kb = S.nasBoky.motiv && S.nasBoky.nit ? S.nasBoky : null, odp = U.n5.stredOdp;
       return karta("stred", t.karta.stred, skOt("nasivky", "stredVolba", t.otazky.stred, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-stredVolba">' +
-        rvDlazdica("stredRovnaky", "1", odp && S.stredRovnaky, kb ? platno("kn-rv__cv", kb, bg, ".92", 600, 400) : vizMat(bg, ""), sr.ano, popisTx(kb ? motivTxt(kb) : sr.ano_bez_vyberu)) +
+        rvDlazdica("stredRovnaky", "1", odp && S.stredRovnaky, kb ? platno("kn-rv__cv", kb, bg, ".92", 600, 400) : vizMaterial(bg), sr.ano, popisTx(kb ? motivTxt(kb) : sr.ano_bez_vyberu)) +
         rvDlazdica("stredRovnaky", "0", odp && !S.stredRovnaky, mozaikaMotivov("stred"), sr.inak, popisTx(sr.inak_popis)) + "</div>"));
     }
     const bal = S.nas === "boky+stred";
@@ -740,11 +787,10 @@ export function vytvorUi(o) {
     if (b === "mat") {
       const r = t.rovnake, vl = t.vlastne;
       if (otazkaMat()) {
-        const fk = S.material && S.farba ? farba(S.material, S.farba) : null, lk = S.lem ? lem(S.lem) : null, odp = U.n6.matOdp;
-        return karta("mat", U0.tap_oddiel, skOt("tapacir", "tapRovn", oz.mat, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-tapRovn">' +
-          rvDlazdica("tapRovnake", null, odp && S.tapRovnaky, vizMat(fk ? fk.full : "", lk ? lk.full : ""), r.ano,
-            popisTx(S.material ? matKratko(S.material) : "") + popisTx([fk ? farbaTx(fk) : "", lk ? lemTx(lk) : ""].filter(Boolean).join(" · "))) +
-          rvDlazdica("tapZmenit", null, odp && !S.tapRovnaky, mozaikaMaterialov(), r.inak, popisTx(r.inak_popis)) + "</div>"));
+        // čiernobiela fotka výplne dverí, pod ňou dve karty pod sebou (materiál a lemovanie vždy ako samostatné fotky)
+        const odp = U.n6.matOdp;
+        return karta("mat", U0.tap_oddiel, skOt("tapacir", "tapRovn", oz.mat, fotkaTapaciru(t) + '<div class="kn-tv" role="group" aria-labelledby="' + P + 'ot-tapRovn">' +
+          tvRovnake(r, odp && S.tapRovnaky) + tvVlastna(r, odp && !S.tapRovnaky) + "</div>"));
       }
       let html = riadokHot("mat", r.inak_hotove, "", true) + skOt("tapacir", "tapMat", oz.material, '<div class="k-dlazdice k-dlazdice--mat" role="group" aria-labelledby="' + P + 'ot-tapMat">' + MATERIALY.map((m, i) => {
         const v = matT(m.nazov), x = S.tapMat === m.nazov, fx = x && S.tapFarba ? farba(m.nazov, S.tapFarba) : null;
@@ -754,7 +800,7 @@ export function vytvorUi(o) {
       if (S.tapMat) html += skOt("tapacir", "tapFarba", oz.farba, mriezkaFarieb(S.tapMat, S.tapFarba, "tapFarba", "tf:"));
       html += skOt("tapacir", "tapLem", oz.lemovanie, mriezkaLem(S.tapLem, "tapLem", "tl:", null));
       const tm = S.tapMat, tf = tm && S.tapFarba ? farba(tm, S.tapFarba) : null, tl = S.tapLem ? lem(S.tapLem) : null;
-      html += '<div class="kn-vz"><span class="kn-rv__viz">' + vizMat(tf ? tf.full : tm ? matD(tm).karta_obrazok : "", tl ? tl.full : "") + "</span><p><b>" + esc(vl.vybrate) + "</b>" +
+      html += '<div class="kn-vz">' + vzorkyVz(tf ? tf.full : tm ? matD(tm).karta_obrazok : "", tl ? tl.full : "", r) + "<p><b>" + esc(vl.vybrate) + "</b>" +
         esc(tm ? matKratko(tm) : vl.bez_materialu) + "<br>" + esc(tf ? fill(vl.farba_x, { x: farbaTx(tf) }) : vl.bez_farby) + "<br>" + esc(tl ? lemTx(tl) : vl.bez_lemovania) + "</p></div>";
       return karta("mat", U0.tap_oddiel, html + potvrdTl("tapacir", "tapMatDalej", "tapMat"));
     }

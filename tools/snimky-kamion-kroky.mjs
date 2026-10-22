@@ -184,6 +184,7 @@ try {
     await klik(k, a("tapZmenit"));
     await sn(K6, "krok6-3-vybrat-inak");
     await klik(k, a("zmenit", "mat"));
+    await sn(K6, "krok6-3b-zmenit-zvolena-vlastna"); // otázka znova otvorená: zelená LEN karta „Vlastná kombinácia“
     await klik(k, a("tapRovnake"));
     await sn(K6, "krok6-4-nasivka-dvere");
     await klik(k, a("tapNas", "ano"));

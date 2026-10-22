@@ -21,14 +21,14 @@ const RIADKOVANIE = { text: 1.5, uvod: 1.5, faqOdpoved: 1.5 };
 export const ROLY_KONFIGURATOR = [
   // štítky verzálkami (aj vnútri dlaždíc a tlačidiel) a čísla krokov
   [".k-typ, .k-cena__stitok, .k-postup__t, .k-postup__st, .k-krok__ey, .k-krok.is-done .k-krok__nm, .k-stitok, .k-sk-h, .mk-var, " +
-    ".k-ucet__r--sum > .k-ucet__rn, .k-badge, .k-suhrn__lb, .nt__kod, .kn-bod b, .kn-stitok, .kn-dv__top, .kn-karta__ey, .lcd1v-lista__suma small, .k-krok__no", "stitok"],
+    ".k-ucet__r--sum > .k-ucet__rn, .k-badge, .k-suhrn__lb, .nt__kod, .kn-bod b, .kn-stitok, .kn-dv__top, .kn-karta__ey, .kn-tv__st, .kn-vz__st, .lcd1v-lista__suma small, .k-krok__no", "stitok"],
   // nadpisy kariet a krokov, otázky
   [".k-h1, .k-krok__ti, .kn-ot", "nadpis"],
-  [".k-krok__nm, .k-rkarta__nm, .kn-dv__nm, .kn-rv__nm, .kn-ponuka__nm", "karta"],
+  [".k-krok__nm, .k-rkarta__nm, .kn-dv__nm, .kn-rv__nm, .kn-tv__nm, .kn-ponuka__nm", "karta"],
   // úvodné vety pod nadpisom
   [".k-pod", "uvod"],
   // ceny
-  [".k-cena__suma, .k-ucet__r--sum > .k-ucet__rh, .k-suhrn__suma, .k-rkarta__pl, .kn-rv__plus, .lcd1v-lista__suma", "cena"],
+  [".k-cena__suma, .k-ucet__r--sum > .k-ucet__rh, .k-suhrn__suma, .k-rkarta__pl, .lcd1v-lista__suma", "cena"],
   // bežný text: hlavičky hotových krokov a riadky ✓, vysvetlenia, výhody v ponuke, výber v poliach
   [".k-krok.is-done .k-krok__vy, .kn-hot__tx, .k-kompat__tx b, .sh__us, .tp-info, .kn-info, .kn-ponuka__ben, .k-select, .k-veta-pole", "text"],
   // tlačidlá
@@ -36,7 +36,7 @@ export const ROLY_KONFIGURATOR = [
   // poznámky a popisky (popisky dlaždíc, riadky cien „Samostatne“ / „Výhoda v sete“, popisy volieb, chyby)
   [".k-krok__vy, .k-pozn, .k-cena__od, .k-cena__vr, .k-kompat__tx i, .k-rkarta__po, .k-rkarta__foto b, .k-dlazdica__nm, .fb__nm, .fb__kod, " +
     ".lm__nm, .lm__kod, .nt__b, .k-ucet__rn, .k-ucet__rh, .sh__chyba-r, .sh__fakty li, .k-alt, .kn-ilu, .kn-dv__po, " +
-    ".kn-rv__po, .kn-nie small, .kn-nh__hd, .kn-nh__pop, .kn-vz p, .k-nahlad-farby__nm, .lm-nahlad p, .k-pole__chyba, .k-sk__chyba, " +
+    ".kn-rv__po, .kn-tv__po, .kn-tv__dn, .kn-tv__dp, .kn-nie small, .kn-nh__hd, .kn-nh__pop, .kn-vz p, .k-nahlad-farby__nm, .lm-nahlad p, .k-pole__chyba, .k-sk__chyba, " +
     ".k-chyba-tx, .sh__err, .k-hodn, .lcd1v-lista__popis", "pozn"],
 ];
 
@@ -60,7 +60,7 @@ export const ROLY_SPOLOCNE = [
 ];
 
 /** Karty a dlaždice volieb sú <button>, ale ich texty nie sú text tlačidla (názov, popis, cena majú vlastnú rolu v ROLY_*). */
-const KARTY_VOLIEB = ".k-rkarta, .kn-dv__b, .kn-rv__b, .k-dlazdica, .fb__b, .lm__b";
+const KARTY_VOLIEB = ".k-rkarta, .kn-dv__b, .kn-rv__b, .kn-tv__b, .k-dlazdica, .fb__b, .lm__b";
 
 /**
  * Výraz pre Runtime.evaluate: { pc, n, zle: [{ r, fs, min, el, t, z }], riadky: [...], zlom: [...], pretek: [...], orez: [...], strana }.
