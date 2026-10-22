@@ -3,7 +3,7 @@
 // (novy) + tools/test-1v/scenare-vzorky.mjs. Texty: typy/vzorky.js (ctx.texty("vzorky")).
 // Beží len pod body.lcd-1v (brána v index.js; do vydania typu len ?novy=vyvoj). Pravidlá: docs/1v-kontrakt.md.
 //
-// Živý vzorkovník: 45 príplatkových selectov (1 vzorka = 1 parameter, data-parameter-name = kód „D-3“, „S-1“, „LUX-10“),
+// Živý vzorkovník: 45 príplatkových selectov (1 vzorka = 1 parameter, data-parameter-name = kód „D-3“, „S-1“, „LUX-10“ alebo celý názov s kódom v zátvorke),
 // voľby „Nechcem +€0“ / „Áno +€5“, nevybraná vzorka = prázdna hodnota (ako živý widget assets/js/vzorky-konfigurator).
 // Čo robí (všetko nové je bez name, živý DOM ostáva — widget, tabuľka parametrov a krátky popis sú len skryté CSS):
 //  - hlavička: štítok „Vzorkovník“, nadpis návrhu len vizuálne (živý H1 ostáva v DOM pre SEO aj čítačku), hodnotenie;
@@ -20,8 +20,9 @@ import { VZORKY_SERIES, VZORKY_ITEMS } from "../../vzorky-konfigurator/swatch-da
 
 export const MENO = "vzorky-produkt";
 
-/** Kód vzorky v data-parameter-name živého selectu („D-3“, „S-1“, „H-2“, „LUX-10“). */
-const KOD = /^(S|H|D|LUX)-\d+$/;
+/** Kód vzorky z data-parameter-name živého selectu: holý („D-3“, „S-1“, „H-2“, „LUX-10“) alebo na konci celého názvu
+ *  „Vzorka Diamond – Čierna prešívaná čiernou (D-3)“ (tak je v admine od 22. 10. 2026; starý widget číta rovnako, idFromText). */
+const KOD = /^(?:.*\()?((?:S|H|D|LUX)-\d+)\)?$/;
 /** Voľba „chcem vzorku“ (SK „Áno +€5“, starší text „Chcem – vratná záloha 5 €“); „Nechcem“ nie. */
 const ANO = /^(áno|ano|chcem|chci)\b/i;
 /** Telefón a tablet: lepivá lišta (rovnaká hranica ako cena.js a košík). */
@@ -81,9 +82,10 @@ export function init(ctx) {
   /** kód -> { kod, id (data-parameter-id), select, ano (value „Áno“), cena, nazov } */
   const vz = {};
   form.querySelectorAll("select.surcharge-parameter[data-parameter-name]").forEach(function (s) {
-    const kod = (s.getAttribute("data-parameter-name") || "").trim();
+    const m = KOD.exec((s.getAttribute("data-parameter-name") || "").trim());
+    const kod = m && m[1];
     const id = s.getAttribute("data-parameter-id");
-    if (!KOD.test(kod) || !id || vz[kod]) return;
+    if (!kod || !id || vz[kod]) return;
     const moz = ctx.moznosti(id);
     const ano = moz.find((o) => ANO.test(o.text)) || null;
     vz[kod] = { kod, id, select: s, ano: ano ? ano.hodnota : null, cena: ano ? ano.cena : 0, nazov: nazovZoStranky(form, id, kod) };

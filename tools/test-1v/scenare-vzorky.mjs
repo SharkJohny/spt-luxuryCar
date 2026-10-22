@@ -124,7 +124,7 @@ export const SCENARE = {
       j.over(st.kroky.find((k) => k.seria === "stripe").hotovy === false, "séria Stripe po odobratí jedinej vzorky ostala zelená");
       const ost = {};
       Object.keys(v.hodnoty).forEach((id) => { ost[id] = v.hodnoty[id]; });
-      const s6 = await s.t.ev(`(function () { var s = Array.prototype.find.call(document.querySelectorAll("#product-detail-form select.surcharge-parameter"), function (s) { return (s.getAttribute("data-parameter-name") || "").trim() === "S-6"; }); return s ? s.getAttribute("data-parameter-id") : null; })()`);
+      const s6 = await s.t.ev(`(function () { var s = Array.prototype.find.call(document.querySelectorAll("#product-detail-form select.surcharge-parameter"), function (s) { var n = (s.getAttribute("data-parameter-name") || "").trim(); return n === "S-6" || n.slice(-5) === "(S-6)"; }); return s ? s.getAttribute("data-parameter-id") : null; })()`);
       delete ost[s6];
       const zaloha = await ovl.vzorky.zaloha(s.t);
       await ovl.vzorky.pridajDoKosika(s.t);

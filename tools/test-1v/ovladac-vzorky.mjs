@@ -11,10 +11,10 @@ import { F, cislo } from "./stary-ui.mjs";
 
 const ANO = "^(áno|ano|chcem)\\b";
 
-/** Select vzorky podľa ID vzorky (data-parameter-name, napr. „D-3“) -> { id, ano } (id parametra, value „Áno“). */
+/** Select vzorky podľa ID vzorky (data-parameter-name „D-3“ alebo „Vzorka … (D-3)“) -> { id, ano } (id parametra, value „Áno“). */
 export async function selectVzorky(t, idVzorky) {
   const r = await t.ev(`(function () {
-    var s = Array.prototype.find.call(document.querySelectorAll("${F} select.surcharge-parameter"), function (s) { return (s.getAttribute("data-parameter-name") || "").trim() === ${JSON.stringify(idVzorky)}; });
+    var s = Array.prototype.find.call(document.querySelectorAll("${F} select.surcharge-parameter"), function (s) { var n = (s.getAttribute("data-parameter-name") || "").trim(); return n === ${JSON.stringify(idVzorky)} || n.slice(-${idVzorky.length + 2}) === ${JSON.stringify("(" + idVzorky + ")")}; });
     if (!s) return null;
     var re = new RegExp(${JSON.stringify(ANO)}, "i");
     var o = Array.prototype.find.call(s.options, function (o) { return o.value && re.test(o.text.trim()); });
