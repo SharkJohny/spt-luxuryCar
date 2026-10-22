@@ -25,8 +25,10 @@ export const FOTKA_DVERI_SUBOR = "kamion-dvere-tapacir.jpg";
  * Fotky v ponuke tapacíru (krok 6), v poradí zobrazenia — súbory v assets/img/1v/ (JPEG 1536 × 1024 = 3:2, ~200 kB).
  * Prvá je FOTKA_DVERI_SUBOR so štítkom „Tapacír dverí“ (len na nej). Pri 2 a viac fotkách ui.js ukáže prelínanie
  * s bodkami (autoplay 3 s); pri jednej ostane jedna fotka ako doteraz. Výrez nášivky na dvere ostáva na FOTKA_DVERI_SUBOR.
+ * Ďalšie 4 fotky od Michala 23. 10. 2026 (orezané na 3:2): 2 = béžový tapacír vo Volve FH, 3 = čierny so Scaniou na paneli,
+ * 4 = béžový s vikingom na paneli, 5 = dva čierne tapacíre s červeným lemovaním (bez dverí).
  */
-export const FOTKY_DVERI = [FOTKA_DVERI_SUBOR];
+export const FOTKY_DVERI = [FOTKA_DVERI_SUBOR, "kamion-dvere-tapacir-2.jpg", "kamion-dvere-tapacir-3.jpg", "kamion-dvere-tapacir-4.jpg", "kamion-dvere-tapacir-5.jpg"];
 
 /**
  * Fotka kabíny zhora so všetkými tremi nášivkami (krok 5, návrh C schválený 18. 10. 2026) — súbor v assets/img/1v/

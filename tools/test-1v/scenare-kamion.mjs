@@ -201,7 +201,7 @@ const POSUN = (blok) => `(function () { var e = document.querySelector('#lcd1v-k
  *  Vlastná kombinácia“ (karty .kn-tv__b, aj po zatvorení ponuky). */
 const KROK6 = `(function () {
   var rv = Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-tv__b'), function (x) { return x.getAttribute("data-a") + ":" + x.getAttribute("aria-pressed"); });
-  var i = document.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-dvere:not(.kn-dvere--vyrez) > img'); if (!i) return { chyba: "fotka dverí chýba", rv: rv };
+  var i = document.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-dvere:not(.kn-dvere--vyrez) > img') || document.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-dvere--gal > .kn-gal__s.is-on > img'); if (!i) return { chyba: "fotka dverí chýba", rv: rv };
   var b = i.getBoundingClientRect(), r = i.parentElement.getBoundingClientRect();
   return { nw: i.complete ? i.naturalWidth : 0, nh: i.naturalHeight, w: b.width, h: b.height, ram: r.width, fit: getComputedStyle(i).objectFit, rv: rv };
 })()`;

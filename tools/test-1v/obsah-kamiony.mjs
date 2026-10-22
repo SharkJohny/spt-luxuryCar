@@ -44,14 +44,14 @@ const ZAKAZANE = /na\s+milimeter|vyr[aá]bame|(?:\b\d+|dve|dva|tri|štyri|päť|
 export const ZNENIE = {
   "kamiony-galeria": ["Galéria", "Ako koberce vyzerajú v kabíne", "Rôzne materiály, farby a lemovanie v kabínach kamiónov.", "Vybrať vozidlo a zistiť cenu"],
   "kamiony-co-dostanete": [
-    "Čo dostanete", "Tri koberce do kabíny",
-    "V základnej cene sú tri koberce v jednofarebnej syntetickej koži – vo farbe a s lemovaním podľa Vášho výberu. Nášivky a pri kamiónoch aj tapacír dverí si môžete pridať.",
-    "Koberec šoféra", "Koberec spolujazdca", "Stredový koberec", "Na fotke prešívaná syntetická koža", "V základnej cene", "Za príplatok",
+    "Čo dostanete", "Koberce do kabíny",
+    "V základnej cene sú koberce pod šoféra, spolujazdca aj do stredu – v jednofarebnej syntetickej koži, vo farbe a s lemovaním podľa Vášho výberu. Nášivky a pri kamiónoch aj tapacír dverí si môžete pridať.",
+    "Miesto šoféra", "Miesto spolujazdca", "Stred kabíny", "Na fotke prešívaná syntetická koža", "V základnej cene", "Za príplatok",
     "Tapacír dverí", "Len pre kamióny. Výplne dverí ladené s kobercami",
   ],
   "kamiony-materialy": [
     "Materiály", "Dva materiály v piatich prevedeniach",
-    "Každé prevedenie je v niekoľkých farbách. Príplatok za materiál platíte raz – za všetky tri koberce spolu.",
+    "Každé prevedenie je v niekoľkých farbách. Príplatok za materiál platíte raz – za všetky koberce spolu.",
     "Prémiová syntetická koža – jednofarebná", "13 farieb", "Hladký povrch v jednej farbe. Pôsobí čisto a nadčasovo.",
     "Prémiová syntetická koža – prešívaná", "14 farieb", "Prešívaný kosoštvorcový vzor dodá kabíne luxusnejší vzhľad.",
     "Prémiová syntetická koža – tónovaná", "5 farieb", "Povrch s jemne žíhaným, vintage vzhľadom.",
@@ -61,7 +61,7 @@ export const ZNENIE = {
   "kamiony-detaily": [
     "Detaily", "Nášivky a lemovanie", "Kabínu si zladíte do detailu – od pásika po okraji koberca až po motív na koberci.",
     "Lemovanie", "Pásik po okraji každého koberca. Na výber je 13 farebných kombinácií, všetky v cene.",
-    "Nášivky na koberce", "Dva motívy v 11 farbách nite. Na koberce šoféra a spolujazdca, na stredový koberec alebo na všetky tri.",
+    "Nášivky na koberce", "Dva motívy v 11 farbách nite. Pod sedadlá šoféra a spolujazdca, do stredu alebo na všetky tri miesta.",
     "Nášivka na tapacír dverí", "Ak si ku kamiónu vyberiete tapacír dverí, motív môže byť aj na ňom.",
   ],
   "c-casova-os": [

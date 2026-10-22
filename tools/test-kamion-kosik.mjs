@@ -518,10 +518,10 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   t.dalej("nasivky");
 
   // krok 6 — ponuka, materiál, nášivka na dvere, motív a niť: vždy len jedna otvorená
-  const dvere = q(K6 + ".kn-dvere:not(.kn-dvere--vyrez) > img");
+  const dvere = q(K6 + ".kn-dvere:not(.kn-dvere--vyrez) > img") || q(K6 + ".kn-dvere--gal > .kn-gal__s > img");
   over("17: krok 6 — celá fotka dverí (JPEG v assets/img/1v, 1536 × 1024 = 3:2)", !!dvere && /\/assets\/img\/1v\/kamion-dvere-tapacir\.jpg$/.test(dvere.getAttribute("src")) && dvere.getAttribute("width") === "1536" && dvere.getAttribute("height") === "1024");
   over("17: krok 6 — vysvetlivka bez lemovania (červená čiara na fotke je len obrys)", tx(K6 + '[data-blok="ponuka"] > .k-pod') === "Výplň v strede panelu dverí – na fotke je vyznačená červenou.", tx(K6 + ".k-pod"));
-  over("17: krok 6 — jedna fotka = ako doteraz (bez bodiek), štítok „Tapacír dverí“ a „Ilustračná fotka“", !q(K6 + ".kn-gal__b") && !q(K6 + "[data-gal]") && tx(K6 + ".kn-dvere .kn-stitok") === "Tapacír dverí" && /Ilustračná fotka/.test(tx(K6 + ".kn-dvere")));
+  over("17: krok 6 — galéria 5 fotiek (data.js FOTKY_DVERI, Michal 23. 10. 2026), štítok „Tapacír dverí“ len na prvej, „Ilustračná fotka“", qa(K6 + ".kn-gal__s").length === 5 && qa(K6 + ".kn-gal__b").length === 5 && qa(K6 + ".kn-stitok").length === 1 && tx(K6 + ".kn-dvere .kn-stitok") === "Tapacír dverí" && /Ilustračná fotka/.test(tx(K6 + ".kn-dvere")), qa(K6 + ".kn-gal__s").length);
   over("17: ponuka tapacíru — výhody ako ✓ zoznam (2 riadky)", J(qa(K6 + ".kn-ponuka .kn-ponuka__ben li").map((x) => x.textContent)) === J(["Cena za oba tapacíre – šofér aj spolujazdec", "Rovnaký materiál ako koberce, alebo iný"]), J(qa(K6 + ".kn-ponuka__ben li").map((x) => x.textContent)));
   over("17: ponuka tapacíru — Samostatne 179 € / Výhoda v sete − 60 € / V sete 119 €", J(cen(q(K6 + ".kn-ponuka .k-ucet"))) === J(R("179 €", "− 60 €", "119 €")) && !q(K6 + ".kn-ponuka s"), J(cen(q(K6 + ".kn-ponuka .k-ucet"))));
   over("17: najprv LEN ponuka (Áno zelené, Nie zlaté), bez materiálu a nášivky na dvere", J(otvorene(K6)) === J(["ponuka"]) && q(a("tap", "ano")).classList.contains("k-btn-zelene") && q(a("tap", "nie")).classList.contains("k-btn-zlate") && !q(a("tapNas", "ano")) && !dalej6());
@@ -697,9 +697,9 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
 
 console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3 s len v okne, po zatvorení žiadny bežiaci interval");
 {
-  // 3 fotky (data.js FOTKY_DVERI + 2 vymyslené súbory; jsdom ich nenačíta), počítadlo bežiacich intervalov a IntersectionObserver,
+  // 5 fotiek (data.js FOTKY_DVERI od 23. 10. 2026; jsdom ich nenačíta), počítadlo bežiacich intervalov a IntersectionObserver,
   // ktorý fotku hneď nahlási v okne (jsdom nemá rozloženie) a po disconnect() už nevolá
-  const VSTUP3 = 'import { FOTKY_DVERI } from "./assets/js/components/konfigurator1v/kamion/data.js";\nFOTKY_DVERI.push("kamion-dvere-2.jpg", "kamion-dvere-3.jpg");\n';
+  const VSTUP3 = 'import { FOTKY_DVERI } from "./assets/js/components/konfigurator1v/kamion/data.js";\nvoid FOTKY_DVERI;\n';
   const sleduj = (stav, menejPohybu) => (w) => {
     const si = w.setInterval.bind(w), ci = w.clearInterval.bind(w);
     w.setInterval = (fn, ms, ...r) => { const id = si(fn, ms, ...r); stav.aktivne.add(id); return id; };
@@ -720,12 +720,12 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   t.klik(a("nas", "nechcem"));
   await pauza(20);
   const s0 = qa(K6 + ".kn-gal__s"), b0 = qa(K6 + ".kn-gal__b");
-  over("21: 3 fotky v ráme 3:2, bodky pod fotkou (tlačidlá „Fotka 1–3“)", !!q(K6 + ".kn-gal > .kn-dvere.kn-dvere--gal + .kn-gal__bodky") && s0.length === 3 && b0.length === 3 &&
-    J(b0.map((x) => x.getAttribute("aria-label"))) === J(["Fotka 1", "Fotka 2", "Fotka 3"]) && b0.every((x) => x.tagName === "BUTTON" && x.getAttribute("type") === "button"));
+  over("21: 5 fotiek v ráme 3:2, bodky pod fotkou (tlačidlá „Fotka 1–5“)", !!q(K6 + ".kn-gal > .kn-dvere.kn-dvere--gal + .kn-gal__bodky") && s0.length === 5 && b0.length === 5 &&
+    J(b0.map((x) => x.getAttribute("aria-label"))) === J(["Fotka 1", "Fotka 2", "Fotka 3", "Fotka 4", "Fotka 5"]) && b0.every((x) => x.tagName === "BUTTON" && x.getAttribute("type") === "button"));
   over("21: prvá fotka zobrazená, ostatné skryté pre čítačku; štítok „Tapacír dverí“ len na prvej; „Ilustračná fotka“ na ráme",
     J(zobrazena()) === "[0]" && J(bodka()) === "[0]" && !s0[0].hasAttribute("aria-hidden") && s0[1].getAttribute("aria-hidden") === "true" &&
     qa(K6 + ".kn-stitok").length === 1 && !!s0[0].querySelector(".kn-stitok") && /\/assets\/img\/1v\/kamion-dvere-tapacir\.jpg$/.test(s0[0].querySelector("img").getAttribute("src")) &&
-    /\/assets\/img\/1v\/kamion-dvere-3\.jpg$/.test(s0[2].querySelector("img").getAttribute("src")) && !!q(K6 + ".kn-dvere--gal > .kn-ilu"));
+    /\/assets\/img\/1v\/kamion-dvere-tapacir-3\.jpg$/.test(s0[2].querySelector("img").getAttribute("src")) && !!q(K6 + ".kn-dvere--gal > .kn-ilu"));
   over("21: autoplay = 1 interval navyše", st.aktivne.size === zaklad0 + 1, st.aktivne.size + " vs " + zaklad0);
   await pauza(3150);
   over("21: po 3 s druhá fotka (prelínanie triedou is-on), bodka 2", J(zobrazena()) === "[1]" && J(bodka()) === "[1]", J([zobrazena(), bodka()]));
@@ -752,9 +752,9 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   const zaklad2 = st2.aktivne.size;
   zaklad(t2, DAF); t2.klik(a("nas", "nechcem"));
   await pauza(20);
-  over("21: menej pohybu -> fotky s bodkami, bez autoplay (žiadny interval navyše)", t2.d.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-gal__b').length === 3 && st2.aktivne.size === zaklad2, st2.aktivne.size + " vs " + zaklad2);
+  over("21: menej pohybu -> fotky s bodkami, bez autoplay (žiadny interval navyše)", t2.d.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-gal__b').length === 5 && st2.aktivne.size === zaklad2, st2.aktivne.size + " vs " + zaklad2);
   t2.klik(a("foto", "1"));
-  over("21: menej pohybu -> ťuk na bodku 2 ukáže druhú fotku", t2.d.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-gal__s.is-on img').getAttribute("src").endsWith("kamion-dvere-2.jpg") && st2.aktivne.size === zaklad2);
+  over("21: menej pohybu -> ťuk na bodku 2 ukáže druhú fotku", t2.d.querySelector('#lcd1v-kamion [data-krok="tapacir"] .kn-gal__s.is-on img').getAttribute("src").endsWith("kamion-dvere-tapacir-2.jpg") && st2.aktivne.size === zaklad2);
   over("21: žiadny console.error", t.s.chyby.length === 0 && t2.s.chyby.length === 0, t.s.chyby.concat(t2.s.chyby).join(" | "));
 }
 
