@@ -201,9 +201,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 598, 610, 613 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 34353,
-      "bajty": 35182,
-      "hash": "dc6d9c24da",
+      "znaky": 34365,
+      "bajty": 35198,
+      "hash": "8738d9b591",
       "obrazky": 36,
       "sekcie": [
         {
@@ -234,12 +234,12 @@
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 5777
+          "znaky": 5786
         },
         {
           "subor": "22-b-porovnanie.sk.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2497
+          "znaky": 2500
         },
         {
           "subor": "23-b-predapo.sk.html",
@@ -326,9 +326,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 33318,
-      "bajty": 34109,
-      "hash": "988395b30b",
+      "znaky": 33332,
+      "bajty": 34126,
+      "hash": "9a322a501c",
       "obrazky": 35,
       "sekcie": [
         {
@@ -349,7 +349,7 @@
         {
           "subor": "13-a-ponuka.sk.html",
           "sekcia": "a-ponuka",
-          "znaky": 1237
+          "znaky": 1239
         },
         {
           "subor": "20-b-ocakavat.sk.html",
@@ -359,12 +359,12 @@
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 6921
+          "znaky": 6930
         },
         {
           "subor": "22-b-porovnanie.sk.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2521
+          "znaky": 2524
         },
         {
           "subor": "23-b-predapo.sk.html",
@@ -451,9 +451,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 36849,
-      "bajty": 37676,
-      "hash": "e9ab291bc3",
+      "znaky": 36858,
+      "bajty": 37688,
+      "hash": "87c92a666d",
       "obrazky": 37,
       "sekcie": [
         {
@@ -484,12 +484,12 @@
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 5698
+          "znaky": 5704
         },
         {
           "subor": "22-b-porovnanie.sk.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2349
+          "znaky": 2352
         },
         {
           "subor": "23-classic-premium.sk.html",
@@ -586,9 +586,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 628, 631, 634 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 32758,
-      "bajty": 33410,
-      "hash": "66badbbe5f",
+      "znaky": 32764,
+      "bajty": 33418,
+      "hash": "727a6e14fe",
       "obrazky": 33,
       "sekcie": [
         {
@@ -619,7 +619,7 @@
         {
           "subor": "21-b-material.sk.html",
           "sekcia": "b-material",
-          "znaky": 5744
+          "znaky": 5750
         },
         {
           "subor": "22-premium-porovnanie.sk.html",

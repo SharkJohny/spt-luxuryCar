@@ -146,7 +146,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   const banner = kufor.closest(".upsale-Banner");
   if (!banner) throw new Error("kufor mimo .upsale-Banner");
   const fmt = function (n) { return ctx.formatCena(Math.round(n * 100) / 100); };
-  const stav = { sam: null, nove: false, otvorene: false, predFokus: null, vyberText: null, hojenie: null };
+  const stav = { sam: null, nove: false, otvorene: false, predFokus: null, vyberText: null, hojenie: null, zvolene: {}, posunute: false };
   const vloz = function (rodic, uzol, pred) {
     rodic.insertBefore(uzol, pred || null);
     vytvorene.push(function () { uzol.remove(); });
@@ -264,6 +264,9 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   atribut(vyber, "aria-modal", "true");
   atribut(vyber, "aria-labelledby", nadpisId);
   atribut(vyber, "aria-hidden", "true");
+  // PC (od 1025 px) beží na celom webe plynulé rolovanie Lenis (lcdHome.js) a koliesko myši posielalo celej stránke —
+  // okno sa nedalo rolovať a „Potvrďte výber boxov“ ostalo pod okrajom (Michal 22. 10. 2026). Okno roluje samo.
+  atribut(vyber, "data-lenis-prevent", "");
 
   const idF = idParam("farbaBoxov");
   const wrapFarby = vyber.querySelector(".parameter-wrap.parameter-" + idF);
@@ -287,6 +290,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     const w = vyber.querySelector(".parameter-wrap.parameter-" + id);
     if (!w) return;
     trieda(w, "lcd1v-bx-velk");
+    atribut(w, "data-lcd1v-bx-kluc", kluc);
     const ow = w.querySelector(":scope > .options-wrap");
     vloz(w, el("p", { class: "lcd1v-bx__nadp", text: T.okno.velkost[kluc] }), ow);
     vloz(w, el("p", { class: "lcd1v-bx__chyba", role: "alert", text: T.okno.chybaVelkost }), ow ? ow.nextSibling : null);
@@ -336,6 +340,13 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   };
   vyber.addEventListener("keydown", naKlavesu);
   vytvorene.push(function () { vyber.removeEventListener("keydown", naKlavesu); });
+  // veľkosti, ktoré zákazník v tomto otvorení okna sám zvolil (predvolené S sa neráta) -> posunKTlacidlu
+  const naVelkost = function (e) {
+    const w = e.target && e.target.closest && e.target.closest(".lcd1v-bx-velk .option-button") && e.target.closest(".lcd1v-bx-velk");
+    if (w && vyber.contains(w)) stav.zvolene[w.getAttribute("data-lcd1v-bx-kluc")] = true;
+  };
+  vyber.addEventListener("click", naVelkost, true); // capture: živý handler voľby môže zastaviť bublanie
+  vytvorene.push(function () { vyber.removeEventListener("click", naVelkost, true); });
 
   const pozadie = el("div", { class: "lcd1v-bx-pozadie", "aria-hidden": "true" });
   document.body.appendChild(pozadie);
@@ -447,6 +458,8 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
       vyber.setAttribute("aria-hidden", otvorene ? "false" : "true");
       document.body.classList.toggle("lcd1v-bx-otvorene", otvorene);
       if (otvorene) {
+        stav.zvolene = {};
+        stav.posunute = false;
         stav.predFokus = document.activeElement;
         setTimeout(function () { try { xBtn.focus({ preventScroll: true }); } catch (e) {} }, 60);
       } else {
@@ -458,6 +471,10 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
         }
       }
     }
+    if (otvorene && n && hotovo && !stav.posunute && klucePoctu(n).every(function (k) { return stav.zvolene[k]; })) {
+      stav.posunute = true;
+      posunKTlacidlu();
+    }
     // poistka G10b: označený box bez farby/veľkosti pri zavretom okne -> späť na Nechcem (živé „zrušiť“)
     if (n && !hotovo && !otvorene) {
       if (!stav.hojenie) stav.hojenie = setTimeout(function () {
@@ -468,6 +485,17 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     } else if (stav.hojenie) { clearTimeout(stav.hojenie); stav.hojenie = null; }
     cenyKarty();
     zhrnutie(dk, n, hotovo);
+  }
+  /**
+   * Prvý úplný výber v otvorenom okne (farba + veľkosť každého boxu, ktorú zákazník sám zvolil) -> okno sa raz posunie
+   * k „Potvrďte výber boxov“ (Michal 22. 10. 2026: „aby prvý krát, keď človek vyberie všetko, čo má, tak aby ho to
+   * zoscrolovalo až k tomu tlačidlu“). Tlačidlo je posledné v okne; keď ho už vidno, nič sa nehýbe.
+   */
+  function posunKTlacidlu() {
+    const r = okBtn.getBoundingClientRect(), o = vyber.getBoundingClientRect();
+    if (r.bottom <= o.bottom - 8) return;
+    const tichy = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    try { vyber.scrollTo({ top: vyber.scrollHeight, behavior: tichy ? "auto" : "smooth" }); } catch (e) { vyber.scrollTop = vyber.scrollHeight; }
   }
   function zhrnutie(dk, n, hotovo) {
     const kt = dk === "classic" || dk === "premium" ? T.kufor[dk].popis + " · + " + fmt(kv[dk].cena)
