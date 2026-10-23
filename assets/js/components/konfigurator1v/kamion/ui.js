@@ -971,9 +971,13 @@ export function vytvorUi(o) {
   }
 
   // ------------------------------------------------------------------ vykreslenie
+  /* Fokus do zoznamu (select) vraciame len po klávesnici: iPhone pri fokuse zoznam otvorí, takže po výbere prstom
+     sa značka / model / ročník o chvíľu otvorili znova (Michal 23. 10. 2026). Po klávesnici fokus ostane (Tab, šípky). */
+  let klavesnica = false;
+  const fokusDoZoznamu = (el) => !el || el.tagName !== "SELECT" || klavesnica;
   function render() {
     const ae = doc.activeElement;
-    const f = ae && (root.contains(ae) || lst.contains(ae)) ? ae.getAttribute("data-f") : null;
+    const f = ae && (root.contains(ae) || lst.contains(ae)) && fokusDoZoznamu(ae) ? ae.getAttribute("data-f") : null;
     renderKroky();
     nastavGaleriu();
     renderSuhrn();
@@ -1014,7 +1018,7 @@ export function vytvorUi(o) {
     const el = root.querySelector('[data-krok="' + id + '"] [data-pole="' + pole + '"]') || root.querySelector('[data-krok="' + id + '"]');
     posun(el, "center");
     const ctl = el && el.querySelector("select:not([disabled]), button, input");
-    if (ctl) try { ctl.focus({ preventScroll: true }); } catch (e) { /* */ }
+    if (ctl && fokusDoZoznamu(ctl)) try { ctl.focus({ preventScroll: true }); } catch (e) { /* */ }
   }
 
   // ------------------------------------------------------------------ navigácia krokov (artefakt ř. 937–979)
@@ -1260,9 +1264,14 @@ export function vytvorUi(o) {
       });
     }
   }
+  const naKlaves = () => { klavesnica = true; };
+  const naDotyk = () => { klavesnica = false; };
   root.addEventListener("click", naKlik);
   root.addEventListener("change", naZmenuPola);
   lst.addEventListener("click", naKlik);
+  doc.addEventListener("keydown", naKlaves, true);
+  doc.addEventListener("pointerdown", naDotyk, true);
+  doc.addEventListener("touchstart", naDotyk, { capture: true, passive: true });
 
   /** „Odosiela sa“: tlačidlá košíka vypnuté; samé sa zapnú po 3 s (index.js ich zapne skôr po ShoptetCartUpdated). */
   let odosielaCas = 0;
@@ -1296,6 +1305,9 @@ export function vytvorUi(o) {
       root.removeEventListener("click", naKlik);
       root.removeEventListener("change", naZmenuPola);
       lst.removeEventListener("click", naKlik);
+      doc.removeEventListener("keydown", naKlaves, true);
+      doc.removeEventListener("pointerdown", naDotyk, true);
+      doc.removeEventListener("touchstart", naDotyk, { capture: true, passive: true });
     },
   };
 }

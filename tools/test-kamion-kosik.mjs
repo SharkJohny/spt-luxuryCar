@@ -758,5 +758,28 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   over("21: žiadny console.error", t.s.chyby.length === 0 && t2.s.chyby.length === 0, t.s.chyby.concat(t2.s.chyby).join(" | "));
 }
 
+{
+  // 23. 10. 2026 (Michal z iPhonu): po výbere značky / modelu / ročníka sa zoznam o chvíľu otvoril znova — prekreslenie
+  // vracalo fokus do nového selectu a iPhone pri fokuse zoznam otvorí. Po dotyku / myši fokus do zoznamu nevraciame,
+  // po klávesnici áno (Tab a šípky nesmú stratiť miesto).
+  const t = await otvor();
+  const w = t.d.defaultView;
+  const sel = (p) => t.d.querySelector('#lcd1v-kamion select[data-p="' + p + '"]');
+  const PD = w.PointerEvent || w.MouseEvent;
+  const prstom = (p, v) => { sel(p).dispatchEvent(new PD("pointerdown", { bubbles: true })); sel(p).focus(); t.vyber(p, v); };
+  const klavesnicou = (p, v) => { sel(p).focus(); sel(p).dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })); t.vyber(p, v); };
+  const fokus = () => (t.d.activeElement && t.d.activeElement.getAttribute("data-f")) || t.d.activeElement.tagName;
+  prstom("znacka", "DAF (TIR)");
+  over("22: dotyk — po výbere značky fokus nie je v zozname (iPhone by ho znova otvoril)", t.d.activeElement.tagName !== "SELECT", fokus());
+  prstom("model", "XF106 2017-2021");
+  over("22: dotyk — po výbere modelu fokus nie je v zozname", t.d.activeElement.tagName !== "SELECT", fokus());
+  klavesnicou("znacka", "MAN (TIR)");
+  over("22: klávesnica — fokus ostane na zozname značky", fokus() === "sel:znacka", fokus());
+  prstom("znacka", "DAF (TIR)");
+  over("22: dotyk po klávesnici — fokus znova nie je v zozname", t.d.activeElement.tagName !== "SELECT", fokus());
+  over("22: výber sa uložil", t.k.ui.S.znacka === "DAF (TIR)", t.k.ui.S.znacka);
+  over("22: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
+}
+
 console.log(`\n${ok} OK, ${zle} ZLE`);
 process.exit(zle ? 1 : 0);
