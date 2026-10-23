@@ -25,6 +25,8 @@
 // Meranie: vlastné udalosti v dataLayer (lcd_set_doplnok_zobrazenie / _klik / _pridany / _chyba).
 // Vypnutie bez nasadenia JS: data.json "kosik_doplnky": false (alebo settings.kosik_doplnky). Test bez ponuky: ?lcddoplnok=0
 import { getShoptetContext } from "./functions/shoptetContext.js";
+// kresba boxu ako na produkte 616 a v okne boxov 1V (Michal 23. 10. 2026: veľkosti s kresbou, farba sa mení s voľbou)
+import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
 
 // ID parametrov podľa projektu (rovnaké ako productPage.js r. 34–48 + overené na živých formulároch 7. 10. 2026)
 // v1 / v2 = parameter variantu „farba 1. / 2. vrstvy“; sety = jednovrstvový set (productId) -> dvojvrstvový set
@@ -565,6 +567,24 @@ export function predvolenaFarbaBoxu(variantText, mapa, R) {
   return zhody.length === 1 ? zhody[0] : null;
 }
 
+// Kresba boxu (box-kresba.js FARBY_KRESBY): kľúč farby z textu možnosti „farba boxov“ — SK aj CZ (cez klucFarby:
+// „Barva kůže: výnově červena“ = „Farba kože : Vínovo Červená“, šitie Šedá/Sivá, Béžová/bežová). Neznáma -> null
+// (kresba potom v predvolenej farbe).
+const SITIE_KRESBY = { cervena: "cervene", modra: "modre", cierna: "cierne", bezova: "bezove", seda: "sede", biela: "biele" };
+export function klucKresbyBoxu(text) {
+  const k = klucFarby(text);
+  if (!k || /\?/.test(k)) return null;
+  const [koza, sitie] = k.split("|");
+  if (koza === "cierna") return SITIE_KRESBY[sitie] ? "cierna-" + SITIE_KRESBY[sitie] + "-sitie" : null;
+  if (sitie) return null;
+  return { kava: "hneda-kava", vino: "vinovo-cervena", bezova: "bezova", seda: "seda" }[koza] || null;
+}
+/** Šírka boxu v cm pre kresbu: „33 × 32 × 30 cm“ -> 33; iný tvar -> null. */
+export function sirkaBoxu(rozmerText) {
+  const m = /^\s*(\d+(?:[.,]\d+)?)\s*[x×]/i.exec(String(rozmerText || ""));
+  return m ? Number(m[1].replace(",", ".")) : null;
+}
+
 /** „Farba kože : Čierna / Farba šitia: Červená“ -> „Čierna / Červená“ */
 export function popisFarby(t) {
   const s = cisty(t)
@@ -574,6 +594,12 @@ export function popisFarby(t) {
     .replace(/^\/\s*|\s*\/$/g, "")
     .trim();
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+}
+
+// názov farby boxu pod vzorkou: viacslovný názov s malým druhým slovom ako na produkte 616
+// („Vínovo Červená“ z adminu -> „Vínovo červená“); po lomke ostáva veľké („Čierna / Šedá“)
+export function nazovFarbyBoxu(t) {
+  return popisFarby(t).replace(/(\p{L}) (\p{Lu})/gu, function (m, a, b) { return a + " " + b.toLowerCase(); });
 }
 
 /** Riadky košíka z HTML (stránka /kosik/ alebo obsah GetCartContent). */
@@ -1490,7 +1516,7 @@ function karta(ctx, T, R, viacSetov) {
         const i = el("input", { type: "radio", name: n + "-pocet", value: String(p), checked: p === stavBox.pocet, "data-lcd-dop-pocet": String(p) });
         i.addEventListener("change", function () {
           stavBox.pocet = p;
-          hint.textContent = "";
+          zrusChybu();
           karticka.obr.src = fotoDoplnku(p === 2 ? FOTKY.box2 : FOTKY.box1);
           karticka.mini.src = karticka.obr.src;
           prekresli();
@@ -1503,27 +1529,58 @@ function karta(ctx, T, R, viacSetov) {
       // farba boxov: vzorky kože ako na produkte (Michal 10. 10.: „vzorky, nie text“), popis farby pod vzorkou
       const mriezkaFarieb = el("div", { class: "lcd-dop__farby" }, farby.map(function (fid) {
         const i = el("input", { type: "radio", name: n + "-farba", value: fid, checked: fid === predvolena, "data-lcd-dop-farba": fid });
-        i.addEventListener("change", function () { stavBox.farba = fid; hint.textContent = ""; prekresli(); });
+        i.addEventListener("change", function () { stavBox.farba = fid; zrusChybu(); farbaKresby(); prekresli(); });
         const vz = el("img", { src: vzorkaFarby(farbaP.o[fid].t), alt: "", width: "400", height: "400", loading: "lazy", decoding: "async" });
         vz.addEventListener("error", function () { vz.style.visibility = "hidden"; });
-        return el("label", { class: "lcd-dop__opt lcd-dop__opt--farba" }, [i, el("span", {}, [vz, el("b", { text: popisFarby(farbaP.o[fid].t) })])]);
+        return el("label", { class: "lcd-dop__opt lcd-dop__opt--farba" }, [i, el("span", {}, [vz, el("b", { text: nazovFarbyBoxu(farbaP.o[fid].t) })])]);
       }));
-      const fsFarba = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--farba" }, [el("legend", { text: T.farba }), mriezkaFarieb]);
+      // vlastná živá oblasť hlášky farby stojí v sekcii od začiatku (presúvaný aria-live prvok čítačky neohlásia — kontrola 23. 10.)
+      const hintFarba = el("p", { class: "lcd-dop__hint", "aria-live": "polite" });
+      const fsFarba = el("fieldset", { class: "lcd-dop__fs lcd-dop__fs--farba" }, [el("legend", { text: T.farba }), hintFarba, mriezkaFarieb]);
       const suhrnCena = el("div", { class: "lcd-dop__suhrn-cena" });
       const tl = el("button", { type: "button", class: "lcd-dop__pridat", "data-lcd-dop-pridat": "box", text: T.pridat });
       const hint = el("p", { class: "lcd-dop__hint", "aria-live": "polite" });
+      // hláška pri chýbajúcej farbe ide pod nadpis „Farba“ (farba je prvá sekcia — pod tlačidlom by bola mimo obrazovky),
+      // pri veľkosti ostáva pod tlačidlom (sekcia veľkosti je hneď nad ním)
+      const zrusChybu = function () { hint.textContent = ""; hintFarba.textContent = ""; fsFarba.removeAttribute("data-lcd-dop-chyba"); };
+      const chybaPod = function (text, fs) {
+        zrusChybu();
+        hint.textContent = text;
+        const r = fs.querySelector("input"); if (r) r.focus();
+      };
+      const chybaFarby = function () {
+        zrusChybu();
+        fsFarba.setAttribute("data-lcd-dop-chyba", "");
+        hintFarba.textContent = T.chybaFarba;
+        const r = fsFarba.querySelector("input");
+        try { hintFarba.scrollIntoView({ block: "center" }); } catch (e) { /* starý prehliadač: posunie fokus */ }
+        if (r) { try { r.focus({ preventScroll: true }); } catch (e) { r.focus(); } }
+      };
+      // kresba boxu v dlaždici veľkosti (box-kresba.js, ako na produkte 616): šírka v cm z rozmeru, rovnaká mierka;
+      // farba = zvolená farba boxu (premenné --bxp-* na obale výberu, vzory <defs> raz v obale s vlastnou predponou).
+      // Keď kresbu nejde postaviť, dlaždice ostanú bez nej (výber funguje ako predtým).
+      const predponaKresby = "lcd-dop-bxk-" + poradie + "-";
+      let sKresbou = true;
+      const kresbaBoxu = function (rozmerText) {
+        if (!sKresbou) return null;
+        try { return kresba(sirkaBoxu(rozmerText), predponaKresby); } catch (e) { sKresbou = false; return null; }
+      };
       // dlaždice veľkostí: pri 1 boxe cena celej zmeny, pri 2 boxoch príplatok daného boxu v sete
       const dlazdice = function (fs, zoznam, mapaVel, kluc, attr, cena) {
         while (fs.children.length > 1) fs.removeChild(fs.lastChild);
+        const mriezka = el("div", { class: "lcd-dop__velkosti" });
         zoznam.forEach(function (v) {
           const a = { type: "radio", name: n + "-" + kluc, value: v, checked: v === stavBox[kluc] };
           a[attr] = v;
           const i = el("input", a);
-          i.addEventListener("change", function () { stavBox[kluc] = v; hint.textContent = ""; prekresliSuhrn(); });
-          fs.appendChild(el("label", { class: "lcd-dop__opt lcd-dop__opt--vel" }, [i, el("span", {}, [
+          i.addEventListener("change", function () { stavBox[kluc] = v; zrusChybu(); prekresliSuhrn(); });
+          const obr = kresbaBoxu(mapaVel[v].rozmer);
+          mriezka.appendChild(el("label", { class: "lcd-dop__opt lcd-dop__opt--vel" + (obr ? " lcd-dop__opt--kresba" : "") }, [i, el("span", {}, [
+            obr ? el("span", { class: "lcd-dop__kresba", "aria-hidden": "true" }, [obr]) : null,
             el("b", { text: v }), el("small", { text: mapaVel[v].rozmer }), el("em", { text: cenaText(cena(v), R, true) }),
           ])]));
         });
+        fs.appendChild(mriezka);
       };
       const prekresli = function () {
         const dva = stavBox.pocet === 2;
@@ -1550,21 +1607,31 @@ function karta(ctx, T, R, viacSetov) {
         const dva = stavBox.pocet === 2;
         const velkosti = dva ? (stavBox.velkost || "?") + "+" + (stavBox.velkost2 || "?") : stavBox.velkost;
         meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "box_" + stavBox.pocet, lcd_velkost: velkosti, lcd_pocet: stavBox.pocet, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
-        if (!stavBox.velkost) { hint.textContent = dva ? T.chybaVelkost1 : T.chybaVelkost; const r = fsVel.querySelector("input"); if (r) r.focus(); return; }
-        if (dva && !stavBox.velkost2) { hint.textContent = T.chybaVelkost2; const r = fsVel2.querySelector("input"); if (r) r.focus(); return; }
-        if (!stavBox.farba) { hint.textContent = T.chybaFarba; const r = fsFarba.querySelector("input"); if (r) r.focus(); return; }
+        // poradie hlásení = poradie sekcií (farba -> veľkosť -> veľkosť 2. boxu); hláška farby je pri farbách
+        if (!stavBox.farba) { chybaFarby(); return; }
+        if (!stavBox.velkost) { chybaPod(dva ? T.chybaVelkost1 : T.chybaVelkost, fsVel); return; }
+        if (dva && !stavBox.velkost2) { chybaPod(T.chybaVelkost2, fsVel2); return; }
         const zm = zmena({ typ: "box", pocet: stavBox.pocet, velkost: stavBox.velkost, velkost2: dva ? stavBox.velkost2 : null, farba: stavBox.farba }, ctx.mapa, R);
         const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
         if (!zm || !rozdiel) { stav.textContent = T.chyba; return; }
         spustiVymenu(ctx, { typ: "box", pocet: stavBox.pocet, velkost: velkosti, kod: "box_" + stavBox.pocet }, zm, rozdiel, T, R, stav, k);
       });
 
-      // výber v rozbalenom páse boxu (počet, veľkosť s rozmermi, farba), otvára ho „Vybrať“ alebo klik na pás
+      // výber v rozbalenom páse boxu, poradie ako na produkte 616 (Michal 23. 10. 2026): farba, počet, veľkosť
+      // (pri 2 boxoch veľkosť 1. a 2. boxu); otvára ho „Vybrať“ alebo klik na pás
       const telo = el("div", { class: "lcd-dop__vyberpas lcd-dop__boxvyber", id: tid, "data-doplnok": "box" }, [
-        fsPocet, fsVel, fsVel2, fsFarba,
+        fsFarba, fsPocet, fsVel, fsVel2,
         el("div", { class: "lcd-dop__suhrn" }, [suhrnCena, tl]),
         hint,
       ]);
+      // farba kresieb = zvolená farba boxu; bez voľby predvolená farba boxu podľa setu, inak predvolená kresby
+      const farbaKresby = function () {
+        if (!sKresbou) return;
+        const o = stavBox.farba && farbaP.o[stavBox.farba];
+        try { nastavFarbuKresby(telo, klucKresbyBoxu(o ? o.t : "")); } catch (e) { sKresbou = false; }
+      };
+      try { telo.insertBefore(definicieKresby(predponaKresby), telo.firstChild); } catch (e) { sKresbou = false; }
+      farbaKresby();
       const karticka = ponuka({
         doplnok: "box", trieda: "lcd-dop__polozka lcd-dop__volba--box",
         foto: fotoDoplnku(pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,

@@ -965,6 +965,110 @@ await test("vzorka farby boxov ako na produkte (slug textu, SK aj CZ)", () => {
   rovne(M.vzorkaFarby("Čierna + červená"), z + "cierna.jpg?15", "ako createSlug(text.split(\"+\")[0])");
   rovne(M.vzorkaFarby(""), null);
 });
+await test("kresba boxu: kľúč farby z textu SK aj CZ (box-kresba.js FARBY_KRESBY), šírka z rozmeru", async () => {
+  const { FARBY_KRESBY } = await import("../assets/js/components/konfigurator1v/box-kresba.js");
+  const sk = FIX["sk/luxusne-autokoberce-dragonskin-diamond-line/"].sels.find((s) => s.id === "91").o.map((o) => M.klucKresbyBoxu(M.bezCeny(o[1])));
+  rovne(sk, ["cierna-cervene-sitie", "cierna-modre-sitie", "cierna-cierne-sitie", "cierna-bezove-sitie", "cierna-biele-sitie", "cierna-sede-sitie", "hneda-kava", "vinovo-cervena", "bezova"]);
+  const cz = FIX["cz/luxusne-autokoberce-dragonskin-diamond-line/"].sels.find((s) => s.id === "63").o.map((o) => M.klucKresbyBoxu(M.bezCeny(o[1])));
+  rovne(cz, ["cierna-cervene-sitie", "cierna-bezove-sitie", "cierna-modre-sitie", "cierna-cierne-sitie", "cierna-biele-sitie", "cierna-sede-sitie", "hneda-kava", "vinovo-cervena", "bezova"]);
+  pravda(sk.concat(cz).every((k) => FARBY_KRESBY[k]), "každý kľúč má farby kresby");
+  rovne([M.klucKresbyBoxu("Farba kože : Zelená"), M.klucKresbyBoxu("Farba kože : Čierna / Farba šitia: Zelená"), M.klucKresbyBoxu(""), M.klucKresbyBoxu(null)], [null, null, null, null], "neznáma = predvolená");
+  rovne([M.sirkaBoxu("33 × 32 × 30 cm"), M.sirkaBoxu("66 × 32 × 30 cm"), M.sirkaBoxu(""), M.sirkaBoxu("x")], [33, 66, null, null]);
+});
+await test("výber boxu ako na produkte: farba -> počet -> veľkosť s kresbou (šírka podľa rozmeru), farba kresby = zvolená farba", () => {
+  const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: true }), RSK, false);
+  document.body.appendChild(k);
+  try {
+    const telo = k.querySelector(".lcd-dop__boxvyber");
+    rovne([...telo.querySelectorAll(":scope > fieldset")].map((f) => f.className.replace(/lcd-dop__fs /, "")), ["lcd-dop__fs--farba", "lcd-dop__fs--pocet", "lcd-dop__fs--velkost", "lcd-dop__fs--velkost lcd-dop__fs--velkost2"]);
+    const defs = telo.querySelectorAll(".lcd1v-bxp-defs");
+    rovne(defs.length, 1, "jedna sada vzorov v obale");
+    pravda(defs[0].parentNode === telo && !defs[0].hidden && defs[0].style.display !== "none", "vzory v obale s premennými, nie display:none");
+    const pred = defs[0].querySelector("pattern").id.replace(/qb$/, "");
+    pravda(/^lcd-dop-bxk-\d+-$/.test(pred), pred);
+    pravda(!document.getElementById("lcd1v-bxp-qb"), "nie predpona produktu 616");
+    const dl = [...telo.querySelectorAll(".lcd-dop__fs--velkost:not(.lcd-dop__fs--velkost2) .lcd-dop__opt--vel")];
+    rovne(dl.map((l) => l.querySelector("b").textContent), ["S", "M", "L", "XL"]);
+    pravda(dl.every((l) => l.classList.contains("lcd-dop__opt--kresba") && l.querySelector(".lcd-dop__kresba[aria-hidden=true] svg.lcd1v-bxp-sil")), "kresba v každej dlaždici");
+    pravda(dl.every((l) => l.querySelector("svg.lcd1v-bxp-sil").innerHTML.includes("url(#" + pred)), "kresba používa vzory s predponou košíka");
+    // šírka kresby = cm z rozmeru v rovnakej mierke (tieň pod boxom: rx = šírka / 2 + 3,2)
+    const sirka = (l) => Math.round((+l.querySelector("svg.lcd1v-bxp-sil > ellipse").getAttribute("rx") - 3.2) * 2);
+    rovne(dl.map(sirka), [33, 40, 54, 66]);
+    rovne(new Set(dl.map((l) => l.querySelector("svg.lcd1v-bxp-sil").getAttribute("viewBox"))).size, 1, "rovnaká mierka");
+    rovne(dl.map((l) => l.querySelector("small").textContent), ["33 × 32 × 30 cm", "40 × 32 × 30 cm", "54 × 32 × 30 cm", "66 × 32 × 30 cm"]);
+    // predvolená farba podľa setu (čierna / červená) -> kresba čierna s červeným šitím
+    rovne(telo.getAttribute("data-lcd1v-farba"), "cierna-cervene-sitie");
+    rovne(telo.style.getPropertyValue("--bxp-st"), "#d63a46");
+    const vino = [...telo.querySelectorAll("[data-lcd-dop-farba]")].find((i) => /Vínovo/i.test(i.parentNode.textContent));
+    vino.checked = true; vino.dispatchEvent(new window.Event("change", { bubbles: true }));
+    rovne(telo.getAttribute("data-lcd1v-farba"), "vinovo-cervena");
+    rovne(telo.style.getPropertyValue("--bxp-lth"), "#922c3d");
+    rovne(telo.querySelectorAll(".lcd1v-bxp-defs").length, 1, "po zmene farby stále jedna sada");
+    // 2 boxy: veľkosť 1. a 2. boxu, obe s kresbou
+    const p2 = telo.querySelector('[data-lcd-dop-pocet="2"]');
+    p2.checked = true; p2.dispatchEvent(new window.Event("change", { bubbles: true }));
+    const fs2 = telo.querySelector(".lcd-dop__fs--velkost2");
+    rovne([fs2.hidden, M.cisty(telo.querySelector(".lcd-dop__fs--velkost legend").textContent), M.cisty(fs2.querySelector("legend").textContent)], [false, "Veľkosť 1. boxu", "Veľkosť 2. boxu"]);
+    rovne(telo.querySelectorAll(".lcd-dop__opt--vel .lcd1v-bxp-sil").length, 8);
+    const bez = [...telo.querySelectorAll("[data-lcd-dop-farba]")].find((i) => /^Béžová$/.test(i.parentNode.textContent.trim()));
+    bez.checked = true; bez.dispatchEvent(new window.Event("change", { bubbles: true }));
+    rovne(telo.getAttribute("data-lcd1v-farba"), "bezova");
+  } finally { k.remove(); }
+});
+await test("výber boxu: set bez jednoznačnej farby -> kresba v predvolenej farbe; CZ farby prefarbia kresbu", () => {
+  const ctx = ctxKarty({ rohoz: false, box: true });
+  ctx.riadok.variant = "farba 1.vrstvy: Diamond Farba kože : Zelená";
+  const k = M.kartaPonuky(ctx, RSK, false);
+  const telo = k.querySelector(".lcd-dop__boxvyber");
+  rovne([k.querySelector("[data-lcd-dop-farba]:checked"), telo.getAttribute("data-lcd1v-farba")], [null, "cierna-bezove-sitie"]);
+  const kc = M.kartaPonuky(ctxKarty({ rohoz: false, box: true }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), RCZ, false);
+  const tc = kc.querySelector(".lcd-dop__boxvyber");
+  rovne([...tc.querySelectorAll(":scope > fieldset > legend")].map((l) => l.textContent).slice(0, 3), ["Barva", "Počet", "Velikost"]);
+  const vin = [...tc.querySelectorAll("[data-lcd-dop-farba]")].find((i) => /červena/i.test(i.parentNode.textContent) && /výnov/i.test(i.parentNode.textContent));
+  vin.checked = true; vin.dispatchEvent(new window.Event("change", { bubbles: true }));
+  rovne(tc.getAttribute("data-lcd1v-farba"), "vinovo-cervena");
+  pravda(tc.querySelectorAll(".lcd-dop__opt--vel .lcd1v-bxp-sil").length >= 4, "CZ dlaždice s kresbou");
+});
+await test("výber boxu: chýbajúca farba -> hláška pod nadpisom Farba (prvá sekcia), poradie hlásení = poradie sekcií; veľkosť -> pod tlačidlom", () => {
+  const ctx = ctxKarty({ rohoz: false, box: true });
+  ctx.riadok.variant = "farba 1.vrstvy: Diamond Farba kože : Zelená";
+  const k = M.kartaPonuky(ctx, RSK, false);
+  document.body.appendChild(k);
+  try {
+    const telo = k.querySelector(".lcd-dop__boxvyber");
+    // hláška farby = vlastná živá oblasť v sekcii Farba (stojí tam od začiatku), hláška veľkosti = pod tlačidlom
+    const fsF = telo.querySelector(".lcd-dop__fs--farba"), hint = fsF.querySelector(".lcd-dop__hint");
+    const hintDole = telo.querySelector(":scope > .lcd-dop__hint");
+    const pridaj = () => telo.querySelector('[data-lcd-dop-pridat="box"]').click();
+    // nič nezvolené -> najprv farba (je prvá), hláška v sekcii farby hneď pod nadpisom, fokus na prvej vzorke
+    pridaj();
+    rovne([hint.textContent, hint.parentNode === fsF, hint.previousElementSibling && hint.previousElementSibling.tagName, fsF.hasAttribute("data-lcd-dop-chyba")],
+      ["Zvoľte, prosím, farbu boxu.", true, "LEGEND", true]);
+    pravda(document.activeElement && document.activeElement.hasAttribute("data-lcd-dop-farba"), "fokus na farbe");
+    // veľkosť zvolená, farba stále nie -> stále hláška farby
+    const m = telo.querySelector('[data-lcd-dop-velkost="M"]');
+    m.checked = true; m.dispatchEvent(new window.Event("change", { bubbles: true }));
+    rovne([hint.textContent, fsF.hasAttribute("data-lcd-dop-chyba")], ["", false], "zmena voľby hlášku zruší");
+    pridaj();
+    rovne([hint.textContent, hint.parentNode === fsF], ["Zvoľte, prosím, farbu boxu.", true]);
+    // farba zvolená, veľkosť zrušená (2 boxy) -> hláška veľkosti pod tlačidlom, rám farby preč
+    const f = telo.querySelector("[data-lcd-dop-farba]");
+    f.checked = true; f.dispatchEvent(new window.Event("change", { bubbles: true }));
+    rovne([hint.textContent, fsF.hasAttribute("data-lcd-dop-chyba")], ["", false]);
+    const p2 = telo.querySelector('[data-lcd-dop-pocet="2"]');
+    p2.checked = true; p2.dispatchEvent(new window.Event("change", { bubbles: true }));
+    pridaj();
+    rovne([M.cisty(hintDole.textContent), hint.textContent], [M.cisty("Zvoľte, prosím, veľkosť 2. boxu."), ""], "M ostáva pre 1. box, chýba 2. box");
+    rovne([hintDole.parentNode === telo, hintDole.previousElementSibling && hintDole.previousElementSibling.className], [true, "lcd-dop__suhrn"]);
+    pravda(document.activeElement && document.activeElement.hasAttribute("data-lcd-dop-velkost2"), "fokus na veľkosti 2. boxu");
+  } finally { k.remove(); }
+});
+await test("názov farby boxu pod vzorkou: druhé slovo malým ako na 616, po lomke veľké", () => {
+  rovne(["Vínovo Červená", "Farba kože : Hnedá Káva", "Čierna / Šedá", "Béžová", ""].map(M.nazovFarbyBoxu),
+    ["Vínovo červená", "Hnedá káva", "Čierna / Šedá", "Béžová", ""]);
+  const k = M.kartaPonuky(ctxKarty({ rohoz: false, box: true }), RSK, false);
+  pravda([...k.querySelectorAll(".lcd-dop__opt--farba b")].some((b) => b.textContent === "Vínovo červená"), "SK košík: Vínovo červená");
+});
 await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, box -> jeho veľkosť (nikdy „Farba boxov“); bez odrážky null", () => {
   const ul = new DOMParser().parseFromString(`<ul class="lcd-rozpis">${[["Auto", "Dacia Logan"], ["Autokoberce do kufru", "Koberec na dno kufra"],
     ["Farba boxov", "Farba kože: Béžová"], ["Velikost 1. boxu", "M: 40x32x30 cm"], ["Velikost 2. boxu", "L: 54x32x30 cm"]]

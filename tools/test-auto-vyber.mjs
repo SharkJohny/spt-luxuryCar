@@ -293,5 +293,21 @@ const bezZlych = (o) => Object.values(o).every((v) => v === null || !ZLE_HODNOTY
     "14) bfcache + model, ktorý značka nemá: placeholder, Model a „model“ odstránené", { auto: t.auto(), ss: t.ss() });
 }
 
+// 15) ročníky od najnovšieho po 2000, „Iné“ na konci; uložený rok sa vyberie v zozname (nie navrch, nie 2×) — Michal 23. 10. 2026
+{
+  const rok = new Date().getFullYear();
+  const ocak = ["Rok výroby"].concat(Array.from({ length: rok - 2000 + 1 }, (_, i) => String(rok - i)));
+  const roky = (t) => [...t.sel.rok.options].map((o) => o.text);
+  const bez = stranka({ typ: "titulka" });
+  over(JSON.stringify(roky(bez).slice(0, -1)) === JSON.stringify(ocak) && /^(Iné|Jiné)/.test(roky(bez).at(-1)),
+    "15) ročníky zostupne od aktuálneho po 2000, „Iné“ posledné", roky(bez).slice(0, 4));
+  const s = stranka({ typ: "titulka", seed: { Brand: "Ford", Model: "Ranger", Year: "2019", carType: "Pick-UP" } });
+  over(s.text(s.sel.rok) === "2019" && JSON.stringify(roky(s)) === JSON.stringify(roky(bez)),
+    "15) uložený rok 2019: vybraný v zozname, poradie nezmenené (žiadny 2019 navrch)", roky(s).slice(0, 4));
+  const ine = stranka({ typ: "titulka", seed: { Brand: "Ford", Model: "Ranger", Year: "Iné, prosím napíšte do poznámky", carType: "Pick-UP" } });
+  over(/^(Iné|Jiné)/.test(ine.text(ine.sel.rok)) && roky(ine).filter((t) => /^(Iné|Jiné)/.test(t)).length === 1,
+    "15) uložené „Iné“: vybrané, v zozname raz", roky(ine).slice(0, 3));
+}
+
 if (zlyhania) { console.error(`\n${zlyhania} kontrol ZLYHALO (${REPO})`); process.exit(1); }
 console.log(`\nVšetky kontroly OK (${REPO})`);

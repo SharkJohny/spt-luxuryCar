@@ -403,7 +403,9 @@ function initModelSelect(texts) {
     getYear = otherLabel;
   }
 
-  if (getYear != null) {
+  // uložený rok: „Iné/Jiné“ navrch ako doteraz; číselný rok sa vyberie v zozname až po naplnení rokov nižšie
+  // (predtým sa vkladal navrch -> „2019, Rok výroby, 2026 … 2019 …“ — rok 2× a placeholder v strede)
+  if (getYear != null && getYear === otherLabel) {
     $("<option>" + getYear + "</option>").prependTo(".surcharge-list.years.dm-selector select");
     $(".surcharge-list.years.dm-selector select").val(getYear);
   }
@@ -421,8 +423,15 @@ function initModelSelect(texts) {
   }
   const d = new Date();
   const currentYear = d.getFullYear();
-  for (let year = Number(years_from); year <= currentYear; year++) {
+  // ročníky od najnovšieho po najstarší (Michal 23. 10. 2026: „od roku 26 do roku 2000“), „Iný“ ostáva na konci
+  for (let year = currentYear; year >= Number(years_from); year--) {
     $("<option>" + year + "</option>").appendTo(".years select");
+  }
+  if (getYear != null && getYear !== otherLabel) {
+    $(".surcharge-list.years.dm-selector select").each(function () {
+      // rok mimo zoznamu (napr. starší než years_from) -> navrch ako doteraz
+      if (!lcdVyberMoznost(this, getYear)) $(this).prepend($("<option>").text(getYear)).val(getYear);
+    });
   }
 
   const other_option = "<option>" + otherLabel + "</option>";
