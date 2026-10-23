@@ -1,5 +1,6 @@
 // Scenáre ponuky setu s autokobercami pod sedadlá na sólo rohožiach do kufra (619–634) a boxe (616) — Michal 17. 10. 2026
-// (návrh 1 „Ponuka ako druhá vrstva“: skrytá karta bez čísla; rohož PRED Farbou, box PO Veľkosti). Kód:
+// (návrh 1 „Ponuka ako druhá vrstva“: skrytá karta bez čísla; rohož PRED Farbou, box hneď POD jedinou kartou „Vaše boxy
+// do kufra“ — Michal 23. 10. 2026, variant C). Kód:
 // assets/js/components/konfigurator1v/komplet-ponuka.js + prenos.js (box bez farby v sete) + assets/css/_lcd1v-komplet.scss.
 // Tvar scenára: tools/test-1v/scenare-jedno.mjs. Všetko s ?novy=1 (bez flagu sa scenár preskočí; starý vzhľad stráži
 // nulova-zmena). Každý POST košíka je zachytený a zrušený (jadro testu).
@@ -16,16 +17,17 @@
 //   kufor-komplet-ano  hlavička karty -> Áno -> jednovrstvové toho istého vzoru: rohož (Classic = dno, Premium = dno + boky)
 //                      predvybraná, auto prenesené, otvorená Farba bez predvoľby; farba + rozloženie -> POST; tá istá
 //                      stránka nanovo a všetko ručne -> POST rovnaký pole po poli
-//   box-komplet-nie    karta skrytá, kým nie je zvolená farba; potom medzi kartou Počet boxov a Veľkosť bez čísla (Michal
-//                      17. 10. 2026 večer: „toto sa má zobrazovať po kroku počet boxov“); „Pokračujte ďalej“ v Počte otvorí
-//                      kartu (nie Veľkosť); bez veľkosti „Box do kufra už od X €“ (X = najlacnejší Box solo na 598, GET),
-//                      „Box S samostatne Y €“ (Y = variant + príplatok tej istej veľkosti na 616, z DOM); Nie -> Veľkosť,
-//                      POST 0; veľkosť M + košík -> POST = baseline (profil platne 1 × M)
+//   box-komplet-nie    karta skrytá, kým nie je zvolená farba; potom zbalená hneď pod kartou „Vaše boxy do kufra“ bez čísla
+//                      (postup skrytý — jedna karta boxu); hlavička ju otvorí (karta boxov sa zbalí); bez veľkosti „Box do
+//                      kufra už od X €“ (X = najlacnejší Box solo na 598, GET), „Box S samostatne Y €“ (Y = variant +
+//                      príplatok tej istej veľkosti na 616, z DOM); Nie -> späť do karty boxov, POST 0; veľkosť M + košík ->
+//                      POST = baseline (profil platne 1 × M)
 //   box-komplet-ano    1 box M (presné „Box do kufra M len za“) -> 2 boxy bez veľkostí („Boxy do kufra už od“) -> M + L:
 //                      čísla v karte sa prepočítajú živo („Boxy do kufra M + L len za X €“, X = 1. box M + 2. box L na
-//                      598); farba, ktorú set má (podľa názvu); Áno -> 598: počet, farba boxov a veľkosti prenesené, okno
+//                      598); „Pokračujte k súhrnu“ v karte boxov ju pri úplnom výbere otvorí sama (karta boxov sa zbalí);
+//                      farba, ktorú set má (podľa názvu); Áno -> 598: počet, farba boxov a veľkosti prenesené, okno
 //                      boxov zatvorené; auto + farba + rozloženie -> POST; nanovo ručne -> POST rovnaký pole po poli
-//   box-komplet-od     „Áno“ hneď po počte (veľkosť ešte nezvolená): 598 dostane počet a farbu, okno boxov ostane otvorené
+//   box-komplet-od     „Áno“ v karte otvorenej hlavičkou (veľkosť ešte nezvolená): 598 dostane počet a farbu, okno boxov ostane otvorené
 //                      na výber veľkosti; zákazník ju zvolí a potvrdí; auto + farba + rozloženie -> POST platný (box solo,
 //                      farba boxov)
 //   box-komplet-seda   farba boxu, ktorú set nemá (test ju hľadá sám porovnaním názvov 616 a 598; do 22. 10. 2026 „Šedá“,
@@ -36,9 +38,9 @@
 //                      1 box S: veta „Farba aj veľkosť boxu Vám ostanú.“; Áno -> 598: kľúč prenosu a selecty = Box solo S
 //                      + farba boxov Béžová (727, podľa názvu nezávisle od kódu), kresba v okne boxov béžová; POST 0.
 //                      Kým admin 616 hovorí „Šedá“, preskočí sa (s pokynom spustiť znova)
-//   box-komplet-3      3 boxy: karta sa neukáže (ani keď bola pri 2 boxoch viditeľná), „Pokračujte k súhrnu“ ide rovno na
-//                      súhrn; POST 3 boxov platný
-import { statSync } from "node:fs";
+//   box-komplet-3      3 boxy: karta sa neukáže (ani keď bola pri 2 boxoch viditeľná), „Pokračujte k súhrnu“ v karte boxov
+//                      ide rovno na súhrn; POST 3 boxov platný
+import { statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PRODUKTY } from "./produkty.mjs";
@@ -127,6 +129,28 @@ async function snimka(s, a, meno, sel) {
   await s.t.ev(`(function () { var e = document.querySelector(${JSON.stringify(sel)}); if (e) e.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -90); })()`);
   await s.t.pauza(700);
   await s.k.snimka(join(a.snimky, `${a.produkt.id}-${meno}-${s.t.sirka}.png`)).catch(() => {});
+}
+
+/** Snímka otvorenej ponuky setu na boxe (len s --snimky): výrez od zbalenej karty boxov po spodok karty ponuky (aj mimo
+ *  okna), bublina a okno chatu skryté. */
+async function snimkaPonukyBoxu(s, a, meno) {
+  if (!a.snimky) return;
+  const t = s.t;
+  const r = await t.ev(`(function () {
+    [].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]'), function (f) { f.setAttribute("data-skryte-snimka", "1"); f.style.setProperty("visibility", "hidden", "important"); });
+    Array.prototype.forEach.call(document.querySelectorAll("body *"), function (e) { if (!e.closest("#product-detail-form") && /Začať konverzáciu|Sme práve online/.test(e.textContent || "") && getComputedStyle(e).position === "fixed") { e.setAttribute("data-skryte-snimka", "1"); e.style.setProperty("visibility", "hidden", "important"); } });
+    var b = document.querySelector("${F} .lcd1v-k-farba"), k = document.querySelector(${JSON.stringify(KARTA)});
+    if (!b || !k) return null;
+    var y0 = b.getBoundingClientRect().top + window.scrollY - 30, y1 = k.getBoundingClientRect().bottom + window.scrollY + 30;
+    return { y: Math.max(0, Math.round(y0)), h: Math.round(y1 - y0) };
+  })()`);
+  if (!r) return;
+  await t.pauza(500);
+  try {
+    const o = await s.k.posli("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: r.y, width: t.sirka, height: Math.min(r.h, 6000), scale: 1 } });
+    writeFileSync(join(a.snimky, `${a.produkt.id}-karta-${meno}-${t.sirka}.png`), Buffer.from(o.data, "base64"));
+  } catch (e) { (s.upozornenia || []).push("snímka " + meno + ": " + e.message); }
+  await t.ev(`[].forEach.call(document.querySelectorAll("[data-skryte-snimka]"), function (e) { e.style.removeProperty("visibility"); e.removeAttribute("data-skryte-snimka"); })`);
 }
 
 const kluc = (t) => t.ev(`(function () { try { return JSON.parse(sessionStorage.getItem(${JSON.stringify(KLUC)}) || "null"); } catch (e) { return "chyba"; } })()`);
@@ -452,20 +476,20 @@ export const SCENARE = {
       j.over(L && ciel.solo.M && ciel.solo.M.cena > 0, "Box solo na " + J.url + " sa nedal zistiť (test): " + JSON.stringify(ciel.solo));
       const pred = await stavKarty(t);
       j.over(pred.je && !pred.vidno, `karta ponuky má byť pred výberom farby skrytá: ${JSON.stringify({ je: pred.je, vidno: pred.vidno })}`);
-      const kroky0 = await cislaKrokov(t);
-      // farba (index 2, v sete je) -> karta viditeľná medzi Počtom a Veľkosťou
+      // farba (index 2, v sete je) -> karta viditeľná hneď pod kartou „Vaše boxy do kufra“
       const farba = await ovl.boxy.vyberFarbu(t, { index: 2 });
       await ovl.boxy.vyberPocet(t, 1);
       const st = await cakajKartu(t, "karta ponuky po farbe a počte");
       j.over(st.vidno && !st.otvorena && !st.cisloVidno && st.nm === "Autokoberce pod sedadlá" && st.vy === "Áno alebo nie", `zbalená karta po počte: ${JSON.stringify({ vidno: st.vidno, otvorena: st.otvorena, cislo: st.cisloVidno, nm: st.nm, vy: st.vy })}`);
       const pl = st.poloha;
-      j.over(pl.pocet && pl.karta && pl.velkost && pl.pocet.bottom <= pl.karta.top + 1 && pl.karta.bottom <= pl.velkost.top + 1, `karta na obrazovke medzi Počtom a Veľkosťou: ${JSON.stringify(pl)}`);
-      const kroky1 = await cislaKrokov(t);
-      j.over(JSON.stringify(kroky1.ey) === JSON.stringify(kroky0.ey) && /3 krokoch/.test(kroky1.postup) && kroky1.dlazdice === 3 && kroky1.ey.every((x) => /^Krok \d z 3$/.test(x)), `počty krokov sa zmenili: pred ${JSON.stringify(kroky0)}, po ${JSON.stringify(kroky1)}`);
-      // „Pokračujte ďalej“ v Počte otvorí kartu, nie Veľkosť (POST 0)
-      await t.klikni(`${F} .lcd1v-k-pocet > .next-step-button`, { popis: "Pokračujte ďalej (Počet boxov)" });
-      const otv = await cakajOtvorenu(t, "otvorená karta ponuky po „Pokračujte ďalej“ v Počte");
-      j.over(!(await t.ev(`document.querySelector("${F} .lcd1v-k-velkost").classList.contains("active")`)), "po „Pokračujte ďalej“ v Počte sa otvorila Veľkosť, má sa otvoriť karta ponuky");
+      j.over(pl.farba && pl.karta && pl.farba.bottom <= pl.karta.top + 1, `karta na obrazovke hneď pod kartou boxov: ${JSON.stringify(pl)}`);
+      // jedna karta boxu: postup („Hotovo N z M“) skrytý, karta ponuky ho nemení
+      const postup = await t.ev(`(function () { var p = document.querySelector(".lcd1v-postup"); return !!(p && p.getClientRects().length); })()`);
+      j.over(!postup, "postup krokov má byť na boxe skrytý (jedna karta)");
+      // hlavička otvorí kartu (bez veľkosti „už od“), karta boxov sa zbalí (POST 0)
+      await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty ponuky" });
+      const otv = await cakajOtvorenu(t, "otvorená karta ponuky po kliku na hlavičku");
+      j.over(!(await t.ev(`document.querySelector("${F} .lcd1v-k-farba").classList.contains("active")`)), "po otvorení ponuky ostala otvorená aj karta boxov (má byť otvorená len jedna karta)");
       // bez veľkosti: „už od“ = najlacnejší Box solo; samostatne = variant + príplatok tej istej veľkosti na 616
       const pr = await priplatokBoxu(t, "box1", L);
       const variant = await cenaStrankyBoxu(t);
@@ -480,9 +504,9 @@ export const SCENARE = {
       await overFokus(t, j, "karta 616");
       j.over(s.posty.length === 0, "„Pokračujte ďalej“ poslal POST: " + (s.posty[0] && s.posty[0].body));
       await snimka(s, a, "komplet-otazka", KARTA);
-      // Nie -> otvorí sa Veľkosť, POST 0; potom veľkosť M + košík -> baseline
+      // Nie bez veľkostí -> späť do karty boxov, POST 0; potom veľkosť M + košík -> baseline
       await t.klikni(`${KARTA} .lcd1v-komplet__nie`, { popis: "Nie, ďakujem" });
-      await t.cakaj(`document.querySelector("${F} .lcd1v-k-velkost").classList.contains("active")`, { ms: 8000, popis: "otvorená Veľkosť po Nie" });
+      await t.cakaj(`document.querySelector("${F} .lcd1v-k-farba").classList.contains("active")`, { ms: 8000, popis: "otvorená karta boxov po Nie" });
       const poNie = await stavKarty(t);
       j.over(!poNie.otvorena && poNie.hotova && poNie.vy === "Len box do kufra", `karta po Nie: ${JSON.stringify({ o: poNie.otvorena, h: poNie.hotova, vy: poNie.vy })}`);
       j.over(s.posty.length === 0, "„Nie, ďakujem“ poslal POST: " + (s.posty[0] && s.posty[0].body));
@@ -493,7 +517,7 @@ export const SCENARE = {
       await j.overCenu(s, ovl, cena);
       j.over(post.pole.priceId === P.platne.priceId && cena.spolu === P.platne.spolu, `POST priceId ${post.pole.priceId} / suma ${cena.spolu} ≠ profil ${P.platne.priceId} / ${P.platne.spolu}`);
       j.over((await kluc(t)) === null, "po „Nie“ ostal kľúč prenosu v sessionStorage");
-      return { info: `karta po farbe, medzi Počtom a Veľkosťou, bez čísla; Pokračujte (Počet) -> karta; bez veľkosti „už od“ ${ciel.solo[L].cena} € (${L}), Box ${L} samostatne ${samo} €, ušetríte ${us} €; Nie -> Veľkosť; M + košík: POST = baseline 616`, post: post.body, spolu: cena.spolu };
+      return { info: `karta po farbe hneď pod kartou boxov, bez čísla; hlavička -> karta; bez veľkosti „už od“ ${ciel.solo[L].cena} € (${L}), Box ${L} samostatne ${samo} €, ušetríte ${us} €; Nie -> karta boxov; M + košík: POST = baseline 616`, post: post.body, spolu: cena.spolu };
     },
   },
 
@@ -512,7 +536,7 @@ export const SCENARE = {
       await ovl.boxy.vyberFarbu(t, { index: fv.index });
       await ovl.boxy.vyberPocet(t, 1);
       await cakajKartu(t, "karta ponuky po farbe a počte");
-      await t.klikni(`${F} .lcd1v-k-pocet > .next-step-button`, { popis: "Pokračujte ďalej (Počet boxov)" });
+      await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty ponuky" });
       const otv = await cakajOtvorenu(t, "otvorená karta ponuky (bez veľkosti)");
       j.over(otv.bs && otv.bs.h === "Box do kufra už od" && otv.cenaTx === eur(ciel.solo[L].cena), `banner bez veľkosti: „${otv.bs && otv.bs.h} ${otv.cenaTx}“ ≠ „Box do kufra už od ${eur(ciel.solo[L].cena)}“`);
       await t.klikni(`${KARTA} .lcd1v-komplet__ano`, { popis: "Áno, chcem set s autokobercami" });
@@ -579,8 +603,11 @@ export const SCENARE = {
       const v = await ovl.boxy.vyberVelkosti(t, ["M", "L"]);
       const vSete = Math.round((ciel.b1.M.cena + ciel.b2.L.cena) * 100) / 100;
       await t.cakaj(`((document.querySelector(${JSON.stringify(KARTA + " .lcd1v-bs__c")}) || {}).textContent || "").replace(/\\s+/g, " ").trim() === ${JSON.stringify(eur(vSete))}`, { ms: 10000, popis: "cena v karte prepočítaná na 2 boxy" });
-      await t.klikni(`${KARTA} > .lcd1v-hd`, { popis: "hlavička karty ponuky" });
-      const otv = await cakajOtvorenu(t, "otvorená karta ponuky (2 boxy)");
+      // úplný výber + „Pokračujte k súhrnu“ v karte boxov -> ponuka sa otvorí sama (presné čísla), karta boxov sa zbalí
+      await t.klikni(`${F} .lcd1v-k-farba > .next-step-button`, { popis: "Pokračujte k súhrnu (2 boxy M + L)" });
+      const otv = await cakajOtvorenu(t, "ponuka setu otvorená po „Pokračujte k súhrnu“ (2 boxy)");
+      j.over(!(await t.ev(`document.querySelector("${F} .lcd1v-k-farba").classList.contains("active")`)), "po „Pokračujte k súhrnu“ ostala otvorená karta boxov (má sa zbaliť, otvorená ponuka setu)");
+      j.over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST: " + (s.posty[0] && s.posty[0].body));
       const samo = await cenaStrankyBoxu(t);
       const us = await overOtvorenu(t, j, otv, {
         h: "Boxy do kufra M + L len za", kd: "keď ich kúpite spolu s autokobercami pod sedadlá", pip: "2 boxy do kufra",
@@ -589,6 +616,7 @@ export const SCENARE = {
         pipSrc: /\/img\/1v\/boxprodukt-pocet-2\.jpg$/, kde: "karta 616 (2 × M + L)",
       });
       await snimka(s, a, "komplet-otazka-2boxy", KARTA);
+      await snimkaPonukyBoxu(s, a, "ponuka-setu-2boxy");
       const ocak = { pocetBoxov: 2, farbaBoxov: fv.ciel.hodnota, box1: ciel.b1.M.hodnota, box2: ciel.b2.L.hodnota };
       await t.klikni(`${KARTA} .lcd1v-komplet__ano`, { popis: "Áno, chcem set s autokobercami" });
       s.produkt = J;
@@ -755,7 +783,7 @@ export const SCENARE = {
       await j.pauza(800);
       const st = await stavKarty(t);
       j.over(st.je && !st.vidno, `pri 3 boxoch (set má najviac 2) je karta ponuky viditeľná`);
-      await t.klikni(`${F} .lcd1v-k-velkost > .next-step-button`, { popis: "Pokračujte k súhrnu (3 boxy)" });
+      await t.klikni(`${F} .lcd1v-k-farba > .next-step-button`, { popis: "Pokračujte k súhrnu (3 boxy)" });
       await j.pauza(1500);
       const sh = await stavSuhrnu(t);
       j.over(!sh.aktivne.length && sh.vidno, `3 boxy: „Pokračujte k súhrnu“ má ísť rovno na súhrn: ${JSON.stringify(sh)}`);

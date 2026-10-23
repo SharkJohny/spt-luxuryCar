@@ -1,17 +1,23 @@
-/* LCD-1V box do kufra 616 — farba → počet → veľkosť, neutralizácia configurator-enhance; selektory body.lcd-1v[data-lcd1v-typ="boxy"]. Vlastník: T3.2 (boxy-produkt.js)
+/* LCD-1V box do kufra 616 — JEDNA karta „Vaše boxy do kufra“ (farba, počet, veľkosti), neutralizácia configurator-enhance; selektory body.lcd-1v[data-lcd1v-typ="boxy"]. Vlastník: T3.2 (boxy-produkt.js)
    Čisté CSS (nekompiluje sa Sassom, tools/vloz-lcd-css.py ho vkladá do luxuryCar.css bajt po bajte). KAŽDÝ selektor
    začína body.lcd-1v[data-lcd1v-typ="boxy"] (typ cez atribút, nie triedu); flag vypnutý = nulová zmena (test nulova-zmena).
-   Návrh: navrhy/boxy.html (#bx-extra, #bx-konf); dlaždice počtu = návrh C „Fotka cez celú dlaždicu“ a kresba boxu v kroku 3
-   = návrh B „Realistický pohľad zhora“ (Michal 18. 10. 2026, artefakt H5ttn7fKzXBupUczU5JhNS).
-   Prvky z JS (bez name): .lcd1v-bxp-pocty, .lcd1v-bxp-velk, .lcd1v-bxp-nahlad, .lcd1v-bxp-nazov.
+   Michal 23. 10. 2026: „všetko na jednom mieste“ — karta = živý krok Farba (kroky.js), do nej boxy-produkt.js vloží nadpis
+   farby, segment počtu [1 box][2 boxy][3 boxy], veľkosti s kresbou boxu (návrh B „Realistický pohľad zhora“, 18. 10. 2026)
+   a na telefóne riadok „Spolu“. Živé kroky Počet a Veľkosť sú skryté nosiče POST ([data-lcd1v-bxp-skryte]).
+   Prvky z JS (bez name): .lcd1v-bxp-nadp, .lcd1v-bxp-chyba, .lcd1v-bxp-pocty, .lcd1v-bxp-velk, .lcd1v-bxp-nahlad,
+   .lcd1v-bxp-farba-popis, .lcd1v-bxp-spolu, .lcd1v-bxp-nazov. Poradie v karte (flex order): hlavička -10, nadpis farby -5,
+   vzorky 0, chyba farby 44, vybraná farba 45, náhľad 50, počet 60, veľkosti 70, Spolu 85, chyba 90, tlačidlo 95.
    Kontrakt: docs/1v-kontrakt.md §8. */
 
-/* ---------------------------------------------------------------- poradie krokov a neutralizácia configurator-enhance
-   Živý web (configurator-enhance.js lcdBoxReorderAndRename) dáva krokom inline order počet 1 / farba 2 / veľkosť 3;
-   návrh má farba 1 / počet 2 / veľkosť 3 (DOM ostáva, mení sa len poradie zobrazenia). */
+/* ---------------------------------------------------------------- jedna karta, neutralizácia configurator-enhance */
+/* živé kroky Počet a Veľkosť = len nosiče POST (živé tlačidlá „N ks“ a veľkostí kliká ctx.zapis) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > [data-lcd1v-bxp-skryte] { display: none !important; }
+/* configurator-enhance (lcdBoxReorderAndRename) dáva krokom inline order; karta ide prvá, ponuka setu hneď pod ňu (2) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-farba { order: 1 !important; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-pocet { order: 2 !important; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .content-wrap > .lcd1v-k-velkost { order: 4 !important; } /* 3 = ponuka setu (_lcd1v-komplet.scss) */
+/* jedna karta: postup „Hotovo N z M“ a „Krok 1 z 1“ nemajú zmysel; číslo len ako fajka hotovej zbalenej karty */
+body.lcd-1v[data-lcd1v-typ="boxy"] .lcd1v-postup { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-hd .lcd1v-ey,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba:not(.lcd1v-hotovy) > .lcd1v-hd .lcd1v-no { display: none; }
 /* odporúčaná cena, ktorú by configurator-enhance (lcdAddBoxRRP) dopísal „Doporučenou cenou“ — box ju v admine nemá */
 body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-rrp-wrap,
 body.lcd-1v[data-lcd1v-typ="boxy"] .lcd-price-rrp { display: none !important; }
@@ -43,11 +49,46 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .p-detail-inner-header .lcd1v-bxp-nazov { font-size: 22px; }
 }
 
-/* ---------------------------------------------------------------- krok 1: vzorky farby
-   rovnaká veľkosť ako na autokobercoch a rohožiach do kufra (Michal 18. 10. 2026) = spoločná mriežka kroku farby
-   z _lcd1v-kroky.scss (telefón 5 v rade ~58 px, PC 7 v rade ~63 px); vlastná mriežka boxu (3 × 3 / 9 v rade) zrušená */
+/* ---------------------------------------------------------------- nadpisy sekcií a poradie v karte */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0 0 10px; padding: 0;
+  font: 700 13px/18px var(--kr-disp); letter-spacing: .12em; text-transform: uppercase; color: var(--kr-tmava);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp em {
+  font: 600 15px/18px var(--kr-body); font-style: normal; letter-spacing: 0; text-transform: none; color: var(--kr-gold-tx);
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp em[hidden] { display: none; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nadp--farba { order: -5; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-chyba--farba { order: 44; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-pocty { order: 60; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-velk { order: 70; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-spolu { order: 85; }
+/* sekcie Počet a Veľkosti oddelené tenkou čiarou */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-pocty,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-velk {
+  margin: 18px 0 0; padding: 18px 0 0; border-top: 1px solid #ece6d6;
+}
+
+/* ---------------------------------------------------------------- farba: vzorky (spoločná mriežka _lcd1v-kroky.scss)
+   rovnaká veľkosť ako na autokobercoch a rohožiach do kufra (Michal 18. 10. 2026) */
 /* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
+/* náhľad = pás cez celú šírku (telefón 120 px, od 768 px 160 px), štítok „Diamond Line“ hore (Michal 23. 10. 2026) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad {
+  position: relative; max-width: none; height: 120px; margin: 12px 0 0; border-radius: 10px;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad > .lcd1v-nahlad-nm {
+  position: absolute; z-index: 1; top: 0; left: 0; right: 0;
+  padding: 9px 12px; background: linear-gradient(180deg, rgba(11, 10, 7, .78), rgba(11, 10, 7, 0)); box-shadow: none;
+  font-size: 12.5px;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad > .lcd1v-nahlad-img {
+  width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: center;
+}
+@media (min-width: 768px) {
+  /* fotky boxprodukt-farba-*.jpg majú 400 × 400 px — pás širší ako 440 px by ich zväčšoval a rozmazal (kontrola 23. 10. 2026, tablet) */
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad { height: 160px; max-width: 440px; }
+}
 /* vybraná farba slovami tesne pod vzorkami, nad náhľadom (boxy-produkt.js; Michal 19. 10. 2026) — rovnaká ako v okne boxov
    na autokobercoch: „Vybraná farba: Čierna koža, béžové šitie“, bez voľby skrytá */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-farba-popis {
@@ -59,91 +100,55 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-farba-nm { co
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-farba-popis { font-size: 17px; }
 }
 
-/* ---------------------------------------------------------------- krok 2: počet boxov (návrh C, Michal 18. 10. 2026)
-   dlaždica = reálna fotka v pravej časti, vľavo tmavý prechod s textom (štýl banneru setu); vybraná = zelený rám + zelená fajka (rám zelený od 18. 10. 2026) */
-/* živé „1 ks / 2 ks / 3 ks“ sú v .name-wrap (skrytý obalom kroky.js); prázdny živý zoznam možností preč */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-pocet > .options-wrap { display: none !important; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-pocty,
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-krok > .lcd1v-bxp-velk { order: 10; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-pocty { margin: 0; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ksz { display: grid; gap: 10px; }
+/* ---------------------------------------------------------------- chyby pri sekciách (stráž košíka, boxy-produkt.js) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-chyba { display: none; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba[data-lcd1v-chyba-cast="farba"] > .lcd1v-bxp-chyba--farba,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp[data-lcd1v-chyba] .lcd1v-bxp-chyba {
+  display: block; margin: 12px 0 0; padding: 10px 12px;
+  border: 2px solid #e8c3bd; border-radius: 10px; background: #fdf4f3;
+  color: #a9342a; font: 600 15px/1.4 var(--kr-body); text-align: left;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba[data-lcd1v-chyba-cast="farba"] > .lcd1v-bxp-nadp--farba,
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp[data-lcd1v-chyba] > .lcd1v-bxp-nadp { color: #a9342a; }
+
+/* ---------------------------------------------------------------- počet boxov: segment [1 box][2 boxy][3 boxy]
+   kompaktný, bez fotiek (Michal 23. 10. 2026); zvolený = zelený rám + zelená fajka (ako karty veľkostí) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ksz { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks {
-  position: relative; isolation: isolate; display: block; box-sizing: border-box;
-  width: 100%; height: auto; min-width: 0; min-height: 134px; margin: 0; padding: 14px 16px;
-  border: 0; border-radius: 14px; overflow: hidden; background: #14110b; box-shadow: none; outline: 0;
-  color: #fff; font: inherit; line-height: normal; text-align: left; text-transform: none; letter-spacing: normal;
-  cursor: pointer; transition: box-shadow .2s; -webkit-tap-highlight-color: transparent;
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-sizing: border-box;
+  width: 100%; height: auto; min-width: 0; min-height: 64px; margin: 0; padding: 10px 6px;
+  border: 1px solid var(--kr-line); border-radius: 12px; background: #fff; box-shadow: none; outline: 0;
+  color: var(--kr-ink); font: inherit; line-height: normal; text-align: center; text-transform: none; letter-spacing: normal;
+  cursor: pointer; transition: border-color .2s, box-shadow .2s; -webkit-tap-highlight-color: transparent;
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-img {
-  position: absolute; z-index: 0; top: 0; right: 0; bottom: 0;
-  display: block; width: 66%; height: 100%; max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0;
-  object-fit: cover; object-position: center 38%;
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font: 700 17px/1.15 var(--kr-disp); color: var(--kr-ink); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od {
+  font: 600 15px/1.2 var(--kr-body); color: var(--kr-gold-tx); white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks::before {
-  content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none;
-  background: linear-gradient(90deg, #14110b 0%, #14110b 34%, rgba(20, 17, 11, .6) 50%, rgba(20, 17, 11, 0) 70%);
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] {
+  border-color: var(--kr-zvol); box-shadow: 0 0 0 2px var(--kr-zvol), 0 8px 20px var(--kr-zvol-tien);
 }
-/* rám: vlastná vrstva nad fotkou, prechodom aj textom (outline a vnútorný tieň tlačidla by prekryli deti so z-index) */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ram {
-  position: absolute; z-index: 3; inset: 0; box-sizing: border-box; pointer-events: none;
-  border: 1px solid rgba(196, 155, 49, .35); border-radius: inherit; transition: border-color .2s, border-width .2s;
-}
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] { box-shadow: 0 8px 22px rgba(0, 0, 0, .22); }
-/* zvolená = zelený rám (Michal 18. 10. 2026); na tmavej dlaždici svetlejšia zelená #2f9c68 (kontrast s #14110b ~5,4 : 1, #1f7a52 len ~3,5 : 1) */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"] > .lcd1v-bxp-ks-ram { border: 3px solid var(--kr-zelena); }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-pressed="true"]::after {
-  content: "\2713"; position: absolute; z-index: 4; top: 10px; right: 10px;
-  display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  content: "\2713"; position: absolute; top: -8px; right: -8px; z-index: 1;
+  display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
   background: var(--kr-zvol-fajka); color: #fff;
-  font: 800 13px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0, 0, 0, .25);
+  font: 800 11px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 3px 9px rgba(20, 15, 5, .3);
 }
 @media (hover: hover) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:not([aria-pressed="true"]):hover > .lcd1v-bxp-ks-ram { border: 2px solid rgba(196, 155, 49, .75); }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:not([aria-pressed="true"]):hover { border-color: var(--kr-gold); }
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:focus-visible { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #c49b31; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-in {
-  position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; max-width: 60%;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
-}
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font: 700 22px/1.1 var(--kr-disp); color: #fff; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font: 400 16px/1.4 var(--kr-body); color: #ece3cc; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-c { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-top: 6px; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od {
-  font: 700 19px/1 var(--kr-disp); color: #e8c766; white-space: nowrap; font-variant-numeric: tabular-nums;
-}
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po { font: 400 14px/1.2 var(--kr-body); color: #d8cdb2; white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-po:empty { display: none; }
-@media (min-width: 768px) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks { min-height: 150px; padding: 18px 22px; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-img { width: 58%; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks::before {
-    background: linear-gradient(90deg, #14110b 0%, #14110b 42%, rgba(20, 17, 11, .55) 55%, rgba(20, 17, 11, 0) 72%);
-  }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-in { max-width: 52%; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-nm { font-size: 25px; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks-ben { font-size: 17px; }
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks .lcd1v-bxp-od { font-size: 21px; }
-}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:focus-visible { outline: 3px solid var(--kr-gold); outline-offset: 2px; }
 
-/* ---------------------------------------------------------------- krok 3: veľkosti s kresbou boxu (návrh B, 18. 10. 2026) */
-/* živé tlačidlá veľkostí (3 skupiny, každá s vlastným tlačidlom kroku) nahrádzajú karty; ostávajú v DOM */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-velkost > .options-wrap { display: none !important; }
+/* ---------------------------------------------------------------- veľkosti s kresbou boxu (návrh B, 18. 10. 2026) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk {
   --bxp-gold: #c49b31; --bxp-line: #d9d4c6; --bxp-zl: #7c5f16;
-  /* farba kresby boxu (boxy-produkt.js nastaví podľa farby z kroku 1; predvolená čierna s béžovým šitím) */
+  /* farba kresby boxu (boxy-produkt.js nastaví podľa vybranej farby; predvolená čierna s béžovým šitím) */
   --bxp-lth: #2a2b30; --bxp-sp: #55585f; --bxp-edge: #0e0f11; --bxp-st: #eae0d0; /* béžové šitie = krémová, nie žltá (box-kresba.js) */
-  margin: 0; color: var(--kr-ink); font-family: var(--kr-body); text-align: left;
+  color: var(--kr-ink); font-family: var(--kr-body); text-align: left;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp[hidden] { display: none !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vgrp + .lcd1v-bxp-vgrp { margin-top: 22px; }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp {
-  display: flex; align-items: baseline; gap: 8px; margin: 0 0 9px; padding: 0;
-  font: 700 12px/18px var(--kr-disp); letter-spacing: .14em; text-transform: uppercase; color: var(--kr-tmava);
-}
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-nadp em {
-  font: 600 14px/18px var(--kr-body); font-style: normal; letter-spacing: 0; text-transform: none; color: var(--bxp-zl);
-}
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vcards {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px;
 }
@@ -193,17 +198,33 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-d {
   font: 600 13px/1.25 var(--kr-body); color: #5d5643; font-variant-numeric: tabular-nums; text-wrap: balance; /* rozmer boxu (Michal 18. 10. 2026: väčšie písmo) */
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-c {
-  margin-top: 1px; font: 700 14px/1.2 var(--kr-disp); color: var(--bxp-zl); font-variant-numeric: tabular-nums;
+  margin-top: 1px; font: 700 15px/1.2 var(--kr-disp); color: var(--bxp-zl); font-variant-numeric: tabular-nums;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip {
   margin: 16px 0 0; padding: 0; font: 400 15px/1.5 var(--kr-body); color: #48412f; text-align: left;
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip b { color: var(--kr-ink); font-weight: 700; }
 @media (prefers-reduced-motion: reduce) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk { transition: none; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk,
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks { transition: none; }
 }
 /* väčšie písmo na PC (Michal 18. 10. 2026) */
 @media (min-width: 768px) {
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk-d { font-size: 14px; }
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip { font-size: 16px; }
+}
+
+/* ---------------------------------------------------------------- telefón: „Spolu“ v karte (kópia súhrnu, cena.js) */
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-spolu {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid #ece6d6;
+}
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-spolu[hidden] { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-spolu-lb { font: 600 16px/1.3 var(--kr-body); color: var(--kr-text); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-spolu-c { white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-spolu-od { font: 600 16px/1 var(--kr-body); font-style: normal; color: var(--kr-text); }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-spolu-od[hidden] { display: none; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-spolu-suma { font: 700 22px/1 var(--kr-disp); color: var(--kr-ink); font-variant-numeric: tabular-nums; }
+@media (min-width: 992px) {
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-spolu { display: none !important; }
 }

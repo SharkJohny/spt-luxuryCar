@@ -6,14 +6,41 @@
 // (+ [97] pri 2–3 ks, + [100] pri 3 ks). Box, ktorý nie je v počte, v POST CHÝBA (živý .val(0) -> selectedIndex -1).
 // Ceny: 1. box v cene produktu (S +0, M +10, L +35, XL +49), 2. a 3. box plná cena (S 197 … XL 249).
 //
-// Nový vzhľad (T3.2, boxy-produkt.js; ovládač ovladac-boxy-produkt.mjs `novy`): štart s 1 boxom, krok 1 farba otvorený,
-// „Hotovo 0 z 3“; košík len s veľkosťou KAŽDÉHO boxu v počte (živý web pustí aj 2 ks s jednou veľkosťou).
-// Scenáre len pre nový vzhľad (box-start, box-2-neuplne) sa v starom preskočia. V profile 616 (produkty.mjs, jadro)
-// zatiaľ nie sú — púšťať cez --krok box-start,box-2-neuplne (alebo ich vydanie pridá do profilu).
+// Nový vzhľad (T3.2, boxy-produkt.js; ovládač ovladac-boxy-produkt.mjs `novy`): JEDNA karta „Vaše boxy do kufra“
+// (Michal 23. 10. 2026) — farba, počet a veľkosti na jednom mieste, štart s 1 boxom; košík len s veľkosťou KAŽDÉHO boxu
+// v počte (živý web pustí aj 2 ks s jednou veľkosťou). Scenáre len pre nový vzhľad (box-start, box-2-neuplne,
+// box-jedna-karta, box-farby) sa v starom preskočia; všetky sú v profile 616 (produkty.mjs).
+// --snimky: box-start, box-2-neuplne a box-jedna-karta uložia aj snímku celej karty (616-karta-<stav>-<šírka>.png).
 
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { F } from "./stary-ui.mjs";
 
 const VELKOST = (v) => new RegExp("^" + v + "\\s*:", "i");
+
+/**
+ * Snímka celej karty boxov pre ľudskú kontrolu (len s --snimky): výrez strany od 40 px nad kartou po 40 px pod ňou
+ * (aj mimo okna), bublina chatu skrytá. Vypíše do s.upozornenia vodorovné pretekanie stránky.
+ */
+async function snimkaKarty(s, a, meno) {
+  if (!a.snimky) return;
+  const t = s.t;
+  const chat = `document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]')`;
+  const r = await t.ev(`(function () {
+    [].forEach.call(${chat}, function (f) { f.style.setProperty("visibility", "hidden", "important"); });
+    var k = document.querySelector("${F} .lcd1v-k-farba"), b = k && k.getBoundingClientRect();
+    if (!b) return null;
+    return { y: Math.max(0, Math.round(b.top + window.scrollY - 40)), h: Math.round(b.height + 80), pretek: document.documentElement.scrollWidth > innerWidth + 1 ? document.documentElement.scrollWidth : 0 };
+  })()`);
+  if (!r) return;
+  if (r.pretek) s.upozornenia.push(`snímka ${meno} (${t.sirka}): stránka preteká do šírky ${r.pretek} px`);
+  await t.pauza(500);
+  try {
+    const o = await s.k.posli("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: r.y, width: t.sirka, height: Math.min(r.h, 6000), scale: 1 } });
+    writeFileSync(join(a.snimky, `${a.produkt.id}-karta-${meno}-${t.sirka}.png`), Buffer.from(o.data, "base64"));
+  } catch (e) { s.upozornenia.push("snímka " + meno + ": " + e.message); }
+  await t.ev(`[].forEach.call(${chat}, function (f) { f.style.removeProperty("visibility"); })`);
+}
 
 /** Kľúče POST boxu -> „[94] [97]“ (len príplatky veľkostí, ktoré v tele sú). */
 function klucePost(s, pole, ids) {
@@ -82,10 +109,11 @@ export const SCENARE = {
   },
 
   /**
-   * Nový vzhľad, štart: 1 box (živé „1 ks“, nie predvolené „2 ks“), otvorený krok 1 Farba, „Hotovo 0 z 3“, len
-   * skupina veľkostí 1. boxu, „od“ ceny kariet počtu zo živých príplatkov; banner setu NIE pod cenou (Michal 17. 10. 2026:
-   * „toto má byť v medzikroku, nie ďalší iný banner“ — banner je len v skrytej karte za Veľkosťou, scenare-komplet.mjs);
-   * žiadny POST.
+   * Nový vzhľad, štart: JEDNA karta „Vaše boxy do kufra“ (Michal 23. 10. 2026) — viditeľná je len ona a je otvorená, živé
+   * kroky Počet a Veľkosť sú skryté (nosiče POST), postup „Hotovo N z M“ ani „Krok 1 z 1“ nevidno; sekcie zhora nadol:
+   * nadpis farby, vzorky, segment počtu, veľkosti 1. boxu. 1 box (živé „1 ks“, nie predvolené „2 ks“), len skupina
+   * veľkostí 1. boxu, „od“ ceny segmentu a ceny kariet veľkostí zo živých príplatkov; banner setu NIE pod cenou (Michal
+   * 17. 10. 2026: „toto má byť v medzikroku, nie ďalší iný banner“ — len v karte ponuky, scenare-komplet.mjs); žiadny POST.
    */
   "box-start": {
     typy: ["boxy"],
@@ -96,15 +124,29 @@ export const SCENARE = {
       const n = await ovl.boxy.pocet(t);
       j.over(n === 1, "nový vzhľad má začať 1 boxom (živé „1 ks“), je " + n);
       const st = await ovl.boxy.stav(t);
-      j.over(/^Hotovo 0 z 3$/.test(st.postup), "postup na začiatku: „" + st.postup + "“ ≠ Hotovo 0 z 3");
+      j.over(st.kariet === 1 && st.otvorena, `na začiatku má byť viditeľná len jedna karta „Vaše boxy do kufra“ a otvorená: ${JSON.stringify({ kariet: st.kariet, otvorena: st.otvorena })}`);
+      j.over(!st.postupVidno, "postup „Hotovo N z M“ má byť pri jednej karte skrytý");
       j.over(JSON.stringify(st.skupiny) === "[1]", "na začiatku len veľkosti 1. boxu: " + JSON.stringify(st.skupiny));
       j.over(st.zvolene.length === 0, "na začiatku nesmie byť zvolená žiadna veľkosť: " + JSON.stringify(st.zvolene));
-      const otvoreny = await t.ev(`(function () { var a = document.querySelector("#product-detail-form .content-wrap > .lcd1v-krok.active"); return a ? a.className : ""; })()`);
-      j.over(/lcd1v-k-farba/.test(otvoreny), "na začiatku má byť otvorený krok 1 Farba, je: " + otvoreny);
-      // poradie kariet na obrazovke: farba, počet, veľkosť (DOM ostáva počet, farba, veľkosť)
-      const poradie = await t.ev(`Array.prototype.map.call(document.querySelectorAll("#product-detail-form .content-wrap > .lcd1v-krok:not(.lcd1v-komplet)"), function (e) { return { m: (/lcd1v-k-(\\w+)/.exec(e.className) || [])[1], y: Math.round(e.getBoundingClientRect().top) }; }).sort(function (x, y) { return x.y - y.y; }).map(function (x) { return x.m; }).join(",")`);
-      j.over(poradie === "farba,pocet,velkost", "poradie kariet na obrazovke " + poradie + " ≠ farba,pocet,velkost");
-      // „od“ ceny kariet počtu = 1. box variant + najlacnejší príplatok, ďalší box + najlacnejší príplatok (živé selecty)
+      const otvoreny = await t.ev(`(function () { var a = document.querySelector("${F} .content-wrap > .lcd1v-krok.active"); return a ? a.className : ""; })()`);
+      j.over(/lcd1v-k-farba/.test(otvoreny), "otvorená má byť karta boxov (živý krok Farba), je: " + otvoreny);
+      // živé kroky Počet a Veľkosť: v DOM ostávajú (POST), na obrazovke nie sú; „Krok 1 z 1“ nevidno
+      const zive = await t.ev(`(function () {
+        var cw = document.querySelector("${F} .content-wrap");
+        var w = Array.prototype.filter.call(cw.children, function (e) { return e.querySelector(".amount-wrap") || e.querySelector(".parameter-sizes"); });
+        var ey = document.querySelector("${F} .lcd1v-k-farba > .lcd1v-hd .lcd1v-ey");
+        return { pocet: w.length, vidno: w.filter(function (e) { return e.getClientRects().length > 0; }).length, krok: !!(ey && ey.getClientRects().length && ey.getBoundingClientRect().width > 0) };
+      })()`);
+      j.over(zive.pocet === 2 && zive.vidno === 0, `živé kroky Počet a Veľkosť majú byť v DOM a skryté: ${JSON.stringify(zive)}`);
+      j.over(!zive.krok, "„Krok 1 z 1“ v hlavičke karty má byť skrytý");
+      // poradie sekcií v karte zhora nadol: nadpis farby < vzorky < segment počtu < veľkosti 1. boxu
+      const y = await t.ev(`(function () {
+        var k = document.querySelector("${F} .lcd1v-k-farba");
+        function top(q) { var e = k.querySelector(q); return e && e.getClientRects().length ? Math.round(e.getBoundingClientRect().top) : null; }
+        return [top(":scope > .lcd1v-bxp-nadp--farba"), top(":scope > .options-wrap"), top(".lcd1v-bxp-ksz"), top('.lcd1v-bxp-vgrp[data-box="1"]')];
+      })()`);
+      j.over(y.every((x) => x != null) && y[0] < y[1] && y[1] < y[2] && y[2] < y[3], "poradie sekcií v karte (nadpis farby, vzorky, počet, veľkosti 1. boxu): " + JSON.stringify(y));
+      // „od“ v segmente počtu = 1. box variant + najlacnejší príplatok, ďalší box + najlacnejší príplatok (živé selecty)
       const od = await t.ev(`(function () {
         var c = window.__lcd1v, z = c.cena().zaklad;
         function min(k) { var m = c.moznosti(k); return m.length ? Math.min.apply(null, m.map(function (o) { return o.cena; })) : 0; }
@@ -112,24 +154,26 @@ export const SCENARE = {
         return [a, b, d];
       })()`);
       const odVidno = st.od.map((x) => Number(String(x).replace(/[^\d]/g, "")));
-      j.over(JSON.stringify(odVidno) === JSON.stringify(od), "„od“ ceny kariet počtu " + JSON.stringify(st.od) + " ≠ živé príplatky " + JSON.stringify(od));
+      j.over(JSON.stringify(odVidno) === JSON.stringify(od), "„od“ ceny segmentu počtu " + JSON.stringify(st.od) + " ≠ živé príplatky " + JSON.stringify(od));
       // ceny kariet veľkostí: 1. box = variant + príplatok, 2. a 3. box = príplatok (zo selectov)
       const ceny1 = st.ceny[0].split(" ").map((x) => Number(x.replace(/[^\d]/g, "")));
       const ocak1 = await t.ev(`(function () { var c = window.__lcd1v, z = c.cena().zaklad; return c.moznosti("box1").map(function (o) { return z + o.cena; }); })()`);
       j.over(JSON.stringify(ceny1) === JSON.stringify(ocak1), "ceny kariet 1. boxu " + st.ceny[0] + " ≠ " + JSON.stringify(ocak1));
-      // banner setu len v skrytom medzikroku (komplet-ponuka.js), pod cenou ani inde nie; starý pás setu tiež nie
+      // banner setu len v karte ponuky (komplet-ponuka.js), pod cenou ani inde nie; starý pás setu tiež nie
       await j.pauza(1500); // ceny cieľa (GET 598) by banner postavili do 1,5 s
       const mimo = await t.ev(`Array.prototype.filter.call(document.querySelectorAll(".lcd1v-bs"), function (b) { return !b.closest(".lcd1v-komplet"); }).length`);
-      j.over(mimo === 0 && st.setStary === 0, "banner setu mimo medzikroku (" + mimo + "×) / starý pás (" + st.setStary + "×)");
+      j.over(mimo === 0 && st.setStary === 0, "banner setu mimo karty ponuky (" + mimo + "×) / starý pás (" + st.setStary + "×)");
+      await snimkaKarty(s, a, "start");
       await j.pauza(800);
       j.over(s.posty.length === 0, "na štarte odišiel POST: " + (s.posty[0] && s.posty[0].body));
-      return { info: `1 ks, krok Farba otvorený, ${st.postup}, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, bez banneru pod cenou` };
+      return { info: `jedna karta otvorená, živé Počet/Veľkosť skryté, postup skrytý; 1 ks, „od“ ${st.od.join(" / ")}, 1. box ${st.ceny[0]}, bez banneru pod cenou` };
     },
   },
 
   /**
-   * Nový vzhľad: 2 boxy, zvolená len veľkosť 1. boxu -> „Pridať do košíka“ = červený rám na kroku Veľkosť, POST 0
-   * (živá validácia by pustila 1 box); po doplnení 2. boxu platný POST [94] + [97] a cena = súčet.
+   * Nový vzhľad: 2 boxy, zvolená len veľkosť 1. boxu -> „Pridať do košíka“ = červený rám na karte boxov, časť „velkost“,
+   * veta len v skupine 2. boxu, karta otvorená, POST 0 (živá validácia by pustila 1 box); po doplnení 2. boxu rám
+   * zmizne, zhrnutie „… · 2 boxy · S + L“ a platný POST [94] + [97], cena = súčet.
    */
   "box-2-neuplne": {
     typy: ["boxy"],
@@ -146,27 +190,119 @@ export const SCENARE = {
       const c1 = await ovl.kroky.cervenyKrok(t);
       await j.pauza(1200);
       j.over(s.posty.length === 0, "2 boxy bez veľkosti 2. boxu odišli do košíka: " + (s.posty[0] && s.posty[0].body));
-      j.over(c1 === "velkost", "červený rám má byť na kroku Veľkosť, je na: " + c1);
+      j.over(c1 === "velkost", "červený rám karty má hlásiť chýbajúcu veľkosť (data-lcd1v-chyba-cast), hlási: " + c1);
+      const r = await t.ev(`(function () {
+        var k = document.querySelector("${F} .lcd1v-k-farba");
+        function vid(e) { return !!(e && e.getClientRects().length && e.getBoundingClientRect().height > 0); }
+        return { cervena: k.classList.contains("lcd1v-chyba"), otvorena: k.classList.contains("active"),
+          skupiny: Array.prototype.filter.call(k.querySelectorAll(".lcd1v-bxp-vgrp[data-lcd1v-chyba]"), function (g) { return true; }).map(function (g) { return g.getAttribute("data-box"); }),
+          vety: Array.prototype.filter.call(k.querySelectorAll(".lcd1v-bxp-chyba"), vid).map(function (e) { return e.textContent.trim(); }) };
+      })()`);
+      j.over(r.cervena && r.otvorena, "karta boxov má byť otvorená s červeným rámom: " + JSON.stringify(r));
+      j.over(JSON.stringify(r.skupiny) === '["2"]' && r.vety.length === 1 && /2\. boxu/.test(r.vety[0]), "veta o chýbajúcej veľkosti len pri 2. boxe: " + JSON.stringify(r));
       const st = await ovl.boxy.stav(t);
-      j.over(st.velkostVyber === "Vyberte veľkosť", "zhrnutie kroku Veľkosť pri neúplnom výbere: " + st.velkostVyber);
+      j.over(/\s·\s2 boxy$/.test(st.vyber || ""), "zhrnutie karty pri neúplnom výbere: " + st.vyber);
+      await snimkaKarty(s, a, "2boxy-neuplne");
       // doplnenie 2. boxu: L
-      const sel = '#product-detail-form .lcd1v-krok.lcd1v-k-velkost .lcd1v-bxp-vgrp[data-box="2"]';
+      const sel = `${F} .lcd1v-krok.lcd1v-k-farba .lcd1v-bxp-vgrp[data-box="2"]`;
       const valL = await t.moznost("box2", VELKOST("L"));
       await t.klikni(`${sel} .lcd1v-bxp-vk[data-hodnota="${valL}"]`, { popis: "2. box L" });
       const id2 = await t.idParametra("box2");
-      await t.cakaj(`(document.querySelector('#product-detail-form select[data-parameter-id="${id2}"]') || {}).value === "${valL}"`, { ms: 3000, popis: "2. box vo formulári" });
+      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id2}"]') || {}).value === "${valL}"`, { ms: 3000, popis: "2. box vo formulári" });
       await j.pauza(400);
-      const cervenyPo = await t.ev(`!!document.querySelector("#product-detail-form .lcd1v-krok.lcd1v-k-velkost.lcd1v-chyba")`);
-      j.over(!cervenyPo, "červený rám na kroku Veľkosť má po doplnení zmiznúť");
+      const po = await t.ev(`(function () { var k = document.querySelector("${F} .lcd1v-k-farba"); return { cervena: k.classList.contains("lcd1v-chyba"), cast: k.getAttribute("data-lcd1v-chyba-cast"), skupiny: k.querySelectorAll(".lcd1v-bxp-vgrp[data-lcd1v-chyba]").length }; })()`);
+      j.over(!po.cervena && !po.cast && !po.skupiny, "červený rám a veta majú po doplnení zmiznúť: " + JSON.stringify(po));
       const st2 = await ovl.boxy.stav(t);
-      j.over(/^S \(\d+ cm\) \+ L \(\d+ cm\)$/.test(st2.velkostVyber), "zhrnutie kroku Veľkosť: " + st2.velkostVyber);
+      j.over(/\s·\s2 boxy\s·\sS\s\+\sL$/.test(st2.vyber || ""), "zhrnutie karty po doplnení: " + st2.vyber);
       await ovl.cena.pridajDoKosika(t);
       const post = await j.cakajNaPost(s);
       const cena = await j.overPost(s, post, { farba, box1: h.box1, box2: valL });
       const c = await j.overCenu(s, ovl, cena);
       const ocak = a.produkt.ceny && a.produkt.ceny["box-pocet-2"];
       if (ocak != null) j.over(cena.spolu === ocak, "S + L = " + cena.spolu + " ≠ plan §4 " + ocak);
-      return { info: `2 boxy, len 1. veľkosť -> červený rám Veľkosť, POST 0; + 2. box L -> ${st2.velkostVyber}, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
+      return { info: `2 boxy, len 1. veľkosť -> červený rám karty, veta pri 2. boxe, POST 0; + 2. box L -> „${st2.vyber}“, cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
+    },
+  },
+
+  /**
+   * Nový vzhľad, jedna karta (Michal 23. 10. 2026: „všetko na jednom mieste“, nič sa neotvára): farba -> 3 boxy +
+   * veľkosti S, S, XL -> 2 boxy -> 1 box. Pri každom ťuknutí ostane ťuknutý prvok na mieste (< 2 px), karta otvorená,
+   * žiadne okno (.upsale-Banner.showConf, [role=dialog], body.lcd1v-bx-otvorene); po 3 -> 1 ostane 1. box zvolený a vidno
+   * len jeho skupinu; na telefóne „Spolu“ v karte = suma súhrnu po každom kliku; nové prvky bez [name]. „Pokračujte
+   * k súhrnu“ pri neúplnom výbere (2 boxy, 2. bez veľkosti): POST 0, karta otvorená, časť „velkost“, nič sa neposunie
+   * na súhrn. Poistka: živé otvorenie skrytého kroku Veľkosť sa do 500 ms vráti na kartu. POST 0.
+   */
+  "box-jedna-karta": {
+    typy: ["boxy"],
+    async fn(s, a, pom, ovl, j) {
+      if (ovl.zdroj.boxy !== "novy") return { preskoc: "len nový vzhľad" };
+      const t = s.t;
+      const K = `${F} .lcd1v-krok.lcd1v-k-farba`;
+      await j.otvor(s, a.url, { novy: true });
+      const telefon = t.sirka < 992;
+      const kontrola = async (popis) => {
+        const r = await t.ev(`(function () {
+          var f = document.getElementById("product-detail-form"), k = f.querySelector(".lcd1v-k-farba");
+          function vid(e) { return !!(e && e.getClientRects().length && getComputedStyle(e).visibility !== "hidden"); }
+          var sp = k.querySelector(":scope > .lcd1v-bxp-spolu"), su = document.querySelector(".lcd1v-suhrn .lcd1v-suhrn__suma");
+          var nove = Array.prototype.filter.call(k.querySelectorAll("[class*='lcd1v-bxp']"), function (e) { return e.hasAttribute("name") || e.querySelector("[name]"); }).length;
+          return { aktivna: k.classList.contains("active"), okno: !!f.querySelector(".upsale-Banner.showConf"), dialog: Array.prototype.filter.call(document.querySelectorAll("[role=dialog]"), vid).length,
+            bx: document.body.classList.contains("lcd1v-bx-otvorene"), spolu: vid(sp) ? (sp.querySelector(".lcd1v-bxp-spolu-suma") || {}).textContent : null, suhrn: su ? su.textContent : null, nove: nove };
+        })()`);
+        j.over(r.aktivna, popis + ": karta boxov sa zatvorila");
+        j.over(!r.okno && !r.dialog && !r.bx, popis + ": otvorilo sa okno " + JSON.stringify(r));
+        j.over(r.nove === 0, popis + ": nové prvky karty majú atribút name (" + r.nove + "×)");
+        if (telefon) j.over(r.spolu != null && r.spolu === r.suhrn, popis + `: „Spolu“ v karte „${r.spolu}“ ≠ súhrn „${r.suhrn}“`);
+        else j.over(r.spolu == null, popis + ": „Spolu“ v karte má byť len na telefóne");
+        return r;
+      };
+      // ťuk: prvok po kliku na tom istom mieste (žiadne skákanie karty), karta otvorená
+      const tuk = async (sel, popis, opt = {}) => {
+        const r = await t.klikni(sel, { popis, ...opt });
+        await j.pauza(500);
+        const y = await t.ev(`(function () { var e = Array.prototype.filter.call(document.querySelectorAll(${JSON.stringify(sel)}), function (x) { return x.getClientRects().length; })[${opt.index || 0}]; if (!e) return null; var b = e.getBoundingClientRect(); return b.top + b.height / 2; })()`);
+        j.over(y != null && Math.abs(y - r.y) < 2, `${popis}: ťuknutý prvok sa posunul o ${y == null ? "?" : Math.round(y - r.y)} px`);
+        return kontrola(popis);
+      };
+      await tuk(`${K} > .options-wrap > .option-button`, "farba", { index: 2 });
+      await tuk(`${K} .lcd1v-bxp-ks[data-ks="3"]`, "3 boxy");
+      j.over((await ovl.boxy.pocet(t)) === 3, "počet 3 sa nezapísal");
+      const vals = [];
+      for (const [i, v] of [[1, "S"], [2, "S"], [3, "XL"]]) {
+        const val = await t.moznost("box" + i, VELKOST(v));
+        vals.push(val);
+        await tuk(`${K} .lcd1v-bxp-vgrp[data-box="${i}"] .lcd1v-bxp-vk[data-hodnota="${val}"]`, `${i}. box ${v}`);
+      }
+      const st3 = await ovl.boxy.stav(t);
+      j.over(JSON.stringify(st3.skupiny) === "[1,2,3]" && st3.zvolene.length === 3 && /\s·\s3 boxy\s·\sS\s\+\sS\s\+\sXL$/.test(st3.vyber || ""), "3 boxy S + S + XL: " + JSON.stringify({ skupiny: st3.skupiny, zvolene: st3.zvolene, vyber: st3.vyber }));
+      await snimkaKarty(s, a, "3boxy-uplne");
+      await tuk(`${K} .lcd1v-bxp-ks[data-ks="2"]`, "2 boxy");
+      await tuk(`${K} .lcd1v-bxp-ks[data-ks="1"]`, "1 box");
+      const st1 = await ovl.boxy.stav(t);
+      j.over(JSON.stringify(st1.skupiny) === "[1]" && JSON.stringify(st1.zvolene) === JSON.stringify(["1:" + vals[0]]), "po 3 -> 1 má ostať 1. box zvolený a len jeho skupina: " + JSON.stringify({ skupiny: st1.skupiny, zvolene: st1.zvolene }));
+      // „Pokračujte k súhrnu“ pri neúplnom výbere: 2 boxy, 2. bez veľkosti
+      await tuk(`${K} .lcd1v-bxp-ks[data-ks="2"]`, "2 boxy (2. bez veľkosti)");
+      const pred = await t.ev(`window.scrollY`);
+      const text = await t.ev(`(document.querySelector(${JSON.stringify(K + " > .next-step-button")}) || { getAttribute: function () { return null; } }).getAttribute("data-lcd1v-text")`);
+      j.over(text === "Pokračujte k súhrnu", "tlačidlo karty: " + text);
+      await t.klikni(`${K} > .next-step-button`, { popis: "Pokračujte k súhrnu (neúplný výber)" });
+      await j.pauza(1200);
+      const nu = await t.ev(`(function () {
+        var k = document.querySelector(${JSON.stringify(K)}), sh = document.querySelector(".lcd1v-suhrn"), r = sh && sh.getBoundingClientRect();
+        var g = k.querySelector('.lcd1v-bxp-vgrp[data-box="2"]'), gr = g && g.getBoundingClientRect();
+        return { aktivna: k.classList.contains("active"), cast: k.getAttribute("data-lcd1v-chyba-cast"), skupina: g ? g.getAttribute("data-lcd1v-chyba") : null,
+          komplet: !!document.querySelector("#product-detail-form .lcd1v-komplet.active"), suhrnVidno: !!(r && r.top >= 0 && r.bottom <= innerHeight && !(gr && gr.bottom > 0 && gr.top < innerHeight)) };
+      })()`);
+      j.over(nu.aktivna && nu.cast === "velkost" && nu.skupina === "1" && !nu.komplet, "„Pokračujte k súhrnu“ pri neúplnom výbere: " + JSON.stringify(nu));
+      j.over(!nu.suhrnVidno, "pri neúplnom výbere sa stránka posunula na súhrn: " + JSON.stringify({ pred, nu }));
+      // poistka: živé otvorenie skrytého kroku Veľkosť -> späť na kartu
+      await t.ev(`(function () { var k = window.__lcd1v && window.__lcd1v.krok("velkost"); if (k && typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(k, true); })()`);
+      await j.pauza(500);
+      const po = await t.ev(`(function () { var c = window.__lcd1v; return { velkost: c.krok("velkost").classList.contains("active"), pocet: c.krok("pocet").classList.contains("active"), karta: c.krok("farba").classList.contains("active") }; })()`);
+      j.over(!po.velkost && !po.pocet && po.karta, "poistka: otvorený skrytý krok Veľkosť sa má zavrieť a karta otvoriť: " + JSON.stringify(po));
+      await j.pauza(500);
+      j.over(s.posty.length === 0, "pri výbere v karte odišiel POST: " + (s.posty[0] && s.posty[0].body));
+      return { info: `farba -> 3 boxy S+S+XL -> 2 -> 1: karta stále otvorená, nič neskáče, žiadne okno${telefon ? ", „Spolu“ v karte = súhrn" : ""}; neúplné „Pokračujte k súhrnu“ -> veľkosť 2. boxu, POST 0; poistka OK` };
     },
   },
 

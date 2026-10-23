@@ -83,7 +83,9 @@ export async function otvorKartu(t, meno) {
   return sel;
 }
 
-/** Karta s červeným rámom (nový vzhľad: trvalá lcd1v-chyba; okno boxov: živé .lcd-needs-fill v .box-config). */
+/** Karta s červeným rámom (nový vzhľad: trvalá lcd1v-chyba; okno boxov: živé .lcd-needs-fill v .box-config). Karta,
+ *  ktorá hlási chýbajúcu časť (box 616: jedna karta „Vaše boxy do kufra“, data-lcd1v-chyba-cast = farba | velkost),
+ *  vráti tú časť. */
 async function cervenyKrokNovy(t, { ms = 6000 } = {}) {
   // všetky mená kariet z TYPY[*].kroky (produkty.js): jedno, dvoj (+farba2), rohože do kufra, box 616 (pocet, velkost)
   const mena = ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy", "pocet", "velkost"];
@@ -93,6 +95,8 @@ async function cervenyKrokNovy(t, { ms = 6000 } = {}) {
       var f = document.getElementById("product-detail-form");
       var e = f.querySelector(".lcd1v-krok.lcd1v-chyba") || f.querySelector(".box-config .lcd-needs-fill, .box-config .selection-required");
       if (!e) return null;
+      var c = e.getAttribute("data-lcd1v-chyba-cast");
+      if (c) return c;
       for (var i = 0; i < mena.length; i++) if (e.classList.contains("lcd1v-k-" + mena[i])) return mena[i];
       if (e.closest(".box-config")) return "boxy";
       return "iny:" + e.className;

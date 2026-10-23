@@ -10,7 +10,9 @@
 //   (619–634) -> jednovrstvové toho istého vzoru (598 / 610 / 613) s vyber = { kufor: ID voľby Classic | Premium },
 //   a komplet-ponuka.js (zapisVyber, Michal 17. 10. 2026): „Áno“ v skrytej karte ponuky setu na rohoži (to isté
 //   { kufor }) alebo na boxe 616 -> 598 s { pocetBoxov, boxSolo | box1 + box2 len keď sú veľkosti zvolené, farbaBoxov
-//   len keď ju set má }.
+//   len keď ju set má }. Box (Michal 23. 10. 2026): karta ponuky sa sama otvorí pri „Pokračujte k súhrnu“ s úplným
+//   výberom -> prenos so všetkým, na 598 rovno Auto (okno boxov sa neotvára); „už od“ bez veľkostí len keď zákazník
+//   otvorí ponuku hlavičkou skôr.
 //
 // PRIJÍMATEĽ (init):
 //   - na cieľovom produkte (na === productId, ešte neprijaté, mladšie ako 10 min): výber sa zapíše JEDINOU schválenou
@@ -126,7 +128,7 @@ export function aplikujVyber(ctx, v) {
   ["farba", "rozlozenie", "kufor"].forEach((k) => { if (ma(k, v[k])) ctx.zapis(k, v[k]); });
   // (d) boxy ako kufor-boxy.js: počet -> farba -> veľkosti -> živé „potvrdiť“ (zatvorí okno); neúplné -> živé „zrušiť“.
   //     Bez farby, ktorú produkt má (box 616 vo farbe, ktorú set nemá — komplet-ponuka.js ju neprenesie, Michal 17. 10.
-  //     2026) alebo bez veľkostí (ponuka setu hneď po počte boxov, veľkosti ešte nezvolené): zapíše sa, čo je, a živé
+  //     2026) alebo bez veľkostí (ponuka setu otvorená hlavičkou pred výberom veľkostí, „už od“): zapíše sa, čo je, a živé
   //     okno boxov ostane otvorené na výber zvyšku (zákazník ho zvolí a potvrdí; zavretie bez neho = živé „zrušiť“, ako
   //     pri ručnom výbere).
   const n = Number(v.pocetBoxov) || 0;

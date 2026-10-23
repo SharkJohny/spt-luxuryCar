@@ -1,31 +1,22 @@
 // Texty a obrázky typu „boxy“ (box do kufra 616). VLASTNÍK: worker boxy (T3.2). Tvar a pravidlá: typy/jedno.js.
-// Texty doslovne zo schváleného návrhu boxy.html (navrh-boxy.md §3–4). Kroky (produkty.js TYPY.boxy): farba → pocet →
-// velkost (návrh); v živom DOM je počet prvý — poradie kariet rieši CSS typu (_lcd1v-boxy.scss), DOM ostáva.
-// Karty počtu, veľkostí, náhľad farby, banner setu a vizuálny názov postaví boxy-produkt.js (texty: boxyProdukt nižšie).
+// Texty zo schváleného návrhu boxy.html (navrh-boxy.md §3–4). Kroky (produkty.js TYPY.boxy): JEDNA karta „Vaše boxy do
+// kufra“ = živý krok Farba (Michal 23. 10. 2026: „všetko na jednom mieste“, nič sa neotvára); farbu, počet a veľkosti
+// v nej postaví boxy-produkt.js (texty: boxyProdukt nižšie), živé kroky Počet a Veľkosť sú len skryté nosiče POST.
 // D3 (rozhodnutia.md): nič o skladovosti ani o lehote dodania boxu.
 export const TYP = {
   texty: {
     kroky: {
-      postup: (z) => "Vaše boxy v " + z + " krokoch",
+      // jedna karta: postup sa na boxe neukazuje (CSS), text len pre úplnosť (bez „v 1 krokoch“)
+      postup: () => "Vaše boxy do kufra",
       kroky: {
+        // zhrnutie zbalenej karty (data-lcd1v-vyber) píše boxy-produkt.js: „Čierna / béžové šitie · 2 boxy · S + L“;
+        // chybové vety sú pri sekciách (boxyProdukt.chyby), nie pod kartou. pod a chyba = null: základ typy/jedno.js
+        // („Po výbere uvidíte materiál zblízka.“, „… farbu autokobercov.“) sa na boxe nededí
         farba: {
-          nm: "Farba boxov",
-          ti: "Prosím, vyberte si farbu boxu",
-          pod: "Farba platí pre všetky boxy v objednávke. Po výbere uvidíte materiál zblízka.",
-          chyba: "Vyberte, prosím, farbu boxov.",
-        },
-        pocet: {
-          nm: "Počet boxov",
-          ti: "Prosím, vyberte si počet boxov",
-          vy: "1 box",
-          pod: "Do kufra môžete zvoliť až tri boxy. Veľkosť vyberiete pri každom zvlášť.",
-        },
-        velkost: {
-          nm: "Veľkosť boxov",
-          ti: "Prosím, vyberte si veľkosť boxu",
-          vy: "Vyberte veľkosť",
-          pod: "Dva rozmery (32 a 30 cm) sú pri všetkých veľkostiach rovnaké, líši sa len šírka. Kresba boxu na každej karte je v skutočnom pomere a vo farbe, ktorú ste si vybrali.",
-          chyba: "Vyberte, prosím, veľkosť každého boxu.",
+          nm: "Vaše boxy do kufra",
+          ti: "Prosím, vyberte si farbu, počet a veľkosť boxov",
+          pod: null,
+          chyba: null,
         },
       },
     },
@@ -42,30 +33,45 @@ export const TYP = {
       // popis lepivej lišty (návrh boxy.html lPop): „Box do kufra ×2 · S + L · <farba>“ (háčik cena:lista v boxy-produkt.js)
       lista: "Box do kufra",
       rad: "Diamond Line",
-      // krok 1: štítok náhľadu materiálu (farbu slovami ukazuje riadok vybranaFarba nad ním)
+      // sekcie jednej karty (Michal 23. 10. 2026): farba hore, počet, pre každý box v počte veľkosť
+      sekcie: {
+        farba: "Farba boxov",
+        farbaEm: "platí pre všetky boxy",
+        pocet: "Počet boxov",
+        velkost: (i, n) => (n > 1 ? "Veľkosť " + i + ". boxu" : "Veľkosť boxu"),
+      },
+      // vety pri sekcii, ktorá chýba (stráž košíka a „Pokračujte k súhrnu“)
+      chyby: {
+        farba: "Vyberte, prosím, farbu boxov.",
+        velkost: (i, n) => "Vyberte, prosím, veľkosť " + (n > 1 ? i + ". boxu" : "boxu") + ".",
+      },
+      // riadok „Spolu“ v karte na telefóne = kópia súhrnu pod kartou (cena.js), žiadny vlastný výpočet
+      spolu: "Spolu",
+      // štítok náhľadu materiálu (farbu slovami ukazuje riadok vybranaFarba nad ním)
       nahlad: "Diamond Line",
       // krok 1: pod vzorkami vybraná farba slovami „Vybraná farba: Čierna koža, béžové šitie“ (kroky.js popisFarby)
       vybranaFarba: "Vybraná farba:",
-      // krok 2: dlaždice počtu (návrh C „Fotka cez celú dlaždicu“, Michal 18. 10. 2026): názov, veta o využití, cena „od“
-      // zo živých príplatkov a pod ňou „2 × od 197 €“ (len keď je každý box od rovnakej sumy)
+      // počet: kompaktný segment [1 box][2 boxy][3 boxy] bez fotiek (Michal 23. 10. 2026) — názov a pod ním cena „od“
+      // zo živých príplatkov; vy = zhrnutie zbalenej karty. ben a alt sa v segmente nepoužívajú (fotky počtu berie
+      // ponuka setu, komplet-ponuka.js)
       pocet: {
         1: { nm: "1 box", ben: "Na nákup a drobnosti, ktoré by sa inak v kufri kotúľali.", alt: "Jeden box v kufri", vy: "1 box" },
         2: { nm: "2 boxy", ben: "Dva vedľa seba — miesto aj na väčší nákup.", alt: "Dva boxy v kufri", vy: "2 boxy" },
         3: { nm: "3 boxy", ben: "Celý kufor rozdelený, každá vec má svoje miesto.", alt: "Tri boxy v kufri", vy: "3 boxy" },
       },
-      krat: (n, cena) => n + " × od " + cena,
       skupinaPocet: "Počet boxov",
       od: "od",
-      // krok 3: veľkosti
+      // veľkosti (karty s kresbou boxu; aria-label karty „2. box: L, 54 × 32 × 30 cm“)
       box: (n) => n + ". box",
       vyberteVelkost: "vyberte veľkosť",
       tipB: "Tip:",
-      tip: " zmerajte šírku miesta v kufri. Pri dvoch alebo troch boxoch vedľa seba sa ich šírky sčítavajú.",
+      tip: " zmerajte šírku miesta v kufri. Boxy vedľa seba = súčet šírok.",
       // farby kresby boxu v kroku 3: mapa je v box-kresba.js FARBY_KRESBY (spoločná s oknom boxov na autokobercoch,
       // Michal 18. 10. 2026)
     },
-    // Ponuka setu ako skrytá karta bez čísla za kartou Počet boxov (komplet-ponuka.js; Michal 17. 10. 2026 večer: „toto
-    // sa má zobrazovať po kroku počet boxov“). Len pri 1 alebo 2 boxoch (set má najviac 2). d = { pocet, od (veľkosti ešte
+    // Ponuka setu ako skrytá karta bez čísla hneď pod kartou „Vaše boxy do kufra“ (komplet-ponuka.js; ukáže sa po farbe pri
+    // 1–2 boxoch, sama sa otvorí pri „Pokračujte k súhrnu“ s úplným výberom — Michal 23. 10. 2026, variant C). Len pri
+    // 1 alebo 2 boxoch (set má najviac 2). d = { pocet, od (veľkosti ešte
     // nie sú zvolené -> „už od“ s najlacnejšou veľkosťou), velkosti „S“ / „M + L“, cena „99 €“, farba "ok" | "nie" (farbu
     // set nemá) | "ziadna", nazov farby }; čísla živo (cena tejto stránky vs. box solo / 1. + 2. box na 598), nikdy „+ X €“.
     komplet: {

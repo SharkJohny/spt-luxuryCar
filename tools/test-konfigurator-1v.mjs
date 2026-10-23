@@ -975,10 +975,11 @@ const SCENARE = {
     return { info: `${miesta ? "miesta " + miesta + ", " : ""}cena ${c.videne} = ${cena.zaklad} + ${cena.rozpis}`, post: post.body, spolu: cena.spolu };
   },
 
-  /** Nový vzhľad: posledný krok typu (set: krok 6 boxy, rohož: farba, box: veľkosť) „Pokračujte k súhrnu“ nič nevkladá
-   *  do košíka — zatvorí krok a posunie na súhrn (Spolu + tlačidlo košíka); potom „Vložte do košíka“ pošle platný POST. */
+  /** Nový vzhľad: posledný krok typu (set: krok 6 boxy, rohož: farba, box: jediná karta = farba) „Pokračujte k súhrnu“
+   *  nič nevkladá do košíka — zatvorí krok a posunie na súhrn (Spolu + tlačidlo košíka); potom „Vložte do košíka“ pošle
+   *  platný POST. Box (1–2 boxy): pri úplnom výbere sa najprv sama otvorí ponuka setu (§13b) -> „Nie, ďakujem“ -> súhrn. */
   async "k-suhrnu"(s, a, pom, ovl) {
-    const posledny = TYPY_TEST[a.produkt.typ].posledny;
+    const T = TYPY_TEST[a.produkt.typ], posledny = T.poslednyNovy || T.posledny;
     if (ovl.zdroj.kroky !== "novy") return { preskoc: TYPY_TEST[a.produkt.typ].set ? "len nový vzhľad (naživo krok 6 „Prejsť do košíka“ rovno vkladá)" : "len nový vzhľad (naživo posledný krok rovno vkladá — scenár dokoncit)" };
     const t = s.t;
     await otvor(s, a.url, { novy: true });
@@ -990,8 +991,14 @@ const SCENARE = {
     await t.klikni(`${sel} > .next-step-button`, { popis: "Pokračujte k súhrnu" });
     await pauza(1500);
     over(s.posty.length === 0, "„Pokračujte k súhrnu“ poslal POST do košíka: " + (s.posty[0] && s.posty[0].body));
-    // box 616: karta ponuky setu je po Počte boxov (Michal 17. 10. 2026 večer) -> „Pokračujte k súhrnu“ ide rovno na súhrn
-    const ponuka = "";
+    // box 616 (1–2 boxy, úplný výber): „Pokračujte k súhrnu“ najprv otvorí ponuku setu pod kartou boxov (Michal
+    // 23. 10. 2026, variant C) -> „Nie, ďakujem“ pokračuje na súhrn
+    let ponuka = "";
+    if (await t.ev(`!!document.querySelector("#product-detail-form .lcd1v-komplet.active")`)) {
+      await t.klikni("#product-detail-form .lcd1v-komplet.active .lcd1v-komplet__nie", { popis: "Nie, ďakujem (ponuka setu)" });
+      await pauza(1200);
+      ponuka = ", ponuka setu -> Nie";
+    }
     const st = await t.ev(`(function () { var k = document.querySelector(${JSON.stringify(sel)}); var e = document.querySelector(".lcd1v-suhrn"); var r = e && e.getBoundingClientRect();
       return { otvoreny: k.classList.contains("active"), vidno: !!(r && r.top >= 0 && r.bottom <= innerHeight), aktivne: document.querySelectorAll("#product-detail-form .lcd1v-krok.active").length }; })()`);
     over(!st.otvoreny && st.aktivne === 0, "po „Pokračujte k súhrnu“ majú byť kroky zatvorené: " + JSON.stringify(st));

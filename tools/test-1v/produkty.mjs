@@ -60,7 +60,9 @@ export const TYPY_TEST = {
   dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], povinne: ["auto", "farba", "farba2", "rozlozenie"], posledny: "boxy", nepovinne: [], pripravene: PRIPRAVENY_SET, auto: true, set: true },
   "kufor-classic": { kroky: ["vzor", "auto", "farba"], povinne: ["auto", "farba"], posledny: "farba", nepovinne: [], pripravene: PRIPRAVENA_ROHOZ, auto: true, set: false },
   "kufor-premium": { kroky: ["vzor", "auto", "farba"], povinne: ["auto", "farba"], posledny: "farba", nepovinne: [], pripravene: PRIPRAVENA_ROHOZ, auto: true, set: false },
-  boxy: { kroky: ["pocet", "farba", "velkost"], povinne: ["farba", "velkost"], posledny: "velkost", nepovinne: ["box1", "box2", "box3"], pripravene: PRIPRAVENY_BOX, auto: false, set: false },
+  // box: starý vzhľad má posledný krok Veľkosť (dokoncit); nový vzhľad má jednu kartu = živý krok Farba (poslednyNovy,
+  // k-suhrnu; Michal 23. 10. 2026). neuplne: červený rám karty hlási časť (data-lcd1v-chyba-cast) farba -> velkost
+  boxy: { kroky: ["pocet", "farba", "velkost"], povinne: ["farba", "velkost"], posledny: "velkost", poslednyNovy: "farba", nepovinne: ["box1", "box2", "box3"], pripravene: PRIPRAVENY_BOX, auto: false, set: false },
   vzorky: { kroky: [], povinne: [], posledny: null, nepovinne: [], pripravene: PRIPRAVENY_VZORKOVNIK, auto: false, set: false },
   kamion: { kroky: [], povinne: [], posledny: null, nepovinne: [], pripravene: PRIPRAVENY_KAMION, auto: false, set: false },
 };
@@ -175,8 +177,8 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- box do kufra (počet 1–3 + farba 78 + veľkosti 94/97/100)
   616: {
     url: SK + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Box do kufra",
-    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne", "box-farby",
-      // skrytá karta ponuky setu po Veľkosti (scenare-komplet.mjs, 17. 10. 2026)
+    scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne", "box-farby", "box-jedna-karta",
+      // skrytá karta ponuky setu hneď pod kartou „Vaše boxy do kufra“ (scenare-komplet.mjs, 17. 10. 2026; jedna karta 23. 10. 2026)
       "box-komplet-nie", "box-komplet-ano", "box-komplet-od", "box-komplet-seda", "box-komplet-bezova", "box-komplet-3"],
     platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
     odporucana: false,

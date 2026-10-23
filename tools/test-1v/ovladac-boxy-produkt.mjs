@@ -69,11 +69,12 @@ export const stary = {
 };
 
 // ------------------------------------------------------------------ nový vzhľad (?novy=1 / ?novy=vyvoj)
-// assets/js/components/konfigurator1v/boxy-produkt.js (T3.2): karty krokov z kroky.js (.lcd1v-krok.lcd1v-k-<meno>,
-// hlavička .lcd1v-hd = živý akordeón). Poradie návrhu farba → počet → veľkosť (len CSS order, DOM ostáva).
+// assets/js/components/konfigurator1v/boxy-produkt.js (T3.2): JEDNA karta „Vaše boxy do kufra“ (Michal 23. 10. 2026)
+// = živý krok Farba s kartou z kroky.js (.lcd1v-krok.lcd1v-k-farba, hlavička .lcd1v-hd = živý akordeón). V nej:
 //   farba    živé vzorky .lcd1v-k-farba > .options-wrap > .option-button + náhľad .lcd1v-bxp-nahlad
-//   počet    karty .lcd1v-bxp-ks[data-ks=n] -> ctx.zapis("pocetKs", n) = živé „n ks“ (stav = aktívne živé tlačidlo)
+//   počet    segment .lcd1v-bxp-ks[data-ks=n] -> ctx.zapis("pocetKs", n) = živé „n ks“ (stav = aktívne živé tlačidlo)
 //   veľkosť  skupiny .lcd1v-bxp-vgrp[data-box=i] (len v počte), karty .lcd1v-bxp-vk[data-hodnota=<value selectu>]
+// Živé kroky Počet a Veľkosť sú skryté ([data-lcd1v-bxp-skryte]).
 // Ovládač kliká len na to, čo zákazník vidí (t.klikni kontroluje viditeľnosť aj prekrytie bublinou Luxie).
 const selNovy = (meno) => `${F} .lcd1v-krok.lcd1v-k-${meno}`;
 
@@ -85,10 +86,10 @@ async function otvorKartu(t, meno) {
 export const novy = {
   meno: "novy",
 
-  /** Karta „Počet boxov“: klik na kartu „n× box“ -> n (aktívne živé tlačidlo „n ks“, karta aria-pressed). */
+  /** Segment „Počet boxov“ v karte boxov: klik na „n box(y)“ -> n (aktívne živé tlačidlo „n ks“, segment aria-pressed). */
   async vyberPocet(t, n) {
-    const sel = await otvorKartu(t, "pocet");
-    await t.klikni(`${sel} .lcd1v-bxp-ks[data-ks="${n}"]`, { popis: "karta " + n + "× box" });
+    const sel = await otvorKartu(t, "farba");
+    await t.klikni(`${sel} .lcd1v-bxp-ks[data-ks="${n}"]`, { popis: "počet " + n + " (segment)" });
     await t.cakaj(`(function () {
       var a = document.querySelector("${F} .content-wrap .amount-wrap .amount-button.active");
       var k = document.querySelector(${JSON.stringify(sel + ' .lcd1v-bxp-ks[data-ks="' + n + '"]')});
@@ -101,7 +102,7 @@ export const novy = {
   /** Aktívny počet boxov (živé tlačidlo „n ks“ — zdroj pravdy pre POST) alebo null. */
   pocet: stary.pocet,
 
-  /** Karta „Farba boxov“: klik na vzorku (index viditeľnej) -> value vo variant selecte farby; náhľad materiálu sa ukáže. */
+  /** Farba v karte boxov: klik na vzorku (index viditeľnej) -> value vo variant selecte farby; náhľad materiálu sa ukáže. */
   async vyberFarbu(t, { index = 0 } = {}) {
     const sel = await otvorKartu(t, "farba");
     await t.klikni(`${sel} > .options-wrap > .option-button`, { index, popis: "vzorka farby boxov " + index });
@@ -113,9 +114,9 @@ export const novy = {
     return v;
   },
 
-  /** Karta „Veľkosť boxov“: pre i-ty box klik na kartu veľkosti v jeho skupine -> { box1, box2, box3 } hodnoty selectov. */
+  /** Veľkosti v karte boxov: pre i-ty box klik na kartu veľkosti v jeho skupine -> { box1, box2, box3 } hodnoty selectov. */
   async vyberVelkosti(t, velkosti) {
-    const sel = await otvorKartu(t, "velkost");
+    const sel = await otvorKartu(t, "farba");
     for (let i = 0; i < velkosti.length; i++) {
       const kluc = KLUCE[i];
       const id = await t.idParametra(kluc);
@@ -133,15 +134,22 @@ export const novy = {
   /** Hodnoty selectov veľkostí { box1, box2, box3 } ('' = nevybrané alebo bez voľby). */
   hodnoty,
 
-  /** Stav nového vzhľadu pre scenáre: viditeľné skupiny veľkostí, zvolené karty, zhrnutia kariet, „od“ ceny počtu. */
+  /**
+   * Stav nového vzhľadu pre scenáre: viditeľné skupiny veľkostí, zvolené karty, „od“ ceny počtu, ceny kariet veľkostí,
+   * vyber (zhrnutie karty data-lcd1v-vyber), spolu (riadok „Spolu“ v karte, len telefón), cast (data-lcd1v-chyba-cast),
+   * postupVidno, kariet (počet viditeľných .lcd1v-krok mimo ponuky setu), otvorena (karta boxov .active).
+   */
   async stav(t) {
     return t.ev(`(function () {
       function vid(e) { return !!(e && !e.hidden && e.getClientRects().length); }
-      var p = document.querySelector(${JSON.stringify(selNovy("pocet"))}), v = document.querySelector(${JSON.stringify(selNovy("velkost"))});
+      var k = document.querySelector(${JSON.stringify(selNovy("farba"))}), sp = k && k.querySelector(":scope > .lcd1v-bxp-spolu");
       return {
         skupiny: Array.prototype.filter.call(document.querySelectorAll("${F} .lcd1v-bxp-vgrp"), function (g) { return !g.hidden; }).map(function (g) { return Number(g.getAttribute("data-box")); }),
         zvolene: Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-bxp-vk[aria-pressed='true']"), function (b) { return b.closest(".lcd1v-bxp-vgrp").getAttribute("data-box") + ":" + b.getAttribute("data-hodnota"); }),
-        pocetVyber: p ? p.getAttribute("data-lcd1v-vyber") : null, velkostVyber: v ? v.getAttribute("data-lcd1v-vyber") : null,
+        vyber: k ? k.getAttribute("data-lcd1v-vyber") : null, cast: k ? k.getAttribute("data-lcd1v-chyba-cast") : null, otvorena: !!(k && k.classList.contains("active")),
+        spolu: vid(sp) ? sp.textContent.replace(/\\s+/g, " ").trim() : null,
+        postupVidno: vid(document.querySelector(".lcd1v-postup")),
+        kariet: Array.prototype.filter.call(document.querySelectorAll("${F} .content-wrap > .lcd1v-krok:not(.lcd1v-komplet)"), vid).length,
         od: Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-bxp-ks .lcd1v-bxp-od"), function (e) { return e.textContent; }),
         ceny: Array.prototype.map.call(document.querySelectorAll("${F} .lcd1v-bxp-vgrp"), function (g) { return Array.prototype.map.call(g.querySelectorAll(".lcd1v-bxp-vk-c"), function (e) { return e.textContent; }).join(" "); }),
         postup: (document.querySelector(".lcd1v-postup-st") || {}).textContent || "",

@@ -47,7 +47,9 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
 /**
  * kroky  – mená kariet v poradí, v akom ich zákazník vidí a číslujú sa („Krok N z M“, postup). Posledný krok má
  *          „Pokračujte k súhrnu“ (kroky.js ho zachytí — živé tlačidlo posledného kroku by vkladalo do košíka).
- *          Box 616: návrh boxy.html má farba → počet → veľkosť; v živom DOM je počet prvý (poradie mení CSS typu).
+ *          Box 616: JEDNA karta „Vaše boxy do kufra“ = živý krok Farba (Michal 23. 10. 2026: „všetko na jednom mieste“);
+ *          farbu, počet a veľkosti boxov do nej vkladá boxy-produkt.js, živé kroky Počet a Veľkosť ostávajú v DOM ako
+ *          nosiče POST (skryté CSS). Farba je zároveň posledný krok („Pokračujte k súhrnu“).
  * moduly – moduly index.js v poradí init (meno = MENO modulu); modul, ktorý v builde nie je (napr. obsah pred
  *          zlúčením), sa preskočí.
  *          „poznamka“ (poznamka.js) = pole „Poznámka k objednávke“ podľa návrhov; vzorkovník ho nemá (návrh ho nemá).
@@ -55,8 +57,10 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
  *          v kroky, počty krokov sa nemenia); „Áno“ prenesie výber na dvojvrstvový produkt toho istého vzoru.
  *          „prenos“ (prenos.js, jedno aj dvoj) = zápis preneseného výberu na cieli a návrat výberu po tlačidle Späť.
  *          „komplet-ponuka“ (komplet-ponuka.js, rohože do kufra a box) = ponuka setu s autokobercami pod sedadlá: karta BEZ
- *          čísla (nie je v kroky) — rohož medzi Autom a Farbou, box za Veľkosťou (len 1–2 boxy); „Áno“ prenesie výber na
- *          jednovrstvové (prenos.js zapisVyber -> prijímač „prenos“ na jedno).
+ *          čísla (nie je v kroky) — rohož medzi Autom a Farbou, box hneď pod kartou „Vaše boxy do kufra“ (len 1–2 boxy);
+ *          „Áno“ prenesie výber na jednovrstvové (prenos.js zapisVyber -> prijímač „prenos“ na jedno).
+ *          Poradie modulov boxu NEMENIŤ: boxy-produkt (stráž košíka, capture na window) musí bežať pred komplet-ponuka
+ *          (window) a tá pred kroky.js (document).
  * obal   – prvok vo formulári, bez ktorého sa nový vzhľad nezapne (živý konfigurátor sa nepostavil); null = len formulár.
  */
 export const TYPY = {
@@ -64,7 +68,7 @@ export const TYPY = {
   dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "poznamka", "prenos", "obsah"], obal: ".content-wrap" },
   "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
-  boxy: { kroky: ["farba", "pocet", "velkost"], moduly: ["kroky", "boxy-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  boxy: { kroky: ["farba"], moduly: ["kroky", "boxy-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
   // kamion: celé UI stavia modul kamion/ (6 krokov vo vlastnom koreni); živé kroky 1V na 640 nie sú (React sa nemontuje)
   kamion: { kroky: [], moduly: ["kamion"], obal: null },
