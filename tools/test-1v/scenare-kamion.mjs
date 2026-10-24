@@ -219,6 +219,16 @@ const TAP_MAT = `(function () {
     karty: karty, a: { prekryv: prekryv(mA, pA), stvorec: mA ? Math.abs(mA.w - mA.h) <= 1 : null, pasH: lA ? Math.round(lA.h) : 0, pasW: lA && pA ? Math.abs(lA.w - (pA.w - 2)) <= 1 : null },
     vz: mV || lV ? { prekryv: prekryv(mV, lV) } : null };
 })()`;
+/** Po poslednej odpovedi (Michal 24. 10. 2026, predtým „zoskrolovalo do tramtárie“): v okne je celý prehľad objednávky —
+ *  „Váš set v N krokoch“ nezakrytý hlavičkou webu, riadky krokov, Spolu a „Pridať do košíka“. Keď sa celý nevojde
+ *  (nízke okno), tlačidlo košíka je celé vidno pri spodnom okraji. */
+const PREHLAD = `(function () {
+  var p = document.querySelector('#lcd1v-kamion [data-k="postup"]'), b = document.querySelector('#lcd1v-kamion [data-k="suhrn"] .k-kosik');
+  if (!p || !b) return null;
+  var rp = p.getBoundingClientRect(), rb = b.getBoundingClientRect(), x = rp.left + 8, el = rp.top >= 0 && rp.top < innerHeight ? document.elementFromPoint(x, rp.top + 6) : null;
+  return { hore: Math.round(rp.top), dole: Math.round(rb.bottom), vh: innerHeight, vojde: rb.bottom - rp.top <= innerHeight - 90, volne: !!(el && p.contains(el)) };
+})()`;
+const prehladOk = (r) => !!r && r.dole <= r.vh && (r.vojde ? r.hore >= 0 && r.volne : r.dole >= r.vh - 160);
 /** Opakuje vyhodnotenie (lenivé načítanie fotiek, kreslenie plátna), kým podmienka neplatí, najviac ~6 s. */
 async function cakaj(s, j, vyraz, ok) {
   let r = null;
@@ -357,6 +367,9 @@ export const SCENARE = {
       await j.pauza(700);
       const po6 = await s.t.ev(OTVORENY);
       j.over(po6.otvoreny === null && po6.hotovy6 && !po6.dalej6, "po „Nie“ pri nášivke na dvere sa krok 6 nezavrel sám: " + JSON.stringify(po6));
+      const pr6 = await cakaj(s, j, PREHLAD, prehladOk);
+      j.over(prehladOk(pr6), "po poslednej odpovedi nie je v okne celý prehľad (Váš set v 6 krokoch … Pridať do košíka): " + JSON.stringify(pr6));
+      await snimka(s, a, "kamion-prehlad-po-poslednom");
       await overPismo(s, j, "súhrn objednávky");
       const { post, st, cena } = await doKosika(s, a, j, "kamion-platne");
       const ocak = { 346: "Prémiová syntetická koža – prešívaná", 349: "Šofér + spolujazdec + stred (BALÍK)", 403: "Nášivka H19", 406: "2999 – Čierna", 409: "Nášivka H19", 412: "2999 – Čierna", 352: "Áno chcem (v konfigurátore – balík)", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" };
@@ -383,6 +396,8 @@ export const SCENARE = {
       await rob(s, j, [["klik", a_("potvrd", "stred")]]);
       const po5 = await s.t.ev(OTVORENY);
       j.over(po5.otvoreny === null && po5.hotovy5 && !po5.dalej5, "dodávka: Pokračovať v poslednej karte kroku 5 krok nezavrel (súhrn): " + JSON.stringify(po5));
+      const pr5 = await cakaj(s, j, PREHLAD, prehladOk);
+      j.over(prehladOk(pr5), "dodávka: po poslednom „Pokračovať“ nie je v okne celý prehľad (Váš set v 5 krokoch … Pridať do košíka): " + JSON.stringify(pr5));
       await overPismo(s, j, "dodávka súhrn");
       const pred = await s.t.ev(STAV);
       j.over(pred.krokov === 5, "dodávka má mať 5 krokov (bez tapacíru), je " + pred.krokov);

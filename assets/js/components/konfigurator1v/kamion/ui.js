@@ -999,6 +999,19 @@ export function vytvorUi(o) {
     const reduce = w.matchMedia && w.matchMedia("(prefers-reduced-motion: reduce)").matches;
     try { el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: blok || "start" }); } catch (e) { /* staré prehliadače */ }
   }
+  /** Všetko vybraté (Michal 24. 10. 2026): v okne celý prehľad — „Váš set v N krokoch“, riadky krokov, Spolu a „Pridať
+   *  do košíka“ (predtým len súhrn navrchu a kroky nad oknom). Keď sa nevojde, tlačidlo košíka ostane celé pri spodku okna. */
+  function posunNaPrehlad() {
+    const p = $('[data-k="postup"]'), kb = $('[data-k="suhrn"] .k-kosik');
+    if (!p || !kb || !p.getBoundingClientRect().height) { posun($('[data-k="suhrn"]')); return; }
+    const k = root.querySelector(".k-krok");
+    const hore = (k ? parseFloat(w.getComputedStyle(k).scrollMarginTop) || 0 : 0) + 12, dole = 16;
+    const rp = p.getBoundingClientRect(), rb = kb.getBoundingClientRect();
+    let ciel = w.pageYOffset + rp.top - hore;
+    const navyse = rb.bottom - rp.top - (w.innerHeight - hore - dole);
+    if (navyse > 0) ciel += navyse;
+    try { w.scrollTo({ top: Math.max(0, ciel), behavior: menejPohybu() ? "auto" : "smooth" }); } catch (e) { w.scrollTo(0, Math.max(0, ciel)); }
+  }
   function posunKrok(id, fokus) {
     const el = root.querySelector('[data-krok="' + id + '"]');
     posun(el);
@@ -1053,7 +1066,7 @@ export function vytvorUi(o) {
     U.otvoreny = dalsi; render();
     if (dalsi && U.chyby[dalsi]) posunPole(dalsi, U.chyby[dalsi].pole);
     else if (dalsi) posunKrok(dalsi, true);
-    else { posun($('[data-k="suhrn"]')); const kb = $('[data-k="suhrn"] .k-kosik'); if (kb) try { kb.focus({ preventScroll: true }); } catch (e) { /* */ } }
+    else { posunNaPrehlad(); const kb = $('[data-k="suhrn"] .k-kosik'); if (kb) try { kb.focus({ preventScroll: true }); } catch (e) { /* */ } }
   }
   /** „Pridať do košíka“: prvý nevyplnený krok sa otvorí s červeným rámom, inak odovzdá výber (index.js doKosika). */
   function kosik() {
