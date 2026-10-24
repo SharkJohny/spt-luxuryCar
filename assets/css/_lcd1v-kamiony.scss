@@ -604,30 +604,48 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__po { display: block; 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__d { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 10px; border: 1px solid var(--k-krem-ram); border-radius: 14px; background: var(--k-krem); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__st { align-self: center; padding: 3px 10px; border: 1px solid var(--k-line); border-radius: 999px; background: #fff; color: var(--k-gold-tx); font: 800 12px/1.3 var(--k-disp); letter-spacing: .08em; text-align: center; text-transform: uppercase; white-space: nowrap; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__foto { display: block; width: 100%; max-width: none; height: auto; aspect-ratio: 1 / 1; margin: 0; border-radius: 10px; background: #e7e2d6; object-fit: cover; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__foto { display: block; width: 100%; max-width: none; height: 92px; margin: 0; border-radius: 10px; background: #e7e2d6; object-fit: cover; }
 /* lemovanie ako vodorovný pás cez stred bieleho štvorca (nikdy orezané na celý štvorec) */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__pas { display: flex; align-items: center; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border: 1px solid var(--k-line); border-radius: 10px; background: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__pas { display: flex; align-items: center; width: 100%; height: 92px; overflow: hidden; border: 1px solid var(--k-line); border-radius: 10px; background: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__pas img { display: block; width: 100%; max-width: none; height: 46px; margin: 0; object-fit: cover; box-shadow: 0 3px 8px rgba(20, 15, 5, .28); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__dn { display: block; min-height: 2.6em; color: var(--k-ink); font: 700 15px/1.3 var(--k-body); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__dp { display: block; margin-top: -4px; color: var(--k-mute); font: 400 14px/1.35 var(--k-body); }
 /* „Vlastná kombinácia“: 4 vzorky materiálu | tenká čiara | 2 pásy lemovania pod sebou — všetko samostatné obrázky */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mini { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 12px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mm { display: flex; gap: 6px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mt { display: block; width: 34px; max-width: none; height: 34px; margin: 0; border-radius: 7px; object-fit: cover; box-shadow: 0 0 0 1px rgba(20, 15, 5, .12); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__del { display: block; width: 1px; height: 34px; background: var(--k-line); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__ml { display: flex; flex-direction: column; gap: 4px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__lt { display: block; width: 56px; max-width: none; height: 16px; margin: 0; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 3px rgba(20, 15, 5, .25); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mm { display: flex; gap: 8px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mt { display: block; width: 48px; max-width: none; height: 48px; margin: 0; border-radius: 9px; object-fit: cover; box-shadow: 0 0 0 1px rgba(20, 15, 5, .12); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__del { display: block; width: 1px; height: 48px; background: var(--k-line); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__ml { display: flex; flex-direction: column; gap: 6px; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__lt { display: block; width: 80px; max-width: none; height: 22px; margin: 0; border-radius: 4px; object-fit: cover; box-shadow: 0 1px 3px rgba(20, 15, 5, .25); }
+/* telefón: vzorky a pásy lemovania v jednom riadku (vzorky sa zmenšia podľa šírky, max 44 px | čiara | 2 pásy 64 px) */
+@media (max-width: 480px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mini { flex-wrap: nowrap; gap: 10px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mm { flex: 1 1 auto; min-width: 0; gap: 6px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__mt { flex: 1 1 0; min-width: 0; width: auto; max-width: 44px; height: auto; aspect-ratio: 1 / 1; border-radius: 8px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__del { flex: none; height: 40px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__ml { flex: none; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__lt { width: 64px; height: 18px; }
+}
 /* zvolená karta = zelený rám + zelená ✓ (ako ostatné voľby) */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 1px var(--k-zvol), var(--k-zvol-tien); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b.is-on .kn-tv__r { border-color: transparent; background: var(--k-zvol-grad); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b.is-on .kn-tv__r::after { opacity: 1; }
+/* Michal 25. 10. 2026: „Rovnaké ako koberce“ ako odporúčaný kufor Classic pri autokobercoch (krémová karta, zlatá žiara, pás) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b--naj { padding-top: 0; overflow: hidden; border-color: var(--k-gold); background: #fffaef; box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b--naj.is-on { border-color: var(--k-zvol); background: #fffaef; box-shadow: 0 0 0 1px var(--k-zvol), 0 0 0 5px rgba(31, 122, 82, .16), var(--k-zvol-tien); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__top { display: block; margin: 0 -14px 12px; padding: 9px 12px 8px; background: var(--k-zlato); color: #17130a; font: 800 13.5px/1.2 var(--k-disp); letter-spacing: .14em; text-align: center; text-transform: uppercase; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__veta { display: block; margin-top: 3px; font: 600 16px/1.5 var(--k-body); letter-spacing: 0; text-transform: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b--naj .kn-tv__r { top: auto; margin-top: -2px; }
 @media (max-width: 340px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b { padding: 12px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b--naj { padding-top: 0; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__top { margin-inline: -12px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__dl { gap: 8px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__d { padding: 8px; }
 }
 @media (min-width: 768px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__dp { font-size: 15px; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__veta { font-size: 17px; }
 }
 
 /* ===== Mierka písma (Michal 18. 10. 2026: „malé texty si ľudia neprečítajú“) — minimá telefón / PC (≥ 768 px), len

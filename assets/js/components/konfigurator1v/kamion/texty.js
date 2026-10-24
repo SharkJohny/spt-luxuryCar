@@ -625,6 +625,7 @@ export const TEXTY = {
    "rovnake": {
     "ano": "Rovnaké ako koberce",
     "ano_popis": "Ladí s Vašimi kobercami",
+    "stitok_odporucame": "★ Odporúčame ★",
     "inak": "Vlastná kombinácia",
     "inak_popis": "Iný materiál, farba alebo lemovanie",
     "inak_hotove": "Iný materiál, farba alebo lemovanie",

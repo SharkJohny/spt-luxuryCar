@@ -630,10 +630,12 @@ export function vytvorUi(o) {
     return '<div class="kn-tvfoto"><img src="' + attr(FOTKA_DVERI) + '" alt="' + attr(t.rovnake.foto_alt) + '" width="1536" height="1024" loading="lazy" decoding="async">' +
       '<span class="kn-ilu kn-ilu--dole">' + esc(t.ilustracna) + "</span></div>";
   }
-  /** Karta voľby (celá je tlačidlo): krúžok 28 px vpravo hore, názov, popis, obsah. */
-  function tvKarta(akcia, on, nm, po, obsah) {
-    return '<button type="button" class="kn-tv__b' + (on ? " is-on" : "") + '" data-a="' + akcia + '" data-f="' + akcia + '" aria-pressed="' + on + '">' +
-      '<span class="kn-tv__r" aria-hidden="true"></span><span class="kn-tv__nm">' + esc(nm) + '</span><span class="kn-tv__po">' + esc(po) + "</span>" + obsah + "</button>";
+  /** Karta voľby (celá je tlačidlo): krúžok 28 px vpravo hore, názov, popis, obsah. top = odporúčaná karta (Michal 25. 10. 2026:
+   *  „Rovnaké ako koberce“ ako odporúčaný kufor Classic pri autokobercoch) — zlatý pás so štítkom a vetou namiesto popisu. */
+  function tvKarta(akcia, on, nm, po, obsah, top) {
+    return '<button type="button" class="kn-tv__b' + (top ? " kn-tv__b--naj" : "") + (on ? " is-on" : "") + '" data-a="' + akcia + '" data-f="' + akcia + '" aria-pressed="' + on + '">' +
+      (top ? '<span class="kn-tv__top">' + esc(top) + '<span class="kn-tv__veta">' + esc(po) + "</span></span>" : "") +
+      '<span class="kn-tv__r" aria-hidden="true"></span><span class="kn-tv__nm">' + esc(nm) + "</span>" + (top ? "" : '<span class="kn-tv__po">' + esc(po) + "</span>") + obsah + "</button>";
   }
   /** „Rovnaké ako koberce“: dve samostatné dlaždice Materiál | Lemovanie z výberu kobercov (živé dáta krokov 2–4). */
   function tvRovnake(r, on) {
@@ -645,17 +647,17 @@ export function vytvorUi(o) {
       dl(r.stitok_material, src ? '<img class="kn-tv__foto" src="' + attr(src) + '" alt="" loading="lazy" decoding="async">' : '<span class="kn-tv__foto"></span>',
         S.material ? matMeno(S.material) : r.nevybrate, fk ? farbaTx(fk) : "") +
       dl(r.stitok_lemovanie, '<span class="kn-tv__pas">' + (lk ? '<img src="' + attr(lk.full) + '" alt="" loading="lazy" decoding="async">' : "") + "</span>",
-        lk ? lemMeno(lk) : r.nevybrate, r.lem_popis) + "</span>");
+        lk ? lemMeno(lk) : r.nevybrate, r.lem_popis) + "</span>", r.stitok_odporucame);
   }
   /** „Vlastná kombinácia“: 4 malé vzorky materiálu | čiara | 2 pásy lemovania pod sebou (iné ako na kobercoch). */
   function tvVlastna(r, on) {
     const mat = MOZAIKA_MAT.map((x) => {
       const m = MATERIALY.filter((y) => y.slug === x[0])[0];
       const f = m && (m.farby.filter((y) => y.kod === x[1])[0] || m.farby[0]);
-      return f ? '<img class="kn-tv__mt" src="' + attr(f.swatch) + '" alt="" width="34" height="34" loading="lazy" decoding="async">' : "";
+      return f ? '<img class="kn-tv__mt" src="' + attr(f.swatch) + '" alt="" width="48" height="48" loading="lazy" decoding="async">' : "";
     }).join("");
     const lm = LEM_UKAZKA.filter((k) => k !== S.lem).slice(0, 2).map((k) => lem(k)).filter(Boolean)
-      .map((l) => '<img class="kn-tv__lt" src="' + attr(l.swatch) + '" alt="" width="56" height="16" loading="lazy" decoding="async">').join("");
+      .map((l) => '<img class="kn-tv__lt" src="' + attr(l.swatch) + '" alt="" width="80" height="22" loading="lazy" decoding="async">').join("");
     return tvKarta("tapZmenit", on, r.inak, r.inak_popis, '<span class="kn-tv__mini" aria-hidden="true"><span class="kn-tv__mm">' + mat +
       '</span><span class="kn-tv__del"></span><span class="kn-tv__ml">' + lm + "</span></span>");
   }

@@ -535,7 +535,10 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   const tvA = q(a("tapRovnake")), tvB = q(a("tapZmenit")), tvD = tvA ? Array.from(tvA.querySelectorAll(".kn-tv__d")) : [];
   const f11 = DT.MATERIALY.filter((m) => m.nazov === PRES)[0].farby.filter((f) => f.kod === "11")[0], l04 = DT.LEMOVANIE.filter((l) => l.kod === "04")[0];
   const dTx = (d, c) => (d.querySelector(c) ? d.querySelector(c).textContent : "");
-  over("17: karta A „Rovnaké ako koberce / Ladí s Vašimi kobercami“ — tlačidlo s krúžkom", !!tvA && tvA.tagName === "BUTTON" && tvA.getAttribute("type") === "button" && dTx(tvA, ".kn-tv__nm") === "Rovnaké ako koberce" && dTx(tvA, ".kn-tv__po") === "Ladí s Vašimi kobercami" && !!tvA.querySelector(".kn-tv__r"));
+  over("17: karta A „Rovnaké ako koberce / Ladí s Vašimi kobercami“ — tlačidlo s krúžkom", !!tvA && tvA.tagName === "BUTTON" && tvA.getAttribute("type") === "button" && dTx(tvA, ".kn-tv__nm") === "Rovnaké ako koberce" && !!tvA.querySelector(".kn-tv__r") &&
+    // 25. 10. 2026 (Michal): ako odporúčaný kufor Classic — zlatý pás „★ Odporúčame ★“ s vetou namiesto popisu pod názvom
+    tvA.classList.contains("kn-tv__b--naj") && tvA.firstElementChild.classList.contains("kn-tv__top") && dTx(tvA, ".kn-tv__top").indexOf("★ Odporúčame ★") === 0 &&
+    dTx(tvA, ".kn-tv__veta") === "Ladí s Vašimi kobercami" && !tvA.querySelector(".kn-tv__po") && !!tvB && !tvB.classList.contains("kn-tv__b--naj") && dTx(tvB, ".kn-tv__po") === "Iný materiál, farba alebo lemovanie");
   over("17: karta A — dlaždica Materiál (fotka farby kobercov) a dlaždica Lemovanie (pás lemovania kobercov), každá s jedným obrázkom",
     tvD.length === 2 && J(tvD.map((d) => dTx(d, ".kn-tv__st"))) === J(["Materiál", "Lemovanie"]) && tvD.every((d) => d.querySelectorAll("img").length === 1) &&
     tvD[0].querySelector("img.kn-tv__foto").getAttribute("src") === f11.full && tvD[1].querySelector(".kn-tv__pas > img").getAttribute("src") === l04.full,

@@ -216,7 +216,8 @@ const TAP_MAT = `(function () {
   var mA = rc(k.querySelector(".kn-tv__d .kn-tv__foto")), pA = rc(k.querySelector(".kn-tv__pas")), lA = rc(k.querySelector(".kn-tv__pas > img"));
   var mV = rc(k.querySelector(".kn-vz__mat")), lV = rc(k.querySelector(".kn-vz__lem"));
   return { foto: !!fi, filter: fi ? getComputedStyle(fi).filter : "", pomer: fr && fr.h ? Math.round(fr.w / fr.h * 1000) / 1000 : 0, nw: fi && fi.complete ? fi.naturalWidth : 0,
-    karty: karty, a: { prekryv: prekryv(mA, pA), stvorec: mA ? Math.abs(mA.w - mA.h) <= 1 : null, pasH: lA ? Math.round(lA.h) : 0, pasW: lA && pA ? Math.abs(lA.w - (pA.w - 2)) <= 1 : null },
+    karty: karty, a: { prekryv: prekryv(mA, pA), vyska: mA ? Math.round(mA.h) : 0, rovnako: mA && pA ? Math.abs(mA.h - pA.h) <= 3 : null, pasH: lA ? Math.round(lA.h) : 0, pasW: lA && pA ? Math.abs(lA.w - (pA.w - 2)) <= 1 : null,
+      naj: (function () { var p = k.querySelector(".kn-tv__b--naj > .kn-tv__top"); return p ? { tx: p.textContent, bg: getComputedStyle(p).backgroundImage.indexOf("gradient") >= 0 } : null; })() },
     vz: mV || lV ? { prekryv: prekryv(mV, lV) } : null };
 })()`;
 /** Po poslednej odpovedi (Michal 24. 10. 2026, predtým „zoskrolovalo do tramtárie“): v okne je celý prehľad objednávky —
@@ -343,7 +344,9 @@ export const SCENARE = {
       const tm = await cakaj(s, j, TAP_MAT, (x) => x && x.nw > 0);
       j.over(tm && tm.foto && /grayscale\(1\)/.test(tm.filter) && Math.abs(tm.pomer - 815 / 500) < 0.02, "tapacír: fotka výplne dverí nie je čiernobiela 815:500: " + JSON.stringify(tm));
       j.over(tm && tm.karty.length === 2 && tm.karty.every((x) => x.h >= 44 && x.r === 28), "tapacír: karty volieb < 44 px alebo krúžok ≠ 28 px: " + JSON.stringify(tm && tm.karty));
-      j.over(tm && tm.a.prekryv === false && tm.a.stvorec === true && tm.a.pasH === 46 && tm.a.pasW === true, "tapacír: materiál a lemovanie v karte sa prekrývajú / nie sú štvorce / pás ≠ 46 px cez celú šírku: " + JSON.stringify(tm && tm.a));
+      // 25. 10. 2026 (Michal): fotky v „Rovnaké ako koberce“ nižšie (92 px, nie štvorce), karta ako odporúčaný kufor Classic (zlatý pás)
+      j.over(tm && tm.a.prekryv === false && tm.a.vyska >= 80 && tm.a.vyska <= 100 && tm.a.rovnako === true && tm.a.pasH === 46 && tm.a.pasW === true &&
+        tm.a.naj && tm.a.naj.bg && tm.a.naj.tx.indexOf("★ Odporúčame ★") === 0, "tapacír: materiál a lemovanie v karte sa prekrývajú / nie sú nízke a rovnako vysoké / pás ≠ 46 px / chýba zlatý pás Odporúčame: " + JSON.stringify(tm && tm.a));
       await overPismo(s, j, "krok 6 materiál tapacíru");
       await snimkaPrvku(s, a, j, '[data-krok="tapacir"]', "kamion-krok6-ano");
       // „Vybrať inak“ (S.tapRovnaky potom znova true -> tapacír ako koberce, POST bez zmeny): názvy farieb v karte celé
