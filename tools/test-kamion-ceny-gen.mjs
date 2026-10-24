@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Test (a2) ceny kamiónov proti ŽIVÉMU Reactu: port artefaktu kamiony-app/work/kontrola-cien.mjs (docs/kamiony-1v-plan.md
-// §5 (a)). Pre všetky kombinácie 13 značiek × 5 materiálov × 4 nášivky × tapacír × nášivka na dverách (1 040) + neúplné
+// §5 (a)). Pre všetky kombinácie 13 značiek × 6 materiálov × 4 nášivky × tapacír × nášivka na dverách (1 040) + neúplné
 // stavy porovnáva:
 //   A) kamion/cena.js (nové UI: súhrn, lišta, karty)
 //   B) calculatePrice z konfigurator.gen.jsx (React PC)  a  B') z konfigurator.phone.gen.jsx (React telefón)
@@ -158,8 +158,9 @@ for (const st of kombinacie) {
 }
 console.log(kombinacie.length + " úplných kombinácií: zhoda " + stat.zhoda + " · len Z1 " + stat.Z1 + " · len Z2 " + stat.Z2 + " · Z1+Z2 " + stat["Z1+Z2"] + " · NÁLEZ " + stat.nalez);
 console.log("   košík (nové UI = React sync = cena.js): " + stat.kosikZhoda + "/" + kombinacie.length + " · 15 selectov nové = React: " + stat.selectyZhoda + "/" + kombinacie.length);
-over("zámerné Z1", ZAMERNE.Z1 === 160, "Z1 je " + ZAMERNE.Z1 + ", čakám 160");
-over("zámerné Z2", ZAMERNE.Z2 === 520, "Z2 je " + ZAMERNE.Z2 + ", čakám 520");
+// 6 materiálov od 24. 10. 2026 (pribudol Vzorovaný velúr) -> 160 a 520 × 6/5
+over("zámerné Z1", ZAMERNE.Z1 === 192, "Z1 je " + ZAMERNE.Z1 + ", čakám 192");
+over("zámerné Z2", ZAMERNE.Z2 === 624, "Z2 je " + ZAMERNE.Z2 + ", čakám 624");
 
 // ------------------------------------------------------------------ 2) neúplné stavy (nevybraté kroky, bez značky)
 let neuplne = 0;

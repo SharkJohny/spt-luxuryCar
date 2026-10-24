@@ -62,6 +62,7 @@ for (const [variant, source] of [["DESKTOP", desktopSource], ["PHONE", phoneSour
   } else {
     fail(`${variant}: tlačítko v 5/C neposouvá na krok 5/D`);
   }
+
 }
 
 const czechThreadNames = ["Černá", "Stříbrná", "Světle šedá", "Béžová", "Světle hnědá", "Tmavě hnědá", "Hořčicová", "Červená", "Fialová", "Modrá", "Zelená"];
@@ -186,6 +187,20 @@ async function mountWith(isPhone, vehicle) {
     else fail(`${variant}: zoznam je stále pod overflow:hidden (${clippedAncestor ? clippedAncestor.getAttribute("style") : "možnosť nenájdená"})`);
   } else {
     fail(`${variant}: nenašiel sa trigger prevodovky pre test dropdownu`);
+  }
+  // materiály len z ponuky selectu Shoptetu (24. 10. 2026: Vzorovaný velúr je v SK admine, v CZ nie) — tu je v selecte
+  // len prešívaná koža, takže velúr ani iné materiály sa ponúknuť nesmú (košík by ich neprijal)
+  const step2 = window.document.getElementById("konfig-step-2");
+  if (step2 && !/prešívaná/.test(step2.textContent)) {
+    const hlavicka = [...step2.querySelectorAll("div")].find((d) => d.style.cursor === "pointer") || step2.firstElementChild;
+    if (hlavicka) hlavicka.click();
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  const step2Text = step2 ? step2.textContent : "";
+  if (step2Text.includes("Prémiová syntetická koža – prešívaná") && !step2Text.includes("Vzorovaný velúr") && !step2Text.includes("Mikrosemiš – dvojfarebný")) {
+    ok(`${variant}: krok 2 ponúka len materiál zo selectu Shoptetu (prešívaná; velúr ani iné nie)`);
+  } else {
+    fail(`${variant}: krok 2 neponúka presne materiály zo selectu Shoptetu: ${step2Text.replace(/\s+/g, " ").slice(0, 160)}`);
   }
   return window;
 }

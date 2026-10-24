@@ -150,6 +150,13 @@ export const TEXTY = {
      "variant": "dvojfarebný",
      "popis": "Mikrosemiš s melírovaným dvojfarebným efektom.",
      "farby_text": "6 farieb"
+    },
+    {
+     "shoptet": "Vzorovaný velúr",
+     "nazov": "Velúr",
+     "variant": "vzorovaný",
+     "popis": "Mäkký velúr s výrazným farebným vzorom.",
+     "farby_text": "5 farieb"
     }
    ],
    "cena_v_cene": "v cene",
@@ -346,6 +353,28 @@ export const TEXTY = {
      {
       "kod": "6N",
       "meno": "Tmavomodrá"
+     }
+    ],
+    "Vzorovaný velúr": [
+     {
+      "kod": "1D",
+      "meno": "Červená"
+     },
+     {
+      "kod": "2D",
+      "meno": "Modrá"
+     },
+     {
+      "kod": "3D",
+      "meno": "Sivá"
+     },
+     {
+      "kod": "4D",
+      "meno": "Žltá"
+     },
+     {
+      "kod": "5D",
+      "meno": "Hnedá"
      }
     ]
    }

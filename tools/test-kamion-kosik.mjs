@@ -816,5 +816,18 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   over("23: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
 }
 
+{
+  // 24. 10. 2026: Vzorovaný velúr (Duński welur 1D–5D, +60 €; SK admin hodnota 1957). Košík = React, poznámka s kódom 1D.
+  console.log("24) Vzorovaný velúr");
+  const VEL = "Vzorovaný velúr";
+  const vel = DT.MATERIALY.find((m) => m.nazov === VEL);
+  over("24: velúr v data.js s kódmi 1D–5D a fotkami z CDN repa", !!vel && J(vel.farby.map((f) => f.kod)) === J(["1D", "2D", "3D", "4D", "5D"]) &&
+    vel.farby.every((f) => /\/assets\/img\/1v\/kamion-velur-[1-5]d\.jpg$/.test(f.swatch)), J(vel && vel.farby));
+  const t = await otvor();
+  zaklad(t, { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: VEL, farba: "3D", lem: "04" });
+  t.klik(a("nas", "nechcem")); t.klik(a("tap", "nie"));
+  await kontrolaKosika(t, "24", { selecty: { 346: VEL }, poznamkaObsahuje: ["- Typ a farba materiálu: " + VEL + " – 3D"], spolu: 259 });
+}
+
 console.log(`\n${ok} OK, ${zle} ZLE`);
 process.exit(zle ? 1 : 0);
