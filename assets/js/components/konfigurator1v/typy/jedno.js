@@ -36,22 +36,49 @@ export const TYP = {
     // zo živej stránky a schválených návrhov (zachytí vodu, sneh, blato aj soľ; dá sa vybrať a umyť aj vapkou; prvá
     // prešívaná vrstva ostane čistá), žiadne nové čísla ani sľuby.
     // Michal 24. 10. 2026 (návrh 1b, „Áno, takto sa mi to páči“): nadpis „Prajete si…“; podnadpis (pod) nahradil zlatý box
-    // „8 z 10“ + „Nie je to koberec na koberci.“ a dve číslované vrstvy (druha-vrstva.js blok __info, tučné časti = <b>);
-    // pás nad dlaždicou „★ Najčastejšia voľba“. Celá otvorená karta má byť na telefóne na jednej obrazovke.
+    // „8 z 10“ a dve vrstvy (druha-vrstva.js blok __info, tučné časti = <b>); pás nad dlaždicou „★ Najčastejšia voľba“.
+    // Celá otvorená karta má byť na telefóne na jednej obrazovke.
+    // Michal 25. 10. 2026 (variant B, „Môže to byť tak“): „8 z 10“ v jednom nízkom riadku („zákazníkov si vybralo
+    // autokoberce s druhou vrstvou“), veta návrhu 1b o koberci na koberci preč, vrstvy heslovite — zlatý štítok veľkými
+    // („1 · Prvá prešívaná vrstva“, „2 · Druhá vrstva“) a riadky s farebnou ikonou v krúžku (Michal vybral „Farby A“:
+    // zlatý diamant, tmavý štít, modrá kvapka, zelená iskra — druha-vrstva.js IKONY); pri druhej vrstve vpravo odkaz
+    // „ⓘ Zistiť viac“ (skutočné tlačidlo), ktorý otvorí okienko „Čo je druhá vrstva?“ (kľúč okno; na telefóne panel zdola,
+    // na PC v strede) so zeleným „Áno“ = to isté ako Áno v dlaždici. PRAVIDLO (Michal): jednovrstvové nikde neznevažovať —
+    // žiadne „len na jar až leto“, „celý rok“, „chráni prvú vrstvu“; len to, čo druhá vrstva pridá navyše.
     // „8 z 10“: Back Office, 241 z 286 objednávok autokobercov za 12 mesiacov k 24. 10. 2026 malo druhú vrstvu (84 %).
-    // \u00a0 = pevná medzera: jednopísmenová predložka/spojka nesmie ostať na konci riadka.
+    // \u00a0 = pevná medzera: jednopísmenová predložka/spojka nesmie ostať na konci riadka (aj „1 · …“,
+    // „… – …“ a tučné „s druhou vrstvou“ — na PC by sa inak zalomilo uprostred).
     druha: {
       nm: "Druhá vrstva",
       ti: "Prajete si aj druhú odnímateľnú vrstvu?",
       vy: "Áno alebo nie",
       vyNie: "Bez druhej vrstvy",
-      pocet: { cislo: "8\u00a0z\u00a010", text: "zákazníkov si za posledný rok vybralo autokoberce", b: "s\u00a0druhou vrstvou" },
-      vrstvy: {
-        nadpis: "Nie je to koberec na koberci.",
-        riadky: [
-          { b: "Prvá prešívaná vrstva", text: "luxusný vzhľad a\u00a0vodotesná ochrana celej podlahy." },
-          { b: "Druhá vrstva", text: "zachytí sneh, vodu aj blato, preto môžete autokoberce používať celý rok. Vyberiete ju a\u00a0opláchnete." },
+      pocet: { cislo: "8\u00a0z\u00a010", text: "zákazníkov si vybralo autokoberce", b: "s\u00a0druhou\u00a0vrstvou" },
+      // stitok = zlatý nadpis vrstvy (veľkými cez CSS), body = riadky { t: text, ikona: kľúč IKONY v druha-vrstva.js };
+      // viac = pri vrstve odkaz „Zistiť viac“
+      vrstvy: [
+        { stitok: "1\u00a0·\u00a0Prvá prešívaná vrstva", body: [
+          { t: "luxusný vzhľad", ikona: "diamant" },
+          { t: "kompletná ochrana podlahy aj bokov", ikona: "stit" },
+        ] },
+        { stitok: "2\u00a0·\u00a0Druhá vrstva", viac: true, body: [
+          { t: "zachytí vodu, sneh aj blato", ikona: "kvapka" },
+          { t: "jednoduchšia údržba\u00a0– vyberiete a\u00a0opláchnete", ikona: "iskra" },
+        ] },
+      ],
+      // „ⓘ Zistiť viac“: i = ikona v krúžku (aria-hidden), aria = celý názov pre čítačky (začína viditeľným textom)
+      viac: { i: "i", tl: "Zistiť viac", aria: "Zistiť viac o\u00a0druhej vrstve" },
+      // okienko po „Zistiť viac“ (druha-vrstva.js otvorOkno; vytvorí sa až pri prvom kliku); tl = to isté ako ano.tl
+      okno: {
+        nadpis: "Čo je druhá vrstva?",
+        zavriet: "Zavrieť",
+        casti: [
+          { nm: "Čo to je", text: "Odnímateľná vrstva z\u00a0hustého krátkeho vlasu, ktorá leží na prvej prešívanej vrstve. Farbu si vyberiete v\u00a0ďalšom kroku\u00a0– odporúčame ju v\u00a0tóne prvej vrstvy." },
+          { nm: "Čo Vám pridá", text: "Zachytí vodu, sneh, blato aj soľ z\u00a0topánok. Fľaky na nej takmer nevidieť." },
+          { nm: "Jednoduchšia údržba", text: "Vyberiete ju, vytrasiete a\u00a0opláchnete\u00a0– aj vapkou. Potom ju vrátite späť." },
         ],
+        pocet: { cislo: "8\u00a0z\u00a010", text: "zákazníkov si ju za posledný rok vybralo" },
+        tl: "Áno, chcem druhú vrstvu",
       },
       naj: "★ Najčastejšia voľba",
       // Michal 19. 10. 2026 (návrh A, „Video A“): nadpis dlaždice „Druhá vrstva“, pod ním zlatý štítok „Na celú sadu
@@ -61,8 +88,9 @@ export const TYP = {
         nm: "Druhá vrstva",
         po: "Na celú sadu autokobercov",
         tl: "Áno, chcem druhú vrstvu",
-        // popis videa pre čítačky obrazovky (aria-label na <video>; video je bez zvuku a ovládania)
-        alt: "Video: druhá vrstva zachytí vodu, vyberiete ju, umyjete vapkou a prvá prešívaná vrstva ostane čistá",
+        // popis videa pre čítačky obrazovky (aria-label na <video>; video je bez zvuku a ovládania). Michal 25. 10. 2026:
+        // jednovrstvové neznevažovať -> bez „prvá prešívaná vrstva ostane čistá“, len čo druhá vrstva robí.
+        alt: "Video: druhá vrstva zachytí vodu, vyberiete ju a\u00a0umyjete vapkou",
       },
       // Riadky cien dlaždice v štýle rohože do kufra (Michal 19. 10. 2026: „držme jeden štýl … ako pri rohožiach do kufra,
       // kde to je pekne vyratané“):

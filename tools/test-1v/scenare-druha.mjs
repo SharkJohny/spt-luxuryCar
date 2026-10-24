@@ -12,9 +12,16 @@
 //                   (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky pre cenu + príplatok); 613 bez bežnej
 //                   ceny = len riadok Príplatok; žiadna prečiarknutá cena, pilulka, „Vzor, auto aj farba…“ ani veta pod Nie;
 //                   dlaždica na telefóne nie je privysoká;
-//                   návrh 1b (Michal 24. 10. 2026): nadpis „Prajete si aj druhú odnímateľnú vrstvu?“, namiesto podnadpisu
-//                   blok „8 z 10 … s druhou vrstvou“ + „Nie je to koberec na koberci.“ + vrstvy 1 a 2 (tučné časti, pevné
-//                   medzery za jednopísmenovými slovami, písmo ≥ 15 px, štítky ≥ 11 px), pás „★ Najčastejšia voľba“;
+//                   návrh 1b (Michal 24. 10. 2026): nadpis „Prajete si aj druhú odnímateľnú vrstvu?“, pás „★ Najčastejšia
+//                   voľba“; variant B (Michal 25. 10. 2026): namiesto podnadpisu blok „8 z 10 | zákazníkov si vybralo
+//                   autokoberce s druhou vrstvou“ v jednom nízkom riadku + vrstvy heslovite (zlatý štítok veľkými, riadky
+//                   s farebnou ikonou 22 px: zlatý diamant, tmavý štít, modrá kvapka, zelená iskra), žiadne „Nie je to koberec
+//                   na koberci“ ani znevažovanie jednovrstvových („jar až leto“, „celý rok“…), pevné medzery za
+//                   jednopísmenovými slovami, písmo ≥ 15 px, štítky ≥ 12 px; „ⓘ Zistiť viac“ = <button> vpravo na riadku
+//                   „2 · Druhá vrstva“ (aria-haspopup dialog, podčiarknutý len text, ťukacia výška ≥ 44 px) -> okienko
+//                   „Čo je druhá vrstva?“ postavené až pri prvom kliku: dialóg (role, aria-modal, aria-labelledby), texty,
+//                   fokus dnu a späť, Tab ostáva vnútri, Esc / × / pozadie zavrú, stránka pod ním sa kolieskom nepohne,
+//                   telefón panel zdola, PC v strede ≤ 480 px (snímka: --snimky -> <id>-druha-okno-<šírka>.png);
 //                   otvorená karta s cenami sa na telefóne zmestí do okna pod hlavičku webu (snímka celej karty: --snimky);
 //                   Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
 //                   zelené „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zlatým „Nie, ďakujem“ (Michal 15. 10., farby prehodené 16. 10. 2026);
@@ -23,7 +30,9 @@
 //                   video v dlaždici (Michal 16. 10. 2026): pred otvorením karty žiadna požiadavka na druha-video-* (ani poster),
 //                   po otvorení hrá č. 1 vapka (WebM, muted, playsinline, bez ovládania, rámik 4:5), č. 2 sa ešte nesťahuje;
 //                   koniec č. 1 -> č. 2 príbeh -> koniec -> znova č. 1; po „Nie“ video stojí
-//   druha-ano       prefers-reduced-motion: video len poster, bez src, nič sa nestiahne; hlavička karty -> tlačidlo „Áno, chcem druhú vrstvu“ (myš): správa v karte, tlačidlá zablokované, prechod na dvojvrstvový produkt
+//   druha-ano       prefers-reduced-motion: video len poster, bez src, nič sa nestiahne; hlavička karty -> „Áno, chcem druhú vrstvu“
+//                   (390 px: zelené Áno v okienku „Čo je druhá vrstva?“ po „Zistiť viac“ — okienko sa zavrie; 1280 px: tlačidlo
+//                   v dlaždici myšou): správa v karte, tlačidlá zablokované (aj „Zistiť viac“), prechod na dvojvrstvový produkt
 //                   toho istého vzoru; tam vzor, auto, farba prenesené, otvorený krok „Farba 2. vrstvy“ bez predvoľby, žiadna
 //                   veta navyše; príplatok z karty = živý rozdiel cien (dvoj − jedno, Shoptet); odporúčaná v karte = rozdiel
 //                   odporúčaných cien z rámikov OBOCH stránok, „Ušetríte“ = odporúčaná − príplatok; úplný výber -> POST = baseline
@@ -127,25 +136,55 @@ function stavKarty(t) {
           attrOdp: ano && ano.getAttribute("data-lcd1v-odporucana") ? Number(ano.getAttribute("data-lcd1v-odporucana")) : null };
       })(),
       zaFarbou: !!(k.previousElementSibling && k.previousElementSibling.classList.contains("lcd1v-k-farba")),
-      // blok pod hlavičkou (Michal 24. 10. 2026, návrh 1b): zlatý box „8 z 10“, „Nie je to koberec na koberci.“, dve vrstvy;
-      // surovy = textContent bez úprav (pevné medzery \\u00a0 ostanú — kontrola jednopísmenových predložiek na konci riadka)
+      // blok pod hlavičkou (Michal 25. 10. 2026, variant B): zlatý box „8 z 10“ v jednom riadku, dve vrstvy heslovite (zlatý
+      // štítok + riadky s farebnou ikonou), „Zistiť viac“ pri druhej vrstve; surovy = textContent bez úprav (pevné medzery
+      // \\u00a0 ostanú — kontrola jednopísmenových predložiek na konci riadka)
       info: (function () {
         var b = k.querySelector(":scope > .lcd1v-druha__info");
         if (!b) return null;
         function t2(e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; }
         function tucne(e) { return e ? Array.prototype.map.call(e.querySelectorAll("b"), t2) : []; }
         function px(e) { return e ? parseFloat(getComputedStyle(e).fontSize) : 0; }
-        var pt = b.querySelector(".lcd1v-druha__pocet-t"), nd = b.querySelector(".lcd1v-druha__vrstvy-nd"), poc = b.querySelector(".lcd1v-druha__pocet");
-        var li = Array.prototype.slice.call(b.querySelectorAll(".lcd1v-druha__vrstvy > .lcd1v-druha__vrstva"));
+        function stred(r) { return (r.top + r.bottom) / 2; }
+        var pt = b.querySelector(".lcd1v-druha__pocet-t"), pc = b.querySelector(".lcd1v-druha__pocet-c"), poc = b.querySelector(".lcd1v-druha__pocet");
+        var vrstvy = Array.prototype.slice.call(b.querySelectorAll(".lcd1v-druha__vrstvy > .lcd1v-druha__vrstva"));
+        var body = Array.prototype.slice.call(b.querySelectorAll(".lcd1v-druha__bod"));
+        var rp = poc && poc.getBoundingClientRect(), rc = pc && pc.getBoundingClientRect(), rt = pt && pt.getBoundingClientRect();
+        var viac = b.querySelector(".lcd1v-druha__viac");
         return {
-          vidno: vid(b), cislo: t2(b.querySelector(".lcd1v-druha__pocet-c")), text: t2(pt), textB: tucne(pt), nadpis: t2(nd), nadpisB: tucne(nd),
-          riadky: li.map(function (x) { return { c: t2(x.querySelector(".lcd1v-druha__vrstva-c")), t: t2(x.querySelector(".lcd1v-druha__vrstva-t")), b: tucne(x) }; }),
+          vidno: vid(b), cislo: t2(pc), text: t2(pt), textB: tucne(pt), cisloPx: px(pc),
+          pocetVyska: rp ? Math.round(rp.height) : 0,
+          // jeden riadok: veľké číslo vľavo, text vedľa neho (nie pod ním), zvisle na stred
+          pocetRiadok: !!(rc && rt && rt.left >= rc.right - 0.5 && Math.abs(stred(rc) - stred(rt)) < 6),
+          vrstvy: vrstvy.map(function (v) {
+            var st = v.querySelector(".lcd1v-druha__vrstva-hd > .lcd1v-druha__stitok"), cs = st ? getComputedStyle(st) : null;
+            return {
+              stitok: t2(st), velke: cs ? cs.textTransform : "", farba: cs ? cs.color : "", px: px(st), viac: !!v.querySelector(".lcd1v-druha__viac"),
+              body: Array.prototype.map.call(v.querySelectorAll(".lcd1v-druha__body > .lcd1v-druha__bod"), function (li) {
+                var svg = li.querySelector("svg.lcd1v-druha__ikona"), c = svg && svg.querySelector("circle"), r = svg && svg.getBoundingClientRect();
+                return { t: t2(li.querySelector(".lcd1v-druha__bod-t")), px: px(li),
+                  ikona: svg ? { farba: c ? c.getAttribute("fill") : "", skryta: svg.getAttribute("aria-hidden"), w: Math.round(r.width), h: Math.round(r.height) } : null };
+              }),
+            };
+          }),
+          viac: viac ? (function () {
+            var r = viac.getBoundingClientRect(), hd = viac.parentNode, st = hd.querySelector(".lcd1v-druha__stitok"), rs = st.getBoundingClientRect(), rh = hd.getBoundingClientRect();
+            var i = viac.querySelector(".lcd1v-druha__viac-i"), tx = viac.querySelector(".lcd1v-druha__viac-t");
+            return { tag: viac.tagName, typ: viac.type, popup: viac.getAttribute("aria-haspopup"), aria: viac.getAttribute("aria-label"), tab: viac.tabIndex,
+              text: t2(tx), i: t2(i), iSkryte: i ? i.getAttribute("aria-hidden") : null, px: px(viac),
+              podciarkTx: tx ? getComputedStyle(tx).textDecorationLine : "", podciarkI: i ? getComputedStyle(i).textDecorationLine : "", podciarkTl: getComputedStyle(viac).textDecorationLine,
+              vyska: Math.round(r.height), sirka: Math.round(r.width),
+              rovnakyRiadok: Math.abs(stred(r) - stred(rs)) < 4, vpravo: Math.abs(r.right - rh.right) < 6 && r.left > rs.right };
+          })() : null,
           surovy: b.textContent, pozadie: poc ? getComputedStyle(poc).backgroundColor : "",
-          pismo: Math.min(px(pt), px(nd), li.length ? Math.min.apply(null, li.map(px)) : 0),
+          pismo: Math.min(px(pt), body.length ? Math.min.apply(null, body.map(px)) : 0),
           nadHlavickou: !!(b.previousElementSibling && b.previousElementSibling.classList.contains("lcd1v-hd")),
           predDlazdicou: !!(dl && (b.compareDocumentPosition(dl) & 4)),
         };
       })(),
+      kartaText: k.textContent.replace(/\\s+/g, " ").trim(),
+      viacZablok: !!(k.querySelector(".lcd1v-druha__viac") && k.querySelector(".lcd1v-druha__viac").disabled),
+      oknoOtvorene: (function () { var o = document.querySelector(".lcd1v-druha-okno"); return !!(o && !o.hidden); })(),
       // drobné štítky (pás nad dlaždicou, „Na celú sadu…“, „Príplatok od“) — Michal: malé texty sa nečítajú
       stitkyPx: Array.prototype.map.call(k.querySelectorAll(".lcd1v-kb__top, .lcd1v-kb__po, .lcd1v-kb__r--sum .lcd1v-kb__rn"), function (e) { return parseFloat(getComputedStyle(e).fontSize); }),
       surovyTi: (k.querySelector(".lcd1v-hd .lcd1v-ti") || {}).textContent || "", surovyDl: dl ? dl.textContent : "",
@@ -162,8 +201,168 @@ const RE_SIROTA = /(^|[\s(„])[szvakouiSZVAKOUI] /;
  * ňou) pridá ~75 px -> 718 px (598/610; 613 bez riadkov Odporúčaná/Ušetríte ~716 px). iPhone 390 × 844 v Safari ukáže
  * ~750 px so zbalenou lištou (odhad). 720 = súčasná výška + malá rezerva: stráži, aby karta nenarástla (nový riadok textu
  * ≥ 19 px, väčšie video). Do okna Safari s rozbalenou lištou (~664 px, odhad) sa karta s touto hlavičkou nezmestí.
+ * Variant B (Michal 25. 10. 2026, predloha F1-ikony = 708 px): strop ostáva 720 px (zadanie „max ~720 px“) od 375 px
+ * (iPhone SE / mini) vyššie. Pod 375 px (Android 360 px) má nadpis kroku 3 riadky (písmo hlavičky ako ostatné kroky, nezmenšuje
+ * sa) a riadok „jednoduchšia údržba – vyberiete a opláchnete“ 2 riadky (text 15 px, mierka Michal 18. 10.) -> +49 px:
+ * zmerané 25. 10. 2026 pri 360 px ~763 px; strop KARTA_UZKY_MAX stráži, aby ďalej nerástla.
  */
 const KARTA_TELEFON_MAX = 720;
+const KARTA_UZKY_MAX = 770;
+/** Nikde neznevažovať jednovrstvové (Michal 25. 10. 2026) + veta návrhu 1b preč — ani v karte, ani v okienku. */
+const NEZNEVAZOVAT = /koberec na koberci|jar až leto|celý rok|celoročn|chráni prvú|ostane čistá/i;
+const OKNO = ".lcd1v-druha-okno";
+
+/** Okienko „Čo je druhá vrstva?“ (Michal 25. 10. 2026, variant B; predloha C4-okienko) ako ho vidí zákazník. */
+function stavOkna(t) {
+  return t.ev(`(function () {
+    var o = document.querySelector(${JSON.stringify(OKNO)});
+    if (!o) return { je: false };
+    var p = o.querySelector(".lcd1v-druha-okno__panel"), pz = o.querySelector(".lcd1v-druha-okno__pozadie");
+    function t2(e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; }
+    function px(e) { return e ? parseFloat(getComputedStyle(e).fontSize) : 0; }
+    var r = p.getBoundingClientRect(), cs = getComputedStyle(p), lb = document.getElementById(p.getAttribute("aria-labelledby") || "");
+    var ae = document.activeElement, viac = document.querySelector(${JSON.stringify(KARTA + " .lcd1v-druha__viac")});
+    var x = o.querySelector(".lcd1v-druha-okno__x"), ano = o.querySelector(".lcd1v-druha-okno__ano"), rx = x ? x.getBoundingClientRect() : null;
+    return {
+      je: true, vidno: !o.hidden && getComputedStyle(o).display !== "none" && r.height > 0, vBody: o.parentNode === document.body,
+      role: p.getAttribute("role"), modal: p.getAttribute("aria-modal"), nadpis: t2(lb), nadpisTag: lb ? lb.tagName : null,
+      casti: Array.prototype.map.call(o.querySelectorAll(".lcd1v-druha-okno__cast"), function (c) {
+        var n = c.querySelector(".lcd1v-druha-okno__stitok"), tx = c.querySelector(".lcd1v-druha-okno__text");
+        return { nm: t2(n), text: t2(tx), pxNm: px(n), pxText: px(tx), velke: n ? getComputedStyle(n).textTransform : "" }; }),
+      pocet: t2(o.querySelector(".lcd1v-druha-okno__pocet-c")) + " | " + t2(o.querySelector(".lcd1v-druha-okno__pocet-t")),
+      ano: ano ? { tag: ano.tagName, typ: ano.type, text: t2(ano), pozadie: getComputedStyle(ano).backgroundImage } : null,
+      x: x ? { tag: x.tagName, typ: x.type, aria: x.getAttribute("aria-label"), w: Math.round(rx.width), h: Math.round(rx.height) } : null,
+      fokusVnutri: !!(ae && p.contains(ae)), fokusNaViac: !!(viac && ae === viac), fokus: ae ? (ae.className || ae.tagName) : null,
+      expanded: viac ? viac.getAttribute("aria-expanded") : null,
+      rect: { l: Math.round(r.left), t: Math.round(r.top), r: Math.round(r.right), b: Math.round(r.bottom), w: Math.round(r.width), h: Math.round(r.height) },
+      // plocha okienka = prekrytie position: fixed (web má na <html> scrollbar-gutter: stable -> na PC o pásik posuvníka
+      // užšie než okno prehliadača) — stred a šírka sa merajú voči nemu
+      okno: (function () { var k = o.getBoundingClientRect(); return { l: Math.round(k.left), w: Math.round(k.width), h: Math.round(k.height) }; })(),
+      rohy: { hore: parseFloat(cs.borderTopLeftRadius), dole: parseFloat(cs.borderBottomLeftRadius) },
+      pozadie: pz ? getComputedStyle(pz).backgroundColor : "",
+      zamknute: document.body.classList.contains("lcd1v-druha-okno-otvorene") && getComputedStyle(document.body).overflow === "hidden",
+      lenisPrevent: p.hasAttribute("data-lenis-prevent"), roluje: /auto|scroll/.test(cs.overflowY),
+      surovy: o.textContent, text: t2(o),
+    };
+  })()`);
+}
+const oknoOtvorene = `(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); return !!(o && !o.hidden); })()`;
+const oknoZatvorene = `(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); return !!(o && o.hidden); })()`;
+/** Kláves cez CDP (Tab / Shift+Tab / Escape) — skutočná klávesnica, nie syntetická udalosť. */
+async function klaves(s, key, kod, shift) {
+  const kl = { key, code: key, windowsVirtualKeyCode: kod, nativeVirtualKeyCode: kod, modifiers: shift ? 8 : 0 };
+  await s.k.posli("Input.dispatchKeyEvent", { type: "rawKeyDown", ...kl });
+  await s.k.posli("Input.dispatchKeyEvent", { type: "keyUp", ...kl });
+  await pauzaKratka();
+}
+const pauzaKratka = () => new Promise((r) => setTimeout(r, 120));
+/** Koliesko myši na bode (x, y) -> o koľko sa posunula stránka (má byť 0, kým je okienko otvorené). */
+async function koliesko(s, x, y) {
+  const y0 = await s.t.ev("scrollY");
+  await s.k.posli("Input.dispatchMouseEvent", { type: "mouseWheel", x, y, deltaX: 0, deltaY: 500 });
+  await new Promise((r) => setTimeout(r, 500));
+  return (await s.t.ev("scrollY")) - y0;
+}
+
+/**
+ * Okienko „Čo je druhá vrstva?“ (Michal 25. 10. 2026, variant B): postaví sa až pri prvom kliku na „Zistiť viac“; dialóg
+ * (role, aria-modal, aria-labelledby = nadpis), texty presne podľa zadania, fokus dnu a späť na „Zistiť viac“, Tab
+ * ostáva vnútri, Esc / × / klik na pozadie zavrú, stránka pod ním sa kolieskom nepohne, telefón = panel zdola, PC = v strede
+ * (najviac 480 px). Snímka otvoreného okienka: --snimky -> <produkt>-druha-okno-<šírka>.png. Okienko na konci zatvorené.
+ */
+async function overOkno(s, a, j) {
+  const t = s.t;
+  const pred = await stavOkna(t);
+  j.over(!pred.je, "okienko „Čo je druhá vrstva?“ je v stránke ešte pred klikom na „Zistiť viac“ (má sa postaviť až pri prvom kliku)");
+  // 1) otvorenie klikom
+  await t.klikni(`${KARTA} .lcd1v-druha__viac`, { popis: "Zistiť viac" });
+  await t.cakaj(oknoOtvorene, { ms: 5000, popis: "otvorené okienko po „Zistiť viac“" });
+  await j.pauza(400); // nábeh panela (animácia 0,2 s)
+  const o = await stavOkna(t);
+  j.over(o.vidno && o.vBody && o.role === "dialog" && o.modal === "true" && o.nadpis === "Čo je druhá vrstva?" && o.nadpisTag === "H3",
+    `okienko: viditeľné ${o.vidno}, v <body> ${o.vBody}, role ${o.role}, aria-modal ${o.modal}, nadpis (aria-labelledby) „${o.nadpis}“ ${o.nadpisTag}`);
+  j.over(o.fokusVnutri && o.expanded === "true", `po otvorení: fokus v okienku ${o.fokusVnutri} (${o.fokus}), aria-expanded „${o.expanded}“`);
+  const CASTI = [
+    { nm: "Čo to je", text: "Odnímateľná vrstva z hustého krátkeho vlasu, ktorá leží na prvej prešívanej vrstve. Farbu si vyberiete v ďalšom kroku – odporúčame ju v tóne prvej vrstvy." },
+    { nm: "Čo Vám pridá", text: "Zachytí vodu, sneh, blato aj soľ z topánok. Fľaky na nej takmer nevidieť." },
+    { nm: "Jednoduchšia údržba", text: "Vyberiete ju, vytrasiete a opláchnete – aj vapkou. Potom ju vrátite späť." },
+  ];
+  j.over(o.casti.length === 3 && CASTI.every((c, i) => o.casti[i].nm === c.nm && o.casti[i].text === c.text && o.casti[i].velke === "uppercase"), `časti okienka: ${JSON.stringify(o.casti)}`);
+  j.over(o.pocet === "8 z 10 | zákazníkov si ju za posledný rok vybralo", `box v okienku: „${o.pocet}“`);
+  j.over(o.ano && o.ano.tag === "BUTTON" && o.ano.typ === "button" && o.ano.text === "Áno, chcem druhú vrstvu" && /47, 156, 104|29, 107, 74/.test(o.ano.pozadie), `Áno v okienku: ${JSON.stringify(o.ano)}`);
+  j.over(o.x && o.x.tag === "BUTTON" && o.x.typ === "button" && o.x.aria === "Zavrieť" && o.x.w >= 36 && o.x.h >= 36, `× v okienku: ${JSON.stringify(o.x)}`);
+  j.over(!RE_SIROTA.test(o.surovy || ""), `okienko: jednopísmenové slovo s obyčajnou medzerou za sebou: „${(RE_SIROTA.exec(o.surovy || "") || [""])[0]}“`);
+  j.over(o.casti.every((c) => c.pxText >= 15 && c.pxNm >= 12), `písmo okienka (text ≥ 15 px, štítky ≥ 12 px): ${o.casti.map((c) => c.pxNm + "/" + c.pxText).join(", ")}`);
+  j.over(!NEZNEVAZOVAT.test(o.text || ""), `okienko znevažuje jednovrstvové / ostala stará veta: „${(NEZNEVAZOVAT.exec(o.text || "") || [""])[0]}“`);
+  j.over(/20, 17, 12/.test(o.pozadie) && o.zamknute && o.lenisPrevent && o.roluje, `pozadie ${o.pozadie}, stránka zamknutá ${o.zamknute}, data-lenis-prevent ${o.lenisPrevent}, obsah sa roluje ${o.roluje}`);
+  if (t.mobil) j.over(o.rect.l === o.okno.l && o.rect.r === o.okno.l + o.okno.w && Math.abs(o.rect.b - o.okno.h) <= 1 && o.rect.t >= 0 && o.rohy.hore >= 16 && o.rohy.dole === 0,
+    `telefón: okienko má byť panel zdola cez celú šírku so zaoblenými hornými rohmi: ${JSON.stringify({ rect: o.rect, okno: o.okno, rohy: o.rohy })}`);
+  else j.over(o.rect.w <= 480 && Math.abs((o.rect.l + o.rect.r) / 2 - (o.okno.l + o.okno.w / 2)) <= 2 && Math.abs((o.rect.t + o.rect.b) / 2 - o.okno.h / 2) <= 2 && o.rohy.hore >= 16 && o.rohy.dole >= 16,
+    `PC: okienko má byť v strede, najviac 480 px, zaoblené: ${JSON.stringify({ rect: o.rect, okno: o.okno, rohy: o.rohy })}`);
+  if (a.snimky) await s.k.snimka(join(a.snimky, `${a.produkt.id}-druha-okno-${t.sirka}.png`)).catch(() => {});
+  // 2) stránka pod okienkom sa nepohne (koliesko nad pozadím aj nad panelom; na PC beží Lenis)
+  const posunPozadie = await koliesko(s, 12, 12);
+  const posunPanel = await koliesko(s, Math.round((o.rect.l + o.rect.r) / 2), Math.round((o.rect.t + o.rect.b) / 2));
+  j.over(posunPozadie === 0 && posunPanel === 0, `stránka pod okienkom sa kolieskom posunula: nad pozadím ${posunPozadie} px, nad panelom ${posunPanel} px`);
+  // 2b) PC: zmena šírky okna cez hranicu Lenisu (lcdHome.js, 1025 px) počas otvoreného okienka — lcdHome.js starý Lenis
+  //     zruší a vytvorí nový; aj ten musí stáť (koliesko nad pozadím stránku nepohne). Kontrola 25. 10. 2026 (predtým
+  //     nový Lenis bežal a koliesko posunulo stránku o 497 px).
+  const lenis = () => t.ev(`(function () { var l = typeof window.__lcdhLenis === "function" ? window.__lcdhLenis() : null; return l ? (l.isStopped ? "stojí" : "beží") : "žiadny"; })()`);
+  const lenisNaZaciatku = await lenis();
+  let lenisPriebeh = "";
+  if (!t.mobil) {
+    const metriky = (w) => s.k.posli("Emulation.setDeviceMetricsOverride", { width: w, height: s.k.vyska, deviceScaleFactor: 1, mobile: false });
+    let uzky = "", spat = "", posunPoZmene = null;
+    try {
+      await metriky(1000);
+      await j.pauza(500);
+      uzky = await lenis();
+      await metriky(s.k.sirka);
+      await j.pauza(500);
+      spat = await lenis();
+      posunPoZmene = await koliesko(s, 12, 12);
+    } finally {
+      await metriky(s.k.sirka);
+    }
+    j.over(lenisNaZaciatku !== "beží" && uzky === "žiadny" && spat !== "beží" && posunPoZmene === 0 && (await t.ev(oknoOtvorene)),
+      `zmena šírky 1280 -> 1000 -> 1280 px s otvoreným okienkom: Lenis ${lenisNaZaciatku} -> ${uzky} -> ${spat}, koliesko nad pozadím posunulo stránku o ${posunPoZmene} px`);
+    lenisPriebeh = `${lenisNaZaciatku} -> ${uzky} -> ${spat}`;
+  }
+  // 3) Tab / Shift+Tab ostáva v okienku (× -> Áno -> × …)
+  const fokusy = [];
+  const kde = () => t.ev(`(function () { var a = document.activeElement, p = document.querySelector(".lcd1v-druha-okno__panel"); return { vnutri: !!(a && p.contains(a)), c: a ? String(a.className || a.tagName) : "" }; })()`);
+  for (let i = 0; i < 4; i++) { await klaves(s, "Tab", 9, false); fokusy.push(await kde()); }
+  for (let i = 0; i < 3; i++) { await klaves(s, "Tab", 9, true); fokusy.push(await kde()); }
+  j.over(fokusy.every((f) => f.vnutri) && fokusy.some((f) => /okno__x/.test(f.c)) && fokusy.some((f) => /okno__ano/.test(f.c)), `Tab / Shift+Tab odišiel z okienka: ${fokusy.map((f) => f.c).join(" > ")}`);
+  // 4) Esc zavrie, fokus späť na „Zistiť viac“, stránka odomknutá
+  await klaves(s, "Escape", 27, false);
+  await t.cakaj(oknoZatvorene, { ms: 3000, popis: "okienko zatvorené po Esc" });
+  const poEsc = await stavOkna(t);
+  j.over(poEsc.fokusNaViac && poEsc.expanded === "false" && !poEsc.zamknute, `po Esc: fokus na „Zistiť viac“ ${poEsc.fokusNaViac} (${poEsc.fokus}), aria-expanded „${poEsc.expanded}“, stránka zamknutá ${poEsc.zamknute}`);
+  // Lenis (PC) po zatvorení znova beží — aj ten, ktorý vznikol pri zmene šírky počas otvoreného okienka
+  const lenisPoEsc = await lenis();
+  j.over(lenisPoEsc === (lenisNaZaciatku === "žiadny" ? "žiadny" : "beží"), `po Esc má Lenis znova bežať: ${lenisPoEsc} (pri otvorení ${lenisNaZaciatku})`);
+  // 5) × zavrie (znova otvorené kliknutím — okienko sa už nestavia nanovo)
+  await t.klikni(`${KARTA} .lcd1v-druha__viac`, { popis: "Zistiť viac (2.)" });
+  await t.cakaj(oknoOtvorene, { ms: 5000, popis: "okienko znova otvorené" });
+  await j.pauza(300);
+  const pocet = await t.ev(`document.querySelectorAll(${JSON.stringify(OKNO)}).length`);
+  await t.klikni(".lcd1v-druha-okno__x", { popis: "× v okienku" });
+  await t.cakaj(oknoZatvorene, { ms: 3000, popis: "okienko zatvorené po ×" });
+  const poX = await stavOkna(t);
+  j.over(pocet === 1 && poX.fokusNaViac && !poX.zamknute, `po ×: okienok v stránke ${pocet}, fokus na „Zistiť viac“ ${poX.fokusNaViac} (${poX.fokus}), stránka zamknutá ${poX.zamknute}`);
+  // 6) klik na tmavé pozadie zavrie
+  await t.klikni(`${KARTA} .lcd1v-druha__viac`, { popis: "Zistiť viac (3.)" });
+  await t.cakaj(oknoOtvorene, { ms: 5000, popis: "okienko otvorené tretí raz" });
+  await j.pauza(300);
+  const naPozadi = await t.ev(`(function () { var e = document.elementFromPoint(12, 12); return !!(e && e.classList.contains("lcd1v-druha-okno__pozadie")); })()`);
+  j.over(naPozadi, "bod (12, 12) nie je tmavé pozadie okienka (niečo leží nad ním)");
+  await s.k.klik(12, 12);
+  await t.cakaj(oknoZatvorene, { ms: 3000, popis: "okienko zatvorené po kliku na pozadie" });
+  const poPozadi = await stavOkna(t);
+  j.over(poPozadi.fokusNaViac && !poPozadi.zamknute, `po kliku na pozadie: fokus na „Zistiť viac“ ${poPozadi.fokusNaViac}, stránka zamknutá ${poPozadi.zamknute}`);
+  return { rect: o.rect, lenis: lenisPriebeh ? `${lenisPriebeh}, po Esc ${lenisPoEsc}` : "" };
+}
 /** Výška lepivej hlavičky webu nad kartou (rovnaké selektory ako posun.js) — na telefóne zakrýva hornú časť okna. */
 const vyskaHlavickyWebu = (t) => t.ev(`(function () {
   var s = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
@@ -390,8 +589,8 @@ export const SCENARE = {
       await staryKroky.vyberAuto(t, j.AUTO);
       await staryKroky.vyberFarbu(t, { index: 2 });
       await j.pauza(800);
-      const bez = await t.ev(`({ trieda: document.body.classList.contains("lcd-1v"), karta: !!document.querySelector(".lcd1v-druha"), ctx: !!window.__lcd1v, kluc: sessionStorage.getItem(${JSON.stringify(KLUC)}) })`);
-      j.over(!bez.trieda && !bez.karta && !bez.ctx && bez.kluc === null, `bez flagu sa niečo zmenilo: ${JSON.stringify(bez)}`);
+      const bez = await t.ev(`({ trieda: document.body.classList.contains("lcd-1v"), karta: !!document.querySelector(".lcd1v-druha"), okno: !!document.querySelector(${JSON.stringify(OKNO)}), ctx: !!window.__lcd1v, kluc: sessionStorage.getItem(${JSON.stringify(KLUC)}) })`);
+      j.over(!bez.trieda && !bez.karta && !bez.okno && !bez.ctx && bez.kluc === null, `bez flagu sa niečo zmenilo: ${JSON.stringify(bez)}`);
       // 2) s flagom
       await j.otvor(s, a.url, { novy: true });
       const pred = await cislaKrokov(t);
@@ -417,21 +616,32 @@ export const SCENARE = {
       j.over(!rozlOtv, "po „Pokračujte ďalej“ vo Farbe sa otvorilo Rozloženie, má sa otvoriť karta druhej vrstvy");
       // Michal 24. 10. 2026 (návrh 1b): nadpis „Prajete si aj druhú odnímateľnú vrstvu?“ (hlavička ako ostatné kroky)
       j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prajete si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
-      // návrh 1b: podnadpis („Vodu, sneh, blato aj soľ…“) nahradil blok pod hlavičkou — zlatý box „8 z 10“, tučné „Nie je to
-      // koberec na koberci.“ a dve číslované vrstvy (vrstvy vždy pomenované „prvá prešívaná“ / „druhá“, Michal 15. 10. 2026)
+      // variant B (Michal 25. 10. 2026; predloha F1-ikony „Farby A“): podnadpis nahradil blok pod hlavičkou — zlatý box „8 z 10“
+      // v JEDNOM nízkom riadku, vrstvy heslovite (zlatý štítok veľkými + riadky s farebnou ikonou v krúžku), pri druhej vrstve
+      // „ⓘ Zistiť viac“; veta návrhu 1b „Nie je to koberec na koberci.“ preč (vrstvy vždy „prvá prešívaná“ / „druhá“, 15. 10. 2026)
       j.over(otv.pod === null, `starý podnadpis ostal: „${otv.pod}“`);
       const inf = otv.info || {};
       j.over(inf.vidno && inf.nadHlavickou && inf.predDlazdicou, `blok „8 z 10“: viditeľný ${inf.vidno}, hneď pod hlavičkou ${inf.nadHlavickou}, nad dlaždicou ${inf.predDlazdicou}`);
-      j.over(inf.cislo === "8 z 10" && inf.text === "zákazníkov si za posledný rok vybralo autokoberce s druhou vrstvou" && JSON.stringify(inf.textB) === JSON.stringify(["s druhou vrstvou"]),
+      j.over(inf.cislo === "8 z 10" && inf.text === "zákazníkov si vybralo autokoberce s druhou vrstvou" && JSON.stringify(inf.textB) === JSON.stringify(["s druhou vrstvou"]),
         `zlatý box: „${inf.cislo}“ | „${inf.text}“ tučné ${JSON.stringify(inf.textB)}`);
+      j.over(inf.pocetRiadok && inf.pocetVyska > 0 && inf.pocetVyska <= 64 && inf.cisloPx >= 30, `„8 z 10“ má byť v jednom nízkom riadku (veľké číslo vľavo, text vedľa): v riadku ${inf.pocetRiadok}, výška boxu ${inf.pocetVyska} px (najviac 64), číslo ${inf.cisloPx} px`);
       j.over(/247, 241, 223/.test(inf.pozadie || ""), `zlatý box nemá krémové pozadie: ${inf.pozadie}`);
-      j.over(inf.nadpis === "Nie je to koberec na koberci." && JSON.stringify(inf.nadpisB) === JSON.stringify(["Nie je to koberec na koberci."]), `veta „${inf.nadpis}“ (tučné ${JSON.stringify(inf.nadpisB)})`);
+      j.over(!NEZNEVAZOVAT.test(otv.kartaText || ""), `karta znevažuje jednovrstvové / ostala veta návrhu 1b: „${(NEZNEVAZOVAT.exec(otv.kartaText || "") || [""])[0]}“`);
       const VRSTVY = [
-        { c: "1", b: "Prvá prešívaná vrstva", t: "Prvá prešívaná vrstva – luxusný vzhľad a vodotesná ochrana celej podlahy." },
-        { c: "2", b: "Druhá vrstva", t: "Druhá vrstva – zachytí sneh, vodu aj blato, preto môžete autokoberce používať celý rok. Vyberiete ju a opláchnete." },
+        { stitok: "1 · Prvá prešívaná vrstva", viac: false, body: [["luxusný vzhľad", "#c49b31"], ["kompletná ochrana podlahy aj bokov", "#3d3728"]] },
+        { stitok: "2 · Druhá vrstva", viac: true, body: [["zachytí vodu, sneh aj blato", "#2f6db0"], ["jednoduchšia údržba – vyberiete a opláchnete", "#1f7a52"]] },
       ];
-      j.over((inf.riadky || []).length === 2 && VRSTVY.every((v, i) => { const r = inf.riadky[i]; return r.c === v.c && r.t === v.t && JSON.stringify(r.b) === JSON.stringify([v.b]); }),
-        `vrstvy v karte: ${JSON.stringify(inf.riadky)}`);
+      const vr = inf.vrstvy || [];
+      j.over(vr.length === 2 && VRSTVY.every((v, i) => { const x = vr[i]; return x.stitok === v.stitok && x.viac === v.viac && x.velke === "uppercase" && x.body.length === v.body.length &&
+        v.body.every(([tx, f], n) => { const b = x.body[n]; return b.t === tx && b.ikona && b.ikona.farba === f && b.ikona.skryta === "true" && b.ikona.w === 22 && b.ikona.h === 22; }); }),
+        `vrstvy v karte (štítok veľkými, riadky s farebnou ikonou 22 px, aria-hidden): ${JSON.stringify(vr)}`);
+      j.over(vr.every((x) => /124, 95, 22/.test(x.farba) && x.px >= 12), `štítky vrstiev: ${vr.map((x) => x.farba + " " + x.px + " px").join(" | ")} (zlaté #7c5f16, najmenej 12 px)`);
+      // „ⓘ Zistiť viac“: skutočné tlačidlo vpravo na riadku „2 · Druhá vrstva“, otvára dialóg, podčiarknutý len text, „i“ len ozdoba
+      const vc = inf.viac || {};
+      j.over(vc.tag === "BUTTON" && vc.typ === "button" && vc.popup === "dialog" && vc.tab >= 0 && vc.text === "Zistiť viac" && vc.i === "i" && vc.iSkryte === "true" && /^Zistiť viac/.test(vc.aria || "") && vc.px >= 12,
+        `tlačidlo „Zistiť viac“: ${JSON.stringify(vc)}`);
+      j.over(/underline/.test(vc.podciarkTx || "") && !/underline/.test(vc.podciarkI || "") && !/underline/.test(vc.podciarkTl || ""), `podčiarknutý má byť len text „Zistiť viac“: text ${vc.podciarkTx}, „i“ ${vc.podciarkI}, tlačidlo ${vc.podciarkTl}`);
+      j.over(vc.rovnakyRiadok && vc.vpravo && vc.vyska >= 44, `„Zistiť viac“ vpravo na riadku štítku ${vc.rovnakyRiadok && vc.vpravo}, ťukacia plocha ${vc.sirka} × ${vc.vyska} px (výška najmenej 44)`);
       // jednopísmenová predložka/spojka nesmie ostať na konci riadka (pevná medzera za ňou)
       [["blok", inf.surovy], ["nadpis", otv.surovyTi], ["dlaždica", otv.surovyDl]].forEach(([kde, x]) => j.over(!RE_SIROTA.test(x || ""), `${kde}: jednopísmenové slovo s obyčajnou medzerou za sebou: „${(RE_SIROTA.exec(x || "") || [""])[0]}“`));
       // písmo nie pod mierku (Michal 18. 10. 2026): text bloku ≥ 15 px, štítky ≥ 11 px
@@ -479,7 +689,7 @@ export const SCENARE = {
       await naKoniec(t);
       await cakajVideo(t, RE_V1, "po skončení videa č. 2 znova video č. 1 (dookola)");
       const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n|s dph/i;
-      const infoText = inf.text + " " + inf.nadpis + " " + (inf.riadky || []).map((r) => r.t).join(" ");
+      const infoText = inf.text + " " + vr.map((x) => x.stitok + " " + x.body.map((b) => b.t).join(" ")).join(" ");
       j.over(!zakazane.test(otv.anoText + " " + infoText + " " + otv.nieText + " " + otv.ti), "zakázané slovo v texte karty");
       j.over(!/ekoko[žz]|s dph|bez dph|vyr[áa]b/i.test(infoText + " " + otv.ti), "v bloku karty je „ekokoža“, „DPH“ alebo „vyrábame“");
       j.over(!/prešívan\S*\s+vrstv/i.test((otv.anoText + " " + infoText).replace(/prv\S*\s+prešívan\S*/gi, "")), "„prešívaná vrstva“ bez „prvá“ v texte karty");
@@ -499,10 +709,13 @@ export const SCENARE = {
       // a najviac KARTA_TELEFON_MAX (okno emulácie 844 px je celá obrazovka telefónu bez líšt prehliadača, preto pevný strop)
       const hlav = await vyskaHlavickyWebu(t);
       const okno = await t.ev("innerHeight");
-      const strop = Math.min(KARTA_TELEFON_MAX, okno - hlav);
-      if (t.mobil) j.over(stC.vyskaKarty > 0 && stC.vyskaKarty <= strop, `otvorená karta na telefóne ${stC.vyskaKarty} px, smie mať najviac ${strop} px (strop ${KARTA_TELEFON_MAX}, okno ${okno}, hlavička webu ${hlav})`);
+      const stropTel = t.sirka < 375 ? KARTA_UZKY_MAX : KARTA_TELEFON_MAX;
+      const strop = Math.min(stropTel, okno - hlav);
+      if (t.mobil) j.over(stC.vyskaKarty > 0 && stC.vyskaKarty <= strop, `otvorená karta na telefóne ${stC.vyskaKarty} px, smie mať najviac ${strop} px (strop ${stropTel} pri ${t.sirka} px, okno ${okno}, hlavička webu ${hlav})`);
       await snimka(s, a, "druha-cena", `${KARTA} .lcd1v-druha__dlazdica`);
       await snimkaKarty(s, a, "druha-karta");
+      // 4c) okienko „Čo je druhá vrstva?“ (variant B, Michal 25. 10. 2026): otvorenie, prístupnosť, Esc / × / pozadie
+      const ok = await overOkno(s, a, j);
       // 5) Nie -> karta zbalená ako hotová, otvorí sa Rozloženie; POST = baseline
       await t.klikni(`${KARTA} .lcd1v-druha__nie`, { popis: "Nie, ďakujem" });
       await t.cakaj(`document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idR}").classList.contains("active")`, { ms: 8000, popis: "otvorené Rozloženie po „Nie, ďakujem“" });
@@ -518,7 +731,7 @@ export const SCENARE = {
       rovnakyAkoBaseline(j, post, P.id);
       j.over(cena.spolu === P.platne.spolu, `suma ${cena.spolu} ≠ ${P.platne.spolu}`);
       j.over((await kluc(t)) === null, "po „Nie“ ostal kľúč prenosu v sessionStorage");
-      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok za celú sadu od + ${n} €${cv.odp ? ` (odporúčaná ${cv.odp} €, ušetríte ${cv.usp} €)` : " (bez odporúčanej — produkt nemá bežnú cenu)"}, otvorená karta ${stC.vyskaKarty} px (okno ${okno}, hlavička webu ${hlav}), dlaždica ${stC.dlVyska} px, Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
+      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok za celú sadu od + ${n} €${cv.odp ? ` (odporúčaná ${cv.odp} €, ušetríte ${cv.usp} €)` : " (bez odporúčanej — produkt nemá bežnú cenu)"}, otvorená karta ${stC.vyskaKarty} px (okno ${okno}, hlavička webu ${hlav}), dlaždica ${stC.dlVyska} px, okienko ${ok.rect.w} × ${ok.rect.h} px (Esc, ×, pozadie, Tab vnútri${ok.lenis ? `; Lenis pri zmene šírky ${ok.lenis}` : ""}), Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
     },
   },
 
@@ -547,13 +760,23 @@ export const SCENARE = {
       const cenaJedno = await ctxCena(t);
       const cbJedno = (await stavKarty(t)).cb;
       const odpJedno = await odporucanaRamika(t, ovl);
-      // Áno: správa v karte, tlačidlá zablokované (stránka sa vymení o ~0,5 s)
-      await t.klikni(`${KARTA} .lcd1v-druha__ano`, { popis: "tlačidlo Áno, chcem druhú vrstvu" });
+      // Áno: telefón = zelené „Áno, chcem druhú vrstvu“ v okienku „Čo je druhá vrstva?“ (variant B, Michal 25. 10. 2026 —
+      // presne tá istá akcia ako Áno v dlaždici; okienko sa zavrie), PC = tlačidlo v dlaždici (myš). Správa v karte,
+      // tlačidlá zablokované (stránka sa vymení o ~0,5 s)
+      if (t.mobil) {
+        await t.klikni(`${KARTA} .lcd1v-druha__viac`, { popis: "Zistiť viac" });
+        await t.cakaj(oknoOtvorene, { ms: 5000, popis: "otvorené okienko „Čo je druhá vrstva?“" });
+        await j.pauza(400);
+        await t.klikni(".lcd1v-druha-okno__ano", { popis: "Áno, chcem druhú vrstvu (okienko)" });
+      } else {
+        await t.klikni(`${KARTA} .lcd1v-druha__ano`, { popis: "tlačidlo Áno, chcem druhú vrstvu" });
+      }
       const hned = await stavKarty(t).catch(() => null);
       if (a.snimky) await s.k.snimka(join(a.snimky, `${P.id}-druha-prenos-${t.sirka}.png`)).catch(() => {});
       if (hned && hned.je) {
         j.over(hned.prenos && hned.prenos.startsWith("Prenášame Váš výber na dvojvrstvové autokoberce…"), `správa po Áno: „${hned.prenos}“`);
-        j.over(hned.anoZablok && hned.nieZablok, "po Áno nie sú tlačidlá zablokované");
+        j.over(hned.anoZablok && hned.nieZablok && hned.viacZablok, `po Áno nie sú tlačidlá zablokované (Áno ${hned.anoZablok}, Nie ${hned.nieZablok}, Zistiť viac ${hned.viacZablok})`);
+        j.over(!hned.oknoOtvorene, "po Áno v okienku ostalo okienko otvorené");
       }
       s.produkt = Pc;
       try {
@@ -589,10 +812,10 @@ export const SCENARE = {
         const auto = await t.ev(`({ model: sessionStorage.getItem("model"), vy: ((document.querySelector("${F} .lcd1v-k-auto > .lcd1v-hd .lcd1v-vy") || {}).textContent || "").trim(), chyby: window.__lcd1v.chyby.slice() })`);
         j.over(nav === "back_forward", "návrat nebol back_forward: " + nav);
         j.over(auto.model === "Audi A6 2015 Combi" && auto.vy === "Audi A6, 2015, Combi", `auto po Späť: ${JSON.stringify(auto)}`);
-        j.over(spat.vidno && !spat.hotova && spat.vy === "Áno alebo nie" && !spat.anoZablok && !spat.nieZablok && !spat.prenos, `karta po Späť má byť nezodpovedaná a odblokovaná: ${JSON.stringify(spat)}`);
+        j.over(spat.vidno && !spat.hotova && spat.vy === "Áno alebo nie" && !spat.anoZablok && !spat.nieZablok && !spat.viacZablok && !spat.prenos && !spat.oknoOtvorene, `karta po Späť má byť nezodpovedaná a odblokovaná: ${JSON.stringify(spat)}`);
         j.over(!auto.chyby.length, "chyby 1V po Späť: " + auto.chyby.join("; "));
         j.over((await kluc(t)) === null, "kľúč prenosu po Späť nezmazaný");
-        return { info: `${P.id} -> ${cielId}: vzor, auto, farba ${farba} prenesené, otvorený krok 4 bez predvoľby; príplatok + ${n} € = ${cenaDvoj} − ${cenaJedno}; odporúčaná ${cv.odp ? cv.odp + " € = " + odpDvoj + " − " + odpJedno : "neukázaná (" + P.id + " bez bežnej ceny, rámik " + odpJedno + ")"}; POST = baseline ${cielId} (${cena.spolu} €); Späť vráti auto aj farbu`, post: post.body };
+        return { info: `${P.id} -> ${cielId} (${t.mobil ? "Áno v okienku" : "Áno v dlaždici"}): vzor, auto, farba ${farba} prenesené, otvorený krok 4 bez predvoľby; príplatok + ${n} € = ${cenaDvoj} − ${cenaJedno}; odporúčaná ${cv.odp ? cv.odp + " € = " + odpDvoj + " − " + odpJedno : "neukázaná (" + P.id + " bez bežnej ceny, rámik " + odpJedno + ")"}; POST = baseline ${cielId} (${cena.spolu} €); Späť vráti auto aj farbu`, post: post.body };
       } finally {
         s.produkt = P;
       }

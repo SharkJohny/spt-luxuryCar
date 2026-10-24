@@ -24,6 +24,12 @@
 //     „8 z 10 zákazníkov … s druhou vrstvou“, „Nie je to koberec na koberci.“ a dve číslované vrstvy; pás „★ Najčastejšia
 //     voľba“; kompaktná karta (menšie video a tlačidlá), aby bola otvorená karta na telefóne na jednej obrazovke.
 //     Texty statické z typy/jedno.js, tučné časti = <b> cez textContent (žiadne innerHTML).
+//   - Michal 25. 10. 2026 (variant B, „Môže to byť tak“; predloha karty F1-ikony = „Farby A“, okienka C4-okienko):
+//     „8 z 10“ v jednom nízkom riadku, veta „Nie je to koberec na koberci.“ preč, vrstvy heslovite — zlatý štítok veľkými
+//     („1 · Prvá prešívaná vrstva“, „2 · Druhá vrstva“) a riadky s farebnou ikonou v krúžku (IKONY nižšie); pri druhej
+//     vrstve vpravo skutočné tlačidlo „ⓘ Zistiť viac“, ktoré otvorí okienko „Čo je druhá vrstva?“ (blok „okienko“ nižšie:
+//     telefón panel zdola, PC v strede; zelené „Áno“ v ňom = potvrdAno, presne to isté ako Áno v dlaždici). Okienko sa
+//     postaví až pri prvom kliku. Jednovrstvové nikde neznevažovať (žiadne „jar až leto“, „celý rok“, „chráni prvú vrstvu“).
 // Nič s atribútom name, žiadny zápis do formulára: karta je nový prvok v .content-wrap BEZ tried .position-wrap /
 // .parameter-wrap. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
@@ -55,13 +61,49 @@ function sTucnym(tag, trieda, pred, tucne, po) {
   return e;
 }
 /**
- * Blok pod hlavičkou (Michal 24. 10. 2026, návrh 1b): zlatý box „8 z 10 zákazníkov … <b>s druhou vrstvou</b>“,
- * „<b>Nie je to koberec na koberci.</b>“ a číslované vrstvy „<b>Prvá prešívaná vrstva</b> – …“ (texty typy/jedno.js „druha“).
+ * Farebné ikony v krúžku pri riadkoch vrstiev (Michal 25. 10. 2026, „Farby A“, predloha F1-ikony): biela značka na farbe,
+ * viewBox 20 × 20, kreslí sa 22 px. Kľúč = `ikona` riadku v typy/jedno.js. aria-hidden — význam nesie text riadka.
+ */
+const IKONY = {
+  diamant: { farba: "#c49b31", d: "M6.5 5h7l2.5 3.2L10 15.5 4 8.2z" }, // luxusný vzhľad (zlatá)
+  stit: { farba: "#3d3728", d: "M10 4l5 2v3.6c0 3-2.1 5.3-5 6.4-2.9-1.1-5-3.4-5-6.4V6z" }, // ochrana podlahy aj bokov (tmavá)
+  kvapka: { farba: "#2f6db0", d: "M10 3.8c-2.2 3-3.8 5-3.8 7.1a3.8 3.8 0 0 0 7.6 0c0-2.1-1.6-4.1-3.8-7.1z" }, // voda, sneh, blato (modrá)
+  iskra: { farba: "#1f7a52", d: "M10 4l1.4 3.9L15.3 9.3l-3.9 1.4L10 14.6l-1.4-3.9L4.7 9.3l3.9-1.4z" }, // jednoduchšia údržba (zelená)
+};
+const SVG_NS = "http://www.w3.org/2000/svg";
+function ikona(meno) {
+  const I = IKONY[meno];
+  if (!I) return null;
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "lcd1v-druha__ikona lcd1v-druha__ikona--" + meno);
+  svg.setAttribute("viewBox", "0 0 20 20");
+  svg.setAttribute("width", "22");
+  svg.setAttribute("height", "22");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const kruh = document.createElementNS(SVG_NS, "circle");
+  kruh.setAttribute("cx", "10");
+  kruh.setAttribute("cy", "10");
+  kruh.setAttribute("r", "10");
+  kruh.setAttribute("fill", I.farba);
+  const znak = document.createElementNS(SVG_NS, "path");
+  znak.setAttribute("d", I.d);
+  znak.setAttribute("fill", "#fff");
+  svg.appendChild(kruh);
+  svg.appendChild(znak);
+  return svg;
+}
+/**
+ * Blok pod hlavičkou (Michal 25. 10. 2026, variant B; texty typy/jedno.js „druha“): zlatý box v jednom nízkom riadku
+ * „8 z 10 | zákazníkov si vybralo autokoberce <b>s druhou vrstvou</b>“ a dve vrstvy heslovite — zlatý štítok
+ * („1 · Prvá prešívaná vrstva“) + riadky s farebnou ikonou; pri vrstve s `viac` vpravo na riadku štítku tlačidlo
+ * „ⓘ Zistiť viac“ (otvorí okienko). Všetko cez textContent (žiadne innerHTML). -> { info, viac }
  */
 function blokInfo(T) {
-  const TP = T.pocet, TV = T.vrstvy;
-  if (!TP && !TV) return null;
+  const TP = T.pocet, TV = Array.isArray(T.vrstvy) ? T.vrstvy : null;
+  if (!TP && !TV) return { info: null, viac: null };
   const info = el("div", "lcd1v-druha__info");
+  let viac = null;
   if (TP) {
     const box = el("div", "lcd1v-druha__pocet");
     box.appendChild(el("span", "lcd1v-druha__pocet-c", TP.cislo));
@@ -69,20 +111,39 @@ function blokInfo(T) {
     info.appendChild(box);
   }
   if (TV) {
-    if (TV.nadpis) info.appendChild(sTucnym("p", "lcd1v-druha__vrstvy-nd", null, TV.nadpis));
-    const zoz = el("ol", "lcd1v-druha__vrstvy");
-    (TV.riadky || []).forEach(function (r, i) {
-      const li = el("li", "lcd1v-druha__vrstva");
-      const c = el("span", "lcd1v-druha__vrstva-c", String(i + 1));
-      c.setAttribute("aria-hidden", "true");
-      li.appendChild(c);
-      // pevná medzera pred pomlčkou: „–“ nezačne riadok
-      li.appendChild(sTucnym("span", "lcd1v-druha__vrstva-t", null, r.b, NBSP + "– " + r.text));
-      zoz.appendChild(li);
+    const zoz = el("div", "lcd1v-druha__vrstvy");
+    TV.forEach(function (v) {
+      const vrstva = el("div", "lcd1v-druha__vrstva");
+      const hlav = el("div", "lcd1v-druha__vrstva-hd");
+      hlav.appendChild(el("p", "lcd1v-druha__stitok", v.stitok));
+      if (v.viac && T.viac && T.okno && !viac) {
+        // skutočné tlačidlo (klávesnica, čítačky): „i“ v krúžku je len ozdoba, podčiarknutý je len text „Zistiť viac“
+        viac = el("button", "lcd1v-druha__viac");
+        viac.type = "button";
+        viac.setAttribute("aria-haspopup", "dialog");
+        viac.setAttribute("aria-expanded", "false");
+        if (T.viac.aria) viac.setAttribute("aria-label", T.viac.aria);
+        const i = el("span", "lcd1v-druha__viac-i", T.viac.i);
+        i.setAttribute("aria-hidden", "true");
+        viac.appendChild(i);
+        viac.appendChild(el("span", "lcd1v-druha__viac-t", T.viac.tl));
+        hlav.appendChild(viac);
+      }
+      vrstva.appendChild(hlav);
+      const body = el("ul", "lcd1v-druha__body");
+      (v.body || []).forEach(function (b) {
+        const li = el("li", "lcd1v-druha__bod");
+        const ik = ikona(b.ikona);
+        if (ik) li.appendChild(ik);
+        li.appendChild(el("span", "lcd1v-druha__bod-t", b.t));
+        body.appendChild(li);
+      });
+      vrstva.appendChild(body);
+      zoz.appendChild(vrstva);
     });
     info.appendChild(zoz);
   }
-  return info;
+  return { info, viac };
 }
 function nastavText(e, text) {
   if (e && e.textContent !== text) e.textContent = text;
@@ -159,8 +220,9 @@ export function init(ctx) {
   hd.appendChild(tx);
   hd.appendChild(el("span", "lcd1v-zm", "Zmeniť"));
   karta.appendChild(hd);
-  // návrh 1b (24. 10. 2026): blok „8 z 10“ + dve vrstvy namiesto podnadpisu (T.pod už jedno.js nemá)
-  const info = blokInfo(T);
+  // návrh 1b (24. 10. 2026) / variant B (25. 10. 2026): blok „8 z 10“ + dve vrstvy namiesto podnadpisu (T.pod už jedno.js
+  // nemá); viac = tlačidlo „Zistiť viac“ pri druhej vrstve (okienko nižšie)
+  const { info, viac } = blokInfo(T);
   if (info) karta.appendChild(info);
   else if (T.pod) karta.appendChild(el("p", "lcd1v-pod", T.pod));
 
@@ -448,14 +510,16 @@ export function init(ctx) {
     obnov();
   });
 
-  // tlačidlo „Áno“ (myš, Enter, medzerník) aj klik kamkoľvek do dlaždice: klik na tlačidlo prebuble do dlaždice -> jeden poslucháč
-  dlazdica.addEventListener("click", function () {
+  // „Áno“: tlačidlo v dlaždici (myš, Enter, medzerník), klik kamkoľvek do dlaždice (klik na tlačidlo prebuble do dlaždice ->
+  // jeden poslucháč) aj zelené „Áno“ v okienku „Čo je druhá vrstva?“ — všetko jedna akcia
+  function potvrdAno() {
     if (stav.prenos) return;
     stav.prenos = true;
     stav.odpoved = "ano";
     ano.disabled = true;
     nie.disabled = true;
     hd.disabled = true;
+    if (viac) viac.disabled = true;
     const riadky = ["vzor", "auto", "farba"].map((m) => {
       const k = form.querySelector(".lcd1v-k-" + m + " > .lcd1v-hd .lcd1v-vy");
       return k ? k.textContent.replace(/\s+/g, " ").trim() : "";
@@ -465,7 +529,134 @@ export function init(ctx) {
     obnov();
     zapisPrenos(ctx, ciel.id); // zakázané úložisko: prechod aj tak (prenesie sa nanajvýš auto)
     setTimeout(function () { window.location.assign(ciel.url); }, 450);
-  });
+  }
+  dlazdica.addEventListener("click", potvrdAno);
+
+  // ---------------------------------------------------------------- okienko „Čo je druhá vrstva?“ (Michal 25. 10. 2026)
+  // Predloha C4-okienko: telefón (≤ 720 px) panel zdola, PC v strede (max 480 px); tmavé pozadie, zaoblené rohy; nadpis,
+  // × (Zavrieť), tri časti so zlatým štítkom, box „8 z 10“ a zelené „Áno, chcem druhú vrstvu“ = potvrdAno.
+  // Postaví sa až pri PRVOM kliku na „Zistiť viac“ (pri načítaní stránky nič navyše), pripojí sa k <body> (position: fixed
+  // nezávisle od predkov karty). Prístupnosť: role=dialog, aria-modal, aria-labelledby = nadpis; fokus do okienka a pri
+  // zatvorení späť na „Zistiť viac“; Esc, × aj klik na pozadie zavrú; Tab ostáva v okienku; stránka pod ním sa neroluje
+  // (trieda na <body> + zastavený Lenis na PC), obsah okienka sa roluje sám (data-lenis-prevent), keď je okno nízke.
+  const TO = T.okno || null;
+  const okno = { koren: null, panel: null, x: null, ano: null, otvorene: false, lenis: null, casovac: 0 };
+  function postavOkno() {
+    if (okno.koren || !TO) return;
+    const koren = el("div", "lcd1v-druha-okno");
+    koren.hidden = true;
+    const pozadie = el("div", "lcd1v-druha-okno__pozadie");
+    const panel = el("div", "lcd1v-druha-okno__panel");
+    const idNadpisu = "lcd1v-druha-okno-nadpis";
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-modal", "true");
+    panel.setAttribute("aria-labelledby", idNadpisu);
+    panel.tabIndex = -1;
+    // PC: plynulé rolovanie Lenis (lcdHome.js) by koliesko nad okienkom poslalo stránke (ako okno boxov, kufor-boxy.js)
+    panel.setAttribute("data-lenis-prevent", "");
+    const uchyt = el("span", "lcd1v-druha-okno__uchyt");
+    uchyt.setAttribute("aria-hidden", "true");
+    panel.appendChild(uchyt);
+    const hlav = el("div", "lcd1v-druha-okno__hd");
+    const nadpis = el("h3", "lcd1v-druha-okno__nadpis", TO.nadpis);
+    nadpis.id = idNadpisu;
+    const x = el("button", "lcd1v-druha-okno__x", "×");
+    x.type = "button";
+    x.setAttribute("aria-label", TO.zavriet);
+    hlav.appendChild(nadpis);
+    hlav.appendChild(x);
+    panel.appendChild(hlav);
+    (TO.casti || []).forEach(function (c) {
+      const cast = el("div", "lcd1v-druha-okno__cast");
+      cast.appendChild(el("p", "lcd1v-druha-okno__stitok", c.nm));
+      cast.appendChild(el("p", "lcd1v-druha-okno__text", c.text));
+      panel.appendChild(cast);
+    });
+    if (TO.pocet) {
+      const box = el("div", "lcd1v-druha-okno__pocet");
+      box.appendChild(el("b", "lcd1v-druha-okno__pocet-c", TO.pocet.cislo));
+      box.appendChild(el("span", "lcd1v-druha-okno__pocet-t", TO.pocet.text));
+      panel.appendChild(box);
+    }
+    const a = el("button", "lcd1v-druha-okno__ano", TO.tl);
+    a.type = "button";
+    panel.appendChild(a);
+    koren.appendChild(pozadie);
+    koren.appendChild(panel);
+    document.body.appendChild(koren);
+    Object.assign(okno, { koren, panel, x, ano: a });
+    pozadie.addEventListener("click", function () { zavriOkno(true); });
+    x.addEventListener("click", function () { zavriOkno(true); });
+    a.addEventListener("click", function () { zavriOkno(false); potvrdAno(); });
+    // Esc zavrie; Tab / Shift+Tab ostáva v okienku (× -> Áno -> × …)
+    document.addEventListener("keydown", function (e) {
+      if (!okno.otvorene) return;
+      if (e.key === "Escape" || e.key === "Esc") { e.preventDefault(); zavriOkno(true); return; }
+      if (e.key !== "Tab") return;
+      const prvky = [okno.x, okno.ano].filter(function (b) { return !b.disabled; });
+      const i = prvky.indexOf(document.activeElement);
+      if (i < 0 || (e.shiftKey && i === 0) || (!e.shiftKey && i === prvky.length - 1)) {
+        e.preventDefault();
+        prvky[e.shiftKey ? prvky.length - 1 : 0].focus();
+      }
+    });
+    // fokus mimo okienka (čítačka, iný prvok stránky) -> späť do okienka
+    document.addEventListener("focusin", function (e) {
+      if (okno.otvorene && !okno.panel.contains(e.target)) okno.panel.focus({ preventScroll: true });
+    });
+  }
+  /** Lenis, ktorý práve beží (lcdHome.js; na PC od 1025 px), inak null. */
+  function aktualnyLenis() {
+    try { return typeof window.__lcdhLenis === "function" ? window.__lcdhLenis() : null; } catch (e) { return null; }
+  }
+  /** Bežiaci Lenis zastaviť; okno.lenis = ten, ktorý zastavilo okienko (pri zatvorení ho zas spustí). */
+  function zastavLenis() {
+    const l = aktualnyLenis();
+    if (l && !l.isStopped && typeof l.stop === "function") { l.stop(); okno.lenis = l; }
+  }
+  // Zmena šírky okna cez hranicu Lenisu počas otvoreného okienka: lcdHome.js starý Lenis zruší a vytvorí nový, NEZASTAVENÝ
+  // (koliesko nad pozadím by posúvalo stránku). Jeho zmena (media query) príde v tom istom vykreslení po „resize“ ->
+  // kontrola až v ďalšej úlohe (setTimeout), potom aj nový Lenis zastaviť.
+  function priZmeneOkna() {
+    clearTimeout(okno.casovac);
+    okno.casovac = setTimeout(function () { if (okno.otvorene) zastavLenis(); }, 0);
+  }
+  /** Stránka pod okienkom sa neroluje: trieda na <body> (overflow: hidden) + na PC zastavený Lenis (len ak ho zastavilo okienko). */
+  function zamkniStranku(on) {
+    prepni(document.body, "lcd1v-druha-okno-otvorene", on);
+    if (on) {
+      zastavLenis();
+      window.addEventListener("resize", priZmeneOkna);
+      return;
+    }
+    window.removeEventListener("resize", priZmeneOkna);
+    clearTimeout(okno.casovac);
+    // spustiť len Lenis, ktorý ešte žije (pri zmene šírky ho lcdHome.js mohol medzitým zrušiť)
+    if (okno.lenis && okno.lenis === aktualnyLenis()) {
+      try { okno.lenis.start(); } catch (e) { /* nič */ }
+    }
+    okno.lenis = null;
+  }
+  function otvorOkno() {
+    if (!TO || stav.prenos) return;
+    postavOkno();
+    if (!okno.koren || okno.otvorene) return;
+    okno.otvorene = true;
+    okno.koren.hidden = false;
+    okno.panel.scrollTop = 0;
+    if (viac) viac.setAttribute("aria-expanded", "true");
+    zamkniStranku(true);
+    okno.panel.focus({ preventScroll: true });
+  }
+  function zavriOkno(fokusSpat) {
+    if (!okno.otvorene) return;
+    okno.otvorene = false;
+    okno.koren.hidden = true;
+    if (viac) viac.setAttribute("aria-expanded", "false");
+    zamkniStranku(false);
+    if (fokusSpat && viac && !viac.disabled) viac.focus({ preventScroll: true });
+  }
+  if (viac) viac.addEventListener("click", otvorOkno);
 
   // „Pokračujte ďalej“ vo Farbe: kým nie je otázka zodpovedaná, otvorí kartu namiesto Rozloženia. Nevyplnená farba
   // (alebo krok pred ňou) = živá validácia ako doteraz (červený rám). Capture na document -> živý engine nebeží.
@@ -504,11 +695,13 @@ export function init(ctx) {
   // Safari bfcache (Späť bez nového načítania): karta znova nezodpovedaná, tlačidlá odblokované
   window.addEventListener("pageshow", function (e) {
     if (!e.persisted) return;
+    zavriOkno(false);
     stav.prenos = false;
     stav.odpoved = null;
     ano.disabled = false;
     nie.disabled = false;
     hd.disabled = false;
+    if (viac) viac.disabled = false;
     prenos.hidden = true;
     zatvor();
     obnov();
