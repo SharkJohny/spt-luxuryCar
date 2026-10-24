@@ -4,7 +4,7 @@
 //
 // Živý POST boxu (14. 10. 2026): productId, priceId, language, amount, parameterValueId[78], surchargeParameterValueId[94]
 // (+ [97] pri 2–3 ks, + [100] pri 3 ks). Box, ktorý nie je v počte, v POST CHÝBA (živý .val(0) -> selectedIndex -1).
-// Ceny: 1. box v cene produktu (S +0, M +10, L +35, XL +49), 2. a 3. box plná cena (S 197 … XL 249).
+// Ceny: 1. box v cene produktu (S +0, M +10, L +35, XL +49), 2. a 3. box plná cena (S 197 … XL 246; XL zjednotené s 1. boxom 24. 10. 2026).
 //
 // Nový vzhľad (T3.2, boxy-produkt.js; ovládač ovladac-boxy-produkt.mjs `novy`): JEDNA karta „Vaše boxy do kufra“
 // (Michal 23. 10. 2026) — farba, počet a veľkosti na jednom mieste, štart s 1 boxom; košík len s veľkosťou KAŽDÉHO boxu
@@ -66,7 +66,7 @@ export const SCENARE = {
   /** 2 boxy S + L -> POST [94]=S [97]=L, cena 197 + 0 + 232 = 429 (plan §4). */
   "box-pocet-2": { typy: ["boxy"], fn: (s, a, pom, ovl, j) => pocetBoxov(s, a, ovl, j, 2, ["S", "L"]) },
 
-  /** 3 boxy S + S + XL -> POST [94]=S [97]=S [100]=XL, cena 197 + 0 + 197 + 249 = 643 (plan §4). */
+  /** 3 boxy S + S + XL -> POST [94]=S [97]=S [100]=XL, cena 197 + 0 + 197 + 246 = 640 (plan §4; XL 249 -> 246 od 24. 10. 2026). */
   "box-pocet-3": { typy: ["boxy"], fn: (s, a, pom, ovl, j) => pocetBoxov(s, a, ovl, j, 3, ["S", "S", "XL"]) },
 
   /**

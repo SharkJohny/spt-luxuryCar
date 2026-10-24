@@ -182,7 +182,7 @@ export const PRODUKTY = {
       "box-komplet-nie", "box-komplet-ano", "box-komplet-od", "box-komplet-seda", "box-komplet-bezova", "box-komplet-3"],
     platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
     odporucana: false,
-    ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 643, "box-3-na-1": 197, dokoncit: 207 },
+    ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 640, "box-3-na-1": 197, dokoncit: 207 },
     // živý POST 14. 10. 2026: select boxu, ktorý nie je v počte, ide preč z POST (živý .val(0) -> selectedIndex -1);
     // predvolené „2 ks“ bez kliku nechá 3. box v POST prázdny ([100]=)
     postKluce: "productId priceId language amount parameterValueId[78] surchargeParameterValueId[94] (+ [97] pri 2–3 ks, + [100] pri 3 ks; nepoužitý box v POST chýba)",
