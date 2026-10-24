@@ -17,18 +17,20 @@
 //     (+ zablesk), ktorý zmizne, až keď je krok vyplnený (ctx.vyplneny). V kroku auta označí aj prázdne polia.
 //   - postup „Váš set v 6 krokoch“ (zelený = hotový, zlatý = otvorený, sivý = čaká) a zelený pás kompatibility
 //     s autom nad krokmi; živý .model-info je pod 1V skrytý (CSS).
-//   - po „Pokračujte ďalej“ / kliku na hlavičku stránka podrží kliknutú hlavičku na mieste, resp. posunie novo
-//     otvorený krok pod hlavičku webu (zatvorenie dlhého kroku nad ním by ho inak vytlačilo mimo obrazovky).
+//   - klik na hlavičku: stránka podrží kliknutú hlavičku na mieste (zatvorenie dlhého kroku nad ňou by ju inak
+//     vytlačilo mimo obrazovky); „Pokračujte ďalej“: novo otvorený krok plynulo do stredu viditeľnej plochy
+//     (posun.js posunNaStred, Michal 24. 10. 2026; vyšší krok vrchom pod hlavičku webu).
 // Kroky 1–3 (telo): preštýlované živé ovládače (odkazy na sesterské vzory, selecty auta, dlaždice volantu/miest/
 //   dverí, 18 farieb) + nové prvky bez name (podnadpis, náhľad farby, chybové texty, poznámka). Farba je len náhľad
 //   v kroku (hlavná fotka galérie sa nemení); živý .image-wrap je pod 1V skrytý.
 // Ostatné moduly: zhrnutie voľby v hlavičke kroku si môžu prepísať cez data-lcd1v-vyber na živom kroku; po postavení
 //   obalu príde udalosť ctx.na("kroky:hotovo"), pri zmene otvoreného kroku ctx.na("kroky:otvoreny", { meno, el }).
 // Posledný krok produktu (jedno/dvoj boxy, rohož farba, box velkost): „Pokračujte k súhrnu“ — živé tlačidlo by vkladalo
-//   do košíka; pod 1V len zatvorí krok a posunie na súhrn (handler na konci súboru).
+//   do košíka; pod 1V len zatvorí krok a posunie súhrn do stredu viditeľnej plochy (handler na konci súboru).
 // Pokus prejsť na kartu za autom bez auta (hlavička, voľba) = „Pokračujte ďalej“ v karte auta, bez výzvy (Michal
 //   16. 10. 2026, docs/1v-kontrakt.md §15; handler „pokus prejsť ďalej bez auta“ nižšie, validation.js pod 1V mlčí).
 import { lcdOverKrok } from "../../functions/configuratorEngine.js";
+import { posunNaStred } from "./posun.js";
 
 export const MENO = "kroky";
 
@@ -529,15 +531,8 @@ export function init(ctx) {
 
   // ---------------------------------------------------------------- posun stránky pri akordeóne
   // Zatvorenie dlhého otvoreného kroku nad kliknutým by kliknutú hlavičku vytlačilo hore mimo obrazovky
-  // (desktop živý kód scroll nerieši). Hlavička: podržať na mieste. „Pokračujte ďalej“: nový krok pod hlavičku webu.
-  function vyskaHlavicky() {
-    const sels = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
-    for (let i = 0; i < sels.length; i++) {
-      const e = document.querySelector(sels[i]);
-      if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) return e.offsetHeight;
-    }
-    return 0;
-  }
+  // (desktop živý kód scroll nerieši). Hlavička: podržať na mieste. „Pokračujte ďalej“ (Michal 24. 10. 2026): novo
+  // otvorený krok VŽDY plynulo do stredu viditeľnej plochy (posun.js; dovtedy len mimo pásma, skokom pod hlavičku).
   function posun(y) {
     if (Math.abs(y) < 2) return;
     window.scrollTo({ top: Math.max(0, window.scrollY + y), behavior: "instant" });
@@ -550,18 +545,21 @@ export function init(ctx) {
     const k = (hlavicka || dalej) && kroky.find((x) => x.el === (hlavicka || dalej).parentNode);
     if (!k) return;
     const pred = k.el.getBoundingClientRect().top;
+    // „Pokračujte ďalej“ neprejde (rovnaká podmienka ako engine: prvý nevyplnený krok po kliknutý vrátane) -> engine
+    // otvorí chýbajúci krok a posúva naň sám. Nie globálne .lcd-needs-fill: tá ostáva 3 s aj po doplnení a úspešný
+    // druhý klik by sa vôbec neposunul (Michal 24. 10. 2026).
+    const neprejde = !!dalej && !!lcdOverKrok(k.el, true);
     setTimeout(function () {
-      if (document.querySelector(".overflow") || document.querySelector(".lcd-needs-fill")) return; // výzva / validácia posúva sama
+      if (document.querySelector(".overflow")) return; // výzva posúva sama
       if (hlavicka) {
+        if (document.querySelector(".lcd-needs-fill")) return; // validácia posúva sama
         posun(k.el.getBoundingClientRect().top - pred);
         return;
       }
+      if (neprejde) return;
       const o = kroky.find((x) => x.el.classList.contains("active"));
       if (!o || o === k) return;
-      const hH = vyskaHlavicky();
-      const top = o.el.getBoundingClientRect().top;
-      const vh = window.innerHeight || document.documentElement.clientHeight;
-      if (top < hH + 8 || top > hH + (vh - hH) * 0.5) posun(top - hH - 12);
+      posunNaStred(o.el);
     }, 0);
   }, true);
 
@@ -583,8 +581,7 @@ export function init(ctx) {
       if (typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(k.el, false);
       else k.el.classList.remove("active");
     }
-    const ciel = document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik");
-    if (ciel) setTimeout(function () { ciel.scrollIntoView({ block: "center", behavior: "smooth" }); }, 30);
+    posunNaStred(document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik")); // stred viditeľnej plochy (Michal 24. 10. 2026)
     naplanuj();
   }, true);
 

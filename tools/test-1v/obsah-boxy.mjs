@@ -26,9 +26,10 @@ export const sekcie = [
   { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Berete aj autokoberce" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
   { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  // b-predapo hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“)
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }] },
   { meno: "boxy-velkosti", navrh: [{ sel: "#velkosti" }, { sel: ".spat", za: "#velkosti" }] },
-  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   // c-kam „Čo sa doň zmestí“ a c-domov „Čo dostanete“ zmazané 23. 10. 2026 (Michal: „veľakrát za sebou … veľmi podobný“ obsah —
   // všetko z nich je v „Osem vecí“ b-ocakavat)
   { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", za: "#tml" }] },
@@ -180,6 +181,14 @@ export async function kontroly(t) {
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"]'), function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
   const posun = (sel, kam = "start") => t.ev(`(async function () { var e = document.querySelector(${JSON.stringify(sel)}); if (!e) return false;
     e.scrollIntoView({ block: ${JSON.stringify(kam)}, behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 900); }); return true; })()`);
+
+  // ---------------------------------------------------------------- Pred a po hneď za recenziami (Michal 24. 10. 2026:
+  //     „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“) — susedná sekcia na stránke, nie číslo súboru
+  if (await t.je("b-predapo")) {
+    const v = (await t.ev(`[].map.call(document.querySelectorAll(".p1v-miesto [data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia"); })`)).filter((m) => m !== "x-sonda-cisla");
+    const i = v.indexOf("a-recenzie");
+    ok(i >= 0 && v[i + 1] === "b-predapo", `b-predapo je hneď za a-recenzie (${i >= 0 ? v.slice(Math.max(0, i - 1), i + 3).join(" → ") : "a-recenzie chýba"})`);
+  }
 
   // ---------------------------------------------------------------- zdroj sekcií (D3, ceny natvrdo, TODO-D3)
   const z = kontrolaZdroja();

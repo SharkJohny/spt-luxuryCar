@@ -17,6 +17,7 @@
 //    „Vložte do košíka“; pri 0 vzorkách sa do košíka NEPOŠLE nič (capture na document zastaví klik aj submit) a otvorí
 //    sa 1. krok s červeným rámom. Lepivá lišta na telefóne (ako cena.js).
 import { VZORKY_SERIES, VZORKY_ITEMS } from "../../vzorky-konfigurator/swatch-data.js";
+import { posunNaStred, vyskaHlavicky, plynulo } from "./posun.js";
 
 export const MENO = "vzorky-produkt";
 
@@ -589,17 +590,8 @@ export function init(ctx) {
   });
 
   // ---------------------------------------------------------------- akordeón (jeden otvorený), posun stránky
-  function vyskaHlavicky() {
-    const sels = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
-    for (let i = 0; i < sels.length; i++) {
-      const e = document.querySelector(sels[i]);
-      if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) return e.offsetHeight;
-    }
-    return 0;
-  }
-  function plynulo() {
-    return !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }
+  // Hlavička: kliknutá ostane na mieste. „Pokračujte ďalej“ / „Pokračujte k súhrnu“ (Michal 24. 10. 2026): ďalší krok
+  // / súhrn VŽDY plynulo do stredu viditeľnej plochy (posun.js, ako kroky.js; vyšší krok vrchom pod hlavičku webu).
   function posun(y) {
     if (Math.abs(y) < 2) return;
     window.scrollTo({ top: Math.max(0, window.pageYOffset + y), behavior: "instant" });
@@ -625,15 +617,12 @@ export function init(ctx) {
       k.potvrdeny = true;
       if (i < kroky.length - 1) {
         otvor(i + 1);
-        const hH = vyskaHlavicky();
-        const top = kroky[i + 1].el.getBoundingClientRect().top;
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        if (top < hH + 8 || top > hH + (vh - hH) * 0.5) posun(top - hH - 12);
+        posunNaStred(kroky[i + 1].el);
         return;
       }
       // posledný krok: „Pokračujte k súhrnu“ — nič do košíka, len zatvoriť a ukázať súhrn s tlačidlom
       otvor(-1);
-      setTimeout(function () { suhrn.scrollIntoView({ block: "center", behavior: plynulo() ? "smooth" : "auto" }); }, 30);
+      posunNaStred(suhrn);
     });
   });
 

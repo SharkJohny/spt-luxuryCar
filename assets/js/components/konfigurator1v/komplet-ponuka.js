@@ -38,6 +38,7 @@
 // Nič s atribútom name, žiadny zápis do formulára tejto stránky. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
 import { stranka, moznostiZMapy } from "./ceny-ine.js";
+import { posunNaStred } from "./posun.js";
 import { zapisVyber } from "./prenos.js";
 import { nazovFarby } from "./kroky.js";
 import { velkostZTextu } from "./boxy-produkt.js";
@@ -105,23 +106,6 @@ function atribut(e, meno, hodnota) {
 }
 /** Text typu: reťazec alebo funkcia údajov ponuky. */
 const text = (x, d) => (typeof x === "function" ? x(d) : x || "");
-
-function vyskaHlavicky() {
-  const sels = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
-  for (let i = 0; i < sels.length; i++) {
-    const e = document.querySelector(sels[i]);
-    if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) return e.offsetHeight;
-  }
-  return 0;
-}
-/** Ako kroky.js po „Pokračujte ďalej“: otvorená karta pod hlavičku webu, ak nie je v hornej polovici okna. */
-function posunNa(e) {
-  if (!e || !e.isConnected) return;
-  const hH = vyskaHlavicky();
-  const top = e.getBoundingClientRect().top;
-  const vh = window.innerHeight || document.documentElement.clientHeight;
-  if (top < hH + 8 || top > hH + (vh - hH) * 0.5) window.scrollTo({ top: Math.max(0, Math.round(window.pageYOffset + top - hH - 12)), behavior: "instant" });
-}
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
@@ -337,10 +321,7 @@ export function init(ctx) {
     lcdGetSteps().forEach((s) => { if (s.classList.contains("active")) nastavOtvoreny(s, false); });
     karta.classList.add("active");
     hd.setAttribute("aria-expanded", "true");
-    if (posun) {
-      setTimeout(() => posunNa(karta), 0);
-      setTimeout(() => posunNa(karta), 380); // zatvorenie kroku nad ňou mení výšku (prechod ~300 ms)
-    }
+    if (posun) posunNaStred(karta); // ako kroky.js po „Pokračujte ďalej“: do stredu viditeľnej plochy (Michal 24. 10. 2026)
   }
   function zatvor() {
     karta.classList.remove("active");
@@ -363,19 +344,16 @@ export function init(ctx) {
       // hlavná cesta: Farba (ako „Pokračujte ďalej“ v Aute)
       lcdGetSteps().forEach((s) => { if (s !== kFarba && s.classList.contains("active")) nastavOtvoreny(s, false); });
       if (!kFarba.classList.contains("active")) nastavOtvoreny(kFarba, true);
-      setTimeout(() => posunNa(kFarba), 0);
-      setTimeout(() => posunNa(kFarba), 380);
+      posunNaStred(kFarba); // odpoveď kartu zatvorila -> ďalšia karta do stredu (Michal 24. 10. 2026)
     } else if (!ctx.vyplneny(kFarba)) {
       // box bez úplného výberu (karta otvorená hlavičkou): späť do karty „Vaše boxy do kufra“ (farba + veľkosti)
       lcdGetSteps().forEach((s) => { if (s !== kFarba && s.classList.contains("active")) nastavOtvoreny(s, false); });
       if (!kFarba.classList.contains("active")) nastavOtvoreny(kFarba, true);
-      setTimeout(() => posunNa(kFarba), 0);
-      setTimeout(() => posunNa(kFarba), 380);
+      posunNaStred(kFarba); // odpoveď kartu zatvorila -> ďalšia karta do stredu (Michal 24. 10. 2026)
     } else {
       // box s úplným výberom (po „Pokračujte k súhrnu“ alebo hlavičkou): ako „Pokračujte k súhrnu“ (kroky.js) — súhrn s košíkom
       lcdGetSteps().forEach((s) => { if (s.classList.contains("active")) nastavOtvoreny(s, false); });
-      const suhrn = document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik");
-      if (suhrn) setTimeout(function () { suhrn.scrollIntoView({ block: "center", behavior: "smooth" }); }, 30);
+      posunNaStred(document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik"));
     }
     obnov();
   });

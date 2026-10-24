@@ -9,10 +9,11 @@
 // sa pohnú pri scrollovaní; reveal .rv v porovnaní.
 export const SKUPINA = "b";
 export const sekcie = [
+  // b-predapo je od 24. 10. 2026 na stránke hneď za a-recenzie (kus 1, súbor 10-b-predapo), pred zvyškom skupiny A — kontrola nižšie
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }, { sel: "#s2Mob" }] },
   { meno: "b-material", navrh: [{ sel: "#material" }] },
   { meno: "b-porovnanie", navrh: [{ sel: "#porovnanie" }, { sel: ".spat", za: "#porovnanie" }] },
-  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
 ];
 
 /** rovnaký zlom ako obsah-b.js MQ_STATICKA / LCD-HOME */
@@ -123,6 +124,14 @@ export async function kontroly(t) {
     const l = await t.ev(`(function () { var L = document.querySelectorAll(${JSON.stringify(sek)} + " .leg"); var h = L[1].querySelector(".leg-h"), d = L[1].querySelector(".leg-d");
       return { exp: h.getAttribute("aria-expanded"), h: Math.round(d.getBoundingClientRect().height), ine: [].filter.call(L, function (x) { return x.querySelector(".leg-h").getAttribute("aria-expanded") === "true"; }).length }; })()`);
     ok(l.exp === "true" && l.h > 20 && l.ine === 1, `b-material: legenda 2 sa otvorila (výška popisu ${l.h} px, otvorených ${l.ine})`);
+  }
+
+  // ---------------------------------------------------------------- Pred a po hneď za recenziami (Michal 24. 10. 2026:
+  //     „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“) — susedná sekcia na stránke, nie číslo súboru
+  if (await t.je("b-predapo")) {
+    const v = (await t.ev(`[].map.call(document.querySelectorAll(".p1v-miesto [data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia"); })`)).filter((m) => m !== "x-sonda-cisla");
+    const i = v.indexOf("a-recenzie");
+    ok(i >= 0 && v[i + 1] === "b-predapo", `b-predapo je hneď za a-recenzie (${i >= 0 ? v.slice(Math.max(0, i - 1), i + 3).join(" → ") : "a-recenzie chýba"})`);
   }
 
   // ---------------------------------------------------------------- Pred a po

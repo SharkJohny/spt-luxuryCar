@@ -27,11 +27,12 @@ export const sekcie = [
   { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
   { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  // b-predapo hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“)
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }] },
   { meno: "b-material", navrh: [{ sel: "#material" }] },
   { meno: "b-porovnanie", navrh: [{ sel: "#porovnanie" }] },
   { meno: "classic-premium", navrh: [{ sel: "#premium" }, { sel: ".spat", za: "#premium" }] },
-  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "c-kam", navrh: [{ sel: "section.chapter", text: "Kam všade rohož siaha" }] },
   { meno: "classic-box", navrh: [{ sel: "section.chapter", text: "Doplňte kufor o box" }, { sel: ".spat", za: "#predapo" }] },
   { meno: "c-domov", navrh: [{ sel: "section.chapter", text: "Čo Vám príde domov" }] },
@@ -133,6 +134,13 @@ export async function kontroly(t) {
   for (const s of sekcie) je[s.meno] = await t.je(s.meno);
   // chat Luxia (iframe tretej strany) sa na telefóne sám otvára cez stred obrazovky — pre skutočné kliky ho skryjeme (len test)
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]'), function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
+  // ---------------------------------------------------------------- Pred a po hneď za recenziami (Michal 24. 10. 2026:
+  //     „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“) — susedná sekcia na stránke, nie číslo súboru
+  if (await t.je("b-predapo")) {
+    const v = (await t.ev(`[].map.call(document.querySelectorAll(".p1v-miesto [data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia"); })`)).filter((m) => m !== "x-sonda-cisla");
+    const i = v.indexOf("a-recenzie");
+    ok(i >= 0 && v[i + 1] === "b-predapo", `b-predapo je hneď za a-recenzie (${i >= 0 ? v.slice(Math.max(0, i - 1), i + 3).join(" → ") : "a-recenzie chýba"})`);
+  }
   const posun = (sel, pp, { dalej = 0 } = {}) => t.ev(`(async function () {
     var el = document.querySelector(${JSON.stringify(sel)}); if (!el) return null;
     var r = el.getBoundingClientRect(), top = r.top + scrollY;

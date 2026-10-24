@@ -28,6 +28,7 @@
 // Nič natvrdo: ID parametrov, ceny ani hodnoty volieb. Nové prvky bez name. Text H1 sa nemení.
 import { nazovFarby, popisFarby } from "./kroky.js";
 import { definicieKresby, kresba, nastavFarbuKresby } from "./box-kresba.js";
+import { vyskaHlavicky, plynulo } from "./posun.js";
 
 export const MENO = "boxy-produkt";
 
@@ -351,23 +352,15 @@ export function init(ctx) {
     }));
 
     // ---------------------------------------------------------------- stráž: neúplný výber nikam
-    function vyskaHlavicky() {
-      const sels = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
-      for (let i = 0; i < sels.length; i++) {
-        const e = document.querySelector(sels[i]);
-        if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) return e.offsetHeight;
-      }
-      return 0;
-    }
-    /** Posun na prvok, len keď nie je celý na obrazovke (pod hlavičkou webu). */
+    /** Posun na prvok, len keď nie je celý na obrazovke (pod hlavičkou webu). Chyba výberu — nie posun do stredu po
+     *  dokončení kroku (ten robí kroky.js / komplet-ponuka.js cez posun.js); spoločná je len výška hlavičky. */
     function ukaz(e) {
       if (!e || !e.isConnected) return;
       const r = e.getBoundingClientRect();
       const hH = vyskaHlavicky();
       const vh = window.innerHeight || document.documentElement.clientHeight;
       if (r.top >= hH && r.bottom <= vh) return;
-      const plynulo = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
-      window.scrollTo({ top: Math.max(0, Math.round(r.top + window.pageYOffset - hH - 12)), behavior: plynulo ? "smooth" : "auto" });
+      window.scrollTo({ top: Math.max(0, Math.round(r.top + window.pageYOffset - hH - 12)), behavior: plynulo() ? "smooth" : "auto" });
     }
     /** Červený rám karty ako živá validácia (lcd-needs-fill na 3 s -> kroky.js z neho urobí trvalý rám), veta pri sekcii
      *  `cast` ("farba" alebo index boxu bez veľkosti) a posun k nej, keď ju nevidno. */

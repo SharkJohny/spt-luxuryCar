@@ -27,6 +27,7 @@ import { stranka } from "./ceny-ine.js";
 import { PARAMETRE } from "./ctx.js";
 import { zapisPrenos } from "./prenos.js";
 import { lcdGetSteps, lcdFirstUnfilled } from "../../functions/configuratorEngine.js";
+import { posunNaStred } from "./posun.js";
 
 export const MENO = "druha-vrstva";
 
@@ -48,23 +49,6 @@ function prepni(e, trieda, stav) {
   if (e && e.classList.contains(trieda) !== !!stav) e.classList.toggle(trieda, !!stav);
 }
 const cisty = (s) => String(s || "").replace(/\s+/g, " ").trim().toLowerCase();
-
-function vyskaHlavicky() {
-  const sels = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
-  for (let i = 0; i < sels.length; i++) {
-    const e = document.querySelector(sels[i]);
-    if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) return e.offsetHeight;
-  }
-  return 0;
-}
-/** Rovnako ako kroky.js po „Pokračujte ďalej“: otvorená karta pod hlavičku webu, ak nie je v hornej polovici okna. */
-function posunNa(e) {
-  if (!e || !e.isConnected) return;
-  const hH = vyskaHlavicky();
-  const top = e.getBoundingClientRect().top;
-  const vh = window.innerHeight || document.documentElement.clientHeight;
-  if (top < hH + 8 || top > hH + (vh - hH) * 0.5) window.scrollTo({ top: Math.max(0, Math.round(window.pageYOffset + top - hH - 12)), behavior: "instant" });
-}
 
 /**
  * Cena dvojvrstvového produktu pri tých istých voľbách (mapa = mapaZFormulara jeho stránky, ceny-ine.js):
@@ -303,10 +287,7 @@ export function init(ctx) {
     hd.setAttribute("aria-expanded", "true");
     nacitajCenu();
     obnov();
-    if (posun) {
-      setTimeout(() => posunNa(karta), 0);
-      setTimeout(() => posunNa(karta), 380); // zatvorenie kroku nad ňou mení výšku (prechod ~300 ms)
-    }
+    if (posun) posunNaStred(karta); // ako kroky.js po „Pokračujte ďalej“: do stredu viditeľnej plochy (Michal 24. 10. 2026)
   }
   function zatvor() {
     karta.classList.remove("active");
@@ -417,8 +398,7 @@ export function init(ctx) {
     if (dalsi) {
       kroky.forEach((s) => { if (s !== dalsi && s.classList.contains("active")) nastavOtvoreny(s, false); });
       if (!dalsi.classList.contains("active")) nastavOtvoreny(dalsi, true);
-      setTimeout(() => posunNa(dalsi), 0);
-      setTimeout(() => posunNa(dalsi), 380);
+      posunNaStred(dalsi); // odpoveď kartu zatvorila -> Rozloženie do stredu (Michal 24. 10. 2026)
     }
     obnov();
   });

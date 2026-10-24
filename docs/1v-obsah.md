@@ -79,8 +79,8 @@ Dôsledky:
 
 | Skupina | Sekcie (`admin-html/src/p1v-598/`, `data-lcd-sekcia`) | JS | CSS | Test |
 |---|---|---|---|---|
-| **A** | `10-a-recenzie` (prvé pod konfigurátorom), `11-a-referencie`, `12-a-galeria`, `13-a-ponuka` (Jazdíte aj v zime?, bez tlačidla) | `konfigurator1v/obsah-a.js` | `assets/css/_lcd1v-obsah-a.scss` | `tools/test-1v/obsah-a.mjs` |
-| **B** | `20-b-ocakavat` (Deväť vecí + `#s2Mob`), `21-b-material`, `22-b-porovnanie` (+ výzva), `23-b-predapo` | `obsah-b.js` | `_lcd1v-obsah-b.scss` | `obsah-b.mjs` |
+| **A** | `10-a-recenzie` (prvé pod konfigurátorom; hneď za ním je `10-b-predapo` skupiny B, § 16), `11-a-referencie`, `12-a-galeria`, `13-a-ponuka` (Jazdíte aj v zime?, bez tlačidla) | `konfigurator1v/obsah-a.js` | `assets/css/_lcd1v-obsah-a.scss` | `tools/test-1v/obsah-a.mjs` |
+| **B** | `10-b-predapo` (Pred a po, od 24. 10. 2026 hneď za recenziami, § 16), `20-b-ocakavat` (Deväť vecí + `#s2Mob`), `21-b-material`, `22-b-porovnanie` (+ výzva) | `obsah-b.js` | `_lcd1v-obsah-b.scss` | `obsah-b.mjs` |
 | **C** | `30-c-kam` (+ výzva), `31-c-domov`, `32-c-casova-os` (+ výzva), `33-c-farby`, `34-c-vzorky` | `obsah-c.js` | `_lcd1v-obsah-c.scss` | `obsah-c.mjs` |
 | **D** | `40-d-realita`, `41-d-faq`, `42-d-koniec` (Kúpiť a nečakať), `43-d-pomocne` (zlatá linka `#citanie`, okno `#lb`) | `obsah-d.js` | `_lcd1v-obsah-d.scss` | `obsah-d.mjs` |
 
@@ -482,3 +482,18 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
 - **Pravidlo pre zákaznícky text (konfigurátor aj obsah):** „prvá prešívaná vrstva“ (alebo „prvá vrstva“, keď „prešívaná“ už padlo v tej istej vete) a „druhá vrstva“ — nikdy samotné „prešívaná vrstva“, „vrchná vrstva“ ani „vrstva“, keď nie je jasné, ktorá. Materiál navrchu je **„umelá koža“, nikdy „ekokoža“ / „eko-koža“** (Michal 22. 10. 2026). Vrstvy materiálu v reze (`21-b-material`: umelá koža, pena, netkaná, XPE, protišmyková) sú „vrstvy materiálu“, nie prvá/druhá; počet vrstiev materiálu sa naďalej nepíše.
 - **Výnimky:** FAQ (`41-d-faq`, `40-d-faq` vzorkovníka — doslovne ako živý web) a citované recenzie zákazníkov sa nemenia. Classic a Premium (rohože do kufra nemajú druhú vrstvu) bez zmeny.
 - **598 `13-a-ponuka`:** nadpis „Jazdíte aj v zime? Pridajte si druhú vrstvu“ (tlačidlo na dvojvrstvové je preč od § 14) + veta „Pridáte si ju v konfigurátore hneď po výbere farby.“ — bez odkazu.
+
+## 16. Upratanejší banner druhej vrstvy, Pred a po hneď pod recenziami (24. 10. 2026, Michal)
+
+- **Banner „Jazdíte aj v zime? Pridajte si druhú vrstvu“ (598 `13-a-ponuka`).** Michal: „tento banner veľa textu na kope, nie je to nejako porozdeľované, je to také neupratané.“
+  - Text (schválený): štítok „Celoročné riešenie“, nadpis bez zmeny, pod ním jedna veta „Pridáte si ju v konfigurátore hneď po výbere farby.“ a 4 odrážky: „Sneh, soľ a blato zachytí druhá vrstva“, „Prvá prešívaná vrstva ostane čistá“, „Druhú vrstvu vyberiete a umyjete aj vapkou“, „S druhou vrstvou ich používate celý rok“. Dlhý odsek (5 viet) a opakovanie (vapka 2×) sú preč.
+  - Vzhľad (`_lcd1v-obsah-a.scss`, spoločné `.ups` všetkých `a-ponuka`): odrážky v **jednom stĺpci** so **zlatou fajkou** (`content:"\2713"` — v CSS vždy escape, nie znak), medzi riadkami 11 px; na PC (od 821 px) fotka vysoká aspoň `clamp(320px,33vw,420px)` a text **zvislo v strede** voči nej; `text-wrap:pretty` (na telefóne nezostane posledné slovo samo na riadku). Na 1280 px je každá odrážka 598 na jednom riadku.
+  - Rovnaký vzhľad zoznamu dostali všetky karty `a-ponuka` s odrážkami: vzorkovník 637, Classic, Premium (obe karty), box 616 má tabuľku `.cenv` (bez zoznamu), dvoj tabuľku `.vs2` (iný obsah „Jednovrstvové alebo dvojvrstvové?“ — text nemenený). Upsell boxu v Classic (`31-classic-box`) má vlastnú kópiu štýlov v `_lcd1v-obsah-classic.scss` a ostal s bodkami v dvoch stĺpcoch.
+  - Vzorkovník `30-a-ponuka`: 1. odrážka „Jednovrstvové zvládnu jar až leto“ (pravidlo Michal 22. 10. 2026: jednovrstvové = jar až leto; predtým „jar, leto aj jeseň“), test `obsah-vzorky.mjs` upravený.
+- **Pred a po hneď pod recenziami.** Michal: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point.“
+  - Súbor sekcie `b-predapo` premenovaný tak, aby ho build (radí podľa celého názvu súboru, rovnaké číslo povolí — kontroluje len duplicitné meno sekcie) zaradil hneď za recenzie, v kuse 1 (10–29): 598 `23-b-predapo` → `10-b-predapo` (za `10-a-recenzie`, pred `11-a-referencie`); Classic `24-b-predapo`, Premium a box `23-b-predapo` → `14-b-predapo` (za `13-a-recenzie`, pred `20-b-ocakavat`). Ostatné poradie bez zmeny.
+  - `data-lcd-kap="2"` zo sekcie zmazané — je pred prvou kapitolou ako sekcie A. Pravidlá kapitol (`_lcd1v-obsah.scss` bod 5) sa jej netýkajú (nie je `.chapter`, podklad dáva tmavé `.lx-tma`).
+  - Striedanie podkladu ostáva svetlá/tmavá bez dvoch tmavých za sebou: 598 recenzie (svetlé) → Pred a po (tmavé) → referencie (svetlé) → galéria (tmavá) → ponuka (`after-dark`); Classic/Premium/box … galéria (tmavá) → recenzie (`after-dark`) → Pred a po (tmavé) → Deväť/Päť/Osem vecí (kapitola 1, svetlé). Kapitola 1 (porovnanie, resp. veľkosti boxov) teraz končí kus 1 a kus 2 začína kapitolou 2 (box 3) — prechod robí podklad (zem → piesok), linka medzi koreňmi nie je (selektor `+` cez dva korene nefunguje), na snímkach nevadí.
+  - JS bez zmeny: `obsah-b.js` hľadá sekciu podľa mena (`oc.sekcia("b-predapo")`), posuvník `lxModulyOziv` nezávisí od poradia; CSS Pred a po je viazané na meno sekcie a koreň `#p1v-<kľúč>-1/-2`, nie na susedov.
+  - Dvojvrstvové: `23-b-predapo` ostáva stub (návrh ho nemá, test `obsah-dvoj.mjs` to vyžaduje) — nič sa nepresúvalo.
+  - Testy: `obsah-b.mjs`, `obsah-classic.mjs`, `obsah-boxy.mjs` nová kontrola „b-predapo je hneď za a-recenzie“ (susedná sekcia na stránke), `obsah-premium.mjs` `PORADIE` s Pred a po za recenziami; zoznamy `sekcie` v poradí stránky.

@@ -75,14 +75,22 @@ const JEDNO_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "c
 const DRUHA = ["druha-nie", "druha-ano", "druha-vsetko"];
 // rohože: kufor-komplet-nie/-ano = skrytá karta ponuky setu (banner C) pred Farbou (scenare-komplet.mjs, 17. 10. 2026)
 const KOMPLET_ROHOZ = ["kufor-komplet-nie", "kufor-komplet-ano"];
-const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto", ...KOMPLET_ROHOZ];
+// posun otvoreného kroku / súhrnu do stredu viditeľnej plochy po dokončení kroku (scenare-posun.mjs, Michal 24. 10. 2026);
+// na hlavných produktoch typov (598, 601, 619, 628, 616, 637); bez animácie (prefers-reduced-motion) na 616 a 637;
+// posun-po-chybe (úspešné „Pokračujte ďalej“ do 3 s po neúspešnom) a posun-dvojklik (druhé stlačenie dvojkliku posun
+// nezruší) na typoch s autom — nálezy recenzie 24. 10. 2026; dvojklik aj na vzorkovníku; posun-dvojtuk-prechod (druhé
+// ťuknutie iPhonu neodvedie z karty druhej vrstvy / ponuky setu na iný produkt) na 598, 619, 628, 616
+const POSUN = ["posun-nastred"];
+const POSUN_AUTO = [...POSUN, "posun-po-chybe", "posun-dvojklik"];
+const POSUN_PRECHOD = ["posun-dvojtuk-prechod"];
+const ROHOZ_PLNE = ["brana", "nulova-zmena", "bez-auta", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto", ...KOMPLET_ROHOZ, ...POSUN_AUTO, ...POSUN_PRECHOD];
 const ROHOZ_ZAKLAD = ["brana", "nulova-zmena", "neuplne", "platne", "dokoncit", "k-suhrnu", "kufor-vzhlad", "vzor-auto", ...KOMPLET_ROHOZ];
 
 export const PRODUKTY = {
   // ---------------------------------------------------------------- jednovrstvové
   598: {
     url: SK + "/luxusne-autokoberce-dragonskin-diamond-line/", typ: "jedno", vzor: "diamond", nazov: "Jednovrstvové Diamond",
-    scenare: [...JEDNO_PLNE, "vzor-jedno", "odporucana-jedno", ...DRUHA],
+    scenare: [...JEDNO_PLNE, "vzor-jedno", "odporucana-jedno", ...DRUHA, ...POSUN_AUTO, ...POSUN_PRECHOD],
     platne: { priceId: "63493", spolu: 269, odporucana: 440 },
     // docs/1v-kontrakt.md §6 + beh 14. 10. 2026 (a0d3ce8)
     ceny: { platne: 269, "kufor-classic": 363, "kufor-premium": 473, "box-1": 343, "box-2": 551, "kufor-nie": 234, "box-nie": 234, "rady-3": 389 },
@@ -108,7 +116,7 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- dvojvrstvové
   601: {
     url: SK + "/luxusne-autokoberce-dragonskin-elite-diamond-line/", typ: "dvoj", vzor: "diamond", nazov: "Dvojvrstvové Diamond",
-    scenare: [...JEDNO_PLNE, "farba2-prepni", "farba2-vzhlad", "farba2-chyba", "farba2-odporucanie", "dvoj-texty", "prenos-neplatny", "rozlozenie-pretek"],
+    scenare: [...JEDNO_PLNE, "farba2-prepni", "farba2-vzhlad", "farba2-chyba", "farba2-odporucanie", "dvoj-texty", "prenos-neplatny", "rozlozenie-pretek", ...POSUN_AUTO],
     platne: { priceId: "66989", spolu: 416, odporucana: 670 },
     ceny: { platne: 416, "kufor-classic": 495, "box-2": 683 },
     postKluce: "ako 598 + parameterValueId[71] (farba 2. vrstvy, variant: priceId = 71-<lux>-78-<farba>)",
@@ -179,7 +187,7 @@ export const PRODUKTY = {
     url: SK + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Box do kufra",
     scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne", "box-farby", "box-jedna-karta",
       // skrytá karta ponuky setu hneď pod kartou „Vaše boxy do kufra“ (scenare-komplet.mjs, 17. 10. 2026; jedna karta 23. 10. 2026)
-      "box-komplet-nie", "box-komplet-ano", "box-komplet-od", "box-komplet-seda", "box-komplet-bezova", "box-komplet-3"],
+      "box-komplet-nie", "box-komplet-ano", "box-komplet-od", "box-komplet-seda", "box-komplet-bezova", "box-komplet-3", ...POSUN, "posun-bez-animacie", ...POSUN_PRECHOD],
     platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
     odporucana: false,
     ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 640, "box-3-na-1": 197, dokoncit: 207 },
@@ -193,7 +201,7 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- vzorkovník (45 príplatkových selectov, 1 vzorka = 1 parameter)
   637: {
     url: SK + "/vzorkovnik-dragonskin---objednavka-vzoriek/", typ: "vzorky", vzor: null, nazov: "Vzorkovník",
-    scenare: ["brana", "nulova-zmena", "platne", "vzorky-0", "vzorky-odober", "vzorky-nahlad"],
+    scenare: ["brana", "nulova-zmena", "platne", "vzorky-0", "vzorky-odober", "vzorky-nahlad", ...POSUN, "posun-bez-animacie", "posun-dvojklik"],
     platne: { priceId: "68380", spolu: 15, odporucana: null, vzorky: ["D-3", "S-2", "LUX-10"] },
     odporucana: false,
     ceny: { platne: 15 },

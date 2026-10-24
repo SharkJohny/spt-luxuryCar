@@ -23,10 +23,11 @@ export const sekcie = [
   { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
   { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  // b-predapo hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“)
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }, { sel: "#s2Mob" }] },
   { meno: "b-material", navrh: [{ sel: "#material" }] },
   { meno: "premium-porovnanie", navrh: [{ sel: "#porovnanie" }, { sel: ".spat", za: "#porovnanie" }] },
-  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "premium-kryje", navrh: [{ sel: "#kryje" }, { sel: ".spat", za: "#kryje" }] },
   { meno: "c-domov", navrh: [{ sel: "section.chapter", text: "Čo Vám príde domov" }] },
   { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", pred: "#farby" }] },
@@ -37,8 +38,9 @@ export const sekcie = [
   { meno: "d-koniec", navrh: [{ sel: "section.end" }] },
 ];
 
-/** poradie sekcií v obsahu (kus 1 potom kus 2) — rovnaké ako v návrhu */
-const PORADIE = ["a-ponuka", "a-referencie", "a-galeria", "a-recenzie", "b-ocakavat", "b-material", "premium-porovnanie", "b-predapo",
+/** poradie sekcií v obsahu (kus 1 potom kus 2) — ako v návrhu, len Pred a po je od 24. 10. 2026 hneď za recenziami (Michal: „obrázok
+ *  Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“; v návrhu je za porovnaním) */
+const PORADIE = ["a-ponuka", "a-referencie", "a-galeria", "a-recenzie", "b-predapo", "b-ocakavat", "b-material", "premium-porovnanie",
   "premium-kryje", "c-domov", "c-casova-os", "c-farby", "c-vzorky", "d-realita", "d-faq", "d-koniec", "d-pomocne"];
 /** základné ceny (plan.md §4): Premium 628 340 €, 631/634 350 €; Classic tej istej línie 230 / 240 / 240 € */
 const CENY = { 628: { premium: 340, classic: 230 }, 631: { premium: 350, classic: 240 }, 634: { premium: 350, classic: 240 } };
