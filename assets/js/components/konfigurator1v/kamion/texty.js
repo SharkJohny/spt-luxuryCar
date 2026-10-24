@@ -168,59 +168,59 @@ export const TEXTY = {
    "mena_farieb_navrh": {
     "Prémiová syntetická koža – prešívaná": [
      {
-      "kod": "12",
+      "kod": "11",
       "meno": "Čierna"
      },
      {
-      "kod": "6",
+      "kod": "5",
       "meno": "Čierna s červeným stehom"
      },
      {
-      "kod": "11",
+      "kod": "10",
       "meno": "Grafitová"
      },
      {
-      "kod": "5",
+      "kod": "4",
       "meno": "Sivá"
      },
      {
-      "kod": "2",
+      "kod": "1",
       "meno": "Béžová"
      },
      {
-      "kod": "8",
+      "kod": "7",
       "meno": "Karamelová"
      },
      {
-      "kod": "4",
+      "kod": "3",
       "meno": "Hnedá"
      },
      {
-      "kod": "10",
+      "kod": "9",
       "meno": "Tmavohnedá"
      },
      {
-      "kod": "15",
+      "kod": "14",
       "meno": "Koňaková"
      },
      {
-      "kod": "7",
+      "kod": "6",
       "meno": "Červená"
      },
      {
-      "kod": "13",
+      "kod": "12",
       "meno": "Bordová"
      },
      {
-      "kod": "14",
+      "kod": "13",
       "meno": "Zelená"
      },
      {
-      "kod": "3",
+      "kod": "2",
       "meno": "Modrá"
      },
      {
-      "kod": "9",
+      "kod": "8",
       "meno": "Tmavomodrá"
      }
     ],
@@ -280,23 +280,23 @@ export const TEXTY = {
     ],
     "Prémiová syntetická koža – tónovaná": [
      {
-      "kod": "PES4",
+      "kod": "7PES",
       "meno": "Grafitová"
      },
      {
-      "kod": "PES2",
+      "kod": "2PES",
       "meno": "Sivobéžová"
      },
      {
-      "kod": "PES5",
+      "kod": "11PES",
       "meno": "Hnedá"
      },
      {
-      "kod": "PES6",
+      "kod": "9PES",
       "meno": "Čokoládová"
      },
      {
-      "kod": "PES3",
+      "kod": "5PES",
       "meno": "Koňaková"
      }
     ],
@@ -324,27 +324,27 @@ export const TEXTY = {
     ],
     "Mikrosemiš – dvojfarebný": [
      {
-      "kod": "2N",
+      "kod": "1N",
       "meno": "Tmavosivá"
      },
      {
-      "kod": "3N",
+      "kod": "2N",
       "meno": "Sivá"
      },
      {
-      "kod": "5N",
+      "kod": "4N",
       "meno": "Béžová"
      },
      {
-      "kod": "6N",
+      "kod": "5N",
       "meno": "Tmavohnedá"
      },
      {
-      "kod": "4N",
+      "kod": "3N",
       "meno": "Bordová"
      },
      {
-      "kod": "7N",
+      "kod": "6N",
       "meno": "Tmavomodrá"
      }
     ]

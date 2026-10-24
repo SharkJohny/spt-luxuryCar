@@ -138,8 +138,8 @@ async function kontrolaKosika(t, meno, ocak = {}) {
 }
 
 const PRES = "Prémiová syntetická koža – prešívaná";
-const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 12\n- Farba lemovania: Čierna + Červená\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – 12\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – Čierna + Červená\n- Nášivky na tapacír: Nechcem";
-const DAF = { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: PRES, farba: "12", lem: "04" };
+const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 11\n- Farba lemovania: Čierna + Červená\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – 11\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – Čierna + Červená\n- Nášivky na tapacír: Nechcem";
+const DAF = { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: PRES, farba: "11", lem: "04" }; // 11 = čierna (vzorkovník 24. 10. 2026)
 
 console.log("1) DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, stred rovnaký, tapacír ako koberce, bez nášivky na dverách");
 {
@@ -182,7 +182,7 @@ console.log("3) MAN TGX 2007–2017: prevodovka a zásuvky sú povinné");
   t.vyber("zasuvky", "2 zásuvky (šuplíky)");
   t.dalej("vozidlo");
   t.klik(a("mat", PRES)); t.dalej("material");
-  t.klik(a("farba", "12")); t.dalej("farba");
+  t.klik(a("farba", "11")); t.dalej("farba");
   t.klik(a("lem", "04")); t.dalej("lemovanie");
   t.klik(a("nas", "nechcem"));
   t.klik(a("tap", "nie"));
@@ -259,7 +259,7 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   t.klik(a("tap", "ano"));
   t.klik(a("tapZmenit"));
   t.klik(a("tapMat", "Mikrosemiš – dvojfarebný"));
-  t.klik(a("tapFarba", "3N"));
+  t.klik(a("tapFarba", "2N"));
   t.klik(a("tapLem", "11"));
   potvrd(t, "tapMat");
   t.klik(a("tapNas", "ano"));
@@ -268,7 +268,7 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   potvrd(t, "dvere");
   sam(t, "tapacir", null, "8");
   await kontrolaKosika(t, "8", {
-    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – 3N", "- Farba lemovania: Béžová + Hnedá", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
+    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – 2N", "- Farba lemovania: Béžová + Hnedá", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
     selecty: { 388: "Vyberie sa v konfigurátore", 391: "Vyberie sa v konfigurátore", 394: "Vyberie sa v konfigurátore", 397: "Nášivka H21", 400: "2840 – Zelená", 355: "Áno chcem nášivku na dverách" },
   });
 }
@@ -533,31 +533,31 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: nad voľbami čiernobiela fotka výplne dverí (kamion-dvere-tapacir.jpg) len s „Ilustračná fotka“", !!tvF && /\/assets\/img\/1v\/kamion-dvere-tapacir\.jpg$/.test(tvF.getAttribute("src")) &&
     tx(K6 + ".kn-tvfoto") === "Ilustračná fotka" && !q(K6 + ".kn-tvfoto .kn-bod, " + K6 + ".kn-tvfoto .kn-stitok") && q(K6 + ".kn-tvfoto").nextElementSibling === q(K6 + ".kn-tv"), tx(K6 + ".kn-tvfoto"));
   const tvA = q(a("tapRovnake")), tvB = q(a("tapZmenit")), tvD = tvA ? Array.from(tvA.querySelectorAll(".kn-tv__d")) : [];
-  const f12 = DT.MATERIALY.filter((m) => m.nazov === PRES)[0].farby.filter((f) => f.kod === "12")[0], l04 = DT.LEMOVANIE.filter((l) => l.kod === "04")[0];
+  const f11 = DT.MATERIALY.filter((m) => m.nazov === PRES)[0].farby.filter((f) => f.kod === "11")[0], l04 = DT.LEMOVANIE.filter((l) => l.kod === "04")[0];
   const dTx = (d, c) => (d.querySelector(c) ? d.querySelector(c).textContent : "");
   over("17: karta A „Rovnaké ako koberce / Ladí s Vašimi kobercami“ — tlačidlo s krúžkom", !!tvA && tvA.tagName === "BUTTON" && tvA.getAttribute("type") === "button" && dTx(tvA, ".kn-tv__nm") === "Rovnaké ako koberce" && dTx(tvA, ".kn-tv__po") === "Ladí s Vašimi kobercami" && !!tvA.querySelector(".kn-tv__r"));
   over("17: karta A — dlaždica Materiál (fotka farby kobercov) a dlaždica Lemovanie (pás lemovania kobercov), každá s jedným obrázkom",
     tvD.length === 2 && J(tvD.map((d) => dTx(d, ".kn-tv__st"))) === J(["Materiál", "Lemovanie"]) && tvD.every((d) => d.querySelectorAll("img").length === 1) &&
-    tvD[0].querySelector("img.kn-tv__foto").getAttribute("src") === f12.full && tvD[1].querySelector(".kn-tv__pas > img").getAttribute("src") === l04.full,
+    tvD[0].querySelector("img.kn-tv__foto").getAttribute("src") === f11.full && tvD[1].querySelector(".kn-tv__pas > img").getAttribute("src") === l04.full,
     J(tvD.map((d) => Array.from(d.querySelectorAll("img")).map((i) => i.getAttribute("src")))));
-  over("17: karta A — „Prešívaná syntetická koža / čierna (12)“ a „čierna + červená (04) / páska po celom okraji“",
-    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "čierna (12)"], ["čierna + červená (04)", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
+  over("17: karta A — „Prešívaná syntetická koža / čierna (11)“ a „čierna + červená (04) / páska po celom okraji“",
+    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "čierna (11)"], ["čierna + červená (04)", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
   const lemB = tvB ? Array.from(tvB.querySelectorAll(".kn-tv__lt")).map((i) => i.getAttribute("src")) : [];
   over("17: karta B „Vlastná kombinácia“ — 4 vzorky materiálu, čiara, 2 pásy lemovania iné ako na kobercoch",
     !!tvB && dTx(tvB, ".kn-tv__nm") === "Vlastná kombinácia" && dTx(tvB, ".kn-tv__po") === "Iný materiál, farba alebo lemovanie" && tvB.querySelectorAll(".kn-tv__mm > img.kn-tv__mt").length === 4 &&
     !!tvB.querySelector(".kn-tv__mm + .kn-tv__del + .kn-tv__ml") && J(lemB) === J(["05", "09"].map((k) => DT.LEMOVANIE.filter((l) => l.kod === k)[0].swatch)), J(lemB));
   over("17: v kroku 6 nič nekladie lemovanie cez materiál (bez .kn-rv__lem, mozaiky materiálov a „+“)", !q(K6 + ".kn-rv__lem, " + K6 + ".kn-rv__plus, " + K6 + ".kn-rv__mozaika:not(.kn-rv__mozaika--motiv)"));
   t.klik(a("tapZmenit"));
-  over("17: „Vlastná kombinácia“ -> materiál, farba a lemovanie vopred ako koberce + Pokračovať", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "12" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz") && !!q(a("potvrd", "tapMat")) && !q(a("tapNas", "ano")));
+  over("17: „Vlastná kombinácia“ -> materiál, farba a lemovanie vopred ako koberce + Pokračovať", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "11" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz") && !!q(a("potvrd", "tapMat")) && !q(a("tapNas", "ano")));
   over("17: vnorený riadok voľby = podstatné meno „✓ Iný materiál, farba alebo lemovanie“ (nie „Vlastná kombinácia“)", tx(K6 + '.kn-hot--vnutri[data-hot="mat"] .kn-hot__tx') === "Iný materiál, farba alebo lemovanie", tx(K6 + '.kn-hot--vnutri[data-hot="mat"]'));
   over("17: lemovanie uprostred vety malým písmom (lemovanie čierna + červená (04))", /lemovanie čierna \+ červená \(04\)/.test(tx(".kn-vz p")), tx(".kn-vz p"));
   const vzO = qa(".kn-vz .kn-vz__obr > .kn-vz__o");
   over("17: „Vybraté pre tapacír“ — materiál a lemovanie ako dve samostatné fotky vedľa seba so štítkami (nie pás cez materiál)",
     vzO.length === 2 && J(vzO.map((o) => o.querySelector(".kn-vz__st").textContent)) === J(["Materiál", "Lemovanie"]) && vzO.every((o) => o.querySelectorAll("img").length === 1) &&
-    vzO[0].querySelector(".kn-vz__mat > img").getAttribute("src") === f12.full && vzO[1].querySelector(".kn-vz__lem > img").getAttribute("src") === l04.full && !q(".kn-vz .kn-rv__viz"),
+    vzO[0].querySelector(".kn-vz__mat > img").getAttribute("src") === f11.full && vzO[1].querySelector(".kn-vz__lem > img").getAttribute("src") === l04.full && !q(".kn-vz .kn-rv__viz"),
     J(vzO.map((o) => Array.from(o.querySelectorAll("img")).map((i) => i.getAttribute("src")))));
   t.klik(a("tapMat", "Mikrosemiš – dvojfarebný"));
-  over("17: dvojfarebný mikrosemiš -> farba kobercov 12 sa zruší", S.tapMat === "Mikrosemiš – dvojfarebný" && S.tapFarba === null, J([S.tapMat, S.tapFarba]));
+  over("17: dvojfarebný mikrosemiš -> farba kobercov 11 sa zruší", S.tapMat === "Mikrosemiš – dvojfarebný" && S.tapFarba === null, J([S.tapMat, S.tapFarba]));
   potvrd(t, "tapMat");
   over("17: Pokračovať bez farby -> karta ostane, červený rám pri farbe", U.n6.mat === false && !!q(K6 + '[data-pole="tapFarba"].is-chyba') && t.s.chyby.length === 0);
   t.klik(a("zmenit", "mat"));
@@ -677,7 +677,7 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   zaklad(t, DAF);
   over("20: krok 1 = „DAF XF106 2017–2021 · automatická · 199 €“ (cena za nezalomiteľnou medzerou)", vy("vozidlo") === "DAF XF106 2017–2021 · automatická · 199 €" && / · 199 €$/.test(nbsp("vozidlo")), vy("vozidlo"));
   over("20: krok 2 = „Prémiová syntetická koža, prešívaná · + 10 €“", vy("material") === "Prémiová syntetická koža, prešívaná · + 10 €", vy("material"));
-  over("20: kroky 3 a 4 = „Čierna (12) · v cene“, „Čierna + Červená (04) · v cene“", vy("farba") === "Čierna (12) · v cene" && vy("lemovanie") === "Čierna + Červená (04) · v cene", vy("farba") + " | " + vy("lemovanie"));
+  over("20: kroky 3 a 4 = „Čierna (11) · v cene“, „Čierna + Červená (04) · v cene“", vy("farba") === "Čierna (11) · v cene" && vy("lemovanie") === "Čierna + Červená (04) · v cene", vy("farba") + " | " + vy("lemovanie"));
   nasivky(t, "boky+stred", "H19", "2999");
   over("20: krok 5 = „{rozsah} · {motív} · niť {farba} · + 95 €“", vy("nasivky") === "Pod sedadlá šoféra a spolujazdca + do stredu · Kamión · niť čierna · + 95 €", vy("nasivky"));
   t.klik(a("tap", "ano")); t.klik(a("tapRovnake")); t.klik(a("tapNas", "nie"));
@@ -685,9 +685,9 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   over("20: všetko vybraté -> „Spolu 423 €“, „Ušetríte 105 €…“, „Pridať do košíka“, bez „Zatiaľ nevybraté“", tx(".k-suhrn__lb") === "Spolu" && tx(".k-suhrn__suma") === "423 €" && /^Ušetríte 105 € oproti samostatnému nákupu$/.test(tx(".sh__us")) && tx(".k-kosik") === "Pridať do košíka" && !q(".sh__chyba-r"), tx('[data-k="suhrn"]'));
   // tapacír inak + nášivka na dvere ako na kobercoch -> dva riadky
   t.klik(a("krok", "tapacir")); t.klik(a("zmenit", "mat")); t.klik(a("tapZmenit"));
-  t.klik(a("tapMat", "Mikrosemiš – dvojfarebný")); t.klik(a("tapFarba", "3N")); t.klik(a("tapLem", "11")); potvrd(t, "tapMat");
+  t.klik(a("tapMat", "Mikrosemiš – dvojfarebný")); t.klik(a("tapFarba", "2N")); t.klik(a("tapLem", "11")); potvrd(t, "tapMat");
   t.klik(a("krok", "tapacir")); t.klik(a("zmenit", "nas")); t.klik(a("tapNas", "ano")); t.klik(a("tapNasRovnaka", "1"));
-  over("20: krok 6 inak + nášivka = 2 riadky s cenami", J(vyR("tapacir")) === J(["Mikrosemiš, dvojfarebný · sivá (3N) · lemovanie béžová + hnedá (11) · + 119 €", "Nášivka Kamión (H19) · niť čierna (2999) · + 49 €"]) && t.k.ui.hotovo(), J(vyR("tapacir")));
+  over("20: krok 6 inak + nášivka = 2 riadky s cenami", J(vyR("tapacir")) === J(["Mikrosemiš, dvojfarebný · sivá (2N) · lemovanie béžová + hnedá (11) · + 119 €", "Nášivka Kamión (H19) · niť čierna (2999) · + 49 €"]) && t.k.ui.hotovo(), J(vyR("tapacir")));
   const t2 = await otvor();
   hotovyDaf(t2);
   const vy2 = (id) => { const e = t2.d.querySelector('#lcd1v-kamion [data-krok="' + id + '"] .k-krok__vy'); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; };
@@ -779,6 +779,41 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   over("22: dotyk po klávesnici — fokus znova nie je v zozname", t.d.activeElement.tagName !== "SELECT", fokus());
   over("22: výber sa uložil", t.k.ui.S.znacka === "DAF (TIR)", t.k.ui.S.znacka);
   over("22: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
+}
+
+{
+  // 24. 10. 2026: kódy farieb podľa nového vzorkovníka dodávateľa (Desktop\WZORNIKI KOLORÓW). Prešívaná 1–14 a Mikrosemiš
+  // dvojfarebný 1N–6N (predtým 2–15 / 2N–7N, tie isté farby o 1 vyššie), tónovaná 2/5/7/9/11PES (predtým PES2–PES6).
+  // Kód ide do poznámky objednávky -> musí sedieť s vzorkovníkom; nový aj starý (React) konfigurátor rovnako.
+  const TX = (await nacitajModul("assets/js/components/konfigurator1v/kamion/texty.js")).TEXTY;
+  const OCAK = {
+    "Prémiová syntetická koža – prešívaná": { 1: "Béžová", 2: "Modrá", 3: "Hnedá", 4: "Sivá", 5: "Čierna s červeným stehom", 6: "Červená", 7: "Karamelová", 8: "Tmavomodrá", 9: "Tmavohnedá", 10: "Grafitová", 11: "Čierna", 12: "Bordová", 13: "Zelená", 14: "Koňaková" },
+    "Mikrosemiš – dvojfarebný": { "1N": "Tmavosivá", "2N": "Sivá", "3N": "Bordová", "4N": "Béžová", "5N": "Tmavohnedá", "6N": "Tmavomodrá" },
+    "Prémiová syntetická koža – tónovaná": { "2PES": "Sivobéžová", "5PES": "Koňaková", "7PES": "Grafitová", "9PES": "Čokoládová", "11PES": "Hnedá" },
+  };
+  const mena = TX.kroky.farba.mena_farieb_navrh;
+  const zorad = (a) => a.slice().sort().join(",");
+  Object.entries(OCAK).forEach(([mat, o]) => {
+    const kody = DT.MATERIALY.find((m) => m.nazov === mat).farby.map((f) => f.kod);
+    over("23: " + mat + " — kódy v data.js podľa vzorkovníka", zorad(kody) === zorad(Object.keys(o)), kody.join(","));
+    const zle = Object.entries(o).filter(([k, m]) => !(mena[mat] || []).some((x) => x.kod === k && x.meno === m));
+    over("23: " + mat + " — mená farieb v texty.js", !zle.length && (mena[mat] || []).length === Object.keys(o).length, J(zle));
+  });
+  // fotka farby ostáva tá istá (posunul sa len kód): čierna prešívaná = súbor, ktorý mala predtým „12“
+  const cierna = DT.MATERIALY.find((m) => m.slug === "presivana").farby.find((f) => f.kod === "11");
+  over("23: čierna prešívaná (11) má fotku čiernej", !!cierna && /t1f1c099993a3d774\.jpg$/.test(cierna.swatch || cierna.thumb || J(cierna)), J(cierna));
+  // starý konfigurátor (React gen.jsx, desktop aj telefón): tie isté kódy materiálov ako nový
+  const vsetky = zorad(DT.MATERIALY.flatMap((m) => m.farby.map((f) => f.kod)));
+  ["konfigurator.gen.jsx", "konfigurator.phone.gen.jsx"].forEach((f) => {
+    const txt = readFileSync(new URL("../assets/js/truck-konfigurator/" + f, import.meta.url), "utf8");
+    const kody = Array.from(txt.matchAll(/\{ code: "([^"]+)", swatch:/g), (m) => m[1]);
+    over("23: React " + f + " má tie isté kódy farieb ako nový konfigurátor", zorad(kody) === vsetky, zorad(kody));
+  });
+  // poznámka objednávky: čierna prešívaná = „… – prešívaná – 11“ (React zrkadlo rovnako)
+  const t = await otvor();
+  zaklad(t, Object.assign({}, DAF, { farba: "11" }));
+  over("23: poznámka objednávky „prešívaná – 11“", /Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 11\n/.test(OS.buildTruckOrderSummary(ST.naStavReactu(t.k.ui.S))), "");
+  over("23: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);

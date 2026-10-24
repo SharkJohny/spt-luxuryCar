@@ -269,7 +269,7 @@ export const SCENARE = {
       await overPismo(s, j, "krok 1 vybrané vozidlo");
       await rob(s, j, [["dalej", "vozidlo"], ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")]]);
       await overPismo(s, j, "krok 2 materiál");
-      await rob(s, j, [["dalej", "material"], ["klik", a_("farba", "12")]]);
+      await rob(s, j, [["dalej", "material"], ["klik", a_("farba", "11")]]);
       await overPismo(s, j, "krok 3 farba");
       await rob(s, j, [["dalej", "farba"], ["klik", a_("lem", "04")]]);
       await overPismo(s, j, "krok 4 lemovanie");

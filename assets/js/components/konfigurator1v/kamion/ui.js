@@ -486,7 +486,7 @@ export function vytvorUi(o) {
     stred: { x: "53.1%", y: "80.7%", d: "16%", tr: "" },
   };
   /** Malé vzorky v karte „Vlastná kombinácia“ (tapacír): materiál + kód farby. */
-  const MOZAIKA_MAT = [["presivana", "12"], ["tonovana", "PES5"], ["jednofarebna", "1G"], ["mikro-jedno", "5NUB"]];
+  const MOZAIKA_MAT = [["presivana", "11"], ["tonovana", "11PES"], ["jednofarebna", "1G"], ["mikro-jedno", "5NUB"]];
   /** Lemovania na ukážku v karte „Vlastná kombinácia“: prvé dve, ktoré nie sú lemovanie kobercov. */
   const LEM_UKAZKA = ["05", "09", "01", "11"];
   /** Pole z chyba() -> blok (podotázka) kroku, v ktorom je. */
