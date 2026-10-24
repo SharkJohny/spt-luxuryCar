@@ -6,6 +6,7 @@
 import { TEXTY } from "./texty.js";
 import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA_DVERI_SUBOR, FOTKY_DVERI, FOTKA_KABINY_NASIVKY } from "./data.js";
 import { OBRAZKY_1V } from "../ctx.js";
+import { posunNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
 
@@ -1003,22 +1004,32 @@ export function vytvorUi(o) {
     const reduce = w.matchMedia && w.matchMedia("(prefers-reduced-motion: reduce)").matches;
     try { el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: blok || "start" }); } catch (e) { /* staré prehliadače */ }
   }
-  /** Všetko vybraté (Michal 24. 10. 2026): v okne celý prehľad — „Váš set v N krokoch“, riadky krokov, Spolu a „Pridať
-   *  do košíka“ (predtým len súhrn navrchu a kroky nad oknom). Keď sa nevojde, tlačidlo košíka ostane celé pri spodku okna. */
-  function posunNaPrehlad() {
-    const p = $('[data-k="postup"]'), kb = $('[data-k="suhrn"] .k-kosik');
-    if (!p || !kb || !p.getBoundingClientRect().height) { posun($('[data-k="suhrn"]')); return; }
-    const k = root.querySelector(".k-krok");
-    const hore = (k ? parseFloat(w.getComputedStyle(k).scrollMarginTop) || 0 : 0) + 12, dole = 16;
-    const rp = p.getBoundingClientRect(), rb = kb.getBoundingClientRect();
+  // Posuny po „Pokračovať“ (Michal 25. 10. 2026: „vždy na začiatok ďalšieho kroku … aby ho videl celý, nie niekde
+  // v popisoch“, hlavne na telefóne): posun.js posunNaStred s cieľom cielNaVrch — vrch kroku / karty 12 px pod hlavičku
+  // webu (aj keď sa hlavička pri posune hore znova ukáže), cieľ až z konečného rozloženia po zatvorení predošlého kroku,
+  // po dobehnutí dorovnanie (neskoro načítané obrázky, lišta prehliadača na iPhone), dotyk / koliesko posun zruší.
+  /** Všetko vybraté: prehľad „Váš set v N krokoch“ od nadpisu pod hlavičkou webu. Na PC (bez spodnej lišty), keď sa
+   *  nevojde aj s „Pridať do košíka“, tlačidlo ostane celé pri spodku okna (Michal 24. 10. 2026); na telefóne nadpis
+   *  hore — „Pridať do košíka“ je vždy v spodnej lište, kým tlačidlo prehľadu nie je v okne. */
+  function cielPrehladu(p) {
+    const kb = $('[data-k="suhrn"] .k-kosik'), hore = vyskaHlavicky() + 12, vh = w.innerHeight;
+    const rp = p.getBoundingClientRect();
     let ciel = w.pageYOffset + rp.top - hore;
-    const navyse = rb.bottom - rp.top - (w.innerHeight - hore - dole);
-    if (navyse > 0) ciel += navyse;
-    try { w.scrollTo({ top: Math.max(0, ciel), behavior: menejPohybu() ? "auto" : "smooth" }); } catch (e) { w.scrollTo(0, Math.max(0, ciel)); }
+    if (kb && w.innerWidth >= 768) {
+      const navyse = kb.getBoundingClientRect().bottom - rp.top - (vh - hore - 16);
+      if (navyse > 0) ciel += navyse;
+    }
+    const max = Math.max(0, (doc.scrollingElement || doc.documentElement).scrollHeight - vh);
+    return Math.min(max, Math.max(0, Math.round(ciel)));
+  }
+  function posunNaPrehlad() {
+    const p = $('[data-k="postup"]');
+    if (!p || !p.getBoundingClientRect().height) { posunNaStred($('[data-k="suhrn"]'), cielNaVrch); return; }
+    posunNaStred(p, cielPrehladu);
   }
   function posunKrok(id, fokus) {
     const el = root.querySelector('[data-krok="' + id + '"]');
-    posun(el);
+    posunNaStred(el, cielNaVrch);
     if (fokus && el) { const h = el.querySelector(".k-krok__hd"); try { h.focus({ preventScroll: true }); } catch (e) { /* */ } }
   }
   /** Po zatvorení podotázky: plynulo na novo otvorenú kartu (fokus na ňu), inak na „Pokračujte“ kroku. */
@@ -1028,7 +1039,7 @@ export function vytvorUi(o) {
     const b = otvorenyBlok(id);
     const el = (b && k.querySelector('[data-blok="' + b + '"]')) || k.querySelector('[data-a="dalej"]');
     if (!el) return;
-    posun(el, b ? "start" : "center");
+    if (b) posunNaStred(el, cielNaVrch); else posunNaStred(el);
     try { el.focus({ preventScroll: true }); } catch (e) { /* */ }
   }
   function posunPole(id, pole) {

@@ -227,9 +227,19 @@ const PREHLAD = `(function () {
   var p = document.querySelector('#lcd1v-kamion [data-k="postup"]'), b = document.querySelector('#lcd1v-kamion [data-k="suhrn"] .k-kosik');
   if (!p || !b) return null;
   var rp = p.getBoundingClientRect(), rb = b.getBoundingClientRect(), x = rp.left + 8, el = rp.top >= 0 && rp.top < innerHeight ? document.elementFromPoint(x, rp.top + 6) : null;
-  return { hore: Math.round(rp.top), dole: Math.round(rb.bottom), vh: innerHeight, vojde: rb.bottom - rp.top <= innerHeight - 90, volne: !!(el && p.contains(el)) };
+  var l = document.getElementById("lcd1v-lista");
+  return { hore: Math.round(rp.top), dole: Math.round(rb.bottom), vh: innerHeight, sirka: innerWidth, volne: !!(el && p.contains(el)),
+    lista: l && l.classList.contains("on") && getComputedStyle(l).visibility !== "hidden" ? l.innerText : "" };
 })()`;
-const prehladOk = (r) => !!r && r.dole <= r.vh && (r.vojde ? r.hore >= 0 && r.volne : r.dole >= r.vh - 160);
+/** 25. 10. 2026 (Michal: „vždy na začiatok ďalšieho kroku“): nadpis prehľadu hore (≤ 40 px, nezakrytý); „Pridať do košíka“
+ *  celé v okne — na telefóne môže byť pod oknom, vtedy ho ponúka spodná lišta. */
+const prehladOk = (r) => !!r && r.hore >= 0 && r.hore <= 40 && r.volne && (r.dole <= r.vh || (r.sirka < 768 && /košík/i.test(r.lista)));
+/** Po „Pokračovať“ / automatickom posune: začiatok novo otvoreného kroku 0–40 px od vrchu okna (Michal 25. 10. 2026). */
+const zaciatokOk = (r) => !!r && r.top != null && r.top >= 0 && r.top <= 40;
+async function overZaciatok(s, j, krok) {
+  const r = await cakaj(s, j, OTVORENY, (x) => x.otvoreny === krok && zaciatokOk(x));
+  j.over(r && r.otvoreny === krok && zaciatokOk(r), "po „Pokračovať“ nie je začiatok kroku „" + krok + "“ hore v okne (0–40 px): " + JSON.stringify(r));
+}
 /** Opakuje vyhodnotenie (lenivé načítanie fotiek, kreslenie plátna), kým podmienka neplatí, najviac ~6 s. */
 async function cakaj(s, j, vyraz, ok) {
   let r = null;
@@ -268,13 +278,20 @@ export const SCENARE = {
       j.over(seg && /rgb\(143, 112, 32\)|rgb\(230, 200, 119\)/.test(seg.bg || "") && seg.farba === "rgb(23, 19, 10)", "prepínač Kamión / Dodávka: zvolená pilulka nie je zlatá s tmavým písmom: " + JSON.stringify(seg));
       await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"]]);
       await overPismo(s, j, "krok 1 vybrané vozidlo");
-      await rob(s, j, [["dalej", "vozidlo"], ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")]]);
+      await rob(s, j, [["dalej", "vozidlo"]]);
+      await overZaciatok(s, j, "material");
+      await rob(s, j, [["klik", a_("mat", "Prémiová syntetická koža – prešívaná")]]);
       await overPismo(s, j, "krok 2 materiál");
-      await rob(s, j, [["dalej", "material"], ["klik", a_("farba", "11")]]);
+      await rob(s, j, [["dalej", "material"]]);
+      await overZaciatok(s, j, "farba");
+      await rob(s, j, [["klik", a_("farba", "11")]]);
       await overPismo(s, j, "krok 3 farba");
-      await rob(s, j, [["dalej", "farba"], ["klik", a_("lem", "04")]]);
+      await rob(s, j, [["dalej", "farba"]]);
+      await overZaciatok(s, j, "lemovanie");
+      await rob(s, j, [["klik", a_("lem", "04")]]);
       await overPismo(s, j, "krok 4 lemovanie");
       await rob(s, j, [["dalej", "lemovanie"]]);
+      await overZaciatok(s, j, "nasivky");
       // 5.1 — veľká otázka, 4 výlučné voľby s cenami v riadkoch, žiadne zelené tlačidlo v dlaždiciach ani „Pokračujte ďalej“
       await s.t.ev(`document.querySelector('#lcd1v-kamion .kn-dv').scrollIntoView({ block: "start" })`);
       const k5 = await cakaj(s, j, KROK5, (r) => r.foto.length === 3 && r.foto.every((x) => x > 0));
@@ -312,16 +329,16 @@ export const SCENARE = {
       await snimkaPrvku(s, a, j, ".k-dlazdice--motiv", "kamion-krok5-nahlad");
       await rob(s, j, [["klik", a_("nit", "2999", "boky")], ["klik", a_("potvrd", "boky")]]);
       await j.pauza(900);
-      const ps = await s.t.ev(POSUN("stred"));
-      j.over(ps && ps.top >= 0 && ps.top < ps.vh * 0.6, "po „Pokračovať“ sa karta stredu neposunula do okna: " + JSON.stringify(ps));
+      const ps = await cakaj(s, j, POSUN("stred"), (x) => x.top >= 0 && x.top <= 40);
+      j.over(ps && ps.top >= 0 && ps.top <= 40, "po „Pokračovať“ nie je začiatok karty stredu hore v okne (0–40 px): " + JSON.stringify(ps));
       await overPismo(s, j, "krok 5 stred");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-stred");
       // automatický posun: „Rovnaká ako pod sedadlami“ = posledná otázka -> krok 5 sa sám zavrie, otvorí sa krok 6 (posunutý do okna)
       await rob(s, j, [["klik", a_("stredRovnaky", "1")]]);
       await j.pauza(900);
-      const po5 = await s.t.ev(OTVORENY);
+      const po5 = await cakaj(s, j, OTVORENY, (x) => x.otvoreny === "tapacir" && zaciatokOk(x));
       j.over(po5.otvoreny === "tapacir" && po5.hotovy5 && !po5.dalej5, "po „Rovnaká ako pod sedadlami“ sa krok 5 nezavrel sám / neotvoril sa krok 6: " + JSON.stringify(po5));
-      j.over(po5.top != null && po5.top >= 0 && po5.top < po5.vh * 0.6, "krok 6 po automatickom posune nie je v okne: " + JSON.stringify(po5));
+      j.over(zaciatokOk(po5), "krok 6 po automatickom posune nezačína hore v okne (0–40 px): " + JSON.stringify(po5));
       await overPismo(s, j, "krok 5 zavretý, krok 6 ponuka");
       await rob(s, j, [["klik", '[data-a="krok"][data-v="nasivky"]'], ["klik", a_("zmenit", "kam")]]);
       const st5z = await s.t.ev(STYLY);

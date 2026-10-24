@@ -70,10 +70,20 @@ export function cielNaStred(el) {
   return Math.min(max, Math.max(0, Math.round(window.pageYOffset + y)));
 }
 
+/** Cieľ posunu (scrollY): vrch prvku 12 px pod hlavičku webu (kamióny: „vždy začiatok ďalšieho kroku“, Michal 25. 10. 2026). */
+export function cielNaVrch(el) {
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  const max = Math.max(0, (document.scrollingElement || document.documentElement).scrollHeight - vh);
+  return Math.min(max, Math.max(0, Math.round(window.pageYOffset + r.top - vyskaHlavicky() - MEDZERA)));
+}
+
 let beh = 0;
 
-/** Plynulý posun novo otvoreného kroku / súhrnu `el` do stredu viditeľnej plochy (popis hore). */
-export function posunNaStred(el) {
+/** Plynulý posun novo otvoreného kroku / súhrnu `el` do stredu viditeľnej plochy (popis hore).
+ *  cielFn(el) = iný cieľ (napr. cielNaVrch); čakanie na konečné rozloženie, dorovnanie a zrušenie rukou ostávajú. */
+export function posunNaStred(el, cielFn) {
+  const vypocet = () => (cielFn ? cielFn(el) : cielNaStred(el));
   if (!el || !el.isConnected) return;
   const moj = ++beh;
   const start = Date.now(), t0 = performance.now();
@@ -132,7 +142,7 @@ export function posunNaStred(el) {
   // 2) jeden posun na cieľ
   function chod() {
     if (!zije() || !el.getClientRects().length) { koniec(); return; }
-    ciel = cielNaStred(el);
+    ciel = vypocet();
     if (Math.abs(ciel - window.pageYOffset) >= 2) window.scrollTo({ top: ciel, behavior: plynulo() ? "smooth" : "instant" });
     sleduj();
   }
@@ -150,7 +160,7 @@ export function posunNaStred(el) {
       const ubehlo = Date.now() - t0;
       if ((n < 3 || (Math.abs(y - ciel) > 2 && ubehlo < 500)) && ubehlo < 1600) { setTimeout(kontrola, 50); return; }
       if (Math.abs(y - ciel) > 2 || !el.getClientRects().length) { koniec(); return; } // posunul niekto iný -> nechať
-      const novy = cielNaStred(el);
+      const novy = vypocet();
       if (Math.abs(novy - ciel) > 8 && korekcie++ < 2) {
         ciel = novy;
         window.scrollTo({ top: ciel, behavior: plynulo() ? "smooth" : "instant" });
