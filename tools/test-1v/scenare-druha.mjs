@@ -12,6 +12,10 @@
 //                   (rámik: cena a odporúčaná; vzorec webu × 1,6 nahor na desiatky pre cenu + príplatok); 613 bez bežnej
 //                   ceny = len riadok Príplatok; žiadna prečiarknutá cena, pilulka, „Vzor, auto aj farba…“ ani veta pod Nie;
 //                   dlaždica na telefóne nie je privysoká;
+//                   návrh 1b (Michal 24. 10. 2026): nadpis „Prajete si aj druhú odnímateľnú vrstvu?“, namiesto podnadpisu
+//                   blok „8 z 10 … s druhou vrstvou“ + „Nie je to koberec na koberci.“ + vrstvy 1 a 2 (tučné časti, pevné
+//                   medzery za jednopísmenovými slovami, písmo ≥ 15 px, štítky ≥ 11 px), pás „★ Najčastejšia voľba“;
+//                   otvorená karta s cenami sa na telefóne zmestí do okna pod hlavičku webu (snímka celej karty: --snimky);
 //                   Áno aj Nie sú skutočné tlačidlá (<button type=button>, fokus klávesnicou),
 //                   zelené „Áno, chcem druhú vrstvu“ v dlaždici (div) nad zlatým „Nie, ďakujem“ (Michal 15. 10., farby prehodené 16. 10. 2026);
 //                   „Nie, ďakujem“ zbalí kartu („Bez druhej vrstvy“) a otvorí Rozloženie;
@@ -30,6 +34,7 @@
 //                   cien pri úplnom výbere „Príplatok“ (bez „od“) a čísla = rámiky oboch stránok (s rohožou a boxmi)
 //   prenos-neplatny (dvoj) kľúč starší ako 10 min / pre iný produkt / s farbou, ktorú produkt nemá -> nič sa neprenesie,
 //                   bez chyby; pri chýbajúcej farbe sa otvorí krok Farba
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { PRODUKTY } from "./produkty.mjs";
 import { F, cislo } from "./stary-ui.mjs";
@@ -122,8 +127,71 @@ function stavKarty(t) {
           attrOdp: ano && ano.getAttribute("data-lcd1v-odporucana") ? Number(ano.getAttribute("data-lcd1v-odporucana")) : null };
       })(),
       zaFarbou: !!(k.previousElementSibling && k.previousElementSibling.classList.contains("lcd1v-k-farba")),
+      // blok pod hlavičkou (Michal 24. 10. 2026, návrh 1b): zlatý box „8 z 10“, „Nie je to koberec na koberci.“, dve vrstvy;
+      // surovy = textContent bez úprav (pevné medzery \\u00a0 ostanú — kontrola jednopísmenových predložiek na konci riadka)
+      info: (function () {
+        var b = k.querySelector(":scope > .lcd1v-druha__info");
+        if (!b) return null;
+        function t2(e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; }
+        function tucne(e) { return e ? Array.prototype.map.call(e.querySelectorAll("b"), t2) : []; }
+        function px(e) { return e ? parseFloat(getComputedStyle(e).fontSize) : 0; }
+        var pt = b.querySelector(".lcd1v-druha__pocet-t"), nd = b.querySelector(".lcd1v-druha__vrstvy-nd"), poc = b.querySelector(".lcd1v-druha__pocet");
+        var li = Array.prototype.slice.call(b.querySelectorAll(".lcd1v-druha__vrstvy > .lcd1v-druha__vrstva"));
+        return {
+          vidno: vid(b), cislo: t2(b.querySelector(".lcd1v-druha__pocet-c")), text: t2(pt), textB: tucne(pt), nadpis: t2(nd), nadpisB: tucne(nd),
+          riadky: li.map(function (x) { return { c: t2(x.querySelector(".lcd1v-druha__vrstva-c")), t: t2(x.querySelector(".lcd1v-druha__vrstva-t")), b: tucne(x) }; }),
+          surovy: b.textContent, pozadie: poc ? getComputedStyle(poc).backgroundColor : "",
+          pismo: Math.min(px(pt), px(nd), li.length ? Math.min.apply(null, li.map(px)) : 0),
+          nadHlavickou: !!(b.previousElementSibling && b.previousElementSibling.classList.contains("lcd1v-hd")),
+          predDlazdicou: !!(dl && (b.compareDocumentPosition(dl) & 4)),
+        };
+      })(),
+      // drobné štítky (pás nad dlaždicou, „Na celú sadu…“, „Príplatok od“) — Michal: malé texty sa nečítajú
+      stitkyPx: Array.prototype.map.call(k.querySelectorAll(".lcd1v-kb__top, .lcd1v-kb__po, .lcd1v-kb__r--sum .lcd1v-kb__rn"), function (e) { return parseFloat(getComputedStyle(e).fontSize); }),
+      surovyTi: (k.querySelector(".lcd1v-hd .lcd1v-ti") || {}).textContent || "", surovyDl: dl ? dl.textContent : "",
+      vyskaKarty: Math.round(k.getBoundingClientRect().height),
     };
   })()`);
+}
+
+/** Jednopísmenová predložka/spojka (s, z, v, a, k, o, u, i) s obyčajnou medzerou za sebou = môže ostať na konci riadka. */
+const RE_SIROTA = /(^|[\s(„])[szvakouiSZVAKOUI] /;
+/**
+ * Strop výšky otvorenej karty na telefóne (návrh 1b, Michal 24. 10. 2026: „na jednom mieste“). Predloha N1b = karta 643 px
+ * pri 390 px s menšou hlavičkou (bez eyebrow a zlatej linky); hlavička ako pri ostatných krokoch (eyebrow, linka, 20 px pod
+ * ňou) pridá ~75 px -> 718 px (598/610; 613 bez riadkov Odporúčaná/Ušetríte ~716 px). iPhone 390 × 844 v Safari ukáže
+ * ~750 px so zbalenou lištou (odhad). 720 = súčasná výška + malá rezerva: stráži, aby karta nenarástla (nový riadok textu
+ * ≥ 19 px, väčšie video). Do okna Safari s rozbalenou lištou (~664 px, odhad) sa karta s touto hlavičkou nezmestí.
+ */
+const KARTA_TELEFON_MAX = 720;
+/** Výška lepivej hlavičky webu nad kartou (rovnaké selektory ako posun.js) — na telefóne zakrýva hornú časť okna. */
+const vyskaHlavickyWebu = (t) => t.ev(`(function () {
+  var s = [".plugin-fixed-header", ".top-navigation-bar", "header.header", "header"];
+  for (var i = 0; i < s.length; i++) { var e = document.querySelector(s[i]); if (e && e.offsetHeight > 20 && /fixed|sticky/.test(getComputedStyle(e).position)) return e.offsetHeight; }
+  return 0; })()`);
+
+/**
+ * Snímka CELEJ otvorenej karty (len s --snimky; návrh 1b, 24. 10. 2026): karta pod hlavičkou webu, výrez podľa jej obdĺžnika
+ * (+ 12 px okolo) -> <produkt>-<meno>-<šírka>.png.
+ */
+async function snimkaKarty(s, a, meno) {
+  if (!a.snimky) return;
+  const r = await s.t.ev(`(function () { var e = document.querySelector(${JSON.stringify(KARTA)}); if (!e) return null;
+    e.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -90);
+    var b = e.getBoundingClientRect(); return { x: b.left + scrollX, y: b.top + scrollY, w: b.width, h: b.height, sirka: document.documentElement.clientWidth }; })()`);
+  if (!r) return;
+  // plávajúce prvky webu (bublina a tlačidlo chatu, lepivá lišta) by kartu na snímke prekryli -> na chvíľu skryť
+  await s.t.ev(`(function () { var k = document.querySelector(${JSON.stringify(KARTA)});
+    Array.prototype.forEach.call(document.querySelectorAll("body *"), function (e) {
+      if (e.contains(k) || k.contains(e) || !/fixed|sticky/.test(getComputedStyle(e).position)) return;
+      e.setAttribute("data-lcd1v-snimka-skryte", e.style.visibility || ""); e.style.visibility = "hidden"; }); })()`);
+  await s.t.pauza(600);
+  const x = Math.max(0, Math.floor(r.x - 12)), y = Math.max(0, Math.floor(r.y - 12));
+  const clip = { x, y, width: Math.min(r.sirka - x, Math.ceil(r.w + 24)), height: Math.ceil(r.h + 24), scale: 1 };
+  const p = await s.k.posli("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip }).catch(() => null);
+  await s.t.ev(`Array.prototype.forEach.call(document.querySelectorAll("[data-lcd1v-snimka-skryte]"), function (e) {
+    e.style.visibility = e.getAttribute("data-lcd1v-snimka-skryte"); e.removeAttribute("data-lcd1v-snimka-skryte"); })`);
+  if (p && p.data) writeFileSync(join(a.snimky, `${a.produkt.id}-${meno}-${s.t.sirka}.png`), Buffer.from(p.data, "base64"));
 }
 
 /** Text viditeľných kariet (eyebrow) a postupu — počty krokov sa ponukou nemenia. */
@@ -347,13 +415,32 @@ export const SCENARE = {
       const otv = await stavKarty(t);
       const rozlOtv = await t.ev(`document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idR}").classList.contains("active")`);
       j.over(!rozlOtv, "po „Pokračujte ďalej“ vo Farbe sa otvorilo Rozloženie, má sa otvoriť karta druhej vrstvy");
-      j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prosíte si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
-      // Michal 15. 10. 2026: vrstvy vždy pomenované („prvá prešívaná“ / „druhá“); podnadpis ľudsky, nie „strojovo“
-      j.over(otv.pod === "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.", `podnadpis „${otv.pod}“`);
-      // Michal 19. 10. 2026 (návrh A, „Video A“): pás „★ Odporúčame“, nadpis „Druhá vrstva“, štítok „Na celú sadu autokobercov“,
-      // riadky cien ako rohož do kufra; preč „Vzor, auto aj farba Vám ostanú.“, „Prvá prešívaná + druhá vrstva“, „S autokobercami
-      // od“, prečiarknutá cena, pilulka „Ušetríte“ aj veta pod „Nie“ („Pokračujete s doterajším výberom.“)
-      j.over(/^★ Odporúčame\s*Druhá vrstva\s*Na celú sadu autokobercov/.test(otv.anoText) && /Áno, chcem druhú vrstvu$/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
+      // Michal 24. 10. 2026 (návrh 1b): nadpis „Prajete si aj druhú odnímateľnú vrstvu?“ (hlavička ako ostatné kroky)
+      j.over(otv.ey === "Druhá vrstva" && otv.ti === "Prajete si aj druhú odnímateľnú vrstvu?", `otvorená karta: „${otv.ey}“ / „${otv.ti}“`);
+      // návrh 1b: podnadpis („Vodu, sneh, blato aj soľ…“) nahradil blok pod hlavičkou — zlatý box „8 z 10“, tučné „Nie je to
+      // koberec na koberci.“ a dve číslované vrstvy (vrstvy vždy pomenované „prvá prešívaná“ / „druhá“, Michal 15. 10. 2026)
+      j.over(otv.pod === null, `starý podnadpis ostal: „${otv.pod}“`);
+      const inf = otv.info || {};
+      j.over(inf.vidno && inf.nadHlavickou && inf.predDlazdicou, `blok „8 z 10“: viditeľný ${inf.vidno}, hneď pod hlavičkou ${inf.nadHlavickou}, nad dlaždicou ${inf.predDlazdicou}`);
+      j.over(inf.cislo === "8 z 10" && inf.text === "zákazníkov si za posledný rok vybralo autokoberce s druhou vrstvou" && JSON.stringify(inf.textB) === JSON.stringify(["s druhou vrstvou"]),
+        `zlatý box: „${inf.cislo}“ | „${inf.text}“ tučné ${JSON.stringify(inf.textB)}`);
+      j.over(/247, 241, 223/.test(inf.pozadie || ""), `zlatý box nemá krémové pozadie: ${inf.pozadie}`);
+      j.over(inf.nadpis === "Nie je to koberec na koberci." && JSON.stringify(inf.nadpisB) === JSON.stringify(["Nie je to koberec na koberci."]), `veta „${inf.nadpis}“ (tučné ${JSON.stringify(inf.nadpisB)})`);
+      const VRSTVY = [
+        { c: "1", b: "Prvá prešívaná vrstva", t: "Prvá prešívaná vrstva – luxusný vzhľad a vodotesná ochrana celej podlahy." },
+        { c: "2", b: "Druhá vrstva", t: "Druhá vrstva – zachytí sneh, vodu aj blato, preto môžete autokoberce používať celý rok. Vyberiete ju a opláchnete." },
+      ];
+      j.over((inf.riadky || []).length === 2 && VRSTVY.every((v, i) => { const r = inf.riadky[i]; return r.c === v.c && r.t === v.t && JSON.stringify(r.b) === JSON.stringify([v.b]); }),
+        `vrstvy v karte: ${JSON.stringify(inf.riadky)}`);
+      // jednopísmenová predložka/spojka nesmie ostať na konci riadka (pevná medzera za ňou)
+      [["blok", inf.surovy], ["nadpis", otv.surovyTi], ["dlaždica", otv.surovyDl]].forEach(([kde, x]) => j.over(!RE_SIROTA.test(x || ""), `${kde}: jednopísmenové slovo s obyčajnou medzerou za sebou: „${(RE_SIROTA.exec(x || "") || [""])[0]}“`));
+      // písmo nie pod mierku (Michal 18. 10. 2026): text bloku ≥ 15 px, štítky ≥ 11 px
+      j.over(inf.pismo >= 15, `písmo bloku „8 z 10“ ${inf.pismo} px (najmenej 15)`);
+      j.over(otv.stitkyPx.length >= 3 && otv.stitkyPx.every((x) => x >= 11), `štítky karty: ${otv.stitkyPx.join(", ")} px (najmenej 11)`);
+      // Michal 19. 10. 2026 (návrh A, „Video A“) + 24. 10. 2026 (návrh 1b): pás „★ Najčastejšia voľba“, nadpis „Druhá vrstva“,
+      // štítok „Na celú sadu autokobercov“, riadky cien ako rohož do kufra; preč „Vzor, auto aj farba Vám ostanú.“, „Prvá
+      // prešívaná + druhá vrstva“, „S autokobercami od“, prečiarknutá cena, pilulka „Ušetríte“ aj veta pod „Nie“
+      j.over(/^★ Najčastejšia voľba\s*Druhá vrstva\s*Na celú sadu autokobercov/.test(otv.anoText) && /Áno, chcem druhú vrstvu$/.test(otv.anoText), `dlaždica Áno: „${otv.anoText}“`);
       j.over(!/Vzor, auto aj farba|Prvá prešívaná \+ druhá vrstva|Dvojvrstvové autokoberce|S autokobercami|celú sadu druhej vrstvy/.test(otv.anoText), `v dlaždici ostal starý text: „${otv.anoText}“`);
       j.over(otv.nieText === "Nie, ďakujem" && otv.nieVidno && otv.pozn === null, `Nie: „${otv.nieText}“, veta pod ním „${otv.pozn}“ (má byť bez vety)`);
       // Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): skutočné tlačidlá Áno (zelené od 16. 10., v dlaždici, hore) a Nie (zlaté)
@@ -392,8 +479,10 @@ export const SCENARE = {
       await naKoniec(t);
       await cakajVideo(t, RE_V1, "po skončení videa č. 2 znova video č. 1 (dookola)");
       const zakazane = /na milimeter|vyr[áa]bame|zadarmo|comfort|dragon|elite|basic|z[áa]ruk|vrstiev|fixa[čc]n|s dph/i;
-      j.over(!zakazane.test(otv.anoText + " " + otv.pod + " " + otv.nieText + " " + otv.ti), "zakázané slovo v texte karty");
-      j.over(!/prešívan\S*\s+vrstv/i.test((otv.anoText + " " + otv.pod).replace(/prv\S*\s+prešívan\S*/gi, "")), "„prešívaná vrstva“ bez „prvá“ v texte karty");
+      const infoText = inf.text + " " + inf.nadpis + " " + (inf.riadky || []).map((r) => r.t).join(" ");
+      j.over(!zakazane.test(otv.anoText + " " + infoText + " " + otv.nieText + " " + otv.ti), "zakázané slovo v texte karty");
+      j.over(!/ekoko[žz]|s dph|bez dph|vyr[áa]b/i.test(infoText + " " + otv.ti), "v bloku karty je „ekokoža“, „DPH“ alebo „vyrábame“");
+      j.over(!/prešívan\S*\s+vrstv/i.test((otv.anoText + " " + infoText).replace(/prv\S*\s+prešívan\S*/gi, "")), "„prešívaná vrstva“ bez „prvá“ v texte karty");
       await snimka(s, a, "druha-otazka", KARTA);
       // 4) príplatok = živý rozdiel (cena dvojvrstvového pri tých istých voľbách − táto); overí scenár druha-ano na dvoj stránke
       const n = await cakajPriplatok(t, j);
@@ -406,7 +495,14 @@ export const SCENARE = {
       const cv = overCenovku(j, stC.cb, { n, odpTu, odpTam: odpTu ? Math.ceil(((cenaTu + n) * 1.6) / 10) * 10 : null, uplny: false, kde: "karta po farbe" }) || {};
       // telefón: dlaždica s riadkami cien ostane rozumne vysoká (video 4:5 v stĺpci fotky, text vedľa neho)
       if (t.mobil) j.over(stC.dlVyska > 0 && stC.dlVyska <= 480, `dlaždica na telefóne je vysoká ${stC.dlVyska} px (najviac 480)`);
+      // návrh 1b (Michal 24. 10. 2026): celá otvorená karta (s cenami) na telefóne na jednej obrazovke — pod lepivou hlavičkou webu
+      // a najviac KARTA_TELEFON_MAX (okno emulácie 844 px je celá obrazovka telefónu bez líšt prehliadača, preto pevný strop)
+      const hlav = await vyskaHlavickyWebu(t);
+      const okno = await t.ev("innerHeight");
+      const strop = Math.min(KARTA_TELEFON_MAX, okno - hlav);
+      if (t.mobil) j.over(stC.vyskaKarty > 0 && stC.vyskaKarty <= strop, `otvorená karta na telefóne ${stC.vyskaKarty} px, smie mať najviac ${strop} px (strop ${KARTA_TELEFON_MAX}, okno ${okno}, hlavička webu ${hlav})`);
       await snimka(s, a, "druha-cena", `${KARTA} .lcd1v-druha__dlazdica`);
+      await snimkaKarty(s, a, "druha-karta");
       // 5) Nie -> karta zbalená ako hotová, otvorí sa Rozloženie; POST = baseline
       await t.klikni(`${KARTA} .lcd1v-druha__nie`, { popis: "Nie, ďakujem" });
       await t.cakaj(`document.querySelector("${F} .content-wrap > .parameter-wrap.parameter-${idR}").classList.contains("active")`, { ms: 8000, popis: "otvorené Rozloženie po „Nie, ďakujem“" });
@@ -422,7 +518,7 @@ export const SCENARE = {
       rovnakyAkoBaseline(j, post, P.id);
       j.over(cena.spolu === P.platne.spolu, `suma ${cena.spolu} ≠ ${P.platne.spolu}`);
       j.over((await kluc(t)) === null, "po „Nie“ ostal kľúč prenosu v sessionStorage");
-      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok za celú sadu od + ${n} €${cv.odp ? ` (odporúčaná ${cv.odp} €, ušetríte ${cv.usp} €)` : " (bez odporúčanej — produkt nemá bežnú cenu)"}, dlaždica ${stC.dlVyska} px, Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
+      return { info: `bez flagu nič; karta bez čísla až po farbe (6 krokov), video až s kartou (${v1.src.split("/").pop()} -> príbeh -> vapka), Pokračujte -> karta, príplatok za celú sadu od + ${n} €${cv.odp ? ` (odporúčaná ${cv.odp} €, ušetríte ${cv.usp} €)` : " (bez odporúčanej — produkt nemá bežnú cenu)"}, otvorená karta ${stC.vyskaKarty} px (okno ${okno}, hlavička webu ${hlav}), dlaždica ${stC.dlVyska} px, Nie -> Rozloženie (video stojí); POST = baseline ${P.id}`, post: post.body, spolu: cena.spolu };
     },
   },
 

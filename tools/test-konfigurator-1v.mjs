@@ -627,7 +627,7 @@ const SCENARE = {
       over(st.trieda, "flag má platiť aj po prechode bez parametra (sessionStorage karty): " + JSON.stringify(st));
       info.push("?novy=" + a.flag + " zapne, platí v karte");
       // Michal 15. 10. 2026: nadpis každého kroku začína „Prosím, vyberte si …“, farby menujú vrstvu („1. / 2. vrstvy“);
-      // karta ponuky druhej vrstvy (jedno) je otázka „Prosíte si aj druhú odnímateľnú vrstvu?“, karta ponuky setu na rohoži
+      // karta ponuky druhej vrstvy (jedno) je otázka „Prajete si aj druhú odnímateľnú vrstvu?“ (návrh 1b, Michal 24. 10. 2026), karta ponuky setu na rohoži
       // do kufra a boxe (komplet-ponuka.js, 17. 10. 2026) „Prosíte si aj autokoberce pod sedadlá?“
       if (P.typ === "kamion") {
         // kamióny: vlastné kroky (#lcd1v-kamion), otázky „Prosím, vyberte si …“ / „Prosíte si …?“; React sa nesmie namontovať
@@ -641,7 +641,7 @@ const SCENARE = {
         var k = e.closest(".lcd1v-krok");
         return [(/lcd1v-k-([a-z0-9]+)/i.exec(k.className) || [])[1] || (k.classList.contains("lcd1v-komplet") ? "komplet" : k.classList.contains("lcd1v-druha") ? "druha" : "?"), e.textContent.trim()];
       })`);
-      const OTAZKY = { druha: "Prosíte si aj druhú odnímateľnú vrstvu?", komplet: "Prosíte si aj autokoberce pod sedadlá?" };
+      const OTAZKY = { druha: "Prajete si aj druhú odnímateľnú vrstvu?", komplet: "Prosíte si aj autokoberce pod sedadlá?" };
       const zle = nad.filter(([m, x]) => (OTAZKY[m] ? x !== OTAZKY[m] : !/^Prosím, vyberte si \S/.test(x)));
       over(!zle.length, "nadpisy krokov bez „Prosím, vyberte si …“: " + JSON.stringify(zle));
       const farby = { farba: "Prosím, vyberte si farbu 1. vrstvy", farba2: "Prosím, vyberte si farbu 2. vrstvy" };

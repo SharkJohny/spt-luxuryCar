@@ -14,12 +14,16 @@
 //   - Michal 19. 10. 2026 (návrh A, „Video A“: „rôzne rozhádzané tie ceny … jeden štýl ako pri rohožiach do kufra“):
 //     nadpis dlaždice „Druhá vrstva“ + zlatý štítok „Na celú sadu autokobercov“ a ceny v riadkoch rohože do kufra
 //     (Odporúčaná cena / Ušetríte / Príplatok od); preč veta „Vzor, auto aj farba Vám ostanú.“ aj veta pod „Nie“,
-//   - Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): v dlaždici je skutočné zlaté TLAČIDLO „Áno, chcem druhú
-//     vrstvu“ (<button>, klávesnica). Dlaždica je obyčajný <div> a klik na ňu (fotka, text) robí to isté — tlačidlá sa do
+//   - Michal 15. 10. 2026 („ani neviem, že na to môžem kliknúť“): v dlaždici je skutočné TLAČIDLO „Áno, chcem druhú
+//     vrstvu“ (<button>, klávesnica; od 16. 10. zelené). Dlaždica je obyčajný <div> a klik na ňu (fotka, text) robí to isté — tlačidlá sa do
 //     seba nevnárajú, takže klávesnicou sa ide len na tlačidlo,
 //   - zlaté tlačidlo „Nie, ďakujem“ (zelené je „Áno“ — Michal 16. 10.): karta sa zbalí („Bez druhej vrstvy“) a otvorí sa Rozloženie,
 //   - „Áno“: krátka správa v karte, tlačidlá sa zablokujú, výber sa zapíše do kľúča prenosu (prenos.js) a otvorí sa
-//     dvojvrstvový produkt toho istého vzoru (598 -> 601, 610 -> 604, 613 -> 607; register produkty.js).
+//     dvojvrstvový produkt toho istého vzoru (598 -> 601, 610 -> 604, 613 -> 607; register produkty.js),
+//   - Michal 24. 10. 2026 (návrh 1b, „Áno, takto sa mi to páči“): pod hlavičkou namiesto podnadpisu blok __info — zlatý box
+//     „8 z 10 zákazníkov … s druhou vrstvou“, „Nie je to koberec na koberci.“ a dve číslované vrstvy; pás „★ Najčastejšia
+//     voľba“; kompaktná karta (menšie video a tlačidlá), aby bola otvorená karta na telefóne na jednej obrazovke.
+//     Texty statické z typy/jedno.js, tučné časti = <b> cez textContent (žiadne innerHTML).
 // Nič s atribútom name, žiadny zápis do formulára: karta je nový prvok v .content-wrap BEZ tried .position-wrap /
 // .parameter-wrap. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
@@ -41,6 +45,44 @@ function el(tag, trieda, text) {
   if (trieda) e.className = trieda;
   if (text != null) e.textContent = text;
   return e;
+}
+/** Prvok s textom a tučnou časťou: „pred <b>tucne</b> po“ — všetko cez textContent (žiadne innerHTML). */
+function sTucnym(tag, trieda, pred, tucne, po) {
+  const e = el(tag, trieda);
+  if (pred) e.appendChild(document.createTextNode(pred));
+  if (tucne) e.appendChild(el("b", null, tucne));
+  if (po) e.appendChild(document.createTextNode(po));
+  return e;
+}
+/**
+ * Blok pod hlavičkou (Michal 24. 10. 2026, návrh 1b): zlatý box „8 z 10 zákazníkov … <b>s druhou vrstvou</b>“,
+ * „<b>Nie je to koberec na koberci.</b>“ a číslované vrstvy „<b>Prvá prešívaná vrstva</b> – …“ (texty typy/jedno.js „druha“).
+ */
+function blokInfo(T) {
+  const TP = T.pocet, TV = T.vrstvy;
+  if (!TP && !TV) return null;
+  const info = el("div", "lcd1v-druha__info");
+  if (TP) {
+    const box = el("div", "lcd1v-druha__pocet");
+    box.appendChild(el("span", "lcd1v-druha__pocet-c", TP.cislo));
+    box.appendChild(sTucnym("p", "lcd1v-druha__pocet-t", TP.b ? TP.text + " " : TP.text, TP.b));
+    info.appendChild(box);
+  }
+  if (TV) {
+    if (TV.nadpis) info.appendChild(sTucnym("p", "lcd1v-druha__vrstvy-nd", null, TV.nadpis));
+    const zoz = el("ol", "lcd1v-druha__vrstvy");
+    (TV.riadky || []).forEach(function (r, i) {
+      const li = el("li", "lcd1v-druha__vrstva");
+      const c = el("span", "lcd1v-druha__vrstva-c", String(i + 1));
+      c.setAttribute("aria-hidden", "true");
+      li.appendChild(c);
+      // pevná medzera pred pomlčkou: „–“ nezačne riadok
+      li.appendChild(sTucnym("span", "lcd1v-druha__vrstva-t", null, r.b, NBSP + "– " + r.text));
+      zoz.appendChild(li);
+    });
+    info.appendChild(zoz);
+  }
+  return info;
 }
 function nastavText(e, text) {
   if (e && e.textContent !== text) e.textContent = text;
@@ -117,7 +159,10 @@ export function init(ctx) {
   hd.appendChild(tx);
   hd.appendChild(el("span", "lcd1v-zm", "Zmeniť"));
   karta.appendChild(hd);
-  if (T.pod) karta.appendChild(el("p", "lcd1v-pod", T.pod));
+  // návrh 1b (24. 10. 2026): blok „8 z 10“ + dve vrstvy namiesto podnadpisu (T.pod už jedno.js nemá)
+  const info = blokInfo(T);
+  if (info) karta.appendChild(info);
+  else if (T.pod) karta.appendChild(el("p", "lcd1v-pod", T.pod));
 
   // zlatá dlaždica (vzhľad kariet kroku Rohož do kufra: .lcd1v-kb__karta) — <div>, nie <button>: vnútri je skutočné
   // tlačidlo „Áno“ (tlačidlo v tlačidle HTML nedovolí); klik kamkoľvek do dlaždice = to isté ako tlačidlo

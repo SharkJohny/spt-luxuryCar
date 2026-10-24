@@ -16775,9 +16775,17 @@ body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos:focus-visible { outline: 2px so
 
    Karta .lcd1v-krok.lcd1v-druha je nový prvok v .content-wrap hneď za krokom Farba: obal a hlavička ako ostatné karty
    (_lcd1v-kroky.scss), ale BEZ čísla kroku (skrytý krok — počty „Krok N z 6“ a postup sa nemenia). Dlaždica (div) má
-   vzhľad kariet kroku Rohož do kufra (.lcd1v-kb__karta, _lcd1v-kufor-boxy.scss) a dole zlaté tlačidlo „Áno, chcem druhú
-   vrstvu“ (Michal 15. 10. 2026: aby bolo jasné, že sa na to dá kliknúť), „Nie, ďakujem“ má vzhľad zeleného
-   „Pokračujte ďalej“. */
+   vzhľad kariet kroku Rohož do kufra (.lcd1v-kb__karta, _lcd1v-kufor-boxy.scss) a dole skutočné tlačidlo „Áno, chcem
+   druhú vrstvu“ (Michal 15. 10. 2026: aby bolo jasné, že sa na to dá kliknúť). Farby od 16. 10. 2026: „Áno“ ZELENÉ
+   (zelené = kam chceme klik), „Nie, ďakujem“ pod dlaždicou ZLATÉ (tvar ako „Pokračujte ďalej“).
+
+   Michal 24. 10. 2026 (návrh 1b, „Áno, takto sa mi to páči“; predloha N1b-kompakt, 390 px): pod hlavičkou blok __info
+   (zlatý box „8 z 10“, „Nie je to koberec na koberci.“, dve číslované vrstvy) a KOMPAKTNÁ karta — menšie video (112 px
+   na telefóne), tlačidlá 48 px, menšie medzery: celá otvorená karta na telefóne na jednej obrazovke. Písmo nie pod
+   mierku (text 15 px / PC 16 px, štítky ≥ 12 px). Hlavička karty (eyebrow, písmo nadpisu, zlatá linka, medzery) je
+   rovnaká ako pri ostatných krokoch — jediná výnimka je šírka riadka nadpisu (max-width nižšie).
+   POZOR: karta ponuky setu (komplet-ponuka.js, .lcd1v-druha.lcd1v-komplet) zdieľa obal, hlavičku, „Nie“ a správu pri
+   prenose — kompaktné „Nie“ a spodný okraj karty preto len pre :not(.lcd1v-komplet). */
 
 body.lcd-1v #product-detail-form .lcd1v-druha[hidden],
 body.lcd-1v #product-detail-form .lcd1v-druha [hidden] {
@@ -16795,13 +16803,144 @@ body.lcd-1v #product-detail-form .lcd1v-druha.active > .lcd1v-pod {
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__volby {
   margin: 0;
 }
-/* video v dlaždici (Michal 16. 10. 2026, namiesto fotky): na výšku 4:5 v stĺpci fotky (šírka ako doteraz -> karta na
-   telefóne takmer nevyrastie), rámik ako nové fotky produktu (_lcd1v-galeria.scss: 1 px šampanská linka, zaoblenie 14 px,
-   jemný tieň). Obal .lcd1v-druha__ram orezáva rohy (Safari pri prehrávaní ignoruje border-radius samotného <video>);
-   tmavé pozadie = kým sa nenačíta poster, žiadny biely záblesk. */
+/* spodný okraj otvorenej karty = bočný (telefón 18 px namiesto 26 px) — kompaktná karta (návrh 1b) */
+body.lcd-1v #product-detail-form .lcd1v-druha.active:not(.lcd1v-komplet) {
+  padding-bottom: var(--kr-pad);
+}
+/* nadpis „Prajete si aj druhú odnímateľnú vrstvu?“ je dlhší než nadpisy ostatných krokov: pri ich 11em by mal 3 riadky
+   („VRSTVU?“ samo, karta o 29 px vyššia) na každej šírke. 13em = len šírka riadka (nadpis využije miesto do šípky);
+   písmo, eyebrow, zlatá linka a medzery hlavičky ostávajú ako pri ostatných krokoch (zmerané 24. 10. 2026: 2 riadky pri
+   375–1280 px, 3 riadky len pod 375 px — tam už nevojde ani pri 13em, písmo sa kvôli jednotnosti nezmenšuje). */
+body.lcd-1v #product-detail-form .lcd1v-druha.active:not(.lcd1v-komplet) .lcd1v-ti {
+  max-width: 13em;
+}
+
+/* ---------------------------------------------------------------- blok pod hlavičkou (návrh 1b, 24. 10. 2026)
+   zlatý box „8 z 10 | zákazníkov si za posledný rok vybralo autokoberce s druhou vrstvou“, pod ním tučné „Nie je to koberec
+   na koberci.“ a dve vrstvy so zlatými krúžkami 1 a 2. Žiadne odrážky/okraje zo starých štýlov webu (p, ol, li). */
+body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  color: #3d3728;
+  text-align: left;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__pocet {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 3px;
+  padding: 9px 12px;
+  border: 1px solid #e6d7a8;
+  border-radius: 12px;
+  background: #f7f1df;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__pocet-c {
+  flex: none;
+  color: var(--kr-gold-tx);
+  font: 800 30px/1 var(--kr-disp);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__info p {
+  margin: 0;
+  padding: 0;
+  color: #3d3728;
+  font: 400 15px/1.3 var(--kr-body);
+  letter-spacing: 0;
+  text-align: left;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__info b {
+  color: var(--kr-ink);
+  font-weight: 700;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__info p.lcd1v-druha__vrstvy-nd {
+  line-height: 1.38;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__vrstvy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__vrstva {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  color: #3d3728;
+  font: 400 15px/1.38 var(--kr-body);
+  list-style: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__vrstva::before,
+body.lcd-1v #product-detail-form .lcd1v-druha__vrstva::after {
+  content: none;
+  display: none;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__vrstva-c {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+  border-radius: 50%;
+  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
+  color: var(--kr-ink);
+  font: 800 13px/1 var(--kr-disp);
+}
+body.lcd-1v #product-detail-form .lcd1v-druha__vrstva-t {
+  min-width: 0;
+}
+@media (min-width: 768px) {
+  body.lcd-1v #product-detail-form .lcd1v-druha__pocet {
+    gap: 16px;
+    padding: 10px 16px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha__pocet-c {
+    font-size: 32px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha__info p,
+  body.lcd-1v #product-detail-form .lcd1v-druha__vrstva {
+    font-size: 16px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha__vrstva-c {
+    margin-top: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- dlaždica (kompaktná, návrh 1b)
+   pás 12 px, stĺpec videa pevne 112 px (+ 10 px okraj) na telefóne, menšie okraje textu; riadky cien ostávajú ako
+   pri rohoži do kufra (písmo a farby testované proti karte kufra) */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica {
+  grid-template-columns: 122px minmax(0, 1fr);
+  column-gap: 12px;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica > .lcd1v-kb__top {
+  padding: 5px 10px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica .lcd1v-kb__tx {
+  padding: 8px 10px 8px 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica .lcd1v-kb__nm {
+  padding-right: 0;
+  font-size: 17px;
+}
+/* video v dlaždici (Michal 16. 10. 2026, namiesto fotky): na výšku 4:5 v stĺpci fotky, rámik ako nové fotky produktu
+   (_lcd1v-galeria.scss: 1 px šampanská linka, zaoblenie 14 px, jemný tieň). Obal .lcd1v-druha__ram orezáva rohy (Safari
+   pri prehrávaní ignoruje border-radius samotného <video>); tmavé pozadie = kým sa nenačíta poster, žiadny biely záblesk.
+   Návrh 1b (24. 10. 2026): na telefóne 112 × 140 px. */
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__fot {
   align-items: center;
-  padding: 10px 0 10px 10px;
+  padding: 9px 0 9px 10px;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ram {
   position: relative;
@@ -16832,10 +16971,21 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__video {
   background: transparent;
   object-fit: cover;
 }
-/* PC: video najviac 210 px široké (4:5 = 262 px na výšku), nech dlaždica nie je oveľa vyššia než text vedľa */
+/* PC: video 136 px široké (4:5 = 170 px na výšku) — kompaktná karta (návrh 1b; predtým až 210 × 262 px), dlaždica
+   nie je vyššia než text vedľa */
 @media (min-width: 721px) {
   body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica {
-    grid-template-columns: minmax(0, min(40%, 210px)) minmax(0, 1fr);
+    grid-template-columns: 148px minmax(0, 1fr);
+    column-gap: 18px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__fot {
+    padding: 10px 0 10px 12px;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica .lcd1v-kb__tx {
+    padding: 10px 16px 10px 0;
+  }
+  body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica .lcd1v-kb__nm {
+    font-size: 19px;
   }
 }
 /* riadky cien (Michal 19. 10. 2026, návrh A „Video A“): rovnaké triedy a vzhľad ako karty rohože do kufra
@@ -16843,19 +16993,37 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__video {
    „Ušetríte − 78 €“ (zelené), „PRÍPLATOK OD + 132 €“ (veľké). Odporúčaná a Ušetríte sú skryté, keď sa nedajú spočítať
    (613 bez bežnej ceny) — ostane len Príplatok bez čiary navrchu (pravidlo kufra „[hidden] + [hidden] + --sum“). */
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ucet {
-  margin-top: 10px;
+  margin-top: 5px;
+  padding-top: 3px;
+}
+/* kompaktné riadky (návrh 1b): menšie okraje a riadkovanie súčtu — písmo a farby ostávajú ako pri rohoži do kufra */
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ucet > .lcd1v-kb__r {
+  padding: 1px 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ucet > .lcd1v-kb__r--sum {
+  margin-top: 3px;
+  padding: 4px 0 0;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ucet > .lcd1v-kb__r--sum .lcd1v-kb__rh {
+  line-height: 1.25;
+}
+body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ucet > .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
+  margin-top: 0;
+  padding-top: 0;
 }
 /* úzke telefóny: užší stĺpec videa, aby sa „Odporúčaná cena 210 €“ aj „PRÍPLATOK OD + 132 €“ zmestili na jeden riadok
-   (zmerané 19. 10. 2026: 360 px — stĺpec 39 % dáva textu 160 px, „Príplatok od + 132 €“ potrebuje 163 px; 320 px — text
-   143 px, riadky potrebujú 146 a 156 px). Písmo riadkov ostáva ako pri rohoži do kufra. */
+   (zmerané 19. 10. 2026: „Príplatok od + 132 €“ potrebuje 163 px, „Odporúčaná cena 210 €“ ~146 px). Písmo riadkov
+   ostáva ako pri rohoži do kufra. */
 @media (min-width: 360px) and (max-width: 389px) {
   body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica {
-    grid-template-columns: minmax(0, 36%) minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
+    column-gap: 10px;
   }
 }
 @media (max-width: 359px) {
   body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__dlazdica {
     grid-template-columns: minmax(0, 30%) minmax(0, 1fr);
+    column-gap: 10px;
   }
   body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__fot {
     padding-left: 8px;
@@ -16877,17 +17045,17 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano {
   justify-content: center;
   width: auto;
   max-width: none;
-  height: 52px;
+  height: 48px; /* návrh 1b: 48 px (predtým 52) */
   min-height: 0;
-  margin: 2px 10px 10px;
-  padding: 0 16px;
+  margin: 0 10px 10px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
-  box-shadow: 0 8px 18px rgba(31, 115, 80, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 18px rgba(31, 115, 80, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   color: #fff;
-  font: 900 14px/1.2 var(--kb-disp);
-  letter-spacing: 0.1em;
+  font: 900 15px/1.2 var(--kb-disp);
+  letter-spacing: 0.06em;
   text-align: center;
   text-transform: uppercase;
   text-shadow: none;
@@ -16907,11 +17075,12 @@ body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:focus-visible {
   outline: 3px solid var(--kb-gold);
   outline-offset: 3px;
 }
-/* 320 px: „ÁNO, CHCEM DRUHÚ VRSTVU“ na jeden riadok (pri 0,1em a 16 px okrajoch sa zalomilo) — písmo ostáva 14 px */
+/* 320 px: „ÁNO, CHCEM DRUHÚ VRSTVU“ na jeden riadok — písmo 14 px, užšie rozostupy */
 @media (max-width: 359px) {
   body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano {
     padding: 0 8px;
-    letter-spacing: 0.06em;
+    font-size: 14px;
+    letter-spacing: 0.04em;
   }
 }
 body.lcd-1v #product-detail-form .lcd1v-druha .lcd1v-druha__ano:disabled {
@@ -16998,6 +17167,18 @@ body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie {
   transition: box-shadow 0.2s, transform 0.2s, opacity 0.2s;
   -webkit-appearance: none;
   appearance: none;
+}
+/* návrh 1b (24. 10. 2026): kompaktné „Nie“ len na karte druhej vrstvy (karta setu .lcd1v-komplet ostáva 56 px);
+   zlatá ako v predlohe N1b — vodorovný prechod 100° (tmavé okraje, svetlý stred), rovnaký ako pás „★ Najčastejšia voľba“
+   a krúžky 1 a 2 */
+body.lcd-1v #product-detail-form .lcd1v-druha:not(.lcd1v-komplet) > .lcd1v-druha__nie {
+  height: 48px;
+  margin-top: 12px;
+  padding: 0 16px;
+  background: linear-gradient(100deg, #8f7020, #e6c877 48%, #c49b31);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 8px 20px rgba(196, 155, 49, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 body.lcd-1v #product-detail-form .lcd1v-druha > .lcd1v-druha__nie:hover {
   box-shadow: 0 14px 30px rgba(196, 155, 49, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);

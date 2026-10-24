@@ -27,21 +27,33 @@ export const TYP = {
     },
     cena: { typ: "Jednovrstvové" },
     // Ponuka druhej vrstvy po kroku Farba (druha-vrstva.js; Michal 14. 10. 2026: skrytá karta BEZ čísla, nepovinná).
-    // Texty zo schváleného návrhu druha-vrstva.html (krok „Druhá vrstva“, dlaždica, Nie, správa pri prenose); podnadpis =
-    // dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js. Cena „+ N €“ sa ráta živo (nikdy natvrdo).
-    // Michal 15. 10. 2026: v dlaždici zlaté tlačidlo „Áno“ (ano.tl; nadpis dlaždice už nie je „Áno, chcem“) a vrstvy vždy
+    // Texty zo schváleného návrhu druha-vrstva.html (krok „Druhá vrstva“, dlaždica, Nie, správa pri prenose); podnadpis bol
+    // do 24. 10. 2026 = dvojvrstvove.html krok 4 (#v3b), rovnaký ako farba2.js — od návrhu 1b ho nahrádza blok __info (nižšie),
+    // kľúč pod už nie je. Cena „+ N €“ sa ráta živo (nikdy natvrdo).
+    // Michal 15. 10. 2026: v dlaždici tlačidlo „Áno“ (ano.tl; od 16. 10. zelené, „Nie“ zlaté; nadpis dlaždice už nie je „Áno, chcem“) a vrstvy vždy
     // pomenované: „prvá prešívaná vrstva“ / „druhá vrstva“, nikdy len „prešívaná vrstva“.
-    // Michal 15. 10. 2026 („strojové, chladné“): nadpis „Prosíte si aj druhú odnímateľnú vrstvu?“ a podnadpis ľudsky — len fakty
+    // Michal 15. 10. 2026 („strojové, chladné“; platilo do návrhu 1b): nadpis „Prosíte si…“ a podnadpis ľudsky — len fakty
     // zo živej stránky a schválených návrhov (zachytí vodu, sneh, blato aj soľ; dá sa vybrať a umyť aj vapkou; prvá
     // prešívaná vrstva ostane čistá), žiadne nové čísla ani sľuby.
+    // Michal 24. 10. 2026 (návrh 1b, „Áno, takto sa mi to páči“): nadpis „Prajete si…“; podnadpis (pod) nahradil zlatý box
+    // „8 z 10“ + „Nie je to koberec na koberci.“ a dve číslované vrstvy (druha-vrstva.js blok __info, tučné časti = <b>);
+    // pás nad dlaždicou „★ Najčastejšia voľba“. Celá otvorená karta má byť na telefóne na jednej obrazovke.
+    // „8 z 10“: Back Office, 241 z 286 objednávok autokobercov za 12 mesiacov k 24. 10. 2026 malo druhú vrstvu (84 %).
+    // \u00a0 = pevná medzera: jednopísmenová predložka/spojka nesmie ostať na konci riadka.
     druha: {
       nm: "Druhá vrstva",
-      ti: "Prosíte si aj druhú odnímateľnú vrstvu?",
+      ti: "Prajete si aj druhú odnímateľnú vrstvu?",
       vy: "Áno alebo nie",
       vyNie: "Bez druhej vrstvy",
-      // Michal 16. 10. 2026 (telefón): podnadpis najviac 1,5 vety — presne táto veta.
-      pod: "Vodu, sneh, blato aj soľ z topánok zachytí druhá vrstva – jednoducho ju vyberiete, umyjete aj vapkou a prvá prešívaná vrstva ostane čistá.",
-      naj: "★ Odporúčame",
+      pocet: { cislo: "8\u00a0z\u00a010", text: "zákazníkov si za posledný rok vybralo autokoberce", b: "s\u00a0druhou vrstvou" },
+      vrstvy: {
+        nadpis: "Nie je to koberec na koberci.",
+        riadky: [
+          { b: "Prvá prešívaná vrstva", text: "luxusný vzhľad a\u00a0vodotesná ochrana celej podlahy." },
+          { b: "Druhá vrstva", text: "zachytí sneh, vodu aj blato, preto môžete autokoberce používať celý rok. Vyberiete ju a\u00a0opláchnete." },
+        ],
+      },
+      naj: "★ Najčastejšia voľba",
       // Michal 19. 10. 2026 (návrh A, „Video A“): nadpis dlaždice „Druhá vrstva“, pod ním zlatý štítok „Na celú sadu
       // autokobercov“ (príplatok je za celú sadu, nie za 1 kus — Michal 16. 10.); veta „Vzor, auto aj farba Vám ostanú.“
       // a „Prvá prešívaná + druhá vrstva“ preč („zbytočne písané“).
