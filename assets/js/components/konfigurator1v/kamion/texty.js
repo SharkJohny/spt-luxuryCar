@@ -779,6 +779,7 @@ export const TEXTY = {
   "brzda": "brzda {x}",
   "syntetika": "syntetická koža",
   "mikrosemis": "mikrosemiš",
+  "velur": "velúr",
   "koza": "koža",
   "vzorka": "Vzorka: {x}",
   "zvacsena": "Zväčšená vzorka: {x}",

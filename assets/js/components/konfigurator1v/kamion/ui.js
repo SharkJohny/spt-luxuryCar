@@ -613,10 +613,12 @@ export function vytvorUi(o) {
   const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
   const lemMeno = (l) => l.menoUi.toLowerCase() + " (" + l.kod + ")";
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: lemMeno(l) });
-  /** „Prešívaná syntetická koža“, „Jednofarebný mikrosemiš“ — variant + druh materiálu (ako dlaždice materiálu tapacíru). */
+  /** Druh materiálu pod variantom: mikrosemiš / velúr / syntetická koža (koza = kratšie „koža“ v lište). */
+  const druhMat = (v, koza) => (v.nazov === "Mikrosemiš" ? U0.mikrosemis : v.nazov === "Velúr" ? U0.velur : koza ? U0.koza : U0.syntetika);
+  /** „Prešívaná syntetická koža“, „Jednofarebný mikrosemiš“, „Vzorovaný velúr“ — variant + druh materiálu (ako dlaždice materiálu tapacíru). */
   function matMeno(nazov) {
     const v = matT(nazov);
-    return v ? v.variant.charAt(0).toUpperCase() + v.variant.slice(1) + " " + (v.nazov === "Mikrosemiš" ? U0.mikrosemis : U0.syntetika) : nazov;
+    return v ? v.variant.charAt(0).toUpperCase() + v.variant.slice(1) + " " + druhMat(v) : nazov;
   }
 
   // Krok 6 — otázka „materiál, farba a lemovanie tapacíru“ (Michal 22. 10. 2026): čiernobiela fotka výplne dverí (len kde
@@ -795,7 +797,7 @@ export function vytvorUi(o) {
       let html = riadokHot("mat", r.inak_hotove, "", true) + skOt("tapacir", "tapMat", oz.material, '<div class="k-dlazdice k-dlazdice--mat" role="group" aria-labelledby="' + P + 'ot-tapMat">' + MATERIALY.map((m, i) => {
         const v = matT(m.nazov), x = S.tapMat === m.nazov, fx = x && S.tapFarba ? farba(m.nazov, S.tapFarba) : null;
         return '<button type="button" class="k-dlazdica' + (x ? " is-on" : "") + '" data-a="tapMat" data-v="' + attr(m.nazov) + '" data-f="tapMat:' + i + '" aria-pressed="' + x + '">' +
-          '<img class="k-dlazdica__img" src="' + attr(fx ? fx.full : m.karta_obrazok) + '" alt="" loading="lazy"><span class="k-dlazdica__nm">' + esc(v.variant) + "<small>" + esc(v.nazov === "Mikrosemiš" ? U0.mikrosemis : U0.syntetika) + "</small></span></button>";
+          '<img class="k-dlazdica__img" src="' + attr(fx ? fx.full : m.karta_obrazok) + '" alt="" loading="lazy"><span class="k-dlazdica__nm">' + esc(v.variant) + "<small>" + esc(druhMat(v)) + "</small></span></button>";
       }).join("") + "</div>");
       if (S.tapMat) html += skOt("tapacir", "tapFarba", oz.farba, mriezkaFarieb(S.tapMat, S.tapFarba, "tapFarba", "tf:"));
       html += skOt("tapacir", "tapLem", oz.lemovanie, mriezkaLem(S.tapLem, "tapLem", "tl:", null));
@@ -875,7 +877,7 @@ export function vytvorUi(o) {
     const c = cena(), hot = vsetkoHotove(), t = T.kroky.lista;
     const mt = S.material ? matT(S.material) : null;
     const popis = [S.model ? znacka().meno + " " + roky(S.model).replace(/\s*\d{4}–\d{4}$/, "") : "",
-      mt ? (/Mikrosemiš/.test(mt.nazov) ? U0.mikrosemis : U0.koza) + ", " + mt.variant : ""].filter(Boolean).join(" · ");
+      mt ? druhMat(mt, true) + ", " + mt.variant : ""].filter(Boolean).join(" · ");
     lst.innerHTML = '<div class="lcd1v-lista__c"><b class="lcd1v-lista__suma"><small>' + esc(t.spolu) + " </small>" + (hot ? "" : esc(t.od) + " ") + eur(c.spolu) + "</b>" +
       '<small class="lcd1v-lista__popis">' + esc(popis) + "</small></div>" +
       '<button type="button" class="lcd1v-lista__kos" data-a="lista" data-f="lista"' + (U.odosiela ? ' disabled aria-disabled="true" aria-busy="true"' : "") + ">" + esc(hot ? t.do_kosika : t.pokracovat) + "</button>";

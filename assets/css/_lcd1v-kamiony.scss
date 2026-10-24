@@ -461,6 +461,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta { margin: 14px 0 0;
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta:first-child { margin-top: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta__ey { margin: 0 0 14px; padding: 0 0 10px; border-bottom: 1px solid var(--k-line); color: var(--k-gold-tx); font: 800 12px/1.35 var(--k-disp); letter-spacing: .12em; text-transform: uppercase; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-sk { margin-top: 22px; }
+/* Michal 24. 10. 2026: jemná čiara medzi otázkami v jednej karte (materiál | farba | lemovanie tapacíru, motív | niť) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-sk + .k-sk:not(.kn-potvrd) { padding-top: 22px; border-top: 1px solid var(--k-line); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .kn-karta__ey + .k-sk, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .kn-hot--vnutri + .k-sk { margin-top: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--motiv { max-width: none; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--motiv .k-dlazdica__nm { font-size: 15px; }

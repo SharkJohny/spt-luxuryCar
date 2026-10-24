@@ -827,6 +827,19 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   zaklad(t, { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: VEL, farba: "3D", lem: "04" });
   t.klik(a("nas", "nechcem")); t.klik(a("tap", "nie"));
   await kontrolaKosika(t, "24", { selecty: { 346: VEL }, poznamkaObsahuje: ["- Typ a farba materiálu: " + VEL + " – 3D"], spolu: 259 });
+  // Michal 24. 10. 2026: dlaždica velúru v materiáli tapacíru = „vzorovaný · velúr“ (nie „syntetická koža“);
+  // v karte „Vlastná kombinácia“ jemná čiara medzi otázkami materiál | farba | lemovanie
+  const t2 = await otvor();
+  zaklad(t2, DAF); t2.klik(a("nas", "nechcem")); t2.klik(a("tap", "ano")); t2.klik(a("tapZmenit")); t2.klik(a("tapMat", VEL));
+  const q2 = (sel) => t2.d.querySelector("#lcd1v-kamion " + sel);
+  const dl = q2('[data-a="tapMat"][data-v="' + VEL + '"] small');
+  over("24: dlaždica velúru pri tapacíri = „velúr“", !!dl && dl.textContent === "velúr", dl && dl.textContent);
+  const sk = Array.from(t2.d.querySelectorAll('#lcd1v-kamion .kn-karta .k-sk[data-pole^="tap"]:not(.kn-potvrd)'));
+  // jsdom nenačíta CSS: poradie otázok v DOM + pravidlo čiary v luxuryCar.css (súrodenec .k-sk + .k-sk, nie tlačidlo Pokračovať)
+  const css = readFileSync(new URL("../assets/css/luxuryCar.css", import.meta.url), "utf8");
+  over("24: v karte idú otázky materiál, farba, lemovanie hneď za sebou (čiara medzi nimi)", J(sk.map((x) => x.getAttribute("data-pole"))) === J(["tapMat", "tapFarba", "tapLem"]) &&
+    sk.slice(1).every((x) => x.previousElementSibling && x.previousElementSibling.classList.contains("k-sk")) &&
+    css.includes('#lcd1v-kamion .kn-karta .k-sk + .k-sk:not(.kn-potvrd) { padding-top: 22px; border-top: 1px solid var(--k-line); }'), J(sk.map((x) => x.getAttribute("data-pole"))));
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);
