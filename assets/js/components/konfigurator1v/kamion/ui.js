@@ -6,7 +6,7 @@
 import { TEXTY } from "./texty.js";
 import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA_DVERI_SUBOR, FOTKY_DVERI, FOTKA_KABINY_NASIVKY } from "./data.js";
 import { OBRAZKY_1V } from "../ctx.js";
-import { posunNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
+import { cielNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
 
@@ -1005,9 +1005,49 @@ export function vytvorUi(o) {
     try { el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: blok || "start" }); } catch (e) { /* staré prehliadače */ }
   }
   // Posuny po „Pokračovať“ (Michal 25. 10. 2026: „vždy na začiatok ďalšieho kroku … aby ho videl celý, nie niekde
-  // v popisoch“, hlavne na telefóne): posun.js posunNaStred s cieľom cielNaVrch — vrch kroku / karty 12 px pod hlavičku
-  // webu (aj keď sa hlavička pri posune hore znova ukáže), cieľ až z konečného rozloženia po zatvorení predošlého kroku,
-  // po dobehnutí dorovnanie (neskoro načítané obrázky, lišta prehliadača na iPhone), dotyk / koliesko posun zruší.
+  // v popisoch“; potom „nie vždy to vyskroluje tam, kde má“): vrch kroku / karty 12 px pod hlavičku webu (cielNaVrch).
+  // posunNa() namiesto posun.js posunNaStred, ktorý sa zrušil pri prekreslení (render() vymení prvky kroku — stačilo
+  // ďalšie ťuknutie), pri udalosti kolieska hneď po kliku (dobeh touchpadu) a plynulý posun zastavený skôr nedorovnal.
+  // Tu: prvok sa hľadá pri každom meraní podľa selektora, ťuknutie posun nezruší, koliesko až po 0,5 s, ťahanie prstom
+  // a klávesy hneď; keď stránka stojí mimo cieľa, skočí presne (najviac 3×), stráži sa 1,5 s po dobehnutí.
+  let posunBeh = 0;
+  const POSUN_RUKA = ["wheel", "keydown", "touchstart", "touchmove"];
+  function posunNa(najdi, ciel) {
+    const moj = ++posunBeh, t0 = Date.now();
+    let zruseny = false, prst = null, posledneY = null, stoji = 0, korekcie = 0, poPohybe = 0;
+    const ruka = (e) => {
+      if (e.type === "wheel") { if (Date.now() - t0 > 500) zruseny = true; return; }
+      if (e.type === "keydown") { if (!/^(Enter| |Tab|Shift)$/.test(e.key)) zruseny = true; return; }
+      const p = e.touches && e.touches[0];
+      if (e.type === "touchstart") { prst = p ? { x: p.clientX, y: p.clientY } : null; return; }
+      if (!prst || !p || Math.abs(p.clientX - prst.x) + Math.abs(p.clientY - prst.y) > 10) zruseny = true; // touchmove
+    };
+    POSUN_RUKA.forEach((u) => w.addEventListener(u, ruka, { capture: true, passive: true }));
+    const koniec = () => POSUN_RUKA.forEach((u) => w.removeEventListener(u, ruka, { capture: true, passive: true }));
+    const zije = () => moj === posunBeh && !zruseny;
+    const vypocet = () => { const el = najdi(); return el && el.getClientRects().length ? ciel(el) : null; };
+    const chod = (y, plynule) => { try { w.scrollTo({ top: y, behavior: plynule ? "smooth" : "instant" }); } catch (e) { w.scrollTo(0, y); } };
+    const raf = w.requestAnimationFrame ? (f) => w.requestAnimationFrame(f) : (f) => setTimeout(f, 16);
+    raf(() => raf(() => {
+      if (!zije()) { koniec(); return; }
+      const y0 = vypocet();
+      if (y0 == null) { koniec(); return; }
+      if (Math.abs(y0 - w.pageYOffset) >= 2) chod(y0, !menejPohybu());
+      (function straz() {
+        if (!zije()) { koniec(); return; }
+        const y = Math.round(w.pageYOffset), ubehlo = Date.now() - t0;
+        stoji = y === posledneY ? stoji + 1 : 0;
+        posledneY = y;
+        if (stoji >= 3) { // stránka stojí ≥ 150 ms: je na cieli? (cieľ vždy nanovo — rozloženie sa mohlo zmeniť)
+          const ciel1 = vypocet();
+          if (ciel1 != null && Math.abs(ciel1 - y) > 4 && korekcie < 3) { korekcie++; chod(ciel1, false); stoji = 0; poPohybe = Date.now(); }
+          else if (Date.now() - (poPohybe || t0) > 1500) { koniec(); return; }
+        }
+        if (ubehlo > 4000) { koniec(); return; }
+        setTimeout(straz, 50);
+      })();
+    }));
+  }
   /** Všetko vybraté: prehľad „Váš set v N krokoch“ od nadpisu pod hlavičkou webu. Na PC (bez spodnej lišty), keď sa
    *  nevojde aj s „Pridať do košíka“, tlačidlo ostane celé pri spodku okna (Michal 24. 10. 2026); na telefóne nadpis
    *  hore — „Pridať do košíka“ je vždy v spodnej lište, kým tlačidlo prehľadu nie je v okne. */
@@ -1024,12 +1064,12 @@ export function vytvorUi(o) {
   }
   function posunNaPrehlad() {
     const p = $('[data-k="postup"]');
-    if (!p || !p.getBoundingClientRect().height) { posunNaStred($('[data-k="suhrn"]'), cielNaVrch); return; }
-    posunNaStred(p, cielPrehladu);
+    if (!p || !p.getBoundingClientRect().height) { posunNa(() => $('[data-k="suhrn"]'), cielNaVrch); return; }
+    posunNa(() => $('[data-k="postup"]'), cielPrehladu);
   }
   function posunKrok(id, fokus) {
-    const el = root.querySelector('[data-krok="' + id + '"]');
-    posunNaStred(el, cielNaVrch);
+    const sel = '[data-krok="' + id + '"]', el = root.querySelector(sel);
+    posunNa(() => root.querySelector(sel), cielNaVrch);
     if (fokus && el) { const h = el.querySelector(".k-krok__hd"); try { h.focus({ preventScroll: true }); } catch (e) { /* */ } }
   }
   /** Po zatvorení podotázky: plynulo na novo otvorenú kartu (fokus na ňu), inak na „Pokračujte“ kroku. */
@@ -1039,7 +1079,8 @@ export function vytvorUi(o) {
     const b = otvorenyBlok(id);
     const el = (b && k.querySelector('[data-blok="' + b + '"]')) || k.querySelector('[data-a="dalej"]');
     if (!el) return;
-    if (b) posunNaStred(el, cielNaVrch); else posunNaStred(el);
+    const sel = b ? '[data-krok="' + id + '"] [data-blok="' + b + '"]' : '[data-krok="' + id + '"] [data-a="dalej"]';
+    posunNa(() => root.querySelector(sel), b ? cielNaVrch : cielNaStred);
     try { el.focus({ preventScroll: true }); } catch (e) { /* */ }
   }
   function posunPole(id, pole) {

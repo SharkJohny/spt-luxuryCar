@@ -213,7 +213,7 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- kamióny a dodávky (docs/kamiony-1v-plan.md; scenare-kamion.mjs)
   640: {
     url: SK + "/luxusne-autokoberce-kamiony/", typ: "kamion", vzor: null, nazov: "Kamióny a dodávky",
-    scenare: ["brana", "nulova-zmena", "kamion-platne", "kamion-dodavka", "kamion-neuplne"],
+    scenare: ["brana", "nulova-zmena", "kamion-platne", "kamion-dodavka", "kamion-neuplne", "kamion-posun"],
     platne: null,
     odporucana: false,
     ceny: { "kamion-platne": 423, "kamion-dodavka": 258 },

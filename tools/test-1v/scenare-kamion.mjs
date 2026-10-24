@@ -400,6 +400,37 @@ export const SCENARE = {
       return { info: "423 € = " + cena.zaklad + " + " + cena.rozpis + " · POST = vzor", post: post ? post.body : null, spolu: cena.spolu };
     },
   },
+  // 25. 10. 2026 (Michal: „nie vždy to vyskroluje tam, kde má“): posun na začiatok ďalšieho kroku musí prežiť ďalšie
+  // ťuknutie hneď po „Pokračovať“ (render() vymení prvky), udalosť kolieska hneď po kliku (dobeh touchpadu) a posun
+  // zastavený / prerušený skôr (iPhone) — po ustálení musí stránka stáť na začiatku kroku.
+  "kamion-posun": {
+    typy: ["kamion"],
+    async fn(s, a, pom, ovl, j) {
+      await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
+      if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
+      await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"], ["dalej", "vozidlo"]]);
+      await overZaciatok(s, j, "material");
+      // koliesko 100 ms po kliku (dobeh touchpadu) posun nezruší
+      await rob(s, j, [["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"]]);
+      await s.t.ev(`new Promise(function (r) { setTimeout(function () { window.dispatchEvent(new WheelEvent("wheel", { deltaY: 40, bubbles: true })); r(1); }, 100); })`);
+      await overZaciatok(s, j, "farba");
+      // ďalšie ťuknutie 30 ms po „Pokračovať“ (prekreslenie) posun nezruší
+      await rob(s, j, [["klik", a_("farba", "11")], ["dalej", "farba"]]);
+      await s.t.ev(`new Promise(function (r) { setTimeout(function () { var b = document.querySelector('#lcd1v-kamion [data-a="lem"][data-v="04"]'); if (b) b.click(); r(1); }, 30); })`);
+      await overZaciatok(s, j, "lemovanie");
+      // posun prerušený skokom 300 px späť (ako zastavený plynulý posun na iPhone) -> dorovná sa
+      await rob(s, j, [["dalej", "lemovanie"]]);
+      await s.t.ev(`new Promise(function (r) { setTimeout(function () { window.scrollBy({ top: -300, behavior: "instant" }); r(1); }, 250); })`);
+      await overZaciatok(s, j, "nasivky");
+      // „Nie, ďakujem“ (nášivky) -> tapacír začiatok hore; „Nie“ tapacír -> prehľad od nadpisu
+      await rob(s, j, [["klik", a_("nas", "nechcem")]]);
+      await overZaciatok(s, j, "tapacir");
+      await rob(s, j, [["klik", a_("tap", "nie")]]);
+      const pr = await cakaj(s, j, PREHLAD, prehladOk);
+      j.over(prehladOk(pr), "po poslednom kroku nie je prehľad od nadpisu hore: " + JSON.stringify(pr));
+      return { info: "začiatok kroku hore aj po koliesku, ďalšom ťuknutí a prerušenom posune" };
+    },
+  },
   "kamion-dodavka": {
     typy: ["kamion"],
     async fn(s, a, pom, ovl, j) {
