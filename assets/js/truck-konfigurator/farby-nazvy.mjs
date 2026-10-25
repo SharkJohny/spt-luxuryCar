@@ -67,10 +67,10 @@ export function nazovFarby(kod, jazyk = "sk") {
   return z ? z[jazyk] || z.sk : "";
 }
 
-/** Text do košíka a objednávky: „<materiál> – <názov> – <kód>“; bez známeho názvu ako predtým „<materiál> – <kód>“. */
+/** Text do košíka a objednávky: „<materiál> – <kód> – <názov>“ (Michal 25. 10. 2026: kód najprv); bez známeho názvu „<materiál> – <kód>“. */
 export function materialFarbaText(material, kod, jazyk = "sk") {
   const nazov = nazovFarby(kod, jazyk);
-  return [material, nazov, kod].filter(Boolean).join(" – ");
+  return [material, kod, nazov].filter(Boolean).join(" – ");
 }
 
 // Lemovania (pásik okolo koberca): prvá farba = základ pásky, druhá = šikmé pásiky na nej (vzorky lemovaní).

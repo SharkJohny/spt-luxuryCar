@@ -20002,7 +20002,8 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b i { position: relative
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b:not(.is-on):hover i { box-shadow: 0 0 0 1px var(--k-gold), 0 4px 10px rgba(140, 105, 25, .18); }
 }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__nm { display: block; width: calc(100% + 4px); max-width: none; margin: 0 -2px; color: var(--k-ink); font: 600 14px/1.2 var(--k-body); }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__kod { display: block; margin-top: 2px; color: #6e6752; font: 400 12px/1.2 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__kod { display: block; margin-bottom: 2px; color: var(--k-ink); font: 700 12.5px/1.2 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on .nt__kod { color: var(--k-zvol); }
 /* veľký náhľad motívu v nití — cez celú šírku karty (rozlíšenie plátna nastaví ui.js na >= 2× CSS šírky) */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh { margin: 18px 0 0; padding: 0; overflow: hidden; border-radius: 14px; background: linear-gradient(165deg, #231e15, #0b0a07); box-shadow: 0 10px 24px rgba(20, 15, 5, .2); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd { display: flex; align-items: center; gap: 9px; margin: 0; padding: 12px 14px; box-shadow: inset 0 -1px 0 rgba(230, 200, 119, .22); color: var(--k-gold-hi); font: 700 13.5px/1.35 var(--k-disp); letter-spacing: .02em; }

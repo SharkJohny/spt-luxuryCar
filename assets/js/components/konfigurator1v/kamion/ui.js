@@ -104,7 +104,9 @@ export function vytvorUi(o) {
     return z.meno + (S.model ? " " + roky(S.model) : "");
   }
   const koberecNas = () => knS(S);
-  function motivTxt(x) { const m = motiv(x.motiv), n = nit(x.nit); return m.meno + " (" + m.kod + ") · " + fill(U0.nit, { x: mala(n.menoUi) }) + " (" + n.kod + ")"; }
+  // Michal 25. 10. 2026: kód najprv aj pri niti („niť 2999 – čierna“)
+  const nitTx = (n) => n.kod + " – " + mala(n.menoUi);
+  function motivTxt(x) { const m = motiv(x.motiv), n = nit(x.nit); return m.meno + " (" + m.kod + ") · " + fill(U0.nit, { x: nitTx(n) }); }
   function matKratko(nazov) { const t = matT(nazov); return t ? t.nazov + ", " + t.variant : nazov; }
   const ponuka = () => ponukaCien(D);
   function cenaMaterialu(nazov) { const x = ponuka().material[nazov]; return x ? plus(x) : T.kroky.material.cena_v_cene; }
@@ -285,14 +287,14 @@ export function vytvorUi(o) {
     switch (id) {
       case "vozidlo": s = nazovVozidla(); t = detailyVozidla(); return sCenou(t ? s + " · " + t : s, eur(D.ceny.zaklad_eur));
       case "material": t = matT(S.material); return fill(tk.material.zhrnutie, { nazov: t.nazov, variant: t.variant, cena_text: cenaMaterialu(S.material) });
-      case "farba": f = farba(S.material, S.farba); return sCenou(fill(tk.farba.zhrnutie, { farba: f.meno, kod: f.kod }), vCene);
+      case "farba": f = farba(S.material, S.farba); return sCenou(fill(tk.farba.zhrnutie, { farba: mala(f.meno), kod: f.kod }), vCene);
       case "lemovanie": l = lem(S.lem); return sCenou(l.kod + " – " + mala(l.menoUi), vCene);
       case "nasivky": {
         if (S.nas === "nechcem") return sCenou(tk.nasivky.zhrnutie_nie, tk.nasivky.hotove.bez_priplatku);
         const rozsah = tk.nasivky.rozsah[S.nas];
         const x = S.nas === "stred" ? S.nasStred : S.nasBoky;
-        s = rozsah + " · " + motiv(x.motiv).meno + " · " + fill(U0.nit, { x: mala(nit(x.nit).menoUi) });
-        if (S.nas === "boky+stred" && !S.stredRovnaky) s += " · stred: " + motiv(S.nasStred.motiv).meno + ", " + fill(U0.nit, { x: mala(nit(S.nasStred.nit).menoUi) });
+        s = rozsah + " · " + motiv(x.motiv).meno + " · " + fill(U0.nit, { x: nitTx(nit(x.nit)) });
+        if (S.nas === "boky+stred" && !S.stredRovnaky) s += " · stred: " + motiv(S.nasStred.motiv).meno + ", " + fill(U0.nit, { x: nitTx(nit(S.nasStred.nit)) });
         return sCenou(s, plus(po.nasivky[S.nas].suma));
       }
       case "tapacir": {
@@ -446,7 +448,7 @@ export function vytvorUi(o) {
     html += sk("farba", "farba", "", mriezkaFarieb(S.material, S.farba, "farba", "fa:"));
     const f = S.farba && farba(S.material, S.farba);
     if (f) {
-      html += '<div class="k-nahlad-farby"><p class="k-nahlad-farby__nm">' + esc(fill(t.nahlad, { farba: f.meno, kod: f.kod, material: matKratko(S.material) })) +
+      html += '<div class="k-nahlad-farby"><p class="k-nahlad-farby__nm">' + esc(fill(t.nahlad, { farba: mala(f.meno), kod: f.kod, material: matKratko(S.material) })) +
         '</p><img class="k-nahlad-farby__img" src="' + attr(f.full) + '" alt="' + attr(fill(U0.zvacsena, { x: f.meno })) + '"></div>';
     }
     html += koniecKroku("farba", posledny);
@@ -584,7 +586,7 @@ export function vytvorUi(o) {
     return '<div class="nt" role="group" aria-label="' + attr(U0.nit_aria) + '">' + nite().map((n) => {
       const on = vybrata === n.kod;
       return '<button type="button" class="nt__b' + (on ? " is-on" : "") + '" data-a="nit" data-m="' + prefix + '" data-v="' + n.kod + '" data-f="nit:' + prefix + n.kod + '" aria-pressed="' + on + '">' +
-        '<i style="background:' + n.hex + '" aria-hidden="true"></i><span class="nt__nm">' + esc(n.menoUi) + '</span><span class="nt__kod">' + n.kod + "</span></button>";
+        '<i style="background:' + n.hex + '" aria-hidden="true"></i><span class="nt__kod">' + n.kod + '</span><span class="nt__nm">' + esc(n.menoUi) + "</span></button>";
     }).join("") + "</div>";
   }
   /** Plátno náhľadu: motív prefarbený na niť na fotke materiálu (kreslí kresliNahlady; rozlíšenie podľa šírky). */
@@ -614,7 +616,7 @@ export function vytvorUi(o) {
   const vizMaterial = (src) => '<span class="kn-rv__mat"' + (src ? ' style="background-image:url(' + attr(src) + ')"' : "") + "></span>";
   const mozaikaMotivov = (miesto) => '<span class="kn-rv__mozaika kn-rv__mozaika--motiv">' + motivy(miesto).slice(0, 2).map((m) => '<i style="background-image:url(' + attr(m.full) + ')"></i>').join("") + "</span>";
   const popisTx = (x) => "<span>" + esc(x) + "</span>";
-  const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
+  const farbaTx = (f) => f.kod + " – " + mala(f.meno);
   const lemMeno = (l) => l.kod + " – " + l.menoUi.toLowerCase();
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: lemMeno(l) });
   /** Druh materiálu pod variantom: mikrosemiš / velúr / syntetická koža (koza = kratšie „koža“ v lište). */

@@ -138,7 +138,7 @@ async function kontrolaKosika(t, meno, ocak = {}) {
 }
 
 const PRES = "Prémiová syntetická koža – prešívaná";
-const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: 04 – čierny základ, červené pásiky\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – 04 – čierny základ, červené pásiky\n- Nášivky na tapacír: Nechcem";
+const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 11 – čierna, čierne šitie\n- Farba lemovania: 04 – čierny základ, červené pásiky\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – 11 – čierna, čierne šitie\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – 04 – čierny základ, červené pásiky\n- Nášivky na tapacír: Nechcem";
 const DAF = { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: PRES, farba: "11", lem: "04" }; // 11 = čierna (vzorkovník 24. 10. 2026)
 
 console.log("1) DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, stred rovnaký, tapacír ako koberce, bez nášivky na dverách");
@@ -268,7 +268,7 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   potvrd(t, "dvere");
   sam(t, "tapacir", null, "8");
   await kontrolaKosika(t, "8", {
-    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – sivý – 2N", "- Farba lemovania: 11 – béžový základ, hnedé pásiky", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
+    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – 2N – sivý", "- Farba lemovania: 11 – béžový základ, hnedé pásiky", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
     selecty: { 388: "Vyberie sa v konfigurátore", 391: "Vyberie sa v konfigurátore", 394: "Vyberie sa v konfigurátore", 397: "Nášivka H21", 400: "2840 – Zelená", 355: "Áno chcem nášivku na dverách" },
   });
 }
@@ -469,10 +469,10 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   nit(t, "2824", "boky");
   over("17: po výbere nite červený rám zmizne", !q(K5 + ".is-chyba"));
   const cv = q(".kn-nh__cv");
-  over("17: veľký náhľad — plátno 3:2 s rozlíšením ≥ 960 px, niť červená na farbe kobercov", !!cv && +cv.getAttribute("width") >= 960 && +cv.getAttribute("width") * 2 === +cv.getAttribute("height") * 3 && cv.getAttribute("data-hex") === "#c82030" && /te69da20|t8131265/.test(cv.getAttribute("data-bg")) && /Náhľad: Trucker \(H21\) · niť červená \(2824\)/.test(tx(".kn-nh__hd")), cv && cv.outerHTML.slice(0, 200));
+  over("17: veľký náhľad — plátno 3:2 s rozlíšením ≥ 960 px, niť červená na farbe kobercov", !!cv && +cv.getAttribute("width") >= 960 && +cv.getAttribute("width") * 2 === +cv.getAttribute("height") * 3 && cv.getAttribute("data-hex") === "#c82030" && /te69da20|t8131265/.test(cv.getAttribute("data-bg")) && /Náhľad: Trucker \(H21\) · niť 2824 – červená/.test(tx(".kn-nh__hd")), cv && cv.outerHTML.slice(0, 200));
   over("17: pod náhľadom „Kam príde“ so schémou kabíny", /Kam príde: pod sedadlá šoféra a spolujazdca\./.test(tx(".kn-nh__pop")) && !!q(".kn-nh__pop svg.kn-schema"));
   potvrd(t, "boky");
-  over("17: Pokračovať -> „✓ Pod sedadlá šoféra a spolujazdca: Trucker (H21) · niť červená (2824) — Zmeniť“", U.n5.boky === true && J(hot(K5)) === J(["kam", "boky"]) && tx(K5 + '.kn-hot[data-hot="boky"] .kn-hot__tx') === "Pod sedadlá šoféra a spolujazdca: Trucker (H21) · niť červená (2824)", tx(K5 + '.kn-hot[data-hot="boky"]'));
+  over("17: Pokračovať -> „✓ Pod sedadlá šoféra a spolujazdca: Trucker (H21) · niť 2824 – červená — Zmeniť“", U.n5.boky === true && J(hot(K5)) === J(["kam", "boky"]) && tx(K5 + '.kn-hot[data-hot="boky"] .kn-hot__tx') === "Pod sedadlá šoféra a spolujazdca: Trucker (H21) · niť 2824 – červená", tx(K5 + '.kn-hot[data-hot="boky"]'));
   const rv = qa('.kn-rv__b[data-a="stredRovnaky"]');
   over("17: potom LEN karta „Stred“ s otázkou a dvomi voľbami, nič nepredvolené", J(otvorene(K5)) === J(["stred"]) && tx(K5 + ".kn-karta__ey") === "Stred" && tx(K5 + ".kn-ot") === "Prosím, vyberte si nášivku do stredu" && rv.length === 2 && /Rovnaká ako pod sedadlami šoféra a spolujazdca/.test(rv[0].textContent) && /Trucker \(H21\)/.test(rv[0].textContent) && /Iná nášivka/.test(rv[1].textContent) && rv.every((x) => x.getAttribute("aria-pressed") === "false"));
   over("17: bez odpovede na stred krok 5 nie je hotový", !t.k.ui.hotovo() && !dalej5() && !q('[data-krok="nasivky"].is-done'));
@@ -482,14 +482,14 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   potvrd(t, "stred");
   over("17: Pokračovať v poslednej karte -> krok 5 sa sám zavrie, otvorí sa krok 6 (bez „Pokračujte ďalej“)", U.otvoreny === "tapacir" && !q('[data-krok="nasivky"].is-open') && !!q('[data-krok="nasivky"].is-done') && !dalej5(), U.otvoreny);
   t.klik(a("krok", "nasivky"));
-  over("17: znova otvorený hotový krok 5 -> 3 riadky ✓, žiadna otvorená karta, „Pokračujte ďalej“ ako záloha", J(hot(K5)) === J(["kam", "boky", "stred"]) && J(otvorene(K5)) === "[]" && dalej5() && tx(K5 + '.kn-hot[data-hot="stred"] .kn-hot__tx') === "Stred: Kamión (H19) · niť čierna (2999)", tx(K5 + '.kn-hot[data-hot="stred"]'));
+  over("17: znova otvorený hotový krok 5 -> 3 riadky ✓, žiadna otvorená karta, „Pokračujte ďalej“ ako záloha", J(hot(K5)) === J(["kam", "boky", "stred"]) && J(otvorene(K5)) === "[]" && dalej5() && tx(K5 + '.kn-hot[data-hot="stred"] .kn-hot__tx') === "Stred: Kamión (H19) · niť 2999 – čierna", tx(K5 + '.kn-hot[data-hot="stred"]'));
   over("17: iný stred v selectoch 409 / 412 (H19 / 2999), pod sedadlami 403 / 406 (H21 / 2824)", zvolene(t.d, 409) === "Nášivka H19" && zvolene(t.d, 412) === "2999 – Čierna" && zvolene(t.d, 403) === "Nášivka H21" && zvolene(t.d, 406) === "2824 – Červená");
   t.klik(a("zmenit", "stred"));
   over("17: Zmeniť stred -> otázka znova, zvolená „Iná nášivka“", J(otvorene(K5)) === J(["stred"]) && q(a("stredRovnaky", "0")).getAttribute("aria-pressed") === "true" && q(a("stredRovnaky", "1")).getAttribute("aria-pressed") === "false");
   t.klik(a("stredRovnaky", "1"));
   over("17: Zmeniť stred -> „Rovnaká“ = hotovo, krok 5 sa sám zavrie a otvorí sa krok 6", U.otvoreny === "tapacir" && !dalej5(), U.otvoreny);
   t.klik(a("krok", "nasivky"));
-  over("17: „Rovnaká“ = hotovo, karta sa zatvorí, stred v selectoch = pod sedadlami", J(otvorene(K5)) === "[]" && /Stred: rovnaká nášivka ako pod sedadlami – Trucker \(H21\) · niť červená \(2824\)/.test(tx(K5 + '.kn-hot[data-hot="stred"]')) && zvolene(t.d, 409) === "Nášivka H21" && zvolene(t.d, 412) === "2824 – Červená", tx(K5 + '.kn-hot[data-hot="stred"]'));
+  over("17: „Rovnaká“ = hotovo, karta sa zatvorí, stred v selectoch = pod sedadlami", J(otvorene(K5)) === "[]" && /Stred: rovnaká nášivka ako pod sedadlami – Trucker \(H21\) · niť 2824 – červená/.test(tx(K5 + '.kn-hot[data-hot="stred"]')) && zvolene(t.d, 409) === "Nášivka H21" && zvolene(t.d, 412) === "2824 – Červená", tx(K5 + '.kn-hot[data-hot="stred"]'));
   // revízia 18. 10. 2026 večer: znova otvorená otázka na hotovom kroku má pod sebou „Pokračujte ďalej“; zatvorenie a
   // otvorenie hlavičky ju zavrie (riadky ✓ + „Pokračujte ďalej“)
   t.klik(a("zmenit", "kam"));
@@ -543,8 +543,8 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
     tvD.length === 2 && J(tvD.map((d) => dTx(d, ".kn-tv__st"))) === J(["Materiál", "Lemovanie"]) && tvD.every((d) => d.querySelectorAll("img").length === 1) &&
     tvD[0].querySelector("img.kn-tv__foto").getAttribute("src") === f11.full && tvD[1].querySelector(".kn-tv__pas > img").getAttribute("src") === l04.full,
     J(tvD.map((d) => Array.from(d.querySelectorAll("img")).map((i) => i.getAttribute("src")))));
-  over("17: karta A — „Prešívaná syntetická koža / čierna, čierne šitie (11)“ a „04 – čierny základ, červené pásiky / páska po celom okraji“",
-    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "čierna, čierne šitie (11)"], ["04 – čierny základ, červené pásiky", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
+  over("17: karta A — „Prešívaná syntetická koža / 11 – čierna, čierne šitie“ a „04 – čierny základ, červené pásiky / páska po celom okraji“",
+    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "11 – čierna, čierne šitie"], ["04 – čierny základ, červené pásiky", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
   const lemB = tvB ? Array.from(tvB.querySelectorAll(".kn-tv__lt")).map((i) => i.getAttribute("src")) : [];
   over("17: karta B „Vlastná kombinácia“ — 4 vzorky materiálu, čiara, 2 pásy lemovania iné ako na kobercoch",
     !!tvB && dTx(tvB, ".kn-tv__nm") === "Vlastná kombinácia" && dTx(tvB, ".kn-tv__po") === "Iný materiál, farba alebo lemovanie" && tvB.querySelectorAll(".kn-tv__mm > img.kn-tv__mt").length === 4 &&
@@ -574,7 +574,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   over("17: nášivka na dvere — ✓ „Cena za obe nášivky – na oba tapacíre“", J(qa(".kn-ponuka--nas .kn-ponuka__ben li").map((x) => x.textContent)) === J(["Cena za obe nášivky – na oba tapacíre"]));
   t.klik(a("tapNas", "ano"));
   const tn = qa('.kn-rv__b[data-a="tapNasRovnaka"]');
-  over("17: Áno -> „✓ Nášivka na tapacír dverí: áno · + 49 €“, otázka „Rovnaká ako na kobercoch / Iná nášivka“", /Nášivka na tapacír dverí: áno · \+ 49 €/.test(tx(K6 + '.kn-hot[data-hot="nas"]')) && J(otvorene(K6)) === J(["dvere"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si nášivku na tapacír dverí" && tn.length === 2 && /Trucker \(H21\) · niť červená \(2824\)/.test(tn[0].textContent) && /Iná nášivka/.test(tn[1].textContent) && tn.every((x) => x.getAttribute("aria-pressed") === "false") && !dalej6());
+  over("17: Áno -> „✓ Nášivka na tapacír dverí: áno · + 49 €“, otázka „Rovnaká ako na kobercoch / Iná nášivka“", /Nášivka na tapacír dverí: áno · \+ 49 €/.test(tx(K6 + '.kn-hot[data-hot="nas"]')) && J(otvorene(K6)) === J(["dvere"]) && tx(K6 + ".kn-ot") === "Prosím, vyberte si nášivku na tapacír dverí" && tn.length === 2 && /Trucker \(H21\) · niť 2824 – červená/.test(tn[0].textContent) && /Iná nášivka/.test(tn[1].textContent) && tn.every((x) => x.getAttribute("aria-pressed") === "false") && !dalej6());
   over("17: karta motívu má vlastný nadpis „Motív nášivky na tapacír dverí“ (nie ten istý ako riadok ✓ nad ňou)", tx(K6 + '[data-blok="dvere"] .kn-karta__ey') === "Motív nášivky na tapacír dverí", tx(K6 + ".kn-karta__ey"));
   t.klik(a("tapNasRovnaka", "0"));
   over("17: „Iná nášivka“ -> motív, niť, veľký náhľad na farbe tapacíru, Pokračovať", !!q('[data-pole="dvereMotiv"]') && !!q('[data-pole="dvereNit"]') && !!q(a("potvrd", "dvere")) && !q(K6 + ".kn-nh__cv"));
@@ -583,13 +583,13 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   potvrd(t, "dvere");
   over("17: posledné potvrdenie kroku 6 -> krok sa sám zavrie, ďalej súhrn (U.otvoreny null, bez „Pokračujte k súhrnu“)", U.otvoreny === null && !!q('[data-krok="tapacir"].is-done') && !dalej6() && t.k.ui.hotovo(), U.otvoreny);
   t.klik(a("krok", "tapacir"));
-  over("17: znova otvorený hotový krok 6 -> 4 riadky ✓ a „Pokračujte k súhrnu“ ako záloha", J(hot(K6)) === J(["ponuka", "mat", "nas", "dvere"]) && J(otvorene(K6)) === "[]" && dalej6() && /Pokračujte k súhrnu/.test(tx(a("dalej", "tapacir"))) && /Motív nášivky na tapacír dverí: Kamión \(H19\) · niť zelená \(2840\)/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && t.k.ui.hotovo(), tx(K6 + '.kn-hot[data-hot="dvere"]'));
+  over("17: znova otvorený hotový krok 6 -> 4 riadky ✓ a „Pokračujte k súhrnu“ ako záloha", J(hot(K6)) === J(["ponuka", "mat", "nas", "dvere"]) && J(otvorene(K6)) === "[]" && dalej6() && /Pokračujte k súhrnu/.test(tx(a("dalej", "tapacir"))) && /Motív nášivky na tapacír dverí: Kamión \(H19\) · niť 2840 – zelená/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && t.k.ui.hotovo(), tx(K6 + '.kn-hot[data-hot="dvere"]'));
   t.klik(a("zmenit", "dvere"));
   over("17: Zmeniť pri hotovom kroku 6 -> otázka „Rovnaká / Iná“ a pod ňou „Pokračujte k súhrnu“", J(otvorene(K6)) === J(["dvere"]) && dalej6());
   t.klik(a("tapNasRovnaka", "1"));
   over("17: Zmeniť -> „Rovnaká ako na kobercoch“ -> krok 6 sa sám zavrie", U.otvoreny === null && !dalej6(), U.otvoreny);
   t.klik(a("krok", "tapacir"));
-  over("17: Zmeniť -> „Rovnaká ako na kobercoch“ = hotovo, v selectoch 397 / 400 „Rovnaká ako koberec“", J(otvorene(K6)) === "[]" && /Motív nášivky na tapacír dverí: rovnaký ako na kobercoch – Trucker \(H21\) · niť červená \(2824\)/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && zvolene(t.d, 397) === "Rovnaká ako koberec" && zvolene(t.d, 400) === "Rovnaká ako koberec", tx(K6 + '.kn-hot[data-hot="dvere"]'));
+  over("17: Zmeniť -> „Rovnaká ako na kobercoch“ = hotovo, v selectoch 397 / 400 „Rovnaká ako koberec“", J(otvorene(K6)) === "[]" && /Motív nášivky na tapacír dverí: rovnaký ako na kobercoch – Trucker \(H21\) · niť 2824 – červená/.test(tx(K6 + '.kn-hot[data-hot="dvere"]')) && zvolene(t.d, 397) === "Rovnaká ako koberec" && zvolene(t.d, 400) === "Rovnaká ako koberec", tx(K6 + '.kn-hot[data-hot="dvere"]'));
   over("17: všetky ovládače kroku 6 sú type=button bez name", qa('[data-krok="tapacir"] button').every((x) => x.getAttribute("type") === "button") && !qa('[data-krok="tapacir"] [name]').length);
   // koberce bez nášiviek -> nášivka na dvere „ako na kobercoch“ stratila vzor -> otázka na dvere znova s vysvetlením
   t.klik(a("krok", "nasivky")); t.klik(a("zmenit", "kam")); t.klik(a("nas", "nechcem"));
@@ -680,9 +680,9 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   zaklad(t, DAF);
   over("20: krok 1 = „DAF XF106 2017–2021 · automatická · 199 €“ (cena za nezalomiteľnou medzerou)", vy("vozidlo") === "DAF XF106 2017–2021 · automatická · 199 €" && / · 199 €$/.test(nbsp("vozidlo")), vy("vozidlo"));
   over("20: krok 2 = „Prémiová syntetická koža, prešívaná · + 10 €“", vy("material") === "Prémiová syntetická koža, prešívaná · + 10 €", vy("material"));
-  over("20: kroky 3 a 4 = „Čierna, čierne šitie (11) · v cene“, „04 – čierny základ, červené pásiky · v cene“", vy("farba") === "Čierna, čierne šitie (11) · v cene" && vy("lemovanie") === "04 – čierny základ, červené pásiky · v cene", vy("farba") + " | " + vy("lemovanie"));
+  over("20: kroky 3 a 4 = „11 – čierna, čierne šitie · v cene“, „04 – čierny základ, červené pásiky · v cene“", vy("farba") === "11 – čierna, čierne šitie · v cene" && vy("lemovanie") === "04 – čierny základ, červené pásiky · v cene", vy("farba") + " | " + vy("lemovanie"));
   nasivky(t, "boky+stred", "H19", "2999");
-  over("20: krok 5 = „{rozsah} · {motív} · niť {farba} · + 95 €“", vy("nasivky") === "Pod sedadlá šoféra a spolujazdca + do stredu · Kamión · niť čierna · + 95 €", vy("nasivky"));
+  over("20: krok 5 = „{rozsah} · {motív} · niť {farba} · + 95 €“", vy("nasivky") === "Pod sedadlá šoféra a spolujazdca + do stredu · Kamión · niť 2999 – čierna · + 95 €", vy("nasivky"));
   t.klik(a("tap", "ano")); t.klik(a("tapRovnake")); t.klik(a("tapNas", "nie"));
   over("20: krok 6 ako koberce = „Rovnaký ako koberce · + 119 €“ (jeden riadok)", vy("tapacir") === "Rovnaký ako koberce · + 119 €" && !vyR("tapacir").length, vy("tapacir"));
   over("20: všetko vybraté -> „Spolu 423 €“, „Ušetríte 105 €…“, „Pridať do košíka“, bez „Zatiaľ nevybraté“", tx(".k-suhrn__lb") === "Spolu" && tx(".k-suhrn__suma") === "423 €" && /^Ušetríte 105 € oproti samostatnému nákupu$/.test(tx(".sh__us")) && tx(".k-kosik") === "Pridať do košíka" && !q(".sh__chyba-r"), tx('[data-k="suhrn"]'));
@@ -690,7 +690,7 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   t.klik(a("krok", "tapacir")); t.klik(a("zmenit", "mat")); t.klik(a("tapZmenit"));
   t.klik(a("tapMat", "Mikrosemiš – dvojfarebný")); t.klik(a("tapFarba", "2N")); t.klik(a("tapLem", "11")); potvrd(t, "tapMat");
   t.klik(a("krok", "tapacir")); t.klik(a("zmenit", "nas")); t.klik(a("tapNas", "ano")); t.klik(a("tapNasRovnaka", "1"));
-  over("20: krok 6 inak + nášivka = 2 riadky s cenami", J(vyR("tapacir")) === J(["Mikrosemiš, dvojfarebný · sivý (2N) · lemovanie 11 – béžový základ, hnedé pásiky · + 119 €", "Nášivka Kamión (H19) · niť čierna (2999) · + 49 €"]) && t.k.ui.hotovo(), J(vyR("tapacir")));
+  over("20: krok 6 inak + nášivka = 2 riadky s cenami", J(vyR("tapacir")) === J(["Mikrosemiš, dvojfarebný · 2N – sivý · lemovanie 11 – béžový základ, hnedé pásiky · + 119 €", "Nášivka Kamión (H19) · niť 2999 – čierna · + 49 €"]) && t.k.ui.hotovo(), J(vyR("tapacir")));
   const t2 = await otvor();
   hotovyDaf(t2);
   const vy2 = (id) => { const e = t2.d.querySelector('#lcd1v-kamion [data-krok="' + id + '"] .k-krok__vy'); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; };
@@ -797,8 +797,8 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
     Object.values(OCAK).reduce((s, o) => s + Object.keys(o).length, 0) === 48, J(OCAK));
   const BOD = { "5": "Čierna, červené šitie", "11": "Čierna, čierne šitie", "10": "Tmavosivá, tmavosivé šitie", "9PES": "Hnedá", "11PES": "Tmavohnedá", "2N": "Sivý", "3D": "Sivý", "10G": "Čierna" };
   over("23: bodová kontrola názvov farieb", Object.entries(BOD).every(([k, v]) => FN.nazovFarbyVelky(k) === v), J(Object.keys(BOD).map((k) => k + "=" + FN.nazovFarbyVelky(k))));
-  over("23: názov do objednávky", FN.materialFarbaText("Prémiová syntetická koža – prešívaná", "5") === "Prémiová syntetická koža – prešívaná – čierna, červené šitie – 5" &&
-    FN.materialFarbaText("Prémiová syntetická kůže – prošívaná", "5", "cs") === "Prémiová syntetická kůže – prošívaná – černá, červené prošití – 5", "");
+  over("23: názov do objednávky", FN.materialFarbaText("Prémiová syntetická koža – prešívaná", "5") === "Prémiová syntetická koža – prešívaná – 5 – čierna, červené šitie" &&
+    FN.materialFarbaText("Prémiová syntetická kůže – prošívaná", "5", "cs") === "Prémiová syntetická kůže – prošívaná – 5 – černá, červené prošití", "");
   const mena = TX.kroky.farba.mena_farieb_navrh;
   const zorad = (a) => a.slice().sort().join(",");
   Object.entries(OCAK).forEach(([mat, o]) => {
@@ -820,7 +820,7 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   // poznámka objednávky: čierna prešívaná = „… – prešívaná – 11“ (React zrkadlo rovnako)
   const t = await otvor();
   zaklad(t, Object.assign({}, DAF, { farba: "11" }));
-  over("23: poznámka objednávky „prešívaná – čierna, čierne šitie – 11“", /Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n/.test(OS.buildTruckOrderSummary(ST.naStavReactu(t.k.ui.S))), "");
+  over("23: poznámka objednávky „prešívaná – 11 – čierna, čierne šitie“", /Typ a farba materiálu: Prémiová syntetická koža – prešívaná – 11 – čierna, čierne šitie\n/.test(OS.buildTruckOrderSummary(ST.naStavReactu(t.k.ui.S))), "");
   over("23: žiadny console.error", t.s.chyby.length === 0, t.s.chyby.join(" | "));
 }
 
@@ -834,7 +834,7 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   const t = await otvor();
   zaklad(t, { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: VEL, farba: "3D", lem: "04" });
   t.klik(a("nas", "nechcem")); t.klik(a("tap", "nie"));
-  await kontrolaKosika(t, "24", { selecty: { 346: VEL }, poznamkaObsahuje: ["- Typ a farba materiálu: " + VEL + " – sivý – 3D"], spolu: 259 });
+  await kontrolaKosika(t, "24", { selecty: { 346: VEL }, poznamkaObsahuje: ["- Typ a farba materiálu: " + VEL + " – 3D – sivý"], spolu: 259 });
   // Michal 24. 10. 2026: dlaždica velúru v materiáli tapacíru = „vzorovaný · velúr“ (nie „syntetická koža“);
   // v karte „Vlastná kombinácia“ jemná čiara medzi otázkami materiál | farba | lemovanie
   const t2 = await otvor();

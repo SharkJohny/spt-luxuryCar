@@ -669,10 +669,11 @@ function farbaNazov(swatch) {
   return nazovFarbyVelky(swatch.code, isCzechTruckConfigurator() ? "cs" : "sk");
 }
 
+// Michal 25. 10. 2026: kód najprv („11 – čierna, čierne šitie“)
 function farbaText(swatch) {
   if (!swatch) return "";
   const n = farbaNazov(swatch);
-  return n ? n + " – " + swatch.code : swatch.code;
+  return n ? swatch.code + " – " + n.charAt(0).toLowerCase() + n.slice(1) : swatch.code;
 }
 
 // Lemovanie (Michal 25. 10. 2026): kód a „základ + pásiky“ („05 · čierny základ, bordové pásiky“), na CZ česky
@@ -685,6 +686,12 @@ function lemText(lem) {
   if (!lem) return "";
   const n = lemNazov(lem);
   return n ? lem.code + " · " + n : lem.code;
+}
+
+function threadColorText(threadColor) {
+  if (!threadColor) return "";
+  const n = threadColorName(threadColor);
+  return threadColor.code ? threadColor.code + " – " + n.charAt(0).toLowerCase() + n.slice(1) : n;
 }
 
 function threadColorName(threadColor) {
@@ -1023,12 +1030,12 @@ function calculatePrice(state, PRICES) {
       // subLabel: kódy nášiviek + farby nití
       const details = [];
       if (nasivkyPlacement === "boky" && selectedNasivka) {
-        details.push(selectedNasivka.code + (selectedNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(selectedNitColor) : ""));
+        details.push(selectedNasivka.code + (selectedNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(selectedNitColor) : ""));
       } else if (nasivkyPlacement === "stred" && selectedStredNasivka) {
-        details.push(selectedStredNasivka.code + (selectedStredNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(selectedStredNitColor) : ""));
+        details.push(selectedStredNasivka.code + (selectedStredNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(selectedStredNitColor) : ""));
       } else if (nasivkyPlacement === "boky+stred") {
-        if (selectedNasivka) details.push("Boky: " + selectedNasivka.code + (selectedNitColor ? ` (${threadUiText("niť", "nit")}: ` + threadColorName(selectedNitColor) + ")" : ""));
-        if (selectedStredNasivka) details.push("Stred: " + selectedStredNasivka.code + (selectedStredNitColor ? ` (${threadUiText("niť", "nit")}: ` + threadColorName(selectedStredNitColor) + ")" : ""));
+        if (selectedNasivka) details.push("Boky: " + selectedNasivka.code + (selectedNitColor ? ` (${threadUiText("niť", "nit")}: ` + threadColorText(selectedNitColor) + ")" : ""));
+        if (selectedStredNasivka) details.push("Stred: " + selectedStredNasivka.code + (selectedStredNitColor ? ` (${threadUiText("niť", "nit")}: ` + threadColorText(selectedStredNitColor) + ")" : ""));
       }
       breakdown.push({
         label: label,
@@ -1056,7 +1063,7 @@ function calculatePrice(state, PRICES) {
 
   if (doorWantsNasivka === true) {
     total += PRICES.NASIVKA_DVERE;
-    const nasSubLabel = doorNasivka ? (doorNasivka.code + (doorNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(doorNitColor) : "")) : null;
+    const nasSubLabel = doorNasivka ? (doorNasivka.code + (doorNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(doorNitColor) : "")) : null;
     breakdown.push({
       label: "Nášivka na dverách",
       subLabel: nasSubLabel,
@@ -1902,7 +1909,7 @@ function Configurator() {
           );
         })}
       </div>
-      {value && <div style={{ fontSize: 16, color: "#555", marginTop: 6 }}>{threadUiText("Vybraná niť:", "Vybraná nit:")} <strong style={{ color: "#2E1810" }}>{threadColorName(value)} ({value.code})</strong></div>}
+      {value && <div style={{ fontSize: 16, color: "#555", marginTop: 6 }}>{threadUiText("Vybraná niť:", "Vybraná nit:")} <strong style={{ color: "#2E1810" }}>{threadColorText(value)}</strong></div>}
       </div>{/* end opacity wrapper */}
     </div>
   );
@@ -2612,7 +2619,7 @@ function Configurator() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 }}>Nášivka na strane šoféra a spolujazdca</div>
                 {step4Sub !== "boky" && selectedNasivka && (
-                  <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>{selectedNasivka.code}{selectedNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(selectedNitColor) : ""}</div>
+                  <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>{selectedNasivka.code}{selectedNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(selectedNitColor) : ""}</div>
                 )}
               </div>
               {selectedNasivka && selectedNitColor && (
@@ -2717,7 +2724,7 @@ function Configurator() {
                     <div style={{ width: "60%", aspectRatio: "1/1", borderRadius: 8, overflow: "hidden", maxWidth: 280, position: "relative", background: "#fff", border: "1px solid #ddd" }}>
                       <TintedNasivka src={selectedNasivka.full} color={selectedNitColor.color} style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
                       <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-                        {selectedNasivka.code} · {threadUiText("niť", "nit")}: {threadColorName(selectedNitColor)}
+                        {selectedNasivka.code} · {threadUiText("niť", "nit")}: {threadColorText(selectedNitColor)}
                       </div>
                     </div>
                   </div>
@@ -2844,7 +2851,7 @@ function Configurator() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 }}>Nášivka — stredový koberec</div>
                 {step4Sub !== "stred" && selectedStredNasivka && (
-                  <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>{selectedStredNasivka.code}{selectedStredNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(selectedStredNitColor) : ""}{stredSameAsSide ? " (rovnako ako šofér + spolujazdec)" : ""}</div>
+                  <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>{selectedStredNasivka.code}{selectedStredNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(selectedStredNitColor) : ""}{stredSameAsSide ? " (rovnako ako šofér + spolujazdec)" : ""}</div>
                 )}
               </div>
               {selectedStredNasivka && selectedStredNitColor && (
@@ -2931,7 +2938,7 @@ function Configurator() {
                           {stredSameAsSide && <span style={{ marginRight: 6 }}>✓</span>}Rovnaká nášivka + niť ako šofér a spolujazdec
                         </div>
                         <div style={{ fontSize: 12, color: stredSameAsSide ? "#388E3C" : "#888", marginTop: 3, fontWeight: 500 }}>
-                          {selectedNasivka.code}{selectedNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(selectedNitColor) : ""}
+                          {selectedNasivka.code}{selectedNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(selectedNitColor) : ""}
                         </div>
                       </div>
                     </div>
@@ -3038,7 +3045,7 @@ function Configurator() {
                     <div style={{ width: "60%", aspectRatio: "1/1", borderRadius: 8, overflow: "hidden", maxWidth: 280, position: "relative", background: "#fff", border: "1px solid #ddd" }}>
                       <TintedNasivka src={selectedStredNasivka.full} color={selectedStredNitColor.color} style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
                       <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-                        Stred: {selectedStredNasivka.code} · {threadUiText("niť", "nit")}: {threadColorName(selectedStredNitColor)}
+                        Stred: {selectedStredNasivka.code} · {threadUiText("niť", "nit")}: {threadColorText(selectedStredNitColor)}
                       </div>
                     </div>
                   </div>
@@ -3883,7 +3890,7 @@ function Configurator() {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 }}>Motív nášivky a farba nite</div>
                         {doorStep5Sub !== "nasivky-detail" && doorNasivka && (
-                          <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>{doorNasivka.code}{doorNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorName(doorNitColor) : ""}{doorSameNitAsCarpet ? " (rovnako ako Luxusné autokoberce)" : ""}</div>
+                          <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>{doorNasivka.code}{doorNitColor ? ` · ${threadUiText("niť", "nit")}: ` + threadColorText(doorNitColor) : ""}{doorSameNitAsCarpet ? " (rovnako ako Luxusné autokoberce)" : ""}</div>
                         )}
                       </div>
                       {doorNasivka && doorNitColor && (
@@ -4124,7 +4131,7 @@ function Configurator() {
             <div style={{ width: "60%", aspectRatio: "1/1", borderRadius: 8, overflow: "hidden", maxWidth: 280, position: "relative", background: "#fff", border: "1px solid #ddd" }}>
               <TintedNasivka src={doorNasivka.full} color={doorNitColor.color} style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
               <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-                {doorNasivka.code} · {threadUiText("niť", "nit")}: {threadColorName(doorNitColor)}
+                {doorNasivka.code} · {threadUiText("niť", "nit")}: {threadColorText(doorNitColor)}
               </div>
             </div>
           </div>
