@@ -22,6 +22,7 @@
 //    index.js zloží (zlyhal iný modul), prvky sa odstránia (inak by ostali na stránke bez štýlov).
 import { cenaProduktu } from "./ceny-ine.js";
 import { najdiProdukt } from "./produkty.js";
+import { poNecinnosti } from "./susedne.js";
 
 export const MENO = "kufor-produkt";
 
@@ -130,20 +131,47 @@ export function init(ctx) {
   }
 
   // ---------------------------------------------------------------- ceny vzorov, podnadpis
+  // Michal 25. 10. 2026 (rýchlosť): sesterské stránky sa sťahujú až po vykreslení konfigurátora (nečinnosť, najneskôr
+  // 1,5 s; ceny-ine.js s nízkou prioritou) — inak by pri štarte brali sieť a hlavné vlákno prvému vykresleniu. Krok 1
+  // je pri otvorení zbalený (dlaždice a podnadpis vidno až po jeho otvorení). Kým ceny nie sú, krok nesie
+  // data-lcd1v-ceny="caka" a CSS drží pod názvom vzoru prázdny riadok ceny (_lcd1v-kufor.scss): po príchode cien
+  // dlaždica neposkočí a nikdy neukáže inú ako zistenú cenu. Zhrnutie hlavičky Classic („Diamond Line · 230 €“)
+  // potrebuje len vlastnú cenu (aktuálny dokument, bez siete) -> hneď; Premium potrebuje základný vzor -> s cenami.
   function ceny() {
-    const vlastna = cenaProduktu(location.pathname);
-    // ceny všetkých troch vzorov tohto typu (vlastná stránka bez siete)
-    const sesterske = VZORY.map(function (v) {
-      const z = najdiProdukt(ctx.projectId, P.typ, v);
-      return z && z.vzor === v ? cenaProduktu(z.url) : Promise.resolve(null);
-    });
-    Promise.all([vlastna].concat(sesterske)).then(function (r) {
+    const krok = ctx.krok("vzor");
+    if (T.dlazdica === "cena") cenaProduktu(location.pathname).then(function (own) { zhrnutie(own, null); });
+    if (krok) nastavAttr(krok, "data-lcd1v-ceny", "caka");
+    poNecinnosti(1500).then(function () {
+      if (zruseny || !zapnute()) return null;
+      const vlastna = cenaProduktu(location.pathname);
+      // ceny všetkých troch vzorov tohto typu (vlastná stránka bez siete)
+      const sesterske = VZORY.map(function (v) {
+        const z = najdiProdukt(ctx.projectId, P.typ, v);
+        return z && z.vzor === v ? cenaProduktu(z.url) : Promise.resolve(null);
+      });
+      return Promise.all([vlastna].concat(sesterske));
+    }).then(function (r) {
+      if (!r) return;
       const own = r[0];
       const cenyVzorov = {};
       VZORY.forEach((v, i) => { cenyVzorov[v] = r[i + 1]; });
       dlazdice(own, cenyVzorov);
       podnadpis(cenyVzorov);
-    }).catch(function () { /* bez cien: dlaždice bez ceny, bez podnadpisu */ });
+    }).catch(function () { /* bez cien: dlaždice bez ceny, bez podnadpisu */ }).then(function () {
+      if (krok) krok.removeAttribute("data-lcd1v-ceny"); // rezervovaný riadok preč (cena je v atribúte dlaždice, alebo nezistená)
+    });
+  }
+
+  /** Zhrnutie v hlavičke kroku 1 ako v návrhoch: Classic „Diamond Line · 230 €“, Premium „Diamond Line“ / „Stripe Line · + 10 €“. */
+  function zhrnutie(own, zaklad) {
+    const krok = ctx.krok("vzor");
+    const vz = T.vzory && T.vzory[P.vzor];
+    if (!krok || !(own > 0) || !vz) return;
+    let z = vz;
+    if (T.dlazdica === "cena") z = vz + " · " + suma(own);
+    else if (zaklad > 0 && own - zaklad > 0) z = vz + " · +" + NBSP + suma(own - zaklad);
+    nastavAttr(krok, "data-lcd1v-vyber", z);
+    ctx.vysli("zmena", { kluc: "vzor", hodnota: P.vzor, cesta: "kufor-produkt" }); // kroky.js prepíše zhrnutie hneď
   }
 
   function dlazdice(own, cenyVzorov) {
@@ -164,14 +192,8 @@ export function init(ctx) {
       // text cez atribút + CSS ::after: textContent dlaždice ostáva „DIAMOND LINE“ (zhrnutie kroku a popis lišty ho čítajú)
       if (t) nastavAttr(hlava, "data-lcd1v-cena", t);
     });
-    // zhrnutie v hlavičke kroku 1 ako v návrhoch: Classic „Diamond Line · 230 €“, Premium „Diamond Line“ / „Stripe Line · + 10 €“
-    const vz = T.vzory && T.vzory[P.vzor];
-    if (!vz) return;
-    let z = vz;
-    if (T.dlazdica === "cena") z = vz + " · " + suma(own);
-    else if (zaklad > 0 && own - zaklad > 0) z = vz + " · +" + NBSP + suma(own - zaklad);
-    nastavAttr(krok, "data-lcd1v-vyber", z);
-    ctx.vysli("zmena", { kluc: "vzor", hodnota: P.vzor, cesta: "kufor-produkt" }); // kroky.js prepíše zhrnutie hneď
+    // zhrnutie Premium (rozdiel oproti základnému vzoru); Classic ho má už z ceny() (len vlastná cena)
+    if (T.dlazdica !== "cena") zhrnutie(own, zaklad);
   }
 
   function podnadpis(cenyVzorov) {

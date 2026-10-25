@@ -95,6 +95,17 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .pattern
 body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active .banner-header[data-lcd1v-cena]::after {
   color: var(--c1v-zl);
 }
+/* Michal 25. 10. 2026 (rýchlosť): ceny dlaždíc prídu zo sesterských stránok až v nečinnosti (kufor-produkt.js) — kým
+   krok nesie data-lcd1v-ceny="caka", pod názvom vzoru je prázdny riadok rovnakej výšky ako cena (nezlomiteľná medzera,
+   rovnaké písmo a okraj): príchod ceny nič neposunie a žiadna iná cena sa neukáže */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor[data-lcd1v-ceny="caka"] .patterns-wrap > .option-button .banner-header:not([data-lcd1v-cena])::after {
+  content: "\00a0";
+  display: block;
+  margin: 3px 0 0;
+  font: 600 14px/1.3 var(--c1v-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
 
 /* ---------- banner setu (návrh C „Fotka cez celú šírku“, Michal 17. 10. 2026; set-banner.js) ----------
    Rohože do kufra aj box 616 majú ten istý banner -> :is(kufor*, boxy) (špecificita ako [data-lcd1v-typ]); miesto:

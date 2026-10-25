@@ -2,7 +2,7 @@
 // Použitie: dlaždice vzoru rohoží („v cene / + 10 €“ = cena sesterskej stránky − vlastná), pás setu (príplatok kufra
 // na jednovrstvovom produkte toho istého vzoru), čísla v obsahu pod konfigurátorom (obsah-cisla.js, plan.md §2.4).
 //
-// Zdroj = živá stránka produktu (GET cez stiahniDokument z lcdKosikDoplnok.js, ten istý ako porovnanie v košíku):
+// Zdroj = živá stránka produktu (GET cez susedne.js stiahniText; čítajú ju tie isté funkcie ako porovnanie v košíku):
 //   cena      = [itemprop=price] (cenaStranky) — základná cena „od“ (variant bez príplatkov),
 //   príplatky = selecty formulára (mapaZFormulara) — { pid, params: { <id>: { n, o: { <value>: { t, fp, ap } }, p } }, vpar, kom },
 //   bezna     = má produkt v admine bežnú cenu (Shoptet vtedy v cene stránky vykreslí .price-standard; rovnaké pravidlo ako
@@ -11,13 +11,21 @@
 // v try/catch; súkromný režim / plné úložisko = len bez cache). Nič natvrdo: ceny ani ID parametrov.
 // Kľúč cache v2 (16. 10. 2026): pribudlo „bezna“ — záznamy v1 ho nemajú, preto sa nečítajú.
 // Pri importe sa nič nespúšťa. Chyba siete -> null (volajúci ukáže prvok bez čísla alebo ho skryje).
-import { stiahniDokument, cenaStranky, mapaZFormulara } from "../../lcdKosikDoplnok.js";
+// Michal 25. 10. 2026 (rýchlosť): stránka sa sťahuje s nízkou prioritou a DOMParser dostane len výrez s formulárom,
+// cenou a skriptom variantov (susedne.js vyrezStranky; predtým celé HTML 170 kB – 1 MB na hlavnom vlákne). Výsledok je
+// ten istý (porovnané na všetkých 15 stránkach registra); keď výrez nevyjde, parsuje sa celá stránka ako predtým.
+// Jedna stránka sa za zobrazenie sťahuje najviac raz pre všetkých volajúcich (pamat: spoločný Promise aj po splnení —
+// predtým len kým požiadavka bežala; bez localStorage by ďalší volajúci sťahoval znova). Košík (lcdKosikDoplnok.js
+// stiahniDokument) sa nemení.
+import { cenaStranky, mapaZFormulara } from "../../lcdKosikDoplnok.js";
+import { vyrezStranky, stiahniText } from "./susedne.js";
 import { PARAMETRE } from "./ctx.js";
 import { najdiProdukt } from "./produkty.js";
 
 const TTL = 24 * 3600 * 1000;
 const KLUC = "lcd1vStranka:v2:"; // + cesta (localStorage je podľa domény -> SK a CZ sa nemiešajú)
-const bezi = new Map();
+const pamat = new Map(); // kľúč -> Promise({ cena, mapa, bezna }) na celé zobrazenie stránky
+const NIC = function () { return { cena: null, mapa: null, bezna: false }; };
 
 function cesta(url) {
   try { return new URL(url, location.href).pathname; } catch (e) { return String(url || ""); }
@@ -39,31 +47,53 @@ function maBeznuCenu(doc) {
   } catch (e) { return false; }
 }
 
+/** { cena, mapa, bezna } z dokumentu (celá stránka alebo výrez). */
+function udajeDokumentu(doc) {
+  return { cena: cenaStranky(doc), mapa: mapaZFormulara(doc), bezna: maBeznuCenu(doc) };
+}
+
+/**
+ * { cena, mapa, bezna } z HTML stránky produktu: najprv výrez (susedne.js), keď nevyjde alebo nemá cenu (stránka
+ * produktu ju má vždy), celá stránka ako predtým. mapa null pri výreze = stránka nemá príplatky (rohož do kufra má
+ * len variant farby) — rovnako ako celá stránka.
+ */
+function udajeZHtml(html) {
+  let v = null;
+  try {
+    const vyrez = vyrezStranky(html);
+    if (vyrez) v = udajeDokumentu(new DOMParser().parseFromString(vyrez, "text/html"));
+  } catch (e) { v = null; }
+  if (!v || !v.cena) v = udajeDokumentu(new DOMParser().parseFromString(html, "text/html"));
+  return v;
+}
+
 /** { cena, mapa, bezna } stránky produktu (cesta alebo URL); vlastná stránka z aktuálneho dokumentu. Chyba -> { cena: null, mapa: null, bezna: false }. */
 export function stranka(url) {
   const c = cesta(url);
-  if (!c) return Promise.resolve({ cena: null, mapa: null, bezna: false });
+  if (!c) return Promise.resolve(NIC());
   if (typeof location !== "undefined" && c === location.pathname) {
-    let v = { cena: null, mapa: null, bezna: false };
-    try { v = { cena: cenaStranky(document), mapa: mapaZFormulara(document), bezna: maBeznuCenu(document) }; } catch (e) { /* nič */ }
+    let v = NIC();
+    try { v = udajeDokumentu(document); } catch (e) { /* nič */ }
     return Promise.resolve(v);
   }
   const k = KLUC + c;
+  if (pamat.has(k)) return pamat.get(k);
   const ulozene = lsCitaj(k);
-  if (ulozene) return Promise.resolve({ cena: ulozene.cena, mapa: ulozene.mapa, bezna: ulozene.bezna === true });
-  if (!bezi.has(k)) {
-    bezi.set(k, stiahniDokument(c).then(function (doc) {
-      const v = { cena: cenaStranky(doc), mapa: mapaZFormulara(doc), bezna: maBeznuCenu(doc) };
-      if (v.cena || v.mapa) lsPis(k, { t: Date.now(), cena: v.cena, mapa: v.mapa, bezna: v.bezna });
-      return v;
-    }).catch(function () {
-      return { cena: null, mapa: null, bezna: false };
-    }).then(function (v) {
-      bezi.delete(k);
-      return v;
-    }));
+  if (ulozene) {
+    const p = Promise.resolve({ cena: ulozene.cena, mapa: ulozene.mapa, bezna: ulozene.bezna === true });
+    pamat.set(k, p);
+    return p;
   }
-  return bezi.get(k);
+  const p = stiahniText(c).then(udajeZHtml).then(function (v) {
+    if (v.cena || v.mapa) lsPis(k, { t: Date.now(), cena: v.cena, mapa: v.mapa, bezna: v.bezna });
+    else pamat.delete(k); // nič nezistené: ďalší volajúci smie skúsiť znova
+    return v;
+  }).catch(function () {
+    pamat.delete(k); // chyba siete: ďalší volajúci smie skúsiť znova
+    return NIC();
+  });
+  pamat.set(k, p);
+  return p;
 }
 
 /** Základná cena produktu („od“, s DPH) zo živej stránky -> číslo alebo null. */

@@ -38,6 +38,7 @@
 // Nič s atribútom name, žiadny zápis do formulára tejto stránky. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
 import { stranka, moznostiZMapy } from "./ceny-ine.js";
+import { poNecinnosti } from "./susedne.js";
 import { posunNaStred } from "./posun.js";
 import { zapisVyber } from "./prenos.js";
 import { nazovFarby } from "./kroky.js";
@@ -189,6 +190,25 @@ export function init(ctx) {
     else e.classList.toggle("active", on);
   };
 
+  // ceny cieľa (tá istá stránka ako banner setu: jedna požiadavka, localStorage 24 h)
+  // Michal 25. 10. 2026 (rýchlosť): nie hneď pri štarte (brala by sieť a hlavné vlákno prvému vykresleniu), ale
+  // v nečinnosti (najneskôr 3 s), pri prvom dotyku / zmene v karte, za ktorou sa ponuka ukazuje (rohož: Auto, box: karta
+  // boxov), alebo keď je karta pripravená skôr (obnov) — vždy dosť skoro pred „Pokračujte ďalej“; dovtedy je karta
+  // skrytá ako doteraz pri pomalej sieti.
+  const SPUSTI_PRI = ["pointerdown", "click", "focusin", "change", "keydown"];
+  const spustace = rohoz ? [kAuto] : [kFarba, kPocet];
+  let nacitava = false;
+  function nacitajCiel() {
+    if (nacitava) return;
+    nacitava = true;
+    spustace.forEach((k) => SPUSTI_PRI.forEach((t) => k.removeEventListener(t, nacitajCiel, true)));
+    stranka(ciel.url).then(function (v) {
+      stav.mapa = (v && v.mapa) || null;
+    }, function () {
+      stav.mapa = null;
+    }).then(naplanuj);
+  }
+
   /** Rohož: { vSete, samostatne, vyber, d } alebo null (voľba kufra na cieli chýba / bez ceny). */
   function ponukaRohoze() {
     const m = volbaRohoze(moznostiZMapy(stav.mapa, "kufor"), druh);
@@ -298,6 +318,7 @@ export function init(ctx) {
   function obnov() {
     naplanovane = false;
     if (!zapnute()) { zrus(); return; }
+    if (stav.mapa === undefined && pripravena()) nacitajCiel(); // karta by sa už mala ukázať (napr. auto obnovené zo sessionStorage)
     if (!stav.prenos) {
       let p = null;
       try { p = stav.mapa ? (rohoz ? ponukaRohoze() : ponukaBoxov()) : null; } catch (e) { p = null; }
@@ -448,12 +469,9 @@ export function init(ctx) {
   }
   new MutationObserver(function (z, o) { if (!zapnute()) { zrus(); o.disconnect(); } }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
 
-  // ceny cieľa (tá istá stránka ako banner setu: jedna požiadavka, localStorage 24 h)
-  stranka(ciel.url).then(function (v) {
-    stav.mapa = (v && v.mapa) || null;
-  }, function () {
-    stav.mapa = null;
-  }).then(naplanuj);
+  // ceny cieľa až v nečinnosti / pri prvom dotyku karty (nacitajCiel vyššie)
+  spustace.forEach((k) => SPUSTI_PRI.forEach((t) => k.addEventListener(t, nacitajCiel, true)));
+  poNecinnosti(3000).then(function () { if (!zruseny) nacitajCiel(); });
 
   obnov();
 }

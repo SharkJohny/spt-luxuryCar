@@ -33,6 +33,7 @@
 // Odkazy data-p1v-odkaz = jedno | dvoj | classic | premium | boxy -> adresa z registra (produkty.js) v tom istom vzore.
 import { velkost } from "../../lcdKosikDoplnok.js";
 import { cenaProduktu, cenaTypu, priplatkyTypu, moznostiZMapy } from "./ceny-ine.js";
+import { poNecinnosti } from "./susedne.js";
 import { najdiProdukt } from "./produkty.js";
 import { sumaText } from "./ctx.js";
 import { ponuka as ponukaKamion } from "./kamion/cena.js";
@@ -48,6 +49,10 @@ export const RE_KLUC = /^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|s
 
 const NBSP = " ";
 const pole = (x) => Array.prototype.slice.call(x || []);
+/** Kľúče, ktorých hodnota môže potrebovať susednú stránku (ceny-ine.js GET); ostatné sú z tejto stránky (ctx, DOM). */
+const RE_SIET = /^(cena-od-|set-|box)/;
+/** Prvok so sieťovým kľúčom bližšie k oknu než 1,5 výšky okna -> sťahovať hneď (nečakať na nečinnosť). */
+const PRED_OKNOM = "150% 0px";
 /** pôvodná inline visibility prvku pred skrytím (kópia prvku tu nie je -> "") */
 const POVODNA = new WeakMap();
 
@@ -197,12 +202,39 @@ export function init(oc) {
   });
   // jedna hodnota na kľúč (rovnaký kľúč vo viacerých prvkoch = jedno zistenie)
   const hodnoty = new Map();
+  const kluc = (el) => String(el.getAttribute("data-p1v-cislo") || "").trim().toLowerCase();
   const zisti = (el) => {
-    const k = String(el.getAttribute("data-p1v-cislo") || "").trim().toLowerCase();
+    const k = kluc(el);
     if (!hodnoty.has(k)) hodnoty.set(k, hodnota(k, ctx).catch(() => null));
     return hodnoty.get(k).then((text) => vypis(el, text));
   };
+  // Michal 25. 10. 2026 (rýchlosť): čísla z tejto stránky (cena-od, farby, vzor, kamióny) hneď; čísla zo susedných
+  // stránok (cena-od-<typ>, set-*, box*) až keď sa niektorý taký prvok priblíži k oknu alebo v nečinnosti (najneskôr
+  // 3 s) — obsah je pod konfigurátorom, prvé vykreslenie nemá kvôli nim čakať na sieť ani na parsovanie. Kým čakajú,
+  // ostávajú neviditeľné ako doteraz (žiadna zlá ani cudzia hodnota).
+  const hned = prvky.filter((el) => !RE_SIET.test(kluc(el)));
+  const neskor = prvky.filter((el) => RE_SIET.test(kluc(el)));
+  const siet = neskor.length ? branaSiete(neskor) : Promise.resolve();
   // druhé kolo: kópie prvkov, ktoré skupiny A–D vyrobili po prvom kole (napr. klony pásu galérie), majú stav „caka“
   // skopírovaný, ale nie sú v prvom zozname -> dostanú tú istú hodnotu
-  return Promise.all(prvky.map(zisti)).then(() => Promise.all(cakajuce().map(zisti)));
+  return Promise.all(hned.map(zisti).concat(siet.then(() => Promise.all(neskor.map(zisti)))))
+    .then(() => Promise.all(cakajuce().map(zisti)));
+}
+
+/** Promise: niektorý z prvkov je bližšie k oknu než PRED_OKNOM, alebo nečinnosť (najneskôr 3 s) — čo nastane skôr. */
+function branaSiete(prvky) {
+  return new Promise(function (hotovo) {
+    let io = null, raz = false;
+    const spusti = function () {
+      if (raz) return;
+      raz = true;
+      if (io) io.disconnect();
+      hotovo();
+    };
+    poNecinnosti(3000).then(spusti);
+    if (typeof IntersectionObserver === "function") {
+      io = new IntersectionObserver(function (z) { if (z.some((x) => x.isIntersecting)) spusti(); }, { rootMargin: PRED_OKNOM });
+      prvky.forEach((el) => io.observe(el));
+    }
+  });
 }
