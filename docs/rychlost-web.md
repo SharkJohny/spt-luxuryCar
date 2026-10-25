@@ -53,15 +53,30 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
   zachytí ju sken každých 5 s; konečné nástupy sa nemenia.
 - GSAP ScrollTrigger sa registruje len v module Materiál na titulke (`lcdHome.js` lcdhStRegistruj): registrácia pri štarte
   každej stránky vynucovala prepočty štýlov (598: 640 → 140). Nový ScrollTrigger mimo titulky = najprv `lcdhStRegistruj()`.
-- Overené, že veľkosť CSS (−35 % bez blokov 1V) ani `:has()` prepočty štýlov citeľne nezrýchlia — rozhoduje ich počet.
+- Pri načítaní stránky veľkosť CSS (−35 % bez blokov 1V) ani `:has()` všeobecne prepočty citeľne nezrýchlia — rozhoduje ich
+  počet. Pri ťuknutí však rozhodujú dve konkrétne chyby selektorov, pozri §7.
 - Nástroje (scratchpad session kamióny, 25. 10.): `styl-detail.mjs` (najdrahšie prepočty a ich spúšťač), `necinnost.mjs`
   (CPU v nečinnosti), `animacie.mjs` (bežiace animácie).
 
 ## 6. Odozva konfigurátora kamiónov na ťuknutie (640, `?novy=1`)
 - Meranie: Event Timing API (čas od ťuknutia po vykreslenie), telefón 390 px, CPU 6×, 16 ťuknutí celou cestou; súčet
-  4,1 s → 3,6 s (−13 %). Zvyšok je hlavne prepočet rozloženia po `innerHTML` celého kroku (`render()` v `kamion/ui.js`).
+  4,1 s → 3,6 s (−13 %). Zvyšok tvoria hlavne prepočty štýlov celej stránky po každej zmene DOM / triedy (§7).
 - `kamion/ui.js`: nezmenený náhľad motívu (plátno s rovnakou triedou, motívom, niťou, podkladom, `data-k`) sa po
   prekreslení kroku vráti na miesto aj s obrázkom; `data-nakreslene` = šírka okna pri kreslení (po otočení telefónu sa
   kreslí nanovo), plátno so strateným kontextom sa nepoužije. Prefarbený motív sa pamätá podľa farby, šírka plátna podľa triedy.
 - `kamion/index.js`: výška okna chatu Luxia cez `ResizeObserver` (predtým `getBoundingClientRect` každú sekundu a po
   každom ťuknutí = vynútený prepočet rozloženia); bez ResizeObserver (Safari 13.0) ako predtým.
+
+## 7. Selektory, ktoré spomaľujú každé ťuknutie (zistené 25. 10. 2026 na 640, Chrome trace invalidationTracking)
+- **Atribút `class` s podreťazcom v predkovi a vpravo nič**, napr. `#lcd-blog [class*="rc-image-"][class$="__text"]>:first-child`
+  (`_lcdBlog.scss`): Chrome potom pri zmene triedy na AKOMKOĽVEK prvku prepočíta celý strom pod ním
+  (`allDescendantsMightBeInvalid`). Na ťuknutie v konfigurátore 2–7 prepočtov ~1160 prvkov (60–115 ms pri CPU 6×).
+  Pravidlo: `[class*=…]` / `[class^=…]` / `[class$=…]` nepoužívať; vymenovať triedy. Vpravo vždy trieda/značka.
+- **`:has()` ukotvený na `html` / `body` s ďalším prvkom za ním** (`body:has(X) .y`, `html:has(.a .b) .y`): po každom
+  vložení DOM prepočet celej stránky. Stráž `:not(.trieda)` nepomáha; pomáha len kladná trieda v tom istom zloženom
+  selektore, ktorá na stránke nie je (`body.in-index:has(…)` je v poriadku). `html:has(#footer)` bez ďalšieho prvku je lacné.
+  Pravidlo: stav, ktorý JS aj tak pozná, dať ako triedu; `:has` kotviť čo najbližšie k prvku.
+- Pokus na 640 (4 ťuknutia, súčet prepočtov štýlov): 906 ms → blog opravený 588 → `:has` opravené 418 → oboje 167 ms;
+  odozva 16 ťuknutí 3,32 → 2,57 s. Opravu robí session Shoptet úpravy (spoločné CSS). Nástroje v scratchpade session
+  kamióny: `layout-exp.mjs <variant>`, `odozva-exp.mjs 6 <variant>`, `layout-tuk3.mjs` (dôvody zneplatnenia), `css-bez.mjs`,
+  `css-blog.mjs`, `css-strazca*.mjs` (varianty CSS v `lokal-<variant>/`).
