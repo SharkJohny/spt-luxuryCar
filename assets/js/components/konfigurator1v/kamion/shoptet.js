@@ -8,25 +8,26 @@
 // Reactu z klientskeho repa test chytí rozdiel. Poznámku objednávky skladá order-summary.mjs (persistTruckOrderSummary).
 // Pri importe sa nič nespúšťa.
 import { povoleneNasivkyVsade } from "../../../truck-konfigurator/pricing.js";
-import { PRECIARKNUTE_EUR, NASIVKY_ZALOHA } from "./data.js";
+import { PRECIARKNUTE_EUR, PRECIARKNUTE_CZK, NASIVKY_ZALOHA, MATERIALY } from "./data.js";
 
-/** Selecty príplatkov 640 podľa data-parameter-name (SK aj CZ meno; ID sa medzi obchodmi líšia). Všetky sú nutné. */
+/** Selecty príplatkov 640 / 2452 podľa data-parameter-name (SK aj CZ meno; ID sa medzi obchodmi líšia). Všetky sú nutné.
+ *  CZ 2452 má krátke mená (Materiál, Barva, Lemování, Nášivky, Nášivka boky, Niť boky, … Niť dveře; overené 25. 10. 2026). */
 export const SELECTY = {
-  material: ["Typ materiálu", "Typ materiálu koberečků"],
-  farba: ["Farba materiálu", "Barva materiálu"],
-  lemovanie: ["Farba lemovania", "Barva lemování"],
-  nasivky: ["Rozloženie nášiviek", "Rozložení nášivek"],
-  bokyTyp: ["Typ nášiviek na boky", "Typ nášivek na boky"],
-  bokyNit: ["Farba nášiviek na boky", "Barva nášivek na boky"],
-  stredTyp: ["Typ nášivky na stred", "Typ nášivky na střed"],
-  stredNit: ["Farba nášivky na stred", "Barva nášivky na střed"],
+  material: ["Typ materiálu", "Typ materiálu koberečků", "Materiál"],
+  farba: ["Farba materiálu", "Barva materiálu", "Barva"],
+  lemovanie: ["Farba lemovania", "Barva lemování", "Lemování"],
+  nasivky: ["Rozloženie nášiviek", "Rozložení nášivek", "Nášivky"],
+  bokyTyp: ["Typ nášiviek na boky", "Typ nášivek na boky", "Nášivka boky"],
+  bokyNit: ["Farba nášiviek na boky", "Barva nášivek na boky", "Niť boky"],
+  stredTyp: ["Typ nášivky na stred", "Typ nášivky na střed", "Nášivka stred"],
+  stredNit: ["Farba nášivky na stred", "Barva nášivky na střed", "Niť stred"],
   tapacir: ["Tapacír", "Čalounění"],
-  tapMaterial: ["Typ materiálu tapacíru"],
-  tapFarba: ["Farba materiálu tapacíru", "Barva materiálu tapacíru"],
-  tapLem: ["Farba lemovania tapacíru", "Barva lemování tapacíru"],
-  tapNasivka: ["Nášivky na tapacír"],
-  tapNasTyp: ["Typ nášivky na tapacír"],
-  tapNasNit: ["Farba nášiviek na tapacíre", "Barva nášivek na tapacíru"],
+  tapMaterial: ["Typ materiálu tapacíru", "Materiál dveře"],
+  tapFarba: ["Farba materiálu tapacíru", "Barva materiálu tapacíru", "Barva dveře"],
+  tapLem: ["Farba lemovania tapacíru", "Barva lemování tapacíru", "Lemování dveře"],
+  tapNasivka: ["Nášivky na tapacír", "Nášivka dveře"],
+  tapNasTyp: ["Typ nášivky na tapacír", "Nášivka dveře druh"],
+  tapNasNit: ["Farba nášiviek na tapacíre", "Barva nášivek na tapacíru", "Niť dveře"],
 };
 
 const dokument = (d) => d || (typeof document !== "undefined" ? document : null);
@@ -116,7 +117,10 @@ export function citajCeny(doc) {
   Array.prototype.forEach.call(sm.querySelectorAll("option[value]"), (o) => {
     if (!o.value) return;
     const { clean } = _parseOptionPrice(o.textContent);
-    if (clean) material[clean] = priplatokMoznosti(o, nezhody);
+    // kľúč = názov materiálu konfigurátora (SK, MATERIALY); CZ text možnosti („Prémiová syntetická kůže – prošívaná“) sa naň zmapuje
+    const n = normalizeOptionText(clean);
+    const m = MATERIALY.filter((x) => normalizeOptionText(x.nazov) === n)[0];
+    if (clean) material[m ? m.nazov : clean] = priplatokMoznosti(o, nezhody);
   });
   if (!Object.keys(material).length) throw new Error("kamion: select Typ materiálu nemá možnosti");
   return {
@@ -132,7 +136,7 @@ export function citajCeny(doc) {
       tapacir_balik: priplatok("tapacir", "Áno chcem (v konfigurátore – balík)", d, nezhody),
       nasivka_na_dverach: priplatok("tapNasivka", "Áno chcem nášivku na dverách", d, nezhody),
     },
-    preciarknute_ceny: Object.assign({}, PRECIARKNUTE_EUR),
+    preciarknute_ceny: Object.assign({}, /Kč|CZK/i.test(sm.textContent) ? PRECIARKNUTE_CZK : PRECIARKNUTE_EUR),
     nezhody,
   };
 }

@@ -219,6 +219,15 @@ export const PRODUKTY = {
     ceny: { "kamion-platne": 423, "kamion-dodavka": 258 },
     postKluce: "productId priceId language amount + 15 × surchargeParameterValueId[NNN] (346 … 412; ako React syncToShoptet)",
   },
+  // CZ 2452 (projekt 581408): ten istý konfigurátor po česky (texty-cs.js, Kč, CZ mená príplatkov); spúšťa sa len --produkt 2452
+  2452: {
+    url: "https://www.luxurycardesign.cz/luxusni-autokoberce-kamiony/", typ: "kamion", vzor: null, nazov: "Kamiony a dodávky (CZ)",
+    scenare: ["kamion-cz", "kamion-neuplne", "kamion-posun", "kamion-posun-vysoke"],
+    platne: null,
+    odporucana: false,
+    ceny: {},
+    postKluce: "productId priceId language amount + 15 × surchargeParameterValueId[NNN] (CZ ID; hodnoty podľa CZ mien v kamion-cz)",
+  },
 };
 
 /** Iný produkt pre test brány: CZ Diamond (iný projectId 581408) — ?novy=1 nesmie nič zapnúť. */

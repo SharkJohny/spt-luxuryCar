@@ -23,6 +23,8 @@ const img = (f) => {
 
 /** Prečiarknuté „samostatne“ ceny (EUR) — v Shoptete nie sú, natvrdo v konfigurator.gen.jsx FALLBACK_PRICES_EUR. */
 export const PRECIARKNUTE_EUR = { nasivky_balik: 140, nasivky_sofer_spolujazdec: 70, nasivky_len_stred: 70, tapacir: 179, nasivka_na_dverach: 89 };
+/** To isté pre CZ 2452 (Kč) — konfigurator.gen.jsx FALLBACK_PRICES_CZK (NASIVKY_SAMO 1690 + 1690, TAPACIR_SAMO, NASIVKA_DVERE_SAMO). */
+export const PRECIARKNUTE_CZK = { nasivky_balik: 3380, nasivky_sofer_spolujazdec: 1690, nasivky_len_stred: 1690, tapacir: 4390, nasivka_na_dverach: 2190 };
 
 /**
  * Fotka tapacíru dverí — celý panel dverí 3:2, nášivka v strede výplne (~43 % / 45 %). Tá istá fotka ako React krok 5/A

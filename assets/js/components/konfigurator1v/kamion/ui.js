@@ -1,9 +1,10 @@
-// UI konfigurátora kamiónov a dodávok (SK 640): hlavička, 6 krokov, súhrn, lepivá lišta. Port schváleného artefaktu
+// UI konfigurátora kamiónov a dodávok (SK 640; CZ 2452 = o.jazyk "cs": texty-cs.js, ceny v Kč): hlavička, 6 krokov, súhrn, lepivá lišta. Port schváleného artefaktu
 // kamiony-app/app.js (render a akcie ř. 38–130, 164–680, 755–995) BEZ pásu ukážky, poznámok k návrhu, prepínača
 // PC/Telefón, vlastnej galérie, ukážky košíka a obsahu pod konfigurátorom (docs/kamiony-1v-plan.md §3.1–3.2).
 // Všetky tlačidlá type="button", žiadne name (koreň je vo <form>). Ceny len z cena.js (živé ceny Shoptetu).
 // Do košíka nič nepíše: zmenu výberu a „Pridať do košíka“ odovzdá cez naZmenu / doKosika (index.js -> shoptet.js).
 import { TEXTY } from "./texty.js";
+import { TEXTY_CS } from "./texty-cs.js";
 import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA_DVERI_SUBOR, FOTKY_DVERI, FOTKA_KABINY_NASIVKY } from "./data.js";
 import { OBRAZKY_1V } from "../ctx.js";
 import { cielNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
@@ -20,7 +21,8 @@ function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
 const attr = esc;
-const eur = (n) => n + NB + "€";
+let MENA = "€"; // vytvorUi nastaví podľa jazyka: SK „423 €“, CZ „5 807 Kč“ (tisíce oddelené nezalomiteľnou medzerou)
+const eur = (n) => (MENA === "Kč" ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NB) : n) + NB + MENA;
 const plus = (n) => "+" + NB + eur(n);
 const roky = (s) => String(s).replace(/(\d{4})-(\d{4})/g, "$1–$2");
 const fill = (t, o) => String(t).replace(/\{(\w+)\}/g, (m, k) => (o[k] != null ? o[k] : m));
@@ -32,7 +34,13 @@ const tvar = (n, slova) => (n === 1 ? slova[0] : n >= 2 && n <= 4 ? slova[1] : s
  *   predvyber?: object|null, naZmenu: (S) => void, doKosika: (S) => boolean, priChybe?: (e) => void, okno?: Window }} o
  */
 export function vytvorUi(o) {
-  const T = TEXTY, U0 = T.ui;
+  const cs = o.jazyk === "cs";
+  MENA = cs ? "Kč" : "€";
+  const T = cs ? TEXTY_CS : TEXTY, U0 = T.ui;
+  const jz = cs ? "cs" : "sk";
+  // mená modelov sú kľúče (truck-brands.js, poznámka objednávky pre Jánov export); na CZ sa len zobrazia po česky
+  const vozTxt = (s) => roky(cs ? String(s).replace(/obytná kabína/g, "obytná kabina").replace(/s tunelom/g, "s tunelem").replace(/zadný pohon/g, "zadní pohon") : s);
+  const mail = cs ? "info@luxurycardesign.cz" : "info@luxurycardesign.sk";
   const root = o.root, lst = o.lista;
   const w = o.okno || window;
   const doc = root.ownerDocument;
@@ -50,7 +58,7 @@ export function vytvorUi(o) {
   const $ = (sel) => root.querySelector(sel);
 
   // ------------------------------------------------------------------ prístup k dátam (artefakt ř. 38–130)
-  const znackyTypu = () => ZNACKY.filter((z) => z.typ === S.typ).sort((a, b) => a.meno.localeCompare(b.meno, "sk"));
+  const znackyTypu = () => ZNACKY.filter((z) => z.typ === S.typ).sort((a, b) => a.meno.localeCompare(b.meno, jz));
   const znacka = () => najdiZnacku(S.znacka);
   const model = () => najdiModel(S);
   const tapDostupny = () => tapacirDostupny(S, D);
@@ -65,8 +73,8 @@ export function vytvorUi(o) {
     m.farby.forEach((f) => { byKod[f.kod] = f; });
     const out = [];
     // názvy = schválený zoznam (truck-konfigurator/farby-nazvy.mjs, Michal 25. 10. 2026), poradie z texty.js
-    por.forEach((p) => { if (byKod[p.kod]) { out.push(Object.assign({}, byKod[p.kod], { meno: nazovFarbyVelky(p.kod) || p.meno })); delete byKod[p.kod]; } });
-    m.farby.forEach((f) => { if (byKod[f.kod]) out.push(Object.assign({}, f, { meno: nazovFarbyVelky(f.kod) || f.kod })); });
+    por.forEach((p) => { if (byKod[p.kod]) { out.push(Object.assign({}, byKod[p.kod], { meno: nazovFarbyVelky(p.kod, jz) || p.meno })); delete byKod[p.kod]; } });
+    m.farby.forEach((f) => { if (byKod[f.kod]) out.push(Object.assign({}, f, { meno: nazovFarbyVelky(f.kod, jz) || f.kod })); });
     return out;
   }
   const farba = (nazov, kod) => farbyMat(nazov).filter((f) => f.kod === kod)[0];
@@ -101,7 +109,7 @@ export function vytvorUi(o) {
   function nazovVozidla() {
     const z = znacka();
     if (!z) return "";
-    return z.meno + (S.model ? " " + roky(S.model) : "");
+    return z.meno + (S.model ? " " + vozTxt(S.model) : "");
   }
   const koberecNas = () => knS(S);
   function motivTxt(x) { const m = motiv(x.motiv), n = nit(x.nit); return m.meno + " (" + m.kod + ") · " + fill(U0.nit, { x: mala(n.menoUi) }) + " (" + n.kod + ")"; }
@@ -389,7 +397,7 @@ export function vytvorUi(o) {
     html += '<div class="k-delic"><div class="k-polia">';
     html += selectPole("znacka", PP.znacka.label, PP.znacka.placeholder, znackyTypu().map((z) => ({ v: z.kluc, t: z.meno })), S.znacka);
     const z = znacka();
-    html += selectPole("model", PP.model.label, z ? PP.model.placeholder : U0.model_bez_znacky, z ? z.modely.map((m) => ({ v: m.nazov, t: roky(m.nazov) })) : [], S.model, !z);
+    html += selectPole("model", PP.model.label, z ? PP.model.placeholder : U0.model_bez_znacky, z ? z.modely.map((m) => ({ v: m.nazov, t: vozTxt(m.nazov) })) : [], S.model, !z);
     const m = model();
     if (m) {
       PORADIE_POLI.forEach((p) => {
@@ -408,7 +416,7 @@ export function vytvorUi(o) {
     html += koniecKroku("vozidlo", posledny);
     const nie = esc(T.hlavicka.kompatibilita.nie_je_v_zozname)
       .replace("+421 903 660 720", '<a href="tel:+421903660720">+421 903 660 720</a>')
-      .replace("info@luxurycardesign.sk", '<a href="mailto:info@luxurycardesign.sk">info@luxurycardesign.sk</a>');
+      .replace(mail, '<a href="mailto:' + mail + '">' + mail + "</a>");
     // číslo ostane pri slove („7 modelov“ sa nerozdelí na konci riadka); telefón celý drží CSS (white-space: nowrap)
     html += '<p class="k-pozn">' + esc(t.poznamka).replace(/(\d) /g, "$1 ") + "<br>" + nie + "</p>";
     return html;
@@ -618,7 +626,7 @@ export function vytvorUi(o) {
   const lemMeno = (l) => l.menoUi.toLowerCase() + " (" + l.kod + ")";
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: lemMeno(l) });
   /** Druh materiálu pod variantom: mikrosemiš / velúr / syntetická koža (koza = kratšie „koža“ v lište). */
-  const druhMat = (v, koza) => (v.nazov === "Mikrosemiš" ? U0.mikrosemis : v.nazov === "Velúr" ? U0.velur : koza ? U0.koza : U0.syntetika);
+  const druhMat = (v, koza) => (/^Mikrosemiš/.test(v.shoptet) ? U0.mikrosemis : /velúr/i.test(v.shoptet) ? U0.velur : koza ? U0.koza : U0.syntetika);
   /** „Prešívaná syntetická koža“, „Jednofarebný mikrosemiš“, „Vzorovaný velúr“ — variant + druh materiálu (ako dlaždice materiálu tapacíru). */
   function matMeno(nazov) {
     const v = matT(nazov);
@@ -882,7 +890,7 @@ export function vytvorUi(o) {
   function renderLista() {
     const c = cena(), hot = vsetkoHotove(), t = T.kroky.lista;
     const mt = S.material ? matT(S.material) : null;
-    const popis = [S.model ? znacka().meno + " " + roky(S.model).replace(/\s*\d{4}–\d{4}$/, "") : "",
+    const popis = [S.model ? znacka().meno + " " + vozTxt(S.model).replace(/\s*\d{4}–\d{4}$/, "") : "",
       mt ? druhMat(mt, true) + ", " + mt.variant : ""].filter(Boolean).join(" · ");
     lst.innerHTML = '<div class="lcd1v-lista__c"><b class="lcd1v-lista__suma"><small>' + esc(t.spolu) + " </small>" + (hot ? "" : esc(t.od) + " ") + eur(c.spolu) + "</b>" +
       '<small class="lcd1v-lista__popis">' + esc(popis) + "</small></div>" +

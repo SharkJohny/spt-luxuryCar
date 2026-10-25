@@ -29,6 +29,8 @@ import { vytvorUi } from "./ui.js";
 export const MENO = "kamion";
 /** Telefón a tablet: lepivá lišta (rovnaká hranica ako 1V cena.js). */
 const MOBIL = "(max-width: 991px)";
+/** CZ 2452 (luxurycardesign.cz): české texty a ceny v Kč; poznámka objednávky má CZ značky (order-summary.mjs). */
+const jazykStranky = () => (/\.cz$/i.test(location.hostname) ? "cs" : "sk");
 
 let aktivny = null; // { zrus } — jeden konfigurátor na stránke
 
@@ -96,11 +98,11 @@ export function init(ctx) {
   // ------------------------------------------------------------------ sync a košík
   function sync(S) {
     const stav = naStavReactu(S);
-    syncToShoptet(sTextamiPriplatkov(stav, /\.cz$/i.test(location.hostname) ? "cs" : "sk"));
+    syncToShoptet(sTextamiPriplatkov(stav, jazykStranky()));
     upratTapacir(stav, document);
     const shoptet = sucetShoptetu(document);
     const nase = vypocitajCenu(naStavCeny(S), data).spolu;
-    if (shoptet !== nase) console.error("[lcd-1v] kamion: cena Shoptetu " + shoptet + " € ≠ konfigurátor " + nase + " €");
+    if (shoptet !== nase) console.error("[lcd-1v] kamion: cena Shoptetu " + shoptet + " ≠ konfigurátor " + nase);
     return stav;
   }
   /** Každá zmena výberu: zruší čakajúci klik do košíka a stav „odosiela sa“ (N3, N4), potom sync. */
@@ -131,7 +133,7 @@ export function init(ctx) {
   }
 
   try {
-    ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: predvyber(), naZmenu, doKosika,
+    ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: predvyber(), naZmenu, doKosika, jazyk: jazykStranky(),
       priChybe: function (e) {
         console.error("[lcd-1v] kamion: chyba po štarte — návrat na React", e);
         if (!zruseny) ctx.zlozit();

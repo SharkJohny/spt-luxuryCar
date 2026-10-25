@@ -1,4 +1,4 @@
-// Scenáre kamiónov SK 640 (typ „kamion“) pre tools/test-konfigurator-1v.mjs — živá stránka s lokálnym buildom,
+// Scenáre kamiónov SK 640 a CZ 2452 (typ „kamion“) pre tools/test-konfigurator-1v.mjs — živá stránka s lokálnym buildom,
 // POST do košíka sa zachytí a zruší. Plán: docs/kamiony-1v-plan.md §5 (c), (e). Tvar: scenare-vzorky.mjs.
 // Nový vzhľad (--vyvoj, po vydaní --novy) sa ovláda klikmi na prvky [data-a] v #lcd1v-kamion (ako zákazník);
 // starý vzhľad (React) tieto scenáre preskočí — React pokrýva npm run truck:test a brana / nulova-zmena.
@@ -57,7 +57,10 @@ const OTVORENY = `(function () {
 })()`;
 
 /** ?novy=1 pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React: scenár sa preskočí, nie zlyhá (body.lcd-1v sa nečaká). */
-const zapnuty = (a) => (a.zapnuteSet ? a.zapnuteSet.has(640) : !!a.novy);
+const zapnuty = (a) => (a.zapnuteSet ? a.zapnuteSet.has(a.produkt ? a.produkt.id : 640) : !!a.novy);
+/** CZ 2452 (luxurycardesign.cz): súhrn v Kč, poznámka s CZ značkami. */
+const jeCz = (a) => /luxurycardesign\.cz\//.test(a.url || "");
+const kc = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") + "\u00a0Kč";
 const jeNovy = (s) => s.t.ev(`!!document.getElementById("lcd1v-kamion")`);
 
 /** Postupnosť krokov v stránke: ["klik", selektor v #lcd1v-kamion] | ["vyber", pole, hodnota] | ["dalej", krok]. */
@@ -79,14 +82,15 @@ const a_ = (akcia, v, m) => '[data-a="' + akcia + '"]' + (m ? '[data-m="' + m + 
 
 /** Stav po výbere: texty zvolených možností 15 selectov, súčet UI, poznámka objednávky. */
 const STAV = `(function () {
-  var sel = {}, ine = {};
+  var sel = {}, ine = {}, nm = {};
   Array.prototype.forEach.call(document.querySelectorAll("#product-detail-form select.surcharge-parameter"), function (s) {
     var o = s.options[s.selectedIndex];
-    sel[s.getAttribute("data-parameter-id")] = s.value && o ? o.textContent.trim().replace(/\\s*\\+\\s*€\\s*\\d+\\s*$/, "") : "";
+    sel[s.getAttribute("data-parameter-id")] = s.value && o ? o.textContent.trim().replace(/\\s*\\+\\s*€\\s*\\d+\\s*$/, "").replace(/\\s*\\+\\s*[\\d\\s\\u00a0]+Kč\\s*$/, "") : "";
+    if (s.value) nm[s.getAttribute("data-parameter-name")] = sel[s.getAttribute("data-parameter-id")];
     if (s.value) ine[s.getAttribute("data-parameter-id")] = s.value;
   });
   var k = window.__lcd1vKamion, suma = document.querySelector("#lcd1v-kamion .k-suhrn__suma");
-  return { sel: sel, ine: ine, spolu: k ? k.ui.cena().spolu : null, suma: suma ? suma.textContent : null,
+  return { sel: sel, ine: ine, nm: nm, spolu: k ? k.ui.cena().spolu : null, suma: suma ? suma.textContent : null,
     poznamka: sessionStorage.getItem("truckOrderSummary"), vozidlo: sessionStorage.getItem("truckVehicle"),
     krokov: document.querySelectorAll("#lcd1v-kamion .k-krok").length };
 })()`;
@@ -268,12 +272,52 @@ async function doKosika(s, a, j, meno) {
   if (idR) delete ine[idR];
   const cena = await j.overPost(s, post, { ine, rozlozenie: idR ? st.ine[idR] : undefined });
   j.over(cena.spolu === st.spolu, "cena v košíku Shoptetu " + cena.spolu + " € (" + cena.rozpis + ") ≠ konfigurátor " + st.spolu + " €");
-  j.over(st.suma === j.eur(st.spolu), "súhrn „" + st.suma + "“ ≠ " + j.eur(st.spolu));
-  j.over(/^ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: /.test(st.poznamka || ""), "poznámka objednávky chýba: " + st.poznamka);
+  const sumaOcak = jeCz(a) ? kc(st.spolu) : j.eur(st.spolu);
+  j.over(st.suma === sumaOcak, "súhrn „" + st.suma + "“ ≠ " + sumaOcak);
+  j.over((jeCz(a) ? /^SPECIFIKACE VOZIDLA\n- Vozidlo: / : /^ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: /).test(st.poznamka || ""), "poznámka objednávky chýba: " + st.poznamka);
   return { post, st, cena };
 }
 
 export const SCENARE = {
+  // CZ 2452: tá istá cesta ako kamion-platne (DAF XF106, prošívaná 11, lem 04, balíček H19/2999, čalounění jako koberce),
+  // české texty v konfigurátore, súčet v Kč = súčet Shoptetu, POST overí overPost a hodnoty selectov podľa CZ mien
+  "kamion-cz": {
+    typy: ["kamion"],
+    async fn(s, a, pom, ovl, j) {
+      await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
+      if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — CZ 2452 ešte nie je v registri 1V" };
+      await snimka(s, a, "kamion-cz-start");
+      await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"], ["dalej", "vozidlo"],
+        ["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"], ["klik", a_("farba", "11")], ["dalej", "farba"],
+        ["klik", a_("lem", "04")], ["dalej", "lemovanie"]]);
+      await j.pauza(400);
+      await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2999", "boky")], ["klik", a_("potvrd", "boky")]]);
+      await j.pauza(400);
+      await rob(s, j, [["klik", a_("stredRovnaky", "1")]]);
+      await j.pauza(400);
+      await rob(s, j, [["klik", a_("tap", "ano")], ["klik", a_("tapRovnake")]]);
+      await j.pauza(400);
+      await rob(s, j, [["klik", a_("tapNas", "nie")]]);
+      await j.pauza(700);
+      // texty konfigurátora: české, bez slovenských zvyškov (texty-cs.js)
+      const tx = await s.t.ev(`(function () { var r = document.getElementById("lcd1v-kamion"), l = document.getElementById("lcd1v-lista");
+        var t = (r ? r.innerText : "") + "\\n" + (l ? l.innerText : "");
+        var sk = t.match(/[^\\s]*([äôĺľŕ]|šofér|spolujazd|nášiviek|Pridať|ďalej|košíka|tapacír|lemovani)[^\\s]*/gi) || [];
+        return { sk: sk.slice(0, 12), kosik: /Přidat do košíku/i.test(t), krok: /Krok \\d ze 6|Hotovo \\d ze 6|Váš set v 6 krocích/i.test(t), eur: /€/.test(t), ukazka: t.replace(/\\s+/g, " ").slice(0, 300) }; })()`);
+      j.over(!tx.sk.length, "slovenské slová v CZ konfigurátore: " + tx.sk.join(", "));
+      j.over(tx.kosik && tx.krok && !tx.eur, "CZ texty / mena: " + JSON.stringify(tx));
+      await snimka(s, a, "kamion-cz-prehlad");
+      const { post, st, cena } = await doKosika(s, a, j, "kamion-cz");
+      const ocak = { "Materiál": "Prémiová syntetická kůže – prošívaná", "Nášivky": "Řidič + spolujezdec + střed (BALÍČEK)", "Nášivka boky": "Nášivka H19",
+        "Niť boky": "Černá – 2999", "Nášivka stred": "Nášivka H19", "Niť stred": "Černá – 2999", "Čalounění": "Ano, chci (v konfigurátoru – balíček)",
+        "Materiál dveře": "Stejný jako koberec", "Barva dveře": "Stejná jako koberec", "Lemování dveře": "Stejné jako koberec",
+        "Nášivka dveře": "Ne, nechci nášivku na dveřích", "Nášivka dveře druh": "Bez nášivky", "Niť dveře": "Bez nitě" };
+      Object.entries(ocak).forEach(([m, t]) => j.over(st.nm[m] === t, m + " „" + st.nm[m] + "“ ≠ „" + t + "“"));
+      j.over(/– 11$/.test(st.nm["Barva"] || "") && /– 04$/.test(st.nm["Lemování"] || ""), "Barva / Lemování: " + st.nm["Barva"] + " | " + st.nm["Lemování"]);
+      j.over(/^\[KONFIGURACE KAMIONU\]|SPECIFIKACE VOZIDLA/.test(st.poznamka || "") && !/ŠPECIFIKÁCIA/.test(st.poznamka || ""), "poznámka nie je po česky: " + (st.poznamka || "").slice(0, 80));
+      return { info: kc(st.spolu) + " = " + cena.zaklad + " + " + cena.rozpis + " · CZ texty · 15 selectov podľa CZ mien", post: post ? post.body : null, spolu: cena.spolu, nm: st.nm, poznamka: st.poznamka };
+    },
+  },
   "kamion-platne": {
     typy: ["kamion"],
     async fn(s, a, pom, ovl, j) {
