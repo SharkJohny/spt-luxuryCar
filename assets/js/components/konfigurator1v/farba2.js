@@ -15,6 +15,8 @@
 // z lcdKosikDoplnok.js: béžová 12, hnedá aj hnedá káva 11, vínová aj červená 13, šedá 16, inak 10); bez farby 1. vrstvy sa
 // neukáže nič.
 import { odporucanaLux, luxCislo, LUX_JEDNOFAREBNE } from "../../lcdKosikDoplnok.js";
+// dlaždice majú zmenšené náhľady: veľký náhľad = plná fotka (kým sa sťahuje, obrázok dlaždice), ikonka = obrázok dlaždice
+import { nastavVelkyNahlad, malyNahlad } from "./farby-nahlady.js";
 
 export const MENO = "farba2";
 
@@ -169,16 +171,15 @@ export function init(ctx) {
     vzorky.forEach((v) => nastavAttr(v.b, "aria-pressed", v === zv ? "true" : "false"));
     // náhľad (len v kroku, hlavnú fotku galérie nemení)
     const im = zv && zv.b.querySelector("img");
+    // najprv viditeľnosť (nastavVelkyNahlad sťahuje plnú fotku len viditeľnému náhľadu), meranie kroku až po obsahu
+    const zmenaVid = nahlad.hidden === !!(zv && im);
+    if (zmenaVid) nahlad.hidden = !(zv && im);
     if (zv && im) {
       nastavText(nahlad.firstChild, zv.text);
-      const src = im.getAttribute("src");
-      if (src && nahladImg.getAttribute("src") !== src) nahladImg.setAttribute("src", src);
+      nastavVelkyNahlad(nahladImg, im);
       nahladImg.alt = TEXTY.nahladAlt(zv.nazov);
     }
-    if (nahlad.hidden === !!(zv && im)) {
-      nahlad.hidden = !(zv && im);
-      zmerajKrok();
-    }
+    if (zmenaVid) zmerajKrok();
     // odporúčanie: štítok nad vzorkami + značka na vzorke
     const r = odporucana();
     const rv = r != null ? podlaN(r) : null;
@@ -192,7 +193,11 @@ export function init(ctx) {
       nastavText(odpTx, rv.text);
       const im2 = rv.b.querySelector("img");
       const s2 = im2 && im2.getAttribute("src");
-      if (s2 && odpVz.getAttribute("src") !== s2) odpVz.setAttribute("src", s2);
+      // ikonka 28 px: obrázok dlaždice (náhľad), nie plná fotka; prepíše sa len pri inej odporúčanej farbe
+      if (s2 && odpVz.getAttribute("data-lcd1v-plna") !== s2) {
+        odpVz.setAttribute("data-lcd1v-plna", s2);
+        odpVz.setAttribute("src", malyNahlad(im2));
+      }
     }
     if (odp.hidden === !!rv) {
       odp.hidden = !rv;

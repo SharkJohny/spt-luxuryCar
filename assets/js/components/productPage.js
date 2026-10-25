@@ -1654,7 +1654,10 @@ function priceActualization(e) {
     if (e && $wrap.length) {
       $wrap.find(".image-wrap").remove();
       const imageWrap = $("<div>", { class: "image-wrap" }).appendTo($wrap);
-      const $img = $("<img>", { src: image2 }).appendTo(imageWrap);
+      // 25. 10. 2026 (rýchlosť): pod 1V je .image-wrap vždy skrytý (náhľad robí kroky.js / farba2.js) a dlaždica má len
+      // zmenšený náhľad -> plná fotka by sa sťahovala zbytočne (okno boxov, box 616). loading="lazy" pred src: skrytý
+      // obrázok sa nestiahne, ukázaný sa stiahne sám. Starý vzhľad bez zmeny (odlozenyObrazok mimo 1V = {}).
+      const $img = $("<img>", Object.assign(odlozenyObrazok(), { src: image2 })).appendTo(imageWrap);
       // Preview zväčší obsah kroku AŽ po tom, čo akordeon zmeral cieľovú výšku
       // pri otvorení — bez premerania ho overflow:hidden orezal (preview zmizol).
       const remeasure = () => {

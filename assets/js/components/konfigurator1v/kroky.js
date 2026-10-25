@@ -31,6 +31,8 @@
 //   16. 10. 2026, docs/1v-kontrakt.md §15; handler „pokus prejsť ďalej bez auta“ nižšie, validation.js pod 1V mlčí).
 import { lcdOverKrok } from "../../functions/configuratorEngine.js";
 import { posunNaStred } from "./posun.js";
+// náhľad farby: plná fotka, kým sa sťahuje, obrázok dlaždice (dlaždice majú zmenšené náhľady, farby-nahlady.js)
+import { nastavVelkyNahlad } from "./farby-nahlady.js";
 
 export const MENO = "kroky";
 
@@ -450,14 +452,14 @@ export function init(ctx) {
     if (nahlad && farba) {
       const a = farba.el.querySelector(".options-wrap > .option-button.active");
       const im = a && a.querySelector("img");
+      // najprv viditeľnosť: nastavVelkyNahlad podľa nej pozná náhľad skrytý v CSS (box 616 má vlastný) a nesťahuje mu fotku
+      if (nahlad.hidden === !!(a && im)) nahlad.hidden = !(a && im);
       if (a && im) {
         nastavText(nahlad.firstChild, (a.getAttribute("data-lcd1v-vzor") || "") + " — " + (a.getAttribute("data-lcd1v-nazov") || ""));
-        const src = im.getAttribute("src");
-        if (nahlad.lastChild.getAttribute("src") !== src) nahlad.lastChild.setAttribute("src", src);
+        nastavVelkyNahlad(nahlad.lastChild, im);
         nahlad.lastChild.alt = a.getAttribute("data-lcd1v-nazov") || "";
         farba.el.querySelectorAll(".options-wrap > .option-button").forEach((b) => nastavAttr(b, "aria-pressed", b === a ? "true" : "false"));
       }
-      if (nahlad.hidden === !!(a && im)) nahlad.hidden = !(a && im);
     }
     if (otvoreny !== otvorenyPred) {
       otvorenyPred = otvoreny;

@@ -80,6 +80,12 @@ rozmeroch). Stránky: 598 (jedno), 601 (dvoj), 628 (Premium), 619 (Classic), 616
   `*-pp-*`, `boxy-pred`/`boxy-po`). Buď ich zapojiť, alebo negenerovať.
 - WebP nemajú odtlačok zdroja: po výmene JPG s tým istým menom ostane starý WebP a `obrazky-1v-webp.py --check` to
   nezistí (treba hash JPG v mene alebo v zozname vedľa WebP).
+- Náhľady farieb (`tools/farby-1v-nahlady.mjs`): nová farba v Shoptete (iný slug) náhľad nemá, kým sa nedoplní do
+  `ZDROJE` a skript sa nespustí — dlaždica dovtedy ukáže plnú fotku (ako predtým). Fotka vymenená v admine pod tým istým
+  menom: dlaždica ostane so starým náhľadom, kým sa skript nespustí znova; zistí to `--check --zivy` (odtlačok zdroja je
+  v mene súboru). Kontrola nie je v CI (`production.yml` patrí session kamióny) — `--check` (bez siete) by sa tam hodila.
+- Obsah `c-farby` na Hexa/Stripe (`obsah-c.js farbyVzoru`, dlaždice 68 px, lazy) berie stále plnú fotku z dlaždice
+  kroku Farba (`getAttribute("src")`); dá sa prepnúť na `obrazokFarby`, ak treba.
 
 ## Výsledky
 
@@ -213,3 +219,41 @@ poistkou `window.__lcdhCaka` v `main.js` poBoote (mimo záložnej titulky sa ni�
   60/60 OK (616 nulova-zmena raz „Doporučená cena“ v živom HTML — samostatne nový aj základ 4/4 OK); jsdom testy
   kamiónov, košíka a výberu auta OK; smoke ab-harness SK aj CZ = rovnaké zlyhania ako základ (`#burg`, `#lcd-hdr`,
   poukážka — zastarané kontroly smoke), SK rozcestník 1× obrázok karty nedobehol, 2× znova OK.
+
+- **Náhľady farieb v dlaždiciach 1V (25.–26. 10. 2026 v noci):** dlaždice farieb (krok Farba, Farba 2. vrstvy Lux, okno
+  boxov, box 616; 42–126 px) sťahovali plné fotky zo Shoptetu (`/user/documents/upload/assets/config/*.jpg`, 400 × 400,
+  17–70 kB; Lux 50–70 kB). Pod bránou 1V ich `creatButtons.js` stavia ako `<picture class="lcd1v-fn">` (CSS
+  `display: contents` — rozloženie sa nemení) so zmenšenými náhľadmi z CDN: `assets/img/1v/farby/<slug>-<odtlačok>-w<š>`
+  `.webp` + `.jpg` (Safari 13), šírky 96/144/192/240, 54 farieb (`tools/farby-1v-nahlady.mjs`, manifest
+  `konfigurator1v/farby-nahlady-data.js`, logika `konfigurator1v/farby-nahlady.js`). `src` ostáva plná fotka — kto ho
+  číta (veľké náhľady, obsah `c-farby`, starý `productPage.js`), dostane ju ako doteraz; chyba náhľadu -> plná fotka.
+  Veľký náhľad 320 × 320 (`kroky.js`, `farba2.js`) ukazuje plnú fotku; kým sa sťahuje, ukáže obrázok dlaždice (ako okno
+  fotiek v F2), skrytý náhľad (`kroky.js` na boxe 616) a skrytý `.image-wrap` starého kódu pod 1V majú `loading="lazy"`
+  (nesťahujú nič). Ikonka „Odporúčame“ (28 px) = obrázok dlaždice. Mimo 1V (`?novy=0`, CZ, iné produkty) bez zmeny.
+  Meranie `scratchpad/farby/meraj-farby.mjs` (živá stránka, A = build `d4ac44d`, B = tento commit, oba bundle/CSS
+  podvrhnuté; RTT 562,5 ms, 1,47 Mbit/s, CPU 4×, 412 px, DPR 1,75; A a B súbežne, mediány 3 behov; podvrhnuté odpovede
+  obchádzajú škrtenie DevTools -> oneskorenie modelom RTT + bajty/šírka pásma, preto sú absolútne časy nižšie ako naživo —
+  porovnávať len A s B):
+
+  | stránka | fotky farieb po načítaní | po kroku Farba a výbere 1. farby | posledná fotka farby | load | prenos spolu |
+  |---|---|---|---|---|---|
+  | 598 jedno | 631 → 68 kB (27 súborov) | 631 → 95 kB | 15,8 → 10,0 s | 22,2 → 16,7 s | 3 420 → 2 859 kB |
+  | 601 dvoj | 1 397 → 144 kB (43) | 1 397 → 171 kB | 23,3 → 11,5 s | 31,4 → 23,6 s | 5 298 → 4 045 kB |
+  | 616 box | 211 → 22 kB (9) | 211 → 22 kB | 12,3 → 10,2 s | 19,6 → 17,8 s | 3 111 → 2 923 kB |
+
+  - DPR 3 (iPhone, 1 beh B): 598 167 kB (+27 po výbere), 601 346 kB, 616 46 kB — dlaždice kroku 192 px, okno boxov 240 px.
+  - Do použiteľného konfigurátora (`body.lcd-1v`: 598 9,4 → 9,3 s, 601 11,2 → 10,8 s, 616 9,2 = 9,2 s, šum) sa nedotiahne
+    žiadna fotka farby ani predtým — sťahujú sa po bundli. Zmena uvoľní linku skôr: obsah a ostatné obrázky po bundli
+    nesúťažia s 0,2–1,4 MB fotiek farieb (posledná fotka farby o 2,1–11,8 s skôr, `load` o 1,8–7,8 s skôr).
+  - Po výbere farby sa stiahne 1 plná fotka pre veľký náhľad (predtým bola v cache z dlaždice); box 616 nič (náhľad má
+    vlastné fotky `boxprodukt-farba-*`).
+  - Bundle +4,8 kB (brotli +1,1 kB: manifest 54 farieb + pomocník).
+  - Snímky dlaždíc A/B (krok Farba, Farba 2, okno boxov, box 616; 390 a 1280 px pri DPR 1, 601 aj 390 px pri DPR 3):
+    rovnaké rozmery, priemerný rozdiel 1,6–4,3 / 255 na kanál (prevzorkovanie), bez posunu; pri DPR 3 dlaždice 192 px
+    ostrosťou ako plná fotka.
+  - Testy: `test-konfigurator-1v --produkt all` (390 + 1280, 424 úloh) 356 OK, 57 zlyhalo, 11 preskočené — 51× „Chrome sa
+    nespustil / spojenie sa zavrelo“ a 6× časový limit pod záťažou PC (súbežné behy iných sessions); všetkých 57 zopakovaných
+    samostatne OK (1 až na druhý pokus, znova len štart Chrome). Po poslednej úprave (`sizes` okna boxov) scenáre farieb,
+    druhej vrstvy, boxov a rohoží na 11 produktoch (90 úloh): 87 OK + 3× štart Chrome, zopakované OK. `--stary --krok
+    brana,nulova-zmena` 15 produktov: 60/60 OK. CI kontroly (`build-admin-html --check`, `vloz-lcd-css.py --check`,
+    `perf-markup --check`), `kosik:test` 89 OK, `farby-1v-nahlady --check --zivy` OK.

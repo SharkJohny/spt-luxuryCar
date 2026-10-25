@@ -957,6 +957,12 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err::after {
 }
 
 /* ---------------------------------------------------------------- krok 3: farba (18 vzoriek, náhľad zblízka) */
+/* Dlaždica farby so zmenšeným náhľadom (konfigurator1v/farby-nahlady.js, rýchlosť 25. 10. 2026): <picture> okolo <img>
+   nevytvára box — rozloženie aj pravidlá „.option-button img“ ostávajú ako pri samotnom <img> (krok Farba, Farba 2,
+   okno boxov, box 616). Bez body.lcd-1v zámerne: <picture> vzniká len pod bránou 1V a pri zložení 1V ostáva starý vzhľad. */
+.option-button > picture.lcd1v-fn {
+  display: contents;
+}
 body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap {
   display: grid !important;
   grid-template-columns: repeat(7, minmax(0, 1fr));

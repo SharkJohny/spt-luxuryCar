@@ -2,6 +2,8 @@ import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdCena } from "../functions/livePrice.js";
 // brána nového vzhľadu 1V (len čítanie; jadro konfigurator1v/index.js sa nemení) — odlozenyObrazok nižšie
 import { prepinac, jeZapnute, jeProdukt1v } from "./konfigurator1v/index.js";
+// 1V: dlaždice farieb so zmenšeným náhľadom (src ostáva plná fotka) — len pod bránou 1V, pozri obrazokFarby nižšie
+import { obrazokFarby } from "./konfigurator1v/farby-nahlady.js";
 
 /**
  * 25. 10. 2026 (rýchlosť, docs/1v-rychlost.md „1,6 MB po bundli“): obrázky starého konfigurátora, ktoré 1V nikdy
@@ -13,7 +15,8 @@ import { prepinac, jeZapnute, jeProdukt1v } from "./konfigurator1v/index.js";
  * atribúty pre $("<img>", …) (dať PRED src). data-lcd1v-odlozene = značka pre meranie a test.
  */
 let odlozitObrazky = null;
-export function odlozenyObrazok(html) {
+/** Je táto stránka pod bránou 1V (flag karty + register)? Raz za stránku; chyba = nie (starý vzhľad bez zmeny). */
+function brana1v() {
   if (odlozitObrazky === null) {
     try {
       prepinac(window.location.search);
@@ -23,8 +26,12 @@ export function odlozenyObrazok(html) {
       odlozitObrazky = false;
     }
   }
-  if (html) return odlozitObrazky ? ' loading="lazy" data-lcd1v-odlozene=""' : "";
-  return odlozitObrazky ? { loading: "lazy", "data-lcd1v-odlozene": "" } : {};
+  return odlozitObrazky;
+}
+export function odlozenyObrazok(html) {
+  const z = brana1v();
+  if (html) return z ? ' loading="lazy" data-lcd1v-odlozene=""' : "";
+  return z ? { loading: "lazy", "data-lcd1v-odlozene": "" } : {};
 }
 
 let twoLayersProducts;
@@ -614,10 +621,14 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       }).appendTo(optionButton);
       $(optionButton).addClass("text");
     } else {
-      $("<img>", {
-        alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?15`,
-      }).appendTo(optionButton);
+      const alt = `${parameterId}-${value}.jpg`;
+      const src = `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?15`;
+      // 25. 10. 2026 (rýchlosť): pod 1V dlaždica farby = zmenšený náhľad z CDN (<picture>, WebP + JPG; src ostáva plná
+      // fotka pre veľké náhľady). Farba bez náhľadu a starý vzhľad (?novy=0, CZ, iné produkty) = pôvodný <img>.
+      // (okno boxov má väčšie dlaždice -> iné sizes; wrap je v tej chvíli už v DOM pod .box-config .config-wrap)
+      const nahlad = brana1v() ? obrazokFarby(src, alt, $(optionsWrap).closest(".box-config").length > 0) : null;
+      if (nahlad) optionButton.append(nahlad);
+      else $("<img>", { alt, src }).appendTo(optionButton);
     }
   });
 }
