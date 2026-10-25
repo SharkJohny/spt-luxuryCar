@@ -7,18 +7,55 @@
 // paralelne s data.json; vykreslí sa po namontovaní ako predtým.
 import { nacitajCast } from "../functions/lcdCasti.js";
 
-/** Na stránke kamiónov (bez nového vzhľadu 1V) spustí sťahovanie React časti vopred; inde nerobí nič. */
+/** Na produktovej stránke kamiónov (bez nového vzhľadu 1V) spustí sťahovanie React časti vopred; inde nerobí nič. */
 export function predpripravTruck(bude1v) {
   try {
-    if (isTruckConfiguratorPage() && !bude1v()) nacitajCast("truck").catch(() => {});
+    if (document.getElementById("product-detail-form") && isTruckConfiguratorPage() && !bude1v()) nacitajCast("truck").catch(() => {});
   } catch (e) { /* ignore */ }
 }
 
 function renderTruckConfigurator(el) {
-  nacitajCast("truck").then(
-    (c) => c.renderTruckConfigurator(el),
-    (e) => console.error("[truck-konfig] React časť sa nenačítala", e),
-  );
+  nacitajCast("truck")
+    .then((c) => {
+      zrusChybu(el);
+      c.renderTruckConfigurator(el);
+    })
+    .catch((e) => {
+      console.error("[truck-konfig] React časť sa nenačítala", e);
+      ukazChybu(el);
+    });
+}
+
+/* Časť sa nestiahla ani na 3. pokus (výpadok siete): namiesto prázdneho stĺpca sa ukáže formulár Shoptetu (dá sa objednať)
+   a nad ním hláška s „Načítať znova“; to isté sa skúsi samo, keď sa telefón znova pripojí. */
+function ukazChybu(el) {
+  const wrap = el.parentNode;
+  if (!wrap || wrap.querySelector(".truck-konfigurator-chyba")) return;
+  const cz = /luxurycardesign\.cz$/i.test(window.location.hostname || "");
+  const box = document.createElement("div");
+  box.className = "truck-konfigurator-chyba";
+  box.setAttribute("role", "alert");
+  box.style.cssText = "margin:0 0 16px;padding:14px 16px;border:1px solid #e8c3bd;border-radius:12px;background:#fdf4f3;color:#14110c;font:400 16px/1.5 'Source Sans 3',Arial,sans-serif";
+  box.textContent = cz
+    ? "Konfigurátor se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu. "
+    : "Konfigurátor sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova. ";
+  const tl = document.createElement("button");
+  tl.type = "button";
+  tl.textContent = cz ? "Načíst znovu" : "Načítať znova";
+  tl.style.cssText = "display:inline-block;margin-top:8px;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#1f7d4f;color:#fff;font:700 15px/44px 'Exo 2',Arial,sans-serif;cursor:pointer";
+  const znova = () => { window.removeEventListener("online", znova); renderTruckConfigurator(el); };
+  tl.addEventListener("click", znova);
+  window.addEventListener("online", znova);
+  box.appendChild(tl);
+  wrap.insertBefore(box, el);
+  $("body").removeClass("is-truck-konfigurator");
+}
+
+function zrusChybu(el) {
+  const box = el.parentNode && el.parentNode.querySelector(".truck-konfigurator-chyba");
+  if (!box) return;
+  box.remove();
+  $("body").addClass("is-truck-konfigurator");
 }
 
 /* =========================================================================

@@ -35,7 +35,9 @@ jobs:
           yarn esbuild assets/js/truck-konfigurator/cast.jsx --bundle --outfile=assets/js/lcd-truck.js --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none
           # CSS zmenšené (bez komentárov a medzier; 25. 10. 2026: 1,19 MB -> 0,93 MB, prenos −40 %). Zdroj ostáva luxuryCar.css
           # (partialy + vloz-lcd-css.py); vypočítané štýly 12 stránok × 390/1280 px overené zhodné s nezmenšeným.
-          yarn esbuild assets/css/luxuryCar.css --minify --outfile=assets/css/luxuryCar.min.css --log-level=error
+          # --target: staré zariadenia (iOS 13, Android Chrome 80) — esbuild inak skladá top/right/bottom/left do `inset`
+          # (Safari až 14.1); s cieľom ich rozpíše späť, aj tie, čo už sú v zdroji
+          yarn esbuild assets/css/luxuryCar.css --minify --target=chrome80,firefox78,safari13 --outfile=assets/css/luxuryCar.min.css --log-level=error
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
       # Verzia do vlastného priečinka (Michal 6. 10. 2026): push NEMENÍ živý web.
