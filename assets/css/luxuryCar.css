@@ -14166,7 +14166,9 @@ body.in-kontakty:has(#lcd-kontakt[data-lcd-cast]) #footer{margin-top:0 !importan
   border:1.5px solid var(--ram);border-radius:10px;background:#fff;color:var(--ink);font:400 16px/1.5 var(--body);
   box-shadow:none;-webkit-appearance:none;appearance:none;transition:border-color .15s,box-shadow .15s}
 #lcd-kontakt .lcdk-form textarea.form-control{height:auto;min-height:150px;resize:vertical}
-#lcd-kontakt .lcdk-form .form-control:focus{outline:none;border-color:var(--gold-lo);box-shadow:0 0 0 3px rgba(196,155,49,.3)}
+/*    zameranie poľa (myš aj Tab): plný tmavozlatý obrys 2 px ako tlačidlá a odkazy (kontrast k bielej 4,7 : 1) + svetlý prstenec */
+#lcd-kontakt .lcdk-form .form-control:focus{outline:2px solid var(--gold-lo);outline-offset:1px;border-color:var(--gold-lo);
+  box-shadow:0 0 0 4px rgba(196,155,49,.35)}
 #lcd-kontakt .lcdk-form .form-control::placeholder{color:var(--mute);opacity:1}
 /*    pole Telefón (assets/js/components/contactForm.js) vkladá skript až po načítaní za e-mail: dovtedy mu drží miesto
       odsadenie pod e-mailom (--tel-rezerva) -> formulár sa po vložení neposunie */
