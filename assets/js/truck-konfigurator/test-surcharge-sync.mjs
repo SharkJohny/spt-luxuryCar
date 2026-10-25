@@ -26,10 +26,10 @@ const SELECTS_SK = `
     <option value=""></option><option value="no">Bez nášivky +€0</option><option value="h3">Nášivka H3 +€0</option>
   </select>
   <select data-parameter-id="406" data-parameter-name="Farba nášiviek na boky">
-    <option value=""></option><option value="no">Bez nite +€0</option><option value="2901">2901 – Strieborná +€0</option>
+    <option value=""></option><option value="no">Bez nite +€0</option><option value="2901">Strieborná – 2901 +€0</option>
   </select>
   <select data-parameter-id="412" data-parameter-name="Farba nášivky na stred">
-    <option value=""></option><option value="no">Bez nite +€0</option><option value="2824">2824 – Červená +€0</option>
+    <option value=""></option><option value="no">Bez nite +€0</option><option value="2824">Červená – 2824 +€0</option>
   </select>
   <select data-parameter-id="355" data-parameter-name="Nášivky na tapacír">
     <option value=""></option><option value="no">Nie nechcem nášivku na dverách +€0</option><option value="yes">Áno chcem nášivku na dverách +€49</option>
@@ -47,7 +47,7 @@ const SELECTS_SK = `
     <option value=""></option><option value="same">Rovnaká ako koberec +€0</option><option value="no">Bez nášivky +€0</option><option value="h4">Nášivka H4 +€0</option>
   </select>
   <select data-parameter-id="400" data-parameter-name="Farba nášiviek na tapacíre">
-    <option value=""></option><option value="same">Rovnaká ako koberec +€0</option><option value="no">Bez nite +€0</option><option value="3842">3842 – Modrá +€0</option>
+    <option value=""></option><option value="same">Rovnaká ako koberec +€0</option><option value="no">Bez nite +€0</option><option value="3842">Modrá – 3842 +€0</option>
   </select>
 `;
 
@@ -240,15 +240,15 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   expectStartsWith(manual, "Farba lemovania", "Vyberie sa", sourceName);
   expectStartsWith(manual, "Rozloženie nášiviek", "Šofér + spolujazdec + stred", sourceName);
   expectStartsWith(manual, "Typ nášiviek na boky", "Nášivka H2", sourceName);
-  expectStartsWith(manual, "Farba nášiviek na boky", "2901", sourceName);
+  expectStartsWith(manual, "Farba nášiviek na boky", "Strieborná – 2901", sourceName);
   expectStartsWith(manual, "Typ nášivky na stred", "Nášivka H3", sourceName);
-  expectStartsWith(manual, "Farba nášivky na stred", "2824", sourceName);
+  expectStartsWith(manual, "Farba nášivky na stred", "Červená – 2824", sourceName);
   expectStartsWith(manual, "Nášivky na tapacír", "Áno chcem", sourceName);
   expectStartsWith(manual, "Typ materiálu tapacíru", "Vyberie sa", sourceName);
   expectStartsWith(manual, "Farba materiálu tapacíru", "Vyberie sa", sourceName);
   expectStartsWith(manual, "Farba lemovania tapacíru", "Vyberie sa", sourceName);
   expectStartsWith(manual, "Typ nášivky na tapacír", "Nášivka H4", sourceName);
-  expectStartsWith(manual, "Farba nášiviek na tapacíre", "3842", sourceName);
+  expectStartsWith(manual, "Farba nášiviek na tapacíre", "Modrá – 3842", sourceName);
 
   // Michal 25. 10. 2026: skutočná farba a lemovanie priamo v položke objednávky (hodnoty príplatkov v admine SK 640)
   const farby = syncValues(helperSource, sTextamiPriplatkov(stavFarby), SELECTS_SK_FARBY);

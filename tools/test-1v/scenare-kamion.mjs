@@ -392,7 +392,7 @@ export const SCENARE = {
       await snimka(s, a, "kamion-prehlad-po-poslednom");
       await overPismo(s, j, "súhrn objednávky");
       const { post, st, cena } = await doKosika(s, a, j, "kamion-platne");
-      const ocak = { 346: "Prémiová syntetická koža – prešívaná", 349: "Šofér + spolujazdec + stred (BALÍK)", 403: "Nášivka H19", 406: "2999 – Čierna", 409: "Nášivka H19", 412: "2999 – Čierna", 352: "Áno chcem (v konfigurátore – balík)", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" };
+      const ocak = { 346: "Prémiová syntetická koža – prešívaná", 349: "Šofér + spolujazdec + stred (BALÍK)", 403: "Nášivka H19", 406: "Čierna – 2999", 409: "Nášivka H19", 412: "Čierna – 2999", 352: "Áno chcem (v konfigurátore – balík)", 355: "Nie nechcem nášivku na dverách", 397: "Bez nášivky", 400: "Bez nite" };
       Object.entries(ocak).forEach(([id, t]) => j.over(st.sel[id] === t, id + " „" + st.sel[id] + "“ ≠ „" + t + "“"));
       j.over(st.vozidlo === "DAF (TIR) XF106 2017-2021", "truckVehicle " + st.vozidlo);
       // telo POST bajt po bajte = docs/kamiony-snimky/post-porovnanie.json (= React); aj do výsledku (--json)

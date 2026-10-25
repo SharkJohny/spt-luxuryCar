@@ -148,9 +148,15 @@ function selectedThreadColor(value, language) {
   const name = String(localizedNames[code] || value.name || "").trim();
   if (!code) return name;
   const nameAlreadyHasCode = name === code || [" ", "-", "–", "—", ":"]
-    .some((separator) => name.startsWith(code + separator));
+    .some((separator) => name.startsWith(code + separator) || name.endsWith(separator + code));
   if (!name || nameAlreadyHasCode) return name || code;
-  return `${code} – ${name}`;
+  // Michal 25. 10. 2026 v noci: číslo nite na konci, ako pri farbe a lemovaní („Čierna – 2999“)
+  return `${name} – ${code}`;
+}
+
+/** Text už obsahuje kód nite (aj starý tvar „2999 – Čierna“) – nedopĺňať ho druhýkrát. */
+function maKodNite(text, code) {
+  return new RegExp("(^|[^0-9])" + code + "([^0-9]|$)").test(text);
 }
 
 function enrichThreadColorText(value, language) {
@@ -158,16 +164,18 @@ function enrichThreadColorText(value, language) {
   if (!text) return text;
   const localizedNames = THREAD_COLOR_NAMES[language] || THREAD_COLOR_NAMES.sk;
 
+  if (Object.keys(localizedNames).some((code) => maKodNite(text, code))) return text;
+
   for (const code of Object.keys(localizedNames)) {
     const knownNames = [...new Set([
       THREAD_COLOR_NAMES.sk[code],
       THREAD_COLOR_NAMES.cs[code],
     ].filter(Boolean))];
     for (const knownName of knownNames) {
-      if (text === knownName) return `${code} – ${localizedNames[code]}`;
+      if (text === knownName) return `${localizedNames[code]} – ${code}`;
       const suffix = ` – ${knownName}`;
       if (text.endsWith(suffix)) {
-        return `${text.slice(0, -knownName.length)}${code} – ${localizedNames[code]}`;
+        return `${text.slice(0, -knownName.length)}${localizedNames[code]} – ${code}`;
       }
     }
   }

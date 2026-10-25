@@ -138,7 +138,7 @@ async function kontrolaKosika(t, meno, ocak = {}) {
 }
 
 const PRES = "Prémiová syntetická koža – prešívaná";
-const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: čierny základ, červené pásiky – 04\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – čierny základ, červené pásiky – 04\n- Nášivky na tapacír: Nechcem";
+const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: čierny základ, červené pásiky – 04\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: Čierna – 2999\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: Čierna – 2999\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – čierny základ, červené pásiky – 04\n- Nášivky na tapacír: Nechcem";
 const DAF = { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: PRES, farba: "11", lem: "04" }; // 11 = čierna (vzorkovník 24. 10. 2026)
 
 console.log("1) DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, stred rovnaký, tapacír ako koberce, bez nášivky na dverách");
@@ -219,7 +219,7 @@ console.log("6a) Tapacír áno, nášivka na dverách áno (rovnaká ako na kobe
   sam(t, "tapacir", null, "6a");
   await kontrolaKosika(t, "6a", {
     spolu: 472, usetrene: 145, pct: 24,
-    poznamkaObsahuje: ["- Nášivky na tapacír: Chcem", "- Typ nášivky na tapacír: Rovnaká ako na koberčekoch – H19", "- Farba nášiviek na tapacíre: Rovnaká ako na koberčekoch – 2999 – Čierna"],
+    poznamkaObsahuje: ["- Nášivky na tapacír: Chcem", "- Typ nášivky na tapacír: Rovnaká ako na koberčekoch – H19", "- Farba nášiviek na tapacíre: Rovnaká ako na koberčekoch – Čierna – 2999"],
     selecty: { 355: "Áno chcem nášivku na dverách", 397: "Rovnaká ako koberec", 400: "Rovnaká ako koberec" },
   });
 }
@@ -268,7 +268,7 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   potvrd(t, "dvere");
   sam(t, "tapacir", null, "8");
   await kontrolaKosika(t, "8", {
-    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – sivý – 2N", "- Farba lemovania: béžový základ, hnedé pásiky – 11", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
+    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – sivý – 2N", "- Farba lemovania: béžový základ, hnedé pásiky – 11", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: Zelená – 2840"],
     selecty: { 388: "Vyberie sa v konfigurátore", 391: "Vyberie sa v konfigurátore", 394: "Vyberie sa v konfigurátore", 397: "Nášivka H21", 400: "2840 – Zelená", 355: "Áno chcem nášivku na dverách" },
   });
 }
@@ -866,7 +866,7 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   t.klik(a("krok", "tapacir")); // krok sa po odpovedi sám zavrel -> otvoriť, riadky ✓ … Zmeniť
   const hot = Array.from(t.d.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-hot')).map((x) => x.textContent).join(" | ");
   over("25: riadok hotovej otázky „rovnaký ako pod sedadlami – …“", /rovnaký ako pod sedadlami –/.test(hot), hot);
-  await kontrolaKosika(t, "25", { poznamkaObsahuje: ["- Typ nášivky na tapacír: Rovnaká ako pod sedadlami – H19", "- Farba nášiviek na tapacíre: Rovnaká ako pod sedadlami – 2824"] });
+  await kontrolaKosika(t, "25", { poznamkaObsahuje: ["- Typ nášivky na tapacír: Rovnaká ako pod sedadlami – H19", "- Farba nášiviek na tapacíre: Rovnaká ako pod sedadlami – Červená – 2824"] });
   const t2 = await otvor();
   zaklad(t2, DAF);
   nasivky(t2, "boky+stred", "H19", "2824", true);

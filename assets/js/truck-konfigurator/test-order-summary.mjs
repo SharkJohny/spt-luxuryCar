@@ -40,15 +40,15 @@ const summary = buildTruckOrderSummary({
   "KOBERČEKY POD SEDAČKY",
   "- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – K2",
   "- Typ nášiviek na boky: H1",
-  "- Farba nášiviek na boky: N2 – Červená",
+  "- Farba nášiviek na boky: Červená – N2",
   "- Typ nášivky na stred: H4",
-  "- Farba nášivky na stred: N1 – Čierna",
+  "- Farba nášivky na stred: Čierna – N1",
   "TAPACÍR DVERÍ",
   "- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – K2",
   "- Nášivky na tapacír: Chcem",
   // 25. 10. 2026 (Michal): boky H1 / N2 a stred H4 / N1 sú rôzne -> tapacír preberá nášivku spod sedadiel a poznámka to povie
   "- Typ nášivky na tapacír: Rovnaká ako pod sedadlami – H1",
-  "- Farba nášiviek na tapacíre: Rovnaká ako pod sedadlami – N2 – Červená",
+  "- Farba nášiviek na tapacíre: Rovnaká ako pod sedadlami – Červená – N2",
 ].forEach((line) => assert.ok(summary.includes(line), `Chýba riadok: ${line}`));
 
 assert.ok(!summary.includes("undefined"));
@@ -66,7 +66,7 @@ const rovnakeSummary = buildTruckOrderSummary({
   doorSameAsCarpet: { material: true, lemovanie: true }, doorSameNasivkaAsCarpet: true, doorSameNitAsCarpet: true,
 });
 assert.ok(rovnakeSummary.includes("- Typ nášivky na tapacír: Rovnaká ako na koberčekoch – H19"), rovnakeSummary);
-assert.ok(rovnakeSummary.includes("- Farba nášiviek na tapacíre: Rovnaká ako na koberčekoch – 2824 – Červená"), rovnakeSummary);
+assert.ok(rovnakeSummary.includes("- Farba nášiviek na tapacíre: Rovnaká ako na koberčekoch – Červená – 2824"), rovnakeSummary);
 // len pod sedadlami -> „ako na koberčekoch“ (iná nie je)
 const lenBokySummary = buildTruckOrderSummary({
   selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" },
@@ -104,9 +104,9 @@ const legacyCzechGroups = parseTruckOrderSummary([
   "TAPACÍR DVEŘÍ",
   "- Barva nášivek na tapacíru: Stejná jako na koberečcích – Strieborná",
 ].join("\n"));
-assert.equal(legacyCzechGroups[1].items[0].value, "3504 – Tmavě hnědá");
-assert.equal(legacyCzechGroups[1].items[1].value, "2901 – Stříbrná");
-assert.equal(legacyCzechGroups[2].items[0].value, "Stejná jako na koberečcích – 2901 – Stříbrná");
+assert.equal(legacyCzechGroups[1].items[0].value, "Tmavě hnědá – 3504");
+assert.equal(legacyCzechGroups[1].items[1].value, "Stříbrná – 2901");
+assert.equal(legacyCzechGroups[2].items[0].value, "Stejná jako na koberečcích – Stříbrná – 2901");
 
 const noDoorSummary = buildTruckOrderSummary({
   selectedMaterial: "Mikrosemiš – jednofarebný",
@@ -140,8 +140,8 @@ const czechSummary = buildTruckOrderSummary({
   "KOBEREČKY POD SEDAČKY",
   "- Typ a barva materiálu: Prémiová syntetická kůže – prošívaná – K2",
   "- Rozložení nášivek: Řidič + spolujezdec + střed",
-  "- Barva nášivek na boky: 2901 – Stříbrná",
-  "- Barva nášivky na střed: 3504 – Tmavě hnědá",
+  "- Barva nášivek na boky: Stříbrná – 2901",
+  "- Barva nášivky na střed: Tmavě hnědá – 3504",
   "TAPACÍR DVEŘÍ",
   "- Typ a barva materiálu: Stejný jako koberečky – Prémiová syntetická kůže – prošívaná – K2",
   "- Nášivky na tapacír: Nechci",
