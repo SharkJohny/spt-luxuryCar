@@ -47,7 +47,9 @@ const obsah = "// VYGENEROVANÉ: node tools/kamion-obrazky.mjs (needituj ručne)
   'export const MENSIE_ZAKLAD = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";\n' +
   "export const MENSIE = " + JSON.stringify(mapa, null, 0).replace(/","/g, '",\n  "').replace(/^\{/, "{\n  ").replace(/\}$/, "\n}") + ";\n";
 if (CHECK) {
-  const ok = existsSync(MANIFEST) && readFileSync(MANIFEST, "utf8") === obsah;
+  const ok = existsSync(MANIFEST) && readFileSync(MANIFEST, "utf8").replace(/
+/g, "
+") === obsah; // git na Windows môže dať CRLF
   console.log(ok ? "OK: obrazky.js sedí so súbormi" : "NESEDÍ: spusti node tools/kamion-obrazky.mjs");
   process.exit(ok ? 0 : 1);
 }
