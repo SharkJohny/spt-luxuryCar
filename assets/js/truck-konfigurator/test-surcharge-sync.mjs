@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
+import { sTextamiPriplatkov } from "./farby-nazvy.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 
@@ -207,6 +208,29 @@ const manualState = {
   doorLemovanie: { code: "L-1" },
 };
 
+// SK 640 po pridaní hodnôt farieb a lemovaní do príplatkov (výrez – pár hodnôt z 48 farieb / 13 lemovaní / 6 materiálov)
+const SELECTS_SK_FARBY = SELECTS_SK
+  .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="379"',
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="f11">11 – čierna, čierne šitie +€0</option><option value="f3">3 – hnedá, hnedé šitie +€0</option><option value="f1g">1G – svetlobéžová +€0</option><option value="f2n">2N – sivý +€0</option>\n  </select>\n  <select data-parameter-id="379"')
+  .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="349"',
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="l03">03 – Čierna + Grafitová +€0</option><option value="l08">08 – Čierna + Hnedá +€0</option><option value="l13">13 – Hnedá + Béžová +€0</option>\n  </select>\n  <select data-parameter-id="349"')
+  .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="391"',
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="m2">Prémiová syntetická koža – prešívaná +€0</option><option value="m5">Mikrosemiš – dvojfarebný +€0</option>\n  </select>\n  <select data-parameter-id="391"')
+  .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="394"',
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="d11">11 – čierna, čierne šitie +€0</option><option value="d2n">2N – sivý +€0</option>\n  </select>\n  <select data-parameter-id="394"')
+  .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="397"',
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="dl03">03 – Čierna + Grafitová +€0</option><option value="dl08">08 – Čierna + Hnedá +€0</option>\n  </select>\n  <select data-parameter-id="397"');
+if ((SELECTS_SK_FARBY.match(/value="(f3|l08|m5|d2n|dl03)"/g) || []).length !== 5) throw new Error("SELECTS_SK_FARBY: výrez sa nepodaril");
+
+const stavFarby = {
+  ...manualState,
+  selectedColor: { code: "3" },
+  selectedLemovanie: { code: "08", name: "Čierna + Hnedá" },
+  doorMaterial: "Mikrosemiš – dvojfarebný",
+  doorColor: { code: "2N" },
+  doorLemovanie: { code: "03", name: "Čierna + Grafitová" },
+};
+
 for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   const helperSource = loadSync(sourceName);
   const manual = syncValues(helperSource, manualState);
@@ -225,6 +249,26 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   expectStartsWith(manual, "Farba lemovania tapacíru", "Vyberie sa", sourceName);
   expectStartsWith(manual, "Typ nášivky na tapacír", "Nášivka H4", sourceName);
   expectStartsWith(manual, "Farba nášiviek na tapacíre", "3842", sourceName);
+
+  // Michal 25. 10. 2026: skutočná farba a lemovanie priamo v položke objednávky (hodnoty príplatkov v admine SK 640)
+  const farby = syncValues(helperSource, sTextamiPriplatkov(stavFarby), SELECTS_SK_FARBY);
+  expectStartsWith(farby, "Farba materiálu", "3 – hnedá, hnedé šitie", sourceName);
+  expectStartsWith(farby, "Farba lemovania", "08 – Čierna + Hnedá", sourceName);
+  expectStartsWith(farby, "Typ materiálu tapacíru", "Mikrosemiš – dvojfarebný", sourceName);
+  expectStartsWith(farby, "Farba materiálu tapacíru", "2N – sivý", sourceName);
+  expectStartsWith(farby, "Farba lemovania tapacíru", "03 – Čierna + Grafitová", sourceName);
+  // admin hodnotu ešte nemá (starý stav adminu / neznámy kód) -> „Vyberie sa v konfigurátore“, povinný príplatok nikdy prázdny
+  const farbyStaryAdmin = syncValues(helperSource, sTextamiPriplatkov(stavFarby), SELECTS_SK);
+  for (const name of ["Farba materiálu", "Farba lemovania", "Typ materiálu tapacíru", "Farba materiálu tapacíru", "Farba lemovania tapacíru"]) {
+    expectStartsWith(farbyStaryAdmin, name, "Vyberie sa", sourceName);
+  }
+  const neznamy = syncValues(helperSource, sTextamiPriplatkov({ ...stavFarby, selectedColor: { code: "K9" }, doorColor: { code: "K9" } }), SELECTS_SK_FARBY);
+  expectStartsWith(neznamy, "Farba materiálu", "Vyberie sa", sourceName);
+  expectStartsWith(neznamy, "Farba materiálu tapacíru", "Vyberie sa", sourceName);
+  const rovnake = syncValues(helperSource, sTextamiPriplatkov({ ...stavFarby, doorSameAsCarpet: { material: true, lemovanie: true } }), SELECTS_SK_FARBY);
+  expectStartsWith(rovnake, "Typ materiálu tapacíru", "Rovnaký ako koberec", sourceName);
+  expectStartsWith(rovnake, "Farba materiálu tapacíru", "Rovnaká ako koberec", sourceName);
+  expectStartsWith(rovnake, "Farba lemovania tapacíru", "Rovnaké ako koberec", sourceName);
 
   const none = syncValues(helperSource, {
     ...manualState,
@@ -308,4 +352,29 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   expectPrice(czechPrices.fallback.NASIVKY["boky+stred"], 2299, "CZ fallback nášivky", sourceName);
 
   console.log(`✓ ${sourceName}: slovenské i české příplatkové parametry a ceny se synchronizují`);
+}
+
+// Nový konfigurátor 1V (kamion/shoptet.js) – rovnaký výber skutočnej farby a záloha „Vyberie sa v konfigurátore“
+{
+  const syncNovy = async (state, selects) => {
+    const dom = new JSDOM(`<body>${selects}</body>`, { url: "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/" });
+    globalThis.document = dom.window.document;
+    globalThis.Event = dom.window.Event;
+    globalThis.sessionStorage = dom.window.sessionStorage;
+    const { syncToShoptet } = await import("../components/konfigurator1v/kamion/shoptet.js");
+    syncToShoptet(state);
+    return Object.fromEntries(Array.from(dom.window.document.querySelectorAll("select")).map((s) => [s.dataset.parameterName, s.selectedOptions[0]?.textContent.trim() || ""]));
+  };
+  const n1 = await syncNovy(sTextamiPriplatkov(stavFarby), SELECTS_SK_FARBY);
+  expectStartsWith(n1, "Farba materiálu", "3 – hnedá, hnedé šitie", "1V shoptet.js");
+  expectStartsWith(n1, "Farba lemovania", "08 – Čierna + Hnedá", "1V shoptet.js");
+  expectStartsWith(n1, "Typ materiálu tapacíru", "Mikrosemiš – dvojfarebný", "1V shoptet.js");
+  expectStartsWith(n1, "Farba materiálu tapacíru", "2N – sivý", "1V shoptet.js");
+  expectStartsWith(n1, "Farba lemovania tapacíru", "03 – Čierna + Grafitová", "1V shoptet.js");
+  const n2 = await syncNovy(sTextamiPriplatkov(stavFarby), SELECTS_SK);
+  for (const name of ["Farba materiálu", "Farba lemovania", "Typ materiálu tapacíru", "Farba materiálu tapacíru", "Farba lemovania tapacíru"]) {
+    expectStartsWith(n2, name, "Vyberie sa", "1V shoptet.js");
+  }
+  delete globalThis.document; delete globalThis.Event; delete globalThis.sessionStorage;
+  console.log("✓ 1V shoptet.js: skutočná farba a lemovanie do príplatkov, bez hodnoty v admine „Vyberie sa v konfigurátore“");
 }

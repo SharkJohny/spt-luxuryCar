@@ -73,6 +73,29 @@ export function materialFarbaText(material, kod, jazyk = "sk") {
   return [material, nazov, kod].filter(Boolean).join(" – ");
 }
 
+/** Hodnota príplatku „Farba materiálu“ v admine Shoptetu (SK 640 od 25. 10. 2026): „<kód> – <názov>“ („3 – hnedá, hnedé šitie“). */
+export function hodnotaPriplatkuFarby(kod, jazyk = "sk") {
+  const nazov = nazovFarby(kod, jazyk);
+  return nazov ? `${kod} – ${nazov}` : "";
+}
+
+/**
+ * Stav v tvare Reactu (finalConfiguration) doplnený o texty hodnôt príplatkov farby a lemovania koberčekov aj tapacíru.
+ * Michal 25. 10. 2026: farba patrí priamo do položky objednávky, nie len do poznámky – v admine sú hodnoty
+ * „<kód> – <názov>“ (farba) a „<kód> – <meno>“ (lemovanie). resolveValue ich použije; keď hodnotu admin nemá,
+ * syncToShoptet vyberie „Vyberie sa v konfigurátore“ ako doteraz.
+ */
+export function sTextamiPriplatkov(stav, jazyk = "sk") {
+  const s = stav || {};
+  const lem = (l) => (l && l.code ? [l.code, l.name].filter(Boolean).join(" – ") : "");
+  return Object.assign({}, s, {
+    farbaPriplatok: s.selectedColor ? hodnotaPriplatkuFarby(s.selectedColor.code, jazyk) : "",
+    lemovaniePriplatok: lem(s.selectedLemovanie),
+    doorFarbaPriplatok: s.doorColor ? hodnotaPriplatkuFarby(s.doorColor.code, jazyk) : "",
+    doorLemovaniePriplatok: lem(s.doorLemovanie),
+  });
+}
+
 /** Názov na dlaždicu / do náhľadu konfigurátora: s veľkým písmenom („Čierna, červené šitie“). */
 export function nazovFarbyVelky(kod, jazyk = "sk") {
   const n = nazovFarby(kod, jazyk);

@@ -10,7 +10,7 @@
 //   5) `export { Configurator }` pre index.jsx (ErrorBoundary + viewport switch)
 import React from "react";
 import { persistTruckOrderSummary } from "./order-summary.mjs";
-import { nazovFarbyVelky } from "./farby-nazvy.mjs";
+import { nazovFarbyVelky, sTextamiPriplatkov } from "./farby-nazvy.mjs";
 import { povoleneNasivkyVsade, filtrujNasivky } from "./pricing.js";
 const { useState, useMemo } = React;
 
@@ -1128,6 +1128,13 @@ function findMatchingOption(select, search) {
   return null;
 }
 
+/** Možnosť „Vyberie sa v konfigurátore“ / „Vybere se v konfigurátoru“ (záloha, keď výber v admine ešte nemá hodnotu). */
+function najdiZastupnuMoznost(select) {
+  return Array.from(select.querySelectorAll("option[value]")).find(
+    (o) => o.value && /\bv konfiguratoru$/.test(normalizeOptionText(o.textContent)),
+  ) || null;
+}
+
 function resolveValue(paramName, s) {
   const n = String(paramName || "").trim().toLowerCase();
 
@@ -1215,11 +1222,11 @@ function resolveValue(paramName, s) {
   // Informatívne (PRICE=0)
   if (n === "farba" || n === "farba materiálu" || n === "barva materiálu") {
     if (!s.selectedMaterial || !s.selectedColor) return null;
-    return s.selectedMaterial + " / " + s.selectedColor.code;
+    return s.farbaPriplatok || s.selectedMaterial + " / " + s.selectedColor.code;
   }
   if (n === "lemovanie" || n === "farba lemovania" || n === "barva lemování") {
     if (!s.selectedLemovanie) return null;
-    return s.selectedLemovanie.code;
+    return s.lemovaniePriplatok || s.selectedLemovanie.code;
   }
   if (n === "nášivka" || n === "nasivka") {
     if (!s.selectedNasivka) return null;
@@ -1238,18 +1245,18 @@ function resolveValue(paramName, s) {
   ) {
     if (s.doorPanelChoice !== "ano") return null;
     if (s.doorSameAsCarpet && s.doorSameAsCarpet.material) return "Rovnaký ako koberec";
-    return s.doorMaterial ? "Vybere se v konfigurátoru" : null;
+    return s.doorMaterial || null;
   }
   if (n === "farba dvere" || n === "barva dveře" || n === "farba materiálu tapacíru" || n === "barva materiálu tapacíru") {
     if (s.doorPanelChoice !== "ano") return null;
     if (s.doorSameAsCarpet && s.doorSameAsCarpet.material) return "Rovnaká ako koberec";
     if (!s.doorMaterial || !s.doorColor) return null;
-    return "Vybere se v konfigurátoru";
+    return s.doorFarbaPriplatok || "Vybere se v konfigurátoru";
   }
   if (n === "lemovanie dvere" || n === "lemování dveře" || n === "farba lemovania tapacíru" || n === "barva lemování tapacíru") {
     if (s.doorPanelChoice !== "ano") return null;
     if (s.doorSameAsCarpet && s.doorSameAsCarpet.lemovanie) return "Rovnaké ako koberec";
-    return s.doorLemovanie ? "Vybere se v konfigurátoru" : null;
+    return s.doorLemovanie ? (s.doorLemovaniePriplatok || "Vybere se v konfigurátoru") : null;
   }
   if (
     n === "nášivka dvere druh" ||
@@ -1349,7 +1356,8 @@ function syncToShoptet(state) {
 
     const value = resolveValue(name, state);
     if (value === null) return;
-    const option = findMatchingOption(sel, value);
+    // hodnota, ktorú admin ešte nemá (napr. nová farba) -> „Vyberie sa v konfigurátore“, nech košík neodmietne povinný príplatok
+    const option = findMatchingOption(sel, value) || najdiZastupnuMoznost(sel);
     if (option) {
       matchedCount++;
       if (sel.value !== option.value) {
@@ -1558,7 +1566,7 @@ function Configurator() {
   // ============================================================
   React.useEffect(() => {
     try {
-      syncToShoptet({
+      syncToShoptet(sTextamiPriplatkov({
         znacka, model, extras,
         selectedMaterial, selectedColor,
         selectedLemovanie, selectedNasivka, selectedNitColor,
@@ -1574,7 +1582,7 @@ function Configurator() {
         doorSameAsCarpet: doorUpholsteryAvailable ? doorSameAsCarpet : { material: false, lemovanie: false },
         doorSameNitAsCarpet: doorUpholsteryAvailable ? doorSameNitAsCarpet : false,
         doorSameNasivkaAsCarpet: doorUpholsteryAvailable ? doorSameNasivkaAsCarpet : false,
-      });
+      }, isCzechTruckConfigurator() ? "cs" : "sk"));
     } catch (e) {
       console.error("[truck-konfig] syncToShoptet zlyhal:", e);
     }
@@ -4403,7 +4411,7 @@ function Configurator() {
             };
 
             try {
-              syncToShoptet(finalConfiguration);
+              syncToShoptet(sTextamiPriplatkov(finalConfiguration, isCzechTruckConfigurator() ? "cs" : "sk"));
               persistTruckOrderSummary(finalConfiguration);
             } catch (err) {
               console.error("[truck-konfig] final sync zlyhal:", err);

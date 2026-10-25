@@ -18,6 +18,7 @@
 // zlozit(): všetko vlastné preč, hlavička a H1 späť, poslucháči preč, mountTruckConfigurator() -> zákazník dostane React.
 import { mountTruckConfigurator } from "../../../truck-konfigurator/mount.js";
 import { persistTruckOrderSummary } from "../../../truck-konfigurator/order-summary.mjs";
+import { sTextamiPriplatkov } from "../../../truck-konfigurator/farby-nazvy.mjs";
 import { chybajuce, citajCeny, povoleneMotivy, syncToShoptet, upratTapacir, sucetShoptetu, povinneBezHodnoty, klikniKosik } from "./shoptet.js";
 import { naStavReactu, naStavCeny, predvyber } from "./stav.js";
 import { vypocitajCenu } from "./cena.js";
@@ -95,7 +96,7 @@ export function init(ctx) {
   // ------------------------------------------------------------------ sync a košík
   function sync(S) {
     const stav = naStavReactu(S);
-    syncToShoptet(stav);
+    syncToShoptet(sTextamiPriplatkov(stav, /\.cz$/i.test(location.hostname) ? "cs" : "sk"));
     upratTapacir(stav, document);
     const shoptet = sucetShoptetu(document);
     const nase = vypocitajCenu(naStavCeny(S), data).spolu;
