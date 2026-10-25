@@ -103,6 +103,11 @@ A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opra
   obrázky starého Popisu s `loading="eager"` (601: lazers.jpg, dv1–3.jpg do 24–30 s; 598: craftman.png 321 kB do 38 s).
   JS 1V ich zastaviť nevie, beží až po nich. Vyrieši spustenie (nový obsah nahradí Popis) alebo lazy v admine
   (Michal 25. 10.: admin a živé produkty teraz nemeniť).
+- Rozpis 598 ?novy=1 do konca luxuryCar.js (37,4 s, `scratchpad/cls/predbundlom.mjs`): spolu 5,9 MB — obrázky starého
+  Popisu a bannerov 3,7 MB (four.jpg 430 kB, Posuvka-after1/before1 695 kB, craftman.png 321 kB, poster2.jpg 307 kB,
+  first/two.jpg 526 kB, lazers.jpg 201 kB, j1–j8 …), Google Tag Manager 704 kB (gtag G-2TH0ZK5HF4 2× po 194 kB),
+  skripty Shoptetu 490 kB, písma 372 kB, CSS 236 kB, náš bundel 306 kB. Konfigurátor je použiteľný ~2,5 s po bundli.
+  Po bundli sa sťahuje ďalších 1,6 MB obrázkov Popisu/bannerov (unveil Shoptetu) — konfigurátor už vtedy beží.
 - Hlavné vlákno spolu +3 až +16 %: sekcie obsahu sa oživujú postupne v nečinnosti (kvôli polohe pri reload), A ich
   bez posunu neoživí vôbec. TBT (blokovanie) je pritom nižší na 4 zo 6.
 - 637: obsah vzorkovníka prichádza skôr, preto sa jeho obrázky stihnú stiahnuť v okne merania (+0,43 MB).
