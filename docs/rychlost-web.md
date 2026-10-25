@@ -42,3 +42,14 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
   tlačidlo zakryté lištou a mierku písma. Pozor na falošné nálezy počas animácie — nález vždy over snímkou.
 - Neodložené (treba Michalov súhlas, obsah v admine): obrázky v popisoch produktov nemajú `loading="lazy"` —
   produkt 598 sťahuje ~3–4 MB fotiek spodného popisu hneď pri načítaní (aj pod `?novy=1`, kde je popis skrytý).
+
+## 5. Animácie a prepočty štýlov (SK `0fa8584`)
+- Nekonečné CSS animácie (lesk tlačidiel `lcdh-sheen`, `lcdh-pfScroll`, pás galérie `lxPas`) bežali aj mimo obrazovky: nečinná
+  titulka / 1V produkt na telefóne (CPU 4×) držala hlavné vlákno 2,0 s z 6 s. `functions/lcdAnimMimo.js` (volá main.js) ich mimo
+  okna (+300 px) pozastaví cez Web Animations API a pri priblížení spustí → 0,1 s. Nová nekonečná animácia nič nepotrebuje,
+  zachytí ju sken každých 5 s; konečné nástupy sa nemenia.
+- GSAP ScrollTrigger sa registruje len v module Materiál na titulke (`lcdHome.js` lcdhStRegistruj): registrácia pri štarte
+  každej stránky vynucovala prepočty štýlov (598: 640 → 140). Nový ScrollTrigger mimo titulky = najprv `lcdhStRegistruj()`.
+- Overené, že veľkosť CSS (−35 % bez blokov 1V) ani `:has()` prepočty štýlov citeľne nezrýchlia — rozhoduje ich počet.
+- Nástroje (scratchpad session kamióny, 25. 10.): `styl-detail.mjs` (najdrahšie prepočty a ich spúšťač), `necinnost.mjs`
+  (CPU v nečinnosti), `animacie.mjs` (bežiace animácie).
