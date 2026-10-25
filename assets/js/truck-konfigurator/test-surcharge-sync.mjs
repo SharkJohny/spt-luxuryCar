@@ -222,6 +222,24 @@ const SELECTS_SK_FARBY = SELECTS_SK
     '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="dl03">čierny základ, grafitové pásiky – 03 +€0</option><option value="dl08">čierny základ, hnedé pásiky – 08 +€0</option>\n  </select>\n  <select data-parameter-id="397"');
 if ((SELECTS_SK_FARBY.match(/value="(f3|l08|m5|d2n|dl03)"/g) || []).length !== 5) throw new Error("SELECTS_SK_FARBY: výrez sa nepodaril");
 
+// CZ 2452 (25. 10. 2026 v noci): príplatky sa volajú „Barva“ a „Lemování“ (nie „Barva materiálu“), hodnoty v admine CZ
+// „<název> – <kód>“ ako na SK; nite „Stříbrná – 2901“.
+const SELECTS_CZ_FARBY = SELECTS_CZ
+  .replace('<select data-parameter-id="embroidery" data-parameter-name="Nášivky">',
+    '<select data-parameter-id="319" data-parameter-name="Barva">\n    <option value=""></option><option value="custom">Vybere se v konfigurátoru +0 Kč</option><option value="f11">černá, černé prošití – 11 +0 Kč</option><option value="f3">hnědá, hnědé prošití – 3 +0 Kč</option><option value="f2n">šedý – 2N +0 Kč</option>\n  </select>\n' +
+    '  <select data-parameter-id="322" data-parameter-name="Lemování">\n    <option value=""></option><option value="custom">Vybere se v konfigurátoru +0 Kč</option><option value="l03">černý základ, grafitové proužky – 03 +0 Kč</option><option value="l08">černý základ, hnědé proužky – 08 +0 Kč</option>\n  </select>\n' +
+    '  <select data-parameter-id="embroidery" data-parameter-name="Nášivky">')
+  .replace('<option value="2901">2901 – Stříbrná +0 Kč</option>', '<option value="2901">Stříbrná – 2901 +0 Kč</option>')
+  .replace('<option value="2824">2824 – Červená +0 Kč</option>', '<option value="2824">Červená – 2824 +0 Kč</option>')
+  .replace('<option value="3842">3842 – Modrá +0 Kč</option>', '<option value="3842">Modrá – 3842 +0 Kč</option>')
+  .replace('<option value="same">Stejný jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option>\n  </select>\n  <select data-parameter-id="door-color"',
+    '<option value="same">Stejný jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option><option value="m2">Prémiová syntetická kůže – prošívaná +0 Kč</option><option value="m5">Mikrosemiš – dvoubarevný +0 Kč</option>\n  </select>\n  <select data-parameter-id="door-color"')
+  .replace('<option value="same">Stejná jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option>\n  </select>\n  <select data-parameter-id="door-trim"',
+    '<option value="same">Stejná jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option><option value="d11">černá, černé prošití – 11 +0 Kč</option><option value="d2n">šedý – 2N +0 Kč</option>\n  </select>\n  <select data-parameter-id="door-trim"')
+  .replace('<option value="same">Stejné jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option>',
+    '<option value="same">Stejné jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option><option value="dl03">černý základ, grafitové proužky – 03 +0 Kč</option><option value="dl08">černý základ, hnědé proužky – 08 +0 Kč</option>');
+if ((SELECTS_CZ_FARBY.match(/value="(f3|l08|m5|d2n|dl03)"/g) || []).length !== 5 || !/Stříbrná – 2901/.test(SELECTS_CZ_FARBY)) throw new Error("SELECTS_CZ_FARBY: výrez sa nepodaril");
+
 const stavFarby = {
   ...manualState,
   selectedColor: { code: "3" },
@@ -269,6 +287,20 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   expectStartsWith(rovnake, "Typ materiálu tapacíru", "Rovnaký ako koberec", sourceName);
   expectStartsWith(rovnake, "Farba materiálu tapacíru", "Rovnaká ako koberec", sourceName);
   expectStartsWith(rovnake, "Farba lemovania tapacíru", "Rovnaké ako koberec", sourceName);
+
+  // CZ 2452: „Barva“ / „Lemování“ s hodnotou z adminu CZ (bez nej by povinný select ostal prázdny a košík položku odmietol)
+  const CZ = "https://www.luxurycardesign.cz/luxusni-autokoberce-kamiony/";
+  const farbyCz = syncValues(helperSource, sTextamiPriplatkov(stavFarby, "cs"), SELECTS_CZ_FARBY, CZ);
+  expectStartsWith(farbyCz, "Barva", "hnědá, hnědé prošití – 3", sourceName);
+  expectStartsWith(farbyCz, "Lemování", "černý základ, hnědé proužky – 08", sourceName);
+  expectStartsWith(farbyCz, "Materiál dveře", "Mikrosemiš – dvoubarevný", sourceName);
+  expectStartsWith(farbyCz, "Barva dveře", "šedý – 2N", sourceName);
+  expectStartsWith(farbyCz, "Lemování dveře", "černý základ, grafitové proužky – 03", sourceName);
+  expectStartsWith(farbyCz, "Niť boky", "Stříbrná – 2901", sourceName);
+  expectStartsWith(farbyCz, "Niť stred", "Červená – 2824", sourceName);
+  expectStartsWith(farbyCz, "Niť dveře", "Modrá – 3842", sourceName);
+  const neznamyCz = syncValues(helperSource, sTextamiPriplatkov({ ...stavFarby, selectedColor: { code: "K9" } }, "cs"), SELECTS_CZ_FARBY, CZ);
+  expectStartsWith(neznamyCz, "Barva", "Vybere se", sourceName);
 
   const none = syncValues(helperSource, {
     ...manualState,

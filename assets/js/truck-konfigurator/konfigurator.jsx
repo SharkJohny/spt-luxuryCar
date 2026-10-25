@@ -1335,11 +1335,12 @@ function resolveValue(paramName, s) {
   }
 
   // Informatívne (PRICE=0)
-  if (n === "farba" || n === "farba materiálu" || n === "barva materiálu") {
+  // CZ 2452 má príplatky „Barva“ a „Lemování“ (Michal 25. 10. 2026 v noci: farba aj na CZ priamo v položke)
+  if (n === "farba" || n === "barva" || n === "farba materiálu" || n === "barva materiálu") {
     if (!s.selectedMaterial || !s.selectedColor) return null;
     return s.farbaPriplatok || s.selectedMaterial + " / " + s.selectedColor.code;
   }
-  if (n === "lemovanie" || n === "farba lemovania" || n === "barva lemování") {
+  if (n === "lemovanie" || n === "lemování" || n === "farba lemovania" || n === "barva lemování") {
     if (!s.selectedLemovanie) return null;
     return s.lemovaniePriplatok || s.selectedLemovanie.code;
   }
