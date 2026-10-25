@@ -15,7 +15,9 @@
 //            nezistenej cene platí veta bez cien (data-cl-bez) hneď pred ňou. Všetky čísla sú štandardné značky data-p1v-cislo (dosadí ich obsah-cisla.js
 //            zo živých dát; FAQ 11 kľúč cena-od-classic-<vzor> = cena Classic v zadanom vzore — integrácia 14. 10. 2026 nahradila vlastné data-cl-cena).
 // Čísla a odkazy závislé od vzoru inak dosadí obsah-cisla.js (data-p1v-cislo / data-p1v-odkaz), nie tento modul.
-// Len export function init(oc); pri importe nič nebeží; nič zo živého DOM nemazať, žiadny POST (ceny sesterských stránok len cez ceny-ine.js = GET), ceny ani ID natvrdo.
+// Revízia F1 (rýchlosť 25. 10. 2026): skrytie vzoriek mení výšku sekcie (622: −51 px) -> obe veci robí vlozenie(oc) už pri vložení
+// kusu (obsah.js ho volá po skupinách A–D, teda po prestavaní a oživení vzoriek v obsah-c.js), init(oc) nerobí nič.
+// Len export function vlozenie(oc) a init(oc); pri importe nič nebeží; nič zo živého DOM nemazať, žiadny POST (ceny sesterských stránok len cez ceny-ine.js = GET), ceny ani ID natvrdo.
 // oc = { ctx, kluc, korene, koren, miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn, {okraj}), nacitajMedia(el),
 //        ked, na, vysli }; sekcia, ktorá je stub, nie je v DOM: oc.sekcia(meno) === null.
 import { nazovFarby } from "./kroky.js";
@@ -30,12 +32,17 @@ const dve = (n) => String(n).padStart(2, "0");
 /** „Čierna · červené šitie“ / „Čierna / červené šitie“ -> „cierna cervene sitie“ (bez diakritiky, bez oddeľovačov) */
 const kluc = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[\/·]/g, " ").replace(/\s+/g, " ").trim();
 
-/** @param {object} oc spoločný kontext obsahu (obsah.js) */
-export function init(oc) {
+/** Pri vložení kusu (revízia F1): vzorky farieb produktu a vety s cenami vo FAQ. @param {object} oc kontext pre jednu sekciu */
+export function vlozenie(oc) {
   const farby = oc.sekcia("c-farby");
   if (farby) vzorkyProduktu(farby, oc);
   const faq = oc.sekcia("d-faq");
   if (faq) faqCeny(faq, oc);
+}
+
+/** @param {object} oc spoločný kontext obsahu (obsah.js) — všetko už pri vložení (vlozenie) */
+export function init(oc) {
+  void oc;
 }
 
 /** Vety s cenami vo FAQ: blok data-cl-ceny nahradí vetu data-cl-bez, keď sú všetky čísla bloku dosadené (inak ostane veta bez cien). */
@@ -51,8 +58,11 @@ function faqCeny(sek, oc) {
       return st.every((x) => x === "ok" || x === "bez" || x === "skryte") ? (st.every((x) => x === "ok") ? "ok" : "nie") : null;
     }, (v) => {
       if (v !== "ok") return;
-      blok.setAttribute("data-cl-stav", "ok");
-      if (bez) bez.hidden = true;
+      // neskoršia zmena výšky (rozbalená odpoveď) -> s ručným ukotvením okna (obsah.js)
+      (oc.ukotvi || ((fn) => fn()))(() => {
+        blok.setAttribute("data-cl-stav", "ok");
+        if (bez) bez.hidden = true;
+      }, sek);
     }, { limit: 15000 });
   });
 }

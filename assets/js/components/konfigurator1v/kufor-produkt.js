@@ -141,6 +141,7 @@ export function init(ctx) {
     const krok = ctx.krok("vzor");
     if (T.dlazdica === "cena") cenaProduktu(location.pathname).then(function (own) { zhrnutie(own, null); });
     if (krok) nastavAttr(krok, "data-lcd1v-ceny", "caka");
+    rezervaPodnadpisu(krok);
     poNecinnosti(1500).then(function () {
       if (zruseny || !zapnute()) return null;
       const vlastna = cenaProduktu(location.pathname);
@@ -158,8 +159,27 @@ export function init(ctx) {
       dlazdice(own, cenyVzorov);
       podnadpis(cenyVzorov);
     }).catch(function () { /* bez cien: dlaždice bez ceny, bez podnadpisu */ }).then(function () {
-      if (krok) krok.removeAttribute("data-lcd1v-ceny"); // rezervovaný riadok preč (cena je v atribúte dlaždice, alebo nezistená)
+      if (!krok) return;
+      krok.removeAttribute("data-lcd1v-ceny"); // rezervovaný riadok preč (cena je v atribúte dlaždice, alebo nezistená)
+      const rez = krok.querySelector(":scope > .lcd1v-kf-pod--caka");
+      if (rez && rez.parentNode) rez.parentNode.removeChild(rez); // veta nevyšla (ceny nezistené): bez podnadpisu
     });
+  }
+
+  /**
+   * rýchlosť (25. 10. 2026, revízia): kým ceny nie sú, drží miesto aj podnadpis kroku 1 — ten istý odsek s vetou
+   * v rovnakom tvare (T.vzorPod), len neviditeľný (visibility:hidden v _lcd1v-kufor.scss, aria-hidden) a namiesto sumy
+   * medzery šírky číslic (žiadne číslo). Po príchode cien dostane skutočný text (podnadpis), keď veta nevyjde, zmizne.
+   * Inak by sa pri kroku 1 otvorenom pred príchodom cien dlaždice posunuli o 2–3 riadky nadol.
+   */
+  function rezervaPodnadpisu(krok) {
+    if (!krok || typeof T.vzorPod !== "function" || krok.querySelector(":scope > .lcd1v-pod")) return;
+    const v = VZORY.filter((k) => T.vzory && T.vzory[k]);
+    if (v.length < 2) return;
+    const p = el("p", "lcd1v-pod lcd1v-kf-pod lcd1v-kf-pod--caka", T.vzorPod(T.vzory[v[0]], v.slice(1).map((k) => T.vzory[k]), "\u2007\u2007" + NBSP + "€"));
+    p.setAttribute("aria-hidden", "true");
+    const hd = krok.querySelector(":scope > .lcd1v-hd");
+    vloz(krok, p, hd ? hd.nextSibling : krok.firstChild);
   }
 
   /** Zhrnutie v hlavičke kroku 1 ako v návrhoch: Classic „Diamond Line · 230 €“, Premium „Diamond Line“ / „Stripe Line · + 10 €“. */
@@ -199,6 +219,14 @@ export function init(ctx) {
   function podnadpis(cenyVzorov) {
     const krok = ctx.krok("vzor");
     const text = podnadpisVzoru(cenyVzorov, T);
+    // rezervovaný odsek (rezervaPodnadpisu) dostane skutočnú vetu na tom istom mieste; bez vety ho odstráni ceny()
+    const rez = krok && krok.querySelector(":scope > .lcd1v-kf-pod--caka");
+    if (rez && text) {
+      rez.textContent = text;
+      rez.removeAttribute("aria-hidden");
+      rez.classList.remove("lcd1v-kf-pod--caka");
+      return;
+    }
     if (!krok || !text || krok.querySelector(":scope > .lcd1v-pod")) return;
     const p = el("p", "lcd1v-pod lcd1v-kf-pod", text);
     const hd = krok.querySelector(":scope > .lcd1v-hd");

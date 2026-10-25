@@ -6,7 +6,9 @@
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ (animácie, posun, video pri zobrazení). Nič nekreslí
 // a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Od 25. 10. 2026
-// (rýchlosť) po sekciách, keď sa sekcia priblíži k oknu: oc.sekcia vráti len tú jednu, init teda môže prísť viackrát.
+// (rýchlosť) po sekciách (postupne v nečinnosti, blízko okna prednostne): oc.sekcia vráti len tú jednu, init môže prísť
+// viackrát. Revízia F1 (25. 10. 2026): c-farby (prestavanie vzoriek podľa vzoru, modul typu ich skryje) mení výšku
+// sekcie -> celé už pri vložení kusu (vlozenie; lacné: DOM vzoriek a poslucháče, bez čítania rozloženia).
 // oc = { ctx, korene, koren (multi-koreň pre lxModulyOziv), miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn),
 //        nacitajMedia(el), ked, na, vysli }. Sekcia, ktorá je ešte stub, nie je v DOM: oc.sekcia(meno) === null.
 //
@@ -32,17 +34,26 @@ export const SEKCIE_C = ["c-kam", "c-domov", "c-casova-os", "c-farby", "c-vzorky
 
 const pohyb = () => !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
+/**
+ * Pri vložení kusu (obsah.js, revízia F1): c-farby — vzorky farieb tohto vzoru a ich oživenie (modul typu po ňom vzorky,
+ * ktoré produkt nemá, skryje; poradie modulov A–D, typ ostáva). Výška sekcie je tak konečná hneď.
+ * @param {object} oc spoločný kontext obsahu pre jednu sekciu
+ */
+export function vlozenie(oc) {
+  const farby = oc.sekcia("c-farby");
+  if (farby) {
+    farbyVzoru(farby, oc); // pred oživením: lxModulyOziv číta vzorky a fotky pri init
+    lxModulyOziv(lcdMultiKoren([farby]), oc.ctx && oc.ctx.jazyk === "cs");
+  }
+}
+
 /** @param {object} oc spoločný kontext obsahu (obsah.js) */
 export function init(oc) {
   const sekcie = SEKCIE_C.map((m) => oc.sekcia(m)).filter(Boolean);
   if (!sekcie.length) return;
   const os = oc.sekcia("c-casova-os");
   if (os) casovaOs(os, oc);
-  const farby = oc.sekcia("c-farby");
-  if (farby) {
-    farbyVzoru(farby, oc); // pred oživením: lxModulyOziv číta vzorky a fotky pri init
-    lxModulyOziv(lcdMultiKoren([farby]), oc.ctx && oc.ctx.jazyk === "cs");
-  }
+  // c-farby: už pri vložení (vlozenie)
 }
 
 /** Mená vzorov podľa registra (produkty.js vzor). */

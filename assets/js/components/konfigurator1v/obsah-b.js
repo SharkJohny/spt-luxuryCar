@@ -6,7 +6,9 @@
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ (animácie, posun, video pri zobrazení). Nič nekreslí
 // a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Od 25. 10. 2026
-// (rýchlosť) po sekciách, keď sa sekcia priblíži k oknu: oc.sekcia vráti len tú jednu, init teda môže prísť viackrát.
+// (rýchlosť) po sekciách (postupne v nečinnosti, blízko okna prednostne): oc.sekcia vráti len tú jednu, init môže prísť
+// viackrát. Revízia F1 (25. 10. 2026): výška scény Deväť vecí (PC +2 664 px) a riadok ceny porovnania (+43 px) sa
+// nastavujú už pri vložení kusu (vlozenie) — inak by reload/Späť obnovil polohu inde a obsah nad oknom poskakoval.
 // oc = { ctx, korene, koren (multi-koreň pre lxModulyOziv), miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn),
 //        nacitajMedia(el), ked, na, vysli }. Sekcia, ktorá je ešte stub, nie je v DOM: oc.sekcia(meno) === null.
 //
@@ -47,6 +49,16 @@ function postup(el) {
 }
 
 /* ------------------------------------------------------------------ Deväť vecí */
+/**
+ * PC: výška scény = počet krokov × 44 vh (návrh: viac ako 6 krokov -> 44 vh, inak 62 vh); telefón = CSS karusel.
+ * Len zápis štýlu (vh, bez čítania rozloženia) — revízia F1 ju volá už pri vložení kusu, oživenie ju zopakuje.
+ */
+function vyskaSceny(sek, mq) {
+  const stage = sek.querySelector(".stage2");
+  const n = sek.querySelectorAll(".s2-media img").length;
+  if (stage && n) stage.style.height = mq.matches ? "" : n * (n > 6 ? 44 : 62) + "vh";
+}
+
 function devatVeci(sek, mq) {
   const stage = sek.querySelector(".stage2");
   const main = sek.querySelector(".pinmain");
@@ -68,8 +80,7 @@ function devatVeci(sek, mq) {
     nahlady.forEach((e, k) => e.classList.toggle("on", k === i));
     if (big) big.textContent = dve(i + 1);
   };
-  // PC: výška scény = počet krokov × 44 vh (návrh: viac ako 6 krokov -> 44 vh, inak 62 vh)
-  const vyska = () => { stage.style.height = mq.matches ? "" : n * (n > 6 ? 44 : 62) + "vh"; };
+  const vyska = () => vyskaSceny(sek, mq);
   // telefón: karta (fotka v 1. riadku gridu) najbližšie k stredu karuselu
   const kartaVStrede = () => {
     const r = main.getBoundingClientRect(), stred = r.left + r.width / 2;
@@ -261,16 +272,30 @@ function porovnanie(sek, oc) {
   // a jeden tvar ceny pre celý obsah (na Hexa/Stripe cena toho vzoru). Riadok sa ukáže (.ma-cenu), až keď je hodnota
   // zistená; nezistená = riadok ostane skrytý (CSS .p1v-b-od:not(.ma-cenu)).
   const znacka = od.querySelector("[data-p1v-cislo]");
+  // riadok sa ukáže neskôr (dáta) -> s ručným ukotvením okna (obsah.js), nech obsah v okne neposkočí
+  const ukotvi = oc.ukotvi || ((fn) => fn());
   if (znacka) {
     oc.ked(() => { const st = znacka.getAttribute("data-p1v-stav"); return st === "ok" || st === "bez" ? st : null; },
-      () => od.classList.add("ma-cenu"), { limit: 15000 });
+      () => ukotvi(() => od.classList.add("ma-cenu"), sek), { limit: 15000 });
     return;
   }
   // staršie HTML bez značky: najnižšia cena variantu zo Shoptetu
-  oc.ked(() => najnizsiaCena(oc.ctx), (cena) => {
+  oc.ked(() => najnizsiaCena(oc.ctx), (cena) => ukotvi(() => {
     od.textContent = "od " + oc.ctx.formatCena(cena);
     od.classList.add("ma-cenu");
-  }, { limit: 8000 });
+  }, sek), { limit: 8000 });
+}
+
+/**
+ * Pri vložení kusu (obsah.js, revízia F1): časti, od ktorých závisí výška sekcie — výška scény Deväť vecí (len štýl)
+ * a riadok ceny porovnania (čaká na čísla). Poslucháče a animácie ostávajú na oživenie (init).
+ * @param {object} oc spoločný kontext obsahu pre jednu sekciu
+ */
+export function vlozenie(oc) {
+  const ocak = oc.sekcia("b-ocakavat");
+  if (ocak) vyskaSceny(ocak, matchMedia(MQ_STATICKA));
+  const por = oc.sekcia("b-porovnanie");
+  if (por) porovnanie(por, oc); // reveal .rv robí spoločne obsah.js
 }
 
 /** @param {object} oc spoločný kontext obsahu (obsah.js) */
@@ -284,6 +309,6 @@ export function init(oc) {
   const RM = matchMedia("(prefers-reduced-motion:reduce)").matches;
   if (ocak) devatVeci(ocak, mq);
   if (mat) material(mat, mq, RM);
-  if (por) porovnanie(por, oc); // reveal .rv robí spoločne obsah.js
+  // b-porovnanie: riadok ceny už pri vložení (vlozenie); reveal .rv robí spoločne obsah.js
   if (pp) lxModulyOziv(lcdMultiKoren([pp]), false);
 }

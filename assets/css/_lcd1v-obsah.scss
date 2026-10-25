@@ -73,6 +73,12 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.chapter h2,.pinhead h2){c
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lede:not(.pinhead .lede,.setb .lede,.end .lede){max-width:46ch}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia]:not(.p1v-rv) .rv,
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia].rv:not(.p1v-rv){opacity:1;transform:none}
+/*    c2) tlač — rýchlosť (25. 10. 2026, revízia): .rv dostane .on až pri zobrazení a sekcie sa oživujú až pri priblížení
+          (obsah.js), takže obsah, ku ktorému zákazník nezišiel, by sa vytlačil priehľadný (598, telefón: všetkých 26 .rv).
+          V tlači je .rv vždy viditeľné a bez posunu, obsah sa vytlačí celý. */
+@media print{
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rv{opacity:1 !important;transform:none !important;transition:none !important}
+}
 body.lcd-1v :is(.p1v-miesto .sr-only,.p1v-sr){position:absolute !important;width:1px;height:1px;margin:-1px;padding:0;
   overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 

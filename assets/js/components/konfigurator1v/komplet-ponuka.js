@@ -15,6 +15,8 @@
 //     boxov pri úplnom výbere (box: farba + veľkosť každého boxu — presné čísla) ju otvorí, kým nie je zodpovedaná
 //     (capture na window — pred kroky.js, ktorý by otvoril ďalší krok / súhrn; neúplný výber boxu zastaví už stráž
 //     boxy-produkt.js, tiež na window, registruje sa skôr). Hlavičkou sa dá otvoriť kedykoľvek (box bez veľkostí: „už od“).
+//     Ceny cieľa sa sťahujú hneď pri inite; keď pri „Pokračujte“ ešte nie sú, čaká sa na ne najviac 1,5 s (CAKAJ_MS),
+//     potom ide zákazník ďalej bez ponuky a karta sa neukáže, kým znova neotvorí kartu Auto / boxov (25. 10. 2026).
 //   - „Nie, ďakujem“ (zlaté): karta sa zbalí s fajkou; rohož -> otvorí Farbu, box -> pri úplnom výbere kroky zatvorené
 //     a súhrn s košíkom (ako „Pokračujte k súhrnu“ v kroky.js), inak späť do karty boxov.
 //   - telo karty = banner setu C (set-banner.js; Michal 17. 10. 2026 večer: „toto má byť v medzikroku, nie ďalší iný
@@ -38,7 +40,6 @@
 // Nič s atribútom name, žiadny zápis do formulára tejto stránky. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
 import { stranka, moznostiZMapy } from "./ceny-ine.js";
-import { poNecinnosti } from "./susedne.js";
 import { posunNaStred } from "./posun.js";
 import { zapisVyber } from "./prenos.js";
 import { nazovFarby } from "./kroky.js";
@@ -183,31 +184,23 @@ export function init(ctx) {
   kotva.parentNode.insertBefore(karta, kotva.nextSibling);
 
   // ---------------------------------------------------------------- stav a údaje ponuky
-  const stav = { odpoved: null, prenos: false, mapa: undefined, ponuka: null };
+  // preskocena: zákazník pokračoval bez ponuky, lebo ceny cieľa neprišli včas (naPokracuj) — karta sa neukáže, kým
+  // znova neotvorí kartu, za ktorou ponuka stojí (kotva)
+  const stav = { odpoved: null, prenos: false, mapa: undefined, ponuka: null, preskocena: false };
   const zapnute = () => document.body.classList.contains("lcd-1v");
   const nastavOtvoreny = (e, on) => {
     if (typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(e, on);
     else e.classList.toggle("active", on);
   };
 
-  // ceny cieľa (tá istá stránka ako banner setu: jedna požiadavka, localStorage 24 h)
-  // Michal 25. 10. 2026 (rýchlosť): nie hneď pri štarte (brala by sieť a hlavné vlákno prvému vykresleniu), ale
-  // v nečinnosti (najneskôr 3 s), pri prvom dotyku / zmene v karte, za ktorou sa ponuka ukazuje (rohož: Auto, box: karta
-  // boxov), alebo keď je karta pripravená skôr (obnov) — vždy dosť skoro pred „Pokračujte ďalej“; dovtedy je karta
-  // skrytá ako doteraz pri pomalej sieti.
-  const SPUSTI_PRI = ["pointerdown", "click", "focusin", "change", "keydown"];
-  const spustace = rohoz ? [kAuto] : [kFarba, kPocet];
-  let nacitava = false;
-  function nacitajCiel() {
-    if (nacitava) return;
-    nacitava = true;
-    spustace.forEach((k) => SPUSTI_PRI.forEach((t) => k.removeEventListener(t, nacitajCiel, true)));
-    stranka(ciel.url).then(function (v) {
-      stav.mapa = (v && v.mapa) || null;
-    }, function () {
-      stav.mapa = null;
-    }).then(naplanuj);
-  }
+  // ceny cieľa (tá istá stránka ako banner setu: jedna požiadavka, localStorage 24 h) — sťahujú sa hneď pri inite
+  // (koniec init). rýchlosť (25. 10. 2026, revízia): odklad do nečinnosti / dotyku karty Auto (0293264) mal dieru —
+  // pri rýchlom „Pokračujte ďalej“ ešte ceny neboli, ponuka sa ticho preskočila a karta potom vyskočila nad Farbou,
+  // v ktorej už zákazník vyberal. Sťahovanie hneď nezavadzia prvému vykresleniu: nízka priorita siete a DOMParser
+  // dostane len výrez stránky s formulárom (ceny-ine.js, susedne.js; jednotky ms). Ak pri „Pokračujte“ ceny ešte nie sú,
+  // naPokracuj počká najviac CAKAJ_MS; potom zákazník pokračuje bez ponuky (stav.preskocena).
+  const CAKAJ_MS = 1500;
+  let nacitanie = null; // Promise: ceny cieľa sú v stav.mapa (alebo null pri chybe)
 
   /** Rohož: { vSete, samostatne, vyber, d } alebo null (voľba kufra na cieli chýba / bez ceny). */
   function ponukaRohoze() {
@@ -318,13 +311,13 @@ export function init(ctx) {
   function obnov() {
     naplanovane = false;
     if (!zapnute()) { zrus(); return; }
-    if (stav.mapa === undefined && pripravena()) nacitajCiel(); // karta by sa už mala ukázať (napr. auto obnovené zo sessionStorage)
     if (!stav.prenos) {
       let p = null;
       try { p = stav.mapa ? (rohoz ? ponukaRohoze() : ponukaBoxov()) : null; } catch (e) { p = null; }
       stav.ponuka = p && pripravena() ? p : null;
     }
-    const vid = stav.prenos || !!stav.ponuka;
+    // zákazník už pokračoval bez ponuky (ceny neprišli včas): karta dodatočne nevyskočí nad kartou, v ktorej vyberá
+    const vid = stav.prenos || (!!stav.ponuka && !stav.preskocena);
     if (karta.hidden === vid) karta.hidden = !vid;
     if (!vid && karta.classList.contains("active")) zatvor();
     obnovTexty(stav.ponuka);
@@ -406,7 +399,11 @@ export function init(ctx) {
   // „Pokračujte ďalej“ v Aute (rohož) / „Pokračujte k súhrnu“ v karte boxov (box): kým nie je otázka zodpovedaná a ponuka
   // platí, otvorí kartu. Capture na window = pred kroky.js (document capture otvára ďalší krok / súhrn) aj pred živým
   // enginom. Nevyplnený krok = živá validácia ako doteraz (červený rám); neúplný box zastaví stráž boxy-produkt.js skôr.
+  // rýchlosť (25. 10. 2026, revízia): ceny cieľa ešte nie sú -> klik sa zadrží a počká sa na ne najviac CAKAJ_MS: prídu
+  // = ponuka sa otvorí ako vždy; neprídu = ten istý klik sa pošle znova (prepust) a zákazník ide ďalej bez ponuky.
+  let cakanie = false, prepust = false;
   function naPokracuj(e) {
+    if (prepust) return; // klik poslaný znova po čakaní na ceny: ďalej bez ponuky (kroky.js, engine)
     const t = e.target;
     if (!zapnute() || !t || !t.closest) return;
     const b = t.closest(".next-step-button");
@@ -415,6 +412,27 @@ export function init(ctx) {
       const i = lcdGetSteps().indexOf(kAuto);
       if (i < 0 || lcdFirstUnfilled(i)) return;
     } else if (!ctx.vyplneny(kFarba)) return; // box: farba + veľkosť každého boxu (pravidlo boxy-produkt.js), inak stráž
+    if (stav.mapa === undefined && nacitanie) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (cakanie) return; // ďalší klik počas čakania
+      cakanie = true;
+      b.setAttribute("aria-busy", "true");
+      let limit = 0;
+      Promise.race([nacitanie, new Promise(function (hotovo) { limit = setTimeout(hotovo, CAKAJ_MS); })]).then(function () {
+        clearTimeout(limit);
+        cakanie = false;
+        b.removeAttribute("aria-busy");
+        // zákazník medzitým odišiel inam (iná karta, iný vzhľad): nič
+        if (zruseny || !zapnute() || !b.isConnected || !kotva.classList.contains("active") || stav.odpoved || stav.prenos) return;
+        if (stav.mapa === undefined) stav.preskocena = true; // ceny neprišli včas: karta sa neukáže ani po ich príchode
+        obnov();
+        if (stav.ponuka && !karta.hidden) { otvor(true); return; }
+        prepust = true;
+        try { b.click(); } finally { prepust = false; }
+      });
+      return;
+    }
     obnov();
     if (!stav.ponuka || karta.hidden) return;
     e.preventDefault();
@@ -425,6 +443,8 @@ export function init(ctx) {
 
   // otvorený živý krok (hlavička, „Pokračujte ďalej“, validácia košíka) -> karta sa zatvorí (jedna otvorená karta)
   const mo = new MutationObserver(function () {
+    // zákazník pokračoval bez ponuky (ceny neprišli včas) a znova otvoril kartu, za ktorou ponuka stojí -> ponuka zas platí
+    if (stav.preskocena && kotva.classList.contains("active")) { stav.preskocena = false; naplanuj(); }
     if (!karta.classList.contains("active")) return;
     if (lcdGetSteps().some((s) => s.classList.contains("active"))) { zatvor(); naplanuj(); }
   });
@@ -449,6 +469,7 @@ export function init(ctx) {
     if (!e.persisted) return;
     stav.prenos = false;
     stav.odpoved = null;
+    stav.preskocena = false;
     if (ano) ano.disabled = false;
     nie.disabled = false;
     hd.disabled = false;
@@ -469,9 +490,13 @@ export function init(ctx) {
   }
   new MutationObserver(function (z, o) { if (!zapnute()) { zrus(); o.disconnect(); } }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
 
-  // ceny cieľa až v nečinnosti / pri prvom dotyku karty (nacitajCiel vyššie)
-  spustace.forEach((k) => SPUSTI_PRI.forEach((t) => k.addEventListener(t, nacitajCiel, true)));
-  poNecinnosti(3000).then(function () { if (!zruseny) nacitajCiel(); });
+  // ceny cieľa hneď (pozri CAKAJ_MS vyššie); po príchode sa karta ukáže, keď je výber pripravený
+  nacitanie = stranka(ciel.url).then(function (v) {
+    stav.mapa = (v && v.mapa) || null;
+  }, function () {
+    stav.mapa = null;
+  });
+  nacitanie.then(naplanuj);
 
   obnov();
 }

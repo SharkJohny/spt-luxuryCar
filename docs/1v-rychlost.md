@@ -44,6 +44,27 @@ rozmeroch). Stránky: 598 (jedno), 601 (dvoj), 628 (Premium), 619 (Classic), 616
    - 1V: časovače a observery len kým treba (odpojiť po hotovom kroku), bez zásahu do starého vzhľadu.
 4. Merania po, snímky, prepnutie SK, zápis výsledkov sem.
 
+## Poznámky k commitom (revízia 25. 10. 2026)
+
+- **c5edd1f (WebP obsahu) nesie aj `luxuryCar.css` pre 0293264:** 0293264 zmenil partial `_lcd1v-kufor.scss` (rezervovaný
+  riadok ceny dlaždíc, `data-lcd1v-ceny="caka"`), ale `luxuryCar.css` sa vložil až v c5edd1f (spolu s `picture{display:contents}`
+  z `_lcd1v-obsah.scss`). Návrat WebP preto **nie holým `git revert c5edd1f`** (zobral by aj CSS kufra a `vloz-lcd-css.py --check`
+  by nesedel), ale: vrátiť súbory WebP zmeny (`tools/build-admin-html.mjs` obrazky1v / `admin-html/dist`, pravidlo 2c
+  v `_lcd1v-obsah.scss`), spustiť `python tools/vloz-lcd-css.py` a `node tools/build-admin-html.mjs`, potom oba `--check`.
+- **Revízia F2 (25. 10. 2026):** okno na fotky ukáže hneď náhľad z galérie a plný JPG podloží po stiahnutí (obsah-d.js);
+  výrez susednej stránky len pri formulári s `id="product-detail-form"` (susedne.js); ponuka setu sťahuje 598 hneď
+  a pri „Pokračujte ďalej“ čaká na ceny najviac 1,5 s (komplet-ponuka.js); podnadpis kroku 1 rohože má rezervované
+  miesto (kufor-produkt.js); v tlači je `.rv` obsahu viditeľné (`_lcd1v-obsah.scss` 6 c2).
+
+## Otvorené
+
+- `classic-d7` sa na Classic sťahuje 2× — WebP v galérii a JPG vo farbách (iná sekcia, iná adresa).
+- 51 z 205 vygenerovaných WebP v `assets/img/1v/obsah` žiadny kus `admin-html/dist` nepoužíva — fotky, ktoré build
+  neobalí: pozadia z CSS (`boxy-end`, `dvoj-koniec`) a fotky, ktoré prepína JS (`boxy-farba-*`, `dvoj-farby-*`, pred a po
+  `*-pp-*`, `boxy-pred`/`boxy-po`). Buď ich zapojiť, alebo negenerovať.
+- WebP nemajú odtlačok zdroja: po výmene JPG s tým istým menom ostane starý WebP a `obrazky-1v-webp.py --check` to
+  nezistí (treba hash JPG v mene alebo v zozname vedľa WebP).
+
 ## Výsledky
 
 (doplní sa po meraní)

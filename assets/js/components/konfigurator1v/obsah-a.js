@@ -6,8 +6,11 @@
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ. Nič zo živého DOM nemaže, nič neodosiela, žiadny fetch.
 // Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Sekcia, ktorá ešte nie je v admine (stub), nie je
-// v DOM: oc.sekcia(meno) === null a jej časť sa preskočí. Od 25. 10. 2026 (rýchlosť) obsah.js volá init po sekciách,
-// keď sa sekcia priblíži k oknu — oc.sekcia vráti len tú jednu (ostatné null), init teda môže prísť viackrát.
+// v DOM: oc.sekcia(meno) === null a jej časť sa preskočí. Od 25. 10. 2026 (rýchlosť) obsah.js volá init po sekciách
+// (postupne v nečinnosti, blízko okna prednostne) — oc.sekcia vráti len tú jednu (ostatné null), init môže prísť viackrát.
+// Revízia F1 (rýchlosť 25. 10. 2026): a-galeria a a-recenzie menia pri oživení výšku sekcie (výška lepenej galérie
+// podľa pásu na PC +1 253 px, karty recenzií +500 px na telefóne) -> robia sa už pri vložení kusu (vlozenie), inak by
+// reload/Späť obnovil polohu inde a obsah nad oknom poskakoval; fotky recenzií sa aj tak sťahujú až pri priblížení.
 //   a-referencie poster slučiek až pri priblížení pásu, prehráva max 2 najbližšie stredu (telefón 1, .mid), bez autoplay
 //                pri šetrení dát / pomalej sieti / reduced-motion; šípky; natáčanie kariet do perspektívy (ako titulka).
 //                Klik na kartu = celé video z YouTube v okne skupiny D (data-p1v-lb-yt, obsluhuje obsah-d.js).
@@ -26,12 +29,12 @@ const pole = (x) => Array.prototype.slice.call(x || []);
 const mm = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
 const pohyb = () => !mm("(prefers-reduced-motion: reduce)");
 
-/** @param {object} oc spoločný kontext obsahu (obsah.js) */
-export function init(oc) {
-  const sekcie = SEKCIE.map((m) => oc.sekcia(m)).filter(Boolean);
-  if (!sekcie.length) return;
-  const ref = oc.sekcia("a-referencie");
-  if (ref) referencie(ref, oc);
+/**
+ * Pri vložení kusu (obsah.js, revízia F1): časti, od ktorých závisí výška sekcie. Lacné — galéria len poslucháče a výška
+ * v requestAnimationFrame (rezim() v lcdHomeModuly.js, pred prvým vykreslením obsahu), recenzie čakajú na dáta (oc.ked).
+ * @param {object} oc spoločný kontext obsahu pre jednu sekciu
+ */
+export function vlozenie(oc) {
   const gal = oc.sekcia("a-galeria");
   if (gal) {
     // lcdMultiKoren([gal]).querySelectorAll(".lx-gal") sekciu samu nevráti -> lxModulyOziv nepostaví vlastné .lx-zoom,
@@ -41,6 +44,15 @@ export function init(oc) {
   }
   const rec = oc.sekcia("a-recenzie");
   if (rec) recenzie(rec, oc);
+}
+
+/** @param {object} oc spoločný kontext obsahu (obsah.js) */
+export function init(oc) {
+  const sekcie = SEKCIE.map((m) => oc.sekcia(m)).filter(Boolean);
+  if (!sekcie.length) return;
+  const ref = oc.sekcia("a-referencie");
+  if (ref) referencie(ref, oc);
+  // a-galeria a a-recenzie: už pri vložení (vlozenie)
 }
 
 /** Fotky galérie -> okno #p1v-lb (obsah-d.js, delegovaný klik na .p1v-miesto): adresa fotky, sada a popis (figcaption
@@ -138,6 +150,9 @@ function referencie(sek, oc) {
 }
 
 // ------------------------------------------------------------------------------------------------ recenzie z Google
+/** Prázdny obrázok (1 × 1 GIF): fotka recenzie pred priblížením sekcie — img bez src by nemal rozmer (prázdny inline). */
+const PRAZDNY_OBR = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
 function recenzie(sek, oc) {
   const pas = sek.querySelector(".revs");
   if (!pas) return;
@@ -145,19 +160,33 @@ function recenzie(sek, oc) {
   const krok = () => { const k = pas.querySelector(".rev"); return k ? k.getBoundingClientRect().width + 16 : 300; };
   if (spat) spat.addEventListener("click", () => pas.scrollBy({ left: -krok(), behavior: pohyb() ? "smooth" : "auto" }));
   if (dalej) dalej.addEventListener("click", () => pas.scrollBy({ left: krok(), behavior: pohyb() ? "smooth" : "auto" }));
+  // rýchlosť (25. 10. 2026): fotky recenzií až pri priblížení sekcie (karty sú v DOM od vloženia, kvôli výške)
+  let blizko = false;
+  const fotky = () => {
+    pole(pas.querySelectorAll("img[data-p1v-foto]")).forEach((im) => { im.src = im.getAttribute("data-p1v-foto"); im.removeAttribute("data-p1v-foto"); });
+  };
+  oc.priZobrazeni(sek, () => { blizko = true; fotky(); }, { okraj: oc.okrajOzivenia || "150% 0px" });
+  // zmena výšky po vložení (dáta prídu neskôr) -> s ručným ukotvením okna (obsah.js), nech obsah v okne neposkočí
+  const ukotvi = oc.ukotvi || ((fn) => fn());
 
   let hotovo = false;
-  oc.ked(() => {
-    const d = window.LCD_REVIEWS;
-    return d && d.place && Array.isArray(d.reviews) && d.reviews.length ? d : null;
-  }, (d) => {
+  if (!dataRecenzii()) zastupcaRecenzie(sek, pas);
+  oc.ked(dataRecenzii, (d) => {
     hotovo = true;
-    try { vykresliRecenzie(sek, pas, d); sek.classList.add("p1v-rev-ok"); } catch (e) {
-      sek.classList.add("p1v-rev-bez"); // sekcia sa skryje, chyba ide do __lcd1v.chyby (test ju nahlási)
-      oc.ctx.chyby.push(MENO + " recenzie: " + ((e && e.message) || e));
-    }
+    ukotvi(() => {
+      try { vykresliRecenzie(sek, pas, d, blizko); sek.classList.add("p1v-rev-ok"); } catch (e) {
+        sek.classList.add("p1v-rev-bez"); // sekcia sa skryje, chyba ide do __lcd1v.chyby (test ju nahlási)
+        oc.ctx.chyby.push(MENO + " recenzie: " + ((e && e.message) || e));
+      }
+    }, sek);
   }, { limit: 30000 });
-  setTimeout(() => { if (!hotovo) sek.classList.add("p1v-rev-bez"); }, 30500);
+  setTimeout(() => { if (!hotovo) ukotvi(() => sek.classList.add("p1v-rev-bez"), sek); }, 30500);
+}
+
+/** window.LCD_REVIEWS (reviews-data.js), keď sú použiteľné, inak null */
+function dataRecenzii() {
+  const d = window.LCD_REVIEWS;
+  return d && d.place && Array.isArray(d.reviews) && d.reviews.length ? d : null;
 }
 
 const cislo1 = (x) => (Math.round(Number(x) * 10) / 10).toFixed(1).replace(".", ",");
@@ -196,7 +225,8 @@ function vyberRecenzie(sek, zoznam) {
   return out.slice(0, pocet);
 }
 
-function vykresliRecenzie(sek, pas, d) {
+/** fotky = sekcia je blízko okna (sťahovať hneď), inak prázdny obrázok a adresa v data-p1v-foto (recenzie() ich doplní) */
+function vykresliRecenzie(sek, pas, d, fotky) {
   const hodnotenie = Number(d.place.rating), pocet = Number(d.place.totalReviews);
   const skore = sek.querySelector(".revhead .score"), sub = sek.querySelector(".revhead .sub");
   if (skore && hodnotenie > 0) skore.textContent = cislo1(hodnotenie);
@@ -206,31 +236,58 @@ function vykresliRecenzie(sek, pas, d) {
   }
   const g = sek.querySelector(".revhead .gmark");
   const frag = document.createDocumentFragment();
-  vyberRecenzie(sek, d.reviews).forEach((r) => {
-    const a = prvok("article", "rev");
-    a.appendChild(prvok("span", "qm", "“")).setAttribute("aria-hidden", "true");
-    const hv = Math.max(1, Math.min(5, Math.round(Number(r.rating) || 5)));
-    const st = a.appendChild(prvok("div", "st", "★".repeat(hv)));
-    st.setAttribute("aria-label", hv + " z 5");
-    a.appendChild(prvok("p", "", textRecenzie(r.text)));
-    const foto = (r.photos || []).filter((u) => /^https:\/\//.test(u)).slice(0, 3);
-    if (foto.length) {
-      const sh = a.appendChild(prvok("div", "shots"));
-      foto.forEach((u) => {
-        const im = prvok("img");
-        // rýchlosť (25. 10. 2026): loading/decoding PRED src — inak prehliadač začne sťahovať hneď pri nastavení src
-        im.loading = "lazy"; im.decoding = "async"; im.alt = ""; im.width = 260; im.height = 260; im.src = u;
-        sh.appendChild(im);
-      });
-    }
-    const foot = a.appendChild(prvok("div", "foot"));
-    foot.appendChild(prvok("span", "av", iniciala(r.author))).setAttribute("aria-hidden", "true");
-    const meta = foot.appendChild(prvok("span", "meta"));
-    meta.appendChild(prvok("b", "", String(r.author || "").trim()));
-    meta.appendChild(prvok("i", "", r.relativeDate || "Overený zákazník"));
-    if (g) { const ik = g.cloneNode(true); ik.removeAttribute("class"); foot.appendChild(ik); }
-    frag.appendChild(a);
-  });
-  while (pas.firstChild) pas.removeChild(pas.firstChild); // len prázdny komentár <!-- --> z adminu (TinyMCE)
+  vyberRecenzie(sek, d.reviews).forEach((r) => frag.appendChild(kartaRecenzie(r, g, fotky)));
+  while (pas.firstChild) pas.removeChild(pas.firstChild); // prázdny komentár <!-- --> z adminu (TinyMCE) alebo zástupca
   pas.appendChild(frag);
+}
+
+/** Karta recenzie (article.rev). g = ikona Google z hlavičky (kópia do päty), fotky ako vo vykresliRecenzie. */
+function kartaRecenzie(r, g, fotky) {
+  const a = prvok("article", "rev");
+  a.appendChild(prvok("span", "qm", "“")).setAttribute("aria-hidden", "true");
+  const hv = Math.max(1, Math.min(5, Math.round(Number(r.rating) || 5)));
+  const st = a.appendChild(prvok("div", "st", "★".repeat(hv)));
+  st.setAttribute("aria-label", hv + " z 5");
+  a.appendChild(prvok("p", "", textRecenzie(r.text)));
+  const foto = (r.photos || []).filter((u) => /^https:\/\//.test(u)).slice(0, 3);
+  if (foto.length) {
+    const sh = a.appendChild(prvok("div", "shots"));
+    foto.forEach((u) => {
+      const im = prvok("img");
+      // rýchlosť (25. 10. 2026): loading/decoding PRED src — inak prehliadač začne sťahovať hneď pri nastavení src;
+      // rozmer drží CSS (56 × 56 px), takže doplnenie fotky pri priblížení výšku karty nemení
+      im.loading = "lazy"; im.decoding = "async"; im.alt = ""; im.width = 260; im.height = 260;
+      if (fotky) im.src = u;
+      else { im.setAttribute("data-p1v-foto", u); im.src = PRAZDNY_OBR; }
+      sh.appendChild(im);
+    });
+  }
+  const foot = a.appendChild(prvok("div", "foot"));
+  foot.appendChild(prvok("span", "av", iniciala(r.author))).setAttribute("aria-hidden", "true");
+  const meta = foot.appendChild(prvok("span", "meta"));
+  meta.appendChild(prvok("b", "", String(r.author || "").trim()));
+  meta.appendChild(prvok("i", "", r.relativeDate || "Overený zákazník"));
+  if (g) { const ik = g.cloneNode(true); ik.removeAttribute("class"); foot.appendChild(ik); }
+  return a;
+}
+
+/**
+ * Revízia F1 (rýchlosť 25. 10. 2026): kým dáta recenzií neprídu (reviews-data.js načíta main.js až po data.json),
+ * drží pás výšku neviditeľná karta ako najdlhšia skutočná (text ~300 znakov, rad fotiek, päta). Bez nej pás pri príchode
+ * dát narástol o ~500 px (telefón) — keď prehliadač pri reload/Späť obnovil polohu skôr (napr. kamióny 640), obsah
+ * pod recenziami skončil o toľko inde a stránka pri načítaní poskočila. Skutočné karty ju nahradia (vykresliRecenzie).
+ */
+const TEXT_ZASTUPCU = "Koberce sedia v aute presne, materiál je kvalitný a na pohľad aj na dotyk pôsobia luxusne. Komunikácia " +
+  "bola rýchla, dodanie v sľúbenom termíne a montáž zvládne každý za pár minút. Odporúčam každému, kto chce mať " +
+  "interiér chránený a zároveň pekný — určite objednám aj do ďalšieho auta, ďakujem za skvelú prácu a prístup.";
+function zastupcaRecenzie(sek, pas) {
+  if (pas.querySelector(".rev")) return;
+  const a = kartaRecenzie({ rating: 5, text: TEXT_ZASTUPCU, photos: ["https://x/1", "https://x/2", "https://x/3"], author: "Overený zákazník", relativeDate: "pred mesiacom" },
+    sek.querySelector(".revhead .gmark"), false);
+  a.classList.add("p1v-rev-zastupca");
+  a.setAttribute("aria-hidden", "true");
+  a.style.visibility = "hidden";
+  // fotky zástupcu sa nikdy nesťahujú (len rozmer)
+  pole(a.querySelectorAll("img[data-p1v-foto]")).forEach((im) => im.removeAttribute("data-p1v-foto"));
+  pas.appendChild(a);
 }

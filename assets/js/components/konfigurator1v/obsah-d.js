@@ -23,6 +23,62 @@ const YT_ID = /^[\w-]{6,20}$/;
 
 let okno = null; // singleton okna (pripravOkno); null = okno na stránke nie je
 
+// ------------------------------------------------------------------------------------------------ plná fotka okna
+// rýchlosť (25. 10. 2026): galéria ukazuje zmenšené WebP (build obalí fotky do <picture>), okno chce plný JPG
+// z data-p1v-lb-foto. Kým JPG nebol stiahnutý, okno ostávalo na pomalej sieti chvíľu prázdne a rám zmrštený (rozmer rámu
+// dáva fotka). Preto okno hneď ukáže fotku, ktorú prehliadač už má (náhľad = currentSrc kliknutej fotky), v rozmere plnej
+// fotky, a plný JPG ju nahradí až po stiahnutí — rám neposkočí.
+const MA_URL = typeof URL === "function";
+
+/** Absolútna adresa (porovnanie s img.currentSrc); zlá adresa -> "". */
+function absolutna(u) {
+  if (!u) return "";
+  try { return MA_URL ? new URL(u, document.baseURI).href : u; } catch (e) { return ""; }
+}
+
+/** Šírka súboru (px) kandidáta url zo srcset obrázka alebo <source> jeho <picture> („…-w480.webp 480w“), inak 0.
+ *  naturalWidth to nie je: pri srcset vracia šírku prepočítanú cez sizes, nie šírku súboru. */
+function sirkaSuboru(img, url) {
+  const zdroje = [img];
+  const pic = img.parentNode;
+  if (pic && pic.nodeName === "PICTURE") Array.prototype.forEach.call(pic.querySelectorAll("source"), (s) => zdroje.push(s));
+  for (let i = 0; i < zdroje.length; i++) {
+    const ss = zdroje[i].getAttribute("srcset");
+    if (!ss) continue;
+    const kandidati = ss.split(",");
+    for (let j = 0; j < kandidati.length; j++) {
+      const m = /^\s*(\S+)\s+(\d+)w\s*$/.exec(kandidati[j]);
+      if (m && absolutna(m[1]) === url) return Number(m[2]);
+    }
+  }
+  return 0;
+}
+
+/** Náhľad položky: fotka v galérii už načítaná a iná ako plná -> { src, w (šírka súboru) }, inak null. */
+function nahladZ(img, plna) {
+  if (!img || !img.complete || !(img.naturalWidth > 0)) return null;
+  const src = img.currentSrc || "";
+  if (!src || src === absolutna(plna)) return null; // starý iPhone bez WebP: galéria už má plný JPG
+  const w = sirkaSuboru(img, src);
+  return w > 0 ? { src, w } : null;
+}
+
+const sTahuje = new Map(); // url -> Image, kým sa plná fotka sťahuje (potom je v cache prehliadača; nedržať dekódované)
+/** Plná fotka do cache prehliadača (jedna požiadavka na adresu) -> Image; complete = už je. */
+function plnaFotka(url) {
+  let im = sTahuje.get(url);
+  if (im) return im;
+  im = new Image();
+  im.decoding = "async";
+  im.src = url;
+  if (im.complete && im.naturalWidth > 0) return im;
+  sTahuje.set(url, im);
+  const hotovo = () => { sTahuje.delete(url); };
+  im.addEventListener("load", hotovo, { once: true });
+  im.addEventListener("error", hotovo, { once: true });
+  return im;
+}
+
 const pohyb = () => !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 const zapnute = () => document.body.classList.contains("lcd-1v");
 
@@ -72,7 +128,30 @@ function pripravOkno(el) {
       m = document.createElement("img");
       m.alt = p.alt || p.popis || "";
       m.decoding = "async";
-      m.src = p.src;
+      const plna = p.nahlad && p.sirka > 0 ? plnaFotka(p.src) : null;
+      if (plna && !(plna.complete && plna.naturalWidth > 0)) {
+        // rýchlosť (25. 10. 2026): náhľad z cache v rozmere plnej fotky — srcset s šírkou súboru náhľadu a sizes = šírka
+        // plnej fotky (atribút width galérie = rozmer JPG) -> prirodzená veľkosť obrázka je tá istá ako po výmene.
+        // src ostáva plná fotka (kto číta atribút src, vidí ju ako doteraz); pri srcset s w-deskriptorom ju prehliadač
+        // z tohto <img> nesťahuje (src nie je kandidát) — sťahuje ju plnaFotka.
+        // Po stiahnutí (a dekódovaní) plnej fotky sa srcset zruší a ukáže sa src — rám ostane rovnaký.
+        m.sizes = p.sirka + "px";
+        m.srcset = p.nahlad.src + " " + p.nahlad.w + "w";
+        m.src = p.src;
+        const img = m;
+        const vymen = () => {
+          if (!img.isConnected || !img.hasAttribute("srcset")) return;
+          img.removeAttribute("srcset");
+          img.removeAttribute("sizes");
+        };
+        // chyba plnej fotky: náhľad ostáva (lepší ako prázdny rám)
+        plna.addEventListener("load", () => {
+          if (plna.decode) plna.decode().then(vymen, vymen);
+          else vymen();
+        }, { once: true });
+      } else {
+        m.src = p.src;
+      }
     } else if (p.typ === "yt") {
       m = document.createElement("iframe");
       m.src = "https://www.youtube-nocookie.com/embed/" + p.src + "?autoplay=1&rel=0&modestbranding=1&playsinline=1";
@@ -176,7 +255,14 @@ function polozkaZ(el) {
   const img = el.querySelector("img");
   const cap = el.querySelector(".cap, figcaption") || (el.closest("figure") && el.closest("figure").querySelector("figcaption"));
   const popis = (d.p1vLbPopis || (cap && cap.textContent) || (img && img.alt) || "").replace(/\s+/g, " ").trim();
-  return { typ, src, popis, alt: (img && img.alt) || popis };
+  const p = { typ, src, popis, alt: (img && img.alt) || popis };
+  // fotka: náhľad z galérie a šírka plnej fotky (atribút width = rozmer JPG) — okno ich ukáže, kým JPG nie je (vykresli)
+  if (typ === "foto" && img) {
+    const n = nahladZ(img, src);
+    const w = parseInt(img.getAttribute("width"), 10);
+    if (n && w > 0) { p.nahlad = n; p.sirka = w; }
+  }
+  return p;
 }
 
 /** platná položka: foto/video https alebo relatívna adresa, YouTube id */
@@ -377,6 +463,15 @@ function spolocne(oc) {
   }
   // okno sa môže pripraviť až pri neskoršom volaní (sekcia d-pomocne) -> kontrola pri kliku
   oc.miesto.addEventListener("click", (e) => { if (okno) klikOkno(oc.miesto, e); });
+  // rýchlosť (25. 10. 2026): myš — plná fotka sa začne sťahovať už pri stlačení tlačidla (klik príde o ~100 ms neskôr).
+  // Dotyk nie: potiahnutie pásu galérie tiež začína dotykom fotky a sťahovali by sa fotky, ktoré zákazník neotvorí.
+  oc.miesto.addEventListener("pointerdown", (e) => {
+    if (!okno || e.pointerType !== "mouse" || e.button !== 0 || !e.target || !e.target.closest) return;
+    const el = e.target.closest("[data-p1v-lb-foto]");
+    if (!el || !oc.miesto.contains(el)) return;
+    const p = polozkaZ(el);
+    if (p && p.nahlad && platna(p)) plnaFotka(p.src);
+  }, { passive: true });
   // iné moduly môžu okno otvoriť aj udalosťou (bez importu): oc.vysli("obsah-d:okno", { polozky, index, spat })
   if (oc.na) oc.na("obsah-d:okno", (d) => { if (d) otvorOkno(d.polozky, d.index || 0, d.spat || null); });
   vyzvy(oc);

@@ -8,8 +8,9 @@
 //                        a variantov, .p-final-price-wrapper) a skript s necessaryVariantData. DOMParser potom dostane
 //                        len výrez (jednotky kB) a tie isté funkcie nad ním vrátia to isté ako nad celou stránkou.
 //                        Prechod textom je lineárny: komentáre, skripty, štýly a <template> sa preskakujú ako v HTML
-//                        parseri. Čokoľvek nečakané (formulár nenájdený, cena/obal ceny/skript variantov mimo očakávaného
-//                        miesta, select s vnorenými poľami …) -> null a volajúci parsuje celú stránku ako doteraz.
+//                        parseri. Čokoľvek nečakané (formulár nenájdený alebo bez id product-detail-form, cena/obal
+//                        ceny/skript variantov mimo očakávaného miesta, select s vnorenými poľami …) -> null a volajúci
+//                        parsuje celú stránku ako doteraz.
 //   stiahniText(cesta) – GET stránky s nízkou prioritou (fetch priority: low; ceny nesmú brať pásmo fotkám a skriptom
 //                        stránky; prehliadač bez podpory voľbu ignoruje).
 //   poNecinnosti(ms)   – Promise v nečinnosti hlavného vlákna (requestIdleCallback, najneskôr po ms); bez neho (Safari)
@@ -151,6 +152,10 @@ export function vyrezStranky(h) {
       const x = attr();
       if (x.id === "product-detail-form" || (meno === "form" && x["data-testid"] === "formProduct")) {
         if (meno !== "form") return null;
+        // rýchlosť (25. 10. 2026, revízia): formulár len s data-testid (bez id) -> celá stránka. maBeznuCenu (ceny-ine.js)
+        // hľadá bežnú cenu cez „.p-info-wrapper …“ alebo „#product-detail-form …“; výrez .p-info-wrapper nemá a bez id by
+        // vrátil bezna = false, kým celá stránka true (overené úpravou živých stránok, revízia vyrez/porovnaj.mjs)
+        if (x.id !== "product-detail-form") return null;
         v.form = h.slice(lt, e + 1);
         continue;
       }

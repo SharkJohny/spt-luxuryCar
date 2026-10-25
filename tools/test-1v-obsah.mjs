@@ -9,7 +9,7 @@
 //   node tools/test-1v-obsah.mjs --sonda-cisla --vyvoj --produkt 604 --len novy --sirka 1280 --bez-snimok   # čísla a odkazy
 //   node tools/test-1v-obsah.mjs --miesto cdn|paticka|popis|zive   # cdn = skúška D1 = b (predvolené), popis = spustenie
 //   ďalšie: --skupina b · --sirka 390 · --sirka-bez 1280,390 · --snimky C:/tmp/obsah · --snimky-sirky 390,1280 · --bez-snimok
-//           --navrh <url> · --bez-zakladu · --paralelne 3 · --okno · --bez-drop · --vypis
+//           --navrh <url> · --bez-zakladu · --paralelne 3 · --okno · --bez-drop · --vypis · --poloha 390,1280 · --bez-polohy
 //
 // Čo robí: postaví HTML obsahu (tools/build-admin-html.mjs --vystup), JS a CSS (ako CI) do dočasného priečinka a otvorí
 // živé stránky produktov. Obsah dostane stránka podľa --miesto (tools/test-1v/obsah-spolocne.mjs):
@@ -27,6 +27,9 @@
 //              kontroly skupín: kľúč 598 -> tools/test-1v/obsah-a…d.mjs, iný kľúč -> obsah-<kľúč>.mjs (+ jeho zdielane);
 //   --sonda-cisla: do 1. kusu sa pridá sekcia so všetkými kľúčmi čísel a typmi odkazov; očakávané hodnoty test zistí
 //              sám (GET živých stránok + register zo zdroja), nie z kódu webu;
+//   poloha:    (revízia F1, 25. 10. 2026; šírky --poloha, predvolene 390 a 1280, vypne --bez-polohy) na novej karte
+//              End + posun hore bez scroll anchoring (ako Safari) bez skoku obsahu v okne > 30 px a reload pri FAQ vráti
+//              FAQ na to isté miesto (± 30 px) — tools/test-1v/obsah-poloha.mjs;
 //   snímky:    každá neprázdna sekcia na webe + tá istá časť návrhu (server návrhov) + obe vedľa seba.
 // Bezpečnosť: POST /action/Cart/addCartItem sa ZRUŠÍ, iný POST na /action/ tiež; merače zablokované; cookies odmietnuté;
 // žiadna objednávka, žiadny admin, žiadne prihlásenie.
@@ -50,6 +53,7 @@ import * as skPremium from "./test-1v/obsah-premium.mjs";
 import * as skBoxy from "./test-1v/obsah-boxy.mjs";
 import * as skVzorky from "./test-1v/obsah-vzorky.mjs";
 import * as skKamiony from "./test-1v/obsah-kamiony.mjs";
+import { kontrolaPolohy } from "./test-1v/obsah-poloha.mjs";
 
 const SKUPINY = { a: skA, b: skB, c: skC, d: skD, dvoj: skDvoj, classic: skClassic, premium: skPremium, boxy: skBoxy, vzorky: skVzorky, kamiony: skKamiony };
 /** Kontroly skupín podľa kľúča obsahu: 598 = A–D (návrh v26); iný kľúč = vlastný plugin + skupiny, ktoré si vyžiada (zdielane). */
@@ -65,7 +69,8 @@ const nbsp = (s) => String(s == null ? "" : s).replace(/[\u00a0\u202f]/g, " ").r
 
 function argumenty(argv) {
   const a = { produkt: "598", vyvoj: false, sondaCisel: false, sirkyNovy: [360, 390, 768, 1280], sirkyBez: [1280, 390], snimkySirky: [390, 1280], skupiny: null, miesto: "cdn",
-    snimky: join(tmpdir(), "lcd-1v-obsah-snimky"), bezSnimok: false, navrh: null, len: null, zaklad: true, paralelne: 3, okno: false, bezDrop: false, vypis: false };
+    snimky: join(tmpdir(), "lcd-1v-obsah-snimky"), bezSnimok: false, navrh: null, len: null, zaklad: true, paralelne: 3, okno: false, bezDrop: false, vypis: false,
+    poloha: [390, 1280] };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
     if (x === "--produkt") a.produkt = dalsi();
@@ -85,6 +90,8 @@ function argumenty(argv) {
     else if (x === "--okno") a.okno = true;
     else if (x === "--bez-drop") a.bezDrop = true;
     else if (x === "--vypis") a.vypis = true;
+    else if (x === "--poloha") a.poloha = cisla(dalsi());
+    else if (x === "--bez-polohy") a.poloha = [];
     else if (x === "--help" || x === "-h") { console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 13).join("\n")); process.exit(0); }
     else throw new ChybaPouzitia("neznámy prepínač " + x);
   }
@@ -483,6 +490,12 @@ async function main() {
                     if (o) n++; else v.info.push("web: " + meno + " bez snímky (výška 0?)");
                   }
                   v.info.push(`${n} snímok sekcií`);
+                }
+                // revízia F1 (rýchlosť 25. 10. 2026): poloha okna — End + posun hore bez scroll anchoring, reload pri FAQ
+                if (a.poloha.includes(u.sirka)) {
+                  const r = await kontrolaPolohy(ch, build, p, u.sirka, { flag, pripravene: (TYPY_TEST[p.typ] || {}).pripravene }).catch((e) => [{ ok: false, popis: "poloha: výnimka " + (e && e.message ? e.message : e) }]);
+                  r.forEach((x) => { if (!x.ok) v.chyby.push(x.popis); });
+                  v.info.push(`poloha ${r.filter((x) => x.ok).length}/${r.length} OK (${r.map((x) => x.popis.replace(/^poloha: /, "").slice(0, 160)).join(" | ")})`);
                 }
                 v.info.push(`${st.korene.length} korene na mieste (${st.obsahStav ? st.obsahStav.zdroj : "?"}), ${st.sekcie.length} sekcií, výška stránky ${st.docH} px`);
               }

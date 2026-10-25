@@ -287,8 +287,11 @@ Výsledky T0.3 sú v sekcii 11.
 
 ## 7. Spustenie pre všetkých (neskôr, s Michalom)
 
-Platí pre každú skupinu (`598` = 598/610/613, `dvoj`, `classic`, `premium`, `boxy`). Kus obsahu ide do **Popisu každého produktu skupiny** (rovnaký `dist` pre všetky tri vzory; čísla a odkazy dosadí `obsah-cisla.js` na stránke).
-1. **Veľkosť:** `node tools/build-admin-html.mjs` → riadok `p1v-<kľúč>.sk … spolu`.
+Platí pre každú skupinu (`598` = 598/610/613, `dvoj`, `classic`, `premium`, `boxy`). Kus obsahu ide do **Popisu každého produktu skupiny** (rovnaký súbor pre všetky tri vzory; čísla a odkazy dosadí `obsah-cisla.js` na stránke).
+
+**Ktorý súbor ide do Popisu (od 25. 10. 2026):** kus postavený **bez obalov `<picture>`** — `node tools/build-admin-html.mjs --vystup <priečinok> --bez-webp` → `<priečinok>/p1v-<kľúč>-N.sk.html`. `admin-html/dist/` je verzia pre CDN: build v nej obalí fotky obsahu do `<picture>` so zmenšeným WebP (commit c5edd1f), preto je dlhšia a do Popisu nepatrí (limit 45 000 zn. by nesedel; TinyMCE by obaly mohol prerobiť). Riadok `p1v-<kľúč>.sk … spolu` a kontrola limitu v builde počítajú dĺžku už bez obalov.
+
+1. **Veľkosť:** `node tools/build-admin-html.mjs` → riadok `p1v-<kľúč>.sk … spolu` (bez obalov WebP = to, čo pôjde do Popisu).
    - **≤ 45 000:** v `ciele.json` jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]`, kus 2 zmazať — **a v `obsah.js` + `pravidla.obsah-1v.kusy` znížiť `KUSY`** (build kontroluje počet kusov skupiny), `sk` = `{ "typ": "produkt", "id": <id>, "pole": "Popis (description)" }` pre každý produkt.
    - **> 45 000** (dnes `598`: 57 316 zn.): kus 1 → Popis, kus 2 nemá kam (pole má limit). Možnosti pre Michala: (a) obsah skrátiť o ~12 300 zn.; (b) kus 2 ostáva na CDN a `obsah.js` ho stiahne aj bez flagu (cesta b) bez brány — JS obsah, „web bez prekrývania“ len čiastočne); (c) kus 2 ako banner v pätičke, skrytý mimo produktov skupiny (HTML navyše na každej stránke natrvalo).
 2. **Zrušiť bránu** (všetko v repe, jeden commit):
@@ -299,9 +302,9 @@ Platí pre každú skupinu (`598` = 598/610/613, `dvoj`, `classic`, `premium`, `
    - `.lcd-1v-obsah` na body ostáva (pridáva ho `obsah.js`); kým JS nepríde, je obsah v Popise na mieste starého popisu, nie pod konfigurátorom — preto JS presun nechať, len bez flagu.
    - Značky `data-p1v-cislo` sú v Popise prázdne → bez JS sa číslo neukáže (nič nesprávne sa neukáže); `data-p1v-odkaz` má záložný `href` (Diamond) — na Hexa/Stripe bez JS vedie na Diamond, s JS na správny vzor.
 3. **TinyMCE normalizácia (pred prvým zápisom, upozornenie z revízie):** Shoptet ukladá Popis cez TinyMCE, ktorý pri `setContent`/uložení HTML **normalizuje** — môže meniť poradie a úvodzovky atribútov, kódovať znaky na entity (`&nbsp;`, `&euro;`), mazať alebo presúvať komentáre `<!-- -->`, prázdne prvky, `<img>` bez `src` (8 fotiek farieb má len `data-src`), obaľovať inline uzly do `<p>`, prípadne odfiltrovať atribúty mimo schémy (`data-p1v-*`, `data-lcd-*`, `style`). Preto:
-   - pred zápisom replika: rovnaká verzia a konfigurácia TinyMCE (`setContent(dist)` → `getContent()`), rozdiel voči `dist` zapísať a buď upraviť build tak, aby `dist` bol už v normalizovanom tvare, alebo rozdiel vedome prijať,
+   - pred zápisom replika: rovnaká verzia a konfigurácia TinyMCE (`setContent(<kus bez obalov>)` → `getContent()`; kus = `--bez-webp`, pozri vyššie), rozdiel voči nemu zapísať a buď upraviť build tak, aby kus bol už v normalizovanom tvare, alebo rozdiel vedome prijať,
    - povinne overiť, že prežijú: `data-lcd-cast`, `data-lcd-sekcia`, `data-p1v-cislo|tvar|bez|odkaz`, `data-src`/`data-poster`, `loading="lazy"`, `<button type="button">`, `<!-- -->` v prázdnych prvkoch,
-   - po zápise `--miesto zive` porovnáva len `data-lcd-v` (hash z buildu je atribút — TinyMCE ho nezmení, aj keď zmení obsah) → **nestačí**; k nemu snímky a porovnanie počtu sekcií, značiek a médií živého koreňa s `dist` (doplniť do testu pred spustením).
+   - po zápise `--miesto zive` porovnáva len `data-lcd-v` (hash z buildu je atribút — TinyMCE ho nezmení, aj keď zmení obsah) → **nestačí**; k nemu snímky a porovnanie počtu sekcií, značiek a médií živého koreňa s kusom bez obalov (doplniť do testu pred spustením).
 4. **Pred zápisom:** `test-1v-obsah --miesto popis --produkt <skupina>` + `test-konfigurator-1v` (oba režimy) + celý web zo smoke harnessu.
 5. **Admin (koordinátor + Michal, runner):** presne podľa sekcie 9 B.
 6. **Po zmazaní starého obsahu skontrolovať živý JS starého popisu:**
@@ -337,6 +340,7 @@ oc.vysli("obsah-d:okno", { polozky: [{ typ: "yt", src: "snb_QNjkcIs", popis: "�
 ```
 
 - Platné sú len `https://` alebo `/` adresy a YouTube id `[\w-]{6,20}`.
+- **Fotka a pomalá sieť (25. 10. 2026):** galéria ukazuje zmenšené WebP, okno plný JPG z `data-p1v-lb-foto`. Kým JPG nie je stiahnutý, okno ukáže hneď fotku, ktorú prehliadač už má (`currentSrc` kliknutej fotky, šírka súboru z `srcset` obalu `<picture>`) v rozmere plnej fotky (atribút `width` obrázka = rozmer JPG) a plný JPG ju nahradí po stiahnutí — rám neposkočí. Atribút `src` obrázka v okne je vždy plná fotka. Myšou sa JPG začne sťahovať už pri stlačení (`pointerdown`), dotykom nie (potiahnutie pásu). Bez `width` alebo bez obalu `<picture>` (napr. fotky titulky, kamióny) ako doteraz rovno plná fotka.
 - Zatváranie: ×, Escape, klik na pozadie. Fokus sa vráti na prvok, ktorý okno otvoril. Stránka sa pod oknom neposúva (`html{overflow:hidden}` inline).
 - Galéria titulky (`lx-gal`, skupina A) má vlastné zväčšenie `.lx-zoom` z `lxModulyOziv`. Okno D je pre ostatné fotky a videá (napr. referenčné videá `data-p1v-lb-yt`).
 
@@ -375,11 +379,11 @@ Starý postup D1 = a (2 bannery v Pätičke, `--miesto paticka`) sa nepoužíva;
 Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyMCE replika, kód nasadený a prepnutý, testy `--miesto popis`).
 
 1. **Záloha:** pole „Popis“ každého produktu skupiny (SK admin, detail produktu; na webe `#description .basic-description`) celé do `C:/Users/M/Desktop/LCD/web/zalohy-admin/<dátum>/produkt-<id>-popis.sk.html` + dĺžka (598 dnes 42 440 zn.) + snímka. Bez zálohy sa nepokračuje.
-2. **Ktorý súbor:**
-   - súčet ≤ 45 000 zn. (riadok `p1v-<kľúč>.sk … spolu` v builde): jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]` → do Popisu **každého** produktu skupiny ide **celý** `admin-html/dist/p1v-<kľúč>-1.sk.html`;
-   - nad limitom (dnes `598`: 57 316 zn. = 34 227 + 23 089) → do Popisu ide `dist/p1v-<kľúč>-1.sk.html`, kus 2 podľa rozhodnutia v sekcii 7 bod 1.
+2. **Ktorý súbor:** vždy kus **bez obalov `<picture>`** — `node tools/build-admin-html.mjs --vystup <priečinok> --bez-webp` (nie `admin-html/dist/`: tam sú obaly WebP pre CDN a kus je dlhší; sekcia 7):
+   - súčet ≤ 45 000 zn. (riadok `p1v-<kľúč>.sk … spolu` v builde): jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]` → do Popisu **každého** produktu skupiny ide **celý** `<priečinok>/p1v-<kľúč>-1.sk.html`;
+   - nad limitom (dnes `598`: 57 316 zn. = 34 227 + 23 089) → do Popisu ide `<priečinok>/p1v-<kľúč>-1.sk.html`, kus 2 podľa rozhodnutia v sekcii 7 bod 1.
 3. **Zápis:** runner nastaví obsah poľa „Popis“ cez API TinyMCE (`setContent` celého súboru), uloží produkt. Starý obsah sa tým nahradí celý (nič sa neprikladá). Rovnaký súbor pre všetky vzory skupiny.
-4. **Overenie:** uložené HTML z adminu proti `dist` (rozdiely len tie, ktoré replika TinyMCE v sekcii 7 bod 3 vopred ukázala a boli prijaté), `node tools/test-1v-obsah.mjs --miesto zive --produkt <skupina>`, `test-konfigurator-1v` oba režimy, snímky 390/1280 na každom vzore (čísla a odkazy podľa vzoru).
+4. **Overenie:** uložené HTML z adminu proti zapísanému súboru bez obalov z bodu 2 (rozdiely len tie, ktoré replika TinyMCE v sekcii 7 bod 3 vopred ukázala a boli prijaté), `node tools/test-1v-obsah.mjs --miesto zive --produkt <skupina>`, `test-konfigurator-1v` oba režimy, snímky 390/1280 na každom vzore (čísla a odkazy podľa vzoru).
 5. **Návrat:** Popis zo zálohy (runner), kód podľa `admin-html/README.md` „Návrat“.
 
 ## 10. Integrácia 14. 10. 2026 — stav

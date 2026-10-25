@@ -106,6 +106,11 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor[data-lcd
   letter-spacing: 0;
   text-transform: none;
 }
+/* rýchlosť (25. 10. 2026, revízia): tak isto podnadpis kroku 1 — kufor-produkt.js vloží odsek s vetou v tvare podnadpisu
+   (bez sumy) už pri štarte; neviditeľný drží jej miesto, po príchode cien dostane skutočnú vetu (dlaždice neposkočia) */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor > .lcd1v-kf-pod--caka {
+  visibility: hidden;
+}
 
 /* ---------- banner setu (návrh C „Fotka cez celú šírku“, Michal 17. 10. 2026; set-banner.js) ----------
    Rohože do kufra aj box 616 majú ten istý banner -> :is(kufor*, boxy) (špecificita ako [data-lcd1v-typ]); miesto:

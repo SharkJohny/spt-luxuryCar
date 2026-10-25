@@ -25,17 +25,22 @@
 //   4. moduly skupín A–D (obsah-a.js … obsah-d.js) a modul typu (obsah-dvoj/-classic/-premium/-boxy.js) sa volajú PO
 //      SEKCIÁCH: init(oc) dostane `oc`, v ktorom oc.sekcia(meno) vráti len tú jednu sekciu, ktorá sa práve oživuje
 //      (ostatné null — rovnako ako stub); oc.najdiSekciu(meno) hľadá v celom obsahu (napr. cieľ odkazu pri kliku).
-//      Sekcia sa oživí, keď sa priblíži k oknu (OKRAJ_OZIVENIA = 1,5 výšky okna), každá vo vlastnej úlohe v nečinnosti
-//      (requestIdleCallback s limitom, inak setTimeout 0) — hlavné vlákno sa medzi sekciami uvoľní. Pomocné sekcie
-//      (*-pomocne: okno na fotky, linka čítania) a spoločné časti modulov (init s oc bez sekcií) sa oživia hneď pri vložení;
+//      Po vložení kusu sa oživia VŠETKY sekcie postupne v poradí dokumentu, každá vo vlastnej úlohe v nečinnosti
+//      (requestIdleCallback s limitom, inak setTimeout 0) — hlavné vlákno sa medzi sekciami uvoľní; sekcia blízko okna
+//      (OKRAJ_OZIVENIA = 1,5 výšky okna) má prednosť, sekcia už vo výreze sa oživí hneď. Pomocné sekcie (*-pomocne: okno
+//      na fotky, linka čítania) a spoločné časti modulov (init s oc bez sekcií) sa oživia hneď pri vložení. Časti, od
+//      ktorých závisí VÝŠKA sekcie (výška scény, karty recenzií, vzorky farieb, riadok ceny), robí modul už pri vložení
+//      (voliteľné vlozenie(oc), lacné a bez čítania rozloženia) — výšky sú hneď konečné. Oživenie aj neskoršie zmeny
+//      modulov (oc.ukotvi) sú ručne ukotvené: obsah v okne neposkočí ani bez scroll anchoring (Safari);
 //   5. reveal .rv: jeden IntersectionObserver (žiadne čítanie polôh pri vložení); čo je vo výreze alebo nad ním, dostane
 //      .on hneď pri prvom hlásení, až potom obal sekcie dostane .p1v-rv (dovtedy je všetko viditeľné).
 // Chyba: cesta a) -> ctx.chyby (index.js zloží celý nový vzhľad, ako doteraz); vloženie kusu (cesta b) -> chyba ide do
-// ctx.chyby a vráti sa LEN obsah (miesto preč, starý popis späť). Chyba pri oživení sekcie (neskôr, pri posune) ide do
+// ctx.chyby a vráti sa LEN obsah (miesto preč, starý popis späť). Chyba pri vložení/oživení sekcie v module ide do
 // ctx.chyby, sekcia ostane statická a viditeľná (obsah sa pod zákazníkom nezloží).
 // Žiadny živý DOM sa nemaže (záložky ostávajú v DOM, len skryté; JS na ne kotví — main.js, popisModuly.js).
 // Stav pre test a ladenie: window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|null, stav, kusy, hotovo (Promise),
-// cisla (Promise), neozivene() -> mená sekcií, ktoré sa ešte neoživili }.
+// cisla (Promise), neozivene() -> mená sekcií, ktoré sa ešte neoživili, vyrovnane: { pocet, px, merania } — ručné
+// vyrovnania polohy okna (Chrome so scroll anchoring 0) a koľkokrát sa kvôli kotve čítalo rozloženie }.
 import { lcdMultiKoren } from "../../functions/lcdOziv.js";
 import { OBRAZKY_1V } from "./ctx.js";
 import * as cisla from "./obsah-cisla.js";
@@ -70,14 +75,18 @@ const MODUL_TYPU = { dvoj: typDvoj, classic: typClassic, premium: typPremium, bo
 /** bundle verzie: …/assets/v/<sha>/js/luxuryCar.js -> …/assets/v/<sha>/ (len https; nevyverzovaný bundle = null) */
 const RE_BUNDLE = /^(https:\/\/[^?#]+\/assets\/v\/[A-Za-z0-9._-]+\/)js\/luxuryCar\.js(?:[?#]|$)/;
 /**
- * Michal 25. 10. 2026 (rýchlosť): sekcia sa oživí (moduly A–D a typu), keď je od okna bližšie než 1,5 jeho výšky — na
- * pomalom telefóne má dosť času byť hotová skôr, než ju zákazník uvidí, a čo nikto nevidí, nezaťaží načítanie.
+ * Michal 25. 10. 2026 (rýchlosť): sekcia, ktorá je od okna bližšie než 1,5 jeho výšky, sa oživí (moduly A–D a typu)
+ * prednostne — na pomalom telefóne má dosť času byť hotová skôr, než ju zákazník uvidí. Ostatné idú za ňou v poradí
+ * dokumentu, keď je prehliadač nečinný (revízia F1). Výšky sekcií sú konečné už od vloženia (vlozenie(oc) modulov),
+ * oživenie pridáva len správanie (poslucháče, animácie) — preto vzdialené sekcie nemusia tlačiť na hlavné vlákno.
  */
 const OKRAJ_OZIVENIA = "150% 0px";
 /** Reveal .rv: rovnaký okraj ako doteraz (prvok sa odhalí, keď je nad spodnými 8 % okna). */
 const OKRAJ_ODHALENIA = "0px 0px -8% 0px";
-/** Najdlhšie čakanie na nečinnosť pred oživením ďalšej sekcie (ms). */
+/** Najdlhšie čakanie na nečinnosť pred oživením sekcie blízko okna (ms). */
 const LIMIT_NECINNOSTI = 200;
+/** … a vzdialenej sekcie (ms): pri načítaní (konfigurátor, merače) neberie čas ničomu, čo zákazník práve potrebuje. */
+const LIMIT_NECINNOSTI_DALEKO = 1500;
 
 /** Kľúč obsahu produktu (register produkty.js -> obsah), inak productId. */
 export function klucObsahu(ctx) {
@@ -291,8 +300,8 @@ function vytvorOdhalovanie() {
 }
 
 /** Úloha v nečinnosti (requestIdleCallback s limitom), inak hneď v ďalšej úlohe (setTimeout 0 — Safari rIC nemá). */
-function vNecinnosti(fn) {
-  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(fn, { timeout: LIMIT_NECINNOSTI });
+function vNecinnosti(fn, limit = LIMIT_NECINNOSTI) {
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(fn, { timeout: limit });
   else setTimeout(() => fn(null), 0);
 }
 
@@ -310,66 +319,220 @@ function poVykresleni() {
 }
 
 /**
- * Oživovanie po sekciách (bod 4 hlavičky): sekcia sa zaradí, keď sa priblíži k oknu (OKRAJ_OZIVENIA), a oživí sa
- * vo vlastnej úlohe v nečinnosti (vyššie sekcie prvé). Pomocné sekcie (*-pomocne) hneď.
+ * Ručné ukotvenie (revízia F1, rýchlosť 25. 10. 2026): oživenie sekcie alebo neskoršia zmena modulu (vykreslenie
+ * recenzií, riadok ceny) môže zmeniť výšku obsahu nad oknom — bez scroll anchoring (Safari) by obsah v okne poskočil
+ * (reload/Späť zo stredu obsahu skončil inde, End + posun hore skákal o tisíce px). Pred zmenou si zapamätáme kotvu =
+ * prvý prvok obsahu, ktorý pretína okno, a jeho polohu; po zmene posunieme okno o to, o čo sa kotva v okne pohla.
+ * Chrome so scroll anchoring vyrovná posun už pri čítaní rozloženia (overené 25. 10. 2026: getBoundingClientRect aj
+ * scrollY hneď po zmene vracajú vyrovnanú polohu) -> tu nameria 0 a nepridá nič, žiadne dvojité vyrovnanie; Safari
+ * (a overflow-anchor:none) dorovná celé. Pozor: na PC (nad 768 px) web scroll anchoring vypína sám
+ * (functions/configuratorEngine.js: overflow-anchor:none na html a body) — tam je ručné ukotvenie jediné. Poloha kotvy
+ * sa meria podľa rozloženia (offsetTop), nie getBoundingClientRect: transformácie (reveal .rv, natáčanie kariet) sa
+ * počas merania menia a neboli by posunom obsahu.
  */
-function vytvorOzivovanie(oc, moduly, odhalovanie, stav) {
-  const cakaju = new Set();
-  const fronta = [];
-  let naplanovane = false;
+/** Najhlbšia úroveň kotvy pod .p1v-miesto (miesto -> koreň kusu -> sekcia -> blok sekcie -> jeho dieťa). */
+const HLBKA_KOTVY = 4;
+/**
+ * Menší posun sa nevyrovnáva (px): offsetTop je zaokrúhlený na celé px (súčet reťazca kolíše o 1–2 px), a zbytočný
+ * scrollBy by zrušil prebiehajúci plynulý posun — aj obnovenie polohy pri reload/Späť (Chrome ho na stránke s plynulým
+ * posunom robí animáciou; 1 px „vyrovnanie“ ho zastavilo o 3 400 px skôr, overené 25. 10. 2026).
+ */
+const PRAH_KOTVY = 3;
+/** Poloha prvku v dokumente podľa rozloženia (súčet offsetTop) — bez transformácií prvku aj predkov. */
+function polohaY(el) {
+  let y = 0;
+  for (let e = el; e; e = e.offsetParent) y += e.offsetTop;
+  return y;
+}
+const mieraKotvy = (k) => polohaY(k.el) + (k.dole ? k.el.offsetHeight : 0);
+
+/**
+ * Prvé dieťa el, ktoré pretína okno alebo je pod jeho horným okrajom: { c, q } alebo null. Absolútne umiestnené sa
+ * preskočí (poloha môže závisieť od výšky rodiča, napr. bottom:0 — po zmene výšky by sa „pohlo“ samo); prilepené
+ * a pevné sa s obsahom nehýbe -> null (kotvou ostane rodič, do neho sa nejde).
+ */
+function dietaVOkne(el) {
+  for (let c = el.firstElementChild; c; c = c.nextElementSibling) {
+    const q = c.getBoundingClientRect();
+    if (!(q.width || q.height) || q.bottom <= 0) continue;
+    const poz = getComputedStyle(c).position;
+    if (poz === "absolute") continue;
+    return poz === "sticky" || poz === "fixed" ? null : { c, q };
+  }
+  return null;
+}
+
+/**
+ * Kotva pred zmenou: { el, dole, y, sy } alebo null, keď zmena nič v okne neposunie (sekcia aj celý obsah pod oknom).
+ * Okno pod obsahom (pätička) -> kotvou je spodný okraj miesta. Číta rozloženie — volať mimo úlohy vloženia kusu.
+ */
+function kotva(miesto, sekcia, stav) {
+  if (!miesto || !miesto.isConnected) return null;
+  if (stav && stav.vyrovnane) stav.vyrovnane.merania++;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+  if (sekcia && sekcia.getBoundingClientRect().top >= vh) return null;
+  const r = miesto.getBoundingClientRect();
+  if (r.top >= vh) return null;
+  let el = miesto;
+  const dole = r.bottom <= 0;
+  if (!dole) {
+    for (let h = 0; h < HLBKA_KOTVY; h++) {
+      const d = dietaVOkne(el);
+      if (!d) break;
+      el = d.c;
+      if (d.q.top >= 0) break; // začína v okne — hlbšia kotva netreba
+    }
+  }
+  const k = { el, dole, y: 0, sy: 0 };
+  k.y = mieraKotvy(k);
+  k.sy = window.pageYOffset;
+  return k;
+}
+
+/** Posun okna o dy bez plynulého posunu (scroll-behavior stránky); staré prehliadače bez ScrollToOptions klasicky. */
+function posunOkno(dy) {
+  try {
+    if ("scrollBehavior" in document.documentElement.style) { window.scrollBy({ top: dy, left: 0, behavior: "instant" }); return; }
+  } catch (e) { /* neznáme behavior -> klasicky */ }
+  window.scrollBy(0, dy);
+}
+
+/** Po zmene: posun okna o to, o čo sa kotva v okne pohla (Chrome už vyrovnal -> 0). Vráti posun v px. */
+function dorovnaj(k, stav) {
+  if (!k || !k.el.isConnected) return 0;
+  const y = mieraKotvy(k); // najprv rozloženie (Chrome pri ňom vyrovná scrollY), až potom scrollY
+  const posun = y - k.y - (window.pageYOffset - k.sy);
+  if (Math.abs(posun) < PRAH_KOTVY) return 0;
+  posunOkno(posun);
+  k.y = mieraKotvy(k);
+  k.sy = window.pageYOffset;
+  if (stav && stav.vyrovnane) { stav.vyrovnane.pocet++; stav.vyrovnane.px += Math.round(posun); }
+  return posun;
+}
+
+/**
+ * Ešte raz pred najbližším vykreslením: moduly menia výšku aj v requestAnimationFrame (výška galérie podľa dĺžky pásu,
+ * rezim() lcdHomeModuly.js). Náš rAF je zaregistrovaný po ich rAF -> beží po nich, pred vykreslením. Keď sa scrollY
+ * medzitým zmenilo (posun zákazníka, alebo Chrome už vyrovnal pri čítaní), nerobí nič.
+ */
+function dorovnajPoSnimke(k, stav) {
+  if (!k || typeof window.requestAnimationFrame !== "function") return;
+  const sy = window.pageYOffset;
+  window.requestAnimationFrame(() => { if (window.pageYOffset === sy) dorovnaj(k, stav); });
+}
+
+/**
+ * Či je sekcia celá POD oknom, podľa IntersectionObservera — bez čítania rozloženia. Zmena sekcie pod oknom nič v okne
+ * neposunie -> ukotvenie ani meranie netreba (meranie by v úlohe po zmene DOM vynútilo prepočítanie rozloženia;
+ * zákazník pri konfigurátore má celý obsah pod oknom). Koreň je okno predĺžené nahor (rootMargin hore ~nekonečno):
+ * „pretína“ = nad oknom alebo v ňom, „nepretína“ = pod oknom. Bežný IO by skok ponad okno (kotva, End, reload)
+ * nenahlásil — z „pod“ do „nad“ sa stav pretínania nemení (overené 25. 10. 2026).
+ */
+const OKRAJ_NAD_OKNOM = "1000000px 0px 0px 0px";
+function vytvorPolohu() {
+  const pod = new WeakMap();
+  const io = typeof IntersectionObserver === "function" ? new IntersectionObserver((zaznamy) => zaznamy.forEach((z) => {
+    pod.set(z.target, !z.isIntersecting);
+  }), { rootMargin: OKRAJ_NAD_OKNOM }) : null;
+  return {
+    sleduj(sekcie) { if (io) sekcie.forEach((s) => io.observe(s)); },
+    /** true = sekcia (alebo sekcia prvku) je celá pod oknom; neznáme = false (zmeria sa) */
+    pod(el) {
+      const s = el && el.closest ? el.closest("[data-lcd-sekcia]") : null;
+      return !!s && pod.get(s) === true;
+    },
+  };
+}
+
+/**
+ * fn() s ručným ukotvením (v úlohe vloženia kusu bez neho: nečítať rozloženie čerstvého obsahu; pri zmene pod oknom
+ * tiež nie). el = prvok/sekcia, ktorej sa zmena týka (voliteľné).
+ */
+function ukotvene(miesto, fn, stav, beh, el) {
+  const k = (beh && beh.vkladam) || (beh && beh.poloha && beh.poloha.pod(el)) ? null : kotva(miesto, null, stav);
+  try {
+    return fn();
+  } finally {
+    if (k) { dorovnaj(k, stav); dorovnajPoSnimke(k, stav); }
+  }
+}
+
+/**
+ * Oživovanie po sekciách (bod 4 hlavičky): po vložení sa všetky sekcie zaradia v poradí dokumentu a oživujú sa po
+ * jednej v úlohách v nečinnosti; sekcia blízko okna (OKRAJ_OZIVENIA) má prednosť, sekcia vo výreze sa oživí hneď.
+ * Pomocné sekcie (*-pomocne) hneď pri vložení. Každé oživenie mimo vkladania je ručne ukotvené (vyššie).
+ * beh.vkladam = práve beží úloha vloženia kusu (rozloženie čerstvého obsahu sa nečíta).
+ */
+function vytvorOzivovanie(oc, moduly, odhalovanie, stav, beh) {
+  const cakaju = []; // neoživené sekcie v poradí dokumentu (kusy sa pripájajú za seba)
+  const prednost = new Set(); // sekcie blízko okna
+  // naplánovaná úloha pre sekciu blízko okna / vzdialenú (blízka sa naplánuje aj keď už čaká vzdialená s dlhým limitom)
+  let planBlizko = false, planDaleko = false;
   const ozivene = new WeakSet();
+  const meno = (s) => s.getAttribute("data-lcd-sekcia") || "";
+  /** oc pre jednu sekciu: oc.sekcia(meno) vráti len ju */
+  const ocSekcie = (s) => {
+    const m = meno(s), ocS = Object.create(oc);
+    ocS.sekcia = (x) => (x === m ? s : null);
+    return ocS;
+  };
 
   function oziv(s) {
     if (ozivene.has(s)) return;
     ozivene.add(s);
-    cakaju.delete(s);
-    const meno = s.getAttribute("data-lcd-sekcia");
-    const ocS = Object.create(oc);
-    ocS.sekcia = (m) => (m === meno ? s : null);
-    moduly.forEach((m) => {
+    const i = cakaju.indexOf(s);
+    if (i > -1) cakaju.splice(i, 1);
+    prednost.delete(s);
+    if (io) io.unobserve(s);
+    const m = meno(s), ocS = ocSekcie(s);
+    // kotva len keď sekcia nie je celá pod oknom (zmena pod oknom nič neposunie a rozloženie sa po nej nečíta)
+    const k = beh.vkladam || beh.poloha.pod(s) ? null : kotva(oc.miesto, s, stav);
+    moduly.forEach((mod) => {
       try {
-        m.init(ocS);
+        mod.init(ocS);
       } catch (e) {
         // sekcia ostane statická a viditeľná; test číta ctx.chyby aj po prejdení celého obsahu
-        oc.ctx.chyby.push(m.MENO + " (" + meno + "): " + ((e && e.message) || e));
-        console.error("[lcd-1v] " + m.MENO + " " + meno, e);
+        oc.ctx.chyby.push(mod.MENO + " (" + m + "): " + ((e && e.message) || e));
+        console.error("[lcd-1v] " + mod.MENO + " " + m, e);
       }
     });
-    try { odhalovanie.dopln(s); } catch (e) { console.error("[lcd-1v] " + MENO + " reveal " + meno, e); }
+    try { odhalovanie.dopln(s); } catch (e) { console.error("[lcd-1v] " + MENO + " reveal " + m, e); }
+    if (k) { dorovnaj(k, stav); dorovnajPoSnimke(k, stav); }
   }
-  function spracuj(termin) {
-    naplanovane = false;
-    // vyššie sekcie skôr (poradie v dokumente)
-    fronta.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1));
-    const s = fronta.shift();
+  /** najprv sekcia blízko okna (prvá v poradí dokumentu), inak prvá neoživená */
+  function dalsia() {
+    for (let i = 0; i < cakaju.length; i++) if (prednost.has(cakaju[i])) return cakaju[i];
+    return cakaju[0] || null;
+  }
+  // jedna sekcia na úlohu: hlavné vlákno sa medzi sekciami uvoľní (žiadna dlhá úloha ani pri 20 sekciách)
+  function spracuj(blizko) {
+    if (blizko) planBlizko = false;
+    else planDaleko = false;
+    const s = dalsia();
     if (s) oziv(s);
-    // v tom istom okne nečinnosti ďalšia, len keď ostáva dosť času (inak nová úloha = hlavné vlákno sa uvoľní)
-    while (fronta.length && termin && !termin.didTimeout && termin.timeRemaining() > 12) oziv(fronta.shift());
-    if (fronta.length) naplanuj();
+    if (cakaju.length) naplanuj();
   }
   function naplanuj() {
-    if (naplanovane) return;
-    naplanovane = true;
-    vNecinnosti(spracuj);
-  }
-  function zarad(s) {
-    if (!cakaju.has(s) || fronta.indexOf(s) > -1) return;
-    fronta.push(s);
-    naplanuj();
+    const blizko = cakaju.some((s) => prednost.has(s));
+    if (blizko ? planBlizko : planDaleko) return;
+    if (blizko) planBlizko = true;
+    else planDaleko = true;
+    vNecinnosti(() => spracuj(blizko), blizko ? LIMIT_NECINNOSTI : LIMIT_NECINNOSTI_DALEKO);
   }
   const io = typeof IntersectionObserver === "function" ? new IntersectionObserver((zaznamy) => {
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
     zaznamy.forEach((z) => {
       if (!z.isIntersecting) return;
       io.unobserve(z.target);
-      // sekcia už je vo výreze (skok kotvou, rýchly posun) -> hneď, zákazník ju práve vidí; inak v nečinnosti
+      if (ozivene.has(z.target)) return;
+      // sekcia už je vo výreze (skok kotvou, rýchly posun) -> hneď, zákazník ju práve vidí; inak prednostne v nečinnosti
       const r = z.boundingClientRect;
       if (r.top < vh && r.bottom > 0) oziv(z.target);
-      else zarad(z.target);
+      else { prednost.add(z.target); naplanuj(); }
     });
   }, { rootMargin: OKRAJ_OZIVENIA }) : null;
 
-  stav.neozivene = () => Array.from(cakaju).map((s) => s.getAttribute("data-lcd-sekcia"));
+  stav.neozivene = () => cakaju.map(meno);
   return {
     /** spoločné časti modulov (init s oc bez sekcií, napr. výzvy a okno skupiny D) — raz, pri prvom vložení */
     spolocne() {
@@ -382,12 +545,30 @@ function vytvorOzivovanie(oc, moduly, odhalovanie, stav) {
         }
       });
     },
+    /**
+     * Pri vložení kusu: časti modulov, od ktorých závisí výška sekcie (vlozenie(oc) — lacné, bez čítania rozloženia),
+     * aby výšky boli hneď konečné (obnovenie polohy po reload/Späť zodpovedá, oživenie neskôr výšku nemení).
+     */
+    vlozenie(sekcie) {
+      sekcie.forEach((s) => {
+        const ocS = ocSekcie(s);
+        moduly.forEach((mod) => {
+          if (typeof mod.vlozenie !== "function") return;
+          try { mod.vlozenie(ocS); } catch (e) {
+            oc.ctx.chyby.push(mod.MENO + " (" + meno(s) + ", vloženie): " + ((e && e.message) || e));
+            console.error("[lcd-1v] " + mod.MENO + " " + meno(s), e);
+          }
+        });
+      });
+    },
     pridaj(sekcie) {
       sekcie.forEach((s) => {
-        cakaju.add(s);
-        if (/-pomocne$/.test(s.getAttribute("data-lcd-sekcia") || "") || !io) oziv(s);
-        else io.observe(s);
+        if (ozivene.has(s) || cakaju.indexOf(s) > -1) return;
+        cakaju.push(s);
+        if (/-pomocne$/.test(meno(s))) oziv(s);
+        else if (io) io.observe(s);
       });
+      if (cakaju.length) naplanuj();
     },
   };
 }
@@ -409,6 +590,8 @@ function vytvorObsah(ctx, kluc, stav) {
   const miesto = miestoObsahu();
   document.body.classList.add(TRIEDA_OBSAH);
   const korene = []; // rastie s každým kusom (lcdMultiKoren drží to isté pole)
+  // vkladam: počas úlohy vloženia kusu sa rozloženie nečíta (žiadne ukotvenie); poloha: sekcie voči oknu (IO)
+  const beh = { vkladam: false, poloha: vytvorPolohu() };
   const oc = {
     ctx,
     kluc,
@@ -422,32 +605,44 @@ function vytvorObsah(ctx, kluc, stav) {
     obrazok: (meno) => OBRAZKY_OBSAH + meno,
     priZobrazeni,
     nacitajMedia,
+    /** okraj „blízko okna“ (rootMargin) — napr. fotky recenzií sa sťahujú od tejto vzdialenosti */
+    okrajOzivenia: OKRAJ_OZIVENIA,
+    /** fn() s ručným ukotvením okna: modul ním obalí neskoršiu zmenu výšky (dáta prišli po vložení); el = sekcia */
+    ukotvi: (fn, el) => ukotvene(miesto, fn, stav, beh, el),
     ked: ctx.ked,
     na: ctx.na,
     vysli: ctx.vysli,
   };
   const moduly = [skupinaA, skupinaB, skupinaC, skupinaD, MODUL_TYPU[kluc]].filter(Boolean);
   const odhalovanie = vytvorOdhalovanie();
-  const ozivovanie = vytvorOzivovanie(oc, moduly, odhalovanie, stav);
+  const ozivovanie = vytvorOzivovanie(oc, moduly, odhalovanie, stav, beh);
   ozivovanie.spolocne();
   return {
     oc,
     vloz(nove) {
-      nove.forEach((k) => {
-        const stlpec = k.closest && k.closest(".custom-footer > div");
-        if (k.parentNode !== miesto) miesto.appendChild(k);
-        if (stlpec && !stlpec.querySelector("[data-lcd-cast]")) stlpec.setAttribute("data-p1v-prazdny", "");
-        korene.push(k);
-      });
-      // čísla a odkazy len v nových koreňoch (staršie kusy už majú svoje; dvakrát by sa pokazila pôvodná viditeľnosť)
-      nove.forEach((k) => {
-        const v = cisla.init({ ctx, miesto: k });
-        stav.cisla = stav.cisla ? Promise.all([stav.cisla, v]) : v;
-      });
-      const sekcie = [];
-      nove.forEach((k) => pole(k.querySelectorAll("[data-lcd-sekcia]")).forEach((s) => sekcie.push(s)));
-      odhalovanie.sekcie(sekcie);
-      ozivovanie.pridaj(sekcie);
+      beh.vkladam = true;
+      try {
+        nove.forEach((k) => {
+          const stlpec = k.closest && k.closest(".custom-footer > div");
+          if (k.parentNode !== miesto) miesto.appendChild(k);
+          if (stlpec && !stlpec.querySelector("[data-lcd-cast]")) stlpec.setAttribute("data-p1v-prazdny", "");
+          korene.push(k);
+        });
+        // čísla a odkazy len v nových koreňoch (staršie kusy už majú svoje; dvakrát by sa pokazila pôvodná viditeľnosť)
+        nove.forEach((k) => {
+          const v = cisla.init({ ctx, miesto: k });
+          stav.cisla = stav.cisla ? Promise.all([stav.cisla, v]) : v;
+        });
+        const sekcie = [];
+        nove.forEach((k) => pole(k.querySelectorAll("[data-lcd-sekcia]")).forEach((s) => sekcie.push(s)));
+        // výška hneď (revízia F1): pred revealom, nech zaradí aj .rv, ktoré pri tom pribudnú
+        ozivovanie.vlozenie(sekcie);
+        beh.poloha.sleduj(sekcie);
+        odhalovanie.sekcie(sekcie);
+        ozivovanie.pridaj(sekcie);
+      } finally {
+        beh.vkladam = false;
+      }
     },
   };
 }
@@ -486,7 +681,7 @@ async function postupne(ctx, kluc, texty, stav) {
 /** Volá index.js (posledný modul, po konfigurátore). */
 export function init(ctx) {
   const kluc = klucObsahu(ctx);
-  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, cisla: null, neozivene: () => [] };
+  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, cisla: null, neozivene: () => [], vyrovnane: { pocet: 0, px: 0, merania: 0 } };
   ctx.obsah = stav; // test a ladenie (window.__lcd1v.obsah)
   const pripravene = vopred;
   vopred = null;
