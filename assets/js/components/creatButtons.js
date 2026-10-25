@@ -1,5 +1,31 @@
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdCena } from "../functions/livePrice.js";
+// brána nového vzhľadu 1V (len čítanie; jadro konfigurator1v/index.js sa nemení) — odlozenyObrazok nižšie
+import { prepinac, jeZapnute, jeProdukt1v } from "./konfigurator1v/index.js";
+
+/**
+ * 25. 10. 2026 (rýchlosť, docs/1v-rychlost.md „1,6 MB po bundli“): obrázky starého konfigurátora, ktoré 1V nikdy
+ * neukáže (bannery vzorov, volant, rady rozloženia, živé karty kufra a boxov — CSS 1V ich skryje), dostanú pod 1V
+ * loading="lazy": skrytý obrázok (display: none) prehliadač nesťahuje, a keď ho niečo predsa ukáže (zlozit() v index.js,
+ * modul sa nepostavil, kufor-boxy pri chybe zloží triedu sám), stiahne sa sám — nič netreba dopĺňať. Fotky farieb sem
+ * nepatria (1V ich ukazuje v kroku Farba a v okne boxov). Tá istá brána ako initKonfigurator1v (flag karty + register);
+ * mimo nej (?novy=0, CZ, iné produkty) prázdne = starý vzhľad bez zmeny. html: true -> reťazec do HTML šablóny, inak
+ * atribúty pre $("<img>", …) (dať PRED src). data-lcd1v-odlozene = značka pre meranie a test.
+ */
+let odlozitObrazky = null;
+export function odlozenyObrazok(html) {
+  if (odlozitObrazky === null) {
+    try {
+      prepinac(window.location.search);
+      const f = jeZapnute();
+      odlozitObrazky = !!(f && jeProdukt1v(getShoptetContext(), f));
+    } catch (e) {
+      odlozitObrazky = false;
+    }
+  }
+  if (html) return odlozitObrazky ? ' loading="lazy" data-lcd1v-odlozene=""' : "";
+  return odlozitObrazky ? { loading: "lazy", "data-lcd1v-odlozene": "" } : {};
+}
 
 let twoLayersProducts;
 let boxsParameterIds;
@@ -105,9 +131,11 @@ export function createUpsaleButton(img, text, position, value, type, price, pref
   const save = full - base;
   const typeClass = ButtonUtils.getButtonTypeClass(type, value);
 
+  // 25. 10. 2026 (rýchlosť): živé karty kufra/boxov sú pod 1V skryté (kufor-boxy.js má vlastné karty s fotkami)
+  // -> loading="lazy", ich fotky (base-p/full-p ~290 kB) sa nestiahnu; starý vzhľad bez zmeny
   const buttonHTML = `
     <div class="upsale-button ${typeClass}" value="${value}">
-      <img src="${img}?7" alt="${text}" />
+      <img${odlozenyObrazok(true)} src="${img}?7" alt="${text}" />
       <div class="banner-header"><span>${text}</span></div>
     </div>
   `;
@@ -572,10 +600,11 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
         class: "radio-label",
         html: `<span class="radio-text">${nameSplit[0]}</span><strong class="radio-price">+ ${valueText[1]}</strong>`,
       }).appendTo(optionButton);
-      $("<img>", {
+      // 25. 10. 2026 (rýchlosť): pod 1V rady skryté (rozlozenie.js má vlastné karty) -> loading="lazy" pred src
+      $("<img>", Object.assign(odlozenyObrazok(), {
         alt: `${parameterId}-${value}.jpg`,
         src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?15`,
-      }).appendTo(optionButton.find("label"));
+      })).appendTo(optionButton.find("label"));
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
     } else if (textOption == "ŽIADNY +0 Kč") {

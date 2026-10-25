@@ -112,6 +112,11 @@ A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opra
   `.box-config`, `.upsale-Banner`, kufor base-p/full-p…), pod 1V sú skryté (`scratchpad/cls/skryte.mjs`). Pri spustení
   (alebo so súhlasom meniť starý kód teraz): pod 1V ich nevkladať / `loading="lazy"`. Teraz nie — Michal 25. 10.: starý
   kód produktov nemeniť; čas do použiteľného konfigurátora to aj tak neskracuje (beží ~2,5 s po bundli).
+  Po spustení (25. 10. 2026 večer): obrázky, ktoré 1V nikdy neukáže (bannery vzorov, volant Layer, rady rozloženia,
+  živé karty kufra/boxov base-p/full-p/empty-trunk1/boxy), dostanú pod 1V `loading="lazy"` (`components/creatButtons.js`
+  `odlozenyObrazok`, tá istá brána ako `initKonfigurator1v`, jadro sa nemení) -> nestiahnu sa: 598/601 −679 kB, 619/628 −313 kB, 616 bez
+  zmeny (sieť CDP, telefón 412 px). Pri zložení 1V sa po zobrazení stiahnu samé; `?novy=0` bez zmeny. Fotky farieb
+  (`.options-wrap`, `.box-config`) ostávajú — 1V ich ukazuje v kroku Farba a v okne boxov.
 - Hlavné vlákno spolu +3 až +16 %: sekcie obsahu sa oživujú postupne v nečinnosti (kvôli polohe pri reload), A ich
   bez posunu neoživí vôbec. TBT (blokovanie) je pritom nižší na 4 zo 6.
 - 637: obsah vzorkovníka prichádza skôr, preto sa jeho obrázky stihnú stiahnuť v okne merania (+0,43 MB).

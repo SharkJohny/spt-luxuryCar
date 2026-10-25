@@ -1,6 +1,6 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
 import { lcdCena } from "../functions/livePrice.js";
-import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
+import { createUpsaleButton, createOptions, createBoxConfig, odlozenyObrazok } from "./creatButtons.js";
 // kamióny: montáž Reactu je v truck-konfigurator/mount.js; nový vzhľad 1V (?novy=) rozhoduje budeKamion1v (docs/kamiony-1v-plan.md §1.2)
 import { isTruckConfiguratorPage, mountTruckConfigurator, predpripravTruck } from "../truck-konfigurator/mount.js";
 import { budeKamion1v } from "./konfigurator1v/index.js";
@@ -935,19 +935,22 @@ function firstPage(texts) {
   const patternsWrap = $("<div>", {
     class: "parameter-cars patterns-wrap",
   }).appendTo(patterns);
+  // 25. 10. 2026 (rýchlosť): pod 1V sú bannery vzorov aj obrázky volantu skryté (1V má vlastné fotky vzorov, volant
+  // bez obrázka) -> loading="lazy", nestiahnu sa; starý vzhľad bez zmeny (creatButtons.js odlozenyObrazok)
+  const obrPod1v = odlozenyObrazok(true);
   let diamondurl = $(".detail-parameters tr:contains('diamond') td").text();
   let hexaurl = $(".detail-parameters tr:contains('hexa') td").text();
   let stripeurl = $(".detail-parameters tr:contains('stripe') td").text();
   console.log(diamondurl);
 
   const diamond = $(
-    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
+    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
   ).appendTo(patternsWrap);
   const hexa = $(
-    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
+    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
   ).appendTo(patternsWrap);
   const stripe = $(
-    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
+    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
   ).appendTo(patternsWrap);
   console.log(diamondurl);
 
@@ -979,10 +982,10 @@ function firstPage(texts) {
     class: "option-wrap",
   }).appendTo(wheelWrao);
   $(
-    `<div class='button option-button active' data-value='left'><span>EU</span><img src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>Vľavo</div></div>`,
+    `<div class='button option-button active' data-value='left'><span>EU</span><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>Vľavo</div></div>`,
   ).appendTo(wheelOption);
   $(
-    `<div class='button option-button' data-value='right'><img src='/user/documents/upload/assets/image/Layer_right.png' ><div class='text'>Vpravo</div><span>UK</span></div>`,
+    `<div class='button option-button' data-value='right'><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_right.png' ><div class='text'>Vpravo</div><span>UK</span></div>`,
   ).appendTo(wheelOption);
 
   const sitposition = $("<div>", {
