@@ -102,5 +102,6 @@ A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opra
 - Hlavné vlákno spolu +3 až +16 %: sekcie obsahu sa oživujú postupne v nečinnosti (kvôli polohe pri reload), A ich
   bez posunu neoživí vôbec. TBT (blokovanie) je pritom nižší na 4 zo 6.
 - 637: obsah vzorkovníka prichádza skôr, preto sa jeho obrázky stihnú stiahnuť v okne merania (+0,43 MB).
-- CLS 0,25 na Classic / Premium / box ostáva: prvý snímok 1V posunie fotku galérie (4 px) a zväčší ju (8 px) —
-  `_lcd1v-galeria.scss`, ďalšia oprava.
+- CLS 0,25 na Classic / Premium / box: prvý snímok 1V posunul hlavnú fotku (4 px) a zväčšil ju (8 px), lebo rám 1 px
+  nahradil starý 5 px až s bundlom. Opravené v `ebada7d` (`_lcd1v-galeria.scss`: rám 5 px priehľadný + linka vnútorným
+  tieňom): Premium telefón posun 0,54 → 0,09; zvyšok 0,09 = skrytie starého tlačidla košíka (pod hranicou 0,1).
