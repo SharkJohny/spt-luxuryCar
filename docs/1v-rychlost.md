@@ -83,4 +83,24 @@ rozmeroch). Stránky: 598 (jedno), 601 (dvoj), 628 (Premium), 619 (Classic), 616
 
 ## Výsledky
 
-(doplní sa po meraní)
+A/B 25. 10. 2026 (ab-harness `ab.mjs`, Lighthouse simulate 150 ms / 1,6 Mbit/s / CPU 4×, 3 behy + zahriatie, mediány;
+A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opravený: kopíruje `admin-html` a
+`assets/img/1v`, mapuje `assets/v/<sha>/{js,css,html}` na build):
+
+| stránka ?novy=1 | prenos | obrázky | požiadavky | TBT | CLS | Speed Index | LCP |
+|---|---|---|---|---|---|---|---|
+| 598 jedno | 11,1 → 9,0 MB (−18 %) | −33 % | 201 → 181 | 737 → 780 (šum) | 0,047 → 0,020 | 12,5 → 13,0 s (šum) | 30,3 → 31,1 s (šum) |
+| 601 dvoj | 13,1 → 10,0 MB (−23 %) | −29 % | 220 → 199 | 947 → 852 | 0,038 → 0,020 | 12,0 → 13,5 s | 34,6 → 35,0 s (šum) |
+| 619 Classic | 10,1 → 7,3 MB (−28 %) | −39 % | 177 → 157 | 475 → 411 | 0,252 = | 12,4 → 11,2 s | 30,2 → 29,0 s (šum) |
+| 628 Premium | 11,5 → 8,7 MB (−25 %) | −33 % | 183 → 163 | 473 → 391 | 0,252 = | 13,0 → 11,9 s | 34,0 → 32,9 s (šum) |
+| 616 box | 10,0 → 8,0 MB (−20 %) | −36 % | 148 → 128 | 348 → 320 | 0,251 = | 13,3 → 12,7 s | 34,4 → 34,2 s (šum) |
+| 637 vzorky | 3,7 → 4,1 MB (+12 %) | +32 % | 119 → 121 | 253 → 262 | 0,021 = | 9,1 → 8,6 s | 20,3 → 20,1 s |
+
+- LCP je na všetkých stránkach hlavná fotka produktu Shoptetu (`a.p-main-image img`) okolo 30 s: na pomalom pripojení
+  ju predbehnú obrázky starého Popisu (`loading="eager"`, 6–14 ks), ktoré sa sťahujú aj pod 1V. Vyrieši spustenie
+  (nový obsah nahradí Popis); admin teraz nemeníme (Michal 25. 10.).
+- Hlavné vlákno spolu +3 až +16 %: sekcie obsahu sa oživujú postupne v nečinnosti (kvôli polohe pri reload), A ich
+  bez posunu neoživí vôbec. TBT (blokovanie) je pritom nižší na 4 zo 6.
+- 637: obsah vzorkovníka prichádza skôr, preto sa jeho obrázky stihnú stiahnuť v okne merania (+0,43 MB).
+- CLS 0,25 na Classic / Premium / box ostáva: prvý snímok 1V posunie fotku galérie (4 px) a zväčší ju (8 px) —
+  `_lcd1v-galeria.scss`, ďalšia oprava.

@@ -156,6 +156,16 @@ export async function kontroly(t) {
       await t.klikni(t.sekcia("a-recenzie") + " .p1v-rev-dalej", { popis: "šípka Ďalšia recenzia", pockaj: 900 });
       const x1 = await t.ev(`document.querySelector(${S("a-recenzie")} + " .revs").scrollLeft`);
       ok(x1 > x0, `a-recenzie: šípka posunie pás (${Math.round(x0)} -> ${Math.round(x1)})`);
+      // náhľady fotiek (25. 10. 2026, tools/recenzie-nahlady.py): karta 56 × 56 px berie reviews/m/ (168 px), nie plnú fotku
+      await t.cakaj(`[].some.call(document.querySelectorAll(${S("a-recenzie")} + " .rev .shots img"), function (i) { return i.complete && i.naturalWidth > 0 && !/^data:/.test(i.src); }) || !document.querySelector(${S("a-recenzie")} + " .rev .shots img")`, { ms: 15000, popis: "recenzie: náhľad fotky" }).catch(() => {});
+      const f = await t.ev(`(function () {
+        var im = [].slice.call(document.querySelectorAll(${S("a-recenzie")} + " .rev .shots img")).filter(function (i) { return !/^data:/.test(i.src); });
+        var nase = im.filter(function (i) { return /\\/assets\\/img\\/reviews\\//.test(i.src); });
+        var nacitane = im.filter(function (i) { return i.complete && i.naturalWidth > 0; });
+        return { spolu: im.length, nase: nase.length, plne: nase.filter(function (i) { return !/\\/reviews\\/m\\//.test(i.src); }).map(function (i) { return i.src.split("/").pop(); }),
+          nacitane: nacitane.length, najsirsia: nacitane.reduce(function (m, i) { return Math.max(m, i.naturalWidth); }, 0) };
+      })()`);
+      ok(!f.nase || (!f.plne.length && f.nacitane > 0 && f.najsirsia <= 200), `a-recenzie: fotky v kartách ako náhľady reviews/m/ (${f.nase} našich z ${f.spolu}, plné ${f.plne.length ? f.plne.join(",") : 0}, načítané ${f.nacitane}, najširšia ${f.najsirsia} px)`);
     }
   }
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"]'), function (f) { f.style.removeProperty("visibility"); })`);

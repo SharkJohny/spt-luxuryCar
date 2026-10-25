@@ -241,6 +241,11 @@ function vykresliRecenzie(sek, pas, d, fotky) {
   pas.appendChild(frag);
 }
 
+/** Adresa náhľadu fotky recenzie: …/assets/img/reviews/rg-N-I.jpg -> …/assets/img/reviews/m/rg-N-I.jpg (iné adresy bez zmeny). */
+export function nahladRecenzie(u) {
+  return String(u).replace(/(\/assets\/img\/reviews\/)(rg-[\w-]+\.jpg)(\?[^#]*)?$/, "$1m/$2");
+}
+
 /** Karta recenzie (article.rev). g = ikona Google z hlavičky (kópia do päty), fotky ako vo vykresliRecenzie. */
 function kartaRecenzie(r, g, fotky) {
   const a = prvok("article", "rev");
@@ -252,11 +257,15 @@ function kartaRecenzie(r, g, fotky) {
   const foto = (r.photos || []).filter((u) => /^https:\/\//.test(u)).slice(0, 3);
   if (foto.length) {
     const sh = a.appendChild(prvok("div", "shots"));
-    foto.forEach((u) => {
+    foto.forEach((plna) => {
       const im = prvok("img");
       // rýchlosť (25. 10. 2026): loading/decoding PRED src — inak prehliadač začne sťahovať hneď pri nastavení src;
       // rozmer drží CSS (56 × 56 px), takže doplnenie fotky pri priblížení výšku karty nemení
       im.loading = "lazy"; im.decoding = "async"; im.alt = ""; im.width = 260; im.height = 260;
+      // náhľad 168 × 168 (tools/recenzie-nahlady.py) namiesto fotky 525 × 700 (~110 kB -> ~7 kB); keď náhľad chýba
+      // (nová fotka bez behu skriptu), padne späť na plnú fotku
+      const u = nahladRecenzie(plna);
+      if (u !== plna) im.addEventListener("error", function zaloha() { im.removeEventListener("error", zaloha); im.src = plna; });
       if (fotky) im.src = u;
       else { im.setAttribute("data-p1v-foto", u); im.src = PRAZDNY_OBR; }
       sh.appendChild(im);
