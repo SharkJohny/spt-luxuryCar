@@ -14,9 +14,11 @@
      (drží prázdny prvok, aby ho TinyMCE nezmazal),
    - zhutní medzery: beh bielych znakov s koncom riadku -> jeden koniec riadku (prehliadač
      ich zobrazí rovnako; obsah <textarea>, <pre>, <script>, <style> sa nemení),
-   - do koreňa (prvok s data-lcd-cast) doplní data-lcd-v = hash obsahu (bez data-lcd-v).
+   - do koreňa (prvok s data-lcd-cast) doplní data-lcd-v = hash obsahu (bez data-lcd-v),
+   - v kusoch obsahu 1V z CDN obalí fotky assets/img/1v/obsah/*.jpg do <picture> so zmenšeným WebP (obrazky1v; súbory
+     vyrába tools/obrazky-1v-webp.py; Michal 25. 10. 2026, rýchlosť). Zdroj v src sa nemení.
    Kontroly (chyba = exit 1):
-   - dĺžka každej časti <= --limit (default z ciele.json, 45 000 znakov),
+   - dĺžka každej časti <= --limit (default z ciele.json, 45 000 znakov; bez obalov WebP, tie sú len na CDN),
    - HTML je dobre vnorené (vlastný parser) a bez chýb parsera HTML (parse5 z node_modules, ak je),
    - práve jeden koreň s data-lcd-cast="<cast>" a id podľa ciele.json,
    - žiadne <script>, <h1>, <main>, inline on*= handlery, javascript: odkazy, celý dokument,
@@ -56,6 +58,7 @@
      node tools/build-admin-html.mjs --snimky C:/Users/M/Desktop/LCD/web/zalohy-admin/2026-10-06/verejne-stranky
                                                   porovná id s verejným HTML Shoptetu (bez našich bannerov)
      node tools/build-admin-html.mjs --test       samotest kontrol na malých ukážkach
+     node tools/build-admin-html.mjs --vystup C:/tmp/a --bez-webp   obsah 1V bez obalov WebP (porovnanie pred/po; aj LCD_BEZ_WEBP=1)
    Bez závislostí mimo Node; parse5 (je v node_modules cez jsdom) sa použije, ak je k dispozícii. */
 
 import fs from "node:fs";
@@ -281,6 +284,162 @@ function skontrolujPravidla(koren, P, chyby, pozor) {
     if (el.meno === "iframe" && el.attrs.has("src")) chyby.push(`${kde}: <iframe src> — daj data-src`);
     if (/url\s*\(/i.test(el.attrs.get("style") || "")) pozor.push(`${kde}: url() v style — obrázok patrí do CSS alebo <img loading="lazy">`);
   }
+}
+
+/* ================= obrázky obsahu 1V: WebP + srcset (len v dist) ================= */
+/* Michal 25. 10. 2026 (rýchlosť): obsah 1V sa má rýchlo otvárať aj na pomalých telefónoch. Fotky obsahu sú JPG v plnej
+   veľkosti (až 1800 px), telefón ich ukáže na ~300 px. tools/obrazky-1v-webp.py k nim vyrobí zmenšené WebP
+   (<meno>-w<šírka>.webp, existujúce sa nikdy neprepisujú); build v kusoch obsahu 1V (pravidlá s "kusy") obalí
+     <img src=".../assets/img/1v/obsah/<meno>.jpg" …>  ->  <picture><source type="image/webp" srcset="…-w480.webp 480w, …"
+     sizes="…"><img … bez zmeny></picture>
+   Prehliadač bez WebP (iPhone s iOS ≤ 13) <source> preskočí a stiahne JPG z <img> ako doteraz. <picture> má v CSS
+   display:contents (_lcd1v-obsah.scss bod 2c), takže fotka ostáva priamym prvkom gridu/flexu (rozloženie overené
+   computed style a snímkami pred/po). Prečo pri builde a nie v src: zdroj ostáva čitateľný a sekcie v ňom presúvajú
+   iné sessions; dist (= to, čo ide na CDN) je stále deterministický z src + súborov v assets/img/1v/obsah.
+   Neobalí sa: <img> bez src (data-src — fotka sa stiahne až na želanie a lxModulyOziv nastavuje len img.src), fotky
+   farieb .lx-farby-velka (farbyVzoru maže „:scope > img“), JPG bez WebP v plnej šírke alebo bez úspory, <img> mimo
+   pravidiel OBRAZKY_1V (radšej pôvodný JPG než zlé sizes). */
+const CDN_1V = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/";
+const DIR_1V = path.join(REPO, "assets", "img", "1v", "obsah");
+/* Rozloženie „deväť vecí“ (b-ocakavat) na telefóne / tablete na výšku: náhľady .s2-thumbs sú skryté (_lcd1v-obsah-b.scss,
+   ten istý @media). Na PC sú náhľady CSS pozadím TOHO ISTÉHO JPG — WebP by tam znamenal JPG (náhľad) + WebP (fotka).
+   Fotky zo .s2-media preto dostanú WebP len pri tomto rozložení (a to na všetkých miestach obsahu, kde sú, napr.
+   galéria Premium), na PC ostáva jeden spoločný JPG ako doteraz. */
+const MEDIA_S2 = "(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse)";
+/* sizes podľa sekcie a obalu fotky: šírky zmerané v prehliadači 25. 10. 2026 (360/390/768/1024/1280/1600 px, kľúče 598,
+   dvoj, classic, premium, boxy, vzorky; tools/test-1v-obsah.mjs build). max = najväčšia šírka fotky v CSS px na
+   akomkoľvek rozložení: srcset končí prvou šírkou >= 2,5 × max (hustý displej), väčšie WebP sa do srcset nedávajú
+   (kratší kus na CDN). Fotka v obale, ktorý tu nie je, ostáva JPG — nový obal najprv zmerať a doplniť sem. */
+const ma1v = (...t) => (sekcia, triedy) => t.every((x) => triedy.includes(x));
+const OBRAZKY_1V = [
+  // [popis, test(sekcia, triedy predkov), sizes, max CSS px]   namerané (CSS px pri 360 / 390 / 768 / 1024 / 1280 / 1600)
+  // deväť vecí, b-ocakavat (598, dvoj, classic, premium, boxy): karusel 279 / 302 / 582; PC 403–435 (tam WebP nie, MEDIA_S2)
+  ["deväť vecí", ma1v("s2-media"), "78vw", 600],
+  // galéria lx-gal, a-galeria (dvoj, classic, premium, boxy): 221 / 240 / 285 / 285 / 285 / 285
+  ["galéria", ma1v("lx-gal-f"), "(max-width:760px) 62vw, 285px", 400],
+  // pred a po lx-pp, b-predapo (classic, premium, boxy): 360 / 390 / 460–606 / 811–905 / 746–850 / 737–842
+  ["pred a po", ma1v("lx-pp-plocha"), "(max-width:767px) 100vw, (max-width:1279px) 90vw, 850px", 905],
+  // ponuka setu .ups .ph, a-ponuka / classic-box / premium-box (boxy, vzorky, classic, premium): 324 / 351 / 676 / 408 / 512 / 558
+  ["ponuka setu", ma1v("ups", "ph"), "(max-width:900px) 90vw, (max-width:1279px) 40vw, 560px", 680],
+  // mapa krytia .kryv-f, premium-kryje: 322 / 349 / 674 / 472 / 593 / 646
+  ["mapa krytia", ma1v("kryv-f"), "(max-width:900px) 90vw, (max-width:1279px) 47vw, 650px", 680],
+  // porovnanie .cmp-col .ph, b-porovnanie / classic-premium / premium-porovnanie: 142 / 156 / 311 / 424 / 538 / 589
+  ["porovnanie", ma1v("cmp-col", "ph"), "(max-width:1399px) 42vw, 590px", 590],
+  // materiál .mf, b-material (dvoj): 159 / 173 / 336 / 233 / 286 / 277
+  ["materiál", ma1v("mbox", "mf"), "(max-width:900px) 45vw, 290px", 340],
+  // vzorky farieb .lx-farby-vzorka, c-farby (dvoj, boxy): 36 / 40 / 84 / 50 / 64 / 61
+  ["vzorky farieb", ma1v("lx-farby-vzorka"), "(max-width:900px) 11vw, 64px", 84],
+];
+const DPR_MAX = 2.5;
+
+/* rozmery JPG zo SOF hlavičky (bez knižníc) */
+function rozmeryJpg(buf) {
+  let i = 2;
+  while (i + 9 < buf.length) {
+    if (buf[i] !== 0xff) return null;
+    const m = buf[i + 1];
+    if (m === 0xff) { i++; continue; }
+    if (m === 0xd8 || m === 0x01 || (m >= 0xd0 && m <= 0xd7)) { i += 2; continue; }
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { w: buf.readUInt16BE(i + 7), h: buf.readUInt16BE(i + 5) };
+    i += 2 + buf.readUInt16BE(i + 2);
+  }
+  return null;
+}
+
+/* sady WebP: meno JPG -> { w (šírka originálu), sirky [vzostupne] } — len kompletné (je aj WebP v plnej šírke) a s úsporou */
+let sadyWebp1v = null;
+function nacitajSadyWebp1v() {
+  if (sadyWebp1v) return sadyWebp1v;
+  sadyWebp1v = new Map();
+  if (!fs.existsSync(DIR_1V)) return sadyWebp1v;
+  const sirky = new Map();
+  for (const f of fs.readdirSync(DIR_1V)) {
+    const m = /^([a-z0-9]+(?:-[a-z0-9]+)*)-w(\d+)\.webp$/.exec(f);
+    if (m) (sirky.get(m[1]) || sirky.set(m[1], []).get(m[1])).push(Number(m[2]));
+  }
+  for (const [meno, s] of [...sirky].sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+    const jpg = path.join(DIR_1V, meno + ".jpg");
+    if (!fs.existsSync(jpg)) continue;
+    const buf = fs.readFileSync(jpg);
+    const r = rozmeryJpg(buf);
+    s.sort((a, b) => a - b);
+    if (!r || s[s.length - 1] !== r.w) continue; // neúplná sada (beh skriptu prerušený) -> JPG
+    if (fs.statSync(path.join(DIR_1V, `${meno}-w${r.w}.webp`)).size >= buf.length) continue; // WebP nie je menší
+    sadyWebp1v.set(meno, { w: r.w, sirky: s });
+  }
+  return sadyWebp1v;
+}
+
+/* prejde <img> v HTML s predkami (zásobník otvorených prvkov); fn(tag, attrs, predkovia) vráti náhradu alebo null */
+function prejdiImg(html, fn) {
+  let out = "", posl = 0, m;
+  const zasobnik = [];
+  const re = new RegExp(TAG_RE.source, "g");
+  while ((m = re.exec(html))) {
+    if (m[0].startsWith("<!--")) continue;
+    const [cely, , zatv, menoRaw, attrsRaw] = m;
+    const meno = menoRaw.toLowerCase();
+    if (zatv) { const i = zasobnik.map((x) => x.meno).lastIndexOf(meno); if (i >= 0) zasobnik.length = i; continue; }
+    if (meno === "img") {
+      const nove = fn(cely, parsujAtributy(attrsRaw).attrs, zasobnik);
+      if (nove != null && nove !== cely) { out += html.slice(posl, m.index) + nove; posl = m.index + cely.length; }
+      continue;
+    }
+    if (RAW.has(meno)) { const k = html.toLowerCase().indexOf("</" + meno, re.lastIndex); if (k >= 0) re.lastIndex = k; continue; }
+    if (!VOID.has(meno) && !/\/\s*$/.test(attrsRaw)) zasobnik.push({ meno, attrs: parsujAtributy(attrsRaw).attrs });
+  }
+  return out + html.slice(posl);
+}
+const menoJpg1v = (a) => {
+  const src = a.get("src") || "";
+  const m = src.startsWith(CDN_1V) ? /^([a-z0-9]+(?:-[a-z0-9]+)*)\.jpg$/.exec(src.slice(CDN_1V.length)) : null;
+  return m && !a.has("data-src") && !a.has("srcset") ? m[1] : null;
+};
+const triedyPredkov = (predkovia) => predkovia.flatMap((p) => (p.attrs.get("class") || "").split(/\s+/).filter(Boolean));
+
+/* mená JPG, ktoré sú vo „deväť vecí“ (.s2-media) v ktoromkoľvek kuse obsahu 1V -> WebP len pri MEDIA_S2 */
+let s2Mena = null;
+function menaS2(src) {
+  if (s2Mena) return s2Mena;
+  s2Mena = new Set();
+  const zlozky = new Set(Object.values(CIELE.casti).filter((d) => d.zlozka && d.pravidla && ((CIELE.pravidla || {})[d.pravidla] || {}).kusy).map((d) => d.zlozka));
+  for (const z of [...zlozky].sort()) {
+    const dir = path.join(src, z);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir).sort()) {
+      if (!RE_SEKCIA.test(f)) continue;
+      prejdiImg(zhutni(lf(fs.readFileSync(path.join(dir, f), "utf8"))), (tag, a, predkovia) => {
+        const meno = menoJpg1v(a);
+        if (meno && triedyPredkov(predkovia).includes("s2-media")) s2Mena.add(meno);
+        return null;
+      });
+    }
+  }
+  return s2Mena;
+}
+
+/* obalí <img> obsahu 1V do <picture> s WebP (pozri hlavičku sekcie); vráti { html, pocet } */
+function obrazky1v(html, { sady = nacitajSadyWebp1v(), s2 = new Set(), pravidla = OBRAZKY_1V } = {}) {
+  let pocet = 0;
+  const vysledok = prejdiImg(html, (tag, a, predkovia) => {
+    const meno = menoJpg1v(a);
+    const sada = meno && sady.get(meno);
+    if (!sada) return null;
+    const rodic = predkovia[predkovia.length - 1];
+    if (rodic && rodic.meno === "picture") return null; // už obalený (druhý beh nič nezmení)
+    const triedy = triedyPredkov(predkovia);
+    if (rodic && (rodic.attrs.get("class") || "").split(/\s+/).includes("lx-farby-velka")) return null;
+    const sekcia = predkovia.map((p) => p.attrs.get("data-lcd-sekcia")).filter(Boolean).pop() || "";
+    const pr = pravidla.find(([, test]) => test(sekcia, triedy));
+    if (!pr) return null;
+    const [, , sizes, max] = pr;
+    const strop = sada.sirky.find((w) => w >= max * DPR_MAX) || sada.w;
+    const srcset = sada.sirky.filter((w) => w <= strop).map((w) => `${CDN_1V}${meno}-w${w}.webp ${w}w`).join(", ");
+    const media = s2.has(meno) ? ` media="${MEDIA_S2}"` : "";
+    pocet++;
+    return `<picture><source type="image/webp" srcset="${srcset}" sizes="${sizes}"${media}>${tag}</picture>`;
+  });
+  return { html: vysledok, pocet };
 }
 
 /* ================= kontroly jednej časti ================= */
@@ -511,6 +670,27 @@ function samotest() {
   if (h1 !== h2) { zle++; console.log("ZLE  hash nesmie závisieť od data-lcd-v"); } else console.log("ok   hash bez data-lcd-v");
   const v = vlozVerziu('<nav id="m" data-lcd-cast="mega" class="a">x</nav>', "mega", "1234567890");
   if (v !== '<nav id="m" data-lcd-cast="mega" data-lcd-v="1234567890" class="a">x</nav>') { zle++; console.log("ZLE  vlozVerziu:", v); } else console.log("ok   vlozVerziu");
+  /* obrázky obsahu 1V -> <picture> s WebP (obrazky1v): sady a s2 podstrčené, nezávisle od súborov v repe */
+  const U = CDN_1V;
+  const sady = new Map([["a", { w: 1024, sirky: [480, 800, 1024] }], ["b", { w: 760, sirky: [480, 760] }]]);
+  const img = (meno, extra = "") => `<img src="${U}${meno}.jpg" alt="" width="1" height="1" loading="lazy"${extra}>`;
+  const ups = (s) => `<section data-lcd-sekcia="a-ponuka"><div class="ups"><div class="ph">${s}</div></div></section>`;
+  for (const [meno, html, cakam, s2] of [
+    ["obalí fotku v známom obale", ups(img("a")), `<picture><source type="image/webp" srcset="${U}a-w480.webp 480w, ${U}a-w800.webp 800w, ${U}a-w1024.webp 1024w" sizes="(max-width:900px) 90vw, (max-width:1279px) 40vw, 560px">${img("a")}</picture>`],
+    ["deväť vecí: srcset len do 2,5 × max, WebP len pri MEDIA_S2", `<div class="s2-media">${img("b")}</div>`, `<picture><source type="image/webp" srcset="${U}b-w480.webp 480w, ${U}b-w760.webp 760w" sizes="78vw" media="${MEDIA_S2}">${img("b")}</picture>`, ["b"]],
+    ["vzorky farieb: strop 2,5 × 84 px", `<button class="lx-farby-vzorka" type="button">${img("a")}</button>`, `<picture><source type="image/webp" srcset="${U}a-w480.webp 480w" sizes="(max-width:900px) 11vw, 64px">${img("a")}</picture>`],
+    ["data-src sa neobalí", ups(`<img data-src="${U}a.jpg" alt="" width="1" height="1" loading="lazy">`), null],
+    ["fotky farieb .lx-farby-velka sa neobalia", `<div class="lx-farby-velka">${img("a", ' class="on"')}</div>`, null],
+    ["neznámy obal = JPG", `<div class="iny">${img("a")}</div>`, null],
+    ["JPG bez sady WebP = JPG", ups(img("c")), null],
+    ["obrázok mimo 1v/obsah = JPG", ups(img("a").replace("/1v/obsah/", "/lcd-home/")), null],
+  ]) {
+    const r = obrazky1v(html, { sady, s2: new Set(s2 || []) }).html;
+    const cakane = cakam === null ? html : html.replace(/<img[^>]*>/, () => cakam);
+    const druhy = obrazky1v(r, { sady, s2: new Set(s2 || []) }).html;
+    if (r !== cakane || druhy !== r) { zle++; console.log(`ZLE  webp: ${meno}\n     čakám ${cakane}\n     mám   ${r}${druhy !== r ? "\n     druhý beh zmenil výsledok" : ""}`); }
+    else console.log(`ok   webp: ${meno}`);
+  }
   console.log(zle ? `samotest: ${zle} zlyhaní` : "samotest: všetko OK");
   process.exit(zle ? 1 : 0);
 }
@@ -525,6 +705,9 @@ const SRC = path.join(ADMIN, "src");
 const VYSTUP = arg("--vystup", null);
 const DIST = VYSTUP ? path.resolve(VYSTUP) : path.join(ADMIN, "dist");
 const SNIMKY = arg("--snimky", null);
+/* porovnanie pred/po (meranie, test s pôvodnými JPG): --bez-webp alebo LCD_BEZ_WEBP=1 (prejde aj do testov, ktoré build
+   spúšťajú samy) postaví obsah 1V bez obalov <picture>; s --check neprejde (dist má obaly) */
+const BEZ_WEBP = ma("--bez-webp") || process.env.LCD_BEZ_WEBP === "1";
 const fmt = (n) => n.toLocaleString("sk-SK").replace(/\u00a0/g, " ");
 
 const globalne = [];
@@ -585,19 +768,26 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
       if (!fs.existsSync(subor)) { globalne.push(`chýba src/${cast}.${web}.html`); continue; }
       zdroj = lf(fs.readFileSync(subor, "utf8"));
     }
-    const obsah = zhutni(zdroj);
-    const hash = hashObsahu(obsah);
-    const html = vlozVerziu(obsah, cast, hash);
     const pravidla = def.pravidla ? (CIELE.pravidla || {})[def.pravidla] : null;
     if (def.pravidla && !pravidla) globalne.push(`${cast}: pravidlá „${def.pravidla}“ nie sú v ciele.json -> pravidla`);
-    const c = { cast, web, def, ciel: def[web], hash, html: html ?? obsah, pravidla, sekcie };
+    let obsah = zhutni(zdroj), webp = 0;
+    const dlzkaBezWebp = obsah.length;
+    /* Michal 25. 10. 2026 (rýchlosť): fotky obsahu 1V -> <picture> s WebP (obrazky1v). Len kusy z CDN verzie: po spustení
+       ide obsah do Popisu cez TinyMCE (cieľ už nie je "cdn", obal sa nepridá) a <picture> v TinyMCE treba najprv overiť */
+    if (pravidla && pravidla.kusy && def[web] && def[web].typ === "cdn" && !BEZ_WEBP) ({ html: obsah, pocet: webp } = obrazky1v(obsah, { s2: menaS2(SRC) }));
+    const hash = hashObsahu(obsah);
+    const html = vlozVerziu(obsah, cast, hash);
+    /* navyse = znaky obalov <picture> (srcset s celou adresou CDN, ~350–500 zn. na fotku). Súbor na CDN limit poľa adminu
+       nemá; limit 45 000 zn. sa ráta z obsahu BEZ obalov = to, čo pôjde po spustení do Popisu (tam sa obal nepridáva) */
+    const c = { cast, web, def, ciel: def[web], hash, html: html ?? obsah, pravidla, sekcie, webp, navyse: obsah.length - dlzkaBezWebp };
     const v = skontrolujCast(c);
     v.chyby.unshift(...chybySekcii);
     if (html === null) v.chyby.unshift(`chýba koreň s data-lcd-cast="${cast}"`);
     for (const e of chybyParse5(c.html)) v.chyby.push("parser HTML: " + e);
     c.znaky = c.html.length;
+    c.znakyLimit = c.znaky - c.navyse; // bez obalov WebP (pozri vyššie)
     c.bajty = Buffer.byteLength(c.html, "utf8");
-    if (c.znaky > LIMIT) v.chyby.unshift(`dĺžka ${fmt(c.znaky)} znakov > limit ${fmt(LIMIT)}` + (sekcie ? " — posuň hranicu sekcií (ciele.json -> sekcie) alebo skráť obsah" : ""));
+    if (c.znakyLimit > LIMIT) v.chyby.unshift(`dĺžka ${fmt(c.znakyLimit)} znakov > limit ${fmt(LIMIT)}` + (sekcie ? " — posuň hranicu sekcií (ciele.json -> sekcie) alebo skráť obsah" : ""));
     c.chyby = v.chyby; c.pozor = v.pozor;
     casti.push(c);
   }
@@ -645,6 +835,7 @@ const manifest = {
     cast: c.cast, web: c.web, subor: `${c.cast}.${c.web}.html`,
     zdroj: c.sekcie ? `src/${c.def.zlozka}/${(c.def.sekcie || ["00", "99"]).join("…")}-*.${c.web}.html` : `src/${c.cast}.${c.web}.html`,
     koren: "#" + c.def.koren, ciel: c.ciel, znaky: c.znaky, bajty: c.bajty, hash: c.hash, obrazky: c.pocetImg,
+    ...(c.webp ? { webp: c.webp } : {}),
     ...(c.sekcie ? { sekcie: c.sekcie.map((s) => ({ subor: s.subor, sekcia: s.sekcia, znaky: s.prazdna ? 0 : s.html.length })) } : {}),
   })),
   stranky: Object.fromEntries(Object.entries(CIELE.stranky || {}).map(([k, v]) => [k, v.casti])),
@@ -679,7 +870,7 @@ const popisCiela = (t) => !t ? "?" : t.typ === "banner"
 console.log(`build-admin-html${CHECK ? " --check" : ""}: limit ${fmt(LIMIT)} znakov, parser HTML: ${parse5 ? "parse5" : "len vlastný (parse5 nenájdený)"}${SNIMKY ? ", snímky Shoptetu: " + SNIMKY : ""}`);
 for (const c of casti) {
   const stav = c.chyby.length ? "CHYBA" : c.pozor.length ? "POZOR" : "OK   ";
-  console.log(`${stav} ${(c.cast + "." + c.web).padEnd(13)} ${fmt(c.znaky).padStart(7)} zn. ${fmt(c.bajty).padStart(7)} B  rezerva ${fmt(LIMIT - c.znaky).padStart(7)}  img ${String(c.pocetImg).padStart(3)}  v=${c.hash}  -> ${popisCiela(c.ciel)}`);
+  console.log(`${stav} ${(c.cast + "." + c.web).padEnd(13)} ${fmt(c.znakyLimit).padStart(7)} zn. ${fmt(c.bajty).padStart(7)} B  rezerva ${fmt(LIMIT - c.znakyLimit).padStart(7)}  img ${String(c.pocetImg).padStart(3)}${c.webp ? ` (WebP ${c.webp}: +${fmt(c.navyse)} zn. len na CDN)` : ""}  v=${c.hash}  -> ${popisCiela(c.ciel)}`);
   for (const s of c.sekcie || []) console.log(`        · ${s.subor.padEnd(28)} ${s.prazdna ? "  prázdna (stub)" : fmt(s.html.length).padStart(7) + " zn."}`);
   if (c.sekcie && !c.sekcie.some((s) => !s.prazdna)) console.log("        · len stuby (alebo žiadne sekcie) — prázdny koreň, obsah.js ho stiahne a nič neukáže");
   for (const x of c.chyby) console.log("        ✗ " + x);
@@ -687,7 +878,7 @@ for (const c of casti) {
 }
 /* časti jednej skupiny (napr. p1v-598 = kus 1 + kus 2): súčet pre cieľ po spustení (jedno pole) */
 const skupiny = new Map();
-for (const c of casti) if (c.def.skupina) { const k = c.def.skupina + "." + c.web; skupiny.set(k, (skupiny.get(k) || 0) + c.znaky); }
+for (const c of casti) if (c.def.skupina) { const k = c.def.skupina + "." + c.web; skupiny.set(k, (skupiny.get(k) || 0) + c.znakyLimit); }
 for (const [k, n] of skupiny) {
   const def = casti.find((c) => c.def.skupina + "." + c.web === k).def;
   const lim = def.limitSpolu || LIMIT;

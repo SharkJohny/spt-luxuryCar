@@ -22,6 +22,10 @@ body.lcd-1v .p1v-miesto > [data-lcd-cast^=p1v]{display:block !important;width:10
       (Michal 23. 10. 2026: „takmer v každom produkte je na konci biely pás pred pätičkou… nech tam nie je“) */
 body.lcd-1v:has(.p1v-miesto > [data-lcd-cast^=p1v]) #footer{margin-top:0 !important}
 
+/* 2c) Michal 25. 10. 2026 (rýchlosť): build obalí fotky obsahu do <picture> so zmenšeným WebP (tools/build-admin-html.mjs
+      obrazky1v). Obal nesmie zmeniť rozloženie: fotka ostáva priamym prvkom gridu/flexu/absolútnej vrstvy ako predtým. */
+body.lcd-1v [data-lcd-cast^=p1v] picture{display:contents}
+
 /* 3) Starý popis (záložky Popis / Diskusia vrátane Dodatočných parametrov) skrytý, keď je nový obsah na mieste.
       Ostáva v DOM (main.js, popisModuly.js, productPage.js naň kotvia). */
 body.lcd-1v.lcd-1v-obsah .p-detail > .shp-tabs-wrapper{display:none !important}

@@ -168,8 +168,10 @@ export async function kontroly(t) {
 
   // 8) ponuka: fotka stiahnutá, rozloženie, dve tlačidlá na produkty toho istého vzoru (Diamond)
   await naSekciu("a-ponuka", "center");
-  const foto = await t.cakaj(`(function(){var i=document.querySelector(${JSON.stringify(S("a-ponuka") + " .ups .ph img")});return i&&i.complete&&i.naturalWidth>0?[i.naturalWidth,i.getAttribute("src").split("/").pop()]:false})()`, { ms: 8000, popis: "fotka ponuky" }).catch((e) => [0, e.message]);
-  ok(foto[0] === 760 && foto[1] === "vzorky-autokoberce-diamond.jpg", "ponuka: reálna fotka vzorky-autokoberce-diamond.jpg stiahnutá " + JSON.stringify(foto));
+  // Michal 25. 10. 2026 (rýchlosť): build obalí fotku do <picture> so zmenšeným WebP (vzorky-autokoberce-diamond-w480.webp…);
+  // stiahnutá je teda tá istá fotka v jednej z veľkostí a naturalWidth je šírka podľa sizes, nie 760 -> overuje sa currentSrc
+  const foto = await t.cakaj(`(function(){var i=document.querySelector(${JSON.stringify(S("a-ponuka") + " .ups .ph img")});return i&&i.complete&&i.naturalWidth>0?[i.naturalWidth,(i.currentSrc||i.getAttribute("src")).split("/").pop(),i.getAttribute("src").split("/").pop()]:false})()`, { ms: 8000, popis: "fotka ponuky" }).catch((e) => [0, e.message]);
+  ok(foto[0] > 0 && /^vzorky-autokoberce-diamond(-w\d+\.webp|\.jpg)$/.test(foto[1]) && foto[2] === "vzorky-autokoberce-diamond.jpg", "ponuka: reálna fotka vzorky-autokoberce-diamond (JPG alebo jeho WebP) stiahnutá " + JSON.stringify(foto));
   const ups = await t.ev(`(function(){var u=document.querySelector(${JSON.stringify(S("a-ponuka") + " .ups")}),p=u.querySelector(".ph").getBoundingClientRect(),x=u.querySelector(".tx").getBoundingClientRect();var b=[].map.call(u.querySelectorAll(".vz-ups-cta .btn"),function(a){var r=a.getBoundingClientRect();return {t:a.textContent.trim(),h:a.getAttribute("href"),top:Math.round(r.top),l:Math.round(r.left),w:Math.round(r.width),o:a.getAttribute("data-p1v-odkaz"),s:a.getAttribute("data-p1v-stav")}});return {fotoVlavo:p.right<=x.left+2,fotoNad:p.bottom<=x.top+2,b:b,vis:getComputedStyle(u).display}})()`);
   if (sir >= 821) ok(ups.fotoVlavo, "ponuka: na PC fotka vľavo od textu");
   else ok(ups.fotoNad, "ponuka: na telefóne fotka nad textom");

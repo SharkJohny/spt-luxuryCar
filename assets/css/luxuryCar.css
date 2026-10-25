@@ -17651,6 +17651,10 @@ body.lcd-1v .p1v-miesto > [data-lcd-cast^=p1v]{display:block !important;width:10
       (Michal 23. 10. 2026: „takmer v každom produkte je na konci biely pás pred pätičkou… nech tam nie je“) */
 body.lcd-1v:has(.p1v-miesto > [data-lcd-cast^=p1v]) #footer{margin-top:0 !important}
 
+/* 2c) Michal 25. 10. 2026 (rýchlosť): build obalí fotky obsahu do <picture> so zmenšeným WebP (tools/build-admin-html.mjs
+      obrazky1v). Obal nesmie zmeniť rozloženie: fotka ostáva priamym prvkom gridu/flexu/absolútnej vrstvy ako predtým. */
+body.lcd-1v [data-lcd-cast^=p1v] picture{display:contents}
+
 /* 3) Starý popis (záložky Popis / Diskusia vrátane Dodatočných parametrov) skrytý, keď je nový obsah na mieste.
       Ostáva v DOM (main.js, popisModuly.js, productPage.js naň kotvia). */
 body.lcd-1v.lcd-1v-obsah .p-detail > .shp-tabs-wrapper{display:none !important}
@@ -18772,6 +18776,17 @@ body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .pattern
 }
 body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button.active .banner-header[data-lcd1v-cena]::after {
   color: var(--c1v-zl);
+}
+/* Michal 25. 10. 2026 (rýchlosť): ceny dlaždíc prídu zo sesterských stránok až v nečinnosti (kufor-produkt.js) — kým
+   krok nesie data-lcd1v-ceny="caka", pod názvom vzoru je prázdny riadok rovnakej výšky ako cena (nezlomiteľná medzera,
+   rovnaké písmo a okraj): príchod ceny nič neposunie a žiadna iná cena sa neukáže */
+body.lcd-1v[data-lcd1v-typ^="kufor"] #product-detail-form .lcd1v-k-vzor[data-lcd1v-ceny="caka"] .patterns-wrap > .option-button .banner-header:not([data-lcd1v-cena])::after {
+  content: "\00a0";
+  display: block;
+  margin: 3px 0 0;
+  font: 600 14px/1.3 var(--c1v-body);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 /* ---------- banner setu (návrh C „Fotka cez celú šírku“, Michal 17. 10. 2026; set-banner.js) ----------
