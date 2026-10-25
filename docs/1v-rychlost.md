@@ -123,3 +123,45 @@ A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opra
 - CLS 0,25 na Classic / Premium / box: prvý snímok 1V posunul hlavnú fotku (4 px) a zväčšil ju (8 px), lebo rám 1 px
   nahradil starý 5 px až s bundlom. Opravené v `ebada7d` (`_lcd1v-galeria.scss`: rám 5 px priehľadný + linka vnútorným
   tieňom): Premium telefón posun 0,54 → 0,09; zvyšok 0,09 = skrytie starého tlačidla košíka (pod hranicou 0,1).
+
+### WebP aj pre kus 1 z Popisu (25. 10. 2026 v noci)
+
+Regresia po kroku 2 spustenia: kus 1 v poli Popis je postavený `--bez-webp` (limit poľa, TinyMCE), takže na
+598/601/619/628/616 (a ich vzoroch) sa jeho fotky sťahovali ako plné JPG — WebP mal len kus 2 z CDN. Admin sa nemení.
+
+- **Riešenie:** `build-admin-html.mjs` zapíše do bundla mapu obalov kusu 1 (`konfigurator1v/obsah-webp-mapa.js`,
+  generovaná, `--check` ju porovná so src; 5,6 kB, v bundli +5,5 kB / +1,3 kB gzip): `data-lcd-v` kusu `--bez-webp`
+  a pre každú obalenú fotku meno JPG, poradie medzi `<img>` s tým istým `src`, šírky WebP, index `sizes`, `media`.
+  `obsah-webp.js` (z `obsah.js`, cesta a) pri umiestnení kusu z Popisu — synchrónne, kým je koreň ešte `display:none`
+  a lazy fotky sa nesťahujú — obalí tie isté `<img>` do toho istého `<picture>` ako dist (v DOM: `type, srcset, sizes
+  [, media]`, `<img>` sa len presunie). Build pri každom behu overí, že mapa použitá na kus bez obalov dá presne dist.
+  Nič sa neobalí pri inej verzii kusu (`data-lcd-v`), bez mapy (vzorky, kamióny), bez natívneho `loading="lazy"`
+  (Safari < 15.4 sťahuje JPG už od parsovania) ani pri už stiahnutej fotke. Stav `__lcd1v.obsah.webp`.
+- **Zvážené a zamietnuté:** mapa ako súbor na CDN (požiadavka navyše a čakanie na sieť pri umiestnení — fotky by sa
+  medzitým mohli začať sťahovať ako JPG, alebo by sa umiestnenie oneskorilo); obaly priamo v Popise (admin sa nemení,
+  limit 45 000 zn., TinyMCE by `<picture>` mohol prerobiť); `srcset` dopočítať v JS z mien súborov a pravidiel
+  (duplicita pravidiel `OBRAZKY_1V`, ktoré závisia od CSS rozloženia — mapa z buildu je presne to, čo má dist);
+  stiahnuť kus 1 z CDN namiesto Popisu (+35–50 kB HTML a obsah by čakal na sieť).
+- **Meranie** (25. 10. 2026 v noci, `scratchpad/webp-popis/meraj-obrazky.mjs`: živá SK stránka bez parametra, Popis =
+  kus 1 `--bez-webp`, kus 2 z CDN `d20c8e2`, bundle nahradený buildom pred = `d4ac44d` / po = tento commit; pomalý
+  telefón RTT 562,5 ms, 1,47 Mbit/s, CPU 4×, 412 px, merače blokované; po umiestnení obsahu posun dole po 80 % okna
+  každých 700 ms až po koniec a čakanie na dobehnutie obrázkov; sieť CDP, skutočné bajty; mediány 3 behov, všetky 3
+  behy zhodné na kB):
+
+| stránka | obrázky obsahu 1V | z toho kus 1 (Popis) | JPG obsahu | všetky obrázky stránky | prenos spolu |
+|---|---|---|---|---|---|
+| 601 dvoj | 1 593 → 741 kB (−852 kB, −53 %) | 1 079 → 226 kB (−79 %, 5 fotiek, všetky WebP) | 1 571 → 492 kB | 5 509 → 4 656 kB | 7 917 → 7 070 kB |
+| 619 Classic | 1 225 → 483 kB (−742 kB, −61 %) | 1 214 → 472 kB (−61 %) | 1 179 → 178 kB | 4 136 → 3 395 kB | 6 566 → 5 830 kB |
+
+  Zvyšné JPG: 619 `classic-d7.jpg` 178 kB (fotka farieb, ktorú build neobalí — rovnako v dist, pozri Otvorené), 601
+  `dvoj-koniec.jpg` (CSS pozadie) a `dvoj-farby-diamond.jpg` (prepína JS) v kuse 2.
+- **Testy:** `test-1v-obsah --miesto popis-cdn` kontroluje navyše, že kus 1 z Popisu má po umiestnení tie isté `<picture>`
+  ako dist (počet, poradie, `srcset`, `sizes`, `media`, `src`, `display:contents`), `__lcd1v.obsah.webp` = počet obalov
+  dist, a po prejdení obsahu sa nestiahol JPG fotky, ktorú má dist pri danej šírke ako WebP (očakávania z dist; požiadavky
+  počas kontrol skupín sa nerátajú — okno na fotky sťahuje plný JPG naschvál). Na pôvodnom kóde zlyhá (0/15, 0/29
+  `<picture>`, 619 @390 stiahnuté `classic-cmp-us.jpg`, `classic-cmp-prem.jpg`).
+  Výsledky: `build-admin-html --check` OK, `--test` OK (+5 kontrol mapy); `test-1v-obsah --miesto popis-cdn` 598, 601,
+  616, 619, 628, 637, 640 × 390/1280 (základ, bez flagu, `?novy=1` s polohou, výpadok CDN) 70/70 OK — 601 a 640 na druhý
+  beh (prvý skončil „Chrome sa nespustil“ pri zaťaženom stroji, nie zlyhaním kontroly); `test-konfigurator-1v --krok
+  brana --produkt all` 30/30 (19 opakovaných samostatne po „Chrome sa nespustil“ / časovom limite pod záťažou, všetky
+  OK); `--stary --krok brana,nulova-zmena --produkt all` 60/60 OK.

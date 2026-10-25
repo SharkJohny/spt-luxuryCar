@@ -297,6 +297,17 @@ Platí pre každú skupinu (`598` = 598/610/613, `dvoj`, `classic`, `premium`, `
 
 **Ktorý súbor ide do Popisu (od 25. 10. 2026):** kus postavený **bez obalov `<picture>`** — `node tools/build-admin-html.mjs --vystup <priečinok> --bez-webp` → `<priečinok>/p1v-<kľúč>-N.sk.html`. `admin-html/dist/` je verzia pre CDN: build v nej obalí fotky obsahu do `<picture>` so zmenšeným WebP (commit c5edd1f), preto je dlhšia a do Popisu nepatrí (limit 45 000 zn. by nesedel; TinyMCE by obaly mohol prerobiť). Riadok `p1v-<kľúč>.sk … spolu` a kontrola limitu v builde počítajú dĺžku už bez obalov.
 
+**WebP pre kus 1 z Popisu (25. 10. 2026 v noci):** build zapíše do bundla mapu obalov kusu 1
+(`assets/js/components/konfigurator1v/obsah-webp-mapa.js`, generovaná, `--check` ju stráži): `data-lcd-v` kusu
+`--bez-webp` a pre každú obalenú fotku meno JPG, poradie medzi `<img>` s tým istým `src`, šírky WebP, `sizes`, `media`.
+`obsah-webp.js` (volá `obsah.js`, cesta a) pri umiestnení kusu z Popisu, kým je koreň ešte skrytý, obalí tie isté `<img>`
+do toho istého `<picture>` ako dist (synchrónne, bez siete, `<picture>` má `display:contents`). Stav: `__lcd1v.obsah.webp`
+= `{ "p1v-<kľúč>-1": počet | "iná verzia" | "bez mapy" | "bez lazy" }`. **Po zmene `src` kusu 1** treba do Popisu nahrať
+nový `--bez-webp` kus spolu s prepnutím sha — inak `data-lcd-v` v Popise nesedí s mapou a fotky ostanú JPG (nič sa
+nepokazí, len bez WebP). Prehliadač bez natívneho `loading="lazy"` (Safari < 15.4) dostane JPG ako doteraz (JPG už
+sťahuje od parsovania, obal by pridal WebP navyše). Test: `test-1v-obsah --miesto popis-cdn` (počet a atribúty
+`<picture>` ako dist, po prejdení obsahu žiadny JPG fotky, ktorá má pri tej šírke WebP).
+
 1. **Veľkosť:** `node tools/build-admin-html.mjs` → riadok `p1v-<kľúč>.sk … spolu` (bez obalov WebP = to, čo pôjde do Popisu).
    - **≤ 45 000:** v `ciele.json` jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]`, kus 2 zmazať — **a v `obsah.js` + `pravidla.obsah-1v.kusy` znížiť `KUSY`** (build kontroluje počet kusov skupiny), `sk` = `{ "typ": "produkt", "id": <id>, "pole": "Popis (description)" }` pre každý produkt.
    - **> 45 000** (dnes `598`: 57 316 zn.): kus 1 → Popis, kus 2 nemá kam (pole má limit). Možnosti pre Michala: (a) obsah skrátiť o ~12 300 zn.; (b) kus 2 ostáva na CDN a `obsah.js` ho stiahne aj bez flagu (cesta b) bez brány — JS obsah, „web bez prekrývania“ len čiastočne); (c) kus 2 ako banner v pätičke, skrytý mimo produktov skupiny (HTML navyše na každej stránke natrvalo).

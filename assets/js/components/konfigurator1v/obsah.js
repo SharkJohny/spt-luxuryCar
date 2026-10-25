@@ -17,6 +17,8 @@
 //   Krok 2 spustenia (Michal 25. 10. 2026, docs/1v-obsah.md §7 bod 1 b): pole Popis má limit 45 000 zn., preto je v ňom
 //   len kus 1 (a) a kus 2 príde z CDN (b) — vloží sa na svoje miesto za kus 1 (poradie podľa čísla kusu). Keď kus z CDN
 //   nepríde (404, sieť), kus z Popisu ostane; starý popis sa nevracia (v Popise už nie je).
+//   Kus 1 v Popise je postavený --bez-webp (plné JPG): pri umiestnení z DOM, kým je koreň ešte skrytý, ho obsah-webp.js
+//   synchrónne obalí do <picture> s WebP presne ako dist z CDN (mapa z buildu v bundli; iná verzia kusu = nič).
 // Kus bez sekcií (len stuby) = nič: starý popis ostáva, nič sa neskrýva.
 // Pod body.lcd-1v potom (Michal 25. 10. 2026, rýchlosť: ako titulka — konfigurátor sa ukáže hneď, obsah postupne):
 //   1. každý kus sa vloží vo VLASTNEJ úlohe po vykreslení konfigurátora, hneď ako príde (kus 1 nečaká na kus 2); kus 2 sa
@@ -46,9 +48,11 @@
 // { "p1v-<kľúč>-<n>": "dom"|"cdn" } (odkiaľ je ktorý kus na stránke), chybaju: [kusy z CDN, ktoré neprišli],
 // hotovo (Promise, keď sa sťahuje z CDN), cisla (Promise), neozivene() -> mená sekcií, ktoré sa ešte neoživili,
 // vyrovnane: { pocet, px, merania } — ručné vyrovnania polohy okna (Chrome so scroll anchoring 0) a koľkokrát sa kvôli
-// kotve čítalo rozloženie }.
+// kotve čítalo rozloženie, webp: { "p1v-<kľúč>-<n>": počet fotiek obalených do <picture> | dôvod, prečo nič } pre kusy
+// z DOM }.
 import { lcdMultiKoren } from "../../functions/lcdOziv.js";
 import { OBRAZKY_1V } from "./ctx.js";
+import { obalWebp } from "./obsah-webp.js";
 import * as cisla from "./obsah-cisla.js";
 import * as skupinaA from "./obsah-a.js";
 import * as skupinaB from "./obsah-b.js";
@@ -783,13 +787,22 @@ function obnovaBezAnimacie() {
 /** Volá index.js (posledný modul, po konfigurátore). */
 export function init(ctx) {
   const kluc = klucObsahu(ctx);
-  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, casti: {}, chybaju: [], cisla: null, neozivene: () => [], vyrovnane: { pocet: 0, px: 0, merania: 0 } };
+  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, casti: {}, chybaju: [], cisla: null, neozivene: () => [], vyrovnane: { pocet: 0, px: 0, merania: 0 }, webp: {} };
   ctx.obsah = stav; // test a ladenie (window.__lcd1v.obsah)
   const pripravene = vopred;
   vopred = null;
   if (!kluc) return;
   const obnova = obnovaBezAnimacie();
   const vDom = koreneObsahu(kluc);
+  // kus z Popisu (--bez-webp): fotky do <picture> s WebP ako dist, kým je koreň skrytý (lazy fotky sa ešte nesťahujú).
+  // Len zrýchlenie — chyba nechá JPG a nič iné nemení (do ctx.chyby nejde, nový vzhľad sa kvôli nej neskladá).
+  vDom.forEach((k) => {
+    const cast = k.getAttribute("data-lcd-cast");
+    try { stav.webp[cast] = obalWebp(k); } catch (e) {
+      stav.webp[cast] = "chyba: " + ((e && e.message) || e);
+      console.error("[lcd-1v] " + MENO + " webp " + cast, e);
+    }
+  });
   // b) kusy, ktoré v DOM nie sú, z CDN verzie bundle (len SK; bez verzie v/<sha>/ nie je odkiaľ)
   const adresy = OBSAH_CDN && ctx.trh === "sk" ? adresyKusov(kluc) : [];
   const zCdn = adresy.length ? chybajuceKusy(kluc, vDom) : [];

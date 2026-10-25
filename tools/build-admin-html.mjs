@@ -17,7 +17,11 @@
    - do koreňa (prvok s data-lcd-cast) doplní data-lcd-v = hash obsahu (bez data-lcd-v),
    - v kusoch obsahu 1V z CDN obalí fotky assets/img/1v/obsah/*.jpg do <picture> so zmenšeným WebP (obrazky1v; súbory
      vyrába tools/obrazky-1v-webp.py; Michal 25. 10. 2026, rýchlosť). Zdroj v src sa nemení.
+   - pre kus 1 (ide do Popisu bez obalov, --bez-webp) zapíše mapu obalov do bundla:
+     assets/js/components/konfigurator1v/obsah-webp-mapa.js (generovaná; --check ju porovná; s --vystup len kópia do
+     výstupu). obsah-webp.js podľa nej obalí fotky kusu z Popisu presne ako dist (sekcia „mapa WebP pre kus 1 v Popise“).
    Kontroly (chyba = exit 1):
+   - mapa WebP použitá na kus 1 bez obalov dá presne dist (inak by Popis po obalení nebol ten istý ako CDN),
    - dĺžka každej časti <= --limit (default z ciele.json, 45 000 znakov; bez obalov WebP, tie sú len na CDN),
    - HTML je dobre vnorené (vlastný parser) a bez chýb parsera HTML (parse5 z node_modules, ak je),
    - práve jeden koreň s data-lcd-cast="<cast>" a id podľa ciele.json,
@@ -419,10 +423,22 @@ function menaS2(src) {
   return s2Mena;
 }
 
-/* obalí <img> obsahu 1V do <picture> s WebP (pozri hlavičku sekcie); vráti { html, pocet } */
+/* obal <picture> jednej fotky: rovnaký reťazec pre dist (obrazky1v) aj pre kontrolu mapy Popisu (aplikujMapuWebp) */
+const srcsetWebp1v = (meno, sirky) => sirky.map((w) => `${CDN_1V}${meno}-w${w}.webp ${w}w`).join(", ");
+const obalPicture1v = (tag, meno, sirky, sizes, s2) =>
+  `<picture><source type="image/webp" srcset="${srcsetWebp1v(meno, sirky)}" sizes="${sizes}"${s2 ? ` media="${MEDIA_S2}"` : ""}>${tag}</picture>`;
+
+/* obalí <img> obsahu 1V do <picture> s WebP (pozri hlavičku sekcie); vráti { html, pocet, obaly }.
+   obaly = [[meno JPG, poradie medzi <img> s tým istým src v kuse (od 0), šírky WebP v srcset, index pravidla OBRAZKY_1V
+   (sizes), 1 = media MEDIA_S2 / 0]] v poradí dokumentu — z toho je mapa WebP pre kus v Popise (zapisMapuWebp) */
 function obrazky1v(html, { sady = nacitajSadyWebp1v(), s2 = new Set(), pravidla = OBRAZKY_1V } = {}) {
   let pocet = 0;
+  const obaly = [];
+  const vyskyt = new Map(); // src -> koľko <img> s ním už bolo (všetky, aj neobalené)
   const vysledok = prejdiImg(html, (tag, a, predkovia) => {
+    const src = a.get("src") || "";
+    const poradie = vyskyt.get(src) || 0;
+    vyskyt.set(src, poradie + 1);
     const meno = menoJpg1v(a);
     const sada = meno && sady.get(meno);
     if (!sada) return null;
@@ -431,16 +447,62 @@ function obrazky1v(html, { sady = nacitajSadyWebp1v(), s2 = new Set(), pravidla 
     const triedy = triedyPredkov(predkovia);
     if (rodic && (rodic.attrs.get("class") || "").split(/\s+/).includes("lx-farby-velka")) return null;
     const sekcia = predkovia.map((p) => p.attrs.get("data-lcd-sekcia")).filter(Boolean).pop() || "";
-    const pr = pravidla.find(([, test]) => test(sekcia, triedy));
-    if (!pr) return null;
-    const [, , sizes, max] = pr;
+    const i = pravidla.findIndex(([, test]) => test(sekcia, triedy));
+    if (i < 0) return null;
+    const [, , sizes, max] = pravidla[i];
     const strop = sada.sirky.find((w) => w >= max * DPR_MAX) || sada.w;
-    const srcset = sada.sirky.filter((w) => w <= strop).map((w) => `${CDN_1V}${meno}-w${w}.webp ${w}w`).join(", ");
-    const media = s2.has(meno) ? ` media="${MEDIA_S2}"` : "";
+    const sirky = sada.sirky.filter((w) => w <= strop);
     pocet++;
-    return `<picture><source type="image/webp" srcset="${srcset}" sizes="${sizes}"${media}>${tag}</picture>`;
+    obaly.push([meno, poradie, sirky, i, s2.has(meno) ? 1 : 0]);
+    return obalPicture1v(tag, meno, sirky, sizes, s2.has(meno));
   });
-  return { html: vysledok, pocet };
+  return { html: vysledok, pocet, obaly };
+}
+
+/* ================= mapa WebP pre kus 1 v Popise (krok 2 spustenia) ================= */
+/* Michal 25. 10. 2026 (rýchlosť): do Popisu produktu ide kus 1 postavený --bez-webp (limit poľa a TinyMCE, docs/1v-obsah.md
+   §7) — bez obalov by sa na 598/601/619/628/616 sťahovali plné JPG. Build preto zapíše malý modul do bundla
+   (MAPA_WEBP_JS): pre každý kus 1 s obalmi data-lcd-v kusu --bez-webp a obaly z obrazky1v; obsah.js (obsah-webp.js) pri
+   umiestnení kusu z Popisu, kým je koreň skrytý, obalí tie isté <img> do toho istého <picture> ako dist na CDN.
+   Fotka sa hľadá podľa src a poradia medzi <img> s tým istým src (nie podľa poradia všetkých <img>: TinyMCE by mohol
+   zmazať <img> bez src a posunúť ostatné); iná verzia kusu (data-lcd-v) = nič sa neobalí. Kontrola pri každom builde:
+   mapa použitá na kus bez obalov = presne dist (aplikujMapuWebp). Mapa ide len do bundla, nie na CDN (žiadne čakanie
+   na sieť pri umiestnení). Kus 2 v Popise nie je (príde z CDN už s obalmi), preto len kus 1. */
+const MAPA_WEBP_JS = path.join(REPO, "assets", "js", "components", "konfigurator1v", "obsah-webp-mapa.js");
+const jeKusPopisu = (cast) => /^p1v-[a-z0-9]+-1$/.test(cast);
+
+/* obaly z mapy na HTML kusu bez obalov (tá istá logika ako obsah-webp.js v DOM, tu na reťazci) */
+function aplikujMapuWebp(html, obaly) {
+  const vyskyt = new Map();
+  const ciel = new Map(obaly.map((o) => [`${CDN_1V}${o[0]}.jpg\n${o[1]}`, o]));
+  return prejdiImg(html, (tag, a, predkovia) => {
+    const src = a.get("src") || "";
+    const poradie = vyskyt.get(src) || 0;
+    vyskyt.set(src, poradie + 1);
+    const o = ciel.get(`${src}\n${poradie}`);
+    const rodic = predkovia[predkovia.length - 1];
+    if (!o || (rodic && rodic.meno === "picture") || a.has("srcset") || a.has("data-src")) return null;
+    return obalPicture1v(tag, o[0], o[2], OBRAZKY_1V[o[3]][2], o[4] === 1);
+  });
+}
+
+/* text modulu (deterministický: kusy podľa mena) */
+function textMapyWebp(mapa) {
+  const kusy = Object.keys(mapa).sort().map((cast) => {
+    const { v, obaly } = mapa[cast];
+    return `  ${JSON.stringify(cast)}: { v: ${JSON.stringify(v)}, f: [\n${obaly.map((o) => "    " + JSON.stringify(o)).join(",\n")},\n  ] },`;
+  });
+  return [
+    "// GENEROVANÉ: node tools/build-admin-html.mjs (z admin-html/src + assets/img/1v/obsah) — needitovať ručne; --check ho",
+    "// porovná. Obaly <picture> s WebP pre kus 1 obsahu 1V v Popise produktu (build --bez-webp) — presne ako dist na CDN.",
+    "// Použitie: obsah-webp.js (obsah.js, cesta a). Pozri tools/build-admin-html.mjs „mapa WebP pre kus 1 v Popise“.",
+    "// KUSY[cast] = { v: data-lcd-v kusu v Popise, f: [[meno JPG, poradie <img> s tým istým src v kuse, šírky WebP, index SIZES, 1 = MEDIA]] }",
+    `export const ZAKLAD = ${JSON.stringify(CDN_1V)};`,
+    `export const MEDIA = ${JSON.stringify(MEDIA_S2)};`,
+    `export const SIZES = [\n${OBRAZKY_1V.map((p) => "  " + JSON.stringify(p[2])).join(",\n")},\n];`,
+    `export const KUSY = {\n${kusy.join("\n")}\n};`,
+    "",
+  ].join("\n");
 }
 
 /* ================= kontroly jednej časti ================= */
@@ -716,6 +778,24 @@ function samotest() {
     if (r !== cakane || druhy !== r) { zle++; console.log(`ZLE  webp: ${meno}\n     čakám ${cakane}\n     mám   ${r}${druhy !== r ? "\n     druhý beh zmenil výsledok" : ""}`); }
     else console.log(`ok   webp: ${meno}`);
   }
+  /* mapa WebP pre kus v Popise: obaly z obrazky1v na HTML bez obalov = dist; poradie podľa src (neobalená kópia tej istej
+     fotky sa ráta), <img> bez src (TinyMCE ho môže zmazať) poradie nezmení */
+  {
+    const bezSrc = `<img data-src="${U}c.jpg" alt="" width="1" height="1" loading="lazy">`;
+    const html = bezSrc + ups(img("a")) + `<div class="lx-farby-velka">${img("a")}</div>` + ups(img("a")) + `<div class="s2-media">${img("b")}</div>`;
+    const r = obrazky1v(html, { sady, s2: new Set(["b"]) });
+    const cakam = [["a", 0, [480, 800, 1024], 3, 0], ["a", 2, [480, 800, 1024], 3, 0], ["b", 0, [480, 760], 0, 1]];
+    for (const [meno, ok] of [
+      ["obaly v poradí dokumentu (meno, poradie src, šírky, sizes, media)", JSON.stringify(r.obaly) === JSON.stringify(cakam)],
+      ["mapa na HTML bez obalov = dist", aplikujMapuWebp(html, r.obaly) === r.html],
+      ["mapa po zmazaní <img> bez src (TinyMCE)", aplikujMapuWebp(html.replace(bezSrc, ""), r.obaly) === r.html.replace(bezSrc, "")],
+      ["mapa na už obalenom HTML nič nezmení", aplikujMapuWebp(r.html, r.obaly) === r.html],
+      ["iná fotka na mieste = JPG", aplikujMapuWebp(html.replace(`${U}b.jpg`, `${U}a.jpg`), r.obaly).split("<picture>").length - 1 === 2],
+    ]) {
+      if (!ok) { zle++; console.log(`ZLE  mapa webp: ${meno}${meno.startsWith("obaly") ? " — " + JSON.stringify(r.obaly) : ""}`); }
+      else console.log(`ok   mapa webp: ${meno}`);
+    }
+  }
   console.log(zle ? `samotest: ${zle} zlyhaní` : "samotest: všetko OK");
   process.exit(zle ? 1 : 0);
 }
@@ -737,6 +817,8 @@ const fmt = (n) => n.toLocaleString("sk-SK").replace(/\u00a0/g, " ");
 
 const globalne = [];
 const casti = [];
+/* mapa WebP pre kus 1 v Popise: cast -> { v, obaly } (sekcia „mapa WebP pre kus 1 v Popise“) */
+const mapaWebp = {};
 /* zložky sekcií -> časti, ktoré z nich berú */
 const zlozky = new Map();
 for (const [cast, def] of Object.entries(CIELE.casti)) {
@@ -797,9 +879,18 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
     if (def.pravidla && !pravidla) globalne.push(`${cast}: pravidlá „${def.pravidla}“ nie sú v ciele.json -> pravidla`);
     let obsah = zhutni(zdroj), webp = 0;
     const dlzkaBezWebp = obsah.length;
+    const chybyMapy = [];
     /* Michal 25. 10. 2026 (rýchlosť): fotky obsahu 1V -> <picture> s WebP (obrazky1v). Len kusy z CDN verzie: po spustení
        ide obsah do Popisu cez TinyMCE (cieľ už nie je "cdn", obal sa nepridá) a <picture> v TinyMCE treba najprv overiť */
-    if (pravidla && pravidla.kusy && def[web] && def[web].typ === "cdn" && !BEZ_WEBP) ({ html: obsah, pocet: webp } = obrazky1v(obsah, { s2: menaS2(SRC) }));
+    if (pravidla && pravidla.kusy && def[web] && def[web].typ === "cdn") {
+      const r = obrazky1v(obsah, { s2: menaS2(SRC) });
+      /* kus 1 ide do Popisu bez obalov (--bez-webp): mapa obalov do bundla (sekcia „mapa WebP“), počíta sa vždy, aj s --bez-webp */
+      if (jeKusPopisu(cast) && r.obaly.length) {
+        mapaWebp[cast] = { v: hashObsahu(obsah), obaly: r.obaly };
+        if (aplikujMapuWebp(obsah, r.obaly) !== r.html) chybyMapy.push("mapa WebP pre Popis: obaly z mapy na kuse --bez-webp nedajú presne dist (obsah-webp-mapa.js by obalil inak)");
+      }
+      if (!BEZ_WEBP) ({ html: obsah, pocet: webp } = r);
+    }
     const hash = hashObsahu(obsah);
     const html = vlozVerziu(obsah, cast, hash);
     /* navyse = znaky obalov <picture> (srcset s celou adresou CDN, ~350–500 zn. na fotku). Súbor na CDN limit poľa adminu
@@ -807,6 +898,7 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
     const c = { cast, web, def, ciel: def[web], hash, html: html ?? obsah, pravidla, sekcie, webp, navyse: obsah.length - dlzkaBezWebp };
     const v = skontrolujCast(c);
     v.chyby.unshift(...chybySekcii);
+    v.chyby.push(...chybyMapy);
     if (html === null) v.chyby.unshift(`chýba koreň s data-lcd-cast="${cast}"`);
     for (const e of chybyParse5(c.html)) v.chyby.push("parser HTML: " + e);
     c.znaky = c.html.length;
@@ -866,8 +958,12 @@ const manifest = {
   stranky: Object.fromEntries(Object.entries(CIELE.stranky || {}).map(([k, v]) => [k, v.casti])),
 };
 const manifestText = JSON.stringify(manifest, null, 2) + "\n";
+const mapaWebpText = textMapyWebp(mapaWebp);
+const mapaWebpRel = path.relative(REPO, MAPA_WEBP_JS).replace(/\\/g, "/");
 
 if (CHECK) {
+  /* mapa WebP pre Popis (do bundla) musí sedieť so src a súbormi WebP */
+  if (!fs.existsSync(MAPA_WEBP_JS) || lf(fs.readFileSync(MAPA_WEBP_JS, "utf8")) !== mapaWebpText) globalne.push(`${mapaWebpRel} nesedí so src — spusti node tools/build-admin-html.mjs`);
   /* dist musí sedieť so src (inak sa do adminu vloží niečo iné, než je v repe) */
   for (const c of casti) {
     const f = path.join(DIST, `${c.cast}.${c.web}.html`);
@@ -885,6 +981,9 @@ if (CHECK) {
   for (const f of fs.readdirSync(DIST)) if (/\.(sk|cz)\.html$/.test(f) && !casti.some((c) => f === `${c.cast}.${c.web}.html`)) fs.rmSync(path.join(DIST, f));
   for (const c of casti) fs.writeFileSync(path.join(DIST, `${c.cast}.${c.web}.html`), c.html);
   fs.writeFileSync(path.join(DIST, "manifest.json"), manifestText);
+  /* mapa WebP ide do bundla (repo); s --vystup sa repo nemení — kópia vedľa dist na porovnanie */
+  if (VYSTUP) fs.writeFileSync(path.join(DIST, "obsah-webp-mapa.js"), mapaWebpText);
+  else fs.writeFileSync(MAPA_WEBP_JS, mapaWebpText);
 }
 
 /* výpis */
@@ -908,6 +1007,10 @@ for (const [k, n] of skupiny) {
   const def = casti.find((c) => c.def.skupina + "." + c.web === k).def;
   const lim = def.limitSpolu || LIMIT;
   console.log(`${n > lim ? "POZOR" : "info "} ${k.padEnd(13)} ${fmt(n).padStart(7)} zn. spolu  rezerva ${fmt(lim - n).padStart(7)}  -> ${def.popisSpolu || "súčet častí skupiny"}`);
+}
+{
+  const k = Object.keys(mapaWebp).sort();
+  console.log(`info  mapa WebP pre Popis (kus 1 --bez-webp -> <picture> v bundli): ${k.map((c) => c + " " + mapaWebp[c].obaly.length).join(", ") || "nič"}; ${fmt(Buffer.byteLength(mapaWebpText))} B -> ${VYSTUP ? path.join(DIST, "obsah-webp-mapa.js") : mapaWebpRel}`);
 }
 for (const x of globalne) console.log("CHYBA " + x);
 const pocetChyb = casti.reduce((s, c) => s + c.chyby.length, 0) + globalne.length;

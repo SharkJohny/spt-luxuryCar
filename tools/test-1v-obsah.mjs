@@ -31,7 +31,9 @@
 //              __lcd1v.chyby), žiadny vodorovný posun; kľúč len so stubmi = nič sa neukáže a starý popis ostane;
 //              kontroly skupín: kľúč 598 -> tools/test-1v/obsah-a…d.mjs, iný kľúč -> obsah-<kľúč>.mjs (+ jeho zdielane);
 //              popis-cdn: __lcd1v.obsah zdroj „dom+cdn“, casti { kus 1: dom, kus 2: cdn }, z CDN sa stiahol len kus 2,
-//              v .p1v-miesto všetky sekcie skupiny v poradí kusov, žiadna sekcia, kus ani id dvakrát;
+//              v .p1v-miesto všetky sekcie skupiny v poradí kusov, žiadna sekcia, kus ani id dvakrát; kus 1 z Popisu
+//              (--bez-webp) má po umiestnení tie isté <picture> ako dist (počet, srcset, sizes, media, src; obsah-webp.js,
+//              __lcd1v.obsah.webp) a po prejdení obsahu sa jeho fotky stiahli ako WebP, nie JPG (aj pri výpadku CDN);
 //   výpadok:   (popis-cdn) kus 1 z Popisu na mieste a viditeľný so všetkými svojimi sekciami (oživené), chybaju = kus 2,
 //              stav „hotovo“, starý popis (záložky) skrytý, žiadne chyby;
 //   --sonda-cisla: do 1. kusu sa pridá sekcia so všetkými kľúčmi čísel a typmi odkazov; očakávané hodnoty test zistí
@@ -155,7 +157,7 @@ const STAV = (kluc) => `(function () {
   return {
     lcd1v: document.body.classList.contains("lcd-1v"), obsah: document.body.classList.contains("lcd-1v-obsah"),
     chyby1v: window.__lcd1v ? window.__lcd1v.chyby.slice() : null,
-    obsahStav: o ? { kluc: o.kluc, zdroj: o.zdroj, stav: o.stav, kusy: o.kusy, casti: o.casti || null, chybaju: o.chybaju || null } : null,
+    obsahStav: o ? { kluc: o.kluc, zdroj: o.zdroj, stav: o.stav, kusy: o.kusy, casti: o.casti || null, chybaju: o.chybaju || null, webp: o.webp || null } : null,
     duplicity: duplicity,
     korene: korene.map(function (k) { var st = k.closest(".custom-footer > div"); var r = k.getBoundingClientRect();
       return { cast: k.getAttribute("data-lcd-cast"), v: k.getAttribute("data-lcd-v"), display: disp(k), h: Math.round(r.height), vMieste: !!(m && k.parentNode === m), stlpec: st ? disp(st) : null, gold: getComputedStyle(k).getPropertyValue("--gold").trim() }; }),
@@ -181,6 +183,85 @@ const OZIV_PREJDI = `(async function () {
   scrollTo({ top: 0, behavior: "instant" });
   return { neozivene: o.neozivene(), chyby: window.__lcd1v.chyby.slice(), sekcie: sek.length };
 })()`;
+
+// WebP kusu z Popisu (popis-cdn, obsah-webp.js): obaly <picture> v koreni kusu v poradí dokumentu (atribúty <source>, src
+// a vybraný zdroj <img>), JPG obsahu, ktoré na stránke ukazuje <img> mimo kusu (tie sa
+// smú stiahnuť) a či platia media obalov z dist pri tejto šírke
+const WEBP_KUS = (cast, medias) => `(function (medias) {
+  var k = document.querySelector('.p1v-miesto [data-lcd-cast="${cast}"]');
+  if (!k) return null;
+  var inde = {};
+  [].forEach.call(document.querySelectorAll("img"), function (i) {
+    if (k.contains(i)) return;
+    // <img> v obale: len to, čo prehliadač naozaj vybral; mimo obalu jeho src (stiahne sa JPG)
+    var vObale = i.parentNode && i.parentNode.nodeName === "PICTURE";
+    var c = (vObale ? i.currentSrc || "" : i.currentSrc || i.getAttribute("src") || "").split("?")[0];
+    if (/\\/img\\/1v\\/obsah\\/[^/]+\\.jpg$/.test(c)) inde[c] = 1;
+  });
+  return {
+    obaly: [].map.call(k.querySelectorAll("picture"), function (p) {
+      var s = p.firstElementChild, i = p.lastElementChild, m = s && s.getAttribute("media");
+      return { deti: [].map.call(p.children, function (x) { return x.nodeName.toLowerCase(); }).join(","),
+        atr: s ? [].map.call(s.attributes, function (a) { return a.name; }).join(",") : "",
+        type: s && s.getAttribute("type"), srcset: s && s.getAttribute("srcset"), sizes: s && s.getAttribute("sizes"), media: m || null,
+        plati: !m || matchMedia(m).matches, src: i && i.getAttribute("src"), cur: i ? i.currentSrc : "", display: getComputedStyle(p).display };
+    }),
+    inde: Object.keys(inde),
+    platiMedia: medias.map(function (m) { return matchMedia(m).matches; })
+  };
+})(${JSON.stringify(medias)})`;
+/** obaly <picture> v HTML kusu (dist z CDN): [{ srcset, sizes, media, src }] v poradí */
+const obalyZHtml = (html) => [...String(html).matchAll(/<picture><source type="image\/webp" srcset="([^"]*)" sizes="([^"]*)"(?: media="([^"]*)")?><img\b[^>]*?\ssrc="([^"]*)"[^>]*><\/picture>/g)]
+  .map((m) => ({ srcset: m[1], sizes: m[2], media: m[3] || null, src: m[4] }));
+/** všetky <img> so src v HTML kusu v poradí: [{ src, obalene, media }] */
+const imgyZHtml = (html) => [...String(html).matchAll(/<picture><source type="image\/webp" srcset="[^"]*" sizes="[^"]*"(?: media="([^"]*)")?>(<img\b[^>]*>)<\/picture>|(<img\b[^>]*>)/g)]
+  .map((m) => ({ src: (/\ssrc="([^"]*)"/.exec(m[2] || m[3]) || [])[1] || "", obalene: !!m[2], media: m[1] || null })).filter((x) => x.src);
+
+/**
+ * popis-cdn: kus 1 z Popisu (--bez-webp) má po umiestnení tie isté <picture> ako dist (počet, poradie, srcset, sizes,
+ * media, src), obaly bez zmeny rozloženia (display:contents) a po prejdení obsahu sa fotky, ktoré má dist pri tejto šírke
+ * ako WebP, stiahli ako WebP, nie JPG (očakávania z dist, nie zo stránky — bez obalov kontrola siete zlyhá tiež).
+ * Volať po OZIV_PREJDI (lazy fotky sa pri posune stiahnu). okno = [od, do) indexy s.poziadavky počas kontrol skupín:
+ * tie sa do kontroly siete nerátajú (okno na fotky obsah-d.js sťahuje plný JPG naschvál). -> { vysledky: [{ ok, popis }], info }
+ */
+async function kontrolaWebpPopisu(s, p, st, okno = null) {
+  const cast = p.domCasti[0], cak = p.webpDist, out = [];
+  const zle = (ok, popis) => out.push({ ok: !!ok, popis });
+  const w = st.obsahStav && st.obsahStav.webp ? st.obsahStav.webp[cast] : undefined;
+  // kus bez obalov v dist (vzorky, kamióny) mapu nemá -> "bez mapy"
+  const cakW = cak.length || "bez mapy";
+  zle(w === cakW, `${cast}: __lcd1v.obsah.webp = ${JSON.stringify(w)}, čakám ${JSON.stringify(cakW)} (obalené fotky ako dist)`
+    + (w === "iná verzia" ? " (assets/js/components/konfigurator1v/obsah-webp-mapa.js nesedí so src — spusti node tools/build-admin-html.mjs)" : ""));
+  const medias = [...new Set(cak.map((o) => o.media).filter(Boolean))];
+  const r = await s.k.ev(WEBP_KUS(cast, medias));
+  if (!r) { zle(false, `${cast}: koreň kusu nie je v .p1v-miesto`); return { vysledky: out, info: "" }; }
+  const naStranke = r.obaly.map((o) => ({ srcset: o.srcset, sizes: o.sizes, media: o.media, src: o.src }));
+  const rozdiel = naStranke.findIndex((o, i) => JSON.stringify(o) !== JSON.stringify(cak[i]));
+  zle(naStranke.length === cak.length && rozdiel < 0, `${cast}: <picture> na stránke ${naStranke.length}, v dist ${cak.length}`
+    + (rozdiel >= 0 ? `; prvý rozdiel #${rozdiel}: ${JSON.stringify(naStranke[rozdiel])} vs dist ${JSON.stringify(cak[rozdiel])}` : ""));
+  // (všetky <img> kusu sa s dist neporovnávajú: moduly pri oživení pridávajú vlastné — recenzie, kópie pásov)
+  const distImgy = imgyZHtml(p.kusy[0].html);
+  const zlyObal = r.obaly.filter((o) => o.deti !== "source,img" || o.atr !== (o.media ? "type,srcset,sizes,media" : "type,srcset,sizes") || o.type !== "image/webp" || o.display !== "contents");
+  zle(!zlyObal.length, `${cast}: obal iný ako dist (deti / atribúty <source> / display): ` + zlyObal.slice(0, 3).map((o) => JSON.stringify(o)).join(" | "));
+  // vybraný zdroj: kde platí media <source>, prehliadač nesmie vziať JPG (prázdne = fotka sa ešte nesťahovala)
+  const jpgMiesto = r.obaly.filter((o) => o.plati && o.cur && !/\.webp(\?|$)/.test(o.cur));
+  zle(!jpgMiesto.length, `${cast}: fotka v <picture> s WebP vybrala JPG: ` + jpgMiesto.slice(0, 4).map((o) => o.cur.split("/").pop()).join(", "));
+  // sieť podľa dist: JPG fotky, ktorú má dist pri tejto šírke ako WebP, sa nesmie stiahnuť — okrem JPG, ktoré dist v kuse
+  // ukazuje aj bez obalu alebo s media, ktoré tu neplatí, a JPG, ktoré ukazuje <img> mimo kusu (napr. farby v kuse 2)
+  const plati = (m) => !m || r.platiMedia[medias.indexOf(m)] === true;
+  const smie = new Set(r.inde.concat(distImgy.filter((x) => !x.obalene || !plati(x.media)).map((x) => x.src)));
+  const zakazane = new Set(distImgy.filter((x) => x.obalene && plati(x.media)).map((x) => x.src).filter((u) => !smie.has(u)));
+  const poziadavky = (okno ? s.poziadavky.slice(0, okno[0]).concat(s.poziadavky.slice(okno[1])) : s.poziadavky).map((u) => u.split("?")[0]);
+  const jpg = [...new Set(poziadavky.filter((u) => zakazane.has(u)))];
+  zle(!jpg.length, `${cast}: stiahnuté JPG namiesto WebP: ` + jpg.slice(0, 5).map((u) => u.split("/").pop()).join(", "));
+  const mena = new Set([...zakazane].map((u) => u.split("/").pop().replace(/\.jpg$/, "")));
+  const webp = [...new Set(s.poziadavky.map((u) => u.split("?")[0]).filter((u) => { const m = /\/img\/1v\/obsah\/(.+)-w\d+\.webp$/.exec(u); return m && mena.has(m[1]); }))];
+  // fotka s WebP, ktorú prehliadač už vybral (lazy pri posune), musí byť aj v sieti ako WebP (fotky v nezobrazených
+  // snímkach karuselov a scén sa nesťahujú vôbec — ani JPG)
+  const vybrane = r.obaly.filter((o) => o.plati && o.cur).length;
+  if (vybrane) zle(webp.length > 0, `${cast}: ${vybrane} fotiek s WebP vybratých, ale žiadna požiadavka na ich WebP`);
+  return { vysledky: out, info: `WebP kusu z Popisu: ${naStranke.length}/${cak.length} <picture> ako dist, ${mena.size} mien s WebP pri tejto šírke (${vybrane} fotiek vybratých), stiahnuté ${webp.length} WebP / ${jpg.length} JPG z nich` };
+}
 
 // sonda čísel: texty a stav prvkov sekcie x-sonda-cisla
 const SONDA_CISEL = `(function () {
@@ -269,6 +350,10 @@ async function main() {
       p.sekcieDok = p.dokKusy.flatMap((c) => menaSekcii(c.html));
       const k1 = menaSekcii(p.kusy[0].html).join(",");
       if (p.sekcieDok.join(",") !== k1) throw new Error(`${p.kluc}: kus 1 --bez-webp má iné sekcie (${p.sekcieDok.join(",")}) ako dist (${k1})`);
+      // obaly <picture> kusu 1 v dist (CDN) — kus z Popisu ich má mať po umiestnení tie isté (obsah-webp.js)
+      p.webpDist = obalyZHtml(p.kusy[0].html);
+      const vDok = obalyZHtml(p.dokKusy[0].html).length;
+      if (vDok) throw new Error(`${p.kluc}: kus 1 --bez-webp má ${vDok} <picture> (do Popisu idú bez obalov)`);
     }
     // zive po kroku 2 (25. 10. 2026): kus z Popisu je build --bez-webp (iný data-lcd-v ako dist pri kusoch s fotkami)
     if (a.miesto === "zive") p.popisHash = Object.fromEntries(build.admin.popis.casti(p.kluc).map((c) => [c.cast, c.hash]));
@@ -468,6 +553,10 @@ async function main() {
                 zle(oz && !oz.neozivene.length, "sekcie sa po prejdení obsahu neoživili: " + (oz ? oz.neozivene.join(", ") : "__lcd1v.obsah.neozivene chýba"));
                 zle(oz && !oz.chyby.length, "window.__lcd1v.chyby po prejdení obsahu: " + (oz ? oz.chyby.join("; ") : "?"));
                 v.info.push(`výpadok CDN (${s.html.length} pokusov o ${p.cdnCasti.join(",")}): ostal ${poradie} z Popisu, ${st.sekcie.length} sekcií${oz ? ", oživené " + (oz.sekcie - oz.neozivene.length) + "/" + oz.sekcie : ""}, stav ${o.stav}, chybaju ${JSON.stringify(o.chybaju)}`);
+                // WebP kusu z Popisu nezávisí od CDN (mapa je v bundli)
+                const wp = await kontrolaWebpPopisu(s, p, st);
+                wp.vysledky.forEach((x) => zle(x.ok, x.popis));
+                v.info.push(wp.info);
               } else if (!plne) {
                 // kľúč len so stubmi: nič sa neukáže, starý popis ostane
                 zle(st.obsahStav && st.obsahStav.stav === "nic", "obsah len so stubmi: čakám __lcd1v.obsah.stav „nic“, je " + JSON.stringify(st.obsahStav));
@@ -565,6 +654,7 @@ async function main() {
                 })()`);
                 t.produkt = { id: p.id, typ: p.typ, vzor: p.vzor, kluc: p.kluc, url: p.url, cesta: p.cesta };
                 t.sestra = (typ) => { const x = sestra(reg, typ, p.vzor); return x ? x.cesta : null; };
+                const oknoKontrol = [s.poziadavky.length, 0]; // požiadavky počas kontrol skupín (klikanie, okno na fotky)
                 for (const g of p.pluginy) {
                   try {
                     const r = (await SKUPINY[g].kontroly(t)) || [];
@@ -572,12 +662,19 @@ async function main() {
                     if (r.length) v.info.push(`skupina ${g.toUpperCase()}: ${r.filter((x) => x.ok).length}/${r.length} kontrol OK${r.some((x) => !x.ok && x.pozor) ? " (" + r.filter((x) => !x.ok && x.pozor).length + " upozornenie)" : ""}`);
                   } catch (e) { v.chyby.push(`skupina ${g.toUpperCase()}: výnimka ${e && e.message ? e.message : e}`); }
                 }
+                oknoKontrol[1] = s.poziadavky.length;
                 // Michal 25. 10. 2026 (rýchlosť): obsah.js oživuje sekcie až pri priblížení k oknu, nie všetky hneď po vložení —
                 // po prejdení celého obsahu musia byť oživené všetky a bez chýb (predtým to stačilo overiť po vložení)
                 const oz = await s.k.ev(OZIV_PREJDI);
                 zle(oz && !oz.neozivene.length, "sekcie sa po prejdení obsahu neoživili: " + (oz ? oz.neozivene.join(", ") : "__lcd1v.obsah.neozivene chýba"));
                 zle(oz && !oz.chyby.length, "window.__lcd1v.chyby po prejdení obsahu: " + (oz ? oz.chyby.join("; ") : "?"));
                 if (oz) v.info.push(`oživené po prejdení ${oz.sekcie - oz.neozivene.length}/${oz.sekcie} sekcií`);
+                // popis-cdn: kus 1 z Popisu (--bez-webp) má po umiestnení obaly WebP ako dist a fotky sa stiahli ako WebP
+                if (a.miesto === "popis-cdn") {
+                  const wp = await kontrolaWebpPopisu(s, p, st, oknoKontrol);
+                  wp.vysledky.forEach((x) => zle(x.ok, x.popis));
+                  v.info.push(wp.info);
+                }
                 // snímky sekcií webu
                 if (!a.bezSnimok && a.snimkySirky.includes(u.sirka)) {
                   let n = 0;
