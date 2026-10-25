@@ -1060,6 +1060,15 @@ export function vytvorUi(o) {
   // ďalšie ťuknutie), pri udalosti kolieska hneď po kliku (dobeh touchpadu) a plynulý posun zastavený skôr nedorovnal.
   // Tu: prvok sa hľadá pri každom meraní podľa selektora, ťuknutie posun nezruší, koliesko až po 0,5 s, ťahanie prstom
   // a klávesy hneď; keď stránka stojí mimo cieľa, skočí presne (najviac 3×), stráži sa 1,5 s po dobehnutí.
+  // 25. 10. 2026 večer (Michal, PC ~2000×1000: „čím ďalej v konfigurátore, tým nižšie ho to zroluje … vidno už aj popisky
+  // pod konfigurátorom“): posun nikdy nejde nižšie, než aby spodok konfigurátora ostal 16 px nad spodkom okna. Krok potom
+  // nie je hore, ale vojde sa celý a nad ním ostanú vidno hotové kroky; galéria a popisy pod konfigurátorom sú mimo okna.
+  const SPODOK_KONF = 16;
+  function nadSpodkom(y) {
+    if (y == null) return y;
+    const max = Math.round(w.pageYOffset + root.getBoundingClientRect().bottom - w.innerHeight + SPODOK_KONF);
+    return Math.max(0, Math.min(y, max));
+  }
   let posunBeh = 0;
   const POSUN_RUKA = ["wheel", "keydown", "touchstart", "touchmove"];
   function posunNa(najdi, ciel) {
@@ -1075,7 +1084,7 @@ export function vytvorUi(o) {
     POSUN_RUKA.forEach((u) => w.addEventListener(u, ruka, { capture: true, passive: true }));
     const koniec = () => POSUN_RUKA.forEach((u) => w.removeEventListener(u, ruka, { capture: true, passive: true }));
     const zije = () => moj === posunBeh && !zruseny;
-    const vypocet = () => { const el = najdi(); return el && el.getClientRects().length ? ciel(el) : null; };
+    const vypocet = () => { const el = najdi(); return el && el.getClientRects().length ? nadSpodkom(ciel(el)) : null; };
     const chod = (y, plynule) => { try { w.scrollTo({ top: y, behavior: plynule ? "smooth" : "instant" }); } catch (e) { w.scrollTo(0, y); } };
     const raf = w.requestAnimationFrame ? (f) => w.requestAnimationFrame(f) : (f) => setTimeout(f, 16);
     raf(() => raf(() => {

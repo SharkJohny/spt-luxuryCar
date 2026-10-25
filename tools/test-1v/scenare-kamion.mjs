@@ -52,7 +52,8 @@ const OTVORENY = `(function () {
   var k = window.__lcd1vKamion, o = k ? k.ui.U.otvoreny : "?", q = function (s) { return document.querySelector("#lcd1v-kamion " + s); };
   var el = o ? q('[data-krok="' + o + '"]') : null, r = el ? el.getBoundingClientRect() : null;
   return { otvoreny: o, hotovy5: !!q('[data-krok="nasivky"].is-done'), hotovy6: !!q('[data-krok="tapacir"].is-done'),
-    dalej5: !!q('[data-a="dalej"][data-v="nasivky"]'), dalej6: !!q('[data-a="dalej"][data-v="tapacir"]'), top: r ? Math.round(r.top) : null, vh: innerHeight };
+    dalej5: !!q('[data-a="dalej"][data-v="nasivky"]'), dalej6: !!q('[data-a="dalej"][data-v="tapacir"]'), top: r ? Math.round(r.top) : null, vh: innerHeight,
+    rootBottom: Math.round(document.getElementById("lcd1v-kamion").getBoundingClientRect().bottom) };
 })()`;
 
 /** ?novy=1 pred vydaním (kamion nie je v ZAPNUTE_TYPY) = React: scenár sa preskočí, nie zlyhá (body.lcd-1v sa nečaká). */
@@ -196,7 +197,8 @@ const KARTA5 = `(function () {
     vnutro: k ? k.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) : 0, cvCss: cv ? cv.clientWidth : 0, cvW: cv ? cv.width : 0, cvH: cv ? cv.height : 0 };
 })()`;
 /** Po „Pokračovať“ je novo otvorená karta plynulo posunutá hore do okna (pod hlavičku webu). */
-const POSUN = (blok) => `(function () { var e = document.querySelector('#lcd1v-kamion [data-blok="${blok}"]'); if (!e) return null; var r = e.getBoundingClientRect(); return { top: Math.round(r.top), vh: innerHeight }; })()`;
+const POSUN = (blok) => `(function () { var e = document.querySelector('#lcd1v-kamion [data-blok="${blok}"]'); if (!e) return null; var r = e.getBoundingClientRect();
+  return { top: Math.round(r.top), vh: innerHeight, rootBottom: Math.round(document.getElementById("lcd1v-kamion").getBoundingClientRect().bottom) }; })()`;
 /** Krok 6: celá fotka dverí v ponuke (pomer vykreslenia = pomer súboru, bez orezania), dve zjavné voľby „Rovnaké ako koberce /
  *  Vlastná kombinácia“ (karty .kn-tv__b, aj po zatvorení ponuky). */
 const KROK6 = `(function () {
@@ -229,13 +231,21 @@ const PREHLAD = `(function () {
   var rp = p.getBoundingClientRect(), rb = b.getBoundingClientRect(), x = rp.left + 8, el = rp.top >= 0 && rp.top < innerHeight ? document.elementFromPoint(x, rp.top + 6) : null;
   var l = document.getElementById("lcd1v-lista");
   return { hore: Math.round(rp.top), dole: Math.round(rb.bottom), vh: innerHeight, sirka: innerWidth, volne: !!(el && p.contains(el)),
-    lista: l && l.classList.contains("on") && getComputedStyle(l).visibility !== "hidden" ? l.innerText : "" };
+    lista: l && l.classList.contains("on") && getComputedStyle(l).visibility !== "hidden" ? l.innerText : "",
+    rootBottom: Math.round(document.getElementById("lcd1v-kamion").getBoundingClientRect().bottom) };
 })()`;
-/** 25. 10. 2026 (Michal: „vždy na začiatok ďalšieho kroku“): nadpis prehľadu hore (≤ 40 px, nezakrytý); „Pridať do košíka“
- *  celé v okne — na telefóne môže byť pod oknom, vtedy ho ponúka spodná lišta. */
-const prehladOk = (r) => !!r && r.hore >= 0 && r.hore <= 40 && r.volne && (r.dole <= r.vh || (r.sirka < 768 && /košík/i.test(r.lista)));
-/** Po „Pokračovať“ / automatickom posune: začiatok novo otvoreného kroku 0–40 px od vrchu okna (Michal 25. 10. 2026). */
-const zaciatokOk = (r) => !!r && r.top != null && r.top >= 0 && r.top <= 40;
+/** 25. 10. 2026 večer (Michal, PC 2000×1000: „čím ďalej v konfigurátore, tým nižšie … už vidno aj popisky pod ním“):
+ *  posun nikdy nejde pod spodok konfigurátora — ten ostane SPODOK px nad spodkom okna, galéria pod ním je mimo okna.
+ *  Keď sa zvyšok konfigurátora od kroku nadol vojde do okna, krok nie je hore, ale celý v okne a nad ním hotové kroky. */
+const SPODOK = 16;
+const bezPopisov = (r) => !!r && r.rootBottom != null && r.rootBottom >= r.vh - SPODOK - 4;
+const priSpodku = (r) => Math.abs(r.rootBottom - (r.vh - SPODOK)) <= 4;
+/** 25. 10. 2026 (Michal: „vždy na začiatok ďalšieho kroku“): nadpis prehľadu hore (≤ 40 px, nezakrytý) alebo konfigurátor
+ *  pri spodku okna; „Pridať do košíka“ celé v okne — na telefóne môže byť pod oknom, vtedy ho ponúka spodná lišta. */
+const prehladOk = (r) => !!r && r.hore >= 0 && (r.hore <= 40 || priSpodku(r)) && r.volne && bezPopisov(r) && (r.dole <= r.vh || (r.sirka < 768 && /košík/i.test(r.lista)));
+/** Po „Pokračovať“ / automatickom posune: začiatok novo otvoreného kroku 0–40 px od vrchu okna (Michal 25. 10. 2026),
+ *  alebo nižšie, keď by inak bolo vidno popisy pod konfigurátorom (spodok konfigurátora pri spodku okna). */
+const zaciatokOk = (r) => !!r && r.top != null && r.top >= 0 && (r.top <= 40 || priSpodku(r)) && bezPopisov(r);
 async function overZaciatok(s, j, krok) {
   const r = await cakaj(s, j, OTVORENY, (x) => x.otvoreny === krok && zaciatokOk(x));
   j.over(r && r.otvoreny === krok && zaciatokOk(r), "po „Pokračovať“ nie je začiatok kroku „" + krok + "“ hore v okne (0–40 px): " + JSON.stringify(r));
@@ -329,8 +339,8 @@ export const SCENARE = {
       await snimkaPrvku(s, a, j, ".k-dlazdice--motiv", "kamion-krok5-nahlad");
       await rob(s, j, [["klik", a_("nit", "2999", "boky")], ["klik", a_("potvrd", "boky")]]);
       await j.pauza(900);
-      const ps = await cakaj(s, j, POSUN("stred"), (x) => x.top >= 0 && x.top <= 40);
-      j.over(ps && ps.top >= 0 && ps.top <= 40, "po „Pokračovať“ nie je začiatok karty stredu hore v okne (0–40 px): " + JSON.stringify(ps));
+      const ps = await cakaj(s, j, POSUN("stred"), zaciatokOk);
+      j.over(zaciatokOk(ps), "po „Pokračovať“ nie je začiatok karty stredu hore v okne (0–40 px) / vidno popisy pod konfigurátorom: " + JSON.stringify(ps));
       await overPismo(s, j, "krok 5 stred");
       await snimkaPrvku(s, a, j, '[data-krok="nasivky"]', "kamion-krok5-stred");
       // automatický posun: „Rovnaká ako pod sedadlami“ = posledná otázka -> krok 5 sa sám zavrie, otvorí sa krok 6 (posunutý do okna)
@@ -429,6 +439,51 @@ export const SCENARE = {
       const pr = await cakaj(s, j, PREHLAD, prehladOk);
       j.over(prehladOk(pr), "po poslednom kroku nie je prehľad od nadpisu hore: " + JSON.stringify(pr));
       return { info: "začiatok kroku hore aj po koliesku, ďalšom ťuknutí a prerušenom posune" };
+    },
+  },
+  // 25. 10. 2026 večer (Michal, PC okno ~2000×1000): „čím ďalej v konfigurátore, tým nižšie ho to po potvrdení zroluje …
+  // po poslednom kroku vidno aj popisky pod konfigurátorom (Galéria)“. Jeho cesta: IVECO Stralis Hi-Way obytná kabína,
+  // nášivky boky + stred, karta Stred, tapacír ako koberce s nášivkou. Po každom posune spodok konfigurátora pri spodku
+  // okna alebo nižšie (galéria mimo okna), otvorený krok / karta celý v okne.
+  "kamion-posun-vysoke": {
+    typy: ["kamion"],
+    async fn(s, a, pom, ovl, j) {
+      if (s.k.sirka < 768) return { preskoc: "len PC (vysoké okno)" };
+      await s.k.posli("Emulation.setDeviceMetricsOverride", { width: 1984, height: 1000, deviceScaleFactor: 1, mobile: false });
+      try {
+        await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
+        if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
+        const modely = await s.t.ev(`Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion select[data-p="model"] option'), function (o) { return o.value; })`);
+        await rob(s, j, [["vyber", "znacka", "IVECO (TIR)"]]);
+        const model = (await s.t.ev(`Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion select[data-p="model"] option'), function (o) { return o.value; })`)).find((m) => /Stralis Hi-Way 2011-2019 – obytná kabína/.test(m));
+        j.over(!!model, "model IVECO Stralis Hi-Way obytná kabína chýba: " + JSON.stringify(modely));
+        await rob(s, j, [["vyber", "model", model], ["dalej", "vozidlo"]]);
+        await overZaciatok(s, j, "material");
+        await rob(s, j, [["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"]]);
+        await overZaciatok(s, j, "farba");
+        await rob(s, j, [["klik", a_("farba", "9")], ["dalej", "farba"]]);
+        await overZaciatok(s, j, "lemovanie");
+        await rob(s, j, [["klik", a_("lem", "05")], ["dalej", "lemovanie"]]);
+        await overZaciatok(s, j, "nasivky");
+        await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H21", "boky")], ["klik", a_("nit", "3504", "boky")], ["klik", a_("potvrd", "boky")]]);
+        const ps = await cakaj(s, j, POSUN("stred"), zaciatokOk);
+        j.over(zaciatokOk(ps), "karta Stred: začiatok nie je v okne / vidno popisy pod konfigurátorom: " + JSON.stringify(ps));
+        await rob(s, j, [["klik", a_("stredRovnaky", "1")]]);
+        await overZaciatok(s, j, "tapacir");
+        // tapacír ako koberce + nášivka na dvere: posuny v rámci kroku 6 — galéria nikdy v okne
+        for (const [k, popis] of [[["klik", a_("tap", "ano")], "tapacír áno"], [["klik", a_("tapRovnake")], "rovnaké ako koberce"], [["klik", a_("tapNas", "ano")], "nášivka na dvere áno"]]) {
+          await rob(s, j, [k]);
+          await j.pauza(1800);
+          const r = await s.t.ev(OTVORENY);
+          j.over(bezPopisov(r), "po „" + popis + "“ vidno popisy pod konfigurátorom (spodok konfigurátora " + r.rootBottom + " px, okno " + r.vh + " px)");
+        }
+        await rob(s, j, [["klik", a_("tapNasRovnaka", "1")]]);
+        const pr = await cakaj(s, j, PREHLAD, prehladOk);
+        j.over(prehladOk(pr), "po poslednom kroku nie je v okne celý prehľad bez galérie pod ním: " + JSON.stringify(pr));
+        return { info: "1984×1000: spodok konfigurátora nikdy nad spodkom okna, krok / karta / prehľad celé v okne" };
+      } finally {
+        await s.k.posli("Emulation.setDeviceMetricsOverride", { width: s.k.sirka, height: s.k.vyska, deviceScaleFactor: 1, mobile: !!s.k.mobil });
+      }
     },
   },
   "kamion-dodavka": {
