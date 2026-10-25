@@ -77,6 +77,23 @@ export function budeKamion1v() {
     return false;
   }
 }
+
+/**
+ * Michal 25. 10. 2026 (rýchlosť, docs/1v-rychlost.md): obsah pod konfigurátorom sa začne sťahovať hneď pri spustení
+ * bundla — tá istá brána ako initKonfigurator1v (flag karty + register; kľúč obsahu a adresa kusov potrebujú len register
+ * a adresu skriptu), nie až keď príde data.json a postaví sa konfigurátor. Len požiadavka na kusy: DOM, triedy ani
+ * handlery sa nemenia, konfigurátor na obsah nečaká. Bez flagu (?novy=1 / ?novy=vyvoj) sa nestane nič.
+ */
+function predstiahniObsah() {
+  try {
+    prepinac(window.location.search);
+    const flag = jeZapnute();
+    const kontext = flag ? getShoptetContext() : null;
+    const produkt = kontext ? jeProdukt1v(kontext, flag) : null;
+    if (produkt) obsah.predstiahni(kontext, produkt);
+  } catch (e) { /* nič: obsah sa stiahne ako doteraz v obsah.init */ }
+}
+predstiahniObsah();
 // ---- koniec brány
 
 /** Volá main.js po postavení živého konfigurátora (initProduct … initConfiguratorEngine, initLivePrice). */

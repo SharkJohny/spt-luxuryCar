@@ -6,7 +6,7 @@
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ. Nič nekreslí, nič zo živého DOM nemaže, nič neodosiela.
 // Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Sekcia, ktorá ešte nie je v admine (stub), nie je
-// v DOM: oc.sekcia(meno) === null a jej časť sa preskočí.
+// v DOM: oc.sekcia(meno) === null a jej časť sa preskočí. Od 25. 10. 2026 (rýchlosť) po sekciách (pozri spolocne()).
 //   d-realita  šípky pásu (schovajú sa, keď sa pás zmestí), natáčanie kariet do perspektívy (ako titulka), klik = video v okne
 //   d-faq      otázka = <button type="button" aria-expanded>, odpoveď sa rozbalí (viac otvorených naraz, ako <details> v návrhu)
 //   d-koniec   pozadie (CSS) až pri priblížení (trieda p1v-blizko); „Zadajte údaje o vozidle“ = posun na prvý nevyplnený krok (otvorí ho), inak na súhrn košíka; „Pozrite si
@@ -354,7 +354,9 @@ function vyzvy(oc) {
     if (a && oc.miesto.contains(a)) {
       const mena = (a.getAttribute("data-p1v-ciel") || "").split(/\s+/).filter(Boolean);
       let ciel = null;
-      for (let i = 0; i < mena.length && !ciel; i++) ciel = oc.sekcia(mena[i]);
+      // v celom obsahu (oc.sekcia pri oživení po sekciách vidí len jednu sekciu)
+      const najdi = oc.najdiSekciu || oc.sekcia;
+      for (let i = 0; i < mena.length && !ciel; i++) ciel = najdi(mena[i]);
       if (!ciel) return; // sekcia ešte nie je (stub) -> kotva href
       e.preventDefault();
       posunNa(ciel);
@@ -362,22 +364,37 @@ function vyzvy(oc) {
   });
 }
 
+/**
+ * Michal 25. 10. 2026 (rýchlosť): obsah.js volá init po sekciách (oc.sekcia vráti len sekciu, ktorá sa práve oživuje)
+ * a raz s oc bez sekcií hneď pri vložení. Spoločné časti (klik na položky okna, výzvy na konfigurátor, okno cez
+ * udalosť) sa preto zaregistrujú len raz na miesto obsahu — inak by bežali pri každom volaní znova.
+ */
+const SPOLOCNE = typeof WeakSet === "function" ? new WeakSet() : null;
+function spolocne(oc) {
+  if (SPOLOCNE) {
+    if (SPOLOCNE.has(oc.miesto)) return;
+    SPOLOCNE.add(oc.miesto);
+  }
+  // okno sa môže pripraviť až pri neskoršom volaní (sekcia d-pomocne) -> kontrola pri kliku
+  oc.miesto.addEventListener("click", (e) => { if (okno) klikOkno(oc.miesto, e); });
+  // iné moduly môžu okno otvoriť aj udalosťou (bez importu): oc.vysli("obsah-d:okno", { polozky, index, spat })
+  if (oc.na) oc.na("obsah-d:okno", (d) => { if (d) otvorOkno(d.polozky, d.index || 0, d.spat || null); });
+  vyzvy(oc);
+}
+
 /** @param {object} oc spoločný kontext obsahu (obsah.js) */
 export function init(oc) {
+  spolocne(oc);
   const pomocne = oc.sekcia("d-pomocne");
   if (pomocne) {
     okno = pripravOkno(pomocne.querySelector(".p1v-lb"));
     linkaCitania(oc, pomocne.querySelector(".p1v-citanie"));
   }
-  if (okno) oc.miesto.addEventListener("click", (e) => klikOkno(oc.miesto, e));
-  // iné moduly môžu okno otvoriť aj udalosťou (bez importu): oc.vysli("obsah-d:okno", { polozky, index, spat })
-  if (oc.na) oc.na("obsah-d:okno", (d) => { if (d) otvorOkno(d.polozky, d.index || 0, d.spat || null); });
 
   const r = oc.sekcia("d-realita");
   if (r) realita(r);
   const f = oc.sekcia("d-faq");
   if (f) faq(f);
-  vyzvy(oc);
   const k = oc.sekcia("d-koniec");
   // ozdobné pozadie záveru (CSS, hero.jpg) až pri priblížení
   if (k) oc.priZobrazeni(k, (el) => el.classList.add("p1v-blizko"), { okraj: "800px 0px" });

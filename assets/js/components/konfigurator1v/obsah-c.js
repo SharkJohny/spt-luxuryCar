@@ -5,7 +5,8 @@
 // boxy); sekcia, ktorá v skupine nie je (stub alebo ju návrh nemá), sa preskočí.
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ (animácie, posun, video pri zobrazení). Nič nekreslí
-// a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke.
+// a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Od 25. 10. 2026
+// (rýchlosť) po sekciách, keď sa sekcia priblíži k oknu: oc.sekcia vráti len tú jednu, init teda môže prísť viackrát.
 // oc = { ctx, korene, koren (multi-koreň pre lxModulyOziv), miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn),
 //        nacitajMedia(el), ked, na, vysli }. Sekcia, ktorá je ešte stub, nie je v DOM: oc.sekcia(meno) === null.
 //
@@ -146,12 +147,15 @@ function casovaOs(sek, oc) {
     const r = tml.getBoundingClientRect();
     if (!r.height) return;
     const ciara = window.innerHeight * 0.62;
-    nastav(Math.max(0, Math.min(1, (ciara - r.top) / r.height)).toFixed(4), (k) => {
+    // Michal 25. 10. 2026 (rýchlosť): najprv polohy všetkých čísel, potom triedy (li.on mení len farby čísla, nie
+    // rozloženie — výsledok je ten istý, bez prepočítania štýlov pri každom kroku)
+    const zapnute = kroky.map((k) => {
       const c = k.querySelector("i");
       if (!c) return false;
       const kr = c.getBoundingClientRect();
       return kr.top + kr.height / 2 <= ciara;
     });
+    nastav(Math.max(0, Math.min(1, (ciara - r.top) / r.height)).toFixed(4), (k, i) => zapnute[i]);
   };
   const naplanuj = () => { if (blizko && !caka) { caka = true; requestAnimationFrame(kresli); } };
   if (!blizko) {

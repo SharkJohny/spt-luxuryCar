@@ -6,7 +6,8 @@
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ. Nič zo živého DOM nemaže, nič neodosiela, žiadny fetch.
 // Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Sekcia, ktorá ešte nie je v admine (stub), nie je
-// v DOM: oc.sekcia(meno) === null a jej časť sa preskočí.
+// v DOM: oc.sekcia(meno) === null a jej časť sa preskočí. Od 25. 10. 2026 (rýchlosť) obsah.js volá init po sekciách,
+// keď sa sekcia priblíži k oknu — oc.sekcia vráti len tú jednu (ostatné null), init teda môže prísť viackrát.
 //   a-referencie poster slučiek až pri priblížení pásu, prehráva max 2 najbližšie stredu (telefón 1, .mid), bez autoplay
 //                pri šetrení dát / pomalej sieti / reduced-motion; šípky; natáčanie kariet do perspektívy (ako titulka).
 //                Klik na kartu = celé video z YouTube v okne skupiny D (data-p1v-lb-yt, obsluhuje obsah-d.js).
@@ -114,8 +115,12 @@ function referencie(sek, oc) {
   const prekresli = () => {
     caka = false;
     const r0 = deck.getBoundingClientRect(), stred = r0.left + deck.clientWidth / 2, sirka = deck.clientWidth;
-    karty.forEach((k) => {
-      const r = k.getBoundingClientRect(), os = r.left + r.width / 2;
+    // Michal 25. 10. 2026 (rýchlosť): najprv polohy všetkých kariet, potom zápisy — čítanie po zápise transformácie
+    // predošlej karty nútilo prehliadač prepočítať štýly a rozloženie pri každej karte (výsledok je ten istý: poloha
+    // karty nezávisí od transformácie iných kariet)
+    const polohy = karty.map((k) => k.getBoundingClientRect());
+    karty.forEach((k, i) => {
+      const r = polohy[i], os = r.left + r.width / 2;
       if (os < stred - sirka || os > stred + sirka) { if (k.style.transform) { k.style.transform = ""; k.style.zIndex = ""; } return; }
       const p = Math.max(-1, Math.min(1, (os - stred) / (r.width * 1.15))), a = Math.abs(p);
       k.style.transform = plocho
@@ -213,7 +218,8 @@ function vykresliRecenzie(sek, pas, d) {
       const sh = a.appendChild(prvok("div", "shots"));
       foto.forEach((u) => {
         const im = prvok("img");
-        im.src = u; im.alt = ""; im.loading = "lazy"; im.decoding = "async"; im.width = 260; im.height = 260;
+        // rýchlosť (25. 10. 2026): loading/decoding PRED src — inak prehliadač začne sťahovať hneď pri nastavení src
+        im.loading = "lazy"; im.decoding = "async"; im.alt = ""; im.width = 260; im.height = 260; im.src = u;
         sh.appendChild(im);
       });
     }

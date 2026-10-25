@@ -8,23 +8,35 @@
 //
 // Odkiaľ sa obsah vezme (beží len pod bránou index.js: flag ?novy=1 + zapnutý typ, alebo ?novy=vyvoj):
 //   a) korene [data-lcd-cast^="p1v-<kľúč>-"] už sú v DOM (po spustení pre všetkých: Popis produktu; starší test: banner
-//      v pätičke) -> použijú sa tie (synchrónne, ako doteraz);
+//      v pätičke) -> použijú sa tie (umiestnia sa synchrónne, ako doteraz);
 //   b) inak, keď OBSAH_CDN (rozhodnutia D1 = b, skúšobná fáza): kusy sa stiahnu z CDN z TEJ ISTEJ verzie ako bundle —
 //      …/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html (sha z adresy luxuryCar.js; .github/workflows/production.yml ich tam
 //      kopíruje z admin-html/dist). Bez flagu sa nič nesťahuje (obsah.js vôbec nebeží) a HTML stránky sa nemení.
+//      Michal 25. 10. 2026 (rýchlosť, docs/1v-rychlost.md): sťahovanie začne už pri spustení bundla (index.js volá
+//      predstiahni() za tou istou bránou), nie až po postavení konfigurátora; konfigurátor na obsah nikdy nečaká.
 // Kus bez sekcií (len stuby) = nič: starý popis ostáva, nič sa neskrýva.
-// Pod body.lcd-1v potom:
-//   1. korene sa presunú do .p1v-miesto hneď pred záložky Popis/Diskusia (.p-detail > .shp-tabs-wrapper) = priamo pod
-//      konfigurátor, v poradí kus 1, kus 2; prázdny stĺpec pätičky (starý test) dostane data-p1v-prazdny;
+// Pod body.lcd-1v potom (Michal 25. 10. 2026, rýchlosť: ako titulka — konfigurátor sa ukáže hneď, obsah postupne):
+//   1. každý kus sa vloží vo VLASTNEJ úlohe po vykreslení konfigurátora, hneď ako príde (kus 1 nečaká na kus 2); kus 2 sa
+//      pripojí za kus 1 aj keď príde skôr (poradie kus 1, kus 2). Korene idú do .p1v-miesto hneď pred záložky
+//      Popis/Diskusia (.p-detail > .shp-tabs-wrapper) = priamo pod konfigurátor; prázdny stĺpec pätičky (starý test)
+//      dostane data-p1v-prazdny; šírka miesta sa zmeria PRED vložením obsahu (žiadne vynútené prepočítanie rozloženia);
 //   2. body dostane .lcd-1v-obsah -> CSS (LCD-1V-OBSAH) ukáže korene a skryje starý popis (záložky);
-//   3. obsah-cisla.js dosadí čísla a odkazy (synchrónne skryje nedosadené, kým sa nezistia — Diamond na Hexa nikdy);
-//   4. moduly skupín A–D (obsah-a.js … obsah-d.js) a modul typu (obsah-dvoj/-classic/-premium/-boxy.js) dostanú `oc`;
-//   5. reveal .rv pre všetky sekcie naraz; až potom obal sekcie dostane .p1v-rv.
-// Chyba: cesta a) -> ctx.chyby (index.js zloží celý nový vzhľad, ako doteraz); cesta b) beží až po stiahnutí, keď je
-// konfigurátor už postavený -> chyba ide do ctx.chyby a vráti sa LEN obsah (miesto preč, starý popis späť).
+//   3. obsah-cisla.js dosadí čísla a odkazy kusu (synchrónne skryje nedosadené, kým sa nezistia — Diamond na Hexa nikdy);
+//   4. moduly skupín A–D (obsah-a.js … obsah-d.js) a modul typu (obsah-dvoj/-classic/-premium/-boxy.js) sa volajú PO
+//      SEKCIÁCH: init(oc) dostane `oc`, v ktorom oc.sekcia(meno) vráti len tú jednu sekciu, ktorá sa práve oživuje
+//      (ostatné null — rovnako ako stub); oc.najdiSekciu(meno) hľadá v celom obsahu (napr. cieľ odkazu pri kliku).
+//      Sekcia sa oživí, keď sa priblíži k oknu (OKRAJ_OZIVENIA = 1,5 výšky okna), každá vo vlastnej úlohe v nečinnosti
+//      (requestIdleCallback s limitom, inak setTimeout 0) — hlavné vlákno sa medzi sekciami uvoľní. Pomocné sekcie
+//      (*-pomocne: okno na fotky, linka čítania) a spoločné časti modulov (init s oc bez sekcií) sa oživia hneď pri vložení;
+//   5. reveal .rv: jeden IntersectionObserver (žiadne čítanie polôh pri vložení); čo je vo výreze alebo nad ním, dostane
+//      .on hneď pri prvom hlásení, až potom obal sekcie dostane .p1v-rv (dovtedy je všetko viditeľné).
+// Chyba: cesta a) -> ctx.chyby (index.js zloží celý nový vzhľad, ako doteraz); vloženie kusu (cesta b) -> chyba ide do
+// ctx.chyby a vráti sa LEN obsah (miesto preč, starý popis späť). Chyba pri oživení sekcie (neskôr, pri posune) ide do
+// ctx.chyby, sekcia ostane statická a viditeľná (obsah sa pod zákazníkom nezloží).
 // Žiadny živý DOM sa nemaže (záložky ostávajú v DOM, len skryté; JS na ne kotví — main.js, popisModuly.js).
-// Stav pre test a ladenie: window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|null, stav, kusy, cisla (Promise) }.
-import { lcdMultiKoren, lcdRevealOznacVidene } from "../../functions/lcdOziv.js";
+// Stav pre test a ladenie: window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|null, stav, kusy, hotovo (Promise),
+// cisla (Promise), neozivene() -> mená sekcií, ktoré sa ešte neoživili }.
+import { lcdMultiKoren } from "../../functions/lcdOziv.js";
 import { OBRAZKY_1V } from "./ctx.js";
 import * as cisla from "./obsah-cisla.js";
 import * as skupinaA from "./obsah-a.js";
@@ -57,6 +69,15 @@ export const KUSY = 2;
 const MODUL_TYPU = { dvoj: typDvoj, classic: typClassic, premium: typPremium, boxy: typBoxy, kamiony: typKamiony };
 /** bundle verzie: …/assets/v/<sha>/js/luxuryCar.js -> …/assets/v/<sha>/ (len https; nevyverzovaný bundle = null) */
 const RE_BUNDLE = /^(https:\/\/[^?#]+\/assets\/v\/[A-Za-z0-9._-]+\/)js\/luxuryCar\.js(?:[?#]|$)/;
+/**
+ * Michal 25. 10. 2026 (rýchlosť): sekcia sa oživí (moduly A–D a typu), keď je od okna bližšie než 1,5 jeho výšky — na
+ * pomalom telefóne má dosť času byť hotová skôr, než ju zákazník uvidí, a čo nikto nevidí, nezaťaží načítanie.
+ */
+const OKRAJ_OZIVENIA = "150% 0px";
+/** Reveal .rv: rovnaký okraj ako doteraz (prvok sa odhalí, keď je nad spodnými 8 % okna). */
+const OKRAJ_ODHALENIA = "0px 0px -8% 0px";
+/** Najdlhšie čakanie na nečinnosť pred oživením ďalšej sekcie (ms). */
+const LIMIT_NECINNOSTI = 200;
 
 /** Kľúč obsahu produktu (register produkty.js -> obsah), inak productId. */
 export function klucObsahu(ctx) {
@@ -93,30 +114,81 @@ function korenZHtml(html, cast) {
   return t.content.querySelector('[data-lcd-cast="' + cast + '"]');
 }
 
-/** Stiahne kusy kľúča z CDN -> Promise([korene v poradí]); chyba siete / 404 = ten kus chýba. */
-function stiahniKusy(kluc) {
+/** Jeden kus z CDN -> Promise(HTML | null); chyba siete / 404 = ten kus chýba. */
+function stiahniKus(u) {
+  return fetch(u, { credentials: "omit" })
+    .then((r) => (r.ok ? r.text() : null))
+    .catch(() => null);
+}
+
+/** Kusy stiahnuté vopred pri spustení bundla: { kluc, texty: [Promise(HTML | null)] } alebo null. */
+let vopred = null;
+
+/**
+ * Michal 25. 10. 2026 (rýchlosť): volá index.js hneď pri spustení bundla za tou istou bránou ako initKonfigurator1v
+ * (flag karty + register). Len začne sťahovať kusy (žiadny DOM, trieda ani handler); init() ich potom prevezme a
+ * nesťahuje znova. Konfigurátor (data.json, moduly) na ne nečaká. Korene v DOM (cesta a) alebo CZ = nič.
+ * @param {{ projectId, productId, language }} kontext getShoptetContext()
+ * @param {{ id, obsah }} produkt záznam registra (produkty.js produkt1v)
+ */
+export function predstiahni(kontext, produkt) {
+  if (vopred || !OBSAH_CDN || !kontext || !produkt) return;
+  // trh ako ctx.js (vytvorCtx): 704436 = CZ test, inak jazyk stránky
+  const jazyk = String(kontext.projectId) === "704436" ? "cs" : kontext.language || document.documentElement.lang || "sk";
+  if (jazyk === "cs") return;
+  const kluc = klucObsahu({ produkt, productId: kontext.productId });
+  if (!kluc || koreneObsahu(kluc).length) return;
   const adresy = adresyKusov(kluc);
-  return Promise.all(adresy.map((u, i) =>
-    fetch(u, { credentials: "omit" })
-      .then((r) => (r.ok ? r.text() : null))
-      .then((html) => (html ? korenZHtml(html, "p1v-" + kluc + "-" + (i + 1)) : null))
-      .catch(() => null)
-  )).then((k) => k.filter(Boolean));
+  if (!adresy.length) return;
+  vopred = { kluc, texty: adresy.map(stiahniKus) };
 }
 
 const maSekcie = (korene) => korene.some((k) => !!k.querySelector("[data-lcd-sekcia]"));
+const pole = (x) => Array.prototype.slice.call(x || []);
 
-/** Miesto pod konfigurátorom: pred záložkami produktu; vytvorí sa raz. */
+/** Kam patrí miesto: hneď pred záložky produktu, inak na koniec .p-detail, inak #content / body. */
+function cielMiesta() {
+  const zalozky = document.querySelector(".p-detail > .shp-tabs-wrapper") || document.querySelector(".shp-tabs-wrapper");
+  if (zalozky && zalozky.parentNode) return { rodic: zalozky.parentNode, pred: zalozky };
+  const detail = document.querySelector(".p-detail");
+  return { rodic: detail || document.querySelector("#content") || document.body, pred: null };
+}
+
+/**
+ * Šírka a posun miesta na celú šírku stránky podľa .overall-wrapper (--p1v-sirka, --p1v-vlavo; CSS LCD-1V-OBSAH bod 4).
+ * Shoptet ho nemusí mať presne cez okno (posuvník, bočné odsadenie).
+ */
+function rozmerMiesta(rodic) {
+  const obal = document.querySelector(".overall-wrapper") || document.body;
+  if (!obal || !rodic) return null;
+  const o = obal.getBoundingClientRect(), r = rodic.getBoundingClientRect(), cs = getComputedStyle(rodic);
+  const lavo = r.left + (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.paddingLeft) || 0);
+  // presne (nie zaokrúhlené): rodič má pri niektorých šírkach polovičné px (Math.round(-44.5) = -44 -> miesto o 1 px vpravo)
+  return { sirka: +o.width.toFixed(2) + "px", vlavo: +(o.left - lavo).toFixed(2) + "px" };
+}
+function nastavRozmer(miesto, x) {
+  if (!x) return;
+  miesto.style.setProperty("--p1v-sirka", x.sirka);
+  miesto.style.setProperty("--p1v-vlavo", x.vlavo);
+}
+
+/**
+ * Miesto pod konfigurátorom; vytvorí sa raz. Michal 25. 10. 2026 (rýchlosť): rozmer sa zmeria PRED vložením miesta aj
+ * obsahu (rozloženie je ešte z posledného vykreslenia — žiadne vynútené prepočítanie celej stránky s novým obsahom);
+ * šírka ani ľavý okraj rodiča od obsahu pod ním nezávisia. Po zmene veľkosti okna sa meria znova (ako doteraz).
+ */
 function miestoObsahu() {
   let m = document.querySelector(".p1v-miesto");
   if (m) return m;
+  const c = cielMiesta();
+  const rozmer = rozmerMiesta(c.rodic);
   m = document.createElement("div");
   m.className = "p1v-miesto";
-  const zalozky = document.querySelector(".p-detail > .shp-tabs-wrapper") || document.querySelector(".shp-tabs-wrapper");
-  const detail = document.querySelector(".p-detail");
-  if (zalozky && zalozky.parentNode) zalozky.parentNode.insertBefore(m, zalozky);
-  else if (detail) detail.appendChild(m);
-  else (document.querySelector("#content") || document.body).appendChild(m);
+  nastavRozmer(m, rozmer);
+  if (c.pred) c.rodic.insertBefore(m, c.pred);
+  else c.rodic.appendChild(m);
+  const miesto = m;
+  window.addEventListener("resize", () => { if (miesto.parentElement) nastavRozmer(miesto, rozmerMiesta(miesto.parentElement)); }, { passive: true });
   return m;
 }
 
@@ -155,84 +227,169 @@ function nacitajMedia(el) {
   videa.forEach((v) => { try { v.load(); } catch (e) { /* video bez podpory */ } });
 }
 
-/** Reveal .rv všetkých sekcií (aj obal sekcie, ktorý je sám .rv); pri prefers-reduced-motion všetko hneď. */
-function odhal(miesto) {
-  const sekcie = Array.prototype.slice.call(miesto.querySelectorAll("[data-lcd-sekcia]"));
-  const rv = [];
-  sekcie.forEach((s) => {
-    if (s.classList.contains("rv")) rv.push(s);
-    Array.prototype.forEach.call(s.querySelectorAll(".rv"), (x) => rv.push(x));
-  });
-  const pokoj = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  if (pokoj || typeof IntersectionObserver !== "function") rv.forEach((x) => x.classList.add("on"));
-  else lcdRevealOznacVidene(rv).forEach((x) => priZobrazeni(x, (el) => el.classList.add("on"), { okraj: "0px 0px -8% 0px" }));
-  sekcie.forEach((s) => s.classList.add("p1v-rv"));
-}
-
-/** Miesto na celú šírku stránky: šírka a posun podľa .overall-wrapper (aj po zmene veľkosti okna). */
-function roztahovanie(miesto) {
-  // Shoptet ho nemusí mať presne cez okno (posuvník, bočné odsadenie). CSS: --p1v-sirka, --p1v-vlavo (LCD-1V-OBSAH bod 4).
-  const roztiahni = () => {
-    const obal = document.querySelector(".overall-wrapper") || document.body;
-    const rodic = miesto.parentElement;
-    if (!obal || !rodic) return;
-    const o = obal.getBoundingClientRect(), r = rodic.getBoundingClientRect(), cs = getComputedStyle(rodic);
-    const lavo = r.left + (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.paddingLeft) || 0);
-    // presne (nie zaokrúhlené): rodič má pri niektorých šírkach polovičné px (Math.round(-44.5) = -44 -> miesto o 1 px vpravo)
-    miesto.style.setProperty("--p1v-sirka", +o.width.toFixed(2) + "px");
-    miesto.style.setProperty("--p1v-vlavo", +(o.left - lavo).toFixed(2) + "px");
-  };
-  roztiahni();
-  window.addEventListener("resize", roztiahni, { passive: true });
+/** .rv sekcie (aj obal sekcie, ktorý je sám .rv) */
+function rvSekcie(s) {
+  const rv = s.classList.contains("rv") ? [s] : [];
+  return rv.concat(pole(s.querySelectorAll(".rv")));
 }
 
 /**
- * Umiestni korene pod konfigurátor a oživí ich (body 1–5 hlavičky). Vráti zoznam chýb (prázdny = OK).
- * Moduly sa volajú v poradí: čísla -> A–D -> modul typu -> reveal; chyba jedného nezastaví ostatné.
+ * Reveal .rv (Michal 25. 10. 2026, rýchlosť): JEDEN IntersectionObserver pre celý obsah namiesto čítania polohy každého
+ * prvku hneď pri vložení (čítanie po zápise triedy = opakované prepočítanie štýlov a rozloženia čerstvého obsahu).
+ * Prvé hlásenie IO má polohy z bežného vykreslenia: čo je vo výreze alebo nad ním (top < výška okna), dostane .on hneď
+ * — ako lcdRevealOznacVidene titulky; až keď sú zatriedené všetky .rv sekcie, obal dostane .p1v-rv (CSS dovtedy nič
+ * neskrýva, takže nič nezmizne ani neblikne). Zvyšok dostane .on pri zobrazení. Pri prefers-reduced-motion všetko hneď.
  */
-function umiestni(ctx, kluc, korene, stav) {
-  const chyby = [];
-  const miesto = miestoObsahu();
-  korene.forEach((k) => {
-    const stlpec = k.closest && k.closest(".custom-footer > div");
-    if (k.parentNode !== miesto) miesto.appendChild(k);
-    if (stlpec && !stlpec.querySelector("[data-lcd-cast]")) stlpec.setAttribute("data-p1v-prazdny", "");
-  });
-  roztahovanie(miesto);
-  document.body.classList.add(TRIEDA_OBSAH);
+function vytvorOdhalovanie() {
+  const pokoj = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) || typeof IntersectionObserver !== "function";
+  const prve = new Map(); // .rv -> sekcia (čaká na prvé zatriedenie)
+  const zostava = new Map(); // sekcia -> počet nezatriedených .rv
+  const sledovane = new WeakSet();
+  const io = pokoj ? null : new IntersectionObserver((zaznamy) => {
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const hotove = [];
+    zaznamy.forEach((z) => {
+      const el = z.target;
+      const s = prve.get(el);
+      if (s) {
+        prve.delete(el);
+        if (z.isIntersecting || z.boundingClientRect.top < vh) { el.classList.add("on"); io.unobserve(el); }
+        const n = (zostava.get(s) || 1) - 1;
+        if (n > 0) zostava.set(s, n);
+        else { zostava.delete(s); hotove.push(s); }
+      } else if (z.isIntersecting) {
+        el.classList.add("on");
+        io.unobserve(el);
+      }
+    });
+    hotove.forEach((s) => s.classList.add("p1v-rv"));
+  }, { rootMargin: OKRAJ_ODHALENIA });
+  const sleduj = (el, s) => {
+    if (sledovane.has(el)) return;
+    sledovane.add(el);
+    if (s) { prve.set(el, s); zostava.set(s, (zostava.get(s) || 0) + 1); }
+    io.observe(el);
+  };
+  return {
+    /** nové sekcie (pri vložení kusu) */
+    sekcie(sekcie) {
+      sekcie.forEach((s) => {
+        const rv = rvSekcie(s).filter((x) => !x.classList.contains("on"));
+        if (pokoj) { rv.forEach((x) => x.classList.add("on")); s.classList.add("p1v-rv"); return; }
+        rv.forEach((x) => sleduj(x, s));
+        if (!zostava.get(s)) s.classList.add("p1v-rv");
+      });
+    },
+    /** .rv, ktoré v sekcii pribudli pri oživení (napr. kópie pásu galérie) */
+    dopln(s) {
+      const rv = rvSekcie(s).filter((x) => !x.classList.contains("on"));
+      if (pokoj) { rv.forEach((x) => x.classList.add("on")); return; }
+      const zatriedujem = !s.classList.contains("p1v-rv") && (zostava.get(s) || 0) > 0;
+      rv.forEach((x) => sleduj(x, zatriedujem ? s : null));
+    },
+  };
+}
 
-  const oc = {
-    ctx,
-    kluc,
-    korene,
-    koren: lcdMultiKoren(korene), // querySelector(All) cez všetky kusy (lxModulyOziv ho prijme ako root)
-    miesto,
-    /** obal sekcie podľa data-lcd-sekcia (napr. "a-referencie") alebo null (stub nie je v HTML) */
-    sekcia: (meno) => miesto.querySelector('[data-lcd-sekcia="' + meno + '"]'),
-    obrazok: (meno) => OBRAZKY_OBSAH + meno,
-    priZobrazeni,
-    nacitajMedia,
-    ked: ctx.ked,
-    na: ctx.na,
-    vysli: ctx.vysli,
-  };
-  const spusti = (m) => {
-    try {
-      const v = m.init(oc);
-      if (m === cisla) stav.cisla = v;
-    } catch (e) {
-      chyby.push(m.MENO + ": " + ((e && e.message) || e));
-      console.error("[lcd-1v] " + m.MENO, e);
-    }
-  };
-  [cisla, skupinaA, skupinaB, skupinaC, skupinaD, MODUL_TYPU[kluc]].filter(Boolean).forEach(spusti);
-  try {
-    odhal(miesto);
-  } catch (e) {
-    chyby.push(MENO + " reveal: " + ((e && e.message) || e));
-    console.error("[lcd-1v] " + MENO, e);
+/** Úloha v nečinnosti (requestIdleCallback s limitom), inak hneď v ďalšej úlohe (setTimeout 0 — Safari rIC nemá). */
+function vNecinnosti(fn) {
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(fn, { timeout: LIMIT_NECINNOSTI });
+  else setTimeout(() => fn(null), 0);
+}
+
+/**
+ * Úloha až po najbližšom vykreslení (requestAnimationFrame -> setTimeout 0): konfigurátor sa ukáže skôr, než sa vkladá
+ * obsah, a každý kus sa rozloží vo vlastnom snímku. Skrytá karta (rAF nebeží) -> poistka po 1 s.
+ */
+function poVykresleni() {
+  return new Promise((hotovo) => {
+    let raz = false;
+    const dalej = () => { if (!raz) { raz = true; hotovo(); } };
+    if (typeof window.requestAnimationFrame === "function") window.requestAnimationFrame(() => setTimeout(dalej, 0));
+    setTimeout(dalej, 1000);
+  });
+}
+
+/**
+ * Oživovanie po sekciách (bod 4 hlavičky): sekcia sa zaradí, keď sa priblíži k oknu (OKRAJ_OZIVENIA), a oživí sa
+ * vo vlastnej úlohe v nečinnosti (vyššie sekcie prvé). Pomocné sekcie (*-pomocne) hneď.
+ */
+function vytvorOzivovanie(oc, moduly, odhalovanie, stav) {
+  const cakaju = new Set();
+  const fronta = [];
+  let naplanovane = false;
+  const ozivene = new WeakSet();
+
+  function oziv(s) {
+    if (ozivene.has(s)) return;
+    ozivene.add(s);
+    cakaju.delete(s);
+    const meno = s.getAttribute("data-lcd-sekcia");
+    const ocS = Object.create(oc);
+    ocS.sekcia = (m) => (m === meno ? s : null);
+    moduly.forEach((m) => {
+      try {
+        m.init(ocS);
+      } catch (e) {
+        // sekcia ostane statická a viditeľná; test číta ctx.chyby aj po prejdení celého obsahu
+        oc.ctx.chyby.push(m.MENO + " (" + meno + "): " + ((e && e.message) || e));
+        console.error("[lcd-1v] " + m.MENO + " " + meno, e);
+      }
+    });
+    try { odhalovanie.dopln(s); } catch (e) { console.error("[lcd-1v] " + MENO + " reveal " + meno, e); }
   }
-  return chyby;
+  function spracuj(termin) {
+    naplanovane = false;
+    // vyššie sekcie skôr (poradie v dokumente)
+    fronta.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1));
+    const s = fronta.shift();
+    if (s) oziv(s);
+    // v tom istom okne nečinnosti ďalšia, len keď ostáva dosť času (inak nová úloha = hlavné vlákno sa uvoľní)
+    while (fronta.length && termin && !termin.didTimeout && termin.timeRemaining() > 12) oziv(fronta.shift());
+    if (fronta.length) naplanuj();
+  }
+  function naplanuj() {
+    if (naplanovane) return;
+    naplanovane = true;
+    vNecinnosti(spracuj);
+  }
+  function zarad(s) {
+    if (!cakaju.has(s) || fronta.indexOf(s) > -1) return;
+    fronta.push(s);
+    naplanuj();
+  }
+  const io = typeof IntersectionObserver === "function" ? new IntersectionObserver((zaznamy) => {
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    zaznamy.forEach((z) => {
+      if (!z.isIntersecting) return;
+      io.unobserve(z.target);
+      // sekcia už je vo výreze (skok kotvou, rýchly posun) -> hneď, zákazník ju práve vidí; inak v nečinnosti
+      const r = z.boundingClientRect;
+      if (r.top < vh && r.bottom > 0) oziv(z.target);
+      else zarad(z.target);
+    });
+  }, { rootMargin: OKRAJ_OZIVENIA }) : null;
+
+  stav.neozivene = () => Array.from(cakaju).map((s) => s.getAttribute("data-lcd-sekcia"));
+  return {
+    /** spoločné časti modulov (init s oc bez sekcií, napr. výzvy a okno skupiny D) — raz, pri prvom vložení */
+    spolocne() {
+      const ocBez = Object.create(oc);
+      ocBez.sekcia = () => null;
+      moduly.forEach((m) => {
+        try { m.init(ocBez); } catch (e) {
+          oc.ctx.chyby.push(m.MENO + ": " + ((e && e.message) || e));
+          console.error("[lcd-1v] " + m.MENO, e);
+        }
+      });
+    },
+    pridaj(sekcie) {
+      sekcie.forEach((s) => {
+        cakaju.add(s);
+        if (/-pomocne$/.test(s.getAttribute("data-lcd-sekcia") || "") || !io) oziv(s);
+        else io.observe(s);
+      });
+    },
+  };
 }
 
 /** Obsah sa nepodaril (cesta b): naše miesto preč, starý popis späť; konfigurátor ostáva. */
@@ -244,39 +401,120 @@ function vratObsah() {
   });
 }
 
+/**
+ * Obsah na stránke: miesto, trieda, `oc`, reveal a oživovanie — vytvorí sa pri prvom kuse so sekciami.
+ * vloz(korene) umiestni korene za doterajšie (v poradí), dosadí ich čísla, zaradí ich sekcie na reveal a oživenie.
+ */
+function vytvorObsah(ctx, kluc, stav) {
+  const miesto = miestoObsahu();
+  document.body.classList.add(TRIEDA_OBSAH);
+  const korene = []; // rastie s každým kusom (lcdMultiKoren drží to isté pole)
+  const oc = {
+    ctx,
+    kluc,
+    korene,
+    koren: lcdMultiKoren(korene), // querySelector(All) cez všetky kusy (lxModulyOziv ho prijme ako root)
+    miesto,
+    /** obal sekcie podľa data-lcd-sekcia (napr. "a-referencie") alebo null; pri oživení po sekciách len tá jedna */
+    sekcia: (meno) => miesto.querySelector('[data-lcd-sekcia="' + meno + '"]'),
+    /** hocktorá sekcia celého obsahu (napr. cieľ odkazu pri kliku), aj keď sa oživuje iná */
+    najdiSekciu: (meno) => miesto.querySelector('[data-lcd-sekcia="' + meno + '"]'),
+    obrazok: (meno) => OBRAZKY_OBSAH + meno,
+    priZobrazeni,
+    nacitajMedia,
+    ked: ctx.ked,
+    na: ctx.na,
+    vysli: ctx.vysli,
+  };
+  const moduly = [skupinaA, skupinaB, skupinaC, skupinaD, MODUL_TYPU[kluc]].filter(Boolean);
+  const odhalovanie = vytvorOdhalovanie();
+  const ozivovanie = vytvorOzivovanie(oc, moduly, odhalovanie, stav);
+  ozivovanie.spolocne();
+  return {
+    oc,
+    vloz(nove) {
+      nove.forEach((k) => {
+        const stlpec = k.closest && k.closest(".custom-footer > div");
+        if (k.parentNode !== miesto) miesto.appendChild(k);
+        if (stlpec && !stlpec.querySelector("[data-lcd-cast]")) stlpec.setAttribute("data-p1v-prazdny", "");
+        korene.push(k);
+      });
+      // čísla a odkazy len v nových koreňoch (staršie kusy už majú svoje; dvakrát by sa pokazila pôvodná viditeľnosť)
+      nove.forEach((k) => {
+        const v = cisla.init({ ctx, miesto: k });
+        stav.cisla = stav.cisla ? Promise.all([stav.cisla, v]) : v;
+      });
+      const sekcie = [];
+      nove.forEach((k) => pole(k.querySelectorAll("[data-lcd-sekcia]")).forEach((s) => sekcie.push(s)));
+      odhalovanie.sekcie(sekcie);
+      ozivovanie.pridaj(sekcie);
+    },
+  };
+}
+
+/**
+ * Kusy z CDN postupne (cesta b): každý vo vlastnej úlohe po vykreslení, v poradí kusov. Kus bez sekcií čaká, kým nepríde
+ * kus so sekciami (potom idú spolu v poradí); keď žiadny sekcie nemá, nič sa neukáže (stav „nic“).
+ */
+async function postupne(ctx, kluc, texty, stav) {
+  let obsah = null;
+  const odlozene = []; // korene bez sekcií pred prvým kusom so sekciami
+  for (let i = 0; i < texty.length; i++) {
+    const html = await texty[i];
+    if (!html) continue;
+    await poVykresleni();
+    if (!document.body.classList.contains("lcd-1v")) { stav.stav = "nic"; return; } // nový vzhľad sa medzitým zložil
+    const k = korenZHtml(html, "p1v-" + kluc + "-" + (i + 1));
+    if (!k) continue;
+    stav.kusy++;
+    if (!obsah && !maSekcie([k])) { odlozene.push(k); continue; }
+    try {
+      if (!obsah) obsah = vytvorObsah(ctx, kluc, stav);
+      obsah.vloz(odlozene.splice(0).concat([k]));
+    } catch (e) {
+      ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
+      console.error("[lcd-1v] " + MENO, e);
+      vratObsah();
+      stav.stav = "chyba";
+      return;
+    }
+  }
+  if (obsah && odlozene.length) obsah.vloz(odlozene.splice(0)); // (len poistka — po prvom kuse so sekciami sa neodkladá)
+  stav.stav = obsah ? "hotovo" : "nic";
+}
+
 /** Volá index.js (posledný modul, po konfigurátore). */
 export function init(ctx) {
   const kluc = klucObsahu(ctx);
-  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, cisla: null };
+  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, cisla: null, neozivene: () => [] };
   ctx.obsah = stav; // test a ladenie (window.__lcd1v.obsah)
+  const pripravene = vopred;
+  vopred = null;
   if (!kluc) return;
   const vDom = koreneObsahu(kluc);
   if (vDom.length) {
-    // a) korene už sú v DOM (Popis produktu / pätička): synchrónne; chyba -> index.js zloží nový vzhľad
+    // a) korene už sú v DOM (Popis produktu / pätička): umiestnia sa synchrónne; chyba -> index.js zloží nový vzhľad.
+    //    Sekcie sa oživujú po sekciách ako pri CDN (bod 4 hlavičky).
     stav.zdroj = "dom";
     stav.kusy = vDom.length;
     if (!maSekcie(vDom)) return;
-    const chyby = umiestni(ctx, kluc, vDom, stav);
-    chyby.forEach((x) => ctx.chyby.push(x));
-    stav.stav = chyby.length ? "chyba" : "hotovo";
+    try {
+      vytvorObsah(ctx, kluc, stav).vloz(vDom);
+      stav.stav = "hotovo";
+    } catch (e) {
+      ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
+      console.error("[lcd-1v] " + MENO, e);
+      stav.stav = "chyba";
+    }
     return;
   }
   // b) CDN verzie bundle (len SK; bez verzie v/<sha>/ nie je odkiaľ)
   if (!OBSAH_CDN || ctx.trh !== "sk" || !adresyKusov(kluc).length) return;
   stav.zdroj = "cdn";
   stav.stav = "caka";
-  stav.hotovo = stiahniKusy(kluc).then((korene) => {
-    stav.kusy = korene.length;
-    if (!korene.length || !maSekcie(korene) || !document.body.classList.contains("lcd-1v")) { stav.stav = "nic"; return; }
-    const chyby = umiestni(ctx, kluc, korene, stav);
-    if (chyby.length) {
-      chyby.forEach((x) => ctx.chyby.push(x));
-      vratObsah();
-      stav.stav = "chyba";
-      return;
-    }
-    stav.stav = "hotovo";
-  }).catch((e) => {
+  // kusy stiahnuté vopred pri spustení bundla (predstiahni), inak sa začnú sťahovať teraz
+  const texty = pripravene && pripravene.kluc === kluc ? pripravene.texty : adresyKusov(kluc).map(stiahniKus);
+  stav.hotovo = postupne(ctx, kluc, texty, stav).catch((e) => {
     ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
     try { vratObsah(); } catch (x) { /* nič */ }
     stav.stav = "chyba";

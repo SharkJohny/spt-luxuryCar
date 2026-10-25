@@ -5,7 +5,8 @@
 // boxy); chýbajúca sekcia = nič; rez materiálu má ľubovoľný počet dosiek (medzera podľa počtu, dvojvrstvové 6).
 //
 // HTML sekcií je statické (admin); tento modul ho len OŽIVÍ (animácie, posun, video pri zobrazení). Nič nekreslí
-// a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke.
+// a nič zo živého DOM nemaže. Volá ho obsah.js pod body.lcd-1v, keď sú korene obsahu na stránke. Od 25. 10. 2026
+// (rýchlosť) po sekciách, keď sa sekcia priblíži k oknu: oc.sekcia vráti len tú jednu, init teda môže prísť viackrát.
 // oc = { ctx, korene, koren (multi-koreň pre lxModulyOziv), miesto, sekcia(meno), obrazok(meno), priZobrazeni(el, fn),
 //        nacitajMedia(el), ked, na, vysli }. Sekcia, ktorá je ešte stub, nie je v DOM: oc.sekcia(meno) === null.
 //
@@ -120,10 +121,16 @@ function material(sek, mq, RM) {
 
   // legenda a body: prejdenie myšou zvýrazní pár, klik na riadok otvorí popis (akordeón), klik na bod posunie k riadku
   const zvyrazni = (i, on) => { if (legy[i]) legy[i].classList.toggle("on", on); if (hoty[i]) hoty[i].classList.toggle("on", on); };
-  const vysky = () => legy.forEach((o) => {
-    const h = o.querySelector(".leg-h"), d = o.querySelector(".leg-d");
-    if (h && d) d.style.maxHeight = h.getAttribute("aria-expanded") === "true" ? d.scrollHeight + "px" : "0px";
-  });
+  // Michal 25. 10. 2026 (rýchlosť): najprv výšky všetkých popisov, potom zápisy (čítanie scrollHeight po zápise max-height
+  // predošlého riadku nútilo prepočítať rozloženie pri každom riadku; scrollHeight od max-height nezávisí)
+  const vysky = () => {
+    const riadky = legy.map((o) => {
+      const h = o.querySelector(".leg-h"), d = o.querySelector(".leg-d");
+      return h && d ? { d, otvoreny: h.getAttribute("aria-expanded") === "true" } : null;
+    }).filter(Boolean);
+    const vyska = riadky.map((x) => (x.otvoreny ? x.d.scrollHeight : 0));
+    riadky.forEach((x, i) => { x.d.style.maxHeight = x.otvoreny ? vyska[i] + "px" : "0px"; });
+  };
   legy.forEach((el, i) => {
     el.addEventListener("mouseenter", () => zvyrazni(i, true));
     el.addEventListener("mouseleave", () => zvyrazni(i, false));

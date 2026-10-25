@@ -198,6 +198,8 @@ export async function kontroly(t) {
         return { odchylka: Math.round(Math.abs(i.left + i.width / 2 - (r.left + r.width / 2))), on: on ? on.getAttribute("data-i") : null }; })()`);
       ok(po.odchylka < 24 && po.on === "3", `b-ocakavat (karusel): bodka 4 posunula kartu 4 do stredu (odchýlka ${po.odchylka} px, aktívna ${po.on})`);
     } else {
+      // výšku scény nastaví obsah-b.js pri oživení sekcie (obsah.js od 25. 10. 2026 oživuje až pri priblížení k oknu)
+      if (t.oziv) ok(await t.oziv("b-ocakavat"), "b-ocakavat (PC): sekcia sa pri priblížení oživila");
       const v2 = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)} + " .stage2"); return { h: s.getBoundingClientRect().height, cak: 5 * 0.62 * innerHeight, pin: getComputedStyle(s.querySelector(".pin2")).position }; })()`);
       ok(Math.abs(v2.h - v2.cak) < 3 && v2.pin === "sticky", `b-ocakavat (PC): scéna ${Math.round(v2.h)} px = 5 × 62 vh (${Math.round(v2.cak)}), prilepená (${v2.pin})`);
       await t.ev(`(async function () { var el = document.querySelector(${JSON.stringify(sek)} + " .stage2"); var r = el.getBoundingClientRect(), top = r.top + scrollY;
@@ -225,7 +227,9 @@ export async function kontroly(t) {
     ok(/premium-pp-dno/.test(r.sw[0]) && /premium-pp-boky/.test(r.sw[1]) && /premium-pp-operadla/.test(r.sw[2]), "b-predapo: vzorky legendy sú fotky Premium z CSS");
     ok(r.podtext === "none", "b-predapo: legenda len s nadpismi (ako návrh)");
     ok(r.pomer === "1.5", `b-predapo: pomer fotky 1,5 ako návrh (${r.pomer})`);
-    // čiara a body sa pohnú pri scrollovaní
+    // čiara a body sa pohnú pri scrollovaní; najprv sekcie po b-predapo „prečítané“ (oživené pri priblížení, obsah.js
+    // od 25. 10. 2026) — inak by recenzie nad ňou narástli až počas merania a posunuli scénu
+    if (t.oziv) ok(await t.oziv("b-predapo"), "b-predapo: sekcia (aj sekcie nad ňou) sa pri priblížení oživila");
     const q = await t.ev(`(async function () { var s = document.querySelector(${JSON.stringify(sek)}); var r0 = s.getBoundingClientRect(), top = r0.top + scrollY;
       var vys = function (p) { return top + p * Math.max(0, r0.height - innerHeight); };
       scrollTo({ top: Math.max(0, vys(0.1) - 300), behavior: "instant" }); await new Promise(function (z) { setTimeout(z, 150); });

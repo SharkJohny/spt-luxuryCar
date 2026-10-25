@@ -435,6 +435,21 @@ async function main() {
                 const t = vytvorT(s.k, { novy: true, log });
                 t.sekcia = (meno) => `[data-lcd-sekcia="${meno}"]`;
                 t.je = (meno) => s.k.ev(`!!document.querySelector('.p1v-miesto [data-lcd-sekcia="${meno}"]')`);
+                // Michal 25. 10. 2026 (rýchlosť): sekcie sa oživujú až pri priblížení k oknu (obsah.js). Kontrola, ktorá meria
+                // geometriu sekcie bez posunu k nej, si ju najprv „prečíta ako zákazník“: posun zhora po sekciu (každá
+                // neoživená sekcia nad ňou aj ona sama sa priblíži k oknu), čakanie na oživenie, návrat na pôvodné miesto.
+                t.oziv = (meno) => s.k.ev(`(async function () {
+                  var o = window.__lcd1v && window.__lcd1v.obsah, m = document.querySelector(".p1v-miesto");
+                  if (!o || !m || typeof o.neozivene !== "function") return true;
+                  var sek = [].slice.call(m.querySelectorAll("[data-lcd-sekcia]")), ciel = m.querySelector('[data-lcd-sekcia="${meno}"]');
+                  if (!ciel) return false;
+                  var po = sek.slice(0, sek.indexOf(ciel) + 1), y0 = scrollY, meno = function (x) { return x.getAttribute("data-lcd-sekcia"); };
+                  for (var i = 0; i < po.length; i++) if (o.neozivene().indexOf(meno(po[i])) > -1) { po[i].scrollIntoView({ block: "start", behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 250); }); }
+                  var t0 = Date.now();
+                  while (Date.now() - t0 < 4000 && po.some(function (x) { return o.neozivene().indexOf(meno(x)) > -1; })) await new Promise(function (r) { setTimeout(r, 100); });
+                  scrollTo({ top: y0, behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 200); });
+                  return !po.some(function (x) { return o.neozivene().indexOf(meno(x)) > -1; });
+                })()`);
                 t.produkt = { id: p.id, typ: p.typ, vzor: p.vzor, kluc: p.kluc, url: p.url, cesta: p.cesta };
                 t.sestra = (typ) => { const x = sestra(reg, typ, p.vzor); return x ? x.cesta : null; };
                 for (const g of p.pluginy) {
@@ -444,6 +459,21 @@ async function main() {
                     if (r.length) v.info.push(`skupina ${g.toUpperCase()}: ${r.filter((x) => x.ok).length}/${r.length} kontrol OK${r.some((x) => !x.ok && x.pozor) ? " (" + r.filter((x) => !x.ok && x.pozor).length + " upozornenie)" : ""}`);
                   } catch (e) { v.chyby.push(`skupina ${g.toUpperCase()}: výnimka ${e && e.message ? e.message : e}`); }
                 }
+                // Michal 25. 10. 2026 (rýchlosť): obsah.js oživuje sekcie až pri priblížení k oknu, nie všetky hneď po vložení —
+                // po prejdení celého obsahu musia byť oživené všetky a bez chýb (predtým to stačilo overiť po vložení)
+                const oz = await s.k.ev(`(async function () {
+                  var o = window.__lcd1v && window.__lcd1v.obsah, m = document.querySelector(".p1v-miesto");
+                  if (!o || !m || typeof o.neozivene !== "function") return null;
+                  var sek = [].slice.call(m.querySelectorAll("[data-lcd-sekcia]"));
+                  for (var i = 0; i < sek.length; i++) { sek[i].scrollIntoView({ block: "start", behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 250); }); }
+                  var t0 = Date.now();
+                  while (o.neozivene().length && Date.now() - t0 < 5000) await new Promise(function (r) { setTimeout(r, 100); });
+                  scrollTo({ top: 0, behavior: "instant" });
+                  return { neozivene: o.neozivene(), chyby: window.__lcd1v.chyby.slice(), sekcie: sek.length };
+                })()`);
+                zle(oz && !oz.neozivene.length, "sekcie sa po prejdení obsahu neoživili: " + (oz ? oz.neozivene.join(", ") : "__lcd1v.obsah.neozivene chýba"));
+                zle(oz && !oz.chyby.length, "window.__lcd1v.chyby po prejdení obsahu: " + (oz ? oz.chyby.join("; ") : "?"));
+                if (oz) v.info.push(`oživené po prejdení ${oz.sekcie - oz.neozivene.length}/${oz.sekcie} sekcií`);
                 // snímky sekcií webu
                 if (!a.bezSnimok && a.snimkySirky.includes(u.sirka)) {
                   let n = 0;
