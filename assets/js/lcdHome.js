@@ -1,16 +1,20 @@
-import { LCDH_REELS, LCDH_REELS_CZ } from "./lcdHome-reels.js";
-import { LCDH_MARKUP, LCDH_MARKUP_CZ } from "./lcdHome-markup.js";
 import { lcdhModulyPostav, lxModulyOziv } from "./lcdHomeModuly.js";
 import { lcdKorene, lcdMultiKoren, lcdOdoberPoistku, lcdRevealOznacVidene,
          lcdAnimZapni, lcdPremenujMegu } from "./functions/lcdOziv.js";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { nacitajCast } from "./functions/lcdCasti.js";
 import Lenis from "lenis";
+/* Samostatné časti (functions/lcdCasti.js, zrýchlenie 25. 10. 2026 — úloha C, docs/rychlost-web.md §1): GSAP + ScrollTrigger
+   (lcd-gsap.js, len PC titulka v module Materiál), reels z YouTube (lcd-reels.js, pás videí na titulke) a záložný markup
+   titulky (lcd-hp.js, len keď v HTML chýbajú statické korene z adminu) už nie sú v luxuryCar.js — produkt, košík, blog
+   ani rozcestník ich nesťahujú. Kým GSAP nepríde, rozklad materiálu rieši frame() pri scrolle (ako bez ScrollTriggera). */
+var lcdhGsap = null;   // { gsap, ScrollTrigger } z časti gsap
+var lcdhReelsData = null; // { LCDH_REELS, LCDH_REELS_CZ } z časti reels
+var lcdhZaloha = null; // { LCDH_MARKUP, LCDH_MARKUP_CZ } z časti hp
 /* ScrollTrigger sa zaregistruje až v module Materiál na titulke (lcdhStOn), nie pri štarte každej stránky: registrácia
    spúšťa pri load/resize meranie okna (vynútený prepočet štýlov celej stránky, na produkte 3× ~60 ms pri CPU 4×),
    hoci ho mimo titulky nič nepoužíva (zrýchlenie 25. 10. 2026). */
 var lcdhStReg = false;
-function lcdhStRegistruj() { if (!lcdhStReg) { gsap.registerPlugin(ScrollTrigger); lcdhStReg = true; } }
+function lcdhStRegistruj() { if (!lcdhStReg && lcdhGsap) { lcdhGsap.gsap.registerPlugin(lcdhGsap.ScrollTrigger); lcdhStReg = true; } }
 /* Lenis smooth scroll - LEN desktop (rada kamarata: pod tablet breakpoint vypnute) */
 var lcdhLenisMQ = matchMedia("(min-width:1025px) and (hover:hover) and (pointer:fine)");
 var lcdhLenis = null;
@@ -28,7 +32,7 @@ function lcdhLenisSync(){
        sa dalo len posuvnikom (Michal 2026-10-08, notebook: "nepusti ma na dorucovaciu
        adresu"). Plynule rolovanie ostava. */
     lcdhLenis = new Lenis({ lerp: 0.12, naiveDimensions: true });
-    lcdhLenis.on("scroll", function () { if (lcdhStReg) ScrollTrigger.update(); });
+    lcdhLenis.on("scroll", function () { if (lcdhStReg) lcdhGsap.ScrollTrigger.update(); });
     requestAnimationFrame(lcdhLenisRaf);
     /* Lenis si vysku stranky odmeria pri starte. Markup, reels aj obrazky pribudaju
        az potom -> limit ostane nespravny (merane 2026-08-27 na live: +293 px) a stranka
@@ -259,8 +263,10 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
                      (rovnake data-yt sa preskoci), nic sa neprepisuje */
   function lcdhReels(lcdhVids, lcdhCZ, nahrad) {
     if (!lcdhVids) return 0;
-    var lcdhReels = lcdhCZ && typeof LCDH_REELS_CZ !== "undefined" && LCDH_REELS_CZ.length
-                    ? LCDH_REELS_CZ : (typeof LCDH_REELS !== "undefined" ? LCDH_REELS : []);
+    /* data z časti reels (lcd-reels.js); bez nich (výpadok siete) ostanú dlaždice, ktoré už v #vids sú */
+    var R = lcdhReelsData || {};
+    var lcdhReels = lcdhCZ && R.LCDH_REELS_CZ && R.LCDH_REELS_CZ.length
+                    ? R.LCDH_REELS_CZ : (R.LCDH_REELS || []);
     if (!lcdhReels.length) return 0;
     var uzJe = {};
     if (!nahrad) {
@@ -323,16 +329,24 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
   function lcdhReelsPriPriblizeni(lcdhVids, lcdhCZ) {
     if (!lcdhVids) return;
     var hotovo = false;
+    /* data reels (časť lcd-reels.js) sa začnú sťahovať skôr (pás 2500 px od okna), pridajú sa ako doteraz pri 900 px */
+    function stiahni() { return nacitajCast("reels").then(function (c) { lcdhReelsData = c; }); }
     function pridaj() {
       if (hotovo) return; hotovo = true;
-      try {
-        if (lcdhReels(lcdhVids, lcdhCZ, false)) {
-          /* coverflow a nekonecny pas si nove dlazdice prepocitaju pri scroll udalosti */
-          try { lcdhVids.dispatchEvent(new Event("scroll")); } catch (e) {}
-        }
-      } catch (e) {}
+      stiahni().then(function () {
+        try {
+          if (lcdhReels(lcdhVids, lcdhCZ, false)) {
+            /* coverflow a nekonecny pas si nove dlazdice prepocitaju pri scroll udalosti */
+            try { lcdhVids.dispatchEvent(new Event("scroll")); } catch (e) {}
+          }
+        } catch (e) {}
+      }, function () {});
     }
     if (!("IntersectionObserver" in window)) { addEventListener("load", pridaj); return; }
+    var ioSkor = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; })) { ioSkor.disconnect(); stiahni().catch(function () {}); }
+    }, { rootMargin: "2500px 0px 2500px 0px", threshold: 0 });
+    ioSkor.observe(lcdhVids);
     var io = new IntersectionObserver(function (es) {
       if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); pridaj(); }
     }, { rootMargin: "900px 0px 900px 0px", threshold: 0 });
@@ -361,11 +375,23 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
       lcdhReelsPriPriblizeni(document.getElementById("vids"), lcdhCZ);
       /* konfigurator vklada main.js/initModelSelect priamo do #konfSlot — ziadna adopcia */
     } else if (!document.getElementById("lcd-home")) {
+      /* záložný markup (časť lcd-hp.js) a reels (lcd-reels.js) sa stiahnu až teraz — statické korene z adminu ho
+         nepotrebujú; boot sa po príchode spustí znova. Pri výpadku ostane stará titulka (poistku lcdh-early zhodí
+         Záhlavie po 4 s). Reels sú nepovinné (bez nich ostanú dlaždice z markupu). */
+      if (!lcdhZaloha) {
+        /* window.__lcdhCaka: main.js poBoote počká (googleReviews / lcdVideos nesmú pred nakreslením postaviť starý
+           widget recenzií a videí, +96 fotiek); pri výpadku sa splní tiež a stará titulka ich dostane ako doteraz */
+        window.__lcdhCaka = Promise.all([nacitajCast("hp"), nacitajCast("reels").catch(function () { return null; })]).then(function (c) {
+          lcdhZaloha = c[0]; if (c[1]) lcdhReelsData = c[1];
+          boot();
+        }, function () {});
+        return;
+      }
       var lcdhHost  = document.querySelector(".overall-wrapper") || document.body;
       var lcdhKotva = lcdhHost.querySelector(".content-wrapper.homepage-box, .content-wrapper.container")
                       || document.getElementById("footer");
       var lcdhWrap = document.createElement("div");
-      lcdhWrap.innerHTML = lcdhCZ ? LCDH_MARKUP_CZ : LCDH_MARKUP;
+      lcdhWrap.innerHTML = lcdhCZ ? lcdhZaloha.LCDH_MARKUP_CZ : lcdhZaloha.LCDH_MARKUP;
       var lcdhRoot = lcdhWrap.firstElementChild;
       if (!lcdhRoot) return;
       /* pred a po, farby, galeria z konceptu redizajnu — skladaju sa este mimo
@@ -1259,9 +1285,11 @@ if (lcdKorene("hp").length) lcdOdoberPoistku("lcdh-early");
   /* GSAP pilot: scrub vyhladeny progres scrollu -> existujuca spojita explode(o) */
   function lcdhStOn(){
     if(window.__lcdhST||MATMQ.matches||!stage||!expCard) return;
-    if(typeof ScrollTrigger==='undefined') return;
+    /* GSAP je samostatná časť lcd-gsap.js: po príchode sa lcdhStOn zavolá znova (podmienky sa overia nanovo);
+       dovtedy rozklad materiálu riadi frame() pri scrolle. Pri výpadku ostane frame(). */
+    if(!lcdhGsap){ nacitajCast('gsap').then(function(c){ lcdhGsap=c; lcdhStOn(); },function(){}); return; }
     lcdhStRegistruj();
-    window.__lcdhST=ScrollTrigger.create({
+    window.__lcdhST=lcdhGsap.ScrollTrigger.create({
       trigger:stage, start:'top top', end:'bottom bottom', scrub:0.6,
       onUpdate:function(self){
         var p=self.progress;

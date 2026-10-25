@@ -165,3 +165,51 @@ Regresia po kroku 2 spustenia: kus 1 v poli Popis je postavený `--bez-webp` (li
   beh (prvý skončil „Chrome sa nespustil“ pri zaťaženom stroji, nie zlyhaním kontroly); `test-konfigurator-1v --krok
   brana --produkt all` 30/30 (19 opakovaných samostatne po „Chrome sa nespustil“ / časovom limite pod záťažou, všetky
   OK); `--stary --krok brana,nulova-zmena --produkt all` 60/60 OK.
+
+### Úloha C — menej JS pred konfigurátorom (samostatné časti titulky, 25. 10. 2026 v noci)
+Zmena: z `luxuryCar.js` von GSAP + ScrollTrigger (`lcd-gsap.js`), reels pásu videí (`lcd-reels.js`) a záložný markup
+titulky (`lcd-hp.js`) — rozbor celého bundla a pravidlá v `docs/rychlost-web.md` §1 a §1a. Bundel 1 142 → 778 kB raw,
+prenos (brotli ako CDN) 310 → 222 kB. Produkt, košík, blog, rozcestník a kategórie časti nesťahujú.
+
+Meranie: ab-harness, A = živé SK `d20c8e2` (zamrazená kópia, rovnaký server), B = build z worktree ako `production.yml`,
+DevTools škrtenie pomalého telefónu (RTT 562,5 ms, 1,47 Mbit/s, CPU 4×, 412 px), A/B striedavo, mediány (min–max).
+Produkty: `cas-produkt.mjs` + prenos JS z Resource Timing (scratchpad úlohy C `split/cas-split.mjs`), 5 behov. Merané pred
+poistkou `window.__lcdhCaka` v `main.js` poBoote (mimo záložnej titulky sa nič nemení — rovnaký kód cesty).
+
+| stránka | metrika | A (pred) | B (po) | rozdiel |
+|---|---|---|---|---|
+| 598 | prenos luxuryCar.js | 310 kB | 222 kB | −88 kB (−28 %) |
+| 598 | všetky JS do použiteľného konfigurátora | 495 kB | 406 kB | −89 kB |
+| 598 | luxuryCar.js dobehne (koniec hlavnej časti) | 12,65 s (12,24–13,99) | 11,20 s (11,13–12,09) | −1,45 s, B rýchlejší 5/5 |
+| 598 | DCL | 12,95 s | 11,48 s | −1,47 s |
+| 598 | konfigurátor použiteľný | 14,93 s (14,67–16,23) | 13,99 s (13,21–14,45) | −0,94 s, 5/5 |
+| 598 | LCP / TBT | 4,43 s / 2 700 ms | 4,88 s / 2 850 ms | šum (rozptyl 4,2–6,2 s / 2,1–4,0 s) |
+| 601 | prenos luxuryCar.js / všetky JS do konfigurátora | 310 / 495 kB | 222 / 406 kB | −88 / −89 kB |
+| 601 | luxuryCar.js dobehne | 13,24 s (12,78–14,85) | 11,71 s (11,54–13,09) | −1,54 s, 5/5 |
+| 601 | konfigurátor použiteľný | 16,15 s (15,76–17,19) | 14,43 s (14,22–16,16) | −1,72 s, 4/5 |
+| 601 | LCP / TBT | 8,82 s / 3 733 ms | 8,44 s / 3 512 ms | šum |
+| titulka telefón (5 behov) | luxuryCar.js dobehne | 19,01 s (17,36–19,48) | 16,02 s (15,91–18,60) | −2,99 s LEPŠIE |
+| titulka telefón | konfigurátor v karte použiteľný | 21,46 s (19,97–22,20) | 18,45 s (18,25–20,57) | −3,02 s LEPŠIE |
+| titulka telefón | LCP (hero.jpg) | 5,50 s (4,68–6,90) | 4,70 s (4,35–5,12) | −0,80 s (šum) |
+| titulka telefón | prenos spolu | 2 162 kB | 2 093 kB | −69 kB (GSAP sa na telefóne nesťahuje) |
+| titulka PC 1366 (3 behy) | luxuryCar.js / konfigurátor | 18,91 / 21,40 s | 18,44 / 20,95 s | šum |
+| titulka PC | LCP | 5,33 s (5,22–6,33) | 6,37 s (4,69–6,87) | šum — LCP aj FCP sú ~13 s pred príchodom bundla, bundel ich ovplyvniť nevie |
+
+- Bundel na pomalom telefóne prichádza o ~1,5 s skôr, hoci je menší len o 88 kB (≈ 0,5 s linky): delí sa o linku s ~1,5 MB
+  iných vecí, takže jeho vlastná rýchlosť je zlomok linky.
+- Funkčnosť a vzhľad (A = živý `d20c8e2` pri SK / build zo základu `d4ac44d` pri CZ, B = nový; `split/porovnaj-ab.mjs`, 390 + 1366 px:
+  titulka, rozcestník, košík, blog, článok): 0 chýb konzoly v A aj B; text a poloha prvkov rovnaké okrem cudzieho
+  okienka ProveSource (náhodná recenzia); pás videí 672 (SK) / 180 (CZ) dlaždíc v A aj B; ScrollTrigger na PC titulke
+  v A aj B; časti: telefón len `lcd-reels.js`, PC `lcd-gsap.js` + `lcd-reels.js`, ostatné stránky žiadnu.
+  Záložná cesta (titulka bez statických koreňov, fixture): `#lcd-home` sa nakreslí, text a poloha zhodné s A, starý
+  widget recenzií sa nepostaví (poBoote čaká na `window.__lcdhCaka`).
+- CLS: titulka, rozcestník, košík, článok A ≈ B (rozdiely 0,00x, cudzie iframe a `::before` animácie, smer náhodný).
+  Blog má už dnes CLS ~0,25 (Chrome okno relácie) aj v A — `div.bl-hero::after` animácia `lbLesk` posúva rozloženie;
+  A 0,244–0,274, B 0,244–0,257 (rovnaké). Oprava (animovať `transform` namiesto polohy) patrí session Shoptet úpravy.
+- Titulka PC 1366: produktový pás `#produkty` je na hranici pretečenia (4 karty ≈ šírka okna) — podľa načasovania sa raz
+  zapne nekonečný pás so šípkami (+48 px), raz nie; v A aj B rovnako náhodne (nie je to zmenou bundla).
+- Testy: `test-konfigurator-1v` všetky produkty 390+1280: 403 OK (36 až na 2. pokus pod záťažou), 5 zlyhaných
+  (3× „Chrome sa nespustil“, 2× 628 po páde Chromu) — všetkých 5 samostatne znova OK; `--stary --krok brana,nulova-zmena`
+  60/60 OK (616 nulova-zmena raz „Doporučená cena“ v živom HTML — samostatne nový aj základ 4/4 OK); jsdom testy
+  kamiónov, košíka a výberu auta OK; smoke ab-harness SK aj CZ = rovnaké zlyhania ako základ (`#burg`, `#lcd-hdr`,
+  poukážka — zastarané kontroly smoke), SK rozcestník 1× obrázok karty nedobehol, 2× znova OK.

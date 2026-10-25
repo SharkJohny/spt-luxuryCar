@@ -204,7 +204,7 @@ async function priprav(a) {
     const st = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(u + " -> " + r.status); return Buffer.from(await r.arrayBuffer()); };
     // samostatné časti (functions/lcdCasti.js) sú len vo verziách od 25. 10. 2026 — staršej verzii chýbajú (null)
     const casti = {};
-    for (const f of ["lcd-truck.js"]) { const r = await fetch(CDN + "v/" + a.zdroj + "/js/" + f); if (r.ok) casti[f] = Buffer.from(await r.arrayBuffer()); }
+    for (const f of ["lcd-truck.js", "lcd-gsap.js", "lcd-reels.js", "lcd-hp.js"]) { const r = await fetch(CDN + "v/" + a.zdroj + "/js/" + f); if (r.ok) casti[f] = Buffer.from(await r.arrayBuffer()); }
     return { popis: "CDN verzia " + a.zdroj, js: await st(CDN + "v/" + a.zdroj + "/js/luxuryCar.js?v=" + a.zdroj), css: await st(CDN + "v/" + a.zdroj + "/css/luxuryCar.css?v=" + a.zdroj), casti };
   }
   if (a.zdroj !== "lokal") throw new ChybaPouzitia("--zdroj je lokal | cdn | <sha>");
@@ -226,9 +226,11 @@ async function priprav(a) {
   if (!a.bezDrop) prep.push("--drop:console");
   const env = nodePath ? { ...process.env, NODE_PATH: [nodePath, process.env.NODE_PATH].filter(Boolean).join(delimiter) } : process.env;
   spusti(e.cmd, [...e.pred, ...prep], { shell: e.shell, popis: "esbuild", cwd: e.mimoRepa ? tmp : KOREN, env });
-  // samostatné časti ako druhý esbuild v production.yml (functions/lcdCasti.js): React kamiónov -> lcd-truck.js
+  // samostatné časti ako ďalšie esbuildy v production.yml (functions/lcdCasti.js): React kamiónov -> lcd-truck.js,
+  // titulka (úloha C 25. 10. 2026) -> lcd-gsap.js, lcd-reels.js, lcd-hp.js
   const casti = {};
-  for (const [vstup, f] of [["assets/js/truck-konfigurator/cast.jsx", "lcd-truck.js"]]) {
+  for (const [vstup, f] of [["assets/js/truck-konfigurator/cast.jsx", "lcd-truck.js"], ["assets/js/casti/gsap.js", "lcd-gsap.js"],
+    ["assets/js/casti/reels.js", "lcd-reels.js"], ["assets/js/casti/hp.js", "lcd-hp.js"]]) {
     const pc = [join(KOREN, vstup), ...prep.slice(1).map((x) => (x.startsWith("--outfile=") ? "--outfile=" + join(tmp, f) : x))];
     spusti(e.cmd, [...e.pred, ...pc], { shell: e.shell, popis: "esbuild " + f, cwd: e.mimoRepa ? tmp : KOREN, env });
     casti[f] = readFileSync(join(tmp, f));

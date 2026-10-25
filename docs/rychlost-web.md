@@ -8,11 +8,44 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
 - Kód, ktorý treba len na jednej stránke, nepatrí do `luxuryCar.js` (ten sa sťahuje a parsuje na **každej** stránke).
 - Časť = vlastný vstup (napr. `truck-konfigurator/cast.jsx`), ktorý sa sám zapíše do `window.__lcdCasti[meno]`.
   Bundle ju stiahne cez `nacitajCast(meno)` z tej istej verzie (`LCD_ZAKLAD` = `…/assets/v/<sha>/`), 3 pokusy.
-- Nová časť = riadok v `SUBORY` (lcdCasti.js) + druhý `yarn esbuild` v `.github/workflows/production.yml` + `cp`/`rm`
-  v kroku „Verzia do vlastného priečinka“ + `.gitignore` + `tools/test-konfigurator-1v.mjs` (`priprav` ju postaví).
+- Nová časť = riadok v `SUBORY` (lcdCasti.js) + ďalší `yarn esbuild` v `.github/workflows/production.yml` + `cp`/`rm`
+  v kroku „Verzia do vlastného priečinka“ + `.gitignore` + `tools/test-konfigurator-1v.mjs` (`priprav` ju postaví,
+  aj zoznam pri `--zdroj <sha>`) + `package.json` (`build`, `build:once`).
 - Pri zlyhaní siete musí stránka ostať použiteľná (kamióny: formulár Shoptetu + „Načítať znova“, `truck-konfigurator/mount.js`).
-- Dnes: `lcd-truck.js` = React konfigurátor kamiónov (~450 kB). Stiahne ho len produkt kamiónov bez `?novy=` — hneď pri
-  spustení bundla (`predpripravTruck`), paralelne s data.json.
+- Dnes:
+  - `lcd-truck.js` = React konfigurátor kamiónov (~450 kB). Stiahne ho len produkt kamiónov bez `?novy=` — hneď pri
+    spustení bundla (`predpripravTruck`), paralelne s data.json.
+  - `lcd-gsap.js` (vstup `assets/js/casti/gsap.js`) = GSAP + ScrollTrigger, 111 kB / prenos ~45 kB. Len PC titulka, modul
+    Materiál (`lcdHome.js` `lcdhStOn`, mimo zlomu `MATMQ`): stiahne sa pri štarte titulky; kým nepríde (alebo pri výpadku),
+    rozklad materiálu riadi `frame()` pri scrolle — rovnaký výpočet, len bez vyhladenia `scrub`. Telefón ho nesťahuje vôbec.
+  - `lcd-reels.js` (`casti/reels.js`) = reels pásu videí SK+CZ (modul 07), 87 kB / ~23 kB. Sťahuje sa, keď je pás 2500 px od
+    okna; pridá sa ako doteraz pri 900 px. Pri výpadku ostanú dlaždice z adminu.
+  - `lcd-hp.js` (`casti/hp.js`) = záložný markup titulky SK+CZ, 167 kB / ~20 kB. Len keď v HTML chýbajú statické korene
+    `[data-lcd-cast^="hp-"]` (dnes ich SK aj CZ majú → nesťahuje sa nikde); boot titulky sa po príchode spustí znova.
+
+### 1a. Rozbor luxuryCar.js (úloha C, 25. 10. 2026, SK `d20c8e2`)
+Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný build, prenos = brotli q4 ako CDN
+(živý `d20c8e2`: 1 169 943 B, prenos br 315 kB). Skript: scratchpad úlohy C `split/analyza.cjs <repo>`.
+
+| skupina | raw kB | prenos kB | % prenosu | kto ju potrebuje | produkt 598/601 (1V aj `?novy=0`) | rozhodnutie |
+|---|---|---|---|---|---|---|
+| GSAP + ScrollTrigger | 111,7 | 46,6 | 15,0 % | PC titulka, modul Materiál | nie | → `lcd-gsap.js` |
+| reels pásu videí (`lcdHome-reels.js`) | 86,8 | 22,5 | 7,3 % | titulka pri priblížení pásu | nie | → `lcd-reels.js` |
+| záložný markup titulky (`lcdHome-markup.js`) | 167,0 | 19,7 | 6,3 % | titulka bez statických koreňov | nie | → `lcd-hp.js` |
+| kamióny 1V (`konfigurator1v/kamion/*`) | 118,8 | 37,7 | 12,2 % | len 640 | nie | ostáva: 640 by konfigurátor dostal o RTT + 38 kB neskôr |
+| `lcdKosikDoplnok.js` | 64,9 | 20,1 | 6,5 % | košík aj 1V (ceny v sete, farby Lux, boxy, veľkosť) | áno | ostáva |
+| kód titulky `lcdHome.js` (bez dát, GSAP, Lenis) | ~47 | ~14 | ~4,5 % | titulka (oživenie pri DCL) | nie | ostáva: presun = neskoršie oživenie titulky |
+| blog `lcdBlog.js` | 33,5 | 10,1 | 3,3 % | blog (kreslí zoznam aj článok pri štarte) | nie | ostáva: presun = blikanie / CLS blogu |
+| starý vzorkovník `vzorky-konfigurator/index.js` | 25,8 | 7,6 | 2,5 % | 637 s `?novy=0` | nie | ostáva (malé) |
+| rozcestník `lcdRz.js` + markup | 49,1 | 6,0 | 1,9 % | rozcestník | nie | ostáva (malé, oživenie pri DCL) |
+| Lenis | 18,2 | 4,9 | 1,6 % | každá stránka na PC (plynulé rolovanie) | áno (PC) | ostáva |
+| záložný markup hlavičky (`lcdHdr-markup.js`) | 14,5 | 0,1 | 0 % | košík / objednávka (`#mega`) | nie | ostáva |
+
+- Presunuté 3 skupiny: luxuryCar.js 1 142 → 778 kB raw (−32 %), prenos br q4 310 → 221 kB (−89 kB, −28,6 %).
+  Produkt, košík, blog, rozcestník a kategórie nové časti nesťahujú; PC titulka stiahne `lcd-gsap.js` hneď a `lcd-reels.js`
+  pri priblížení pásu, telefón len `lcd-reels.js`.
+- Ďalší kandidát s najväčším prínosom pre 598/601 sú kamióny 1V (−38 kB), ale len s prednačítaním na 640 hneď pri štarte
+  bundla a s meraním 640 (session kamióny) — inak 640 stratí ~1 RTT.
 - Starý React konfigurátor poukážky (`voucher-konfigurator/index.jsx`) sa od 4. 10. 2026 nemontuje; productPage.js berie len
   `voucher-konfigurator/stranka.js` (bez Reactu). Neimportovať index.jsx späť do bundla.
 

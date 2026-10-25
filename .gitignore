@@ -20,4 +20,7 @@
 
 # Samostatné časti bundla (functions/lcdCasti.js) — stavia ich CI, necommitovať
 /assets/js/lcd-truck.js
+/assets/js/lcd-gsap.js
+/assets/js/lcd-reels.js
+/assets/js/lcd-hp.js
 /assets/css/luxuryCar.min.css

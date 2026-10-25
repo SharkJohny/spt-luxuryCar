@@ -50,6 +50,13 @@ let setupData;
 // skor nez tento, takze nas listener bezi az po nom. setTimeout(0) je poistka navyse.
 // Bez toho data.json obcas prisiel pred DOMContentLoaded a na titulke sa postavil
 // stary widget recenzii (+96 fotiek, ~10 MB) a YouTube playlist.
+// Záložná titulka (bez statických koreňov z adminu) sa kreslí až po stiahnutí časti lcd-hp.js — lcdHome.js vtedy
+// nastaví window.__lcdhCaka (Promise) a fn počká naň (25. 10. 2026, úloha C). Inde __lcdhCaka nie je -> ako doteraz.
+function lcdPoBooteSpusti(fn) {
+  const caka = window.__lcdhCaka;
+  if (caka && typeof caka.then === "function") caka.then(function () { setTimeout(fn, 0); }, function () { setTimeout(fn, 0); });
+  else setTimeout(fn, 0);
+}
 let lcdPoBooteHotovo = document.readyState !== "loading";
 let lcdPoBooteFronta = [];
 if (!lcdPoBooteHotovo) {
@@ -58,12 +65,12 @@ if (!lcdPoBooteHotovo) {
     const fronta = lcdPoBooteFronta;
     lcdPoBooteFronta = [];
     fronta.forEach(function (fn) {
-      setTimeout(fn, 0);
+      lcdPoBooteSpusti(fn);
     });
   });
 }
 function poBoote(fn) {
-  if (lcdPoBooteHotovo) setTimeout(fn, 0);
+  if (lcdPoBooteHotovo) lcdPoBooteSpusti(fn);
   else lcdPoBooteFronta.push(fn);
 }
 
