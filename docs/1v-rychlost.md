@@ -96,9 +96,13 @@ A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opra
 | 616 box | 10,0 → 8,0 MB (−20 %) | −36 % | 148 → 128 | 348 → 320 | 0,251 = | 13,3 → 12,7 s | 34,4 → 34,2 s (šum) |
 | 637 vzorky | 3,7 → 4,1 MB (+12 %) | +32 % | 119 → 121 | 253 → 262 | 0,021 = | 9,1 → 8,6 s | 20,3 → 20,1 s |
 
-- LCP je na všetkých stránkach hlavná fotka produktu Shoptetu (`a.p-main-image img`) okolo 30 s: na pomalom pripojení
-  ju predbehnú obrázky starého Popisu (`loading="eager"`, 6–14 ks), ktoré sa sťahujú aj pod 1V. Vyrieši spustenie
-  (nový obsah nahradí Popis); admin teraz nemeníme (Michal 25. 10.).
+- LCP okolo 30 s je artefakt simulácie Lighthouse (Lantern počíta fotku za bundlom). Skutočné škrtenie v Chrome
+  (`scratchpad/cls/lcp.mjs`: RTT 562,5 ms, 1,47 Mbit/s, CPU 4×, telefón 412 px, 25. 10. 2026 večer, `ebada7d`):
+  hlavná fotka (LCP) 598 5,1 s · 619 5,6 s · 616 5,7 s · 628 8,6 s · 601 13,5 s; starý vzhľad 598 4,9 s, 601 12,6 s
+  (rovnaké). Pomalé je až použitie konfigurátora: luxuryCar.js dobehne o 29–44 s (starý vzhľad 598 37,6 s). Linku mu berú
+  obrázky starého Popisu s `loading="eager"` (601: lazers.jpg, dv1–3.jpg do 24–30 s; 598: craftman.png 321 kB do 38 s).
+  JS 1V ich zastaviť nevie, beží až po nich. Vyrieši spustenie (nový obsah nahradí Popis) alebo lazy v admine
+  (Michal 25. 10.: admin a živé produkty teraz nemeniť).
 - Hlavné vlákno spolu +3 až +16 %: sekcie obsahu sa oživujú postupne v nečinnosti (kvôli polohe pri reload), A ich
   bez posunu neoživí vôbec. TBT (blokovanie) je pritom nižší na 4 zo 6.
 - 637: obsah vzorkovníka prichádza skôr, preto sa jeho obrázky stihnú stiahnuť v okne merania (+0,43 MB).
