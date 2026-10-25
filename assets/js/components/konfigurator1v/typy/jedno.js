@@ -69,15 +69,19 @@ export const TYP = {
       // „ⓘ Zistiť viac“: i = ikona v krúžku (aria-hidden), aria = celý názov pre čítačky (začína viditeľným textom)
       viac: { i: "i", tl: "Zistiť viac", aria: "Zistiť viac o\u00a0druhej vrstve" },
       // okienko po „Zistiť viac“ (druha-vrstva.js otvorOkno; vytvorí sa až pri prvom kliku); tl = to isté ako ano.tl
+      // Michal 25. 10. 2026 vybral verziu 1 „Čo Vám pridá druhá vrstva“ (starý text bol „písaný ako robotom“ a „krátky hustý
+      // vlas“ je zle). Fakty z Brainu (material-composition): poctivá guma z kaučuku, vlákna v tvare obráteného U nahusto,
+      // sneh sa roztopí medzi vláknami, fľaky takmer nevidno, vapka (tlaková voda) len na druhú vrstvu. Veta o majiteľovi nie.
       okno: {
-        nadpis: "Čo je druhá vrstva?",
+        nadpis: "Čo Vám pridá druhá vrstva",
         zavriet: "Zavrieť",
         casti: [
-          { nm: "Čo to je", text: "Odnímateľná vrstva z\u00a0hustého krátkeho vlasu, ktorá leží na prvej prešívanej vrstve. Farbu si vyberiete v\u00a0ďalšom kroku\u00a0– odporúčame ju v\u00a0tóne prvej vrstvy." },
-          { nm: "Čo Vám pridá", text: "Zachytí vodu, sneh, blato aj soľ z\u00a0topánok. Fľaky na nej takmer nevidieť." },
-          { nm: "Jednoduchšia údržba", text: "Vyberiete ju, vytrasiete a\u00a0opláchnete\u00a0– aj vapkou. Potom ju vrátite späť." },
+          { nm: "Pod nohami", text: "Na poctivej gume z\u00a0kaučuku sú vlákna v\u00a0tvare obráteného písmena U. Nohy máte ako doma na koberci." },
+          { nm: "Sneh a\u00a0blato", text: "Sneh z\u00a0topánok sa roztopí medzi vláknami. Sú také husté, že fľaky po blate takmer nevidno." },
+          { nm: "Čistenie", text: "Vyberiete ju, opláchnete aj tlakovou vodou a\u00a0vrátite späť." },
+          { nm: "Farba", text: "V\u00a0ďalšom kroku si vyberiete farbu, najlepšie v\u00a0tóne Vašej prvej vrstvy." },
         ],
-        pocet: { cislo: "8\u00a0z\u00a010", text: "zákazníkov si ju za posledný rok vybralo" },
+        pocet: { cislo: "8\u00a0z\u00a010", text: "zákazníkov si za posledný rok vybralo druhú vrstvu" },
         tl: "Áno, chcem druhú vrstvu",
       },
       naj: "★ Najčastejšia voľba",

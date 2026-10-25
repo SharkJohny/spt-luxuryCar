@@ -45,7 +45,13 @@ export const FARBY_KRESBY = {
   "cierna-sive-sitie": Object.assign({ sitie: "#a9adb5" }, CIERNA),
   "cierna-sede-sitie": Object.assign({ sitie: "#a9adb5" }, CIERNA), // sety: „Farba šitia: Šedá“ = 616 „Sivá“
   "cierna-biele-sitie": Object.assign({ sitie: "#f2f2ef" }, CIERNA),
-  "hneda-kava": { koza: "#4b3934", rucka: "#68534b", lem: "#22180f", sitie: "#dccdbf" },
+  // Hnedá káva (Michal 25. 10. 2026, snímka 616: kresby pri „Hnedá káva“ svetlo-hnedé/sivé vedľa tmavej vzorky): predtým
+  // koža #4b3934 = teplá hnedá (odtieň 13°), vzorka (boxprodukt-farba-hneda-kava.jpg = oficiálna vzorka
+  // config/diamond-farba-koze-hneda-kava.jpg) má kožu #463846 = tmavá hnedo-fialová (odtieň 304°) a šitie takmer biele
+  // (245, 232, 241). Kresba vyšla o 13,6 jasu svetlejšia než vzorka (čierna +6,6, vínová +5,1) a v inom odtieni. Teraz
+  // koža = koža vzorky × 0,84 (odtieň vzorky; kresba o 7,5 svetlejšia ako vzorka, ako ostatné farby), rúčka a lem v tom
+  // istom pomere ku koži ako predtým (×1,4 / ×0,45), šitie svetlé krémové ako na vzorke.
+  "hneda-kava": { koza: "#3b2f3b", rucka: "#534253", lem: "#1b151b", sitie: "#ece0dc" },
   "vinovo-cervena": { koza: "#922c3d", rucka: "#ad4255", lem: "#4a1019", sitie: "#f0dcdf" },
   "bezova": BEZOVA, // sety aj 616: „Farba kože : Béžová“
   "seda": BEZOVA, // len prechod: 616, kým admin ešte hovorí „Farba kože : Šedá“ (558) — je to ten istý béžový box

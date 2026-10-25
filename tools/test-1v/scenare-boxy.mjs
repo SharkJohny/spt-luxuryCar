@@ -312,49 +312,107 @@ export const SCENARE = {
    * predvolená) a „Vybraná farba“ slovami. Svetlý box je Béžová (Michal 22. 10. 2026: „Tam, kde je box so šedou farbou,
    * daj preč, to je chyba. Má to byť v béžovej farbe.“): fotka boxprodukt-farba-bezova.jpg, koža kresby #d4cbbb.
    * Kým admin 616 hovorí „Diamond Farba kože : Šedá“ (558), test to len vypíše (po prestavení na Béžovú 561 spustiť znova).
-   * Do košíka nič.
+   *
+   * Michal 25. 10. 2026: „Pri produkte boxy chcem, aby sa náhľad tej vzorky taktiež zobrazoval normálne, tak ako sa
+   * zobrazuje aj pri koberčekoch pod sedadlá, do kufra a podobne. A následne potom ešte, aby sa zafarbovali všetky tie
+   * varianty tých boxov tak ako doteraz.“ -> pri každej farbe navyše:
+   *   - náhľad materiálu ako na autokobercoch (_lcd1v-kroky.scss .lcd1v-krok > .lcd1v-nahlad): fotka štvorec ≤ 320 px
+   *     v strede karty, štítok „Diamond Line“ v pruhu NAD fotkou (nie cez ňu), tieň a zaoblenie, fotka načítaná;
+   *   - kresba boxu v KAŽDEJ karte veľkosti všetkých viditeľných riadkov (1, 2 aj 3 boxy): vypočítaná farba kože (fill),
+   *     lemu (stroke), rúčky a šitia = FARBY_KRESBY[kľúč farby], aj šitie prešívania vo vzore <pattern>.
+   * Kolá: 1 box (štart) -> 2 boxy (S + L) -> 3 boxy, v každom všetkých 9 farieb. --snimky: karta pri 2 boxoch pre
+   * Hnedá káva, Čierna / červené šitie a Béžová (616-karta-farba-2boxy-<kľúč>-<šírka>.png). Do košíka nič.
    */
   "box-farby": {
     typy: ["boxy"],
     async fn(s, a, pom, ovl, j) {
       if (ovl.zdroj.boxy !== "novy") return { preskoc: "len nový vzhľad" };
       const t = s.t;
+      const { FARBY_KRESBY } = await import("../../assets/js/components/konfigurator1v/box-kresba.js");
+      const rgb = (h) => { const x = String(h || "").replace("#", ""); return "rgb(" + [0, 2, 4].map((i) => parseInt(x.slice(i, i + 2), 16)).join(", ") + ")"; };
       await j.otvor(s, a.url, { novy: true });
       const n = await t.ev(`document.querySelectorAll("#product-detail-form .lcd1v-k-farba > .options-wrap > .option-button").length`);
       j.over(n >= 9, "farieb boxu je " + n + " (čakám 9)");
       const kluc = (x) => String(x || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      const SNIMKY = /^(hneda-kava|cierna-cervene-sitie|bezova|seda)$/;
       const farby = [];
-      for (let i = 0; i < n; i++) {
-        await ovl.boxy.vyberFarbu(t, { index: i });
-        await j.pauza(200);
-        const r = await t.ev(`(function () {
-          var f = document.getElementById("product-detail-form"), k = f.querySelector(".lcd1v-krok.lcd1v-k-farba");
-          var b = k.querySelector(":scope > .options-wrap > .option-button.active"), im = k.querySelector(":scope > .lcd1v-bxp-nahlad img");
-          var v = f.querySelector(".lcd1v-bxp-velk"), p = k.querySelector(":scope > .lcd1v-bxp-farba-popis");
-          return { nazov: b ? b.getAttribute("data-lcd1v-nazov") || "" : "", src: im ? im.getAttribute("src") || "" : "",
-            kresba: v ? v.getAttribute("data-lcd1v-farba") || "" : "", koza: v ? v.style.getPropertyValue("--bxp-lth").trim() : "",
-            popis: p && !p.hidden ? p.textContent.replace(/\\s+/g, " ").trim() : "" };
-        })()`);
-        farby.push(r);
-        const subor = r.src.split("/").pop();
-        j.over(/\/img\/1v\/boxprodukt-farba-[a-z-]+\.jpg$/.test(r.src), `farba „${r.nazov}“: náhľad nie je fotka materiálu boxprodukt-farba-*.jpg, ale ${r.src}`);
-        j.over(r.kresba === kluc(r.nazov), `farba „${r.nazov}“: kresba boxu má farbu „${r.kresba}“ (čakám „${kluc(r.nazov)}“ — farba chýba v FARBY_KRESBY)`);
-        j.over(!!r.popis, `farba „${r.nazov}“: chýba „Vybraná farba“ slovami`);
-        if (/^(bezova|seda)$/.test(kluc(r.nazov)))
-          j.over(subor === "boxprodukt-farba-bezova.jpg" && r.koza.toLowerCase() === "#d4cbbb", `svetlý box „${r.nazov}“: fotka ${subor}, koža kresby ${r.koza} (čakám boxprodukt-farba-bezova.jpg, #d4cbbb)`);
-        if (a.snimky && /^(bezova|seda)$/.test(kluc(r.nazov))) {
-          // snímka pre ľudskú kontrolu: krok 1 so svetlým boxom (vzorka + náhľad materiálu)
-          await t.ev(`(function () { var k = document.querySelector("#product-detail-form .lcd1v-krok.lcd1v-k-farba"); if (k) { k.scrollIntoView({ block: "start", behavior: "instant" }); window.scrollBy(0, -80); } })()`);
-          await j.pauza(700);
-          await s.k.snimka(join(a.snimky, `${a.produkt.id}-box-farby-${kluc(r.nazov)}-${t.sirka}.png`)).catch(() => {});
+      const kola = [];
+      for (const pocet of [1, 2, 3]) {
+        if (pocet > 1) {
+          j.over((await ovl.boxy.vyberPocet(t, pocet)) === pocet, "počet " + pocet + " sa nezapísal");
+          if (pocet === 2) await ovl.boxy.vyberVelkosti(t, ["S", "L"]);
         }
+        let kariet = 0;
+        for (let i = 0; i < n; i++) {
+          await ovl.boxy.vyberFarbu(t, { index: i });
+          await t.cakaj(`(function () { var i = document.querySelector("#product-detail-form .lcd1v-krok.lcd1v-k-farba > .lcd1v-bxp-nahlad img"); return !!(i && i.complete && i.naturalWidth > 0); })()`, { ms: 10000, popis: "fotka náhľadu načítaná" }).catch(() => {});
+          await j.pauza(150);
+          const r = await t.ev(`(function () {
+            var f = document.getElementById("product-detail-form"), k = f.querySelector(".lcd1v-krok.lcd1v-k-farba");
+            var b = k.querySelector(":scope > .options-wrap > .option-button.active"), n = k.querySelector(":scope > .lcd1v-bxp-nahlad"), im = n && n.querySelector("img");
+            var v = f.querySelector(".lcd1v-bxp-velk"), p = k.querySelector(":scope > .lcd1v-bxp-farba-popis");
+            // náhľad: rozmer a poloha fotky a štítka voči obsahu karty (bez paddingu)
+            var nh = null;
+            if (n && !n.hidden && im) {
+              var kr = k.getBoundingClientRect(), cs = getComputedStyle(k), nr = n.getBoundingClientRect(), ir = im.getBoundingClientRect();
+              var nm = n.querySelector(".lcd1v-nahlad-nm"), mr = nm && nm.getBoundingClientRect(), ns = getComputedStyle(n);
+              var l = kr.left + parseFloat(cs.borderLeftWidth) + parseFloat(cs.paddingLeft), rr = kr.right - parseFloat(cs.borderRightWidth) - parseFloat(cs.paddingRight);
+              nh = { w: Math.round(nr.width), iw: Math.round(ir.width), ih: Math.round(ir.height), stred: Math.round((nr.left + nr.width / 2) - (l + rr) / 2),
+                stitokNad: !!(mr && mr.height > 0 && mr.bottom <= ir.top + 1), stitok: nm ? nm.textContent.trim() : "", nacitana: !!(im.complete && im.naturalWidth > 0),
+                radius: ns.borderTopLeftRadius, tien: ns.boxShadow };
+            }
+            // kresby: každá karta veľkosti vo viditeľných riadkoch (vypočítané farby, nie premenné)
+            var karty = [];
+            Array.prototype.forEach.call(v ? v.querySelectorAll(".lcd1v-bxp-vgrp") : [], function (g) {
+              if (g.hidden || !g.getClientRects().length) return;
+              Array.prototype.forEach.call(g.querySelectorAll(".lcd1v-bxp-vk"), function (c) {
+                var sv = c.querySelector("svg.lcd1v-bxp-sil");
+                function vf(q, pr) { var e = sv && sv.querySelector(q); return e ? getComputedStyle(e)[pr] : null; }
+                karty.push({ box: g.getAttribute("data-box"), v: (c.querySelector(".lcd1v-bxp-vk-l") || {}).textContent || "", vid: !!(sv && sv.getBoundingClientRect().width > 20),
+                  koza: vf(".lcd1v-bxp-k-l", "fill"), lem: vf(".lcd1v-bxp-k-e", "stroke"), rucka: vf(".lcd1v-bxp-k-s", "fill"), sitie: vf(".lcd1v-bxp-k-t", "stroke") });
+              });
+            });
+            var qs = v && v.querySelector(".lcd1v-bxp-defs .lcd1v-bxp-k-qs");
+            return { nazov: b ? b.getAttribute("data-lcd1v-nazov") || "" : "", src: im ? im.getAttribute("src") || "" : "",
+              kresba: v ? v.getAttribute("data-lcd1v-farba") || "" : "", koza: v ? v.style.getPropertyValue("--bxp-lth").trim() : "",
+              popis: p && !p.hidden ? p.textContent.replace(/\\s+/g, " ").trim() : "", nh: nh, karty: karty, vzorSitie: qs ? getComputedStyle(qs).stroke : null,
+              skupiny: v ? Array.prototype.filter.call(v.querySelectorAll(".lcd1v-bxp-vgrp"), function (g) { return !g.hidden; }).length : 0 };
+          })()`);
+          if (pocet === 1) farby.push(r);
+          const kl = kluc(r.nazov), m = `${pocet} ${pocet > 1 ? "boxy" : "box"}, farba „${r.nazov}“`;
+          const subor = r.src.split("/").pop();
+          j.over(/\/img\/1v\/boxprodukt-farba-[a-z-]+\.jpg$/.test(r.src), `${m}: náhľad nie je fotka materiálu boxprodukt-farba-*.jpg, ale ${r.src}`);
+          j.over(r.kresba === kl, `${m}: kresba boxu má farbu „${r.kresba}“ (čakám „${kl}“ — farba chýba v FARBY_KRESBY)`);
+          j.over(!!r.popis, `${m}: chýba „Vybraná farba“ slovami`);
+          if (/^(bezova|seda)$/.test(kl))
+            j.over(subor === "boxprodukt-farba-bezova.jpg" && r.koza.toLowerCase() === "#d4cbbb", `svetlý box „${r.nazov}“: fotka ${subor}, koža kresby ${r.koza} (čakám boxprodukt-farba-bezova.jpg, #d4cbbb)`);
+          // náhľad ako na autokobercoch: štvorec ≤ 320 px v strede, štítok nad fotkou, tieň a zaoblenie, fotka načítaná
+          const nh = r.nh;
+          j.over(nh, `${m}: náhľad materiálu nevidno`);
+          j.over(nh.iw <= 320 && nh.iw >= 200 && Math.abs(nh.iw - nh.ih) <= 1, `${m}: fotka náhľadu ${nh.iw} × ${nh.ih} px (čakám štvorec 200–320 px ako na autokobercoch)`);
+          j.over(nh.w <= 320 && Math.abs(nh.stred) <= 1, `${m}: náhľad široký ${nh.w} px, od stredu karty ${nh.stred} px (čakám ≤ 320 px v strede)`);
+          j.over(nh.stitokNad && nh.stitok, `${m}: štítok „${nh.stitok}“ nie je v pruhu nad fotkou`);
+          j.over(nh.nacitana, `${m}: fotka náhľadu ${subor} sa nenačítala`);
+          j.over(nh.tien !== "none" && parseFloat(nh.radius) >= 10, `${m}: náhľad bez tieňa / zaoblenia (${nh.tien}, ${nh.radius})`);
+          // kresby: všetky karty všetkých viditeľných riadkov vo farbe zvolenej farby (nie predvolenej)
+          const c = FARBY_KRESBY[kl];
+          j.over(c, `${m}: farba „${kl}“ nie je v FARBY_KRESBY`);
+          j.over(r.skupiny === pocet && r.karty.length >= 4 * pocet && r.karty.every((x) => x.vid), `${m}: viditeľných riadkov ${r.skupiny}, kariet s kresbou ${r.karty.length} (čakám ${pocet} riadky po 4)`);
+          const zle = r.karty.filter((x) => x.koza !== rgb(c.koza) || x.lem !== rgb(c.lem) || x.rucka !== rgb(c.rucka) || x.sitie !== rgb(c.sitie));
+          j.over(!zle.length, `${m}: kresby v inej farbe než ${JSON.stringify(c)}: ` + JSON.stringify(zle.slice(0, 3)));
+          j.over(r.vzorSitie === rgb(c.sitie), `${m}: šitie prešívania (vzor) ${r.vzorSitie} ≠ ${rgb(c.sitie)}`);
+          kariet += r.karty.length;
+          if (pocet === 2 && SNIMKY.test(kl)) await snimkaKarty(s, a, "farba-2boxy-" + kl);
+        }
+        kola.push(`${pocet} × ${kariet} kresieb`);
       }
       await j.pauza(400);
       j.over(s.posty.length === 0, "pri výbere farieb odišiel POST: " + (s.posty[0] && s.posty[0].body));
       const svetla = farby.find((r) => /^(bezova|seda)$/.test(kluc(r.nazov)));
       j.over(svetla, "616 nemá svetlý box (Béžová): " + farby.map((r) => r.nazov).join(", "));
       const admin = svetla && svetla.nazov === "Šedá" ? " — POZOR: admin 616 ešte „Šedá“ (558), po prestavení na „Béžová“ (561) spustiť znova" : "";
-      return { info: `${n} farieb: každá s fotkou materiálu a kresbou vo svojej farbe; svetlý box „${svetla && svetla.nazov}“ = béžová fotka a kresba${admin}` };
+      const nh = farby[0] && farby[0].nh;
+      return { info: `${n} farieb: každá s fotkou materiálu (náhľad ${nh ? nh.iw + " × " + nh.ih : "?"} px v strede, štítok nad fotkou) a kresbami vo svojej farbe (${kola.join(", ")}); svetlý box „${svetla && svetla.nazov}“ = béžová fotka a kresba${admin}` };
     },
   },
 };

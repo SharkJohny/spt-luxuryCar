@@ -107,11 +107,13 @@ body.lcd-1v #product-detail-form .lcd1v-druha__vrstva {
   margin: 0;
   padding: 0;
 }
+/* Michal 25. 10. 2026: „Zistiť viac“ hneď za štítkom „2 · Druhá vrstva“ (mierne odskočené), nie na pravom okraji */
 body.lcd-1v #product-detail-form .lcd1v-druha__vrstva-hd {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 4px 14px;
   min-width: 0;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha__info p.lcd1v-druha__stitok {
@@ -174,7 +176,9 @@ body.lcd-1v #product-detail-form .lcd1v-druha__viac {
   border-radius: 8px;
   background: none;
   box-shadow: none;
-  color: var(--kr-gold-tx);
+  /* zelená = klikateľné (kontrast voči zlatým štítkom; Michal 25. 10. 2026: „nie modré“; zelené = kam chceme klik, ako „Áno“),
+     #1f7a52 má 5,5 : 1 na bielej */
+  color: #1f7a52;
   font: 800 12px/1 var(--kr-disp);
   letter-spacing: 0.06em;
   text-decoration: none;
@@ -205,10 +209,10 @@ body.lcd-1v #product-detail-form .lcd1v-druha__viac-t {
   text-underline-offset: 3px;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha__viac:hover {
-  color: #5c4610;
+  color: #165c3d;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha__viac:focus-visible {
-  outline: 2px solid var(--kr-gold-tx);
+  outline: 2px solid #1f7a52;
   outline-offset: -4px;
 }
 body.lcd-1v #product-detail-form .lcd1v-druha__viac:disabled {

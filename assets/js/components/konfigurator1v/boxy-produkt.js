@@ -6,8 +6,9 @@
 // Farba (produkty.js TYPY.boxy.kroky ["farba"]; hlavičku a „Pokračujte k súhrnu“ robí kroky.js). Modul do nej vloží
 // (všetko bez name a bez živých tried .option-button/.options-wrap/… — tie čítajú lcdStepFilled a kroky.js):
 //   - nadpis „Farba boxov — platí pre všetky boxy“ nad živými vzorkami, pod nimi „Vybraná farba: Čierna koža, béžové
-//     šitie“ (kroky.js popisFarby, text zo živého selectu; Michal 19. 10. 2026) a náhľad materiálu ako pás so štítkom
-//     „Diamond Line“ (fotka podľa názvu farby, hlavná fotka produktu sa nemení);
+//     šitie“ (kroky.js popisFarby, text zo živého selectu; Michal 19. 10. 2026) a náhľad materiálu so štítkom
+//     „Diamond Line“ (fotka podľa názvu farby, hlavná fotka produktu sa nemení; od 25. 10. 2026 štvorec max 320 px
+//     v strede ako na autokobercoch, nie pás — Michal: „aby sa náhľad tej vzorky taktiež zobrazoval normálne“);
 //   - „Počet boxov“: kompaktný segment [1 box][2 boxy][3 boxy] s cenou „od“ -> ctx.zapis("pocetKs", n) = živé tlačidlo
 //     „N ks“ (živý kód vyprázdni veľkosti nad počtom: kľúč v POST chýba ako pri starom vzhľade; ctx vráti zvolený 1. box,
 //     ktorý živé „1 ks“ zmaže). Pri štarte 1 box (živý web má predvolené „2 ks“);
@@ -186,7 +187,9 @@ export function init(ctx) {
     if (T.tip) velk.appendChild(el("p", { class: "lcd1v-bxp-tip" }, [el("b", { text: T.tipB || "" }), T.tip]));
     vloz(kFarba, velk, kFarba.querySelector(":scope > .next-step-button"));
 
-    // ---------------------------------------------------------------- náhľad materiálu vo farbe boxu (pás)
+    // ---------------------------------------------------------------- náhľad materiálu vo farbe boxu
+    // rovnaké triedy ako náhľad kroky.js (.lcd1v-nahlad) -> rovnaký vzhľad ako na autokobercoch (štvorec max 320 px
+    // v strede, štítok nad fotkou; Michal 25. 10. 2026); .lcd1v-bxp-nahlad len odlíši vlastný náhľad od toho z kroky.js
     const nahladNm = el("b", { class: "lcd1v-nahlad-nm" });
     const nahladImg = el("img", { class: "lcd1v-nahlad-img", alt: "", width: 400, height: 400, decoding: "async" });
     const nahlad = el("div", { class: "lcd1v-nahlad lcd1v-bxp-nahlad", hidden: true }, [nahladNm, nahladImg]);

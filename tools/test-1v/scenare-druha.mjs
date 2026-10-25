@@ -17,8 +17,8 @@
 //                   autokoberce s druhou vrstvou“ v jednom nízkom riadku + vrstvy heslovite (zlatý štítok veľkými, riadky
 //                   s farebnou ikonou 22 px: zlatý diamant, tmavý štít, modrá kvapka, zelená iskra), žiadne „Nie je to koberec
 //                   na koberci“ ani znevažovanie jednovrstvových („jar až leto“, „celý rok“…), pevné medzery za
-//                   jednopísmenovými slovami, písmo ≥ 15 px, štítky ≥ 12 px; „ⓘ Zistiť viac“ = <button> vpravo na riadku
-//                   „2 · Druhá vrstva“ (aria-haspopup dialog, podčiarknutý len text, ťukacia výška ≥ 44 px) -> okienko
+//                   jednopísmenovými slovami, písmo ≥ 15 px, štítky ≥ 12 px; „ⓘ Zistiť viac“ = zelený <button> hneď za
+//                   štítkom „2 · Druhá vrstva“ (aria-haspopup dialog, podčiarknutý len text, ťukacia výška ≥ 44 px) -> okienko
 //                   „Čo je druhá vrstva?“ postavené až pri prvom kliku: dialóg (role, aria-modal, aria-labelledby), texty,
 //                   fokus dnu a späť, Tab ostáva vnútri, Esc / × / pozadie zavrú, stránka pod ním sa kolieskom nepohne,
 //                   telefón panel zdola, PC v strede ≤ 480 px (snímka: --snimky -> <id>-druha-okno-<šírka>.png);
@@ -174,7 +174,8 @@ function stavKarty(t) {
               text: t2(tx), i: t2(i), iSkryte: i ? i.getAttribute("aria-hidden") : null, px: px(viac),
               podciarkTx: tx ? getComputedStyle(tx).textDecorationLine : "", podciarkI: i ? getComputedStyle(i).textDecorationLine : "", podciarkTl: getComputedStyle(viac).textDecorationLine,
               vyska: Math.round(r.height), sirka: Math.round(r.width),
-              rovnakyRiadok: Math.abs(stred(r) - stred(rs)) < 4, vpravo: Math.abs(r.right - rh.right) < 6 && r.left > rs.right };
+              rovnakyRiadok: Math.abs(stred(r) - stred(rs)) < 4, zaStitkom: r.left - rs.right >= 6 && r.left - rs.right <= 24,
+              farba: getComputedStyle(viac).color };
           })() : null,
           surovy: b.textContent, pozadie: poc ? getComputedStyle(poc).backgroundColor : "",
           pismo: Math.min(px(pt), body.length ? Math.min.apply(null, body.map(px)) : 0),
@@ -279,16 +280,19 @@ async function overOkno(s, a, j) {
   await t.cakaj(oknoOtvorene, { ms: 5000, popis: "otvorené okienko po „Zistiť viac“" });
   await j.pauza(400); // nábeh panela (animácia 0,2 s)
   const o = await stavOkna(t);
-  j.over(o.vidno && o.vBody && o.role === "dialog" && o.modal === "true" && o.nadpis === "Čo je druhá vrstva?" && o.nadpisTag === "H3",
+  j.over(o.vidno && o.vBody && o.role === "dialog" && o.modal === "true" && o.nadpis === "Čo Vám pridá druhá vrstva" && o.nadpisTag === "H3",
     `okienko: viditeľné ${o.vidno}, v <body> ${o.vBody}, role ${o.role}, aria-modal ${o.modal}, nadpis (aria-labelledby) „${o.nadpis}“ ${o.nadpisTag}`);
   j.over(o.fokusVnutri && o.expanded === "true", `po otvorení: fokus v okienku ${o.fokusVnutri} (${o.fokus}), aria-expanded „${o.expanded}“`);
+  // Michal 25. 10. 2026: verzia 1 „Čo Vám pridá druhá vrstva“ (nikdy „vlas“; guma z kaučuku + vlákna v tvare obráteného U)
   const CASTI = [
-    { nm: "Čo to je", text: "Odnímateľná vrstva z hustého krátkeho vlasu, ktorá leží na prvej prešívanej vrstve. Farbu si vyberiete v ďalšom kroku – odporúčame ju v tóne prvej vrstvy." },
-    { nm: "Čo Vám pridá", text: "Zachytí vodu, sneh, blato aj soľ z topánok. Fľaky na nej takmer nevidieť." },
-    { nm: "Jednoduchšia údržba", text: "Vyberiete ju, vytrasiete a opláchnete – aj vapkou. Potom ju vrátite späť." },
+    { nm: "Pod nohami", text: "Na poctivej gume z kaučuku sú vlákna v tvare obráteného písmena U. Nohy máte ako doma na koberci." },
+    { nm: "Sneh a blato", text: "Sneh z topánok sa roztopí medzi vláknami. Sú také husté, že fľaky po blate takmer nevidno." },
+    { nm: "Čistenie", text: "Vyberiete ju, opláchnete aj tlakovou vodou a vrátite späť." },
+    { nm: "Farba", text: "V ďalšom kroku si vyberiete farbu, najlepšie v tóne Vašej prvej vrstvy." },
   ];
-  j.over(o.casti.length === 3 && CASTI.every((c, i) => o.casti[i].nm === c.nm && o.casti[i].text === c.text && o.casti[i].velke === "uppercase"), `časti okienka: ${JSON.stringify(o.casti)}`);
-  j.over(o.pocet === "8 z 10 | zákazníkov si ju za posledný rok vybralo", `box v okienku: „${o.pocet}“`);
+  j.over(o.casti.length === 4 && CASTI.every((c, i) => o.casti[i].nm === c.nm && o.casti[i].text === c.text && o.casti[i].velke === "uppercase"), `časti okienka: ${JSON.stringify(o.casti)}`);
+  j.over(!/vlas/i.test(o.surovy || ""), `okienko nesmie písať o „vlase“ (Michal 25. 10. 2026)`);
+  j.over(o.pocet === "8 z 10 | zákazníkov si za posledný rok vybralo druhú vrstvu", `box v okienku: „${o.pocet}“`);
   j.over(o.ano && o.ano.tag === "BUTTON" && o.ano.typ === "button" && o.ano.text === "Áno, chcem druhú vrstvu" && /47, 156, 104|29, 107, 74/.test(o.ano.pozadie), `Áno v okienku: ${JSON.stringify(o.ano)}`);
   j.over(o.x && o.x.tag === "BUTTON" && o.x.typ === "button" && o.x.aria === "Zavrieť" && o.x.w >= 36 && o.x.h >= 36, `× v okienku: ${JSON.stringify(o.x)}`);
   j.over(!RE_SIROTA.test(o.surovy || ""), `okienko: jednopísmenové slovo s obyčajnou medzerou za sebou: „${(RE_SIROTA.exec(o.surovy || "") || [""])[0]}“`);
@@ -636,12 +640,14 @@ export const SCENARE = {
         v.body.every(([tx, f], n) => { const b = x.body[n]; return b.t === tx && b.ikona && b.ikona.farba === f && b.ikona.skryta === "true" && b.ikona.w === 22 && b.ikona.h === 22; }); }),
         `vrstvy v karte (štítok veľkými, riadky s farebnou ikonou 22 px, aria-hidden): ${JSON.stringify(vr)}`);
       j.over(vr.every((x) => /124, 95, 22/.test(x.farba) && x.px >= 12), `štítky vrstiev: ${vr.map((x) => x.farba + " " + x.px + " px").join(" | ")} (zlaté #7c5f16, najmenej 12 px)`);
-      // „ⓘ Zistiť viac“: skutočné tlačidlo vpravo na riadku „2 · Druhá vrstva“, otvára dialóg, podčiarknutý len text, „i“ len ozdoba
+      // „ⓘ Zistiť viac“: skutočné tlačidlo hneď za štítkom „2 · Druhá vrstva“ (Michal 25. 10. 2026: mierne odskočené, zelené =
+      // klikateľné), otvára dialóg, podčiarknutý len text, „i“ len ozdoba
       const vc = inf.viac || {};
       j.over(vc.tag === "BUTTON" && vc.typ === "button" && vc.popup === "dialog" && vc.tab >= 0 && vc.text === "Zistiť viac" && vc.i === "i" && vc.iSkryte === "true" && /^Zistiť viac/.test(vc.aria || "") && vc.px >= 12,
         `tlačidlo „Zistiť viac“: ${JSON.stringify(vc)}`);
       j.over(/underline/.test(vc.podciarkTx || "") && !/underline/.test(vc.podciarkI || "") && !/underline/.test(vc.podciarkTl || ""), `podčiarknutý má byť len text „Zistiť viac“: text ${vc.podciarkTx}, „i“ ${vc.podciarkI}, tlačidlo ${vc.podciarkTl}`);
-      j.over(vc.rovnakyRiadok && vc.vpravo && vc.vyska >= 44, `„Zistiť viac“ vpravo na riadku štítku ${vc.rovnakyRiadok && vc.vpravo}, ťukacia plocha ${vc.sirka} × ${vc.vyska} px (výška najmenej 44)`);
+      j.over(vc.rovnakyRiadok && vc.zaStitkom && vc.vyska >= 44, `„Zistiť viac“ hneď za štítkom na tom istom riadku ${vc.rovnakyRiadok && vc.zaStitkom}, ťukacia plocha ${vc.sirka} × ${vc.vyska} px (výška najmenej 44)`);
+      j.over(/31, 122, 82/.test(vc.farba || ""), `„Zistiť viac“ má byť zelené #1f7a52 (klikateľné, kontrast voči zlatým štítkom; nie modré): ${vc.farba}`);
       // jednopísmenová predložka/spojka nesmie ostať na konci riadka (pevná medzera za ňou)
       [["blok", inf.surovy], ["nadpis", otv.surovyTi], ["dlaždica", otv.surovyDl]].forEach(([kde, x]) => j.over(!RE_SIROTA.test(x || ""), `${kde}: jednopísmenové slovo s obyčajnou medzerou za sebou: „${(RE_SIROTA.exec(x || "") || [""])[0]}“`));
       // písmo nie pod mierku (Michal 18. 10. 2026): text bloku ≥ 15 px, štítky ≥ 11 px

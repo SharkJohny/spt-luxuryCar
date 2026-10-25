@@ -73,22 +73,11 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-
    rovnaká veľkosť ako na autokobercoch a rohožiach do kufra (Michal 18. 10. 2026) */
 /* náhľad materiálu: vlastný (fotka boxovej farby), náhľad z kroky.js (vzorka) sa na boxe neukazuje */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-nahlad:not(.lcd1v-bxp-nahlad) { display: none !important; }
-/* náhľad = pás cez celú šírku (telefón 120 px, od 768 px 160 px), štítok „Diamond Line“ hore (Michal 23. 10. 2026) */
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad {
-  position: relative; max-width: none; height: 120px; margin: 12px 0 0; border-radius: 10px;
-}
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad > .lcd1v-nahlad-nm {
-  position: absolute; z-index: 1; top: 0; left: 0; right: 0;
-  padding: 9px 12px; background: linear-gradient(180deg, rgba(11, 10, 7, .78), rgba(11, 10, 7, 0)); box-shadow: none;
-  font-size: 12.5px;
-}
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad > .lcd1v-nahlad-img {
-  width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: center;
-}
-@media (min-width: 768px) {
-  /* fotky boxprodukt-farba-*.jpg majú 400 × 400 px — pás širší ako 440 px by ich zväčšoval a rozmazal (kontrola 23. 10. 2026, tablet) */
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-nahlad { height: 160px; max-width: 440px; }
-}
+/* náhľad boxu = rovnaký ako na autokobercoch a rohožiach do kufra (_lcd1v-kroky.scss .lcd1v-krok > .lcd1v-nahlad: štvorec
+   max 320 × 320 px v strede, štítok „Diamond Line“ v tmavom pruhu nad fotkou, tieň, zaoblenie 12 px) — žiadne vlastné
+   pravidlá. Michal 25. 10. 2026: „Pri produkte boxy chcem, aby sa náhľad tej vzorky taktiež zobrazoval normálne, tak ako sa
+   zobrazuje aj pri koberčekoch pod sedadlá, do kufra a podobne.“ (predtým pás 120 / 160 px so štítkom cez fotku, 23. 10. 2026);
+   fotky boxprodukt-farba-*.jpg majú 400 × 400 px, štvorec 320 ich nezväčšuje */
 /* vybraná farba slovami tesne pod vzorkami, nad náhľadom (boxy-produkt.js; Michal 19. 10. 2026) — rovnaká ako v okne boxov
    na autokobercoch: „Vybraná farba: Čierna koža, béžové šitie“, bez voľby skrytá */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-farba-popis {

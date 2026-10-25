@@ -4,7 +4,8 @@
 // test-1v-obsah.mjs pre kľúč obsahu „premium“ spustí tento plugin (namiesto A–D, ktoré overujú obsah 598 s jeho počtami).
 // Základ (korene, miesto, sekcie viditeľné a odhalené, čísla data-p1v-cislo dosadené, odkazy data-p1v-odkaz v tom istom vzore,
 // sonda, konzola, vodorovný posun) overuje test sám pre každý kľúč. Tu: poradie a počty sekcií, ceny a odkazy podľa vzoru
-// (628 340 €, 631/634 350 €; Classic v tom istom vzore), mapa #kryje (klik, prechod myšou, zóny), päť vecí, pred a po s troma
+// (628 340 €, 631/634 350 €; Classic v tom istom vzore), mapa #kryje (predvolene čistá fotka, prechod myšou, klik, opätovný klik ruší,
+// „všetko“), recenzie a Pred a po prvé pod konfigurátorom, bannery setu a boxu rozdelené v popise (Michal 25. 10. 2026), päť vecí, pred a po s troma
 // bodmi, FAQ = živé FAQ z /faq/ doslovne (12 otázok, tools/test-1v/obsah-faq.mjs), texty mimo FAQ bez zakázaných formulácií (žiadny
 // „kovový štítok“, žiadne „skladom“) a bez cien natvrdo; rozhodnutia Michala 14. 10. 2026: logo Luxury Car Design (úvod, čip) a lehota
 // 21–29 dní (časová os); CSS partial = každý selektor pod body.lcd-1v, štýly A–D platia na koreni p1v-premium-N
@@ -19,29 +20,34 @@ export const NAVRH = "kufor-premium.html";
 /** skupiny A–D, ktorých kontroly platia aj pre tento obsah (bez zmeny): žiadne — A–D overujú počty obsahu 598 */
 export const zdielane = [];
 export const sekcie = [
-  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Ku kufru patria aj koberce do auta" }] },
+  // Michal 25. 10. 2026: prvé pod konfigurátorom sú recenzie, hneď za nimi Pred a po (24. 10. 2026: „obrázok Pred a po daj hneď pod
+  // recenzie, je to veľmi dobrý predajný point“); dva bannery z návrhu (set + box hneď pod konfigurátorom) sú rozdelené do popisu
+  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
-  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
-  // b-predapo hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“)
-  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }, { sel: "#s2Mob" }] },
   { meno: "b-material", navrh: [{ sel: "#material" }] },
   { meno: "premium-porovnanie", navrh: [{ sel: "#porovnanie" }, { sel: ".spat", za: "#porovnanie" }] },
   { meno: "premium-kryje", navrh: [{ sel: "#kryje" }, { sel: ".spat", za: "#kryje" }] },
+  // karta setu (v návrhu prvá z dvoch kariet hneď pod konfigurátorom) — na webe za mapou krytia
+  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Ku kufru patria aj koberce do auta" }] },
   { meno: "c-domov", navrh: [{ sel: "section.chapter", text: "Čo Vám príde domov" }] },
   { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", pred: "#farby" }] },
   { meno: "c-farby", navrh: [{ sel: "#farby" }] },
   { meno: "c-vzorky", navrh: [{ sel: "#vzorky" }] },
   { meno: "d-realita", navrh: [{ sel: "#realita" }] },
+  // karta boxu (v návrhu druhá karta tej istej sekcie ako set) — na webe pred FAQ
+  { meno: "premium-box", navrh: [{ sel: "section.chapter", text: "Ku kufru patria aj koberce do auta" }] },
   { meno: "d-faq", navrh: [{ sel: "section.chapter.faqsec" }] },
   { meno: "d-koniec", navrh: [{ sel: "section.end" }] },
 ];
 
-/** poradie sekcií v obsahu (kus 1 potom kus 2) — ako v návrhu, len Pred a po je od 24. 10. 2026 hneď za recenziami (Michal: „obrázok
- *  Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“; v návrhu je za porovnaním) */
-const PORADIE = ["a-ponuka", "a-referencie", "a-galeria", "a-recenzie", "b-predapo", "b-ocakavat", "b-material", "premium-porovnanie",
-  "premium-kryje", "c-domov", "c-casova-os", "c-farby", "c-vzorky", "d-realita", "d-faq", "d-koniec", "d-pomocne"];
+/** poradie sekcií v obsahu (kus 1 potom kus 2). Oproti návrhu: Pred a po hneď za recenziami (Michal 24. 10. 2026); recenzie PRVÉ pod
+ *  konfigurátorom a dva bannery rozdelené do popisu — set (a-ponuka) za mapou krytia, box (premium-box) pred FAQ (Michal 25. 10. 2026:
+ *  „Prvé majú byť recenzie a potom nejako porozdeľovať tieto dva bannery do toho celého popisu… Nie takto hneď pod sebou“) */
+const PORADIE = ["a-recenzie", "b-predapo", "a-referencie", "a-galeria", "b-ocakavat", "b-material", "premium-porovnanie",
+  "premium-kryje", "a-ponuka", "c-domov", "c-casova-os", "c-farby", "c-vzorky", "d-realita", "premium-box", "d-faq", "d-koniec", "d-pomocne"];
 /** základné ceny (plan.md §4): Premium 628 340 €, 631/634 350 €; Classic tej istej línie 230 / 240 / 240 € */
 const CENY = { 628: { premium: 340, classic: 230 }, 631: { premium: 350, classic: 240 }, 634: { premium: 350, classic: 240 } };
 const KLASIK = { 628: "/luxusny-koberced-do-kufra-dragonskin-klasik/", 631: "/luxusny-koberced-do-kufra-dragonskin-klasik-hexa/", 634: "/luxusny-koberced-do-kufra-dragonskin-klasik-stripe/" };
@@ -86,6 +92,11 @@ export async function kontroly(t) {
   const poradie = (await t.ev(`[].map.call(document.querySelectorAll('.p1v-miesto [data-lcd-sekcia]'), function (e) { return e.getAttribute("data-lcd-sekcia"); })`)).filter((m) => m !== "x-sonda-cisla");
   ok(JSON.stringify(poradie) === JSON.stringify(PORADIE), `sekcie v poradí návrhu (${poradie.length}/${PORADIE.length}): ${poradie.join(" > ")}`);
   for (const s of sekcie) ok(await t.je(s.meno), `${s.meno}: sekcia je na stránke`);
+  // Michal 25. 10. 2026: prvé pod konfigurátorom recenzie, potom Pred a po; bannery setu a boxu nie hneď pod konfigurátorom ani pri sebe
+  const iSet = poradie.indexOf("a-ponuka"), iBox = poradie.indexOf("premium-box");
+  ok(poradie[0] === "a-recenzie" && poradie[1] === "b-predapo", `pod konfigurátorom sú prvé recenzie, hneď za nimi Pred a po (${poradie.slice(0, 2).join(" > ")})`);
+  ok(iSet > 3 && iBox > 3 && Math.abs(iBox - iSet) > 2,
+    `bannery rozdelené v popise: set za „${poradie[iSet - 1]}“ (${iSet + 1}. sekcia), box za „${poradie[iBox - 1]}“ (${iBox + 1}. sekcia), medzi nimi ${Math.abs(iBox - iSet) - 1} sekcií`);
 
   // ---------------------------------------------------------------- štýly skupín A–D a základu obsahu platia na koreni p1v-premium-N
   // (jadro ich cieli na #p1v-598-N; bez tejto kontroly prejde test aj s neštýlovanou stránkou — zlatý nadpis, tmavé karty .ups, FAQ)
@@ -117,26 +128,40 @@ export async function kontroly(t) {
   const ceny = txt ? (txt.bezCien.match(/\d[\d\s ]*[,.]?\d*\s*(€|eur|Kč)/gi) || []) : [];
   ok(ceny.length === 0, `texty mimo FAQ: žiadna cena natvrdo mimo data-p1v-cislo${ceny.length ? " — nájdené: " + ceny.slice(0, 4).join(" | ") : ""}`);
 
-  // ---------------------------------------------------------------- a-ponuka: dve karty, odkazy podľa vzoru, žiadna cena natvrdo
-  if (await t.je("a-ponuka")) {
-    await t.ev(`(function () { document.querySelector(${S("a-ponuka")}).scrollIntoView({ block: "start", behavior: "instant" }); })()`);
+  // ---------------------------------------------------------------- a-ponuka (set) a premium-box (box): jedna karta v každej, odkazy podľa
+  // vzoru, žiadna cena natvrdo. Od 25. 10. 2026 dve samostatné sekcie rozdelené v popise (Michal), karta boxu má vzhľad karty setu.
+  const karta = async (meno) => {
+    await t.ev(`(function () { document.querySelector(${S(meno)}).scrollIntoView({ block: "start", behavior: "instant" }); })()`);
     await t.pauza(1200);
-    const r = await t.ev(`(function () {
-      var s = document.querySelector(${S("a-ponuka")}), u = [].slice.call(s.querySelectorAll(".ups"));
-      return { n: u.length, odkazy: u.map(function (x) { var a = x.querySelector("a.btn"); return a ? a.getAttribute("href").split("#")[0] : null; }),
-        znacky: u.map(function (x) { var a = x.querySelector("a.btn"); return a ? a.getAttribute("data-p1v-odkaz") : null; }),
-        img: u.map(function (x) { var i = x.querySelector("img"); return !!(i && i.complete && i.naturalWidth > 0); }),
-        cisla: u.map(function (x) { return [].map.call(x.querySelectorAll("[data-p1v-cislo]"), function (c) { return c.getAttribute("data-p1v-cislo") + "=" + (c.textContent || "").trim().replace(/\\u00a0/g, " "); }); }) };
+    return t.ev(`(function () {
+      var s = document.querySelector(${S(meno)}), u = [].slice.call(s.querySelectorAll(".ups")), x = u[0];
+      if (!x) return { n: 0 };
+      var a = x.querySelector("a.btn"), i = x.querySelector("img"), cs = getComputedStyle(x), li = x.querySelector("li");
+      return { n: u.length, kap: s.getAttribute("data-lcd-kap"), h3: (x.querySelector("h3") || {}).textContent || "",
+        odkaz: a ? a.getAttribute("href").split("#")[0] : null, znacka: a ? a.getAttribute("data-p1v-odkaz") : null,
+        img: !!(i && i.complete && i.naturalWidth > 0),
+        cisla: [].map.call(x.querySelectorAll("[data-p1v-cislo]"), function (c) { return c.getAttribute("data-p1v-cislo") + "=" + (c.textContent || "").trim().replace(/\\u00a0/g, " "); }).join(" | "),
+        vzhlad: [cs.display, cs.backgroundColor, cs.gridTemplateColumns.split(" ").length, getComputedStyle(x.querySelector(".ph")).minHeight,
+          li ? getComputedStyle(li, ":before").content : "", Math.round(parseFloat(getComputedStyle(x.querySelector("h3")).fontSize))].join(" · ") };
     })()`);
-    ok(r.n === 2, `a-ponuka: dve karty .ups (${r.n})`);
+  };
+  if (await t.je("a-ponuka")) {
+    const r = await karta("a-ponuka");
+    ok(r.n === 1 && /Ku kufru patria aj autokoberce pod sedadlá/.test(r.h3), `a-ponuka: jedna karta setu „${r.h3}“ (${r.n})`);
     const jedno = t.sestra("jedno");
-    ok(r.odkazy[0] === jedno && r.znacky[0] === "jedno", `a-ponuka: „Zostavte si set s autokobercami“ vedie na jednovrstvové toho istého vzoru (${r.odkazy[0]}, čakám ${jedno})`);
-    ok(r.odkazy[1] === "/luxusny-boxi-do-kufra/" && r.znacky[1] === "boxy", `a-ponuka: „Pozrite si boxy do kufra“ vedie na box (${r.odkazy[1]})`);
-    ok(r.img.every(Boolean), `a-ponuka: obe fotky sa načítali (${r.img.join(",")})`);
-    const c0 = r.cisla[0].join(" | "), c1 = r.cisla[1].join(" | ");
+    ok(r.odkaz === jedno && r.znacka === "jedno", `a-ponuka: „Zostavte si set s autokobercami“ vedie na jednovrstvové toho istého vzoru (${r.odkaz}, čakám ${jedno})`);
+    ok(r.img, "a-ponuka: fotka sa načítala");
     // Michal 17. 10. 2026: cena v sete bez „+“ („stojí len 239 € namiesto 340 €“, „len za 239 € (samostatne 340 €)“)
-    ok(/set-premium=\d/.test(c0) && /cena-od=\d/.test(c0) && !/\+/.test(c0), `a-ponuka: set „len … namiesto / samostatne …“ zo živých dát, bez „+“ (${c0})`);
-    ok(/box-sam-s=\d/.test(c1) && /box-set-s=\d/.test(c1), `a-ponuka: box „Samostatne od …“ a „S autokobercami pod sedadlá už od …“ zo živých dát (${c1})`);
+    ok(/set-premium=\d/.test(r.cisla) && /cena-od=\d/.test(r.cisla) && !/\+/.test(r.cisla), `a-ponuka: set „len … namiesto / samostatne …“ zo živých dát, bez „+“ (${r.cisla})`);
+    if (await t.je("premium-box")) {
+      const b = await karta("premium-box");
+      ok(b.n === 1 && /Doplňte rohož do kufra o box/.test(b.h3), `premium-box: jedna karta boxu „${b.h3}“ (${b.n})`);
+      ok(b.odkaz === "/luxusny-boxi-do-kufra/" && b.znacka === "boxy", `premium-box: „Pozrite si boxy do kufra“ vedie na box (${b.odkaz})`);
+      ok(b.img, "premium-box: fotka sa načítala");
+      ok(/box-sam-s=\d/.test(b.cisla) && /box-set-s=\d/.test(b.cisla), `premium-box: „Samostatne od …“ a „S autokobercami pod sedadlá už od …“ zo živých dát (${b.cisla})`);
+      ok(b.vzhlad === r.vzhlad && /^grid · rgb/.test(b.vzhlad), `premium-box: karta vyzerá ako karta setu (display · pozadie · stĺpce · min. výška fotky · odrážka · nadpis: ${b.vzhlad} / set ${r.vzhlad})`);
+      ok(r.kap === "2" && b.kap === "4", `bannery v kapitolách popisu: set v kapitole ${r.kap} (za mapou krytia), box v kapitole ${b.kap} (pred FAQ)`);
+    }
   }
 
   // ---------------------------------------------------------------- b-ocakavat: päť vecí
@@ -243,46 +268,96 @@ export async function kontroly(t) {
   }
 
   // ---------------------------------------------------------------- premium-kryje: mapa krytia
+  // Michal 25. 10. 2026: „nemá byť stále vidno tie čísla 1, 2, 3, ale že to má byť až pri prechode myšou nad jednotlivými číslami. A keď dá
+  // zobraziť všetko, tak sa zobrazí všetko.“ -> predvolene čistá fotka (žiadna zóna, žiadne číslo, nič .on); PC: prechod myšou nad kartou
+  // (aj nad jej číslom) alebo nad zónou na fotke ukáže len jej zónu a číslo, po odchode myši späť; klik kartu zvolí, opätovný klik zruší;
+  // „Zobraziť všetko naraz“ ukáže všetky zóny aj čísla, opätovný klik ich skryje.
   if (await t.je("premium-kryje")) {
     const sek = t.sekcia("premium-kryje");
+    const myska = await t.ev(`matchMedia("(hover:hover) and (pointer:fine)").matches`);
+    // skutočná myš preč z mapy (po posune by ju Chrome mohol „prejsť“ a ukázať plochu ešte pred kontrolou predvoleného stavu)
+    const mysKam = (x, y) => t.k.posli("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
+    if (myska) await mysKam(2, 2);
     await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); s.scrollIntoView({ block: "start", behavior: "instant" }); })()`);
     await t.pauza(900);
-    const d = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), f = s.querySelector(".kryv-f");
-      var op = function (sel) { var e = f.querySelector(sel); return e ? +getComputedStyle(e).opacity : null; };
-      var im = f.querySelector("img");
-      return { z: f.getAttribute("data-z"), tlac: s.querySelectorAll(".kz").length, polygony: f.querySelectorAll("svg polygon").length, vb: f.querySelector("svg").getAttribute("viewBox"),
+    const STAV = `(function () { var s = document.querySelector(${JSON.stringify(sek)}), f = s.querySelector(".kryv-f");
+      var op = function (sel) { var e = f.querySelector(sel); return e ? Math.round(+getComputedStyle(e).opacity * 100) / 100 : null; };
+      return { z: f.getAttribute("data-z"), zony: [op(".z-dno"), op(".z-boky"), op(".z-operadla")], cisla: [op(".pn-dno"), op(".pn-boky"), op(".pn-operadla")],
+        on: [].map.call(s.querySelectorAll(".kz.on"), function (b) { return b.getAttribute("data-z"); }),
+        pressed: [].map.call(s.querySelectorAll(".kz[aria-pressed='true']"), function (b) { return b.getAttribute("data-z"); }) }; })()`;
+    // prechody (zóna .4 s, číslo .3 s) musia doznieť; pod záťažou počkať na ustálený stav, nie pevne
+    const stav = async () => { await t.pauza(500); return t.cakaj(`(function () { var x = ${STAV}; var z = x.zony.concat(x.cisla); return z.every(function (o) { return o === 0 || o === 1; }) ? x : null; })()`, { ms: 4000, popis: "ustálená mapa krytia" }).catch(() => t.ev(STAV)); };
+    const vidno = (x) => `zóny ${x.zony.join("/")}, čísla ${x.cisla.join("/")}`;
+    const len = (x, i) => x.zony.every((o, j) => o === (j === i ? 1 : 0)) && x.cisla.every((o, j) => o === (j === i ? 1 : 0));
+    const nic = (x) => x.zony.every((o) => o === 0) && x.cisla.every((o) => o === 0);
+    const vsetko = (x) => x.zony.every((o) => o === 1) && x.cisla.every((o) => o === 1);
+
+    const d = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), f = s.querySelector(".kryv-f"), im = f.querySelector("img");
+      return { tlac: s.querySelectorAll(".kz").length, polygony: f.querySelectorAll("svg polygon").length, vb: f.querySelector("svg").getAttribute("viewBox"),
         foto: im.getAttribute("src").split("/").pop(), ok: im.complete && im.naturalWidth > 0, pn: f.querySelectorAll(".pn").length,
-        vsetky: [op(".z-dno"), op(".z-boky"), op(".z-operadla")], on: [].map.call(s.querySelectorAll(".kz.on"), function (b) { return b.getAttribute("data-z"); }),
-        stlpce: getComputedStyle(s.querySelector(".kryv")).gridTemplateColumns.split(" ").length }; })()`);
+        mysZony: getComputedStyle(f.querySelector(".z polygon")).pointerEvents, stlpce: getComputedStyle(s.querySelector(".kryv")).gridTemplateColumns.split(" ").length }; })()`);
     ok(d.tlac === 4 && d.polygony === 5 && d.vb === "0 0 1600 1600" && d.pn === 3, `premium-kryje: 3 plochy + „všetko“, ${d.polygony} zón v SVG 1600×1600, ${d.pn} čísla`);
     ok(/premium-diamond-celok\.jpg$/.test(d.foto) && d.ok, `premium-kryje: vždy fotka premium-diamond-celok.jpg (${d.foto}), načítaná`);
-    ok(d.z === "vsetko" && d.vsetky.every((o) => o === 1) && d.on.join() === "vsetko", `premium-kryje: na začiatku svietia všetky zóny (data-z=${d.z}, opacity ${d.vsetky.join("/")})`);
     const sirka = await t.ev("innerWidth");
     ok(d.stlpce === (sirka >= 901 ? 2 : 1), `premium-kryje: ${sirka >= 901 ? "fotka a plochy vedľa seba" : "pod sebou"} pri ${sirka} px (stĺpce ${d.stlpce})`);
-    // skutočný klik na „Boky kufra“
-    await t.klikni(sek + " .kz", { index: 1, popis: "Boky kufra", pockaj: 700 });
-    const b = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), f = s.querySelector(".kryv-f");
-      var op = function (sel) { return +getComputedStyle(f.querySelector(sel)).opacity; };
-      return { z: f.getAttribute("data-z"), op: [op(".z-dno"), op(".z-boky"), op(".z-operadla")], on: [].map.call(s.querySelectorAll(".kz.on"), function (x) { return x.getAttribute("data-z"); }),
-        pressed: [].map.call(s.querySelectorAll(".kz[aria-pressed='true']"), function (x) { return x.getAttribute("data-z"); }) }; })()`);
-    ok(b.z === "boky" && b.op[1] === 1 && b.op[0] === 0 && b.op[2] === 0 && b.on.join() === "boky" && b.pressed.join() === "boky",
-      `premium-kryje: klik na „Boky kufra“ nastaví data-z=${b.z}, svieti len zóna bokov (opacity ${b.op.join("/")}), aria-pressed ${b.pressed.join()}`);
-    await t.klikni(sek + " .kz", { index: 2, popis: "Chrbty zadných sedadiel", pockaj: 700 });
-    const c = await t.ev(`document.querySelector(${JSON.stringify(sek)} + " .kryv-f").getAttribute("data-z")`);
-    ok(c === "operadla", `premium-kryje: klik na „Chrbty zadných sedadiel“ nastaví data-z=${c}`);
-    // PC s myšou: prechod myšou rozsvieti plochu, po odchode späť na zvolenú
-    const myska = await t.ev(`matchMedia("(hover:hover) and (pointer:fine)").matches`);
+    ok(d.mysZony === (myska ? "all" : "none"), `premium-kryje: zóny na fotke berú myš len na PC s myšou (pointer-events ${d.mysZony}, myš ${myska})`);
+    const s0 = await stav();
+    ok(s0.z === "nic" && nic(s0) && !s0.on.length && !s0.pressed.length,
+      `premium-kryje: na začiatku čistá fotka — žiadna zóna ani číslo 1, 2, 3, nič zvolené (data-z=${s0.z}, ${vidno(s0)}, .on ${s0.on.join() || "—"})`);
+
+    // PC s myšou: skutočný prechod myšou nad číslom karty „Boky kufra“ a nad zónou dna priamo na fotke
+    // stred prvku v okne (na tablete sú karty pod fotkou — najprv ho posunúť do okna)
+    const stred = async (sel) => {
+      await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(sek)} + " " + ${JSON.stringify(sel)}); var r = e.getBoundingClientRect();
+        if (r.top < 80 || r.bottom > innerHeight - 20) e.scrollIntoView({ block: "center", behavior: "instant" }); })()`);
+      await t.pauza(200);
+      return t.ev(`(function () { var e = document.querySelector(${JSON.stringify(sek)} + " " + ${JSON.stringify(sel)}); var r = e.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) }; })()`);
+    };
     if (myska) {
-      const h = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), f = s.querySelector(".kryv-f"), l = s.querySelector(".kryv-l");
-        var ev = function (typ, el, bubl) { el.dispatchEvent(new MouseEvent(typ, { bubbles: bubl, cancelable: true })); };
-        ev("mouseover", l.querySelector(".kz[data-z='dno']"), true); var nad = f.getAttribute("data-z");
-        ev("mouseleave", l, false); var po = f.getAttribute("data-z");
-        return { nad: nad, po: po }; })()`);
-      ok(h.nad === "dno" && h.po === "operadla", `premium-kryje (PC): prechod myšou nad „Dno kufra“ rozsvieti dno (${h.nad}), po odchode späť na zvolené (${h.po})`);
+      let b = await stred(".kz[data-z='boky'] .no");
+      await mysKam(b.x, b.y);
+      const h1 = await stav();
+      ok(h1.z === "boky" && len(h1, 1) && !h1.on.length, `premium-kryje (PC): myš nad číslom karty „Boky kufra“ ukáže len zónu bokov aj číslo 2 (${vidno(h1)}), nič nezvolí`);
+      await mysKam(2, 2);
+      const h2 = await stav();
+      ok(h2.z === "nic" && nic(h2), `premium-kryje (PC): po odchode myši zase čistá fotka (data-z=${h2.z}, ${vidno(h2)})`);
+      b = await stred(".kryv-f .pn-dno"); // číslo dna je skryté a myš neberie -> pod ním je zóna dna
+      await mysKam(b.x, b.y);
+      const h3 = await stav();
+      ok(h3.z === "dno" && len(h3, 0), `premium-kryje (PC): myš nad zónou dna priamo na fotke ukáže dno aj číslo 1 (${vidno(h3)})`);
+      await mysKam(2, 2);
+      const h4 = await stav();
+      ok(h4.z === "nic" && nic(h4), `premium-kryje (PC): po odchode myši z fotky čistá fotka (${vidno(h4)})`);
     }
-    await t.klikni(sek + " .kz.vsetko", { popis: "Zobraziť všetko naraz", pockaj: 600 });
-    const v = await t.ev(`document.querySelector(${JSON.stringify(sek)} + " .kryv-f").getAttribute("data-z")`);
-    ok(v === "vsetko", `premium-kryje: „Zobraziť všetko naraz“ vráti data-z=${v}`);
+
+    // skutočný klik na „Boky kufra“ -> zvolená
+    await t.klikni(sek + " .kz", { index: 1, popis: "Boky kufra", pockaj: 300 });
+    const k1 = await stav();
+    ok(k1.z === "boky" && len(k1, 1) && k1.on.join() === "boky" && k1.pressed.join() === "boky",
+      `premium-kryje: klik na „Boky kufra“ ju zvolí — len zóna bokov a číslo 2 (data-z=${k1.z}, ${vidno(k1)}, aria-pressed ${k1.pressed.join()})`);
+    await t.klikni(sek + " .kz", { index: 2, popis: "Chrbty zadných sedadiel", pockaj: 300 });
+    const k2 = await stav();
+    ok(k2.z === "operadla" && len(k2, 2) && k2.on.join() === "operadla", `premium-kryje: klik na „Chrbty zadných sedadiel“ prepne na ne (data-z=${k2.z}, ${vidno(k2)})`);
+    if (myska) {
+      const b = await stred(".kz[data-z='dno']");
+      await mysKam(b.x, b.y);
+      const h5 = await stav();
+      await mysKam(2, 2);
+      const h6 = await stav();
+      ok(h5.z === "dno" && h6.z === "operadla" && len(h6, 2), `premium-kryje (PC): myš nad „Dno kufra“ ukáže dno (${h5.z}), po odchode späť zvolené chrbty (${h6.z}, ${vidno(h6)})`);
+    }
+    // opätovný klik na zvolenú kartu ju zruší
+    await t.klikni(sek + " .kz", { index: 2, popis: "Chrbty zadných sedadiel znova", pockaj: 300 });
+    const k3 = await stav();
+    ok(k3.z === "nic" && nic(k3) && !k3.on.length && !k3.pressed.length, `premium-kryje: opätovný klik na zvolenú kartu ju zruší — čistá fotka (data-z=${k3.z}, ${vidno(k3)})`);
+    // „Zobraziť všetko naraz“ ukáže všetky zóny aj čísla, opätovný klik ich skryje
+    await t.klikni(sek + " .kz.vsetko", { popis: "Zobraziť všetko naraz", pockaj: 300 });
+    const v1 = await stav();
+    ok(v1.z === "vsetko" && vsetko(v1) && v1.pressed.join() === "vsetko", `premium-kryje: „Zobraziť všetko naraz“ ukáže všetky zóny aj čísla 1, 2, 3 (data-z=${v1.z}, ${vidno(v1)})`);
+    await t.klikni(sek + " .kz.vsetko", { popis: "Zobraziť všetko naraz znova", pockaj: 300 });
+    const v2 = await stav();
+    ok(v2.z === "nic" && nic(v2) && !v2.pressed.length, `premium-kryje: opätovný klik na „Zobraziť všetko naraz“ všetko skryje (data-z=${v2.z}, ${vidno(v2)})`);
+    if (myska) await mysKam(2, 2);
     const a = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return { spat: !!s.querySelector(".spat .spat-btn"), href: (s.querySelector(".spat-btn") || {}).getAttribute ? s.querySelector(".spat-btn").getAttribute("href") : null }; })()`);
     ok(a.spat && a.href === "#product-detail-form", "premium-kryje: výzva „Pokračujte vo výbere“ vedie na konfigurátor");
   }

@@ -122,7 +122,16 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .btn.
   body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-velkosti"] .btn.spat-btn{width:100%;justify-content:center}
 }
 
-/* =============================================================== 23 b-predapo: legenda s vlastnými fotkami (skupina B dáva fotky 598 podľa poradia) */
+/* =============================================================== 14 b-predapo: rám v pomere fotky, legenda s vlastnými fotkami (skupina B dáva fotky 598 podľa poradia) */
+/* Michal 25. 10. 2026: „ona má byť vyššia tá fotka. Aby tam krásne bolo vidno celý ten kufor aj tie boxy, lebo takto veľkú časť toho
+   odstraníme.“ Fotky boxy-pred-cely / boxy-po-cely.jpg sú 1400 × 856 (celý kufor od vrchu boxov po prah, rovnaký výrez oboch fotiek
+   zo statívu) -> rám presne v ich pomere 1,6355 na každej šírke: skupina B dáva 2,14 : 1 (fotka 598, na telefóne), titulka na výšku
+   1,5 — oboje by object-fit:cover orezalo. Veľkosť rámu ráta LCD-HOME (--lx-w: fotka + legenda sa zmestia do prilepenej scény),
+   na PC 1280 × 800 je fotka ~460 px = ~58 % výšky okna (do 80 %), na telefóne celá fotka od kraja po kraj. Len box — 598 bez zmeny. */
+body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:1.6355}
+@media(max-width:760px), (orientation:portrait) and (max-width:1199px){
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:1.6355}
+}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(1) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-pp-1.jpg)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(2) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-pp-2.jpg)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(3) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-pp-3.jpg)}

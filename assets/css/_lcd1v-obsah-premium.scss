@@ -3,7 +3,8 @@
    flag vypnutý = nulová zmena (test nulova-zmena). Kontrakt: docs/1v-kontrakt.md §8, pravidlá obsahu: docs/1v-obsah.md.
    Sekcie A–D (ponuka, galéria, ocakavat, materiál, domov, časová os, farby, FAQ, záver…) majú základný vzhľad z partialov
    _lcd1v-obsah-a|b|c|d.scss; tu sú len rozdiely Premium podľa návrhu kufor-premium.html (r. 3690–3770 a sekcie pod konfigurátorom):
-   - dve karty .ups pod sebou (set + box),
+   - karty .ups setu (a-ponuka, vzhľad zo _lcd1v-obsah-a.scss) a boxu (premium-box, kópia vzhľadu nižšie) — od 25. 10. 2026 rozdelené
+     v popise (Michal: nie dva bannery hneď pod konfigurátorom; prvé sú recenzie): set za mapou krytia, box pred FAQ,
    - „Päť vecí“: 5 náhľadov a bodiek namiesto 9, fotky náhľadov Premium,
    - pred a po: 3 vzorky legendy (premium-pp-*), legenda len s nadpismi (návrh: #predapo .lx-leg-t span{display:none}),
    - NOVÉ: „Premium alebo Classic?“ (.cmp-col.klas, .cmp-dalej) a „Čo všetko rohož Premium kryje“ (.kryv, .kz, SVG zóny),
@@ -11,8 +12,34 @@
    Špecificita: pravidlá titulky (LCD-HOME) majú id; predpona s id koreňov (1,x,x) ich prebije bez !important. */
 /* Väčšie písmo (Michal 18. 10. 2026): veľkosti textov podľa mierky v _lcd1v-obsah.scss bod 10 (len zväčšené, nič zmenšené). */
 
-/* =============================================================== a-ponuka: dve karty pod sebou */
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="a-ponuka"] .ups + .ups{margin-top:clamp(14px,2vw,22px)}
+/* =============================================================== premium-box: karta „Doplňte rohož do kufra o box“ */
+/* Michal 25. 10. 2026: dva bannery (set + box) hneď pod konfigurátorom pod sebou = „úplný nonsens“ -> karta boxu je samostatná sekcia
+   40-premium-box pred FAQ (karta setu 31-a-ponuka za mapou krytia). Vzhľad = presná kópia karty a-ponuka zo _lcd1v-obsah-a.scss
+   (stav 24. 10. 2026: odrážky v jednom stĺpci so zlatou fajkou, na PC fotka aspoň clamp(320px,33vw,420px), text zvislo v strede) —
+   pravidlá A sú viazané na meno a-ponuka. Pri zmene karty a-ponuka zmeniť aj tu (rovnako ako classic-box v _lcd1v-obsah-classic.scss). */
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups{display:grid;grid-template-columns:.9fr 1.1fr;background:var(--deep);color:#fff;
+  border-radius:20px;overflow:hidden}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .ph{position:relative;min-height:190px}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .ph img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .tx{padding:clamp(20px,2.6vw,32px)}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .od{display:inline-block;padding:6px 11px;border-radius:999px;
+  background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;
+  font-family:var(--disp);font-size:12px;font-weight:800;line-height:1.6;letter-spacing:.1em;text-transform:uppercase}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups h3{margin:12px 0 0;font-size:clamp(19px,2.3vw,26px);line-height:1.2;
+  color:var(--gold-hi);background:linear-gradient(100deg,#c49b31,#f0d68f 45%,#e6c877 62%,#c49b31);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups p{margin:10px 0 0;max-width:46ch;color:rgba(255,255,255,.82);font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.6}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups ul{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:1fr;gap:11px}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups li{position:relative;margin:0;padding:0 0 0 28px;font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.6;color:#fff}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups :is(p,li){text-wrap:pretty}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups li:before{content:"\2713";position:absolute;left:0;top:0;
+  font-size:1.05em;font-weight:800;line-height:1.55;color:var(--gold-hi)}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .btn{margin-top:18px;border:0}
+@media(min-width:821px){
+  body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .ph{min-height:clamp(320px,33vw,420px)}
+  body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups .tx{align-self:center}
+}
+@media(max-width:820px){body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-box"] .ups{grid-template-columns:1fr}}
 
 /* =============================================================== b-ocakavat: päť vecí */
 /* PC: náhľady v 5 stĺpcoch (B dáva 9; pod 1200 px už 5) a fotky náhľadov Premium (z CSS: bez flagu sa nestiahnu) */
@@ -77,7 +104,8 @@ body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"]
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f img{width:100%;height:auto;aspect-ratio:1/1;
   object-fit:cover;display:block}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-/* zóny: prerušovaný zlatý obrys, dno biele; viditeľná je zvolená (data-z) alebo všetky */
+/* zóny: prerušovaný zlatý obrys, dno biele; viditeľná je zvolená / pod myšou (data-z) alebo všetky; data-z="nic" (predvolené od
+   25. 10. 2026, Michal) = čistá fotka bez zón a bez čísel */
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f .z{opacity:0;transition:opacity .4s}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f .z polygon{fill:rgba(230,200,119,.4);stroke:#f3dc96;
   stroke-width:6;stroke-linejoin:round;stroke-dasharray:22 14}
@@ -90,13 +118,19 @@ body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"]
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f .pn{position:absolute;z-index:2;width:34px;height:34px;
   margin:-17px 0 0 -17px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-family:var(--disp);font-weight:800;font-size:15px;color:#17130a;background:linear-gradient(135deg,var(--gold-hi),var(--gold));
-  box-shadow:0 0 0 4px rgba(10,8,6,.55),0 6px 16px rgba(0,0,0,.5);transition:transform .3s,opacity .3s}
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="dno"] .pn:not(.pn-dno),
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="boky"] .pn:not(.pn-boky),
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="operadla"] .pn:not(.pn-operadla){opacity:.35}
+  box-shadow:0 0 0 4px rgba(10,8,6,.55),0 6px 16px rgba(0,0,0,.5);transition:transform .3s,opacity .3s;
+  opacity:0;transform:scale(.6);pointer-events:none}
+/* Michal 25. 10. 2026: čísla 1, 2, 3 nie sú vidno stále — len číslo rozsvietenej zóny (prechod myšou / zvolená karta), pri „všetko“ všetky.
+   Skryté plynulo (opacity + zmenšenie); myš ich neberie (zónu pod číslom rozsvieti polygón pod ním). */
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="vsetko"] .pn{opacity:1;transform:none}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="dno"] .pn-dno,
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="boky"] .pn-boky,
-body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="operadla"] .pn-operadla{transform:scale(1.18)}
+body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f[data-z="operadla"] .pn-operadla{opacity:1;transform:scale(1.18)}
+/* PC s myšou (bonus 25. 10. 2026): zóny na fotke berú myš — prechod nad zónou (aj nad jej číslom) ju rozsvieti, klik ju zvolí
+   ako karta (obsah-premium.js). SVG ostáva pointer-events:none, myš berú len polygóny; na dotyku sa nič nemení. */
+@media(hover:hover) and (pointer:fine){
+  body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-f .z polygon{pointer-events:all;cursor:pointer}
+}
 /* tlačidlá plôch vpravo */
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kryv-l{display:grid;gap:10px}
 body.lcd-1v :is(#p1v-premium-1,#p1v-premium-2) [data-lcd-sekcia="premium-kryje"] .kz{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;

@@ -354,7 +354,54 @@ export async function kontroly(t) {
     ok(r.sw === "1234", `b-predapo: vzorky legendy majú fotky boxov z CSS (boxy-pp-N: ${r.sw})`);
     ok(!r.cislo && !r.pocet, "b-predapo: bez počítadla %");
     ok(r.leg === 4 && r.chips === "Rovnaký kufor|Rovnaké veci|Rovnaký uhol|Jediný rozdiel: boxy", `b-predapo: 4 body legendy a štítky (${r.chips})`);
-    ok(r.im.length === 2 && r.im.every((i) => i.ok) && r.im.map((i) => i.src).join(",") === "boxy-pred.jpg,boxy-po.jpg", `b-predapo: fotky pred a po sa načítali (${r.im.map((i) => i.src + (i.ok ? "" : " ✗")).join(", ")})`);
+    // Michal 25. 10. 2026: „ona má byť vyššia tá fotka. Aby tam krásne bolo vidno celý ten kufor aj tie boxy“ -> fotky celého kufra
+    // boxy-pred-cely / boxy-po-cely.jpg (1400 × 856) namiesto boxy-pred/po.jpg (1400 × 655, veká boxov a prah odrezané)
+    ok(r.im.length === 2 && r.im.every((i) => i.ok) && r.im.map((i) => i.src).join(",") === "boxy-pred-cely.jpg,boxy-po-cely.jpg", `b-predapo: fotky pred a po (celý kufor) sa načítali (${r.im.map((i) => i.src + (i.ok ? "" : " ✗")).join(", ")})`);
+
+    // rám v pomere fotky (object-fit:cover nič neoreže), na PC najviac 80 % výšky okna, na telefóne celá fotka v šírke okna;
+    // scéna pri rolovaní: čiara a karty 1–4 idú s rolovaním, bloky scény sa neprekrývajú, nič nevytečie z okna
+    const GEO = `(function () {
+      var s = document.querySelector(${JSON.stringify(sek)}), pl = s.querySelector(".lx-pp-plocha"), im = [].slice.call(pl.querySelectorAll("img"));
+      var cw = document.documentElement.clientWidth, rp = pl.getBoundingClientRect();
+      var vid = function (e) { if (!e) return null; var cs = getComputedStyle(e), r = e.getBoundingClientRect(); return cs.display === "none" || cs.visibility === "hidden" || !r.width || !r.height ? null : r; };
+      var bloky = [["nadpis", s.querySelector(".lx-hlava")], ["štítky", s.querySelector(".lx-chips")], ["fotka", pl], ["karty", s.querySelector(".lx-leg")], ["lišta", s.querySelector(".pinfoot")]]
+        .map(function (b) { return [b[0], vid(b[1])]; }).filter(function (b) { return b[1]; });
+      var prekryv = [];
+      for (var i = 0; i < bloky.length; i++) for (var j = i + 1; j < bloky.length; j++) { var a = bloky[i][1], b = bloky[j][1];
+        if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1) prekryv.push(bloky[i][0] + "×" + bloky[j][0]); }
+      var ok = s.querySelector(".lx-pp-okno"), m = /translate3d\\((-?[\\d.]+)%/.exec(ok.style.transform || ""), hr = /translate3d\\((-?[\\d.]+)px/.exec((s.querySelector(".lx-pp-hrana").style.transform) || "");
+      var lista = s.querySelector(".pinfoot").getBoundingClientRect();
+      return { lep: !s.classList.contains("lx-bez-lepu"), w: rp.width, h: rp.height, l: rp.left, r: rp.right, t: rp.top, b: rp.bottom, ih: innerHeight, cw: cw,
+        fit: im.map(function (x) { return getComputedStyle(x).objectFit; }).join(","), nat: im.map(function (x) { return x.naturalWidth + "×" + x.naturalHeight; }),
+        pomer: im.map(function (x) { return x.naturalWidth / x.naturalHeight; }), q: m ? 1 + parseFloat(m[1]) / 100 : null, hrana: hr ? parseFloat(hr[1]) : null,
+        on: [].map.call(s.querySelectorAll(".lx-leg-r"), function (x) { return x.classList.contains("on") ? 1 : 0; }).join(""), prekryv: prekryv,
+        listaB: lista.bottom, sirokySek: s.scrollWidth - s.clientWidth };
+    })()`;
+    const g0 = await t.ev(GEO);
+    const pomerRamu = g0.w / g0.h;
+    ok(g0.nat.length === 2 && g0.nat[0] === g0.nat[1] && Math.abs(g0.pomer[0] - 1400 / 856) < 0.01, `b-predapo: obe fotky majú rovnaký rozmer celého kufra (${g0.nat.join(" / ")})`);
+    ok(Math.abs(pomerRamu - g0.pomer[0]) / g0.pomer[0] < 0.015, `b-predapo: rám v pomere fotky — nič sa neoreže (rám ${Math.round(g0.w)}×${Math.round(g0.h)} = ${pomerRamu.toFixed(3)}, fotka ${g0.pomer[0].toFixed(3)}, ${g0.fit})`);
+    if (t.sirka > 900) ok(g0.h <= g0.ih * 0.8 + 1, `b-predapo (PC): fotka najviac 80 % výšky okna (${Math.round(g0.h)} z ${g0.ih} px = ${Math.round((100 * g0.h) / g0.ih)} %)`);
+    // telefón (do 760 px): celá fotka od kraja po kraj (LCD-HOME); tablet: celá fotka v obsahu stránky
+    ok(g0.l >= -1 && g0.r <= g0.cw + 1 && (t.sirka > 760 || g0.w >= g0.cw - 2), `b-predapo: celá fotka v šírke okna${t.sirka <= 760 ? " od kraja po kraj" : ""} (${Math.round(g0.l)}–${Math.round(g0.r)} px z ${g0.cw})`);
+    // rolovanie scénou: začiatok / stred / koniec (prilepená scéna = podľa polohy sekcie, záloha bez lepenia = podľa polohy fotky)
+    const stavy = [];
+    for (const [meno, f] of [["zaciatok", 0], ["stred", 0.5], ["koniec", 1]]) {
+      await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), y = s.getBoundingClientRect().top + scrollY;
+        if (!s.classList.contains("lx-bez-lepu")) scrollTo({ top: y + (s.offsetHeight - innerHeight) * ${f}, behavior: "instant" });
+        else { var p = s.querySelector(".lx-pp-plocha"), py = p.getBoundingClientRect().top + scrollY; scrollTo({ top: py - innerHeight * (0.8 - 0.55 * ${f}) + (${f} === 1 ? 40 : 0), behavior: "instant" }); } })()`);
+      await t.pauza(700);
+      const g = await t.ev(GEO);
+      stavy.push({ meno, ...g });
+      if (process.env.LCD_BOXY_SNIMKY) await t.k.snimka(join(process.env.LCD_BOXY_SNIMKY, `predapo-${meno}-${t.sirka}.png`)).catch(() => {});
+    }
+    const [z0, z1, z2] = stavy;
+    ok(z0.q !== null && z0.q <= 0.1 && z1.q > 0.3 && z1.q < 0.7 && z2.q >= 0.99, `b-predapo: rolovanie posúva deliacu čiaru (podiel PO ${stavy.map((s) => (s.q === null ? "?" : s.q.toFixed(2))).join(" → ")})`);
+    ok(z2.hrana !== null && Math.abs(z2.hrana - z2.w) < 2 && (z0.hrana || 0) <= z0.w * 0.1 + 1, `b-predapo: čiara ide od ľavého po pravý okraj fotky (${Math.round(z0.hrana || 0)} → ${Math.round(z2.hrana || 0)} px z ${Math.round(z2.w)})`);
+    ok(z0.on === "0000" && /^11[01]0$/.test(z1.on) && z2.on === "1111", `b-predapo: karty 1–4 sa odškrtávajú s rolovaním (${stavy.map((s) => s.on).join(" → ")})`);
+    ok(stavy.every((s) => !s.prekryv.length), `b-predapo: nadpis, štítky, fotka, karty a lišta sa neprekrývajú${stavy.some((s) => s.prekryv.length) ? " — " + stavy.map((s) => s.meno + ": " + (s.prekryv.join(", ") || "–")).join("; ") : ""}`);
+    if (z1.lep) ok(stavy.every((s) => s.t >= -1 && s.b <= s.ih + 1 && s.listaB <= s.ih + 1), `b-predapo: v prilepenej scéne je celá fotka aj lišta v okne (fotka ${stavy.map((s) => Math.round(s.t) + "–" + Math.round(s.b)).join(", ")} px, okno ${z1.ih})`);
+    ok(stavy.every((s) => s.sirokySek <= 1 && s.r <= s.cw + 1), `b-predapo: žiadny vodorovný posun (${stavy.map((s) => s.sirokySek + "/" + Math.round(s.r)).join(", ")})`);
   }
 
   // c-casova-os: 5 krokov s „Ručné šitie“, lehota 21–29 dní v úvode aj v odznaku posledného kroku (rozhodnutie Michala 14. 10. 2026: box sa
