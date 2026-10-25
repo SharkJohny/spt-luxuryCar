@@ -137,6 +137,16 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"
 /* ---------- 33 c-farby: modul lx-farby titulky — vejár „Mnoho ďalších farieb“ má <img> namiesto background-image ---------- */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i{overflow:hidden}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i img{display:block;width:100%;height:100%;object-fit:cover}
+/* úzky telefón (kontrola rozloženia 25. 10. 2026, G2): 7 stĺpcov s medzerou 7 px dáva pri 320 px vzorku 35 × 35 px (pod
+   dotykovým minimom 40 px; od ~375 px je ≥ 43 px). Počet stĺpcov ostáva — dlaždica „Mnoho ďalších farieb“ má v HTML
+   grid-column:span 5 (dvojvrstvové 3). Plochu zväčší neviditeľné ::after o 5 px za vnútro tlačidla (31 + 10 = 41 px;
+   za rámik vytŕča 3 px, v medzere 7 px ostane medzi susedmi 1 px). overflow:hidden by ::after orezal -> fotku zaobľuje
+   priamo img (rámik 9 px − okraj 2 px = 7 px), vzhľad ostáva. Bloku LCD-HOME (titulka) sa to netýka. */
+@media(max-width:520px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-vzorka{position:relative;overflow:visible}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-vzorka img{border-radius:7px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-vzorka:after{content:"";position:absolute;inset:-5px}
+}
 
 /* ---------- 34 c-vzorky: modul .vz titulky — vejár vzoriek má <img> namiesto background-image; nadpis svetlé zlato ---------- */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-vzorky"] .btn.zeleny{box-shadow:0 10px 30px rgba(140,105,25,.35)}

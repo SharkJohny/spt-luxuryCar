@@ -14490,6 +14490,35 @@ body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
   text-align: center;
 }
 
+/* Úloha H (25. 10. 2026): „Pokračujte ďalej“ (živé .next-step-button) pridá productPage.js až 100 ms po postavení krokov
+   (setTimeout; na pomalom telefóne 0,1–0,6 s po prvom snímku 1V) a kroky.js pod neho vloží poznámku -> otvorený krok
+   (karta auta) narástol po prvom snímku o 116–139 px a obsah pod konfigurátorom, ktorý už bol vložený, sa posunul.
+   Kým tlačidlo nie je, drží jeho miesto prázdny ::after (56 px + okraj 22 px ako tlačidlo nižšie) a miesto poznámky
+   karty auta neviditeľný ::before s tým istým textom ako typy/jedno.js kroky.auto.pozn (rovnaké písmo = rovnaké
+   zalomenie: 1 riadok od 390 px, 2 riadky pri 360 px; pri zmene textu v typoch zmeniť aj tu, inak je rezerva len
+   nepresná). Len živé kroky (.position-wrap / .parameter-wrap — tlačidlo im pridáva productPage.js), nie nové karty
+   (druhá vrstva, set, vzorkovník) ani okno boxov. */
+body.lcd-1v #product-detail-form .lcd1v-krok.active:is(.position-wrap, .parameter-wrap):not(.box-config *):not(:has(> .next-step-button))::after {
+  content: "";
+  display: block;
+  flex: none;
+  order: 95;
+  height: 56px;
+  margin: 22px 0 0;
+  padding: 0;
+}
+body.lcd-1v:is([data-lcd1v-typ="jedno"], [data-lcd1v-typ="dvoj"], [data-lcd1v-typ^="kufor"]) #product-detail-form .lcd1v-k-auto.active:is(.position-wrap, .parameter-wrap):not(:has(> .lcd1v-pozn))::before {
+  content: "Šablóny máme pre viac než 1000 modelov osobných áut.";
+  display: block;
+  flex: none;
+  order: 99;
+  margin: 16px 0 0;
+  padding: 0;
+  font: 400 14px/1.6 var(--kr-body);
+  text-align: center;
+  visibility: hidden;
+}
+
 /* „Pokračujte ďalej“ = živé tlačidlo kroku (validácia + ďalší krok = configuratorEngine.js) */
 body.lcd-1v #product-detail-form .lcd1v-krok.active > .next-step-button {
   position: relative;
@@ -15129,6 +15158,10 @@ body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-img {
     font-size: 18px;
   }
   body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
+    font-size: 15px;
+  }
+  /* rezerva poznámky (Úloha H) má to isté písmo ako poznámka (selektor rovnaký ako pravidlo rezervy vyššie) */
+  body.lcd-1v:is([data-lcd1v-typ="jedno"], [data-lcd1v-typ="dvoj"], [data-lcd1v-typ^="kufor"]) #product-detail-form .lcd1v-k-auto.active:is(.position-wrap, .parameter-wrap):not(:has(> .lcd1v-pozn))::before {
     font-size: 15px;
   }
   body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err::after {
@@ -16522,6 +16555,28 @@ body.lcd-1v #product-detail-form .p-info-wrapper > .p-final-price-wrapper { disp
 body.lcd-1v #product-detail-form .p-image .flag-discount { display: none !important; }
 /* lepkavá lišta Shoptetu „Do košíka“ (header.js, cena z načítania stránky) — na telefóne ju nahrádza .lcd1v-lista */
 body.lcd-1v #js-plugin-header { display: none !important; }
+/* Kostra stĺpca (_productPage.scss: .p-info-wrapper:not(.active) má pevnú výšku 2 000 px a overflow hidden, kým
+   productPage.js po 1 s nepridá .active). Úloha H (25. 10. 2026): 1V sa postaví ešte pod kostrou, ale jeho prirodzená
+   výška je iná (601 @390: 2 097 px, @360: 2 119, @768: 2 069; 598 @1280: 1 878) — v pevných 2 000 px sa flex položky
+   s overflow hidden (.lcd1v-cena, .upsale-Banner, karty krokov) stlačili a pri .active stĺpec „narástol“ o rozdiel.
+   Obsah pod konfigurátorom sa medzitým vložil a Chrome podľa neho obnovil polohu po reload/Späť -> FAQ skončilo
+   o 97 px vyššie; pri prvom otvorení to bol posun rozloženia (CLS). Pod 1V má stĺpec prirodzenú výšku už od prvého
+   snímku 1V; trblietavá vrstva ::before (absolútna, 100 % výšky) ostáva a odhalenie po .active sa nemení.
+   Bez flagu kostra ostáva presne ako doteraz. */
+body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) { height: auto; }
+/* Karta „Hľadáte ešte lepšiu ochranu?“ (.benefitBanner__item; productPage.js ju vkladá na začiatok stĺpca, obsah je pod
+   1V skrytý, ostáva prázdna s okrajom) dostane order 3 až s .active (_productPage.scss) -> pri odhalení sa hlavička
+   a cena posunuli o 15 px hore (Úloha H, 25. 10. 2026). Pod 1V má poradie a rozmer ako po .active od prvého snímku. */
+body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) > .benefitBanner__item { order: 3; }
+@media (min-width: 480px) {
+  body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) > .benefitBanner__item { flex: 0 0 50%; width: 100%; }
+}
+/* Starý blok FAQ pri konfigurátore (components/index.js ho pripojí na koniec stĺpca a naplní z /faq/) je pod 1V skrytý,
+   len keď už je nový FAQ (_lcd1v-obsah.scss bod 8) — kým sa obsah z CDN vkladal, ukázal sa (37 -> 440 px) a po vložení
+   nového FAQ zmizol, obsah pod konfigurátorom pri tom skákal o stovky px (Úloha H, 25. 10. 2026). Kým obsah.js vkladá
+   (cena.js: body[data-lcd1v-obsah-caka], najviac 15 s), je skrytý; potom platí bod 8 ako doteraz (bez nového FAQ sa
+   starý ukáže). */
+body.lcd-1v[data-lcd1v-obsah-caka] #product-detail-form .p-info-wrapper > .faq.container { display: none; }
 
 /* ---------- hlavička: štítok, názov, hodnotenie, krátky popis ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-detail-inner-header { margin: 0; padding: 0; }
@@ -16548,6 +16603,12 @@ body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn {
   font: 400 16px/22px var(--c1v-body); color: var(--c1v-lb); text-decoration: none;
 }
 body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn[hidden] { display: none; }
+/* Úloha H (25. 10. 2026): kým neprídu dáta recenzií (reviews-data.js načíta main.js až po data.json — na pomalom
+   telefóne 5–11 s po prvom snímku 1V), riadok drží svoje miesto neviditeľne (cena.js / vzorky-produkt.js: zástupné
+   prvky b, span, i s nezalomiteľnou medzerou = tie isté písma a výška riadka ako hotový riadok; žiadne číslo ani text).
+   Predtým bol [hidden] a po príchode dát hlavička narástla o 34–36 px pod očami zákazníka. visibility:hidden = nedá sa
+   naň kliknúť ani tabulátorom prejsť a čítačka ho nečíta. */
+body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn[data-lcd1v-caka] { visibility: hidden; }
 body.lcd-1v #product-detail-form a.lcd1v-hodn b {
   font: 700 16px/22px var(--c1v-disp); color: var(--c1v-ink); font-variant-numeric: tabular-nums;
 }
@@ -18044,13 +18105,31 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-ocakavat"] .s2-thumbs
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button{flex:0 1 46px;min-width:0;width:46px;height:46px;border-radius:50%;
     border:1.5px solid var(--line);background:var(--paper);font-size:0;color:var(--ink);
     box-shadow:0 3px 10px rgba(20,15,5,.08);transition:background .25s,color .25s,border-color .25s,transform .25s,box-shadow .25s}
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:before{display:none}
+  /* plocha na ťuknutie (kontrola rozloženia 25. 10. 2026, G1): 9 bodiek sa na 320–430 px zúži na 21–32 × 46 px a medzi
+     nimi je 12 px, kde ťuk nič nespraví. Spojnica z PC (:before) je tu nepotrebná -> neviditeľná plocha cez pol medzery
+     do strán (−6 px) a o padding pásu hore (−8 px, .pinmain má overflow-y:hidden). Vzhľad bodky sa nemení; ťuk na
+     ::before ide na samotné tlačidlo (JS bez zmeny). Zmerané (elementFromPoint): 9 bodiek 320 → 31, 390 → 39, 430 → 43 px
+     na šírku (viac sa do jedného riadku nevojde), 8 bodiek 36 / 44 / 48 px, výška 61 px; mŕtve miesto 88 -> 7 px z 286. */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button{position:relative;touch-action:manipulation}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:before{display:block;content:"";position:absolute;
+    left:-6px;right:-6px;top:-8px;bottom:-8px;width:auto;height:auto;margin:0;background:none;border-radius:0}
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button span{display:none}
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail{counter-reset:p1v-b-bodka}
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:after{counter-increment:p1v-b-bodka;content:counter(p1v-b-bodka);
     font-family:var(--disp);font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button.on{background:linear-gradient(135deg,var(--gold-hi),var(--gold));
     color:#17130a;border-color:var(--gold);transform:scale(1.1);box-shadow:0 6px 18px rgba(140,105,25,.42)}
+}
+/* PC pri nízkom okne (kontrola rozloženia 25. 10. 2026, G6: 1024 × 768 tablet na šírku, 1280 × 720, 1366 × 768, 1280 × 800):
+   9 čísel (9 × 40 + 8 × 12 + 8 = 464 px) a pod 1200 px 2 rady náhľadov sa nezmestili medzi štítky a spodnú lištu ->
+   obsah vytiekol hore cez štítky a dole pod „Zostavte si set“ (ťuk na spodok náhľadu išiel na tlačidlo), aj v pokoji.
+   Štítky ustúpia (opakujú nadpisy krokov — ako Materiál na titulke pri nízkej výške), čísla ostávajú 40 × 40 (dotyk),
+   len s menšou medzerou: 9 × 40 + 8 × 4 = 392 px. Tablet na výšku (statická scéna) má výšku nad 880 px — nemení sa. */
+@media(min-width:901px) and (max-height:880px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pintop{display:none}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .pin2 .pinmain{margin-top:clamp(6px,1.6vh,14px)}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail{gap:4px;padding:0}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-ocakavat"] .s2-rail button:before{height:4px}
 }
 
 /* =============================================================== 2) MATERIÁL (b-material) */
@@ -18061,10 +18140,23 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"]
   z-index:-1;transform:translate(-50%,-50%);pointer-events:none;
   background:radial-gradient(ellipse at 50% 48%,rgba(255,252,244,.9),rgba(255,252,244,.42) 44%,rgba(255,252,244,0) 72%)}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .legend{justify-content:center;gap:clamp(2px,.6vh,8px)}
+/* vodoznak „Rez materiálom“ (kontrola rozloženia 25. 10. 2026, G7): titulka má clamp(30px,4.6vw,68px) a nowrap — od ~1480 px
+   má nápis 654 px, ľavý stĺpec len ≈ 558 px (obal 1080 px) -> pretiekol o 48 px na stranu cez medzeru 30 px až k číslu „2“
+   v legende („…LOM2“) na 1920 aj 2560. Strop 56 px: nápis ≈ 9,6 × písmo = 538 px sa zmestí do stĺpca. Pod 1217 px šírky
+   (4,6vw < 56 px) bez zmeny; pod 900 px je vodoznak skrytý. */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .matmark{font-size:clamp(30px,4.6vw,56px)}
 /* 3D rez je na telefóne širší ako okno (náklon + zväčšenie) — orezať na okraji sekcie (clip nevytvára posuvník, sticky funguje) */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"]{overflow-x:clip}
 /* body na vrstvách: poloha (na titulke inline style) */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .exp .hot{left:12%;top:81%}
+/* body na vrstvách — dotyk (kontrola rozloženia 25. 10. 2026, G3):
+   a) bod meria v rovine 40 × 40 px, náklon rotateY(30°) ho na obrazovke zúži na 31–34 px -> neviditeľný ::before o 4 px
+      ďalej (44 px v rovine). Viac nie: pri 6 doskách (dvojvrstvové) sú stredy bodov na telefóne len ~35–40 px od seba.
+   b) zadné dosky sú v 3D za rovinou samotného .exp (translateZ < 0) a Chromium pri ťuknutí trafí priehľadný .exp, nie bod:
+      na 598 sa body 4 a 5 nedali ťuknúť vôbec (overené Input.dispatchTouchEvent). .exp neprijíma ťuk, body majú
+      pointer-events:auto výslovne (LCD-HOME .exp.open .hot), náklon podľa myši počúva obal .matwrap — správanie ostáva. */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .exp .hot:before{content:"";position:absolute;inset:-4px;border-radius:50%}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-material"] .exp{pointer-events:none}
 /* farby hrán vrstiev (na titulke inline style, rovnaké hodnoty) */
 body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="0"]{--t:16px;--cf:rgb(50,51,63);--cb:rgb(28,28,35);--cl1:rgb(60,60,72);--cl2:rgb(37,38,47);--cr:rgb(29,30,37);--ct1:rgb(83,84,97);--ct2:rgb(55,56,67);--cbt:rgb(24,24,30)}
 body.lcd-1v [data-lcd-sekcia="b-material"] .mbox[data-l="1"]{--t:16px;--cf:rgb(240,240,240);--cb:rgb(132,132,132);--cl1:rgb(240,240,240);--cl2:rgb(178,178,178);--cr:rgb(139,139,139);--ct1:rgb(255,255,255);--ct2:rgb(226,226,226);--cbt:rgb(115,115,115)}
@@ -18283,6 +18375,16 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-casova-os"
 /* ---------- 33 c-farby: modul lx-farby titulky — vejár „Mnoho ďalších farieb“ má <img> namiesto background-image ---------- */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i{overflow:hidden}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-viac-vejar i img{display:block;width:100%;height:100%;object-fit:cover}
+/* úzky telefón (kontrola rozloženia 25. 10. 2026, G2): 7 stĺpcov s medzerou 7 px dáva pri 320 px vzorku 35 × 35 px (pod
+   dotykovým minimom 40 px; od ~375 px je ≥ 43 px). Počet stĺpcov ostáva — dlaždica „Mnoho ďalších farieb“ má v HTML
+   grid-column:span 5 (dvojvrstvové 3). Plochu zväčší neviditeľné ::after o 5 px za vnútro tlačidla (31 + 10 = 41 px;
+   za rámik vytŕča 3 px, v medzere 7 px ostane medzi susedmi 1 px). overflow:hidden by ::after orezal -> fotku zaobľuje
+   priamo img (rámik 9 px − okraj 2 px = 7 px), vzhľad ostáva. Bloku LCD-HOME (titulka) sa to netýka. */
+@media(max-width:520px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-vzorka{position:relative;overflow:visible}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-vzorka img{border-radius:7px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-farby"] .lx-farby-vzorka:after{content:"";position:absolute;inset:-5px}
+}
 
 /* ---------- 34 c-vzorky: modul .vz titulky — vejár vzoriek má <img> namiesto background-image; nadpis svetlé zlato ---------- */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="c-vzorky"] .btn.zeleny{box-shadow:0 10px 30px rgba(140,105,25,.35)}

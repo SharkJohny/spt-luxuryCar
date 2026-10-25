@@ -479,6 +479,35 @@ body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
   text-align: center;
 }
 
+/* Úloha H (25. 10. 2026): „Pokračujte ďalej“ (živé .next-step-button) pridá productPage.js až 100 ms po postavení krokov
+   (setTimeout; na pomalom telefóne 0,1–0,6 s po prvom snímku 1V) a kroky.js pod neho vloží poznámku -> otvorený krok
+   (karta auta) narástol po prvom snímku o 116–139 px a obsah pod konfigurátorom, ktorý už bol vložený, sa posunul.
+   Kým tlačidlo nie je, drží jeho miesto prázdny ::after (56 px + okraj 22 px ako tlačidlo nižšie) a miesto poznámky
+   karty auta neviditeľný ::before s tým istým textom ako typy/jedno.js kroky.auto.pozn (rovnaké písmo = rovnaké
+   zalomenie: 1 riadok od 390 px, 2 riadky pri 360 px; pri zmene textu v typoch zmeniť aj tu, inak je rezerva len
+   nepresná). Len živé kroky (.position-wrap / .parameter-wrap — tlačidlo im pridáva productPage.js), nie nové karty
+   (druhá vrstva, set, vzorkovník) ani okno boxov. */
+body.lcd-1v #product-detail-form .lcd1v-krok.active:is(.position-wrap, .parameter-wrap):not(.box-config *):not(:has(> .next-step-button))::after {
+  content: "";
+  display: block;
+  flex: none;
+  order: 95;
+  height: 56px;
+  margin: 22px 0 0;
+  padding: 0;
+}
+body.lcd-1v:is([data-lcd1v-typ="jedno"], [data-lcd1v-typ="dvoj"], [data-lcd1v-typ^="kufor"]) #product-detail-form .lcd1v-k-auto.active:is(.position-wrap, .parameter-wrap):not(:has(> .lcd1v-pozn))::before {
+  content: "Šablóny máme pre viac než 1000 modelov osobných áut.";
+  display: block;
+  flex: none;
+  order: 99;
+  margin: 16px 0 0;
+  padding: 0;
+  font: 400 14px/1.6 var(--kr-body);
+  text-align: center;
+  visibility: hidden;
+}
+
 /* „Pokračujte ďalej“ = živé tlačidlo kroku (validácia + ďalší krok = configuratorEngine.js) */
 body.lcd-1v #product-detail-form .lcd1v-krok.active > .next-step-button {
   position: relative;
@@ -1118,6 +1147,10 @@ body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-img {
     font-size: 18px;
   }
   body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-pozn {
+    font-size: 15px;
+  }
+  /* rezerva poznámky (Úloha H) má to isté písmo ako poznámka (selektor rovnaký ako pravidlo rezervy vyššie) */
+  body.lcd-1v:is([data-lcd1v-typ="jedno"], [data-lcd1v-typ="dvoj"], [data-lcd1v-typ^="kufor"]) #product-detail-form .lcd1v-k-auto.active:is(.position-wrap, .parameter-wrap):not(:has(> .lcd1v-pozn))::before {
     font-size: 15px;
   }
   body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole.lcd1v-err::after {

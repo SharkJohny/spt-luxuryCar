@@ -33,6 +33,9 @@ import { vyskaHlavicky, plynulo } from "./posun.js";
 
 export const MENO = "boxy-produkt";
 
+/** Mikroúloha: dobehne hneď po init všetkých modulov 1V (index.js ich volá synchrónne za sebou), pred prvým vykreslením. */
+const mikro = typeof queueMicrotask === "function" ? (fn) => queueMicrotask(fn) : (fn) => { Promise.resolve().then(fn); };
+
 const KLUCE = ["box1", "box2", "box3"];
 
 const bezDiakritiky = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -223,13 +226,15 @@ export function init(ctx) {
     }
     const moSuhrn = new MutationObserver(kopirujSuhrn);
     odhlas.push(() => moSuhrn.disconnect());
-    ctx.ked(() => (zruseny ? null : document.querySelector(".lcd1v-suhrn")), function (sh) {
+    // .lcd1v-suhrn stavia cena.js (init po tomto module): hľadať až v mikroúlohe po init všetkých modulov (Úloha H,
+    // 25. 10. 2026) — inak prvý pokus nič nenašiel, ďalší až o 100 ms a „Spolu“ v karte (+41 px) pribudlo po prvom snímku
+    mikro(() => ctx.ked(() => (zruseny ? null : document.querySelector(".lcd1v-suhrn")), function (sh) {
       if (zruseny) return;
       moSuhrn.observe(sh, { childList: true, characterData: true, subtree: true });
       const od = document.querySelector(".lcd1v-cena .lcd1v-cena__od");
       if (od) moSuhrn.observe(od, { attributes: true, attributeFilter: ["hidden"], childList: true, characterData: true, subtree: true });
       kopirujSuhrn();
-    }, { limit: 15000 });
+    }, { limit: 15000 }));
 
     // ---------------------------------------------------------------- otváranie: len karta (skryté živé kroky nikdy)
     function otvorKrok(krok) {
@@ -430,8 +435,10 @@ export function init(ctx) {
     [kPocet.querySelector(".amount-wrap"), ow, kVelk.querySelector(":scope > .options-wrap")]
       .filter(Boolean).forEach((w) => mo.observe(w, { attributes: true, attributeFilter: ["class"], subtree: true }));
     odhlas.push(() => mo.disconnect());
-    // index.js zloží body.lcd-1v synchrónne po init všetkých modulov, ak niektorý zlyhal -> späť na starý vzhľad
-    setTimeout(hlavicka, 0);
+    // index.js zloží body.lcd-1v synchrónne po init všetkých modulov, ak niektorý zlyhal -> späť na starý vzhľad.
+    // Úloha H (25. 10. 2026): mikroúloha, nie setTimeout 0 — názov boxu v hlavičke (+31 px) je už v prvom snímku 1V
+    // (setTimeout ho pridal až po ňom: stĺpec narástol a obsah pod ním sa posunul). Po init všetkých modulov = po cena.js.
+    mikro(hlavicka);
   } catch (e) {
     zrus();
     throw e;

@@ -18,6 +18,8 @@
 //    sa 1. krok s červeným rámom. Lepivá lišta na telefóne (ako cena.js).
 import { VZORKY_SERIES, VZORKY_ITEMS } from "../../vzorky-konfigurator/swatch-data.js";
 import { posunNaStred, vyskaHlavicky, plynulo } from "./posun.js";
+// riadok hodnotenia drží miesto od prvého snímku (Úloha H, 25. 10. 2026) — rovnako ako cena.js
+import { zastupHodn, staryFaqPocasObsahu } from "./cena.js";
 
 export const MENO = "vzorky-produkt";
 
@@ -151,7 +153,9 @@ export function init(ctx) {
     vlozene.push(nadpis);
     const hodn = el("a", "lcd1v-hodn");
     hodn.href = "#";
-    hodn.hidden = true;
+    // Úloha H (25. 10. 2026): miesto riadka rezervované neviditeľne (data-lcd1v-caka, zástupné prvky), nie hidden — po
+    // príchode dát LCD_REVIEWS hlavička nenarastie; bez dát miesto ostane (zdôvodnenie v cena.js)
+    zastupHodn(hodn);
     hodn.addEventListener("click", function (e) {
       e.preventDefault();
       const nova = document.querySelector('.p1v-miesto [data-lcd-sekcia$="recenzie"]');
@@ -176,7 +180,7 @@ export function init(ctx) {
       hodn.appendChild(st);
       hodn.appendChild(el("i", null, n + " " + tvar(n, T.recenzie) + " " + T.naGoogle));
       hodn.setAttribute("aria-label", T.hodnotenie + " " + rt + " " + T.z5 + " – " + n + " " + tvar(n, T.recenzie) + " " + T.naGoogle);
-      hodn.hidden = false;
+      hodn.removeAttribute("data-lcd1v-caka");
     }, { limit: 30000 });
   }
 
@@ -671,6 +675,8 @@ export function init(ctx) {
   if (mobil.addEventListener) mobil.addEventListener("change", naplanuj);
   const interval = setInterval(function () { if (zapnute() && listaOn) obnovListu(); }, 1000);
   spat.push(() => clearInterval(interval));
+  // starý blok FAQ v stĺpci skrytý, kým sa vkladá obsah z CDN (Úloha H, 25. 10. 2026; cena.js staryFaqPocasObsahu)
+  spat.push(staryFaqPocasObsahu(ctx, zapnute));
 
   otvor(0);
   obnov();

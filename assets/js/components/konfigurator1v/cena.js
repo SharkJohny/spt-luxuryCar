@@ -84,6 +84,45 @@ function el(tag, trieda, text) {
   return e;
 }
 
+/**
+ * Zástupný obsah riadka hodnotenia, kým neprídu dáta (Úloha H, 25. 10. 2026): tie isté prvky a triedy ako hotový riadok
+ * (b, span.lcd1v-hodn__st, i — iné písma a zarovnanie na účiaru určujú výšku riadka), v každom len nezalomiteľná medzera;
+ * riadok je neviditeľný (data-lcd1v-caka). Žiadne číslo ani text sa nevymýšľa. Spoločné s vzorky-produkt.js.
+ */
+export function zastupHodn(a) {
+  a.textContent = "";
+  a.appendChild(el("b", null, "\u00a0"));
+  a.appendChild(el("span", "lcd1v-hodn__st", "\u00a0"));
+  a.appendChild(el("i", null, "\u00a0"));
+  a.setAttribute("data-lcd1v-caka", "");
+}
+
+/**
+ * Starý blok FAQ pri konfigurátore (.faq.container na konci stĺpca, components/index.js ho plní z /faq/) skryje pod 1V
+ * _lcd1v-obsah.scss až keď je nový FAQ v obsahu. Kým sa obsah z CDN ešte vkladal, ukázal sa (37 -> 440 px) a po vložení
+ * nového FAQ zmizol — stĺpec po prvom snímku narástol a zmenšil sa a obsah pod ním skákal (Úloha H, 25. 10. 2026).
+ * Kým obsah.js nedokončí vkladanie (ctx.obsah.hotovo; obsah.init beží ako posledný modul -> až v mikroúlohe po init
+ * všetkých modulov, ešte pred prvým vykreslením), nesie body data-lcd1v-obsah-caka a CSS (_lcd1v-cena.scss) starý FAQ
+ * skryje. Potom platí pravidlo obsahu: s novým FAQ ostane skrytý, bez neho (obsah zlyhal / nemá FAQ) sa ukáže ako
+ * doteraz. Poistka: najneskôr po 15 s. Volá cena.js aj vzorky-produkt.js (vzorkovník cena.js nemá).
+ * @param ctx kontext 1V (ctx.obsah nastaví obsah.js)
+ * @param {() => boolean} zapnute nový vzhľad ešte beží (modul nebol zrušený)
+ * @returns {() => void} upratanie pri návrate na starý vzhľad
+ */
+export function staryFaqPocasObsahu(ctx, zapnute) {
+  const body = document.body;
+  let poistka = 0;
+  const uvolni = () => { clearTimeout(poistka); body.removeAttribute("data-lcd1v-obsah-caka"); };
+  (typeof queueMicrotask === "function" ? queueMicrotask : function (fn) { Promise.resolve().then(fn); })(function () {
+    const o = ctx.obsah;
+    if (!zapnute() || !o || !o.hotovo || typeof o.hotovo.then !== "function") return;
+    body.setAttribute("data-lcd1v-obsah-caka", "");
+    o.hotovo.then(uvolni, uvolni);
+    poistka = setTimeout(uvolni, 15000);
+  });
+  return uvolni;
+}
+
 /** Text prvku bez zalomení a dvojitých medzier. */
 function text(e) {
   return e ? (e.textContent || "").replace(/\s+/g, " ").trim() : "";
@@ -123,7 +162,12 @@ export function init(ctx) {
     spat.push(zvyrazniRad(h1));
     hodn = el("a", "lcd1v-hodn");
     hodn.href = "#";
-    hodn.hidden = true;
+    // Úloha H (25. 10. 2026): miesto riadka je rezervované od prvého snímku 1V — data-lcd1v-caka (visibility:hidden
+    // v _lcd1v-cena.scss) + zástupné prvky s tými istými písmami, nie hidden. Dáta LCD_REVIEWS prídu na pomalom telefóne
+    // 5–11 s po prvom snímku (reviews-data.js načíta main.js až po data.json) a hlavička vtedy narástla o 34–36 px.
+    // Keď dáta neprídu vôbec (limit 30 s), miesto ostane prázdne: zbalenie by bol ten istý skok (Safari nemá scroll
+    // anchoring, obsah v okne by poskočil) a ~35 px pod názvom pôsobí ako bežná medzera.
+    zastupHodn(hodn);
     hodn.addEventListener("click", function (e) {
       e.preventDefault();
       // nový obsah pod konfigurátorom (docs/1v-obsah.md): recenzie z Google v sekcii a-recenzie; starý widget je vtedy
@@ -151,7 +195,7 @@ export function init(ctx) {
       hodn.appendChild(st);
       hodn.appendChild(el("i", null, n + " " + tvar(n, T.recenzie) + " " + T.naGoogle));
       hodn.setAttribute("aria-label", T.hodnotenie + " " + rt + " " + T.z5 + " – " + n + " " + tvar(n, T.recenzie) + " " + T.naGoogle);
-      hodn.hidden = false;
+      hodn.removeAttribute("data-lcd1v-caka");
     }, { limit: 30000 });
   }
 
@@ -366,6 +410,9 @@ export function init(ctx) {
   // bublina Luxie sa načíta neskoro (widget tretej strany) a mení veľkosť (uvítanie, otvorený chat)
   const interval = setInterval(function () { if (zapnute() && listaOn) obnovListu(); }, 1000);
   spat.push(() => clearInterval(interval));
+
+  // starý blok FAQ v stĺpci skrytý, kým sa vkladá obsah z CDN (Úloha H, popis pri staryFaqPocasObsahu)
+  spat.push(staryFaqPocasObsahu(ctx, zapnute));
   obnov();
   // index.js zloží body.lcd-1v synchrónne po init všetkých modulov, ak niektorý zlyhal -> hneď späť na starý vzhľad
   setTimeout(zapnute, 0);

@@ -32,6 +32,28 @@ body.lcd-1v #product-detail-form .p-info-wrapper > .p-final-price-wrapper { disp
 body.lcd-1v #product-detail-form .p-image .flag-discount { display: none !important; }
 /* lepkavá lišta Shoptetu „Do košíka“ (header.js, cena z načítania stránky) — na telefóne ju nahrádza .lcd1v-lista */
 body.lcd-1v #js-plugin-header { display: none !important; }
+/* Kostra stĺpca (_productPage.scss: .p-info-wrapper:not(.active) má pevnú výšku 2 000 px a overflow hidden, kým
+   productPage.js po 1 s nepridá .active). Úloha H (25. 10. 2026): 1V sa postaví ešte pod kostrou, ale jeho prirodzená
+   výška je iná (601 @390: 2 097 px, @360: 2 119, @768: 2 069; 598 @1280: 1 878) — v pevných 2 000 px sa flex položky
+   s overflow hidden (.lcd1v-cena, .upsale-Banner, karty krokov) stlačili a pri .active stĺpec „narástol“ o rozdiel.
+   Obsah pod konfigurátorom sa medzitým vložil a Chrome podľa neho obnovil polohu po reload/Späť -> FAQ skončilo
+   o 97 px vyššie; pri prvom otvorení to bol posun rozloženia (CLS). Pod 1V má stĺpec prirodzenú výšku už od prvého
+   snímku 1V; trblietavá vrstva ::before (absolútna, 100 % výšky) ostáva a odhalenie po .active sa nemení.
+   Bez flagu kostra ostáva presne ako doteraz. */
+body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) { height: auto; }
+/* Karta „Hľadáte ešte lepšiu ochranu?“ (.benefitBanner__item; productPage.js ju vkladá na začiatok stĺpca, obsah je pod
+   1V skrytý, ostáva prázdna s okrajom) dostane order 3 až s .active (_productPage.scss) -> pri odhalení sa hlavička
+   a cena posunuli o 15 px hore (Úloha H, 25. 10. 2026). Pod 1V má poradie a rozmer ako po .active od prvého snímku. */
+body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) > .benefitBanner__item { order: 3; }
+@media (min-width: 480px) {
+  body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) > .benefitBanner__item { flex: 0 0 50%; width: 100%; }
+}
+/* Starý blok FAQ pri konfigurátore (components/index.js ho pripojí na koniec stĺpca a naplní z /faq/) je pod 1V skrytý,
+   len keď už je nový FAQ (_lcd1v-obsah.scss bod 8) — kým sa obsah z CDN vkladal, ukázal sa (37 -> 440 px) a po vložení
+   nového FAQ zmizol, obsah pod konfigurátorom pri tom skákal o stovky px (Úloha H, 25. 10. 2026). Kým obsah.js vkladá
+   (cena.js: body[data-lcd1v-obsah-caka], najviac 15 s), je skrytý; potom platí bod 8 ako doteraz (bez nového FAQ sa
+   starý ukáže). */
+body.lcd-1v[data-lcd1v-obsah-caka] #product-detail-form .p-info-wrapper > .faq.container { display: none; }
 
 /* ---------- hlavička: štítok, názov, hodnotenie, krátky popis ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-detail-inner-header { margin: 0; padding: 0; }
@@ -58,6 +80,12 @@ body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn {
   font: 400 16px/22px var(--c1v-body); color: var(--c1v-lb); text-decoration: none;
 }
 body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn[hidden] { display: none; }
+/* Úloha H (25. 10. 2026): kým neprídu dáta recenzií (reviews-data.js načíta main.js až po data.json — na pomalom
+   telefóne 5–11 s po prvom snímku 1V), riadok drží svoje miesto neviditeľne (cena.js / vzorky-produkt.js: zástupné
+   prvky b, span, i s nezalomiteľnou medzerou = tie isté písma a výška riadka ako hotový riadok; žiadne číslo ani text).
+   Predtým bol [hidden] a po príchode dát hlavička narástla o 34–36 px pod očami zákazníka. visibility:hidden = nedá sa
+   naň kliknúť ani tabulátorom prejsť a čítačka ho nečíta. */
+body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn[data-lcd1v-caka] { visibility: hidden; }
 body.lcd-1v #product-detail-form a.lcd1v-hodn b {
   font: 700 16px/22px var(--c1v-disp); color: var(--c1v-ink); font-variant-numeric: tabular-nums;
 }

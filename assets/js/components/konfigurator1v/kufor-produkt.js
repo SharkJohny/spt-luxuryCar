@@ -105,7 +105,10 @@ export function init(ctx) {
   }
 
   // Ostatné moduly (cena: štítok typu pred H1 a hodnotenie za H1) bežia synchrónne PO tomto init -> prvky až potom.
-  setTimeout(function () {
+  // Úloha H (25. 10. 2026): mikroúloha, nie setTimeout 0 — dobehne hneď po init všetkých modulov, ešte pred prvým
+  // vykreslením 1V. Pri setTimeout medzi tým prešiel snímok a hlavička (názov rohože −26…+2 px) aj odkaz pod košíkom
+  // (+45 px) sa pridali až po ňom: stĺpec zmenil výšku po prvom snímku a obsah pod ním (už vložený) sa posunul.
+  (typeof queueMicrotask === "function" ? queueMicrotask : function (fn) { Promise.resolve().then(fn); })(function () {
     if (!zapnute()) { zrus(); return; }
     nazov();
     ceny();
@@ -114,7 +117,7 @@ export function init(ctx) {
     // poistka je lacná) -> sledovať triedu body a upratať
     const mo = new MutationObserver(function () { if (!zapnute()) { zrus(); mo.disconnect(); } });
     mo.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-  }, 0);
+  });
 
   // ---------------------------------------------------------------- názov rohože (len vizuálne)
   function nazov() {
