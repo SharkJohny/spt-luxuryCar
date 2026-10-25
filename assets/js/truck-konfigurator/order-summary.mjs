@@ -335,18 +335,8 @@ export function mergeTruckOrderSummaryIntoNote(currentNote, summary) {
   }, String(currentNote || "")).trim();
 
   if (!summary) return withoutOldSummary;
-  const block = `${texts.markerStart}\n${noteFromSummary(summary)}\n${texts.markerEnd}`;
+  // Formát bloku (nadpis časti + riadky „- Popis: hodnota“) číta Jánov export objednávok pre výrobu
+  // (all_orders_last_month.txt) – meniť len po dohode s Jánom (25. 10. 2026: očíslované riadky vrátené späť).
+  const block = `${texts.markerStart}\n${summary}\n${texts.markerEnd}`;
   return withoutOldSummary ? `${withoutOldSummary}\n\n${block}` : block;
-}
-
-/**
- * Poznámka objednávky: každá časť na jednom riadku s poradovým číslom a položky oddelené „ | “
- * („1) ŠPECIFIKÁCIA VOZIDLA: Vozidlo: … | Typ prevodovky: …“). Tlač objednávky v Shoptete zalomenia riadkov
- * zlepí do jedného odseku (Michal 25. 10. 2026: „nemá to žiadnu logiku“) – takto sa dá čítať aj zlepená.
- * Rozpis v košíku ostáva v kartách (sessionStorage truckOrderSummary, parseTruckOrderSummary).
- */
-export function noteFromSummary(summary) {
-  return parseTruckOrderSummary(summary)
-    .map((group, i) => `${i + 1}) ${group.heading}: ${group.items.map((item) => `${item.label}: ${item.value}`).join(" | ")}`)
-    .join("\n");
 }
