@@ -35,7 +35,10 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
 - Lighthouse A/B: `Desktop/LCD/web/perf-nastroje/ab-harness/ab.mjs` (simulate: 150 ms RTT, 1,6 Mbit/s, CPU 4×) s B cez
   `--b-dir <priečinok s assets/v/<živé sha>/js|css/…>`, vlastná `--cache` a `--out`.
 - Čas do použiteľného konfigurátora: `ab-harness/cas-produkt.mjs` (DevTools škrtenie RTT 562,5 ms, 1,47 Mbit/s, CPU 4×).
-- Rozloženie na 23 rozmeroch (telefóny 320–430, na šírku, tablety, PC do 2560): skripty v scratchpade session kamióny
-  (`rozlozenie-kamion.mjs`, `rozlozenie-1v.mjs`), výsledky v Brain logu 25. 10. 2026.
+- Rozloženie na 23 rozmeroch (telefóny 320–430, na šírku, tablety, PC do 2560): `tools/rozlozenie/`
+  (`rozlozenie-kamion.mjs` = celý konfigurátor kamiónov reálnymi klikmi + obsah, `rozlozenie-1v.mjs` = 1V produkty bez
+  klikania, `zhrn-kamion.mjs` = zhrnutie nálezov, `harok.py` = hárok snímok; `lokal` = podstrčený build z priečinka
+  `LCD_LOKAL`). Hľadá prekryté texty, pretečenie, orezanie, vodorovný posuvník, prvky mimo okna, malé dotykové ciele,
+  tlačidlo zakryté lištou a mierku písma. Pozor na falošné nálezy počas animácie — nález vždy over snímkou.
 - Neodložené (treba Michalov súhlas, obsah v admine): obrázky v popisoch produktov nemajú `loading="lazy"` —
   produkt 598 sťahuje ~3–4 MB fotiek spodného popisu hneď pri načítaní (aj pod `?novy=1`, kde je popis skrytý).
