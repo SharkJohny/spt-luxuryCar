@@ -27,7 +27,8 @@
    - žiadne duplicitné id v časti ani naprieč časťami jednej stránky (ciele.json -> stranky),
    - odkazy href="#id" vedú na id, ktoré na stránke existuje,
    - TinyMCE pole (rozcestník): bez prázdnych prvkov, bez blokových prvkov v <a>, tlačidlá s textom
-     (nie len SVG), bez <template>/<details>/<dialog>/<style>, jeden koreňový <div>.
+     (nie len SVG), bez <template>/<details>/<dialog>/<style>, jeden koreňový <div>,
+   - zástupné texty Shoptetu (ciele.json -> "zastupne", Kontakty: #FORM[code=contact]#): presne 1× a sám v <div>.
    Upozornenia (nezastavia build): odkaz na druhý trh, kolízia id so Shoptet stránkou (--snimky).
 
    Časti zo sekcií (13. 10. 2026, obsah pod konfigurátorom 1V — docs/1v-obsah.md): časť s "zlozka" v ciele.json
@@ -523,6 +524,25 @@ function skontrolujCast(c) {
   const fp = [...prvky(koren)].filter((e) => e.attrs.get("fetchpriority") === "high");
   c.fetchHigh = fp.length;
 
+  /* zástupné texty Shoptetu (ciele.json -> "zastupne", napr. #FORM[code=contact]# na Kontaktoch): Shoptet ich pri
+     zobrazení nahradí blokom (<p> + <form>) -> presne raz a ako jediný obsah <div> (v <p> by vznikol <form> v <p>) */
+  for (const z of def.zastupne || []) {
+    const pocet = html.split(z).length - 1;
+    if (pocet !== 1) { chyby.push(`zástupný text ${z} je v časti ${pocet}× (čakám presne 1×)`); continue; }
+    const uzol = (function najdi(u) {
+      for (const d of u.deti || []) {
+        if (d.typ === "text" && d.data.includes(z)) return d;
+        const r = d.typ === "el" ? najdi(d) : null;
+        if (r) return r;
+      }
+      return null;
+    })(koren);
+    const r = uzol && uzol.rodic;
+    if (!r || r.typ !== "el" || r.meno !== "div") chyby.push(`zástupný text ${z} musí byť priamo v <div>, je v <${r && r.meno}>`);
+    else if (r.deti.some((d) => d.typ === "el" || (d.typ === "text" && d !== uzol && !jeBiele(d.data))) || uzol.data.trim() !== z)
+      chyby.push(`zástupný text ${z}: <div> okolo neho nesmie mať iný obsah (${popisPrvku(r)})`);
+  }
+
   /* TinyMCE (popis stránky): markup musí prežiť uloženie v admine */
   if (def.tinymce) {
     const top = koren.deti.filter((t) => t.typ === "el");
@@ -613,6 +633,11 @@ function samotest() {
     ["div v p", obal("<p>a<div>b</div></p>"), def, "v <p>"],
     ["a v a", obal('<a href="/x">a<a href="/y">b</a></a>'), def, "vnorený v <a>"],
     ["kotva bez cieľa je kontrola stránky (v časti OK)", obal('<a href="#nic">a</a>'), def, null],
+    ["zástupný text ok", obal('<p>a</p><div class="f">#FORM[code=contact]#</div>'), { ...def, tinymce: true, zastupne: ["#FORM[code=contact]#"] }, null],
+    ["zástupný text chýba", obal("<p>a</p>"), { ...def, zastupne: ["#FORM[code=contact]#"] }, "0×"],
+    ["zástupný text 2×", obal("<div>#FORM[code=contact]#</div><div>#FORM[code=contact]#</div>"), { ...def, zastupne: ["#FORM[code=contact]#"] }, "2×"],
+    ["zástupný text v <p>", obal("<p>#FORM[code=contact]#</p>"), { ...def, zastupne: ["#FORM[code=contact]#"] }, "priamo v <div>"],
+    ["zástupný text s iným obsahom", obal("<div>Formulár: #FORM[code=contact]#</div>"), { ...def, zastupne: ["#FORM[code=contact]#"] }, "iný obsah"],
   ];
   /* časti zo sekcií + pravidlá obsahu za bránou (obsah 1V) */
   const P = { idPredpona: "p-", zakazaneTriedy: ["lcd-reviews-widget"], media: "odlozene", cisla: "^(cena-od|pocet-farieb)$", odkazy: ["jedno", "dvoj"] };

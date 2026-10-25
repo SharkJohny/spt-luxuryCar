@@ -189,6 +189,23 @@
       "obrazky": 9
     },
     {
+      "cast": "kontakty",
+      "web": "sk",
+      "subor": "kontakty.sk.html",
+      "zdroj": "src/kontakty.sk.html",
+      "koren": "#lcd-kontakt",
+      "ciel": {
+        "typ": "stranka",
+        "id": 29,
+        "pole": "Popis stránky (description)",
+        "url": "/kontakty/"
+      },
+      "znaky": 2479,
+      "bajty": 2515,
+      "hash": "ac5c5716a1",
+      "obrazky": 0
+    },
+    {
       "cast": "p1v-598-1",
       "web": "sk",
       "subor": "p1v-598-1.sk.html",
@@ -979,6 +996,10 @@
     "rozcestnik": [
       "mega",
       "rz"
+    ],
+    "kontakty": [
+      "mega",
+      "kontakty"
     ],
     "produkt-598": [
       "mega",

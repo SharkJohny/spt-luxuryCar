@@ -14061,6 +14061,158 @@ body.in-kosik #cart-wrapper .next-step .next-step-back .continue-shopping{text-d
 html.lcd-kosik-bez-bubliny body.in-kosik iframe[title="Luxia chat"]{visibility:hidden !important}
 /* ===== LCD-KOSIK END ===== */
 
+/* ===== LCD-KONTAKTY START - generovane tools/vloz-lcd-css.py z _lcdKontakty.scss (stranka Kontakty SK 29, #lcd-kontakt; mimo korena len skryty nadpis clanku a paticka na body.in-kontakty), needituj rucne ===== */
+/* =====================================================================
+   KONTAKTY — partial pre blok LCD-KONTAKTY (vkladá tools/vloz-lcd-css.py)
+   SK stránka 29 /kontakty/ (25. 10. 2026): obsah je v Popise stránky z adminu (admin-html/src/kontakty.sk.html)
+     <div id="lcd-kontakt" class="lcd-root" data-lcd-cast="kontakty">
+   Tmavá hlavička + biele karty na pieskovom podklade (farby a písmo titulky: _lcdHome.scss). Zelené = hlavné tlačidlo
+   (telefón, Odoslať), zlaté = vedľajšie (e-mail). Kontaktný formulár Shoptetu (form#formContact, Shoptet ho vloží za
+   zástupný text #FORM[code=contact]# v div.lcdk-form) mení len vzhľad, jeho HTML ostáva. Žiadny JS, žiadne obrázky.
+   Každé pravidlo je pod #lcd-kontakt; výnimky sú len v bode 1 (len body.in-kontakty s novým obsahom: skrytý nadpis článku, pätička bez medzery).
+   Obaly Shoptetu okolo koreňa (main.content, článok…) dáva na celú šírku blok LCD-KORENE (.lcd-root).
+   Bez nového obsahu v admine (CZ, návrat zo zálohy) tento blok nič nevyberie.
+   ===================================================================== */
+
+/* 1) H1 stránky (článok Shoptetu) ostáva pre vyhľadávače a čítačky, vizuálne ho nahrádza hlavička #lcd-kontakt
+      (rovnako ako rozcestník, _lcdKorene.scss bod 7). */
+body.in-kontakty .pageArticleDetail:has(#lcd-kontakt[data-lcd-cast]) > header{position:absolute !important;width:1px !important;
+  height:1px !important;margin:-1px !important;padding:0 !important;overflow:hidden !important;clip:rect(0 0 0 0) !important;
+  clip-path:inset(50%) !important;white-space:nowrap !important;border:0 !important}
+/*    pätička hneď pod pieskovým podkladom (šablóna jej dáva margin-top 20 px -> biely pás); rovnako ako rozcestník */
+body.in-kontakty:has(#lcd-kontakt[data-lcd-cast]) #footer{margin-top:0 !important}
+
+/* 2) Koreň: premenné, písmo, podklad */
+#lcd-kontakt{--ink:#14110c;--paper:#fff;--line:#d9d4c6;--sand:#f6f4ef;--deep:#181510;--mute:#6e6752;
+  --gold:#c49b31;--gold-hi:#e6c877;--gold-lo:#8f7020;--gold-txt:#7c5f16;--gold-ram:#a8842a;
+  --zelena:#1f8a4c;--zelena-tmava:#17743f;--chyba:#b3261e;--ram:#8a8271;
+  --disp:"Exo 2","Segoe UI",Arial,sans-serif;--body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  --okraj:clamp(16px,3vw,30px); /* šírka a okraj ako pás hlavičky (1240 px, --lcdn-pad) -> obsah lícuje s logom a menu */
+  /* miesto pre pole Telefón, kým ho contactForm.js nevloží (medzera 18 + popis 21 + 7 + pole 52 px) -> bez posunu */
+  --tel-rezerva:98px;
+  margin:0;padding:0;background:var(--sand);color:var(--ink);font:400 16px/1.6 var(--body);
+  -webkit-font-smoothing:antialiased;overflow-x:clip}
+#lcd-kontakt *,#lcd-kontakt *::before,#lcd-kontakt *::after{box-sizing:border-box}
+#lcd-kontakt :focus-visible{outline:2px solid var(--gold-lo);outline-offset:3px}
+#lcd-kontakt p{margin:0}
+#lcd-kontakt .lcdk-in{width:100%;max-width:1240px;margin:0 auto;padding:0 var(--okraj)}
+
+/* 3) Tmavá hlavička */
+#lcd-kontakt .lcdk-hlava{position:relative;margin:0;padding:clamp(30px,5.5vw,60px) 0 clamp(58px,8vw,92px);
+  background:var(--deep);color:#f6f0e3}
+#lcd-kontakt .lcdk-hlava::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold-hi) 50%,transparent);opacity:.7}
+#lcd-kontakt .lcdk-stitok{margin:0 0 10px;font:700 13px/1.3 var(--disp);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold-hi)}
+#lcd-kontakt .lcdk-titul{margin:0;font:700 clamp(30px,4.6vw,44px)/1.1 var(--disp);letter-spacing:.02em;
+  text-transform:uppercase;color:#fff}
+#lcd-kontakt .lcdk-lede{max-width:52ch;margin:14px 0 0;font-size:17px;line-height:1.55;color:#ded5c0}
+
+/* 4) Karty: telefón (od 760 px) a e-mail vedľa seba, formulár a firma pod nimi; od 1024 px vľavo telefón, e-mail
+      a firemné údaje, vpravo formulár. Karty prekrývajú spodok hlavičky. */
+#lcd-kontakt .lcdk-telo{position:relative;margin:0;padding:0 0 clamp(36px,6vw,72px)}
+#lcd-kontakt .lcdk-mriezka{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;
+  align-items:start;margin-top:clamp(-56px,-5vw,-34px)}
+@media(min-width:760px){
+  #lcd-kontakt .lcdk-mriezka{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;
+    grid-template-areas:"tel mail" "sprava sprava" "firma firma"}
+  #lcd-kontakt .lcdk-tel{grid-area:tel}
+  #lcd-kontakt .lcdk-mail{grid-area:mail}
+  #lcd-kontakt .lcdk-sprava{grid-area:sprava}
+  #lcd-kontakt .lcdk-firma{grid-area:firma}
+  #lcd-kontakt .lcdk-tel,#lcd-kontakt .lcdk-mail{align-self:stretch}
+}
+@media(min-width:1024px){
+  #lcd-kontakt .lcdk-mriezka{grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-rows:auto auto 1fr;gap:24px;
+    grid-template-areas:"tel sprava" "mail sprava" "firma sprava"}
+  #lcd-kontakt .lcdk-tel,#lcd-kontakt .lcdk-mail{align-self:start}
+}
+#lcd-kontakt .lcdk-karta{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;align-content:start;
+  column-gap:14px;min-width:0;margin:0;padding:clamp(16px,5vw,30px);background:var(--paper);border:1px solid var(--line);
+  border-top:3px solid var(--gold);border-radius:16px;box-shadow:0 12px 30px rgba(20,17,12,.07);text-align:left}
+@media(min-width:760px){#lcd-kontakt .lcdk-karta{padding:clamp(22px,2.6vw,32px)}}
+#lcd-kontakt .lcdk-karta > :not(.lcdk-ik):not(.lcdk-h){grid-column:1 / -1}
+#lcd-kontakt .lcdk-ik{display:flex;align-items:center;justify-content:center;width:46px;height:46px;margin:0;
+  border-radius:12px;background:#f6efdb;color:var(--gold-lo)}
+#lcd-kontakt .lcdk-ik svg{display:block;width:24px;height:24px}
+#lcd-kontakt .lcdk-h{margin:0;padding:0;border:0;background:none;font:700 clamp(20px,2vw,23px)/1.2 var(--disp);
+  letter-spacing:.01em;text-transform:none;color:var(--ink);text-align:left}
+#lcd-kontakt .lcdk-firma .lcdk-h{grid-column:1 / -1}
+
+/* 5) Tlačidlá telefónu a e-mailu (celá šírka karty; text aspoň 16 px, telefón 19 px tučne = veľký text pre kontrast) */
+#lcd-kontakt a.lcdk-btn{display:flex;align-items:center;justify-content:center;position:static;width:100%;min-height:56px;
+  margin:18px 0 0;padding:12px 10px;border-radius:12px;font:800 19px/1.2 var(--disp);letter-spacing:.02em;
+  text-align:center;text-decoration:none;text-transform:none;white-space:nowrap;
+  transition:background-color .15s,border-color .15s}
+#lcd-kontakt a.lcdk-btn-tel{background:var(--zelena);border:2px solid var(--zelena);color:#fff}
+#lcd-kontakt a.lcdk-btn-tel:hover{background:var(--zelena-tmava);border-color:var(--zelena-tmava);color:#fff}
+#lcd-kontakt a.lcdk-btn-mail{background:#fffaf0;border:2px solid var(--gold-ram);color:var(--ink);font-size:16px;font-weight:700;
+  letter-spacing:.01em}
+#lcd-kontakt a.lcdk-btn-mail:hover{background:#f6efdb;border-color:var(--gold-lo);color:var(--ink)}
+
+/* 6) Kontaktný formulár Shoptetu: popisy vždy nad poľom, polia 16 px a 52 px vysoké, zelené Odoslať */
+#lcd-kontakt .lcdk-form{margin:16px 0 0;padding:0;text-align:left;color:var(--ink)}
+#lcd-kontakt .lcdk-form > p{margin:0 0 18px;font-size:16px;line-height:1.55;color:var(--mute);text-align:left}
+#lcd-kontakt .lcdk-form form{display:block;width:100%;max-width:none;margin:0;padding:0;float:none}
+#lcd-kontakt .lcdk-form fieldset{display:flex;flex-direction:column;gap:18px;min-width:0;margin:0;padding:0;border:0}
+#lcd-kontakt .lcdk-form .form-group{display:block;position:relative;width:100%;max-width:none;margin:0;padding:0;float:none;
+  text-align:left}
+#lcd-kontakt .lcdk-form .form-group > label{display:block;position:static;width:auto;height:auto;margin:0 0 7px;padding:0;
+  transform:none;opacity:1;font:700 15px/1.4 var(--body);letter-spacing:normal;text-transform:none;color:var(--ink);
+  text-align:left;white-space:normal;background:none;pointer-events:auto}
+#lcd-kontakt .lcdk-form .required-asterisk::after{content:"*";padding-left:.4ch;color:var(--chyba)}
+#lcd-kontakt .lcdk-form .form-control-wrapper{display:block;position:relative;width:100%;max-width:none;margin:0;padding:0}
+#lcd-kontakt .lcdk-form .form-control{display:block;width:100%;max-width:none;height:52px;margin:0;padding:12px 15px;
+  border:1.5px solid var(--ram);border-radius:10px;background:#fff;color:var(--ink);font:400 16px/1.5 var(--body);
+  box-shadow:none;-webkit-appearance:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+#lcd-kontakt .lcdk-form textarea.form-control{height:auto;min-height:150px;resize:vertical}
+#lcd-kontakt .lcdk-form .form-control:focus{outline:none;border-color:var(--gold-lo);box-shadow:0 0 0 3px rgba(196,155,49,.3)}
+#lcd-kontakt .lcdk-form .form-control::placeholder{color:var(--mute);opacity:1}
+/*    pole Telefón (assets/js/components/contactForm.js) vkladá skript až po načítaní za e-mail: dovtedy mu drží miesto
+      odsadenie pod e-mailom (--tel-rezerva) -> formulár sa po vložení neposunie */
+#lcd-kontakt .lcdk-form fieldset:not(:has(.lc-phone-wrapper)) .form-group:has(#email){margin-bottom:var(--tel-rezerva)}
+/*    súhlas s ochranou osobných údajov */
+#lcd-kontakt .lcdk-form .consents{margin:0}
+#lcd-kontakt .lcdk-form .consents .label{margin:0;padding:0;font:400 14px/1.5 var(--body);color:var(--mute);text-align:left}
+#lcd-kontakt .lcdk-form .consents a{display:inline;position:static;background:none;color:var(--gold-txt);
+  text-decoration:underline;text-underline-offset:2px}
+#lcd-kontakt .lcdk-form .consents a:hover{color:var(--ink)}
+/*    odoslanie */
+#lcd-kontakt .lcdk-form .submit-wrapper{display:block;margin:2px 0 0;padding:0;text-align:left}
+#lcd-kontakt .lcdk-form .submit-wrapper .btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;
+  height:auto;margin:0;padding:12px 36px;border:0;border-radius:12px;background:var(--zelena);color:#fff;
+  font:800 19px/1.2 var(--disp);letter-spacing:.03em;text-transform:none;box-shadow:none;text-shadow:none;float:none;cursor:pointer}
+#lcd-kontakt .lcdk-form .submit-wrapper .btn:hover{background:var(--zelena-tmava);color:#fff}
+@media(min-width:760px){#lcd-kontakt .lcdk-form .submit-wrapper .btn{display:inline-flex;width:auto;min-width:240px}}
+/*    chybové hlášky (Shoptet validátor, pole Telefón) */
+#lcd-kontakt .lcdk-form :is(.js-validator-msg,.msg-error,.validator-msg,.lc-phone-error){margin:6px 0 0;
+  font:600 14px/1.4 var(--body);color:var(--chyba);text-align:left}
+#lcd-kontakt .lcdk-form .lc-phone-error{display:none}
+#lcd-kontakt .lcdk-form .lc-phone-invalid .lc-phone-error{display:block}
+#lcd-kontakt .lcdk-form :is(.has-error,.lc-phone-invalid) .form-control{border-color:var(--chyba)}
+
+/* 7) Firemné údaje: tmavá karta, zlaté popisy; od 440 px šírky karty popis vľavo a údaj vpravo */
+#lcd-kontakt .lcdk-firma{container-type:inline-size;background:var(--deep);border-color:#2e2618;border-top-color:var(--gold);
+  color:#f6f0e3}
+#lcd-kontakt .lcdk-firma .lcdk-h{color:#fff}
+#lcd-kontakt .lcdk-udaje{display:grid;grid-template-columns:minmax(0,1fr);margin:14px 0 0;padding:0}
+#lcd-kontakt .lcdk-udaje dt{margin:0;padding:12px 0 2px;border-top:1px solid rgba(230,200,119,.2);
+  font:700 13px/1.35 var(--disp);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-hi)}
+#lcd-kontakt .lcdk-udaje dt:first-child{padding-top:0;border-top:0}
+#lcd-kontakt .lcdk-udaje dd{margin:0;padding:0 0 12px;font:400 16px/1.5 var(--body);color:#f6f0e3;
+  font-variant-numeric:tabular-nums}
+#lcd-kontakt .lcdk-udaje dd:last-child{padding-bottom:0}
+@container (min-width:440px){
+  #lcd-kontakt .lcdk-udaje{grid-template-columns:minmax(120px,34%) minmax(0,1fr);column-gap:18px}
+  #lcd-kontakt .lcdk-udaje dt{padding:12px 0;line-height:1.85}
+  #lcd-kontakt .lcdk-udaje dd{padding:12px 0;border-top:1px solid rgba(230,200,119,.2)}
+  #lcd-kontakt .lcdk-udaje dt:first-child{padding-top:0}
+  #lcd-kontakt .lcdk-udaje dt:first-child + dd{padding-top:0;border-top:0}
+}
+@media(min-width:760px){#lcd-kontakt{font-size:17px}}
+@media(prefers-reduced-motion:reduce){#lcd-kontakt *{transition:none !important}}
+/* ===== LCD-KONTAKTY END ===== */
+
 /* ===== LCD-1V-KROKY START - generovane tools/vloz-lcd-css.py z _lcd1v-kroky.scss (konfigurator 1V: kroky 1-3 vzor, auto, farba; len body.lcd-1v), needituj rucne ===== */
 /* LCD-1V kroky 1–3 (vzor prešívania, Vaše auto, farba) — nový vzhľad konfigurátora jednovrstvových podľa návrhu v26.
    Tichý test: platí LEN pod body.lcd-1v (SK Diamond Line 598, ?novy=1). Bez triedy sa nič nemení.

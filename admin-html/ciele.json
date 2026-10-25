@@ -99,6 +99,19 @@
         "url": "/rozcestnik/"
       }
     },
+    "kontakty": {
+      "koren": "lcd-kontakt",
+      "tinymce": true,
+      "zastupne": ["#FORM[code=contact]#"],
+      "popis": "Kontakty /kontakty/: celý obsah v Popise stránky (TinyMCE pole). Shoptet v ňom nahradí zástupný text #FORM[code=contact]# (presne raz, sám v <div class=\"lcdk-form\">) úvodnou vetou a form#formContact. Vzhľad: _lcdKontakty.scss (blok LCD-KONTAKTY). Len SK (25. 10. 2026), CZ /kontakty/ ostáva bez zmeny.",
+      "sk": {
+        "typ": "stranka",
+        "id": 29,
+        "pole": "Popis stránky (description)",
+        "url": "/kontakty/"
+      },
+      "cz": null
+    },
     "p1v-598-1": {
       "koren": "p1v-598-1",
       "tinymce": true,
@@ -440,6 +453,10 @@
         "Model-selecte",
         "sets"
       ]
+    },
+    "kontakty": {
+      "casti": ["mega", "kontakty"],
+      "idStranky": ["header", "content", "content-wrapper", "footer", "formContact", "fullName", "email", "message", "consents25", "lc-phone-wrapper", "lcPhone", "signature"]
     },
     "produkt-598": {
       "casti": ["mega", "p1v-598-1", "p1v-598-2"],

@@ -13,6 +13,7 @@ Plán: vault `wiki/projekty/aktivne/web-a-konfigurator/web-bez-prekryvania.md` (
 | `hp-telo-2.*.html` | **NOVÝ** banner v Zápätí titulky, hneď za „Top 2“ | **NOVÝ** banner za „Zápatí“ | `#lcd-home-3`: čo očakávať, materiál, FAQ, galéria, kontakt, záver, lightbox |
 | `mega.*.html` | banner **172** „menu“ (pätička, každá stránka) | banner **108** „menu.“ | `#megaOvl` + `nav#mega` + prepínač SK/CZ |
 | `rz.*.html` | stránka **850** → Popis stránky | stránka **786** → Popis stránky | `#lcd-rz` (rozcestník `/rozcestnik/`) |
+| `kontakty.sk.html` | stránka **29** → Popis stránky | — (CZ sa nemení) | `#lcd-kontakt` (Kontakty `/kontakty/`): hlavička, telefón, e-mail, formulár Shoptetu cez `#FORM[code=contact]#`, firemné údaje |
 | `p1v-598-1.sk.html`, `p1v-598-2.sk.html` | **NOVÉ** bannery „1V obsah 1/2 (test)“ v Pätičke (test `?novy=1`); po spustení produkt **598** → Popis | — | obsah pod konfigurátorom 1V (zo zložky `src/p1v-598/`, za bránou), [`docs/1v-obsah.md`](../docs/1v-obsah.md); presný postup zápisu (záloha, pole, súbor) sekcia 9 |
 
 Presné údaje (kód banneru, pozícia, stránka) sú v `ciele.json` a po builde v `dist/manifest.json`.
@@ -48,6 +49,13 @@ Popis stránky edituje TinyMCE 4.6. Pri ručnom uložení v admine HTML prepíš
 - Tlačidlo musí mať text, nie len SVG (`<span class="sr-only">…</span>`).
 - Bez `<details>`, `<template>`, `<dialog>`, `<style>`. Na najvyššej úrovni je jediný `<div id="lcd-rz">`.
 - Overené 6. 10. replikou Shoptet TinyMCE (konfigurácia z `admin_smarty.js`): `dist/rz.sk|cz` po uložení majú rovnaký DOM a druhé uloženie nič nezmení.
+
+### Kontakty = TinyMCE pole so zástupným textom formulára
+
+- Kontaktný formulár Shoptet vkladá do Popisu stránky zástupným textom `#FORM[code=contact]#`: pri zobrazení ho nahradí úvodnou vetou `<p>` a `form#formContact` (→ `/action/MailForm/SendEmail/`). V `src/kontakty.sk.html` je **presne raz a sám v `<div class="lcdk-form">`** (v `<p>` by vznikol `<form>` v `<p>`). Build to kontroluje (`ciele.json` → `"zastupne"`).
+- Formulár sa mení len vzhľadom (`_lcdKontakty.scss`), HTML Shoptetu ostáva. Pole Telefón pridáva `assets/js/components/contactForm.js` až po načítaní; CSS mu drží miesto (`--tel-rezerva`), aby sa formulár neposunul.
+- Firemné údaje: Obchodný register (výpis 25. 10. 2026) a VOP. „Luxury Car Dessign, s. r. o.“ je presné obchodné meno firmy s IČO 56 238 398, nie preklep.
+- Overené 25. 10. replikou Shoptet TinyMCE: `dist/kontakty.sk.html` po uložení má rovnaký DOM, druhé uloženie nič nezmení, zástupný text ostáva 1×. Pôvodný obsah stránky (1141 zn.) prejde replikou bez zmeny.
 
 ## Dohoda s JS a CSS (kontrakt)
 
@@ -100,6 +108,7 @@ Na web ide `assets/css/luxuryCar.css` tak, ako je v repe. CI ho nekompiluje zo S
 | blok `LCD-HDR` (hlavička, menu `#mega`) | `assets/css/_lcdNativeHdr.scss` | to isté |
 | blok `LCD-KORENE` (statické korene v obaloch Shoptetu) | `assets/css/_lcdKorene.scss` | to isté |
 | blok `LCD-KOSIK` (košík: ponuka rohože a boxu k setu, `assets/js/lcdKosikDoplnok.js`) | `assets/css/_lcdKosik.scss` | to isté |
+| blok `LCD-KONTAKTY` (SK Kontakty `#lcd-kontakt`) | `assets/css/_lcdKontakty.scss` | to isté |
 | blok `LCD-BLOG` | `assets/css/_lcdBlog.scss` | `python tools/vloz-lcd-blog-css.py` |
 | blok `LCD-PK` (poukážka) a všetko mimo blokov (šablóna) | priamo `luxuryCar.css` | ručne v `luxuryCar.css` |
 
