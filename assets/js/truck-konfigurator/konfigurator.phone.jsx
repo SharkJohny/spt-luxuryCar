@@ -10,6 +10,7 @@
 //   5) `export { Configurator }` pre index.jsx (ErrorBoundary + viewport switch)
 import React from "react";
 import { persistTruckOrderSummary } from "./order-summary.mjs";
+import { nazovFarbyVelky } from "./farby-nazvy.mjs";
 import { povoleneNasivkyVsade, filtrujNasivky } from "./pricing.js";
 const { useState, useMemo } = React;
 
@@ -662,6 +663,18 @@ function threadUiText(sk, cs) {
   return isCzechTruckConfigurator() ? cs : sk;
 }
 
+// Názov farby materiálu (Michal 25. 10. 2026, farby-nazvy.mjs): „Čierna, červené šitie“, na CZ česky; bez názvu len kód
+function farbaNazov(swatch) {
+  if (!swatch) return "";
+  return nazovFarbyVelky(swatch.code, isCzechTruckConfigurator() ? "cs" : "sk");
+}
+
+function farbaText(swatch) {
+  if (!swatch) return "";
+  const n = farbaNazov(swatch);
+  return n ? n + " – " + swatch.code : swatch.code;
+}
+
 function threadColorName(threadColor) {
   if (!threadColor) return "";
   if (isCzechTruckConfigurator()) return THREAD_COLOR_NAMES_CS[threadColor.code] || threadColor.name;
@@ -973,7 +986,7 @@ function calculatePrice(state, PRICES) {
 
   if (selectedMaterial && PRICES.MATERIAL[selectedMaterial] !== undefined) {
     const matPrice = PRICES.MATERIAL[selectedMaterial];
-    const subLabel = selectedColor ? "Farba: " + selectedColor.code : null;
+    const subLabel = selectedColor ? "Farba: " + farbaText(selectedColor) : null;
     if (matPrice > 0) {
       total += matPrice;
       breakdown.push({ label: "Materiál: " + selectedMaterial, subLabel: subLabel, amount: matPrice, type: "addon" });
@@ -1018,7 +1031,7 @@ function calculatePrice(state, PRICES) {
   if (doorPanelChoice === true || doorPanelChoice === "ano") {
     total += PRICES.TAPACIR_BUNDLE;
     const tapDetails = [];
-    if (doorMaterial) tapDetails.push(doorMaterial + (doorColor ? " – " + doorColor.code : ""));
+    if (doorMaterial) tapDetails.push(doorMaterial + (doorColor ? " – " + farbaText(doorColor) : ""));
     if (doorLemovanie) tapDetails.push("lem: " + doorLemovanie.name);
     breakdown.push({
       label: "Tapacír dverí",
@@ -2017,7 +2030,7 @@ function Configurator() {
         title="Materiál a farba"
         error={validationErrors.step2}
         errorMessage={validationErrors.step2Msg}
-        subtitle={selectedColor ? `${selectedMaterial} – ${selectedColor.code}` : null}
+        subtitle={selectedColor ? `${selectedMaterial} – ${farbaText(selectedColor)}` : null}
         open={openSection === 2}
         done={!!selectedColor}
         onClick={() => step1Done && setOpenSection(openSection === 2 ? 0 : 2)}
@@ -2102,7 +2115,7 @@ function Configurator() {
                     <img src={swatch.swatch} alt={swatch.code}
                       style={{ width: "100%", height: 50, objectFit: "cover", display: "block" }} />
                     <div style={{ fontSize: 10, fontWeight: 600, textAlign: "center", padding: "4px 0", color: "#555", background: isActive ? "#fdf8ec" : "#f5f5f5" }}>
-                      {swatch.code}
+                      {farbaNazov(swatch) ? <>{farbaNazov(swatch)}<br /><span style={{ fontWeight: 400, color: "#888" }}>{swatch.code}</span></> : swatch.code}
                     </div>
                   </div>
                 );
@@ -2149,7 +2162,7 @@ function Configurator() {
                 padding: "4px 10px", borderRadius: 6,
                 fontSize: 14, fontWeight: 700, letterSpacing: 1,
               }}>
-                {selectedColor.code}
+                {farbaText(selectedColor)}
               </div>
             </div>
           </div>
@@ -3381,7 +3394,7 @@ function Configurator() {
                           {doorSameAsCarpet.material && <span style={{ marginRight: 6 }}>✓</span>}Rovnaký materiál a farba ako na Luxusných autokobercoch
                         </div>
                         <div style={{ fontSize: 12, color: doorSameAsCarpet.material ? "#388E3C" : "#888", marginTop: 3, fontWeight: 500 }}>
-                          {selectedMaterial} – {selectedColor.code}
+                          {selectedMaterial} – {farbaText(selectedColor)}
                         </div>
                       </div>
                     </div>

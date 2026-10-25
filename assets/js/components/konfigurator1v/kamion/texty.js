@@ -176,59 +176,59 @@ export const TEXTY = {
     "Prémiová syntetická koža – prešívaná": [
      {
       "kod": "11",
-      "meno": "Čierna"
+      "meno": "Čierna, čierne šitie"
      },
      {
       "kod": "5",
-      "meno": "Čierna s červeným stehom"
+      "meno": "Čierna, červené šitie"
      },
      {
       "kod": "10",
-      "meno": "Grafitová"
+      "meno": "Tmavosivá, tmavosivé šitie"
      },
      {
       "kod": "4",
-      "meno": "Sivá"
+      "meno": "Sivá, sivé šitie"
      },
      {
       "kod": "1",
-      "meno": "Béžová"
+      "meno": "Béžová, béžové šitie"
      },
      {
       "kod": "7",
-      "meno": "Karamelová"
+      "meno": "Karamelová, karamelové šitie"
      },
      {
       "kod": "3",
-      "meno": "Hnedá"
+      "meno": "Hnedá, hnedé šitie"
      },
      {
       "kod": "9",
-      "meno": "Tmavohnedá"
+      "meno": "Tmavohnedá, hnedé šitie"
      },
      {
       "kod": "14",
-      "meno": "Koňaková"
+      "meno": "Koňaková, koňakové šitie"
      },
      {
       "kod": "6",
-      "meno": "Červená"
+      "meno": "Červená, červené šitie"
      },
      {
       "kod": "12",
-      "meno": "Bordová"
+      "meno": "Bordová, bordové šitie"
      },
      {
       "kod": "13",
-      "meno": "Zelená"
+      "meno": "Tmavozelená, zelené šitie"
      },
      {
       "kod": "2",
-      "meno": "Modrá"
+      "meno": "Modrá, modré šitie"
      },
      {
       "kod": "8",
-      "meno": "Tmavomodrá"
+      "meno": "Tmavomodrá, tmavomodré šitie"
      }
     ],
     "Prémiová syntetická koža – jednofarebná": [
@@ -238,15 +238,15 @@ export const TEXTY = {
      },
      {
       "kod": "6G",
-      "meno": "Grafitová"
+      "meno": "Tmavosivá"
      },
      {
       "kod": "5G",
-      "meno": "Sivá"
+      "meno": "Svetlosivá"
      },
      {
       "kod": "1G",
-      "meno": "Béžová"
+      "meno": "Svetlobéžová"
      },
      {
       "kod": "2G",
@@ -274,7 +274,7 @@ export const TEXTY = {
      },
      {
       "kod": "12G",
-      "meno": "Zelená"
+      "meno": "Tmavozelená"
      },
      {
       "kod": "7G",
@@ -288,19 +288,19 @@ export const TEXTY = {
     "Prémiová syntetická koža – tónovaná": [
      {
       "kod": "7PES",
-      "meno": "Grafitová"
+      "meno": "Tmavosivá"
      },
      {
       "kod": "2PES",
-      "meno": "Sivobéžová"
+      "meno": "Svetlosivobéžová"
      },
      {
       "kod": "11PES",
-      "meno": "Hnedá"
+      "meno": "Tmavohnedá"
      },
      {
       "kod": "9PES",
-      "meno": "Čokoládová"
+      "meno": "Hnedá"
      },
      {
       "kod": "5PES",
@@ -310,71 +310,71 @@ export const TEXTY = {
     "Mikrosemiš – jednofarebný": [
      {
       "kod": "3NUB",
-      "meno": "Grafitová"
+      "meno": "Tmavosivý"
      },
      {
       "kod": "4NUB",
-      "meno": "Sivá"
+      "meno": "Svetlosivý"
      },
      {
       "kod": "1NUB",
-      "meno": "Krémová"
+      "meno": "Krémový"
      },
      {
       "kod": "2NUB",
-      "meno": "Koňaková"
+      "meno": "Koňakový"
      },
      {
       "kod": "5NUB",
-      "meno": "Červená"
+      "meno": "Červený"
      }
     ],
     "Mikrosemiš – dvojfarebný": [
      {
       "kod": "1N",
-      "meno": "Tmavosivá"
+      "meno": "Tmavosivý"
      },
      {
       "kod": "2N",
-      "meno": "Sivá"
+      "meno": "Sivý"
      },
      {
       "kod": "4N",
-      "meno": "Béžová"
+      "meno": "Béžový"
      },
      {
       "kod": "5N",
-      "meno": "Tmavohnedá"
+      "meno": "Tmavohnedý"
      },
      {
       "kod": "3N",
-      "meno": "Bordová"
+      "meno": "Bordový"
      },
      {
       "kod": "6N",
-      "meno": "Tmavomodrá"
+      "meno": "Tmavomodrý"
      }
     ],
     "Vzorovaný velúr": [
      {
       "kod": "1D",
-      "meno": "Červená"
+      "meno": "Červený"
      },
      {
       "kod": "2D",
-      "meno": "Modrá"
+      "meno": "Modrý"
      },
      {
       "kod": "3D",
-      "meno": "Sivá"
+      "meno": "Sivý"
      },
      {
       "kod": "4D",
-      "meno": "Žltá"
+      "meno": "Žltý"
      },
      {
       "kod": "5D",
-      "meno": "Hnedá"
+      "meno": "Hnedý"
      }
     ]
    }

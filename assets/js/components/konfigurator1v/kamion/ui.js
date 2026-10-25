@@ -9,6 +9,7 @@ import { OBRAZKY_1V } from "../ctx.js";
 import { cielNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, roznePodSedadlamiAStred, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
+import { nazovFarbyVelky } from "../../../truck-konfigurator/farby-nazvy.mjs";
 
 const NB = " "; // nezalomiteľná medzera „423 €“ (ako artefakt a 1V)
 const P = "k1v-"; // predpona id prvkov (stránka Shoptetu má vlastné id)
@@ -63,8 +64,9 @@ export function vytvorUi(o) {
     const byKod = {};
     m.farby.forEach((f) => { byKod[f.kod] = f; });
     const out = [];
-    por.forEach((p) => { if (byKod[p.kod]) { out.push(Object.assign({}, byKod[p.kod], { meno: p.meno })); delete byKod[p.kod]; } });
-    m.farby.forEach((f) => { if (byKod[f.kod]) out.push(Object.assign({}, f, { meno: f.kod })); });
+    // názvy = schválený zoznam (truck-konfigurator/farby-nazvy.mjs, Michal 25. 10. 2026), poradie z texty.js
+    por.forEach((p) => { if (byKod[p.kod]) { out.push(Object.assign({}, byKod[p.kod], { meno: nazovFarbyVelky(p.kod) || p.meno })); delete byKod[p.kod]; } });
+    m.farby.forEach((f) => { if (byKod[f.kod]) out.push(Object.assign({}, f, { meno: nazovFarbyVelky(f.kod) || f.kod })); });
     return out;
   }
   const farba = (nazov, kod) => farbyMat(nazov).filter((f) => f.kod === kod)[0];

@@ -1,3 +1,5 @@
+import { nazovFarby, materialFarbaText } from "./farby-nazvy.mjs";
+
 const SUMMARY_TEXTS = {
   sk: {
     headings: {
@@ -177,7 +179,11 @@ function addLine(lines, label, value) {
   lines.push(`- ${label}: ${value}`);
 }
 
-function materialAndColor(material, color) {
+// Michal 25. 10. 2026: v košíku aj v objednávke aj názov farby („Prémiová syntetická koža – prešívaná – čierna,
+// červené šitie – 5“); kód ostáva na konci – podľa neho vyrába dodávateľ. Neznámy kód = ako predtým.
+function materialAndColor(material, color, language) {
+  const kod = color && typeof color === "object" ? String(color.code || "").trim() : "";
+  if (kod && nazovFarby(kod, language)) return materialFarbaText(material, kod, language);
   return [material, selectedText(color, true)].filter(Boolean).join(" – ");
 }
 
@@ -206,7 +212,7 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
   const s = state || {};
   const texts = SUMMARY_TEXTS[language] || SUMMARY_TEXTS.sk;
   const lines = [];
-  const carpetMaterial = materialAndColor(s.selectedMaterial, s.selectedColor);
+  const carpetMaterial = materialAndColor(s.selectedMaterial, s.selectedColor, language);
   const carpetEdging = selectedText(s.selectedLemovanie, true);
   const threadColor = (value) => selectedThreadColor(value, language);
   const sideEmbroidery = hasSideEmbroidery(s.nasivkyPlacement);
@@ -232,7 +238,7 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
   const wantsDoorPanels = s.doorPanelChoice === true || s.doorPanelChoice === "ano";
   if (wantsDoorPanels) {
     const wantsDoorPatch = s.doorWantsNasivka === true;
-    const doorMaterial = materialAndColor(s.doorMaterial, s.doorColor);
+    const doorMaterial = materialAndColor(s.doorMaterial, s.doorColor, language);
     const doorMaterialValue = s.doorSameAsCarpet && s.doorSameAsCarpet.material
       ? `${texts.sameMaterial} – ${carpetMaterial}`
       : doorMaterial;
