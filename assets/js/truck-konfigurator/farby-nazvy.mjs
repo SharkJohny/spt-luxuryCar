@@ -67,14 +67,14 @@ export function nazovFarby(kod, jazyk = "sk") {
   return z ? z[jazyk] || z.sk : "";
 }
 
-/** Text do košíka a objednávky: „<materiál> – <kód> – <názov>“ (Michal 25. 10. 2026: kód najprv); bez známeho názvu „<materiál> – <kód>“. */
+/** Text do košíka a objednávky: „<materiál> – <názov> – <kód>“; bez známeho názvu ako predtým „<materiál> – <kód>“. */
 export function materialFarbaText(material, kod, jazyk = "sk") {
   const nazov = nazovFarby(kod, jazyk);
-  return [material, kod, nazov].filter(Boolean).join(" – ");
+  return [material, nazov, kod].filter(Boolean).join(" – ");
 }
 
 // Lemovania (pásik okolo koberca): prvá farba = základ pásky, druhá = šikmé pásiky na nej (vzorky lemovaní).
-// Michal 25. 10. 2026 schválil „Základ + pásiky“, kód vždy na začiatku („05 – čierny základ, bordové pásiky“).
+// Michal 25. 10. 2026 schválil „Základ + pásiky“; číslo vždy na konci, ako pri farbe („čierny základ, bordové pásiky – 05“).
 export const NAZVY_LEMOVANI = {
   "01": { sk: "čierny základ, béžové pásiky", cs: "černý základ, béžové proužky", en: "black base, beige stripes" },
   "02": { sk: "čierny základ, sivé pásiky", cs: "černý základ, šedé proužky", en: "black base, grey stripes" },
@@ -97,27 +97,27 @@ export function nazovLemovania(kod, jazyk = "sk") {
   return z ? z[jazyk] || z.sk : "";
 }
 
-/** Lemovanie do košíka, poznámky aj príplatku: „<kód> – <názov>“; neznámy kód = "". */
+/** Lemovanie do košíka, poznámky aj príplatku: „<názov> – <kód>“; neznámy kód = "". */
 export function lemovanieText(kod, jazyk = "sk") {
   const nazov = nazovLemovania(kod, jazyk);
-  return nazov ? `${String(kod).trim()} – ${nazov}` : "";
+  return nazov ? `${nazov} – ${String(kod).trim()}` : "";
 }
 
-/** Hodnota príplatku „Farba materiálu“ v admine Shoptetu (SK 640 od 25. 10. 2026): „<kód> – <názov>“ („3 – hnedá, hnedé šitie“). */
+/** Hodnota príplatku „Farba materiálu“ v admine Shoptetu (SK 640): „<názov> – <kód>“ („hnedá, hnedé šitie – 3“), číslo na konci. */
 export function hodnotaPriplatkuFarby(kod, jazyk = "sk") {
   const nazov = nazovFarby(kod, jazyk);
-  return nazov ? `${kod} – ${nazov}` : "";
+  return nazov ? `${nazov} – ${kod}` : "";
 }
 
 /**
  * Stav v tvare Reactu (finalConfiguration) doplnený o texty hodnôt príplatkov farby a lemovania koberčekov aj tapacíru.
  * Michal 25. 10. 2026: farba patrí priamo do položky objednávky, nie len do poznámky – v admine sú hodnoty
- * „<kód> – <názov>“ (farba) a „<kód> – <meno>“ (lemovanie). resolveValue ich použije; keď hodnotu admin nemá,
+ * „<názov> – <kód>“ (farba aj lemovanie, číslo na konci). resolveValue ich použije; keď hodnotu admin nemá,
  * syncToShoptet vyberie „Vyberie sa v konfigurátore“ ako doteraz.
  */
 export function sTextamiPriplatkov(stav, jazyk = "sk") {
   const s = stav || {};
-  const lem = (l) => (l && l.code ? lemovanieText(l.code, jazyk) || [l.code, l.name].filter(Boolean).join(" – ") : "");
+  const lem = (l) => (l && l.code ? lemovanieText(l.code, jazyk) || [l.name, l.code].filter(Boolean).join(" – ") : "");
   return Object.assign({}, s, {
     farbaPriplatok: s.selectedColor ? hodnotaPriplatkuFarby(s.selectedColor.code, jazyk) : "",
     lemovaniePriplatok: lem(s.selectedLemovanie),

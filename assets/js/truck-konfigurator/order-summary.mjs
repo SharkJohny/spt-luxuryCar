@@ -187,7 +187,7 @@ function materialAndColor(material, color, language) {
   return [material, selectedText(color, true)].filter(Boolean).join(" – ");
 }
 
-// Michal 25. 10. 2026: lemovanie s kódom na začiatku a názvom „základ + pásiky“ („05 – čierny základ, bordové pásiky“);
+// Michal 25. 10. 2026: lemovanie „základ + pásiky“ s číslom na konci („čierny základ, bordové pásiky – 05“);
 // neznámy kód = ako predtým len meno.
 function edgingText(lem, language) {
   const kod = lem && typeof lem === "object" ? String(lem.code || "").trim() : "";

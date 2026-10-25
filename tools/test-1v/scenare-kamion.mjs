@@ -314,8 +314,8 @@ export const SCENARE = {
       await rob(s, j, [["klik", a_("nas", "boky+stred")], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2824", "boky")]]);
       const st5 = await s.t.ev(STYLY);
       j.over(st5.motivZvol === ZELENA && st5.nitZvol === ZELENA, "zvolené nie je zelené (motív " + st5.motivZvol + ", niť " + st5.nitZvol + ")");
-      j.over(st5.ntStlpce === 4 && JSON.stringify(st5.ntRiadky) === "[4,4,3]" && st5.ntKruh === "46px" && /rgb\(29, 107, 74\)/.test(st5.ntFajka || "") && st5.ntMeno === ZELENA && st5.ntKod === "12.5px" && st5.ntMin >= 44,
-        "farby nite: paleta 4 v rade (11 = 4 + 4 + 3), krúžok 46 px, zelená ✓ a meno, kód 12,5 px tučne (kód najprv), ťuk-plocha ≥ 44 px: " + JSON.stringify([st5.ntStlpce, st5.ntRiadky, st5.ntKruh, st5.ntFajka, st5.ntMeno, st5.ntKod, st5.ntMin]));
+      j.over(st5.ntStlpce === 4 && JSON.stringify(st5.ntRiadky) === "[4,4,3]" && st5.ntKruh === "46px" && /rgb\(29, 107, 74\)/.test(st5.ntFajka || "") && st5.ntMeno === ZELENA && st5.ntKod === "12px" && st5.ntMin >= 44,
+        "farby nite: paleta 4 v rade (11 = 4 + 4 + 3), krúžok 46 px, zelená ✓ a meno, kód 12 px, ťuk-plocha ≥ 44 px: " + JSON.stringify([st5.ntStlpce, st5.ntRiadky, st5.ntKruh, st5.ntFajka, st5.ntMeno, st5.ntKod, st5.ntMin]));
       j.over(/rgb\(29, 107, 74\)/.test(st5.motivFajka || "") && /rgb\(29, 107, 74\)/.test(st5.hotIc || ""), "fajka zvolenej voľby nie je zelená: " + st5.motivFajka + " | " + st5.hotIc);
       j.over(st5.zmenitH >= 44, "„Zmeniť“ má ťuk-plochu " + st5.zmenitH + " px (< 44)");
       // revízia 18. 10. 2026 (ako návrh C): motív cez celú dlaždicu (cover) na béžovom podklade PNG motívu #f0edda

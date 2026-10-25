@@ -171,21 +171,21 @@ assert.ok(blokPoznamky.startsWith("ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: "), "pozn�
 const kob = blokPoznamky.split("\n\n").find((r) => r.startsWith("KOBERČEKY POD SEDAČKY")) || "";
 assert.ok(kob.indexOf("Typ nášiviek na boky") > 0 && kob.indexOf("Typ nášiviek na boky") < kob.indexOf("Typ nášivky na stred"), "poznámka: boky pred stredom " + kob);
 
-// Michal 25. 10. 2026: lemovanie s kódom na začiatku, „základ + pásiky“ (aj pri tapacíri „rovnaká ako koberčeky“)
+// Michal 25. 10. 2026: lemovanie „základ + pásiky“ s číslom na konci (aj pri tapacíri „rovnaká ako koberčeky“)
 const lemSummary = buildTruckOrderSummary({
   selectedMaterial: "Vzorovaný velúr", selectedColor: { code: "3D" },
   selectedLemovanie: { code: "05", name: "Čierna + Bordová" }, nasivkyPlacement: "nechcem",
   doorPanelChoice: "ano", doorWantsNasivka: false, doorSameAsCarpet: { material: true, lemovanie: true },
 });
-assert.ok(lemSummary.includes("- Farba lemovania: 05 – čierny základ, bordové pásiky"), lemSummary);
-assert.ok(lemSummary.includes("- Farba lemovania: Rovnaká ako farba lemovania koberčekov – 05 – čierny základ, bordové pásiky"), lemSummary);
+assert.ok(lemSummary.includes("- Farba lemovania: čierny základ, bordové pásiky – 05"), lemSummary);
+assert.ok(lemSummary.includes("- Farba lemovania: Rovnaká ako farba lemovania koberčekov – čierny základ, bordové pásiky – 05"), lemSummary);
 const lemTap = buildTruckOrderSummary({
   selectedMaterial: "Vzorovaný velúr", selectedColor: { code: "3D" }, selectedLemovanie: { code: "05", name: "Čierna + Bordová" },
   nasivkyPlacement: "nechcem", doorPanelChoice: "ano", doorWantsNasivka: false, doorSameAsCarpet: { material: false, lemovanie: false },
   doorMaterial: "Prémiová syntetická koža – jednofarebná", doorColor: { code: "8G" }, doorLemovanie: { code: "13", name: "Hnedá + Béžová" },
 });
-assert.ok(lemTap.includes("- Farba lemovania: 13 – hnedý základ, béžové pásiky"), lemTap);
+assert.ok(lemTap.includes("- Farba lemovania: hnedý základ, béžové pásiky – 13"), lemTap);
 assert.ok(buildTruckOrderSummary({ selectedMaterial: "Vzorovaný velúr", selectedColor: { code: "3D" }, selectedLemovanie: { code: "05", name: "Čierna + Bordová" } }, "cs")
-  .includes("- Barva lemování: 05 – černý základ, vínové proužky"));
+  .includes("- Barva lemování: černý základ, vínové proužky – 05"));
 
 console.log("✓ súhrn truck konfigurácie obsahuje všetky výrobné voľby");

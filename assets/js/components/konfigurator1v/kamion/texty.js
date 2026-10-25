@@ -168,9 +168,9 @@ export const TEXTY = {
    "nazov": "Farba",
    "otazka": "Prosím, vyberte si farbu materiálu",
    "pomocna_veta": "Farba cenu nemení. Vybraný odtieň uvidíte zväčšený pod ponukou.",
-   "nahlad": "Vybraté: {kod} – {farba} · {material}",
+   "nahlad": "Vybraté: {farba} ({kod}) · {material}",
    "kod_popis": "kód {kod}",
-   "zhrnutie": "{kod} – {farba}",
+   "zhrnutie": "{farba} ({kod})",
    "chyba": "Prosím, vyberte farbu materiálu.",
    "mena_farieb_navrh": {
     "Prémiová syntetická koža – prešívaná": [
@@ -760,7 +760,7 @@ export const TEXTY = {
   "tap_oddiel": "Materiál, farba a lemovanie tapacíru",
   "nahlad_aria": "Náhľad motívu {x}",
   "nahlad": "Náhľad: {meno} ({kod})",
-  "nahlad_nit": " · niť {kod} – {nit}",
+  "nahlad_nit": " · niť {nit} ({kod})",
   "nahlad_kam": "Kam príde:",
   "nahlad_podklad": "Podklad:",
   "nahlad_bez_nite": [

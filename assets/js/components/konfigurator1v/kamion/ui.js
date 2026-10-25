@@ -104,9 +104,7 @@ export function vytvorUi(o) {
     return z.meno + (S.model ? " " + roky(S.model) : "");
   }
   const koberecNas = () => knS(S);
-  // Michal 25. 10. 2026: kód najprv aj pri niti („niť 2999 – čierna“)
-  const nitTx = (n) => n.kod + " – " + mala(n.menoUi);
-  function motivTxt(x) { const m = motiv(x.motiv), n = nit(x.nit); return m.meno + " (" + m.kod + ") · " + fill(U0.nit, { x: nitTx(n) }); }
+  function motivTxt(x) { const m = motiv(x.motiv), n = nit(x.nit); return m.meno + " (" + m.kod + ") · " + fill(U0.nit, { x: mala(n.menoUi) }) + " (" + n.kod + ")"; }
   function matKratko(nazov) { const t = matT(nazov); return t ? t.nazov + ", " + t.variant : nazov; }
   const ponuka = () => ponukaCien(D);
   function cenaMaterialu(nazov) { const x = ponuka().material[nazov]; return x ? plus(x) : T.kroky.material.cena_v_cene; }
@@ -287,14 +285,14 @@ export function vytvorUi(o) {
     switch (id) {
       case "vozidlo": s = nazovVozidla(); t = detailyVozidla(); return sCenou(t ? s + " · " + t : s, eur(D.ceny.zaklad_eur));
       case "material": t = matT(S.material); return fill(tk.material.zhrnutie, { nazov: t.nazov, variant: t.variant, cena_text: cenaMaterialu(S.material) });
-      case "farba": f = farba(S.material, S.farba); return sCenou(fill(tk.farba.zhrnutie, { farba: mala(f.meno), kod: f.kod }), vCene);
-      case "lemovanie": l = lem(S.lem); return sCenou(l.kod + " – " + mala(l.menoUi), vCene);
+      case "farba": f = farba(S.material, S.farba); return sCenou(fill(tk.farba.zhrnutie, { farba: f.meno, kod: f.kod }), vCene);
+      case "lemovanie": l = lem(S.lem); return sCenou(l.menoUi + " (" + l.kod + ")", vCene);
       case "nasivky": {
         if (S.nas === "nechcem") return sCenou(tk.nasivky.zhrnutie_nie, tk.nasivky.hotove.bez_priplatku);
         const rozsah = tk.nasivky.rozsah[S.nas];
         const x = S.nas === "stred" ? S.nasStred : S.nasBoky;
-        s = rozsah + " · " + motiv(x.motiv).meno + " · " + fill(U0.nit, { x: nitTx(nit(x.nit)) });
-        if (S.nas === "boky+stred" && !S.stredRovnaky) s += " · stred: " + motiv(S.nasStred.motiv).meno + ", " + fill(U0.nit, { x: nitTx(nit(S.nasStred.nit)) });
+        s = rozsah + " · " + motiv(x.motiv).meno + " · " + fill(U0.nit, { x: mala(nit(x.nit).menoUi) });
+        if (S.nas === "boky+stred" && !S.stredRovnaky) s += " · stred: " + motiv(S.nasStred.motiv).meno + ", " + fill(U0.nit, { x: mala(nit(S.nasStred.nit).menoUi) });
         return sCenou(s, plus(po.nasivky[S.nas].suma));
       }
       case "tapacir": {
@@ -448,7 +446,7 @@ export function vytvorUi(o) {
     html += sk("farba", "farba", "", mriezkaFarieb(S.material, S.farba, "farba", "fa:"));
     const f = S.farba && farba(S.material, S.farba);
     if (f) {
-      html += '<div class="k-nahlad-farby"><p class="k-nahlad-farby__nm">' + esc(fill(t.nahlad, { farba: mala(f.meno), kod: f.kod, material: matKratko(S.material) })) +
+      html += '<div class="k-nahlad-farby"><p class="k-nahlad-farby__nm">' + esc(fill(t.nahlad, { farba: f.meno, kod: f.kod, material: matKratko(S.material) })) +
         '</p><img class="k-nahlad-farby__img" src="' + attr(f.full) + '" alt="' + attr(fill(U0.zvacsena, { x: f.meno })) + '"></div>';
     }
     html += koniecKroku("farba", posledny);
@@ -460,8 +458,8 @@ export function vytvorUi(o) {
       const on = vybraty === l.kod;
       return '<button type="button" class="lm__b' + (on ? " is-on" : "") + '" data-a="' + akcia + '" data-v="' + l.kod + '" data-f="' + prefix + l.kod + '" aria-pressed="' + on + '">' +
         (odporucany === l.kod ? '<span class="k-badge">' + esc(T.kroky.lemovanie.stitok_odporucame) + "</span>" : "") +
-        // Michal 25. 10. 2026: pod vzorkou kód a „základ + pásiky“ (05 · čierny základ, bordové pásiky)
-        '<img src="' + attr(l.full) + '" alt="" loading="lazy"><span class="lm__kod">' + l.kod + '</span><span class="lm__nm">' + esc(l.menoUi) + "</span></button>";
+        // Michal 25. 10. 2026: pod vzorkou „základ + pásiky“, číslo pod názvom (ako pri farbe a niti)
+        '<img src="' + attr(l.full) + '" alt="" loading="lazy"><span class="lm__nm">' + esc(l.menoUi) + '</span><span class="lm__kod">' + l.kod + "</span></button>";
     }).join("") + "</div>";
   }
 
@@ -470,7 +468,7 @@ export function vytvorUi(o) {
     let html = '<p class="k-pod">' + esc(t.pomocna_veta) + " " + esc(t.v_cene) + "</p>";
     html += sk("lemovanie", "lem", "", mriezkaLem(S.lem, "lem", "lem:", odporucanyLem()));
     const l = S.lem && lem(S.lem);
-    if (l) html += '<div class="lm-nahlad"><p>' + esc(fill(U0.vybrate, { x: l.kod + " – " + mala(l.menoUi) })) + '</p><img src="' + attr(l.full) + '" alt="' + attr(fill(U0.lem_zblizka, { x: l.menoUi })) + '"></div>';
+    if (l) html += '<div class="lm-nahlad"><p>' + esc(fill(U0.vybrate, { x: l.menoUi + " (" + l.kod + ")" })) + '</p><img src="' + attr(l.full) + '" alt="' + attr(fill(U0.lem_zblizka, { x: l.menoUi })) + '"></div>';
     html += koniecKroku("lemovanie", posledny);
     return html;
   }
@@ -586,7 +584,7 @@ export function vytvorUi(o) {
     return '<div class="nt" role="group" aria-label="' + attr(U0.nit_aria) + '">' + nite().map((n) => {
       const on = vybrata === n.kod;
       return '<button type="button" class="nt__b' + (on ? " is-on" : "") + '" data-a="nit" data-m="' + prefix + '" data-v="' + n.kod + '" data-f="nit:' + prefix + n.kod + '" aria-pressed="' + on + '">' +
-        '<i style="background:' + n.hex + '" aria-hidden="true"></i><span class="nt__kod">' + n.kod + '</span><span class="nt__nm">' + esc(n.menoUi) + "</span></button>";
+        '<i style="background:' + n.hex + '" aria-hidden="true"></i><span class="nt__nm">' + esc(n.menoUi) + '</span><span class="nt__kod">' + n.kod + "</span></button>";
     }).join("") + "</div>";
   }
   /** Plátno náhľadu: motív prefarbený na niť na fotke materiálu (kreslí kresliNahlady; rozlíšenie podľa šírky). */
@@ -616,8 +614,8 @@ export function vytvorUi(o) {
   const vizMaterial = (src) => '<span class="kn-rv__mat"' + (src ? ' style="background-image:url(' + attr(src) + ')"' : "") + "></span>";
   const mozaikaMotivov = (miesto) => '<span class="kn-rv__mozaika kn-rv__mozaika--motiv">' + motivy(miesto).slice(0, 2).map((m) => '<i style="background-image:url(' + attr(m.full) + ')"></i>').join("") + "</span>";
   const popisTx = (x) => "<span>" + esc(x) + "</span>";
-  const farbaTx = (f) => f.kod + " – " + mala(f.meno);
-  const lemMeno = (l) => l.kod + " – " + l.menoUi.toLowerCase();
+  const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
+  const lemMeno = (l) => l.menoUi.toLowerCase() + " (" + l.kod + ")";
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: lemMeno(l) });
   /** Druh materiálu pod variantom: mikrosemiš / velúr / syntetická koža (koza = kratšie „koža“ v lište). */
   const druhMat = (v, koza) => (v.nazov === "Mikrosemiš" ? U0.mikrosemis : v.nazov === "Velúr" ? U0.velur : koza ? U0.koza : U0.syntetika);
