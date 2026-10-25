@@ -40,8 +40,8 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
   klikania, `zhrn-kamion.mjs` = zhrnutie nálezov, `harok.py` = hárok snímok; `lokal` = podstrčený build z priečinka
   `LCD_LOKAL`). Hľadá prekryté texty, pretečenie, orezanie, vodorovný posuvník, prvky mimo okna, malé dotykové ciele,
   tlačidlo zakryté lištou a mierku písma. Pozor na falošné nálezy počas animácie — nález vždy over snímkou.
-- Neodložené (treba Michalov súhlas, obsah v admine): obrázky v popisoch produktov nemajú `loading="lazy"` —
-  produkt 598 sťahuje ~3–4 MB fotiek spodného popisu hneď pri načítaní (aj pod `?novy=1`, kde je popis skrytý).
+- Obrázky v popisoch produktov nemajú `loading="lazy"` — produkt 598 sťahuje ~3–4 MB fotiek spodného popisu hneď pri
+  načítaní (aj pod `?novy=1`, kde je popis skrytý). Michal 25. 10.: v admine sa nemení, vyrieši to nahradenie popisu obsahom 1V.
 
 ## 5. Animácie a prepočty štýlov (SK `0fa8584`)
 - Nekonečné CSS animácie (lesk tlačidiel `lcdh-sheen`, `lcdh-pfScroll`, pás galérie `lxPas`) bežali aj mimo obrazovky: nečinná
@@ -53,3 +53,12 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
 - Overené, že veľkosť CSS (−35 % bez blokov 1V) ani `:has()` prepočty štýlov citeľne nezrýchlia — rozhoduje ich počet.
 - Nástroje (scratchpad session kamióny, 25. 10.): `styl-detail.mjs` (najdrahšie prepočty a ich spúšťač), `necinnost.mjs`
   (CPU v nečinnosti), `animacie.mjs` (bežiace animácie).
+
+## 6. Odozva konfigurátora kamiónov na ťuknutie (640, `?novy=1`)
+- Meranie: Event Timing API (čas od ťuknutia po vykreslenie), telefón 390 px, CPU 6×, 16 ťuknutí celou cestou; súčet
+  4,1 s → 3,6 s (−13 %). Zvyšok je hlavne prepočet rozloženia po `innerHTML` celého kroku (`render()` v `kamion/ui.js`).
+- `kamion/ui.js`: nezmenený náhľad motívu (plátno s rovnakou triedou, motívom, niťou, podkladom, `data-k`) sa po
+  prekreslení kroku vráti na miesto aj s obrázkom; `data-nakreslene` = šírka okna pri kreslení (po otočení telefónu sa
+  kreslí nanovo), plátno so strateným kontextom sa nepoužije. Prefarbený motív sa pamätá podľa farby, šírka plátna podľa triedy.
+- `kamion/index.js`: výška okna chatu Luxia cez `ResizeObserver` (predtým `getBoundingClientRect` každú sekundu a po
+  každom ťuknutí = vynútený prepočet rozloženia); bez ResizeObserver (Safari 13.0) ako predtým.

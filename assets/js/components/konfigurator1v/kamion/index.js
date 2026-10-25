@@ -163,6 +163,23 @@ export function init(ctx) {
     // lišta: telefón, keď súhrn s tlačidlom nie je na obrazovke (artefakt; prvok a triedy ako 1V)
     const mobil = window.matchMedia ? window.matchMedia(MOBIL) : { matches: false };
     let suhrnVidno = false, listaOn = null;
+    // výška okna chatu Luxia: ResizeObserver (zrýchlenie 25. 10. 2026) — getBoundingClientRect každú sekundu a po každom
+    // ťuknutí vynucoval prepočet rozloženia celej stránky (~70 ms pri CPU 6×); bez ResizeObserver ako predtým
+    let chat = null, chatVyska = null, chatRo = null;
+    const vyskaChatu = function () {
+      const f = document.querySelector('iframe[title="Luxia chat"]');
+      if (f !== chat) {
+        if (chatRo) chatRo.disconnect();
+        chat = f; chatVyska = null;
+        if (f && typeof window.ResizeObserver === "function") {
+          chatRo = new window.ResizeObserver(function (en) { chatVyska = en[0].contentRect.height; obnovListu(); });
+          chatRo.observe(f);
+        } else chatRo = null;
+      }
+      if (!f) return 0;
+      return chatRo ? (chatVyska == null ? 0 : chatVyska) : f.getBoundingClientRect().height;
+    };
+    spat.push(() => { if (chatRo) chatRo.disconnect(); });
     const obnovListu = function () {
       if (zruseny) return;
       const on = !!mobil.matches && !suhrnVidno;
@@ -172,9 +189,8 @@ export function init(ctx) {
         document.body.classList.toggle("lcd1v-lista-on", on);
       }
       // bublina chatu Luxia (76 × 76) sa zdvihne nad lištu; otvorený chat (vyšší) sa nehýbe (ako 1V cena.js)
-      const f = document.querySelector('iframe[title="Luxia chat"]');
-      const r = f && f.getBoundingClientRect();
-      const bublina = !!(on && r && r.height > 0 && r.height <= 130);
+      const vyska = vyskaChatu();
+      const bublina = !!(on && vyska > 0 && vyska <= 130);
       if (document.body.classList.contains("lcd1v-bublina") !== bublina) document.body.classList.toggle("lcd1v-bublina", bublina);
     };
     if (typeof window.IntersectionObserver === "function") {

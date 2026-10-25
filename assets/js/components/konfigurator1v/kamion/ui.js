@@ -895,7 +895,43 @@ export function vytvorUi(o) {
     if (!imgCache[src]) imgCache[src] = new Promise((res, rej) => { const i = new w.Image(); i.crossOrigin = "anonymous"; /* CDN posiela ACAO * -> canvas nie je „tainted“, motív sa prefarbí na niť (ako React) */ i.onload = () => res(i); i.onerror = rej; i.src = src; });
     return imgCache[src];
   }
+  // Zrýchlenie 25. 10. 2026 (ťuknutie na slabom telefóne CPU 6×: 150–310 ms, z toho ~100 ms náhľady): renderKroky prepisuje
+  // krok cez innerHTML, takže každé ťuknutie vytvorilo nové plátna, meralo ich šírku (vynútený prepočet rozloženia celej
+  // stránky) a kreslilo ich znova. Teraz sa nezmenené plátno (rovnaká trieda, motív, niť, podklad, k) vráti na miesto aj
+  // s hotovým obrázkom, šírka plátna sa pamätá podľa triedy (do zmeny veľkosti okna) a prefarbený motív podľa farby.
+  const tintCache = new Map();
+  const sirkaPlatna = {};
+  // len zmena šírky (otočenie, iné okno): na telefóne mení resize aj lišta prehliadača, tá šírku nemení
+  let sirkaOkna = w.innerWidth;
+  const naZmenuOkna = () => {
+    if (w.innerWidth === sirkaOkna) return;
+    sirkaOkna = w.innerWidth;
+    Object.keys(sirkaPlatna).forEach((x) => { delete sirkaPlatna[x]; });
+  };
+  w.addEventListener("resize", naZmenuOkna);
+  const klucNahladu = (cv) => [cv.className, cv.getAttribute("data-motiv"), cv.getAttribute("data-hex"), cv.getAttribute("data-bg"), cv.getAttribute("data-k")].join("|");
+  /** Nakreslené plátna pred prekreslením kroku: kľúč -> [plátno] (kresliNahlady ich vráti namiesto nových). */
+  function zoberNahlady() {
+    const m = new Map();
+    Array.prototype.forEach.call(root.querySelectorAll("canvas[data-motiv][data-nakreslene]"), (cv) => {
+      // data-nakreslene = šírka okna pri nastavení veľkosti: po otočení (aj počas načítania obrázka) by bol náhľad
+      // po zväčšení rozmazaný -> nakresliť nanovo; stratený kontext (málo pamäte, reset GPU) = prázdne plátno -> tiež
+      if (cv.getAttribute("data-nakreslene") !== String(sirkaOkna)) return;
+      let c2 = null;
+      try { c2 = cv.getContext("2d"); } catch (e) { c2 = null; }
+      if (!c2 || (c2.isContextLost && c2.isContextLost())) return;
+      const kl = klucNahladu(cv);
+      if (!m.has(kl)) m.set(kl, []);
+      m.get(kl).push(cv);
+    });
+    return m;
+  }
   function prefarbi(im, hex) {
+    const kl = im.src + "|" + hex;
+    if (!tintCache.has(kl)) tintCache.set(kl, prefarbiNove(im, hex));
+    return tintCache.get(kl);
+  }
+  function prefarbiNove(im, hex) {
     const t = doc.createElement("canvas");
     t.width = im.naturalWidth; t.height = im.naturalHeight;
     const tc = t.getContext("2d");
@@ -913,18 +949,27 @@ export function vytvorUi(o) {
     }
     return t;
   }
-  function kresliNahlady() {
+  function kresliNahlady(stare) {
     Array.prototype.forEach.call(root.querySelectorAll("canvas[data-motiv]"), (cv) => {
+      const zoz = stare && stare.get(klucNahladu(cv));
+      const st = zoz && zoz.shift();
+      if (st) { // nezmenený náhľad: späť aj s obrázkom (ARIA z nového HTML)
+        ["role", "aria-label", "aria-hidden"].forEach((a) => { const v = cv.getAttribute(a); if (v == null) st.removeAttribute(a); else st.setAttribute(a, v); });
+        cv.replaceWith(st);
+        return;
+      }
       let c2 = null;
       try { c2 = cv.getContext && cv.getContext("2d"); } catch (e) { c2 = null; }
       if (!c2) return; // bez canvasu (test) náhľad nie je nevyhnutný
-      const cw = cv.clientWidth;
+      const cw = sirkaPlatna[cv.className] || cv.clientWidth;
       if (cw > 0) {
+        sirkaPlatna[cv.className] = cw;
         const W = Math.min(1600, Math.round(cw * Math.max(2, w.devicePixelRatio || 1)));
         if (W !== cv.width) { const pomer = cv.height / cv.width; cv.width = W; cv.height = Math.round(W * pomer); }
       }
       const ms = cv.getAttribute("data-motiv"), hex = cv.getAttribute("data-hex"), bg = cv.getAttribute("data-bg");
       const k = parseFloat(cv.getAttribute("data-k") || ".9");
+      const priSirke = String(sirkaOkna);
       Promise.all([nacitaj(ms), bg ? nacitaj(bg).catch(() => null) : Promise.resolve(null)]).then((im) => {
         const W = cv.width, H = cv.height;
         c2.clearRect(0, 0, W, H);
@@ -939,6 +984,7 @@ export function vytvorUi(o) {
         c2.globalAlpha = hex ? 1 : 0.6; // bez nite: svetlý obrys motívu
         c2.drawImage(prefarbi(im[0], hex || "#efe7d2"), x, y, ve, ve);
         c2.globalAlpha = 1;
+        cv.setAttribute("data-nakreslene", priSirke);
       }).catch(() => { /* náhľad nie je nevyhnutný */ });
     });
   }
@@ -983,11 +1029,12 @@ export function vytvorUi(o) {
   function render() {
     const ae = doc.activeElement;
     const f = ae && (root.contains(ae) || lst.contains(ae)) && fokusDoZoznamu(ae) ? ae.getAttribute("data-f") : null;
+    const stareNahlady = zoberNahlady();
     renderKroky();
     nastavGaleriu();
     renderSuhrn();
     renderLista();
-    kresliNahlady();
+    kresliNahlady(stareNahlady);
     if (f) {
       const el = root.querySelector('[data-f="' + f.replace(/"/g, '\\"') + '"]') || lst.querySelector('[data-f="' + f.replace(/"/g, '\\"') + '"]');
       if (el) try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
@@ -1372,6 +1419,7 @@ export function vytvorUi(o) {
       galZrus();
       hodn.removeEventListener("click", naHodnotenie);
       root.removeEventListener("click", naKlik);
+      w.removeEventListener("resize", naZmenuOkna);
       root.removeEventListener("change", naZmenuPola);
       lst.removeEventListener("click", naKlik);
       doc.removeEventListener("keydown", naKlaves, true);
