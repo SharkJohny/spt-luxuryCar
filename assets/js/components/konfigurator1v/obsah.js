@@ -679,11 +679,14 @@ async function postupne(ctx, kluc, texty, stav) {
 }
 
 /**
- * Reload / Späť: obnovenie polohy bez animácie, kým sa obsah vkladá a oživuje (25. 10. 2026). Web má na html
+ * Reload / Späť na PC: obnovenie polohy bez animácie, kým sa obsah vkladá a oživuje (25. 10. 2026). Web má na html
  * scroll-behavior: smooth a Chrome obnovu polohy na takej stránke animuje; animáciu zastaví akýkoľvek posun počas nej
- * (ručné ukotvenie, posun.js, prepočet konfigurátora) a pri pomalom CPU skončila reload pri FAQ na PC o tisíce px
- * vyššie (628 @1280: 1–3 z 5 behov). Len pri reload/back_forward a len inline štýl na html; po hotovom obsahu + 2,5 s
- * (alebo po 20 s) sa vráti štýl webu. Bežný príchod na stránku sa nemení.
+ * (ručné ukotvenie — na PC jediné, web tam vypína scroll anchoring, configuratorEngine.js —, posun.js) a pri pomalom
+ * CPU skončila reload pri FAQ na PC o tisíce px vyššie (628 @1280: 1–3 z 5 behov; s touto úpravou 8/8 OK pod záťažou).
+ * Len PC (nad 768 px ako configuratorEngine.js): na telefóne obnova s animáciou prechádzala a bez nej narazila na ešte
+ * krátku stránku (598 @390 −4 000 px). Pokus vrátiť polohu zo sessionStorage po vložení obsahu bol horší (−130 až
+ * −1 070 px na oboch šírkach) — zavrhnutý. Len pri reload/back_forward a len inline štýl na html; po hotovom obsahu
+ * + 2,5 s (alebo po 20 s) sa vráti štýl webu. Bežný príchod na stránku sa nemení.
  * @returns {(po?: Promise) => void} uvoľnenie: hneď, alebo po splnení sľubu
  */
 function obnovaBezAnimacie() {
@@ -691,6 +694,7 @@ function obnovaBezAnimacie() {
   try { nav = performance.getEntriesByType("navigation")[0]; } catch (e) { /* starý prehliadač */ }
   const typ = nav ? nav.type : performance.navigation && performance.navigation.type === 1 ? "reload" : performance.navigation && performance.navigation.type === 2 ? "back_forward" : "";
   if (typ !== "reload" && typ !== "back_forward") return () => {};
+  if (window.matchMedia && window.matchMedia("(max-width: 768px)").matches) return () => {}; // telefón: obnova webu
   const html = document.documentElement;
   if (html.style.scrollBehavior) return () => {}; // už nastavil niekto iný — nemeniť
   html.style.scrollBehavior = "auto";

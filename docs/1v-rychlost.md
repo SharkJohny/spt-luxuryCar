@@ -63,10 +63,12 @@ rozmeroch). Stránky: 598 (jedno), 601 (dvoj), 628 (Premium), 619 (Classic), 616
   zmene textu zmeniť aj tam), názov rohože/boxu a „Spolu“ v mikroúlohe. Posun stĺpca do 5 s (pomalý telefón, CPU 4×,
   6 produktov × 390/1280): spolu 0,319 → 0. Opravy z kontroly rozloženia (session kamióny, 6 typov × 9 rozmerov):
   G6 Deväť vecí na nízkych PC oknách, G1/G2/G3 plochy na ťuknutie (zadné body rezu sa predtým nedali ťuknúť), G7 vodoznak.
-- **Reload / Späť bez animácie (obsah.js `obnovaBezAnimacie`):** web má `html{scroll-behavior:smooth}` a Chrome obnovu
-  polohy animuje; akýkoľvek posun počas animácie ju zastaví — reload pri FAQ na 628 @1280 skončil pod záťažou
-  o ~10 000 px vyššie (1–3 z 5 behov, aj na a7c5caf). Pri reload/back_forward dostane html inline `scroll-behavior:auto`
-  do hotového obsahu + 2,5 s (poistka 20 s). Bežný príchod sa nemení.
+- **Reload / Späť na PC bez animácie (obsah.js `obnovaBezAnimacie`):** web má `html{scroll-behavior:smooth}` a Chrome
+  obnovu polohy animuje; posun počas animácie (ručné ukotvenie — na PC jediné, posun.js) ju zastaví — reload pri FAQ
+  na 628 @1280 skončil pod záťažou o ~10 000 px vyššie (1–3 z 5 behov, aj na a7c5caf). Pri reload/back_forward nad
+  768 px dostane html inline `scroll-behavior:auto` do hotového obsahu + 2,5 s (poistka 20 s): 4 stránky @1280 naraz
+  2× po sebe 8/8 OK. Telefón bez zmeny — tam obnova s animáciou prechádzala a bez nej narazila na ešte krátku stránku
+  (598 @390 −4 000 px). Zavrhnuté: vrátiť polohu zo sessionStorage po vložení obsahu (−130 až −1 070 px na oboch šírkach).
 - **Test `vzorky-0` (02725c8):** klikal „Pokračujte“ po 250 ms, počas plynulého posunu k ďalšiemu kroku, a trafil
   vzorku pod tlačidlom (padalo aj naživo). Teraz čaká na ďalší aktívny krok a 300 ms pokoja okna.
 

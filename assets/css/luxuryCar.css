@@ -18454,8 +18454,8 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-a a{color:#7c5f16;tex
 /* titulka od 900 px zmenšuje odsadenie záveru (clamp 44–92 px); návrh v26 má clamp(66px,9vw,140px) na všetkých šírkach */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"]{padding-top:clamp(66px,9vw,140px) !important;
   padding-bottom:clamp(66px,9vw,140px) !important}
-/* pozadie: v návrhu <img> s opacity .3 a filtrom; tu ozdoba v CSS. hero.jpg prednačítava Záhlavie webu na každej stránke
-   (cache), trieda p1v-blizko (obsah-d.js pri priblížení) = ani bez prednačítania sa nestiahne skôr, než treba */
+/* pozadie: v návrhu <img> s opacity .3 a filtrom; tu ozdoba v CSS. hero.jpg (fotka titulky) sa stiahne až s triedou
+   p1v-blizko (obsah-d.js pri priblížení) — Záhlavie webu ho od 25. 10. 2026 neprednačítava (zmazaný preload, Michal) */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"] .endbg{opacity:.3;filter:saturate(.82) contrast(1.04);
   background:#181510 50% 50% / cover no-repeat}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="d-koniec"].p1v-blizko .endbg{
