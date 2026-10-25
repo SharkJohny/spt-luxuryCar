@@ -250,7 +250,7 @@ async function main() {
     if (vypnute.length) throw new ChybaPouzitia("?novy=1 na produktoch nezapnutého typu (" + vypnute.map((p) => p.id + " " + p.typ).join(", ") + ") nič nezapne — pridaj --vyvoj (ZAPNUTE_TYPY " + JSON.stringify(reg.zapnute) + ")");
   }
   console.log(`Test obsahu 1V — miesto: ${{ cdn: "CDN verzie (D1 = b, test obslúži lokálny dist)", popis: "Popis produktu (spustenie, vložené testom)", "popis-cdn": "kus 1 v Popise (--bez-webp, vložené testom) + kus 2 z CDN (krok 2 spustenia)", paticka: "banner v pätičke (starý test, vložené testom)", zive: "živé (nič sa nevkladá ani neobsluhuje)" }[a.miesto]}, flag ?novy=${flag}, produkty ${produkty.map((p) => p.id + " (" + p.kluc + ")").join(", ")}`);
-  const build = priprav({ bezDrop: a.bezDrop, bezWebp: a.miesto === "popis-cdn" });
+  const build = priprav({ bezDrop: a.bezDrop, bezWebp: a.miesto === "popis-cdn" || a.miesto === "zive" });
   console.log("  " + build.popis);
   const menaSekcii = (html) => [...String(html).matchAll(/\sdata-lcd-sekcia="([^"]+)"/g)].map((m) => m[1]);
 
@@ -270,6 +270,8 @@ async function main() {
       const k1 = menaSekcii(p.kusy[0].html).join(",");
       if (p.sekcieDok.join(",") !== k1) throw new Error(`${p.kluc}: kus 1 --bez-webp má iné sekcie (${p.sekcieDok.join(",")}) ako dist (${k1})`);
     }
+    // zive po kroku 2 (25. 10. 2026): kus z Popisu je build --bez-webp (iný data-lcd-v ako dist pri kusoch s fotkami)
+    if (a.miesto === "zive") p.popisHash = Object.fromEntries(build.admin.popis.casti(p.kluc).map((c) => [c.cast, c.hash]));
     // médiá obsahu 1V (bez flagu sa nesmú stiahnuť) — bez súborov živého webu z /usr/www.luxurycardesign.sk/user/documents/upload/:
     // FAQ obsahu = živé FAQ z /faq/ doslovne (Michal 14. 10. 2026) aj s obrázkom lazers.jpg, ktorý živé FAQ (index.js) sťahuje aj bez flagu
     p.media = [...new Set(p.kusy.concat(p.dokKusy || []).flatMap((c) => adresyMedii(c.html)))].filter((m) => !/\/usr\/www\.luxurycardesign\.sk\/user\/documents\/upload\//.test(m));
@@ -488,7 +490,9 @@ async function main() {
                 }
                 if (a.miesto === "zive") for (const c of p.kusy) {
                   const k = st.korene.find((x) => x.cast === c.cast);
-                  zle(k && k.v === c.hash, `${c.cast}: na stránke je data-lcd-v ${k ? k.v : "—"}, build ${c.hash} (admin/CDN nie je aktuálny alebo ho niekto zmenil)`);
+                  const zPopisu = !!(st.obsahStav && st.obsahStav.casti && st.obsahStav.casti[c.cast] === "dom");
+                  const cak = zPopisu && p.popisHash[c.cast] ? p.popisHash[c.cast] : c.hash;
+                  zle(k && k.v === cak, `${c.cast}: na stránke je data-lcd-v ${k ? k.v : "—"}, build ${cak}${zPopisu ? " (--bez-webp, Popis)" : ""} (admin/CDN nie je aktuálny alebo ho niekto zmenil)`);
                 }
                 zle(st.obsah, "body.lcd-1v-obsah chýba (obsah.js nenašiel/nestiahol korene?)");
                 zle(st.miesto && /shp-tabs-wrapper/.test(st.miesto.za || ""), ".p1v-miesto nie je hneď pred záložkami produktu (za ním: " + (st.miesto && st.miesto.za) + ")");
