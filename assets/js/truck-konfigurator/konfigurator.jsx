@@ -2166,7 +2166,7 @@ function Configurator() {
                     <img src={swatch.swatch} alt={swatch.code}
                       style={{ width: "100%", height: 95, objectFit: "cover", display: "block" }} />
                     <div style={{ fontSize: 11, fontWeight: 600, textAlign: "center", padding: "5px 2px", color: "#555", background: isActive ? "#fdf8ec" : "#f5f5f5" }}>
-                      {farbaNazov(swatch) ? <>{farbaNazov(swatch)}<br /><span style={{ fontWeight: 400, color: "#888" }}>{swatch.code}</span></> : swatch.code}
+                      {swatch.code}
                     </div>
                   </div>
                 );
@@ -3505,7 +3505,7 @@ function Configurator() {
                               <img src={swatch.swatch} alt={swatch.code}
                                 style={{ width: "100%", height: 95, objectFit: "cover", display: "block" }} />
                               <div style={{ fontSize: 11, fontWeight: 600, textAlign: "center", padding: "5px 2px", color: "#555", background: isActive ? "#fdf8ec" : "#f5f5f5" }}>
-                                {farbaNazov(swatch) ? <>{farbaNazov(swatch)}<br /><span style={{ fontWeight: 400, color: "#888" }}>{swatch.code}</span></> : swatch.code}
+                                {swatch.code}
                               </div>
                             </div>
                           );

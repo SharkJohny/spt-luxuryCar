@@ -163,4 +163,12 @@ assert.equal(twice, once, "automatický blok sa pri opakovanom odoslaní nesmie 
 assert.ok(twice.startsWith("Prosím zavolať pred doručením."), "ručná poznámka zákazníka sa musí zachovať");
 assert.equal((twice.match(/\[KONFIGURÁCIA KAMIÓNA\]/g) || []).length, 1);
 
+// Poznámka objednávky (25. 10. 2026): každá časť na jednom riadku s číslom, položky oddelené „ | “ – tlač Shoptetu riadky zlepí
+const riadkyPoznamky = once.split("[KONFIGURÁCIA KAMIÓNA]")[1].split("[/KONFIGURÁCIA KAMIÓNA]")[0].trim().split("\n");
+assert.ok(riadkyPoznamky.length >= 2 && riadkyPoznamky.every((r, i) => r.startsWith(`${i + 1}) `)), "poznámka: časti očíslované po riadkoch " + JSON.stringify(riadkyPoznamky));
+assert.ok(/^1\) ŠPECIFIKÁCIA VOZIDLA: Vozidlo: [^|]+ \| /.test(riadkyPoznamky[0]), "poznámka: vozidlo v prvom riadku s „ | “ " + riadkyPoznamky[0]);
+assert.ok(!/\n- /.test(once), "poznámka: žiadne riadky „- …“ (zlepili by sa)");
+const kob = riadkyPoznamky.find((r) => /KOBERČEKY POD SEDAČKY/.test(r)) || "";
+assert.ok(kob.indexOf("Typ nášiviek na boky") > 0 && kob.indexOf("Typ nášiviek na boky") < kob.indexOf("Typ nášivky na stred"), "poznámka: boky pred stredom " + kob);
+
 console.log("✓ súhrn truck konfigurácie obsahuje všetky výrobné voľby");

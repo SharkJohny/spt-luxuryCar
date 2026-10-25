@@ -434,8 +434,8 @@ export function vytvorUi(o) {
     return '<div class="fb" role="group" aria-label="' + attr(U0.farby_aria) + '">' + farbyMat(material).map((f) => {
       const on = vybrata === f.kod;
       return '<button type="button" class="fb__b' + (on ? " is-on" : "") + '" data-a="' + akcia + '" data-v="' + attr(f.kod) + '" data-f="' + prefix + attr(f.kod) + '" aria-pressed="' + on +
-        '" aria-label="' + attr(fill(U0.kod_aria, { meno: f.meno, kod: f.kod })) + '"><span class="fb__sw"><img src="' + attr(f.swatch) + '" alt="" loading="lazy"></span><span class="fb__nm">' + esc(f.meno) +
-        '</span><span class="fb__kod">' + esc(fill(T.kroky.farba.kod_popis, { kod: f.kod })) + "</span></button>";
+        '" aria-label="' + attr(fill(U0.kod_aria, { meno: f.meno, kod: f.kod })) + '"><span class="fb__sw"><img src="' + attr(f.swatch) + '" alt="" loading="lazy"></span>' +
+        '<span class="fb__kod">' + esc(fill(T.kroky.farba.kod_popis, { kod: f.kod })) + "</span></button>";
     }).join("") + "</div>";
   }
 

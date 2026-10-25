@@ -230,7 +230,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b:focus-visible .fb__sw 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw { border-color: #fff; box-shadow: 0 0 0 2px var(--k-gold), 0 6px 14px rgba(20, 15, 5, .25); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw::after { content: "\2713"; position: absolute; top: 4px; right: 4px; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--k-zlato); color: #17130a; font: 700 10px/1 var(--k-body); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__nm { display: block; margin-top: 6px; font: 600 12.5px/1.2 var(--k-body); overflow-wrap: anywhere; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__kod { display: block; margin-top: 2px; font: 400 10.5px/1.2 var(--k-body); color: var(--k-mute); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__kod { display: block; margin-top: 6px; font: 700 12.5px/1.2 var(--k-body); color: var(--k-ink); } /* pod vzorkou len kód (Michal 25. 10. 2026), názov v náhľade */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__nm { color: var(--k-gold-tx); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-nahlad-farby__nm { text-transform: none; letter-spacing: .02em; font-size: 13px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 10px; margin: 0; padding: 0; }
@@ -521,6 +521,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on i::after { conte
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .nt__b.is-on .nt__nm { color: var(--k-zvol); font-weight: 700; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw { border-color: #fff; box-shadow: 0 0 0 3px var(--k-zvol), 0 6px 14px rgba(20, 15, 5, .25); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__nm { color: var(--k-zvol); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__kod { color: var(--k-zvol); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on::after, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .fb__b.is-on .fb__sw::after,
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on .k-rkarta__vol, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on .kn-rad { border-color: transparent; background: var(--k-zvol-grad); color: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on .kn-rv__r { border-color: #fff; background: var(--k-zvol-grad); }

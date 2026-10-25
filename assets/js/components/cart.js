@@ -36,6 +36,10 @@ export function initCart(texts) {
       $(".messages").hide();
     });
   }
+  // Objednávka len s kamiónmi: poloha volantu / sedadiel / dvere osobného auta (1.–3. pole) nemá zmysel – productPage.js
+  // ich na každom produkte predvyplní (left, pass-5, doors-4) a v objednávke kamiónu mýlili (Michal 25. 10. 2026)
+  const $polozky = $("body.ordering-process .cart-items .cart-item");
+  if ($polozky.length && $polozky.toArray().every((el) => jeKamionovyRiadok($(el).text()))) return;
   const wheelPosition = sessionStorage.getItem("wheelPosition");
   const seatPosition = sessionStorage.getItem("seatPosition");
   const doorPosition = sessionStorage.getItem("doorPosition");

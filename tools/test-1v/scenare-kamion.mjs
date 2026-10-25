@@ -176,7 +176,7 @@ const KROK5 = `(function () {
 })()`;
 /** Farby tapacíru v karte („Vybrať inak“): žiadny názov farby sa nesmie zalomiť uprostred slova (revízia 18. 10. 2026 večer). */
 const ZLOM_FARIEB = `(function () {
-  var nm = document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-karta .fb__nm'), zlomene = [];
+  var nm = document.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-karta .fb__kod'), zlomene = [];
   Array.prototype.forEach.call(nm, function (el) {
     var tn = el.firstChild; if (!tn || tn.nodeType !== 3) return;
     var re = /\\S+/g, m, t = tn.textContent;

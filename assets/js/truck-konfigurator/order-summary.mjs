@@ -229,10 +229,11 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
     addLine(group, texts.labels.materialColor, carpetMaterial);
     addLine(group, texts.labels.edgingColor, carpetEdging);
     addLine(group, texts.labels.embroideryPlacement, texts.placements[s.nasivkyPlacement]);
-    addLine(group, texts.labels.centrePatchType, centreEmbroidery ? selectedText(s.selectedStredNasivka) : texts.noPatch);
-    addLine(group, texts.labels.centrePatchColor, centreEmbroidery ? threadColor(s.selectedStredNitColor) : texts.noPatch);
+    // poradie ako v konfigurátore aj v príplatkoch Shoptetu (Michal 25. 10. 2026): najprv boky (šofér + spolujazdec), potom stred
     addLine(group, texts.labels.sidePatchType, sideEmbroidery ? selectedText(s.selectedNasivka) : texts.noPatch);
     addLine(group, texts.labels.sidePatchColor, sideEmbroidery ? threadColor(s.selectedNitColor) : texts.noPatch);
+    addLine(group, texts.labels.centrePatchType, centreEmbroidery ? selectedText(s.selectedStredNasivka) : texts.noPatch);
+    addLine(group, texts.labels.centrePatchColor, centreEmbroidery ? threadColor(s.selectedStredNitColor) : texts.noPatch);
   });
 
   const wantsDoorPanels = s.doorPanelChoice === true || s.doorPanelChoice === "ano";
@@ -334,6 +335,18 @@ export function mergeTruckOrderSummaryIntoNote(currentNote, summary) {
   }, String(currentNote || "")).trim();
 
   if (!summary) return withoutOldSummary;
-  const block = `${texts.markerStart}\n${summary}\n${texts.markerEnd}`;
+  const block = `${texts.markerStart}\n${noteFromSummary(summary)}\n${texts.markerEnd}`;
   return withoutOldSummary ? `${withoutOldSummary}\n\n${block}` : block;
+}
+
+/**
+ * Poznámka objednávky: každá časť na jednom riadku s poradovým číslom a položky oddelené „ | “
+ * („1) ŠPECIFIKÁCIA VOZIDLA: Vozidlo: … | Typ prevodovky: …“). Tlač objednávky v Shoptete zalomenia riadkov
+ * zlepí do jedného odseku (Michal 25. 10. 2026: „nemá to žiadnu logiku“) – takto sa dá čítať aj zlepená.
+ * Rozpis v košíku ostáva v kartách (sessionStorage truckOrderSummary, parseTruckOrderSummary).
+ */
+export function noteFromSummary(summary) {
+  return parseTruckOrderSummary(summary)
+    .map((group, i) => `${i + 1}) ${group.heading}: ${group.items.map((item) => `${item.label}: ${item.value}`).join(" | ")}`)
+    .join("\n");
 }
