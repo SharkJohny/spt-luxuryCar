@@ -40,6 +40,9 @@ Michal 25. 10. 2026: „optimalizácia a zrýchľovanie stránok, aby sa aj na p
   klikania, `zhrn-kamion.mjs` = zhrnutie nálezov, `harok.py` = hárok snímok; `lokal` = podstrčený build z priečinka
   `LCD_LOKAL`). Hľadá prekryté texty, pretečenie, orezanie, vodorovný posuvník, prvky mimo okna, malé dotykové ciele,
   tlačidlo zakryté lištou a mierku písma. Pozor na falošné nálezy počas animácie — nález vždy over snímkou.
+- Záhlavie HTML kódov platí na KAŽDEJ stránke: žiadny `<link rel="preload">` obrázka jednej stránky. Preload fotky titulky
+  (`lcd-home/hero.jpg`, high) sťahoval 140 kB aj na produktoch → zmazaný 25. 10. 2026 (Michal), 640 LCP −0,8 až −1 s,
+  titulka bez zmeny (hero je `<img fetchpriority="high">` v `hp-vrch`). Preload loga ostáva (`admin-html/zahlavie-riadok.html`).
 - Obrázky v popisoch produktov nemajú `loading="lazy"` — produkt 598 sťahuje ~3–4 MB fotiek spodného popisu hneď pri
   načítaní (aj pod `?novy=1`, kde je popis skrytý). Michal 25. 10.: v admine sa nemení, vyrieši to nahradenie popisu obsahom 1V.
 
