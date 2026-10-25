@@ -165,6 +165,57 @@ span.btn.btn-block.btn-default.toggle-contacts a {
   }
 }
 
+
+// Pokladňa – súhrn objednávky (25. 10. 2026): div.cart-item je tabuľka v stĺpci ~330 px, rozpis kamiónu pretekal
+// a „1 ks · cena“ stáli uprostred karty. Rozpis na celú šírku, počet a cena pod ním. Trieda .lcd-truck-polozka z cart.js.
+body.ordering-process .cart-items {
+  .cart-item.lcd-truck-polozka {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    column-gap: 14px;
+    align-items: baseline;
+
+    > .cart-item-name {
+      display: block;
+      grid-column: 1 / -1;
+      width: auto;
+      min-width: 0;
+    }
+    > .cart-item-amount,
+    > .cart-item-price {
+      display: block;
+      width: auto;
+      border: 0;
+      padding-top: 10px;
+      white-space: nowrap;
+    }
+    > .cart-item-amount {
+      grid-column: 2;
+    }
+    > .cart-item-price {
+      grid-column: 3;
+      text-align: right;
+    }
+  }
+  .lcd-truck-cart-summary {
+    width: 100%;
+  }
+  .lcd-truck-cart-summary__group {
+    padding: 12px 14px;
+
+    dl {
+      display: block;
+    }
+    dt {
+      margin-top: 8px;
+    }
+    dt:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+
 @media (max-width: 768px) {
   .cart-table tr > td:nth-child(odd) {
     text-align: right;

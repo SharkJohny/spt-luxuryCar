@@ -188,7 +188,8 @@ function changeDescription() {
       if (groups.length) {
         const $summary = $("<div>").addClass("lcd-truck-cart-summary");
         groups.forEach(function (group) {
-          const $group = $("<section>").addClass("lcd-truck-cart-summary__group").appendTo($summary);
+          // div, nie section: staré globálne `section { padding: 0 !important }` (do 768 px) by kartám zrušilo okraj
+          const $group = $("<div>").addClass("lcd-truck-cart-summary__group").appendTo($summary);
           $("<h4>").text(group.heading).appendTo($group);
           const $list = $("<dl>").appendTo($group);
           group.items.forEach(function (item) {
@@ -197,6 +198,8 @@ function changeDescription() {
           });
         });
         $(this).empty().append($summary);
+        // pokladňa: úzky stĺpec súhrnu (div.cart-item = tabuľka) – CSS podľa triedy položí rozpis na celú šírku
+        $(this).closest(LCD_POLOZKA).addClass("lcd-truck-polozka");
         return;
       }
     }
