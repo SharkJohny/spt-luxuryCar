@@ -107,7 +107,11 @@ A = živé SK `73fe86b` bez preloadu hero, B = `901f460` z repa; ab-harness opra
   Popisu a bannerov 3,7 MB (four.jpg 430 kB, Posuvka-after1/before1 695 kB, craftman.png 321 kB, poster2.jpg 307 kB,
   first/two.jpg 526 kB, lazers.jpg 201 kB, j1–j8 …), Google Tag Manager 704 kB (gtag G-2TH0ZK5HF4 2× po 194 kB),
   skripty Shoptetu 490 kB, písma 372 kB, CSS 236 kB, náš bundel 306 kB. Konfigurátor je použiteľný ~2,5 s po bundli.
-  Po bundli sa sťahuje ďalších 1,6 MB obrázkov Popisu/bannerov (unveil Shoptetu) — konfigurátor už vtedy beží.
+  Po bundli sa sťahuje ďalších 1,6 MB obrázkov — konfigurátor už vtedy beží. Väčšinu vkladá starý konfigurátor
+  (`components/productPage.js`: bannery vzorov diamont/hesaline/stripe-line 306 kB, fotky farieb kože v `.options-wrap`,
+  `.box-config`, `.upsale-Banner`, kufor base-p/full-p…), pod 1V sú skryté (`scratchpad/cls/skryte.mjs`). Pri spustení
+  (alebo so súhlasom meniť starý kód teraz): pod 1V ich nevkladať / `loading="lazy"`. Teraz nie — Michal 25. 10.: starý
+  kód produktov nemeniť; čas do použiteľného konfigurátora to aj tak neskracuje (beží ~2,5 s po bundli).
 - Hlavné vlákno spolu +3 až +16 %: sekcie obsahu sa oživujú postupne v nečinnosti (kvôli polohe pri reload), A ich
   bez posunu neoživí vôbec. TBT (blokovanie) je pritom nižší na 4 zo 6.
 - 637: obsah vzorkovníka prichádza skôr, preto sa jeho obrázky stihnú stiahnuť v okne merania (+0,43 MB).
