@@ -670,6 +670,7 @@ export const TEXTY = {
     "bez_priplatku": "bez príplatku",
     "zmena_info": "Na kobercoch už nášivka nie je. Prosím, vyberte, či chcete nášivku na tapacír dverí.",
     "rovnaka": "Rovnaká ako na kobercoch",
+    "rovnaka_boky": "Rovnaká ako pod sedadlami",
     "ina": "Iná nášivka",
     "ina_popis": "iný motív alebo farba nite",
     "bez_kobercov_nevybrate": "Nášivku na koberce ste ešte nevybrali, preto si motív a farbu nite pre dvere vyberte tu.",
@@ -685,7 +686,8 @@ export const TEXTY = {
     "mat_rovnake": "rovnaké ako koberce",
     "nas": "Nášivka na tapacír dverí:",
     "dvere": "Motív nášivky na tapacír dverí:",
-    "dvere_rovnaka": "rovnaký ako na kobercoch – {x}"
+    "dvere_rovnaka": "rovnaký ako na kobercoch – {x}",
+    "dvere_rovnaka_boky": "rovnaký ako pod sedadlami – {x}"
    },
    "zhrnutie_ano": "Rovnaký ako koberce",
    "zhrnutie_ano_vlastne": "{nazov}, {variant} · {farba} · {lemovanie}",

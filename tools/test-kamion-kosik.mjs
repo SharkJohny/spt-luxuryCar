@@ -845,5 +845,30 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
     css.includes('#lcd1v-kamion .kn-karta .k-sk + .k-sk:not(.kn-potvrd) { padding-top: 22px; border-top: 1px solid var(--k-line); }'), J(sk.map((x) => x.getAttribute("data-pole"))));
 }
 
+{
+  // 25. 10. 2026 (Michal): pod sedadlami a v strede rôzne nášivky -> tapacír „Rovnaká ako pod sedadlami“ (preberá nášivku
+  // spod sedadiel, nie „ako na kobercoch“ — ktorých?); rovnaké nášivky -> „Rovnaká ako na kobercoch“. Aj poznámka objednávky.
+  console.log("25) Nášivka na tapacír pri rôznych nášivkách pod sedadlami a v strede");
+  const t = await otvor();
+  zaklad(t, DAF);
+  nasivky(t, "boky+stred", "H19", "2824", false);
+  t.klik(a("motiv", "H21", "stred")); nit(t, "2866", "stred"); potvrd(t, "stred");
+  t.klik(a("tap", "ano")); t.klik(a("tapRovnake")); t.klik(a("tapNas", "ano"));
+  const q = (sel) => t.d.querySelector("#lcd1v-kamion " + sel);
+  const dl = q('[data-a="tapNasRovnaka"][data-v="1"]');
+  over("25: voľba na dvere = „Rovnaká ako pod sedadlami“ s nášivkou spod sedadiel (H19, niť 2824)", !!dl && /Rovnaká ako pod sedadlami/.test(dl.textContent) && !/ako na kobercoch/.test(dl.textContent) && /H19/.test(dl.textContent), dl && dl.textContent);
+  t.klik(a("tapNasRovnaka", "1"));
+  t.klik(a("krok", "tapacir")); // krok sa po odpovedi sám zavrel -> otvoriť, riadky ✓ … Zmeniť
+  const hot = Array.from(t.d.querySelectorAll('#lcd1v-kamion [data-krok="tapacir"] .kn-hot')).map((x) => x.textContent).join(" | ");
+  over("25: riadok hotovej otázky „rovnaký ako pod sedadlami – …“", /rovnaký ako pod sedadlami –/.test(hot), hot);
+  await kontrolaKosika(t, "25", { poznamkaObsahuje: ["- Typ nášivky na tapacír: Rovnaká ako pod sedadlami – H19", "- Farba nášiviek na tapacíre: Rovnaká ako pod sedadlami – 2824"] });
+  const t2 = await otvor();
+  zaklad(t2, DAF);
+  nasivky(t2, "boky+stred", "H19", "2824", true);
+  t2.klik(a("tap", "ano")); t2.klik(a("tapRovnake")); t2.klik(a("tapNas", "ano"));
+  const dl2 = t2.d.querySelector('#lcd1v-kamion [data-a="tapNasRovnaka"][data-v="1"]');
+  over("25: rovnaké nášivky -> voľba „Rovnaká ako na kobercoch“", !!dl2 && /Rovnaká ako na kobercoch/.test(dl2.textContent), dl2 && dl2.textContent);
+}
+
 console.log(`\n${ok} OK, ${zle} ZLE`);
 process.exit(zle ? 1 : 0);

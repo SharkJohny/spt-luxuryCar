@@ -23,6 +23,14 @@ export function stredEff(S) {
   return S.nas === "boky+stred" && S.stredRovnaky ? S.nasBoky : S.nasStred;
 }
 
+/** Pod sedadlami a v strede iný motív alebo niť (Michal 25. 10. 2026): tapacír preberá nášivku spod sedadiel a text
+ *  aj poznámka hovoria „ako pod sedadlami“, nie „ako na kobercoch“ (ktorých?). */
+export function roznePodSedadlamiAStred(S) {
+  if (S.nas !== "boky+stred") return false;
+  const se = stredEff(S);
+  return S.nasBoky.motiv !== se.motiv || S.nasBoky.nit !== se.nit;
+}
+
 /** Nášivka na kobercoch, ktorú môže prebrať tapacír („rovnaká ako na kobercoch“), alebo null. */
 export function koberecNas(S) {
   if (maBoky(S) && S.nasBoky.motiv && S.nasBoky.nit) return S.nasBoky;

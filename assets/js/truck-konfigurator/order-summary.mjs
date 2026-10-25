@@ -37,6 +37,7 @@ const SUMMARY_TEXTS = {
     sameMaterial: "Rovnaký ako koberčeky",
     sameEdging: "Rovnaká ako farba lemovania koberčekov",
     samePatch: "Rovnaká ako na koberčekoch",
+    samePatchSides: "Rovnaká ako pod sedadlami",
     markerStart: "[KONFIGURÁCIA KAMIÓNA]",
     markerEnd: "[/KONFIGURÁCIA KAMIÓNA]",
   },
@@ -78,6 +79,7 @@ const SUMMARY_TEXTS = {
     sameMaterial: "Stejný jako koberečky",
     sameEdging: "Stejná jako barva lemování koberečků",
     samePatch: "Stejná jako na koberečcích",
+    samePatchSides: "Stejná jako pod sedačkami",
     markerStart: "[KONFIGURACE KAMIONU]",
     markerEnd: "[/KONFIGURACE KAMIONU]",
   },
@@ -238,11 +240,17 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
     const doorEdgingValue = s.doorSameAsCarpet && s.doorSameAsCarpet.lemovanie
       ? `${texts.sameEdging} – ${carpetEdging}`
       : doorEdging;
+    // Michal 25. 10. 2026: pod sedadlami a v strede rôzne nášivky -> tapacír preberá tú spod sedadiel a poznámka to
+    // povie („ako na koberčekoch“ by bolo nejasné — ktorých?)
+    const kod = (v) => (v && (v.code || v.name)) || "";
+    const roznePodSedadlamiAStred = s.nasivkyPlacement === "boky+stred" &&
+      (kod(s.selectedNasivka) !== kod(s.selectedStredNasivka) || kod(s.selectedNitColor) !== kod(s.selectedStredNitColor));
+    const samePatch = roznePodSedadlamiAStred ? texts.samePatchSides : texts.samePatch;
     const doorPatch = s.doorSameNasivkaAsCarpet
-      ? `${texts.samePatch} – ${selectedText(s.doorNasivka)}`
+      ? `${samePatch} – ${selectedText(s.doorNasivka)}`
       : selectedText(s.doorNasivka);
     const doorPatchColor = s.doorSameNitAsCarpet
-      ? `${texts.samePatch} – ${threadColor(s.doorNitColor)}`
+      ? `${samePatch} – ${threadColor(s.doorNitColor)}`
       : threadColor(s.doorNitColor);
 
     addGroup(lines, texts.headings.doors, (group) => {

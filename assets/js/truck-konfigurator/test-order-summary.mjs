@@ -46,12 +46,45 @@ const summary = buildTruckOrderSummary({
   "TAPACÍR DVERÍ",
   "- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – K2",
   "- Nášivky na tapacír: Chcem",
-  "- Typ nášivky na tapacír: Rovnaká ako na koberčekoch – H1",
-  "- Farba nášiviek na tapacíre: Rovnaká ako na koberčekoch – N2 – Červená",
+  // 25. 10. 2026 (Michal): boky H1 / N2 a stred H4 / N1 sú rôzne -> tapacír preberá nášivku spod sedadiel a poznámka to povie
+  "- Typ nášivky na tapacír: Rovnaká ako pod sedadlami – H1",
+  "- Farba nášiviek na tapacíre: Rovnaká ako pod sedadlami – N2 – Červená",
 ].forEach((line) => assert.ok(summary.includes(line), `Chýba riadok: ${line}`));
 
 assert.ok(!summary.includes("undefined"));
 assert.ok(!summary.includes("[object Object]"));
+
+assert.ok(!summary.includes("Rovnaká ako na koberčekoch"), "pri rôznych nášivkách nesmie byť „ako na koberčekoch“ (ktorých?)");
+
+// rovnaké nášivky pod sedadlami aj v strede -> „Rovnaká ako na koberčekoch“ (jednoznačné)
+const rovnakeSummary = buildTruckOrderSummary({
+  selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" },
+  nasivkyPlacement: "boky+stred",
+  selectedNasivka: { code: "H19" }, selectedNitColor: { code: "2824", name: "Červená" },
+  selectedStredNasivka: { code: "H19" }, selectedStredNitColor: { code: "2824", name: "Červená" },
+  doorPanelChoice: "ano", doorWantsNasivka: true, doorNasivka: { code: "H19" }, doorNitColor: { code: "2824", name: "Červená" },
+  doorSameAsCarpet: { material: true, lemovanie: true }, doorSameNasivkaAsCarpet: true, doorSameNitAsCarpet: true,
+});
+assert.ok(rovnakeSummary.includes("- Typ nášivky na tapacír: Rovnaká ako na koberčekoch – H19"), rovnakeSummary);
+assert.ok(rovnakeSummary.includes("- Farba nášiviek na tapacíre: Rovnaká ako na koberčekoch – 2824 – Červená"), rovnakeSummary);
+// len pod sedadlami -> „ako na koberčekoch“ (iná nie je)
+const lenBokySummary = buildTruckOrderSummary({
+  selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" },
+  nasivkyPlacement: "boky", selectedNasivka: { code: "H19" }, selectedNitColor: { code: "2824", name: "Červená" },
+  doorPanelChoice: "ano", doorWantsNasivka: true, doorNasivka: { code: "H19" }, doorNitColor: { code: "2824", name: "Červená" },
+  doorSameAsCarpet: { material: true, lemovanie: true }, doorSameNasivkaAsCarpet: true, doorSameNitAsCarpet: true,
+});
+assert.ok(lenBokySummary.includes("- Typ nášivky na tapacír: Rovnaká ako na koberčekoch – H19"), lenBokySummary);
+// CZ, rôzne nášivky -> „Stejná jako pod sedačkami“
+const czRozne = buildTruckOrderSummary({
+  selectedMaterial: "Prémiová syntetická kůže – prošívaná", selectedColor: { code: "11" },
+  nasivkyPlacement: "boky+stred",
+  selectedNasivka: { code: "H19" }, selectedNitColor: { code: "2824", name: "Červená" },
+  selectedStredNasivka: { code: "H21" }, selectedStredNitColor: { code: "2866", name: "Fialová" },
+  doorPanelChoice: "ano", doorWantsNasivka: true, doorNasivka: { code: "H19" }, doorNitColor: { code: "2824", name: "Červená" },
+  doorSameAsCarpet: { material: true, lemovanie: true }, doorSameNasivkaAsCarpet: true, doorSameNitAsCarpet: true,
+}, "cs");
+assert.ok(czRozne.includes("- Typ nášivky na tapacír: Stejná jako pod sedačkami – H19"), czRozne);
 
 const groups = parseTruckOrderSummary(summary);
 assert.deepEqual(groups.map((group) => group.heading), [

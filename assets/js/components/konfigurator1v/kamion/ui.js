@@ -8,7 +8,7 @@ import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA
 import { OBRAZKY_1V } from "../ctx.js";
 import { cielNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
-import { novyStav, koberecNas as knS, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
+import { novyStav, koberecNas as knS, roznePodSedadlamiAStred, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
 
 const NB = " "; // nezalomiteľná medzera „423 €“ (ako artefakt a 1V)
 const P = "k1v-"; // predpona id prvkov (stránka Shoptetu má vlastné id)
@@ -831,7 +831,7 @@ export function vytvorUi(o) {
     if (otazkaDvere()) {
       const odp = U.n6.nasOdp;
       return karta("dvere", nd.nadpis_motiv, skOt("tapacir", "tapNasVolba", oz.nasivka, '<div class="kn-rv" role="group" aria-labelledby="' + P + 'ot-tapNasVolba">' +
-        rvDlazdica("tapNasRovnaka", "1", odp && S.tapNasRovnaka, platno("kn-rv__cv", kn, bgT, ".92", 600, 400), nd.rovnaka, popisTx(motivTxt(kn))) +
+        rvDlazdica("tapNasRovnaka", "1", odp && S.tapNasRovnaka, platno("kn-rv__cv", kn, bgT, ".92", 600, 400), roznePodSedadlamiAStred(S) ? nd.rovnaka_boky : nd.rovnaka, popisTx(motivTxt(kn))) +
         rvDlazdica("tapNasRovnaka", "0", odp && !S.tapNasRovnaka, mozaikaMotivov("dvere"), nd.ina, popisTx(nd.ina_popis)) + "</div>"));
     }
     return karta("dvere", nd.nadpis_motiv, (kn ? riadokHot("dvere", nd.ina, "", true) : '<p class="kn-info">' + esc(S.nas == null ? nd.bez_kobercov_nevybrate : nd.bez_kobercov) + "</p>") +
@@ -850,7 +850,7 @@ export function vytvorUi(o) {
     }
     if (b === "nas") return riadokHot("nas", h.nas, S.tapNas ? fill(h.ano, { x: plus(po.nasivka_dvere.suma) }) : h.nie);
     const kn = koberecNas();
-    if (kn && S.tapNasRovnaka) return riadokHot("dvere", h.dvere, fill(h.dvere_rovnaka, { x: motivTxt(kn) }));
+    if (kn && S.tapNasRovnaka) return riadokHot("dvere", h.dvere, fill(roznePodSedadlamiAStred(S) ? h.dvere_rovnaka_boky : h.dvere_rovnaka, { x: motivTxt(kn) }));
     return riadokHot("dvere", h.dvere, motivTxt({ motiv: S.tapNasMotiv, nit: S.tapNasNit }));
   }
 
