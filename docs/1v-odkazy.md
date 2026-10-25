@@ -1,7 +1,7 @@
 # Nový vzhľad 1V za `?novy=1` — odkazy a kroky v admine
 
 Testovacie odkazy pre všetkých 13 SK produktov + vzorkovník a presné kroky, ktoré robí Michal v SK admine. Claude do adminu nikdy nič neuloží.
-Pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.js`, `ZAPNUTE_TYPY` = jedno, dvoj, kufor-classic, kufor-premium, boxy, vzorky, kamion).
+**Od spustenia (Michal 25. 10. 2026, `konfigurator1v/index.js` `SPUSTENE = true`, postup `docs/1v-spustenie.md`) má nový vzhľad každý zákazník na SK bez parametra; starý vzhľad = `?novy=0`.** Pred spustením: pre zákazníka bez `?novy=1` sa nemení nič (brána: `konfigurator1v/produkty.js`, `ZAPNUTE_TYPY` = jedno, dvoj, kufor-classic, kufor-premium, boxy, vzorky, kamion).
 
 Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medzi produktmi ho drží). `?novy=0` vzhľad vypne.
 

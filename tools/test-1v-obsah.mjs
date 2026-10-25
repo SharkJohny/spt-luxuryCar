@@ -201,6 +201,9 @@ async function main() {
   const a = argumenty(process.argv.slice(2));
   const reg = register();
   const flag = a.vyvoj ? "vyvoj" : "1";
+  // spustenie pre všetkých (index.js SPUSTENE, Michal 25. 10. 2026): starý vzhľad („bez flagu“) = ?novy=0
+  const SPUSTENE = /export const SPUSTENE\s*=\s*true/.test(readFileSync(new URL("../assets/js/components/konfigurator1v/index.js", import.meta.url), "utf8"));
+  const bezFlagu = SPUSTENE ? "0" : null;
   const produkty = vyberProdukty(a.produkt).map((p) => {
     const r = reg.produkty[p.id];
     if (!r) throw new ChybaPouzitia("produkt " + p.id + " nie je v registri konfigurator1v/produkty.js");
@@ -312,7 +315,7 @@ async function main() {
           const zaklad = u.druh === "zaklad";
           const cdnKusy = zaklad ? Object.fromEntries(p.kusy.map((c) => [c.cast, prazdnyKus(c)])) : p.cdnKusy || null;
           const s = await novaStranka(ch, u.sirka, build, { vlozit: !zaklad && a.miesto !== "zive", miesto: zaklad && a.miesto !== "zive" ? "cdn" : a.miesto, log, produkt: p, kusy: p.kusy, cdnKusy });
-          await otvorProdukt(s, { url: p.url, flag: novy ? flag : null, pripravene: (TYPY_TEST[p.typ] || {}).pripravene });
+          await otvorProdukt(s, { url: p.url, flag: novy ? flag : bezFlagu, pripravene: (TYPY_TEST[p.typ] || {}).pripravene });
           const st = await s.k.ev(STAV(p.kluc));
           const plne = p.plne.length > 0;
           if (zaklad) {

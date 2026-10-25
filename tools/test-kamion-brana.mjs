@@ -2,6 +2,7 @@
 // Test (c) brány kamiónov SK 640 — nulová zmena bez flagu a poistka (docs/kamiony-1v-plan.md §1.2–1.4, §5 (c)).
 // Fixture živej stránky + ozajstná cesta productPage.js initProduct -> konfigurator1v initKonfigurator1v (jsdom).
 //   node tools/test-kamion-brana.mjs
+import { readFileSync } from "node:fs";
 import { spustiStranku, pauza } from "./test-1v/kamion-spolocne.mjs";
 
 let ok = 0, zle = 0;
@@ -17,18 +18,35 @@ const hlavickaNaMieste = (d) => {
   return !!(h && h.parentNode && h.parentNode.classList.contains("p-detail-inner") && h.nextElementSibling && h.nextElementSibling.id === "product-detail-form");
 };
 const lcdChyby = (ch) => ch.filter((x) => /\[lcd-1v\]|kamion/i.test(x));
+// spustenie pre všetkých (index.js SPUSTENE, Michal 25. 10. 2026): bez flagu nový konfigurátor, starý React len s ?novy=0
+const SPUSTENE = /export const SPUSTENE\s*=\s*true/.test(readFileSync(new URL("../assets/js/components/konfigurator1v/index.js", import.meta.url), "utf8"));
 
-console.log("1) Bez flagu = presne dnešný React");
-{
-  const s = await spustiStranku({ url: URL0 });
+/** Starý vzhľad = presne dnešný React (bez flagu pred spustením, ?novy=0 po ňom). */
+function overReact(s, flag) {
   const d = s.document;
   over("React namontovaný (#truck-konfigurator-root[data-tk-mounted=1])", react(d));
   over("body bez lcd-1v a data-lcd1v-typ", !d.body.classList.contains("lcd-1v") && !d.body.hasAttribute("data-lcd1v-typ"));
   over("žiadny #lcd1v-kamion ani #lcd1v-lista", !d.getElementById("lcd1v-kamion") && !d.getElementById("lcd1v-lista"));
   over("window.__lcd1v nie je", s.window.__lcd1v === undefined);
-  over("sessionStorage bez lcd1v", s.window.sessionStorage.getItem("lcd1v") === null);
+  over("sessionStorage lcd1v = " + flag, s.window.sessionStorage.getItem("lcd1v") === flag);
   over("H1 a hlavička nezmenené", /luxusné autokoberce do kamionov/.test(H1_ZIVY(d)) && hlavickaNaMieste(d));
   over("body.is-truck-konfigurator (ako dnes)", d.body.classList.contains("is-truck-konfigurator"));
+}
+
+if (SPUSTENE) {
+  console.log("1) Bez flagu (spustené) = nový konfigurátor, React sa nemontuje");
+  const s = await spustiStranku({ url: URL0 });
+  const d = s.document;
+  over("#lcd1v-kamion postavený, React sa nemontuje", !!d.getElementById("lcd1v-kamion") && !d.getElementById("truck-konfigurator-root"));
+  over("body.lcd-1v + data-lcd1v-typ=kamion", d.body.classList.contains("lcd-1v") && d.body.getAttribute("data-lcd1v-typ") === "kamion");
+  over("6 krokov (kamión)", d.querySelectorAll("#lcd1v-kamion .k-krok").length === 6);
+  over("sessionStorage bez lcd1v (flag sa nezapisuje)", s.window.sessionStorage.getItem("lcd1v") === null);
+  over("bez chýb [lcd-1v]", lcdChyby(s.chyby).length === 0, lcdChyby(s.chyby).join(" | "));
+  console.log("1b) ?novy=0 (spustené) = presne dnešný React");
+  overReact(await spustiStranku({ url: URL0 + "?novy=0" }), "0");
+} else {
+  console.log("1) Bez flagu = presne dnešný React");
+  overReact(await spustiStranku({ url: URL0 }), null);
 }
 
 console.log("2) ?novy=vyvoj = nový konfigurátor, React sa nemontuje");
@@ -141,7 +159,7 @@ console.log("8) ?novy=0 po vývoji vypne flag -> React");
   const s = await spustiStranku({ url: URL0 + "?novy=0", session: { lcd1v: "vyvoj" } });
   const d = s.document;
   over("React namontovaný", react(d));
-  over("flag zmazaný", s.window.sessionStorage.getItem("lcd1v") === null);
+  over(SPUSTENE ? "flag = 0 (starý vzhľad v karte)" : "flag zmazaný", s.window.sessionStorage.getItem("lcd1v") === (SPUSTENE ? "0" : null));
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);

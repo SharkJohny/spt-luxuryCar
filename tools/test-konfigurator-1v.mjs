@@ -4,8 +4,11 @@
 // Ovládače krokov sú v tools/test-1v/ovladac-<krok>.mjs (každý patrí jednému workerovi), kontrakt docs/1v-kontrakt.md,
 // profily produktov (URL, typ, očakávané priceId a ceny z plan.md §4) v tools/test-1v/produkty.mjs.
 //
-//   node tools/test-konfigurator-1v.mjs                      # 598, sada scenárov z profilu, 1280 aj 390, flag vypnutý
+//   node tools/test-konfigurator-1v.mjs                      # 598, sada scenárov z profilu, 1280 aj 390; po spustení
+//                                                            # (index.js SPUSTENE = true) nový vzhľad BEZ parametra, inak flag vypnutý
 //   node tools/test-konfigurator-1v.mjs --novy               # to isté s ?novy=1 (nový vzhľad, ovládače `novy`)
+//   node tools/test-konfigurator-1v.mjs --stary              # starý vzhľad: po spustení ?novy=0 (záchrana), inak bez flagu
+//   (--spustene 0|1 prepíše SPUSTENE z lokálneho index.js, napr. pri --zdroj <sha> so starším stromom)
 //   node tools/test-konfigurator-1v.mjs --vyvoj --produkt 601 # ?novy=vyvoj: aj nevydané typy (rozpracovaný nový vzhľad)
 //   node tools/test-konfigurator-1v.mjs --produkt 598,610 | all | typ:dvoj | typ:kufor | jedno-hexa | boxy | vzorky
 //   node tools/test-konfigurator-1v.mjs --sirka 390 --krok platne,box-2 --snimky C:/tmp/snimky --vypis
@@ -73,6 +76,8 @@ function argumenty(argv) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
     if (x === "--novy") { a.novy = true; a.flag = "1"; }
     else if (x === "--vyvoj") { a.novy = true; a.flag = "vyvoj"; }
+    else if (x === "--stary") a.stary = true;
+    else if (x === "--spustene") { const v = dalsi(); if (v !== "0" && v !== "1") throw new ChybaPouzitia("--spustene 0 alebo 1"); a.spustene = v === "1"; }
     else if (x === "--produkt") a.produkt = dalsi();
     else if (x === "--zapnute") a.zapnute = dalsi().split(",").map((s) => s.trim()).filter(Boolean);
     else if (x === "--sirka") a.sirky = dalsi().split(",").map((s) => Number(s.trim())).filter(Boolean);
@@ -91,11 +96,23 @@ function argumenty(argv) {
     else if (x === "--tolerovat-opakovanie") a.tolerovatOpakovanie = true; // OK* (prešlo až na opakovaný pokus) nie je zlyhanie behu
     else if (x === "--cpu") a.cpu = Math.min(20, Math.max(1, Number(dalsi()) || 1)); // CPU spomalené N× (pomalý telefón)
     else if (x === "--kolo") a.kolo = Math.min(100, Math.max(1, Number(dalsi()) || 1)); // každú úlohu N× (občasný pretek)
-    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 19).join("\n")); process.exit(0); }
+    else if (x === "--help" || x === "-h") { console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 22).join("\n")); process.exit(0); }
     else throw new ChybaPouzitia("neznámy prepínač " + x + " (zoznam: --help)");
   }
   if (argv.includes("--novy") && argv.includes("--vyvoj")) throw new ChybaPouzitia("--novy a --vyvoj naraz nejde");
+  if (a.stary && a.novy) throw new ChybaPouzitia("--stary a --novy/--vyvoj naraz nejde");
   return a;
+}
+
+/**
+ * Spustenie pre všetkých (index.js SPUSTENE, Michal 25. 10. 2026): true = bez ?novy= nový vzhľad, starý len s ?novy=0.
+ * Bez --novy/--vyvoj/--stary potom test beží v novom vzhľade BEZ parametra (ako zákazník), --stary s ?novy=0.
+ */
+function spusteneZoZdroja(a) {
+  if (a.spustene !== undefined) return a.spustene;
+  const cesta = join(KOREN, "assets/js/components/konfigurator1v/index.js");
+  const m = existsSync(cesta) ? /export const SPUSTENE\s*=\s*(true|false)/.exec(readFileSync(cesta, "utf8")) : null;
+  return !!(m && m[1] === "true");
 }
 
 /**
@@ -234,7 +251,7 @@ function rozober(body) {
 /** Nová karta s presmerovaním bundlu/CSS na build, zachytávaním košíka a blokovaním meračov. */
 async function novaStranka(ch, sirka, build, a, log, produkt) {
   const k = await ch.novaKarta({ sirka });
-  const s = { k, posty: [], inePosty: [], podvrhnute: [], htmlKusy: [], obrazky1v: [], build, produkt, flagHodnota: a.flag || "1", upozornenia: [] };
+  const s = { k, posty: [], inePosty: [], podvrhnute: [], htmlKusy: [], obrazky1v: [], build, produkt, flagHodnota: a.flag || "1", spustene: !!a.spusteneVal, bezParametra: !!a.bezParametra, upozornenia: [] };
   // alert/confirm by zablokoval Runtime.evaluate (test by visel) -> zavrieť a zapísať ako upozornenie
   k.na("Page.javascriptDialogOpening", (p) => {
     s.upozornenia.push("dialóg na stránke (" + p.type + "): " + String(p.message || "").slice(0, 120));
@@ -299,8 +316,13 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
 }
 
 /** Otvorí produkt, odmietne cookies, počká na postavený konfigurátor (podľa typu produktu). */
-async function otvor(s, url, { novy = false, kontrola1v = novy, produkt = s.produkt } = {}) {
-  const ciel = novy ? url + (url.includes("?") ? "&" : "?") + "novy=" + s.flagHodnota : url;
+async function otvor(s, url, { novy = false, kontrola1v = novy, produkt = s.produkt, surovo = false } = {}) {
+  // nový vzhľad: ?novy=<flag>, po spustení bez parametra (bezParametra); starý: po spustení ?novy=0; surovo = adresa bez zmeny
+  const param = surovo ? null : novy ? (s.bezParametra ? null : s.flagHodnota) : s.spustene ? "0" : null;
+  const ciel = param ? url + (url.includes("?") ? "&" : "?") + "novy=" + param : url;
+  // spustené, nový vzhľad bez parametra = zákazník v novej karte: predošlý krok scenára (starý vzhľad, ?novy=0) nechal v karte
+  // flag "0" -> zmazať, inak by ostal starý vzhľad
+  if (novy && s.bezParametra && !surovo) await s.t.ev(`(function () { try { sessionStorage.removeItem("lcd1v"); } catch (e) {} return 1; })()`).catch(() => {});
   await s.k.posli("Page.bringToFront").catch(() => {}); // karta v popredí (časovače, requestAnimationFrame)
   await s.k.chod(ciel);
   const t = s.t;
@@ -626,20 +648,31 @@ const SCENARE = {
   async brana(s, a) {
     const t = s.t, P = a.produkt;
     const stav = () => t.ev(`({ trieda: document.body.classList.contains("lcd-1v"), flag: (function () { try { return sessionStorage.getItem("lcd1v"); } catch (e) { return "x"; } })(), ctx: !!window.__lcd1v })`);
-    await otvor(s, a.url);
+    await otvor(s, a.url, { surovo: true });
     let st = await stav();
-    over(!st.trieda && !st.flag && !st.ctx, "bez ?novy= nesmie byť nič zapnuté: " + JSON.stringify(st));
-    if (!a.novy) return { info: "flag vypnutý: bez zmeny" };
+    if (s.spustene) {
+      // spustenie: bez parametra nový vzhľad na produktoch zapnutých typov, flag karty sa nezapisuje
+      const zap0 = a.zapnuteSpustene.has(P.id);
+      over(zap0 ? st.trieda && !st.flag && st.ctx : !st.trieda && !st.ctx, "bez ?novy= (spustené) má " + P.id + " (" + P.typ + ") " + (zap0 ? "mať" : "nemať") + " nový vzhľad: " + JSON.stringify(st));
+    } else over(!st.trieda && !st.flag && !st.ctx, "bez ?novy= nesmie byť nič zapnuté: " + JSON.stringify(st));
+    if (!a.novy) {
+      if (!s.spustene) return { info: "flag vypnutý: bez zmeny" };
+      await otvor(s, a.url + "?novy=0", { surovo: true });
+      st = await stav();
+      over(!st.trieda && st.flag === "0" && !st.ctx, "?novy=0 má vrátiť starý vzhľad: " + JSON.stringify(st));
+      return { info: "spustené: bez parametra nový, ?novy=0 starý" };
+    }
     const zap = a.zapnuteSet.has(P.id);
     const info = [];
+    const ocakFlag = s.bezParametra ? null : a.flag; // bez parametra (spustené) sa flag karty nezapisuje
     await otvor(s, a.url, { novy: true, kontrola1v: false });
     st = await stav();
     if (zap) {
-      over(st.trieda && st.flag === a.flag && st.ctx, "?novy=" + a.flag + " má na " + P.id + " (" + P.typ + ") zapnúť body.lcd-1v + sessionStorage lcd1v=" + a.flag + ": " + JSON.stringify(st));
-      await otvor(s, a.url);
+      over(st.trieda && st.flag === ocakFlag && st.ctx, (s.bezParametra ? "bez ?novy= (spustené)" : "?novy=" + a.flag) + " má na " + P.id + " (" + P.typ + ") zapnúť body.lcd-1v + sessionStorage lcd1v=" + ocakFlag + ": " + JSON.stringify(st));
+      await otvor(s, a.url, { surovo: true });
       st = await stav();
       over(st.trieda, "flag má platiť aj po prechode bez parametra (sessionStorage karty): " + JSON.stringify(st));
-      info.push("?novy=" + a.flag + " zapne, platí v karte");
+      info.push((s.bezParametra ? "bez parametra" : "?novy=" + a.flag) + " zapne, platí v karte");
       // Michal 15. 10. 2026: nadpis každého kroku začína „Prosím, vyberte si …“, farby menujú vrstvu („1. / 2. vrstvy“);
       // karta ponuky druhej vrstvy (jedno) je otázka „Prajete si aj druhú odnímateľnú vrstvu?“ (návrh 1b, Michal 24. 10. 2026), karta ponuky setu na rohoži
       // do kufra a boxe (komplet-ponuka.js, 17. 10. 2026) „Prosíte si aj autokoberce pod sedadlá?“
@@ -697,9 +730,15 @@ const SCENARE = {
         }
       }
     }
-    await otvor(s, a.url + "?novy=0");
+    await otvor(s, a.url + "?novy=0", { surovo: true });
     st = await stav();
-    over(!st.trieda && !st.flag && !st.ctx, "?novy=0 má vypnúť: " + JSON.stringify(st));
+    over(!st.trieda && (s.spustene ? st.flag === "0" : !st.flag) && !st.ctx, "?novy=0 má vypnúť: " + JSON.stringify(st));
+    if (s.spustene) {
+      // záchrana: starý vzhľad drží v karte aj po prechode bez parametra, ?novy=1 ho vráti
+      await otvor(s, a.url, { surovo: true });
+      st = await stav();
+      over(!st.trieda && !st.ctx, "?novy=0 má platiť v karte aj bez parametra: " + JSON.stringify(st));
+    }
     info.push("?novy=0 vypne");
     return { info: info.join(", ") };
   },
@@ -1383,7 +1422,10 @@ async function main() {
   if (a.url && a.produkt) { if (produkty.length !== 1) throw new ChybaPouzitia("--url ide len s jedným --produkt (zadal si " + produkty.length + ")"); produkty[0] = { ...produkty[0], url: a.url }; }
   if (a.kroky) a.kroky.forEach((m) => { if (!REGISTER[m]) throw new ChybaPouzitia("neznámy scenár " + m + " (sú: " + Object.keys(REGISTER).join(", ") + ")"); });
   const zapnute = zapnuteProdukty(a);
+  a.spusteneVal = spusteneZoZdroja(a);
+  if (a.spusteneVal && !a.novy && !a.stary) { a.novy = true; a.flag = "1"; a.bezParametra = true; } // ako zákazník po spustení
   a.zapnuteSet = a.flag ? zapnute[a.flag] : new Set();
+  a.zapnuteSpustene = zapnute["1"];
   if (a.snimky) mkdirSync(a.snimky, { recursive: true });
   // staré dočasné priečinky po prerušených behoch (> 3 h; bežiace paralelné behy sú mladšie)
   try {
@@ -1406,7 +1448,7 @@ async function main() {
     if (sc) for (let i = 0; i < a.kolo; i++) ulohy.push({ P, sirka, m, fn: sc.fn });
     else if (sirka === a.sirky[0]) ineTypy.push(P.id + ":" + m);
   }
-  const flagText = a.flag ? " ?novy=" + a.flag : " (flag vypnutý)";
+  const flagText = a.bezParametra ? " bez ?novy= (spustené)" : a.flag ? " ?novy=" + a.flag : a.spusteneVal ? " ?novy=0 (starý vzhľad)" : " (flag vypnutý)";
   console.log(`Konfigurátor 1V — ${produkty.length === 1 ? produkty[0].id + " " + produkty[0].url : produkty.length + (produkty.length < 5 ? " produkty: " : " produktov: ") + produkty.map((P) => P.id).join(", ")}${flagText}
   zdroj: ${build.popis}
   brána: ${zapnute.popis}${a.flag ? "; zapnuté pre ?novy=" + a.flag + ": " + ([...a.zapnuteSet].join(", ") || "nič") : ""}
@@ -1551,7 +1593,7 @@ async function main() {
   const opak = vysledky.filter((v) => v.stav === "OK" && v.predosle).length;
   // T0.2b: scenár, ktorý prešiel až na opakovaný pokus (OK*), je nestabilný test alebo skrytá chyba -> beh je neúspešný
   const opakovanieZle = opak > 0 && !a.tolerovatOpakovanie;
-  console.log(`\nSpolu: ${ok} OK${opak ? " (z toho " + opak + " až na opakovaný pokus, OK*)" : ""}, ${zle} zlyhalo, ${vysledky.length - ok - zle} preskočené${upoz ? ", " + upoz + " upozornení" : ""} (${a.flag ? "?novy=" + a.flag : "flag vypnutý"}, ${build.popis.split(" (")[0]}, ${produkty.length} ${produkty.length === 1 ? "produkt" : produkty.length < 5 ? "produkty" : "produktov"})`);
+  console.log(`\nSpolu: ${ok} OK${opak ? " (z toho " + opak + " až na opakovaný pokus, OK*)" : ""}, ${zle} zlyhalo, ${vysledky.length - ok - zle} preskočené${upoz ? ", " + upoz + " upozornení" : ""} (${a.bezParametra ? "bez ?novy=, spustené" : a.flag ? "?novy=" + a.flag : a.spusteneVal ? "?novy=0, starý vzhľad" : "flag vypnutý"}, ${build.popis.split(" (")[0]}, ${produkty.length} ${produkty.length === 1 ? "produkt" : produkty.length < 5 ? "produkty" : "produktov"})`);
   if (opakovanieZle) console.log(`NEÚSPEŠNÝ BEH: ${opak} scenárov prešlo až na opakovaný pokus (OK*, prvé zlyhanie je vo výpise vyššie). Ber to ako chybu — nestabilný test alebo chyba, ktorá sa ukáže len občas. Ak ide len o pomalý živý web, spusti znova s --tolerovat-opakovanie.`);
   else if (opak) console.log(`OK* (${opak}) tolerované cez --tolerovat-opakovanie.`);
   if (ineTypy.length) console.log(`Scenáre iného typu (na produkte nespustené): ${ineTypy.length} — ${ineTypy.join(" ")}`);

@@ -1,10 +1,14 @@
-// Nový vzhľad konfigurátora podľa návrhov (jednovrstvové v26, dvojvrstvové, rohože do kufra, box) — TICHÝ TEST.
+// Nový vzhľad konfigurátora podľa návrhov (jednovrstvové v26, dvojvrstvové, rohože do kufra, box).
 // JADRO — mení len vydanie (docs/1v-kontrakt.md §10; T0.1 14. 10. 2026: register produkty.js, brána po typoch).
 //
-// Brána: beží LEN na produktoch z registra (produkty.js PRODUKTY_1V, SK projekt 562035) a LEN so zapnutým flagom karty:
+// SPUSTENIE (Michal 25. 10. 2026, docs/1v-spustenie.md): SPUSTENE = true -> bez parametra má nový vzhľad každý
+// návštevník na produktoch zapnutých typov. Brána beží LEN na produktoch z registra (produkty.js PRODUKTY_1V, SK projekt
+// 562035; CZ nič) a flag karty ju len prepína:
+//   bez ?novy=  -> ako "1" (SPUSTENE; pred spustením nič),
 //   ?novy=1     -> sessionStorage lcd1v = "1": nový vzhľad len na produktoch zapnutých typov (ZAPNUTE_TYPY),
 //   ?novy=vyvoj -> lcd1v = "vyvoj": celý register (aj nevydané typy — vývoj, test --vyvoj, nie pre zákazníkov),
-//   ?novy=0     -> flag zmaže. Inak sa nič nemení: žiadna trieda, atribút ani handler (CSS 1V len pod body.lcd-1v).
+//   ?novy=0     -> lcd1v = "0": starý vzhľad v tejto karte (porovnanie, test návratu). Mimo brány sa nič nemení:
+//                  žiadna trieda, atribút ani handler (CSS 1V len pod body.lcd-1v).
 // Zapnuté: body.lcd-1v + data-lcd1v-typ / data-lcd1v-vzor (atribúty, nie triedy — lcd1v-vzor-* majú dlaždice vzoru);
 // moduly podľa TYPY[typ].moduly. Zlyhá init modulu -> trieda aj atribúty sa zložia, zákazník vidí starý vzhľad
 // (chyby v window.__lcd1v.chyby).
@@ -38,23 +42,25 @@ export const ZOZNAM_1V = zoznamZapnutych();
 export const KLUC_FLAGU = "lcd1v";
 export const TRIEDA = "lcd-1v";
 const FLAGY = ["1", "vyvoj"];
+/** Nový vzhľad pre všetkých bez ?novy= (spustenie 25. 10. 2026). false = späť na tichý test (len ?novy=1). */
+export const SPUSTENE = true;
 
 /** ?novy=1 / ?novy=vyvoj zapne, ?novy=0 vypne (sessionStorage karty). Bez parametra nič. */
 export function prepinac(search) {
   const m = /[?&]novy=(0|1|vyvoj)(?:[&#]|$)/.exec(search || "");
   if (!m) return;
   try {
-    if (m[1] === "0") sessionStorage.removeItem(KLUC_FLAGU);
+    if (m[1] === "0" && !SPUSTENE) sessionStorage.removeItem(KLUC_FLAGU);
     else sessionStorage.setItem(KLUC_FLAGU, m[1]);
-  } catch (e) { /* súkromný režim: flag sa nedá uložiť -> nový vzhľad sa nezapne */ }
+  } catch (e) { /* súkromný režim: flag sa nedá uložiť -> platí predvolený stav (SPUSTENE) */ }
 }
 
-/** Hodnota flagu karty: "1" | "vyvoj" | null (vypnuté). */
+/** Hodnota flagu karty: "1" | "vyvoj" | null (vypnuté). Bez flagu (aj keď sa sessionStorage nedá čítať) podľa SPUSTENE. */
 export function jeZapnute() {
-  try {
-    const f = sessionStorage.getItem(KLUC_FLAGU);
-    return FLAGY.indexOf(f) > -1 ? f : null;
-  } catch (e) { return null; }
+  let f = null;
+  try { f = sessionStorage.getItem(KLUC_FLAGU); } catch (e) { f = null; }
+  if (FLAGY.indexOf(f) > -1) return f;
+  return SPUSTENE && f !== "0" ? "1" : null;
 }
 
 /** Produkt registra, ak má pri tomto flagu dostať nový vzhľad (vyvoj = celý register, 1 = len zapnuté typy), inak null. */
