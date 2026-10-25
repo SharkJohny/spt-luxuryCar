@@ -2,7 +2,24 @@
 // Presunuté 1:1 z components/productPage.js (18. 10. 2026, docs/kamiony-1v-plan.md §1.2), aby ho mohol zavolať aj nový
 // konfigurátor 1V ako poistku (konfigurator1v/kamion/index.js zlozit -> mountTruckConfigurator). Bez flagu ?novy= sa
 // vykoná ten istý kód v tom istom poradí ako predtým (productPage.js initProduct).
-import { renderTruckConfigurator } from "./index.jsx";
+// 25. 10. 2026 (zrýchlenie): React (index.jsx) je samostatná časť js/lcd-truck.js (cast.jsx, functions/lcdCasti.js) —
+// ostatné stránky webu ho nesťahujú. Stránka kamiónov ho začne sťahovať hneď pri spustení bundla (predpripravTruck),
+// paralelne s data.json; vykreslí sa po namontovaní ako predtým.
+import { nacitajCast } from "../functions/lcdCasti.js";
+
+/** Na stránke kamiónov (bez nového vzhľadu 1V) spustí sťahovanie React časti vopred; inde nerobí nič. */
+export function predpripravTruck(bude1v) {
+  try {
+    if (isTruckConfiguratorPage() && !bude1v()) nacitajCast("truck").catch(() => {});
+  } catch (e) { /* ignore */ }
+}
+
+function renderTruckConfigurator(el) {
+  nacitajCast("truck").then(
+    (c) => c.renderTruckConfigurator(el),
+    (e) => console.error("[truck-konfig] React časť sa nenačítala", e),
+  );
+}
 
 /* =========================================================================
  * TRUCK KONFIGURÁTOR – izolovaný embed

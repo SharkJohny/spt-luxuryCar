@@ -31,6 +31,11 @@ jobs:
           node truck/build-truck-images.mjs
           node tools/perf-markup.mjs
           yarn esbuild assets/js/main.js --bundle --outfile=assets/js/luxuryCar.js --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none
+          # samostatné časti (functions/lcdCasti.js, 25. 10. 2026): kód len pre jednu stránku mimo luxuryCar.js — React kamiónov
+          yarn esbuild assets/js/truck-konfigurator/cast.jsx --bundle --outfile=assets/js/lcd-truck.js --format=iife --loader:.jsx=jsx --minify --drop:console --legal-comments=none
+          # CSS zmenšené (bez komentárov a medzier; 25. 10. 2026: 1,19 MB -> 0,93 MB, prenos −40 %). Zdroj ostáva luxuryCar.css
+          # (partialy + vloz-lcd-css.py); vypočítané štýly 12 stránok × 390/1280 px overené zhodné s nezmenšeným.
+          yarn esbuild assets/css/luxuryCar.css --minify --outfile=assets/css/luxuryCar.min.css --log-level=error
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
       # Verzia do vlastného priečinka (Michal 6. 10. 2026): push NEMENÍ živý web.
@@ -44,13 +49,13 @@ jobs:
         run: |
           REL=assets/v/${{ steps.version.outputs.sha }}
           mkdir -p "$REL/js" "$REL/css" "$REL/poukazka" "$REL/html"
-          cp assets/js/luxuryCar.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/js/version.json "$REL/js/"
-          cp assets/css/luxuryCar.css "$REL/css/"
+          cp assets/js/luxuryCar.js assets/js/lcd-truck.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/js/version.json "$REL/js/"
+          cp assets/css/luxuryCar.min.css "$REL/css/luxuryCar.css"
           cp assets/poukazka/* "$REL/poukazka/"
           # Obsah pod konfigurátorom 1V (rozhodnutia D1 = b, docs/1v-obsah.md): obsah.js ho stiahne z tej istej verzie
           # (…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html) LEN pod bránou ?novy=1 / ?novy=vyvoj. Len SK kusy obsahu 1V.
           cp admin-html/dist/p1v-*.sk.html "$REL/html/"
-          rm assets/js/luxuryCar.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/css/luxuryCar.css
+          rm assets/js/luxuryCar.js assets/js/lcd-truck.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/css/luxuryCar.css assets/css/luxuryCar.min.css
           rm -r assets/poukazka
           echo "Verzia pripravená: $REL"; ls -la "$REL/js" "$REL/css" "$REL/poukazka" "$REL/html"
 

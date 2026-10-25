@@ -185,7 +185,10 @@ async function priprav(a) {
   if (a.zdroj === "cdn") return { popis: "živý CDN bez zmeny", js: null, css: null };
   if (/^[0-9a-f]{7,40}$/i.test(a.zdroj) && a.zdroj !== "lokal") {
     const st = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(u + " -> " + r.status); return Buffer.from(await r.arrayBuffer()); };
-    return { popis: "CDN verzia " + a.zdroj, js: await st(CDN + "v/" + a.zdroj + "/js/luxuryCar.js?v=" + a.zdroj), css: await st(CDN + "v/" + a.zdroj + "/css/luxuryCar.css?v=" + a.zdroj) };
+    // samostatné časti (functions/lcdCasti.js) sú len vo verziách od 25. 10. 2026 — staršej verzii chýbajú (null)
+    const casti = {};
+    for (const f of ["lcd-truck.js"]) { const r = await fetch(CDN + "v/" + a.zdroj + "/js/" + f); if (r.ok) casti[f] = Buffer.from(await r.arrayBuffer()); }
+    return { popis: "CDN verzia " + a.zdroj, js: await st(CDN + "v/" + a.zdroj + "/js/luxuryCar.js?v=" + a.zdroj), css: await st(CDN + "v/" + a.zdroj + "/css/luxuryCar.css?v=" + a.zdroj), casti };
   }
   if (a.zdroj !== "lokal") throw new ChybaPouzitia("--zdroj je lokal | cdn | <sha>");
   const tmp = mkdtempSync(join(tmpdir(), "lcd-1v-build-"));
@@ -206,10 +209,17 @@ async function priprav(a) {
   if (!a.bezDrop) prep.push("--drop:console");
   const env = nodePath ? { ...process.env, NODE_PATH: [nodePath, process.env.NODE_PATH].filter(Boolean).join(delimiter) } : process.env;
   spusti(e.cmd, [...e.pred, ...prep], { shell: e.shell, popis: "esbuild", cwd: e.mimoRepa ? tmp : KOREN, env });
+  // samostatné časti ako druhý esbuild v production.yml (functions/lcdCasti.js): React kamiónov -> lcd-truck.js
+  const casti = {};
+  for (const [vstup, f] of [["assets/js/truck-konfigurator/cast.jsx", "lcd-truck.js"]]) {
+    const pc = [join(KOREN, vstup), ...prep.slice(1).map((x) => (x.startsWith("--outfile=") ? "--outfile=" + join(tmp, f) : x))];
+    spusti(e.cmd, [...e.pred, ...pc], { shell: e.shell, popis: "esbuild " + f, cwd: e.mimoRepa ? tmp : KOREN, env });
+    casti[f] = readFileSync(join(tmp, f));
+  }
   const py = python();
   spusti(py[0], [...py.slice(1), "tools/vloz-lcd-css.py", "--vystup", join(tmp, "luxuryCar.css")], { popis: "vloz-lcd-css.py --vystup" });
   const js = readFileSync(join(tmp, "luxuryCar.js")), css = readFileSync(join(tmp, "luxuryCar.css"));
-  return { popis: `lokálny build (${(js.length / 1024).toFixed(0)} kB JS, ${(css.length / 1024).toFixed(0)} kB CSS, ${((Date.now() - t0) / 1000).toFixed(1)} s) v ${tmp}`, js, css, tmp };
+  return { popis: `lokálny build (${(js.length / 1024).toFixed(0)} kB JS + časti ${Object.entries(casti).map(([f, b]) => f + " " + (b.length / 1024).toFixed(0) + " kB").join(", ")}, ${(css.length / 1024).toFixed(0)} kB CSS, ${((Date.now() - t0) / 1000).toFixed(1)} s) v ${tmp}`, js, css, casti, tmp };
 }
 
 // ------------------------------------------------------------------ stránka
@@ -257,6 +267,10 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
       } else if (s.build && s.build.js && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?js\/luxuryCar\.js(\?|$)/.test(u)) {
         s.podvrhnute.push(u);
         return await odpovedz(p, s.build.js, "application/javascript; charset=utf-8");
+      } else if (s.build && s.build.casti && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?js\/(lcd-[a-z0-9-]+\.js)(\?|$)/.test(u) &&
+        s.build.casti[/\/js\/(lcd-[a-z0-9-]+\.js)(\?|$)/.exec(u)[1]]) {
+        s.podvrhnute.push(u);
+        return await odpovedz(p, s.build.casti[/\/js\/(lcd-[a-z0-9-]+\.js)(\?|$)/.exec(u)[1]], "application/javascript; charset=utf-8");
       } else if (s.build && s.build.css && /\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?css\/luxuryCar\.css(\?|$)/.test(u)) {
         s.podvrhnute.push(u);
         return await odpovedz(p, s.build.css, "text/css; charset=utf-8");

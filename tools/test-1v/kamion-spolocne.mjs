@@ -88,7 +88,10 @@ export function nacitajGen(subor, w) {
 
 // ------------------------------------------------------------------ stránka 640 s ozajstnou cestou productPage.js + 1V
 /** Vstup bundle: presne poradie main.js (initProduct … initKonfigurator1v); nič iné z main.js (sieť, data.json). */
+// React kamiónov je naživo samostatná časť lcd-truck.js (functions/lcdCasti.js); v jsdom sa zbalí priamo sem a zapíše
+// do window.__lcdCasti.truck skôr, než ju mount.js pýta (jsdom vonkajšie skripty nesťahuje).
 const VSTUP_STRANKY = `
+import "./assets/js/truck-konfigurator/cast.jsx";
 import { initProduct } from "./assets/js/components/productPage.js";
 import { initKonfigurator1v } from "./assets/js/components/konfigurator1v/index.js";
 window.__spusti = function () { initProduct({}, {}); return initKonfigurator1v({}, {}); };

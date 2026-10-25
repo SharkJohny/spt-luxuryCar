@@ -17,3 +17,7 @@
 # REVIEWS-HANDOFF.md obsahuje GitHub token -> nikdy necommitovať.
 /REVIEWS-HANDOFF.md
 /codex-task-*.txt
+
+# Samostatné časti bundla (functions/lcdCasti.js) — stavia ich CI, necommitovať
+/assets/js/lcd-truck.js
+/assets/css/luxuryCar.min.css

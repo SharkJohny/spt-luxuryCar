@@ -2,16 +2,18 @@ import { showUpsalePopup } from "./UpsalePopup.js";
 import { lcdCena } from "../functions/livePrice.js";
 import { createUpsaleButton, createOptions, createBoxConfig } from "./creatButtons.js";
 // kamióny: montáž Reactu je v truck-konfigurator/mount.js; nový vzhľad 1V (?novy=) rozhoduje budeKamion1v (docs/kamiony-1v-plan.md §1.2)
-import { isTruckConfiguratorPage, mountTruckConfigurator } from "../truck-konfigurator/mount.js";
+import { isTruckConfiguratorPage, mountTruckConfigurator, predpripravTruck } from "../truck-konfigurator/mount.js";
 import { budeKamion1v } from "./konfigurator1v/index.js";
+
+// React kamiónov je samostatná časť (lcd-truck.js): na stránke kamiónov sa začne sťahovať už pri spustení bundla,
+// nie až po data.json (initProduct).
+predpripravTruck(budeKamion1v);
 import {
   isVzorkyConfiguratorPage,
   mountVzorkyConfigurator,
 } from "../vzorky-konfigurator/index.js";
-import {
-  isVoucherPage,
-  mountVoucherConfigurator,
-} from "../voucher-konfigurator/index.jsx";
+// poukážka: len detekcia stránky (starý React konfigurátor poukážky sa od 4. 10. 2026 nemontuje, nepatrí do bundla)
+import { isVoucherPage } from "../voucher-konfigurator/stranka.js";
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { initPopisModuly } from "./popisModuly.js";
 
