@@ -1,4 +1,4 @@
-import { nazovFarby, materialFarbaText } from "./farby-nazvy.mjs";
+import { nazovFarby, materialFarbaText, lemovanieText } from "./farby-nazvy.mjs";
 
 const SUMMARY_TEXTS = {
   sk: {
@@ -187,6 +187,13 @@ function materialAndColor(material, color, language) {
   return [material, selectedText(color, true)].filter(Boolean).join(" – ");
 }
 
+// Michal 25. 10. 2026: lemovanie s kódom na začiatku a názvom „základ + pásiky“ („05 – čierny základ, bordové pásiky“);
+// neznámy kód = ako predtým len meno.
+function edgingText(lem, language) {
+  const kod = lem && typeof lem === "object" ? String(lem.code || "").trim() : "";
+  return (kod && lemovanieText(kod, language)) || selectedText(lem, true);
+}
+
 function hasSideEmbroidery(placement) {
   return placement === "boky" || placement === "boky+stred";
 }
@@ -213,7 +220,7 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
   const texts = SUMMARY_TEXTS[language] || SUMMARY_TEXTS.sk;
   const lines = [];
   const carpetMaterial = materialAndColor(s.selectedMaterial, s.selectedColor, language);
-  const carpetEdging = selectedText(s.selectedLemovanie, true);
+  const carpetEdging = edgingText(s.selectedLemovanie, language);
   const threadColor = (value) => selectedThreadColor(value, language);
   const sideEmbroidery = hasSideEmbroidery(s.nasivkyPlacement);
   const centreEmbroidery = hasCentreEmbroidery(s.nasivkyPlacement);
@@ -243,7 +250,7 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
     const doorMaterialValue = s.doorSameAsCarpet && s.doorSameAsCarpet.material
       ? `${texts.sameMaterial} – ${carpetMaterial}`
       : doorMaterial;
-    const doorEdging = selectedText(s.doorLemovanie, true);
+    const doorEdging = edgingText(s.doorLemovanie, language);
     const doorEdgingValue = s.doorSameAsCarpet && s.doorSameAsCarpet.lemovanie
       ? `${texts.sameEdging} – ${carpetEdging}`
       : doorEdging;

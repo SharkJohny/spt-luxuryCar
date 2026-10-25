@@ -13,7 +13,7 @@
 //      importovať a renderovať
 import React from "react";
 import { persistTruckOrderSummary } from "./order-summary.mjs";
-import { nazovFarbyVelky, sTextamiPriplatkov } from "./farby-nazvy.mjs";
+import { nazovFarbyVelky, nazovLemovania, sTextamiPriplatkov } from "./farby-nazvy.mjs";
 import { povoleneNasivkyVsade, filtrujNasivky } from "./pricing.js";
 const { useState, useMemo } = React;
 
@@ -681,6 +681,18 @@ function farbaText(swatch) {
   return n ? n + " – " + swatch.code : swatch.code;
 }
 
+// Lemovanie (Michal 25. 10. 2026): kód a „základ + pásiky“ („05 · čierny základ, bordové pásiky“), na CZ česky
+function lemNazov(lem) {
+  if (!lem) return "";
+  return nazovLemovania(lem.code, isCzechTruckConfigurator() ? "cs" : "sk") || lem.name || "";
+}
+
+function lemText(lem) {
+  if (!lem) return "";
+  const n = lemNazov(lem);
+  return n ? lem.code + " · " + n : lem.code;
+}
+
 function threadColorName(threadColor) {
   if (!threadColor) return "";
   if (isCzechTruckConfigurator()) return THREAD_COLOR_NAMES_CS[threadColor.code] || threadColor.name;
@@ -1097,7 +1109,7 @@ function calculatePrice(state, PRICES) {
   }
 
   if (selectedLemovanie) {
-    breakdown.push({ label: "Lemovanie kobercov", subLabel: selectedLemovanie.name, amount: 0, type: "info" });
+    breakdown.push({ label: "Lemovanie kobercov", subLabel: lemText(selectedLemovanie), amount: 0, type: "info" });
   }
 
   if (nasivkyPlacement && nasivkyPlacement !== "nechcem" && PRICES.NASIVKY[nasivkyPlacement] !== undefined) {
@@ -1133,7 +1145,7 @@ function calculatePrice(state, PRICES) {
     total += PRICES.TAPACIR_BUNDLE;
     const tapDetails = [];
     if (doorMaterial) tapDetails.push(doorMaterial + (doorColor ? " – " + farbaText(doorColor) : ""));
-    if (doorLemovanie) tapDetails.push("lem: " + doorLemovanie.name);
+    if (doorLemovanie) tapDetails.push("lem: " + lemText(doorLemovanie));
     breakdown.push({
       label: "Tapacír dverí",
       subLabel: tapDetails.length ? tapDetails.join(" · ") : null,
@@ -2234,7 +2246,7 @@ function Configurator() {
         title="Lemovanie"
         error={validationErrors.step3}
         errorMessage={validationErrors.step3Msg}
-        subtitle={selectedLemovanie ? selectedLemovanie.name : null}
+        subtitle={selectedLemovanie ? lemText(selectedLemovanie) : null}
         open={openSection === 3}
         done={!!selectedLemovanie}
         onClick={() => step1Done && setOpenSection(openSection === 3 ? 0 : 3)}
@@ -2261,7 +2273,7 @@ function Configurator() {
                 <img src={lem.swatch} alt={lem.code}
                   style={{ height: 38, width: 140, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>
-                  {lem.code}. {lem.name}
+                  {lemText(lem)}
                 </div>
               </div>
             );
@@ -2272,12 +2284,12 @@ function Configurator() {
         {selectedLemovanie && (
           <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
             <div style={{ width: "100%", maxWidth: 500, borderRadius: 8, overflow: "hidden", position: "relative", background: "#f5f5f5", padding: 16 }}>
-              <img src={selectedLemovanie.full} alt={selectedLemovanie.name}
+              <img src={selectedLemovanie.full} alt={lemNazov(selectedLemovanie)}
                 style={{ display: "block", width: "100%", height: "auto", borderRadius: 4 }} />
               <div style={{
                 marginTop: 8, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#333"
               }}>
-                {selectedLemovanie.code}. {selectedLemovanie.name}
+                {lemText(selectedLemovanie)}
               </div>
             </div>
           </div>
@@ -3586,7 +3598,7 @@ function Configurator() {
                     <div style={{ fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 }}>Lemovanie tapacíru</div>
                     {doorStep5Sub !== "lemovanie" && doorLemovanie && (
                       <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
-                        {doorLemovanie.name}{doorSameAsCarpet.lemovanie ? " (rovnako ako Luxusné autokoberce)" : ""}
+                        {lemText(doorLemovanie)}{doorSameAsCarpet.lemovanie ? " (rovnako ako Luxusné autokoberce)" : ""}
                       </div>
                     )}
                   </div>
@@ -3661,7 +3673,7 @@ function Configurator() {
                             {doorSameAsCarpet.lemovanie && <span style={{ marginRight: 6 }}>✓</span>}Rovnaké lemovanie ako na Luxusných autokobercoch
                           </div>
                           <div style={{ fontSize: 12, color: doorSameAsCarpet.lemovanie ? "#388E3C" : "#888", marginTop: 3, fontWeight: 500 }}>
-                            {selectedLemovanie.name}
+                            {lemText(selectedLemovanie)}
                           </div>
                         </div>
                         <div style={{ flexShrink: 0 }}>
@@ -3696,7 +3708,7 @@ function Configurator() {
                             >
                               <img src={lem.swatch} alt={lem.code} style={{ height: 38, width: 140, objectFit: "cover", borderRadius: 6, flexShrink: 0 }} />
                               <div style={{ fontSize: 12, fontWeight: 600, color: "#333" }}>
-                                {lem.code}. {lem.name}
+                                {lemText(lem)}
                               </div>
                             </div>
                           );
@@ -3707,10 +3719,10 @@ function Configurator() {
                       {doorLemovanie && (
                         <div style={{ marginTop: 4, marginBottom: 12, display: "flex", justifyContent: "center" }}>
                           <div style={{ width: "100%", maxWidth: 500, borderRadius: 8, overflow: "hidden", position: "relative", background: "#f5f5f5", padding: 16 }}>
-                            <img src={doorLemovanie.full} alt={doorLemovanie.name}
+                            <img src={doorLemovanie.full} alt={lemNazov(doorLemovanie)}
                               style={{ display: "block", width: "100%", height: "auto", borderRadius: 4 }} />
                             <div style={{ marginTop: 8, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#333" }}>
-                              {doorLemovanie.code}. {doorLemovanie.name}
+                              {lemText(doorLemovanie)}
                             </div>
                           </div>
                         </div>

@@ -286,7 +286,7 @@ export function vytvorUi(o) {
       case "vozidlo": s = nazovVozidla(); t = detailyVozidla(); return sCenou(t ? s + " · " + t : s, eur(D.ceny.zaklad_eur));
       case "material": t = matT(S.material); return fill(tk.material.zhrnutie, { nazov: t.nazov, variant: t.variant, cena_text: cenaMaterialu(S.material) });
       case "farba": f = farba(S.material, S.farba); return sCenou(fill(tk.farba.zhrnutie, { farba: f.meno, kod: f.kod }), vCene);
-      case "lemovanie": l = lem(S.lem); return sCenou(l.menoUi + " (" + l.kod + ")", vCene);
+      case "lemovanie": l = lem(S.lem); return sCenou(l.kod + " – " + mala(l.menoUi), vCene);
       case "nasivky": {
         if (S.nas === "nechcem") return sCenou(tk.nasivky.zhrnutie_nie, tk.nasivky.hotove.bez_priplatku);
         const rozsah = tk.nasivky.rozsah[S.nas];
@@ -458,7 +458,8 @@ export function vytvorUi(o) {
       const on = vybraty === l.kod;
       return '<button type="button" class="lm__b' + (on ? " is-on" : "") + '" data-a="' + akcia + '" data-v="' + l.kod + '" data-f="' + prefix + l.kod + '" aria-pressed="' + on + '">' +
         (odporucany === l.kod ? '<span class="k-badge">' + esc(T.kroky.lemovanie.stitok_odporucame) + "</span>" : "") +
-        '<img src="' + attr(l.full) + '" alt="" loading="lazy"><span class="lm__nm">' + esc(l.menoUi) + '</span><span class="lm__kod">' + l.kod + "</span></button>";
+        // Michal 25. 10. 2026: pod vzorkou kód a „základ + pásiky“ (05 · čierny základ, bordové pásiky)
+        '<img src="' + attr(l.full) + '" alt="" loading="lazy"><span class="lm__kod">' + l.kod + '</span><span class="lm__nm">' + esc(l.menoUi) + "</span></button>";
     }).join("") + "</div>";
   }
 
@@ -467,7 +468,7 @@ export function vytvorUi(o) {
     let html = '<p class="k-pod">' + esc(t.pomocna_veta) + " " + esc(t.v_cene) + "</p>";
     html += sk("lemovanie", "lem", "", mriezkaLem(S.lem, "lem", "lem:", odporucanyLem()));
     const l = S.lem && lem(S.lem);
-    if (l) html += '<div class="lm-nahlad"><p>' + esc(fill(U0.vybrate, { x: l.menoUi + " (" + l.kod + ")" })) + '</p><img src="' + attr(l.full) + '" alt="' + attr(fill(U0.lem_zblizka, { x: l.menoUi })) + '"></div>';
+    if (l) html += '<div class="lm-nahlad"><p>' + esc(fill(U0.vybrate, { x: l.kod + " – " + mala(l.menoUi) })) + '</p><img src="' + attr(l.full) + '" alt="' + attr(fill(U0.lem_zblizka, { x: l.menoUi })) + '"></div>';
     html += koniecKroku("lemovanie", posledny);
     return html;
   }
@@ -614,7 +615,7 @@ export function vytvorUi(o) {
   const mozaikaMotivov = (miesto) => '<span class="kn-rv__mozaika kn-rv__mozaika--motiv">' + motivy(miesto).slice(0, 2).map((m) => '<i style="background-image:url(' + attr(m.full) + ')"></i>').join("") + "</span>";
   const popisTx = (x) => "<span>" + esc(x) + "</span>";
   const farbaTx = (f) => mala(f.meno) + " (" + f.kod + ")";
-  const lemMeno = (l) => l.menoUi.toLowerCase() + " (" + l.kod + ")";
+  const lemMeno = (l) => l.kod + " – " + l.menoUi.toLowerCase();
   const lemTx = (l) => fill(U0.suhrn_lemovanie, { x: lemMeno(l) });
   /** Druh materiálu pod variantom: mikrosemiš / velúr / syntetická koža (koza = kratšie „koža“ v lište). */
   const druhMat = (v, koza) => (v.nazov === "Mikrosemiš" ? U0.mikrosemis : v.nazov === "Velúr" ? U0.velur : koza ? U0.koza : U0.syntetika);

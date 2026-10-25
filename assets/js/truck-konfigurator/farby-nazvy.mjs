@@ -73,6 +73,36 @@ export function materialFarbaText(material, kod, jazyk = "sk") {
   return [material, nazov, kod].filter(Boolean).join(" – ");
 }
 
+// Lemovania (pásik okolo koberca): prvá farba = základ pásky, druhá = šikmé pásiky na nej (vzorky lemovaní).
+// Michal 25. 10. 2026 schválil „Základ + pásiky“, kód vždy na začiatku („05 – čierny základ, bordové pásiky“).
+export const NAZVY_LEMOVANI = {
+  "01": { sk: "čierny základ, béžové pásiky", cs: "černý základ, béžové proužky", en: "black base, beige stripes" },
+  "02": { sk: "čierny základ, sivé pásiky", cs: "černý základ, šedé proužky", en: "black base, grey stripes" },
+  "03": { sk: "čierny základ, grafitové pásiky", cs: "černý základ, grafitové proužky", en: "black base, graphite stripes" },
+  "04": { sk: "čierny základ, červené pásiky", cs: "černý základ, červené proužky", en: "black base, red stripes" },
+  "05": { sk: "čierny základ, bordové pásiky", cs: "černý základ, vínové proužky", en: "black base, burgundy stripes" },
+  "06": { sk: "čierny základ, modré pásiky", cs: "černý základ, modré proužky", en: "black base, blue stripes" },
+  "07": { sk: "čierny základ, zelené pásiky", cs: "černý základ, zelené proužky", en: "black base, green stripes" },
+  "08": { sk: "čierny základ, hnedé pásiky", cs: "černý základ, hnědé proužky", en: "black base, brown stripes" },
+  "09": { sk: "čierny základ, čierne pásiky", cs: "černý základ, černé proužky", en: "black base, black stripes" },
+  "10": { sk: "béžový základ, modré pásiky", cs: "béžový základ, modré proužky", en: "beige base, blue stripes" },
+  "11": { sk: "béžový základ, hnedé pásiky", cs: "béžový základ, hnědé proužky", en: "beige base, brown stripes" },
+  "12": { sk: "béžový základ, červené pásiky", cs: "béžový základ, červené proužky", en: "beige base, red stripes" },
+  "13": { sk: "hnedý základ, béžové pásiky", cs: "hnědý základ, béžové proužky", en: "brown base, beige stripes" },
+};
+
+/** Názov lemovania podľa kódu (sk | cs | en), "" keď kód nepoznáme. */
+export function nazovLemovania(kod, jazyk = "sk") {
+  const z = NAZVY_LEMOVANI[String(kod == null ? "" : kod).trim()];
+  return z ? z[jazyk] || z.sk : "";
+}
+
+/** Lemovanie do košíka, poznámky aj príplatku: „<kód> – <názov>“; neznámy kód = "". */
+export function lemovanieText(kod, jazyk = "sk") {
+  const nazov = nazovLemovania(kod, jazyk);
+  return nazov ? `${String(kod).trim()} – ${nazov}` : "";
+}
+
 /** Hodnota príplatku „Farba materiálu“ v admine Shoptetu (SK 640 od 25. 10. 2026): „<kód> – <názov>“ („3 – hnedá, hnedé šitie“). */
 export function hodnotaPriplatkuFarby(kod, jazyk = "sk") {
   const nazov = nazovFarby(kod, jazyk);
@@ -87,7 +117,7 @@ export function hodnotaPriplatkuFarby(kod, jazyk = "sk") {
  */
 export function sTextamiPriplatkov(stav, jazyk = "sk") {
   const s = stav || {};
-  const lem = (l) => (l && l.code ? [l.code, l.name].filter(Boolean).join(" – ") : "");
+  const lem = (l) => (l && l.code ? lemovanieText(l.code, jazyk) || [l.code, l.name].filter(Boolean).join(" – ") : "");
   return Object.assign({}, s, {
     farbaPriplatok: s.selectedColor ? hodnotaPriplatkuFarby(s.selectedColor.code, jazyk) : "",
     lemovaniePriplatok: lem(s.selectedLemovanie),

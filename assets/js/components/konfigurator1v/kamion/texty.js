@@ -383,61 +383,61 @@ export const TEXTY = {
    "kicker": "Krok 4 z 6",
    "nazov": "Lemovanie",
    "otazka": "Prosím, vyberte si lemovanie",
-   "pomocna_veta": "Lemovanie je pásik, ktorým sa obšije okraj každého koberca. Prvá farba je farba pásika, druhá farba jemných pruhov na ňom.",
+   "pomocna_veta": "Lemovanie je pásik, ktorým sa obšije okraj každého koberca. Má základnú farbu a šikmé pásiky druhej farby.",
    "v_cene": "Všetkých 13 kombinácií je v cene.",
    "stitok_odporucame": "Odporúčame",
    "volby": [
     {
      "kod": "01",
-     "nazov": "Čierna + Béžová"
+     "nazov": "Čierny základ, béžové pásiky"
     },
     {
      "kod": "02",
-     "nazov": "Čierna + Sivá"
+     "nazov": "Čierny základ, sivé pásiky"
     },
     {
      "kod": "03",
-     "nazov": "Čierna + Grafitová"
+     "nazov": "Čierny základ, grafitové pásiky"
     },
     {
      "kod": "04",
-     "nazov": "Čierna + Červená"
+     "nazov": "Čierny základ, červené pásiky"
     },
     {
      "kod": "05",
-     "nazov": "Čierna + Bordová"
+     "nazov": "Čierny základ, bordové pásiky"
     },
     {
      "kod": "06",
-     "nazov": "Čierna + Modrá"
+     "nazov": "Čierny základ, modré pásiky"
     },
     {
      "kod": "07",
-     "nazov": "Čierna + Zelená"
+     "nazov": "Čierny základ, zelené pásiky"
     },
     {
      "kod": "08",
-     "nazov": "Čierna + Hnedá"
+     "nazov": "Čierny základ, hnedé pásiky"
     },
     {
      "kod": "09",
-     "nazov": "Čierna + Čierna"
+     "nazov": "Čierny základ, čierne pásiky"
     },
     {
      "kod": "10",
-     "nazov": "Béžová + Modrá"
+     "nazov": "Béžový základ, modré pásiky"
     },
     {
      "kod": "11",
-     "nazov": "Béžová + Hnedá"
+     "nazov": "Béžový základ, hnedé pásiky"
     },
     {
      "kod": "12",
-     "nazov": "Béžová + Červená"
+     "nazov": "Béžový základ, červené pásiky"
     },
     {
      "kod": "13",
-     "nazov": "Hnedá + Béžová"
+     "nazov": "Hnedý základ, béžové pásiky"
     }
    ],
    "zhrnutie": "{nazov}",

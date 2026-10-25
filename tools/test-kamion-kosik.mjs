@@ -138,7 +138,7 @@ async function kontrolaKosika(t, meno, ocak = {}) {
 }
 
 const PRES = "Prémiová syntetická koža – prešívaná";
-const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: Čierna + Červená\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – Čierna + Červená\n- Nášivky na tapacír: Nechcem";
+const P423 = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF106 2017-2021\n- Typ prevodovky: Automatická prevodovka\n\nKOBERČEKY POD SEDAČKY\n- Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: 04 – čierny základ, červené pásiky\n- Rozloženie nášiviek: Šofér + spolujazdec + stred\n- Typ nášiviek na boky: H19\n- Farba nášiviek na boky: 2999 – Čierna\n- Typ nášivky na stred: H19\n- Farba nášivky na stred: 2999 – Čierna\n\nTAPACÍR DVERÍ\n- Typ a farba materiálu: Rovnaký ako koberčeky – Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11\n- Farba lemovania: Rovnaká ako farba lemovania koberčekov – 04 – čierny základ, červené pásiky\n- Nášivky na tapacír: Nechcem";
 const DAF = { znacka: "DAF (TIR)", model: "XF106 2017-2021", material: PRES, farba: "11", lem: "04" }; // 11 = čierna (vzorkovník 24. 10. 2026)
 
 console.log("1) DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, stred rovnaký, tapacír ako koberce, bez nášivky na dverách");
@@ -268,7 +268,7 @@ console.log("8) Iný materiál dverí: Mikrosemiš – dvojfarebný 3N, lemovani
   potvrd(t, "dvere");
   sam(t, "tapacir", null, "8");
   await kontrolaKosika(t, "8", {
-    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – sivý – 2N", "- Farba lemovania: Béžová + Hnedá", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
+    poznamkaObsahuje: ["TAPACÍR DVERÍ\n- Typ a farba materiálu: Mikrosemiš – dvojfarebný – sivý – 2N", "- Farba lemovania: 11 – béžový základ, hnedé pásiky", "- Typ nášivky na tapacír: H21", "- Farba nášiviek na tapacíre: 2840 – Zelená"],
     selecty: { 388: "Vyberie sa v konfigurátore", 391: "Vyberie sa v konfigurátore", 394: "Vyberie sa v konfigurátore", 397: "Nášivka H21", 400: "2840 – Zelená", 355: "Áno chcem nášivku na dverách" },
   });
 }
@@ -543,8 +543,8 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
     tvD.length === 2 && J(tvD.map((d) => dTx(d, ".kn-tv__st"))) === J(["Materiál", "Lemovanie"]) && tvD.every((d) => d.querySelectorAll("img").length === 1) &&
     tvD[0].querySelector("img.kn-tv__foto").getAttribute("src") === f11.full && tvD[1].querySelector(".kn-tv__pas > img").getAttribute("src") === l04.full,
     J(tvD.map((d) => Array.from(d.querySelectorAll("img")).map((i) => i.getAttribute("src")))));
-  over("17: karta A — „Prešívaná syntetická koža / čierna, čierne šitie (11)“ a „čierna + červená (04) / páska po celom okraji“",
-    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "čierna, čierne šitie (11)"], ["čierna + červená (04)", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
+  over("17: karta A — „Prešívaná syntetická koža / čierna, čierne šitie (11)“ a „04 – čierny základ, červené pásiky / páska po celom okraji“",
+    J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])) === J([["Prešívaná syntetická koža", "čierna, čierne šitie (11)"], ["04 – čierny základ, červené pásiky", "páska po celom okraji"]]), J(tvD.map((d) => [dTx(d, ".kn-tv__dn"), dTx(d, ".kn-tv__dp")])));
   const lemB = tvB ? Array.from(tvB.querySelectorAll(".kn-tv__lt")).map((i) => i.getAttribute("src")) : [];
   over("17: karta B „Vlastná kombinácia“ — 4 vzorky materiálu, čiara, 2 pásy lemovania iné ako na kobercoch",
     !!tvB && dTx(tvB, ".kn-tv__nm") === "Vlastná kombinácia" && dTx(tvB, ".kn-tv__po") === "Iný materiál, farba alebo lemovanie" && tvB.querySelectorAll(".kn-tv__mm > img.kn-tv__mt").length === 4 &&
@@ -553,7 +553,7 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
   t.klik(a("tapZmenit"));
   over("17: „Vlastná kombinácia“ -> materiál, farba a lemovanie vopred ako koberce + Pokračovať", S.tapRovnaky === false && S.tapMat === PRES && S.tapFarba === "11" && S.tapLem === "04" && !!q('[data-pole="tapMat"]') && !!q(".kn-vz") && !!q(a("potvrd", "tapMat")) && !q(a("tapNas", "ano")));
   over("17: vnorený riadok voľby = podstatné meno „✓ Iný materiál, farba alebo lemovanie“ (nie „Vlastná kombinácia“)", tx(K6 + '.kn-hot--vnutri[data-hot="mat"] .kn-hot__tx') === "Iný materiál, farba alebo lemovanie", tx(K6 + '.kn-hot--vnutri[data-hot="mat"]'));
-  over("17: lemovanie uprostred vety malým písmom (lemovanie čierna + červená (04))", /lemovanie čierna \+ červená \(04\)/.test(tx(".kn-vz p")), tx(".kn-vz p"));
+  over("17: lemovanie uprostred vety malým písmom (lemovanie 04 – čierny základ, červené pásiky)", tx(".kn-vz p").includes("lemovanie 04 – čierny základ, červené pásiky"), tx(".kn-vz p"));
   const vzO = qa(".kn-vz .kn-vz__obr > .kn-vz__o");
   over("17: „Vybraté pre tapacír“ — materiál a lemovanie ako dve samostatné fotky vedľa seba so štítkami (nie pás cez materiál)",
     vzO.length === 2 && J(vzO.map((o) => o.querySelector(".kn-vz__st").textContent)) === J(["Materiál", "Lemovanie"]) && vzO.every((o) => o.querySelectorAll("img").length === 1) &&
@@ -680,7 +680,7 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   zaklad(t, DAF);
   over("20: krok 1 = „DAF XF106 2017–2021 · automatická · 199 €“ (cena za nezalomiteľnou medzerou)", vy("vozidlo") === "DAF XF106 2017–2021 · automatická · 199 €" && / · 199 €$/.test(nbsp("vozidlo")), vy("vozidlo"));
   over("20: krok 2 = „Prémiová syntetická koža, prešívaná · + 10 €“", vy("material") === "Prémiová syntetická koža, prešívaná · + 10 €", vy("material"));
-  over("20: kroky 3 a 4 = „Čierna, čierne šitie (11) · v cene“, „Čierna + Červená (04) · v cene“", vy("farba") === "Čierna, čierne šitie (11) · v cene" && vy("lemovanie") === "Čierna + Červená (04) · v cene", vy("farba") + " | " + vy("lemovanie"));
+  over("20: kroky 3 a 4 = „Čierna, čierne šitie (11) · v cene“, „04 – čierny základ, červené pásiky · v cene“", vy("farba") === "Čierna, čierne šitie (11) · v cene" && vy("lemovanie") === "04 – čierny základ, červené pásiky · v cene", vy("farba") + " | " + vy("lemovanie"));
   nasivky(t, "boky+stred", "H19", "2999");
   over("20: krok 5 = „{rozsah} · {motív} · niť {farba} · + 95 €“", vy("nasivky") === "Pod sedadlá šoféra a spolujazdca + do stredu · Kamión · niť čierna · + 95 €", vy("nasivky"));
   t.klik(a("tap", "ano")); t.klik(a("tapRovnake")); t.klik(a("tapNas", "nie"));
@@ -690,7 +690,7 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   t.klik(a("krok", "tapacir")); t.klik(a("zmenit", "mat")); t.klik(a("tapZmenit"));
   t.klik(a("tapMat", "Mikrosemiš – dvojfarebný")); t.klik(a("tapFarba", "2N")); t.klik(a("tapLem", "11")); potvrd(t, "tapMat");
   t.klik(a("krok", "tapacir")); t.klik(a("zmenit", "nas")); t.klik(a("tapNas", "ano")); t.klik(a("tapNasRovnaka", "1"));
-  over("20: krok 6 inak + nášivka = 2 riadky s cenami", J(vyR("tapacir")) === J(["Mikrosemiš, dvojfarebný · sivý (2N) · lemovanie béžová + hnedá (11) · + 119 €", "Nášivka Kamión (H19) · niť čierna (2999) · + 49 €"]) && t.k.ui.hotovo(), J(vyR("tapacir")));
+  over("20: krok 6 inak + nášivka = 2 riadky s cenami", J(vyR("tapacir")) === J(["Mikrosemiš, dvojfarebný · sivý (2N) · lemovanie 11 – béžový základ, hnedé pásiky · + 119 €", "Nášivka Kamión (H19) · niť čierna (2999) · + 49 €"]) && t.k.ui.hotovo(), J(vyR("tapacir")));
   const t2 = await otvor();
   hotovyDaf(t2);
   const vy2 = (id) => { const e = t2.d.querySelector('#lcd1v-kamion [data-krok="' + id + '"] .k-krok__vy'); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; };

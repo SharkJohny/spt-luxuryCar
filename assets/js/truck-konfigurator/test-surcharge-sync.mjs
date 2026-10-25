@@ -213,13 +213,13 @@ const SELECTS_SK_FARBY = SELECTS_SK
   .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="379"',
     '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="f11">11 – čierna, čierne šitie +€0</option><option value="f3">3 – hnedá, hnedé šitie +€0</option><option value="f1g">1G – svetlobéžová +€0</option><option value="f2n">2N – sivý +€0</option>\n  </select>\n  <select data-parameter-id="379"')
   .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="349"',
-    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="l03">03 – Čierna + Grafitová +€0</option><option value="l08">08 – Čierna + Hnedá +€0</option><option value="l13">13 – Hnedá + Béžová +€0</option>\n  </select>\n  <select data-parameter-id="349"')
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="l03">03 – čierny základ, grafitové pásiky +€0</option><option value="l08">08 – čierny základ, hnedé pásiky +€0</option><option value="l13">13 – hnedý základ, béžové pásiky +€0</option>\n  </select>\n  <select data-parameter-id="349"')
   .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="391"',
     '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="m2">Prémiová syntetická koža – prešívaná +€0</option><option value="m5">Mikrosemiš – dvojfarebný +€0</option>\n  </select>\n  <select data-parameter-id="391"')
   .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="394"',
     '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="d11">11 – čierna, čierne šitie +€0</option><option value="d2n">2N – sivý +€0</option>\n  </select>\n  <select data-parameter-id="394"')
   .replace('<option value="custom">Vyberie sa v konfigurátore +€0</option>\n  </select>\n  <select data-parameter-id="397"',
-    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="dl03">03 – Čierna + Grafitová +€0</option><option value="dl08">08 – Čierna + Hnedá +€0</option>\n  </select>\n  <select data-parameter-id="397"');
+    '<option value="custom">Vyberie sa v konfigurátore +€0</option><option value="dl03">03 – čierny základ, grafitové pásiky +€0</option><option value="dl08">08 – čierny základ, hnedé pásiky +€0</option>\n  </select>\n  <select data-parameter-id="397"');
 if ((SELECTS_SK_FARBY.match(/value="(f3|l08|m5|d2n|dl03)"/g) || []).length !== 5) throw new Error("SELECTS_SK_FARBY: výrez sa nepodaril");
 
 const stavFarby = {
@@ -253,10 +253,10 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   // Michal 25. 10. 2026: skutočná farba a lemovanie priamo v položke objednávky (hodnoty príplatkov v admine SK 640)
   const farby = syncValues(helperSource, sTextamiPriplatkov(stavFarby), SELECTS_SK_FARBY);
   expectStartsWith(farby, "Farba materiálu", "3 – hnedá, hnedé šitie", sourceName);
-  expectStartsWith(farby, "Farba lemovania", "08 – Čierna + Hnedá", sourceName);
+  expectStartsWith(farby, "Farba lemovania", "08 – čierny základ, hnedé pásiky", sourceName);
   expectStartsWith(farby, "Typ materiálu tapacíru", "Mikrosemiš – dvojfarebný", sourceName);
   expectStartsWith(farby, "Farba materiálu tapacíru", "2N – sivý", sourceName);
-  expectStartsWith(farby, "Farba lemovania tapacíru", "03 – Čierna + Grafitová", sourceName);
+  expectStartsWith(farby, "Farba lemovania tapacíru", "03 – čierny základ, grafitové pásiky", sourceName);
   // admin hodnotu ešte nemá (starý stav adminu / neznámy kód) -> „Vyberie sa v konfigurátore“, povinný príplatok nikdy prázdny
   const farbyStaryAdmin = syncValues(helperSource, sTextamiPriplatkov(stavFarby), SELECTS_SK);
   for (const name of ["Farba materiálu", "Farba lemovania", "Typ materiálu tapacíru", "Farba materiálu tapacíru", "Farba lemovania tapacíru"]) {
@@ -367,10 +367,10 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   };
   const n1 = await syncNovy(sTextamiPriplatkov(stavFarby), SELECTS_SK_FARBY);
   expectStartsWith(n1, "Farba materiálu", "3 – hnedá, hnedé šitie", "1V shoptet.js");
-  expectStartsWith(n1, "Farba lemovania", "08 – Čierna + Hnedá", "1V shoptet.js");
+  expectStartsWith(n1, "Farba lemovania", "08 – čierny základ, hnedé pásiky", "1V shoptet.js");
   expectStartsWith(n1, "Typ materiálu tapacíru", "Mikrosemiš – dvojfarebný", "1V shoptet.js");
   expectStartsWith(n1, "Farba materiálu tapacíru", "2N – sivý", "1V shoptet.js");
-  expectStartsWith(n1, "Farba lemovania tapacíru", "03 – Čierna + Grafitová", "1V shoptet.js");
+  expectStartsWith(n1, "Farba lemovania tapacíru", "03 – čierny základ, grafitové pásiky", "1V shoptet.js");
   const n2 = await syncNovy(sTextamiPriplatkov(stavFarby), SELECTS_SK);
   for (const name of ["Farba materiálu", "Farba lemovania", "Typ materiálu tapacíru", "Farba materiálu tapacíru", "Farba lemovania tapacíru"]) {
     expectStartsWith(n2, name, "Vyberie sa", "1V shoptet.js");
