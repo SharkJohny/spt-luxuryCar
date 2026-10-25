@@ -1,5 +1,5 @@
 // Kontrola rozloženia 1V produktov (?novy=1) bez klikania: celá stránka po kúskoch okna na mnohých rozmeroch.
-//   node rozlozenie-1v.mjs <out> [produkty: all | 598,616,...] [rozmery] [zdroj "" | lokal]
+//   node rozlozenie-1v.mjs <out> [produkty: all | 598,616,...] [rozmery] [zdroj "" | lokal | <sha7> = assets/v z nového sha]
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { spustiChrome, pauza } from "../test-1v/cdp.mjs";
@@ -34,6 +34,14 @@ for (const pid of produkty) for (const R of ROZMERY) {
           try { return await k.posli("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: 200, responseHeaders: [{ name: "Content-Type", value: f.endsWith(".css") ? "text/css" : "application/javascript" }, { name: "Access-Control-Allow-Origin", value: "*" }], body: readFileSync(LOK + f).toString("base64") }); } catch (e) {}
         }
         await k.posli("Fetch.continueRequest", { requestId: p.requestId });
+      });
+      await k.posli("Fetch.enable", { patterns: [{ urlPattern: "*luxuryCar/assets/v/*" }] });
+    }
+    if (zdroj && zdroj !== "lokal") {
+      // sha mód (Shoptet úpravy 25. 10. 2026): všetko z CDN assets/v/<živý sha>/ presmerovať na nový sha (pred prepnutím adminu)
+      k.na("Fetch.requestPaused", async (p) => {
+        const u = p.request.url.replace(/\/assets\/v\/[0-9a-f]{7}\//, "/assets/v/" + zdroj + "/").replace(/([?&]v=)[0-9a-f]{7}/, "$1" + zdroj);
+        try { await k.posli("Fetch.continueRequest", u === p.request.url ? { requestId: p.requestId } : { requestId: p.requestId, url: u }); } catch (e) {}
       });
       await k.posli("Fetch.enable", { patterns: [{ urlPattern: "*luxuryCar/assets/v/*" }] });
     }
