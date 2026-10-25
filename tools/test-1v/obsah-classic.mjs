@@ -4,6 +4,8 @@
 // Skupiny A–D sa nepoužijú (zdielane = []): ich kontroly platia pre počty a texty obsahu 598 (9 vecí, 12 otázok, a-ponuka vedie na dvojvrstvové…).
 // Tento plugin overuje všetky sekcie rohože Classic samostatne a s ?novy=vyvoj / ?novy=1 na každej šírke:
 //   * CSS partial (každý selektor pod body.lcd-1v), sekcie sú na stránke, viditeľné;
+//   * poradie sekcií (PORADIE): recenzie PRVÉ pod konfigurátorom, hneď za nimi Pred a po; banner setu (a-ponuka) nie pod konfigurátorom,
+//     ale ďalej v popise a od banneru boxu (classic-box) aspoň 2 sekcie (Michal 25. 10. 2026, ako Premium);
 //   * zdrojový text (admin-html/src/p1v-classic) okrem FAQ: žiadne zakázané formulácie (na milimeter, vyrábame, názvy materiálu, fixačné body,
 //     Comfort, počty vrstiev, záruka), žiadny „kovový štítok“ ani „skladom“, žiadna cena natvrdo (okrem trhovej ceny napodobenín); rozhodnutia
 //     Michala 14. 10. 2026: logo Luxury Car Design (čip, úvod 8 vecí, balenie) a lehota 21–29 dní (časová os) sú v texte;
@@ -23,12 +25,13 @@ export const NAVRH = "kufor-classic.html";
 /** skupiny A–D sa nepoužijú: ich kontroly sú pre počty a texty obsahu 598 — tu ich nahrádza tento plugin */
 export const zdielane = [];
 export const sekcie = [
-  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Potrebujete aj koberce pod nohy" }] },
+  // Michal 25. 10. 2026 (pri Premium 628: dva tmavé bannery hneď pod konfigurátorom = „úplný nonsens. Prvé majú byť recenzie a potom nejako
+  // porozdeľovať tieto dva bannery do toho celého popisu“): prvé pod konfigurátorom sú recenzie, hneď za nimi Pred a po (24. 10. 2026:
+  // „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“); banner setu z návrhu (hneď pod konfigurátorom) je za vzorkami
+  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
+  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "a-referencie", navrh: [{ sel: "#referencie" }] },
   { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
-  { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
-  // b-predapo hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“)
-  { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }] },
   { meno: "b-material", navrh: [{ sel: "#material" }] },
   { meno: "b-porovnanie", navrh: [{ sel: "#porovnanie" }] },
@@ -39,11 +42,18 @@ export const sekcie = [
   { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", pred: "#farby" }] },
   { meno: "c-farby", navrh: [{ sel: "#farby" }] },
   { meno: "c-vzorky", navrh: [{ sel: "#vzorky" }] },
+  // karta setu (v návrhu prvá sekcia pod konfigurátorom) — na webe za vzorkami, pred videami z praxe
+  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Potrebujete aj koberce pod nohy" }] },
   { meno: "d-realita", navrh: [{ sel: "#realita" }] },
   { meno: "d-faq", navrh: [{ sel: "section.faqsec" }] },
   { meno: "d-koniec", navrh: [{ sel: "section.end" }] },
   { meno: "d-pomocne", navrh: [] },
 ];
+
+/** poradie sekcií v obsahu (kus 1 potom kus 2). Oproti návrhu: recenzie PRVÉ pod konfigurátorom, hneď za nimi Pred a po (Michal 24. a 25. 10. 2026);
+ *  banner setu (a-ponuka, v návrhu hneď pod konfigurátorom) je v kapitole 3 za vzorkami — ďaleko od banneru boxu (classic-box, kapitola 2) */
+const PORADIE = ["a-recenzie", "b-predapo", "a-referencie", "a-galeria", "b-ocakavat", "b-material", "b-porovnanie", "classic-premium",
+  "c-kam", "classic-box", "c-domov", "c-casova-os", "c-farby", "c-vzorky", "a-ponuka", "d-realita", "d-faq", "d-koniec", "d-pomocne"];
 
 /** rovnaký zlom ako obsah-b.js MQ_STATICKA / LCD-HOME */
 const MQ = "(max-width:900px), (min-width:901px) and (max-width:1199px) and (orientation:portrait) and (hover:none) and (pointer:coarse)";
@@ -134,12 +144,29 @@ export async function kontroly(t) {
   for (const s of sekcie) je[s.meno] = await t.je(s.meno);
   // chat Luxia (iframe tretej strany) sa na telefóne sám otvára cez stred obrazovky — pre skutočné kliky ho skryjeme (len test)
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]'), function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
-  // ---------------------------------------------------------------- Pred a po hneď za recenziami (Michal 24. 10. 2026:
-  //     „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“) — susedná sekcia na stránke, nie číslo súboru
-  if (await t.je("b-predapo")) {
+  // ---------------------------------------------------------------- poradie sekcií na stránke (nie čísla súborov)
+  // Pred a po hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“);
+  // Michal 25. 10. 2026: prvé pod konfigurátorom recenzie, bannery setu a boxu nie hneď pod konfigurátorom ani pri sebe
+  {
     const v = (await t.ev(`[].map.call(document.querySelectorAll(".p1v-miesto [data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia"); })`)).filter((m) => m !== "x-sonda-cisla");
+    ok(JSON.stringify(v) === JSON.stringify(PORADIE), `sekcie v poradí (${v.length}/${PORADIE.length}): ${v.join(" > ")}`);
     const i = v.indexOf("a-recenzie");
     ok(i >= 0 && v[i + 1] === "b-predapo", `b-predapo je hneď za a-recenzie (${i >= 0 ? v.slice(Math.max(0, i - 1), i + 3).join(" → ") : "a-recenzie chýba"})`);
+    // prvá sekcia pod konfigurátorom = prvá sekcia prvého koreňa obsahu (.p1v-miesto je pod konfigurátorom) a nad ňou žiadna iná sekcia
+    const prva = await t.ev(`(function () { var m = document.querySelector(".p1v-miesto"), f = document.getElementById("product-detail-form");
+      var s = m && [].filter.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia") !== "x-sonda-cisla"; })[0];
+      return { meno: s ? s.getAttribute("data-lcd-sekcia") : null, podFormularom: !!(s && f && (f.compareDocumentPosition(s) & 4)) }; })()`);
+    ok(prva.meno === "a-recenzie" && prva.podFormularom && v[0] === "a-recenzie" && v[1] === "b-predapo",
+      `recenzie sú prvá sekcia pod konfigurátorom, hneď za nimi Pred a po (prvá „${prva.meno}“, pod formulárom ${prva.podFormularom}; ${v.slice(0, 2).join(" > ")})`);
+    const iSet = v.indexOf("a-ponuka"), iBox = v.indexOf("classic-box");
+    ok(iSet > 3 && iBox > 3 && Math.abs(iBox - iSet) > 2,
+      `bannery rozdelené v popise: set za „${v[iSet - 1]}“ (${iSet + 1}. sekcia), box za „${v[iBox - 1]}“ (${iBox + 1}. sekcia), medzi nimi ${Math.abs(iBox - iSet) - 1} sekcií`);
+    // rytmus kapitoly ako upsell boxu: linka nad kartou (za vzorkami) a odsadenie návrhu clamp(38px,4.8vw,68px), nie väčšie odsadenie skupiny A
+    const kap = await t.ev(`(function () { var s = document.querySelector('.p1v-miesto [data-lcd-sekcia="a-ponuka"]'), c = s && s.querySelector(":scope > section.chapter");
+      return s ? { kap: s.getAttribute("data-lcd-kap"), obal: !!c, linka: parseFloat(getComputedStyle(s).borderTopWidth), pad: c ? parseFloat(getComputedStyle(c).paddingTop) : -1, okno: innerWidth } : null; })()`);
+    const padKap = kap ? Math.min(68, Math.max(38, 0.048 * kap.okno)) : 0;
+    ok(kap && kap.kap === "3" && kap.obal && kap.linka >= 1 && Math.abs(kap.pad - padKap) <= 1.5,
+      `banner setu je v kapitole 3: data-lcd-kap ${kap && kap.kap}, obal > section.chapter ${kap && kap.obal}, linka ${kap && kap.linka} px, odsadenie ${kap && kap.pad.toFixed(1)} px (návrh ${padKap.toFixed(1)} px)`);
   }
   const posun = (sel, pp, { dalej = 0 } = {}) => t.ev(`(async function () {
     var el = document.querySelector(${JSON.stringify(sel)}); if (!el) return null;

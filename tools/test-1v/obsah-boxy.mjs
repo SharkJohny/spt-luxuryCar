@@ -23,13 +23,17 @@ export const NAVRH = "boxy.html";
 /** skupiny A–D, ktorých kontroly platia aj pre tento obsah (bez zmeny): žiadne — počty a texty 598 tu neplatia */
 export const zdielane = [];
 export const sekcie = [
-  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Berete aj autokoberce" }] },
-  { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
+  // Michal 25. 10. 2026 (pri Premium 628: tmavé bannery hneď pod konfigurátorom = „úplný nonsens. Prvé majú byť recenzie a potom nejako
+  // porozdeľovať tieto dva bannery do toho celého popisu“): prvé pod konfigurátorom sú recenzie, hneď za nimi Pred a po (24. 10. 2026:
+  // „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“); karta ponuky s tabuľkou cien je za veľkosťami boxov
   { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
-  // b-predapo hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“)
   { meno: "b-predapo", navrh: [{ sel: "#predapo" }] },
   { meno: "b-ocakavat", navrh: [{ sel: "#ocakavat" }] },
+  // galéria za „Osem vecí“ (25. 10. 2026): hneď za tmavým Pred a po by boli dva tmavé moduly za sebou
+  { meno: "a-galeria", navrh: [{ sel: "#galeria" }] },
   { meno: "boxy-velkosti", navrh: [{ sel: "#velkosti" }, { sel: ".spat", za: "#velkosti" }] },
+  // karta ponuky (v návrhu prvá sekcia pod konfigurátorom) — na webe hneď za veľkosťami (nadväzuje na ich ceny)
+  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Berete aj autokoberce" }] },
   // c-kam „Čo sa doň zmestí“ a c-domov „Čo dostanete“ zmazané 23. 10. 2026 (Michal: „veľakrát za sebou … veľmi podobný“ obsah —
   // všetko z nich je v „Osem vecí“ b-ocakavat)
   { meno: "c-casova-os", navrh: [{ sel: "section.chapter", text: "Od objednávky po doručenie" }, { sel: ".spat", za: "#tml" }] },
@@ -40,6 +44,12 @@ export const sekcie = [
   { meno: "d-koniec", navrh: [{ sel: "section.end" }] },
   { meno: "d-pomocne", navrh: [] },
 ];
+
+/** poradie sekcií v obsahu (kus 1 potom kus 2). Oproti návrhu: recenzie PRVÉ pod konfigurátorom, hneď za nimi Pred a po (Michal 24. a 25. 10. 2026);
+ *  karta ponuky s tabuľkou cien (a-ponuka, v návrhu hneď pod konfigurátorom) je v kapitole 1 hneď za veľkosťami boxov — ďaleko od kariet boxy-cross;
+ *  tmavá galéria je za „Osem vecí“ (v kapitole 1), nie hneď za tmavým Pred a po (žiadne dva tmavé moduly za sebou) */
+const PORADIE = ["a-recenzie", "b-predapo", "b-ocakavat", "a-galeria", "boxy-velkosti", "a-ponuka", "c-casova-os", "c-farby", "c-vzorky",
+  "boxy-cross", "d-faq", "d-koniec", "d-pomocne"];
 
 /** Výraz v stránke: vzhľad obsahu podľa SKUTOČNÝCH vypočítaných štýlov (nie len počty prvkov) — kapitoly, zlaté nadpisy, tmavá karta ponuky,
  *  čitateľnosť tabuľky cien a sken kontrastu všetkého textu (text vs. skutočné pozadie vrátane predkov a prechodov). Chytí stav, keď sa
@@ -182,12 +192,33 @@ export async function kontroly(t) {
   const posun = (sel, kam = "start") => t.ev(`(async function () { var e = document.querySelector(${JSON.stringify(sel)}); if (!e) return false;
     e.scrollIntoView({ block: ${JSON.stringify(kam)}, behavior: "instant" }); await new Promise(function (r) { setTimeout(r, 900); }); return true; })()`);
 
-  // ---------------------------------------------------------------- Pred a po hneď za recenziami (Michal 24. 10. 2026:
-  //     „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“) — susedná sekcia na stránke, nie číslo súboru
-  if (await t.je("b-predapo")) {
+  // ---------------------------------------------------------------- poradie sekcií na stránke (nie čísla súborov)
+  // Pred a po hneď za recenziami (Michal 24. 10. 2026: „obrázok Pred a po daj hneď pod recenzie, je to veľmi dobrý predajný point“);
+  // Michal 25. 10. 2026: prvé pod konfigurátorom recenzie, karta ponuky nie hneď pod konfigurátorom, ale za veľkosťami (nie pri boxy-cross)
+  {
     const v = (await t.ev(`[].map.call(document.querySelectorAll(".p1v-miesto [data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia"); })`)).filter((m) => m !== "x-sonda-cisla");
+    ok(JSON.stringify(v) === JSON.stringify(PORADIE), `sekcie v poradí (${v.length}/${PORADIE.length}): ${v.join(" > ")}`);
     const i = v.indexOf("a-recenzie");
     ok(i >= 0 && v[i + 1] === "b-predapo", `b-predapo je hneď za a-recenzie (${i >= 0 ? v.slice(Math.max(0, i - 1), i + 3).join(" → ") : "a-recenzie chýba"})`);
+    // prvá sekcia pod konfigurátorom = prvá sekcia prvého koreňa obsahu (.p1v-miesto je pod konfigurátorom) a nad ňou žiadna iná sekcia
+    const prva = await t.ev(`(function () { var m = document.querySelector(".p1v-miesto"), f = document.getElementById("product-detail-form");
+      var s = m && [].filter.call(m.querySelectorAll("[data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia") !== "x-sonda-cisla"; })[0];
+      return { meno: s ? s.getAttribute("data-lcd-sekcia") : null, podFormularom: !!(s && f && (f.compareDocumentPosition(s) & 4)) }; })()`);
+    ok(prva.meno === "a-recenzie" && prva.podFormularom && v[0] === "a-recenzie" && v[1] === "b-predapo",
+      `recenzie sú prvá sekcia pod konfigurátorom, hneď za nimi Pred a po (prvá „${prva.meno}“, pod formulárom ${prva.podFormularom}; ${v.slice(0, 2).join(" > ")})`);
+    const iPon = v.indexOf("a-ponuka"), iCross = v.indexOf("boxy-cross");
+    ok(iPon > 3 && v[iPon - 1] === "boxy-velkosti" && iCross - iPon > 2,
+      `karta ponuky v popise: za „${v[iPon - 1]}“ (${iPon + 1}. sekcia), od „Doplňte aj rohož do kufra“ ju delí ${iCross - iPon - 1} sekcií`);
+    const kap = await t.ev(`(function () { var s = document.querySelector('.p1v-miesto [data-lcd-sekcia="a-ponuka"]'); return s ? [s.getAttribute("data-lcd-kap"), !!s.querySelector(":scope > section.chapter")] : null; })()`);
+    ok(kap && kap[0] === "1" && kap[1], `karta ponuky je v kapitole 1 za veľkosťami (data-lcd-kap ${kap && kap[0]}, obal > section.chapter ${kap && kap[1]})`);
+    // žiadne dva tmavé moduly (lx-tma: Pred a po, galéria) za sebou; galéria v kapitole 1 bez obalu .chapter (bez odsadenia kapitoly)
+    const tma = await t.ev(`(function () { var s = [].filter.call(document.querySelectorAll(".p1v-miesto [data-lcd-sekcia]"), function (e) { return e.getAttribute("data-lcd-sekcia") !== "x-sonda-cisla"; });
+      var zle = []; for (var i = 1; i < s.length; i++) if (s[i].classList.contains("lx-tma") && s[i - 1].classList.contains("lx-tma")) zle.push(s[i - 1].getAttribute("data-lcd-sekcia") + " > " + s[i].getAttribute("data-lcd-sekcia"));
+      var g = document.querySelector('.p1v-miesto [data-lcd-sekcia="a-galeria"]');
+      return { tmave: s.filter(function (e) { return e.classList.contains("lx-tma"); }).map(function (e) { return e.getAttribute("data-lcd-sekcia"); }), zle: zle,
+        gKap: g && g.getAttribute("data-lcd-kap"), gChapter: !!(g && (g.matches(".chapter") || g.querySelector(":scope > section.chapter"))), gPad: g ? parseFloat(getComputedStyle(g).paddingTop) : -1 }; })()`);
+    ok(!tma.zle.length && tma.tmave.length >= 2, `žiadne dva tmavé moduly za sebou (tmavé: ${tma.tmave.join(", ")})` + (tma.zle.length ? " — za sebou: " + tma.zle.join(", ") : ""));
+    ok(tma.gKap === "1" && !tma.gChapter, `galéria je v kapitole 1 (data-lcd-kap ${tma.gKap}) bez obalu .chapter — rytmus kapitol sa jej netýka (padding-top ${tma.gPad} px)`);
   }
 
   // ---------------------------------------------------------------- zdroj sekcií (D3, ceny natvrdo, TODO-D3)
@@ -223,7 +254,8 @@ export async function kontroly(t) {
   {
     const v = await t.ev(SKEN_VZHLADU);
     const kapOk = v.kapitoly.filter((k) => k.ok).length;
-    ok(v.kapitoly.length >= 4 && kapOk === v.kapitoly.length, `vzhľad: kapitoly majú odsadenie návrhu ${v.ocak} px (clamp 38–68 px) — ${kapOk}/${v.kapitoly.length}` + (kapOk < v.kapitoly.length ? " — zle: " + v.kapitoly.filter((k) => !k.ok).slice(0, 3).map((k) => `${k.sek} ${k.hore}/${k.dole}`).join(", ") : "")); // 4 od 23. 10. 2026 (c-kam a c-domov boli kapitoly)
+    // 5 od 25. 10. 2026: karta ponuky (a-ponuka) je obal kapitoly 1 za veľkosťami a má rytmus kapitoly, nie väčšie odsadenie skupiny A
+    ok(v.kapitoly.length >= 5 && kapOk === v.kapitoly.length, `vzhľad: kapitoly majú odsadenie návrhu ${v.ocak} px (clamp 38–68 px) — ${kapOk}/${v.kapitoly.length}` + (kapOk < v.kapitoly.length ? " — zle: " + v.kapitoly.filter((k) => !k.ok).slice(0, 3).map((k) => `${k.sek} ${k.hore}/${k.dole}`).join(", ") : "")); // 4 od 23. 10. 2026 (c-kam a c-domov boli kapitoly)
     const nadSv = v.nadpisy.filter((h) => h.svetle), nadZl = nadSv.filter((h) => h.zlate);
     ok(nadSv.length >= 5 && nadZl.length === nadSv.length, `vzhľad: nadpisy modulov na svetlom podklade sú zlaté (prechod, priehľadná výplň) — ${nadZl.length}/${nadSv.length}` + (nadZl.length < nadSv.length ? " — čierne/nezlaté: " + nadSv.filter((h) => !h.zlate).slice(0, 4).map((h) => `${h.sek} „${h.txt}“ ${h.farba}`).join(", ") : ""));
     ok(v.ups !== null && v.ups < 0.1, `vzhľad: karta ponuky (.ups) je tmavá (relatívna svetlosť ${v.ups == null ? "?" : v.ups.toFixed(3)} < 0,1)`);

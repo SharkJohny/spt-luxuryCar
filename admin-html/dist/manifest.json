@@ -451,15 +451,20 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 36841,
-      "bajty": 37671,
-      "hash": "c94eb8025b",
-      "obrazky": 37,
+      "znaky": 35439,
+      "bajty": 36242,
+      "hash": "f0c16a82db",
+      "obrazky": 36,
       "sekcie": [
         {
-          "subor": "10-a-ponuka.sk.html",
-          "sekcia": "a-ponuka",
-          "znaky": 1389
+          "subor": "10-a-recenzie.sk.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2131
+        },
+        {
+          "subor": "10-b-predapo.sk.html",
+          "sekcia": "b-predapo",
+          "znaky": 2865
         },
         {
           "subor": "11-a-referencie.sk.html",
@@ -470,16 +475,6 @@
           "subor": "12-a-galeria.sk.html",
           "sekcia": "a-galeria",
           "znaky": 7646
-        },
-        {
-          "subor": "13-a-recenzie.sk.html",
-          "sekcia": "a-recenzie",
-          "znaky": 2143
-        },
-        {
-          "subor": "14-b-predapo.sk.html",
-          "sekcia": "b-predapo",
-          "znaky": 2865
         },
         {
           "subor": "20-b-ocakavat.sk.html",
@@ -516,10 +511,10 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 27803,
-      "bajty": 28591,
-      "hash": "8cab7b45d8",
-      "obrazky": 36,
+      "znaky": 29223,
+      "bajty": 30038,
+      "hash": "3e4f0e22df",
+      "obrazky": 37,
       "sekcie": [
         {
           "subor": "30-c-kam.sk.html",
@@ -550,6 +545,11 @@
           "subor": "35-c-vzorky.sk.html",
           "sekcia": "c-vzorky",
           "znaky": 1498
+        },
+        {
+          "subor": "36-a-ponuka.sk.html",
+          "sekcia": "a-ponuka",
+          "znaky": 1419
         },
         {
           "subor": "40-d-realita.sk.html",
@@ -716,28 +716,18 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 25282,
-      "bajty": 25836,
-      "hash": "37f796daa6",
+      "znaky": 25317,
+      "bajty": 25871,
+      "hash": "f0097f3d29",
       "obrazky": 28,
       "sekcie": [
         {
-          "subor": "10-a-ponuka.sk.html",
-          "sekcia": "a-ponuka",
-          "znaky": 2619
-        },
-        {
-          "subor": "12-a-galeria.sk.html",
-          "sekcia": "a-galeria",
-          "znaky": 7423
-        },
-        {
-          "subor": "13-a-recenzie.sk.html",
+          "subor": "10-a-recenzie.sk.html",
           "sekcia": "a-recenzie",
-          "znaky": 2143
+          "znaky": 2131
         },
         {
-          "subor": "14-b-predapo.sk.html",
+          "subor": "10-b-predapo.sk.html",
           "sekcia": "b-predapo",
           "znaky": 2738
         },
@@ -747,9 +737,19 @@
           "znaky": 5805
         },
         {
+          "subor": "21-a-galeria.sk.html",
+          "sekcia": "a-galeria",
+          "znaky": 7440
+        },
+        {
           "subor": "21-boxy-velkosti.sk.html",
           "sekcia": "boxy-velkosti",
           "znaky": 4410
+        },
+        {
+          "subor": "22-a-ponuka.sk.html",
+          "sekcia": "a-ponuka",
+          "znaky": 2649
         }
       ]
     },

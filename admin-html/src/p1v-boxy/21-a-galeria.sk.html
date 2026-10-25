@@ -1,9 +1,16 @@
-<!-- 12-a-galeria — box do kufra 616: tmavý pás fotiek „Boxy v kufroch našich zákazníkov“ 01/08 (návrh boxy.html #galeria r. 4042, spec §6.2).
+<!-- 21-a-galeria — box do kufra 616: tmavý pás fotiek „Boxy v kufroch našich zákazníkov“ 01/08 (návrh boxy.html #galeria r. 4042, spec §6.2).
      Markup = modul lx galéria z titulky (rovnaký ako p1v-598/12-a-galeria), oživí ho lxModulyOziv len na tejto sekcii (obsah-a.js);
      fotka sa zväčšuje v okne #p1v-lb (43-d-pomocne). Fotky: assets/img/1v/obsah/boxy-galeria-1…8.jpg (bx-gal-* z návrhu),
      znak lcd-home/logo-velke.png už je na CDN. Kópie .lx-klon = nekonečný pás na mobile (na PC ich CSS skryje).
-     „Vyberte si box“ vedie na konfigurátor (#product-detail-form). Bez čísel: „01 / 08“ je počet fotiek, nie cena. -->
-<section data-lcd-sekcia="a-galeria" id="p1v-galeria" class="lx lx-tma lx-gal"><div class="lx-gal-lep lx-vzor"><div class="lx-gal-pin">
+     „Vyberte si box“ vedie na konfigurátor (#product-detail-form). Bez čísel: „01 / 08“ je počet fotiek, nie cena.
+     Michal 25. 10. 2026: recenzie sú prvé pod konfigurátorom a hneď za nimi Pred a po (10-a-recenzie, 10-b-predapo). Galéria (predtým 12-a-galeria
+     hneď za Pred a po) by bola druhý tmavý modul lx-tma hneď za tmavým Pred a po -> presunutá ZA „Osem vecí“ (20-b-ocakavat), pred veľkosti
+     (21-boxy-velkosti): striedanie svetlá / tmavá ostáva (recenzie – Pred a po – Osem vecí – galéria – veľkosti). Číslo 21 + meno a-galeria radí build
+     pred 21-boxy-velkosti (celý názov súboru), v kuse 1 (10–29).
+     Teraz je v kapitole 1 medzi jej sekciami -> data-lcd-kap="1" priamo na section (BEZ obalu div > section.chapter ako pri bannere: galéria nie je
+     .chapter a pravidlá rytmu kapitol z _lcd1v-obsah.scss bod 5 — odsadenie section.chapter — by tmavému pásu pridali okraj). Podklad kapitoly 1
+     = podklad stránky (vlastný tmavý podklad .lx-tma má prednosť); linku kapitoly dostane až nasledujúca sekcia veľkostí (.chapter). -->
+<section data-lcd-sekcia="a-galeria" id="p1v-galeria" class="lx lx-tma lx-gal" data-lcd-kap="1"><div class="lx-gal-lep lx-vzor"><div class="lx-gal-pin">
 <div class="lx-gal-hore"><div class="lx-hlava"><div class="lx-hlava-t"><h2 class="lx-h">Boxy v kufroch našich zákazníkov</h2></div><div class="lx-pocet lx-gal-pocet"><span><span class="lx-gal-cislo">01</span> / 08</span><small>fotka</small></div></div></div>
 <div class="lx-gal-okno"><div class="lx-gal-znak" aria-hidden="true"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/logo-velke.png" alt="" loading="lazy" width="859" height="620"></div><div class="lx-gal-trat">
 <figure class="lx-gal-k"><button class="lx-gal-f" type="button"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-galeria-1.jpg" alt="Čierna · červené šitie" loading="lazy" width="800" height="1000"><span class="sr-only">Pozrieť: Čierna · červené šitie</span></button><figcaption>Čierna · červené šitie</figcaption></figure>

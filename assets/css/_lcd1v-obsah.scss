@@ -123,6 +123,17 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .lx-gal-k figcaption{white-spa
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev p{font-size:clamp(16px,calc(14px + .4vw),17px)}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .meta b{font-size:clamp(15px,calc(13px + .4vw),16px);white-space:normal;text-overflow:clip;overflow:visible;overflow-wrap:normal}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .meta i{font-size:14px}
+/*       kontrola rozloženia 25. 10. 2026: od 768 px dátum ako poznámka 15 px (mierka 14/15) a hviezdičky 16 px (boli 14);
+         320–374 px: dlhé meno („Majerhofferova“) vytekalo z karty -> karta širšia a bez ikony Google v päte karty
+         (značka Google je v hlavičke sekcie), slovo sa nedelí */
+@media(min-width:768px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .meta i{font-size:15px}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .st{font-size:16px}
+}
+@media(max-width:374px){
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev{flex-basis:86%}
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .rev .foot svg{display:none}
+}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .revhead .sub{font-size:clamp(14px,calc(12px + .4vw),15px)}
 /*    f) porovnanie .cmp (b-porovnanie, Classic/Premium): bunky, hlavičky stĺpcov, cena nie menšia než text pod ňou */
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .cmp-col li{font-size:clamp(15px,calc(13px + .4vw),16px)}

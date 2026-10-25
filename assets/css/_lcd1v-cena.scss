@@ -240,6 +240,15 @@ body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos {
   box-shadow: 0 6px 18px rgba(31, 125, 79, .22); cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos:focus-visible { outline: 2px solid var(--c1v-gold); outline-offset: 3px; }
+/* telefón na šírku (nízke okno; kontrola rozloženia na 23 rozmeroch 25. 10. 2026, Michal: „aby sme o žiadne zariadenie
+   neprišli“): lišta s popisom na 2 riadky zaberala až tretinu výšky (568 × 320) -> jeden riadok bez popisu (výber je
+   v hotových krokoch), nižšie tlačidlo; odsadenie päty podľa novej výšky (6 + 44 + 6 px + linka) — všetky 1V typy */
+@media (max-width: 991px) and (max-height: 500px) and (orientation: landscape) {
+  body.lcd-1v { --c1v-lista-h: 57px; }
+  body.lcd-1v .lcd1v-lista { padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
+  body.lcd-1v .lcd1v-lista .lcd1v-lista__popis { display: none; }
+  body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos { height: 44px; }
+}
 
 /* ---------- rozmery ---------- */
 /* väčšie písmo na PC (Michal 18. 10. 2026) */
