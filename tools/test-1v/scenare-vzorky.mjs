@@ -81,7 +81,16 @@ export const SCENARE = {
         j.over(n >= 1, "nový vzhľad vzorkovníka nemá kroky");
         for (let i = 0; i < n; i++) {
           await t.klikni("#product-detail-form .lcd1v-vz-krok.active > .lcd1v-vz-dalej", { popis: "Pokračujte (krok " + (i + 1) + ", bez vzorky)" });
-          await j.pauza(250);
+          // po „Pokračujte“ sa otvorí ďalší krok a stránka sa k nemu plynulo posunie (posun.js, na telefóne ~1 s). Pevných 250 ms
+          // nestačilo: ďalší klik prišiel počas posunu a trafil vzorku pod tlačidlom (25. 10. 2026, stopa: click .lcd1v-vz-farby;
+          // padalo aj naživo, nie chyba stránky) -> čakať na ďalší aktívny krok a potom, kým poloha okna 300 ms stojí
+          await t.ev(`(async function () {
+            var t0 = Date.now(), cakaj = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+            var k = function () { return Array.prototype.indexOf.call(document.querySelectorAll("#product-detail-form .lcd1v-vz-kroky > .lcd1v-vz-krok"), document.querySelector("#product-detail-form .lcd1v-vz-krok.active")); };
+            while (Date.now() - t0 < 3000 && k() === ${i}) await cakaj(50);
+            var y = scrollY, ticho = 0;
+            while (Date.now() - t0 < 5000 && ticho < 300) { await cakaj(50); if (scrollY === y) ticho += 50; else { y = scrollY; ticho = 0; } }
+          })()`);
         }
         await j.pauza(800);
         j.over(s.posty.length === 0, "„Pokračujte k súhrnu“ bez vzorky poslal POST: " + (s.posty[0] && s.posty[0].body));
