@@ -44,12 +44,14 @@ async function cakajNaObsah(k, ms) {
  * @param build priprav() z obsah-spolocne.mjs
  * @param p produkt testu ({ url, kusy, typ … } ako v test-1v-obsah.mjs)
  * @param {number} sirka šírka okna
- * @param {{ flag?: string, pripravene?: string }} o flag ?novy= a výraz „konfigurátor je postavený“
+ * @param {{ flag?: string, pripravene?: string, miesto?: string }} o flag ?novy=, výraz „konfigurátor je postavený“ a
+ *   miesto obsahu ako test obsahu: cdn (predvolené) alebo popis-cdn (krok 2 spustenia: kus 1 v Popise = p.dokKusy, kus 2
+ *   z CDN — reload pri FAQ vloží kus 1 synchrónne a kus 2 až po stiahnutí)
  */
-export async function kontrolaPolohy(ch, build, p, sirka, { flag = "1", pripravene } = {}) {
+export async function kontrolaPolohy(ch, build, p, sirka, { flag = "1", pripravene, miesto = "cdn" } = {}) {
   const out = [];
   const ok = (podm, popis) => out.push({ ok: !!podm, popis });
-  const s = await novaStranka(ch, sirka, build, { miesto: "cdn", produkt: p, kusy: p.kusy, cdnKusy: p.cdnKusy || null });
+  const s = await novaStranka(ch, sirka, build, { miesto, produkt: p, kusy: p.kusy, dokKusy: p.dokKusy || null, cdnKusy: p.cdnKusy || null });
   try {
     await otvorProdukt(s, { url: p.url, flag, pripravene });
     const ma = await s.k.ev(`!!document.querySelector('.p1v-miesto [data-lcd-sekcia="d-faq"]')`);

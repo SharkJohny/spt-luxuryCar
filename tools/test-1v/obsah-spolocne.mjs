@@ -11,6 +11,9 @@
 //             lokálnym dist (ako production.yml kopíruje admin-html/dist/p1v-*.sk.html do assets/v/<sha>/html/);
 //   "paticka" (starý test D1 = a): každý kus ako nový banner v pätičke (.custom-footer), presne ako ho vypíše Shoptet;
 //   "popis"   (SPUSTENIE): kusy namiesto starého obsahu .basic-description (Popis produktu);
+//   "popis-cdn" (KROK 2 SPUSTENIA, docs/1v-obsah.md §7 bod 1 b): do Popisu len dokKusy (kus 1 postavený --bez-webp, ako
+//             pôjde do adminu), CDN obslúži všetky kusy lokálnym dist ako pri "cdn"; vypadok = požiadavky na kusy
+//             z CDN zlyhajú ako výpadok siete;
 //   "zive"    nič sa nevkladá ani neobsluhuje (obsah, ktorý už je na stránke / na CDN).
 // Do každého neprázdneho koreňa sa pridá SONDA (img loading=lazy 1×1 na …/assets/img/1v/obsah/__sonda-N.png): bez flagu
 // sa nesmie stiahnuť, s flagom po posune na ňu áno (kontrola, že meranie požiadaviek funguje).
@@ -108,17 +111,12 @@ export function spusti(cmd, args, { shell = false, popis, cwd = KOREN, env, tich
   return r;
 }
 
-/**
- * Lokálny build: { js, css, admin: { kusy: Map(kľúč -> [{ cast, html, sekcie, znaky, hash, plne }]), manifest, casti(kľúč) }, tmp, popis }.
- * kusy = všetky SK časti obsahu 1V (p1v-<kľúč>-<n>) v poradí; plne = počet neprázdnych sekcií kusu.
- */
-export function priprav({ bezDrop = false } = {}) {
-  const tmp = mkdtempSync(join(tmpdir(), "lcd-1v-obsah-"));
-  const t0 = Date.now();
+/** build-admin-html --vystup <dir> [ďalšie prepínače] -> { kusy: Map(kľúč -> [kus]), manifest }; chyba buildu = výnimka. */
+function buildObsahu(dir, prepinace = []) {
   // HTML obsahu (kontroly build-admin-html; chyba = test hneď končí, obsah by na CDN ani do adminu neprešiel)
-  const adm = spusti(process.execPath, ["tools/build-admin-html.mjs", "--vystup", join(tmp, "admin")], { popis: "build-admin-html --vystup", ticho: true });
-  if (adm.status !== 0) throw new Error("tools/build-admin-html.mjs hlási chyby (obsah by neprešiel):\n" + (adm.stdout || "").split("\n").filter((r) => /CHYBA|✗|POZOR/.test(r)).join("\n"));
-  const manifest = JSON.parse(readFileSync(join(tmp, "admin", "manifest.json"), "utf8"));
+  const adm = spusti(process.execPath, ["tools/build-admin-html.mjs", "--vystup", dir, ...prepinace], { popis: "build-admin-html --vystup " + prepinace.join(" "), ticho: true });
+  if (adm.status !== 0) throw new Error(`tools/build-admin-html.mjs ${prepinace.join(" ")} hlási chyby (obsah by neprešiel):\n` + (adm.stdout || "").split("\n").filter((r) => /CHYBA|✗|POZOR/.test(r)).join("\n"));
+  const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
   const kusy = new Map();
   manifest.casti.filter((c) => /^p1v-[a-z0-9]+-\d+$/.test(c.cast) && c.web === "sk")
     .sort((a, b) => a.cast.localeCompare(b.cast, "en", { numeric: true }))
@@ -126,9 +124,23 @@ export function priprav({ bezDrop = false } = {}) {
       const kluc = /^p1v-([a-z0-9]+)-\d+$/.exec(c.cast)[1];
       if (!kusy.has(kluc)) kusy.set(kluc, []);
       const sekcie = c.sekcie || [];
-      kusy.get(kluc).push({ cast: c.cast, html: readFileSync(join(tmp, "admin", c.subor), "utf8"), sekcie, znaky: c.znaky, hash: c.hash, plne: sekcie.filter((s) => s.znaky > 0).length });
+      kusy.get(kluc).push({ cast: c.cast, html: readFileSync(join(dir, c.subor), "utf8"), sekcie, znaky: c.znaky, hash: c.hash, plne: sekcie.filter((s) => s.znaky > 0).length });
     });
+  return { kusy, manifest };
+}
+
+/**
+ * Lokálny build: { js, css, admin: { kusy: Map(kľúč -> [{ cast, html, sekcie, znaky, hash, plne }]), manifest, casti(kľúč),
+ * popis: { kusy, manifest, casti(kľúč) } | null }, tmp, popis }.
+ * kusy = všetky SK časti obsahu 1V (p1v-<kľúč>-<n>) v poradí (dist pre CDN, s obalmi WebP); plne = počet neprázdnych
+ * sekcií kusu. bezWebp: navyše admin.popis = kusy postavené --bez-webp (to, čo ide do Popisu v admine, §7 docs/1v-obsah.md).
+ */
+export function priprav({ bezDrop = false, bezWebp = false } = {}) {
+  const tmp = mkdtempSync(join(tmpdir(), "lcd-1v-obsah-"));
+  const t0 = Date.now();
+  const { kusy, manifest } = buildObsahu(join(tmp, "admin"));
   if (!kusy.has("598")) throw new Error("manifest nemá časti p1v-598-* (admin-html/ciele.json)");
+  const popis = bezWebp ? buildObsahu(join(tmp, "admin-popis"), ["--bez-webp"]) : null;
   // JS + CSS (kroky CI pred esbuildom ako zmrazený runner)
   const tk = join(KOREN, "assets/js/truck-konfigurator");
   const gen = ["konfigurator.gen.jsx", "konfigurator.phone.gen.jsx"].map((f) => join(tk, f));
@@ -148,8 +160,12 @@ export function priprav({ bezDrop = false } = {}) {
   spusti(py[0], [...py.slice(1), "tools/vloz-lcd-css.py", "--vystup", join(tmp, "luxuryCar.css")], { popis: "vloz-lcd-css.py --vystup" });
   const js = readFileSync(join(tmp, "luxuryCar.js")), css = readFileSync(join(tmp, "luxuryCar.css"));
   return {
-    js, css, tmp, admin: { kusy, manifest, casti: (kluc) => kusy.get(String(kluc)) || [] },
-    popis: `lokálny build (${(js.length / 1024).toFixed(0)} kB JS, ${(css.length / 1024).toFixed(0)} kB CSS, obsah ${[...kusy].map(([k, v]) => k + " " + v.map((c) => c.znaky).join("+") + " zn.").join(", ")}, ${((Date.now() - t0) / 1000).toFixed(1)} s) v ${tmp}`,
+    js, css, tmp,
+    admin: {
+      kusy, manifest, casti: (kluc) => kusy.get(String(kluc)) || [],
+      popis: popis ? { ...popis, casti: (kluc) => popis.kusy.get(String(kluc)) || [] } : null,
+    },
+    popis: `lokálny build (${(js.length / 1024).toFixed(0)} kB JS, ${(css.length / 1024).toFixed(0)} kB CSS, obsah ${[...kusy].map(([k, v]) => k + " " + v.map((c) => c.znaky).join("+") + " zn.").join(", ")}${popis ? "; do Popisu --bez-webp " + [...popis.kusy].map(([k, v]) => k + " " + v.map((c) => c.znaky).join("+") + " zn.").join(", ") : ""}, ${((Date.now() - t0) / 1000).toFixed(1)} s) v ${tmp}`,
   };
 }
 
@@ -214,11 +230,15 @@ export function vlozObsah(html, casti, miesto) {
  * Nová karta: bundle/CSS z buildu, obrázky 1V lokálne, sonda, log požiadaviek.
  *   kusy   – časti obsahu produktu (build.admin.casti(kľúč)); cdnKusy = { cast: html } prepíše, čo dostane obsah.js z CDN
  *            (základ bez obsahu = prázdne korene, sonda čísel = kus s pridanou sekciou)
- *   miesto – cdn | paticka | popis | zive (pri paticka/popis sa dokument produktu zachytí a kusy sa doň vložia)
+ *   miesto – cdn | paticka | popis | popis-cdn | zive (pri paticka/popis/popis-cdn sa dokument produktu zachytí a kusy
+ *            sa doň vložia)
+ *   dokKusy – popis-cdn: kusy do Popisu (kus 1 --bez-webp); CDN obslúži všetky kusy (kusy) ako pri cdn
+ *   vypadok – požiadavky na kusy z CDN zlyhajú ako výpadok siete (Fetch.failRequest ConnectionFailed)
  */
-export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "cdn", log = () => {}, produkt = null, kusy = null, cdnKusy = null } = {}) {
+export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "cdn", log = () => {}, produkt = null, kusy = null, cdnKusy = null, dokKusy = null, vypadok = false } = {}) {
   const k = await ch.novaKarta({ sirka });
   const casti = kusy || build.admin.casti("598");
+  const doDokumentu = miesto === "popis-cdn" ? dokKusy || casti.slice(0, 1) : casti;
   const s = { k, sirka, posty: [], inePosty: [], poziadavky: [], html: [], vlozene: null };
   await k.posli("Network.setBlockedURLs", { urls: MERACE });
   await k.posli("Network.setCacheDisabled", { cacheDisabled: true });
@@ -229,10 +249,10 @@ export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "c
   });
   // CDN kusy: lokálny dist (s sondou), alebo prepis z cdnKusy; neznámy kus = 404 ako na CDN
   const cdnHtml = {};
-  if (miesto === "cdn") casti.forEach((c, i) => { cdnHtml[c.cast] = c.plne ? sSondou(c.html, i + 1) : c.html; });
+  if (miesto === "cdn" || miesto === "popis-cdn") casti.forEach((c, i) => { cdnHtml[c.cast] = c.plne ? sSondou(c.html, i + 1) : c.html; });
   if (cdnKusy) Object.assign(cdnHtml, cdnKusy);
   const cesta = produkt ? new URL(produkt.url).pathname : "/luxusne-autokoberce-dragonskin-diamond-line/";
-  const vlozitDoc = vlozit && (miesto === "paticka" || miesto === "popis");
+  const vlozitDoc = vlozit && (miesto === "paticka" || miesto === "popis" || miesto === "popis-cdn");
   k.na("Fetch.requestPaused", async (p) => {
     const u = p.request.url;
     try {
@@ -241,7 +261,7 @@ export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "c
         if (vlozitDoc && p.resourceType === "Document" && p.responseStatusCode === 200) {
           const telo = await k.posli("Fetch.getResponseBody", { requestId: p.requestId });
           const html = telo.base64Encoded ? Buffer.from(telo.body, "base64").toString("utf8") : telo.body;
-          const v = vlozObsah(html, casti, miesto);
+          const v = vlozObsah(html, doDokumentu, miesto === "popis-cdn" ? "popis" : miesto);
           s.vlozene = v;
           const hlavicky = (p.responseHeaders || []).filter((h) => !/^(content-length|content-encoding|transfer-encoding)$/i.test(h.name));
           return await k.posli("Fetch.fulfillRequest", { requestId: p.requestId, responseCode: 200, responseHeaders: hlavicky, body: Buffer.from(v.html, "utf8").toString("base64") });
@@ -264,6 +284,7 @@ export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "c
         return await odpovedz(p, PNG_1x1, "image/png");
       } else if (kus && miesto !== "zive") {
         s.html.push(kus[1]);
+        if (vypadok) return await k.posli("Fetch.failRequest", { requestId: p.requestId, errorReason: "ConnectionFailed" });
         if (cdnHtml[kus[1]] != null) return await odpovedz(p, cdnHtml[kus[1]], "text/html; charset=utf-8");
         return await odpovedz(p, "Not found", "text/plain", 404);
       } else if (/\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?js\/luxuryCar\.js(\?|$)/.test(u)) {

@@ -48,8 +48,11 @@ Obal vyrobí build, workeri ho nemenia:
 
 **S flagom** (`assets/js/components/konfigurator1v/obsah.js`, posledný modul v `index.js`):
 1. Kľúč = `ctx.produkt.obsah` (register), inak `productId`.
-2. **a) Korene v DOM** `[data-lcd-cast^="p1v-<kľúč>-"]` (Popis po spustení, starý test v pätičke) → tie, synchrónne (ako základ).
-   **b) Inak, keď `OBSAH_CDN` (D1 = b; od integrácie WA 14. 10. 2026 v jadre predvolene `true` — sekcia 11; vypnúť sa dá bez úpravy kódu `--define:LCD_OBSAH_CDN=false`):** adresa bundle `…/assets/v/<sha>/js/luxuryCar.js` (skript na stránke) → `…/assets/v/<sha>/html/p1v-<kľúč>-1|2.sk.html`, `fetch` (CORS: CDN posiela `Access-Control-Allow-Origin: *`, overené 14. 10. na `assets/v/fc20e3e/js/version.json`), HTML cez inertný `<template>` (nič sa nesťahuje ani nespúšťa, kým sa koreň nevloží). Len SK (`ctx.trh`). Nevyverzovaný bundle (bez `v/<sha>/`) = nič. Kus, ktorý nepríde (404, sieť), chýba.
+2. **Po kusoch** (od 25. 10. 2026, krok 2 spustenia — sekcia 7 bod 1 b):
+   **a) Kus, ktorého koreň je v DOM** `[data-lcd-cast="p1v-<kľúč>-<n>"]` (Popis po spustení, starý test v pätičke) → ten, synchrónne (ako základ).
+   **b) Kus, ktorý v DOM nie je, keď `OBSAH_CDN` (D1 = b; od integrácie WA 14. 10. 2026 v jadre predvolene `true` — sekcia 11; vypnúť sa dá bez úpravy kódu `--define:LCD_OBSAH_CDN=false`):** adresa bundle `…/assets/v/<sha>/js/luxuryCar.js` (skript na stránke) → `…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html`, `fetch` (CORS: CDN posiela `Access-Control-Allow-Origin: *`, overené 14. 10. na `assets/v/fc20e3e/js/version.json`), HTML cez inertný `<template>` (nič sa nesťahuje ani nespúšťa, kým sa koreň nevloží). Len SK (`ctx.trh`). Nevyverzovaný bundle (bez `v/<sha>/`) = nič. Kus, ktorý nepríde (404, sieť), chýba.
+   - Krok 2: v Popise je kus 1 (a), kus 2 príde z CDN (b) — `predstiahni` sťahuje len kusy, ktoré v DOM nie sú (bundle je synchrónny skript na konci `<body>`, Popis je už sparsovaný), a kus z CDN sa vloží na miesto podľa čísla (kus 2 za kus 1).
+   - Výpadok CDN: kus z Popisu ostane, `chybaju = ["p1v-<kľúč>-2"]`, starý popis sa nevracia (v Popise už nie je). Chyba pri vložení kusu z CDN odoberie len ten kus (bez kusu z Popisu sa ako doteraz vráti celý obsah).
    Žiadna sekcia v koreňoch (len stuby) = nič, `window.__lcd1v.obsah.stav = "nic"`.
 3. Vytvorí `div.p1v-miesto` **hneď pred** `.p-detail > .shp-tabs-wrapper` (záložky Popis/Diskusia) = priamo pod konfigurátorom, na celú šírku stránky (`.overall-wrapper`; `--p1v-sirka`, `--p1v-vlavo` podľa skutočnej geometrie).
 4. Presunie korene doň v poradí kus 1, kus 2. Prázdny stĺpec pätičky (starý test) dostane `data-p1v-prazdny`.
@@ -57,7 +60,7 @@ Obal vyrobí build, workeri ho nemenia:
 6. `obsah-cisla.js` (synchrónne skryje nedosadené čísla a dosadí odkazy; hodnoty asynchrónne), potom `init(oc)` skupín A–D, potom **modul typu** (`obsah-dvoj.js`, `obsah-classic.js`, `obsah-premium.js`, `obsah-boxy.js`; `598` a `vzorky` nemajú).
 7. Spoločný reveal `.rv` pre všetky sekcie (čo je vo výreze alebo nad ním hneď, zvyšok pri zobrazení), potom obal každej sekcie dostane `.p1v-rv`. Skupiny reveal nerobia.
 - **Chyby:** cesta a) — výnimka modulu → `ctx.chyby`, `index.js` zloží celý nový vzhľad (ako základ). Cesta b) beží až po stiahnutí, keď je konfigurátor hotový a `index.js` už `ctx.chyby` nekontroluje → výnimka ide do `ctx.chyby` a **vráti sa len obsah** (`.p1v-miesto`, okno a linka čítania preč, `.lcd-1v-obsah` preč = starý popis späť); konfigurátor ostane nový.
-- **Stav pre test a ladenie:** `window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|null, stav: "nic"|"caka"|"hotovo"|"chyba", kusy, hotovo (Promise, len CDN), cisla (Promise) }`.
+- **Stav pre test a ladenie:** `window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|"dom+cdn"|null, stav: "nic"|"caka"|"hotovo"|"chyba", kusy, casti: { "p1v-<kľúč>-<n>": "dom"|"cdn" }, chybaju: [kusy z CDN, ktoré neprišli], hotovo (Promise, keď sa sťahuje z CDN), cisla (Promise) }`. Krok 2: `zdroj "dom+cdn"`, `casti { -1: "dom", -2: "cdn" }`, `kusy 2`.
 
 **Štýly titulky platia aj na obsahu.** `vloz-lcd-css.py` mení v bloku `LCD-HOME`:
 - pôvodne: `#lcd-home` → `:is(#lcd-home,[data-lcd-cast^=hp])`,
@@ -226,6 +229,7 @@ node tools/test-1v-obsah.mjs --len bez --produkt 598,610,601,619,616   # bez fla
 node tools/test-1v-obsah.mjs --sonda-cisla --vyvoj --produkt 604 --len novy --sirka 1280 --bez-snimok   # čísla a odkazy
 node tools/test-1v-obsah.mjs --skupina b --sirka 390 --snimky-sirky 390 --snimky …   # rýchlo, len skupina B
 node tools/test-1v-obsah.mjs --miesto popis     # obsah v Popise (simulácia spustenia, brána ešte zapnutá)
+node tools/test-1v-obsah.mjs --miesto popis-cdn --produkt 598,601,616,619,628 --sirka 390,1280 --paralelne 2 --bez-snimok   # krok 2: kus 1 (--bez-webp) v Popise, kus 2 z CDN + výpadok CDN
 node tools/test-1v-obsah.mjs --miesto paticka   # starý test D1 = a (bannery v pätičke)
 node tools/test-1v-obsah.mjs --miesto zive      # nič sa nevkladá ani neobsluhuje: obsah zo živej stránky / živej CDN verzie
 node tools/test-konfigurator-1v.mjs             # konfigurátor bez flagu (musí ostať zelený)
@@ -235,6 +239,8 @@ node tools/test-konfigurator-1v.mjs --novy      # konfigurátor s ?novy=1 (musí
 **`test-1v-obsah`** (T0.3) zostaví HTML obsahu (`--vystup`), JS a CSS ako CI do dočasného priečinka a otvorí živé stránky produktov z `--produkt` (register `konfigurator1v/produkty.js` sa číta zo zdroja: typ, vzor, adresa, kľúč obsahu, `ZAPNUTE_TYPY`; `?novy=1` na nezapnutom type = chyba použitia, treba `--vyvoj`). Bundle a CSS nahradí lokálnym buildom (adresa `…/assets/v/<sha>/js/luxuryCar.js` ostane, takže `obsah.js` počíta CDN adresu presne ako naživo). Miesto obsahu (`--miesto`):
 - **`cdn` (predvolené, D1 = b):** nič sa do stránky nevkladá. Požiadavky `…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html` test obslúži lokálnym dist (+ sonda), neznámy kus = 404 ako CDN. Základ „bez obsahu“ dostane prázdne korene.
 - `paticka` / `popis`: kusy vložené do dokumentu produktu (pätička = starý test, Popis = spustenie). `zive`: nič.
+- **`popis-cdn` (krok 2 spustenia, sekcia 7 bod 1 b):** do Popisu len kus 1 postavený `--bez-webp` (presne to, čo pôjde do adminu), CDN obslúži všetky kusy lokálnym dist (s WebP). S flagom kontroluje navyše: `zdroj "dom+cdn"`, `casti`, z CDN sa stiahol len kus 2 (nie kus z Popisu), v `.p1v-miesto` všetky sekcie skupiny v poradí, žiadny kus, sekcia ani id dvakrát, `data-lcd-v` kusu 1 = verzia `--bez-webp`. Úloha **výpadok CDN** (každá šírka s flagom, vypne `--bez-vypadku`): kusy z CDN zlyhajú ako výpadok siete → kus 1 na mieste a viditeľný so svojimi sekciami (oživené), `stav "hotovo"`, `chybaju` = kus 2, starý popis skrytý. Poloha (End + posun hore, reload pri FAQ) beží tiež s kusom 1 v Popise.
+- Základ (`popis`, `popis-cdn`): kusy v Popise nahrádzajú starý popis, preto má základ Popis s prázdnymi koreňmi (výška bez flagu = starý vzhľad `?novy=0` bez starého popisu; s plným starým popisom by sa porovnávalo ≈ −10 500 px na 598 @1280).
 
 Kontroluje:
 - **bez flagu (1280, 390):**
@@ -294,6 +300,7 @@ Platí pre každú skupinu (`598` = 598/610/613, `dvoj`, `classic`, `premium`, `
 1. **Veľkosť:** `node tools/build-admin-html.mjs` → riadok `p1v-<kľúč>.sk … spolu` (bez obalov WebP = to, čo pôjde do Popisu).
    - **≤ 45 000:** v `ciele.json` jedna časť `p1v-<kľúč>-1` so `sekcie: ["10","49"]`, kus 2 zmazať — **a v `obsah.js` + `pravidla.obsah-1v.kusy` znížiť `KUSY`** (build kontroluje počet kusov skupiny), `sk` = `{ "typ": "produkt", "id": <id>, "pole": "Popis (description)" }` pre každý produkt.
    - **> 45 000** (dnes `598`: 57 316 zn.): kus 1 → Popis, kus 2 nemá kam (pole má limit). Možnosti pre Michala: (a) obsah skrátiť o ~12 300 zn.; (b) kus 2 ostáva na CDN a `obsah.js` ho stiahne aj bez flagu (cesta b) bez brány — JS obsah, „web bez prekrývania“ len čiastočne); (c) kus 2 ako banner v pätičke, skrytý mimo produktov skupiny (HTML navyše na každej stránke natrvalo).
+   - **Michal 25. 10. 2026: (b).** `obsah.js` berie korene po kusoch (sekcia 2): kus 1 z Popisu, chýbajúci kus 2 z CDN verzie bundle za ním; pri výpadku CDN ostane kus 1. Test: `test-1v-obsah --miesto popis-cdn` (sekcia 6).
 2. **Zrušiť bránu** (všetko v repe, jeden commit):
    - `ciele.json` `obal` bez `brana` (build už nedá `style="display:none"` ani `data-lcd-brana`),
    - v `index.js` pre typ zrušiť podmienku flagu (`jeZapnute`),

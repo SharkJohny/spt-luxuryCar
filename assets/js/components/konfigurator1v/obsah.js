@@ -6,14 +6,17 @@
 // "dvoj" 601/604/607, "classic" 619/622/625, "premium" 628/631/634, "boxy" 616, "vzorky" 637. Čísla a odkazy, ktoré
 // závisia od vzoru alebo ceny, dosadí obsah-cisla.js (data-p1v-cislo / data-p1v-odkaz) zo živých dát.
 //
-// Odkiaľ sa obsah vezme (beží len pod bránou index.js: flag ?novy=1 + zapnutý typ, alebo ?novy=vyvoj):
-//   a) korene [data-lcd-cast^="p1v-<kľúč>-"] už sú v DOM (po spustení pre všetkých: Popis produktu; starší test: banner
-//      v pätičke) -> použijú sa tie (umiestnia sa synchrónne, ako doteraz);
-//   b) inak, keď OBSAH_CDN (rozhodnutia D1 = b, skúšobná fáza): kusy sa stiahnu z CDN z TEJ ISTEJ verzie ako bundle —
+// Odkiaľ sa obsah vezme (beží len pod bránou index.js: flag ?novy=1 + zapnutý typ, alebo ?novy=vyvoj) — PO KUSOCH:
+//   a) kus, ktorého koreň [data-lcd-cast="p1v-<kľúč>-<n>"] už je v DOM (po spustení pre všetkých: Popis produktu;
+//      starší test: banner v pätičke) -> použije sa ten (umiestni sa synchrónne, ako doteraz);
+//   b) kus, ktorý v DOM nie je, keď OBSAH_CDN (rozhodnutia D1 = b): stiahne sa z CDN z TEJ ISTEJ verzie ako bundle —
 //      …/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html (sha z adresy luxuryCar.js; .github/workflows/production.yml ich tam
 //      kopíruje z admin-html/dist). Bez flagu sa nič nesťahuje (obsah.js vôbec nebeží) a HTML stránky sa nemení.
 //      Michal 25. 10. 2026 (rýchlosť, docs/1v-rychlost.md): sťahovanie začne už pri spustení bundla (index.js volá
 //      predstiahni() za tou istou bránou), nie až po postavení konfigurátora; konfigurátor na obsah nikdy nečaká.
+//   Krok 2 spustenia (Michal 25. 10. 2026, docs/1v-obsah.md §7 bod 1 b): pole Popis má limit 45 000 zn., preto je v ňom
+//   len kus 1 (a) a kus 2 príde z CDN (b) — vloží sa na svoje miesto za kus 1 (poradie podľa čísla kusu). Keď kus z CDN
+//   nepríde (404, sieť), kus z Popisu ostane; starý popis sa nevracia (v Popise už nie je).
 // Kus bez sekcií (len stuby) = nič: starý popis ostáva, nič sa neskrýva.
 // Pod body.lcd-1v potom (Michal 25. 10. 2026, rýchlosť: ako titulka — konfigurátor sa ukáže hneď, obsah postupne):
 //   1. každý kus sa vloží vo VLASTNEJ úlohe po vykreslení konfigurátora, hneď ako príde (kus 1 nečaká na kus 2); kus 2 sa
@@ -35,12 +38,15 @@
 //   5. reveal .rv: jeden IntersectionObserver (žiadne čítanie polôh pri vložení); čo je vo výreze alebo nad ním, dostane
 //      .on hneď pri prvom hlásení, až potom obal sekcie dostane .p1v-rv (dovtedy je všetko viditeľné).
 // Chyba: cesta a) -> ctx.chyby (index.js zloží celý nový vzhľad, ako doteraz); vloženie kusu (cesta b) -> chyba ide do
-// ctx.chyby a vráti sa LEN obsah (miesto preč, starý popis späť). Chyba pri vložení/oživení sekcie v module ide do
-// ctx.chyby, sekcia ostane statická a viditeľná (obsah sa pod zákazníkom nezloží).
+// ctx.chyby a vráti sa LEN obsah (miesto preč, starý popis späť) — keď je na stránke aj kus z Popisu (a), odoberie sa
+// len kus z CDN, kus z Popisu ostane. Chyba pri vložení/oživení sekcie v module ide do ctx.chyby, sekcia ostane
+// statická a viditeľná (obsah sa pod zákazníkom nezloží).
 // Žiadny živý DOM sa nemaže (záložky ostávajú v DOM, len skryté; JS na ne kotví — main.js, popisModuly.js).
-// Stav pre test a ladenie: window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|null, stav, kusy, hotovo (Promise),
-// cisla (Promise), neozivene() -> mená sekcií, ktoré sa ešte neoživili, vyrovnane: { pocet, px, merania } — ručné
-// vyrovnania polohy okna (Chrome so scroll anchoring 0) a koľkokrát sa kvôli kotve čítalo rozloženie }.
+// Stav pre test a ladenie: window.__lcd1v.obsah = { kluc, zdroj: "dom"|"cdn"|"dom+cdn"|null, stav, kusy, casti:
+// { "p1v-<kľúč>-<n>": "dom"|"cdn" } (odkiaľ je ktorý kus na stránke), chybaju: [kusy z CDN, ktoré neprišli],
+// hotovo (Promise, keď sa sťahuje z CDN), cisla (Promise), neozivene() -> mená sekcií, ktoré sa ešte neoživili,
+// vyrovnane: { pocet, px, merania } — ručné vyrovnania polohy okna (Chrome so scroll anchoring 0) a koľkokrát sa kvôli
+// kotve čítalo rozloženie }.
 import { lcdMultiKoren } from "../../functions/lcdOziv.js";
 import { OBRAZKY_1V } from "./ctx.js";
 import * as cisla from "./obsah-cisla.js";
@@ -100,12 +106,25 @@ export function klucObsahu(ctx) {
   return String((ctx && ctx.produkt && ctx.produkt.obsah) || (ctx && ctx.productId) || "");
 }
 
+/** Číslo kusu koreňa (data-lcd-cast="p1v-<kľúč>-<n>" -> n), iný prvok 0. */
+function cisloKusu(el, kluc) {
+  const pred = "p1v-" + kluc + "-", c = (el && el.getAttribute && el.getAttribute("data-lcd-cast")) || "";
+  return c.indexOf(pred) === 0 && /^\d+$/.test(c.slice(pred.length)) ? Number(c.slice(pred.length)) : 0;
+}
+
 /** Statické korene obsahu kľúča v poradí kusov (p1v-<kľúč>-1, p1v-<kľúč>-2, …) v rodičovi (predvolene dokument). */
 export function koreneObsahu(kluc, rodic) {
-  const pred = "p1v-" + kluc + "-";
   return Array.prototype.filter
-    .call((rodic || document).querySelectorAll("[data-lcd-cast]"), (el) => /^\d+$/.test((el.getAttribute("data-lcd-cast") || "").slice(pred.length)) && (el.getAttribute("data-lcd-cast") || "").indexOf(pred) === 0)
-    .sort((a, b) => Number(a.getAttribute("data-lcd-cast").slice(pred.length)) - Number(b.getAttribute("data-lcd-cast").slice(pred.length)));
+    .call((rodic || document).querySelectorAll("[data-lcd-cast]"), (el) => cisloKusu(el, kluc) > 0)
+    .sort((a, b) => cisloKusu(a, kluc) - cisloKusu(b, kluc));
+}
+
+/** Čísla kusov 1…KUSY, ktorých koreň nie je medzi korene (v DOM) — tie sa dotiahnu z CDN (krok 2: kus 2). */
+function chybajuceKusy(kluc, korene) {
+  const su = korene.map((k) => cisloKusu(k, kluc));
+  const out = [];
+  for (let n = 1; n <= KUSY; n++) if (su.indexOf(n) < 0) out.push(n);
+  return out;
 }
 
 /** Adresa priečinka html/ verzie, z ktorej beží bundle (…/assets/v/<sha>/html/), alebo null. */
@@ -137,13 +156,19 @@ function stiahniKus(u) {
     .catch(() => null);
 }
 
-/** Kusy stiahnuté vopred pri spustení bundla: { kluc, texty: [Promise(HTML | null)] } alebo null. */
+/**
+ * Kusy stiahnuté vopred pri spustení bundla: { kluc, texty: [Promise(HTML | null) | null] } alebo null; texty[n - 1] =
+ * kus n, null = nesťahoval sa (koreň bol v DOM).
+ */
 let vopred = null;
 
 /**
  * Michal 25. 10. 2026 (rýchlosť): volá index.js hneď pri spustení bundla za tou istou bránou ako initKonfigurator1v
  * (flag karty + register). Len začne sťahovať kusy (žiadny DOM, trieda ani handler); init() ich potom prevezme a
- * nesťahuje znova. Konfigurátor (data.json, moduly) na ne nečaká. Korene v DOM (cesta a) alebo CZ = nič.
+ * nesťahuje znova. Konfigurátor (data.json, moduly) na ne nečaká. CZ = nič.
+ * Kus, ktorého koreň už je v DOM (cesta a; krok 2 spustenia: kus 1 v Popise), sa nesťahuje — bundle je na stránke
+ * synchrónny skript na konci <body> (HTML kódy pätičky), Popis je pri jeho spustení už sparsovaný. (Keby sa skript
+ * niekedy presunul vyššie, stiahol by sa kus navyše a init() by ho nepoužil — koreň z DOM má prednosť.)
  * @param {{ projectId, productId, language }} kontext getShoptetContext()
  * @param {{ id, obsah }} produkt záznam registra (produkty.js produkt1v)
  */
@@ -153,10 +178,11 @@ export function predstiahni(kontext, produkt) {
   const jazyk = String(kontext.projectId) === "704436" ? "cs" : kontext.language || document.documentElement.lang || "sk";
   if (jazyk === "cs") return;
   const kluc = klucObsahu({ produkt, productId: kontext.productId });
-  if (!kluc || koreneObsahu(kluc).length) return;
+  if (!kluc) return;
+  const chyba = chybajuceKusy(kluc, koreneObsahu(kluc));
   const adresy = adresyKusov(kluc);
-  if (!adresy.length) return;
-  vopred = { kluc, texty: adresy.map(stiahniKus) };
+  if (!chyba.length || !adresy.length) return;
+  vopred = { kluc, texty: adresy.map((u, i) => (chyba.indexOf(i + 1) > -1 ? stiahniKus(u) : null)) };
 }
 
 const maSekcie = (korene) => korene.some((k) => !!k.querySelector("[data-lcd-sekcia]"));
@@ -575,7 +601,19 @@ function vytvorOzivovanie(oc, moduly, odhalovanie, stav, beh) {
         if (/-pomocne$/.test(meno(s))) oziv(s);
         else if (io) io.observe(s);
       });
+      // poradie dokumentu aj keď kus s nižším číslom príde po vyššom (vloz ho dá pred neho); bez čítania rozloženia
+      cakaju.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1));
       if (cakaju.length) naplanuj();
+    },
+    /** sekcie odobratého kusu (chyba pri vložení kusu z CDN) sa už neoživia */
+    odober(sekcie) {
+      sekcie.forEach((s) => {
+        ozivene.add(s);
+        const i = cakaju.indexOf(s);
+        if (i > -1) cakaju.splice(i, 1);
+        prednost.delete(s);
+        if (io) io.unobserve(s);
+      });
     },
   };
 }
@@ -591,7 +629,8 @@ function vratObsah() {
 
 /**
  * Obsah na stránke: miesto, trieda, `oc`, reveal a oživovanie — vytvorí sa pri prvom kuse so sekciami.
- * vloz(korene) umiestni korene za doterajšie (v poradí), dosadí ich čísla, zaradí ich sekcie na reveal a oživenie.
+ * vloz(korene) umiestni korene medzi doterajšie podľa čísla kusu (kus 2 z CDN za kus 1 z Popisu, kus 1 pred kus 2 aj
+ * keby prišiel neskôr), dosadí ich čísla, zaradí ich sekcie na reveal a oživenie. odober(koreň) ho vráti preč.
  */
 function vytvorObsah(ctx, kluc, stav) {
   const miesto = miestoObsahu();
@@ -631,9 +670,12 @@ function vytvorObsah(ctx, kluc, stav) {
       try {
         nove.forEach((k) => {
           const stlpec = k.closest && k.closest(".custom-footer > div");
-          if (k.parentNode !== miesto) miesto.appendChild(k);
+          // pred prvý koreň s vyšším číslom kusu, inak na koniec (korene sú v poradí miesta)
+          const i = korene.findIndex((x) => cisloKusu(x, kluc) > cisloKusu(k, kluc));
+          if (k.parentNode !== miesto) miesto.insertBefore(k, i > -1 && korene[i].parentNode === miesto ? korene[i] : null);
           if (stlpec && !stlpec.querySelector("[data-lcd-cast]")) stlpec.setAttribute("data-p1v-prazdny", "");
-          korene.push(k);
+          if (i > -1) korene.splice(i, 0, k);
+          else korene.push(k);
         });
         if (miesto.querySelector(':scope > [data-lcd-cast^="p1v"]')) document.body.classList.add(TRIEDA_VLOZENY);
         if (miesto.querySelector('[data-lcd-sekcia="d-faq"]')) document.body.classList.add(TRIEDA_FAQ);
@@ -653,24 +695,43 @@ function vytvorObsah(ctx, kluc, stav) {
         beh.vkladam = false;
       }
     },
+    /**
+     * Koreň kusu preč (chyba pri vložení kusu z CDN, keď na stránke ostáva kus z Popisu): z miesta, z koreňov aj
+     * z oživovania. Kus z Popisu ostane na mieste so všetkým, čo už má.
+     */
+    odober(k) {
+      const i = korene.indexOf(k);
+      if (i > -1) korene.splice(i, 1);
+      ozivovanie.odober(pole(k.querySelectorAll("[data-lcd-sekcia]")));
+      if (k.parentNode) k.parentNode.removeChild(k);
+      if (!miesto.querySelector('[data-lcd-sekcia="d-faq"]')) document.body.classList.remove(TRIEDA_FAQ);
+    },
   };
 }
 
 /**
  * Kusy z CDN postupne (cesta b): každý vo vlastnej úlohe po vykreslení, v poradí kusov. Kus bez sekcií čaká, kým nepríde
  * kus so sekciami (potom idú spolu v poradí); keď žiadny sekcie nemá, nič sa neukáže (stav „nic“).
+ * Krok 2 spustenia: obsah z Popisu (cesta a) už je na stránke (zac.obsah) a z CDN idú len chýbajúce kusy — vloz ich dá
+ * na miesto podľa čísla. Kus, ktorý nepríde, chýba (stav.chybaju), kus z Popisu ostáva; chyba pri vložení kusu z CDN
+ * vtedy odoberie len ten kus (starý popis už v Popise nie je — nie je čo vrátiť).
+ * @param {{ n: number, text: Promise<string|null> }[]} kusy chýbajúce kusy v poradí čísel
+ * @param {{ obsah: object|null, odlozene: Element[] }} zac obsah z DOM (cesta a) a korene z DOM bez sekcií (stuby)
  */
-async function postupne(ctx, kluc, texty, stav) {
-  let obsah = null;
-  const odlozene = []; // korene bez sekcií pred prvým kusom so sekciami
-  for (let i = 0; i < texty.length; i++) {
-    const html = await texty[i];
-    if (!html) continue;
+async function postupne(ctx, kluc, kusy, stav, zac) {
+  let obsah = zac.obsah;
+  const zDom = !!obsah;
+  const odlozene = zac.odlozene.slice(); // korene bez sekcií pred prvým kusom so sekciami
+  for (const kus of kusy) {
+    const cast = "p1v-" + kluc + "-" + kus.n;
+    const html = await kus.text;
+    if (!html) { stav.chybaju.push(cast); continue; }
     await poVykresleni();
-    if (!document.body.classList.contains("lcd-1v")) { stav.stav = "nic"; return; } // nový vzhľad sa medzitým zložil
-    const k = korenZHtml(html, "p1v-" + kluc + "-" + (i + 1));
-    if (!k) continue;
+    if (!document.body.classList.contains("lcd-1v")) { stav.stav = obsah ? "hotovo" : "nic"; return; } // nový vzhľad sa medzitým zložil
+    const k = korenZHtml(html, cast);
+    if (!k) { stav.chybaju.push(cast); continue; }
     stav.kusy++;
+    stav.casti[cast] = "cdn";
     if (!obsah && !maSekcie([k])) { odlozene.push(k); continue; }
     try {
       if (!obsah) obsah = vytvorObsah(ctx, kluc, stav);
@@ -678,7 +739,13 @@ async function postupne(ctx, kluc, texty, stav) {
     } catch (e) {
       ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
       console.error("[lcd-1v] " + MENO, e);
-      vratObsah();
+      if (zDom) {
+        // kus z Popisu ostáva, preč len tento kus z CDN
+        try { obsah.odober(k); } catch (x) { /* nič */ }
+        stav.kusy--;
+        delete stav.casti[cast];
+        stav.chybaju.push(cast);
+      } else vratObsah();
       stav.stav = "chyba";
       return;
     }
@@ -716,39 +783,45 @@ function obnovaBezAnimacie() {
 /** Volá index.js (posledný modul, po konfigurátore). */
 export function init(ctx) {
   const kluc = klucObsahu(ctx);
-  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, cisla: null, neozivene: () => [], vyrovnane: { pocet: 0, px: 0, merania: 0 } };
+  const stav = { kluc, zdroj: null, stav: "nic", kusy: 0, casti: {}, chybaju: [], cisla: null, neozivene: () => [], vyrovnane: { pocet: 0, px: 0, merania: 0 } };
   ctx.obsah = stav; // test a ladenie (window.__lcd1v.obsah)
   const pripravene = vopred;
   vopred = null;
   if (!kluc) return;
   const obnova = obnovaBezAnimacie();
   const vDom = koreneObsahu(kluc);
+  // b) kusy, ktoré v DOM nie sú, z CDN verzie bundle (len SK; bez verzie v/<sha>/ nie je odkiaľ)
+  const adresy = OBSAH_CDN && ctx.trh === "sk" ? adresyKusov(kluc) : [];
+  const zCdn = adresy.length ? chybajuceKusy(kluc, vDom) : [];
+  stav.zdroj = vDom.length && zCdn.length ? "dom+cdn" : vDom.length ? "dom" : zCdn.length ? "cdn" : null;
+  const zac = { obsah: null, odlozene: [] };
   if (vDom.length) {
-    // a) korene už sú v DOM (Popis produktu / pätička): umiestnia sa synchrónne; chyba -> index.js zloží nový vzhľad.
-    //    Sekcie sa oživujú po sekciách ako pri CDN (bod 4 hlavičky).
-    stav.zdroj = "dom";
+    // a) korene už sú v DOM (Popis produktu / pätička): umiestnia sa synchrónne; chyba -> index.js zloží nový vzhľad
+    //    (kusy z CDN sa potom už nesťahujú). Sekcie sa oživujú po sekciách ako pri CDN (bod 4 hlavičky).
     stav.kusy = vDom.length;
-    if (!maSekcie(vDom)) { obnova(); return; }
-    try {
-      vytvorObsah(ctx, kluc, stav).vloz(vDom);
-      stav.stav = "hotovo";
-    } catch (e) {
-      ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
-      console.error("[lcd-1v] " + MENO, e);
-      stav.stav = "chyba";
-    }
-    obnova();
-    return;
+    vDom.forEach((k) => { stav.casti[k.getAttribute("data-lcd-cast")] = "dom"; });
+    if (maSekcie(vDom)) {
+      try {
+        zac.obsah = vytvorObsah(ctx, kluc, stav);
+        zac.obsah.vloz(vDom);
+        stav.stav = "hotovo";
+      } catch (e) {
+        ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
+        console.error("[lcd-1v] " + MENO, e);
+        stav.stav = "chyba";
+        obnova();
+        return;
+      }
+    } else zac.odlozene = vDom; // len stuby: čakajú na kus so sekciami z CDN, inak nič (starý popis ostáva)
   }
-  // b) CDN verzie bundle (len SK; bez verzie v/<sha>/ nie je odkiaľ)
-  if (!OBSAH_CDN || ctx.trh !== "sk" || !adresyKusov(kluc).length) { obnova(); return; }
-  stav.zdroj = "cdn";
+  if (!zCdn.length) { obnova(); return; }
   stav.stav = "caka";
   // kusy stiahnuté vopred pri spustení bundla (predstiahni), inak sa začnú sťahovať teraz
-  const texty = pripravene && pripravene.kluc === kluc ? pripravene.texty : adresyKusov(kluc).map(stiahniKus);
-  stav.hotovo = postupne(ctx, kluc, texty, stav).catch((e) => {
+  const kusy = zCdn.map((n) => ({ n, text: (pripravene && pripravene.kluc === kluc && pripravene.texty[n - 1]) || stiahniKus(adresy[n - 1]) }));
+  stav.hotovo = postupne(ctx, kluc, kusy, stav, zac).catch((e) => {
     ctx.chyby.push(MENO + ": " + ((e && e.message) || e));
-    try { vratObsah(); } catch (x) { /* nič */ }
+    // obsah z Popisu ostáva (starý popis tam už nie je); inak sa vráti len obsah
+    if (!zac.obsah) try { vratObsah(); } catch (x) { /* nič */ }
     stav.stav = "chyba";
   });
   obnova(stav.hotovo);
