@@ -63,7 +63,7 @@ export const NASIVKY_ZALOHA = ["H19", "H21"];
 
 /** Farby nite v poradí ponuky (paleta 4 v rade, Michal 22. 10. 2026: Horčicová pred Tmavohnedou): kód, meno (Shoptet),
  *  farba čipu (NITE_FARBY.color). Poradie mení len zobrazenie — do Shoptetu ide kód (stav.js). */
-export const NITE = [["2999","Čierna","#2a2a2a"],["2901","Strieborná","#b0b0b0"],["3738","Svetlo sivá","#c0c0c0"],["3546","Béžová","#dcc8a8"],["3617","Svetlohnedá","#c9a06a"],["3501","Horčicová","#c49a40"],["3504","Tmavohnedá","#5a3520"],["2824","Červená","#c82030"],["2866","Fialová","#6b3a6b"],["3842","Modrá","#3a6a9a"],["2840","Zelená","#4a8a4a"]].map((n) => ({ kod: n[0], meno: n[1], hex: n[2] }));
+export const NITE = [["2999","Čierna","#2a2a2a"],["2901","Strieborná","#b0b0b0"],["3738","Svetlosivá","#c0c0c0"],["3546","Béžová","#dcc8a8"],["3617","Svetlohnedá","#c9a06a"],["3501","Horčicová","#c49a40"],["3504","Tmavohnedá","#5a3520"],["2824","Červená","#c82030"],["2866","Fialová","#6b3a6b"],["3842","Modrá","#3a6a9a"],["2840","Zelená","#4a8a4a"]].map((n) => ({ kod: n[0], meno: n[1], hex: n[2] }));
 
 /** Polia vozidla (label a placeholder kódu; texty UI sú v texty.js). */
 export const POLIA = {"prevodovka":{"label":"Typ prevodovky","placeholder":"Vyberte typ prevodovky..."},"sedadlo":{"label":"Typ sedadla spolujazdca","placeholder":"Vyberte typ sedadla spolujazdca..."},"zasuvky":{"label":"Počet zásuviek (šuplíkov)","placeholder":"Vyberte počet zásuviek (šuplíkov)..."},"brzda":{"label":"Typ parkovacej (ručnej) brzdy","placeholder":"Vyberte typ parkovacej (ručnej) brzdy..."},"podlaha":{"label":"Typ podlahy","placeholder":"Vyberte typ podlahy..."}};

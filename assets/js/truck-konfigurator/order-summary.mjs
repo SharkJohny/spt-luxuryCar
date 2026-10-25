@@ -91,7 +91,7 @@ const THREAD_COLOR_NAMES = {
   sk: {
     "2999": "Čierna",
     "2901": "Strieborná",
-    "3738": "Svetlo sivá",
+    "3738": "Svetlosivá",
     "3546": "Béžová",
     "3617": "Svetlohnedá",
     "3504": "Tmavohnedá",
