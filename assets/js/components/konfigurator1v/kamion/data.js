@@ -1,15 +1,25 @@
 // Dáta konfigurátora kamiónov (SK 640): materiály, farby, lemovania, nášivky, nite — VYGENEROVANÉ zo schváleného
 // artefaktu kamiony-app (data/konfig-data.json = dátové bloky konfigurator.gen.jsx MATERIALS, LEMOVANIE, NASIVKY,
-// NITE_FARBY; 18. 10. 2026). Obrázky = tie isté súbory, ktoré dnes používa React (IMG_BASE + zdrojový súbor), žiadne nové.
+// NITE_FARBY; 18. 10. 2026). Obrázky = tie isté súbory, ktoré dnes používa React (IMG_BASE + zdrojový súbor); od 25. 10. 2026
+// nepriehľadné PNG ako menší JPEG z repa (obrazky.js, tools/kamion-obrazky.mjs).
 // Vozidlá sa NEduplikujú: truck-brands.js (TRUCK_VEHICLES, TRUCK_FIELD_ORDER) je ten istý zdroj ako React CONFIG.
 // Ceny tu NIE SÚ (číta ich shoptet.js zo živých selectov), okrem prečiarknutých „samostatne“ cien, ktoré Shoptet nemá
 // (konfigurator.gen.jsx FALLBACK_PRICES_EUR: NASIVKY_SAMO, TAPACIR_SAMO, NASIVKA_DVERE_SAMO; React robí to isté).
 // Pri importe sa nič nespúšťa (len konštanty).
 import { TRUCK_VEHICLES, TRUCK_FIELD_ORDER } from "../../../truck-konfigurator/truck-brands.js";
+import { MENSIE, MENSIE_ZAKLAD } from "./obrazky.js";
 
 /** Priečinok obrázkov konfigurátora na webe (konfigurator.gen.jsx IMG_BASE). */
 export const IMG_BASE = "https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/";
-const img = (f) => (/^https?:\/\//.test(f) ? f : IMG_BASE + f); // vzorovaný velúr: celá adresa (CDN repa)
+/** Pôvodné mená obrázkov z IMG_BASE (tools/kamion-obrazky.mjs z nich robí menšie JPEG do assets/img/1v/kamion/). */
+export const ZDROJ_OBRAZKOV = [];
+/** Adresa obrázka: celá adresa ostáva (vzorovaný velúr, CDN repa); nepriehľadné PNG zo zoznamu MENSIE (obrazky.js) sa berú
+ *  ako menší JPEG z repa (zrýchlenie 25. 10. 2026, ~6× menej dát, rovnaký vzhľad), ostatné z IMG_BASE ako doteraz. */
+const img = (f) => {
+  if (/^https?:\/\//.test(f)) return f;
+  ZDROJ_OBRAZKOV.push(f);
+  return MENSIE[f] ? MENSIE_ZAKLAD + MENSIE[f] : IMG_BASE + f;
+};
 
 /** Prečiarknuté „samostatne“ ceny (EUR) — v Shoptete nie sú, natvrdo v konfigurator.gen.jsx FALLBACK_PRICES_EUR. */
 export const PRECIARKNUTE_EUR = { nasivky_balik: 140, nasivky_sofer_spolujazdec: 70, nasivky_len_stred: 70, tapacir: 179, nasivka_na_dverach: 89 };
