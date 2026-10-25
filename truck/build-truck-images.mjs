@@ -24,7 +24,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));            // truck/
 const REPO = join(ROOT, "..");
@@ -37,6 +37,8 @@ const OUT_IMG = join(REPO, "assets", "img", "truck");
 // A canvas tinting nášiviek (crossOrigin="anonymous") neprejde na CORS.
 // Priama www.luxurycardesign.cz URL ACAO hlavičku NEposiela — nepoužívať.
 const IMG_BASE = "https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/";
+
+const { MENSIE, MENSIE_ZAKLAD } = await import(pathToFileURL(join(REPO, "assets/js/components/konfigurator1v/kamion/obrazky.js")).href);
 
 const SOURCES = [
   { in: join(TK, "konfigurator.jsx"),       out: join(TK, "konfigurator.gen.jsx") },
@@ -74,6 +76,13 @@ for (const src of SOURCES) {
     }
     return IMG_BASE + name;
   });
+  // zrýchlenie 25. 10. 2026: nepriehľadné PNG, ktoré už majú menší JPEG v repe (tools/kamion-obrazky.mjs ->
+  // kamion/obrazky.js, tie isté súbory ako nový konfigurátor 1V), sa berú odtiaľ; CDN repa posiela tiež ACAO *
+  text = text.split(IMG_BASE).map((kus, i) => {
+    if (!i) return kus;
+    const m = /^(t[0-9a-f]{16}\.png)/.exec(kus);
+    return m && MENSIE[m[1]] ? MENSIE_ZAKLAD + MENSIE[m[1]] + kus.slice(m[1].length) : IMG_BASE + kus;
+  }).join("");
   writeFileSync(src.out, text, "utf8");
   console.log(`[truck-img] ${src.in.replace(REPO + "/", "")} -> ${src.out.replace(REPO + "/", "")} (${(text.length / 1024).toFixed(0)} KB)`);
 }
