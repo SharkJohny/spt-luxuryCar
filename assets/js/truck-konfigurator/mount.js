@@ -18,6 +18,9 @@ function renderTruckConfigurator(el) {
   nacitajCast("truck")
     .then((c) => {
       zrusChybu(el);
+      // trieda skryje formulár Shoptetu v stĺpci; pridá sa až s vykreslením Reactu, aby stĺpec neposkočil dvakrát
+      // (najprv prázdny, potom React: Lighthouse CLS 0,19 -> 0,40 pri meraní 25. 10. 2026)
+      $("body").addClass("is-truck-konfigurator");
       c.renderTruckConfigurator(el);
     })
     .catch((e) => {
@@ -53,9 +56,7 @@ function ukazChybu(el) {
 
 function zrusChybu(el) {
   const box = el.parentNode && el.parentNode.querySelector(".truck-konfigurator-chyba");
-  if (!box) return;
-  box.remove();
-  $("body").addClass("is-truck-konfigurator");
+  if (box) box.remove();
 }
 
 /* =========================================================================
@@ -100,7 +101,7 @@ export function isTruckConfiguratorPage() {
 }
 
 export function mountTruckConfigurator() {
-  $("body").addClass("is-truck-konfigurator");
+  // body.is-truck-konfigurator pridá renderTruckConfigurator až pri vykreslení (React je samostatná časť lcd-truck.js)
 
   // Verbose log pre vývoj – každá zmena stavu konfigurátora vypíše
   // rozpis ceny do konzoly. Na produkcii vypnuté (iba na localhoste).
