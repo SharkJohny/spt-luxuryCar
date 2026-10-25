@@ -678,6 +678,28 @@ async function postupne(ctx, kluc, texty, stav) {
   stav.stav = obsah ? "hotovo" : "nic";
 }
 
+/**
+ * Reload / Späť: obnovenie polohy bez animácie, kým sa obsah vkladá a oživuje (25. 10. 2026). Web má na html
+ * scroll-behavior: smooth a Chrome obnovu polohy na takej stránke animuje; animáciu zastaví akýkoľvek posun počas nej
+ * (ručné ukotvenie, posun.js, prepočet konfigurátora) a pri pomalom CPU skončila reload pri FAQ na PC o tisíce px
+ * vyššie (628 @1280: 1–3 z 5 behov). Len pri reload/back_forward a len inline štýl na html; po hotovom obsahu + 2,5 s
+ * (alebo po 20 s) sa vráti štýl webu. Bežný príchod na stránku sa nemení.
+ * @returns {(po?: Promise) => void} uvoľnenie: hneď, alebo po splnení sľubu
+ */
+function obnovaBezAnimacie() {
+  let nav = null;
+  try { nav = performance.getEntriesByType("navigation")[0]; } catch (e) { /* starý prehliadač */ }
+  const typ = nav ? nav.type : performance.navigation && performance.navigation.type === 1 ? "reload" : performance.navigation && performance.navigation.type === 2 ? "back_forward" : "";
+  if (typ !== "reload" && typ !== "back_forward") return () => {};
+  const html = document.documentElement;
+  if (html.style.scrollBehavior) return () => {}; // už nastavil niekto iný — nemeniť
+  html.style.scrollBehavior = "auto";
+  let hotovo = false;
+  const uvolni = () => { if (hotovo) return; hotovo = true; clearTimeout(poistka); if (html.style.scrollBehavior === "auto") html.style.scrollBehavior = ""; };
+  const poistka = setTimeout(uvolni, 20000);
+  return (po) => { if (po && typeof po.then === "function") po.then(() => setTimeout(uvolni, 2500), uvolni); else setTimeout(uvolni, 2500); };
+}
+
 /** Volá index.js (posledný modul, po konfigurátore). */
 export function init(ctx) {
   const kluc = klucObsahu(ctx);
@@ -686,13 +708,14 @@ export function init(ctx) {
   const pripravene = vopred;
   vopred = null;
   if (!kluc) return;
+  const obnova = obnovaBezAnimacie();
   const vDom = koreneObsahu(kluc);
   if (vDom.length) {
     // a) korene už sú v DOM (Popis produktu / pätička): umiestnia sa synchrónne; chyba -> index.js zloží nový vzhľad.
     //    Sekcie sa oživujú po sekciách ako pri CDN (bod 4 hlavičky).
     stav.zdroj = "dom";
     stav.kusy = vDom.length;
-    if (!maSekcie(vDom)) return;
+    if (!maSekcie(vDom)) { obnova(); return; }
     try {
       vytvorObsah(ctx, kluc, stav).vloz(vDom);
       stav.stav = "hotovo";
@@ -701,10 +724,11 @@ export function init(ctx) {
       console.error("[lcd-1v] " + MENO, e);
       stav.stav = "chyba";
     }
+    obnova();
     return;
   }
   // b) CDN verzie bundle (len SK; bez verzie v/<sha>/ nie je odkiaľ)
-  if (!OBSAH_CDN || ctx.trh !== "sk" || !adresyKusov(kluc).length) return;
+  if (!OBSAH_CDN || ctx.trh !== "sk" || !adresyKusov(kluc).length) { obnova(); return; }
   stav.zdroj = "cdn";
   stav.stav = "caka";
   // kusy stiahnuté vopred pri spustení bundla (predstiahni), inak sa začnú sťahovať teraz
@@ -714,4 +738,5 @@ export function init(ctx) {
     try { vratObsah(); } catch (x) { /* nič */ }
     stav.stav = "chyba";
   });
+  obnova(stav.hotovo);
 }
