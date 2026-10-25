@@ -9,11 +9,12 @@
 //   - cieľ sa ráta až z KONEČNÉHO rozloženia: zatvorenie predošlého kroku, prekreslenie hlavičiek (kroky.js obnov po
 //     kliku ~60 ms) a ukotvenie posunu na telefóne menia polohu ešte chvíľu po kliku -> čaká sa, kým poloha aj výška
 //     prvku stoja (najviac 700 ms). 1V karty nemajú prechod výšky (CSS: max-height none, zatvorená = display none);
-//   - po dobehnutí posunu sa poloha prepočíta (neskoro načítaný obrázok) a raz-dvakrát dorovná — len keď stránka
-//     stojí presne tam, kam ju poslal tento posun (inak ju medzitým posunul zákazník alebo iný kód -> nechať tak);
-//   - zákazník sám posúva (koliesko, ťahá prstom, iný kláves) = posun sa zruší hneď; ďalšie stlačenie (myš, prst,
-//     Enter / medzera) až po 500 ms — skôr je to druhé stlačenie toho istého dvojkliku / dvojťuknutia a to posun rušiť
-//     nesmie (nález recenzie 24. 10. 2026: stránka stála, nadpis nového kroku nad oknom). Samotný klik druhého stlačenia
+//   - po dobehnutí posunu sa poloha prepočíta (neskoro načítaný obrázok) a raz-dvakrát dorovná; stránka, ktorá stojí
+//     mimo cieľa bez zásahu zákazníka, sa dorovná tiež (najviac 2× — 25. 10. dole);
+//   - zákazník sám posúva = posun sa zruší: iný kláves hneď, koliesko a ťahanie prstom od 500 ms (prstom skôr len
+//     zjavné ťahanie > 40 px — 25. 10. dole); ďalšie stlačenie (myš, prst, Enter / medzera) až po 500 ms — skôr je to
+//     druhé stlačenie toho istého dvojkliku / dvojťuknutia a to posun rušiť nesmie (nález recenzie 24. 10. 2026:
+//     stránka stála, nadpis nového kroku nad oknom). Samotný klik druhého stlačenia
 //     sa zahodí: zbalený krok vytiahne pod kurzor hlavičku / „Pokračujte“ nižšieho kroku a klik by otvoril iný krok,
 //     posun ťahá popod prst dlaždicu druhej vrstvy / banner setu a klik by odviedol na iný produkt (straz). Časy sa
 //     merajú podľa času vstupu (Event.timeStamp), nie spracovania — zaneprázdnený telefón druhé ťuknutie spracuje
@@ -21,6 +22,23 @@
 //     zruší predošlý;
 //   - prefers-reduced-motion: reduce -> bez animácie. html má na webe scroll-behavior: smooth (pri reduce ho
 //     Bootstrap vypína), preto „instant“, nie „auto“ — skok bez animácie v každom prípade.
+// 25. 10. 2026 — odolnosť (Michal pri kamiónoch: posun „nie vždy zafunguje“; session kamióny našla v tomto súbore tri
+// príčiny zrušenia a kamion/ui.js ich obišla vlastným posunNa). Zásah zákazníka po 500 ms posun ruší ako doteraz;
+// v prvých 500 ms sa koliesko a ťah prstom do 40 px berú ako dobeh / chvenie (kompromis: skoré koliesko sa od dobehu
+// touchpadu odlíšiť nedá) — keby taký skorý vstup plynulý posun prerušil, dorovnanie (bod 3) stránku vráti na cieľ:
+//   1) prvok sa medzitým prekreslil (render po ďalšom ťuknutí počas čakania na ustálené rozloženie, el.isConnected
+//      false) -> posun sa zrušil. Teraz sa pri zavolaní zapamätá identita prvku (id; inak značka + data-krok / data-k /
+//      data-blok + triedy lcd1v- bez stavových; poradie medzi rovnakými) a odpojený prvok sa podľa nej nájde znova.
+//      Nenájde sa -> počas čakania sa čaká ďalej (render ešte beží), potom koniec bez posunu (ticho);
+//   2) udalosť kolieska hneď po kliku = dobeh touchpadu / zotrvačnosť kolieska (Mac, notebooky), nie zákazník -> posun
+//      zrušila. Teraz koliesko ruší až od 500 ms od zavolania (OCHRANA, Event.timeStamp); ťahanie prstom tiež, skôr
+//      len zjavné ťahanie > 40 px (TAH: chvenie druhého ťuknutia je menšie, švihnutie prstom väčšie — to zákazník
+//      roluje a s tým posun nebojuje);
+//   3) plynulý posun zastavený mimo cieľa (prehliadač ho preruší: dobeh kolieska, iný scrollTo / scrollTop, ukotvenie
+//      enginu) sa nedorovnal — sleduj() to bral ako „posunul niekto iný“. Teraz: stránka stojí mimo cieľa, posun nie je
+//      zrušený a zákazník medzitým neklikol na nič, čoho kód môže stránkou pohnúť (AKTIVNY: ovládač kroku, odkaz,
+//      tlačidlo, pole formulára; klik na obyčajný obsah do 500 ms je druhé ťuknutie toho istého gesta — iPhone mu dá
+//      detail 1) -> dorovnať, najviac 2× (prvý raz plynulo, druhý skokom — keby sa plynulý posun prerušil znova).
 // Nemení: klik na hlavičku kroku (kliknutá hlavička sa drží na mieste — kroky.js, vzorky-produkt.js), posun pri chybe
 // / validácii, posuny cena.js a prenos.js, kamióny (kamion/).
 
@@ -32,6 +50,12 @@ const RUKA = ["wheel", "touchstart", "touchmove", "mousedown", "keydown", "click
 const OCHRANA = 500;
 /** Prst sa pohol o viac ako 10 px = zákazník ťahá stránku (drobné chvenie pri ťuknutí nie). */
 const PRST = 10;
+/** Počas OCHRANA ruší len zjavné ťahanie prstom (px): druhé ťuknutie dvojťuknutia sa chveje menej, švihnutie viac. */
+const TAH = 40;
+/** Dorovnania stránky, ktorá stojí mimo cieľa bez zásahu zákazníka (prerušený plynulý posun). */
+const DOROVNANIA = 2;
+/** Stavové triedy (otvorený, chyba, zvýraznenie, prenos…) — do identity prvku nepatria (identita). */
+const STAV = /^(active|on|open|zap|done|show\w*|is-.*|has-.*|lcd-needs-fill|selection-required|goToAction|errorToCart|lcd1v-(hotovy|chyba|err|zablesk|bublina|prazdne|bx-otvorene|vz-preskoceny))$|--/;
 /** Hlavička kroku — ručné otvorenie / zatvorenie (kroky.js, vzorky-produkt.js, karty druhej vrstvy a setu). */
 const HLAVICKA = ".lcd1v-krok > .order, .lcd1v-krok > .lcd1v-hd";
 /** Plochy „Áno“, ktoré odvedú na iný produkt: CELÁ dlaždica druhej vrstvy a CELÝ banner setu (klik kamkoľvek = Áno,
@@ -43,6 +67,9 @@ const OVLADAC = HLAVICKA + ", .lcd1v-krok > .next-step-button, .lcd1v-vz-dalej, 
 /** Druhé ťuknutie na iPhone prehliadač za dvojklik neoznačí (click.detail 1) -> klik na ovládač do 350 ms sa zahodí,
  *  na plochu PRECHOD celých 500 ms (OCHRANA) — omyl tu zákazníka odvedie z rozpracovanej stránky. */
 const DVOJKLIK = 350;
+/** Klik, ktorého kód môže stránkou pohnúť (ovládač kroku, odkaz, tlačidlo, pole formulára — fokus, výzva, validácia):
+ *  po ňom sa stránka mimo cieľa nedorovnáva. Klik na obyčajný obsah do 500 ms nie (to isté gesto — 25. 10. 2026). */
+const AKTIVNY = OVLADAC + ", a[href], button, input, select, textarea, label, summary, [role='button'], [role='link'], [contenteditable='true'], [contenteditable='']";
 
 /** Výška pevnej / lepivej hlavičky webu (0 = žiadna). Rovnaké pravidlo ako doteraz v kroky.js. */
 export function vyskaHlavicky() {
@@ -80,29 +107,72 @@ export function cielNaVrch(el) {
 
 let beh = 0;
 
+const esc = (x) => (window.CSS && CSS.escape ? CSS.escape(x) : String(x).replace(/[^\w-]/g, "\\$&"));
+
+/** Identita prvku pre opätovné nájdenie po prekreslení: selektor (id; inak značka + data-krok / data-k / data-blok
+ *  + triedy lcd1v- bez stavových, bez nich ostatné triedy) a poradie medzi rovnakými. Bez znaku identity -> null. */
+function identita(el) {
+  if (el.id) return { sel: "#" + esc(el.id), i: 0, n: 1 };
+  let sel = "", znak = false;
+  ["data-krok", "data-k", "data-blok"].forEach((a) => {
+    const v = el.getAttribute(a);
+    if (v != null) { sel += "[" + a + '="' + v.replace(/["\\]/g, "\\$&") + '"]'; znak = true; }
+  });
+  const tr = Array.prototype.filter.call(el.classList, (c) => !STAV.test(c));
+  const lcd = tr.filter((c) => /^lcd1v-/.test(c));
+  (lcd.length ? lcd : tr).forEach((c) => { sel += "." + esc(c); znak = true; });
+  if (!znak) return null;
+  sel = el.tagName.toLowerCase() + sel;
+  try {
+    const vsetky = document.querySelectorAll(sel);
+    const i = Array.prototype.indexOf.call(vsetky, el);
+    return i < 0 ? null : { sel, i, n: vsetky.length };
+  } catch (e) { return null; }
+}
+/** Prvok podľa identity: rovnaký počet zhôd -> ten istý v poradí; inak len jediná zhoda; inak null (nehádať). */
+function najdi(id) {
+  if (!id) return null;
+  const v = document.querySelectorAll(id.sel);
+  return v.length === id.n ? v[id.i] : v.length === 1 ? v[0] : null;
+}
+
 /** Plynulý posun novo otvoreného kroku / súhrnu `el` do stredu viditeľnej plochy (popis hore).
  *  cielFn(el) = iný cieľ (napr. cielNaVrch); čakanie na konečné rozloženie, dorovnanie a zrušenie rukou ostávajú. */
 export function posunNaStred(el, cielFn) {
-  const vypocet = () => (cielFn ? cielFn(el) : cielNaStred(el));
   if (!el || !el.isConnected) return;
   const moj = ++beh;
   const start = Date.now(), t0 = performance.now();
+  // prvok sa môže medzitým prekresliť (render vymení uzol) -> nájsť znova podľa identity zo zavolania (popis 25. 10.)
+  const id = identita(el);
+  let akt = el;
+  const prvok = () => {
+    if (akt.isConnected) return akt;
+    const n = najdi(id);
+    if (n) akt = n;
+    return n;
+  };
+  const vypocet = (e) => (cielFn ? cielFn(e) : cielNaStred(e));
   // ms od zavolania podľa času VSTUPU (Event.timeStamp), nie spracovania: zaneprázdnený telefón (rozloženie novej karty,
   // video) spracuje druhé ťuknutie neskôr, ochrana aj stráž však majú merať, kedy ho zákazník naozaj spravil
   const odStartu = (e) => (e.timeStamp > 0 && e.timeStamp < 1e12 ? e.timeStamp : performance.now()) - t0;
-  let zruseny = false, prst = null;
+  // vstup = klik zákazníka, ktorý stráž pustila a ktorého kód môže stránku posunúť (iný ovládač po 350 ms, odkaz, pole
+  // formulára — AKTIVNY; hlavička drží miesto, validácia ukáže chybu) -> stojí mimo cieľa = nedorovnávať (ako pred 25. 10.)
+  let zruseny = false, vstup = false, prst = null;
   const hlavicka = (e) => !!(e.target && e.target.closest && e.target.closest(HLAVICKA));
   const ruka = (e) => {
-    if (e.type === "wheel") { zruseny = true; return; }
-    if (e.type === "click") { if (odStartu(e) >= OCHRANA && hlavicka(e)) zruseny = true; return; }
+    const ms = odStartu(e);
+    // koliesko do 500 ms = dobeh touchpadu / zotrvačnosť kolieska po kliku, nie zákazník (popis 25. 10.)
+    if (e.type === "wheel") { if (ms >= OCHRANA) zruseny = true; return; }
+    if (e.type === "click") { if (ms >= OCHRANA && hlavicka(e)) zruseny = true; return; }
     const p = e.touches && e.touches[0];
     if (e.type === "touchmove") {
-      if (!prst || !p || Math.abs(p.clientX - prst.x) + Math.abs(p.clientY - prst.y) > PRST) zruseny = true;
+      const d = !prst || !p ? Infinity : Math.abs(p.clientX - prst.x) + Math.abs(p.clientY - prst.y);
+      if (d > (ms >= OCHRANA ? PRST : TAH)) zruseny = true;
       return;
     }
     if (e.type === "touchstart") prst = p ? { x: p.clientX, y: p.clientY } : null;
     const stlacenie = e.type !== "keydown" || e.key === "Enter" || e.key === " ";
-    if (!stlacenie || odStartu(e) >= OCHRANA) zruseny = true;
+    if (!stlacenie || ms >= OCHRANA) zruseny = true;
   };
   RUKA.forEach((u) => window.addEventListener(u, ruka, { capture: true, passive: true }));
   // Druhé stlačenie dvojkliku / dvojťuknutia po dokončení kroku: zbalený krok vytiahne pod kurzor hlavičku alebo
@@ -115,24 +185,28 @@ export function posunNaStred(el, cielFn) {
     const c = e.target && e.target.closest ? e.target : null;
     const limit = e.detail >= 2 || (c && c.closest(PRECHOD)) ? OCHRANA : c && c.closest(OVLADAC) ? DVOJKLIK : 0;
     if (ms < limit) { e.preventDefault(); e.stopImmediatePropagation(); }
+    else if (ms >= OCHRANA || (c && c.closest(AKTIVNY))) vstup = true; // obsah do 500 ms = to isté gesto (AKTIVNY)
   };
   window.addEventListener("click", straz, true);
   // odchod až po 2 s: časovač pri zaneprázdnenom vlákne môže dobehnúť skôr než čakajúce ťuknutie (limit stráže je v čase
   // vstupu, neskorší klik prejde aj tak)
   setTimeout(() => window.removeEventListener("click", straz, true), 2000);
   const koniec = () => RUKA.forEach((u) => window.removeEventListener(u, ruka, { capture: true, passive: true }));
-  const zije = () => moj === beh && !zruseny && el.isConnected;
-  const poloha = () => {
-    const r = el.getBoundingClientRect();
+  const zije = () => moj === beh && !zruseny;
+  const poloha = (e) => {
+    const r = e.getBoundingClientRect();
     return Math.round(r.top + window.pageYOffset) + ":" + Math.round(r.height);
   };
-  let pred = null, stoji = 0, ciel = 0, korekcie = 0;
+  const posun = (y, plynule) => window.scrollTo({ top: y, behavior: plynule ? "smooth" : "instant" });
+  let pred = null, stoji = 0, ciel = 0, korekcie = 0, dorovnania = 0;
 
-  // 1) konečné rozloženie: poloha aj výška prvku 3 merania po sebe rovnaké (aspoň 100 ms po kliku), najviac 700 ms
+  // 1) konečné rozloženie: poloha aj výška prvku 3 merania po sebe rovnaké (aspoň 100 ms po kliku), najviac 700 ms;
+  //    prekreslený prvok, ktorý sa ešte nenašiel = rozloženie nestojí
   (function cakaj() {
     if (!zije()) { koniec(); return; }
-    const p = poloha();
-    stoji = p === pred ? stoji + 1 : 0;
+    const e = prvok();
+    const p = e ? poloha(e) : null;
+    stoji = p && p === pred ? stoji + 1 : 0;
     pred = p;
     const ubehlo = Date.now() - start;
     if ((stoji < 2 || ubehlo < 100) && ubehlo < 700) { setTimeout(cakaj, 40); return; }
@@ -141,29 +215,43 @@ export function posunNaStred(el, cielFn) {
 
   // 2) jeden posun na cieľ
   function chod() {
-    if (!zije() || !el.getClientRects().length) { koniec(); return; }
-    ciel = vypocet();
-    if (Math.abs(ciel - window.pageYOffset) >= 2) window.scrollTo({ top: ciel, behavior: plynulo() ? "smooth" : "instant" });
+    const e = prvok();
+    if (!zije() || !e || !e.getClientRects().length) { koniec(); return; }
+    ciel = vypocet(e);
+    if (Math.abs(ciel - window.pageYOffset) >= 2) posun(ciel, plynulo());
     sleduj();
   }
 
   // 3) po dobehnutí (poloha stránky 3 merania stojí; mimo cieľa aspoň 500 ms — animácia sa mohla len rozbiehať;
-  //    najviac 1,6 s) prepočítať a pri zmene rozloženia dorovnať
+  //    najviac 1,6 s) prepočítať: stojí mimo cieľa (plynulý posun prerušený, zákazník sa neozval — inak by bol posun
+  //    zrušený) -> dorovnať, najviac 2× (druhý raz skokom); na cieli, ale rozloženie sa zmenilo -> dorovnať (najviac 2×)
   function sleduj() {
-    const t0 = Date.now();
+    const t1 = Date.now();
     let y0 = null, n = 0;
     (function kontrola() {
       if (!zije()) { koniec(); return; }
       const y = Math.round(window.pageYOffset);
       n = y === y0 ? n + 1 : 0;
       y0 = y;
-      const ubehlo = Date.now() - t0;
+      const ubehlo = Date.now() - t1;
       if ((n < 3 || (Math.abs(y - ciel) > 2 && ubehlo < 500)) && ubehlo < 1600) { setTimeout(kontrola, 50); return; }
-      if (Math.abs(y - ciel) > 2 || !el.getClientRects().length) { koniec(); return; } // posunul niekto iný -> nechať
-      const novy = vypocet();
+      const e = prvok();
+      if (!e || !e.getClientRects().length) { koniec(); return; }
+      const novy = vypocet(e);
+      if (Math.abs(y - ciel) > 2) {
+        if (!vstup && Math.abs(novy - y) > 2 && dorovnania < DOROVNANIA) {
+          dorovnania++;
+          ciel = novy;
+          posun(ciel, plynulo() && dorovnania < DOROVNANIA);
+          sleduj();
+          return;
+        }
+        koniec();
+        return;
+      }
       if (Math.abs(novy - ciel) > 8 && korekcie++ < 2) {
         ciel = novy;
-        window.scrollTo({ top: ciel, behavior: plynulo() ? "smooth" : "instant" });
+        posun(ciel, plynulo());
         sleduj();
         return;
       }
