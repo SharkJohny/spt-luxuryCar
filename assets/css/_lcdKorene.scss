@@ -28,7 +28,9 @@ span[data-ec-promo-id]:has(> .lcd-root){display:block}
 
 /* 2) Sticky scény (príbeh, pred a po, 5 vecí…) potrebujú rodiča bez overflow:hidden.
       Kreslená titulka to rieši v gate štýle (body.lcdh-on .overall-wrapper{overflow:clip}). */
-body:has([data-lcd-cast^=hp],[data-lcd-cast=rz]) .overall-wrapper{overflow:hidden;overflow:clip !important}
+/* rýchlosť 25. 10. 2026: kladná trieda Shoptetu pred :has (in-index / in-rozcestnik), inak Chrome pri každej zmene DOM
+   na KAŽDEJ stránke prepočíta celý strom; overflow:clip je !important, väčšia váha nič nemení */
+body.in-index:has([data-lcd-cast^=hp]) .overall-wrapper,body.in-rozcestnik:has([data-lcd-cast=rz]) .overall-wrapper{overflow:hidden;overflow:clip !important}
 /*    Rovnako obaly priamo okolo koreňa: Shoptet dáva #content-wrapper (mobil, rozcestník) overflow:hidden ->
       lcdHomeModuly.js by pred a po aj galériu prepol na „bez lepenia“ (krátka scéna) a sticky by nefungovalo.
       clip orezáva rovnako, ale nevytvára rolovací kontajner (sticky ide, JS test na hidden|auto|scroll prejde). */

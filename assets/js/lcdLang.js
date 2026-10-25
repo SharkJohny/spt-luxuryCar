@@ -91,7 +91,10 @@ function lcdlangUprav(a) {
    vloží do pásu vedľa lupy; klik otvorí rovnakú ponuku SK / CZ ako v menu. */
 function lcdlangHlavicka() {
   var nastroje = document.querySelector(".top-navigation-bar .responsive-tools");
-  if (!nastroje || nastroje.querySelector(".lcdn-lang")) return;
+  if (!nastroje) return;
+  /* html.lcd-lang-hore = vlajka je v hornom páse; CSS (_lcdNativeHdr.scss) ju číta namiesto html:has(.top-navigation-bar
+     .lcdn-lang) — :has na html prepočítal pri každej zmene DOM celú stránku (rýchlosť 25. 10. 2026) */
+  if (nastroje.querySelector(".lcdn-lang")) { document.documentElement.classList.add("lcd-lang-hore"); return; }
   if (!document.documentElement.classList.contains("lcd-native-hdr") && !document.querySelector("[data-lcd-cast]")) return;
   var jeCZ = location.hostname.indexOf("luxurycardesign.cz") !== -1;
   var a = document.createElement("a");
@@ -101,6 +104,7 @@ function lcdlangHlavicka() {
   var hladaj = nastroje.querySelector('a[data-target="search"]');
   if (hladaj && hladaj.nextSibling) nastroje.insertBefore(a, hladaj.nextSibling);
   else nastroje.appendChild(a);
+  document.documentElement.classList.add("lcd-lang-hore");
   lcdlangUprav(a);
 }
 

@@ -101,12 +101,17 @@ html:root .siteCookies :is(.siteCookies__button, .siteCookies__link, .siteCookie
 /* Chat Luxia (iframe tretej strany, z-index 2147483000) by ležal na tlačidlách karty -> kým je lišta na obrazovke,
    ZBALENÝ chat (bublina, uvítanie; trieda lcd1v-cookies-bublina z cookies.js) sa zdvihne nad kartu. Otvorený chat
    sa nehýbe. --lcd1v-cookies-vyska = horný okraj karty od spodku okna (cookies.js). :not(#lcd1v-x) = váha ID, inak by
-   vyhralo body:has(#js-plugin-header.active) … {bottom:72px !important} (LCD-HDR) a lišta 1V (LCD-1V-CENA). */
-html:root.lcd1v-cookies-bublina:not(#lcd1v-x):has(.js-siteCookies .siteCookies__form) iframe[title="Luxia chat"] {
+   vyhralo html.lcd-phdr-on … {bottom:72px !important} (LCD-HDR) a lišta 1V (LCD-1V-CENA). */
+/* Rýchlosť 25. 10. 2026 (Michal: „Áno, celý web“): :has() s kotvou na html/body Chrome pri KAŽDEJ zmene DOM prepočíta
+   takmer celú stránku (na 640 2–7× na ťuknutie po ~1160 prvkoch) -> stav nastavuje JS triedou. Kladná trieda na html/body
+   = Chrome pravidlo vopred vyradí (fast-reject); :not(#lcd-x)/:not(.lcd-x) len drží pôvodnú váhu selektora. */
+/* html.lcd1v-cookies-lista = v DOM je .js-siteCookies .siteCookies__form (cookies.js) */
+html:root.lcd1v-cookies-bublina.lcd1v-cookies-lista:not(#lcd1v-x):not(.lcd-x) iframe[title="Luxia chat"] {
   bottom: calc(var(--lcd1v-cookies-vyska, 220px) + 4px) !important;
 }
 /* otvorené okno nastavení (aj počas otváracej animácie): chat by ležal na „Povoliť všetko“ -> ustúpi (ako pri otvorenom menu) */
-html:root:not(#lcd1v-x):has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) iframe[title="Luxia chat"] { visibility: hidden !important; }
+/* html.lcd1v-cookies-okno = v DOM je #cboxContent.cookiesDialog alebo #cboxContent .cookiesSetting__form (cookies.js) */
+html:root.lcd1v-cookies-okno:not(#lcd1v-x):not(#lcd1v-y) iframe[title="Luxia chat"] { visibility: hidden !important; }
 
 /* ---------- 2. vrstva: okno „Nastavenia cookies“ (colorbox Shoptetu) ----------
    Okno cookies = #cboxContent s obsahom .cookiesSetting__form (od prvého snímku otvárania) alebo s triedou cookiesDialog
@@ -115,7 +120,9 @@ html:root:not(#lcd1v-x):has(#cboxContent.cookiesDialog, #cboxContent .cookiesSet
    Len okno cookies — iné colorboxy (galéria, vyskakovacie okná) sa nemenia. Rozmery a polohu dáva colorbox inline
    (PC 700 × 548, telefón 390 × 956 = tlačidlá pod okrajom okna) -> prebité cez !important: PC karta v strede okna,
    telefón spodný panel; obsah sa posúva vnútri, tlačidlá sú prilepené dole a vždy viditeľné. */
-html:root:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) #cboxOverlay { background: #080705 !important; opacity: .62 !important; }
+/* #cboxOverlay je v body pred #colorbox: :has(~ …) s kotvou na overlay (nie html) — zmena DOM inde ho neprepočíta, a platí
+   aj pred spustením bundla (rýchlosť 25. 10. 2026). Iné pravidlo #cboxOverlay nie je, väčšia váha nič nemení. */
+html:root #cboxOverlay:has(~ #colorbox #cboxContent.cookiesDialog, ~ #colorbox #cboxContent .cookiesSetting__form) { background: #080705 !important; opacity: .62 !important; }
 html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) {
   position: fixed !important; inset: 0 !important; margin: auto !important;
   width: min(640px, calc(100% - 32px)) !important; height: fit-content !important; max-height: calc(100vh - 48px);
@@ -294,5 +301,6 @@ html:root #footer .footer-bottom .lcd-pata-autor { display: inline; margin-left:
    (rovnaká podmienka a výška ako bublina Luxie v LCD-HDR; odkaz je 30 px nad lištou). S flagom 1V je lišta Shoptetu
    skrytá (LCD-1V-CENA) a rezervu dáva lišta 1V (body.lcd1v-lista-on) -> tam nie. */
 @media (max-width: 468px) {
-  html:root body:not(.lcd-1v):has(#js-plugin-header.active) #footer .footer-bottom { padding-bottom: 72px; }
+  /* html.lcd-phdr-on = #js-plugin-header.active (components/header.js); predtým body:has(…) — rýchlosť 25. 10. 2026 */
+  html:root.lcd-phdr-on body:not(.lcd-1v):not(#lcd-x) #footer .footer-bottom { padding-bottom: 72px; }
 }

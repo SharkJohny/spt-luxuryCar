@@ -213,7 +213,8 @@ html body.navigation-window-visible :is([data-ec-promo-id],.lcd-mega-js) .mega-o
 }
 @media(max-width:345px){.top-navigation-bar .lcdn-lang svg{width:19px;height:13px}.top-navigation-bar .lcdn-lang{width:20px}
   html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang){gap:3px !important}}
-@media(min-width:761px){html:has(.top-navigation-bar .lcdn-lang) #mega[data-lcd-cast] > :is(.m-lang,.lcdlang){display:none}}
+/* html.lcd-lang-hore = vlajka .lcdn-lang v .top-navigation-bar (lcdLang.js); predtým html:has(…) — rýchlosť 25. 10. 2026 */
+@media(min-width:761px){html.lcd-lang-hore:not(.lcd-x) #mega[data-lcd-cast] > :is(.m-lang,.lcdlang){display:none}}
 
 /* ---------- C) natívna hlavička Shoptetu vo vzhľade #lcd-hdr ----------
    Pás = .top-navigation-bar (burger + hľadanie vľavo, Kontakty vpravo). #header má výšku 0 a z neho
@@ -720,4 +721,8 @@ html body.navigation-window-visible iframe[title="Luxia chat"]{visibility:hidden
 /* lišta cookies Shoptetu: ikona chatu ležala na pravom tlačidle (Súhlasím / Nastavenie) — obsah lišty nechá vpravo miesto pre ikonu */
 @media(max-width:1340px){.siteCookies .siteCookies__form{padding-right:96px !important;box-sizing:border-box}}
 /* telefón (do 468 px) s lepkavou lištou „Do košíka“ dole (61 px): bublina chatu (50 px od spodku) zasahovala do lišty */
-@media(max-width:468px){body:has(#js-plugin-header.active) iframe[title="Luxia chat"]{bottom:72px !important}}
+/* Rýchlosť 25. 10. 2026 (Michal: „Áno, celý web“): :has() s kotvou na html/body Chrome pri KAŽDEJ zmene DOM prepočíta
+   takmer celú stránku (na 640 2–7× na ťuknutie po ~1160 prvkoch) -> stav nastavuje JS triedou. Kladná trieda na html/body
+   = Chrome pravidlo vopred vyradí (fast-reject); :not(#lcd-x)/:not(.lcd-x) len drží pôvodnú váhu selektora. */
+/* html.lcd-phdr-on = #js-plugin-header.active (components/header.js) */
+@media(max-width:468px){html.lcd-phdr-on:not(#lcd-x) iframe[title="Luxia chat"]{bottom:72px !important}}

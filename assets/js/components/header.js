@@ -238,6 +238,11 @@ function headerFixProdukt() {
         const isDesktop = window.innerWidth > 468;
         const headerHeight = header.clientHeight;
 
+        // html.lcd-phdr-on = lišta aktívna; CSS ju číta namiesto body:has(#js-plugin-header.active) (rýchlosť 25. 10. 2026:
+        // :has na body prepočítal pri každej zmene DOM celú stránku). Mení sa len pri zmene stavu.
+        if (document.documentElement.classList.contains("lcd-phdr-on") !== shouldShowFixed) {
+          document.documentElement.classList.toggle("lcd-phdr-on", shouldShowFixed);
+        }
         if (shouldShowFixed) {
           pluginHeader?.classList.add("active");
           if (isDesktop && isSticky) {

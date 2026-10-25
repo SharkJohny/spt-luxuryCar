@@ -246,7 +246,7 @@ body.lcd-1v .lcd1v-lista { display: none; }
   /* koniec stránky (päta) nezostane pod lištou */
   body.lcd-1v.lcd1v-lista-on { padding-bottom: calc(var(--c1v-lista-h) + env(safe-area-inset-bottom, 0px)); }
   /* bublina chatu Luxia (76 × 76, 50 px od spodku) by ležala na tlačidle lišty -> nad lištu; otvorený chat sa nehýbe.
-     :not(#…) = váha ID, inak by vyhralo staršie pravidlo body:has(#js-plugin-header.active) … {bottom:72px !important} */
+     :not(#…) = váha ID, inak by vyhralo staršie pravidlo html.lcd-phdr-on (predtým body:has(#js-plugin-header.active)) … {bottom:72px !important} */
   body.lcd-1v.lcd1v-lista-on.lcd1v-bublina:not(#lcd1v-x) iframe[title="Luxia chat"] {
     bottom: calc(var(--c1v-lista-h) + 8px + env(safe-area-inset-bottom, 0px)) !important;
   }

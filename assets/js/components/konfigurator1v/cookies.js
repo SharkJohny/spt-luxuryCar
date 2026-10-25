@@ -21,6 +21,15 @@ export const TRIEDA_BUBLINA = "lcd1v-cookies-bublina";
 export const TRIEDA_ODKAZ = "lcd-cookies-odkaz";
 /** Autor webu v päte (riadok s copyrightom), pred odkazom „Nastavenia cookies“. */
 export const TRIEDA_AUTOR = "lcd-pata-autor";
+/**
+ * Triedy na <html> namiesto html:has(…) v CSS (rýchlosť 25. 10. 2026, Michal: „Áno, celý web“): :has() s kotvou na html
+ * Chrome pri KAŽDEJ zmene DOM prepočítal takmer celú stránku. lista = v DOM je lišta súhlasu, okno = otvorené okno
+ * nastavení cookies (colorbox). Rovnaké podmienky ako predtým v CSS, len ich stráži tento modul.
+ */
+export const TRIEDA_LISTA = "lcd1v-cookies-lista";
+export const TRIEDA_OKNO = "lcd1v-cookies-okno";
+const SEL_LISTA = ".js-siteCookies .siteCookies__form";
+const SEL_OKNO = "#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form";
 
 /**
  * Volá main.js hneď pri štarte bundlu (každá stránka, každý návštevník). Vráti true, ak modul nabehol.
@@ -31,13 +40,43 @@ export function initCookies1v() {
     prepinac(window.location.search); // ?novy=1 / vyvoj / 0 platí aj mimo produktu (rovnaký flag karty ako konfigurátor)
     const html = document.documentElement;
     html.classList.add(TRIEDA_COOKIES);
-    const start = function () { sleduj(html); autorVPate(); odkazVPate(); };
+    const start = function () { sledujStavy(html); sleduj(html); autorVPate(); odkazVPate(); };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
     else start();
     return true;
   } catch (e) {
     return false;
   }
+}
+
+/** html.lcd1v-cookies-lista / -okno podľa DOM; sleduje len obal lišty a #colorbox (nie celé body), mení len pri zmene. */
+function sledujStavy(html) {
+  try {
+    const nastav = function (trieda, sel) {
+      const ma = !!document.querySelector(sel);
+      if (html.classList.contains(trieda) !== ma) html.classList.toggle(trieda, ma);
+    };
+    const obnov = function () { nastav(TRIEDA_LISTA, SEL_LISTA); nastav(TRIEDA_OKNO, SEL_OKNO); };
+    obnov();
+    if (typeof MutationObserver !== "function") return;
+    // lišta: Shoptet ju po súhlase odstráni alebo vyprázdni -> obal aj jeho rodič (len priame deti)
+    const obal = document.querySelector(".js-siteCookies");
+    if (obal) {
+      new MutationObserver(obnov).observe(obal, { childList: true, subtree: true });
+      if (obal.parentNode) new MutationObserver(obnov).observe(obal.parentNode, { childList: true });
+    }
+    // okno: #colorbox (priame dieťa body; colorbox ho môže vytvoriť až pri prvom otvorení) — trieda cookiesDialog aj obsah
+    const okno = function (cb) { new MutationObserver(obnov).observe(cb, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] }); };
+    const cb = document.getElementById("colorbox");
+    if (cb) okno(cb);
+    else if (document.body) {
+      const mo = new MutationObserver(function () {
+        const n = document.getElementById("colorbox");
+        if (n) { mo.disconnect(); okno(n); obnov(); }
+      });
+      mo.observe(document.body, { childList: true });
+    }
+  } catch (e) { /* bez tried: lišta a okno majú vzhľad z CSS, len Luxia sa neposunie / neskryje */ }
 }
 
 function sleduj(html) {

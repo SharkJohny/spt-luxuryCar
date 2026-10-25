@@ -59,6 +59,13 @@ export const MENO = "obsah";
 export const OBRAZKY_OBSAH = OBRAZKY_1V + "obsah/";
 export const TRIEDA_OBSAH = "lcd-1v-obsah";
 /**
+ * Triedy body namiesto body:has(…) v CSS (rýchlosť 25. 10. 2026): vlozeny = koreň obsahu je v .p1v-miesto (päta bez
+ * okraja), faq = v obsahu je sekcia d-faq (starý FAQ v stĺpci sa skryje). :has() na body prepočítal pri každej zmene DOM
+ * celú stránku.
+ */
+export const TRIEDA_VLOZENY = "lcd-1v-obsah-vlozeny";
+export const TRIEDA_FAQ = "lcd-1v-obsah-faq";
+/**
  * D1 = b: kusy z CDN verzie bundle (len pod bránou). false = len korene, ktoré už sú v DOM (Popis po spustení).
  * Zapnuté pri integrácii vlny WA (14. 10. 2026, prvé vydanie podľa plan.md §2.6 bod 2): runnery, ktoré na živej
  * stránke vymieňajú luxuryCar.js (tools/test-konfigurator-1v.mjs, tools/test-boxy-prepni.mjs), kusy
@@ -575,7 +582,7 @@ function vytvorOzivovanie(oc, moduly, odhalovanie, stav, beh) {
 
 /** Obsah sa nepodaril (cesta b): naše miesto preč, starý popis späť; konfigurátor ostáva. */
 function vratObsah() {
-  document.body.classList.remove(TRIEDA_OBSAH);
+  document.body.classList.remove(TRIEDA_OBSAH, TRIEDA_VLOZENY, TRIEDA_FAQ);
   // naše prvky: miesto s koreňmi + okno a linka čítania, ktoré skupina D presunula priamo do <body>
   Array.prototype.forEach.call(document.querySelectorAll(".p1v-miesto, body > .p1v-lb, body > .p1v-citanie"), (m) => {
     if (m.parentNode) m.parentNode.removeChild(m);
@@ -628,6 +635,8 @@ function vytvorObsah(ctx, kluc, stav) {
           if (stlpec && !stlpec.querySelector("[data-lcd-cast]")) stlpec.setAttribute("data-p1v-prazdny", "");
           korene.push(k);
         });
+        if (miesto.querySelector(':scope > [data-lcd-cast^="p1v"]')) document.body.classList.add(TRIEDA_VLOZENY);
+        if (miesto.querySelector('[data-lcd-sekcia="d-faq"]')) document.body.classList.add(TRIEDA_FAQ);
         // čísla a odkazy len v nových koreňoch (staršie kusy už majú svoje; dvakrát by sa pokazila pôvodná viditeľnosť)
         nove.forEach((k) => {
           const v = cisla.init({ ctx, miesto: k });

@@ -12842,7 +12842,8 @@ html body.navigation-window-visible :is([data-ec-promo-id],.lcd-mega-js) .mega-o
 }
 @media(max-width:345px){.top-navigation-bar .lcdn-lang svg{width:19px;height:13px}.top-navigation-bar .lcdn-lang{width:20px}
   html:is(.lcd-native-hdr,:has([data-lcd-cast])) .top-navigation-bar .responsive-tools:has(.lcdn-lang){gap:3px !important}}
-@media(min-width:761px){html:has(.top-navigation-bar .lcdn-lang) #mega[data-lcd-cast] > :is(.m-lang,.lcdlang){display:none}}
+/* html.lcd-lang-hore = vlajka .lcdn-lang v .top-navigation-bar (lcdLang.js); predtým html:has(…) — rýchlosť 25. 10. 2026 */
+@media(min-width:761px){html.lcd-lang-hore:not(.lcd-x) #mega[data-lcd-cast] > :is(.m-lang,.lcdlang){display:none}}
 
 /* ---------- C) natívna hlavička Shoptetu vo vzhľade #lcd-hdr ----------
    Pás = .top-navigation-bar (burger + hľadanie vľavo, Kontakty vpravo). #header má výšku 0 a z neho
@@ -13349,7 +13350,11 @@ html body.navigation-window-visible iframe[title="Luxia chat"]{visibility:hidden
 /* lišta cookies Shoptetu: ikona chatu ležala na pravom tlačidle (Súhlasím / Nastavenie) — obsah lišty nechá vpravo miesto pre ikonu */
 @media(max-width:1340px){.siteCookies .siteCookies__form{padding-right:96px !important;box-sizing:border-box}}
 /* telefón (do 468 px) s lepkavou lištou „Do košíka“ dole (61 px): bublina chatu (50 px od spodku) zasahovala do lišty */
-@media(max-width:468px){body:has(#js-plugin-header.active) iframe[title="Luxia chat"]{bottom:72px !important}}
+/* Rýchlosť 25. 10. 2026 (Michal: „Áno, celý web“): :has() s kotvou na html/body Chrome pri KAŽDEJ zmene DOM prepočíta
+   takmer celú stránku (na 640 2–7× na ťuknutie po ~1160 prvkoch) -> stav nastavuje JS triedou. Kladná trieda na html/body
+   = Chrome pravidlo vopred vyradí (fast-reject); :not(#lcd-x)/:not(.lcd-x) len drží pôvodnú váhu selektora. */
+/* html.lcd-phdr-on = #js-plugin-header.active (components/header.js) */
+@media(max-width:468px){html.lcd-phdr-on:not(#lcd-x) iframe[title="Luxia chat"]{bottom:72px !important}}
 /* ===== LCD-HDR END ===== */
 
 /* ===== LCD-KORENE START - generovane tools/vloz-lcd-css.py z _lcdKorene.scss (staticke korene [data-lcd-cast] v obaloch Shoptetu), needituj rucne ===== */
@@ -13383,7 +13388,9 @@ span[data-ec-promo-id]:has(> .lcd-root){display:block}
 
 /* 2) Sticky scény (príbeh, pred a po, 5 vecí…) potrebujú rodiča bez overflow:hidden.
       Kreslená titulka to rieši v gate štýle (body.lcdh-on .overall-wrapper{overflow:clip}). */
-body:has([data-lcd-cast^=hp],[data-lcd-cast=rz]) .overall-wrapper{overflow:hidden;overflow:clip !important}
+/* rýchlosť 25. 10. 2026: kladná trieda Shoptetu pred :has (in-index / in-rozcestnik), inak Chrome pri každej zmene DOM
+   na KAŽDEJ stránke prepočíta celý strom; overflow:clip je !important, väčšia váha nič nemení */
+body.in-index:has([data-lcd-cast^=hp]) .overall-wrapper,body.in-rozcestnik:has([data-lcd-cast=rz]) .overall-wrapper{overflow:hidden;overflow:clip !important}
 /*    Rovnako obaly priamo okolo koreňa: Shoptet dáva #content-wrapper (mobil, rozcestník) overflow:hidden ->
       lcdHomeModuly.js by pred a po aj galériu prepol na „bez lepenia“ (krátka scéna) a sticky by nefungovalo.
       clip orezáva rovnako, ale nevytvára rolovací kontajner (sticky ide, JS test na hidden|auto|scroll prejde). */
@@ -16769,7 +16776,7 @@ body.lcd-1v .lcd1v-lista { display: none; }
   /* koniec stránky (päta) nezostane pod lištou */
   body.lcd-1v.lcd1v-lista-on { padding-bottom: calc(var(--c1v-lista-h) + env(safe-area-inset-bottom, 0px)); }
   /* bublina chatu Luxia (76 × 76, 50 px od spodku) by ležala na tlačidle lišty -> nad lištu; otvorený chat sa nehýbe.
-     :not(#…) = váha ID, inak by vyhralo staršie pravidlo body:has(#js-plugin-header.active) … {bottom:72px !important} */
+     :not(#…) = váha ID, inak by vyhralo staršie pravidlo html.lcd-phdr-on (predtým body:has(#js-plugin-header.active)) … {bottom:72px !important} */
   body.lcd-1v.lcd1v-lista-on.lcd1v-bublina:not(#lcd1v-x) iframe[title="Luxia chat"] {
     bottom: calc(var(--c1v-lista-h) + 8px + env(safe-area-inset-bottom, 0px)) !important;
   }
@@ -17710,7 +17717,8 @@ body.lcd-1v .p1v-miesto > [data-lcd-cast^=p1v]{display:block !important;width:10
 
 /* 2b) obsah končí priamo pätičkou ako na titulke (_lcdKorene.scss): bez 20 px bieleho pásu z #footer{margin-top}
       (Michal 23. 10. 2026: „takmer v každom produkte je na konci biely pás pred pätičkou… nech tam nie je“) */
-body.lcd-1v:has(.p1v-miesto > [data-lcd-cast^=p1v]) #footer{margin-top:0 !important}
+/* body.lcd-1v-obsah-vlozeny = koreň obsahu je v .p1v-miesto (obsah.js vloz); predtým body.lcd-1v:has(…) — rýchlosť 25. 10. */
+body.lcd-1v.lcd-1v-obsah-vlozeny:not(.lcd-x) #footer{margin-top:0 !important}
 
 /* 2c) Michal 25. 10. 2026 (rýchlosť): build obalí fotky obsahu do <picture> so zmenšeným WebP (tools/build-admin-html.mjs
       obrazky1v). Obal nesmie zmeniť rozloženie: fotka ostáva priamym prvkom gridu/flexu/absolútnej vrstvy ako predtým. */
@@ -17785,7 +17793,8 @@ body.lcd-1v :is(.p1v-miesto .sr-only,.p1v-sr){position:absolute !important;width
 
 /* 8) Starý blok FAQ pri konfigurátore (components/index.js ho vkladá do .p-info-wrapper z /faq/) je s novým obsahom
       dvakrát — nový FAQ je dole (skupina D). Skrytý len keď nový naozaj je; ostáva v DOM. */
-body.lcd-1v.lcd-1v-obsah:has(.p1v-miesto [data-lcd-sekcia="d-faq"]) .p-info-wrapper > .faq.container{display:none !important}
+/* body.lcd-1v-obsah-faq = v obsahu je sekcia d-faq (obsah.js vloz); predtým :has(…) — rýchlosť 25. 10. 2026 */
+body.lcd-1v.lcd-1v-obsah.lcd-1v-obsah-faq:not(.lcd-x) .p-info-wrapper > .faq.container{display:none !important}
 
 /* 9) Lepivá lišta konfigurátora (telefón a tablet do 991 px, LCD-1V-CENA, z-index 60) je pod konfigurátorom stále
       zapnutá (body.lcd1v-lista-on). Prilepená scéna má výšku okna a jej spodná lišta (.pinfoot: postup, „Zostavte si
@@ -21505,12 +21514,17 @@ html:root .siteCookies :is(.siteCookies__button, .siteCookies__link, .siteCookie
 /* Chat Luxia (iframe tretej strany, z-index 2147483000) by ležal na tlačidlách karty -> kým je lišta na obrazovke,
    ZBALENÝ chat (bublina, uvítanie; trieda lcd1v-cookies-bublina z cookies.js) sa zdvihne nad kartu. Otvorený chat
    sa nehýbe. --lcd1v-cookies-vyska = horný okraj karty od spodku okna (cookies.js). :not(#lcd1v-x) = váha ID, inak by
-   vyhralo body:has(#js-plugin-header.active) … {bottom:72px !important} (LCD-HDR) a lišta 1V (LCD-1V-CENA). */
-html:root.lcd1v-cookies-bublina:not(#lcd1v-x):has(.js-siteCookies .siteCookies__form) iframe[title="Luxia chat"] {
+   vyhralo html.lcd-phdr-on … {bottom:72px !important} (LCD-HDR) a lišta 1V (LCD-1V-CENA). */
+/* Rýchlosť 25. 10. 2026 (Michal: „Áno, celý web“): :has() s kotvou na html/body Chrome pri KAŽDEJ zmene DOM prepočíta
+   takmer celú stránku (na 640 2–7× na ťuknutie po ~1160 prvkoch) -> stav nastavuje JS triedou. Kladná trieda na html/body
+   = Chrome pravidlo vopred vyradí (fast-reject); :not(#lcd-x)/:not(.lcd-x) len drží pôvodnú váhu selektora. */
+/* html.lcd1v-cookies-lista = v DOM je .js-siteCookies .siteCookies__form (cookies.js) */
+html:root.lcd1v-cookies-bublina.lcd1v-cookies-lista:not(#lcd1v-x):not(.lcd-x) iframe[title="Luxia chat"] {
   bottom: calc(var(--lcd1v-cookies-vyska, 220px) + 4px) !important;
 }
 /* otvorené okno nastavení (aj počas otváracej animácie): chat by ležal na „Povoliť všetko“ -> ustúpi (ako pri otvorenom menu) */
-html:root:not(#lcd1v-x):has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) iframe[title="Luxia chat"] { visibility: hidden !important; }
+/* html.lcd1v-cookies-okno = v DOM je #cboxContent.cookiesDialog alebo #cboxContent .cookiesSetting__form (cookies.js) */
+html:root.lcd1v-cookies-okno:not(#lcd1v-x):not(#lcd1v-y) iframe[title="Luxia chat"] { visibility: hidden !important; }
 
 /* ---------- 2. vrstva: okno „Nastavenia cookies“ (colorbox Shoptetu) ----------
    Okno cookies = #cboxContent s obsahom .cookiesSetting__form (od prvého snímku otvárania) alebo s triedou cookiesDialog
@@ -21519,7 +21533,9 @@ html:root:not(#lcd1v-x):has(#cboxContent.cookiesDialog, #cboxContent .cookiesSet
    Len okno cookies — iné colorboxy (galéria, vyskakovacie okná) sa nemenia. Rozmery a polohu dáva colorbox inline
    (PC 700 × 548, telefón 390 × 956 = tlačidlá pod okrajom okna) -> prebité cez !important: PC karta v strede okna,
    telefón spodný panel; obsah sa posúva vnútri, tlačidlá sú prilepené dole a vždy viditeľné. */
-html:root:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) #cboxOverlay { background: #080705 !important; opacity: .62 !important; }
+/* #cboxOverlay je v body pred #colorbox: :has(~ …) s kotvou na overlay (nie html) — zmena DOM inde ho neprepočíta, a platí
+   aj pred spustením bundla (rýchlosť 25. 10. 2026). Iné pravidlo #cboxOverlay nie je, väčšia váha nič nemení. */
+html:root #cboxOverlay:has(~ #colorbox #cboxContent.cookiesDialog, ~ #colorbox #cboxContent .cookiesSetting__form) { background: #080705 !important; opacity: .62 !important; }
 html:root #colorbox:has(#cboxContent.cookiesDialog, #cboxContent .cookiesSetting__form) {
   position: fixed !important; inset: 0 !important; margin: auto !important;
   width: min(640px, calc(100% - 32px)) !important; height: fit-content !important; max-height: calc(100vh - 48px);
@@ -21698,7 +21714,8 @@ html:root #footer .footer-bottom .lcd-pata-autor { display: inline; margin-left:
    (rovnaká podmienka a výška ako bublina Luxie v LCD-HDR; odkaz je 30 px nad lištou). S flagom 1V je lišta Shoptetu
    skrytá (LCD-1V-CENA) a rezervu dáva lišta 1V (body.lcd1v-lista-on) -> tam nie. */
 @media (max-width: 468px) {
-  html:root body:not(.lcd-1v):has(#js-plugin-header.active) #footer .footer-bottom { padding-bottom: 72px; }
+  /* html.lcd-phdr-on = #js-plugin-header.active (components/header.js); predtým body:has(…) — rýchlosť 25. 10. 2026 */
+  html:root.lcd-phdr-on body:not(.lcd-1v):not(#lcd-x) #footer .footer-bottom { padding-bottom: 72px; }
 }
 /* ===== LCD-1V-COOKIES END ===== */
 
@@ -22240,10 +22257,12 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .cl-video iframe,#lcd-blog .pb-embed-responsive-16by9 iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 #lcd-blog .rc-image-left,#lcd-blog .rc-image-right,#lcd-blog .rc-image-half-left,#lcd-blog .rc-image-half-right{display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,3vw,32px);align-items:center;margin:2em 0}
-#lcd-blog [class*="rc-image-"][class$="__image"] img,#lcd-blog .pb-row img{width:100%;height:auto;border-radius:16px;box-shadow:0 18px 44px rgba(40,30,10,.16)}
-#lcd-blog [class*="rc-image-"][class$="__text"]>:first-child{margin-top:0}
+/* rýchlosť 25. 10. 2026: vymenované triedy namiesto [class*="rc-image-"] — atribút class v predkovi + :first-child znamenal,
+   že ZMENA TRIEDY NA AKOMKOĽVEK PRVKU webu prepočítala celý strom pod ním; :not(.lcd-x) drží pôvodnú váhu */
+#lcd-blog .rc-image-left__image:not(.lcd-x) img,#lcd-blog .rc-image-right__image:not(.lcd-x) img,#lcd-blog .rc-image-half-left__image:not(.lcd-x) img,#lcd-blog .rc-image-half-right__image:not(.lcd-x) img,#lcd-blog .pb-row img{width:100%;height:auto;border-radius:16px;box-shadow:0 18px 44px rgba(40,30,10,.16)}
+#lcd-blog .rc-image-left__text:not(.lcd-x)>:first-child,#lcd-blog .rc-image-right__text:not(.lcd-x)>:first-child,#lcd-blog .rc-image-half-left__text:not(.lcd-x)>:first-child,#lcd-blog .rc-image-half-right__text:not(.lcd-x)>:first-child{margin-top:0}
 /* stare Pobo triedy maju v luxuryCar.css sirky 35/65 % a odsadenie — v mriezke ich zrus */
-#lcd-blog [class*="rc-image-"]>[class*="rc-image-"]{width:auto !important;max-width:none !important;padding:0 !important;margin:0 !important;float:none !important}
+#lcd-blog .rc-image-left>.rc-image-left__image,#lcd-blog .rc-image-left>.rc-image-left__text,#lcd-blog .rc-image-right>.rc-image-right__image,#lcd-blog .rc-image-right>.rc-image-right__text,#lcd-blog .rc-image-half-left>.rc-image-half-left__image,#lcd-blog .rc-image-half-left>.rc-image-half-left__text,#lcd-blog .rc-image-half-right>.rc-image-half-right__image,#lcd-blog .rc-image-half-right>.rc-image-half-right__text{width:auto !important;max-width:none !important;padding:0 !important;margin:0 !important;float:none !important}
 @media(max-width:700px){#lcd-blog .rc-image-left,#lcd-blog .rc-image-right,#lcd-blog .rc-image-half-left,#lcd-blog .rc-image-half-right{grid-template-columns:minmax(0,1fr)}
   #lcd-blog .rc-image-right__image,#lcd-blog .rc-image-half-right__image{order:-1}}
 #lcd-blog .pb-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:2em 0}
