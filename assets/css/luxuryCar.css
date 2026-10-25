@@ -20166,6 +20166,13 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm { font-size: 14px
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font-size: 15px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p b { font-size: 16px; }
 }
+/* telefón na šírku (nízke okno; kontrola 23 rozmerov 25. 10. 2026): lišta s popisom auta na 2 riadky zaberala až tretinu
+   výšky (568 × 320: 115 px) -> jeden riadok: bez popisu auta a materiálu (je v hotových krokoch), nižšie tlačidlo */
+@media (max-width: 991px) and (max-height: 500px) and (orientation: landscape) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista { padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); }
+  body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista .lcd1v-lista__popis { display: none; }
+  body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista button.lcd1v-lista__kos { height: 44px; }
+}
 /* ===== LCD-1V-KAMIONY END ===== */
 
 /* ===== LCD-1V-OBSAH-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-dvoj.scss (obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v), needituj rucne ===== */
