@@ -41,6 +41,7 @@ const TEXTY = new Map([
   ["zachytí vodu, sneh aj blato", "zachytí vodu, sníh i bláto"],
   ["jednoduchšia údržba\u00a0– vyberiete a\u00a0opláchnete", "snadnější údržba\u00a0– vyjmete a\u00a0opláchnete"],
   ["Zistiť viac", "Zjistit více"],
+  ["Zobraziť ďalšie recenzie", "Zobrazit další recenze"],
   ["Zistiť viac o\u00a0druhej vrstve", "Zjistit více o\u00a0druhé vrstvě"],
   ["Čo Vám pridá druhá vrstva", "Co Vám přidá druhá vrstva"],
   ["Zavrieť", "Zavřít"],

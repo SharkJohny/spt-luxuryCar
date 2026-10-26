@@ -124,7 +124,7 @@ export async function kontroly(t) {
       let o = await t.ev(OKNO);
       ok(o && !o.hidden && o.on && o.vBody && o.cela, "realita: klik otvorí okno na celé okno prehliadača (" + JSON.stringify(o && { hidden: o.hidden, on: o.on, vBody: o.vBody, rect: o.rect, display: o.display }) + ")");
       ok(o && o.tag === "iframe" && /^https:\/\/www\.youtube-nocookie\.com\/embed\/snb_QNjkcIs\?/.test(o.src), "realita: okno prehráva správne video (" + (o && o.src.slice(0, 60)) + ")");
-      ok(o && o.pod === "Perfektná inštalácia koberčekov na mieru", "realita: popis videa v okne („" + (o && o.pod) + "“)");
+      ok(o && o.pod === t.preloz("Perfektná inštalácia koberčekov na mieru"), "realita: popis videa v okne („" + (o && o.pod) + "“)");
       ok(o && o.fokusX && o.overflow === "hidden", "realita: fokus na × a stránka sa pod oknom neposúva");
       ok(o && !o.sipky, "realita: jedno video bez šípok");
       // × skutočným klikom = nič ho nezakrýva (hlavička, Luxia, lepivá lišta)
@@ -201,9 +201,9 @@ export async function kontroly(t) {
       var h = s.querySelector("h2"), bg = s.querySelector(".endbg");
       return { h2: h && h.textContent.trim(), farba: h && getComputedStyle(h).webkitTextFillColor, bg: bg ? getComputedStyle(bg).backgroundImage : "", bgOp: bg ? getComputedStyle(bg).opacity : "",
         tl: [].map.call(s.querySelectorAll(".end-cta a"), function (a) { return a.textContent.trim(); }).join(" | ") }; })()`);
-    ok(d.h2 === "Kúpiť a nečakať!" && d.farba === "rgb(255, 255, 255)", `koniec: biely nadpis „${d.h2}“ (${d.farba})`);
+    ok(d.h2 === t.preloz("Kúpiť a nečakať!") && d.farba === "rgb(255, 255, 255)", `koniec: biely nadpis „${d.h2}“ (${d.farba})`);
     ok(/lcd-home\/hero\.jpg/.test(d.bg) && d.bgOp === "0.3", "koniec: ozdobné pozadie (hero.jpg, priehľadnosť 0.3) po priblížení");
-    ok(d.tl === "Zadajte údaje o vozidle | Pozrite si recenzie", "koniec: tlačidlá (" + d.tl + ")");
+    ok(d.tl === t.preloz("Zadajte údaje o vozidle") + " | " + t.preloz("Pozrite si recenzie"), "koniec: tlačidlá (" + d.tl + ")");
     const pred = await t.ev("location.href");
     await klik(t, s + " [data-p1v-konf]", { popis: "koniec: Zadajte údaje o vozidle", pockaj: 600 });
     // plynulý posun ku konfigurátoru: čakať, kým cieľ (prvý nevyplnený krok / súhrn) je v hornej časti okna a posun stojí

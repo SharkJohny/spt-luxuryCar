@@ -52,7 +52,7 @@ import { vytvorT } from "./test-1v/pomocnik.mjs";
 import { vyberProdukty, TYPY_TEST, ChybaPouzitia } from "./test-1v/produkty.mjs";
 import {
   priprav, novaStranka, otvorProdukt, adresyMedii, register, sestra, ocakavaneCisla, sekciaSondyCisel, doKorena,
-  prazdnyKus, SONDA, MERACE, NAVRHY, pauza,
+  prazdnyKus, prelozCz, SONDA, MERACE, NAVRHY, pauza,
 } from "./test-1v/obsah-spolocne.mjs";
 import * as skA from "./test-1v/obsah-a.mjs";
 import * as skB from "./test-1v/obsah-b.mjs";
@@ -360,14 +360,15 @@ async function main() {
     if (a.miesto === "zive") p.popisHash = Object.fromEntries(build.admin.popis.casti(p.kluc).map((c) => [c.cast, c.hash]));
     // médiá obsahu 1V (bez flagu sa nesmú stiahnuť) — bez súborov živého webu z /usr/www.luxurycardesign.sk/user/documents/upload/:
     // FAQ obsahu = živé FAQ z /faq/ doslovne (Michal 14. 10. 2026) aj s obrázkom lazers.jpg, ktorý živé FAQ (index.js) sťahuje aj bez flagu
-    p.media = [...new Set(p.kusy.concat(p.dokKusy || []).flatMap((c) => adresyMedii(c.html)))].filter((m) => !/\/usr\/www\.luxurycardesign\.sk\/user\/documents\/upload\//.test(m));
+    const zivyUpload = new RegExp("/usr/www\\.luxurycardesign\\." + a.web + "/user/documents/upload/");
+    p.media = [...new Set(p.kusy.concat(p.dokKusy || []).flatMap((c) => adresyMedii(c.html)))].filter((m) => !zivyUpload.test(m));
     p.sekcie = p.kusy.flatMap((c) => c.sekcie.map((s) => ({ ...s, cast: c.cast })));
     p.plne = p.sekcie.filter((s) => s.znaky > 0).map((s) => s.sekcia);
     const mena = (a.skupiny || PLUGINY[p.kluc] || []).filter((g) => (PLUGINY[p.kluc] || []).includes(g) || (a.skupiny && SKUPINY[g]));
     p.pluginy = [...new Set(mena.flatMap((g) => [g, ...((SKUPINY[g] && SKUPINY[g].zdielane) || [])]))].filter((g) => SKUPINY[g]);
     p.navrh = a.navrh || SERVER_NAVRHOV + (NAVRHY[p.kluc] || NAVRHY[598]);
     if (a.sondaCisel) {
-      p.sonda = await ocakavaneCisla(reg, p);
+      p.sonda = await ocakavaneCisla(reg, p, a.web);
       const k1 = p.kusy[0];
       p.cdnKusy = { [k1.cast]: doKorena(k1.html, sekciaSondyCisel(p.sonda)) };
       p.plne = p.plne.concat("x-sonda-cisla");
@@ -636,6 +637,9 @@ async function main() {
                 }
                 // kontroly skupín
                 const t = vytvorT(s.k, { novy: true, log });
+                t.web = a.web;
+                t.cz = a.web === "cz";
+                t.preloz = (sk) => t.cz ? prelozCz(sk) : sk;
                 t.sekcia = (meno) => `[data-lcd-sekcia="${meno}"]`;
                 t.je = (meno) => s.k.ev(`!!document.querySelector('.p1v-miesto [data-lcd-sekcia="${meno}"]')`);
                 // Michal 25. 10. 2026 (rýchlosť): sekcie sa oživujú až pri priblížení k oknu (obsah.js). Kontrola, ktorá meria

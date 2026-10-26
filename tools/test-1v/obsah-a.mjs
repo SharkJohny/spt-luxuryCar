@@ -142,15 +142,18 @@ export async function kontroly(t) {
     const r = await t.ev(`(function () {
       var s = document.querySelector(${S("a-recenzie")}), d = window.LCD_REVIEWS;
       var cis = function (x) { return (Math.round(Number(x) * 10) / 10).toFixed(1).replace(".", ","); };
+      var dobra = function (x) { return x && Number(x.rating) >= 4 && String(x.text || "").trim().length > 0; }; // „Zobraziť ďalšie“ = všetky s textom
       return { ok: s.classList.contains("p1v-rev-ok"), data: !!(d && d.place), skore: s.querySelector(".score").textContent.trim(),
         ocSkore: d && d.place ? cis(d.place.rating) : null, sub: s.querySelector(".sub").textContent.trim(),
         pocet: d && d.place ? d.place.totalReviews : null, karty: s.querySelectorAll(".revs .rev").length,
+        poFiltri: d && d.reviews ? d.reviews.filter(dobra).length : 0, viac: !!s.querySelector(".p1v-rev-viac"),
         prazdne: [].filter.call(s.querySelectorAll(".revs .rev"), function (a) { return !a.querySelector("p").textContent.trim() || !a.querySelector(".meta b").textContent.trim(); }).length,
         vid: getComputedStyle(s.querySelector(".revwrap")).visibility, prvy: (s.querySelector(".revs .rev .meta b") || {}).textContent };
     })()`);
     ok(r.ok && r.data, `a-recenzie: dáta window.LCD_REVIEWS prišli a sekcia je vykreslená (ok ${r.ok}, dáta ${r.data})`);
     ok(r.ok && r.skore === r.ocSkore && r.sub.indexOf(String(r.pocet) + " ") === 0, `a-recenzie: skóre a počet zo živých dát („${r.skore}“, „${r.sub}“)`);
     ok(r.karty >= 6 && r.karty <= 12 && !r.prazdne && r.vid === "visible", `a-recenzie: ${r.karty} kariet (prvá ${r.prvy}), prázdne ${r.prazdne}, pás ${r.vid}`);
+    ok(r.viac && r.poFiltri > r.karty, `a-recenzie: tlačidlo ďalších recenzií je zobrazené (${r.karty}/${r.poFiltri} kariet)`);
     if (r.ok) {
       const x0 = await t.ev(`document.querySelector(${S("a-recenzie")} + " .revs").scrollLeft`);
       await t.klikni(t.sekcia("a-recenzie") + " .p1v-rev-dalej", { popis: "šípka Ďalšia recenzia", pockaj: 900 });
@@ -166,6 +169,12 @@ export async function kontroly(t) {
           nacitane: nacitane.length, najsirsia: nacitane.reduce(function (m, i) { return Math.max(m, i.naturalWidth); }, 0) };
       })()`);
       ok(!f.nase || (!f.plne.length && f.nacitane > 0 && f.najsirsia <= 200), `a-recenzie: fotky v kartách ako náhľady reviews/m/ (${f.nase} našich z ${f.spolu}, plné ${f.plne.length ? f.plne.join(",") : 0}, načítané ${f.nacitane}, najširšia ${f.najsirsia} px)`);
+      if (r.viac) {
+        await t.klikni(t.sekcia("a-recenzie") + " .p1v-rev-viac", { popis: "Zobraziť ďalšie recenzie", pockaj: 500 });
+        const po = await t.ev(`(function () { var s = document.querySelector(${S("a-recenzie")}); return { karty: s.querySelectorAll(".revs .rev").length,
+          tlacidlo: !!s.querySelector(".p1v-rev-viac"), lazy: [].every.call(s.querySelectorAll(".revs .rev img"), function (i) { return i.loading === "lazy"; }) }; })()`);
+        ok(po.karty === r.poFiltri && !po.tlacidlo && po.lazy, `a-recenzie: po kliku ${po.karty}/${r.poFiltri} kariet, tlačidlo zmizlo, fotky lazy (${po.lazy})`);
+      }
     }
   }
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"]'), function (f) { f.style.removeProperty("visibility"); })`);

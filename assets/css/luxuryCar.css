@@ -18254,6 +18254,12 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"]
   border:2px solid var(--gold);box-shadow:none}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn.ghost + .btn.ghost:hover{background:rgba(196,155,49,.14);
   color:var(--ink);border-color:var(--gold-lo)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .p1v-rev-viac{display:flex;width:max-content;max-width:100%;min-height:0;
+  margin:24px auto 0;padding:13px 24px !important;border:2px solid var(--gold);border-radius:12px;background:none;color:var(--ink);
+  font-size:14px;letter-spacing:.09em;line-height:1.35;text-align:center;justify-content:center;box-shadow:none;cursor:pointer}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .p1v-rev-viac:before,
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .p1v-rev-viac:after{display:none;content:none}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .p1v-rev-viac:hover{background:rgba(196,155,49,.14);color:var(--ink);border-color:var(--gold-lo)}
 @media(max-width:700px){
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="a-recenzie"] .revhead .cta .btn{flex:1 1 0%;justify-content:center;font-size:14px;
     letter-spacing:.09em}

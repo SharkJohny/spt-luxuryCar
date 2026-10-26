@@ -20,7 +20,7 @@
 // Bezpečnosť ako zmrazený runner: POST /action/Cart/addCartItem sa ZRUŠÍ, iný POST na /action/ tiež (okrem odmietnutia
 // cookies), merače zablokované, cookie lišta odmietnutá. Žiadna objednávka, žiadny admin, žiadne prihlásenie.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +32,18 @@ export const SK = "https://www.luxurycardesign.sk";
 export const CZ = "https://www.luxurycardesign.cz";
 export const URL_598 = SK + "/luxusne-autokoberce-dragonskin-diamond-line/";
 export const SONDA = CDN + "img/1v/obsah/__sonda-";
+
+let PREKLAD_CZ = null;
+/** Presný SK -> CZ preklad zákazníckeho textu z mapy, z ktorej sa skladá CZ admin obsah. */
+export function prelozCz(sk) {
+  if (!PREKLAD_CZ) {
+    const dir = join(KOREN, ".cz-podklady", "seg", "preklad");
+    const segmenty = JSON.parse(readFileSync(join(KOREN, ".cz-podklady", "seg", "segmenty.json"), "utf8"));
+    const podlaId = Object.assign({}, ...readdirSync(dir).filter((f) => /\.json$/i.test(f)).map((f) => JSON.parse(readFileSync(join(dir, f), "utf8"))));
+    PREKLAD_CZ = new Map(segmenty.filter((s) => Object.prototype.hasOwnProperty.call(podlaId, s.id)).map((s) => [s.sk, podlaId[s.id]]));
+  }
+  return PREKLAD_CZ.get(sk) || sk;
+}
 /** kus obsahu na CDN verzie (obsah.js): …/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html */
 export const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.(?:sk|cz)\.html(?:[?#]|$)/;
 export const MERACE = [
@@ -382,7 +394,7 @@ export async function zivaStranka(url) {
   return strankyCache.get(url);
 }
 
-const NBSP_EUR = (n) => (Number(n) > 0 ? String(Math.round(n)) + " €" : null);
+const sumaTrhu = (n, web) => (Number(n) > 0 ? String(Math.round(n)) + (web === "cz" ? " Kč" : " €") : null);
 const select = (st, re) => { const k = Object.keys(st.selecty).find((x) => re.test(x)); return k ? st.selecty[k] : []; };
 const vel = (o) => ((/^(XL|S|M|L)\s*:/i.exec(o.text) || [])[1] || "").toUpperCase();
 
@@ -390,7 +402,7 @@ const vel = (o) => ((/^(XL|S|M|L)\s*:/i.exec(o.text) || [])[1] || "").toUpperCas
  * Očakávané texty sondy čísel pre produkt (nezávisle od kódu webu: register zo zdroja + GET živých stránok).
  * -> [{ kluc, text | null, tvar? }] a odkazy [{ typ, href }].
  */
-export async function ocakavaneCisla(reg, produkt) {
+export async function ocakavaneCisla(reg, produkt, web = "sk") {
   const v = produkt.vzor;
   const url = (typ) => { const p = sestra(reg, typ, v); return p ? p.url : null; };
   const st = (typ) => zivaStranka(url(typ));
@@ -401,31 +413,34 @@ export async function ocakavaneCisla(reg, produkt) {
   const premium = (kufor.find((o) => /bok/i.test(o.text)) || {}).fp;
   const velkost = (stranka, re, V) => (select(stranka, re).find((o) => vel(o) === V) || {}).fp;
   const cenaTypu = async (t) => (await st(t)).cena;
-  const farby = (re) => { const n = select(ja, re).length; return n ? n + " " + (n === 1 ? "farba" : n <= 4 ? "farby" : "farieb") : null; };
+  const farby = (re) => { const n = select(ja, re).length; return n ? n + " " + (web === "cz" ? (n === 1 ? "barva" : n <= 4 ? "barvy" : "barev") : (n === 1 ? "farba" : n <= 4 ? "farby" : "farieb")) : null; };
+  const suma = (n) => sumaTrhu(n, web);
+  const bezDruhej = web === "cz" ? "bez druhé vrstvy" : "bez druhej vrstvy";
+  const bezUspory = "bez úspory";
   const cisla = [
-    { kluc: "cena-od", tvar: "od {}", text: NBSP_EUR(ja.cena) && "od " + NBSP_EUR(ja.cena) },
-    { kluc: "cena-od-jedno", text: NBSP_EUR(await cenaTypu("jedno")) },
-    { kluc: "cena-od-dvoj", text: NBSP_EUR(await cenaTypu("dvoj")) },
-    { kluc: "cena-od-classic", text: NBSP_EUR(await cenaTypu("kufor-classic")) },
-    { kluc: "cena-od-premium", text: NBSP_EUR(await cenaTypu("kufor-premium")) },
-    { kluc: "cena-od-boxy", text: NBSP_EUR(box.cena) },
+    { kluc: "cena-od", tvar: "od {}", text: suma(ja.cena) && "od " + suma(ja.cena) },
+    { kluc: "cena-od-jedno", text: suma(await cenaTypu("jedno")) },
+    { kluc: "cena-od-dvoj", text: suma(await cenaTypu("dvoj")) },
+    { kluc: "cena-od-classic", text: suma(await cenaTypu("kufor-classic")) },
+    { kluc: "cena-od-premium", text: suma(await cenaTypu("kufor-premium")) },
+    { kluc: "cena-od-boxy", text: suma(box.cena) },
     // cena typu v ZADANOM vzore (integrácia 14. 10. 2026, Classic FAQ 11) — nezávisle: GET stránky toho vzoru z registra
-    { kluc: "cena-od-classic-diamond", text: NBSP_EUR((await zivaStranka(sestra(reg, "kufor-classic", "diamond").url)).cena) },
-    { kluc: "cena-od-classic-hexa", text: NBSP_EUR((await zivaStranka(sestra(reg, "kufor-classic", "hexa").url)).cena) },
-    { kluc: "cena-od-premium-stripe", text: NBSP_EUR((await zivaStranka(sestra(reg, "kufor-premium", "stripe").url)).cena) },
-    { kluc: "set-classic", text: NBSP_EUR(classic) },
-    { kluc: "set-premium", text: NBSP_EUR(premium) },
-    { kluc: "set-usetrite-classic", text: NBSP_EUR((await cenaTypu("kufor-classic")) - classic) },
-    { kluc: "box-sam-M", text: NBSP_EUR(box.cena + velkost(box, /\b1\.\s*box/i, "M")) },
-    { kluc: "box-sam-XL", text: NBSP_EUR(box.cena + velkost(box, /\b1\.\s*box/i, "XL")) },
-    { kluc: "box2-sam-XL", text: NBSP_EUR(velkost(box, /\b2\.\s*box/i, "XL")) },
-    { kluc: "box-set-L", text: NBSP_EUR(velkost(jedno, /box\s*solo/i, "L")) },
-    { kluc: "box-set2-S", text: NBSP_EUR(velkost(jedno, /\b1\.\s*box/i, "S")) },
+    { kluc: "cena-od-classic-diamond", text: suma((await zivaStranka(sestra(reg, "kufor-classic", "diamond").url)).cena) },
+    { kluc: "cena-od-classic-hexa", text: suma((await zivaStranka(sestra(reg, "kufor-classic", "hexa").url)).cena) },
+    { kluc: "cena-od-premium-stripe", text: suma((await zivaStranka(sestra(reg, "kufor-premium", "stripe").url)).cena) },
+    { kluc: "set-classic", text: suma(classic) },
+    { kluc: "set-premium", text: suma(premium) },
+    { kluc: "set-usetrite-classic", text: suma((await cenaTypu("kufor-classic")) - classic) },
+    { kluc: "box-sam-M", text: suma(box.cena + velkost(box, /\b1\.\s*box/i, "M")) },
+    { kluc: "box-sam-XL", text: suma(box.cena + velkost(box, /\b1\.\s*box/i, "XL")) },
+    { kluc: "box2-sam-XL", text: suma(velkost(box, /\b2\.\s*box/i, "XL")) },
+    { kluc: "box-set-L", text: suma(velkost(jedno, /box\s*solo/i, "L")) },
+    { kluc: "box-set2-S", text: suma(velkost(jedno, /\b1\.\s*box/i, "S")) },
     { kluc: "pocet-farieb", text: farby(/^(farba|barva)\s*1\.?\s*vrstv/i) },
-    { kluc: "pocet-farieb-2", text: farby(/^(farba|barva)\s*2\.?\s*vrstv/i) || "bez druhej vrstvy", bez: "bez druhej vrstvy" },
+    { kluc: "pocet-farieb-2", text: farby(/^(farba|barva)\s*2\.?\s*vrstv/i) || bezDruhej, bez: bezDruhej },
     { kluc: "vzor", text: v ? v.charAt(0).toUpperCase() + v.slice(1) + " Line" : null },
     // na rohoži úspora setu; inde nezistená -> náhradný text
-    { kluc: "set-usetrite", bez: "bez úspory", text: /^kufor-/.test(produkt.typ) ? NBSP_EUR(ja.cena - (produkt.typ === "kufor-premium" ? premium : classic)) : "bez úspory" },
+    { kluc: "set-usetrite", bez: bezUspory, text: /^kufor-/.test(produkt.typ) ? suma(ja.cena - (produkt.typ === "kufor-premium" ? premium : classic)) : bezUspory },
     { kluc: "neexistuje-xyz", text: null },
   ];
   const odkazy = ["jedno", "dvoj", "classic", "premium", "boxy"].map((t) => {

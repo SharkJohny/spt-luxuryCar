@@ -109,7 +109,7 @@ export async function kontroly(t) {
     const po = await t.ev(`[document.querySelector(${JSON.stringify(F + " .lx-farby-meno")}).textContent,document.querySelector(${JSON.stringify(F + " .lx-farby-cislo")}).textContent,document.querySelectorAll(${JSON.stringify(F + " .lx-farby-vzorka")})[1].getAttribute("aria-pressed")]`);
     // 2. farba: Diamond (598) zo statického HTML; Hexa/Stripe (610/613) = 2. farba živého kroku Farba tohto produktu
     const vzor = (t.produkt && t.produkt.vzor) || "diamond";
-    const druhaFarba = vzor === "diamond" ? "Čierna · modré šitie"
+    const druhaFarba = vzor === "diamond" ? t.preloz("Čierna · modré šitie")
       : await t.ev(`(function(){var b=document.querySelectorAll(".lcd1v-k-farba .options-wrap > .option-button")[1];return b?(b.getAttribute("data-lcd1v-nazov")||"").replace(/\\s*\\/\\s*/g," · "):null})()`);
     ok(po[0] === druhaFarba && po[1] === "02" && po[2] === "true", `farby: klik na 2. vzorku prepol názov („${druhaFarba}“), číslo aj fotku ` + JSON.stringify(po));
   } catch (e) { ok(false, "farby: " + e.message); }
@@ -125,7 +125,7 @@ export async function kontroly(t) {
     // dvojvrstvové (plugin dvoj používa aj skupinu C): sekcia má skutočné fotky RÔZNYCH vzorov s pravdivým popisom — nemení sa
     if (new Set(f.vzorky).size > 1) ok(true, `farby ${t.produkt ? t.produkt.id : ""}: zmiešané fotky vzorov (${[...new Set(f.vzorky)].join(", ")}) — ostávajú`);
     else if (vzor === "diamond") ok(f.vzorky.every((x) => x === "Diamond Line"), "farby " + (t.produkt ? t.produkt.id : "598") + ": vzorky Diamond Line");
-    else ok(f.n === "Vzorka · " + meno && f.vzorky.every((x) => x === meno) && !f.diamond && !f.fotkyDiamond && f.pocet === f.farbyKroku && f.pocet > 0,
+    else ok(f.n === (t.cz ? "Vzorek · " : "Vzorka · ") + meno && f.vzorky.every((x) => x === meno) && !f.diamond && !f.fotkyDiamond && f.pocet === f.farbyKroku && f.pocet > 0,
       `farby ${t.produkt.id}: vlastný vzor „${f.n}“, ${f.pocet} vzoriek = ${f.farbyKroku} farieb produktu, bez Diamond (text ${f.diamond}, fotky ${f.fotkyDiamond}), štítok „${(f.stitok || "").replace(/\s+/g, " ").trim()}“`);
   }
 

@@ -21,6 +21,7 @@
 //                lcd-reviews v starom popise). Nič natvrdo: keď dáta do 30 s neprídu, sekcia sa skryje (.p1v-rev-bez).
 import { lxModulyOziv } from "../../lcdHomeModuly.js";
 import { lcdMultiKoren } from "../../functions/lcdOziv.js";
+import { prelozRetazecCz } from "./texty-cz.js";
 
 export const MENO = "obsah-a";
 
@@ -212,18 +213,30 @@ function prvok(tag, trieda, text) {
   return e;
 }
 
-/** výber: najprv autori z data-p1v-vyber (poradie), potom pravidlo 5★ + ≥2 fotky + dlhší text, spolu data-p1v-pocet */
-function vyberRecenzie(sek, zoznam) {
-  const pocet = Math.max(1, Number(sek.getAttribute("data-p1v-pocet")) || 12);
-  const dobra = (r) => r && Number(r.rating) >= 4 && String(r.text || "").trim().length >= 40;
+const dobraRecenzia = (r) => r && Number(r.rating) >= 4 && String(r.text || "").trim().length >= 40;
+
+const TEXT_DALSIE_RECENZIE = "Zobraziť ďalšie recenzie";
+
+/**
+ * Poradie recenzií: autori z data-p1v-vyber, potom doterajšie pravidlo 5★ + ≥2 fotky + dlhší text a napokon
+ * ostatné recenzie s textom v poradí zdroja. Prvých data-p1v-pocet je tým pádom presne doterajší výber.
+ */
+function zoradRecenzie(sek, zoznam) {
   const out = [];
   (sek.getAttribute("data-p1v-vyber") || "").split("|").map((x) => x.trim()).filter(Boolean).forEach((meno) => {
     const r = zoznam.find((x) => x && x.author === meno);
-    if (dobra(r) && out.indexOf(r) === -1) out.push(r);
+    if (dobraRecenzia(r) && out.indexOf(r) === -1) out.push(r);
   });
-  zoznam.filter((r) => dobra(r) && Number(r.rating) >= 5 && (r.photos || []).length >= 2 && String(r.text).length >= 200)
-    .forEach((r) => { if (out.length < pocet && out.indexOf(r) === -1) out.push(r); });
-  return out.slice(0, pocet);
+  zoznam.filter((r) => dobraRecenzia(r) && Number(r.rating) >= 5 && (r.photos || []).length >= 2 && String(r.text).length >= 200)
+    .forEach((r) => { if (out.indexOf(r) === -1) out.push(r); });
+  // „Zobraziť ďalšie“: všetky ďalšie recenzie s textom (Michal 26. 10. 2026: „máme skoro 90 recenzií na Google“), aj krátke
+  zoznam.filter((r) => r && Number(r.rating) >= 4 && String(r.text || "").trim()).forEach((r) => { if (out.indexOf(r) === -1) out.push(r); });
+  return out;
+}
+
+function vyberRecenzie(sek, zoznam) {
+  const pocet = Math.max(1, Number(sek.getAttribute("data-p1v-pocet")) || 12);
+  return zoradRecenzie(sek, zoznam).slice(0, pocet);
 }
 
 /** fotky = sekcia je blízko okna (sťahovať hneď), inak prázdny obrázok a adresa v data-p1v-foto (recenzie() ich doplní) */
@@ -236,10 +249,28 @@ function vykresliRecenzie(sek, pas, d, fotky, trh) {
     sub.textContent = pocet + " " + tvar + " na Google · " + (trh === "cz" ? "hodnocení " : "hodnotenie ") + cislo1(hodnotenie);
   }
   const g = sek.querySelector(".revhead .gmark");
+  const vsetky = zoradRecenzie(sek, d.reviews);
+  const vybrane = vyberRecenzie(sek, d.reviews);
   const frag = document.createDocumentFragment();
-  vyberRecenzie(sek, d.reviews).forEach((r) => frag.appendChild(kartaRecenzie(r, g, fotky, trh)));
+  vybrane.forEach((r) => frag.appendChild(kartaRecenzie(r, g, fotky, trh)));
   while (pas.firstChild) pas.removeChild(pas.firstChild); // prázdny komentár <!-- --> z adminu (TinyMCE) alebo zástupca
   pas.appendChild(frag);
+  const stary = sek.querySelector(".p1v-rev-viac");
+  if (stary) stary.remove();
+  const zvysok = vsetky.slice(vybrane.length);
+  if (zvysok.length) {
+    const text = trh === "cz" ? prelozRetazecCz(TEXT_DALSIE_RECENZIE) : TEXT_DALSIE_RECENZIE;
+    const tl = prvok("button", "btn ghost p1v-rev-viac", text + " (" + zvysok.length + ")");
+    tl.type = "button";
+    tl.addEventListener("click", () => {
+      const dalsie = document.createDocumentFragment();
+      zvysok.forEach((r) => dalsie.appendChild(kartaRecenzie(r, g, true, trh)));
+      pas.appendChild(dalsie);
+      tl.remove();
+    }, { once: true });
+    const obal = sek.querySelector(".revwrap") || pas.parentNode;
+    obal.appendChild(tl);
+  }
 }
 
 /** Adresa náhľadu fotky recenzie: …/assets/img/reviews/rg-N-I.jpg -> …/assets/img/reviews/m/rg-N-I.jpg (iné adresy bez zmeny). */

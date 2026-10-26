@@ -8,14 +8,15 @@
 // Porovnanie: text otázky aj odpovede bez bielych znakov (&nbsp; aj medzery medzi odsekmi nie sú obsah), poradie, počet, odkazy
 // (href) a obrázky (src) v odpovediach. /faq/ si stiahne samotná stránka (to isté robí živý index.js na každom produkte) a parsuje
 // ju DOMParserom — inertný dokument, nič sa z neho nesťahuje ani nespúšťa.
-export const ZIVE_FAQ = "/faq/";
+export const ZIVE_FAQ = { sk: "https://www.luxurycardesign.sk/faq/", cz: "https://www.luxurycardesign.cz/faq/" };
 
 export function faqAkoZive(t, sel) {
+  const faq = ZIVE_FAQ[t.web === "cz" ? "cz" : "sk"];
   return t.ev(`(async function () {
     var bez = function (s) { return String(s || "").replace(/[\\s\\u00a0\\u202f]+/g, ""); };
     var citat = function (s) { return String(s || "").replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(); };
     var html = "";
-    try { html = await fetch(${JSON.stringify(ZIVE_FAQ)}, { credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : ""; }); } catch (e) { html = ""; }
+    try { html = await fetch(${JSON.stringify(faq)}, { credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : ""; }); } catch (e) { html = ""; }
     var doc = new DOMParser().parseFromString(html, "text/html");
     var src = [].map.call(doc.querySelectorAll("div[itemprop='about']"), function (x) { return x.innerHTML; }).join("");
     var zive = [];
@@ -37,7 +38,7 @@ export function faqAkoZive(t, sel) {
         i: a ? [].map.call(a.querySelectorAll("img[src]"), function (x) { return x.getAttribute("src"); }) : [] };
     }) : [];
     var rozdiely = [];
-    if (!zive.length) rozdiely.push("živé FAQ z " + ${JSON.stringify(ZIVE_FAQ)} + " sa nedalo prečítať");
+    if (!zive.length) rozdiely.push("živé FAQ z " + ${JSON.stringify(faq)} + " sa nedalo prečítať");
     if (zive.length !== web.length) rozdiely.push("počet otázok " + web.length + " ≠ živé " + zive.length);
     var prvy = function (x, y) { var k = 0; while (k < x.length && x[k] === y[k]) k++; return k; };
     for (var k = 0; k < Math.min(zive.length, web.length); k++) {
