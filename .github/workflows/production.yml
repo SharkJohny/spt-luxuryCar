@@ -60,8 +60,8 @@ jobs:
           cp assets/css/luxuryCar.min.css "$REL/css/luxuryCar.css"
           cp assets/poukazka/* "$REL/poukazka/"
           # Obsah pod konfigurátorom 1V (rozhodnutia D1 = b, docs/1v-obsah.md): obsah.js ho stiahne z tej istej verzie
-          # (…/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html) LEN pod bránou ?novy=1 / ?novy=vyvoj. Len SK kusy obsahu 1V.
-          cp admin-html/dist/p1v-*.sk.html "$REL/html/"
+          # (…/assets/v/<sha>/html/p1v-<kľúč>-<n>.<sk|cz>.html) — kusy, ktoré nie sú v Popise produktu. SK aj CZ (26. 10. 2026).
+          cp admin-html/dist/p1v-*.sk.html admin-html/dist/p1v-*.cz.html "$REL/html/"
           rm assets/js/luxuryCar.js assets/js/lcd-truck.js assets/js/lcd-gsap.js assets/js/lcd-reels.js assets/js/lcd-hp.js assets/js/reviews-data.js assets/js/lcd-reviews.js assets/js/lcd-videos.js assets/css/luxuryCar.css assets/css/luxuryCar.min.css
           rm -r assets/poukazka
           echo "Verzia pripravená: $REL"; ls -la "$REL/js" "$REL/css" "$REL/poukazka" "$REL/html"
