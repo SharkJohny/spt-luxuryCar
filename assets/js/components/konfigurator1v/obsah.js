@@ -798,7 +798,7 @@ export function init(ctx) {
   // Len zrýchlenie — chyba nechá JPG a nič iné nemení (do ctx.chyby nejde, nový vzhľad sa kvôli nej neskladá).
   vDom.forEach((k) => {
     const cast = k.getAttribute("data-lcd-cast");
-    try { stav.webp[cast] = obalWebp(k); } catch (e) {
+    try { stav.webp[cast] = obalWebp(k, ctx.trh); } catch (e) {
       stav.webp[cast] = "chyba: " + ((e && e.message) || e);
       console.error("[lcd-1v] " + MENO + " webp " + cast, e);
     }

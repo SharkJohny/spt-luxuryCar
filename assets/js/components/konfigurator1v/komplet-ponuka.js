@@ -40,7 +40,7 @@
 // Nič s atribútom name, žiadny zápis do formulára tejto stránky. Bez flagu nič (brána).
 import { najdiProdukt, jeZapnutyTyp } from "./produkty.js";
 import { stranka, moznostiZMapy } from "./ceny-ine.js";
-import { posunNaStred } from "./posun.js";
+import { posunNaStred, posunNaSuhrn } from "./posun.js";
 import { zapisVyber } from "./prenos.js";
 import { nazovFarby } from "./kroky.js";
 import { velkostZTextu } from "./boxy-produkt.js";
@@ -367,7 +367,7 @@ export function init(ctx) {
     } else {
       // box s úplným výberom (po „Pokračujte k súhrnu“ alebo hlavičkou): ako „Pokračujte k súhrnu“ (kroky.js) — súhrn s košíkom
       lcdGetSteps().forEach((s) => { if (s.classList.contains("active")) nastavOtvoreny(s, false); });
-      posunNaStred(document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik"));
+      posunNaSuhrn(document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik")); // súhrn od vrchu (Michal 26. 10. 2026)
     }
     obnov();
   });

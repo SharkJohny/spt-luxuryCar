@@ -496,7 +496,7 @@ function textMapyWebp(mapa) {
     "// GENEROVANÉ: node tools/build-admin-html.mjs (z admin-html/src + assets/img/1v/obsah) — needitovať ručne; --check ho",
     "// porovná. Obaly <picture> s WebP pre kus 1 obsahu 1V v Popise produktu (build --bez-webp) — presne ako dist na CDN.",
     "// Použitie: obsah-webp.js (obsah.js, cesta a). Pozri tools/build-admin-html.mjs „mapa WebP pre kus 1 v Popise“.",
-    "// KUSY[cast] = { v: data-lcd-v kusu v Popise, f: [[meno JPG, poradie <img> s tým istým src v kuse, šírky WebP, index SIZES, 1 = MEDIA]] }",
+    "// KUSY[cast] (CZ: cast + \".cz\") = { v: data-lcd-v kusu v Popise, f: [[meno JPG, poradie <img> s tým istým src v kuse, šírky WebP, index SIZES, 1 = MEDIA]] }",
     `export const ZAKLAD = ${JSON.stringify(CDN_1V)};`,
     `export const MEDIA = ${JSON.stringify(MEDIA_S2)};`,
     `export const SIZES = [\n${OBRAZKY_1V.map((p) => "  " + JSON.stringify(p[2])).join(",\n")},\n];`,
@@ -886,7 +886,7 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
       const r = obrazky1v(obsah, { s2: menaS2(SRC) });
       /* kus 1 ide do Popisu bez obalov (--bez-webp): mapa obalov do bundla (sekcia „mapa WebP“), počíta sa vždy, aj s --bez-webp */
       if (jeKusPopisu(cast) && r.obaly.length) {
-        mapaWebp[cast] = { v: hashObsahu(obsah), obaly: r.obaly };
+        mapaWebp[web === "sk" ? cast : cast + "." + web] = { v: hashObsahu(obsah), obaly: r.obaly }; // CZ kus má iný text -> vlastný kľúč (SK bez prípony)
         if (aplikujMapuWebp(obsah, r.obaly) !== r.html) chybyMapy.push("mapa WebP pre Popis: obaly z mapy na kuse --bez-webp nedajú presne dist (obsah-webp-mapa.js by obalil inak)");
       }
       if (!BEZ_WEBP) ({ html: obsah, pocet: webp } = r);

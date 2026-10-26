@@ -154,6 +154,16 @@ function kontrola(t, j, { bezAnimacie }) {
       else if (dlzka > 150) j.over(m.polohy >= 4, `${popis}: posun o ${dlzka} px nebol plynulý (${m.polohy} polôh stránky)`);
       vysl.push(popis + " " + v.text.replace(/ \(.*?\)/, "") + (dlzka ? ` (posun ${dlzka} px, ${m.polohy} polôh)` : ""));
     },
+    /** Súhrn od vrchu (Michal 26. 10. 2026): prvá viditeľná karta 0–30 px pod hlavičkou (alebo stránka na konci). */
+    async overSuhrn(popis) {
+      const sel = `${F} .lcd1v-krok`;
+      const i = await t.ev(`Array.prototype.findIndex.call(document.querySelectorAll(${JSON.stringify(sel)}), function (e) { return e.offsetHeight > 0; })`);
+      const m = await ustalene(t, sel, Math.max(0, i));
+      const od = m ? m.top - m.hH : null, dole = m && m.y >= m.max - 1;
+      const ok = !!m && ((od >= 0 && od <= HORE_MAX) || (dole && od > HORE_MAX));
+      j.over(ok, `${popis}: prvá karta súhrnu nie je hore pod hlavičkou — vrch ${od} px pod hlavičkou ${JSON.stringify(m)}`);
+      vysl.push(popis + ` vrch ${od} px pod hlavičkou` + (dole ? ", stránka dole" : ""));
+    },
   };
 }
 
@@ -209,7 +219,7 @@ async function prechody(s, a, ovl, j, { bezAnimacie = false } = {}) {
       await t.klikni(`${F} .lcd1v-komplet.active .lcd1v-komplet__nie`, { popis: "Nie, ďakujem (ponuka setu)" });
       await t.cakaj(`!document.querySelector("${F} .lcd1v-komplet.active")`, { ms: 8000, popis: "ponuka zbalená" });
     }
-    await k.over("súhrn", `${F} .lcd1v-suhrn`);
+    await k.overSuhrn("súhrn");
   } else {
     // karty s autom: vzor -> auto (na telefóne vyšší ako plocha -> vrch pod hlavičku)
     await otvorKartu(t, "vzor");
@@ -258,7 +268,7 @@ async function prechody(s, a, ovl, j, { bezAnimacie = false } = {}) {
       await dalej(t, "boxy", "Pokračujte k súhrnu (boxy)");
     }
     await t.cakaj(ZIADNY_OTVORENY, { ms: 8000, popis: "kroky zatvorené po „Pokračujte k súhrnu“" });
-    await k.over("súhrn", `${F} .lcd1v-suhrn`);
+    await k.overSuhrn("súhrn");
   }
   j.over(s.posty.length === 0, "scenár bez košíka poslal POST: " + (s.posty[0] && s.posty[0].body));
   return { info: (bezAnimacie ? "bez animácie: " : "") + k.vysl.join("; ") };
@@ -846,7 +856,8 @@ async function poruchaPokus(s, a, ovl, j, druh) {
     return { info: `${meno}: švihnutie ${m[2]} px (vstup ${m[0]} ms) posun zrušilo, posun.js skončil ${z.koniec} ms po kliku, posuny ${JSON.stringify(z.posuny)}` };
   }
   try {
-    await kon.over(`${meno} (${druh})`, sel, p.index);
+    if (meno === "súhrn") await kon.overSuhrn(`${meno} (${druh})`); // súhrn od vrchu (Michal 26. 10. 2026)
+    else await kon.over(`${meno} (${druh})`, sel, p.index);
   } catch (e) {
     // porucha nenastala tak, ako má (pomalý beh) -> neoveril; inak skutočná chyba posunu
     const z = await stav().catch(() => null);

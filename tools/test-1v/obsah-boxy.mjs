@@ -163,7 +163,7 @@ async function ocakavane() {
  *  (rozhodnutie Michala 14. 10. 2026) — pravidlá nových textov sa naň nevzťahujú, stráži ho kontrolaFaqZive. */
 function kontrolaZdroja() {
   const dir = join(KOREN, "admin-html/src/p1v-boxy");
-  const subory = readdirSync(dir).filter((f) => /\.html$/.test(f));
+  const subory = readdirSync(dir).filter((f) => /\.sk\.html$/.test(f)); // pravidlá SK textov (CZ .cz.html stráži kontrola prekladu)
   const text = (h) => h.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
   const surove = subory.map((f) => ({ f, h: readFileSync(join(dir, f), "utf8") }));
   const bezKom = (h) => h.replace(/<!--[\s\S]*?-->/g, "");

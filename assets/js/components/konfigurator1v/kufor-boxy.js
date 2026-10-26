@@ -259,7 +259,10 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   vloz(vyber, el("div", { class: "lcd1v-bx__hd" }, [el("h3", { class: "lcd1v-bx__nadpis", id: nadpisId, text: T.okno.nadpis }), xBtn]), vyber.firstChild);
   vloz(vyber, podOkna, vyber.children[1]);
   const okBtn = el("button", { type: "button", class: "lcd1v-bx__ok", text: T.okno.potvrdit });
-  vloz(vyber, okBtn, null);
+  // päta okna prilepená dole (CSS sticky): „Potvrďte výber boxov“ vidno vždy, netreba k nemu rolovať — na iPhone prvé
+  // ťuknutie počas dobehu / odskoku rolovania okna len zastavilo rolovanie a klik neprešiel (Michal 26. 10. 2026)
+  const pata = el("div", { class: "lcd1v-bx__pata" }, [okBtn]);
+  vloz(vyber, pata, null);
   atribut(vyber, "role", "dialog");
   atribut(vyber, "aria-modal", "true");
   atribut(vyber, "aria-labelledby", nadpisId);
@@ -312,7 +315,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     });
   });
   // vzory kresby: jedna sada v okne (premenné farby --bxp-* sú na okne, vzory ich dedia podľa miesta v DOM)
-  vloz(vyber, definicieKresby(PREDPONA_KRESBY), okBtn);
+  vloz(vyber, definicieKresby(PREDPONA_KRESBY), pata);
   vytvorene.push(function () { zrusFarbuKresby(vyber); });
   /**
    * Farba kresby = farba boxov zvolená v okne (živý select), bez farby predvolená (Michal 18. 10. 2026); popis pod

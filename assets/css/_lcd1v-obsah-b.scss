@@ -209,8 +209,9 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:n
    podľa polohy fotky): úvodná veta, celá fotka od kraja po kraj (2,14 : 1). */
 @media(max-width:760px){
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-p{display:block}
-  /* pomer fotky 2,14 : 1 ako návrh (titulka má na telefóne 1,5) — v lepenej scéne aj v zálohe bez lepenia */
-  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"] .lx-pp-main{--lx-pomer:2.1374}
+  /* pomer fotky 2,14 : 1 len v zálohe bez lepenia. Lepená scéna má na telefóne na výšku 1,5 : 1 ako titulka (Michal 26. 10. 2026:
+     úzky pás 2,14 : 1 bol „stiesnený“ a nad aj pod ním zívala prázdna plocha) */
+  body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-pp-main{--lx-pomer:2.1374}
   body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) [data-lcd-sekcia="b-predapo"].lx-bez-lepu .lx-pp-stage{width:calc(100% + var(--pad) * 2);margin-inline:calc(var(--pad) * -1)}
 }
 

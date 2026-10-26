@@ -259,3 +259,12 @@ export function posunNaStred(el, cielFn) {
     })();
   }
 }
+
+/** Súhrn po poslednom kroku od vrchu: prvá viditeľná karta (zatvorené kroky = rekapitulácia výberu) 12 px pod hlavičku
+ *  webu, aby zákazník videl celý výber od prvého riadku (Michal 26. 10. 2026; predtým „Spolu“ do stredu, 24. 10.).
+ *  Bez kariet -> `nahradny` (súhrn / košík) do stredu ako doteraz. */
+export function posunNaSuhrn(nahradny) {
+  const prva = Array.prototype.find.call(document.querySelectorAll(".lcd1v-krok"), (e) => e.offsetHeight > 0);
+  if (prva) posunNaStred(prva, cielNaVrch);
+  else posunNaStred(nahradny);
+}

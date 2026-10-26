@@ -686,7 +686,7 @@ const SCENARE = {
       if (P.typ === "kamion") {
         // kamióny: vlastné kroky (#lcd1v-kamion), otázky „Prosím, vyberte si …“ / „Prosíte si …?“; React sa nesmie namontovať
         const nk = await t.ev(`Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .k-krok__ti"), function (e) { return e.textContent.trim(); })`);
-        const reNadpis = a.web === "cz" ? /^Vyberte si prosím \S|^Přejete si \S.*\?$/ : /^Prosím, vyberte si \S|^Prosíte si \S.*\?$/;
+        const reNadpis = a.web === "cz" ? /^(Vyberte si prosím|Prosím, vyberte si) \S|^Přejete si \S.*\?$/ : /^Prosím, vyberte si \S|^Prosíte si \S.*\?$/; // CZ kamióny (texty-cs.js) majú „Prosím, vyberte si …“
         over(nk.length >= 5 && nk.every((x) => reNadpis.test(x)), "nadpisy krokov kamiónov: " + JSON.stringify(nk));
         over(await t.ev(`!document.getElementById("truck-konfigurator-root")`), "s ?novy=" + a.flag + " sa na kamiónoch namontoval aj React");
         info.push(nk.length + " krokov kamiónov, React nie");

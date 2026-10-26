@@ -30,7 +30,7 @@
 // Pokus prejsť na kartu za autom bez auta (hlavička, voľba) = „Pokračujte ďalej“ v karte auta, bez výzvy (Michal
 //   16. 10. 2026, docs/1v-kontrakt.md §15; handler „pokus prejsť ďalej bez auta“ nižšie, validation.js pod 1V mlčí).
 import { lcdOverKrok } from "../../functions/configuratorEngine.js";
-import { posunNaStred } from "./posun.js";
+import { posunNaStred, posunNaSuhrn } from "./posun.js";
 // náhľad farby: plná fotka, kým sa sťahuje, obrázok dlaždice (dlaždice majú zmenšené náhľady, farby-nahlady.js)
 import { nastavVelkyNahlad } from "./farby-nahlady.js";
 import { prelozTextyCz } from "./texty-cz.js";
@@ -597,7 +597,7 @@ export function init(ctx) {
       if (typeof window.__lcdSetStepOpen === "function") window.__lcdSetStepOpen(k.el, false);
       else k.el.classList.remove("active");
     }
-    posunNaStred(document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik")); // stred viditeľnej plochy (Michal 24. 10. 2026)
+    posunNaSuhrn(document.querySelector(".lcd1v-suhrn") || ctx.krok("kosik")); // súhrn od vrchu (Michal 26. 10. 2026)
     naplanuj();
   }, true);
 

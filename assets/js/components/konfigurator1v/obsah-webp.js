@@ -22,11 +22,13 @@ function maLazy() {
 /**
  * Obalí fotky kusu z Popisu do <picture> s WebP podľa mapy z buildu.
  * @param {Element} koren koreň kusu [data-lcd-cast="p1v-<kľúč>-<n>"] z DOM
+ * @param {string} [trh] ctx.trh — CZ kus má v mape kľúč „<cast>.cz“ (iný text = iná verzia), SK bez prípony
  * @returns {number|string} počet obalených fotiek, alebo dôvod, prečo nič: "bez mapy" | "iná verzia" | "bez lazy"
  */
-export function obalWebp(koren) {
+export function obalWebp(koren, trh) {
   const cast = (koren && koren.getAttribute && koren.getAttribute("data-lcd-cast")) || "";
-  const m = Object.prototype.hasOwnProperty.call(KUSY, cast) ? KUSY[cast] : null;
+  const kluc = trh && trh !== "sk" ? cast + "." + trh : cast;
+  const m = Object.prototype.hasOwnProperty.call(KUSY, kluc) ? KUSY[kluc] : null;
   if (!m) return "bez mapy";
   if (koren.getAttribute("data-lcd-v") !== m.v) return "iná verzia";
   if (!maLazy()) return "bez lazy";
