@@ -37,7 +37,9 @@ export const NAZVY_FARIEB = {
   // Prémiová syntetická koža – tónovaná (Skóra syntetyczna gładka – Premium PES)
   "2PES": { sk: "svetlosivobéžová", cs: "světle šedobéžová", en: "light grey-beige" },
   "5PES": { sk: "koňaková", cs: "koňaková", en: "cognac" },
+  "6PES": { sk: "sivá", cs: "šedá", en: "grey" }, // nové 26. 10. 2026
   "7PES": { sk: "tmavosivá", cs: "tmavě šedá", en: "dark grey" },
+  "8PES": { sk: "svetlohnedá", cs: "světle hnědá", en: "light brown" }, // nové 26. 10. 2026
   "9PES": { sk: "hnedá", cs: "hnědá", en: "brown" },
   "11PES": { sk: "tmavohnedá", cs: "tmavě hnědá", en: "dark brown" },
   // Mikrosemiš – jednofarebný (Nubuck)

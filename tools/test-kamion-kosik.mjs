@@ -786,15 +786,15 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
 
 {
   // 24. 10. 2026: kódy farieb podľa nového vzorkovníka dodávateľa (Desktop\WZORNIKI KOLORÓW). Prešívaná 1–14 a Mikrosemiš
-  // dvojfarebný 1N–6N (predtým 2–15 / 2N–7N, tie isté farby o 1 vyššie), tónovaná 2/5/7/9/11PES (predtým PES2–PES6).
+  // dvojfarebný 1N–6N (predtým 2–15 / 2N–7N, tie isté farby o 1 vyššie), tónovaná 2/5/7/9/11PES (predtým PES2–PES6), 26. 10. pribudli 6PES a 8PES.
   // Kód ide do poznámky objednávky -> musí sedieť s vzorkovníkom; nový aj starý (React) konfigurátor rovnako.
   const TX = (await nacitajModul("assets/js/components/konfigurator1v/kamion/texty.js")).TEXTY;
   // mená = schválený zoznam (truck-konfigurator/farby-nazvy.mjs, Michal 25. 10. 2026); pevné bodové kontroly nižšie
   const FN = await nacitajModul("assets/js/truck-konfigurator/farby-nazvy.mjs");
   const OCAK = {};
   DT.MATERIALY.forEach((m) => { OCAK[m.nazov] = {}; m.farby.forEach((f) => { OCAK[m.nazov][f.kod] = FN.nazovFarbyVelky(f.kod); }); });
-  over("23: každý kód farby má schválený názov (48)", Object.values(OCAK).every((o) => Object.values(o).every(Boolean)) &&
-    Object.values(OCAK).reduce((s, o) => s + Object.keys(o).length, 0) === 48, J(OCAK));
+  over("23: každý kód farby má schválený názov (50)", Object.values(OCAK).every((o) => Object.values(o).every(Boolean)) &&
+    Object.values(OCAK).reduce((s, o) => s + Object.keys(o).length, 0) === 50, J(OCAK));
   const BOD = { "5": "Čierna, červené šitie", "11": "Čierna, čierne šitie", "10": "Tmavosivá, tmavosivé šitie", "9PES": "Hnedá", "11PES": "Tmavohnedá", "2N": "Sivý", "3D": "Sivý", "10G": "Čierna" };
   over("23: bodová kontrola názvov farieb", Object.entries(BOD).every(([k, v]) => FN.nazovFarbyVelky(k) === v), J(Object.keys(BOD).map((k) => k + "=" + FN.nazovFarbyVelky(k))));
   over("23: názov do objednávky", FN.materialFarbaText("Prémiová syntetická koža – prešívaná", "5") === "Prémiová syntetická koža – prešívaná – čierna, červené šitie – 5" &&

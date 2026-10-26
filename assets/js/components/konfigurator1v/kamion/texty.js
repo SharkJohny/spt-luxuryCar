@@ -135,7 +135,7 @@ export const TEXTY = {
      "nazov": "Prémiová syntetická koža",
      "variant": "tónovaná",
      "popis": "Povrch s jemne žíhaným, vintage vzhľadom.",
-     "farby_text": "5 farieb"
+     "farby_text": "7 farieb"
     },
     {
      "shoptet": "Mikrosemiš – jednofarebný",
@@ -291,6 +291,10 @@ export const TEXTY = {
       "meno": "Tmavosivá"
      },
      {
+      "kod": "6PES",
+      "meno": "Sivá"
+     },
+     {
       "kod": "2PES",
       "meno": "Svetlosivobéžová"
      },
@@ -301,6 +305,10 @@ export const TEXTY = {
      {
       "kod": "9PES",
       "meno": "Hnedá"
+     },
+     {
+      "kod": "8PES",
+      "meno": "Svetlohnedá"
      },
      {
       "kod": "5PES",
