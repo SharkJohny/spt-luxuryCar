@@ -15,12 +15,12 @@ export const SIZES = [
   "(max-width:900px) 11vw, 64px",
 ];
 export const KUSY = {
-  "p1v-598-1": { v: "c144b456a4", f: [
+  "p1v-598-1": { v: "ea6db0feb1", f: [
     ["b-ocakavat-farba-interieru",0,[480,760],0,1],
     ["b-ocakavat-treti-rad",0,[480,760],0,1],
     ["b-ocakavat-zvierata",0,[480,760],0,1],
   ] },
-  "p1v-boxy-1": { v: "ce91fb3b84", f: [
+  "p1v-boxy-1": { v: "6177632cf6", f: [
     ["boxy-pred-cely",0,[480,800,1400],2,0],
     ["boxy-po-cely",0,[480,800,1400],2,0],
     ["boxy-ocakavat-1",0,[480,760],0,1],
@@ -49,7 +49,7 @@ export const KUSY = {
     ["boxy-galeria-8",1,[480,800],1,0],
     ["boxy-set",0,[480,800],3,0],
   ] },
-  "p1v-classic-1": { v: "38df8250bc", f: [
+  "p1v-classic-1": { v: "3884e2d7e8", f: [
     ["classic-pred",0,[480,900],2,0],
     ["classic-po",0,[480,900],2,0],
     ["classic-d7",0,[480,800,1024],1,0],
@@ -80,7 +80,7 @@ export const KUSY = {
     ["classic-cmp-us",0,[480,776],5,0],
     ["classic-cmp-prem",0,[480,776],5,0],
   ] },
-  "p1v-dvoj-1": { v: "a93b3543c0", f: [
+  "p1v-dvoj-1": { v: "2ac8815ad2", f: [
     ["dvoj-gal-hexa-lux",0,[480,760],1,0],
     ["dvoj-gal-diamond-lux",0,[480,760],1,0],
     ["dvoj-gal-kodiaq",0,[520],1,0],
@@ -97,7 +97,7 @@ export const KUSY = {
     ["dvoj-material-lux10",0,[480,800,1346],6,0],
     ["dvoj-porovnanie-original",0,[480,776],5,0],
   ] },
-  "p1v-premium-1": { v: "3ff609aab0", f: [
+  "p1v-premium-1": { v: "98606bbc31", f: [
     ["premium-kufor-bez-rohoze",0,[480,900],2,0],
     ["premium-rohoz-v-kufri",0,[480,900],2,0],
     ["premium-diamond-cierna-cervena",0,[480,800,1200],1,0],

@@ -217,9 +217,9 @@
         "pole": "Popis stránky (description)",
         "url": "/kontakty/"
       },
-      "znaky": 2480,
-      "bajty": 2514,
-      "hash": "83dc42af3c",
+      "znaky": 2479,
+      "bajty": 2515,
+      "hash": "b7f6d14230",
       "obrazky": 0
     },
     {
@@ -301,51 +301,51 @@
           2418
         ]
       },
-      "znaky": 35479,
-      "bajty": 36388,
-      "hash": "0d28ce78a7",
+      "znaky": 35420,
+      "bajty": 36396,
+      "hash": "f8d23a5daf",
       "obrazky": 36,
       "webp": 3,
       "sekcie": [
         {
           "subor": "10-a-recenzie.cz.html",
           "sekcia": "a-recenzie",
-          "znaky": 2115
+          "znaky": 2112
         },
         {
           "subor": "10-b-predapo.cz.html",
           "sekcia": "b-predapo",
-          "znaky": 2870
+          "znaky": 2868
         },
         {
           "subor": "11-a-referencie.cz.html",
           "sekcia": "a-referencie",
-          "znaky": 5443
+          "znaky": 5447
         },
         {
           "subor": "12-a-galeria.cz.html",
           "sekcia": "a-galeria",
-          "znaky": 7173
+          "znaky": 7125
         },
         {
           "subor": "13-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 735
+          "znaky": 738
         },
         {
           "subor": "20-b-ocakavat.cz.html",
           "sekcia": "b-ocakavat",
-          "znaky": 7266
+          "znaky": 7259
         },
         {
           "subor": "21-b-material.cz.html",
           "sekcia": "b-material",
-          "znaky": 5782
+          "znaky": 5775
         },
         {
           "subor": "22-b-porovnanie.cz.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2492
+          "znaky": 2493
         }
       ]
     },
@@ -432,40 +432,40 @@
           2418
         ]
       },
-      "znaky": 26506,
-      "bajty": 27361,
-      "hash": "665a204ee6",
+      "znaky": 26529,
+      "bajty": 27405,
+      "hash": "7465ac5b80",
       "obrazky": 36,
       "sekcie": [
         {
           "subor": "30-c-kam.cz.html",
           "sekcia": "c-kam",
-          "znaky": 860
+          "znaky": 851
         },
         {
           "subor": "31-c-domov.cz.html",
           "sekcia": "c-domov",
-          "znaky": 1908
+          "znaky": 1912
         },
         {
           "subor": "32-c-casova-os.cz.html",
           "sekcia": "c-casova-os",
-          "znaky": 1318
+          "znaky": 1323
         },
         {
           "subor": "33-c-farby.cz.html",
           "sekcia": "c-farby",
-          "znaky": 7466
+          "znaky": 7486
         },
         {
           "subor": "34-c-vzorky.cz.html",
           "sekcia": "c-vzorky",
-          "znaky": 1495
+          "znaky": 1493
         },
         {
           "subor": "40-d-realita.cz.html",
           "sekcia": "d-realita",
-          "znaky": 2843
+          "znaky": 2845
         },
         {
           "subor": "41-d-faq.cz.html",
@@ -475,7 +475,7 @@
         {
           "subor": "42-d-koniec.cz.html",
           "sekcia": "d-koniec",
-          "znaky": 583
+          "znaky": 586
         },
         {
           "subor": "43-d-pomocne.cz.html",
@@ -563,46 +563,46 @@
           2412
         ]
       },
-      "znaky": 39567,
-      "bajty": 40463,
-      "hash": "c7915c7106",
+      "znaky": 39539,
+      "bajty": 40496,
+      "hash": "f05ea7a0a7",
       "obrazky": 35,
       "webp": 15,
       "sekcie": [
         {
           "subor": "10-a-recenzie.cz.html",
           "sekcia": "a-recenzie",
-          "znaky": 2115
+          "znaky": 2112
         },
         {
           "subor": "11-a-referencie.cz.html",
           "sekcia": "a-referencie",
-          "znaky": 5443
+          "znaky": 5447
         },
         {
           "subor": "12-a-galeria.cz.html",
           "sekcia": "a-galeria",
-          "znaky": 7342
+          "znaky": 7294
         },
         {
           "subor": "13-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 1241
+          "znaky": 1237
         },
         {
           "subor": "20-b-ocakavat.cz.html",
           "sekcia": "b-ocakavat",
-          "znaky": 7586
+          "znaky": 7602
         },
         {
           "subor": "21-b-material.cz.html",
           "sekcia": "b-material",
-          "znaky": 6932
+          "znaky": 6940
         },
         {
           "subor": "22-b-porovnanie.cz.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2514
+          "znaky": 2513
         },
         {
           "subor": "23-b-predapo.cz.html",
@@ -695,41 +695,41 @@
           2412
         ]
       },
-      "znaky": 24946,
-      "bajty": 25778,
-      "hash": "c4f5d9091d",
+      "znaky": 24939,
+      "bajty": 25777,
+      "hash": "c282206ff5",
       "obrazky": 26,
       "webp": 3,
       "sekcie": [
         {
           "subor": "30-c-kam.cz.html",
           "sekcia": "c-kam",
-          "znaky": 907
+          "znaky": 896
         },
         {
           "subor": "31-c-domov.cz.html",
           "sekcia": "c-domov",
-          "znaky": 2357
+          "znaky": 2361
         },
         {
           "subor": "32-c-casova-os.cz.html",
           "sekcia": "c-casova-os",
-          "znaky": 1330
+          "znaky": 1335
         },
         {
           "subor": "33-c-farby.cz.html",
           "sekcia": "c-farby",
-          "znaky": 4704
+          "znaky": 4698
         },
         {
           "subor": "34-c-vzorky.cz.html",
           "sekcia": "c-vzorky",
-          "znaky": 1495
+          "znaky": 1493
         },
         {
           "subor": "40-d-realita.cz.html",
           "sekcia": "d-realita",
-          "znaky": 2843
+          "znaky": 2845
         },
         {
           "subor": "41-d-faq.cz.html",
@@ -739,7 +739,7 @@
         {
           "subor": "42-d-koniec.cz.html",
           "sekcia": "d-koniec",
-          "znaky": 569
+          "znaky": 570
         },
         {
           "subor": "43-d-pomocne.cz.html",
@@ -827,51 +827,51 @@
           2433
         ]
       },
-      "znaky": 48922,
-      "bajty": 49832,
-      "hash": "76a7614bc3",
+      "znaky": 48820,
+      "bajty": 49783,
+      "hash": "3b64de1676",
       "obrazky": 36,
       "webp": 29,
       "sekcie": [
         {
           "subor": "10-a-recenzie.cz.html",
           "sekcia": "a-recenzie",
-          "znaky": 2115
+          "znaky": 2112
         },
         {
           "subor": "10-b-predapo.cz.html",
           "sekcia": "b-predapo",
-          "znaky": 2854
+          "znaky": 2849
         },
         {
           "subor": "11-a-referencie.cz.html",
           "sekcia": "a-referencie",
-          "znaky": 5443
+          "znaky": 5447
         },
         {
           "subor": "12-a-galeria.cz.html",
           "sekcia": "a-galeria",
-          "znaky": 7736
+          "znaky": 7678
         },
         {
           "subor": "20-b-ocakavat.cz.html",
           "sekcia": "b-ocakavat",
-          "znaky": 6231
+          "znaky": 6204
         },
         {
           "subor": "21-b-material.cz.html",
           "sekcia": "b-material",
-          "znaky": 5704
+          "znaky": 5692
         },
         {
           "subor": "22-b-porovnanie.cz.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2348
+          "znaky": 2362
         },
         {
           "subor": "23-classic-premium.cz.html",
           "sekcia": "classic-premium",
-          "znaky": 2895
+          "znaky": 2880
         }
       ]
     },
@@ -969,51 +969,51 @@
           2433
         ]
       },
-      "znaky": 29868,
-      "bajty": 30800,
-      "hash": "2c6e9a7aee",
+      "znaky": 29887,
+      "bajty": 30839,
+      "hash": "80fb56e01b",
       "obrazky": 37,
       "webp": 1,
       "sekcie": [
         {
           "subor": "30-c-kam.cz.html",
           "sekcia": "c-kam",
-          "znaky": 817
+          "znaky": 810
         },
         {
           "subor": "31-classic-box.cz.html",
           "sekcia": "classic-box",
-          "znaky": 1171
+          "znaky": 1172
         },
         {
           "subor": "32-c-domov.cz.html",
           "sekcia": "c-domov",
-          "znaky": 2390
+          "znaky": 2394
         },
         {
           "subor": "33-c-casova-os.cz.html",
           "sekcia": "c-casova-os",
-          "znaky": 1348
+          "znaky": 1350
         },
         {
           "subor": "34-c-farby.cz.html",
           "sekcia": "c-farby",
-          "znaky": 7287
+          "znaky": 7306
         },
         {
           "subor": "35-c-vzorky.cz.html",
           "sekcia": "c-vzorky",
-          "znaky": 1495
+          "znaky": 1493
         },
         {
           "subor": "36-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 1414
+          "znaky": 1411
         },
         {
           "subor": "40-d-realita.cz.html",
           "sekcia": "d-realita",
-          "znaky": 2843
+          "znaky": 2845
         },
         {
           "subor": "41-d-faq.cz.html",
@@ -1023,7 +1023,7 @@
         {
           "subor": "42-d-koniec.cz.html",
           "sekcia": "d-koniec",
-          "znaky": 546
+          "znaky": 549
         },
         {
           "subor": "43-d-pomocne.cz.html",
@@ -1106,46 +1106,46 @@
           2439
         ]
       },
-      "znaky": 42276,
-      "bajty": 42972,
-      "hash": "f832af8092",
+      "znaky": 42196,
+      "bajty": 42918,
+      "hash": "63d15cfdfe",
       "obrazky": 31,
       "webp": 21,
       "sekcie": [
         {
           "subor": "10-a-recenzie.cz.html",
           "sekcia": "a-recenzie",
-          "znaky": 2115
+          "znaky": 2112
         },
         {
           "subor": "10-b-predapo.cz.html",
           "sekcia": "b-predapo",
-          "znaky": 2474
+          "znaky": 2467
         },
         {
           "subor": "11-a-referencie.cz.html",
           "sekcia": "a-referencie",
-          "znaky": 5443
+          "znaky": 5447
         },
         {
           "subor": "12-a-galeria.cz.html",
           "sekcia": "a-galeria",
-          "znaky": 7568
+          "znaky": 7520
         },
         {
           "subor": "20-b-ocakavat.cz.html",
           "sekcia": "b-ocakavat",
-          "znaky": 4577
+          "znaky": 4564
         },
         {
           "subor": "21-b-material.cz.html",
           "sekcia": "b-material",
-          "znaky": 5749
+          "znaky": 5737
         },
         {
           "subor": "22-premium-porovnanie.cz.html",
           "sekcia": "premium-porovnanie",
-          "znaky": 2612
+          "znaky": 2611
         }
       ]
     },
@@ -1243,51 +1243,51 @@
           2439
         ]
       },
-      "znaky": 31965,
-      "bajty": 32900,
-      "hash": "c50d7c2e0e",
+      "znaky": 31996,
+      "bajty": 32981,
+      "hash": "ab16bcbd77",
       "obrazky": 38,
       "webp": 2,
       "sekcie": [
         {
           "subor": "30-premium-kryje.cz.html",
           "sekcia": "premium-kryje",
-          "znaky": 2557
+          "znaky": 2556
         },
         {
           "subor": "31-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 1197
+          "znaky": 1194
         },
         {
           "subor": "31-c-domov.cz.html",
           "sekcia": "c-domov",
-          "znaky": 2099
+          "znaky": 2106
         },
         {
           "subor": "32-c-casova-os.cz.html",
           "sekcia": "c-casova-os",
-          "znaky": 1340
+          "znaky": 1344
         },
         {
           "subor": "33-c-farby.cz.html",
           "sekcia": "c-farby",
-          "znaky": 7418
+          "znaky": 7441
         },
         {
           "subor": "34-c-vzorky.cz.html",
           "sekcia": "c-vzorky",
-          "znaky": 1495
+          "znaky": 1493
         },
         {
           "subor": "40-d-realita.cz.html",
           "sekcia": "d-realita",
-          "znaky": 2843
+          "znaky": 2845
         },
         {
           "subor": "40-premium-box.cz.html",
           "sekcia": "premium-box",
-          "znaky": 1015
+          "znaky": 1014
         },
         {
           "subor": "41-d-faq.cz.html",
@@ -1297,7 +1297,7 @@
         {
           "subor": "42-d-koniec.cz.html",
           "sekcia": "d-koniec",
-          "znaky": 595
+          "znaky": 597
         },
         {
           "subor": "43-d-pomocne.cz.html",
@@ -1373,41 +1373,41 @@
           2427
         ]
       },
-      "znaky": 36342,
-      "bajty": 36989,
-      "hash": "50e35d0133",
+      "znaky": 36312,
+      "bajty": 37088,
+      "hash": "17d5b484fd",
       "obrazky": 28,
       "webp": 27,
       "sekcie": [
         {
           "subor": "10-a-recenzie.cz.html",
           "sekcia": "a-recenzie",
-          "znaky": 2115
+          "znaky": 2112
         },
         {
           "subor": "10-b-predapo.cz.html",
           "sekcia": "b-predapo",
-          "znaky": 2728
+          "znaky": 2720
         },
         {
           "subor": "20-b-ocakavat.cz.html",
           "sekcia": "b-ocakavat",
-          "znaky": 5772
+          "znaky": 5770
         },
         {
           "subor": "21-a-galeria.cz.html",
           "sekcia": "a-galeria",
-          "znaky": 7514
+          "znaky": 7481
         },
         {
           "subor": "21-boxy-velkosti.cz.html",
           "sekcia": "boxy-velkosti",
-          "znaky": 4420
+          "znaky": 4421
         },
         {
           "subor": "22-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 2633
+          "znaky": 2648
         }
       ]
     },
@@ -1483,31 +1483,31 @@
           2427
         ]
       },
-      "znaky": 25328,
-      "bajty": 26114,
-      "hash": "794b885c1d",
+      "znaky": 25353,
+      "bajty": 26200,
+      "hash": "1db424d776",
       "obrazky": 31,
       "webp": 9,
       "sekcie": [
         {
           "subor": "32-c-casova-os.cz.html",
           "sekcia": "c-casova-os",
-          "znaky": 1221
+          "znaky": 1205
         },
         {
           "subor": "33-c-farby.cz.html",
           "sekcia": "c-farby",
-          "znaky": 7611
+          "znaky": 7650
         },
         {
           "subor": "34-c-vzorky.cz.html",
           "sekcia": "c-vzorky",
-          "znaky": 1495
+          "znaky": 1493
         },
         {
           "subor": "40-boxy-cross.cz.html",
           "sekcia": "boxy-cross",
-          "znaky": 2258
+          "znaky": 2255
         },
         {
           "subor": "41-d-faq.cz.html",
@@ -1517,7 +1517,7 @@
         {
           "subor": "42-d-koniec.cz.html",
           "sekcia": "d-koniec",
-          "znaky": 685
+          "znaky": 692
         },
         {
           "subor": "43-d-pomocne.cz.html",
@@ -1572,20 +1572,20 @@
           2449
         ]
       },
-      "znaky": 1997,
-      "bajty": 2096,
-      "hash": "c9af4d74af",
+      "znaky": 2011,
+      "bajty": 2116,
+      "hash": "c62fcc78c6",
       "obrazky": 0,
       "sekcie": [
         {
           "subor": "10-c-casova-os.cz.html",
           "sekcia": "c-casova-os",
-          "znaky": 950
+          "znaky": 962
         },
         {
           "subor": "20-vzorky-vratenie.cz.html",
           "sekcia": "vzorky-vratenie",
-          "znaky": 903
+          "znaky": 905
         }
       ]
     },
@@ -1636,16 +1636,16 @@
           2449
         ]
       },
-      "znaky": 10907,
-      "bajty": 11410,
-      "hash": "b11cc8d443",
+      "znaky": 10898,
+      "bajty": 11402,
+      "hash": "9ada8ecab7",
       "obrazky": 2,
       "webp": 1,
       "sekcie": [
         {
           "subor": "30-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 1090
+          "znaky": 1081
         },
         {
           "subor": "40-d-faq.cz.html",
