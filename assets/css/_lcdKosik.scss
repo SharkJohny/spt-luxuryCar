@@ -461,3 +461,7 @@ body.in-kosik #cart-wrapper .next-step .next-step-back .continue-shopping{text-d
   text-decoration-color:rgba(20,17,12,.28);text-underline-offset:4px}
 /* bublina chatu Luxia by prekryla „Pokračovať“ (cart.js lcdBublinaMimoTlacidla) */
 html.lcd-kosik-bez-bubliny body.in-kosik iframe[title="Luxia chat"]{visibility:hidden !important}
+
+/* Dobierka: „+ záloha“ len po výbere dobierky, drobne a svetlo (Michal 26. 10. 2026 — nemá odradiť; do objednávky ide len „Dobierka“) */
+.lcd-dob-pozn{display:none;margin-top:1px;font-size:10.5px;line-height:1.3;font-weight:400;font-style:normal;letter-spacing:.02em;color:#cfcbc3}
+input[data-payment-type="cashOnDelivery"]:checked + label .lcd-dob-pozn{display:block}

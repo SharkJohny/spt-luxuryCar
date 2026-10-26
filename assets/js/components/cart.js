@@ -6,6 +6,7 @@ export function initCart(texts) {
   console.log("Initializing cart with texts:", texts);
   console.log("Cart initialized");
   changeDescription();
+  lcdDobierkaZaloha();
   if (document.body && document.body.classList.contains("in-kosik")) lcdBublinaMimoTlacidla();
 
   // Michal req 2026-05-18: po zmene/zmazani produktu v kosiku Shoptet AJAX-om
@@ -67,6 +68,25 @@ export function initCart(texts) {
  * premenoval (SK "luxusne autokoberce do kamionov", CZ "do kamionu"), slovo
  * truck zmizlo a kosik prestal riadok formatovat. Berieme obe pomenovania.
  */
+/** Dobierka: drobné svetlosivé „+ záloha“ pod názvom platby — vidno až po výbere dobierky (CSS :checked v _lcdKosik.scss);
+ *  názov platby v Shoptete sa nemení, do objednávky ide len „Dobierka“ (Michal 26. 10. 2026: nemá zákazníka odradiť).
+ *  Shoptet zoznam platieb prekresľuje (zmena dopravy) -> MutationObserver doplní znova. SK aj CZ („+ záloha“). */
+function lcdDobierkaZaloha() {
+  const SEL = 'input[data-payment-type="cashOnDelivery"]';
+  const prva = document.querySelector(SEL);
+  if (!prva) return;
+  const dopln = () => document.querySelectorAll(SEL).forEach((i) => {
+    const n = i.id && document.querySelector('label[for="' + i.id + '"] .shipping-billing-name');
+    if (!n || (n.nextElementSibling && n.nextElementSibling.classList.contains("lcd-dob-pozn"))) return;
+    const s = document.createElement("small");
+    s.className = "lcd-dob-pozn";
+    s.textContent = "+ záloha";
+    n.insertAdjacentElement("afterend", s);
+  });
+  dopln();
+  new MutationObserver(dopln).observe(prva.closest("form") || document.body, { childList: true, subtree: true });
+}
+
 function jeKamionovyRiadok(text) {
   const t = String(text || "");
   return /\btruck\b/i.test(t) || /kami[oó]n/i.test(t);
