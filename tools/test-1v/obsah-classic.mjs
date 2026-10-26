@@ -63,10 +63,14 @@ const SCSS = join(KOREN, "assets/css/_lcd1v-obsah-classic.scss");
 /** zákaznícke texty (docs/1v-obsah.md bod 4 + rozhodnutia.md D3; logo a lehota 21–29 dní podľa rozhodnutia Michala 14. 10. 2026) */
 const ZAKAZANE = /na\s+milimeter|vyr[aá]bame|dragon\s*skin|\belite\b|\bbasic\b|comfort|fixa[čc]n|bez\s+lepenia/i;
 const POCET_VRSTIEV = /\d\s*-?\s*vrstv|päť\s*vrstiev|päťvrstv|piatich\s*vrstiev|pät\s*vrstiev/i;
-const D3 = /štítok|štítk|kovov|skladom|rýchle\s+dodanie/iu;
+const D3 = {
+  sk: /štítok|štítk|kovov|skladom|rýchle\s+dodanie/iu,
+  // CZ obsah používa podľa korektúry „Kovové logo“; zakázaný ostáva štítok a tvrdenie o skladovej dostupnosti.
+  cz: /štítek|štítk|skladem|rychlé\s+dodání/iu,
+};
 
 /** vzorky farieb obsahu -> regulárny výraz na text voľby živého selectu (nezávislé od kódu webu) */
-const VZORKY = [
+const VZORKY = { sk: [
   ["Čierna · červené šitie", /ko[žz]e\s*:\s*čierna\s*\/?\s*farba\s+šitia\s*:\s*červená\s*$/i],
   ["Čierna · modré šitie", /ko[žz]e\s*:\s*čierna\s*\/?\s*farba\s+šitia\s*:\s*modrá\s*$/i],
   ["Čierna · béžové šitie", /ko[žz]e\s*:\s*čierna\s*\/?\s*farba\s+šitia\s*:\s*béžová\s*$/i],
@@ -76,10 +80,22 @@ const VZORKY = [
   ["Vínovo červená", /ko[žz]e\s*:\s*vínovo\s+červená\s*$/i],
   ["Oranžová", /ko[žz]e\s*:\s*oranžová\s*$/i],
   ["Modrá", /ko[žz]e\s*:\s*modrá\s*$/i],
-];
+], cz: [
+  ["Černá · červené prošívání", /kůže\s*:\s*černá\s*\/?\s*barva\s+šití\s*:\s*červená\s*$/i],
+  ["Černá · modré prošívání", /kůže\s*:\s*černá\s*\/?\s*barva\s+šití\s*:\s*modrá\s*$/i],
+  ["Černá · béžové prošívání", /kůže\s*:\s*černá\s*\/?\s*barva\s+šití\s*:\s*béžová\s*$/i],
+  ["Béžová", /kůže\s*:\s*béžová\s*$/i],
+  ["Hnědá", /kůže\s*:\s*hnědá\s*$/i],
+  ["Hnědá káva", /kůže\s*:\s*(?:kávově\s+hnědá|hnědá\s+káva)\s*$/i],
+  ["Vínově červená", /kůže\s*:\s*vínově\s+červená\s*$/i],
+  ["Oranžová", /kůže\s*:\s*oranžová\s*$/i],
+  ["Modrá", /kůže\s*:\s*modrá\s*$/i],
+] };
 
 const nbsp = (s) => String(s == null ? "" : s).replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
-const eur = (n) => (Number(n) > 0 ? Math.round(Number(n)) + " €" : null);
+const suma = (n, web) => Number(n) > 0
+  ? String(Math.round(Number(n))).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + (web === "cz" ? " Kč" : " €")
+  : null;
 const dve = (n) => String(n).padStart(2, "0");
 
 /** selektory partialu, ktoré nezačínajú body.lcd-1v (komentáre preč, @media rozbalené) */
@@ -102,8 +118,8 @@ function zleSelektory() {
 }
 
 /** zdrojové HTML sekcií (bez komentárov): { subor, html, text } — text = viditeľný text + alt + aria-label */
-function zdrojoveTexty() {
-  return readdirSync(ZDROJ).filter((f) => /\.sk\.html$/.test(f)).sort().map((f) => {
+function zdrojoveTexty(web = "sk") {
+  return readdirSync(ZDROJ).filter((f) => new RegExp(`\\.${web}\\.html$`).test(f)).sort().map((f) => {
     const html = readFileSync(join(ZDROJ, f), "utf8").replace(/<!--[\s\S]*?-->/g, "");
     const atr = [...html.matchAll(/\s(?:alt|aria-label)="([^"]*)"/g)].map((m) => m[1]).join(" ");
     const text = html.replace(/<svg[\s\S]*?<\/svg>/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&times;|&lsaquo;|&rsaquo;/g, " ") + " " + atr;
@@ -112,8 +128,8 @@ function zdrojoveTexty() {
 }
 
 /** očakávania nezávisle od kódu webu: GET živých stránok (vlastná, Premium, jednovrstvové, box toho istého vzoru) */
-async function ocakavane(p) {
-  const reg = register();
+async function ocakavane(p, web = "sk") {
+  const reg = register(web);
   const url = (typ) => { const s = sestra(reg, typ, p.vzor); return s ? s.url : null; };
   const ja = await zivaStranka(p.url);
   const prem = await zivaStranka(url("kufor-premium"));
@@ -125,7 +141,7 @@ async function ocakavane(p) {
   const premium = (kufor.find((o) => /bok/i.test(o.text)) || {}).fp;
   const boxSoloS = (sel(jedno, /box\s*solo/i).find((o) => /^S\s*:/i.test(o.text)) || {}).fp;
   const farby = sel(ja, /^(farba|barva)\s*1\.?\s*vrstv/i);
-  const viditelne = VZORKY.filter(([, re]) => farby.some((o) => re.test(o.text))).map(([n]) => n);
+  const viditelne = VZORKY[web].filter(([, re]) => farby.some((o) => re.test(o.text))).map(([n]) => n);
   return {
     cena: ja.cena, premiumCena: prem.cena, setClassic: classic, setPremium: premium, uspora: ja.cena - classic, boxCena: box.cena, boxSetS: boxSoloS,
     pocetFarieb: farby.length, farbyTexty: farby.map((o) => o.text), viditelne, cestaPremium: (sestra(reg, "kufor-premium", p.vzor) || {}).cesta, cestaJedno: (sestra(reg, "jedno", p.vzor) || {}).cesta,
@@ -140,6 +156,37 @@ export async function kontroly(t) {
   const sj = (m) => JSON.stringify(S(m));
   const sir = t.sirka;
   const p = t.produkt;
+  const web = t.web === "cz" ? "cz" : "sk";
+  const cz = web === "cz";
+  const peniaze = (n) => suma(n, web);
+  const subor = (meno) => `${meno}.${web}.html`;
+  const L = cz ? {
+    logoUvod: "— a o kovové logo, které kopie nemá.", logoNazov: "Kovové logo",
+    logoDomov: "Na rohoži je kovové logo Luxury Car Design, podle kterého poznáte originál.",
+    setSpolu: "Společně s autokoberci pod sedadla", upSam: "Samostatne ",
+    upSet: "S autokobercami pod sedadlá len za ", upUspora: "Ušetríte ",
+    vetaSam: "samostatně za ", vetaSet: "Když ji koupíte společně s autokoberci pod sedadla, zaplatíte za ni jen ",
+    boxSam: "Samostatne od ", boxSet: "S autokobercami pod sedadlá už od ",
+    osem: /^Osm věcí/, materialDno: /dn[ěau] kufru/, kamSpolu: /Classic i Premium/, kamLen: /jen Premium/,
+    balenieLogo: "Kovové logo", casUvod: /Šije se až po objednávce, proto dodání trvá 21–29 dní\./, casSpolu: /celkem 21–29 dní/,
+    prvaFarba: "Černá · červené prošívání", vzorka: "Vzorek",
+    faq6: /^Montáž je naprosto jednoduchá/,
+    koniecH2: "Koupit a nečekat!", koniecLede: /^Rohož do kufru na míru Vašeho vozidla/,
+    koniecTl: "Zadejte údaje o vozidle | Prohlédněte si recenze",
+  } : {
+    logoUvod: "— a o logu pravosti, ktoré kópia nemá.", logoNazov: "Logo pravosti",
+    logoDomov: "Na rohoži je logo Luxury Car Design, podľa ktorého spoznáte originál.",
+    setSpolu: "Spolu s autokobercami pod sedadlá", upSam: "Samostatne ",
+    upSet: "S autokobercami pod sedadlá len za ", upUspora: "Ušetríte ",
+    vetaSam: "samostatne za ", vetaSet: "Keď ju kúpite spolu s autokobercami pod sedadlá, zaplatíte za ňu len ",
+    boxSam: "Samostatne od ", boxSet: "S autokobercami pod sedadlá už od ",
+    osem: /^Osem vecí/, materialDno: /dnu kufra/, kamSpolu: /Classic aj Premium/, kamLen: /len Premium/,
+    balenieLogo: "Logo pravosti", casUvod: /Šije sa až po objednávke, preto dodanie trvá 21–29 dní\./, casSpolu: /spolu 21–29 dní/,
+    prvaFarba: "Čierna · červené šitie", vzorka: "Vzorka",
+    faq6: /^Montáž je úplne jednoduchá/,
+    koniecH2: "Kúpiť a nečakať!", koniecLede: /^Rohož do kufra na mieru Vášho vozidla/,
+    koniecTl: "Zadajte údaje o vozidle | Pozrite si recenzie",
+  };
   const je = {};
   for (const s of sekcie) je[s.meno] = await t.je(s.meno);
   // chat Luxia (iframe tretej strany) sa na telefóne sám otvára cez stred obrazovky — pre skutočné kliky ho skryjeme (len test)
@@ -183,7 +230,7 @@ export async function kontroly(t) {
   const zle = zleSelektory();
   ok(!zle.length, "CSS _lcd1v-obsah-classic.scss: každý selektor pod body.lcd-1v" + (zle.length ? " — zlé: " + zle.join(" | ") : ""));
   // FAQ (41-d-faq) = živý text z /faq/ (rozhodnutie Michala 14. 10. 2026) — pravidlá nových textov sa naň nevzťahujú, stráži ho kontrolaFaqZive
-  const zdroje = zdrojoveTexty().filter((z) => !/41-d-faq/.test(z.subor));
+  const zdroje = zdrojoveTexty(web).filter((z) => !/41-d-faq/.test(z.subor));
   const ostatne = zdroje;
   const zakaz = zdroje.map((z) => (z.text.match(ZAKAZANE) || []).map((x) => z.subor + ": " + x)).flat();
   ok(!zakaz.length, "zdrojové texty bez zakázaných formulácií (na milimeter, vyrábame, názvy materiálu, fixačné body, Comfort)" + (zakaz.length ? ": " + zakaz.join(", ") : ""));
@@ -191,14 +238,14 @@ export async function kontroly(t) {
   ok(!pocty.length, "zdrojové texty bez počtu vrstiev ako argumentu" + (pocty.length ? ": " + pocty.join(", ") : ""));
   const zaruka = ostatne.map((z) => (z.text.match(/z[aá]ruk/i) || []).map(() => z.subor)).flat();
   ok(!zaruka.length, "záruka sa nepoužíva ako argument (mimo FAQ ani raz)" + (zaruka.length ? ": " + zaruka.join(", ") : ""));
-  const d3 = zdroje.map((z) => (z.text.match(D3) || []).map((x) => z.subor + ": " + x)).flat();
+  const d3 = zdroje.map((z) => (z.text.match(D3[web]) || []).map((x) => z.subor + ": " + x)).flat();
   ok(!d3.length, "žiadny „kovový štítok“ ani „skladom“ v texte (na rohoži je logo, nie štítok)" + (d3.length ? ": " + d3.join(", ") : ""));
   const zdroj = (f) => (zdroje.find((z) => z.subor === f) || { text: "" }).text;
-  ok(zdroj("20-b-ocakavat.sk.html").includes("— a o logu pravosti, ktoré kópia nemá.") && zdroj("20-b-ocakavat.sk.html").includes("Logo pravosti")
-    && zdroj("32-c-domov.sk.html").includes("Na rohoži je logo Luxury Car Design, podľa ktorého spoznáte originál."),
+  ok(zdroj(subor("20-b-ocakavat")).includes(L.logoUvod) && zdroj(subor("20-b-ocakavat")).includes(L.logoNazov)
+    && zdroj(subor("32-c-domov")).includes(L.logoDomov),
     "logo podľa rozhodnutia Michala 14. 10. 2026: úvod 8 vecí, čip „Logo pravosti“ a položka balenia doslovne z návrhu");
-  const lehoty = zdroj("33-c-casova-os.sk.html").match(/21–29 dní/g) || [];
-  ok(lehoty.length === 2 && !/\d+\s*–\s*\d+\s*dní/.test(zdroj("33-c-casova-os.sk.html").replace(/21–29 dní/g, "")), `časová os: lehota 21–29 dní v úvode aj v odznaku (${lehoty.length}×)`);
+  const lehoty = zdroj(subor("33-c-casova-os")).match(/21–29 dní/g) || [];
+  ok(lehoty.length === 2 && !/\d+\s*–\s*\d+\s*dní/.test(zdroj(subor("33-c-casova-os")).replace(/21–29 dní/g, "")), `časová os: lehota 21–29 dní v úvode aj v odznaku (${lehoty.length}×)`);
   const ceny = zdroje.map((z) => (z.text.replace(/50\s*€\s*–\s*129\s*€/g, "").match(/\d\s*(?:€|eur\b|Kč)|(?:€|Kč)\s*\d/gi) || []).map((x) => z.subor + ": " + x)).flat();
   ok(!ceny.length, "žiadna cena natvrdo v zdroji (okrem trhovej ceny napodobenín 50 € – 129 €)" + (ceny.length ? ": " + ceny.join(", ") : ""));
   const znacky = zdroje.map((z) => [...z.html.matchAll(/data-p1v-cislo="([^"]+)"/g)].length).reduce((a, b) => a + b, 0);
@@ -214,35 +261,35 @@ export async function kontroly(t) {
 
   // ------------------------------------------------------------------ 2) čísla a odkazy podľa vzoru proti nezávislým očakávaniam
   let oc = null;
-  try { oc = await ocakavane(p); } catch (e) { ok(false, "očakávané čísla (GET živých stránok sestier): " + e.message); }
+  try { oc = await ocakavane(p, web); } catch (e) { ok(false, "očakávané čísla (GET živých stránok sestier): " + e.message); }
   if (oc) {
-    ok(oc.cena > 0 && oc.premiumCena > 0 && oc.setClassic > 0 && oc.setPremium > 0 && oc.boxCena > 0 && oc.boxSetS > 0, `nezávislé očakávania zo živých stránok: ${p.id} ${eur(oc.cena)}, Premium ${eur(oc.premiumCena)}, set Classic +${eur(oc.setClassic)} / Premium +${eur(oc.setPremium)}, box od ${eur(oc.boxCena)} / v sete od ${eur(oc.boxSetS)}`);
+    ok(oc.cena > 0 && oc.premiumCena > 0 && oc.setClassic > 0 && oc.setPremium > 0 && oc.boxCena > 0 && oc.boxSetS > 0, `nezávislé očakávania zo živých stránok: ${p.id} ${peniaze(oc.cena)}, Premium ${peniaze(oc.premiumCena)}, set Classic +${peniaze(oc.setClassic)} / Premium +${peniaze(oc.setPremium)}, box od ${peniaze(oc.boxCena)} / v sete od ${peniaze(oc.boxSetS)}`);
     // dokumentovaná hodnota z plánu (plan.md §4): 619 230 €, 622 a 625 240 €
     const dok = { 619: 230, 622: 240, 625: 240 }[p.id];
-    ok(!dok || oc.cena === dok, `cena produktu ${p.id} je ${dok} € (živá stránka: ${eur(oc.cena)})`);
+    ok(!dok || oc.cena === dok, `cena produktu ${p.id} je ${peniaze(dok)} (živá stránka: ${peniaze(oc.cena)})`);
     const kc = `${S("classic-premium")} .kc-cmp .cmp-col`;
-    ok((await text(kc + " .price", 0)) === eur(oc.cena), `Classic alebo Premium: cena Classic „${await text(kc + " .price", 0)}“ = cena stránky ${eur(oc.cena)}`);
-    ok((await text(kc + " .price", 1)) === eur(oc.premiumCena), `Classic alebo Premium: cena Premium „${await text(kc + " .price", 1)}“ = Premium toho istého vzoru ${eur(oc.premiumCena)}`);
+    ok((await text(kc + " .price", 0)) === peniaze(oc.cena), `Classic alebo Premium: cena Classic „${await text(kc + " .price", 0)}“ = cena stránky ${peniaze(oc.cena)}`);
+    ok((await text(kc + " .price", 1)) === peniaze(oc.premiumCena), `Classic alebo Premium: cena Premium „${await text(kc + " .price", 1)}“ = Premium toho istého vzoru ${peniaze(oc.premiumCena)}`);
     const sete = async (i) => text(`${kc}:nth-of-type(${i + 1}) li`, 3);
     // Michal 17. 10. 2026: cena v sete nie „Len + X €“, ale „Spolu s autokobercami pod sedadlá — Len za X € (samostatne Y €)“
-    const setRiadok = (set, sam) => "Spolu s autokobercami pod sedadláLen za " + eur(set) + " (samostatne " + eur(sam) + ")";
-    ok(nbsp(await sete(1)).endsWith(setRiadok(oc.setClassic, oc.cena)), `Classic alebo Premium: s autokobercami Classic „${await sete(1)}“ (čakám Len za ${eur(oc.setClassic)} (samostatne ${eur(oc.cena)}))`);
-    ok(nbsp(await sete(2)).endsWith(setRiadok(oc.setPremium, oc.premiumCena)), `Classic alebo Premium: s autokobercami Premium „${await sete(2)}“ (čakám Len za ${eur(oc.setPremium)} (samostatne ${eur(oc.premiumCena)}))`);
+    const setRiadok = (set, sam) => L.setSpolu + "Len za " + peniaze(set) + " (samostatne " + peniaze(sam) + ")";
+    ok(nbsp(await sete(1)).endsWith(setRiadok(oc.setClassic, oc.cena)), `Classic alebo Premium: s autokobercami Classic „${await sete(1)}“ (čakám Len za ${peniaze(oc.setClassic)} (samostatne ${peniaze(oc.cena)}))`);
+    ok(nbsp(await sete(2)).endsWith(setRiadok(oc.setPremium, oc.premiumCena)), `Classic alebo Premium: s autokobercami Premium „${await sete(2)}“ (čakám Len za ${peniaze(oc.setPremium)} (samostatne ${peniaze(oc.premiumCena)}))`);
     const up = [await text(S("a-ponuka") + " .ups li", 0), await text(S("a-ponuka") + " .ups li", 1), await text(S("a-ponuka") + " .ups li", 2), await text(S("a-ponuka") + " .ups p", 0)];
-    ok(up[0] === "Samostatne " + eur(oc.cena) && up[1] === "S autokobercami pod sedadlá len za " + eur(oc.setClassic) && up[2] === "Ušetríte " + eur(oc.uspora),
-      `upsell autokobercov: „${up[0]}“ / „${up[1]}“ / „${up[2]}“ (čakám ${eur(oc.cena)}, +${eur(oc.setClassic)}, ušetríte ${eur(oc.uspora)})`);
-    ok(up[3].includes("samostatne za " + eur(oc.cena)) && up[3].includes("Keď ju kúpite spolu s autokobercami pod sedadlá, zaplatíte za ňu len " + eur(oc.setClassic) + "."), "upsell autokobercov: veta v texte má tie isté dve ceny (" + up[3] + ")");
+    ok(up[0] === L.upSam + peniaze(oc.cena) && up[1] === L.upSet + peniaze(oc.setClassic) && up[2] === L.upUspora + peniaze(oc.uspora),
+      `upsell autokobercov: „${up[0]}“ / „${up[1]}“ / „${up[2]}“ (čakám ${peniaze(oc.cena)}, +${peniaze(oc.setClassic)}, ušetríte ${peniaze(oc.uspora)})`);
+    ok(up[3].includes(L.vetaSam + peniaze(oc.cena)) && up[3].includes(L.vetaSet + peniaze(oc.setClassic) + "."), "upsell autokobercov: veta v texte má tie isté dve ceny (" + up[3] + ")");
     ok(!/\+\s*\d/.test(up.join(" ") + " " + (await sete(1)) + " " + (await sete(2))), "cena v sete bez „+“ (Michal 17. 10. 2026)");
     const bx = [await text(S("classic-box") + " .ups li", 1), await text(S("classic-box") + " .ups li", 2)];
-    ok(bx[0] === "Samostatne od " + eur(oc.boxCena) && bx[1] === "S autokobercami pod sedadlá už od " + eur(oc.boxSetS), `upsell boxu: „${bx[0]}“ / „${bx[1]}“ (čakám od ${eur(oc.boxCena)}, v sete od ${eur(oc.boxSetS)})`);
-    ok((await text(S("b-porovnanie") + " .cmp-col.us .price")) === "od " + eur(oc.cena), `porovnanie: naša cena „${await text(S("b-porovnanie") + " .cmp-col.us .price")}“ = od ${eur(oc.cena)}`);
+    ok(bx[0] === L.boxSam + peniaze(oc.boxCena) && bx[1] === L.boxSet + peniaze(oc.boxSetS), `upsell boxu: „${bx[0]}“ / „${bx[1]}“ (čakám od ${peniaze(oc.boxCena)}, v sete od ${peniaze(oc.boxSetS)})`);
+    ok((await text(S("b-porovnanie") + " .cmp-col.us .price")) === "od " + peniaze(oc.cena), `porovnanie: naša cena „${await text(S("b-porovnanie") + " .cmp-col.us .price")}“ = od ${peniaze(oc.cena)}`);
     // odkazy: Premium / jednovrstvové / box toho istého vzoru (a pre 622 dokumentovaný Premium Hexa)
     const odk = await t.ev(`(function () { var o = {}; [].forEach.call(document.querySelectorAll(".p1v-miesto a[data-p1v-odkaz]"), function (a) { var k = a.getAttribute("data-p1v-odkaz"); (o[k] = o[k] || []).push((a.getAttribute("href") || "").split("#")[0]); }); return o; })()`);
     const vsetky = (k, cesta) => (odk[k] || []).length > 0 && odk[k].every((h) => h === cesta);
     ok(vsetky("premium", oc.cestaPremium), `odkazy Premium (${(odk.premium || []).length}×) vedú na ${oc.cestaPremium}: ${[...new Set(odk.premium || [])].join(", ")}`);
     ok(vsetky("jedno", oc.cestaJedno), `odkazy na jednovrstvové (${(odk.jedno || []).length}×) vedú na ${oc.cestaJedno}: ${[...new Set(odk.jedno || [])].join(", ")}`);
     ok(vsetky("boxy", oc.cestaBoxy), `odkazy na box (${(odk.boxy || []).length}×) vedú na ${oc.cestaBoxy}: ${[...new Set(odk.boxy || [])].join(", ")}`);
-    if (p.id === 622) ok((odk.premium || []).every((h) => h === "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/"), "622: odkaz Premium → /luxusny-koberced-do-kufra-dragonskin-premium-hexa/");
+    if (p.id === 622 || p.id === 2430) ok((odk.premium || []).every((h) => h === "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/"), `${p.id}: odkaz Premium → /luxusny-koberced-do-kufra-dragonskin-premium-hexa/`);
   }
 
   // ------------------------------------------------------------------ 3) výzvy a tlačidlá vedú na konfigurátor
@@ -297,7 +344,7 @@ export async function kontroly(t) {
     const n = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}); return { img: s.querySelectorAll(".s2-media img").length, tx: s.querySelectorAll(".s2-t").length, rail: s.querySelectorAll(".s2-rail button").length,
       th: s.querySelectorAll(".s2-thumbs button").length, chip: s.querySelectorAll(".pintop .chip").length, h2: s.querySelector("h2").textContent.trim() }; })()`);
     ok(n.img === 8 && n.tx === 8 && n.rail === 8 && n.th === 8 && n.chip === 9, `osem vecí: 8 fotiek, 8 textov, 8 bodiek, 8 náhľadov, 9 čipov s „Logo pravosti“ (${JSON.stringify(n)})`);
-    ok(/^Osem vecí/.test(n.h2), `osem vecí: nadpis „${n.h2}“ (položka o logu čaká na náhľad v CSS a fotku loga na rohoži)`);
+    ok(L.osem.test(n.h2), `osem vecí: nadpis „${n.h2}“ (položka o logu čaká na náhľad v CSS a fotku loga na rohoži)`);
     if (staticka) {
       await posun(sek, null);
       const k = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(sek)}), m = s.querySelector(".pinmain"), cw = document.documentElement.clientWidth;
@@ -352,7 +399,7 @@ export async function kontroly(t) {
     await t.klikni(sek + " .leg-h", { index: 1, popis: "legenda 2", pockaj: 600 });
     const l = await t.ev(`(function () { var L = document.querySelectorAll(${JSON.stringify(sek)} + " .leg"); var h = L[1].querySelector(".leg-h"), d = L[1].querySelector(".leg-d");
       return { n: L.length, exp: h.getAttribute("aria-expanded"), h: Math.round(d.getBoundingClientRect().height), txt: d.textContent.trim().slice(0, 30), ine: [].filter.call(L, function (x) { return x.querySelector(".leg-h").getAttribute("aria-expanded") === "true"; }).length }; })()`);
-    ok(l.n === 5 && l.exp === "true" && l.h > 20 && l.ine === 1 && /dnu kufra/.test(await text(sek + " .leg-d", 1)), `materiál: 5 položiek legendy, legenda 2 sa otvorila (výška ${l.h} px) a hovorí o dne kufra`);
+    ok(l.n === 5 && l.exp === "true" && l.h > 20 && l.ine === 1 && L.materialDno.test(await text(sek + " .leg-d", 1)), `materiál: 5 položiek legendy, legenda 2 sa otvorila (výška ${l.h} px) a hovorí o dne kufra`);
   }
 
   // ------------------------------------------------------------------ 7) porovnanie a Classic alebo Premium
@@ -393,7 +440,7 @@ export async function kontroly(t) {
     if (sir >= 901) ok(kry.length === 2 && Math.abs(kry[0][1] - kry[1][1]) < 2 && kry[1][0] > kry[0][0] + kry[0][2], "kam siahajú: na PC dve karty vedľa seba " + JSON.stringify(kry));
     else ok(kry.length === 2 && kry[1][1] > kry[0][1] + 40, "kam siahajú: na telefóne témy pod sebou " + JSON.stringify(kry));
     const li = await t.ev(`[].map.call(document.querySelectorAll(${JSON.stringify(S("c-kam") + " .zoz li")}), function (e) { return e.textContent.trim(); })`);
-    ok(li.length === 3 && /Classic aj Premium/.test(li[0]) && /len Premium/.test(li[1]) && /len Premium/.test(li[2]), `kam siahajú: 3 položky v kufri (${li.join(" | ")})`);
+    ok(li.length === 3 && L.kamSpolu.test(li[0]) && L.kamLen.test(li[1]) && L.kamLen.test(li[2]), `kam siahajú: 3 položky v kufri (${li.join(" | ")})`);
   }
   if (je["classic-box"]) {
     const b = await t.ev(`(function () { var s = document.querySelector(${sj("classic-box")}), u = s.querySelector(".ups"), i = s.querySelector(".ph img");
@@ -413,7 +460,7 @@ export async function kontroly(t) {
     const nn = await t.ev(`({ kresby: document.querySelectorAll(${JSON.stringify(S("c-domov") + " .ba-i img")}).length, polozky: document.querySelectorAll(${JSON.stringify(S("c-domov") + " .bal li")}).length, stlpce: getComputedStyle(document.querySelector(${JSON.stringify(S("c-domov") + " .bal li")})).gridTemplateColumns.split(" ").length,
       logo: (function () { var l = document.querySelectorAll(${JSON.stringify(S("c-domov") + " .bal li")})[1], s = l && l.querySelector(".ba-i svg"), r = s && s.getBoundingClientRect(); return l ? [l.querySelector("b").textContent, r ? Math.round(r.width) + "×" + Math.round(r.height) : "bez svg"] : null; })() })`);
     ok(ok3 && nn.kresby === 3 && nn.polozky === 4, `balenie: 4 položky, 3 kresby stiahnuté (${nn.polozky}, ${nn.kresby})`);
-    ok(nn.logo && nn.logo[0] === "Logo pravosti" && nn.logo[1] === "40×40", `balenie: 2. položka „Logo pravosti“ so štítom 40×40 ako kresby (${JSON.stringify(nn.logo)})`);
+    ok(nn.logo && nn.logo[0] === L.balenieLogo && nn.logo[1] === "40×40", `balenie: 2. položka „${L.balenieLogo}“ so štítom 40×40 ako kresby (${JSON.stringify(nn.logo)})`);
     ok(sir >= 820 ? nn.stlpce === 3 : nn.stlpce === 2, `balenie: riadok má ${nn.stlpce} stĺpce (${sir >= 820 ? "PC 3" : "telefón 2"})`);
   }
   if (je["c-casova-os"]) {
@@ -431,7 +478,7 @@ export async function kontroly(t) {
     }
     ok(za[0] === 1 && za[1] === 6, `časová os prečítaná: --p 1, svieti 6 krokov ${JSON.stringify(za)}`);
     const tx = await text(S("c-casova-os"));
-    ok(/Šije sa až po objednávke, preto dodanie trvá 21–29 dní\./.test(tx) && /spolu 21–29 dní/.test(tx), "časová os: úvod „Šije sa až po objednávke, preto dodanie trvá 21–29 dní.“ a odznak „spolu 21–29 dní“");
+    ok(L.casUvod.test(tx) && L.casSpolu.test(tx), `časová os: český/slovenský úvod a odznak s lehotou 21–29 dní (${web.toUpperCase()})`);
     if (sir >= 901) {
       const strany = await t.ev(`(function () { var t = document.querySelector(${JSON.stringify(os)}), x = t.getBoundingClientRect().left + t.offsetWidth / 2; return [].map.call(t.querySelectorAll("li > .c"), function (c) { var r = c.getBoundingClientRect(); return r.right <= x ? "L" : r.left >= x ? "P" : "?"; }).join(""); })()`);
       ok(strany === "LPLPLP", `časová os na PC: kroky striedavo vľavo/vpravo od osi (${strany})`);
@@ -455,7 +502,8 @@ export async function kontroly(t) {
     // očakávania z GET živej stránky (počet a poradie volieb farby 1. vrstvy), nie z kódu webu.
     const bezDia = (x) => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     const zhoda = (meno, text) => { const [koza, sitie] = bezDia(meno).split(" · "); const t2 = bezDia(text);
-      return t2.includes("koze") && t2.split("koze")[1].includes(koza) && (!sitie || (t2.split("sitia")[1] || "").includes(sitie.slice(0, 4))); };
+      const zaKozou = (t2.split(/koze|kuze/)[1] || ""), zaSitim = (t2.split(/sitia|siti/)[1] || "");
+      return zaKozou.includes(koza) && (!sitie || zaSitim.includes(sitie.slice(0, 4))); };
     const viditelne = p.vzor === "diamond" ? oc.viditelne : f.vis;
     if (p.vzor === "diamond") {
       ok(f.vsetky === 9 && f.velkych === 9, `farby: v HTML 9 vzoriek a 9 veľkých fotiek (${f.vsetky}/${f.velkych})`);
@@ -466,15 +514,15 @@ export async function kontroly(t) {
         `farby ${p.id}: vzorky vlastného vzoru = všetky farby produktu (${f.vsetky} vzoriek / ${f.velkych} fotiek / ${f.vis.length} viditeľných, živá stránka ${oc.pocetFarieb})`);
       const zle = f.vis.filter((n, i) => !zhoda(n, oc.farbyTexty[i]));
       ok(!zle.length, `farby ${p.id}: názvy vzoriek v poradí volieb živej stránky (${f.vis.join(", ")})` + (zle.length ? " — nesedí: " + zle.join(", ") : ""));
-      ok(f.n === "Vzorka · " + { stripe: "Stripe Line", hexa: "Hexa Line" }[p.vzor] && !f.diamond, `farby ${p.id}: „${f.n}“, žiadna vzorka Diamond Line (${f.diamond})`);
+      ok(f.n === L.vzorka + " · " + { stripe: "Stripe Line", hexa: "Hexa Line" }[p.vzor] && !f.diamond, `farby ${p.id}: „${f.n}“, žiadna vzorka Diamond Line (${f.diamond})`);
       ok(f.viac === false, `farby ${p.id}: „Mnoho ďalších farieb“ na vlastný konfigurátor skryté (všetky farby sú vo vzorkách)`);
     }
-    ok(f.prva === "true" && f.meno === "Čierna · červené šitie", `farby: predvolená je „${f.meno}“ (prvá vzorka vybraná ${f.prva})`);
+    ok(f.prva === "true" && f.meno === L.prvaFarba, `farby: predvolená je „${f.meno}“ (prvá vzorka vybraná ${f.prva})`);
     ok(f.stitok.endsWith("/ " + dve(viditelne.length)), `farby: počítadlo „${f.stitok}“ = / ${dve(viditelne.length)}`);
     if (viditelne.length > 1) {
       try {
         await t.klikni(F + " .lx-farby-vzorka", { index: 1, popis: "2. viditeľná vzorka farby", pockaj: 400 });
-        await t.cakaj(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return s.querySelector(".lx-farby-meno").textContent.trim() !== "Čierna · červené šitie"; })()`, { ms: 4000, popis: "názov farby sa zmenil" });
+        await t.cakaj(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return s.querySelector(".lx-farby-meno").textContent.trim() !== ${JSON.stringify(L.prvaFarba)}; })()`, { ms: 4000, popis: "názov farby sa zmenil" });
         const po = await t.ev(`(function () { var s = document.querySelector(${JSON.stringify(F)}); return { meno: s.querySelector(".lx-farby-meno").textContent.trim(), cislo: s.querySelector(".lx-farby-cislo").textContent, on: [].filter.call(s.querySelectorAll(".lx-farby-velka img"), function (i) { return i.classList.contains("on"); }).length }; })()`);
         ok(po.meno === viditelne[1] && po.cislo === "02" && po.on === 1, `farby: klik na 2. vzorku prepne názov „${po.meno}“, číslo „${po.cislo}“ (poradie medzi viditeľnými) a jednu veľkú fotku`);
       } catch (e) { ok(false, "farby: " + e.message); }
@@ -517,7 +565,7 @@ export async function kontroly(t) {
     await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5]; return b.nextElementSibling.getBoundingClientRect().height > 30; })()`, { ms: 4000, popis: "faq: odpoveď sa rozbalila" }).catch(() => null);
     const o = await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5], a = b.nextElementSibling;
       return { exp: b.getAttribute("aria-expanded"), h: Math.round(a.getBoundingClientRect().height), vis: getComputedStyle(a).visibility, txt: a.textContent.trim().slice(0, 40) }; })()`);
-    ok(o.exp === "true" && o.h > 30 && o.vis === "visible" && /^Montáž je úplne jednoduchá/.test(o.txt), `faq: klik na 6. otázku rozbalí odpoveď (výška ${o.h}, „${o.txt}…“)`);
+    ok(o.exp === "true" && o.h > 30 && o.vis === "visible" && L.faq6.test(o.txt), `faq: klik na 6. otázku rozbalí odpoveď (výška ${o.h}, „${o.txt}…“)`);
     await t.klikni(s + " .p1v-faq-q", { index: 5, popis: "faq: 6. otázka znova", pockaj: 300 });
     await t.cakaj(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5]; return b.nextElementSibling.getBoundingClientRect().height < 2; })()`, { ms: 4000, popis: "faq: odpoveď sa zbalila" }).catch(() => null);
     const z = await t.ev(`(function () { var b = document.querySelectorAll(${JSON.stringify(s + " .p1v-faq-q")})[5]; return { exp: b.getAttribute("aria-expanded"), h: Math.round(b.nextElementSibling.getBoundingClientRect().height) }; })()`);
@@ -529,7 +577,7 @@ export async function kontroly(t) {
     await t.pauza(500);
     const d = await t.ev(`(function () { var e = document.querySelector(${JSON.stringify(s)}); var h = e.querySelector("h2");
       return { h2: h && h.textContent.trim(), lede: e.querySelector(".lede").textContent.trim(), tl: [].map.call(e.querySelectorAll(".end-cta a"), function (a) { return a.textContent.trim(); }).join(" | ") }; })()`);
-    ok(d.h2 === "Kúpiť a nečakať!" && /^Rohož do kufra na mieru Vášho vozidla/.test(d.lede) && d.tl === "Zadajte údaje o vozidle | Pozrite si recenzie", `záver: „${d.h2}“, úvod o rohoži do kufra, tlačidlá (${d.tl})`);
+    ok(d.h2 === L.koniecH2 && L.koniecLede.test(d.lede) && d.tl === L.koniecTl, `záver: „${d.h2}“, úvod o rohoži do kufra, tlačidlá (${d.tl})`);
   }
 
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"], [id*="smartsupp"]'), function (f) { f.style.removeProperty("visibility"); })`);

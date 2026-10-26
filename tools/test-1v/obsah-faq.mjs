@@ -47,7 +47,8 @@ export function faqAkoZive(t, sel) {
       if (bez(z.a) !== bez(w.a)) { var zb = bez(z.a), wb = bez(w.a), i = prvy(zb, wb);
         rozdiely.push(c + " odpoveď sa líši od znaku " + i + ": „…" + wb.slice(Math.max(0, i - 10), i + 30) + "“ ≠ živé „…" + zb.slice(Math.max(0, i - 10), i + 30) + "“"); }
       if (JSON.stringify(z.h) !== JSON.stringify(w.h)) rozdiely.push(c + " odkazy " + JSON.stringify(w.h) + " ≠ živé " + JSON.stringify(z.h));
-      if (JSON.stringify(z.i) !== JSON.stringify(w.i)) rozdiely.push(c + " obrázky " + JSON.stringify(w.i) + " ≠ živé " + JSON.stringify(z.i));
+      var hostik = function (a) { return JSON.stringify((a || []).map(function (u) { return String(u).replace(/www\.luxurycardesign\.(sk|cz)/, "www.luxurycardesign"); })); }; // obrázok FAQ môže byť na SK aj CZ úložisku Shoptetu
+      if (hostik(z.i) !== hostik(w.i)) rozdiely.push(c + " obrázky " + JSON.stringify(w.i) + " ≠ živé " + JSON.stringify(z.i));
     }
     return { n: web.length, nZive: zive.length, otazky: web.map(function (x) { return citat(x.q); }), rozdiely: rozdiely };
   })()`);
