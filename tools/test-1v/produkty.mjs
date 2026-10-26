@@ -20,6 +20,7 @@
 //   (upozornenia: známe chyby v admine/živom webe test hlási ako „!“ riadky, nie ako zlyhanie — D2)
 
 export const SK = "https://www.luxurycardesign.sk";
+export const CZ = "https://www.luxurycardesign.cz";
 
 /** Chyba použitia testu (zlý prepínač, neznámy produkt alebo adresa): beh vypíše len správu a skončí s exit 2. */
 export class ChybaPouzitia extends Error {}
@@ -230,9 +231,29 @@ export const PRODUKTY = {
   },
 };
 
-/** Iný produkt pre test brány: CZ Diamond (iný projectId 581408) — ?novy=1 nesmie nič zapnúť. */
+/** CZ profily sú oddelené od SK: ID, URL a mena patria projektu 581408. Základná sada overuje bránu. */
+export const PRODUKTY_CZ = {
+  2403: { url: CZ + "/luxusne-autokoberce-dragonskin-diamond-line/", typ: "jedno", vzor: "diamond", nazov: "Jednovrstvové Diamond (CZ)", scenare: ["brana"], ceny: {} },
+  2418: { url: CZ + "/luxusne-autokoberce-dragonskin-stripe-line/", typ: "jedno", vzor: "stripe", nazov: "Jednovrstvové Stripe (CZ)", scenare: ["brana"], ceny: {} },
+  2415: { url: CZ + "/luxusne-autokoberce-dragonskin-hexa-line/", typ: "jedno", vzor: "hexa", nazov: "Jednovrstvové Hexa (CZ)", scenare: ["brana"], ceny: {} },
+  2406: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-diamond-line/", typ: "dvoj", vzor: "diamond", nazov: "Dvouvrstvé Diamond (CZ)", scenare: ["brana"], ceny: {} },
+  2412: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-stripe-line/", typ: "dvoj", vzor: "stripe", nazov: "Dvouvrstvé Stripe (CZ)", scenare: ["brana"], ceny: {} },
+  2409: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-hexa-line/", typ: "dvoj", vzor: "hexa", nazov: "Dvouvrstvé Hexa (CZ)", scenare: ["brana"], ceny: {} },
+  2424: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-klasik/", typ: "kufor-classic", vzor: "diamond", nazov: "Rohož Classic Diamond (CZ)", scenare: ["brana"], ceny: {} },
+  2433: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-klasik-stripe/", typ: "kufor-classic", vzor: "stripe", nazov: "Rohož Classic Stripe (CZ)", scenare: ["brana"], ceny: {} },
+  2430: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-klasik-hexa/", typ: "kufor-classic", vzor: "hexa", nazov: "Rohož Classic Hexa (CZ)", scenare: ["brana"], ceny: {} },
+  2421: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-premium/", typ: "kufor-premium", vzor: "diamond", nazov: "Rohož Premium Diamond (CZ)", scenare: ["brana"], ceny: {} },
+  2439: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-premium-stripe/", typ: "kufor-premium", vzor: "stripe", nazov: "Rohož Premium Stripe (CZ)", scenare: ["brana"], ceny: {} },
+  2436: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/", typ: "kufor-premium", vzor: "hexa", nazov: "Rohož Premium Hexa (CZ)", scenare: ["brana"], ceny: {} },
+  2427: { url: CZ + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Boxy (CZ)", scenare: ["brana"], ceny: {} },
+  2449: { url: CZ + "/vzorkovnik-dragonskin---objednavka-vzorku/", typ: "vzorky", vzor: null, nazov: "Vzorník (CZ)", scenare: ["brana"], ceny: {} },
+  2452: { url: CZ + "/luxusni-autokoberce-kamiony/", typ: "kamion", vzor: null, nazov: "Kamiony a dodávky (CZ)", scenare: ["brana", "kamion-cz"], ceny: {} },
+};
+export const PORADIE_CZ = [2403, 2418, 2415, 2406, 2412, 2409, 2424, 2433, 2430, 2421, 2439, 2436, 2427, 2449, 2452];
+
+/** Produkt mimo oboch registrov pre negatívny test brány. */
 export const INY = {
-  id: 2403, url: "https://www.luxurycardesign.cz/luxusne-autokoberce-dragonskin-diamond-line/", typ: "jedno", vzor: "diamond", nazov: "CZ Diamond (iný projekt)", scenare: [],
+  id: 0, url: "https://www.luxurycardesign.cz/", typ: "iny", vzor: null, nazov: "Produkt mimo registrov", scenare: [],
 };
 
 /** Hlavný produkt typu (plná sada scenárov). */
@@ -252,21 +273,23 @@ export const ALIASY = {
 export const PORADIE = [598, 613, 610, 601, 607, 604, 619, 625, 622, 628, 634, 631, 616, 637, 640];
 
 /** "598,610" | "all" | "typ:dvoj" | "typ:kufor" | alias -> [profil s id]. */
-export function vyberProdukty(spec) {
+export function vyberProdukty(spec, web = "sk") {
+  const profily = web === "cz" ? PRODUKTY_CZ : PRODUKTY;
+  const poradie = web === "cz" ? PORADIE_CZ : PORADIE;
   const out = [];
   const pridaj = (id) => {
-    const p = PRODUKTY[id];
-    if (!p) throw new ChybaPouzitia("neznámy produkt " + id + " (sú: " + PORADIE.join(", ") + ")");
+    const p = profily[id];
+    if (!p) throw new ChybaPouzitia("neznámy produkt " + id + " (sú: " + poradie.join(", ") + ")");
     if (!out.some((x) => x.id === Number(id))) out.push({ id: Number(id), ...p });
   };
   for (const cast of String(spec || "598").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean)) {
-    if (cast === "all" || cast === "vsetky") PORADIE.forEach(pridaj);
+    if (cast === "all" || cast === "vsetky") poradie.forEach(pridaj);
     else if (cast.startsWith("typ:")) {
       const typ = cast.slice(4);
-      const ids = PORADIE.filter((id) => PRODUKTY[id].typ === typ || PRODUKTY[id].typ.startsWith(typ + "-"));
+      const ids = poradie.filter((id) => profily[id].typ === typ || profily[id].typ.startsWith(typ + "-"));
       if (!ids.length) throw new ChybaPouzitia("typ " + typ + " nemá produkty (typy: " + VSETKY_TYPY.join(", ") + ")");
       ids.forEach(pridaj);
-    } else if (ALIASY[cast]) pridaj(ALIASY[cast]);
+    } else if (web === "sk" && ALIASY[cast]) pridaj(ALIASY[cast]);
     else if (/^\d+$/.test(cast)) pridaj(cast);
     else throw new ChybaPouzitia("--produkt: nepoznám „" + cast + "“ (id, all, typ:<typ>, alias: " + Object.keys(ALIASY).join(", ") + ")");
   }
@@ -285,13 +308,16 @@ function normUrl(url) {
  * Neznáma adresa = chyba (T0.2b) — dovtedy sa ticho použil profil 598 a test by overoval cudzí produkt s cenami 598.
  * Pre inú adresu (staging, kópia) treba povedať, ktorý profil sa má použiť: --url <adresa> --produkt <id>.
  */
-export function produktPodlaUrl(url) {
+export function produktPodlaUrl(url, web = "sk") {
+  const profily = web === "cz" ? PRODUKTY_CZ : PRODUKTY;
+  const poradie = web === "cz" ? PORADIE_CZ : PORADIE;
+  const domena = web === "cz" ? CZ : SK;
   const cista = normUrl(url);
-  const id = cista && PORADIE.find((i) => normUrl(PRODUKTY[i].url) === cista);
+  const id = cista && poradie.find((i) => normUrl(profily[i].url) === cista);
   if (!id) {
     throw new ChybaPouzitia("--url " + url + (cista ? "" : " (nie je platná adresa)") + " nie je adresa registrovaného produktu, test nevie, aký profil (typ, ceny, priceId) použiť. " +
-      "Pridaj --produkt <id> (napr. --url " + url + " --produkt 598), alebo použi len --produkt. Registrované adresy: " +
-      PORADIE.map((i) => i + " " + PRODUKTY[i].url.replace(SK, "")).join(", "));
+      "Pridaj --produkt <id>, alebo použi len --produkt. Registrované adresy: " +
+      poradie.map((i) => i + " " + profily[i].url.replace(domena, "")).join(", "));
   }
-  return { id, ...PRODUKTY[id], url };
+  return { id, ...profily[id], url };
 }

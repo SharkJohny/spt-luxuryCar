@@ -13,6 +13,7 @@
 //   - Živé .options-wrap kroku ostáva v DOM (CSS ho pod body.lcd-1v len skryje); nové prvky nemajú name ani input
 //     (nejdú do POST, nemenia pravidlo vyplnenia kroku v configuratorEngine.js).
 export const MENO = "rozlozenie";
+import { prelozTextyCz } from "./texty-cz.js";
 
 const TEXTY = {
   sk: {
@@ -36,6 +37,7 @@ const TEXTY = {
     },
   },
 };
+TEXTY.cs = prelozTextyCz(TEXTY.sk);
 
 const OBRAZKY = {
   // záloha, keď typ nemá kľúč rozlozenie-N (typy/jedno.js ho má: Diamond béžová pre všetky vzory, plan.md §2.5)

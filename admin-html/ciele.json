@@ -102,27 +102,44 @@
     "kontakty": {
       "koren": "lcd-kontakt",
       "tinymce": true,
-      "zastupne": ["#FORM[code=contact]#"],
-      "popis": "Kontakty /kontakty/: celý obsah v Popise stránky (TinyMCE pole). Shoptet v ňom nahradí zástupný text #FORM[code=contact]# (presne raz, sám v <div class=\"lcdk-form\">) úvodnou vetou a form#formContact. Vzhľad: _lcdKontakty.scss (blok LCD-KONTAKTY). Len SK (25. 10. 2026), CZ /kontakty/ ostáva bez zmeny.",
+      "zastupne": [
+        "#FORM[code=contact]#"
+      ],
+      "popis": "Kontakty /kontakty/: celý obsah v Popise stránky (TinyMCE pole). Shoptet v ňom nahradí zástupný text #FORM[code=contact]# (presne raz, sám v <div class=\"lcdk-form\">) úvodnou vetou a form#formContact. Vzhľad: _lcdKontakty.scss (blok LCD-KONTAKTY). SK aj CZ. 10. 2026), CZ /kontakty/ ostáva bez zmeny.",
       "sk": {
         "typ": "stranka",
         "id": 29,
         "pole": "Popis stránky (description)",
         "url": "/kontakty/"
       },
-      "cz": null
+      "cz": {
+        "typ": "stranka",
+        "id": 29,
+        "pole": "Popis stránky (description)",
+        "url": "/kontakty/"
+      }
     },
     "p1v-598-1": {
       "koren": "p1v-598-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: jednovrstvové Diamond/Stripe/Hexa 598/613/610 (návrh jednovrstvove.html v26), kus 1 = skupina A (recenzie, referencie, galéria, ponuka dvojvrstvových bez tlačidla) + B (deväť vecí, materiál, porovnanie + výzva, pred a po). Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-598",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-598",
-      "produkty": [598, 610, 613],
+      "produkty": [
+        598,
+        610,
+        613
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 598, 610, 613 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -131,19 +148,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 598, 610, 613 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-598-1.cz.html",
+        "nazov": "1V obsah 598 kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2403, 2415, 2418 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2403,
+          2415,
+          2418
+        ]
+      }
     },
     "p1v-598-2": {
       "koren": "p1v-598-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: jednovrstvové Diamond/Stripe/Hexa 598/613/610 (návrh jednovrstvove.html v26), kus 2 = skupina C (kam siahajú + výzva, čo príde domov, časová os + výzva, farby, vzorky) + D (realita, FAQ, Kúpiť a nečakať, zlatá linka čítania, okno). Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-598",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-598",
-      "produkty": [598, 610, 613],
+      "produkty": [
+        598,
+        610,
+        613
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 598, 610, 613 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -152,19 +190,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 598, 610, 613 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-598-2.cz.html",
+        "nazov": "1V obsah 598 kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2403, 2415, 2418 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2403,
+          2415,
+          2418
+        ]
+      }
     },
     "p1v-dvoj-1": {
       "koren": "p1v-dvoj-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: dvojvrstvové Diamond/Stripe/Hexa 601/607/604 (návrh dvojvrstvove.html, prieskum-vsetky/navrh-dvojvrstvove.md §5) — T1.3, kus 1 = sekcie 10–29 (A + B). Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-dvoj",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-dvoj",
-      "produkty": [601, 604, 607],
+      "produkty": [
+        601,
+        604,
+        607
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 601, 604, 607 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -173,19 +232,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-dvoj-1.cz.html",
+        "nazov": "1V obsah dvoj kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2406, 2409, 2412 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2406,
+          2409,
+          2412
+        ]
+      }
     },
     "p1v-dvoj-2": {
       "koren": "p1v-dvoj-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: dvojvrstvové Diamond/Stripe/Hexa 601/607/604 (návrh dvojvrstvove.html, prieskum-vsetky/navrh-dvojvrstvove.md §5) — T1.3, kus 2 = sekcie 30–49 (C + D). Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-dvoj",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-dvoj",
-      "produkty": [601, 604, 607],
+      "produkty": [
+        601,
+        604,
+        607
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 601, 604, 607 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -194,19 +274,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 601, 604, 607 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-dvoj-2.cz.html",
+        "nazov": "1V obsah dvoj kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2406, 2409, 2412 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2406,
+          2409,
+          2412
+        ]
+      }
     },
     "p1v-classic-1": {
       "koren": "p1v-classic-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: rohož do kufra Classic 619/625/622 (návrh kufor-classic.html, prieskum-vsetky/navrh-kufor-classic.md §6) — T2.3, kus 1 = sekcie 10–29. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-classic",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-classic",
-      "produkty": [619, 622, 625],
+      "produkty": [
+        619,
+        622,
+        625
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 619, 622, 625 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -215,19 +316,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-classic-1.cz.html",
+        "nazov": "1V obsah classic kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2424, 2430, 2433 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2424,
+          2430,
+          2433
+        ]
+      }
     },
     "p1v-classic-2": {
       "koren": "p1v-classic-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: rohož do kufra Classic 619/625/622 (návrh kufor-classic.html, prieskum-vsetky/navrh-kufor-classic.md §6) — T2.3, kus 2 = sekcie 30–49. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-classic",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-classic",
-      "produkty": [619, 622, 625],
+      "produkty": [
+        619,
+        622,
+        625
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 619, 622, 625 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -236,19 +358,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 619, 622, 625 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-classic-2.cz.html",
+        "nazov": "1V obsah classic kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2424, 2430, 2433 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2424,
+          2430,
+          2433
+        ]
+      }
     },
     "p1v-premium-1": {
       "koren": "p1v-premium-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: rohož do kufra Premium 628/634/631 (návrh kufor-premium.html, prieskum-vsetky/navrh-kufor-premium.md §6) — T2.4, kus 1 = sekcie 10–29. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-premium",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-premium",
-      "produkty": [628, 631, 634],
+      "produkty": [
+        628,
+        631,
+        634
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 628, 631, 634 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -257,19 +400,40 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 628, 631, 634 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-premium-1.cz.html",
+        "nazov": "1V obsah premium kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2421, 2436, 2439 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2421,
+          2436,
+          2439
+        ]
+      }
     },
     "p1v-premium-2": {
       "koren": "p1v-premium-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: rohož do kufra Premium 628/634/631 (návrh kufor-premium.html, prieskum-vsetky/navrh-kufor-premium.md §6) — T2.4, kus 2 = sekcie 30–49. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-premium",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-premium",
-      "produkty": [628, 631, 634],
+      "produkty": [
+        628,
+        631,
+        634
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 628, 631, 634 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -278,19 +442,38 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 628, 631, 634 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-premium-2.cz.html",
+        "nazov": "1V obsah premium kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2421, 2436, 2439 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2421,
+          2436,
+          2439
+        ]
+      }
     },
     "p1v-boxy-1": {
       "koren": "p1v-boxy-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: box do kufra 616 (návrh boxy.html, prieskum-vsetky/navrh-boxy.md §6) — T3.3, kus 1 = sekcie 10–29. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-boxy",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-boxy",
-      "produkty": [616],
+      "produkty": [
+        616
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 616 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -299,19 +482,36 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-boxy-1.cz.html",
+        "nazov": "1V obsah boxy kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2427 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2427
+        ]
+      }
     },
     "p1v-boxy-2": {
       "koren": "p1v-boxy-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: box do kufra 616 (návrh boxy.html, prieskum-vsetky/navrh-boxy.md §6) — T3.3, kus 2 = sekcie 30–49. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-boxy",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-boxy",
-      "produkty": [616],
+      "produkty": [
+        616
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 616 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -320,19 +520,36 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 616 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-boxy-2.cz.html",
+        "nazov": "1V obsah boxy kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2427 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2427
+        ]
+      }
     },
     "p1v-vzorky-1": {
       "koren": "p1v-vzorky-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: vzorkovník 637 (až po schválení návrhu, T5.1), kus 1 = sekcie 10–29. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-vzorky",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-vzorky",
-      "produkty": [637],
+      "produkty": [
+        637
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 637 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -341,19 +558,36 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-vzorky-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 637. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 637 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-vzorky-1.cz.html",
+        "nazov": "1V obsah vzorky kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-vzorky-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 637. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2449 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2449
+        ]
+      }
     },
     "p1v-vzorky-2": {
       "koren": "p1v-vzorky-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: vzorkovník 637 (až po schválení návrhu, T5.1), kus 2 = sekcie 30–49. Za bránou (?novy=1 / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-vzorky",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-vzorky",
-      "produkty": [637],
+      "produkty": [
+        637
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktov 637 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -362,20 +596,36 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-vzorky-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 637. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkty 637 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
-    }
-,
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-vzorky-2.cz.html",
+        "nazov": "1V obsah vzorky kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-vzorky-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 637. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2449 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2449
+        ]
+      }
+    },
     "p1v-kamiony-1": {
       "koren": "p1v-kamiony-1",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: kamióny a dodávky 640 (schválený vzor kamiony-app, texty.json obsah.*; docs/kamiony-1v-plan.md §4), kus 1 = sekcie 10–29. Za bránou (?novy=1 po vydaní typu kamion / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-kamiony",
-      "sekcie": ["10", "29"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "10",
+        "29"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-kamiony",
-      "produkty": [640],
+      "produkty": [
+        640
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktu 640 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -384,19 +634,36 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-1.cz.html",
+        "nazov": "1V obsah kamióny kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2452 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2452
+        ]
+      }
     },
     "p1v-kamiony-2": {
       "koren": "p1v-kamiony-2",
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom 1V: kamióny a dodávky 640 (schválený vzor kamiony-app, texty.json obsah.*; docs/kamiony-1v-plan.md §4), kus 2 = sekcie 30–49. Za bránou (?novy=1 po vydaní typu kamion / ?novy=vyvoj). docs/1v-obsah.md",
       "zlozka": "p1v-kamiony",
-      "sekcie": ["30", "49"],
-      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "sekcie": [
+        "30",
+        "49"
+      ],
+      "obal": {
+        "trieda": "p1v-obsah",
+        "brana": "1v"
+      },
       "pravidla": "obsah-1v",
       "naVsetkychStrankach": false,
       "skupina": "p1v-kamiony",
-      "produkty": [640],
+      "produkty": [
+        640
+      ],
       "popisSpolu": "po spustení pre všetkých: Popis produktu 640 (jedno pole na produkt, starý obsah zmazaný) — nad limitom ostane kus 2 mimo Popisu (docs/1v-obsah.md §7)",
       "sk": {
         "typ": "cdn",
@@ -405,7 +672,16 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-2.cz.html",
+        "nazov": "1V obsah kamióny kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2452 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2452
+        ]
+      }
     }
   },
   "pravidla": {
@@ -414,18 +690,64 @@
       "idPredpona": "p1v-",
       "media": "odlozene",
       "cisla": "^(cena-od(-(jedno|dvoj|classic|premium|boxy)(-(diamond|stripe|hexa))?)?|set-(classic|premium)|set-usetrite(-(classic|premium))?|box2?-sam-(s|m|l|xl)|box-set2?-(s|m|l|xl)|pocet-farieb(-2)?|vzor|kamion-(material-presivana|tapacir|tapacir-samostatne))$",
-      "odkazy": ["jedno", "dvoj", "classic", "premium", "boxy"],
+      "odkazy": [
+        "jedno",
+        "dvoj",
+        "classic",
+        "premium",
+        "boxy"
+      ],
       "kusy": 2,
       "zakazaneTriedy": [
-          "lcd-reviews-widget", "lcd-videos-widget", "impact-text", "layers-info-wrap", "images-scrolling__counter",
-          "twentytwenty-wrap", "twentytwenty-container", "twentytwenty-before", "twentytwenty-after", "text-block",
-          "lcd-pp", "lcd-pp-nahradene", "lcd-farby-sekcia", "sec-header", "playpause", "desctop", "mobile", "wrapper",
-          "customer-video", "customers-video", "slick-slide", "accordion", "faq", "faq-content", "option-button",
-          "parameter-wrap", "position-wrap", "content-wrap", "upsale-button", "upsale-buttons", "upsale-Banner",
-          "upsale-wrap", "next-step-button", "finish-button", "add-to-cart", "add-to-cart-button", "detail-parameters",
-          "box-config", "modl-selector-wrap", "model-selector", "model-info", "p-final-price-wrapper", "price-final",
-          "price-standard", "benefitBanner__item", "benefitBanner__content", "lcd-root", "lcd1v-suhrn"
-        ]
+        "lcd-reviews-widget",
+        "lcd-videos-widget",
+        "impact-text",
+        "layers-info-wrap",
+        "images-scrolling__counter",
+        "twentytwenty-wrap",
+        "twentytwenty-container",
+        "twentytwenty-before",
+        "twentytwenty-after",
+        "text-block",
+        "lcd-pp",
+        "lcd-pp-nahradene",
+        "lcd-farby-sekcia",
+        "sec-header",
+        "playpause",
+        "desctop",
+        "mobile",
+        "wrapper",
+        "customer-video",
+        "customers-video",
+        "slick-slide",
+        "accordion",
+        "faq",
+        "faq-content",
+        "option-button",
+        "parameter-wrap",
+        "position-wrap",
+        "content-wrap",
+        "upsale-button",
+        "upsale-buttons",
+        "upsale-Banner",
+        "upsale-wrap",
+        "next-step-button",
+        "finish-button",
+        "add-to-cart",
+        "add-to-cart-button",
+        "detail-parameters",
+        "box-config",
+        "modl-selector-wrap",
+        "model-selector",
+        "model-info",
+        "p-final-price-wrapper",
+        "price-final",
+        "price-standard",
+        "benefitBanner__item",
+        "benefitBanner__content",
+        "lcd-root",
+        "lcd1v-suhrn"
+      ]
     }
   },
   "stranky": {
@@ -455,68 +777,219 @@
       ]
     },
     "kontakty": {
-      "casti": ["mega", "kontakty"],
-      "idStranky": ["header", "content", "content-wrapper", "footer", "formContact", "fullName", "email", "message", "consents25", "lc-phone-wrapper", "lcPhone", "signature"]
+      "casti": [
+        "mega",
+        "kontakty"
+      ],
+      "idStranky": [
+        "header",
+        "content",
+        "content-wrapper",
+        "footer",
+        "formContact",
+        "fullName",
+        "email",
+        "message",
+        "consents25",
+        "lc-phone-wrapper",
+        "lcPhone",
+        "signature"
+      ]
     },
     "produkt-598": {
-      "casti": ["mega", "p1v-598-1", "p1v-598-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-610": {
-      "casti": ["mega", "p1v-598-1", "p1v-598-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-613": {
-      "casti": ["mega", "p1v-598-1", "p1v-598-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-601": {
-      "casti": ["mega", "p1v-dvoj-1", "p1v-dvoj-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-dvoj-1",
+        "p1v-dvoj-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-604": {
-      "casti": ["mega", "p1v-dvoj-1", "p1v-dvoj-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-dvoj-1",
+        "p1v-dvoj-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-607": {
-      "casti": ["mega", "p1v-dvoj-1", "p1v-dvoj-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-dvoj-1",
+        "p1v-dvoj-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-619": {
-      "casti": ["mega", "p1v-classic-1", "p1v-classic-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-classic-1",
+        "p1v-classic-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-622": {
-      "casti": ["mega", "p1v-classic-1", "p1v-classic-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-classic-1",
+        "p1v-classic-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-625": {
-      "casti": ["mega", "p1v-classic-1", "p1v-classic-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-classic-1",
+        "p1v-classic-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-628": {
-      "casti": ["mega", "p1v-premium-1", "p1v-premium-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-premium-1",
+        "p1v-premium-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-631": {
-      "casti": ["mega", "p1v-premium-1", "p1v-premium-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-premium-1",
+        "p1v-premium-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-634": {
-      "casti": ["mega", "p1v-premium-1", "p1v-premium-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-premium-1",
+        "p1v-premium-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-616": {
-      "casti": ["mega", "p1v-boxy-1", "p1v-boxy-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-boxy-1",
+        "p1v-boxy-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-637": {
-      "casti": ["mega", "p1v-vzorky-1", "p1v-vzorky-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-vzorky-1",
+        "p1v-vzorky-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "produkt-640": {
-      "casti": ["mega", "p1v-kamiony-1", "p1v-kamiony-2"],
-      "idStranky": ["product-detail-form", "content", "description", "footer"]
+      "casti": [
+        "mega",
+        "p1v-kamiony-1",
+        "p1v-kamiony-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     },
     "ostatne": {
       "casti": [
@@ -525,6 +998,201 @@
       "snimka": {
         "sk": "sk_nase-produkty_.html"
       }
+    },
+    "produkt-2403": {
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2415": {
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2418": {
+      "casti": [
+        "mega",
+        "p1v-598-1",
+        "p1v-598-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2406": {
+      "casti": [
+        "mega",
+        "p1v-dvoj-1",
+        "p1v-dvoj-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2409": {
+      "casti": [
+        "mega",
+        "p1v-dvoj-1",
+        "p1v-dvoj-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2412": {
+      "casti": [
+        "mega",
+        "p1v-dvoj-1",
+        "p1v-dvoj-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2424": {
+      "casti": [
+        "mega",
+        "p1v-classic-1",
+        "p1v-classic-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2430": {
+      "casti": [
+        "mega",
+        "p1v-classic-1",
+        "p1v-classic-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2433": {
+      "casti": [
+        "mega",
+        "p1v-classic-1",
+        "p1v-classic-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2421": {
+      "casti": [
+        "mega",
+        "p1v-premium-1",
+        "p1v-premium-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2436": {
+      "casti": [
+        "mega",
+        "p1v-premium-1",
+        "p1v-premium-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2439": {
+      "casti": [
+        "mega",
+        "p1v-premium-1",
+        "p1v-premium-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2427": {
+      "casti": [
+        "mega",
+        "p1v-boxy-1",
+        "p1v-boxy-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2449": {
+      "casti": [
+        "mega",
+        "p1v-vzorky-1",
+        "p1v-vzorky-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
+    },
+    "produkt-2452": {
+      "casti": [
+        "mega",
+        "p1v-kamiony-1",
+        "p1v-kamiony-2"
+      ],
+      "idStranky": [
+        "product-detail-form",
+        "content",
+        "description",
+        "footer"
+      ]
     }
   }
 }

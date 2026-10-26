@@ -826,14 +826,14 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
   if (!zlozky.has(def.zlozka)) zlozky.set(def.zlozka, []);
   zlozky.get(def.zlozka).push([cast, def]);
 }
-/* obsah 1V (pravidlá s "kusy"): skupina p1v-<kľúč> = presne kusy častí p1v-<kľúč>-1…N (obsah.js KUSY), len SK */
+/* obsah 1V (pravidlá s "kusy"): skupina p1v-<kľúč> = presne kusy častí p1v-<kľúč>-1…N (obsah.js KUSY), SK aj CZ */
 const skupinyObsahu = new Map();
 for (const [cast, def] of Object.entries(CIELE.casti)) {
   const P = def.pravidla ? (CIELE.pravidla || {})[def.pravidla] : null;
   if (!P || !P.kusy) continue;
   const m = /^(p1v-[a-z0-9]+)-(\d+)$/.exec(cast);
   if (!m || def.skupina !== m[1] || def.koren !== cast) globalne.push(`${cast}: časť obsahu 1V musí mať meno p1v-<kľúč>-<n>, "skupina": "p1v-<kľúč>" a "koren" = meno časti`);
-  if (def.cz !== null) globalne.push(`${cast}: obsah 1V je len SK — "cz": null`);
+  if (!def.sk || !def.cz) globalne.push(`${cast}: obsah 1V musí mať cieľ pre SK aj CZ`);
   const sk = m ? m[1] : cast;
   if (!skupinyObsahu.has(sk)) skupinyObsahu.set(sk, { kusy: P.kusy, n: [] });
   if (m) skupinyObsahu.get(sk).n.push(Number(m[2]));

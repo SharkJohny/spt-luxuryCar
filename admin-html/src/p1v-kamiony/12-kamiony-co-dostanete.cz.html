@@ -1,0 +1,32 @@
+<!-- 12-kamiony-co-dostanete — kamióny a dodávky SK 640: „Koberce do kabíny“ (ART texty.json obsah.co_dostanete; 23. 10. 2026 Michal: koberec môže byť z jedného kusa, preto miesta, nie „tri koberce“). Kapitola 2 (svetlý podklad).
+     Dve karty vedľa seba (PC), na telefóne pod sebou: fotka + popis | „V základnej cene“ (3 koberce) a „Za príplatok“ (tapacír dverí).
+     Fotka: produkt 640, fotka 1 galérie Shoptetu (béžová prešívaná) — ART mal fotku setu od dodávateľa, ktorá na webe nie je.
+     ŽIADNA cena v HTML (docs/1v-obsah.md §4b): sumy dosadí obsah-cisla.js zo živých selectov Shoptetu (zmluva §4.3):
+       cena-od                    základ produktu („V základnej cene 199 €“ v ART),
+       kamion-material-presivana  príplatok prešívanej syntetickej kože („(príplatok {x})“ v ART),
+       kamion-tapacir             tapacír dverí s kobercami („S kobercami len za {suma}“),
+       kamion-tapacir-samostatne  prečiarknutá cena samostatne („samostatne {povodna}“).
+     Nezistené číslo sa skryje aj s textom okolo (data-p1v-tvar), veta ostane celá. Vzhľad: _lcd1v-obsah-kamiony.scss (.kk). -->
+<section class="chapter" data-lcd-sekcia="kamiony-co-dostanete" data-lcd-kap="2"><div class="wrap">
+  <div class="eyebrow rv">Co dostanete</div>
+  <h2 class="rv">Koberce do kabiny</h2>
+  <p class="lede rv">V základní ceně jsou koberce pod řidiče, spolujezdce i do středu – v jednobarevné syntetické kůži, v barvě a s lemováním podle Vašeho výběru. Nášivky a u kamionů také čalounění dveří si můžete přidat.</p>
+  <div class="kk rv">
+    <div class="kk-b kk-foto">
+      <figure><img src="https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/shop/big/640_luxusne-autokoberce-do-kamionu-1-luxury-car-design-1x1.png?ff=1&amp;x=1024&amp;y=1024&amp;q=85&amp;ts=6a6bb6ae&amp;sg=38cb01fe" alt="Béžové prošívané koberce v kabině kamionu" loading="lazy" width="1024" height="1024">
+        <figcaption>Na fotce prošívaná syntetická kůže<span data-p1v-cislo="kamion-material-presivana" data-p1v-tvar=" (příplatek {})"><!-- --></span>.</figcaption></figure>
+    </div>
+    <div class="kk-b">
+      <h3 class="kk-h">V základní ceně<span data-p1v-cislo="cena-od" data-p1v-tvar=" {}"><!-- --></span></h3>
+      <ul class="kk-zoz">
+        <li><b>Místo řidiče</b></li>
+        <li><b>Místo spolujezdce</b></li>
+        <li><b>Střed kabiny</b></li>
+      </ul>
+      <h3 class="kk-h kk-za">Za příplatek</h3>
+      <ul class="kk-zoz">
+        <li><b>Čalounění dveří</b><br>Pouze pro kamiony. Výplně dveří sladěné s koberci<span data-p1v-cislo="kamion-tapacir" data-p1v-tvar=". S koberci jen za {}"><!-- --></span><span data-p1v-cislo="kamion-tapacir-samostatne" data-p1v-tvar=", samostatně {}." data-p1v-bez="."><!-- --></span></li>
+      </ul>
+    </div>
+  </div>
+</div></section>

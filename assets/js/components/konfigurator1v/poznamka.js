@@ -34,7 +34,7 @@ function konfiguraciaDoplnku() {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  const T = ctx.trh === "sk" ? ctx.texty("poznamka") : {}; // texty typov sú len SK; inde ostanú texty doplnku
+  const T = ctx.texty("poznamka");
   const form = ctx.form();
   const kos = ctx.krok("kosik");
   const doKosika = kos && kos.closest(".add-to-cart");

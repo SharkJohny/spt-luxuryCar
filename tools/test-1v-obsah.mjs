@@ -79,12 +79,13 @@ const cisla = (s) => s.split(",").map((x) => Number(x.trim())).filter(Boolean);
 const nbsp = (s) => String(s == null ? "" : s).replace(/[\u00a0\u202f]/g, " ").replace(/\s+/g, " ").trim();
 
 function argumenty(argv) {
-  const a = { produkt: "598", vyvoj: false, sondaCisel: false, sirkyNovy: [360, 390, 768, 1280], sirkyBez: [1280, 390], snimkySirky: [390, 1280], skupiny: null, miesto: "cdn",
+  const a = { web: "sk", produkt: "598", vyvoj: false, sondaCisel: false, sirkyNovy: [360, 390, 768, 1280], sirkyBez: [1280, 390], snimkySirky: [390, 1280], skupiny: null, miesto: "cdn",
     snimky: join(tmpdir(), "lcd-1v-obsah-snimky"), bezSnimok: false, navrh: null, len: null, zaklad: true, paralelne: 3, okno: false, bezDrop: false, vypis: false,
     poloha: [390, 1280], vypadok: true };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
-    if (x === "--produkt") a.produkt = dalsi();
+    if (x === "--web") { a.web = dalsi(); if (!/^(sk|cz)$/.test(a.web)) throw new ChybaPouzitia("--web sk alebo cz"); if (a.web === "cz" && a.produkt === "598") a.produkt = "2403"; }
+    else if (x === "--produkt") a.produkt = dalsi();
     else if (x === "--vyvoj") a.vyvoj = true;
     else if (x === "--sonda-cisla") a.sondaCisel = true;
     else if (x === "--sirka") a.sirkyNovy = cisla(dalsi());
@@ -316,12 +317,12 @@ async function snimkaOblasti(k, kusy, cesta) {
 // ------------------------------------------------------------------ beh
 async function main() {
   const a = argumenty(process.argv.slice(2));
-  const reg = register();
+  const reg = register(a.web);
   const flag = a.vyvoj ? "vyvoj" : "1";
   // spustenie pre všetkých (index.js SPUSTENE, Michal 25. 10. 2026): starý vzhľad („bez flagu“) = ?novy=0
   const SPUSTENE = /export const SPUSTENE\s*=\s*true/.test(readFileSync(new URL("../assets/js/components/konfigurator1v/index.js", import.meta.url), "utf8"));
   const bezFlagu = SPUSTENE ? "0" : null;
-  const produkty = vyberProdukty(a.produkt).map((p) => {
+  const produkty = vyberProdukty(a.produkt, a.web).map((p) => {
     const r = reg.produkty[p.id];
     if (!r) throw new ChybaPouzitia("produkt " + p.id + " nie je v registri konfigurator1v/produkty.js");
     return { ...p, url: r.url, cesta: r.cesta, typ: r.typ, vzor: r.vzor, kluc: r.obsah, zapnuty: reg.zapnute.includes(r.typ) };
@@ -331,7 +332,7 @@ async function main() {
     if (vypnute.length) throw new ChybaPouzitia("?novy=1 na produktoch nezapnutého typu (" + vypnute.map((p) => p.id + " " + p.typ).join(", ") + ") nič nezapne — pridaj --vyvoj (ZAPNUTE_TYPY " + JSON.stringify(reg.zapnute) + ")");
   }
   console.log(`Test obsahu 1V — miesto: ${{ cdn: "CDN verzie (D1 = b, test obslúži lokálny dist)", popis: "Popis produktu (spustenie, vložené testom)", "popis-cdn": "kus 1 v Popise (--bez-webp, vložené testom) + kus 2 z CDN (krok 2 spustenia)", paticka: "banner v pätičke (starý test, vložené testom)", zive: "živé (nič sa nevkladá ani neobsluhuje)" }[a.miesto]}, flag ?novy=${flag}, produkty ${produkty.map((p) => p.id + " (" + p.kluc + ")").join(", ")}`);
-  const build = priprav({ bezDrop: a.bezDrop, bezWebp: a.miesto === "popis-cdn" || a.miesto === "zive" });
+  const build = priprav({ bezDrop: a.bezDrop, bezWebp: a.miesto === "popis-cdn" || a.miesto === "zive", web: a.web });
   console.log("  " + build.popis);
   const menaSekcii = (html) => [...String(html).matchAll(/\sdata-lcd-sekcia="([^"]+)"/g)].map((m) => m[1]);
 

@@ -136,7 +136,7 @@ function nastav(e, t) {
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
   // typ produktu (štítok nad H1, popis lišty) z typy/<typ>.js — texty typov sú len SK
-  const T = Object.assign({}, TEXTY[ctx.trh] || TEXTY.sk, ctx.trh === "sk" && ctx.texty ? ctx.texty("cena") : {});
+  const T = Object.assign({}, TEXTY[ctx.trh] || TEXTY.sk, ctx.texty ? ctx.texty("cena") : {});
   const form = ctx.form();
   const ziva = ctx.krok("cena"); // .p-final-price-wrapper — zdroj všetkých čísel
   const kos = ctx.krok("kosik"); // živé „Pridať do košíka“

@@ -1,0 +1,37 @@
+<!-- 22-a-ponuka — box do kufra 616: „Berete aj autokoberce pod sedadlá? Spolu s nimi je box lacnejší“ + tabuľka cien (návrh boxy.html r. 4029–4041, spec navrh-boxy.md §6.1).
+     Michal 17. 10. 2026: „pod sedadlá“ (interiér auta je aj kufor), cena s autokobercami vysvetlená vetou.
+     Rozloženie karty .ups = skupina A (_lcd1v-obsah-a.scss); tabuľka .cenv je nová: _lcd1v-obsah-boxy.scss.
+     ŽIADNA cena natvrdo: samostatne = základ 616 + príplatok 1. boxu (box-sam-*), v sete = jednovrstvové toho istého vzoru:
+     „Box solo“ (box-set-*) a 1. box pri dvoch (box-set2-*). Hodnotu dosadí obsah-cisla.js zo živých stránok; keď ju nezistí,
+     bunka ukáže pomlčku (data-p1v-bez), aby sa tabuľka nerozsypala.
+     Odkaz „Zostavte si set s autokobercami“ vedie na jednovrstvové (data-p1v-odkaz) na konfigurátor (#product-detail-form).
+     Fotka: assets/img/1v/obsah/boxy-set.jpg (bx-set.jpg z návrhu).
+     Michal 25. 10. 2026 (pri Premium 628 ?novy=1: tmavé bannery hneď pod konfigurátorom = „úplný nonsens. Prvé majú byť recenzie a potom
+     nejako porozdeľovať tieto dva bannery do toho celého popisu“; rovnaký princíp na box): predtým 10-a-ponuka hneď pod konfigurátorom,
+     teraz v kapitole 1 hneď ZA veľkosťami boxov (21-boxy-velkosti) — tam zákazník práve videl ceny „Samostatne / V sete s autokobercami“
+     pri každej veľkosti a tabuľka na ne nadväzuje. Od kariet „Doplňte aj rohož do kufra“ (40-boxy-cross) ho delia 3 sekcie (časová os,
+     farby, vzorky). Text bez zmeny. Číslo 22 + meno a-ponuka radí build za 21-boxy-velkosti, v kuse 1 (10–29).
+     Obal div[data-lcd-kap="1"] > section.chapter (ako 21-boxy-velkosti, Premium 31-a-ponuka): podklad a rytmus kapitoly 1 z _lcd1v-obsah.scss
+     bod 5 (sekcia A priamo na section.chapter by mala väčšie odsadenie skupiny A). Pravidlá .cenv sú viazané na meno a-ponuka, nie na obal. -->
+<div data-lcd-sekcia="a-ponuka" data-lcd-kap="1">
+<section class="chapter">
+<div class="wrap">
+<div class="ups rv">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-set.jpg" alt="Boxy a rohož do kufru v jednom kufru" width="800" height="800" loading="lazy"></div>
+<div class="tx">
+<span class="od">Výhodnejšie s autokoberci</span>
+<h3>Berete i autokoberce pod sedadla? Spolu s nimi je box levnější</h3>
+<p>Když box koupíte spolu s autokoberci pod sedadla v jednom konfigurátore, zaplatíte za něj výrazně méně. Stejný box, stejný materiál i prošívání.</p>
+<div class="cenv" role="table" aria-label="Cena boxu samostatně a spolu s autokoberci pod sedadla">
+<div class="r" role="row"><span class="h" role="columnheader"><span class="sr-only">Velikost</span></span><span class="h" role="columnheader">S</span><span class="h" role="columnheader">M</span><span class="h" role="columnheader">L</span><span class="h" role="columnheader">XL</span></div>
+<div class="r" role="row"><span class="l" role="rowheader">Samostatně</span><span role="cell" data-p1v-cislo="box-sam-s" data-p1v-bez="–"><!-- --></span><span role="cell" data-p1v-cislo="box-sam-m" data-p1v-bez="–"><!-- --></span><span role="cell" data-p1v-cislo="box-sam-l" data-p1v-bez="–"><!-- --></span><span role="cell" data-p1v-cislo="box-sam-xl" data-p1v-bez="–"><!-- --></span></div>
+<div class="r" role="row"><span class="l" role="rowheader">Spolu s autokoberci pod sedadla</span><span class="z" role="cell" data-p1v-cislo="box-set-s" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set-m" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set-l" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set-xl" data-p1v-bez="–"><!-- --></span></div>
+<div class="r" role="row"><span class="l" role="rowheader">Spolu s autokoberci, při dvoch boxoch (každý)</span><span class="z" role="cell" data-p1v-cislo="box-set2-s" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set2-m" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set2-l" data-p1v-bez="–"><!-- --></span><span class="z" role="cell" data-p1v-cislo="box-set2-xl" data-p1v-bez="–"><!-- --></span></div>
+</div>
+<p class="cenv-note">Nižšie ceny platia, když box koupíte spolu s autokoberci pod sedadla.</p>
+<a class="btn" href="/luxusne-autokoberce-dragonskin-diamond-line/#product-detail-form" data-p1v-odkaz="jedno">Sestavte si set s autokoberci</a>
+</div>
+</div>
+</div>
+</section>
+</div>

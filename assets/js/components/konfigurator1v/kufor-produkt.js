@@ -31,18 +31,19 @@ const VZORY = ["diamond", "stripe", "hexa"];
 const NBSP = " ";
 
 /** 129 -> „129 €“, 129.5 -> „129,50 €“ (NBSP pred €; ako ceny v obsahu, plan.md §2.4). */
-export function suma(n) {
+export function suma(n, formatter) {
+  if (typeof formatter === "function") return formatter(n);
   const x = Math.round(Number(n) * 100) / 100;
   const t = Number.isInteger(x) ? String(x) : x.toFixed(2).replace(".", ",");
   return t.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP) + NBSP + "€";
 }
 
 /** Cena pod dlaždicou vzoru (Premium): rozdiel cien (vzor − základný vzor) -> „v cene“ | „+ 10 €“ | „− 10 €“ | null (nezistené). */
-export function textRozdielu(rozdiel, vCene) {
+export function textRozdielu(rozdiel, vCene, formatter) {
   if (rozdiel == null || !Number.isFinite(rozdiel)) return null;
   const r = Math.round(rozdiel * 100) / 100;
   if (r === 0) return vCene;
-  return (r > 0 ? "+" : "−") + NBSP + suma(Math.abs(r));
+  return (r > 0 ? "+" : "−") + NBSP + suma(Math.abs(r), formatter);
 }
 
 /**
@@ -51,7 +52,7 @@ export function textRozdielu(rozdiel, vCene) {
  *  - jeden najlacnejší a ostatné o rovnakú sumu drahšie -> T.vzorPod(„Diamond Line“, [„Stripe Line“, „Hexa Line“], „10 €“),
  *  - čokoľvek iné alebo chýbajúca cena -> null (veta sa neukáže; netvrdiť nič, čo ceny nepotvrdia).
  */
-export function podnadpisVzoru(ceny, T) {
+export function podnadpisVzoru(ceny, T, formatter) {
   const v = VZORY.filter((k) => T.vzory && T.vzory[k]);
   if (!v.length || v.some((k) => !(Number(ceny[k]) > 0))) return null;
   const min = Math.min.apply(null, v.map((k) => ceny[k]));
@@ -61,7 +62,7 @@ export function podnadpisVzoru(ceny, T) {
   if (lacne.length !== 1 || typeof T.vzorPod !== "function") return null;
   const rozdiel = ceny[drahe[0]] - min;
   if (drahe.some((k) => ceny[k] - min !== rozdiel)) return null;
-  return T.vzorPod(T.vzory[lacne[0]], drahe.map((k) => T.vzory[k]), suma(rozdiel));
+  return T.vzorPod(T.vzory[lacne[0]], drahe.map((k) => T.vzory[k]), suma(rozdiel, formatter));
 }
 
 function el(tag, trieda, text) {
@@ -179,7 +180,8 @@ export function init(ctx) {
     if (!krok || typeof T.vzorPod !== "function" || krok.querySelector(":scope > .lcd1v-pod")) return;
     const v = VZORY.filter((k) => T.vzory && T.vzory[k]);
     if (v.length < 2) return;
-    const p = el("p", "lcd1v-pod lcd1v-kf-pod lcd1v-kf-pod--caka", T.vzorPod(T.vzory[v[0]], v.slice(1).map((k) => T.vzory[k]), "\u2007\u2007" + NBSP + "€"));
+    const mena = ctx.trh === "cz" ? "Kč" : "€";
+    const p = el("p", "lcd1v-pod lcd1v-kf-pod lcd1v-kf-pod--caka", T.vzorPod(T.vzory[v[0]], v.slice(1).map((k) => T.vzory[k]), "\u2007\u2007" + NBSP + mena));
     p.setAttribute("aria-hidden", "true");
     const hd = krok.querySelector(":scope > .lcd1v-hd");
     vloz(krok, p, hd ? hd.nextSibling : krok.firstChild);
@@ -191,8 +193,8 @@ export function init(ctx) {
     const vz = T.vzory && T.vzory[P.vzor];
     if (!krok || !(own > 0) || !vz) return;
     let z = vz;
-    if (T.dlazdica === "cena") z = vz + " · " + suma(own);
-    else if (zaklad > 0 && own - zaklad > 0) z = vz + " · +" + NBSP + suma(own - zaklad);
+    if (T.dlazdica === "cena") z = vz + " · " + ctx.formatCena(own);
+    else if (zaklad > 0 && own - zaklad > 0) z = vz + " · +" + NBSP + ctx.formatCena(own - zaklad);
     nastavAttr(krok, "data-lcd1v-vyber", z);
     ctx.vysli("zmena", { kluc: "vzor", hodnota: P.vzor, cesta: "kufor-produkt" }); // kroky.js prepíše zhrnutie hneď
   }
@@ -210,8 +212,8 @@ export function init(ctx) {
       // Classic (návrh kufor-classic.html): plná cena vzoru „230 € / 240 € / 240 €“; Premium (kufor-premium.html): rozdiel oproti
       // základnému (najlacnejšiemu) vzoru „v cene / + 10 € / + 10 €“ — na všetkých troch stránkach rovnako, ako podnadpis kroku
       const t = T.dlazdica === "cena"
-        ? (cenyVzorov[v] > 0 ? suma(cenyVzorov[v]) : null)
-        : textRozdielu(cenyVzorov[v] > 0 && zaklad > 0 ? cenyVzorov[v] - zaklad : null, T.vCene || "");
+        ? (cenyVzorov[v] > 0 ? ctx.formatCena(cenyVzorov[v]) : null)
+        : textRozdielu(cenyVzorov[v] > 0 && zaklad > 0 ? cenyVzorov[v] - zaklad : null, T.vCene || "", ctx.formatCena);
       // text cez atribút + CSS ::after: textContent dlaždice ostáva „DIAMOND LINE“ (zhrnutie kroku a popis lišty ho čítajú)
       if (t) nastavAttr(hlava, "data-lcd1v-cena", t);
     });
@@ -221,7 +223,7 @@ export function init(ctx) {
 
   function podnadpis(cenyVzorov) {
     const krok = ctx.krok("vzor");
-    const text = podnadpisVzoru(cenyVzorov, T);
+    const text = podnadpisVzoru(cenyVzorov, T, ctx.formatCena);
     // rezervovaný odsek (rezervaPodnadpisu) dostane skutočnú vetu na tom istom mieste; bez vety ho odstráni ceny()
     const rez = krok && krok.querySelector(":scope > .lcd1v-kf-pod--caka");
     if (rez && text) {

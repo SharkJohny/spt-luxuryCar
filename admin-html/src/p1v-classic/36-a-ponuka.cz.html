@@ -1,0 +1,33 @@
+<!-- 36-a-ponuka — „Potrebujete aj autokoberce pod sedadlá?“ (návrh kufor-classic.html, spec navrh-kufor-classic.md §6.1). Šablóna .ups skupiny A.
+     Michal 17. 10. 2026: cena v sete nie ako „+ X €“ (vyzerá ako príplatok k cene hore), ale „… len za X €, keď ju kúpite spolu
+     s autokobercami pod sedadlá“; „pod sedadlá“ (interiér auta je aj kufor).
+     Všetky ceny a odkazy len cez data-p1v-cislo / data-p1v-odkaz (obsah-cisla.js): samostatná cena rohože, príplatok v sete, úspora,
+     odkaz na jednovrstvové autokoberce toho istého vzoru (598 / 610 / 613). obsah-cisla.js dosadzuje v celom .p1v-miesto, teda aj v kuse 2.
+     Michal 25. 10. 2026 (pri Premium 628 ?novy=1: dva tmavé bannery hneď pod konfigurátorom = „úplný nonsens. Prvé majú byť recenzie a potom
+     nejako porozdeľovať tieto dva bannery do toho celého popisu“; rovnaký princíp na Classic): predtým 10-a-ponuka hneď pod konfigurátorom,
+     teraz v kapitole 3 hneď ZA vzorkami (35-c-vzorky), pred videami z praxe (40-d-realita) — zákazník práve vyberal farbu a nadväzuje
+     „Vzor aj farba ladia s autokobercami pod sedadlá“. Od banneru boxu (31-classic-box, kapitola 2) ho delia 4 sekcie (domov, časová os,
+     farby, vzorky). Text bez zmeny. Číslo 36 + meno a-ponuka radí build za 35-c-vzorky (celý názov súboru).
+     Obal div[data-lcd-kap="3"] > section.chapter (ako Premium 31-a-ponuka a 22-b-porovnanie): podklad a rytmus kapitoly 3 z _lcd1v-obsah.scss
+     bod 5 (sekcia A priamo na section.chapter by mala väčšie odsadenie skupiny A). Štýl karty: assets/css/_lcd1v-obsah-a.scss (a-ponuka). -->
+<div data-lcd-sekcia="a-ponuka" data-lcd-kap="3">
+<section class="chapter">
+<div class="wrap">
+<div class="ups rv">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-rz/jd-sq.jpg" alt="Jednovrstvové autokoberce Diamond Line" width="760" height="760" loading="lazy"></div>
+<div class="tx">
+<span class="od">Výhodnejšie s autokoberci</span>
+<h3>Potřebujete i autokoberce pod sedadla?</h3>
+<p>Rohož do kufru Classic koupíte samostatně za <span data-p1v-cislo="cena-od" data-p1v-bez="základnú cenu"><!-- --></span>. Když ju koupíte spolu s autokoberci pod sedadla, zaplatíte za ňu pouze <span data-p1v-cislo="set-classic" data-p1v-bez="výhodnejšiu cenu"><!-- --></span>.</p>
+<ul>
+<li><span data-p1v-cislo="cena-od" data-p1v-tvar="Samostatne {}" data-p1v-bez="Samostatne za základnú cenu"><!-- --></span></li>
+<li><span data-p1v-cislo="set-classic" data-p1v-tvar="S autokobercami pod sedadlá len za {}" data-p1v-bez="S autokobercami pod sedadlá výhodnejšie"><!-- --></span></li>
+<li><span data-p1v-cislo="set-usetrite" data-p1v-tvar="Ušetríte {}" data-p1v-bez="S autokobercami pod sedadlá ušetríte"><!-- --></span></li>
+<li>Vzor i barva ladia s autokoberci pod sedadla</li>
+</ul>
+<a class="btn" href="/luxusne-autokoberce-dragonskin-diamond-line/" data-p1v-odkaz="jedno">Sestavte si set s autokoberci</a>
+</div>
+</div>
+</div>
+</section>
+</div>

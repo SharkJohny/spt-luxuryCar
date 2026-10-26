@@ -60,6 +60,7 @@ export function init(oc) {
 export const VZOR_MENO = { diamond: "Diamond Line", stripe: "Stripe Line", hexa: "Hexa Line" };
 /** Úvodná veta sekcie, keď sú fotky vzorky materiálu (nie autá) — doslovne zo schváleného návrhu boxy.html. */
 export const VETA_VZORKY = "Vyberte vzorku a pozrite si materiál aj prešívanie zblízka.";
+const VETY_VZORKY = { sk: VETA_VZORKY, cz: "Vyberte vzorek a prohlédněte si materiál i prošívání zblízka." };
 const dve = (n) => String(n).padStart(2, "0");
 
 /** Farby tohto produktu zo živého kroku Farba: [{ nazov „Čierna · červené šitie“, src vzorky }] v poradí konfigurátora. */
@@ -77,6 +78,7 @@ export function farbyProduktu(ctx) {
 /** c-farby na Hexa/Stripe: vzorky Diamond Line -> farby tohto produktu (pozri hlavičku súboru). Vráti true, keď prestavala. */
 export function farbyVzoru(sek, oc) {
   const ctx = oc && oc.ctx;
+  const trh = ctx && ctx.trh === "cz" ? "cz" : "sk";
   const vzor = ctx && ctx.produkt ? ctx.produkt.vzor : null;
   const meno = VZOR_MENO[vzor];
   if (!meno || vzor === "diamond") return false;
@@ -102,7 +104,7 @@ export function farbyVzoru(sek, oc) {
   const spolu = sek.querySelector(".lx-farby-stitok > span:last-child");
   if (spolu) spolu.textContent = " / " + dve(farby.length);
   const vzorN = sek.querySelector(".lx-farby-vzor-n");
-  if (vzorN) vzorN.textContent = (vzorN.textContent.split("·")[0].trim() || "Vzorka") + " · " + meno;
+  if (vzorN) vzorN.textContent = (vzorN.textContent.split("·")[0].trim() || (trh === "cz" ? "Vzorek" : "Vzorka")) + " · " + meno;
   const menoEl = sek.querySelector(".lx-farby-meno");
   if (menoEl) menoEl.textContent = farby[0].nazov;
   // vzorky: nové tlačidlá na mieste starých (pred „Mnoho ďalších farieb“)
@@ -136,7 +138,10 @@ export function farbyVzoru(sek, oc) {
   }
   // úvodná veta: fotky sú teraz vzorky materiálu, nie autá -> veta zo schváleného návrhu boxy.html (druhá veta ostáva)
   const lede = sek.querySelector(".lx-hlava .lx-p");
-  if (lede && /^Vyberte vzorku a pozrite si [^.]*\./.test(lede.textContent.trim())) lede.textContent = lede.textContent.trim().replace(/^Vyberte vzorku a pozrite si [^.]*\./, VETA_VZORKY);
+  if (lede) {
+    const re = trh === "cz" ? /^Vyberte vzorek a prohlédněte si [^.]*\./ : /^Vyberte vzorku a pozrite si [^.]*\./;
+    if (re.test(lede.textContent.trim())) lede.textContent = lede.textContent.trim().replace(re, VETY_VZORKY[trh]);
+  }
   sek.setAttribute("data-p1v-farby", vzor);
   return true;
 }

@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import { spustiChrome, pauza } from "./test-1v/cdp.mjs";
 import { vytvorT } from "./test-1v/pomocnik.mjs";
 import { cislo } from "./test-1v/stary-ui.mjs";
-import { PRODUKTY, PORADIE, INY, TYPY_TEST, VSETKY_TYPY, ChybaPouzitia, vyberProdukty, produktPodlaUrl } from "./test-1v/produkty.mjs";
+import { PRODUKTY, PRODUKTY_CZ, PORADIE, PORADIE_CZ, INY, TYPY_TEST, VSETKY_TYPY, ChybaPouzitia, vyberProdukty, produktPodlaUrl } from "./test-1v/produkty.mjs";
 import * as ovlKroky from "./test-1v/ovladac-kroky.mjs";
 import * as ovlRozlozenie from "./test-1v/ovladac-rozlozenie.mjs";
 import * as ovlKuforBoxy from "./test-1v/ovladac-kufor-boxy.mjs";
@@ -61,7 +61,7 @@ import * as scPosun from "./test-1v/scenare-posun.mjs"; // posun otvoreného kro
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/";
 /** kus obsahu pod konfigurátorom na CDN verzie bundle (obsah.js, D1 = b) — rovnaký tvar ako tools/test-1v/obsah-spolocne.mjs */
-const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.sk\.html(?:[?#]|$)/;
+const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.(?:sk|cz)\.html(?:[?#]|$)/;
 const AUTO = { znacka: "Audi", model: "A6", rok: "2015", typ: "Combi" }; // Combi = TYP s príplatkom
 const MERACE = [
   "*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*",
@@ -71,10 +71,11 @@ const MERACE = [
 
 // ------------------------------------------------------------------ prepínače
 function argumenty(argv) {
-  const a = { novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 0, tolerovatOpakovanie: false, cpu: 1, kolo: 1 };
+  const a = { web: "sk", novy: false, flag: null, sirky: [1280, 390], kroky: null, snimky: null, zdroj: "lokal", url: null, produkt: null, zapnute: null, paralelne: 3, okno: false, vypis: false, json: null, bezDrop: false, limit: 180, opakuj: 0, tolerovatOpakovanie: false, cpu: 1, kolo: 1 };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i], dalsi = () => { if (i + 1 >= argv.length) throw new ChybaPouzitia(x + " potrebuje hodnotu"); return argv[++i]; };
-    if (x === "--novy") { a.novy = true; a.flag = "1"; }
+    if (x === "--web") { a.web = dalsi(); if (!/^(sk|cz)$/.test(a.web)) throw new ChybaPouzitia("--web sk alebo cz"); }
+    else if (x === "--novy") { a.novy = true; a.flag = "1"; }
     else if (x === "--vyvoj") { a.novy = true; a.flag = "vyvoj"; }
     else if (x === "--stary") a.stary = true;
     else if (x === "--spustene") { const v = dalsi(); if (v !== "0" && v !== "1") throw new ChybaPouzitia("--spustene 0 alebo 1"); a.spustene = v === "1"; }
@@ -121,7 +122,9 @@ function spusteneZoZdroja(a) {
  * --zapnute <typ,…> prepíše ZAPNUTE_TYPY (napr. pri --zdroj <sha> so starším stromom). -> { "1": Set, vyvoj: Set, popis }
  */
 function zapnuteProdukty(a) {
-  const sk = PORADIE.map(Number);
+  const poradie = a.web === "cz" ? PORADIE_CZ : PORADIE;
+  const profily = a.web === "cz" ? PRODUKTY_CZ : PRODUKTY;
+  const sk = poradie.map(Number);
   const cesta = join(KOREN, "assets/js/components/konfigurator1v/produkty.js");
   if (!existsSync(cesta)) {
     const src = readFileSync(join(KOREN, "assets/js/components/konfigurator1v/index.js"), "utf8");
@@ -136,8 +139,8 @@ function zapnuteProdukty(a) {
   if (!z && !a.zapnute) throw new Error("ZAPNUTE_TYPY v " + cesta + " nenájdené (test číta bránu zo zdroja; alebo --zapnute <typy>)");
   const typy = a.zapnute || [...z[1].matchAll(/["']([a-z-]+)["']/g)].map((x) => x[1]);
   return {
-    1: new Set(registr.filter((id) => typy.includes(PRODUKTY[id].typ))), vyvoj: new Set(registr),
-    popis: "konfigurator1v/produkty.js: ZAPNUTE_TYPY " + JSON.stringify(typy) + (a.zapnute ? " (--zapnute)" : "") + ", register " + registr.length + " SK produktov",
+    1: new Set(registr.filter((id) => typy.includes(profily[id].typ))), vyvoj: new Set(registr),
+    popis: "konfigurator1v/produkty.js: ZAPNUTE_TYPY " + JSON.stringify(typy) + (a.zapnute ? " (--zapnute)" : "") + ", register " + registr.length + " " + a.web.toUpperCase() + " produktov",
   };
 }
 
@@ -339,8 +342,10 @@ async function otvor(s, url, { novy = false, kontrola1v = novy, produkt = s.prod
     await pauza(250);
   }
   t.zabudni(); // ID parametrov podľa produktu (CZ má iné)
-  await t.cakaj(TYPY_TEST[produkt.typ].pripravene, { ms: 30000, popis: "postavený konfigurátor (" + produkt.id + ", " + produkt.typ + ")" });
+  const typT = TYPY_TEST[produkt.typ]; // INY (mimo registrov) nemá konfigurátor — stačí načítaná stránka
+  await t.cakaj(typT ? typT.pripravene : `document.readyState === "complete"`, { ms: 30000, popis: (typT ? "postavený konfigurátor (" : "načítaná stránka (") + produkt.id + ", " + produkt.typ + ")" });
   await pauza(1500); // configurator-enhance (600 ms interval), tlačidlá krokov, prvé prekreslenie
+  if (!typT) return; // stránka bez konfigurátora: formulár ani kontrola 1V sa neberú
   if (kontrola1v) {
     const st = await t.ev(`({ trieda: document.body.classList.contains("lcd-1v"), chyby: window.__lcd1v ? window.__lcd1v.chyby : null })`);
     over(st.trieda, "?novy=" + s.flagHodnota + ", ale body.lcd-1v chýba" + (st.chyby && st.chyby.length ? " — init modulu zlyhal: " + st.chyby.join("; ") : " (brána / build? typ " + produkt.typ + " zapnutý? rozpracovaný typ = --vyvoj)"));
@@ -681,7 +686,8 @@ const SCENARE = {
       if (P.typ === "kamion") {
         // kamióny: vlastné kroky (#lcd1v-kamion), otázky „Prosím, vyberte si …“ / „Prosíte si …?“; React sa nesmie namontovať
         const nk = await t.ev(`Array.prototype.map.call(document.querySelectorAll("#lcd1v-kamion .k-krok__ti"), function (e) { return e.textContent.trim(); })`);
-        over(nk.length >= 5 && nk.every((x) => /^Prosím, vyberte si \S|^Prosíte si \S.*\?$/.test(x)), "nadpisy krokov kamiónov: " + JSON.stringify(nk));
+        const reNadpis = a.web === "cz" ? /^Vyberte si prosím \S|^Přejete si \S.*\?$/ : /^Prosím, vyberte si \S|^Prosíte si \S.*\?$/;
+        over(nk.length >= 5 && nk.every((x) => reNadpis.test(x)), "nadpisy krokov kamiónov: " + JSON.stringify(nk));
         over(await t.ev(`!document.getElementById("truck-konfigurator-root")`), "s ?novy=" + a.flag + " sa na kamiónoch namontoval aj React");
         info.push(nk.length + " krokov kamiónov, React nie");
       } else {
@@ -690,30 +696,41 @@ const SCENARE = {
         var k = e.closest(".lcd1v-krok");
         return [(/lcd1v-k-([a-z0-9]+)/i.exec(k.className) || [])[1] || (k.classList.contains("lcd1v-komplet") ? "komplet" : k.classList.contains("lcd1v-druha") ? "druha" : "?"), e.textContent.trim()];
       })`);
-      const OTAZKY = { druha: "Prajete si aj druhú odnímateľnú vrstvu?", komplet: "Prosíte si aj autokoberce pod sedadlá?" };
-      const zle = nad.filter(([m, x]) => (OTAZKY[m] ? x !== OTAZKY[m] : !/^Prosím, vyberte si \S/.test(x)));
+      const OTAZKY = a.web === "cz"
+        ? { druha: "Přejete si také druhou odnímatelnou vrstvu?", komplet: "Přejete si také autokoberce pod sedadla?" }
+        : { druha: "Prajete si aj druhú odnímateľnú vrstvu?", komplet: "Prosíte si aj autokoberce pod sedadlá?" };
+      const reVyber = a.web === "cz" ? /^Vyberte si prosím \S/ : /^Prosím, vyberte si \S/;
+      const zle = nad.filter(([m, x]) => (OTAZKY[m] ? x !== OTAZKY[m] : !reVyber.test(x)));
       over(!zle.length, "nadpisy krokov bez „Prosím, vyberte si …“: " + JSON.stringify(zle));
-      const farby = { farba: "Prosím, vyberte si farbu 1. vrstvy", farba2: "Prosím, vyberte si farbu 2. vrstvy" };
+      const farby = a.web === "cz"
+        ? { farba: "Vyberte si prosím barvu 1. vrstvy", farba2: "Vyberte si prosím barvu 2. vrstvy" }
+        : { farba: "Prosím, vyberte si farbu 1. vrstvy", farba2: "Prosím, vyberte si farbu 2. vrstvy" };
       if (P.typ === "jedno" || P.typ === "dvoj") {
         over(nad.some(([m]) => m === "farba"), "krok farby bez nadpisu: " + JSON.stringify(nad));
         nad.filter(([m]) => farby[m]).forEach(([m, x]) => over(x === farby[m], "nadpis kroku " + m + ": „" + x + "“ ≠ „" + farby[m] + "“"));
       }
       info.push(nad.length + "× „Prosím, vyberte si …“");
       }
+      if (a.web === "cz") {
+        const lok = await t.ev(`({ projectId: String(window.__lcd1v.projectId), trh: window.__lcd1v.trh, cena: window.__lcd1v.formatCena(1234) })`);
+        over(lok.projectId === "581408", "CZ brána má používať projectId 581408: " + JSON.stringify(lok));
+        over(lok.trh === "cz" && lok.cena === "1\u00a0234\u00a0Kč", "CZ brána má používať trh cz a menu Kč: " + JSON.stringify(lok));
+        info.push("projekt 581408, mena Kč");
+      }
     } else {
       over(!st.trieda && !st.ctx, "typ " + P.typ + " nie je pre ?novy=" + a.flag + " zapnutý, ale " + P.id + " dostal nový vzhľad: " + JSON.stringify(st));
       info.push(P.id + " (" + P.typ + ") ostáva starý — typ nie je zapnutý");
     }
-    // iný projekt: CZ Diamond 2403 (projectId 581408)
+    // produkt mimo oboch registrov
     await otvor(s, INY.url, { novy: true, kontrola1v: false, produkt: INY });
     st = await stav();
-    over(!st.trieda && !st.ctx, "iný projekt (CZ " + INY.id + ") nesmie dostať nový vzhľad: " + JSON.stringify(st));
-    info.push("CZ " + INY.id + " nie");
+    over(!st.trieda && !st.ctx, "produkt mimo registrov nesmie dostať nový vzhľad: " + JSON.stringify(st));
+    info.push("produkt mimo registrov nie");
     // ďalšie produkty podľa brány (len ?novy=1; vyvoj zapína celý register). T0.2b: vždy dva referenčné produkty —
     //  (1) nezapnutý typ: prvý produkt iného typu, než je zapnutý (dnes 601 dvojvrstvový),
     //  (2) 610: rovnaký typ (jedno) ako zapnuté 598 — kým ho brána nezapne, nový vzhľad NESMIE naskočiť (po T0.2 sa 610
     //      už nekontroloval); keď ho brána zapne (po T0.1: ZAPNUTE_TYPY obsahuje jedno), MUSÍ naskočiť.
-    if (a.flag === "1") {
+    if (a.flag === "1" && a.web === "sk") {
       const dalsie = [];
       const iny = PORADIE.find((x) => !a.zapnuteSet.has(x) && PRODUKTY[x].typ !== P.typ) || PORADIE.find((x) => !a.zapnuteSet.has(x) && x !== P.id);
       if (iny) dalsie.push(iny);
@@ -1420,7 +1437,8 @@ const J = { otvor, zaklad, overPost, overCenu, cakajNaPost, nieHodnoty, novaOdpo
 
 async function main() {
   const a = argumenty(process.argv.slice(2));
-  const produkty = a.produkt ? vyberProdukty(a.produkt) : [a.url ? produktPodlaUrl(a.url) : vyberProdukty("598")[0]];
+  const predvoleny = a.web === "cz" ? "2403" : "598";
+  const produkty = a.produkt ? vyberProdukty(a.produkt, a.web) : [a.url ? produktPodlaUrl(a.url, a.web) : vyberProdukty(predvoleny, a.web)[0]];
   if (a.url && a.produkt) { if (produkty.length !== 1) throw new ChybaPouzitia("--url ide len s jedným --produkt (zadal si " + produkty.length + ")"); produkty[0] = { ...produkty[0], url: a.url }; }
   if (a.kroky) a.kroky.forEach((m) => { if (!REGISTER[m]) throw new ChybaPouzitia("neznámy scenár " + m + " (sú: " + Object.keys(REGISTER).join(", ") + ")"); });
   const zapnute = zapnuteProdukty(a);

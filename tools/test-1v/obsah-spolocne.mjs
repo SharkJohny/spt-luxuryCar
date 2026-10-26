@@ -29,10 +29,11 @@ import { pauza } from "./cdp.mjs";
 export const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/";
 export const SK = "https://www.luxurycardesign.sk";
+export const CZ = "https://www.luxurycardesign.cz";
 export const URL_598 = SK + "/luxusne-autokoberce-dragonskin-diamond-line/";
 export const SONDA = CDN + "img/1v/obsah/__sonda-";
 /** kus obsahu na CDN verzie (obsah.js): …/assets/v/<sha>/html/p1v-<kľúč>-<n>.sk.html */
-export const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.sk\.html(?:[?#]|$)/;
+export const RE_HTML_KUS = /\/eshopy\/luxuryCar\/assets\/v\/[^/]+\/html\/(p1v-[a-z0-9]+-\d+)\.(?:sk|cz)\.html(?:[?#]|$)/;
 export const MERACE = [
   "*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*",
   "*google.com/pagead*", "*facebook.net*", "*facebook.com/tr*", "*connect.facebook*", "*tiktok*", "*hotjar*",
@@ -48,11 +49,12 @@ const TYP = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", 
  * Register produktov z assets/js/components/konfigurator1v/produkty.js (regulárnym výrazom, ako test konfigurátora):
  * { produkty: { id: { id, typ, vzor, url (celá), cesta, obsah } }, zapnute: [typy] }.
  */
-export function register() {
+export function register(web = "sk") {
   const src = readFileSync(join(KOREN, "assets/js/components/konfigurator1v/produkty.js"), "utf8");
   const produkty = {};
   const re = /\b(\d{3,4})\s*:\s*\{\s*typ\s*:\s*"([a-z-]+)"\s*,\s*vzor\s*:\s*(?:"([a-z]+)"|null)\s*,\s*url\s*:\s*"([^"]+)"\s*,\s*obsah\s*:\s*"([a-z0-9]+)"/g;
-  for (const m of src.matchAll(re)) produkty[m[1]] = { id: Number(m[1]), typ: m[2], vzor: m[3] || null, cesta: m[4], url: SK + m[4], obsah: m[5] };
+  const blok = src.split(new RegExp(`\\n\\s*${web === "cz" ? "581408" : "562035"}:\\s*\\{`))[1]?.split(/\n\s*\},\n\s*(?:581408:|\};)/)[0] || "";
+  for (const m of blok.matchAll(re)) produkty[m[1]] = { id: Number(m[1]), typ: m[2], vzor: m[3] || null, cesta: m[4], url: (web === "cz" ? CZ : SK) + m[4], obsah: m[5] };
   const z = /ZAPNUTE_TYPY\s*=\s*\[([^\]]*)\]/.exec(src);
   if (!Object.keys(produkty).length || !z) throw new Error("register PRODUKTY_1V / ZAPNUTE_TYPY v konfigurator1v/produkty.js sa nedá prečítať");
   return { produkty, zapnute: [...z[1].matchAll(/"([a-z-]+)"/g)].map((x) => x[1]) };
@@ -112,13 +114,13 @@ export function spusti(cmd, args, { shell = false, popis, cwd = KOREN, env, tich
 }
 
 /** build-admin-html --vystup <dir> [ďalšie prepínače] -> { kusy: Map(kľúč -> [kus]), manifest }; chyba buildu = výnimka. */
-function buildObsahu(dir, prepinace = []) {
+function buildObsahu(dir, prepinace = [], web = "sk") {
   // HTML obsahu (kontroly build-admin-html; chyba = test hneď končí, obsah by na CDN ani do adminu neprešiel)
   const adm = spusti(process.execPath, ["tools/build-admin-html.mjs", "--vystup", dir, ...prepinace], { popis: "build-admin-html --vystup " + prepinace.join(" "), ticho: true });
   if (adm.status !== 0) throw new Error(`tools/build-admin-html.mjs ${prepinace.join(" ")} hlási chyby (obsah by neprešiel):\n` + (adm.stdout || "").split("\n").filter((r) => /CHYBA|✗|POZOR/.test(r)).join("\n"));
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
   const kusy = new Map();
-  manifest.casti.filter((c) => /^p1v-[a-z0-9]+-\d+$/.test(c.cast) && c.web === "sk")
+  manifest.casti.filter((c) => /^p1v-[a-z0-9]+-\d+$/.test(c.cast) && c.web === web)
     .sort((a, b) => a.cast.localeCompare(b.cast, "en", { numeric: true }))
     .forEach((c) => {
       const kluc = /^p1v-([a-z0-9]+)-\d+$/.exec(c.cast)[1];
@@ -135,12 +137,12 @@ function buildObsahu(dir, prepinace = []) {
  * kusy = všetky SK časti obsahu 1V (p1v-<kľúč>-<n>) v poradí (dist pre CDN, s obalmi WebP); plne = počet neprázdnych
  * sekcií kusu. bezWebp: navyše admin.popis = kusy postavené --bez-webp (to, čo ide do Popisu v admine, §7 docs/1v-obsah.md).
  */
-export function priprav({ bezDrop = false, bezWebp = false } = {}) {
+export function priprav({ bezDrop = false, bezWebp = false, web = "sk" } = {}) {
   const tmp = mkdtempSync(join(tmpdir(), "lcd-1v-obsah-"));
   const t0 = Date.now();
-  const { kusy, manifest } = buildObsahu(join(tmp, "admin"));
+  const { kusy, manifest } = buildObsahu(join(tmp, "admin"), [], web);
   if (!kusy.has("598")) throw new Error("manifest nemá časti p1v-598-* (admin-html/ciele.json)");
-  const popis = bezWebp ? buildObsahu(join(tmp, "admin-popis"), ["--bez-webp"]) : null;
+  const popis = bezWebp ? buildObsahu(join(tmp, "admin-popis"), ["--bez-webp"], web) : null;
   // JS + CSS (kroky CI pred esbuildom ako zmrazený runner)
   const tk = join(KOREN, "assets/js/truck-konfigurator");
   const gen = ["konfigurator.gen.jsx", "konfigurator.phone.gen.jsx"].map((f) => join(tk, f));
@@ -303,7 +305,7 @@ export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "c
     { urlPattern: "*/eshopy/luxuryCar/assets/*", requestStage: "Request" },
     { urlPattern: "*/action/*", requestStage: "Request" },
   ];
-  if (vlozitDoc) vzory.push({ urlPattern: "*luxurycardesign.sk" + cesta.replace(/\/$/, "") + "*", resourceType: "Document", requestStage: "Response" });
+  if (vlozitDoc) vzory.push({ urlPattern: "*luxurycardesign.*" + cesta.replace(/\/$/, "") + "*", resourceType: "Document", requestStage: "Response" });
   await k.posli("Fetch.enable", { patterns: vzory });
   return s;
 }

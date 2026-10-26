@@ -64,9 +64,10 @@ export function formatCena(n, trh) {
 }
 
 /** 1 farba, 2–4 farby, 5+ farieb (0 / neplatné -> null). */
-export function formatFarby(n) {
+export function formatFarby(n, trh) {
   const x = Number(n);
   if (!(x > 0) || Math.round(x) !== x) return null;
+  if (trh === "cz") return x + NBSP + (x === 1 ? "barva" : x <= 4 ? "barvy" : "barev");
   return x + NBSP + (x === 1 ? "farba" : x <= 4 ? "farby" : "farieb");
 }
 
@@ -146,7 +147,7 @@ export function hodnota(kluc, ctx) {
   if (k === "pocet-farieb" || k === "pocet-farieb-2") {
     let n = 0;
     try { n = ctx.moznosti(k === "pocet-farieb" ? "farba" : "farba2").length; } catch (e) { n = 0; }
-    return Promise.resolve(formatFarby(n));
+    return Promise.resolve(formatFarby(n, trh));
   }
   if (k === "vzor") return Promise.resolve(formatVzor(vzor));
   if (k.indexOf("kamion-") === 0) return Promise.resolve(cena(cisloKamion(k)));

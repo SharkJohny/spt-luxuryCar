@@ -63,7 +63,7 @@ function cenaMoznosti(o) {
  */
 export function vytvorCtx({ setupData, texts, kontext, produkt }) {
   const form = () => document.getElementById("product-detail-form");
-  const jazyk = String(kontext.projectId) === "704436" ? "cs" : kontext.language || document.documentElement.lang || "sk";
+  const jazyk = ["581408", "704436"].indexOf(String(kontext.projectId)) > -1 ? "cs" : kontext.language || document.documentElement.lang || "sk";
 
   /** { kluc, id, meno, select, variant } alebo null. kluc = meno z PARAMETRE alebo číselné data-parameter-id. */
   function parameter(kluc) {

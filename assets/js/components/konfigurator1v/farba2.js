@@ -19,6 +19,7 @@ import { odporucanaLux, luxCislo, LUX_JEDNOFAREBNE } from "../../lcdKosikDoplnok
 import { nastavVelkyNahlad, malyNahlad } from "./farby-nahlady.js";
 
 export const MENO = "farba2";
+import { prelozTextyCz } from "./texty-cz.js";
 
 // Texty z návrhu (navrh-dvojvrstvove.md §3.6) a štítok „Odporúčame“ (rovnaké slovo ako v košíku).
 const TEXTY = {
@@ -29,6 +30,9 @@ const TEXTY = {
   nahladAlt: (n) => "Druhá vrstva — " + n,
   farbyNaVyber: (n) => n + (n === 1 ? " farba" : n >= 2 && n <= 4 ? " farby" : " farieb") + " na výber",
 };
+const TEXTY_CZ = Object.assign(prelozTextyCz(TEXTY), {
+  farbyNaVyber: (n) => n + (n === 1 ? " barva" : n >= 2 && n <= 4 ? " barvy" : " barev") + " na výběr",
+});
 
 // Popisy Lux farieb z návrhu (Shoptet ich nemá). Poradie = poradie vzoriek v návrhu: najprv 7 jednofarebných a melírovaných,
 // potom 9 s pruhmi (Lux 01–09).
@@ -37,6 +41,13 @@ const SKUPINY = [
   [[1, "tmavohnedá s pruhmi"], [2, "tmavomodrá s pruhmi"], [3, "tmavohnedá s pruhmi"], [4, "béžová s pruhmi"], [5, "tmavohnedá s pruhmi"],
     [6, "sivá s pruhmi"], [7, "čierna s pruhmi"], [8, "čierna s pruhmi"], [9, "tmavohnedá s pruhmi"]],
 ];
+const POPIS_CZ = {
+  10: "černá", 11: "tmavě hnědá", 12: "béžová", 13: "vínově červená", 16: "šedá",
+  14: "černo-červená melírovaná", 15: "černo-šedá melírovaná",
+  1: "tmavě hnědá s pruhy", 2: "tmavě modrá s pruhy", 3: "tmavě hnědá s pruhy",
+  4: "béžová s pruhy", 5: "tmavě hnědá s pruhy", 6: "šedá s pruhy",
+  7: "černá s pruhy", 8: "černá s pruhy", 9: "tmavě hnědá s pruhy",
+};
 const POPIS = {};
 const PORADIE = {};
 (function () {
@@ -63,6 +74,7 @@ function nastavAttr(e, meno, hodnota) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
+  const TX = ctx.trh === "cz" ? TEXTY_CZ : TEXTY;
   const krok = ctx.krok("farba2");
   const param = ctx.parameter("farba2");
   if (!krok || !param) throw new Error("krok farby 2. vrstvy sa nenašiel");
@@ -80,7 +92,7 @@ export function init(ctx) {
     const n = luxCislo(tx ? tx.textContent : b.textContent);
     if (n == null) { b.classList.add("lcd1v-f2-skry"); b.setAttribute("aria-hidden", "true"); b.setAttribute("tabindex", "-1"); return; } // len Lux 01–16
     const nazov = luxMeno(n);
-    const popis = POPIS[n] || "";
+    const popis = (ctx.trh === "cz" ? POPIS_CZ[n] : POPIS[n]) || "";
     const text = popis ? nazov + " — " + popis : nazov;
     b.classList.add("lcd1v-f2-vzorka");
     b.setAttribute("data-lcd1v-lux", String(n));
@@ -104,11 +116,11 @@ export function init(ctx) {
   const vysv = el("div", "lcd1v-f2-vysv");
   vysv.id = "lcd1v-f2-vysv";
   vysv.hidden = true;
-  vysv.appendChild(el("b", null, TEXTY.vysvetlenie[0]));
-  vysv.appendChild(document.createTextNode(TEXTY.vysvetlenie[1]));
+  vysv.appendChild(el("b", null, TX.vysvetlenie[0]));
+  vysv.appendChild(document.createTextNode(TX.vysvetlenie[1]));
   const info = el("button", "lcd1v-f2-info", "i");
   info.type = "button";
-  info.setAttribute("aria-label", TEXTY.info);
+  info.setAttribute("aria-label", TX.info);
   info.setAttribute("aria-expanded", "false");
   info.setAttribute("aria-controls", vysv.id);
   if (pod) {
@@ -129,7 +141,7 @@ export function init(ctx) {
   // ---------------------------------------------------------------- štítok „Odporúčame“ + náhľad
   const odp = el("div", "lcd1v-f2-odp");
   odp.hidden = true;
-  odp.appendChild(el("span", "lcd1v-f2-odp-st", TEXTY.odporucame));
+  odp.appendChild(el("span", "lcd1v-f2-odp-st", TX.odporucame));
   const odpVz = el("img", "lcd1v-f2-odp-vz");
   odpVz.alt = "";
   odpVz.width = 28;
@@ -141,7 +153,7 @@ export function init(ctx) {
 
   const nahlad = el("div", "lcd1v-nahlad lcd1v-f2-nahlad");
   nahlad.hidden = true;
-  nahlad.appendChild(el("b", "lcd1v-nahlad-nm", TEXTY.nahladPrazdny));
+  nahlad.appendChild(el("b", "lcd1v-nahlad-nm", TX.nahladPrazdny));
   const nahladImg = el("img", "lcd1v-nahlad-img");
   nahladImg.alt = "";
   nahladImg.width = 400;
@@ -167,7 +179,7 @@ export function init(ctx) {
   function obnov() {
     const zv = vzorky.find((v) => v.b.classList.contains("active")) || null;
     // zhrnutie v hlavičke kroku: názov zvolenej vzorky, inak „N farieb na výber“
-    nastavAttr(krok, "data-lcd1v-vyber", zv ? zv.nazov : TEXTY.farbyNaVyber(vzorky.length));
+    nastavAttr(krok, "data-lcd1v-vyber", zv ? zv.nazov : TX.farbyNaVyber(vzorky.length));
     vzorky.forEach((v) => nastavAttr(v.b, "aria-pressed", v === zv ? "true" : "false"));
     // náhľad (len v kroku, hlavnú fotku galérie nemení)
     const im = zv && zv.b.querySelector("img");
@@ -177,7 +189,7 @@ export function init(ctx) {
     if (zv && im) {
       nastavText(nahlad.firstChild, zv.text);
       nastavVelkyNahlad(nahladImg, im);
-      nahladImg.alt = TEXTY.nahladAlt(zv.nazov);
+      nahladImg.alt = TX.nahladAlt(zv.nazov);
     }
     if (zmenaVid) zmerajKrok();
     // odporúčanie: štítok nad vzorkami + značka na vzorke
@@ -186,7 +198,7 @@ export function init(ctx) {
     vzorky.forEach((v) => {
       const je = v === rv;
       if (v.b.classList.contains("lcd1v-f2-odporucana") !== je) v.b.classList.toggle("lcd1v-f2-odporucana", je);
-      const al = je ? v.text + ", " + TEXTY.odporucame.toLowerCase() : v.text;
+      const al = je ? v.text + ", " + TX.odporucame.toLowerCase() : v.text;
       if (v.b.getAttribute("aria-label") !== al) { v.b.setAttribute("aria-label", al); v.b.setAttribute("title", al); }
     });
     if (rv) {

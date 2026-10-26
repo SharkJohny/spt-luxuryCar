@@ -1,0 +1,42 @@
+<!-- 22-premium-porovnanie — NOVÉ: „Premium alebo Classic?“ (návrh kufor-premium.html #porovnanie r. 4337, spec §6.5).
+     Nahrádza porovnanie s napodobeninami (Premium ho nemá). Ceny „od …“, „Len za … (samostatne …)“ (17. 10. 2026, bez „+“) dosadí obsah-cisla.js
+     (cena-od, set-premium, cena-od-classic, set-classic). Riadok „Farby“ z návrhu („Pri vzore Diamond Line až 18 / 14 farieb“) je
+     VYNECHANÝ v oboch stĺpcoch: počet farieb Classic (iný produkt) obsah-cisla.js nedodá, 619 Classic Diamond má v adminu
+     14 farieb pre chýbajúcu paletu (po oprave 18) a text je v návrhu viazaný na Diamond Line; nič nové sa nepíše (D3).
+     Odkaz na Classic = data-p1v-odkaz="classic" (rovnaký vzor). Štýly: _lcd1v-obsah-premium.scss. -->
+<div data-lcd-sekcia="premium-porovnanie" data-lcd-kap="1">
+<section class="chapter"><div class="wrap">
+<h2 class="rv">Premium nebo Classic?</h2>
+<p class="lede rv">Obe rohože do kufru jsou z stejného materiálu a šijí se podle šablóny Vašeho vozu. Rozdíl je v tom, Kolik z kufru kryjú — Premium navíc obalí boky i zadní strany zadních sedadel.</p>
+<div class="cmp rv">
+<div class="cmp-vs">VS</div>
+<div class="cmp-col us">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/premium-rohoz-v-kufri.jpg" alt="Rohož Premium v kufru" width="900" height="675" loading="lazy"></div>
+<div class="name">Rohož do kufru Premium</div>
+<div class="price"><span data-p1v-cislo="cena-od" data-p1v-tvar="od {}"><!-- --></span></div>
+<ul>
+<li><span class="ic">✓</span><span><b>Dno kufru</b>Celé dno pod ochranou</span></li>
+<li><span class="ic">✓</span><span><b>Boky kufru</b>Obalené bočné steny</span></li>
+<li><span class="ic">✓</span><span><b>Zadní strany sedadel</b>Chránené operadlá zadních sedadel</span></li>
+<li><span class="ic">✓</span><span><b>Spolu s autokoberci pod sedadla</b>Pouze za <span data-p1v-cislo="set-premium"><!-- --></span> (samostatně <span data-p1v-cislo="cena-od"><!-- --></span>)</span></li>
+</ul>
+</div>
+<div class="cmp-col them klas">
+<div class="ph"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/premium-classic-v-kufri.jpg" alt="Rohož Classic v kufru" width="900" height="675" loading="lazy"></div>
+<div class="name">Rohož do kufru Classic</div>
+<div class="price"><span data-p1v-cislo="cena-od-classic" data-p1v-tvar="od {}"><!-- --></span></div>
+<ul>
+<li><span class="ic">✓</span><span><b>Dno kufru</b>Celé dno pod ochranou</span></li>
+<li><span class="ic">✕</span><span><b>Boky kufru</b>Nekryje</span></li>
+<li><span class="ic">✕</span><span><b>Zadní strany sedadel</b>Nekryje</span></li>
+<li><span class="ic">✓</span><span><b>Spolu s autokoberci pod sedadla</b>Pouze za <span data-p1v-cislo="set-classic"><!-- --></span> (samostatně <span data-p1v-cislo="cena-od-classic"><!-- --></span>)</span></li>
+</ul>
+</div>
+</div>
+<div class="cmp-dalej rv">
+<a class="btn" href="#product-detail-form">Vyberte si Premium</a>
+<a class="btn ghost" href="/luxusny-koberced-do-kufra-dragonskin-klasik/" data-p1v-odkaz="classic">Prohlédněte si rohož do kufru Classic</a>
+</div>
+</div></section>
+<div class="spat rv"><p>Vyberte si vozidlo a barvu rohože do kufru.</p><a class="btn spat-btn" href="#product-detail-form">Vyberte si model a barvu</a></div>
+</div>

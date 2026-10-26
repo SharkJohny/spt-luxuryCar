@@ -170,11 +170,12 @@ function recenzie(sek, oc) {
   const ukotvi = oc.ukotvi || ((fn) => fn());
 
   let hotovo = false;
-  if (!dataRecenzii()) zastupcaRecenzie(sek, pas);
+  const trh = oc.ctx && oc.ctx.trh === "cz" ? "cz" : "sk";
+  if (!dataRecenzii()) zastupcaRecenzie(sek, pas, trh);
   oc.ked(dataRecenzii, (d) => {
     hotovo = true;
     ukotvi(() => {
-      try { vykresliRecenzie(sek, pas, d, blizko); sek.classList.add("p1v-rev-ok"); } catch (e) {
+      try { vykresliRecenzie(sek, pas, d, blizko, trh); sek.classList.add("p1v-rev-ok"); } catch (e) {
         sek.classList.add("p1v-rev-bez"); // sekcia sa skryje, chyba ide do __lcd1v.chyby (test ju nahlási)
         oc.ctx.chyby.push(MENO + " recenzie: " + ((e && e.message) || e));
       }
@@ -226,17 +227,17 @@ function vyberRecenzie(sek, zoznam) {
 }
 
 /** fotky = sekcia je blízko okna (sťahovať hneď), inak prázdny obrázok a adresa v data-p1v-foto (recenzie() ich doplní) */
-function vykresliRecenzie(sek, pas, d, fotky) {
+function vykresliRecenzie(sek, pas, d, fotky, trh) {
   const hodnotenie = Number(d.place.rating), pocet = Number(d.place.totalReviews);
   const skore = sek.querySelector(".revhead .score"), sub = sek.querySelector(".revhead .sub");
   if (skore && hodnotenie > 0) skore.textContent = cislo1(hodnotenie);
   if (sub && pocet > 0 && hodnotenie > 0) {
-    const tvar = pocet === 1 ? "recenzia" : pocet >= 2 && pocet <= 4 ? "recenzie" : "recenzií";
-    sub.textContent = pocet + " " + tvar + " na Google · hodnotenie " + cislo1(hodnotenie);
+    const tvar = trh === "cz" ? "recenzí" : pocet === 1 ? "recenzia" : pocet >= 2 && pocet <= 4 ? "recenzie" : "recenzií";
+    sub.textContent = pocet + " " + tvar + " na Google · " + (trh === "cz" ? "hodnocení " : "hodnotenie ") + cislo1(hodnotenie);
   }
   const g = sek.querySelector(".revhead .gmark");
   const frag = document.createDocumentFragment();
-  vyberRecenzie(sek, d.reviews).forEach((r) => frag.appendChild(kartaRecenzie(r, g, fotky)));
+  vyberRecenzie(sek, d.reviews).forEach((r) => frag.appendChild(kartaRecenzie(r, g, fotky, trh)));
   while (pas.firstChild) pas.removeChild(pas.firstChild); // prázdny komentár <!-- --> z adminu (TinyMCE) alebo zástupca
   pas.appendChild(frag);
 }
@@ -247,7 +248,7 @@ export function nahladRecenzie(u) {
 }
 
 /** Karta recenzie (article.rev). g = ikona Google z hlavičky (kópia do päty), fotky ako vo vykresliRecenzie. */
-function kartaRecenzie(r, g, fotky) {
+function kartaRecenzie(r, g, fotky, trh) {
   const a = prvok("article", "rev");
   a.appendChild(prvok("span", "qm", "“")).setAttribute("aria-hidden", "true");
   const hv = Math.max(1, Math.min(5, Math.round(Number(r.rating) || 5)));
@@ -275,7 +276,7 @@ function kartaRecenzie(r, g, fotky) {
   foot.appendChild(prvok("span", "av", iniciala(r.author))).setAttribute("aria-hidden", "true");
   const meta = foot.appendChild(prvok("span", "meta"));
   meta.appendChild(prvok("b", "", String(r.author || "").trim()));
-  meta.appendChild(prvok("i", "", r.relativeDate || "Overený zákazník"));
+  meta.appendChild(prvok("i", "", r.relativeDate || (trh === "cz" ? "Ověřený zákazník" : "Overený zákazník")));
   if (g) { const ik = g.cloneNode(true); ik.removeAttribute("class"); foot.appendChild(ik); }
   return a;
 }
@@ -289,10 +290,14 @@ function kartaRecenzie(r, g, fotky) {
 const TEXT_ZASTUPCU = "Koberce sedia v aute presne, materiál je kvalitný a na pohľad aj na dotyk pôsobia luxusne. Komunikácia " +
   "bola rýchla, dodanie v sľúbenom termíne a montáž zvládne každý za pár minút. Odporúčam každému, kto chce mať " +
   "interiér chránený a zároveň pekný — určite objednám aj do ďalšieho auta, ďakujem za skvelú prácu a prístup.";
-function zastupcaRecenzie(sek, pas) {
+const TEXT_ZASTUPCU_CZ = "Koberce sedí v autě přesně, materiál je kvalitní a na pohled i na dotek působí luxusně. Komunikace " +
+  "byla rychlá, dodání ve slíbeném termínu a montáž zvládne každý za pár minut. Doporučuji každému, kdo chce mít " +
+  "interiér chráněný a zároveň pěkný — určitě objednám i do dalšího auta, děkuji za skvělou práci a přístup.";
+function zastupcaRecenzie(sek, pas, trh) {
   if (pas.querySelector(".rev")) return;
-  const a = kartaRecenzie({ rating: 5, text: TEXT_ZASTUPCU, photos: ["https://x/1", "https://x/2", "https://x/3"], author: "Overený zákazník", relativeDate: "pred mesiacom" },
-    sek.querySelector(".revhead .gmark"), false);
+  const cz = trh === "cz";
+  const a = kartaRecenzie({ rating: 5, text: cz ? TEXT_ZASTUPCU_CZ : TEXT_ZASTUPCU, photos: ["https://x/1", "https://x/2", "https://x/3"], author: cz ? "Ověřený zákazník" : "Overený zákazník", relativeDate: cz ? "před měsícem" : "pred mesiacom" },
+    sek.querySelector(".revhead .gmark"), false, trh);
   a.classList.add("p1v-rev-zastupca");
   a.setAttribute("aria-hidden", "true");
   a.style.visibility = "hidden";

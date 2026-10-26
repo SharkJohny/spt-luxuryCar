@@ -33,6 +33,7 @@ import { lcdOverKrok } from "../../functions/configuratorEngine.js";
 import { posunNaStred } from "./posun.js";
 // náhľad farby: plná fotka, kým sa sťahuje, obrázok dlaždice (dlaždice majú zmenšené náhľady, farby-nahlady.js)
 import { nastavVelkyNahlad } from "./farby-nahlady.js";
+import { prelozTextyCz } from "./texty-cz.js";
 
 export const MENO = "kroky";
 
@@ -60,11 +61,20 @@ const TEXTY = {
     dvaBoxy: "2 boxy",
   },
 };
+TEXTY.cz = Object.assign(prelozTextyCz(TEXTY.sk), {
+  farbyNaVyber: (n) => n + (n === 1 ? " barva" : n >= 2 && n <= 4 ? " barvy" : " barev") + " na výběr",
+  polia: {
+    brands: ["Značka", "Vyberte značku", "Vyberte prosím značku"],
+    models: ["Model", "Vyberte model", "Vyberte prosím model"],
+    years: ["Rok výroby", "Vyberte rok", "Vyberte prosím rok"],
+    "type-selector": ["Typ karoserie", "Vyberte karoserii", "Vyberte prosím karoserii"],
+  },
+});
 
 // farba šitia (stem bez diakritiky) -> tvar pred „šitie“ (návrh: „Čierna / červené šitie“)
 const SITIE = {
-  cerven: "červené", modr: "modré", ciern: "čierne", bezov: "béžové", siv: "sivé", sed: "šedé",
-  biel: "biele", zlt: "žlté", zelen: "zelené", bronzov: "bronzové", oranzov: "oranžové", hned: "hnedé", fialov: "fialové",
+  cerven: "červené", modr: "modré", ciern: "čierne", cern: "čierne", bezov: "béžové", siv: "sivé", sed: "šedé",
+  biel: "biele", bil: "biele", zlt: "žlté", zlut: "žlté", zelen: "zelené", bronzov: "bronzové", oranzov: "oranžové", hned: "hnedé", fialov: "fialové",
 };
 
 const bezDiakritiky = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -74,13 +84,15 @@ const prveVelke = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 export function nazovFarby(text) {
   // NFC: časť textov v Shoptete je rozložená (s + mäkčeň ako 2 znaky: „čierna farba šitia zelená“)
   const t = String(text || "").normalize("NFC").replace(/\s+/g, " ").trim();
-  const m = /^(.*?)\s*farba\s+ko[žz]e\s*:?\s*(.+?)(?:\s*\/?\s*farba\s+[šs]itia\s*:?\s*(.+))?$/i.exec(t);
+  const m = /^(.*?)\s*(?:farba|barva)\s+(?:ko[žz]e|kůže)\s*:?\s*(.+?)(?:\s*\/?\s*(?:farba|barva)\s+(?:[šs]itia|šití)\s*:?\s*(.+))?$/i.exec(t);
   if (!m) return { vzor: "", nazov: t };
+  const jeCz = /barva|kůže|šití/i.test(t);
   const koza = prveVelke(m[2].replace(/[\s/]+$/, "").trim().toLowerCase());
   if (!m[3]) return { vzor: m[1].trim(), nazov: koza };
   const kmen = bezDiakritiky(m[3].trim()).replace(/(ou|a|y|e|i)$/, "");
   const sitie = SITIE[kmen] || m[3].trim().toLowerCase();
-  return { vzor: m[1].trim(), nazov: koza + " / " + sitie + " šitie" };
+  const czSitie = { červené: "červené", modré: "modré", čierne: "černé", béžové: "béžové", sivé: "šedé", šedé: "šedé", biele: "bílé", žlté: "žluté", zelené: "zelené", bronzové: "bronzové", oranžové: "oranžové", hnedé: "hnědé", fialové: "fialové" };
+  return { vzor: m[1].trim(), nazov: koza + " / " + (jeCz ? (czSitie[sitie] || sitie) + " prošití" : sitie + " šitie") };
 }
 
 /**
@@ -91,6 +103,7 @@ export function nazovFarby(text) {
 export function popisFarby(text) {
   const n = nazovFarby(text).nazov;
   const c = n.split(" / ");
+  if (c.length === 2 && / prošití$/.test(c[1])) return c[0] + " kůže, " + c[1];
   return c.length === 2 && / šitie$/.test(c[1]) ? c[0] + " koža, " + c[1] : n;
 }
 
@@ -118,9 +131,10 @@ function nastavAttr(e, meno, hodnota) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  // CZ zatiaľ nie je v registri (produkty.js); texty sú len SK. Typ: mená kariet a postup z typy/<typ>.js.
+  // Typ: mená kariet a postup z lokalizovaných textov typy/<typ>.js.
   const TT = ctx.texty("kroky");
-  const T = Object.assign({}, TEXTY.sk, { postup: typeof TT.postup === "function" ? TT.postup : TEXTY.sk.postup, kroky: TT.kroky || {} });
+  const zaklad = TEXTY[ctx.trh] || TEXTY.sk;
+  const T = Object.assign({}, zaklad, { postup: typeof TT.postup === "function" ? TT.postup : zaklad.postup, kroky: TT.kroky || {} });
   const textKroku = (meno) => T.kroky[meno] || {};
   const MENA = ctx.produkt && ctx.produkt.kroky ? ctx.produkt.kroky : ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"];
   const form = ctx.form();

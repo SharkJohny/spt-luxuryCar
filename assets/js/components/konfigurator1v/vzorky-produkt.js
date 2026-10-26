@@ -23,6 +23,11 @@ import { zastupHodn, staryFaqPocasObsahu } from "./cena.js";
 
 export const MENO = "vzorky-produkt";
 
+const LOKALNE = {
+  sk: { vysvetlenie: "Vysvetlenie", vzorka: "Vzorka", nahlad: "Náhľad" },
+  cz: { vysvetlenie: "Vysvětlení", vzorka: "Vzorek", nahlad: "Náhled" },
+};
+
 /** Kód vzorky z data-parameter-name živého selectu: holý („D-3“, „S-1“, „H-2“, „LUX-10“) alebo na konci celého názvu
  *  „Vzorka Diamond – Čierna prešívaná čiernou (D-3)“ (tak je v admine od 22. 10. 2026; starý widget číta rovnako, idFromText). */
 const KOD = /^(?:.*\()?((?:S|H|D|LUX)-\d+)\)?$/;
@@ -67,8 +72,8 @@ function nazovZoStranky(form, idParametra, kod) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  if (ctx.trh !== "sk") return; // texty sú len SK (CZ nie je v registri)
   const T = ctx.texty("vzorky");
+  const L = LOKALNE[ctx.trh] || LOKALNE.sk;
   if (!T || !T.serie) throw new Error("texty vzorkovníka chýbajú (typy/vzorky.js)");
   const form = ctx.form();
   const kos = ctx.krok("kosik");
@@ -290,7 +295,7 @@ export function init(ctx) {
     if (s.cfg.info) {
       const ib = el("button", "lcd1v-vz-info", "i");
       ib.type = "button";
-      ib.setAttribute("aria-label", "Vysvetlenie");
+      ib.setAttribute("aria-label", L.vysvetlenie);
       ib.setAttribute("aria-expanded", "false");
       pod.appendChild(document.createTextNode(" "));
       pod.appendChild(ib);
@@ -327,11 +332,11 @@ export function init(ctx) {
         b.setAttribute("data-kod", kod);
         if (obj) {
           b.setAttribute("aria-pressed", "false");
-          b.setAttribute("aria-label", "Vzorka " + kod + " — " + nm);
+          b.setAttribute("aria-label", L.vzorka + " " + kod + " — " + nm);
           b.title = kod + " · " + nm;
         } else {
           b.setAttribute("aria-disabled", "true");
-          b.setAttribute("aria-label", "Náhľad " + kod + " — " + nm + T.nahladSuffix);
+          b.setAttribute("aria-label", L.nahlad + " " + kod + " — " + nm + T.nahladSuffix);
           b.title = kod + " · " + nm + T.nahladSuffix;
         }
         const sw = el("span", "lcd1v-vz-sw");
@@ -577,7 +582,7 @@ export function init(ctx) {
     nastav(nm, kod + " · " + nazov(kod) + (lenNahlad ? T.nahladSuffix : ""));
     const src = obrazok(kod);
     if (src && img.getAttribute("src") !== src) img.src = src;
-    img.alt = (lenNahlad ? "Náhľad " : "Vzorka ") + kod + " — " + nazov(kod);
+    img.alt = (lenNahlad ? L.nahlad : L.vzorka) + " " + kod + " — " + nazov(kod);
     k.nahlad.hidden = !src;
   }
 

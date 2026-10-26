@@ -138,11 +138,12 @@ export function zakladHtml() {
 }
 
 /** Adresy kusov kľúča na CDN (SK; CZ obsah 1V nemá) alebo [] keď bundle nie je z verzie v/<sha>/. */
-export function adresyKusov(kluc) {
+export function adresyKusov(kluc, trh) {
   const z = zakladHtml();
   if (!z || !kluc) return [];
   const out = [];
-  for (let n = 1; n <= KUSY; n++) out.push(z + "p1v-" + kluc + "-" + n + ".sk.html");
+  const web = trh === "cz" ? "cz" : "sk";
+  for (let n = 1; n <= KUSY; n++) out.push(z + "p1v-" + kluc + "-" + n + "." + web + ".html");
   return out;
 }
 
@@ -178,13 +179,12 @@ let vopred = null;
  */
 export function predstiahni(kontext, produkt) {
   if (vopred || !OBSAH_CDN || !kontext || !produkt) return;
-  // trh ako ctx.js (vytvorCtx): 704436 = CZ test, inak jazyk stránky
-  const jazyk = String(kontext.projectId) === "704436" ? "cs" : kontext.language || document.documentElement.lang || "sk";
-  if (jazyk === "cs") return;
+  const jazyk = ["581408", "704436"].indexOf(String(kontext.projectId)) > -1 ? "cs" : kontext.language || document.documentElement.lang || "sk";
+  const trh = jazyk === "cs" ? "cz" : "sk";
   const kluc = klucObsahu({ produkt, productId: kontext.productId });
   if (!kluc) return;
   const chyba = chybajuceKusy(kluc, koreneObsahu(kluc));
-  const adresy = adresyKusov(kluc);
+  const adresy = adresyKusov(kluc, trh);
   if (!chyba.length || !adresy.length) return;
   vopred = { kluc, texty: adresy.map((u, i) => (chyba.indexOf(i + 1) > -1 ? stiahniKus(u) : null)) };
 }
@@ -804,7 +804,7 @@ export function init(ctx) {
     }
   });
   // b) kusy, ktoré v DOM nie sú, z CDN verzie bundle (len SK; bez verzie v/<sha>/ nie je odkiaľ)
-  const adresy = OBSAH_CDN && ctx.trh === "sk" ? adresyKusov(kluc) : [];
+  const adresy = OBSAH_CDN ? adresyKusov(kluc, ctx.trh) : [];
   const zCdn = adresy.length ? chybajuceKusy(kluc, vDom) : [];
   stav.zdroj = vDom.length && zCdn.length ? "dom+cdn" : vDom.length ? "dom" : zCdn.length ? "cdn" : null;
   const zac = { obsah: null, odlozene: [] };

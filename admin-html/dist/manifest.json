@@ -206,6 +206,23 @@
       "obrazky": 0
     },
     {
+      "cast": "kontakty",
+      "web": "cz",
+      "subor": "kontakty.cz.html",
+      "zdroj": "src/kontakty.cz.html",
+      "koren": "#lcd-kontakt",
+      "ciel": {
+        "typ": "stranka",
+        "id": 29,
+        "pole": "Popis stránky (description)",
+        "url": "/kontakty/"
+      },
+      "znaky": 2480,
+      "bajty": 2514,
+      "hash": "83dc42af3c",
+      "obrazky": 0
+    },
+    {
       "cast": "p1v-598-1",
       "web": "sk",
       "subor": "p1v-598-1.sk.html",
@@ -263,6 +280,72 @@
           "subor": "22-b-porovnanie.sk.html",
           "sekcia": "b-porovnanie",
           "znaky": 2500
+        }
+      ]
+    },
+    {
+      "cast": "p1v-598-1",
+      "web": "cz",
+      "subor": "p1v-598-1.cz.html",
+      "zdroj": "src/p1v-598/10…29-*.cz.html",
+      "koren": "#p1v-598-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-598-1.cz.html",
+        "nazov": "1V obsah 598 kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2403, 2415, 2418 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2403,
+          2415,
+          2418
+        ]
+      },
+      "znaky": 35479,
+      "bajty": 36388,
+      "hash": "0d28ce78a7",
+      "obrazky": 36,
+      "webp": 3,
+      "sekcie": [
+        {
+          "subor": "10-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2115
+        },
+        {
+          "subor": "10-b-predapo.cz.html",
+          "sekcia": "b-predapo",
+          "znaky": 2870
+        },
+        {
+          "subor": "11-a-referencie.cz.html",
+          "sekcia": "a-referencie",
+          "znaky": 5443
+        },
+        {
+          "subor": "12-a-galeria.cz.html",
+          "sekcia": "a-galeria",
+          "znaky": 7173
+        },
+        {
+          "subor": "13-a-ponuka.cz.html",
+          "sekcia": "a-ponuka",
+          "znaky": 735
+        },
+        {
+          "subor": "20-b-ocakavat.cz.html",
+          "sekcia": "b-ocakavat",
+          "znaky": 7266
+        },
+        {
+          "subor": "21-b-material.cz.html",
+          "sekcia": "b-material",
+          "znaky": 5782
+        },
+        {
+          "subor": "22-b-porovnanie.cz.html",
+          "sekcia": "b-porovnanie",
+          "znaky": 2492
         }
       ]
     },
@@ -332,6 +415,76 @@
       ]
     },
     {
+      "cast": "p1v-598-2",
+      "web": "cz",
+      "subor": "p1v-598-2.cz.html",
+      "zdroj": "src/p1v-598/30…49-*.cz.html",
+      "koren": "#p1v-598-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-598-2.cz.html",
+        "nazov": "1V obsah 598 kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-598-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 598, 610, 613. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2403, 2415, 2418 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2403,
+          2415,
+          2418
+        ]
+      },
+      "znaky": 26506,
+      "bajty": 27361,
+      "hash": "665a204ee6",
+      "obrazky": 36,
+      "sekcie": [
+        {
+          "subor": "30-c-kam.cz.html",
+          "sekcia": "c-kam",
+          "znaky": 860
+        },
+        {
+          "subor": "31-c-domov.cz.html",
+          "sekcia": "c-domov",
+          "znaky": 1908
+        },
+        {
+          "subor": "32-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1318
+        },
+        {
+          "subor": "33-c-farby.cz.html",
+          "sekcia": "c-farby",
+          "znaky": 7466
+        },
+        {
+          "subor": "34-c-vzorky.cz.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1495
+        },
+        {
+          "subor": "40-d-realita.cz.html",
+          "sekcia": "d-realita",
+          "znaky": 2843
+        },
+        {
+          "subor": "41-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 9261
+        },
+        {
+          "subor": "42-d-koniec.cz.html",
+          "sekcia": "d-koniec",
+          "znaky": 583
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
+        }
+      ]
+    },
+    {
       "cast": "p1v-dvoj-1",
       "web": "sk",
       "subor": "p1v-dvoj-1.sk.html",
@@ -387,6 +540,72 @@
         },
         {
           "subor": "23-b-predapo.sk.html",
+          "sekcia": "b-predapo",
+          "znaky": 0
+        }
+      ]
+    },
+    {
+      "cast": "p1v-dvoj-1",
+      "web": "cz",
+      "subor": "p1v-dvoj-1.cz.html",
+      "zdroj": "src/p1v-dvoj/10…29-*.cz.html",
+      "koren": "#p1v-dvoj-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-dvoj-1.cz.html",
+        "nazov": "1V obsah dvoj kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2406, 2409, 2412 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2406,
+          2409,
+          2412
+        ]
+      },
+      "znaky": 39567,
+      "bajty": 40463,
+      "hash": "c7915c7106",
+      "obrazky": 35,
+      "webp": 15,
+      "sekcie": [
+        {
+          "subor": "10-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2115
+        },
+        {
+          "subor": "11-a-referencie.cz.html",
+          "sekcia": "a-referencie",
+          "znaky": 5443
+        },
+        {
+          "subor": "12-a-galeria.cz.html",
+          "sekcia": "a-galeria",
+          "znaky": 7342
+        },
+        {
+          "subor": "13-a-ponuka.cz.html",
+          "sekcia": "a-ponuka",
+          "znaky": 1241
+        },
+        {
+          "subor": "20-b-ocakavat.cz.html",
+          "sekcia": "b-ocakavat",
+          "znaky": 7586
+        },
+        {
+          "subor": "21-b-material.cz.html",
+          "sekcia": "b-material",
+          "znaky": 6932
+        },
+        {
+          "subor": "22-b-porovnanie.cz.html",
+          "sekcia": "b-porovnanie",
+          "znaky": 2514
+        },
+        {
+          "subor": "23-b-predapo.cz.html",
           "sekcia": "b-predapo",
           "znaky": 0
         }
@@ -459,6 +678,77 @@
       ]
     },
     {
+      "cast": "p1v-dvoj-2",
+      "web": "cz",
+      "subor": "p1v-dvoj-2.cz.html",
+      "zdroj": "src/p1v-dvoj/30…49-*.cz.html",
+      "koren": "#p1v-dvoj-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-dvoj-2.cz.html",
+        "nazov": "1V obsah dvoj kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-dvoj-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 601, 604, 607. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2406, 2409, 2412 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2406,
+          2409,
+          2412
+        ]
+      },
+      "znaky": 24946,
+      "bajty": 25778,
+      "hash": "c4f5d9091d",
+      "obrazky": 26,
+      "webp": 3,
+      "sekcie": [
+        {
+          "subor": "30-c-kam.cz.html",
+          "sekcia": "c-kam",
+          "znaky": 907
+        },
+        {
+          "subor": "31-c-domov.cz.html",
+          "sekcia": "c-domov",
+          "znaky": 2357
+        },
+        {
+          "subor": "32-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1330
+        },
+        {
+          "subor": "33-c-farby.cz.html",
+          "sekcia": "c-farby",
+          "znaky": 4704
+        },
+        {
+          "subor": "34-c-vzorky.cz.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1495
+        },
+        {
+          "subor": "40-d-realita.cz.html",
+          "sekcia": "d-realita",
+          "znaky": 2843
+        },
+        {
+          "subor": "41-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 9261
+        },
+        {
+          "subor": "42-d-koniec.cz.html",
+          "sekcia": "d-koniec",
+          "znaky": 569
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
+        }
+      ]
+    },
+    {
       "cast": "p1v-classic-1",
       "web": "sk",
       "subor": "p1v-classic-1.sk.html",
@@ -516,6 +806,72 @@
           "subor": "23-classic-premium.sk.html",
           "sekcia": "classic-premium",
           "znaky": 2875
+        }
+      ]
+    },
+    {
+      "cast": "p1v-classic-1",
+      "web": "cz",
+      "subor": "p1v-classic-1.cz.html",
+      "zdroj": "src/p1v-classic/10…29-*.cz.html",
+      "koren": "#p1v-classic-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-classic-1.cz.html",
+        "nazov": "1V obsah classic kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2424, 2430, 2433 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2424,
+          2430,
+          2433
+        ]
+      },
+      "znaky": 48922,
+      "bajty": 49832,
+      "hash": "76a7614bc3",
+      "obrazky": 36,
+      "webp": 29,
+      "sekcie": [
+        {
+          "subor": "10-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2115
+        },
+        {
+          "subor": "10-b-predapo.cz.html",
+          "sekcia": "b-predapo",
+          "znaky": 2854
+        },
+        {
+          "subor": "11-a-referencie.cz.html",
+          "sekcia": "a-referencie",
+          "znaky": 5443
+        },
+        {
+          "subor": "12-a-galeria.cz.html",
+          "sekcia": "a-galeria",
+          "znaky": 7736
+        },
+        {
+          "subor": "20-b-ocakavat.cz.html",
+          "sekcia": "b-ocakavat",
+          "znaky": 6231
+        },
+        {
+          "subor": "21-b-material.cz.html",
+          "sekcia": "b-material",
+          "znaky": 5704
+        },
+        {
+          "subor": "22-b-porovnanie.cz.html",
+          "sekcia": "b-porovnanie",
+          "znaky": 2348
+        },
+        {
+          "subor": "23-classic-premium.cz.html",
+          "sekcia": "classic-premium",
+          "znaky": 2895
         }
       ]
     },
@@ -596,6 +952,87 @@
       ]
     },
     {
+      "cast": "p1v-classic-2",
+      "web": "cz",
+      "subor": "p1v-classic-2.cz.html",
+      "zdroj": "src/p1v-classic/30…49-*.cz.html",
+      "koren": "#p1v-classic-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-classic-2.cz.html",
+        "nazov": "1V obsah classic kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-classic-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 619, 622, 625. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2424, 2430, 2433 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2424,
+          2430,
+          2433
+        ]
+      },
+      "znaky": 29868,
+      "bajty": 30800,
+      "hash": "2c6e9a7aee",
+      "obrazky": 37,
+      "webp": 1,
+      "sekcie": [
+        {
+          "subor": "30-c-kam.cz.html",
+          "sekcia": "c-kam",
+          "znaky": 817
+        },
+        {
+          "subor": "31-classic-box.cz.html",
+          "sekcia": "classic-box",
+          "znaky": 1171
+        },
+        {
+          "subor": "32-c-domov.cz.html",
+          "sekcia": "c-domov",
+          "znaky": 2390
+        },
+        {
+          "subor": "33-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1348
+        },
+        {
+          "subor": "34-c-farby.cz.html",
+          "sekcia": "c-farby",
+          "znaky": 7287
+        },
+        {
+          "subor": "35-c-vzorky.cz.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1495
+        },
+        {
+          "subor": "36-a-ponuka.cz.html",
+          "sekcia": "a-ponuka",
+          "znaky": 1414
+        },
+        {
+          "subor": "40-d-realita.cz.html",
+          "sekcia": "d-realita",
+          "znaky": 2843
+        },
+        {
+          "subor": "41-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 9261
+        },
+        {
+          "subor": "42-d-koniec.cz.html",
+          "sekcia": "d-koniec",
+          "znaky": 546
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
+        }
+      ]
+    },
+    {
       "cast": "p1v-premium-1",
       "web": "sk",
       "subor": "p1v-premium-1.sk.html",
@@ -648,6 +1085,67 @@
           "subor": "22-premium-porovnanie.sk.html",
           "sekcia": "premium-porovnanie",
           "znaky": 2599
+        }
+      ]
+    },
+    {
+      "cast": "p1v-premium-1",
+      "web": "cz",
+      "subor": "p1v-premium-1.cz.html",
+      "zdroj": "src/p1v-premium/10…29-*.cz.html",
+      "koren": "#p1v-premium-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-premium-1.cz.html",
+        "nazov": "1V obsah premium kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2421, 2436, 2439 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2421,
+          2436,
+          2439
+        ]
+      },
+      "znaky": 42276,
+      "bajty": 42972,
+      "hash": "f832af8092",
+      "obrazky": 31,
+      "webp": 21,
+      "sekcie": [
+        {
+          "subor": "10-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2115
+        },
+        {
+          "subor": "10-b-predapo.cz.html",
+          "sekcia": "b-predapo",
+          "znaky": 2474
+        },
+        {
+          "subor": "11-a-referencie.cz.html",
+          "sekcia": "a-referencie",
+          "znaky": 5443
+        },
+        {
+          "subor": "12-a-galeria.cz.html",
+          "sekcia": "a-galeria",
+          "znaky": 7568
+        },
+        {
+          "subor": "20-b-ocakavat.cz.html",
+          "sekcia": "b-ocakavat",
+          "znaky": 4577
+        },
+        {
+          "subor": "21-b-material.cz.html",
+          "sekcia": "b-material",
+          "znaky": 5749
+        },
+        {
+          "subor": "22-premium-porovnanie.cz.html",
+          "sekcia": "premium-porovnanie",
+          "znaky": 2612
         }
       ]
     },
@@ -728,6 +1226,87 @@
       ]
     },
     {
+      "cast": "p1v-premium-2",
+      "web": "cz",
+      "subor": "p1v-premium-2.cz.html",
+      "zdroj": "src/p1v-premium/30…49-*.cz.html",
+      "koren": "#p1v-premium-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-premium-2.cz.html",
+        "nazov": "1V obsah premium kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-premium-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 628, 631, 634. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkty 2421, 2436, 2439 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2421,
+          2436,
+          2439
+        ]
+      },
+      "znaky": 31965,
+      "bajty": 32900,
+      "hash": "c50d7c2e0e",
+      "obrazky": 38,
+      "webp": 2,
+      "sekcie": [
+        {
+          "subor": "30-premium-kryje.cz.html",
+          "sekcia": "premium-kryje",
+          "znaky": 2557
+        },
+        {
+          "subor": "31-a-ponuka.cz.html",
+          "sekcia": "a-ponuka",
+          "znaky": 1197
+        },
+        {
+          "subor": "31-c-domov.cz.html",
+          "sekcia": "c-domov",
+          "znaky": 2099
+        },
+        {
+          "subor": "32-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1340
+        },
+        {
+          "subor": "33-c-farby.cz.html",
+          "sekcia": "c-farby",
+          "znaky": 7418
+        },
+        {
+          "subor": "34-c-vzorky.cz.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1495
+        },
+        {
+          "subor": "40-d-realita.cz.html",
+          "sekcia": "d-realita",
+          "znaky": 2843
+        },
+        {
+          "subor": "40-premium-box.cz.html",
+          "sekcia": "premium-box",
+          "znaky": 1015
+        },
+        {
+          "subor": "41-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 9261
+        },
+        {
+          "subor": "42-d-koniec.cz.html",
+          "sekcia": "d-koniec",
+          "znaky": 595
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
+        }
+      ]
+    },
+    {
       "cast": "p1v-boxy-1",
       "web": "sk",
       "subor": "p1v-boxy-1.sk.html",
@@ -775,6 +1354,60 @@
           "subor": "22-a-ponuka.sk.html",
           "sekcia": "a-ponuka",
           "znaky": 2649
+        }
+      ]
+    },
+    {
+      "cast": "p1v-boxy-1",
+      "web": "cz",
+      "subor": "p1v-boxy-1.cz.html",
+      "zdroj": "src/p1v-boxy/10…29-*.cz.html",
+      "koren": "#p1v-boxy-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-boxy-1.cz.html",
+        "nazov": "1V obsah boxy kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2427 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2427
+        ]
+      },
+      "znaky": 36342,
+      "bajty": 36989,
+      "hash": "50e35d0133",
+      "obrazky": 28,
+      "webp": 27,
+      "sekcie": [
+        {
+          "subor": "10-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2115
+        },
+        {
+          "subor": "10-b-predapo.cz.html",
+          "sekcia": "b-predapo",
+          "znaky": 2728
+        },
+        {
+          "subor": "20-b-ocakavat.cz.html",
+          "sekcia": "b-ocakavat",
+          "znaky": 5772
+        },
+        {
+          "subor": "21-a-galeria.cz.html",
+          "sekcia": "a-galeria",
+          "znaky": 7514
+        },
+        {
+          "subor": "21-boxy-velkosti.cz.html",
+          "sekcia": "boxy-velkosti",
+          "znaky": 4420
+        },
+        {
+          "subor": "22-a-ponuka.cz.html",
+          "sekcia": "a-ponuka",
+          "znaky": 2633
         }
       ]
     },
@@ -835,6 +1468,65 @@
       ]
     },
     {
+      "cast": "p1v-boxy-2",
+      "web": "cz",
+      "subor": "p1v-boxy-2.cz.html",
+      "zdroj": "src/p1v-boxy/30…49-*.cz.html",
+      "koren": "#p1v-boxy-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-boxy-2.cz.html",
+        "nazov": "1V obsah boxy kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-boxy-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 616. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2427 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2427
+        ]
+      },
+      "znaky": 25328,
+      "bajty": 26114,
+      "hash": "794b885c1d",
+      "obrazky": 31,
+      "webp": 9,
+      "sekcie": [
+        {
+          "subor": "32-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1221
+        },
+        {
+          "subor": "33-c-farby.cz.html",
+          "sekcia": "c-farby",
+          "znaky": 7611
+        },
+        {
+          "subor": "34-c-vzorky.cz.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1495
+        },
+        {
+          "subor": "40-boxy-cross.cz.html",
+          "sekcia": "boxy-cross",
+          "znaky": 2258
+        },
+        {
+          "subor": "41-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 9261
+        },
+        {
+          "subor": "42-d-koniec.cz.html",
+          "sekcia": "d-koniec",
+          "znaky": 685
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
+        }
+      ]
+    },
+    {
       "cast": "p1v-vzorky-1",
       "web": "sk",
       "subor": "p1v-vzorky-1.sk.html",
@@ -861,6 +1553,39 @@
           "subor": "20-vzorky-vratenie.sk.html",
           "sekcia": "vzorky-vratenie",
           "znaky": 902
+        }
+      ]
+    },
+    {
+      "cast": "p1v-vzorky-1",
+      "web": "cz",
+      "subor": "p1v-vzorky-1.cz.html",
+      "zdroj": "src/p1v-vzorky/10…29-*.cz.html",
+      "koren": "#p1v-vzorky-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-vzorky-1.cz.html",
+        "nazov": "1V obsah vzorky kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-vzorky-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 637. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2449 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2449
+        ]
+      },
+      "znaky": 1997,
+      "bajty": 2096,
+      "hash": "c9af4d74af",
+      "obrazky": 0,
+      "sekcie": [
+        {
+          "subor": "10-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 950
+        },
+        {
+          "subor": "20-vzorky-vratenie.cz.html",
+          "sekcia": "vzorky-vratenie",
+          "znaky": 903
         }
       ]
     },
@@ -892,6 +1617,40 @@
           "subor": "40-d-faq.sk.html",
           "sekcia": "d-faq",
           "znaky": 9086
+        }
+      ]
+    },
+    {
+      "cast": "p1v-vzorky-2",
+      "web": "cz",
+      "subor": "p1v-vzorky-2.cz.html",
+      "zdroj": "src/p1v-vzorky/30…49-*.cz.html",
+      "koren": "#p1v-vzorky-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-vzorky-2.cz.html",
+        "nazov": "1V obsah vzorky kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-vzorky-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ) alebo ?novy=vyvoj, na produktoch 637. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2449 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2449
+        ]
+      },
+      "znaky": 10907,
+      "bajty": 11410,
+      "hash": "b11cc8d443",
+      "obrazky": 2,
+      "webp": 1,
+      "sekcie": [
+        {
+          "subor": "30-a-ponuka.cz.html",
+          "sekcia": "a-ponuka",
+          "znaky": 1090
+        },
+        {
+          "subor": "40-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 9261
         }
       ]
     },
@@ -946,6 +1705,59 @@
       ]
     },
     {
+      "cast": "p1v-kamiony-1",
+      "web": "cz",
+      "subor": "p1v-kamiony-1.cz.html",
+      "zdroj": "src/p1v-kamiony/10…29-*.cz.html",
+      "koren": "#p1v-kamiony-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-1.cz.html",
+        "nazov": "1V obsah kamióny kus 1 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-1.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2452 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2452
+        ]
+      },
+      "znaky": 12757,
+      "bajty": 13239,
+      "hash": "fd252972fc",
+      "obrazky": 17,
+      "sekcie": [
+        {
+          "subor": "10-kamiony-galeria.cz.html",
+          "sekcia": "kamiony-galeria",
+          "znaky": 4993
+        },
+        {
+          "subor": "12-kamiony-co-dostanete.cz.html",
+          "sekcia": "kamiony-co-dostanete",
+          "znaky": 1561
+        },
+        {
+          "subor": "14-kamiony-materialy.cz.html",
+          "sekcia": "kamiony-materialy",
+          "znaky": 2390
+        },
+        {
+          "subor": "16-kamiony-detaily.cz.html",
+          "sekcia": "kamiony-detaily",
+          "znaky": 1902
+        },
+        {
+          "subor": "18-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 918
+        },
+        {
+          "subor": "20-kamiony-dopravcovia.cz.html",
+          "sekcia": "kamiony-dopravcovia",
+          "znaky": 843
+        }
+      ]
+    },
+    {
       "cast": "p1v-kamiony-2",
       "web": "sk",
       "subor": "p1v-kamiony-2.sk.html",
@@ -982,6 +1794,49 @@
           "subor": "43-d-pomocne.sk.html",
           "sekcia": "d-pomocne",
           "znaky": 635
+        }
+      ]
+    },
+    {
+      "cast": "p1v-kamiony-2",
+      "web": "cz",
+      "subor": "p1v-kamiony-2.cz.html",
+      "zdroj": "src/p1v-kamiony/30…49-*.cz.html",
+      "koren": "#p1v-kamiony-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-kamiony-2.cz.html",
+        "nazov": "1V obsah kamióny kus 2 CZ",
+        "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-2.cz.html (production.yml kopíruje admin-html/dist/p1v-*.cz.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
+        "poSpusteni": "produkt 2452 -> Popis (description) přes runner (TinyMCE), společně s druhým kusem, pokud součet <= 45 000 znaků.",
+        "produkty": [
+          2452
+        ]
+      },
+      "znaky": 7535,
+      "bajty": 7759,
+      "hash": "6782efbff4",
+      "obrazky": 1,
+      "sekcie": [
+        {
+          "subor": "30-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2025
+        },
+        {
+          "subor": "40-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 4088
+        },
+        {
+          "subor": "42-kamiony-vyzva.cz.html",
+          "sekcia": "kamiony-vyzva",
+          "znaky": 647
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
         }
       ]
     }
@@ -1078,6 +1933,81 @@
     ],
     "ostatne": [
       "mega"
+    ],
+    "produkt-2403": [
+      "mega",
+      "p1v-598-1",
+      "p1v-598-2"
+    ],
+    "produkt-2415": [
+      "mega",
+      "p1v-598-1",
+      "p1v-598-2"
+    ],
+    "produkt-2418": [
+      "mega",
+      "p1v-598-1",
+      "p1v-598-2"
+    ],
+    "produkt-2406": [
+      "mega",
+      "p1v-dvoj-1",
+      "p1v-dvoj-2"
+    ],
+    "produkt-2409": [
+      "mega",
+      "p1v-dvoj-1",
+      "p1v-dvoj-2"
+    ],
+    "produkt-2412": [
+      "mega",
+      "p1v-dvoj-1",
+      "p1v-dvoj-2"
+    ],
+    "produkt-2424": [
+      "mega",
+      "p1v-classic-1",
+      "p1v-classic-2"
+    ],
+    "produkt-2430": [
+      "mega",
+      "p1v-classic-1",
+      "p1v-classic-2"
+    ],
+    "produkt-2433": [
+      "mega",
+      "p1v-classic-1",
+      "p1v-classic-2"
+    ],
+    "produkt-2421": [
+      "mega",
+      "p1v-premium-1",
+      "p1v-premium-2"
+    ],
+    "produkt-2436": [
+      "mega",
+      "p1v-premium-1",
+      "p1v-premium-2"
+    ],
+    "produkt-2439": [
+      "mega",
+      "p1v-premium-1",
+      "p1v-premium-2"
+    ],
+    "produkt-2427": [
+      "mega",
+      "p1v-boxy-1",
+      "p1v-boxy-2"
+    ],
+    "produkt-2449": [
+      "mega",
+      "p1v-vzorky-1",
+      "p1v-vzorky-2"
+    ],
+    "produkt-2452": [
+      "mega",
+      "p1v-kamiony-1",
+      "p1v-kamiony-2"
     ]
   }
 }

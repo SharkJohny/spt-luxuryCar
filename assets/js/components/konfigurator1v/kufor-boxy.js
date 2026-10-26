@@ -31,6 +31,7 @@ import { samostatneCenyKonfigurator, samostatneBoxy } from "../../lcdKosikDoplno
 import { zluc } from "./produkty.js";
 import { nazovFarby, popisFarby } from "./kroky.js";
 import { definicieKresby, kresba, nastavFarbuKresby, zrusFarbuKresby, slugFarby } from "./box-kresba.js";
+import { prelozTextyCz } from "./texty-cz.js";
 
 export const MENO = "kufor-boxy";
 
@@ -83,6 +84,7 @@ const TEXTY = {
     chybaVelkost: "Vyberte prosím veľkosť boxu.",
   },
 };
+const TEXTY_CZ = prelozTextyCz(TEXTY);
 
 // „Najčastejšie“ pri veľkosti ako v návrhu: 1 box -> L, 2 boxy -> 1. box M, 2. box L
 const NAJCASTEJSIE = { boxSolo: "L", box1: "M", box2: "L" };
@@ -115,8 +117,6 @@ export function kratkaFarba(t) {
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  // texty návrhu sú len slovenské (brána dnes pustí len SK 598); inak kroky 5–6 ostanú v živom vzhľade
-  if (ctx.trh !== "sk") return;
   ctx.ked(function () {
     const kufor = ctx.krok("kufor"), boxy = ctx.krok("boxy"), vyber = ctx.krok("boxyVyber");
     if (!kufor || !boxy || !vyber) return null;
@@ -142,7 +142,7 @@ export function init(ctx) {
 }
 
 function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
-  const T = zluc(TEXTY, ctx.texty ? ctx.texty("kuforBoxy") : {});
+  const T = zluc(ctx.trh === "cz" ? TEXTY_CZ : TEXTY, ctx.texty ? ctx.texty("kuforBoxy") : {});
   const banner = kufor.closest(".upsale-Banner");
   if (!banner) throw new Error("kufor mimo .upsale-Banner");
   const fmt = function (n) { return ctx.formatCena(Math.round(n * 100) / 100); };
@@ -282,7 +282,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     trieda(wrapFarby, "lcd1v-bx-farby");
     wrapFarby.querySelectorAll(".option-button").forEach(function (b) {
       const t = b.querySelector(".text");
-      ovladacePopis.push([b, kratkaFarba(t ? t.textContent.replace(/\s*\+\s*€?\s*[\d.,]+\s*€?\s*$/, "") : "")]);
+      ovladacePopis.push([b, kratkaFarba(t ? t.textContent.replace(/\s*\+\s*(?:€|Kč|CZK)?\s*[\d\s.,]+\s*(?:€|Kč|CZK)?\s*$/i, "") : "")]);
     });
   }
   ["boxSolo", "box1", "box2"].forEach(function (kluc) {

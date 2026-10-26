@@ -17,8 +17,9 @@ import * as kuforPremium from "./typy/kufor-premium.js";
 import * as boxy from "./typy/boxy.js";
 import * as vzorky from "./typy/vzorky.js";
 import * as kamion from "./typy/kamion.js";
+import { prelozTextyCz } from "./texty-cz.js";
 
-/** SK = 562035. CZ (581408) zatiaľ nie: ID produktov sa medzi obchodmi líšia, nikdy ich nezamieňať. url = cesta na webe. */
+/** SK = 562035, CZ = 581408. ID produktov sa medzi obchodmi líšia, nikdy ich nezamieňať. url = cesta na webe. */
 export const PRODUKTY_1V = {
   562035: {
     598: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -38,6 +39,23 @@ export const PRODUKTY_1V = {
     637: { typ: "vzorky", vzor: null, url: "/vzorkovnik-dragonskin---objednavka-vzoriek/", obsah: "vzorky" },
     // kamióny a dodávky: vlastný konfigurátor kamion/ namiesto Reactu (docs/kamiony-1v-plan.md); do vydania len ?novy=vyvoj
     640: { typ: "kamion", vzor: null, url: "/luxusne-autokoberce-kamiony/", obsah: "kamiony" },
+  },
+  581408: {
+    2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
+    2418: { typ: "jedno", vzor: "stripe", url: "/luxusne-autokoberce-dragonskin-stripe-line/", obsah: "598" },
+    2415: { typ: "jedno", vzor: "hexa", url: "/luxusne-autokoberce-dragonskin-hexa-line/", obsah: "598" },
+    2406: { typ: "dvoj", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-elite-diamond-line/", obsah: "dvoj" },
+    2412: { typ: "dvoj", vzor: "stripe", url: "/luxusne-autokoberce-dragonskin-elite-stripe-line/", obsah: "dvoj" },
+    2409: { typ: "dvoj", vzor: "hexa", url: "/luxusne-autokoberce-dragonskin-elite-hexa-line/", obsah: "dvoj" },
+    2424: { typ: "kufor-classic", vzor: "diamond", url: "/luxusny-koberced-do-kufra-dragonskin-klasik/", obsah: "classic" },
+    2433: { typ: "kufor-classic", vzor: "stripe", url: "/luxusny-koberced-do-kufra-dragonskin-klasik-stripe/", obsah: "classic" },
+    2430: { typ: "kufor-classic", vzor: "hexa", url: "/luxusny-koberced-do-kufra-dragonskin-klasik-hexa/", obsah: "classic" },
+    2421: { typ: "kufor-premium", vzor: "diamond", url: "/luxusny-koberced-do-kufra-dragonskin-premium/", obsah: "premium" },
+    2439: { typ: "kufor-premium", vzor: "stripe", url: "/luxusny-koberced-do-kufra-dragonskin-premium-stripe/", obsah: "premium" },
+    2436: { typ: "kufor-premium", vzor: "hexa", url: "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/", obsah: "premium" },
+    2427: { typ: "boxy", vzor: null, url: "/luxusny-boxi-do-kufra/", obsah: "boxy" },
+    2449: { typ: "vzorky", vzor: null, url: "/vzorkovnik-dragonskin---objednavka-vzorku/", obsah: "vzorky" },
+    2452: { typ: "kamion", vzor: null, url: "/luxusni-autokoberce-kamiony/", obsah: "kamiony" },
   },
 };
 
@@ -105,11 +123,13 @@ export function produkt1v(kontext) {
   const t = z && TYPY[z.typ];
   if (!t) return null;
   const zdroj = TYPY_ZDROJ[z.typ] || {};
+  const texty = zluc(jedno.TYP.texty || {}, zdroj.texty || {});
+  const cz = String(kontext && kontext.projectId) === "581408" || String((kontext && kontext.language) || "").toLowerCase() === "cs";
   return Object.assign(z, {
     kroky: t.kroky.slice(),
     moduly: t.moduly.slice(),
     obal: t.obal,
-    texty: zluc(jedno.TYP.texty || {}, zdroj.texty || {}),
+    texty: cz ? prelozTextyCz(texty) : texty,
     obrazky: zluc(jedno.TYP.obrazky || {}, zdroj.obrazky || {}),
   });
 }

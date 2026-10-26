@@ -1,0 +1,19 @@
+<!-- 43-d-pomocne — box do kufra 616: pomocné prvky (spec §6: okno #lb v návrhu nie je, ostáva pre fotky galérie; návrh #citanie r. 4758). Bez kapitoly.
+     Rovnaké ako p1v-598/43-d-pomocne:
+     - #p1v-citanie: tenká zlatá linka na vrchu okna = koľko obsahu pod konfigurátorom má čitateľ za sebou; mimo obsahu skrytá.
+     - #p1v-lb: okno na fotky (a videá) pre sekcie VŠETKÝCH skupín (API v obsah-d.js, docs/1v-obsah.md „Okno #p1v-lb“). Box ho používa
+       na zväčšenie fotiek galérie (sada „a-galeria“, nastaví obsah-a.js); videá box nemá.
+     obsah-d.js ich pod body.lcd-1v presunie priamo do <body> a drží ich skryté atribútom hidden, kým nie sú potrebné.
+     Bez flagu sú v skrytom koreni a nič nesťahujú. -->
+<div class="p1v-pomocne" data-lcd-sekcia="d-pomocne">
+  <div class="p1v-citanie" id="p1v-citanie" aria-hidden="true"><i><!-- --></i></div>
+  <div class="p1v-lb" id="p1v-lb" role="dialog" aria-modal="true" aria-label="Fotka nebo video">
+    <button type="button" class="p1v-lb-x" aria-label="Zavřít">&times;</button>
+    <button type="button" class="p1v-lb-sip p1v-lb-spat" aria-label="Předchozí fotka">&lsaquo;</button>
+    <button type="button" class="p1v-lb-sip p1v-lb-dalej" aria-label="Další fotka">&rsaquo;</button>
+    <div class="p1v-lb-in">
+      <div class="p1v-lb-ram"><!-- --></div>
+      <div class="p1v-lb-pod"><!-- --></div>
+    </div>
+  </div>
+</div>
