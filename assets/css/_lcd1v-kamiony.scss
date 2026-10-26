@@ -334,7 +334,15 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad::after { content: "\2
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { display: block; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po { display: block; margin-top: 3px; color: var(--k-mute); font: 400 14px/1.4 var(--k-body); }
 /* ★ všetky tri: zlatý pás „★ Najobľúbenejšie ★“ cez celú šírku dlaždice (ako odporúčaná karta rohože a boxu do kufra) */
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { display: block; padding: 9px 12px 8px; background: var(--k-zlato); color: #17130a; font: 800 13.5px/1.2 var(--k-disp); letter-spacing: .14em; text-align: center; text-transform: uppercase; white-space: nowrap; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { position: relative; overflow: hidden; display: block; padding: 9px 12px 8px; background: var(--k-zlato); color: #17130a; font: 800 13.5px/1.2 var(--k-disp); letter-spacing: .14em; text-align: center; text-transform: uppercase; white-space: nowrap; }
+/* Michal 26. 10. 2026: balík ako odporúčaná rohož do kufra (_lcd1v-kufor-boxy.scss návrh E) — krémová karta, zlatý rám so žiarou,
+   v páse pod nadpisom veta; zvolená = zelený rám a pozadie ako ostatné dlaždice (.kn-dv__b.is-on nižšie) */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.kn-dv__b--bal { border-color: var(--k-gold); background: #fffaef; box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__veta { display: block; margin-top: 3px; font: 700 14px/1.25 var(--k-body); letter-spacing: .01em; text-transform: none; white-space: normal; }
+@media (prefers-reduced-motion: no-preference) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-110%); animation: kn-lesk 5s ease-in-out infinite; pointer-events: none; }
+}
+@keyframes kn-lesk { 0%, 64% { transform: translateX(-110%); } 100% { transform: translateX(110%); } }
 @media (max-width: 359px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__top { padding-inline: 8px; font-size: 12px; letter-spacing: .1em; }
 }

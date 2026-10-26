@@ -742,15 +742,16 @@ export function vytvorUi(o) {
           '<span class="kn-dv__tx"><span class="kn-rad" aria-hidden="true"></span><span class="kn-dv__txt"><span class="kn-dv__nm">' + esc(V[id].text) + '</span><span class="kn-dv__po">' + esc(V[id].popis) + "</span>" +
           cenyRiadky(plus(pon[id].suma), pon[id]) + "</span></span></button>";
       };
-      // poradie podľa Michala (18. 10. 2026 večer): pod sedadlá — stredový koberec — ★ všetky tri — Nie, ďakujem
+      // poradie (Michal 26. 10. 2026): ★ všetky tri ako prvá, odporúčaná voľba (vzhľad ako odporúčaná rohož do kufra) —
+      // pod sedadlá — stredový koberec — Nie, ďakujem
       const d1 = dl("boky", "", fotkaKabiny("--z:1.75;--fx:.537;--fy:.5", ["sofer", "spolujazdec"], V.boky.alt), "");
       const d2 = dl("stred", "", fotkaKabiny("--z:2.5;--fx:.531;--fy:.8", ["stred"], V.stred.alt), "");
       const d3 = dl("boky+stred", " kn-dv__b--bal", fotkaKabiny("--z:1.4;--fx:.537;--fy:.64", ["sofer", "spolujazdec", "stred"], V["boky+stred"].alt, true),
-        '<span class="kn-dv__top">' + esc(V["boky+stred"].stitok) + "</span>");
+        '<span class="kn-dv__top">' + esc(V["boky+stred"].stitok) + '<span class="kn-dv__veta">' + esc(V["boky+stred"].veta) + "</span></span>");
       const tlNie = '<button type="button" class="k-btn-zlate kn-nie' + (nie ? " is-on" : S.nas ? " je-druha" : "") + '" data-a="nas" data-v="nechcem" data-f="nas:nechcem" aria-pressed="' + nie + '">' +
         (nie ? "✓ " : "") + esc(V.nechcem.text) + "<small>" + esc(V.nechcem.popis) + "</small></button>";
       return '<div class="kn-blok" data-blok="kam" tabindex="-1"><p class="k-pod">' + esc(t.pomocna_veta[0]) + "<b>" + esc(t.pomocna_veta[1]) + "</b>" + esc(t.pomocna_veta[2]) + "</p>" +
-        skOt("nasivky", "nas", t.kam, '<div class="kn-dv" role="group" aria-labelledby="' + P + 'ot-nas">' + d1 + d2 + d3 + "</div>" + tlNie) + "</div>";
+        skOt("nasivky", "nas", t.kam, '<div class="kn-dv" role="group" aria-labelledby="' + P + 'ot-nas">' + d3 + d1 + d2 + "</div>" + tlNie) + "</div>";
     }
     if (b === "boky") {
       const vsetky = S.nas === "boky+stred" && U.n5.stredOdp && S.stredRovnaky;

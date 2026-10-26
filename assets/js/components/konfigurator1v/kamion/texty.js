@@ -477,7 +477,8 @@ export const TEXTY = {
      "text": "Nášivky pod sedadlá šoféra a spolujazdca + do stredu",
      "popis": "3 nášivky v jednom balíku",
      "alt": "Kabína zhora – nášivky pod sedadlami šoféra a spolujazdca aj v strede",
-     "stitok": "★ Najobľúbenejšie ★"
+     "stitok": "★ Najobľúbenejšie ★",
+     "veta": "Všetky tri miesta, najväčšia úspora"
     },
     "stred": {
      "text": "Nášivka do stredu",

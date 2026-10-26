@@ -429,19 +429,19 @@ console.log("17) Kroky 5 a 6 — otázky po jednej (Michal 18. 10. 2026 večer):
 
   // 5.1 — kam: veľká otázka, 4 výlučné voľby v poradí 1, 2, 3, 4, ceny v riadkoch ako rohož a box do kufra
   over("17: krok 5 otvorený len s otázkou „Prosím, vyberte si, kam chcete nášivky“", J(otvorene(K5)) === J(["kam"]) && tx(K5 + '[data-pole="nas"] .kn-ot') === "Prosím, vyberte si, kam chcete nášivky", J(otvorene(K5)) + " | " + tx(K5 + ".kn-ot"));
-  over("17: voľby v poradí pod sedadlá — do stredu — pod sedadlá + do stredu — Nie, ďakujem", J(qa(K5 + '[data-a="nas"]').map((x) => x.getAttribute("data-v"))) === J(["boky", "stred", "boky+stred", "nechcem"]));
+  over("17: voľby v poradí ★ pod sedadlá + do stredu (prvá, odporúčaná; Michal 26. 10. 2026) — pod sedadlá — do stredu — Nie, ďakujem", J(qa(K5 + '[data-a="nas"]').map((x) => x.getAttribute("data-v"))) === J(["boky+stred", "boky", "stred", "nechcem"]));
   const dl = qa(".kn-dv > .kn-dv__b");
-  over("17: názvy dlaždíc podľa Michala", J(dl.map((x) => x.querySelector(".kn-dv__nm").textContent)) === J(["Nášivky pod sedadlá šoféra a spolujazdca", "Nášivka do stredu", "Nášivky pod sedadlá šoféra a spolujazdca + do stredu"]), J(dl.map((x) => x.querySelector(".kn-dv__nm").textContent)));
+  over("17: názvy dlaždíc podľa Michala", J(dl.map((x) => x.querySelector(".kn-dv__nm").textContent)) === J(["Nášivky pod sedadlá šoféra a spolujazdca + do stredu", "Nášivky pod sedadlá šoféra a spolujazdca", "Nášivka do stredu"]), J(dl.map((x) => x.querySelector(".kn-dv__nm").textContent)));
   // 22. 10. 2026: texty hovoria len o umiestnení (koberec môže byť jeden kus, delený aj zošitý) — nikdy „tri koberce“
-  over("17: popisy dlaždíc = počet nášiviek", J(dl.map((x) => x.querySelector(".kn-dv__po").textContent)) === J(["2 nášivky", "medzi sedadlami – 1 väčšia nášivka", "3 nášivky v jednom balíku"]), J(dl.map((x) => x.querySelector(".kn-dv__po").textContent)));
-  over("17: štítky na fotke Šofér / Spolujazdec / Stred", J(dl.map((x) => Array.from(x.querySelectorAll(".kn-bod b")).map((b) => b.textContent))) === J([["Šofér", "Spolujazdec"], ["Stred"], ["Šofér", "Spolujazdec", "Stred"]]));
+  over("17: popisy dlaždíc = počet nášiviek", J(dl.map((x) => x.querySelector(".kn-dv__po").textContent)) === J(["3 nášivky v jednom balíku", "2 nášivky", "medzi sedadlami – 1 väčšia nášivka"]), J(dl.map((x) => x.querySelector(".kn-dv__po").textContent)));
+  over("17: štítky na fotke Šofér / Spolujazdec / Stred", J(dl.map((x) => Array.from(x.querySelectorAll(".kn-bod b")).map((b) => b.textContent))) === J([["Šofér", "Spolujazdec", "Stred"], ["Šofér", "Spolujazdec"], ["Stred"]]));
   over("17: v kroku 5 nikde „stredový koberec“ ani „tri koberce“", !/stredov|tri koberce/i.test(t.d.querySelector('#lcd1v-kamion [data-krok="nasivky"]').innerHTML));
   over("17: každá dlaždica má fotku kabíny z assets/img/1v a „Ilustračná fotka“", dl.length === 3 && dl.every((x) => /\/assets\/img\/1v\/kamion-nasivky-kabina\.jpg$/.test(x.querySelector(".kn-scena > img").getAttribute("src")) && /Ilustračná fotka/.test(x.textContent)));
-  over("17: zlaté krúžky na miestach nášiviek (2 / 1 / 3)", J(dl.map((x) => x.querySelectorAll(".kn-bod").length)) === J([2, 1, 3]));
-  over("17: zlatý pás „★ Najobľúbenejšie ★“ len na všetkých troch", dl[2].querySelector(".kn-dv__top") && dl[2].querySelector(".kn-dv__top").textContent === "★ Najobľúbenejšie ★" && !dl[0].querySelector(".kn-dv__top") && !dl[1].querySelector(".kn-dv__top"));
-  over("17: pod sedadlá = Samostatne 70 € / Výhoda v sete − 11 € / V sete + 59 €", J(cen(dl[0].querySelector(".k-ucet"))) === J(R("70 €", "− 11 €", "+ 59 €")), J(cen(dl[0].querySelector(".k-ucet"))));
-  over("17: do stredu = Samostatne 70 € / Výhoda v sete − 11 € / V sete + 59 €", J(cen(dl[1].querySelector(".k-ucet"))) === J(R("70 €", "− 11 €", "+ 59 €")), J(cen(dl[1].querySelector(".k-ucet"))));
-  over("17: pod sedadlá + do stredu = Samostatne 140 € / Výhoda v sete − 45 € / V sete + 95 €", J(cen(dl[2].querySelector(".k-ucet"))) === J(R("140 €", "− 45 €", "+ 95 €")), J(cen(dl[2].querySelector(".k-ucet"))));
+  over("17: zlaté krúžky na miestach nášiviek (3 / 2 / 1)", J(dl.map((x) => x.querySelectorAll(".kn-bod").length)) === J([3, 2, 1]));
+  over("17: zlatý pás „★ Najobľúbenejšie ★“ s vetou len na všetkých troch (prvá dlaždica, vzhľad odporúčanej rohože do kufra)", !!dl[0].querySelector(".kn-dv__top") && dl[0].querySelector(".kn-dv__top").firstChild.textContent === "★ Najobľúbenejšie ★" && dl[0].querySelector(".kn-dv__veta").textContent === "Všetky tri miesta, najväčšia úspora" && dl[0].classList.contains("kn-dv__b--bal") && !dl[1].querySelector(".kn-dv__top") && !dl[2].querySelector(".kn-dv__top"));
+  over("17: pod sedadlá = Samostatne 70 € / Výhoda v sete − 11 € / V sete + 59 €", J(cen(dl[1].querySelector(".k-ucet"))) === J(R("70 €", "− 11 €", "+ 59 €")), J(cen(dl[1].querySelector(".k-ucet"))));
+  over("17: do stredu = Samostatne 70 € / Výhoda v sete − 11 € / V sete + 59 €", J(cen(dl[2].querySelector(".k-ucet"))) === J(R("70 €", "− 11 €", "+ 59 €")), J(cen(dl[2].querySelector(".k-ucet"))));
+  over("17: pod sedadlá + do stredu = Samostatne 140 € / Výhoda v sete − 45 € / V sete + 95 €", J(cen(dl[0].querySelector(".k-ucet"))) === J(R("140 €", "− 45 €", "+ 95 €")), J(cen(dl[0].querySelector(".k-ucet"))));
   over("17: bez veľkej ceny, prečiarknutej ceny a pilulky „Ušetríte“ (cenovka z návrhu E preč)", !q(".k-cenovka") && !qa(".kn-dv s").length && !/Ušetríte/.test(tx(".kn-dv")));
   const nie = q(a("nas", "nechcem"));
   over("17: „Nie, ďakujem“ = zlaté tlačidlo pod dlaždicami", !!nie && nie.classList.contains("k-btn-zlate") && /bez nášiviek, bez príplatku/.test(nie.textContent));
