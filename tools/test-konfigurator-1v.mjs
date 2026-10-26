@@ -1212,8 +1212,23 @@ const SCENARE = {
     await snimka("podorys-9-miest");
     await miesta(8); info.push("8: " + (await kontrola(8, 3)));
     await miesta(7); await karta(2); info.push("7: " + (await kontrola(7, 2)));
+    // 7 miest: „Máte sedadlá inak? Prehoďte rady ⇄“ prehodí 2. a 3. rad len na obrázku (Michal 26. 10. 2026, V-Class 2 + 2 + 3)
+    const radyTeraz = async () => (await stav()).rady.map((r) => r.sedadla).join("+");
+    const prehodVidno = () => t.ev(`(function () { var b = document.querySelector(${JSON.stringify(RZ + " .rz-prehod")}); return !!(b && !b.hidden && b.offsetHeight > 0); })()`);
+    over(await prehodVidno(), "7 miest: tlačidlo „Prehoďte rady“ nie je vidno");
+    const cenaPred = await ovl.cena.zobrazenaCena(t);
+    await t.klikni(`${RZ} .rz-prehod`, { popis: "Prehoďte rady (7 miest)" });
+    await pauza(600);
+    over((await radyTeraz()) === "2+2+3", "7 miest po prehodení: rady " + (await radyTeraz()) + ", má 2+2+3");
+    over((await ovl.cena.zobrazenaCena(t)) === cenaPred, "prehodenie radov zmenilo cenu");
+    await snimka("podorys-7-miest-prehodene");
+    await t.klikni(`${RZ} .rz-prehod`, { popis: "Prehoďte rady späť (7 miest)" });
+    await pauza(600);
+    over((await radyTeraz()) === "2+3+2", "7 miest po druhom prehodení: rady " + (await radyTeraz()) + ", má 2+3+2");
+    info.push("7 prehodenie 2+2+3 ↔ 2+3+2");
     await snimka("podorys-7-miest");
     await miesta(6); await karta(3); info.push("6: " + (await kontrola(6, 3)));
+    over(!(await prehodVidno()), "6 miest: tlačidlo „Prehoďte rady“ je vidno (2 + 2 + 2 nemá čo prehodiť)");
     await miesta(5); info.push("5: " + (await kontrola(5, 2)));
     await snimka("podorys-5-miest");
     await miesta(4); info.push("4: " + (await kontrola(4, 2)));

@@ -216,6 +216,7 @@ const TEXTY = new Map([
   ["Pôdorys auta zhora: zlaté sú rady, kde budú autokoberce", "Půdorys auta shora: zlaté jsou řady, kde budou autokoberce"],
   ["Podložené", "Zakryté"],
   ["Kufor je samostatný — vyberiete si ho v <b>ďalšom kroku</b>.", "Kufr je samostatný — vyberete si ho v <b>dalším kroku</b>."],
+  ["Máte sedadlá inak? Prehoďte rady ⇄", "Máte sedadla jinak? Prohoďte řady ⇄"],
   ["Rozloženie autokobercov", "Rozložení autokoberců"],
   ["+ 3. rad", "+ 3. řada"],
   ["Len prvý rad", "Pouze první řada"],

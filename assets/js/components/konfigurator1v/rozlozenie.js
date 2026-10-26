@@ -27,6 +27,7 @@ const TEXTY = {
     plan: "Pôdorys auta zhora: zlaté sú rady, kde budú autokoberce",
     podlozene: "Podložené",
     kufor: "Kufor je samostatný — vyberiete si ho v <b>ďalšom kroku</b>.",
+    prehodit: "Máte sedadlá inak? Prehoďte rady ⇄",
     skupina: "Rozloženie autokobercov",
     vCene: "v cene",
     tretiRad: "+ 3. rad",
@@ -165,6 +166,13 @@ export function init(ctx) {
   }
   plan.appendChild(el("div", "rz-legenda", '<span class="rz-je">' + T.podlozene + "</span>"));
   plan.appendChild(el("p", "rz-hint", T.kufor));
+  // len obrázok: 2. a 3. rad si vymenia počet sedadiel (7 miest: 2 + 3 + 2 ↔ 2 + 2 + 3, napr. Mercedes V-Class) — na objednávku
+  // ani autokoberce vplyv nemá, počet miest ostáva odpoveďou (Michal 26. 10. 2026: zákazník sa nemá zľaknúť iného obrázka)
+  const prehod = el("button", "rz-prehod", T.prehodit);
+  prehod.type = "button";
+  prehod.hidden = true;
+  prehod.setAttribute("aria-pressed", "false");
+  plan.appendChild(prehod);
 
   const karty = el("div", "rz-karty");
   karty.setAttribute("role", "group");
@@ -197,6 +205,7 @@ export function init(ctx) {
     try { return parseInt(String(sessionStorage.getItem("seatPosition") || "").replace(/^pass-/, ""), 10) || 5; } catch (e) { return 5; }
   })();
   let predR3 = null;
+  let prehodene = false, prehodeneMiesta = 0; // prehodenie 2. a 3. radu platí len pre počet miest, pri ktorom ho zákazník zapol
   let prepina = false; // práve prepína skrytú kartu na „Len prvý rad“ (2 miesta) — bez opakovania v tom istom kole
   let zvolene = 0; // rady zvolené v živom kroku (0 = nič)
   let nahlad = null; // rady pod myšou (náhľad pred klikom)
@@ -244,6 +253,11 @@ export function init(ctx) {
       d.setAttribute("aria-pressed", on ? "true" : "false");
     });
     const rr = sedadlaPodlaMiest(poslMiesta);
+    const daSa = rr[1] > 0 && rr[2] > 0 && rr[1] !== rr[2];
+    if (prehodene && (!daSa || prehodeneMiesta !== poslMiesta)) prehodene = false;
+    if (prehodene) rr.splice(1, 2, rr[2], rr[1]);
+    prehod.hidden = !daSa;
+    prehod.setAttribute("aria-pressed", prehodene ? "true" : "false");
     koren.dataset.r1 = String(rr[0]);
     koren.dataset.r2 = String(rr[1]);
     koren.dataset.r3 = String(rr[2]);
@@ -308,6 +322,12 @@ export function init(ctx) {
     const zivy = zive("miesta").find((b) => b.getAttribute("data-value") === "pass-" + d.dataset.v);
     // klik tu = klik na dlaždicu v kroku 2 (živý handler: sessionStorage seatPosition, aktívna trieda)
     if (zivy && !zivy.classList.contains("active")) zivy.click();
+    synchronizuj();
+  });
+
+  prehod.addEventListener("click", () => {
+    prehodene = !prehodene;
+    prehodeneMiesta = poslMiesta;
     synchronizuj();
   });
 

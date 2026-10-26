@@ -267,6 +267,26 @@ body.lcd-1v .lcd1v-rz .rz-hint b {
   font-weight: 600;
   color: var(--rz-gold-hi);
 }
+/* „Máte sedadlá inak? Prehoďte rady ⇄“ — len pri 7 miestach (2 + 3 + 2 ↔ 2 + 2 + 3), mení len obrázok (Michal 26. 10. 2026) */
+body.lcd-1v .lcd1v-rz .rz-prehod {
+  display: block;
+  min-height: 44px;
+  margin: 6px auto 4px;
+  padding: 8px 18px;
+  border: 1px solid rgba(230, 200, 119, .55);
+  border-radius: 999px;
+  background: transparent;
+  font: 600 14px/1.3 var(--rz-body);
+  color: var(--rz-gold-hi);
+  cursor: pointer;
+}
+body.lcd-1v .lcd1v-rz .rz-prehod[aria-pressed="true"] {
+  border-color: var(--rz-gold-hi);
+  background: rgba(230, 200, 119, .12);
+}
+body.lcd-1v .lcd1v-rz .rz-prehod[hidden] {
+  display: none;
+}
 
 /* karty volieb s fotkou */
 body.lcd-1v .lcd1v-rz .rz-karty {
