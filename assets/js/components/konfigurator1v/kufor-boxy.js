@@ -581,10 +581,28 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   }
   xBtn.addEventListener("click", zavriOkno);
   pozadie.addEventListener("click", zavriOkno);
-  okBtn.addEventListener("click", function () {
+  function potvrd() {
     klikZivy(".close-btn.return"); // živá validácia: chýba farba/veľkosť -> červený rám (lcd-needs-fill) + chybová veta
     naplanuj();
+  }
+  okBtn.addEventListener("click", potvrd);
+  // iPhone: Safari po ťuknutí niekedy nepošle click (dobeh / odskok rolovania okna boxov) — „treba ťuknúť 2×“ (Michal
+  // 26. 10. 2026, aj so sticky pätou). Krátke ťuknutie bez posunu prsta potvrdí priamo na touchend; preventDefault
+  // zruší syntetický click (žiadne dvojité potvrdenie ani „duch“ na prvku pod zavretým oknom). Myš, klávesnica a čítačky
+  // obrazovky idú cez click ako doteraz.
+  let dotyk = null;
+  okBtn.addEventListener("touchstart", function (e) {
+    const t = e.touches && e.touches[0];
+    dotyk = t && e.touches.length === 1 ? { x: t.clientX, y: t.clientY, cas: Date.now() } : null;
+  }, { passive: true });
+  okBtn.addEventListener("touchend", function (e) {
+    const t = e.changedTouches && e.changedTouches[0], d = dotyk;
+    dotyk = null;
+    if (!d || !t || Math.abs(t.clientX - d.x) > 10 || Math.abs(t.clientY - d.y) > 10 || Date.now() - d.cas > 700) return;
+    e.preventDefault();
+    potvrd();
   });
+  okBtn.addEventListener("touchcancel", function () { dotyk = null; }, { passive: true });
   const naEsc = function (e) {
     if (!banner.classList.contains("showConf")) return;
     if (e.key === "Escape") { zavriOkno(); return; }

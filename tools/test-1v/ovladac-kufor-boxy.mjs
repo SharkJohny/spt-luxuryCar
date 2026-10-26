@@ -258,7 +258,7 @@ export const novy = {
       await t.cakaj(`(function () { var e = document.querySelector(${JSON.stringify(OKNO)}); return !!(e && e.closest(".upsale-Banner").classList.contains("showConf") && getComputedStyle(e).visibility === "visible" && getComputedStyle(e).opacity === "1"); })()`, { popis: "okno boxov" });
       await pauza(300);
       await vyplnOkno(t, { pocet, farba, velkost, velkost2 });
-      await t.klikni(`${OKNO} .lcd1v-bx__ok`, { popis: "Potvrďte výber boxov" });
+      await t.tukni(`${OKNO} .lcd1v-bx__ok`, { popis: "Potvrďte výber boxov (na telefóne ťuknutím)" });
       await t.cakaj(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`, { popis: "okno boxov zavreté po potvrdení" });
     } else {
       await t.cakaj(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`, { popis: "bez okna pri Nechcem" });

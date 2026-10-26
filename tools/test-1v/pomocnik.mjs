@@ -105,6 +105,22 @@ export function vytvorT(k, { novy = false, log = () => {} } = {}) {
     await pauza(pockaj);
     return r;
   };
+  /** Ako klikni, ale ťuknutie prstom (CDP touchStart/touchEnd; na telefóne zapnutá emulácia dotyku) — okno boxov
+   *  potvrdzuje už na touchend (Michal 26. 10. 2026: na iPhone „treba ťuknúť 2×“). Bez dotyku (PC) = klikni. */
+  t.tukni = async (selektor, opt = {}) => {
+    if (!k.mobil || !k.tuk) return t.klikni(selektor, opt);
+    const { index = 0, popis, pockaj = 300, vRamci = null } = opt;
+    let r;
+    for (let pokus = 0; pokus < 3; pokus++) {
+      r = await k.ev(PRIPRAV_KLIK + "(" + JSON.stringify(selektor) + "," + index + "," + JSON.stringify(vRamci) + ")");
+      if (!r.chyba) break;
+      await pauza(400);
+    }
+    if (r.chyba) throw new Error((popis ? popis + ": " : "") + r.chyba);
+    await k.tuk(r.x, r.y);
+    await pauza(pockaj);
+    return r;
+  };
   t.nastavSelect = async (selektor, hodnota) => {
     const r = await k.ev(`(function () {
       var s = document.querySelector(${JSON.stringify(selektor)});
