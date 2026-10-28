@@ -235,6 +235,28 @@ const SCENARE = {
    * D2: 610 mal „nie“ s príplatkom +5 € (chyba v admine, opravené 22. 10. 2026) — teraz majú 598, 610 aj 613 „nie“ za 0 €;
    * nový vzhľad cenu nikdy neskrýva, POST aj cena v karte sedia.
    */
+  /**
+   * Okno boxov bez farby: veľkosti áno, farba nie, okno posunuté dole -> „Potvrďte výber boxov“ -> okno ostane otvorené
+   * a posunie sa na farby s chybovou vetou (Michal 26. 10. 2026). 2 boxy; na PC, kde sa okno neposúva, len okno + chyba.
+   */
+  "okno-bez-farby": {
+    typy: ["jedno", "dvoj"],
+    fn: async (s, a, pom, ovl, j) => {
+      const sk = preskocBez(a); if (sk) return sk;
+      if (!ovl.kuforBoxy.oknoBezFarby) return { preskoc: "len nový vzhľad (ovládač novy)" };
+      await j.otvor(s, a.url, { novy: true });
+      await j.zaklad(s, ovl, { rozlozenie: 0 });
+      // telefón: viditeľná výška iPhonu so stĺpcami Safari (~640 px), 2 boxy = najvyššie okno -> farby sú nad okrajom
+      if (s.t.sirka < 768) await s.k.posli("Emulation.setDeviceMetricsOverride", { width: s.t.sirka, height: 640, deviceScaleFactor: 1, mobile: true });
+      const r = await ovl.kuforBoxy.oknoBezFarby(s.t, { pocet: 2, velkost: "M" });
+      j.over(r.pred && r.po, "okno boxov alebo farby v ňom chýbajú");
+      j.over(r.otvorene, "okno boxov sa po „Potvrďte“ bez farby zavrelo");
+      j.over(r.po.vidno, `farby nevidno po „Potvrďte“ bez farby: vrch ${r.po.hore} px voči oknu (pred ${r.pred.hore} px, posun ${r.po.posun}/${r.po.max})`);
+      j.over(r.po.chyba, "chybová veta „Vyberte prosím farbu boxov.“ nie je vidno v okne");
+      return { info: `okno ${r.pred.max > 0 ? "posúvateľné" : "bez posunu"}: farby pred ${r.pred.hore} px → po ${r.po.hore} px (posun ${r.pred.posun} → ${r.po.posun})` };
+    },
+  },
+
   "kufor-nie-cena": {
     typy: ["jedno"],
     fn: async (s, a, pom, ovl, j) => {

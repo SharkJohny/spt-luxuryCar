@@ -249,6 +249,44 @@ export const novy = {
     return hodnota(t, "kufor");
   },
 
+  /**
+   * Okno boxov bez farby (Michal 26. 10. 2026: „keď si vyberiem veľkosti boxov a nemám vybratú farbu, verifikácia ma
+   * nevyscroluje na farbu“): karta počtu -> len veľkosti -> okno posunuté na spodok (farba nad okrajom) -> „Potvrďte
+   * výber boxov“. -> { pred, po, otvorene }; pred/po = { hore: vrch farieb voči vrchu okna px, vidno, chyba, posun, max }.
+   */
+  async oknoBezFarby(t, { pocet = 1, velkost = "M" } = {}) {
+    const karta = KARTA_BOXOV(pocet);
+    await otvorKrokNovy(t, "boxy", karta);
+    await t.klikni(karta, { popis: "boxy " + pocet });
+    await t.cakaj(`(function () { var e = document.querySelector(${JSON.stringify(OKNO)}); return !!(e && e.closest(".upsale-Banner").classList.contains("showConf") && getComputedStyle(e).visibility === "visible" && getComputedStyle(e).opacity === "1"); })()`, { popis: "okno boxov" });
+    await pauza(300);
+    const velkosti = pocet === 2 ? [["box1", velkost], ["box2", velkost]] : [["boxSolo", velkost]];
+    for (const [kluc, v] of velkosti) {
+      const id = await t.idParametra(kluc);
+      const val = await t.moznost(kluc, vzorVelkosti(v));
+      await t.klikni(`${OKNO} .option-button[data-variant="${id}"][data-value="${val}"]`, { popis: kluc + " " + v });
+      await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: kluc + " vo formulári" });
+    }
+    const idF = await t.idParametra("farbaBoxov");
+    const W = `${OKNO} .parameter-wrap.parameter-${idF}`;
+    const mer = `(function () {
+      var o = document.querySelector(${JSON.stringify(OKNO)}), w = document.querySelector(${JSON.stringify(W)}), p = o && o.querySelector(".lcd1v-bx__pata");
+      if (!o || !w) return null;
+      var ro = o.getBoundingClientRect(), rw = w.getBoundingClientRect(), dole = ro.bottom - (p ? p.offsetHeight : 0);
+      var ch = w.querySelector(".lcd1v-bx__chyba"), rc = ch && ch.getBoundingClientRect();
+      return { hore: Math.round(rw.top - ro.top), vidno: rw.top >= ro.top - 1 && rw.top <= dole - 48, chyba: !!(rc && rc.height > 0 && getComputedStyle(ch).display !== "none" && rc.top >= ro.top - 1 && rc.bottom <= dole + 1),
+        posun: Math.round(o.scrollTop), max: Math.round(o.scrollHeight - o.clientHeight) };
+    })()`;
+    await t.ev(`(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); o.scrollTop = o.scrollHeight; })()`);
+    await pauza(400);
+    const pred = await t.ev(mer);
+    await t.tukni(`${OKNO} .lcd1v-bx__ok`, { popis: "Potvrďte výber boxov bez farby" });
+    let po = null;
+    for (let i = 0; i < 16; i++) { await pauza(150); po = await t.ev(mer); if (po && po.vidno && po.chyba) break; }
+    const otvorene = await t.ev(`document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`);
+    return { pred, po, otvorene };
+  },
+
   /** { pocet: 0|1|2, farba, velkost, velkost2 } -> klik na kartu počtu, v okne farba + veľkosti + „Potvrďte výber boxov“. */
   async vyberBoxy(t, { pocet, farba = 0, velkost = "S", velkost2 } = {}) {
     const karta = KARTA_BOXOV(pocet || 0);

@@ -581,8 +581,23 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   }
   xBtn.addEventListener("click", zavriOkno);
   pozadie.addEventListener("click", zavriOkno);
+  /**
+   * Validácia boxov (configuratorEngine: lcd-needs-fill + posun) posúva len stránku, nie okno boxov, ktoré roluje samo —
+   * chýbajúca farba ostala nad okrajom okna (Michal 26. 10. 2026: „verifikácia ma nevyscroluje na farbu“). Okno sa posunie
+   * na prvé označené pole, keď nie je vidno jeho vrch (nad prilepenou pätou).
+   */
+  function posunNaChybu() {
+    const ch = Array.prototype.find.call(vyber.querySelectorAll(".lcd-needs-fill"), function (e) { return e.offsetParent !== null; });
+    if (!ch || !banner.classList.contains("showConf")) return;
+    const r = ch.getBoundingClientRect(), o = vyber.getBoundingClientRect();
+    if (r.top >= o.top && r.top <= o.bottom - pata.offsetHeight - 48) return;
+    const ciel = Math.max(0, vyber.scrollTop + r.top - o.top - 12);
+    const tichy = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    try { vyber.scrollTo({ top: ciel, behavior: tichy ? "auto" : "smooth" }); } catch (e) { vyber.scrollTop = ciel; }
+  }
   function potvrd() {
     klikZivy(".close-btn.return"); // živá validácia: chýba farba/veľkosť -> červený rám (lcd-needs-fill) + chybová veta
+    requestAnimationFrame(posunNaChybu);
     naplanuj();
   }
   okBtn.addEventListener("click", potvrd);
@@ -621,16 +636,18 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   // ---------------------------------------------------------------- sledovanie živého stavu
   const mo = new MutationObserver(function (zaznamy) {
     // validácia košíka (lcdHandleBoxConfig) zvýraznila nevyplnenú farbu/veľkosť -> ukázať okno, nech to zákazník vidí
+    // a posunúť okno na označené pole (len pri novom označení, nie pri inej zmene triedy počas 3 s červeného rámu)
     for (let i = 0; i < zaznamy.length; i++) {
       const t = zaznamy[i].target;
-      if (t.classList && t.classList.contains("lcd-needs-fill") && vyber.contains(t) && !banner.classList.contains("showConf") && pocetBoxov()) {
+      if (t.classList && t.classList.contains("lcd-needs-fill") && !/(^|\s)lcd-needs-fill(\s|$)/.test(zaznamy[i].oldValue || "") && vyber.contains(t) && pocetBoxov()) {
         banner.classList.add("showConf");
+        requestAnimationFrame(posunNaChybu);
         break;
       }
     }
     naplanuj();
   });
-  mo.observe(banner, { subtree: true, attributes: true, attributeFilter: ["class"] });
+  mo.observe(banner, { subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ["class"] });
   vytvorene.push(function () { mo.disconnect(); });
   const naCenu = function () { naplanuj(); };
   document.addEventListener("LuxuryCarPriceRecalculated", naCenu);

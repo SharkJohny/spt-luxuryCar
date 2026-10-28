@@ -67,6 +67,9 @@ const MERACE = [
   "*google-analytics.com*", "*googletagmanager.com*", "*doubleclick.net*", "*googleadservices.com*", "*google.com/ccm*",
   "*google.com/pagead*", "*facebook.net*", "*facebook.com/tr*", "*connect.facebook*", "*tiktok*", "*hotjar*",
   "*clarity.ms*", "*bat.bing.com*", "*heureka.*", "*c.seznam.cz*", "*sklik*", "*ecomail.cz/*track*",
+  // chat Luxia: uvítanie A/B (naživo od 26. 10. 2026) sa po ~20 s rozbalí na telefóne cez stred obrazovky (360×393 px)
+  // a zakryje tlačidlá konfigurátora -> scenáre padali „zakrýva iframe luxia“ (aj na živom CDN). Chat tu netestujeme.
+  "*luxia-*.rostiapp.cz*",
 ];
 
 // ------------------------------------------------------------------ prepínače
