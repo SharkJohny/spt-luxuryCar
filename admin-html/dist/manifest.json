@@ -969,9 +969,9 @@
           2433
         ]
       },
-      "znaky": 29905,
-      "bajty": 30862,
-      "hash": "86d60c0540",
+      "znaky": 29891,
+      "bajty": 30849,
+      "hash": "97d265e860",
       "obrazky": 37,
       "webp": 1,
       "sekcie": [
@@ -983,7 +983,7 @@
         {
           "subor": "31-classic-box.cz.html",
           "sekcia": "classic-box",
-          "znaky": 1172
+          "znaky": 1167
         },
         {
           "subor": "32-c-domov.cz.html",
@@ -1008,7 +1008,7 @@
         {
           "subor": "36-a-ponuka.cz.html",
           "sekcia": "a-ponuka",
-          "znaky": 1414
+          "znaky": 1405
         },
         {
           "subor": "40-d-realita.cz.html",
@@ -1483,9 +1483,9 @@
           2427
         ]
       },
-      "znaky": 25361,
-      "bajty": 26209,
-      "hash": "6880147838",
+      "znaky": 25355,
+      "bajty": 26201,
+      "hash": "86c03c14c4",
       "obrazky": 31,
       "webp": 9,
       "sekcie": [
@@ -1507,7 +1507,7 @@
         {
           "subor": "40-boxy-cross.cz.html",
           "sekcia": "boxy-cross",
-          "znaky": 2253
+          "znaky": 2247
         },
         {
           "subor": "41-d-faq.cz.html",

@@ -180,14 +180,24 @@ export function init(ctx) {
   const krokPodla = (meno) => kroky.find((k) => k.meno === meno) || null;
   const posledny = kroky.length ? kroky[kroky.length - 1] : null;
 
-  // výška hlavičky -> priehľadný živý .order presne cez ňu (CSS var na kroku)
+  // výška hlavičky -> priehľadný živý .order presne cez ňu (CSS var na kroku). Zápis až v rAF, nie v callbacku: premenná
+  // mení min-height kroku, ktorý sleduje druhý ResizeObserver (configuratorEngine, > 768 px) -> Safari hlásil chybu
+  // „ResizeObserver loop completed with undelivered notifications“ (nočný test živých webov 28. 10. 2026, WebKit 820/1366)
+  const hdNaZapis = new Set();
+  let hdRaf = 0;
   const ro = window.ResizeObserver
     ? new ResizeObserver(function (zaznamy) {
-      zaznamy.forEach(function (z) {
-        const krok = z.target.parentNode;
-        if (!krok) return;
-        const v = Math.round(z.target.getBoundingClientRect().height) + "px";
-        if (krok.style.getPropertyValue("--lcd1v-hd-h") !== v) krok.style.setProperty("--lcd1v-hd-h", v);
+      zaznamy.forEach(function (z) { hdNaZapis.add(z.target); });
+      if (hdRaf) return;
+      hdRaf = requestAnimationFrame(function () {
+        hdRaf = 0;
+        hdNaZapis.forEach(function (hd) {
+          const krok = hd.parentNode;
+          if (!krok) return;
+          const v = Math.round(hd.getBoundingClientRect().height) + "px";
+          if (krok.style.getPropertyValue("--lcd1v-hd-h") !== v) krok.style.setProperty("--lcd1v-hd-h", v);
+        });
+        hdNaZapis.clear();
       });
     })
     : null;

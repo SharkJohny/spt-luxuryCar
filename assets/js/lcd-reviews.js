@@ -228,6 +228,16 @@
         return d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
       }
     }
+    /* bez dátumu: „Pred N týždňami“ (k place.fetchedAt) -> mesiac a rok jazykom webu, nie zamrznutý slovenský text
+       aj na CZ (nočný test 28. 10. 2026) */
+    var m = /(\d+)\s*týž/i.exec(String(rel || ''));
+    var f = window.LCD_REVIEWS && window.LCD_REVIEWS.place ? Date.parse(window.LCD_REVIEWS.place.fetchedAt) : NaN;
+    if (m && f > 0) {
+      try {
+        var cs = String(document.documentElement.lang || '').slice(0, 2) === 'cs';
+        return new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'sk-SK', { month: 'long', year: 'numeric' }).format(new Date(f - Number(m[1]) * 7 * 864e5));
+      } catch (e) { /* nižšie text z Googlu */ }
+    }
     return rel || '';
   }
 

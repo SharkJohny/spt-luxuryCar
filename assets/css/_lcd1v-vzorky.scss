@@ -67,8 +67,8 @@ body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-tip[hidden] 
 /* „i“ (vysvetlenie) pri zálohe a pri druhej vrstve; dotyková plocha 44 px cez ::before */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-info {
   position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none;
-  width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; border: 1px solid var(--c1v-gold); border-radius: 50%;
-  background: #fff; color: var(--c1v-zl); font: 800 11px/1 var(--c1v-disp); text-transform: none; letter-spacing: 0;
+  width: 22px; height: 22px; min-height: 0; margin: 0; padding: 0; border: 1px solid var(--c1v-gold); border-radius: 50%;
+  background: #fff; color: var(--c1v-zl); font: 800 13px/1 var(--c1v-disp); /* štítky ≥ 12 px (Michal 18. 10.; bolo 11 px) */ text-transform: none; letter-spacing: 0;
   vertical-align: middle; cursor: pointer; box-shadow: none;
 }
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form button.lcd1v-vz-info::before {

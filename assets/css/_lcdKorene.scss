@@ -187,3 +187,10 @@ html.lcd-rz-auto:not(.lcd-rz-plne) #lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.pla
       a ::after ním len drží miesto (neviditeľne, podľa riadku vyššie), kým lcdRz.js nevpíše skutočné auto — potom prvok
       nie je :empty (komentár <!-- --> pre TinyMCE sa do :empty neráta). */
 #lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.plate .v i)[data-vzor]:empty::after{content:attr(data-vzor)}
+
+/* Kategória s podkategóriami s obrázkom (napr. „Naše produkty“): Shoptet dáva názvu max-height 38px pri line-height 1.8
+   -> druhý riadok („…do kamiónu“) na tablete zrezaný v polovici (nočný test živých webov 28. 10. 2026). 2 riadky
+   po 1.25 sa do 38px zmestia celé. */
+ul.subcategories.with-image li a .text {
+  line-height: 1.25;
+}

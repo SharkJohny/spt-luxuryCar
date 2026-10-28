@@ -942,15 +942,18 @@ function firstPage(texts) {
   let hexaurl = $(".detail-parameters tr:contains('hexa') td").text();
   let stripeurl = $(".detail-parameters tr:contains('stripe') td").text();
   console.log(diamondurl);
+  // aktívny vzor má v parametri hodnotu „active“ — ako relatívny href viedol na …/active (404 pre roboty na 23 produktoch,
+  // nočný test živých webov 28. 10. 2026) -> odkaz na túto stránku; porovnania == "active" nižšie ostávajú na hodnotách
+  const odkazVzoru = (u) => (String(u).trim() === "active" ? location.pathname : u);
 
   const diamond = $(
-    `<a href="${diamondurl}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
+    `<a href="${odkazVzoru(diamondurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
   ).appendTo(patternsWrap);
   const hexa = $(
-    `<a href="${hexaurl}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
+    `<a href="${odkazVzoru(hexaurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
   ).appendTo(patternsWrap);
   const stripe = $(
-    `<a href="${stripeurl}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
+    `<a href="${odkazVzoru(stripeurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
   ).appendTo(patternsWrap);
   console.log(diamondurl);
 
@@ -982,7 +985,7 @@ function firstPage(texts) {
     class: "option-wrap",
   }).appendTo(wheelWrao);
   $(
-    `<div class='button option-button active' data-value='left'><span>EU</span><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>Vľavo</div></div>`,
+    `<div class='button option-button active' data-value='left'><span>EU</span><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>${language === "cs" ? "Vlevo" : "Vľavo"}</div></div>`,
   ).appendTo(wheelOption);
   $(
     `<div class='button option-button' data-value='right'><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_right.png' ><div class='text'>Vpravo</div><span>UK</span></div>`,

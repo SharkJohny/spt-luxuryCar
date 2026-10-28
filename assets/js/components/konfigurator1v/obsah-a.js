@@ -307,9 +307,25 @@ function kartaRecenzie(r, g, fotky, trh) {
   foot.appendChild(prvok("span", "av", iniciala(r.author))).setAttribute("aria-hidden", "true");
   const meta = foot.appendChild(prvok("span", "meta"));
   meta.appendChild(prvok("b", "", String(r.author || "").trim()));
-  meta.appendChild(prvok("i", "", r.relativeDate || (trh === "cz" ? "Ověřený zákazník" : "Overený zákazník")));
+  meta.appendChild(prvok("i", "", datumRecenzie(r.relativeDate, trh) || (trh === "cz" ? "Ověřený zákazník" : "Overený zákazník")));
   if (g) { const ik = g.cloneNode(true); ik.removeAttribute("class"); foot.appendChild(ik); }
   return a;
+}
+
+/**
+ * „Pred N týždňami“ z Googlu (platí k dňu stiahnutia place.fetchedAt) -> mesiac a rok podľa trhu („máj 2026“ /
+ * „květen 2026“). Relatívny text bol po slovensky aj na CZ a s časom prestal sedieť (nočný test živých webov
+ * 28. 10. 2026). Nerozpoznaný text -> "" (karta ukáže „Overený zákazník“).
+ */
+function datumRecenzie(rel, trh) {
+  const m = /(\d+)\s*týž/i.exec(String(rel || ""));
+  const d = window.LCD_REVIEWS && window.LCD_REVIEWS.place ? Date.parse(window.LCD_REVIEWS.place.fetchedAt) : NaN;
+  if (!m || !(d > 0)) return "";
+  try {
+    return new Intl.DateTimeFormat(trh === "cz" ? "cs-CZ" : "sk-SK", { month: "long", year: "numeric" }).format(new Date(d - Number(m[1]) * 7 * 864e5));
+  } catch (e) {
+    return "";
+  }
 }
 
 /**

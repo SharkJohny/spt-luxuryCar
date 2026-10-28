@@ -423,6 +423,10 @@ export function intIndex() {
       .fail(function () {
         $(faq).remove(); // bez obsahu nenechavat prazdny nadpis
       });
+  } else if (document.body.classList.contains("in-faq")) {
+    // samotna /faq/: shortcody [accordion *||*...] sa prepisovali len vo FAQ vlozenom do produktu — od 22d89fd (FAQ uz
+    // nie na kazdej stranke) ostali na /faq/ SK aj CZ surove znacky (nocny test zivych webov 28. 10. 2026)
+    accordion("div[itemprop='about']");
   }
 
   // setTimeout(function () {
@@ -502,7 +506,7 @@ export function intIndex() {
   }
 }
 
-function accordion() {
+function accordion(kde) {
   if (!$(".acordeoncsss")[0]) {
     $("body").addClass("acordeoncsss").append(` <style type='text/css'>
     .accordion {
@@ -569,8 +573,8 @@ function accordion() {
 
   let evenOdd = 0;
 
-  // Procházej pouze .faq elementy
-  $(".faq").each(function () {
+  // Procházej pouze .faq elementy (na /faq/ obsah stránky)
+  $(kde || ".faq").each(function () {
     try {
       let html = $(this).html();
       if (!html || html.indexOf("[accordion") === -1) return;

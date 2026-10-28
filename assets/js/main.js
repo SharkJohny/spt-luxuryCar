@@ -347,7 +347,8 @@ function initModelSelect(texts) {
         </div>
         `;
 
-  const button = `<div class='btn choice-Model'>Zvolit model</div>`;
+  // SK titulka ukazovala české „Zvolit model“ (nočný test živých webov 28. 10. 2026)
+  const button = `<div class='btn choice-Model'>${typeof language !== "undefined" && language === "cs" ? "Zvolit model" : "Zvoliť model"}</div>`;
 
   if ($(".in-index")[0] || $(".in-rozcestnik")[0]) {
     $(znacka + model + rocnik + type + button).appendTo(choiceWrap);
