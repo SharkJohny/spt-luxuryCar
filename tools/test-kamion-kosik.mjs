@@ -875,5 +875,36 @@ console.log("21) Fotky tapacíru: pri 2+ fotkách prelínanie, bodky, autoplay 3
   over("25: rovnaké nášivky -> voľba „Rovnaká ako na kobercoch“", !!dl2 && /Rovnaká ako na kobercoch/.test(dl2.textContent), dl2 && dl2.textContent);
 }
 
+console.log("26) Obrázky sa pri prekreslení nevymieňajú (Michal 28. 10. 2026: na iPhone „všade to bliká“)");
+{
+  // render() prepíše innerHTML krokov; nový <img> je do načítania prázdny (bliká podklad) -> už načítaný prvok s tým istým
+  // src sa musí vrátiť na svoje miesto (ako plátna náhľadov motívov)
+  const t = await otvor();
+  t.vyber("znacka", DAF.znacka); t.vyber("model", DAF.model); t.dalej("vozidlo");
+  const karta = (m) => t.d.querySelector('#lcd1v-kamion [data-a="mat"][data-v="' + m + '"] img');
+  const k1 = karta(PRES);
+  t.klik(a("mat", "Mikrosemiš – dvojfarebný"));
+  over("26: fotka karty materiálu je po ťuknutí na iný materiál ten istý prvok", !!k1 && karta(PRES) === k1);
+  t.klik(a("mat", PRES)); t.dalej("material");
+  const sw = () => t.d.querySelector('#lcd1v-kamion [data-a="farba"][data-v="3"] img');
+  const s1 = sw();
+  t.klik(a("farba", "11"));
+  over("26: vzorka farby je po výbere inej farby ten istý prvok", !!s1 && sw() === s1);
+  t.dalej("farba");
+  const lm = () => t.d.querySelector('#lcd1v-kamion [data-a="lem"][data-v="01"] img');
+  const l1 = lm();
+  t.klik(a("lem", "04"));
+  over("26: dlaždica lemovania je po výbere iného lemovania ten istý prvok", !!l1 && lm() === l1);
+  t.dalej("lemovanie");
+  const fk = () => t.d.querySelector('#lcd1v-kamion [data-a="nas"][data-v="boky"] .kn-scena img');
+  const f1 = fk();
+  t.klik(a("nas", "boky+stred"));
+  t.klik(a("zmenit", "kam"));
+  over("26: fotka kabíny v dlaždici nášiviek je po zmene ten istý prvok", !!f1 && fk() === f1);
+  const css = readFileSync(new URL("../assets/css/_lcd1v-kamiony.scss", import.meta.url), "utf8");
+  over("26: pod fotkou materiálu a motívu nie je čierny podklad (#0b0a07 by pri načítaní blikol)",
+    !/\.k-rkarta__foto \{[^}]*#0b0a07/.test(css) && !/\.k-dlazdica__img \{[^}]*#0b0a07/.test(css));
+}
+
 console.log(`\n${ok} OK, ${zle} ZLE`);
 process.exit(zle ? 1 : 0);

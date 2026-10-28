@@ -922,6 +922,67 @@ export function vytvorUi(o) {
   };
   w.addEventListener("resize", naZmenuOkna);
   const klucNahladu = (cv) => [cv.className, cv.getAttribute("data-motiv"), cv.getAttribute("data-hex"), cv.getAttribute("data-bg"), cv.getAttribute("data-k")].join("|");
+  // Michal 28. 10. 2026 (iPhone, anonymné okno: „všade to bliká“): render() prepíše innerHTML krokov, takže každé ťuknutie
+  // vytvorilo všetky <img> nanovo – kým sa nový prvok načíta a dekóduje, bolo vidno podklad (pod materiálom a motívom
+  // čierny). Obrázky sa preto vracajú na svoje miesto ako plátna náhľadov: nový <img> s tým istým src nahradí starý prvok
+  // (už vykreslený alebo rozbehnutý), atribúty (alt, trieda, rozmery) sa prenesú z nového.
+  // Zásoba platí cez viac prekreslení (zavretý a znova otvorený krok, „Zmeniť“), najviac 3 prvky na jeden obrázok.
+  const zasobaObrazkov = new Map();
+  function zoberObrazky() {
+    [root, lst].forEach((r) => Array.prototype.forEach.call(r.querySelectorAll("img[src]"), (im) => {
+      const k = im.getAttribute("src");
+      const zoz = zasobaObrazkov.get(k) || [];
+      if (zoz.indexOf(im) < 0) zoz.unshift(im);
+      zasobaObrazkov.set(k, zoz.slice(0, 3));
+    }));
+    return zasobaObrazkov;
+  }
+  function vratObrazky(zasoba) {
+    if (!zasoba.size) return;
+    [root, lst].forEach((r) => Array.prototype.forEach.call(r.querySelectorAll("img[src]"), (im) => {
+      const zoz = zasoba.get(im.getAttribute("src"));
+      const i = zoz ? zoz.findIndex((x) => x !== im && !x.isConnected) : -1;
+      if (i < 0) return;
+      const st = zoz.splice(i, 1)[0];
+      Array.prototype.slice.call(st.attributes).forEach((a) => { if (!im.hasAttribute(a.name)) st.removeAttribute(a.name); });
+      Array.prototype.forEach.call(im.attributes, (a) => { if (a.name !== "src" && st.getAttribute(a.name) !== a.value) st.setAttribute(a.name, a.value); });
+      im.parentNode.replaceChild(st, im);
+      zoz.unshift(st);
+    }));
+  }
+  // Prednačítanie (Michal 28. 10.: „dosť dlho trvá, kým sa zobrazí“ – nový zákazník má prázdnu cache): v nečinnosti po
+  // prekreslení sa stiahnu obrázky volieb otvoreného kroku a toho nasledujúceho, aby ťuknutie ukázalo hotový obrázok.
+  const prednacitane = new Set();
+  function obrazkyKroku(id) {
+    const mat = S.material ? farbyMat(S.material) : [];
+    const mot = () => NASIVKY.filter((n) => [].concat(o.motivy.boky || [], o.motivy.stred || [], o.motivy.dvere || []).indexOf(n.kod) > -1).map((n) => n.full);
+    switch (id) {
+      case "vozidlo": return MATERIALY.map((m) => m.karta_obrazok);
+      case "material": return mat.map((x) => x.swatch);
+      case "farba": return mat.map((x) => x.full).concat(lemy().map((l) => l.full));
+      case "lemovanie": return lemy().map((l) => l.full).concat([FOTKA_KABINY]);
+      case "nasivky": return [FOTKA_KABINY].concat(mot(), [FOTKA_DVERI]);
+      case "tapacir": return [FOTKA_DVERI].concat(mot());
+      default: return [];
+    }
+  }
+  let prednacitajCas = null;
+  function prednacitajNeskor() {
+    if (prednacitajCas) return;
+    const spusti = () => {
+      prednacitajCas = null;
+      const ks = kroky(), i = ks.indexOf(U.otvoreny);
+      const zoz = obrazkyKroku(U.otvoreny || "vozidlo").concat(i > -1 && ks[i + 1] ? obrazkyKroku(ks[i + 1]) : []);
+      zoz.forEach((src) => {
+        if (!src || prednacitane.has(src)) return;
+        prednacitane.add(src);
+        const im = new w.Image();
+        im.decoding = "async";
+        im.src = src;
+      });
+    };
+    prednacitajCas = w.requestIdleCallback ? w.requestIdleCallback(spusti, { timeout: 1500 }) : w.setTimeout(spusti, 300);
+  }
   /** Nakreslené plátna pred prekreslením kroku: kľúč -> [plátno] (kresliNahlady ich vráti namiesto nových). */
   function zoberNahlady() {
     const m = new Map();
@@ -1042,11 +1103,14 @@ export function vytvorUi(o) {
     const ae = doc.activeElement;
     const f = ae && (root.contains(ae) || lst.contains(ae)) && fokusDoZoznamu(ae) ? ae.getAttribute("data-f") : null;
     const stareNahlady = zoberNahlady();
+    const stareObrazky = zoberObrazky();
     renderKroky();
-    nastavGaleriu();
     renderSuhrn();
     renderLista();
+    vratObrazky(stareObrazky);
+    nastavGaleriu();
     kresliNahlady(stareNahlady);
+    prednacitajNeskor();
     if (f) {
       const el = root.querySelector('[data-f="' + f.replace(/"/g, '\\"') + '"]') || lst.querySelector('[data-f="' + f.replace(/"/g, '\\"') + '"]');
       if (el) try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }

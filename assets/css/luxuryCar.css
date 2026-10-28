@@ -19985,7 +19985,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice { display: grid; 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica { position: relative; display: block; width: auto; margin: 0; padding: 0; overflow: hidden; border: 1px solid var(--k-line); border-radius: 12px; background: #eceae5; box-shadow: none; color: var(--k-tmava); text-align: center; text-decoration: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica:hover { border-color: var(--k-gold); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; background: #0b0a07; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; background: #ece8dc; } /* svetlý podklad: pri načítaní nebliká čierne pole (Michal 28. 10. 2026) */
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm { display: block; margin: 0; padding: 11px 4px 12px; background: none; color: var(--k-tmava); font: 700 11px/1.25 var(--k-disp); letter-spacing: .1em; text-align: center; text-transform: uppercase; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on { border-color: var(--k-gold); background: #fff; box-shadow: var(--k-tien-zvolena); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on .k-dlazdica__nm { color: var(--k-ink); }
@@ -20006,7 +20006,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on { border-colo
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on:hover { box-shadow: 0 10px 26px rgba(140, 105, 25, .26); }
 }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto { position: relative; display: block; width: 112px; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 11px; background: #0b0a07; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto { position: relative; display: block; width: 112px; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 11px; background: #ece8dc; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto img { width: 100%; height: 100%; object-fit: cover; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__foto b { position: absolute; left: 6px; right: 6px; bottom: 6px; padding: 5px 0; border-radius: 7px; background: var(--k-zlato); font: 800 11px/1 var(--k-disp); letter-spacing: .04em; text-align: center; color: #17130a; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__tx { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }

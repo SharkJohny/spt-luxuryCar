@@ -279,6 +279,42 @@ async function doKosika(s, a, j, meno) {
 }
 
 export const SCENARE = {
+  // Michal 28. 10. 2026 (iPhone, anonymné okno): „všade to bliká“ a obrázky sa dlho zobrazujú. Pomalá sieť ako Slow 4G
+  // (cache je v teste vypnutá = nový zákazník): fotky kariet materiálu po ťuknutí ostanú tie isté prvky (nebliká podklad)
+  // a náhľad farby je po ťuknutí hneď (obrázky volieb sú prednačítané v nečinnosti).
+  "kamion-blikanie": {
+    typy: ["kamion"],
+    async fn(s, a, pom, ovl, j) {
+      await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
+      if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React)" };
+      await s.k.posli("Network.enable", {}).catch(() => {});
+      await s.k.posli("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: 200000, uploadThroughput: 94000 });
+      try {
+        await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"], ["dalej", "vozidlo"]]);
+        await j.pauza(3000);
+        await s.t.ev(`(function () { document.querySelectorAll('#lcd1v-kamion [data-a="mat"] img').forEach(function (i) { i.__lcdZnacka = 1; }); return 1; })()`);
+        await rob(s, j, [["klik", a_("mat", "Prémiová syntetická koža – tónovaná")]]);
+        const zost = await s.t.ev(`(function () { var im = Array.prototype.slice.call(document.querySelectorAll('#lcd1v-kamion [data-a="mat"] img'));
+          return { n: im.length, oznacene: im.filter(function (i) { return i.__lcdZnacka; }).length }; })()`);
+        j.over(zost.n > 0 && zost.oznacene === zost.n, "po ťuknutí na materiál sú fotky kariet nové prvky (bliká podklad): " + JSON.stringify(zost));
+        await rob(s, j, [["dalej", "material"]]);
+        await j.pauza(3000);
+        const t0 = Date.now();
+        await rob(s, j, [["klik", a_("farba", "9PES")]]);
+        let nahl = null;
+        for (let i = 0; i < 60; i++) {
+          nahl = await s.t.ev(`(function () { var i = document.querySelector('#lcd1v-kamion .k-nahlad-farby__img'); return i ? { ok: i.complete && i.naturalWidth > 0 } : null; })()`);
+          if (nahl && nahl.ok) break;
+          await j.pauza(50);
+        }
+        const ms = Date.now() - t0;
+        j.over(!!nahl && nahl.ok && ms < 900, "náhľad farby po ťuknutí nie je pri Slow 4G načítaný do 0,9 s: " + ms + " ms");
+        return { info: "Slow 4G bez cache: fotky kariet materiálu ostali (" + zost.n + "), náhľad farby po ťuknutí " + ms + " ms" };
+      } finally {
+        await s.k.posli("Network.emulateNetworkConditions", { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }).catch(() => {});
+      }
+    },
+  },
   // CZ 2452: tá istá cesta ako kamion-platne (DAF XF106, prošívaná 11, lem 04, balíček H19/2999, čalounění jako koberce),
   // české texty v konfigurátore, súčet v Kč = súčet Shoptetu, POST overí overPost a hodnoty selectov podľa CZ mien
   "kamion-cz": {
