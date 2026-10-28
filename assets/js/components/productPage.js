@@ -957,13 +957,13 @@ function firstPage(texts) {
   ).appendTo(patternsWrap);
   console.log(diamondurl);
 
-  if (diamondurl == "active") {
+  if (String(diamondurl).trim() === "active") {
     diamond.addClass("active");
   }
-  if (hexaurl == "active") {
+  if (String(hexaurl).trim() === "active") {
     hexa.addClass("active");
   }
-  if (stripeurl == "active") {
+  if (String(stripeurl).trim() === "active") {
     stripe.addClass("active");
   }
 

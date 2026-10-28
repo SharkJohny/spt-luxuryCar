@@ -194,6 +194,10 @@ function dynamicPictures() {
 }
 
 function initModelSelect(texts) {
+  // jazyk webu priamo z dataLayer (ako index.js / productPage.js) — `language` z callbacku $.getJSON sem nedosiahne
+  // a globálna premenná je len náhodou z cudzieho skriptu (revízia nočných opráv 29. 10. 2026)
+  const sh = (window.dataLayer && window.dataLayer[0] && window.dataLayer[0].shoptet) || {};
+  const jeCz = String(sh.projectId) === "704436" || sh.language === "cs";
   // Web bez prekrývania (10/2026): titulka / rozcestník zo Shoptet adminu majú v karte
   // konfigurátora slot <div id="konfSlot"> (nie na produkte).
   const konfSlot =
@@ -348,7 +352,7 @@ function initModelSelect(texts) {
         `;
 
   // SK titulka ukazovala české „Zvolit model“ (nočný test živých webov 28. 10. 2026)
-  const button = `<div class='btn choice-Model'>${typeof language !== "undefined" && language === "cs" ? "Zvolit model" : "Zvoliť model"}</div>`;
+  const button = `<div class='btn choice-Model'>${jeCz ? "Zvolit model" : "Zvoliť model"}</div>`;
 
   if ($(".in-index")[0] || $(".in-rozcestnik")[0]) {
     $(znacka + model + rocnik + type + button).appendTo(choiceWrap);
@@ -356,7 +360,7 @@ function initModelSelect(texts) {
     $(znacka + model + rocnik + type).appendTo(choiceWrap);
   }
 
-  const otherLabel = (typeof language !== "undefined" && language === "cs")
+  const otherLabel = jeCz
     ? "Jiné, prosím napište do poznámky"
     : "Iné, prosím napíšte do poznámky";
   const otherVariants = ["Jiné, prosím napište do poznámky", "Iné, prosím napíšte do poznámky"];

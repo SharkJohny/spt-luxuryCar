@@ -163,10 +163,10 @@ export async function kontroly(t) {
   const L = cz ? {
     logoUvod: "— a o kovové logo, které kopie nemá.", logoNazov: "Kovové logo",
     logoDomov: "Na rohoži je kovové logo Luxury Car Design, podle kterého poznáte originál.",
-    setSpolu: "Společně s autokoberci pod sedadla", upSam: "Samostatne ",
-    upSet: "S autokobercami pod sedadlá len za ", upUspora: "Ušetríte ",
+    setSpolu: "Společně s autokoberci pod sedadla", upSam: "Samostatně ",
+    upSet: "S autokoberci pod sedadla jen za ", upUspora: "Ušetříte ",
     vetaSam: "samostatně za ", vetaSet: "Když ji koupíte společně s autokoberci pod sedadla, zaplatíte za ni jen ",
-    boxSam: "Samostatne od ", boxSet: "S autokobercami pod sedadlá už od ",
+    boxSam: "Samostatně od ", boxSet: "S autokoberci pod sedadla už od ",
     osem: /^Osm věcí/, materialDno: /dn[ěau] kufru/, kamSpolu: /Classic i Premium/, kamLen: /jen Premium/,
     balenieLogo: "Kovové logo", casUvod: /Šije se až po objednávce, proto dodání trvá 21–29 dní\./, casSpolu: /celkem 21–29 dní/,
     prvaFarba: "Černá · červené prošívání", vzorka: "Vzorek",
