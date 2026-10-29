@@ -665,7 +665,10 @@ async function main() {
                     const r = (await SKUPINY[g].kontroly(t)) || [];
                     for (const x of r) { if (x.ok) continue; if (x.pozor) v.pozor.push(`skupina ${g.toUpperCase()}: ${x.popis}`); else v.chyby.push(`skupina ${g.toUpperCase()}: ${x.popis}`); }
                     if (r.length) v.info.push(`skupina ${g.toUpperCase()}: ${r.filter((x) => x.ok).length}/${r.length} kontrol OK${r.some((x) => !x.ok && x.pozor) ? " (" + r.filter((x) => !x.ok && x.pozor).length + " upozornenie)" : ""}`);
-                  } catch (e) { v.chyby.push(`skupina ${g.toUpperCase()}: výnimka ${e && e.message ? e.message : e}`); }
+                  } catch (e) {
+                    if (e && e.preskoc) v.pozor.push(`skupina ${g.toUpperCase()}: ${e.message}`);
+                    else v.chyby.push(`skupina ${g.toUpperCase()}: výnimka ${e && e.message ? e.message : e}`);
+                  }
                 }
                 oknoKontrol[1] = s.poziadavky.length;
                 // Michal 25. 10. 2026 (rýchlosť): obsah.js oživuje sekcie až pri priblížení k oknu, nie všetky hneď po vložení —

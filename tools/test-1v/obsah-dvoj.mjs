@@ -90,6 +90,28 @@ export async function kontroly(t) {
   const id = t.produkt && t.produkt.id;
   const ocak = OCAKAVANE[id];
   const sir = t.sirka;
+  // CZ obchod (2406/2412/2409, Michal 29. 10. 2026): texty podľa admin-html/src/p1v-dvoj/*.cz.html (predtým test čakal SK texty
+  // a na CZ hlásil 14 chýb); počty farieb v bode 8 = živé dáta, tvar „N barev na výběr“ (obsah-cisla.js)
+  const cz = t.web === "cz";
+  const L = cz ? {
+    hlavicka: ["Jednovrstvé", "Dvouvrstvé"], riadky: "Kdy|Voda, sníh, bláto|Čištění|Cena", chip1: "Celoroční", chip7: "Dvě barvy, jeden celek",
+    kicker: "Celý rok,Druhá vrstva,Údržba,Přesnost,Pravost,Krytí,Montáž,Barva,Třetí řada",
+    farba: /První prošívaná vrstva: \d+ (?:barva|barvy|barev) na výběr\. K ní si vyberete jednu z \d+ (?:barva|barvy|barev) druhých vrstev/,
+    h2: "Dvě vrstvy, každá s vlastním úkolem", meno0: "Odnímatelná druhá vrstva", meno: "Originální dvouvrstvé autokoberce", mat: /odnímatelná druhá vrstva/,
+    interier4: "Druhá vrstva na ploše, kde se šlape", mena: "Autokoberce na míru|Druhá vrstva|Klipy na uchycení|Suché zipy a pásek",
+    koberce: /^První prošívaná vrstva pro ty řady/, druha: /^Odnímatelná druhá vrstva v barvě/, os1: /barvy obou vrstev/,
+    caka: [["Černá · červené prošití + Lux 07", "02", "Vzorek · Hexa Line"], ["Černá · bílé prošití + Lux 15", "03", "Vzorek · Diamond Line"], ["Hnědá + Lux 11", "04", "Vzorek · Stripe Line"]],
+    lede: /^Dvouvrstvé autokoberce na míru Vašeho vozidla — na léto i zimu/,
+  } : {
+    hlavicka: ["Jednovrstvové", "Dvojvrstvové"], riadky: "Kedy|Voda, sneh, blato|Čistenie|Cena", chip1: "Celoročné", chip7: "Dve farby, jeden celok",
+    kicker: "Celý rok,Druhá vrstva,Údržba,Presnosť,Pravosť,Krytie,Montáž,Farba,Tretí rad",
+    farba: null,
+    h2: "Dve vrstvy, každá s vlastnou úlohou", meno0: "Odnímateľná druhá vrstva", meno: "Originálne dvojvrstvové autokoberce", mat: /odnímateľná druhá vrstva/,
+    interier4: "Druhá vrstva na ploche, kde sa šliape", mena: "Autokoberce na mieru|Druhá vrstva|Klipy na uchytenie|Suché zipsy a páska",
+    koberce: /^Prvá prešívaná vrstva pre tie rady/, druha: /^Odnímateľná druhá vrstva vo farbe/, os1: /farby oboch vrstiev/,
+    caka: [["Čierna · červené šitie + Lux 07", "02", "Vzorka · Hexa Line"], ["Čierna · biele šitie + Lux 15", "03", "Vzorka · Diamond Line"], ["Hnedá + Lux 11", "04", "Vzorka · Stripe Line"]],
+    lede: /^Dvojvrstvové autokoberce na mieru Vášho vozidla — na leto aj zimu/,
+  };
 
   // ---------------------------------------------------------------- statické: CSS partial a texty
   const zle = zleSelektory("assets/css/_lcd1v-obsah-dvoj.scss");
@@ -98,7 +120,10 @@ export async function kontroly(t) {
   // ---------------------------------------------------------------- kontroly A–D, ktoré platia aj pre dvojvrstvové
   for (const [meno, g] of [["A", skA], ["B", skB], ["C", skC], ["D", skD]]) {
     let r = [];
-    try { r = (await g.kontroly(t)) || []; } catch (e) { r = [{ ok: false, popis: `skupina ${meno} (kontroly 598 pre dvojvrstvové): výnimka ${e && e.message ? e.message : e}` }]; }
+    try { r = (await g.kontroly(t)) || []; } catch (e) {
+      r = [e && e.preskoc ? { ok: false, pozor: true, popis: `skupina ${meno} (kontroly 598 pre dvojvrstvové): ${e.message}` }
+        : { ok: false, popis: `skupina ${meno} (kontroly 598 pre dvojvrstvové): výnimka ${e && e.message ? e.message : e}` }];
+    }
     out.push(...r.filter((x) => !VYRADIT.some((re) => re.test(x.popis))));
   }
   await t.ev(`window.scrollTo({ top: 0, behavior: "instant" })`);
@@ -137,7 +162,7 @@ export async function kontroly(t) {
         kroky: [].map.call(s.querySelectorAll("li"), function (x) { return x.textContent; }).length };
     })()`);
     ok(r.n === 15 && r.stlpce === 3 && r.sirkaTab > 200, `a-ponuka: tabuľka .vs2 má 15 buniek v 3 stĺpcoch (${r.n}, ${r.stlpce}), šírka ${r.sirkaTab} px`);
-    ok(r.hlavicka[1] === "Jednovrstvové" && r.hlavicka[2] === "Dvojvrstvové" && r.riadky.join("|") === "Kedy|Voda, sneh, blato|Čistenie|Cena", `a-ponuka: hlavička a riadky tabuľky (${r.hlavicka.join("/")} · ${r.riadky.join("/")})`);
+    ok(r.hlavicka[1] === L.hlavicka[0] && r.hlavicka[2] === L.hlavicka[1] && r.riadky.join("|") === L.riadky, `a-ponuka: hlavička a riadky tabuľky (${r.hlavicka.join("/")} · ${r.riadky.join("/")})`);
     ok(r.stavy.every((x) => x === "ok") && r.vis.every((x) => x === "visible"), `a-ponuka: ceny v tabuľke dosadené zo živých dát (${r.bunky.join(" | ")}; stav ${r.stavy.join("/")})`);
     if (ocak) {
       ok(r.bunky[1] === norm(`od ${eur(ocak.dvoj)}`) && r.bunky[0] === norm(`od ${eur(ocak.jedno)}`),
@@ -155,8 +180,9 @@ export async function kontroly(t) {
     const ch = await t.ev(`(function () { var s = document.querySelector(${J(S("b-ocakavat"))}); return { chips: [].map.call(s.querySelectorAll(".chip"), function (x) { return x.textContent.replace(/\\u00a0/g, " ").trim(); }),
       farba: s.querySelectorAll(".s2-t")[7].textContent.replace(/[\\u00a0\\u202f]/g, " ").replace(/\\s+/g, " ").trim(), kicker: [].map.call(s.querySelectorAll(".s2-t .k"), function (x) { return x.textContent; }),
       stav: [].map.call(s.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav"); }) }; })()`);
-    ok(ch.chips.length === 9 && ch.chips[1] === "Celoročné" && ch.chips[7] === "Dve farby, jeden celok", `b-ocakavat: 9 štítkov dvojvrstvových (${ch.chips.length}: ${ch.chips.join(" · ")})`);
-    ok(ch.kicker.join(",") === "Celý rok,Druhá vrstva,Údržba,Presnosť,Pravosť,Krytie,Montáž,Farba,Tretí rad", `b-ocakavat: 9 bodov v poradí návrhu (${ch.kicker.join(", ")})`);
+    ok(ch.chips.length === 9 && ch.chips[1] === L.chip1 && ch.chips[7] === L.chip7, `b-ocakavat: 9 štítkov dvojvrstvových (${ch.chips.length}: ${ch.chips.join(" · ")})`);
+    ok(ch.kicker.join(",") === L.kicker, `b-ocakavat: 9 bodov v poradí návrhu (${ch.kicker.join(", ")})`);
+    if (cz) ok(L.farba.test(ch.farba) && !/výber|viacer|farieb/i.test(ch.farba), `b-ocakavat: bod 8 po česky s počtami farieb z živých dát („na výběr“, „druhých vrstev“): „${ch.farba}“`);
     if (ocak) ok(ch.farba.includes(`Prvá prešívaná vrstva: ${ocak.farby} na výber.`) && ch.farba.includes(`jednu zo ${ocak.farby2} druhej vrstvy`),
       `b-ocakavat: bod 8 má počty farieb z živých dát (${ocak.farby} / ${ocak.farby2}): „${ch.farba}“`);
     ok(ch.stav.every((x) => x === "ok"), `b-ocakavat: čísla v bode 8 dosadené (${ch.stav.join("/")})`);
@@ -177,7 +203,7 @@ export async function kontroly(t) {
         h2: s.querySelector("h2").textContent, z: b.map(function (x) { return (/translateZ\\(([-\\d.]+)px\\)/.exec(x.style.transform) || [])[1]; }),
         t: b.map(function (x) { return parseFloat(getComputedStyle(x).getPropertyValue("--t")); }), pw: parseFloat(getComputedStyle(b[0]).getPropertyValue("--pw")) }; })()`);
     ok(m.dosky === 6 && m.legenda === 6 && m.hot === 6, `b-material: 6 dosiek, 6 riadkov legendy, 6 bodov (${m.dosky}/${m.legenda}/${m.hot})`);
-    ok(m.h2 === "Dve vrstvy, každá s vlastnou úlohou" && m.meno0 === "Odnímateľná druhá vrstva", `b-material: nadpis „${m.h2}“, 1. riadok legendy „${m.meno0}“`);
+    ok(m.h2 === L.h2 && m.meno0 === L.meno0, `b-material: nadpis „${m.h2}“, 1. riadok legendy „${m.meno0}“`);
     ok(m.cf0 === "rgb(40,44,56)" && m.cf1 === "rgb(50,51,63)", `b-material: farby hrán 6 dosiek z CSS dvojvrstvových (1. ${m.cf0}, 2. ${m.cf1})`);
     ok(/dvoj-material-vzorka-lux10\.jpg/.test(m.sw0) && /lcd-home\/tex1\.jpg/.test(m.sw5), `b-material: vzorky legendy z CSS (1. dvoj-material-vzorka-lux10, 6. tex1)`);
     ok(m.imgOk.every(Boolean), `b-material: fotky všetkých dosiek načítané (${m.imgOk.map((x) => (x ? "✓" : "✗")).join("")})`);
@@ -208,8 +234,8 @@ export async function kontroly(t) {
         img: im && im.getAttribute("src"), imgOk: !!im && im.complete && im.naturalWidth > 0, mat: s.querySelector(".cmp-col.us li span b + *, .cmp-col.us li") ? s.querySelector(".cmp-col.us li").textContent : "",
         vyzva: s.querySelector(".spat-btn") && s.querySelector(".spat-btn").getAttribute("href") }; })()`);
     ok(r.stav === "ok" && r.vis === "visible" && (!ocak || r.cena === norm(`od ${eur(ocak.dvoj)}`)), `b-porovnanie: naša cena zo živých dát „${r.cena}“ (stav ${r.stav}${ocak ? ", čakám od " + ocak.dvoj + " €" : ""})`);
-    ok(r.meno === "Originálne dvojvrstvové autokoberce" && /dvoj-porovnanie-original\.jpg/.test(r.img || "") && r.imgOk, `b-porovnanie: ľavý stĺpec „${r.meno}“ s fotkou dvojvrstvových (${r.imgOk ? "načítaná" : "nenačítaná"})`);
-    ok(/odnímateľná druhá vrstva/.test(r.mat), "b-porovnanie: bod Materiál spomína odnímateľnú druhú vrstvu");
+    ok(r.meno === L.meno && /dvoj-porovnanie-original\.jpg/.test(r.img || "") && r.imgOk, `b-porovnanie: ľavý stĺpec „${r.meno}“ s fotkou dvojvrstvových (${r.imgOk ? "načítaná" : "nenačítaná"})`);
+    ok(L.mat.test(r.mat), "b-porovnanie: bod Materiál spomína odnímateľnú druhú vrstvu");
     ok(r.vyzva === "#product-detail-form", "b-porovnanie: výzva vedie na konfigurátor");
   }
 
@@ -217,7 +243,7 @@ export async function kontroly(t) {
   if (await t.je("c-kam")) {
     const r = await t.ev(`(function () { var s = document.querySelector(${J(S("c-kam"))}); var b = s.querySelectorAll(".kry-b");
       return { interier: [].map.call(b[0].querySelectorAll("li"), function (x) { return x.textContent; }), kufor: b[1].querySelectorAll("li").length }; })()`);
-    ok(r.interier.length === 5 && r.interier[4] === "Druhá vrstva na ploche, kde sa šliape" && r.kufor === 3, `c-kam: interiér má 5 bodov vrátane druhej vrstvy (${r.interier.length}), kufor 3 (${r.kufor})`);
+    ok(r.interier.length === 5 && r.interier[4] === L.interier4 && r.kufor === 3, `c-kam: interiér má 5 bodov vrátane druhej vrstvy (${r.interier.length}), kufor 3 (${r.kufor})`);
   }
   if (await t.je("c-domov")) {
     await t.ev(`document.querySelector(${J(S("c-domov") + " .balkarta")}).scrollIntoView({ block: "center", behavior: "instant" })`);
@@ -227,13 +253,13 @@ export async function kontroly(t) {
       return { n: li.length, mena: li.map(function (x) { return x.querySelector("b").textContent; }), koberce: li[0] && li[0].querySelector(".ba-p").textContent,
         druha: li[1] && li[1].querySelector(".ba-p").textContent, svg: rc ? Math.round(rc.width) + "×" + Math.round(rc.height) : null,
         img: [].every.call(s.querySelectorAll(".ba-i img"), function (i) { return i.complete && i.naturalWidth > 0; }) }; })()`);
-    ok(r.n === 4 && r.mena.join("|") === "Autokoberce na mieru|Druhá vrstva|Klipy na uchytenie|Suché zipsy a páska", `c-domov: 4 položky balenia (${r.mena.join(" | ")})`);
-    ok(/^Prvá prešívaná vrstva pre tie rady/.test(r.koberce) && /^Odnímateľná druhá vrstva vo farbe/.test(r.druha), "c-domov: „Prvá prešívaná vrstva pre tie rady…“ a „Odnímateľná druhá vrstva vo farbe…“ (Michal 15. 10. 2026: vrstvy vždy pomenované)");
+    ok(r.n === 4 && r.mena.join("|") === L.mena, `c-domov: 4 položky balenia (${r.mena.join(" | ")})`);
+    ok(L.koberce.test(r.koberce) && L.druha.test(r.druha), "c-domov: „Prvá prešívaná vrstva pre tie rady…“ a „Odnímateľná druhá vrstva vo farbe…“ (Michal 15. 10. 2026: vrstvy vždy pomenované)");
     ok(r.svg === "40×40" && r.img, `c-domov: ikona druhej vrstvy (SVG ${r.svg}) a kresby balenia načítané (${r.img})`);
   }
   if (await t.je("c-casova-os")) {
     const r = await t.ev(`document.querySelector(${J(S("c-casova-os") + " .tml li .c p")}).textContent`);
-    ok(/farby oboch vrstiev/.test(r), `c-casova-os: bod 1 „${r}“`);
+    ok(L.os1.test(r), `c-casova-os: bod 1 „${r}“`);
   }
 
   // ---------------------------------------------------------------- c-farby: 4 vzorky dvojvrstvových
@@ -252,7 +278,7 @@ export async function kontroly(t) {
     ok(r.velke === 4 && r.vz === 4 && r.stitok === "01/04", `c-farby: 4 fotky a 4 vzorky, počítadlo ${r.stitok}`);
     ok(r.sw && r.prva, "c-farby: vzorky a 1. fotka načítané");
     ok(r.viac === "#product-detail-form" && /span\s*3/.test(r.span), `c-farby: „Mnoho ďalších farieb“ vedie na konfigurátor (${r.viac}, ${r.span})`);
-    const caka = [["Čierna · červené šitie + Lux 07", "02", "Vzorka · Hexa Line"], ["Čierna · biele šitie + Lux 15", "03", "Vzorka · Diamond Line"], ["Hnedá + Lux 11", "04", "Vzorka · Stripe Line"]];
+    const caka = L.caka;
     for (let i = 0; i < caka.length; i++) {
       try {
         await t.klikni(F + " .lx-farby-vzorka", { index: i + 1, popis: "vzorka farby " + (i + 2), pockaj: 500 });
@@ -273,7 +299,7 @@ export async function kontroly(t) {
     const r = await t.ev(`(function () { var s = document.querySelector(${J(S("d-koniec"))}), bg = s.querySelector(".endbg"), a = s.querySelector("a[data-p1v-ciel]");
       return { bg: bg ? getComputedStyle(bg).backgroundImage : "", lede: s.querySelector(".lede").textContent, href: a && a.getAttribute("href") }; })()`);
     ok(/1v\/obsah\/dvoj-koniec\.jpg/.test(r.bg), `d-koniec: pozadie je fotka dvojvrstvových dvoj-koniec.jpg (${r.bg.slice(-40)})`);
-    ok(/^Dvojvrstvové autokoberce na mieru Vášho vozidla — na leto aj zimu/.test(r.lede), `d-koniec: úvod dvojvrstvových („${r.lede.slice(0, 50)}…“)`);
+    ok(L.lede.test(r.lede), `d-koniec: úvod dvojvrstvových („${r.lede.slice(0, 50)}…“)`);
     ok(r.href === "#p1v-dvoj-1", `d-koniec: záložný odkaz recenzií vedie na #p1v-dvoj-1 (${r.href})`);
   }
 

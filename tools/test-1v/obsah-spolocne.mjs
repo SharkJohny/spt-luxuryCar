@@ -34,11 +34,16 @@ export const URL_598 = SK + "/luxusne-autokoberce-dragonskin-diamond-line/";
 export const SONDA = CDN + "img/1v/obsah/__sonda-";
 
 let PREKLAD_CZ = null;
-/** Presný SK -> CZ preklad zákazníckeho textu z mapy, z ktorej sa skladá CZ admin obsah. */
+const SEG_CZ = join(KOREN, ".cz-podklady", "seg");
+/** Mapa prekladu je nesledovaná (.cz-podklady/ nie je v gite): v čistom checkoute chýba. */
+export function prekladCzDostupny() { return existsSync(join(SEG_CZ, "segmenty.json")) && existsSync(join(SEG_CZ, "preklad")); }
+/** Presný SK -> CZ preklad zákazníckeho textu z mapy, z ktorej sa skladá CZ admin obsah. Bez mapy výnimka s `preskoc`:
+ *  runner (a skupina DVOJ) ju hlási ako upozornenie „preskočené“, nie ako chybu (revízia 29. 10. 2026). */
 export function prelozCz(sk) {
   if (!PREKLAD_CZ) {
-    const dir = join(KOREN, ".cz-podklady", "seg", "preklad");
-    const segmenty = JSON.parse(readFileSync(join(KOREN, ".cz-podklady", "seg", "segmenty.json"), "utf8"));
+    if (!prekladCzDostupny()) throw Object.assign(new Error("CZ kontroly s prekladom preskočené — chýba nesledovaný .cz-podklady/seg/segmenty.json (mapa SK -> CZ)"), { preskoc: true });
+    const dir = join(SEG_CZ, "preklad");
+    const segmenty = JSON.parse(readFileSync(join(SEG_CZ, "segmenty.json"), "utf8"));
     const podlaId = Object.assign({}, ...readdirSync(dir).filter((f) => /\.json$/i.test(f)).map((f) => JSON.parse(readFileSync(join(dir, f), "utf8"))));
     PREKLAD_CZ = new Map(segmenty.filter((s) => Object.prototype.hasOwnProperty.call(podlaId, s.id)).map((s) => [s.sk, podlaId[s.id]]));
   }

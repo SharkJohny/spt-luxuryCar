@@ -15,7 +15,7 @@
 // ostatné produkty; tools/test-1v/obsah-faq.mjs), klik rozbalí a znova zbalí odpoveď; odkaz „Formulár nájdete tu“ vedie na
 // /odstupenie-od-zmluvy/ (Michal 14. 10. 2026); výzva vedie na konfigurátor (skutočný klik); CSS partial = každý selektor pod body.lcd-1v.
 // Pravidlá nových textov (zakázané slová, jediná cena 5 €, Lux) platia na sekcie mimo FAQ — FAQ je živý text.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { kontrolaFaqZive } from "./obsah-faq.mjs";
@@ -68,6 +68,19 @@ export const ZNENIE = {
   ],
 };
 const norm = (s) => String(s == null ? "" : s).replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
+/** CZ obchod (2449, Michal 29. 10. 2026): znenie = textové uzly CZ zdroja admin-html/src/p1v-vzorky/*.cz.html po sekciách
+ *  (CZ preklad nemá vlastný návrh; test overí, že stránka ukazuje celý CZ zdroj). Predtým test čakal SK texty a na CZ hlásil 7 chýb. */
+function znenieZoZdroja(web) {
+  const dir = join(KOREN, "admin-html/src/p1v-vzorky"), out = {};
+  for (const f of readdirSync(dir).filter((x) => x.endsWith("." + web + ".html"))) {
+    const html = readFileSync(join(dir, f), "utf8").replace(/<!--[\s\S]*?-->/g, "").replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, "");
+    const m = /data-lcd-sekcia="([^"]+)"/.exec(html);
+    if (m) out[m[1]] = html.split(/<[^>]+>/).map(norm).filter((x) => /\p{L}/u.test(x));
+  }
+  // FAQ = živé /faq/ (kontrolaFaqZive), zo zdroja len nadpis sekcie — ako ZNENIE pre SK
+  if (out["d-faq"]) out["d-faq"] = out["d-faq"].slice(0, 1);
+  return out;
+}
 
 /** selektory partialu, ktoré nezačínajú body.lcd-1v (komentáre preč, @media rozbalené) */
 function zleSelektory() {
@@ -96,6 +109,10 @@ export async function kontroly(t) {
   const S = (m) => `.p1v-miesto ${t.sekcia(m)}`;
   const sek = (m) => JSON.stringify(S(m));
   const sir = t.sirka;
+  const cz = t.web === "cz";
+  const L = cz
+    ? { znenie: znenieZoZdroja("cz"), zaloha: "99 Kč", form: "https://www.luxurycardesign.cz/odstoupeni-od-smlouvy/", tl: ["Jednovrstvé", "Dvouvrstvé"] }
+    : { znenie: ZNENIE, zaloha: "5 €", form: "https://www.luxurycardesign.sk/odstupenie-od-zmluvy/", tl: ["Jednovrstvové", "Dvojvrstvové"] };
   // okno chatu Luxia (iframe tretej strany) sa na telefóne samo otvára cez stred obrazovky — pre klik ho skryjeme (len test)
   await t.ev(`[].forEach.call(document.querySelectorAll('iframe[src*="luxia"], iframe[src*="rostiapp"]'), function (f) { f.style.setProperty("visibility", "hidden", "important"); })`);
   const naSekciu = (m, blok = "start") => t.ev(`(function(){var e=document.querySelector(${sek(m)});if(!e)return false;e.scrollIntoView({block:${JSON.stringify(blok)},behavior:"instant"});return true})()`);
@@ -124,16 +141,19 @@ export async function kontroly(t) {
   const texty = await t.ev(`(${JSON.stringify(PORADIE)}).map(function(m){var e=document.querySelector('.p1v-miesto [data-lcd-sekcia="'+m+'"]');return e?e.textContent:""})`);
   PORADIE.forEach((m, i) => {
     const text = norm(texty[i]);
-    const chyba = ZNENIE[m].filter((z) => !text.includes(norm(z)));
-    ok(!chyba.length, `${m}: texty doslovne z návrhu (${ZNENIE[m].length} kusov)` + (chyba.length ? " — chýba: " + chyba.map((x) => "„" + x.slice(0, 50) + "“").join(", ") : ""));
+    const zn = L.znenie[m] || [];
+    const chyba = zn.filter((z) => !text.includes(norm(z)));
+    ok(zn.length && !chyba.length, `${m}: texty doslovne z ${cz ? "CZ zdroja" : "návrhu"} (${zn.length} kusov)` + (chyba.length ? " — chýba: " + chyba.map((x) => "„" + x.slice(0, 50) + "“").join(", ") : ""));
+    // CZ: žiadna veta zo SK návrhu (slovakizmy, nepreložený kus)
+    if (cz) { const sk = ZNENIE[m].filter((z) => z.length >= 12 && !zn.some((c) => c.includes(norm(z))) && text.includes(norm(z))); ok(!sk.length, `${m}: bez SK textu na CZ` + (sk.length ? ": " + sk.join(" | ") : "")); }
   });
 
   // 4) zakázané formulácie, ceny, Lux — sekcie mimo FAQ (FAQ = živý text z /faq/, kontroluje ho kontrolaFaqZive nižšie)
   const cely = norm(texty.filter((_, i) => PORADIE[i] !== "d-faq").join(" "));
   const zakaz = cely.match(new RegExp(ZAKAZANE.source, "gi"));
   ok(!zakaz, "texty mimo FAQ bez zakázaných formulácií (aj „zadarmo“)" + (zakaz ? ": " + zakaz.join(", ") : ""));
-  const ceny = (cely.match(/\d[\d ]*(?:[.,]\d+)? ?(?:€|eur)|(?:€|eur) ?\d/gi) || []).map(norm);
-  ok(ceny.length === 2 && ceny.every((c) => c === "5 €"), "jediná cena v texte mimo FAQ je doslovná záloha „5 €“ (2×: časová os, vrátenie) " + JSON.stringify(ceny));
+  const ceny = (cely.match(/\d[\d ]*(?:[.,]\d+)? ?(?:€|eur|Kč)|(?:€|eur|Kč) ?\d/gi) || []).map(norm);
+  ok(ceny.length === 2 && ceny.every((c) => c === L.zaloha), `jediná cena v texte mimo FAQ je doslovná záloha „${L.zaloha}“ (2×: časová os, vrátenie) ` + JSON.stringify(ceny));
   // druhá vrstva: ak text menuje Lux s číslom, len jednofarebné 10/11/12/13/16 (vzorkové FAQ 06 s „Lux 10/12/11“ nahradilo živé FAQ)
   const lux = [...cely.matchAll(/Lux(?: Color)? (\d+)/g)].map((m) => Number(m[1]));
   ok(lux.every((n) => [10, 11, 12, 13, 16].includes(n)), "druhá vrstva: v texte len jednofarebné Lux 10/11/12/13/16 " + JSON.stringify(lux));
@@ -148,7 +168,7 @@ export async function kontroly(t) {
   if (sir >= 901) ok(kry.length === 2 && Math.abs(kry[0][1] - kry[1][1]) < 2 && kry[1][0] > kry[0][0] + kry[0][2], "vrátenie: na PC dve karty vedľa seba " + JSON.stringify(kry));
   else ok(kry.length === 2 && kry[1][1] > kry[0][1] + 40, "vrátenie: na telefóne témy pod sebou " + JSON.stringify(kry));
   const form = await t.ev(`(function(){var a=document.querySelector(${JSON.stringify(S("vzorky-vratenie") + " a.vz-form")});return a?[a.getAttribute("href"),Math.round(a.getBoundingClientRect().width)]:null})()`);
-  ok(form && form[0] === "https://www.luxurycardesign.sk/odstupenie-od-zmluvy/" && form[1] > 60, "vrátenie: odkaz „Formulár nájdete tu“ vedie na formulár odstúpenia od zmluvy (Michal 14. 10. 2026) " + JSON.stringify(form));
+  ok(form && form[0] === L.form && form[1] > 60, "vrátenie: odkaz „Formulár nájdete tu“ vedie na formulár odstúpenia od zmluvy (Michal 14. 10. 2026) " + JSON.stringify(form));
 
   // 7) časová os: 4 kroky, pred osou prázdna, za osou plná
   const os = S("c-casova-os") + " .tml";
@@ -175,7 +195,7 @@ export async function kontroly(t) {
   const ups = await t.ev(`(function(){var u=document.querySelector(${JSON.stringify(S("a-ponuka") + " .ups")}),p=u.querySelector(".ph").getBoundingClientRect(),x=u.querySelector(".tx").getBoundingClientRect();var b=[].map.call(u.querySelectorAll(".vz-ups-cta .btn"),function(a){var r=a.getBoundingClientRect();return {t:a.textContent.trim(),h:a.getAttribute("href"),top:Math.round(r.top),l:Math.round(r.left),w:Math.round(r.width),o:a.getAttribute("data-p1v-odkaz"),s:a.getAttribute("data-p1v-stav")}});return {fotoVlavo:p.right<=x.left+2,fotoNad:p.bottom<=x.top+2,b:b,vis:getComputedStyle(u).display}})()`);
   if (sir >= 821) ok(ups.fotoVlavo, "ponuka: na PC fotka vľavo od textu");
   else ok(ups.fotoNad, "ponuka: na telefóne fotka nad textom");
-  ok(ups.b.length === 2 && ups.b[0].t === "Jednovrstvové" && ups.b[1].t === "Dvojvrstvové", "ponuka: tlačidlá Jednovrstvové a Dvojvrstvové " + JSON.stringify(ups.b.map((x) => x.t)));
+  ok(ups.b.length === 2 && ups.b[0].t === L.tl[0] && ups.b[1].t === L.tl[1], "ponuka: tlačidlá Jednovrstvové a Dvojvrstvové " + JSON.stringify(ups.b.map((x) => x.t)));
   const jedno = t.sestra("jedno"), dvoj = t.sestra("dvoj");
   ok(ups.b.length === 2 && ups.b[0].h === jedno && ups.b[1].h === dvoj && ups.b.every((x) => x.s === "ok"),
     `ponuka: odkazy vedú na jednovrstvové a dvojvrstvové toho istého vzoru (${jedno} / ${dvoj}), dosadené obsah-cisla.js ` + JSON.stringify(ups.b.map((x) => x.h + " " + x.s)));
