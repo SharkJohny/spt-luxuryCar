@@ -121,7 +121,7 @@ try {
         const text = di >= 0 ? riadky.slice(di + 1, koniec > di ? koniec : undefined).filter(x => !/^(Nové|Zobraziť originál.*)$/.test(x)).join("\\n").trim() : "";
         const foto = [...d.querySelectorAll("img")].map(i => i.src || "").filter(s => /googleusercontent/.test(s) && !/=s\\d{2}-|\\/a\\//.test(s));
         const zavri = [...d.querySelectorAll("[aria-label='Zavrieť'], [aria-label='Close']")][0]; if (zavri) zavri.click();
-        return { text, foto, preklad: !!orig };
+        return { text, foto, preklad: false }; // preložený panel bez originálu skončil vyššie (PREKLAD)
       })()`);
       if (plny && plny.text && plny.text.length > r.text.replace(/…$/, "").length - 5) { r.text = plny.text; r.skratene = false; }
       if (plny && plny.foto && plny.foto.length) r.photos = plny.foto;

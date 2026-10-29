@@ -11,7 +11,8 @@
 // recenzie novšie než HTML na začiatok pásu). Preto generátor značí:
 //   section[data-lcd-rec]     data-lcd-rec-max  = najvyššie číslo id (g-N) v dátach — novšie recenzie majú vyššie id
 //                             data-lcd-rec-prvy = id prvej karty (pred ňu JS vkladá novšie)
-//                             data-lcd-rec-stav = deň stiahnutia dát (place.fetchedAt), len pre ľudí
+//                             data-lcd-rec-stav = deň stiahnutia dát (place.fetchedAt) — FUNKČNÝ, nemazať: lcdHpRecenzie.js podľa neho
+//                             ignoruje staršie dáta (napr. zálohu 89 z bundla), inak by prepísali počet na titulke
 //   article.rev[data-lcd-rec-id]
 // Karty: 3 najnovšie s textom ≥ 40 znakov + Michalov výber (data-p1v-vyber zo sekcie 1V 598, tá istá dvanástka), spolu 12;
 // výber, skrátenie textu a dátum „mesiac rok“ = functions/lcdRecenzie.js (to isté ako 1V produkty a oživenie titulky).

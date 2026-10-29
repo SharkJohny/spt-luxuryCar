@@ -9,14 +9,14 @@ Plán: vault `wiki/projekty/aktivne/web-a-konfigurator/web-bez-prekryvania.md` (
 | Súbor v `dist/` | SK admin | CZ admin | Obsah |
 |---|---|---|---|
 | `hp-vrch.*.html` | banner **178** „Top 1“ (Stred titulky) | banner **117** „Stred“ | `#lcd-home`: hero, karta konfigurátora `#konfSlot`, sekcie po Referenčné videá |
-| `hp-telo-1.*.html` | banner **181** „Top 2“ (Zápätie titulky) | banner **120** „Zápatí“ | `#lcd-home-2`: recenzie, kufor, set, realita |
-| `hp-telo-2.*.html` | **NOVÝ** banner v Zápätí titulky, hneď za „Top 2“ | **NOVÝ** banner za „Zápatí“ | `#lcd-home-3`: čo očakávať, materiál, FAQ, galéria, kontakt, záver, lightbox |
+| `hp-telo-1.*.html` | banner **181** „Top 2“ (Zápätie titulky) | banner **131** „Zápatí 2“ (banner28; Shoptet ho vypisuje pred „Zápatí“) | `#lcd-home-2`: recenzie, kufor, set, realita |
+| `hp-telo-2.*.html` | banner **191** „Top 3“ (Zápätie titulky, za „Top 2“) | banner **120** „Zápatí“ (banner8) | `#lcd-home-3`: čo očakávať, materiál, FAQ, galéria, kontakt, záver, lightbox |
 | `mega.*.html` | banner **172** „menu“ (pätička, každá stránka) | banner **108** „menu.“ | `#megaOvl` + `nav#mega` + prepínač SK/CZ |
 | `rz.*.html` | stránka **850** → Popis stránky | stránka **786** → Popis stránky | `#lcd-rz` (rozcestník `/rozcestnik/`) |
 | `kontakty.sk.html` | stránka **29** → Popis stránky | — (CZ sa nemení) | `#lcd-kontakt` (Kontakty `/kontakty/`): hlavička, telefón, e-mail, formulár Shoptetu cez `#FORM[code=contact]#`, firemné údaje |
 | `p1v-598-1.sk.html`, `p1v-598-2.sk.html` | **NOVÉ** bannery „1V obsah 1/2 (test)“ v Pätičke (test `?novy=1`); po spustení produkt **598** → Popis | — | obsah pod konfigurátorom 1V (zo zložky `src/p1v-598/`, za bránou), [`docs/1v-obsah.md`](../docs/1v-obsah.md); presný postup zápisu (záloha, pole, súbor) sekcia 9 |
 
-Presné údaje (kód banneru, pozícia, stránka) sú v `ciele.json` a po builde v `dist/manifest.json`.
+Presné údaje (kód banneru, pozícia, stránka) sú v `ciele.json` a po builde v `dist/manifest.json`. **Pri zápise do adminu platí výhradne `dist/manifest.json`** (pri rozpore s touto tabuľkou má prednosť manifest).
 
 - Prečo má `hp-vrch` aj sekcie a nie len hero: titulka má po zhutnení ~90 000 znakov a strop je 45 000 na banner. Na hraniciach sekcií sa to do 2 bannerov tela nezmestí (recenzie majú samy 21 600 znakov). Preto 3 kusy po ~30 000. Medzi bannerom Stred a bannermi Zápätia Shoptet nič nevypisuje, takže poradie na stránke ostáva rovnaké.
 - `hp-telo-2` musí byť v admine **za** „Top 2“ / „Zápatí“. Či Shoptet radí Doplnkové bannery podľa priority alebo názvu, treba overiť pred zápisom (🟡).
