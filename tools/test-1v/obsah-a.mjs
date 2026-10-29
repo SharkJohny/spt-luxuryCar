@@ -7,6 +7,9 @@
 // sekcie[].navrh = ako nájsť to isté v návrhu (jednovrstvove.html); snímka = spoločný obdĺžnik všetkých kúskov:
 //   { sel: "#referencie" } · { sel: "section", text: "Jazdíte aj v zime" } (prvý so zhodným textom)
 //   · { sel: ".spat", za: "#porovnanie" } (prvý .spat za #porovnanie v poradí dokumentu). Neviditeľný kúsok sa preskočí.
+// vylúčené z prvých 3 kariet (lcdRecenzie.js VYLUCENE_NAJNOVSIE) — čakané poradie ráta s tým istým zoznamom ako web
+import { VYLUCENE_NAJNOVSIE } from "../../assets/js/functions/lcdRecenzie.js";
+
 export const SKUPINA = "a";
 export const sekcie = [
   { meno: "a-recenzie", navrh: [{ sel: "#recenzie" }] },
@@ -161,7 +164,8 @@ export async function kontroly(t) {
           // zobrazený text ako lcdRecenzie.js textRecenzie (bez odpovede majiteľa a dátumu na začiatku); fotky len https
           var dlzka = function (x) { return String(x.text || "").replace(/\\s*Luxury Car Design\\s+Vlastník\\b[\\s\\S]*$/i, "").replace(/\\s+/g, " ").trim().replace(/^\\d{1,2}\\.\\s?\\d{1,2}\\.\\s?\\d{4}\\s*/, "").length; };
           var foto = function (x) { return (x.photos || []).some(function (u) { return /^https:\\/\\//.test(u); }); };
-          return d.reviews.filter(function (x) { return Number(x.rating) >= 5 && String(x.text || "").trim().length >= 40 && (dlzka(x) >= 120 || (foto(x) && dlzka(x) >= 40)); })
+          var vyl = ${JSON.stringify(VYLUCENE_NAJNOVSIE)};
+          return d.reviews.filter(function (x) { return Number(x.rating) >= 5 && String(x.text || "").trim().length >= 40 && (dlzka(x) >= 120 || (foto(x) && dlzka(x) >= 40)) && vyl.indexOf(String(x.id)) === -1; })
             .sort(function (a, b) { return cas(b) - cas(a) || ((b.photos || []).length - (a.photos || []).length) || id(b) - id(a); })
             .slice(0, 3).map(function (x) { return String(x.author).trim(); });
         })(),

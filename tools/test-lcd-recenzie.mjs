@@ -33,6 +33,10 @@ over(!R.vyraznaRecenzia(rec({ text: text(60), photos: ["http://x.sk/a.jpg"] })),
 over(!R.vyraznaRecenzia(rec({ rating: 4, text: text(250), photos: FOTO })), "4★ = nie (najnovšie len 5★)");
 over(!R.vyraznaRecenzia(rec({ text: text(80) + " Luxury Car Design Vlastník " + text(200) })), "odpoveď majiteľa sa do dĺžky neráta (zobrazený text 80 znakov)");
 over(!R.vyraznaRecenzia(null) && !R.vyraznaRecenzia(rec({ text: "" })), "null / prázdny text = nie");
+// 30. 10. 2026: vylúčené id (VYLUCENE_NAJNOVSIE) nejdú na začiatok, hoci sú dlhé — ostávajú v „Zobraziť ďalšie“
+over(R.VYLUCENE_NAJNOVSIE.indexOf("g-98") !== -1, "VYLUCENE_NAJNOVSIE obsahuje g-98 (…ako rit na serbel — čaká na Michala)");
+over(!R.vyraznaRecenzia(rec({ id: "g-98", text: text(250), photos: FOTO })), "vylúčené id g-98 (250 znakov + fotka) = nie");
+over(R.dobraRecenzia(rec({ id: "g-98", text: text(250) })), "vylúčené id ostáva dobraRecenzia (karta v „Zobraziť ďalšie“)");
 
 // ------------------------------------------------------------------ najnovsie / zoradRecenzie: poradie
 {
@@ -75,6 +79,9 @@ over(!R.vyraznaRecenzia(null) && !R.vyraznaRecenzia(rec({ text: "" })), "null / 
   const kratke = d.reviews.filter((r) => R.dobraRecenzia(r) && !R.vyraznaRecenzia(r) && vyber.indexOf(r.author) === -1);
   over(kratke.every((r) => karty.indexOf(r) >= 12), `skutočné dáta: krátke recenzie mimo výberu (${kratke.length}) sú až v „Zobraziť ďalšie“, nie medzi 12`);
   over(karty.length === d.reviews.filter((r) => Number(r.rating) >= 4 && String(r.text || "").trim()).length, `skutočné dáta: „Zobraziť ďalšie“ ukáže všetky s textom (${karty.length})`);
+  const vyl = R.VYLUCENE_NAJNOVSIE.map((id) => d.reviews.find((r) => r.id === id)).filter(Boolean);
+  over(vyl.length === R.VYLUCENE_NAJNOVSIE.length && vyl.every((r) => karty.indexOf(r) >= 12),
+    "skutočné dáta: vylúčené (" + vyl.map((r) => r.author + " " + r.id).join(", ") + ") nie sú medzi 12, ale sú v „Zobraziť ďalšie“");
   console.log("  prvé 3: " + prve3.map((r) => `${r.author} (${r.id}, ${r.dateApprox}, ${R.textRecenzie(r.text).length} zn., fotky ${R.fotkyKarty(r).length})`).join("; "));
 }
 

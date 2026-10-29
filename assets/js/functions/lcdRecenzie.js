@@ -22,6 +22,13 @@ export const NAJNOVSICH = 3;
  * 53 %. Prah 120 / fotky + 40 = karta vyplnená aspoň zhruba z polovice (test: tools/test-lcd-recenzie.mjs).
  */
 export const MIN_TEXT_NAJNOVSIE = 120;
+/**
+ * Recenzie (id „g-N“), ktoré nejdú medzi NAJNOVSICH prvých kariet, hoci sú výrazné — ostávajú v „Zobraziť ďalšie“
+ * (aj v Michalovom výbere, ak by ich tam dal). 30. 10. 2026: g-98 končí hovorovým „…sedia tam ako rit na serbel 😄“ —
+ * doteraz bola len v „Zobraziť ďalšie“ a na 2. miesto titulky ju bez Michalovho súhlasu nedávame. Vrátenie = zmazať id
+ * odtiaľto, potom node tools/hp-recenzie.mjs a node tools/build-admin-html.mjs (nové data-lcd-v pre admin).
+ */
+export const VYLUCENE_NAJNOVSIE = ["g-98"];
 
 /** Karta s textom: aspoň 4 hviezdy a text ≥ MIN_TEXT znakov. */
 export function dobraRecenzia(r) {
@@ -30,11 +37,11 @@ export function dobraRecenzia(r) {
 
 /**
  * Smie byť medzi NAJNOVSICH prvými kartami: 5★ a zobrazený text (textRecenzie — bez odpovede majiteľa a dátumu)
- * ≥ MIN_TEXT_NAJNOVSIE znakov, alebo fotky na karte (fotkyKarty) a text ≥ MIN_TEXT. Ostatné recenzie ostávajú
+ * ≥ MIN_TEXT_NAJNOVSIE znakov, alebo fotky na karte (fotkyKarty) a text ≥ MIN_TEXT; nie id z VYLUCENE_NAJNOVSIE. Ostatné ostávajú
  * vo výbere aj v „Zobraziť ďalšie“ podľa dobraRecenzia, len nejdú na začiatok pásu.
  */
 export function vyraznaRecenzia(r) {
-  if (!dobraRecenzia(r) || Number(r.rating) < 5) return false;
+  if (!dobraRecenzia(r) || Number(r.rating) < 5 || VYLUCENE_NAJNOVSIE.indexOf(String(r.id)) !== -1) return false;
   const dlzka = textRecenzie(r.text).length;
   return dlzka >= MIN_TEXT_NAJNOVSIE || (fotkyKarty(r).length > 0 && dlzka >= MIN_TEXT);
 }
