@@ -860,17 +860,34 @@ function googleReviews(setupData, texts) {
     return false;
   }
 
+  // Dáta recenzií (29. 10. 2026): najprv SPOLOČNÝ súbor assets/data/reviews-data.js — automatika recenzií ho
+  // aktualizuje bez prepínania verzie v admine (production.yml, krok „Recenzie na spoločnú adresu“). CDN aj prehliadač
+  // kešujú 1 rok, preto sa adresa mení každých 6 h (?h=): nové recenzie sú na webe najneskôr do 6 h.
+  // Keď spoločný súbor nepríde alebo je pokazený, záloha = reviews-data.js tejto verzie (stav z času nasadenia).
+  var DATA_SPOLOCNE = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/data/reviews-data.js";
   function loadScripts() {
     if (window.__lcdReviewsScriptsInjected) return;
     window.__lcdReviewsScriptsInjected = true;
-    var d = document.createElement("script");
-    d.src = base + "reviews-data.js?v=" + WV;
-    d.onload = function () {
+    var widget = function () {
       var w = document.createElement("script");
       w.src = base + "lcd-reviews.js?v=" + WV;
       document.body.appendChild(w);
     };
-    document.body.appendChild(d);
+    var data = function (src, zaloha) {
+      var d = document.createElement("script");
+      d.src = src;
+      d.onload = function () {
+        var p = window.LCD_REVIEWS && window.LCD_REVIEWS.place;
+        if ((p && Number(p.totalReviews) > 0) || !zaloha) widget();
+        else data(zaloha, null);
+      };
+      d.onerror = function () {
+        if (d.parentNode) d.parentNode.removeChild(d);
+        if (zaloha) data(zaloha, null);
+      };
+      document.body.appendChild(d);
+    };
+    data(DATA_SPOLOCNE + "?h=" + Math.floor(Date.now() / 216e5), base + "reviews-data.js?v=" + WV);
   }
 
   // Skripty recenzii (reviews-data.js + lcd-reviews.js) az ked je widget naozaj
