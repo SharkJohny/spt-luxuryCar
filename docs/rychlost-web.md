@@ -74,11 +74,14 @@ Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný
   330–740 kB alebo 1 500 px JPEG 1,5 MB; 598 130 kB, 616 275 kB, 637 448 kB); CZ rovnako. Okno lupy (`position: inside`) = hlavná fotka (390: 360 px, 1280: 539 px), orig sa v ňom ukazuje 1 : 1.
   Zmenšené originály na výmenu v admine (max. strana 2 000 px = 3,7× pri 1280, progresívny JPEG bez EXIF):
   `scratchpad/opravy-2910/fotky-nove/` + `tabulka.md` / `tabulka.csv` (záloha originálov `fotky-zaloha/`). 374 fotiek
-  (229 rôznych; SK aj CZ majú vlastné nahrávky): vymeniť 201, na zváženie 74 (zmenšené, SSIM pri 1 024 px ≥ 0,98, pri
-  2 000 px 0,91–0,98 — zrno), bez zmeny 99. WebP z CDN (odhad sharp q90; skutočné CDN = odhad × 0,95–1,13 na 598/601/613/619/628): hlavné fotky 34,0 -> 17,9 MB
-  (28 produktov SK+CZ; 619 899 -> 480 kB, 628 2 171 -> 889 kB), všetky 401 -> 232 MB. Hlavné fotky 601/607/2406/2412
+  (229 rôznych; SK aj CZ majú vlastné nahrávky): vymeniť 249, bez zmeny 125. Kritérium: SSIM ≥ 0,98 pri NOVEJ veľkosti
+  (2 000 px = lupa ukazuje 1 : 1) a WebP z CDN menší aspoň o 3 %. Revízia 29. 10.: 74 fotiek so zrnom kože malo pri q ≤ 92
+  SSIM 0,91–0,98 (zrno vyhladené, „na zváženie“ zrušené) -> prerobené v rovnakom rozmere q94–98 na SSIM 0,980–0,991
+  (`fotky-prerob-zrno.mjs`); 26 fotiek, kde by bol WebP z CDN menší o < 3 % alebo väčší (aj hlavná 598/2403), ostáva.
+  WebP z CDN (odhad sharp q90; skutočné CDN = odhad × 0,95–1,13 na 598/601/613/619/628): hlavné fotky 34,0 -> 18,0 MB
+  (28 produktov SK+CZ; 619 899 -> 480 kB, 628 2 171 -> 909 kB), všetky 401 -> 236 MB. Hlavné fotky 601/607/2406/2412
   (1 500 px, zrnitý JPEG 1,5 MB) ostávajú — pri tých pomôže len zastaviť prednačítanie lupy (rozhodnutie Michala).
-  Nástroje: `scratchpad/opravy-2910/fotky-stiahni.mjs`, `fotky-zmensi.mjs <max>`, `fotky-tabulka.mjs`, `lupa-zdroj.mjs`.
+  Nástroje: `scratchpad/opravy-2910/fotky-stiahni.mjs`, `fotky-zmensi.mjs <max>`, `fotky-prerob-zrno.mjs`, `fotky-tabulka.mjs`, `lupa-zdroj.mjs`.
 ## 4. Meranie
 - Lighthouse A/B: `Desktop/LCD/web/perf-nastroje/ab-harness/ab.mjs` (simulate: 150 ms RTT, 1,6 Mbit/s, CPU 4×) s B cez
   `--b-dir <priečinok s assets/v/<živé sha>/js|css/…>`, vlastná `--cache` a `--out`.
