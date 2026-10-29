@@ -519,3 +519,10 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Nezávislá kontrola 16. 10.: obal lišty bez modrého pozadia/žiary po scrolle (.siteCookies--scrolled), odkaz v päte na telefóne nad lepkavou lištou „Do košíka“ (rezerva 72 px); test: scroll + výrez rohu, úplný spodok stránky (titulka, 598, 598 s flagom)
 - [ ] Prepnutie sha v SK admine (Michal) — CZ až vlastným prepnutím (dnes 5db0f33)
 - [ ] Upratanie (nízka priorita, dnes prebité): zúžiť Bender #cboxLoadedContent na okno cookies, zrušiť rezervu 96 px v _lcdNativeHdr.scss; testy zatvárania lišty na [value=reject]
+
+## Opravy 29. 10. 2026 (schválené Michalom: CZ texty kusu 1, cena kópií v Kč, skákanie tlačidla, CZ náhľady farieb, fotky na lupu)
+- [x] 1) CZ texty kusu 1: „Jen za“, „Výhodněji“, „(samostatně …)“, „na výběr“, „široký výběr“, „více barev“, odkaz /odstoupeni-od-smlouvy/ (200) — segmenty.mjs zloz; kus 1 do Popisu CZ robí koordinátor
+- [ ] 2) Cena kópií na CZ „1 300 – 3 300 Kč“ namiesto „50 € – 129 €“
+- [ ] 3) Skákanie tlačidla do košíka (CLS < 0,05 na 598, 601, 616, 619, 2403, 2427; 390 aj 1280)
+- [ ] 4) CZ náhľady farieb = rovnaké malé náhľady ako SK
+- [ ] 5) Fotky na lupu: veľká fotka až pri otvorení lupy + zmenšené originály na výmenu v admine
