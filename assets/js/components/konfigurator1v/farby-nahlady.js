@@ -5,7 +5,7 @@
 //
 // Ako (žiadna zmena vzhľadu):
 //  - obrazokFarby: dlaždicu farby stavia components/creatButtons.js (živý konfigurátor) LEN pod bránou 1V (rovnaká ako
-//    odlozenyObrazok); mimo 1V (?novy=0, CZ, iné produkty) aj farba bez náhľadu = pôvodný <img> bez zmeny.
+//    odlozenyObrazok); mimo 1V (?novy=0, iné produkty) aj farba bez náhľadu = pôvodný <img> bez zmeny.
 //    <picture class="lcd1v-fn"> (display: contents — rozloženie dlaždice sa nemení) s <source type="image/webp"> a <img>
 //    so srcset JPG (Safari 13 bez WebP). src ostáva PLNÁ fotka: kto číta atribút src (veľké náhľady kroky.js, farba2.js,
 //    boxy-produkt.js, obsah-c.js, starý productPage.js), dostane ju ako doteraz; pri srcset s w-deskriptorom ju prehliadač
@@ -16,7 +16,10 @@
 //    Rovnaký postup ako okno fotiek obsahu (obsah-d.js, revízia F2). Náhľad má loading="lazy": skrytý v CSS (kroky.js
 //    náhľad na boxe 616, ktorý má vlastný) fotku nesťahuje — predtým ju mal zadarmo z cache dlaždice.
 //  - malyNahlad: ikonka 28 px „Odporúčame“ (farba2.js) = obrázok dlaždice, nie plná fotka.
-import { NAHLADY_FARIEB, SIRKY_NAHLADOV } from "./farby-nahlady-data.js";
+//  - CZ (Michal 29. 10. 2026): CZ fotka má slug z českého textu voľby (diamond-barva-kuze-…) a je vlastnou nahrávkou CZ
+//    obchodu. ALIASY_FARIEB (generuje tools/farby-1v-nahlady.mjs po overení, že ide o tú istú fotku) ju priradí k SK slugu
+//    -> CZ dlaždica dostane rovnaké malé náhľady ako SK; src ostáva CZ plná fotka (veľké náhľady ako doteraz).
+import { NAHLADY_FARIEB, SIRKY_NAHLADOV, ALIASY_FARIEB } from "./farby-nahlady-data.js";
 
 const ZAKLAD = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/farby/";
 /** Šírka dlaždice (CSS px, horná hranica nameraná 25. 10. 2026 na 320–2560 px). Krok Farba, Farba 2 a box 616: 5 stĺpcov
@@ -27,10 +30,13 @@ export const SIZES_OKNO_BOXOV = "(max-width: 480px) calc(20vw - 14px), (max-widt
 const RE_ZDROJ = /\/assets\/config\/([a-z0-9-]+)\.jpg(?:[?#&]|$)/;
 const ma = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
-/** Slug fotky farby s náhľadom (z adresy plnej fotky), inak null. */
+/** Slug náhľadov fotky farby (z adresy plnej fotky; CZ slug cez ALIASY_FARIEB na SK slug tej istej fotky), inak null. */
 export function slugFarby(src) {
   const m = RE_ZDROJ.exec(String(src || ""));
-  return m && ma(NAHLADY_FARIEB, m[1]) ? m[1] : null;
+  if (!m) return null;
+  if (ma(NAHLADY_FARIEB, m[1])) return m[1];
+  const sk = ma(ALIASY_FARIEB, m[1]) ? ALIASY_FARIEB[m[1]] : null;
+  return sk && ma(NAHLADY_FARIEB, sk) ? sk : null;
 }
 
 const adresa = (slug, w, pripona) => ZAKLAD + slug + "-" + NAHLADY_FARIEB[slug] + "-w" + w + "." + pripona;

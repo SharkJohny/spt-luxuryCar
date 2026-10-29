@@ -275,3 +275,16 @@ poistkou `window.__lcdhCaka` v `main.js` poBoote (mimo záložnej titulky sa ni�
   | SK 619 Classic | 0,0910 → 0,0001 | 0,0496 → 0,0000 |
   | CZ 2403 jedno | 0,0926 → 0,0001 | 0,0495 → 0,0000 |
   | CZ 2427 box | 0,0940 → 0,0001 | 0,0400 → 0,0001 |
+- **CZ náhľady farieb (29. 10. 2026, Michal)** — CZ dlaždice sťahovali plné fotky farieb (slug z českého textu voľby
+  `diamond-barva-kuze-…` nebol v manifeste, 0× „barva“). `tools/farby-1v-nahlady.mjs` `ALIASY_CZ`: 38 CZ slugov -> SK slug
+  tej istej fotky (CZ nahrávky = tie isté fotky s inou JPEG kompresiou; skript overí zhodné bajty alebo odchýlku RGB pri
+  96 px ≤ 6, namerané 1,1–2,2; iná farba nite 16+, iná fotka 20+). Manifest `farby-nahlady-data.js` má navyše
+  `ALIASY_FARIEB` (bundle) a `ODTLACKY_ALIASOV` (len `--check --zivy`, bundle ho nemá). `slugFarby` -> náhľady SK, `src`
+  ostáva CZ plná fotka. Druhá vrstva Lux má na CZ rovnaké slugy aj bajty (`lux-color-NN`) — alias netreba.
+  CZ okno boxov: „nit bílá“ = bajty SK „…-sitia-seda“, „nit šedá“ = SK „…-sitia-biela“ (alias podľa odtlačku, CZ vzhľad
+  bez zmeny; ktorý obchod má fotky prehodené, treba overiť v admine). Bundle +2,8 kB (brotli +0,4 kB).
+  Sieť (`scratchpad/opravy-2910/net-farby.mjs`, živá stránka, podvrhnutý build pred/po, bez spomalenia, po ustálení):
+  CZ 2403 fotky farieb 27× 1 233 kB -> 27 náhľadov 144 kB (390, DPR 3) / 36 kB (1280), všetky obrázky 1 793 -> 704 kB
+  (390) a 2 603 -> 1 407 kB (1280); CZ 2427 (okno boxov) 9× 405 kB -> 48 / 12 kB. Vizuálne: 38 dlaždíc CZ plná fotka vs
+  náhľad SK v Chrome (390 DPR 3 -> w192, 1280 DPR 1 -> w96) priemerná odchýlka RGB 3,5–4,0 (max 5,8) / 255 — ako SK
+  náhľady 25. 10. (1,6–4,3).

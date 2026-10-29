@@ -624,7 +624,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       const alt = `${parameterId}-${value}.jpg`;
       const src = `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?15`;
       // 25. 10. 2026 (rýchlosť): pod 1V dlaždica farby = zmenšený náhľad z CDN (<picture>, WebP + JPG; src ostáva plná
-      // fotka pre veľké náhľady). Farba bez náhľadu a starý vzhľad (?novy=0, CZ, iné produkty) = pôvodný <img>.
+      // fotka pre veľké náhľady; CZ cez ALIASY_FARIEB). Farba bez náhľadu a starý vzhľad (?novy=0, iné produkty) = pôvodný <img>.
       // (okno boxov má väčšie dlaždice -> iné sizes; wrap je v tej chvíli už v DOM pod .box-config .config-wrap)
       const nahlad = brana1v() ? obrazokFarby(src, alt, $(optionsWrap).closest(".box-config").length > 0) : null;
       if (nahlad) optionButton.append(nahlad);

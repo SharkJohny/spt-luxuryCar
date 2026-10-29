@@ -524,5 +524,5 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] 1) CZ texty kusu 1: „Jen za“, „Výhodněji“, „(samostatně …)“, „na výběr“, „široký výběr“, „více barev“, odkaz /odstoupeni-od-smlouvy/ (200) — segmenty.mjs zloz; kus 1 do Popisu CZ robí koordinátor
 - [x] 2) Cena kópií na CZ „1 300 – 3 300 Kč“ namiesto „50 € – 129 €“ (kus 1 skupín 598/classic/dvoj, titulka hp-vrch.cz, záloha lcdHome-markup.js); kus 1 a banner 117 CZ do adminu robí koordinátor
 - [x] 3) Skákanie tlačidla do košíka: obsah kostry stĺpca visibility:hidden, kým ho neodhalí 1V alebo .active (CLS 0,04–0,094 -> ≤ 0,0001 na 598, 601, 616, 619, 2403, 2427; 390 aj 1280)
-- [ ] 4) CZ náhľady farieb = rovnaké malé náhľady ako SK
+- [x] 4) CZ náhľady farieb = rovnaké malé náhľady ako SK (ALIASY_CZ 38 CZ slugov -> SK, overené zhodou fotky; CZ 2403 fotky farieb 1 233 -> 144 kB)
 - [ ] 5) Fotky na lupu: veľká fotka až pri otvorení lupy + zmenšené originály na výmenu v admine
