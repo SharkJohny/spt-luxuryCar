@@ -26,6 +26,8 @@
      node tools/config-obrazky.mjs --check --zivy        aj: fotky volieb na živých produktoch (register testov) a obrázky
                                                   ponúk z data.json, ktoré na úložisku sú, sú v repe (nová farba v admine?)
      node tools/config-obrazky.mjs --inventar [--vystup subor.json]   všetky odkazy na úložiská v zdrojoch, kategórie, HTTP stav
+     node tools/config-obrazky.mjs --cdn          PO NASADENÍ (gh run completed/success!): každý súbor na CDN repa = repo bajt po bajte,
+                                                  s hlavičkou Accept image/avif + image/webp aj bez nej (skôr = CDN si zapamätá 404)
 
    Fotka zmenená v admine pod tým istým menom: --check (4) hlási rozdiel; spustenie skriptu uloží novú verziu ako
    <meno>~<odtlačok>.<prípona> (starý súbor ostáva, CDN drží súbory rok) a zoznam webu ju priradí k pôvodnej ceste.
@@ -359,6 +361,24 @@ async function rezimInventar() {
   for (const z of vystup.odkazy) console.log(z.kat + "  " + z.http + "  " + z.odkaz + "  <- " + z.subory.join(", "));
 }
 
+/** Po nasadení: CDN (…/assets/img/ulozisko/…) vracia každý súbor 200 s bajtmi repa, aj pri Accept s WebP/AVIF. */
+async function rezimCdn() {
+  const ZAKLAD = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/";
+  const subory = vsetkySubory(CIEL).map((abs) => posix(relative(CIEL, abs)));
+  const zlo = [];
+  await paralelne(subory, 4, async (rel) => {
+    const lokal = sha(readFileSync(join(CIEL, ...rel.split("/"))));
+    for (const accept of ["image/avif,image/webp,*/*", null]) {
+      const r = await fetch(ZAKLAD + rel.split("/").map(encodeURIComponent).join("/"), { headers: accept ? { accept } : {} });
+      const b = Buffer.from(await r.arrayBuffer());
+      if (r.status !== 200 || sha(b) !== lokal) zlo.push(rel + " (Accept " + (accept || "predvolený") + "): " + r.status + " " + (r.headers.get("content-type") || "") + (r.status === 200 ? " — iné bajty" : ""));
+    }
+  });
+  console.log(zlo.length ? "CHYBA CDN (" + zlo.length + "):\n  " + zlo.sort().join("\n  ") : "OK CDN: " + subory.length + " súborov × 2 hlavičky Accept = repo bajt po bajte");
+  process.exit(zlo.length ? 1 : 0);
+}
+
 if (arg("--check")) await rezimCheck();
+else if (arg("--cdn")) await rezimCdn();
 else if (arg("--inventar")) await rezimInventar();
 else await rezimStiahni();
