@@ -1,14 +1,11 @@
 /**
- * kosikPripravene.js — košík: „Pripravené pre: <auto> ✓“ a hodnotenie z Google pri „Pokračovať“ (Michal 29. 10. 2026,
- * inšpirácia konkurencia: Luxus Car Mats, Diamond Car Mats „Guaranteed to fit“, Evamats/AutoWin hodnotenie pri tlačidle).
+ * kosikHodnotenie.js — košík: hodnotenie z Google pod „Pokračovať“ (Michal 29. 10. 2026, inšpirácia konkurencia:
+ * Evamats/AutoWin hodnotenie pri tlačidle).
  *
- *  - riadok pri položke a krátko v súhrne nad „Celkom za tovar“ (cart.js; auto riadku = functions/autoPamat.js autoRiadku:
- *    len auto, ktoré ide do poznámky objednávky; kamión zo súhrnu konfigurácie truckOrderSummary). Bez auta sa nevloží.
- *  - hodnotenie: LEN skutočné čísla z window.LCD_REVIEWS.place (assets/js/reviews-data.js, ten istý súbor ako widget
- *    recenzií na produktoch; prepisuje ho tools/scrape-google-reviews.mjs). Na košíku sa súbor sťahuje až PO načítaní
- *    stránky (load + nečinnosť) z tej istej adresy ako na produkte -> zákazník z produktu ho má vo vyrovnávacej pamäti.
- *    Kým dáta nie sú, miesto je rezervované (visibility:hidden), keď neprídu do 15 s, riadok sa skryje. Nie je odkaz —
- *    nič nevedie preč z košíka.
+ * LEN skutočné čísla z window.LCD_REVIEWS.place (assets/js/reviews-data.js, ten istý súbor ako widget recenzií na
+ * produktoch; prepisuje ho tools/scrape-google-reviews.mjs). Na košíku sa súbor sťahuje až PO načítaní stránky (load +
+ * nečinnosť) z tej istej adresy ako na produkte -> zákazník z produktu ho má vo vyrovnávacej pamäti. Kým dáta nie sú,
+ * miesto je rezervované (visibility:hidden), keď neprídu do 15 s, riadok sa skryje. Nie je odkaz — nič nevedie preč z košíka.
  */
 import { LCD_ZAKLAD } from "./lcdZaklad.js";
 
@@ -17,14 +14,13 @@ export const RECENZIE_WV = "10";
 export const ZDROJ_RECENZII = LCD_ZAKLAD + "js/reviews-data.js?v=" + RECENZIE_WV;
 
 const TEXTY = {
-  sk: { pre: "Pripravené pre:", hodnotenie: "Hodnotenie", z5: "z 5", recenzie: ["recenzia", "recenzie", "recenzií"], naGoogle: "na Google" },
-  cz: { pre: "Připraveno pro:", hodnotenie: "Hodnocení", z5: "z 5", recenzie: ["recenze", "recenze", "recenzí"], naGoogle: "na Google" },
+  sk: { hodnotenie: "Hodnotenie", z5: "z 5", recenzie: ["recenzia", "recenzie", "recenzií"], naGoogle: "na Google" },
+  cz: { hodnotenie: "Hodnocení", z5: "z 5", recenzie: ["recenze", "recenze", "recenzí"], naGoogle: "na Google" },
 };
 
 /** cz podľa jazyka stránky (html lang „cs“) alebo domény .cz, inak sk */
-export function trh(doc) {
-  const d = doc || document;
-  try { if (/^cs/i.test(d.documentElement.lang || "") || /\.cz$/i.test(d.location ? d.location.hostname : location.hostname)) return "cz"; } catch (e) {}
+function trh() {
+  try { if (/^cs/i.test(document.documentElement.lang || "") || /\.cz$/i.test(location.hostname)) return "cz"; } catch (e) {}
   return "sk";
 }
 
@@ -40,24 +36,6 @@ export function hodnotenie(place, t) {
   const text = n + " " + tvar(n, T.recenzie) + " " + T.naGoogle;
   // plné hviezdičky nadol podľa zobrazeného čísla (4,9 a 4,5 = 4) — nikdy viac, než hodnotenie je (kontrola 29. 10. 2026)
   return { cislo: cislo, hviezdy: Math.max(0, Math.min(5, Math.floor(r1 + 1e-9))), text: text, aria: T.hodnotenie + " " + cislo + " " + T.z5 + " – " + text };
-}
-
-/** <p class="lcd-pre"><span class="lcd-pre__n">Pripravené pre:</span> <b class="lcd-pre__a">…</b> <span class="lcd-pre__ok">✓</span></p> */
-export function riadokPre(doc, auto, t, trieda, tag) {
-  const p = doc.createElement(tag || "p");
-  p.className = "lcd-pre" + (trieda ? " " + trieda : "");
-  const n = doc.createElement("span");
-  n.className = "lcd-pre__n";
-  n.textContent = (TEXTY[t] || TEXTY.sk).pre;
-  const a = doc.createElement("b");
-  a.className = "lcd-pre__a";
-  a.textContent = auto;
-  const ok = doc.createElement("span");
-  ok.className = "lcd-pre__ok";
-  ok.setAttribute("aria-hidden", "true");
-  ok.textContent = "✓";
-  p.append(n, " ", a, " ", ok); // fajka sa nezalomí sama na nový riadok
-  return p;
 }
 
 function vyplnHodnotenie(el, data, t) {
@@ -81,7 +59,7 @@ function vyplnHodnotenie(el, data, t) {
 
 let sluby = null;
 /** window.LCD_REVIEWS (už je / skript na stránke / stiahnuť reviews-data.js) -> Promise<data|null>, najviac limit ms */
-export function nacitajRecenzie(limit) {
+function nacitajRecenzie(limit) {
   if (window.LCD_REVIEWS) return Promise.resolve(window.LCD_REVIEWS);
   if (sluby) return sluby;
   sluby = new Promise(function (hotovo) {
@@ -111,16 +89,15 @@ function jedenStlpec() {
 }
 
 /**
- * Súhrn košíka: „Pripravené pre: …“ nad cenou (auta = texty áut riadkov v poradí) a hodnotenie pri „Pokračovať“.
- * Hodnotenie ide do .next-step medzi „Späť do obchodu“ a „Pokračovať“ (PC aj telefón column-reverse -> pod „Pokračovať“).
+ * Hodnotenie do .next-step medzi „Späť do obchodu“ a „Pokračovať“ (PC aj telefón column-reverse -> pod „Pokračovať“).
  * Telefón: kým beží ponuka k setu (html[data-lcd-doplnok-caka], lcdKosikDoplnok.js), súhrn sa nemení — ponuka ho odsunie
- * nadol a vyšší súhrn by zväčšil posun (CLS prvej návštevy 0,138 -> 0,212, meranie 29. 10. 2026). Doplní sa v tej istej
- * úlohe, v ktorej ponuka skončí (MutationObserver na data-lcd-doplnok = pred vykreslením), najneskôr po 8 s.
+ * nadol a vyšší súhrn by zväčšil posun (CLS prvej návštevy). Vloží sa v tej istej úlohe, v ktorej ponuka skončí
+ * (MutationObserver na data-lcd-doplnok = pred vykreslením), najneskôr po 8 s.
  */
-export function vlozDoSuhrnu(auta) {
+export function vlozHodnotenie() {
   const H = document.documentElement;
   if (!H.hasAttribute("data-lcd-doplnok-caka") || H.hasAttribute("data-lcd-doplnok") || !jedenStlpec() || !window.MutationObserver) {
-    vlozDoSuhrnuTeraz(auta);
+    vlozHodnotenieTeraz();
     return;
   }
   let hotovo = false, casovac = 0;
@@ -130,21 +107,16 @@ export function vlozDoSuhrnu(auta) {
     hotovo = true;
     mo.disconnect();
     clearTimeout(casovac);
-    vlozDoSuhrnuTeraz(auta);
+    vlozHodnotenieTeraz();
   }
   mo.observe(H, { attributes: true, attributeFilter: ["data-lcd-doplnok"] });
   casovac = setTimeout(dokonci, 8000);
 }
 
-function vlozDoSuhrnuTeraz(auta) {
-  const box = document.querySelector("#cart-wrapper .cart-content.summary-wrapper .box") || document.querySelector(".cart-content.summary-wrapper .box");
-  if (!box) return;
-  const t = trh(document);
-  const unik = [];
-  (auta || []).forEach(function (a) { if (a && unik.indexOf(a) < 0) unik.push(a); });
-  if (unik.length && !box.querySelector(".lcd-pre")) box.insertBefore(riadokPre(document, unik.join(", "), t, "lcd-pre--suhrn"), box.firstChild);
+function vlozHodnotenieTeraz() {
   const pokr = document.getElementById("continue-order-button");
   if (!pokr || !pokr.parentNode || document.querySelector(".lcd-hodn-kosik")) return;
+  const t = trh();
   const el = document.createElement("p");
   el.className = "lcd-hodn-kosik";
   el.setAttribute("data-lcd-caka", "");

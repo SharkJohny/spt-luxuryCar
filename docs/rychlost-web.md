@@ -142,23 +142,24 @@ Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný
 - Nový prvok v stĺpci, ktorý má byť viditeľný ešte pred `.active` a nad trblietavou vrstvou, potrebuje vlastné
   `visibility: visible` (dnes taký nie je). Čísla pred/po: `docs/1v-rychlost.md` (Výsledky, 29. 10. 2026).
 
-## 9. Košík: „Pripravené pre“, rohož/box s menom auta, hodnotenie z Google (29. 10. 2026, vetva kosik-vylepsenia)
+## 9. Košík: rohož/box s menom auta, hodnotenie z Google (29. 10. 2026, vetva kosik-vylepsenia)
 
 Meranie: offline náhrada /kosik/ (zachytené stránky košíka SK set / CZ set / kamión / vzorky) + lokálny build, Chrome bez
 okna, bez vyrovnávacej pamäte, 390 aj 1280, 5 behov na scenár (skripty v scratchpade session, `kosik-vylepsenia/harness`).
-- Bundle `luxuryCar.js` +7,4 kB (+1,8 kB br), CSS +2,5 kB (+0,4 kB br).
+- Bundle `luxuryCar.js` +9,2 kB (+2,0 kB br) oproti aab2cde, CSS +1,5 kB.
 - `reviews-data.js` (61 kB, na CDN 9 kB br) sa na košíku sťahuje až po `load` + nečinnosti, z tej istej adresy ako widget
-  recenzií na produkte (`RECENZIE_WV` v `functions/kosikPripravene.js`) — zákazník z produktu ho má vo vyrovnávacej pamäti.
+  recenzií na produkte (`RECENZIE_WV` v `functions/kosikHodnotenie.js`) — zákazník z produktu ho má vo vyrovnávacej pamäti.
   +1 požiadavka; LCP bez zmeny v rámci šumu (mediány 100–164 ms pred aj po, behy 84–236 ms).
 - **Pozor na hrúbku písma:** `font-weight:700` pri Source Sans 3 na košíku stiahol nový rez `source-sans-3-700.woff2`
   (+70 kB). Košík má načítané Source Sans 3 300/400/600 a Exo 2 400/600/700/900 — iné rezy nepoužívať.
 - **CLS prvej návštevy na telefóne** (mapy ponuky ešte nie sú v localStorage): ponuka k setu sa vloží nad súhrn ~1 s po
-  načítaní a súhrn s „Pokračovať“ odsunie z obrazovky — 0,138 už pred zmenou. Vyšší súhrn (riadok auta + hodnotenie) by
-  dal 0,212, preto ich `vlozDoSuhrnu` na telefóne vloží až v tej istej úlohe ako ponuku (`html[data-lcd-doplnok-caka]`
-  -> `data-lcd-doplnok`): 0,165 (zvyšok = dlhšie názvy v ponuke a riadok auta v položke). Opakovaná návšteva 0.
-  Koreň (ponuka nad viditeľným súhrnom) ostáva — rezervovať miesto alebo vložiť ponuku z uložených máp pred
-  prvým vykreslením.
+  načítaní a súhrn s „Pokračovať“ odsunie z obrazovky — 0,138 už pred zmenou. Hodnotenie by súhrn zvýšilo (164 -> 185 px)
+  a posun zväčšilo (SK 0,168, CZ 0,163), preto ho `vlozHodnotenie` na telefóne vloží až v tej istej úlohe ako ponuku
+  (`html[data-lcd-doplnok-caka]` -> `data-lcd-doplnok`): SK 0,154, CZ 0,149 (zvyšok oproti 0,138 pravdepodobne vyššia ponuka:
+  meno auta v názve rohože a boxu, preškrtnutá cena). Opakovaná návšteva 0. Riadok „Pripravené pre“ (pri položke aj
+  v súhrne) bol 29. 10. odstránený — s ním bolo 0,165. Koreň (ponuka nad viditeľným súhrnom) ostáva — rezervovať miesto
+  alebo vložiť ponuku z uložených máp pred prvým vykreslením.
 - **CLS na PC** (cart.js formátuje položky a presúva súhrn až po data.json, teda po prvom vykreslení — už pred zmenou):
-  set 0,017 -> 0,017, kamión 0,074 -> 0,089, dva sety 0,118 -> 0,127 (vyšší riadok položky v tom istom posune). Pokus
-  vložiť riadok auta hneď pri spustení bundla nepomohol (bundle beží po prvom vykreslení, mriežka košíka sa aj tak
-  prestaví) — vrátené. Pomôže až formátovanie košíka pred prvým vykreslením (nie po data.json).
+  set 0,017 -> 0,017, kamión 0,074 -> 0,074, dva sety 0,118 -> 0,108 (riadok setu pre iné auto už nemá odrážku „Auto: …“ auta
+  z karty). S riadkom „Pripravené pre“ bolo kamión 0,089 a dva sety 0,127. Pomôže až formátovanie košíka pred prvým
+  vykreslením (nie po data.json).

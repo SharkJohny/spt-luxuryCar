@@ -1,8 +1,8 @@
 import { parseTruckOrderSummary } from "../truck-konfigurator/order-summary.mjs";
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
-import { autoRiadku, popisAuta, popisKamiona, ulozistaAuta, LCD_AUTO_ZASTUPNE, lcdAutoHodnota } from "../functions/autoPamat.js";
-import { riadokPre, trh, vlozDoSuhrnu } from "../functions/kosikPripravene.js";
+import { autoRiadku, popisAuta, ulozistaAuta, lcdAutoHodnota } from "../functions/autoPamat.js";
+import { vlozHodnotenie } from "../functions/kosikHodnotenie.js";
 
 export function initCart(texts) {
   console.log("Initializing cart with texts:", texts);
@@ -94,59 +94,16 @@ function jeKamionovyRiadok(text) {
   return /\btruck\b/i.test(t) || /kami[oó]n/i.test(t);
 }
 
-/* Zástupné texty selectov konfigurátora — presunuté do functions/autoPamat.js (používa ich aj auto pri položke). */
-export { LCD_AUTO_ZASTUPNE, lcdAutoHodnota };
-
-/* „Pripravené pre: <auto> ✓“ (Michal 29. 10. 2026): druh riadku podľa adresy produktu — autokoberce, rohož do kufra a box
-   majú auto zákazníka; kamión svoje vozidlo; vzorkovník, poukážka a iné nič (ani keď karta auto má). */
-function druhRiadku($row) {
-  const href = String($row.find("a.main-link").first().attr("href") || "");
-  if (jeKamionovyRiadok($row.text()) || /kamion/i.test(href)) return "kamion";
-  if (/vzorkovnik|poukaz/i.test(href)) return null;
-  return /autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(href) ? "auto" : null;
-}
 /**
- * Vozidlo kamióna, ktoré ide do objednávky: skupina „Vozidlo“ zo súhrnu konfigurácie (truckOrderSummary — zapíše sa tesne
- * pred pridaním do košíka; z neho je blok ŠPECIFIKÁCIA VOZIDLA aj poznámka objednávky). NIE truckVehicle: ten konfigurátor
- * prepisuje pri každej zmene výberu, takže po prezretí iného vozidla by „✓“ potvrdilo zlé (nezávislá kontrola 29. 10. 2026).
- * Bez súhrnu len skutočná hodnota v príplatku položky (je v objednávke), inak nič; dva kamióny = jeden súhrn, nevieme ku
- * ktorému patrí -> nič (ako blok špecifikácie, cart.js truckRowCount === 1).
+ * Auto položky pre odrážku „Auto: …“ v rozpise (košík aj kroky objednávky) alebo null. Len autokoberce, rohož do kufra
+ * a box (vzorkovník, poukážka nič, ani keď karta auto má) a len auto, ktoré ide do poznámky objednávky (autoPamat.js
+ * autoRiadku). sur = surový text príplatkov riadku (TYP) — čítať PRED prepisom rozpisu.
  */
-function vozidloKamiona($row, truckSummary, truckRowCount) {
-  if (truckRowCount !== 1) return null;
-  if (truckSummary) {
-    let v = null;
-    parseTruckOrderSummary(truckSummary).some(function (g) {
-      const i = g.items.find(function (x) { return /^Vozidlo$/i.test(x.label); });
-      v = i ? i.value : null;
-      return !!v;
-    });
-    return popisKamiona(v);
-  }
-  const m = /Vozidlo\s*[-–:]\s*([^,]+)/i.exec($row.find("span.main-link-surcharges").first().text());
-  return popisKamiona(m && m[1]);
-}
-/** Text auta riadku („Skoda Octavia 2021 Combi“, kamión „DAF XF 2022–2025“) alebo null — PRED úpravou rozpisu (číta príplatky). */
-function autoTextRiadku($row, truckSummary, truckRowCount) {
-  const druh = druhRiadku($row);
-  if (druh === "kamion") return vozidloKamiona($row, truckSummary, truckRowCount);
-  if (druh !== "auto") return null;
+function autoPolozky($row, sur) {
+  const href = String($row.find("a.main-link").first().attr("href") || "");
+  if (/vzorkovnik|poukaz/i.test(href) || !/autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(href)) return null;
   const u = ulozistaAuta();
-  return popisAuta(autoRiadku(u.ss, u.ls, {
-    priceId: $row.find('input[name="priceId"]').first().val() || null,
-    sur: $row.find("span.main-link-surcharges").first().text(),
-  }));
-}
-/** Košík (nie kroky objednávky): riadok „Pripravené pre“ pod názvom položky, kamión nad súhrnom konfigurácie. */
-function lcdVlozPripravene(auta) {
-  const t = trh(document);
-  auta.forEach(function (text, row) {
-    if (row.querySelector(".lcd-pre")) return;
-    const sk = row.querySelector(".lcd-truck-cart-summary, .info-wrap");
-    if (sk) { sk.parentNode.insertBefore(riadokPre(document, text, t, "lcd-pre--kamion", "div"), sk); return; }
-    const a = row.querySelector("a.main-link");
-    if (a) a.after(riadokPre(document, text, t));
-  });
+  return popisAuta(autoRiadku(u.ss, u.ls, { priceId: $row.find('input[name="priceId"]').first().val() || null, sur: sur }));
 }
 /* Položka: v košíku riadok tabuľky (tr), v rekapitulácii krokov objednávky div.cart-item v .cart-items (Michal 10. 10.
    2026: v pokladni ostávala farba vrstiev v zlatom názve veľkými písmenami, lebo closest("tr") nič nenašiel). */
@@ -165,8 +122,7 @@ function lcdVlozRozpis(zdroje, riadky) {
   const prvy = zdroje[0];
   const a = prvy.closest("a");
   const kotva = a || prvy;
-  let stary = kotva.nextElementSibling;
-  if (stary && stary.classList.contains("lcd-pre")) stary = stary.nextElementSibling; // „Pripravené pre“ ostáva pod názvom
+  const stary = kotva.nextElementSibling;
   if (stary && stary.classList.contains("lcd-rozpis")) stary.remove();
   kotva.after(lcdRozpisEl(document, riadky, "lcd-rozpis"));
   zdroje.forEach((e) => e.classList.add("lcd-rozpis-zdroj"));
@@ -225,15 +181,6 @@ function changeDescription() {
     return jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
   }).length;
 
-  // auto každej položky (pred prepisom príplatkov): košík ho ukáže v riadku „Pripravené pre“, kroky objednávky v rozpise
-  const naKosiku = !!(document.body && (document.body.classList.contains("in-kosik") || document.body.classList.contains("id--9")));
-  const auta = new Map();
-  $("tr.removeable, tr[data-micro='cartItem'], body.ordering-process .cart-items .cart-item").each(function () {
-    if (auta.has(this)) return;
-    const t = autoTextRiadku($(this), truckSummary, truckRowCount);
-    if (t) auta.set(this, t);
-  });
-
   // Fallback pre samostatne produkty BEZ surcharges (Premium/Klasik kufrove rohoze):
   // formatuj span.main-link-variant na bullety "Farba 1./2. vrstvy".
   $(LCD_POLOZKA).each(function () {
@@ -254,9 +201,8 @@ function changeDescription() {
       if (this.classList.contains("lcd-rozpis-zdroj")) return;
       const $variant = $tr.find("span.main-link-variant").first();
       const riadky = lcdRozpis({ variant: $variant.text(), priplatky: $(this).text(), cz: lcdCz() });
-      // auto riadku (autoPamat.js autoRiadku): na košíku samostatný riadok „Pripravené pre“, v krokoch objednávky „Auto: …“
-      const auto = auta.get($tr[0]);
-      if (auto && riadky.length && !naKosiku) riadky.unshift({ n: "Auto", h: auto });
+      const auto = autoPolozky($tr, $(this).text());
+      if (auto && riadky.length) riadky.unshift({ n: "Auto", h: auto });
       if (riadky.length) lcdVlozRozpis($variant.length ? [this, $variant[0]] : [this], riadky);
       return;
     }
@@ -344,12 +290,9 @@ function changeDescription() {
     // $(this).html(newText);
   });
 
-  // košík: „Pripravené pre: <auto> ✓“ pri položkách a v súhrne, hodnotenie z Google pri „Pokračovať“ (kosikPripravene.js)
-  if (naKosiku) {
-    try {
-      lcdVlozPripravene(auta);
-      vlozDoSuhrnu(Array.from(auta.values()));
-    } catch (e) { /* doplnok vzhľadu — košík musí fungovať aj bez neho */ }
+  // košík (nie kroky objednávky): hodnotenie z Google pod „Pokračovať“ (functions/kosikHodnotenie.js)
+  if (document.body && (document.body.classList.contains("in-kosik") || document.body.classList.contains("id--9"))) {
+    try { vlozHodnotenie(); } catch (e) { /* doplnok vzhľadu — košík musí fungovať aj bez neho */ }
   }
 }
 

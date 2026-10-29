@@ -55,7 +55,7 @@ t("pokazený záznam, „null“ hodnoty, chýbajúce úložisko -> nič, bez v�
   eq(M.obnovAuto(karta(null), null, KOSIK, true, 2), null);
   eq(M.ulozAutoZKarty(null, ls, 2), false);
 });
-// ---- auto pri položke košíka („Pripravené pre: …“, Michal 29. 10. 2026): záznam pri pridaní (priceId + auto karty)
+// ---- auto pri položke košíka (odrážka „Auto: …“ a ponuka „Rohož do kufra pre …“, Michal 29. 10. 2026): záznam pri pridaní (priceId + auto karty)
 const OCT = ["Skoda", "Octavia", "2021", "Combi", "Skoda Octavia 2021 Combi"];
 const PAS = ["Volkswagen", "Passat", "2019", "Combi", "Volkswagen Passat 2019 Combi"];
 const auto = (a) => ({ Brand: a[0], Model: a[1], Year: a[2], carType: a[3] });
@@ -157,11 +157,6 @@ t("popis auta: značka model rok (typ); zástupné texty a „Iné, prosím nap�
   eq(M.popisAuta({ Brand: "Ford", Model: "Focus", Year: "Iné, prosím napíšte do poznámky", carType: "Jiné, prosím napište do poznámky" }), "Ford Focus");
   eq(M.popisAuta({ Brand: "Značka", Model: "Model", Year: "Rok výroby", carType: "Typ auta" }), null);
   eq([M.popisAuta(null), M.popisAuta({ Brand: "", Model: "X5" })], [null, null]);
-});
-t("popis kamióna: bez druhu v zátvorke, roky s pomlčkou", () => {
-  eq(M.popisKamiona("DAF (TIR) XF 2022-2025"), "DAF XF 2022–2025");
-  eq(M.popisKamiona("Citroën (dodávka) Jumper 2014-2025"), "Citroën Jumper 2014–2025");
-  eq([M.popisKamiona("Vyberie sa v konfigurátore"), M.popisKamiona(""), M.popisKamiona(null)], [null, null, null]);
 });
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
 process.exit(zle ? 1 : 0);

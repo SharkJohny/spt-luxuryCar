@@ -1925,7 +1925,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   // druhá vrstva = výmena na iný produkt (dvojvrstvový set): cieľové priceId, Lux farba a mapa cieľového produktu
   const ciel = doplnok.ciel || null;
   const stary = { itemId: ctx.riadok.itemId, priceId: String(ctx.riadok.priceId), q: ctx.riadok.q };
-  // druhá vrstva = iné priceId: auto riadku prejde na nový riadok („Pripravené pre“ v košíku; zbytočný záznam neškodí)
+  // druhá vrstva = iné priceId: auto riadku prejde na nový riadok (odrážka „Auto:“ a ponuka; zbytočný záznam neškodí)
   if (ciel && ctx.auto) zapisAutoKPolozke(ulozistaAuta().ls, ciel.priceId, ctx.auto);
   const aktivne = { id: null };
   const blok = zablokujStranku(aktivne);
@@ -2188,7 +2188,7 @@ export function initKosikDoplnok(setupData) {
     }
     zachytene = rozoberRiadky(document);
     listaKosika(TEXTY[R.trh]);
-    // data-lcd-doplnok-caka = ponuka beží (súhrn košíka na telefóne s doplnením počká, functions/kosikPripravene.js)
+    // data-lcd-doplnok-caka = ponuka beží (hodnotenie v súhrne košíka na telefóne počká, functions/kosikHodnotenie.js)
     try { document.documentElement.setAttribute("data-lcd-doplnok-caka", ""); } catch (e) {}
     // data-lcd-doplnok na <html> = počet kariet ponuky po dokončení (0 = nič) — pre testy a ladenie
     const hotovo = function (n) { try { document.documentElement.setAttribute("data-lcd-doplnok", String(n)); } catch (e) {} };

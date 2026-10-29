@@ -76,7 +76,7 @@ export function initAutoPamat() {
   document.addEventListener("ShoptetCartUpdated", function () {
     if (!document.querySelector(".surcharge-list.brands.dm-selector select")) return;
     ulozAutoZKarty(u.ss, u.ls);
-    // auto k pridanej položke (priceId formulára produktu) — košík ho ukáže pri nej („Pripravené pre: …“)
+    // auto k pridanej položke (priceId formulára produktu) — odrážka „Auto:“ a ponuka k setu ho pri nej overia (autoRiadku)
     const p = document.querySelector('#product-detail-form input[name="priceId"]');
     if (p) zapisAutoPolozky(u.ss, u.ls, p.value);
   });
@@ -84,19 +84,20 @@ export function initAutoPamat() {
 
 // ------------------------------------------------------------------ auto pri položke košíka
 /*
- * „Pripravené pre: Skoda Octavia 2021 Combi ✓“ pri položke košíka (Michal 29. 10. 2026, podľa konkurencie: Luxus Car Mats,
- * Diamond Car Mats „Guaranteed to fit“). Ukazuje sa vždy auto karty (sessionStorage, po obnove z lcdAuto:v1) — TO ISTÉ
- * auto ide do poznámky objednávky (main.js toNote, „model: …“). Záznam z pridania do košíka (lcdAutoPolozky:v1:
- * priceId -> auto karty v okamihu pridania) len rozhodne, či k riadku patrí: riadok pridaný s iným autom nedostane nič
- * (podrobne pri autoRiadku). Platnosť 14 dní ako lcdAuto:v1, prázdny košík záznamy zmaže (obnovAuto).
+ * Odrážka „Auto: Skoda Octavia 2021 Combi“ v rozpise položky (cart.js) a názov ponuky k setu „Rohož do kufra pre Skoda
+ * Octavia 2021“ (lcdKosikDoplnok.js, Michal 29. 10. 2026). Ukazuje sa vždy auto karty (sessionStorage, po obnove
+ * z lcdAuto:v1) — TO ISTÉ auto ide do poznámky objednávky (main.js toNote, „model: …“). Záznam z pridania do košíka
+ * (lcdAutoPolozky:v1: priceId -> auto karty v okamihu pridania) len rozhodne, či k riadku patrí: set pridaný pre iné auto
+ * (dva sety pre dve autá, prezretie iného auta po pridaní) nedostane nič — ponuka by inak pri Octavii ponúkla „Rohož do
+ * kufra pre Passat“ (podrobne pri autoRiadku). Platnosť 14 dní ako lcdAuto:v1, prázdny košík záznamy zmaže (obnovAuto).
  */
 export const KLUC_POLOZKY = "lcdAutoPolozky:v1";
 const MAX_POLOZIEK = 30;
 const AUTO_KLUCE = ["Brand", "Model", "Year", "carType"];
 
 /* Zástupné texty selectov konfigurátora (cars.js cstm_*, „Typ auta“; configuratorEngine.js lcdPlaceholders) — nie sú
-   údaj o aute („Značka: Značka, Rok: Rok výroby“; tablet 8. 10. 2026). Používa aj cart.js. */
-export const LCD_AUTO_ZASTUPNE = ["Značka", "Model", "Rok výroby", "Typ auta", "Ročník", "Typ",
+   údaj o aute („Značka: Značka, Rok: Rok výroby“; tablet 8. 10. 2026). lcdAutoHodnota používa aj cart.js. */
+const LCD_AUTO_ZASTUPNE = ["Značka", "Model", "Rok výroby", "Typ auta", "Ročník", "Typ",
   "Prosím, vyberte značku vozidla", "Prosím,vyberte model vozidla", "Prosím,vyberte rok výroby vozidla"];
 export function lcdAutoHodnota(v) {
   if (v === null || v === undefined) return null;
@@ -151,7 +152,7 @@ const rovnakeAuto = function (a, b) { return AUTO_KLUCE.every(function (k) { ret
 /**
  * Auto riadku košíka { priceId, sur } -> { Brand, Model, Year, carType } | null.
  * LEN auto, ktoré ide do poznámky objednávky (nezávislá kontrola 29. 10. 2026: záznam z pridania mal prednosť, a keď
- * zákazník po pridaní prezrel v tej istej karte iné auto, košík potvrdil s fajkou prvé, ale výroba dostala druhé):
+ * zákazník po pridaní prezrel v tej istej karte iné auto, košík ukázal prvé, ale výroba dostala druhé):
  *  - auto karty = sessionStorage Brand/Model/Year/carType, a len keď je úplné („model“ — main.js toNote ho píše do poznámky);
  *  - nič, keď je v karte súhrn kamióna (toNote vtedy píše len kamión, „model: …“ nie);
  *  - TYP riadku („TYP - Combi“ v príplatkoch) musí sedieť s typom karty;
@@ -184,12 +185,6 @@ export function popisAuta(a, sTypom = true) {
   if (!a) return null;
   const casti = [a.Brand, a.Model, a.Year, sTypom ? a.carType : null].map(lcdAutoHodnota).filter(function (v) { return v && !INE.test(v); });
   return lcdAutoHodnota(a.Brand) && lcdAutoHodnota(a.Model) && casti.length >= 2 ? casti.join(" ") : null;
-}
-
-/** Vozidlo kamióna („DAF (TIR) XF 2022-2025“ zo súhrnu konfigurácie) -> „DAF XF 2022–2025“; zástupná hodnota konfigurátora -> null */
-export function popisKamiona(v) {
-  const t = String(v || "").replace(/\s*\([^)]*\)/g, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2").replace(/\s+/g, " ").trim();
-  return t && !/Vyberie sa v konfigurátore|Vybere se v konfigurátoru/i.test(t) ? t : null;
 }
 
 /** sessionStorage a localStorage bez výnimky (pre cart.js a ponuku k setu) */
