@@ -257,3 +257,21 @@ poistkou `window.__lcdhCaka` v `main.js` poBoote (mimo záložnej titulky sa ni�
     druhej vrstvy, boxov a rohoží na 11 produktoch (90 úloh): 87 OK + 3× štart Chrome, zopakované OK. `--stary --krok
     brana,nulova-zmena` 15 produktov: 60/60 OK. CI kontroly (`build-admin-html --check`, `vloz-lcd-css.py --check`,
     `perf-markup --check`), `kosik:test` 89 OK, `farby-1v-nahlady --check --zivy` OK.
+- **Skákanie tlačidla do košíka (29. 10. 2026, Michal: CLS 0,07–0,12 na pomalom mobile)** — `_lcd1v-cena.scss`:
+  `body:not(.lcd-1v) .col-xs-12.col-lg-6.p-info-wrapper:not(.active) > * { visibility: hidden }` (všeobecné pravidlo:
+  `docs/rychlost-web.md` §8). Zdroje posunov (PerformanceObserver `layout-shift`, `sources`): konfigurátor sa spustí až po
+  data.json (main.js `$.getJSON`); 1V presunie `.add-to-cart` + `button.btn-conversion` z prvej obrazovky (390: y 673–806,
+  1280: y 115–164) pod kroky (y ~2 070) = 0,040–0,094; skôr (3,3–5,9 s) doplnok prepojených vzorov vloží riadok nad
+  `.p-final-price-wrapper` (+19 až +103 px) = 0,003–0,022. Všetko pod nepriehľadnou trblietavou vrstvou kostry, ktorú
+  zákazník nevidí. Obsah kostry sa ukáže s `body.lcd-1v` (prvky už na novom mieste) alebo s `.active` (starý vzhľad).
+  Meranie `scratchpad/opravy-2910/cls-meranie.mjs` (živé stránky, podvrhnutý lokálny build pred/po, CPU 4×, Slow 4G
+  562,5 ms / 1,44 Mbit/s, bez cache, 2 behy, CLS = najväčšie okno relácie ako web-vitals; Luxia a merače blokované):
+
+  | produkt | 390 pred → po | 1280 pred → po |
+  |---|---|---|
+  | SK 598 jedno | 0,0496 → 0,0001 | 0,0533 → 0,0000 |
+  | SK 601 dvoj | 0,0496 → 0,0001 | 0,0533 → 0,0000 |
+  | SK 616 box | 0,0910 → 0,0001 | 0,0405 → 0,0000 |
+  | SK 619 Classic | 0,0910 → 0,0001 | 0,0496 → 0,0000 |
+  | CZ 2403 jedno | 0,0926 → 0,0001 | 0,0495 → 0,0000 |
+  | CZ 2427 box | 0,0940 → 0,0001 | 0,0400 → 0,0001 |

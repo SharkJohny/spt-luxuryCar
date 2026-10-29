@@ -54,6 +54,16 @@ body.lcd-1v #product-detail-form .p-info-wrapper:not(.active) > .benefitBanner__
    (cena.js: body[data-lcd1v-obsah-caka], najviac 15 s), je skrytý; potom platí bod 8 ako doteraz (bez nového FAQ sa
    starý ukáže). */
 body.lcd-1v[data-lcd1v-obsah-caka] #product-detail-form .p-info-wrapper > .faq.container { display: none; }
+/* Skákanie tlačidla do košíka (Michal 29. 10. 2026, CLS 0,05–0,09 na pomalom telefóne aj PC, všetky produkty 1V).
+   Kým stĺpec nemá .active, prekrýva ho nepriehľadná trblietavá vrstva ::before (z-index 10, _productPage.scss) — jeho
+   obsah zákazník nevidí, ale Chrome ráta jeho posuny do CLS. Konfigurátor sa spustí až po stiahnutí tabuľky áut
+   (main.js $.getJSON data.json): 1V presunie tlačidlo košíka z prvej obrazovky (390 px: y 673–806, 1280: y 115–164) pod
+   kroky (y ~2 070) a doplnok prepojených vzorov ešte predtým vloží riadok nad cenu (+19 až +103 px). Obsah kostry je
+   preto visibility: hidden — skrytý prvok sa do posunov nepočíta, ani keď sa v tom istom snímku pohne a ukáže (pokus
+   29. 10.: hidden->visible + posun = 0, viditeľný posun = 0,031). Ukáže sa pri spustení 1V (body.lcd-1v, prvky už stoja
+   na novom mieste) alebo s .active (starý vzhľad, ?novy=0, iné produkty) — vtedy, keď ho kostra aj tak odhaľuje.
+   Trblietavá vrstva a jej zmiznutie sa nemenia, vzhľad pred aj po načítaní je rovnaký. */
+body:not(.lcd-1v) .col-xs-12.col-lg-6.p-info-wrapper:not(.active) > * { visibility: hidden; }
 
 /* ---------- hlavička: štítok, názov, hodnotenie, krátky popis ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-detail-inner-header { margin: 0; padding: 0; }

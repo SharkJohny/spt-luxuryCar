@@ -113,3 +113,13 @@ Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný
   odozva 16 ťuknutí 3,32 → 2,57 s. Opravu robí session Shoptet úpravy (spoločné CSS). Nástroje v scratchpade session
   kamióny: `layout-exp.mjs <variant>`, `odozva-exp.mjs 6 <variant>`, `layout-tuk3.mjs` (dôvody zneplatnenia), `css-bez.mjs`,
   `css-blog.mjs`, `css-strazca*.mjs` (varianty CSS v `lokal-<variant>/`).
+
+## 8. Kostra stĺpca produktu a posuny rozloženia (CLS, 29. 10. 2026)
+- `.col-xs-12.col-lg-6.p-info-wrapper:not(.active)` je kostra (výška 2 000 px, `overflow: hidden`, nepriehľadná trblietavá
+  vrstva `::before` so `z-index: 10`, `_productPage.scss`); `.active` pridá `productPage.js` 1 s po `initProduct`
+  (data.json), kamióny React `mount.js`. Obsah pod vrstvou zákazník nevidí, ale Chrome jeho posuny ráta do CLS.
+- Preto je obsah kostry `visibility: hidden` (`_lcd1v-cena.scss`, blok LCD-1V-CENA): ukáže sa s `body.lcd-1v` (1V) alebo
+  s `.active`. Skrytý prvok (aj `opacity: 0`) sa do posunov nepočíta, ani keď sa v tom istom snímku pohne a ukáže (pokus
+  29. 10. 2026 v Chrome: skrytý + posun = 0, hidden -> visible + posun naraz = 0, viditeľný posun = 0,031).
+- Nový prvok v stĺpci, ktorý má byť viditeľný ešte pred `.active` a nad trblietavou vrstvou, potrebuje vlastné
+  `visibility: visible` (dnes taký nie je). Čísla pred/po: `docs/1v-rychlost.md` (Výsledky, 29. 10. 2026).
