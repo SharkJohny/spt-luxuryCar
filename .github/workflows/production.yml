@@ -45,11 +45,13 @@ jobs:
           yarn esbuild assets/css/luxuryCar.css --minify --target=chrome80,firefox78,safari13 --outfile=assets/css/luxuryCar.min.css --log-level=error
           echo "{\"v\":\"${{ steps.version.outputs.sha }}\"}" > assets/js/version.json
 
-      # Recenzie Google (29. 10. 2026): dáta aj na spoločnú adresu assets/data/reviews-data.js, ktorú číta main.js
-      # (googleReviews, ?h= po 6 h) — nové recenzie idú na web bez prepnutia verzie v admine. Len z main a len keď
-      # sú novšie než súbor na CDN (tools/reviews-spolocne.mjs; nikdy nezhodí build).
+      # Recenzie Google (29. 10. 2026): dáta aj na spoločnú adresu assets/data/reviews-data.js (nahrá ju SFTP nižšie
+      # spolu s assets/), ktorú číta web (functions/lcdRecenzieData.js, ?h= po 6 h) — nové recenzie idú na web bez
+      # prepnutia verzie v admine. Len z main a len keď sú novšie než súbor na CDN (tools/reviews-spolocne.mjs).
+      # continue-on-error: ani pád skriptu nezastaví nasadenie (bez kópie ostane na CDN posledný dobrý súbor).
       - name: ⭐ Recenzie na spoločnú adresu
         if: github.ref == 'refs/heads/main'
+        continue-on-error: true
         run: node tools/reviews-spolocne.mjs
 
       # Verzia do vlastného priečinka (Michal 6. 10. 2026): push NEMENÍ živý web.
