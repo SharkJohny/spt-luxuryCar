@@ -141,3 +141,14 @@ Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný
   29. 10. 2026 v Chrome: skrytý + posun = 0, hidden -> visible + posun naraz = 0, viditeľný posun = 0,031).
 - Nový prvok v stĺpci, ktorý má byť viditeľný ešte pred `.active` a nad trblietavou vrstvou, potrebuje vlastné
   `visibility: visible` (dnes taký nie je). Čísla pred/po: `docs/1v-rychlost.md` (Výsledky, 29. 10. 2026).
+
+## 9. Košík: „Pripravené pre“, rohož/box s menom auta, hodnotenie z Google (29. 10. 2026, vetva kosik-vylepsenia)
+
+Meranie: offline náhrada /kosik/ (zachytené stránky košíka SK set / CZ set / kamión / vzorky) + lokálny build, Chrome bez
+okna, bez vyrovnávacej pamäte, 390 aj 1280, 5 behov na scenár (skripty v scratchpade session, `kosik-vylepsenia/harness`).
+- Bundle `luxuryCar.js` +7,4 kB (+1,8 kB br), CSS +2,5 kB (+0,4 kB br).
+- `reviews-data.js` (61 kB, na CDN 9 kB br) sa na košíku sťahuje až po `load` + nečinnosti, z tej istej adresy ako widget
+  recenzií na produkte (`RECENZIE_WV` v `functions/kosikPripravene.js`) — zákazník z produktu ho má vo vyrovnávacej pamäti.
+  +1 požiadavka; LCP bez zmeny v rámci šumu (mediány 100–164 ms pred aj po, behy 84–236 ms).
+- **Pozor na hrúbku písma:** `font-weight:700` pri Source Sans 3 na košíku stiahol nový rez `source-sans-3-700.woff2`
+  (+70 kB). Košík má načítané Source Sans 3 300/400/600 a Exo 2 400/600/700/900 — iné rezy nepoužívať.

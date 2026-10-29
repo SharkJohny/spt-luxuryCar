@@ -14076,19 +14076,20 @@ html.lcd-kosik-bez-bubliny body.in-kosik iframe[title="Luxia chat"]{visibility:h
    „Pripravené pre: <auto> ✓“ a hodnotenie z Google (Michal 29. 10. 2026; cart.js + functions/kosikPripravene.js):
    riadok pod názvom položky (kamión nad súhrnom konfigurácie), krátko v súhrne nad cenou; hodnotenie v .next-step medzi
    „Späť do obchodu“ a „Pokračovať“ (column-reverse -> pod „Pokračovať“). Zelená = potvrdenie, nie tlačidlo.
+   Hrubé písmo len 600: Source Sans 3 700 košík inak nesťahuje (+70 kB písma, meranie 29. 10.).
    ===================================================================== */
 body.in-kosik #cart-wrapper .lcd-pre{display:block;box-sizing:border-box;width:fit-content;max-width:100%;
   margin:10px 0 2px;padding:6px 12px 6px 10px;border:1px solid #cfe3d1;border-radius:10px;background:#f1f8f2;
   color:#14110c;font:400 16px/1.35 var(--k-body);letter-spacing:0;text-transform:none;text-align:left}
 body.in-kosik #cart-wrapper .lcd-pre__n{color:#2a6430;font-weight:600}
-body.in-kosik #cart-wrapper .lcd-pre__a{color:#14110c;font-weight:700}
-body.in-kosik #cart-wrapper .lcd-pre__ok{color:#2e7d32;font-weight:700}
+body.in-kosik #cart-wrapper .lcd-pre__a{color:#14110c;font-weight:600}
+body.in-kosik #cart-wrapper .lcd-pre__ok{color:#2e7d32;font-weight:600}
 body.in-kosik #cart-wrapper .lcd-pre--suhrn{width:auto;margin:0 0 14px}
 @media (max-width:767px){body.in-kosik #cart-wrapper .lcd-pre--suhrn{margin:0 10px 14px}}
 body.in-kosik #cart-wrapper .lcd-pre--kamion{margin:8px 0 12px}
 body.in-kosik #cart-wrapper .lcd-hodn-kosik{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 6px;margin:0;
   color:#5f574a;font:400 15px/1.4 var(--k-body);letter-spacing:0;text-transform:none;text-align:center}
-body.in-kosik #cart-wrapper .lcd-hodn-kosik b{color:#14110c;font-weight:700}
+body.in-kosik #cart-wrapper .lcd-hodn-kosik b{color:#14110c;font-weight:600}
 body.in-kosik #cart-wrapper .lcd-hodn-kosik__st{color:#a8821f;letter-spacing:.08em}
 body.in-kosik #cart-wrapper .lcd-hodn-kosik[data-lcd-caka]{visibility:hidden}
 body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
