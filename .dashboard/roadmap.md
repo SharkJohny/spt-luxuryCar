@@ -540,3 +540,12 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Poznámka objednávky nesie len jedno auto (posledné vybrané) — pri dvoch setoch pre dve autá doplniť po dohode s Jánom (formát číta jeho export); potom môže košík ukázať auto pri každom riadku aj ponuka s menom auta pri každom sete (záznamy lcdAutoPolozky:v1 už sú)
 - [ ] main.js toNote: keď je v karte truckOrderSummary (aj starý), „model: …“ osobného auta do poznámky nejde — zmiešaný košík alebo kamión pridaný skôr v tej istej karte; košík vtedy pri sete „Auto: …“ ani meno auta v ponuke neukáže (spoločný kód, po dohode s Jánom)
 - [ ] reviews-data.js je z 23. 5. 2026 (89 recenzií, 5,0) — znova stiahnuť tools/scrape-google-reviews.mjs a zvýšiť RECENZIE_WV
+
+## Obrázky z úložísk webov do CDN repa (koordinátor 29. 10. 2026, vetva obrazky-cdn)
+- [x] Inventár odkazov na úložiská SK/CZ v zdrojoch (tools/config-obrazky.mjs --inventar): (a) statické obrázky kódu, (b) fotky Shoptetu /user/shop/, logá, (c) data.json, (d) médiá FAQ v admin HTML, (e) mŕtve 404
+- [x] 188 súborov (7,6 MB) bajt po bajte v assets/img/ulozisko/<web>/ (relatívne odkazy, SK 62 + CZ 62) a spolocne/ (natvrdo, 64); functions/ulozisko.js + generovaný ulozisko-data.js
+- [x] creatButtons, košík (Lux, farby boxov), productPage (vzory, volant, ponuky kufra/boxov), menu (vzorky), swatch-data, CSS ikony hlavičky a šípka titulky bez úložiska
+- [x] Testy: config-obrazky --check (aj bajt po bajte s úložiskom), test-ulozisko-siet (0 požiadaviek na …/assets/config/ SK aj CZ), kosik:test
+- [ ] Koordinátor: push do main (Vydanie), počkať na gh run success, overiť CDN img/ulozisko/ s Accept image/avif,image/webp,*/* aj bez, potom prepnutie sha SK aj CZ
+- [ ] Nová farba/fotka v admine: na web sa dostane až po node tools/config-obrazky.mjs + push + prepnutie (dovtedy ide z úložiska ako záloha; --check --zivy ju nájde)
+- [ ] Session kamióny: kamion/data.js IMG_BASE a truck/build-truck-images.mjs (starý React, lcd-truck.js 196 odkazov na CZ úložisko) ostávajú — rozhodnúť u nich
