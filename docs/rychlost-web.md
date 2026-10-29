@@ -64,6 +64,21 @@ Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný
   `konfigurator1v/kamion/obrazky.js`. Používa ho nový konfigurátor (`kamion/data.js`) aj React (`truck/build-truck-images.mjs`).
   `--check` = zoznam sedí so súbormi. Existujúci obrázok sa nikdy neprepisuje (assets/img je spoločné pre všetky verzie).
 
+- **Lupa (fotky /orig/) sa sťahuje bez kliknutia (29. 10. 2026, Michal)** — nie je to náš kód: Shoptet `main-3g.js`
+  (`$(document).ready` -> `$(".cloud-zoom").CloudZoom()`) pri štarte urobí `new Image().src = a.p-main-image[data-href]`
+  (`/user/shop/orig/<fotka>`) na KAŽDOM produkte, aj na telefóne (lupa sa tam neotvára, `hover: none`), a znova pri
+  každom prepnutí fotky (data-href = big -> orig + nový CloudZoom). Dôkaz (SK 619, 390 px): bez nášho `luxuryCar.js`
+  sa orig stiahne aj tak (853 kB za 0,5 s, iniciátor parser riadok 2037), bez `main-3g.js` sa nestiahne. Náš kód nemá
+  `data-href` / `/orig/` / CloudZoom -> v bundli bez zmeny.
+  CDN posiela orig ako WebP (~ kvalita 90): hlavná fotka 0,85–2,16 MB na 11 zo 14 SK produktov (4 000 px JPEG
+  330–740 kB alebo 1 500 px JPEG 1,5 MB; 598 130 kB, 616 275 kB, 637 448 kB); CZ rovnako. Okno lupy (`position: inside`) = hlavná fotka (390: 360 px, 1280: 539 px), orig sa v ňom ukazuje 1 : 1.
+  Zmenšené originály na výmenu v admine (max. strana 2 000 px = 3,7× pri 1280, progresívny JPEG bez EXIF):
+  `scratchpad/opravy-2910/fotky-nove/` + `tabulka.md` / `tabulka.csv` (záloha originálov `fotky-zaloha/`). 374 fotiek
+  (229 rôznych; SK aj CZ majú vlastné nahrávky): vymeniť 201, na zváženie 74 (zmenšené, SSIM pri 1 024 px ≥ 0,98, pri
+  2 000 px 0,91–0,98 — zrno), bez zmeny 99. WebP z CDN (odhad sharp q90; skutočné CDN = odhad × 0,95–1,13 na 598/601/613/619/628): hlavné fotky 34,0 -> 17,9 MB
+  (28 produktov SK+CZ; 619 899 -> 480 kB, 628 2 171 -> 889 kB), všetky 401 -> 232 MB. Hlavné fotky 601/607/2406/2412
+  (1 500 px, zrnitý JPEG 1,5 MB) ostávajú — pri tých pomôže len zastaviť prednačítanie lupy (rozhodnutie Michala).
+  Nástroje: `scratchpad/opravy-2910/fotky-stiahni.mjs`, `fotky-zmensi.mjs <max>`, `fotky-tabulka.mjs`, `lupa-zdroj.mjs`.
 ## 4. Meranie
 - Lighthouse A/B: `Desktop/LCD/web/perf-nastroje/ab-harness/ab.mjs` (simulate: 150 ms RTT, 1,6 Mbit/s, CPU 4×) s B cez
   `--b-dir <priečinok s assets/v/<živé sha>/js|css/…>`, vlastná `--cache` a `--out`.
