@@ -155,6 +155,10 @@ okna, bez vyrovnávacej pamäte, 390 aj 1280, 5 behov na scenár (skripty v scra
 - **CLS prvej návštevy na telefóne** (mapy ponuky ešte nie sú v localStorage): ponuka k setu sa vloží nad súhrn ~1 s po
   načítaní a súhrn s „Pokračovať“ odsunie z obrazovky — 0,138 už pred zmenou. Vyšší súhrn (riadok auta + hodnotenie) by
   dal 0,212, preto ich `vlozDoSuhrnu` na telefóne vloží až v tej istej úlohe ako ponuku (`html[data-lcd-doplnok-caka]`
-  -> `data-lcd-doplnok`): 0,165 (zvyšok = dlhšie názvy v ponuke a riadok auta v položke). Opakovaná návšteva 0, PC 0,017
-  pred aj po. Koreň (ponuka nad viditeľným súhrnom) ostáva — rezervovať miesto alebo vložiť ponuku z uložených máp pred
+  -> `data-lcd-doplnok`): 0,165 (zvyšok = dlhšie názvy v ponuke a riadok auta v položke). Opakovaná návšteva 0.
+  Koreň (ponuka nad viditeľným súhrnom) ostáva — rezervovať miesto alebo vložiť ponuku z uložených máp pred
   prvým vykreslením.
+- **CLS na PC** (cart.js formátuje položky a presúva súhrn až po data.json, teda po prvom vykreslení — už pred zmenou):
+  set 0,017 -> 0,017, kamión 0,074 -> 0,089, dva sety 0,118 -> 0,127 (vyšší riadok položky v tom istom posune). Pokus
+  vložiť riadok auta hneď pri spustení bundla nepomohol (bundle beží po prvom vykreslení, mriežka košíka sa aj tak
+  prestaví) — vrátené. Pomôže až formátovanie košíka pred prvým vykreslením (nie po data.json).
