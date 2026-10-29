@@ -270,6 +270,13 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   // PC (od 1025 px) beží na celom webe plynulé rolovanie Lenis (lcdHome.js) a koliesko myši posielalo celej stránke —
   // okno sa nedalo rolovať a „Potvrďte výber boxov“ ostalo pod okrajom (Michal 22. 10. 2026). Okno roluje samo.
   atribut(vyber, "data-lenis-prevent", "");
+  // iPhone / iPad (všetky prehliadače na iOS sú Safari WebKit; iPadOS sa hlási ako Mac s dotykom): CSS drží „Potvrďte
+  // výber boxov“ nad pásom zbalenej spodnej lišty Safari (_lcd1v-kufor-boxy.scss, .lcd1v-bx--ios). Príčina „treba ťuknúť
+  // 2×“ (Michal 26. a 29. 10. 2026): zákazník je pri kroku 7 dole na dlhej stránke, Safari má spodnú lištu zbalenú a pás
+  // pri spodku obrazovky patrí jej — prvé ťuknutie do tlačidla (stred 48 px nad spodkom) stránka vôbec nedostala, len
+  // rozbalilo lištu; okno sa s lištou posunulo hore a až druhé ťuknutie trafilo tlačidlo. Test: okno-jeden-tuk.
+  const uaIos = navigator.userAgent || "";
+  if (/\biP(hone|ad|od)\b/.test(uaIos) || (/\bMacintosh\b/.test(uaIos) && navigator.maxTouchPoints > 1)) trieda(vyber, "lcd1v-bx--ios");
 
   const idF = idParam("farbaBoxov");
   const wrapFarby = vyber.querySelector(".parameter-wrap.parameter-" + idF);
@@ -601,10 +608,10 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     naplanuj();
   }
   okBtn.addEventListener("click", potvrd);
-  // iPhone: Safari po ťuknutí niekedy nepošle click (dobeh / odskok rolovania okna boxov) — „treba ťuknúť 2×“ (Michal
-  // 26. 10. 2026, aj so sticky pätou). Krátke ťuknutie bez posunu prsta potvrdí priamo na touchend; preventDefault
-  // zruší syntetický click (žiadne dvojité potvrdenie ani „duch“ na prvku pod zavretým oknom). Myš, klávesnica a čítačky
-  // obrazovky idú cez click ako doteraz.
+  // Krátke ťuknutie bez posunu prsta potvrdí priamo na touchend (6197fc5, 26. 10. 2026: Safari po ťuknutí počas dobehu
+  // rolovania okna niekedy nepošle click); preventDefault zruší syntetický click (žiadne dvojité potvrdenie ani „duch“ na
+  // prvku pod zavretým oknom). Myš, klávesnica a čítačky obrazovky idú cez click ako doteraz. Samotné „treba ťuknúť 2×“
+  // na iPhone nebolo v stránke (ťuknutie sem neprišlo) — zbalená lišta Safari, pozri lcd1v-bx--ios vyššie.
   let dotyk = null;
   okBtn.addEventListener("touchstart", function (e) {
     const t = e.touches && e.touches[0];

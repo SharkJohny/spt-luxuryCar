@@ -16761,6 +16761,13 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata .lcd1v-bx__ok {
     margin: 8px -18px 0;
     padding: 12px 18px calc(20px + env(safe-area-inset-bottom, 0px));
   }
+  /* iPhone (trieda z kufor-boxy.js): pri zbalenej spodnej lište Safari patrí pás pri spodku obrazovky lište — ťuknutie
+     doň stránka nedostane, len sa rozbalí lišta (Michal 29. 10. 2026: „musí dvakrát kliknúť na to zelené tlačidlo“).
+     Tlačidlo ostane tam, kde je pri rozbalenej lište: vyššie o 100dvh − 100svh (o toľko zbalená lišta zväčšila výrez;
+     rozbalená = 0, nič sa nemení). iOS bez dvh/svh (pred 15.4) nechá riadok vyššie. */
+  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config.lcd1v-bx--ios .lcd1v-bx__pata {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + 100dvh - 100svh);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   body.lcd-1v .upsale-Banner.lcd1v-kb .box-config,

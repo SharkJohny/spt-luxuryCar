@@ -220,8 +220,119 @@ async function vyplnOkno(t, { pocet, farba = 0, velkost = "S", velkost2 }) {
   }
 }
 
+// ------------------------------------------------------------------ jedno ťuknutie na „Potvrďte výber boxov“
+// Michal 29. 10. 2026 (iPhone, Safari, SK naživo e21be04): „musí dvakrát kliknúť na to zelené tlačidlo v tom pop-up okne“.
+// Chromium aj WebKit (Playwright, profil iPhone) potvrdia JEDNÝM ťuknutím — stránka ťuknutie, ktoré dostane, spracuje
+// hneď (touchend -> živé „potvrdiť“ -> okno zavreté). Na iPhone prvé ťuknutie stránka nedostane: Safari má po rolovaní
+// dlhej stránky spodnú lištu ZBALENÚ a pás pri spodnom okraji obrazovky patrí jej — ťuknutie tam lištu len rozbalí
+// (okno boxov sa s ňou posunie hore), až druhé trafí tlačidlo. Model pre test: rozdiel malého a veľkého výrezu
+// (100lvh − 100svh = výška lišty; CDP Emulation.setSmallViewportHeightDifferenceOverride) a pás tej výšky pri spodku
+// patrí „Safari“ (vrstva testu, ktorá ťuknutie zhltne a zmizne = lišta sa rozbalila). Bez modelu (PC) obyčajný klik.
+const OK_BTN = `${OKNO} .lcd1v-bx__ok`;
+/** Výška rozbalenej spodnej lišty Safari na iPhone (svh vs lvh, približne; iPhone 13–17 na výšku 80 ± 5 px). */
+export const SAFARI_LISTA = 80;
+
+async function safariListaZbalena(t, px) {
+  if (!px || !t.mobil || !t.k || !t.k.tuk) return false;
+  await t.k.posli("Emulation.setSmallViewportHeightDifferenceOverride", { difference: px });
+  await t.ev(`(function (px) {
+    var e = document.getElementById("lcd-test-safari-lista"); if (e) e.remove();
+    e = document.createElement("div");
+    e.id = "lcd-test-safari-lista";
+    e.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:" + px + "px;z-index:2147483647;background:rgba(30,30,30,.14);touch-action:none";
+    var zhltni = function (ev) { if (ev.cancelable) ev.preventDefault(); ev.stopPropagation(); };
+    ["touchstart", "touchmove", "pointerdown", "pointerup", "mousedown", "mouseup", "click"].forEach(function (ty) { e.addEventListener(ty, zhltni, { passive: false }); });
+    e.addEventListener("touchend", function (ev) { zhltni(ev); window.__lcdTestSafari = (window.__lcdTestSafari || 0) + 1; e.remove(); }, { passive: false });
+    window.__lcdTestSafari = 0;
+    document.documentElement.appendChild(e);
+    return true;
+  })(${px})`);
+  await pauza(200); // prepočet výrezu (svh) a CSS
+  return true;
+}
+async function safariListaRozbalena(t) {
+  if (!t.k || !t.k.tuk || !t.mobil) return;
+  await t.ev(`(function () { var e = document.getElementById("lcd-test-safari-lista"); if (e) e.remove(); return 1; })()`);
+  await t.k.posli("Emulation.setSmallViewportHeightDifferenceOverride", { difference: 0 });
+  await pauza(150);
+}
+/** Ťuknutie (PC klik) do stredu „Potvrďte výber boxov“ tak, ako mieri zákazník — bez kontroly, čo tam leží. */
+async function tukniStredPotvrd(t) {
+  const r = await t.ev(`(function () {
+    var b = document.querySelector(${JSON.stringify(OK_BTN)}); if (!b) return null;
+    var q = b.getBoundingClientRect();
+    return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2), odSpodku: Math.round(innerHeight - (q.top + q.height / 2)),
+      vidno: q.width > 0 && q.height > 0 && q.top >= 0 && q.bottom <= innerHeight + 1 };
+  })()`);
+  if (!r || !r.vidno) throw new Error("„Potvrďte výber boxov“ nie je celé na obrazovke: " + JSON.stringify(r));
+  if (t.mobil && t.k && t.k.tuk) await t.k.tuk(r.x, r.y); else await t.k.klik(r.x, r.y);
+  return r;
+}
+async function oknoZavrete(t) {
+  return t.ev(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`);
+}
+/** Stav po potvrdení: súhrn kroku boxov, označená karta, chybové rámy v okne, viditeľnosť okna. */
+async function stavPoPotvrdeni(t) {
+  return t.ev(`(function () {
+    var o = document.querySelector(${JSON.stringify(OKNO)}), k = document.querySelector('${KB("boxy")} .lcd1v-kb__karta[aria-pressed="true"]');
+    return { vyber: document.querySelector("${KB("boxy")}").getAttribute("data-lcd1v-vyber"), karta: k ? Number(k.getAttribute("data-boxy")) : null,
+      chyby: Array.prototype.map.call(o.querySelectorAll(".lcd-needs-fill, .selection-required"), function (e) { return e.className.replace(/\\s+/g, " ").slice(0, 60); }),
+      ariaHidden: o.getAttribute("aria-hidden"), viditelne: getComputedStyle(o).visibility === "visible" && getComputedStyle(o).opacity !== "0" };
+  })()`);
+}
+
 export const novy = {
   meno: "novy",
+
+  /**
+   * Okno boxov a JEDNO ťuknutie na „Potvrďte výber boxov“ (telefón: model zbalenej lišty Safari, lista px; PC klik).
+   * pocet 1|2 = klik na kartu počtu (nový výber alebo úprava toho istého počtu), farba = index vzorky (null = nemeniť),
+   * velkosti = [[kluc, "S".."XL"], …] (null = podľa pocet/velkost/velkost2), hned = ťuknúť hneď po poslednej voľbe
+   * (bez čakania na formulár: zmena veľkosti tesne pred ťuknutím).
+   * -> { zavrete po 1. ťuknutí, zhltnute (ťuknutia, ktoré vzala lišta), druhe (zavrelo až 2. ťuknutie), tlacidlo
+   *      { odSpodku: stred tlačidla nad spodkom výrezu px }, stav, hodnoty }
+   */
+  async jedenTuk(t, { pocet = 2, farba = 0, velkost = "M", velkost2, velkosti = null, hned = false, lista = SAFARI_LISTA } = {}) {
+    const karta = KARTA_BOXOV(pocet);
+    await otvorKrokNovy(t, "boxy", karta);
+    await t.klikni(karta, { popis: "boxy " + pocet });
+    await t.cakaj(`(function () { var e = document.querySelector(${JSON.stringify(OKNO)}); return !!(e && e.closest(".upsale-Banner").classList.contains("showConf") && getComputedStyle(e).visibility === "visible" && getComputedStyle(e).opacity === "1"); })()`, { popis: "okno boxov" });
+    await pauza(300);
+    const model = await safariListaZbalena(t, lista); // zákazník je pri kroku 7 dole na stránke: lišta Safari zbalená
+    try {
+      if (farba != null) {
+        const idF = await t.idParametra("farbaBoxov");
+        await t.klikni(`${OKNO} .parameter-wrap.parameter-${idF} .option-button`, { index: farba, popis: "farba boxov" });
+        await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
+      }
+      const zoznam = velkosti || (pocet === 2 ? [["box1", velkost], ["box2", velkost2 || velkost]] : [["boxSolo", velkost]]);
+      for (let i = 0; i < zoznam.length; i++) {
+        const [kluc, v] = zoznam[i];
+        const id = await t.idParametra(kluc);
+        const val = await t.moznost(kluc, vzorVelkosti(v));
+        const posledna = i === zoznam.length - 1;
+        await t.klikni(`${OKNO} .option-button[data-variant="${id}"][data-value="${val}"]`, { popis: kluc + " " + v, pockaj: hned && posledna ? 0 : 300 });
+        if (!(hned && posledna)) await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: kluc + " vo formulári" });
+      }
+      if (!hned) await pauza(500);
+      const tlacidlo = await tukniStredPotvrd(t);
+      let zavrete = false;
+      for (let i = 0; i < 12 && !zavrete; i++) { await pauza(150); zavrete = await oknoZavrete(t); }
+      const zhltnute = model ? await t.ev(`window.__lcdTestSafari || 0`) : 0;
+      if (model) await safariListaRozbalena(t); // po ťuknutí do lišty je lišta rozbalená
+      let druhe = false;
+      if (!zavrete) {
+        // ako zákazník: ťukne ešte raz (len pre výpis — scenár zlyhá aj tak)
+        await pauza(300);
+        await tukniStredPotvrd(t);
+        for (let i = 0; i < 12 && !druhe; i++) { await pauza(150); druhe = await oknoZavrete(t); }
+      }
+      await pauza(400);
+      return { zavrete, zhltnute, druhe, tlacidlo, model, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
+    } finally {
+      if (model) await safariListaRozbalena(t).catch(() => {});
+    }
+  },
 
   /** Nový vzhľad: kroky 5 a 6 sú viditeľné od začiatku (nevybrané = Nechcem, do košíka „nič“). */
   skryteNaZaciatku: false,

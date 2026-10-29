@@ -257,6 +257,49 @@ const SCENARE = {
     },
   },
 
+  /**
+   * „Potvrďte výber boxov“ potvrdí JEDNÝM ťuknutím (Michal 29. 10. 2026, iPhone: „musí dvakrát kliknúť na to zelené
+   * tlačidlo v tom pop-up okne“). Telefón: model zbalenej spodnej lišty Safari (ovládač jedenTuk — pás lišty pri spodku
+   * ťuknutie zhltne). (1) 2 boxy, farba, M + M (ako na Michalovej snímke) -> 1 ťuknutie; (2) úprava: znova okno, 2. box
+   * L a ťuknutie hneď po voľbe; (3) 1 box (farba sa prenesie) XL -> 1 ťuknutie. Po každom: okno zavreté, súhrn kroku
+   * a karta sedia, žiadny červený rám; nakoniec do košíka (POST: farba boxov + samostatný box XL, bez 1./2. boxu).
+   */
+  "okno-jeden-tuk": {
+    typy: ["jedno", "dvoj"],
+    fn: async (s, a, pom, ovl, j) => {
+      const sk = preskocBez(a); if (sk) return sk;
+      if (!ovl.kuforBoxy.jedenTuk) return { preskoc: "len nový vzhľad (ovládač novy)" };
+      const t = s.t, kb = ovl.kuforBoxy;
+      await j.otvor(s, a.url, { novy: true });
+      const z = await j.zaklad(s, ovl, { rozlozenie: 0 });
+      const kroky = [];
+      const over1 = (meno, r, vzor, pocet) => {
+        const kde = `${meno} (${t.sirka} px${r.model ? ", lišta Safari zbalená" : ""}, stred tlačidla ${r.tlacidlo.odSpodku} px nad spodkom)`;
+        j.over(r.zavrete, `${kde}: okno ostalo otvorené po 1. ťuknutí` + (r.zhltnute ? ` — ťuknutie vzala lišta Safari (${r.zhltnute}×)` : "") +
+          (r.druhe ? ", zavrelo až 2. ťuknutie (chyba z iPhonu)" : ", nezavrelo ani 2. ťuknutie") + `; chyby v okne: ${r.stav.chyby.join(" | ") || "žiadne"}`);
+        j.over(!r.zhltnute, `${kde}: ťuknutie do tlačidla vzala lišta Safari`);
+        j.over(!r.stav.chyby.length, `${kde}: v okne je červený rám / chybová veta: ${r.stav.chyby.join(" | ")}`);
+        j.over(r.stav.ariaHidden === "true" && !r.stav.viditelne, `${kde}: okno je po potvrdení stále vidno (aria-hidden ${r.stav.ariaHidden})`);
+        j.over(r.stav.karta === pocet, `${kde}: označená karta boxov ${r.stav.karta}, čakám ${pocet}`);
+        j.over(vzor.test(r.stav.vyber || ""), `${kde}: súhrn kroku boxov „${r.stav.vyber}“ nesedí s ${vzor}`);
+        kroky.push(`${meno} ${r.tlacidlo.odSpodku} px`);
+      };
+      const r1 = await kb.jedenTuk(t, { pocet: 2, farba: 1, velkost: "M", velkost2: "M" });
+      over1("2 boxy M + M", r1, /^2× box · M \+ M · .+ · \+ /, 2);
+      const r2 = await kb.jedenTuk(t, { pocet: 2, farba: null, velkosti: [["box2", "L"]], hned: true });
+      over1("úprava: 2. box L tesne pred ťuknutím", r2, /^2× box · M \+ L · /, 2);
+      j.over(r2.hodnoty.farbaBoxov === r1.hodnoty.farbaBoxov && r2.hodnoty.box1 === r1.hodnoty.box1 && r2.hodnoty.box2 && r2.hodnoty.box2 !== r1.hodnoty.box2,
+        "úprava 2. boxu: formulár " + JSON.stringify(r2.hodnoty) + " (pred " + JSON.stringify(r1.hodnoty) + ")");
+      const r3 = await kb.jedenTuk(t, { pocet: 1, farba: null, velkosti: [["boxSolo", "XL"]] });
+      over1("1 box XL (farba prenesená)", r3, /^1× box · XL · /, 1);
+      j.over(r3.hodnoty.farbaBoxov === r1.hodnoty.farbaBoxov && r3.hodnoty.boxSolo, "1 box: formulár " + JSON.stringify(r3.hodnoty));
+      await ovl.cena.pridajDoKosika(t);
+      const post = await j.cakajNaPost(s);
+      const cena = await j.overPost(s, post, { ...z.ocak, farbaBoxov: r3.hodnoty.farbaBoxov, boxSolo: r3.hodnoty.boxSolo });
+      return { info: `1 ťuknutie stačí: ${kroky.join(", ")}; POST farba boxov + box XL, spolu ${cena.spolu}`, post: post.body, spolu: cena.spolu };
+    },
+  },
+
   "kufor-nie-cena": {
     typy: ["jedno"],
     fn: async (s, a, pom, ovl, j) => {
