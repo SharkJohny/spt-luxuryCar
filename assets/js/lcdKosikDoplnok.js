@@ -25,6 +25,7 @@
 // Meranie: vlastné udalosti v dataLayer (lcd_set_doplnok_zobrazenie / _klik / _pridany / _chyba).
 // Vypnutie bez nasadenia JS: data.json "kosik_doplnky": false (alebo settings.kosik_doplnky). Test bez ponuky: ?lcddoplnok=0
 import { getShoptetContext } from "./functions/shoptetContext.js";
+import { obrazokUloziska } from "./functions/ulozisko.js";
 // kresba boxu ako na produkte 616 a v okne boxov 1V (Michal 23. 10. 2026: veľkosti s kresbou, farba sa mení s voľbou)
 import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
 // auto riadku setu do názvu ponuky („Rohož do kufra pre Skoda Octavia 2021“, Michal 29. 10. 2026) — rovnaký zdroj ako cart.js
@@ -715,17 +716,17 @@ export function luxCislo(t) {
 }
 export function luxNazov(n) { return "Lux " + (n < 10 ? "0" : "") + n; }
 /** Vzorka Lux farby (rovnaká cesta na SK aj CZ, HTTP 200 overené 10. 10. 2026; LUX-NN.jpg na CZ chýba) */
-export function luxFoto(n) { return "/user/documents/upload/assets/config/lux-color-" + (n < 10 ? "0" : "") + n + ".jpg?15"; }
+export function luxFoto(n) { return obrazokUloziska("config/lux-color-" + (n < 10 ? "0" : "") + n + ".jpg", "15"); }
 /** Poradie farieb 2. vrstvy ako na produkte (select „farba 2.vrstvy“, SK aj CZ Diamond/Hexa/Stripe, overené 10. 10. 2026) —
  *  záloha, keď mapa poradie nemá */
 export const PORADIE_LUX = [10, 12, 11, 13, 14, 15, 16, 7, 4, 1, 8, 6, 3, 5, 9, 2];
 
-/** Vzorka farby kože (farba boxov) ako na produkte: /assets/config/<slug textu po prvé „+“>.jpg (creatButtons.js
+/** Vzorka farby kože (farba boxov) ako na produkte: config/<slug textu po prvé „+“>.jpg z kópie úložiska webu (creatButtons.js
  *  createSlug(text.split("+")[0]); všetkých 9 SK aj CZ farieb HTTP 200 overené 10. 10. 2026) */
 export function vzorkaFarby(t) {
   const slug = cisty(String(t == null ? "" : t).split("+")[0]).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w\s-]/g, "")
     .trim().replace(/\s+/g, "-").replace(/-+/g, "-");
-  return slug ? "/user/documents/upload/assets/config/" + slug + ".jpg?15" : null;
+  return slug ? obrazokUloziska("config/" + slug + ".jpg", "15") : null;
 }
 
 /** Má riadok košíka 2. vrstvu? (text variantu „…, farba 2.vrstvy: Lux Color 10“) */

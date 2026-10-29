@@ -1,4 +1,5 @@
 import { TRUCK_PRODUCT_URLS } from "../truck-konfigurator/truck-brands.js";
+import { obrazokSpolocny } from "../functions/ulozisko.js";
 
 export function initHeader() {
   $(".top-navigation-bar-menu-helper").empty();
@@ -60,8 +61,8 @@ const VZORKY_PRODUCT_URLS = {
   sk: "/vzorkovnik-dragonskin---objednavka-vzoriek/",
   cs: "/vzorkovnik-dragonskin---objednavka-vzorku/",
 };
-// Swatche berieme z rovnakého uploadu ako vzorkovník (nič nové sa neuploaduje).
-const VZORKY_SWATCH_BASE = "https://www.luxurycardesign.sk/user/documents/upload/assets/config/";
+// Swatche = tie isté fotky ako vzorkovník (swatch-data.js): kópia SK úložiska v CDN repa, spoločná pre všetky weby
+// (functions/ulozisko.js, tools/config-obrazky.mjs; 29. 10. 2026 — predtým natvrdo www.luxurycardesign.sk aj na CZ).
 const VZORKY_CTA_SWATCHES = ["D-1", "S-1", "H-1", "LUX-01"];
 
 /** CTA pás na spodku menu widgetu — vzorkovník nie je kategória, preto vizuálne
@@ -92,7 +93,7 @@ function initVzorkyMenuCta() {
   const $cta = $("<a>", { class: "menu-widget-cta", href: t.href });
   const $swatches = $("<div>", { class: "menu-widget-cta__swatches" }).appendTo($cta);
   VZORKY_CTA_SWATCHES.forEach((id) => {
-    $("<img>", { src: `${VZORKY_SWATCH_BASE}${id}.jpg`, alt: "", loading: "lazy" }).appendTo($swatches);
+    $("<img>", { src: obrazokSpolocny("config/" + id + ".jpg"), alt: "", loading: "lazy" }).appendTo($swatches);
   });
   const $body = $("<div>", { class: "menu-widget-cta__body" }).appendTo($cta);
   $("<strong>", { text: t.head }).appendTo($body);

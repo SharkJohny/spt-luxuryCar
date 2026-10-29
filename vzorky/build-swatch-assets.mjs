@@ -33,9 +33,10 @@ const OUT_MANIFEST = join(REPO, "assets", "js", "vzorky-konfigurator", "swatch-d
 
 const EDGE = 360; // swatch sa zobrazuje ~120-160 px; 360 = 2× retina rezerva
 const QUALITY = 80;
-// Obrázky vzoriek sú nahrané v Shoptet upload priečinku (nie v repo /assets).
-// Plná absolútna URL → funguje v deve (Bender) aj na produkcii bez ohľadu na doménu.
-const IMG_BASE = "https://www.luxurycardesign.sk/user/documents/upload/assets/config/";
+// Obrázky vzoriek sú nahrané v Shoptet upload priečinku SK (/user/documents/upload/assets/config/<ID>.jpg); web ich od
+// 29. 10. 2026 berie z kópie bajt po bajte v CDN repa (assets/img/ulozisko/spolocne/config/, tools/config-obrazky.mjs) —
+// zmazanie súboru v admine nerozbije vzorkovník. Nová vzorka: nahrať do adminu, spustiť node tools/config-obrazky.mjs.
+const IMG_BASE = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/config/";
 
 const log = (...a) => console.log("[swatch]", ...a);
 

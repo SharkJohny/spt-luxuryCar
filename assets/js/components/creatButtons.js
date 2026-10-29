@@ -4,6 +4,8 @@ import { lcdCena } from "../functions/livePrice.js";
 import { prepinac, jeZapnute, jeProdukt1v } from "./konfigurator1v/index.js";
 // 1V: dlaždice farieb so zmenšeným náhľadom (src ostáva plná fotka) — len pod bránou 1V, pozri obrazokFarby nižšie
 import { obrazokFarby } from "./konfigurator1v/farby-nahlady.js";
+// fotky volieb z kópie úložiska webu v CDN repa (functions/ulozisko.js, tools/config-obrazky.mjs; 29. 10. 2026)
+import { obrazokUloziska } from "../functions/ulozisko.js";
 
 /**
  * 25. 10. 2026 (rýchlosť, docs/1v-rychlost.md „1,6 MB po bundli“): obrázky starého konfigurátora, ktoré 1V nikdy
@@ -610,7 +612,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       // 25. 10. 2026 (rýchlosť): pod 1V rady skryté (rozlozenie.js má vlastné karty) -> loading="lazy" pred src
       $("<img>", Object.assign(odlozenyObrazok(), {
         alt: `${parameterId}-${value}.jpg`,
-        src: `/user/documents/upload/assets/config/${createSlug(valueText[0])}.png?15`,
+        src: obrazokUloziska("config/" + createSlug(valueText[0]) + ".png", "15"),
       })).appendTo(optionButton.find("label"));
       $(optionButton).addClass("radio-row");
       $(optionButton).parents(".options-wrap").addClass("radio-wrap");
@@ -622,7 +624,7 @@ function createOptionButtons(options, parameterId, optionsWrap, isBoxParam = fal
       $(optionButton).addClass("text");
     } else {
       const alt = `${parameterId}-${value}.jpg`;
-      const src = `/user/documents/upload/assets/config/${createSlug(valueText[0])}.jpg?15`;
+      const src = obrazokUloziska("config/" + createSlug(valueText[0]) + ".jpg", "15");
       // 25. 10. 2026 (rýchlosť): pod 1V dlaždica farby = zmenšený náhľad z CDN (<picture>, WebP + JPG; src ostáva plná
       // fotka pre veľké náhľady; CZ cez ALIASY_FARIEB). Farba bez náhľadu a starý vzhľad (?novy=0, iné produkty) = pôvodný <img>.
       // (okno boxov má väčšie dlaždice -> iné sizes; wrap je v tej chvíli už v DOM pod .box-config .config-wrap)

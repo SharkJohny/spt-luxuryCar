@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Kópie súborov z úložísk webov (tools/config-obrazky.mjs): bajt po bajte, bez úpravy koncov riadkov (SVG)
+assets/img/ulozisko/** -text

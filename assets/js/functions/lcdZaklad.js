@@ -17,3 +17,5 @@ function zisti() {
 }
 
 export const LCD_ZAKLAD = zisti();
+/** Spoločný základ (nie priečinok verzie): obrázky assets/img/ sú spoločné pre všetky verzie (production.yml). */
+export const LCD_SPOLOCNY = SPOLOCNY;

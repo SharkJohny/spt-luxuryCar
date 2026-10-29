@@ -1,6 +1,8 @@
 import { showUpsalePopup } from "./UpsalePopup.js";
 import { lcdCena } from "../functions/livePrice.js";
 import { createUpsaleButton, createOptions, createBoxConfig, odlozenyObrazok } from "./creatButtons.js";
+// obrázky z úložísk webov z kópie v CDN repa (functions/ulozisko.js, tools/config-obrazky.mjs; 29. 10. 2026)
+import { obrazokUloziska, obrazokSpolocny } from "../functions/ulozisko.js";
 // kamióny: montáž Reactu je v truck-konfigurator/mount.js; nový vzhľad 1V (?novy=) rozhoduje budeKamion1v (docs/kamiony-1v-plan.md §1.2)
 import { isTruckConfiguratorPage, mountTruckConfigurator, predpripravTruck } from "../truck-konfigurator/mount.js";
 import { budeKamion1v } from "./konfigurator1v/index.js";
@@ -428,7 +430,7 @@ function priplatky(setupData, texts) {
           prefix = "";
         }
         createUpsaleButton(
-          "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/" + prefix + carpetsImage[e],
+          obrazokSpolocny("new/" + prefix + carpetsImage[e]), // bolo natvrdo CZ úložisko (581408) pre SK aj CZ
           this,
           parameterWrap,
           carpetsValue[e],
@@ -514,7 +516,7 @@ function priplatky(setupData, texts) {
 
       $(boxsText).each(function (e) {
         createUpsaleButton(
-          "https://cdn.myshoptet.com/usr/581408.myshoptet.com/user/documents/upload/assets/new/" + prefix + boxsImage[e],
+          obrazokSpolocny("new/" + prefix + boxsImage[e]), // bolo natvrdo CZ úložisko (581408) pre SK aj CZ
           this,
           parameterWrap2,
           boxsValue[e],
@@ -947,13 +949,13 @@ function firstPage(texts) {
   const odkazVzoru = (u) => (String(u).trim() === "active" ? location.pathname : u);
 
   const diamond = $(
-    `<a href="${odkazVzoru(diamondurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/diamont.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
+    `<a href="${odkazVzoru(diamondurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="${obrazokUloziska("banners/diamont.jpg", "v1")}" alt="Pattern1.jpg"><div class="banner-header"> DIAMOND LINE</div></a>`,
   ).appendTo(patternsWrap);
   const hexa = $(
-    `<a href="${odkazVzoru(hexaurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/hesaline.jpg?v1" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
+    `<a href="${odkazVzoru(hexaurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="${obrazokUloziska("banners/hesaline.jpg", "v1")}" alt="Pattern1.jpg"><div class="banner-header">HEXA LINE</div></a>`,
   ).appendTo(patternsWrap);
   const stripe = $(
-    `<a href="${odkazVzoru(stripeurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="/user/documents/upload/assets/banners/stripe-line.jpg?v1" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
+    `<a href="${odkazVzoru(stripeurl)}" class="button option-button " data-value="pattern1"><img${obrPod1v} src="${obrazokUloziska("banners/stripe-line.jpg", "v1")}" alt="Pattern1.jpg"><div class="banner-header"> STRIPE LINE</div></a>`,
   ).appendTo(patternsWrap);
   console.log(diamondurl);
 
@@ -985,10 +987,10 @@ function firstPage(texts) {
     class: "option-wrap",
   }).appendTo(wheelWrao);
   $(
-    `<div class='button option-button active' data-value='left'><span>EU</span><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_left.png' ><div class='text'>${language === "cs" ? "Vlevo" : "Vľavo"}</div></div>`,
+    `<div class='button option-button active' data-value='left'><span>EU</span><img${obrPod1v} src='${obrazokUloziska("image/Layer_left.png")}' ><div class='text'>${language === "cs" ? "Vlevo" : "Vľavo"}</div></div>`,
   ).appendTo(wheelOption);
   $(
-    `<div class='button option-button' data-value='right'><img${obrPod1v} src='/user/documents/upload/assets/image/Layer_right.png' ><div class='text'>Vpravo</div><span>UK</span></div>`,
+    `<div class='button option-button' data-value='right'><img${obrPod1v} src='${obrazokUloziska("image/Layer_right.png")}' ><div class='text'>Vpravo</div><span>UK</span></div>`,
   ).appendTo(wheelOption);
 
   const sitposition = $("<div>", {

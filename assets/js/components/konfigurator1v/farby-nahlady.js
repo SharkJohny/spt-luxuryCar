@@ -27,7 +27,9 @@ const ZAKLAD = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/docume
  *  PC 88. Horšia hranica = mäkšia dlaždica, väčšia = zbytočné bajty (iPhone 3× dostane 192 px). */
 export const SIZES_DLAZDICA = "(max-width: 480px) calc(20vw - 20px), (max-width: 767px) calc(13.4vw - 10px), 86px";
 export const SIZES_OKNO_BOXOV = "(max-width: 480px) calc(20vw - 14px), (max-width: 767px) 18vw, 90px";
-const RE_ZDROJ = /\/assets\/config\/([a-z0-9-]+)\.jpg(?:[?#&]|$)/;
+// plná fotka: kópia úložiska webu v CDN repa …/img/ulozisko/<web>/config/<slug>[~odtlačok].jpg (functions/ulozisko.js, od
+// 29. 10. 2026) alebo záloha z úložiska …/upload/assets/config/<slug>.jpg (farba, ktorá v repe ešte nie je)
+const RE_ZDROJ = /\/config\/([a-z0-9-]+)(?:~[0-9a-f]{8})?\.jpg(?:[?#&]|$)/;
 const ma = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
 /** Slug náhľadov fotky farby (z adresy plnej fotky; CZ slug cez ALIASY_FARIEB na SK slug tej istej fotky), inak null. */

@@ -53,7 +53,7 @@ a.top-nav-button.top-nav-button-login.primary.login.toggle-window {
   position: absolute;
   width: 30px;
   height: 30px;
-  background-image: url(https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/documents/upload/assets/image/menu.svg);
+  background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/image/menu.svg);
   background-size: cover;
 }
 
@@ -65,7 +65,7 @@ a.btn.btn-icon.toggle-window.cart-count:before {
   position: absolute;
   width: 26px;
   height: 30px;
-  background-image: url(https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/documents/upload/assets/image/cart.svg);
+  background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/image/cart.svg);
   background-size: cover;
 }
 
@@ -206,7 +206,7 @@ header#header {
     width: 20px;
     height: 20px;
     position: absolute;
-    background-image: url(https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/documents/upload/assets/user.svg);
+    background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/user.svg);
     background-size: contain;
     right: -5px;
   }
@@ -238,7 +238,7 @@ header#header {
     width: 20px;
     height: 20px;
     position: absolute;
-    background-image: url(https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/documents/upload/assets/cart.svg);
+    background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/cart.svg);
     background-size: contain;
     right: -50px;
     top: 2px;
@@ -260,7 +260,7 @@ header#header {
     width: 20px;
     height: 20px;
     position: absolute;
-    background-image: url(https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/documents/upload/assets/searsh.svg);
+    background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/searsh.svg);
     background-size: contain;
     right: 20px;
     top: 0px;
@@ -541,7 +541,7 @@ button.ButtonBase__ButtonContainer-sc-p43e7i-3.euBiGU {
     position: absolute;
     width: 20px;
     height: 20px;
-    background-image: url(https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/documents/upload/assets/image/menu.svg);
+    background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/image/menu.svg);
     background-size: cover;
     border-radius: 0;
     top: 9px;
@@ -964,7 +964,7 @@ a.contact-link {
 }
 .in-index .model-selector.container .modl-selector-wrap::after {
   content: "";
-  background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+  background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/new/arrow-pijl.gif);
   width: 48px;
   height: 40px;
   position: absolute;
@@ -975,7 +975,7 @@ a.contact-link {
 }
 .in-index .model-selector.container .modl-selector-wrap::before {
   content: "";
-  background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+  background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/new/arrow-pijl.gif);
   width: 48px;
   height: 40px;
   position: absolute;
@@ -1764,7 +1764,7 @@ section#section1 .images-scrolling__content p {
   }
   .in-index .model-selector.container .modl-selector-wrap::after {
     content: "";
-    background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+    background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/new/arrow-pijl.gif);
     position: absolute;
     right: -84px;
     top: -5px;
@@ -1773,7 +1773,7 @@ section#section1 .images-scrolling__content p {
   }
   .in-index .model-selector.container .modl-selector-wrap::before {
     content: "";
-    background-image: url(https://www.luxurycardesign.cz/user/documents/upload/assets/new/arrow-pijl.gif);
+    background-image: url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/new/arrow-pijl.gif);
     position: absolute;
     left: -81px;
     top: -7px;
