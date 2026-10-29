@@ -8,7 +8,7 @@
 // Kontroly s ?novy=vyvoj (na každej šírke): CSS partial = každý selektor pod body.lcd-1v; 10 sekcií v poradí ART, viditeľné a odhalené;
 // texty doslovne zo vzoru; žiadne zakázané formulácie; žiadna suma „N €“ mimo značiek data-p1v-cislo; veta o tapacíri celá
 // (s číslami alebo bez nich); kotva #p1v-kamiony-dopravcovia, telefón a e-mail; 3 výzvy na konfigurátor (#product-detail-form);
-// galéria: 6 fotiek stiahnutých, 2 / 3 stĺpce, klik otvorí okno #p1v-lb s fotkou a zatvorí ho; materiály 5 kariet (od 1000 px v rade);
+// galéria: 6 fotiek stiahnutých (mriežka kamion-galeria-N-m.jpg, lupa kamion-galeria-N.jpg z CDN repa, 29. 10. 2026), 2 / 3 stĺpce, klik otvorí okno #p1v-lb s fotkou a zatvorí ho; materiály 5 kariet (od 1000 px v rade);
 // časová os 4 kroky (pred osou --p 0, za osou --p 1); FAQ 7 otázok zo vzoru, klik rozbalí a zbalí; záver s fotkou kabíny;
 // mierka písma (Michal 18. 10. 2026, tools/test-1v/pismo-kamion.mjs): vlastné triedy ostro, spoločné časti ako upozornenie.
 import { readFileSync } from "node:fs";
@@ -195,7 +195,7 @@ export async function kontroly(t) {
     ok(vRade === (sir >= 901 ? 3 : 2), `galéria: ${sir >= 901 ? 3 : 2} fotky v rade (${vRade})`);
     try {
       await t.klikni(g, { index: 0, popis: "fotka 1 galérie", pockaj: 700 });
-      const lb = await t.ev(`(function(){var l=document.getElementById("p1v-lb");var i=l&&l.querySelector(".p1v-lb-ram img");return l?[l.hidden,!!i&&/640-29_/.test(i.getAttribute("src")||""),(l.querySelector(".p1v-lb-pod")||{}).textContent||""]:null})()`);
+      const lb = await t.ev(`(function(){var l=document.getElementById("p1v-lb");var i=l&&l.querySelector(".p1v-lb-ram img");return l?[l.hidden,!!i&&/kamion-galeria-6.jpg$/.test(i.getAttribute("src")||""),(l.querySelector(".p1v-lb-pod")||{}).textContent||""]:null})()`);
       ok(lb && lb[0] === false && lb[1] && /1 \/ 6/.test(lb[2]), "galéria: klik otvorí okno #p1v-lb s fotkou 1 / 6 " + JSON.stringify(lb));
       await t.klikni("#p1v-lb .p1v-lb-x", { popis: "zavrieť okno", pockaj: 700 });
       const zav = await t.ev(`document.getElementById("p1v-lb").hidden`);
