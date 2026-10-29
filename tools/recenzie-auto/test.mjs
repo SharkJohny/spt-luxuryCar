@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   nacitajData, odtlacok, povolena, parsujStatus, den9, zaznamenajNeuspech, zaznamenajUspech, trebaCrmUlohu, crmUloha,
-  PRAZDNY_STAV, suhrnUpdate,
+  PRAZDNY_STAV, suhrnUpdate, zalozUlohuCrm,
 } from "./lib.mjs";
 
 let ok = 0;
@@ -88,6 +88,47 @@ t("súhrn reviews-update", () => {
   const v = "profil: 101 -> 102 recenzií, hodnotenie 5 -> 5\nv dátach: 101 -> 102 | nové: 1 | vypadli z Googlu: 0\n  + g-102 Jana K. | 5★ | ~2026-10 | sk | fotky 0 | Super\nfotky nových: ok 0, chyba 0\n";
   const s = suhrnUpdate(v);
   assert.match(s.profil, /101 -> 102/); assert.equal(s.nove.length, 1); assert.match(s.nove[0], /g-102 Jana K\./);
+});
+
+// --- CRM úloha cez Supabase REST (falošný fetch, nič sa neposiela von)
+const ULOHA = { text: "Recenzie z Google sa na webe neaktualizujú — automatika zlyháva od 27. 10. 2026", note: "n", due_at: "2026-10-29T09:00:00+01:00", reminder_at: "2026-10-29T09:00:00+01:00" };
+function falosneCrm({ znacka = 201, select = [], insert = 201 } = {}) {
+  const volania = [];
+  const odp = (status, body) => ({ status, ok: status >= 200 && status < 300, json: async () => body });
+  const fetchFn = async (url, o = {}) => {
+    const m = (o.method || "GET") + " " + url.replace("https://x.supabase.co", "").split("?")[0];
+    volania.push({ m, url, o });
+    if (m === "GET /rest/v1/app_owner") return odp(200, [{ user_id: "u1" }]);
+    if (m === "POST /rest/v1/auto_ulohy") return odp(znacka, null);
+    if (m === "GET /rest/v1/todos") return odp(200, select);
+    if (m === "POST /rest/v1/todos") return odp(insert, insert < 300 ? [{ id: "t1" }] : { message: "x" });
+    if (m === "DELETE /rest/v1/auto_ulohy") return odp(204, null);
+    return odp(500, null);
+  };
+  return { fetchFn, volania };
+}
+const crm = (o) => zalozUlohuCrm({ url: "https://x.supabase.co", apiKluc: "TAJNY-KLUC-123", dedup: "recenzie-google-zlyhanie-2026-10-27", uloha: ULOHA, fetchFn: o.fetchFn });
+const tA = async (nazov, fn) => { try { await fn(); ok++; } catch (e) { console.error("CHYBA " + nazov + ": " + e.message); process.exitCode = 1; } };
+await tA("CRM: nová úloha = značka + insert s due_at/reminder_at 9:00 a user_id majiteľa", async () => {
+  const f = falosneCrm(); const r = await crm(f);
+  assert.deepEqual([r.ok, r.todo, r.znacka], [true, "t1", true]);
+  const ins = f.volania.find((v) => v.m === "POST /rest/v1/todos"); const b = JSON.parse(ins.o.body);
+  assert.deepEqual([b.user_id, b.done, b.due_at, b.reminder_at], ["u1", false, ULOHA.due_at, ULOHA.reminder_at]);
+  assert.equal(JSON.parse(f.volania.find((v) => v.m === "POST /rest/v1/auto_ulohy").o.body).kluc, "recenzie-google-zlyhanie-2026-10-27");
+  assert.equal(ins.o.headers.apikey, "TAJNY-KLUC-123"); // kľúč ide len v hlavičke
+  assert.ok(f.volania.every((v) => !v.url.includes("TAJNY")));
+});
+await tA("CRM: značka 409 = už založená, druhá úloha nevznikne", async () => {
+  const f = falosneCrm({ znacka: 409 }); const r = await crm(f);
+  assert.equal(r.existuje, true); assert.ok(!f.volania.some((v) => v.m === "POST /rest/v1/todos"));
+});
+await tA("CRM: rovnaký text už je (bez tabuľky auto_ulohy) -> nič nové", async () => {
+  const f = falosneCrm({ znacka: 404, select: [{ id: "t0" }] }); const r = await crm(f);
+  assert.deepEqual([r.ok, r.existuje, r.todo], [true, true, "t0"]); assert.ok(!f.volania.some((v) => v.m === "POST /rest/v1/todos"));
+});
+await tA("CRM: zlyhaný insert zruší značku (ďalší beh skúsi znova)", async () => {
+  const f = falosneCrm({ insert: 500 }); const r = await crm(f);
+  assert.equal(r.ok, false); assert.ok(f.volania.some((v) => v.m === "DELETE /rest/v1/auto_ulohy"));
 });
 
 console.log(`recenzie-auto test: ${ok} OK${process.exitCode ? " — SÚ CHYBY" : ""}`);

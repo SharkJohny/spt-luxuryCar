@@ -27,7 +27,7 @@ import os from "node:os";
 import path from "node:path";
 import {
   nacitajData, odtlacok, povolena, parsujStatus, miestnyDen, zaznamenajNeuspech, zaznamenajUspech, trebaCrmUlohu,
-  crmUloha, suhrnUpdate, POVOLENE_CESTY, PRAZDNY_STAV, LIMIT_DNI,
+  crmUloha, suhrnUpdate, POVOLENE_CESTY, PRAZDNY_STAV, LIMIT_DNI, zalozUlohuCrm,
 } from "./lib.mjs";
 
 // ------------------------------------------------------------------ voľby
@@ -64,6 +64,8 @@ const DATA = "assets/js/reviews-data.js", FRESH = "tools/google-reviews-fresh.js
 const DEN = miestnyDen();
 const DNES = V.dnes || DEN;
 const MAX_LOGOV = 60;
+const CDN_CAKAJ_MIN = Number(process.env.LCD_RECENZIE_CDN_CAKAJ ?? 20); // po pushi čakať na CI (min)
+let PIESKOVISKO = false; // nastaví pripravKlon: LEN lokálny origin (priečinok) + LCD_RECENZIE_TEST_ORIGIN=1 (test-push.mjs)
 
 // ------------------------------------------------------------------ log
 const LOGY = path.join(V.stav, "logy");
@@ -147,7 +149,7 @@ const pauza = (ms) => new Promise((r) => setTimeout(r, ms));
 function pripravKlon() {
   if (!existsSync(path.join(V.repo, ".git"))) {
     log(`klon automatiky neexistuje -> git clone do ${V.repo}`);
-    const argv = ["clone"];
+    const argv = ["clone", "-q"];
     if (existsSync(REFERENCIA)) argv.push("--reference-if-able", REFERENCIA, "--dissociate");
     argv.push(GITHUB, V.repo);
     gitMusi(argv, "klon automatiky", { cwd: path.dirname(V.repo), limit: 900000 });
@@ -155,7 +157,10 @@ function pripravKlon() {
   }
   if (!existsSync(ZNACKA)) throw new Chyba(`${V.repo} nie je klon automatiky (chýba .git/lcd-recenzie-beh) — reset --hard tam nespustím`);
   const url = git(["remote", "get-url", "origin"], { tichy: true }).stdout.trim();
-  if (!/github\.com[/:]SharkJohny\/spt-luxuryCar(\.git)?$/i.test(url)) throw new Chyba(`origin klonu nie je SharkJohny/spt-luxuryCar`);
+  // pieskovisko (tools/recenzie-auto/test-push.mjs): origin je lokálny priečinok, nikdy GitHub -> smie falošný scraper
+  PIESKOVISKO = process.env.LCD_RECENZIE_TEST_ORIGIN === "1" && !!url && !/^(https?:|git@|ssh:)/i.test(url) && !/github/i.test(url);
+  if (!PIESKOVISKO && !/github\.com[/:]SharkJohny\/spt-luxuryCar(\.git)?$/i.test(url)) throw new Chyba(`origin klonu nie je SharkJohny/spt-luxuryCar`);
+  if (PIESKOVISKO) log(`PIESKOVISKO: origin = ${url} (lokálny priečinok, nie GitHub)`);
 }
 
 /** Čistý stav na základe (origin/main alebo --ref pri skúške). Vráti sha základu. */
@@ -170,7 +175,7 @@ function cistyStav() {
     if (!f.ok) throw new Chyba("git fetch origin main zlyhal 3× (internet / GitHub prihlásenie?)");
     zaklad = "origin/main";
   }
-  gitMusi(["checkout", "-f", "--detach", zaklad], "checkout základu");
+  gitMusi(["checkout", "-q", "-f", "--detach", zaklad], "checkout základu");
   gitMusi(["reset", "--hard", zaklad], "reset na základ");
   gitMusi(["clean", "-fd"], "clean");
   return git(["rev-parse", "HEAD"], { tichy: true }).stdout.trim();
@@ -242,7 +247,7 @@ async function overCdn(repoFetchedAt, commitCasMs, cakajMin) {
     await pauza(60e3);
   }
   const vek = (Date.now() - commitCasMs) / 3600e3;
-  const popis = `CDN (${c.stav}) má ${c.t > 0 ? "dáta z " + new Date(c.t).toISOString() : "žiadne dáta"}, v main sú z ${new Date(repoFetchedAt).toISOString()} (commit pred ${vek.toFixed(1)} h)`;
+  const popis = `CDN (${c.stav}): ${c.t > 0 ? "dáta z " + new Date(c.t).toISOString() : "žiadne dáta"}, v main sú z ${new Date(repoFetchedAt).toISOString()} (commit pred ${vek.toFixed(1)} h)`;
   if (SKUSKA) { log("CDN (len informácia pri skúške): " + popis); return "skúška"; }
   if (vek > 3) throw new Chyba(popis + " — CI production.yml asi nedobehol, pozri GitHub Actions");
   log("CDN zatiaľ nemá nové dáta (CI ešte beží?): " + popis + " — overí ďalší beh");
@@ -262,7 +267,8 @@ async function beh() {
 
   // 1) scrape (headless Chrome; diagnostické snímky pri chybe sa skopírujú k logu)
   for (const f of readdirSync(path.join(V.repo, "tools")).filter((x) => /^_scrape-.*\.png$/.test(x))) unlinkSync(path.join(V.repo, "tools", f));
-  const s = spusti(NODE, ["tools/scrape-google-reviews.mjs"], { limit: 20 * 60e3 });
+  const scraper = PIESKOVISKO && process.env.LCD_RECENZIE_SCRAPER ? process.env.LCD_RECENZIE_SCRAPER : "tools/scrape-google-reviews.mjs";
+  const s = spusti(NODE, [scraper], { limit: 20 * 60e3 });
   if (!s.ok) {
     for (const f of readdirSync(path.join(V.repo, "tools")).filter((x) => /^_scrape-.*\.png$/.test(x))) {
       try { copyFileSync(path.join(V.repo, "tools", f), LOG.replace(/\.log$/, "") + "-" + f.replace(/^_scrape-/, "")); } catch {}
@@ -320,7 +326,7 @@ async function beh() {
     if (p.ok) {
       sha = git(["rev-parse", "HEAD"], { tichy: true }).stdout.trim();
       log(`PUSH OK: ${sha.slice(0, 7)} -> main (pokus ${pokus})`);
-      const cdn = await overCdn(Date.parse(z.po.place.fetchedAt), Date.now(), 20);
+      const cdn = await overCdn(Date.parse(z.po.place.fetchedAt), Date.now(), CDN_CAKAJ_MIN);
       return { stav: "pushnute", sha, subory: staged, recenzii: z.po.place.totalReviews, cdn };
     }
     log(`push pokus ${pokus} neprešiel${/rejected|non-fast-forward|fetch first/i.test(p.vystup) ? " (main sa medzitým posunul)" : ""}`);
@@ -356,28 +362,7 @@ async function zalozCrmUlohu(kluc, uloha, { naostro }) {
     return { ok: true, skuska: true };
   }
   if (!k.subor) return { ok: false, chyba: "chýba kľúč CRM (nastav ho: tools/recenzie-auto/nastav-kluc-crm.ps1)" };
-  const h = { apikey: k.kluc, authorization: "Bearer " + k.kluc, "content-type": "application/json" };
-  const sb = (p, o = {}) => fetch(url + p, { ...o, headers: { ...h, ...(o.headers || {}) }, signal: AbortSignal.timeout(20000) });
-  try {
-    const o = await sb("/rest/v1/app_owner?select=user_id&limit=1");
-    const ow = o.ok ? await o.json() : [];
-    const userId = ow && ow[0] && ow[0].user_id;
-    if (!userId) return { ok: false, chyba: `app_owner ${o.status} — majiteľ CRM sa nenašiel` };
-    const zn = await sb("/rest/v1/auto_ulohy", { method: "POST", headers: { prefer: "return=minimal" }, body: JSON.stringify({ user_id: userId, kluc }) });
-    if (zn.status === 409) return { ok: true, existuje: true };
-    const znackaOk = zn.ok;
-    const ex = await sb(`/rest/v1/todos?select=id&user_id=eq.${userId}&text=eq.${encodeURIComponent(uloha.text)}&limit=1`);
-    const exRows = ex.ok ? await ex.json() : null;
-    if (Array.isArray(exRows) && exRows[0]) return { ok: true, existuje: true, todo: exRows[0].id };
-    const ins = await sb("/rest/v1/todos", { method: "POST", headers: { prefer: "return=representation" },
-      body: JSON.stringify({ user_id: userId, text: uloha.text, note: uloha.note, done: false, due_at: uloha.due_at, reminder_at: uloha.reminder_at }) });
-    if (!ins.ok) {
-      if (znackaOk) await sb(`/rest/v1/auto_ulohy?user_id=eq.${userId}&kluc=eq.${encodeURIComponent(kluc)}`, { method: "DELETE" }).catch(() => {});
-      return { ok: false, chyba: `todos insert ${ins.status}` }; // ďalší beh to skúsi znova
-    }
-    const row = await ins.json().catch(() => []);
-    return { ok: true, todo: row && row[0] && row[0].id, znacka: znackaOk };
-  } catch (e) { return { ok: false, chyba: "CRM nedostupné: " + e.message }; }
+  return zalozUlohuCrm({ url, apiKluc: k.kluc, dedup: kluc, uloha });
 }
 
 /** Záloha, keď sa CRM úloha nedá založiť: upozornenie Windows (len pri ostrom behu). */

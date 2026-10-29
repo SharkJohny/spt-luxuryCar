@@ -90,7 +90,8 @@ export function zaznamenajNeuspech(stav, den, chyba, log) {
 /** Úspešný beh: séria zlyhaní sa končí. */
 export function zaznamenajUspech(stav, den, kedy, vysledok) {
   return { ...PRAZDNY_STAV, ...stav, neuspesneDni: 0, prvyNeuspesnyDen: null, poslednyNeuspesnyDen: null, poslednaChyba: null,
-    crmUloha: null, poslednyUspech: kedy, poslednyUspechDen: den, poslednyVysledok: vysledok || null };
+    crmUloha: null, poslednyUspech: kedy, poslednyUspechDen: den, poslednyVysledok: vysledok || null,
+    poslednyLog: (vysledok && vysledok.log) || stav.poslednyLog || null };
 }
 
 export const LIMIT_DNI = 3;
@@ -132,4 +133,33 @@ export function suhrnUpdate(vystup) {
   const data = r.find((x) => x.startsWith("v dátach:")) || "";
   const nove = r.filter((x) => /^\s+\+ g-\d+/.test(x)).map((x) => x.trim().split(" | ").slice(0, 3).join(" | "));
   return { profil, data, nove };
+}
+
+/**
+ * Založí úlohu v CRM (Supabase REST, rovnaký vzor ako kontakty-app api/email.js doMesacneUlohy):
+ * značka auto_ulohy (PK user_id+kluc; 409 = už založená) -> úloha s rovnakým textom už je? -> insert todos.
+ * Zlyhaný insert značku zruší, aby to ďalší beh skúsil znova. apiKluc sa nikde nevypisuje.
+ */
+export async function zalozUlohuCrm({ url, apiKluc, dedup, uloha, fetchFn = fetch }) {
+  const h = { apikey: apiKluc, authorization: "Bearer " + apiKluc, "content-type": "application/json" };
+  const sb = (p, o = {}) => fetchFn(url + p, { ...o, headers: { ...h, ...(o.headers || {}) }, signal: AbortSignal.timeout(20000) });
+  try {
+    const o = await sb("/rest/v1/app_owner?select=user_id&limit=1");
+    const ow = o.ok ? await o.json() : [];
+    const userId = ow && ow[0] && ow[0].user_id;
+    if (!userId) return { ok: false, chyba: `app_owner ${o.status} — majiteľ CRM sa nenašiel` };
+    const zn = await sb("/rest/v1/auto_ulohy", { method: "POST", headers: { prefer: "return=minimal" }, body: JSON.stringify({ user_id: userId, kluc: dedup }) });
+    if (zn.status === 409) return { ok: true, existuje: true };
+    const znackaOk = zn.ok; // !ok = tabuľka chýba -> dedup len podľa textu
+    const zrus = () => (znackaOk ? sb(`/rest/v1/auto_ulohy?user_id=eq.${userId}&kluc=eq.${encodeURIComponent(dedup)}`, { method: "DELETE" }).catch(() => {}) : null);
+    const ex = await sb(`/rest/v1/todos?select=id&user_id=eq.${userId}&text=eq.${encodeURIComponent(uloha.text)}&limit=1`);
+    if (!ex.ok) { await zrus(); return { ok: false, chyba: `todos select ${ex.status}` }; }
+    const exRows = await ex.json().catch(() => []);
+    if (Array.isArray(exRows) && exRows[0]) return { ok: true, existuje: true, todo: exRows[0].id };
+    const ins = await sb("/rest/v1/todos", { method: "POST", headers: { prefer: "return=representation" },
+      body: JSON.stringify({ user_id: userId, text: uloha.text, note: uloha.note, done: false, due_at: uloha.due_at, reminder_at: uloha.reminder_at }) });
+    if (!ins.ok) { await zrus(); return { ok: false, chyba: `todos insert ${ins.status}` }; }
+    const row = await ins.json().catch(() => []);
+    return { ok: true, todo: (row && row[0] && row[0].id) || null, znacka: znackaOk };
+  } catch (e) { return { ok: false, chyba: "CRM nedostupné: " + e.message }; }
 }
