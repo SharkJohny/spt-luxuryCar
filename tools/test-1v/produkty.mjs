@@ -12,7 +12,8 @@
 //   scenare       – predvolená sada scenárov (bez --krok); plná sada len na hlavnom produkte typu (plan §4.7)
 //   ceny          – očakávaná suma „Spolu“ po scenári (číslo) — kontroluje sa po každom scenári, ktorý vráti spolu
 //   platne        – { priceId, spolu, odporucana } scenára `platne` (plan.md §4)
-//   odporucana    – false = v admine chýba bežná cena (613, 625, 616, 637): odporúčaná cena sa nemá ukázať.
+//   odporucana    – false = v admine chýba bežná cena (613, 625, 637): odporúčaná cena sa nemá ukázať (616 má štítok
+//                   „Odporúčaná cena“ na živom webe od 29. 10. 2026 — profil bez false).
 //                   NOVÝ vzhľad (body.lcd-1v) ju ukázať nesmie -> scenár ZLYHÁ (T0.2b); STARÝ vzhľad = len upozornenie
 //                   „admin doplnil bežnú cenu, uprav profil“ (prečiarknutú cenu kreslí Shoptet, nie my)
 //   postKluce     – popis živého POST (len dokumentácia; overuje overPost podľa formulára + TYPY_TEST.nepovinne)
@@ -189,8 +190,8 @@ export const PRODUKTY = {
     scenare: ["brana", "nulova-zmena", "neuplne", "platne", "box-pocet-2", "box-pocet-3", "box-3-na-1", "dokoncit", "k-suhrnu", "box-start", "box-2-neuplne", "box-farby", "box-jedna-karta",
       // skrytá karta ponuky setu hneď pod kartou „Vaše boxy do kufra“ (scenare-komplet.mjs, 17. 10. 2026; jedna karta 23. 10. 2026)
       "box-komplet-nie", "box-komplet-ano", "box-komplet-od", "box-komplet-seda", "box-komplet-bezova", "box-komplet-3", ...POSUN, "posun-bez-animacie", ...POSUN_PRECHOD],
-    platne: { priceId: "66932", spolu: 207, odporucana: null }, // 1 × M
-    odporucana: false,
+    // živý web 29. 10. 2026: štítok „Odporúčaná cena“ už je (bežná cena doplnená) -> ×1,6 nahor na desiatky ako ostatné
+    platne: { priceId: "66932", spolu: 207, odporucana: 340 }, // 1 × M
     ceny: { platne: 207, "box-pocet-2": 429, "box-pocet-3": 640, "box-3-na-1": 197, dokoncit: 207 },
     // živý POST 14. 10. 2026: select boxu, ktorý nie je v počte, ide preč z POST (živý .val(0) -> selectedIndex -1);
     // predvolené „2 ks“ bez kliku nechá 3. box v POST prázdny ([100]=)
