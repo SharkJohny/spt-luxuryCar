@@ -27,7 +27,7 @@
 // (…/eshopy/luxuryCar/assets/v/<sha>/js/luxuryCar.js, …/css/luxuryCar.css) dostanú odpoveď z čerstvého lokálneho
 // buildu: esbuild assets/js/main.js s rovnakými prepínačmi ako .github/workflows/production.yml + CSS z
 // tools/vloz-lcd-css.py --vystup (aktuálne partialy, repo ostane nezmenené) — oboje do vlastného dočasného
-// priečinka každého behu. …/assets/img/1v/* -> lokálne assets/img/1v/*.
+// priečinka každého behu. …/assets/img/1v/* a …/assets/img/ulozisko/* -> lokálne súbory repa.
 // Bezpečnosť: každý POST /action/Cart/addCartItem sa zachytí a ZRUŠÍ (test kontroluje jeho telo), iný POST na /action/
 // sa zruší a test zlyhá; merače (GA, GTM, FB, TikTok, Hotjar…) sú zablokované; cookie lišta sa odmietne;
 // žiadna objednávka, žiadne prihlásenie, žiadny admin. Živý web šetri: --paralelne 2.
@@ -309,7 +309,9 @@ async function novaStranka(ch, sirka, build, a, log, produkt) {
       } else if (s.build && s.build.tmp) {
         const m = /\/eshopy\/luxuryCar\/assets\/img\/1v\/([^?#]+)/.exec(u);
         if (m) s.obrazky1v.push({ cas: Date.now(), subor: decodeURIComponent(m[1]) }); // scenáre: čo a kedy sa stiahlo (video druhej vrstvy)
-        const subor = m && join(KOREN, "assets/img/1v", decodeURIComponent(m[1]));
+        // kópie úložísk webov (tools/config-obrazky.mjs, 29. 10. 2026): pred pushom na CDN ešte nie sú -> z repa
+        const mu = !m && /\/eshopy\/luxuryCar\/assets\/img\/(ulozisko\/[^?#]+)/.exec(u);
+        const subor = m ? join(KOREN, "assets/img/1v", decodeURIComponent(m[1])) : mu && join(KOREN, "assets/img", decodeURIComponent(mu[1]));
         if (subor && existsSync(subor)) return await odpovedz(p, readFileSync(subor), TYP[extname(subor).toLowerCase()] || "application/octet-stream");
       }
       await k.posli("Fetch.continueRequest", { requestId: p.requestId });

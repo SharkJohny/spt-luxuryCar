@@ -311,8 +311,9 @@ export async function novaStranka(ch, sirka, build, { vlozit = true, miesto = "c
       } else if (/\/eshopy\/luxuryCar\/assets\/(v\/[^/]+\/)?css\/luxuryCar\.css(\?|$)/.test(u)) {
         return await odpovedz(p, build.css, "text/css; charset=utf-8");
       } else {
-        const m = /\/eshopy\/luxuryCar\/assets\/img\/1v\/([^?#]+)/.exec(u);
-        const subor = m && join(KOREN, "assets/img/1v", decodeURIComponent(m[1]));
+        // …/img/1v/* a kópie úložísk webov …/img/ulozisko/* (tools/config-obrazky.mjs) z repa — pred pushom na CDN nie sú
+        const m = /\/eshopy\/luxuryCar\/assets\/img\/((?:1v|ulozisko)\/[^?#]+)/.exec(u);
+        const subor = m && join(KOREN, "assets/img", decodeURIComponent(m[1]));
         if (subor && existsSync(subor)) return await odpovedz(p, readFileSync(subor), TYP[extname(subor).toLowerCase()] || "application/octet-stream");
       }
       await k.posli("Fetch.continueRequest", { requestId: p.requestId });
