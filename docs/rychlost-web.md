@@ -152,3 +152,9 @@ okna, bez vyrovnávacej pamäte, 390 aj 1280, 5 behov na scenár (skripty v scra
   +1 požiadavka; LCP bez zmeny v rámci šumu (mediány 100–164 ms pred aj po, behy 84–236 ms).
 - **Pozor na hrúbku písma:** `font-weight:700` pri Source Sans 3 na košíku stiahol nový rez `source-sans-3-700.woff2`
   (+70 kB). Košík má načítané Source Sans 3 300/400/600 a Exo 2 400/600/700/900 — iné rezy nepoužívať.
+- **CLS prvej návštevy na telefóne** (mapy ponuky ešte nie sú v localStorage): ponuka k setu sa vloží nad súhrn ~1 s po
+  načítaní a súhrn s „Pokračovať“ odsunie z obrazovky — 0,138 už pred zmenou. Vyšší súhrn (riadok auta + hodnotenie) by
+  dal 0,212, preto ich `vlozDoSuhrnu` na telefóne vloží až v tej istej úlohe ako ponuku (`html[data-lcd-doplnok-caka]`
+  -> `data-lcd-doplnok`): 0,165 (zvyšok = dlhšie názvy v ponuke a riadok auta v položke). Opakovaná návšteva 0, PC 0,017
+  pred aj po. Koreň (ponuka nad viditeľným súhrnom) ostáva — rezervovať miesto alebo vložiť ponuku z uložených máp pred
+  prvým vykreslením.

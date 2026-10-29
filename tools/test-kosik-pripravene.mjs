@@ -111,6 +111,21 @@ d = stranka(REKAP(`<div class="cart-item"><div class="cart-item-name"><a href="/
   <span class="main-link-surcharges">Príplatky: rozloženie kobercov - prvý a druhý rad, TYP - Combi</span></a></div></div>`), { ss: OCT });
 over(!d.querySelector(".lcd-pre") && JSON.stringify(autoRozpis(d)) === JSON.stringify(["Auto: Skoda Octavia 2021 Combi"]), "rekapitulácia v krokoch: „Auto: …“ v rozpise ako doteraz", [pre(d), autoRozpis(d)]);
 
+// ---------------------------------------------------------------- telefón: súhrn rastie až spolu s ponukou k setu (CLS)
+// Ponuka sa vkladá NAD súhrn (na telefóne ho odsunie z obrazovky); vyšší súhrn = väčší posun (meranie 29. 10.: CLS prvej
+// návštevy 0,138 -> 0,212). Kým ponuka beží (html[data-lcd-doplnok-caka]), riadok v súhrne a hodnotenie čakajú a vložia sa
+// v tej istej úlohe ako ponuka (MutationObserver = pred ďalším vykreslením). PC (súhrn v pravom stĺpci) hneď.
+const telefon = (w) => { w.matchMedia = (q) => ({ matches: /max-width:\s*991px/.test(q), media: q, addEventListener() {}, removeEventListener() {} }); };
+d = stranka(KOSIK(SET()), { ss: OCT, recenzie: { place: { rating: 5, totalReviews: 89 }, reviews: [{}] }, pred: (w) => { telefon(w); w.document.documentElement.setAttribute("data-lcd-doplnok-caka", ""); } });
+over(!d.querySelector(".summary-wrapper .lcd-pre") && !d.querySelector(".lcd-hodn-kosik") && pre(d).length === 1, "telefón, ponuka beží: súhrn zatiaľ bez riadku a hodnotenia (položka áno)", [suhrn(d), pre(d)]);
+d.documentElement.setAttribute("data-lcd-doplnok", "1");
+await new Promise((r) => setTimeout(r, 0));
+over(suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Combi ✓" && txt(d.querySelector(".lcd-hodn-kosik")) === "5,0 ★★★★★ · 89 recenzií na Google", "ponuka hotová: súhrn doplnený", suhrn(d));
+d = stranka(KOSIK(SET()), { ss: OCT, pred: (w) => { w.document.documentElement.setAttribute("data-lcd-doplnok-caka", ""); } });
+over(suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Combi ✓", "PC (bez telefónnej šírky): súhrn hneď, aj keď ponuka beží", suhrn(d));
+d = stranka(KOSIK(SET()), { ss: OCT, pred: telefon });
+over(suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Combi ✓", "telefón bez ponuky (vypnutá): súhrn hneď", suhrn(d));
+
 // ---------------------------------------------------------------- hodnotenie z Google pod „Pokračovať“
 over(JSON.stringify(KP.hodnotenie({ rating: 5, totalReviews: 89 }, "sk")) === JSON.stringify({ cislo: "5,0", hviezdy: 5, text: "89 recenzií na Google", aria: "Hodnotenie 5,0 z 5 – 89 recenzií na Google" }), "SK 5,0 · 89 recenzií", KP.hodnotenie({ rating: 5, totalReviews: 89 }, "sk"));
 over(KP.hodnotenie({ rating: 4.87, totalReviews: 3 }, "cz").text === "3 recenze na Google" && KP.hodnotenie({ rating: 4.87, totalReviews: 3 }, "cz").cislo === "4,9", "CZ 4,9 · 3 recenze");

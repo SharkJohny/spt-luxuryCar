@@ -2184,6 +2184,8 @@ export function initKosikDoplnok(setupData) {
     }
     zachytene = rozoberRiadky(document);
     listaKosika(TEXTY[R.trh]);
+    // data-lcd-doplnok-caka = ponuka beží (súhrn košíka na telefóne s doplnením počká, functions/kosikPripravene.js)
+    try { document.documentElement.setAttribute("data-lcd-doplnok-caka", ""); } catch (e) {}
     // data-lcd-doplnok na <html> = počet kariet ponuky po dokončení (0 = nič) — pre testy a ladenie
     const hotovo = function (n) { try { document.documentElement.setAttribute("data-lcd-doplnok", String(n)); } catch (e) {} };
     Promise.resolve(obnova).then(function (o) {

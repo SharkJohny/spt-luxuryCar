@@ -103,11 +103,38 @@ function poNacitani(fn) {
   else window.addEventListener("load", neskor, { once: true });
 }
 
+/** Jeden stĺpec (telefón, tablet do 991 px): súhrn je pod položkami a ponuka k setu sa vkladá nad neho. */
+function jedenStlpec() {
+  try { return !!(window.matchMedia && window.matchMedia("(max-width: 991px)").matches); } catch (e) { return false; }
+}
+
 /**
  * Súhrn košíka: „Pripravené pre: …“ nad cenou (auta = texty áut riadkov v poradí) a hodnotenie pri „Pokračovať“.
  * Hodnotenie ide do .next-step medzi „Späť do obchodu“ a „Pokračovať“ (PC aj telefón column-reverse -> pod „Pokračovať“).
+ * Telefón: kým beží ponuka k setu (html[data-lcd-doplnok-caka], lcdKosikDoplnok.js), súhrn sa nemení — ponuka ho odsunie
+ * nadol a vyšší súhrn by zväčšil posun (CLS prvej návštevy 0,138 -> 0,212, meranie 29. 10. 2026). Doplní sa v tej istej
+ * úlohe, v ktorej ponuka skončí (MutationObserver na data-lcd-doplnok = pred vykreslením), najneskôr po 8 s.
  */
 export function vlozDoSuhrnu(auta) {
+  const H = document.documentElement;
+  if (!H.hasAttribute("data-lcd-doplnok-caka") || H.hasAttribute("data-lcd-doplnok") || !jedenStlpec() || !window.MutationObserver) {
+    vlozDoSuhrnuTeraz(auta);
+    return;
+  }
+  let hotovo = false, casovac = 0;
+  const mo = new MutationObserver(function () { if (H.hasAttribute("data-lcd-doplnok")) dokonci(); });
+  function dokonci() {
+    if (hotovo) return;
+    hotovo = true;
+    mo.disconnect();
+    clearTimeout(casovac);
+    vlozDoSuhrnuTeraz(auta);
+  }
+  mo.observe(H, { attributes: true, attributeFilter: ["data-lcd-doplnok"] });
+  casovac = setTimeout(dokonci, 8000);
+}
+
+function vlozDoSuhrnuTeraz(auta) {
   const box = document.querySelector("#cart-wrapper .cart-content.summary-wrapper .box") || document.querySelector(".cart-content.summary-wrapper .box");
   if (!box) return;
   const t = trh(document);
