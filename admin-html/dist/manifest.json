@@ -1667,30 +1667,30 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-1.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 2, ak súčet <= 45 000 zn."
       },
-      "znaky": 12779,
-      "bajty": 13195,
-      "hash": "757924bb5d",
+      "znaky": 11995,
+      "bajty": 12411,
+      "hash": "99e3dea336",
       "obrazky": 17,
       "sekcie": [
         {
           "subor": "10-kamiony-galeria.sk.html",
           "sekcia": "kamiony-galeria",
-          "znaky": 5000
+          "znaky": 4104
         },
         {
           "subor": "12-kamiony-co-dostanete.sk.html",
           "sekcia": "kamiony-co-dostanete",
-          "znaky": 1565
+          "znaky": 1493
         },
         {
           "subor": "14-kamiony-materialy.sk.html",
           "sekcia": "kamiony-materialy",
-          "znaky": 2397
+          "znaky": 2511
         },
         {
           "subor": "16-kamiony-detaily.sk.html",
           "sekcia": "kamiony-detaily",
-          "znaky": 1907
+          "znaky": 1977
         },
         {
           "subor": "18-c-casova-os.sk.html",
@@ -1720,30 +1720,30 @@
           2452
         ]
       },
-      "znaky": 12757,
-      "bajty": 13239,
-      "hash": "da89442874",
+      "znaky": 11973,
+      "bajty": 12455,
+      "hash": "86dfd19c5c",
       "obrazky": 17,
       "sekcie": [
         {
           "subor": "10-kamiony-galeria.cz.html",
           "sekcia": "kamiony-galeria",
-          "znaky": 4993
+          "znaky": 4097
         },
         {
           "subor": "12-kamiony-co-dostanete.cz.html",
           "sekcia": "kamiony-co-dostanete",
-          "znaky": 1561
+          "znaky": 1489
         },
         {
           "subor": "14-kamiony-materialy.cz.html",
           "sekcia": "kamiony-materialy",
-          "znaky": 2390
+          "znaky": 2504
         },
         {
           "subor": "16-kamiony-detaily.cz.html",
           "sekcia": "kamiony-detaily",
-          "znaky": 1902
+          "znaky": 1972
         },
         {
           "subor": "18-c-casova-os.cz.html",
@@ -1770,9 +1770,9 @@
         "pozicia": "CDN verzie bundle: …/assets/v/<sha>/html/p1v-kamiony-2.sk.html (production.yml kopíruje admin-html/dist/p1v-*.sk.html); obsah.js ho stiahne LEN pod bránou ?novy=1 (zapnutý typ kamion) alebo ?novy=vyvoj, na produkte 640. Do adminu sa počas skúšky nič neukladá (rozhodnutia D1 = b).",
         "poSpusteni": "produkt 640 -> Popis (description) cez runner (TinyMCE), spolu s kusom 1, ak súčet <= 45 000 zn.; inak rozhodne Michal (docs/1v-obsah.md §7)"
       },
-      "znaky": 7575,
-      "bajty": 7781,
-      "hash": "8f2acc5d7e",
+      "znaky": 7495,
+      "bajty": 7701,
+      "hash": "84b54edfda",
       "obrazky": 1,
       "sekcie": [
         {
@@ -1788,7 +1788,7 @@
         {
           "subor": "42-kamiony-vyzva.sk.html",
           "sekcia": "kamiony-vyzva",
-          "znaky": 647
+          "znaky": 567
         },
         {
           "subor": "43-d-pomocne.sk.html",
@@ -1813,9 +1813,9 @@
           2452
         ]
       },
-      "znaky": 7535,
-      "bajty": 7759,
-      "hash": "6782efbff4",
+      "znaky": 7455,
+      "bajty": 7679,
+      "hash": "5679c2739d",
       "obrazky": 1,
       "sekcie": [
         {
@@ -1831,7 +1831,7 @@
         {
           "subor": "42-kamiony-vyzva.cz.html",
           "sekcia": "kamiony-vyzva",
-          "znaky": 647
+          "znaky": 567
         },
         {
           "subor": "43-d-pomocne.cz.html",
