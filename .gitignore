@@ -24,3 +24,9 @@
 /assets/js/lcd-reels.js
 /assets/js/lcd-hp.js
 /assets/css/luxuryCar.min.css
+
+# Recenzie Google (tools/scrape-google-reviews.mjs): diagnostické snímky a zoznam nedostupných fotiek
+/tools/_scrape-*.png
+/tools/reviews-dead.json
+# Spoločné dáta recenzií — vyrába ich len CI (tools/reviews-spolocne.mjs), necommitovať
+/assets/data/

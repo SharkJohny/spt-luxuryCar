@@ -15,6 +15,8 @@ const data = JSON.parse(m[1]);
 // fresh.text je prázdny, preto text-match nepoužívame). Dedup fresh + preferuj záznam s fotkami.
 let fresh = [];
 try { fresh = JSON.parse(await readFile('tools/google-reviews-fresh.json', 'utf8')); } catch {}
+// od 29. 10. 2026 je fresh objekt { place, reviews } (nový scrape-google-reviews.mjs); starý formát = pole
+if (!Array.isArray(fresh)) fresh = (fresh && fresh.reviews) || [];
 const norm = s => (s || '').toLowerCase().replace(/\s+/g, ' ').trim();
 // dedup fresh podľa autor + prvá fotka
 const seen = new Set();

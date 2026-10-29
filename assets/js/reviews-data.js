@@ -1,30 +1,233 @@
 /* ============================================================
    LCD Reviews — DÁTA (reálne Google recenzie)
    ------------------------------------------------------------
-   Stiahnuté z Google profilu Luxury Car Design: 2026-05-23
-   89 recenzií, hodnotenie 5. Tento súbor prepíše scraper.
+   Stiahnuté z Google profilu Luxury Car Design: 2026-10-29
+   101 recenzií na profile, hodnotenie 5; v súbore 101.
+   Generuje tools/reviews-update.mjs (zo scrape-google-reviews.mjs) — ručne needitovať.
+   dateApprox = približný dátum (Google ukazuje len „pred X“), relativeDate je k place.fetchedAt.
    ============================================================ */
 window.LCD_REVIEWS = {
   "place": {
     "name": "Luxury Car Design",
     "rating": 5,
-    "totalReviews": 89,
+    "totalReviews": 101,
     "url": "https://www.google.com/search?q=luxurycardesign",
-    "fetchedAt": "2026-05-23T19:01:48.358Z"
+    "fetchedAt": "2026-10-29T14:15:17.305Z"
   },
   "reviews": [
+    {
+      "id": "g-93",
+      "author": "Jiří Mališ",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 0 týždňami",
+      "text": "",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xsMWFXWXlTbTVpZDJaQ2RXdFFXamx5ZEU1WWIyYxAB",
+      "dateApprox": "2026-10-29"
+    },
+    {
+      "id": "g-92",
+      "author": "Jiří Dušek",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 1 týždňami",
+      "text": "Vše perfektně sedí a dobrá komunikace.",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "cz",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xVeWVYTkVkeTFtWW1zMVNGUlpYMnhmV0RSS2VYYxAB",
+      "dateApprox": "2026-10-23"
+    },
+    {
+      "id": "g-94",
+      "author": "Jiri Rohovsky",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 2 týždňami",
+      "text": "Pán je ochotný poradit bez problémů i o víkendu.",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "cz",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT21oNFltNUJTekJsZFRZdFFWZDROMWRDZVc1MUxXYxAB",
+      "dateApprox": "2026-10-15"
+    },
+    {
+      "id": "g-91",
+      "author": "Milada Dvorníková",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 4 týždňami",
+      "text": "Rohože jsou moc pěkně zpracované, dokonale sedí, jsem z nich nadšená, děkuji.",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "cz",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT210d1pESmxhRTA0VlZaVWVsTnlSM0I2TUVOeGIxRRAB",
+      "dateApprox": "2026-10-01"
+    },
+    {
+      "id": "g-100",
+      "author": "Michal Kmetony",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 4 týždňami",
+      "text": "Veľká spokojnosť pasujú úplne presne",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xZdFZtRk5VV2cyVG10eFMwVTJXbHBzYldWR1JWRRAB",
+      "dateApprox": "2026-10-01"
+    },
+    {
+      "id": "g-96",
+      "author": "Horst Englert",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 4 týždňami",
+      "text": "Koberečky splnily všechna očekávání, jsou krásné, luxusní a stylové. Velmi kvalitní a odolný materiál. Sedí ve všech směrech i koutech, maximálně chrání prostor auta před špínou i vodou. Jednoduchá a rychlá montáž. Rovněž oceňuji velmi kladný přístup majitele firmy pana Švancara. Celkový závěr - maximální spokojenost, firmu proto doporučuji.",
+      "photos": [
+        "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-96-0.jpg",
+        "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-96-1.jpg",
+        "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-96-2.jpg"
+      ],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "cz",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25ackxXZHZiVmRwWWpKQllVOU5SV2czWjA5UVQwRRAB",
+      "dateApprox": "2026-09-29"
+    },
+    {
+      "id": "g-97",
+      "author": "Memo M",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 4 týždňami",
+      "text": "Koberceky dvojvrstvove do Subaru Outback 2024. Jednanie s majitelom maximalne ustretove, nadstandartne. Cena tiez nadstandartna. Kvalita po mesiaci uzivanie ako nove. Vsetko pasuje ako ma. Radsej si priplatim za kvalitu, a tu to 100% plati! Dakujem.",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT21GTlZVSmhXa3MwVnpoWWVGVTVWMEZPY3kxelYwRRAB",
+      "dateApprox": "2026-09-29"
+    },
+    {
+      "id": "g-98",
+      "author": "Janka Zabojova",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 4 týždňami",
+      "text": "„Za tie peniaze to určite stojí. Komunikácia s Luxury Car Design bola príjemná, vo všetkom ústretoví a profesionálni. A keď som koberce vložila do auta, sedia tam ako rit na serbel 😄.“",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT210MFdXNUVMVzFpVTFBNFpYUkZPRTg1WkhrNVFrRRAB",
+      "dateApprox": "2026-09-29"
+    },
+    {
+      "id": "g-90",
+      "author": "Pavel Jaša",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 9 týždňami",
+      "text": "",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2s1WU5sQjNUMk5wUWxkRE0xVXRSMVZHWW1Od09FRRAB",
+      "dateApprox": "2026-08-29"
+    },
+    {
+      "id": "g-99",
+      "author": "Igor Fiačan",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 9 týždňami",
+      "text": "Tie koberce sú super",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25sbVdUQnFUMWhVWVZvMU9XZG9iVWxWV0V0c2NHYxAB",
+      "dateApprox": "2026-08-29"
+    },
+    {
+      "id": "g-95",
+      "author": "Jarinhik1 Hic",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 13 týždňami",
+      "text": "Zakoupeno pro Subaru Outback a je to zajímavá ochrana podlahy a boků\nNa první pohled je produkt na vysoké úrovni a uvidíme zda bude i trvanlivost dobrá (čas ukáže).\nDomluva a dodání je dobrá takže vřele všem doporučuji",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "cz",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pWbldrWlZSV1JPVWtseFVHNWtXbEZ2VlZCemFtYxAB",
+      "dateApprox": "2026-07-30"
+    },
+    {
+      "id": "g-101",
+      "author": "Bohdan Palkovacs",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 13 týždňami",
+      "text": "Autokoberce pasujú presne. Parádne Kia Rio 2021.",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT21OcmJsQmxXVkY2VkVKbVlpMUtZblo2WDNKR2JFRRAB",
+      "dateApprox": "2026-07-30"
+    },
+    {
+      "id": "g-102",
+      "author": "Marek Palka",
+      "authorPhoto": null,
+      "rating": 5,
+      "date": null,
+      "relativeDate": "Pred 18 týždňami",
+      "text": "Ešte raz velmi pekne dakujem za koberce som velmi snimi spokojni odporucam kazdemu a ešte raz velmi pekne dakujem.",
+      "photos": [],
+      "url": "https://www.google.com/search?q=luxurycardesign",
+      "language": "sk",
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25KdGVGQmlRVUpQTXpGNGJYSllSVXQyVjNoc1IzYxAB",
+      "dateApprox": "2026-06-29"
+    },
     {
       "id": "g-1",
       "author": "Ladislav Urban",
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 5 týždňami",
+      "relativeDate": "Pred 28 týždňami",
       "text": "Super, top predajca!",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pkQ0xYSXhTVTl2UlZsU05GQjFiVFp1WjBGdmNVRRAB",
+      "dateApprox": "2026-04-18"
     },
     {
       "id": "g-2",
@@ -32,7 +235,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 8 týždňami",
+      "relativeDate": "Pred 31 týždňami",
       "text": "Bezva přístup, jen zvažte zda chcete koberce používat v zimě... sůl jím nedělá rozhodně dobře.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-2-3.jpg",
@@ -42,7 +245,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2taVldHWmtaSGhmYmtVMlZtWjVlVk00U2xZM1NWRRAB",
+      "dateApprox": "2026-03-28"
     },
     {
       "id": "g-3",
@@ -50,7 +255,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 8 týždňami",
+      "relativeDate": "Pred 31 týždňami",
       "text": "Nemám slov.Som maximálne ale že maximálne spokojný.Rohože vyzerajú úplne skvelo.Či už dizajnovo aj čo sa týka materiálu.Krasne mi sadli do auta čoho som sa bál že nebudú sedieť.A krásne pasujú.Takze môžem len a len odporučiť každému kto by váhal.Dakujem Firme Luxury Car Design aj za rýchlu komunikáciu keď som mal otázky.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-3-0.jpg",
@@ -59,7 +264,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xCeUxWUmxSRGx2YTJGMmNtcExVRTlpUTFOS00yYxAB",
+      "dateApprox": "2026-03-28"
     },
     {
       "id": "g-4",
@@ -67,7 +274,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 9 týždňami",
+      "relativeDate": "Pred 32 týždňami",
       "text": "Koberčeky sedia super..oktavia2 nenížiaden problém..kvalitné ušité žiadna Čína..predávajúci ochotný a ústretový..za mňa 👍👍👍",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-4-0.jpg",
@@ -77,7 +284,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xwbk5FdHdSRFJFWldKS2FqVk1NRzFMZFVrNE1FRRAB",
+      "dateApprox": "2026-03-21"
     },
     {
       "id": "g-5",
@@ -85,12 +294,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 10 týždňami",
+      "relativeDate": "Pred 33 týždňami",
       "text": "Môžem vrelo odporučiť rohože pasujú veľmi dobre nie sú žiadne chyby pomer cena a kvalita je super hlave tá kvalita . Pred rokom som si objednal s internetu do môjho starého auta stalo to 260€ a kvalitatívne sa to nedá porovnať to čo mi prišlo bola veľká katastrofa nepasoval o to prišlo to v malom vaku pokrčené materiál tenký nekvalitný po roku boli zodrete a roztrhané v reklame to vyzeralo super ale konečný výsledok katastrofa. Ták ak chcete kvalitu tak odporúčam jediné Luxury Car je to super kvalita a prístup k zákazníkom",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2kxeVJXeElNMmxqVEVwNFJrUmpUMUF0UlUxelZtYxAB",
+      "dateApprox": "2026-03-14"
     },
     {
       "id": "g-6",
@@ -98,12 +309,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 11 týždňami",
-      "text": "Jsem velmi spokojen, nejen s produktem, ale i s jednáním a ochotou a mohu tuto firmu jen doporučit. A to bez jakýchkoliv výhrad. Ještě jednou moc děkuji",
+      "relativeDate": "Pred 34 týždňami",
+      "text": "Jsem velmi spokojen, nejen s produktem, ale i s jednáním a ochotou a mohu tuto firmu jen doporučit. A to bez jakýchkoliv výhrad.\nJeště jednou moc děkuji",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2w5MGFubDNVemhvZWpWVVREWlJVelJETTFSTFVtYxAB",
+      "dateApprox": "2026-03-07"
     },
     {
       "id": "g-7",
@@ -111,12 +324,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 11 týždňami",
+      "relativeDate": "Pred 34 týždňami",
       "text": "VŠE super…",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pSbWVUSnZVVk5TWlc1NWNrOWpNM1E1UkhodGFsRRAB",
+      "dateApprox": "2026-03-07"
     },
     {
       "id": "g-8",
@@ -124,7 +339,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 14 týždňami",
+      "relativeDate": "Pred 37 týždňami",
       "text": "Môžeme len odporučiť milý prístup a komunikácia jak ma byt veľké Dakujem 🙏🏻😊",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-8-0.jpg",
@@ -133,7 +348,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xacmVqZEhjRXhLZVVKTmFVZHpUMFZoV2xaeFlWRRAB",
+      "dateApprox": "2026-02-14"
     },
     {
       "id": "g-9",
@@ -141,12 +358,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 17 týždňami",
+      "relativeDate": "Pred 40 týždňami",
       "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT20xdU4yMWpWVTk2VjB0TFVHWXplRTVzVDFWdWVXYxAB",
+      "dateApprox": "2026-01-24"
     },
     {
       "id": "g-10",
@@ -154,12 +373,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 17 týždňami",
+      "relativeDate": "Pred 40 týždňami",
       "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xKTVRGODJWR3BEYTFkb1duUTJORlJWZWxwMmJVRRAB",
+      "dateApprox": "2026-01-24"
     },
     {
       "id": "g-11",
@@ -167,12 +388,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 18 týždňami",
+      "relativeDate": "Pred 41 týždňami",
       "text": "Respekt, poradenstvo ohladne kvality vyrobku a modelovej variacii na velmi vysokej urovni. Pan Michal S. sa tomu venuje srdcom aj dusou. Objednal som si koberce do modelu auta, kt. sa uz roky nevyraba a vôbec to nebol ziadny problem prave naopak, od zaciatku k tomu pristupoval profesionalne a niekolko krat, pocas vyroby ma priebezne informoval o stave zakazky. Zivotnost vyrobku este neviem posudit, ale opticky to urcite dodalo mojmu autu tzv. smrnc. Ocenujem, ze pocas montaze do auta sa mi venoval cez Videocool napriek tomu, ze bol vikend.Myslim, ze jeden z tych, ktory.svojim pristupom vytrca z priemeru na Slovensku.Urcite ho postavim pred dalsiu vyzvu a objednam koberce aj do mojho GT Roadster. Takze velka vdaka a zelam vela uspechov.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT210eVpFOURWVmxvZW5aWGRURk9NMk5QY1U5alpuYxAB",
+      "dateApprox": "2026-01-17"
     },
     {
       "id": "g-12",
@@ -180,12 +403,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 18 týždňami",
+      "relativeDate": "Pred 41 týždňami",
       "text": "Veľká spokojnosť odporúčam aj ostatným",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xoUFVFNTRWVXhWZEVoNGNVaEZObWRWVEVKRldFRRAB",
+      "dateApprox": "2026-01-17"
     },
     {
       "id": "g-13",
@@ -193,7 +418,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 18 týždňami",
+      "relativeDate": "Pred 41 týždňami",
       "text": "Koberce som objednal do novej Toyota Rav 4 sadli ako uliate a je to najlepsie co som mohol objednat a kupit . Mozem len odporucit .",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-13-2.jpg",
@@ -203,7 +428,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25sa1JtOWhOVVJvVVdwNGVHdHNhbmcxTVU5SWVsRRAB",
+      "dateApprox": "2026-01-17"
     },
     {
       "id": "g-14",
@@ -211,12 +438,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 18 týždňami",
+      "relativeDate": "Pred 41 týždňami",
       "text": "Skvelá spolupráca a ochota. Vrelo odporúčam. Tovar skvelý.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xaTGNscDZaamRZWkhZdGVIVklhME5yTTFoYWVXYxAB",
+      "dateApprox": "2026-01-17"
     },
     {
       "id": "g-15",
@@ -224,12 +453,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 19 týždňami",
+      "relativeDate": "Pred 42 týždňami",
       "text": "Dobrý den , chtěl moc poděkovat za koberečky do auta. Jsem velmi spokojen s Vaší službou a velice doporučuji Vsse sluzby",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xrMmNuaG1aRFU0U1V4NlVGVnVNVUl3WjJKUVVYYxAB",
+      "dateApprox": "2026-01-10"
     },
     {
       "id": "g-16",
@@ -237,12 +468,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 19 týždňami",
-      "text": "Firma Luxury Car Design vřele doporučuji.Objednal jsem si u této firmy koberce do vozu a musím říct že skvělé. Výborná komunikace, kvalita zpracování a vše sedí jak má. Určitě se na firmu znovu obrátím v budoucnu až budu vůz měnit za novější.",
+      "relativeDate": "Pred 42 týždňami",
+      "text": "Firma Luxury Car Design vřele doporučuji.Objednal jsem si u této firmy koberce do vozu a musím říct že skvělé.\nVýborná komunikace, kvalita zpracování a vše sedí jak má.\nUrčitě se na firmu znovu obrátím v budoucnu až budu vůz měnit za novější.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25GM05WVlFZa3R5Y0hKM1VUZEtkMWhaUWpGUlVXYxAB",
+      "dateApprox": "2026-01-10"
     },
     {
       "id": "g-17",
@@ -250,7 +483,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 21 týždňami",
+      "relativeDate": "Pred 44 týždňami",
       "text": "Majiteľ je veľmi príjemný Čo sľúbi to dodrží balík prišiel načas nepoškodený s návodom maximálna spokojnosť odporúčam každému",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-17-3.jpg",
@@ -260,7 +493,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pGNlpYQXljMk54UmpsTFExbHNUalpVV214dlZYYxAB",
+      "dateApprox": "2025-12-27"
     },
     {
       "id": "g-18",
@@ -268,8 +503,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 22 týždňami",
-      "text": "Ďakujem veľmi pekne za celú sadu kobercov a boxov. Príjemná komunikácia, prijateľné dodanie a super kvalita.💯",
+      "relativeDate": "Pred 45 týždňami",
+      "text": "Ďakujem veľmi pekne za celú sadu kobercov a boxov.\nPríjemná komunikácia, prijateľné dodanie a super kvalita.💯",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-18-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-18-0.jpg",
@@ -278,7 +513,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tsdFdDMHdZbWhqWVhCWk5HTkxiMmhUVldWd00yYxAB",
+      "dateApprox": "2025-12-20"
     },
     {
       "id": "g-19",
@@ -286,8 +523,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 23 týždňami",
-      "text": "Vypadají fakt skvěle! Jednoduchá montáž ... sedí dokonale! +8",
+      "relativeDate": "Pred 46 týždňami",
+      "text": "Vypadají fakt skvěle! Jednoduchá montáž ... sedí dokonale!",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-19-2.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-19-1.jpg",
@@ -296,7 +533,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pReGEwRlJhV014UWtWU2NqWklRbTVFT1RCQlgxRRAB",
+      "dateApprox": "2025-12-13"
     },
     {
       "id": "g-20",
@@ -304,7 +543,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 25 týždňami",
+      "relativeDate": "Pred 48 týždňami",
       "text": "+3",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-20-0.jpg",
@@ -314,7 +553,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xacWFteENYMGRhWlRJMlVXWnVVbFY1WWtkcGQxRRAB",
+      "dateApprox": "2025-11-29"
     },
     {
       "id": "g-21",
@@ -322,12 +563,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 25 týždňami",
+      "relativeDate": "Pred 48 týždňami",
       "text": "Profesionálne",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tGUU1tdzRURXR0YmtsR2NXaDFSbDlLYmt4UmJtYxAB",
+      "dateApprox": "2025-11-29"
     },
     {
       "id": "g-22",
@@ -335,12 +578,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 25 týždňami",
+      "relativeDate": "Pred 48 týždňami",
       "text": "Neskutečně vstřícný přístup. I malý nedostatek vyřešen velkým profesionálním přístupem. Maximální spokojenost. Můžu jen doporučit",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xCUlRYQXdkWFYwTkdSZk5XbDBYMHR4T1hKblIwRRAB",
+      "dateApprox": "2025-11-29"
     },
     {
       "id": "g-23",
@@ -348,12 +593,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 26 týždňami",
+      "relativeDate": "Pred 49 týždňami",
       "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT21WbmVEVnZSV05ZVTFoRVZDMUplSHBRU3pVMGFVRRAB",
+      "dateApprox": "2025-11-22"
     },
     {
       "id": "g-24",
@@ -361,12 +608,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 26 týždňami",
-      "text": "Objednával som si autokoberce na mieru a som maximálne spokojný. Komunikácia s firmou bola od začiatku na vysokej úrovni – pán, ktorý so mnou všetko riešil, bol nesmierne milý, ochotný a veľmi chápavý. Všetko mi detailne vysvetlil, poradil pri výbere a prispôsobil objednávku presne mojim požiadavkám. Kvalita je výborná a spracovanie naozaj precízne – vidno, že si dávajú záležať na každom detaile. Takto profesionálny prístup sa už dnes nevidí. Určite odporúčam každému, kto hľadá kvalitné produkty a ľudský prístup. Za mňa 10/10!",
+      "relativeDate": "Pred 49 týždňami",
+      "text": "Objednával som si autokoberce na mieru a som maximálne spokojný. Komunikácia s firmou bola od začiatku na vysokej úrovni – pán, ktorý so mnou všetko riešil, bol nesmierne milý, ochotný a veľmi chápavý. Všetko mi detailne vysvetlil, poradil pri výbere a prispôsobil objednávku presne mojim požiadavkám.\n\nKvalita je výborná a spracovanie naozaj precízne – vidno, že si dávajú záležať na každom detaile. Takto profesionálny prístup sa už dnes nevidí.\n\nUrčite odporúčam každému, kto hľadá kvalitné produkty a ľudský prístup. Za mňa 10/10!",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tWTVJYQm1UemRuVnpGQlZqRXdlRWhSTVZwcGExRRAB",
+      "dateApprox": "2025-11-22"
     },
     {
       "id": "g-25",
@@ -374,12 +623,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 30 týždňami",
+      "relativeDate": "Pred 53 týždňami",
       "text": "Luxury Car Design můžu jen doporučit. Sem s koberci spokojená. Krásné, kvalitní a krásně sedí. Co se týče komunikace s prodejcem,uplne perfektní. Ne jen že starostlivy, ale strašně ochotný, milý, napomocny. Jednání 11 s 10. Vše opravdu dokonalý a sem milo překvapená. Moc děkuji za vše. Můžu jen doporučit.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xGR0xXbHZUVzB5VnpaVFZVMUJOM1pOTUZOMWRWRRAB",
+      "dateApprox": "2025-10-25"
     },
     {
       "id": "g-26",
@@ -387,12 +638,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 32 týždňami",
+      "relativeDate": "Pred 55 týždňami",
       "text": "Objednávka my bola doručená všetko sedí na mieru odporučám dobrý pristup všetko prebehlo poriadku",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tOMWNVZDRTazVzU0hwNFJVUmZaMlJrUTNKeVZGRRAB",
+      "dateApprox": "2025-10-11"
     },
     {
       "id": "g-27",
@@ -400,7 +653,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 34 týždňami",
+      "relativeDate": "Pred 57 týždňami",
       "text": "Mám koberce Dragon skit od Luxury Car design a som s nimi nad mieru spokojný ihneď po inštalácii sadli a oživili priestor môjho interiéru, čistia sa jednoducho stačí použiť v podstate len vlhkú handričku a za krátky čas máte vyčistené celé auto. V balení dostanete aj sadu niekoľkých klipov na uchytenie ale ja som to tam ani nedával keďže suché zipsy od výroby skvelo držia tak klipy neboli potrebné. Koberce od Luxury Car Design vrelo odporúčam",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-27-1.jpg",
@@ -408,7 +661,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25GbmRraFhWR1pyTjBOdkxWRlZWREkwV0dKTk9HYxAB",
+      "dateApprox": "2025-09-27"
     },
     {
       "id": "g-28",
@@ -416,12 +671,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 34 týždňami",
+      "relativeDate": "Pred 57 týždňami",
       "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT21SWlVGUkpPVTFXVWxKUWJqTXhTbWd6YlhoalVFRRAB",
+      "dateApprox": "2025-09-27"
     },
     {
       "id": "g-29",
@@ -429,7 +686,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 34 týždňami",
+      "relativeDate": "Pred 57 týždňami",
       "text": "Veľmi seriózne jednanie , rýchla a veľmi ústretová reakcia na reklamáciu ktorá sa týkala rozmeru zadnej rohože na Ssangyong TORRES 2023. Bolo to nové auto na ktoré ešte neboli matrice na šitie a doriešili dodanie novej rohože . Túto firmu môžem len odporučiť všetkým čo chcú mať luxusné koberce vo svojom aute . Ďakujem .",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-29-1.jpg",
@@ -438,7 +695,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2taTVJqaG1hRkZXWkMxNk0wUnFjbkpVVjJZeWRXYxAB",
+      "dateApprox": "2025-09-27"
     },
     {
       "id": "g-30",
@@ -446,12 +705,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 38 týždňami",
+      "relativeDate": "Pred 61 týždňami",
       "text": "Super vrelo odporúčam maximálna spokojnosť 👌🔥🤎",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pObVFVWk9PVzF0T0RoVlkxOVlZazVoUjE5UlVFRRAB",
+      "dateApprox": "2025-08-30"
     },
     {
       "id": "g-31",
@@ -459,12 +720,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 38 týždňami",
+      "relativeDate": "Pred 61 týždňami",
       "text": "Koberečky jsou sur.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tkc1J6RlNkMWxxY3pWeUxWcFRRbGxzV1hGNFkxRRAB",
+      "dateApprox": "2025-08-30"
     },
     {
       "id": "g-32",
@@ -472,12 +735,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 40 týždňami",
+      "relativeDate": "Pred 63 týždňami",
       "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tSUWRGRkhiMnhWTlRSV09XRnRablJ2WlZadWIzYxAB",
+      "dateApprox": "2025-08-16"
     },
     {
       "id": "g-33",
@@ -485,8 +750,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 40 týždňami",
-      "text": "Jsem velmi spokojen s kvalitou materiálu a komunikace s firmou může jen doporučit vipada fakt luxusně +2 Luxury Car Design Vlastník 23. 8. 2023 Ďakujeme za objednávku ,a tešíme sa na ďalšiu spoluprácu 🙂 Upraviť Odstrániť",
+      "relativeDate": "Pred 63 týždňami",
+      "text": "Jsem velmi spokojen s kvalitou materiálu a komunikace s firmou může jen doporučit vipada fakt luxusně",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-33-2.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-33-1.jpg",
@@ -495,7 +760,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUNwNDV2dmVnEAE",
+      "dateApprox": "2025-08-16"
     },
     {
       "id": "g-34",
@@ -503,7 +770,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 42 týždňami",
+      "relativeDate": "Pred 65 týždňami",
       "text": "Veľká spokojnosť👍",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-34-1.jpg",
@@ -512,7 +779,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2tSaFVUTnhTR051WjFCTmVsOXVSMXBvWnpSSlIwRRAB",
+      "dateApprox": "2025-08-02"
     },
     {
       "id": "g-35",
@@ -520,12 +789,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 43 týždňami",
+      "relativeDate": "Pred 66 týždňami",
       "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2xFNU9GRXdNRVYzVkROSlVtRlNTV1F5WDNkclVHYxAB",
+      "dateApprox": "2025-07-26"
     },
     {
       "id": "g-36",
@@ -533,7 +804,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 44 týždňami",
+      "relativeDate": "Pred 67 týždňami",
       "text": "Mám tieto koberce asi dva roky a teraz som si objednal aj do tretieho auta.Som veľmi spokojný s produktom,jeho kvalitou a v neposlednom rade aj s prístupom a komunikáciou pri jeho objednávaní. Určite odporúčam.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-36-1.jpg",
@@ -542,7 +813,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT2pGV05tazVSWEF3WmpBeFozbHpSV3hUVEhkbVZYYxAB",
+      "dateApprox": "2025-07-19"
     },
     {
       "id": "g-37",
@@ -550,7 +823,7 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "Pred 46 týždňami",
+      "relativeDate": "Pred 69 týždňami",
       "text": "Děkuji",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-37-2.jpg",
@@ -559,7 +832,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "Ci9DQUlRQUNvZENodHljRjlvT25Gd2FIaFNSR1JGVVRaWk4yVnBkMkV3ZUVKalNrRRAB",
+      "dateApprox": "2025-07-05"
     },
     {
       "id": "g-38",
@@ -567,8 +842,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "6. 5. 2025 Tak tedy, toto jsem nečekal, to je nádhera, ale dal bych 4,5 hvězd, vždy je co zlepšovat, na záhyby pod přední sedadla našít suchý zip a na zadní zase udělat je cca o 20 cm delší, také to co se strčí pod přední sedačky, upevnění je také někdy složité, ale pouďte sami, za mne - skvělé. +2",
+      "relativeDate": "Pred 77 týždňami",
+      "text": "Tak tedy, toto jsem nečekal, to je nádhera, ale dal bych 4,5 hvězd, vždy je co zlepšovat, na záhyby pod přední sedadla našít suchý zip a na zadní zase udělat je cca o 20 cm delší, také to co se strčí pod přední sedačky, upevnění je také někdy složité, ale pouďte sami, za mne - skvělé.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-38-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-38-0.jpg",
@@ -577,7 +852,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VPWFJ6TEM1cDhMRV93RRAB",
+      "dateApprox": "2025-05-06"
     },
     {
       "id": "g-39",
@@ -585,8 +862,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "5. 5. 2025 Od komunikace po doručení perfektní. Cena? Tak… těžko posoudit, auto vypadají luxusně a hlavně chrání spodní koberce a polstrování. Firmu bych doporučil a označil za spolehlivou, s perfektní komunikací.",
+      "relativeDate": "Pred 78 týždňami",
+      "text": "Od komunikace po doručení perfektní. Cena? Tak… těžko posoudit, auto vypadají luxusně a hlavně chrání spodní koberce a polstrování. Firmu bych doporučil a označil za spolehlivou, s perfektní komunikací.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-39-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-39-0.jpg",
@@ -594,7 +871,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnTUNZb2FDeFRREAE",
+      "dateApprox": "2025-05-05"
     },
     {
       "id": "g-40",
@@ -602,12 +881,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "26. 3. 2025",
+      "relativeDate": "Pred 83 týždňami",
+      "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnTUR3b1pfQUxBEAE",
+      "dateApprox": "2025-03-26"
     },
     {
       "id": "g-41",
@@ -615,8 +896,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "21. 3. 2025 Seriózne jednanie a ako pán sľúbil tak aj bolo pretože som sa obával kvality .Vyzeraju veľmi pekne luxusne a sú aj kvalitne vypracované .Co sa týka montaže- rýchle a jednoduché keďže sedia úplne na mieru .Mozem len odporúcit 👍",
+      "relativeDate": "Pred 84 týždňami",
+      "text": "Seriózne jednanie a ako pán sľúbil tak aj bolo pretože som sa obával kvality .Vyzeraju veľmi pekne luxusne a sú aj kvalitne vypracované .Co sa týka montaže- rýchle a jednoduché keďže sedia úplne na mieru .Mozem len odporúcit 👍",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-41-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-41-2.jpg",
@@ -624,7 +905,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnTUN3NTdHQnhRRRAB",
+      "dateApprox": "2025-03-21"
     },
     {
       "id": "g-42",
@@ -632,8 +915,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "19. 3. 2025 S koberčekmi v BMW X5 sme veľmi spokojní. Kvalitné materiály, presné spracovanie a ikonické M-pruhy dodávajú interiéru športový a luxusný vzhľad. Skvele dopĺňajú celkový štýl vozidla a zvyšujú komfort pri jazde. +8",
+      "relativeDate": "Pred 84 týždňami",
+      "text": "S koberčekmi v BMW X5 sme veľmi spokojní. Kvalitné materiály, presné spracovanie a ikonické M-pruhy dodávajú interiéru športový a luxusný vzhľad. Skvele dopĺňajú celkový štýl vozidla a zvyšujú komfort pri jazde.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-42-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-42-1.jpg",
@@ -642,7 +925,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnTUN3eVp6dmpBRRAB",
+      "dateApprox": "2025-03-19"
     },
     {
       "id": "g-43",
@@ -650,12 +935,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "19. 3. 2025 Som veľmi spokojný. Príjemný prístup, príjemné poradenstvo a skoré dodanie kobercov. Môžem len odporučiť 😊😊",
+      "relativeDate": "Pred 84 týždňami",
+      "text": "Som veľmi spokojný. Príjemný prístup, príjemné poradenstvo a skoré dodanie kobercov. Môžem len odporučiť 😊😊",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnTURnMHMzcW1RRRAB",
+      "dateApprox": "2025-03-19"
     },
     {
       "id": "g-44",
@@ -663,15 +950,17 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "23. 2. 2025 Dobrý den, chtěla bych poděkovat za ochotu pri objednávání, velmi detailní vysvětlení celé mé objednávky ,děkuji moc za nádherně propracované koberce , přesně sedí jak mají ,vypadají krásně. Jste super obchod ,vřele doporučuji",
+      "relativeDate": "Pred 88 týždňami",
+      "text": "Dobrý den, chtěla bych poděkovat za ochotu pri objednávání, velmi detailní vysvětlení celé mé objednávky ,děkuji moc za nádherně propracované koberce , přesně sedí jak mají ,vypadají krásně. Jste super obchod ,vřele doporučuji",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-44-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-44-1.jpg"
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnTURnOHZMaXp3RRAB",
+      "dateApprox": "2025-02-23"
     },
     {
       "id": "g-45",
@@ -679,8 +968,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "2. 2. 2025 Musím v prvom rade pochváliť majiteľa, keď som vybavoval boli sviatky a ešte sobota večer cca 21:30 v čete pomôže vám? Čakáte bota ktorý odpovie, nie! Majiteľ odpisoval riešil, nedeľu volal, hneď všetko promtne riešené, žiadne natahovacky, nič, pekne rovno povedal, že to bude trvať 4až5 týždňov, dorazilo skôr nakoniec, musím pochváliť, takto si predstavujem fungujúcu firmu!",
+      "relativeDate": "Pred 91 týždňami",
+      "text": "Musím v prvom rade pochváliť majiteľa, keď som vybavoval boli sviatky a ešte sobota večer cca 21:30 v čete pomôže vám? Čakáte bota ktorý odpovie, nie! Majiteľ odpisoval riešil, nedeľu volal,  hneď všetko promtne riešené, žiadne natahovacky, nič, pekne rovno povedal, že to bude trvať 4až5 týždňov, dorazilo skôr nakoniec, musím pochváliť, takto si predstavujem fungujúcu firmu!",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-45-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-45-2.jpg",
@@ -688,7 +977,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnTUNBeGFMV21BRRAB",
+      "dateApprox": "2025-02-02"
     },
     {
       "id": "g-46",
@@ -696,12 +987,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "29. 1. 2025",
+      "relativeDate": "Pred 91 týždňami",
+      "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnTUNBNVByNlVnEAE",
+      "dateApprox": "2025-01-29"
     },
     {
       "id": "g-47",
@@ -709,12 +1002,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "15. 1. 2025 Výborná spolupráca aj koberce. Maximálna spokojnosť",
+      "relativeDate": "Pred 93 týždňami",
+      "text": "Výborná spolupráca aj koberce. Maximálna spokojnosť",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUNfcHZPOTV3RRAB",
+      "dateApprox": "2025-01-15"
     },
     {
       "id": "g-48",
@@ -722,8 +1017,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "21. 12. 2024 Označení koberců jako Luxury je opravdu výstižné a tyto koberce jsou opravdu luxusní výrobek, jak kvalitou zpracování tak designem. Mám je ve všech svých autech a fungují naprosto skvěle i v náročných užitkových vlastnostech. Naprostá spokojenost. +2",
+      "relativeDate": "Pred 97 týždňami",
+      "text": "Označení koberců jako Luxury je opravdu výstižné a tyto koberce jsou opravdu luxusní výrobek, jak kvalitou zpracování tak designem. Mám je ve všech svých autech a fungují naprosto skvěle i v náročných užitkových vlastnostech. Naprostá spokojenost.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-48-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-48-3.jpg",
@@ -732,7 +1027,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUR2c2J5V3h3RRAB",
+      "dateApprox": "2024-12-21"
     },
     {
       "id": "g-49",
@@ -740,12 +1037,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "11. 12. 2024 Super komunikace,vše top 👍",
+      "relativeDate": "Pred 98 týždňami",
+      "text": "Super komunikace,vše top 👍",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUN2d1lYWDhRRRAB",
+      "dateApprox": "2024-12-11"
     },
     {
       "id": "g-50",
@@ -753,12 +1052,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "10. 12. 2024 Ďakujem vám za krásne rohože su veľmi pekne som nadmieru spokojný a montáž bola veľmi rýchla a jednoduchá a teraz už len len slúžia a ozdobuju autíčko 🚘 Dakujem z pozdravom vás spokojný zákazník 😀",
+      "relativeDate": "Pred 98 týždňami",
+      "text": "Ďakujem vám za krásne rohože su veľmi pekne som nadmieru spokojný a montáž bola veľmi rýchla a jednoduchá a teraz už len len slúžia a ozdobuju autíčko 🚘 Dakujem z pozdravom vás spokojný zákazník 😀",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUN2dXVPVTBnRRAB",
+      "dateApprox": "2024-12-10"
     },
     {
       "id": "g-51",
@@ -766,8 +1067,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "9. 12. 2024 Ďakujem krásne za top 👌🏻 a luxusné koberce ,, Luxury Car Design ,, +6",
+      "relativeDate": "Pred 99 týždňami",
+      "text": "Ďakujem krásne za top 👌🏻 a luxusné koberce ,, Luxury Car Design ,,",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-51-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-51-2.jpg",
@@ -776,7 +1077,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUN2a3R1R3BRRRAB",
+      "dateApprox": "2024-12-09"
     },
     {
       "id": "g-52",
@@ -784,12 +1087,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "3. 12. 2024 Veľmi som spokojný, koberčeky a auto rohože sú perfektné šité na mieru ,, odporúčam každému kto sa snaží starať sa o svoje auto 👌",
+      "relativeDate": "Pred 99 týždňami",
+      "text": "Veľmi som spokojný, koberčeky a auto rohože sú perfektné šité na mieru ,, odporúčam každému kto sa snaží starať sa o svoje auto 👌",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURQbWFLdm5RRRAB",
+      "dateApprox": "2024-12-03"
     },
     {
       "id": "g-53",
@@ -797,8 +1102,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "20. 11. 2024 Sme velmi spokojní s kobercami a boxom do auta. Zmenilo to celkovy vzhlad celeho interieru. Kvalitne materialy a aj kvalitné spracovanie +4",
+      "relativeDate": "Pred 101 týždňami",
+      "text": "Sme velmi spokojní s kobercami a boxom do auta. Zmenilo to celkovy vzhlad celeho interieru. Kvalitne materialy a aj kvalitné spracovanie",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-53-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-53-0.jpg",
@@ -807,7 +1112,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUNQZ09PZklBEAE",
+      "dateApprox": "2024-11-20"
     },
     {
       "id": "g-54",
@@ -815,8 +1122,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "20. 11. 2024 Všetko sadlo ako uliate.",
+      "relativeDate": "Pred 101 týždňami",
+      "text": "Všetko sadlo ako uliate.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-54-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-54-1.jpg",
@@ -824,7 +1131,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUNQZ01PQlpnEAE",
+      "dateApprox": "2024-11-20"
     },
     {
       "id": "g-55",
@@ -832,8 +1141,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "3. 11. 2024 Koberčeky do autá sú skutočne krásne, hrubá koža a na nej druhá vrstva, sivá melírovaná, dodali interiéru ten správny šmrnc. Kvalita kože aj prešívania je skutočne vysoká, fotky a recenzie na stránke zodpovedajú reálnym produktom, nejde o žiadne čínske napodobeniny. Zároveň je pán Švancár skutočný a poctivý podnikateľ - po dodaní objednávky sme si všimli malý detail, no pán Švancár všetko okamžite doriešil k mojej spokojnosti. Tento produkt všetkým odporúčam.",
+      "relativeDate": "Pred 104 týždňami",
+      "text": "Koberčeky do autá sú skutočne krásne, hrubá koža a na nej druhá vrstva, sivá melírovaná, dodali interiéru ten správny šmrnc. Kvalita kože aj prešívania je skutočne vysoká, fotky a recenzie na stránke zodpovedajú reálnym produktom, nejde o žiadne čínske napodobeniny. Zároveň je pán Švancár skutočný a poctivý podnikateľ - po dodaní objednávky sme si všimli malý detail, no pán Švancár všetko okamžite doriešil k mojej spokojnosti. Tento produkt všetkým odporúčam.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-55-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-55-0.jpg",
@@ -841,7 +1150,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUMzakwzaTJnRRAB",
+      "dateApprox": "2024-11-03"
     },
     {
       "id": "g-56",
@@ -849,8 +1160,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "29. 9. 2024 Ďakujem,za kvalitné autokoberce,sú parádne a aj dobre pasujú,za mňa nože byť, odporúčam 👍",
+      "relativeDate": "Pred 109 týždňami",
+      "text": "Ďakujem,za kvalitné autokoberce,sú parádne a aj dobre pasujú,za mňa nože byť, odporúčam 👍",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-56-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-56-2.jpg",
@@ -858,7 +1169,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUNuazdlMFpBEAE",
+      "dateApprox": "2024-09-29"
     },
     {
       "id": "g-57",
@@ -866,8 +1179,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "27. 9. 2024 Super prístup pri aj po nakupe",
+      "relativeDate": "Pred 109 týždňami",
+      "text": "Super prístup pri aj po nakupe",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-57-3.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-57-1.jpg",
@@ -876,7 +1189,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUNuNmFuaktBEAE",
+      "dateApprox": "2024-09-27"
     },
     {
       "id": "g-58",
@@ -884,8 +1199,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "13. 9. 2024 Musím vychválit Luxury Car Design, byl jsem víc než mile překvapen.Koberečky jsou nejen krásně zpracované, ale i sedí na 100%. Neměl jsem žádné problémy s položením.Opravdu moc chválím a přeji více spokojených zákazníků.Smekám klobouk 🙂. S pozdravem a přáním Strnad Pavel.",
+      "relativeDate": "Pred 111 týždňami",
+      "text": "Musím vychválit Luxury Car Design, byl jsem víc než mile překvapen.Koberečky jsou nejen krásně zpracované, ale i sedí na 100%.\nNeměl jsem žádné problémy s položením.Opravdu moc chválím a přeji více spokojených zákazníků.Smekám klobouk 🙂.\nS pozdravem a přáním Strnad Pavel.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-58-2.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-58-1.jpg",
@@ -893,7 +1208,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSURIM0xhS0NnEAE",
+      "dateApprox": "2024-09-13"
     },
     {
       "id": "g-59",
@@ -901,8 +1218,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "12. 9. 2024 Koberce sadli ako uliate na Kia Sportage. Už moje druhé koberce do druhého auta. Zvažujem si dať aj do tretieho. Kvalitné, ľahko udržiavatelne, a vyzerajú super v aute.",
+      "relativeDate": "Pred 111 týždňami",
+      "text": "Koberce sadli ako uliate na Kia Sportage.\nUž moje druhé koberce do druhého auta. Zvažujem si dať aj do tretieho. Kvalitné, ľahko udržiavatelne, a vyzerajú super v aute.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-59-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-59-0.jpg",
@@ -910,7 +1227,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURIdVBYbHR3RRAB",
+      "dateApprox": "2024-09-12"
     },
     {
       "id": "g-60",
@@ -918,12 +1237,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "28. 6. 2024 Ďakujem za super prístup, dobrá komunikácia, rohože sú veľmi kvalitné a pekné, každému odporúčam.",
+      "relativeDate": "Pred 122 týždňami",
+      "text": "Ďakujem za super prístup, dobrá komunikácia, rohože sú veľmi kvalitné a pekné, každému odporúčam.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURMMFpqeHh3RRAB",
+      "dateApprox": "2024-06-28"
     },
     {
       "id": "g-61",
@@ -931,12 +1252,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "23. 5. 2024",
+      "relativeDate": "Pred 127 týždňami",
+      "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURUek1iNjB3RRAB",
+      "dateApprox": "2024-05-23"
     },
     {
       "id": "g-62",
@@ -944,8 +1267,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "9. 5. 2024 Ďakujem vám za váš tovar.Dnes som to namontoval .Je to jednoduché, precízne spracovanie Som spokojný so kvalitou. +2",
+      "relativeDate": "Pred 129 týždňami",
+      "text": "Ďakujem vám za váš tovar.Dnes som to namontoval .Je to jednoduché, precízne spracovanie Som spokojný so kvalitou.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-62-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-62-2.jpg",
@@ -954,7 +1277,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURqXzlTajJRRRAB",
+      "dateApprox": "2024-05-09"
     },
     {
       "id": "g-63",
@@ -962,8 +1287,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "6. 5. 2024 Jsem velmi spokojen.",
+      "relativeDate": "Pred 130 týždňami",
+      "text": "Jsem velmi spokojen.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-63-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-63-1.jpg",
@@ -971,7 +1296,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSURqX2Z6TVl3EAE",
+      "dateApprox": "2024-05-06"
     },
     {
       "id": "g-64",
@@ -979,12 +1306,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "6. 5. 2024 Ano, jsem spokojen jak s firmou Luxury Car Design, tak i s dodáním autokoberců. Dodací doba byla podle dohody dodržená. Děkujeme",
+      "relativeDate": "Pred 130 týždňami",
+      "text": "Ano, jsem spokojen jak s firmou Luxury Car Design, tak i s dodáním autokoberců.\nDodací doba byla podle dohody dodržená. Děkujeme",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURqdmEtTzF3RRAB",
+      "dateApprox": "2024-05-06"
     },
     {
       "id": "g-65",
@@ -992,8 +1321,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "6. 5. 2024 Za mě spokojenost s výrobkem jednání rychlé doručení zboží taktéž",
+      "relativeDate": "Pred 130 týždňami",
+      "text": "Za mě spokojenost s výrobkem jednání rychlé doručení zboží taktéž",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-65-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-65-0.jpg",
@@ -1001,7 +1330,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSURqdll2SU9BEAE",
+      "dateApprox": "2024-05-06"
     },
     {
       "id": "g-66",
@@ -1009,12 +1340,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "4. 4. 2024 Luxury Car Design mohu jen doporučit ,profi práce ,koberce pasovaly,jako z továrny ,spokojenost a přeji co nejvíce spokojených zákazníků . Kdo umí,umí.",
+      "relativeDate": "Pred 134 týždňami",
+      "text": "Luxury Car Design mohu jen doporučit ,profi práce ,koberce pasovaly,jako z továrny ,spokojenost a přeji co nejvíce spokojených zákazníků . Kdo umí,umí.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUREc0lQYTRBRRAB",
+      "dateApprox": "2024-04-04"
     },
     {
       "id": "g-67",
@@ -1022,12 +1355,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "28. 2. 2024 Veľká spokojnosť férové jednania ochota profesionálny prístup odporúčam super spolupráca",
+      "relativeDate": "Pred 139 týždňami",
+      "text": "Veľká spokojnosť férové jednania ochota profesionálny prístup odporúčam super spolupráca",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSURkbDlHN1JnEAE",
+      "dateApprox": "2024-02-28"
     },
     {
       "id": "g-68",
@@ -1035,8 +1370,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "25. 2. 2024 Profesionálny prístup, rýchla reakcia,lepšie pre zákazníkov je materiál vidieť a chytiť na živo mal som túto možnosť vďaka ústretovosti predajcu. Šablóny sú super všetko perfektné sadlo na svoje miesto. Jedna hviezdička dole len za predĺženú dobu dodávky. Bolo to pre chorobu vo výrobe. S čim som bol oboznameny,.Môžem z vlastnej skúsenosti odporučiť. +2",
+      "relativeDate": "Pred 140 týždňami",
+      "text": "Profesionálny prístup, rýchla reakcia,lepšie pre zákazníkov je materiál vidieť a chytiť na živo mal som túto možnosť vďaka ústretovosti predajcu. Šablóny sú super všetko perfektné sadlo na svoje miesto.  Jedna hviezdička dole len za predĺženú dobu dodávky. Bolo to pre chorobu vo výrobe. S čim som bol oboznameny,.Môžem z vlastnej skúsenosti odporučiť.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-68-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-68-1.jpg",
@@ -1045,7 +1380,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSURkNWVYRFp3EAE",
+      "dateApprox": "2024-02-25"
     },
     {
       "id": "g-69",
@@ -1053,8 +1390,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "15. 2. 2024 Odporúčam odviedli peknú prácu",
+      "relativeDate": "Pred 141 týždňami",
+      "text": "Odporúčam odviedli peknú prácu",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-69-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-69-1.jpg",
@@ -1062,7 +1399,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUNkM3VlNEZnEAE",
+      "dateApprox": "2024-02-15"
     },
     {
       "id": "g-70",
@@ -1070,12 +1409,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "1. 2. 2024 Z koberečkami od luxury Car Design jsem byl velice spokojený,všem doporučuji.",
+      "relativeDate": "Pred 143 týždňami",
+      "text": "Z koberečkami od luxury Car Design jsem byl velice spokojený,všem doporučuji.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUN0aC0tSE5BEAE",
+      "dateApprox": "2024-02-01"
     },
     {
       "id": "g-71",
@@ -1083,8 +1424,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "28. 1. 2024 Jsem velmi spokojen a doporučuji, super komunikace s obchodem a velmi kvalitní produkty",
+      "relativeDate": "Pred 144 týždňami",
+      "text": "Jsem velmi spokojen a doporučuji, super komunikace s obchodem a velmi kvalitní produkty",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-71-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-71-2.jpg",
@@ -1092,7 +1433,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "cz",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUN0cUpHRWRREAE",
+      "dateApprox": "2024-01-28"
     },
     {
       "id": "g-72",
@@ -1100,12 +1443,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "11. 10. 2023 Maximálna spokojnost, sú kvalitné a presne sedi rozmer do môjho auta, tak ako som si ich objednal. Su praktickè a ľahko sa čistia. Odporúčam každému.",
+      "relativeDate": "Pred 159 týždňami",
+      "text": "Maximálna spokojnost, sú kvalitné a presne sedi rozmer do môjho auta, tak ako som si ich objednal. Su praktickè a ľahko sa čistia. Odporúčam každému.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUM1dEp1Y0lnEAE",
+      "dateApprox": "2023-10-11"
     },
     {
       "id": "g-73",
@@ -1113,12 +1458,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "10. 10. 2023",
+      "relativeDate": "Pred 159 týždňami",
+      "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChRDSUhNMG9nS0VJQ0FnSUM1cE1jRBAB",
+      "dateApprox": "2023-10-10"
     },
     {
       "id": "g-74",
@@ -1126,12 +1473,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "10. 10. 2023 Vyzera to naozaj komfortne",
+      "relativeDate": "Pred 159 týždňami",
+      "text": "Vyzera to naozaj komfortne",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUM1cFBiN1pBEAE",
+      "dateApprox": "2023-10-10"
     },
     {
       "id": "g-75",
@@ -1139,12 +1488,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "10. 10. 2023 Veľmi spokojný",
+      "relativeDate": "Pred 159 týždňami",
+      "text": "Veľmi spokojný",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUM1eEkzSXh3RRAB",
+      "dateApprox": "2023-10-10"
     },
     {
       "id": "g-76",
@@ -1152,12 +1503,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "10. 10. 2023 Super komunikácia 👌🏻 Pekne to pasuje za mňa spokojnosť Odporúčam 👌🏻",
+      "relativeDate": "Pred 159 týždňami",
+      "text": "Super komunikácia 👌🏻\nPekne to pasuje za mňa spokojnosť\nOdporúčam 👌🏻",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUM1eElIZXhRRRAB",
+      "dateApprox": "2023-10-10"
     },
     {
       "id": "g-77",
@@ -1165,12 +1518,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "10. 10. 2023 Ďakujeme veľmi pekne za celú sadu kobercov a boxov. Príjemná komunikácia, prijateľné dodanie a super kvalita.",
+      "relativeDate": "Pred 159 týždňami",
+      "text": "Ďakujeme veľmi pekne za celú sadu kobercov a boxov.\nPríjemná komunikácia, prijateľné dodanie a super kvalita.",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUM1eEpxdGRnEAE",
+      "dateApprox": "2023-10-10"
     },
     {
       "id": "g-78",
@@ -1178,12 +1533,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "9. 10. 2023 Spokojnosť...",
+      "relativeDate": "Pred 160 týždňami",
+      "text": "Spokojnosť...",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUM1aUtLT1ZBEAE",
+      "dateApprox": "2023-10-09"
     },
     {
       "id": "g-79",
@@ -1191,25 +1548,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "9. 10. 2023 Som veľmi spokojný je to super",
+      "relativeDate": "Pred 160 týždňami",
+      "text": "Som veľmi spokojný je to super",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
-    },
-    {
-      "id": "g-80",
-      "author": "Silvia Halasz",
-      "authorPhoto": null,
-      "rating": 5,
-      "date": null,
-      "relativeDate": "",
-      "text": "9. 10. 2023",
-      "photos": [],
-      "url": "https://www.google.com/search?q=luxurycardesign",
-      "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUM1ME8zUTBnRRAB",
+      "dateApprox": "2023-10-09"
     },
     {
       "id": "g-81",
@@ -1217,12 +1563,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "9. 10. 2023 Spokojnosť 100% oplatilo sa čakať ďakujem",
+      "relativeDate": "Pred 160 týždňami",
+      "text": "Spokojnosť 100% oplatilo sa čakať ďakujem",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUM1a01HaUJREAE",
+      "dateApprox": "2023-10-09"
     },
     {
       "id": "g-82",
@@ -1230,15 +1578,17 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "9. 10. 2023 Super👍",
+      "relativeDate": "Pred 160 týždňami",
+      "text": "Super👍",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-82-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-82-1.jpg"
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUM1NE5Mbml3RRAB",
+      "dateApprox": "2023-10-09"
     },
     {
       "id": "g-83",
@@ -1246,12 +1596,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "23. 8. 2023",
+      "relativeDate": "Pred 166 týždňami",
+      "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURwZ1lQeW1nRRAB",
+      "dateApprox": "2023-08-23"
     },
     {
       "id": "g-84",
@@ -1259,12 +1611,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "14. 8. 2023 Luxury Car Design Vlastník 23. 8. 2023 Ďakujeme za objednávku a tešíme sa ďalšiu spoluprácu 🙂 Upraviť Odstrániť",
+      "relativeDate": "Pred 168 týždňami",
+      "text": "",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSURwa04yTkNREAE",
+      "dateApprox": "2023-08-14"
     },
     {
       "id": "g-85",
@@ -1272,14 +1626,16 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "1. 8. 2023 Veľká spokojnosť, komunikácia, prevedenie, montáž 👍👍👍💪💪💪 za mňa odporúčam, šiel by som do toho znova. Luxury Car Design Vlastník 23. 8. 2023 Ďakujeme za objednávku ,a tešíme sa na ďalšiu spoluprácu 🙂 Upraviť Odstrániť",
+      "relativeDate": "Pred 169 týždňami",
+      "text": "Veľká spokojnosť, komunikácia, prevedenie, montáž 👍👍👍💪💪💪\nza mňa odporúčam, šiel by som do toho znova.",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-85-0.jpg"
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUNwOHVIVzlRRRAB",
+      "dateApprox": "2023-08-01"
     },
     {
       "id": "g-86",
@@ -1287,8 +1643,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "23. 6. 2023 Odporúčam pán veľmi ochotný pomôže s objednávkou a rohože prišli v poriadku krásne a detailne spracované. Nám už zdobia našu q5 🙂 Luxury Car Design Vlastník 23. 8. 2023 Ďakujeme za objednávku ,a tešíme sa na ďalšiu spoluprácu 🙂 Upraviť Odstrániť",
+      "relativeDate": "Pred 175 týždňami",
+      "text": "Odporúčam pán veľmi ochotný pomôže s objednávkou a rohože prišli v poriadku krásne a detailne spracované. Nám už zdobia našu q5 🙂",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-86-0.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-86-3.jpg",
@@ -1297,7 +1653,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSUNKZ3ZURHRRRRAB",
+      "dateApprox": "2023-06-23"
     },
     {
       "id": "g-87",
@@ -1305,12 +1663,14 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "12. 6. 2023 Rohoze su perfektne necakal som ze to bude tak dobre vyzerat v skutocnosti ale je to bomba dodanie vcas setko bez problemov urcite Vam pride odomna objednavka este na moj passatik je to pecka naozaj Luxury Car Design Vlastník 19. 6. 2023 Ďakujeme za Váš nákup :) Upraviť Odstrániť",
+      "relativeDate": "Pred 177 týždňami",
+      "text": "Rohoze su perfektne necakal som ze to bude tak dobre vyzerat v skutocnosti ale je to bomba dodanie vcas setko bez problemov urcite Vam pride odomna objednavka este na moj passatik je to pecka naozaj",
       "photos": [],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUR4MWZESU5nEAE",
+      "dateApprox": "2023-06-12"
     },
     {
       "id": "g-88",
@@ -1318,8 +1678,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "12. 5. 2023 Maximálna spokojnosť ústretovosť a prístup k zákazníkovi na 💯% Ďakujeme veľmi pekne Luxury Car Design Vlastník 19. 6. 2023 Ďakujeme za Váš nákup :) Upraviť Odstrániť",
+      "relativeDate": "Pred 181 týždňami",
+      "text": "Maximálna spokojnosť ústretovosť a prístup k zákazníkovi na 💯%\nĎakujeme veľmi pekne",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-88-2.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-88-1.jpg",
@@ -1327,7 +1687,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChZDSUhNMG9nS0VJQ0FnSUN4M01UbVR3EAE",
+      "dateApprox": "2023-05-12"
     },
     {
       "id": "g-89",
@@ -1335,8 +1697,8 @@ window.LCD_REVIEWS = {
       "authorPhoto": null,
       "rating": 5,
       "date": null,
-      "relativeDate": "",
-      "text": "1. 5. 2023 Vsetko sedi som spokojny +2 Luxury Car Design Vlastník 19. 6. 2023 Ďakujeme za Váš nákup :) Upraviť Odstrániť",
+      "relativeDate": "Pred 183 týždňami",
+      "text": "Vsetko sedi som spokojny",
       "photos": [
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-89-1.jpg",
         "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/reviews/rg-89-0.jpg",
@@ -1345,7 +1707,9 @@ window.LCD_REVIEWS = {
       ],
       "url": "https://www.google.com/search?q=luxurycardesign",
       "language": "sk",
-      "ownerResponse": null
+      "ownerResponse": null,
+      "googleId": "ChdDSUhNMG9nS0VJQ0FnSURSbmRtVW53RRAB",
+      "dateApprox": "2023-05-01"
     }
   ]
 };
