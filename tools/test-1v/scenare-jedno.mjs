@@ -300,6 +300,45 @@ const SCENARE = {
     },
   },
 
+  /**
+   * Dvojité ťuknutie na „Potvrďte výber boxov“ výber nezmení (kontrola 29. 10. 2026 k okno-jeden-tuk: druhé ťuknutie
+   * 0,3–0,7 s po potvrdení prepadlo cez zatvorené okno na stránku — telefón s tlačidlom nad lištou Safari: karta
+   * „Nechcem“ pod ním zrušila oba boxy; 601 s 1 boxom XL: karta „2 boxy“ prepla na 2× S + S a otvorila okno). Pozadie
+   * okna chytá ťuknutia ešte 0,8 s po zatvorení (_lcd1v-kufor-boxy.scss). Telefón: model zbalenej lišty Safari ako
+   * okno-jeden-tuk. (1) 2 boxy M + M, druhé ťuknutie o 300 ms; (2) úprava bez zmeny, o 700 ms; (3) 1 box XL (farba
+   * prenesená), o 300 ms. Po každom: okno sa zavrelo 1. ťuknutím a znova neotvorilo, formulár ako pred ťuknutím, karta
+   * a súhrn kroku sedia. Bez košíka: POST 0.
+   */
+  "okno-dvojtuk": {
+    typy: ["jedno", "dvoj"],
+    fn: async (s, a, pom, ovl, j) => {
+      const sk = preskocBez(a); if (sk) return sk;
+      if (!ovl.kuforBoxy.dvojTuk) return { preskoc: "len nový vzhľad (ovládač novy)" };
+      const t = s.t, kb = ovl.kuforBoxy;
+      await j.otvor(s, a.url, { novy: true });
+      await j.zaklad(s, ovl, { rozlozenie: 0 });
+      const kroky = [];
+      const over2 = (meno, r, vzor, pocet) => {
+        const kde = `${meno} (${t.sirka} px${r.model ? ", lišta Safari zbalená" : ""}, 2. ťuknutie o ${r.ms} ms na ${r.ciel})`;
+        j.over(r.zavrete, `${kde}: okno sa 1. ťuknutím nezavrelo (prvé ťuknutie na ${r.prvy}, zatvorené o ${r.zatvoreneMs} ms)`);
+        j.over(r.ms < 780, `${kde}: odstup ťuknutí ${r.ms} ms — pomalý beh (pozadie chytá 800 ms), scenár neoveril`);
+        j.over(!r.otvorene, `${kde}: druhé ťuknutie okno znova otvorilo`);
+        j.over(JSON.stringify(r.hodnoty) === JSON.stringify(r.pred), `${kde}: druhé ťuknutie zmenilo výber ${JSON.stringify(r.pred)} -> ${JSON.stringify(r.hodnoty)}`);
+        j.over(r.stav.karta === pocet, `${kde}: označená karta boxov ${r.stav.karta}, čakám ${pocet}`);
+        j.over(vzor.test(r.stav.vyber || ""), `${kde}: súhrn kroku boxov „${r.stav.vyber}“ nesedí s ${vzor}`);
+        kroky.push(`${meno} ${r.ms} ms → ${r.ciel}`);
+      };
+      const r1 = await kb.dvojTuk(t, { pocet: 2, farba: 1, velkost: "M", velkost2: "M", rozostup: 300 });
+      over2("2 boxy M + M", r1, /^2× box · M \+ M · /, 2);
+      const r2 = await kb.dvojTuk(t, { pocet: 2, farba: null, velkosti: [], rozostup: 700 });
+      over2("úprava bez zmeny", r2, /^2× box · M \+ M · /, 2);
+      const r3 = await kb.dvojTuk(t, { pocet: 1, farba: null, velkosti: [["boxSolo", "XL"]], rozostup: 300 });
+      over2("1 box XL", r3, /^1× box · XL · /, 1);
+      j.over(s.posty.length === 0, "scenár bez košíka poslal POST: " + (s.posty[0] && s.posty[0].body));
+      return { info: `výber ostal: ${kroky.join("; ")}` };
+    },
+  },
+
   "kufor-nie-cena": {
     typy: ["jedno"],
     fn: async (s, a, pom, ovl, j) => {

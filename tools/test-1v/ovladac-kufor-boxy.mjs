@@ -265,9 +265,52 @@ async function tukniStredPotvrd(t) {
       vidno: q.width > 0 && q.height > 0 && q.top >= 0 && q.bottom <= innerHeight + 1 };
   })()`);
   if (!r || !r.vidno) throw new Error("„Potvrďte výber boxov“ nie je celé na obrazovke: " + JSON.stringify(r));
-  if (t.mobil && t.k && t.k.tuk) await t.k.tuk(r.x, r.y); else await t.k.klik(r.x, r.y);
+  await tukni(t, r.x, r.y);
   return r;
 }
+/** Ťuknutie (telefón, CDP dotyk) alebo klik (PC) do bodu výrezu. */
+async function tukni(t, x, y) {
+  if (t.mobil && t.k && t.k.tuk) await t.k.tuk(x, y); else await t.k.klik(x, y);
+}
+/** Klik na kartu počtu boxov (nový výber alebo úprava toho istého počtu) a čakanie na úplne otvorené okno. */
+async function otvorOknoKartou(t, pocet) {
+  const karta = KARTA_BOXOV(pocet);
+  await otvorKrokNovy(t, "boxy", karta);
+  await t.klikni(karta, { popis: "boxy " + pocet });
+  await t.cakaj(`(function () { var e = document.querySelector(${JSON.stringify(OKNO)}); return !!(e && e.closest(".upsale-Banner").classList.contains("showConf") && getComputedStyle(e).visibility === "visible" && getComputedStyle(e).opacity === "1"); })()`, { popis: "okno boxov" });
+  await pauza(300);
+}
+/** Farba (index vzorky, null = nemeniť) a veľkosti v otvorenom okne; hned = posledná voľba bez čakania na formulár. */
+async function vyberVOkne(t, { pocet, farba, velkost, velkost2, velkosti, hned = false }) {
+  if (farba != null) {
+    const idF = await t.idParametra("farbaBoxov");
+    await t.klikni(`${OKNO} .parameter-wrap.parameter-${idF} .option-button`, { index: farba, popis: "farba boxov" });
+    await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
+  }
+  const zoznam = velkosti || (pocet === 2 ? [["box1", velkost], ["box2", velkost2 || velkost]] : [["boxSolo", velkost]]);
+  for (let i = 0; i < zoznam.length; i++) {
+    const [kluc, v] = zoznam[i];
+    const id = await t.idParametra(kluc);
+    const val = await t.moznost(kluc, vzorVelkosti(v));
+    const posledna = i === zoznam.length - 1;
+    await t.klikni(`${OKNO} .option-button[data-variant="${id}"][data-value="${val}"]`, { popis: kluc + " " + v, pockaj: hned && posledna ? 0 : 300 });
+    if (!(hned && posledna)) await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: kluc + " vo formulári" });
+  }
+  if (!hned) await pauza(500);
+}
+// v stránke: záznam ťuknutí (pustenie prsta / myši: čas, cieľ) a otvorenia / zatvorenia okna boxov (showConf) — dvojTuk
+// tak nemusí stránky pýtať medzi ťuknutiami (CDP volanie by posunulo odstup)
+const ZAZNAM_TUKOV = `(function () {
+  window.__lcdTestTuky = []; window.__lcdTestOkno = [];
+  if (window.__lcdTestTukyZap) return true;
+  window.__lcdTestTukyZap = true;
+  var opis = function (c) { if (!c || !c.tagName) return String(c); var k = typeof c.className === "string" ? c.className.trim().split(/\\s+/).slice(0, 2).join(".") : ""; return c.tagName.toLowerCase() + (k ? "." + k : ""); };
+  ["touchend", "mouseup"].forEach(function (ty) { window.addEventListener(ty, function (e) { if (e.isTrusted) window.__lcdTestTuky.push({ ty: ty, t: performance.now(), ciel: opis(e.target) }); }, true); });
+  var b = document.querySelector(${JSON.stringify(F + " .upsale-Banner")});
+  new MutationObserver(function () { var o = b.classList.contains("showConf"), z = window.__lcdTestOkno; if (!z.length || z[z.length - 1].o !== o) z.push({ o: o, t: performance.now() }); })
+    .observe(b, { attributes: true, attributeFilter: ["class"] });
+  return true;
+})()`;
 async function oknoZavrete(t) {
   return t.ev(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`);
 }
@@ -293,28 +336,10 @@ export const novy = {
    *      { odSpodku: stred tlačidla nad spodkom výrezu px }, stav, hodnoty }
    */
   async jedenTuk(t, { pocet = 2, farba = 0, velkost = "M", velkost2, velkosti = null, hned = false, lista = SAFARI_LISTA } = {}) {
-    const karta = KARTA_BOXOV(pocet);
-    await otvorKrokNovy(t, "boxy", karta);
-    await t.klikni(karta, { popis: "boxy " + pocet });
-    await t.cakaj(`(function () { var e = document.querySelector(${JSON.stringify(OKNO)}); return !!(e && e.closest(".upsale-Banner").classList.contains("showConf") && getComputedStyle(e).visibility === "visible" && getComputedStyle(e).opacity === "1"); })()`, { popis: "okno boxov" });
-    await pauza(300);
+    await otvorOknoKartou(t, pocet);
     const model = await safariListaZbalena(t, lista); // zákazník je pri kroku 7 dole na stránke: lišta Safari zbalená
     try {
-      if (farba != null) {
-        const idF = await t.idParametra("farbaBoxov");
-        await t.klikni(`${OKNO} .parameter-wrap.parameter-${idF} .option-button`, { index: farba, popis: "farba boxov" });
-        await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
-      }
-      const zoznam = velkosti || (pocet === 2 ? [["box1", velkost], ["box2", velkost2 || velkost]] : [["boxSolo", velkost]]);
-      for (let i = 0; i < zoznam.length; i++) {
-        const [kluc, v] = zoznam[i];
-        const id = await t.idParametra(kluc);
-        const val = await t.moznost(kluc, vzorVelkosti(v));
-        const posledna = i === zoznam.length - 1;
-        await t.klikni(`${OKNO} .option-button[data-variant="${id}"][data-value="${val}"]`, { popis: kluc + " " + v, pockaj: hned && posledna ? 0 : 300 });
-        if (!(hned && posledna)) await t.cakaj(`(document.querySelector('${F} select[data-parameter-id="${id}"]') || {}).value === "${val}"`, { ms: 10000, popis: kluc + " vo formulári" });
-      }
-      if (!hned) await pauza(500);
+      await vyberVOkne(t, { pocet, farba, velkost, velkost2, velkosti, hned });
       const tlacidlo = await tukniStredPotvrd(t);
       let zavrete = false;
       for (let i = 0; i < 12 && !zavrete; i++) { await pauza(150); zavrete = await oknoZavrete(t); }
@@ -329,6 +354,39 @@ export const novy = {
       }
       await pauza(400);
       return { zavrete, zhltnute, druhe, tlacidlo, model, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
+    } finally {
+      if (model) await safariListaRozbalena(t).catch(() => {});
+    }
+  },
+
+  /**
+   * Okno boxov a DVOJITÉ ťuknutie na „Potvrďte výber boxov“: prst / myš sa vráti na to isté miesto o rozostup ms
+   * (dvojklik na PC, na iPhone zvyk z čias, keď prvé ťuknutie brala lišta Safari). Výber a model lišty ako jedenTuk.
+   * Druhé ťuknutie mieri do toho istého bodu bez ohľadu na to, čo tam po zatvorení okna leží.
+   * -> { zavrete (po 1. ťuknutí), ms (odstup ťuknutí nameraný v stránke), ciel (prvok, ktorý dostal 2. ťuknutie),
+   *      otvorene (okno po 2. ťuknutí), tlacidlo, model, pred (formulár pred ťuknutím), stav, hodnoty }
+   */
+  async dvojTuk(t, { pocet = 2, farba = 0, velkost = "M", velkost2, velkosti = null, rozostup = 300, lista = SAFARI_LISTA } = {}) {
+    await otvorOknoKartou(t, pocet);
+    const model = await safariListaZbalena(t, lista);
+    try {
+      await vyberVOkne(t, { pocet, farba, velkost, velkost2, velkosti });
+      const pred = await hodnotyBoxov(t);
+      await t.ev(ZAZNAM_TUKOV);
+      const tlacidlo = await tukniStredPotvrd(t);
+      // ťuknutie (CDP) = dotyk, 50 ms, pustenie -> druhé pustenie o rozostup ms po prvom
+      await pauza(Math.max(0, rozostup - (t.mobil && t.k && t.k.tuk ? 50 : 0)));
+      await tukni(t, tlacidlo.x, tlacidlo.y);
+      await pauza(1200); // poistka G10b (700 ms) a prípadné znovuotvorenie okna
+      // zavrete = okno sa zavrelo medzi 1. a 2. ťuknutím; otvorene = po 2. ťuknutí je (znova) otvorené
+      const z = await t.ev(`(function (ty) { var p = (window.__lcdTestTuky || []).filter(function (x) { return x.ty === ty; }), o = window.__lcdTestOkno || [];
+        if (p.length < 2) return { ms: -1, ciel: p.map(function (x) { return x.ciel; }).join(" + ") || "nič" };
+        return { ms: Math.round(p[1].t - p[0].t), ciel: p[1].ciel, prvy: p[0].ciel,
+          zavrete: o.some(function (x) { return !x.o && x.t >= p[0].t - 5 && x.t <= p[1].t; }),
+          zatvoreneMs: (o.filter(function (x) { return !x.o && x.t >= p[0].t - 5; })[0] || { t: NaN }).t - p[0].t,
+          znova: o.some(function (x) { return x.o && x.t > p[1].t; }) }; })(${JSON.stringify(t.mobil && t.k && t.k.tuk ? "touchend" : "mouseup")})`);
+      if (z.ms < 0) throw new Error("stránka nezaznamenala dve ťuknutia (" + z.ciel + ")");
+      return { ...z, zatvoreneMs: z.zatvoreneMs == null ? null : Math.round(z.zatvoreneMs), otvorene: z.znova || !(await oknoZavrete(t)), tlacidlo, model, pred, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
     } finally {
       if (model) await safariListaRozbalena(t).catch(() => {});
     }

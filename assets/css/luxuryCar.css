@@ -16374,6 +16374,10 @@ body.lcd-1v .upsale-Banner.lcd1v-kb.showConf .box-config {
     transform: none;
   }
 }
+/* Pozadie po zatvorení okna ešte 0,8 s (neviditeľné) chytá ťuknutia: druhé ťuknutie dvojťuknutia / dvojkliku na
+   „Potvrďte výber boxov“ by inak prepadlo na stránku pod zatvoreným oknom (kontrola 29. 10. 2026: karta „Nechcem“ pod
+   tlačidlom zrušila oba boxy, karta „2 boxy“ prepla 1× XL na 2× S + S). Klik na pozadie pri zatvorenom okne nerobí nič
+   (zavriOkno v kufor-boxy.js). Test: okno-dvojtuk. */
 body.lcd-1v .lcd1v-bx-pozadie {
   position: fixed;
   inset: 0;
@@ -16381,7 +16385,7 @@ body.lcd-1v .lcd1v-bx-pozadie {
   background: rgba(10, 8, 6, .72);
   visibility: hidden;
   opacity: 0;
-  transition: opacity .2s, visibility 0s linear .2s;
+  transition: opacity .2s, visibility 0s linear .8s;
 }
 body.lcd-1v.lcd1v-bx-otvorene .lcd1v-bx-pozadie {
   visibility: visible;
@@ -16771,9 +16775,13 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata .lcd1v-bx__ok {
 }
 @media (prefers-reduced-motion: reduce) {
   body.lcd-1v .upsale-Banner.lcd1v-kb .box-config,
-  body.lcd-1v .lcd1v-bx-pozadie,
+  body.lcd-1v.lcd1v-bx-otvorene .lcd1v-bx-pozadie,
   body.lcd-1v .lcd1v-kb__karta {
     transition: none !important;
+  }
+  /* bez animácie, ale zatvorené pozadie chytá ťuknutia 0,8 s ako hore (dvojťuknutie) */
+  body.lcd-1v .lcd1v-bx-pozadie {
+    transition: visibility 0s linear .8s !important;
   }
 }
 /* ---------- väčšie písmo na PC (Michal 18. 10. 2026) ---------- */

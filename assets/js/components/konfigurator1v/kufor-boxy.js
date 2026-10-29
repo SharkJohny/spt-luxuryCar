@@ -587,6 +587,7 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     naplanuj();
   }
   xBtn.addEventListener("click", zavriOkno);
+  // pozadie chytá ťuknutia ešte 0,8 s po zatvorení (CSS, dvojťuknutie na „Potvrďte“) — vtedy zavriOkno nerobí nič
   pozadie.addEventListener("click", zavriOkno);
   /**
    * Validácia boxov (configuratorEngine: lcd-needs-fill + posun) posúva len stránku, nie okno boxov, ktoré roluje samo —
