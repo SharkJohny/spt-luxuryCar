@@ -19,6 +19,9 @@ globalThis.dataLayer = window.dataLayer = [{ shoptet: { projectId: 562035, langu
 
 const M = await import("../assets/js/lcdKosikDoplnok.js");
 const FIX = JSON.parse(readFileSync(new URL("./test-kosik-doplnok.fixture.json", import.meta.url), "utf8"));
+// fotky z úložiska webu idú z kópie v CDN repa (functions/ulozisko.js, tools/config-obrazky.mjs, 29. 10. 2026)
+const CDN_SK = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/www.luxurycardesign.sk/";
+const CDN_CZ = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/www.luxurycardesign.cz/";
 
 let ok = 0, zle = 0;
 function test(nazov, fn) {
@@ -631,7 +634,7 @@ await test("druhá vrstva z textu variantu (SK aj CZ), adresa dvojvrstvového se
   rovne(M.adresaDvojvrstvoveho("/luxusne-autokoberce-dragonskin-diamond-line/"), "/luxusne-autokoberce-dragonskin-elite-diamond-line/");
   rovne(M.adresaDvojvrstvoveho("https://www.luxurycardesign.cz/luxusne-autokoberce-dragonskin-hexa-line/"), "/luxusne-autokoberce-dragonskin-elite-hexa-line/");
   rovne([M.adresaDvojvrstvoveho("/luxusne-autokoberce-dragonskin-elite-stripe-line/"), M.adresaDvojvrstvoveho("/luxusny-boxi-do-kufra/"), M.adresaDvojvrstvoveho(null)], [null, null, null]);
-  rovne([M.luxNazov(8), M.luxNazov(12), M.luxFoto(8)], ["Lux 08", "Lux 12", "/user/documents/upload/assets/config/lux-color-08.jpg?15"]);
+  rovne([M.luxNazov(8), M.luxNazov(12), M.luxFoto(8)], ["Lux 08", "Lux 12", CDN_SK + "config/lux-color-08.jpg"]);
 });
 await test("ponuka druhej vrstvy SK Diamond čierna/červená, 1.+2. rad: Lux 10 predvolená, +147 € (132 + rozloženie 50 − 35)", () => {
   const volby = { 85: "589", 88: "598", 74: "485" };
@@ -715,7 +718,7 @@ await test("pásy: druhá vrstva PRVÁ, potom Classic a box (Premium nie), texty
   rovne([dov('.lcd-dop__volba[data-varianta="classic"]'), dov(".lcd-dop__volba--box")], ["Chráni dno kufra pred blatom, vodou aj poškriabaním.", "Nákup aj výbava auta majú v kufri svoje miesto."]);
   pravda(/^\+147\s€ v sete$/.test(t(".lcd-dop__pas .lcd-dop__cena")), t(".lcd-dop__pas .lcd-dop__cena"));
   pravda(!/samostatne|ušetríte/.test(t(".lcd-dop__pas .lcd-dop__cena")), "bez porovnania");
-  rovne([v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__vfoto").getAttribute("src")], ["/user/documents/upload/assets/config/lux-color-10.jpg?15", "/user/documents/upload/assets/config/lux-color-10.jpg?15"], "bez produktovej fotky vzorka");
+  rovne([v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__vfoto").getAttribute("src")], [CDN_SK + "config/lux-color-10.jpg", CDN_SK + "config/lux-color-10.jpg"], "bez produktovej fotky vzorka");
   rovne(v.querySelector('.lcd-dop__pas [data-lcd-dop-pridat="vrstva2"]').textContent, "Pridať");
   rovne(v.querySelector('[data-lcd-dop-pridat="vrstva2-vyber"]').textContent, "Pridať druhú vrstvu");
   const c = k.querySelector('.lcd-dop__volba[data-varianta="classic"]');
@@ -757,7 +760,7 @@ await test("pás druhej vrstvy: 16 vzoriek v rozbalení, Lux 12 zmení názov, c
   const l12 = k.querySelector('[data-lcd-dop-lux="12"]');
   l12.checked = true; l12.dispatchEvent(new window.Event("change", { bubbles: true }));
   rovne([v.querySelector(".lcd-dop__odp").textContent, v.querySelector(".lcd-dop__meno").textContent, v.querySelector(".lcd-dop__mini").getAttribute("src"), v.querySelector(".lcd-dop__pas [data-lcd-dop-pridat]").getAttribute("data-lux")],
-    ["Odporúčame", "Druhá vrstva · Lux 12", "/user/documents/upload/assets/config/lux-color-12.jpg?15", "12"]);
+    ["Odporúčame", "Druhá vrstva · Lux 12", CDN_SK + "config/lux-color-12.jpg", "12"]);
   pravda(/Lux 12/.test(v.querySelector(".lcd-dop__suhrn-cena").textContent));
   const kc = M.kartaPonuky(ctxKarty({ rohoz: false, box: false }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), RCZ, false);
   const vc = kc.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
@@ -776,9 +779,9 @@ await test("pás druhej vrstvy: produktová fotka v páse aj detaile, vzorka pri
     rovne([ul.getAttribute("aria-labelledby"), ul.hasAttribute("aria-label"), h.textContent], [h.id, false, "Doplňte set o druhú vrstvu"]);
     const v = k.querySelector('.lcd-dop__volba[data-doplnok="vrstva2"]');
     const mini = v.querySelector(".lcd-dop__mini"), obr = v.querySelector(".lcd-dop__vfoto"), vz = v.querySelector(".lcd-dop__meno-vz");
-    rovne([mini.getAttribute("src"), obr.getAttribute("src"), vz.getAttribute("src"), vz.hidden], [ctx.ponuka.vrstva2.foto, ctx.ponuka.vrstva2.foto, "/user/documents/upload/assets/config/lux-color-10.jpg?15", false]);
+    rovne([mini.getAttribute("src"), obr.getAttribute("src"), vz.getAttribute("src"), vz.hidden], [ctx.ponuka.vrstva2.foto, ctx.ponuka.vrstva2.foto, CDN_SK + "config/lux-color-10.jpg", false]);
     obr.dispatchEvent(new window.Event("error"));
-    rovne([obr.getAttribute("src"), mini.getAttribute("src"), vz.hidden], ["/user/documents/upload/assets/config/lux-color-10.jpg?15", "/user/documents/upload/assets/config/lux-color-10.jpg?15", true], "záloha vzorka");
+    rovne([obr.getAttribute("src"), mini.getAttribute("src"), vz.hidden], [CDN_SK + "config/lux-color-10.jpg", CDN_SK + "config/lux-color-10.jpg", true], "záloha vzorka");
     obr.dispatchEvent(new window.Event("load"));
     rovne(obr.style.visibility, "");
   } finally { k.remove(); }
@@ -957,13 +960,27 @@ await test("hlavná fotka produktu: og:image z CDN Shoptetu, iné adresy nie; po
 });
 await test("vzorka farby boxov ako na produkte (slug textu, SK aj CZ)", () => {
   const z = "/user/documents/upload/assets/config/";
-  rovne(M.vzorkaFarby("Farba kože : Čierna / Farba šitia: Červená"), z + "farba-koze-cierna-farba-sitia-cervena.jpg?15");
-  rovne(M.vzorkaFarby("Farba kože : Čierna / Farba šitia : Béžová"), z + "farba-koze-cierna-farba-sitia-bezova.jpg?15");
-  rovne(M.vzorkaFarby("Farba kože : Hnedá káva"), z + "farba-koze-hneda-kava.jpg?15");
+  // SK košík: fotka zo zoznamu SK úložiska -> kópia v CDN repa
+  rovne(M.vzorkaFarby("Farba kože : Čierna / Farba šitia: Červená"), CDN_SK + "config/farba-koze-cierna-farba-sitia-cervena.jpg");
+  rovne(M.vzorkaFarby("Farba kože : Čierna / Farba šitia : Béžová"), CDN_SK + "config/farba-koze-cierna-farba-sitia-bezova.jpg");
+  rovne(M.vzorkaFarby("Farba kože : Hnedá káva"), CDN_SK + "config/farba-koze-hneda-kava.jpg");
+  // CZ text na SK webe ani neznáma farba v zozname SK nie sú -> záloha z úložiska webu ako predtým
   rovne(M.vzorkaFarby("Barva kůže: výnové červena"), z + "barva-kuze-vynove-cervena.jpg?15");
   rovne(M.vzorkaFarby("Barva kůže: Černá / Barva šití: Bílá"), z + "barva-kuze-cerna-barva-siti-bila.jpg?15");
   rovne(M.vzorkaFarby("Čierna + červená"), z + "cierna.jpg?15", "ako createSlug(text.split(\"+\")[0])");
   rovne(M.vzorkaFarby(""), null);
+});
+await test("fotky z úložiska podľa webu: CZ košík berie CZ kópie (iné bajty ako SK), nikdy úložisko SK ani CZ", () => {
+  const cz = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://www.luxurycardesign.cz/kosik/" });
+  const sk = globalThis.location;
+  globalThis.location = cz.window.location;
+  try {
+    rovne(M.vzorkaFarby("Barva kůže: výnové červena"), CDN_CZ + "config/barva-kuze-vynove-cervena.jpg");
+    rovne(M.vzorkaFarby("Barva kůže: Černá / Barva šití: Bílá"), CDN_CZ + "config/barva-kuze-cerna-barva-siti-bila.jpg");
+    rovne(M.luxFoto(10), CDN_CZ + "config/lux-color-10.jpg", "Lux 10 CZ (CZ úložisko má vlastnú, inak skomprimovanú fotku)");
+    rovne(M.vzorkaFarby("Farba kože : Hnedá káva"), "/user/documents/upload/assets/config/farba-koze-hneda-kava.jpg?15", "SK text na CZ webe = záloha");
+  } finally { globalThis.location = sk; }
+  rovne(M.luxFoto(10), CDN_SK + "config/lux-color-10.jpg", "späť na SK");
 });
 await test("kresba boxu: kľúč farby z textu SK aj CZ (box-kresba.js FARBY_KRESBY), šírka z rozmeru", async () => {
   const { FARBY_KRESBY } = await import("../assets/js/components/konfigurator1v/box-kresba.js");
