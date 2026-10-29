@@ -9,12 +9,14 @@
 import { TRUCK_VEHICLES, TRUCK_FIELD_ORDER } from "../../../truck-konfigurator/truck-brands.js";
 import { MENSIE, MENSIE_ZAKLAD } from "./obrazky.js";
 
-/** Priečinok obrázkov konfigurátora na webe (konfigurator.gen.jsx IMG_BASE). */
+/** Priečinok obrázkov konfigurátora v CZ admine (konfigurator.gen.jsx IMG_BASE) — len zdroj pre tools/kamion-obrazky.mjs
+ *  a záloha pre obrázok, ktorý ešte nie je v repe; web od 29. 10. 2026 berie všetky obrázky z repa (MENSIE). */
 export const IMG_BASE = "https://cdn.myshoptet.com/usr/www.luxurycardesign.cz/user/documents/upload/assets/config/";
-/** Pôvodné mená obrázkov z IMG_BASE (tools/kamion-obrazky.mjs z nich robí menšie JPEG do assets/img/1v/kamion/). */
+/** Pôvodné mená obrázkov z IMG_BASE (tools/kamion-obrazky.mjs ich dáva do assets/img/1v/kamion/). */
 export const ZDROJ_OBRAZKOV = [];
-/** Adresa obrázka: celá adresa ostáva (vzorovaný velúr, CDN repa); nepriehľadné PNG zo zoznamu MENSIE (obrazky.js) sa berú
- *  ako menší JPEG z repa (zrýchlenie 25. 10. 2026, ~6× menej dát, rovnaký vzhľad), ostatné z IMG_BASE ako doteraz. */
+/** Adresa obrázka: celá adresa ostáva (vzorovaný velúr, CDN repa); obrázky zo zoznamu MENSIE (obrazky.js) sa berú z repa —
+ *  nepriehľadné PNG ako menší JPEG (25. 10. 2026), JPG bez zmeny (29. 10. 2026, nezávislosť od súborov v CZ admine).
+ *  Nový obrázok mimo zoznamu ide z IMG_BASE, kým sa nespustí node tools/kamion-obrazky.mjs. */
 const img = (f) => {
   if (/^https?:\/\//.test(f)) return f;
   ZDROJ_OBRAZKOV.push(f);
