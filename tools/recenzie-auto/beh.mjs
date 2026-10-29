@@ -6,7 +6,8 @@
 //   2. node tools/scrape-google-reviews.mjs  (headless Chrome, Google Vyhľadávanie; < 90 % = exit 2)
 //   3. node tools/reviews-update.mjs + python tools/recenzie-nahlady.py (+ --check)
 //   4. zmenili sa dáta? (bez fetchedAt/relativeDate) -> commit LEN dátových súborov -> fetch/rebase -> push do main
-//      (max 3 pokusy, nikdy force); inak nič necommituje
+//      (max 3 pokusy, nikdy force); inak nič necommituje. Recenzia, ktorá z Googlu vypadla, sa z dát vyhodí až keď
+//      výpadok potvrdí aj ďalší deň (stav.vypadnute) — jednorazovo neúplný scrape nič nevyhodí.
 //   5. po pushi počká, kým CI (production.yml) dá dáta na CDN (assets/data/reviews-data.js)
 // Zlyhanie: počítadlo neúspešných dní v stave mimo repa; 3. deň po sebe -> úloha v CRM (Supabase todos, 9:00,
 // dedup cez auto_ulohy). Úspech počítadlo vynuluje. Log každého behu v <stav>/logy (posledných 60).
@@ -27,7 +28,7 @@ import os from "node:os";
 import path from "node:path";
 import {
   nacitajData, odtlacok, povolena, parsujStatus, miestnyDen, zaznamenajNeuspech, zaznamenajUspech, trebaCrmUlohu,
-  crmUloha, suhrnUpdate, POVOLENE_CESTY, PRAZDNY_STAV, LIMIT_DNI, zalozUlohuCrm,
+  crmUloha, suhrnUpdate, POVOLENE_CESTY, PRAZDNY_STAV, LIMIT_DNI, zalozUlohuCrm, zahod, vypadnuteAutori, rozhodniVypadnutie,
 } from "./lib.mjs";
 
 // ------------------------------------------------------------------ voľby
@@ -111,8 +112,10 @@ function ulozStav(s) {
   writeFileSync(tmp, JSON.stringify(s, null, 2) + "\n", "utf8");
   renameSync(tmp, STAV);
 }
-const ZAMOK = path.join(V.stav, "beh.lock");
+// zámok je spoločný pre ostrý beh aj skúšku (rovnaký klon -> skúška nesmie ostrému behu urobiť reset --hard uprostred)
+const ZAMOK = path.join(STAV_ZAKLAD, "beh.lock");
 function zamkni() {
+  mkdirSync(STAV_ZAKLAD, { recursive: true });
   if (existsSync(ZAMOK)) {
     try {
       const z = JSON.parse(readFileSync(ZAMOK, "utf8"));
@@ -127,8 +130,8 @@ const odomkni = () => { try { unlinkSync(ZAMOK); } catch {} };
 
 // ------------------------------------------------------------------ príkazy
 const ENV = { ...process.env, GIT_TERMINAL_PROMPT: "0", GCM_INTERACTIVE: "never", PYTHONIOENCODING: "utf-8" };
-function spusti(prikaz, argv, { cwd = V.repo, limit = 180000, tichy = false } = {}) {
-  const r = spawnSync(prikaz, argv, { cwd, env: ENV, encoding: "utf8", timeout: limit, windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
+function spusti(prikaz, argv, { cwd = V.repo, limit = 180000, tichy = false, env = ENV } = {}) {
+  const r = spawnSync(prikaz, argv, { cwd, env, encoding: "utf8", timeout: limit, windowsHide: true, maxBuffer: 64 * 1024 * 1024 });
   const vystup = `${r.stdout || ""}${r.stderr ? (r.stdout ? "\n" : "") + r.stderr : ""}`.trim();
   const kod = r.error ? (r.error.code === "ETIMEDOUT" ? "časový limit" : r.error.message) : r.status;
   if (!tichy) logBlok(`$ ${path.basename(prikaz)} ${argv.join(" ")}  -> ${kod}`, vystup);
@@ -182,8 +185,8 @@ function cistyStav() {
 }
 
 // ------------------------------------------------------------------ jadro
-function aktualizuj() {
-  const u = spusti(NODE, ["tools/reviews-update.mjs"], { limit: 600000 });
+function aktualizuj(nevyhadzuj = false) {
+  const u = spusti(NODE, ["tools/reviews-update.mjs"], { limit: 600000, env: nevyhadzuj ? { ...ENV, LCD_REVIEWS_NEVYHADZUJ: "1" } : ENV });
   if (!u.ok) throw new Chyba(`reviews-update zlyhal (exit ${u.kod}): ${posledne(u.vystup, 2)}`);
   const n = spusti(PYTHON, ["tools/recenzie-nahlady.py"], { limit: 300000 });
   if (!n.ok) throw new Chyba(`recenzie-nahlady zlyhal (exit ${n.kod}): ${posledne(n.vystup, 2)}`);
@@ -203,6 +206,37 @@ function zmeny(zakladData) {
   const po = nacitajData(readFileSync(path.join(V.repo, DATA), "utf8"));
   const zmenene = odtlacok(zakladData) !== odtlacok(po) || noveObrazky.length > 0;
   return { zmenene, povolene: pov, ine, po, noveObrazky };
+}
+
+/**
+ * reviews-update + náhľady nad aktuálnym základom. Recenzie, ktoré by z dát vypadli, vyhodí len keď výpadok potvrdil
+ * aj skorší deň (predVyp = stav.vypadnute); inak ich ponechá (LCD_REVIEWS_NEVYHADZUJ=1) a vráti ich v `cakaju`.
+ */
+function zlucData(zaklad, predVyp) {
+  let vystup = aktualizuj(false);
+  let z = zmeny(zaklad);
+  const autori = vypadnuteAutori(zaklad, z.po);
+  if (!autori.length) return { vystup, z, cakaju: null, vyhodene: [] };
+  const r = rozhodniVypadnutie(predVyp, autori, DNES);
+  if (r.potvrdene) {
+    log(`z dát vypadnú ${autori.length} recenzie (výpadok potvrdil aj ${predVyp.den}): ${autori.join(", ")}`);
+    return { vystup, z, cakaju: null, vyhodene: autori };
+  }
+  log(`POZOR: z Googlu by vypadli ${autori.length} recenzie (${autori.join(", ")}) — dnes ich NEVYHADZUJEM, čakám, či to potvrdí aj ďalší deň`);
+  gitMusi(["checkout", "-q", "--", DATA], "obnova dát pred zlúčením bez vyhadzovania");
+  vystup = aktualizuj(true);
+  z = zmeny(zaklad);
+  const stale = vypadnuteAutori(zaklad, z.po);
+  if (stale.length) throw new Chyba("reviews-update aj s LCD_REVIEWS_NEVYHADZUJ=1 vyhodil recenzie: " + stale.join(", "));
+  return { vystup, z, cakaju: r.cakaju, vyhodene: [] };
+}
+
+/** Po rebase bez konfliktu: dáta v HEAD sa dajú načítať a náhľady sedia (git mohol textovo zlúčiť cudziu zmenu). */
+function dataPoRebasePlatne() {
+  try { nacitajData(readFileSync(path.join(V.repo, DATA), "utf8")); } catch (e) { log("po rebase sú dáta nečitateľné: " + e.message); return false; }
+  const c = spusti(PYTHON, ["tools/recenzie-nahlady.py", "--check"], { limit: 120000 });
+  if (!c.ok) { log("po rebase neprešla kontrola náhľadov: " + posledne(c.vystup, 1)); return false; }
+  return true;
 }
 
 function commitni(zakladData, po, vystupUpdate) {
@@ -226,8 +260,7 @@ function commitni(zakladData, po, vystupUpdate) {
 async function cdnFetchedAt() {
   try {
     const r = await fetch(CDN + "?t=" + Date.now(), { signal: AbortSignal.timeout(20000) });
-    if (r.status === 404) return { stav: 404, t: NaN };
-    if (!r.ok) return { stav: r.status, t: NaN };
+    if (!r.ok) { await zahod(r); return { stav: r.status, t: NaN }; }
     const m = /"fetchedAt"\s*:\s*"([^"]+)"/.exec(await r.text());
     return { stav: r.status, t: m ? Date.parse(m[1]) : NaN };
   } catch (e) { return { stav: "nedostupný (" + e.message + ")", t: NaN }; }
@@ -254,7 +287,7 @@ async function overCdn(repoFetchedAt, commitCasMs, cakajMin) {
   return "čaká na CI";
 }
 
-async function beh() {
+async function beh(stav0) {
   if (V.simulujChybu) throw new Chyba("simulovaná chyba (--simuluj-chybu) — scraper sa nespúšťal");
   pripravKlon();
   const zaklad = cistyStav();
@@ -279,14 +312,14 @@ async function beh() {
   copyFileSync(path.join(V.repo, FRESH), zaloha);
 
   // 2) zlúčenie + náhľady, 3) commit len pri skutočnej zmene, 4) push (max 3 pokusy)
-  let vystupUpdate = aktualizuj();
-  let z = zmeny(zakladData);
+  const predVyp = stav0 && stav0.vypadnute;
+  let { vystup: vystupUpdate, z, cakaju } = zlucData(zakladData, predVyp);
   if (z.ine.length) log("POZOR: zmenené aj iné súbory (necommitujú sa): " + z.ine.map((x) => x.kod.trim() + " " + x.cesta).join(", "));
   log(`zmeny dát: ${z.povolene.map((x) => x.kod.trim() + " " + x.cesta).join(", ") || "žiadne"} | skutočná zmena: ${z.zmenene ? "ÁNO" : "nie (len čas stiahnutia / relatívne dátumy)"}`);
   if (!z.zmenene && !V.commitVzdy) {
     git(["reset", "-q", "--hard"], { tichy: true }); git(["clean", "-fdq"], { tichy: true });
     const cdn = await overCdn(Date.parse(zakladData.place.fetchedAt), zakladCommitCas, 0);
-    return { stav: "bez-zmeny", recenzii: zakladData.place.totalReviews, cdn };
+    return { stav: "bez-zmeny", recenzii: zakladData.place.totalReviews, cdn, vypadnute: cakaju };
   }
   if (!z.zmenene) log("--commit-aj-bez-zmeny: commitujem aj bez skutočnej zmeny (skúška cesty commitu)");
 
@@ -298,16 +331,15 @@ async function beh() {
   const naNovyMain = (pokus) => {
     gitMusi(["fetch", "origin", "main"], "fetch pred pushom", { limit: 300000 });
     const rb = git(["rebase", "origin/main"]);
-    if (rb.ok) { sha = git(["rev-parse", "HEAD"], { tichy: true }).stdout.trim(); return true; }
-    // konflikt (niekto medzitým zmenil dáta recenzií) -> poskladať znova na novom main, nikdy nie force
-    git(["rebase", "--abort"], { tichy: true });
-    log(`pokus ${pokus}: rebase na origin/main mal konflikt -> skladám dáta znova na novom main`);
+    if (rb.ok && dataPoRebasePlatne()) { sha = git(["rev-parse", "HEAD"], { tichy: true }).stdout.trim(); return true; }
+    // konflikt (niekto medzitým zmenil dáta recenzií) alebo zlé dáta po rebase -> poskladať znova na novom main, nikdy nie force
+    if (!rb.ok) git(["rebase", "--abort"], { tichy: true });
+    log(`pokus ${pokus}: rebase na origin/main ${rb.ok ? "prešiel, ale dáta neprešli kontrolou" : "mal konflikt"} -> skladám dáta znova na novom main`);
     gitMusi(["reset", "--hard", "origin/main"], "reset na nový main");
     gitMusi(["clean", "-fd"], "clean");
     const novyZaklad = nacitajData(readFileSync(path.join(V.repo, DATA), "utf8"));
     copyFileSync(zaloha, path.join(V.repo, FRESH));
-    vystupUpdate = aktualizuj();
-    z = zmeny(novyZaklad);
+    ({ vystup: vystupUpdate, z, cakaju } = zlucData(novyZaklad, predVyp));
     if (!z.zmenene) { log("na novom main už nie je čo pridať (niekto nahral rovnaké dáta)"); return false; }
     ({ sha, staged } = commitni(novyZaklad, z.po, vystupUpdate));
     git(["reset", "-q", "--hard", "HEAD"], { tichy: true }); git(["clean", "-fdq"], { tichy: true });
@@ -315,19 +347,19 @@ async function beh() {
   };
 
   if (V.bezPush) {
-    if (!V.ref && !naNovyMain(1)) return { stav: "bez-zmeny", recenzii: zakladData.place.totalReviews };
+    if (!V.ref && !naNovyMain(1)) return { stav: "bez-zmeny", recenzii: zakladData.place.totalReviews, vypadnute: cakaju };
     log(`--bez-push: commit ${sha.slice(0, 7)} ostáva LEN lokálne v ${V.repo} (ďalší beh ho zmaže resetom), push sa nerobí`);
-    return { stav: "commit-lokalne", sha, subory: staged, recenzii: z.po.place.totalReviews, nove: z.po.reviews.length - zakladData.reviews.length };
+    return { stav: "commit-lokalne", sha, subory: staged, recenzii: z.po.place.totalReviews, nove: z.po.reviews.length - zakladData.reviews.length, vypadnute: cakaju };
   }
 
   for (let pokus = 1; pokus <= 3; pokus++) {
-    if (!naNovyMain(pokus)) return { stav: "bez-zmeny", recenzii: z.po.place.totalReviews };
+    if (!naNovyMain(pokus)) return { stav: "bez-zmeny", recenzii: z.po.place.totalReviews, vypadnute: cakaju };
     const p = git(["push", "origin", "HEAD:refs/heads/main"], { limit: 300000 });
     if (p.ok) {
       sha = git(["rev-parse", "HEAD"], { tichy: true }).stdout.trim();
       log(`PUSH OK: ${sha.slice(0, 7)} -> main (pokus ${pokus})`);
       const cdn = await overCdn(Date.parse(z.po.place.fetchedAt), Date.now(), CDN_CAKAJ_MIN);
-      return { stav: "pushnute", sha, subory: staged, recenzii: z.po.place.totalReviews, cdn };
+      return { stav: "pushnute", sha, subory: staged, recenzii: z.po.place.totalReviews, cdn, vypadnute: cakaju };
     }
     log(`push pokus ${pokus} neprešiel${/rejected|non-fast-forward|fetch first/i.test(p.vystup) ? " (main sa medzitým posunul)" : ""}`);
   }
@@ -381,7 +413,7 @@ async function overCrm() {
   if (!k.subor) { console.log("Kľúč CRM nenájdený. Hľadané: " + k.kandidati.join(", ") + "\nNastav ho: powershell -File tools\\recenzie-auto\\nastav-kluc-crm.ps1"); return 1; }
   try {
     const r = await fetch(k.url + "/rest/v1/app_owner?select=user_id&limit=1", { headers: { apikey: k.kluc, authorization: "Bearer " + k.kluc }, signal: AbortSignal.timeout(20000) });
-    const d = r.ok ? await r.json() : null;
+    const d = r.ok ? await r.json() : (await zahod(r), null);
     const ok = r.ok && Array.isArray(d) && d.length === 1;
     console.log(`Kľúč CRM z ${k.subor}: HTTP ${r.status} — ${ok ? "OK, majiteľ CRM nájdený (úlohu by vedel založiť)" : "NEFUNGUJE (zlý kľúč alebo nie je secret/service_role)"}`);
     return ok ? 0 : 1;
@@ -415,8 +447,9 @@ async function hlavny() {
     log(`=== Recenzie Google — automatika ${DNES}${SKUSKA ? " (SKÚŠKA: " + [V.bezPush && "--bez-push", V.simulujChybu && "--simuluj-chybu", V.ref && "--ref " + V.ref, V.dnes && "--dnes " + V.dnes].filter(Boolean).join(" ") + ")" : ""} ===`);
     log(`klon: ${V.repo} | stav a logy: ${V.stav}`);
     try {
-      const v = await beh();
-      stav =zaznamenajUspech(stav, DNES, new Date().toISOString(), { ...v, log: LOG });
+      const v = await beh(stav);
+      stav = { ...zaznamenajUspech(stav, DNES, new Date().toISOString(), { ...v, log: LOG }), vypadnute: v.vypadnute || null };
+      if (v.vypadnute) log(`čaká na potvrdenie ďalší deň (stav.vypadnute): ${v.vypadnute.autori.join(", ")}`);
       ulozStav(stav);
       log(`HOTOVO: ${v.stav}${v.sha ? " " + v.sha.slice(0, 7) : ""}${v.cdn ? " | CDN: " + v.cdn : ""} — počítadlo zlyhaní vynulované`);
       historia(`${DNES} OK ${v.stav}${v.sha ? " " + v.sha.slice(0, 7) : ""} recenzií ${v.recenzii ?? "?"}${SKUSKA ? " (skúška)" : ""}`);
@@ -448,4 +481,7 @@ async function hlavny() {
   }
 }
 
-hlavny().then((kod) => process.exit(kod), (e) => { console.error(e); process.exit(1); });
+// process.exitCode namiesto process.exit(): okamžité ukončenie pri otvorenom fetch spojení padá v Node v24 na assert
+// v libuv (0xC0000409). Poistka: ak by niečo držalo proces nažive, po 30 s skončí natvrdo (časovač proces nedrží).
+hlavny().then((kod) => { process.exitCode = kod; }, (e) => { console.error(e); process.exitCode = 1; })
+  .finally(() => { setTimeout(() => process.exit(process.exitCode ?? 1), 30000).unref(); });

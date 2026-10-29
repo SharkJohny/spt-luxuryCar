@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   nacitajData, odtlacok, povolena, parsujStatus, den9, zaznamenajNeuspech, zaznamenajUspech, trebaCrmUlohu, crmUloha,
-  PRAZDNY_STAV, suhrnUpdate, zalozUlohuCrm,
+  PRAZDNY_STAV, suhrnUpdate, zalozUlohuCrm, vypadnuteAutori, rozhodniVypadnutie, zahod,
 } from "./lib.mjs";
 
 let ok = 0;
@@ -83,6 +83,29 @@ t("text CRM úlohy: čo zlyhalo, log, ručné spustenie, 9:00", () => {
   assert.ok(!/DPH|kľúč:|sb_secret|eyJ/.test(u.text + u.note));
 });
 
+// --- výpadok recenzií z Googlu (nález kontroly 29. 10.: neúplný scrape 95–99 % nesmie hneď vyhodiť recenzie)
+t("vypadnuteAutori: párovanie podľa googleId alebo mena (bez diakritiky a veľkosti písmen)", () => {
+  const zaklad = { reviews: [{ author: "Štefan Németh", googleId: "a" }, { author: "Ladislav T." }, { author: "PAVOL TOMÁŠIK" }, { author: "Iný Autor", googleId: "x" }] };
+  const po = { reviews: [{ author: "Stefan Nemeth" }, { author: "pavol tomasik" }, { author: "Premenovaný", googleId: "x" }] };
+  assert.deepEqual(vypadnuteAutori(zaklad, po), ["Ladislav T."]);
+  assert.deepEqual(vypadnuteAutori(zaklad, zaklad), []);
+});
+t("výpadok: 1. deň čaká, rovnaký deň znova čaká, ďalší deň s rovnakými autormi = potvrdené", () => {
+  let r = rozhodniVypadnutie(null, ["B", "A", "A"], "2026-10-30");
+  assert.deepEqual(r, { potvrdene: false, cakaju: { den: "2026-10-30", autori: ["A", "B"] } });
+  assert.equal(rozhodniVypadnutie(r.cakaju, ["A", "B"], "2026-10-30").potvrdene, false, "ten istý deň (--vynut) nepotvrdí");
+  assert.deepEqual(rozhodniVypadnutie(r.cakaju, ["A", "B"], "2026-10-31"), { potvrdene: true, cakaju: null });
+  assert.equal(rozhodniVypadnutie(r.cakaju, ["A"], "2026-10-31").potvrdene, true, "podmnožina včerajška = potvrdené");
+  const nove = rozhodniVypadnutie(r.cakaju, ["A", "C"], "2026-10-31");
+  assert.deepEqual(nove, { potvrdene: false, cakaju: { den: "2026-10-31", autori: ["A", "C"] } }, "nový autor -> znova čakať");
+  assert.deepEqual(rozhodniVypadnutie(r.cakaju, [], "2026-10-31"), { potvrdene: true, cakaju: null });
+});
+t("stav: vypadnute je v prázdnom stave a neúspech ho nezmaže", () => {
+  assert.ok("vypadnute" in PRAZDNY_STAV);
+  const s = zaznamenajNeuspech({ ...PRAZDNY_STAV, vypadnute: { den: "2026-10-30", autori: ["A"] } }, "2026-10-31", "x", "l");
+  assert.deepEqual(s.vypadnute, { den: "2026-10-30", autori: ["A"] });
+});
+
 // --- súhrn do commitu
 t("súhrn reviews-update", () => {
   const v = "profil: 101 -> 102 recenzií, hodnotenie 5 -> 5\nv dátach: 101 -> 102 | nové: 1 | vypadli z Googlu: 0\n  + g-102 Jana K. | 5★ | ~2026-10 | sk | fotky 0 | Super\nfotky nových: ok 0, chyba 0\n";
@@ -94,7 +117,8 @@ t("súhrn reviews-update", () => {
 const ULOHA = { text: "Recenzie z Google sa na webe neaktualizujú — automatika zlyháva od 27. 10. 2026", note: "n", due_at: "2026-10-29T09:00:00+01:00", reminder_at: "2026-10-29T09:00:00+01:00" };
 function falosneCrm({ znacka = 201, select = [], insert = 201 } = {}) {
   const volania = [];
-  const odp = (status, body) => ({ status, ok: status >= 200 && status < 300, json: async () => body });
+  const zrusene = [];
+  const odp = (status, body) => ({ status, ok: status >= 200 && status < 300, json: async () => body, bodyUsed: false, body: { cancel: async () => { zrusene.push(status); } } });
   const fetchFn = async (url, o = {}) => {
     const m = (o.method || "GET") + " " + url.replace("https://x.supabase.co", "").split("?")[0];
     volania.push({ m, url, o });
@@ -105,7 +129,7 @@ function falosneCrm({ znacka = 201, select = [], insert = 201 } = {}) {
     if (m === "DELETE /rest/v1/auto_ulohy") return odp(204, null);
     return odp(500, null);
   };
-  return { fetchFn, volania };
+  return { fetchFn, volania, zrusene };
 }
 const crm = (o) => zalozUlohuCrm({ url: "https://x.supabase.co", apiKluc: "TAJNY-KLUC-123", dedup: "recenzie-google-zlyhanie-2026-10-27", uloha: ULOHA, fetchFn: o.fetchFn });
 const tA = async (nazov, fn) => { try { await fn(); ok++; } catch (e) { console.error("CHYBA " + nazov + ": " + e.message); process.exitCode = 1; } };
@@ -121,6 +145,13 @@ await tA("CRM: nová úloha = značka + insert s due_at/reminder_at 9:00 a user_
 await tA("CRM: značka 409 = už založená, druhá úloha nevznikne", async () => {
   const f = falosneCrm({ znacka: 409 }); const r = await crm(f);
   assert.equal(r.existuje, true); assert.ok(!f.volania.some((v) => v.m === "POST /rest/v1/todos"));
+  assert.equal(f.zrusene.length >= 1, true, "telo 409 sa zahodí (inak Node pri ukončení padá 0xC0000409)");
+});
+await tA("zahod: zruší neprečítané telo, prečítané/prázdne nechá", async () => {
+  let n = 0; const telo = { cancel: async () => { n++; } };
+  await zahod({ body: telo, bodyUsed: false }); await zahod({ body: telo, bodyUsed: true }); await zahod({ body: null }); await zahod(null);
+  await zahod({ body: { cancel: async () => { throw new Error("x"); } }, bodyUsed: false });
+  assert.equal(n, 1);
 });
 await tA("CRM: rovnaký text už je (bez tabuľky auto_ulohy) -> nič nové", async () => {
   const f = falosneCrm({ znacka: 404, select: [{ id: "t0" }] }); const r = await crm(f);

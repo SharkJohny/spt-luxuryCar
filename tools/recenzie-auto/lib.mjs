@@ -72,6 +72,7 @@ export const PRAZDNY_STAV = Object.freeze({
   poslednyUspech: null,
   poslednyUspechDen: null,
   poslednyVysledok: null,
+  vypadnute: null,          // { den, autori } — recenzie, ktoré z Googlu vypadli, čakajú na potvrdenie ďalší deň
 });
 
 /** Zlyhaný beh: ten istý deň sa ráta raz (ručné opakovanie nezvýši počet). Vráti nový stav. */
@@ -126,6 +127,27 @@ export function crmUloha(stav, { den, repo, stavDir }) {
   return { text, note, due_at: due, reminder_at: due };
 }
 
+const normAutor = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+/** Autori recenzií zo základu, ktoré v nových dátach chýbajú (párovanie ako reviews-update: googleId alebo meno autora). */
+export function vypadnuteAutori(zaklad, po) {
+  const ids = new Set(((po && po.reviews) || []).map((r) => r.googleId).filter(Boolean));
+  const mena = new Set(((po && po.reviews) || []).map((r) => normAutor(r.author)));
+  return ((zaklad && zaklad.reviews) || []).filter((r) => !(r.googleId && ids.has(r.googleId)) && !mena.has(normAutor(r.author))).map((r) => r.author);
+}
+
+/**
+ * Výpadok recenzií z Googlu ide do main, až keď ho potvrdí aj iný (skorší) deň: jednorazovo neúplný scrape (95–99 %)
+ * by inak recenzie vyhodil a pri ich návrate by dostali nové id g-N, nový odhad dátumu a fotky znova pod iným menom.
+ * pred = stav.vypadnute { den, autori } z posledného úspešného behu. Vráti { potvrdene, cakaju }.
+ */
+export function rozhodniVypadnutie(pred, autori, den) {
+  const a = [...new Set(autori)].sort();
+  if (!a.length) return { potvrdene: true, cakaju: null };
+  const potvrdene = !!(pred && pred.den && pred.den < den && Array.isArray(pred.autori) && a.every((x) => pred.autori.includes(x)));
+  return potvrdene ? { potvrdene: true, cakaju: null } : { potvrdene: false, cakaju: { den, autori: a } };
+}
+
 /** Súhrn pre správu commitu zo štandardného výstupu reviews-update.mjs. */
 export function suhrnUpdate(vystup) {
   const r = String(vystup || "").split(/\r?\n/);
@@ -140,25 +162,31 @@ export function suhrnUpdate(vystup) {
  * značka auto_ulohy (PK user_id+kluc; 409 = už založená) -> úloha s rovnakým textom už je? -> insert todos.
  * Zlyhaný insert značku zruší, aby to ďalší beh skúsil znova. apiKluc sa nikde nevypisuje.
  */
+/** Neprečítané telo odpovede zahodiť — inak otvorené spojenie pri ukončení Node (v24) padá na assert v libuv (0xC0000409). */
+export async function zahod(res) {
+  try { if (res && res.body && !res.bodyUsed && typeof res.body.cancel === "function") await res.body.cancel(); } catch {}
+}
+
 export async function zalozUlohuCrm({ url, apiKluc, dedup, uloha, fetchFn = fetch }) {
   const h = { apikey: apiKluc, authorization: "Bearer " + apiKluc, "content-type": "application/json" };
   const sb = (p, o = {}) => fetchFn(url + p, { ...o, headers: { ...h, ...(o.headers || {}) }, signal: AbortSignal.timeout(20000) });
   try {
     const o = await sb("/rest/v1/app_owner?select=user_id&limit=1");
-    const ow = o.ok ? await o.json() : [];
+    const ow = o.ok ? await o.json() : (await zahod(o), []);
     const userId = ow && ow[0] && ow[0].user_id;
     if (!userId) return { ok: false, chyba: `app_owner ${o.status} — majiteľ CRM sa nenašiel` };
     const zn = await sb("/rest/v1/auto_ulohy", { method: "POST", headers: { prefer: "return=minimal" }, body: JSON.stringify({ user_id: userId, kluc: dedup }) });
-    if (zn.status === 409) return { ok: true, existuje: true };
+    if (zn.status === 409) { await zahod(zn); return { ok: true, existuje: true }; }
+    await zahod(zn);
     const znackaOk = zn.ok; // !ok = tabuľka chýba -> dedup len podľa textu
     const zrus = () => (znackaOk ? sb(`/rest/v1/auto_ulohy?user_id=eq.${userId}&kluc=eq.${encodeURIComponent(dedup)}`, { method: "DELETE" }).catch(() => {}) : null);
     const ex = await sb(`/rest/v1/todos?select=id&user_id=eq.${userId}&text=eq.${encodeURIComponent(uloha.text)}&limit=1`);
-    if (!ex.ok) { await zrus(); return { ok: false, chyba: `todos select ${ex.status}` }; }
+    if (!ex.ok) { await zahod(ex); await zrus(); return { ok: false, chyba: `todos select ${ex.status}` }; }
     const exRows = await ex.json().catch(() => []);
     if (Array.isArray(exRows) && exRows[0]) return { ok: true, existuje: true, todo: exRows[0].id };
     const ins = await sb("/rest/v1/todos", { method: "POST", headers: { prefer: "return=representation" },
       body: JSON.stringify({ user_id: userId, text: uloha.text, note: uloha.note, done: false, due_at: uloha.due_at, reminder_at: uloha.reminder_at }) });
-    if (!ins.ok) { await zrus(); return { ok: false, chyba: `todos insert ${ins.status}` }; }
+    if (!ins.ok) { await zahod(ins); await zrus(); return { ok: false, chyba: `todos insert ${ins.status}` }; }
     const row = await ins.json().catch(() => []);
     return { ok: true, todo: (row && row[0] && row[0].id) || null, znacka: znackaOk };
   } catch (e) { return { ok: false, chyba: "CRM nedostupné: " + e.message }; }

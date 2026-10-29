@@ -12,7 +12,8 @@
 //    (poradie: už uložený > dátum na začiatku textu „12. 5. 2023“ > staré „Pred N týždňami“ k starému fetchedAt >
 //    čerstvé „pred X“ k dnešku). relativeDate sa potom prepočíta na „Pred N týždňami“ k novému fetchedAt — presne tvar,
 //    z ktorého obsah-a.js aj lcd-reviews.js robia „mesiac rok“ (bez zmeny ich kódu). date ostáva null (nie je presný deň).
-//  - Recenzia, ktorá na Googli už nie je, z dát vypadne — len ak je scrape úplný (≥ 95 % počtu profilu).
+//  - Recenzia, ktorá na Googli už nie je, z dát vypadne — len ak je scrape úplný (≥ 95 % počtu profilu)
+//    a nie je nastavené LCD_REVIEWS_NEVYHADZUJ=1 (automatika vyhodí recenziu až po potvrdení ďalší deň).
 //  - Poistky: neúplný alebo podozrivý scrape -> exit 2, reviews-data.js sa nezmení (web ukazuje posledné dobré dáta).
 import { readFile, writeFile, mkdir, access } from "node:fs/promises";
 import path from "node:path";
@@ -72,7 +73,8 @@ const freshPodlaAutora = new Map();
 for (const f of fresh.reviews) { const k = norm(f.author); if (k && !freshPodlaAutora.has(k)) freshPodlaAutora.set(k, f); }
 const pouzite = new Set();
 const jazyk = (t) => (/[řěů]/i.test(t || "") ? "cz" : "sk");
-const uplny = fresh.reviews.length >= P.totalReviews * 0.95;
+// LCD_REVIEWS_NEVYHADZUJ=1: nikoho nevyhadzovať (automatika recenzie-auto/beh.mjs, kým výpadok nepotvrdí aj ďalší deň)
+const uplny = process.env.LCD_REVIEWS_NEVYHADZUJ !== "1" && fresh.reviews.length >= P.totalReviews * 0.95;
 
 const vysledok = [], vypadli = [], nove = [];
 for (const r of stare.reviews) {

@@ -7,6 +7,7 @@
 // Scenáre: A) iná session zmení iný súbor -> rebase prejde, push ✓
 //          B) iná session zmení reviews-data.js -> rebase konflikt -> dáta sa poskladajú znova na novom main, push ✓
 //          C) Google nič nové -> žiadny commit
+//          D) z Googlu vypadne recenzia -> 1. deň sa nič nevyhodí (čaká na potvrdenie), ďalší deň vypadne (push ✓)
 // Beh používa beh.mjs z tohto priečinka (aj necommitnuté zmeny), nástroje dát (reviews-update…) z HEAD.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from "node:fs";
@@ -42,7 +43,8 @@ import { spawnSync } from "node:child_process";
 const rezim = process.env.LCD_TEST_REZIM, INY = ${JSON.stringify(INY)};
 const g = (...a) => { const r = spawnSync("git", a, { cwd: INY, encoding: "utf8", windowsHide: true }); if (r.status) { console.error(r.stderr); process.exit(3); } return r.stdout; };
 const f = JSON.parse(readFileSync("tools/google-reviews-fresh.json", "utf8"));
-if (rezim !== "nic") {
+if (rezim === "vypadla") f.reviews.shift(); // najnovšia recenzia „zmizne“ (počet na profile ostáva -> scrape ≥ 95 %)
+else if (rezim !== "nic") {
   f.reviews.unshift({ googleId: "test-" + rezim, author: "Skúšobná Recenzia " + rezim, authorPhoto: null, rating: 5, relativeDate: "pred 2 dňami",
     text: "Len pieskovisko test-push.mjs (" + rezim + ").", photos: [], ownerResponse: null });
   f.place.totalReviews = f.reviews.length;
@@ -58,7 +60,7 @@ if (rezim === "konflikt") {
     .replace(/(\d+) recenzií na profile/, "$1 recenzií na profile (iná session)"));
   g("add", "assets/js/reviews-data.js");
 }
-if (rezim !== "nic") { g("-c", "user.name=Ina Session", "-c", "user.email=ina@test", "commit", "-q", "-m", "iná session: " + rezim); g("push", "-q", "origin", "HEAD:main"); }
+if (rezim === "iny-subor" || rezim === "konflikt") { g("-c", "user.name=Ina Session", "-c", "user.email=ina@test", "commit", "-q", "-m", "iná session: " + rezim); g("push", "-q", "origin", "HEAD:main"); }
 console.log("[falošný scraper] " + rezim + ": recenzií " + f.reviews.length);
 `);
 
@@ -103,7 +105,29 @@ krok("C: bez skutočnej zmeny sa nič necommituje ani nepushne", () => {
 krok("stav: počítadlo zlyhaní 0, posledný výsledok bez-zmeny", () => {
   const s = JSON.parse(readFileSync(path.join(STAV, "stav.json"), "utf8")); assert.equal(s.neuspesneDni, 0); assert.equal(s.poslednyVysledok.stav, "bez-zmeny");
 });
-krok("v main nikdy nebol force push (história lineárna, 4 commity nad základom)", () => {
-  const n = Number(git(ORIGIN, "rev-list", "--count", `${git(ZDROJ, "rev-parse", "HEAD")}..main`)); assert.equal(n, 4);
+
+// D) recenzia vypadne z Googlu -> 1. deň nič (čaká), ďalší deň potvrdené -> vypadne
+const predD = git(ORIGIN, "rev-parse", "main");
+r = behRun("vypadla");
+const stavD = () => JSON.parse(readFileSync(path.join(STAV, "stav.json"), "utf8"));
+krok("D1: 1. deň výpadku sa recenzia NEVYHODÍ, nič sa nepushne", () => {
+  assert.equal(r.kod, 0, r.out.slice(-800)); assert.match(r.out, /NEVYHADZUJEM/); assert.match(r.out, /HOTOVO: bez-zmeny/);
+  assert.equal(git(ORIGIN, "rev-parse", "main"), predD); assert.match(dataMain(), /Skúšobná Recenzia konflikt/);
 });
+krok("D1: stav si pamätá, kto vypadol a kedy", () => { const s = stavD(); assert.deepEqual(s.vypadnute && s.vypadnute.autori, ["Skúšobná Recenzia konflikt"]); });
+// „ďalší deň“: posunúť deň pozorovania do minulosti (ostrý beh --dnes nepovolí)
+{ const s = stavD(); s.vypadnute.den = "2000-01-01"; writeFileSync(path.join(STAV, "stav.json"), JSON.stringify(s, null, 2)); }
+r = behRun("vypadla");
+krok("D2: výpadok potvrdený ďalší deň -> recenzia vypadne, push", () => {
+  assert.equal(r.kod, 0, r.out.slice(-800)); assert.match(r.out, /výpadok potvrdil aj 2000-01-01/); assert.match(r.out, /PUSH OK/);
+  const d = dataMain(); assert.doesNotMatch(d, /Skúšobná Recenzia konflikt/); assert.match(d, /Skúšobná Recenzia iny-subor/);
+});
+krok("D2: commit len dáta, stav.vypadnute vynulované", () => {
+  for (const f of suboryCommitu("main")) assert.match(f, /^(assets\/js\/reviews-data\.js|tools\/google-reviews-fresh\.json|assets\/img\/reviews\/(m\/)?rg-\d+-\d+\.jpg)$/, f);
+  assert.equal(stavD().vypadnute, null);
+});
+krok("v main nikdy nebol force push (história lineárna, 5 commitov nad základom)", () => {
+  const n = Number(git(ORIGIN, "rev-list", "--count", `${git(ZDROJ, "rev-parse", "HEAD")}..main`)); assert.equal(n, 5);
+});
+krok("beh skončil bez pádu Node (exit 0/1, nie 0xC0000409)", () => { assert.ok([0, 1].includes(r.kod), String(r.kod)); });
 console.log(`test-push: ${ok} OK${process.exitCode ? " — SÚ CHYBY (logy: " + ROOT + ")" : ""} | pieskovisko: ${ROOT}`);
