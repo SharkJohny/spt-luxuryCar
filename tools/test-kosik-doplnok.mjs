@@ -1091,7 +1091,7 @@ await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, box ->
 });
 
 // ---------------------------------------------------------------- meno auta v ponuke, cena v sete s preškrtnutou (29. 10. 2026)
-await test("auto riadku v názve: „Rohož do kufra pre Skoda Octavia 2021“, „Box do kufra pre …“ (CZ „pro“); bez auta dnešné názvy", () => {
+await test("auto riadku v názve: „Rohož do kufra pre Skoda Octavia 2021“, „Box do kufra pre …“ (CZ „pro“); bez auta „Rohož do kufra Classic“ / „Box do kufra“", () => {
   const meno = (k, s) => M.cisty(k.querySelector(s + " .lcd-dop__pas .lcd-dop__meno").textContent);
   const k = M.kartaPonuky(Object.assign(ctxKarty({ rohoz: true, box: true }), { autoText: "Skoda Octavia 2021" }), RSK, false);
   rovne([meno(k, '.lcd-dop__volba[data-varianta="classic"]'), meno(k, ".lcd-dop__volba--box")], ["Rohož do kufra pre Skoda Octavia 2021", "Box do kufra pre Skoda Octavia 2021"]);
@@ -1100,7 +1100,11 @@ await test("auto riadku v názve: „Rohož do kufra pre Skoda Octavia 2021“, 
   const kc = M.kartaPonuky(Object.assign(ctxKarty({ rohoz: true, box: true }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), { autoText: "Skoda Octavia 2021" }), RCZ, false);
   rovne([meno(kc, '.lcd-dop__volba[data-varianta="classic"]'), meno(kc, ".lcd-dop__volba--box")], ["Rohož do kufru pro Skoda Octavia 2021", "Box do kufru pro Skoda Octavia 2021"]);
   const bez = M.kartaPonuky(ctxKarty({ rohoz: true, box: true }), RSK, false);
-  rovne([meno(bez, '.lcd-dop__volba[data-varianta="classic"]'), meno(bez, ".lcd-dop__volba--box")], ["Rohož Classic", "Box do kufra"]);
+  // bez auta tiež povedať, kam produkt patrí (Michal: vždy „rohož do kufra“), nie holé „Rohož Classic“
+  rovne([meno(bez, '.lcd-dop__volba[data-varianta="classic"]'), meno(bez, ".lcd-dop__volba--box")], ["Rohož do kufra Classic", "Box do kufra"]);
+  const bezc = M.kartaPonuky(ctxKarty({ rohoz: true, box: true }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), RCZ, false);
+  rovne([meno(bezc, '.lcd-dop__volba[data-varianta="classic"]'), meno(bezc, ".lcd-dop__volba--box")], ["Rohož do kufru Classic", "Box do kufru"]);
+  pravda(![bez, bezc].some((x) => [...x.querySelectorAll(".lcd-dop__meno")].some((m) => /^Rohož\s+(?:Classic|Premium)\b/.test(M.cisty(m.textContent)))), "žiadne holé „Rohož Classic“ bez „do kufra“");
   pravda(!/dragon|elite|basic|milimet|vyrába|záruk|comfort|premium|DPH/i.test(k.textContent), "zakázané slová");
 });
 await test("cena v páse: v sete výrazne, samostatná preškrtnutá, „ušetríte“ = rozdiel (rohož); box „od“ + preškrtnutá najlacnejšej kombinácie", () => {

@@ -1482,7 +1482,7 @@ function karta(ctx, T, R, viacSetov) {
       ponuka({
         doplnok: "rohoz", varianta: o.v, trieda: "lcd-dop__volba--" + o.v,
         foto: fotoDoplnku(FOTKY[o.v]), alt: T.rohoz + " " + T[o.v] + " – " + T[o.v + "Popis"],
-        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: ctx.autoText ? T.rohozPre(ctx.autoText) : T.rohozKratko + " " + T[o.v],
+        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: ctx.autoText ? T.rohozPre(ctx.autoText) : T.rohoz + " " + T[o.v],
         dovod: T[o.v + "Dovod"], veta: T[o.v + "Veta"],
         cena: cenovkaPas(T, R, o.rozdiel.s, o.samo, false), cenaDetail: samostatneRiadok(T, R, o.samo, o.rozdiel.s, false), tlacidlo: tl,
       });
