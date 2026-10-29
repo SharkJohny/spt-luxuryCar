@@ -13672,6 +13672,10 @@ ul.subcategories.with-image li a .text {
 #lcd-doplnok .lcd-dop__samo{white-space:nowrap;text-decoration:line-through;text-decoration-thickness:1px}
 #lcd-doplnok .lcd-dop__usetri{display:inline-block;padding:2px 9px;border-radius:999px;background:rgba(163,220,176,.14);
   font-size:13px;font-weight:600;line-height:1.35;color:var(--ok);white-space:nowrap}
+/* pás: samostatná cena preškrtnutá vedľa „ušetríte“ (Michal 29. 10. 2026) */
+#lcd-doplnok .lcd-dop__uspora{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:4px 8px}
+#lcd-doplnok .lcd-dop__uspora .lcd-dop__samo{font-size:14px;color:var(--mute)}
+#lcd-doplnok .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 /* tlačidlá (Michal 9. 10.: „farebne“): zlaté, „Pridať“ so znakom +, „Vybrať“ so šípkou; text v ink (kontrast ~7 : 1) */
 #lcd-doplnok :is(.lcd-dop__pridat,.lcd-dop__vybrat){display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;margin:0;
@@ -13804,6 +13808,7 @@ tr.lcd-dop-zvyrazni{outline:2px solid #9b1c1c;outline-offset:-2px}
   #lcd-doplnok .lcd-dop__pas > .lcd-dop__cena{grid-area:ce;flex-direction:row;align-items:center;justify-content:flex-start;gap:4px 10px;min-width:0;padding-left:64px;text-align:left}
   #lcd-doplnok .lcd-dop__cena--pas .lcd-dop__hlavna{flex:0 1 auto;min-width:0}
   #lcd-doplnok .lcd-dop__cena--pas .lcd-dop__usetri{white-space:normal}
+  #lcd-doplnok .lcd-dop__uspora{justify-content:flex-start}
   #lcd-doplnok .lcd-dop__cena--pas .lcd-dop__vsete{font-size:17px}
   #lcd-doplnok .lcd-dop__pas > :is(.lcd-dop__pridat,.lcd-dop__vybrat){grid-area:tl;min-height:40px;padding:0 14px}
   #lcd-doplnok .lcd-dop__sipka{position:absolute;top:24px;right:16px}
@@ -14066,6 +14071,27 @@ body.in-kosik #cart-wrapper .next-step .next-step-back .continue-shopping{text-d
   text-decoration-color:rgba(20,17,12,.28);text-underline-offset:4px}
 /* bublina chatu Luxia by prekryla „Pokračovať“ (cart.js lcdBublinaMimoTlacidla) */
 html.lcd-kosik-bez-bubliny body.in-kosik iframe[title="Luxia chat"]{visibility:hidden !important}
+
+/* =====================================================================
+   „Pripravené pre: <auto> ✓“ a hodnotenie z Google (Michal 29. 10. 2026; cart.js + functions/kosikPripravene.js):
+   riadok pod názvom položky (kamión nad súhrnom konfigurácie), krátko v súhrne nad cenou; hodnotenie v .next-step medzi
+   „Späť do obchodu“ a „Pokračovať“ (column-reverse -> pod „Pokračovať“). Zelená = potvrdenie, nie tlačidlo.
+   ===================================================================== */
+body.in-kosik #cart-wrapper .lcd-pre{display:block;box-sizing:border-box;width:fit-content;max-width:100%;
+  margin:10px 0 2px;padding:6px 12px 6px 10px;border:1px solid #cfe3d1;border-radius:10px;background:#f1f8f2;
+  color:#14110c;font:400 16px/1.35 var(--k-body);letter-spacing:0;text-transform:none;text-align:left}
+body.in-kosik #cart-wrapper .lcd-pre__n{color:#2a6430;font-weight:600}
+body.in-kosik #cart-wrapper .lcd-pre__a{color:#14110c;font-weight:700}
+body.in-kosik #cart-wrapper .lcd-pre__ok{color:#2e7d32;font-weight:700}
+body.in-kosik #cart-wrapper .lcd-pre--suhrn{width:auto;margin:0 0 14px}
+@media (max-width:767px){body.in-kosik #cart-wrapper .lcd-pre--suhrn{margin:0 10px 14px}}
+body.in-kosik #cart-wrapper .lcd-pre--kamion{margin:8px 0 12px}
+body.in-kosik #cart-wrapper .lcd-hodn-kosik{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 6px;margin:0;
+  color:#5f574a;font:400 15px/1.4 var(--k-body);letter-spacing:0;text-transform:none;text-align:center}
+body.in-kosik #cart-wrapper .lcd-hodn-kosik b{color:#14110c;font-weight:700}
+body.in-kosik #cart-wrapper .lcd-hodn-kosik__st{color:#a8821f;letter-spacing:.08em}
+body.in-kosik #cart-wrapper .lcd-hodn-kosik[data-lcd-caka]{visibility:hidden}
+body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
 
 /* Dobierka: „+ záloha“ len po výbere dobierky, drobne a svetlo (Michal 26. 10. 2026 — nemá odradiť; do objednávky ide len „Dobierka“) */
 .lcd-dob-pozn{display:none;margin-top:1px;font-size:10.5px;line-height:1.3;font-weight:400;font-style:normal;letter-spacing:.02em;color:#cfcbc3}

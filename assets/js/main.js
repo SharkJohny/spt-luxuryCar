@@ -9,6 +9,7 @@ import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
 import { initCart } from "./components/cart.js";
 import { initKosikDoplnok } from "./lcdKosikDoplnok.js"; // kosik: rohoz do kufra a box k setu za cenu v sete
+import { RECENZIE_WV } from "./functions/kosikPripravene.js"; // verzia reviews-data.js (widget recenzii aj hodnotenie v kosiku)
 import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
 import { initLivePrice } from "./functions/livePrice.js";
@@ -797,8 +798,9 @@ function googleReviews(setupData, texts) {
   // Box produkt: ako prvy widget. SK/CZ cez data-lang.
   var lang = (($("html").attr("lang") || "").toLowerCase().indexOf("cs") === 0) ? "cz" : "sk";
   var base = LCD_ZAKLAD + "js/";
-  // WV = verzia reviews-data.js + lcd-reviews.js (cache 1 rok) — pri zmene ktoréhokoľvek zvýš.
-  var WV = "10";
+  // WV = verzia reviews-data.js + lcd-reviews.js (cache 1 rok) — pri zmene ktoréhokoľvek zvýš v functions/kosikPripravene.js
+  // (RECENZIE_WV: tá istá adresa ako hodnotenie v košíku -> súbor z produktu je v košíku už vo vyrovnávacej pamäti).
+  var WV = RECENZIE_WV;
 
   $("#goggle-review-wrap, .google-reviews").remove();
 

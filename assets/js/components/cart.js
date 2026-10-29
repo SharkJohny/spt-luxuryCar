@@ -1,6 +1,8 @@
 import { parseTruckOrderSummary } from "../truck-konfigurator/order-summary.mjs";
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
+import { autoRiadku, popisAuta, popisKamiona, ulozistaAuta, LCD_AUTO_ZASTUPNE, lcdAutoHodnota } from "../functions/autoPamat.js";
+import { riadokPre, trh, vlozDoSuhrnu } from "../functions/kosikPripravene.js";
 
 export function initCart(texts) {
   console.log("Initializing cart with texts:", texts);
@@ -92,15 +94,46 @@ function jeKamionovyRiadok(text) {
   return /\btruck\b/i.test(t) || /kami[oó]n/i.test(t);
 }
 
-/* Zástupné texty selectov konfigurátora (cars.js cstm_*, „Typ auta“; configuratorEngine.js lcdPlaceholders) —
-   v košíku nie sú údaj o aute („Značka: Značka, Rok: Rok výroby“; tablet 8. 10. 2026). */
-export const LCD_AUTO_ZASTUPNE = ["Značka", "Model", "Rok výroby", "Typ auta", "Ročník", "Typ",
-  "Prosím, vyberte značku vozidla", "Prosím,vyberte model vozidla", "Prosím,vyberte rok výroby vozidla"];
-export function lcdAutoHodnota(v) {
-  if (v === null || v === undefined) return null;
-  const t = String(v).replace(/\s+/g, " ").trim();
-  if (!t || t === "undefined" || t === "null" || LCD_AUTO_ZASTUPNE.indexOf(t) !== -1) return null;
-  return t;
+/* Zástupné texty selectov konfigurátora — presunuté do functions/autoPamat.js (používa ich aj auto pri položke). */
+export { LCD_AUTO_ZASTUPNE, lcdAutoHodnota };
+
+/* „Pripravené pre: <auto> ✓“ (Michal 29. 10. 2026): druh riadku podľa adresy produktu — autokoberce, rohož do kufra a box
+   majú auto zákazníka; kamión svoje vozidlo; vzorkovník, poukážka a iné nič (ani keď karta auto má). */
+function druhRiadku($row) {
+  const href = String($row.find("a.main-link").first().attr("href") || "");
+  if (jeKamionovyRiadok($row.text()) || /kamion/i.test(href)) return "kamion";
+  if (/vzorkovnik|poukaz/i.test(href)) return null;
+  return /autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(href) ? "auto" : null;
+}
+/** Text auta riadku („Skoda Octavia 2021 Combi“, kamión „DAF XF 2022–2025“) alebo null — PRED úpravou rozpisu (číta príplatky). */
+function autoTextRiadku($row) {
+  const druh = druhRiadku($row);
+  if (druh === "kamion") {
+    let v = null;
+    try { v = sessionStorage.getItem("truckVehicle"); } catch (e) { /* private mode */ }
+    if (!v) {
+      const m = /Vozidlo\s*[-–:]\s*([^,]+)/i.exec($row.find("span.main-link-surcharges").first().text());
+      v = m && m[1];
+    }
+    return popisKamiona(v);
+  }
+  if (druh !== "auto") return null;
+  const u = ulozistaAuta();
+  return popisAuta(autoRiadku(u.ss, u.ls, {
+    priceId: $row.find('input[name="priceId"]').first().val() || null,
+    sur: $row.find("span.main-link-surcharges").first().text(),
+  }));
+}
+/** Košík (nie kroky objednávky): riadok „Pripravené pre“ pod názvom položky, kamión nad súhrnom konfigurácie. */
+function lcdVlozPripravene(auta) {
+  const t = trh(document);
+  auta.forEach(function (text, row) {
+    if (row.querySelector(".lcd-pre")) return;
+    const sk = row.querySelector(".lcd-truck-cart-summary, .info-wrap");
+    if (sk) { sk.parentNode.insertBefore(riadokPre(document, text, t, "lcd-pre--kamion", "div"), sk); return; }
+    const a = row.querySelector("a.main-link");
+    if (a) a.after(riadokPre(document, text, t));
+  });
 }
 /* Položka: v košíku riadok tabuľky (tr), v rekapitulácii krokov objednávky div.cart-item v .cart-items (Michal 10. 10.
    2026: v pokladni ostávala farba vrstiev v zlatom názve veľkými písmenami, lebo closest("tr") nič nenašiel). */
@@ -119,7 +152,8 @@ function lcdVlozRozpis(zdroje, riadky) {
   const prvy = zdroje[0];
   const a = prvy.closest("a");
   const kotva = a || prvy;
-  const stary = kotva.nextElementSibling;
+  let stary = kotva.nextElementSibling;
+  if (stary && stary.classList.contains("lcd-pre")) stary = stary.nextElementSibling; // „Pripravené pre“ ostáva pod názvom
   if (stary && stary.classList.contains("lcd-rozpis")) stary.remove();
   kotva.after(lcdRozpisEl(document, riadky, "lcd-rozpis"));
   zdroje.forEach((e) => e.classList.add("lcd-rozpis-zdroj"));
@@ -178,6 +212,15 @@ function changeDescription() {
     return jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
   }).length;
 
+  // auto každej položky (pred prepisom príplatkov): košík ho ukáže v riadku „Pripravené pre“, kroky objednávky v rozpise
+  const naKosiku = !!(document.body && (document.body.classList.contains("in-kosik") || document.body.classList.contains("id--9")));
+  const auta = new Map();
+  $("tr.removeable, tr[data-micro='cartItem'], body.ordering-process .cart-items .cart-item").each(function () {
+    if (auta.has(this)) return;
+    const t = autoTextRiadku($(this));
+    if (t) auta.set(this, t);
+  });
+
   // Fallback pre samostatne produkty BEZ surcharges (Premium/Klasik kufrove rohoze):
   // formatuj span.main-link-variant na bullety "Farba 1./2. vrstvy".
   $(LCD_POLOZKA).each(function () {
@@ -198,8 +241,9 @@ function changeDescription() {
       if (this.classList.contains("lcd-rozpis-zdroj")) return;
       const $variant = $tr.find("span.main-link-variant").first();
       const riadky = lcdRozpis({ variant: $variant.text(), priplatky: $(this).text(), cz: lcdCz() });
-      const auto = [getBrand, getModel, getYear, getCarType].map(lcdAutoHodnota).filter(Boolean).join(" ");
-      if (auto && riadky.length) riadky.unshift({ n: "Auto", h: auto });
+      // auto riadku (autoPamat.js autoRiadku): na košíku samostatný riadok „Pripravené pre“, v krokoch objednávky „Auto: …“
+      const auto = auta.get($tr[0]);
+      if (auto && riadky.length && !naKosiku) riadky.unshift({ n: "Auto", h: auto });
       if (riadky.length) lcdVlozRozpis($variant.length ? [this, $variant[0]] : [this], riadky);
       return;
     }
@@ -286,5 +330,13 @@ function changeDescription() {
 
     // $(this).html(newText);
   });
+
+  // košík: „Pripravené pre: <auto> ✓“ pri položkách a v súhrne, hodnotenie z Google pri „Pokračovať“ (kosikPripravene.js)
+  if (naKosiku) {
+    try {
+      lcdVlozPripravene(auta);
+      vlozDoSuhrnu(Array.from(auta.values()));
+    } catch (e) { /* doplnok vzhľadu — košík musí fungovať aj bez neho */ }
+  }
 }
 

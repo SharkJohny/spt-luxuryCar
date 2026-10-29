@@ -528,3 +528,13 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] 5) Fotky na lupu: príčina = Shoptet CloudZoom (main-3g.js), nie náš kód -> bundle bez zmeny; zmenšené originály 2 000 px (374 fotiek: vymeniť 249 vrátane 74 so zrnom prerobených q94–98, bez zmeny 125; kritérium SSIM ≥ 0,98 pri 2 000 px) v scratchpade opravy-2910/fotky-nove + tabulka.md
 - [ ] Michal/koordinátor: výmena fotiek galérie v admine SK aj CZ podľa tabulka.md; rozhodnúť, či odložiť prednačítanie lupy Shoptetu (CloudZoom) na telefóne
 - [ ] Michal/koordinátor: SK okno boxov má prehodené fotky nití („čierna, niť biela“ ukazuje sivú niť a naopak; CZ správne, chyba existovala už predtým) -> vymeniť 2 súbory v SK admine `assets/config/farba-koze-cierna-farba-sitia-biela|seda.jpg`, potom CZ aliasy bílá/šedá + `farby-1v-nahlady.mjs` (návod a súbory: scratchpad opravy-2910/nit-vymena/NAVOD.md)
+
+## Košík: auto zákazníka, rohož/box s menom auta, hodnotenie z Google (Michal 29. 10. 2026, vetva kosik-vylepsenia)
+- [x] „Pripravené pre: Skoda Octavia 2021 Combi ✓“ pod názvom položky a krátko v súhrne nad cenou; kamión „DAF XF 2022–2025“ z truckVehicle; vzorky/poukážka nič (cart.js, functions/kosikPripravene.js)
+- [x] Auto pri položke: záznam pri pridaní do košíka lcdAutoPolozky:v1 (priceId -> auto), inak auto karty so zhodným TYP (= poznámka objednávky); dve autá = pri každom riadku jeho (functions/autoPamat.js)
+- [x] Ponuka k setu: „Rohož do kufra pre …“ / „Box do kufra pre …“ (CZ „pro“), v páse preškrtnutá samostatná cena + „ušetríte“ (lcdKosikDoplnok.js)
+- [x] Hodnotenie pod „Pokračovať“ z window.LCD_REVIEWS.place (reviews-data.js po načítaní stránky, tá istá adresa ako widget = vyrovnávacia pamäť z produktu)
+- [x] Testy: tools/test-kosik-pripravene.mjs (nový), test-auto-pamat, test-kosik-doplnok rozšírené; npm run kosik:test
+- [ ] Michal: snímky a súhlas -> push do main, prepnutie sha v SK aj CZ admine
+- [ ] Poznámka objednávky nesie len jedno auto (posledné vybrané) — pri dvoch setoch pre dve autá doplniť po dohode s Jánom (formát číta jeho export)
+- [ ] reviews-data.js je z 23. 5. 2026 (89 recenzií, 5,0) — znova stiahnuť tools/scrape-google-reviews.mjs a zvýšiť RECENZIE_WV

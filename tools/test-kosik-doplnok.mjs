@@ -1090,6 +1090,43 @@ await test("krížik pri odrážke: rohož -> „Autokoberce do kufru“, box ->
   rovne(M.odrazkaDoplnku(ul, { co: "rohoz" }, volby, SKD, SK), null);
 });
 
+// ---------------------------------------------------------------- meno auta v ponuke, cena v sete s preškrtnutou (29. 10. 2026)
+await test("auto riadku v názve: „Rohož do kufra pre Skoda Octavia 2021“, „Box do kufra pre …“ (CZ „pro“); bez auta dnešné názvy", () => {
+  const meno = (k, s) => M.cisty(k.querySelector(s + " .lcd-dop__pas .lcd-dop__meno").textContent);
+  const k = M.kartaPonuky(Object.assign(ctxKarty({ rohoz: true, box: true }), { autoText: "Skoda Octavia 2021" }), RSK, false);
+  rovne([meno(k, '.lcd-dop__volba[data-varianta="classic"]'), meno(k, ".lcd-dop__volba--box")], ["Rohož do kufra pre Skoda Octavia 2021", "Box do kufra pre Skoda Octavia 2021"]);
+  rovne(M.cisty(k.querySelector('.lcd-dop__volba[data-varianta="classic"] .lcd-dop__nadtitul').textContent), "Dno kufra", "nadtitul ostáva");
+  rovne(meno(k, '.lcd-dop__volba[data-doplnok="vrstva2"]'), "Druhá vrstva · Lux 10", "druhá vrstva bez auta v názve");
+  const kc = M.kartaPonuky(Object.assign(ctxKarty({ rohoz: true, box: true }, RCZ, CZB, CZE, { 57: "486", 60: "495", 47: "380" }, "43605"), { autoText: "Skoda Octavia 2021" }), RCZ, false);
+  rovne([meno(kc, '.lcd-dop__volba[data-varianta="classic"]'), meno(kc, ".lcd-dop__volba--box")], ["Rohož do kufru pro Skoda Octavia 2021", "Box do kufru pro Skoda Octavia 2021"]);
+  const bez = M.kartaPonuky(ctxKarty({ rohoz: true, box: true }), RSK, false);
+  rovne([meno(bez, '.lcd-dop__volba[data-varianta="classic"]'), meno(bez, ".lcd-dop__volba--box")], ["Rohož Classic", "Box do kufra"]);
+  pravda(!/dragon|elite|basic|milimet|vyrába|záruk|comfort|premium|DPH/i.test(k.textContent), "zakázané slová");
+});
+await test("cena v páse: v sete výrazne, samostatná preškrtnutá, „ušetríte“ = rozdiel (rohož); box „od“ + preškrtnutá najlacnejšej kombinácie", () => {
+  const ctx = Object.assign(ctxKarty({ rohoz: true, box: true }), { autoText: "Skoda Octavia 2021" });
+  const roz = M.rozdielCeny(ctx.volby, M.zmena({ typ: "rohoz", varianta: "classic" }, ctx.mapa, RSK), ctx.mapa).s;
+  const v1 = M.velkostiBoxu(ctx.mapa, RSK.boxSolo);
+  // samostatné ceny ako zo živých stránok: rohož o 101 € drahšia, box S/M/L/XL základ + príplatok
+  ctx.samostatne = { classic: roz + 101, box1: { S: 196, M: 216, L: 236, XL: 256 }, box2: {}, zaklad: 97, p1: {}, p2: {} };
+  const k = M.kartaPonuky(ctx, RSK, false);
+  const c = k.querySelector('.lcd-dop__volba[data-varianta="classic"] .lcd-dop__pas .lcd-dop__cena');
+  rovne(M.cisty(c.querySelector(".lcd-dop__vsete").textContent), M.cisty(M.cenaText(roz, RSK, true)), "v sete");
+  rovne(M.cisty(c.querySelector("s.lcd-dop__samo").textContent), M.cisty(M.cenaText(roz + 101, RSK)), "preškrtnutá samostatná");
+  rovne(M.cisty(c.querySelector(".lcd-dop__usetri").textContent), "ušetríte 101 €", "ušetríte");
+  pravda(c.querySelector(".sr-only") && /samostatne/.test(c.querySelector(".sr-only").textContent), "čítačka: „samostatne“ pred preškrtnutou cenou");
+  // box: „od +X € v sete“, preškrtnutá samostatná cena tej istej (najlacnejšej) kombinácie, „ušetríte minimálne“ <= jej úspora
+  const b = k.querySelector(".lcd-dop__volba--box .lcd-dop__pas .lcd-dop__cena");
+  const usetri = M.cisty(b.querySelector(".lcd-dop__usetri").textContent);
+  pravda(/^ušetríte minimálne /.test(usetri), usetri);
+  const s = b.querySelector("s.lcd-dop__samo");
+  const n = (t) => Number(M.cisty(t).replace(/[^\d,]/g, "").replace(",", "."));
+  pravda(s && n(s.textContent) - n(b.querySelector(".lcd-dop__vsete").textContent) >= n(usetri), "box: preškrtnutá − v sete >= ušetríte minimálne");
+  // bez samostatných cien: len „v sete“ (bez preškrtnutej a bez ušetríte)
+  const k0 = M.kartaPonuky(ctxKarty({ rohoz: true, box: false }), RSK, false);
+  const c0 = k0.querySelector('.lcd-dop__volba[data-varianta="classic"] .lcd-dop__pas .lcd-dop__cena');
+  rovne([c0.querySelector("s"), c0.querySelector(".lcd-dop__usetri")], [null, null]);
+});
 // ---------------------------------------------------------------- konfigurátor 1V (kroky 5–6) -> ponuka v košíku
 // Telá POST zachytené testom tools/test-konfigurator-1v.mjs --novy (13. 10. 2026, SK 598, nový vzhľad; 1280 aj 390
 // rovnako). To, čo zákazník vyberie v kroku 5 (rohož) a 6 (boxy), ide v tom istom riadku setu -> ponuka v košíku to

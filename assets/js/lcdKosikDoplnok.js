@@ -27,6 +27,8 @@
 import { getShoptetContext } from "./functions/shoptetContext.js";
 // kresba boxu ako na produkte 616 a v okne boxov 1V (Michal 23. 10. 2026: veľkosti s kresbou, farba sa mení s voľbou)
 import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
+// auto riadku setu do názvu ponuky („Rohož do kufra pre Skoda Octavia 2021“, Michal 29. 10. 2026) — rovnaký zdroj ako cart.js
+import { autoRiadku, popisAuta, ulozistaAuta, zapisAutoKPolozke } from "./functions/autoPamat.js";
 
 // ID parametrov podľa projektu (rovnaké ako productPage.js r. 34–48 + overené na živých formulároch 7. 10. 2026)
 // v1 / v2 = parameter variantu „farba 1. / 2. vrstvy“; sety = jednovrstvový set (productId) -> dvojvrstvový set
@@ -87,6 +89,9 @@ const TEXTY = {
     az: "až",
     skryt: "Skryť",
     rohoz: "Rohož do kufra",
+    // s autom riadku (Michal 29. 10. 2026, konkurencia Mattendesign „passend für Škoda Octavia“): kam patrí + pre aké auto
+    rohozPre: (a) => "Rohož do kufra pre " + a,
+    boxPre: (a) => "Box do kufra pre " + a,
     classic: "Classic",
     classicPopis: "dno kufra",
     premium: "Premium",
@@ -166,6 +171,8 @@ const TEXTY = {
     az: "až",
     skryt: "Skrýt",
     rohoz: "Rohož do kufru",
+    rohozPre: (a) => "Rohož do kufru pro " + a,
+    boxPre: (a) => "Box do kufru pro " + a,
     classic: "Classic",
     classicPopis: "dno kufru",
     premium: "Premium",
@@ -1234,14 +1241,25 @@ function cenovka(T, R, rozdiel, samostatne) {
   return el("span", { class: "lcd-dop__cena" }, deti);
 }
 
-/** Cena v úzkom páse: „+129 € v sete“ a „ušetríte 101 €“ (box: „od +99 € v sete“, „ušetríte minimálne 97 €“). */
+/**
+ * Cena v úzkom páse: „+129 € v sete“ výrazne, pod tým samostatná cena preškrtnutá a „ušetríte 101 €“ (Michal 29. 10. 2026:
+ * „cena v sete výrazne a preškrtnutá samostatná cena + Ušetríte“). Box: „od +99 € v sete“, preškrtnutá samostatná cena tej
+ * istej (najlacnejšej) kombinácie a „ušetríte minimálne 97 €“ (najmenšia úspora zo všetkých veľkostí; táto je vždy aspoň toľko).
+ */
 function cenovkaPas(T, R, rozdiel, samostatne, kratko, usetriAspon) {
   const usetri = kratko ? usetriAspon || 0 : samostatne && samostatne > rozdiel + 0.5 ? samostatne - rozdiel : 0;
+  const samo = usetri > 0.5 && samostatne && samostatne - rozdiel >= usetri - 0.5 ? samostatne : null;
   const deti = [el("span", { class: "lcd-dop__hlavna" }, [
     el("b", { class: "lcd-dop__vsete", text: (kratko ? T.od + " " : "") + cenaText(rozdiel, R, true) }), " ",
     el("small", { text: T.vSete }),
   ])];
-  if (usetri > 0.5) deti.push(" ", el("span", { class: "lcd-dop__usetri" }, [(kratko ? T.usetriteAspon : T.usetrite) + " " + cenaText(usetri, R)]));
+  if (usetri > 0.5) {
+    deti.push(" ", el("span", { class: "lcd-dop__uspora" }, [
+      samo ? el("span", { class: "sr-only", text: T.samostatne + " " }) : null,
+      samo ? el("s", { class: "lcd-dop__samo", text: cenaText(samo, R) }) : null, samo ? " " : null,
+      el("span", { class: "lcd-dop__usetri" }, [(kratko ? T.usetriteAspon : T.usetrite) + " " + cenaText(usetri, R)]),
+    ]));
+  }
   return el("span", { class: "lcd-dop__cena lcd-dop__cena--pas" }, deti);
 }
 /** Detail pásu: „samostatne 230 €“ (preškrtnuté), keď je samostatná cena vyššia. */
@@ -1460,7 +1478,7 @@ function karta(ctx, T, R, viacSetov) {
       ponuka({
         doplnok: "rohoz", varianta: o.v, trieda: "lcd-dop__volba--" + o.v,
         foto: fotoDoplnku(FOTKY[o.v]), alt: T.rohoz + " " + T[o.v] + " – " + T[o.v + "Popis"],
-        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: T.rohozKratko + " " + T[o.v],
+        zlava: zlava(o.samo, o.rozdiel.s), nadtitul: T[o.v + "Nadtitul"], meno: ctx.autoText ? T.rohozPre(ctx.autoText) : T.rohozKratko + " " + T[o.v],
         dovod: T[o.v + "Dovod"], veta: T[o.v + "Veta"],
         cena: cenovkaPas(T, R, o.rozdiel.s, o.samo, false), cenaDetail: samostatneRiadok(T, R, o.samo, o.rozdiel.s, false), tlacidlo: tl,
       });
@@ -1636,7 +1654,7 @@ function karta(ctx, T, R, viacSetov) {
         doplnok: "box", trieda: "lcd-dop__polozka lcd-dop__volba--box",
         foto: fotoDoplnku(pocty[0] === 2 ? FOTKY.box2 : FOTKY.box1), alt: T.box,
         zlava: maxZ, az: zlavy.some(function (z) { return z !== maxZ; }),
-        nadtitul: T.boxNadtitul, meno: T.box, dovod: T.boxDovod, veta: T.boxVeta,
+        nadtitul: T.boxNadtitul, meno: ctx.autoText ? T.boxPre(ctx.autoText) : T.box, dovod: T.boxDovod, veta: T.boxVeta,
         cena: cenovkaPas(T, R, naj.s, naj.samo, true, usetriAspon), cenaDetail: samostatneRiadok(T, R, naj.samo, naj.s, true),
         extra: telo, vybrat: btn, vybratText: napis,
       });
@@ -1903,6 +1921,8 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   // druhá vrstva = výmena na iný produkt (dvojvrstvový set): cieľové priceId, Lux farba a mapa cieľového produktu
   const ciel = doplnok.ciel || null;
   const stary = { itemId: ctx.riadok.itemId, priceId: String(ctx.riadok.priceId), q: ctx.riadok.q };
+  // druhá vrstva = iné priceId: auto riadku prejde na nový riadok („Pripravené pre“ v košíku; zbytočný záznam neškodí)
+  if (ciel && ctx.auto) zapisAutoKPolozke(ulozistaAuta().ls, ciel.priceId, ctx.auto);
   const aktivne = { id: null };
   const blok = zablokujStranku(aktivne);
   let v;
@@ -2266,7 +2286,11 @@ async function spusti(R) {
     ]);
     ponuka.vrstva2 = vrstva2;
     if (!ponuka.rohoz && !ponuka.box && !ponuka.vrstva2 && !odobrat.length) return null;
-    return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, odobrat: odobrat, samostatne: samostatne, kupon: kupon, zobrazene: [] };
+    // auto riadku (záznam z pridania, inak auto karty so zhodným TYP) — názov rohože a boxu „… pre Skoda Octavia 2021“
+    const u = ulozistaAuta();
+    const auto = autoRiadku(u.ss, u.ls, riadok);
+    return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, odobrat: odobrat, samostatne: samostatne, kupon: kupon, zobrazene: [],
+      auto: auto, autoText: popisAuta(auto, false) };
   }))).filter(Boolean);
   // krížiky pri doplnkoch setu (aj keď ponuka nie je); ponuka len pre sety, ktorým niečo chýba
   ctxs.forEach(function (ctx) { if (ctx.odobrat.length) vlozOdober(ctx, T, R); });
