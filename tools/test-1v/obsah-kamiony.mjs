@@ -238,9 +238,9 @@ export async function kontroly(t) {
       "FAQ 01: zbalená -> klik rozbalí odpoveď -> klik zbalí " + JSON.stringify([p0, p1, p2]));
   } catch (e) { ok(false, "FAQ: " + e.message); }
 
-  // 11) záver: tmavý, fotka kabíny 640 v pozadí stiahnutá pri priblížení
+  // 11) záver: tmavý, fotka kabíny (kamion-vyzva.jpg z CDN repa, 29. 10. 2026) v pozadí stiahnutá pri priblížení
   await naSekciu("kamiony-vyzva", "center");
-  const end = await t.cakaj(`(function(){var s=document.querySelector(${sek("kamiony-vyzva")});var i=s&&s.querySelector(".endbg img");if(!i||!i.complete||!i.naturalWidth)return false;return [getComputedStyle(s).color,/640-27_/.test(i.getAttribute("src")),Math.round(s.getBoundingClientRect().height)]})()`, { ms: 12000, popis: "fotka záveru" }).catch((e) => ({ chyba: e.message }));
+  const end = await t.cakaj(`(function(){var s=document.querySelector(${sek("kamiony-vyzva")});var i=s&&s.querySelector(".endbg img");if(!i||!i.complete||!i.naturalWidth)return false;return [getComputedStyle(s).color,/kamion-vyzva.jpg$/.test(i.getAttribute("src")),Math.round(s.getBoundingClientRect().height)]})()`, { ms: 12000, popis: "fotka záveru" }).catch((e) => ({ chyba: e.message }));
   ok(Array.isArray(end) && end[0] === "rgb(255, 255, 255)" && end[1] && end[2] > 200, "záver: biely text na tmavom, fotka kabíny 640 stiahnutá " + JSON.stringify(end));
 
   // 13) mierka písma (Michal 18. 10. 2026): vlastné triedy kamiónov (.kg, .kk, .km, .kn) ostro, spoločné časti titulky /
