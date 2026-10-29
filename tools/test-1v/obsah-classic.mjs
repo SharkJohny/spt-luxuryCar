@@ -273,9 +273,11 @@ export async function kontroly(t) {
     ok((await text(kc + " .price", 1)) === peniaze(oc.premiumCena), `Classic alebo Premium: cena Premium „${await text(kc + " .price", 1)}“ = Premium toho istého vzoru ${peniaze(oc.premiumCena)}`);
     const sete = async (i) => text(`${kc}:nth-of-type(${i + 1}) li`, 3);
     // Michal 17. 10. 2026: cena v sete nie „Len + X €“, ale „Spolu s autokobercami pod sedadlá — Len za X € (samostatne Y €)“
-    const setRiadok = (set, sam) => L.setSpolu + "Len za " + peniaze(set) + " (samostatne " + peniaze(sam) + ")";
-    ok(nbsp(await sete(1)).endsWith(setRiadok(oc.setClassic, oc.cena)), `Classic alebo Premium: s autokobercami Classic „${await sete(1)}“ (čakám Len za ${peniaze(oc.setClassic)} (samostatne ${peniaze(oc.cena)}))`);
-    ok(nbsp(await sete(2)).endsWith(setRiadok(oc.setPremium, oc.premiumCena)), `Classic alebo Premium: s autokobercami Premium „${await sete(2)}“ (čakám Len za ${peniaze(oc.setPremium)} (samostatne ${peniaze(oc.premiumCena)}))`);
+    // CZ (Michal 29. 10. 2026): „Jen za … (samostatně …)“ — predtým v CZ kuse 1 ostalo po slovensky „Len za … (samostatne …)“
+    const [setZa, setSam] = cz ? ["Jen za ", " (samostatně "] : ["Len za ", " (samostatne "];
+    const setRiadok = (set, sam) => L.setSpolu + setZa + peniaze(set) + setSam + peniaze(sam) + ")";
+    ok(nbsp(await sete(1)).endsWith(setRiadok(oc.setClassic, oc.cena)), `Classic alebo Premium: s autokobercami Classic „${await sete(1)}“ (čakám ${setZa}${peniaze(oc.setClassic)}${setSam}${peniaze(oc.cena)}))`);
+    ok(nbsp(await sete(2)).endsWith(setRiadok(oc.setPremium, oc.premiumCena)), `Classic alebo Premium: s autokobercami Premium „${await sete(2)}“ (čakám ${setZa}${peniaze(oc.setPremium)}${setSam}${peniaze(oc.premiumCena)}))`);
     const up = [await text(S("a-ponuka") + " .ups li", 0), await text(S("a-ponuka") + " .ups li", 1), await text(S("a-ponuka") + " .ups li", 2), await text(S("a-ponuka") + " .ups p", 0)];
     ok(up[0] === L.upSam + peniaze(oc.cena) && up[1] === L.upSet + peniaze(oc.setClassic) && up[2] === L.upUspora + peniaze(oc.uspora),
       `upsell autokobercov: „${up[0]}“ / „${up[1]}“ / „${up[2]}“ (čakám ${peniaze(oc.cena)}, +${peniaze(oc.setClassic)}, ušetríte ${peniaze(oc.uspora)})`);
