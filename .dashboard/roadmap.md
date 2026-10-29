@@ -530,11 +530,13 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Michal/koordinátor: SK okno boxov má prehodené fotky nití („čierna, niť biela“ ukazuje sivú niť a naopak; CZ správne, chyba existovala už predtým) -> vymeniť 2 súbory v SK admine `assets/config/farba-koze-cierna-farba-sitia-biela|seda.jpg`, potom CZ aliasy bílá/šedá + `farby-1v-nahlady.mjs` (návod a súbory: scratchpad opravy-2910/nit-vymena/NAVOD.md)
 
 ## Košík: auto zákazníka, rohož/box s menom auta, hodnotenie z Google (Michal 29. 10. 2026, vetva kosik-vylepsenia)
-- [x] „Pripravené pre: Skoda Octavia 2021 Combi ✓“ pod názvom položky a krátko v súhrne nad cenou; kamión „DAF XF 2022–2025“ z truckVehicle; vzorky/poukážka nič (cart.js, functions/kosikPripravene.js)
-- [x] Auto pri položke: záznam pri pridaní do košíka lcdAutoPolozky:v1 (priceId -> auto), inak auto karty so zhodným TYP (= poznámka objednávky); dve autá = pri každom riadku jeho (functions/autoPamat.js)
-- [x] Ponuka k setu: „Rohož do kufra pre …“ / „Box do kufra pre …“ (CZ „pro“), v páse preškrtnutá samostatná cena + „ušetríte“ (lcdKosikDoplnok.js)
+- [x] „Pripravené pre: Skoda Octavia 2021 Combi ✓“ pod názvom položky a krátko v súhrne nad cenou; kamión „DAF XF 2022–2025“ zo súhrnu konfigurácie (truckOrderSummary, nie truckVehicle); vzorky/poukážka nič (cart.js, functions/kosikPripravene.js)
+- [x] Auto pri položke = LEN auto z poznámky objednávky (sessionStorage „model“, toNote); záznam pri pridaní lcdAutoPolozky:v1 (priceId -> auto) len zamietne riadok pridaný s iným autom; dve autá = auto len pri riadku karty; ten istý priceId pre dve autá = nič (functions/autoPamat.js autoRiadku)
+- [x] Ponuka k setu: „Rohož do kufra pre …“ / „Box do kufra pre …“ (CZ „pro“), v páse preškrtnutá samostatná cena + „ušetríte“ = ich rozdiel (box: najlacnejšia kombinácia, SK „od +99 € / 197 € / ušetríte 98 €“) (lcdKosikDoplnok.js)
 - [x] Hodnotenie pod „Pokračovať“ z window.LCD_REVIEWS.place (reviews-data.js po načítaní stránky, tá istá adresa ako widget = vyrovnávacia pamäť z produktu)
 - [x] Testy: tools/test-kosik-pripravene.mjs (nový), test-auto-pamat, test-kosik-doplnok rozšírené; npm run kosik:test
+- [x] Nálezy nezávislej kontroly 29. 10.: auto v košíku = auto v poznámke (aj po prezretí iného auta), kamión zo súhrnu, nejednoznačný priceId / dva kamióny = nič, box ušetríte = preškrtnutá − v sete, hviezdičky nadol
 - [ ] Michal: snímky a súhlas -> push do main, prepnutie sha v SK aj CZ admine
-- [ ] Poznámka objednávky nesie len jedno auto (posledné vybrané) — pri dvoch setoch pre dve autá doplniť po dohode s Jánom (formát číta jeho export)
+- [ ] Poznámka objednávky nesie len jedno auto (posledné vybrané) — pri dvoch setoch pre dve autá doplniť po dohode s Jánom (formát číta jeho export); potom môže košík ukázať auto pri každom riadku (záznamy lcdAutoPolozky:v1 už sú)
+- [ ] main.js toNote: keď je v karte truckOrderSummary (aj starý), „model: …“ osobného auta do poznámky nejde — zmiešaný košík alebo kamión pridaný skôr v tej istej karte; košík vtedy „Pripravené pre“ pri sete neukáže (spoločný kód, po dohode s Jánom)
 - [ ] reviews-data.js je z 23. 5. 2026 (89 recenzií, 5,0) — znova stiahnuť tools/scrape-google-reviews.mjs a zvýšiť RECENZIE_WV

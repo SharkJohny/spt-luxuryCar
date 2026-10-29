@@ -105,18 +105,31 @@ function druhRiadku($row) {
   if (/vzorkovnik|poukaz/i.test(href)) return null;
   return /autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(href) ? "auto" : null;
 }
-/** Text auta riadku („Skoda Octavia 2021 Combi“, kamión „DAF XF 2022–2025“) alebo null — PRED úpravou rozpisu (číta príplatky). */
-function autoTextRiadku($row) {
-  const druh = druhRiadku($row);
-  if (druh === "kamion") {
+/**
+ * Vozidlo kamióna, ktoré ide do objednávky: skupina „Vozidlo“ zo súhrnu konfigurácie (truckOrderSummary — zapíše sa tesne
+ * pred pridaním do košíka; z neho je blok ŠPECIFIKÁCIA VOZIDLA aj poznámka objednávky). NIE truckVehicle: ten konfigurátor
+ * prepisuje pri každej zmene výberu, takže po prezretí iného vozidla by „✓“ potvrdilo zlé (nezávislá kontrola 29. 10. 2026).
+ * Bez súhrnu len skutočná hodnota v príplatku položky (je v objednávke), inak nič; dva kamióny = jeden súhrn, nevieme ku
+ * ktorému patrí -> nič (ako blok špecifikácie, cart.js truckRowCount === 1).
+ */
+function vozidloKamiona($row, truckSummary, truckRowCount) {
+  if (truckRowCount !== 1) return null;
+  if (truckSummary) {
     let v = null;
-    try { v = sessionStorage.getItem("truckVehicle"); } catch (e) { /* private mode */ }
-    if (!v) {
-      const m = /Vozidlo\s*[-–:]\s*([^,]+)/i.exec($row.find("span.main-link-surcharges").first().text());
-      v = m && m[1];
-    }
+    parseTruckOrderSummary(truckSummary).some(function (g) {
+      const i = g.items.find(function (x) { return /^Vozidlo$/i.test(x.label); });
+      v = i ? i.value : null;
+      return !!v;
+    });
     return popisKamiona(v);
   }
+  const m = /Vozidlo\s*[-–:]\s*([^,]+)/i.exec($row.find("span.main-link-surcharges").first().text());
+  return popisKamiona(m && m[1]);
+}
+/** Text auta riadku („Skoda Octavia 2021 Combi“, kamión „DAF XF 2022–2025“) alebo null — PRED úpravou rozpisu (číta príplatky). */
+function autoTextRiadku($row, truckSummary, truckRowCount) {
+  const druh = druhRiadku($row);
+  if (druh === "kamion") return vozidloKamiona($row, truckSummary, truckRowCount);
   if (druh !== "auto") return null;
   const u = ulozistaAuta();
   return popisAuta(autoRiadku(u.ss, u.ls, {
@@ -217,7 +230,7 @@ function changeDescription() {
   const auta = new Map();
   $("tr.removeable, tr[data-micro='cartItem'], body.ordering-process .cart-items .cart-item").each(function () {
     if (auta.has(this)) return;
-    const t = autoTextRiadku($(this));
+    const t = autoTextRiadku($(this), truckSummary, truckRowCount);
     if (t) auta.set(this, t);
   });
 

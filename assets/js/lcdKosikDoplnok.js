@@ -1244,21 +1244,25 @@ function cenovka(T, R, rozdiel, samostatne) {
 /**
  * Cena v úzkom páse: „+129 € v sete“ výrazne, pod tým samostatná cena preškrtnutá a „ušetríte 101 €“ (Michal 29. 10. 2026:
  * „cena v sete výrazne a preškrtnutá samostatná cena + Ušetríte“). Box: „od +99 € v sete“, preškrtnutá samostatná cena tej
- * istej (najlacnejšej) kombinácie a „ušetríte minimálne 97 €“ (najmenšia úspora zo všetkých veľkostí; táto je vždy aspoň toľko).
+ * istej (najlacnejšej) kombinácie a „ušetríte 98 €“ = presne ich rozdiel (nezávislá kontrola 29. 10. 2026: „ušetríte
+ * minimálne 97 €“ pri 197 − 99 = 98 vyzeralo ako chyba v počítaní). Box, ktorého najlacnejšia kombinácia nemá samostatnú
+ * cenu: bez preškrtnutej, „ušetríte minimálne …“ (najmenšia úspora zo všetkých veľkostí).
  */
 function cenovkaPas(T, R, rozdiel, samostatne, kratko, usetriAspon) {
-  const usetri = kratko ? usetriAspon || 0 : samostatne && samostatne > rozdiel + 0.5 ? samostatne - rozdiel : 0;
-  const samo = usetri > 0.5 && samostatne && samostatne - rozdiel >= usetri - 0.5 ? samostatne : null;
+  const par = samostatne && samostatne > rozdiel + 0.5 ? samostatne - rozdiel : 0;
+  const aspon = !par && kratko ? usetriAspon || 0 : 0;
   const deti = [el("span", { class: "lcd-dop__hlavna" }, [
     el("b", { class: "lcd-dop__vsete", text: (kratko ? T.od + " " : "") + cenaText(rozdiel, R, true) }), " ",
     el("small", { text: T.vSete }),
   ])];
-  if (usetri > 0.5) {
+  if (par > 0.5) {
     deti.push(" ", el("span", { class: "lcd-dop__uspora" }, [
-      samo ? el("span", { class: "sr-only", text: T.samostatne + " " }) : null,
-      samo ? el("s", { class: "lcd-dop__samo", text: cenaText(samo, R) }) : null, samo ? " " : null,
-      el("span", { class: "lcd-dop__usetri" }, [(kratko ? T.usetriteAspon : T.usetrite) + " " + cenaText(usetri, R)]),
+      el("span", { class: "sr-only", text: T.samostatne + " " }),
+      el("s", { class: "lcd-dop__samo", text: cenaText(samostatne, R) }), " ",
+      el("span", { class: "lcd-dop__usetri" }, [T.usetrite + " " + cenaText(par, R)]),
     ]));
+  } else if (aspon > 0.5) {
+    deti.push(" ", el("span", { class: "lcd-dop__uspora" }, [el("span", { class: "lcd-dop__usetri" }, [T.usetriteAspon + " " + cenaText(aspon, R)])]));
   }
   return el("span", { class: "lcd-dop__cena lcd-dop__cena--pas" }, deti);
 }

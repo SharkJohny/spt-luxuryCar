@@ -1115,13 +1115,19 @@ await test("cena v páse: v sete výrazne, samostatná preškrtnutá, „ušetr�
   rovne(M.cisty(c.querySelector("s.lcd-dop__samo").textContent), M.cisty(M.cenaText(roz + 101, RSK)), "preškrtnutá samostatná");
   rovne(M.cisty(c.querySelector(".lcd-dop__usetri").textContent), "ušetríte 101 €", "ušetríte");
   pravda(c.querySelector(".sr-only") && /samostatne/.test(c.querySelector(".sr-only").textContent), "čítačka: „samostatne“ pred preškrtnutou cenou");
-  // box: „od +X € v sete“, preškrtnutá samostatná cena tej istej (najlacnejšej) kombinácie, „ušetríte minimálne“ <= jej úspora
+  // box: „od +X € v sete“, preškrtnutá samostatná cena tej istej (najlacnejšej) kombinácie a „ušetríte“ PRESNE ich rozdiel
+  // (nezávislá kontrola 29. 10.: „197 €“ − „od +99 €“ = 98, ale štítok „ušetríte minimálne 97 €“ vyzeralo ako chyba v počítaní)
   const b = k.querySelector(".lcd-dop__volba--box .lcd-dop__pas .lcd-dop__cena");
   const usetri = M.cisty(b.querySelector(".lcd-dop__usetri").textContent);
-  pravda(/^ušetríte minimálne /.test(usetri), usetri);
+  pravda(/^ušetríte \d/.test(usetri), usetri);
   const s = b.querySelector("s.lcd-dop__samo");
   const n = (t) => Number(M.cisty(t).replace(/[^\d,]/g, "").replace(",", "."));
-  pravda(s && n(s.textContent) - n(b.querySelector(".lcd-dop__vsete").textContent) >= n(usetri), "box: preškrtnutá − v sete >= ušetríte minimálne");
+  pravda(s, "box: preškrtnutá samostatná cena");
+  rovne(n(s.textContent) - n(b.querySelector(".lcd-dop__vsete").textContent), n(usetri), "box: preškrtnutá − v sete = ušetríte");
+  // najlacnejšia kombinácia bez samostatnej ceny: bez preškrtnutej, „ušetríte minimálne“ (najmenšia úspora ostatných)
+  const ctx2 = Object.assign(ctxKarty({ rohoz: false, box: true }), { samostatne: { box1: { M: 216, L: 236, XL: 256 }, box2: {}, zaklad: 97, p1: {}, p2: {} } });
+  const b2 = M.kartaPonuky(ctx2, RSK, false).querySelector(".lcd-dop__volba--box .lcd-dop__pas .lcd-dop__cena");
+  pravda(!b2.querySelector("s") && /^ušetríte minimálne \d/.test(M.cisty(b2.querySelector(".lcd-dop__usetri").textContent)), M.cisty(b2.textContent));
   // bez samostatných cien: len „v sete“ (bez preškrtnutej a bez ušetríte)
   const k0 = M.kartaPonuky(ctxKarty({ rohoz: true, box: false }), RSK, false);
   const c0 = k0.querySelector('.lcd-dop__volba[data-varianta="classic"] .lcd-dop__pas .lcd-dop__cena');

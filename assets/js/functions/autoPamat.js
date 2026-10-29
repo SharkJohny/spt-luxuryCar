@@ -85,13 +85,10 @@ export function initAutoPamat() {
 // ------------------------------------------------------------------ auto pri položke košíka
 /*
  * „Pripravené pre: Skoda Octavia 2021 Combi ✓“ pri položke košíka (Michal 29. 10. 2026, podľa konkurencie: Luxus Car Mats,
- * Diamond Car Mats „Guaranteed to fit“). Auto riadku:
- *  1. záznam z pridania do košíka (lcdAutoPolozky:v1: priceId -> auto karty v okamihu pridania; najnovší so zhodným TYP) —
- *     košík s dvoma setmi pre dve autá ukáže pri každom jeho auto;
- *  2. inak auto karty (sessionStorage, po obnove z lcdAuto:v1) — TO ISTÉ auto ide do poznámky objednávky (main.js toNote,
- *     „model: …“); len keď TYP riadku („TYP - Combi“ v príplatkoch) sedí s typom karty, inak nič (zlé auto je horšie
- *     než žiadne — výroba na mieru).
- * Platnosť 14 dní ako lcdAuto:v1, prázdny košík záznamy zmaže (obnovAuto).
+ * Diamond Car Mats „Guaranteed to fit“). Ukazuje sa vždy auto karty (sessionStorage, po obnove z lcdAuto:v1) — TO ISTÉ
+ * auto ide do poznámky objednávky (main.js toNote, „model: …“). Záznam z pridania do košíka (lcdAutoPolozky:v1:
+ * priceId -> auto karty v okamihu pridania) len rozhodne, či k riadku patrí: riadok pridaný s iným autom nedostane nič
+ * (podrobne pri autoRiadku). Platnosť 14 dní ako lcdAuto:v1, prázdny košík záznamy zmaže (obnovAuto).
  */
 export const KLUC_POLOZKY = "lcdAutoPolozky:v1";
 const MAX_POLOZIEK = 30;
@@ -149,21 +146,36 @@ export function typZPriplatkov(sur) {
   return m ? m[1].trim() || null : null;
 }
 
-/** Auto riadku košíka { priceId, sur } -> { Brand, Model, Year, carType } | null (poradie zdrojov v komentári vyššie) */
+const rovnakeAuto = function (a, b) { return AUTO_KLUCE.every(function (k) { return normTyp(a[k]) === normTyp(b[k]); }); };
+
+/**
+ * Auto riadku košíka { priceId, sur } -> { Brand, Model, Year, carType } | null.
+ * LEN auto, ktoré ide do poznámky objednávky (nezávislá kontrola 29. 10. 2026: záznam z pridania mal prednosť, a keď
+ * zákazník po pridaní prezrel v tej istej karte iné auto, košík potvrdil s fajkou prvé, ale výroba dostala druhé):
+ *  - auto karty = sessionStorage Brand/Model/Year/carType, a len keď je úplné („model“ — main.js toNote ho píše do poznámky);
+ *  - nič, keď je v karte súhrn kamióna (toNote vtedy píše len kamión, „model: …“ nie);
+ *  - TYP riadku („TYP - Combi“ v príplatkoch) musí sedieť s typom karty;
+ *  - záznamy z pridania (lcdAutoPolozky:v1) s týmto priceId a TYP: žiadny = auto karty; jedno auto = len keď je to auto
+ *    karty; dve rôzne autá = nevieme, ktorý riadok je ktorý -> nič. Zlé auto je horšie než žiadne (výroba na mieru).
+ */
 export function autoRiadku(ss, ls, riadok, teraz = Date.now()) {
   try {
+    if (!ss || !platne(ss.getItem("model")) || platne(ss.getItem("truckOrderSummary"))) return null;
+    const karta = autoZ(function (k) { return ss.getItem(k); });
     const typ = typZPriplatkov(riadok && riadok.sur);
     const sedi = function (a) { return !typ || !a.carType || rovnakyTyp(a.carType, typ); };
+    if (!karta || !sedi(karta)) return null;
     if (ls && riadok && riadok.priceId) {
       const p = String(riadok.priceId);
-      const z = zaznamy(ls).filter(function (x) { return x && x.p === p && x.a && teraz - (x.t || 0) < AUTO_TTL; })
-        .map(function (x) { return { t: x.t, a: autoZ(function (k) { return x.a[k]; }) }; })
-        .filter(function (x) { return x.a && sedi(x.a); })
-        .sort(function (x, y) { return y.t - x.t; });
-      if (z.length) return z[0].a;
+      const auta = [];
+      zaznamy(ls).forEach(function (x) {
+        if (!x || x.p !== p || !x.a || !(teraz - (x.t || 0) < AUTO_TTL)) return;
+        const a = autoZ(function (k) { return x.a[k]; });
+        if (a && sedi(a) && !auta.some(function (b) { return rovnakeAuto(a, b); })) auta.push(a);
+      });
+      if (auta.length > 1 || (auta.length === 1 && !rovnakeAuto(auta[0], karta))) return null;
     }
-    const karta = ss ? autoZ(function (k) { return ss.getItem(k); }) : null;
-    return karta && sedi(karta) ? karta : null;
+    return karta;
   } catch (e) { return null; }
 }
 
@@ -174,7 +186,7 @@ export function popisAuta(a, sTypom = true) {
   return lcdAutoHodnota(a.Brand) && lcdAutoHodnota(a.Model) && casti.length >= 2 ? casti.join(" ") : null;
 }
 
-/** Kamión z truckVehicle („DAF (TIR) XF 2022-2025“) -> „DAF XF 2022–2025“; zástupná hodnota konfigurátora -> null */
+/** Vozidlo kamióna („DAF (TIR) XF 2022-2025“ zo súhrnu konfigurácie) -> „DAF XF 2022–2025“; zástupná hodnota konfigurátora -> null */
 export function popisKamiona(v) {
   const t = String(v || "").replace(/\s*\([^)]*\)/g, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2").replace(/\s+/g, " ").trim();
   return t && !/Vyberie sa v konfigurátore|Vybere se v konfigurátoru/i.test(t) ? t : null;

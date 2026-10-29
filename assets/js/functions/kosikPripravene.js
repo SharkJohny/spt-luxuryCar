@@ -2,8 +2,8 @@
  * kosikPripravene.js — košík: „Pripravené pre: <auto> ✓“ a hodnotenie z Google pri „Pokračovať“ (Michal 29. 10. 2026,
  * inšpirácia konkurencia: Luxus Car Mats, Diamond Car Mats „Guaranteed to fit“, Evamats/AutoWin hodnotenie pri tlačidle).
  *
- *  - riadok pri položke a krátko v súhrne nad „Celkom za tovar“ (cart.js; auto riadku = functions/autoPamat.js autoRiadku,
- *    to isté auto ide do poznámky objednávky; kamión z truckVehicle). Bez auta sa riadok nevloží.
+ *  - riadok pri položke a krátko v súhrne nad „Celkom za tovar“ (cart.js; auto riadku = functions/autoPamat.js autoRiadku:
+ *    len auto, ktoré ide do poznámky objednávky; kamión zo súhrnu konfigurácie truckOrderSummary). Bez auta sa nevloží.
  *  - hodnotenie: LEN skutočné čísla z window.LCD_REVIEWS.place (assets/js/reviews-data.js, ten istý súbor ako widget
  *    recenzií na produktoch; prepisuje ho tools/scrape-google-reviews.mjs). Na košíku sa súbor sťahuje až PO načítaní
  *    stránky (load + nečinnosť) z tej istej adresy ako na produkte -> zákazník z produktu ho má vo vyrovnávacej pamäti.
@@ -35,9 +35,11 @@ export function hodnotenie(place, t) {
   const r = Number(place && place.rating), n = Math.round(Number(place && place.totalReviews));
   if (!(r > 0 && r <= 5) || !(n > 0)) return null;
   const T = TEXTY[t] || TEXTY.sk;
-  const cislo = (Math.round(r * 10) / 10).toFixed(1).replace(".", ",");
+  const r1 = Math.round(r * 10) / 10; // číslo ako ukazuje Google (4,87 -> 4,9)
+  const cislo = r1.toFixed(1).replace(".", ",");
   const text = n + " " + tvar(n, T.recenzie) + " " + T.naGoogle;
-  return { cislo: cislo, hviezdy: Math.max(0, Math.min(5, Math.round(r))), text: text, aria: T.hodnotenie + " " + cislo + " " + T.z5 + " – " + text };
+  // plné hviezdičky nadol podľa zobrazeného čísla (4,9 a 4,5 = 4) — nikdy viac, než hodnotenie je (kontrola 29. 10. 2026)
+  return { cislo: cislo, hviezdy: Math.max(0, Math.min(5, Math.floor(r1 + 1e-9))), text: text, aria: T.hodnotenie + " " + cislo + " " + T.z5 + " – " + text };
 }
 
 /** <p class="lcd-pre"><span class="lcd-pre__n">Pripravené pre:</span> <b class="lcd-pre__a">…</b> <span class="lcd-pre__ok">✓</span></p> */

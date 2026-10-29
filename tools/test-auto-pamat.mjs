@@ -60,39 +60,65 @@ const OCT = ["Skoda", "Octavia", "2021", "Combi", "Skoda Octavia 2021 Combi"];
 const PAS = ["Volkswagen", "Passat", "2019", "Combi", "Volkswagen Passat 2019 Combi"];
 const auto = (a) => ({ Brand: a[0], Model: a[1], Year: a[2], carType: a[3] });
 const SUR = (typ) => "Príplatky: rozloženie kobercov - prvý, druhý a tretí rad, autokoberce do kufru - nie, TYP - " + typ;
-t("pridanie zapíše auto karty k priceId; riadok košíka s tým priceId a TYP ho dostane", () => {
+// Pravidlo (nezávislá kontrola 29. 10. 2026): riadok ukáže LEN auto, ktoré ide do poznámky objednávky = auto karty
+// (sessionStorage „model“, main.js toNote). Záznam z pridania len rozhodne, či k riadku patrí — iné auto v zázname = nič.
+const BMW3 = ["BMW", "3", "2020", "Combi", "BMW 3 2020 Combi"];
+t("pridanie zapíše auto karty k priceId; riadok s tým priceId a TYP ukáže auto karty (= poznámka)", () => {
   const ls = pamat();
   eq(M.zapisAutoPolozky(karta(OCT), ls, "63493", 1000), true);
-  eq(M.autoRiadku(karta(null), ls, { priceId: "63493", sur: SUR("Combi") }, 2000), auto(OCT));
+  eq(M.autoRiadku(karta(OCT), ls, { priceId: "63493", sur: SUR("Combi") }, 2000), auto(OCT));
+  eq(M.autoRiadku(karta(null), ls, { priceId: "63493", sur: SUR("Combi") }, 2000), null, "karta bez auta = poznámka bez auta -> nič");
 });
-t("dve autá v jednom košíku: každý riadok svoje auto (podľa priceId), nie posledné vybrané", () => {
+t("po pridaní prezrel iné auto (karta BMW, záznam Octavia): nič — košík nesmie potvrdiť iné auto, než ide do výroby", () => {
+  const ls = pamat();
+  M.zapisAutoPolozky(karta(OCT), ls, "63493", 1000);
+  eq(M.autoRiadku(karta(BMW3), ls, { priceId: "63493", sur: SUR("Combi") }, 2000), null);
+  eq(M.autoRiadku(karta(BMW3), ls, { priceId: "1", sur: SUR("Combi") }, 2000), auto(BMW3), "riadok bez záznamu: auto karty");
+});
+t("dve autá v košíku: auto karty len pri riadku, ktorý bol pridaný s ním; druhý riadok nič (poznámka nesie jedno auto)", () => {
   const ls = pamat();
   M.zapisAutoPolozky(karta(OCT), ls, "63493", 1000);
   M.zapisAutoPolozky(karta(PAS), ls, "63487", 2000);
   const ss = karta(PAS);
-  eq(M.autoRiadku(ss, ls, { priceId: "63493", sur: SUR("Combi") }, 3000), auto(OCT));
+  eq(M.autoRiadku(ss, ls, { priceId: "63493", sur: SUR("Combi") }, 3000), null);
   eq(M.autoRiadku(ss, ls, { priceId: "63487", sur: SUR("Combi") }, 3000), auto(PAS));
 });
-t("rovnaký produkt pridaný znova s iným autom -> platí novší záznam; TYP riadku musí sedieť", () => {
+t("rovnaký priceId pre dve rôzne autá so zhodným TYP: nevieme, ktorý riadok je ktorý -> nič", () => {
   const ls = pamat();
   M.zapisAutoPolozky(karta(OCT), ls, "63493", 1000);
-  M.zapisAutoPolozky(karta(["BMW", "X5", "2020", "SUV", "BMW X5 2020 SUV"]), ls, "63493", 2000);
-  eq(M.autoRiadku(karta(null), ls, { priceId: "63493", sur: SUR("SUV") }, 3000).Brand, "BMW");
-  eq(M.autoRiadku(karta(null), ls, { priceId: "63493", sur: SUR("Combi") }, 3000).Brand, "Skoda", "riadok Combi = staršie auto Combi");
+  M.zapisAutoPolozky(karta(PAS), ls, "63493", 2000);
+  eq(M.autoRiadku(karta(PAS), ls, { priceId: "63493", sur: SUR("Combi") }, 3000), null);
+  eq(M.autoRiadku(karta(OCT), ls, { priceId: "63493", sur: SUR("Combi") }, 3000), null);
 });
-t("bez záznamu: auto karty (to isté ide do poznámky objednávky), ale len so zhodným TYP", () => {
+t("rovnaký priceId, iné TYP: záznam druhého TYP neprekáža; TYP riadku musí sedieť s kartou", () => {
+  const ls = pamat();
+  const X5 = ["BMW", "X5", "2020", "SUV", "BMW X5 2020 SUV"];
+  M.zapisAutoPolozky(karta(OCT), ls, "63493", 1000);
+  M.zapisAutoPolozky(karta(X5), ls, "63493", 2000);
+  eq(M.autoRiadku(karta(X5), ls, { priceId: "63493", sur: SUR("SUV") }, 3000), auto(X5));
+  eq(M.autoRiadku(karta(X5), ls, { priceId: "63493", sur: SUR("Combi") }, 3000), null, "riadok Combi, karta SUV");
+  eq(M.autoRiadku(karta(OCT), ls, { priceId: "63493", sur: SUR("Combi") }, 3000), auto(OCT));
+});
+t("bez záznamu: auto karty (to isté ide do poznámky objednávky), ale len so zhodným TYP a s úplným autom („model“)", () => {
   eq(M.autoRiadku(karta(OCT), pamat(), { priceId: "1", sur: SUR("Combi") }, 1), auto(OCT));
   eq(M.autoRiadku(karta(OCT), pamat(), { priceId: "1", sur: "" }, 1), auto(OCT), "riadok bez TYP (rohož, box)");
   eq(M.autoRiadku(karta(OCT), pamat(), { priceId: "1", sur: SUR("Sedan") }, 1), null, "iný TYP = iné auto -> radšej nič");
   eq(M.autoRiadku(karta(null), pamat(), { priceId: "1", sur: SUR("Combi") }, 1), null, "žiadne auto");
   const ss = pamat(); ss.setItem("Brand", "Skoda"); ss.setItem("Year", "2021");
   eq(M.autoRiadku(ss, pamat(), { priceId: "1", sur: "" }, 1), null, "bez modelu nie");
+  const ss2 = karta(OCT); ss2.removeItem("model");
+  eq(M.autoRiadku(ss2, pamat(), { priceId: "1", sur: "" }, 1), null, "rozpracovaný výber bez „model“ = poznámka bez auta");
 });
-t("Jiné/Iné v TYP aj v karte sa zhodujú; záznam starší ako 14 dní sa nepoužije", () => {
+t("v karte je súhrn kamióna: poznámka nesie len kamión (main.js toNote) -> pri osobnom aute nič", () => {
+  const ss = karta(OCT); ss.setItem("truckOrderSummary", "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF 2022-2025");
+  eq(M.autoRiadku(ss, pamat(), { priceId: "1", sur: SUR("Combi") }, 1), null);
+});
+t("Jiné/Iné v TYP aj v karte sa zhodujú; záznam starší ako 14 dní sa nepoužije (ani na zamietnutie)", () => {
   const ss = karta(["Ford", "Focus", "2020", "Jiné, prosím napište do poznámky", "Ford Focus 2020 Jiné, prosím napište do poznámky"]);
   eq(M.autoRiadku(ss, pamat(), { priceId: "1", sur: "Příplatky: rozložení koberců - první řada, TYP - Jiné,Prosím napište do poznámky" }, 1).Model, "Focus");
   const ls = pamat(); M.zapisAutoPolozky(karta(OCT), ls, "63493", 0);
-  eq(M.autoRiadku(karta(null), ls, { priceId: "63493", sur: SUR("Combi") }, M.AUTO_TTL + 1), null);
+  eq(M.autoRiadku(karta(PAS), ls, { priceId: "63493", sur: SUR("Combi") }, M.AUTO_TTL + 1), auto(PAS));
+  eq(M.autoRiadku(karta(PAS), ls, { priceId: "63493", sur: SUR("Combi") }, 5), null, "čerstvý záznam iného auta");
 });
 t("zápis: neúplné auto nie, bez priceId nie, duplicita sa nezdvojí, najviac 30 záznamov", () => {
   const ls = pamat();
@@ -108,9 +134,10 @@ t("zápis: neúplné auto nie, bez priceId nie, duplicita sa nezdvojí, najviac 
 t("výmena riadku za dvojvrstvový set (iné priceId): auto starého riadku prejde na nový", () => {
   const ls = pamat();
   M.zapisAutoPolozky(karta(OCT), ls, "63493", 1000);
-  const a = M.autoRiadku(karta(PAS), ls, { priceId: "63493", sur: SUR("Combi") }, 2000);
+  const a = M.autoRiadku(karta(OCT), ls, { priceId: "63493", sur: SUR("Combi") }, 2000);
   eq(M.zapisAutoKPolozke(ls, "66983", a, 2000), true);
-  eq(M.autoRiadku(karta(PAS), ls, { priceId: "66983", sur: SUR("Combi") }, 3000), auto(OCT));
+  eq(M.autoRiadku(karta(OCT), ls, { priceId: "66983", sur: SUR("Combi") }, 3000), auto(OCT));
+  eq(M.autoRiadku(karta(PAS), ls, { priceId: "66983", sur: SUR("Combi") }, 3000), null, "karta medzitým iné auto");
   eq([M.zapisAutoKPolozke(ls, "1", null, 1), M.zapisAutoKPolozke(ls, "", a, 1), M.zapisAutoKPolozke(null, "1", a, 1)], [false, false, false]);
 });
 t("prázdny košík zmaže aj záznamy položiek", () => {

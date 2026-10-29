@@ -4,8 +4,9 @@
  * Skutočný cart.js (initCart) v jsdom s jQuery na košíku podľa živého HTML Shoptetu (tr.removeable, súhrn .summary-wrapper):
  *   - set s autom: riadok pod názvom (SK „Pripravené pre:“, CZ „Připraveno pro:“), v rozpise už nie „Auto: …“, v súhrne
  *     nad „Celkom za tovar“ to isté auto; bez auta nič; vzorkovník nikdy (ani keď karta auto má);
- *   - dve autá: pri každom riadku jeho auto (záznam z pridania), v súhrne obe;
- *   - kamión: „DAF XF 2022–2025“ z truckVehicle nad súhrnom konfigurácie;
+ *   - LEN auto, ktoré ide do poznámky objednávky (main.js toNote: sessionStorage „model“, pri kamióne truckOrderSummary):
+ *     záznam z pridania s iným autom = nič (karta medzitým prezrela iné auto), dve autá = auto len pri riadku karty;
+ *   - kamión: „DAF XF 2022–2025“ zo súhrnu konfigurácie (truckOrderSummary), nie z truckVehicle (mení sa pri prezeraní);
  *   - rekapitulácia v krokoch objednávky (bez košíka): „Auto: …“ v rozpise ako doteraz, žiadny nový riadok;
  *   - hodnotenie: presné čísla z window.LCD_REVIEWS.place (5,0 · 89 recenzií), tvary slov, bez dát skryté;
  *     reviews-data.js sa na košíku nesťahuje pred načítaním stránky.
@@ -46,6 +47,7 @@ const REKAP = (polozky) => `<!doctype html><html lang="sk"><head></head><body cl
 const OCT = { Brand: "Skoda", Model: "Octavia", Year: "2021", carType: "Combi", model: "Skoda Octavia 2021 Combi" };
 const PAS = { Brand: "Volkswagen", Model: "Passat", Year: "2019", carType: "Combi", model: "Volkswagen Passat 2019 Combi" };
 
+const { buildTruckOrderSummary } = await import(pathToFileURL(join(ROOT, "assets/js/truck-konfigurator/order-summary.mjs")).href);
 const { initCart } = await import(pathToFileURL(join(ROOT, "assets/js/components/cart.js")).href);
 const KP = await import(pathToFileURL(join(ROOT, "assets/js/functions/kosikPripravene.js")).href);
 
@@ -93,8 +95,19 @@ d = stranka(KOSIK(SET({ sur: "Príplatky: rozloženie kobercov - prvý a druhý 
 over(!d.querySelector(".lcd-pre"), "TYP riadku (Sedan) nesedí s autom karty (Combi): radšej nič");
 
 d = stranka(KOSIK(SET() + SET({ itemId: "it2", priceId: "63487", variant: "farba 1.vrstvy: Diamond Farba kože : Čierna / Farba šitia: Červená" })), { ss: PAS, ls: R });
-over(JSON.stringify(pre(d)) === JSON.stringify(["Pripravené pre: Skoda Octavia 2021 Combi ✓", "Pripravené pre: Volkswagen Passat 2019 Combi ✓"]), "dve autá: pri každom riadku jeho auto", pre(d));
-over(suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Combi, Volkswagen Passat 2019 Combi ✓", "dve autá: v súhrne obe", suhrn(d));
+const r2 = [...d.querySelectorAll("tr.removeable")].map((tr) => txt(tr.querySelector(".lcd-pre")));
+over(JSON.stringify(r2) === JSON.stringify([null, "Pripravené pre: Volkswagen Passat 2019 Combi ✓"]), "dve autá: auto karty (= poznámka) len pri riadku pridanom s ním, Octavia nič", r2);
+over(suhrn(d) === "Pripravené pre: Volkswagen Passat 2019 Combi ✓", "dve autá: v súhrne len auto z poznámky", suhrn(d));
+
+// nález kontroly 29. 10.: set pridaný pre Octaviu, potom v tej istej karte prezrel BMW -> poznámka „model: BMW…“
+const BMW = { Brand: "BMW", Model: "3", Year: "2020", carType: "Combi", model: "BMW 3 2020 Combi" };
+const R_OCT = { "lcdAutoPolozky:v1": JSON.stringify([{ p: "63493", a: { Brand: "Skoda", Model: "Octavia", Year: "2021", carType: "Combi" }, t: Date.now() - 600000 }]) };
+d = stranka(KOSIK(SET()), { ss: BMW, ls: R_OCT });
+over(!d.querySelector(".lcd-pre"), "pridal pre Octaviu, karta teraz BMW: žiadne „Pripravené pre“ (ani Octavia, ani BMW)", [pre(d), suhrn(d)]);
+d = stranka(KOSIK(SET() + SET({ itemId: "it2", sur: "Príplatky: rozloženie kobercov - prvý rad, TYP - Combi" })), { ss: PAS, ls: { "lcdAutoPolozky:v1": JSON.stringify([
+  { p: "63493", a: { Brand: "Skoda", Model: "Octavia", Year: "2021", carType: "Combi" }, t: Date.now() - 60000 },
+  { p: "63493", a: { Brand: "Volkswagen", Model: "Passat", Year: "2019", carType: "Combi" }, t: Date.now() }]) } });
+over(!d.querySelector(".lcd-pre"), "ten istý set (priceId) pre dve autá s rovnakým TYP: nevieme, ktorý riadok je ktorý -> nič", pre(d));
 
 d = stranka(KOSIK(SET() + SET({ itemId: "it2" })), { ss: OCT });
 over(pre(d).length === 2 && suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Combi ✓", "dva rovnaké sety: v súhrne auto raz", suhrn(d));
@@ -102,9 +115,22 @@ over(pre(d).length === 2 && suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Co
 d = stranka(KOSIK(SET_CZ, "cs"), { ss: OCT, host: "www.luxurycardesign.cz" });
 over(JSON.stringify(pre(d)) === JSON.stringify(["Připraveno pro: Skoda Octavia 2021 Combi ✓"]) && suhrn(d) === "Připraveno pro: Skoda Octavia 2021 Combi ✓", "CZ: „Připraveno pro:“", [pre(d), suhrn(d)]);
 
-d = stranka(KOSIK(KAMION), { ss: { truckVehicle: "DAF (TIR) XF 2022-2025" } });
-over(JSON.stringify(pre(d)) === JSON.stringify(["Pripravené pre: DAF XF 2022–2025 ✓"]), "kamión: auto z truckVehicle", pre(d));
+const SUHRN_DAF = buildTruckOrderSummary({ znacka: "DAF (TIR)", model: "XF 2022-2025", extras: { prevodovka: "Automatická prevodovka" },
+  selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "K2" }, selectedLemovanie: { name: "Červené lemovanie" } }, "sk");
+d = stranka(KOSIK(KAMION), { ss: { truckOrderSummary: SUHRN_DAF, truckVehicle: "DAF (TIR) XF 2022-2025" } });
+over(JSON.stringify(pre(d)) === JSON.stringify(["Pripravené pre: DAF XF 2022–2025 ✓"]), "kamión: vozidlo zo súhrnu konfigurácie", pre(d));
 over(suhrn(d) === "Pripravené pre: DAF XF 2022–2025 ✓", "kamión: aj v súhrne", suhrn(d));
+// nález kontroly 29. 10.: po pridaní DAF prezrel Volvo (truckVehicle sa prepíše, súhrn a poznámka ostávajú DAF)
+d = stranka(KOSIK(KAMION), { ss: { truckOrderSummary: SUHRN_DAF, truckVehicle: "VOLVO FH 2021-2025" } });
+const spec = [...d.querySelectorAll(".lcd-truck-cart-summary dd")].map(txt)[0];
+over(JSON.stringify(pre(d)) === JSON.stringify(["Pripravené pre: DAF XF 2022–2025 ✓"]) && suhrn(d) === "Pripravené pre: DAF XF 2022–2025 ✓" && spec === "DAF (TIR) XF 2022-2025",
+  "kamión: prezeral Volvo po pridaní DAF -> „Pripravené pre“ = DAF ako blok špecifikácie a poznámka", [pre(d), suhrn(d), spec]);
+d = stranka(KOSIK(KAMION), { ss: { truckVehicle: "VOLVO FH 2021-2025" } });
+over(!d.querySelector(".lcd-pre"), "kamión bez súhrnu (pridaný v inej karte): truckVehicle nie je v objednávke -> nič", pre(d));
+d = stranka(KOSIK(KAMION + KAMION.replace(/it7/g, "it8").replace("68383", "68384")), { ss: { truckOrderSummary: SUHRN_DAF } });
+over(!d.querySelector(".lcd-pre"), "dva kamióny, jeden súhrn: nevieme, ku ktorému patrí -> nič", pre(d));
+d = stranka(KOSIK(SET()), { ss: Object.assign({ truckOrderSummary: SUHRN_DAF }, OCT) });
+over(!d.querySelector(".lcd-pre"), "set, ale v karte súhrn kamióna: poznámka nesie len kamión (toNote) -> pri sete nič", pre(d));
 
 d = stranka(REKAP(`<div class="cart-item"><div class="cart-item-name"><a href="/luxusne-autokoberce-dragonskin-diamond-line/" class="main-link">luxusné autokoberce
   <span class="main-link-variant">farba 1.vrstvy: Diamond Farba kože : Čierna / Farba šitia: Čierna</span>
@@ -128,7 +154,9 @@ over(suhrn(d) === "Pripravené pre: Skoda Octavia 2021 Combi ✓", "telefón bez
 
 // ---------------------------------------------------------------- hodnotenie z Google pod „Pokračovať“
 over(JSON.stringify(KP.hodnotenie({ rating: 5, totalReviews: 89 }, "sk")) === JSON.stringify({ cislo: "5,0", hviezdy: 5, text: "89 recenzií na Google", aria: "Hodnotenie 5,0 z 5 – 89 recenzií na Google" }), "SK 5,0 · 89 recenzií", KP.hodnotenie({ rating: 5, totalReviews: 89 }, "sk"));
-over(KP.hodnotenie({ rating: 4.87, totalReviews: 3 }, "cz").text === "3 recenze na Google" && KP.hodnotenie({ rating: 4.87, totalReviews: 3 }, "cz").cislo === "4,9", "CZ 4,9 · 3 recenze");
+over(KP.hodnotenie({ rating: 4.87, totalReviews: 3 }, "cz").text === "3 recenze na Google" && KP.hodnotenie({ rating: 4.87, totalReviews: 3 }, "cz").cislo === "4,9", "CZ 4,9 (ako Google) · 3 recenze");
+over([4.87, 4.5, 4.94, 4.96, 5].map((r) => KP.hodnotenie({ rating: r, totalReviews: 9 }, "sk").hviezdy).join() === "4,4,4,5,5", "hviezdičky nadol podľa zobrazeného čísla (4,9 = 4, 4,5 = 4; nikdy viac, než je)",
+  [4.87, 4.5, 4.94, 4.96, 5].map((r) => KP.hodnotenie({ rating: r, totalReviews: 9 }, "sk").hviezdy));
 over(KP.hodnotenie({ rating: 4.4, totalReviews: 1 }, "sk").text === "1 recenzia na Google" && KP.hodnotenie({ rating: 4.4, totalReviews: 1 }, "sk").hviezdy === 4, "1 recenzia, 4 hviezdy");
 over(KP.hodnotenie({ rating: 5, totalReviews: 120 }, "cz").text === "120 recenzí na Google", "CZ 120 recenzí");
 over([KP.hodnotenie(null, "sk"), KP.hodnotenie({ rating: 0, totalReviews: 10 }, "sk"), KP.hodnotenie({ rating: 5, totalReviews: 0 }, "sk"), KP.hodnotenie({ rating: "x" }, "sk")].every((x) => x === null), "bez dát / nuly -> nič");
