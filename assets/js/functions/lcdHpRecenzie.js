@@ -1,17 +1,18 @@
 // Titulka SK/CZ — sekcia „06 — Čo hovoria naši zákazníci“ (29. 10. 2026, Michal: číslo a karty z aktuálnych dát).
 //
 // Web bez prekrývania: celá sekcia je HTML v admine (banner hp-telo-1, generuje tools/hp-recenzie.mjs z reviews-data.js:
-// počet, hodnotenie, 12 kariet = 3 najnovšie s textom + Michalov výber, dátumy „mesiac rok“). Tento modul ju len OŽIVÍ,
+// počet, hodnotenie, 12 kariet = 3 najnovšie výrazné + Michalov výber, dátumy „mesiac rok“). Tento modul ju len OŽIVÍ,
 // keď sa sekcia priblíži k oknu a prídu aktuálne dáta (functions/lcdRecenzieData.js — spoločný súbor assets/data/):
 //   - počet recenzií a hodnotenie v hlavičke podľa dát (Google pribúdajú recenzie aj medzi úpravami adminu),
-//   - recenzie NOVŠIE než HTML (id vyššie než data-lcd-rec-max sekcie) s textom ≥ 40 znakov pridá na začiatok pásu,
-//     pred prvú kartu HTML (data-lcd-rec-prvy) — najviac 3, najnovšia prvá.
+//   - recenzie NOVŠIE než HTML (id vyššie než data-lcd-rec-max sekcie) pridá na začiatok pásu, pred prvú kartu HTML
+//     (data-lcd-rec-prvy) — najviac 3, najnovšia prvá; len výrazné (vyraznaRecenzia: 5★, text ≥ 120 znakov alebo
+//     fotky + text ≥ 40), rovnako ako generátor HTML — krátka recenzia by nechala prvú kartu skoro prázdnu.
 // Nič neskrýva, nemaže ani neprepisuje karty z adminu. Bez dát (výpadok CDN) alebo s dátami staršími než HTML
 // (place.fetchedAt pred data-lcd-rec-stav — napr. záloha zo staršej verzie bundla) ostane HTML z adminu, ako je.
 import { nacitajRecenzie } from "./lcdRecenzieData.js";
 import {
-  NAJNOVSICH, cisloId, cislo1, datumRecenzie, dobraRecenzia, fotkyKarty, iniciala, nahladRecenzie, najnovsie,
-  riadokPoctu, textRecenzie,
+  NAJNOVSICH, cisloId, cislo1, datumRecenzie, fotkyKarty, iniciala, nahladRecenzie, najnovsie, riadokPoctu,
+  textRecenzie, vyraznaRecenzia,
 } from "./lcdRecenzie.js";
 
 function prvok(tag, trieda, text) {
@@ -65,7 +66,7 @@ function pridajNove(sek, pas, d, trh) {
   if (!(max > 0)) return 0;
   const znama = {};
   [].forEach.call(pas.querySelectorAll("[data-lcd-rec-id]"), (k) => { znama[k.getAttribute("data-lcd-rec-id")] = 1; });
-  const kandidati = d.reviews.filter((r) => cisloId(r) > max && !znama[r.id] && dobraRecenzia(r));
+  const kandidati = d.reviews.filter((r) => cisloId(r) > max && !znama[r.id] && vyraznaRecenzia(r));
   const nove = najnovsie(kandidati, NAJNOVSICH, d.place.fetchedAt);
   if (!nove.length) return 0;
   const prvy = pas.querySelector('[data-lcd-rec-id="' + sek.getAttribute("data-lcd-rec-prvy") + '"]') || pas.firstElementChild;

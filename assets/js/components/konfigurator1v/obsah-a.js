@@ -19,8 +19,8 @@
 //   reveal .rv robí spoločne obsah.js pre všetky sekcie.
 //   a-recenzie   skóre, počet a karty zo živých dát window.LCD_REVIEWS (functions/lcdRecenzieData.js: spoločný súbor
 //                assets/data/reviews-data.js, záloha z verzie; stiahne ich sekcia sama). Nič natvrdo: keď dáta do 30 s
-//                neprídu, sekcia sa skryje (.p1v-rev-bez). Poradie kariet (Michal 29. 10. 2026): 3 najnovšie s textom
-//                ≥ 40 znakov, potom ručný výber data-p1v-vyber, spolu data-p1v-pocet; výber a dátumy „mesiac rok“ ráta
+//                neprídu, sekcia sa skryje (.p1v-rev-bez). Poradie kariet (Michal 29. 10. 2026): 3 najnovšie výrazné
+//                (5★, text ≥ 120 znakov alebo fotky + text ≥ 40), potom ručný výber data-p1v-vyber, spolu data-p1v-pocet; výber a dátumy „mesiac rok“ ráta
 //                functions/lcdRecenzie.js (to isté ako titulka a generátor jej HTML tools/hp-recenzie.mjs).
 import { lxModulyOziv } from "../../lcdHomeModuly.js";
 import { nacitajRecenzie } from "../../functions/lcdRecenzieData.js";
@@ -214,7 +214,8 @@ const fetchedAt = () => (window.LCD_REVIEWS && window.LCD_REVIEWS.place ? window
 
 /**
  * Poradie recenzií (functions/lcdRecenzie.js — to isté ako titulka a jej generátor tools/hp-recenzie.mjs): 3 najnovšie
- * s textom ≥ 40 znakov (Michal 29. 10. 2026), autori z data-p1v-vyber bez duplicít, potom doterajšie pravidlo 5★ + ≥2 fotky
+ * výrazné (Michal 29. 10. 2026; vyraznaRecenzia: 5★, text ≥ 120 znakov alebo fotky + text ≥ 40 — krátka by nechala
+ * prvú kartu skoro prázdnu), autori z data-p1v-vyber (text ≥ 40) bez duplicít, potom doterajšie pravidlo 5★ + ≥2 fotky
  * + dlhší text a napokon ostatné recenzie s textom v poradí zdroja („Zobraziť ďalšie“, Michal 26. 10. 2026: „máme skoro
  * 90 recenzií na Google“, aj krátke). Prvých data-p1v-pocet (12) = 3 najnovšie + 9 z výberu.
  */

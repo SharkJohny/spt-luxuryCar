@@ -1,4 +1,5 @@
-// Recenzie z Google — spoločná logika výberu a zobrazenia (29. 10. 2026, schválené Michalom: „3 najnovšie + 9 vybraných“).
+// Recenzie z Google — spoločná logika výberu a zobrazenia (29. 10. 2026, schválené Michalom: „3 najnovšie recenzie s textom
+// + 9 vybraných“; najnovšie = len výrazné, aby prvá karta nebola skoro prázdna — vyraznaRecenzia).
 // Bez DOM a bez window: rovnaký kód používa sekcia 1V „Hodnotenia priamo z Google“ (konfigurator1v/obsah-a.js), oživenie
 // recenzií titulky (functions/lcdHpRecenzie.js) aj generátor HTML titulky pre admin (tools/hp-recenzie.mjs v Node) —
 // admin HTML a web tak rátajú výber, texty aj dátumy rovnako.
@@ -8,14 +9,34 @@
 // Nová recenzia dostane id o 1 vyššie než doteraz najvyššie (reviews-update.mjs) — podľa toho titulka pozná recenzie
 // novšie než jej HTML v admine (data-lcd-rec-max).
 
-/** Najkratší text recenzie, ktorá smie byť medzi najnovšími / vybranými kartami (Michal 29. 10. 2026: „s textom ≥ 40 znakov“). */
+/** Najkratší text recenzie, ktorá smie byť medzi vybranými kartami (Michal 29. 10. 2026: „s textom ≥ 40 znakov“). */
 export const MIN_TEXT = 40;
 /** Koľko najnovších recenzií ide pred Michalov ručný výber. */
 export const NAJNOVSICH = 3;
+/**
+ * Najkratší text NAJNOVŠEJ karty bez fotiek (29. 10. 2026 večer). Karty v páse majú výšku najvyššej karty (~300 znakov
+ * + 3 fotky), takže krátka recenzia nechá kartu skoro prázdnu — naživo prvá karta „Pán je ochotný poradit bez problémů
+ * i o víkendu.“ (48 znakov) vyplnila 39 % karty na telefóne 390 px. Meranie na živom webe (5c17005, SK titulka aj
+ * produkt 598, 390 aj 1280 px; výška textu + fotiek + pevná hlavička a päta karty): text 120 znakov = 47–53 % výšky
+ * karty, 77 znakov 41–46 %, 48 znakov 36–46 %; riadok fotiek (56 px) + text ≥ 40 znakov = 47–61 %; tablet 768 px 120 znakov
+ * 53 %. Prah 120 / fotky + 40 = karta vyplnená aspoň zhruba z polovice (test: tools/test-lcd-recenzie.mjs).
+ */
+export const MIN_TEXT_NAJNOVSIE = 120;
 
 /** Karta s textom: aspoň 4 hviezdy a text ≥ MIN_TEXT znakov. */
 export function dobraRecenzia(r) {
   return !!r && Number(r.rating) >= 4 && String(r.text || "").trim().length >= MIN_TEXT;
+}
+
+/**
+ * Smie byť medzi NAJNOVSICH prvými kartami: 5★ a zobrazený text (textRecenzie — bez odpovede majiteľa a dátumu)
+ * ≥ MIN_TEXT_NAJNOVSIE znakov, alebo fotky na karte (fotkyKarty) a text ≥ MIN_TEXT. Ostatné recenzie ostávajú
+ * vo výbere aj v „Zobraziť ďalšie“ podľa dobraRecenzia, len nejdú na začiatok pásu.
+ */
+export function vyraznaRecenzia(r) {
+  if (!dobraRecenzia(r) || Number(r.rating) < 5) return false;
+  const dlzka = textRecenzie(r.text).length;
+  return dlzka >= MIN_TEXT_NAJNOVSIE || (fotkyKarty(r).length > 0 && dlzka >= MIN_TEXT);
 }
 
 /** Číslo z id „g-N“ (0, keď id nie je v tomto tvare). */
@@ -35,19 +56,20 @@ export function casRecenzie(r, fetchedAt) {
 }
 
 /**
- * n najnovších recenzií s textom (dobraRecenzia). Google ukazuje len „pred X“, preto majú viaceré recenzie ten istý
- * približný dátum — pri zhode má prednosť recenzia s fotkami, potom novšie id (pridaná neskôr).
+ * n najnovších výrazných recenzií (vyraznaRecenzia: 5★, text ≥ 120 znakov alebo fotky + text ≥ 40). Google ukazuje
+ * len „pred X“, preto majú viaceré recenzie ten istý približný dátum — pri zhode má prednosť recenzia s fotkami,
+ * potom novšie id (pridaná neskôr).
  */
 export function najnovsie(zoznam, n, fetchedAt) {
-  return (zoznam || []).filter(dobraRecenzia).map((r) => ({ r, t: casRecenzie(r, fetchedAt) || 0 }))
+  return (zoznam || []).filter(vyraznaRecenzia).map((r) => ({ r, t: casRecenzie(r, fetchedAt) || 0 }))
     .sort((a, b) => b.t - a.t || ((b.r.photos || []).length - (a.r.photos || []).length) || (cisloId(b.r) - cisloId(a.r)))
     .slice(0, Math.max(0, n)).map((x) => x.r);
 }
 
 /**
- * Poradie kariet: NAJNOVSICH najnovších s textom, potom Michalov výber podľa mena autora (vyber = pole mien, bez
- * duplicít), potom doterajšie pravidlo 5★ + ≥ 2 fotky + text ≥ 200 znakov a napokon všetky ostatné s textom (≥ 4★) v poradí
- * zdroja („Zobraziť ďalšie recenzie“). Prvých 12 = 3 najnovšie + 9 z výberu.
+ * Poradie kariet: NAJNOVSICH najnovších výrazných (vyraznaRecenzia), potom Michalov výber podľa mena autora (vyber = pole
+ * mien, bez duplicít, text ≥ 40), potom doterajšie pravidlo 5★ + ≥ 2 fotky + text ≥ 200 znakov a napokon všetky ostatné
+ * s textom (≥ 4★) v poradí zdroja („Zobraziť ďalšie recenzie“) — aj krátke najnovšie. Prvých 12 = 3 najnovšie + 9 z výberu.
  */
 export function zoradRecenzie(zoznam, vyber, { najnovsich = NAJNOVSICH, fetchedAt } = {}) {
   const z = (zoznam || []).filter(Boolean);
