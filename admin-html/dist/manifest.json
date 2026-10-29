@@ -35,9 +35,9 @@
         "pozicia": "Stred titulky (Banner v strede)",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 30597,
-      "bajty": 31230,
-      "hash": "6d3eadc28c",
+      "znaky": 30625,
+      "bajty": 31257,
+      "hash": "24188706ef",
       "obrazky": 29
     },
     {
@@ -301,9 +301,9 @@
           2418
         ]
       },
-      "znaky": 35446,
-      "bajty": 36429,
-      "hash": "2876ba3b46",
+      "znaky": 35470,
+      "bajty": 36450,
+      "hash": "d45cb00b69",
       "obrazky": 36,
       "webp": 3,
       "sekcie": [
@@ -345,7 +345,7 @@
         {
           "subor": "22-b-porovnanie.cz.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2498
+          "znaky": 2522
         }
       ]
     },
@@ -563,9 +563,9 @@
           2412
         ]
       },
-      "znaky": 39564,
-      "bajty": 40529,
-      "hash": "49668e743d",
+      "znaky": 39588,
+      "bajty": 40550,
+      "hash": "71d4f35c26",
       "obrazky": 35,
       "webp": 15,
       "sekcie": [
@@ -602,7 +602,7 @@
         {
           "subor": "22-b-porovnanie.cz.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2518
+          "znaky": 2542
         },
         {
           "subor": "23-b-predapo.cz.html",
@@ -827,9 +827,9 @@
           2433
         ]
       },
-      "znaky": 48826,
-      "bajty": 49799,
-      "hash": "6b6eba4ef2",
+      "znaky": 48850,
+      "bajty": 49820,
+      "hash": "3c14eb553b",
       "obrazky": 36,
       "webp": 29,
       "sekcie": [
@@ -866,7 +866,7 @@
         {
           "subor": "22-b-porovnanie.cz.html",
           "sekcia": "b-porovnanie",
-          "znaky": 2367
+          "znaky": 2391
         },
         {
           "subor": "23-classic-premium.cz.html",

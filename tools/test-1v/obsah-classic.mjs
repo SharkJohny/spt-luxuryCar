@@ -246,8 +246,9 @@ export async function kontroly(t) {
     "logo podľa rozhodnutia Michala 14. 10. 2026: úvod 8 vecí, čip „Logo pravosti“ a položka balenia doslovne z návrhu");
   const lehoty = zdroj(subor("33-c-casova-os")).match(/21–29 dní/g) || [];
   ok(lehoty.length === 2 && !/\d+\s*–\s*\d+\s*dní/.test(zdroj(subor("33-c-casova-os")).replace(/21–29 dní/g, "")), `časová os: lehota 21–29 dní v úvode aj v odznaku (${lehoty.length}×)`);
-  const ceny = zdroje.map((z) => (z.text.replace(/50\s*€\s*–\s*129\s*€/g, "").match(/\d\s*(?:€|eur\b|Kč)|(?:€|Kč)\s*\d/gi) || []).map((x) => z.subor + ": " + x)).flat();
-  ok(!ceny.length, "žiadna cena natvrdo v zdroji (okrem trhovej ceny napodobenín 50 € – 129 €)" + (ceny.length ? ": " + ceny.join(", ") : ""));
+  // trhová cena napodobenín: SK 50 € – 129 €, CZ 1 300 – 3 300 Kč (Michal 29. 10. 2026)
+  const ceny = zdroje.map((z) => (z.text.replace(/50\s*€\s*–\s*129\s*€|1\s*300\s*–\s*3\s*300\s*Kč/g, "").match(/\d\s*(?:€|eur\b|Kč)|(?:€|Kč)\s*\d/gi) || []).map((x) => z.subor + ": " + x)).flat();
+  ok(!ceny.length, "žiadna cena natvrdo v zdroji (okrem trhovej ceny napodobenín 50 € – 129 € / 1 300 – 3 300 Kč)" + (ceny.length ? ": " + ceny.join(", ") : ""));
   const znacky = zdroje.map((z) => [...z.html.matchAll(/data-p1v-cislo="([^"]+)"/g)].length).reduce((a, b) => a + b, 0);
   ok(znacky >= 12, `čísla idú cez data-p1v-cislo (${znacky} značiek v zdroji)`);
 

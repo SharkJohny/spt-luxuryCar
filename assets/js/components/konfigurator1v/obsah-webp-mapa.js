@@ -20,7 +20,7 @@ export const KUSY = {
     ["b-ocakavat-treti-rad",0,[480,760],0,1],
     ["b-ocakavat-zvierata",0,[480,760],0,1],
   ] },
-  "p1v-598-1.cz": { v: "b5ff8c9adc", f: [
+  "p1v-598-1.cz": { v: "af9389b966", f: [
     ["b-ocakavat-farba-interieru",0,[480,760],0,1],
     ["b-ocakavat-treti-rad",0,[480,760],0,1],
     ["b-ocakavat-zvierata",0,[480,760],0,1],
@@ -114,7 +114,7 @@ export const KUSY = {
     ["classic-cmp-us",0,[480,776],5,0],
     ["classic-cmp-prem",0,[480,776],5,0],
   ] },
-  "p1v-classic-1.cz": { v: "fecbd61815", f: [
+  "p1v-classic-1.cz": { v: "235fa18825", f: [
     ["classic-pred",0,[480,900],2,0],
     ["classic-po",0,[480,900],2,0],
     ["classic-d7",0,[480,800,1024],1,0],
@@ -162,7 +162,7 @@ export const KUSY = {
     ["dvoj-material-lux10",0,[480,800,1346],6,0],
     ["dvoj-porovnanie-original",0,[480,776],5,0],
   ] },
-  "p1v-dvoj-1.cz": { v: "b665e269e6", f: [
+  "p1v-dvoj-1.cz": { v: "bf77a8620b", f: [
     ["dvoj-gal-hexa-lux",0,[480,760],1,0],
     ["dvoj-gal-diamond-lux",0,[480,760],1,0],
     ["dvoj-gal-kodiaq",0,[520],1,0],
