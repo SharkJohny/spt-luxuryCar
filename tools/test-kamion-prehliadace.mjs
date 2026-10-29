@@ -56,7 +56,7 @@ async function beh(B, engine, pid, w, kosik) {
   const r = { engine, pid, w, vstup: dotyk ? "dotyk" : "myš", kosik, chyby: [], konzola: [], http: [], zlyhane: [], pretecenie: [], obrazky: [], storage: 0, podvrhnute: 0, posty: [] };
   await ctx.route(/\/eshopy\/luxuryCar\/assets\/v\/[0-9a-f]{7,40}\//, async (route) => {
     const u = route.request().url(), m = u.match(/\/assets\/v\/([0-9a-f]{7,40})\//);
-    if (m[1] === SHA) return route.continue();
+    if (m[1] === SHA) { r.nazivo = (r.nazivo || 0) + 1; return route.continue(); } // --sha = verzia, ktorá už je naživo
     r.podvrhnute++;
     try { return route.fulfill({ response: await route.fetch({ url: u.replace(m[0], "/assets/v/" + SHA + "/") }) }); } catch (e) { r.chyby.push("podvrh " + e.message.slice(0, 80)); return route.abort(); }
   });
@@ -151,7 +151,7 @@ async function beh(B, engine, pid, w, kosik) {
     }
   } catch (e) { r.chyby.push("PÁD: " + e.message.split("\n")[0].slice(0, 200)); await page.screenshot({ path: OUT + "/" + [engine, pid, w, kosik ? "kosik" : "cesta"].join("-") + ".png" }).catch(() => {}); }
   r.s = Math.round((Date.now() - t0) / 1000);
-  if (!r.podvrhnute) r.chyby.push("verzia " + SHA + " sa nepodvrhla");
+  if (!r.podvrhnute && !r.nazivo) r.chyby.push("verzia " + SHA + " sa nepodvrhla ani nie je naživo");
   if (r.storage) r.chyby.push(r.storage + "× obrázok kamióna z CZ úložiska");
   if (r.http.length) r.chyby.push("HTTP: " + r.http.slice(0, 3).join(" | "));
   if (r.pretecenie.length) r.chyby.push("pretečenie: " + r.pretecenie.slice(0, 2).join(" | "));
