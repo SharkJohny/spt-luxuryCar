@@ -14,8 +14,9 @@
                                             <web> = location.hostname, nový trh = nový priečinok, kód sa nemení
      assets/img/ulozisko/spolocne/<cesta>  súbory, ktoré kód bral NATVRDO z jedného úložiska pre všetky weby (vzorky,
                                             ikony hlavičky, obrázky ponúk kufra a boxov, šípka titulky)
-   Kód: functions/ulozisko.js (obrazokUloziska / obrazokSpolocny), zoznam súborov webov functions/ulozisko-data.js
-   (GENEROVANÝ týmto skriptom). Súbor, ktorý v zozname nie je (nová farba v admine), ide ako doteraz z úložiska webu.
+   Kód: functions/ulozisko.js (obrazokUloziska / obrazokSpolocny), zoznam súborov webov aj spoločných
+   functions/ulozisko-data.js (GENEROVANÝ týmto skriptom). Súbor, ktorý v zozname nie je (nová farba v admine, nové meno
+   obrázka ponuky v data.json), ide ako doteraz z úložiska webu, na ktorom stránka beží.
 
    Použitie:
      node tools/config-obrazky.mjs                stiahne chýbajúce súbory (nikdy neprepíše existujúci), zapíše ulozisko-data.js
@@ -27,7 +28,8 @@
                                                   ponúk z data.json, ktoré na úložisku sú, sú v repe (nová farba v admine?)
      node tools/config-obrazky.mjs --inventar [--vystup subor.json]   všetky odkazy na úložiská v zdrojoch, kategórie, HTTP stav
      node tools/config-obrazky.mjs --cdn          PO NASADENÍ (gh run completed/success!): každý súbor na CDN repa = repo bajt po bajte,
-                                                  s hlavičkou Accept image/avif + image/webp aj bez nej (skôr = CDN si zapamätá 404)
+                                                  s hlavičkou Accept image/avif + image/webp aj bez nej (skôr = CDN si zapamätá 404),
+                                                  200 + Content-Type podľa prípony; obrázky ponúk new/* aj s ?7 (presná adresa webu)
 
    Fotka zmenená v admine pod tým istým menom: --check (4) hlási rozdiel; spustenie skriptu uloží novú verziu ako
    <meno>~<odtlačok>.<prípona> (starý súbor ostáva, CDN drží súbory rok) a zoznam webu ju priradí k pôvodnej ceste.
@@ -131,15 +133,16 @@ function naDisku() {
   }
   return { weby, spolocne };
 }
-function textManifestu(weby) {
-  const riadky = Object.keys(weby).sort().map((web) => {
-    const z = Object.keys(weby[web]).sort().map((c) => (weby[web][c] === c ? c : c + ">" + weby[web][c]));
-    return "  " + JSON.stringify(web) + ": [\n" + z.map((x) => "    " + JSON.stringify(x)).join(",\n") + "\n  ]";
-  });
+function textManifestu(weby, spolocne) {
+  const pole = (o) => Object.keys(o).sort().map((c) => (o[c] === c ? c : c + ">" + o[c]));
+  const riadky = Object.keys(weby).sort().map((web) =>
+    "  " + JSON.stringify(web) + ": [\n" + pole(weby[web]).map((x) => "    " + JSON.stringify(x)).join(",\n") + "\n  ]");
   return "// GENEROVANÉ: node tools/config-obrazky.mjs — ručne neupravovať.\n" +
     "// Súbory úložísk webov skopírované bajt po bajte do assets/img/ulozisko/<web>/<cesta> (cesta za /user/documents/upload/assets/).\n" +
     "// \"cesta>súbor\" = fotka zmenená v admine po prvom stiahnutí, uložená pod novým menom. Používa functions/ulozisko.js.\n" +
-    "export const ULOZISKO_WEBY = {\n" + riadky.join(",\n") + "\n};\n";
+    "export const ULOZISKO_WEBY = {\n" + riadky.join(",\n") + "\n};\n" +
+    "// Spoločné súbory (assets/img/ulozisko/spolocne/<cesta>). Cesta mimo zoznamu (nové meno v data.json) ide z úložiska webu.\n" +
+    "export const ULOZISKO_SPOLOCNE = [\n" + pole(spolocne || {}).map((x) => "  " + JSON.stringify(x)).join(",\n") + "\n];\n";
 }
 
 // ------------------------------------------------------------------ kandidáti (živé weby)
@@ -269,7 +272,7 @@ async function rezimStiahni() {
     writeFileSync(cielovy(u.cesta), r.buf);
     nove++; bajty += r.buf.length;
   });
-  writeFileSync(MANIFEST, textManifestu(naDisku().weby));
+  { const d = naDisku(); writeFileSync(MANIFEST, textManifestu(d.weby, d.spolocne)); }
   log(`nové ${nove}, zmenené ${zmenene}, bez zmeny ${rovnake}, na úložisku nie sú (404, kód ich nepoužije) ${neexistuje.length}, chyby ${chyba}; ` +
     `zapísané ${(bajty / 1048576).toFixed(2)} MB -> assets/img/ulozisko/, zoznam -> assets/js/functions/ulozisko-data.js`);
   if (arg("--vypis-404")) log(neexistuje.sort().join("\n"));
@@ -280,7 +283,7 @@ async function rezimCheck() {
   let zle = 0;
   const { weby, spolocne } = naDisku();
   // (1) zoznam = disk
-  const ok1 = existsSync(MANIFEST) && readFileSync(MANIFEST, "utf8").replace(/\r\n/g, "\n") === textManifestu(weby);
+  const ok1 = existsSync(MANIFEST) && readFileSync(MANIFEST, "utf8").replace(/\r\n/g, "\n") === textManifestu(weby, spolocne);
   console.log((ok1 ? "OK " : "CHYBA ") + "(1) functions/ulozisko-data.js " + (ok1 ? "sedí so súbormi" : "nesedí so súbormi v assets/img/ulozisko/ (spusti node tools/config-obrazky.mjs)") +
     ` — ${Object.entries(weby).map(([w, o]) => w + " " + Object.keys(o).length).join(", ")}, spoločné ${Object.keys(spolocne).length}`);
   if (!ok1) zle++;
@@ -365,16 +368,27 @@ async function rezimInventar() {
 async function rezimCdn() {
   const ZAKLAD = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/";
   const subory = vsetkySubory(CIEL).map((abs) => posix(relative(CIEL, abs)));
+  // typ obsahu podľa prípony (CDN posiela image/svg+xml pre SVG — inak by <img> SVG nezobrazil)
+  const TYP = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif", svg: "image/svg+xml", webp: "image/webp" };
+  // presné adresy, ktoré web žiada: obrázky ponúk new/* aj s „?7“ (creatButtons.js createUpsaleButton) — CDN môže kľúčovať aj parameter
+  const varianty = (rel) => (/^spolocne\/new\//.test(rel) ? ["", "?7"] : [""]);
   const zlo = [];
+  let poziadaviek = 0;
   await paralelne(subory, 4, async (rel) => {
     const lokal = sha(readFileSync(join(CIEL, ...rel.split("/"))));
-    for (const accept of ["image/avif,image/webp,*/*", null]) {
-      const r = await fetch(ZAKLAD + rel.split("/").map(encodeURIComponent).join("/"), { headers: accept ? { accept } : {} });
+    const typ = TYP[(rel.split(".").pop() || "").toLowerCase()];
+    for (const q of varianty(rel)) for (const accept of ["image/avif,image/webp,*/*", null]) {
+      poziadaviek++;
+      const r = await fetch(ZAKLAD + rel.split("/").map(encodeURIComponent).join("/") + q, { headers: accept ? { accept } : {} });
       const b = Buffer.from(await r.arrayBuffer());
-      if (r.status !== 200 || sha(b) !== lokal) zlo.push(rel + " (Accept " + (accept || "predvolený") + "): " + r.status + " " + (r.headers.get("content-type") || "") + (r.status === 200 ? " — iné bajty" : ""));
+      const ct = (r.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+      if (r.status !== 200 || sha(b) !== lokal || !typ || ct !== typ)
+        zlo.push(rel + q + " (Accept " + (accept || "predvolený") + "): " + r.status + " " + (ct || "bez typu") +
+          (r.status === 200 && sha(b) !== lokal ? " — iné bajty" : "") + (r.status === 200 && ct !== typ ? " — čakaný typ " + (typ || "?") : ""));
     }
   });
-  console.log(zlo.length ? "CHYBA CDN (" + zlo.length + "):\n  " + zlo.sort().join("\n  ") : "OK CDN: " + subory.length + " súborov × 2 hlavičky Accept = repo bajt po bajte");
+  console.log(zlo.length ? "CHYBA CDN (" + zlo.length + " z " + poziadaviek + "):\n  " + zlo.sort().join("\n  ") :
+    "OK CDN: " + subory.length + " súborov, " + poziadaviek + " požiadaviek (Accept image/avif,image/webp,*/* aj bez, new/* aj s ?7) = repo bajt po bajte, 200, správny Content-Type");
   process.exit(zlo.length ? 1 : 0);
 }
 

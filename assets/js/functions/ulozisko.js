@@ -8,22 +8,27 @@
 //                                         z úložiska webu — kým ho node tools/config-obrazky.mjs nestiahne do repa.
 //   obrazokSpolocny("config/D-1.jpg")     súbor, ktorý kód bral natvrdo z jedného úložiska pre všetky weby (vzorky, obrázky
 //                                         ponúk) — assets/img/ulozisko/spolocne/ (skript overí, že ich má všetky).
+//                                         Cesta mimo zoznamu (30. 10. 2026: nové meno obrázka ponuky v data.json) ide
+//                                         ako záloha z úložiska webu, na ktorom stránka beží — nie 404 z CDN.
 import { LCD_SPOLOCNY } from "./lcdZaklad.js";
-import { ULOZISKO_WEBY } from "./ulozisko-data.js";
+import { ULOZISKO_SPOLOCNE, ULOZISKO_WEBY } from "./ulozisko-data.js";
 
 /** Základ kópií v CDN repa (assets/img/ulozisko/); jediné miesto, kde sa adresa skladá. */
 export const ULOZISKO_CDN = LCD_SPOLOCNY + "img/ulozisko/";
 const ULOZISKO_WEBU = "/user/documents/upload/assets/";
 
-let mapa = null;
+// "cesta" = súbor s tým istým menom; "cesta>súbor" = fotka zmenená v admine, nová verzia pod novým menom
+function mapaZoznamu(zoznam) {
+  const m = {};
+  for (const z of zoznam || []) { const i = z.indexOf(">"); if (i < 0) m[z] = z; else m[z.slice(0, i)] = z.slice(i + 1); }
+  return m;
+}
+const ma = (m, k) => !!m && Object.prototype.hasOwnProperty.call(m, k);
+let mapa = null, mapaSpolocnych = null;
 function subory() {
   if (mapa) return mapa;
   mapa = {};
-  for (const web in ULOZISKO_WEBY) {
-    const m = (mapa[web] = {});
-    // "cesta" = súbor s tým istým menom; "cesta>súbor" = fotka zmenená v admine, nová verzia pod novým menom
-    for (const z of ULOZISKO_WEBY[web]) { const i = z.indexOf(">"); if (i < 0) m[z] = z; else m[z.slice(0, i)] = z.slice(i + 1); }
-  }
+  for (const web in ULOZISKO_WEBY) mapa[web] = mapaZoznamu(ULOZISKO_WEBY[web]);
   return mapa;
 }
 function tentoWeb() {
@@ -35,11 +40,13 @@ function tentoWeb() {
 export function obrazokUloziska(cesta, verzia) {
   const web = tentoWeb();
   const m = subory()[web];
-  if (m && Object.prototype.hasOwnProperty.call(m, cesta)) return ULOZISKO_CDN + web + "/" + m[cesta];
+  if (ma(m, cesta)) return ULOZISKO_CDN + web + "/" + m[cesta];
   return ULOZISKO_WEBU + cesta + (verzia ? "?" + verzia : "");
 }
 
-/** Súbor spoločný pre všetky weby (assets/img/ulozisko/spolocne/<cesta>). */
+/** Súbor spoločný pre všetky weby (assets/img/ulozisko/spolocne/<cesta>); mimo zoznamu záloha z úložiska webu. */
 export function obrazokSpolocny(cesta) {
-  return ULOZISKO_CDN + "spolocne/" + cesta;
+  if (!mapaSpolocnych) mapaSpolocnych = mapaZoznamu(ULOZISKO_SPOLOCNE);
+  if (ma(mapaSpolocnych, cesta)) return ULOZISKO_CDN + "spolocne/" + mapaSpolocnych[cesta];
+  return ULOZISKO_WEBU + cesta;
 }
