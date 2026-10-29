@@ -148,11 +148,25 @@ export async function kontroly(t) {
         pocet: d && d.place ? d.place.totalReviews : null, karty: s.querySelectorAll(".revs .rev").length,
         poFiltri: d && d.reviews ? d.reviews.filter(dobra).length : 0, viac: !!s.querySelector(".p1v-rev-viac"),
         prazdne: [].filter.call(s.querySelectorAll(".revs .rev"), function (a) { return !a.querySelector("p").textContent.trim() || !a.querySelector(".meta b").textContent.trim(); }).length,
-        vid: getComputedStyle(s.querySelector(".revwrap")).visibility, prvy: (s.querySelector(".revs .rev .meta b") || {}).textContent };
+        vid: getComputedStyle(s.querySelector(".revwrap")).visibility, prvy: (s.querySelector(".revs .rev .meta b") || {}).textContent,
+        // Michal 29. 10. 2026: prvé 3 karty = 3 najnovšie s textom ≥ 40 znakov (dateApprox, inak „Pred N týždňami“ k fetchedAt;
+        // pri rovnakom dátume s fotkami, potom vyššie id), potom ručný výber data-p1v-vyber; dátumy „mesiac rok“, nie „Pred …“
+        prve3: [].slice.call(s.querySelectorAll(".revs .rev .meta b"), 0, 3).map(function (b) { return b.textContent.trim(); }),
+        ocPrve3: (function () {
+          if (!d || !d.reviews) return [];
+          var f = Date.parse(d.place && d.place.fetchedAt), id = function (x) { var m = /^g-(\\d+)$/.exec(String(x.id || "")); return m ? +m[1] : 0; };
+          var cas = function (x) { var t = Date.parse(x.dateApprox); if (t > 0) return t; var m = /(\\d+)\\s*týž/i.exec(String(x.relativeDate || "")); return m && f > 0 ? f - m[1] * 6048e5 : 0; };
+          return d.reviews.filter(function (x) { return Number(x.rating) >= 4 && String(x.text || "").trim().length >= 40; })
+            .sort(function (a, b) { return cas(b) - cas(a) || ((b.photos || []).length - (a.photos || []).length) || id(b) - id(a); })
+            .slice(0, 3).map(function (x) { return String(x.author).trim(); });
+        })(),
+        relativne: [].filter.call(s.querySelectorAll(".revs .rev .meta i"), function (i) { return /pred|před|týž|týd/i.test(i.textContent); }).length };
     })()`);
     ok(r.ok && r.data, `a-recenzie: dáta window.LCD_REVIEWS prišli a sekcia je vykreslená (ok ${r.ok}, dáta ${r.data})`);
     ok(r.ok && r.skore === r.ocSkore && r.sub.indexOf(String(r.pocet) + " ") === 0, `a-recenzie: skóre a počet zo živých dát („${r.skore}“, „${r.sub}“)`);
     ok(r.karty >= 6 && r.karty <= 12 && !r.prazdne && r.vid === "visible", `a-recenzie: ${r.karty} kariet (prvá ${r.prvy}), prázdne ${r.prazdne}, pás ${r.vid}`);
+    ok(r.ok && r.prve3.join("|") === r.ocPrve3.join("|"), `a-recenzie: prvé 3 karty = 3 najnovšie s textom (${r.prve3.join(", ")}; čakané ${r.ocPrve3.join(", ")})`);
+    ok(r.ok && !r.relativne, `a-recenzie: dátumy ako „mesiac rok“, nie relatívne (${r.relativne} relatívnych)`);
     ok(r.viac && r.poFiltri > r.karty, `a-recenzie: tlačidlo ďalších recenzií je zobrazené (${r.karty}/${r.poFiltri} kariet)`);
     if (r.ok) {
       const x0 = await t.ev(`document.querySelector(${S("a-recenzie")} + " .revs").scrollLeft`);

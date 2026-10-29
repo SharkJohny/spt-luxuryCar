@@ -210,9 +210,9 @@ Odkazy `data-p1v-odkaz="jedno|dvoj|classic|premium|boxy"` → `href` = adresa z 
   - `lcdMultiKoren([sekcia]).querySelectorAll(sel)` sekciu samu nevracia (`querySelector` áno). `lcdOziv.js` sa zámerne nemení (titulka a rozcestník ho používajú tiež). Dôsledok pre galériu: `lxModulyOziv` nepostaví vlastné `.lx-zoom`, fotku otvorí jediné okno obsahu `#p1v-lb` (sekcia 8; `obsah-a.js` doplní tlačidlám `data-p1v-lb-foto` a sadu `a-galeria`).
   - Markup musí sedieť s titulkou (`admin-html/src/hp-*.sk.html`).
 - **Reveal `.rv`** robí `obsah.js` pre všetky sekcie naraz (krok 6 v sekcii 2). Skupina, ktorá potrebuje iné odhaľovanie, ho nesmie duplikovať, ale dohodne ho s koordinátorom.
-- **Recenzie:** `window.LCD_REVIEWS` (`reviews-data.js`). Na 598 sa načíta, kým je v starom popise `.lcd-reviews-widget`.
+- **Recenzie:** `window.LCD_REVIEWS` (`reviews-data.js`). Od 29. 10. 2026 ich načíta `functions/lcdRecenzieData.js` (spoločný súbor `assets/data/reviews-data.js`, záloha z verzie) — sekcia `a-recenzie` si ich vypýta sama; na 1V sa starý widget `.lcd-reviews-widget` ani `lcd-reviews.js` (a ani widget videí) už nestavia (boli v skrytých záložkách). Poradie kariet: 3 najnovšie s textom ≥ 40 znakov, potom `data-p1v-vyber`, spolu `data-p1v-pocet`; dátum „mesiac rok“ (`functions/lcdRecenzie.js`, to isté ako titulka).
 - **FAQ:** starý blok FAQ v `.p-info-wrapper` (`components/index.js`) je pri konfigurátore. Nový FAQ je dole (D). Starý skrýva základ (bod 8), len keď nový na stránke je; v DOM ostáva.
-- **Hodnotenie pod H1** (`cena.js`, „5,0 ★ … recenzií“): s novým obsahom posunie na sekciu `a-recenzie`, bez nej (alebo keď je skrytá) na starý widget ako doteraz.
+- **Hodnotenie pod H1** (`cena.js`, „5,0 ★ … recenzií“): s novým obsahom posunie na sekciu `a-recenzie`, bez nej (alebo keď je skrytá) na starý widget, ak na stránke je (na 1V od 29. 10. 2026 nie je — klik vtedy nič nerobí).
 
 ## 6. Testy
 

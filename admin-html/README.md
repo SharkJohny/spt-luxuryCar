@@ -28,6 +28,13 @@ Presné údaje (kód banneru, pozícia, stránka) sú v `ciele.json` a po builde
 3. Commitni `src/`, `dist/` aj `dist/manifest.json` spolu. CI (`.github/workflows/production.yml`, krok Build Project) spúšťa `node tools/build-admin-html.mjs --check`: zastaraný dist alebo chyba v `src/` zastaví build a nič sa nenahrá.
 4. Do adminu ide **celý obsah súboru z `dist/`**, nikdy nie zo `src/`.
 
+**Recenzie na titulke (`hp-telo-1`, sekcia „06 — Čo hovoria naši zákazníci“, 29. 10. 2026)** sa ručne needitujú: blok medzi
+značkami `RECENZIE` a `DO KUFRA` generuje `node tools/hp-recenzie.mjs` z `assets/js/reviews-data.js` (počet, hodnotenie,
+12 kariet = 3 najnovšie s textom ≥ 40 znakov + Michalov výber `data-p1v-vyber` zo sekcie 1V 598, dátumy „mesiac rok“,
+CZ recenzie v pôvodnom jazyku). Potom `node tools/build-admin-html.mjs` a zápis `dist/hp-telo-1.*.html` do adminu.
+`tools/hp-recenzie.mjs --check` povie, či src sedí s dátami. Medzi zápismi web sekciu len oživí
+(`assets/js/functions/lcdHpRecenzie.js`): počet z aktuálnych dát a recenzie novšie než HTML (`data-lcd-rec-max`) na začiatok pásu.
+
 Pravidlá (build ich kontroluje):
 
 - Žiadne `<h1>` (H1 dáva Shoptet z názvu stránky / Úvodného textu), `<main>`, `<script>`, `on…=` handlery, `javascript:`.

@@ -17,9 +17,17 @@
 //   a-galeria    modul titulky lx galéria: lxModulyOziv len na tejto sekcii (posun pásu scrollom). Zväčšenie fotky
 //                = jediné okno obsahu #p1v-lb skupiny D (sada „a-galeria“: šípky, potiahnutie, počítadlo), nie .lx-zoom.
 //   reveal .rv robí spoločne obsah.js pre všetky sekcie.
-//   a-recenzie   skóre, počet a karty zo živých dát window.LCD_REVIEWS (reviews-data.js, načíta ho main.js pre widget
-//                lcd-reviews v starom popise). Nič natvrdo: keď dáta do 30 s neprídu, sekcia sa skryje (.p1v-rev-bez).
+//   a-recenzie   skóre, počet a karty zo živých dát window.LCD_REVIEWS (functions/lcdRecenzieData.js: spoločný súbor
+//                assets/data/reviews-data.js, záloha z verzie; stiahne ich sekcia sama). Nič natvrdo: keď dáta do 30 s
+//                neprídu, sekcia sa skryje (.p1v-rev-bez). Poradie kariet (Michal 29. 10. 2026): 3 najnovšie s textom
+//                ≥ 40 znakov, potom ručný výber data-p1v-vyber, spolu data-p1v-pocet; výber a dátumy „mesiac rok“ ráta
+//                functions/lcdRecenzie.js (to isté ako titulka a generátor jej HTML tools/hp-recenzie.mjs).
 import { lxModulyOziv } from "../../lcdHomeModuly.js";
+import { nacitajRecenzie } from "../../functions/lcdRecenzieData.js";
+import {
+  cislo1, datumRecenzie as datumSpolocny, iniciala, menaVyberu, nahladRecenzie, riadokPoctu, textRecenzie,
+  zoradRecenzie as zoradSpolocne,
+} from "../../functions/lcdRecenzie.js";
 import { lcdMultiKoren } from "../../functions/lcdOziv.js";
 import { prelozRetazecCz } from "./texty-cz.js";
 
@@ -173,6 +181,7 @@ function recenzie(sek, oc) {
   let hotovo = false;
   const trh = oc.ctx && oc.ctx.trh === "cz" ? "cz" : "sk";
   if (!dataRecenzii()) zastupcaRecenzie(sek, pas, trh);
+  nacitajRecenzie(); // dáta stiahne sekcia sama (main.js na 1V starý widget nestavia, 29. 10. 2026); raz na stránku
   oc.ked(dataRecenzii, (d) => {
     hotovo = true;
     ukotvi(() => {
@@ -191,21 +200,6 @@ function dataRecenzii() {
   return d && d.place && Array.isArray(d.reviews) && d.reviews.length ? d : null;
 }
 
-const cislo1 = (x) => (Math.round(Number(x) * 10) / 10).toFixed(1).replace(".", ",");
-
-/** text recenzie: bez dátumu na začiatku a odpovede majiteľa (prilepené scraperom), dlhý skrátený na celé slovo (~300 zn.) */
-function textRecenzie(t) {
-  let s = String(t || "").replace(/\s*Luxury Car Design\s+Vlastník\b[\s\S]*$/i, "").replace(/\s+/g, " ").trim()
-    .replace(/^\d{1,2}\.\s?\d{1,2}\.\s?\d{4}\s*/, "");
-  if (s.length > 300) { const c = s.slice(0, 301); s = c.slice(0, c.lastIndexOf(" ")).replace(/[\s,;:–—-]+$/, "") + "…"; }
-  return s;
-}
-
-function iniciala(meno) {
-  const c = String(meno || "").trim().split(/\s+/).filter(Boolean);
-  return ((c[0] || "?").charAt(0) + (c.length > 1 ? c[c.length - 1].charAt(0) : "")).toUpperCase();
-}
-
 function prvok(tag, trieda, text) {
   const e = document.createElement(tag);
   if (trieda) e.className = trieda;
@@ -213,25 +207,19 @@ function prvok(tag, trieda, text) {
   return e;
 }
 
-const dobraRecenzia = (r) => r && Number(r.rating) >= 4 && String(r.text || "").trim().length >= 40;
-
 const TEXT_DALSIE_RECENZIE = "Zobraziť ďalšie recenzie";
 
+/** place.fetchedAt dát (dátum k „Pred N týždňami“, keď recenzia nemá dateApprox) */
+const fetchedAt = () => (window.LCD_REVIEWS && window.LCD_REVIEWS.place ? window.LCD_REVIEWS.place.fetchedAt : null);
+
 /**
- * Poradie recenzií: autori z data-p1v-vyber, potom doterajšie pravidlo 5★ + ≥2 fotky + dlhší text a napokon
- * ostatné recenzie s textom v poradí zdroja. Prvých data-p1v-pocet je tým pádom presne doterajší výber.
+ * Poradie recenzií (functions/lcdRecenzie.js — to isté ako titulka a jej generátor tools/hp-recenzie.mjs): 3 najnovšie
+ * s textom ≥ 40 znakov (Michal 29. 10. 2026), autori z data-p1v-vyber bez duplicít, potom doterajšie pravidlo 5★ + ≥2 fotky
+ * + dlhší text a napokon ostatné recenzie s textom v poradí zdroja („Zobraziť ďalšie“, Michal 26. 10. 2026: „máme skoro
+ * 90 recenzií na Google“, aj krátke). Prvých data-p1v-pocet (12) = 3 najnovšie + 9 z výberu.
  */
 function zoradRecenzie(sek, zoznam) {
-  const out = [];
-  (sek.getAttribute("data-p1v-vyber") || "").split("|").map((x) => x.trim()).filter(Boolean).forEach((meno) => {
-    const r = zoznam.find((x) => x && x.author === meno);
-    if (dobraRecenzia(r) && out.indexOf(r) === -1) out.push(r);
-  });
-  zoznam.filter((r) => dobraRecenzia(r) && Number(r.rating) >= 5 && (r.photos || []).length >= 2 && String(r.text).length >= 200)
-    .forEach((r) => { if (out.indexOf(r) === -1) out.push(r); });
-  // „Zobraziť ďalšie“: všetky ďalšie recenzie s textom (Michal 26. 10. 2026: „máme skoro 90 recenzií na Google“), aj krátke
-  zoznam.filter((r) => r && Number(r.rating) >= 4 && String(r.text || "").trim()).forEach((r) => { if (out.indexOf(r) === -1) out.push(r); });
-  return out;
+  return zoradSpolocne(zoznam, menaVyberu(sek.getAttribute("data-p1v-vyber")), { fetchedAt: fetchedAt() });
 }
 
 function vyberRecenzie(sek, zoznam) {
@@ -244,10 +232,7 @@ function vykresliRecenzie(sek, pas, d, fotky, trh) {
   const hodnotenie = Number(d.place.rating), pocet = Number(d.place.totalReviews);
   const skore = sek.querySelector(".revhead .score"), sub = sek.querySelector(".revhead .sub");
   if (skore && hodnotenie > 0) skore.textContent = cislo1(hodnotenie);
-  if (sub && pocet > 0 && hodnotenie > 0) {
-    const tvar = trh === "cz" ? "recenzí" : pocet === 1 ? "recenzia" : pocet >= 2 && pocet <= 4 ? "recenzie" : "recenzií";
-    sub.textContent = pocet + " " + tvar + " na Google · " + (trh === "cz" ? "hodnocení " : "hodnotenie ") + cislo1(hodnotenie);
-  }
+  if (sub && pocet > 0 && hodnotenie > 0) sub.textContent = riadokPoctu(pocet, hodnotenie, trh);
   const g = sek.querySelector(".revhead .gmark");
   const vsetky = zoradRecenzie(sek, d.reviews);
   const vybrane = vyberRecenzie(sek, d.reviews);
@@ -271,11 +256,6 @@ function vykresliRecenzie(sek, pas, d, fotky, trh) {
     const obal = sek.querySelector(".revwrap") || pas.parentNode;
     obal.appendChild(tl);
   }
-}
-
-/** Adresa náhľadu fotky recenzie: …/assets/img/reviews/rg-N-I.jpg -> …/assets/img/reviews/m/rg-N-I.jpg (iné adresy bez zmeny). */
-export function nahladRecenzie(u) {
-  return String(u).replace(/(\/assets\/img\/reviews\/)(rg-[\w-]+\.jpg)(\?[^#]*)?$/, "$1m/$2");
 }
 
 /** Karta recenzie (article.rev). g = ikona Google z hlavičky (kópia do päty), fotky ako vo vykresliRecenzie. */
@@ -307,26 +287,14 @@ function kartaRecenzie(r, g, fotky, trh) {
   foot.appendChild(prvok("span", "av", iniciala(r.author))).setAttribute("aria-hidden", "true");
   const meta = foot.appendChild(prvok("span", "meta"));
   meta.appendChild(prvok("b", "", String(r.author || "").trim()));
-  meta.appendChild(prvok("i", "", datumRecenzie(r.relativeDate, trh) || (trh === "cz" ? "Ověřený zákazník" : "Overený zákazník")));
+  meta.appendChild(prvok("i", "", datumSpolocny(r, fetchedAt(), trh) || (trh === "cz" ? "Ověřený zákazník" : "Overený zákazník")));
   if (g) { const ik = g.cloneNode(true); ik.removeAttribute("class"); foot.appendChild(ik); }
   return a;
 }
 
-/**
- * „Pred N týždňami“ z Googlu (platí k dňu stiahnutia place.fetchedAt) -> mesiac a rok podľa trhu („máj 2026“ /
- * „květen 2026“). Relatívny text bol po slovensky aj na CZ a s časom prestal sedieť (nočný test živých webov
- * 28. 10. 2026). Nerozpoznaný text -> "" (karta ukáže „Overený zákazník“).
- */
-function datumRecenzie(rel, trh) {
-  const m = /(\d+)\s*týž/i.exec(String(rel || ""));
-  const d = window.LCD_REVIEWS && window.LCD_REVIEWS.place ? Date.parse(window.LCD_REVIEWS.place.fetchedAt) : NaN;
-  if (!m || !(d > 0)) return "";
-  try {
-    return new Intl.DateTimeFormat(trh === "cz" ? "cs-CZ" : "sk-SK", { month: "long", year: "numeric" }).format(new Date(d - Number(m[1]) * 7 * 864e5));
-  } catch (e) {
-    return "";
-  }
-}
+// Dátum karty (datumSpolocny = functions/lcdRecenzie.js datumRecenzie): mesiac a rok podľa trhu („máj 2026“ / „květen 2026“)
+// z dateApprox, inak z „Pred N týždňami“ k place.fetchedAt. Relatívny text bol po slovensky aj na CZ a s časom prestal
+// sedieť (nočný test živých webov 28. 10. 2026). Nedá sa určiť -> "" (karta ukáže „Overený zákazník“).
 
 /**
  * Revízia F1 (rýchlosť 25. 10. 2026): kým dáta recenzií neprídu (reviews-data.js načíta main.js až po data.json),

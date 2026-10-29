@@ -1,5 +1,7 @@
 import { initAutoPamat } from "./functions/autoPamat.js"; // auto zakaznika aj v novej karte kosika a objednavky (9. 10. 2026)
 import { LCD_ZAKLAD } from "./functions/lcdZaklad.js"; // zaklad CDN: priecinok verzie alebo spolocne assets/
+import { nacitajRecenzie, RECENZIE_WV } from "./functions/lcdRecenzieData.js"; // dáta recenzií: spoločný súbor assets/data/, záloha z verzie (29. 10. 2026)
+import { initHpRecenzie } from "./functions/lcdHpRecenzie.js"; // titulka: recenzie z admin HTML oživené aktuálnymi dátami (29. 10. 2026)
 import { optionData } from "./option.js";
 import { intIndex } from "./components/index.js";
 import { initProduct } from "./components/productPage.js";
@@ -9,7 +11,6 @@ import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
 import { initCart } from "./components/cart.js";
 import { initKosikDoplnok } from "./lcdKosikDoplnok.js"; // kosik: rohoz do kufra a box k setu za cenu v sete
-import { RECENZIE_WV } from "./functions/kosikHodnotenie.js"; // verzia reviews-data.js (widget recenzii aj hodnotenie v kosiku)
 import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
 import { initLivePrice } from "./functions/livePrice.js";
@@ -124,6 +125,9 @@ jQuery(document).ready(function ($) {
   initHeader();
 
   intIndex();
+  // Titulka: recenzie sú v HTML z adminu (tools/hp-recenzie.mjs); tu sa len oživia — počet z aktuálnych dát a karty
+  // recenzií novších než HTML na začiatok pásu. Mimo titulky (bez [data-lcd-rec]) nerobí nič.
+  initHpRecenzie();
   initSignpost();
 
   //stickyPhotos();
@@ -792,17 +796,42 @@ function initSignpost() {
   $("section#Model-selecte .model span").text(model);
 }
 
+/** Produkt v novom vzhľade 1V (konfigurator1v/index.js pridá body.lcd-1v pred poBoote). */
+function je1v() {
+  return !!(document.body && document.body.classList.contains("lcd-1v"));
+}
+/** fn až keď sa 1V zloží (body stratí lcd-1v — chyba modulu, návrat na starý vzhľad); sleduje len triedu body. */
+function po1v(fn) {
+  if (!window.MutationObserver || !document.body) return;
+  var mo = new MutationObserver(function () {
+    if (je1v()) return;
+    mo.disconnect();
+    fn();
+  });
+  mo.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+}
+
 function googleReviews(setupData, texts) {
   // Widget recenzii (lcd-reviews) - nahradil stary Google badge.
   // Homepage: za model-selector. Bezny produkt: medzi "10 dovodov" a "%".
   // Box produkt: ako prvy widget. SK/CZ cez data-lang.
   var lang = (($("html").attr("lang") || "").toLowerCase().indexOf("cs") === 0) ? "cz" : "sk";
   var base = LCD_ZAKLAD + "js/";
-  // WV = verzia reviews-data.js + lcd-reviews.js (cache 1 rok) — pri zmene ktoréhokoľvek zvýš v functions/kosikHodnotenie.js
-  // (RECENZIE_WV: tá istá adresa ako hodnotenie v košíku -> súbor z produktu je v košíku už vo vyrovnávacej pamäti).
+  // WV = verzia reviews-data.js + lcd-reviews.js (cache 1 rok) — jediné miesto: functions/lcdRecenzieData.js (preberá ho aj
+  // functions/kosikHodnotenie.js: tá istá adresa ako záloha dát a hodnotenie v košíku -> súbor je vo vyrovnávacej pamäti).
   var WV = RECENZIE_WV;
 
   $("#goggle-review-wrap, .google-reviews").remove();
+
+  // Produkt v novom vzhľade 1V (body.lcd-1v, initKonfigurator1v beží pred poBoote): recenzie ukazuje sekcia „Hodnotenia
+  // priamo z Google“ (obsah-a.js) a riadok „5,0 ★ N recenzií“ (cena.js / kamión) — starý widget by sa postavil do skrytých
+  // záložiek (1 406 prvkov, ~10 fotiek) a sťahoval lcd-reviews.js (37 kB) zbytočne (29. 10. 2026). Len dáta. Keby sa 1V
+  // neskôr zložil (chyba modulu -> starý vzhľad), widget sa postaví ako doteraz.
+  if (je1v()) {
+    nacitajRecenzie();
+    po1v(function () { googleReviews(setupData, texts); });
+    return;
+  }
 
   // Novy dizajn titulky (#lcd-home) ma vlastne recenzie (#revs). Stary widget by
   // sa postavil uz len do skryteho obsahu - 1 406 prvkov a ~96 stiahnutych fotiek,
@@ -860,34 +889,17 @@ function googleReviews(setupData, texts) {
     return false;
   }
 
-  // Dáta recenzií (29. 10. 2026): najprv SPOLOČNÝ súbor assets/data/reviews-data.js — automatika recenzií ho
-  // aktualizuje bez prepínania verzie v admine (production.yml, krok „Recenzie na spoločnú adresu“). CDN aj prehliadač
-  // kešujú 1 rok, preto sa adresa mení každých 6 h (?h=): nové recenzie sú na webe najneskôr do 6 h.
-  // Keď spoločný súbor nepríde alebo je pokazený, záloha = reviews-data.js tejto verzie (stav z času nasadenia).
-  var DATA_SPOLOCNE = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/data/reviews-data.js";
+  // Dáta recenzií (29. 10. 2026): functions/lcdRecenzieData.js — najprv SPOLOČNÝ súbor assets/data/reviews-data.js
+  // (automatika recenzií, bez prepínania verzie v admine), záloha = reviews-data.js tejto verzie. Widget až s dátami.
   function loadScripts() {
     if (window.__lcdReviewsScriptsInjected) return;
     window.__lcdReviewsScriptsInjected = true;
-    var widget = function () {
+    nacitajRecenzie().then(function (d) {
+      if (!d) return;
       var w = document.createElement("script");
       w.src = base + "lcd-reviews.js?v=" + WV;
       document.body.appendChild(w);
-    };
-    var data = function (src, zaloha) {
-      var d = document.createElement("script");
-      d.src = src;
-      d.onload = function () {
-        var p = window.LCD_REVIEWS && window.LCD_REVIEWS.place;
-        if ((p && Number(p.totalReviews) > 0) || !zaloha) widget();
-        else data(zaloha, null);
-      };
-      d.onerror = function () {
-        if (d.parentNode) d.parentNode.removeChild(d);
-        if (zaloha) data(zaloha, null);
-      };
-      document.body.appendChild(d);
-    };
-    data(DATA_SPOLOCNE + "?h=" + Math.floor(Date.now() / 216e5), base + "reviews-data.js?v=" + WV);
+    });
   }
 
   // Skripty recenzii (reviews-data.js + lcd-reviews.js) az ked je widget naozaj
@@ -946,6 +958,12 @@ function lcdVideos() {
   // recenziach: ked novy dizajn nenabehne, stara titulka ho dostane ako doteraz.
   // Volane cez poBoote(), aby #lcd-home uz existoval.
   if ($(".in-index")[0] && document.getElementById("lcd-home")) return;
+
+  // Produkt 1V (29. 10. 2026): widget videí by skončil v skrytých záložkách starého popisu (616: 0 prvkov, ale
+  // lcd-videos.js stiahnutý) — na boxoch sa kotví za starý widget recenzií (na 1V už nie je), inde za .layers-info-wrap
+  // (598 ho na 1V nenašiel) a bez kotvy hľadal miesto donekonečna (MutationObserver na celom body). Keby sa 1V zložil,
+  // postaví sa ako doteraz.
+  if (je1v()) { po1v(lcdVideos); return; }
 
   function placeWidget() {
     if ($(".lcd-videos-widget").length) return true;

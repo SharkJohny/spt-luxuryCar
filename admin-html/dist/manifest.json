@@ -54,10 +54,10 @@
         "pozicia": "Zápätie titulky (Doplnkové bannery)",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 28605,
-      "bajty": 29241,
-      "hash": "d2cf7c0373",
-      "obrazky": 47
+      "znaky": 28197,
+      "bajty": 28780,
+      "hash": "5691e5cbad",
+      "obrazky": 42
     },
     {
       "cast": "hp-telo-1",
@@ -73,10 +73,10 @@
         "pozicia": "Zápätie titulky (Doplnkové bannery) — Shoptet ho vypisuje PRED „Zápatí“ (priorita null), preto nesie 1. kus tela",
         "zobrazit": "PC aj mobil"
       },
-      "znaky": 28708,
-      "bajty": 29426,
-      "hash": "6621ba4b37",
-      "obrazky": 47
+      "znaky": 28136,
+      "bajty": 28738,
+      "hash": "392f07be77",
+      "obrazky": 42
     },
     {
       "cast": "hp-telo-2",

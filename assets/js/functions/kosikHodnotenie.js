@@ -8,9 +8,10 @@
  * miesto je rezervované (visibility:hidden), keď neprídu do 15 s, riadok sa skryje. Nie je odkaz — nič nevedie preč z košíka.
  */
 import { LCD_ZAKLAD } from "./lcdZaklad.js";
+// verzia reviews-data.js + lcd-reviews.js (?v=, cache 1 rok) — jediné miesto je lcdRecenzieData.js (záloha dát 1V/titulky aj widget)
+import { RECENZIE_WV } from "./lcdRecenzieData.js";
 
-/** Verzia reviews-data.js + lcd-reviews.js (cache 1 rok) — main.js googleReviews; pri zmene ktoréhokoľvek zvýš. */
-export const RECENZIE_WV = "10";
+export { RECENZIE_WV };
 export const ZDROJ_RECENZII = LCD_ZAKLAD + "js/reviews-data.js?v=" + RECENZIE_WV;
 
 const TEXTY = {
