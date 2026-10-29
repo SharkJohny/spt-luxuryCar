@@ -1,4 +1,6 @@
-// Denná automatika recenzií Google na Michalovom PC (Plánovač úloh „LCD Recenzie Google“, 8:30 + po prihlásení).
+// Automatika recenzií Google na Michalovom PC (Plánovač úloh „LCD Recenzie Google“, 8:30 + po prihlásení).
+// Michal 29. 10. 2026: stačí raz za 2 týždne – Plánovač spúšťa denne, beh hneď skončí, kým od posledného úspechu
+// neuplynie INTERVAL_DNI (14); po zlyhaní sa skúša každý deň (LCD_RECENZIE_INTERVAL_DNI mení interval).
 // Návod: docs/recenzie-automatika.md
 //
 // Beh (v SAMOSTATNOM klone len pre automatiku, nikdy nie v dev worktree):
@@ -29,6 +31,7 @@ import path from "node:path";
 import {
   nacitajData, odtlacok, povolena, parsujStatus, miestnyDen, zaznamenajNeuspech, zaznamenajUspech, trebaCrmUlohu,
   crmUloha, suhrnUpdate, POVOLENE_CESTY, PRAZDNY_STAV, LIMIT_DNI, zalozUlohuCrm, zahod, vypadnuteAutori, rozhodniVypadnutie,
+  dovodPreskocenia, INTERVAL_DNI,
 } from "./lib.mjs";
 
 // ------------------------------------------------------------------ voľby
@@ -65,6 +68,7 @@ const DATA = "assets/js/reviews-data.js", FRESH = "tools/google-reviews-fresh.js
 const DEN = miestnyDen();
 const DNES = V.dnes || DEN;
 const MAX_LOGOV = 60;
+const INTERVAL = Number(process.env.LCD_RECENZIE_INTERVAL_DNI ?? INTERVAL_DNI); // dní medzi úspešnými behmi
 const CDN_CAKAJ_MIN = Number(process.env.LCD_RECENZIE_CDN_CAKAJ ?? 20); // po pushi čakať na CI (min)
 let PIESKOVISKO = false; // nastaví pripravKlon: LEN lokálny origin (priečinok) + LCD_RECENZIE_TEST_ORIGIN=1 (test-push.mjs)
 
@@ -440,8 +444,9 @@ async function hlavny() {
   if (!zamkni()) { historia(`${DNES} preskočené — beží iný beh (${ZAMOK})`); console.log("Beží iný beh automatiky — končím."); return 0; }
   let stav = nacitajStav();
   try {
-    if (!V.vynut && !SKUSKA && stav.poslednyUspechDen === DNES) {
-      historia(`${DNES} preskočené — dnes už úspešne (${stav.poslednyUspech})`);
+    const preskoc = !V.vynut && !SKUSKA && dovodPreskocenia(stav, DNES, INTERVAL);
+    if (preskoc) {
+      historia(`${DNES} preskočené — ${preskoc}`);
       return 0;
     }
     log(`=== Recenzie Google — automatika ${DNES}${SKUSKA ? " (SKÚŠKA: " + [V.bezPush && "--bez-push", V.simulujChybu && "--simuluj-chybu", V.ref && "--ref " + V.ref, V.dnes && "--dnes " + V.dnes].filter(Boolean).join(" ") + ")" : ""} ===`);

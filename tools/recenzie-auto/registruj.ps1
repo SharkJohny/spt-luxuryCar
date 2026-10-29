@@ -1,4 +1,4 @@
-# Zaregistruje dennu automatiku recenzii Google v Planovaci uloh (uloha "LCD Recenzie Google").
+# Zaregistruje automatiku recenzii Google (Planovac denne, beh realne raz za 14 dni - Michal 29. 10. 2026) v Planovaci uloh (uloha "LCD Recenzie Google").
 # Spustat AZ PO pushi tools/recenzie-auto do main (beh ide z klonu automatiky na origin/main).
 #
 #   powershell -NoProfile -ExecutionPolicy Bypass -File tools\recenzie-auto\registruj.ps1          # pripravi klon + zaregistruje

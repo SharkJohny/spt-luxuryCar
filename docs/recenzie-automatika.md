@@ -1,12 +1,12 @@
-# Recenzie Google: denná automatika
+# Recenzie Google: automatika (raz za 2 týždne)
 
-Nové recenzie z Google profilu sa raz denne samy dostanú na web luxurycardesign.sk a .cz. V admine Shoptetu sa nič neprepína.
+Nové recenzie z Google profilu sa raz za 2 týždne samy dostanú na web luxurycardesign.sk a .cz (Michal 29. 10. 2026: denne netreba). V admine Shoptetu sa nič neprepína.
 
 ## Čo beží
 
 | Čo | Kde |
 |---|---|
-| Úloha v Plánovači úloh | **„LCD Recenzie Google“**. Beží denne o 8:30 a 15 min po prihlásení. Zmeškaný beh dobehne čo najskôr. Spúšťa sa len vtedy, keď je Michal prihlásený, lebo scraper potrebuje Chrome. |
+| Úloha v Plánovači úloh | **„LCD Recenzie Google“**. Plánovač ju spúšťa denne o 8:30 a 15 min po prihlásení, ale beh hneď skončí, kým od posledného úspechu neuplynie 14 dní (INTERVAL_DNI v lib.mjs, premenná LCD_RECENZIE_INTERVAL_DNI). Zmeškaný termín (vypnutý PC) dobehne pri najbližšom spustení, po zlyhaní sa skúša každý deň (CRM úloha pri 3. neúspešnom dni po sebe). Spúšťa sa len vtedy, keď je Michal prihlásený, lebo scraper potrebuje Chrome. |
 | Spúšťač bez okna | `wscript.exe tools\recenzie-auto\spusti-skryto.vbs "C:\Program Files\nodejs\node.exe"` |
 | Skript | `tools/recenzie-auto/beh.mjs` v **samostatnom klone** `C:\Users\M\Desktop\spt-luxuryCar-recenzie-beh`. Klon slúži len pre automatiku: každý beh ho vráti na `origin/main`, preto doň nič nepíš. |
 | Stav a logy (mimo repa) | `C:\Users\M\Documents\LCD-recenzie-auto\`: `stav.json` (počítadlo zlyhaní), `historia.log` (1 riadok na beh), `logy\` (posledných 60 behov a snímky pri chybe), `posledny-scrape.json` |

@@ -3,11 +3,25 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   nacitajData, odtlacok, povolena, parsujStatus, den9, zaznamenajNeuspech, zaznamenajUspech, trebaCrmUlohu, crmUloha,
-  PRAZDNY_STAV, suhrnUpdate, zalozUlohuCrm, vypadnuteAutori, rozhodniVypadnutie, zahod,
+  PRAZDNY_STAV, suhrnUpdate, zalozUlohuCrm, vypadnuteAutori, rozhodniVypadnutie, zahod, dovodPreskocenia, INTERVAL_DNI,
 } from "./lib.mjs";
 
 let ok = 0;
 const t = (nazov, fn) => { try { fn(); ok++; } catch (e) { console.error("CHYBA " + nazov + ": " + e.message); process.exitCode = 1; } };
+
+// --- interval (Michal 29. 10. 2026: stačí raz za 2 týždne; Plánovač spúšťa denne, beh hneď skončí)
+t("interval: predvolene 14 dní", () => assert.equal(INTERVAL_DNI, 14));
+t("interval: bez úspechu = beh", () => assert.equal(dovodPreskocenia({}, "2026-10-30", 14), null));
+t("interval: dnes už úspešne = preskočiť", () => assert.match(dovodPreskocenia({ poslednyUspechDen: "2026-10-30" }, "2026-10-30", 14), /dnes už úspešne/));
+t("interval: 13 dní po úspechu = preskočiť", () => assert.match(dovodPreskocenia({ poslednyUspechDen: "2026-10-29" }, "2026-11-11", 14), /13 dní/));
+t("interval: 14 dní po úspechu = beh", () => assert.equal(dovodPreskocenia({ poslednyUspechDen: "2026-10-29" }, "2026-11-12", 14), null));
+t("interval: zmeškaný termín (20 dní) = beh", () => assert.equal(dovodPreskocenia({ poslednyUspechDen: "2026-10-29" }, "2026-11-18", 14), null));
+t("interval: čakajúce potvrdenie vypadnutej recenzie = beh ďalší deň", () => assert.equal(dovodPreskocenia({ poslednyUspechDen: "2026-10-29", vypadnute: { den: "2026-10-29", autori: ["X"] } }, "2026-10-30", 14), null));
+t("interval: po zlyhaní (úspech starý) sa skúša ďalší deň", () => {
+  let s = zaznamenajUspech({ ...PRAZDNY_STAV }, "2026-10-29", "2026-10-29T08:31:00Z", { stav: "bez-zmeny" });
+  s = zaznamenajNeuspech(s, "2026-11-12", "chyba", "log");
+  assert.equal(dovodPreskocenia(s, "2026-11-13", 14), null);
+});
 
 // --- dáta webu
 const realne = readFileSync(new URL("../../assets/js/reviews-data.js", import.meta.url), "utf8");

@@ -96,6 +96,21 @@ export function zaznamenajUspech(stav, den, kedy, vysledok) {
 }
 
 export const LIMIT_DNI = 3;
+
+/** Michal 29. 10. 2026: stačí raz za 2 týždne. Plánovač spúšťa denne, beh hneď skončí, kým od úspechu neuplynie interval. */
+export const INTERVAL_DNI = 14;
+const dniMedzi = (od, po) => Math.round((Date.parse(po + "T00:00:00Z") - Date.parse(od + "T00:00:00Z")) / 864e5);
+
+/** Dôvod, prečo dnes nebežať, alebo null = bežať. Po zlyhaní ostáva úspech starý, takže sa skúša každý deň (CRM úloha
+ *  pri LIMIT_DNI. dni). Čakajúce potvrdenie vypadnutej recenzie (stav.vypadnute) sa overí hneď ďalší deň. */
+export function dovodPreskocenia(stav, dnes, interval = INTERVAL_DNI) {
+  const posledny = stav && stav.poslednyUspechDen;
+  if (!posledny) return null;
+  if (posledny === dnes) return `dnes už úspešne (${stav.poslednyUspech || posledny})`;
+  if (stav.vypadnute) return null;
+  const dni = dniMedzi(posledny, dnes);
+  return dni < interval ? `posledný úspech pred ${dni} dní (${posledny}), interval ${interval} dní` : null;
+}
 export const crmKluc = (stav) => "recenzie-google-zlyhanie-" + stav.prvyNeuspesnyDen;
 
 /** Kľúč CRM úlohy, ak ju treba založiť (3. neúspešný deň a pre túto sériu ešte nie je), inak null. */
