@@ -452,6 +452,8 @@ const ROZLOZENIE_OKNA = `(function () {
   vz.forEach(function (r, i) { if (i && Math.abs(vz[i - 1].top - r.top) < 1 && vz[i - 1].right > r.left + 0.5) prekryv.push("vzorky " + i + " a " + (i + 1) + " sa prekrývajú"); });
   var nadp = fw.querySelector(":scope > .lcd1v-bx__nadp").getBoundingClientRect(), pop = fw.querySelector(".lcd1v-bx__farba-popis"), rp = pop.getBoundingClientRect();
   var popVid = !pop.hidden && rp.height > 0, jedenRiadok = popVid && Math.abs(nadp.top - rp.top) < 6;
+  // zmestia sa vedľa seba? (nadpis + medzera 12 px + popis v jednom riadku <= šírka farieb); dlhý názov farby ide pod nadpis
+  var zmesti = popVid && nadp.width + 12 + rp.width <= fw.getBoundingClientRect().width + 0.5;
   if (jedenRiadok && nadp.right > rp.left + 0.5) prekryv.push("„Farba boxov“ a „Vybraná farba“ sa prekrývajú");
   if (popVid && (rp.right > ro.right + 0.5 || pop.scrollWidth > pop.clientWidth + 1)) prekryv.push("„Vybraná farba“ preteká okno");
   var pisma = {}, anywhere = [];
@@ -465,7 +467,7 @@ const ROZLOZENIE_OKNA = `(function () {
   return { ih: innerHeight, iw: innerWidth, trieda: o.classList.contains("lcd1v-bx--ios"), oknoVrch: r1(ro.top), oknoSpodok: r1(ro.bottom), vyska: r1(ro.height),
     maxHeight: getComputedStyle(o).maxHeight, posun: o.scrollHeight - o.clientHeight, tlacVrch: r1(rb.top), tlacSpodok: r1(rb.bottom),
     vzorka: vz.length ? r1(vz[0].width) : 0, vzoriekVRiadku: vz.filter(function (r) { return Math.abs(r.top - vz[0].top) < 1; }).length,
-    farba: { popis: popVid, jedenRiadok: jedenRiadok, nadVzorkami: !popVid || (vz.length && rp.bottom <= vz[0].top + 0.5) }, boxy: boxy, pisma: pisma, anywhere: anywhere, prekryv: prekryv };
+    farba: { popis: popVid, jedenRiadok: jedenRiadok, zmesti: zmesti, nadVzorkami: !popVid || (vz.length && rp.bottom <= vz[0].top + 0.5) }, boxy: boxy, pisma: pisma, anywhere: anywhere, prekryv: prekryv };
 })()`;
 /** Vypočítané štýly okna boxov a jeho častí (PC / tablet: porovnanie s 38d0bf8 v okno-vsetko-mobil). */
 const STYLY_VSETKO = ["display", "flexDirection", "flexWrap", "alignItems", "justifyContent", "gridTemplateColumns", "rowGap", "columnGap", "order",

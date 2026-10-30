@@ -532,7 +532,8 @@ const SCENARE = {
    *   - S / M / L / XL = 4 dlaždice v jednom riadku pre každý box; nič nepreteká dlaždicu (scrollWidth ≤ clientWidth,
    *     písmeno, rozmer, cena, štítok, kresba vnútri) a nič sa neprekrýva,
    *   - písmo (PISMO_OKNA): text ≥ 16 px, rozmery a ceny ≥ 15, štítky ≥ 12, tlačidlo ≥ 14; žiadne overflow-wrap: anywhere,
-   *   - vzorky 5 v riadku, ≥ 64 px; „Vybraná farba“ nad vzorkami (od 414 px v jednom riadku s „Farba boxov“),
+   *   - vzorky 5 v riadku, ≥ 64 px; „Vybraná farba“ nad vzorkami, v jednom riadku s „Farba boxov“, keď sa vedľa seba
+   *     zmestia (dlhý názov farby — napr. CZ „Černá kůže, … prošití“ na 414 px — ide pod nadpis),
    *   - „Potvrďte výber boxov“ celé v okne aj na obrazovke (aj keď okno roluje — iPhone SE 375 × 667),
    *   - iPhone, zbalená lišta: vrch okna ≥ 100 px obrazovky (nie nad kapsulou adresy); rozbalená: nie nad vrchom výrezu,
    *   - bez posunu v okne (scrollHeight ≤ clientHeight): iPhone 440 × 956 so zbalenou lištou (náhľad); inde sa posun vypíše,
@@ -605,7 +606,7 @@ const SCENARE = {
               }
               over(m.vzoriekVRiadku === 5 && m.vzorka >= 63.5, `${kde}: vzorky ${m.vzoriekVRiadku} v riadku, ${m.vzorka} px (čakám 5, ≥ 64)`);
               over(m.farba.nadVzorkami, `${kde}: „Vybraná farba“ nie je nad vzorkami`);
-              if (t.sirka >= 414 && m.farba.popis) over(m.farba.jedenRiadok, `${kde}: „Farba boxov“ a „Vybraná farba“ nie sú v jednom riadku`);
+              if (m.farba.zmesti) over(m.farba.jedenRiadok, `${kde}: „Farba boxov“ a „Vybraná farba“ sa zmestia vedľa seba, ale nie sú v jednom riadku`);
               over(m.tlacVrch >= m.oknoVrch - 0.5 && m.tlacSpodok <= m.oknoSpodok + 0.5 && m.tlacVrch >= 0 && m.tlacSpodok <= m.ih + 0.5,
                 `${kde}: „Potvrďte výber boxov“ ${m.tlacVrch}–${m.tlacSpodok} nie je celé v okne ${m.oknoVrch}–${m.oknoSpodok} / výreze 0–${m.ih}`);
               const vrch = +(m.oknoVrch + g.posun).toFixed(1);
