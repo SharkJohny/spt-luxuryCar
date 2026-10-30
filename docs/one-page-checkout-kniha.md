@@ -25,7 +25,7 @@ Značky: ✅ overené (so zdrojom) · 🟡 predpoklad (s dôvodom) · ❓ neover
 > **Rozhodnutia Michala 29. 10. 2026 (popoludnie), podrobne § 10.8:**
 > - **Termín doručenia bez dátumov:** „Doručenie do 21–29 dní“, kamióny 14–25 dní (CZ „Doručení do 21–29 dnů“). Pri vzorkách a poukážke termín nie je (§ 8 otázka 2 → b).
 > - **Právne vety: „použi, čo už máme vo VOP“.** Záloha pri dobierke podľa VOP bod 4.13 (50 %), tovar na mieru podľa VOP bod 6.13, spôsoby platby v záchrane podľa VOP bod 4.5, každá veta s odkazom na obchodné podmienky (§ 8 otázka 3 → a so znením VOP).
-> - **Rýchla platba cez banku (len SK)** ostáva ako riadok s odkazom „Vybrať banku“ (§ 8 otázka 6, doplnok).
+> - **Rýchla platba cez banku (len SK)** ~~ostáva ako riadok s odkazom „Vybrať banku“~~ → od 30. 10. 2026 rádio s výberom banky priamo na finálnej stránke (Michal z iPhonu: odkaz ho poslal na starý krok 1 s čiernym oknom; § 8 otázka 6, § 10.13).
 > - **„Objednať“ stále viditeľné a klik na chýbajúce pole:** lišta dole „Celkom … | Objednať s povinnosťou platby“ (PC: karta nad súhrnom, keď tlačidlo nevidno). Klik pri chýbajúcom alebo zlom poli posunie na prvé také pole, zvýrazní ho červeným a dá doň kurzor; ďalší klik → ďalšie pole (§ 6.4).
 > - Vzhľad („doladiť nášmu e-shopu, kompaktne, menej scrollovania“) Michal ešte vyberá z návrhov; správanie vyššie od neho nezávisí.
 
@@ -376,7 +376,7 @@ Stavy: `nacitavam` → `potvrdene` ↔ `meni-sa` → (`potvrdene` | `chyba`); a 
 | Karta (Shoptet Pay) | 103 | 114 | áno | ❓ funkčnosť brány bez volaní z kroku 1 overí F4 |
 | Google Pay | 109 | 120 | áno | |
 | Apple Pay | 106 | 117 | áno, len keď `window.ApplePaySession?.canMakePayments()` | 🟡 Shoptet ju na telefóne v Chromiu skryl, na PC ukázal. Pravidlo prehliadača je bezpečnejšie než kópia zo servera |
-| Rýchla platba cez banku | 112 | – | riadok s odkazom „Vybrať banku“ (✅ Michal 29. 10.) | potrebuje výber banky (`shoptetPayPisCode`). Predvolená hodnota v požiadavke bola `slovenska_sporitelna_oauth_client_sk`, posielať ju naslepo je zlé. ✅ Pole je vo fixtures mimo formulára Step1Validate (kód dopĺňa widget Shoptet Pay), náš `krok1Model` ho nevidí → OPC pri 112 Step1Validate nikdy nepošle: košík ide na klasický krok 1 (S27), kontrola pred odoslaním na kroku 2 overí len GET krokom 1 (S34) |
+| Rýchla platba cez banku | 112 | – | áno, rádio s výberom banky v OPC (✅ Michal 30. 10., § 10.13; do 30. 10. riadok s odkazom „Vybrať banku“) | potrebuje výber banky (`shoptetPayPisCode`). ✅ Pole je vo formulári kroku 1 až po widgete Shoptet Pay (nie v HTML zo servera), preto ho `krok1Model` nevidí. Od 30. 10. ho dopĺňa OPC: okno výberu banky (`opc/banka.js`, zoznam z `GET /action/ShoptetPayPaymentData/getBankProviderData/`), Step1Validate s kódom hneď za `billingId` = telo formulára kroku 1 (S46). Predvolená banka rovnako ako widget kroku 1 (localStorage `pisBankSelected`, inak `isDefault`, inak prvá), potvrdenie zapíše tie isté kľúče. Záloha bez zoznamu bánk alebo bez podmienok Shoptet Pay: doterajší riadok s odkazom na klasický krok 1 (S27, S34) |
 
 - Žiadna platba sa neskrýva bez súhlasu Michala. Ak niečo v OPC nevieme, zobrazí sa s odkazom na klasický krok.
 - ⛔ Napätie s rozhodnutím „prevod predvolený“. Na SK je prevod len 9,2 % nákupov, karta 27,6 %, dobierka >43 % (Shoptet cez SITA, 4. 6. 2025, https://sita.sk/vofinanciach/platba-na-dobierku-je-slovenskym-specifikom-skoro-polovicu-kupujucich-neodradi-ani-extra-poplatok/). Prevod ostáva predvolený (legálne, bez poplatku), karta a Apple/Google Pay však musia byť rovnako viditeľné hneď pod ním.
@@ -547,6 +547,7 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 | S38 | Neplatný telefón | označený Shoptetom → posun na telefón s jeho textom, nič neodíde; počas overenia → po chybe Shoptetu posun na telefón |
 | S39 | Lišta / karta „Objednať“ | telefón: všetko vyplnené, klik v lište = 1× objednávka; PC set navrchu: karta nad súhrnom, klik → meno, pri tlačidle zmizne |
 | S42 | Zobáčik, fotka, košík v štýle pokladne (§ 10.9, 10.10, 10.12) | zbalené → rozbalené (klik, Enter, medzerník, aria vrátane popisu názvom položky, 44 px, CZ texty); rozbalené = celý názov; karta = PRESNE rozpis z košíka v jeho vzhľade (riadky, farba, hrúbka, písmo; bez obrázkov, guličiek, Počet / Cena, „Niečo nesedí“), zbalený súhrn navrchu s rozpisom aj kariet kamióna, auto pre poznámku (`sessionStorage.model`), pri kamióne `truckOrderSummary` a zhoda s príplatkami položky; fotka 60 × 60 pri správnej položke (kľúč aj s kódom varianty), načítaná, bez posunu; súčty košíka = celkom; košík ?opc=1 v štýle kroku 2, bez ?opc=1 bez zmeny; set, dve položky, kamión, vzorkovník; 360–1920, 1366×657 |
+| S46 | Rýchla platba cez banku v OPC (§ 10.13) | klasický krok 1: okno Shoptet Pay biele, kontrast ≥ 4,5, 6 bánk bez posúvania; VÚB → Potvrdiť → Pokračovať = zachytené telo formulára kroku 1. OPC: ťuk na 112 → okno na tej istej adrese (dialóg, VÚB z localStorage, fokus), Späť = prevod a 0× Step1Validate; Potvrdiť = Step1Validate s telom PRESNE ako formulár kroku 1, súhrn „Rýchla platba cez banku“, podmienky Salt Edge; Zmeniť banku → Tatra = 1× Step1Validate; objednávka 1× so 112 a Tatra v session |
 | S45 | Súhlasy B1 (§ 10.12) | dve biele dlaždice 10 px od seba; povinný (required, nie poradie) zlatý rám 2 px a štítok „Povinné“ (pre čítačku bez textu), miesto preň aj pri opačnom poradí; klik kamkoľvek prepne, zaškrtnuté zelené; chyba = červený rám + text pod dlaždicou; fokus z klávesnice; PC: Tab na súhlas nad kartu „Celkom \| Objednať“ (set 1366×657, kamión 1920×1080, CZ) |
 
 ### 7.7 Prepínač
@@ -606,6 +607,7 @@ Prepínač funguje ako `?novy=1` pri konfigurátore (`konfigurator1v/index.js` `
    - b) Všetky platby priamo v OPC hneď vo v1. Dlhšie a rizikovejšie.
    - c) Rýchlu platbu z ponuky odstrániť. Neodporúčam bez dát o jej využití.
    - ✅ **Rozhodnuté 29. 10. 2026:** riadok ostáva ako odkaz „Vybrať banku“.
+   - ✅ **Zmenené 30. 10. 2026 (Michal z iPhonu, 22:49):** odkaz ho poslal „do toho starého košíka“ a okno Shoptet Pay bolo čierne a nečitateľné. Výber banky je priamo na finálnej stránke (b) len pre rýchlu platbu; kód Shoptetu sa nekopíruje, okno je naše (§ 10.13).
    - Doplnok (revízia 29. 10.): riadok „Rýchla platba cez banku“ na finálnej stránke vedie preč na samostatný krok 1 (výber banky), čo nesedí so zadaním „všetko na jednom mieste“ a v náčrte variantu A nie je. Teraz má namiesto krúžku rádia zlatú šípku a popis „Banku si vyberiete na samostatnej stránke.“ Otázka: **ponechať riadok ako odkaz (odporúčam, kým nie sú dáta o využití), alebo ho z finálnej stránky vynechať** (zákazník by rýchlu platbu videl len na klasickom kroku 1, napr. cez „Zmeniť dopravu alebo platbu“)?
 7. **Živý test len pre Michala (`?opc=1`) – kedy?** (pridané 29. 10. 2026)
    - Čo to je: Michal otvorí košík s `?opc=1`, prejde finálnou stránkou a sám odošle 2–3 objednávky (prevod, dobierka, karta), potom ich zruší v admine (§ 7.8 F4). Pred tým Claude spraví live-read bez odoslania.
@@ -655,12 +657,12 @@ Stav 29. 10. 2026: 1a je Michalovo konečné rozhodnutie (variant A, B zamietnut
   - zmenené HTML kroku 1,
   - Step1Validate 500 alebo bez odpovede 8 s,
   - GET kroku 1 bez odpovede 4 s.
-- Rýchla platba cez banku (SK 112) v session → klasický krok 1, lebo banka sa vyberá len tam (S27).
+- Rýchla platba cez banku (SK 112) v session → Step1Validate s kódom banky (uložená v prehliadači, inak predvolená ako na kroku 1) a rovno krok 2, kde banku vidno a dá sa zmeniť; bez zoznamu bánk klasický krok 1 (S27, od 30. 10. 2026).
 - Lišta krokov už na košíku „Nákupný košík · Objednávka“ (krok Doprava & platba sa skryje), bez `?opc=1` 3 kroky Shoptetu bez zmeny (S36).
 
 **Krok 2 = jednostránková pokladňa**
 - Sekcia „Doprava a platba“ medzi adresou a poznámkou je klon označenia Shoptetu. Rádiá sú mimo `#order-form` (S16).
-- Termín doručenia, poradie platieb, Apple Pay len s `canMakePayments()` (S14), rýchla platba ako riadok s odkazom „Vybrať banku“ (nezvolená: zlatá šípka namiesto krúžku, „Banku si vyberiete na samostatnej stránke.“, S36).
+- Termín doručenia, poradie platieb, Apple Pay len s `canMakePayments()` (S14), rýchla platba ako rádio s výberom banky v okne na tej istej stránke (od 30. 10. 2026, S36, S46; predtým riadok s odkazom „Vybrať banku“).
 - Pri dobierke „+ záloha“ a poučenie (S3).
 - Telefón: zbalený súhrn, lišta „Celkom · K súhrnu“ (posúva, neodosiela), Luxia ustúpi z „Objednať“ (S13).
 - 2 kroky v lište krokov, „Späť do košíka“ / „Zpět do košíku“ vedie do košíka, Späť v prehliadači tiež (S20, S36). Pri štáte „Zmeniť štát“ namiesto „Môžete zmeniť v predchádzajúcom kroku“ (S36).
@@ -681,7 +683,7 @@ Stav 29. 10. 2026: 1a je Michalovo konečné rozhodnutie (variant A, B zamietnut
 5. Zámok proti dvojkliku (5 s po úspešnej validácii Shoptetu) zruší neúspešná validácia. Zahodený klik ukáže „Objednávka sa odosiela…“ (S26).
 6. Spoločná kontrola v každom teste s objednávkou (`objednaj()`): platba v session pri Step2Validate = platba zo súhrnu aj zaškrtnuté rádio pred klikom.
 7. Resync tesne pred odoslaním (živý dôkaz T5b, T6b: Step2Validate nenesie platbu ani košík, berie ich zo session). Po kliku „Objednať“ ide Step1Validate so zobrazenou voľbou a GET krok 1. Voľba aj „Celkom k úhrade“ musia sedieť so súhrnom na stránke, až potom ide natívny submit Shoptetu (práve 1×). Pri nezhode (iné okno zmenilo košík) objednávka neodíde, súhrn a voľba sa prevezmú zo servera a pri tlačidle je „Košík alebo platba sa zmenili v inom okne. Skontrolujte, prosím, súhrn a kliknite znova.“ Bežné odoslanie = 2 požiadavky navyše, v podvrhu do 1 s (🟡 naživo odhad ~0,3 s podľa časov z dôkazu). Druhá karta s inou platbou → objednávka s platbou, ktorú zákazník vidí (S30, S31).
-   - Rýchla platba cez banku (112 vybraná s bankou na klasickom kroku 1): Step1Validate sa NEPOŠLE (niesol by 112 bez `shoptetPayPisCode`; ❓ naživo by Shoptet voľbu odmietol, alebo ju prijal bez banky). Overí sa len GET krokom 1: voľba aj suma. Iná karta s inou platbou → neodíde, hláška (S34). 🟡 Súhrn kroku 2 so 112 je v podvrhu poskladaný zo súhrnu prevodu; zodpovedá živému T11 („Rýchla platba cez banku“, €10).
+   - Rýchla platba cez banku: od 30. 10. 2026 Step1Validate s kódom zobrazenej banky (`shoptetPayPisCode`), ako pri iných platbách; iná karta s inou platbou → objednávka so 112 a bankou, ktorú zákazník vidí (S34). Len v zálohe bez zoznamu bánk (riadok s odkazom) sa Step1Validate nepošle (niesol by 112 bez kódu) a overí sa len GET krokom 1 (S34 c). 🟡 Súhrn kroku 2 so 112 je v podvrhu poskladaný zo súhrnu prevodu; zodpovedá živému T11 („Rýchla platba cez banku“, €10).
    - Keď kontrola zlyhá: dočasná chyba (sieť, limit, 5xx) → „Objednávku sa zatiaľ nepodarilo odoslať. Skúste to, prosím, znova alebo vyberte dopravu a platbu na samostatnej stránke.“ (odkaz na klasický krok 1). Trvalá chyba (odmietnutie servera 303 + errors, ktoré v session zruší krok 1, session alebo košík preč, zmenené HTML) alebo 2. zlyhanie za sebou → záchrana: sekcia preč, „Objednávka neodišla, dopravu a platbu sa nepodarilo overiť. Skontrolujte, prosím, súhrn a kliknite znova alebo …“ s odkazom, ďalší klik ide natívne ako bez OPC (S35). Bočný panel Shoptetu (súhrn, hláška, tlačidlo) posúva na PC inline `top` jeho `fixSidebar`, ktorý pri spodku stránky nič neprepočíta. Keď panel narastie (hláška pri tlačidle) alebo obsah vľavo zmizne (neskorá záchrana), starý posun vytlačí tlačidlo pod koniec obsahu (`overflow:clip`) a zákazník ho nevidí. `srovnajPanel()` preto po zmene výšky hlášky a pri neskorej záchrane spustí prepočet Shoptetu (`contentResized`) a posun obmedzí po spodok obsahu (zistené testami S22 a S35 na 1366; mutácia bez neho → obe zlyhajú).
 8. Zámok pri odoslaní je viditeľný (overené výsledným štýlom, nie triedou, S29): sekcia stlmená (opacity .55) so sivým „Objednávka sa odosiela…“ (telefón: Shoptet posunie stránku k telefónu a tlačidlo je mimo obrazovky), tlačidlo „Odosielam…“ plne zelené. Hláška pri tlačidle (neodišlo, iné okno) je červený box 16 px (S31).
 
@@ -694,7 +696,7 @@ Stav 29. 10. 2026: 1a je Michalovo konečné rozhodnutie (variant A, B zamietnut
 | R1: dobierka a späť v debounce → súhrn ukazuje dobierku a vyššiu sumu | vysoká | súhrn = server alebo posledný potvrdený; lokálny prepočet od toho, čo je na stránke; kontrola zhody pred odoslaním | S21 |
 | R3: druhé `changeDescription` zmaže rozpis kamióna bez `truckOrderSummary` | vysoká | rozpis len nad čerstvým HTML zo servera, vlastný zápis bez pozorovateľa | S24 |
 | R5/R6: visiaci GET kroku 1 zasekne „Pokračovať“ / krok 2 | stredná | `fetchSLimitom` 4 s → dnešný tok / záchrana | S25 |
-| Rýchla platba 112 bez `shoptetPayPisCode` | stredná | 112 v session → klasický krok 1 | S27 |
+| Rýchla platba 112 bez `shoptetPayPisCode` | stredná | 112 v session → klasický krok 1 (od 30. 10. 2026: Step1Validate s kódom banky, § 10.13) | S27 |
 | Riadok „nie je možné odstúpiť“ aj pri boxe | stredná | `naMieru()`: len koberce, rohože, kamióny; pod súhlasmi, nad tlačidlom | jednotky, S8, S18 |
 | Tichý 5 s zámok | nízka | zrušenie pri `ShoptetFailedValidation` + hláška | S26 |
 | `inputmode` pri PL PSČ | nízka | len keď vzor PSČ nemá pomlčku (SK, CZ) | – |
@@ -708,7 +710,7 @@ Druhá revízia (29. 10. 2026 večer, po resyncu a analytike):
 
 | Nález | Závažnosť | Oprava | Test |
 |---|---|---|---|
-| Resync pred odoslaním posielal pri 112 Step1Validate bez `shoptetPayPisCode` | vysoká | pri „pis“ len GET krok 1 (`krok2.js` `jePis`) | S34 |
+| Resync pred odoslaním posielal pri 112 Step1Validate bez `shoptetPayPisCode` | vysoká | pri „pis“ len GET krok 1 (`krok2.js` `jePis`); od 30. 10. 2026 Step1Validate s kódom banky, bez kódu len v zálohe | S34 |
 | Komentáre `//` v `_lcdOpc.scss` zahodili v prehliadači pravidlá: hláška pri tlačidle sivá 15 px, zamknutá sekcia nestlmená | vysoká | `/* */`; test výsledného štýlu, nie triedy | jednotka „CSS OPC“, S29, S31 |
 | Zlyhaná kontrola pred odoslaním: stále „skúste o chvíľu“ bez cesty ďalej | stredná | odkaz na klasický krok 1; trvalá chyba alebo 2. zlyhanie → záchrana; reset posunu bočného panelu | S35 |
 | Košík ukazoval 3 kroky (aj „Doprava & platba“), finálna stránka 2 | stredná | `upravKroky` aj na košíku | S36 |
@@ -1145,6 +1147,34 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 - Snímky celej prvej obrazovky pre Michala: `…/scratchpad/opc/stavba-6/overenie/ux-1/chromium-PRED_B1-sk-set-1366x657.png` a `chromium-HEAD-sk-set-1366x657.png`, porovnanie `…/stavba-6/overenie/porovnanie-sk-set-1366x657-pred-vs-B1.png`.
 
 2) **Štítok „Povinné“ má malý kontrast** (UX-2, N4). Biele písmo 12 px na zlatej #c49b31 = 2,60 : 1, WCAG AA žiada 4,5 : 1 (zelený 5,13 a červený 5,44 sú v poriadku). Kód zodpovedá schválenému náhľadu 3. Možnosti: tmavé písmo `--o-ink` na tej istej zlatej (7,25 : 1) alebo tmavšia zlatá `--o-gold-lo` #8f7020 (4,66 : 1) či `--o-gold-t` #7c5f16 (5,99 : 1). Najprv náhľad staré → nové.
+
+### 10.13 Rýchla platba cez banku priamo v OPC + čitateľné okno Shoptet Pay (30. 10. 2026)
+
+**Zadanie (Michal 30. 10. 22:49, iPhone, Safari, SK):** v novej pokladni klikol na „Rýchla platba cez banku“ a „dalo ma to do toho starého košíka“ – starý krok 1 („Zvoľte spôsob platby“, Apple Pay, Google Pay) a nad ním okno „Vyberte vašu banku“: čierne pozadie, tmavý nadpis, vybraná VÚB biela na svetlom, sivé „Späť“. Chce výber banky priamo v pokladni a normálny vzhľad.
+
+**Príčina – dve samostatné chyby:**
+1. Riadok 112 bol zámerne odkaz na `/objednavka/krok-1/` (rozhodnutie 29. 10., § 8 otázka 6), kde OPC nebeží.
+2. Čierne okno je naše CSS, nie OPC: `assets/css/luxuryCar.scss` „Bender: new rules from DevTools“ `#cboxLoadedContent{background:black;color:white}` (5635a3a, 1. 4. 2026, pôvodne pre okno cookies) farbí každý colorbox Shoptetu. Šablóna Shoptet Pay počíta s bielym oknom. ✅ Týka sa **všetkých zákazníkov SK** na klasickom kroku 1 (OPC je pre zákazníkov vypnuté); CZ rýchlu platbu nemá.
+
+**Oprava:**
+- **Okno Shoptet Pay pre všetkých** (blok `LCD-PLATBA-BANKA`, `assets/css/_lcdPlatbaBanka.scss`, posledný blok za cookies): len pre okno banky (kotva `.pisModal__*`, `:has(.pisModal__bankSelection)`), iné colorboxy bez zmeny. Biele okno, banky ako voľby OPC (zelený rám + fajka), „Potvrdiť výber“ zelené, „Späť“ zlaté, text ≥ 16 px, všetkých 6 bánk bez posúvania (Shoptet mal 180 px a 2 banky schované). Staré pravidlo „Bender“ sa nemení (ďalšie colorboxy treba najprv prejsť – otvorené).
+- **Výber banky v OPC** (`assets/js/opc/banka.js`, `vzhlad.js`, `krok2.js`, `sync.js`, `kosik.js`, `krok1Model.js`):
+  - 112 je rádio ako ostatné platby. Ťuk → naše okno „Vyberte Vašu banku“ na tej istej stránke (dialóg, krajina len pri viac krajinách, Esc / klik vedľa = Späť, fokus v okne). „Späť“ vráti rádio a nič nepošle; „Potvrdiť výber“ → Step1Validate s kódom.
+  - Pod zvolenou 112: logo a banka, „Zmeniť banku“ (iná banka = Step1Validate s novým kódom, `sync.znova()`), podmienky Shoptet Pay (Salt Edge) **prevzaté z HTML kroku 1** (`#template__pisPayment`), nič vymyslené.
+  - Zoznam bánk: `GET /action/ShoptetPayPaymentData/getBankProviderData/` súbežne s krokom 1 (limit 4 s). Predvolená krajina a banka podľa pravidiel widgetu kroku 1 (opísané a napísané nanovo, kód Shoptetu sa nekopíruje, VOP čl. 11.3): uložená mena ≠ mena webu → uložené neplatí; krajina uložená, inak EUR + sk = SK; banka uložená, bez uloženej `isDefault`, inak prvá. Potvrdenie zapíše `pisBankSelected`, `pisCountrySelected`, `pisCurrencySelected` – klasický krok 1 potom ukáže tú istú banku.
+  - Telo Step1Validate: `language=sk&shippingId=96&billingId=112&shoptetPayPisCode=<kód>&gopayPayInstrument=` – ✅ zhodné s telom formulára kroku 1, ktoré v tom istom behu vyrobil `checkout-3g.js` Shoptetu nad fixtures (S46, porovnanie reťazcov).
+  - Kontrola pred odoslaním posiela pri 112 Step1Validate s kódom zobrazenej banky (ako pri ostatných platbách). Košík so 112 v session: Step1Validate s kódom a rovno krok 2.
+  - Záloha: zoznam bánk zlyhá / je prázdny alebo chýbajú podmienky Shoptet Pay → doterajší riadok s odkazom na klasický krok 1 a kontrola bez Step1Validate (S27 c, S34 c).
+  - Telefón: logo Shoptet Pay v riadku skryté (ako pri doterajšom odkaze). Výška karty 390 px: 92 px, zvolená s bankou 258 px; 🟡 na 360 px sa názov vedľa „ZADARMO“ zalomí na 2 riadky (112 px, zvolená 279 px; S41). Bublina Luxie sa pri otvorenom okne skryje (ležala by na „Potvrdiť výber“). „ZADARMO“ pri platbách v riadku má `text-transform:uppercase` (text už bol veľkými, mierka ho ráta ako štítok ≥ 12 px).
+- Testy: jednotky (13 nových: telo, podmienky, zoznam a predvolená banka, uloženie, okno, `sync.znova`), S46 nový, S27 / S34 / S36 / S41 prerobené. Červené pred opravou: jednotky 13×, S46 na 38d0bf8 (okno Shoptet Pay: kontrast nadpisu 1,27, vybranej banky 1,05, „Späť“ 1,14), S27 (košík so 112 skončil na kroku 1).
+- Snímky pred/po (WebKit 390, Chromium 1366, SK aj CZ, bežný tok aj OPC; CZ simulované – CZ rýchlu platbu nemá): `…/scratchpad/opc/platba-bankou/harok-pred-po.png`, skripty `…/platba-bankou/skripty/snimky-banka.mjs`, `harok.py`.
+
+**❓ Overí len skutočná platba (F4, Michal):**
+- Či XHR Step1Validate so `shoptetPayPisCode` vráti naživo 303 + krok 2 rovnako ako formulár kroku 1 (offline zhodné telo, živý Shoptet nevyskúšaný).
+- Či po objednávke Shoptet Pay otvorí **zvolenú** banku (session = posledný Step1Validate; banku z kroku 2 zo servera prečítať nevieme – súhrn ukazuje len „Rýchla platba cez banku“). Michal platbu v banke zruší a objednávku zruší v admine.
+- Či Shoptet pri zmenenej banke (druhý Step1Validate s tou istou platbou) banku v session naozaj prepíše.
+
+**Otvorené:** staré pravidlo `#cboxLoadedContent{background:black}` farbí aj ďalšie colorboxy Shoptetu (prihlásenie, strážny pes, galéria…) – neprechádzané; pruh „VUB | ZMENIŤ“ na klasickom kroku 1 má inline štýl Shoptetu (Arial 12 px) – nemenený.
 
 ---
 
