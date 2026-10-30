@@ -402,6 +402,98 @@ async function stavPoPotvrdeni(t) {
   })()`);
 }
 
+// ------------------------------------------------------------------ okno boxov „všetko na jednu obrazovku“ (variant 2)
+// Michal 30. 10. 2026 schválil náhľad „2 – Všetko na jednu obrazovku“ (iPhone 440 × 956, lišta Safari zbalená): na
+// telefóne „FARBA BOXOV“ a „Vybraná farba: …“ v jednom riadku nad vzorkami, vzorky 5 v riadku, S / M / L / XL ako
+// 4 dlaždice v jednom riadku, na iPhone okno vyššie (max-height 100svh − 2px). Scenár okno-vsetko-mobil.
+/** Telefóny (šírka -> výšky obrazovky): 360 Android (Galaxy), 375 iPhone SE (667) a mini / X (812), 390 iPhone 12–16, 414, 440 Michalov iPhone. */
+export const TELEFONY = { 360: [780], 375: [667, 812], 390: [844], 414: [896], 440: [956] };
+/**
+ * iPhone ako schválený náhľad (nahlad-2/v2-snimaj.mjs, Michalova snímka 30. 10. 2026): nad výrezom je stavový riadok
+ * a zmenšená kapsula adresy = 106 px obrazovky. Zbalená lišta (SAFARI_ROZLOZENIA.hore): výrez = obrazovka − 106,
+ * 100dvh − 100svh = 108, env 34 (SE bez domovského pruhu 0). Rozbalená: výrez = svh, začína 106 + 16 px od vrchu.
+ * Rovnaká hodnota pre všetky iPhony (staršie majú nižší stavový riadok -> model je prísnejší, nie miernejší).
+ */
+export const IPHONE_VRCH = 106;
+/** Android (Chrome): stavový riadok 24 + adresa 56 px nad výrezom, bez spodnej lišty. */
+export const ANDROID_VRCH = 80;
+/**
+ * Rozloženie otvoreného okna boxov (v stránke): okno, tlačidlo, posun, vzorky, riadok farby, dlaždice veľkostí každého
+ * viditeľného boxu (počet, jeden riadok, rozmer na koľko riadkov, čo preteká dlaždicu), najmenšie písmo podľa triedy,
+ * prvky s overflow-wrap: anywhere a prekryvy.
+ */
+const ROZLOZENIE_OKNA = `(function () {
+  var o = document.querySelector(${JSON.stringify(OKNO)}); if (!o) return null;
+  var b = o.querySelector(".lcd1v-bx__ok"), ro = o.getBoundingClientRect(), rb = b.getBoundingClientRect();
+  var r1 = function (x) { return Math.round(x * 10) / 10; };
+  var vid = function (e) { return !!e && e.getBoundingClientRect().width > 0 && getComputedStyle(e).display !== "none"; };
+  var mimo = function (r, q) { return r.left < q.left - 0.5 || r.right > q.right + 0.5 || r.top < q.top - 0.5 || r.bottom > q.bottom + 0.5; };
+  var prekryv = [];
+  var boxy = Array.prototype.filter.call(o.querySelectorAll(".parameter-wrap.lcd1v-bx-velk"), vid).map(function (w) {
+    var d = Array.prototype.filter.call(w.querySelectorAll(".options-wrap .button.option-button"), vid);
+    var rs = d.map(function (x) { return x.getBoundingClientRect(); });
+    var pretek = [];
+    d.forEach(function (x, i) {
+      var rd = rs[i], v = (x.querySelector(".lcd1v-bx__vl") || {}).textContent || i;
+      if (x.scrollWidth > x.clientWidth + 0.5) pretek.push(v + ": scrollWidth " + x.scrollWidth + " > clientWidth " + x.clientWidth);
+      x.querySelectorAll(".lcd1v-bx__vl, .lcd1v-bx__rozmer, .lcd1v-bx__pripl, .lcd1v-bx__topv, svg").forEach(function (e) {
+        var r = e.getBoundingClientRect(), k = e.tagName.toLowerCase() === "svg" ? "kresba" : String(e.className).replace("lcd1v-bx__", "");
+        // štítok „Najčastejšie“ sedí zámerne na hornom okraji dlaždice (top −10 px) — pri ňom len do šírky
+        var q = k === "topv" ? { left: rd.left, right: rd.right, top: r.top, bottom: r.bottom } : rd;
+        if (r.width && mimo(r, q)) pretek.push(v + " " + k + " " + r1(r.left) + "–" + r1(r.right) + " × " + r1(r.top) + "–" + r1(r.bottom) + " mimo dlaždice " + r1(rd.left) + "–" + r1(rd.right) + " × " + r1(rd.top) + "–" + r1(rd.bottom));
+      });
+      if (i && rs[i - 1].right > rd.left + 0.5 && Math.abs(rs[i - 1].top - rd.top) < 1) prekryv.push("dlaždice " + i + " a " + (i + 1) + " sa prekrývajú");
+    });
+    var roz = d.map(function (x) { var e = x.querySelector(".lcd1v-bx__rozmer"); return e ? Math.round(e.getBoundingClientRect().height / parseFloat(getComputedStyle(e).lineHeight)) : 0; });
+    return { kluc: w.getAttribute("data-lcd1v-bx-kluc"), n: d.length, riadok: rs.length > 0 && rs.every(function (r) { return Math.abs(r.top - rs[0].top) < 1; }),
+      w: rs[0] ? r1(rs[0].width) : 0, h: rs[0] ? r1(rs[0].height) : 0, rozmerRiadky: Math.max.apply(null, roz.concat([0])), pretek: pretek };
+  });
+  var fw = o.querySelector(".lcd1v-bx-farby"), vz = Array.prototype.filter.call(fw.querySelectorAll(".options-wrap .button.option-button img"), vid).map(function (e) { return e.getBoundingClientRect(); });
+  vz.forEach(function (r, i) { if (i && Math.abs(vz[i - 1].top - r.top) < 1 && vz[i - 1].right > r.left + 0.5) prekryv.push("vzorky " + i + " a " + (i + 1) + " sa prekrývajú"); });
+  var nadp = fw.querySelector(":scope > .lcd1v-bx__nadp").getBoundingClientRect(), pop = fw.querySelector(".lcd1v-bx__farba-popis"), rp = pop.getBoundingClientRect();
+  var popVid = !pop.hidden && rp.height > 0, jedenRiadok = popVid && Math.abs(nadp.top - rp.top) < 6;
+  if (jedenRiadok && nadp.right > rp.left + 0.5) prekryv.push("„Farba boxov“ a „Vybraná farba“ sa prekrývajú");
+  if (popVid && (rp.right > ro.right + 0.5 || pop.scrollWidth > pop.clientWidth + 1)) prekryv.push("„Vybraná farba“ preteká okno");
+  var pisma = {}, anywhere = [];
+  Array.prototype.forEach.call(o.querySelectorAll("*"), function (e) {
+    var c = getComputedStyle(e);
+    if (c.overflowWrap === "anywhere" || c.wordBreak === "break-all") anywhere.push(String(e.className).slice(0, 40));
+    if (!vid(e) || ![].some.call(e.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); })) return;
+    var k = String(e.className).split(" ")[0].replace("lcd1v-bx__", "") || e.tagName.toLowerCase(), f = parseFloat(c.fontSize);
+    if (!(k in pisma) || f < pisma[k]) pisma[k] = f;
+  });
+  return { ih: innerHeight, iw: innerWidth, trieda: o.classList.contains("lcd1v-bx--ios"), oknoVrch: r1(ro.top), oknoSpodok: r1(ro.bottom), vyska: r1(ro.height),
+    maxHeight: getComputedStyle(o).maxHeight, posun: o.scrollHeight - o.clientHeight, tlacVrch: r1(rb.top), tlacSpodok: r1(rb.bottom),
+    vzorka: vz.length ? r1(vz[0].width) : 0, vzoriekVRiadku: vz.filter(function (r) { return Math.abs(r.top - vz[0].top) < 1; }).length,
+    farba: { popis: popVid, jedenRiadok: jedenRiadok, nadVzorkami: !popVid || (vz.length && rp.bottom <= vz[0].top + 0.5) }, boxy: boxy, pisma: pisma, anywhere: anywhere, prekryv: prekryv };
+})()`;
+/** Vypočítané štýly okna boxov a jeho častí (PC / tablet: porovnanie s 38d0bf8 v okno-vsetko-mobil). */
+const STYLY_VSETKO = ["display", "flexDirection", "flexWrap", "alignItems", "justifyContent", "gridTemplateColumns", "rowGap", "columnGap", "order",
+  "position", "top", "bottom", "width", "height", "maxHeight", "maxWidth", "marginTop", "marginRight", "marginBottom", "marginLeft",
+  "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "borderTopLeftRadius", "borderBottomLeftRadius", "fontSize", "lineHeight", "fontWeight",
+  "letterSpacing", "wordSpacing", "whiteSpace", "textAlign", "textTransform", "overflowWrap"];
+const CASTI_OKNA = { okno: "", hlavicka: ".lcd1v-bx__hd", nadpis: ".lcd1v-bx__nadpis", pod: ".lcd1v-bx__pod", farby: ".lcd1v-bx-farby",
+  farbyNadp: ".lcd1v-bx-farby > .lcd1v-bx__nadp", vzorky: ".lcd1v-bx-farby > .options-wrap", vzorka: ".lcd1v-bx-farby .option-button img",
+  farbaPopis: ".lcd1v-bx__farba-popis", velk: ".lcd1v-bx-velk", velkNadp: ".lcd1v-bx-velk .lcd1v-bx__nadp", dlazdice: ".lcd1v-bx-velk .options-wrap",
+  dlazdica: ".lcd1v-bx-velk .button.option-button", velDlazdice: ".lcd1v-bx__vel", kresba: ".lcd1v-bx__vel > .lcd1v-bxp-sil", pismeno: ".lcd1v-bx__vl",
+  rozmer: ".lcd1v-bx__rozmer", priplatok: ".lcd1v-bx__pripl", stitok: ".lcd1v-bx__topv", pata: ".lcd1v-bx__pata", tlacidlo: ".lcd1v-bx__ok" };
+const STYL_OKNA = `(function () {
+  var o = document.querySelector(${JSON.stringify(OKNO)}); if (!o) return null;
+  var ro = o.getBoundingClientRect(), z = ${JSON.stringify(STYLY_VSETKO)}, casti = ${JSON.stringify(CASTI_OKNA)}, out = {};
+  var r1 = function (x) { return Math.round(x * 10) / 10; };
+  Object.keys(casti).forEach(function (k) {
+    var e = casti[k] ? Array.prototype.find.call(o.querySelectorAll(casti[k]), function (x) { return x.getBoundingClientRect().width > 0; }) : o;
+    if (!e) { out[k] = null; return; }
+    var c = getComputedStyle(e), r = e.getBoundingClientRect(), s = {};
+    z.forEach(function (p) { s[p] = c[p]; });
+    s.rect = [r1(r.left - ro.left), r1(r.top - ro.top), r1(r.width), r1(r.height)];
+    out[k] = s;
+  });
+  out.okno.rect = [r1(ro.left), r1(ro.top), r1(ro.width), r1(ro.height)];
+  out.okno.posun = o.scrollHeight - o.clientHeight;
+  return out;
+})()`;
+
 export const novy = {
   meno: "novy",
 
@@ -567,6 +659,46 @@ export const novy = {
     for (let i = 0; i < 12 && !zavrete; i++) { await pauza(150); zavrete = await oknoZavrete(t); }
     await pauza(400);
     return { pc, ipad, ipadChyba, zavrete, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
+  },
+
+  /**
+   * Okno boxov „všetko na jednu obrazovku“ (scenár okno-vsetko-mobil). Karta počtu -> výber ako jedenTuk -> pre každú
+   * geometriu { meno, vyska (výrez px), model ({ rozdiel, inset } = zbalená lišta Safari, null = bez), posun (px obrazovky
+   * nad výrezom) }: výrez šírky karty, model, okno na začiatok -> rozloženie (ROZLOZENIE_OKNA) + snímka (snimka(meno)
+   * -> cesta alebo nič) -> výrez späť -> „Potvrďte výber boxov“. Telefón aj PC (PC: geometrie [] a styl = vypočítané štýly).
+   * -> { merania: [{ meno, posun, ...rozloženie }], styl (PC), zavrete, stav, hodnoty }
+   */
+  async oknoVsetko(t, { pocet = 2, farba = null, velkost = "M", velkost2, velkosti = null, geometrie = [], snimka = null } = {}) {
+    await otvorOknoKartou(t, pocet);
+    await vyberVOkne(t, { pocet, farba, velkost, velkost2, velkosti });
+    const merania = [];
+    let styl = null;
+    try {
+      for (const g of geometrie) {
+        await t.k.posli("Emulation.setDeviceMetricsOverride", { width: t.sirka, height: g.vyska, deviceScaleFactor: 1, mobile: true });
+        await nastavVyrez(t, g.model || null);
+        await t.ev(`(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); o.scrollTop = 0; return 1; })()`);
+        await pauza(350);
+        const m = await t.ev(ROZLOZENIE_OKNA);
+        if (!m) throw new Error("okno boxov chýba (" + g.meno + ")");
+        if (Math.abs(m.ih - g.vyska) > 1) throw new Error(`výrez ${m.ih} px, model ${g.vyska} px (${g.meno})`);
+        const cesta = snimka ? snimka(g.meno) : null;
+        if (cesta) await t.k.snimka(cesta).catch(() => {});
+        merania.push({ meno: g.meno, posunObrazovky: g.posun || 0, ...m });
+      }
+      if (!t.mobil) styl = await t.ev(STYL_OKNA);
+    } finally {
+      if (geometrie.length) {
+        await t.k.posli("Emulation.setDeviceMetricsOverride", { width: t.sirka, height: t.k.vyska, deviceScaleFactor: 1, mobile: !!t.mobil });
+        await nastavVyrez(t, null).catch(() => {});
+        await pauza(250);
+      }
+    }
+    await t.tukni(OK_BTN, { popis: "Potvrďte výber boxov" });
+    let zavrete = false;
+    for (let i = 0; i < 12 && !zavrete; i++) { await pauza(150); zavrete = await oknoZavrete(t); }
+    await pauza(400);
+    return { merania, styl, zavrete, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
   },
 
   /** Nový vzhľad: kroky 5 a 6 sú viditeľné od začiatku (nevybrané = Nechcem, do košíka „nič“). */

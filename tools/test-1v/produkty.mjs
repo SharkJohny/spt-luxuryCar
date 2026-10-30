@@ -232,8 +232,9 @@ export const PRODUKTY = {
   },
 };
 
-/** Okno boxov na CZ 2403 / 2406 (= SK 598 / 601): poloha na iPhone (variant B, 30. 10. 2026), jedno a dvojité ťuknutie, bez farby. */
-const OKNO_BOXOV = ["okno-poloha-ios", "okno-jeden-tuk", "okno-dvojtuk", "okno-bez-farby"];
+/** Okno boxov na CZ 2403 / 2406 (= SK 598 / 601): poloha na iPhone (variant B, 30. 10. 2026), jedno a dvojité ťuknutie, bez farby,
+ *  všetko na jednu obrazovku (variant 2, 30. 10. 2026). */
+const OKNO_BOXOV = ["okno-poloha-ios", "okno-jeden-tuk", "okno-dvojtuk", "okno-bez-farby", "okno-vsetko-mobil"];
 
 /** CZ profily sú oddelené od SK: ID, URL a mena patria projektu 581408. Základná sada overuje bránu (2403 / 2406 aj okno boxov). */
 export const PRODUKTY_CZ = {
