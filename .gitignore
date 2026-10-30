@@ -30,3 +30,6 @@
 /tools/reviews-dead.json
 # Spoločné dáta recenzií — vyrába ich len CI (tools/reviews-spolocne.mjs), necommitovať
 /assets/data/
+# Fixtures offline testu one page checkoutu: kópie súborov Shoptetu (main-3g.js, checkout-3g.js, HTML krokov s inline
+# skriptami) nesmú byť v repe (VOP Shoptet 07/2026 čl. 11.3). Vyrobiť lokálne podľa tools/test-opc/FIXTURES.md.
+/tools/test-opc/fixtures/

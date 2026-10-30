@@ -11,6 +11,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-HDR    <- _lcdNativeHdr.scss  hlavicka: kreslena #lcd-hdr (prechod) + natívna Shoptet hlavicka + staticke #mega
   LCD-KORENE <- _lcdKorene.scss     staticke korene [data-lcd-cast] v obaloch Shoptetu (bannery, popis stranky)
   LCD-KOSIK  <- _lcdKosik.scss      kosik: ponuka rohoze do kufra a boxu k setu (assets/js/lcdKosikDoplnok.js)
+  LCD-OPC    <- _lcdOpc.scss        one page checkout na kroku 2 (assets/js/opc/), len html.lcd-opc* (tajny odkaz ?opc=<KOD>)
   LCD-KONTAKTY <- _lcdKontakty.scss  stranka Kontakty SK 29 (#lcd-kontakt v popise stranky, admin-html/src/kontakty.sk.html)
   LCD-1V-KROKY      <- _lcd1v-kroky.scss       novy konfigurator 1V: kroky 1-3 (vzor, auto, farba)  } vsetko LEN pod body.lcd-1v
   LCD-1V-ROZLOZENIE <- _lcd1v-rozlozenie.scss  novy konfigurator 1V: krok 4 rozlozenie              } (tichy test ?novy=1,
@@ -63,6 +64,10 @@ BLOKY = [
          popis="staticke korene [data-lcd-cast] v obaloch Shoptetu"),
     dict(meno="LCD-KOSIK", zdroj="_lcdKosik.scss", home=False, h1=False,
          popis="kosik: ponuka rohoze a boxu k setu, #lcd-doplnok"),
+    # One page checkout (kniha OPC 28. 10. 2026): krok 2 Shoptetu ako jednostrankova pokladna — vsetko pod html.lcd-opc*
+    # (assets/js/opc/krok2.js, kosik html.lcd-opc-kosik) — kazdy selektor (test-opc-jednotky „CSS“); bez flagu / SPUSTENE nic nevyberie. Za kosikom (lista .lcd-lista).
+    dict(meno="LCD-OPC", zdroj="_lcdOpc.scss", home=False, h1=False,
+         popis="one page checkout: sekcia Doprava a platba na kroku 2, zbaleny suhrn, lista; len html.lcd-opc"),
     # Stranka Kontakty SK 29 (25. 10. 2026): obsah v popise stranky (#lcd-kontakt), vsetko pod #lcd-kontakt okrem skrytia
     # nadpisu clanku Shoptetu a medzery nad patickou (len body.in-kontakty s novym obsahom); za kosikom, cookies ostava posledny
     dict(meno="LCD-KONTAKTY", zdroj="_lcdKontakty.scss", home=False, h1=False,

@@ -653,6 +653,15 @@ export function zaznamZivy(z, teraz) {
   return !!(z && BEZI[z.faza] && !z.opustene && teraz - (z.hb || z.t || 0) < HB_ZIVY);
 }
 
+/** Beží teraz výmena doplnku (v tejto karte alebo v inej)? One page checkout (opc/krok2.js, kniha OPC § 6.9) počas nej
+ *  zadrží „Objednať“, aby objednávka neodišla uprostred výmeny riadkov košíka. */
+export function vymenaBezi() {
+  try {
+    if (document.documentElement.classList.contains("lcd-dop-bezi")) return true;
+    return zaznamZivy(zaznamCitaj(), Date.now());
+  } catch (e) { return false; }
+}
+
 /**
  * Rozbehnutá výmena z predchádzajúcej stránky (záznam) vs. aktuálny košík -> čo spraviť:
  *   nic      add sa neodoslal / nič nepribudlo (a už nie je na ceste)

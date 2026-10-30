@@ -73,7 +73,7 @@ export function initCart(texts) {
 /** Dobierka: drobné svetlosivé „+ záloha“ pod názvom platby — vidno až po výbere dobierky (CSS :checked v _lcdKosik.scss);
  *  názov platby v Shoptete sa nemení, do objednávky ide len „Dobierka“ (Michal 26. 10. 2026: nemá zákazníka odradiť).
  *  Shoptet zoznam platieb prekresľuje (zmena dopravy) -> MutationObserver doplní znova. SK aj CZ („+ záloha“). */
-function lcdDobierkaZaloha() {
+export function lcdDobierkaZaloha() {
   const SEL = 'input[data-payment-type="cashOnDelivery"]';
   const prva = document.querySelector(SEL);
   if (!prva) return;
@@ -129,13 +129,16 @@ function lcdVlozRozpis(zdroje, riadky) {
 }
 
 /* Bublina chatu Luxia (76 × 76 vpravo dole) ležala na „Pokračovať“ (Michal, iPhone 9. 10. 2026): kým by ho prekryla,
-   ustúpi; otvorený chat (vyšší ako bublina) sa neskrýva nikdy. */
-function lcdBublinaMimoTlacidla() {
+   ustúpi; otvorený chat (vyšší ako bublina) sa neskrýva nikdy. One page checkout (opc/krok2.js) ju volá aj na kroku 2
+   a dáva `dalsie` = selektor ďalších prvkov, z ktorých ustúpi („Objednať“ #submit-order, lišta, polia; kniha OPC § 5) —
+   bez OPC (bez `dalsie`) presne ako predtým. */
+export function lcdBublinaMimoTlacidla(dalsie) {
   const H = document.documentElement;
+  // „Pokračovať“ aj tlačidlá ponuky k setu („Pridať do setu“ / „Vybrať veľkosť“ sú na mobile vpravo pod bublinou)
+  const sel = "#continue-order-button, #lcd-doplnok .lcd-dop__pridat, #lcd-doplnok .lcd-dop__vybrat" + (dalsie ? ", " + dalsie : "");
   const krok = function () {
     const f = document.querySelector('iframe[title="Luxia chat"]');
-    // „Pokračovať“ aj tlačidlá ponuky k setu („Pridať do setu“ / „Vybrať veľkosť“ sú na mobile vpravo pod bublinou)
-    const tl = document.querySelectorAll("#continue-order-button, #lcd-doplnok .lcd-dop__pridat, #lcd-doplnok .lcd-dop__vybrat");
+    const tl = document.querySelectorAll(sel);
     let skry = false, bublina = false;
     if (f) {
       const x = f.getBoundingClientRect();
@@ -164,7 +167,8 @@ function lcdBublinaMimoTlacidla() {
   krok();
 }
 
-function changeDescription() {
+/* Rozpis položiek košíka a súhrnu; one page checkout (opc/krok2.js) ho volá znova po obnove súhrnu (#summary-box). */
+export function changeDescription() {
   const getBrand = sessionStorage.getItem("Brand");
   const getModel = sessionStorage.getItem("Model");
   const getYear = sessionStorage.getItem("Year");

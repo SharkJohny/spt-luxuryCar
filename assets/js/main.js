@@ -18,6 +18,7 @@ import { initKonfigurator1v } from "./components/konfigurator1v/index.js"; // no
 import { initCookies1v } from "./components/konfigurator1v/cookies.js"; // cookie lista v style C pre vsetkych: bublina Luxie + odkaz v pate (docs/1v-kontrakt.md §14)
 import { initAnimMimo } from "./functions/lcdAnimMimo.js"; // nekonečné animácie mimo obrazovky pozastavené (25. 10. 2026)
 import { initContactForm } from "./components/contactForm.js";
+import { initOpc } from "./opc/index.js"; // one page checkout: kosik -> rovno krok 2 (len po tajnom odkaze ?opc=<KOD>, kniha OPC 28. 10. 2026; bez flagu nic)
 import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from "./functions/autoVyber.js";
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
 import "./configurator-enhance.js"; // Konfigurátor — best-seller badge na možnostiach
@@ -104,6 +105,9 @@ $.getJSON(optionData.downloadData, function (data) {
   initConfiguratorEngine();
   initLivePrice();
   initCart(texts);
+  // One page checkout (opc/index.js): bez tajného odkazu (?opc=<KOD>) / SPUSTENE a pri data.json "opc": false sa hneď vráti a nič nerobí.
+  // Až po initKosikDoplnok (lišta košíka, zámok výmeny) a initCart.
+  initOpc(setupData);
   $(".config-wrap .parameter-wrap:eq(1)").addClass("noText");
   $(".config-wrap .parameter-wrap:eq(2)").addClass("noText");
 
