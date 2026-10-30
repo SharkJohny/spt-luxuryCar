@@ -270,11 +270,14 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   // PC (od 1025 px) beží na celom webe plynulé rolovanie Lenis (lcdHome.js) a koliesko myši posielalo celej stránke —
   // okno sa nedalo rolovať a „Potvrďte výber boxov“ ostalo pod okrajom (Michal 22. 10. 2026). Okno roluje samo.
   atribut(vyber, "data-lenis-prevent", "");
-  // iPhone / iPad (všetky prehliadače na iOS sú Safari WebKit; iPadOS sa hlási ako Mac s dotykom): CSS drží „Potvrďte
-  // výber boxov“ nad pásom zbalenej spodnej lišty Safari (_lcd1v-kufor-boxy.scss, .lcd1v-bx--ios). Príčina „treba ťuknúť
-  // 2×“ (Michal 26. a 29. 10. 2026): zákazník je pri kroku 7 dole na dlhej stránke, Safari má spodnú lištu zbalenú a pás
-  // pri spodku obrazovky patrí jej — prvé ťuknutie do tlačidla (stred 48 px nad spodkom) stránka vôbec nedostala, len
-  // rozbalilo lištu; okno sa s lištou posunulo hore a až druhé ťuknutie trafilo tlačidlo. Test: okno-jeden-tuk.
+  // iPhone / iPad (všetky prehliadače na iOS sú Safari WebKit; iPadOS sa hlási ako Mac s dotykom): pri zbalenej spodnej
+  // lište Safari končí okno nad lištou (_lcd1v-kufor-boxy.scss, .lcd1v-bx--ios, variant B — Michal 30. 10. 2026), pod
+  // „Potvrďte výber boxov“ je 20 px bielej a pod oknom stmavená stránka. Príčina „treba ťuknúť 2×“ (Michal 26. a 29. 10.
+  // 2026): zákazník je pri kroku 7 dole na dlhej stránke, Safari má spodnú lištu zbalenú a pás pri spodku obrazovky patrí
+  // jej — prvé ťuknutie do tlačidla (stred 48 px nad spodkom) stránka vôbec nedostala, len rozbalilo lištu. e2ea795 to
+  // riešil vyššou pätou, ale pripočítal aj env(safe-area-inset-bottom): snímka 30. 10. = 162 px bielej pod tlačidlom
+  // (20 + env 34 + 108; 108 = 92 lišta dole + 16 adresa hore, env sa k tomu nesmie sčítať). Test: okno-poloha-ios,
+  // okno-jeden-tuk.
   const uaIos = navigator.userAgent || "";
   if (/\biP(hone|ad|od)\b/.test(uaIos) || (/\bMacintosh\b/.test(uaIos) && navigator.maxTouchPoints > 1)) trieda(vyber, "lcd1v-bx--ios");
 
@@ -587,8 +590,15 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
     naplanuj();
   }
   xBtn.addEventListener("click", zavriOkno);
-  // pozadie chytá ťuknutia ešte 0,8 s po zatvorení (CSS, dvojťuknutie na „Potvrďte“) — vtedy zavriOkno nerobí nič
-  pozadie.addEventListener("click", zavriOkno);
+  // pozadie chytá ťuknutia ešte 0,8 s po zatvorení (CSS, dvojťuknutie na „Potvrďte“) — vtedy zavriOkno nerobí nič.
+  // iPhone (variant B, Michal 30. 10. 2026): okno je spodný panel (do 720 px) a pri zbalenej lište Safari končí nad ňou;
+  // ťuknutie pod spodný okraj okna ho NEZAVRIE — v tom páse môže byť lišta Safari a zákazník tam mieril na „Potvrďte“,
+  // nie preč (zavretie by zrušilo nový výber). Nad oknom, krížik, Esc, PC, Android a iPad nad 720 px ako doteraz.
+  const panelIos = window.matchMedia ? window.matchMedia("(max-width: 720px)") : null;
+  pozadie.addEventListener("click", function (e) {
+    if (e && panelIos && panelIos.matches && vyber.classList.contains("lcd1v-bx--ios") && e.clientY >= vyber.getBoundingClientRect().bottom - 1) return;
+    zavriOkno();
+  });
   /**
    * Validácia boxov (configuratorEngine: lcd-needs-fill + posun) posúva len stránku, nie okno boxov, ktoré roluje samo —
    * chýbajúca farba ostala nad okrajom okna (Michal 26. 10. 2026: „verifikácia ma nevyscroluje na farbu“). Okno sa posunie
@@ -612,7 +622,8 @@ function postav(ctx, { kufor, boxy, vyber }, vytvorene) {
   // Krátke ťuknutie bez posunu prsta potvrdí priamo na touchend (6197fc5, 26. 10. 2026: Safari po ťuknutí počas dobehu
   // rolovania okna niekedy nepošle click); preventDefault zruší syntetický click (žiadne dvojité potvrdenie ani „duch“ na
   // prvku pod zavretým oknom). Myš, klávesnica a čítačky obrazovky idú cez click ako doteraz. Samotné „treba ťuknúť 2×“
-  // na iPhone nebolo v stránke (ťuknutie sem neprišlo) — zbalená lišta Safari, pozri lcd1v-bx--ios vyššie.
+  // na iPhone nebolo v stránke (ťuknutie sem neprišlo) — zbalená lišta Safari; okno preto na iPhone končí nad ňou
+  // (lcd1v-bx--ios vyššie, variant B 30. 10. 2026).
   let dotyk = null;
   okBtn.addEventListener("touchstart", function (e) {
     const t = e.touches && e.touches[0];

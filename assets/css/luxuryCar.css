@@ -16790,12 +16790,30 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata .lcd1v-bx__ok {
     margin: 8px -18px 0;
     padding: 12px 18px calc(20px + env(safe-area-inset-bottom, 0px));
   }
-  /* iPhone (trieda z kufor-boxy.js): pri zbalenej spodnej lište Safari patrí pás pri spodku obrazovky lište — ťuknutie
-     doň stránka nedostane, len sa rozbalí lišta (Michal 29. 10. 2026: „musí dvakrát kliknúť na to zelené tlačidlo“).
-     Tlačidlo ostane tam, kde je pri rozbalenej lište: vyššie o 100dvh − 100svh (o toľko zbalená lišta zväčšila výrez;
-     rozbalená = 0, nič sa nemení). iOS bez dvh/svh (pred 15.4) nechá riadok vyššie. */
-  body.lcd-1v .upsale-Banner.lcd1v-kb .box-config.lcd1v-bx--ios .lcd1v-bx__pata {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + 100dvh - 100svh);
+  /* iPhone (trieda lcd1v-bx--ios z kufor-boxy.js), variant B — Michal ho vybral 30. 10. 2026 podľa náhľadu: pri ZBALENEJ
+     spodnej lište Safari okno končí nad lištou, pod ním je stmavená stránka a pod „Potvrďte výber boxov“ je len 20 px
+     bielej. Pás pri spodku obrazovky patrí zbalenej lište — ťuknutie doň stránka nedostane, lišta sa len rozbalí (Michal
+     29. 10.: „musí dvakrát kliknúť na to zelené tlačidlo“). e2ea795 preto zdvihol tlačidlo paddingom päty o 100dvh − 100svh,
+     no pripočítal aj env(safe-area-inset-bottom): snímka 30. 10. (zbalená lišta, rozloženie Hore, 440 × 956) = 162 px
+     bielej pod tlačidlom = 20 + env 34 + 108. Snímka 29. 10. (rozbalená lišta): spodok okna = spodok výrezu, päta 20 px.
+     108 = 92 dole (lišta) + 16 hore (zmenšená adresa); env 34 sa k tomu NESMIE sčítať — pod oknom je vtedy stránka,
+     nie domovský pruh.
+     Teraz sa zdvihne celé okno o 100dvh − 100svh (spodok = vrch zbalenej lišty), max. výška 100svh − 12dvh drží vrch okna
+     tam, kde bol (88dvh od spodku výrezu); dolné rohy zaoblené najviac o toľko, koľko je pod oknom miesta (rozbalená
+     lišta: 0 ako doteraz); päta = 20 px + len tá časť env, ktorú zdvih nepokryl (zbalená lišta: 0). Rozbalená lišta:
+     100dvh − 100svh = 0 -> presne ako 29. 10. iOS bez dvh/svh (pred 15.4) ostáva po starom: blok sa neuplatní a platí
+     päta vyššie (20 px + env), tak ako pri e2ea795, ktorého calc() s dvh/svh tam bol neplatný. Mimo iOS a nad 720 px sa
+     nemení nič. Ťuknutie pod spodok okna okno nezavrie (kufor-boxy.js, pozadie). Test: okno-poloha-ios, okno-jeden-tuk,
+     okno-dvojtuk (tools/test-1v/scenare-jedno.mjs). */
+  @supports (height: 100svh) {
+    body.lcd-1v .upsale-Banner.lcd1v-kb .box-config.lcd1v-bx--ios {
+      bottom: calc(100dvh - 100svh) !important;
+      max-height: calc(100svh - 12dvh);
+      border-radius: 20px 20px min(20px, calc(100dvh - 100svh)) min(20px, calc(100dvh - 100svh)) !important;
+    }
+    body.lcd-1v .upsale-Banner.lcd1v-kb .box-config.lcd1v-bx--ios .lcd1v-bx__pata {
+      padding-bottom: calc(20px + max(0px, env(safe-area-inset-bottom, 0px) - (100dvh - 100svh)));
+    }
   }
 }
 @media (prefers-reduced-motion: reduce) {
