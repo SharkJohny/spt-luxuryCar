@@ -42,7 +42,7 @@ const REF_ULOZ = process.env.LCD_OKNO_REF_ULOZ === "1";
  * a preto aj vrch okna. Spodok okna, tlačidlo a päta zdola ostávajú = 909cc67 / variant B. Nové rozloženie stráži
  * okno-vsetko-mobil.
  */
-const VARIANT2_TELEFON = ["okno.paddingTop", "okno.paddingRight", "okno.paddingLeft", "okno.maxHeight", "pata.marginRight", "pata.marginLeft",
+const VARIANT2_TELEFON = ["okno.top", "okno.paddingTop", "okno.paddingRight", "okno.paddingLeft", "okno.maxHeight", "pata.marginRight", "pata.marginLeft",
   "pata.paddingRight", "pata.paddingLeft", "rect.oknoVrch"];
 /** Zapíše (REF_ULOZ) alebo porovná polohu s referenciou -> "" alebo popis rozdielu. Synchrónne = bez pretekov v behu. */
 function refOkna(kluc, p, ignoruj = []) {
