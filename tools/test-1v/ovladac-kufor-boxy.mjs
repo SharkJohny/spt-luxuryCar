@@ -413,8 +413,16 @@ async function stavPoPotvrdeni(t) {
 // Michal 30. 10. 2026 schválil náhľad „2 – Všetko na jednu obrazovku“ (iPhone 440 × 956, lišta Safari zbalená): na
 // telefóne „FARBA BOXOV“ a „Vybraná farba: …“ v jednom riadku nad vzorkami, vzorky 5 v riadku, S / M / L / XL ako
 // 4 dlaždice v jednom riadku, na iPhone okno vyššie (max-height 100svh − 2px). Scenár okno-vsetko-mobil.
-/** Telefóny (šírka -> výšky obrazovky): 360 Android (Galaxy), 375 iPhone SE (667) a mini / X (812), 390 iPhone 12–16, 414, 440 Michalov iPhone. */
-export const TELEFONY = { 360: [780], 375: [667, 812], 390: [844], 414: [896], 440: [956] };
+/**
+ * Telefóny (šírka -> výšky obrazovky): 360 Android (Galaxy), 375 iPhone SE (667) a mini / X (812), 390 iPhone 12–16,
+ * 412 Android (Pixel, Galaxy S plus / Ultra — najčastejšia šírka Androidu), 414, 428 iPhone Plus / Pro Max, 440 Michalov
+ * iPhone; okolo 412 aj 405 / 409 / 420 (hranice štítku a rozmeru v dlaždici, revízia 30. 10. 2026: N2). Nad 440 px
+ * (N3): 480, 600 (7" tablet), 667 (iPhone SE na šírku, NA_SIRKU).
+ */
+export const TELEFONY = { 360: [780], 375: [667, 812], 390: [844], 405: [900], 409: [900], 412: [915], 414: [896], 420: [900], 428: [926], 440: [956],
+  480: [900], 600: [960], 667: [375] };
+/** Na šírku (šírka -> px obrazovky nad výrezom na iPhone): Safari bez stavového riadka a bez spodnej lišty, nad výrezom len lišta adresy. */
+export const NA_SIRKU = { 667: 50 };
 /**
  * iPhone ako schválený náhľad (nahlad-2/v2-snimaj.mjs, Michalova snímka 30. 10. 2026): nad výrezom je stavový riadok
  * a zmenšená kapsula adresy = 106 px obrazovky. Zbalená lišta (SAFARI_ROZLOZENIA.hore): výrez = obrazovka − 106,
@@ -436,10 +444,14 @@ const ROZLOZENIE_OKNA = `(function () {
   var vid = function (e) { return !!e && e.getBoundingClientRect().width > 0 && getComputedStyle(e).display !== "none"; };
   var mimo = function (r, q) { return r.left < q.left - 0.5 || r.right > q.right + 0.5 || r.top < q.top - 0.5 || r.bottom > q.bottom + 0.5; };
   var prekryv = [];
+  // text dlaždice (písmeno, rozmer, cena) a štítok „Najčastejšie“ najmenej ODSTUP px od vonkajšieho okraja dlaždice
+  // (rám 1 px + aspoň 1 px vzduchu; revízia 30. 10. 2026: na 412 px sa rozmer dotýkal rámu a štítok bol širší ako dlaždica)
+  var ODSTUP = 2;
+  var riadkyTextu = function (e) { var g = document.createRange(); g.selectNodeContents(e); return Array.prototype.filter.call(g.getClientRects(), function (q) { return q.width > 0; }); };
   var boxy = Array.prototype.filter.call(o.querySelectorAll(".parameter-wrap.lcd1v-bx-velk"), vid).map(function (w) {
     var d = Array.prototype.filter.call(w.querySelectorAll(".options-wrap .button.option-button"), vid);
     var rs = d.map(function (x) { return x.getBoundingClientRect(); });
-    var pretek = [];
+    var pretek = [], okraj = { text: 1e9, stitok: 1e9 };
     d.forEach(function (x, i) {
       var rd = rs[i], v = (x.querySelector(".lcd1v-bx__vl") || {}).textContent || i;
       if (x.scrollWidth > x.clientWidth + 0.5) pretek.push(v + ": scrollWidth " + x.scrollWidth + " > clientWidth " + x.clientWidth);
@@ -448,15 +460,27 @@ const ROZLOZENIE_OKNA = `(function () {
         // štítok „Najčastejšie“ sedí zámerne na hornom okraji dlaždice (top −10 px) — pri ňom len do šírky
         var q = k === "topv" ? { left: rd.left, right: rd.right, top: r.top, bottom: r.bottom } : rd;
         if (r.width && mimo(r, q)) pretek.push(v + " " + k + " " + r1(r.left) + "–" + r1(r.right) + " × " + r1(r.top) + "–" + r1(r.bottom) + " mimo dlaždice " + r1(rd.left) + "–" + r1(rd.right) + " × " + r1(rd.top) + "–" + r1(rd.bottom));
+        if (!r.width || k === "kresba") return;
+        (k === "topv" ? [r] : riadkyTextu(e)).forEach(function (q) {
+          var m = Math.min(q.left - rd.left, rd.right - q.right), druh = k === "topv" ? "stitok" : "text";
+          okraj[druh] = Math.min(okraj[druh], m);
+          if (m < ODSTUP - 0.05) pretek.push(v + " " + k + (k === "topv" ? "" : " (text)") + " " + r1(q.left) + "–" + r1(q.right) + " pri ráme dlaždice " + r1(rd.left) + "–" + r1(rd.right) + " (odstup " + r1(m) + " px, min. " + ODSTUP + ")");
+        });
       });
       if (i && rs[i - 1].right > rd.left + 0.5 && Math.abs(rs[i - 1].top - rd.top) < 1) prekryv.push("dlaždice " + i + " a " + (i + 1) + " sa prekrývajú");
     });
     var roz = d.map(function (x) { var e = x.querySelector(".lcd1v-bx__rozmer"); return e ? Math.round(e.getBoundingClientRect().height / parseFloat(getComputedStyle(e).lineHeight)) : 0; });
     return { kluc: w.getAttribute("data-lcd1v-bx-kluc"), n: d.length, riadok: rs.length > 0 && rs.every(function (r) { return Math.abs(r.top - rs[0].top) < 1; }),
-      w: rs[0] ? r1(rs[0].width) : 0, h: rs[0] ? r1(rs[0].height) : 0, rozmerRiadky: Math.max.apply(null, roz.concat([0])), pretek: pretek };
+      w: rs[0] ? r1(rs[0].width) : 0, h: rs[0] ? r1(rs[0].height) : 0, rozmerRiadky: Math.max.apply(null, roz.concat([0])), pretek: pretek,
+      okrajTextu: okraj.text < 1e9 ? r1(okraj.text) : null, okrajStitku: okraj.stitok < 1e9 ? r1(okraj.stitok) : null };
   });
   var fw = o.querySelector(".lcd1v-bx-farby"), vz = Array.prototype.filter.call(fw.querySelectorAll(".options-wrap .button.option-button img"), vid).map(function (e) { return e.getBoundingClientRect(); });
-  vz.forEach(function (r, i) { if (i && Math.abs(vz[i - 1].top - r.top) < 1 && vz[i - 1].right > r.left + 0.5) prekryv.push("vzorky " + i + " a " + (i + 1) + " sa prekrývajú"); });
+  var medzeraVzoriek = 0;
+  vz.forEach(function (r, i) {
+    if (!i || Math.abs(vz[i - 1].top - r.top) >= 1) return;
+    if (vz[i - 1].right > r.left + 0.5) prekryv.push("vzorky " + i + " a " + (i + 1) + " sa prekrývajú");
+    medzeraVzoriek = Math.max(medzeraVzoriek, r.left - vz[i - 1].right);
+  });
   var nadp = fw.querySelector(":scope > .lcd1v-bx__nadp").getBoundingClientRect(), pop = fw.querySelector(".lcd1v-bx__farba-popis"), rp = pop.getBoundingClientRect();
   var popVid = !pop.hidden && rp.height > 0, jedenRiadok = popVid && Math.abs(nadp.top - rp.top) < 6;
   // zmestia sa vedľa seba? (nadpis + medzera 12 px + popis v jednom riadku <= šírka farieb); dlhý názov farby ide pod nadpis
@@ -473,7 +497,7 @@ const ROZLOZENIE_OKNA = `(function () {
   });
   return { ih: innerHeight, iw: innerWidth, trieda: o.classList.contains("lcd1v-bx--ios"), oknoVrch: r1(ro.top), oknoSpodok: r1(ro.bottom), vyska: r1(ro.height),
     maxHeight: getComputedStyle(o).maxHeight, posun: o.scrollHeight - o.clientHeight, tlacVrch: r1(rb.top), tlacSpodok: r1(rb.bottom),
-    vzorka: vz.length ? r1(vz[0].width) : 0, vzoriekVRiadku: vz.filter(function (r) { return Math.abs(r.top - vz[0].top) < 1; }).length,
+    vzorka: vz.length ? r1(vz[0].width) : 0, medzeraVzoriek: r1(medzeraVzoriek), vzoriekVRiadku: vz.filter(function (r) { return Math.abs(r.top - vz[0].top) < 1; }).length,
     farba: { popis: popVid, jedenRiadok: jedenRiadok, zmesti: zmesti, nadVzorkami: !popVid || (vz.length && rp.bottom <= vz[0].top + 0.5) }, boxy: boxy, pisma: pisma, anywhere: anywhere, prekryv: prekryv };
 })()`;
 /** Vypočítané štýly okna boxov a jeho častí (PC / tablet: porovnanie s 38d0bf8 v okno-vsetko-mobil). */

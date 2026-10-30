@@ -26,7 +26,7 @@ import { fileURLToPath } from "node:url";
 import { PRODUKTY } from "./produkty.mjs";
 import { otvorKartu } from "./ovladac-kroky.mjs";
 import { F, hodnota } from "./stary-ui.mjs";
-import { SAFARI_ROZLOZENIA, TELEFONY, IPHONE_VRCH, ANDROID_VRCH } from "./ovladac-kufor-boxy.mjs";
+import { SAFARI_ROZLOZENIA, TELEFONY, IPHONE_VRCH, ANDROID_VRCH, NA_SIRKU } from "./ovladac-kufor-boxy.mjs";
 
 /**
  * Referencia polohy okna boxov z 909cc67 (živá verzia pred variantom B, 30. 10. 2026) pre okno-poloha-ios: vypočítané
@@ -526,11 +526,14 @@ const SCENARE = {
 
   /**
    * Okno boxov „všetko na jednu obrazovku“ (variant 2, Michal 30. 10. 2026 podľa náhľadu nahlad-2/variant-2-vsetko.png,
-   * iPhone 440 × 956, lišta Safari zbalená). Telefón (--sirka 360 / 375 / 390 / 414 / 440, výšky obrazovky TELEFONY):
-   * iPhone UA (lišta zbalená v modeli „hore“ a rozbalená; výrez ako v náhľade = obrazovka − IPHONE_VRCH) a Android UA
+   * iPhone 440 × 956, lišta Safari zbalená). Telefón (--sirka 360 / 375 / 390 / 405 / 409 / 412 / 414 / 420 / 428 / 440,
+   * nad 440 px 480 / 600 / 667; výšky obrazovky TELEFONY): iPhone UA (lišta zbalená v modeli „hore“ a rozbalená; výrez
+   * ako v náhľade = obrazovka − IPHONE_VRCH; na šírku NA_SIRKU: výrez = obrazovka − lišta adresy) a Android UA
    * (výrez = obrazovka − ANDROID_VRCH), 2 boxy M + M a 1 box XL (farba prenesená):
    *   - S / M / L / XL = 4 dlaždice v jednom riadku pre každý box; nič nepreteká dlaždicu (scrollWidth ≤ clientWidth,
-   *     písmeno, rozmer, cena, štítok, kresba vnútri) a nič sa neprekrýva,
+   *     písmeno, rozmer, cena, štítok, kresba vnútri; text a štítok aspoň 2 px od vonkajšieho okraja dlaždice — nedotýka
+   *     sa rámu) a nič sa neprekrýva,
+   *   - nad 440 px obsah okna ako na 440 (revízia 30. 10. 2026, N3): dlaždica ≤ 100 px, medzera medzi vzorkami ≤ 12 px,
    *   - písmo (PISMO_OKNA): text ≥ 16 px, rozmery a ceny ≥ 15, štítky ≥ 12, tlačidlo ≥ 14; žiadne overflow-wrap: anywhere,
    *   - vzorky 5 v riadku, ≥ 64 px; „Vybraná farba“ nad vzorkami, v jednom riadku s „Farba boxov“, keď sa vedľa seba
    *     zmestia (dlhý názov farby — napr. CZ „Černá kůže, … prošití“ na 414 px — ide pod nadpis),
@@ -580,8 +583,9 @@ const SCENARE = {
           await j.zaklad(s, ovl, { rozlozenie: 0 });
           const geometrie = [];
           for (const h of vysky) {
-            const g = SAFARI_ROZLOZENIA.hore;
-            if (ua === "iphone") {
+            const g = SAFARI_ROZLOZENIA.hore, ns = NA_SIRKU[t.sirka];
+            if (ua === "iphone" && ns) geometrie.push({ meno: `iphone-${t.sirka}x${h}-na-sirku`, vyska: h - ns, model: null, posun: ns, obrazovka: h });
+            else if (ua === "iphone") {
               geometrie.push({ meno: `iphone-${t.sirka}x${h}-zbalena`, vyska: h - IPHONE_VRCH, model: { rozdiel: g.rozdiel, inset: h <= 667 ? 0 : g.inset }, posun: IPHONE_VRCH, obrazovka: h, zbalena: true });
               geometrie.push({ meno: `iphone-${t.sirka}x${h}-rozbalena`, vyska: h - IPHONE_VRCH - g.rozdiel, model: null, posun: IPHONE_VRCH + g.rozdiel - g.pas, obrazovka: h });
             } else geometrie.push({ meno: `android-${t.sirka}x${h}`, vyska: h - ANDROID_VRCH, model: null, posun: ANDROID_VRCH, obrazovka: h });
@@ -605,6 +609,9 @@ const SCENARE = {
                 over(f >= min - 0.01, `${kde}: písmo ${k} ${f} px (min. ${min})`);
               }
               over(m.vzoriekVRiadku === 5 && m.vzorka >= 63.5, `${kde}: vzorky ${m.vzoriekVRiadku} v riadku, ${m.vzorka} px (čakám 5, ≥ 64)`);
+              // nad 440 px (iPhone na šírku, 7" tablet) obsah okna ako na 440: vzorky bez veľkých medzier, dlaždice nie širšie
+              over(m.medzeraVzoriek <= 12, `${kde}: medzera medzi vzorkami ${m.medzeraVzoriek} px (najviac 12 — vzorky roztiahnuté)`);
+              for (const b of m.boxy) over(b.w <= 100, `${kde}, ${b.kluc}: dlaždica ${b.w} px široká (najviac 100 ako na 440 px)`);
               over(m.farba.nadVzorkami, `${kde}: „Vybraná farba“ nie je nad vzorkami`);
               if (m.farba.zmesti) over(m.farba.jedenRiadok, `${kde}: „Farba boxov“ a „Vybraná farba“ sa zmestia vedľa seba, ale nie sú v jednom riadku`);
               over(m.tlacVrch >= m.oknoVrch - 0.5 && m.tlacSpodok <= m.oknoSpodok + 0.5 && m.tlacVrch >= 0 && m.tlacSpodok <= m.ih + 0.5,
@@ -615,7 +622,8 @@ const SCENARE = {
               if (ua === "iphone" && g.zbalena && t.sirka === 440 && g.obrazovka === 956)
                 over(m.posun <= 1, `${kde}: okno sa posúva o ${m.posun} px (farba, ${v.pocet === 2 ? "oba boxy" : "box"} a tlačidlo majú byť bez posunu, okno ${m.vyska} px, max ${m.maxHeight})`);
               const roz = m.boxy.map((b) => b.rozmerRiadky).join("/");
-              info.push(`${m.meno.replace(/-/g, " ")} ${v.pocet}b: okno ${vrch}–${+(m.oknoSpodok + g.posun).toFixed(1)}${m.posun > 1 ? " posun " + m.posun : " bez posunu"}, dlaždica ${m.boxy[0] ? m.boxy[0].w + "×" + m.boxy[0].h : "?"} (rozmer ${roz} r.), vzorka ${m.vzorka}`);
+              const okr = (k) => Math.min(...m.boxy.map((b) => (b[k] == null ? 1e9 : b[k])));
+              info.push(`${m.meno.replace(/-/g, " ")} ${v.pocet}b: okno ${vrch}–${+(m.oknoSpodok + g.posun).toFixed(1)}${m.posun > 1 ? " posun " + m.posun : " bez posunu"}, dlaždica ${m.boxy[0] ? m.boxy[0].w + "×" + m.boxy[0].h : "?"} (rozmer ${roz} r., odstup textu ${okr("okrajTextu")} / štítku ${okr("okrajStitku")}), vzorka ${m.vzorka} medzera ${m.medzeraVzoriek}`);
             }
             potvrd(r, v, `${v.meno}, ${ua}`);
           }
