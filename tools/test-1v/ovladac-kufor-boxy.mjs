@@ -82,15 +82,20 @@ const KB = (krok) => `${F} .upsale-buttons.${krok === "kufor" ? "trunk" : "boxs"
 const KARTA_KUFRA = (druh) => `${KB("kufor")} .lcd1v-kb__karta[data-kufor="${druh}"]`;
 const KARTA_BOXOV = (pocet) => `${KB("boxy")} .lcd1v-kb__karta[data-boxy="${pocet}"]`;
 const OKNO = `${F} .upsale-Banner.lcd1v-kb .box-config`;
+/** Okno boxov do 720 px (telefón, variant 2): „Vybraná farba“ nad vzorkami; nad 720 px pod nimi ako doteraz. */
+const POPIS_OKNA = { nadVzorkamiDo: 720 };
 
 /**
  * Popis vybranej farby pod vzorkami (kufor-boxy.js okno boxov, boxy-produkt.js krok Farba 616; Michal 19. 10. 2026:
  * „aby sa aj pri výbere farby zobrazovala niekde dole s kontextom, že aká je to farba“). Bez voľby v živom selecte
  * `kluc` skrytý; s voľbou „Vybraná farba: <Koža> koža, <šitie> šitie“ (koža so šitím) alebo „Vybraná farba: <názov>“
  * podľa textu zvolenej možnosti (nič z adminu „Farba kože :“, „+€0“), pod vzorkami, písmo ≥ 16 px, nepreteká.
+ * nadVzorkamiDo (px, len okno boxov): pri šírke výrezu do tejto hranice čakať popis NAD vzorkami — okno boxov na telefóne
+ * (variant 2 „všetko na jednu obrazovku“, Michal 30. 10. 2026: „Vybraná farba“ v riadku s „Farba boxov“ nad vzorkami,
+ * _lcd1v-kufor-boxy.scss @media (max-width: 720px)). Krok Farba boxu 616 (ovladac-boxy-produkt.mjs) ostáva pod vzorkami.
  * Obnova ide cez requestAnimationFrame / MutationObserver -> čaká do 5 s. Vráti text popisu ("" = skrytý).
  */
-export async function overPopisFarby(t, selPopis, kluc) {
+export async function overPopisFarby(t, selPopis, kluc, { nadVzorkamiDo = 0 } = {}) {
   const id = await t.idParametra(kluc);
   const kontrola = `(function () {
     var s = document.querySelector('${F} select[data-parameter-id="${id}"]'), p = document.querySelector(${JSON.stringify(selPopis)});
@@ -116,7 +121,9 @@ export async function overPopisFarby(t, selPopis, kluc) {
         return "popis „" + pt + "“ nesedí s voľbou „" + t + "“ (čakám „<koža> koža, <šitie> šitie“)";
     } else if (bez(nm) !== bez(koza)) return "popis „" + pt + "“ nesedí s voľbou „" + t + "“";
     var ow = p.parentElement && p.parentElement.querySelector(":scope > .options-wrap");
-    if (ow && p.getBoundingClientRect().top < ow.getBoundingClientRect().bottom - 1) return "popis nie je pod vzorkami";
+    var nad = ${nadVzorkamiDo > 0} && matchMedia("(max-width: ${nadVzorkamiDo}px)").matches;
+    if (ow && nad && p.getBoundingClientRect().bottom > ow.getBoundingClientRect().top + 1) return "popis nie je nad vzorkami (telefón do ${nadVzorkamiDo} px)";
+    if (ow && !nad && p.getBoundingClientRect().top < ow.getBoundingClientRect().bottom - 1) return "popis nie je pod vzorkami";
     var cs = getComputedStyle(p);
     if (parseFloat(cs.fontSize) < 16) return "písmo popisu farby " + cs.fontSize + " (< 16 px)";
     if (p.scrollWidth > p.clientWidth + 1 || p.getBoundingClientRect().right > document.documentElement.clientWidth + 1) return "popis farby preteká: " + p.scrollWidth + " > " + p.clientWidth;
@@ -210,7 +217,7 @@ async function vyplnOkno(t, { pocet, farba = 0, velkost = "S", velkost2 }) {
   const idF = await t.idParametra("farbaBoxov");
   await t.klikni(`${OKNO} .parameter-wrap.parameter-${idF} .option-button`, { index: farba, popis: "farba boxov" });
   await t.cakaj(`!!(document.querySelector('${F} select[data-parameter-id="${idF}"]') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
-  await overPopisFarby(t, `${OKNO} .lcd1v-bx__farba-popis`, "farbaBoxov"); // vybraná farba slovami pod vzorkami
+  await overPopisFarby(t, `${OKNO} .lcd1v-bx__farba-popis`, "farbaBoxov", POPIS_OKNA); // vybraná farba slovami (telefón: nad vzorkami)
   const velkosti = pocet === 2 ? [["box1", velkost], ["box2", velkost2 || velkost]] : [["boxSolo", velkost]];
   for (const [kluc, v] of velkosti) {
     const id = await t.idParametra(kluc);
@@ -802,13 +809,13 @@ export const novy = {
     await pauza(300);
     const idF = await t.idParametra("farbaBoxov");
     const SELECT = `${F} select[data-parameter-id="${idF}"]`;
-    const r = { pred: await overPopisFarby(t, SEL, "farbaBoxov") };
+    const r = { pred: await overPopisFarby(t, SEL, "farbaBoxov", POPIS_OKNA) };
     if (r.pred) throw new Error("popis farby pred výberom farby má byť skrytý: " + r.pred);
     const texty = await t.ev(`(function () { var s = document.querySelector('${SELECT}'); return Array.prototype.map.call(document.querySelectorAll(${JSON.stringify(OKNO + " .parameter-wrap.parameter-" + idF + " .option-button")}), function (b) { var o = Array.prototype.find.call(s.options, function (x) { return x.value === b.getAttribute("data-value"); }); return o ? o.text.normalize("NFC") : ""; }); })()`);
     const iBez = texty.findIndex((x) => /čiern.*šitia\s*:?\s*béžov/i.test(x));
     await t.klikni(`${OKNO} .parameter-wrap.parameter-${idF} .option-button`, { index: iBez > -1 ? iBez : Math.min(3, texty.length - 1), popis: "farba boxov čierna / béžové šitie" });
     await t.cakaj(`!!(document.querySelector('${SELECT}') || {}).value`, { ms: 10000, popis: "farba boxov vo formulári" });
-    r.bezova = await overPopisFarby(t, SEL, "farbaBoxov");
+    r.bezova = await overPopisFarby(t, SEL, "farbaBoxov", POPIS_OKNA);
     const kresba = () => t.ev(`(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); return o ? o.getAttribute("data-lcd1v-farba") : null; })()`);
     const k1 = await kresba();
     // iná farba priamo v živom selecte (ako by ju zmenil živý kód / obnova z pamäte), prednostne bez šitia v názve
@@ -818,14 +825,14 @@ export const novy = {
       return j.value; })()`);
     if (!ina) throw new Error("farba boxov: v selecte nie je druhá farba");
     await t.cakaj(`(document.querySelector('${SELECT}') || {}).value === ${JSON.stringify(ina)}`, { ms: 5000, popis: "iná farba boxov v živom selecte" });
-    r.zivy = await overPopisFarby(t, SEL, "farbaBoxov");
+    r.zivy = await overPopisFarby(t, SEL, "farbaBoxov", POPIS_OKNA);
     if (r.zivy === r.bezova) throw new Error("popis farby sa po zmene živého selectu nezmenil: " + r.zivy);
     await t.cakaj(`(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); return !!o && o.getAttribute("data-lcd1v-farba") !== ${JSON.stringify(k1)}; })()`, { ms: 5000, popis: "kresba boxu v novej farbe po zmene živého selectu" });
     r.kresba = [k1, await kresba()];
     await t.klikni(`${OKNO} .lcd1v-bx__x`, { popis: "krížik okna boxov" });
     await t.cakaj(`!document.querySelector("${F} .upsale-Banner").classList.contains("showConf")`, { popis: "okno boxov zavreté krížikom" });
     await pauza(900);
-    r.poKriziku = await overPopisFarby(t, SEL, "farbaBoxov");
+    r.poKriziku = await overPopisFarby(t, SEL, "farbaBoxov", POPIS_OKNA);
     return r;
   },
 
