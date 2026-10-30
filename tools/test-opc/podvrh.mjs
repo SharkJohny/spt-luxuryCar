@@ -15,8 +15,10 @@
 //                            zo súhrnu predvolenej platby: riadok platby a „Celkom k úhrade“ podľa ceny z kroku 1 (🟡 syntetický)
 //                          GET ShoptetValidatePhone -> {"payload":{"isValidForRegion":true,…}} (🟡 tvar z main-3g.js);
 //                            scenár telefon: "pomaly" (1,5 s), "pomaly-neplatny", "neplatny", "visi" (T3-L7)
-//                          GET ShoptetPayPaymentData/* -> zachytené JSON; POST CustomerCookieConsent -> 200
-//                          POST Step2Validate -> ZACHYTIŤ, zapísať celé telo, fiktívna stránka „Objednávka prijatá (TEST)“;
+//                          GET ShoptetPayPaymentData/* -> zachytené JSON (scenár banky "500": zoznam bánk 500); POST CustomerCookieConsent -> 200
+//                          (rýchla platba cez banku: shoptetPayPisCode z tela = banka v session, s.p.stav.banka; scenár
+//                            banka: "<kód>" = session už má banku z klasického kroku 1)
+//                          POST Step2Validate -> ZACHYTIŤ, zapísať celé telo (aj platbu a banku zo session), fiktívna stránka „Objednávka prijatá (TEST)“;
 //                            scenár step2 "chyba-raz": prvý raz 302 späť na krok 2 s vyplnenými údajmi (❓ odhad, ako Shoptet
 //                            vracia chybu zo servera — overí F4), až druhý raz fiktívna stránka
 //                          stav za behu: s.p.stav.platba (iná karta prepla platbu, T5), s.p.stav.priplatok (iné okno zmenilo
@@ -246,7 +248,7 @@ export async function zapniPodvrh(k, moznosti) {
   const W = WEBY[moznosti.web];
   const p = {
     web: moznosti.web, W, build: moznosti.build, scenar: { step1: "303", krok1: "ok", dataJson: null, ...(moznosti.scenar || {}) },
-    stav: { kosik: moznosti.kosik || "vzorkovnik", step1: false, doprava: null, platba: null, step2: 0, udaje: null },
+    stav: { kosik: moznosti.kosik || "vzorkovnik", step1: false, doprava: null, platba: null, banka: null, step2: 0, udaje: null },
     zaznam: null,
   };
   p.reset = () => {
@@ -280,6 +282,7 @@ export async function zapniPodvrh(k, moznosti) {
   if (p.scenar.zaciatok === "krok2") p.stav.step1 = true;
   // scenár platba: session už má túto platbu (napr. "112" rýchla platba zvolená skôr na klasickom kroku 1)
   if (p.scenar.platba) p.stav.platba = String(p.scenar.platba);
+  if (p.scenar.banka) p.stav.banka = String(p.scenar.banka);
   // CSRF zapnuté (S15): Shoptet dáva token a prepínač do konfigurácie stránky
   const sCsrf = (h) => {
     const x = String(h);
@@ -418,6 +421,9 @@ export async function zapniPodvrh(k, moznosti) {
         p.stav.step1 = true;
         p.stav.doprava = String(o.shippingId);
         p.stav.platba = String(o.billingId);
+        // rýchla platba cez banku: banka v session = shoptetPayPisCode posledného Step1Validate (🟡 tak to robí formulár
+        // kroku 1; bez kódu podvrh banku nepozná — test to musí výslovne čakať)
+        p.stav.banka = o.shoptetPayPisCode || null;
         zapis.odpovedCas = Date.now();
         if (xhr) return odpovedz(rq, 200, p.subor("step1-303.json") || citaj(join(FIXTURES, p.web, "step1-303.json")), TYP[".json"]);
         return presmeruj(rq, "/objednavka/krok-2/");
@@ -440,6 +446,8 @@ export async function zapniPodvrh(k, moznosti) {
       return odpovedz(rq, 200, citaj(join(FIXTURES, p.web, "shoptetpay-status.json")) || '{"isHealthy":true}', TYP[".json"]);
     }
     if (metoda === "GET" && /^\/action\/ShoptetPayPaymentData\/getBankProviderData\/?$/i.test(cesta)) {
+      // scenár banky "500" = zoznam bánk nejde (OPC: rýchla platba ostane riadkom s odkazom na klasický krok 1)
+      if (p.scenar.banky === "500") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
       z.odpoved = "shoptetpay";
       return odpovedz(rq, 200, citaj(join(FIXTURES, p.web, "shoptetpay-banky.json")) || "{}", TYP[".json"]);
     }
@@ -462,7 +470,7 @@ export async function zapniPodvrh(k, moznosti) {
     if (/^\/action\/orderingProcess\/Step2Validate\/?$/i.test(cesta)) {
       const pole2 = [...new URLSearchParams(telo)];
       // platba = čo má session Shoptetu (posledný úspešný Step1Validate) — Shoptet ju pri objednávke berie odtiaľ
-      p.zaznam.step2.push({ cas: z.cas, metoda, typ: rq.resourceType, xhr, telo, pole: pole2, platba: p.stav.platba || p.predvolene().platba });
+      p.zaznam.step2.push({ cas: z.cas, metoda, typ: rq.resourceType, xhr, telo, pole: pole2, platba: p.stav.platba || p.predvolene().platba, banka: p.stav.banka || null });
       p.stav.step2++;
       if (p.scenar.step2 === "chyba-raz" && p.stav.step2 === 1) {
         p.stav.udaje = pole2;

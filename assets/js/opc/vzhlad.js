@@ -145,6 +145,41 @@ function riadokOdkaz(doc, polozka, T, texty) {
   ]);
 }
 
+/**
+ * Rýchla platba cez banku priamo v OPC (Michal 30. 10. 2026): pod rádiom riadok so zvolenou bankou (logo, názov, „Zmeniť
+ * banku“) a podmienky Shoptet Pay prevzaté z kroku 1 (Salt Edge, krok1Model pisPodmienky). Mimo štítku rádia: ťuk na
+ * „Zmeniť banku“ neprepína platbu. Viditeľný len pri zvolenej platbe (CSS .radio-wrapper.active). Okno: opc/banka.js.
+ */
+function riadokBanky(doc, banka, podmienky, T) {
+  const pod = el(doc, "p", { class: "lcd-opc-banka__podmienky" });
+  podmienky.forEach(function (c) {
+    pod.appendChild(c.href ? el(doc, "a", { href: c.href, target: "_blank", rel: "noopener", text: c.text }) : doc.createTextNode(c.text));
+  });
+  return el(doc, "div", { class: "lcd-opc-banka", "data-lcd-opc-banka": "" }, [
+    el(doc, "div", { class: "lcd-opc-banka__riadok" }, [
+      el(doc, "span", { class: "lcd-opc-banka__vybrana" }, [
+        el(doc, "img", { class: "lcd-opc-banka__logo", src: banka.logo || null, alt: "", loading: "lazy", decoding: "async", hidden: !banka.logo }),
+        el(doc, "span", { class: "lcd-opc-banka__meno", text: banka.name }),
+      ]),
+      el(doc, "button", { type: "button", class: "lcd-opc-banka__zmenit", "data-lcd-opc-zmenit-banku": "", text: T.zmenitBanku }),
+    ]),
+    pod,
+  ]);
+}
+
+/** Zvolená banka v riadku pod rýchlou platbou (po „Potvrdiť výber“ v okne). */
+export function nastavBanku(sek, banka) {
+  const r = sek && sek.querySelector(".lcd-opc-banka");
+  if (!r || !banka) return;
+  const meno = r.querySelector(".lcd-opc-banka__meno");
+  if (meno) meno.textContent = banka.name;
+  const logo = r.querySelector(".lcd-opc-banka__logo");
+  if (logo) {
+    if (banka.logo) { logo.setAttribute("src", banka.logo); logo.hidden = false; }
+    else { logo.removeAttribute("src"); logo.hidden = true; }
+  }
+}
+
 /** Termín „Doručenie do 21–29 dní“: lehota „21–29 dní“ sa nezalomí (na úzkom telefóne by ostalo „21–“ na konci riadku). */
 function terminEl(doc, text) {
   const m = /^(.*?)(\d.*)$/.exec(text);
@@ -170,7 +205,9 @@ function rozlozDlazdice(platbyEl, dlazdice) {
 
 /**
  * Sekcia „Doprava a platba“ (vkladá sa do #order-form medzi adresu a poznámku).
- * o: { volby: { doprava, platba }, applePay: bool, termin: { od, po } | null }
+ * o: { volby: { doprava, platba }, applePay: bool, termin: { od, po } | null,
+ *      banka: { banka: { code, name, logo }, podmienky } | null — rýchla platba cez banku ako rádio s výberom banky v OPC;
+ *      bez zoznamu bánk alebo podmienok Shoptet Pay záloha: riadok s odkazom na klasický krok 1 }
  */
 export function vykresliSekciu(doc, model, T, o) {
   const volby = o.volby || {};
@@ -195,13 +232,16 @@ export function vykresliSekciu(doc, model, T, o) {
   const dlazdice = [];
   zoradPlatby(model.platby).forEach(function (p) {
     if (p.podmetoda === "applepay" && !o.applePay) return; // len kde ju prehliadač vie (ApplePaySession.canMakePayments)
-    if (p.podmetoda === "pis") {
-      // rýchla platba cez banku: výber banky je widget Shoptet Pay na kroku 1 (kniha § 8 otázka 6a)
+    const sBankou = p.podmetoda === "pis" && o.banka && o.banka.banka && o.banka.podmienky && o.banka.podmienky.length;
+    if (p.podmetoda === "pis" && !sBankou) {
+      // záloha (zoznam bánk Shoptet Pay alebo jeho podmienky chýbajú): výber banky na klasickom kroku 1 (kniha § 8 otázka 6a)
       platbyEl.appendChild(riadokOdkaz(doc, p, T, { popis: T.bankaPopis, zvolene: T.bankaZvolena, akcia: T.vybratBanku, zmenit: T.zmenitBanku }));
       return;
     }
     const w = klon(doc, p);
     if (!w) return;
+    // rýchla platba cez banku v OPC (Michal 30. 10. 2026): rádio ako ostatné + riadok so zvolenou bankou (opc/banka.js)
+    if (sBankou) w.appendChild(riadokBanky(doc, o.banka.banka, o.banka.podmienky, T));
     const i = w.querySelector("input");
     const l = w.querySelector("label");
     if (relacie.length && relacie.indexOf(p.id) === -1) {

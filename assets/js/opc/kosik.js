@@ -3,14 +3,17 @@
 // po kliku na „Pokračovať“ (aj v lište, aj krok „Doprava a platba“ v hlavičke) pošle Step1Validate s dopravou a platbou,
 // ktoré má krok 1 zaškrtnuté (posledná voľba v session, inak predvolené z adminu) a prejde na krok 2.
 // Hocičo zlyhá (aj krok 1 neodpovie do 4 s) -> pôvodná adresa odkazu (/objednavka/krok-1/) = dnešný tok.
-// Rýchla platba cez banku (Shoptet Pay „pis“) v session -> tiež klasický krok 1: banka (shoptetPayPisCode) sa vyberá len
-// vo widgete kroku 1, Step1Validate bez nej by bol neúplný (revízia 29. 10.).
+// Rýchla platba cez banku (Shoptet Pay „pis“) v session (Michal 30. 10. 2026: nesmie ísť na starý krok 1): Step1Validate
+// s kódom banky ako formulár kroku 1 (shoptetPayPisCode) — banka uložená v prehliadači (localStorage widgetu kroku 1 / okna
+// OPC), bez uloženej predvolená podľa toho istého pravidla ako krok 1 (opc/banka.js); na kroku 2 ju zákazník vidí a môže
+// zmeniť. Zoznam bánk sa sťahuje len vtedy (GET Shoptet Pay, 4 s); keď nejde, ostáva klasický krok 1 (revízia 29. 10.).
 import { krok1Model } from "./krok1Model.js";
 import { posliStep1, fetchSLimitom, LIMIT_KROK1_MS } from "./sync.js";
 import { TEXTY } from "./texty.js";
 import { upravKroky } from "./vzhlad.js";
 import { oznacPreskocenie } from "./analytika.js";
 import { ulozFotky } from "./polozky.js";
+import * as B from "./banka.js";
 
 export const CESTA_KROK1 = "/objednavka/krok-1/";
 const STARE_MS = 60000; // stiahnutý krok 1 starší ako minúta sa na klik stiahne znova (voľba mohla prísť z inej karty)
@@ -76,6 +79,12 @@ export function initKosik(ctx) {
         if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, dovod: "stranka" };
         return r.text().then(function (h) { return krok1Model(h); });
       })
+      .then(function (m) {
+        // rýchla platba cez banku v session: zoznam bánk na kód banky pre Step1Validate (len vtedy)
+        const pl = m && m.ok ? m.platby.find(function (x) { return x.id === m.zvolenaPlatba; }) : null;
+        if (!pl || pl.podmetoda !== "pis" || !m.pisPodmienky) return m;
+        return B.nacitajBanky().then(function (b) { m.banky = b; return m; }, function () { return m; });
+      })
       .catch(function () { return { ok: false, dovod: "siet" }; });
     st.model = p;
     st.cas = t0;
@@ -131,8 +140,15 @@ export function initKosik(ctx) {
       .then(function (m) {
         if (!m || !m.ok) return { ok: false, typ: "krok1-" + ((m && m.dovod) || "?") };
         const pl = m.platby.find(function (p) { return p.id === m.zvolenaPlatba; });
-        if (pl && pl.podmetoda === "pis") return { ok: false, typ: "pis" }; // banka sa vyberá len na kroku 1
-        return posliStep1(m, { shippingId: m.zvolenaDoprava, billingId: m.zvolenaPlatba }).then(function (r) {
+        const volby = { shippingId: m.zvolenaDoprava, billingId: m.zvolenaPlatba };
+        if (pl && pl.podmetoda === "pis") {
+          // kód banky ako by ho poslal formulár kroku 1; bez zoznamu bánk / podmienok -> klasický krok 1 (výber banky tam)
+          let st = null;
+          try { st = m.pisPodmienky && m.banky && m.banky.ok ? B.stavBanky(m.banky.data, B.ulozisko(window), B.menaAJazyk(window)) : null; } catch (e) { st = null; }
+          if (!st || !st.banka) return { ok: false, typ: "pis" };
+          volby.shoptetPayPisCode = st.banka.code;
+        }
+        return posliStep1(m, volby).then(function (r) {
           r.doprava = m.zvolenaDoprava;
           r.platba = m.zvolenaPlatba;
           return r;

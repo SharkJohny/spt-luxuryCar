@@ -24,7 +24,7 @@ const KARTY = { sk: ["Kontakt", "Adresa", "Doprava", "Platba"], cz: ["Kontakt", 
 const DALSIE = (sirka) => (sirka < 768 ? [360] : sirka >= 992 ? [768, 1920] : []);
 
 // poznámky (≥ 14 px): popisy pod názvom, právne vety, „1 ks“, text chyby, druhý riadok tlačidla, hlášky „čakám…“
-const POZNAMKY = [".sublabel", ".lcd-dob-pozn", ".lcd-opc-zaloha-info", ".not-possible-info", ".lcd-opc-pravne", ".lcd-opc-platby-vop",
+const POZNAMKY = [".sublabel", ".lcd-dob-pozn", ".lcd-opc-zaloha-info", ".not-possible-info", ".lcd-opc-pravne", ".lcd-opc-platby-vop", ".lcd-opc-banka__podmienky",
   ".lcd-opc-hlaska--info", ".lcd-opc-cakam", ".cart-item-amount", ".js-validator-msg", ".lcd-opc-chyba-text", ".order-button-suffix",
   ".lcd-opc-lista__suffix", ".additional-information", ".lcd-rozpis", ".lcd-opc-kopia-priplatky", "small",
   // rozbalený detail položky = rekapitulácia z košíka (S42, náhľad 5): rozpis osobných áut je .lcd-rozpis (14 px), kamióna
@@ -272,14 +272,18 @@ const BUBLINA_NA_POLI = `(function () {
   });
   return zle.join(", ");
 })()`;
-/** Riadok „Rýchla platba cez banku“ (telefón): výška, nadpis na 1 riadok, popis najviac na 2, pilulka „Vybrať banku“ 16 px v riadku. */
+/**
+ * Riadok „Rýchla platba cez banku“ (telefón; od 30. 10. 2026 rádio s výberom banky v OPC): výška karty, nadpis na 1 riadok,
+ * popis najviac na 2; pri zvolenej platbe riadok banky s „Zmeniť banku“ (16 px) celý v karte.
+ */
 const RYCHLA = `(function () {
   var w = document.querySelector('#lcd-opc [data-submethod="pis"]'); if (!w) return null;
-  var r = w.querySelector(".lcd-opc-odkaz__riadok") || w, n = w.querySelector(".shipping-billing-name"), a = w.querySelector(".lcd-opc-odkaz__akcia");
+  var n = w.querySelector(".shipping-billing-name"), b = w.querySelector(".lcd-opc-banka"), z = w.querySelector(".lcd-opc-banka__zmenit");
   var p = Array.prototype.filter.call(w.querySelectorAll(".payment-info .sublabel"), function (e) { return e.getBoundingClientRect().height > 0; })[0];
-  var rr = r.getBoundingClientRect(), rn = n.getBoundingClientRect(), ra = a.getBoundingClientRect();
-  return { h: Math.round(rr.height), nadpis: Math.round(rn.height), popis: p ? Math.round(p.getBoundingClientRect().height) : 0,
-    pismo: parseFloat(getComputedStyle(a).fontSize), vnutri: ra.left >= rr.left - 1 && ra.right <= rr.right + 1 };
+  var rw = w.getBoundingClientRect(), rn = n.getBoundingClientRect(), rb = b ? b.getBoundingClientRect() : null, rz = z ? z.getBoundingClientRect() : null;
+  return { h: Math.round(rw.height), nadpis: Math.round(rn.height), popis: p ? Math.round(p.getBoundingClientRect().height) : 0, aktivny: w.classList.contains("active"),
+    radio: !!w.querySelector('input[name="billingId"]'), banka: rb && rb.height > 0 ? Math.round(rb.height) : 0,
+    pismo: z ? parseFloat(getComputedStyle(z).fontSize) : null, vnutri: !rz || rz.width === 0 || (rz.left >= rw.left - 1 && rz.right <= rw.right + 1 && rz.bottom <= rw.bottom + 1) };
 })()`;
 
 SCENARE.S41 = {
@@ -320,14 +324,21 @@ SCENARE.S41 = {
       over(zapnuta > 0, "na najnižšom okne sa lišta nezapla (kontrola zakrytia by neprebehla)");
       return { info: casti.join("; ") };
     }
-    // telefón: rýchla platba (len SK má banku) na šírke behu a na 360
+    // telefón: rýchla platba (len SK má banku) na šírke behu a na 360 — nezvolená (rádio) a zvolená so zvolenou bankou
     for (const w of J.web === "sk" ? [J.sirka, 360] : []) {
-      const t = await J.novaStranka({ kosik, sirka: w });
-      await naKrok2(t, q);
-      const r = await t.ev(RYCHLA);
-      over(r && r.h <= 132 && r.nadpis <= 26 && r.popis <= 40 && r.pismo >= 16 && r.vnutri, w + ": riadok „Rýchla platba cez banku“ je stlačený (výška ≤ 132, nadpis 1 riadok, popis ≤ 2 riadky, pilulka 16 px v riadku): " + JSON.stringify(r));
-      casti.push(w + " rýchla platba " + r.h + " px");
-      await t.zavri();
+      for (const zvolena of [false, true]) {
+        const t = await J.novaStranka({ kosik, sirka: w, scenar: zvolena ? { platba: "112" } : undefined });
+        await naKrok2(t, q);
+        const r = await t.ev(RYCHLA);
+        // 360: názov vedľa „ZADARMO“ sa zalomí na 2 riadky (pod 380 px sa nezmestí), od 390 na 1 riadok
+        const nadpisMax = w < 380 ? 44 : 26;
+        // zvolená: + riadok banky a podmienky Shoptet Pay (na 360 tri riadky textu, „Zmeniť banku“ pod bankou)
+        const vyskaMax = w < 380 ? 300 : 260;
+        if (!zvolena) over(r && r.radio && !r.aktivny && r.h <= 116 && r.nadpis <= nadpisMax && r.popis <= 40 && r.banka === 0, w + ": nezvolená „Rýchla platba cez banku“ (rádio, výška ≤ 116, nadpis " + (w < 380 ? "≤ 2 riadky" : "1 riadok") + ", popis ≤ 2 riadky, bez riadku banky): " + JSON.stringify(r));
+        else over(r && r.radio && r.aktivny && r.banka > 0 && r.h <= vyskaMax && r.nadpis <= nadpisMax && r.pismo >= 16 && r.vnutri, w + ": zvolená „Rýchla platba cez banku“ (riadok banky, „Zmeniť banku“ 16 px v karte, výška ≤ " + vyskaMax + "): " + JSON.stringify(r));
+        casti.push(w + " rýchla platba " + (zvolena ? "zvolená " : "") + r.h + " px");
+        await t.zavri();
+      }
     }
     // telefón: bublina Luxie mimo polí na prvej obrazovke, na konci stránky ju vidno
     const s = await J.novaStranka({ kosik });

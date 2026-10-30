@@ -28,7 +28,8 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-1V-OBSAH-DVOJ / -CLASSIC / -PREMIUM / -BOXY / -VZORKY / -KAMIONY <- _lcd1v-obsah-<typ>.scss  obsah pod konfiguratorom podla typu
                                                (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
   LCD-1V-GALERIA    <- _lcd1v-galeria.scss     ramik fotiek 1V: vlasova linka namiesto hrubeho zlateho ramu (len body.lcd-1v)
-  LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C + odkaz v pate (pod html:root = PRE VSETKYCH, posledny blok)
+  LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C + odkaz v pate (pod html:root = PRE VSETKYCH)
+  LCD-PLATBA-BANKA  <- _lcdPlatbaBanka.scss    okno vyberu banky Shoptet Pay na kroku 1 (kotva .pisModal__*, PRE VSETKYCH, posledny blok)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
@@ -134,6 +135,10 @@ BLOKY = [
     # bublina Luxie nad kartou musi prebit aj LCD-1V-CENA (rovnaka specificita, rozhoduje poradie).
     dict(meno="LCD-1V-COOKIES", zdroj="_lcd1v-cookies.scss", home=False, h1=False,
          popis="cookie lista, okno nastaveni a odkaz v pate v style C; html:root = pre vsetkych"),
+    # Okno vyberu banky Shoptet Pay (rychla platba cez banku, SK 112) na klasickom kroku 1 (Michal 30. 10. 2026: cierne
+    # a necitatelne kvoli #cboxLoadedContent{background:black} v luxuryCar.scss) — PRE VSETKYCH, kotva .pisModal__*
+    dict(meno="LCD-PLATBA-BANKA", zdroj="_lcdPlatbaBanka.scss", home=False, h1=False,
+         popis="okno vyberu banky Shoptet Pay (PRE VSETKYCH)"),
 ]
 
 

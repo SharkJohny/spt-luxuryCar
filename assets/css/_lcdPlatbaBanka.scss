@@ -1,0 +1,95 @@
+/* =====================================================================
+   OKNO „VYBERTE VAŠU BANKU“ (Shoptet Pay, rýchla platba cez banku, SK billingId 112) — partial pre blok LCD-PLATBA-BANKA
+   (30. 10. 2026, Michal na iPhone: čierne okno, nečitateľný nadpis a vybraná banka; vkladá tools/vloz-lcd-css.py ako
+   posledný blok, za LCD-1V-COOKIES). PRE VŠETKÝCH zákazníkov na klasickom kroku 1 (SK aj CZ, telefón aj PC), nie len
+   html.lcd-opc. One page checkout má vlastné okno v tom istom vzhľade (opc/banka.js, _lcdOpc.scss .lcd-opc-banky).
+   Príčina: staré pravidlo v luxuryCar.scss „Bender: new rules from DevTools“ #cboxLoadedContent{background:black;color:white}
+   farbí KAŽDÝ colorbox Shoptetu. Okno banky je colorbox (shoptet.modal.open, html = šablóna #template__pisModal) so štýlmi
+   Shoptetu, ktoré počítajú s bielym oknom: nadpis h2 tmavý (#1f1f1f), vybraná banka svetlé pozadie #F5FBF9, Potvrdiť
+   čierne #000, Späť bez pozadia (sivé buttonface prehliadača) -> s naším bielym textom nečitateľné.
+   Tu len okno banky: kotva .pisModal__bankSelection (trieda iba v tomto okne); iné colorboxy (cookies, galéria) bez zmeny.
+   Zelené = kam chceme klik (zvolená banka: zelený rám + fajka, Potvrdiť výber), Späť zlaté sekundárne. Text ≥ 16 px.
+   html:root dvíha váhu nad #cboxLoadedContent (1,0,0) aj nad <style> šablóny Shoptetu (.pisModal__… 0,1,0).
+   Bez :has (iOS < 15.4): zoznam bánk a tlačidlá sú aj tak čitateľné, čierny ostane len okraj a nadpis.
+   ===================================================================== */
+html:root #cboxLoadedContent:has(.pisModal__bankSelection),
+html:root #cboxLoadedContent .content-modal:has(> .pisModal__bankSelection) {
+  background: #fff; color: #14110c;
+}
+html:root #cboxLoadedContent .content-modal:has(> .pisModal__bankSelection) {
+  padding: 20px 18px 18px; font: 400 16px/1.4 "Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+/* tmavší podklad za oknom (ako okno cookies) — biele okno na bielom závoji Shoptetu (opacity .95) splývalo so stránkou */
+html:root #cboxOverlay:has(~ #colorbox .pisModal__bankSelection) { background: #080705 !important; opacity: .62 !important; }
+html:root #cboxContent:has(.pisModal__bankSelection) { border: 0; border-radius: 16px; overflow: hidden; background: #fff; }
+html:root #cboxLoadedContent .content-modal > h2:has(~ .pisModal__bankSelection) {
+  margin: 0 0 14px; color: #14110c; font: 700 22px/1.25 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: 0; text-transform: none;
+}
+html:root #cboxLoadedContent .pisModal__currencyBankInfo { margin: 0 0 12px; color: #48412f; font: 400 16px/1.4 "Source Sans 3", "Segoe UI", Arial, sans-serif; }
+html:root #cboxLoadedContent .pisModal__countrySelection.form-control {
+  min-height: 48px; color: #14110c; font: 400 16px/1.3 "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  border: 2px solid #d3c49a; border-radius: 12px; background-color: #fff;
+}
+html:root #cboxLoadedContent .pisModal__countrySelection.form-control:focus { border-color: #c49b31; outline: 0; box-shadow: 0 0 0 3px rgba(196, 155, 49, .25); }
+/* zoznam bánk: karty ako voľby v konfigurátore / OPC. Shoptet má pevných 180 px s posúvaním (na iPhone bez posuvníka:
+   2 banky zo 6 schované, zákazník o nich nevie). Tu pevná výška na 6 kariet SK (okno colorboxu sa po zmene krajiny
+   neprepočíta, preto nie výška podľa obsahu); na nízkej obrazovke menej, posúva sa len zoznam a posledná karta
+   vykukne. 250 px = nadpis, krajina, tlačidlá a okraje okna; dvh = viditeľná výška v Safari (vh je bez líšt). */
+html:root #cboxLoadedContent .pisModal__bankSelection {
+  gap: 8px; height: 376px; height: min(376px, calc(100vh - 250px)); height: min(376px, calc(100dvh - 250px)); max-height: none;
+  margin: 14px 0 0; padding: 0; border: 0; background: transparent; overflow-y: auto; overscroll-behavior: contain;
+}
+html:root #cboxLoadedContent .pisModal__bankItem {
+  position: relative; box-sizing: border-box; min-height: 56px; margin: 0; padding: 8px 52px 8px 14px;
+  border: 2px solid #e2ddd0; border-radius: 12px; background: #fff; color: #14110c;
+  transition: border-color .15s, background-color .15s, box-shadow .15s; -webkit-tap-highlight-color: transparent;
+}
+/* hover len pri myši a nie na zvolenej: na telefóne ostáva :hover po ťuknutí a (vyššia váha) by prebil zelený rám */
+@media (hover: hover) {
+  html:root #cboxLoadedContent .pisModal__bankItem:not(.pisModal__bankItem--active):hover { border-color: #c9bd9f; }
+}
+/* krúžok vpravo ako rádio; zvolená = zelený kruh s bielou fajkou (namiesto pisCheck.svg Shoptetu) */
+html:root #cboxLoadedContent .pisModal__bankItem::after {
+  content: ""; display: block; position: absolute; right: 14px; top: 50%; box-sizing: border-box; width: 24px; height: 24px;
+  margin-top: -12px; border: 2px solid #a39b8c; border-radius: 50%; background: #fff;
+}
+html:root #cboxLoadedContent .pisModal__bankItem--active {
+  border-color: #2e7d32; background: #f3f9f3; box-shadow: 0 6px 16px rgba(46, 125, 50, .12);
+}
+html:root #cboxLoadedContent .pisModal__bankItem--active::after {
+  border-color: #2e7d32;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 15px no-repeat, #2e7d32;
+}
+html:root #cboxLoadedContent .pisModal__bankName { color: #14110c; font: 600 16px/1.3 "Source Sans 3", "Segoe UI", Arial, sans-serif; }
+html:root #cboxLoadedContent .pisModal__bankItem--active .pisModal__bankName { font-weight: 700; }
+html:root #cboxLoadedContent .pisModal__bankLogo { box-sizing: content-box; width: 40px; max-width: 40px; max-height: 24px; padding-right: 12px; object-fit: contain; }
+/* tlačidlá: Potvrdiť výber zelené (hlavné), Späť zlaté obrysové (sekundárne) */
+html:root #cboxLoadedContent .pisModal__actions { gap: 10px; justify-content: flex-end; align-items: stretch; margin: 18px 0 0; }
+html:root #cboxLoadedContent .pisModal__actions .btn {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 52px; margin: 0; padding: 8px 20px;
+  border-radius: 12px; font: 800 16px/1.15 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: .04em; text-transform: uppercase;
+  cursor: pointer; transition: filter .15s, background-color .15s;
+}
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm {
+  border: 0; background: linear-gradient(180deg, #3f9a44 0%, #2e7d32 55%, #256b29 100%); color: #fff;
+  box-shadow: 0 8px 18px rgba(46, 125, 50, .28), inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm:is(:hover, :focus, :active) { filter: brightness(1.05); color: #fff; }
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__close {
+  border: 2px solid #c49b31; background: #fff; color: #7c5f16; box-shadow: none;
+}
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__close:is(:hover, :focus, :active) { border-color: #c49b31; background: #fbf6e9; color: #7c5f16; }
+html:root #cboxLoadedContent :is(.pisModal__actions .btn, .pisModal__bankItem):focus-visible { outline: 3px solid #c49b31; outline-offset: 2px; }
+/* telefón: nižšie karty a tlačidlá vedľa seba (Späť úzke, Potvrdiť výber zvyšok šírky) -> celé okno so 6 bankami
+   (~535 px) sa zmestí do Safari na iPhone 13 (390 × 664) bez posúvania; iPhone SE (375 × 553) posúva len zoznam */
+@media (max-width: 767px) {
+  html:root #cboxLoadedContent .content-modal:has(> .pisModal__bankSelection) { padding: 16px 14px 14px; }
+  html:root #cboxLoadedContent .content-modal > h2:has(~ .pisModal__bankSelection) { margin-bottom: 12px; font-size: 20px; }
+  html:root #cboxLoadedContent .pisModal__bankSelection {
+    gap: 6px; height: 342px; height: min(342px, calc(100vh - 250px)); height: min(342px, calc(100dvh - 250px)); margin-top: 12px;
+  }
+  html:root #cboxLoadedContent .pisModal__bankItem { min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
+  html:root #cboxLoadedContent .pisModal__actions { margin-top: 14px; }
+  html:root #cboxLoadedContent .pisModal__actions .btn { padding: 8px 14px; }
+  html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm { flex: 1 1 auto; }
+}

@@ -14173,7 +14173,7 @@ html.lcd-opc #lcd-opc .payment-logo img{max-width:56px;max-height:26px;width:aut
 @media (min-width:768px){html.lcd-opc #lcd-opc .payment-logo img{max-width:64px;max-height:28px}}
 html.lcd-opc #lcd-opc .payment-shipping-price{grid-area:cena;justify-self:end;flex:none;color:var(--o-ink) !important;font:700 16px/1.3 var(--o-disp);
   text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-html.lcd-opc #lcd-opc .payment-shipping-price.for-free{color:var(--o-ok-lo) !important;font-size:14px;letter-spacing:.04em}
+html.lcd-opc #lcd-opc .payment-shipping-price.for-free{color:var(--o-ok-lo) !important;font-size:14px;letter-spacing:.04em;text-transform:uppercase}
 html.lcd-opc #lcd-opc .lcd-opc-termin{display:block;margin-top:4px;color:var(--o-ok-lo);font:600 16px/1.35 var(--o-body)}
 html.lcd-opc #lcd-opc .lcd-opc-termin__lehota{white-space:nowrap}
 /* 360 px: logo dopravcu by zalomilo „Doručenie do 21–29 dní“ na 2 riadky (názov dopravcu je v texte) */
@@ -14222,6 +14222,31 @@ html.lcd-opc #lcd-opc .lcd-opc-odkaz .lcd-opc-odkaz__ano,html.lcd-opc #lcd-opc .
 html.lcd-opc #lcd-opc .lcd-opc-odkaz.active .payment-info .lcd-opc-odkaz__ano{display:block}
 html.lcd-opc #lcd-opc .lcd-opc-odkaz.active .lcd-opc-odkaz__akcia .lcd-opc-odkaz__ano{display:inline}
 html.lcd-opc #lcd-opc .lcd-opc-odkaz .payment-info .sublabel:empty{display:none}
+/* rýchla platba cez banku priamo v OPC (Michal 30. 10. 2026, opc/banka.js): pod zvolenou platbou banka, „Zmeniť banku“
+   a podmienky Shoptet Pay (Salt Edge) prevzaté z kroku 1; nezvolená platba = bežné rádio bez riadku banky */
+html.lcd-opc #lcd-opc .radio-wrapper[data-submethod="pis"]:not(.lcd-opc-odkaz){display:block}
+html.lcd-opc #lcd-opc .lcd-opc-banka{display:none;margin:0;padding:0 14px 13px 48px}
+html.lcd-opc #lcd-opc .radio-wrapper.active .lcd-opc-banka{display:block}
+html.lcd-opc #lcd-opc .lcd-opc-banka__riadok{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;box-sizing:border-box;
+  min-height:56px;padding:7px 8px 7px 12px;border:1px solid var(--o-linka);border-radius:10px;background:#fff}
+html.lcd-opc #lcd-opc .lcd-opc-banka__vybrana{display:flex;align-items:center;gap:10px;min-width:0}
+html.lcd-opc #lcd-opc .lcd-opc-banka__logo{flex:none;width:auto;max-width:40px;height:auto;max-height:24px;object-fit:contain;mix-blend-mode:normal}
+html.lcd-opc #lcd-opc .lcd-opc-banka__logo[hidden]{display:none}
+html.lcd-opc #lcd-opc .lcd-opc-banka__meno{min-width:0;color:var(--o-ink);font:700 16px/1.3 var(--o-body);overflow-wrap:break-word}
+html.lcd-opc #lcd-opc .lcd-opc-banka__zmenit{display:inline-flex;align-items:center;flex:none;min-height:40px;margin:0 0 0 auto;padding:0 14px;border:1px solid var(--o-gold);
+  border-radius:999px;background:#fffdf7;color:var(--o-gold-lo);font:700 16px/1.2 var(--o-disp);letter-spacing:.02em;white-space:nowrap;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+html.lcd-opc #lcd-opc .lcd-opc-banka__zmenit:hover{background:#fbf3dc}
+html.lcd-opc #lcd-opc .lcd-opc-banka__zmenit:focus-visible{outline:2px solid var(--o-gold-lo);outline-offset:2px}
+html.lcd-opc #lcd-opc .lcd-opc-banka__podmienky{margin:8px 0 0;color:var(--o-mute);font:400 14px/1.45 var(--o-body)}
+html.lcd-opc #lcd-opc .lcd-opc-banka__podmienky a{color:var(--o-gold-t);text-decoration:underline;text-underline-offset:3px}
+/* telefón: logo Shoptet Pay preč (názov „Rýchla platba cez banku“ na 1 riadok, ako doterajší riadok-odkaz), riadok banky
+   na celú šírku karty */
+@media (max-width:767px){
+  html.lcd-opc #lcd-opc .radio-wrapper[data-submethod="pis"] .payment-logo{display:none}
+  html.lcd-opc #lcd-opc .radio-wrapper[data-submethod="pis"] input[type=radio]+label{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"info cena" "pozn pozn"}
+}
+@media (max-width:479px){html.lcd-opc #lcd-opc .lcd-opc-banka{padding-left:14px}}
 /* hláška pri chybe zmeny platby */
 html.lcd-opc #lcd-opc .lcd-opc-hlaska{margin:12px 0 0;padding:12px 14px;border-left:3px solid var(--o-zle);border-radius:8px;background:var(--o-zle-bg);
   color:#7a1c16;font:400 16px/1.45 var(--o-body)}
@@ -14841,6 +14866,67 @@ html.lcd-opc-kosik body.in-kosik .summary-wrapper .next-step-back::before,html.l
   html.lcd-opc-kosik body.in-kosik .summary-wrapper{padding:0 !important}
   html.lcd-opc-kosik body.in-kosik .summary-wrapper > .box{margin-top:8px !important;padding:14px 20px 16px !important}
 }
+
+/* ---------------------------------------------------------------- okno výberu banky (rýchla platba cez banku, opc/banka.js)
+   Michal 30. 10. 2026: výber banky priamo na finálnej stránke, vzhľad ako web (nie čierny colorbox Shoptet Pay). Rovnaký
+   vzhľad ako okno Shoptet Pay na klasickom kroku 1 (_lcdPlatbaBanka.scss): biele okno, banky ako voľby OPC (zelený rám
+   + fajka), „Potvrdiť výber“ zelené, „Späť“ zlaté obrysové; text ≥ 16 px. Zoznam sa posúva len vtedy, keď sa okno nezmestí
+   (výška okna = obrazovka; colorbox Shoptetu mal pevných 180 px a 2 banky zo 6 schované). */
+html.lcd-opc.lcd-opc-okno,html.lcd-opc.lcd-opc-okno body{overflow:hidden}
+/* bublina Luxie (vpravo dole) by na telefóne ležala na „Potvrdiť výber“ — kým je okno otvorené, nie je */
+html.lcd-opc.lcd-opc-okno iframe[title="Luxia chat"]{visibility:hidden !important}
+html.lcd-opc .lcd-opc-banky{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  padding:16px;background:rgba(8,7,5,.62);overscroll-behavior:contain;-webkit-tap-highlight-color:transparent}
+html.lcd-opc .lcd-opc-banky__okno{display:flex;flex-direction:column;box-sizing:border-box;width:100%;max-width:480px;max-height:100%;margin:0;
+  padding:20px 18px 18px;border-radius:16px;background:#fff;color:var(--o-ink);box-shadow:0 24px 60px rgba(8,7,5,.35);font:400 16px/1.4 var(--o-body);text-align:left}
+html.lcd-opc .lcd-opc-banky__nadpis{flex:none;margin:0 0 14px;padding:0;border:0;color:var(--o-ink);font:700 22px/1.25 var(--o-disp);letter-spacing:0;text-transform:none}
+html.lcd-opc .lcd-opc-banky__nadpis::before,html.lcd-opc .lcd-opc-banky__nadpis::after{content:none;display:none}
+html.lcd-opc .lcd-opc-banky__krajina-pole{flex:none;margin:0 0 12px}
+html.lcd-opc .lcd-opc-banky__krajina-stitok{display:block;margin:0 0 4px;padding:0;color:var(--o-text);font:600 14px/1.3 var(--o-body);text-transform:none}
+html.lcd-opc .lcd-opc-banky__krajina{display:block;box-sizing:border-box;width:100%;max-width:none;height:auto;min-height:48px;margin:0;padding:0 42px 0 14px;
+  border:2px solid var(--o-pole);border-radius:12px;color:var(--o-ink);font:400 16px/1.3 var(--o-body);-webkit-appearance:none;appearance:none;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 14px center/18px no-repeat}
+html.lcd-opc .lcd-opc-banky__krajina:focus{border-color:var(--o-gold);outline:0;box-shadow:0 0 0 3px rgba(196,155,49,.25)}
+html.lcd-opc .lcd-opc-banky__zoznam{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;margin:0 -4px;padding:2px 4px;overflow-y:auto;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+html.lcd-opc .lcd-opc-banky__banka{position:relative;display:flex;align-items:center;gap:12px;flex:none;box-sizing:border-box;min-height:56px;margin:0;
+  padding:8px 52px 8px 14px;border:2px solid var(--o-karta);border-radius:12px;background:#fff;color:var(--o-ink);cursor:pointer;font-weight:400;
+  transition:border-color .15s,background-color .15s,box-shadow .15s}
+html.lcd-opc .lcd-opc-banky__radio{position:absolute;top:50%;left:50%;width:1px;height:1px;margin:0;padding:0;border:0;opacity:0;pointer-events:none}
+html.lcd-opc .lcd-opc-banky__banka::after{content:"";position:absolute;right:14px;top:50%;box-sizing:border-box;width:24px;height:24px;margin-top:-12px;
+  border:2px solid #a39b8c;border-radius:50%;background:#fff}
+html.lcd-opc .lcd-opc-banky__banka::before{content:none;display:none}
+html.lcd-opc .lcd-opc-banky__banka--zvolena{border-color:var(--o-ok);background:var(--o-ok-bg);box-shadow:0 6px 16px rgba(46,125,50,.12)}
+html.lcd-opc .lcd-opc-banky__banka--zvolena::after{border-color:var(--o-ok);background:var(--o-fajka) center/15px no-repeat,var(--o-ok)}
+@media (hover:hover){html.lcd-opc .lcd-opc-banky__banka:not(.lcd-opc-banky__banka--zvolena):hover{border-color:#c9bd9f}}
+/* fokus: Shoptet dáva label:has(input[type=radio]:focus-visible) modrý rám + biely tieň 8 px a Safari ho ukáže aj po ťuknutí
+   (okno otvára fokus na zvolenej banke) -> preč; zlatý rám len pri ovládaní klávesnicou (opc/banka.js) */
+html.lcd-opc .lcd-opc-banky .lcd-opc-banky__banka{outline:0;box-shadow:none}
+html.lcd-opc .lcd-opc-banky .lcd-opc-banky__banka--zvolena{box-shadow:0 6px 16px rgba(46,125,50,.12)}
+html.lcd-opc .lcd-opc-banky--klavesnica .lcd-opc-banky__banka:has(.lcd-opc-banky__radio:focus){outline:3px solid var(--o-gold);outline-offset:2px}
+html.lcd-opc .lcd-opc-banky__logo{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:24px}
+html.lcd-opc .lcd-opc-banky__logo img{display:block;width:auto;height:auto;max-width:40px;max-height:24px;object-fit:contain}
+html.lcd-opc .lcd-opc-banky__meno{min-width:0;color:var(--o-ink);font:600 16px/1.3 var(--o-body)}
+html.lcd-opc .lcd-opc-banky__banka--zvolena .lcd-opc-banky__meno{font-weight:700}
+html.lcd-opc .lcd-opc-banky__akcie{flex:none;display:flex;justify-content:flex-end;align-items:stretch;gap:10px;margin:18px 0 0}
+html.lcd-opc .lcd-opc-banky__akcie button{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:52px;margin:0;padding:8px 20px;
+  border-radius:12px;font:800 16px/1.15 var(--o-disp);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent}
+html.lcd-opc .lcd-opc-banky__spat{border:2px solid var(--o-gold);background:#fff;color:var(--o-gold-t)}
+html.lcd-opc .lcd-opc-banky__spat:hover{background:#fbf6e9}
+html.lcd-opc .lcd-opc-banky__potvrdit{border:0;background:var(--o-zelena);color:#fff;box-shadow:0 8px 18px rgba(46,125,50,.28),inset 0 1px 0 rgba(255,255,255,.22)}
+html.lcd-opc .lcd-opc-banky__potvrdit:hover{filter:brightness(1.05)}
+html.lcd-opc .lcd-opc-banky__akcie button:focus-visible{outline:3px solid var(--o-gold);outline-offset:2px}
+@media (max-width:767px){
+  html.lcd-opc .lcd-opc-banky{padding:12px}
+  html.lcd-opc .lcd-opc-banky__okno{padding:16px 14px 14px}
+  html.lcd-opc .lcd-opc-banky__nadpis{margin-bottom:12px;font-size:20px}
+  html.lcd-opc .lcd-opc-banky__zoznam{gap:6px}
+  html.lcd-opc .lcd-opc-banky__banka{min-height:52px;padding-top:6px;padding-bottom:6px}
+  html.lcd-opc .lcd-opc-banky__akcie{margin-top:14px}
+  html.lcd-opc .lcd-opc-banky__akcie button{padding:8px 14px}
+  html.lcd-opc .lcd-opc-banky__potvrdit{flex:1 1 auto}
+}
+@media (prefers-reduced-motion:reduce){html.lcd-opc .lcd-opc-banky__banka{transition:none}}
 /* ===== LCD-OPC END ===== */
 
 /* ===== LCD-KONTAKTY START - generovane tools/vloz-lcd-css.py z _lcdKontakty.scss (stranka Kontakty SK 29, #lcd-kontakt; mimo korena len skryty nadpis clanku a paticka na body.in-kontakty), needituj rucne ===== */
@@ -22928,6 +23014,104 @@ html:root #footer .footer-bottom .lcd-pata-autor { display: inline; margin-left:
   html:root.lcd-phdr-on body:not(.lcd-1v):not(#lcd-x) #footer .footer-bottom { padding-bottom: 72px; }
 }
 /* ===== LCD-1V-COOKIES END ===== */
+
+/* ===== LCD-PLATBA-BANKA START - generovane tools/vloz-lcd-css.py z _lcdPlatbaBanka.scss (okno vyberu banky Shoptet Pay (PRE VSETKYCH)), needituj rucne ===== */
+/* =====================================================================
+   OKNO „VYBERTE VAŠU BANKU“ (Shoptet Pay, rýchla platba cez banku, SK billingId 112) — partial pre blok LCD-PLATBA-BANKA
+   (30. 10. 2026, Michal na iPhone: čierne okno, nečitateľný nadpis a vybraná banka; vkladá tools/vloz-lcd-css.py ako
+   posledný blok, za LCD-1V-COOKIES). PRE VŠETKÝCH zákazníkov na klasickom kroku 1 (SK aj CZ, telefón aj PC), nie len
+   html.lcd-opc. One page checkout má vlastné okno v tom istom vzhľade (opc/banka.js, _lcdOpc.scss .lcd-opc-banky).
+   Príčina: staré pravidlo v luxuryCar.scss „Bender: new rules from DevTools“ #cboxLoadedContent{background:black;color:white}
+   farbí KAŽDÝ colorbox Shoptetu. Okno banky je colorbox (shoptet.modal.open, html = šablóna #template__pisModal) so štýlmi
+   Shoptetu, ktoré počítajú s bielym oknom: nadpis h2 tmavý (#1f1f1f), vybraná banka svetlé pozadie #F5FBF9, Potvrdiť
+   čierne #000, Späť bez pozadia (sivé buttonface prehliadača) -> s naším bielym textom nečitateľné.
+   Tu len okno banky: kotva .pisModal__bankSelection (trieda iba v tomto okne); iné colorboxy (cookies, galéria) bez zmeny.
+   Zelené = kam chceme klik (zvolená banka: zelený rám + fajka, Potvrdiť výber), Späť zlaté sekundárne. Text ≥ 16 px.
+   html:root dvíha váhu nad #cboxLoadedContent (1,0,0) aj nad <style> šablóny Shoptetu (.pisModal__… 0,1,0).
+   Bez :has (iOS < 15.4): zoznam bánk a tlačidlá sú aj tak čitateľné, čierny ostane len okraj a nadpis.
+   ===================================================================== */
+html:root #cboxLoadedContent:has(.pisModal__bankSelection),
+html:root #cboxLoadedContent .content-modal:has(> .pisModal__bankSelection) {
+  background: #fff; color: #14110c;
+}
+html:root #cboxLoadedContent .content-modal:has(> .pisModal__bankSelection) {
+  padding: 20px 18px 18px; font: 400 16px/1.4 "Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+/* tmavší podklad za oknom (ako okno cookies) — biele okno na bielom závoji Shoptetu (opacity .95) splývalo so stránkou */
+html:root #cboxOverlay:has(~ #colorbox .pisModal__bankSelection) { background: #080705 !important; opacity: .62 !important; }
+html:root #cboxContent:has(.pisModal__bankSelection) { border: 0; border-radius: 16px; overflow: hidden; background: #fff; }
+html:root #cboxLoadedContent .content-modal > h2:has(~ .pisModal__bankSelection) {
+  margin: 0 0 14px; color: #14110c; font: 700 22px/1.25 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: 0; text-transform: none;
+}
+html:root #cboxLoadedContent .pisModal__currencyBankInfo { margin: 0 0 12px; color: #48412f; font: 400 16px/1.4 "Source Sans 3", "Segoe UI", Arial, sans-serif; }
+html:root #cboxLoadedContent .pisModal__countrySelection.form-control {
+  min-height: 48px; color: #14110c; font: 400 16px/1.3 "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  border: 2px solid #d3c49a; border-radius: 12px; background-color: #fff;
+}
+html:root #cboxLoadedContent .pisModal__countrySelection.form-control:focus { border-color: #c49b31; outline: 0; box-shadow: 0 0 0 3px rgba(196, 155, 49, .25); }
+/* zoznam bánk: karty ako voľby v konfigurátore / OPC. Shoptet má pevných 180 px s posúvaním (na iPhone bez posuvníka:
+   2 banky zo 6 schované, zákazník o nich nevie). Tu pevná výška na 6 kariet SK (okno colorboxu sa po zmene krajiny
+   neprepočíta, preto nie výška podľa obsahu); na nízkej obrazovke menej, posúva sa len zoznam a posledná karta
+   vykukne. 250 px = nadpis, krajina, tlačidlá a okraje okna; dvh = viditeľná výška v Safari (vh je bez líšt). */
+html:root #cboxLoadedContent .pisModal__bankSelection {
+  gap: 8px; height: 376px; height: min(376px, calc(100vh - 250px)); height: min(376px, calc(100dvh - 250px)); max-height: none;
+  margin: 14px 0 0; padding: 0; border: 0; background: transparent; overflow-y: auto; overscroll-behavior: contain;
+}
+html:root #cboxLoadedContent .pisModal__bankItem {
+  position: relative; box-sizing: border-box; min-height: 56px; margin: 0; padding: 8px 52px 8px 14px;
+  border: 2px solid #e2ddd0; border-radius: 12px; background: #fff; color: #14110c;
+  transition: border-color .15s, background-color .15s, box-shadow .15s; -webkit-tap-highlight-color: transparent;
+}
+/* hover len pri myši a nie na zvolenej: na telefóne ostáva :hover po ťuknutí a (vyššia váha) by prebil zelený rám */
+@media (hover: hover) {
+  html:root #cboxLoadedContent .pisModal__bankItem:not(.pisModal__bankItem--active):hover { border-color: #c9bd9f; }
+}
+/* krúžok vpravo ako rádio; zvolená = zelený kruh s bielou fajkou (namiesto pisCheck.svg Shoptetu) */
+html:root #cboxLoadedContent .pisModal__bankItem::after {
+  content: ""; display: block; position: absolute; right: 14px; top: 50%; box-sizing: border-box; width: 24px; height: 24px;
+  margin-top: -12px; border: 2px solid #a39b8c; border-radius: 50%; background: #fff;
+}
+html:root #cboxLoadedContent .pisModal__bankItem--active {
+  border-color: #2e7d32; background: #f3f9f3; box-shadow: 0 6px 16px rgba(46, 125, 50, .12);
+}
+html:root #cboxLoadedContent .pisModal__bankItem--active::after {
+  border-color: #2e7d32;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 15px no-repeat, #2e7d32;
+}
+html:root #cboxLoadedContent .pisModal__bankName { color: #14110c; font: 600 16px/1.3 "Source Sans 3", "Segoe UI", Arial, sans-serif; }
+html:root #cboxLoadedContent .pisModal__bankItem--active .pisModal__bankName { font-weight: 700; }
+html:root #cboxLoadedContent .pisModal__bankLogo { box-sizing: content-box; width: 40px; max-width: 40px; max-height: 24px; padding-right: 12px; object-fit: contain; }
+/* tlačidlá: Potvrdiť výber zelené (hlavné), Späť zlaté obrysové (sekundárne) */
+html:root #cboxLoadedContent .pisModal__actions { gap: 10px; justify-content: flex-end; align-items: stretch; margin: 18px 0 0; }
+html:root #cboxLoadedContent .pisModal__actions .btn {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 52px; margin: 0; padding: 8px 20px;
+  border-radius: 12px; font: 800 16px/1.15 "Exo 2", "Segoe UI", Arial, sans-serif; letter-spacing: .04em; text-transform: uppercase;
+  cursor: pointer; transition: filter .15s, background-color .15s;
+}
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm {
+  border: 0; background: linear-gradient(180deg, #3f9a44 0%, #2e7d32 55%, #256b29 100%); color: #fff;
+  box-shadow: 0 8px 18px rgba(46, 125, 50, .28), inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm:is(:hover, :focus, :active) { filter: brightness(1.05); color: #fff; }
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__close {
+  border: 2px solid #c49b31; background: #fff; color: #7c5f16; box-shadow: none;
+}
+html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__close:is(:hover, :focus, :active) { border-color: #c49b31; background: #fbf6e9; color: #7c5f16; }
+html:root #cboxLoadedContent :is(.pisModal__actions .btn, .pisModal__bankItem):focus-visible { outline: 3px solid #c49b31; outline-offset: 2px; }
+/* telefón: nižšie karty a tlačidlá vedľa seba (Späť úzke, Potvrdiť výber zvyšok šírky) -> celé okno so 6 bankami
+   (~535 px) sa zmestí do Safari na iPhone 13 (390 × 664) bez posúvania; iPhone SE (375 × 553) posúva len zoznam */
+@media (max-width: 767px) {
+  html:root #cboxLoadedContent .content-modal:has(> .pisModal__bankSelection) { padding: 16px 14px 14px; }
+  html:root #cboxLoadedContent .content-modal > h2:has(~ .pisModal__bankSelection) { margin-bottom: 12px; font-size: 20px; }
+  html:root #cboxLoadedContent .pisModal__bankSelection {
+    gap: 6px; height: 342px; height: min(342px, calc(100vh - 250px)); height: min(342px, calc(100dvh - 250px)); margin-top: 12px;
+  }
+  html:root #cboxLoadedContent .pisModal__bankItem { min-height: 52px; padding-top: 6px; padding-bottom: 6px; }
+  html:root #cboxLoadedContent .pisModal__actions { margin-top: 14px; }
+  html:root #cboxLoadedContent .pisModal__actions .btn { padding: 8px 14px; }
+  html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm { flex: 1 1 auto; }
+}
+/* ===== LCD-PLATBA-BANKA END ===== */
 
 /* ===== Cena vs. tlacidlo do kosika (2026-09-25) =====
    .add-to-cart je od 768 px vytiahnute o 75 px hore vedla ceny. Stlpec je

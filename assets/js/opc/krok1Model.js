@@ -2,7 +2,8 @@
 // Bez zápisu do stránky, bez siete. Fail-closed: keď formulár Step1Validate, zvolená doprava alebo platba chýba,
 // vráti { ok: false, dovod } a volajúci ide dnešným tokom (odkaz na krok 1).
 //
-//   krok1Model(html)            -> { ok: true, akcia, pole, jazyk, doprava[], platby[], zvolenaDoprava, zvolenaPlatba, hlaska }
+//   krok1Model(html)            -> { ok: true, akcia, pole, jazyk, doprava[], platby[], zvolenaDoprava, zvolenaPlatba, hlaska,
+//                                    pisPodmienky (text Shoptet Pay pod bankou, rýchla platba cez banku) }
 //   krok1Model(html, { doc })   -> to isté nad hotovým dokumentom (testy v jsdom)
 // Každá doprava a platba nesie aj html (outerHTML .radio-wrapper zo Shoptetu): sekcia na kroku 2 kreslí klon označenia
 // Shoptetu (input -> label -> .shipping-billing-name), aby fungovalo lcdDobierkaZaloha aj CSS (kniha § 6.5 bod 2).
@@ -54,6 +55,41 @@ function jeVydajneMiesto(wrapper, input) {
   return !!(wrapper && wrapper.querySelector('[class*="pickup"], [data-pickup-point], [class*="zasilkovna"], [class*="packeta"]'));
 }
 
+/**
+ * Podmienky rýchlej platby cez banku (Shoptet Pay „pis“): text Shoptetu pod zvolenou bankou na kroku 1 (šablóna
+ * #template__pisPayment, .bankInformation__description: „Prijímate a súhlasíte so zmluvnými podmienkami a zásadami ochrany
+ * osobných údajov partnerských poskytovateľov.“ s 2 odkazmi Salt Edge). OPC ho ukáže pri banke na kroku 2 — prevzatý, nie
+ * vymyslený. Len text a odkazy http(s) -> [{ text }, { text, href }] | null (šablóna chýba / prázdna).
+ */
+function pisPodmienky(doc) {
+  try {
+    const t = doc.getElementById("template__pisPayment");
+    const koren = t && (t.content || t);
+    const opis = koren && koren.querySelector(".bankInformation__description");
+    if (!opis) return null;
+    const casti = [];
+    const prejdi = function (uzol) {
+      Array.prototype.forEach.call(uzol.childNodes, function (n) {
+        if (n.nodeType === 3) { if (n.textContent) casti.push({ text: n.textContent }); return; }
+        if (n.nodeType !== 1) return;
+        const href = n.tagName === "A" ? String(n.getAttribute("href") || "") : "";
+        if (/^https?:\/\//i.test(href)) casti.push({ text: n.textContent, href: href });
+        else prejdi(n);
+      });
+    };
+    prejdi(opis);
+    const spolu = casti.map(function (c) { return c.text; }).join("").replace(/\s+/g, " ").trim();
+    if (!spolu) return null;
+    // biele znaky ako v texte stránky (zalomenia riadkov šablóny -> medzera), okraje preč
+    casti.forEach(function (c) { c.text = c.text.replace(/\s+/g, " "); });
+    casti[0].text = casti[0].text.replace(/^\s+/, "");
+    casti[casti.length - 1].text = casti[casti.length - 1].text.replace(/\s+$/, "");
+    return casti.filter(function (c) { return c.text; });
+  } catch (e) {
+    return null;
+  }
+}
+
 export function krok1Model(html, moznosti) {
   try {
     const doc = (moznosti && moznosti.doc) || new DOMParser().parseFromString(String(html || ""), "text/html");
@@ -103,6 +139,7 @@ export function krok1Model(html, moznosti) {
       zvolenaDoprava: zd.id,
       zvolenaPlatba: zp.id,
       hlaska: text(hlaskaEl),
+      pisPodmienky: pisPodmienky(doc),
     };
   } catch (e) {
     return { ok: false, dovod: "vynimka" };

@@ -27,6 +27,7 @@ import * as P from "./polozky.js";
 import { TEXTY } from "./texty.js";
 import * as A from "./analytika.js";
 import * as K from "./kontrola.js";
+import * as B from "./banka.js";
 import { lcdDobierkaZaloha, lcdBublinaMimoTlacidla, changeDescription } from "../components/cart.js";
 import { vymenaBezi } from "../lcdKosikDoplnok.js";
 
@@ -59,7 +60,9 @@ export function initKrok2(ctx) {
   const form = document.getElementById("order-form");
   const box = document.getElementById("summary-box");
   const tlacidlo = document.getElementById("submit-order");
-  const k2 = { model: null, sync: null, sekcia: null };
+  // banky: výber banky pri rýchlej platbe priamo tu (opc/banka.js stavBanky: krajiny, krajina, banka), null = záloha
+  // (riadok s odkazom na klasický krok 1)
+  const k2 = { model: null, sync: null, sekcia: null, banky: null };
   ctx.krok2 = k2;
   // krok 1 sa preskočil (príznak z košíka, prečíta sa a zmaže hneď -> begin_checkout najviac raz, aj pri F5)
   const preskocilKrok1 = A.vezmiPreskocenie();
@@ -374,10 +377,19 @@ export function initKrok2(ctx) {
   function docasne(p) {
     return /^(step1|krok1)-(siet|limit)$/.test(p.typ) || p.typ === "vynimka" || (p.typ === "step1-kod" && Number(p.kod) >= 500);
   }
-  /** Je platba rýchla platba cez banku (Shoptet Pay „pis“, výber banky len na kroku 1)? */
+  /** Je platba rýchla platba cez banku (Shoptet Pay „pis“)? */
   function jePis(id) {
     const p = k2.model && k2.model.platby.find(function (x) { return x.id === String(id); });
     return !!(p && p.podmetoda === "pis");
+  }
+  /**
+   * Voľby pre Step1Validate: pri rýchlej platbe s výberom banky v OPC aj kód zvolenej banky (shoptetPayPisCode, ako formulár
+   * kroku 1). Kód sa berie v čase odoslania, takže ide vždy posledná potvrdená banka.
+   */
+  function volbyStep1(v) {
+    const o = { shippingId: v.doprava, billingId: v.platba };
+    if (k2.banky && k2.banky.banka && jePis(v.platba)) o.shoptetPayPisCode = k2.banky.banka.code;
+    return o;
   }
   /** Suma „Celkom k úhrade“ ako číslo (porovnanie súhrnu na stránke so serverom). */
   function suma(info) {
@@ -390,7 +402,8 @@ export function initKrok2(ctx) {
    * Shoptetu ďalej natívne). Nezhoda -> neodoslať, súhrn a voľba zo servera, hláška. Chyba -> neodoslať, hláška s odkazom
    * na klasický krok 1; trvalá chyba (session bez kroku 1, odmietnutie servera) alebo 2. zlyhanie za sebou -> záchrana.
    * Bežne 2 požiadavky (~0,3 s naživo, 🟡 odhad z dôkazu: Step1Validate 0,13–0,17 s, krok 1 0,18–0,5 s). Rýchla platba
-   * cez banku (112, banka z kroku 1): bez Step1Validate, len GET krok 1 (jePis).
+   * cez banku (112): Step1Validate s kódom banky zvolenej v OPC (shoptetPayPisCode, volbyStep1). Len v zálohe bez zoznamu
+   * bánk (banka z klasického kroku 1, OPC kód nepozná) bez Step1Validate, len GET krok 1.
    */
   function resync() {
     const sy = k2.sync;
@@ -398,11 +411,11 @@ export function initKrok2(ctx) {
     const sumaPred = suma(suhrnInfo(box));
     zacniOdosielanie("resync");
     const tento = odosielanie;
-    // rýchla platba cez banku: banku (shoptetPayPisCode) vyberá widget kroku 1 mimo formulára Step1Validate, náš Step1Validate
-    // by ju neniesol (revízia 29. 10., ako v košíku opc/kosik.js) -> len overenie zo servera (GET krok 1: voľba aj suma)
-    const krok = jePis(zobrazene.platba)
+    // rýchla platba cez banku v zálohe (banku vybral widget klasického kroku 1, OPC kód nepozná): Step1Validate bez kódu by
+    // banku v session prepísal (revízia 29. 10.) -> len overenie zo servera (GET krok 1: voľba aj suma)
+    const krok = jePis(zobrazene.platba) && !k2.banky
       ? Promise.resolve({ ok: true })
-      : posliStep1(k2.model, { shippingId: zobrazene.doprava, billingId: zobrazene.platba });
+      : posliStep1(k2.model, volbyStep1(zobrazene));
     krok
       .then(function (r) {
         if (!r.ok) return { ok: false, typ: "step1-" + r.typ, kod: r.kod };
@@ -635,6 +648,9 @@ export function initKrok2(ctx) {
   }
 
   // ------------------------------------------------------------ dáta z kroku 1 (s limitom: visiaca sieť = záchrana, R6)
+  // zoznam bánk Shoptet Pay súbežne s krokom 1 (rýchla platba cez banku, opc/banka.js; limit 4 s): zlyhanie = záloha,
+  // nie záchrana — rýchla platba ostane riadkom s odkazom na klasický krok 1
+  const bankyP = B.nacitajBanky().catch(function () { return { ok: false, typ: "vynimka" }; });
   nacitajKrok1()
     .then(function (r) {
       if (!r.ok) return { ok: false, dovod: "krok1-" + r.typ };
@@ -650,7 +666,7 @@ export function initKrok2(ctx) {
       const server = volbaZoSuhrnu(m, info);
       if (!server) return zachrana(info ? "nezhoda-nazov" : "suhrn");
       if (server.doprava !== m.zvolenaDoprava || server.platba !== m.zvolenaPlatba) return zachrana("nezhoda");
-      postav(m, server, info);
+      return bankyP.then(function (b) { postav(m, server, info, b); });
     })
     .catch(function (e) {
       ctx.chyby.push(String((e && e.message) || e));
@@ -661,10 +677,25 @@ export function initKrok2(ctx) {
     try { return !!(window.ApplePaySession && window.ApplePaySession.canMakePayments()); } catch (e) { return false; }
   }
 
-  function postav(m, volby, info) {
+  /** Zoznam bánk -> stav výberu (krajina, banka podľa localStorage ako widget kroku 1), len keď má krok 1 rýchlu platbu aj jej podmienky. */
+  function stavBanky(m, b) {
+    try {
+      if (!b || !b.ok || !m.pisPodmienky || !m.platby.some(function (p) { return p.podmetoda === "pis"; })) return null;
+      return B.stavBanky(b.data, B.ulozisko(window), B.menaAJazyk(window));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function postav(m, volby, info, banky) {
     k2.model = m;
+    k2.banky = stavBanky(m, banky);
+    if (!k2.banky && m.platby.some(function (p) { return p.podmetoda === "pis"; })) {
+      ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "banky-" + ((banky && !banky.ok && banky.typ) || (m.pisPodmienky ? "prazdne" : "podmienky")) });
+    }
     const druh = V.druhKosika(info.polozky.map(function (p) { return p.nazov || p.text; }));
-    const sek = V.vykresliSekciu(document, m, T, { volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh) });
+    const sek = V.vykresliSekciu(document, m, T, { volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh),
+      banka: k2.banky ? { banka: k2.banky.banka, podmienky: m.pisPodmienky } : null });
     k2.sekcia = sek;
     nacitavam.replaceWith(sek);
     try { lcdDobierkaZaloha(); } catch (e) {} // „+ záloha“ pri dobierke (cart.js) nad našimi rádiami
@@ -678,7 +709,7 @@ export function initKrok2(ctx) {
     const mena = V.menaWebu();
     const sync = vytvorSync({
       zvolene: volby,
-      posli: function (v) { return posliStep1(m, { shippingId: v.doprava, billingId: v.platba }); },
+      posli: function (v) { return posliStep1(m, volbyStep1(v)); },
       // čo má session: GET krok 1 (zaškrtnuté voľby + súhrn so sumou, ~100 kB); záloha GET krok 2, keď súhrn kroku 1
       // nestačí (oba s limitom 4 s); step2CustomerAjax sa nevolá (naživo vracia payload [] bez HTML)
       potvrd: function () {
@@ -756,9 +787,55 @@ export function initKrok2(ctx) {
           if (prva) v.platba = prva.value;
         }
       } else if (i.name === "billingId") {
+        if (k2.banky && jePis(i.value)) {
+          // rýchla platba cez banku: najprv okno výberu banky, platba sa zmení až po „Potvrdiť výber“; „Späť“ = rádio späť
+          // na doterajšiu voľbu a nič neodíde (Michal 30. 10. 2026)
+          vyberBanku(i, function (ok) {
+            if (!ok) { V.nastavVolby(sek, sync.vybrane()); return; }
+            const v2 = sync.vybrane();
+            v2.platba = i.value;
+            sync.zvol(v2);
+          });
+          return;
+        }
         v.platba = i.value;
       }
       sync.zvol(v);
+    });
+    /**
+     * Okno výberu banky (opc/banka.js). Potvrdená banka sa zapíše do localStorage ako vo widgete kroku 1 a do riadku pod
+     * rýchlou platbou; hotovo(true, ina) = potvrdené (ina = iná banka než doteraz), hotovo(false) = Späť / Esc / klik
+     * vedľa. Počas odosielania (zámok) ani v záchrane sa neotvorí.
+     */
+    function vyberBanku(fokus, hotovo) {
+      if (sync.zamknute() || sync.stav() === "zachrana" || !k2.banky) { hotovo(false); return; }
+      try {
+        B.otvorOkno(document, {
+          T: T, krajiny: k2.banky.krajiny, krajina: k2.banky.krajina, banka: k2.banky.banka && k2.banky.banka.code, fokus: fokus,
+          naKoniec: function (r) {
+            if (!r || sync.zamknute() || sync.stav() === "zachrana") { hotovo(false); return; }
+            const ina = !k2.banky.banka || k2.banky.banka.code !== r.banka.code;
+            k2.banky.krajina = r.krajina;
+            k2.banky.banka = r.banka;
+            B.ulozBanku(B.ulozisko(window), { krajina: r.krajina, banka: r.banka.code, mena: B.menaAJazyk(window).mena });
+            V.nastavBanku(sek, r.banka);
+            ctx.meraj("lcd_opc_banka", { lcd_opc_krajina: r.krajina, lcd_opc_ina: ina });
+            hotovo(true, ina);
+          },
+        });
+      } catch (e) {
+        ctx.chyby.push(String((e && e.message) || e));
+        hotovo(false);
+      }
+    }
+    // „Zmeniť banku“ pod zvolenou rýchlou platbou: iná banka pri tej istej platbe = Step1Validate s novým kódom (sync.znova)
+    sek.addEventListener("click", function (e) {
+      const b = e.target && e.target.closest ? e.target.closest("[data-lcd-opc-zmenit-banku]") : null;
+      if (!b) return;
+      e.preventDefault();
+      vyberBanku(b, function (ok, ina) {
+        if (ok && ina && jePis(sync.vybrane().platba)) sync.znova();
+      });
     });
     // neoverená platba: klik na už zaškrtnuté rádio („zvoľte ju znova“) change nevyvolá -> zvoliť ručne
     sek.addEventListener("click", function (e) {

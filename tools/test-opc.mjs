@@ -5,7 +5,7 @@
 // z čerstvého lokálneho buildu (tools/test-opc/build.mjs), statické súbory Shoptetu z fixtures/cdn. Do Shoptetu neodíde
 // nič: Step2Validate sa zachytí a dostane fiktívnu stránku „Objednávka prijatá (TEST)“, tretie strany sú zablokované.
 //
-//   node tools/test-opc.mjs                         # SK, všetky scenáre S1–S45 (+ S7K), šírky 1366 a 390
+//   node tools/test-opc.mjs                         # SK, všetky scenáre S1–S46 (+ S7K), šírky 1366 a 390
 //   node tools/test-opc.mjs --web cz --krok S17 --sirka 390
 //   (scenár s len: "sk" / "cz" sa na inom webe preskočí — set a kamión sú zachytené len pre SK, S12 je len CZ)
 //   node tools/test-opc.mjs --snimky C:/tmp/opc --vypis      # snímka na konci každého scenára + zoznam požiadaviek
@@ -29,9 +29,10 @@ import { SCENARE as REVIZIA } from "./test-opc/scenare-revizia.mjs";
 import { SCENARE as DOKAZ } from "./test-opc/scenare-dokaz.mjs";
 import { SCENARE as SPRAVANIE } from "./test-opc/scenare-spravanie.mjs";
 import { SCENARE as DIZAJN } from "./test-opc/scenare-dizajn.mjs";
+import { SCENARE as BANKA } from "./test-opc/scenare-banka.mjs";
 
 // poradie výpisu podľa čísla scenára (kniha § 7.6)
-const SCENARE = Object.fromEntries(Object.entries({ ...ZAKLAD, ...KROK2, ...KOSIKY, ...REVIZIA, ...DOKAZ, ...SPRAVANIE, ...DIZAJN })
+const SCENARE = Object.fromEntries(Object.entries({ ...ZAKLAD, ...KROK2, ...KOSIKY, ...REVIZIA, ...DOKAZ, ...SPRAVANIE, ...DIZAJN, ...BANKA })
   .sort((a, b) => parseInt(a[0].slice(1), 10) - parseInt(b[0].slice(1), 10) || a[0].localeCompare(b[0])));
 
 class ChybaPouzitia extends Error {}

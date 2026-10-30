@@ -1453,6 +1453,207 @@ t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / htm
   eq(zle, [], "selektory mimo html.lcd-opc* (" + zle.length + " z " + pocet + ")");
 });
 
+// ------------------------------------------------------------------ rýchla platba cez banku priamo v OPC (Michal 30. 10. 2026)
+// „Rýchla platba bankou“ ho z OPC poslala na starý krok 1 s čiernym oknom Shoptet Pay. Výber banky je teraz na kroku 2
+// (opc/banka.js): zoznam bánk z verejného GET Shoptet Pay, predvolená banka ako widget kroku 1 (localStorage pisBankSelected
+// / pisCountrySelected / pisCurrencySelected), Step1Validate s shoptetPayPisCode = telo formulára kroku 1 Shoptetu.
+const Bk = await import("../assets/js/opc/banka.js").catch((e) => ({ __chyba: e.message }));
+const bk = (n) => { if (Bk.__chyba) throw new Error("opc/banka.js: " + Bk.__chyba); if (typeof Bk[n] !== "function") throw new Error("opc/banka.js bez " + n); return Bk[n]; };
+const BANKY_SK = JSON.parse(fx("sk/shoptetpay-banky.json"));
+const ulozisko = (o = {}) => { const m = new Map(Object.entries(o)); return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); } }; };
+// telo formulára kroku 1 Shoptetu (fixtures SK, offline 30. 10. 2026: „Rýchla platba cez banku“ -> okno Shoptet Pay -> VÚB ->
+// Potvrdiť výber -> Pokračovať); S46 ho zachytí znova z checkout-3g.js a porovná s telom z OPC
+const TELO_KROK1_VUB = "language=sk&shippingId=96&billingId=112&shoptetPayPisCode=vub_banka_oauth_client_sk&gopayPayInstrument=";
+const EUR_SK = { mena: "EUR", jazyk: "sk" };
+
+t("teloStep1: rýchla platba 112 s bankou = telo formulára kroku 1 (shoptetPayPisCode hneď za billingId); pri inej platbe kód nejde", () => {
+  window.shoptet = { csrf: { enabled: false } };
+  const m = krok1Model(fx("sk/krok1.html"));
+  eq(teloStep1(m, { shippingId: "96", billingId: "112", shoptetPayPisCode: "vub_banka_oauth_client_sk" }).toString(), TELO_KROK1_VUB);
+  eq(teloStep1(m, { shippingId: "96", billingId: "5", shoptetPayPisCode: "vub_banka_oauth_client_sk" }).toString(), "language=sk&shippingId=96&billingId=5&gopayPayInstrument=", "prevod");
+  eq(teloStep1(m, { shippingId: "96", billingId: "112" }).toString(), "language=sk&shippingId=96&billingId=112&gopayPayInstrument=", "112 bez kódu (záloha)");
+  delete window.shoptet;
+});
+t("krok1Model SK: podmienky rýchlej platby (Salt Edge) z HTML kroku 1 — text a 2 odkazy, nič vymyslené; bez šablóny null", () => {
+  const p = krok1Model(fx("sk/krok1.html")).pisPodmienky;
+  over_(Array.isArray(p), "pisPodmienky chýbajú: " + JSON.stringify(p));
+  eq(p.map((x) => x.text).join(""), "Prijímate a súhlasíte so zmluvnými podmienkami a zásadami ochrany osobných údajov partnerských poskytovateľov.");
+  eq(p.filter((x) => x.href).map((x) => [x.text, x.href]), [["zmluvnými podmienkami", "https://www.saltedge.com/dashboard/fino_pis_terms"], ["zásadami ochrany osobných údajov", "https://www.saltedge.com/dashboard/fino_privacy_policy"]]);
+  eq(krok1Model(fx("sk/krok1.html").replace(/template__pisPayment/g, "template__iny")).pisPodmienky, null);
+  // odkaz s javascript: sa neprevezme ako odkaz
+  const zly = krok1Model(fx("sk/krok1.html").replace("https://www.saltedge.com/dashboard/fino_pis_terms", "javascript:alert(1)")).pisPodmienky;
+  eq(zly.filter((x) => x.href).length, 1, "javascript: odkaz");
+});
+t("banka: zoznam bánk Shoptet Pay (SK: Slovensko 6, Česko 5), CZ web [] / prázdne / nezmysel -> null", () => {
+  const z = bk("zoznamBank")(BANKY_SK);
+  eq(z.map((k) => [k.code, k.name, k.banky.length]), [["SK", "Slovensko", 6], ["CZ", "Česko", 5]]);
+  eq(z[0].banky[1], { code: "vub_banka_oauth_client_sk", name: "VUB", logo: "https://d1uuj3mi6rzwpm.cloudfront.net/logos/providers/sk/vub_sk.svg", isDefault: false });
+  for (const x of [[], {}, null, "x", { SK: { code: "SK", name: "S", providers: {} } }, { SK: { code: "SK", providers: { a: { name: "bez kódu" } } } }]) eq(bk("zoznamBank")(x), null, JSON.stringify(x));
+});
+t("banka: predvolená ako widget kroku 1 — EUR + sk = Slovensko, bez uloženej isDefault, inak prvá; uložená banka/krajina; iná mena ich zahodí", () => {
+  const st = bk("stavBanky");
+  const s0 = st(BANKY_SK, ulozisko(), EUR_SK);
+  eq([s0.krajina, s0.banka.code, s0.krajiny.length], ["SK", "slovenska_sporitelna_oauth_client_sk", 2]);
+  eq(st(BANKY_SK, ulozisko({ pisBankSelected: "vub_banka_oauth_client_sk", pisCountrySelected: "SK", pisCurrencySelected: "EUR" }), EUR_SK).banka.code, "vub_banka_oauth_client_sk");
+  const cz = st(BANKY_SK, ulozisko({ pisBankSelected: "csas_oauth_client_cz", pisCountrySelected: "CZ", pisCurrencySelected: "EUR" }), EUR_SK);
+  eq([cz.krajina, cz.banka.code], ["CZ", "csas_oauth_client_cz"]);
+  eq(st(BANKY_SK, ulozisko({ pisBankSelected: "vub_banka_oauth_client_sk", pisCountrySelected: "SK", pisCurrencySelected: "CZK" }), EUR_SK).banka.code, "slovenska_sporitelna_oauth_client_sk", "iná mena");
+  const d = JSON.parse(JSON.stringify(BANKY_SK));
+  d.SK.providers.tatra_banka_oauth_client_sk.isDefault = true;
+  eq(st(d, ulozisko(), EUR_SK).banka.code, "tatra_banka_oauth_client_sk", "isDefault");
+  eq(st(d, ulozisko({ pisBankSelected: "neznama_banka" }), EUR_SK).banka.code, "slovenska_sporitelna_oauth_client_sk", "uložená mimo krajiny -> prvá");
+  eq(st(BANKY_SK, ulozisko(), { mena: "CZK", jazyk: "cs" }).krajina, "CZ");
+  eq(st(BANKY_SK, ulozisko({ pisCountrySelected: "HU" }), EUR_SK).krajina, "SK", "uložená krajina bez bánk");
+  eq(st(BANKY_SK, { getItem() { throw new Error("zakázané"); } }, EUR_SK).banka.code, "slovenska_sporitelna_oauth_client_sk", "úložisko nejde");
+  eq(st([], ulozisko(), EUR_SK), null);
+});
+t("banka: Potvrdiť výber zapíše tie isté kľúče ako widget kroku 1 (klasický krok 1 ukáže tú istú banku); úložisko nejde -> bez chyby", () => {
+  const l = ulozisko();
+  bk("ulozBanku")(l, { krajina: "SK", banka: "tatra_banka_oauth_client_sk", mena: "EUR" });
+  eq([...l.m.entries()].sort(), [["pisBankSelected", "tatra_banka_oauth_client_sk"], ["pisCountrySelected", "SK"], ["pisCurrencySelected", "EUR"]]);
+  bk("ulozBanku")({ setItem() { throw new Error("zakázané"); } }, { krajina: "SK", banka: "x", mena: "EUR" });
+  bk("ulozBanku")(null, { krajina: "SK", banka: "x", mena: "EUR" });
+  eq([bk("ulozisko")({ get localStorage() { throw new Error("SecurityError"); } }), bk("ulozisko")({ localStorage: l }) === l], [null, true], "prístup k localStorage hádže");
+});
+t("banka: mena a jazyk z dataLayer Shoptetu (krok 2 aj košík), inak z jazyka stránky", () => {
+  eq(bk("menaAJazyk")({ dataLayer: [{ shoptet: { currency: "EUR", language: "sk" } }], document: { documentElement: { lang: "sk" } } }), { mena: "EUR", jazyk: "sk" });
+  eq(bk("menaAJazyk")({ dataLayer: [{ x: 1 }, { shoptet: { currency: "CZK", language: "cs" } }], document: { documentElement: { lang: "cs" } } }), { mena: "CZK", jazyk: "cs" });
+  eq(bk("menaAJazyk")({ document: { documentElement: { lang: "sk-SK" } } }), { mena: "", jazyk: "sk" });
+});
+t("banka: GET getBankProviderData na pozadí (XHR ako Shoptet, limit); 404, zlý JSON, sieť -> ok: false", () => sFetchom(async () => {
+  const povodny = globalThis.fetch;
+  const volania = [];
+  const odpovede = [() => new Response(JSON.stringify(BANKY_SK), { status: 200 }), () => new Response("nie", { status: 404 }), () => new Response("{zly", { status: 200 }), () => Promise.reject(new Error("siet"))];
+  globalThis.fetch = (u, i) => { volania.push([u, (i && i.method) || "GET", (i && i.headers && i.headers["X-Requested-With"]) || ""]); return Promise.resolve().then(odpovede.shift()); };
+  try {
+    const a = await bk("nacitajBanky")();
+    eq([a.ok, Object.keys(a.data)], [true, ["SK", "CZ"]]);
+    const r = [await bk("nacitajBanky")(), await bk("nacitajBanky")(), await bk("nacitajBanky")()];
+    eq(r.map((x) => x.ok), [false, false, false]);
+    eq(volania[0], ["/action/ShoptetPayPaymentData/getBankProviderData/", "GET", "XMLHttpRequest"]);
+  } finally { globalThis.fetch = povodny; }
+}));
+
+/** Okno výberu banky v jsdom (bez rozloženia): dokument, zoznam, výsledky naKoniec. */
+function oknoBanky(o = {}) {
+  const d = new JSDOM("<!doctype html><html><body><button id='spat'>Zmeniť</button></body></html>", { pretendToBeVisual: true }).window.document;
+  const krajiny = bk("zoznamBank")(o.data || BANKY_SK);
+  const vysledky = [];
+  d.getElementById("spat").focus();
+  bk("otvorOkno")(d, { T: TEXTY[o.web || "sk"], krajiny, krajina: o.krajina || "SK", banka: o.banka || "vub_banka_oauth_client_sk", naKoniec: (r) => vysledky.push(r), fokus: d.getElementById("spat") });
+  const dlg = d.querySelector("[data-lcd-opc-banky] [role=dialog]");
+  return { d, dlg, vysledky, radia: () => [...d.querySelectorAll("[data-lcd-opc-banky] input[type=radio]")] };
+}
+t("banka: okno v OPC — dialóg (aria-modal, nadpis), 6 bánk ako rádiá, zvolená uložená, fokus na nej; Potvrdiť vráti krajinu a banku, okno preč, fokus späť", () => {
+  const { d, dlg, vysledky, radia } = oknoBanky();
+  over_(dlg, "okno sa neotvorilo");
+  eq([dlg.getAttribute("aria-modal"), d.getElementById(dlg.getAttribute("aria-labelledby")).textContent], ["true", TEXTY.sk.bankaNadpis]);
+  eq(radia().map((r) => r.value), ["slovenska_sporitelna_oauth_client_sk", "vub_banka_oauth_client_sk", "tatra_banka_oauth_client_sk", "fio_oauth_client_sk", "raiffeisen_oauth_client_sk", "mbank_oauth_client_sk"]);
+  eq(radia().filter((r) => r.checked).map((r) => r.value), ["vub_banka_oauth_client_sk"]);
+  eq(d.activeElement && d.activeElement.value, "vub_banka_oauth_client_sk", "fokus");
+  eq(radia().every((r) => !r.form && !r.closest("form")), true, "rádiá bánk mimo formulára objednávky");
+  const lbl = radia()[1].closest("label");
+  eq([lbl.textContent.replace(/\s+/g, " ").trim(), lbl.querySelector("img").getAttribute("alt")], ["VUB", ""]);
+  radia()[2].click();
+  eq(vysledky.length, 0, "ťuk na banku okno nezavrie");
+  d.querySelector("[data-lcd-opc-banky] .lcd-opc-banky__potvrdit").click();
+  eq(vysledky.length, 1);
+  eq([vysledky[0].krajina, vysledky[0].banka && vysledky[0].banka.code, vysledky[0].banka && vysledky[0].banka.name], ["SK", "tatra_banka_oauth_client_sk", "Tatra Banka"]);
+  eq([d.querySelector("[data-lcd-opc-banky]"), d.activeElement.id, d.documentElement.classList.contains("lcd-opc-okno")], [null, "spat", false]);
+});
+t("banka: okno — Späť, Esc aj klik vedľa okna = nič nevyberie (null); Tab ostáva v okne", () => {
+  for (const ako of ["spat", "esc", "pozadie"]) {
+    const { d, vysledky, radia } = oknoBanky();
+    radia()[3].click();
+    const koren = d.querySelector("[data-lcd-opc-banky]");
+    if (ako === "spat") d.querySelector("[data-lcd-opc-banky] .lcd-opc-banky__spat").click();
+    else if (ako === "esc") koren.dispatchEvent(new d.defaultView.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    else koren.dispatchEvent(new d.defaultView.MouseEvent("click", { bubbles: true }));
+    eq([vysledky, d.querySelector("[data-lcd-opc-banky]"), d.activeElement.id], [[null], null, "spat"], ako);
+  }
+  const { d } = oknoBanky();
+  const potvrdit = d.querySelector("[data-lcd-opc-banky] .lcd-opc-banky__potvrdit");
+  potvrdit.focus();
+  const e = new d.defaultView.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+  potvrdit.dispatchEvent(e);
+  over_(e.defaultPrevented && d.querySelector("[data-lcd-opc-banky]").contains(d.activeElement), "Tab z posledného tlačidla odišiel z okna: " + (d.activeElement && d.activeElement.outerHTML.slice(0, 80)));
+});
+t("banka: okno — krajina len pri viac krajinách; Česko = 5 českých bánk (zvolená prvá), Potvrdiť vráti CZ; texty CZ", () => {
+  const { d, vysledky, radia } = oknoBanky();
+  const sel = d.querySelector("[data-lcd-opc-banky] select");
+  eq([sel.options.length, sel.value, sel.hasAttribute("name"), sel.options[0].textContent], [2, "SK", false, "Slovensko · 6 bánk"]);
+  over_(sel.labels && sel.labels.length === 1, "výber krajiny bez štítku");
+  sel.value = "CZ";
+  sel.dispatchEvent(new d.defaultView.Event("change", { bubbles: true }));
+  eq([radia().length, radia().filter((r) => r.checked).map((r) => r.value)], [5, ["csas_oauth_client_cz"]]);
+  d.querySelector("[data-lcd-opc-banky] .lcd-opc-banky__potvrdit").click();
+  eq([vysledky[0].krajina, vysledky[0].banka.code], ["CZ", "csas_oauth_client_cz"]);
+  const jedna = { SK: BANKY_SK.SK };
+  const o1 = oknoBanky({ data: jedna });
+  eq(o1.d.querySelector("[data-lcd-opc-banky] select"), null, "jedna krajina -> bez výberu krajiny");
+  const c = oknoBanky({ web: "cz", krajina: "CZ", banka: "x" });
+  eq([c.d.getElementById(c.dlg.getAttribute("aria-labelledby")).textContent, c.d.querySelector(".lcd-opc-banky__potvrdit").textContent, c.d.querySelector(".lcd-opc-banky__spat").textContent], [TEXTY.cz.bankaNadpis, TEXTY.cz.potvrditBanku, TEXTY.cz.spat]);
+  eq(c.d.querySelector("[data-lcd-opc-banky] select").options[1].textContent, "Česko · 5 bank");
+  eq(c.radia().filter((r) => r.checked).map((r) => r.value), ["csas_oauth_client_cz"], "neznáma banka -> prvá");
+});
+t("texty: okno banky SK + CZ (vykanie s veľkým V), počty bánk 1/3/6", () => {
+  eq([TEXTY.sk.bankaNadpis, TEXTY.cz.bankaNadpis, TEXTY.sk.potvrditBanku, TEXTY.cz.potvrditBanku, TEXTY.sk.spat, TEXTY.cz.spat], ["Vyberte Vašu banku", "Vyberte Vaši banku", "Potvrdiť výber", "Potvrdit výběr", "Späť", "Zpět"]);
+  eq([TEXTY.sk.pocetBank(1), TEXTY.sk.pocetBank(3), TEXTY.sk.pocetBank(6), TEXTY.cz.pocetBank(1), TEXTY.cz.pocetBank(3), TEXTY.cz.pocetBank(5)], ["1 banka", "3 banky", "6 bánk", "1 banka", "3 banky", "5 bank"]);
+});
+t("sekcia SK so zoznamom bánk: rýchla platba = rádio (nie odkaz na krok 1), pod ním banka + „Zmeniť banku“ + podmienky Salt Edge z kroku 1; nie dlaždica", () => {
+  const m0 = krok1Model(fx("sk/krok1.html"));
+  const banka = { code: "vub_banka_oauth_client_sk", name: "VUB", logo: "https://d1uuj3mi6rzwpm.cloudfront.net/logos/providers/sk/vub_sk.svg" };
+  const { el } = sekcia("sk", { banka: { banka, podmienky: m0.pisPodmienky } });
+  const w = el.querySelector('[data-submethod="pis"]');
+  const i = w.querySelector('input[name="billingId"][value="112"]');
+  over_(i && i.getAttribute("form") === "lcd-opc-nic", "112 nie je rádio našej sekcie");
+  eq([w.querySelector('a[href="/objednavka/krok-1/"]'), w.classList.contains("lcd-opc-odkaz"), w.classList.contains("lcd-opc-dlazdica")], [null, false, false]);
+  eq([...el.querySelectorAll('input[name="billingId"]')].map((x) => x.value), ["5", "103", "109", "112", "3"]);
+  const b = w.querySelector(".lcd-opc-banka");
+  over_(b && !b.closest("label"), "riadok banky chýba alebo je v štítku rádia (ťuk na Zmeniť by prepol platbu)");
+  eq([b.querySelector(".lcd-opc-banka__meno").textContent, b.querySelector(".lcd-opc-banka__logo").getAttribute("src")], ["VUB", banka.logo]);
+  const z = b.querySelector("button.lcd-opc-banka__zmenit");
+  eq([z && z.getAttribute("type"), z && z.textContent], ["button", TEXTY.sk.zmenitBanku]);
+  const pod = b.querySelector(".lcd-opc-banka__podmienky");
+  eq(pod.textContent, "Prijímate a súhlasíte so zmluvnými podmienkami a zásadami ochrany osobných údajov partnerských poskytovateľov.");
+  eq([...pod.querySelectorAll("a")].map((a) => [a.getAttribute("href"), a.getAttribute("target"), a.getAttribute("rel")]),
+    [["https://www.saltedge.com/dashboard/fino_pis_terms", "_blank", "noopener"], ["https://www.saltedge.com/dashboard/fino_privacy_policy", "_blank", "noopener"]]);
+  V.nastavBanku(el, { code: "tatra_banka_oauth_client_sk", name: "Tatra Banka", logo: "https://x/t.svg" });
+  eq([b.querySelector(".lcd-opc-banka__meno").textContent, b.querySelector(".lcd-opc-banka__logo").getAttribute("src")], ["Tatra Banka", "https://x/t.svg"]);
+  // zvolená 112 -> rádio zaškrtnuté, karta aktívna (CSS ukáže riadok banky)
+  V.nastavVolby(el, { doprava: "96", platba: "112" });
+  eq([i.checked, w.classList.contains("active")], [true, true]);
+  // bez podmienok Salt Edge (zmenené HTML Shoptetu) -> záloha: odkaz na krok 1
+  const { el: el2 } = sekcia("sk", { banka: { banka, podmienky: null } });
+  eq(!!el2.querySelector('[data-submethod="pis"] a[href="/objednavka/krok-1/"]'), true, "bez podmienok odkaz na krok 1");
+});
+t("sync: znova() (iná banka pri tej istej platbe 112) pošle voľbu ešte raz; počas letiacej požiadavky ide po nej; v zámku nič", async () => {
+  const { s, log } = sync({ ms: 100 });
+  over_(typeof s.znova === "function", "sync.znova chýba");
+  s.zvol({ doprava: "96", platba: "112" });
+  eq(await s.pripravene(3000), "potvrdene");
+  s.znova();
+  eq([s.stav(), s.mozeOdoslat()], ["meni-sa", false]);
+  eq(await s.pripravene(3000), "potvrdene");
+  eq(log.posli, ["112", "112"]);
+  s.znova();
+  await cakaj(80); // požiadavka letí (debounce 40 ms, odpoveď po 100 ms)
+  s.znova();
+  await cakaj(20);
+  eq(await s.pripravene(3000), "potvrdene");
+  await cakaj(150);
+  eq([log.posli, s.stav()], [["112", "112", "112", "112"], "potvrdene"]);
+  // znova + návrat na tú istú voľbu v debounce: aj tak sa pošle (banka je iná)
+  s.znova();
+  s.zvol({ doprava: "96", platba: "112" });
+  eq(await s.pripravene(3000), "potvrdene");
+  eq(log.posli.length, 5);
+  s.zamkni(true);
+  s.znova();
+  await cakaj(120);
+  eq([log.posli.length, s.stav()], [5, "potvrdene"], "v zámku");
+});
+
 const PV = await import("./test-opc/podvrh.mjs");
 t("podvrh: košík „dve“ — súčet riadku 2. položky €129, celkom €398 (nie €398 pri oboch riadkoch)", () => {
   const d = new JSDOM(PV.sDvomaPolozkami(fx("sk-set/kosik.html"))).window.document;

@@ -394,48 +394,65 @@ export const SCENARE = {
   },
   S34: {
     len: "sk",
-    popis: "Rýchla platba cez banku (112) vybraná s bankou na klasickom kroku 1: kontrola pred odoslaním nepošle Step1Validate bez kódu banky (overí len GET kroku 1); objednávka 1× so 112; iná karta prepla platbu -> neodíde, hláška",
+    popis: "Rýchla platba cez banku (112) vybraná s bankou na klasickom kroku 1 (VÚB v session aj v prehliadači): krok 2 ukáže 112 s VÚB, kontrola pred odoslaním pošle Step1Validate S KÓDOM banky; iná karta prepla platbu -> resync vráti 112 s VÚB; bez zoznamu bánk záloha bez Step1Validate (len GET kroku 1)",
     async fn(J) {
-      // session má 112 aj banku z widgetu kroku 1 (shoptetPayPisCode je mimo formulára Step1Validate, krok1Model ho nevidí)
+      // session má 112 aj banku z widgetu kroku 1 (scenár banka), prehliadač si banku pamätá (localStorage widgetu kroku 1)
       // súhrn kroku 2 so 112: 🟡 poskladaný podvrhom zo súhrnu prevodu, zodpovedá živému T11 („Rýchla platba cez banku“, €10)
+      const VUB = "vub_banka_oauth_client_sk";
+      const TELO = "language=sk&shippingId=96&billingId=112&shoptetPayPisCode=" + VUB + "&gopayPayInstrument=";
+      const ULOZ = `try { localStorage.setItem("pisBankSelected", "${VUB}"); localStorage.setItem("pisCountrySelected", "SK"); localStorage.setItem("pisCurrencySelected", "EUR"); } catch (e) {}`;
+      const riadok = (s) => s.ev(`(function () { var w = document.querySelector('#lcd-opc [data-submethod="pis"]'); var m = w && w.querySelector(".lcd-opc-banka__meno");
+        return w ? { aktivny: w.classList.contains("active"), banka: m ? m.textContent : null, odkaz: !!w.querySelector('a[href="/objednavka/krok-1/"]'), radio: !!w.querySelector("input[name=billingId]") } : null; })()`);
       const casti = [];
-      let s = await J.novaStranka({ scenar: { platba: "112", zaciatok: "krok2" } });
-      await s.chod(KROK2 + OPC, { popis: "krok 2 s kódom OPC (session: 112 s bankou)" });
+      let s = await J.novaStranka({ scenar: { platba: "112", banka: VUB, zaciatok: "krok2" }, skript: ULOZ });
+      await s.chod(KROK2 + OPC, { popis: "krok 2 s kódom OPC (session: 112 s VÚB)" });
       let st = await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/);
       await s.odmietniCookies();
-      const riadok = await s.ev(`(function () { var r = document.querySelector('#lcd-opc [data-lcd-opc-id="112"]'); return r ? r.classList.contains("active") : null; })()`);
-      over(st.stav === "krok2-potvrdene" && st.potvrdene.platba === "112" && riadok === true, "krok 2 so 112: " + JSON.stringify({ stav: st.stav, potvrdene: st.potvrdene, riadok }));
+      let r = await riadok(s);
+      over(st.stav === "krok2-potvrdene" && st.potvrdene.platba === "112" && r && r.radio && r.aktivny && r.banka === "VUB" && !r.odkaz, "krok 2 so 112: " + JSON.stringify({ stav: st.stav, potvrdene: st.potvrdene, r }));
       await vyplnUdaje(s);
       await suhlas(s);
       s.p.reset();
       let z = await objednaj(s);
       let pred = step1Xhr(s).filter((x) => x.cas <= z[0].cas);
-      over(pred.length === 0, "kontrola pred odoslaním poslala Step1Validate bez kódu banky: " + JSON.stringify(pred.map((x) => x.telo)));
-      const k1 = s.p.zaznam.www.filter((x) => x.cas <= z[0].cas && x.metoda === "GET" && /\/objednavka\/krok-1\/$/.test(x.cesta) && x.typ !== "Document");
-      over(k1.length === 1, "kontrola pred odoslaním nestiahla krok 1 (GET " + k1.length + "×)");
+      over(pred.length === 1 && pred[0].telo === TELO, "kontrola pred odoslaním: Step1Validate " + JSON.stringify(pred.map((x) => x.telo)) + " (čakal som " + TELO + ")");
       overTeloObjednavky(s, z[0]);
-      over(z.length === 1 && z[0].platba === "112", "objednávka s platbou " + JSON.stringify(z.map((x) => x.platba)));
-      casti.push("112: bez Step1Validate, GET krok 1, 1× Step2Validate so 112");
+      over(z.length === 1 && z[0].platba === "112" && z[0].banka === VUB, "objednávka " + JSON.stringify(z.map((x) => [x.platba, x.banka])));
+      casti.push("112 s VÚB: Step1Validate s kódom, 1× Step2Validate so 112 a VÚB");
       await s.zavri();
-      // iná karta prepla session na prevod: GET kroku 1 to ukáže -> neodíde, súhrn a voľba zo servera, hláška; ďalší klik s prevodom
-      s = await J.novaStranka({ scenar: { platba: "112", zaciatok: "krok2" } });
+      // iná karta prepla session na prevod: stránka ukazuje 112 s VÚB -> resync pošle zobrazenú voľbu (ako pri ostatných platbách, S30)
+      s = await J.novaStranka({ scenar: { platba: "112", banka: VUB, zaciatok: "krok2" }, skript: ULOZ });
       const id = ID[s.web];
-      await s.chod(KROK2 + OPC, { popis: "krok 2 s kódom OPC (session: 112 s bankou)" });
+      await s.chod(KROK2 + OPC, { popis: "krok 2 s kódom OPC (session: 112 s VÚB)" });
       await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/);
       await s.odmietniCookies();
       await vyplnUdaje(s);
       await suhlas(s);
       s.p.stav.platba = id.prevod;
+      s.p.stav.banka = null;
       s.p.reset();
-      await objednaj(s, { n: 0, ms: 2500 });
-      st = await stavOpc(s);
-      const h = await cakamText(s);
-      over(s.p.zaznam.step2.length === 0, "objednávka odišla, hoci session má inú platbu, než zákazník videl (112)");
-      over(step1Xhr(s).every((x) => x.pole.billingId !== "112"), "Step1Validate so 112 bez banky: " + JSON.stringify(step1Xhr(s).map((x) => x.telo)));
-      over(/inom okne/.test(h) && st.potvrdene.platba === id.prevod && st.platbaUI === id.prevod, "nezhoda so 112: " + JSON.stringify({ h, potvrdene: st.potvrdene, ui: st.platbaUI }));
       z = await objednaj(s);
-      over(z.length === 1 && z[0].platba === id.prevod, "druhý klik: objednávka s " + JSON.stringify(z.map((x) => x.platba)));
-      casti.push("iná karta (prevod): neodišlo, hláška, ďalší klik s prevodom");
+      pred = step1Xhr(s).filter((x) => x.cas <= z[0].cas);
+      over(pred.length === 1 && pred[0].telo === TELO && z.length === 1 && z[0].platba === "112" && z[0].banka === VUB,
+        "iná karta (prevod): " + JSON.stringify({ step1: pred.map((x) => x.telo), z: z.map((x) => [x.platba, x.banka]) }));
+      casti.push("iná karta (prevod): resync 112 s VÚB, objednávka so 112");
+      await s.zavri();
+      // záloha: zoznam bánk nejde -> riadok s odkazom na klasický krok 1, kontrola bez Step1Validate (banka zo session ostane)
+      s = await J.novaStranka({ scenar: { platba: "112", banka: VUB, zaciatok: "krok2", banky: "500" }, skript: ULOZ });
+      await s.chod(KROK2 + OPC, { popis: "krok 2 s kódom OPC (banky 500)" });
+      st = await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/);
+      await s.odmietniCookies();
+      r = await riadok(s);
+      over(st.stav === "krok2-potvrdene" && r && r.odkaz && !r.radio && r.aktivny, "záloha bez zoznamu bánk: " + JSON.stringify({ stav: st.stav, r }));
+      await vyplnUdaje(s);
+      await suhlas(s);
+      s.p.reset();
+      z = await objednaj(s);
+      pred = step1Xhr(s).filter((x) => x.cas <= z[0].cas);
+      over(pred.length === 0, "záloha: kontrola pred odoslaním poslala Step1Validate bez kódu banky: " + JSON.stringify(pred.map((x) => x.telo)));
+      const k1 = s.p.zaznam.www.filter((x) => x.cas <= z[0].cas && x.metoda === "GET" && /\/objednavka\/krok-1\/$/.test(x.cesta) && x.typ !== "Document");
+      over(k1.length === 1 && z.length === 1 && z[0].platba === "112" && z[0].banka === VUB, "záloha: GET krok 1 " + k1.length + "×, objednávka " + JSON.stringify(z.map((x) => [x.platba, x.banka])));
+      casti.push("banky 500: odkaz, bez Step1Validate, GET krok 1, objednávka so 112 a VÚB zo session");
       return { step2: true, info: casti.join(" | ") };
     },
   },
@@ -516,11 +533,12 @@ export const SCENARE = {
       over(d.spat === T.spat && d.spatHref === KOSIK, "Späť: " + JSON.stringify(d));
       over(d.stat.length >= 1 && d.stat.every((x) => x === T.stat + "|" + KROK1), "text pri krajine: " + JSON.stringify(d.stat));
       if (J.web === "sk") {
-        // rýchla platba cez banku (nezvolená) = odkaz na samostatnú stránku: šípka, nie prázdny krúžok rádia
-        const sip = await s.ev(`(function () { var r = document.querySelector('#lcd-opc .lcd-opc-odkaz[data-lcd-opc-id="112"] .lcd-opc-odkaz__riadok'); if (!r) return null;
-          var c = getComputedStyle(r, "::before"), p = r.querySelector(".sublabel.lcd-opc-odkaz__nie");
-          return { radius: c.borderTopLeftRadius, transform: c.transform, popis: p ? p.textContent.trim() : null }; })()`);
-        over(sip && sip.radius === "0px" && sip.transform !== "none" && /samostatnej stránke/.test(sip.popis), "riadok rýchlej platby vyzerá ako rádio: " + JSON.stringify(sip));
+        // rýchla platba cez banku (nezvolená) = bežné rádio (Michal 30. 10. 2026: banka sa vyberá tu, nie na samostatnej
+        // stránke): prázdny krúžok, popis Shoptetu, žiadna šípka ani odkaz na krok 1
+        const sip = await s.ev(`(function () { var w = document.querySelector('#lcd-opc [data-submethod="pis"]'), i = w && w.querySelector('input[name="billingId"]');
+          if (!i) return null; var c = getComputedStyle(i.nextElementSibling, "::before"), p = w.querySelector(".payment-info .sublabel");
+          return { radius: c.borderTopLeftRadius, transform: c.transform, popis: p ? p.textContent.trim() : null, odkaz: !!w.querySelector('a[href="/objednavka/krok-1/"]') }; })()`);
+        over(sip && sip.radius === "50%" && sip.transform === "none" && !sip.odkaz && !/samostatnej stránke/.test(sip.popis), "rýchla platba nie je rádio (šípka / odkaz na krok 1): " + JSON.stringify(sip));
       }
       return { info: "košík bez OPC 3 kroky, s OPC " + dom.join(" · ") + "; finálna stránka „" + d.spat + "“, „" + T.stat + "“ (" + d.stat.length + "×)" };
     },

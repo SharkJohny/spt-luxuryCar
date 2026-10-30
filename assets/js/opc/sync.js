@@ -38,19 +38,32 @@ const XHR = {
   Accept: "application/json, text/javascript, */*; q=0.01",
 };
 
-/** Telo Step1Validate: polia formulára kroku 1 (model.pole) s vybranou dopravou a platbou, pri zapnutom CSRF aj __csrf__. */
+/** Je platba rýchla platba cez banku (Shoptet Pay „pis“) podľa modelu kroku 1? */
+export function jePisPlatba(model, id) {
+  const p = model && model.platby ? model.platby.find(function (x) { return x.id === String(id); }) : null;
+  return !!(p && p.podmetoda === "pis");
+}
+
+/**
+ * Telo Step1Validate: polia formulára kroku 1 (model.pole) s vybranou dopravou a platbou, pri zapnutom CSRF aj __csrf__.
+ * Rýchla platba cez banku (volby.shoptetPayPisCode, len keď je billingId „pis“): kód banky hneď za billingId — presne ako
+ * formulár kroku 1 Shoptetu, kde skryté pole shoptetPayPisCode leží v riadku tej platby (zachytené offline 30. 10. 2026:
+ * language=sk&shippingId=96&billingId=112&shoptetPayPisCode=vub_banka_oauth_client_sk&gopayPayInstrument=).
+ */
 export function teloStep1(model, volby) {
   const telo = new URLSearchParams();
   const s = String(volby.shippingId), b = String(volby.billingId);
+  const kod = volby.shoptetPayPisCode && jePisPlatba(model, b) ? String(volby.shoptetPayPisCode) : null;
+  const pridajB = function () { telo.append("billingId", b); if (kod) telo.append("shoptetPayPisCode", kod); };
   let maS = false, maB = false;
   model.pole.forEach(function (p) {
     if (p[0] === "shippingId") { if (!maS) telo.append("shippingId", s); maS = true; return; }
-    if (p[0] === "billingId") { if (!maB) telo.append("billingId", b); maB = true; return; }
-    if (p[0] === "__csrf__") return;
+    if (p[0] === "billingId") { if (!maB) pridajB(); maB = true; return; }
+    if (p[0] === "__csrf__" || p[0] === "shoptetPayPisCode") return;
     telo.append(p[0], p[1]);
   });
   if (!maS) telo.append("shippingId", s);
-  if (!maB) telo.append("billingId", b);
+  if (!maB) pridajB();
   const t = csrf();
   if (t) telo.set("__csrf__", t);
   return telo;
@@ -237,6 +250,7 @@ export function vytvorSync(o) {
     sucasne: 0,
     maxSucasne: 0,
     zamknute: false, // odosielanie beží (krok2.js, T3-L7): voľba sa nemení, nič sa neposiela
+    vynutit: false, // znova(): tá istá voľba sa pošle ešte raz (iná banka pri rýchlej platbe, opc/banka.js)
     cakatelia: [],
   };
   const debounce = o.debounce == null ? DEBOUNCE_MS : o.debounce;
@@ -316,7 +330,7 @@ export function vytvorSync(o) {
   /** Letiaca požiadavka (Step1Validate a/alebo potvrdenie súhrnu) dobehla: vyhodnotiť, alebo ísť na novšiu voľbu. */
   function dobehla(v, r1, p) {
     st.letiaca = false;
-    if (!rovnake(st.vybrane, v)) {
+    if (!rovnake(st.vybrane, v) || st.vynutit) {
       // medzitým nová voľba: výsledok tejto požiadavky len posunie, čo session má, a ide sa ďalej
       if (p && p.ok && p.volby) {
         st.potvrdene = kopia(p.volby);
@@ -346,7 +360,8 @@ export function vytvorSync(o) {
     st.casovac = null;
     if (st.letiaca) return; // po dokončení letiacej pôjde najnovšia voľba
     const v = kopia(st.vybrane);
-    if (rovnake(v, st.potvrdene) && st.overene) return oznam("potvrdene", {});
+    if (rovnake(v, st.potvrdene) && st.overene && !st.vynutit) return oznam("potvrdene", {});
+    st.vynutit = false;
     st.letiaca = true;
     let r1 = null;
     posliSPokusom(v)
@@ -375,11 +390,25 @@ export function vytvorSync(o) {
       st.vybrane = kopia(volby);
       if (st.casovac) clearTimeout(st.casovac);
       st.casovac = null;
-      if (!st.letiaca && st.overene && rovnake(st.vybrane, st.potvrdene)) {
+      if (!st.letiaca && st.overene && !st.vynutit && rovnake(st.vybrane, st.potvrdene)) {
         // späť na potvrdenú voľbu ešte pred odoslaním: nič sa neposiela
         if (st.stav !== "potvrdene") { st.typ = null; oznam("potvrdene", {}); }
         return;
       }
+      if (st.stav !== "meni-sa") oznam("meni-sa", {});
+      else { try { if (o.naZmenu) o.naZmenu("meni-sa", { volby: kopia(st.vybrane), potvrdene: kopia(st.potvrdene), overene: st.overene }); } catch (e) {} }
+      st.casovac = setTimeout(spusti, debounce);
+    },
+    /**
+     * Tá istá voľba ešte raz (Step1Validate): pri rýchlej platbe cez banku zákazník zmenil banku (opc/banka.js), voľba
+     * dopravy a platby sa nemení, ale session musí dostať nový shoptetPayPisCode. Ako zvol: meni-sa hneď, požiadavka po
+     * debounce, počas letiacej ide po nej. V zámku (odosielanie) a v záchrane nič.
+     */
+    znova: function () {
+      if (st.stav === "zachrana" || st.zamknute) return;
+      st.vynutit = true;
+      if (st.casovac) clearTimeout(st.casovac);
+      st.casovac = null;
       if (st.stav !== "meni-sa") oznam("meni-sa", {});
       else { try { if (o.naZmenu) o.naZmenu("meni-sa", { volby: kopia(st.vybrane), potvrdene: kopia(st.potvrdene), overene: st.overene }); } catch (e) {} }
       st.casovac = setTimeout(spusti, debounce);

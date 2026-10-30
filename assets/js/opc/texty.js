@@ -45,6 +45,13 @@ export const TEXTY = {
     bankaPopis: "Banku si vyberiete na samostatnej stránke.",
     bankaZvolena: "Banku máte vybranú.",
     zmenitBanku: "Zmeniť banku",
+    // okno výberu banky priamo na finálnej stránke (Michal 30. 10. 2026: rýchla platba ho nesmie poslať na starý krok 1),
+    // opc/banka.js; tlačidlá ako v okne Shoptet Pay na kroku 1 („Späť“, „Potvrdiť výber“)
+    bankaNadpis: "Vyberte Vašu banku",
+    bankaKrajina: "Krajina banky",
+    pocetBank: (n) => (n === 1 ? "1 banka" : n >= 2 && n <= 4 ? n + " banky" : n + " bánk"),
+    spat: "Späť",
+    potvrditBanku: "Potvrdiť výber",
     vybratMiesto: "Vybrať miesto",
     // obchodné podmienky (odkazy pri právnych vetách sa otvárajú v novej karte, rozpísaná objednávka ostane)
     vop: "/obchodne-podmienky/",
@@ -112,6 +119,11 @@ export const TEXTY = {
     bankaPopis: "Banku si vyberete na samostatné stránce.",
     bankaZvolena: "Banku máte vybranou.",
     zmenitBanku: "Změnit banku",
+    bankaNadpis: "Vyberte Vaši banku",
+    bankaKrajina: "Země banky",
+    pocetBank: (n) => (n === 1 ? "1 banka" : n >= 2 && n <= 4 ? n + " banky" : n + " bank"),
+    spat: "Zpět",
+    potvrditBanku: "Potvrdit výběr",
     vybratMiesto: "Vybrat místo",
     vop: "/obchodni-podminky/",
     // CZ § 1820 odst. 1 písm. q OZ: VOP CZ 4.13 (záloha 50 %) a 4.15
