@@ -17139,7 +17139,9 @@ body.lcd-1v .upsale-Banner.lcd1v-kb.showConf .box-config {
        sa obsah na Androide 360–390 px nezmestil (390 × 764: 740 px obsahu, 672 px okna); iPhone nižšie (svh) */
     max-height: 88vh;
     max-height: calc(100dvh - 2px);
-    --kb-bok: 16px; /* bočný okraj okna a päty (do 374 px 12 px — nižšie) */
+    /* bočný okraj okna a päty: 16 px (do 374 px 12 px — nižšie); nad 440 px (iPhone na šírku, 7" tablet) väčší, aby obsah
+       ostal široký ako na 440 px (408 px) a v strede — vzorky a dlaždice ako v schválenom náhľade (revízia 30. 10. 2026) */
+    --kb-bok: max(16px, calc(50vw - 204px));
     padding: 14px var(--kb-bok) calc(20px + env(safe-area-inset-bottom, 0px)) !important;
     border-radius: 20px 20px 0 0 !important;
     transform: translateY(32px);
@@ -17573,9 +17575,11 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata .lcd1v-bx__ok {
    Michal 30. 10. 2026 schválil náhľad (iPhone 440 × 956, lišta Safari zbalená): „FARBA BOXOV“ a „Vybraná farba: …“
    v jednom riadku nad vzorkami, vzorky 5 v riadku (~75 px, min. 64), S / M / L / XL ako 4 dlaždice v jednom riadku
    (kresba, písmeno, rozmery, cena), tesnejšie medzery. Pre všetky telefóny (iPhone aj Android), 2 boxy aj 1 box; od 721 px
-   bez zmeny. Písmo: text ≥ 16 px, rozmery a ceny 15, štítky 12. Úzke telefóny: rozmer sa zalomí pred „cm“ (do 390 px),
-   štítok „Najčastejšie“ do 408 px malými písmenami (veľkými sa do dlaždice nezmestí), do 374 px okraj okna 12 px (vzorky
-   ostanú ≥ 64 px). Test: okno-vsetko-mobil (tools/test-1v/scenare-jedno.mjs). */
+   bez zmeny. Písmo: text ≥ 16 px, rozmery a ceny 15, štítky 12. Úzke telefóny: rozmer sa zalomí pred „cm“, keď sa
+   do dlaždice nezmestí (do ~425 px), štítok „Najčastejšie“ do 426 px malými písmenami (veľkými sa do dlaždice nezmestí),
+   do 374 px okraj okna 12 px (vzorky ostanú ≥ 64 px); nad 440 px obsah okna ako na 440 px v strede (--kb-bok).
+   Text a štítok najmenej 2 px od vonkajšieho okraja dlaždice (revízia 30. 10. 2026: Android 412 px).
+   Test: okno-vsetko-mobil (tools/test-1v/scenare-jedno.mjs). */
 @media (max-width: 720px) {
   body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__hd {
     margin: 0 0 2px;
@@ -17633,8 +17637,10 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata .lcd1v-bx__ok {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 5px;
   }
+  /* bočný padding 2 px: rozmer / cena sa nedotkne rámu — keď sa nezmestí, zalomí sa (Android 412 px: „33 × 32 × 30 cm“
+     88,7 px v dlaždici 91,3 px sa dotýkal rámu) */
   body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button {
-    padding: 7px 0 !important;
+    padding: 7px 2px !important;
     border-radius: 11px !important;
   }
   body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__vel > .lcd1v-bxp-sil {
@@ -17658,7 +17664,9 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata .lcd1v-bx__ok {
     letter-spacing: 0;
   }
 }
-@media (max-width: 408px) {
+/* štítok veľkými písmenami má 90,5 px; s odstupom 2 px od okraja potrebuje dlaždicu ≥ 94,5 px = (šírka − 2 × 16 − 3 × 5) / 4
+   -> od 425 px. Do 426 px malými písmenami (Android 412 px, 414, 420), od 427 veľkými (iPhone Plus / Pro Max 428 / 430, 440). */
+@media (max-width: 426px) {
   body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__topv {
     padding: 4px 3px;
     letter-spacing: -.02em;
