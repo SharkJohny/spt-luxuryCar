@@ -232,12 +232,15 @@ export const PRODUKTY = {
   },
 };
 
-/** CZ profily sú oddelené od SK: ID, URL a mena patria projektu 581408. Základná sada overuje bránu. */
+/** Okno boxov na CZ 2403 / 2406 (= SK 598 / 601): poloha na iPhone (variant B, 30. 10. 2026), jedno a dvojité ťuknutie, bez farby. */
+const OKNO_BOXOV = ["okno-poloha-ios", "okno-jeden-tuk", "okno-dvojtuk", "okno-bez-farby"];
+
+/** CZ profily sú oddelené od SK: ID, URL a mena patria projektu 581408. Základná sada overuje bránu (2403 / 2406 aj okno boxov). */
 export const PRODUKTY_CZ = {
-  2403: { url: CZ + "/luxusne-autokoberce-dragonskin-diamond-line/", typ: "jedno", vzor: "diamond", nazov: "Jednovrstvové Diamond (CZ)", scenare: ["brana"], ceny: {} },
+  2403: { url: CZ + "/luxusne-autokoberce-dragonskin-diamond-line/", typ: "jedno", vzor: "diamond", nazov: "Jednovrstvové Diamond (CZ)", scenare: ["brana", ...OKNO_BOXOV], ceny: {} },
   2418: { url: CZ + "/luxusne-autokoberce-dragonskin-stripe-line/", typ: "jedno", vzor: "stripe", nazov: "Jednovrstvové Stripe (CZ)", scenare: ["brana"], ceny: {} },
   2415: { url: CZ + "/luxusne-autokoberce-dragonskin-hexa-line/", typ: "jedno", vzor: "hexa", nazov: "Jednovrstvové Hexa (CZ)", scenare: ["brana"], ceny: {} },
-  2406: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-diamond-line/", typ: "dvoj", vzor: "diamond", nazov: "Dvouvrstvé Diamond (CZ)", scenare: ["brana"], ceny: {} },
+  2406: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-diamond-line/", typ: "dvoj", vzor: "diamond", nazov: "Dvouvrstvé Diamond (CZ)", scenare: ["brana", ...OKNO_BOXOV], ceny: {} },
   2412: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-stripe-line/", typ: "dvoj", vzor: "stripe", nazov: "Dvouvrstvé Stripe (CZ)", scenare: ["brana"], ceny: {} },
   2409: { url: CZ + "/luxusne-autokoberce-dragonskin-elite-hexa-line/", typ: "dvoj", vzor: "hexa", nazov: "Dvouvrstvé Hexa (CZ)", scenare: ["brana"], ceny: {} },
   2424: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-klasik/", typ: "kufor-classic", vzor: "diamond", nazov: "Rohož Classic Diamond (CZ)", scenare: ["brana"], ceny: {} },

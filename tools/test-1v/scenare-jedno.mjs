@@ -20,10 +20,42 @@
 //   odporucana-jedno 598/610 ukážu Odporúčanú cenu (×1,6 nahor na desiatky), 613 (v admine chýba bežná cena) ju neukáže
 //
 // Predvolená sada (bez --krok): mená sú v `scenare` profilov 598/610/613 v produkty.mjs (integrácia WA 14. 10. 2026).
-import { join } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { PRODUKTY } from "./produkty.mjs";
 import { otvorKartu } from "./ovladac-kroky.mjs";
 import { F, hodnota } from "./stary-ui.mjs";
+import { SAFARI_ROZLOZENIA } from "./ovladac-kufor-boxy.mjs";
+
+/**
+ * Referencia polohy okna boxov z 909cc67 (živá verzia pred variantom B, 30. 10. 2026) pre okno-poloha-ios: vypočítané
+ * štýly okna a päty + poloha okna a tlačidla tam, kde sa nič meniť nesmie (bez triedy iOS, PC 1280/1366/1920, iPad nad
+ * 720 px, iPhone pri rozbalenej lište). Uloženie: LCD_OKNO_REF_ULOZ=1 node tools/test-konfigurator-1v.mjs --zdroj 909cc67
+ * --krok okno-poloha-ios … (beh na CDN verzii 909cc67; každá úloha dopíše svoje kľúče). Iný súbor: LCD_OKNO_REF=<cesta>.
+ */
+const REF_OKNA = process.env.LCD_OKNO_REF || join(dirname(fileURLToPath(import.meta.url)), "okno-poloha-909cc67.json");
+const REF_ULOZ = process.env.LCD_OKNO_REF_ULOZ === "1";
+/** Zapíše (REF_ULOZ) alebo porovná polohu s referenciou -> "" alebo popis rozdielu. Synchrónne = bez pretekov v behu. */
+function refOkna(kluc, p) {
+  const zapis = { ih: p.ih, styly: p.styly, rect: { oknoVrch: p.oknoVrch, oknoSpodok: p.oknoSpodok, tlacVrch: p.tlacVrch, tlacSpodok: p.tlacSpodok } };
+  const vsetko = existsSync(REF_OKNA) ? JSON.parse(readFileSync(REF_OKNA, "utf8")) : {};
+  if (REF_ULOZ) {
+    vsetko[kluc] = zapis;
+    writeFileSync(REF_OKNA, JSON.stringify(Object.fromEntries(Object.keys(vsetko).sort().map((k) => [k, vsetko[k]])), null, 1) + "\n");
+    return "";
+  }
+  const r = vsetko[kluc];
+  if (!r) return `${kluc}: referencia z 909cc67 chýba (${REF_OKNA}; ulož LCD_OKNO_REF_ULOZ=1 … --zdroj 909cc67)`;
+  const rozdiely = [];
+  const px = (x) => (/^-?[\d.]+px$/.test(String(x)) ? parseFloat(x) : null);
+  for (const cast of ["okno", "pata"]) for (const [k, v] of Object.entries(r.styly[cast])) {
+    const n = zapis.styly[cast][k], a = px(v), b = px(n);
+    if (a != null && b != null ? Math.abs(a - b) > 0.5 : v !== n) rozdiely.push(`${cast}.${k} ${v} -> ${n}`);
+  }
+  if (r.ih === zapis.ih) for (const [k, v] of Object.entries(r.rect)) if (Math.abs(v - zapis.rect[k]) > 1) rozdiely.push(`${k} ${v} -> ${zapis.rect[k]}`);
+  return rozdiely.length ? `${kluc}: iné ako 909cc67: ${rozdiely.join(", ")}` : "";
+}
 
 /** vzor -> názov v kroku 1 a v názve radu (živý H1 končí „… <VZOR> LINE“). */
 const VZOR = { diamond: "Diamond Line", hexa: "Hexa Line", stripe: "Stripe Line" };
@@ -258,11 +290,106 @@ const SCENARE = {
   },
 
   /**
+   * Poloha okna boxov na iPhone (variant B, Michal 30. 10. 2026 podľa náhľadu): pri ZBALENEJ spodnej lište Safari okno
+   * končí nad lištou (pod ním stmavená stránka) a pod „Potvrďte výber boxov“ je len 20 px bielej; pri rozbalenej lište
+   * presne ako 909cc67. Snímky z iPhonu: 29. 10. (rozbalená, päta 20 px) a 30. 10. 2026 (zbalená: pod tlačidlom 162 px
+   * bielej = 20 + env 34 + 108). Telefón (390 / 440), 2 boxy M + M aj 1 box XL, každé rozloženie lišty
+   * (SAFARI_ROZLOZENIA: hore, kompaktne, dole, stary80) a rozbalená lišta:
+   *   - tlačidlo mimo pásu lišty: výrez − spodok tlačidla ≥ pás + 16,
+   *   - biela pod tlačidlom (spodok okna − spodok tlačidla) ≤ 22 px,
+   *   - okno nesiaha do pásu lišty: výrez − spodok okna ≥ pás − 1,
+   *   - rozbalená lišta = dnešný stav: spodok okna = výrez ±1, päta 20 px, štýly = 909cc67,
+   *   - ťuknutie pod spodok okna (medzera nad pásom; bez pásu 10 px nad spodkom) okno nezavrie a výber nezmení,
+   *   - JEDNO ťuknutie do stredu tlačidla okno zavrie, súhrn kroku a karta sedia; nakoniec košík (POST: box XL),
+   *   - bez triedy lcd1v-bx--ios (Android) v každom modeli štýly a poloha = 909cc67.
+   * PC (1280 / 1366 / 1920): štýly a poloha okna = 909cc67, aj s triedou iOS a výrezom zbalenej lišty (iPad nad 720 px).
+   * Referencia: okno-poloha-909cc67.json (refOkna). Hlási všetky nálezy naraz (čísla pre opravu), nie len prvý.
+   */
+  "okno-poloha-ios": {
+    typy: ["jedno", "dvoj"],
+    fn: async (s, a, pom, ovl, j) => {
+      const sk = preskocBez(a); if (sk) return sk;
+      const kb = ovl.kuforBoxy;
+      if (!kb.polohaIos) return { preskoc: "len nový vzhľad (ovládač novy)" };
+      const t = s.t, P = a.produkt, web = a.web || "sk";
+      await j.otvor(s, a.url, { novy: true });
+      const z = await j.zaklad(s, ovl, { rozlozenie: 0 });
+      const chyby = [], info = [];
+      const over = (ok, sprava) => { if (!ok) chyby.push(sprava); };
+      const ref = (kluc, p, kde) => { const r = refOkna(`${web}|${P.id}|${t.sirka}|${kluc}`, p); if (r) chyby.push(kde + ": " + r); };
+      const VYBER = [
+        { pocet: 2, prvy: { farba: 1, velkost: "M", velkost2: "M" }, vzor: /^2× box · M \+ M · /, meno: "2 boxy M + M" },
+        { pocet: 1, prvy: { farba: null, velkosti: [["boxSolo", "XL"]] }, vzor: /^1× box · XL · /, meno: "1 box XL" },
+      ];
+      let posledne = null;
+      for (const v of VYBER) {
+        if (!t.mobil) {
+          const r = await kb.polohaPc(t, { pocet: v.pocet, ...v.prvy });
+          const kde = `${v.meno}, ${t.sirka} px`;
+          ref(`${v.pocet}|pc`, r.pc, kde);
+          if (r.ipad) ref(`${v.pocet}|ipad`, r.ipad, kde + ", trieda iOS + výrez zbalenej lišty (iPad)");
+          else chyby.push(`${kde}: model iPadu sa nedal nastaviť: ${r.ipadChyba}`);
+          over(r.zavrete && r.stav.karta === v.pocet && v.vzor.test(r.stav.vyber || ""), `${kde}: po „Potvrďte“ okno ${r.zavrete ? "zavreté" : "otvorené"}, karta ${r.stav.karta}, súhrn „${r.stav.vyber}“`);
+          info.push(`${v.pocet} box: okno ${r.pc.oknoVrch}–${r.pc.oknoSpodok}, tlačidlo ${r.pc.tlacVrch}–${r.pc.tlacSpodok}`);
+          posledne = r;
+          continue;
+        }
+        let prvy = true;
+        for (const meno of [...Object.keys(SAFARI_ROZLOZENIA), "rozbalene"]) {
+          const g = SAFARI_ROZLOZENIA[meno] || null;
+          const r = await kb.polohaIos(t, { pocet: v.pocet, ...(prvy ? v.prvy : { farba: null, velkosti: [] }), lista: g });
+          prvy = false;
+          const p = r.ios, kde = `${v.meno}, ${t.sirka} px, lišta ${g ? "zbalená " + meno : "rozbalená"}`;
+          const biela = +(p.oknoSpodok - p.tlacSpodok).toFixed(1), nadSpodkom = +(p.ih - p.tlacSpodok).toFixed(1);
+          over(p.trieda, `${kde}: okno nemá triedu lcd1v-bx--ios (UA iPhone)`);
+          if (g) {
+            over(nadSpodkom >= g.pas + 16, `${kde}: spodok tlačidla ${nadSpodkom} px nad spodkom výrezu (pás lišty ${g.pas} + 16)`);
+            over(biela <= 22, `${kde}: pod tlačidlom ${biela} px bielej (max 22)`);
+            over(p.ih - p.oknoSpodok >= g.pas - 1, `${kde}: okno siaha do pásu lišty (spodok okna ${+(p.ih - p.oknoSpodok).toFixed(1)} px nad spodkom výrezu, pás ${g.pas})`);
+          } else {
+            over(Math.abs(p.oknoSpodok - p.ih) <= 1, `${kde}: spodok okna ${p.oknoSpodok}, výrez ${p.ih} (dnes okno sedí na spodku)`);
+            over(Math.abs(p.padPaty - 20) <= 0.5, `${kde}: päta ${p.padPaty} px (dnes 20)`);
+            ref(`${v.pocet}|ios-rozbalene`, p, kde);
+          }
+          ref(`${v.pocet}|bez-ios|${meno}`, r.bezTriedy, kde + ", bez triedy iOS");
+          for (const u of r.pod) {
+            if (!u.mimoOkna) continue; // okno siaha po spodok (909cc67) — pod ním nie je kam ťuknúť
+            over(u.otvorene, `${kde}: ťuknutie pod okno (${u.kde}, y ${u.y}, spodok okna ${u.spodokOkna}) okno zavrelo`);
+            over(!u.zmena, `${kde}: ťuknutie pod okno zmenilo výber ${u.zmena}`);
+            over(!u.zhltnute, `${kde}: ťuknutie pod okno (${u.kde}) vzal pás lišty — test mieril zle`);
+          }
+          if (r.zavrete !== null) {
+            over(r.zavrete, `${kde}: okno ostalo otvorené po 1. ťuknutí na „Potvrďte“` + (r.zhltnute ? ` — vzala ho lišta Safari (${r.zhltnute}×)` : "") + (r.druhe ? ", zavrelo až 2. ťuknutie" : ""));
+            over(!r.zhltnute, `${kde}: ťuknutie do tlačidla vzala lišta Safari`);
+            over(!r.stav.chyby.length, `${kde}: v okne je červený rám: ${r.stav.chyby.join(" | ")}`);
+            over(r.stav.karta === v.pocet && v.vzor.test(r.stav.vyber || ""), `${kde}: karta ${r.stav.karta}, súhrn „${r.stav.vyber}“`);
+          }
+          const pod = r.pod.filter((u) => u.mimoOkna).length;
+          info.push(`${v.pocet}/${meno}: biela ${biela}, tlačidlo ${nadSpodkom} nad spodkom${pod ? ", ťuk pod okno " + pod + "×" : ""}${r.zavrete ? ", 1 ťuk" : ""}`);
+          posledne = r;
+        }
+      }
+      // košík: posledný výber = 1 box XL (farba z 2 boxov)
+      let post = null, spolu = null;
+      try {
+        await ovl.cena.pridajDoKosika(t);
+        post = await j.cakajNaPost(s);
+        const cena = await j.overPost(s, post, { ...z.ocak, farbaBoxov: posledne.hodnoty.farbaBoxov, boxSolo: posledne.hodnoty.boxSolo });
+        spolu = cena.spolu;
+        over(posledne.hodnoty.boxSolo && !posledne.hodnoty.box1 && !posledne.hodnoty.box2, "formulár po 1 boxe XL: " + JSON.stringify(posledne.hodnoty));
+      } catch (e) { chyby.push("košík: " + e.message); }
+      j.over(!chyby.length, `${chyby.length} nálezov: ${chyby.join(" | ")} || namerané: ${info.join("; ")}`);
+      return { info: `${REF_ULOZ ? "referencia uložená; " : ""}${info.join("; ")}; POST box XL, spolu ${spolu}`, post: post && post.body, spolu };
+    },
+  },
+
+  /**
    * „Potvrďte výber boxov“ potvrdí JEDNÝM ťuknutím (Michal 29. 10. 2026, iPhone: „musí dvakrát kliknúť na to zelené
    * tlačidlo v tom pop-up okne“). Telefón: model zbalenej spodnej lišty Safari (ovládač jedenTuk — pás lišty pri spodku
    * ťuknutie zhltne). (1) 2 boxy, farba, M + M (ako na Michalovej snímke) -> 1 ťuknutie; (2) úprava: znova okno, 2. box
    * L a ťuknutie hneď po voľbe; (3) 1 box (farba sa prenesie) XL -> 1 ťuknutie. Po každom: okno zavreté, súhrn kroku
    * a karta sedia, žiadny červený rám; nakoniec do košíka (POST: farba boxov + samostatný box XL, bez 1./2. boxu).
+   * Telefón: (1)–(3) v geometrii lišty „hore“ (Michalov iPhone, 30. 10. 2026) aj „stary80“ (model z 29. 10.).
    */
   "okno-jeden-tuk": {
     typy: ["jedno", "dvoj"],
@@ -273,8 +400,9 @@ const SCENARE = {
       await j.otvor(s, a.url, { novy: true });
       const z = await j.zaklad(s, ovl, { rozlozenie: 0 });
       const kroky = [];
+      let geo = "";
       const over1 = (meno, r, vzor, pocet) => {
-        const kde = `${meno} (${t.sirka} px${r.model ? ", lišta Safari zbalená" : ""}, stred tlačidla ${r.tlacidlo.odSpodku} px nad spodkom)`;
+        const kde = `${meno} (${t.sirka} px${r.model ? ", lišta Safari zbalená " + geo : ""}, stred tlačidla ${r.tlacidlo.odSpodku} px nad spodkom)`;
         j.over(r.zavrete, `${kde}: okno ostalo otvorené po 1. ťuknutí` + (r.zhltnute ? ` — ťuknutie vzala lišta Safari (${r.zhltnute}×)` : "") +
           (r.druhe ? ", zavrelo až 2. ťuknutie (chyba z iPhonu)" : ", nezavrelo ani 2. ťuknutie") + `; chyby v okne: ${r.stav.chyby.join(" | ") || "žiadne"}`);
         j.over(!r.zhltnute, `${kde}: ťuknutie do tlačidla vzala lišta Safari`);
@@ -282,17 +410,21 @@ const SCENARE = {
         j.over(r.stav.ariaHidden === "true" && !r.stav.viditelne, `${kde}: okno je po potvrdení stále vidno (aria-hidden ${r.stav.ariaHidden})`);
         j.over(r.stav.karta === pocet, `${kde}: označená karta boxov ${r.stav.karta}, čakám ${pocet}`);
         j.over(vzor.test(r.stav.vyber || ""), `${kde}: súhrn kroku boxov „${r.stav.vyber}“ nesedí s ${vzor}`);
-        kroky.push(`${meno} ${r.tlacidlo.odSpodku} px`);
+        kroky.push(`${geo ? geo + ": " : ""}${meno} ${r.tlacidlo.odSpodku} px`);
       };
-      const r1 = await kb.jedenTuk(t, { pocet: 2, farba: 1, velkost: "M", velkost2: "M" });
-      over1("2 boxy M + M", r1, /^2× box · M \+ M · .+ · \+ /, 2);
-      const r2 = await kb.jedenTuk(t, { pocet: 2, farba: null, velkosti: [["box2", "L"]], hned: true });
-      over1("úprava: 2. box L tesne pred ťuknutím", r2, /^2× box · M \+ L · /, 2);
-      j.over(r2.hodnoty.farbaBoxov === r1.hodnoty.farbaBoxov && r2.hodnoty.box1 === r1.hodnoty.box1 && r2.hodnoty.box2 && r2.hodnoty.box2 !== r1.hodnoty.box2,
-        "úprava 2. boxu: formulár " + JSON.stringify(r2.hodnoty) + " (pred " + JSON.stringify(r1.hodnoty) + ")");
-      const r3 = await kb.jedenTuk(t, { pocet: 1, farba: null, velkosti: [["boxSolo", "XL"]] });
-      over1("1 box XL (farba prenesená)", r3, /^1× box · XL · /, 1);
-      j.over(r3.hodnoty.farbaBoxov === r1.hodnoty.farbaBoxov && r3.hodnoty.boxSolo, "1 box: formulár " + JSON.stringify(r3.hodnoty));
+      let r3;
+      for (geo of t.mobil ? ["hore", "stary80"] : [""]) {
+        const lista = geo ? SAFARI_ROZLOZENIA[geo] : undefined;
+        const r1 = await kb.jedenTuk(t, { pocet: 2, farba: 1, velkost: "M", velkost2: "M", lista });
+        over1("2 boxy M + M", r1, /^2× box · M \+ M · .+ · \+ /, 2);
+        const r2 = await kb.jedenTuk(t, { pocet: 2, farba: null, velkosti: [["box2", "L"]], hned: true, lista });
+        over1("úprava: 2. box L tesne pred ťuknutím", r2, /^2× box · M \+ L · /, 2);
+        j.over(r2.hodnoty.farbaBoxov === r1.hodnoty.farbaBoxov && r2.hodnoty.box1 === r1.hodnoty.box1 && r2.hodnoty.box2 && r2.hodnoty.box2 !== r1.hodnoty.box2,
+          "úprava 2. boxu: formulár " + JSON.stringify(r2.hodnoty) + " (pred " + JSON.stringify(r1.hodnoty) + ")");
+        r3 = await kb.jedenTuk(t, { pocet: 1, farba: null, velkosti: [["boxSolo", "XL"]], lista });
+        over1("1 box XL (farba prenesená)", r3, /^1× box · XL · /, 1);
+        j.over(r3.hodnoty.farbaBoxov === r1.hodnoty.farbaBoxov && r3.hodnoty.boxSolo, "1 box: formulár " + JSON.stringify(r3.hodnoty));
+      }
       await ovl.cena.pridajDoKosika(t);
       const post = await j.cakajNaPost(s);
       const cena = await j.overPost(s, post, { ...z.ocak, farbaBoxov: r3.hodnoty.farbaBoxov, boxSolo: r3.hodnoty.boxSolo });
@@ -307,7 +439,7 @@ const SCENARE = {
    * okna chytá ťuknutia ešte 0,8 s po zatvorení (_lcd1v-kufor-boxy.scss). Telefón: model zbalenej lišty Safari ako
    * okno-jeden-tuk. (1) 2 boxy M + M, druhé ťuknutie o 300 ms; (2) úprava bez zmeny, o 700 ms; (3) 1 box XL (farba
    * prenesená), o 300 ms. Po každom: okno sa zavrelo 1. ťuknutím a znova neotvorilo, formulár ako pred ťuknutím, karta
-   * a súhrn kroku sedia. Bez košíka: POST 0.
+   * a súhrn kroku sedia. Bez košíka: POST 0. Telefón: (1)–(3) v geometrii lišty „hore“ aj „stary80“ (ako okno-jeden-tuk).
    */
   "okno-dvojtuk": {
     typy: ["jedno", "dvoj"],
@@ -318,22 +450,26 @@ const SCENARE = {
       await j.otvor(s, a.url, { novy: true });
       await j.zaklad(s, ovl, { rozlozenie: 0 });
       const kroky = [];
+      let geo = "";
       const over2 = (meno, r, vzor, pocet) => {
-        const kde = `${meno} (${t.sirka} px${r.model ? ", lišta Safari zbalená" : ""}, 2. ťuknutie o ${r.ms} ms na ${r.ciel})`;
+        const kde = `${meno} (${t.sirka} px${r.model ? ", lišta Safari zbalená " + geo : ""}, 2. ťuknutie o ${r.ms} ms na ${r.ciel})`;
         j.over(r.zavrete, `${kde}: okno sa 1. ťuknutím nezavrelo (prvé ťuknutie na ${r.prvy}, zatvorené o ${r.zatvoreneMs} ms)`);
         j.over(r.ms < 780, `${kde}: odstup ťuknutí ${r.ms} ms — pomalý beh (pozadie chytá 800 ms), scenár neoveril`);
         j.over(!r.otvorene, `${kde}: druhé ťuknutie okno znova otvorilo`);
         j.over(JSON.stringify(r.hodnoty) === JSON.stringify(r.pred), `${kde}: druhé ťuknutie zmenilo výber ${JSON.stringify(r.pred)} -> ${JSON.stringify(r.hodnoty)}`);
         j.over(r.stav.karta === pocet, `${kde}: označená karta boxov ${r.stav.karta}, čakám ${pocet}`);
         j.over(vzor.test(r.stav.vyber || ""), `${kde}: súhrn kroku boxov „${r.stav.vyber}“ nesedí s ${vzor}`);
-        kroky.push(`${meno} ${r.ms} ms → ${r.ciel}`);
+        kroky.push(`${geo ? geo + ": " : ""}${meno} ${r.ms} ms → ${r.ciel}`);
       };
-      const r1 = await kb.dvojTuk(t, { pocet: 2, farba: 1, velkost: "M", velkost2: "M", rozostup: 300 });
-      over2("2 boxy M + M", r1, /^2× box · M \+ M · /, 2);
-      const r2 = await kb.dvojTuk(t, { pocet: 2, farba: null, velkosti: [], rozostup: 700 });
-      over2("úprava bez zmeny", r2, /^2× box · M \+ M · /, 2);
-      const r3 = await kb.dvojTuk(t, { pocet: 1, farba: null, velkosti: [["boxSolo", "XL"]], rozostup: 300 });
-      over2("1 box XL", r3, /^1× box · XL · /, 1);
+      for (geo of t.mobil ? ["hore", "stary80"] : [""]) {
+        const lista = geo ? SAFARI_ROZLOZENIA[geo] : undefined;
+        const r1 = await kb.dvojTuk(t, { pocet: 2, farba: 1, velkost: "M", velkost2: "M", rozostup: 300, lista });
+        over2("2 boxy M + M", r1, /^2× box · M \+ M · /, 2);
+        const r2 = await kb.dvojTuk(t, { pocet: 2, farba: null, velkosti: [], rozostup: 700, lista });
+        over2("úprava bez zmeny", r2, /^2× box · M \+ M · /, 2);
+        const r3 = await kb.dvojTuk(t, { pocet: 1, farba: null, velkosti: [["boxSolo", "XL"]], rozostup: 300, lista });
+        over2("1 box XL", r3, /^1× box · XL · /, 1);
+      }
       j.over(s.posty.length === 0, "scenár bez košíka poslal POST: " + (s.posty[0] && s.posty[0].body));
       return { info: `výber ostal: ${kroky.join("; ")}` };
     },

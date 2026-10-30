@@ -231,10 +231,54 @@ async function vyplnOkno(t, { pocet, farba = 0, velkost = "S", velkost2 }) {
 const OK_BTN = `${OKNO} .lcd1v-bx__ok`;
 /** Výška rozbalenej spodnej lišty Safari na iPhone (svh vs lvh, približne; iPhone 13–17 na výšku 80 ± 5 px). */
 export const SAFARI_LISTA = 80;
-
-async function safariListaZbalena(t, px) {
-  if (!px || !t.mobil || !t.k || !t.k.tuk) return false;
-  await t.k.posli("Emulation.setSmallViewportHeightDifferenceOverride", { difference: px });
+/**
+ * Rozloženia lišty Safari na iPhone (Nastavenia → Aplikácie → Safari → Panely) pri ZBALENEJ spodnej lište — model
+ * pre Chromium (okno-poloha-ios, okno-jeden-tuk, okno-dvojtuk):
+ *   rozdiel = 100dvh − 100svh: o toľko zbalená lišta zväčšila výrez (CDP Emulation.setSmallViewportHeightDifferenceOverride),
+ *   pas     = pás pri spodku obrazovky, ktorý patrí lište Safari (ťuknutie doň stránka nedostane, lišta sa len rozbalí),
+ *   inset   = env(safe-area-inset-bottom) pri zbalenej lište (CDP Emulation.setSafeAreaInsetsOverride).
+ * hore = Michalov iPhone (440 × 956, Safari iOS 26, rozloženie Hore), snímky 29. 10. (rozbalená) a 30. 10. 2026
+ * (zbalená): 108 = 92 dole (lišta) + 16 hore (zmenšená adresa — vrch výrezu Chromium posunúť nevie, prejaví sa len
+ * menším svh bez pásu), env 34 — ten sa k 108 NESMIE pripočítať (pod oknom je vtedy stránka, nie domovský pruh).
+ * kompaktne / dole = simulátor iPhone 17 Pro; stary80 = model z 29. 10. 2026 (e2ea795).
+ */
+export const SAFARI_ROZLOZENIA = {
+  hore: { rozdiel: 108, pas: 92, inset: 34 },
+  kompaktne: { rozdiel: 40, pas: 40, inset: 0 },
+  dole: { rozdiel: 100, pas: 100, inset: 0 },
+  stary80: { rozdiel: 80, pas: 80, inset: 0 },
+};
+/** lista: číslo px (rozdiel = pás, inset 0), geometria { rozdiel, pas, inset } alebo nič (rozbalená). */
+const geometria = (lista) => (!lista ? null : typeof lista === "number" ? { rozdiel: lista, pas: lista, inset: 0 } : lista);
+// v stránke: 100dvh − 100svh a env(safe-area-inset-bottom) tak, ako ich vidí CSS (sonda modelu aj polohaOkna)
+const SONDA_VYREZU = `(function () {
+  var s = document.createElement("div");
+  s.style.cssText = "position:fixed;left:0;top:0;width:1px;height:calc(100dvh - 100svh);padding:0 0 env(safe-area-inset-bottom, 0px);visibility:hidden;pointer-events:none";
+  document.documentElement.appendChild(s);
+  var c = getComputedStyle(s), r = { rozdiel: parseFloat(c.height) || 0, env: parseFloat(c.paddingBottom) || 0 };
+  s.remove();
+  return r;
+})()`;
+/**
+ * Výrez ako pri zbalenej lište (rozdiel svh a inset) BEZ pásu. Sonda: model platí, len ak CSS naozaj dostane rozdiel
+ * aj inset — inak by test meral niečo iné než iPhone a skončí chybou „model neplatí“ (nie zelenou).
+ */
+async function nastavVyrez(t, g) {
+  await t.k.posli("Emulation.setSmallViewportHeightDifferenceOverride", { difference: g ? g.rozdiel : 0 });
+  try {
+    await t.k.posli("Emulation.setSafeAreaInsetsOverride", { insets: g && g.inset ? { bottom: g.inset } : {} });
+  } catch (e) {
+    if (g && g.inset) throw new Error("model neplatí: Chromium nepozná Emulation.setSafeAreaInsetsOverride (" + e.message + ")");
+  }
+  await pauza(120);
+  const m = await t.ev(SONDA_VYREZU);
+  const cak = g ? g : { rozdiel: 0, inset: 0 };
+  if (Math.abs(m.rozdiel - cak.rozdiel) > 0.5 || Math.abs(m.env - cak.inset) > 0.5)
+    throw new Error(`model neplatí: CSS vidí 100dvh − 100svh = ${m.rozdiel} px a env(safe-area-inset-bottom) = ${m.env} px, model ${cak.rozdiel} / ${cak.inset} px`);
+  return m;
+}
+/** Pás lišty Safari pri spodku: ťuknutie zhltne, spočíta (__lcdTestSafari) a zmizne (= lišta sa rozbalila). */
+async function pridajPas(t, px) {
   await t.ev(`(function (px) {
     var e = document.getElementById("lcd-test-safari-lista"); if (e) e.remove();
     e = document.createElement("div");
@@ -247,14 +291,48 @@ async function safariListaZbalena(t, px) {
     document.documentElement.appendChild(e);
     return true;
   })(${px})`);
+}
+async function odoberPas(t) {
+  await t.ev(`(function () { var e = document.getElementById("lcd-test-safari-lista"); if (e) e.remove(); return 1; })()`);
+}
+/** Zbalená lišta Safari (telefón): výrez podľa geometrie + pás. -> geometria alebo null (PC / bez modelu). */
+async function safariListaZbalena(t, lista) {
+  const g = geometria(lista);
+  if (!g || !t.mobil || !t.k || !t.k.tuk) return null;
+  await nastavVyrez(t, g);
+  await pridajPas(t, g.pas);
   await pauza(200); // prepočet výrezu (svh) a CSS
-  return true;
+  return g;
 }
 async function safariListaRozbalena(t) {
   if (!t.k || !t.k.tuk || !t.mobil) return;
-  await t.ev(`(function () { var e = document.getElementById("lcd-test-safari-lista"); if (e) e.remove(); return 1; })()`);
+  await odoberPas(t);
   await t.k.posli("Emulation.setSmallViewportHeightDifferenceOverride", { difference: 0 });
+  await t.k.posli("Emulation.setSafeAreaInsetsOverride", { insets: {} }).catch(() => {});
   await pauza(150);
+}
+
+/** Vypočítané štýly okna a päty, ktoré určujú polohu (porovnanie s 909cc67 v okno-poloha-ios). */
+const STYLY_OKNA = ["position", "top", "right", "bottom", "left", "width", "maxHeight", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+  "borderTopLeftRadius", "borderTopRightRadius", "borderBottomLeftRadius", "borderBottomRightRadius", "transform"];
+const STYLY_PATY = ["position", "bottom", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "marginTop", "marginRight", "marginLeft"];
+/**
+ * Poloha otvoreného okna boxov vo výreze (px): { ih, iw, oknoVrch, oknoSpodok, tlacVrch, tlacSpodok, tlacStred, padPaty,
+ * env, rozdiel (CSS 100dvh − 100svh), trieda (lcd1v-bx--ios), styly { okno, pata } (vypočítané) }.
+ */
+export async function polohaOkna(t) {
+  return t.ev(`(function () {
+    var o = document.querySelector(${JSON.stringify(OKNO)}), b = o && o.querySelector(".lcd1v-bx__ok"), p = o && o.querySelector(".lcd1v-bx__pata");
+    if (!o || !b || !p) return null;
+    var v = ${SONDA_VYREZU};
+    var ro = o.getBoundingClientRect(), rb = b.getBoundingClientRect(), co = getComputedStyle(o), cp = getComputedStyle(p);
+    var vyber = function (c, z) { var x = {}; z.forEach(function (k) { x[k] = c[k]; }); return x; };
+    var r1 = function (x) { return Math.round(x * 10) / 10; };
+    return { ih: innerHeight, iw: innerWidth, oknoVrch: r1(ro.top), oknoSpodok: r1(ro.bottom), oknoLavo: r1(ro.left), oknoPravo: r1(ro.right),
+      tlacVrch: r1(rb.top), tlacSpodok: r1(rb.bottom), tlacStred: r1((rb.top + rb.bottom) / 2), padPaty: parseFloat(cp.paddingBottom),
+      env: v.env, rozdiel: v.rozdiel, trieda: o.classList.contains("lcd1v-bx--ios"),
+      styly: { okno: vyber(co, ${JSON.stringify(STYLY_OKNA)}), pata: vyber(cp, ${JSON.stringify(STYLY_PATY)}) } };
+  })()`);
 }
 /** Ťuknutie (PC klik) do stredu „Potvrďte výber boxov“ tak, ako mieri zákazník — bez kontroly, čo tam leží. */
 async function tukniStredPotvrd(t) {
@@ -390,6 +468,105 @@ export const novy = {
     } finally {
       if (model) await safariListaRozbalena(t).catch(() => {});
     }
+  },
+
+  /**
+   * Poloha okna boxov na telefóne pri jednom rozložení lišty Safari (scenár okno-poloha-ios). Karta počtu -> model
+   * (lista = geometria SAFARI_ROZLOZENIA.*, null = rozbalená lišta) -> výber ako jedenTuk (prázdny = úprava bez zmeny)
+   * -> poloha s triedou lcd1v-bx--ios a bez nej (Android / okno bez triedy, ten istý model) -> pri zbalenej lište
+   * ťuknutia pod spodok okna: do medzery nad pásom lišty a bez pásu 10 px nad spodkom obrazovky (keby Safari ťuknutie
+   * pri spodku pustilo stránke) -> JEDNO ťuknutie do stredu „Potvrďte výber boxov“ (s pásom).
+   * -> { model, ios, bezTriedy (polohaOkna), pod: [{ kde, y, mimoOkna, otvorene, zmena, zhltnute }], zavrete, zhltnute,
+   *      druhe, tlacidlo, pred (formulár pred ťuknutím), stav, hodnoty }
+   */
+  async polohaIos(t, { pocet = 2, farba = null, velkost = "M", velkost2, velkosti = null, lista = null } = {}) {
+    await otvorOknoKartou(t, pocet);
+    const g = geometria(lista);
+    let model = null;
+    if (g) model = await safariListaZbalena(t, g);
+    else await nastavVyrez(t, null);
+    if (g && !model) throw new Error("polohaIos: model lišty Safari len na telefóne (dotyk)");
+    try {
+      await vyberVOkne(t, { pocet, farba, velkost, velkost2, velkosti });
+      const ios = await polohaOkna(t);
+      if (!ios) throw new Error("okno boxov / „Potvrďte výber boxov“ chýba");
+      const triedaZap = (zap) => t.ev(`(function () { var o = document.querySelector(${JSON.stringify(OKNO)}); o.classList.${zap ? "add" : "remove"}("lcd1v-bx--ios"); return 1; })()`);
+      if (ios.trieda) await triedaZap(false);
+      await pauza(150);
+      const bezTriedy = await polohaOkna(t);
+      if (ios.trieda) await triedaZap(true);
+      await pauza(150);
+      const pred = await hodnotyBoxov(t);
+      const pod = [];
+      const tukPod = async (kde, y) => {
+        const o = await polohaOkna(t);
+        await tukni(t, Math.round(o.iw / 2), y);
+        await pauza(600);
+        const zhltnute = await t.ev(`window.__lcdTestSafari || 0`);
+        const otvorene = !(await oknoZavrete(t));
+        const po = await hodnotyBoxov(t);
+        pod.push({ kde, y, spodokOkna: o.oknoSpodok, mimoOkna: y >= o.oknoSpodok, otvorene, zhltnute, zmena: JSON.stringify(po) !== JSON.stringify(pred) ? JSON.stringify(pred) + " -> " + JSON.stringify(po) : "" });
+        return otvorene;
+      };
+      let otvorene = true;
+      if (model) {
+        const medzera = ios.ih - model.pas - ios.oknoSpodok; // stránka medzi spodkom okna a pásom lišty
+        if (medzera >= 4) otvorene = await tukPod("medzera nad pásom lišty", Math.round(ios.oknoSpodok + Math.min(8, medzera / 2)));
+        if (otvorene) {
+          await odoberPas(t); // Safari by ťuknutie pri spodku pustilo stránke
+          await pauza(100);
+          otvorene = await tukPod("10 px nad spodkom obrazovky (bez pásu lišty)", ios.ih - 10);
+          await pridajPas(t, model.pas);
+          await pauza(150);
+        }
+      }
+      if (!otvorene) return { model, ios, bezTriedy, pod, zavrete: null, zhltnute: 0, druhe: false, tlacidlo: null, pred, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
+      const tlacidlo = await tukniStredPotvrd(t);
+      let zavrete = false;
+      for (let i = 0; i < 12 && !zavrete; i++) { await pauza(150); zavrete = await oknoZavrete(t); }
+      const zhltnute = model ? await t.ev(`window.__lcdTestSafari || 0`) : 0;
+      if (model) await safariListaRozbalena(t);
+      let druhe = false;
+      if (!zavrete) {
+        await pauza(300);
+        await tukniStredPotvrd(t);
+        for (let i = 0; i < 12 && !druhe; i++) { await pauza(150); druhe = await oknoZavrete(t); }
+        if (!druhe) await t.klikni(`${OKNO} .lcd1v-bx__x`, { popis: "krížik okna boxov" }).catch(() => {});
+      }
+      await pauza(400);
+      return { model, ios, bezTriedy, pod, zavrete, zhltnute, druhe, tlacidlo, pred, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
+    } finally {
+      if (model) await safariListaRozbalena(t).catch(() => {});
+    }
+  },
+
+  /**
+   * Poloha okna boxov na PC / tablete (okno-poloha-ios od 768 px): karta počtu -> výber -> poloha; potom s triedou
+   * lcd1v-bx--ios (iPad nad 720 px) a výrezom ako pri zbalenej lište Safari (hore) -> poloha; späť -> „Potvrďte“.
+   * -> { pc, ipad (polohaOkna), ipadChyba (model výrezu v tomto režime nejde), zavrete, stav, hodnoty }
+   */
+  async polohaPc(t, { pocet = 2, farba = null, velkost = "M", velkost2, velkosti = null } = {}) {
+    await otvorOknoKartou(t, pocet);
+    await vyberVOkne(t, { pocet, farba, velkost, velkost2, velkosti });
+    const pc = await polohaOkna(t);
+    if (!pc) throw new Error("okno boxov / „Potvrďte výber boxov“ chýba");
+    let ipad = null, ipadChyba = "";
+    const pridana = !pc.trieda;
+    if (pridana) await t.ev(`document.querySelector(${JSON.stringify(OKNO)}).classList.add("lcd1v-bx--ios")`);
+    try {
+      await nastavVyrez(t, SAFARI_ROZLOZENIA.hore);
+      await pauza(150);
+      ipad = await polohaOkna(t);
+    } catch (e) { ipadChyba = e.message; }
+    await t.k.posli("Emulation.setSmallViewportHeightDifferenceOverride", { difference: 0 }).catch(() => {});
+    await t.k.posli("Emulation.setSafeAreaInsetsOverride", { insets: {} }).catch(() => {});
+    if (pridana) await t.ev(`document.querySelector(${JSON.stringify(OKNO)}).classList.remove("lcd1v-bx--ios")`);
+    await pauza(150);
+    await t.tukni(OK_BTN, { popis: "Potvrďte výber boxov" });
+    let zavrete = false;
+    for (let i = 0; i < 12 && !zavrete; i++) { await pauza(150); zavrete = await oknoZavrete(t); }
+    await pauza(400);
+    return { pc, ipad, ipadChyba, zavrete, stav: await stavPoPotvrdeni(t), hodnoty: await hodnotyBoxov(t) };
   },
 
   /** Nový vzhľad: kroky 5 a 6 sú viditeľné od začiatku (nevybrané = Nechcem, do košíka „nič“). */

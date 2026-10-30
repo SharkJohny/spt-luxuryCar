@@ -82,7 +82,8 @@ export const novy = {
     const kos = `${F} .add-to-cart button.add-to-cart-button`;
     const TEXT = `(function () {
       var c = window.__lcd1v, b = document.querySelector("${kos}");
-      return { text: b ? b.textContent.trim() : null, ocak: c && c.prvyNevyplneny() === null ? "Vložte do košíka" : "Dokončite výber" };
+      var cz = /\\.cz$/.test(location.hostname); // CZ web (cena.js TEXTY.cs): okno boxov 2403 / 2406 ide až do košíka
+      return { text: b ? b.textContent.trim() : null, ocak: c && c.prvyNevyplneny() === null ? (cz ? "Vložit do košíku" : "Vložte do košíka") : (cz ? "Dokončete výběr" : "Dokončite výber") };
     })()`;
     let text = await t.ev(TEXT);
     for (let i = 0; i < 40 && text.text !== text.ocak; i++) { await pauza(100); text = await t.ev(TEXT); } // obnova beží v ďalšom snímku
