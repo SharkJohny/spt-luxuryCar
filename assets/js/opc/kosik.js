@@ -20,6 +20,16 @@ export const CESTA_KROK1 = "/objednavka/krok-1/";
 export const PRECHADZAM = "lcd-opc-prechadzam";
 const PRECHADZAM_MAX_MS = 10000;
 
+/** Karta košíka v pokladni sa v tejto karte prehliadača nenačítala -> košík sa 30 min nepreskakuje (opc/kosikKarta.js). */
+export const KLUC_BEZ_KARTY = "lcdOpcBezKarty";
+export const BEZ_KARTY_MS = 30 * 60 * 1000;
+export function bezKarty(ss, teraz) {
+  try {
+    const t = Number((ss || window.sessionStorage).getItem(KLUC_BEZ_KARTY));
+    return t > 0 && (teraz || Date.now()) - t < BEZ_KARTY_MS;
+  } catch (e) { return false; }
+}
+
 /** Kým beží prechod z košíka rovno do pokladne, košík nevidno — najdlhšie PRECHADZAM_MAX_MS (poistka). */
 export function prechadzam(doc, T) {
   const H = doc.documentElement;

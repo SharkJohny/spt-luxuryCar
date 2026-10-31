@@ -561,6 +561,7 @@ export async function zapniPodvrh(k, moznosti) {
     // jedna stránka (opc/kosikKarta.js): obsah košíka (tabuľka riadkov z kosik.html; scenár obsahKosika(html) ho smie
     // zmeniť), úpravy košíka (zapíšu sa do zaznam.kosikAkcie, odpoveď 200) a stránky produktov pre ponuku k setu
     if (metoda === "GET" && /^\/action\/Cart\/GetCartContent\/?$/i.test(cesta)) {
+      if (p.scenar.obsahKosika === "500") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
       z.odpoved = "obsah-kosika";
       let t = tabulkaKosika(p.subor("kosik.html"));
       if (typeof p.scenar.obsahKosika === "function") t = p.scenar.obsahKosika(t);

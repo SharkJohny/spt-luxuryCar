@@ -12,6 +12,7 @@
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta } from "../functions/autoPamat.js";
 import * as D from "../lcdKosikDoplnok.js";
+import { KLUC_BEZ_KARTY } from "./kosik.js";
 
 export const KLUC_FORMULARA = "lcdOpcFormular";
 export const FORMULAR_PLATI_MS = 30 * 60 * 1000;
@@ -191,15 +192,37 @@ export function initKosikKarta(ctx, o) {
   });
 
   const stav = el(doc, "p", { class: "lcd-dop__stav lcd-opc-kk__stav", role: "status", "aria-live": "polite" });
-  let bezi = false;
-  const zamkni = function (ano) {
-    bezi = ano;
-    obsah.querySelectorAll("button, input").forEach(function (b) { b.disabled = ano || b.hasAttribute("data-lcd-opc-min"); });
-    if (ano) obsah.setAttribute("aria-busy", "true"); else obsah.removeAttribute("aria-busy");
+  const H = doc.documentElement;
+  // zámok karty: zmena počtu / Odobrať (bezi) a odosielanie objednávky (opc/krok2.js zamkniOdoslanie); disabled stav
+  // prvkov sa po odomknutí vráti presne (sivé „−“ pri 1 kuse, sivé „Pridať k setu“ bez veľkosti)
+  let bezi = false, odosiela = false, zamky = 0;
+  const povodne = new Map();
+  const zamkniPrvky = function (koren) {
+    koren.querySelectorAll("button, input").forEach(function (b) { if (!povodne.has(b)) povodne.set(b, b.disabled); b.disabled = true; });
   };
+  const zamkni = function (ano) {
+    if (ano) {
+      if (zamky++ === 0) zamkniPrvky(obsah);
+      obsah.setAttribute("aria-busy", "true");
+      return;
+    }
+    if (zamky === 0 || --zamky > 0) return;
+    povodne.forEach(function (d, b) { b.disabled = d; });
+    povodne.clear();
+    obsah.removeAttribute("aria-busy");
+  };
+  /** Smie sa košík meniť (počet, Odobrať, Vybrať, krížik)? Nie počas zmeny, výmeny doplnku ani odosielania objednávky. */
+  const smie = function () {
+    const k2 = ctx.krok2;
+    return !bezi && !odosiela && !H.classList.contains("lcd-dop-bezi") && !(k2 && typeof k2.odosielanie === "function" && k2.odosielanie());
+  };
+  D.nastavSmieZacat(smie);
   const zmenPocet = function (p, q) {
-    if (bezi || doc.documentElement.classList.contains("lcd-dop-bezi")) return;
+    if (!smie()) return;
+    bezi = true;
     zamkni(true);
+    // trieda výmeny: „Objednať“ medzitým počká (opc/krok2.js blokovane -> vymenaBezi), stránka potom ide cez košík
+    H.classList.add("lcd-dop-bezi");
     stav.classList.remove("lcd-dop__stav--chyba");
     stav.textContent = T.menimKosik;
     ctx.meraj("lcd_opc_kosik", { lcd_opc_akcia: q > 0 ? "pocet" : "odobrat", lcd_opc_pocet: q });
@@ -211,6 +234,8 @@ export function initKosikKarta(ctx, o) {
       }
       throw new Error("kosik");
     }).catch(function () {
+      bezi = false;
+      H.classList.remove("lcd-dop-bezi");
       zamkni(false);
       stav.classList.add("lcd-dop__stav--chyba");
       stav.textContent = T.chybaPoctu;
@@ -257,38 +282,66 @@ export function initKosikKarta(ctx, o) {
     });
     obsah.appendChild(zoznam);
     obsah.appendChild(stav);
-    // hláška z predchádzajúcej výmeny doplnku („✓ Druhá vrstva Lux 10 je pridaná k Vášmu setu.“); úspech po chvíli zmizne
+    // hláška z predchádzajúcej výmeny doplnku („✓ Druhá vrstva Lux 10 je pridaná k Vášmu setu.“); úspech po chvíli zmizne.
+    // Výmena na polovici (nový set aj pôvodný v košíku, h.stary): pôvodný set zvýrazniť, pokyn na „Odobrať“ / počet −1
+    // (v karte nie je krížik vpravo hore ako v košíku) a k nemu ponuku nekresliť (ako košík: vynechaj)
     const h = D.vezmiHotovo();
+    const stary = h && h.typ === "chyba" && h.stary && miesta[h.stary] ? h.stary : null;
+    if (stary) {
+      const ps = polozky.find(function (x) { return x.itemId === stary; });
+      miesta[stary].classList.add("lcd-opc-kk__polozka--zvyrazni");
+      h.text = (/^Set bez dopl/i.test(h.text) ? T.ciastocneOdober : T.ciastocne) + " " + (ps && ps.q > 1 ? T.ciastocneZnizte : T.ciastocneOdoberte);
+    }
     if (h) {
       const chyba = h.typ === "chyba";
       const p = el(doc, "p", { class: "lcd-opc-kk__hlaska" + (chyba ? " lcd-opc-kk__hlaska--chyba" : ""), role: chyba ? "alert" : "status", text: (chyba ? "" : "✓ ") + h.text });
       obsah.insertBefore(p, stav);
       if (!chyba) setTimeout(function () { p.classList.add("je-prec"); setTimeout(function () { p.remove(); }, 400); }, 6000);
     }
-    obsah.removeAttribute("aria-busy");
-    if (!R) return polozky.length;
+    if (!zamky) obsah.removeAttribute("aria-busy");
+    // ponuka vypnutá v data.json (kosik_doplnky: false) / ?lcddoplnok=0 -> ako v košíku: ani ponuka, ani krížiky
+    if (!R || ctx.ponukaVypnuta) return polozky.length;
     // ponuka k setu a krížiky pri doplnkoch: len vzhľad košíka — chyba / pomalá sieť nič nezastaví
-    return D.pripravKontexty(polozky, R, {}).then(function (v) {
+    return D.pripravKontexty(polozky, R, { vynechaj: stary }).then(function (v) {
       v.ctxs.forEach(function (c) {
         const li = miesta[c.riadok.itemId];
-        if (li && c.odobrat.length) { c.miestoOdober = li; D.vlozKriziky(c, R); }
+        if (li && c.odobrat.length) {
+          c.miestoOdober = li;
+          D.vlozKriziky(c, R);
+          if (zamky) zamkniPrvky(li); // dokreslené počas zmeny počtu / odosielania -> zamknuté ako zvyšok karty
+        }
       });
       v.ponuky.forEach(function (c) {
         const k = D.kartaVybrat(c, R, { forma: o.forma, kSetu: v.ponuky.length > 1 ? TD.kSetu + (c.kSetu || "") : null });
         if (!k) return;
         obsah.appendChild(k);
+        if (zamky) zamkniPrvky(k);
         D.merajZobrazenie(c, R);
       });
       return polozky.length;
     }, function () { return polozky.length; });
   }).catch(function (e) {
-    // obsah košíka sa nedá načítať -> karta preč, pokladňa ostáva ako doteraz (súhrn má položky aj „Upraviť košík“)
+    // obsah košíka sa nedá načítať -> karta preč, pokladňa ostáva ako doteraz (súhrn má položky aj „Upraviť košík“);
+    // čísla kariet späť od 1, „Upraviť košík“ na skutočný košík a košík sa v tejto karte prehliadača 30 min nepreskakuje
     karta.remove();
     D.nastavPredObnovou(null);
-    doc.documentElement.classList.remove("lcd-opc-jedna-karta");
+    D.nastavSmieZacat(null);
+    H.classList.remove("lcd-opc-jedna-karta");
+    o.form.querySelectorAll("h2[data-lcd-opc-cislo]").forEach(function (h2) {
+      const n = Number(h2.getAttribute("data-lcd-opc-cislo"));
+      if (n > 1) h2.setAttribute("data-lcd-opc-cislo", String(n - 1));
+    });
+    if (ss) { try { ss.setItem(KLUC_BEZ_KARTY, String(Date.now())); } catch (x) {} }
+    const up = doc.querySelector(".lcd-opc-upravit");
+    if (up) up.setAttribute("href", "/kosik/");
     ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "kosik-karta-" + String((e && e.message) || e).slice(0, 40), lcd_opc_miesto: "krok2" });
     return null;
   });
-  doc.documentElement.classList.add("lcd-opc-jedna-karta");
-  return { karta: karta, hotovo: hotovo };
+  H.classList.add("lcd-opc-jedna-karta");
+  return {
+    karta: karta, hotovo: hotovo,
+    bezi: function () { return bezi; },
+    /** opc/krok2.js: odosielanie objednávky beží / skončilo — karta zamknutá, košík sa medzitým nemení */
+    zamkniOdoslanie: function (ano) { if (!!ano === odosiela) return; odosiela = !!ano; zamkni(odosiela); },
+  };
 }

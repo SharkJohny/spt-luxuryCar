@@ -1105,7 +1105,7 @@ export async function zmenPocetRiadku(riadok, q) {
 
 // ------------------------------------------------------------------ meranie
 const MERANIE_KLUCE = ["lcd_doplnok", "lcd_varianta", "lcd_velkost", "lcd_pocet", "lcd_trh", "lcd_set_sku", "lcd_value",
-  "lcd_value_wo_vat", "lcd_currency", "lcd_krok", "lcd_code", "lcd_sprava"];
+  "lcd_value_wo_vat", "lcd_currency", "lcd_krok", "lcd_code", "lcd_sprava", "lcd_miesto"];
 function meraj(udalost, data) {
   try {
     const o = { event: udalost };
@@ -1982,6 +1982,9 @@ function zablokujStranku(aktivne) {
  */
 let predObnovou = null;
 export function nastavPredObnovou(fn) { predObnovou = typeof fn === "function" ? fn : null; }
+/** Jedna stránka pokladne: smie sa výmena začať? (nie počas odosielania objednávky ani zmeny počtu v karte košíka) */
+let smieZacat = null;
+export function nastavSmieZacat(fn) { smieZacat = typeof fn === "function" ? fn : null; }
 function obnovStranku() {
   let kam = null;
   try { kam = predObnovou ? predObnovou() : null; } catch (e) { kam = null; }
@@ -1991,6 +1994,7 @@ function obnovStranku() {
 
 async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   if (zamok) return;
+  try { if (smieZacat && !smieZacat()) return; } catch (e) { return; }
   zamok = true;
   window.__lcdCartReloading = true; // cart.js r. 15–21: počas výmeny nič neobnovovať
   const tlacidla = document.querySelectorAll("#lcd-doplnok button, #lcd-doplnok input, #lcd-doplnok select, .lcd-dop-odober button, .lcd-dop-x");

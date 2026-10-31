@@ -8,7 +8,12 @@
 //       hláška v karte, stránka ostáva (fail-closed ako v košíku)
 //   S63 box: „Pridať k setu“ sivé s „Vyberte veľkosť boxu“, kým chýba veľkosť; 2 boxy M + L -> cena v tlačidle; lišta dole
 //       skrytá, kým je výber otvorený; objednávka (podvrh) neobsahuje nič z karty
+//   S64 (revízia 31. 10.) počas odosielania objednávky (pomalá kontrola krokom 1) je karta zamknutá: „+“ ani „Vybrať“
+//       nič nepošle, objednávka odíde s pôvodným košíkom
+//   S65 (revízia 31. 10.) obsah košíka zo servera zlyhá -> karta preč, karty 1–4 ako 30. 10., „Upraviť košík“ = /kosik/ a
+//       košík sa v tejto karte prehliadača potom nepreskakuje (ponuka je v košíku)
 import { KOSIK, KROK2, ZAKAZNIK, cakajOpc, vyplnUdaje, suhlas, objednaj, overTeloObjednavky, step1Xhr, over, pauza, OPC } from "./krok2-pomoc.mjs";
+import { klikObjednat } from "./scenare-spravanie.mjs";
 
 const SCENAR = { jedna: true };
 const KARTA = "#lcd-opc-kosik";
@@ -131,6 +136,52 @@ export const SCENARE = {
       over(!cudzie.length, "objednávka obsahuje polia karty: " + cudzie.join(", "));
       over(!s.p.zaznam.kosikAkcie.length, "úprava košíka bez pridania: " + JSON.stringify(s.p.zaznam.kosikAkcie));
       return { step2: true, info: t.text.replace(/ /g, " ") };
+    },
+  },
+  S64: {
+    len: "sk",
+    popis: "Jedna stránka: počas odosielania objednávky je karta košíka zamknutá — „+“ ani „Vybrať“ nič nepošlú, objednávka s pôvodným košíkom",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      await naJednuStranku(s);
+      await vyplnUdaje(s);
+      await suhlas(s);
+      s.p.scenar.krok1Ms = 2500; // kontrola pred odoslaním (GET krok 1 na pozadí) trvá dlhšie
+      await klikObjednat(s);
+      await s.cakaj(`!!(window.__lcdOpc && window.__lcdOpc.krok2 && window.__lcdOpc.krok2.odosielanie())`, { ms: 5000, popis: "odosielanie beží" });
+      const st = await s.ev(`(function () { var k = document.getElementById("lcd-opc-kosik");
+        var plus = k.querySelector(".lcd-opc-kk__krok:not([data-lcd-opc-min])"), vyb = k.querySelector('[data-lcd-vyb="rohoz"]');
+        var r = [plus.disabled, vyb.disabled]; plus.disabled = false; vyb.disabled = false; plus.click(); vyb.click(); return r; })()`);
+      over(st[0] && st[1], "počas odosielania nie je karta zamknutá (disabled +, Vybrať): " + JSON.stringify(st));
+      const z = (await objednaj(s, { klik: false, ms: 12000 }))[0];
+      overTeloObjednavky(s, z);
+      over(!s.p.zaznam.kosikAkcie.length, "počas odosielania odišla úprava košíka: " + JSON.stringify(s.p.zaznam.kosikAkcie.map((a) => a.akcia)));
+      return { step2: true, info: "karta zamknutá, objednávka bez zmeny košíka" };
+    },
+  },
+  S65: {
+    len: "sk",
+    popis: "Jedna stránka: obsah košíka zlyhá -> karta preč, karty 1–4, Upraviť košík = /kosik/, košík sa potom nepreskakuje",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ obsahKosika: "500" }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK + OPC);
+      await s.cakajNaStranku(KROK2, "in-krok-2");
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2");
+      await s.cakaj(`!document.getElementById("lcd-opc-kosik")`, { ms: 8000, popis: "karta preč" });
+      await pauza(300);
+      const st = await s.ev(`({ cisla: [].map.call(document.querySelectorAll("#order-form h2[data-lcd-opc-cislo]"), function (h) { return h.getAttribute("data-lcd-opc-cislo"); }).join(""),
+        upravit: (document.querySelector(".lcd-opc-upravit") || {}).getAttribute ? document.querySelector(".lcd-opc-upravit").getAttribute("href") : null,
+        kroky: !!document.querySelector("ol.cart-header") && getComputedStyle(document.querySelector("ol.cart-header")).display !== "none",
+        flag: sessionStorage.getItem("lcdOpcBezKarty") })`);
+      over(st.cisla === "1234", "čísla kariet po zlyhaní karty: " + st.cisla);
+      over(st.upravit === "/kosik/", "Upraviť košík: " + st.upravit);
+      over(st.kroky, "kroky navrchu nie sú vidno (karta zlyhala)");
+      over(!!st.flag, "košík sa bude ďalej preskakovať (bez lcdOpcBezKarty)");
+      await s.chod(KOSIK, { popis: "košík po zlyhaní karty" });
+      await pauza(800);
+      const k = await s.ev(`({ cesta: location.pathname, skryte: document.documentElement.classList.contains("lcd-opc-prechadzam"), ponuka: document.documentElement.getAttribute("data-lcd-doplnok") })`);
+      over(k.cesta === "/kosik/" && !k.skryte, "košík sa preskočil / je skrytý: " + JSON.stringify(k));
+      return { info: "karty " + st.cisla + ", košík ostal (ponuka " + k.ponuka + ")" };
     },
   },
 };

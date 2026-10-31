@@ -364,6 +364,8 @@ export function initKrok2(ctx) {
     }, ODOSIELANIE_MAX_MS);
     if (k2.sync) k2.sync.zamkni(true);
     zamkniSekciu(true);
+    // jedna stránka: počas odosielania sa košík v karte nesmie meniť (počet, Odobrať, Vybrať, krížik)
+    if (k2.kosik && k2.kosik.zamkniOdoslanie) k2.kosik.zamkniOdoslanie(true);
     tlacidloOdosielam(true);
   }
   function koniecOdosielania() {
@@ -373,6 +375,7 @@ export function initKrok2(ctx) {
     pustitDalej = false;
     if (k2.sync) k2.sync.zamkni(false);
     zamkniSekciu(false);
+    if (k2.kosik && k2.kosik.zamkniOdoslanie) k2.kosik.zamkniOdoslanie(false);
     tlacidloOdosielam(false);
     obnovTlacidlo();
   }
@@ -703,7 +706,7 @@ export function initKrok2(ctx) {
       ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "banky-" + ((banky && !banky.ok && banky.typ) || (m.pisPodmienky ? "prazdne" : "podmienky")) });
     }
     const druh = V.druhKosika(info.polozky.map(function (p) { return p.nazov || p.text; }));
-    const sek = V.vykresliSekciu(document, m, T, { posun: ctx.jednaStranka ? 1 : 0, volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh),
+    const sek = V.vykresliSekciu(document, m, T, { posun: document.getElementById("lcd-opc-kosik") ? 1 : 0, volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh),
       banka: k2.banky ? { banka: k2.banky.banka, podmienky: m.pisPodmienky } : null });
     k2.sekcia = sek;
     nacitavam.replaceWith(sek);

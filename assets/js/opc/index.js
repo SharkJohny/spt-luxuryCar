@@ -12,7 +12,7 @@
 // (/objednavka/dekujeme/, SK aj /objednavka/dakujeme/ — opc/dakujeme.js, návrh 4 z 30. 10. 2026), SK 562035 aj CZ 581408.
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
-import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam } from "./kosik.js";
+import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty } from "./kosik.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
 import { zahodPreskocenie } from "./analytika.js";
@@ -42,6 +42,7 @@ export function jednaStranka(setupData) {
     const s = setupData || {};
     if (!JEDNA_STRANKA || vypnuteVDatach(s)) return false;
     if (s.opc_jedna === false || (s.settings && s.settings.opc_jedna === false)) return false;
+    if (bezKarty()) return false; // karta košíka v pokladni sa nedala načítať -> košík s ponukou ako 30. 10.
     return zapnuteSAdresou(window.location.search);
   } catch (e) {
     return false;
@@ -140,7 +141,7 @@ export function vzhladKosikaSkoro(doc, search) {
     if (!trh) return false;
     vzhladKosika(doc, TEXTY[trh]);
     // jedna stránka: košík sa hneď preskočí (opc/kosik.js) — kým beží prechod, obsah košíka nevidno
-    if (JEDNA_STRANKA && doc.getElementById("continue-order-button")) prechadzam(doc, TEXTY[trh]);
+    if (JEDNA_STRANKA && !bezKarty() && doc.getElementById("continue-order-button")) prechadzam(doc, TEXTY[trh]);
     return true;
   } catch (e) {
     return false;
@@ -219,7 +220,10 @@ export function initOpc(setupData) {
     if (!kde) return null;
     const trh = PROJEKTY[String(getShoptetContext().projectId || "")];
     if (!trh) return null;
-    const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj, jednaStranka: jednaStranka(setupData) };
+    const s = setupData || {};
+    const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj, jednaStranka: jednaStranka(setupData),
+      // vypínač ponuky k setu bez nasadenia (ako v košíku): karta košíka v pokladni potom ponuku ani krížiky nekreslí
+      ponukaVypnuta: s.kosik_doplnky === false || !!(s.settings && s.settings.kosik_doplnky === false) || /[?&]lcddoplnok=0\b/.test(window.location.search) };
     if (kde === "kosik" && !ctx.jednaStranka) { try { zrusPrechadzam(document); } catch (e) {} }
     window.__lcdOpc = ctx; // ladenie + test (tools/test-opc.mjs)
     try {

@@ -14954,6 +14954,9 @@ html.lcd-opc body.in-krok-2 #lcd-doplnok.lcd-opc-kk__obsah[aria-busy="true"]:emp
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozky{display:flex;flex-direction:column;gap:14px;margin:0;padding:0;list-style:none}
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:12px;align-items:start;margin:0;padding:0}
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka + .lcd-opc-kk__polozka{padding-top:14px;border-top:1px solid #efe9da}
+/* výmena doplnku na polovici: pôvodný set na odobratie (kosikKarta.js, hláška nad ním hovorí, čo spraviť) */
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka.lcd-opc-kk__polozka--zvyrazni{margin:-6px;padding:6px;border-radius:12px;background:var(--o-zle-bg);
+  box-shadow:0 0 0 2px var(--o-zle)}
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__foto{display:block;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--o-piesok)}
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__telo{min-width:0}
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__hore{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}

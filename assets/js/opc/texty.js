@@ -102,6 +102,11 @@ export const TEXTY = {
     menimKosik: "Upravujem košík…",
     chybaPoctu: "Košík sa nepodarilo upraviť. Skúste to, prosím, znova.",
     spatObchod: "Späť do obchodu",
+    // výmena doplnku zlyhala na polovici (nový set je v košíku, pôvodný ostal) — v karte je „Odobrať“, nie krížik
+    ciastocne: "Doplnok je pridaný, pôvodný set bez neho však ostal v košíku.",
+    ciastocneOdober: "Set bez doplnku je v košíku, pôvodný set však ostal tiež.",
+    ciastocneOdoberte: "Odoberte, prosím, zvýraznený set tlačidlom „Odobrať“.",
+    ciastocneZnizte: "Znížte, prosím, počet zvýrazneného setu o 1.",
   },
   cz: {
     doprava: "Doprava",
@@ -169,5 +174,9 @@ export const TEXTY = {
     menimKosik: "Upravuji košík…",
     chybaPoctu: "Košík se nepodařilo upravit. Zkuste to prosím znovu.",
     spatObchod: "Zpět do obchodu",
+    ciastocne: "Doplněk je přidaný, původní set bez něj však zůstal v košíku.",
+    ciastocneOdober: "Set bez doplňku je v košíku, původní set však zůstal také.",
+    ciastocneOdoberte: "Odeberte prosím zvýrazněný set tlačítkem „Odebrat“.",
+    ciastocneZnizte: "Snižte prosím počet zvýrazněného setu o 1.",
   },
 };
