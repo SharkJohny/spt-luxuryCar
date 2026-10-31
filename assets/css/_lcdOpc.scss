@@ -510,9 +510,11 @@ html.lcd-opc body.in-krok-2 #checkoutSidebar .order-summary{display:contents}
 html.lcd-opc body.in-krok-2 #checkoutSidebar .checkout-box{order:1;margin:0;padding:0}
 @media (min-width:992px){
   html.lcd-opc body.in-krok-2 #checkoutSidebar{margin-top:0;padding-left:24px}
-  /* nižší panel (revízia: notebook 1366×625/657 má „Objednať“ celé na prvej obrazovke): menší odstup a vnútorné medzery */
-  html.lcd-opc body.in-krok-2 #checkoutSidebar > .cart-content{margin:8px 0 0;padding:14px 20px 16px}
-  html.lcd-opc body.in-krok-2 ol.cart-header{margin-top:8px}
+  /* nižší panel (revízia: notebook 1366×625/657 má „Objednať“ celé na prvej obrazovke): menší odstup a vnútorné medzery;
+     revízia A1 (N1): odstup od hlavičky 8 -> 4 px (karta súhrnu aj krokovník vľavo, ostávajú zarovnané), vnútro karty
+     navrchu 14 -> 12 px */
+  html.lcd-opc body.in-krok-2 #checkoutSidebar > .cart-content{margin:4px 0 0;padding:12px 20px 16px}
+  html.lcd-opc body.in-krok-2 ol.cart-header{margin-top:4px}
   html.lcd-opc body.in-krok-2 #checkoutContent > .cart-content{padding:0}
 }
 html.lcd-opc body.in-krok-2 #checkoutSidebar .lcd-opc-upravit{position:absolute;top:12px;right:16px;z-index:1;display:block;margin:0;padding:4px 0;
@@ -583,16 +585,21 @@ html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail .main-link-surcharges{d
    ~12 px (.id--17 .model s !important) — v detaile 15 px ako v košíku (_cart.scss .removeable .info-wrap) */
 html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail .lcd-truck-cart-summary__group :is(dt,dd){font-size:14px}
 html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail .info-wrap :is(.model,.setup){font-size:15px !important}
-/* zbalená položka: názov najviac na 2 riadkoch na PC aj na telefóne (doladenie 2; telefón mal podľa náhľadu 2a 3 riadky) */
-/* rozbalená položka („Zobraziť menej“): celý názov ako v náhľade 2b / 4 a 6 A1 (zbalená je na 2 riadkoch).
-   display:block, nie len line-clamp:none: -webkit-box bez orezania Chrome berie ako starý flexbox a ::first-letter
-   (veľké začiatočné písmeno) by neplatilo */
-html.lcd-opc body.in-krok-2 #summary-box .cart-item.lcd-opc-otvorena .cart-item-name a.main-link{display:block;-webkit-line-clamp:none}
+/* zbalená položka s pilulkou: názov najviac na 2 riadkoch na PC aj na telefóne (doladenie 2; telefón mal podľa náhľadu 2a 3 riadky) */
+/* rozbalená položka („Zobraziť menej“): celý názov ako v náhľade 2b / 4 a 6 A1 (zbalená je na 2 riadkoch). Položka bez
+   pilulky (nič sa neskrýva, aj bez rozpisu; opc/polozky.js lcd-opc-cely-nazov): celý názov hneď — inak by sa orezaný nedal
+   zobraziť (revízia A1, N2). display:block, nie len line-clamp:none: -webkit-box bez orezania Chrome berie ako starý
+   flexbox a ::first-letter (veľké začiatočné písmeno) by neplatilo */
+html.lcd-opc body.in-krok-2 #summary-box .cart-item:is(.lcd-opc-otvorena,.lcd-opc-cely-nazov) .cart-item-name a.main-link{display:block;-webkit-line-clamp:none}
 @media (min-width:992px){
   /* dotyková plocha 44 px ostáva, zasahuje do spodného odsadenia položky (pilulka 6 px nad linkou); nadpis súhrnu bližšie
-     k položke (S41) */
-  html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob{margin:2px 0 -10px}
+     k položke (S41). Revízia A1 (N1, notebook 1366×657 / 768: povinný súhlas celý nad kartou „Celkom | Objednať“): menšie
+     medzery v súhrne, vzhľad A1 a dlaždice súhlasov bez zmeny — rozpis pod názvom 8 -> 4 px, pilulka hneď pod rozpisom
+     (2 -> 0 px), ďalšia položka 12 -> 8 px od linky (sumy nižšie za ich pravidlami) */
+  html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob{margin:0 0 -10px}
   html.lcd-opc body.in-krok-2 #summary-box > h2{margin-bottom:4px}
+  html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail ul.lcd-rozpis{margin-top:4px !important}
+  html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item + .cart-item{padding-top:8px}
 }
 @media (prefers-reduced-motion:reduce){
   html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob i,html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob__pil{transition:none}
@@ -616,6 +623,12 @@ html.lcd-opc body.in-krok-2 #summary-box .order-summary-item.price .price-label{
 html.lcd-opc body.in-krok-2 #summary-box .order-summary-item.price strong.price{margin:0;padding:0;font:900 30px/1 var(--o-disp);color:var(--o-ink)}
 html.lcd-opc body.in-krok-2 #summary-box [data-testid="recapFullPrice"]{font:900 30px/1 var(--o-disp);color:var(--o-ink);font-variant-numeric:tabular-nums}
 html.lcd-opc body.in-krok-2 #summary-box.lcd-opc-prepocet::after{margin:6px 0 0}
+/* PC (revízia A1, N1 — povinný súhlas celý nad kartou na 1366×657 / 768): riadky súm 6 -> 4 px od položiek, „Celkom k úhrade“
+   6 + 8 -> 4 + 6 px od linky */
+@media (min-width:992px){
+  html.lcd-opc body.in-krok-2 #summary-box .order-summary-item.helper{margin-top:4px}
+  html.lcd-opc body.in-krok-2 #summary-box .order-summary-item.price{margin-top:4px;padding-top:6px}
+}
 /* súhlasy B1 (Michal 30. 10. 2026, náhľad 3; S45): dve biele dlaždice 10 px od seba. Dlaždica = natívny štítok súhlasu
    Shoptetu (klik kamkoľvek prepne políčko, text sa nemení), políčko 26 px vľavo hore (zaškrtnuté = zelená fajka ako
    ostatné políčka). Povinný = input required / js-validate-required (to isté, čo opc/kontrola.js jePovinne, nie poradie):

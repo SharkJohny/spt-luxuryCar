@@ -6,8 +6,9 @@
 // Náhľad 6, variant A1 bez čísel (Michal 30. 10. 2026): rozpis je pod názvom HNEĎ — viditeľné sú najdôležitejšie riadky
 // (koberce „Auto“, „Farba 1. vrstvy“, „Farba 2. vrstvy“ / CZ „Barva …“; kamión „Vozidlo“ a prvé „Typ a farba materiálu“;
 // ostatné, napr. vzorkovník, prvé 2 riadky), zvyšok sa ukáže po zlatej pilulke „Zobraziť viac“ (po rozbalení „Zobraziť
-// menej“), bez počtu skrytých riadkov. Keď sa nič neskrýva, pilulka nie je. To isté v zbalenom súhrne navrchu (telefón,
-// vlastná pilulka a stav) aj v bočnom paneli na PC.
+// menej“), bez počtu skrytých riadkov. Keď sa nič neskrýva, pilulka nie je a názov je celý (lcd-opc-cely-nazov; revízia A1,
+// N2 — orezaný na 2 riadky by sa bez pilulky nedal zobraziť). To isté v zbalenom súhrne navrchu (telefón, vlastná pilulka
+// a stav) aj v bočnom paneli na PC.
 //
 // Web bez prekrývania: karta detailu obsahuje len NATÍVNY rozpis položky (cart.js changeDescription — ul.lcd-rozpis za
 // názvom, pri kamióne span.main-link-surcharges s .lcd-truck-cart-summary / .info-wrap). Presunie sa pod položku bez zmeny,
@@ -99,6 +100,8 @@ function rozpisPolozky(p) {
 
 /** Trieda riadku (a prázdnej skupiny / zoznamu), ktorý sa ukáže až po „Zobraziť viac“. */
 export const DALSI = "lcd-opc-dalsi";
+/** Trieda položky bez pilulky (nič sa neskrýva, aj bez rozpisu): celý názov, nie orezaný na 2 riadky (revízia A1, N2). */
+export const CELY_NAZOV = "lcd-opc-cely-nazov";
 const KOBERCE = /^(Auto|(Farba|Barva) [12]\. vrstvy)$/i;
 const VOZIDLO = /^Vozidlo$/i;
 const MATERIAL = /^Typ a (farba|barva) materiálu$/i;
@@ -264,7 +267,7 @@ export function rozsirPolozky(box, T, o) {
     if (!det) {
       const rozpis = rozpisPolozky(p);
       let z = p.querySelector(":scope > .lcd-opc-zob");
-      if (!rozpis) { if (z) z.remove(); p.classList.remove("lcd-opc-otvorena"); return; } // bez rozpisu nie je čo zobraziť
+      if (!rozpis) { if (z) z.remove(); p.classList.remove("lcd-opc-otvorena"); p.classList.add(CELY_NAZOV); return; } // bez rozpisu nie je čo zobraziť
       det = el(doc, "div", { class: "lcd-opc-detail", id: id });
       det.appendChild(rozpis);
       if (z) p.insertBefore(det, z);
@@ -272,13 +275,15 @@ export function rozsirPolozky(box, T, o) {
     }
     det.id = id;
     det.hidden = false; // súhrn uložený pred A1 (karta bola predvolene [hidden])
-    // pilulka „Zobraziť viac“ len keď sa niečo skrýva; pod kartou (poradie čítania)
+    // pilulka „Zobraziť viac“ len keď sa niečo skrýva; pod kartou (poradie čítania). Bez pilulky celý názov (N2).
     let zob = p.querySelector(":scope > .lcd-opc-zob");
     if (!oznacRiadky(det)) {
       if (zob) zob.remove();
       p.classList.remove("lcd-opc-otvorena");
+      p.classList.add(CELY_NAZOV);
       return;
     }
+    p.classList.remove(CELY_NAZOV);
     if (!zob) zob = vytvorZob(doc);
     if (det.nextElementSibling !== zob) det.after(zob);
     zob.setAttribute("aria-controls", id);
@@ -318,7 +323,7 @@ export function prepniDetail(ciel, koren, T, otvorene) {
 export function vycistiKopiu(k, T, otvorene) {
   k.querySelectorAll(".lcd-opc-foto").forEach(function (x) { x.remove(); });
   k.querySelectorAll('[id^="lcd-opc-nazov-"]').forEach(function (x) { x.removeAttribute("id"); }); // id popisu pilulky len raz
-  k.classList.remove("lcd-opc-s-fotkou", "lcd-opc-otvorena");
+  k.classList.remove("lcd-opc-s-fotkou", "lcd-opc-otvorena", CELY_NAZOV); // názov kópie navrchu sa neoreže
   const det = k.querySelector(".lcd-opc-detail");
   let zob = k.querySelector(".lcd-opc-zob");
   if (!det) { if (zob) zob.remove(); return k; }

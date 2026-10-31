@@ -1023,8 +1023,11 @@ t("polozky + texty: prepisovanie rozpisu je preč (náhľad 5) — bez riadkyDet
 
 t("CSS: karta detailu súhrnu neprestyluje rozpis košíka (náhľad 5) — bez guličiek, „Niečo nesedí“, riadkov Počet / Cena a pieskovej karty", () => {
   const scss = readFileSync(new URL("../assets/css/_lcdOpc.scss", import.meta.url), "utf8").split("\n");
-  // výnimka: pravidlo, ktoré mení LEN veľkosť písma (mierka LCD: rozpis kamióna má v _cart.scss 13 px, poznámka ≥ 14 px)
-  const lenPismo = (r) => /\{\s*font-size:\s*\d+px(?:\s*!important)?\s*;?\s*\}\s*$/.test(r);
+  // výnimky: pravidlo, ktoré mení LEN veľkosť písma (mierka LCD: rozpis kamióna má v _cart.scss 13 px, poznámka ≥ 14 px),
+  // alebo LEN odstup rozpisu od názvu (PC 8 -> 4 px, revízia A1 N1 — vzhľad riadkov ostáva ako v košíku; kontrola nižšie)
+  const lenPismo = (r) => /\{\s*(font-size|margin-top):\s*\d+px(?:\s*!important)?\s*;?\s*\}\s*$/.test(r);
+  eq(scss.filter((r) => /\.lcd-opc-detail\b/.test(r) && /margin-top:/.test(r) && /^\s*html/.test(r)).map((r) => r.trim()),
+    ["html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail ul.lcd-rozpis{margin-top:4px !important}"], "odstup rozpisu v detaile: len 4 px na PC");
   const zle = scss.filter((r) => /lcd-opc-bodka|lcd-opc-nesedi|lcd-opc-detail__navyse|lcd-opc-detail__cena/.test(r) ||
     (/\.lcd-opc-detail\b/.test(r) && /ul\.lcd-rozpis|lcd-rozpis__|lcd-truck-cart-summary|info-wrap|\b(dt|dd|h4|li)\b|--o-piesok|border:1px/.test(r) && !lenPismo(r)));
   eq(zle.map((r) => r.trim().slice(0, 120)), [], "pravidlá, ktoré menia vzhľad rozpisu v detaile");
