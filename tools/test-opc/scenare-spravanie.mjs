@@ -172,7 +172,10 @@ export const SCENARE = {
         await s.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
         await pauza(600);
         const k = await s.ev(`(function () {
-          var l = document.querySelector(".lcd-opc-lista"), p = document.getElementById("checkoutSidebar"), b = document.getElementById("submit-order");
+          // karta je zarovnaná s kartou súhrnu (#checkoutSidebar > .cart-content, krok2.js zarovnajListu; dizajn A, S41) — od A1
+          // (rozpis pod názvom) je „Objednať“ setu na 1366×768 pod prvou obrazovkou, takže sa táto vetva naozaj overuje
+          var l = document.querySelector(".lcd-opc-lista"), sb = document.getElementById("checkoutSidebar"), b = document.getElementById("submit-order");
+          var p = sb.querySelector(":scope > .cart-content") || sb;
           var lr = l.getBoundingClientRect(), pr = p.getBoundingClientRect(), br = b.getBoundingClientRect();
           return { on: document.documentElement.classList.contains("lcd-lista-on"), vid: getComputedStyle(l).display !== "none" && lr.height > 0,
             tlacidloVidno: br.top < innerHeight - 72, x: Math.round(lr.left), w: Math.round(lr.width), px: Math.round(pr.left), pw: Math.round(pr.width),
