@@ -389,6 +389,7 @@ Stavy: `nacitavam` → `potvrdene` ↔ `meni-sa` → (`potvrdene` | `chyba`); a 
 - Selektor `LCD_POLOZKA = "tr, …"` je príliš široký. V OPC sa obmedzí na `#checkoutSidebar .cart-item` / položky súhrnu, aby nechytal rádiá dopravy a platby.
 - Nad tlačidlom sa nezobrazí žiadny platený doplnok ako predvolený (SK § 5 ods. 2). Doplnky sa ponúkajú len v košíku.
 - **Od 29. 10. 2026 (§ 10.9):** v súhrne je pri každej položke malá fotka a zobáčik „Zobraziť detail“. Pod položkou sa rozbalí natívny rozpis z košíka (presunutý, nie kópia), predvolene zbalené.
+- **Od 31. 10. 2026 (§ 10.14, A1 bez čísel):** rozpis z košíka je pod názvom hneď – koberce Auto + farby vrstiev, kamión Vozidlo + materiál, inak prvé 2 riadky; zvyšok po zlatej pilulke „Zobraziť viac“ / „Zobraziť menej“ (bez počtu). „Zobraziť detail“ už nie je.
 
 ### 6.9 Chybové stavy
 
@@ -546,7 +547,7 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 | S37 | Klik „Objednať“ na prázdnej stránke a postupné dopĺňanie (SK, CZ, 390, 1366) | meno → e-mail → telefón → ulica → číslo → mesto → PSČ → súhlas: vždy 1 pole s rámom, textom a kurzorom, nad lištou; rám zmizne pri písaní; dovtedy žiadna požiadavka; potom 1× Step1Validate a 1× Step2Validate |
 | S38 | Neplatný telefón | označený Shoptetom → posun na telefón s jeho textom, nič neodíde; počas overenia → po chybe Shoptetu posun na telefón |
 | S39 | Lišta / karta „Objednať“ | telefón: všetko vyplnené, klik v lište = 1× objednávka; PC set navrchu: karta nad súhrnom, klik → meno, pri tlačidle zmizne |
-| S42 | Zobáčik, fotka, košík v štýle pokladne (§ 10.9, 10.10, 10.12) | zbalené → rozbalené (klik, Enter, medzerník, aria vrátane popisu názvom položky, 44 px, CZ texty); rozbalené = celý názov; karta = PRESNE rozpis z košíka v jeho vzhľade (riadky, farba, hrúbka, písmo; bez obrázkov, guličiek, Počet / Cena, „Niečo nesedí“), zbalený súhrn navrchu s rozpisom aj kariet kamióna, auto pre poznámku (`sessionStorage.model`), pri kamióne `truckOrderSummary` a zhoda s príplatkami položky; fotka 60 × 60 pri správnej položke (kľúč aj s kódom varianty), načítaná, bez posunu; súčty košíka = celkom; košík ?opc=1 v štýle kroku 2, bez ?opc=1 bez zmeny; set, dve položky, kamión, vzorkovník; 360–1920, 1366×657 |
+| S42 | Rozpis A1 (§ 10.14; pôvodne zobáčik), fotka, košík v štýle pokladne (§ 10.9, 10.10, 10.12) | A1: hneď len riadky A1 (porovnané s textami košíka), pilulka „Zobraziť viac“ len pri skrytých riadkoch, kópia navrchu s vlastnou pilulkou (ťuk); pôvodne: zbalené → rozbalené (klik, Enter, medzerník, aria vrátane popisu názvom položky, 44 px, CZ texty); rozbalené = celý názov; karta = PRESNE rozpis z košíka v jeho vzhľade (riadky, farba, hrúbka, písmo; bez obrázkov, guličiek, Počet / Cena, „Niečo nesedí“), zbalený súhrn navrchu s rozpisom aj kariet kamióna, auto pre poznámku (`sessionStorage.model`), pri kamióne `truckOrderSummary` a zhoda s príplatkami položky; fotka 60 × 60 pri správnej položke (kľúč aj s kódom varianty), načítaná, bez posunu; súčty košíka = celkom; košík ?opc=1 v štýle kroku 2, bez ?opc=1 bez zmeny; set, dve položky, kamión, vzorkovník; 360–1920, 1366×657 |
 | S46 | Rýchla platba cez banku v OPC (§ 10.13) | klasický krok 1: okno Shoptet Pay biele, kontrast ≥ 4,5, 6 bánk bez posúvania; VÚB → Potvrdiť → Pokračovať = zachytené telo formulára kroku 1. OPC: ťuk na 112 → okno na tej istej adrese (dialóg, VÚB z localStorage, fokus), Späť = prevod a 0× Step1Validate; Potvrdiť = Step1Validate s telom PRESNE ako formulár kroku 1, súhrn „Rýchla platba cez banku“, podmienky Salt Edge; Zmeniť banku → Tatra = 1× Step1Validate; objednávka 1× so 112 a Tatra v session |
 | S45 | Súhlasy B1 (§ 10.12) | dve biele dlaždice 10 px od seba; povinný (required, nie poradie) zlatý rám 2 px a štítok „Povinné“ (pre čítačku bez textu), miesto preň aj pri opačnom poradí; klik kamkoľvek prepne, zaškrtnuté zelené; chyba = červený rám + text pod dlaždicou; fokus z klávesnice; PC: Tab na súhlas nad kartu „Celkom \| Objednať“ (set 1366×657, kamión 1920×1080, CZ) |
 
@@ -1175,6 +1176,40 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 - Či Shoptet pri zmenenej banke (druhý Step1Validate s tou istou platbou) banku v session naozaj prepíše.
 
 **Otvorené:** staré pravidlo `#cboxLoadedContent{background:black}` farbí aj ďalšie colorboxy Shoptetu (prihlásenie, strážny pes, galéria…) – neprechádzané; pruh „VUB | ZMENIŤ“ na klasickom kroku 1 má inline štýl Shoptetu (Arial 12 px) – nemenený.
+
+### 10.14 Súhrn objednávky A1 bez čísel (30. – 31. 10. 2026)
+
+**Zadanie (Michal 30. 10. 2026, náhľad 6, stĺpce A1):** pod názvom položky je hneď vidno to najdôležitejšie, zvyšok až po zlatej pilulke. **Zmena oproti náhľadu:** tlačidlo bez počtu – „Zobraziť viac“, po rozbalení „Zobraziť menej“ (CZ „Zobrazit více“ / „Zobrazit méně“), žiadne „(+N)“. Košík sa nevynecháva, odkaz „Upraviť košík“ ostáva.
+
+**Čo je hneď vidno** (`assets/js/opc/polozky.js` `hnedVidno`, podľa názvu riadku, nie poradia):
+- koberce a rohože (`ul.lcd-rozpis`): „Auto“, „Farba 1. vrstvy“, „Farba 2. vrstvy“ (CZ „Barva …“),
+- kamión so súhrnom (`.lcd-truck-cart-summary`): „Vozidlo“ a prvé „Typ a farba materiálu“ (koberčeky); skupina bez riadku hneď (napr. tapacír) je celá až po „Zobraziť viac“,
+- 🟡 kamión bez súhrnu (`.info-wrap`, iná karta / zariadenie): „Vozidlo“, „Typ materiálu“ a „Farba materiálu“ – materiál je tu v dvoch riadkoch príplatkov, je to ten istý údaj ako „Typ a farba materiálu“ (výklad zadania),
+- ostatné (vzorkovník, iné): prvé 2 riadky,
+- nič sa neskrýva (napr. vzorkovník s 1–2 vzorkami) → pilulka nie je.
+
+**Ako to funguje:**
+- Natívny rozpis z košíka je pod názvom vždy viditeľný (karta detailu bez `[hidden]`), riadky „až po Zobraziť viac“ dostanú len triedu `lcd-opc-dalsi`; CSS ich skryje, kým položka nie je rozbalená (`.cart-item:not(.lcd-opc-otvorena) .lcd-opc-dalsi`). Rozpis sa inak nemení (web bez prekrývania).
+- Pilulka je pod rozpisom: `<button type="button">`, `aria-expanded`, `aria-controls` na rozpis, popis názvom položky, 16 px, dotyková plocha 44 px, vzhľad doterajšej zlatej pilulky. Rozbalená položka ukáže aj celý názov.
+- Zbalený súhrn navrchu (telefón): kópia má vlastnú pilulku a vlastný stav (iné id), stav prežije prekreslenie súhrnu; ťuk je delegovaný na `<details>` (`krok2.js`).
+- Mriežka položky: názov | cena, „1 ks“, pod názvom rozpis, pod ním pilulka (fotka vľavo od názvu aj rozpisu).
+
+**Výšky (offline harness):** telefón 390 SK set 1v 2 480 → 2 524 px rozbalené, položka 167 px (navrchu 203 px); set 2v položka 191 px; kamión 327 px. PC 1366: položka set 1v 159 px, 2v 183 px, kamión 339 px.
+
+**⛔ Súvisí s otvoreným bodom § 10.12 (1366×657):** rozpis posunul panel o ~50–90 px. „Objednať“ je na 1366×768 pod prvou obrazovkou (SK set 724–784) → svieti karta „Celkom | Objednať“ (doteraz len na nižších oknách). Na 1366×657 (set s autom) povinný súhlas 469–588 zasahuje spodkom 7 px pod kartu (581). Testy S40, S41, S42 to pripúšťajú (súhlas musí začínať nad kartou) a info behu vypíše „POZOR … (spodok N px pod kartou)“. Rieši sa spolu s rozhodnutím § 10.12.
+
+**Testy:** jednotky 10 nových / prerobených (`polozky.js`, texty, CSS, `obnovZbalenySuhrn`), S42 prerobený (viditeľné riadky A1 vs. košík, pilulka len pri skrytých riadkoch, kópia navrchu ťukom, klávesnica), S40 (rekapitulácia najviac 3 riadky, „Objednať“ alebo lišta na PC), S24 (kamión bez súhrnu), S43 (rozpis od ľava pri chybe fotky), S41 (POZOR so súhlasom), S39 (karta na PC zarovnaná s kartou súhrnu `.cart-content` ako v S41 – vetva s kartou sa od A1 na 1366×768 naozaj overuje, očakávanie bolo zo starého panela). Červené pred kódom: eedcb48, kód: b7cf844, S39: 2c209ab.
+
+**Limity testov:** S40 výška telefónu 2 460 → 2 520 px (set bez auta 2 456, s autom 2 480, set 2v 2 504 px), položka v rekapitulácii ≤ 210 px (kamión bez súhrnu ≤ 280 px; zmerané set 136–191, kamión 208–236 px).
+
+**Výsledok 31. 10. 2026** (worktree `spt-luxuryCar-opc-main`, vetva `opc-main-kandidat`), offline:
+- jednotky: VŠETKO OK (122 OK),
+- SK: 91 OK, 1 zlyhalo (S39 – zastarané očakávanie, opravené v 2c209ab, po oprave S39 2 OK), 2 preskočené; S40 po úprave limitu 2 OK,
+- CZ: 80 OK, 0 zlyhalo, 14 preskočených,
+- S42 so `sk-set2v` (`LCD_OPC_FIXTURES=…/opc/nahlad-4/_fixtures`): 2 OK,
+- `vloz-lcd-css --check` OK, `build-admin-html --check` OK, `test-kosik-rozpis` OK.
+
+**Snímky:** hárok `…/scratchpad/nocny-beh/a1/harok-a1.png` (WebKit 390 navrchu aj pri Objednať, Chromium 1366; SK set 1v, set 2v, kamión, CZ vzorkovník 1 a 3 vzorky), skripty `…/nocny-beh/a1/_skript/render-a1.mjs`, `harok-a1.py`.
 
 ---
 
