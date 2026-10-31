@@ -18,8 +18,10 @@ import { KAMION } from "./scenare-kosiky.mjs";
 
 // telefón: +~65 px za fotku a zobáčik pri položke (Michal 29. 10. 2026 schválil náhľad 2a; set 2 288 -> 2 355 px, S42),
 // +~98 px za súhlasy B1 (Michal 30. 10. 2026 schválil náhľad 3: dve dlaždice, štítok „Povinné“; set 2 334 -> 2 432 px, S45;
-// náhľad 3 bol telefón 390 celý — na PC len výrez panela, preto 1366×657 v S41 / S42 čaká na rozhodnutie, § 10.12)
-const LIMIT = { mobil: 2460, pc: 1200 };
+// náhľad 3 bol telefón 390 celý — na PC len výrez panela, preto 1366×657 v S41 / S42 čaká na rozhodnutie, § 10.12),
+// +~25–50 px za rozpis pod názvom A1 (Michal 30. 10. 2026 schválil náhľad 6 A1; set bez auta 2 432 -> 2 456 px, s autom
+// 2 480 px, set 2v 2 504 px, S42)
+const LIMIT = { mobil: 2520, pc: 1200 };
 const KARTY = { sk: ["Kontakt", "Adresa", "Doprava", "Platba"], cz: ["Kontakt", "Adresa", "Doprava", "Platba"] };
 /** Ďalšie šírky na pretečenie a písmo: k behu 390 aj 360, k behu 1366 aj 768 a 1920. */
 const DALSIE = (sirka) => (sirka < 768 ? [360] : sirka >= 992 ? [768, 1920] : []);
@@ -133,7 +135,7 @@ async function zakladne(s, popis) {
 /** Výška položky v rekapitulácii: názov (najviac 2 riadky) | cena, vľavo fotka 60 px (Michal 29. 10. 2026, náhľad 2a; S42),
  *  pod názvom najviac 3 riadky rozpisu a pilulka „Zobraziť viac“ (A1, Michal 30. 10. 2026, náhľad 6). Predtým 1 riadok
  *  ≤ 72 px, so zobáčikom ≤ 120 px; kamión má riadky v kartách skupín (vozidlo, koberčeky) — vyšší limit. */
-const POLOZKA_MAX = { inak: 210, kamion: 330 };
+const POLOZKA_MAX = { inak: 210, kamion: 280 }; // zmerané A1: set 136–191, kamión bez súhrnu 208–236 px
 /** Rekapitulácia A1: názov | cena vedľa seba, v stĺpci názvu nič rozpísané; pod názvom najviac 3 riadky rozpisu z košíka
  *  (koberce Auto + 2 vrstvy, kamión Vozidlo + materiál, inak 2) a keď sa niečo skrýva, pilulka „Zobraziť viac“; „Celkom k
  *  úhrade“ výrazne. */
