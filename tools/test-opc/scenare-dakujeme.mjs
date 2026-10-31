@@ -9,8 +9,10 @@
 //       a čaká (PENDING) -> pôvodná stránka (revízia 31. 10.: „Zaplatené“ podľa textu vypnuté), chýbajúca suma -> pôvodná
 //   S53 rozloženie: nič nepreteká 320–1920 px (prevod aj neprebehla), písmo text ≥ 16 / poznámky ≥ 14 / štítky ≥ 12 px,
 //       hlavné tlačidlo zelené, žiadne zakázané slová
+//   S54 matica platieb (31. 10. 2026, SK 6 / CZ 5): prevod, dobierka; karta, Apple Pay, Google Pay, rýchla platba cez
+//       banku (len SK) pred bránou a po návrate z brány na ?autoredir=off (bez kódu v adrese, flag ostal v prehliadači)
 import { over, pauza, OPC, FLAG_OPC } from "./pomocnik.mjs";
-import { CESTY, ocakavane } from "./dakujeme-fixtures.mjs";
+import { CESTY, NAVRAT, MATICA_PLATIEB, ocakavane } from "./dakujeme-fixtures.mjs";
 
 const ZAKAZANE = "z[aá]loh|21\\s*[–-]\\s*29|\\bdn[ií]\\b|dodan|dodán|vyr[aá]b|\\bDPH\\b|z[aá]ruk|IBAN|na milimet";
 
@@ -37,7 +39,9 @@ async function stopa(s) {
 async function otvor(J, kluc, { kod = false, hladanie = "" } = {}) {
   const v = ocakavane(kluc);
   const s = await J.novaStranka({ scenar: { dakujeme: kluc } });
-  await s.chod(CESTY[v.web] + (kod ? OPC : hladanie), { popis: "ďakovná " + kluc });
+  // variant návratu z brány (navrat) má v adrese ?autoredir=off, kód / hľadanie ide za neho
+  const hl = [v.navrat ? NAVRAT.slice(1) : "", (kod ? OPC : hladanie).replace(/^\?/, "")].filter(Boolean).join("&");
+  await s.chod(CESTY[v.web] + (hl ? "?" + hl : ""), { popis: "ďakovná " + kluc });
   if (kod) await s.cakaj(`window.__lcdOpc && /^dakujeme-/.test(window.__lcdOpc.stav)`, { ms: 10000, popis: "modul ďakovnej stránky " + kluc });
   return { s, o: v };
 }
@@ -180,6 +184,59 @@ export const SCENARE = {
         await s.zavri();
       }
       return { info: "320–1920 bez pretečenia, písmo, zelené, slová: " + casti.join(", ") };
+    },
+  },
+  S54: {
+    popis: "Matica platieb (SK 6, CZ 5): prevod a dobierka = blok; karta, Apple Pay, Google Pay, rýchla platba (len SK) pred bránou = zostáva zaplatiť s odkazom Shoptetu, návrat ?autoredir=off bez kódu v adrese: neúspech = neprebehla, úspech = stránka Shoptetu",
+    async fn(J) {
+      const casti = [];
+      const STAV = `(function () { var b = document.getElementById("lcd-dakujeme"), t = function (s) { var e = b && b.querySelector(s); return e ? e.textContent.replace(/[\\s\\u00a0]+/g, " ").trim() : null; };
+        var btn = b && b.querySelector(".lcd-dak-platba__btn"), z = []; try { z = JSON.parse(localStorage.getItem("lcdOpcDakujemeZaznam") || "[]"); } catch (e) {}
+        var posl = z[z.length - 1] || {};
+        return { stav: window.__lcdOpc ? window.__lcdOpc.stav : null, adresa: location.pathname + location.search, stitok: t(".lcd-dak-platba__stitok"), tlacidlo: t(".lcd-dak-platba__btn"),
+          href: btn ? btn.getAttribute("href") : null, navod: t(".lcd-dak-platba__navod"), kart: b ? /kart/i.test(b.querySelector(".lcd-dak-platba").textContent + b.querySelector(".lcd-dak-osa").textContent) : null,
+          zaloha: b ? /z[aá]loh/i.test(b.textContent) : null, povodnyViditelny: (function () { var cw = document.getElementById("content-wrapper"); return !!(cw && getComputedStyle(cw).display !== "none" && getComputedStyle(cw).visibility === "visible"); })(),
+          zaznam: { navrat: posl.navrat, stav: posl.stav, dovod: posl.dovod, url: posl.url } }; })()`;
+      const cakajModul = (s, k) => s.cakaj(`window.__lcdOpc && /^dakujeme-/.test(window.__lcdOpc.stav)`, { ms: 10000, popis: "modul ďakovnej stránky " + k });
+      for (const p of MATICA_PLATIEB[J.web]) {
+        const karta = p.typ === "karta";
+        if (!p.brana) {
+          const { s } = await otvor(J, J.web + "-" + p.typ, { kod: true });
+          const st = await s.ev(STAV);
+          over(st.stav === "dakujeme-" + p.typ && !st.tlacidlo && st.zaloha === false && st.zaznam.navrat === false, p.nazov + ": " + JSON.stringify(st));
+          casti.push(p.id + " " + p.typ);
+          await s.zavri();
+          continue;
+        }
+        // 1) prvé zobrazenie po „Objednať“ (kód OPC zapne flag v prehliadači), tlačidlo Shoptetu pred presmerovaním na bránu
+        const kPred = J.web + "-" + p.typ + "-pred", oPred = ocakavane(kPred);
+        const { s } = await otvor(J, kPred, { kod: true });
+        let st = await s.ev(STAV);
+        over(st.stav === "dakujeme-neprebehla" && st.stitok === (karta ? "Platba kartou" : p.nazov) && st.href === oPred.odkazPlatby && !st.navod
+          && st.zaznam.navrat === false && (karta || st.kart === false), p.nazov + " pred bránou: " + JSON.stringify(st));
+        const vysledky = ["pred " + st.tlacidlo];
+        // 2) návrat z brány s neúspechom: adresa len ?autoredir=off (bez kódu, flag ostal v prehliadači)
+        const kNie = J.web + "-" + p.typ + "-nie", oNie = ocakavane(kNie);
+        s.p.scenar.dakujeme = kNie;
+        await s.chod(oNie.adresa, { popis: "návrat z brány " + kNie });
+        await cakajModul(s, kNie);
+        st = await s.ev(STAV);
+        over(st.adresa === CESTY[J.web] + NAVRAT && st.stav === "dakujeme-neprebehla" && st.href === oNie.odkazPlatby && !!st.navod && /znov|znova/i.test(st.tlacidlo)
+          && st.zaznam.navrat === true && st.zaznam.stav === "neprebehla" && st.zaznam.url === s.W.base + CESTY[J.web] && (karta || st.kart === false), p.nazov + " návrat neúspech: " + JSON.stringify(st));
+        vysledky.push("návrat-nie " + st.tlacidlo);
+        // 3) návrat z brány s úspechom: „Zaplatené“ podľa textu vypnuté -> stránka Shoptetu, záznam s dôvodom
+        const kOk = J.web + "-" + p.typ + "-ok";
+        s.p.scenar.dakujeme = kOk;
+        await s.chod(ocakavane(kOk).adresa, { popis: "návrat z brány " + kOk });
+        await cakajModul(s, kOk);
+        st = await s.ev(STAV);
+        over(st.stav === "dakujeme-povodna" && st.povodnyViditelny && st.stitok === null && st.zaznam.navrat === true && st.zaznam.stav === null && /^stav platby/.test(st.zaznam.dovod || ""),
+          p.nazov + " návrat úspech: " + JSON.stringify(st));
+        vysledky.push("návrat-ok pôvodná");
+        casti.push(p.id + " " + p.typ + ": " + vysledky.join(", "));
+        await s.zavri();
+      }
+      return { info: casti.join("; ") };
     },
   },
 };

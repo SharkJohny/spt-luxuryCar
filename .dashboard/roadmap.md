@@ -554,6 +554,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Modul assets/js/opc/dakujeme.js + texty SK/CZ (dakujemeTexty.js), zapojený v opc/index.js len pri tajnom kóde OPC
 - [x] CSS blok LCD-OPC-DAKUJEME (_lcdOpcDakujeme.scss), všetko pod html.lcd-opc-dakujeme*
 - [x] Rekonštruované fixtures (tools/test-opc/dakujeme-fixtures.mjs), jednotky test-opc-dakujeme.mjs, scenáre S50–S53, Playwright test-opc-dakujeme-prehliadace.mjs
+- [x] Matica platieb (31. 10.): SK 6 / CZ 5 platieb, návrat z brány ?autoredir=off, testy každej platby (jsdom „matica“, S54, Playwright), kniha § 10.18
 - [x] Záznam pôvodného HTML do localStorage lcdOpcDakujemeZaznam (posledných 5), nikam sa neposiela
 - [x] Oprava po revízii 31. 10.: karta bez rozpoznaného tlačidla / s úspechom / PENDING = stránka Shoptetu („Zaplatené“ podľa textu vypnuté, kým to nepotvrdí záznam), tlačidlo vo formulári na bránu, suma = jedna cena s menou, dva rôzne účty/VS/sumy = stránka Shoptetu (kniha § 10.17)
 - [x] Pri dobierke nikde záloha (Michal 31. 10.): „+ záloha“ v košíku (cart.js) a poučenie VOP 4.13 v OPC zrušené lokálne — naživo len po Michalovom súhlase; VOP bod 4.13 = Michalovo právne rozhodnutie

@@ -554,6 +554,7 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 | S51 | Ďakovná stránka s kódom, prevod (§ 10.16) | hodnoty podľa popisov Shoptetu, pôvodný obsah len skrytý, Kopírovať skutočným klikom, záznam `lcdOpcDakujemeZaznam`; `?opc=0` → zase stránka Shoptetu |
 | S52 | Ďakovná stránka – stavy platby (§ 10.16, § 10.17) | karta neprebehla = zelené tlačidlo s odkazom Shoptetu; dobierka bez „záloha“; karta zaplatená a čaká (PENDING) = stránka Shoptetu so záznamom; chýbajúca suma = stránka Shoptetu |
 | S53 | Ďakovná stránka – rozloženie (§ 10.16) | nič nepreteká 320–1920 px, písmo text ≥ 16 / poznámky ≥ 14 / štítky ≥ 12 px, hlavné tlačidlo zelené, žiadne zakázané slová |
+| S54 | Ďakovná stránka – matica platieb (§ 10.18) | SK 6 / CZ 5: prevod a dobierka = blok; karta, Apple Pay, Google Pay, rýchla platba (SK) pred bránou = „Zaplatiť“ s odkazom Shoptetu; návrat `?autoredir=off` bez kódu v adrese: neúspech = neprebehla („znova“), úspech = stránka Shoptetu; záznam `navrat` |
 
 ### 7.7 Prepínač
 
@@ -1310,6 +1311,27 @@ Od revízie 31. 10. 2026 (§ 10.17) platí prísnejšia tabuľka:
 - Fixtures: nové varianty `cz/sk-karta-caka` (PENDING), `cz-karta-prijata`, `cz-karta-ceka-zaplaceni`, `cz-karta-po-zaplaceni`, `sk-karta-prijata-nadpis`, `cz-karta-nie-text`, `cz-karta-form`; `sk-vzorky` je prevodom (karta by bola stránka Shoptetu).
 - Testy: `test-opc-dakujeme.mjs` (jsdom), S52 (zaplatené a PENDING = stránka Shoptetu so záznamom), S53 bez karta-ok, `test-opc-dakujeme-prehliadace.mjs` (karta-ok, karta-caka = stránka Shoptetu; karta-form = náš blok).
 - Hárky: „Kartou – zaplatené“ teraz ukazuje stránku Shoptetu (schválený vzhľad „Zaplatené“ čaká na záznam).
+
+### 10.18 Matica platieb na ďakovnej stránke (31. 10. 2026)
+
+**Zdroj:** `…/scratchpad/nocny-beh/platby-matica.md` (GA4 SK 356219817 / CZ 383485750, zachytené kroky 1, admin Shoptet Pay). ✅ SK má 6 platieb, CZ 5; rýchla platba cez banku je len na SK (CZ `pis:0`). ✅ Bez brány (prevod, dobierka) ide krok 2 rovno na `/objednavka/dakujeme/` (CZ `/objednavka/dekujeme/`). ✅ Z brány `payment.shoptetpay.com` sa zákazník vracia na tú istú adresu s `?autoredir=off`. ❓ Či zákazník zaplatil, Shoptet zatiaľ nijako spoľahlivo neukazuje (`getShoptetPayStatus` = len stav brány, `purchase` v GA4 príde aj bez platby), preto platí pravidlo § 10.17: „Zaplatené“ len po overení skutočného textu (`ZAPLATENE_PODLA_TEXTU = false`), „neprebehla“ len pri rozpoznanom tlačidle Shoptetu, inak stránka Shoptetu + záznam.
+
+| Platba | SK id | CZ id | Adresa | Čo zákazník uvidí |
+|---|---|---|---|---|
+| Prevod (Prevodom / Převodem) | 5 | 5 | `/dakujeme/` | blok „prevod“: číslo účtu, VS a suma s „Kopírovať“, QR len ten, ktorý vykreslí Shoptet; nikdy „zaplatené“. Bez účtu alebo VS → stránka Shoptetu |
+| Dobierka (Dobierkou / Dobírka) | 3 | 87 | `/dakujeme/` | blok „dobierka“: „Zaplatíte kuriérovi pri prevzatí zásielky“, nikde záloha |
+| Online platba kartou | 103 | 114 | pred bránou `/dakujeme/`, návrat `?autoredir=off` | pred bránou (tlačidlo Shoptetu, 🟡 Shoptet po ~5 s presmeruje): „Platba zatiaľ neprebehla“ + zelené „Zaplatiť kartou“ = odkaz Shoptetu. Návrat s neúspechom a tlačidlom: „Platbu sa nepodarilo dokončiť…“ + „Zaplatiť kartou znova“. Úspech, čaká, nič alebo rozpor → stránka Shoptetu + záznam |
+| Apple Pay | 106 | 117 | ako karta | ako karta; štítok „Apple Pay“ (názov zo Shoptetu), tlačidlo „Zaplatiť“ / „Zaplatiť znova“, krok „Zaplaťte tlačidlom vyššie.“ – nikde „kartou“ |
+| Google Pay | 109 | 120 | ako karta | ako Apple Pay, štítok „Google Pay“ |
+| Rýchla platba cez banku | 112 | – | ako karta (❓ či cez `payment.shoptetpay.com`) | ako Apple Pay, štítok „Rýchla platba cez banku“; „čaká na potvrdenie banky“ → stránka Shoptetu (stav „čaká“ nemá schválený vzhľad ❓) |
+
+**Zmeny v kóde:** `dakujeme.js` – záznam má `navrat: true` pri `?autoredir=off` (query sa neukladá; prvé zobrazenie a návrat tej istej objednávky = 2 záznamy), krok platby pri Apple Pay / Google Pay / rýchlej platbe bez „kartou“. Adresa `?autoredir=off` rozhodnutie o stave nemení. 🟡 Nové texty na schválenie: SK „Zaplaťte tlačidlom vyššie.“ / „Tlačidlom vyššie alebo prevodom podľa údajov vyššie.“, CZ „Zaplaťte tlačítkem výše.“ / „Tlačítkem výše, nebo převodem podle údajů výše.“
+
+**Fixtures:** `MATICA_PLATIEB` a `NAVRAT` v `tools/test-opc/dakujeme-fixtures.mjs`; pre každú platbu cez bránu varianty `<web>-<typ>-pred` (prvé zobrazenie) a `-nie`, `-ok`, `-caka`, `-ticho` (návrat `?autoredir=off`), navyše `sk-pis-caka-banka`.
+
+**Testy:** `test-opc-dakujeme.mjs` „matica …“ (každá platba SK aj CZ, porovnanie id a názvov so zachyteným krokom 1), S54 v Chrome (návrat bez kódu v adrese, flag ostal v prehliadači), `test-opc-dakujeme-prehliadace.mjs` aj so `sk-pis-pred`, `sk-pis-nie`, `sk-pis-caka-banka`, `sk-apple-nie`, `cz-google-nie`.
+
+**❓ Overí živý test F4 (objednávky odošle Michal):** HTML `/dakujeme/` pri prevode a dobierke (QR, účet), karta zaplatená aj zrušená na bráne (text alebo prvok, ktorý ich odlíši – záznam s `navrat`), aspoň jedna z Apple Pay / Google Pay (tá istá návratová adresa), SK rýchla platba (stav „čaká“).
 
 ---
 

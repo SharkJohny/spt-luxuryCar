@@ -8,10 +8,13 @@
 // tlačidlo platby (texty, formulár na bránu), suma = práve jedna cena s menou, dva rôzne účty/VS/sumy/čísla = pôvodná
 // stránka (revízia 31. 10. 2026), kamión a vzorkovník, fallback pri chýbajúcich údajoch (nič sa neskryje), záznam do localStorage (posledných 5,
 // bez skriptov, adresa bez query), kopírovanie (Clipboard API, záloha execCommand, označenie pri neúspechu), zakázané
-// slová, CSS len pod html.lcd-opc-dakujeme*, rozpis položky = ul.lcd-rozpis (kosikRozpis.js).
-import { readFileSync } from "node:fs";
+// slová, CSS len pod html.lcd-opc-dakujeme*, rozpis položky = ul.lcd-rozpis (kosikRozpis.js); matica platieb SK 6 / CZ 5
+// (prevod, dobierka, karta, Apple Pay, Google Pay, rýchla platba cez banku len SK) pred bránou aj po návrate ?autoredir=off.
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { JSDOM } from "jsdom";
-import { VARIANTY, ocakavane, strankaJsdom, CESTY } from "./test-opc/dakujeme-fixtures.mjs";
+import { VARIANTY, ocakavane, strankaJsdom, CESTY, NAVRAT, MATICA_PLATIEB } from "./test-opc/dakujeme-fixtures.mjs";
+import { FIXTURES } from "./test-opc/zachytene.mjs";
 
 // globálne prostredie ako v prehliadači (index.js číta window/document/localStorage pri volaní)
 const prvy = new JSDOM("<!doctype html><html><body class=\"id--9 in-kosik\"></body></html>", { url: "https://www.luxurycardesign.sk/kosik/" });
@@ -46,10 +49,12 @@ const txt = (e) => (e ? e.textContent.replace(/[\s ]+/g, " ").trim() : null);
 const PROJEKT = { sk: 562035, cz: 581408 };
 const BASE = { sk: "https://www.luxurycardesign.sk", cz: "https://www.luxurycardesign.cz" };
 
-/** Ďakovná stránka variantu v jsdom ako globálne okno. o: { hladanie: "?opc=…", flag: "1"|null, telo, cesta } */
+/** Ďakovná stránka variantu v jsdom ako globálne okno. o: { hladanie: "?opc=…", flag: "1"|null, telo, cesta }
+ *  Variant s navrat (návrat z brány) má v adrese aj ?autoredir=off (NAVRAT), hladanie sa pridá za neho. */
 function prostredie(kluc, o = {}) {
   const v = VARIANTY[kluc];
-  const dom = new JSDOM(strankaJsdom(kluc, { telo: o.telo }), { url: BASE[v.web] + (o.cesta || CESTY[v.web]) + (o.hladanie || ""), pretendToBeVisual: true });
+  const hl = [v.navrat ? NAVRAT.slice(1) : "", String(o.hladanie || "").replace(/^\?/, "")].filter(Boolean).join("&");
+  const dom = new JSDOM(strankaJsdom(kluc, { telo: o.telo }), { url: BASE[v.web] + (o.cesta || CESTY[v.web]) + (hl ? "?" + hl : ""), pretendToBeVisual: true });
   const w = dom.window;
   w.dataLayer = [{ shoptet: { projectId: PROJEKT[v.web], language: v.web === "cz" ? "cs" : "sk", pageType: o.pageType || "thankYou" } }];
   // skript Shoptetu vnútri hlavného obsahu (záznam ho nesmie uložiť)
@@ -502,6 +507,95 @@ t("dobierka CZ aj SK: platba pri prevzatí, kuriérovi, žiadna záloha nikde", 
     ["Zaplatíte až pri prevzatí zásielky.", "Dobierka", "Platba pri prevzatí", "Zaplatíte kuriérovi pri prevzatí zásielky."]);
   eq(q(s, ".lcd-dak-osa > li:nth-child(4) .lcd-dak-osa__text"), "Sumu €767 zaplatíte kuriérovi.");
   for (const b of [c, s]) over(!/z[aá]loh/i.test(txt(b)), "záloha v dobierke");
+});
+// ------------------------------------------------------------------ matica platieb (31. 10. 2026, nocny-beh/platby-matica.md)
+// Každá platba SK (6) aj CZ (5): prevod a dobierka = vlastný blok; brána Shoptet Pay (karta, Apple Pay, Google Pay, rýchla
+// platba cez banku len SK) = pred bránou tlačidlo Shoptetu -> „zostáva zaplatiť“, po návrate (?autoredir=off) neúspech +
+// tlačidlo -> neprebehla, úspech / čaká / nič -> stránka Shoptetu so záznamom (ZAPLATENE_PODLA_TEXTU = false).
+t("matica platieb: SK 6, CZ 5 (rýchla platba cez banku len SK), druh podľa názvu Shoptetu", () => {
+  eq(MATICA_PLATIEB.sk.map((p) => p.id + " " + p.nazov), ["5 Prevodom", "3 Dobierkou", "103 Online platba kartou", "106 Apple Pay", "109 Google Pay", "112 Rýchla platba cez banku"]);
+  eq(MATICA_PLATIEB.cz.map((p) => p.id + " " + p.nazov), ["5 Převodem", "87 Dobírka", "114 Online platba kartou", "117 Apple Pay", "120 Google Pay"]);
+  for (const web of ["sk", "cz"]) for (const p of MATICA_PLATIEB[web]) eq(D.druhPlatby(p.nazov), p.druh, web + " " + p.nazov);
+  eq(MATICA_PLATIEB.cz.some((p) => p.typ === "pis"), false, "CZ bez rýchlej platby (pis:0)");
+});
+t("matica platieb = zachytený krok 1 (fixtures/sk|cz/krok1.html, mimo gitu): rovnaké id, typ Shoptetu a názvy", () => {
+  for (const web of ["sk", "cz"]) {
+    const subor = join(FIXTURES, web, "krok1.html");
+    if (!existsSync(subor)) { console.log("INFO matica vs. krok 1 " + web + ": fixtures chýbajú (FIXTURES.md), porovnanie preskočené"); continue; }
+    const d = new JSDOM(readFileSync(subor, "utf8")).window.document;
+    const zKroku = Array.prototype.map.call(d.querySelectorAll("input[name=billingId]"), (i) => {
+      const n = d.querySelector('label[for="' + i.id + '"] .shipping-billing-name');
+      return i.value + " " + (n ? n.textContent.trim() : "?") + " " + i.getAttribute("data-payment-type");
+    }).sort();
+    const TYP = { prevod: "transfer", dobierka: "cashOnDelivery" };
+    eq(zKroku, MATICA_PLATIEB[web].map((p) => p.id + " " + p.nazov + " " + (TYP[p.typ] || "shoptetpay")).sort(), web);
+  }
+});
+t("návrat z brány: ?autoredir=off (aj s ďalším parametrom) áno; iné hodnoty, iný parameter alebo nič nie", () => {
+  eq(["?autoredir=off", "?opc=X&autoredir=off", "?autoredir=off&opc=X", "?AUTOREDIR=OFF", "", "?autoredir=on", "?x=autoredir=off", "?noautoredir=off"].map(D.jeNavratZBrany),
+    [true, true, true, true, false, false, false, false]);
+});
+for (const web of ["sk", "cz"]) for (const p of MATICA_PLATIEB[web]) {
+  const karta = p.typ === "karta";
+  if (!p.brana) {
+    t("matica " + web + " " + p.nazov + ": bez brány, /" + CESTY[web].split("/")[2] + "/ -> blok " + p.typ, () => {
+      const k = web + "-" + p.typ, o = ocakavane(k);
+      eq([o.navrat, o.platba], [false, p.nazov]);
+      const { b } = blok(k);
+      eq([b.getAttribute("data-lcd-dak-stav"), !!b.querySelector(".lcd-dak-platba__btn"), /z[aá]loh/i.test(txt(b))], [p.typ, false, false]);
+    });
+    continue;
+  }
+  t("matica " + web + " " + p.nazov + ": pred bránou (tlačidlo Shoptetu) -> zostáva zaplatiť, zelené tlačidlo = odkaz Shoptetu, štítok podľa platby", () => {
+    const { b, o, T } = blok(web + "-" + p.typ + "-pred");
+    eq([o.adresa, b.getAttribute("data-lcd-dak-stav"), q(b, ".lcd-dak-hero__text"), q(b, ".lcd-dak-platba__stitok"), !!b.querySelector(".lcd-dak-platba__navod")],
+      [CESTY[web], "neprebehla", T.hero.neprebehla, karta ? T.stitokKarta : p.nazov, false]);
+    const btn = b.querySelector(".lcd-dak-platba__btn");
+    eq([btn.tagName, btn.getAttribute("href"), txt(btn)], ["A", o.odkazPlatby, karta ? T.zaplatitKartou : T.zaplatit]);
+    eq(q(b, ".lcd-dak-osa > li:nth-child(2) .lcd-dak-osa__text"), karta ? T.krokPlatbaKartou : T.krokPlatbaOnline);
+    if (!karta) over(!/kart/i.test(txt(b.querySelector(".lcd-dak-platba")) + txt(b.querySelector(".lcd-dak-osa"))), p.nazov + ": „kartou“ pri inej platbe než karta");
+  });
+  t("matica " + web + " " + p.nazov + ": návrat z brány (?autoredir=off) s neúspechom a tlačidlom -> neprebehla, „znova“, záznam navrat", () => {
+    const k = web + "-" + p.typ + "-nie";
+    const { b, o, T, w } = blok(k);
+    eq([o.adresa, w.location.search], [CESTY[web] + NAVRAT, NAVRAT]);
+    eq([b.getAttribute("data-lcd-dak-stav"), q(b, ".lcd-dak-platba__titul"), q(b, ".lcd-dak-platba__navod"), q(b, ".lcd-dak-platba__btn")],
+      ["neprebehla", T.neprebehlaTitul, T.neprebehlaNavod, karta ? T.zaplatitKartouZnova : T.zaplatitZnova]);
+    eq(b.querySelector(".lcd-dak-platba__btn").getAttribute("href"), o.odkazPlatby, "odkaz Shoptetu");
+    const z = JSON.parse(w.localStorage.getItem(D.KLUC_ZAZNAMU));
+    eq([z.length, z[0].navrat, z[0].url, z[0].stav], [1, true, BASE[web] + CESTY[web], "neprebehla"], "záznam bez query, navrat");
+  });
+  for (const sit of ["ok", "caka", "ticho"]) {
+    t("matica " + web + " " + p.nazov + ": návrat z brány " + sit + " -> stránka Shoptetu (nič sa neskryje), záznam navrat + dôvod", () => {
+      const k = web + "-" + p.typ + "-" + sit, o = ocakavane(k);
+      eq([o.adresa, o.povodna], [CESTY[web] + NAVRAT, true]);
+      const { doc, w } = prostredie(k, { flag: "1" });
+      B.vzhladDakujemeSkoro(doc, w.location.search);
+      const ctx = B.initOpc({});
+      eq([ctx.stav, /^stav platby/.test(ctx.dovod || ""), !!doc.getElementById("lcd-dakujeme"), doc.querySelectorAll("." + D.TRIEDA_POVODNE).length,
+        doc.documentElement.className.includes("lcd-opc-dakujeme")], ["dakujeme-povodna", true, false, 0, false]);
+      const z = JSON.parse(w.localStorage.getItem(D.KLUC_ZAZNAMU));
+      eq([z.length, z[0].navrat, z[0].stav, /^stav platby/.test(z[0].dovod)], [1, true, null, true], "záznam");
+      // „Zaplatené“ až po zapnutí ZAPLATENE_PODLA_TEXTU (po overení skutočného textu Shoptetu), len pri úspechu
+      const p2 = prostredie(k);
+      const zp = D.citajUdaje(p2.doc, web, null, { zaplatenePodlaTextu: true });
+      eq(zp.ok ? zp.udaje.stav : null, sit === "ok" ? "zaplatene" : null, "so zapnutým „Zaplatené“ podľa textu");
+      if (sit === "ok") eq(q(D.postavBlok(p2.doc, zp.udaje, TEXTY_DAKUJEME[web]), ".lcd-dak-platba__stitok"), karta ? TEXTY_DAKUJEME[web].stitokKarta : p.nazov, "štítok zaplatenej");
+    });
+  }
+}
+t("matica sk Rýchla platba cez banku: „čaká na potvrdenie banky“ po návrate -> stránka Shoptetu (stav „čaká“ nemá schválený vzhľad)", () => {
+  const r = D.citajUdaje(prostredie("sk-pis-caka-banka").doc, "sk", null);
+  eq([r.ok, r.dovod], [false, "stav platby nie je jednoznačný (online: bez tlačidla, čaká)"]);
+  for (const s of ["Platba čaká na potvrdenie banky.", "Čaká sa na potvrdenie platby bankou.", "Platba sa spracováva.", "Platba bude pripísaná po potvrdení bankou."])
+    eq(D.vysledokTextu(s), { uspech: false, neuspech: false, caka: true }, s);
+});
+t("matica: prvé zobrazenie a návrat z brány tej istej objednávky = 2 záznamy; obnovenie tej istej adresy = 1", () => {
+  const uloz = prostredie("cz-prevod").w.localStorage;
+  D.ulozZaznam(uloz, { html: "<main>1</main>", url: "u", navrat: false });
+  D.ulozZaznam(uloz, { html: "<main>1</main>", url: "u", navrat: true });
+  D.ulozZaznam(uloz, { html: "<main>1</main>", url: "u", navrat: true });
+  eq(JSON.parse(uloz.getItem(D.KLUC_ZAZNAMU)).map((x) => x.navrat), [false, true]);
 });
 t("kamión SK: rozpis z príplatkov, „vášmu vozidlu“; vzorky SK: „Vzorky pripravíme“", () => {
   const k = blok("sk-kamion").b;

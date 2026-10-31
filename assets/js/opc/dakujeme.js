@@ -17,7 +17,13 @@
 // Dva rôzne údaje toho istého popisu (číslo, suma, účet, VS) alebo suma bez práve jednej ceny s menou = pôvodná stránka.
 //
 // Záznam na overenie: pri zapnutom kóde sa pôvodné HTML hlavného obsahu (bez skriptov, zachytené hneď pri načítaní
-// bundla, pred úpravami cart.js) uloží do localStorage „lcdOpcDakujemeZaznam“ (posledných 5, dátum, adresa bez query).
+// bundla, pred úpravami cart.js) uloží do localStorage „lcdOpcDakujemeZaznam“ (posledných 5, dátum, adresa bez query,
+// navrat = true pri návrate z platobnej brány Shoptet Pay na ?autoredir=off — samotná query sa neukladá).
+//
+// Matica platieb (31. 10. 2026, SK 6 / CZ 5): prevod a dobierka = vlastný stav; online platba kartou, Apple Pay, Google
+// Pay a rýchla platba cez banku (len SK) idú cez bránu Shoptet Pay a riadia sa pravidlom karty vyššie (štítok = názov
+// platby zo Shoptetu, pri inej než karte bez slova „kartou“). Adresa ?autoredir=off rozhodnutie NEMENÍ (návrat z brány
+// ešte nehovorí, či sa zaplatilo), len sa zapíše do záznamu.
 // Nikam sa neposiela — prečíta sa v prehliadači Michala po skúšobnej objednávke a podľa neho sa doladia popisy.
 
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
@@ -723,7 +729,9 @@ export function postavBlok(doc, u, T) {
     krok(false, T.krokPriprava, priprava);
     krok(false, T.krokPrevzatie, T.krokPrevzatieText(sumaT));
   } else {
-    const textPlatby = u.odkaz ? (u.ucet ? T.krokPlatbaKartouAPrevodom : T.krokPlatbaKartou) : T.krokPlatbaCaka;
+    // Apple Pay / Google Pay / rýchla platba cez banku: bez slova „kartou“ (matica platieb 31. 10. 2026)
+    const textPlatby = !u.odkaz ? T.krokPlatbaCaka
+      : u.ucet ? (karta ? T.krokPlatbaKartouAPrevodom : T.krokPlatbaOnlineAPrevodom) : (karta ? T.krokPlatbaKartou : T.krokPlatbaOnline);
     krok(false, T.krokPlatba, textPlatby, true);
     krok(false, T.krokKonzultacia, T.krokKonzultaciaText);
     krok(false, T.krokPriprava, priprava);
@@ -820,7 +828,12 @@ export function htmlNaZaznam(doc) {
   }
 }
 
-/** Pridá záznam (posledných MAX_ZAZNAMOV) do úložiska. z: { html, url, telo, stav, dovod }. -> true = uložené. */
+/** Návrat z platobnej brány Shoptet Pay: ?autoredir=off (✅ GA4, matica platieb 31. 10. 2026). */
+export function jeNavratZBrany(hladanie) {
+  return /(?:^\?|&)autoredir=off(?:&|$)/i.test(String(hladanie || ""));
+}
+
+/** Pridá záznam (posledných MAX_ZAZNAMOV) do úložiska. z: { html, url, navrat, telo, stav, dovod }. -> true = uložené. */
 export function ulozZaznam(uloz, z, teraz) {
   try {
     if (!uloz || !z || !z.html) return false;
@@ -828,8 +841,9 @@ export function ulozZaznam(uloz, z, teraz) {
     try { zoznam = JSON.parse(uloz.getItem(KLUC_ZAZNAMU) || "[]"); } catch (e) { zoznam = []; }
     if (!Array.isArray(zoznam)) zoznam = [];
     const posledny = zoznam[zoznam.length - 1];
-    if (posledny && posledny.html === z.html && posledny.url === z.url) return false; // obnovenie tej istej stránky
-    zoznam.push({ datum: new Date(teraz || Date.now()).toISOString(), url: z.url, telo: z.telo || "", stav: z.stav || null, dovod: z.dovod || null, html: z.html });
+    // obnovenie tej istej stránky = 1 záznam; prvé zobrazenie a návrat z brány (?autoredir=off) sú dva
+    if (posledny && posledny.html === z.html && posledny.url === z.url && !!posledny.navrat === !!z.navrat) return false;
+    zoznam.push({ datum: new Date(teraz || Date.now()).toISOString(), url: z.url, navrat: !!z.navrat, telo: z.telo || "", stav: z.stav || null, dovod: z.dovod || null, html: z.html });
     while (zoznam.length > MAX_ZAZNAMOV) zoznam.shift();
     // plné úložisko: najprv zahodiť staršie záznamy, potom vzdať
     for (;;) {
@@ -915,7 +929,7 @@ export function initDakujeme(ctx, o) {
       let uloz = null;
       try { uloz = (o && o.uloz) || okno.localStorage; } catch (e) { uloz = null; }
       ulozZaznam(uloz, {
-        html, url: okno.location.origin + okno.location.pathname, telo: doc.body ? doc.body.className : "",
+        html, url: okno.location.origin + okno.location.pathname, navrat: jeNavratZBrany(okno.location.search), telo: doc.body ? doc.body.className : "",
         stav: vysledok && vysledok.ok ? vysledok.udaje.stav : null, dovod: vysledok && !vysledok.ok ? vysledok.dovod : null,
       });
     } catch (e) {}

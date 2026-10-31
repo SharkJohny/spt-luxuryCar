@@ -56,6 +56,9 @@ export const TEXTY_DAKUJEME = {
     krokPlatba: "Platba",
     krokPlatbaKartouAPrevodom: "Kartou znova alebo prevodom podľa údajov vyššie.",
     krokPlatbaKartou: "Kartou znova tlačidlom vyššie.", // 🟡 bez údajov na prevod
+    // 🟡 Apple Pay / Google Pay / rýchla platba cez banku (matica platieb 31. 10. 2026): bez „kartou“ aj bez „znova“
+    krokPlatbaOnline: "Zaplaťte tlačidlom vyššie.",
+    krokPlatbaOnlineAPrevodom: "Tlačidlom vyššie alebo prevodom podľa údajov vyššie.",
     krokPlatbaCaka: "Čaká na potvrdenie platby.", // 🟡 bez odkazu Shoptetu na opakovanú platbu
     krokKonzultacia: "Konzultácia",
     krokKonzultaciaText: "Ozveme sa vám kvôli detailom objednávky.",
@@ -126,6 +129,8 @@ export const TEXTY_DAKUJEME = {
     krokPlatba: "Platba",
     krokPlatbaKartouAPrevodom: "Kartou znovu, nebo převodem podle údajů výše.",
     krokPlatbaKartou: "Kartou znovu tlačítkem výše.", // 🟡
+    krokPlatbaOnline: "Zaplaťte tlačítkem výše.", // 🟡 Apple Pay / Google Pay
+    krokPlatbaOnlineAPrevodom: "Tlačítkem výše, nebo převodem podle údajů výše.", // 🟡
     krokPlatbaCaka: "Čeká na potvrzení platby.", // 🟡
     krokKonzultacia: "Konzultace",
     krokKonzultaciaText: "Ozveme se vám kvůli detailům objednávky.",

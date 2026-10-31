@@ -21,6 +21,32 @@ const FOTO = { auto: NAS + "img/1v/dvoj-vzor-diamond.jpg", kamion: NAS + "img/1v
 const QR_TEST = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" fill="#fff"/><rect x="8" y="8" width="144" height="144" fill="none" stroke="#000" stroke-width="4" stroke-dasharray="8 6"/><text x="80" y="88" font-family="Arial" font-size="22" text-anchor="middle">QR TEST</text></svg>');
 
 export const CESTY = { cz: "/objednavka/dekujeme/", sk: "/objednavka/dakujeme/" }; // SK 🟡 (aj /objednavka/dekujeme/ sa rozpozná)
+/** Návrat z platobnej brány Shoptet Pay (✅ GA4 11/2025–10/2026: referrer payment.shoptetpay.com -> SK
+ *  /objednavka/dakujeme/?autoredir=off, CZ /objednavka/dekujeme/?autoredir=off; scratchpad nocny-beh/platby-matica.md). */
+export const NAVRAT = "?autoredir=off";
+
+/**
+ * MATICA PLATIEB (31. 10. 2026, nocny-beh/platby-matica.md; id a názvy = zachytené kroky 1 fixtures/sk|cz/krok1.html):
+ * SK 6 platieb, CZ 5 (rýchla platba cez banku = PIS len SK; CZ pis:0). brana = Shoptet Pay (payment.shoptetpay.com,
+ * návrat na CESTY + NAVRAT); bez brány (prevod, dobierka) ide krok 2 rovno na CESTY. typ = časť kľúča variantu.
+ */
+export const MATICA_PLATIEB = {
+  sk: [
+    { id: "5", typ: "prevod", nazov: "Prevodom", druh: "prevod", brana: false },
+    { id: "3", typ: "dobierka", nazov: "Dobierkou", druh: "dobierka", brana: false },
+    { id: "103", typ: "karta", nazov: "Online platba kartou", druh: "karta", brana: true },
+    { id: "106", typ: "apple", nazov: "Apple Pay", druh: "online", brana: true },
+    { id: "109", typ: "google", nazov: "Google Pay", druh: "online", brana: true },
+    { id: "112", typ: "pis", nazov: "Rýchla platba cez banku", druh: "online", brana: true },
+  ],
+  cz: [
+    { id: "5", typ: "prevod", nazov: "Převodem", druh: "prevod", brana: false },
+    { id: "87", typ: "dobierka", nazov: "Dobírka", druh: "dobierka", brana: false },
+    { id: "114", typ: "karta", nazov: "Online platba kartou", druh: "karta", brana: true },
+    { id: "117", typ: "apple", nazov: "Apple Pay", druh: "online", brana: true },
+    { id: "120", typ: "google", nazov: "Google Pay", druh: "online", brana: true },
+  ],
+};
 
 const NBSP = " ";
 const cena = (web, n) => {
@@ -34,15 +60,20 @@ const L = {
     heading: "Objednávka odeslána", cislo: "Číslo", blokPlatba: "Platba a doručení", doprava: "Zvolená doprava", platba: "Zvolená platba",
     suma: "Částka k úhradě", ucet: "Bankovní účet", vs: "Variabilní symbol", obsah: "Obsah objednávky", rekap: "Rekapitulaci Vám zašleme i e-mailem.",
     dakujeme: "Děkujeme!", spat: "Zpět do obchodu", title: "Děkujeme za objednávku - Luxury Car Design",
-    dopravca: "Expres Kurýr", prevod: "Převodem", dobierka: "Dobírka", karta: "Online platba kartou", apple: "Apple Pay",
+    dopravca: "Expres Kurýr", prevod: "Převodem", dobierka: "Dobírka", karta: "Online platba kartou", apple: "Apple Pay", google: "Google Pay",
     okText: "Platba byla úspěšně přijata.", nieText: "Platba neproběhla.", zaplatit: "Zaplatit",
+    cakaText: "Platba byla zadána správně. Objednávka bude označena jako zaplacená, jakmile platbu obdržíme.",
   },
   sk: {
     heading: "Objednávka odoslaná", cislo: "Číslo", blokPlatba: "Platba a doručenie", doprava: "Zvolená doprava", platba: "Zvolená platba",
     suma: "Suma na úhradu", ucet: "Bankový účet", vs: "Variabilný symbol", obsah: "Obsah objednávky", rekap: "Rekapituláciu Vám zašleme aj e-mailom.",
     dakujeme: "Ďakujeme!", spat: "Späť do obchodu", title: "Ďakujeme za objednávku - Luxury Car Design",
-    dopravca: "Expres kurier DPD", prevod: "Prevodom", dobierka: "Dobierkou", karta: "Online platba kartou", apple: "Apple Pay",
+    dopravca: "Expres kurier DPD", prevod: "Prevodom", dobierka: "Dobierkou", karta: "Online platba kartou", apple: "Apple Pay", google: "Google Pay",
+    pis: "Rýchla platba cez banku",
     okText: "Platba bola úspešne prijatá.", nieText: "Platba neprebehla.", zaplatit: "Zaplatiť",
+    cakaText: "Platba bola zadaná správne. Objednávka bude označená ako zaplatená, keď platbu prijmeme.",
+    // 🟡 rýchla platba cez banku: bankový príkaz zadaný, banka ešte nepotvrdila (matica: stav „čaká“ ❓)
+    cakaBankaText: "Platba čaká na potvrdenie banky.",
   },
 };
 
@@ -60,7 +91,8 @@ const POLOZKY = {
 };
 
 /**
- * Varianty: web, platba (prevod | karta-ok | karta-nie | karta-pred | karta-ticho | karta-text | apple-ok | dobierka), košík, značky.
+ * Varianty: web, platba (prevod | dobierka | <brána>-ok | -nie | -pred | -ticho | -text, brána = karta | apple | google | pis),
+ * košík, značky; navrat: true = adresa návratu z brány (CESTY + NAVRAT, ?autoredir=off).
  * „pred“ = tlačidlo platby bez textu o výsledku (🟡 pred presmerovaním na bránu), „ticho“ = ani text, ani tlačidlo,
  * „text“ = vlastná veta Shoptetu (text) a voliteľne tlačidlo vo formulári (tlacidlo: { form, text }); nadpis = iný nadpis.
  * chyba: chýbajúce kľúčové údaje -> modul musí nechať pôvodnú stránku (fallback).
@@ -104,7 +136,27 @@ export const VARIANTY = {
   "cz-chyba-ucet": { web: "cz", platba: "prevod", kosik: "auto", cislo: "2820260044", doprava: 150, bez: "ucet" },
   "sk-chyba-suma": { web: "sk", platba: "prevod", kosik: "auto", cislo: "1820260054", doprava: 5, ucet: "SK00 1111 2222 3333 4444 5555", bez: "suma" },
   "cz-neznama-platba": { web: "cz", platba: "prevod", kosik: "auto", cislo: "2820260045", doprava: 150, ucet: "2002871802/2010", nazovPlatby: "Hotově na prodejně" },
+  // rýchla platba cez banku (len SK): bankový príkaz čaká na potvrdenie banky (🟡 znenie rekonštrukcia) -> stránka Shoptetu
+  "sk-pis-caka-banka": { web: "sk", platba: "pis-text", kosik: "auto", cislo: "1820260090", doprava: 5, navrat: true, textKluc: "cakaBankaText" },
 };
+
+// Matica platieb (MATICA_PLATIEB): každá platba cez bránu má variant pred bránou (-pred: tlačidlo Shoptetu, bez výsledku)
+// a po návrate z brány (?autoredir=off): -nie (neúspech + tlačidlo), -ok (úspech), -caka (PENDING), -ticho (nič).
+// Kľúč <web>-<typ>-<situácia>, napr. sk-pis-nie, cz-google-ok. Existujúce varianty karty ostávajú, návratové
+// (-ok, -nie, -caka) dostanú navrat.
+{
+  const cislo = { sk: 1820260060, cz: 2820260060 };
+  for (const web of ["sk", "cz"]) for (const p of MATICA_PLATIEB[web]) {
+    if (!p.brana) continue;
+    for (const sit of ["pred", "nie", "ok", "caka", "ticho"]) {
+      const k = web + "-" + p.typ + "-" + sit;
+      const navrat = sit !== "pred";
+      if (VARIANTY[k]) { if (navrat) VARIANTY[k].navrat = true; continue; }
+      VARIANTY[k] = { web, platba: p.typ + "-" + (sit === "caka" ? "text" : sit), kosik: "auto", cislo: String(cislo[web]++), doprava: web === "cz" ? 150 : 5, navrat };
+      if (sit === "caka") VARIANTY[k].textKluc = "cakaText";
+    }
+  }
+}
 
 /** Čo má modul z variantu vyčítať (pre testy). */
 export function ocakavane(kluc) {
@@ -113,7 +165,9 @@ export function ocakavane(kluc) {
   const pol = POLOZKY[v.web + "-" + v.kosik];
   const tovar = pol.reduce((s, p) => s + p.cena * p.ks, 0);
   const suma = tovar + v.doprava;
-  const platbaNazov = v.nazovPlatby || (v.platba === "prevod" ? t.prevod : v.platba === "dobierka" ? t.dobierka : v.platba === "apple-ok" ? t.apple : t.karta);
+  const typ = v.platba.split("-")[0]; // prevod | dobierka | karta | apple | google | pis
+  if (!t[typ]) throw new Error("platba " + typ + " nie je na webe " + v.web + " (MATICA_PLATIEB)");
+  const platbaNazov = v.nazovPlatby || t[typ];
   // stavPodlaTextu = čo by modul ukázal, keby smel „Zaplatené“ podľa textu (ZAPLATENE_PODLA_TEXTU / o.zaplatenePodlaTextu);
   // stav = skutočné správanie: „Zaplatené“ podľa textu nie (kým to nepotvrdí záznam), karta bez rozpoznaného tlačidla a bez
   // jednoznačného výsledku = null (ostane stránka Shoptetu, dovod „stav platby…“)
@@ -127,7 +181,7 @@ export function ocakavane(kluc) {
     polozky: pol.map((p) => ({ nazov: p.nazov.charAt(0).toLocaleUpperCase() + p.nazov.slice(1), ks: p.ks, cena: p.cena * p.ks, foto: p.foto })),
     odkazPlatby: /-nie$|-pred$/.test(v.platba) ? "/action/ShoptetPay/pay/?orderCode=" + v.cislo + "&hash=TEST" : null,
     odkazForm: v.tlacidlo ? v.tlacidlo.form : null,
-    druh: v.kosik,
+    druh: v.kosik, typ, navrat: !!v.navrat, adresa: CESTY[v.web] + (v.navrat ? NAVRAT : ""),
   };
 }
 
@@ -145,12 +199,13 @@ function polozkaHtml(web, p) {
           </tr>`;
 }
 function stavPlatbyHtml(v, t, o) {
-  if (v.platba === "karta-ok" || v.platba === "apple-ok") return `<div class="reca-payment-wrap"><p class="payment-status">${t.okText}</p></div>`;
-  if (v.platba === "karta-nie") return `<div class="reca-payment-wrap"><p class="payment-status">${t.nieText}</p><a href="${o.odkazPlatby}" class="btn btn-primary">${t.zaplatit}</a></div>`;
-  if (v.platba === "karta-pred") return `<div class="reca-payment-wrap"><a href="${o.odkazPlatby}" class="btn btn-primary">${t.zaplatit}</a></div>`;
-  if (v.platba === "karta-text") {
+  const sit = v.platba.split("-")[1] || ""; // ok | nie | pred | text | ticho (prevod, dobierka: nič)
+  if (sit === "ok") return `<div class="reca-payment-wrap"><p class="payment-status">${t.okText}</p></div>`;
+  if (sit === "nie") return `<div class="reca-payment-wrap"><p class="payment-status">${t.nieText}</p><a href="${o.odkazPlatby}" class="btn btn-primary">${t.zaplatit}</a></div>`;
+  if (sit === "pred") return `<div class="reca-payment-wrap"><a href="${o.odkazPlatby}" class="btn btn-primary">${t.zaplatit}</a></div>`;
+  if (sit === "text") {
     const tl = v.tlacidlo ? `<form method="post" action="${v.tlacidlo.form}"><button type="submit" class="btn btn-primary">${v.tlacidlo.text}</button></form>` : "";
-    return `<div class="reca-payment-wrap"><p class="payment-status">${v.text}</p>${tl}</div>`;
+    return `<div class="reca-payment-wrap"><p class="payment-status">${v.text || t[v.textKluc]}</p>${tl}</div>`;
   }
   return "";
 }

@@ -30,7 +30,8 @@ const pw = await import(PW);
 const OUT = arg("out", join(tmpdir(), "lcd-opc-dakujeme-prehliadace"));
 mkdirSync(OUT, { recursive: true });
 const PROFILY = arg("profil", "webkit-390,chromium-1366,firefox-1366").split(",");
-const VAR = arg("varianty", "cz-prevod,cz-karta-ok,cz-karta-nie,cz-karta-form,cz-karta-caka,cz-dobierka,sk-prevod,sk-karta-ok,sk-karta-nie,sk-dobierka,sk-kamion,sk-vzorky").split(",");
+// + matica platieb (31. 10. 2026): rýchla platba cez banku pred bránou a po návrate, Apple Pay / Google Pay po návrate
+const VAR = arg("varianty", "cz-prevod,cz-karta-ok,cz-karta-nie,cz-karta-form,cz-karta-caka,cz-dobierka,sk-prevod,sk-karta-ok,sk-karta-nie,sk-dobierka,sk-kamion,sk-vzorky,sk-pis-pred,sk-pis-nie,sk-pis-caka-banka,sk-apple-nie,cz-google-nie").split(",");
 const SIRKY = [320, 360, 390, 414, 768, 1024, 1280, 1366, 1920];
 const ZAKAZANE = /z[aá]loh|21\s*[–-]\s*29|\bdn[ií]\b|dodan|dodán|vyr[aá]b|\bDPH\b|z[aá]ruk|IBAN|na milimet/i;
 const TYP = { ".js": "application/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".woff2": "font/woff2" };
@@ -133,7 +134,8 @@ for (const meno of PROFILY) {
       await smeruj(page, stav);
       let chyba = null;
       try {
-        await page.goto(WEBY[VARIANTY[kluc].web].base + CESTY[VARIANTY[kluc].web] + (kluc === "sk-karta-nie" ? "?opc=1" : ""), { waitUntil: "load", timeout: 45000 });
+        const o0 = ocakavane(kluc); // sk-karta-nie = návrat z brány (?autoredir=off) + ?opc=1 (nie kód)
+        await page.goto(WEBY[o0.web].base + o0.adresa + (kluc === "sk-karta-nie" ? (o0.navrat ? "&" : "?") + "opc=1" : ""), { waitUntil: "load", timeout: 45000 });
         await page.waitForFunction(() => performance.getEntriesByType("resource").some((e) => /\/upload\/data\.json/.test(e.name)), null, { timeout: 20000 });
         await page.waitForTimeout(1200);
         const st = await page.evaluate(STOPA);
@@ -157,7 +159,8 @@ for (const meno of PROFILY) {
       await smeruj(page, stav);
       let chyba = null;
       try {
-        await page.goto(WEBY[w].base + CESTY[w] + "?opc=" + KOD, { waitUntil: "load", timeout: 45000 });
+        // návrat z brány (navrat): /…/dakujeme|dekujeme/?autoredir=off, kód OPC za ním
+        await page.goto(WEBY[w].base + o.adresa + (o.navrat ? "&" : "?") + "opc=" + KOD, { waitUntil: "load", timeout: 45000 });
         await page.waitForFunction(() => window.__lcdOpc && /^dakujeme-/.test(window.__lcdOpc.stav), null, { timeout: 20000 });
         const st = await page.evaluate(STOPA);
         if (o.povodna) {

@@ -5,8 +5,8 @@
 // z čerstvého lokálneho buildu (tools/test-opc/build.mjs), statické súbory Shoptetu z fixtures/cdn. Do Shoptetu neodíde
 // nič: Step2Validate sa zachytí a dostane fiktívnu stránku „Objednávka prijatá (TEST)“, tretie strany sú zablokované.
 //
-//   node tools/test-opc.mjs                         # SK, všetky scenáre S1–S46, S50–S53 (+ S7K), šírky 1366 a 390
-//                                                   # (S46 = rýchla platba cez banku, S50–S53 = ďakovná stránka, rekonštrukcia
+//   node tools/test-opc.mjs                         # SK, všetky scenáre S1–S46, S50–S54 (+ S7K), šírky 1366 a 390
+//                                                   # (S46 = rýchla platba cez banku, S50–S54 = ďakovná stránka, rekonštrukcia
 //                                                   #  tools/test-opc/dakujeme-fixtures.mjs)
 //   node tools/test-opc.mjs --web cz --krok S17 --sirka 390
 //   (scenár s len: "sk" / "cz" sa na inom webe preskočí — set a kamión sú zachytené len pre SK, S12 je len CZ)
