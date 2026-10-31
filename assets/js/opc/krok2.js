@@ -935,16 +935,58 @@ export function initKrok2(ctx) {
     };
     zarovnajListu();
     window.addEventListener("resize", zarovnajListu);
+    // PC (≥ 992 px): karta nad súhrnom by mohla skryť – zakryť alebo nechať pod sebou mimo okna – nezaškrtnutý povinný
+    // súhlas a vetu o tovare na mieru (VOP 6.13); zákazník by klikol na kartu bez nich. Karta preto na PC svieti len vtedy,
+    // keď sú obe celé nad jej horným okrajom (súhlas stačí zaškrtnutý), inak ide „Objednať“ pod súhrnom (revízia
+    // 31. 10. 2026, N1, kniha § 10.12 (a)). Telefón a tablet bez zmeny (lišta stále, Michal 29. 10.).
+    // KARTA_PC_NESKRYJE = false vráti predošlé správanie (karta aj nad súhlasom, § 10.12 (c)).
+    const KARTA_PC_NESKRYJE = true;
+    let vyskaKartyPc = 76; // min-height karty na PC (_lcdOpc.scss); rastie podľa nameranej (bez preblikovania na hrane)
+    const kartaPcBySkryla = function () {
+      if (!KARTA_PC_NESKRYJE || !panel || window.innerWidth < 992) return false;
+      if (H.classList.contains("lcd-lista-on")) vyskaKartyPc = Math.max(vyskaKartyPc, Math.ceil(lista.getBoundingClientRect().height));
+      const hore = window.innerHeight - vyskaKartyPc;
+      const pod = function (e) { const r = e.getBoundingClientRect(); return r.height > 0 && r.bottom > hore + 0.5; };
+      const suhlasy = panel.querySelectorAll(".consents input[type=checkbox][required], .consents input[type=checkbox].js-validate-required");
+      for (let i = 0; i < suhlasy.length; i++) {
+        const s = suhlasy[i];
+        if (s.checked) continue;
+        const dlazdica = (s.id && panel.querySelector('label[for="' + s.id + '"]')) || (s.closest && s.closest("label")) || s;
+        if (pod(dlazdica)) return true;
+      }
+      const veta = panel.querySelector(".lcd-opc-pravne");
+      return !!veta && pod(veta);
+    };
+    let tlacidloPodKartou = false; // natívne „Objednať“ pod prahom karty (IntersectionObserver nižšie)
+    const obnovListu = function () {
+      let on = tlacidloPodKartou;
+      try { if (on && kartaPcBySkryla()) on = false; } catch (e) {}
+      if (on) zarovnajListu();
+      if (H.classList.contains("lcd-lista-on") !== on) H.classList.toggle("lcd-lista-on", on);
+    };
     if (window.IntersectionObserver) {
       // lišta zmizne, keď je „Objednať“ na obrazovke nad ňou (inak by tlačidlo zakrývala); súhlas už lištu neskryje —
-      // tlačidlo Objednať musí byť vidno stále (Michal 29. 10.). 72 px = najmenšia výška lišty (telefón 73, PC 76, obe na
-      // spodnom okraji okna): keď svieti, natívne tlačidlo je celé pod ňou, inak je celé nad ňou
+      // tlačidlo Objednať musí byť vidno stále (Michal 29. 10.; na PC len keď karta súhlas ani vetu o tovare na mieru
+      // neskryje, vyššie). 72 px = najmenšia výška lišty (telefón 73, PC 76, obe na spodnom okraji okna): keď svieti,
+      // natívne tlačidlo je celé pod ňou, inak je celé nad ňou
       const io = new IntersectionObserver(function (z) {
-        const on = !z[z.length - 1].isIntersecting;
-        if (on) zarovnajListu();
-        if (H.classList.contains("lcd-lista-on") !== on) H.classList.toggle("lcd-lista-on", on);
+        tlacidloPodKartou = !z[z.length - 1].isIntersecting;
+        obnovListu();
       }, { rootMargin: "0px 0px -72px 0px" });
       io.observe(tlacidlo);
+      if (KARTA_PC_NESKRYJE && panel) {
+        // PC: poloha súhlasu a vety sa mení posunom stránky, zmenou okna a panela (rozbalenie, text chyby), súhlas zaškrtnutím
+        let cakaSnimka = false;
+        const naSnimku = function () {
+          if (cakaSnimka || !tlacidloPodKartou || window.innerWidth < 992) return;
+          cakaSnimka = true;
+          requestAnimationFrame(function () { cakaSnimka = false; obnovListu(); });
+        };
+        window.addEventListener("scroll", naSnimku, { passive: true });
+        window.addEventListener("resize", naSnimku);
+        panel.addEventListener("change", naSnimku);
+        try { new ResizeObserver(naSnimku).observe(panel); } catch (e) {}
+      }
     }
     poZmeneSuhrnu(false);
     // bublina Luxie ustúpi z „Objednať“ (cart.js, rovnako ako v košíku pri „Pokračovať“), z tlačidla v lište (PC notebook:
