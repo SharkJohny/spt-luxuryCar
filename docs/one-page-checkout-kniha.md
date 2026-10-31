@@ -1396,6 +1396,14 @@ Michal 31. 10. 2026 po náhľadoch `scratchpad/opc/nahlad-7/` (päť kompaktnýc
 - ❓ Či Shoptet po zmene košíka na kroku 2 ponechá krok 1 v session. Prechod cez `/kosik/` to obchádza za cenu jedného načítania navyše; overiť pri živom teste.
 - Zmena počtu kusov kamióna sa nerieši inak než pri iných položkách.
 
+**Revízia 31. 10. (workflow wf_433e0486-11c, 3 oblasti + adversariálne overenie; 13 nálezov, 10 potvrdených, žiadny pre zákazníkov bez odkazu) – opravené v f665862:**
+- Počas odosielania objednávky a zmeny počtu je karta zamknutá (`nastavSmieZacat`, `zamkniOdoslanie` z `krok2.js`); zmena počtu nastaví `lcd-dop-bezi`, takže „Objednať“ počká (`blokovane` → „kosik“). Test S64.
+- Výmena na polovici (`h.stary`): pôvodný set zvýraznený, pokyn „Odoberte, prosím, zvýraznený set tlačidlom Odobrať“ / „Znížte počet o 1“, ponuka k nemu sa nekreslí (`vynechaj`).
+- `data.json kosik_doplnky: false` aj `?lcddoplnok=0` vypnú ponuku a krížiky aj v karte.
+- Obsah košíka zlyhá: karta preč, čísla 1–4, „Upraviť košík“ = `/kosik/`, `sessionStorage lcdOpcBezKarty` → košík sa v tej karte prehliadača 30 min nepreskakuje. Test S65.
+- `lcd_miesto` v meraní, presné vrátenie `disabled` po odomknutí (aj sivé „Pridať k setu“).
+- 🟡 Ponechané (drobné, len prehliadač s tajným odkazom): pri vypínači `opc_jedna: false` je košík do príchodu data.json skrytý („Načítavam…“, poistka 10 s).
+
 ---
 
 ## 11. Živý dôkaz 28./29. 10. 2026
