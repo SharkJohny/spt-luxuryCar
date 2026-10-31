@@ -254,7 +254,7 @@ export const SCENARE = {
 /** Notebook s reálnou výškou okna (1366×768 obrazovka − Chrome − lišta Windows ≈ 1366×625/657; 1280×720 ≈ 1280×577);
  *  1366×768 = okno bežného notebooku s väčšou obrazovkou (revízia A1, N1). */
 const NOTEBOOKY = [[1366, 768], [1366, 657], [1366, 625], [1280, 577], [1280, 520]];
-/** Revízia A1 (N1): košíky s vyšším súhrnom ako set — dve položky a kamión — na bežných notebookoch. */
+/** Revízia A1 (N1): košíky s vyšším súhrnom ako set — dve položky, kamión (a set 2v, keď sú fixtures) — na bežných notebookoch. */
 const NOTEBOOKY_KOSIKY = { kosiky: ["dve", "kamion"], okna: [[1366, 768], [1366, 657]] };
 /** Bublina Luxie v rozmere widgetu (widget.js: do 560 px 170 × 80, inak 200 × 80) — podvrh má len komentár bez widgetu. */
 const BUBLINA = (mobil) => `(function () {
@@ -355,7 +355,9 @@ SCENARE.S41 = {
       // povinný súhlas nad kartou tu menšie medzery panela nedosiahnu (dve položky ani pred A1) — info behu vypíše POZOR
       // so skutočnými číslami, rozhoduje Michal spolu s § 10.12 (kniha § 10.14)
       if (J.web === "sk") {
-        for (const kosik2 of NOTEBOOKY_KOSIKY.kosiky) for (const [w, h] of NOTEBOOKY_KOSIKY.okna) {
+        // dvojvrstvový set len s fixtures sk-set2v (LCD_OPC_FIXTURES, ako v S42)
+        const kosiky2 = NOTEBOOKY_KOSIKY.kosiky.concat(existsSync(join(FIXTURES, "sk-set2v")) ? ["set2v"] : []);
+        for (const kosik2 of kosiky2) for (const [w, h] of NOTEBOOKY_KOSIKY.okna) {
           const s = await J.novaStranka({ kosik: kosik2, sirka: w, vyska: h, skript: s42Seed(kosik2) });
           await naKrok2(s, { query: "&lcddoplnok=0" });
           await s.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);

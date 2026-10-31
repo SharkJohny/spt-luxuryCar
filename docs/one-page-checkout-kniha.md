@@ -547,7 +547,7 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 | S37 | Klik „Objednať“ na prázdnej stránke a postupné dopĺňanie (SK, CZ, 390, 1366) | meno → e-mail → telefón → ulica → číslo → mesto → PSČ → súhlas: vždy 1 pole s rámom, textom a kurzorom, nad lištou; rám zmizne pri písaní; dovtedy žiadna požiadavka; potom 1× Step1Validate a 1× Step2Validate |
 | S38 | Neplatný telefón | označený Shoptetom → posun na telefón s jeho textom, nič neodíde; počas overenia → po chybe Shoptetu posun na telefón |
 | S39 | Lišta / karta „Objednať“ | telefón: všetko vyplnené, klik v lište = 1× objednávka; PC set navrchu: karta nad súhrnom, klik → meno, pri tlačidle zmizne |
-| S42 | Rozpis A1 (§ 10.14; pôvodne zobáčik), fotka, košík v štýle pokladne (§ 10.9, 10.10, 10.12) | A1: hneď len riadky A1 (porovnané s textami košíka), pilulka „Zobraziť viac“ len pri skrytých riadkoch, kópia navrchu s vlastnou pilulkou (ťuk); pôvodne: zbalené → rozbalené (klik, Enter, medzerník, aria vrátane popisu názvom položky, 44 px, CZ texty); rozbalené = celý názov; karta = PRESNE rozpis z košíka v jeho vzhľade (riadky, farba, hrúbka, písmo; bez obrázkov, guličiek, Počet / Cena, „Niečo nesedí“), zbalený súhrn navrchu s rozpisom aj kariet kamióna, auto pre poznámku (`sessionStorage.model`), pri kamióne `truckOrderSummary` a zhoda s príplatkami položky; fotka 60 × 60 pri správnej položke (kľúč aj s kódom varianty), načítaná, bez posunu; súčty košíka = celkom; košík ?opc=1 v štýle kroku 2, bez ?opc=1 bez zmeny; set, dve položky, kamión, vzorkovník; 360–1920, 1366×657 |
+| S42 | Rozpis A1 (§ 10.14; pôvodne zobáčik), fotka, košík v štýle pokladne (§ 10.9, 10.10, 10.12) | A1: hneď len riadky A1 (porovnané s textami košíka), pilulka „Zobraziť viac“ len pri skrytých riadkoch, kópia navrchu s vlastnou pilulkou (ťuk); pôvodne: zbalené → rozbalené (klik, Enter, medzerník, aria vrátane popisu názvom položky, 44 px, CZ texty); rozbalené = celý názov; karta = PRESNE rozpis z košíka v jeho vzhľade (riadky, farba, hrúbka, písmo; bez obrázkov, guličiek, Počet / Cena, „Niečo nesedí“), zbalený súhrn navrchu s rozpisom aj kariet kamióna, auto pre poznámku (`sessionStorage.model`), pri kamióne `truckOrderSummary` a zhoda s príplatkami položky; fotka 60 × 60 pri správnej položke (kľúč aj s kódom varianty), načítaná, bez posunu; súčty košíka = celkom; košík ?opc=1 v štýle kroku 2, bez ?opc=1 bez zmeny; set, dve položky, kamión, vzorkovník, CZ 3 vzorky (podvrh „vzorky3“, § 10.15); položka bez pilulky má celý názov (SK dve 360 / 992, CZ vzorkovník 360 / 992); 360–1920, 1366×657 (povinný súhlas celý nad kartou) |
 | S46 | Rýchla platba cez banku v OPC (§ 10.13) | klasický krok 1: okno Shoptet Pay biele, kontrast ≥ 4,5, 6 bánk bez posúvania; VÚB → Potvrdiť → Pokračovať = zachytené telo formulára kroku 1. OPC: ťuk na 112 → okno na tej istej adrese (dialóg, VÚB z localStorage, fokus), Späť = prevod a 0× Step1Validate; Potvrdiť = Step1Validate s telom PRESNE ako formulár kroku 1, súhrn „Rýchla platba cez banku“, podmienky Salt Edge; Zmeniť banku → Tatra = 1× Step1Validate; objednávka 1× so 112 a Tatra v session |
 | S45 | Súhlasy B1 (§ 10.12) | dve biele dlaždice 10 px od seba; povinný (required, nie poradie) zlatý rám 2 px a štítok „Povinné“ (pre čítačku bez textu), miesto preň aj pri opačnom poradí; klik kamkoľvek prepne, zaškrtnuté zelené; chyba = červený rám + text pod dlaždicou; fokus z klávesnice; PC: Tab na súhlas nad kartu „Celkom \| Objednať“ (set 1366×657, kamión 1920×1080, CZ) |
 
@@ -1196,7 +1196,7 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 
 **Výšky (offline harness):** telefón 390 SK set 1v 2 480 → 2 524 px rozbalené, položka 167 px (navrchu 203 px); set 2v položka 191 px; kamión 327 px. PC 1366: položka set 1v 159 px, 2v 183 px, kamión 339 px.
 
-**⛔ Súvisí s otvoreným bodom § 10.12 (1366×657):** rozpis posunul panel o ~50–90 px. „Objednať“ je na 1366×768 pod prvou obrazovkou (SK set 724–784) → svieti karta „Celkom | Objednať“ (doteraz len na nižších oknách). Na 1366×657 (set s autom) povinný súhlas 469–588 zasahuje spodkom 7 px pod kartu (581). Testy S40, S41, S42 to pripúšťajú (súhlas musí začínať nad kartou) a info behu vypíše „POZOR … (spodok N px pod kartou)“. Rieši sa spolu s rozhodnutím § 10.12.
+**⛔ Súvisí s otvoreným bodom § 10.12 (1366×657):** rozpis posunul panel o ~50–90 px. „Objednať“ je na 1366×768 pod prvou obrazovkou (SK set 724–784) → svieti karta „Celkom | Objednať“ (doteraz len na nižších oknách). Na 1366×657 (set s autom) povinný súhlas 469–588 zasahuje spodkom 7 px pod kartu (581). Testy S40, S41, S42 to pripúšťajú (súhlas musí začínať nad kartou) a info behu vypíše „POZOR … (spodok N px pod kartou)“. Rieši sa spolu s rozhodnutím § 10.12. **Od § 10.15 (revízia A1) opravené pre set a CZ:** súhlas celý nad kartou, S41 a S42 znova prísne; dve položky a kamión ostávajú v § 10.12.
 
 **Testy:** jednotky 10 nových / prerobených (`polozky.js`, texty, CSS, `obnovZbalenySuhrn`), S42 prerobený (viditeľné riadky A1 vs. košík, pilulka len pri skrytých riadkoch, kópia navrchu ťukom, klávesnica), S40 (rekapitulácia najviac 3 riadky, „Objednať“ alebo lišta na PC), S24 (kamión bez súhrnu), S43 (rozpis od ľava pri chybe fotky), S41 (POZOR so súhlasom), S39 (karta na PC zarovnaná s kartou súhrnu `.cart-content` ako v S41 – vetva s kartou sa od A1 na 1366×768 naozaj overuje, očakávanie bolo zo starého panela). Červené pred kódom: eedcb48, kód: b7cf844, S39: 2c209ab.
 
@@ -1210,6 +1210,42 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 - `vloz-lcd-css --check` OK, `build-admin-html --check` OK, `test-kosik-rozpis` OK.
 
 **Snímky:** hárok `…/scratchpad/nocny-beh/a1/harok-a1.png` (WebKit 390 navrchu aj pri Objednať, Chromium 1366; SK set 1v, set 2v, kamión, CZ vzorkovník 1 a 3 vzorky), skripty `…/nocny-beh/a1/_skript/render-a1.mjs`, `harok-a1.py`.
+
+### 10.15 Revízia A1 (31. 10. 2026) – súhlas nad kartou na PC, celý názov bez pilulky, CZ pilulka v teste
+
+**Nálezy revízie A1:** N1 (stredná) – na PC 1366×657 / 768 bol povinný súhlas po A1 čiastočne pod kartou „Celkom \| Objednať“ (set s autom 7 px na 1366×657; testy merali set bez auta a pripúšťali „súhlas začína nad kartou“). N2 (nízka, regresia A1) – položka bez skrytých riadkov nemala pilulku a jej názov ostal orezaný na 2 riadky bez možnosti zobraziť celý („Luxusný koberec do kufra…“, CZ vzorkovník). N3 (nízka) – CZ pilulku žiadny test v prehliadači nespustil (CZ fixtures majú 1 vzorku).
+
+**Oprava (najmenšia zmena, vzhľad A1 a dlaždíc B1 bez zmeny, telefón bez zmeny):**
+- **N1 – menšie medzery bočného panela na PC (≥ 992 px):** odstup od hlavičky 8 → 4 px (karta súhrnu aj krokovník vľavo, ostávajú zarovnané), vnútro karty navrchu 14 → 12 px, rozpis pod názvom 8 → 4 px, pilulka hneď pod rozpisom (2 → 0 px), ďalšia položka 12 → 8 px od linky, riadky súm 6 → 4 px, „Celkom k úhrade“ 6 + 8 → 4 + 6 px. Panel so setom je o 18 px nižší.
+- **N2:** položka bez pilulky (nič sa neskrýva, aj bez rozpisu) dostane triedu `lcd-opc-cely-nazov` a celý názov (`display:block`, bez `line-clamp`) na PC aj na telefóne. Kópia navrchu triedu nemá (názov tam orezaný nie je).
+- **N3:** podvrh košíka „vzorky3“ (`tools/test-opc/podvrh.mjs` `sTromiVzorkami`): vzorkovník webu s 3 vzorkami v príplatku, rozpis vyrobí skutočný `cart.js`. 🟡 Syntetické, nezachytené zo Shoptetu.
+
+**Výsledok na prvej obrazovke (zbalené, navrchu, Chromium):**
+
+| Košík | 1366×657 (karta od 581) | 1366×768 (karta od 692) |
+|---|---|---|
+| SK set s autom | súhlas 469–588 → **451–570, celý nad kartou** | súhlas 451–570 nad kartou; „Objednať“ 730–790 pod kartou (karta svieti od A1, § 10.14); ⛔ karta zakryje 28 px vety o tovare na mieru (663–720, pred opravou 46 px) |
+| CZ vzorkovník | súhlas 393–490 nad kartou | „Objednať“ 585–645 celé, bez karty |
+| CZ 3 vzorky (podvrh) | súhlas 470–568 nad kartou | „Objednať“ 662–722 celé, bez karty |
+| SK set 2v s autom (fixtures `sk-set2v`) | ⛔ súhlas 474–594, **13 px pod kartou** (pred opravou ~31) | súhlas nad kartou; ⛔ karta zakryje 51 px vety o tovare na mieru (687–743) |
+| SK dve položky | ⛔ súhlas 578–698, **117 px pod kartou** (pred opravou 143) | ⛔ súhlas 578–698, **6 px pod kartou** (pred 32) |
+| SK kamión so súhrnom | ⛔ súhlas 635–754, **173 px pod kartou** (pred 187) | ⛔ súhlas 635–754, **62 px pod kartou** (pred 76) |
+
+- ⛔ **Set 2v, dve položky a kamión zostávajú pod kartou – rozhoduje Michal spolu s § 10.12.** Menšie medzery to nedosiahnu (ďalšie by už menili dlaždice B1): pri dvoch položkách bol súhlas na 1366×657 pod kartou aj pred A1 (~39 px). Set 2v by na PC opravilo len skrytie „Farba 2. vrstvy“ do „Zobraziť viac“ (~24 px) – mení schválené A1. Zmerané varianty (sonda `…/scratchpad/nocny-beh/integracia/sonda-panel.mjs`, CSS cez `SONDA_CSS`):
+  - na PC v zbalenom stave bez rozpisu (len pilulka, ako pred A1): 🟡 dve 1366×657 stále ~46–74 px pod kartou (zmerané bez pilulky 2. položky, s ňou odhad), mení schválený vzhľad A1 na PC,
+  - § 10.12 (a)–(c): veta o tovare na mieru nad súhlasy, kompaktné dlaždice na PC alebo nepovinný súhlas pod „Objednať“ – menia schválený vzhľad, najprv náhľad.
+- Funkčne sa súhlas nestratí: Tab aj chyba pri „Objednať“ posunú dlaždicu nad kartu (S45, S37).
+
+**Testy:** S41 – 1366×768 pribudlo, set s autom z konfigurátora, na 1366×657 aj 1366×768 súhlas **celý** nad kartou (prísne ako pred A1); dve položky, kamión (a set 2v s fixtures `sk-set2v`) na 1366×768 / 1366×657 s číslami v info (POZOR, nie chyba). S40 – karta na PC podľa prahu karty (horný okraj „Objednať“ < okno − 72 px), nie podľa celého tlačidla v okne: set na 1366×768 má „Objednať“ 706–766, celé v okne, ale pod kartou, ktorá ho celé zakryje (c49b1cf). S42 – 1366×657 prísne, položka bez pilulky s celým názvom (aj SK dve 360 / 992, CZ vzorkovník 360 / 992), CZ „vzorky3“ (pilulka „Zobrazit více / méně“, ťuk, Enter, medzerník, kópia navrchu, prekreslenie). Jednotky: trieda `lcd-opc-cely-nazov` (CZ bez rozpisu / 1 / 3 / 2 vzorky, set, kópia), pravidlo CSS; strážca rozpisu v detaile pripúšťa samotný odstup (presne 1 pravidlo `margin-top:4px`). Červené pred kódom: c377443 (jednotky 2×, S41 SK 1366 súhlas 7 px pod kartou, S42 SK 1366 aj CZ 1366 / 390 orezaný názov bez pilulky), kód: 2c48d8d.
+
+**Výsledok 31. 10. 2026** (worktree `spt-luxuryCar-opc-main`, vetva `opc-main-kandidat`), offline:
+- jednotky: VŠETKO OK (124 OK),
+- SK: 91 OK, 1 zlyhalo (S40 1366 – zastarané očakávanie karty, opravené v c49b1cf, po oprave S40 2 OK), 2 preskočené,
+- CZ: 80 OK, 0 zlyhalo, 14 preskočených,
+- S41 + S42 so `sk-set2v` (`LCD_OPC_FIXTURES=…/opc/nahlad-4/_fixtures`): 4 OK,
+- `vloz-lcd-css --check` OK, `build-admin-html --check` OK, `test-kosik-rozpis` OK.
+
+**Snímka pred / po:** `…/scratchpad/nocny-beh/integracia/porovnanie-sk-set-1366x657-pred-po.png` (výrez panela SK set s autom 1366×657).
 
 ---
 
