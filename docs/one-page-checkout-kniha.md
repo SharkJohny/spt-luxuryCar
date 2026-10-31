@@ -1135,7 +1135,7 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 
 **⛔ Otvorené – čaká na rozhodnutie Michala** (zmena vzhľadu nad rámec schváleného, preto bez opravy):
 
-1) **Notebook 1366×657: „Objednať“ už nie je na prvej obrazovke** (K1-1, R1-1, UX-1, N1). Dlaždice B1 pridali do bočného panela ~98 px. Michal schválil vzhľad dlaždíc na výreze panela, kde bola karta skrytá (`nahlad-3/_skript/render.mjs` r. 183), nie stratu tlačidla.
+1) **Notebook 1366×657: „Objednať“ už nie je na prvej obrazovke** (K1-1, R1-1, UX-1, N1). → **31. 10. 2026 dočasne (a) v správaní karty: neskryje súhlas ani vetu o tovare na mieru, § 10.19 – Michal potvrdí.** Dlaždice B1 pridali do bočného panela ~98 px. Michal schválil vzhľad dlaždíc na výreze panela, kde bola karta skrytá (`nahlad-3/_skript/render.mjs` r. 183), nie stratu tlačidla.
 
 | 1366×657, zbalené, navrchu | pred B1 (b7467b2) | teraz |
 |---|---|---|
@@ -1236,7 +1236,7 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 | SK dve položky | ⛔ súhlas 578–698, **117 px pod kartou** (pred opravou 143) | ⛔ súhlas 578–698, **6 px pod kartou** (pred 32) |
 | SK kamión so súhrnom | ⛔ súhlas 635–754, **173 px pod kartou** (pred 187) | ⛔ súhlas 635–754, **62 px pod kartou** (pred 76) |
 
-- ⛔ **Set 2v, dve položky a kamión zostávajú pod kartou – rozhoduje Michal spolu s § 10.12.** Menšie medzery to nedosiahnu (ďalšie by už menili dlaždice B1): pri dvoch položkách bol súhlas na 1366×657 pod kartou aj pred A1 (~39 px). Set 2v by na PC opravilo len skrytie „Farba 2. vrstvy“ do „Zobraziť viac“ (~24 px) – mení schválené A1. Zmerané varianty (sonda `…/scratchpad/nocny-beh/integracia/sonda-panel.mjs`, CSS cez `SONDA_CSS`):
+- ⛔ **Set 2v, dve položky a kamión zostávajú pod kartou – rozhoduje Michal spolu s § 10.12.** → 31. 10. 2026: karta sa pri nich navrchu nezapne (§ 10.19, N1). Menšie medzery to nedosiahnu (ďalšie by už menili dlaždice B1): pri dvoch položkách bol súhlas na 1366×657 pod kartou aj pred A1 (~39 px). Set 2v by na PC opravilo len skrytie „Farba 2. vrstvy“ do „Zobraziť viac“ (~24 px) – mení schválené A1. Zmerané varianty (sonda `…/scratchpad/nocny-beh/integracia/sonda-panel.mjs`, CSS cez `SONDA_CSS`):
   - na PC v zbalenom stave bez rozpisu (len pilulka, ako pred A1): 🟡 dve 1366×657 stále ~46–74 px pod kartou (zmerané bez pilulky 2. položky, s ňou odhad), mení schválený vzhľad A1 na PC,
   - § 10.12 (a)–(c): veta o tovare na mieru nad súhlasy, kompaktné dlaždice na PC alebo nepovinný súhlas pod „Objednať“ – menia schválený vzhľad, najprv náhľad.
 - Funkčne sa súhlas nestratí: Tab aj chyba pri „Objednať“ posunú dlaždicu nad kartu (S45, S37).
@@ -1332,6 +1332,28 @@ Od revízie 31. 10. 2026 (§ 10.17) platí prísnejšia tabuľka:
 **Testy:** `test-opc-dakujeme.mjs` „matica …“ (každá platba SK aj CZ, porovnanie id a názvov so zachyteným krokom 1), S54 v Chrome (návrat bez kódu v adrese, flag ostal v prehliadači), `test-opc-dakujeme-prehliadace.mjs` aj so `sk-pis-pred`, `sk-pis-nie`, `sk-pis-caka-banka`, `sk-apple-nie`, `cz-google-nie`.
 
 **❓ Overí živý test F4 (objednávky odošle Michal):** HTML `/dakujeme/` pri prevode a dobierke (QR, účet), karta zaplatená aj zrušená na bráne (text alebo prvok, ktorý ich odlíši – záznam s `navrat`), aspoň jedna z Apple Pay / Google Pay (tá istá návratová adresa), SK rýchla platba (stav „čaká“).
+
+### 10.19 Revízia integrácie (31. 10. 2026) – karta na PC neskryje súhlas (N1) a tlačidlo platby na ďakovnej stránke (R1)
+
+Lokálne vo vetve `opc-main-kandidat` (worktree `spt-luxuryCar-opc-main`), nič nenasadené. Každá oprava: najprv test v červenej fáze, potom kód.
+
+**N1 – karta „Celkom | Objednať“ na PC skryla povinný súhlas a vetu o tovare na mieru** (zvyšok § 10.12 bod 1 a § 10.15 ⛔). Na 1366×768 / 657 bol povinný súhlas pod kartou pri dvoch položkách, kamióne a sete 2v; pri sete karta zakryla vetu o tovare na mieru (VOP 6.13) alebo ju nechala pod sebou mimo okna. S41 to len vypisoval ako „POZOR“.
+- **Oprava = možnosť (a)** (správanie, nie vzhľad – žiadny prvok sa nemení ani nepresúva): `opc/krok2.js` – na PC (≥ 992 px) karta svieti len vtedy, keď je natívne „Objednať“ pod prahom karty **a** povinný súhlas je zaškrtnutý alebo celý nad horným okrajom karty **a** veta o tovare na mieru je celá nad ním. Inak ide „Objednať“ pod súhrnom ako pred kartou. Prepočet pri posune, zmene okna, zaškrtnutí a zmene panela. Telefón a tablet bez zmeny (lišta stále, § 10.8 bod 6).
+- **Dôsledok navrchu stránky (Chromium, offline):**
+
+| Košík | 1366×768 | 1366×657 | 1366×625, 1280×577 | 1280×520 |
+|---|---|---|---|---|
+| SK set s autom | bez karty, „Objednať“ 730–790 (veta 663–720 by bola pod kartou) | bez karty | bez karty | bez karty |
+| SK set 2v, dve položky, kamión | bez karty | bez karty | – | – |
+| SK vzorkovník | – | karta (súhlas 393–513 nad ňou) | – | bez karty, po zaškrtnutí súhlasu karta (S39) |
+| CZ vzorkovník | „Objednať“ 585–645 celé | karta (súhlas 393–490) | karta | bez karty, po zaškrtnutí súhlasu karta |
+
+- ⛔ **Michal potvrdí (a), alebo zvolí inak.** Pri autokobercoch, rohožiach a kamiónoch je veta o tovare na mieru tesne nad „Objednať“, takže karta na PC navrchu prakticky nesvieti (≈ možnosť (b)); ostáva pri vzorkovníku. Návrat k predošlému správaniu (c) = `KARTA_PC_NESKRYJE = false` v `opc/krok2.js` (S39–S42 potom zlyhajú, lebo kontrolujú (a)). Rozšírenie (b) – karta na PC nikdy – by bola jedna podmienka navyše.
+- **Testy:** S41 – „POZOR“ nahradené kontrolou pre všetky okná a košíky (set, SK vzorkovník 1366×657 musí mať kartu, dve, kamión, set 2v): „Objednať“ celé, alebo karta, ktorá ho celé zakryje a nič neskryje, alebo bez karty práve preto, že by skryla súhlas / vetu (`kartaBySkryla`, `overKartuPc` v `scenare-dizajn.mjs`). S40 a S42 (1366×657) rovnako. S39 PC – vzorkovník 1366×657 karta → klik = meno → pri tlačidle zmizne; 1280×520 bez karty, po zaškrtnutí súhlasu karta, po odškrtnutí bez nej; SK set 1366×657 bez karty aj so zaškrtnutým súhlasom. Červené: f8332de, kód: c264343.
+
+**R1 – ďakovná stránka: zelené tlačidlo nemuselo nahradiť skryté tlačidlo Shoptetu.** (a) Odkaz Shoptetu `href="#"` ovládaný skriptom → náš `<a href="#">` nič nespustil. (b) Prvý vyhovujúci prvok vyhral: informačný odkaz „Více o platební bráně“ (nekotvené „platebni bran“) alebo odkaz na shoptetpay.com pred skutočným tlačidlom. (c) Pri prevode a dobierke sa tlačidlo platby nehľadalo – keby ho Shoptet ukázal, skrylo by sa bez náhrady (hypotetické).
+- **Oprava (`dakujeme.js`):** `kandidatiPlatby()` nájde všetky tlačidlá platby (text celého tlačidla ≤ 40 znakov, alebo adresa brány); `odkazPlatby()` vráti tlačidlo LEN pri práve jednom kandidátovi s adresou (odkazy s rovnakou adresou raz). Dve rôzne tlačidlá alebo odkaz bez adresy (`#`, prázdny, `#fragment`, `javascript:`, bez `href`) = stránka Shoptetu. Adresa brány: shoptetpay.com len s cestou `/pay`, GoPay / Comgate / ThePay / GP webpay mimo úvodnej stránky, názov brány v ceste (blog, informácie) nie. Prevod a dobierka s tlačidlom platby = stránka Shoptetu. Zelený odkaz drží adresu Shoptetu (stredné tlačidlo, Ctrl + klik), bežný klik = klik na pôvodný odkaz (jeho skript beží ako pri tlačidle Shoptetu).
+- **Testy:** `test-opc-dakujeme.mjs` – odkaz bez adresy, informačný odkaz pred tlačidlom aj samotný, dve rôzne tlačidlá / rovnaká adresa 2×, karta s `href="#"`, prevod a dobierka s tlačidlom, klik a Ctrl + klik na zelený odkaz. Červené: 51fac93, kód: 800a7f5. 🟡 Fixtures sú stále rekonštrukcia – skutočné HTML ďakovnej stránky overí živý test F4.
 
 ---
 
