@@ -82,9 +82,10 @@ export const TEXTY = {
     vybertePlatbu: "Vyberte platbu.",
     upravitKosik: "Upraviť košík",
     kroky: ["Nákupný košík", "Objednávka"],
-    // zobáčik pri položke súhrnu (Michal 29. 10. 2026, náhľad 2): zlatá pilulka; pod názvom rekapitulácia z košíka (náhľad 5)
-    zobrazitDetail: "Zobraziť detail",
-    skrytDetail: "Skryť detail",
+    // pilulka pod rozpisom položky súhrnu (A1 bez čísel, Michal 30. 10. 2026): pod názvom hneď najdôležitejšie riadky
+    // rekapitulácie z košíka, zvyšok po „Zobraziť viac“; bez počtu skrytých riadkov
+    zobrazitViac: "Zobraziť viac",
+    zobrazitMenej: "Zobraziť menej",
     // odkaz pod „Objednať“ vedie pri OPC do košíka (natívne „Späť“ na krok Doprava a platba)
     spatKosik: "Späť do košíka",
     // pri štáte v adrese namiesto „Môžete zmeniť v predchádzajúcom kroku“ (krok s krajinou zákazník pri OPC nevidel)
@@ -146,8 +147,8 @@ export const TEXTY = {
     vybertePlatbu: "Vyberte platbu.",
     upravitKosik: "Upravit košík",
     kroky: ["Nákupní košík", "Objednávka"],
-    zobrazitDetail: "Zobrazit detail",
-    skrytDetail: "Skrýt detail",
+    zobrazitViac: "Zobrazit více",
+    zobrazitMenej: "Zobrazit méně",
     spatKosik: "Zpět do košíku",
     zmenitStat: "Změnit zemi",
     kontakt: "Kontakt",

@@ -542,34 +542,38 @@ html.lcd-opc body.in-krok-2 #summary-box .cart-item-name a.main-link{display:-we
   font:normal 700 16px/1.3 var(--o-disp) !important;letter-spacing:.005em;text-transform:none;color:var(--o-ink) !important;text-decoration:none}
 html.lcd-opc body.in-krok-2 #summary-box .cart-item-name a.main-link::first-letter{text-transform:uppercase}
 html.lcd-opc body.in-krok-2 #summary-box .cart-item-name a.main-link > *,html.lcd-opc body.in-krok-2 #summary-box .cart-item-name > :not(a){display:none !important}
-/* položka s fotkou a zobáčikom (Michal 29. 10. 2026, náhľad 2a/2b/4; opc/polozky.js): fotka 60 px vľavo od názvu, pod názvom
-   zlatá pilulka „Zobraziť detail“ (doplnková akcia, zelené ostáva Objednať). Náhľad 5 (Michal 30. 10. 2026): pod pilulkou
-   v stĺpci názvu rekapitulácia z košíka bez zmeny — natívny rozpis cart.js (presunutý, nie kópia) vo vzhľade košíka
-   (ul.lcd-rozpis z _lcdKosik.scss, karty skupín kamióna z _cart.scss), bez vlastnej karty. Predvolene zbalené — [hidden]. */
-/* riadky: cena | „1 ks“ hneď pod ňou (druhý riadok berie zvyšok výšky názvu), zobáčik, detail pod názvom (nie pod fotkou) */
-html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item{grid-template-areas:"nazov cena" "nazov ks" "zob zob" "detail detail";grid-template-rows:auto 1fr auto auto;
+/* položka s fotkou a rozpisom (Michal 29. 10. 2026, náhľad 2a/2b/4; opc/polozky.js): fotka 60 px vľavo od názvu. Náhľad 5
+   (Michal 30. 10. 2026): pod názvom v stĺpci názvu rekapitulácia z košíka bez zmeny — natívny rozpis cart.js (presunutý,
+   nie kópia) vo vzhľade košíka (ul.lcd-rozpis z _lcdKosik.scss, karty skupín kamióna z _cart.scss), bez vlastnej karty.
+   A1 bez čísel (Michal 30. 10. 2026, náhľad 6): rozpis je vidno hneď, riadky .lcd-opc-dalsi až po zlatej pilulke
+   „Zobraziť viac“ pod rozpisom (doplnková akcia, zelené ostáva Objednať); pilulka len keď sa niečo skrýva. */
+/* riadky: cena | „1 ks“ hneď pod ňou (druhý riadok berie zvyšok výšky názvu), rozpis pod názvom (nie pod fotkou), pilulka */
+html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item{grid-template-areas:"nazov cena" "nazov ks" "detail detail" "zob zob";grid-template-rows:auto 1fr auto auto;
   padding-bottom:10px}
 html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item.lcd-opc-s-fotkou{grid-template-columns:60px minmax(0,1fr) auto;
-  grid-template-areas:"foto nazov cena" "foto nazov ks" "foto zob zob" ". detail detail"}
+  grid-template-areas:"foto nazov cena" "foto nazov ks" "foto detail detail" ". zob zob"}
 html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item + .cart-item{padding-top:12px}
 html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-foto{grid-area:foto;display:block;box-sizing:border-box;width:60px;height:60px;margin:0;border-radius:10px;object-fit:cover;
   background:var(--o-piesok);box-shadow:0 0 0 1px var(--o-karta)}
-/* tlačidlo = dotyková plocha 44 px, zlatá pilulka 36 px vo vnútri */
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob{grid-area:zob;justify-self:start;display:inline-flex;align-items:center;box-sizing:border-box;min-width:44px;min-height:44px;
+/* riadky rozpisu „až po Zobraziť viac“ (aj skupina kamióna / zoznam bez riadku hneď): skryté, kým položka nie je rozbalená */
+html.lcd-opc .cart-item:not(.lcd-opc-otvorena) .lcd-opc-dalsi{display:none !important}
+/* pilulka v súhrne aj v kópii navrchu (#lcd-opc-zbalene): dotyková plocha 44 px, zlatá pilulka 36 px vo vnútri, 16 px */
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob{grid-area:zob;justify-self:start;display:inline-flex;align-items:center;box-sizing:border-box;min-width:44px;min-height:44px;
   margin:4px 0 -4px;padding:0;border:0;border-radius:999px;background:none;box-shadow:none;color:var(--o-gold-t);font:700 16px/1.2 var(--o-body);letter-spacing:.005em;
   text-transform:none;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob__pil{display:inline-flex;align-items:center;gap:8px;box-sizing:border-box;min-height:36px;padding:0 14px 0 13px;
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob__pil{display:inline-flex;align-items:center;gap:8px;box-sizing:border-box;min-height:36px;padding:0 14px 0 13px;
   border:1px solid var(--o-gold);border-radius:999px;background:#fffdf7;transition:background-color .15s}
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob:hover .lcd-opc-zob__pil,
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob[aria-expanded="true"] .lcd-opc-zob__pil{background:#fbf5e3}
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob:focus{outline:0}
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob:focus-visible .lcd-opc-zob__pil{outline:2px solid var(--o-gold-lo);outline-offset:2px}
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob i{flex:none;width:8px;height:8px;margin-top:-4px;border:solid currentColor;border-width:0 2px 2px 0;
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob:hover .lcd-opc-zob__pil,
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob[aria-expanded="true"] .lcd-opc-zob__pil{background:#fbf5e3}
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob:focus{outline:0}
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob:focus-visible .lcd-opc-zob__pil{outline:2px solid var(--o-gold-lo);outline-offset:2px}
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob i{flex:none;width:8px;height:8px;margin-top:-4px;border:solid currentColor;border-width:0 2px 2px 0;
   transform:rotate(45deg);transition:transform .15s}
-html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob[aria-expanded="true"] i{margin-top:4px;transform:rotate(-135deg)}
+html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob[aria-expanded="true"] i{margin-top:4px;transform:rotate(-135deg)}
+/* kópia navrchu: pilulka pod rozpisom v stĺpci názvu (nie v mriežke položky), „1 ks“ a cena ostávajú pod ňou */
+html.lcd-opc body.in-krok-2 #lcd-opc-zbalene .lcd-opc-zob{display:flex;width:max-content}
 /* detail = rekapitulácia z košíka: bez vlastnej karty (pozadie, rámik), rozpis má vzhľad košíka */
-html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item > div.lcd-opc-detail{grid-area:detail;margin:2px 0 0;padding:0;border:0;background:none}
-html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item > div.lcd-opc-detail[hidden]{display:none}
+html.lcd-opc body.in-krok-2 #summary-box .cart-items .cart-item > div.lcd-opc-detail{grid-area:detail;margin:0;padding:0;border:0;background:none}
 /* kamión: span príplatkov je v detaile blok — karty skupín ako v pokladni (_cart.scss body.ordering-process .cart-items).
    V košíku aj v pokladni je span v a.main-link a dedí z neho tmavú farbu, Exo 2 a rozostup .005em (_lcdKosik.scss);
    presunutý pod položku by zdedil sivú a Source Sans 3 súhrnu — vrátené na span (revízia 30. 10. 2026, R1-3, UX-4); rozostup .005em zo 16 px písma odkazu v košíku = .08 px (súhrn má na PC menšie písmo, em by dal menej) */
@@ -579,20 +583,19 @@ html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail .main-link-surcharges{d
    ~12 px (.id--17 .model s !important) — v detaile 15 px ako v košíku (_cart.scss .removeable .info-wrap) */
 html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail .lcd-truck-cart-summary__group :is(dt,dd){font-size:14px}
 html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-detail .info-wrap :is(.model,.setup){font-size:15px !important}
-/* zbalená položka: názov najviac na 2 riadkoch na PC aj na telefóne (doladenie 2; telefón mal podľa náhľadu 2a 3 riadky),
-   na PC je zobáčik bližšie k názvu — „Objednať“ na notebooku 1366×657 ostáva celé v súhrne na prvej obrazovke (S41, S42) */
-/* rozbalená položka (zobáčik „Skryť detail“): celý názov ako v náhľade 2b / 4 (zbalená je na 2 riadkoch).
+/* zbalená položka: názov najviac na 2 riadkoch na PC aj na telefóne (doladenie 2; telefón mal podľa náhľadu 2a 3 riadky) */
+/* rozbalená položka („Zobraziť menej“): celý názov ako v náhľade 2b / 4 a 6 A1 (zbalená je na 2 riadkoch).
    display:block, nie len line-clamp:none: -webkit-box bez orezania Chrome berie ako starý flexbox a ::first-letter
    (veľké začiatočné písmeno) by neplatilo */
 html.lcd-opc body.in-krok-2 #summary-box .cart-item.lcd-opc-otvorena .cart-item-name a.main-link{display:block;-webkit-line-clamp:none}
 @media (min-width:992px){
   /* dotyková plocha 44 px ostáva, zasahuje do spodného odsadenia položky (pilulka 6 px nad linkou); nadpis súhrnu bližšie
-     k položke — spolu −8 px, „Objednať“ na 1366×657 je nad lištou ako dnes (horný okraj < výška okna − 72 px, S41) */
+     k položke (S41) */
   html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob{margin:2px 0 -10px}
   html.lcd-opc body.in-krok-2 #summary-box > h2{margin-bottom:4px}
 }
 @media (prefers-reduced-motion:reduce){
-  html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob i,html.lcd-opc body.in-krok-2 #summary-box .lcd-opc-zob__pil{transition:none}
+  html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob i,html.lcd-opc body.in-krok-2 :is(#summary-box,#lcd-opc-zbalene) .lcd-opc-zob__pil{transition:none}
 }
 /* Celkom za tovar, Doprava · názov | cena, Platba · názov | cena */
 html.lcd-opc body.in-krok-2 #summary-box .order-summary-item.helper{display:flex;flex-wrap:nowrap;align-items:baseline;justify-content:space-between;gap:12px;margin:6px 0 0;padding:1px 0;border:0}

@@ -447,10 +447,13 @@ export function obnovZbalenySuhrn(zb, box, T) {
   if (c) c.textContent = info ? info.celkom : "";
   const kam = zb.querySelector(".lcd-opc-zbalene__polozky");
   if (kam) {
+    // A1: kópia má vlastnú pilulku „Zobraziť viac“ — rozbalené kópie ostanú rozbalené aj po prekreslení (kľúč pilulky)
+    const otvorene = {};
+    kam.querySelectorAll('.lcd-opc-zob[aria-expanded="true"]').forEach(function (b) { otvorene[b.getAttribute("data-lcd-opc-kluc")] = true; });
     kam.textContent = "";
     polozky.forEach(function (p) {
-      // bez fotky a zobáčika, rozpis z karty detailu späť pod názov (opc/polozky.js)
-      const k = vycistiKopiu(p.cloneNode(true));
+      // bez fotky, rozpis z karty detailu späť pod názov a pod ním pilulka kópie (opc/polozky.js)
+      const k = vycistiKopiu(p.cloneNode(true), T, otvorene);
       k.removeAttribute("data-testid");
       k.querySelectorAll("[data-testid]").forEach(function (x) { x.removeAttribute("data-testid"); });
       k.querySelectorAll("a[href]").forEach(function (a) { a.setAttribute("tabindex", "-1"); });

@@ -1,14 +1,19 @@
-// One page checkout: položky súhrnu kroku 2 — malá fotka a „Zobraziť detail“ (zobáčik) s rekapituláciou z košíka.
-// Michal 29. 10. 2026 schválil podľa náhľadu 2 (2a zbalené, 2b rozbalené, 4 PC) zlatú pilulku pod názvom, predvolene zbalené.
-// Náhľad 5 (Michal 30. 10. 2026): po ťuknutí sa pod názvom ukáže PRESNE rekapitulácia z košíka — ten istý rozpis v tom
-// istom vzhľade ako v košíku (ul.lcd-rozpis so zlatými odrážkami, pri kamióne karty skupín .lcd-truck-cart-summary). Žiadne
-// obrázky, guličky farieb, prepisovanie riadkov, „Počet“ / „Cena“ (sú v riadku položky) ani „Niečo nesedí“ („Upraviť košík“
-// je v hlavičke súhrnu). Položka bez rozpisu nemá zobáčik.
+// One page checkout: položky súhrnu kroku 2 — malá fotka a pod názvom rekapitulácia z košíka.
+// Michal 29. 10. 2026 schválil podľa náhľadu 2 malú fotku a zlatú pilulku pod názvom. Náhľad 5 (Michal 30. 10. 2026): pod
+// názvom je PRESNE rekapitulácia z košíka — ten istý rozpis v tom istom vzhľade ako v košíku (ul.lcd-rozpis so zlatými
+// odrážkami, pri kamióne karty skupín .lcd-truck-cart-summary). Žiadne obrázky, guličky farieb, prepisovanie riadkov,
+// „Počet“ / „Cena“ (sú v riadku položky) ani „Niečo nesedí“ („Upraviť košík“ je v hlavičke súhrnu).
+// Náhľad 6, variant A1 bez čísel (Michal 30. 10. 2026): rozpis je pod názvom HNEĎ — viditeľné sú najdôležitejšie riadky
+// (koberce „Auto“, „Farba 1. vrstvy“, „Farba 2. vrstvy“ / CZ „Barva …“; kamión „Vozidlo“ a prvé „Typ a farba materiálu“;
+// ostatné, napr. vzorkovník, prvé 2 riadky), zvyšok sa ukáže po zlatej pilulke „Zobraziť viac“ (po rozbalení „Zobraziť
+// menej“), bez počtu skrytých riadkov. Keď sa nič neskrýva, pilulka nie je. To isté v zbalenom súhrne navrchu (telefón,
+// vlastná pilulka a stav) aj v bočnom paneli na PC.
 //
 // Web bez prekrývania: karta detailu obsahuje len NATÍVNY rozpis položky (cart.js changeDescription — ul.lcd-rozpis za
 // názvom, pri kamióne span.main-link-surcharges s .lcd-truck-cart-summary / .info-wrap). Presunie sa pod položku bez zmeny,
-// nič sa neskrýva ani nekopíruje; obsah a čísla #summary-box Shoptetu (názov, počet, cena, sumy) sa nemenia — okrem veľkého
-// začiatočného písmena názvu (velkePismenoNazvu, doladenie 2).
+// nič sa nekopíruje; riadky „až po Zobraziť viac“ dostanú len triedu lcd-opc-dalsi (CSS ich skryje, kým položka nie je
+// rozbalená — .lcd-opc-otvorena). Obsah a čísla #summary-box Shoptetu (názov, počet, cena, sumy) sa nemenia — okrem
+// veľkého začiatočného písmena názvu (velkePismenoNazvu, doladenie 2).
 //
 // Fotka: košík (opc/kosik.js) uloží do sessionStorage mapu „data-micro-identifier|data-micro-sku“ -> URL malého náhľadu
 // z riadku košíka (oba atribúty má aj položka v súhrne kroku 2; kód varianty rozlíši dva sety toho istého produktu v inej
@@ -90,13 +95,113 @@ function rozpisPolozky(p) {
   }) || null;
 }
 
-function nastavZob(zob, det, ano, T) {
+// ------------------------------------------------------------------ A1: čo je vidno hneď (Michal 30. 10. 2026)
+
+/** Trieda riadku (a prázdnej skupiny / zoznamu), ktorý sa ukáže až po „Zobraziť viac“. */
+export const DALSI = "lcd-opc-dalsi";
+const KOBERCE = /^(Auto|(Farba|Barva) [12]\. vrstvy)$/i;
+const VOZIDLO = /^Vozidlo$/i;
+const MATERIAL = /^Typ a (farba|barva) materiálu$/i;
+// kamión bez súhrnu (.info-wrap): materiál je v dvoch riadkoch príplatkov „Typ materiálu - …“ a „Farba materiálu - …“
+const TYP_MATERIALU = /^Typ materiálu$/i;
+const FARBA_MATERIALU = /^(Farba|Barva) materiálu$/i;
+
+const cisty = (t) => String(t || "").replace(/\s+/g, " ").trim();
+
+/**
+ * Riadky natívneho rozpisu: [{ els: prvky riadku, nazov, obal: skupina / zoznam, ktorý sa skryje, keď v ňom nič nie je
+ * hneď }] a druh rozpisu („rozpis“ osobné autá a vzorky, „kamion“ karty skupín, „info“ kamión bez súhrnu).
+ */
+export function riadkyRozpisu(rozpis) {
+  if (!rozpis) return { druh: null, riadky: [] };
+  if (rozpis.matches("ul.lcd-rozpis")) {
+    return { druh: "rozpis", riadky: Array.prototype.map.call(rozpis.children, function (li) {
+      const n = li.querySelector(".lcd-rozpis__n");
+      return { els: [li], nazov: n ? cisty(n.textContent).replace(/\s*:$/, "") : "", obal: null };
+    }) };
+  }
+  const skupiny = rozpis.querySelectorAll(".lcd-truck-cart-summary__group");
+  if (skupiny.length) {
+    const riadky = [];
+    skupiny.forEach(function (g) {
+      g.querySelectorAll("dt").forEach(function (dt) {
+        const dd = dt.nextElementSibling && dt.nextElementSibling.tagName === "DD" ? dt.nextElementSibling : null;
+        riadky.push({ els: dd ? [dt, dd] : [dt], nazov: cisty(dt.textContent), obal: g });
+      });
+    });
+    return { druh: "kamion", riadky: riadky };
+  }
+  const info = rozpis.querySelector(".info-wrap");
+  if (!info) return { druh: null, riadky: [] };
+  return { druh: "info", riadky: Array.prototype.map.call(info.querySelectorAll("li"), function (li) {
+    // „Vozidlo: …“ (ul.model) alebo príplatok „Typ materiálu - …“ (.setup)
+    const m = /^(.+?)\s*(?::|\s[-–]\s)/.exec(cisty(li.textContent));
+    return { els: [li], nazov: m ? m[1] : "", obal: li.closest("ul.model, .setup") };
+  }) };
+}
+
+/** Indexy riadkov, ktoré sú vidno hneď (A1). Nič z pravidiel -> prvé 2 riadky. */
+export function hnedVidno(r) {
+  const riadky = r.riadky;
+  let v = [];
+  if (r.druh === "kamion" || r.druh === "info") {
+    riadky.forEach(function (x, i) { if (VOZIDLO.test(x.nazov)) v.push(i); });
+    let m = riadky.findIndex(function (x) { return MATERIAL.test(x.nazov); });
+    if (m >= 0) v.push(m);
+    else {
+      [TYP_MATERIALU, FARBA_MATERIALU].forEach(function (re) {
+        m = riadky.findIndex(function (x) { return re.test(x.nazov); });
+        if (m >= 0) v.push(m);
+      });
+    }
+  } else {
+    riadky.forEach(function (x, i) { if (KOBERCE.test(x.nazov)) v.push(i); });
+  }
+  if (!v.length) v = riadky.slice(0, 2).map(function (x, i) { return i; });
+  return v.sort(function (a, b) { return a - b; });
+}
+
+function odznac(e) {
+  if (!e.classList.contains(DALSI)) return;
+  e.classList.remove(DALSI);
+  if (!e.classList.length) e.removeAttribute("class");
+}
+
+/**
+ * Označí riadky rozpisu „až po Zobraziť viac“ (lcd-opc-dalsi), aj skupinu / zoznam, v ktorom nič nie je hneď. Opakovateľné
+ * (staré značky preč, nové podľa aktuálnych riadkov). -> počet riadkov po „Zobraziť viac“ (0 = tlačidlo netreba).
+ */
+export function oznacRiadky(koren) {
+  if (!koren) return 0;
+  koren.querySelectorAll("." + DALSI).forEach(odznac);
+  const r = riadkyRozpisu(koren.matches("ul.lcd-rozpis, span.main-link-surcharges, .lcd-opc-kopia-priplatky") ? koren
+    : koren.querySelector("ul.lcd-rozpis, span.main-link-surcharges, .lcd-opc-kopia-priplatky"));
+  const v = hnedVidno(r);
+  let skryte = 0;
+  r.riadky.forEach(function (x, i) {
+    if (v.indexOf(i) >= 0) return;
+    skryte++;
+    x.els.forEach(function (e) { e.classList.add(DALSI); });
+  });
+  if (!skryte) return 0;
+  r.riadky.forEach(function (x) {
+    if (x.obal && !x.obal.classList.contains(DALSI) && r.riadky.every(function (y, i) { return y.obal !== x.obal || v.indexOf(i) < 0; })) x.obal.classList.add(DALSI);
+  });
+  return skryte;
+}
+
+function vytvorZob(doc) {
+  return el(doc, "button", { type: "button", class: "lcd-opc-zob", "aria-expanded": "false" }, [
+    el(doc, "span", { class: "lcd-opc-zob__pil" }, [el(doc, "span", { class: "lcd-opc-zob__text" }), el(doc, "i", { "aria-hidden": "true" })]),
+  ]);
+}
+
+/** Stav položky: rozbalená = vidno všetky riadky rozpisu a celý názov (.lcd-opc-otvorena), text pilulky podľa stavu. */
+function nastavZob(zob, p, ano, T) {
   zob.setAttribute("aria-expanded", String(ano));
-  det.hidden = !ano;
-  // rozbalená položka ukáže celý názov (náhľad 2b / 4); zbalená na PC ostáva na 2 riadkoch („Objednať“ na 1366×657)
-  if (zob.parentElement) zob.parentElement.classList.toggle("lcd-opc-otvorena", ano);
+  if (p) p.classList.toggle("lcd-opc-otvorena", ano);
   const t = zob.querySelector(".lcd-opc-zob__text");
-  if (t) t.textContent = ano ? T.skrytDetail : T.zobrazitDetail;
+  if (t) t.textContent = ano ? T.zobrazitMenej : T.zobrazitViac;
 }
 
 /**
@@ -118,9 +223,10 @@ export function velkePismenoNazvu(a, jazyk) {
 }
 
 /**
- * Položky #summary-box: fotka (keď je v mape), zobáčik a karta detailu s natívnym rozpisom (len pri položke s rozpisom).
- * Opakovateľné — po každom prekreslení súhrnu (Shoptet, opc/krok2.js nastavSuhrn) doplní, čo chýba (aj zobáčik, keď
- * cart.js doplnil rozpis neskôr), a stav zbalené / rozbalené vráti z `otvorene` (kľúč položky + poradie). Vráti počet položiek.
+ * Položky #summary-box: fotka (keď je v mape), karta detailu s natívnym rozpisom pod názvom (vždy viditeľná) a pod ňou
+ * pilulka „Zobraziť viac“, keď sa niečo skrýva (A1). Opakovateľné — po každom prekreslení súhrnu (Shoptet, opc/krok2.js
+ * nastavSuhrn) doplní, čo chýba (aj kartu, keď cart.js doplnil rozpis neskôr), značky riadkov prepočíta a stav zbalené /
+ * rozbalené vráti z `otvorene` (kľúč položky + poradie). Vráti počet položiek.
  */
 export function rozsirPolozky(box, T, o) {
   if (!box) return 0;
@@ -141,7 +247,7 @@ export function rozsirPolozky(box, T, o) {
     const url = fotky[klucFotky(p)];
     if (!foto && platnaFotka(url) && !zle[url]) {
       foto = el(doc, "img", { class: "lcd-opc-foto", src: url, alt: "", width: "60", height: "60", decoding: "async" });
-      // fotka sa nenačítala: nie prázdny rámik 60 px — celý preč, položka bez stĺpca fotky (názov a zobáčik od ľavého okraja)
+      // fotka sa nenačítala: nie prázdny rámik 60 px — celý preč, položka bez stĺpca fotky (názov a pilulka od ľavého okraja)
       foto.addEventListener("error", function () {
         zle[url] = true;
         foto.remove();
@@ -150,60 +256,91 @@ export function rozsirPolozky(box, T, o) {
       p.insertBefore(foto, p.firstChild);
     }
     p.classList.toggle("lcd-opc-s-fotkou", !!foto);
-    // zobáčik + karta detailu = natívny rozpis z košíka bez zmeny (náhľad 5)
-    let zob = p.querySelector(":scope > .lcd-opc-zob");
+    // pilulka mimo svojho miesta (napr. kópia vrátená do súhrnu) preč — vždy len jedna, priamo v položke
+    p.querySelectorAll(".lcd-opc-zob").forEach(function (z) { if (z.parentElement !== p) z.remove(); });
+    // karta detailu = natívny rozpis z košíka bez zmeny (náhľad 5), pod názvom vždy viditeľná (A1)
     let det = p.querySelector(":scope > .lcd-opc-detail");
-    if (!zob || !det) {
-      if (zob) zob.remove();
-      if (det) det.remove();
+    if (det && !det.firstElementChild) { det.remove(); det = null; }
+    if (!det) {
       const rozpis = rozpisPolozky(p);
-      if (!rozpis) { p.classList.remove("lcd-opc-otvorena"); return; } // bez rozpisu nie je čo zobraziť
+      let z = p.querySelector(":scope > .lcd-opc-zob");
+      if (!rozpis) { if (z) z.remove(); p.classList.remove("lcd-opc-otvorena"); return; } // bez rozpisu nie je čo zobraziť
       det = el(doc, "div", { class: "lcd-opc-detail", id: id });
       det.appendChild(rozpis);
-      zob = el(doc, "button", { type: "button", class: "lcd-opc-zob", "aria-controls": id, "aria-expanded": "false" }, [
-        el(doc, "span", { class: "lcd-opc-zob__pil" }, [el(doc, "span", { class: "lcd-opc-zob__text" }), el(doc, "i", { "aria-hidden": "true" })]),
-      ]);
-      p.appendChild(zob);
-      p.appendChild(det);
+      if (z) p.insertBefore(det, z);
+      else p.appendChild(det);
     }
-    zob.setAttribute("aria-controls", id);
     det.id = id;
+    det.hidden = false; // súhrn uložený pred A1 (karta bola predvolene [hidden])
+    // pilulka „Zobraziť viac“ len keď sa niečo skrýva; pod kartou (poradie čítania)
+    let zob = p.querySelector(":scope > .lcd-opc-zob");
+    if (!oznacRiadky(det)) {
+      if (zob) zob.remove();
+      p.classList.remove("lcd-opc-otvorena");
+      return;
+    }
+    if (!zob) zob = vytvorZob(doc);
+    if (det.nextElementSibling !== zob) det.after(zob);
+    zob.setAttribute("aria-controls", id);
     zob.setAttribute("data-lcd-opc-kluc", kluc);
-    // čítačka: „Zobraziť detail“ s názvom položky (pri viacerých položkách sa tlačidlá inak nerozlíšia; revízia)
+    // čítačka: tlačidlo s názvom položky (pri viacerých položkách sa tlačidlá inak nerozlíšia; revízia)
     const meno = p.querySelector(".cart-item-name");
     if (meno) {
       if (!meno.id) meno.id = "lcd-opc-nazov-" + (i + 1);
       zob.setAttribute("aria-describedby", meno.id);
     }
-    nastavZob(zob, det, !!otvorene[kluc], T);
+    nastavZob(zob, p, !!otvorene[kluc], T);
   });
   return polozky.length;
 }
 
-/** Klik na zobáčik (delegovaný z #summary-box): prepne kartu a zapamätá stav. Vráti nový stav alebo null (iný klik). */
-export function prepniDetail(ciel, box, T, otvorene) {
+/**
+ * Klik na pilulku (delegovaný z #summary-box alebo zo zbaleného súhrnu navrchu): prepne položku (zbalená / rozbalená)
+ * a zapamätá stav v `otvorene` (keď je). Vráti nový stav alebo null (iný klik, pilulka mimo `koren`).
+ */
+export function prepniDetail(ciel, koren, T, otvorene) {
   const zob = ciel && ciel.closest ? ciel.closest(".lcd-opc-zob") : null;
-  if (!zob || !box.contains(zob)) return null;
-  const det = box.ownerDocument.getElementById(zob.getAttribute("aria-controls"));
-  if (!det) return null;
+  if (!zob || !koren || !koren.contains(zob)) return null;
+  const p = zob.closest(".cart-item");
+  if (!p || !koren.contains(p)) return null;
   const ano = zob.getAttribute("aria-expanded") !== "true";
-  nastavZob(zob, det, ano, T);
-  otvorene[zob.getAttribute("data-lcd-opc-kluc")] = ano;
+  nastavZob(zob, p, ano, T);
+  if (otvorene) otvorene[zob.getAttribute("data-lcd-opc-kluc")] = ano;
   return ano;
 }
 
 /**
- * Kópia položky pre zbalený súhrn navrchu (vzhlad.js obnovZbalenySuhrn): bez fotky a zobáčika; natívny rozpis z karty
- * detailu sa vráti pod názov (ako pred zobáčikom) a je viditeľný.
+ * Kópia položky pre zbalený súhrn navrchu (vzhlad.js obnovZbalenySuhrn): bez fotky; natívny rozpis z karty detailu sa
+ * vráti pod názov a pod neho VLASTNÁ pilulka kópie (A1) — iné id (aria-controls na rozpis kópie, popis = názov kópie),
+ * stav z `otvorene` (kľúč pilulky), nie zo súhrnu pri Objednať. Bez textov `T` (alebo keď sa nič neskrýva) je kópia bez
+ * pilulky a s celým rozpisom.
  */
-export function vycistiKopiu(k) {
-  k.querySelectorAll(".lcd-opc-foto, .lcd-opc-zob").forEach(function (x) { x.remove(); });
-  k.querySelectorAll('[id^="lcd-opc-nazov-"]').forEach(function (x) { x.removeAttribute("id"); }); // id popisu zobáčika len raz
+export function vycistiKopiu(k, T, otvorene) {
+  k.querySelectorAll(".lcd-opc-foto").forEach(function (x) { x.remove(); });
+  k.querySelectorAll('[id^="lcd-opc-nazov-"]').forEach(function (x) { x.removeAttribute("id"); }); // id popisu pilulky len raz
   k.classList.remove("lcd-opc-s-fotkou", "lcd-opc-otvorena");
   const det = k.querySelector(".lcd-opc-detail");
-  if (!det) return k;
+  let zob = k.querySelector(".lcd-opc-zob");
+  if (!det) { if (zob) zob.remove(); return k; }
+  const n = (/(\d+)$/.exec(det.id || "") || [0, "1"])[1];
   const meno = k.querySelector(".cart-item-name") || k;
+  const rozpis = det.firstElementChild;
   while (det.firstChild) meno.appendChild(det.firstChild);
   det.remove();
+  if (!T || !rozpis || !oznacRiadky(rozpis)) {
+    if (zob) zob.remove();
+    k.querySelectorAll("." + DALSI).forEach(odznac);
+    return k;
+  }
+  if (!zob) zob = vytvorZob(k.ownerDocument);
+  rozpis.id = "lcd-opc-zbalene-rozpis-" + n;
+  rozpis.after(zob);
+  zob.setAttribute("aria-controls", rozpis.id);
+  const a = meno.querySelector("a.main-link");
+  if (a) {
+    a.id = "lcd-opc-zbalene-nazov-" + n;
+    zob.setAttribute("aria-describedby", a.id);
+  } else zob.removeAttribute("aria-describedby");
+  nastavZob(zob, k, !!(otvorene && otvorene[zob.getAttribute("data-lcd-opc-kluc")]), T);
   return k;
 }

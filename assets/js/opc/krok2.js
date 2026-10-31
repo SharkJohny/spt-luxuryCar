@@ -95,9 +95,10 @@ export function initKrok2(ctx) {
     setTimeout(odkry, Math.max(ODKRY_MIN_MS, ODKRY_DO_MS - od));
   }
 
-  // položky súhrnu (Michal 29. 10. 2026, náhľad 2): malá fotka a „Zobraziť detail“ s natívnym rozpisom (opc/polozky.js).
-  // Hneď pri načítaní (nie až po doprave a platbe: súhrn je na PC na prvej obrazovke), po prekreslení súhrnu znova
-  // (poZmeneSuhrnu); stav zbalené / rozbalené drží `otvorene`. Len vzhľad — chyba tu nič nezastaví.
+  // položky súhrnu (Michal 29. 10. 2026, náhľad 2): malá fotka a pod názvom natívny rozpis z košíka — najdôležitejšie
+  // riadky hneď, zvyšok po „Zobraziť viac“ (A1, Michal 30. 10. 2026; opc/polozky.js). Hneď pri načítaní (nie až po doprave
+  // a platbe: súhrn je na PC na prvej obrazovke), po prekreslení súhrnu znova (poZmeneSuhrnu); stav zbalené / rozbalené
+  // drží `otvorene`. Len vzhľad — chyba tu nič nezastaví.
   let ss = null;
   try { ss = window.sessionStorage; } catch (e) { ss = null; }
   const polozky = { fotky: P.citajFotky(ss), otvorene: {} };
@@ -874,6 +875,9 @@ export function initKrok2(ctx) {
     zbalene = V.vytvorZbalenySuhrn(document, T);
     if (hlavicka && hlavicka.parentNode) hlavicka.parentNode.insertBefore(zbalene, hlavicka.nextSibling);
     else obsah.insertBefore(zbalene, obsah.firstChild);
+    // „Zobraziť viac“ v kópiách položiek (A1): vlastný stav kópie, kópie sa prekresľujú (obnovZbalenySuhrn) -> delegované
+    const zb = zbalene;
+    zb.addEventListener("click", function (e) { try { P.prepniDetail(e.target, zb, T, null); } catch (x) {} });
     // upraviť košík pri súhrne (mimo #summary-box, ten Shoptet prekresľuje)
     if (!document.querySelector(".lcd-opc-upravit")) {
       const a = document.createElement("a");
