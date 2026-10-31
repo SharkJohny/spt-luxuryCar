@@ -199,6 +199,74 @@ t("karta: tlačidlo Shoptetu vo <form action> na bránu (bez href) -> neprebehla
   nase.click();
   eq(klik, 1, "klik na pôvodné tlačidlo Shoptetu");
 });
+
+// revízia 31. 10. 2026 (R1 / Codex OPC-R1): zelené tlačidlo vždy klikne na pôvodný prvok Shoptetu (aj odkaz <a>: jeho
+// skript môže mať href="#" a platbu spustiť sám); viac rôznych tlačidiel platby, odkaz bez adresy (#, prázdny,
+// javascript:) alebo informačný odkaz = stránka Shoptetu; pri prevode a dobierke tlačidlo platby = stránka Shoptetu
+const najdiPlatbu = (html) => {
+  const d = new JSDOM("<!doctype html><div id=k>" + html + "</div>").window.document;
+  const e = D.odkazPlatby(d.getElementById("k"), null);
+  return e ? e.tagName + ":" + (e.getAttribute("href") || e.getAttribute("action") || "") + ":" + D.bezDiakritiky(e.tagName === "INPUT" ? e.value : e.textContent) : null;
+};
+const BRANA = "/action/ShoptetPay/pay/?orderCode=1&hash=x";
+t("tlačidlo platby (R1): odkaz bez adresy (href=\"#\", prázdny, #fragment, javascript:, bez href) nie je naše zelené tlačidlo", () => {
+  for (const html of ['<a href="#">Zaplatiť</a>', '<a href="">Zaplatit</a>', '<a href="#platba">Zaplatit kartou</a>', '<a href="javascript:void(0)">Zaplatit</a>', '<a class="btn">Zaplatit</a>'])
+    eq(najdiPlatbu(html), null, html);
+});
+t("tlačidlo platby (R1): informačný odkaz pred tlačidlom (platobná brána, shoptetpay.com) sa nevyberie, vyhrá skutočné tlačidlo", () => {
+  for (const info of ['<a href="/platebni-brana-informace/">Více o platební bráně</a>', '<a href="/platobna-brana/">Viac o platobnej bráne</a>',
+    '<a href="https://www.shoptetpay.com/">Shoptet Pay</a>', '<a href="https://www.shoptetpay.com/cs/podminky/">Podmínky Shoptet Pay</a>',
+    '<a href="https://www.gopay.com/cs/">GoPay</a>', '<a href="https://blog.shoptet.cz/shoptet-pay/">Jak funguje Shoptet Pay</a>'])
+    eq(najdiPlatbu(info + '<a href="' + BRANA + '">Zaplatit</a>'), "A:" + BRANA + ":zaplatit", info);
+  // samotný informačný odkaz nie je tlačidlo platby
+  for (const info of ['<a href="/platebni-brana-informace/">Více o platební bráně</a>', '<a href="https://www.shoptetpay.com/">Shoptet Pay</a>',
+    '<a href="/info/">Zaplatiť môžete aj neskôr cez odkaz v e-maile, ktorý vám pošleme</a>']) eq(najdiPlatbu(info), null, info);
+  // brána Shoptet Pay na vlastnej doméne s cestou /pay áno
+  eq(najdiPlatbu('<a href="https://pay.shoptetpay.com/pay/abc">Pokračovat</a>'), "A:https://pay.shoptetpay.com/pay/abc:pokracovat");
+});
+t("tlačidlo platby (R1): dve rôzne tlačidlá (iná adresa / iný prvok) alebo odkaz # vedľa tlačidla = nejednoznačné -> žiadne; rovnaká adresa 2× áno", () => {
+  for (const html of [
+    '<a href="' + BRANA + '">Zaplatit</a><a href="/action/ShoptetPay/pay/?orderCode=1&hash=y">Zaplatit kartou</a>',
+    '<a href="' + BRANA + '">Zaplatit</a><form action="https://gate.gopay.cz/gw/v3/1"><button type="submit">Zaplatit</button></form>',
+    '<a href="#">Zaplatit</a><a href="' + BRANA + '">Zaplatit</a>',
+    '<a href="' + BRANA + '">Zaplatit</a><button type="button">Zkusit znovu</button>',
+  ]) eq(najdiPlatbu(html), null, html);
+  eq(najdiPlatbu('<a href="' + BRANA + '">Zaplatit</a><p>…</p><a href="' + BRANA + '" class="btn">Zaplatit kartou</a>'), "A:" + BRANA + ":zaplatit", "rovnaká adresa 2×");
+});
+t("karta (R1): odkaz Shoptetu href=\"#\" (spúšťa ho skript) alebo informačný odkaz pred tlačidlom -> stránka Shoptetu / skutočné tlačidlo", () => {
+  const { doc } = prostredie("cz-karta-nie");
+  doc.querySelector(".reca-payment-wrap a").setAttribute("href", "#");
+  const r = D.citajUdaje(doc, "cz", null);
+  eq([r.ok, /^stav platby/.test(r.dovod || "")], [false, true], "href=#: " + r.dovod);
+  const p = prostredie("cz-karta-nie");
+  p.doc.querySelector(".reca-payment-wrap").insertAdjacentHTML("afterbegin", '<a href="/platebni-brana-informace/">Více o platební bráně</a> <a href="https://www.shoptetpay.com/">Shoptet Pay</a>');
+  const r2 = D.citajUdaje(p.doc, "cz", null);
+  over(r2.ok, "nečíta: " + r2.dovod);
+  eq(r2.udaje.odkaz.getAttribute("href"), ocakavane("cz-karta-nie").odkazPlatby, "skutočné tlačidlo, nie informačný odkaz");
+});
+t("prevod a dobierka (R1): keď Shoptet ukáže tlačidlo platby, ostane jeho stránka (nič sa neskryje)", () => {
+  for (const kluc of ["sk-prevod", "cz-prevod", "sk-dobierka", "cz-dobierka"]) {
+    const { doc } = prostredie(kluc);
+    doc.getElementById("content").insertAdjacentHTML("beforeend", '<a href="' + BRANA + '" class="btn btn-primary">Zaplatit</a>');
+    const r = D.citajUdaje(doc, VARIANTY[kluc].web, null);
+    eq([r.ok, /tlačidlo platby/.test(r.dovod || "")], [false, true], kluc + ": " + r.dovod);
+  }
+});
+t("karta (R1): zelené tlačidlo = odkaz s adresou Shoptetu, klik (ľavým) klikne na pôvodný odkaz Shoptetu; Ctrl / stredné tlačidlo nechá prehliadač", () => {
+  const { b, doc } = blok("cz-karta-nie");
+  const povodne = doc.querySelector("#content .reca-payment-wrap a");
+  let klik = 0;
+  povodne.click = () => { klik++; };
+  const nase = b.querySelector(".lcd-dak-platba__btn");
+  eq([nase.tagName, nase.getAttribute("href")], ["A", povodne.getAttribute("href")]);
+  const w = doc.defaultView;
+  const e1 = new w.MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
+  nase.dispatchEvent(e1);
+  eq([klik, e1.defaultPrevented], [1, true], "ľavý klik = klik na pôvodný odkaz (jeho skript), naša adresa sa neotvorí");
+  const e2 = new w.MouseEvent("click", { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
+  nase.dispatchEvent(e2);
+  eq([klik, e2.defaultPrevented], [1, false], "Ctrl + klik = nová karta prehliadača s adresou Shoptetu");
+});
 t("karta: tlačidlo platby + text o úspechu alebo čakaní naraz (rozpor) -> stránka Shoptetu", () => {
   for (const veta of ["Platba byla úspěšně přijata.", "Platba byla zadána správně. Objednávka bude označena jako zaplacená, jakmile platbu obdržíme."]) {
     const { doc } = prostredie("cz-karta-pred");
