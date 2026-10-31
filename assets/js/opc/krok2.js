@@ -155,7 +155,25 @@ export function initKrok2(ctx) {
   // súhrn preč (CSS html.lcd-opc-jedna). Len košík — chyba tu formulár, doprava, platba ani odoslanie nezastaví.
   if (ctx.jednaStranka) {
     H.classList.add("lcd-opc-jedna");
-    try { k2.kosik = initKosikKarta(ctx, { form: form, box: box, T: T, forma: V.FORM_NIC, poZmene: poZmeneKosika }); } catch (e) { k2.kosik = null; }
+    try { k2.kosik = initKosikKarta(ctx, { form: form, box: box, T: T, forma: V.FORM_NIC, poZmene: poZmeneKosika, poPresune: poPresuneKarty }); } catch (e) { k2.kosik = null; }
+    if (!k2.kosik) cislujKarty(); // karta sa nespustila -> Kontakt 1, Adresa 2 (aj v záchrane)
+  }
+  /**
+   * Čísla kariet vľavo podľa poradia: karta košíka navrchu (telefón) = 1, ostatné od 2; karta vpravo (PC) alebo žiadna
+   * (zlyhala) -> Kontakt 1, Adresa 2, Doprava 3, Platba 4. Volá sa po presune karty a po vykreslení sekcie Doprava a platba.
+   */
+  function cislujKarty() {
+    const karta = document.getElementById("lcd-opc-kosik");
+    let n = karta && !H.classList.contains("lcd-opc-kosik-vpravo") ? 2 : 1;
+    form.querySelectorAll("h2[data-lcd-opc-cislo]").forEach(function (h) {
+      if (karta && karta.contains(h)) return;
+      h.setAttribute("data-lcd-opc-cislo", String(n++));
+    });
+  }
+  /** Karta košíka zmenila miesto (PC vpravo / telefón hore) alebo zmizla: čísla a bočný panel Shoptetu (výška). */
+  function poPresuneKarty() {
+    cislujKarty();
+    try { srovnajPanel(); } catch (e) {}
   }
   /**
    * Jedna stránka (Michal 31. 10. 2026 „A“): košík sa zmenil v karte (počet, Odobrať, doplnok) — súhrn sa prepočíta bez
@@ -764,6 +782,7 @@ export function initKrok2(ctx) {
       banka: k2.banky ? { banka: k2.banky.banka, podmienky: m.pisPodmienky } : null });
     k2.sekcia = sek;
     nacitavam.replaceWith(sek);
+    if (ctx.jednaStranka) cislujKarty(); // karta košíka vpravo (PC) -> Doprava 3, Platba 4
 
     box.setAttribute("data-lcd-opc-prepocet", T.prepocitavam); // text „Prepočítavam…“ pod súhrnom počas zmeny (CSS)
     // add_payment_info pri potvrdenej zmene platby (Shoptet ho poslal pri načítaní so session platbou; T12)
@@ -1011,7 +1030,9 @@ export function initKrok2(ctx) {
     // keď sú obe celé nad jej horným okrajom (súhlas stačí zaškrtnutý), inak ide „Objednať“ pod súhrnom (revízia
     // 31. 10. 2026, N1, kniha § 10.12 (a)). Telefón a tablet bez zmeny (lišta stále, Michal 29. 10.).
     // KARTA_PC_NESKRYJE = false vráti predošlé správanie (karta aj nad súhlasom, § 10.12 (c)).
-    const KARTA_PC_NESKRYJE = true;
+    // Michal 31. 10. 2026 večer (náhľad E): na PC „Celkom | Objednať“ dole vpravo stále, keď tlačidlo nevidno — ako lišta
+    // na telefóne; klik bez súhlasu / údajov posunie na prvé chýbajúce pole (kontrola polí)
+    const KARTA_PC_NESKRYJE = false;
     let vyskaKartyPc = 76; // min-height karty na PC (_lcdOpc.scss); rastie podľa nameranej (bez preblikovania na hrane)
     const kartaPcBySkryla = function () {
       if (!KARTA_PC_NESKRYJE || !panel || window.innerWidth < 992) return false;

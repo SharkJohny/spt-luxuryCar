@@ -1463,6 +1463,46 @@ Michal: „Koberce sú pripravované na mieru a že nie je možné odstúpiť da
 - Testy S8, S10 (`scenare-kosiky.mjs`) overujú, že tam ani jedno nie je.
 - Informácia o odstúpení pri tovare na mieru ostáva vo VOP (bod 6.13).
 
+### 10.23 Produkt v pokladni len raz – košík vpravo na PC (31. 10. 2026 noc, náhľad E)
+
+Michal: „je to zbytočne dvakrát“.
+- **Náhľady (scratchpad/opc/namieste/):**
+  - A (produkt len vľavo), B (košík vpravo), C (košík vpravo zbalený, „Zobraziť viac“);
+  - telefón (`_nahlad-telefon/`) a E (`_nahlad-d/`): menšie súhlasy a „Celkom | Objednať“ stále dole vpravo.
+- **Prieskum konkurencie (wf_5cec4a75-d78, `scratchpad/opc/konkurencia-3/`):**
+  - Luxus Car Mats, Witamats a Diamond Car Mats majú na PC produkt 1× vpravo a vľavo údaje.
+  - Na telefóne majú Luxus Car Mats a Witamats súhrn hore zbalený so sumou, Diamond Car Mats ho má dole.
+- **Michal:** „Áno“ a menšie súhlasy na PC; potom „Dohodli sme sa, že na PC na ľavej strane budú len info od zákazníka a na pravej strane bude rekapitulácia + príplatky.“
+
+**Ako to vyzerá:**
+- **PC (≥ 992 px):**
+  - karta „Váš košík“ je v pravom stĺpci (`#checkoutSidebar`, pred `.cart-content`) nad cenami, súhlasmi a Objednať;
+  - vľavo ostáva Kontakt 1, Adresa 2, Doprava 3, Platba 4;
+  - súhrn je bez nadpisu, karta kompaktnejšia (názov 15 px, nižšie riadky ponuky);
+  - súhlasy sú menšie (písmo 15 px ostáva, okno nižšie, štvorček 22 px).
+- **Telefón:** karta ostáva navrchu (1) a súhrn dole má nadpis a len ceny.
+- **Všade:**
+  - produkt je len v karte, v súhrne je skrytý (`.cart-item[data-micro-identifier]`);
+  - „Upraviť košík“ je skryté;
+  - podrobnosti produktu sú v karte zbalené ako A1: Auto a farby vrstiev hneď, ostatné po „Zobraziť viac“ (kamión celý).
+- **Karta „Celkom | Objednať“ na PC** svieti vždy, keď tlačidlo nevidno (`KARTA_PC_NESKRYJE = false`, ako lišta na telefóne). Klik bez údajov alebo súhlasu posunie na prvé chýbajúce pole.
+- Karta zlyhá → trieda `lcd-opc-jedna-karta` preč, súhrn je ako predtým (s produktom aj „Upraviť košík“) a čísla 1–4.
+
+**Kód:**
+- `opc/kosikKarta.js`:
+  - `umiestni()` cez matchMedia, presun pri zmene šírky, trieda `lcd-opc-kosik-vpravo`;
+  - pilulka cez `polozky.js` (`oznacRiadky`, `vytvorZob`, `nastavZob` exportované), stav v `otvorene`;
+  - `o.poPresune`.
+- `opc/krok2.js`: `cislujKarty` (podľa poradia, po presune a po vykreslení sekcie) a `poPresuneKarty` (aj `srovnajPanel`).
+- CSS: blok „produkt v pokladni len raz“ v `_lcdOpc.scss`.
+
+**Testy:**
+- S60 podľa šírky: PC 1–4 vľavo + karta vpravo, telefón 1–5. Na oboch: súhrn bez produktu, bez „Upraviť košík“, pilulka „Zobraziť viac“.
+- S65: po zlyhaní karty je produkt v súhrne.
+- S39 časť 2: karta svieti aj nad nezaškrtnutým súhlasom, klik → meno.
+- Dizajn: `kartaBySkryla` vypnuté ako v krok2.js.
+- 3 prehliadače: čísla podľa šírky, karta vpravo na PC, súhrn bez produktu.
+
 ---
 
 ## 11. Živý dôkaz 28./29. 10. 2026

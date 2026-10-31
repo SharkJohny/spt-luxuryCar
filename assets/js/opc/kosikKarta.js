@@ -14,6 +14,7 @@
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta } from "../functions/autoPamat.js";
 import * as D from "../lcdKosikDoplnok.js";
+import * as P from "./polozky.js";
 import { KLUC_BEZ_KARTY } from "./kosik.js";
 
 export const KLUC_FORMULARA = "lcdOpcFormular";
@@ -161,7 +162,8 @@ function rozpisKamionaZoSuhrnu(box, p, poradie) {
 /**
  * Karta „Váš košík“ pred kartou Kontakt. o: { form, box (#summary-box), T (opc/texty.js), forma (id pomocného formulára),
  * ss (sessionStorage), obsah (náhrada GetCartContent pre testy), poZmene (opc/krok2.js: súhrn po zmene košíka na mieste
- * -> Promise<boolean>) } -> { karta, hotovo: Promise<počet položiek | null>, bezi(), zamkniOdoslanie(ano) }.
+ * -> Promise<boolean>), poPresune (opc/krok2.js: karta zmenila miesto / zmizla -> čísla kariet vľavo, bočný panel) }
+ * -> { karta, hotovo: Promise<počet položiek | null>, bezi(), zamkniOdoslanie(ano) }.
  */
 export function initKosikKarta(ctx, o) {
   const doc = o.form.ownerDocument;
@@ -184,7 +186,44 @@ export function initKosikKarta(ctx, o) {
     el(doc, "h2", { id: "lcd-opc-h-kosik", "data-lcd-opc-cislo": "1", text: T.kosikNadpis }),
     obsah,
   ]);
-  kontakt.parentNode.insertBefore(karta, kontakt);
+  const H = doc.documentElement;
+  // Miesto karty (Michal 31. 10. 2026 večer, náhľad E): PC (≥ 992 px) v pravom stĺpci nad súhrnom (ceny, súhlasy, Objednať),
+  // vľavo len údaje zákazníka; telefón a tablet navrchu pred Kontaktom. Pri zmene šírky okna sa presunie.
+  const pc = typeof window.matchMedia === "function" ? window.matchMedia("(min-width: 992px)") : null;
+  const umiestni = function () {
+    if (!kontakt.parentNode) return;
+    const side = doc.getElementById("checkoutSidebar");
+    const panel = side && side.querySelector(":scope > .cart-content");
+    const vpravo = !!(pc && pc.matches && panel);
+    if (vpravo) { if (karta.nextElementSibling !== panel) side.insertBefore(karta, panel); }
+    else if (karta.nextElementSibling !== kontakt) kontakt.parentNode.insertBefore(karta, kontakt);
+    H.classList.toggle("lcd-opc-kosik-vpravo", vpravo);
+    try { if (o.poPresune) o.poPresune(vpravo); } catch (e) {}
+  };
+  umiestni();
+  if (pc) { if (pc.addEventListener) pc.addEventListener("change", umiestni); else if (pc.addListener) pc.addListener(umiestni); }
+  // karta vpravo rastie (obsah košíka, ponuka, „Zobraziť viac“, otvorený výber) -> bočný panel Shoptetu treba prepočítať
+  // (fixSidebar posúva panel inline „top“ a sám to nezistí; revízia 31. 10. noc)
+  let snimka = false;
+  const ro = typeof window.ResizeObserver === "function" ? new window.ResizeObserver(function () {
+    if (snimka || !H.classList.contains("lcd-opc-kosik-vpravo")) return;
+    snimka = true;
+    requestAnimationFrame(function () { snimka = false; try { if (o.poPresune) o.poPresune(true); } catch (e) {} });
+  }) : null;
+  if (ro) ro.observe(karta);
+  // produkt len raz (náhľad E): v súhrne sa skryjú LEN položky, ktoré karta naozaj ukazuje (rovnaký data-micro-identifier),
+  // a až keď je karta vykreslená — iné riadky (napr. darček) a súhrn pri pomalej alebo zlyhanej karte ostávajú (revízia)
+  let skrytie = null;
+  const skryVSuhrne = function (ids) {
+    if (!skrytie) {
+      skrytie = el(doc, "style", { id: "lcd-opc-kk-skry" });
+      (doc.head || H).appendChild(skrytie);
+    }
+    skrytie.textContent = ids.length ? ids.map(function (id) {
+      return 'html.lcd-opc.lcd-opc-jedna-karta body.in-krok-2 #summary-box .cart-item[data-micro-identifier="' + String(id).replace(/["\\]/g, "\\$&") + '"]';
+    }).join(",") + "{display:none !important}" : "";
+    H.classList.add("lcd-opc-kk-hotova");
+  };
   // nič z karty nejde do formulára objednávky (Shoptet na change / input posiela údaje zákazníka na server)
   ["change", "input"].forEach(function (t) { karta.addEventListener(t, function (e) { e.stopPropagation(); }); });
 
@@ -195,7 +234,6 @@ export function initKosikKarta(ctx, o) {
   });
 
   const stav = el(doc, "p", { class: "lcd-dop__stav lcd-opc-kk__stav", role: "status", "aria-live": "polite" });
-  const H = doc.documentElement;
   // zámok karty: zmena košíka (bezi) a odosielanie objednávky (opc/krok2.js zamkniOdoslanie); disabled stav prvkov sa po
   // odomknutí vráti presne (sivé „−“ pri 1 kuse, sivé „Pridať k setu“ bez veľkosti). ide = stránka už odchádza (záloha)
   let bezi = false, odosiela = false, zamky = 0, ide = false;
@@ -245,6 +283,7 @@ export function initKosikKarta(ctx, o) {
   };
 
   let polozkyTeraz = [];
+  const otvorene = {}; // rozbalené podrobnosti položiek („Zobraziť viac“) cez prekreslenie po zmene košíka
   let generacia = 0; // prekreslenie po zmene košíka: ponuka zo staršieho kreslenia sa už nepridá
   const zmerane = new Set(); // zobrazenie ponuky sa meria raz za stránku, nie pri každom prekreslení
 
@@ -291,11 +330,22 @@ export function initKosikKarta(ctx, o) {
     });
   };
 
-  const polozkaEl = function (p, poradie) {
+  const polozkaEl = function (p, poradie, poz) {
     const nazov = nazovPolozky(p.nazov, jazyk);
+    const cislo = p.itemId || "p" + poz;
     const foto = p.foto ? el(doc, "img", { class: "lcd-opc-kk__foto", src: p.foto, alt: "", width: "100", height: "100", decoding: "async" }) : el(doc, "span", { class: "lcd-opc-kk__foto", "aria-hidden": "true" });
     if (p.foto) foto.addEventListener("error", function () { foto.style.visibility = "hidden"; });
     const rozpis = jeKamion(p) ? rozpisKamionaZoSuhrnu(o.box, p, poradie) : rozpisPolozky(doc, p, cz);
+    // podrobnosti zbalené ako v súhrne (A1, náhľad E): hneď Auto a farby vrstiev, ostatné po „Zobraziť viac“ (kamión celý)
+    let zob = null;
+    const kluc = p.kluc + "#" + poradie;
+    if (rozpis && !jeKamion(p) && P.oznacRiadky(rozpis)) {
+      zob = P.vytvorZob(doc);
+      zob.setAttribute("form", o.forma);
+      rozpis.id = "lcd-opc-kk-rozpis-" + cislo;
+      zob.setAttribute("aria-controls", rozpis.id);
+      zob.setAttribute("aria-describedby", "lcd-opc-kk-nazov-" + cislo);
+    }
     const menej = el(doc, "button", { type: "button", form: o.forma, class: "lcd-opc-kk__krok", "aria-label": T.pocetMenej, disabled: !(p.q > 1), "data-lcd-opc-min": !(p.q > 1) }, [el(doc, "span", { "aria-hidden": "true", text: "−" })]);
     const viac = el(doc, "button", { type: "button", form: o.forma, class: "lcd-opc-kk__krok", "aria-label": T.pocetViac }, [el(doc, "span", { "aria-hidden": "true", text: "+" })]);
     const odobrat = el(doc, "button", { type: "button", form: o.forma, class: "lcd-opc-kk__odobrat", "aria-label": T.odobratAria(nazov), text: T.odobratPolozku });
@@ -304,17 +354,42 @@ export function initKosikKarta(ctx, o) {
     odobrat.addEventListener("click", function () { zmenPocet(p, 0); });
     const telo = el(doc, "div", { class: "lcd-opc-kk__telo" }, [
       el(doc, "div", { class: "lcd-opc-kk__hore" }, [
-        el(doc, "b", { class: "lcd-opc-kk__nazov", text: nazov }),
+        el(doc, "b", { class: "lcd-opc-kk__nazov", id: "lcd-opc-kk-nazov-" + cislo, text: nazov }),
         p.cena ? el(doc, "b", { class: "lcd-opc-kk__cena", text: p.cena }) : null,
       ]),
       rozpis,
+      zob,
       el(doc, "div", { class: "lcd-opc-kk__ovl" }, [
         el(doc, "span", { class: "lcd-opc-kk__pocet", role: "group", "aria-label": T.pocetNazov }, [menej, el(doc, "output", { form: o.forma, text: String(p.q) }), viac]),
         odobrat,
       ]),
     ]);
-    return el(doc, "li", { class: "lcd-opc-kk__polozka", "data-item": p.itemId }, [foto, telo]);
+    const li = el(doc, "li", { class: "lcd-opc-kk__polozka", "data-item": p.itemId }, [foto, telo]);
+    if (zob) {
+      P.nastavZob(zob, li, !!otvorene[kluc], T);
+      zob.addEventListener("click", function () {
+        const ano = zob.getAttribute("aria-expanded") !== "true";
+        P.nastavZob(zob, li, ano, T);
+        otvorene[kluc] = ano;
+      });
+    }
+    return li;
   };
+
+  /**
+   * Pridaný doplnok (rohož, box) s krížikom je vidno hneď, nie až po „Zobraziť viac“ (revízia 31. 10. noc); keď sa už nič
+   * neskrýva, pilulka preč.
+   */
+  function odkryKriziky(li) {
+    li.querySelectorAll("." + P.DALSI).forEach(function (r) {
+      if (r.querySelector(".lcd-dop-x")) { r.classList.remove(P.DALSI); if (!r.classList.length) r.removeAttribute("class"); }
+    });
+    if (!li.querySelector("." + P.DALSI)) {
+      const z = li.querySelector(".lcd-opc-zob");
+      if (z) z.remove();
+      li.classList.remove("lcd-opc-otvorena");
+    }
+  }
 
   /**
    * Obsah karty z obsahu košíka (GetCartContent): položky a hláška z predchádzajúcej zmeny hneď, ponuka k setu a krížiky
@@ -332,14 +407,15 @@ export function initKosikKarta(ctx, o) {
     const zoznam = el(doc, "ul", { class: "lcd-opc-kk__polozky" });
     const poradia = {};
     const miesta = {};
-    polozky.forEach(function (p) {
+    polozky.forEach(function (p, poz) {
       const i = poradia[p.kluc] = (poradia[p.kluc] == null ? 0 : poradia[p.kluc] + 1);
-      const li = polozkaEl(p, i);
+      const li = polozkaEl(p, i, poz);
       miesta[p.itemId] = li;
       zoznam.appendChild(li);
     });
     obsah.appendChild(zoznam);
     obsah.appendChild(stav);
+    skryVSuhrne(polozky.map(function (p) { return p.kluc.split("|")[0]; }).filter(function (id, j, a) { return id && a.indexOf(id) === j; }));
     // hláška z predchádzajúcej výmeny doplnku („✓ Druhá vrstva Lux 10 je pridaná k Vášmu setu.“); úspech po chvíli zmizne.
     // Výmena na polovici (nový set aj pôvodný v košíku, h.stary): pôvodný set zvýrazniť, pokyn na „Odobrať“ / počet −1
     // (v karte nie je krížik vpravo hore ako v košíku) a k nemu ponuku nekresliť (ako košík: vynechaj)
@@ -368,6 +444,7 @@ export function initKosikKarta(ctx, o) {
         if (li && c.odobrat.length) {
           c.miestoOdober = li;
           D.vlozKriziky(c, R);
+          odkryKriziky(li);
           if (zamky) zamkniPrvky(li);
         }
       });
@@ -390,14 +467,15 @@ export function initKosikKarta(ctx, o) {
     // obsah košíka sa nedá načítať -> karta preč, pokladňa ostáva ako doteraz (súhrn má položky aj „Upraviť košík“);
     // čísla kariet späť od 1, „Upraviť košík“ na skutočný košík a košík sa v tejto karte prehliadača 30 min nepreskakuje
     karta.remove();
+    if (ro) ro.disconnect();
+    if (skrytie) skrytie.remove();
+    H.classList.remove("lcd-opc-kk-hotova");
+    if (pc) { if (pc.removeEventListener) pc.removeEventListener("change", umiestni); else if (pc.removeListener) pc.removeListener(umiestni); }
     D.nastavPredObnovou(null);
     D.nastavSmieZacat(null);
     D.nastavNamiestoObnovy(null);
-    H.classList.remove("lcd-opc-jedna-karta");
-    o.form.querySelectorAll("h2[data-lcd-opc-cislo]").forEach(function (h2) {
-      const n = Number(h2.getAttribute("data-lcd-opc-cislo"));
-      if (n > 1) h2.setAttribute("data-lcd-opc-cislo", String(n - 1));
-    });
+    H.classList.remove("lcd-opc-jedna-karta", "lcd-opc-kosik-vpravo");
+    try { if (o.poPresune) o.poPresune(false); } catch (x) {}
     if (ss) { try { ss.setItem(KLUC_BEZ_KARTY, String(Date.now())); } catch (x) {} }
     const up = doc.querySelector(".lcd-opc-upravit");
     if (up) up.setAttribute("href", "/kosik/");

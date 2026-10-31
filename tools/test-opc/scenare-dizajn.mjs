@@ -271,12 +271,16 @@ const BUBLINA = (mobil) => `(function () {
 })()`;
 /** PC: výška karty „Celkom | Objednať“ (min-height 76 px, _lcdOpc.scss) — kým nesvieti, jej horný okraj by bol okno − 76. */
 const KARTA_PC_VYSKA = 76;
+const KARTA_PC_NESKRYJE = false; // ako opc/krok2.js
 /**
  * Revízia 31. 10. 2026 (N1, kniha § 10.12 (a)): karta na PC nesmie skryť nezaškrtnutý povinný súhlas ani vetu o tovare na
  * mieru (VOP 6.13) — zakryť ani nechať pod sebou mimo okna (zákazník by klikol na kartu bez nich). m = { ih, suhlas: { t, b,
  * zask }, pravne: { t, b } } v súradniciach okna; hore = horný okraj karty. -> čo by skryla ("" = nič).
  */
 export function kartaBySkryla(m, hore) {
+  // Michal 31. 10. 2026 večer (náhľad E): karta „Celkom | Objednať“ na PC svieti vždy, keď tlačidlo nevidno (krok2.js
+  // KARTA_PC_NESKRYJE = false) — nič „neskrýva“; klik bez súhlasu posunie na prvé chýbajúce pole
+  if (!KARTA_PC_NESKRYJE) return "";
   const h = hore != null ? hore : m.ih - KARTA_PC_VYSKA;
   const z = [];
   if (m.suhlas && !m.suhlas.zask && m.suhlas.b > h) z.push("povinný súhlas " + m.suhlas.t + "–" + m.suhlas.b);

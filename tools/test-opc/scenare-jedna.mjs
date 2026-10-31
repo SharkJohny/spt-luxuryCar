@@ -41,6 +41,10 @@ const STAV = `(function () {
       .filter(function (t, i, a) { return a.indexOf(t) === i; }),
     kroky: vidno(document.querySelector("ol.cart-header")), zbalene: vidno(document.querySelector(".lcd-opc-zbalene")),
     kartaPredKontaktom: !!k && k.nextElementSibling === document.querySelector("fieldset.co-contact-information"),
+    kartaVpravo: !!k && !!document.getElementById("checkoutSidebar") && k.nextElementSibling === document.querySelector("#checkoutSidebar > .cart-content"),
+    suhrnProdukty: [].filter.call(document.querySelectorAll("#summary-box .cart-item[data-micro-identifier]"), vidno).length,
+    nadpisSuhrnu: vidno(document.querySelector("#summary-box > h2")), upravit: vidno(document.querySelector(".lcd-opc-upravit")),
+    zob: [].map.call(k.querySelectorAll(".lcd-opc-zob"), function (z) { return z.textContent.trim(); }),
     ponuka: [].map.call(k.querySelectorAll(".lcd-vyb__riadok"), function (r) { return r.getAttribute("data-doplnok") + ":" + r.querySelector(".lcd-vyb__btn").textContent.trim(); }),
     vstupyVoFormulari: [].filter.call(f.elements, function (e) { return k.contains(e); }).length,
     polozky: [].map.call(k.querySelectorAll(".lcd-opc-kk__polozka"), function (p) { return p.querySelector(".lcd-opc-kk__nazov").textContent + " | " + p.querySelector(".lcd-opc-kk__cena").textContent; }),
@@ -92,8 +96,17 @@ export const SCENARE = {
       const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
       await naJednuStranku(s);
       const st = await s.ev(STAV);
-      over(st.cisla.join("|") === "1 Váš košík|2 Kontakt|3 Adresa|4 Doprava|5 Platba", "čísla kariet: " + st.cisla.join(" | "));
-      over(st.kartaPredKontaktom, "karta košíka nie je hneď pred Kontaktom");
+      // Michal 31. 10. 2026 večer (náhľad E): PC — vľavo len údaje (Kontakt 1 … Platba 4), košík vpravo nad súhrnom;
+      // telefón — košík navrchu (1), Kontakt 2 … Platba 5; produkt len v karte, súhrn len s cenami
+      if (J.sirka >= 992) {
+        over(st.cisla.join("|") === "1 Kontakt|2 Adresa|3 Doprava|4 Platba|1 Váš košík", "PC čísla kariet: " + st.cisla.join(" | "));
+        over(st.kartaVpravo && !st.nadpisSuhrnu, "PC: karta košíka nie je vpravo nad súhrnom / je vidno nadpis súhrnu: " + JSON.stringify([st.kartaVpravo, st.nadpisSuhrnu]));
+      } else {
+        over(st.cisla.join("|") === "1 Váš košík|2 Kontakt|3 Adresa|4 Doprava|5 Platba", "čísla kariet: " + st.cisla.join(" | "));
+        over(st.kartaPredKontaktom && st.nadpisSuhrnu, "karta košíka nie je hneď pred Kontaktom / chýba nadpis súhrnu");
+      }
+      over(st.suhrnProdukty === 0 && !st.upravit, "produkt je aj v súhrne / je vidno Upraviť košík: " + JSON.stringify([st.suhrnProdukty, st.upravit]));
+      over(st.zob.join() === "Zobraziť viac", "pilulka podrobností v karte: " + JSON.stringify(st.zob));
       over(!st.kroky && !st.zbalene, "kroky / zbalený súhrn je vidno (" + st.kroky + ", " + st.zbalene + ")");
       over(st.ponuka.join(",") === "vrstva2:Vybrať,rohoz:Vybrať,box:Vybrať", "ponuka: " + st.ponuka.join(", "));
       over(st.vstupyVoFormulari === 0, "vstupy karty vo formulári objednávky: " + st.vstupyVoFormulari);
@@ -209,11 +222,13 @@ export const SCENARE = {
       const st = await s.ev(`({ cisla: [].map.call(document.querySelectorAll("#order-form h2[data-lcd-opc-cislo]"), function (h) { return h.getAttribute("data-lcd-opc-cislo"); }).join(""),
         upravit: (document.querySelector(".lcd-opc-upravit") || {}).getAttribute ? document.querySelector(".lcd-opc-upravit").getAttribute("href") : null,
         kroky: !!document.querySelector("ol.cart-header") && getComputedStyle(document.querySelector("ol.cart-header")).display !== "none",
-        flag: sessionStorage.getItem("lcdOpcBezKarty") })`);
+        flag: sessionStorage.getItem("lcdOpcBezKarty"),
+        suhrnProdukty: [].filter.call(document.querySelectorAll("#summary-box .cart-item[data-micro-identifier]"), function (e) { return e.getBoundingClientRect().height > 0; }).length })`);
       over(st.cisla === "1234", "čísla kariet po zlyhaní karty: " + st.cisla);
       over(st.upravit === "/kosik/", "Upraviť košík: " + st.upravit);
       over(st.kroky, "kroky navrchu nie sú vidno (karta zlyhala)");
       over(!!st.flag, "košík sa bude ďalej preskakovať (bez lcdOpcBezKarty)");
+      over(st.suhrnProdukty >= 1, "po zlyhaní karty nie je produkt ani v súhrne");
       await s.chod(KOSIK, { popis: "košík po zlyhaní karty" });
       await pauza(800);
       const k = await s.ev(`({ cesta: location.pathname, skryte: document.documentElement.classList.contains("lcd-opc-prechadzam"), ponuka: document.documentElement.getAttribute("data-lcd-doplnok") })`);
@@ -235,6 +250,7 @@ export const SCENARE = {
       const k = await s.ev(`(function () { var k = document.querySelector("${KARTA}");
         return { ponuka: [].map.call(k.querySelectorAll(".lcd-vyb__riadok"), function (r) { return r.getAttribute("data-doplnok"); }),
           kriziky: [].map.call(k.querySelectorAll(".lcd-dop-x"), function (b) { return b.getAttribute("data-lcd-dop-odober"); }),
+          krizikVidno: [].every.call(k.querySelectorAll(".lcd-dop-x"), function (b) { return b.getBoundingClientRect().height > 0; }),
           hlaska: (k.querySelector(".lcd-opc-kk__hlaska") || {}).textContent || "", zaznam: localStorage.getItem("lcdDoplnokVymena"),
           otvorene: document.documentElement.classList.contains("lcd-vyb-otvorene") };
       })()`);
@@ -242,7 +258,7 @@ export const SCENARE = {
       over(a.join() === "addCartItem,deleteCartItem", "úpravy košíka: " + a.join(", "));
       over(st.polozky.length === 1 && /\| €398$/.test(st.polozky[0]), "karta po pridaní rohože: " + st.polozky.join(" / "));
       over(k.ponuka.join() === "vrstva2,box", "ponuka po pridaní rohože: " + k.ponuka.join(", "));
-      over(k.kriziky.join() === "rohoz", "krížik pri rohoži: " + k.kriziky.join(", "));
+      over(k.kriziky.join() === "rohoz" && k.krizikVidno, "krížik pri rohoži (vidno bez „Zobraziť viac“): " + JSON.stringify([k.kriziky, k.krizikVidno]));
       over(/^✓ /.test(k.hlaska), "hláška po pridaní: " + k.hlaska);
       over(k.zaznam === null && !k.otvorene, "záznam výmeny / otvorený výber ostal: " + JSON.stringify([k.zaznam, k.otvorene]));
       over(st.email === ZAKAZNIK.sk.email, "e-mail po pridaní: " + st.email);

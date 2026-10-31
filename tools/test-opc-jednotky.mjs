@@ -1398,10 +1398,11 @@ t("CSS A1: riadky lcd-opc-dalsi skryté len v zbalenej položke (súhrn aj kópi
   const scss = readFileSync(new URL("../assets/css/_lcdOpc.scss", import.meta.url), "utf8").split("\n");
   const skry = scss.filter((r) => /\.lcd-opc-dalsi/.test(r) && /^\s*html/.test(r)); // pravidlá, nie komentáre
   eq(skry.length, 1, "pravidlo pre lcd-opc-dalsi: " + JSON.stringify(skry));
-  over_(/^html\.lcd-opc \.cart-item:not\(\.lcd-opc-otvorena\) \.lcd-opc-dalsi\{display:none !important\}$/.test(skry[0].trim()), "pravidlo: " + skry[0]);
+  // od 31. 10. 2026 (náhľad E) aj položka karty košíka jednej stránky (.lcd-opc-kk__polozka)
+  over_(/^html\.lcd-opc :is\(\.cart-item,\.lcd-opc-kk__polozka\):not\(\.lcd-opc-otvorena\) \.lcd-opc-dalsi\{display:none !important\}$/.test(skry[0].trim()), "pravidlo: " + skry[0]);
   eq(scss.filter((r) => /lcd-opc-detail\[hidden\]/.test(r)).length, 0, "pravidlo pre skrytú kartu detailu ostalo");
   const i = scss.findIndex((r) => /\.lcd-opc-zob\{/.test(r));
-  over_(i >= 0 && /:is\(#summary-box,#lcd-opc-zbalene\) \.lcd-opc-zob\{/.test(scss[i]) && /font:700 16px/.test(scss[i] + scss[i + 1]), "tlačidlo bez 16 px alebo len v #summary-box: " + scss[i]);
+  over_(i >= 0 && /:is\(#summary-box,#lcd-opc-zbalene,#lcd-opc-kosik\) \.lcd-opc-zob\{/.test(scss[i]) && /font:700 16px/.test(scss[i] + scss[i + 1]), "tlačidlo bez 16 px alebo len v #summary-box: " + scss[i]);
 });
 
 t("kosik: vzhľad v štýle pokladne hneď pri načítaní bundla (?opc=KÓD), späť pri vypnutí v data.json; bez kódu (aj ?opc=1) nič", () => {

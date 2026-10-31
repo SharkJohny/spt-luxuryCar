@@ -193,14 +193,15 @@ export function oznacRiadky(koren) {
   return skryte;
 }
 
-function vytvorZob(doc) {
+/** Pilulka „Zobraziť viac“ (súhrn A1, zbalený súhrn, karta košíka jednej stránky — opc/kosikKarta.js). */
+export function vytvorZob(doc) {
   return el(doc, "button", { type: "button", class: "lcd-opc-zob", "aria-expanded": "false" }, [
     el(doc, "span", { class: "lcd-opc-zob__pil" }, [el(doc, "span", { class: "lcd-opc-zob__text" }), el(doc, "i", { "aria-hidden": "true" })]),
   ]);
 }
 
 /** Stav položky: rozbalená = vidno všetky riadky rozpisu a celý názov (.lcd-opc-otvorena), text pilulky podľa stavu. */
-function nastavZob(zob, p, ano, T) {
+export function nastavZob(zob, p, ano, T) {
   zob.setAttribute("aria-expanded", String(ano));
   if (p) p.classList.toggle("lcd-opc-otvorena", ano);
   const t = zob.querySelector(".lcd-opc-zob__text");
