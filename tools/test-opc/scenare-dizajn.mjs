@@ -248,8 +248,11 @@ export const SCENARE = {
 };
 
 // ------------------------------------------------------------------ S41 nálezy revízie dizajnu A (29. 10. 2026)
-/** Notebook s reálnou výškou okna (1366×768 obrazovka − Chrome − lišta Windows ≈ 1366×625/657; 1280×720 ≈ 1280×577). */
-const NOTEBOOKY = [[1366, 657], [1366, 625], [1280, 577], [1280, 520]];
+/** Notebook s reálnou výškou okna (1366×768 obrazovka − Chrome − lišta Windows ≈ 1366×625/657; 1280×720 ≈ 1280×577);
+ *  1366×768 = okno bežného notebooku s väčšou obrazovkou (revízia A1, N1). */
+const NOTEBOOKY = [[1366, 768], [1366, 657], [1366, 625], [1280, 577], [1280, 520]];
+/** Revízia A1 (N1): košíky s vyšším súhrnom ako set — dve položky a kamión — na bežných notebookoch. */
+const NOTEBOOKY_KOSIKY = { kosiky: ["dve", "kamion"], okna: [[1366, 768], [1366, 657]] };
 /** Bublina Luxie v rozmere widgetu (widget.js: do 560 px 170 × 80, inak 200 × 80) — podvrh má len komentár bez widgetu. */
 const BUBLINA = (mobil) => `(function () {
   var f = document.createElement("iframe"); f.title = "Luxia chat"; f.src = "about:blank";
@@ -305,7 +308,7 @@ const RYCHLA = `(function () {
 })()`;
 
 SCENARE.S41 = {
-  popis: "Dizajn A po revízii: notebook 1366×657 / 1366×625 / 1280×577 / 1280×520 (Objednať celé v okne, inak lišta zakryje tlačidlo celé, zarovnaná s kartou, bublina Luxie mimo lišty); telefón — bublina mimo polí, chyba poľa nad klávesnicou, rýchla platba kompaktná",
+  popis: "Dizajn A po revízii: notebook 1366×768 / 1366×657 / 1366×625 / 1280×577 / 1280×520 (Objednať celé v okne, inak lišta zakryje tlačidlo celé, zarovnaná s kartou, bublina Luxie mimo lišty; na 1366×768 a 1366×657 povinný súhlas celý nad kartou; dve položky a kamión na 1366×768 / 1366×657 s číslami v info); telefón — bublina mimo polí, chyba poľa nad klávesnicou, rýchla platba kompaktná",
   async fn(J) {
     const kosik = J.web === "sk" ? "set" : undefined;
     const q = { query: kosik ? "&lcddoplnok=0" : "" };
@@ -313,7 +316,9 @@ SCENARE.S41 = {
     if (J.sirka >= 992) {
       let zapnuta = 0;
       for (const [w, h] of NOTEBOOKY) {
-        const s = await J.novaStranka({ kosik, sirka: w, vyska: h });
+        // set s autom z konfigurátora (riadok „Auto“ v rozpise — tak ho má zákazník; revízia A1, N1: bez auta bol súhlas
+        // o riadok vyššie a zakrytie test nechytil)
+        const s = await J.novaStranka({ kosik, sirka: w, vyska: h, skript: kosik ? s42Seed(kosik) : undefined });
         await naKrok2(s, q);
         await s.ev(BUBLINA(false));
         await s.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
@@ -324,11 +329,11 @@ SCENARE.S41 = {
         // obrazovke (kniha § 10.9–10.11); teraz ho tu, ako na 1366×625 a 1280×577, rieši karta nad súhrnom (kontroly nižšie)
         // a povinný súhlas musí byť celý na prvej obrazovke nad kartou. Michal schválil vzhľad dlaždíc (výrez panela bez
         // karty), NIE kartu namiesto „Objednať“ na 1366×657 — ČAKÁ NA JEHO ROZHODNUTIE (kniha § 10.12, revízia 30. 10. 2026:
-        // K1-1, R1-1, UX-1, N1); info behu to vypíše. Celé „Objednať“ bez lišty ostáva na 1366×768 (S40).
-        // A1 (Michal 30. 10. 2026, náhľad 6: rozpis pod názvom posunie panel o ~70 px): povinný súhlas na 1366×657 začína
-        // na prvej obrazovke nad kartou, spodok dlaždice môže zasahovať pod kartu — info behu vypíše o koľko (POZOR, § 10.12)
-        if (w === 1366 && h >= 657) over(m.cele && !m.on || m.on && m.suhlas && m.suhlas.t >= 0 && m.suhlas.t < m.lista.t,
-          popis + "„Objednať“ nie je celé na prvej obrazovke a povinný súhlas nezačína nad kartou (bežný notebook): " + JSON.stringify(m));
+        // K1-1, R1-1, UX-1, N1); info behu to vypíše. Od A1 (rozpis pod názvom, set ~+70 px) svieti karta so setom aj na
+        // 1366×768 („Objednať“ pod prvou obrazovkou, kniha § 10.14). Na 1366×657 aj 1366×768 je povinný súhlas CELÝ nad
+        // kartou (revízia A1, N1: menšie medzery bočného panela na PC; prísne ako pred A1)
+        if (w === 1366 && h >= 657) over(m.cele && !m.on || m.on && m.suhlas && m.suhlas.t >= 0 && m.suhlas.b <= m.lista.t,
+          popis + "„Objednať“ nie je celé na prvej obrazovke a povinný súhlas nie je celý nad kartou (bežný notebook): " + JSON.stringify(m));
         over(m.cele || m.on, popis + "„Objednať“ nie je celé v okne a lišta sa nezapla: " + JSON.stringify(m));
         if (m.on) {
           zapnuta++;
@@ -337,12 +342,30 @@ SCENARE.S41 = {
           over(!m.bublinaNaListe, popis + "bublina Luxie leží na tlačidle v lište: " + JSON.stringify(m));
         }
         casti.push(w + "×" + h + " " + (m.on ? "lišta" : "Objednať " + m.objednat.t + "–" + m.objednat.b));
-        if (w === 1366 && h >= 657 && m.on) casti.push("POZOR 1366×657: karta namiesto „Objednať“ (" + m.objednat.t + "–" + m.objednat.b + "), povinný súhlas " +
+        if (w === 1366 && h >= 657 && m.on) casti.push("POZOR " + w + "×" + h + ": karta namiesto „Objednať“ (" + m.objednat.t + "–" + m.objednat.b + "), povinný súhlas " +
           m.suhlas.t + "–" + m.suhlas.b + (m.suhlas.b <= m.lista.t ? " nad kartou" : " (spodok " + (m.suhlas.b - m.lista.t) + " px pod kartou)") + ", veta o tovare na mieru " +
           (m.pravne ? (m.pravne.b <= m.lista.t ? "nad kartou" : "pod kartou " + m.pravne.t + "–" + m.pravne.b) : "–") + " — čaká na rozhodnutie Michala (§ 10.12)");
         await s.zavri();
       }
       over(zapnuta > 0, "na najnižšom okne sa lišta nezapla (kontrola zakrytia by neprebehla)");
+      // revízia A1 (N1): dve položky a kamión majú vyšší súhrn ako set. „Objednať“ celé, inak karta, ktorá ho celé zakryje;
+      // povinný súhlas nad kartou tu menšie medzery panela nedosiahnu (dve položky ani pred A1) — info behu vypíše POZOR
+      // so skutočnými číslami, rozhoduje Michal spolu s § 10.12 (kniha § 10.14)
+      if (J.web === "sk") {
+        for (const kosik2 of NOTEBOOKY_KOSIKY.kosiky) for (const [w, h] of NOTEBOOKY_KOSIKY.okna) {
+          const s = await J.novaStranka({ kosik: kosik2, sirka: w, vyska: h, skript: s42Seed(kosik2) });
+          await naKrok2(s, { query: "&lcddoplnok=0" });
+          await s.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
+          await pauza(500);
+          const m = await s.ev(MER_PC);
+          const popis = kosik2 + " " + w + "×" + h + ": ";
+          over(m.cele && !m.on || m.on && m.trci === 0, popis + "„Objednať“ nie je celé v okne a karta ho celé nezakryje: " + JSON.stringify(m));
+          const pod = m.on && m.suhlas ? Math.max(0, m.suhlas.b - m.lista.t) : 0, pravne = m.on && m.pravne ? Math.max(0, Math.min(m.pravne.b, h) - Math.max(m.pravne.t, m.lista.t)) : 0;
+          casti.push(popis + (m.on ? "karta" + (pod ? " (POZOR: povinný súhlas " + pod + " px pod kartou — § 10.12)" : ", súhlas nad ňou") +
+            (pravne ? " (POZOR: veta o tovare na mieru " + pravne + " px pod kartou)" : "") : "Objednať " + m.objednat.t + "–" + m.objednat.b));
+          await s.zavri();
+        }
+      }
       return { info: casti.join("; ") };
     }
     // telefón: rýchla platba (len SK má banku) na šírke behu a na 360 — nezvolená (rádio) a zvolená so zvolenou bankou
@@ -550,6 +573,12 @@ function s42Hned(riadky, druh) {
   if (!v.length) v = riadky.slice(0, 2).map((x, i) => i);
   return riadky.filter((x, i) => v.includes(i));
 }
+/** Názov zbalenej položky: s pilulkou najviac 2 riadky (doladenie 2), bez pilulky celý — nič sa neskrýva, inak by sa celý
+ *  nedal zobraziť (revízia A1, N2: „Luxusný koberec do kufra…“, CZ vzorkovník). */
+function s42Nazov(p, kde) {
+  if (p.pocetZob) over(p.riadky >= 1 && p.riadky <= 2, kde + ": zbalený názov má " + p.riadky + " riadky (najviac 2 na PC aj na telefóne): „" + p.nazov + "“");
+  else over(p.menoOrez === false && p.riadky >= 1, kde + ": položka bez pilulky má orezaný názov (nič sa neskrýva = celý názov, N2): „" + p.nazov + "“");
+}
 /** Spoločné kontroly položiek: rozpis z košíka pod názvom vždy viditeľný, hneď len riadky A1 (zbalené) / všetky (rozbalené);
  *  pilulka „Zobraziť viac“ (button, aria, 44 px, text, pod rozpisom) len keď sa niečo skrýva; fotka pri správnej položke
  *  (60 × 60, vľavo od názvu). */
@@ -581,9 +610,10 @@ function s42Polozky(m, kosik, T, popis, rozbalene) {
       // položka bez rozpisu: bez karty aj bez pilulky (nie je čo zobraziť)
       over(p.pocetZob === 0 && p.pocetDetailov === 0, kde + ": položka bez rozpisu v košíku má pilulku (" + p.pocetZob + ") alebo kartu detailu (" + p.pocetDetailov + ")");
     }
-    // rozbalené = celý názov ako v náhľade 2b / 4 / 6; zbalené (alebo bez pilulky) najviac 2 riadky na PC aj na telefóne
+    // rozbalené = celý názov ako v náhľade 2b / 4 / 6; zbalené s pilulkou najviac 2 riadky na PC aj na telefóne; bez pilulky
+    // (nič sa neskrýva) celý názov — inak by sa nedal zobraziť (revízia A1, N2)
     if (rozbalene && skryva) over(p.menoOrez === false, kde + ": rozbalená položka má orezaný názov (náhľad 6 ukazuje celý): „" + p.nazov + "“");
-    else over(p.riadky >= 1 && p.riadky <= 2, kde + ": zbalený názov má " + p.riadky + " riadky (najviac 2 na PC aj na telefóne): „" + p.nazov + "“");
+    else s42Nazov(p, kde);
     // veľké začiatočné písmeno priamo v texte názvu (doladenie 2): WebKit (Safari, iPhone) ::first-letter na -webkit-box
     // s line-clamp nezväčší a ukazoval „luxusné…“ — Chromium by chybu cez ::first-letter skryl, preto kontrola v DOM
     over(p.nazov && p.nazov.charAt(0) === p.nazov.charAt(0).toLocaleUpperCase("sk"), kde + ": názov v súhrne nezačína veľkým písmenom (Safari ho cez ::first-letter nezväčší): „" + p.nazov + "“");
@@ -700,12 +730,15 @@ SCENARE.S42 = {
     const casti = [];
     // dvojvrstvový set: fixtures sk-set2v (nie sú v každej sade, LCD_OPC_FIXTURES) — bez nich sa preskočí a info to povie
     const set2v = J.web === "sk" && existsSync(join(FIXTURES, "sk-set2v"));
-    const kosiky = J.web === "sk" ? ["set", "dve", "kamion", "vzorkovnik"].concat(set2v ? ["set2v"] : []) : ["vzorkovnik"];
+    // CZ: vzorkovník (1 vzorka, bez pilulky) a „vzorky3“ (podvrh s 3 vzorkami — pilulka „Zobrazit více“, ťuk, klávesnica,
+    // kópia navrchu aj na CZ; revízia A1, N3)
+    const kosiky = J.web === "sk" ? ["set", "dve", "kamion", "vzorkovnik"].concat(set2v ? ["set2v"] : []) : ["vzorkovnik", "vzorky3"];
+    const vzorky = (k) => k === "vzorkovnik" || k === "vzorky3";
     if (J.web === "sk" && !set2v) casti.push("set2v preskočený (fixtures sk-set2v chýbajú)");
     for (const kosik of kosiky) {
       const s = await J.novaStranka({ kosik, skript: s42Seed(kosik) });
       let K = null;
-      await naKrok2(s, { query: kosik === "vzorkovnik" ? "" : "&lcddoplnok=0", pred: async (k) => { K = await k.ev(S42_KOSIK); } });
+      await naKrok2(s, { query: vzorky(kosik) ? "" : "&lcddoplnok=0", pred: async (k) => { K = await k.ev(S42_KOSIK); } });
       const popis = J.sirka + " " + kosik;
       // košík s kódom OPC: štýl kroku 2 (piesok, krokovník ① ②, biele karty, súhrn so zlatým pruhom, zelené Pokračovať)
       over(K.trieda, popis + ": košík s kódom OPC bez html.lcd-opc-kosik: " + K.triedy);
@@ -726,6 +759,7 @@ SCENARE.S42 = {
       over(K.riadky.reduce((a, r) => a + cislo(r.sucet), 0) === cislo(K.celkom), popis + ": súčty riadkov košíka nesedia s „Celkom za tovar“: " + JSON.stringify([K.riadky.map((r) => r.sucet), K.celkom]));
       if (kosik === "set" || kosik === "dve" || kosik === "set2v") over(K.riadky[0].rozpis.some((li) => /^Auto/.test(li)), popis + ": v rozpise setu chýba Auto (kontrola auta v detaile by nič neoverila)");
       if (kosik === "set2v") over(K.riadky[0].rozpis.some((li) => /^Farba 2. vrstvy: /.test(li)), popis + ": fixtures sk-set2v nemajú v rozpise druhú vrstvu: " + JSON.stringify(K.riadky[0].rozpis));
+      if (kosik === "vzorky3") over(K.riadky.length === 1 && K.riadky[0].riadkyA1.length === 3, popis + ": podvrh „vzorky3“ nemá v rozpise košíka 3 vzorky: " + JSON.stringify(K.riadky.map((r) => r.riadkyA1)));
       // krok 2 zbalené: rozpis A1 a pilulka, fotka bez posunu, každá fotka sa načítala (nie prázdny rámik)
       const cls = await s.ev(S42_CLS);
       over(cls.pred === cls.po, popis + ": výška položiek sa po načítaní fotky zmenila (posun obsahu): " + JSON.stringify(cls));
@@ -766,7 +800,7 @@ SCENARE.S42 = {
       } else casti.push(kosik + ": nič sa neskrýva, bez pilulky");
       casti.push(kosik + " " + vyskaZbalene + "→" + zakl.vyska + " px (položky " + vysky.join("/") + ")");
       // prekreslenie súhrnu (zmena platby na dobierku): rozbalené, fotka a jedna pilulka ostávajú
-      if (kosik === "set" || (kosik === "vzorkovnik" && J.web === "cz")) {
+      if (kosik === "set" || (vzorky(kosik) && J.web === "cz")) {
         await zvolPlatbu(s, T.dobierka);
         await s.cakaj(`/Dobierk|Dobírk/i.test((document.querySelector('#summary-box [data-testid="recapPaymentMethod"]') || {}).textContent || "") && !document.querySelector("#summary-box.lcd-opc-prepocet")`,
           { ms: 15000, popis: "súhrn s dobierkou" });
@@ -783,34 +817,44 @@ SCENARE.S42 = {
       }
       await s.zavri();
     }
+    if (J.web === "cz") over(casti.some((c) => /^vzorky3: kópia navrchu rozbalená/.test(c)) || J.sirka >= 768, "CZ vzorky3: pilulka kópie navrchu sa neoverila: " + casti.join("; "));
     // ďalšie šírky (set SK / vzorkovník CZ): rozbalené bez pretečenia, písmo podľa mierky
     const kosik = J.web === "sk" ? "set" : "vzorkovnik";
     const q = { query: kosik === "set" ? "&lcddoplnok=0" : "" };
     for (const w of DALSIE(J.sirka)) {
       const t = await J.novaStranka({ kosik, sirka: w, skript: s42Seed(kosik) });
       await naKrok2(t, q);
-      // zbalené: názov najviac na 2 riadkoch aj na 360 / 768 / 1920 (doladenie 2)
-      (await t.ev(S42_POLOZKY)).polozky.forEach((p, i) => over(p.riadky >= 1 && p.riadky <= 2,
-        w + " " + kosik + ", položka " + (i + 1) + ": zbalený názov má " + p.riadky + " riadky (najviac 2): „" + p.nazov + "“"));
+      // zbalené: názov s pilulkou najviac na 2 riadkoch aj na 360 / 768 / 1920 (doladenie 2), bez pilulky celý (N2)
+      (await t.ev(S42_POLOZKY)).polozky.forEach((p, i) => s42Nazov(p, w + " " + kosik + ", položka " + (i + 1)));
       await t.ev(`document.querySelectorAll("#summary-box .lcd-opc-zob").forEach(function (b) { b.click(); }), 1`);
       const mm = await zakladne(t, w + " " + kosik + " rozbalené");
       casti.push(w + ": " + mm.vyska + " px rozbalené");
       await t.zavri();
     }
+    // revízia A1 (N2): položka bez pilulky (nič sa neskrýva) má celý názov tam, kde by sa inak orezal — SK dve položky
+    // („Luxusný koberec do kufra Dragonskin Klasik“, telefón 360, PC 992), CZ vzorkovník na PC 992 (telefón 360 vyššie)
+    for (const [w, k2] of J.sirka < 768 ? (J.web === "sk" ? [[360, "dve"]] : []) : [[992, J.web === "sk" ? "dve" : "vzorkovnik"]]) {
+      const t = await J.novaStranka({ kosik: k2, sirka: w, skript: s42Seed(k2) });
+      await naKrok2(t, { query: vzorky(k2) ? "" : "&lcddoplnok=0" });
+      const pp = (await t.ev(S42_POLOZKY)).polozky;
+      pp.forEach((p, i) => s42Nazov(p, w + " " + k2 + ", položka " + (i + 1)));
+      over(pp.some((p) => !p.pocetZob), w + " " + k2 + ": žiadna položka bez pilulky (kontrola celého názvu by nič neoverila)");
+      casti.push(w + " " + k2 + ": bez pilulky celý názov (" + pp.map((p) => p.riadky + " r.").join("/") + ")");
+      await t.zavri();
+    }
     // notebook 1366×657: zbalené = „Objednať“ celé na prvej obrazovke, alebo (od súhlasov B1, S41) karta nad súhrnom, ktorá
-    // tlačidlo zakryje celé, a povinný súhlas začína nad ňou (A1 ho posunie ~70 px nižšie, spodok môže zasahovať pod kartu —
-    // info behu) — karta tu čaká na rozhodnutie Michala (kniha § 10.12)
+    // tlačidlo zakryje celé, a povinný súhlas je CELÝ nad ňou (revízia A1, N1: menšie medzery panela na PC vrátili súhlas setu
+    // nad kartu) — karta tu čaká na rozhodnutie Michala (kniha § 10.12)
     if (J.sirka >= 992) {
       const t = await J.novaStranka({ kosik, sirka: 1366, vyska: 657, skript: s42Seed(kosik) });
       await naKrok2(t, q);
       await t.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
       await pauza(500);
       const n = await t.ev(MER_PC);
-      over(n.cele && !n.on || n.on && n.trci === 0 && n.suhlas && n.suhlas.t >= 0 && n.suhlas.t < n.lista.t,
-        "1366×657 zbalené: „Objednať“ nie je celé na prvej obrazovke, ani ho celé nezakryje karta s povinným súhlasom začínajúcim nad ňou: " + JSON.stringify(n));
-      (await t.ev(S42_POLOZKY)).polozky.forEach((p, i) => over(p.riadky >= 1 && p.riadky <= 2,
-        "1366×657 zbalené, položka " + (i + 1) + ": názov má " + p.riadky + " riadky (najviac 2): „" + p.nazov + "“"));
-      casti.push("1366×657 " + (n.on ? "karta, povinný súhlas " + n.suhlas.t + "–" + n.suhlas.b + (n.suhlas.b <= n.lista.t ? "" : " (spodok " + (n.suhlas.b - n.lista.t) + " px pod kartou)") +
+      over(n.cele && !n.on || n.on && n.trci === 0 && n.suhlas && n.suhlas.t >= 0 && n.suhlas.b <= n.lista.t,
+        "1366×657 zbalené: „Objednať“ nie je celé na prvej obrazovke, ani ho celé nezakryje karta s povinným súhlasom celým nad ňou: " + JSON.stringify(n));
+      (await t.ev(S42_POLOZKY)).polozky.forEach((p, i) => s42Nazov(p, "1366×657 zbalené, položka " + (i + 1)));
+      casti.push("1366×657 " + (n.on ? "karta, povinný súhlas " + n.suhlas.t + "–" + n.suhlas.b +
         " (POZOR: „Objednať“ " + n.objednat.t + "–" + n.objednat.b + " pod kartou — čaká na rozhodnutie Michala, § 10.12)" : "Objednať " + n.objednat.t + "–" + n.objednat.b));
       await t.zavri();
     }

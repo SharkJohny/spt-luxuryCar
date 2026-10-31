@@ -1245,6 +1245,42 @@ t("polozky A1: CZ vzorkovník — 1 vzorka bez tlačidla (nič sa neskrýva), 3 
   over_(!/class=""/.test(det.innerHTML), "po odznačení ostal prázdny atribút class: " + det.innerHTML.slice(0, 200));
 });
 
+t("polozky N2 (revízia A1): bez pilulky celý názov — položka, pri ktorej sa nič neskrýva (aj bez rozpisu), má triedu lcd-opc-cely-nazov (CSS zruší orezanie na 2 riadky); s pilulkou nie; prekreslenie triedu prepočíta; kópia navrchu ju nemá", () => {
+  const CELY = "lcd-opc-cely-nazov";
+  const w = new JSDOM(fx("cz/krok2.html"), { url: "https://www.luxurycardesign.cz/objednavka/krok-2/" }).window;
+  const d = w.document, box = d.getElementById("summary-box");
+  P.rozsirPolozky(box, TC, { fotky: {}, otvorene: {} });
+  const p = box.querySelector(".cart-item");
+  eq([p.querySelectorAll(".lcd-opc-zob").length, p.classList.contains(CELY)], [0, true], "bez rozpisu: bez pilulky, celý názov");
+  const ul = d.createElement("ul");
+  ul.className = "lcd-rozpis";
+  ul.innerHTML = '<li><span class="lcd-rozpis__n">Vzorek 2. vrstva: </span><span class="lcd-rozpis__h">Lux Color 01 (LUX-01) - Ano</span></li>';
+  p.querySelector("a.main-link").after(ul);
+  P.rozsirPolozky(box, TC, { fotky: {}, otvorene: {} });
+  eq([p.querySelectorAll(".lcd-opc-zob").length, p.classList.contains(CELY)], [0, true], "1 vzorka: nič sa neskrýva, celý názov");
+  ["Lux Color 10 (LUX-10) - Ano", "Lux Color 13 (LUX-13) - Ano"].forEach((h) => { const li = ul.firstElementChild.cloneNode(true); li.lastElementChild.textContent = h; ul.appendChild(li); });
+  const otv = {};
+  P.rozsirPolozky(box, TC, { fotky: {}, otvorene: otv });
+  eq([p.querySelectorAll(".lcd-opc-zob").length, p.classList.contains(CELY)], [1, false], "3 vzorky: pilulka, zbalený názov na 2 riadky (celý po „Zobrazit více“)");
+  const k = P.vycistiKopiu(p.cloneNode(true), TC, otv);
+  eq(k.classList.contains(CELY), false, "kópia navrchu bez triedy (názov tam orezaný nie je)");
+  ul.lastElementChild.remove();
+  P.rozsirPolozky(box, TC, { fotky: {}, otvorene: otv });
+  eq([p.querySelectorAll(".lcd-opc-zob").length, p.classList.contains(CELY)], [0, true], "späť na 2 vzorky: bez pilulky, celý názov");
+  const k2 = P.vycistiKopiu(p.cloneNode(true), TC, otv);
+  eq(k2.classList.contains(CELY), false, "kópia bez pilulky bez triedy");
+  // set 1v (Rozloženie po „Zobraziť viac“): pilulka, bez triedy
+  const { box: bs } = suhrnSRozpisom();
+  P.rozsirPolozky(bs, TS, { fotky: {}, otvorene: {} });
+  eq([bs.querySelectorAll(".cart-item .lcd-opc-zob").length, bs.querySelector(".cart-item").classList.contains(CELY)], [1, false], "set 1v: pilulka, bez triedy");
+});
+
+t("CSS N2 (revízia A1): celý názov v súhrne pri rozbalenej položke AJ pri položke bez pilulky (lcd-opc-cely-nazov) — display:block, bez line-clamp", () => {
+  const scss = readFileSync(new URL("../assets/css/_lcdOpc.scss", import.meta.url), "utf8");
+  over_(/^html\.lcd-opc body\.in-krok-2 #summary-box \.cart-item:is\(\.lcd-opc-otvorena,\.lcd-opc-cely-nazov\) \.cart-item-name a\.main-link\{display:block;-webkit-line-clamp:none\}$/m.test(scss),
+    "chýba pravidlo celého názvu pre .lcd-opc-otvorena aj .lcd-opc-cely-nazov");
+});
+
 t("polozky A1: kópia pre zbalený súhrn navrchu — bez fotky, rozpis pod názvom, VLASTNÉ tlačidlo pod rozpisom (iné id, aria-controls na rozpis kópie, popis = názov), stav kópie nezávislý od súhrnu; bez textov (T) bez tlačidla a celý rozpis", () => {
   const { d, box, ul } = suhrnSRozpisom(ROZPIS_2V);
   const riadkyKosika = textyLi(ul);

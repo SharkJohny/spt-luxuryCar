@@ -218,6 +218,22 @@ export function sDvomaPolozkami(html) {
 }
 
 /**
+ * Košík „vzorky3“ (S42, revízia A1 N3 — pilulka „Zobrazit více“ aj na CZ v prehliadači): vzorkovník webu (fixtures/<web>, 1 vzorka)
+ * s 3 vzorkami. K príplatku vzorky („Vzorek 2. vrstva – Lux Color 01 (LUX-01) - Ano“) pribudnú v tom istom texte ďalšie dve
+ * v tom istom tvare (iné číslo farby), ceny a sumy sa nemenia. Rozpis z nich vyrobí skutočný cart.js (lcdRozpis), A1 ukáže
+ * prvé 2 a tretiu po pilulke. 🟡 syntetické, nezachytené zo Shoptetu — len pre pilulku a kópiu navrchu na CZ.
+ */
+export function sTromiVzorkami(html) {
+  return String(html).replace(/(data-testid="cartWidgetSurchargeName"[^>]*>\s*P[rř][ií]platky:\s*)([^<]+?)(\s*<)/g, (cele, a, vzorka, b) => {
+    const m = /Lux Color (\d+).*?\(LUX-\d+\)/.exec(vzorka);
+    if (!m) return cele;
+    const dalsie = ["10", "13", "16"].filter((n) => Number(n) !== Number(m[1])).slice(0, 2)
+      .map((n) => vzorka.replace(m[0], "Lux Color " + n + " (LUX-" + n + ")"));
+    return a + [vzorka.trim()].concat(dalsie).join(", ") + b;
+  });
+}
+
+/**
  * Súhrn pre platbu, ktorú sme nezachytili (set, kamión): zo súhrnu predvolenej platby vymení riadok platby a celkovú sumu
  * podľa kroku 1 (názov a data-billing-price-wv). 🟡 syntetický, štruktúra ako zachytené súhrny SK/CZ.
  */
@@ -241,7 +257,7 @@ function suhrnSynteticky(web, zaklad, krok1, platba) {
 }
 
 /**
- * Podvrh pre jednu kartu. moznosti: { web: "sk"|"cz", build, kosik: "vzorkovnik"|"set"|"kamion"|"dve", mobil, doplnitCdn, scenar }
+ * Podvrh pre jednu kartu. moznosti: { web: "sk"|"cz", build, kosik: "vzorkovnik"|"vzorky3"|"set"|"kamion"|"dve", mobil, doplnitCdn, scenar }
  * scenar: { step1: "303"|"500"|"limit"|"neplatne", krok1: "ok"|"500"|"zmenene", dataJson: {…}, csrf: false, dataJsonMs: 0, krok1Ms: 0 }
  */
 export async function zapniPodvrh(k, moznosti) {
@@ -255,14 +271,18 @@ export async function zapniPodvrh(k, moznosti) {
     p.zaznam = { www: [], step1: [], step2: [], ajax: [], necakane: [], chybaCdn: [], blokovane: [], podvrhnute: [], dataJson: 0, doplnene: [] };
   };
   p.reset();
-  // košík „dve“ = set + 2. položka (sDvomaPolozkami), HTML sa skladá z fixtures/sk-set
-  const dve = new Map();
-  p.adresar = () => join(FIXTURES, p.web + (p.stav.kosik === "vzorkovnik" ? "" : "-" + (p.stav.kosik === "dve" ? "set" : p.stav.kosik)));
+  // košík „dve“ = set + 2. položka (sDvomaPolozkami), HTML sa skladá z fixtures/sk-set; „vzorky3“ = vzorkovník webu
+  // s 3 vzorkami (sTromiVzorkami)
+  const zlozene = new Map();
+  const ZLOZ = { dve: ["-set", sDvomaPolozkami], vzorky3: ["", sTromiVzorkami] };
+  p.adresar = () => join(FIXTURES, p.web + (p.stav.kosik === "vzorkovnik" ? "" : ZLOZ[p.stav.kosik] ? ZLOZ[p.stav.kosik][0] : "-" + p.stav.kosik));
   p.subor = (meno) => {
     const h = citaj(join(p.adresar(), meno));
-    if (p.stav.kosik !== "dve" || !h || !/\.html$/.test(meno)) return h;
-    if (!dve.has(meno)) dve.set(meno, sDvomaPolozkami(h));
-    return dve.get(meno);
+    const z = ZLOZ[p.stav.kosik];
+    if (!z || !h || !/\.html$/.test(meno)) return h;
+    const kluc = p.stav.kosik + "|" + meno;
+    if (!zlozene.has(kluc)) zlozene.set(kluc, z[1](h));
+    return zlozene.get(kluc);
   };
   p.predvolene = () => {
     const k1 = p.subor("krok1.html");
