@@ -1854,6 +1854,28 @@ t("podvrh: košík „dve“ — súčet riadku 2. položky €129, celkom €39
   eq(Array.prototype.map.call(k2.querySelectorAll("#summary-box .cart-item .cart-item-price"), (e) => e.textContent.replace(/\s+/g, "")), ["€269", "€129"], "krok 2: ceny položiek");
 });
 
+t("krok 2: rovnakaPonuka — po zmene košíka na mieste len pri rovnakej doprave a platbe (id, cena, väzby, podmetóda)", () => {
+  const m = () => ({ doprava: [{ id: "96", cena: 5, relacie: ["112", "103"] }], platby: [{ id: "112", cena: 0, podmetoda: "" }, { id: "103", cena: 0, podmetoda: "pis" }] });
+  eq(K2.rovnakaPonuka(m(), m()), true, "rovnaké");
+  const a = m(); a.doprava[0].cena = 7;
+  eq(K2.rovnakaPonuka(m(), a), false, "iná cena dopravy");
+  const b = m(); b.platby.pop();
+  eq(K2.rovnakaPonuka(m(), b), false, "platba ubudla");
+  const c = m(); c.doprava[0].relacie = ["112"];
+  eq(K2.rovnakaPonuka(m(), c), false, "iné väzby");
+  eq(K2.rovnakaPonuka(m(), null), false, "nový model chýba");
+});
+t("podvrh: košík so stavom — rohož (88 = 595) pridá riadok za €398 s textom príplatkov, zmazanie a počet ako Shoptet", () => {
+  const k = PV.kosikSoStavom(fx("sk-set/kosik.html"), (cesta) => PV.produktPonuky("sk", cesta));
+  const r = k.akcia("addCartItem", { priceId: "63493", amount: "1", "surchargeParameterValueId[85]": "589", "surchargeParameterValueId[88]": "595", "surchargeParameterValueId[74]": "470" });
+  eq(r.payload.cartItems.map((i) => i.priceWithVat), [269, 398], "ceny po pridaní");
+  eq(k.riadky[1].sur, "Príplatky: rozloženie kobercov - prvý a druhý rad, autokoberce do kufru - Koberec na dno kufra, TYP - Combi", "text príplatkov");
+  k.akcia("deleteCartItem", { itemId: "6ae27536ae482", priceId: "63493", amount: "1" });
+  k.akcia("setCartItemAmount", { itemId: k.riadky[0].itemId, priceId: "63493", amount: "2" });
+  const d = new JSDOM(k.tabulka()).window.document;
+  eq(Array.prototype.map.call(d.querySelectorAll('[data-testid="cartPrice"]'), (e) => e.textContent), ["€796"], "tabulka po zmazaní a 2 ks");
+});
+
 await Promise.all(asyncTesty); // asynchrónne testy za prvým čakaním (napr. poistka vzhľadu kroku 2)
 console.log(zle ? `\n${zle} ZLYHALO, ${ok} OK` : `\nVŠETKO OK (${ok} OK)`);
 process.exit(zle ? 1 : 0);

@@ -95,6 +95,105 @@ export function tabulkaKosika(html) {
   return tabulky.get(html);
 }
 
+/**
+ * Jedna stránka (scenár kosikStav: true): košík so stavom ako Shoptet (cartItems.priceWithVat = cena za kus, ako podvrh
+ * tools/test-kosik-doplnok.mjs) — addCartItem pridá riadok s textom príplatkov
+ * a cenou podľa stránky produktu (fixtúra ponuky) alebo zvýši množstvo rovnakého riadku, deleteCartItem ho zmaže,
+ * setCartItemAmount zmení množstvo. tabulka() = payload.content GetCartContent, akcia() = odpoveď s cartItems a cenami.
+ * Cena nového riadku = cena riadku toho istého variantu + rozdiel príplatkov (ako Shoptet: základ + príplatky).
+ */
+export function kosikSoStavom(html, stranka) {
+  const d = new JSDOM("<!doctype html><body>" + tabulkaKosika(html) + "</body>").window.document;
+  const tab = d.querySelector("table.cart-table");
+  const trs = [...tab.querySelectorAll('tr.removeable, tr[data-micro="cartItem"]')];
+  const telo = trs.length ? trs[0].parentNode : tab;
+  const cislo = (t) => Number(String(t || "").replace(/[^\d,]/g, "").replace(",", ".")) || 0;
+  const bezCeny = (t) => String(t).replace(/\s+/g, " ").trim().replace(/\s\+\s?(?:€\s?)?-?\d[\d\s.,]*(?:\s?(?:€|Kč))?$/i, "").trim();
+  const riadky = trs.map((tr) => {
+    const q = Number(tr.querySelector("input.amount").value) || 1;
+    const a = tr.querySelector("a.main-link, [data-testid=cartProductName]");
+    const sur = tr.querySelector(".main-link-surcharges");
+    return { tr, itemId: tr.querySelector('input[name="itemId"]').value, priceId: tr.querySelector('input[name="priceId"]').value, q,
+      jedn: cislo(tr.querySelector(".p-total .price-final, [data-testid=cartPrice]").textContent) / q,
+      href: a ? a.getAttribute("href") : "", sur: sur ? sur.textContent.replace(/\s+/g, " ").trim() : "" };
+  });
+  const vzor = trs[0].cloneNode(true);
+  const spolu = () => riadky.reduce((x, r) => x + r.jedn * r.q, 0);
+  const povodne = spolu();
+  let n = 0;
+  /** Príplatky produktu z jeho stránky: [{ id, n, o: { hodnota: { t, fp } } }] v poradí formulára. */
+  const parametre = (href) => {
+    const h = stranka(href);
+    if (!h) return null;
+    const f = new JSDOM(h).window.document;
+    return [...f.querySelectorAll('select[name^="surchargeParameterValueId["]')].map((s) => ({
+      id: s.getAttribute("data-parameter-id"), n: s.getAttribute("data-parameter-name"),
+      o: Object.fromEntries([...s.options].filter((o) => o.value).map((o) => [o.value, { t: bezCeny(o.textContent), fp: Number(o.getAttribute("data-surcharge-final-price")) || 0 }])),
+    }));
+  };
+  const textVolieb = (par, volby) => {
+    const casti = par.filter((p) => volby[p.id] && p.o[volby[p.id]]).map((p) => p.n + " - " + p.o[volby[p.id]].t);
+    return casti.length ? "Príplatky: " + casti.join(", ") : "";
+  };
+  const volbyZTextu = (par, text) => {
+    const t = text.replace(/^Príplatky:\s*/i, "");
+    const v = {};
+    par.forEach((p) => {
+      const i = t.toLowerCase().indexOf(p.n.toLowerCase() + " - ");
+      if (i < 0) return;
+      const zvysok = t.slice(i + p.n.length + 3);
+      const id = Object.keys(p.o).find((k) => zvysok.toLowerCase().startsWith(p.o[k].t.toLowerCase()));
+      if (id) v[p.id] = id;
+    });
+    return v;
+  };
+  const priplatky = (par, volby) => par.reduce((s, p) => s + (volby[p.id] && p.o[volby[p.id]] ? p.o[volby[p.id]].fp : 0), 0);
+  const cenaText = (x) => "€" + (Math.round(x * 100) / 100).toString().replace(".", ",");
+  const vykresli = (r) => {
+    const tr = r.tr || (r.tr = vzor.cloneNode(true));
+    tr.querySelectorAll('input[name="itemId"]').forEach((i) => i.setAttribute("value", r.itemId));
+    tr.querySelectorAll('input[name="priceId"]').forEach((i) => i.setAttribute("value", r.priceId));
+    tr.querySelector("input.amount").setAttribute("value", String(r.q));
+    const s = tr.querySelector(".main-link-surcharges");
+    if (s) s.textContent = r.sur;
+    tr.querySelector(".p-total .price-final, [data-testid=cartPrice]").textContent = cenaText(r.jedn * r.q);
+    return tr;
+  };
+  const st = {
+    riadky,
+    /** O koľko je tovar v košíku drahší než na začiatku (súhrn kroku 1 a 2: p.stav.priplatok). */
+    rozdiel: () => Math.round((spolu() - povodne) * 100) / 100,
+    tabulka() {
+      [...telo.querySelectorAll('tr.removeable, tr[data-micro="cartItem"]')].forEach((tr) => tr.remove());
+      riadky.forEach((r) => telo.appendChild(vykresli(r)));
+      return tab.outerHTML;
+    },
+    akcia(akcia, pole) {
+      if (akcia === "addCartItem") {
+        const ref = riadky.find((r) => r.priceId === String(pole.priceId));
+        const par = ref && parametre(ref.href);
+        if (!par) return { code: 500, message: "TEST: neznámy produkt", payload: {} };
+        const volby = {};
+        Object.keys(pole).forEach((k) => { const m = /^surchargeParameterValueId\[(\d+)\]$/.exec(k); if (m && pole[k]) volby[m[1]] = pole[k]; });
+        const sur = textVolieb(par, volby);
+        const ex = riadky.find((r) => r.priceId === ref.priceId && r.sur === sur);
+        if (ex) ex.q += Number(pole.amount) || 1;
+        else {
+          const jedn = ref.jedn + priplatky(par, volby) - priplatky(par, volbyZTextu(par, ref.sur));
+          riadky.push({ tr: null, itemId: "test" + (++n).toString(16).padStart(9, "0"), priceId: ref.priceId, q: Number(pole.amount) || 1, jedn, href: ref.href, sur });
+        }
+      } else {
+        const r = riadky.find((x) => x.itemId === String(pole.itemId));
+        if (!r) return { code: 500, message: "TEST: riadok nie je", payload: {} };
+        if (akcia === "deleteCartItem" || Number(pole.amount) <= 0) riadky.splice(riadky.indexOf(r), 1);
+        else r.q = Number(pole.amount);
+      }
+      return { code: 200, message: null, messages: [], payload: { cartItems: riadky.map((r) => ({ itemId: r.itemId, priceId: Number(r.priceId), quantity: r.q, priceWithVat: Math.round(r.jedn * 100) / 100, discounts: { finalRatio: 1 } })) } };
+    },
+  };
+  return st;
+}
+
 export { FIXTURES }; // tools/test-opc/fixtures/ (nie je v gite, FIXTURES.md) alebo LCD_OPC_FIXTURES
 const CDN_DIR = join(FIXTURES, "cdn");
 const CDN_MANIFEST = join(CDN_DIR, "manifest.json");
@@ -322,6 +421,9 @@ export async function zapniPodvrh(k, moznosti) {
     p.zaznam = { www: [], step1: [], step2: [], ajax: [], necakane: [], chybaCdn: [], blokovane: [], podvrhnute: [], dataJson: 0, doplnene: [], kosikAkcie: [] };
   };
   p.reset();
+  // jedna stránka: košík so stavom (scenár kosikStav), vytvorí sa pri prvej požiadavke na košík
+  let kosikStav = null;
+  p.kosikStav = () => (p.scenar.kosikStav ? kosikStav || (kosikStav = kosikSoStavom(p.subor("kosik.html"), (cesta) => produktPonuky(p.web, cesta))) : null);
   // košík „dve“ = set + 2. položka (sDvomaPolozkami), HTML sa skladá z fixtures/sk-set; „vzorky3“ = vzorkovník webu
   // s 3 vzorkami (sTromiVzorkami)
   const zlozene = new Map();
@@ -455,6 +557,8 @@ export async function zapniPodvrh(k, moznosti) {
       if (p.scenar.suhrn === "500" && rq.resourceType !== "Document") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
       let h = sPriplatkom(htmlKrok1());
       if (p.scenar.krok1 === "zmenene") h = h.replace(/Step1Validate/g, "Step1ValidateZmenene"); // zmenené HTML Shoptetu
+      // iná ponuka dopravy / platby za behu (jedna stránka, S67: po zmene košíka iná cena dopravy)
+      if (typeof p.scenar.krok1Uprav === "function") h = p.scenar.krok1Uprav(h);
       z.odpoved = "krok1" + (p.stav.platba ? "-" + p.stav.platba : "");
       return stranka(rq, h);
     }
@@ -563,13 +667,20 @@ export async function zapniPodvrh(k, moznosti) {
     if (metoda === "GET" && /^\/action\/Cart\/GetCartContent\/?$/i.test(cesta)) {
       if (p.scenar.obsahKosika === "500") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
       z.odpoved = "obsah-kosika";
-      let t = tabulkaKosika(p.subor("kosik.html"));
+      let t = p.kosikStav() ? p.kosikStav().tabulka() : tabulkaKosika(p.subor("kosik.html"));
       if (typeof p.scenar.obsahKosika === "function") t = p.scenar.obsahKosika(t);
       return odpovedz(rq, 200, json({ code: 200, message: null, messages: [], payload: { content: t } }), TYP[".json"]);
     }
     if (metoda === "POST" && /^\/action\/Cart\/(addCartItem|deleteCartItem|setCartItemAmount)\/?$/i.test(cesta)) {
       p.zaznam.kosikAkcie.push({ cas: z.cas, akcia: cesta.split("/")[3], pole: pole() });
       z.odpoved = "kosik-akcia";
+      // pomalá úprava košíka (S69: klik na „Objednať“ musí trafiť do výmeny)
+      if (Number(p.scenar.kosikMs) > 0) await new Promise((r) => setTimeout(r, Number(p.scenar.kosikMs)));
+      if (p.kosikStav()) {
+        const o = p.kosikStav().akcia(cesta.split("/")[3], pole());
+        p.stav.priplatok = p.kosikStav().rozdiel(); // súhrn kroku 1 a 2 so sumou podľa košíka (🟡 položky v súhrne sa nemenia)
+        return odpovedz(rq, 200, json(o), TYP[".json"]);
+      }
       return odpovedz(rq, 200, json({ code: 200, message: null, messages: [], payload: { cartItems: [] } }), TYP[".json"]);
     }
     const produkt = metoda === "GET" ? produktPonuky(p.web, cesta) : null;

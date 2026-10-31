@@ -1947,7 +1947,12 @@ function zablokujStranku(aktivne) {
       } catch (x) {}
     }
   };
-  const stopka = function (e) { if (mimo(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } };
+  // jedna stránka pokladne: „Objednať“ počas výmeny odloží a povie to sama pokladňa (opc/krok2.js blokovane -> vymenaBezi);
+  // zastavené tu by klik zmizol bez odozvy (predtým to zakrylo obnovenie stránky)
+  const opcObjednavka = function (t) {
+    return !!t && t.id === "order-form" && document.documentElement.classList.contains("lcd-opc") && !!document.body && document.body.classList.contains("in-krok-2");
+  };
+  const stopka = function (e) { if (mimo(e.target) && !opcObjednavka(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } };
   const zmena = function (e) { if (mimo(e.target) && e.target.closest("#cart-wrapper")) e.stopImmediatePropagation(); };
   const odchod = function (e) { e.preventDefault(); e.returnValue = ""; return ""; };
   const skry = function () {
@@ -1985,6 +1990,12 @@ export function nastavPredObnovou(fn) { predObnovou = typeof fn === "function" ?
 /** Jedna stránka pokladne: smie sa výmena začať? (nie počas odosielania objednávky ani zmeny počtu v karte košíka) */
 let smieZacat = null;
 export function nastavSmieZacat(fn) { smieZacat = typeof fn === "function" ? fn : null; }
+/**
+ * Jedna stránka pokladne (Michal 31. 10. 2026 „A“): po úspešnej výmene sa stránka nenačítava — karta košíka sa prekreslí
+ * zo servera a súhrn sa prepočíta na mieste. fn() -> Promise<boolean>; false / chyba = obnovStranku() ako doteraz.
+ */
+let namiestoObnovy = null;
+export function nastavNamiestoObnovy(fn) { namiestoObnovy = typeof fn === "function" ? fn : null; }
 function obnovStranku() {
   let kam = null;
   try { kam = predObnovou ? predObnovou() : null; } catch (e) { kam = null; }
@@ -2080,6 +2091,21 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
       setTimeout(function () { location.reload(); }, 20000);
     } else {
       ssPis(KLUC_HOTOVO, JSON.stringify({ text: hotovo, typ: "ok", t: Date.now() }));
+      if (namiestoObnovy) {
+        const naMieste = namiestoObnovy;
+        setTimeout(function () {
+          // košík je celý vymenený a prekreslí sa zo servera: záznam „hotovo“ netreba, zámky preč — v tom istom kroku
+          // si karta vezme vlastný zámok, takže „Objednať“ ani ďalšia zmena sa medzi tým nevkradne
+          zaznamZmaz(aktivne.id);
+          blok.odblokuj();
+          window.__lcdCartReloading = false;
+          zamok = false;
+          let p;
+          try { p = Promise.resolve(naMieste()); } catch (e) { p = Promise.resolve(false); }
+          p.then(function (ok) { if (!ok) obnovStranku(); }, obnovStranku);
+        }, 150);
+        return;
+      }
       setTimeout(obnovStranku, 150);
     }
     return;

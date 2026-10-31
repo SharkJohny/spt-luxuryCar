@@ -54,6 +54,19 @@ const ODKRY_DO_MS = 3000;
 const ODKRY_MIN_MS = 800;
 
 const rovnake = function (a, b) { return !!a && !!b && String(a.doprava) === String(b.doprava) && String(a.platba) === String(b.platba); };
+const PO_ZMENE_KOSIKA_MS = 15000; // súhrn po zmene košíka (Step1Validate + krok 1 s pokusom); dlhšie = celé načítanie
+
+/** Rovnaká ponuka dopravy a platby v dvoch modeloch kroku 1 (id, ceny, väzby, podmetódy)? */
+export function rovnakaPonuka(a, b) {
+  if (!a || !b || !a.doprava || !b.doprava) return false;
+  const k = function (m) {
+    return JSON.stringify([
+      m.doprava.map(function (d) { return [d.id, d.cena, d.relacie]; }),
+      m.platby.map(function (p) { return [p.id, p.cena, p.podmetoda || ""]; }),
+    ]);
+  };
+  return k(a) === k(b);
+}
 
 export function initKrok2(ctx) {
   const T = TEXTY[ctx.trh];
@@ -138,7 +151,42 @@ export function initKrok2(ctx) {
   // súhrn preč (CSS html.lcd-opc-jedna). Len košík — chyba tu formulár, doprava, platba ani odoslanie nezastaví.
   if (ctx.jednaStranka) {
     H.classList.add("lcd-opc-jedna");
-    try { k2.kosik = initKosikKarta(ctx, { form: form, box: box, T: T, forma: V.FORM_NIC }); } catch (e) { k2.kosik = null; }
+    try { k2.kosik = initKosikKarta(ctx, { form: form, box: box, T: T, forma: V.FORM_NIC, poZmene: poZmeneKosika }); } catch (e) { k2.kosik = null; }
+  }
+  /**
+   * Jedna stránka (Michal 31. 10. 2026 „A“): košík sa zmenil v karte (počet, Odobrať, doplnok) — súhrn sa prepočíta bez
+   * načítania stránky: Step1Validate s tou istou dopravou a platbou (Shoptet ju po zmene košíka nemusí držať) a súhrn
+   * z kroku 1 (sync.znova). -> Promise<true> = hotovo; false = treba celé načítanie (sekcia ešte nie je, záchrana,
+   * odosielanie, rýchla platba s bankou z klasického kroku 1, iná ponuka dopravy / platby, iný druh košíka, chyba alebo
+   * neoverené).
+   */
+  function poZmeneKosika() {
+    const sy = k2.sync;
+    if (!sy || !k2.model || sy.stav() === "zachrana" || sy.zamknute()) return Promise.resolve(false);
+    // rýchla platba s bankou, ktorú OPC nepozná (zoznam bánk nie je / banka nezvolená tu): Step1Validate bez kódu by banku
+    // v session zmazal (ako resync) -> celé načítanie, prechod z košíka banku zachová
+    if (jePis(sy.potvrdene().platba) && !(k2.banky && k2.banky.banka)) return Promise.resolve(false);
+    const pred = podpisKosika();
+    k2.novyModel = null;
+    // potvrdenie s touto voľbou = prepočet, nie zmena platby (meranie); zruší ho najbližší stav mimo meni-sa (naZmenu)
+    k2.zmenaKosika = sy.potvrdene();
+    sy.znova();
+    return sy.pripravene(PO_ZMENE_KOSIKA_MS).then(function (stav) {
+      if (stav !== "potvrdene" || !rovnakaPonuka(k2.model, k2.novyModel)) return false;
+      const po = podpisKosika();
+      return !!pred && pred === po;
+    });
+  }
+  /**
+   * Čo na stránke závisí od obsahu košíka (podľa súhrnu): druh (termín doručenia v sekcii), tovar na mieru (zákonný
+   * riadok pod súhlasmi) a len kamióny (polia volantu / sedadiel / dverí, components/cart.js). -> reťazec | null
+   */
+  function podpisKosika() {
+    const i = suhrnInfo(box);
+    if (!i) return null;
+    const nazvy = i.polozky.map(function (p) { return p.nazov || p.text; });
+    const kamiony = i.polozky.length > 0 && i.polozky.every(function (p) { return /\btruck\b|kami[oó]n/i.test(p.text); });
+    return JSON.stringify([V.druhKosika(nazvy), V.naMieru(nazvy), kamiony]);
   }
 
   // miesto sekcie: za adresou (aj „Doručiť na inú adresu“), pred poznámkou a registráciou
@@ -187,9 +235,10 @@ export function initKrok2(ctx) {
   }
   /** null | "platba" | "nezhoda" | "kosik" — prečo teraz objednávka nesmie odísť. */
   function blokovane() {
+    // zmena košíka (výmena doplnku, počet, prepočet súhrnu po nej) prvá: zákazník čaká na košík, nie na platbu
+    if (vymenaBezi()) return "kosik";
     if (k2.sync && !k2.sync.mozeOdoslat()) return "platba";
     if (nezhoda()) return "nezhoda";
-    if (vymenaBezi()) return "kosik";
     return null;
   }
   function obnovTlacidlo() {
@@ -727,6 +776,7 @@ export function initKrok2(ctx) {
         return nacitajKrok1().then(function (r) {
           if (!r.ok) return r;
           const p = V.potvrdenieZKroku1(r.html, box, mena);
+          k2.novyModel = p.model || null; // ponuka dopravy a platby teraz (po zmene košíka sa porovná, poZmeneKosika)
           if (p.ok) return p;
           const mm = p.model || m;
           return nacitajSuhrnKroku2().then(function (r2) {
@@ -769,10 +819,14 @@ export function initKrok2(ctx) {
             ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "platba-" + (d.typ || "?"), lcd_opc_overene: !!d.overene });
           } else if (stav === "potvrdene") {
             V.hlaska(sek, "");
-            ctx.meraj("lcd_opc_zmena_platby", { lcd_opc_platba: d.potvrdene.platba, lcd_opc_doprava: d.potvrdene.doprava });
+            // prepočet po zmene košíka (poZmeneKosika) s tou istou voľbou nie je zmena platby -> do merania nič, platbu len
+            // zapamätať; zákazník medzitým zvolil inú -> počíta sa ako vždy
+            const lenKosik = !!k2.zmenaKosika && rovnake(k2.zmenaKosika, d.potvrdene);
+            if (!lenKosik) ctx.meraj("lcd_opc_zmena_platby", { lcd_opc_platba: d.potvrdene.platba, lcd_opc_doprava: d.potvrdene.doprava });
             // prevzaté pri resyncu (iné okno) = nezvolil zákazník tu -> len zapamätať (bez dvojitého počítania)
-            try { if (d.prevzate) platbaGa.zname(d.potvrdene.platba); else platbaGa(d.potvrdene.platba); } catch (e) {}
+            try { if (d.prevzate || lenKosik) platbaGa.zname(d.potvrdene.platba); else platbaGa(d.potvrdene.platba); } catch (e) {}
           }
+          k2.zmenaKosika = null; // prepočet po zmene košíka dobehol (aj chybou)
         }
         obnovKarty();
         obnovTlacidlo();

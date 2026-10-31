@@ -1393,7 +1393,7 @@ Michal 31. 10. 2026 po náhľadoch `scratchpad/opc/nahlad-7/` (päť kompaktnýc
 - 🟡 Ceny v testoch a na snímkach sú z fixtúr 7. a 10. 10. 2026. Naživo platí admin.
 
 **Otvorené:**
-- ❓ Či Shoptet po zmene košíka na kroku 2 ponechá krok 1 v session. Prechod cez `/kosik/` to obchádza za cenu jedného načítania navyše; overiť pri živom teste.
+- ~~❓ Či Shoptet po zmene košíka na kroku 2 ponechá krok 1 v session.~~ Od § 10.21 sa po zmene košíka Step1Validate pošle znova na pozadí, takže na odpovedi nezáleží.
 - Zmena počtu kusov kamióna sa nerieši inak než pri iných položkách.
 
 **Revízia 31. 10. (workflow wf_433e0486-11c, 3 oblasti + adversariálne overenie; 13 nálezov, 10 potvrdených, žiadny pre zákazníkov bez odkazu) – opravené v f665862:**
@@ -1403,6 +1403,56 @@ Michal 31. 10. 2026 po náhľadoch `scratchpad/opc/nahlad-7/` (päť kompaktnýc
 - Obsah košíka zlyhá: karta preč, čísla 1–4, „Upraviť košík“ = `/kosik/`, `sessionStorage lcdOpcBezKarty` → košík sa v tej karte prehliadača 30 min nepreskakuje. Test S65.
 - `lcd_miesto` v meraní, presné vrátenie `disabled` po odomknutí (aj sivé „Pridať k setu“).
 - 🟡 Ponechané (drobné, len prehliadač s tajným odkazom): pri vypínači `opc_jedna: false` je košík do príchodu data.json skrytý („Načítavam…“, poistka 10 s).
+
+### 10.21 Zmena košíka bez načítania stránky (31. 10. 2026 večer)
+
+Michal testoval naživo na iPhone (CZ, tajný odkaz) a poslal 3 snímky: po zmene doplnku sa na ~1 s striedala pôvodná pokladňa Shoptetu („Informace o vás“), prázdna stránka a „Načítám…“ so zabudnutými „− +“. Príčina: každá zmena košíka išla cez `/kosik/` a znova na krok 2 (2 celé načítania), a naše skrytie pôvodného vzhľadu beží až v bundli na konci `<body>`, teda po prvom vykreslení. Z dvoch možností (A bez načítania, B záplata s prekrytím a riadkom v HTML kódoch) Michal zvolil **„A“**.
+
+**Ako to funguje teraz:**
+- Po zmene počtu, „Odobrať“ (nie poslednej položky) a po úspešnej výmene doplnku sa stránka nenačítava. Karta ostane zamknutá s „Upravujem košík…“, `lcd-dop-bezi` drží „Objednať“ (odložené odoslanie ako pri výmene).
+- Súčasne beží:
+  - obsah košíka (`GetCartContent`) → karta sa prekreslí (položky, ✓ hláška, ponuka a krížiky);
+  - `sync.znova()` → Step1Validate s tou istou dopravou a platbou (Shoptet ju po zmene košíka nemusí držať, otvorená otázka z § 10.20 tým odpadá) a súhrn z kroku 1 (`potvrd`). Súhrn, lišta a zbalený súhrn sa obnovia ako pri zmene platby.
+- Meranie: prepočet po zmene košíka s tou istou voľbou nie je zmena platby, takže `lcd_opc_zmena_platby` ani `add_payment_info` sa neposiela. `k2.zmenaKosika` drží voľbu zo začiatku a zruší ju najbližší stav mimo `meni-sa`. Keď zákazník medzitým zvolí inú platbu, meria sa ako vždy. Zobrazenie ponuky sa meria raz za stránku.
+- Karta sa odomkne hneď po prekreslení položiek. Ponuka k setu (stránky produktov) sa dokreslí sama, takže pomalá stránka produktu nedrží kartu ani „Objednať“.
+- „Objednať“ počas výmeny alebo prepočtu: hláška „Čakám na dokončenie úpravy košíka…“ (`blokovane` dáva košík pred platbou). Objednávka odíde až po výmene a prepočte súhrnu. Zámok stránky pri výmene (`zablokujStranku`) odoslanie `#order-form` v OPC nezastaví; predtým klik zmizol bez odozvy a zakrylo to obnovenie stránky.
+- **Záloha (celé načítanie cez `/kosik/` ako predtým, údaje formulára sa uložia a vrátia):**
+  - sekcia dopravy a platby ešte nie je (prvá chvíľa po načítaní), záchrana alebo odosielanie;
+  - rýchla platba s bankou, ktorú OPC nepozná (zoznam bánk nie je alebo banka nie je zvolená v OPC): Step1Validate bez kódu by banku v session zmazal, rovnako ako pri resyncu;
+  - krok 1 po zmene ponúka inú dopravu alebo platbu (id, ceny, väzby, podmetódy; `rovnakaPonuka`);
+  - zmenilo sa, čo na stránke závisí od košíka (`podpisKosika`): druh (termín doručenia), tovar na mieru (zákonný riadok pod súhlasmi), len kamióny (polia volantu, sedadiel a dverí z `cart.js`);
+  - súhrn sa nepotvrdí (chyba, neoverené) do 15 s;
+  - obsah košíka zlyhá; výmena doplnku skončí chybou s `reload` (výmena na polovici, nejasný stav).
+- „Odobrať“ jedinej položky ide rovno na `/kosik/` (prázdny košík Shoptetu), súhrn sa neprepočítava.
+
+**Kód:**
+- `lcdKosikDoplnok.js`: háčik `nastavNamiestoObnovy`. Po úspešnej výmene zmaže záznam „hotovo“ (stránka sa prekreslí zo servera), odomkne stránku a v tom istom kroku zavolá kartu, ktorá si hneď vezme vlastný zámok. `false` / chyba = `obnovStranku()` ako doteraz. V košíku (bez háčika) sa nič nemení.
+- `opc/kosikKarta.js`: kreslenie karty je funkcia `vykresli` (aj na prekreslenie; ponuka zo staršieho kreslenia sa nepridá — `generacia`), `obnovNaMieste`, `cezKosik` (záloha).
+- `opc/krok2.js`: `poZmeneKosika`, `podpisKosika`, `rovnakaPonuka`, `k2.novyModel` (z `potvrd`), poradie v `blokovane`.
+
+**Testy:**
+- Podvrh má košík so stavom (`scenar.kosikStav`). Úpravy košíka ho menia ako Shoptet: text príplatkov a cena sú podľa stránky produktu z fixtúry a suma v súhrne kroku 1 a 2 ide podľa košíka (`p.stav.priplatok`). `scenar.krok1Uprav` mení krok 1 za behu.
+- Každá zmena na mieste (`poZmene` v testoch) overí:
+  - žiadny nový dokument a značka v okne ostala;
+  - Step1Validate +1 a krok 1 načítaný;
+  - suma v súhrne = suma servera po zmene (nie stará) a lišta s ňou súhlasí;
+  - karta odomknutá a údaje formulára sa neukladali.
+- S61 „+“ → 2 ks (€538) bez načítania, meno a e-mail ostanú.
+- S66 „Vybrať“ rohož → `addCartItem` + `deleteCartItem`, set za 398 € s krížikom pri rohoži, ponuka vrstva2 + box, ✓ hláška, záznam výmeny preč, bez načítania.
+- S67 iná cena dopravy po zmene → záloha cez košík, údaje sa vrátia, 2 ks.
+- S68 „Odobrať“ jedinú položku → `/kosik/` bez Step1Validate.
+- S69 „Objednať“ počas pridávania rohože → „Čakám na dokončenie úpravy košíka…“, objednávka odíde až po výmene a po načítaní súhrnu, bez prechodu cez košík.
+- Jednotky: `rovnakaPonuka` a košík so stavom v podvrhu.
+
+**Revízia (nezávislý agent, 6 nálezov, všetky opravené pred nasadením):**
+1. banka pri rýchlej platbe → záloha;
+2. odomknutie nečaká na ponuku;
+3. podpis košíka (zákonný riadok, kamióny);
+4. testy súhrnu zo servera;
+5. meranie len pri tej istej voľbe;
+6. „Objednať“ počas výmeny už nezmizne potichu.
+
+Netestované offline: rýchla platba bez zoznamu bánk po zmene košíka (len vetva do zálohy).
 
 ---
 

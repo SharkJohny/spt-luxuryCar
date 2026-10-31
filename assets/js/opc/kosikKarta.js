@@ -4,8 +4,10 @@
 // „− počet +“, „Odobrať“ a pod produktmi ponuka k setu so zlatým „Vybrať“ (lcdKosikDoplnok.js kartaVybrat). Pridaný
 // doplnok sa pripíše k produktu ako odrážka s krížikom (vlozKriziky) a z ponuky zmizne.
 //
-// Každá zmena košíka (počet, odobratie, doplnok) najprv uloží vyplnené údaje formulára (sessionStorage), potom ide cez
-// /kosik/ znova rovno do pokladne (Step1Validate s rovnakou dopravou a platbou, opc/kosik.js) a údaje sa vrátia do
+// Každá zmena košíka (počet, odobratie, doplnok) prebehne bez načítania stránky (Michal 31. 10. 2026 „A“ — načítanie
+// cez košík na telefóne preblikávalo pôvodnou pokladňou): karta sa prekreslí z obsahu košíka a súhrn s dopravou a platbou
+// sa prepočíta zo servera (opc/krok2.js poZmeneKosika). Keď to nejde (iná ponuka dopravy / platby, chyba), záloha ako
+// predtým: údaje formulára do sessionStorage, cez /kosik/ znova rovno do pokladne (opc/kosik.js) a údaje sa vrátia do
 // prázdnych polí. Súhlasy sa nevracajú — zákazník ich zaškrtne sám.
 // Karta je síce v #order-form (Shoptet ho má okolo celej stránky), ale jej vstupy majú form = pomocný formulár mimo neho
 // (V.FORM_NIC) a udalosti change / input z karty ďalej nejdú: s objednávkou sa z karty nikdy nič neodošle.
@@ -158,7 +160,8 @@ function rozpisKamionaZoSuhrnu(box, p, poradie) {
 
 /**
  * Karta „Váš košík“ pred kartou Kontakt. o: { form, box (#summary-box), T (opc/texty.js), forma (id pomocného formulára),
- * ss (sessionStorage), obsah (náhrada GetCartContent pre testy) } -> { karta, hotovo: Promise<počet položiek | null> }.
+ * ss (sessionStorage), obsah (náhrada GetCartContent pre testy), poZmene (opc/krok2.js: súhrn po zmene košíka na mieste
+ * -> Promise<boolean>) } -> { karta, hotovo: Promise<počet položiek | null>, bezi(), zamkniOdoslanie(ano) }.
  */
 export function initKosikKarta(ctx, o) {
   const doc = o.form.ownerDocument;
@@ -172,7 +175,7 @@ export function initKosikKarta(ctx, o) {
   let ss = o.ss || null;
   if (!ss) { try { ss = window.sessionStorage; } catch (e) { ss = null; } }
 
-  // údaje z predchádzajúcej zmeny košíka späť (pred kartou: polia sú už na stránke)
+  // údaje zo zmeny košíka cez načítanie stránky (záloha, keď sa nedá na mieste) späť (pred kartou: polia sú už na stránke)
   if (ss) { try { obnovFormular(o.form, ss); } catch (e) {} }
 
   const obsah = el(doc, "div", { id: "lcd-doplnok", class: "lcd-opc-kk__obsah", "aria-busy": "true" });
@@ -185,7 +188,7 @@ export function initKosikKarta(ctx, o) {
   // nič z karty nejde do formulára objednávky (Shoptet na change / input posiela údaje zákazníka na server)
   ["change", "input"].forEach(function (t) { karta.addEventListener(t, function (e) { e.stopPropagation(); }); });
 
-  // háčik výmeny doplnku (lcdKosikDoplnok.js spustiVymenu): údaje uložiť a cez košík znova rovno sem
+  // záloha výmeny doplnku (lcdKosikDoplnok.js obnovStranku, keď sa nedá na mieste): údaje uložiť a cez košík znova sem
   D.nastavPredObnovou(function () {
     if (ss) ulozFormular(o.form, ss);
     return KAM_PO_ZMENE;
@@ -193,9 +196,9 @@ export function initKosikKarta(ctx, o) {
 
   const stav = el(doc, "p", { class: "lcd-dop__stav lcd-opc-kk__stav", role: "status", "aria-live": "polite" });
   const H = doc.documentElement;
-  // zámok karty: zmena počtu / Odobrať (bezi) a odosielanie objednávky (opc/krok2.js zamkniOdoslanie); disabled stav
-  // prvkov sa po odomknutí vráti presne (sivé „−“ pri 1 kuse, sivé „Pridať k setu“ bez veľkosti)
-  let bezi = false, odosiela = false, zamky = 0;
+  // zámok karty: zmena košíka (bezi) a odosielanie objednávky (opc/krok2.js zamkniOdoslanie); disabled stav prvkov sa po
+  // odomknutí vráti presne (sivé „−“ pri 1 kuse, sivé „Pridať k setu“ bez veľkosti). ide = stránka už odchádza (záloha)
+  let bezi = false, odosiela = false, zamky = 0, ide = false;
   const povodne = new Map();
   const zamkniPrvky = function (koren) {
     koren.querySelectorAll("button, input").forEach(function (b) { if (!povodne.has(b)) povodne.set(b, b.disabled); b.disabled = true; });
@@ -214,29 +217,75 @@ export function initKosikKarta(ctx, o) {
   /** Smie sa košík meniť (počet, Odobrať, Vybrať, krížik)? Nie počas zmeny, výmeny doplnku ani odosielania objednávky. */
   const smie = function () {
     const k2 = ctx.krok2;
-    return !bezi && !odosiela && !H.classList.contains("lcd-dop-bezi") && !(k2 && typeof k2.odosielanie === "function" && k2.odosielanie());
+    return !bezi && !ide && !odosiela && !H.classList.contains("lcd-dop-bezi") && !(k2 && typeof k2.odosielanie === "function" && k2.odosielanie());
   };
   D.nastavSmieZacat(smie);
-  const zmenPocet = function (p, q) {
-    if (!smie()) return;
+  /** Zmena košíka začína: karta zamknutá, „Upravujem košík…“; trieda výmeny -> „Objednať“ medzitým počká (krok2.js). */
+  const zacni = function () {
     bezi = true;
     zamkni(true);
-    // trieda výmeny: „Objednať“ medzitým počká (opc/krok2.js blokovane -> vymenaBezi), stránka potom ide cez košík
     H.classList.add("lcd-dop-bezi");
     stav.classList.remove("lcd-dop__stav--chyba");
     stav.textContent = T.menimKosik;
+  };
+  const skonci = function () {
+    bezi = false;
+    H.classList.remove("lcd-dop-bezi");
+    zamkni(false);
+  };
+  /**
+   * Záloha: celé načítanie cez košík znova sem (údaje formulára sa uložia a vrátia), prazdny = stránka prázdneho košíka
+   * Shoptetu. Karta ostáva zamknutá, kým stránka neodíde.
+   */
+  const cezKosik = function (prazdny) {
+    ide = true;
+    if (ss && !prazdny) ulozFormular(o.form, ss);
+    location.replace(prazdny ? "/kosik/" : KAM_PO_ZMENE);
+    return true;
+  };
+
+  let polozkyTeraz = [];
+  let generacia = 0; // prekreslenie po zmene košíka: ponuka zo staršieho kreslenia sa už nepridá
+  const zmerane = new Set(); // zobrazenie ponuky sa meria raz za stránku, nie pri každom prekreslení
+
+  /**
+   * Košík sa zmenil (počet, Odobrať, doplnok) — bez načítania stránky (Michal 31. 10. 2026 „A“): obsah košíka zo servera
+   * a zároveň súhrn s dopravou a platbou (o.poZmene, opc/krok2.js); karta je celý čas zamknutá a „Objednať“ čaká. Súhrn
+   * sa na mieste prepočítať nedá (o.poZmene -> false) alebo obsah košíka zlyhá -> cez košík znova sem ako doteraz;
+   * košík medzitým prázdny -> prázdny košík. -> Promise<true>
+   */
+  const obnovNaMieste = function () {
+    const suhrn = typeof o.poZmene === "function" ? Promise.resolve().then(o.poZmene).catch(function () { return false; }) : Promise.resolve(false);
+    return Promise.all([D.obsahKosika(), suhrn]).then(function (v) {
+      if (!v[1]) return cezKosik(false);
+      // odomknúť hneď po položkách: ponuka (stránky produktov) sa dokreslí sama a zamkne sa, ak treba — pomalá alebo
+      // visiaca stránka produktu nesmie držať kartu ani „Objednať“
+      vykresli(v[0]);
+      skonci();
+      stav.textContent = "";
+      return true;
+    }).catch(function (e) {
+      return cezKosik(!!(e && e.message === "prazdny"));
+    });
+  };
+  // výmena doplnku prebehla (lcdKosikDoplnok.js spustiVymenu): karta sa prekreslí na mieste
+  D.nastavNamiestoObnovy(function () {
+    zacni();
+    return obnovNaMieste();
+  });
+
+  const zmenPocet = function (p, q) {
+    if (!smie()) return;
+    zacni();
     ctx.meraj("lcd_opc_kosik", { lcd_opc_akcia: q > 0 ? "pocet" : "odobrat", lcd_opc_pocet: q });
+    // odobratie poslednej položky = prázdny košík -> stránka prázdneho košíka Shoptetu
+    const posledna = q === 0 && polozkyTeraz.length === 1;
     D.zmenPocetRiadku(p, q).then(function (ok) {
-      if (ok) {
-        if (ss) ulozFormular(o.form, ss);
-        location.replace(KAM_PO_ZMENE);
-        return;
-      }
-      throw new Error("kosik");
+      if (!ok) throw new Error("kosik");
+      if (posledna) return cezKosik(true);
+      return obnovNaMieste();
     }).catch(function () {
-      bezi = false;
-      H.classList.remove("lcd-dop-bezi");
-      zamkni(false);
+      skonci();
       stav.classList.add("lcd-dop__stav--chyba");
       stav.textContent = T.chybaPoctu;
     });
@@ -267,10 +316,19 @@ export function initKosikKarta(ctx, o) {
     return el(doc, "li", { class: "lcd-opc-kk__polozka", "data-item": p.itemId }, [foto, telo]);
   };
 
-  const nacitaj = o.obsah ? Promise.resolve(o.obsah) : D.obsahKosika();
-  const hotovo = nacitaj.then(function (docObsahu) {
+  /**
+   * Obsah karty z obsahu košíka (GetCartContent): položky a hláška z predchádzajúcej zmeny hneď, ponuka k setu a krížiky
+   * po načítaní stránok produktov. Pri prekreslení po zmene košíka sa starý obsah (aj otvorený výber v ponuke) zahodí.
+   * Prázdny košík -> výnimka „prazdny“. -> { pocet, ponuka: Promise<počet položiek> }
+   */
+  function vykresli(docObsahu) {
     const polozky = polozkyZObsahu(docObsahu);
     if (!polozky.length) throw new Error("prazdny");
+    const gen = ++generacia;
+    polozkyTeraz = polozky;
+    while (obsah.firstChild) obsah.removeChild(obsah.firstChild);
+    H.classList.remove("lcd-vyb-otvorene");
+    povodne.forEach(function (d, b) { if (!b.isConnected) povodne.delete(b); });
     const zoznam = el(doc, "ul", { class: "lcd-opc-kk__polozky" });
     const poradia = {};
     const miesta = {};
@@ -298,17 +356,19 @@ export function initKosikKarta(ctx, o) {
       obsah.insertBefore(p, stav);
       if (!chyba) setTimeout(function () { p.classList.add("je-prec"); setTimeout(function () { p.remove(); }, 400); }, 6000);
     }
-    if (!zamky) obsah.removeAttribute("aria-busy");
+    if (zamky) zamkniPrvky(obsah); // prekreslené počas zmeny košíka / odosielania -> zamknuté ako zvyšok karty
+    else obsah.removeAttribute("aria-busy");
     // ponuka vypnutá v data.json (kosik_doplnky: false) / ?lcddoplnok=0 -> ako v košíku: ani ponuka, ani krížiky
-    if (!R || ctx.ponukaVypnuta) return polozky.length;
+    if (!R || ctx.ponukaVypnuta) return { pocet: polozky.length, ponuka: Promise.resolve(polozky.length) };
     // ponuka k setu a krížiky pri doplnkoch: len vzhľad košíka — chyba / pomalá sieť nič nezastaví
-    return D.pripravKontexty(polozky, R, { vynechaj: stary }).then(function (v) {
+    const ponuka = D.pripravKontexty(polozky, R, { vynechaj: stary }).then(function (v) {
+      if (gen !== generacia) return polozky.length;
       v.ctxs.forEach(function (c) {
         const li = miesta[c.riadok.itemId];
         if (li && c.odobrat.length) {
           c.miestoOdober = li;
           D.vlozKriziky(c, R);
-          if (zamky) zamkniPrvky(li); // dokreslené počas zmeny počtu / odosielania -> zamknuté ako zvyšok karty
+          if (zamky) zamkniPrvky(li);
         }
       });
       v.ponuky.forEach(function (c) {
@@ -316,16 +376,23 @@ export function initKosikKarta(ctx, o) {
         if (!k) return;
         obsah.appendChild(k);
         if (zamky) zamkniPrvky(k);
-        D.merajZobrazenie(c, R);
+        const nove = c.zobrazene.filter(function (d) { return !zmerane.has(c.riadok.sku + "|" + d); });
+        nove.forEach(function (d) { zmerane.add(c.riadok.sku + "|" + d); });
+        if (nove.length) D.merajZobrazenie(Object.assign({}, c, { zobrazene: nove }), R);
       });
       return polozky.length;
     }, function () { return polozky.length; });
-  }).catch(function (e) {
+    return { pocet: polozky.length, ponuka: ponuka };
+  }
+
+  const nacitaj = o.obsah ? Promise.resolve(o.obsah) : D.obsahKosika();
+  const hotovo = nacitaj.then(function (d) { return vykresli(d).ponuka; }).catch(function (e) {
     // obsah košíka sa nedá načítať -> karta preč, pokladňa ostáva ako doteraz (súhrn má položky aj „Upraviť košík“);
     // čísla kariet späť od 1, „Upraviť košík“ na skutočný košík a košík sa v tejto karte prehliadača 30 min nepreskakuje
     karta.remove();
     D.nastavPredObnovou(null);
     D.nastavSmieZacat(null);
+    D.nastavNamiestoObnovy(null);
     H.classList.remove("lcd-opc-jedna-karta");
     o.form.querySelectorAll("h2[data-lcd-opc-cislo]").forEach(function (h2) {
       const n = Number(h2.getAttribute("data-lcd-opc-cislo"));
