@@ -110,6 +110,9 @@ function zmeraj(s) {
       celkomPismo: celkom ? parseFloat(getComputedStyle(celkom).fontSize) : 0, karty: karty, polia: polia, dlazdice: dl,
       objednat: { top: Math.round(rb.top), bottom: Math.round(rb.bottom), h: Math.round(rb.height), radius: cb.borderTopLeftRadius, gradient: /gradient/.test(cb.backgroundImage) },
       lista: { on: document.documentElement.classList.contains("lcd-lista-on"), vid: vid(l), text: l ? l.textContent.replace(/\\s+/g, " ").trim() : "", t: l ? Math.round(l.getBoundingClientRect().top) : null },
+      // povinný súhlas a veta o tovare na mieru v súradniciach okna (karta na PC ich nesmie skryť, revízia 31. 10. 2026, N1)
+      suhlas: (function () { var i = document.querySelector("#checkoutSidebar .consents input[type=checkbox][required]"), e = i && i.nextElementSibling; if (!e || !vid(e)) return null; var r = e.getBoundingClientRect(); return { t: Math.round(r.top), b: Math.round(r.bottom), zask: i.checked }; })(),
+      pravne: (function () { var e = document.querySelector("#checkoutSidebar .lcd-opc-pravne"); if (!e || !vid(e)) return null; var r = e.getBoundingClientRect(); return { t: Math.round(r.top), b: Math.round(r.bottom) }; })(),
       zbalene: { vid: vid(zb), text: zb ? zb.querySelector("summary").textContent.replace(/\\s+/g, " ").trim() : "" },
       pozadie: getComputedStyle(document.body).backgroundColor,
       suhrn: sb ? { r: rect(sb), hore: csb.borderTopWidth + " " + csb.borderTopColor } : null,
@@ -172,11 +175,15 @@ export const SCENARE = {
         // (horný okraj < okno − 72 px, IntersectionObserver v opc/krok2.js) a lišta zhasnutá, alebo lišta „Celkom | Objednať“
         // dole a natívne tlačidlo celé pod ňou (nikdy dve tlačidlá; na PC svieti len vtedy, S41). Revízia A1 (N1): set na
         // 1366×768 má „Objednať“ 706–766 — celé v okne, ale v pásme karty, ktorá ho celé zakryje
+        // Revízia 31. 10. 2026 (N1, § 10.12 (a)): karta sa nezapne, keď by skryla nezaškrtnutý povinný súhlas alebo vetu
+        // o tovare na mieru (set na 1366×768: veta 663–720 by bola pod kartou od 692) — vtedy bez karty
         const nad = m.objednat.top < m.ih - 72;
-        over(nad ? !m.lista.on && m.objednat.bottom <= m.ih : m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text) && m.objednat.top >= m.lista.t,
-          "PC: „Objednať“ " + (nad ? "je na prvej obrazovke nad prahom karty, a predsa svieti lišta" : "nie je nad prahom karty a lišta s „Objednať“ chýba alebo ho celé nezakryje") +
-          " (y " + m.objednat.top + "–" + m.objednat.bottom + ", okno " + m.ih + "): " + JSON.stringify(m.lista));
-        casti.push("Objednať y " + m.objednat.top + "–" + m.objednat.bottom + (nad ? "" : " (lišta)"));
+        const skryla = kartaBySkryla(m);
+        over(nad ? !m.lista.on && m.objednat.bottom <= m.ih
+          : m.lista.on ? m.lista.vid && /Objedna/.test(m.lista.text) && m.objednat.top >= m.lista.t && !kartaBySkryla(m, m.lista.t) : !!skryla,
+          "PC: „Objednať“ " + (nad ? "je na prvej obrazovke nad prahom karty, a predsa svieti lišta" : m.lista.on ? "nie je nad prahom karty a lišta ho celé nezakryje alebo skryje súhlas / vetu o tovare na mieru" : "nie je nad prahom karty a lišta chýba, hoci by nič neskryla") +
+          " (y " + m.objednat.top + "–" + m.objednat.bottom + ", okno " + m.ih + "): " + JSON.stringify({ lista: m.lista, suhlas: m.suhlas, pravne: m.pravne }));
+        casti.push("Objednať y " + m.objednat.top + "–" + m.objednat.bottom + (nad ? "" : m.lista.on ? " (lišta)" : " (bez karty: skryla by " + skryla + ")"));
       } else {
         over(m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text), "telefón: lišta „Celkom | Objednať“ navrchu nie je vidno: " + JSON.stringify(m.lista));
         over(m.zbalene.vid && /\d/.test(m.zbalene.text), "telefón: zbalená lišta „Vaša objednávka · položky · suma“ navrchu chýba: " + JSON.stringify(m.zbalene));
@@ -262,14 +269,44 @@ const BUBLINA = (mobil) => `(function () {
   f.style.cssText = "position:fixed;right:${mobil ? 2 : 16}px;bottom:${mobil ? 50 : 18}px;width:${mobil ? 170 : 200}px;height:80px;border:0;z-index:2147483000;background:#c49b31";
   document.body.appendChild(f); return 1;
 })()`;
+/** PC: výška karty „Celkom | Objednať“ (min-height 76 px, _lcdOpc.scss) — kým nesvieti, jej horný okraj by bol okno − 76. */
+const KARTA_PC_VYSKA = 76;
+/**
+ * Revízia 31. 10. 2026 (N1, kniha § 10.12 (a)): karta na PC nesmie skryť nezaškrtnutý povinný súhlas ani vetu o tovare na
+ * mieru (VOP 6.13) — zakryť ani nechať pod sebou mimo okna (zákazník by klikol na kartu bez nich). m = { ih, suhlas: { t, b,
+ * zask }, pravne: { t, b } } v súradniciach okna; hore = horný okraj karty. -> čo by skryla ("" = nič).
+ */
+export function kartaBySkryla(m, hore) {
+  const h = hore != null ? hore : m.ih - KARTA_PC_VYSKA;
+  const z = [];
+  if (m.suhlas && !m.suhlas.zask && m.suhlas.b > h) z.push("povinný súhlas " + m.suhlas.t + "–" + m.suhlas.b);
+  if (m.pravne && m.pravne.b > h) z.push("veta o tovare na mieru " + m.pravne.t + "–" + m.pravne.b);
+  return z.join(", ");
+}
+/**
+ * PC (meranie MER_PC): „Objednať“ celé v okne bez karty; alebo karta, ktorá ho celé zakryje a nič zo súhlasu a vety
+ * o tovare na mieru neskryje; alebo karta zhasnutá PRÁVE preto, že by ich skryla (N1). -> popis do info behu.
+ */
+function overKartuPc(m, popis) {
+  if (m.on) {
+    over(m.trci === 0, popis + "spod karty / nad ňou vidno natívne „Objednať“ (" + m.trci + " px, dve tlačidlá): " + JSON.stringify(m));
+    const skryje = kartaBySkryla(m, m.lista.t);
+    over(!skryje, popis + "karta (od " + m.lista.t + ") skryje " + skryje + " (§ 10.12 (a)): " + JSON.stringify(m));
+    return "karta od " + m.lista.t + (m.suhlas ? ", súhlas " + m.suhlas.t + "–" + m.suhlas.b : "") + (m.pravne ? ", veta " + m.pravne.t + "–" + m.pravne.b : "") + " nad ňou";
+  }
+  if (m.cele) return "Objednať " + m.objednat.t + "–" + m.objednat.b;
+  const preco = kartaBySkryla(m);
+  over(preco, popis + "„Objednať“ nie je celé v okne a karta sa nezapla, hoci by nič neskryla: " + JSON.stringify(m));
+  return "bez karty, Objednať " + m.objednat.t + "–" + m.objednat.b + " (skryla by " + preco + ")";
+}
 /** PC: natívne „Objednať“ celé v okne, alebo lišta, ktorá ho celé zakryje (nikdy dve tlačidlá), zarovnaná s kartou súhrnu. */
 const MER_PC = `(function () {
   var r = function (e) { var x = e.getBoundingClientRect(); return { l: Math.round(x.left), t: Math.round(x.top), r: Math.round(x.right), b: Math.round(x.bottom) }; };
   var b = document.getElementById("submit-order"), l = document.querySelector(".lcd-opc-lista"), k = document.querySelector("#checkoutSidebar > .cart-content");
   var on = document.documentElement.classList.contains("lcd-lista-on") && !!l && getComputedStyle(l).display !== "none";
   var rb = b.getBoundingClientRect(), o = { ih: innerHeight, objednat: r(b), on: on, karta: r(k), cele: rb.top >= 0 && rb.bottom <= innerHeight, trci: 0 };
-  var sl = document.querySelector("#checkoutSidebar .consents input[type=checkbox][required] + label"); // povinný súhlas (dlaždica B1, S45)
-  if (sl) o.suhlas = r(sl);
+  var si = document.querySelector("#checkoutSidebar .consents input[type=checkbox][required]"), sl = si && si.nextElementSibling; // povinný súhlas (dlaždica B1, S45)
+  if (sl) { o.suhlas = r(sl); o.suhlas.zask = si.checked; }
   var pv = document.querySelector("#checkoutSidebar .lcd-opc-pravne"); // veta o tovare na mieru (VOP 6.13) nad „Objednať“
   if (pv) o.pravne = r(pv);
   if (on) {
@@ -311,49 +348,42 @@ const RYCHLA = `(function () {
 })()`;
 
 SCENARE.S41 = {
-  popis: "Dizajn A po revízii: notebook 1366×768 / 1366×657 / 1366×625 / 1280×577 / 1280×520 (Objednať celé v okne, inak lišta zakryje tlačidlo celé, zarovnaná s kartou, bublina Luxie mimo lišty; na 1366×768 a 1366×657 povinný súhlas celý nad kartou; dve položky a kamión na 1366×768 / 1366×657 s číslami v info); telefón — bublina mimo polí, chyba poľa nad klávesnicou, rýchla platba kompaktná",
+  popis: "Dizajn A po revízii: notebook 1366×768 / 1366×657 / 1366×625 / 1280×577 / 1280×520 (Objednať celé v okne, inak karta, ktorá ho celé zakryje, zarovnaná s kartou súhrnu, bublina Luxie mimo nej; karta nikdy neskryje nezaškrtnutý povinný súhlas ani vetu o tovare na mieru — inak nesvieti, § 10.12 (a); set, vzorkovník, dve položky, kamión, set 2v); telefón — bublina mimo polí, chyba poľa nad klávesnicou, rýchla platba kompaktná",
   async fn(J) {
     const kosik = J.web === "sk" ? "set" : undefined;
     const q = { query: kosik ? "&lcddoplnok=0" : "" };
     const casti = [];
     if (J.sirka >= 992) {
       let zapnuta = 0;
-      for (const [w, h] of NOTEBOOKY) {
-        // set s autom z konfigurátora (riadok „Auto“ v rozpise — tak ho má zákazník; revízia A1, N1: bez auta bol súhlas
-        // o riadok vyššie a zakrytie test nechytil)
-        const s = await J.novaStranka({ kosik, sirka: w, vyska: h, skript: kosik ? s42Seed(kosik) : undefined });
-        await naKrok2(s, q);
+      // set s autom z konfigurátora (riadok „Auto“ v rozpise — tak ho má zákazník; revízia A1, N1: bez auta bol súhlas
+      // o riadok vyššie a zakrytie test nechytil); SK aj vzorkovník na 1366×657 — bez vety o tovare na mieru a so súhlasom
+      // nad kartou tam karta svietiť MUSÍ (kontrola zarovnania a bubliny prebehne)
+      const okna = NOTEBOOKY.map(([w, h]) => [kosik, w, h]).concat(J.web === "sk" ? [[undefined, 1366, 657]] : []);
+      for (const [k, w, h] of okna) {
+        const s = await J.novaStranka({ kosik: k, sirka: w, vyska: h, skript: k ? s42Seed(k) : undefined });
+        await naKrok2(s, { query: k ? "&lcddoplnok=0" : "" });
         await s.ev(BUBLINA(false));
         await s.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
         await pauza(1800); // bublina sa rozhoduje raz za sekundu (cart.js lcdBublinaMimoTlacidla)
         const m = await s.ev(MER_PC);
-        const popis = w + "×" + h + ": ";
+        const popis = (k || "vzorkovník") + " " + w + "×" + h + ": ";
         // 1366×657 = bežný notebook. Do súhlasov B1 (náhľad 3, +~98 px v paneli) tu bolo „Objednať“ celé na prvej
-        // obrazovke (kniha § 10.9–10.11); teraz ho tu, ako na 1366×625 a 1280×577, rieši karta nad súhrnom (kontroly nižšie)
-        // a povinný súhlas musí byť celý na prvej obrazovke nad kartou. Michal schválil vzhľad dlaždíc (výrez panela bez
-        // karty), NIE kartu namiesto „Objednať“ na 1366×657 — ČAKÁ NA JEHO ROZHODNUTIE (kniha § 10.12, revízia 30. 10. 2026:
-        // K1-1, R1-1, UX-1, N1); info behu to vypíše. Od A1 (rozpis pod názvom, set ~+70 px) svieti karta so setom aj na
-        // 1366×768 („Objednať“ pod prvou obrazovkou, kniha § 10.14). Na 1366×657 aj 1366×768 je povinný súhlas CELÝ nad
-        // kartou (revízia A1, N1: menšie medzery bočného panela na PC; prísne ako pred A1)
-        if (w === 1366 && h >= 657) over(m.cele && !m.on || m.on && m.suhlas && m.suhlas.t >= 0 && m.suhlas.b <= m.lista.t,
-          popis + "„Objednať“ nie je celé na prvej obrazovke a povinný súhlas nie je celý nad kartou (bežný notebook): " + JSON.stringify(m));
-        over(m.cele || m.on, popis + "„Objednať“ nie je celé v okne a lišta sa nezapla: " + JSON.stringify(m));
+        // obrazovke (kniha § 10.9–10.11); od A1 (rozpis pod názvom) aj na 1366×768 nie (§ 10.14). Karta „Celkom |
+        // Objednať“ sa na PC zapne len vtedy, keď neskryje nezaškrtnutý povinný súhlas ani vetu o tovare na mieru —
+        // revízia 31. 10. 2026, N1 (kniha § 10.12 (a)); dovtedy zákazník posunie stránku k súhlasu a „Objednať“
+        const stav = overKartuPc(m, popis);
         if (m.on) {
           zapnuta++;
-          over(m.trci === 0, popis + "spod lišty / nad ňou vidno natívne „Objednať“ (" + m.trci + " px, dve tlačidlá): " + JSON.stringify(m));
           over(Math.abs(m.lista.l - m.karta.l) <= 1 && Math.abs(m.lista.r - m.karta.r) <= 1, popis + "lišta nie je zarovnaná s kartou súhrnu: " + JSON.stringify([m.lista, m.karta]));
           over(!m.bublinaNaListe, popis + "bublina Luxie leží na tlačidle v lište: " + JSON.stringify(m));
         }
-        casti.push(w + "×" + h + " " + (m.on ? "lišta" : "Objednať " + m.objednat.t + "–" + m.objednat.b));
-        if (w === 1366 && h >= 657 && m.on) casti.push("POZOR " + w + "×" + h + ": karta namiesto „Objednať“ (" + m.objednat.t + "–" + m.objednat.b + "), povinný súhlas " +
-          m.suhlas.t + "–" + m.suhlas.b + (m.suhlas.b <= m.lista.t ? " nad kartou" : " (spodok " + (m.suhlas.b - m.lista.t) + " px pod kartou)") + ", veta o tovare na mieru " +
-          (m.pravne ? (m.pravne.b <= m.lista.t ? "nad kartou" : "pod kartou " + m.pravne.t + "–" + m.pravne.b) : "–") + " — čaká na rozhodnutie Michala (§ 10.12)");
+        if (!k && J.web === "sk" && w === 1366 && h === 657) over(m.on, popis + "karta nesvieti, hoci súhlas je nad ňou a „Objednať“ pod oknom: " + JSON.stringify(m));
+        casti.push(popis + stav);
         await s.zavri();
       }
-      over(zapnuta > 0, "na najnižšom okne sa lišta nezapla (kontrola zakrytia by neprebehla)");
-      // revízia A1 (N1): dve položky a kamión majú vyšší súhrn ako set. „Objednať“ celé, inak karta, ktorá ho celé zakryje;
-      // povinný súhlas nad kartou tu menšie medzery panela nedosiahnu (dve položky ani pred A1) — info behu vypíše POZOR
-      // so skutočnými číslami, rozhoduje Michal spolu s § 10.12 (kniha § 10.14)
+      over(zapnuta > 0, "karta sa nezapla ani raz (kontrola zarovnania a bubliny by neprebehla)");
+      // revízia A1 (N1): dve položky a kamión (a set 2v) majú vyšší súhrn ako set — rovnaké pravidlo: „Objednať“ celé, inak
+      // karta, ktorá ho celé zakryje a nič neskryje, inak bez karty (revízia 31. 10. 2026, N1, § 10.12 (a))
       if (J.web === "sk") {
         // dvojvrstvový set len s fixtures sk-set2v (LCD_OPC_FIXTURES, ako v S42)
         const kosiky2 = NOTEBOOKY_KOSIKY.kosiky.concat(existsSync(join(FIXTURES, "sk-set2v")) ? ["set2v"] : []);
@@ -364,10 +394,7 @@ SCENARE.S41 = {
           await pauza(500);
           const m = await s.ev(MER_PC);
           const popis = kosik2 + " " + w + "×" + h + ": ";
-          over(m.cele && !m.on || m.on && m.trci === 0, popis + "„Objednať“ nie je celé v okne a karta ho celé nezakryje: " + JSON.stringify(m));
-          const pod = m.on && m.suhlas ? Math.max(0, m.suhlas.b - m.lista.t) : 0, pravne = m.on && m.pravne ? Math.max(0, Math.min(m.pravne.b, h) - Math.max(m.pravne.t, m.lista.t)) : 0;
-          casti.push(popis + (m.on ? "karta" + (pod ? " (POZOR: povinný súhlas " + pod + " px pod kartou — § 10.12)" : ", súhlas nad ňou") +
-            (pravne ? " (POZOR: veta o tovare na mieru " + pravne + " px pod kartou)" : "") : "Objednať " + m.objednat.t + "–" + m.objednat.b));
+          casti.push(popis + overKartuPc(m, popis));
           await s.zavri();
         }
       }
@@ -848,19 +875,17 @@ SCENARE.S42 = {
       await t.zavri();
     }
     // notebook 1366×657: zbalené = „Objednať“ celé na prvej obrazovke, alebo (od súhlasov B1, S41) karta nad súhrnom, ktorá
-    // tlačidlo zakryje celé, a povinný súhlas je CELÝ nad ňou (revízia A1, N1: menšie medzery panela na PC vrátili súhlas setu
-    // nad kartu) — karta tu čaká na rozhodnutie Michala (kniha § 10.12)
+    // tlačidlo zakryje celé a neskryje nezaškrtnutý povinný súhlas ani vetu o tovare na mieru, alebo bez karty práve preto,
+    // že by ich skryla (revízia 31. 10. 2026, N1, kniha § 10.12 (a))
     if (J.sirka >= 992) {
       const t = await J.novaStranka({ kosik, sirka: 1366, vyska: 657, skript: s42Seed(kosik) });
       await naKrok2(t, q);
       await t.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
       await pauza(500);
       const n = await t.ev(MER_PC);
-      over(n.cele && !n.on || n.on && n.trci === 0 && n.suhlas && n.suhlas.t >= 0 && n.suhlas.b <= n.lista.t,
-        "1366×657 zbalené: „Objednať“ nie je celé na prvej obrazovke, ani ho celé nezakryje karta s povinným súhlasom celým nad ňou: " + JSON.stringify(n));
+      const stav = overKartuPc(n, "1366×657 zbalené: ");
       (await t.ev(S42_POLOZKY)).polozky.forEach((p, i) => s42Nazov(p, "1366×657 zbalené, položka " + (i + 1)));
-      casti.push("1366×657 " + (n.on ? "karta, povinný súhlas " + n.suhlas.t + "–" + n.suhlas.b +
-        " (POZOR: „Objednať“ " + n.objednat.t + "–" + n.objednat.b + " pod kartou — čaká na rozhodnutie Michala, § 10.12)" : "Objednať " + n.objednat.t + "–" + n.objednat.b));
+      casti.push("1366×657 " + stav);
       await t.zavri();
     }
     // košík bez kódu (zákazník): žiadna trieda OPC, žiadna mapa fotiek, krokovník Shoptetu
