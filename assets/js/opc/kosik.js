@@ -16,6 +16,24 @@ import { ulozFotky } from "./polozky.js";
 import * as B from "./banka.js";
 
 export const CESTA_KROK1 = "/objednavka/krok-1/";
+/** Jedna stránka: košík sa práve preskakuje (obsah košíka nevidno, len „Načítavam…“; _lcdOpc.scss). */
+export const PRECHADZAM = "lcd-opc-prechadzam";
+const PRECHADZAM_MAX_MS = 10000;
+
+/** Kým beží prechod z košíka rovno do pokladne, košík nevidno — najdlhšie PRECHADZAM_MAX_MS (poistka). */
+export function prechadzam(doc, T) {
+  const H = doc.documentElement;
+  if (H.classList.contains(PRECHADZAM)) return;
+  H.classList.add(PRECHADZAM);
+  if (doc.body) doc.body.setAttribute("data-lcd-opc-prechod", T.nacitavamKosik);
+  (doc.defaultView || window).setTimeout(function () { zrusPrechadzam(doc); }, PRECHADZAM_MAX_MS);
+}
+
+/** Košík znova vidno (prázdny košík, vypnuté OPC / jedna stránka, poistka). */
+export function zrusPrechadzam(doc) {
+  doc.documentElement.classList.remove(PRECHADZAM);
+  if (doc.body) doc.body.removeAttribute("data-lcd-opc-prechod");
+}
 const STARE_MS = 60000; // stiahnutý krok 1 starší ako minúta sa na klik stiahne znova (voľba mohla prísť z inej karty)
 
 /** Je odkaz „ďalej do objednávky“ (krok 1 na tomto webe)? */
@@ -130,7 +148,8 @@ export function initKosik(ctx) {
     });
   }
 
-  function prechod(a) {
+  /** nahrad = jedna stránka: košík sa v histórii nahradí pokladňou (Späť nevedie do košíka, ktorý by sem hneď vrátil). */
+  function prechod(a, nahrad) {
     const povodna = new URL(a.getAttribute("href"), location.href).href;
     st.bezi = true;
     cakajuTlacidla(a);
@@ -159,7 +178,8 @@ export function initKosik(ctx) {
           ctx.stav = "kosik-na-krok2";
           ctx.meraj("lcd_opc_prechod", { lcd_opc_platba: r.platba, lcd_opc_ms: Date.now() - t0 });
           oznacPreskocenie(); // krok 1 sa nenačíta -> begin_checkout pošle krok 2 (opc/analytika.js, T9a)
-          location.assign(r.ciel);
+          if (nahrad) location.replace(r.ciel);
+          else location.assign(r.ciel);
           return;
         }
         throw r;
@@ -167,7 +187,8 @@ export function initKosik(ctx) {
       .catch(function (r) {
         ctx.stav = "kosik-zachrana";
         ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: (r && r.typ) || "vynimka", lcd_opc_kod: r && r.kod != null ? r.kod : null, lcd_opc_miesto: "kosik" });
-        location.assign(povodna);
+        if (nahrad) location.replace(povodna);
+        else location.assign(povodna);
       });
   }
 
@@ -196,6 +217,19 @@ export function initKosik(ctx) {
     obnovTlacidla();
     ctx.stav = "kosik";
   });
+
+  // jedna stránka (Michal 31. 10. 2026): košík sa preskočí — hneď rovno do pokladne, košík s ponukou k setu je tam navrchu
+  // (opc/kosikKarta.js). Prázdny košík (bez „Pokračovať“) ostáva; zlyhanie = klasický krok 1 ako doteraz.
+  if (ctx.jednaStranka) {
+    const pokr = document.getElementById("continue-order-button");
+    if (pokr && jeOdkazNaKrok1(pokr, location.origin)) {
+      prechadzam(document, TEXTY[ctx.trh] || TEXTY.sk);
+      ctx.stav = "kosik-preskakujem";
+      prechod(pokr, true);
+      return;
+    }
+    zrusPrechadzam(document);
+  }
 
   ctx.stav = "kosik";
   const spusti = function () { try { stiahni(); } catch (e) {} };

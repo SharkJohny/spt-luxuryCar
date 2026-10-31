@@ -139,6 +139,25 @@ const TEXTY = {
     chybaOdober: "Doplnok sa nepodarilo odstrániť. Váš košík ostal bez zmeny. Skúste to, prosím, znova.",
     chybaCiastocnaOdober: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Odstráňte, prosím, celý zvýraznený riadok krížikom vpravo hore.",
     chybaCiastocnaOdoberViac: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Znížte, prosím, počet zvýrazneného riadku o 1 kus.",
+    // jedna stránka pokladne (Michal 31. 10. 2026): „Vybrať“ a doplnok sa pripíše k produktu (kartaVybrat)
+    vybNadpis: "Doplňte svoj set",
+    vybPodnadpis: "za cenu v sete",
+    vybVrstva: "Druhá vrstva",
+    vybVrstvaDovod: "zachytí vodu, sneh aj blato",
+    vybRohoz: "Rohož do kufra",
+    vybBox: "Box do kufra",
+    vybZavriet: "Zavrieť",
+    vybFarbaVrstvy: "Vyberte farbu druhej vrstvy:",
+    vybZvolena: "Zvolená farba:",
+    vybDalsie: (n) => "+" + n + " ďalších",
+    vybPridat: "Pridať k setu",
+    vybFarbaBoxu: "Farba boxu",
+    vybZvolenaBox: "Zvolená:",
+    vybAkoKoberce: "ako Vaše koberce",
+    vybVyberteFarbu: "Vyberte farbu boxu",
+    vybVyberteVelkost: "Vyberte veľkosť boxu",
+    vybVyberteVelkost1: "Vyberte veľkosť 1. boxu",
+    vybVyberteVelkost2: "Vyberte veľkosť 2. boxu",
   },
   cz: {
     nadpisVrstva: "Doplňte set o druhou vrstvu",
@@ -219,6 +238,24 @@ const TEXTY = {
     chybaOdober: "Doplněk se nepodařilo odebrat. Váš košík zůstal beze změny. Zkuste to prosím znovu.",
     chybaCiastocnaOdober: "Set bez doplňku je v košíku, původní set však zůstal také. Odeberte prosím celý zvýrazněný řádek křížkem vpravo nahoře.",
     chybaCiastocnaOdoberViac: "Set bez doplňku je v košíku, původní set však zůstal také. Snižte prosím počet zvýrazněného řádku o 1 kus.",
+    vybNadpis: "Doplňte svůj set",
+    vybPodnadpis: "za cenu v setu",
+    vybVrstva: "Druhá vrstva",
+    vybVrstvaDovod: "zachytí vodu, sníh i bláto",
+    vybRohoz: "Rohož do kufru",
+    vybBox: "Box do kufru",
+    vybZavriet: "Zavřít",
+    vybFarbaVrstvy: "Vyberte barvu druhé vrstvy:",
+    vybZvolena: "Zvolená barva:",
+    vybDalsie: (n) => "+" + n + " dalších",
+    vybPridat: "Přidat k setu",
+    vybFarbaBoxu: "Barva boxu",
+    vybZvolenaBox: "Zvolená:",
+    vybAkoKoberce: "jako Vaše koberce",
+    vybVyberteFarbu: "Vyberte barvu boxu",
+    vybVyberteVelkost: "Vyberte velikost boxu",
+    vybVyberteVelkost1: "Vyberte velikost 1. boxu",
+    vybVyberteVelkost2: "Vyberte velikost 2. boxu",
   },
 };
 
@@ -986,13 +1023,19 @@ export async function samostatneCenyKonfigurator(projectId, href) {
   };
 }
 
-async function nacitajKosik() {
+/** Obsah košíka zo servera (tabuľka riadkov ako na /kosik/) -> Document. Chyba siete / prázdna odpoveď -> výnimka.
+ *  Export aj pre jednu stránku pokladne (opc/kosikKarta.js: fotka, cena a počet riadku). */
+export async function obsahKosika() {
   const r = await fetch("/action/Cart/GetCartContent/", { headers: XHR, credentials: "same-origin", cache: "no-store" });
   const t = await r.text();
   let html = t;
   try { const j = JSON.parse(t); html = (j.payload && (j.payload.content || j.payload.html)) || ""; } catch (e) {}
   if (!html) throw new Error("GetCartContent bez obsahu");
-  return rozoberRiadky(new DOMParser().parseFromString(html, "text/html"));
+  return new DOMParser().parseFromString(html, "text/html");
+}
+
+async function nacitajKosik() {
+  return rozoberRiadky(await obsahKosika());
 }
 
 function csrf() {
@@ -1044,6 +1087,20 @@ async function uberJedenKus(t) {
     if (t.q > 1 ? !r || r.q !== t.q : r.q !== 1) return false; // riadok medzitým zmenil niekto iný -> nehádať
   }
   return false;
+}
+
+/**
+ * Jedna stránka pokladne (opc/kosikKarta.js): počet kusov riadku {itemId, priceId} na q (0 = odobrať celý riadok).
+ * Odpoveď, ktorej nemožno veriť, sa overí v košíku. -> true = košík je v želanom stave.
+ */
+export async function zmenPocetRiadku(riadok, q) {
+  const akcia = q > 0 ? "setCartItemAmount" : "deleteCartItem";
+  const v = await postKosik(akcia, teloRiadku(riadok.itemId, riadok.priceId, q > 0 ? q : 1)).catch(function () { return null; });
+  if (v && v.code === 200) return true;
+  const k = await nacitajKosik().catch(function () { return null; });
+  if (!k) return false;
+  const r = k.find(function (x) { return x.itemId === riadok.itemId; });
+  return q > 0 ? !!r && r.q === q : !r;
 }
 
 // ------------------------------------------------------------------ meranie
@@ -1919,15 +1976,29 @@ function zablokujStranku(aktivne) {
   return st;
 }
 
+/**
+ * Jedna stránka pokladne (opc/kosikKarta.js): pred obnovením stránky po výmene si uloží vyplnené údaje formulára a vráti
+ * adresu, kam ísť (košík -> znova rovno do pokladne); null / bez háčika = location.reload() ako doteraz.
+ */
+let predObnovou = null;
+export function nastavPredObnovou(fn) { predObnovou = typeof fn === "function" ? fn : null; }
+function obnovStranku() {
+  let kam = null;
+  try { kam = predObnovou ? predObnovou() : null; } catch (e) { kam = null; }
+  if (kam) location.replace(kam);
+  else location.reload();
+}
+
 async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   if (zamok) return;
   zamok = true;
   window.__lcdCartReloading = true; // cart.js r. 15–21: počas výmeny nič neobnovovať
   const tlacidla = document.querySelectorAll("#lcd-doplnok button, #lcd-doplnok input, #lcd-doplnok select, .lcd-dop-odober button, .lcd-dop-x");
   const odober = doplnok.typ === "odober";
-  tlacidla.forEach(function (b) { b.disabled = true; });
+  const predtym = new Map();
+  tlacidla.forEach(function (b) { predtym.set(b, b.disabled); b.disabled = true; });
   kartaEl.setAttribute("aria-busy", "true");
-  stav.className = "lcd-dop__stav";
+  stav.classList.remove("lcd-dop__stav--chyba");
   stav.textContent = odober ? T.odoberam : T.pridavam;
   const hotovo = odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
     : doplnok.typ === "vrstva2" ? T.hotovoVrstva(doplnok.nazov)
@@ -2005,7 +2076,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
       setTimeout(function () { location.reload(); }, 20000);
     } else {
       ssPis(KLUC_HOTOVO, JSON.stringify({ text: hotovo, typ: "ok", t: Date.now() }));
-      setTimeout(function () { location.reload(); }, 150);
+      setTimeout(obnovStranku, 150);
     }
     return;
   }
@@ -2022,14 +2093,14 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   if (v.reload) {
     blok.pustOdchod();
     ssPis(KLUC_HOTOVO, JSON.stringify({ text: text, typ: "chyba", stary: v.stary || null, t: Date.now() }));
-    setTimeout(function () { location.reload(); }, 150);
+    setTimeout(obnovStranku, 150);
     return;
   }
   blok.odblokuj();
-  stav.className = "lcd-dop__stav lcd-dop__stav--chyba";
+  stav.classList.add("lcd-dop__stav--chyba");
   stav.textContent = text;
   kartaEl.removeAttribute("aria-busy");
-  tlacidla.forEach(function (b) { b.disabled = false; });
+  tlacidla.forEach(function (b) { b.disabled = !!predtym.get(b); });
   window.__lcdCartReloading = false;
   zamok = false;
 }
@@ -2055,7 +2126,8 @@ export function odrazkaDoplnku(ul, d, volby, mapa, R) {
  *  a boxov). Bez odrážky (rozpis chýba / iný názov) -> náhradný riadok „Doplnky v sete: Rohož Premium ×  2 boxy M + L ד. */
 function vlozOdober(ctx, T, R, pokus) {
   const vstup = [...document.querySelectorAll('#cart-wrapper input[name="itemId"]')].find(function (i) { return i.value === ctx.riadok.itemId; });
-  const tr = vstup && vstup.closest("tr");
+  // ctx.miestoOdober = položka mimo tabuľky košíka (jedna stránka pokladne, opc/kosikKarta.js) s rovnakým ul.lcd-rozpis
+  const tr = ctx.miestoOdober || (vstup && vstup.closest("tr"));
   if (!tr || tr.querySelector(".lcd-dop-odober, .lcd-dop-x")) return;
   const ul = tr.querySelector("ul.lcd-rozpis");
   // rozpis vkladá cart.js pri načítaní košíka (ponuka beží neskôr) — keby ešte nebol, chvíľu počkať
@@ -2179,7 +2251,7 @@ let zachytene = null;
  * Volať PRED initCart (cart.js prepíše text príplatkov). Zachytí riadky košíka zo serverového HTML a zvyšok
  * (mapy, vykreslenie) spustí asynchrónne — teda až po synchrónnom initCart.
  */
-export function initKosikDoplnok(setupData) {
+export function initKosikDoplnok(setupData, o) {
   try {
     const R = ROLE[projekt()];
     if (!R) return;
@@ -2187,7 +2259,8 @@ export function initKosikDoplnok(setupData) {
     const b = document.body;
     const naKosiku = !!(b && (b.classList.contains("id--9") || b.classList.contains("in-kosik")));
     const s = setupData || {};
-    const ponuka = naKosiku && !/[?&]lcddoplnok=0\b/.test(location.search) &&
+    // o.bezPonuky: jedna stránka pokladne (opc/index.js) košík preskočí — ponuka sa kreslí až v pokladni (opc/kosikKarta.js)
+    const ponuka = naKosiku && !(o && o.bezPonuky) && !/[?&]lcddoplnok=0\b/.test(location.search) &&
       !(s.kosik_doplnky === false || (s.settings && s.settings.kosik_doplnky === false));
     // rozbehnutá výmena z predchádzajúcej stránky / karty (zákazník odišiel počas výmeny): dokončiť alebo vrátiť —
     // na každej stránke, kde je záznam (košík, krok objednávky, …), aj keď je ponuka vypnutá
@@ -2260,23 +2333,23 @@ export async function ponukaDruhejVrstvy(riadok, volby, mapa, R) {
   return p;
 }
 
-async function spusti(R) {
+/**
+ * Kontexty ponuky k riadkom košíka — spoločné pre košík (spusti) aj jednu stránku pokladne (opc/kosikKarta.js): mapa
+ * príplatkov, voľby riadku, čo chýba (rohož, box, druhá vrstva), čo sa dá odobrať, ceny samostatných produktov, auto.
+ * o.vynechaj = itemId riadku, ku ktorému sa ponuka nekreslí (po čiastočnej chybe výmeny ho treba najprv opraviť).
+ * -> { kandidati: počet setov na posúdenie, ctxs: sety s ponukou alebo doplnkom na odobratie, ponuky: sety, ktorým niečo chýba }
+ */
+export async function pripravKontexty(riadky, R, o) {
   const T = TEXTY[R.trh];
-  const riadky = zachytene || [];
   const maSamostatnuRohoz = riadky.some(function (r) { return /koberced?-do-kufr/i.test(r.href || ""); });
   const maSamostatnyBox = riadky.some(function (r) { return /boxi?-do-kufr/i.test(r.href || ""); });
   let kandidati = riadky.filter(function (r) {
     return r.itemId && r.priceId && r.href && r.maPriplatky && r.sur && r.q >= 1 &&
       !/\btruck\b|kami[oó]n/i.test(r.text) && !/(boxi?-do-kufr|koberced?-do-kufr|vzorkovnik|poukaz|kamion)/i.test(r.href);
   });
-  const sec = el("div", { id: "lcd-doplnok", class: "lcd-dop", role: "region", "aria-label": T.nadpis });
-  const pred = ssCitaj(KLUC_HOTOVO);
-  const naOdstranenie = (function () { try { const h = pred && JSON.parse(pred); return (h && h.typ === "chyba" && h.stary) || null; } catch (e) { return null; } })();
-  if (naOdstranenie) kandidati = kandidati.filter(function (r) { return r.itemId !== naOdstranenie; });
-  if (!kandidati.length) {
-    if (pred) { const h = hotovoZPredchadzajucej(sec); if (sec.firstChild && vlozSekciu(sec)) zameraj(h); }
-    return 0;
-  }
+  const vynechaj = o && o.vynechaj;
+  if (vynechaj) kandidati = kandidati.filter(function (r) { return r.itemId !== vynechaj; });
+  if (!kandidati.length) return { kandidati: 0, ctxs: [], ponuky: [] };
   const kupon = (function () { try { const c = getShoptetContext().cartInfo; return c && c.discountCoupon && c.discountCoupon.code; } catch (e) { return null; } })();
 
   const ctxs = (await Promise.all(kandidati.map(async function (riadok) {
@@ -2308,8 +2381,6 @@ async function spusti(R) {
     return { riadok: riadok, mapa: mapa, volby: rozbor.volby, ponuka: ponuka, odobrat: odobrat, samostatne: samostatne, kupon: kupon, zobrazene: [],
       auto: auto, autoText: popisAuta(auto, false) };
   }))).filter(Boolean);
-  // krížiky pri doplnkoch setu (aj keď ponuka nie je); ponuka len pre sety, ktorým niečo chýba
-  ctxs.forEach(function (ctx) { if (ctx.odobrat.length) vlozOdober(ctx, T, R); });
   const ponuky = ctxs.filter(function (c) { return c.ponuka.rohoz || c.ponuka.box || c.ponuka.vrstva2; });
 
   // rovnaký set viackrát (napr. po rozdelení množstva) -> k názvu cena za kus, aby sa karty dali rozlíšiť
@@ -2322,6 +2393,22 @@ async function spusti(R) {
     const c = ceny.find(function (x) { return x && x.itemId === ctx.riadok.itemId; });
     ctx.kSetu = nazvy[i] + (dup && c && typeof c.priceWithVat === "number" ? " · " + cenaText(c.priceWithVat, R) : "");
   });
+  return { kandidati: kandidati.length, ctxs: ctxs, ponuky: ponuky };
+}
+
+async function spusti(R) {
+  const T = TEXTY[R.trh];
+  const riadky = zachytene || [];
+  const sec = el("div", { id: "lcd-doplnok", class: "lcd-dop", role: "region", "aria-label": T.nadpis });
+  const pred = ssCitaj(KLUC_HOTOVO);
+  const naOdstranenie = (function () { try { const h = pred && JSON.parse(pred); return (h && h.typ === "chyba" && h.stary) || null; } catch (e) { return null; } })();
+  const { kandidati, ctxs, ponuky } = await pripravKontexty(riadky, R, { vynechaj: naOdstranenie });
+  if (!kandidati) {
+    if (pred) { const h = hotovoZPredchadzajucej(sec); if (sec.firstChild && vlozSekciu(sec)) zameraj(h); }
+    return 0;
+  }
+  // krížiky pri doplnkoch setu (aj keď ponuka nie je); ponuka len pre sety, ktorým niečo chýba
+  ctxs.forEach(function (ctx) { if (ctx.odobrat.length) vlozOdober(ctx, T, R); });
   ponuky.forEach(function (ctx) {
     const k = karta(ctx, T, R, ponuky.length > 1);
     if (k) sec.appendChild(k);
@@ -2341,6 +2428,290 @@ async function spusti(R) {
     });
   });
   return karty;
+}
+
+// ------------------------------------------------------------------ jedna stránka pokladne (opc/kosikKarta.js)
+
+/** Texty ponuky pre trh (sk / cz). */
+export function textyPonuky(trh) { return TEXTY[trh] || TEXTY.sk; }
+/** Role parametrov podľa projektu Shoptetu (SK 562035, CZ 581408) alebo null. */
+export function rolePonuky() { return ROLE[projekt()] || null; }
+
+/** Hláška po obnovení stránky z predchádzajúcej výmeny ({ text, typ: "ok" | "chyba", stary }) — prečíta a zmaže; staršia ako 2 min nič. */
+export function vezmiHotovo() {
+  const s = ssCitaj(KLUC_HOTOVO);
+  if (!s) return null;
+  ssPis(KLUC_HOTOVO, null);
+  try {
+    const h = JSON.parse(s);
+    return h && h.text && Date.now() - (h.t || 0) <= 120000 ? h : null;
+  } catch (e) { return null; }
+}
+
+/** Krížiky pri doplnkoch setu v položke mimo tabuľky košíka: ctx.miestoOdober = obal s ul.lcd-rozpis položky. */
+export function vlozKriziky(ctx, R) { vlozOdober(ctx, TEXTY[R.trh], R); }
+
+/** Meranie zobrazenia ponuky (rovnaké udalosti ako v košíku). */
+export function merajZobrazenie(ctx, R) {
+  ctx.zobrazene.forEach(function (d) { meraj("lcd_set_doplnok_zobrazenie", { lcd_doplnok: d, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" }); });
+}
+
+/**
+ * Ponuka k setu vo vzhľade „Vybrať“ (Michal 31. 10. 2026, náhľad nahlad-7: postup Vybrať a box po ťuknutí): riadok =
+ * malá fotka, názov, cena v sete a úspora, zlaté „Vybrať“. Rohož sa pripíše hneď; druhá vrstva a box otvoria výber pod
+ * riadkom (farba, pri boxe aj počet a veľkosť) s „Pridať k setu · +X €“ — kým chýba voľba, tlačidlo je sivé a hovorí, čo
+ * vybrať. Otvorený je naraz len jeden výber. Pridaný doplnok sa po obnovení stránky pripíše k produktu ako odrážka s
+ * krížikom (vlozKriziky) a v ponuke už nie je (kreslí sa nanovo z košíka); bez chýbajúcich doplnkov ponuka nevznikne.
+ * Výmena riadku, kontroly ceny a textu aj zámok = spustiVymenu (ako v košíku). Rádiá dostanú atribút form = o.forma
+ * (pomocný formulár mimo #order-form), aby sa s objednávkou nikdy neodoslali. -> element alebo null.
+ */
+export function kartaVybrat(ctx, R, o) {
+  const T = TEXTY[R.trh];
+  const id = "lcd-vyb-" + ++poradie;
+  const forma = (o && o.forma) || null;
+  const k = el("div", { class: "lcd-vyb", "data-item": ctx.riadok.itemId, role: "group", "aria-labelledby": id + "-h" });
+  k.appendChild(el("div", { class: "lcd-vyb__hlava" }, [
+    el("h3", { class: "lcd-vyb__nadpis", id: id + "-h", text: T.vybNadpis }),
+    el("span", { class: "lcd-vyb__pod", text: T.vybPodnadpis }),
+  ]));
+  // viac setov v košíku: ku ktorému setu ponuka patrí („K setu: Diamond-Line, čierna / červená“)
+  if (o && o.kSetu) k.appendChild(el("p", { class: "lcd-vyb__kset", text: o.kSetu }));
+  const zoznam = el("ul", { class: "lcd-vyb__zoznam" });
+  k.appendChild(zoznam);
+  const stav = el("p", { class: "lcd-dop__stav lcd-vyb__stav", role: "status", "aria-live": "polite" });
+  const vstup = function (a) { if (forma) a.form = forma; return el("input", a); };
+  const tlacidlo = function (a, deti) { a.type = "button"; if (forma) a.form = forma; return el("button", a, deti); };
+  const sada = function (a, deti) { if (forma) a.form = forma; return el("fieldset", a, deti); };
+  const otvorene = { r: null };
+
+  const prepni = function (r, ano) {
+    r.panel.hidden = !ano;
+    r.li.classList.toggle("je-otvorena", ano);
+    r.btn.setAttribute("aria-expanded", ano ? "true" : "false");
+    r.btnText.textContent = ano ? T.vybZavriet : T.vybrat;
+    r.btn.classList.toggle("lcd-vyb__btn--zavriet", ano);
+    otvorene.r = ano ? r : null;
+    // telefón: kým je výber otvorený, lišta „Celkom | Objednať“ dole ho neprekrýva (_lcdOpc.scss)
+    document.documentElement.classList.toggle("lcd-vyb-otvorene", !!document.querySelector(".lcd-vyb__riadok.je-otvorena"));
+  };
+  /** p: { kluc, foto, meno, odp, cena, pod, panel | null, klik (bez panela) } */
+  const riadok = function (p) {
+    const btnText = el("span", { text: T.vybrat });
+    const btn = tlacidlo({ class: "lcd-vyb__btn", "data-lcd-vyb": p.kluc, "aria-expanded": p.panel ? "false" : null, "aria-controls": p.panel ? id + "-" + p.kluc : null, "aria-describedby": id + "-m-" + p.kluc }, [btnText]);
+    const mini = el("img", { class: "lcd-vyb__mini", src: p.foto, alt: "", width: "112", height: "112", decoding: "async" });
+    mini.addEventListener("error", function () { mini.style.visibility = "hidden"; });
+    const li = el("li", { class: "lcd-vyb__riadok", "data-doplnok": p.kluc }, [
+      el("div", { class: "lcd-vyb__pas" }, [
+        mini,
+        el("span", { class: "lcd-vyb__text" }, [
+          el("span", { class: "lcd-vyb__meno", id: id + "-m-" + p.kluc }, [el("b", { text: p.meno }), p.odp ? el("span", { class: "lcd-vyb__odp", text: T.odporucame }) : null]),
+          el("span", { class: "lcd-vyb__cena" }, [el("b", { text: p.cena }), p.pod ? el("span", { text: " · " + p.pod }) : null]),
+        ]),
+        btn,
+      ]),
+    ]);
+    const r = { li: li, btn: btn, btnText: btnText, panel: p.panel || null };
+    if (r.panel) {
+      r.panel.id = id + "-" + p.kluc;
+      r.panel.hidden = true;
+      li.appendChild(r.panel);
+    }
+    btn.addEventListener("click", function () {
+      if (!r.panel) { p.klik(); return; }
+      const otvor = otvorene.r !== r;
+      if (otvorene.r) prepni(otvorene.r, false);
+      if (!otvor) return;
+      prepni(r, true);
+      meraj("lcd_set_doplnok_klik", { lcd_doplnok: p.kluc, lcd_varianta: "rozbalit", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
+      const pokojne = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      try { r.panel.scrollIntoView({ block: "nearest", behavior: pokojne ? "auto" : "smooth" }); } catch (x) { /* starý Safari */ }
+    });
+    zoznam.appendChild(li);
+    return r;
+  };
+  const usetri = function (samo, s) { return samo && samo > s + 0.5 ? T.usetrite + " " + cenaText(samo - s, R) : null; };
+
+  // --- druhá vrstva (len jednovrstvový set): odporúčaná Lux farba zvolená vopred, ďalšie farby po „+N ďalších“
+  if (ctx.ponuka.vrstva2) {
+    const pv = ctx.ponuka.vrstva2;
+    const stV = { lux: pv.odporucana };
+    const moz = function (l) { return pv.moznosti.find(function (m) { return m.lux === l; }) || null; };
+    const zorad = [moz(pv.odporucana)].concat(pv.moznosti.filter(function (m) { return m.lux !== pv.odporucana; })).filter(Boolean);
+    const VIDNO = 5;
+    const zvolena = el("b");
+    const pridat = tlacidlo({ class: "lcd-vyb__pridat", "data-lcd-vyb-pridat": "vrstva2" });
+    const prekresli = function () {
+      const m = moz(stV.lux);
+      zvolena.textContent = luxNazov(stV.lux);
+      pridat.textContent = T.vybPridat + " · " + cenaText(m.rozdiel.s, R, true);
+    };
+    const mriezka = el("div", { class: "lcd-vyb__farby lcd-vyb__farby--lux" });
+    zorad.forEach(function (m, i) {
+      const inp = vstup({ type: "radio", name: id + "-lux", value: String(m.lux), checked: m.lux === stV.lux, "data-lcd-vyb-lux": String(m.lux) });
+      inp.addEventListener("change", function () { stV.lux = m.lux; prekresli(); });
+      const lab = el("label", { class: "lcd-vyb__vz" + (i >= VIDNO ? " lcd-vyb__vz--dalsia" : ""), title: luxNazov(m.lux) }, [
+        inp, el("span", { class: "lcd-vyb__obr" }, [el("img", { src: luxFoto(m.lux), alt: luxNazov(m.lux), width: "96", height: "96", loading: "lazy", decoding: "async" })]),
+      ]);
+      if (i >= VIDNO) lab.hidden = true;
+      mriezka.appendChild(lab);
+    });
+    if (zorad.length > VIDNO) {
+      const dalsie = tlacidlo({ class: "lcd-vyb__dalsie" }, [el("span", { text: T.vybDalsie(zorad.length - VIDNO) })]);
+      dalsie.addEventListener("click", function () {
+        const skryte = mriezka.querySelectorAll(".lcd-vyb__vz--dalsia");
+        skryte.forEach(function (l) { l.hidden = false; });
+        dalsie.remove();
+        const prva = skryte[0] && skryte[0].querySelector("input");
+        if (prva) { try { prva.focus({ preventScroll: true }); } catch (e) { prva.focus(); } }
+      });
+      mriezka.insertBefore(dalsie, mriezka.children[VIDNO]);
+    }
+    const panel = el("div", { class: "lcd-vyb__panel" }, [
+      sada({ class: "lcd-vyb__fs" }, [el("legend", { text: T.vybFarbaVrstvy }), mriezka]),
+      el("p", { class: "lcd-vyb__zvolena" }, [T.vybZvolena + " ", zvolena]),
+      pridat,
+    ]);
+    pridat.addEventListener("click", function () {
+      const m = moz(stV.lux);
+      if (!m) { stav.textContent = T.chyba; return; }
+      const nazov = luxNazov(m.lux);
+      meraj("lcd_set_doplnok_klik", { lcd_doplnok: "vrstva2", lcd_varianta: nazov, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
+      spustiVymenu(ctx, {
+        typ: "vrstva2", kod: "vrstva2", lcdVarianta: nazov, nazov: nazov,
+        ciel: { priceId: m.priceId, lux: m.lux, href: pv.href, mapa: pv.mapa },
+      }, {}, m.rozdiel, T, R, stav, k);
+    });
+    prekresli();
+    const odp = moz(pv.odporucana);
+    riadok({ kluc: "vrstva2", foto: luxFoto(pv.odporucana), meno: T.vybVrstva, odp: true, cena: cenaText(odp.rozdiel.s, R, true), pod: T.vybVrstvaDovod, panel: panel });
+    ctx.zobrazene.push("vrstva2");
+  }
+
+  // --- rohož do kufra (len Classic, ako v košíku): „Vybrať“ ju pripíše hneď, nie je čo vyberať
+  if (ctx.ponuka.rohoz) {
+    const zm = zmena({ typ: "rohoz", varianta: "classic" }, ctx.mapa, R);
+    const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
+    if (rozdiel && rozdiel.s > 0) {
+      const samo = ctx.samostatne ? ctx.samostatne.classic : null;
+      riadok({
+        kluc: "rohoz", foto: fotoDoplnku(FOTKY.classic), meno: T.vybRohoz, cena: cenaText(rozdiel.s, R, true), pod: usetri(samo, rozdiel.s),
+        klik: function () {
+          meraj("lcd_set_doplnok_klik", { lcd_doplnok: "rohoz", lcd_varianta: "classic", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
+          spustiVymenu(ctx, { typ: "rohoz", varianta: "classic", kod: "rohoz_classic", nazov: T.classic }, zm, rozdiel, T, R, stav, k);
+        },
+      });
+      ctx.zobrazene.push("rohoz");
+    }
+  }
+
+  // --- box: farba (vopred farba setu), počet, veľkosť (pri 2 boxoch veľkosť 1. a 2. boxu) — rovnaké ceny ako v košíku
+  if (ctx.ponuka.box) {
+    const vSolo = velkostiBoxu(ctx.mapa, R.boxSolo), v1 = velkostiBoxu(ctx.mapa, R.box1), v2 = velkostiBoxu(ctx.mapa, R.box2);
+    const farbaP = ctx.mapa.params[R.farbaBox];
+    const farby = farbaP ? (farbaP.p || Object.keys(farbaP.o)).filter(function (fid) { return farbaP.o[fid] && farbaP.o[fid].fp != null; }) : [];
+    const predvolena = farbaP ? predvolenaFarbaBoxu(ctx.riadok.variant, ctx.mapa, R) : null;
+    const stB = { pocet: 1, velkost: null, velkost2: null, farba: predvolena };
+    const cenaPre = function (pocet, v, vb) {
+      if (!v || !farby.length) return null;
+      const zm = zmena({ typ: "box", pocet: pocet, velkost: v, velkost2: vb || v, farba: stB.farba || farby[0] }, ctx.mapa, R);
+      const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
+      return rozdiel && rozdiel.s > 0 ? { zm: zm, rozdiel: rozdiel, samo: samostatneBoxy(ctx.samostatne, pocet, v, vb || v) } : null;
+    };
+    const ma1 = VELKOSTI.filter(function (v) { return vSolo[v] && cenaPre(1, v); });
+    const ma2a = VELKOSTI.filter(function (v) { return v1[v]; }), ma2b = VELKOSTI.filter(function (v) { return v2[v]; });
+    const ma2 = ma2a.filter(function (v) { return v2[v] && cenaPre(2, v, v); });
+    if (farby.length && (ma1.length || ma2.length)) {
+      const pocty = [];
+      if (ma1.length) pocty.push(1);
+      if (ma2.length) pocty.push(2);
+      stB.pocet = pocty[0];
+      // najlacnejšia kombinácia: „od +99 €“ a úspora presne tej istej kombinácie (ako pás v košíku)
+      const vsetky = [];
+      pocty.forEach(function (p) { (p === 2 ? ma2 : ma1).forEach(function (v) { const i = cenaPre(p, v); vsetky.push({ s: i.rozdiel.s, samo: i.samo }); }); });
+      const naj = vsetky.reduce(function (a, b) { return b.s < a.s ? b : a; });
+
+      const pridat = tlacidlo({ class: "lcd-vyb__pridat", "data-lcd-vyb-pridat": "box" });
+      const zvolenaFarba = el("p", { class: "lcd-vyb__zvolena" });
+      const fsFarba = sada({ class: "lcd-vyb__fs" }, [el("legend", { text: T.vybFarbaBoxu })]);
+      const mriezkaFarieb = el("div", { class: "lcd-vyb__farby lcd-vyb__farby--box" });
+      farby.forEach(function (fid) {
+        const nazov = nazovFarbyBoxu(farbaP.o[fid].t);
+        const inp = vstup({ type: "radio", name: id + "-farba", value: fid, checked: fid === stB.farba, "data-lcd-vyb-farba": fid });
+        inp.addEventListener("change", function () { stB.farba = fid; prekresli(); });
+        const vz = el("img", { src: vzorkaFarby(farbaP.o[fid].t), alt: nazov, width: "96", height: "96", loading: "lazy", decoding: "async" });
+        vz.addEventListener("error", function () { vz.style.visibility = "hidden"; });
+        mriezkaFarieb.appendChild(el("label", { class: "lcd-vyb__vz", title: nazov }, [inp, el("span", { class: "lcd-vyb__obr" }, [vz])]));
+      });
+      fsFarba.appendChild(mriezkaFarieb);
+      fsFarba.appendChild(zvolenaFarba);
+      const fsPocet = sada({ class: "lcd-vyb__fs", hidden: pocty.length < 2 }, [el("legend", { text: T.pocet }), el("div", { class: "lcd-vyb__dlazdice lcd-vyb__dlazdice--2" }, pocty.map(function (p) {
+        const inp = vstup({ type: "radio", name: id + "-pocet", value: String(p), checked: p === stB.pocet, "data-lcd-vyb-pocet": String(p) });
+        inp.addEventListener("change", function () { stB.pocet = p; prekresli(); });
+        return el("label", { class: "lcd-vyb__dl" }, [inp, el("span", {}, [el("b", { text: p === 1 ? T.box1 : T.box2 })])]);
+      }))]);
+      const legVel = el("legend"), legVel2 = el("legend", { text: T.velkost2 });
+      const fsVel = sada({ class: "lcd-vyb__fs" }, [legVel]);
+      const fsVel2 = sada({ class: "lcd-vyb__fs", hidden: true }, [legVel2]);
+      const dlazdice = function (fs, zoz, mapaVel, kluc, cena) {
+        while (fs.children.length > 1) fs.removeChild(fs.lastChild);
+        fs.appendChild(el("div", { class: "lcd-vyb__dlazdice lcd-vyb__dlazdice--4" }, zoz.map(function (v) {
+          const inp = vstup({ type: "radio", name: id + "-" + kluc, value: v, checked: v === stB[kluc], "data-lcd-vyb-velkost": kluc === "velkost2" ? null : v, "data-lcd-vyb-velkost2": kluc === "velkost2" ? v : null });
+          inp.addEventListener("change", function () { stB[kluc] = v; prekresliTlacidlo(); });
+          return el("label", { class: "lcd-vyb__dl" }, [inp, el("span", {}, [
+            el("b", { text: v }), el("small", { text: mapaVel[v].rozmer }), el("em", { text: cenaText(cena(v), R, true) }),
+          ])]);
+        })));
+      };
+      const prekresliTlacidlo = function () {
+        const dva = stB.pocet === 2;
+        const chyba = !stB.farba ? T.vybVyberteFarbu : !stB.velkost ? (dva ? T.vybVyberteVelkost1 : T.vybVyberteVelkost)
+          : dva && !stB.velkost2 ? T.vybVyberteVelkost2 : null;
+        const info = chyba ? null : cenaPre(stB.pocet, stB.velkost, dva ? stB.velkost2 : null);
+        pridat.disabled = !info;
+        pridat.textContent = info ? T.vybPridat + " · " + cenaText(info.rozdiel.s, R, true) : chyba || T.vybVyberteVelkost;
+      };
+      const prekresli = function () {
+        const dva = stB.pocet === 2;
+        if (stB.velkost && (dva ? ma2a : ma1).indexOf(stB.velkost) < 0) stB.velkost = null;
+        if (stB.velkost2 && ma2b.indexOf(stB.velkost2) < 0) stB.velkost2 = null;
+        legVel.textContent = dva ? T.velkost1 : T.velkost;
+        if (dva) {
+          dlazdice(fsVel, ma2a, v1, "velkost", function (v) { return v1[v].fp; });
+          dlazdice(fsVel2, ma2b, v2, "velkost2", function (v) { return v2[v].fp; });
+        } else {
+          dlazdice(fsVel, ma1, vSolo, "velkost", function (v) { return cenaPre(1, v).rozdiel.s; });
+        }
+        fsVel2.hidden = !dva;
+        zvolenaFarba.textContent = "";
+        if (stB.farba && farbaP.o[stB.farba]) {
+          zvolenaFarba.appendChild(document.createTextNode(T.vybZvolenaBox + " "));
+          zvolenaFarba.appendChild(el("b", { text: nazovFarbyBoxu(farbaP.o[stB.farba].t) }));
+          if (stB.farba === predvolena) zvolenaFarba.appendChild(document.createTextNode(" – " + T.vybAkoKoberce));
+        }
+        prekresliTlacidlo();
+      };
+      pridat.addEventListener("click", function () {
+        const dva = stB.pocet === 2;
+        if (!stB.farba || !stB.velkost || (dva && !stB.velkost2)) { prekresliTlacidlo(); return; }
+        const velkosti = dva ? stB.velkost + "+" + stB.velkost2 : stB.velkost;
+        meraj("lcd_set_doplnok_klik", { lcd_doplnok: "box", lcd_varianta: "box_" + stB.pocet, lcd_velkost: velkosti, lcd_pocet: stB.pocet, lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
+        const zm = zmena({ typ: "box", pocet: stB.pocet, velkost: stB.velkost, velkost2: dva ? stB.velkost2 : null, farba: stB.farba }, ctx.mapa, R);
+        const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
+        if (!zm || !rozdiel) { stav.textContent = T.chyba; return; }
+        spustiVymenu(ctx, { typ: "box", pocet: stB.pocet, velkost: velkosti, kod: "box_" + stB.pocet }, zm, rozdiel, T, R, stav, k);
+      });
+      const panel = el("div", { class: "lcd-vyb__panel" }, [fsFarba, fsPocet, fsVel, fsVel2, pridat]);
+      prekresli();
+      riadok({
+        kluc: "box", foto: fotoDoplnku(FOTKY.box1), meno: T.vybBox,
+        cena: (vsetky.length > 1 ? T.od + " " : "") + cenaText(naj.s, R, true), pod: usetri(naj.samo, naj.s), panel: panel,
+      });
+      ctx.zobrazene.push("box");
+    }
+  }
+
+  k.appendChild(stav);
+  return ctx.zobrazene.length ? k : null;
 }
 
 /** Karta ponuky pre testy (tools/test-kosik-doplnok.mjs): poradie kariet, texty, výber Lux farby. */

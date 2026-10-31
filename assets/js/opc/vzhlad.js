@@ -257,10 +257,10 @@ export function vykresliSekciu(doc, model, T, o) {
   const hlaska = el(doc, "p", { class: "lcd-opc-hlaska", role: "status", "aria-live": "polite", hidden: true });
   const sek = el(doc, "div", { id: "lcd-opc", class: "lcd-opc", "data-lcd-opc": "" }, [
     el(doc, "div", { class: "box box-sm box-bg-default co-box co-delivery-method lcd-opc-box lcd-opc-karta" }, [
-      el(doc, "h2", { id: "lcd-opc-h-doprava", "data-lcd-opc-cislo": "3", text: T.doprava }), dopravaEl,
+      el(doc, "h2", { id: "lcd-opc-h-doprava", "data-lcd-opc-cislo": String(3 + (o.posun || 0)), text: T.doprava }), dopravaEl,
     ]),
     el(doc, "div", { class: "box box-sm box-bg-default co-box co-payment-method lcd-opc-box lcd-opc-karta" }, [
-      el(doc, "h2", { id: "lcd-opc-h-platba", "data-lcd-opc-cislo": "4", text: T.platba }), platbyEl, hlaska,
+      el(doc, "h2", { id: "lcd-opc-h-platba", "data-lcd-opc-cislo": String(4 + (o.posun || 0)), text: T.platba }), platbyEl, hlaska,
     ]),
   ]);
   nastavVolby(sek, volby);
@@ -554,12 +554,14 @@ function presunPred(co, pred) {
  * PSČ pred Mestom, pod adresou riadok „Štát · Zmeniť štát | Objednávam na firmu | (údaje firmy) | Doručiť na inú adresu“.
  * Opakované volanie nič nezmení.
  */
-export function pripravKarty(form, T) {
+export function pripravKarty(form, T, o) {
   const doc = form.ownerDocument;
   const kontakt = form.querySelector("fieldset.co-contact-information");
   const adresa = form.querySelector(".co-billing-address");
-  oznacKartu(kontakt, 1, T.kontakt);
-  oznacKartu(adresa, 2, T.adresa);
+  // jedna stránka: karta 1 = košík (opc/kosikKarta.js), ostatné o jedno ďalej
+  const posun = (o && o.posun) || 0;
+  oznacKartu(kontakt, 1 + posun, T.kontakt);
+  oznacKartu(adresa, 2 + posun, T.adresa);
   const dorucenie = form.querySelector("fieldset.co-shipping-address");
   if (dorucenie) dorucenie.classList.add("lcd-opc-karta", "lcd-opc-karta--bez-cisla");
   const login = kontakt && kontakt.querySelector("a.login-button");

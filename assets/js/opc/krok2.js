@@ -30,6 +30,7 @@ import * as K from "./kontrola.js";
 import * as B from "./banka.js";
 import { lcdBublinaMimoTlacidla, changeDescription } from "../components/cart.js";
 import { vymenaBezi } from "../lcdKosikDoplnok.js";
+import { initKosikKarta } from "./kosikKarta.js";
 
 /** Z čoho na kroku 2 bublina Luxie ustúpi okrem „Objednať“: tlačidlo v lište, polia, odkazy, zaškrtávacie polia a voľby. */
 /** Prvky kroku 2, z ktorých ustúpi bublina Luxie (cart.js lcdBublinaMimoTlacidla `dalsie`) — „Objednať“ len tu, nie v cart.js. */
@@ -110,7 +111,7 @@ export function initKrok2(ctx) {
   // Len vzhľad — chyba tu nič nezastaví (odoslanie, kontrola polí aj sekcia bežia ďalej bez neho).
   const obnovKarty = function () { try { V.obnovKarty(form, k2.sekcia); } catch (e) {} };
   try {
-    V.pripravKarty(form, T);
+    V.pripravKarty(form, T, { posun: ctx.jednaStranka ? 1 : 0 });
     form.addEventListener("input", obnovKarty);
     form.addEventListener("change", obnovKarty);
     // Shoptet označí zlé pole (js-error-field) až po svojej kontrole (telefón aj po overení na serveri)
@@ -131,6 +132,13 @@ export function initKrok2(ctx) {
     nic.setAttribute("aria-hidden", "true");
     nic.addEventListener("submit", function (e) { e.preventDefault(); });
     document.body.appendChild(nic);
+  }
+
+  // jedna stránka (Michal 31. 10. 2026): karta „Váš košík“ s ponukou k setu navrchu (opc/kosikKarta.js), kroky a zbalený
+  // súhrn preč (CSS html.lcd-opc-jedna). Len košík — chyba tu formulár, doprava, platba ani odoslanie nezastaví.
+  if (ctx.jednaStranka) {
+    H.classList.add("lcd-opc-jedna");
+    try { k2.kosik = initKosikKarta(ctx, { form: form, box: box, T: T, forma: V.FORM_NIC }); } catch (e) { k2.kosik = null; }
   }
 
   // miesto sekcie: za adresou (aj „Doručiť na inú adresu“), pred poznámkou a registráciou
@@ -695,7 +703,7 @@ export function initKrok2(ctx) {
       ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "banky-" + ((banky && !banky.ok && banky.typ) || (m.pisPodmienky ? "prazdne" : "podmienky")) });
     }
     const druh = V.druhKosika(info.polozky.map(function (p) { return p.nazov || p.text; }));
-    const sek = V.vykresliSekciu(document, m, T, { volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh),
+    const sek = V.vykresliSekciu(document, m, T, { posun: ctx.jednaStranka ? 1 : 0, volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh),
       banka: k2.banky ? { banka: k2.banky.banka, podmienky: m.pisPodmienky } : null });
     k2.sekcia = sek;
     nacitavam.replaceWith(sek);
@@ -859,7 +867,8 @@ export function initKrok2(ctx) {
     V.upravKroky(document.querySelector("ol.cart-header"), T);
     // krok 1 sa preskočil -> Späť vedie do košíka (Shoptet tam má /objednavka/krok-1/) a hovorí to
     const spat = document.querySelector("#checkoutSidebar .next-step-back");
-    if (spat) { spat.setAttribute("href", "/kosik/"); spat.textContent = T.spatKosik; }
+    // jedna stránka: košík je navrchu tejto stránky (/kosik/ by sem hneď vrátil) -> Späť do obchodu
+    if (spat) { spat.setAttribute("href", ctx.jednaStranka ? "/" : "/kosik/"); spat.textContent = ctx.jednaStranka ? T.spatObchod : T.spatKosik; }
     // štát v adrese: „Môžete zmeniť v predchádzajúcom kroku“ -> „Zmeniť štát“ (krok s krajinou zákazník nevidel), odkaz
     // na klasický krok 1 (tam je výber krajiny) ostáva
     form.querySelectorAll("em.helpNote").forEach(function (em) {
@@ -881,7 +890,7 @@ export function initKrok2(ctx) {
     if (!document.querySelector(".lcd-opc-upravit")) {
       const a = document.createElement("a");
       a.className = "lcd-opc-upravit";
-      a.href = "/kosik/";
+      a.href = ctx.jednaStranka && document.getElementById("lcd-opc-kosik") ? "#lcd-opc-kosik" : "/kosik/";
       a.textContent = T.upravitKosik;
       box.parentNode.insertBefore(a, box);
     }

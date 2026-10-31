@@ -12,7 +12,7 @@
 // (/objednavka/dekujeme/, SK aj /objednavka/dakujeme/ — opc/dakujeme.js, návrh 4 z 30. 10. 2026), SK 562035 aj CZ 581408.
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
-import { initKosik, vzhladKosika, zrusVzhladKosika } from "./kosik.js";
+import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam } from "./kosik.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
 import { zahodPreskocenie } from "./analytika.js";
@@ -28,6 +28,34 @@ export const PROJEKTY = { 562035: "sk", 581408: "cz" };
  * ide aj tak natívnym formulárom Shoptetu. Zmena kódu = nový odkaz pre Michala.
  */
 export const KOD = "31smw9h3gf";
+
+/**
+ * Jedna stránka (Michal 31. 10. 2026 „Sprav to takto“): pri zapnutom OPC sa samostatný košík preskočí a košík s ponukou
+ * k setu („Vybrať“, doplnok sa pripíše k produktu) je navrchu pokladne (opc/kosikKarta.js). false = košík -> pokladňa
+ * ako 30. 10. Vypínač bez nasadenia: data.json "opc_jedna": false (aj settings.opc_jedna).
+ */
+export const JEDNA_STRANKA = true;
+
+/** Jedna stránka v tomto prehliadači: OPC zapnuté (rovnaká brána ako initOpc) a nevypnutá v data.json. */
+export function jednaStranka(setupData) {
+  try {
+    const s = setupData || {};
+    if (!JEDNA_STRANKA || vypnuteVDatach(s)) return false;
+    if (s.opc_jedna === false || (s.settings && s.settings.opc_jedna === false)) return false;
+    return zapnuteSAdresou(window.location.search);
+  } catch (e) {
+    return false;
+  }
+}
+
+/** Košík sa preskočí (main.js: ponuka k setu sa v košíku nekreslí, kreslí sa až v pokladni). */
+export function preskocKosik(setupData) {
+  try {
+    return stranka() === "kosik" && !!PROJEKTY[String(getShoptetContext().projectId || "")] && jednaStranka(setupData);
+  } catch (e) {
+    return false;
+  }
+}
 
 /** Hodnota parametra opc z adresy ("" pri ?opc=), bez parametra null. */
 function parameter(search) {
@@ -111,6 +139,8 @@ export function vzhladKosikaSkoro(doc, search) {
     const trh = PROJEKTY[String(getShoptetContext().projectId || "")];
     if (!trh) return false;
     vzhladKosika(doc, TEXTY[trh]);
+    // jedna stránka: košík sa hneď preskočí (opc/kosik.js) — kým beží prechod, obsah košíka nevidno
+    if (JEDNA_STRANKA && doc.getElementById("continue-order-button")) prechadzam(doc, TEXTY[trh]);
     return true;
   } catch (e) {
     return false;
@@ -172,6 +202,7 @@ try { if (typeof document !== "undefined" && document.body) vzhladDakujemeSkoro(
 /** Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka, kroku 2 aj ďakovnej stránky späť. */
 function zrusSkoryVzhlad() {
   try { if (document.documentElement.classList.contains("lcd-opc-kosik")) zrusVzhladKosika(document); } catch (e) {}
+  try { zrusPrechadzam(document); } catch (e) {}
   try { if (document.documentElement.classList.contains("lcd-opc-caka")) document.documentElement.classList.remove("lcd-opc", "lcd-opc-caka"); } catch (e) {}
   try { zrusDakujemeSkoro(document); } catch (e) {}
 }
@@ -188,7 +219,8 @@ export function initOpc(setupData) {
     if (!kde) return null;
     const trh = PROJEKTY[String(getShoptetContext().projectId || "")];
     if (!trh) return null;
-    const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj };
+    const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj, jednaStranka: jednaStranka(setupData) };
+    if (kde === "kosik" && !ctx.jednaStranka) { try { zrusPrechadzam(document); } catch (e) {} }
     window.__lcdOpc = ctx; // ladenie + test (tools/test-opc.mjs)
     try {
       if (kde === "kosik") initKosik(ctx);

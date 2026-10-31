@@ -1355,6 +1355,47 @@ Lokálne vo vetve `opc-main-kandidat` (worktree `spt-luxuryCar-opc-main`), nič 
 - **Oprava (`dakujeme.js`):** `kandidatiPlatby()` nájde všetky tlačidlá platby (text celého tlačidla ≤ 40 znakov, alebo adresa brány); `odkazPlatby()` vráti tlačidlo LEN pri práve jednom kandidátovi s adresou (odkazy s rovnakou adresou raz). Dve rôzne tlačidlá alebo odkaz bez adresy (`#`, prázdny, `#fragment`, `javascript:`, bez `href`) = stránka Shoptetu. Adresa brány: shoptetpay.com len s cestou `/pay`, GoPay / Comgate / ThePay / GP webpay mimo úvodnej stránky, názov brány v ceste (blog, informácie) nie. Prevod a dobierka s tlačidlom platby = stránka Shoptetu. Zelený odkaz drží adresu Shoptetu (stredné tlačidlo, Ctrl + klik), bežný klik = klik na pôvodný odkaz (jeho skript beží ako pri tlačidle Shoptetu).
 - **Testy:** `test-opc-dakujeme.mjs` – odkaz bez adresy, informačný odkaz pred tlačidlom aj samotný, dve rôzne tlačidlá / rovnaká adresa 2×, karta s `href="#"`, prevod a dobierka s tlačidlom, klik a Ctrl + klik na zelený odkaz. Červené: 51fac93, kód: 800a7f5. 🟡 Fixtures sú stále rekonštrukcia – skutočné HTML ďakovnej stránky overí živý test F4.
 
+### 10.20 Jedna stránka – košík s ponukou „Vybrať“ navrchu pokladne (31. 10. 2026)
+
+Michal 31. 10. 2026 po náhľadoch `scratchpad/opc/nahlad-7/` (päť kompaktných návrhov, potom `navrh-vybrat-postup.png` a `navrh-box-po-tuknuti.png`): „Sprav to takto.“ Prekonáva rozhodnutie z 30. 10. ~23:20 (košík ostáva kvôli ponuke): ponuka je teraz v pokladni, takže samostatný košík netreba. Lokálne vo vetve `opc-jedna-stranka` (worktree `spt-luxuryCar-opc-main`, nad cb12c4c), nič nenasadené.
+
+**Čo zákazník s tajným odkazom uvidí:**
+- **Košík sa preskočí.** `/kosik/` hneď pošle Step1Validate s dopravou a platbou zo session a cez `location.replace` prejde na krok 2. Košík tak nie je v histórii a „Späť“ vedie tam, odkiaľ zákazník prišiel. Kým prechod beží, obsah košíka nevidno, je tam len „Načítavam…“ (najviac 10 s). Prázdny košík ostáva. Pri zlyhaní ide zákazník na klasický krok 1 ako doteraz.
+- **Krok 2: karta 1 „Váš košík“** so zelenou fajkou, pred Kontaktom (2), Adresou (3), Dopravou (4) a Platbou (5). Kroky navrchu a zbalený súhrn netreba, sú skryté. Karta obsahuje:
+  - položky s fotkou, cenou a rozpisom ako v košíku, s autom navrchu; kamión má hotový rozpis zo súhrnu;
+  - „− počet +“ a „Odobrať“;
+  - ponuku „Doplňte svoj set · za cenu v sete“: riadok s malou fotkou, cenou v sete, úsporou a zlatým „Vybrať“.
+- **Rohož:** „Vybrať“ ju pripíše hneď.
+- **Druhá vrstva:** „Vybrať“ otvorí výber farby. Odporúčaná Lux je zvolená vopred, pod ňou je 5 vzoriek, ďalšie sa ukážu po „+11 ďalších“. Nasleduje „Zvolená farba: Lux 10“ a „Pridať k setu · +147 €“.
+- **Box:** „Vybrať“ otvorí výber farby (vopred farba setu, s poznámkou „ako Vaše koberce“), počtu a veľkosti. Pri 2 boxoch sa vyberá veľkosť 1. aj 2. boxu. Tlačidlo je sivé a hovorí, čo chýba, kým nie je zvolená veľkosť. Cena dvoch boxov je skutočný rozdiel príplatkov (`zmena` + `rozdielCeny`), nie súčet cien samostatných boxov z náhľadu.
+- Otvorený je vždy len jeden výber. Kým je na telefóne otvorený, lišta „Celkom | Objednať“ je skrytá, aby neprekryla „Pridať k setu“.
+- **Po pridaní** je doplnok odrážkou pri produkte s krížikom: pri rohoži ×, pri boxe „× Odobrať“ (`vlozOdober`, ako v košíku). V ponuke už nie je. Pod produktom je „✓ … je pridaná k Vášmu setu.“, ktorá po 6 s zmizne.
+
+**Ako (kód):**
+- `opc/kosikKarta.js`, nový modul.
+- `lcdKosikDoplnok.js`:
+  - `pripravKontexty` je vyňaté zo `spusti`, košík ho používa bez zmeny správania;
+  - `kartaVybrat`, `obsahKosika`, `zmenPocetRiadku`, `vezmiHotovo`, `vlozKriziky` a háčik `nastavPredObnovou`.
+- Výmena riadku, kontroly ceny a textu aj zámok sú tie isté ako v košíku (`spustiVymenu`). Po výmene alebo po zmene počtu háčik uloží vyplnené údaje do `sessionStorage` (`lcdOpcFormular`, 30 min), potom ide cez `/kosik/` (znova Step1Validate) späť sem. Údaje sa vrátia len do prázdnych polí: najprv prepínače firma a iná adresa, súhlasy nie.
+- Vstupy karty majú `form="lcd-opc-nic"`. Zmena a vstup z karty nejdú do formulára objednávky, takže s objednávkou sa z karty nič neodošle.
+- **Vypínače:**
+  - `JEDNA_STRANKA` v `opc/index.js`;
+  - bez nasadenia `data.json "opc_jedna": false`, potom je to košík a pokladňa ako 30. 10.
+- Košík pri jednej stránke nekreslí ponuku (`initKosikDoplnok(…, { bezPonuky })`), hláška výmeny tak prežije do pokladne.
+
+**Testy:**
+- S60–S63 (`tools/test-opc/scenare-jedna.mjs`, SK set, 1366 aj 390):
+  - preskočenie, čísla kariet a nič z karty vo formulári;
+  - „+“ pošle `setCartItemAmount 2` a údaje sa vrátia;
+  - „Vybrať“ pri rohoži pošle `addCartItem`. Keď nový riadok nepribudne, ostane fail-closed s hláškou a nič sa nemaže;
+  - box: sivé tlačidlo, 2 boxy M + L, skrytá lišta a objednávka bez polí karty.
+- Podvrh dostal `GetCartContent`, `addCartItem`/`deleteCartItem`/`setCartItemAmount` (zapíšu sa) a stránky produktov z fixtúr testu ponuky v košíku. Ostatné scenáre bežia s `opc_jedna: false`.
+- 🟡 Ceny v testoch a na snímkach sú z fixtúr 7. a 10. 10. 2026. Naživo platí admin.
+
+**Otvorené:**
+- ❓ Či Shoptet po zmene košíka na kroku 2 ponechá krok 1 v session. Prechod cez `/kosik/` to obchádza za cenu jedného načítania navyše; overiť pri živom teste.
+- Zmena počtu kusov kamióna sa nerieši inak než pri iných položkách.
+
 ---
 
 ## 11. Živý dôkaz 28./29. 10. 2026

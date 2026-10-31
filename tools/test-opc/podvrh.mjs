@@ -47,6 +47,54 @@ import { KOREN } from "./build.mjs";
 import { FIXTURES } from "./zachytene.mjs";
 import { stranka as strankaDakujeme, VARIANTY as VARIANTY_DAKUJEME } from "./dakujeme-fixtures.mjs";
 
+// Jedna stránka (opc/kosikKarta.js): ponuka k setu potrebuje stránky produktov (mapa príplatkov, varianty druhej vrstvy,
+// ceny samostatných produktov). Fixtúry testu ponuky v košíku (tools/test-kosik-*.fixture.json, živé formuláre 7. a 10. 10.
+// 2026, žiadny kód Shoptetu) -> stránka s formulárom a necessaryVariantData ako tools/test-kosik-doplnok.mjs.
+const FIX_DOPLNOK = JSON.parse(readFileSync(join(KOREN, "tools/test-kosik-doplnok.fixture.json"), "utf8"));
+const FIX_VRSTVA = JSON.parse(readFileSync(join(KOREN, "tools/test-kosik-vrstva.fixture.json"), "utf8"));
+export function strankaProduktuPonuky(p, cena) {
+  const dph = p.lang === "cs" || p.lang === "cz" ? 1.21 : 1.23;
+  const sur = (o) => `<option value="${o[0]}" data-surcharge-final-price="${o[2]}" data-surcharge-additional-price="${o[3] != null ? o[3] : Math.round((o[2] / dph) * 100) / 100}">${o[1]}</option>`;
+  const kom = p.kom ? JSON.stringify(p.kom).replace(/\//g, "\\/") : null;
+  return `<!doctype html><html lang="${p.lang}"><head><meta charset="utf-8"><title>produkt (TEST)</title></head><body>` +
+    (cena ? `<meta itemprop="price" content="${cena}">` : "") +
+    `<form id="product-detail-form"><input type="hidden" name="productId" value="${p.pid}"><input type="hidden" name="priceId" value="${p.priceId}"><input type="hidden" name="language" value="${p.lang}">` +
+    (p.vsels || []).map((s) => `<select name="parameterValueId[${s.id}]" class="hidden-split-parameter" data-parameter-id="${s.id}" data-parameter-name="${s.n}"><option value="">Zvoľte variant</option>${s.o.map((o) => `<option value="${o[0]}">${o[1]}</option>`).join("")}</select>`).join("") +
+    (p.sels || []).map((s) => `<select name="surchargeParameterValueId[${s.id}]" data-parameter-id="${s.id}" data-parameter-name="${s.n}"><option value="">Vyberte príplatok</option>${s.o.map(sur).join("")}</select>`).join("") +
+    `</form>` + (kom ? `<script>\n    shoptet.variantsSplit = shoptet.variantsSplit || {};\n    shoptet.variantsSplit.necessaryVariantData = ${kom};\n</script>` : "") + `</body></html>`;
+}
+const PRODUKTY_PONUKY = {
+  sk: {
+    "/luxusne-autokoberce-dragonskin-diamond-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/basic-diamond"], 219),
+    "/luxusne-autokoberce-dragonskin-elite-diamond-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/elite-diamond"], 351),
+    "/luxusne-autokoberce-dragonskin-stripe-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/basic-stripe"], 219),
+    "/luxusne-autokoberce-dragonskin-elite-stripe-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/elite-stripe"], 351),
+    "/luxusny-boxi-do-kufra/": () => strankaProduktuPonuky(FIX_DOPLNOK["sk/luxusny-boxi-do-kufra/"], 197),
+    "/luxusny-koberced-do-kufra-dragonskin-klasik/": () => strankaProduktuPonuky({ pid: "1", priceId: "1", lang: "sk" }, 230),
+  },
+  cz: {
+    "/luxusne-autokoberce-dragonskin-diamond-line/": () => strankaProduktuPonuky(FIX_VRSTVA["cz/basic-diamond"], 5664),
+    "/luxusne-autokoberce-dragonskin-elite-diamond-line/": () => strankaProduktuPonuky(FIX_VRSTVA["cz/elite-diamond"], 8799),
+    "/luxusny-boxi-do-kufra/": () => strankaProduktuPonuky({ pid: "1", priceId: "1", lang: "cs" }, 4990),
+    "/luxusny-koberced-do-kufra-dragonskin-klasik/": () => strankaProduktuPonuky({ pid: "1", priceId: "1", lang: "cs" }, 5990),
+  },
+};
+/** Stránka produktu pre ponuku k setu (HTML) alebo null. */
+export function produktPonuky(web, cesta) {
+  const f = PRODUKTY_PONUKY[web] && PRODUKTY_PONUKY[web][cesta.replace(/\/?$/, "/")];
+  return f ? f() : null;
+}
+/** Tabuľka riadkov košíka (ako payload.content GetCartContent) z HTML stránky košíka. */
+const tabulky = new Map();
+export function tabulkaKosika(html) {
+  if (!html) return "";
+  if (!tabulky.has(html)) {
+    const t = new JSDOM(html).window.document.querySelector("table.cart-table");
+    tabulky.set(html, t ? t.outerHTML : "");
+  }
+  return tabulky.get(html);
+}
+
 export { FIXTURES }; // tools/test-opc/fixtures/ (nie je v gite, FIXTURES.md) alebo LCD_OPC_FIXTURES
 const CDN_DIR = join(FIXTURES, "cdn");
 const CDN_MANIFEST = join(CDN_DIR, "manifest.json");
@@ -271,7 +319,7 @@ export async function zapniPodvrh(k, moznosti) {
     zaznam: null,
   };
   p.reset = () => {
-    p.zaznam = { www: [], step1: [], step2: [], ajax: [], necakane: [], chybaCdn: [], blokovane: [], podvrhnute: [], dataJson: 0, doplnene: [] };
+    p.zaznam = { www: [], step1: [], step2: [], ajax: [], necakane: [], chybaCdn: [], blokovane: [], podvrhnute: [], dataJson: 0, doplnene: [], kosikAkcie: [] };
   };
   p.reset();
   // košík „dve“ = set + 2. položka (sDvomaPolozkami), HTML sa skladá z fixtures/sk-set; „vzorky3“ = vzorkovník webu
@@ -510,6 +558,21 @@ export async function zapniPodvrh(k, moznosti) {
       z.odpoved = "TEST-objednavka";
       return odpovedz(rq, 200, STRANKA_OBJEDNAVKA_TEST(W.jazyk), TYP[".html"]);
     }
+    // jedna stránka (opc/kosikKarta.js): obsah košíka (tabuľka riadkov z kosik.html; scenár obsahKosika(html) ho smie
+    // zmeniť), úpravy košíka (zapíšu sa do zaznam.kosikAkcie, odpoveď 200) a stránky produktov pre ponuku k setu
+    if (metoda === "GET" && /^\/action\/Cart\/GetCartContent\/?$/i.test(cesta)) {
+      z.odpoved = "obsah-kosika";
+      let t = tabulkaKosika(p.subor("kosik.html"));
+      if (typeof p.scenar.obsahKosika === "function") t = p.scenar.obsahKosika(t);
+      return odpovedz(rq, 200, json({ code: 200, message: null, messages: [], payload: { content: t } }), TYP[".json"]);
+    }
+    if (metoda === "POST" && /^\/action\/Cart\/(addCartItem|deleteCartItem|setCartItemAmount)\/?$/i.test(cesta)) {
+      p.zaznam.kosikAkcie.push({ cas: z.cas, akcia: cesta.split("/")[3], pole: pole() });
+      z.odpoved = "kosik-akcia";
+      return odpovedz(rq, 200, json({ code: 200, message: null, messages: [], payload: { cartItems: [] } }), TYP[".json"]);
+    }
+    const produkt = metoda === "GET" ? produktPonuky(p.web, cesta) : null;
+    if (produkt) { z.odpoved = "produkt-ponuky"; return stranka(rq, produkt); }
     z.odpoved = "404-necakane";
     p.zaznam.necakane.push(metoda + " " + cesta + u.search + " (" + rq.resourceType + ")");
     return odpovedz(rq, 404, "TEST: nečakaná požiadavka", "text/plain");
@@ -554,7 +617,9 @@ export async function zapniPodvrh(k, moznosti) {
           p.zaznam.dataJson++;
           if (Number(p.scenar.dataJsonMs) > 0) await new Promise((r) => setTimeout(r, Number(p.scenar.dataJsonMs))); // pomalá sieť (S44)
           const d = JSON.parse(citaj(join(FIXTURES, "data.json")));
-          const telo = p.scenar.dataJson ? { ...d, ...p.scenar.dataJson } : d;
+          // jedna stránka (košík preskočený, košík navrchu pokladne) len v scenároch s jedna: true — ostatné testujú
+          // košík -> pokladňu (ten istý kód, vypínač data.json "opc_jedna": false)
+          const telo = { ...d, ...(p.scenar.jedna ? {} : { opc_jedna: false }), ...(p.scenar.dataJson || {}) };
           return await odpovedz(rq, 200, JSON.stringify(telo), TYP[".json"]);
         }
         // doplnky iných autorov na CDN Shoptetu (API doplnky Jána Kučeru jkbase.js a ProductNote.js, webotvurci, sipky) —

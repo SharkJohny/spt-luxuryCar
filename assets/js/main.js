@@ -18,7 +18,7 @@ import { initKonfigurator1v } from "./components/konfigurator1v/index.js"; // no
 import { initCookies1v } from "./components/konfigurator1v/cookies.js"; // cookie lista v style C pre vsetkych: bublina Luxie + odkaz v pate (docs/1v-kontrakt.md §14)
 import { initAnimMimo } from "./functions/lcdAnimMimo.js"; // nekonečné animácie mimo obrazovky pozastavené (25. 10. 2026)
 import { initContactForm } from "./components/contactForm.js";
-import { initOpc } from "./opc/index.js"; // one page checkout: kosik -> rovno krok 2 (len po tajnom odkaze ?opc=<KOD>, kniha OPC 28. 10. 2026; bez flagu nic)
+import { initOpc, preskocKosik } from "./opc/index.js"; // one page checkout: kosik -> rovno krok 2 (len po tajnom odkaze ?opc=<KOD>, kniha OPC 28. 10. 2026; bez flagu nic)
 import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from "./functions/autoVyber.js";
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
 import "./configurator-enhance.js"; // Konfigurátor — best-seller badge na možnostiach
@@ -92,7 +92,8 @@ $.getJSON(optionData.downloadData, function (data) {
   console.log("setupData.language:", texts);
   // Ponuka rohože/boxu k setu v košíku: musí bežať PRED initProduct/initCart — na produkte si odloží mapu
   // príplatkov (len číta formulár), v košíku zachytí surový text príplatkov skôr, než ho cart.js prepíše.
-  initKosikDoplnok(setupData);
+  // jedna stránka pokladne (OPC len cez tajný odkaz): košík sa preskočí, ponuka k setu je až v pokladni (opc/kosikKarta.js)
+  initKosikDoplnok(setupData, { bezPonuky: preskocKosik(setupData) });
   initProduct(setupData, texts);
   initModelSelect(texts, setupData);
   poBoote(function () {

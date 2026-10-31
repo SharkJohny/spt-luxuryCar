@@ -839,3 +839,147 @@ html.lcd-opc .lcd-opc-banky__akcie button:focus-visible{outline:3px solid var(--
   html.lcd-opc .lcd-opc-banky__potvrdit{flex:1 1 auto}
 }
 @media (prefers-reduced-motion:reduce){html.lcd-opc .lcd-opc-banky__banka{transition:none}}
+
+/* ---------------------------------------------------------------- jedna stránka (Michal 31. 10. 2026 „Sprav to takto“)
+   Košík sa preskočí (opc/kosik.js), navrchu pokladne je karta „Váš košík“ s ponukou k setu (opc/kosikKarta.js,
+   lcdKosikDoplnok.js kartaVybrat) vo vzhľade náhľadu nahlad-7: zlaté „Vybrať“, pridaný doplnok = odrážka s krížikom. */
+/* košík počas prechodu do pokladne: obsah nevidno, len „Načítavam…“ */
+html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9) #content-wrapper{visibility:hidden}
+html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9)[data-lcd-opc-prechod]::after{content:attr(data-lcd-opc-prechod);position:fixed;left:0;right:0;top:38%;z-index:5;
+  text-align:center;font:600 17px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:#5f574a}
+/* pokladňa: kroky a zbalený súhrn navrchu netreba (košík je prvá karta) */
+html.lcd-opc.lcd-opc-jedna-karta body.in-krok-2 ol.cart-header,html.lcd-opc.lcd-opc-jedna-karta body.in-krok-2 .lcd-opc-zbalene{display:none !important}
+
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta{scroll-margin-top:12px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta > h2{margin-bottom:10px}
+html.lcd-opc body.in-krok-2 #lcd-doplnok.lcd-opc-kk__obsah{width:auto;min-height:72px;margin:0;padding:0;background:none;color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 #lcd-doplnok.lcd-opc-kk__obsah[aria-busy="true"]:empty::before{content:"";display:block;height:72px;border-radius:10px;
+  background:linear-gradient(90deg,#f4f1e8 0%,#faf8f2 50%,#f4f1e8 100%)}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozky{display:flex;flex-direction:column;gap:14px;margin:0;padding:0;list-style:none}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka{display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:12px;align-items:start;margin:0;padding:0}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka + .lcd-opc-kk__polozka{padding-top:14px;border-top:1px solid #efe9da}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__foto{display:block;width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--o-piesok)}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__telo{min-width:0}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__hore{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__nazov{min-width:0;font:700 16px/1.25 var(--o-disp);color:var(--o-ink);overflow-wrap:break-word}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__cena{flex:none;font:800 18px/1.25 var(--o-disp);color:var(--o-ink);white-space:nowrap}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis{margin:6px 0 0 !important}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li{font:400 15px/1.4 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-opc-kk__kamion{display:block;margin:6px 0 0}
+/* krížik pri pridanom doplnku (rohož: ×, box: × Odobrať) — ako v košíku */
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x{position:relative;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+  margin:-5px 0 -5px 6px;padding:0;vertical-align:middle;border:1px solid var(--o-linka);border-radius:50%;background:#fff;color:var(--o-tlm);cursor:pointer;
+  font:400 18px/1 Arial,sans-serif}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x::after{content:"";position:absolute;inset:-8px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x i{font-style:normal;line-height:1}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x--text{width:auto;gap:4px;padding:0 10px 0 8px;border-radius:999px;font:600 14px/1 var(--o-body)}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x--text::after{inset:-4px -6px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x--text i{font:400 16px/1 Arial,sans-serif}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x:hover{border-color:#9b1c1c;background:#fbeaea;color:#9b1c1c}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x:focus-visible{outline:2px solid var(--o-gold-lo);outline-offset:2px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x[disabled]{opacity:.5;cursor:default}
+/* − počet + a Odobrať */
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__ovl{display:flex;align-items:center;gap:16px;margin-top:10px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__pocet{display:inline-flex;align-items:center;height:38px;border:1px solid var(--o-linka);border-radius:999px;background:#fff}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__krok{display:grid;place-items:center;width:40px;height:38px;margin:0;padding:0;border:0;border-radius:999px;background:none;
+  font:400 20px/1 var(--o-body);color:var(--o-ink);cursor:pointer}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__krok[disabled]{color:#c9c2b0;cursor:default}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__krok:focus-visible,html.lcd-opc body.in-krok-2 .lcd-opc-kk__odobrat:focus-visible{outline:2px solid var(--o-gold-lo);outline-offset:2px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__pocet output{min-width:20px;text-align:center;font:600 16px/1 var(--o-body);color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__odobrat{min-height:32px;margin:0;padding:0;border:0;background:none;font:400 15px/1.3 var(--o-body);color:var(--o-tlm);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__odobrat[disabled]{opacity:.5;cursor:default}
+html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-opc-kk__stav{margin:10px 0 0;font:600 15px/1.4 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-opc-kk__stav.lcd-dop__stav--chyba{color:var(--o-zle)}
+html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-opc-kk__stav:empty{display:none}
+/* „✓ Druhá vrstva … je pridaná k Vášmu setu.“ — po chvíli zmizne */
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__hlaska{margin:12px 0 0;padding:9px 12px;border-radius:10px;background:var(--o-ok-bg);font:600 15px/1.35 var(--o-body);color:var(--o-ok-lo);
+  transition:opacity .35s}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__hlaska--chyba{background:var(--o-zle-bg);color:var(--o-zle)}
+html.lcd-opc body.in-krok-2 .lcd-opc-kk__hlaska.je-prec{opacity:0}
+
+/* ponuka „Doplňte svoj set“ s „Vybrať“ */
+html.lcd-opc body.in-krok-2 .lcd-vyb{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--o-karta)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__hlava{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 2px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__nadpis{margin:0;padding:0;font:700 16px/1.25 var(--o-disp);letter-spacing:0;text-transform:none;color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__pod{font:400 14px/1.3 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__kset{margin:2px 0 4px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__zoznam{margin:0;padding:0;list-style:none}
+html.lcd-opc body.in-krok-2 .lcd-vyb__riadok{margin:0;padding:10px 0;border-top:1px solid #efe9da}
+html.lcd-opc body.in-krok-2 .lcd-vyb__riadok:first-child{border-top:0}
+html.lcd-opc body.in-krok-2 .lcd-vyb__riadok.je-otvorena{margin:4px -8px;padding:10px 8px 12px;border:1px solid #e3c977;border-radius:12px;background:#fdfaf1}
+html.lcd-opc body.in-krok-2 .lcd-vyb__riadok.je-otvorena + .lcd-vyb__riadok{border-top:0}
+html.lcd-opc body.in-krok-2 .lcd-vyb__pas{display:grid;grid-template-columns:48px minmax(0,1fr) auto;column-gap:12px;align-items:center}
+html.lcd-opc body.in-krok-2 .lcd-vyb__mini{display:block;width:48px;height:48px;border-radius:8px;object-fit:cover;background:var(--o-piesok)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__text{min-width:0}
+html.lcd-opc body.in-krok-2 .lcd-vyb__meno{display:block}
+html.lcd-opc body.in-krok-2 .lcd-vyb__meno b{font:700 16px/1.25 var(--o-disp);color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__odp{display:inline-block;margin-left:6px;padding:2px 7px 1px;border-radius:999px;background:linear-gradient(135deg,#ecd07a,#c49b31);
+  vertical-align:2px;font:700 12px/1.3 var(--o-disp);letter-spacing:.06em;text-transform:uppercase;color:#14110c}
+html.lcd-opc body.in-krok-2 .lcd-vyb__cena{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__cena b{font:800 15px/1 var(--o-disp);color:var(--o-ink);white-space:nowrap}
+html.lcd-opc body.in-krok-2 .lcd-vyb__btn{display:inline-flex;align-items:center;justify-content:center;min-width:88px;min-height:42px;margin:0;padding:0 16px;border:0;
+  border-radius:999px;background:linear-gradient(180deg,#ecd07a 0%,#c49b31 100%);box-shadow:0 4px 10px rgba(196,155,49,.22),inset 0 1px 0 rgba(255,255,255,.4);
+  font:700 15px/1 var(--o-disp);letter-spacing:.02em;color:#14110c;white-space:nowrap;cursor:pointer}
+html.lcd-opc body.in-krok-2 .lcd-vyb__btn--zavriet{border:1px solid var(--o-linka);background:#fff;box-shadow:none;color:var(--o-tlm);font-weight:600}
+html.lcd-opc body.in-krok-2 .lcd-vyb__btn:focus-visible,html.lcd-opc body.in-krok-2 .lcd-vyb__pridat:focus-visible,
+html.lcd-opc body.in-krok-2 .lcd-vyb__dalsie:focus-visible{outline:2px solid var(--o-gold-lo);outline-offset:2px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__btn[disabled],html.lcd-opc body.in-krok-2 .lcd-vyb__pridat[disabled]{opacity:.45;box-shadow:none;cursor:default}
+/* výber pod riadkom */
+html.lcd-opc body.in-krok-2 .lcd-vyb__panel{margin-top:10px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__panel[hidden]{display:none}
+html.lcd-opc body.in-krok-2 .lcd-vyb__fs{min-width:0;margin:12px 0 0;padding:0;border:0}
+html.lcd-opc body.in-krok-2 .lcd-vyb__fs:first-child{margin-top:0}
+html.lcd-opc body.in-krok-2 .lcd-vyb__fs[hidden]{display:none}
+html.lcd-opc body.in-krok-2 .lcd-vyb__fs > legend{display:block;float:none;width:auto;margin:0 0 8px;padding:0;border:0;font:600 15px/1.3 var(--o-body);
+  letter-spacing:0;text-transform:none;color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__farby{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__farby--box{grid-template-columns:repeat(5,minmax(0,1fr))}
+html.lcd-opc body.in-krok-2 .lcd-vyb__vz{position:relative;display:block;margin:0;padding:0;aspect-ratio:1;max-width:100%;border-radius:8px;cursor:pointer}
+html.lcd-opc body.in-krok-2 .lcd-vyb__vz[hidden]{display:none}
+html.lcd-opc body.in-krok-2 .lcd-vyb__obr{position:relative;display:block;width:100%;height:100%;border-radius:8px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__obr img{display:block;width:100%;height:100%;border-radius:8px;object-fit:cover;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+/* rádio cez celú dlaždicu (ťuk aj klávesnica); Shoptet rádiá vo formulári orezáva clip:rect(0 0 0 0) -> späť */
+html.lcd-opc body.in-krok-2 :is(.lcd-vyb__vz,.lcd-vyb__dl) > input{position:absolute;inset:0;z-index:1;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;clip:auto !important;clip-path:none !important}
+html.lcd-opc body.in-krok-2 .lcd-vyb__vz > input:checked + .lcd-vyb__obr{box-shadow:0 0 0 3px var(--o-ok-hi)}
+html.lcd-opc body.in-krok-2 :is(.lcd-vyb__vz,.lcd-vyb__dl) > input:focus-visible + span{outline:2px solid var(--o-gold-lo);outline-offset:3px}
+html.lcd-opc body.in-krok-2 :is(.lcd-vyb__vz,.lcd-vyb__dl) > input:checked + span::after{content:"";position:absolute;right:-6px;top:-6px;width:20px;height:20px;border-radius:50%;
+  background:var(--o-fajka) center/13px no-repeat,var(--o-zelena);box-shadow:0 0 0 2px #fff;pointer-events:none}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dalsie{display:grid;place-items:center;aspect-ratio:1;max-width:100%;margin:0;padding:2px;border:1px dashed #d8bd6a;border-radius:8px;
+  background:#fff;font:600 14px/1.1 var(--o-body);color:var(--o-gold-t);text-align:center;cursor:pointer}
+html.lcd-opc body.in-krok-2 .lcd-vyb__zvolena{margin:10px 0 0;font:400 15px/1.35 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__zvolena b{font-weight:700;color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__zvolena:empty{display:none}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dlazdice{display:grid;gap:8px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dlazdice--2{grid-template-columns:1fr 1fr}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dlazdice--4{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dl{position:relative;display:block;margin:0;padding:0;cursor:pointer}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dl > span{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;padding:7px 2px;
+  box-sizing:border-box;border:1px solid var(--o-pole);border-radius:10px;background:#fff;text-align:center}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dl > input:checked + span{border-color:transparent;background:var(--o-ok-bg);box-shadow:0 0 0 3px var(--o-ok-hi)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dl b{display:block;font:700 17px/1.15 var(--o-disp);color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dlazdice--2 .lcd-vyb__dl b{font-size:16px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dl small{display:block;font:400 12px/1.2 var(--o-body);color:var(--o-tlm);white-space:nowrap}
+html.lcd-opc body.in-krok-2 .lcd-vyb__dl em{display:block;font:800 14px/1.2 var(--o-disp);font-style:normal;color:var(--o-ink)}
+html.lcd-opc body.in-krok-2 .lcd-vyb__pridat{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin:12px 0 0;padding:0 14px;border:0;
+  border-radius:999px;background:linear-gradient(180deg,#ecd07a 0%,#c49b31 100%);box-shadow:0 4px 10px rgba(196,155,49,.25);
+  font:800 16px/1.2 var(--o-disp);letter-spacing:.02em;color:#14110c;text-align:center;cursor:pointer}
+html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav{margin:8px 0 0;font:600 15px/1.4 var(--o-body);color:var(--o-tlm)}
+html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav.lcd-dop__stav--chyba{color:var(--o-zle)}
+html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav:empty{display:none}
+/* telefón: otvorený výber doplnku — lišta „Celkom | Objednať“ by prekryla „Pridať k setu“ (kartaVybrat prepni) */
+@media (max-width:991px){html.lcd-opc.lcd-vyb-otvorene .lcd-opc-lista{display:none !important}}
+@media (max-width:359px){
+  html.lcd-opc body.in-krok-2 .lcd-vyb__pas{grid-template-columns:40px minmax(0,1fr) auto;column-gap:10px}
+  html.lcd-opc body.in-krok-2 .lcd-vyb__mini{width:40px;height:40px}
+  html.lcd-opc body.in-krok-2 .lcd-vyb__btn{min-width:0;padding:0 12px}
+  html.lcd-opc body.in-krok-2 .lcd-vyb__dl small{font-size:11px}
+}
+@media (min-width:992px){
+  html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka{grid-template-columns:80px minmax(0,1fr);column-gap:16px}
+  html.lcd-opc body.in-krok-2 .lcd-opc-kk__foto{width:80px;height:80px}
+  html.lcd-opc body.in-krok-2 .lcd-vyb__farby{grid-template-columns:repeat(8,minmax(0,1fr))}
+  html.lcd-opc body.in-krok-2 .lcd-vyb__farby--box{grid-template-columns:repeat(9,minmax(0,1fr))}
+  html.lcd-opc body.in-krok-2 .lcd-vyb__panel{max-width:560px}
+}
+@media (prefers-reduced-motion:reduce){html.lcd-opc body.in-krok-2 .lcd-opc-kk__hlaska{transition:none}}

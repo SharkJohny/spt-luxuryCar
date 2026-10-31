@@ -33,9 +33,10 @@ import { SCENARE as SPRAVANIE } from "./test-opc/scenare-spravanie.mjs";
 import { SCENARE as DIZAJN } from "./test-opc/scenare-dizajn.mjs";
 import { SCENARE as BANKA } from "./test-opc/scenare-banka.mjs";
 import { SCENARE as DAKUJEME } from "./test-opc/scenare-dakujeme.mjs";
+import { SCENARE as JEDNA } from "./test-opc/scenare-jedna.mjs";
 
 // poradie výpisu podľa čísla scenára (kniha § 7.6)
-const SCENARE = Object.fromEntries(Object.entries({ ...ZAKLAD, ...KROK2, ...KOSIKY, ...REVIZIA, ...DOKAZ, ...SPRAVANIE, ...DIZAJN, ...BANKA, ...DAKUJEME })
+const SCENARE = Object.fromEntries(Object.entries({ ...ZAKLAD, ...KROK2, ...KOSIKY, ...REVIZIA, ...DOKAZ, ...SPRAVANIE, ...DIZAJN, ...BANKA, ...DAKUJEME, ...JEDNA })
   .sort((a, b) => parseInt(a[0].slice(1), 10) - parseInt(b[0].slice(1), 10) || a[0].localeCompare(b[0])));
 
 class ChybaPouzitia extends Error {}
