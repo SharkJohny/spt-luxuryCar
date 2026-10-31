@@ -4,7 +4,7 @@
 // a CSRF (opc/sync.js), rozpoznanie odkazu na krok 1 (opc/kosik.js), súhrn Shoptetu a stavový stroj zmeny platby
 // (opc/sync.js: suhrnInfo, volbaZoSuhrnu, vytvorSync — debounce, 1 súbežná, pokus, overenie), vzhľad sekcie
 // (opc/vzhlad.js: poradie platieb, termín doručenia, ceny, sekcia Doprava a platba nad zachyteným krokom 1), položky súhrnu
-// (opc/polozky.js: fotka, zobáčik, rozpis z košíka v karte detailu, S42).
+// (opc/polozky.js: fotka, rozpis z košíka pod názvom, „Zobraziť viac“ A1, S42).
 //   node tools/test-opc-jednotky.mjs
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -1101,17 +1101,31 @@ function suhrnSRozpisom(riadky = ROZPIS_1V) {
   return { d, box, ul };
 }
 
-/** Karta detailu = len natívny rozpis košíka, nezmenený (náhľad 5): rovnaké riadky, žiadne pridané prvky, guličky ani obrázky. */
+/** Značka A1 (Michal 30. 10. 2026) na riadku rozpisu, ktorý sa ukáže až po „Zobraziť viac“. Inak sa rozpis nemení. */
+const DALSI = "lcd-opc-dalsi";
+const bezZnaciek = (html) => html.replace(/ class="lcd-opc-dalsi"/g, "").replace(/ ?\blcd-opc-dalsi\b/g, "").replace(/ class=""/g, "");
+/** Riadky rozpisu (li; pri kamióne „dt: dd“), ktoré sú vidno hneď (dalsi = false) alebo až po „Zobraziť viac“ (dalsi = true). */
+const riadkyA1 = (koren, dalsi) => Array.prototype.filter.call(koren.querySelectorAll("li, dt"), (e) => !!e.closest("." + DALSI) === dalsi)
+  .map((e) => (e.tagName === "DT" ? e.textContent + ": " + (e.nextElementSibling ? e.nextElementSibling.textContent : "") : e.textContent).replace(/\s+/g, " ").trim());
+const hnedVidno = (k) => riadkyA1(k, false), poViac = (k) => riadkyA1(k, true);
+
+/** Karta detailu = len natívny rozpis košíka (náhľad 5), od A1 vždy viditeľná pod názvom (bez [hidden]); v rozpise pribudne
+ *  len značka lcd-opc-dalsi na riadkoch „až po Zobraziť viac“ — inak bez zmeny, rovnaké riadky, nič pridané. */
 function overDetailJeRozpis(det, rozpis, rozpisPred, riadkyKosika, kde) {
   over_(det.contains(rozpis), kde + ": natívny rozpis nie je v karte detailu");
-  eq([det.children.length, det.firstElementChild === rozpis], [1, true], kde + ": v karte je okrem natívneho rozpisu aj niečo iné: " + det.innerHTML.slice(0, 160));
-  eq(rozpis.outerHTML === rozpisPred, true, kde + ": rozpis košíka sa v karte zmenil (prepísané riadky, značky): " + rozpis.outerHTML.slice(0, 200));
+  eq([det.children.length, det.firstElementChild === rozpis, det.hidden, det.hasAttribute("hidden")], [1, true, false, false], kde + ": karta detailu = len natívny rozpis, viditeľná: " + det.outerHTML.slice(0, 160));
+  eq(bezZnaciek(rozpis.outerHTML) === rozpisPred, true, kde + ": rozpis košíka sa v karte zmenil (okrem značky lcd-opc-dalsi): " + rozpis.outerHTML.slice(0, 200));
   eq(textyLi(det), riadkyKosika, kde + ": riadky karty ≠ riadky rozpisu košíka");
-  eq(det.querySelectorAll("img, .lcd-opc-bodka, .lcd-opc-nesedi, .lcd-opc-detail__navyse, a").length, 0, kde + ": obrázok, gulička, počet / cena alebo odkaz v karte");
+  eq(det.querySelectorAll("img, .lcd-opc-bodka, .lcd-opc-nesedi, .lcd-opc-detail__navyse, a, button").length, 0, kde + ": obrázok, gulička, počet / cena, odkaz alebo tlačidlo v karte");
   over_(!/Počet|Cena|nesedí|Upravi[tť] v košíku/.test(det.textContent), kde + ": v karte je Počet / Cena / „Niečo nesedí“: " + det.textContent.replace(/\s+/g, " ").slice(0, 160));
 }
 
-t("polozky: súhrn — fotka, zobáčik (button, aria), karta detailu = natívny rozpis košíka PRESUNUTÝ bez zmeny (náhľad 5: bez guličiek, počtu, ceny a „Niečo nesedí“)", () => {
+t("texty A1: „Zobraziť viac“ / „Zobraziť menej“ (CZ „Zobrazit více“ / „Zobrazit méně“) bez počtu skrytých; „Zobraziť detail“ / „Skryť detail“ preč", () => {
+  eq([TS.zobrazitViac, TS.zobrazitMenej, TC.zobrazitViac, TC.zobrazitMenej], ["Zobraziť viac", "Zobraziť menej", "Zobrazit více", "Zobrazit méně"]);
+  for (const web of ["sk", "cz"]) eq(["zobrazitDetail", "skrytDetail"].filter((k) => k in TEXTY[web]), [], web + ": staré texty zobáčika");
+});
+
+t("polozky A1: set 1v — pod názvom hneď Auto a Farba 1. vrstvy, Rozloženie až po „Zobraziť viac“ (button bez počtu, aria-expanded, aria-controls na kartu), „Zobraziť menej“ zbalí; fotka a súhrn Shoptetu bez zmeny", () => {
   const { d, box, ul } = suhrnSRozpisom();
   const rozpisPred = ul.outerHTML, riadkyKosika = textyLi(ul);
   eq(riadkyKosika, ["Auto: Skoda Octavia 2021 Combi", "Farba 1. vrstvy: Diamond Farba kože: Čierna / Farba šitia: Červená", "Rozloženie kobercov: prvý a druhý rad"], "rozpis košíka (fixture)");
@@ -1123,51 +1137,84 @@ t("polozky: súhrn — fotka, zobáčik (button, aria), karta detailu = natívny
   const p = box.querySelector(".cart-item");
   const img = p.querySelector(":scope > img.lcd-opc-foto");
   eq([img.getAttribute("src"), img.getAttribute("width"), img.getAttribute("height"), img.getAttribute("alt"), p.firstElementChild === img], [foto, "60", "60", "", true], "fotka");
-  const z = p.querySelector(":scope > button.lcd-opc-zob"), det = d.getElementById(z.getAttribute("aria-controls"));
-  eq([z.getAttribute("type"), z.getAttribute("aria-expanded"), z.textContent, det.hidden, p.contains(det)], ["button", "false", "Zobraziť detail", true, true], "zbalené");
+  const det = p.querySelector(":scope > div.lcd-opc-detail"), z = p.querySelector(":scope > button.lcd-opc-zob");
+  over_(det && z, "chýba karta detailu alebo tlačidlo „Zobraziť viac“");
+  eq([z.getAttribute("type"), z.getAttribute("aria-expanded"), z.getAttribute("aria-controls"), z.textContent, p.classList.contains("lcd-opc-otvorena")],
+    ["button", "false", det.id, "Zobraziť viac", false], "zbalené");
+  over_(det.compareDocumentPosition(z) & 4, "tlačidlo nie je pod rozpisom (poradie v DOM = poradie čítania)");
+  eq(hnedVidno(det), ["Auto: Skoda Octavia 2021 Combi", "Farba 1. vrstvy: Diamond Farba kože: Čierna / Farba šitia: Červená"], "hneď vidno");
+  eq(poViac(det), ["Rozloženie kobercov: prvý a druhý rad"], "až po „Zobraziť viac“");
   over_(!p.querySelector(".cart-item-name ul.lcd-rozpis"), "natívny ul.lcd-rozpis ostal aj pod názvom (kópia, nie presun)");
   eq(d.querySelectorAll("ul.lcd-rozpis").length, 1, "rozpis jeden");
   overDetailJeRozpis(det, ul, rozpisPred, riadkyKosika, "set 1v");
-  // obsah a čísla súhrnu Shoptetu sa nemenia; názov len veľkým začiatočným písmenom (doladenie 2: WebKit ::first-letter
-  // na -webkit-box nezväčší, Safari ukazovalo „luxusné…“)
+  // obsah a čísla súhrnu Shoptetu sa nemenia; názov len veľkým začiatočným písmenom (doladenie 2)
   eq({ nazov: box.querySelector(".cart-item a.main-link").textContent, ks: box.querySelector(".cart-item-amount").textContent,
     cena: box.querySelector(".cart-item-price").textContent, celkom: box.querySelector('[data-testid="recapFullPrice"]').textContent },
     Object.assign({}, pred, { nazov: pred.nazov.replace(/\S/, (c) => c.toLocaleUpperCase("sk")) }), "súhrn Shoptetu bez zmeny okrem veľkého začiatočného písmena");
-  // prepnutie a zapamätaný stav
+  // „Zobraziť viac“ -> „Zobraziť menej“: položka rozbalená (CSS ukáže riadky lcd-opc-dalsi a celý názov)
   eq(P.prepniDetail(z.querySelector(".lcd-opc-zob__text"), box, TS, otvorene), true);
-  eq([z.getAttribute("aria-expanded"), z.textContent, det.hidden], ["true", "Skryť detail", false], "rozbalené");
-  eq(P.prepniDetail(box.querySelector(".cart-item-price"), box, TS, otvorene), null, "klik mimo zobáčika nič");
+  eq([z.getAttribute("aria-expanded"), z.textContent, det.hidden, p.classList.contains("lcd-opc-otvorena")], ["true", "Zobraziť menej", false, true], "rozbalené");
+  eq(P.prepniDetail(box.querySelector(".cart-item-price"), box, TS, otvorene), null, "klik mimo tlačidla nič");
   // opakované volanie (prekreslenie): nič sa nezdvojí, stav ostane, rozpis sa nezmení
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene });
-  eq([p.querySelectorAll(".lcd-opc-zob").length, p.querySelectorAll(".lcd-opc-foto").length, p.querySelectorAll(".lcd-opc-detail").length, z.getAttribute("aria-expanded")], [1, 1, 1, "true"]);
+  eq([p.querySelectorAll(".lcd-opc-zob").length, p.querySelectorAll(".lcd-opc-foto").length, p.querySelectorAll(".lcd-opc-detail").length, z.getAttribute("aria-expanded"), z.textContent],
+    [1, 1, 1, "true", "Zobraziť menej"]);
+  eq([hnedVidno(det).length, poViac(det).length], [2, 1], "značky po opakovanom volaní");
   overDetailJeRozpis(det, ul, rozpisPred, riadkyKosika, "set 1v po opakovanom volaní");
   // nový HTML zo servera s uloženým stavom (innerHTML = potvrdený súhrn): stav sa vráti, poslucháč netreba (delegovaný)
   const html = box.innerHTML;
   box.innerHTML = html;
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
-  eq(box.querySelector(".lcd-opc-zob").getAttribute("aria-expanded"), "false", "bez zapamätaného stavu zbalené");
+  eq([box.querySelector(".lcd-opc-zob").getAttribute("aria-expanded"), box.querySelector(".lcd-opc-zob").textContent, box.querySelector(".cart-item").classList.contains("lcd-opc-otvorena")],
+    ["false", "Zobraziť viac", false], "bez zapamätaného stavu zbalené");
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene });
   eq([box.querySelector(".lcd-opc-zob").getAttribute("aria-expanded"), d.getElementById("lcd-opc-detail-1").hidden], ["true", false], "zapamätaný stav po prekreslení");
   eq(textyLi(d.getElementById("lcd-opc-detail-1")), riadkyKosika, "riadky karty po prekreslení");
+  eq(P.prepniDetail(box.querySelector(".lcd-opc-zob"), box, TS, otvorene), false, "„Zobraziť menej“ zbalí");
+  eq([box.querySelector(".lcd-opc-zob").textContent, box.querySelector(".cart-item").classList.contains("lcd-opc-otvorena"), otvorene["6c240b96-513f-11f0-b348-4e595e8a4f93#0"]],
+    ["Zobraziť viac", false, false], "zbalené a zapamätané");
 });
 
-t("polozky: dvojvrstvový set — riadok „Farba 2. vrstvy: Lux Color 10“ v karte presne ako v košíku (nie „Druhá vrstva“)", () => {
+t("polozky A1: set 2v — hneď Auto, Farba 1. a Farba 2. vrstvy („Farba 2. vrstvy: Lux Color 10“ ako v košíku), Rozloženie až po „Zobraziť viac“", () => {
   const { box, ul } = suhrnSRozpisom(ROZPIS_2V);
   const rozpisPred = ul.outerHTML, riadkyKosika = textyLi(ul);
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
-  const p = box.querySelector(".cart-item");
-  eq([p.classList.contains("lcd-opc-s-fotkou"), !!p.querySelector(":scope > .lcd-opc-zob")], [false, true], "bez fotky, so zobáčikom");
-  overDetailJeRozpis(p.querySelector(":scope > .lcd-opc-detail"), ul, rozpisPred, riadkyKosika, "set 2v");
-  eq(textyLi(p.querySelector(".lcd-opc-detail"))[2], "Farba 2. vrstvy: Lux Color 10", "druhá vrstva");
+  const p = box.querySelector(".cart-item"), det = p.querySelector(":scope > .lcd-opc-detail");
+  eq([p.classList.contains("lcd-opc-s-fotkou"), !!p.querySelector(":scope > .lcd-opc-zob")], [false, true], "bez fotky, s tlačidlom");
+  overDetailJeRozpis(det, ul, rozpisPred, riadkyKosika, "set 2v");
+  eq(hnedVidno(det), ["Auto: Skoda Octavia 2021 Combi", "Farba 1. vrstvy: Diamond Farba kože: Čierna / Farba šitia: Červená", "Farba 2. vrstvy: Lux Color 10"], "hneď vidno");
+  eq(poViac(det), ["Rozloženie kobercov: prvý a druhý rad"], "až po „Zobraziť viac“");
 });
 
-t("polozky: CZ texty; položka bez rozpisu nemá zobáčik ani kartu, rozpis doplnený neskôr (cart.js) ich pri ďalšom volaní dostane", () => {
+t("polozky A1: hneď vidno podľa názvu riadku, nie podľa poradia (Rozloženie navrchu, riadok bez názvu); CZ „Barva 1./2. vrstvy“", () => {
+  const { box } = suhrnSRozpisom([["Rozloženie kobercov", "prvý a druhý rad"], ["Auto", "Skoda Octavia 2021 Combi"], ["Farba 1. vrstvy", "Diamond Čierna"]]);
+  P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
+  const det = box.querySelector(".lcd-opc-detail");
+  eq([hnedVidno(det), poViac(det)], [["Auto: Skoda Octavia 2021 Combi", "Farba 1. vrstvy: Diamond Čierna"], ["Rozloženie kobercov: prvý a druhý rad"]], "SK");
+  const w = new JSDOM(fx("cz/krok2.html"), { url: "https://www.luxurycardesign.cz/objednavka/krok-2/" }).window;
+  const bc = w.document.getElementById("summary-box"), pc = bc.querySelector(".cart-item");
+  const ul = w.document.createElement("ul");
+  ul.className = "lcd-rozpis";
+  ul.innerHTML = [["Auto", "Škoda Octavia 2021 Combi"], ["Barva 1. vrstvy", "Diamond Černá"], ["Barva 2. vrstvy", "Lux Color 10"], ["Rozložení koberců", "první a druhá řada"]]
+    .map(([n, h]) => '<li><span class="lcd-rozpis__n">' + n + ': </span><span class="lcd-rozpis__h">' + h + "</span></li>").join("");
+  pc.querySelector("a.main-link").after(ul);
+  const li0 = w.document.createElement("li");
+  li0.innerHTML = '<span class="lcd-rozpis__h">Combi</span>'; // zvyšok variantu bez názvu (kosikRozpis.js lcdRozpis)
+  ul.insertBefore(li0, ul.firstChild);
+  P.rozsirPolozky(bc, TC, { fotky: {}, otvorene: {} });
+  const dc = bc.querySelector(".lcd-opc-detail");
+  eq(hnedVidno(dc), ["Auto: Škoda Octavia 2021 Combi", "Barva 1. vrstvy: Diamond Černá", "Barva 2. vrstvy: Lux Color 10"], "CZ hneď vidno");
+  eq(poViac(dc), ["Combi", "Rozložení koberců: první a druhá řada"], "CZ až po „Zobrazit více“");
+  eq(bc.querySelector(".lcd-opc-zob").textContent, "Zobrazit více", "CZ tlačidlo");
+});
+
+t("polozky A1: CZ vzorkovník — 1 vzorka bez tlačidla (nič sa neskrýva), 3 vzorky = prvé 2 hneď + „Zobrazit více“; späť na 2 = tlačidlo preč; položka bez rozpisu nič", () => {
   const w = new JSDOM(fx("cz/krok2.html"), { url: "https://www.luxurycardesign.cz/objednavka/krok-2/" }).window;
   const d = w.document, box = d.getElementById("summary-box");
   eq(P.rozsirPolozky(box, TC, { fotky: {}, otvorene: {} }), 1);
   const p = box.querySelector(".cart-item");
   eq([!!p.querySelector(".lcd-opc-foto"), p.classList.contains("lcd-opc-s-fotkou"), p.querySelectorAll(".lcd-opc-zob, .lcd-opc-detail").length, p.classList.contains("lcd-opc-otvorena")],
-    [false, false, 0, false], "bez rozpisu: bez fotky, zobáčika a karty");
+    [false, false, 0, false], "bez rozpisu: bez fotky, tlačidla a karty");
   P.rozsirPolozky(box, TC, { fotky: {}, otvorene: {} });
   eq(p.querySelectorAll(".lcd-opc-zob, .lcd-opc-detail").length, 0, "opakované volanie bez rozpisu nič nepridá");
   // vzorkovník CZ: rozpis ako po cart.js (lcdRozpis z príplatku „Vzorek 2. vrstva – Lux Color 01 (LUX-01) - Ano“)
@@ -1177,41 +1224,135 @@ t("polozky: CZ texty; položka bez rozpisu nemá zobáčik ani kartu, rozpis dop
   p.querySelector("a.main-link").after(ul);
   const rozpisPred = ul.outerHTML, riadkyKosika = textyLi(ul);
   P.rozsirPolozky(box, TC, { fotky: {}, otvorene: {} });
+  const det = p.querySelector(":scope > .lcd-opc-detail");
+  eq([!!det, p.querySelectorAll(".lcd-opc-zob").length, p.querySelectorAll("." + DALSI).length], [true, 0, 0], "1 vzorka: rozpis pod názvom, bez tlačidla");
+  overDetailJeRozpis(det, ul, rozpisPred, riadkyKosika, "CZ vzorkovník 1 vzorka");
+  // 3 vzorky (rozpis doplnený / prekreslený): prvé 2 hneď, tretia po „Zobrazit více“
+  ["Lux Color 10 (LUX-10) - Ano", "Lux Color 13 (LUX-13) - Ano"].forEach((h) => { const li = ul.firstElementChild.cloneNode(true); li.lastElementChild.textContent = h; ul.appendChild(li); });
+  const otv = {};
+  P.rozsirPolozky(box, TC, { fotky: {}, otvorene: otv });
   const z = p.querySelector(":scope > .lcd-opc-zob");
-  eq([z && z.textContent, p.querySelectorAll(".lcd-opc-detail").length], ["Zobrazit detail", 1], "CZ zobáčik po doplnení rozpisu");
-  overDetailJeRozpis(d.getElementById(z.getAttribute("aria-controls")), ul, rozpisPred, riadkyKosika, "CZ vzorkovník");
-  P.prepniDetail(z, box, TC, {});
-  eq(z.textContent, "Skrýt detail", "CZ rozbalené");
+  eq([z && z.textContent, z && z.getAttribute("aria-controls"), p.querySelectorAll(".lcd-opc-detail").length], ["Zobrazit více", det.id, 1], "CZ tlačidlo po doplnení vzoriek");
+  eq(hnedVidno(det), ["Vzorek 2. vrstva: Lux Color 01 (LUX-01) - Ano", "Vzorek 2. vrstva: Lux Color 10 (LUX-10) - Ano"], "prvé 2 hneď");
+  eq(poViac(det), ["Vzorek 2. vrstva: Lux Color 13 (LUX-13) - Ano"], "tretia až po „Zobrazit více“");
+  P.prepniDetail(z, box, TC, otv);
+  eq([z.textContent, p.classList.contains("lcd-opc-otvorena")], ["Zobrazit méně", true], "CZ rozbalené");
+  // späť na 2 vzorky: nič sa neskrýva -> tlačidlo preč, položka nie je „rozbalená“, žiadna značka
+  ul.lastElementChild.remove();
+  P.rozsirPolozky(box, TC, { fotky: {}, otvorene: otv });
+  eq([p.querySelectorAll(".lcd-opc-zob").length, p.querySelectorAll("." + DALSI).length, p.classList.contains("lcd-opc-otvorena"), hnedVidno(det).length], [0, 0, false, 2],
+    "2 vzorky: bez tlačidla, všetko hneď");
+  over_(!/class=""/.test(det.innerHTML), "po odznačení ostal prázdny atribút class: " + det.innerHTML.slice(0, 200));
 });
 
-t("polozky: kópia pre zbalený súhrn — bez fotky, zobáčika a karty, natívny rozpis späť pod názvom bez zmeny", () => {
-  const { box, ul } = suhrnSRozpisom(ROZPIS_2V);
+t("polozky A1: kópia pre zbalený súhrn navrchu — bez fotky, rozpis pod názvom, VLASTNÉ tlačidlo pod rozpisom (iné id, aria-controls na rozpis kópie, popis = názov), stav kópie nezávislý od súhrnu; bez textov (T) bez tlačidla a celý rozpis", () => {
+  const { d, box, ul } = suhrnSRozpisom(ROZPIS_2V);
   const riadkyKosika = textyLi(ul);
-  P.rozsirPolozky(box, TS, { fotky: { "6c240b96-513f-11f0-b348-4e595e8a4f93|598/DIA3": "https://x.sk/a.jpg" }, otvorene: {} });
-  const k = P.vycistiKopiu(box.querySelector(".cart-item").cloneNode(true));
-  eq([k.querySelectorAll(".lcd-opc-foto, .lcd-opc-zob, .lcd-opc-detail, .lcd-opc-bodka, img").length, !!k.querySelector(".cart-item-name > ul.lcd-rozpis")], [0, true]);
-  eq(textyLi(k.querySelector(".cart-item-name > ul.lcd-rozpis")), riadkyKosika, "riadky kópie = rozpis košíka");
+  const otv = {};
+  P.rozsirPolozky(box, TS, { fotky: { "6c240b96-513f-11f0-b348-4e595e8a4f93|598/DIA3": "https://x.sk/a.jpg" }, otvorene: otv });
+  const p = box.querySelector(".cart-item");
+  P.prepniDetail(p.querySelector(".lcd-opc-zob"), box, TS, otv); // súhrn pri Objednať rozbalený
+  const hore = d.createElement("div");
+  d.body.appendChild(hore);
+  const k = P.vycistiKopiu(p.cloneNode(true), TS, {});
+  hore.appendChild(k);
+  eq(k.querySelectorAll(".lcd-opc-foto, .lcd-opc-detail, .lcd-opc-bodka, img").length, 0, "bez fotky a karty");
+  const meno = k.querySelector(".cart-item-name"), r = meno.querySelector(":scope > ul.lcd-rozpis"), zz = k.querySelectorAll(".lcd-opc-zob"), z = zz[0];
+  eq([zz.length, !!r, !!z && z.parentElement === meno, !!r && r.nextElementSibling === z], [1, true, true, true], "tlačidlo pod rozpisom v názve");
+  eq(textyLi(r), riadkyKosika, "riadky kópie = rozpis košíka");
+  eq([z.getAttribute("aria-expanded"), z.textContent, k.classList.contains("lcd-opc-otvorena")], ["false", "Zobraziť viac", false], "kópia zbalená, hoci súhrn je rozbalený");
+  eq([hnedVidno(r).length, poViac(r)], [3, ["Rozloženie kobercov: prvý a druhý rad"]], "značky v kópii");
+  over_(r.id && z.getAttribute("aria-controls") === r.id && !box.contains(d.getElementById(r.id)), "aria-controls kópie neukazuje na rozpis kópie: " + z.getAttribute("aria-controls"));
+  const ids = Array.prototype.map.call(d.querySelectorAll('[id^="lcd-opc"]'), (e) => e.id); // stránka Shoptetu má vlastné duplicity
+  eq(ids.filter((id, i) => ids.indexOf(id) !== i), [], "duplicitné id OPC v dokumente");
+  const popis = (z.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean).map((id) => (d.getElementById(id) || {}).textContent || "").join(" ");
+  over_(/luxusné autokoberce dragonskin/i.test(popis) && !/Rozloženie|Zobrazi/.test(popis), "popis tlačidla kópie nie je názov položky: " + popis);
+  eq(P.prepniDetail(z, hore, TS, null), true, "klik v kópii");
+  eq([z.textContent, k.classList.contains("lcd-opc-otvorena")], ["Zobraziť menej", true], "kópia rozbalená");
+  eq(P.prepniDetail(z, box, TS, otv), null, "tlačidlo kópie nepatrí súhrnu");
+  eq([p.querySelector(".lcd-opc-zob").textContent, p.classList.contains("lcd-opc-otvorena")], ["Zobraziť menej", true], "súhrn pri Objednať bez zmeny");
+  // zapamätaný stav kópie (vzhlad.js obnovZbalenySuhrn ho prenesie cez prekreslenie)
+  const k2 = P.vycistiKopiu(p.cloneNode(true), TS, { [z.getAttribute("data-lcd-opc-kluc")]: true });
+  eq([k2.querySelector(".lcd-opc-zob").textContent, k2.classList.contains("lcd-opc-otvorena")], ["Zobraziť menej", true], "zapamätaný stav kópie");
+  // bez textov: kópia bez tlačidla a s celým rozpisom (ako pred A1)
+  const k3 = P.vycistiKopiu(p.cloneNode(true));
+  eq([k3.querySelectorAll(".lcd-opc-zob, ." + DALSI).length, k3.classList.contains("lcd-opc-otvorena"), !!k3.querySelector(".cart-item-name > ul.lcd-rozpis")], [0, false, true], "bez T");
   eq(box.querySelectorAll(".lcd-opc-zob").length, 1, "originál bez zmeny");
-  // položka bez rozpisu (bez zobáčika a karty): kópia = položka bez fotky
+  // položka bez rozpisu: kópia = položka bez fotky
   const w = new JSDOM(fx("cz/krok2.html"), { url: "https://www.luxurycardesign.cz/objednavka/krok-2/" }).window;
   const bc = w.document.getElementById("summary-box");
   P.rozsirPolozky(bc, TC, { fotky: {}, otvorene: {} });
-  const kc = P.vycistiKopiu(bc.querySelector(".cart-item").cloneNode(true));
+  const kc = P.vycistiKopiu(bc.querySelector(".cart-item").cloneNode(true), TC, {});
   eq([kc.querySelectorAll(".lcd-opc-foto, .lcd-opc-zob, .lcd-opc-detail").length, !!kc.querySelector(".cart-item-name a.main-link")], [0, true], "kópia položky bez rozpisu");
 });
 
-t("polozky: kamión — span príplatkov s rozpisom kamióna (karty skupín) sa presunie do karty bez zmeny, bez guličiek", () => {
+t("zbalený súhrn navrchu A1: obnovZbalenySuhrn dá kópii tlačidlo „Zobraziť viac“, ťuk v kópii (delegovaný na <details>) rozbalí len kópiu a stav prežije prekreslenie", () => {
+  const { d, box } = suhrnSRozpisom(ROZPIS_2V);
+  P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
+  const zb = V.vytvorZbalenySuhrn(d, TS);
+  d.body.appendChild(zb);
+  V.obnovZbalenySuhrn(zb, box, TS);
+  let z = zb.querySelector(".lcd-opc-zbalene__polozky .lcd-opc-zob");
+  eq([z && z.textContent, z && z.getAttribute("aria-expanded")], ["Zobraziť viac", "false"], "kópia s tlačidlom");
+  eq(P.prepniDetail(z.querySelector(".lcd-opc-zob__text"), zb, TS, null), true);
+  V.obnovZbalenySuhrn(zb, box, TS);
+  z = zb.querySelector(".lcd-opc-zbalene__polozky .lcd-opc-zob");
+  eq([z.textContent, z.getAttribute("aria-expanded"), zb.querySelector(".lcd-opc-zbalene__polozky .cart-item").classList.contains("lcd-opc-otvorena")], ["Zobraziť menej", "true", true], "po prekreslení rozbalené");
+  eq([box.querySelector(".lcd-opc-zob").textContent, zb.querySelectorAll(".lcd-opc-zbalene__polozky .lcd-opc-zob").length], ["Zobraziť viac", 1], "súhrn pri Objednať zbalený, v kópii 1 tlačidlo");
+  over_(zb.querySelector(".lcd-opc-zbalene__upravit"), "„Upraviť košík“ v zbalenom súhrne ostáva");
+});
+
+t("polozky A1: kamión (karty skupín) — hneď Vozidlo a prvé „Typ a farba materiálu“, ostatné riadky aj celé skupiny až po „Zobraziť viac“ (dt aj dd spolu); span presunutý bez zmeny", () => {
   const w = new JSDOM(fx("sk-kamion/krok2.html"), { url: "https://www.luxurycardesign.sk/objednavka/krok-2/" }).window;
   const d = w.document, box = d.getElementById("summary-box");
   const span = box.querySelector(".cart-item span.main-link-surcharges");
-  span.innerHTML = '<div class="lcd-truck-cart-summary"><div class="lcd-truck-cart-summary__group"><h4>Vozidlo</h4><dl><dt>Vozidlo</dt><dd>DAF (TIR) XF 2022-2025</dd>' +
-    "<dt>Farba nite</dt><dd>Červená</dd></dl></div></div>";
+  const sk = (h, r) => '<div class="lcd-truck-cart-summary__group"><h4>' + h + "</h4><dl>" + r.map(([a, b]) => "<dt>" + a + "</dt><dd>" + b + "</dd>").join("") + "</dl></div>";
+  span.innerHTML = '<div class="lcd-truck-cart-summary">' + sk("ŠPECIFIKÁCIA VOZIDLA", [["Vozidlo", "DAF (TIR) XF 2022-2025"], ["Typ prevodovky", "Automatická prevodovka"]]) +
+    sk("KOBERČEKY POD SEDAČKY", [["Typ a farba materiálu", "Prémiová syntetická koža – prešívaná – čierna – 11"], ["Farba lemovania", "čierny základ – 04"]]) +
+    sk("TAPACÍR DVERÍ", [["Typ a farba materiálu", "Rovnaký ako koberčeky"], ["Farba lemovania", "Rovnaká"]]) + "</div>";
   const pred = span.outerHTML;
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
   const det = box.querySelector(".lcd-opc-detail");
   over_(det.contains(span) && !box.querySelector(".cart-item-name span.main-link-surcharges"), "rozpis kamióna je v karte");
-  eq([det.children.length, det.firstElementChild === span, span.outerHTML === pred], [1, true, true], "karta = len natívny rozpis kamióna bez zmeny");
+  eq([det.children.length, det.firstElementChild === span, bezZnaciek(span.outerHTML) === pred, det.hidden], [1, true, true, false], "karta = len natívny rozpis kamióna (okrem značiek), viditeľná");
+  eq(hnedVidno(det), ["Vozidlo: DAF (TIR) XF 2022-2025", "Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna – 11"], "hneď vidno");
+  eq(poViac(det), ["Typ prevodovky: Automatická prevodovka", "Farba lemovania: čierny základ – 04", "Typ a farba materiálu: Rovnaký ako koberčeky", "Farba lemovania: Rovnaká"], "až po „Zobraziť viac“");
+  Array.prototype.forEach.call(det.querySelectorAll("dt"), (dt) => eq(!!dt.closest("." + DALSI), !!dt.nextElementSibling.closest("." + DALSI), "dt a dd spolu: " + dt.textContent));
+  const skupiny = Array.prototype.map.call(det.querySelectorAll(".lcd-truck-cart-summary__group"), (g) => g.querySelector("h4").textContent + " " + g.classList.contains(DALSI));
+  eq(skupiny, ["ŠPECIFIKÁCIA VOZIDLA false", "KOBERČEKY POD SEDAČKY false", "TAPACÍR DVERÍ true"], "skupina bez riadku hneď je celá až po „Zobraziť viac“");
+  eq(box.querySelector(".lcd-opc-zob").textContent, "Zobraziť viac", "tlačidlo");
   eq(det.querySelectorAll(".lcd-opc-bodka, img").length, 0, "bez guličiek a obrázkov");
+});
+
+t("polozky A1: kamión bez súhrnu (.info-wrap, iná karta) — hneď Vozidlo, Typ materiálu a Farba materiálu (to isté ako „Typ a farba materiálu“), zvyšok po „Zobraziť viac“; prázdny zoznam sa skryje celý", () => {
+  const w = new JSDOM(fx("sk-kamion/krok2.html"), { url: "https://www.luxurycardesign.sk/objednavka/krok-2/" }).window;
+  const d = w.document, box = d.getElementById("summary-box");
+  const span = box.querySelector(".cart-item span.main-link-surcharges");
+  span.innerHTML = '<div class="info-wrap"><ul class="model"><li>Vozidlo: Volvo FH 4 (2013+)</li></ul><div class="setup"><span><ul>' +
+    ["Typ materiálu - Prémiová syntetická koža – prešívaná", "Farba materiálu - čierna, čierne šitie – 11", "Farba lemovania - čierny základ – 04", "Tapacír - Áno"].map((x) => "<li>" + x + "</li>").join("") +
+    "</ul></span></div></div>";
+  P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
+  const det = box.querySelector(".lcd-opc-detail");
+  eq(hnedVidno(det), ["Vozidlo: Volvo FH 4 (2013+)", "Typ materiálu - Prémiová syntetická koža – prešívaná", "Farba materiálu - čierna, čierne šitie – 11"], "hneď vidno");
+  eq(poViac(det), ["Farba lemovania - čierny základ – 04", "Tapacír - Áno"], "až po „Zobraziť viac“");
+  // bez vozidla: zoznam ul.model nemá čo ukázať hneď -> skrytý celý (žiadny prázdny okraj)
+  const w2 = new JSDOM(fx("sk-kamion/krok2.html"), { url: "https://www.luxurycardesign.sk/objednavka/krok-2/" }).window;
+  const b2 = w2.document.getElementById("summary-box");
+  b2.querySelector(".cart-item span.main-link-surcharges").innerHTML = '<div class="info-wrap"><ul class="model"><li>Rok: 2020</li></ul><div class="setup"><span><ul>' +
+    ["Typ materiálu - Koža", "Farba materiálu - čierna", "Tapacír - Nie"].map((x) => "<li>" + x + "</li>").join("") + "</ul></span></div></div>";
+  P.rozsirPolozky(b2, TS, { fotky: {}, otvorene: {} });
+  const d2 = b2.querySelector(".lcd-opc-detail");
+  eq([hnedVidno(d2), d2.querySelector("ul.model").classList.contains(DALSI)], [["Typ materiálu - Koža", "Farba materiálu - čierna"], true], "ul.model celý po „Zobraziť viac“");
+});
+
+t("CSS A1: riadky lcd-opc-dalsi skryté len v zbalenej položke (súhrn aj kópia navrchu), karta detailu bez [hidden], tlačidlo 16 px aj v kópii navrchu", () => {
+  const scss = readFileSync(new URL("../assets/css/_lcdOpc.scss", import.meta.url), "utf8").split("\n");
+  const skry = scss.filter((r) => /\.lcd-opc-dalsi/.test(r) && /^\s*html/.test(r)); // pravidlá, nie komentáre
+  eq(skry.length, 1, "pravidlo pre lcd-opc-dalsi: " + JSON.stringify(skry));
+  over_(/^html\.lcd-opc \.cart-item:not\(\.lcd-opc-otvorena\) \.lcd-opc-dalsi\{display:none !important\}$/.test(skry[0].trim()), "pravidlo: " + skry[0]);
+  eq(scss.filter((r) => /lcd-opc-detail\[hidden\]/.test(r)).length, 0, "pravidlo pre skrytú kartu detailu ostalo");
+  const i = scss.findIndex((r) => /\.lcd-opc-zob\{/.test(r));
+  over_(i >= 0 && /:is\(#summary-box,#lcd-opc-zbalene\) \.lcd-opc-zob\{/.test(scss[i]) && /font:700 16px/.test(scss[i] + scss[i + 1]), "tlačidlo bez 16 px alebo len v #summary-box: " + scss[i]);
 });
 
 t("kosik: vzhľad v štýle pokladne hneď pri načítaní bundla (?opc=KÓD), späť pri vypnutí v data.json; bez kódu (aj ?opc=1) nič", () => {

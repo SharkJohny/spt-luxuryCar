@@ -118,21 +118,21 @@ export const SCENARE = {
   },
   S24: {
     len: "sk",
-    popis: "Kamión bez truckOrderSummary (iná karta / iné zariadenie): rozpis v súhrne (DOM, z neho je aj zbalený súhrn) ostane ako bez OPC, aj počas a po zmene platby (R3); v krátkej rekapitulácii dizajnu A je skrytý",
+    popis: "Kamión bez truckOrderSummary (iná karta / iné zariadenie): rozpis v súhrne (DOM, z neho je aj zbalený súhrn) ostane ako bez OPC, aj počas a po zmene platby (R3); v rekapitulácii A1 hneď len vozidlo a materiál, zvyšok po „Zobraziť viac“",
     async fn(J) {
       const riadky = `Array.prototype.map.call(document.querySelectorAll("#summary-box .cart-items .cart-item"), function (e) {
         return e.innerText.split("\\n").map(function (x) { return x.trim(); }).filter(Boolean); })`;
       // rozpis v DOM súhrnu tak, ako by ho vykreslila stránka bez OPC: dizajn A ho v rekapitulácii len skrýva (CSS pod
       // html.lcd-opc), cart.js ho musí nechať celý — preto čítanie na chvíľu bez triedy lcd-opc (synchrónne, bez prekreslenia)
-      // Od zobáčika (S42, 29. 10. 2026) je rozpis v karte detailu pod položkou (presunutý, predvolene [hidden]): na čítanie
-      // sa karta na chvíľu odkryje a zobáčik sa nepočíta (nie je rozpis cart.js); karta je od náhľadu 5 (30. 10. 2026) len rozpis
+      // Rozpis je v karte detailu pod položkou (presunutý, S42; od náhľadu 5 len rozpis), od A1 (30. 10. 2026) vždy viditeľnej;
+      // riadky „až po Zobraziť viac“ (lcd-opc-dalsi) skrýva CSS pod html.lcd-opc — bez triedy sú vidno; pilulka „Zobraziť
+      // viac“ sa nepočíta (nie je rozpis cart.js)
       const riadkyDom = `(function () { var H = document.documentElement; H.classList.remove("lcd-opc");
-        var skryte = [], dalsie = [];
-        document.querySelectorAll("#summary-box .lcd-opc-detail[hidden]").forEach(function (d) { d.hidden = false; skryte.push(d); });
+        var dalsie = [];
         document.querySelectorAll("#summary-box .lcd-opc-zob").forEach(function (e) {
           dalsie.push([e, e.style.display]); e.style.display = "none"; });
         try { return ${riadky}; } finally {
-          H.classList.add("lcd-opc"); skryte.forEach(function (d) { d.hidden = true; }); dalsie.forEach(function (x) { x[0].style.display = x[1]; }); } })()`;
+          H.classList.add("lcd-opc"); dalsie.forEach(function (x) { x[0].style.display = x[1]; }); } })()`;
       // vozidlo zo sessionStorage (konfigurátor kamiónov 1V ho zapíše aj bez truckOrderSummary — napr. dva kamióny v košíku):
       // riadok „Vozidlo: …“ (ul.model, natívne v kroku 2 .id--17 .model 12 px !important) — N3
       const VOZIDLO = "Volvo FH 4 (2013+)";
@@ -165,9 +165,12 @@ export const SCENARE = {
       await pauza(150);
       const s1 = await s.ev(riadkyDom);
       const vidno = await s.ev(riadky);
-      // názov, „1 ks“, cena a zbalený zobáčik „Zobraziť detail“ (S42) — rozpis je v zbalenej karte
-      const bezZobacika = vidno.length === 1 ? vidno[0].filter((x) => x !== "Zobraziť detail") : [];
-      over(vidno.length === 1 && bezZobacika.length <= 3 && vidno[0].includes("Zobraziť detail"), "v krátkej rekapitulácii je rozpísaný kamión: " + JSON.stringify(vidno));
+      // A1 (Michal 30. 10. 2026): názov, „1 ks“, cena, hneď len „Vozidlo“, „Typ materiálu“ a „Farba materiálu“ (kamión bez
+      // súhrnu má materiál v dvoch riadkoch príplatkov) a pilulka „Zobraziť viac“; ostatné príplatky až po nej
+      const hned = vidno.length === 1 ? vidno[0].filter((x) => /^(Vozidlo|Typ materiálu|Farba materiálu)\b/.test(x)) : [];
+      const bezRozpisu = vidno.length === 1 ? vidno[0].filter((x) => x !== "Zobraziť viac" && !hned.includes(x)) : [];
+      over(vidno.length === 1 && hned.length === 3 && hned.some((x) => x.includes(VOZIDLO)) && bezRozpisu.length <= 3 && vidno[0].includes("Zobraziť viac"),
+        "v rekapitulácii A1 nie je hneď len vozidlo a materiál (+ „Zobraziť viac“): " + JSON.stringify(vidno));
       await zvolPlatbu(s, ID.sk.dobierka);
       await pauza(100);
       const s2 = await s.ev(riadkyDom);
@@ -180,9 +183,10 @@ export const SCENARE = {
       over(st2.stav === "krok2-potvrdene", "dobierka pri kamióne: " + st2.stav);
       // rozbalený detail = rekapitulácia z košíka bez prestylovania (náhľad 5): písmo podľa mierky LCD aj pri rozpise bez súhrnu
       // kamióna (.info-wrap; natívne v kroku 2 .id--17 .model 12 px, v košíku .removeable .info-wrap 15 px)
-      await s.klikni("#summary-box .lcd-opc-zob", { popis: "zobáčik kamióna" });
+      await s.klikni("#summary-box .lcd-opc-zob", { popis: "„Zobraziť viac“ kamióna" });
       await pauza(250);
-      const male = await s.ev(`(function () { var d = document.querySelector("#summary-box .lcd-opc-detail"); if (!d || d.hidden) return ["detail sa nerozbalil"];
+      const male = await s.ev(`(function () { var d = document.querySelector("#summary-box .lcd-opc-detail"), z = document.querySelector("#summary-box .lcd-opc-zob");
+        if (!d || !z || z.getAttribute("aria-expanded") !== "true") return ["detail sa nerozbalil"];
         return Array.prototype.filter.call(d.querySelectorAll("*"), function (e) { return e.getBoundingClientRect().height > 0 && Array.prototype.some.call(e.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); }); })
           .filter(function (e) { return parseFloat(getComputedStyle(e).fontSize) < 14; })
           .map(function (e) { return e.tagName.toLowerCase() + " " + getComputedStyle(e).fontSize + " „" + e.textContent.replace(/\\s+/g, " ").trim().slice(0, 30) + "“"; }); })()`);
@@ -202,7 +206,7 @@ export const SCENARE = {
       over(kopia.some((x) => x.text.includes(VOZIDLO)), "v zbalenom súhrne chýba riadok vozidla: " + JSON.stringify(kopia.slice(0, 3)));
       const zlePismo = kopia.filter((x) => x.pismo !== "400 14px");
       over(!zlePismo.length, "rozpis kamióna v zbalenom súhrne nemá všade 400 14px: " + JSON.stringify(zlePismo));
-      return { info: "rozpis kamióna " + bez[0].length + " riadkov bez OPC aj s OPC v DOM (načítanie, zmena, po zmene), v rekapitulácii " + vidno[0].length + " riadky, v zbalenom súhrne " + pismo };
+      return { info: "rozpis kamióna " + bez[0].length + " riadkov bez OPC aj s OPC v DOM (načítanie, zmena, po zmene), v rekapitulácii A1 " + vidno[0].length + " riadkov (hneď vozidlo a materiál), v zbalenom súhrne " + pismo };
     },
   },
   S25: {

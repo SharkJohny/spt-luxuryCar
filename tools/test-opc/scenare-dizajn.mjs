@@ -2,7 +2,8 @@
 //   S40 výška stránky (telefón 390 so setom ≤ 2 460 px, PC 1366 ≤ 1 200 px), „Objednať“ na PC na prvej obrazovke, lišta
 //       dole na telefóne (na PC skrytá, keď tlačidlo vidno), žiadne vodorovné pretečenie (360 / 390 / 768 / 1366 / 1920),
 //       písmo podľa mierky Michala (text ≥ 16 px, poznámka ≥ 14 px, štítok veľkými písmenami ≥ 12 px; computed style),
-//       krátka rekapitulácia (1 riadok na produkt, konfigurácia sa nerozpisuje, aj kamión), karty 1–4 s číslom v krúžku
+//       rekapitulácia A1 (Michal 30. 10. 2026: pod názvom najviac 3 najdôležitejšie riadky rozpisu z košíka, zvyšok po
+//       „Zobraziť viac“, aj kamión), karty 1–4 s číslom v krúžku
 //       (Kontakt, Adresa, Doprava, Platba; doručovacia adresa je karta bez čísla) a fajkou pri vyplnenej karte, polia s popisom nad poľom, adresa v 2 riadkoch
 //       (Ulica + Číslo, PSČ + Mesto), platby zadarmo ako dlaždice.
 // Set a kamión sú zachytené len pre SK (fixtures), na CZ sa merá vzorkovník s tými istými limitmi.
@@ -27,9 +28,10 @@ const DALSIE = (sirka) => (sirka < 768 ? [360] : sirka >= 992 ? [768, 1920] : []
 const POZNAMKY = [".sublabel", ".lcd-dob-pozn", ".lcd-opc-zaloha-info", ".not-possible-info", ".lcd-opc-pravne", ".lcd-opc-platby-vop", ".lcd-opc-banka__podmienky",
   ".lcd-opc-hlaska--info", ".lcd-opc-cakam", ".cart-item-amount", ".js-validator-msg", ".lcd-opc-chyba-text", ".order-button-suffix",
   ".lcd-opc-lista__suffix", ".additional-information", ".lcd-rozpis", ".lcd-opc-kopia-priplatky", "small",
-  // rozbalený detail položky = rekapitulácia z košíka (S42, náhľad 5): rozpis osobných áut je .lcd-rozpis (14 px), kamióna
-  // karty skupín .lcd-truck-cart-summary — tá istá poznámka (≥ 14 px), len iným natívnym prvkom cart.js
-  ".lcd-truck-cart-summary"].join(", ");
+  // rozpis položky = rekapitulácia z košíka (S42, náhľad 5; od A1 hneď pod názvom): rozpis osobných áut je .lcd-rozpis (14 px),
+  // kamióna karty skupín .lcd-truck-cart-summary, kamióna bez súhrnu .info-wrap (15 px ako v košíku) — tá istá poznámka
+  // (≥ 14 px), len iným natívnym prvkom cart.js
+  ".lcd-truck-cart-summary", ".info-wrap"].join(", ");
 // popis v tlačidle-pilulke („Vybrať banku“) ako text tlačidiel e-shopu (CTA Exo 2 14 px, dizajn/audit.md § 3.1): ≥ 14 px
 const TLACIDLA = ".lcd-opc-odkaz__akcia";
 
@@ -57,12 +59,16 @@ function zmeraj(s) {
       var limit = stitok ? 12 : pozn ? 14 : 16;
       if (fs < limit - 0.01) male.push(meno(e) + " " + fs + "px < " + limit + " „" + e.textContent.replace(/\\s+/g, " ").trim().slice(0, 28) + "“");
     });
-    // krátka rekapitulácia: 1 riadok na produkt (názov a cena vedľa seba), konfigurácia nerozpísaná
+    // rekapitulácia A1: názov a cena vedľa seba; v stĺpci názvu (natívne miesto) nič rozpísané, rozpis z košíka pod názvom
+    // len najdôležitejšie riadky (zvyšok po „Zobraziť viac“)
+    var RIADKY = "ul.lcd-rozpis > li, .lcd-truck-cart-summary dt, .info-wrap li";
     var polozky = Array.prototype.map.call(document.querySelectorAll("#summary-box .cart-items .cart-item"), function (p) {
-      var n = p.querySelector(".cart-item-name"), c = p.querySelector(".cart-item-price");
-      var rozpis = Array.prototype.filter.call(p.querySelectorAll(".main-link-variant, .main-link-surcharges, .lcd-rozpis, .lcd-truck-cart-summary, ul, dl"), vid).length;
+      var n = p.querySelector(".cart-item-name"), c = p.querySelector(".cart-item-price"), z = p.querySelector(":scope > .lcd-opc-zob");
+      var rozpis = n ? Array.prototype.filter.call(n.querySelectorAll(".main-link-variant, .main-link-surcharges, .lcd-rozpis, .lcd-truck-cart-summary, ul, dl"), vid).length : 0;
       var rn = n ? n.getBoundingClientRect() : null, rc = c ? c.getBoundingClientRect() : null;
       return { h: Math.round(p.getBoundingClientRect().height), rozpis: rozpis, vedla: !!(rn && rc && rc.top < rn.bottom && Math.abs(rc.top - rn.top) < 24 && rc.left >= rn.right - 2),
+        riadkyVid: Array.prototype.filter.call(p.querySelectorAll(RIADKY), vid).length, riadkyVsetky: p.querySelectorAll(RIADKY).length,
+        zob: z && vid(z) ? z.textContent.replace(/\\s+/g, " ").trim() : null,
         text: n ? n.textContent.replace(/\\s+/g, " ").trim().slice(0, 40) : "" };
     });
     var celkom = document.querySelector('#summary-box [data-testid="recapFullPrice"]');
@@ -124,15 +130,22 @@ async function zakladne(s, popis) {
   return m;
 }
 
-/** Výška položky v rekapitulácii: názov (najviac 2 riadky) | cena, pod názvom zobáčik „Zobraziť detail“ a vľavo fotka 60 px
- *  (Michal 29. 10. 2026, náhľad 2a; S42). Predtým 1 riadok ≤ 72 px. */
-const POLOZKA_MAX = 120;
-/** Rekapitulácia: 1 riadok na produkt (+ zbalený zobáčik), nič nerozpísané, „Celkom k úhrade“ výrazne. */
-function overRekapitulaciu(m, popis) {
+/** Výška položky v rekapitulácii: názov (najviac 2 riadky) | cena, vľavo fotka 60 px (Michal 29. 10. 2026, náhľad 2a; S42),
+ *  pod názvom najviac 3 riadky rozpisu a pilulka „Zobraziť viac“ (A1, Michal 30. 10. 2026, náhľad 6). Predtým 1 riadok
+ *  ≤ 72 px, so zobáčikom ≤ 120 px; kamión má riadky v kartách skupín (vozidlo, koberčeky) — vyšší limit. */
+const POLOZKA_MAX = { inak: 210, kamion: 330 };
+/** Rekapitulácia A1: názov | cena vedľa seba, v stĺpci názvu nič rozpísané; pod názvom najviac 3 riadky rozpisu z košíka
+ *  (koberce Auto + 2 vrstvy, kamión Vozidlo + materiál, inak 2) a keď sa niečo skrýva, pilulka „Zobraziť viac“; „Celkom k
+ *  úhrade“ výrazne. */
+function overRekapitulaciu(m, popis, max = POLOZKA_MAX.inak) {
   over(m.polozky.length >= 1, popis + ": v súhrne nie sú položky");
   m.polozky.forEach((p, i) => {
-    over(!p.rozpis, popis + ": položka " + (i + 1) + " „" + p.text + "“ má v rekapitulácii rozpísanú konfiguráciu (" + p.rozpis + " prvkov)");
-    over(p.vedla && p.h <= POLOZKA_MAX, popis + ": položka " + (i + 1) + " „" + p.text + "“ nie je 1 riadok (názov | cena) so zbaleným zobáčikom, výška " + p.h + " px: " + JSON.stringify(p));
+    const kde = popis + ": položka " + (i + 1) + " „" + p.text + "“";
+    over(!p.rozpis, kde + " má v stĺpci názvu rozpísanú konfiguráciu (" + p.rozpis + " prvkov)");
+    over(p.riadkyVid <= 3, kde + ": pod názvom je hneď " + p.riadkyVid + " riadkov rozpisu (A1: najviac 3, zvyšok po „Zobraziť viac“)");
+    over(p.riadkyVsetky > p.riadkyVid ? /^Zobrazi(ť viac|t více)$/.test(p.zob || "") : p.zob === null,
+      kde + ": pilulka „Zobraziť viac“ nesedí so skrytými riadkami (" + p.riadkyVid + " z " + p.riadkyVsetky + ", pilulka " + JSON.stringify(p.zob) + ")");
+    over(p.vedla && p.h <= max, kde + " nemá názov | cenu vedľa seba alebo je vyššia ako " + max + " px (A1 zbalené), výška " + p.h + " px: " + JSON.stringify(p));
   });
   over(m.celkomPismo >= 24, popis + ": „Celkom k úhrade“ nie je výrazné (" + m.celkomPismo + " px)");
 }
@@ -153,9 +166,12 @@ export const SCENARE = {
       casti.push("výška " + m.vyska + " ≤ " + limit);
       over(m.objednat.radius === "12px" && m.objednat.gradient && m.objednat.h >= 54, "tlačidlo Objednať nie je v štýle e-shopu (rádius 12, zelený prechod, ≥ 54 px): " + JSON.stringify(m.objednat));
       if (pc) {
-        over(m.objednat.bottom <= m.ih, "PC: „Objednať“ nie je na prvej obrazovke (y " + m.objednat.top + "–" + m.objednat.bottom + ", okno " + m.ih + ")");
-        over(!m.lista.on, "PC: karta lišty svieti, hoci tlačidlo je na obrazovke");
-        casti.push("Objednať y " + m.objednat.top + "–" + m.objednat.bottom);
+        // A1 (Michal 30. 10. 2026, náhľad 6: „sety posunie o 80–120 px“): „Objednať“ celé na prvej obrazovke a lišta zhasnutá,
+        // alebo „Objednať“ pod ňou a lišta „Celkom | Objednať“ dole (na PC svieti len vtedy, S41)
+        const cele = m.objednat.bottom <= m.ih;
+        over(cele ? !m.lista.on : m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text),
+          "PC: „Objednať“ " + (cele ? "je na prvej obrazovke, a predsa svieti lišta" : "nie je na prvej obrazovke a lišta s „Objednať“ chýba") + " (y " + m.objednat.top + "–" + m.objednat.bottom + ", okno " + m.ih + "): " + JSON.stringify(m.lista));
+        casti.push("Objednať y " + m.objednat.top + "–" + m.objednat.bottom + (cele ? "" : " (lišta)"));
       } else {
         over(m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text), "telefón: lišta „Celkom | Objednať“ navrchu nie je vidno: " + JSON.stringify(m.lista));
         over(m.zbalene.vid && /\d/.test(m.zbalene.text), "telefón: zbalená lišta „Vaša objednávka · položky · suma“ navrchu chýba: " + JSON.stringify(m.zbalene));
@@ -215,12 +231,12 @@ export const SCENARE = {
         casti.push(w + ": " + mm.vyska + " px");
         await t.zavri();
       }
-      // kamión (17 príplatkov): rekapitulácia tiež 1 riadok
+      // kamión (17 príplatkov): rekapitulácia A1 — hneď len vozidlo a materiál
       if (J.web === "sk") {
         const t = await J.novaStranka({ kosik: "kamion" });
         await naKrok2(t, { query: "&lcddoplnok=0" });
         const mk = await zakladne(t, J.sirka + " kamión");
-        overRekapitulaciu(mk, J.sirka + " kamión");
+        overRekapitulaciu(mk, J.sirka + " kamión", POLOZKA_MAX.kamion);
         casti.push("kamión " + mk.vyska + " px, položka " + mk.polozky[0].h + " px");
         await t.zavri();
       }
@@ -307,8 +323,10 @@ SCENARE.S41 = {
         // a povinný súhlas musí byť celý na prvej obrazovke nad kartou. Michal schválil vzhľad dlaždíc (výrez panela bez
         // karty), NIE kartu namiesto „Objednať“ na 1366×657 — ČAKÁ NA JEHO ROZHODNUTIE (kniha § 10.12, revízia 30. 10. 2026:
         // K1-1, R1-1, UX-1, N1); info behu to vypíše. Celé „Objednať“ bez lišty ostáva na 1366×768 (S40).
-        if (w === 1366 && h >= 657) over(m.cele && !m.on || m.on && m.suhlas && m.suhlas.t >= 0 && m.suhlas.b <= m.lista.t,
-          popis + "„Objednať“ nie je celé na prvej obrazovke a povinný súhlas nie je celý nad kartou (bežný notebook): " + JSON.stringify(m));
+        // A1 (Michal 30. 10. 2026, náhľad 6: rozpis pod názvom posunie panel o ~70 px): povinný súhlas na 1366×657 začína
+        // na prvej obrazovke nad kartou, spodok dlaždice môže zasahovať pod kartu — info behu vypíše o koľko (POZOR, § 10.12)
+        if (w === 1366 && h >= 657) over(m.cele && !m.on || m.on && m.suhlas && m.suhlas.t >= 0 && m.suhlas.t < m.lista.t,
+          popis + "„Objednať“ nie je celé na prvej obrazovke a povinný súhlas nezačína nad kartou (bežný notebook): " + JSON.stringify(m));
         over(m.cele || m.on, popis + "„Objednať“ nie je celé v okne a lišta sa nezapla: " + JSON.stringify(m));
         if (m.on) {
           zapnuta++;
@@ -317,7 +335,8 @@ SCENARE.S41 = {
           over(!m.bublinaNaListe, popis + "bublina Luxie leží na tlačidle v lište: " + JSON.stringify(m));
         }
         casti.push(w + "×" + h + " " + (m.on ? "lišta" : "Objednať " + m.objednat.t + "–" + m.objednat.b));
-        if (w === 1366 && h >= 657 && m.on) casti.push("POZOR 1366×657: karta namiesto „Objednať“ (" + m.objednat.t + "–" + m.objednat.b + "), veta o tovare na mieru " +
+        if (w === 1366 && h >= 657 && m.on) casti.push("POZOR 1366×657: karta namiesto „Objednať“ (" + m.objednat.t + "–" + m.objednat.b + "), povinný súhlas " +
+          m.suhlas.t + "–" + m.suhlas.b + (m.suhlas.b <= m.lista.t ? " nad kartou" : " (spodok " + (m.suhlas.b - m.lista.t) + " px pod kartou)") + ", veta o tovare na mieru " +
           (m.pravne ? (m.pravne.b <= m.lista.t ? "nad kartou" : "pod kartou " + m.pravne.t + "–" + m.pravne.b) : "–") + " — čaká na rozhodnutie Michala (§ 10.12)");
         await s.zavri();
       }
@@ -377,7 +396,10 @@ SCENARE.S41 = {
   },
 };
 
-// ------------------------------------------------------------------ S42 zobáčik, fotka, košík v štýle pokladne (Michal 29. 10. 2026)
+// ------------------------------------------------------------------ S42 rozpis A1, fotka, košík v štýle pokladne (Michal 29. 10. 2026)
+// A1 bez čísel (Michal 30. 10. 2026, náhľad 6): rozpis z košíka je pod názvom HNEĎ — najdôležitejšie riadky (koberce Auto,
+// Farba 1. a 2. vrstvy; kamión Vozidlo a prvé „Typ a farba materiálu“; inak prvé 2), zvyšok po zlatej pilulke „Zobraziť
+// viac“ (po rozbalení „Zobraziť menej“), bez počtu. Keď sa nič neskrýva, pilulka nie je. To isté v zbalenom súhrne navrchu.
 // Schválené podľa náhľadov 2a/2b/4 (súhrn) a 1/5 (košík): pri každej položke s rozpisom zlatá pilulka „Zobraziť detail“,
 // predvolene zbalené; malá fotka (60 px) vľavo od názvu podľa riadku košíka; košík s kódom OPC v štýle kroku 2, bez kódu
 // bez zmeny. Náhľad 5 (Michal 30. 10. 2026): rozbalený detail = PRESNE rekapitulácia z košíka — natívny rozpis cart.js
@@ -387,8 +409,8 @@ const S42_AUTO = { Brand: "Skoda", Model: "Octavia", Year: "2021", carType: "Com
 // kamión zhodný s príplatkami zachytenej položky (scenare-kosiky.mjs KAMION; revízia doladenia 1)
 const S42_KAMION = KAMION;
 const S42_TEXTY = {
-  sk: { zobrazit: "Zobraziť detail", skryt: "Skryť detail", kroky: ["Nákupný košík", "Objednávka"], dobierka: "3" },
-  cz: { zobrazit: "Zobrazit detail", skryt: "Skrýt detail", kroky: ["Nákupní košík", "Objednávka"], dobierka: "87" },
+  sk: { zobrazit: "Zobraziť viac", skryt: "Zobraziť menej", kroky: ["Nákupný košík", "Objednávka"], dobierka: "3" },
+  cz: { zobrazit: "Zobrazit více", skryt: "Zobrazit méně", kroky: ["Nákupní košík", "Objednávka"], dobierka: "87" },
 };
 /** Auto (pri kamióne súhrn kamióna) v karte ešte pred načítaním košíka — ako ho ukladá konfigurátor (raz na kartu). */
 function s42Seed(kosik) {
@@ -406,6 +428,16 @@ const S42_ROZPIS_JS = `
     return { pismo: c.fontSize, vaha: c.fontWeight, farba: c.color, odrazka: b.content && b.content !== "none" && b.content !== "normal" ? b.backgroundColor + " " + b.width : "none",
       rodina: c.fontFamily.split(",")[0].trim(), rozostup: c.letterSpacing }; };
   var karta = function (e) { if (!e) return null; var c = getComputedStyle(e); return c.backgroundColor + " " + c.borderTopWidth + " " + c.borderTopStyle + " " + c.borderTopColor + " " + c.borderTopLeftRadius; };
+  var RIADKY_A1 = "ul.lcd-rozpis > li, .lcd-truck-cart-summary dt, .info-wrap li";
+  var vidA1 = function (e) { if (!e) return false; var r = e.getBoundingClientRect(), c = getComputedStyle(e); return r.width > 1 && r.height > 1 && c.visibility !== "hidden" && c.display !== "none"; };
+  var textA1 = function (e) { return (e.tagName === "DT" ? e.textContent + ": " + (e.nextElementSibling ? e.nextElementSibling.textContent : "") : e.textContent).replace(/\\s+/g, " ").trim(); };
+  // riadky rozpisu A1 (li; pri kamióne „dt: dd“) — všetky v DOM, alebo len tie, ktoré zákazník vidí (pri dt aj jeho dd)
+  var riadkyA1 = function (k, lenVid) { return k ? Array.prototype.filter.call(k.querySelectorAll(RIADKY_A1), function (e) {
+    return !lenVid || vidA1(e) && (e.tagName !== "DT" || vidA1(e.nextElementSibling)); }).map(textA1) : []; };
+  // viditeľná karta skupiny kamióna bez viditeľného riadku (prázdna karta s nadpisom)
+  var prazdneSkupiny = function (k) { return k ? Array.prototype.filter.call(k.querySelectorAll(".lcd-truck-cart-summary__group"), function (g) {
+    return vidA1(g) && !Array.prototype.some.call(g.querySelectorAll("dt"), vidA1); }).length : 0; };
+  var druhA1 = function (k) { return !k ? null : k.querySelector(".lcd-truck-cart-summary") ? "kamion" : k.querySelector(".info-wrap") ? "info" : "rozpis"; };
   var vzhlad = function (k) { return !k ? null : { li: styl(k.querySelector("ul.lcd-rozpis > li")), h: styl(k.querySelector("ul.lcd-rozpis .lcd-rozpis__h")),
     h4: styl(k.querySelector(".lcd-truck-cart-summary h4")), dt: styl(k.querySelector(".lcd-truck-cart-summary dt")), dd: styl(k.querySelector(".lcd-truck-cart-summary dd")),
     skupina: karta(k.querySelector(".lcd-truck-cart-summary__group")) }; };`;
@@ -417,7 +449,7 @@ const S42_KOSIK = `(function () {${S42_ROZPIS_JS}
     var img = tr.querySelector(".cart-p-image img");
     return { kluc: tr.getAttribute("data-micro-identifier"), sku: tr.getAttribute("data-micro-sku"), foto: img ? (img.getAttribute("data-src") || img.getAttribute("src")) : null,
       rozpis: Array.prototype.map.call(tr.querySelectorAll("ul.lcd-rozpis li"), t), kamion: Array.prototype.map.call(tr.querySelectorAll(".lcd-truck-cart-summary dd"), t),
-      riadkyRozpisu: riadkyRozpisu(tr), vzhlad: vzhlad(tr), sucet: t(tr.querySelector('[data-testid="cartPrice"]')) };
+      riadkyRozpisu: riadkyRozpisu(tr), riadkyA1: riadkyA1(tr, false), druh: druhA1(tr), vzhlad: vzhlad(tr), sucet: t(tr.querySelector('[data-testid="cartPrice"]')) };
   });
   var kroky = Array.prototype.filter.call(document.querySelectorAll("ol.cart-header li.step"), function (l) { return l.getBoundingClientRect().height > 0; }).map(function (l) {
     var c = cs(l), p = getComputedStyle(l, "::before");
@@ -432,7 +464,7 @@ const S42_KOSIK = `(function () {${S42_ROZPIS_JS}
     fotky: fotky, sw: document.documentElement.scrollWidth, iw: innerWidth, vyska: document.documentElement.scrollHeight,
     krokyOpc: !!document.querySelector("ol.cart-header.lcd-opc-kroky"), celkom: t(document.querySelector('.summary-wrapper [data-testid="recapFullPrice"]') || document.querySelector('[data-testid="recapFullPrice"]')) };
 })()`;
-/** Krok 2: položky súhrnu so zobáčikom, kartou detailu a fotkou; čo do poznámky objednávky zapíše main.js toNote
+/** Krok 2: položky súhrnu s rozpisom pod názvom (karta detailu), pilulkou „Zobraziť viac“ a fotkou; čo do poznámky objednávky zapíše main.js toNote
  *  (sessionStorage.model, pri kamióne truckOrderSummary — #remark sa plní až pri odoslaní). */
 const S42_POLOZKY = `(function () {${S42_ROZPIS_JS}
   var t = function (e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : ""; };
@@ -441,7 +473,7 @@ const S42_POLOZKY = `(function () {${S42_ROZPIS_JS}
   var ss = function (k) { try { return sessionStorage.getItem(k) || ""; } catch (e) { return ""; } };
   return { model: ss("model"), truck: ss("truckOrderSummary"), vyska: document.documentElement.scrollHeight,
     polozky: Array.prototype.map.call(document.querySelectorAll("#summary-box .cart-items .cart-item"), function (p) {
-      var z = p.querySelectorAll(":scope > .lcd-opc-zob"), zb = z[0] || null, d = zb ? document.getElementById(zb.getAttribute("aria-controls")) : null;
+      var z = p.querySelectorAll(":scope > .lcd-opc-zob"), zb = z[0] || null, d = p.querySelector(":scope > .lcd-opc-detail");
       var f = p.querySelector(":scope > img.lcd-opc-foto"), n = p.querySelector(".cart-item-name");
       var ml = n && n.querySelector("a.main-link");
       var nazov = ml ? Array.prototype.filter.call(ml.childNodes, function (x) { return x.nodeType === 3; }).map(function (x) { return x.textContent; }).join(" ").replace(/\\s+/g, " ").trim() : "";
@@ -451,8 +483,10 @@ const S42_POLOZKY = `(function () {${S42_ROZPIS_JS}
         nazov: nazov, popisZob: popisZob, menoOrez: ml ? ml.scrollHeight > ml.clientHeight + 1 : null,
         // viditeľné riadky názvu = výška odkazu / výška riadku (orezané -webkit-line-clamp sa nerátajú)
         riadky: ml ? Math.round(ml.getBoundingClientRect().height / (parseFloat(getComputedStyle(ml).lineHeight) || 20.8)) : 0,
-        zob: zb ? { text: t(zb), exp: zb.getAttribute("aria-expanded"), typ: zb.getAttribute("type"), tag: zb.tagName, r: rect(zb), vid: vid(zb), vnutri: !!d && p.contains(d) } : null,
+        zob: zb ? { text: t(zb), exp: zb.getAttribute("aria-expanded"), typ: zb.getAttribute("type"), tag: zb.tagName, r: rect(zb), vid: vid(zb),
+          vnutri: !!d && zb.getAttribute("aria-controls") === d.id && p.contains(d) } : null,
         detailVid: vid(d), detailText: d ? t(d) : "", detailRiadky: riadkyRozpisu(d), detailVzhlad: vzhlad(d), detailKarta: karta(d),
+        hned: riadkyA1(d, true), prazdneSkupiny: prazdneSkupiny(d),
         // v karte smie byť len natívny rozpis (ul.lcd-rozpis / span príplatkov kamióna), nič pridané
         detailCudzie: d ? d.querySelectorAll(":scope > :not(ul.lcd-rozpis):not(span.main-link-surcharges)").length : 0,
         detailImg: d ? d.querySelectorAll("img").length : 0, bodky: d ? d.querySelectorAll(".lcd-opc-bodka").length : 0, detailR: vid(d) ? rect(d) : null,
@@ -460,7 +494,7 @@ const S42_POLOZKY = `(function () {${S42_ROZPIS_JS}
         r: rect(p), meno: n ? rect(n) : null, h: Math.round(p.getBoundingClientRect().height), ks: t(p.querySelector(".cart-item-amount")), cena: t(p.querySelector(".cart-item-price")) };
     }) };
 })()`;
-/** Zbalený súhrn navrchu (telefón, vzhlad.js obnovZbalenySuhrn): kópie položiek s rozpisom pod názvom, bez fotky a zobáčika. */
+/** Zbalený súhrn navrchu (telefón, vzhlad.js obnovZbalenySuhrn): kópie položiek s rozpisom pod názvom, bez fotky, s vlastnou pilulkou (A1). */
 const S42_ZBALENE = `(function () {${S42_ROZPIS_JS}
   var zb = document.getElementById("lcd-opc-zbalene");
   if (!zb) return null;
@@ -469,10 +503,14 @@ const S42_ZBALENE = `(function () {${S42_ROZPIS_JS}
   try {
     return { vid: vid(zb), polozky: Array.prototype.map.call(zb.querySelectorAll(".lcd-opc-zbalene__polozky .cart-item"), function (k) {
       var dd = Array.prototype.filter.call(k.querySelectorAll(".lcd-truck-cart-summary dd"), vid);
-      return { riadky: riadkyRozpisu(k), vidLi: Array.prototype.filter.call(k.querySelectorAll("ul.lcd-rozpis > li"), vid).length,
-        // kamión so súhrnom (karty skupín .lcd-truck-cart-summary): viditeľné hodnoty a ich písmo (N2)
+      var zz = k.querySelectorAll(".lcd-opc-zob"), z = zz[0] || null, r = z ? z.getBoundingClientRect() : null;
+      return { riadky: riadkyRozpisu(k), hned: riadkyA1(k, true), prazdneSkupiny: prazdneSkupiny(k),
+        // kamión so súhrnom (karty skupín .lcd-truck-cart-summary): písmo viditeľných hodnôt (N2)
         vidKamion: dd.length, pismoKamion: dd.length ? parseFloat(getComputedStyle(dd[0]).fontSize) : 0,
-        cudzie: k.querySelectorAll(".lcd-opc-foto, .lcd-opc-zob, .lcd-opc-detail, .lcd-opc-bodka, img").length };
+        pocetZob: zz.length, zob: z ? { text: z.textContent.replace(/\\s+/g, " ").trim(), exp: z.getAttribute("aria-expanded"), kluc: z.getAttribute("data-lcd-opc-kluc"),
+          ctrl: !!z.getAttribute("aria-controls") && !!k.querySelector("#" + z.getAttribute("aria-controls")), vid: vid(z), w: Math.round(r.width), h: Math.round(r.height),
+          popis: (z.getAttribute("aria-describedby") || "").split(/\\s+/).filter(Boolean).map(function (id) { var e = document.getElementById(id); return e ? e.textContent : ""; }).join(" ").replace(/\\s+/g, " ").trim() } : null,
+        cudzie: k.querySelectorAll(".lcd-opc-foto, .lcd-opc-detail, .lcd-opc-bodka, img").length };
     }) };
   } finally { zb.open = bolo; }
 })()`;
@@ -491,32 +529,59 @@ async function s42Klaves(s, sel, kl) {
   await s.k.posli("Input.dispatchKeyEvent", Object.assign({ type: "keyUp" }, K));
   await pauza(250);
 }
-/** Položka košíka má natívny rozpis (cart.js): len taká má v súhrne zobáčik a kartu detailu. */
+/** Položka košíka má natívny rozpis (cart.js): len taká má v súhrne kartu detailu (rozpis pod názvom). */
 const maRozpis = (r) => !!(r && r.riadkyRozpisu && r.riadkyRozpisu.length);
-/** Spoločné kontroly položiek: zobáčik (button, aria, 44 px, text) len pri položke s rozpisom, stav, fotka pri správnej položke (60 × 60, vľavo od názvu). */
+/**
+ * A1 (Michal 30. 10. 2026): riadky rozpisu z košíka, ktoré má súhrn ukázať HNEĎ — koberce „Auto“, „Farba 1. / 2. vrstvy“
+ * (CZ „Barva“), kamión „Vozidlo“ a prvé „Typ a farba materiálu“ (kamión bez súhrnu: „Typ materiálu“ a „Farba materiálu“),
+ * inak prvé 2 riadky. Nezávislé od opc/polozky.js — číta len texty košíka.
+ */
+function s42Hned(riadky, druh) {
+  const nazov = (x) => (/^(.+?)(?::\s|\s[-–]\s)/.exec(x) || [0, ""])[1];
+  let v = [];
+  if (druh === "kamion" || druh === "info") {
+    riadky.forEach((x, i) => { if (/^Vozidlo$/.test(nazov(x))) v.push(i); });
+    const m = riadky.findIndex((x) => /^Typ a (farba|barva) materiálu$/.test(nazov(x)));
+    if (m >= 0) v.push(m);
+    else [/^Typ materiálu$/, /^(Farba|Barva) materiálu$/].forEach((re) => { const j = riadky.findIndex((x) => re.test(nazov(x))); if (j >= 0) v.push(j); });
+  } else riadky.forEach((x, i) => { if (/^(Auto|(Farba|Barva) [12]\. vrstvy)$/.test(nazov(x))) v.push(i); });
+  if (!v.length) v = riadky.slice(0, 2).map((x, i) => i);
+  return riadky.filter((x, i) => v.includes(i));
+}
+/** Spoločné kontroly položiek: rozpis z košíka pod názvom vždy viditeľný, hneď len riadky A1 (zbalené) / všetky (rozbalené);
+ *  pilulka „Zobraziť viac“ (button, aria, 44 px, text, pod rozpisom) len keď sa niečo skrýva; fotka pri správnej položke
+ *  (60 × 60, vľavo od názvu). */
 function s42Polozky(m, kosik, T, popis, rozbalene) {
   over(m.polozky.length === kosik.riadky.length && m.polozky.length > 0, popis + ": v súhrne " + m.polozky.length + " položiek, v košíku " + kosik.riadky.length);
   m.polozky.forEach((p, i) => {
     const kde = popis + ", položka " + (i + 1);
     const r = kosik.riadky.find((x) => x.kluc === p.kluc);
     over(r, kde + ": kľúč " + p.kluc + " nie je v košíku");
+    let skryva = false;
     if (maRozpis(r)) {
-      over(p.pocetZob === 1 && p.zob && p.zob.tag === "BUTTON" && p.zob.typ === "button" && p.zob.vnutri && p.zob.vid,
-        kde + ": chýba zobáčik (button type=button, aria-controls na kartu v tej istej položke): " + JSON.stringify(p.zob) + " ×" + p.pocetZob);
-      over(p.zob.r.w >= 44 && p.zob.r.h >= 44, kde + ": dotyková plocha zobáčika " + p.zob.r.w + " × " + p.zob.r.h + " < 44 px");
-      over(p.zob.exp === String(rozbalene) && p.detailVid === rozbalene,
-        kde + ": čakal som " + (rozbalene ? "rozbalené" : "zbalené") + ", aria-expanded " + p.zob.exp + ", karta " + (p.detailVid ? "viditeľná" : "skrytá"));
-      over(p.zob.text === (rozbalene ? T.skryt : T.zobrazit), kde + ": text zobáčika „" + p.zob.text + "“ (čakal som „" + (rozbalene ? T.skryt : T.zobrazit) + "“)");
-      // čítačka: pri viacerých položkách rozlíši tlačidlá podľa názvu položky (revízia doladenia 1, nález 9)
-      over(p.nazov && p.popisZob.toLowerCase().includes(p.nazov.toLowerCase()), kde + ": zobáčik nemá v popise (aria-describedby) názov položky: " + JSON.stringify([p.popisZob, p.nazov]));
+      const hned = s42Hned(r.riadkyA1, r.druh);
+      skryva = hned.length < r.riadkyA1.length;
+      over(p.pocetDetailov === 1 && p.detailVid, kde + ": rozpis z košíka nie je pod názvom viditeľný (karta " + p.pocetDetailov + "×, " + (p.detailVid ? "viditeľná" : "skrytá") + ")");
+      const cakane = rozbalene || !skryva ? r.riadkyA1 : hned;
+      over(rovnake(p.hned, cakane), kde + ": " + (rozbalene ? "rozbalené" : "zbalené") + " — viditeľné riadky rozpisu ≠ A1:\n      súhrn  " + JSON.stringify(p.hned) + "\n      čakal  " + JSON.stringify(cakane));
+      over(!p.prazdneSkupiny, kde + ": viditeľná karta skupiny kamióna bez riadku (" + p.prazdneSkupiny + ")");
+      if (skryva) {
+        over(p.pocetZob === 1 && p.zob && p.zob.tag === "BUTTON" && p.zob.typ === "button" && p.zob.vnutri && p.zob.vid,
+          kde + ": chýba pilulka „Zobraziť viac“ (button type=button, aria-controls na kartu v tej istej položke): " + JSON.stringify(p.zob) + " ×" + p.pocetZob);
+        over(p.zob.r.w >= 44 && p.zob.r.h >= 44, kde + ": dotyková plocha pilulky " + p.zob.r.w + " × " + p.zob.r.h + " < 44 px");
+        over(p.zob.exp === String(rozbalene), kde + ": čakal som " + (rozbalene ? "rozbalené" : "zbalené") + ", aria-expanded " + p.zob.exp);
+        over(p.zob.text === (rozbalene ? T.skryt : T.zobrazit), kde + ": text pilulky „" + p.zob.text + "“ (čakal som „" + (rozbalene ? T.skryt : T.zobrazit) + "“, bez počtu)");
+        over(p.detailR && p.zob.r.t >= p.detailR.b - 1, kde + ": pilulka nie je pod rozpisom: " + JSON.stringify([p.zob.r, p.detailR]));
+        // čítačka: pri viacerých položkách rozlíši tlačidlá podľa názvu položky (revízia doladenia 1, nález 9)
+        over(p.nazov && p.popisZob.toLowerCase().includes(p.nazov.toLowerCase()), kde + ": pilulka nemá v popise (aria-describedby) názov položky: " + JSON.stringify([p.popisZob, p.nazov]));
+      } else over(p.pocetZob === 0, kde + ": nič sa neskrýva, a predsa je tu pilulka (" + p.pocetZob + "×)");
     } else {
-      // náhľad 5: položka bez rozpisu = bez tlačidla „Zobraziť detail“ (nie je čo zobraziť)
-      over(p.pocetZob === 0 && p.pocetDetailov === 0, kde + ": položka bez rozpisu v košíku má zobáčik (" + p.pocetZob + ") alebo kartu detailu (" + p.pocetDetailov + ")");
+      // položka bez rozpisu: bez karty aj bez pilulky (nie je čo zobraziť)
+      over(p.pocetZob === 0 && p.pocetDetailov === 0, kde + ": položka bez rozpisu v košíku má pilulku (" + p.pocetZob + ") alebo kartu detailu (" + p.pocetDetailov + ")");
     }
-    // rozbalené = celý názov ako v náhľade 2b / 4; zbalené najviac 2 riadky na PC aj na telefóne („Objednať“ na 1366×657
-    // ostáva v súhrne, doladenie 2 — predtým telefón 3 riadky)
-    if (rozbalene && maRozpis(r)) over(p.menoOrez === false, kde + ": rozbalená položka má orezaný názov (náhľad 4 ukazuje celý): „" + p.nazov + "“");
-    else if (!rozbalene) over(p.riadky >= 1 && p.riadky <= 2, kde + ": zbalený názov má " + p.riadky + " riadky (najviac 2 na PC aj na telefóne): „" + p.nazov + "“");
+    // rozbalené = celý názov ako v náhľade 2b / 4 / 6; zbalené (alebo bez pilulky) najviac 2 riadky na PC aj na telefóne
+    if (rozbalene && skryva) over(p.menoOrez === false, kde + ": rozbalená položka má orezaný názov (náhľad 6 ukazuje celý): „" + p.nazov + "“");
+    else over(p.riadky >= 1 && p.riadky <= 2, kde + ": zbalený názov má " + p.riadky + " riadky (najviac 2 na PC aj na telefóne): „" + p.nazov + "“");
     // veľké začiatočné písmeno priamo v texte názvu (doladenie 2): WebKit (Safari, iPhone) ::first-letter na -webkit-box
     // s line-clamp nezväčší a ukazoval „luxusné…“ — Chromium by chybu cez ::first-letter skryl, preto kontrola v DOM
     over(p.nazov && p.nazov.charAt(0) === p.nazov.charAt(0).toLocaleUpperCase("sk"), kde + ": názov v súhrne nezačína veľkým písmenom (Safari ho cez ::first-letter nezväčší): „" + p.nazov + "“");
@@ -595,24 +660,39 @@ function s42Obsah(m, kosik, T, popis, priplatky) {
       kde + ": detail nie je pod stĺpcom názvu: " + JSON.stringify({ detail: p.detailR, nazov: p.meno, polozka: p.r }));
   });
 }
-/** Zbalený súhrn navrchu (telefón): pri každej položke rozpis z košíka pod názvom (DOM), bez fotky, zobáčika a guličiek. */
-function s42Zbalene(z, kosik, popis) {
+/** Zbalený súhrn navrchu (telefón): pri každej položke rozpis z košíka pod názvom (DOM), bez fotky a guličiek; hneď len
+ *  riadky A1, vlastná pilulka kópie „Zobraziť viac“ (keď sa niečo skrýva) rozbalí všetky. */
+function s42Zbalene(z, kosik, T, popis, rozbalene) {
   over(z && z.vid, popis + ": zbalený súhrn navrchu chýba: " + JSON.stringify(z));
   over(z.polozky.length === kosik.riadky.length, popis + ": zbalený súhrn má " + z.polozky.length + " položiek, košík " + kosik.riadky.length);
   z.polozky.forEach((k, i) => {
-    const r = kosik.riadky[i];
-    over(k.cudzie === 0, popis + ", zbalený súhrn, položka " + (i + 1) + ": fotka / zobáčik / karta / gulička v kópii (" + k.cudzie + ")");
-    over(rovnake(k.riadky, r.riadkyRozpisu), popis + ", zbalený súhrn, položka " + (i + 1) + ": rozpis ≠ košík: " + JSON.stringify([k.riadky, r.riadkyRozpisu]));
-    if (r.rozpis.length) over(k.vidLi === r.rozpis.length, popis + ", zbalený súhrn, položka " + (i + 1) + ": viditeľných riadkov rozpisu " + k.vidLi + " z " + r.rozpis.length);
-    // kamión so súhrnom: po rozbalení „Vaša objednávka“ vidno karty skupín ako v košíku, písmo ≥ 14 px (revízia 30. 10. 2026,
-    // N2 — kniha § 6.8: „Po rozbalení ukáže položky s rozpisom“; predtým display:none)
-    if (r.kamion.length) over(k.vidKamion === r.kamion.length && k.pismoKamion >= 14,
-      popis + ", zbalený súhrn, položka " + (i + 1) + ": viditeľných hodnôt rozpisu kamióna " + k.vidKamion + " z " + r.kamion.length + " (písmo " + k.pismoKamion + " px)");
+    const r = kosik.riadky[i], kde = popis + ", zbalený súhrn" + (rozbalene ? " (kópia rozbalená)" : "") + ", položka " + (i + 1);
+    over(k.cudzie === 0, kde + ": fotka / karta / gulička v kópii (" + k.cudzie + ")");
+    over(rovnake(k.riadky, r.riadkyRozpisu), kde + ": rozpis ≠ košík: " + JSON.stringify([k.riadky, r.riadkyRozpisu]));
+    const hned = s42Hned(r.riadkyA1, r.druh), skryva = maRozpis(r) && hned.length < r.riadkyA1.length;
+    const cakane = !maRozpis(r) ? [] : rozbalene || !skryva ? r.riadkyA1 : hned;
+    over(rovnake(k.hned, cakane), kde + ": viditeľné riadky ≠ A1:\n      kópia  " + JSON.stringify(k.hned) + "\n      čakal  " + JSON.stringify(cakane));
+    over(!k.prazdneSkupiny, kde + ": viditeľná karta skupiny kamióna bez riadku (" + k.prazdneSkupiny + ")");
+    over(k.pocetZob === (skryva ? 1 : 0), kde + ": pilulka v kópii " + k.pocetZob + "× (čakal som " + (skryva ? 1 : 0) + ")");
+    if (skryva) {
+      over(k.zob.vid && k.zob.ctrl && k.zob.w >= 44 && k.zob.h >= 44 && k.zob.exp === String(rozbalene) && k.zob.text === (rozbalene ? T.skryt : T.zobrazit),
+        kde + ": pilulka kópie (viditeľná, aria-controls na rozpis kópie, 44 px, stav, text): " + JSON.stringify(k.zob));
+      over(k.zob.popis && !/Zobrazi/.test(k.zob.popis), kde + ": pilulka kópie bez popisu názvom položky: " + JSON.stringify(k.zob.popis));
+    }
+    // kamión so súhrnom: viditeľné hodnoty ≥ 14 px (revízia 30. 10. 2026, N2 — kniha § 6.8 „Po rozbalení ukáže položky s rozpisom“)
+    if (r.kamion.length) over(k.vidKamion > 0 && k.pismoKamion >= 14, kde + ": rozpis kamióna nevidno alebo písmo " + k.pismoKamion + " px < 14");
   });
+}
+/** Telefón: otvorí „Vaša objednávka“ a ťukne na pilulku každej kópie (ako zákazník); zbalený súhrn ostane otvorený. */
+async function s42KlikniKopie(s, z) {
+  await s.ev(`(function () { var d = document.getElementById("lcd-opc-zbalene"); if (d) d.open = true; return 1; })()`);
+  await pauza(150);
+  for (const k of z.polozky.filter((x) => x.zob)) await s.klikni(`#lcd-opc-zbalene .lcd-opc-zob[data-lcd-opc-kluc="${k.zob.kluc}"]`, { popis: "pilulka kópie " + k.zob.kluc });
+  await pauza(250);
 }
 
 SCENARE.S42 = {
-  popis: "Súhrn: zobáčik pri položke s rozpisom (zbalené → rozbalené, aria, klávesnica, 44 px, CZ texty), detail = rekapitulácia z košíka (tie isté riadky a vzhľad, pod názvom, bez guličiek, počtu, ceny, „Niečo nesedí“), zbalený súhrn navrchu, fotka 60 px pri správnej položke bez posunu; košík s kódom OPC v štýle kroku 2, bez kódu bez zmeny; set 1v (a 2v, keď sú fixtures sk-set2v), dve položky, kamión, vzorkovník; 360–1920 a notebook 1366×657",
+  popis: "Súhrn A1: pod názvom rozpis z košíka hneď (Auto + vrstvy / vozidlo + materiál / prvé 2), zvyšok po „Zobraziť viac“ (bez počtu, aria, klávesnica, 44 px, CZ texty; bez pilulky, keď sa nič neskrýva), rozbalený = rekapitulácia z košíka (tie isté riadky a vzhľad, pod názvom, bez guličiek, počtu, ceny, „Niečo nesedí“), zbalený súhrn navrchu s vlastnou pilulkou, fotka 60 px pri správnej položke bez posunu; košík s kódom OPC v štýle kroku 2, bez kódu bez zmeny; set 1v (a 2v, keď sú fixtures sk-set2v), dve položky, kamión, vzorkovník; 360–1920 a notebook 1366×657",
   async fn(J) {
     const T = S42_TEXTY[J.web];
     const casti = [];
@@ -644,33 +724,46 @@ SCENARE.S42 = {
       over(K.riadky.reduce((a, r) => a + cislo(r.sucet), 0) === cislo(K.celkom), popis + ": súčty riadkov košíka nesedia s „Celkom za tovar“: " + JSON.stringify([K.riadky.map((r) => r.sucet), K.celkom]));
       if (kosik === "set" || kosik === "dve" || kosik === "set2v") over(K.riadky[0].rozpis.some((li) => /^Auto/.test(li)), popis + ": v rozpise setu chýba Auto (kontrola auta v detaile by nič neoverila)");
       if (kosik === "set2v") over(K.riadky[0].rozpis.some((li) => /^Farba 2. vrstvy: /.test(li)), popis + ": fixtures sk-set2v nemajú v rozpise druhú vrstvu: " + JSON.stringify(K.riadky[0].rozpis));
-      // krok 2 zbalené: zobáčik, fotka bez posunu, každá fotka sa načítala (nie prázdny rámik)
+      // krok 2 zbalené: rozpis A1 a pilulka, fotka bez posunu, každá fotka sa načítala (nie prázdny rámik)
       const cls = await s.ev(S42_CLS);
       over(cls.pred === cls.po, popis + ": výška položiek sa po načítaní fotky zmenila (posun obsahu): " + JSON.stringify(cls));
       over(!cls.nacitane.split(",").some((x) => x === "0"), popis + ": fotka v súhrne sa nenačítala (naturalWidth 0 = prázdny rámik): " + JSON.stringify(cls));
       let m = await s.ev(S42_POLOZKY);
       s42Polozky(m, K, T, popis + " zbalené", false);
-      // telefón: zbalený súhrn navrchu (kópie položiek) má rozpis z košíka pod názvom, bez fotky a zobáčika
-      if (J.sirka < 768) s42Zbalene(await s.ev(S42_ZBALENE), K, popis);
+      // telefón: zbalený súhrn navrchu (kópie položiek) má rozpis z košíka pod názvom, bez fotky, s vlastnou pilulkou; ťuk
+      // na pilulku kópie rozbalí len kópiu (súhrn pri Objednať ostane zbalený)
+      if (J.sirka < 768) {
+        const z0 = await s.ev(S42_ZBALENE);
+        s42Zbalene(z0, K, T, popis, false);
+        if (z0.polozky.some((k) => k.zob)) {
+          await s42KlikniKopie(s, z0);
+          s42Zbalene(await s.ev(S42_ZBALENE), K, T, popis, true);
+          s42Polozky(await s.ev(S42_POLOZKY), K, T, popis + " zbalené (po rozbalení kópie navrchu)", false);
+          casti.push(kosik + ": kópia navrchu rozbalená");
+        }
+        await s.ev(`(function () { var d = document.getElementById("lcd-opc-zbalene"); if (d) d.open = false; return 1; })()`);
+      }
       const vyskaZbalene = m.vyska;
       const vysky = m.polozky.map((p) => p.h);
-      // rozbaliť každú položku skutočným klikom (telefón ťuk), karta = rozpis z košíka
-      for (const p of m.polozky.filter((x) => x.zobKluc)) await s.klikni(`#summary-box .lcd-opc-zob[data-lcd-opc-kluc="${p.zobKluc}"]`, { popis: "zobáčik " + p.zobKluc });
+      // rozbaliť každú položku s pilulkou skutočným klikom (telefón ťuk), karta = celý rozpis z košíka
+      for (const p of m.polozky.filter((x) => x.zobKluc)) await s.klikni(`#summary-box .lcd-opc-zob[data-lcd-opc-kluc="${p.zobKluc}"]`, { popis: "pilulka " + p.zobKluc });
       await pauza(250);
       m = await s.ev(S42_POLOZKY);
       s42Polozky(m, K, T, popis + " rozbalené", true);
       s42Obsah(m, K, T, popis, kosik === "kamion" ? priplatkyKamiona() : null);
       const zakl = await zakladne(s, popis + " rozbalené");
-      // klávesnica: Enter zbalí, medzerník rozbalí (prvá položka)
+      // klávesnica: Enter zbalí, medzerník rozbalí (prvá pilulka; vzorkovník s 1 vzorkou pilulku nemá)
       const sel = "#summary-box .cart-item .lcd-opc-zob";
-      await s42Klaves(s, sel, "Enter");
-      let e = await s.ev(`document.querySelector(${JSON.stringify(sel)}).getAttribute("aria-expanded")`);
-      over(e === "false", popis + ": Enter na zobáčiku nezbalil kartu (aria-expanded " + e + ")");
-      await s42Klaves(s, sel, " ");
-      e = await s.ev(`document.querySelector(${JSON.stringify(sel)}).getAttribute("aria-expanded")`);
-      over(e === "true", popis + ": medzerník na zobáčiku nerozbalil kartu (aria-expanded " + e + ")");
+      if (await s.ev(`!!document.querySelector(${JSON.stringify(sel)})`)) {
+        await s42Klaves(s, sel, "Enter");
+        let e = await s.ev(`document.querySelector(${JSON.stringify(sel)}).getAttribute("aria-expanded")`);
+        over(e === "false", popis + ": Enter na pilulke nezbalil položku (aria-expanded " + e + ")");
+        await s42Klaves(s, sel, " ");
+        e = await s.ev(`document.querySelector(${JSON.stringify(sel)}).getAttribute("aria-expanded")`);
+        over(e === "true", popis + ": medzerník na pilulke nerozbalil položku (aria-expanded " + e + ")");
+      } else casti.push(kosik + ": nič sa neskrýva, bez pilulky");
       casti.push(kosik + " " + vyskaZbalene + "→" + zakl.vyska + " px (položky " + vysky.join("/") + ")");
-      // prekreslenie súhrnu (zmena platby na dobierku): rozbalené, fotka a jeden zobáčik ostávajú
+      // prekreslenie súhrnu (zmena platby na dobierku): rozbalené, fotka a jedna pilulka ostávajú
       if (kosik === "set" || (kosik === "vzorkovnik" && J.web === "cz")) {
         await zvolPlatbu(s, T.dobierka);
         await s.cakaj(`/Dobierk|Dobírk/i.test((document.querySelector('#summary-box [data-testid="recapPaymentMethod"]') || {}).textContent || "") && !document.querySelector("#summary-box.lcd-opc-prepocet")`,
@@ -679,7 +772,11 @@ SCENARE.S42 = {
         m = await s.ev(S42_POLOZKY);
         s42Polozky(m, K, T, popis + " po zmene platby", true);
         s42Obsah(m, K, T, popis + " po zmene platby");
-        if (J.sirka < 768) s42Zbalene(await s.ev(S42_ZBALENE), K, popis + " po zmene platby");
+        // kópia navrchu: stav kópie (rozbalená vyššie) prežije prekreslenie súhrnu
+        if (J.sirka < 768) {
+          const z1 = await s.ev(S42_ZBALENE);
+          s42Zbalene(z1, K, T, popis + " po zmene platby", z1.polozky.some((k) => k.zob));
+        }
         casti.push("po zmene platby ostalo rozbalené");
       }
       await s.zavri();
@@ -699,19 +796,20 @@ SCENARE.S42 = {
       await t.zavri();
     }
     // notebook 1366×657: zbalené = „Objednať“ celé na prvej obrazovke, alebo (od súhlasov B1, S41) karta nad súhrnom, ktorá
-    // tlačidlo zakryje celé, a povinný súhlas celý nad ňou — karta tu čaká na rozhodnutie Michala (kniha § 10.12)
+    // tlačidlo zakryje celé, a povinný súhlas začína nad ňou (A1 ho posunie ~70 px nižšie, spodok môže zasahovať pod kartu —
+    // info behu) — karta tu čaká na rozhodnutie Michala (kniha § 10.12)
     if (J.sirka >= 992) {
       const t = await J.novaStranka({ kosik, sirka: 1366, vyska: 657, skript: s42Seed(kosik) });
       await naKrok2(t, q);
       await t.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`);
       await pauza(500);
       const n = await t.ev(MER_PC);
-      over(n.cele && !n.on || n.on && n.trci === 0 && n.suhlas && n.suhlas.t >= 0 && n.suhlas.b <= n.lista.t,
-        "1366×657 zbalené: „Objednať“ nie je celé na prvej obrazovke, ani ho celé nezakryje karta s povinným súhlasom celým nad ňou: " + JSON.stringify(n));
+      over(n.cele && !n.on || n.on && n.trci === 0 && n.suhlas && n.suhlas.t >= 0 && n.suhlas.t < n.lista.t,
+        "1366×657 zbalené: „Objednať“ nie je celé na prvej obrazovke, ani ho celé nezakryje karta s povinným súhlasom začínajúcim nad ňou: " + JSON.stringify(n));
       (await t.ev(S42_POLOZKY)).polozky.forEach((p, i) => over(p.riadky >= 1 && p.riadky <= 2,
         "1366×657 zbalené, položka " + (i + 1) + ": názov má " + p.riadky + " riadky (najviac 2): „" + p.nazov + "“"));
-      casti.push("1366×657 " + (n.on ? "karta, povinný súhlas " + n.suhlas.t + "–" + n.suhlas.b + " (POZOR: „Objednať“ " + n.objednat.t + "–" + n.objednat.b +
-        " pod kartou — čaká na rozhodnutie Michala, § 10.12)" : "Objednať " + n.objednat.t + "–" + n.objednat.b));
+      casti.push("1366×657 " + (n.on ? "karta, povinný súhlas " + n.suhlas.t + "–" + n.suhlas.b + (n.suhlas.b <= n.lista.t ? "" : " (spodok " + (n.suhlas.b - n.lista.t) + " px pod kartou)") +
+        " (POZOR: „Objednať“ " + n.objednat.t + "–" + n.objednat.b + " pod kartou — čaká na rozhodnutie Michala, § 10.12)" : "Objednať " + n.objednat.t + "–" + n.objednat.b));
       await t.zavri();
     }
     // košík bez kódu (zákazník): žiadna trieda OPC, žiadna mapa fotiek, krokovník Shoptetu
@@ -726,7 +824,7 @@ SCENARE.S42 = {
 };
 
 // ------------------------------------------------------------------ S43 doladenie 2 (30. 10. 2026)
-// Fotka v súhrne sa nenačíta (404 / chyba siete): nesmie ostať prázdny rámik 60 px — celý rámik preč, názov a zobáčik
+// Fotka v súhrne sa nenačíta (404 / chyba siete): nesmie ostať prázdny rámik 60 px — celý rámik preč, názov, rozpis a pilulka
 // zarovnané vľavo bez medzery; po prekreslení súhrnu (zmena platby) sa rámik nevráti.
 const FOTKA_404 = "https://cdn.myshoptet.com/usr/www.luxurycardesign.sk/user/shop/related/lcd-opc-test-404.jpg?x=100&y=100";
 /** Košík pred „Pokračovať“: mapa fotiek (opc/kosik.js ulozFotky) s adresou, ktorú podvrh vráti ako 404 (nie je vo fixtures/cdn). */
@@ -740,17 +838,19 @@ const S43_ZLA_FOTKA = `(function () {
 })()`;
 const S43_POLOZKY = `(function () {
   return Array.prototype.map.call(document.querySelectorAll("#summary-box .cart-items .cart-item"), function (p) {
-    var f = p.querySelector("img.lcd-opc-foto"), n = p.querySelector(".cart-item-name"), z = p.querySelector(":scope > .lcd-opc-zob");
-    var rp = p.getBoundingClientRect(), rn = n.getBoundingClientRect(), rz = z ? z.getBoundingClientRect() : null;
+    var f = p.querySelector("img.lcd-opc-foto"), n = p.querySelector(".cart-item-name"), z = p.querySelector(":scope > .lcd-opc-zob"), d = p.querySelector(":scope > .lcd-opc-detail");
+    var rp = p.getBoundingClientRect(), rn = n.getBoundingClientRect(), rz = z ? z.getBoundingClientRect() : null, rd = d ? d.getBoundingClientRect() : null;
     var a = n.querySelector("a.main-link"), tx = a ? Array.prototype.find.call(a.childNodes, function (x) { return x.nodeType === 3 && /\\S/.test(x.nodeValue); }) : null;
     return { nazov: tx ? tx.nodeValue.trim().slice(0, 40) : "", foto: f ? { src: f.getAttribute("src"), nw: f.naturalWidth, hotovo: f.complete, w: Math.round(f.getBoundingClientRect().width) } : null,
-      trieda: p.classList.contains("lcd-opc-s-fotkou"), nazovOdLava: Math.round(rn.left - rp.left), zobOdLava: rz ? Math.round(rz.left - rp.left) : null };
+      trieda: p.classList.contains("lcd-opc-s-fotkou"), nazovOdLava: Math.round(rn.left - rp.left), zobOdLava: rz ? Math.round(rz.left - rp.left) : null,
+      detailOdLava: rd ? Math.round(rd.left - rp.left) : null };
   });
 })()`;
 const S43_FOTKY_HOTOVE = `Array.prototype.every.call(document.querySelectorAll("#summary-box img.lcd-opc-foto"), function (i) { return i.complete; })`;
 function s43BezRamika(polozky, kde) {
   over(polozky.length > 0, kde + ": v súhrne nie sú položky");
-  polozky.forEach((p, i) => over(!p.foto && !p.trieda && p.nazovOdLava <= 1 && p.zobOdLava !== null && p.zobOdLava <= 1,
+  // rozpis pod názvom je pri každej položke (set aj vzorkovník), pilulka len keď sa niečo skrýva (A1)
+  polozky.forEach((p, i) => over(!p.foto && !p.trieda && p.nazovOdLava <= 1 && p.detailOdLava !== null && p.detailOdLava <= 1 && (p.zobOdLava === null || p.zobOdLava <= 1),
     kde + ", položka " + (i + 1) + ": fotka sa nenačítala, ale ostal rámik alebo medzera vľavo: " + JSON.stringify(p)));
   // bez fotky je názov zbalený (-webkit-box): veľké začiatočné písmeno musí byť v texte (Safari, doladenie 2)
   polozky.forEach((p, i) => over(p.nazov && p.nazov.charAt(0) === p.nazov.charAt(0).toLocaleUpperCase("sk"),
@@ -758,7 +858,7 @@ function s43BezRamika(polozky, kde) {
 }
 
 SCENARE.S43 = {
-  popis: "Doladenie 2: fotka v súhrne sa nenačíta (404) -> bez prázdneho rámika, názov a zobáčik vľavo bez medzery, aj po prekreslení súhrnu (zmena platby)",
+  popis: "Doladenie 2: fotka v súhrne sa nenačíta (404) -> bez prázdneho rámika, názov, rozpis a pilulka vľavo bez medzery, aj po prekreslení súhrnu (zmena platby)",
   async fn(J) {
     const T = S42_TEXTY[J.web];
     const kosik = J.web === "sk" ? "set" : "vzorkovnik";
