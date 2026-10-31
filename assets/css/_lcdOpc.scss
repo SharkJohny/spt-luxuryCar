@@ -37,9 +37,9 @@ html.lcd-opc .lcd-opc-zmenit-riadok a{color:var(--o-gold-lo);text-decoration:und
 /* záchrana: spôsoby platby z obchodných podmienok (bod 4.5) pod odkazom */
 html.lcd-opc .lcd-opc-platby-vop{margin:-8px 0 16px;padding:0 10px;color:var(--o-mute);font:400 14px/1.45 var(--o-body)}
 @media (min-width:992px){html.lcd-opc .lcd-opc-zmenit-riadok,html.lcd-opc .lcd-opc-platby-vop{padding:0}}
-/* odkaz na obchodné podmienky v právnych vetách (záloha, tovar na mieru, záchrana) — zlatý ako ostatné odkazy; tmavšia zlatá
+/* odkaz na obchodné podmienky v právnych vetách (tovar na mieru, záchrana) — zlatý ako ostatné odkazy; tmavšia zlatá
    #7c5f16, lebo veta pri dobierke leží na zelenkavom podklade zvolenej voľby (#8f7020 tam mal 4,36 : 1, revízia) */
-html.lcd-opc .lcd-opc-zaloha-info a,html.lcd-opc .lcd-opc-pravne a,html.lcd-opc .lcd-opc-platby-vop a{color:var(--o-gold-t) !important;
+html.lcd-opc .lcd-opc-pravne a,html.lcd-opc .lcd-opc-platby-vop a{color:var(--o-gold-t) !important;
   text-decoration:underline;text-underline-offset:3px}
 
 /* ---------------------------------------------------------------- sekcia Doprava a platba */
@@ -82,10 +82,6 @@ html.lcd-opc #lcd-opc .lcd-opc-termin__lehota{white-space:nowrap}
 html.lcd-opc #lcd-opc .not-possible-info{display:none}
 html.lcd-opc #lcd-opc label.inactive{cursor:not-allowed;opacity:.55}
 html.lcd-opc #lcd-opc label.inactive .not-possible-info{display:block;margin-top:3px;color:var(--o-mute);font:italic 400 14px/1.35 var(--o-body)}
-/* dobierka: „+ záloha“ (cart.js lcdDobierkaZaloha) a sivé poučenie len po výbere */
-html.lcd-opc #lcd-opc .lcd-dob-pozn{margin-top:2px;color:var(--o-mute);font-size:14px;line-height:1.3}
-html.lcd-opc #lcd-opc .lcd-opc-zaloha-info{grid-area:pozn;display:none;margin:4px 0 0;color:var(--o-mute);font:400 14px/1.4 var(--o-body)}
-html.lcd-opc #lcd-opc input[data-payment-type="cashOnDelivery"]:checked+label .lcd-opc-zaloha-info{display:block}
 /* riadok-odkaz na krok 1 (rýchla platba cez banku, výdajné miesto) */
 html.lcd-opc #lcd-opc .lcd-opc-odkaz__riadok{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"info akcia";
   column-gap:12px;row-gap:6px;align-items:center;align-content:center;min-height:60px;box-sizing:border-box;padding:11px 14px 11px 48px;color:var(--o-ink)}

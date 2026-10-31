@@ -549,3 +549,14 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Koordinátor: push do main (Vydanie), počkať na gh run success, overiť CDN img/ulozisko/ s Accept image/avif,image/webp,*/* aj bez, potom prepnutie sha SK aj CZ
 - [ ] Nová farba/fotka v admine: na web sa dostane až po node tools/config-obrazky.mjs + push + prepnutie (dovtedy ide z úložiska ako záloha; --check --zivy ju nájde)
 - [ ] Session kamióny: kamion/data.js IMG_BASE a truck/build-truck-images.mjs (starý React, lcd-truck.js 196 odkazov na CZ úložisko) ostávajú — rozhodnúť u nich
+
+## Ďakovná stránka OPC – návrh 4 „Prémiový s platbou hore“ (31. 10. 2026, vetva dakujeme-v4, lokálne)
+- [x] Modul assets/js/opc/dakujeme.js + texty SK/CZ (dakujemeTexty.js), zapojený v opc/index.js len pri tajnom kóde OPC
+- [x] CSS blok LCD-OPC-DAKUJEME (_lcdOpcDakujeme.scss), všetko pod html.lcd-opc-dakujeme*
+- [x] Rekonštruované fixtures (tools/test-opc/dakujeme-fixtures.mjs), jednotky test-opc-dakujeme.mjs, scenáre S50–S53, Playwright test-opc-dakujeme-prehliadace.mjs
+- [x] Záznam pôvodného HTML do localStorage lcdOpcDakujemeZaznam (posledných 5), nikam sa neposiela
+- [x] Oprava po revízii 31. 10.: karta bez rozpoznaného tlačidla / s úspechom / PENDING = stránka Shoptetu („Zaplatené“ podľa textu vypnuté, kým to nepotvrdí záznam), tlačidlo vo formulári na bránu, suma = jedna cena s menou, dva rôzne účty/VS/sumy = stránka Shoptetu (kniha § 10.17)
+- [x] Pri dobierke nikde záloha (Michal 31. 10.): „+ záloha“ v košíku (cart.js) a poučenie VOP 4.13 v OPC zrušené lokálne — naživo len po Michalovom súhlase; VOP bod 4.13 = Michalovo právne rozhodnutie
+- [ ] Michal: skúšobné objednávky s kódom OPC (prevod, karta zrušená, karta zaplatená, dobierka; SK aj CZ), potom prečítať lcdOpcDakujemeZaznam a doladiť popisy a detekciu platby kartou, prípadne zapnúť ZAPLATENE_PODLA_TEXTU (kniha § 10.16, § 10.17)
+- [ ] Michal: schváliť texty mimo náhľadov (stav „čaká“, kamión, vzorky, veta pri QR Shoptetu)
+- [ ] Zlúčenie do main a nasadenie len so súhlasom Michala

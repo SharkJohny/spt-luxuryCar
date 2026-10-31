@@ -18,6 +18,8 @@
 //                          GET ShoptetPayPaymentData/* -> zachytené JSON (scenár banky "500": zoznam bánk 500); POST CustomerCookieConsent -> 200
 //                          (rýchla platba cez banku: shoptetPayPisCode z tela = banka v session, s.p.stav.banka; scenár
 //                            banka: "<kód>" = session už má banku z klasického kroku 1)
+//                          GET /objednavka/dekujeme/ (aj /dakujeme/) -> REKONŠTRUKCIA ďakovnej stránky (scenár dakujeme: kľúč
+//                            variantu z dakujeme-fixtures.mjs, obal = fixtures/<web>/krok2.html); bez scenára nečakaná (404)
 //                          POST Step2Validate -> ZACHYTIŤ, zapísať celé telo (aj platbu a banku zo session), fiktívna stránka „Objednávka prijatá (TEST)“;
 //                            scenár step2 "chyba-raz": prvý raz 302 späť na krok 2 s vyplnenými údajmi (❓ odhad, ako Shoptet
 //                            vracia chybu zo servera — overí F4), až druhý raz fiktívna stránka
@@ -43,6 +45,7 @@ import { extname, join } from "node:path";
 import { JSDOM } from "jsdom";
 import { KOREN } from "./build.mjs";
 import { FIXTURES } from "./zachytene.mjs";
+import { stranka as strankaDakujeme, VARIANTY as VARIANTY_DAKUJEME } from "./dakujeme-fixtures.mjs";
 
 export { FIXTURES }; // tools/test-opc/fixtures/ (nie je v gite, FIXTURES.md) alebo LCD_OPC_FIXTURES
 const CDN_DIR = join(FIXTURES, "cdn");
@@ -72,7 +75,7 @@ function nacitajManifest() {
   return manifest;
 }
 const klucCdn = (u) => u.host + u.pathname; // bez query (Shoptet má hash v názve, ?v= / ?t= sa mení)
-function cdnSubor(u) {
+export function cdnSubor(u) {
   const m = nacitajManifest()[klucCdn(u)];
   if (!m) return null;
   const cesta = join(CDN_DIR, m.subor);
@@ -406,6 +409,13 @@ export async function zapniPodvrh(k, moznosti) {
       if (p.scenar.krok1 === "zmenene") h = h.replace(/Step1Validate/g, "Step1ValidateZmenene"); // zmenené HTML Shoptetu
       z.odpoved = "krok1" + (p.stav.platba ? "-" + p.stav.platba : "");
       return stranka(rq, h);
+    }
+    // ďakovná stránka (rekonštrukcia, scenár dakujeme = kľúč variantu); bez scenára ide ďalej -> nečakaná
+    if (metoda === "GET" && /^\/objednavka\/d[ae]kujeme\/?$/.test(cesta) && p.scenar.dakujeme) {
+      const v = VARIANTY_DAKUJEME[p.scenar.dakujeme];
+      if (!v || v.web !== p.web) throw new Error("scenár dakujeme " + p.scenar.dakujeme + " nie je pre web " + p.web);
+      z.odpoved = "dakujeme-" + p.scenar.dakujeme;
+      return stranka(rq, strankaDakujeme(p.scenar.dakujeme, citaj(join(FIXTURES, p.web, "krok2.html"))));
     }
     if (metoda === "GET" && /^\/objednavka\/krok-2\/?$/.test(cesta)) {
       if (!p.stav.step1) { z.odpoved = "302-krok1"; return presmeruj(rq, "/objednavka/krok-1/"); }

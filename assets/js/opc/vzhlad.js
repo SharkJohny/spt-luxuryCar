@@ -1,7 +1,7 @@
 // One page checkout: vzhľad na kroku 2 (kniha OPC § 6.2–6.9). Len kreslenie a čisté výpočty — sieť a stav rieši
 // opc/krok2.js a opc/sync.js. Sekcia „Doprava a platba“ je klon označenia Shoptetu z kroku 1 (input -> label ->
 // .shipping-billing-name, triedy .radio-wrapper / .payment-info / .payment-logo / .payment-shipping-price), aby platilo
-// CSS Shoptetu aj naše lcdDobierkaZaloha (cart.js). Rádiá majú form="lcd-opc-nic" (prázdny pomocný formulár mimo
+// CSS Shoptetu. Rádiá majú form="lcd-opc-nic" (prázdny pomocný formulár mimo
 // #order-form): skupina podľa name funguje, ale do Step2Validate sa nepošlú (platbu berie Shoptet zo session).
 
 import { suhrnInfo, volbaZoSuhrnu } from "./sync.js";
@@ -248,10 +248,7 @@ export function vykresliSekciu(doc, model, T, o) {
       i.disabled = true;
       if (l) l.classList.add("inactive");
     }
-    if (p.typ === "cashOnDelivery" && l) {
-      // poučenie o zálohe podľa VOP 4.13 (kniha § 8 otázka 3) — sivý riadok len pri zvolenej dobierke (CSS :checked)
-      l.appendChild(vetaSOdkazom(doc, "small", "lcd-opc-zaloha-info", T.zalohaInfo, T.zalohaOdkaz, T.vop));
-    }
+    // dobierka: žiadna veta o zálohe (Michal 31. 10. 2026: „aby sa ľudia toho nebáli“)
     // dizajn A: platby zadarmo (prevod, karta, Apple Pay, Google Pay) ako dlaždice, platené (dobierka) ostávajú riadkom
     if (jeDlazdica(p)) { w.classList.add("lcd-opc-dlazdica"); dlazdice.push(w); }
     platbyEl.appendChild(w);

@@ -145,7 +145,7 @@ Krok 1 dnes nič nerieši. Doprava je jediná a predvolená, prevod je predvolen
   2. skryté `varchar1–3` (volant, sedadlá, dvere; `cart.js` r. 40–61),
   3. ponuka k setu `lcdKosikDoplnok.js` (výmena riadkov košíka cez `/action/Cart/*` a potom reload).
 - ✅ Predvolený prevod a povinné číslo domu v repe nie sú. 🟡 Sú to nastavenia v admine (admin som neotváral).
-- ✅ „+ záloha“ pri dobierke robí `lcdDobierkaZaloha` (`cart.js` r. 71–88, CSS `input:checked + label`).
+- ~~✅ „+ záloha“ pri dobierke robí `lcdDobierkaZaloha` (`cart.js` r. 71–88, CSS `input:checked + label`).~~ **Zrušené 31. 10. 2026** (Michal: pri dobierke nikde záloha, § 10.17).
 - ✅ Testy: `test-kosik-doplnok` 89 OK, `test-kosik-rozpis` 12 OK, `test-auto-pamat` 8 OK. `test-kamion-kosik` a `test-auto-vyber` (#remark) sa nespustili, lebo v `node_modules` je esbuild pre darwin-arm64.
 - ⚠️ Riziko pre one page: `cart.js` volá `location.reload()` po každom `ShoptetCartUpdated` a ponuka k setu po výmene. Na stránke s formulárom by reload zmazal vypísané údaje.
 
@@ -372,7 +372,7 @@ Stavy: `nacitavam` → `potvrdene` ↔ `meni-sa` → (`potvrdene` | `chyba`); a 
 | Platba | SK id | CZ id | v1 v OPC | Poznámka |
 |---|---|---|---|---|
 | Prevod | 5 (predvolená) | 5 (predvolená) | áno, navrchu | predvoľbu berieme z `checked` v kroku 1 (admin), nie napevno |
-| Dobierka | 3, 3 € | 87 (🟡 odvodené vylúčením), 50 Kč | áno | po výbere „+ záloha“ (`lcd-dob-pozn`, sivá, malá) a poučenie podľa VOP bod 4.13 (záloha 50 %, § 10.8) |
+| Dobierka | 3, 3 € | 87 (🟡 odvodené vylúčením), 50 Kč | áno | ~~po výbere „+ záloha“ a poučenie podľa VOP bod 4.13~~ — od 31. 10. 2026 nikde záloha (§ 10.17) |
 | Karta (Shoptet Pay) | 103 | 114 | áno | ❓ funkčnosť brány bez volaní z kroku 1 overí F4 |
 | Google Pay | 109 | 120 | áno | |
 | Apple Pay | 106 | 117 | áno, len keď `window.ApplePaySession?.canMakePayments()` | 🟡 Shoptet ju na telefóne v Chromiu skryl, na PC ukázal. Pravidlo prehliadača je bezpečnejšie než kópia zo servera |
@@ -526,7 +526,7 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 |---|---|---|
 | S1 | SK, vzorkovník, predvolené voľby, vyplnené vymyslené údaje, Objednať | presne 1 zachytený Step2Validate. Telo má povinné polia, `consents[]=9`, žiadne `billingId` z našej sekcie. Pred ním bol Step1Validate `shippingId=96&billingId=5` |
 | S2 | Košík → Pokračovať | Step1Validate XHR → priamo krok 2 (krok 1 sa nenačíta), 1 načítanie |
-| S3 | Zmena na dobierku | „+ záloha“ viditeľná, Step1Validate `billingId=3`, súhrn +3 €, celkom správne |
+| S3 | Zmena na dobierku | nikde „záloha“ (od 31. 10. 2026, § 10.17), Step1Validate `billingId=3`, súhrn +3 €, celkom správne |
 | S4 | Zmena na kartu a späť na prevod | 2 požiadavky (debounce), súhrn sedí, tlačidlo sa odomkne až po potvrdení |
 | S5 | Step1Validate vráti 500 | rádio sa vráti, hláška s odkazom, tlačidlo stále funguje s pôvodnou (potvrdenou) platbou |
 | S6 | Klik Objednať počas `meni-sa` | odoslanie počká, potom 1× Step2Validate s potvrdenou voľbou |
@@ -550,6 +550,10 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 | S42 | Rozpis A1 (§ 10.14; pôvodne zobáčik), fotka, košík v štýle pokladne (§ 10.9, 10.10, 10.12) | A1: hneď len riadky A1 (porovnané s textami košíka), pilulka „Zobraziť viac“ len pri skrytých riadkoch, kópia navrchu s vlastnou pilulkou (ťuk); pôvodne: zbalené → rozbalené (klik, Enter, medzerník, aria vrátane popisu názvom položky, 44 px, CZ texty); rozbalené = celý názov; karta = PRESNE rozpis z košíka v jeho vzhľade (riadky, farba, hrúbka, písmo; bez obrázkov, guličiek, Počet / Cena, „Niečo nesedí“), zbalený súhrn navrchu s rozpisom aj kariet kamióna, auto pre poznámku (`sessionStorage.model`), pri kamióne `truckOrderSummary` a zhoda s príplatkami položky; fotka 60 × 60 pri správnej položke (kľúč aj s kódom varianty), načítaná, bez posunu; súčty košíka = celkom; košík ?opc=1 v štýle kroku 2, bez ?opc=1 bez zmeny; set, dve položky, kamión, vzorkovník, CZ 3 vzorky (podvrh „vzorky3“, § 10.15); položka bez pilulky má celý názov (SK dve 360 / 992, CZ vzorkovník 360 / 992); 360–1920, 1366×657 (povinný súhlas celý nad kartou) |
 | S46 | Rýchla platba cez banku v OPC (§ 10.13) | klasický krok 1: okno Shoptet Pay biele, kontrast ≥ 4,5, 6 bánk bez posúvania; VÚB → Potvrdiť → Pokračovať = zachytené telo formulára kroku 1. OPC: ťuk na 112 → okno na tej istej adrese (dialóg, VÚB z localStorage, fokus), Späť = prevod a 0× Step1Validate; Potvrdiť = Step1Validate s telom PRESNE ako formulár kroku 1, súhrn „Rýchla platba cez banku“, podmienky Salt Edge; Zmeniť banku → Tatra = 1× Step1Validate; objednávka 1× so 112 a Tatra v session |
 | S45 | Súhlasy B1 (§ 10.12) | dve biele dlaždice 10 px od seba; povinný (required, nie poradie) zlatý rám 2 px a štítok „Povinné“ (pre čítačku bez textu), miesto preň aj pri opačnom poradí; klik kamkoľvek prepne, zaškrtnuté zelené; chyba = červený rám + text pod dlaždicou; fokus z klávesnice; PC: Tab na súhlas nad kartu „Celkom \| Objednať“ (set 1366×657, kamión 1920×1080, CZ) |
+| S50 | Ďakovná stránka bez kódu (§ 10.16) | aj s `?opc=1`: presne stránka Shoptetu – žiadny prvok, trieda, globál, záznam ani požiadavka navyše; bundle a data.json načítané |
+| S51 | Ďakovná stránka s kódom, prevod (§ 10.16) | hodnoty podľa popisov Shoptetu, pôvodný obsah len skrytý, Kopírovať skutočným klikom, záznam `lcdOpcDakujemeZaznam`; `?opc=0` → zase stránka Shoptetu |
+| S52 | Ďakovná stránka – stavy platby (§ 10.16, § 10.17) | karta neprebehla = zelené tlačidlo s odkazom Shoptetu; dobierka bez „záloha“; karta zaplatená a čaká (PENDING) = stránka Shoptetu so záznamom; chýbajúca suma = stránka Shoptetu |
+| S53 | Ďakovná stránka – rozloženie (§ 10.16) | nič nepreteká 320–1920 px, písmo text ≥ 16 / poznámky ≥ 14 / štítky ≥ 12 px, hlavné tlačidlo zelené, žiadne zakázané slová |
 
 ### 7.7 Prepínač
 
@@ -1246,6 +1250,66 @@ Všetko je na lokálnej vetve `opc-prototyp`. Nič sa nepushovalo, `SPUSTENE = f
 - `vloz-lcd-css --check` OK, `build-admin-html --check` OK, `test-kosik-rozpis` OK.
 
 **Snímka pred / po:** `…/scratchpad/nocny-beh/integracia/porovnanie-sk-set-1366x657-pred-po.png` (výrez panela SK set s autom 1366×657).
+
+### 10.16 Ďakovná stránka po objednávke – návrh 4 (30./31. 10. 2026)
+
+**Schválený vzhľad:** „4 – Prémiový s platbou hore“ (náhľady `…/scratchpad/dakujeme/4-premiovy-platba/` = prevod a `…/dakujeme/4-stavy/` = kartou zaplatené, kartou neprebehla, dobierka). CZ texty presne z náhľadov, SK ich preklad (`assets/js/opc/dakujemeTexty.js`).
+
+**Kde:** `/objednavka/dekujeme/` (CZ ✅ Michalova snímka), SK 🟡 `/objednavka/dakujeme/` aj `/objednavka/dekujeme/` (rozpozná oboje), navyše trieda tela `in-dekujeme` / `in-dakujeme` 🟡 alebo `pageType` „thankYou“ 🟡. Modul `assets/js/opc/dakujeme.js`, zapojený v `opc/index.js` (`stranka()` = „dakujeme“, `initDakujeme`, skorý vzhľad `vzhladDakujemeSkoro`), CSS blok LCD-OPC-DAKUJEME (`_lcdOpcDakujeme.scss`, všetko pod `html.lcd-opc-dakujeme*`).
+
+**Brána:** len pri zapnutom tajnom kóde OPC (rovnaká ako košík a krok 2: `?opc=<KOD>`, `?opc=0` vypne, `data.json "opc": false` má prednosť). Bez kódu sa ďakovná stránka pre zákazníkov nemení (S50, jednotky „brána“).
+
+**Ako funguje:**
+- Hodnoty sa berú z textu Shoptetu **podľa popisov**, nie poradia ani tried: „Číslo“, „Zvolená doprava“, „Zvolená platba“, „Částka k úhradě“ / „Suma na úhradu“, „Bankovní účet“ / „Bankový účet“, „Variabilní symbol“ / „Variabilný symbol“, riadky tabuľky „Obsah objednávky“ (fotka, názov, variant, príplatky, „1 ks“, cena).
+- Nový blok `#lcd-dakujeme` sa vloží **pred** `#content-wrapper`, pôvodný obsah sa len skryje triedou `.lcd-dak-povodne` (skripty Shoptetu bežia ďalej – presmerovanie na bránu, merače). Keď chýba číslo objednávky, suma alebo známy spôsob platby (pri prevode aj účet a VS), nič sa neskryje a ostane stránka Shoptetu.
+- Rozpis položky = `ul.lcd-rozpis` cez `lcdRozpis` / `lcdRozpisEl` (`functions/kosikRozpis.js`), ako v košíku. Keď ho už vyrobil `cart.js`, prevezme sa.
+- Platba: žiadny vlastný QR kód ani IBAN – len číslo účtu, VS a suma, ktoré vypíše Shoptet, s „Kopírovať“ (Clipboard API, záloha `execCommand`, inak sa hodnota označí). QR obrázok, ktorý vykreslí sám Shoptet, sa prevezme do bloku platby.
+- „Doprava a platba“ v súhrne = celkom − tovar, len keď sedia všetky riadky a nie je zľava ani iný riadok.
+- Bez lehoty dodania a bez bloku „Dodanie“; pri dobierke nikde „záloha“ (Michal 30. 10. 2026: „aby sa ľudia toho nebáli“); bez „vyrábame“, DPH a záruky.
+
+**Stav platby kartou (❓ neoverené – presné texty Shoptetu nepoznáme):** podľa dokumentácie platobných brán Shoptetu (shoptet-developers, „payment gateways“) ďakovná stránka ukáže tlačidlo online platby a po 5 s presmeruje na bránu; po návrate zobrazí výsledok (OK / čaká / neúspech s možnosťou opakovať). Modul je preto konzervatívny:
+
+Od revízie 31. 10. 2026 (§ 10.17) platí prísnejšia tabuľka:
+
+| Čo je na stránke Shoptetu | Stav v bloku |
+|---|---|
+| rozpoznané tlačidlo / odkaz / formulár Shoptetu na platbu, bez textu o úspechu a bez textu o čakaní | **neprebehla**; naše zelené tlačidlo použije to Shoptetu („Zaplatit kartou znovu“ pri texte o neúspechu, inak „Zaplatit kartou“) |
+| text o prijatej platbe (len „Platba … proběhla / přijata“ v minulom čase) | **stránka Shoptetu** — „Zaplatené“ podľa textu je vypnuté (`ZAPLATENE_PODLA_TEXTU = false`), kým to nepotvrdí záznam |
+| čaká / PENDING („zadána správně“, „bude označena jako zaplacená“, „čeká na zaplacení“), veta len o objednávke („Objednávka přijata“), neúspech bez tlačidla, nič | **stránka Shoptetu** |
+| tlačidlo platby a zároveň text o úspechu alebo čakaní (rozpor) | **stránka Shoptetu** |
+
+~~Pôvodná tabuľka (30. 10.): jednoznačný text = zaplatené, text o neúspechu = neprebehla, tlačidlo = neprebehla, nič = čaká.~~
+
+„Nebo zaplaťte převodem“ sa ukáže len vtedy, keď Shoptet pri karte sám vypíše účet a VS.
+
+**🟡 Texty mimo schválených náhľadov (na schválenie):** stav „čaká“ a tlačidlo bez „znovu“, „Kartou znovu tlačítkem výše.“ (karta bez údajov na prevod), kamión „…na míru vašemu vozidlu…“, iba vzorky „Vzorky připravíme a zásilku vám doveze …“, veta pri QR obrázku Shoptetu, štítok Apple Pay / Google Pay = názov Shoptetu.
+
+**Záznam na overenie:** pri zapnutom kóde sa pôvodné HTML hlavného obsahu (zachytené hneď pri načítaní bundla, pred úpravami `cart.js`, bez skriptov, + hlásenia `.messages` mimo neho) uloží do `localStorage` kľúča `lcdOpcDakujemeZaznam` (posledných 5, dátum, adresa bez query, trieda tela, rozpoznaný stav alebo dôvod fallbacku). Nikam sa neposiela. Po Michalovej skúšobnej objednávke ho prečítame v jeho Chrome a podľa neho doladíme popisy a detekciu platby.
+
+**Fixtures = REKONŠTRUKCIA** (`tools/test-opc/dakujeme-fixtures.mjs`): obsah podľa Michalovej snímky (CZ prevod, objednávka 2820260033) a tried šablóny Classic z CSS Shoptetu; celá stránka = obal zachyteného kroku 2 so skriptmi Shoptetu (mimo gitu). Varianty CZ/SK × prevod / kartou zaplatené / neprebehla / pred bránou / čaká / dobierka, Apple Pay, kamión, vzorkovník, iné značky a poradie, chýbajúce údaje.
+
+**Testy:** `node tools/test-opc-dakujeme.mjs` (jsdom), `node tools/test-opc.mjs [--web cz] --krok S50,S51,S52,S53` (Chrome offline: bez kódu nič, hodnoty, Kopírovať, záznam, stavy, fallback, 320–1920 bez pretečenia, písmo), `node tools/test-opc-dakujeme-prehliadace.mjs --pw <playwright>` (WebKit 390, Chromium 1366, Firefox 1366; aj pečať nie pod logom hlavičky; snímky).
+
+**Pri ďalšej skúšobnej objednávke (Michal):** 1) v tom istom prehliadači najprv otvoriť košík s tajným odkazom (`…/kosik/?opc=<KOD>`), 2) objednať prevodom, 3) druhú objednávku kartou a na bráne platbu zrušiť/zavrieť (neúspech), 4) tretiu kartou zaplatiť, 5) dobierku – každú ďakovnú stránku nechať načítať aspoň 5 s, 6) objednávky potom v admine zrušiť. Na SK aj CZ. Potom Claude prečíta `localStorage.lcdOpcDakujemeZaznam` na luxurycardesign.sk / .cz v Michalovom Chrome (záznam ostáva aj po zatvorení karty).
+
+
+### 10.17 Oprava po revízii ďakovnej stránky a záloha pri dobierke (31. 10. 2026)
+
+**Michal 31. 10. 2026:** „ani nikde proste pri dobierke nebudeme písať nejaká záloha, aby sa ľudia toho nebáli.“ Lokálne vo vetve `dakujeme-v4`, 31. 10. zlúčené do `opc-main-kandidat` (nič nenasadené, naživo až po Michalovom súhlase):
+- `cart.js`: `lcdDobierkaZaloha` („+ záloha“ pod dobierkou v košíku / kroku 1, naživo od 26. 10.) zrušené aj s CSS `.lcd-dob-pozn` (`_lcdKosik.scss`, `_lcdOpc.scss`).
+- OPC krok 2: sivé poučenie `zalohaInfo` (VOP 4.13) preč (`texty.js`, `vzhlad.js`, CSS `.lcd-opc-zaloha-info`); v záchrane „Spôsoby platby…“ bez „(záloha 50 %)“.
+- Ďakovná stránka zálohu nemala ani predtým.
+- ⚖️ VOP bod 4.13 zálohu pri dobierke stále uvádza — či VOP zosúladiť, je Michalovo právne rozhodnutie.
+- Test: `test-opc-jednotky.mjs` („pri dobierke nikde záloha“ = prehľadanie zdrojov + sekcia SK/CZ), S3 v Chrome.
+
+**Ďakovná stránka – opravy nálezov revízie (N1, K1, K2, N2, V1, V2):**
+- **Stav platby kartou (N1, K1, K2):** úspech len pri vete o PLATBE v minulom čase (veta po vete, bunky oddelené), nikdy pri vete o objednávke, so záporom („nebyla / není zaplacena“), v budúcom čase alebo pri čakaní (PENDING podľa dokumentácie Shoptetu). „Zaplatené“ podľa textu je navyše vypnuté (`ZAPLATENE_PODLA_TEXTU = false` v `dakujeme.js`), kým záznam `lcdOpcDakujemeZaznam` nepotvrdí presný text Shoptetu — dovtedy pri zaplatenej karte ostane stránka Shoptetu. Stav „čaká“ sa už nevyrába (stránka Shoptetu).
+- **Tlačidlo platby (N2):** rozpozná aj „Pokračovat k platbě“, „Přejít na platební bránu“, „Na platbu“, „Zkusit znovu“ a `<button>` vo `<form action>` na bránu (GoPay, Comgate, ThePay, GP webpay, Shoptet Pay). Informačné odkazy („/doprava-a-platba/“, „#platba“) nie. Bez rozpoznaného tlačidla náš blok pri karte nevznikne → zákazník vždy vidí tlačidlo Shoptetu.
+- **Suma (V1):** práve jedna cena s menou v hodnote; preškrtnutá + nová cena alebo číslo bez meny = stránka Shoptetu; popis s poznámkou („Částka k úhradě (2 položky)“) berie susednú bunku.
+- **Dva rôzne údaje (V2):** dve rôzne hodnoty čísla objednávky, sumy, účtu alebo VS kdekoľvek v obsahu = stránka Shoptetu (dôvod „dva rôzne údaje: …“). Číslo objednávky musí obsahovať číslicu (hlavička „Číslo | Produkt“ sa ignoruje).
+- Fixtures: nové varianty `cz/sk-karta-caka` (PENDING), `cz-karta-prijata`, `cz-karta-ceka-zaplaceni`, `cz-karta-po-zaplaceni`, `sk-karta-prijata-nadpis`, `cz-karta-nie-text`, `cz-karta-form`; `sk-vzorky` je prevodom (karta by bola stránka Shoptetu).
+- Testy: `test-opc-dakujeme.mjs` (jsdom), S52 (zaplatené a PENDING = stránka Shoptetu so záznamom), S53 bez karta-ok, `test-opc-dakujeme-prehliadace.mjs` (karta-ok, karta-caka = stránka Shoptetu; karta-form = náš blok).
+- Hárky: „Kartou – zaplatené“ teraz ukazuje stránku Shoptetu (schválený vzhľad „Zaplatené“ čaká na záznam).
 
 ---
 

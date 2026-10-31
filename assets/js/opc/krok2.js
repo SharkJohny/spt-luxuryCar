@@ -28,7 +28,7 @@ import { TEXTY } from "./texty.js";
 import * as A from "./analytika.js";
 import * as K from "./kontrola.js";
 import * as B from "./banka.js";
-import { lcdDobierkaZaloha, lcdBublinaMimoTlacidla, changeDescription } from "../components/cart.js";
+import { lcdBublinaMimoTlacidla, changeDescription } from "../components/cart.js";
 import { vymenaBezi } from "../lcdKosikDoplnok.js";
 
 /** Z čoho na kroku 2 bublina Luxie ustúpi okrem „Objednať“: tlačidlo v lište, polia, odkazy, zaškrtávacie polia a voľby. */
@@ -699,7 +699,6 @@ export function initKrok2(ctx) {
       banka: k2.banky ? { banka: k2.banky.banka, podmienky: m.pisPodmienky } : null });
     k2.sekcia = sek;
     nacitavam.replaceWith(sek);
-    try { lcdDobierkaZaloha(); } catch (e) {} // „+ záloha“ pri dobierke (cart.js) nad našimi rádiami
 
     box.setAttribute("data-lcd-opc-prepocet", T.prepocitavam); // text „Prepočítavam…“ pod súhrnom počas zmeny (CSS)
     // add_payment_info pri potvrdenej zmene platby (Shoptet ho poslal pri načítaní so session platbou; T12)

@@ -8,13 +8,15 @@
 //   ?opc=<KOD> (tajný odkaz) -> localStorage lcdOpc = "1" (všetky karty, aj po zatvorení prehliadača; bez localStorage
 //   aspoň sessionStorage karty), ?opc=0 -> flag preč z oboch (po spustení "0" = vypnuté v prehliadači); ?opc=1 ani iná
 //   hodnota nič nezapne, bez flagu rozhoduje SPUSTENE (false = presne dnešný tok: modul nič nepridá, nezmení ani nestiahne).
-// Beží len na košíku (body.id--9 / in-kosik) a na kroku 2 (body.id--17 / in-krok-2), SK 562035 aj CZ 581408.
+// Beží len na košíku (body.id--9 / in-kosik), na kroku 2 (body.id--17 / in-krok-2) a na ďakovnej stránke po objednávke
+// (/objednavka/dekujeme/, SK aj /objednavka/dakujeme/ — opc/dakujeme.js, návrh 4 z 30. 10. 2026), SK 562035 aj CZ 581408.
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { initKosik, vzhladKosika, zrusVzhladKosika } from "./kosik.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
 import { zahodPreskocenie } from "./analytika.js";
+import { jeDakujeme, dakujemeSkoro, zrusDakujemeSkoro, initDakujeme } from "./dakujeme.js";
 
 /** Pre všetkých bez ?opc= (spustenie po živom teste s Michalom, kniha § 7.8 F5). */
 export const SPUSTENE = false;
@@ -79,12 +81,13 @@ function zapnuteSAdresou(search) {
   return jeZapnute();
 }
 
-/** "kosik" | "krok2" | null podľa tried tela stránky Shoptetu. */
+/** "kosik" | "krok2" | "dakujeme" | null podľa tried tela stránky Shoptetu (ďakovná aj podľa adresy / pageType). */
 export function stranka(telo) {
   const b = telo || document.body;
   if (!b || !b.classList) return null;
   if (b.classList.contains("id--9") || b.classList.contains("in-kosik")) return "kosik";
   if (b.classList.contains("id--17") || b.classList.contains("in-krok-2")) return "krok2";
+  if (jeDakujeme(b.ownerDocument)) return "dakujeme";
   return null;
 }
 
@@ -149,10 +152,28 @@ export function vzhladKrok2Skoro(doc, search, o) {
 }
 try { if (typeof document !== "undefined" && document.body) vzhladKrok2Skoro(document, window.location.search); } catch (e) {}
 
-/** Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka (vzhladKosikaSkoro) aj kroku 2 (vzhladKrok2Skoro) späť. */
+/**
+ * Ďakovná stránka (opc/dakujeme.js): hneď pri načítaní bundla zachytí pôvodné HTML na záznam a skryje pôvodný obsah,
+ * kým initOpc nepostaví nový blok (inak by stránka Shoptetu preblikla). Rovnaká brána ako vzhladKrok2Skoro — bez
+ * kódu sa nič nečíta ani nemení; núdzový vypínač v data.json príde až s initOpc (vtedy zrusSkoryVzhlad). -> true = zapnuté.
+ */
+export function vzhladDakujemeSkoro(doc, search, o) {
+  try {
+    if (!zapnuteSAdresou(search)) return false;
+    if (stranka(doc.body) !== "dakujeme") return false;
+    if (!PROJEKTY[String(getShoptetContext().projectId || "")]) return false;
+    return dakujemeSkoro(doc, o);
+  } catch (e) {
+    return false;
+  }
+}
+try { if (typeof document !== "undefined" && document.body) vzhladDakujemeSkoro(document, window.location.search); } catch (e) {}
+
+/** Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka, kroku 2 aj ďakovnej stránky späť. */
 function zrusSkoryVzhlad() {
   try { if (document.documentElement.classList.contains("lcd-opc-kosik")) zrusVzhladKosika(document); } catch (e) {}
   try { if (document.documentElement.classList.contains("lcd-opc-caka")) document.documentElement.classList.remove("lcd-opc", "lcd-opc-caka"); } catch (e) {}
+  try { zrusDakujemeSkoro(document); } catch (e) {}
 }
 
 /** Volá main.js v callbacku data.json (setupData). Bez flagu sa vráti hneď a nič nespraví. */
@@ -172,11 +193,12 @@ export function initOpc(setupData) {
     try {
       if (kde === "kosik") initKosik(ctx);
       else if (kde === "krok2") initKrok2(ctx);
+      else if (kde === "dakujeme") initDakujeme(ctx);
     } catch (e) {
       ctx.stav = "chyba";
       ctx.chyby.push(String((e && e.message) || e));
-      // výnimka v kroku 2: formulár skrytý skorým vzhľadom nesmie ostať skrytý
-      try { document.documentElement.classList.remove("lcd-opc-caka"); } catch (x) {}
+      // výnimka v kroku 2: formulár skrytý skorým vzhľadom nesmie ostať skrytý (rovnako obsah ďakovnej stránky)
+      try { document.documentElement.classList.remove("lcd-opc-caka", "lcd-opc-dakujeme-caka"); } catch (x) {}
     }
     return ctx;
   } catch (e) {

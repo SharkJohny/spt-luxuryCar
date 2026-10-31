@@ -42,7 +42,7 @@ export const SCENARE = {
     },
   },
   S3: {
-    popis: "Zmena na dobierku: „+ záloha“ a poučenie viditeľné, Step1Validate s dobierkou, súhrn a celkom zo servera",
+    popis: "Zmena na dobierku: nikde „záloha“ (Michal 31. 10.), Step1Validate s dobierkou, súhrn a celkom zo servera",
     async fn(J) {
       const s = await J.novaStranka();
       const id = ID[s.web];
@@ -62,10 +62,10 @@ export const SCENARE = {
       const vid = await s.ev(`(function () {
         var l = document.querySelector('#lcd-opc input[value="${id.dobierka}"] + label');
         var v = function (sel) { var e = l && l.querySelector(sel); if (!e) return false; var r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden"; };
-        return { zaloha: v(".lcd-dob-pozn"), info: v(".lcd-opc-zaloha-info"), infoText: (l.querySelector(".lcd-opc-zaloha-info") || {}).textContent || "" };
+        return { prvok: !!document.querySelector("#lcd-opc .lcd-dob-pozn, #lcd-opc .lcd-opc-zaloha-info"), text: /z[aá]loh/i.test(document.getElementById("lcd-opc").innerText), dobierka: v(".shipping-billing-name") };
       })()`);
-      over(vid.zaloha, "„+ záloha“ nie je viditeľná pri zvolenej dobierke");
-      over(vid.info, "poučenie o zálohe nie je viditeľné");
+      // Michal 31. 10. 2026: „ani nikde pri dobierke nebudeme písať nejaká záloha, aby sa ľudia toho nebáli“
+      over(vid.dobierka && !vid.prvok && !vid.text, "dobierka: záloha na stránke " + JSON.stringify(vid));
       // potvrdenie zo servera = GET kroku 1 na pozadí (živý dôkaz 29. 10.), nie step2CustomerAjax ani GET kroku 2 (459 kB)
       const naPozadi = (c) => s.p.zaznam.www.filter((z) => z.metoda === "GET" && z.cesta === c && z.typ !== "Document").length;
       over(s.p.zaznam.ajax.length === 0, "náš kód poslal step2CustomerAjax " + s.p.zaznam.ajax.length + "×");

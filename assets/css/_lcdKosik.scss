@@ -486,7 +486,3 @@ body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
   body.in-kosik #cart-wrapper .next-step{flex-wrap:wrap}
   body.in-kosik #cart-wrapper .next-step > .lcd-hodn-kosik{order:2;flex:0 0 100%;justify-content:flex-end;margin-top:10px}
 }
-
-/* Dobierka: „+ záloha“ len po výbere dobierky, drobne a svetlo (Michal 26. 10. 2026 — nemá odradiť; do objednávky ide len „Dobierka“) */
-.lcd-dob-pozn{display:none;margin-top:1px;font-size:10.5px;line-height:1.3;font-weight:400;font-style:normal;letter-spacing:.02em;color:#cfcbc3}
-input[data-payment-type="cashOnDelivery"]:checked + label .lcd-dob-pozn{display:block}

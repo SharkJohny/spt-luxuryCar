@@ -499,19 +499,18 @@ t("sekcia SK: rádiá klon Shoptetu s form=lcd-opc-nic, prevod zvolený, poradie
   eq(r.filter((i) => i.name === "shippingId").map((i) => i.value), ["96"]);
   eq(r.filter((i) => i.name === "billingId").map((i) => i.value), ["5", "103", "109", "3"], "bez Apple Pay a bez rýchlej platby ako rádia");
   eq(r.filter((i) => i.checked).map((i) => i.value), ["96", "5"]);
-  eq(!!el.querySelector('label[for="billingId-3"] .shipping-billing-name'), true, "input -> label -> názov (lcdDobierkaZaloha)");
+  eq(!!el.querySelector('label[for="billingId-3"] .shipping-billing-name'), true, "input -> label -> názov (štruktúra Shoptetu)");
   eq(el.querySelector('input[value="3"]').nextElementSibling.tagName, "LABEL");
   eq(sekcia("sk", { applePay: true }).el.querySelectorAll('input[name="billingId"]').length, 5);
 });
-t("sekcia SK: rýchla platba cez banku = odkaz na krok 1 (bez rádia), dobierka s poučením o zálohe", () => {
+t("sekcia SK: rýchla platba cez banku = odkaz na krok 1 (bez rádia), dobierka BEZ zálohy (Michal 31. 10. 2026)", () => {
   const { el } = sekcia("sk");
   const a = el.querySelector('[data-submethod="pis"] a[href="/objednavka/krok-1/"]');
   eq(!!a, true, "odkaz Vybrať banku");
   eq(el.querySelector('[data-submethod="pis"] input'), null);
-  const zal = el.querySelector('input[value="3"] + label .lcd-opc-zaloha-info');
-  eq(/50\s%/.test(zal.textContent) && /zálohovú faktúru/.test(zal.textContent), true, "záloha 50 % podľa VOP 4.13");
-  const a2 = zal.querySelector("a");
-  eq([a2.getAttribute("href"), a2.getAttribute("target"), a2.textContent], ["/obchodne-podmienky/", "_blank", "podľa obchodných podmienok, bod 4.13"]);
+  // Michal 31. 10. 2026: „ani nikde pri dobierke nebudeme písať nejaká záloha, aby sa ľudia toho nebáli“
+  const l = el.querySelector('input[value="3"] + label');
+  eq([!!l, !!l.querySelector(".lcd-opc-zaloha-info, .lcd-dob-pozn"), /z[aá]loh/i.test(l.textContent)], [true, false, false], "dobierka bez zálohy");
 });
 t("sekcia: zvolená rýchla platba (z kroku 1) = riadok ako zvolený, zmena banky odkazom", () => {
   const { el } = sekcia("sk", { volby: { doprava: "96", platba: "112" } });
@@ -531,9 +530,8 @@ t("sekcia: termín pri doprave, CZ texty a poradie", () => {
   eq(el.querySelector(".lcd-opc-termin").textContent, "Doručení do 21–29\u00a0dnů");
   eq([...el.querySelectorAll("h2")].map((h) => h.textContent), ["Doprava", "Platba"]);
   eq([...el.querySelectorAll('input[name="billingId"]')].map((i) => i.value), ["5", "114", "120", "87"]);
-  const zal = el.querySelector('input[value="87"] + label .lcd-opc-zaloha-info');
-  eq(/50\s%/.test(zal.textContent) && /zálohovou fakturu/.test(zal.textContent), true, "záloha 50 % podle VOP 4.13");
-  eq([zal.querySelector("a").getAttribute("href"), zal.querySelector("a").textContent], ["/obchodni-podminky/", "podle obchodních podmínek, bod 4.13"]);
+  const l = el.querySelector('input[value="87"] + label');
+  eq([!!l, !!l.querySelector(".lcd-opc-zaloha-info, .lcd-dob-pozn"), /z[aá]loh/i.test(l.textContent)], [true, false, false], "dobírka bez zálohy");
 });
 t("nastavVolby: zaškrtne rádiá a označí aktívne riadky", () => {
   const { el } = sekcia("sk");
@@ -713,19 +711,31 @@ t("analytika: chýbajúci alebo chybný window.gtag a nedostupný sessionStorage
 });
 
 // ------------------------------------------------------------------ právne vety z VOP (Michal 29. 10.: „použi, čo už máme vo VOP“)
-t("VOP texty: tovar na mieru (bod 6.13), záloha pri dobierke (bod 4.13, 50 %), spôsoby platby v záchrane (bod 4.5) — SK aj CZ s odkazom", () => {
+t("VOP texty: tovar na mieru (bod 6.13), spôsoby platby v záchrane (bod 4.5) — SK aj CZ s odkazom; pri dobierke nikde záloha", () => {
   eq([TEXTY.sk.vop, TEXTY.cz.vop], ["/obchodne-podmienky/", "/obchodni-podminky/"]);
   eq([/na mieru/.test(TEXTY.sk.naMieru), /po začatí výroby/i.test(TEXTY.sk.naMieru), TEXTY.sk.naMieruOdkaz], [true, true, "podľa obchodných podmienok, bod 6.13"]);
   eq([/na míru/.test(TEXTY.cz.naMieru), /po zahájení výroby/i.test(TEXTY.cz.naMieru), TEXTY.cz.naMieruOdkaz], [true, true, "podle obchodních podmínek, bod 6.13"]);
-  eq([/50\s%/.test(TEXTY.sk.zalohaInfo), /50\s%/.test(TEXTY.cz.zalohaInfo)], [true, true]);
+  // Michal 31. 10. 2026: pri dobierke nikde záloha (ani poučenie, ani „(záloha 50 %)“ v zozname platieb)
+  eq([TEXTY.sk.zalohaInfo, TEXTY.cz.zalohaInfo, TEXTY.sk.zalohaOdkaz, TEXTY.cz.zalohaOdkaz], [undefined, undefined, undefined, undefined]);
   for (const web of ["sk", "cz"]) {
     const p = TEXTY[web].platbyZachrana;
     eq(["Apple Pay", "Google Pay"].every((x) => p.indexOf(x) >= 0) && /kart/.test(p) && /prevod|převod/.test(p) && /dobierk|dobírk/.test(p), true, web + " zoznam platieb z VOP 4.5");
+    eq(/z[aá]loh/i.test(p), false, web + " záloha v zozname platieb");
     eq(/bod 4\.5/.test(TEXTY[web].platbyZachranaOdkaz), true, web);
   }
   // nikde TODO a nikde DPH (LCD nie je platca DPH)
   const vsetko = JSON.stringify([TEXTY.sk, TEXTY.cz]);
   eq([/DPH/.test(vsetko), /TODO/.test(vsetko)], [false, false]);
+});
+t("pri dobierke nikde „záloha“ (Michal 31. 10. 2026): košík / krok 1 (cart.js), OPC (texty, vzhľad, krok 2), CSS, ďakovná stránka", () => {
+  const koren = fileURLToPath(new URL("..", import.meta.url));
+  const ZAKAZ = /\+\s*z[aá]loha|z[aá]lohov|z[aá]loh\w*\s*50|lcd-dob-pozn|lcdDobierkaZaloha|zalohaInfo|zalohaOdkaz|lcd-opc-zaloha-info/i;
+  const najdene = [];
+  for (const f of ["assets/js/components/cart.js", "assets/js/opc/texty.js", "assets/js/opc/vzhlad.js", "assets/js/opc/krok2.js", "assets/js/opc/krok1Model.js",
+    "assets/js/opc/dakujemeTexty.js", "assets/js/opc/dakujeme.js", "assets/css/_lcdKosik.scss", "assets/css/_lcdOpc.scss", "assets/css/_lcdOpcDakujeme.scss"]) {
+    readFileSync(join(koren, f), "utf8").split(/\r?\n/).forEach((r, i) => { if (ZAKAZ.test(r)) najdene.push(f + ":" + (i + 1) + " " + r.trim().slice(0, 80)); });
+  }
+  eq(najdene, []);
 });
 t("VOP text pri vete o tovare na mieru: vetaSOdkazom = text + odkaz na VOP (nová karta) + bodka", () => {
   const d = new JSDOM("<!doctype html><body></body>").window.document;

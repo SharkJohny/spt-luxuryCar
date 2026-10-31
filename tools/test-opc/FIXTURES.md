@@ -18,6 +18,8 @@ Kópia repa na porovnanie (napr. export starého commitu v dočasnom priečinku)
 | `cdn/` | statické súbory Shoptetu a tretích strán (JS, CSS, písma, obrázky) + `manifest.json` (adresa → súbor) | `test-opc.mjs --doplnit-cdn` |
 | `.gitattributes` | `* -text` (súbory bajt po bajte ako zo servera) | ručne |
 
+Ďakovná stránka po objednávke **nie je zachytená** (ukáže sa raz po odoslaní objednávky, zachytenie objednávku neodosiela). Testy ďakovnej stránky (`test-opc-dakujeme.mjs`, scenáre S50–S53, `test-opc-dakujeme-prehliadace.mjs`) používajú **rekonštrukciu** z `tools/test-opc/dakujeme-fixtures.mjs` (je v gite, žiadny kód Shoptetu) v obale `sk|cz/krok2.html`. Skutočné HTML pribudne zo záznamu `lcdOpcDakujemeZaznam` po skúšobnej objednávke (kniha § 10.16).
+
 ## Ako ich znova vyrobiť
 
 Z koreňa worktree. Zachytenie ide na **živý web v režime live-read**. Pravidlá platia vždy:

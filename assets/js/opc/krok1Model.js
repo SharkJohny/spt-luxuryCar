@@ -6,7 +6,7 @@
 //                                    pisPodmienky (text Shoptet Pay pod bankou, rýchla platba cez banku) }
 //   krok1Model(html, { doc })   -> to isté nad hotovým dokumentom (testy v jsdom)
 // Každá doprava a platba nesie aj html (outerHTML .radio-wrapper zo Shoptetu): sekcia na kroku 2 kreslí klon označenia
-// Shoptetu (input -> label -> .shipping-billing-name), aby fungovalo lcdDobierkaZaloha aj CSS (kniha § 6.5 bod 2).
+// Shoptetu (input -> label -> .shipping-billing-name), aby fungovalo CSS (kniha § 6.5 bod 2).
 
 /** Číslo z data-*-price-wv („5“, „4.0650“) alebo null. */
 function cena(el, atribut) {

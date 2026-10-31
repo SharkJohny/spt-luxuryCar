@@ -14091,10 +14091,6 @@ body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
   body.in-kosik #cart-wrapper .next-step{flex-wrap:wrap}
   body.in-kosik #cart-wrapper .next-step > .lcd-hodn-kosik{order:2;flex:0 0 100%;justify-content:flex-end;margin-top:10px}
 }
-
-/* Dobierka: „+ záloha“ len po výbere dobierky, drobne a svetlo (Michal 26. 10. 2026 — nemá odradiť; do objednávky ide len „Dobierka“) */
-.lcd-dob-pozn{display:none;margin-top:1px;font-size:10.5px;line-height:1.3;font-weight:400;font-style:normal;letter-spacing:.02em;color:#cfcbc3}
-input[data-payment-type="cashOnDelivery"]:checked + label .lcd-dob-pozn{display:block}
 /* ===== LCD-KOSIK END ===== */
 
 /* ===== LCD-OPC START - generovane tools/vloz-lcd-css.py z _lcdOpc.scss (one page checkout: sekcia Doprava a platba na kroku 2, zbaleny suhrn, lista; len html.lcd-opc), needituj rucne ===== */
@@ -14137,9 +14133,9 @@ html.lcd-opc .lcd-opc-zmenit-riadok a{color:var(--o-gold-lo);text-decoration:und
 /* záchrana: spôsoby platby z obchodných podmienok (bod 4.5) pod odkazom */
 html.lcd-opc .lcd-opc-platby-vop{margin:-8px 0 16px;padding:0 10px;color:var(--o-mute);font:400 14px/1.45 var(--o-body)}
 @media (min-width:992px){html.lcd-opc .lcd-opc-zmenit-riadok,html.lcd-opc .lcd-opc-platby-vop{padding:0}}
-/* odkaz na obchodné podmienky v právnych vetách (záloha, tovar na mieru, záchrana) — zlatý ako ostatné odkazy; tmavšia zlatá
+/* odkaz na obchodné podmienky v právnych vetách (tovar na mieru, záchrana) — zlatý ako ostatné odkazy; tmavšia zlatá
    #7c5f16, lebo veta pri dobierke leží na zelenkavom podklade zvolenej voľby (#8f7020 tam mal 4,36 : 1, revízia) */
-html.lcd-opc .lcd-opc-zaloha-info a,html.lcd-opc .lcd-opc-pravne a,html.lcd-opc .lcd-opc-platby-vop a{color:var(--o-gold-t) !important;
+html.lcd-opc .lcd-opc-pravne a,html.lcd-opc .lcd-opc-platby-vop a{color:var(--o-gold-t) !important;
   text-decoration:underline;text-underline-offset:3px}
 
 /* ---------------------------------------------------------------- sekcia Doprava a platba */
@@ -14182,10 +14178,6 @@ html.lcd-opc #lcd-opc .lcd-opc-termin__lehota{white-space:nowrap}
 html.lcd-opc #lcd-opc .not-possible-info{display:none}
 html.lcd-opc #lcd-opc label.inactive{cursor:not-allowed;opacity:.55}
 html.lcd-opc #lcd-opc label.inactive .not-possible-info{display:block;margin-top:3px;color:var(--o-mute);font:italic 400 14px/1.35 var(--o-body)}
-/* dobierka: „+ záloha“ (cart.js lcdDobierkaZaloha) a sivé poučenie len po výbere */
-html.lcd-opc #lcd-opc .lcd-dob-pozn{margin-top:2px;color:var(--o-mute);font-size:14px;line-height:1.3}
-html.lcd-opc #lcd-opc .lcd-opc-zaloha-info{grid-area:pozn;display:none;margin:4px 0 0;color:var(--o-mute);font:400 14px/1.4 var(--o-body)}
-html.lcd-opc #lcd-opc input[data-payment-type="cashOnDelivery"]:checked+label .lcd-opc-zaloha-info{display:block}
 /* riadok-odkaz na krok 1 (rýchla platba cez banku, výdajné miesto) */
 html.lcd-opc #lcd-opc .lcd-opc-odkaz__riadok{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"info akcia";
   column-gap:12px;row-gap:6px;align-items:center;align-content:center;min-height:60px;box-sizing:border-box;padding:11px 14px 11px 48px;color:var(--o-ink)}
@@ -14944,6 +14936,265 @@ html.lcd-opc .lcd-opc-banky__akcie button:focus-visible{outline:3px solid var(--
 }
 @media (prefers-reduced-motion:reduce){html.lcd-opc .lcd-opc-banky__banka{transition:none}}
 /* ===== LCD-OPC END ===== */
+
+/* ===== LCD-OPC-DAKUJEME START - generovane tools/vloz-lcd-css.py z _lcdOpcDakujeme.scss (dakovna stranka po objednavke (navrh 4): platba hore, kroky, objednavka, kontakt; len html.lcd-opc-dakujeme), needituj rucne ===== */
+/* =====================================================================
+   ĎAKOVNÁ STRÁNKA (one page checkout) — partial pre blok LCD-OPC-DAKUJEME (vkladá tools/vloz-lcd-css.py)
+   Návrh „4 – Prémiový s platbou hore“ (schválené náhľady 30. 10. 2026, scratchpad dakujeme/4-premiovy-platba + 4-stavy):
+   tmavý pás so zlatou pečaťou, platba hneď hore (suma, účet, VS, Kopírovať), Vaša objednávka (rozpis = ul.lcd-rozpis
+   z košíka), Čo bude ďalej (4 kroky, bez lehoty dodania), kontakt, zelené „Späť do obchodu“.
+   KAŽDÝ selektor začína html.lcd-opc-dakujeme / html.lcd-opc-dakujeme-caka (assets/js/opc/dakujeme.js, len pri zapnutom
+   tajnom kóde OPC) — bez kódu nič; stráži to tools/test-opc-dakujeme.mjs („CSS: blok LCD-OPC-DAKUJEME…“).
+   Písmo: text ≥ 16 px, poznámky ≥ 14 px, štítky ≥ 12 px. Karty sú div (téma má na mobile section{padding:0 !important}).
+   ===================================================================== */
+
+/* pôvodný obsah Shoptetu: len skrytý (nie zmazaný) — skripty Shoptetu (brána platby, merače) bežia ďalej */
+html.lcd-opc-dakujeme .lcd-dak-povodne{display:none !important}
+/* kým sa nerozhodne (pri načítaní bundla -> initOpc), obsah drží miesto, ale nebliká; poistka 3 s v opc/dakujeme.js */
+html.lcd-opc-dakujeme-caka #content-wrapper,html.lcd-opc-dakujeme-caka #content-wrapper *{visibility:hidden !important;transition:none !important}
+
+html.lcd-opc-dakujeme #lcd-dakujeme{--ink:#14110c;--mute:#5f574a;--text:#48412f;--line:#e3dccb;--karta:#e2ddd0;--kruh:#cfc8b6;--piesok:#f7f5ef;
+  --gold:#c49b31;--gold-lo:#8f7020;--gold-t:#7c5f16;--gold-hi:#e0bd63;
+  --pas:#141210;--pas2:#1b1812;--krem:#f4eddc;--krem-t:#d2c8b0;
+  --ok:#2e7d32;--ok-lo:#256b29;--ok-bg:#f3f9f3;--zelena:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%);
+  --disp:"Exo 2","Segoe UI",Arial,sans-serif;--body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  display:block;box-sizing:border-box;width:100%;max-width:none;margin:0;padding:0;background:var(--piesok);color:var(--ink);
+  font:400 16px/1.5 var(--body);text-align:left;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html.lcd-opc-dakujeme #lcd-dakujeme *,html.lcd-opc-dakujeme #lcd-dakujeme *::before,html.lcd-opc-dakujeme #lcd-dakujeme *::after{box-sizing:border-box}
+html.lcd-opc-dakujeme #lcd-dakujeme p,html.lcd-opc-dakujeme #lcd-dakujeme h1,html.lcd-opc-dakujeme #lcd-dakujeme h2,html.lcd-opc-dakujeme #lcd-dakujeme ul,html.lcd-opc-dakujeme #lcd-dakujeme ol,html.lcd-opc-dakujeme #lcd-dakujeme li,html.lcd-opc-dakujeme #lcd-dakujeme small,html.lcd-opc-dakujeme #lcd-dakujeme b,html.lcd-opc-dakujeme #lcd-dakujeme em{margin:0;padding:0;border:0;background:none;text-transform:none;letter-spacing:normal}
+html.lcd-opc-dakujeme #lcd-dakujeme ul,html.lcd-opc-dakujeme #lcd-dakujeme ol{list-style:none}
+html.lcd-opc-dakujeme #lcd-dakujeme li::marker{content:none}
+html.lcd-opc-dakujeme #lcd-dakujeme img{max-width:100%;height:auto}
+html.lcd-opc-dakujeme #lcd-dakujeme svg{overflow:visible}
+html.lcd-opc-dakujeme #lcd-dakujeme a{text-decoration:none}
+
+/* ---------- tmavý pás (kompaktný) ----------
+   Hore o presah loga hlavičky viac ako v náhľade (náhľad mal hlavičku ako obrázok aj s logom): telefón 12 + 10 px,
+   od 768 px 18 + 22 px — pečať je ~12 / ~18 px pod logom ako v náhľade (stráži test-opc-dakujeme-prehliadace, 320–1920). */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero{position:relative;padding:22px 16px 74px;text-align:center;color:var(--krem);overflow:hidden;
+  background:radial-gradient(60% 80% at 50% 70%,rgba(196,155,49,.15) 0%,rgba(196,155,49,0) 70%),linear-gradient(180deg,var(--pas) 0%,var(--pas) 30%,var(--pas2) 100%)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,rgba(196,155,49,0),rgba(196,155,49,.75) 50%,rgba(196,155,49,0))}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__in{position:relative;max-width:640px;margin:0 auto}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-pecat{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 10px;border-radius:50%;
+  border:1.5px solid var(--gold);box-shadow:0 0 0 5px rgba(196,155,49,.10),0 0 26px rgba(196,155,49,.18);
+  background:radial-gradient(circle at 50% 35%,#2a2418,#14110c)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-pecat svg{display:block;width:26px;height:26px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__cislo{display:inline-flex;align-items:center;gap:10px;margin:0 0 6px;color:var(--gold-hi);
+  font:700 13px/1.3 var(--disp);letter-spacing:.16em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__cislo::before,html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__cislo::after{content:"";width:22px;height:1px;background:var(--gold)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__h1{margin:0 0 6px;color:#fff;font:700 27px/1.15 var(--disp);letter-spacing:.01em;text-align:center;text-transform:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__text{margin:0 auto;max-width:520px;color:var(--krem-t);font:400 16px/1.45 var(--body)}
+
+/* ---------- obsah ---------- */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-obsah{position:relative;max-width:1120px;margin:-58px auto 0;padding:0 16px 40px;display:flex;flex-direction:column;gap:14px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka{display:contents}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-karta{background:#fff;border:1px solid var(--karta);border-radius:16px;padding:16px;box-shadow:0 10px 28px rgba(20,17,12,.07);min-width:0}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-karta__h{display:flex;align-items:center;gap:10px;margin:0 0 12px;color:var(--ink);font:700 16px/1.2 var(--disp);letter-spacing:.08em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-karta__h::before{content:"";flex:none;width:18px;height:2px;border-radius:2px;background:var(--gold)}
+
+/* --- PLATBA (hlavný blok, hneď hore) */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba{border-top:3px solid var(--gold);box-shadow:0 14px 34px rgba(20,17,12,.12)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__vrch{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__stitok{display:flex;align-items:center;gap:8px;margin:0;color:var(--gold-t);font:700 13px/1.2 var(--disp);letter-spacing:.14em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__stitok::before{content:"";flex:none;width:14px;height:2px;border-radius:2px;background:var(--gold)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__suma{margin:6px 0;color:var(--ink);font:900 34px/1.05 var(--disp);font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.005em}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__navod{margin:0;color:var(--mute);font:400 15px/1.4 var(--body)}
+
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaje{margin:14px 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;margin:0;padding:9px 0;border-bottom:1px solid var(--line)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__n{grid-column:1;color:var(--mute);font:400 14px/1.3 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__h{grid-column:1;color:var(--ink);font:700 19px/1.25 var(--disp);font-variant-numeric:tabular-nums;letter-spacing:.01em;overflow-wrap:break-word}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--suma .lcd-dak-udaj__h{font-weight:900}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia{grid-column:2;grid-row:1 / span 2;display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:0;padding:0 14px;
+  border:1px solid var(--gold);border-radius:999px;background:#fffdf7;color:var(--gold-t);font:700 15px/1 var(--body);text-transform:none;
+  letter-spacing:normal;cursor:pointer;white-space:nowrap;box-shadow:none;-webkit-appearance:none;appearance:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia svg{display:block;width:16px;height:16px;flex:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia:focus-visible{outline:2px solid var(--gold-lo);outline-offset:2px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia.lcd-dak-kopia--hotovo{border-color:var(--ok);background:var(--ok-bg);color:var(--ok-lo)}
+
+/* QR obrázok, ktorý vykreslil sám Shoptet (vlastný QR nerobíme) */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-qr{display:flex;align-items:center;gap:14px;margin:14px 0 0}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-qr__obr{display:block;flex:none;width:132px;height:132px;max-width:none;padding:6px;border:1px solid var(--line);border-radius:10px;background:#fff;object-fit:contain}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-qr__text{margin:0;color:var(--mute);font:400 15px/1.4 var(--body)}
+
+/* --- stavy platby: kartou zaplatené / neprebehla / čaká / dobierka */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__titul{margin:6px 0 0;color:var(--ink);font:700 22px/1.2 var(--disp);text-transform:none;letter-spacing:normal}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-znak{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;margin-top:2px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-znak svg{display:block;width:28px;height:28px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-znak--ok{background:var(--zelena);box-shadow:0 0 0 6px rgba(46,125,50,.12),0 8px 18px rgba(46,125,50,.22)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-znak--zlaty{border:1.5px solid var(--gold);background:#fffaf0;box-shadow:0 0 0 6px rgba(196,155,49,.12)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba--ok{border-top-color:var(--ok)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba--ok .lcd-dak-platba__stitok{color:var(--ok-lo)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba--ok .lcd-dak-platba__stitok::before{background:var(--ok)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba--ok .lcd-dak-platba__titul{color:var(--ok-lo)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-potvrd{display:flex;align-items:center;gap:10px;margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--ok-bg);
+  box-shadow:inset 0 0 0 1px rgba(46,125,50,.18);color:var(--ok-lo);font:600 16px/1.4 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-potvrd svg{display:block;flex:none;width:20px;height:20px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__titul~.lcd-dak-platba__navod{font-size:16px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod{margin-top:6px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod>summary{display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;list-style:none;cursor:pointer;
+  color:var(--gold-t);font:600 16px/1.3 var(--body);text-decoration:underline;text-underline-offset:3px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod>summary::-webkit-details-marker{display:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod>summary::marker{content:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod>summary svg{display:block;flex:none;width:18px;height:18px;transition:transform .2s}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod[open]>summary svg{transform:rotate(180deg)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod>summary:focus-visible{outline:2px solid var(--gold-lo);outline-offset:2px;border-radius:8px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod__in{margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* --- ČO BUDE ĎALEJ (4 kroky, bez lehoty) */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa{list-style:none;margin:0;padding:0}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:12px;margin:0;padding:0 0 14px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li:last-child{padding-bottom:0}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li::before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:var(--line)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li:last-child::before{display:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li.lcd-dak-osa--hotovo::before{background:var(--ok)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa__bod{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2px solid var(--karta);background:#fff;color:var(--mute);font:700 14px/1 var(--disp)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa--hotovo .lcd-dak-osa__bod{border:0;background:var(--zelena)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa--hotovo .lcd-dak-osa__bod svg{display:block;width:15px;height:15px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa--teraz .lcd-dak-osa__bod{border-color:var(--gold);background:#fffaf0;color:var(--gold-t);box-shadow:0 0 0 4px rgba(196,155,49,.16)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa b{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding-top:3px;color:var(--ink);font:700 17px/1.3 var(--disp)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa em{padding:3px 9px;border-radius:999px;background:#fbf3dc;color:var(--gold-t);font:700 12px/1.2 var(--disp);font-style:normal;letter-spacing:.1em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa__text{display:block;margin-top:2px;color:var(--mute);font:400 16px/1.4 var(--body)}
+
+/* --- VAŠA OBJEDNÁVKA (stručne), rozpis = ul.lcd-rozpis z košíka (functions/kosikRozpis.js) */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka{display:grid;grid-template-columns:72px minmax(0,1fr);column-gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka+.lcd-dak-polozka{padding-top:12px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka--bez-fotky{grid-template-columns:minmax(0,1fr)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__foto{display:block;width:72px;height:72px;max-width:none;border-radius:10px;object-fit:cover;box-shadow:0 0 0 1px var(--karta),0 0 0 3px #fff,0 0 0 4px rgba(196,155,49,.55)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__txt{min-width:0}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__nazov{margin:0;color:var(--ink);font:700 16px/1.3 var(--disp);overflow-wrap:break-word}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__cena{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px;color:var(--mute);font:400 15px/1.3 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__cena b{color:var(--ink);font:700 16px/1.2 var(--disp);font-variant-numeric:tabular-nums;white-space:nowrap}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka ul.lcd-rozpis{grid-column:1 / -1;display:flex;flex-direction:column;gap:4px;margin:12px 0 0 !important;padding:0 !important;list-style:none !important}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka ul.lcd-rozpis>li{position:relative;display:block;margin:0 !important;padding:0 0 0 14px !important;color:#6b645a;font:400 14px/1.4 var(--body);overflow-wrap:break-word}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka ul.lcd-rozpis>li::before{content:"";position:absolute;left:1px;top:.6em;width:5px;height:5px;border-radius:50%;background:#c49b31}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka ul.lcd-rozpis .lcd-rozpis__h{color:#14110c;font-weight:600}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn{margin:0;padding:0;list-style:none}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn>li{display:flex;justify-content:space-between;gap:12px;margin:0;padding:10px 0;border-bottom:1px solid var(--line);color:var(--ink);font:400 16px/1.35 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn>li>span:first-child{min-width:0;overflow-wrap:break-word}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn>li>span:last-child{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn small{display:block;color:var(--mute);font:400 14px/1.35 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn>li.lcd-dak-suhrn__spolu{padding-top:12px;padding-bottom:0;border-bottom:0;align-items:baseline;font:700 16px/1.2 var(--disp);letter-spacing:.06em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-suhrn>li.lcd-dak-suhrn__spolu>span:last-child{font:900 22px/1.1 var(--disp);letter-spacing:0;text-transform:none}
+
+/* --- KONTAKT (tmavý, kompaktný) */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt{border-radius:16px;padding:18px 16px;color:var(--krem);
+  background:radial-gradient(80% 120% at 100% 0%,rgba(196,155,49,.14),rgba(196,155,49,0) 60%),var(--pas);
+  border:1px solid #3a3222;box-shadow:0 12px 32px rgba(20,17,12,.12)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt h2{margin:0;color:#fff;font:700 20px/1.25 var(--disp);text-transform:none;letter-spacing:normal}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt p{margin:6px 0 0;color:var(--krem-t);font:400 16px/1.45 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__volby{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 14px;border:1px solid rgba(196,155,49,.5);border-radius:12px;
+  background:rgba(255,255,255,.03);color:#fff;text-decoration:none;font:700 18px/1.25 var(--disp);overflow-wrap:break-word}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a svg{display:block;flex:none;width:22px;height:22px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a>span{min-width:0}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a small{display:block;color:var(--krem-t);font:400 14px/1.3 var(--body)}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+
+/* --- hlavné tlačidlo (zelené ako „Objednať“ v pokladni), vedľajšie zlaté */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-spat{display:flex;justify-content:center;padding-top:6px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-zeleny{display:flex;align-items:center;justify-content:center;width:100%;min-height:60px;margin:0;padding:8px 24px;border:0;border-radius:12px;background:var(--zelena);
+  box-shadow:0 10px 22px rgba(46,125,50,.30),inset 0 1px 0 rgba(255,255,255,.22);color:#fff;text-decoration:none;text-align:center;cursor:pointer;
+  font:900 17px/1.1 var(--disp);letter-spacing:.1em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-zeleny:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba .lcd-dak-btn-zeleny{width:100%;min-width:0;margin-top:16px;padding:8px 14px;letter-spacing:.06em}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-vedlajsi{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;padding:8px 24px;border:1.5px solid var(--gold);border-radius:12px;
+  background:#fff;color:var(--ink);text-decoration:none;text-align:center;font:700 16px/1.1 var(--disp);letter-spacing:.1em;text-transform:uppercase}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-vedlajsi:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* hover len pri myši (na telefóne by po ťuknutí ostal „zapnutý“) */
+@media (hover:hover){
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia:hover{background:#fbf3dc;color:var(--gold-t)}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a:hover{border-color:var(--gold);background:rgba(196,155,49,.08);color:#fff;text-decoration:none}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-zeleny:hover{filter:brightness(1.05);color:#fff;text-decoration:none}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-vedlajsi:hover{background:#fffaf0;color:var(--ink);text-decoration:none}
+}
+/* poradie na telefóne: platba -> čo bude ďalej -> objednávka -> kontakt */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba{order:1}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kroky{order:2}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-objednavka{order:3}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt{order:4}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-spat{order:5}
+
+@media (min-width:768px){
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero{padding:40px 24px 92px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-pecat{width:58px;height:58px;margin-bottom:12px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-pecat svg{width:28px;height:28px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__h1{font-size:36px;margin-bottom:8px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-hero__text{font-size:17px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-obsah{margin-top:-70px;padding:0 24px 56px;gap:24px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-karta{padding:22px 24px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__vrch{grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__vrch>.lcd-dak-platba__hl{grid-column:2;grid-row:1}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__suma{font-size:46px;margin:8px 0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__navod{font-size:16px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaje{margin-top:20px;border:1px solid var(--line);border-radius:12px;background:#fdfbf6}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj{grid-template-columns:180px minmax(0,1fr) auto;padding:10px 16px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj:last-child{border-bottom:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__n{font-size:16px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__h{grid-column:2;font-size:20px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia{grid-column:3;grid-row:auto}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__foto{width:80px;height:80px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka{grid-template-columns:80px minmax(0,1fr);column-gap:16px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka--bez-fotky{grid-template-columns:minmax(0,1fr)}
+  /* tablet (768–1099): karty pod sebou ako na telefóne, kontakty vedľa seba */
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt{padding:22px 28px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__volby{flex-direction:row}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a{flex:1 1 0;min-width:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-zeleny{width:auto;min-width:360px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-znak{grid-column:1;grid-row:1;width:104px;height:104px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-znak svg{width:46px;height:46px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__titul{font-size:26px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-potvrd{font-size:17px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-btn-vedlajsi{width:auto;min-width:360px}
+}
+/* široké PC (od 1100): platba vľavo + objednávka vpravo, kroky vodorovne, kontakt v jednom riadku */
+@media (min-width:1100px){
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:24px;align-items:start;order:1}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka>.lcd-dak-platba,html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka>.lcd-dak-objednavka{order:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kroky{order:2}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt{order:3}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-spat{order:4}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li{display:block;padding:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa>li::before{left:42px;right:-8px;top:15px;bottom:auto;width:auto;height:2px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa__bod{margin-bottom:10px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-osa b{padding-top:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__volby{margin-top:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a{flex:none;min-width:250px}
+  /* prevod: platobná karta vysoká ako objednávka vedľa — suma hore, riadky pod ňou sa natiahnu, bez prázdnej diery */
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka>.lcd-dak-platba--prevod{align-self:stretch;display:flex;flex-direction:column}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba--prevod>.lcd-dak-udaje{flex:1 0 auto;display:flex;flex-direction:column}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba--prevod .lcd-dak-udaj{flex:1 0 auto}
+  /* ostatné stavy: platobný blok je nižší -> kroky zvisle pod platbou (vľavo), objednávka vpravo; bez prázdnej diery */
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky{grid-template-rows:auto 1fr}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-platba{grid-column:1;grid-row:1}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky{grid-column:1;grid-row:2}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-objednavka{grid-column:2;grid-row:1 / span 2}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa{display:block}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa>li{display:grid;padding:0 0 14px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa>li:last-child{padding-bottom:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa>li::before{left:14px;right:auto;top:30px;bottom:0;width:2px;height:auto}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa__bod{margin-bottom:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa b{padding-top:3px}
+}
+/* užšie telefóny (pod 390, napr. Android 360): číslo účtu v jednom riadku */
+@media (max-width:389px){
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__h{font-size:17px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia{padding:0 12px}
+}
+/* malé telefóny (pod 360): suma a e-mail sa zmestia, účet sa zlomí až za lomkou */
+@media (max-width:359px){
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__suma{font-size:28px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a{font-size:17px;padding:8px 12px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-qr{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-prevod>summary svg{transition:none}
+}
+/* ===== LCD-OPC-DAKUJEME END ===== */
 
 /* ===== LCD-KONTAKTY START - generovane tools/vloz-lcd-css.py z _lcdKontakty.scss (stranka Kontakty SK 29, #lcd-kontakt; mimo korena len skryty nadpis clanku a paticka na body.in-kontakty), needituj rucne ===== */
 /* =====================================================================

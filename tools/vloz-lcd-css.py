@@ -12,6 +12,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-KORENE <- _lcdKorene.scss     staticke korene [data-lcd-cast] v obaloch Shoptetu (bannery, popis stranky)
   LCD-KOSIK  <- _lcdKosik.scss      kosik: ponuka rohoze do kufra a boxu k setu (assets/js/lcdKosikDoplnok.js)
   LCD-OPC    <- _lcdOpc.scss        one page checkout na kroku 2 (assets/js/opc/), len html.lcd-opc* (tajny odkaz ?opc=<KOD>)
+  LCD-OPC-DAKUJEME <- _lcdOpcDakujeme.scss  dakovna stranka po objednavke v navrhu 4 (assets/js/opc/dakujeme.js), len html.lcd-opc-dakujeme*
   LCD-KONTAKTY <- _lcdKontakty.scss  stranka Kontakty SK 29 (#lcd-kontakt v popise stranky, admin-html/src/kontakty.sk.html)
   LCD-1V-KROKY      <- _lcd1v-kroky.scss       novy konfigurator 1V: kroky 1-3 (vzor, auto, farba)  } vsetko LEN pod body.lcd-1v
   LCD-1V-ROZLOZENIE <- _lcd1v-rozlozenie.scss  novy konfigurator 1V: krok 4 rozlozenie              } (tichy test ?novy=1,
@@ -69,6 +70,10 @@ BLOKY = [
     # (assets/js/opc/krok2.js, kosik html.lcd-opc-kosik) — kazdy selektor (test-opc-jednotky „CSS“); bez flagu / SPUSTENE nic nevyberie. Za kosikom (lista .lcd-lista).
     dict(meno="LCD-OPC", zdroj="_lcdOpc.scss", home=False, h1=False,
          popis="one page checkout: sekcia Doprava a platba na kroku 2, zbaleny suhrn, lista; len html.lcd-opc"),
+    # Dakovna stranka (/objednavka/dekujeme/) v navrhu 4 (30. 10. 2026), len pri zapnutom tajnom kode OPC — kazdy selektor pod
+    # html.lcd-opc-dakujeme / html.lcd-opc-dakujeme-caka (test-opc-dakujeme „CSS“); bez kodu nic nevyberie. Hned za LCD-OPC.
+    dict(meno="LCD-OPC-DAKUJEME", zdroj="_lcdOpcDakujeme.scss", home=False, h1=False,
+         popis="dakovna stranka po objednavke (navrh 4): platba hore, kroky, objednavka, kontakt; len html.lcd-opc-dakujeme"),
     # Stranka Kontakty SK 29 (25. 10. 2026): obsah v popise stranky (#lcd-kontakt), vsetko pod #lcd-kontakt okrem skrytia
     # nadpisu clanku Shoptetu a medzery nad patickou (len body.in-kontakty s novym obsahom); za kosikom, cookies ostava posledny
     dict(meno="LCD-KONTAKTY", zdroj="_lcdKontakty.scss", home=False, h1=False,

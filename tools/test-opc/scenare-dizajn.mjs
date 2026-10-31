@@ -27,7 +27,7 @@ const KARTY = { sk: ["Kontakt", "Adresa", "Doprava", "Platba"], cz: ["Kontakt", 
 const DALSIE = (sirka) => (sirka < 768 ? [360] : sirka >= 992 ? [768, 1920] : []);
 
 // poznámky (≥ 14 px): popisy pod názvom, právne vety, „1 ks“, text chyby, druhý riadok tlačidla, hlášky „čakám…“
-const POZNAMKY = [".sublabel", ".lcd-dob-pozn", ".lcd-opc-zaloha-info", ".not-possible-info", ".lcd-opc-pravne", ".lcd-opc-platby-vop", ".lcd-opc-banka__podmienky",
+const POZNAMKY = [".sublabel", ".not-possible-info", ".lcd-opc-pravne", ".lcd-opc-platby-vop", ".lcd-opc-banka__podmienky",
   ".lcd-opc-hlaska--info", ".lcd-opc-cakam", ".cart-item-amount", ".js-validator-msg", ".lcd-opc-chyba-text", ".order-button-suffix",
   ".lcd-opc-lista__suffix", ".additional-information", ".lcd-rozpis", ".lcd-opc-kopia-priplatky", "small",
   // rozpis položky = rekapitulácia z košíka (S42, náhľad 5; od A1 hneď pod názvom): rozpis osobných áut je .lcd-rozpis (14 px),
