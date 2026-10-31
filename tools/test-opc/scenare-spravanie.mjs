@@ -164,7 +164,7 @@ export const SCENARE = {
     },
   },
   S39: {
-    popis: "Lišta „Celkom | Objednať s povinnosťou platby“: telefón — vyplnené, klik v lište = 1× objednávka; PC — karta nad súhrnom len keď neskryje nezaškrtnutý povinný súhlas ani vetu o tovare na mieru (vzorkovník 1366×657: karta, klik = posun na meno; 1280×520: až po zaškrtnutí súhlasu; set: nie, kým je veta pod kartou)",
+    popis: "Lišta „Celkom | Objednať s povinnosťou platby“: telefón — vyplnené, klik v lište = 1× objednávka; PC — karta nad súhrnom len keď neskryje nezaškrtnutý povinný súhlas (veta o tovare na mieru sa od 31. 10. večer neukazuje) (vzorkovník 1366×657: karta, klik = posun na meno; 1280×520: až po zaškrtnutí súhlasu; set: nie, kým je veta pod kartou)",
     async fn(J) {
       if (J.sirka >= 992) {
         // revízia 31. 10. 2026 (N1, kniha § 10.12 (a)): karta „Celkom | Objednať“ na PC svieti len vtedy, keď neskryje
@@ -216,17 +216,16 @@ export const SCENARE = {
         over(!n2.on, "PC 1280×520: po odškrtnutí súhlasu karta ostala nad ním: " + JSON.stringify(n2));
         casti.push("vzorkovník 1280×520: súhlas " + n0.suhlas[0] + "–" + n0.suhlas[1] + " -> bez karty, zaškrtnutý -> karta, odškrtnutý -> bez karty");
         await n.zavri();
-        // 3) SK set 1366×657 (veta o tovare na mieru pod prahom karty): bez karty aj po zaškrtnutí súhlasu
+        // 3) SK set 1366×657: veta o tovare na mieru sa už neukazuje (Michal 31. 10. 2026 večer, krok2.js VETA_NA_MIERU)
+        //    -> karta svieti ako pri vzorkovníku, keď je nezaškrtnutý povinný súhlas celý nad ňou
         if (J.web === "sk") {
           const t = await J.novaStranka({ kosik: "set", sirka: 1366, vyska: 657 });
           await naKrok2(t, { query: "&lcddoplnok=0" });
           const t0 = await navrch(t);
-          over(!t0.tlacidloVidno && t0.veta && t0.veta[1] > t0.vh - 76, "PC set 1366×657: veta o tovare na mieru nie je pod prahom karty (scenár by nič neoveril): " + JSON.stringify(t0));
-          over(!t0.on, "PC set 1366×657: karta svieti a skryje vetu o tovare na mieru / súhlas: " + JSON.stringify(t0));
-          over(await t.ev(ZASKRTNI(true)), "súhlas sa nedal zaškrtnúť");
-          const t1 = await navrch(t);
-          over(!t1.on, "PC set 1366×657: po zaškrtnutí súhlasu karta skryje vetu o tovare na mieru: " + JSON.stringify(t1));
-          casti.push("set 1366×657: veta " + t0.veta[0] + "–" + t0.veta[1] + " -> bez karty aj so zaškrtnutým súhlasom");
+          over(!t0.veta, "PC set: je tu veta o tovare na mieru: " + JSON.stringify(t0));
+          over(!t0.tlacidloVidno && t0.suhlas && t0.suhlas[1] <= t0.vh - 76, "PC set 1366×657: súhlas nie je nad prahom karty (scenár by nič neoveril): " + JSON.stringify(t0));
+          over(t0.on && t0.vid && Math.abs(t0.x - t0.px) <= 2, "PC set 1366×657: karta nesvieti, hoci súhlas je nad ňou: " + JSON.stringify(t0));
+          casti.push("set 1366×657: bez vety o tovare na mieru, súhlas " + t0.suhlas[0] + "–" + t0.suhlas[1] + " nad kartou -> karta");
           await t.zavri();
         }
         return { info: "PC " + casti.join("; ") };

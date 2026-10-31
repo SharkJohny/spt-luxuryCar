@@ -54,6 +54,10 @@ const ODKRY_DO_MS = 3000;
 const ODKRY_MIN_MS = 800;
 
 const rovnake = function (a, b) { return !!a && !!b && String(a.doprava) === String(b.doprava) && String(a.platba) === String(b.platba); };
+// Michal 31. 10. 2026 večer: „Koberce sú pripravované na mieru a že nie je možné odstúpiť daj preč, aj dodanie vymaž“ —
+// veta o tovare na mieru pod súhlasmi (VOP 6.13) ani termín doručenia v sekcii Doprava sa nezobrazujú (true = späť)
+const VETA_NA_MIERU = false;
+const TERMIN_DORUCENIA = false;
 const PO_ZMENE_KOSIKA_MS = 15000; // súhrn po zmene košíka (Step1Validate + krok 1 s pokusom); dlhšie = celé načítanie
 
 /** Rovnaká ponuka dopravy a platby v dvoch modeloch kroku 1 (id, ceny, väzby, podmetódy)? */
@@ -178,15 +182,16 @@ export function initKrok2(ctx) {
     });
   }
   /**
-   * Čo na stránke závisí od obsahu košíka (podľa súhrnu): druh (termín doručenia v sekcii), tovar na mieru (zákonný
-   * riadok pod súhlasmi) a len kamióny (polia volantu / sedadiel / dverí, components/cart.js). -> reťazec | null
+   * Čo na stránke závisí od obsahu košíka (podľa súhrnu): druh (termín doručenia v sekcii, ak sa ukazuje), tovar na mieru
+   * (zákonný riadok pod súhlasmi, ak sa ukazuje) a len kamióny (polia volantu / sedadiel / dverí, components/cart.js).
+   * -> reťazec | null
    */
   function podpisKosika() {
     const i = suhrnInfo(box);
     if (!i) return null;
     const nazvy = i.polozky.map(function (p) { return p.nazov || p.text; });
     const kamiony = i.polozky.length > 0 && i.polozky.every(function (p) { return /\btruck\b|kami[oó]n/i.test(p.text); });
-    return JSON.stringify([V.druhKosika(nazvy), V.naMieru(nazvy), kamiony]);
+    return JSON.stringify([TERMIN_DORUCENIA ? V.druhKosika(nazvy) : null, VETA_NA_MIERU ? V.naMieru(nazvy) : null, kamiony]);
   }
 
   // miesto sekcie: za adresou (aj „Doručiť na inú adresu“), pred poznámkou a registráciou
@@ -755,7 +760,7 @@ export function initKrok2(ctx) {
       ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "banky-" + ((banky && !banky.ok && banky.typ) || (m.pisPodmienky ? "prazdne" : "podmienky")) });
     }
     const druh = V.druhKosika(info.polozky.map(function (p) { return p.nazov || p.text; }));
-    const sek = V.vykresliSekciu(document, m, T, { posun: document.getElementById("lcd-opc-kosik") ? 1 : 0, volby: volby, applePay: applePay(), termin: V.terminDorucenia(druh),
+    const sek = V.vykresliSekciu(document, m, T, { posun: document.getElementById("lcd-opc-kosik") ? 1 : 0, volby: volby, applePay: applePay(), termin: TERMIN_DORUCENIA ? V.terminDorucenia(druh) : null,
       banka: k2.banky ? { banka: k2.banky.banka, podmienky: m.pisPodmienky } : null });
     k2.sekcia = sek;
     nacitavam.replaceWith(sek);
@@ -956,7 +961,7 @@ export function initKrok2(ctx) {
     // súhlasu sa nemení.
     const info = suhrnInfo(box);
     const nazvy = info ? info.polozky.map(function (p) { return p.nazov || p.text; }) : [];
-    if (V.naMieru(nazvy) && cakam.parentNode && !document.querySelector(".lcd-opc-pravne")) {
+    if (VETA_NA_MIERU && V.naMieru(nazvy) && cakam.parentNode && !document.querySelector(".lcd-opc-pravne")) {
       cakam.parentNode.insertBefore(V.vetaSOdkazom(document, "p", "lcd-opc-pravne", T.naMieru, T.naMieruOdkaz, T.vop), cakam);
     }
     // polia: doplniť len chýbajúce autocomplete / inputmode (kniha § 6.4), nič iné sa nemení. Číselná klávesnica pri PSČ

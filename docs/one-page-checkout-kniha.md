@@ -1454,6 +1454,15 @@ Michal testoval naživo na iPhone (CZ, tajný odkaz) a poslal 3 snímky: po zmen
 
 Netestované offline: rýchla platba bez zoznamu bánk po zmene košíka (len vetva do zálohy).
 
+### 10.22 Bez vety o tovare na mieru a bez termínu doručenia (31. 10. 2026 večer)
+
+Michal: „Koberce sú pripravované na mieru a že nie je možné odstúpiť daj preč, aj dodanie vymaž.“
+- Veta pod súhlasmi „Koberce sa pripravujú na mieru Vášho auta, po začatí výroby od zmluvy nemožno odstúpiť – podľa obchodných podmienok, bod 6.13.“ sa nezobrazuje.
+- Termín v karte Doprava („Doručenie do 21–29 dní“, kamióny „14–25 dní“) sa tiež nezobrazuje. Platí na telefóne aj na PC a pre SK aj CZ.
+- Kód: vypínače `VETA_NA_MIERU` a `TERMIN_DORUCENIA` v `opc/krok2.js` (obe `false`, `true` = späť). `podpisKosika` porovnáva druh a tovar na mieru len vtedy, keď sa ukazujú.
+- Testy S8, S10 (`scenare-kosiky.mjs`) overujú, že tam ani jedno nie je.
+- Informácia o odstúpení pri tovare na mieru ostáva vo VOP (bod 6.13).
+
 ---
 
 ## 11. Živý dôkaz 28./29. 10. 2026

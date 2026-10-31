@@ -30,7 +30,7 @@ const rozpis = (s) => s.ev(`Array.prototype.map.call(document.querySelectorAll("
 export const SCENARE = {
   S8: {
     len: "sk",
-    popis: "Set autokobercov (SK 598): rozpis v súhrne aj po zmene platby, termín doručenia, varchar1–3 a model v tele objednávky",
+    popis: "Set autokobercov (SK 598): rozpis v súhrne aj po zmene platby, bez termínu doručenia a vety o tovare na mieru, varchar1–3 a model v tele objednávky",
     async fn(J) {
       const s = await J.novaStranka({ kosik: "set" });
       const id = ID.sk;
@@ -48,12 +48,9 @@ export const SCENARE = {
         return { pod: !!posl && !!(posl.compareDocumentPosition(p) & 4), nad: !!dalej && !!(p.compareDocumentPosition(dalej) & 4),
           text: p.textContent.replace(/\\s+/g, " ").trim(), href: a && a.getAttribute("href"), ciel: a && a.getAttribute("target") };
       })()`);
-      over(pravne && pravne.pod && pravne.nad, "riadok o tovare na mieru pri sete chýba alebo nie je medzi súhlasmi a tlačidlom: " + JSON.stringify(pravne));
-      // znenie z VOP 6.13 s odkazom na obchodné podmienky v novej karte (Michal 29. 10.)
-      over(/po začatí výroby/.test(pravne.text) && /bod 6\.13\.$/.test(pravne.text) && pravne.href === "/obchodne-podmienky/" && pravne.ciel === "_blank",
-        "riadok o tovare na mieru bez znenia / odkazu VOP 6.13: " + JSON.stringify(pravne));
-      // termín bez dátumov (Michal 29. 10.)
-      over(termin === "Doručenie do 21–29\u00a0dní", "termín doručenia pri sete: " + JSON.stringify(termin));
+      // Michal 31. 10. 2026 večer: veta o tovare na mieru aj termín doručenia preč (krok2.js VETA_NA_MIERU, TERMIN_DORUCENIA)
+      over(pravne === null, "pri sete je riadok o tovare na mieru: " + JSON.stringify(pravne));
+      over(termin === "", "pri sete je termín doručenia: " + JSON.stringify(termin));
       await zvolPlatbu(s, id.dobierka);
       const st = await cakajOpc(s, /^krok2-(potvrdene|chyba)$/);
       over(st.stav === "krok2-potvrdene" && /Dobierkou/.test(st.platbaSuhrn), "dobierka pri sete: " + JSON.stringify(st));
@@ -102,7 +99,7 @@ export const SCENARE = {
   },
   S10: {
     len: "sk",
-    popis: "Kamión 640: blok [KONFIGURÁCIA KAMIÓNA] v poznámke, žiadne varchar1–3, termín 14–25 dní",
+    popis: "Kamión 640: blok [KONFIGURÁCIA KAMIÓNA] v poznámke, žiadne varchar1–3, bez termínu doručenia",
     async fn(J) {
       const s = await J.novaStranka({ kosik: "kamion" });
       const zhrnutie = buildTruckOrderSummary(KAMION, "sk");
@@ -111,7 +108,7 @@ export const SCENARE = {
         varchar: document.querySelectorAll("#order-form [name^=varchar]").length })`);
       over(d.kamion, "súhrn bez rozpisu kamióna");
       over(d.varchar === 0, "pri kamióne sú v stránke varchar polia: " + d.varchar);
-      const ocak = "Doručenie do 14–25\u00a0dní"; // bez dátumov (Michal 29. 10.)
+      const ocak = ""; // termín doručenia preč (Michal 31. 10. 2026 večer)
       over(d.termin === ocak, "termín kamióna " + JSON.stringify(d.termin) + " ≠ " + ocak);
       await vyplnUdaje(s);
       await suhlas(s);
