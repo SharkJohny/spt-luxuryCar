@@ -109,7 +109,7 @@ function zmeraj(s) {
       pretecenie: pretecenie.slice(0, 8), male: male.slice(0, 10), polozky: polozky,
       celkomPismo: celkom ? parseFloat(getComputedStyle(celkom).fontSize) : 0, karty: karty, polia: polia, dlazdice: dl,
       objednat: { top: Math.round(rb.top), bottom: Math.round(rb.bottom), h: Math.round(rb.height), radius: cb.borderTopLeftRadius, gradient: /gradient/.test(cb.backgroundImage) },
-      lista: { on: document.documentElement.classList.contains("lcd-lista-on"), vid: vid(l), text: l ? l.textContent.replace(/\\s+/g, " ").trim() : "" },
+      lista: { on: document.documentElement.classList.contains("lcd-lista-on"), vid: vid(l), text: l ? l.textContent.replace(/\\s+/g, " ").trim() : "", t: l ? Math.round(l.getBoundingClientRect().top) : null },
       zbalene: { vid: vid(zb), text: zb ? zb.querySelector("summary").textContent.replace(/\\s+/g, " ").trim() : "" },
       pozadie: getComputedStyle(document.body).backgroundColor,
       suhrn: sb ? { r: rect(sb), hore: csb.borderTopWidth + " " + csb.borderTopColor } : null,
@@ -168,12 +168,15 @@ export const SCENARE = {
       casti.push("výška " + m.vyska + " ≤ " + limit);
       over(m.objednat.radius === "12px" && m.objednat.gradient && m.objednat.h >= 54, "tlačidlo Objednať nie je v štýle e-shopu (rádius 12, zelený prechod, ≥ 54 px): " + JSON.stringify(m.objednat));
       if (pc) {
-        // A1 (Michal 30. 10. 2026, náhľad 6: „sety posunie o 80–120 px“): „Objednať“ celé na prvej obrazovke a lišta zhasnutá,
-        // alebo „Objednať“ pod ňou a lišta „Celkom | Objednať“ dole (na PC svieti len vtedy, S41)
-        const cele = m.objednat.bottom <= m.ih;
-        over(cele ? !m.lista.on : m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text),
-          "PC: „Objednať“ " + (cele ? "je na prvej obrazovke, a predsa svieti lišta" : "nie je na prvej obrazovke a lišta s „Objednať“ chýba") + " (y " + m.objednat.top + "–" + m.objednat.bottom + ", okno " + m.ih + "): " + JSON.stringify(m.lista));
-        casti.push("Objednať y " + m.objednat.top + "–" + m.objednat.bottom + (cele ? "" : " (lišta)"));
+        // A1 (Michal 30. 10. 2026, náhľad 6: „sety posunie o 80–120 px“): „Objednať“ celé na prvej obrazovke nad prahom karty
+        // (horný okraj < okno − 72 px, IntersectionObserver v opc/krok2.js) a lišta zhasnutá, alebo lišta „Celkom | Objednať“
+        // dole a natívne tlačidlo celé pod ňou (nikdy dve tlačidlá; na PC svieti len vtedy, S41). Revízia A1 (N1): set na
+        // 1366×768 má „Objednať“ 706–766 — celé v okne, ale v pásme karty, ktorá ho celé zakryje
+        const nad = m.objednat.top < m.ih - 72;
+        over(nad ? !m.lista.on && m.objednat.bottom <= m.ih : m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text) && m.objednat.top >= m.lista.t,
+          "PC: „Objednať“ " + (nad ? "je na prvej obrazovke nad prahom karty, a predsa svieti lišta" : "nie je nad prahom karty a lišta s „Objednať“ chýba alebo ho celé nezakryje") +
+          " (y " + m.objednat.top + "–" + m.objednat.bottom + ", okno " + m.ih + "): " + JSON.stringify(m.lista));
+        casti.push("Objednať y " + m.objednat.top + "–" + m.objednat.bottom + (nad ? "" : " (lišta)"));
       } else {
         over(m.lista.on && m.lista.vid && /Objedna/.test(m.lista.text), "telefón: lišta „Celkom | Objednať“ navrchu nie je vidno: " + JSON.stringify(m.lista));
         over(m.zbalene.vid && /\d/.test(m.zbalene.text), "telefón: zbalená lišta „Vaša objednávka · položky · suma“ navrchu chýba: " + JSON.stringify(m.zbalene));
