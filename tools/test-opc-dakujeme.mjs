@@ -260,12 +260,13 @@ t("karta (R1): zelené tlačidlo = odkaz s adresou Shoptetu, klik (ľavým) klik
   const nase = b.querySelector(".lcd-dak-platba__btn");
   eq([nase.tagName, nase.getAttribute("href")], ["A", povodne.getAttribute("href")]);
   const w = doc.defaultView;
-  const e1 = new w.MouseEvent("click", { bubbles: true, cancelable: true, button: 0 });
-  nase.dispatchEvent(e1);
-  eq([klik, e1.defaultPrevented], [1, true], "ľavý klik = klik na pôvodný odkaz (jeho skript), naša adresa sa neotvorí");
-  const e2 = new w.MouseEvent("click", { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
-  nase.dispatchEvent(e2);
-  eq([klik, e2.defaultPrevented], [1, false], "Ctrl + klik = nová karta prehliadača s adresou Shoptetu");
+  // stav po našom poslucháčovi; potom navigáciu zastaví test (jsdom navigáciu nevie)
+  const videne = [];
+  doc.addEventListener("click", (e) => { videne.push(e.defaultPrevented); e.preventDefault(); });
+  nase.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+  eq([klik, videne[0]], [1, true], "ľavý klik = klik na pôvodný odkaz (jeho skript), naša adresa sa neotvorí");
+  nase.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true, button: 0, ctrlKey: true }));
+  eq([klik, videne[1]], [1, false], "Ctrl + klik = nová karta prehliadača s adresou Shoptetu");
 });
 t("karta: tlačidlo platby + text o úspechu alebo čakaní naraz (rozpor) -> stránka Shoptetu", () => {
   for (const veta of ["Platba byla úspěšně přijata.", "Platba byla zadána správně. Objednávka bude označena jako zaplacená, jakmile platbu obdržíme."]) {

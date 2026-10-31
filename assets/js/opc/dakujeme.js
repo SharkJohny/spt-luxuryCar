@@ -15,6 +15,9 @@
 // nič) = pôvodná stránka Shoptetu. „Zaplatené“ podľa textu je vypnuté (ZAPLATENE_PODLA_TEXTU), kým záznam nepotvrdí
 // presný text Shoptetu; aj potom LEN pri vete o PLATBE v minulom čase bez záporu, budúceho času a čakania.
 // Dva rôzne údaje toho istého popisu (číslo, suma, účet, VS) alebo suma bez práve jednej ceny s menou = pôvodná stránka.
+// Tlačidlo platby (revízia 31. 10. 2026, R1): naše zelené tlačidlo LEN pri práve jednom tlačidle Shoptetu s adresou (text
+// celého tlačidla alebo adresa brány; informačné odkazy nie) a klik ide vždy na pôvodný prvok (aj odkaz — jeho skript).
+// Dve rôzne tlačidlá, odkaz bez adresy (#, javascript:) alebo tlačidlo platby pri prevode / dobierke = pôvodná stránka.
 //
 // Záznam na overenie: pri zapnutom kóde sa pôvodné HTML hlavného obsahu (bez skriptov, zachytené hneď pri načítaní
 // bundla, pred úpravami cart.js) uloží do localStorage „lcdOpcDakujemeZaznam“ (posledných 5, dátum, adresa bez query,
@@ -196,31 +199,70 @@ export function vysledokTextu(text) {
   return r;
 }
 
-const TEXT_PLATBY = /^(zaplatit|opakovat platbu|zopakovat platbu|platit|pay\b|dokoncit platbu|na platbu|(prejst|prejit|pokracovat)\b.{0,30}\b(platb|bran)|(zkusit|skusit)( platbu)? (znovu|znova|este raz|jeste jednou))|platebni bran|platobn\w* bran/;
-const ADRESA_BRANY = /shoptet-?pay|\/action\/[^?#]*pay|gopay|comgate|thepay|gpwebpay|\/payments?(\/|\?|#|$)|\/pay(\/|\?|#|$)|\/platba(\/|\?|#|$)|\/zaplatit/i;
+// Text CELÉHO tlačidla (najviac 40 znakov, začína slovesom platby): „Zaplatit“, „Zaplatiť kartou“, „Pokračovat k platbě“,
+// „Přejít na platební bránu“, „Na platbu“, „Zkusit znovu“. Veta, v ktorej sa platobná brána len spomína („Více o platební
+// bráně“), tlačidlo nie je (revízia 31. 10. 2026, R1).
+const TEXT_PLATBY = /^(zaplatit|opakovat platbu|zopakovat platbu|platit|pay\b|dokoncit platbu|na platbu|(prejst|prejit|pokracovat)\b.{0,30}\b(platb|bran)|(zkusit|skusit)( platbu)? (znovu|znova|este raz|jeste jednou))/;
+const MAX_TEXT_TLACIDLA = 40;
+// cesta na bránu na webe obchodu (Shoptet Pay: /action/ShoptetPay/pay/…); názov brány v ceste nie (blog, informácie)
+const ADRESA_BRANY = /\/action\/[^?#]*pay|\/payments?(\/|\?|#|$)|\/pay(\/|\?|#|$)|\/platba(\/|\?|#|$)|\/zaplatit/i;
 
 /**
- * Tlačidlo/odkaz Shoptetu na (opakovanú) platbu v pôvodnom obsahu, alebo null: text tlačidla („Zaplatit“, „Pokračovat
- * k platbě“, „Přejít na platební bránu“, „Na platbu“, „Zkusit znovu“…), adresa odkazu alebo action formulára na bránu
- * (N2). Informačné odkazy („/doprava-a-platba/“, „#platba“) nie.
+ * Adresa odkazu / action formulára vedie na platobnú bránu: cesta /action/…pay, /pay/… na webe obchodu, doména brány
+ * (GoPay, Comgate, ThePay, GP webpay) mimo úvodnej stránky; doména shoptetpay.com LEN s cestou /pay (informačné stránky
+ * Shoptet Pay nie, revízia 31. 10. 2026, R1).
  */
-export function odkazPlatby(koren, vynechaj) {
-  if (!koren) return null;
-  const kand = koren.querySelectorAll("a[href], button, input[type=submit], input[type=button]");
-  for (let i = 0; i < kand.length; i++) {
-    const e = kand[i];
+function jeAdresaBrany(adresa) {
+  const a = String(adresa || "").trim();
+  if (!a || a.charAt(0) === "#") return false;
+  const m = /^(?:https?:)?\/\/([^/?#]+)([^?#]*)/i.exec(a);
+  if (m) {
+    const host = m[1].toLowerCase().replace(/:\d+$/, ""), cesta = m[2] || "/";
+    if (/(^|\.)shoptet-?pay\.[a-z]+$/.test(host)) return /\/pay(\/|$)/i.test(cesta);
+    if (/(^|\.)(gopay|comgate|thepay|gpwebpay)\.[a-z]+$/.test(host)) return !/^\/?([a-z]{2}(-[a-z]{2})?\/?)?$/i.test(cesta);
+  }
+  return ADRESA_BRANY.test(a);
+}
+
+/**
+ * Všetky tlačidlá/odkazy Shoptetu na (opakovanú) platbu v pôvodnom obsahu: text celého tlačidla (TEXT_PLATBY), adresa
+ * odkazu alebo action formulára na bránu (N2). -> [{ el, kluc, bezAdresy }]; odkazy s rovnakou adresou len raz.
+ * bezAdresy = odkaz bez použiteľnej adresy (href="#", prázdny, #fragment, javascript:, bez href) — ovláda ho skript
+ * Shoptetu, naše tlačidlo by nič nespustilo (R1). Informačné odkazy („/doprava-a-platba/“, „#platba“, tel:, mailto:) nie.
+ */
+export function kandidatiPlatby(koren, vynechaj) {
+  const out = [];
+  if (!koren) return out;
+  const prvky = koren.querySelectorAll("a, button, input[type=submit], input[type=button]");
+  for (let i = 0; i < prvky.length; i++) {
+    const e = prvky[i];
     if (vynechaj && vynechaj.contains(e)) continue;
+    const odkaz = e.tagName === "A";
     let adresa = "";
-    if (e.tagName === "A") adresa = String(e.getAttribute("href") || "");
+    if (odkaz) adresa = String(e.getAttribute("href") || "").trim();
     else {
       const f = e.form || (e.closest && e.closest("form"));
-      adresa = String(e.getAttribute("formaction") || (f && f.getAttribute("action")) || "");
+      adresa = String(e.getAttribute("formaction") || (f && f.getAttribute("action")) || "").trim();
     }
-    if (/^(tel:|mailto:|javascript:)/i.test(adresa)) continue;
+    if (/^(tel:|mailto:)/i.test(adresa)) continue;
     const t = bezDiakritiky(e.tagName === "INPUT" ? e.value : e.textContent);
-    if (TEXT_PLATBY.test(t) || (ADRESA_BRANY.test(adresa) && !/^#?$/.test(adresa))) return e;
+    const textom = t.length <= MAX_TEXT_TLACIDLA && TEXT_PLATBY.test(t);
+    if (!textom && !jeAdresaBrany(adresa)) continue;
+    const bezAdresy = odkaz && (!adresa || adresa.charAt(0) === "#" || /^javascript:/i.test(adresa));
+    const kluc = odkaz && !bezAdresy ? "A " + adresa : null; // tlačidlo formulára = vždy samostatný prvok
+    if (kluc && out.some((k) => k.kluc === kluc)) continue;
+    out.push({ el: e, kluc, bezAdresy });
   }
-  return null;
+  return out;
+}
+
+/**
+ * Tlačidlo/odkaz Shoptetu na platbu, ktoré naše zelené tlačidlo nahradí, alebo null: LEN keď je práve jedno (odkazy
+ * s rovnakou adresou sa rátajú raz) a odkaz má adresu. Dve rôzne tlačidlá alebo odkaz bez adresy = null (R1).
+ */
+export function odkazPlatby(koren, vynechaj) {
+  const k = kandidatiPlatby(koren, vynechaj);
+  return k.length === 1 && !k[0].bezAdresy ? k[0].el : null;
 }
 
 const CENA = /(€\s?\d[\d\s .,]*\d|€\s?\d|\d[\d\s .,]*\s?(?:Kč|€|EUR|CZK))/gi;
@@ -399,17 +441,22 @@ export function citajUdaje(doc, trh, vynechaj, o) {
     return /\bqr/.test(s) || /qrcode|qr-?code|qr-?platba/.test(s);
   }) || null;
   const t = vysledokTextu(textPovodneho(doc, koren, vynechaj));
+  const kand = kandidatiPlatby(koren, vynechaj);
+  // pri prevode a dobierke Shoptet tlačidlo platby nedáva; keď ho ukáže, skryli by sme ho bez náhrady -> jeho stránka (R1)
+  if ((druh === "prevod" || druh === "dobierka") && kand.length) return { ok: false, dovod: "tlačidlo platby pri platbe " + druh };
   const odkaz = druh === "karta" || druh === "online" ? odkazPlatby(koren, vynechaj) : null;
   const zaplatenePodlaTextu = o && o.zaplatenePodlaTextu != null ? !!o.zaplatenePodlaTextu : ZAPLATENE_PODLA_TEXTU;
   let stav;
   if (druh === "prevod") stav = "prevod";
   else if (druh === "dobierka") stav = "dobierka";
-  // karta / online: náš blok len pri rozpoznanom tlačidle Shoptetu (zákazník má ako zaplatiť) a bez textu o úspechu
-  // alebo čakaní; „zaplatené“ len pri jednoznačnom texte a zapnutom ZAPLATENE_PODLA_TEXTU; inak stránka Shoptetu (N1, N2)
+  // karta / online: náš blok len pri práve jednom rozpoznanom tlačidle Shoptetu s adresou (zákazník má ako zaplatiť) a bez
+  // textu o úspechu alebo čakaní; „zaplatené“ len bez tlačidla, pri jednoznačnom texte a zapnutom ZAPLATENE_PODLA_TEXTU;
+  // inak stránka Shoptetu (N1, N2, R1)
   else if (odkaz && !t.uspech && !t.caka) stav = "neprebehla";
-  else if (zaplatenePodlaTextu && !odkaz && t.uspech && !t.neuspech && !t.caka) stav = "zaplatene";
+  else if (zaplatenePodlaTextu && !kand.length && t.uspech && !t.neuspech && !t.caka) stav = "zaplatene";
   else {
-    const co = [odkaz ? "tlačidlo" : "bez tlačidla", t.uspech && "úspech", t.neuspech && "neúspech", t.caka && "čaká"].filter(Boolean);
+    const tl = odkaz ? "tlačidlo" : !kand.length ? "bez tlačidla" : kand.length > 1 ? kand.length + " tlačidlá platby" : "tlačidlo bez adresy";
+    const co = [tl, t.uspech && "úspech", t.neuspech && "neúspech", t.caka && "čaká"].filter(Boolean);
     return { ok: false, dovod: "stav platby nie je jednoznačný (" + druh + ": " + co.join(", ") + ")" };
   }
   const spatEl = Array.prototype.find.call(koren.querySelectorAll(".order-complete-links a[href], a[href]"), (a) =>
@@ -608,17 +655,24 @@ export function postavBlok(doc, u, T) {
       if (u.odkaz) {
         const text = karta ? (u.neuspech ? T.zaplatitKartouZnova : T.zaplatitKartou) : (u.neuspech ? T.zaplatitZnova : T.zaplatit);
         let b;
-        const href = u.odkaz.tagName === "A" ? u.odkaz.getAttribute("href") : null;
+        const povodne = u.odkaz;
+        const href = povodne.tagName === "A" ? povodne.getAttribute("href") : null;
         if (href) {
+          // odkaz Shoptetu: adresa ostáva (stredné tlačidlo, Ctrl + klik = nová karta), bežný klik ide na pôvodný odkaz —
+          // jeho skript (ak nejaký má) beží ako pri kliku na tlačidlo Shoptetu (revízia 31. 10. 2026, R1)
           b = el("a", "lcd-dak-btn-zeleny lcd-dak-platba__btn", text);
           b.href = href;
-          const ciel = u.odkaz.getAttribute("target");
+          const ciel = povodne.getAttribute("target");
           if (ciel) b.setAttribute("target", ciel);
+          b.addEventListener("click", (e) => {
+            if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            try { povodne.click(); } catch (x) {}
+          });
         } else {
           // tlačidlo formulára Shoptetu: klik na pôvodné (skryté) tlačidlo, odošle formulár Shoptetu
           b = el("button", "lcd-dak-btn-zeleny lcd-dak-platba__btn", text);
           b.type = "button";
-          const povodne = u.odkaz;
           b.addEventListener("click", () => { try { povodne.click(); } catch (e) {} });
         }
         platba.appendChild(b);
