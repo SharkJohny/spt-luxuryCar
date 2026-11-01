@@ -2167,11 +2167,13 @@ function vlozOdober(ctx, T, R, pokus) {
   const miesto = tr.querySelector("td.p-name") || tr;
   const stav = el("span", { class: "lcd-dop__stav", role: "status", "aria-live": "polite" });
   const box = priOdrazke ? ul : el("div", { class: "lcd-dop-odober", "data-item": ctx.riadok.itemId }, [el("span", { class: "lcd-dop-odober__n", text: T.vSeteDoplnky })]);
+  // box v košíku: „× Odobrať“ (Michal 10. 10.: samotný krížik pri boxe mýlil), rohož: samotný krížik; v karte pokladne
+  // (ctx.miestoOdober) aj box len krížik v krúžku (Michal 1. 11. 2026: „Odobrať zaberá veľa miesta“)
+  const sTextom = function (d) { return d.co === "box" && !ctx.miestoOdober; };
   ctx.odobrat.forEach(function (d, poradie) {
-    // box: „× Odobrať“ (Michal 10. 10.: samotný krížik pri boxe mýlil), rohož: samotný krížik
     const b = priOdrazke
-      ? el("button", { type: "button", class: "lcd-dop-x" + (d.co === "box" ? " lcd-dop-x--text" : ""), "data-lcd-dop-odober": d.co, "data-kus": d.kus || null, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov, title: T.odstranit + ": " + d.nazov }, [
-        el("i", { "aria-hidden": "true", text: "×" }), d.co === "box" ? el("span", { "aria-hidden": "true", text: T.odobrat }) : null,
+      ? el("button", { type: "button", class: "lcd-dop-x" + (sTextom(d) ? " lcd-dop-x--text" : ""), "data-lcd-dop-odober": d.co, "data-kus": d.kus || null, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov, title: T.odstranit + ": " + d.nazov }, [
+        el("i", { "aria-hidden": "true", text: "×" }), sTextom(d) ? el("span", { "aria-hidden": "true", text: T.odobrat }) : null,
       ])
       : el("button", { type: "button", class: "lcd-dop-odober__x", "data-lcd-dop-odober": d.co, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov }, [
         el("span", { text: d.nazov }), el("i", { "aria-hidden": "true", text: "×" }),

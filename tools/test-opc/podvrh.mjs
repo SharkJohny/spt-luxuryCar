@@ -471,9 +471,16 @@ export async function zapniPodvrh(k, moznosti) {
     if (dob && zaskrtnute(dob, "billingId") === pl) return dob;
     return krok1SPlatbou(p.subor("krok1.html"), pl);
   }
+  /** Krajina doručenia v session (opc/stat.js, S77): zvolená v #deliveryCountryId kroku 1. */
+  const sKrajinou = (html) => {
+    const k = p.stav.krajina;
+    if (!k || html == null) return html;
+    return String(html).replace(/(<select name="deliveryCountryId"[\s\S]*?<\/select>)/, (sel) =>
+      sel.replace(/ selected="selected"/g, "").replace(new RegExp('(<option value="' + k + '")'), '$1 selected="selected"'));
+  };
   /** Krok 1 podľa session: po Step1Validate má súhrn kroku 1 „Celkom k úhrade“ so zvolenou dopravou a platbou. */
   function htmlKrok1() {
-    const h = htmlKrok1Session();
+    const h = sKrajinou(htmlKrok1Session());
     if (!p.stav.step1) return h;
     const s2 = suhrnPre(p.stav.platba || p.predvolene().platba);
     const m = s2 && /data-testid="recapFullPrice">([^<]*)</.exec(s2);
@@ -588,6 +595,15 @@ export async function zapniPodvrh(k, moznosti) {
       if (p.scenar.suhrn === "500" && rq.resourceType !== "Document") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
       z.odpoved = "krok2" + (p.stav.platba ? "-" + p.stav.platba : "") + (p.stav.udaje ? "-udaje" : "");
       return stranka(rq, sPriplatkom(p.stav.udaje ? krok2SUdajmi(htmlKrok2(), p.stav.udaje) : htmlKrok2()));
+    }
+    // zmena krajiny doručenia ako na kroku 1 Shoptetu (XHR, JSON 200; naživo 1. 11. 2026) — scenár krajina: "500"
+    if (metoda === "POST" && /^\/action\/orderingProcess\/Step1ChooseDelivery\/?$/i.test(cesta)) {
+      const o = pole();
+      p.zaznam.krajina = (p.zaznam.krajina || []).concat([{ cas: z.cas, xhr, telo }]);
+      if (p.scenar.krajina === "500") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
+      p.stav.krajina = String(o.deliveryCountryId || "");
+      z.odpoved = "krajina-" + p.stav.krajina;
+      return odpovedz(rq, 200, json({ code: 200, message: null, messages: {}, payload: {} }), TYP[".json"]);
     }
     if (metoda === "POST" && /^\/action\/orderingProcess\/Step1Validate\/?$/i.test(cesta)) {
       const o = pole();

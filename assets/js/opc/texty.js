@@ -88,6 +88,7 @@ export const TEXTY = {
     spatKosik: "Späť do košíka",
     // pri štáte v adrese namiesto „Môžete zmeniť v predchádzajúcom kroku“ (krok s krajinou zákazník pri OPC nevidel)
     zmenitStat: "Zmeniť štát",
+    krajinaDorucenia: "Krajina doručenia",
     // dizajn A (Michal 29. 10.): nadpisy kariet 1 a 2 (3 a 4 = doprava, platba) a krátky odkaz na prihlásenie v hlavičke karty
     kontakt: "Kontakt",
     adresa: "Adresa",
@@ -162,6 +163,7 @@ export const TEXTY = {
     zobrazitMenej: "Zobrazit méně",
     spatKosik: "Zpět do košíku",
     zmenitStat: "Změnit zemi",
+    krajinaDorucenia: "Země doručení",
     kontakt: "Kontakt",
     adresa: "Adresa",
     prihlasit: "Přihlásit se",

@@ -90,6 +90,15 @@ function pisPodmienky(doc) {
   }
 }
 
+/** Krajiny doručenia z kroku 1 (výber #deliveryCountryId mimo formulára Step1Validate) -> [{ id, nazov, zvolena }]. */
+export function krajinyDorucenia(doc) {
+  const s = doc.getElementById("deliveryCountryId");
+  if (!s) return [];
+  return Array.prototype.filter.call(s.options, function (op) { return !!op.value; }).map(function (op) {
+    return { id: String(op.value), nazov: text(op), zvolena: !!op.selected || op.hasAttribute("selected") };
+  });
+}
+
 export function krok1Model(html, moznosti) {
   try {
     const doc = (moznosti && moznosti.doc) || new DOMParser().parseFromString(String(html || ""), "text/html");
@@ -140,6 +149,7 @@ export function krok1Model(html, moznosti) {
       zvolenaPlatba: zp.id,
       hlaska: text(hlaskaEl),
       pisPodmienky: pisPodmienky(doc),
+      krajiny: krajinyDorucenia(doc),
     };
   } catch (e) {
     return { ok: false, dovod: "vynimka" };

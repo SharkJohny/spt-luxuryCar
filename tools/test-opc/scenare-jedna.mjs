@@ -22,6 +22,11 @@
 //       „Načítavam…“, rovno krok 2 (stránka košíka sa nenačíta), Step1Validate 1×, karta hotová
 //   S71 z webu s prázdnym košíkom (Shoptet odznak nekreslí) -> obyčajný odkaz na /kosik/
 //   S76 z webu klik na ikonu košíka v hlavičke (toggle-window) -> rovno krok 2; hlavička sa počas skoku nedá kliknúť
+//   S77 (Michal 1. 11. 2026) „Zmeniť štát“ -> výber krajín z kroku 1 priamo v pokladni; iná krajina -> Step1ChooseDelivery,
+//       Step1Validate, krok 2 nanovo (nie starý krok 1), meno ostane; „Chcem sa registrovať“ nevidno
+//   S78 zmena krajiny zlyhá (500) -> klasický krok 1 ako doteraz
+//   S79 2 boxy M + L pridané (košík so stavom): pri boxoch len krížik v krúžku (bez „Odobrať“), krížiky v dvoch riadkoch
+//       sa neprekrývajú (Michal 1. 11., PC)
 //   S72 z webu, krok 1 na pozadí zlyhá (500) -> /kosik/ ako doteraz (tam záchrana na krok 1)
 //   S73 konfigurátor po „Do košíka“ (window.__lcdDoKosika) -> rovno krok 2 bez košíka
 //   S74 bez kódu (?opc=0) -> odkaz na /kosik/ natívne, window.__lcdDoKosika nie je
@@ -480,6 +485,85 @@ export const SCENARE = {
       over(navrchu === "lcd-opc-skok", "navrchu stránky počas skoku je: " + navrchu);
       over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "navigácie po kliku na ikonu (čakal som len krok 2): " + d.join(", "));
       return { info: d.join(", ") };
+    },
+  },
+  S77: {
+    len: "sk",
+    popis: "Jedna stránka: „Zmeniť štát“ -> výber krajín tu; Česko -> Step1ChooseDelivery + Step1Validate, krok 2 nanovo, meno ostane; registrácia skrytá",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      await naJednuStranku(s);
+      const reg = await s.ev(`(function () { var r = document.getElementById("set-registration"); var f = r && r.closest("fieldset");
+        return { je: !!r, vidno: !!f && f.getBoundingClientRect().height > 0 && getComputedStyle(f).display !== "none" }; })()`);
+      over(reg.je && !reg.vidno, "„Chcem sa registrovať“: " + JSON.stringify(reg));
+      await s.pis("#billFullName", ZAKAZNIK.sk.meno);
+      const nav = s.dokumenty().length, step1 = step1Xhr(s).length;
+      await s.klikni("#order-form .lcd-opc-stat em.helpNote a", { popis: "Zmeniť štát" });
+      await pauza(300);
+      const v = await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); if (!v) return null;
+        return { moznosti: [].map.call(v.options, function (o) { return o.textContent + (o.selected ? "*" : ""); }), meno: v.name || "", vFormulari: [].indexOf.call(document.getElementById("order-form").elements, v) > -1,
+          nazovVidno: [].some.call(document.querySelectorAll("#order-form .lcd-opc-stat--vyber > strong"), function (e) { return e.getBoundingClientRect().height > 0; }) }; })()`);
+      over(v && v.moznosti.join("|") === "Česká republika|Fínsko|Nemecko|Poľsko|Slovensko*", "výber krajín: " + JSON.stringify(v));
+      over(v && !v.meno && !v.nazovVidno, "výber má meno (odíde s objednávkou) / názov štátu ostal: " + JSON.stringify(v));
+      over(s.dokumenty().length === nav, "klik na Zmeniť štát niekam odišiel: " + s.dokumenty().slice(nav).join(", "));
+      await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); v.value = "43"; v.dispatchEvent(new Event("change", { bubbles: true })); return 1; })()`);
+      const koniec = Date.now() + 15000;
+      while (Date.now() < koniec && s.dokumenty().length < nav + 1) await pauza(100);
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 po zmene krajiny");
+      const d = s.dokumenty().slice(nav);
+      const k = s.p.zaznam.krajina || [];
+      over(k.length === 1 && /deliveryCountryId=43/.test(k[0].telo) && k[0].xhr, "Step1ChooseDelivery: " + JSON.stringify(k));
+      over(step1Xhr(s).length === step1 + 1, "Step1Validate po zmene krajiny " + (step1Xhr(s).length - step1) + "×");
+      over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "navigácie po zmene krajiny (čakal som len krok 2): " + d.join(", "));
+      const meno = await s.ev(`document.getElementById("billFullName").value`);
+      over(meno === ZAKAZNIK.sk.meno, "meno po zmene krajiny: " + meno);
+      return { info: d.join(", ") };
+    },
+  },
+  S78: {
+    len: "sk",
+    popis: "Jedna stránka: zmena krajiny zlyhá (500) -> klasický krok 1 ako doteraz",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ krajina: "500" }, SCENAR) });
+      await naJednuStranku(s);
+      const nav = s.dokumenty().length;
+      await s.klikni("#order-form .lcd-opc-stat em.helpNote a", { popis: "Zmeniť štát" });
+      await pauza(300);
+      await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); v.value = "44"; v.dispatchEvent(new Event("change", { bubbles: true })); return 1; })()`);
+      const koniec = Date.now() + 15000;
+      while (Date.now() < koniec && s.dokumenty().length < nav + 1) await pauza(100);
+      await pauza(800);
+      const d = s.dokumenty().slice(nav);
+      over(d.length >= 1 && /GET \/objednavka\/krok-1\//.test(d[0]), "po zlyhaní zmeny krajiny: " + d.join(", "));
+      return { info: d.join(", ") };
+    },
+  },
+  S79: {
+    len: "sk",
+    popis: "Jedna stránka: 2 boxy M + L pridané -> pri boxoch len krížik v krúžku, krížiky v dvoch riadkoch sa neprekrývajú",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ kosikStav: true }, SCENAR) });
+      await naJednuStranku(s);
+      const pred = await stopa(s);
+      await s.klikni(`${KARTA} [data-lcd-vyb="box"]`, { popis: "Vybrať (box)" });
+      await pauza(300);
+      await s.klikni('[data-lcd-vyb-pocet="2"]', { popis: "2 boxy" });
+      await s.klikni('[data-lcd-vyb-velkost="M"]', { popis: "1. box M" });
+      await s.klikni('[data-lcd-vyb-velkost2="L"]', { popis: "2. box L" });
+      await s.klikni('[data-lcd-vyb-pridat="box"]', { popis: "Pridať k setu" });
+      await poZmene(s, pred);
+      await s.cakaj(`document.querySelectorAll("${KARTA} .lcd-dop-x").length >= 2`, { ms: 15000, popis: "krížiky pri 2 boxoch" });
+      const r = await s.ev(`[].map.call(document.querySelectorAll("${KARTA} .lcd-dop-x"), function (b) { var r = b.getBoundingClientRect(), l = b.closest("li").getBoundingClientRect();
+        return [Math.round(r.top), Math.round(r.bottom), Math.round(r.left), Math.round(r.right), b.textContent.trim(), Math.round(l.top), Math.round(l.bottom)]; })`);
+      // tlačidlo nesmie trčať zo svojho riadku (záporný okraj -> do susedného riadku = cez susedné tlačidlo)
+      let zle = r.filter((x) => x[0] < x[5] - 1 || x[1] > x[6] + 1).map((x) => "trčí z riadku " + JSON.stringify(x));
+      for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
+        const a = r[i], b = r[j];
+        if (a[0] < b[1] && b[0] < a[1] && a[2] < b[3] && b[2] < a[3]) zle.push(JSON.stringify([a, b]));
+      }
+      over(r.length >= 2 && !zle.length, "krížiky sa prekrývajú: " + zle.join(" ; ") + " (" + JSON.stringify(r) + ")");
+      over(r.every((x) => x[4] === "×" && x[3] - x[2] <= 30), "pri boxe má byť len krížik v krúžku: " + JSON.stringify(r));
+      return { info: r.map((x) => x[4] + "@" + x[0] + "-" + x[1]).join(", ") };
     },
   },
 };

@@ -1527,6 +1527,26 @@ Michal z iPhonu: „keď idem do košíka, tak je tam stále taký divný loadin
 
 **Testy:** S70 (skok, obrazovka, Step1Validate 1×, bez /kosik/), S71 (prázdny košík bez odznaku), S76 (ikona v hlavičke, hlavička zakrytá), S72 (krok 1 na pozadí 500 -> /kosik/), S73 (konfigurátor), S74 (bez kódu nič), S75 (košík počas preskoku má opacity 0). Naživo s lokálnym buildom (`prechod.mjs`, LOKALNE=1): z titulky po klik na ikonu košíka karta hotová za ~1,6 s, žiadna stránka /kosik/.
 
+### 10.25 Zmena štátu v pokladni, bez registrácie, krížiky pri boxoch (1. 11. 2026)
+
+Michal na PC:
+- „× Odobrať“ pri dvoch boxoch išli cez seba;
+- „Zmeniť štát“ ho hodilo na starý krok 1 („mali by tam vybehnúť štáty, do ktorých máme povolené posielať“);
+- „Chcem sa registrovať“ preč;
+- „Odobrať“ v produkte zbytočne zaberá miesto, stačí krížik v krúžku.
+
+**Teraz:**
+- **Krížiky:** okraj tlačidla 2 px (predtým −5 px: tlačidlo trčalo do susedného riadku). V karte pokladne aj box len krížik v krúžku (`lcdKosikDoplnok.js` vlozOdober, `ctx.miestoOdober`); v samostatnom košíku ostáva „× Odobrať“ (Michal 10. 10.).
+- **Zmena štátu (`opc/stat.js`):** klik na „Zmeniť štát“ otvorí výber krajín z kroku 1 Shoptetu (`#deliveryCountryId`, `krok1Model.krajiny`; SK: Česko, Fínsko, Nemecko, Poľsko, Slovensko). Iná krajina:
+  1. údaje formulára do sessionStorage (`ulozFormular`, vráti ich karta košíka);
+  2. `POST /action/orderingProcess/Step1ChooseDelivery/` `deliveryCountryId=…` (XHR, presne ako krok 1 Shoptetu, overené naživo);
+  3. krok 1 nanovo + Step1Validate s jeho predvolenou dopravou a platbou (cena dopravy podľa krajiny, napr. CZ DPD 15 €);
+  4. krok 2 nanovo s obrazovkou „Načítavam…“ (~1,1 s naživo), predvoľba telefónu sa prepne sama (+420).
+  Zlyhanie -> klasický krok 1. Počas zmeny košíka / odosielania sa výber neotvorí (dnešný odkaz).
+- **Registrácia:** `fieldset.stay-in-touch` (len „Chcem sa registrovať“) skrytý pod `html.lcd-opc`.
+
+**Testy:** S77 (výber krajín, Step1ChooseDelivery, Step1Validate, len krok 2, meno ostane, registrácia skrytá), S78 (zlyhanie -> krok 1), S79 (2 boxy: krížik v krúžku, netrčí z riadku — so starým CSS červený).
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.
