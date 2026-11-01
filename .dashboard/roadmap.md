@@ -570,5 +570,6 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] 6692ba9 naživo na SK aj CZ (vlákno nasadenia), main voľný
 - [x] Sada OPC SK 72/72 + CZ 45/45, push 6698c22 do main, CDN (CI 947), prepnutie sha SK aj CZ 6692ba9 → 6698c22 (Michal „prepni“ 1. 11. 16:13)
 - [x] Finálna kontrola: Michalov Chrome (krajiny, platby, ceny, poznámka, × pri 2. vrstve) + WebKit/Firefox/Chromium 12 × 8 kontrol, SK aj CZ, PC aj telefón, zákazník bez kódu bez zmeny
-- [ ] Admin (len so súhlasom): české názvy parametrov v SK košíku, CZ „Velokost box Solo“, názov obchodu „Luxury Car Dessign“, +421 na CZ pokladni, ProveSource vypnúť na /objednavka/
+- [ ] Admin (len so súhlasom): české názvy parametrov v SK košíku, CZ „Velokost box Solo“, +421 na CZ pokladni, ProveSource vypnúť na /objednavka/
+- [x] Názov obchodu „Luxury Car Dessign“ je zámer (fakturácia na firmu SS, Michal 1. 11.) — neopravovať
 - [ ] Michal rozhodne: ceny „591 €“ aj na ďakovnej stránke, krížik pri 2. vrstve aj v klasickom košíku
