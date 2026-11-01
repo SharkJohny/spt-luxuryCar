@@ -2186,7 +2186,18 @@ function vlozOdober(ctx, T, R, pokus) {
       spustiVymenu(ctx, { typ: "odober", co: d.co, pocet: d.pocet || null, nazov: d.co === "rohoz" ? T[d.varianta] : d.nazov, kod: "odober_" + d.co },
         zm, rozdiel, T, R, stav, box);
     });
-    if (priOdrazke) miesta[poradie].appendChild(b);
+    if (priOdrazke && ctx.miestoOdober) {
+      // karta pokladne: text odrážky do jedného spanu, krížik vpravo na tom istom riadku (CSS li.lcd-dop-riadok; Michal
+      // 1. 11. 2026 — krížik nesmie padať osamote pod text ani cez susedný riadok)
+      const li = miesta[poradie];
+      if (!li.querySelector(":scope > .lcd-dop-text")) {
+        const t = el("span", { class: "lcd-dop-text" });
+        while (li.firstChild) t.appendChild(li.firstChild);
+        li.appendChild(t);
+        li.classList.add("lcd-dop-riadok");
+      }
+      li.appendChild(b);
+    } else if (priOdrazke) miesta[poradie].appendChild(b);
     else box.appendChild(b);
   });
   if (priOdrazke) ul.parentNode.insertBefore(stav, ul.nextSibling);

@@ -1536,7 +1536,7 @@ Michal na PC:
 - „Odobrať“ v produkte zbytočne zaberá miesto, stačí krížik v krúžku.
 
 **Teraz:**
-- **Krížiky:** okraj tlačidla 2 px (predtým −5 px: tlačidlo trčalo do susedného riadku). V karte pokladne aj box len krížik v krúžku (`lcdKosikDoplnok.js` vlozOdober, `ctx.miestoOdober`); v samostatnom košíku ostáva „× Odobrať“ (Michal 10. 10.).
+- **Krížiky:** okraj tlačidla 2 px (predtým −5 px: tlačidlo trčalo do susedného riadku). V karte pokladne aj box len krížik v krúžku (`lcdKosikDoplnok.js` vlozOdober, `ctx.miestoOdober`); v samostatnom košíku ostáva „× Odobrať“ (Michal 10. 10.). Riadok s krížikom v karte = `li.lcd-dop-riadok` (text v `span.lcd-dop-text` s vlastnou odrážkou, krížik vpravo na tom istom riadku, nie osamote pod textom).
 - **Zmena štátu (`opc/stat.js`):** klik na „Zmeniť štát“ otvorí výber krajín z kroku 1 Shoptetu (`#deliveryCountryId`, `krok1Model.krajiny`; SK: Česko, Fínsko, Nemecko, Poľsko, Slovensko). Iná krajina:
   1. údaje formulára do sessionStorage (`ulozFormular`, vráti ich karta košíka);
   2. `POST /action/orderingProcess/Step1ChooseDelivery/` `deliveryCountryId=…` (XHR, presne ako krok 1 Shoptetu, overené naživo);

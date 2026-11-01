@@ -14987,6 +14987,13 @@ html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x{position:
   font:400 18px/1 Arial,sans-serif}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x::after{content:"";position:absolute;inset:-4px -8px}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x i{font-style:normal;line-height:1}
+/* riadok s krížikom (lcdKosikDoplnok vlozOdober): text vľavo s vlastnou odrážkou, krížik vpravo na tom istom riadku */
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li.lcd-dop-riadok{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;padding:0 !important}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li.lcd-dop-riadok::before{content:none}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li.lcd-dop-riadok > .lcd-dop-text{position:relative;flex:1 1 auto;min-width:0;padding-left:14px}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li.lcd-dop-riadok > .lcd-dop-text::before{content:"";position:absolute;left:1px;top:.6em;width:5px;height:5px;
+  border-radius:50%;background:#c49b31}
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li.lcd-dop-riadok > .lcd-dop-x{flex:none;margin:0}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x--text{width:auto;gap:4px;padding:0 10px 0 8px;border-radius:999px;font:600 14px/1 var(--o-body)}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x--text::after{inset:-4px -6px}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-rozpis .lcd-dop-x--text i{font:400 16px/1 Arial,sans-serif}

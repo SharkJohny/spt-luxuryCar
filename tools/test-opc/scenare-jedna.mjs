@@ -563,6 +563,11 @@ export const SCENARE = {
       }
       over(r.length >= 2 && !zle.length, "krížiky sa prekrývajú: " + zle.join(" ; ") + " (" + JSON.stringify(r) + ")");
       over(r.every((x) => x[4] === "×" && x[3] - x[2] <= 30), "pri boxe má byť len krížik v krúžku: " + JSON.stringify(r));
+      // krížik vpravo na riadku vedľa textu (nie osamote pod ním)
+      const vedla = await s.ev(`[].map.call(document.querySelectorAll("${KARTA} .lcd-dop-x"), function (b) { var li = b.closest("li"), t = li.querySelector(".lcd-dop-text");
+        if (!t) return "bez textu"; var rb = b.getBoundingClientRect(), rt = t.getBoundingClientRect(), rl = li.getBoundingClientRect(), y = (rb.top + rb.bottom) / 2;
+        return y >= rt.top - 1 && y <= rt.bottom + 1 && rb.right >= rl.right - 2 && rb.left >= rt.right - 1 ? "ok" : JSON.stringify([rb.top, rb.bottom, rb.left, rb.right, rt.top, rt.bottom, rt.right, rl.right]); })`);
+      over(vedla.every((x) => x === "ok"), "krížik nie je vpravo vedľa textu: " + vedla.join(" ; "));
       return { info: r.map((x) => x[4] + "@" + x[0] + "-" + x[1]).join(", ") };
     },
   },
