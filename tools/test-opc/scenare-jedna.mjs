@@ -129,7 +129,7 @@ async function poKliku(s, pred, { cakajKrok2 = true } = {}) {
 export const SCENARE = {
   S60: {
     len: "sk",
-    popis: "Jedna stránka: košík sa preskočí, karta „Váš košík“ (1) s ponukou Vybrať pred Kontaktom (2), Adresa 3, Doprava 4, Platba 5; vstupy karty mimo formulára",
+    popis: "Jedna stránka: košík sa preskočí, karta „Váš košík“ (1) s ponukou Pridať pred Kontaktom (2), Adresa 3, Doprava 4, Platba 5; vstupy karty mimo formulára",
     async fn(J) {
       const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
       await naJednuStranku(s);
@@ -146,7 +146,8 @@ export const SCENARE = {
       over(st.suhrnProdukty === 0 && !st.upravit, "produkt je aj v súhrne / je vidno Upraviť košík: " + JSON.stringify([st.suhrnProdukty, st.upravit]));
       over(st.zob.join() === "Zobraziť viac", "pilulka podrobností v karte: " + JSON.stringify(st.zob));
       over(!st.kroky && !st.zbalene, "kroky / zbalený súhrn je vidno (" + st.kroky + ", " + st.zbalene + ")");
-      over(st.ponuka.join(",") === "vrstva2:Vybrať,rohoz:Vybrať,box:Vybrať", "ponuka: " + st.ponuka.join(", "));
+      // Michal 1. 11. 2026: rohož prvá, „Pridať“ (nie „Vybrať“); štítok a video overuje S81
+      over(st.ponuka.join(",") === "rohoz:Pridať,vrstva2:Pridať,box:Pridať", "ponuka: " + st.ponuka.join(", "));
       over(st.vstupyVoFormulari === 0, "vstupy karty vo formulári objednávky: " + st.vstupyVoFormulari);
       over(st.polozky.length === 1 && /^Luxusné autokoberce/.test(st.polozky[0]) && /269\s€$/.test(st.polozky[0]), "položka: " + st.polozky.join(" / "));
       over(step1Xhr(s).length === 1, "Step1Validate XHR " + step1Xhr(s).length + "× (čakal som 1 z košíka)");
@@ -593,6 +594,81 @@ export const SCENARE = {
         return y >= rt.top - 1 && y <= rt.bottom + 1 && rb.right >= rl.right - 2 && rb.left >= rt.right - 1 ? "ok" : JSON.stringify([rb.top, rb.bottom, rb.left, rb.right, rt.top, rt.bottom, rt.right, rl.right]); })`);
       over(vedla.every((x) => x === "ok"), "krížik nie je vpravo vedľa textu: " + vedla.join(" ; "));
       return { info: r.map((x) => x[4] + "@" + x[0] + "-" + x[1]).join(", ") };
+    },
+  },
+  S81: {
+    len: "sk", // CZ nemá fixtúry košíka so setom (opc-fixtures/sk-set); CZ texty: tools/test-kosik-doplnok.mjs
+    popis: "Ponuka k setu (Michal 1. 11. 2026, variant 1): rohož prvá so štítkom „Najpredávanejšia do kufra“ a podsvietením, druhá vrstva bez „Odporúčame“ so živým videom (úsek od 3,2 s); ťuknutie = príbeh na celú obrazovku (fokus na ×, 2 videá, Esc zavrie a fokus späť), „Pridať druhú vrstvu“ otvorí výber farby, nič sa nepridá; „menej pohybu“ -> len záber + ▶, video sa nesťahuje",
+    async fn(J) {
+      const cz = false;
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      await naJednuStranku(s);
+      const RIADKY = `(function () { var k = document.querySelector("${KARTA}"); return [].map.call(k.querySelectorAll(".lcd-vyb__riadok"), function (r) {
+        var o = r.querySelector(".lcd-vyb__odp"), v = r.querySelector("[data-lcd-vyb-video]");
+        return { d: r.getAttribute("data-doplnok"), naj: r.classList.contains("lcd-vyb__riadok--naj"), stitok: o ? o.textContent : null,
+          stitokVyska: o ? Math.round(o.getBoundingClientRect().height) : 0, foto: !!r.querySelector("img.lcd-vyb__mini"),
+          video: v ? { aria: v.getAttribute("aria-label"), w: Math.round(v.getBoundingClientRect().width), h: Math.round(v.getBoundingClientRect().height) } : null,
+          pozadie: getComputedStyle(r).backgroundImage !== "none" }; }); })()`;
+      const r = await s.ev(RIADKY);
+      over(r.map((x) => x.d).join() === "rohoz,vrstva2,box", "poradie: " + r.map((x) => x.d).join());
+      over(r[0].naj && r[0].pozadie && r[0].stitok === (cz ? "Nejprodávanější do kufru" : "Najpredávanejšia do kufra"), "rohož: " + JSON.stringify(r[0]));
+      over(r[0].stitokVyska > 0 && r[0].stitokVyska < 24, "štítok rohože nie je na jeden riadok: " + r[0].stitokVyska + " px");
+      over(r[1].stitok === null && !r[1].foto && r[1].video && /video/i.test(r[1].video.aria) && r[1].video.w >= 60 && r[1].video.h > r[1].video.w, "druhá vrstva: " + JSON.stringify(r[1]));
+      over(!r[1].naj && !r[2].naj && r[2].stitok === null, "štítok / podsvietenie aj inde: " + JSON.stringify(r.slice(1)));
+      // dlaždica na obrazovke -> video sa samo hrá od úseku s vodou
+      await s.ev(`document.querySelector("[data-lcd-vyb-video]").scrollIntoView({ block: "center" })`);
+      const V = `(function () { var v = document.querySelector(".lcd-vyb__vid-video"); return { t: v.currentTime, p: v.paused, src: v.currentSrc, muted: v.muted, ls: document.querySelector(".lcd-vyb__vid-lis b").style.width }; })()`;
+      await s.cakaj(`(function () { var v = document.querySelector(".lcd-vyb__vid-video"); return v && !v.paused && v.currentTime >= 3.2; })()`, { ms: 15000, popis: "video v dlaždici sa hrá od 3,2 s" });
+      const v1 = await s.ev(V);
+      over(/druha-video-vapka\.(webm|mp4)$/.test(v1.src) && v1.muted && v1.t < 9.9 && parseFloat(v1.ls) >= 0, "dlaždica: " + JSON.stringify(v1));
+      // príbeh
+      await s.ev(`(window.dataLayer = window.dataLayer || []).length = 0`);
+      await s.klikni("[data-lcd-vyb-video]", { popis: "video druhej vrstvy" });
+      const P = `(function () { var p = document.querySelector(".lcd-vyb-pribeh"), v = p && p.querySelector(".lcd-vyb-pribeh__video"), a = document.activeElement;
+        return { vidno: !!p && !p.hidden && p.getBoundingClientRect().height > 0, trieda: document.documentElement.classList.contains("lcd-vyb-pribeh"),
+          fokus: a ? (a.getAttribute("data-lcd-vyb-pribeh-x") !== null ? "x" : a.hasAttribute("data-lcd-vyb-video") ? "dlazdica" : a.className || a.tagName) : null,
+          poradie: p ? p.querySelector(".lcd-vyb-pribeh__meno small").textContent : null, src: v ? v.currentSrc : null,
+          pridat: p ? p.querySelector("[data-lcd-vyb-pribeh-pridat]").textContent : null, stav: history.state,
+          dl: (window.dataLayer || []).filter(function (e) { return e.event === "lcd_set_doplnok_klik"; }).map(function (e) { return e.lcd_doplnok + ":" + e.lcd_varianta; }),
+          dlazdicaHra: !document.querySelector(".lcd-vyb__vid-video").paused }; })()`;
+      await s.cakaj(`(function () { var v = document.querySelector(".lcd-vyb-pribeh__video"); return v && !v.paused && v.currentTime > 0.2; })()`, { ms: 15000, popis: "video v príbehu hrá" });
+      const p1 = await s.ev(P);
+      const cena = await s.ev(`document.querySelector('${KARTA} .lcd-vyb__riadok[data-doplnok="vrstva2"] .lcd-vyb__cena b').textContent`);
+      over(p1.vidno && p1.trieda && p1.fokus === "x" && p1.poradie === "1 / 2" && /druha-video-vapka/.test(p1.src) && !p1.dlazdicaHra, "príbeh po otvorení: " + JSON.stringify(p1));
+      over(p1.pridat === (cz ? "Přidat druhou vrstvu" : "Pridať druhú vrstvu") + " · " + cena, "tlačidlo v príbehu: " + p1.pridat + " (cena riadku " + cena + ")");
+      over(p1.dl.join() === "vrstva2:video" && p1.stav && p1.stav.lcdVybPribeh === 1, "meranie / história: " + JSON.stringify([p1.dl, p1.stav]));
+      // starý globálny „video { border: 5px solid … !important }“ e-shopu nesmie dať videám zlatý rám
+      const ramy = await s.ev(`[".lcd-vyb__vid-video", ".lcd-vyb-pribeh__video"].map(function (q) { return getComputedStyle(document.querySelector(q)).borderTopWidth; })`);
+      over(ramy.join() === "0px,0px", "rám okolo videa: " + ramy.join());
+      await s.klikni(".lcd-vyb-pribeh__dalej", { popis: "ďalšie video" });
+      await s.cakaj(`(function () { var v = document.querySelector(".lcd-vyb-pribeh__video"); return /druha-video-pribeh/.test(v.currentSrc) && !v.paused; })()`, { ms: 15000, popis: "2. video" });
+      over((await s.ev(P)).poradie === "2 / 2", "poradie po ďalšom");
+      // Esc zavrie, fokus späť na dlaždicu, záznam v histórii preč, dlaždica znova hrá
+      await s.k.posli("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+      await s.k.posli("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+      await s.cakaj(`!document.documentElement.classList.contains("lcd-vyb-pribeh") && !(history.state && history.state.lcdVybPribeh)`, { ms: 5000, popis: "príbeh zatvorený" });
+      const p2 = await s.ev(P);
+      over(!p2.vidno && p2.fokus === "dlazdica", "po Esc: " + JSON.stringify(p2));
+      await s.cakaj(`!document.querySelector(".lcd-vyb__vid-video").paused`, { ms: 5000, popis: "dlaždica znova hrá" });
+      // znova otvoriť -> „Pridať druhú vrstvu“ -> príbeh preč a otvorený výber farby v riadku (nič sa nepridalo)
+      await s.klikni("[data-lcd-vyb-video]", { popis: "video druhej vrstvy (2.)" });
+      await s.cakaj(`document.documentElement.classList.contains("lcd-vyb-pribeh")`, { ms: 5000, popis: "príbeh 2." });
+      await s.klikni("[data-lcd-vyb-pribeh-pridat]", { popis: "Pridať druhú vrstvu" });
+      await s.cakaj(`(function () { var r = document.querySelector('${KARTA} .lcd-vyb__riadok[data-doplnok="vrstva2"]'); return !document.documentElement.classList.contains("lcd-vyb-pribeh") && r.classList.contains("je-otvorena"); })()`, { ms: 5000, popis: "výber farby otvorený" });
+      const p3 = await s.ev(`(function () { var r = document.querySelector('${KARTA} .lcd-vyb__riadok[data-doplnok="vrstva2"]'), pn = r.querySelector(".lcd-vyb__panel"), b = r.querySelector(".lcd-vyb__btn");
+        return { panel: !pn.hidden && pn.getBoundingClientRect().height > 0, exp: b.getAttribute("aria-expanded"), stav: history.state }; })()`);
+      over(p3.panel && p3.exp === "true" && !(p3.stav && p3.stav.lcdVybPribeh), "po Pridať druhú vrstvu: " + JSON.stringify(p3));
+      over(!s.p.zaznam.kosikAkcie.length, "úprava košíka bez výberu farby: " + JSON.stringify(s.p.zaznam.kosikAkcie));
+      // „menej pohybu“ -> záber + ▶, video sa nesťahuje
+      await s.k.posli("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+      await naJednuStranku(s);
+      await s.ev(`document.querySelector("[data-lcd-vyb-video]").scrollIntoView({ block: "center" })`);
+      await pauza(1200);
+      const st = await s.ev(`(function () { var b = document.querySelector("[data-lcd-vyb-video]"), v = b.querySelector("video"), pl = b.querySelector(".lcd-vyb__vid-play");
+        return { staticke: b.classList.contains("lcd-vyb__vid--staticke"), zdroje: v.querySelectorAll("source").length, src: v.currentSrc, play: getComputedStyle(pl).display, poster: v.poster }; })()`);
+      await s.k.posli("Emulation.setEmulatedMedia", { features: [] });
+      over(st.staticke && st.zdroje === 0 && !st.src && st.play !== "none" && /kosik\/vrstva-video\.jpg$/.test(st.poster), "menej pohybu: " + JSON.stringify(st));
+      return { info: "rohož prvá + štítok, video od " + v1.t.toFixed(1) + " s, príbeh 2 videá, Esc, Pridať -> výber farby, menej pohybu bez videa" };
     },
   },
 };

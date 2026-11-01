@@ -1360,5 +1360,25 @@ await test("1V: samostatneCenyKonfigurator — Classic a box z cache košíka, P
   }
 });
 
+// pokladňa (kartaVybrat, Michal 1. 11. 2026 variant 1): rohož prvá so štítkom, „Pridať“, druhá vrstva s videom
+await test("pokladňa: rohož prvá so štítkom a podsvietením, „Pridať“, druhá vrstva s videom bez „Odporúčame“", () => {
+  const k = M.kartaVybrat(ctxKarty({ rohoz: true, box: true }), RSK, { forma: "lcd-test-forma" });
+  const r = [...k.querySelectorAll(".lcd-vyb__riadok")];
+  rovne(r.map((x) => x.getAttribute("data-doplnok")), ["rohoz", "vrstva2", "box"]);
+  rovne(r.map((x) => x.querySelector(".lcd-vyb__btn").textContent), ["Pridať", "Pridať", "Pridať"]);
+  rovne([r[0].classList.contains("lcd-vyb__riadok--naj"), r[0].querySelector(".lcd-vyb__odp").textContent], [true, "Najpredávanejšia do kufra"]);
+  rovne([r[1].querySelector(".lcd-vyb__odp"), r[2].querySelector(".lcd-vyb__odp"), r[1].querySelector("img.lcd-vyb__mini")], [null, null, null]);
+  const v = r[1].querySelector("[data-lcd-vyb-video]");
+  pravda(v && v.tagName === "BUTTON" && v.getAttribute("form") === "lcd-test-forma" && /video/i.test(v.getAttribute("aria-label")), "dlaždica s videom");
+  const vid = v.querySelector("video");
+  rovne([vid.muted, vid.preload, vid.querySelectorAll("source").length, /kosik\/vrstva-video\.jpg$/.test(vid.poster)], [true, "none", 0, true], "video sa nesťahuje vopred");
+});
+await test("pokladňa: CZ texty štítku, tlačidla a príbehu", () => {
+  const src = readFileSync(new URL("../assets/js/lcdKosikDoplnok.js", import.meta.url), "utf8");
+  const cz = src.slice(src.indexOf("  cz: {"));
+  ['vybTlacidlo: "Přidat"', 'vybNajRohoz: "Nejprodávanější do kufru"', 'vybPribehPridat: "Přidat druhou vrstvu"',
+    'vybPribehPocet: ["8\\u00a0z\\u00a010", "zákazníků si ji za poslední rok vybralo"]'].forEach((t) => pravda(cz.indexOf(t) > 0, "CZ chýba " + t));
+});
+
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
 process.exit(zle ? 1 : 0);

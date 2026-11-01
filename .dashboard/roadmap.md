@@ -579,6 +579,8 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Kolo 2: jemné varianty V1–V3 bez zmeny rozloženia, „Pridať“ namiesto „Vybrať“ (rámiky A/B/C Michal zamietol)
 - [x] Kolo 3: rohož prvá + štítok „Najpredávanejšia do kufra“ + podsvietenie; druhá vrstva so záberom z videa a ▶, po ťuknutí okienko s videom, „8 z 10“ a „Pridať druhú vrstvu“ (náhľad video-vrstva-*.png)
 - [x] Kolo 4: tri ďalšie spôsoby videa druhej vrstvy (1 živé video v riadku, 2 rozbalí sa v košíku, 3 príbeh na celú obrazovku) — video-3-sposoby-*.png
-- [ ] Michal vyberie spôsob videa (odporúčam 1) a schváli (+ oprava skákania pri odstraňovaní, bez „− 1 +“ pri sete)
-- [ ] Overiť na čerstvých objednávkach, že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026)
-- [ ] Postaviť vybraný návrh, testy SK + CZ, náhľad pred nasadením
+- [x] Michal vybral spôsob 1 (živé video v riadku, ťuknutie = príbeh na celú obrazovku) — 1. 11. 19:08
+- [x] Postavené: rohož prvá so štítkom a podsvietením, „Pridať“, druhá vrstva so živým videom + príbeh (opc/vrstvaVideo.js), test S81, kniha § 10.28
+- [ ] Testy SK + CZ celé, náhľad hotového Michalovi, súhlas, nahratie (prepnutie sha)
+- [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
+- [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala

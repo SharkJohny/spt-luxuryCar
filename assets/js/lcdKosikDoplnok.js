@@ -30,6 +30,7 @@ import { obrazokUloziska } from "./functions/ulozisko.js";
 import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
 // auto riadku setu do názvu ponuky („Rohož do kufra pre Skoda Octavia 2021“, Michal 29. 10. 2026) — rovnaký zdroj ako cart.js
 import { autoRiadku, popisAuta, ulozistaAuta, zapisAutoKPolozke } from "./functions/autoPamat.js";
+import { videoDlazdica, otvorPribeh } from "./opc/vrstvaVideo.js";
 
 // ID parametrov podľa projektu (rovnaké ako productPage.js r. 34–48 + overené na živých formulároch 7. 10. 2026)
 // v1 / v2 = parameter variantu „farba 1. / 2. vrstvy“; sety = jednovrstvový set (productId) -> dvojvrstvový set
@@ -159,6 +160,20 @@ const TEXTY = {
     vybVyberteVelkost: "Vyberte veľkosť boxu",
     vybVyberteVelkost1: "Vyberte veľkosť 1. boxu",
     vybVyberteVelkost2: "Vyberte veľkosť 2. boxu",
+    // Michal 1. 11. 2026: „Pridať“, nie „Vybrať“; štítok rohože namiesto „4 z 10“ (druhú vrstvu má 8 z 10, preto „do kufra“)
+    vybTlacidlo: "Pridať",
+    vybNajRohoz: "Najpredávanejšia do kufra",
+    // druhá vrstva s videom (opc/vrstvaVideo.js); „8 z 10“ ako v konfigurátore (Back Office 241 z 286, k 24. 10. 2026)
+    vybVideoOtvor: "Pozrieť video o druhej vrstve na celú obrazovku",
+    vybVideoAlt: "Video: druhá vrstva zachytí vodu, vyberiete ju a umyjete vapkou",
+    vybVideoAlt2: "Video: ako sa druhá vrstva vyberá a čistí",
+    vybPribehNadpis: "Druhá vrstva",
+    vybPribehText: "Zachytí vodu, sneh aj blato. Vyberiete ju, opláchnete a vrátite späť.",
+    vybPribehPocet: ["8\u00a0z\u00a010", "zákazníkov si ju za posledný rok vybralo"],
+    vybPribehPridat: "Pridať druhú vrstvu",
+    vybPribehZavriet: "Zavrieť video",
+    vybPribehPredch: "Predchádzajúce video",
+    vybPribehDalej: "Ďalšie video",
   },
   cz: {
     nadpisVrstva: "Doplňte set o druhou vrstvu",
@@ -258,6 +273,18 @@ const TEXTY = {
     vybVyberteVelkost: "Vyberte velikost boxu",
     vybVyberteVelkost1: "Vyberte velikost 1. boxu",
     vybVyberteVelkost2: "Vyberte velikost 2. boxu",
+    vybTlacidlo: "Přidat",
+    vybNajRohoz: "Nejprodávanější do kufru",
+    vybVideoOtvor: "Přehrát video o druhé vrstvě na celou obrazovku",
+    vybVideoAlt: "Video: druhá vrstva zachytí vodu, vyjmete ji a umyjete tlakovým čističem",
+    vybVideoAlt2: "Video: jak se druhá vrstva vyjímá a čistí",
+    vybPribehNadpis: "Druhá vrstva",
+    vybPribehText: "Zachytí vodu, sníh i bláto. Vyjmete ji, opláchnete a vrátíte zpět.",
+    vybPribehPocet: ["8\u00a0z\u00a010", "zákazníků si ji za poslední rok vybralo"],
+    vybPribehPridat: "Přidat druhou vrstvu",
+    vybPribehZavriet: "Zavřít video",
+    vybPribehPredch: "Předchozí video",
+    vybPribehDalej: "Další video",
   },
 };
 
@@ -2616,23 +2643,26 @@ export function kartaVybrat(ctx, R, o) {
     r.panel.hidden = !ano;
     r.li.classList.toggle("je-otvorena", ano);
     r.btn.setAttribute("aria-expanded", ano ? "true" : "false");
-    r.btnText.textContent = ano ? T.vybZavriet : T.vybrat;
+    r.btnText.textContent = ano ? T.vybZavriet : T.vybTlacidlo;
     r.btn.classList.toggle("lcd-vyb__btn--zavriet", ano);
     otvorene.r = ano ? r : null;
     // telefón: kým je výber otvorený, lišta „Celkom | Objednať“ dole ho neprekrýva (_lcdOpc.scss)
     document.documentElement.classList.toggle("lcd-vyb-otvorene", !!document.querySelector(".lcd-vyb__riadok.je-otvorena"));
   };
-  /** p: { kluc, foto, meno, odp, cena, pod, panel | null, klik (bez panela) } */
+  /** p: { kluc, foto | video (dlaždica z opc/vrstvaVideo.js), meno, stitok, naj, cena, pod, panel | null, klik (bez panela) } */
   const riadok = function (p) {
-    const btnText = el("span", { text: T.vybrat });
+    const btnText = el("span", { text: T.vybTlacidlo });
     const btn = tlacidlo({ class: "lcd-vyb__btn", "data-lcd-vyb": p.kluc, "aria-expanded": p.panel ? "false" : null, "aria-controls": p.panel ? id + "-" + p.kluc : null, "aria-describedby": id + "-m-" + p.kluc }, [btnText]);
-    const mini = el("img", { class: "lcd-vyb__mini", src: p.foto, alt: "", width: "112", height: "112", decoding: "async" });
-    mini.addEventListener("error", function () { mini.style.visibility = "hidden"; });
-    const li = el("li", { class: "lcd-vyb__riadok", "data-doplnok": p.kluc }, [
+    let mini = p.video || null;
+    if (!mini) {
+      mini = el("img", { class: "lcd-vyb__mini", src: p.foto, alt: "", width: "112", height: "112", decoding: "async" });
+      mini.addEventListener("error", function () { mini.style.visibility = "hidden"; });
+    }
+    const li = el("li", { class: "lcd-vyb__riadok" + (p.naj ? " lcd-vyb__riadok--naj" : "") + (p.video ? " lcd-vyb__riadok--video" : ""), "data-doplnok": p.kluc }, [
       el("div", { class: "lcd-vyb__pas" }, [
         mini,
         el("span", { class: "lcd-vyb__text" }, [
-          el("span", { class: "lcd-vyb__meno", id: id + "-m-" + p.kluc }, [el("b", { text: p.meno }), p.odp ? el("span", { class: "lcd-vyb__odp", text: T.odporucame }) : null]),
+          el("span", { class: "lcd-vyb__meno", id: id + "-m-" + p.kluc }, [el("b", { text: p.meno }), p.stitok ? el("span", { class: "lcd-vyb__odp lcd-vyb__odp--veta", text: p.stitok }) : null]),
           el("span", { class: "lcd-vyb__cena" }, [el("b", { text: p.cena }), p.pod ? el("span", { text: " · " + p.pod }) : null]),
         ]),
         btn,
@@ -2659,7 +2689,28 @@ export function kartaVybrat(ctx, R, o) {
   };
   const usetri = function (samo, s) { return samo && samo > s + 0.5 ? T.usetrite + " " + cenaText(samo - s, R) : null; };
 
-  // --- druhá vrstva (len jednovrstvový set): odporúčaná Lux farba zvolená vopred, ďalšie farby po „+N ďalších“
+  // --- rohož do kufra (len Classic, ako v košíku): „Pridať“ ju pripíše hneď, nie je čo vyberať. Prvá v ponuke so
+  // štítkom „Najpredávanejšia do kufra“ a jemným zlatým podsvietením riadku (Michal 1. 11. 2026, náhľad V2 / kolo 3).
+  if (ctx.ponuka.rohoz) {
+    const zm = zmena({ typ: "rohoz", varianta: "classic" }, ctx.mapa, R);
+    const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
+    if (rozdiel && rozdiel.s > 0) {
+      const samo = ctx.samostatne ? ctx.samostatne.classic : null;
+      riadok({
+        kluc: "rohoz", foto: fotoDoplnku(FOTKY.classic), meno: T.vybRohoz, stitok: T.vybNajRohoz, naj: true,
+        cena: cenaText(rozdiel.s, R, true), pod: usetri(samo, rozdiel.s),
+        klik: function () {
+          meraj("lcd_set_doplnok_klik", { lcd_doplnok: "rohoz", lcd_varianta: "classic", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
+          spustiVymenu(ctx, { typ: "rohoz", varianta: "classic", kod: "rohoz_classic", nazov: T.classic }, zm, rozdiel, T, R, stav, k);
+        },
+      });
+      ctx.zobrazene.push("rohoz");
+    }
+  }
+
+  // --- druhá vrstva (len jednovrstvový set): odporúčaná Lux farba zvolená vopred, ďalšie farby po „+N ďalších“.
+  // Namiesto fotky živé video (opc/vrstvaVideo.js, Michal 1. 11. 2026 variant 1), ťuknutie = video na celú obrazovku;
+  // „Pridať druhú vrstvu“ v ňom otvorí výber farby v riadku. Štítok „Odporúčame“ preč (jeden štítok v ponuke = rohož).
   if (ctx.ponuka.vrstva2) {
     const pv = ctx.ponuka.vrstva2;
     const stV = { lux: pv.odporucana };
@@ -2711,25 +2762,20 @@ export function kartaVybrat(ctx, R, o) {
     });
     prekresli();
     const odp = moz(pv.odporucana);
-    riadok({ kluc: "vrstva2", foto: luxFoto(pv.odporucana), meno: T.vybVrstva, odp: true, cena: cenaText(odp.rozdiel.s, R, true), pod: T.vybVrstvaDovod, panel: panel });
+    const cenaVrstvy = cenaText(odp.rozdiel.s, R, true);
+    let rV = null;
+    const dlazdica = videoDlazdica(T, {
+      forma: forma,
+      otvor: function (spat, poZatvoreni) {
+        meraj("lcd_set_doplnok_klik", { lcd_doplnok: "vrstva2", lcd_varianta: "video", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
+        otvorPribeh(T, {
+          spat: spat, cena: cenaVrstvy,
+          pridat: function () { if (rV && rV.li.isConnected && rV.panel.hidden && !rV.btn.disabled) rV.btn.click(); },
+        }, poZatvoreni);
+      },
+    });
+    rV = riadok({ kluc: "vrstva2", video: dlazdica.el, meno: T.vybVrstva, cena: cenaVrstvy, pod: T.vybVrstvaDovod, panel: panel });
     ctx.zobrazene.push("vrstva2");
-  }
-
-  // --- rohož do kufra (len Classic, ako v košíku): „Vybrať“ ju pripíše hneď, nie je čo vyberať
-  if (ctx.ponuka.rohoz) {
-    const zm = zmena({ typ: "rohoz", varianta: "classic" }, ctx.mapa, R);
-    const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
-    if (rozdiel && rozdiel.s > 0) {
-      const samo = ctx.samostatne ? ctx.samostatne.classic : null;
-      riadok({
-        kluc: "rohoz", foto: fotoDoplnku(FOTKY.classic), meno: T.vybRohoz, cena: cenaText(rozdiel.s, R, true), pod: usetri(samo, rozdiel.s),
-        klik: function () {
-          meraj("lcd_set_doplnok_klik", { lcd_doplnok: "rohoz", lcd_varianta: "classic", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
-          spustiVymenu(ctx, { typ: "rohoz", varianta: "classic", kod: "rohoz_classic", nazov: T.classic }, zm, rozdiel, T, R, stav, k);
-        },
-      });
-      ctx.zobrazene.push("rohoz");
-    }
   }
 
   // --- box: farba (vopred farba setu), počet, veľkosť (pri 2 boxoch veľkosť 1. a 2. boxu) — rovnaké ceny ako v košíku

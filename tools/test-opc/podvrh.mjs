@@ -759,7 +759,17 @@ export async function zapniPodvrh(k, moznosti) {
           const cast = /^js\/(lcd-[a-z0-9-]+\.js)$/.exec(rel);
           if (cast && b.casti[cast[1]]) { p.zaznam.podvrhnute.push(u.pathname); return await odpovedz(rq, 200, b.casti[cast[1]], TYP[".js"]); }
           const subor = join(KOREN, "assets", decodeURIComponent(rel));
-          if (existsSync(subor)) return await odpovedz(rq, 200, readFileSync(subor), TYP[extname(subor).toLowerCase()] || "application/octet-stream");
+          if (existsSync(subor)) {
+            const typ = TYP[extname(subor).toLowerCase()] || "application/octet-stream";
+            // video: Range (206) ako CDN — bez neho prehliadač nevie skočiť na čas (dlaždica druhej vrstvy, opc/vrstvaVideo.js)
+            const rozsah = /^video\//.test(typ) && /bytes=(\d*)-(\d*)/.exec((rq.request.headers || {}).Range || (rq.request.headers || {}).range || "");
+            if (rozsah) {
+              const data = readFileSync(subor), od = rozsah[1] ? Number(rozsah[1]) : 0;
+              const po = rozsah[2] ? Math.min(Number(rozsah[2]), data.length - 1) : data.length - 1;
+              return await odpovedz(rq, 206, data.subarray(od, po + 1), typ, [{ name: "Accept-Ranges", value: "bytes" }, { name: "Content-Range", value: "bytes " + od + "-" + po + "/" + data.length }]);
+            }
+            return await odpovedz(rq, 200, readFileSync(subor), typ, /^video\//.test(typ) ? [{ name: "Accept-Ranges", value: "bytes" }] : []);
+          }
           p.zaznam.chybaCdn.push(u.host + u.pathname);
           return await odpovedz(rq, 404, "", "text/plain");
         }
