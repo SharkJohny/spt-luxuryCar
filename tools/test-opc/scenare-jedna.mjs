@@ -489,7 +489,7 @@ export const SCENARE = {
   },
   S77: {
     len: "sk",
-    popis: "Jedna stránka: „Zmeniť štát“ -> výber krajín tu; Česko -> Step1ChooseDelivery + Step1Validate, krok 2 nanovo, meno ostane; registrácia skrytá",
+    popis: "Jedna stránka: výber krajín je pri adrese hneď (bez „Zmeniť štát“, bez fokusu); Česko -> Step1ChooseDelivery + Step1Validate, krok 2 nanovo, meno ostane; registrácia skrytá",
     async fn(J) {
       const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
       await naJednuStranku(s);
@@ -498,14 +498,13 @@ export const SCENARE = {
       over(reg.je && !reg.vidno, "„Chcem sa registrovať“: " + JSON.stringify(reg));
       await s.pis("#billFullName", ZAKAZNIK.sk.meno);
       const nav = s.dokumenty().length, step1 = step1Xhr(s).length;
-      await s.klikni("#order-form .lcd-opc-stat em.helpNote a", { popis: "Zmeniť štát" });
-      await pauza(300);
       const v = await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); if (!v) return null;
         return { moznosti: [].map.call(v.options, function (o) { return o.textContent + (o.selected ? "*" : ""); }), meno: v.name || "", vFormulari: [].indexOf.call(document.getElementById("order-form").elements, v) > -1,
+          aktivny: document.activeElement === v, odkaz: !!document.querySelector("#order-form .lcd-opc-stat em.helpNote a"),
           nazovVidno: [].some.call(document.querySelectorAll("#order-form .lcd-opc-stat--vyber > strong"), function (e) { return e.getBoundingClientRect().height > 0; }) }; })()`);
       over(v && v.moznosti.join("|") === "Česká republika|Fínsko|Nemecko|Poľsko|Slovensko*", "výber krajín: " + JSON.stringify(v));
       over(v && !v.meno && !v.nazovVidno, "výber má meno (odíde s objednávkou) / názov štátu ostal: " + JSON.stringify(v));
-      over(s.dokumenty().length === nav, "klik na Zmeniť štát niekam odišiel: " + s.dokumenty().slice(nav).join(", "));
+      over(v && !v.aktivny && !v.odkaz, "výber má fokus (telefón by ho otvoril sám) / ostal odkaz „Zmeniť štát“: " + JSON.stringify(v));
       await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); v.value = "43"; v.dispatchEvent(new Event("change", { bubbles: true })); return 1; })()`);
       const koniec = Date.now() + 15000;
       while (Date.now() < koniec && s.dokumenty().length < nav + 1) await pauza(100);
@@ -527,8 +526,6 @@ export const SCENARE = {
       const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ krajina: "500" }, SCENAR) });
       await naJednuStranku(s);
       const nav = s.dokumenty().length;
-      await s.klikni("#order-form .lcd-opc-stat em.helpNote a", { popis: "Zmeniť štát" });
-      await pauza(300);
       await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); v.value = "44"; v.dispatchEvent(new Event("change", { bubbles: true })); return 1; })()`);
       const koniec = Date.now() + 15000;
       while (Date.now() < koniec && s.dokumenty().length < nav + 1) await pauza(100);
@@ -536,6 +533,33 @@ export const SCENARE = {
       const d = s.dokumenty().slice(nav);
       over(d.length >= 1 && /GET \/objednavka\/krok-1\//.test(d[0]), "po zlyhaní zmeny krajiny: " + d.join(", "));
       return { info: d.join(", ") };
+    },
+  },
+  S80: {
+    len: "sk",
+    popis: "Jedna stránka s riadkom v Záhlaví (kniha § 10.26): krok 2 aj po zmene krajiny začne kresliť už pod obrazovkou „Načítavam…“ (html.lcd-opc-hned, pri zmene krajiny text „Mením krajinu doručenia…“), po dokončení obrazovka preč",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ hlavicka: true }, SCENAR) });
+      await naJednuStranku(s);
+      const sonda = () => s.ev(`(function () { var H = document.documentElement; return { priBody: window.__lcdTestPriBody || null, teraz: H.className, hlaska: H.getAttribute("data-lcd-opc-hlaska"),
+        ulozena: sessionStorage.getItem("lcdOpcHlaska") }; })()`);
+      const a = await sonda();
+      over(a.priBody && /(^| )lcd-opc-hned( |$)/.test(a.priBody.c), "krok 2 z košíka: pri začiatku <body> chýba lcd-opc-hned: " + JSON.stringify(a.priBody));
+      over(!/lcd-opc-hned/.test(a.teraz), "obrazovka ostala po dokončení: " + a.teraz);
+      const nav = s.dokumenty().length;
+      // text obrazovky na starej stránke zachytí sonda do sessionStorage (stránka sa hneď vymení)
+      await s.ev(`(function () { new MutationObserver(function () { var d = document.getElementById("lcd-opc-skok"); if (d) sessionStorage.setItem("lcdTestSkok", d.textContent); })
+        .observe(document.body, { childList: true }); var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); v.value = "43"; v.dispatchEvent(new Event("change", { bubbles: true })); return 1; })()`);
+      const koniec = Date.now() + 15000;
+      while (Date.now() < koniec && s.dokumenty().length < nav + 1) await pauza(100);
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 po zmene krajiny");
+      await pauza(100);
+      const b = await sonda();
+      over(b.priBody && /(^| )lcd-opc-hned( |$)/.test(b.priBody.c) && b.priBody.h === "Mením krajinu doručenia…", "po zmene krajiny pri začiatku <body>: " + JSON.stringify(b.priBody));
+      over(!/lcd-opc-hned/.test(b.teraz) && b.hlaska === null && b.ulozena === null, "po dokončení: " + JSON.stringify(b));
+      const pocas = await s.ev(`sessionStorage.getItem("lcdTestSkok")`);
+      over(pocas === "Mením krajinu doručenia…", "obrazovka pri zmene krajiny: " + pocas);
+      return { info: "pri <body>: " + a.priBody.c.match(/lcd-opc-\w+/g).join(" ") + " | po zmene: „" + b.priBody.h + "“" };
     },
   },
   S79: {

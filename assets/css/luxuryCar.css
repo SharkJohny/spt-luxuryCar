@@ -14096,7 +14096,7 @@ body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
 /* ===== LCD-OPC START - generovane tools/vloz-lcd-css.py z _lcdOpc.scss (one page checkout: sekcia Doprava a platba na kroku 2, zbaleny suhrn, lista; len html.lcd-opc), needituj rucne ===== */
 /* =====================================================================
    ONE PAGE CHECKOUT — partial pre blok LCD-OPC (vkladá tools/vloz-lcd-css.py), kniha OPC § 6.2–6.9
-   KAŽDÝ selektor začína html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka / html.lcd-opc-skok (assets/js/opc/krok2.js,
+   KAŽDÝ selektor začína html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka / html.lcd-opc-skok / html.lcd-opc-hned (assets/js/opc/krok2.js,
    opc/kosik.js, opc/index.js, opc/skok.js) — bez tajného odkazu nič; stráži to test-opc-jednotky („CSS: každé pravidlo bloku LCD-OPC…“).
    Zelené = kam chceme klik (zvolená voľba: zelený rám + fajka), doplnkové akcie zlaté. Text ≥ 16 px, poznámky ≥ 14 px.
    Tlačidlo „Objednať s povinnosťou platby“, súhlas a súhrn Shoptetu sa nemenia; podpis Shoptetu sa nikde neskrýva.
@@ -14950,13 +14950,28 @@ html.lcd-opc .lcd-opc-banky__akcie button:focus-visible{outline:3px solid var(--
 /* košík počas prechodu do pokladne: obsah nevidno, len „Načítavam…“ (opacity: tlačidlá − + a fotka majú v košíku
    visibility:visible !important a cez visibility:hidden by prerazili — Michal 1. 11. 2026, iPhone) */
 html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9) #content-wrapper{visibility:hidden;opacity:0 !important;pointer-events:none}
+/* obrazovky „Načítavam…“ (skok z webu, prechod z košíka, hneď z hlavičky): zlatý točiaci sa krúžok a pod ním text, oboje na
+   rovnakom mieste (text 38vh od vrchu okna) -> pri prechode medzi stránkami sa nič nepohne (Michal 1. 11. 2026) */
+html.lcd-opc-hned,html.lcd-opc-skok,html.lcd-opc-kosik{--lcd-opc-kruzok:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='17' fill='none' stroke='%23e9e0c8' stroke-width='3'/%3E%3Cpath d='M20 3a17 17 0 0 1 17 17' fill='none' stroke='%23c49b31' stroke-width='3' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 20 20' to='360 20 20' dur='.9s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E")}
 /* z webu rovno do pokladne (opc/skok.js): obrazovka „Načítavam…“ pod hlavičkou (hlavička vidno, ale nedá sa kliknúť),
    kým beží krok 1 a Step1Validate */
 html.lcd-opc-skok #lcd-opc-skok{position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483000;box-sizing:border-box;margin:0;
-  padding:calc(var(--lcd-opc-skok-hore,0px) + 38vh) 16px 0;background:linear-gradient(transparent var(--lcd-opc-skok-hore,0px),#f7f5ef var(--lcd-opc-skok-hore,0px));
+  padding:38vh 16px 0;background:linear-gradient(transparent var(--lcd-opc-skok-hore,0px),#f7f5ef var(--lcd-opc-skok-hore,0px));
   text-align:center;font:600 17px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:#5f574a;cursor:progress}
-html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9)[data-lcd-opc-prechod]::after{content:attr(data-lcd-opc-prechod);position:fixed;left:0;right:0;top:38%;z-index:5;
+html.lcd-opc-skok #lcd-opc-skok::before{content:"";position:absolute;left:0;right:0;top:calc(38vh - 52px);height:40px;
+  background:var(--lcd-opc-kruzok) no-repeat center/40px 40px}
+html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9)[data-lcd-opc-prechod]::after{content:attr(data-lcd-opc-prechod);position:fixed;left:0;right:0;
+  top:calc(38vh - 52px);z-index:5;padding:52px 16px 0;background:var(--lcd-opc-kruzok) no-repeat center top/40px 40px;
   text-align:center;font:600 17px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:#5f574a}
+/* obrazovka hneď od začiatku stránky (pri zmene štátu a z webu preblikla pokladňa Shoptetu, kým sa nenačítal náš bundle na
+   konci stránky): riadok v hlavičke HTML kódov (kniha § 10.26) dá html.lcd-opc-hned ešte pred obsahom, opc/skok.js drzHned
+   ju nechá, kým bundle skrýva krok 2 / košík. Piesková plocha je pod hlavičkou (#header má z-index 61, ostane vidno ako pri
+   skoku z webu). Text: html[data-lcd-opc-hlaska] (zmena štátu), inak podľa jazyka stránky. */
+html.lcd-opc-hned::before{content:"";position:fixed;top:0;right:0;bottom:0;left:0;z-index:60;background:#f7f5ef;cursor:progress}
+html.lcd-opc-hned::after{content:"Načítavam…";position:fixed;left:0;right:0;top:calc(38vh - 52px);z-index:60;padding:52px 16px 0;
+  background:var(--lcd-opc-kruzok) no-repeat center top/40px 40px;text-align:center;font:600 17px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:#5f574a}
+html.lcd-opc-hned:lang(cs)::after{content:"Načítám…"}
+html.lcd-opc-hned[data-lcd-opc-hlaska]::after{content:attr(data-lcd-opc-hlaska)}
 /* pokladňa: kroky a zbalený súhrn navrchu netreba (košík je prvá karta) */
 html.lcd-opc.lcd-opc-jedna-karta body.in-krok-2 ol.cart-header,html.lcd-opc.lcd-opc-jedna-karta body.in-krok-2 .lcd-opc-zbalene{display:none !important}
 

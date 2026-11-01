@@ -1547,6 +1547,19 @@ Michal na PC:
 
 **Testy:** S77 (výber krajín, Step1ChooseDelivery, Step1Validate, len krok 2, meno ostane, registrácia skrytá), S78 (zlyhanie -> krok 1), S79 (2 boxy: krížik v krúžku, netrčí z riadku — so starým CSS červený).
 
+**Doplnok (1. 11. 2026 popoludní, Michal: „musím kliknúť na Zmeniť štát a potom sa mi otvorí ešte drop-down“):** výber krajín je pri adrese hneď (`vlozVyberStatu` v `upravStranku`, bez fokusu — telefón ho sám neotvorí), odkaz „Zmeniť štát“ ostáva len bez krajín v modeli. Počas zmeny košíka / odosielania sa zmena krajiny vráti späť (výber ostane na pôvodnej). S36 kontroluje výber namiesto textu odkazu.
+
+### 10.26 Obrazovka „Načítavam…“ hneď od začiatku stránky — riadok v Záhlaví (1. 11. 2026)
+
+Michal: pri zmene štátu (a z webu do pokladne) „prebliknie tam na chvíľku aj starý košík… radšej sekundu načítavam a nejaká pekná grafická obrazovka“. Príčina: náš bundle je na konci `<body>` (HTML kódy → Zápätie), prehliadač medzitým nakreslí pokladňu Shoptetu (~0,2–0,4 s). Bez riadku v `<head>` sa to spoľahlivo nedá (WebKit pri načítaní nedá `:target`, § 10.24). Michal súhlasil s riadkom v Záhlaví („Nie je dôvod, prečo by si nemohol“).
+
+- **Riadok:** `admin-html/zahlavie-opc.html` (SK aj CZ rovnaký) → HTML kódy → Záhlavie, na koniec. Len na `/kosik/` a `/objednavka/krok-2/`, len s flagom `lcdOpc` = „1“ alebo s `?opc=` (nie `?opc=0`) → `html.lcd-opc-hned`, z `sessionStorage.lcdOpcHlaska` text do `html[data-lcd-opc-hlaska]`; poistka 3 s (`window.__lcdOpcHned`). Zákazník bez kódu: nič.
+- **Pri spustení pre všetkých (`SPUSTENE`)** treba riadok upraviť: podmienka `f!=="1"` → `f==="0"` (bez flagu = zapnuté).
+- **CSS:** `html.lcd-opc-hned::before` piesková plocha (z-index 60, `#header` má 61 → hlavička vidno), `::after` zlatý točiaci sa krúžok (SVG, `--lcd-opc-kruzok`) a text („Načítavam…“ / „Načítám…“ podľa `lang`, pri zmene štátu „Mením krajinu doručenia…“). Rovnaký krúžok a miesto textu (38vh) majú `#lcd-opc-skok` (skok z webu) aj prechod z košíka → medzi stránkami sa nič nepohne.
+- **Bundle (`opc/skok.js` `drzHned`, volá `opc/index.js` po skorom skrytí):** zruší poistku z hlavičky a nechá obrazovku, kým je `lcd-opc-caka` (krok 2) alebo `lcd-opc-prechadzam` (košík); potom ju zoberie naraz s nimi. Nič neskrýva (bez kódu, prázdny košík, vypínač) → preč hneď. Hláška zo sessionStorage sa vždy zmaže.
+- **Testy:** jednotky `drzHned` (2), S80 (krok 2 z košíka aj po zmene krajiny začne kresliť pod `lcd-opc-hned`, text zmeny krajiny, po dokončení obrazovka aj hláška preč); podvrh `scenar.hlavicka` vkladá riadok z `admin-html/zahlavie-opc.html` + sondu na začiatok `<body>`.
+- **Návrat:** riadok zo Záhlavia zmazať (bundle bez neho funguje ako predtým).
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

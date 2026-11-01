@@ -410,6 +410,8 @@ function suhrnSynteticky(web, zaklad, krok1, platba) {
  * Podvrh pre jednu kartu. moznosti: { web: "sk"|"cz", build, kosik: "vzorkovnik"|"vzorky3"|"set"|"kamion"|"dve", mobil, doplnitCdn, scenar }
  * scenar: { step1: "303"|"500"|"limit"|"neplatne", krok1: "ok"|"500"|"zmenene", dataJson: {…}, csrf: false, dataJsonMs: 0, krok1Ms: 0 }
  */
+/** Riadok OPC zo Záhlavia HTML kódov presne ako v admine (bez komentára). */
+const RIADOK_OPC = readFileSync(new URL("../../admin-html/zahlavie-opc.html", import.meta.url), "utf8").split(String.fromCharCode(10)).map((r) => r.trim()).find((r) => r.startsWith("<script>"));
 export async function zapniPodvrh(k, moznosti) {
   const W = WEBY[moznosti.web];
   const p = {
@@ -523,7 +525,12 @@ export async function zapniPodvrh(k, moznosti) {
   });
   // Shoptet dáva podľa User-Agenta len triedu tela desktop/mobile (overené 28. 10. 2026 na prázdnom košíku SK, inak zhodné
   // HTML) -> fixtures sú zachytené s UA počítača, na telefóne (šírka < 768) sa trieda prepíše
-  const stranka = (rq, html) => odpovedz(rq, 200, moznosti.mobil ? sCsrf(html).replace(/<body class="desktop /, '<body class="mobile ') : sCsrf(html), TYP[".html"]);
+  // scenar.hlavicka: riadok OPC v Záhlaví HTML kódov (admin-html/zahlavie-opc.html, kniha § 10.26) + sonda na začiatku <body>,
+  // čo na html bolo, keď prehliadač začal kresliť obsah (window.__lcdTestPriBody)
+  const sHlavickou = (html) => !p.scenar.hlavicka ? html : html
+    .replace("</head>", RIADOK_OPC + "</head>")
+    .replace(/(<body[^>]*>)/, '$1<script>window.__lcdTestPriBody={c:document.documentElement.className,h:document.documentElement.getAttribute("data-lcd-opc-hlaska")}</script>');
+  const stranka = (rq, html) => odpovedz(rq, 200, sHlavickou(moznosti.mobil ? sCsrf(html).replace(/<body class="desktop /, '<body class="mobile ') : sCsrf(html)), TYP[".html"]);
   const presmeruj = (rq, cesta) => k.posli("Fetch.fulfillRequest", {
     requestId: rq.requestId, responseCode: 302, responseHeaders: [{ name: "Location", value: W.base + cesta }, { name: "Cache-Control", value: "no-store" }], body: "",
   });

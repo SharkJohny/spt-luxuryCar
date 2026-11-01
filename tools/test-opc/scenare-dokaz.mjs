@@ -502,9 +502,9 @@ export const SCENARE = {
     },
   },
   S36: {
-    popis: "Lišta krokov a texty variantu A: košík s OPC ukáže „Nákupný košík · Objednávka“ (bez kroku Doprava & platba), bez kódu košík bez zmeny; finálna stránka: „Späť do košíka“, krajina „Zmeniť štát“",
+    popis: "Lišta krokov a texty variantu A: košík s OPC ukáže „Nákupný košík · Objednávka“ (bez kroku Doprava & platba), bez kódu košík bez zmeny; finálna stránka: „Späť do košíka“, krajina = výber krajín hneď",
     async fn(J) {
-      const T = { sk: { kroky: ["Nákupný košík", "Objednávka"], spat: "Späť do košíka", stat: "Zmeniť štát" }, cz: { kroky: ["Nákupní košík", "Objednávka"], spat: "Zpět do košíku", stat: "Změnit zemi" } }[J.web];
+      const T = { sk: { kroky: ["Nákupný košík", "Objednávka"], spat: "Späť do košíka", stat: "výber:Slovensko" }, cz: { kroky: ["Nákupní košík", "Objednávka"], spat: "Zpět do košíku", stat: "výber:Česká republika" } }[J.web];
       const kroky = (s) => s.ev(`(function () { var ol = document.querySelector("ol.cart-header"); if (!ol) return null;
         return Array.prototype.map.call(ol.querySelectorAll("li.step"), function (l) { return { text: l.textContent.replace(/\\s+/g, " ").trim(), hidden: l.hasAttribute("hidden"), skryty: getComputedStyle(l).display === "none" }; }); })()`);
       // a) košík bez OPC: Shoptet bez zmeny (3 kroky)
@@ -529,9 +529,9 @@ export const SCENARE = {
       await cakajOpc(s, /^krok2-potvrdene$/);
       const d = await s.ev(`(function () { var a = document.querySelector("#checkoutSidebar .next-step-back");
         return { spat: a ? a.textContent.replace(/\\s+/g, " ").trim() : null, spatHref: a ? a.getAttribute("href") : null,
-          stat: Array.prototype.map.call(document.querySelectorAll("#order-form em.helpNote"), function (e) { var x = e.querySelector("a"); return e.textContent.replace(/\\s+/g, " ").trim() + "|" + (x ? x.getAttribute("href") : ""); }) }; })()`);
+          stat: Array.prototype.map.call(document.querySelectorAll("#order-form em.helpNote"), function (e) { var x = e.querySelector("a"), v = e.querySelector("select.lcd-opc-stat__vyber"); return v ? "výber:" + (v.options[v.selectedIndex] || {}).textContent : e.textContent.replace(/\\s+/g, " ").trim() + "|" + (x ? x.getAttribute("href") : ""); }) }; })()`);
       over(d.spat === T.spat && d.spatHref === KOSIK, "Späť: " + JSON.stringify(d));
-      over(d.stat.length >= 1 && d.stat.every((x) => x === T.stat + "|" + KROK1), "text pri krajine: " + JSON.stringify(d.stat));
+      over(d.stat.length >= 1 && d.stat.every((x) => x === T.stat), "krajina: " + JSON.stringify(d.stat));
       if (J.web === "sk") {
         // rýchla platba cez banku (nezvolená) = bežné rádio (Michal 30. 10. 2026: banka sa vyberá tu, nie na samostatnej
         // stránke): prázdny krúžok, popis Shoptetu, žiadna šípka ani odkaz na krok 1

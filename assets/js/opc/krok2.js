@@ -31,7 +31,7 @@ import * as B from "./banka.js";
 import { lcdBublinaMimoTlacidla, changeDescription } from "../components/cart.js";
 import { vymenaBezi } from "../lcdKosikDoplnok.js";
 import { initKosikKarta } from "./kosikKarta.js";
-import { otvorVyberStatu } from "./stat.js";
+import { vlozVyberStatu } from "./stat.js";
 
 /** Z čoho na kroku 2 bublina Luxie ustúpi okrem „Objednať“: tlačidlo v lište, polia, odkazy, zaškrtávacie polia a voľby. */
 /** Prvky kroku 2, z ktorých ustúpi bublina Luxie (cart.js lcdBublinaMimoTlacidla `dalsie`) — „Objednať“ len tu, nie v cart.js. */
@@ -951,21 +951,18 @@ export function initKrok2(ctx) {
     const spat = document.querySelector("#checkoutSidebar .next-step-back");
     // jedna stránka: košík je navrchu tejto stránky (/kosik/ by sem hneď vrátil) -> Späť do obchodu
     if (spat) { spat.setAttribute("href", ctx.jednaStranka ? "/" : "/kosik/"); spat.textContent = ctx.jednaStranka ? T.spatObchod : T.spatKosik; }
-    // štát v adrese: „Môžete zmeniť v predchádzajúcom kroku“ -> „Zmeniť štát“ (krok s krajinou zákazník nevidel); klik
-    // otvorí výber krajín z kroku 1 priamo tu (opc/stat.js, Michal 1. 11. 2026), bez nich ide odkaz na klasický krok 1
+    // štát v adrese: „Môžete zmeniť v predchádzajúcom kroku“ -> hneď výber krajín z kroku 1 (opc/stat.js, Michal 1. 11. 2026:
+    // jeden klik, nie „Zmeniť štát“ a potom zoznam); bez krajín v modeli ostane odkaz „Zmeniť štát“ na klasický krok 1
     form.querySelectorAll("em.helpNote").forEach(function (em) {
       const a = em.querySelector("a[href]");
       if (!a || !/^\/objednavka\/krok-1\/?$/.test(a.getAttribute("href"))) return;
       a.textContent = T.zmenitStat;
       em.textContent = "";
       em.appendChild(a);
-      a.addEventListener("click", function (e) {
-        try {
-          const ok = otvorVyberStatu(a, { krajiny: k2.model && k2.model.krajiny, T: T, form: form, ss: window.sessionStorage, meraj: ctx.meraj,
-            zakaz: function () { return blokovane() === "kosik" || odosielanie !== null; } });
-          if (ok) e.preventDefault();
-        } catch (x) {}
-      });
+      try {
+        vlozVyberStatu(a, { krajiny: m.krajiny, T: T, form: form, ss: window.sessionStorage, meraj: ctx.meraj,
+          zakaz: function () { return blokovane() === "kosik" || odosielanie !== null; } });
+      } catch (x) {}
     });
     // telefón: zbalený súhrn navrchu (CSS ho na PC skryje)
     const hlavicka = obsah.querySelector("ol.cart-header");

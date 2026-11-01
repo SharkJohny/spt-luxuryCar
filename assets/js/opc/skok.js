@@ -10,6 +10,10 @@ import { oznacPreskocenie } from "./analytika.js";
 
 export const SKOK = "lcd-opc-skok";
 const ID = "lcd-opc-skok";
+/** Obrazovka „Načítavam…“ hneď od začiatku stránky: dá ju riadok v hlavičke HTML kódov (kniha § 10.26) ešte pred obsahom. */
+export const HNED = "lcd-opc-hned";
+/** Text pre obrazovku na ďalšej stránke (zmena štátu): sessionStorage -> riadok v hlavičke -> html[data-lcd-opc-hlaska]. */
+export const KLUC_HLASKA = "lcdOpcHlaska";
 /** Najdlhšie čakanie na krok 1 + Step1Validate (limity sync.js by spolu dali až ~16 s) -> potom košík ako doteraz. */
 export const SKOK_MAX_MS = 10000;
 
@@ -35,7 +39,7 @@ export function pocetVOdznaku(doc) {
 
 /** Obrazovka „Načítavam…“ cez celú stránku (rovnaká farba ako pokladňa, _lcdOpc.scss); hlavičku nechá vidno, ale
  *  zakrytú priehľadne — počas skoku sa nedá kliknúť inam (dve navigácie naraz, revízia 1. 11.). */
-export function ukazSkok(doc, T) {
+export function ukazSkok(doc, T, text) {
   const H = doc.documentElement;
   if (doc.getElementById(ID)) return;
   try {
@@ -47,9 +51,28 @@ export function ukazSkok(doc, T) {
   d.id = ID;
   d.setAttribute("role", "status");
   d.setAttribute("aria-live", "polite");
-  d.textContent = T.nacitavamKosik;
+  d.textContent = text || T.nacitavamKosik;
   doc.body.appendChild(d);
   H.classList.add(SKOK);
+}
+
+/**
+ * Obrazovka z hlavičky stránky (html.lcd-opc-hned, Michal 1. 11. 2026: pri zmene štátu preblikla pokladňa Shoptetu) ostane,
+ * kým bundle skrýva krok 2 (lcd-opc-caka) alebo prechádza z košíka (lcd-opc-prechadzam), potom zmizne naraz s nimi.
+ * Poistku 3 s z hlavičky ruší — tú preberajú poistky bundla (KROK2_LIMIT_MS, prechod). Nič neskrýva -> preč hneď.
+ * -> true = obrazovka ostáva.
+ */
+export function drzHned(doc, okno) {
+  try { okno.sessionStorage.removeItem(KLUC_HLASKA); } catch (e) {}
+  const H = doc.documentElement;
+  if (!H.classList.contains(HNED)) return false;
+  try { okno.clearTimeout(okno.__lcdOpcHned); } catch (e) {}
+  const skryva = function () { return H.classList.contains("lcd-opc-caka") || H.classList.contains("lcd-opc-prechadzam"); };
+  const zrus = function () { H.classList.remove(HNED); H.removeAttribute("data-lcd-opc-hlaska"); };
+  if (!skryva()) { zrus(); return false; }
+  const mo = new okno.MutationObserver(function () { if (!skryva()) { mo.disconnect(); zrus(); } });
+  mo.observe(H, { attributes: true, attributeFilter: ["class"] });
+  return true;
 }
 
 export function zrusSkok(doc) {

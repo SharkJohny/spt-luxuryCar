@@ -485,6 +485,33 @@ t("texty: položky 1/2/5 SK aj CZ", () => {
   eq([TEXTY.sk.polozky(1), TEXTY.sk.polozky(3), TEXTY.sk.polozky(5)], ["1 položka", "3 položky", "5 položiek"]);
   eq(TEXTY.cz.polozky(7), "7 položek");
 });
+const SK = await import("../assets/js/opc/skok.js");
+const hnedDom = (triedy) => { const w = new JSDOM("<!doctype html><html class='" + triedy + "' data-lcd-opc-hlaska='Mením krajinu doručenia…'><body></body></html>", { url: "https://www.luxurycardesign.sk/objednavka/krok-2/" }).window;
+  w.__lcdOpcHned = w.setTimeout(function () { w.document.documentElement.classList.add("hlavicka-casovac"); }, 30); return w; };
+t("drzHned: obrazovka z hlavičky ostane, kým bundle skrýva krok 2 (lcd-opc-caka), potom zmizne aj s hláškou; časovač hlavičky zrušený", async () => {
+  const w = hnedDom("lcd-opc-hned lcd-opc-caka"), H = w.document.documentElement;
+  w.sessionStorage.setItem(SK.KLUC_HLASKA, "x");
+  eq(SK.drzHned(w.document, w), true);
+  eq(w.sessionStorage.getItem(SK.KLUC_HLASKA), null, "hláška zo sessionStorage zmazaná");
+  await new Promise((r) => setTimeout(r, 60));
+  eq(H.classList.contains("lcd-opc-hned") && !H.classList.contains("hlavicka-casovac"), true, "kým beží caka, obrazovka ostáva a časovač hlavičky nezasiahne");
+  H.classList.remove("lcd-opc-caka");
+  await new Promise((r) => setTimeout(r, 0));
+  eq([H.classList.contains("lcd-opc-hned"), H.hasAttribute("data-lcd-opc-hlaska")], [false, false]);
+});
+t("drzHned: košík s prechodom (lcd-opc-prechadzam) drží obrazovku; bez skrývania (bez kódu, prázdny košík) zmizne hneď; bez triedy z hlavičky nič", async () => {
+  const w = hnedDom("lcd-opc-hned lcd-opc-kosik lcd-opc-prechadzam"), H = w.document.documentElement;
+  eq(SK.drzHned(w.document, w), true);
+  H.classList.remove("lcd-opc-prechadzam");
+  await new Promise((r) => setTimeout(r, 0));
+  eq(H.classList.contains("lcd-opc-hned"), false, "po prechode");
+  const w2 = hnedDom("lcd-opc-hned");
+  eq(SK.drzHned(w2.document, w2), false);
+  eq(w2.document.documentElement.classList.contains("lcd-opc-hned"), false, "hneď preč");
+  const w3 = hnedDom("lcd-opc-caka");
+  eq(SK.drzHned(w3.document, w3), false);
+  eq(w3.document.documentElement.classList.contains("lcd-opc-caka"), true);
+});
 function sekcia(web, o = {}) {
   const d = new JSDOM("<!doctype html><html><body><form id='order-form'></form></body></html>").window.document;
   const m = krok1Model(fx(web + "/krok1.html"));
@@ -1623,7 +1650,7 @@ t("cart.js: bublina Luxie bez OPC ustupuje len z tlačidiel košíka (ako main, 
     eq(H.classList.contains("lcd-kosik-bez-bubliny"), true, "OPC: bublina ustúpi z „Objednať“");
   } finally { globalThis.document = stare.d; globalThis.addEventListener = stare.a; globalThis.setInterval = stare.i; }
 });
-t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka / html.lcd-opc-skok (bez triedy nič), @keyframes len lcd-opc-*", () => {
+t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka / html.lcd-opc-skok / html.lcd-opc-hned (bez triedy nič), @keyframes len lcd-opc-*", () => {
   const css = readFileSync(new URL("../assets/css/luxuryCar.css", import.meta.url), "utf8");
   const a = css.indexOf("/* ===== LCD-OPC START"), b = css.indexOf("/* ===== LCD-OPC END");
   over_(a > 0 && b > a, "blok LCD-OPC v luxuryCar.css nenájdený");
@@ -1633,7 +1660,7 @@ t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / htm
   const prejdi = (pravidla, kde) => {
     for (const r of pravidla) {
       if (r.type === 1) {
-        for (const sel of r.selectorText.split(/,(?![^(]*\))/)) { pocet++; if (!/^html\.lcd-opc(-kosik|-caka|-skok)?(?![\w-])/.test(sel.trim())) zle.push(kde + sel.trim()); }
+        for (const sel of r.selectorText.split(/,(?![^(]*\))/)) { pocet++; if (!/^html\.lcd-opc(-kosik|-caka|-skok|-hned)?(?![\w-])/.test(sel.trim())) zle.push(kde + sel.trim()); }
       } else if (r.type === 4) prejdi(r.cssRules, kde + "@media " + r.media.mediaText + " ");
       else if (r.type === 7) { if (!/^lcd-opc-/.test(r.name)) zle.push(kde + "@keyframes " + r.name); }
       else zle.push(kde + "iné pravidlo: " + r.cssText.slice(0, 60));

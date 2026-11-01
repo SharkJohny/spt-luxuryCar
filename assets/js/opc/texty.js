@@ -41,6 +41,7 @@ export const TEXTY = {
     // pred odoslaním má server iný košík alebo platbu (iné okno / karta): objednávka neodišla, súhrn je zo servera
     zmenaInde: "Košík alebo platba sa zmenili v inom okne. Skontrolujte, prosím, súhrn a kliknite znova.",
     nacitavamKosik: "Načítavam…",
+    menimKrajinu: "Mením krajinu doručenia…",
     zmenitVolby: "Zmeniť dopravu alebo platbu",
     vybratBanku: "Vybrať banku",
     bankaPopis: "Banku si vyberiete na samostatnej stránke.",
@@ -129,6 +130,7 @@ export const TEXTY = {
     odosielam: "Odesílám…",
     zmenaInde: "Košík nebo platba se změnily v jiném okně. Zkontrolujte, prosím, souhrn a klikněte znovu.",
     nacitavamKosik: "Načítám…",
+    menimKrajinu: "Měním zemi doručení…",
     zmenitVolby: "Změnit dopravu nebo platbu",
     vybratBanku: "Vybrat banku",
     bankaPopis: "Banku si vyberete na samostatné stránce.",

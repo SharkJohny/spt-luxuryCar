@@ -13,7 +13,7 @@
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty } from "./kosik.js";
-import { initSkok } from "./skok.js";
+import { initSkok, drzHned } from "./skok.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
 import { zahodPreskocenie } from "./analytika.js";
@@ -200,6 +200,8 @@ export function vzhladDakujemeSkoro(doc, search, o) {
   }
 }
 try { if (typeof document !== "undefined" && document.body) vzhladDakujemeSkoro(document, window.location.search); } catch (e) {}
+// obrazovka „Načítavam…“ z hlavičky stránky: až po skorom skrytí košíka a kroku 2 (tie rozhodnú, či ostane)
+try { if (typeof document !== "undefined" && document.body) drzHned(document, window); } catch (e) {}
 
 /** Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka, kroku 2 aj ďakovnej stránky späť. */
 function zrusSkoryVzhlad() {
