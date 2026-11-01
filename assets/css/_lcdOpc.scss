@@ -1,7 +1,7 @@
 /* =====================================================================
    ONE PAGE CHECKOUT — partial pre blok LCD-OPC (vkladá tools/vloz-lcd-css.py), kniha OPC § 6.2–6.9
-   KAŽDÝ selektor začína html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka (assets/js/opc/krok2.js, opc/kosik.js,
-   opc/index.js) — bez tajného odkazu nič; stráži to test-opc-jednotky („CSS: každé pravidlo bloku LCD-OPC…“).
+   KAŽDÝ selektor začína html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka / html.lcd-opc-skok (assets/js/opc/krok2.js,
+   opc/kosik.js, opc/index.js, opc/skok.js) — bez tajného odkazu nič; stráži to test-opc-jednotky („CSS: každé pravidlo bloku LCD-OPC…“).
    Zelené = kam chceme klik (zvolená voľba: zelený rám + fajka), doplnkové akcie zlaté. Text ≥ 16 px, poznámky ≥ 14 px.
    Tlačidlo „Objednať s povinnosťou platby“, súhlas a súhrn Shoptetu sa nemenia; podpis Shoptetu sa nikde neskrýva.
    ===================================================================== */
@@ -843,8 +843,14 @@ html.lcd-opc .lcd-opc-banky__akcie button:focus-visible{outline:3px solid var(--
 /* ---------------------------------------------------------------- jedna stránka (Michal 31. 10. 2026 „Sprav to takto“)
    Košík sa preskočí (opc/kosik.js), navrchu pokladne je karta „Váš košík“ s ponukou k setu (opc/kosikKarta.js,
    lcdKosikDoplnok.js kartaVybrat) vo vzhľade náhľadu nahlad-7: zlaté „Vybrať“, pridaný doplnok = odrážka s krížikom. */
-/* košík počas prechodu do pokladne: obsah nevidno, len „Načítavam…“ */
-html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9) #content-wrapper{visibility:hidden}
+/* košík počas prechodu do pokladne: obsah nevidno, len „Načítavam…“ (opacity: tlačidlá − + a fotka majú v košíku
+   visibility:visible !important a cez visibility:hidden by prerazili — Michal 1. 11. 2026, iPhone) */
+html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9) #content-wrapper{visibility:hidden;opacity:0 !important;pointer-events:none}
+/* z webu rovno do pokladne (opc/skok.js): obrazovka „Načítavam…“ pod hlavičkou (hlavička vidno, ale nedá sa kliknúť),
+   kým beží krok 1 a Step1Validate */
+html.lcd-opc-skok #lcd-opc-skok{position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483000;box-sizing:border-box;margin:0;
+  padding:calc(var(--lcd-opc-skok-hore,0px) + 38vh) 16px 0;background:linear-gradient(transparent var(--lcd-opc-skok-hore,0px),#f7f5ef var(--lcd-opc-skok-hore,0px));
+  text-align:center;font:600 17px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:#5f574a;cursor:progress}
 html.lcd-opc-kosik.lcd-opc-prechadzam body:is(.in-kosik,.id--9)[data-lcd-opc-prechod]::after{content:attr(data-lcd-opc-prechod);position:fixed;left:0;right:0;top:38%;z-index:5;
   text-align:center;font:600 17px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:#5f574a}
 /* pokladňa: kroky a zbalený súhrn navrchu netreba (košík je prvá karta) */

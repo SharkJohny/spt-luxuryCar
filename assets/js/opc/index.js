@@ -13,6 +13,7 @@
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty } from "./kosik.js";
+import { initSkok } from "./skok.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
 import { zahodPreskocenie } from "./analytika.js";
@@ -217,9 +218,16 @@ export function initOpc(setupData) {
     const kde = stranka();
     // príznak „krok 1 preskočený“ (begin_checkout, opc/analytika.js) platí len pre krok 2 hneď po košíku
     if (kde !== "krok2") zahodPreskocenie();
-    if (!kde) return null;
     const trh = PROJEKTY[String(getShoptetContext().projectId || "")];
     if (!trh) return null;
+    if (!kde) {
+      // ostatné stránky webu: odkaz do košíka a konfigurátor po „Do košíka“ rovno do pokladne (opc/skok.js)
+      if (!jednaStranka(setupData)) return null;
+      const w = { trh: trh, stranka: "web", stav: "start", chyby: [], meraj: meraj };
+      window.__lcdOpc = w;
+      try { initSkok(w); } catch (e) { w.stav = "chyba"; w.chyby.push(String((e && e.message) || e)); }
+      return w;
+    }
     const s = setupData || {};
     const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj, jednaStranka: jednaStranka(setupData),
       // vypínač ponuky k setu bez nasadenia (ako v košíku): karta košíka v pokladni potom ponuku ani krížiky nekreslí

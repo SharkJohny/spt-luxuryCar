@@ -18,6 +18,14 @@
 //   S67 po zmene košíka iná cena dopravy v kroku 1 -> záloha ako predtým: cez košík znova sem, údaje sa vrátia
 //   S68 „Odobrať“ jedinú položku -> prázdny košík Shoptetu (/kosik/), súhrn sa neprepočítava
 //   S69 „Objednať“ počas pridávania rohože -> hláška „čakám“, objednávka odíde až po výmene a prepočte súhrnu
+//   S70 (Michal 1. 11. 2026, iPhone: „keď idem do košíka, rôzne to preblikáva“) z webu „Do košíka“ -> obrazovka
+//       „Načítavam…“, rovno krok 2 (stránka košíka sa nenačíta), Step1Validate 1×, karta hotová
+//   S71 z webu s prázdnym košíkom (Shoptet odznak nekreslí) -> obyčajný odkaz na /kosik/
+//   S76 z webu klik na ikonu košíka v hlavičke (toggle-window) -> rovno krok 2; hlavička sa počas skoku nedá kliknúť
+//   S72 z webu, krok 1 na pozadí zlyhá (500) -> /kosik/ ako doteraz (tam záchrana na krok 1)
+//   S73 konfigurátor po „Do košíka“ (window.__lcdDoKosika) -> rovno krok 2 bez košíka
+//   S74 bez kódu (?opc=0) -> odkaz na /kosik/ natívne, window.__lcdDoKosika nie je
+//   S75 košík počas preskoku: obsah košíka nevidno celý (opacity 0) — ani − + a fotka (Michal 1. 11. 2026, iPhone)
 import { KOSIK, KROK2, ZAKAZNIK, cakajOpc, vyplnUdaje, suhlas, objednaj, overTeloObjednavky, step1Xhr, over, pauza, OPC } from "./krok2-pomoc.mjs";
 import { klikObjednat } from "./scenare-spravanie.mjs";
 
@@ -86,6 +94,31 @@ async function poZmene(s, pred) {
   over(st.ulozene === null, "údaje formulára sa ukladali (záloha cez košík): " + st.ulozene);
   over(!st.zamknute && !st.prepocet && st.stav === "", "karta / súhrn ostali zamknuté: " + JSON.stringify([st.zamknute, st.prepocet, st.stav]));
   return st;
+}
+
+
+/** Kód v prehliadači (prvý prechod pokladňou), potom stránka webu mimo košíka s rozbehnutým skokom (opc/skok.js). */
+async function naWeb(s, { sKodom = true } = {}) {
+  if (sKodom) await naJednuStranku(s);
+  else { await s.k.chod(s.W.base + KOSIK + "?opc=0"); await pauza(1200); }
+  await s.k.chod(s.W.base + "/lcd-test-web/");
+  await s.cakaj(`document.body.classList.contains("in-index") && !!document.getElementById("lcd-test-do-kosika")`, { popis: "stránka webu" });
+  if (sKodom) await cakajOpc(s, /^web$/, "web");
+  else await pauza(1500);
+  return { nav: s.dokumenty().length, step1: step1Xhr(s).length };
+}
+
+/** Po kliku: nové navigácie (najviac kým nepríde krok 2 alebo uplynie limit). */
+async function poKliku(s, pred, { cakajKrok2 = true } = {}) {
+  if (cakajKrok2) {
+    await s.cakajNaStranku(KROK2, "in-krok-2");
+    await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2");
+  } else {
+    const koniec = Date.now() + 15000;
+    while (Date.now() < koniec && s.dokumenty().length < pred.nav + 1) await pauza(100);
+    await pauza(1500);
+  }
+  return s.dokumenty().slice(pred.nav);
 }
 
 export const SCENARE = {
@@ -338,6 +371,114 @@ export const SCENARE = {
       const kosikCas = (s.p.zaznam.www.find((z, i) => z.typ === "Document" && /^\/kosik\//.test(z.cesta) && s.p.zaznam.www.filter((x) => x.typ === "Document").indexOf(z) >= nav) || {}).cas;
       const predKosikom = step1Xhr(s).filter((x) => x.cas < kosikCas).length;
       over(predKosikom === step1, "po odobratí poslednej položky Step1Validate " + (predKosikom - step1) + "× pred košíkom");
+      return { info: d.join(", ") };
+    },
+  },
+  S70: {
+    len: "sk",
+    popis: "Jedna stránka z webu: „Do košíka“ -> „Načítavam…“ a rovno krok 2 (bez stránky košíka), Step1Validate 1×, karta hotová",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ krok1Ms: 900 }, SCENAR) });
+      const pred = await naWeb(s);
+      await s.klikni("#lcd-test-do-kosika", { popis: "Do košíka" });
+      await pauza(250);
+      const obrazovka = await s.ev(`(function () { var d = document.getElementById("lcd-opc-skok"); if (!d) return null;
+        var r = d.getBoundingClientRect(); return { text: d.textContent, trieda: document.documentElement.classList.contains("lcd-opc-skok"),
+        cela: r.left <= 0 && r.top <= 0 && r.width >= innerWidth - 20 && r.bottom >= innerHeight - 1, farba: getComputedStyle(d).backgroundImage }; })()`).catch(() => null);
+      const d = await poKliku(s, pred);
+      over(obrazovka && obrazovka.text === "Načítavam…" && obrazovka.trieda && obrazovka.cela && /rgb\(247, 245, 239\)/.test(obrazovka.farba), "obrazovka počas skoku: " + JSON.stringify(obrazovka));
+      over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "navigácie po kliku (čakal som len krok 2): " + d.join(", "));
+      over(step1Xhr(s).length === pred.step1 + 1, "Step1Validate po kliku " + (step1Xhr(s).length - pred.step1) + "×");
+      await s.cakaj(`document.querySelectorAll("${KARTA} .lcd-vyb__riadok").length === 3`, { ms: 15000, popis: "ponuka k setu v karte" });
+      const st = await s.ev(STAV);
+      over(st.polozky.length === 1 && st.suhrnProdukty === 0, "karta / súhrn po skoku: " + JSON.stringify([st.polozky, st.suhrnProdukty]));
+      return { info: d.join(", ") };
+    },
+  },
+  S71: {
+    len: "sk",
+    popis: "Jedna stránka z webu: prázdny košík (Shoptet bez odznaku) -> obyčajný odkaz na /kosik/",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ webPocet: "" }, SCENAR) });
+      const pred = await naWeb(s);
+      await s.klikni("#lcd-test-do-kosika", { popis: "Do košíka" });
+      const d = await poKliku(s, pred, { cakajKrok2: false });
+      over(d.length >= 1 && /GET \/kosik\//.test(d[0]), "po kliku s prázdnym košíkom: " + d.join(", "));
+      return { info: d.join(", ") };
+    },
+  },
+  S72: {
+    len: "sk",
+    popis: "Jedna stránka z webu: krok 1 na pozadí zlyhá (500, stránka kroku 1 ide) -> /kosik/ ako doteraz",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      const pred = await naWeb(s);
+      s.p.scenar.suhrn = "500"; // krok 1 na pozadí 500, navigácia na krok 1 normálne
+      await s.klikni("#lcd-test-do-kosika", { popis: "Do košíka" });
+      const d = await poKliku(s, pred, { cakajKrok2: false });
+      over(d.length >= 1 && /GET \/kosik\//.test(d[0]), "po zlyhaní kroku 1: " + d.join(", "));
+      over(step1Xhr(s).length === pred.step1, "Step1Validate napriek zlyhaniu kroku 1: " + (step1Xhr(s).length - pred.step1) + "×");
+      return { info: d.join(", ") };
+    },
+  },
+  S73: {
+    len: "sk",
+    popis: "Jedna stránka z webu: konfigurátor po „Do košíka“ (window.__lcdDoKosika) -> rovno krok 2",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      const pred = await naWeb(s);
+      const prevzate = await s.ev(`typeof window.__lcdDoKosika === "function" && window.__lcdDoKosika()`);
+      const d = await poKliku(s, pred);
+      over(prevzate === true, "__lcdDoKosika: " + prevzate);
+      over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "navigácie (čakal som len krok 2): " + d.join(", "));
+      return { info: d.join(", ") };
+    },
+  },
+  S74: {
+    len: "sk",
+    popis: "Bez kódu (?opc=0): odkaz z webu na /kosik/ natívne, __lcdDoKosika nie je",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      const pred = await naWeb(s, { sKodom: false });
+      const st = await s.ev(`({ fn: typeof window.__lcdDoKosika, opc: !!window.__lcdOpc, skok: !!document.getElementById("lcd-opc-skok") })`);
+      await s.klikni("#lcd-test-do-kosika", { popis: "Do košíka" });
+      const d = await poKliku(s, pred, { cakajKrok2: false });
+      over(st.fn === "undefined" && !st.opc && !st.skok, "bez kódu je skok zapnutý: " + JSON.stringify(st));
+      over(d.length >= 1 && /GET \/kosik\//.test(d[0]), "bez kódu po kliku: " + d.join(", "));
+      over(step1Xhr(s).length === pred.step1, "bez kódu Step1Validate " + (step1Xhr(s).length - pred.step1) + "×");
+      return { info: d.join(", ") };
+    },
+  },
+  S75: {
+    len: "sk",
+    popis: "Jedna stránka: košík počas preskoku do pokladne — obsah nevidno celý (opacity 0), ani − + a fotka, len „Načítavam…“",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ krok1Ms: 2500 }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK + OPC);
+      await s.cakaj(`document.documentElement.classList.contains("lcd-opc-prechadzam")`, { popis: "košík v prechode" });
+      const st = await s.ev(`(function () { var cw = document.getElementById("content-wrapper"), cs = getComputedStyle(cw);
+        var znaky = [].filter.call(cw.querySelectorAll(".increase__sign,.decrease__sign"), function (e) { return getComputedStyle(e).visibility === "visible"; }).length;
+        return { opacity: cs.opacity, visibility: cs.visibility, znakyVisible: znaky, text: getComputedStyle(document.body, "::after").content }; })()`);
+      over(st.opacity === "0" && st.visibility === "hidden", "obsah košíka počas prechodu: " + JSON.stringify(st));
+      over(/Načítavam/.test(st.text), "text počas prechodu: " + st.text);
+      await s.cakajNaStranku(KROK2, "in-krok-2");
+      return { info: "opacity " + st.opacity + ", znaky s visibility:visible " + st.znakyVisible + " (pod opacity 0 nevidno)" };
+    },
+  },
+  S76: {
+    len: "sk",
+    popis: "Jedna stránka z webu: ikona košíka v hlavičke (toggle-window) -> rovno krok 2; počas skoku je hlavička zakrytá",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ krok1Ms: 900 }, SCENAR) });
+      const pred = await naWeb(s);
+      // ikonu mimo hlavičky Shoptetu skryje CSS šablóny -> klik ako z kódu (rovnaká cesta cez zachytávanie na window)
+      await s.ev(`document.getElementById("lcd-test-ikona").click(), 1`);
+      await pauza(250);
+      // hlavička (hore) je počas skoku zakrytá obrazovkou -> klik inam nejde
+      const navrchu = await s.ev(`(function () { var h = document.elementFromPoint(20, 10); return h ? (h.id || h.tagName) : null; })()`).catch(() => null);
+      const d = await poKliku(s, pred);
+      over(navrchu === "lcd-opc-skok", "navrchu stránky počas skoku je: " + navrchu);
+      over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "navigácie po kliku na ikonu (čakal som len krok 2): " + d.join(", "));
       return { info: d.join(", ") };
     },
   },

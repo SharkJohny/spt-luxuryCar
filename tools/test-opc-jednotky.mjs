@@ -1623,7 +1623,7 @@ t("cart.js: bublina Luxie bez OPC ustupuje len z tlačidiel košíka (ako main, 
     eq(H.classList.contains("lcd-kosik-bez-bubliny"), true, "OPC: bublina ustúpi z „Objednať“");
   } finally { globalThis.document = stare.d; globalThis.addEventListener = stare.a; globalThis.setInterval = stare.i; }
 });
-t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka (bez triedy nič), @keyframes len lcd-opc-*", () => {
+t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / html.lcd-opc-kosik / html.lcd-opc-caka / html.lcd-opc-skok (bez triedy nič), @keyframes len lcd-opc-*", () => {
   const css = readFileSync(new URL("../assets/css/luxuryCar.css", import.meta.url), "utf8");
   const a = css.indexOf("/* ===== LCD-OPC START"), b = css.indexOf("/* ===== LCD-OPC END");
   over_(a > 0 && b > a, "blok LCD-OPC v luxuryCar.css nenájdený");
@@ -1633,7 +1633,7 @@ t("CSS: každé pravidlo bloku LCD-OPC v luxuryCar.css je pod html.lcd-opc / htm
   const prejdi = (pravidla, kde) => {
     for (const r of pravidla) {
       if (r.type === 1) {
-        for (const sel of r.selectorText.split(/,(?![^(]*\))/)) { pocet++; if (!/^html\.lcd-opc(-kosik|-caka)?(?![\w-])/.test(sel.trim())) zle.push(kde + sel.trim()); }
+        for (const sel of r.selectorText.split(/,(?![^(]*\))/)) { pocet++; if (!/^html\.lcd-opc(-kosik|-caka|-skok)?(?![\w-])/.test(sel.trim())) zle.push(kde + sel.trim()); }
       } else if (r.type === 4) prejdi(r.cssRules, kde + "@media " + r.media.mediaText + " ");
       else if (r.type === 7) { if (!/^lcd-opc-/.test(r.name)) zle.push(kde + "@keyframes " + r.name); }
       else zle.push(kde + "iné pravidlo: " + r.cssText.slice(0, 60));

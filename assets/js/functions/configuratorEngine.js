@@ -551,7 +551,8 @@ export function initConfiguratorEngine() {
         );
         var n = badge ? parseInt((badge.textContent || "").replace(/\D/g, ""), 10) : NaN;
         if (!isNaN(n) && n > 0) {
-          window.location.href = "/kosik/";
+          // one page checkout (opc/skok.js): rovno do pokladne bez medzizastavky v kosiku; inak kosik ako doteraz
+          if (!(typeof window.__lcdDoKosika === "function" && window.__lcdDoKosika())) window.location.href = "/kosik/";
         } else {
           window.__lcdCartReloading = false;
         }

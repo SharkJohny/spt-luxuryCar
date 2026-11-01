@@ -547,6 +547,19 @@ export async function zapniPodvrh(k, moznosti) {
       z.odpoved = "kosik";
       return stranka(rq, p.subor("kosik.html"));
     }
+    // stránka webu mimo košíka (opc/skok.js, S70–S74): HTML košíka s triedou tela titulky, bez tabuľky košíka; navrchu
+    // ikona košíka s odznakom (scenár webPocet, predvolene 1; "" = bez odznaku) a odkaz „Do košíka“ ako v okne košíka Shoptetu
+    if (metoda === "GET" && /^\/lcd-test-web\/?$/.test(cesta)) {
+      z.odpoved = "web";
+      const n = p.scenar.webPocet == null ? 1 : p.scenar.webPocet;
+      const h = p.subor("kosik.html")
+        .replace(/ id--9 in-kosik template-11 ordering-process/, " id--1 in-index template-11")
+        .replace(/id="cart-wrapper"/g, 'id="lcd-test-bez-kosika"').replace(/id="continue-order-button"/g, 'id="lcd-test-bez-pokracovat"')
+        // prázdny košík: Shoptet odznak <i> vôbec nekreslí (naživo 1. 11. 2026) -> webPocet: ""
+        .replace(/(<body[^>]*>)/, '$1<div id="lcd-test-web" style="padding:12px"><a class="btn btn-icon toggle-window cart-count" id="lcd-test-ikona" data-target="cart" href="/kosik/">Košík' +
+          (n === "" ? "" : "<i>" + n + "</i>") + '</a> <a class="btn btn-conversion" id="lcd-test-do-kosika" href="/kosik/">Do košíka</a></div>');
+      return stranka(rq, h);
+    }
     if (metoda === "GET" && /^\/objednavka\/krok-1\/?$/.test(cesta)) {
       if (p.scenar.krok1 === "500") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
       // zaseknutá sieť (revízia R5/R6): fetch na pozadí nikdy neodpovie, stránka (navigácia) áno

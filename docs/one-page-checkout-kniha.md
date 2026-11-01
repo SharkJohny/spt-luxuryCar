@@ -1505,6 +1505,28 @@ Michal: „je to zbytočne dvakrát“.
 
 ---
 
+### 10.24 Z webu rovno do pokladne, bez preblikovania košíka (1. 11. 2026)
+
+Michal z iPhonu: „keď idem do košíka, tak je tam stále taký divný loading… rôzne to preblikáva“.
+
+**Čo sa dialo (video `scratchpad/opc/namieste/_prechod/`, webkit iPhone 13, naživo 248f52c):**
+- klik na košík -> stránka /kosik/ sa na chvíľu ukázala celá (pred bundlom);
+- potom „Načítavam…“, cez ktoré presvitali − a + a fotka s názvom (v košíku majú `visibility:visible !important`, skrytie cez `visibility:hidden` ich nezakrylo);
+- biela, „Načítavam…“ kroku 2, až potom karta. Spolu ~1,6 s a 4 rôzne obrazovky.
+
+**Teraz:**
+- **opc/skok.js:** na ostatných stránkach webu (initOpc, keď stránka nie je košík ani pokladňa a platí jednaStranka) klik na odkaz /kosik/ — ikona v hlavičke aj tlačidlo v okne košíka, zachytené na window ešte pred Shoptetom, aby sa okno košíka neotváralo — ukáže obrazovku „Načítavam…“ pod hlavičkou (`#lcd-opc-skok`), na pozadí krok 1 a Step1Validate (rovnaké `stiahniModelKrok1` / `potvrdKrok1` z opc/kosik.js) a ide rovno na krok 2. Stránka košíka sa nenačíta.
+- **Konfigurátor po „Do košíka“** (`functions/configuratorEngine.js`): `window.__lcdDoKosika()` urobí to isté; bez OPC funkcia nie je a ide sa na /kosik/ ako doteraz.
+- **Prázdny košík** (Shoptet vtedy odznak s počtom vôbec nekreslí) -> obyčajný odkaz; skok len keď odznak ukazuje > 0. **Hocijaké zlyhanie** (krok 1, Step1Validate, poistka 10 s) -> /kosik/ ako doteraz; rýchla platba cez banku bez banky -> rovno krok 1.
+- Revízia 1. 11.: obrazovka zakrýva aj hlavičku (priehľadne, hlavičku vidno) — počas skoku sa nedá kliknúť inam (dve navigácie); zastavený prechod (Safari „Zastaviť“) -> po 10 s obrazovka preč. Klik zachytený na window zastaví aj ďalšie poslucháče odkazu košíka (meranie klikov GTM) — len pri OPC.
+- ⚠️ Pred spustením pre všetkých (`SPUSTENE`): pri skoku z webu nepríde `view_cart` (stránka košíka sa nenačíta) — doriešiť meranie lievika.
+- **Košík počas preskoku** (prvý vstup cez tajný odkaz): `#content-wrapper` má aj `opacity:0`, nič nepresvitá.
+- Meranie: `lcd_opc_prechod` / `lcd_opc_chyba` s `lcd_opc_miesto: "web"`; košík sa nenačíta, takže pri skoku z webu nepríde ani jeho `view_cart`.
+
+**Čo ostáva:** krok 2 sa pred naším bundlom (koniec stránky) na ~0,2–0,4 s ukáže v pôvodnom vzhľade Shoptetu. CSS to bez značky v hlavičke nevie rozlíšiť; skúsená kotva `#header` + `:target` vo WebKite nezaberie (`:target` sa nastaví až po načítaní) — vrátené. Riešenie: jeden riadok skriptu v hlavičke HTML kódov (SK+CZ), ktorý podľa flagu pridá triedu na `<html>` ešte pred vykreslením — len so súhlasom Michala.
+
+**Testy:** S70 (skok, obrazovka, Step1Validate 1×, bez /kosik/), S71 (prázdny košík bez odznaku), S76 (ikona v hlavičke, hlavička zakrytá), S72 (krok 1 na pozadí 500 -> /kosik/), S73 (konfigurátor), S74 (bez kódu nič), S75 (košík počas preskoku má opacity 0). Naživo s lokálnym buildom (`prechod.mjs`, LOKALNE=1): z titulky po klik na ikonu košíka karta hotová za ~1,6 s, žiadna stránka /kosik/.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

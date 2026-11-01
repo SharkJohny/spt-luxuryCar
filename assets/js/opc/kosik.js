@@ -91,6 +91,49 @@ export function zrusVzhladKosika(doc) {
   ol.querySelectorAll("[data-lcd-opc-povodny]").forEach(function (e) { e.textContent = e.getAttribute("data-lcd-opc-povodny"); e.removeAttribute("data-lcd-opc-povodny"); });
 }
 
+/**
+ * Krok 1 Shoptetu na pozadí: GET s limitom (4 s) -> model (krok1Model), pri rýchlej platbe cez banku v session aj zoznam
+ * bánk. Košík (initKosik) aj skok z webu rovno do pokladne (opc/skok.js). -> model | { ok: false, dovod }
+ */
+export function stiahniModelKrok1() {
+  return fetchSLimitom(CESTA_KROK1, { headers: { Accept: "text/html" } }, LIMIT_KROK1_MS)
+    .then(function (r) {
+      if (r.chyba) return { ok: false, dovod: r.chyba }; // visiaca sieť: klik nesmie čakať donekonečna (R5)
+      // prázdny košík / vypršaná session: Shoptet presmeruje na /kosik/ -> nie je čo vybrať
+      if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, dovod: "stranka" };
+      return r.text().then(function (h) { return krok1Model(h); });
+    })
+    .then(function (m) {
+      // rýchla platba cez banku v session: zoznam bánk na kód banky pre Step1Validate (len vtedy)
+      const pl = m && m.ok ? m.platby.find(function (x) { return x.id === m.zvolenaPlatba; }) : null;
+      if (!pl || pl.podmetoda !== "pis" || !m.pisPodmienky) return m;
+      return B.nacitajBanky().then(function (b) { m.banky = b; return m; }, function () { return m; });
+    })
+    .catch(function () { return { ok: false, dovod: "siet" }; });
+}
+
+/**
+ * Step1Validate s dopravou a platbou, ktoré má krok 1 zaškrtnuté (pri „pis“ s kódom banky ako formulár kroku 1).
+ * -> { ok: true, ciel, doprava, platba } | { ok: false, typ, kod }
+ */
+export function potvrdKrok1(m) {
+  if (!m || !m.ok) return Promise.resolve({ ok: false, typ: "krok1-" + ((m && m.dovod) || "?") });
+  const pl = m.platby.find(function (p) { return p.id === m.zvolenaPlatba; });
+  const volby = { shippingId: m.zvolenaDoprava, billingId: m.zvolenaPlatba };
+  if (pl && pl.podmetoda === "pis") {
+    // kód banky ako by ho poslal formulár kroku 1; bez zoznamu bánk / podmienok -> klasický krok 1 (výber banky tam)
+    let st = null;
+    try { st = m.pisPodmienky && m.banky && m.banky.ok ? B.stavBanky(m.banky.data, B.ulozisko(window), B.menaAJazyk(window)) : null; } catch (e) { st = null; }
+    if (!st || !st.banka) return Promise.resolve({ ok: false, typ: "pis" });
+    volby.shoptetPayPisCode = st.banka.code;
+  }
+  return posliStep1(m, volby).then(function (r) {
+    r.doprava = m.zvolenaDoprava;
+    r.platba = m.zvolenaPlatba;
+    return r;
+  });
+}
+
 export function initKosik(ctx) {
   const st = { model: null, cas: 0, bezi: false };
   ctx.kosik = st;
@@ -100,20 +143,7 @@ export function initKosik(ctx) {
 
   function stiahni() {
     const t0 = Date.now();
-    const p = fetchSLimitom(CESTA_KROK1, { headers: { Accept: "text/html" } }, LIMIT_KROK1_MS)
-      .then(function (r) {
-        if (r.chyba) return { ok: false, dovod: r.chyba }; // visiaca sieť: klik nesmie čakať donekonečna (R5)
-        // prázdny košík / vypršaná session: Shoptet presmeruje na /kosik/ -> nie je čo vybrať
-        if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, dovod: "stranka" };
-        return r.text().then(function (h) { return krok1Model(h); });
-      })
-      .then(function (m) {
-        // rýchla platba cez banku v session: zoznam bánk na kód banky pre Step1Validate (len vtedy)
-        const pl = m && m.ok ? m.platby.find(function (x) { return x.id === m.zvolenaPlatba; }) : null;
-        if (!pl || pl.podmetoda !== "pis" || !m.pisPodmienky) return m;
-        return B.nacitajBanky().then(function (b) { m.banky = b; return m; }, function () { return m; });
-      })
-      .catch(function () { return { ok: false, dovod: "siet" }; });
+    const p = stiahniModelKrok1();
     st.model = p;
     st.cas = t0;
     p.then(function (m) {
@@ -166,23 +196,7 @@ export function initKosik(ctx) {
     ctx.stav = "kosik-prechod";
     const t0 = Date.now();
     return model()
-      .then(function (m) {
-        if (!m || !m.ok) return { ok: false, typ: "krok1-" + ((m && m.dovod) || "?") };
-        const pl = m.platby.find(function (p) { return p.id === m.zvolenaPlatba; });
-        const volby = { shippingId: m.zvolenaDoprava, billingId: m.zvolenaPlatba };
-        if (pl && pl.podmetoda === "pis") {
-          // kód banky ako by ho poslal formulár kroku 1; bez zoznamu bánk / podmienok -> klasický krok 1 (výber banky tam)
-          let st = null;
-          try { st = m.pisPodmienky && m.banky && m.banky.ok ? B.stavBanky(m.banky.data, B.ulozisko(window), B.menaAJazyk(window)) : null; } catch (e) { st = null; }
-          if (!st || !st.banka) return { ok: false, typ: "pis" };
-          volby.shoptetPayPisCode = st.banka.code;
-        }
-        return posliStep1(m, volby).then(function (r) {
-          r.doprava = m.zvolenaDoprava;
-          r.platba = m.zvolenaPlatba;
-          return r;
-        });
-      })
+      .then(potvrdKrok1)
       .then(function (r) {
         if (r.ok) {
           ctx.stav = "kosik-na-krok2";
