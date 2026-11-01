@@ -576,6 +576,8 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 
 ## Krajší košík v pokladni (1. 11. 2026, Michalove pripomienky)
 - [x] Náhľady A/B/C (odstraňovanie v riadku bez skákania „Zobraziť viac“, bez „− 1 +“ pri sete, zvýraznená rohož do kufra) — /mnt/project-files/kosik-navrhy/
-- [ ] Michal vyberie návrh (odporúčam A: zlatý rámik, nie zelený — zelená = Objednať)
-- [ ] Prepočítať „X z 10 zákazníkov“ na čerstvých objednávkach (dnes 43 % z 97, apríl 2026)
+- [x] Kolo 2: jemné varianty V1–V3 bez zmeny rozloženia, „Pridať“ namiesto „Vybrať“ (rámiky A/B/C Michal zamietol)
+- [x] Kolo 3: rohož prvá + štítok „Najpredávanejšia do kufra“ + podsvietenie; druhá vrstva so záberom z videa a ▶, po ťuknutí okienko s videom, „8 z 10“ a „Pridať druhú vrstvu“ (náhľad video-vrstva-*.png)
+- [ ] Michal schváli kolo 3 (+ oprava skákania pri odstraňovaní, bez „− 1 +“ pri sete)
+- [ ] Overiť na čerstvých objednávkach, že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026)
 - [ ] Postaviť vybraný návrh, testy SK + CZ, náhľad pred nasadením
