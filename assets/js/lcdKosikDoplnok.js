@@ -160,9 +160,11 @@ const TEXTY = {
     vybVyberteVelkost: "Vyberte veľkosť boxu",
     vybVyberteVelkost1: "Vyberte veľkosť 1. boxu",
     vybVyberteVelkost2: "Vyberte veľkosť 2. boxu",
-    // Michal 1. 11. 2026: „Pridať“, nie „Vybrať“; štítok rohože namiesto „4 z 10“ (druhú vrstvu má 8 z 10, preto „do kufra“)
+    // Michal 1. 11. 2026: „Pridať“, nie „Vybrať“; štítok rohože namiesto „4 z 10“ (druhú vrstvu má 8 z 10, preto „do kufra“).
+    // Pri väčšej fotke rohože (76 × 95 ako video) sa „Najpredávanejšia do kufra“ nezmestí, samotné „Najpredávanejšia“ nie
+    // je pravda (druhá vrstva sa predáva viac) -> „Top do kufra“.
     vybTlacidlo: "Pridať",
-    vybNajRohoz: "Najpredávanejšia do kufra",
+    vybNajRohoz: "Top do kufra",
     // druhá vrstva s videom (opc/vrstvaVideo.js); „8 z 10“ ako v konfigurátore (Back Office 241 z 286, k 24. 10. 2026)
     vybVideoOtvor: "Pozrieť video o druhej vrstve na celú obrazovku",
     vybVideoAlt: "Video: druhá vrstva zachytí vodu, vyberiete ju a umyjete vapkou",
@@ -274,7 +276,7 @@ const TEXTY = {
     vybVyberteVelkost1: "Vyberte velikost 1. boxu",
     vybVyberteVelkost2: "Vyberte velikost 2. boxu",
     vybTlacidlo: "Přidat",
-    vybNajRohoz: "Nejprodávanější do kufru",
+    vybNajRohoz: "Top do kufru",
     vybVideoOtvor: "Přehrát video o druhé vrstvě na celou obrazovku",
     vybVideoAlt: "Video: druhá vrstva zachytí vodu, vyjmete ji a umyjete tlakovým čističem",
     vybVideoAlt2: "Video: jak se druhá vrstva vyjímá a čistí",
@@ -2655,7 +2657,7 @@ export function kartaVybrat(ctx, R, o) {
     const btn = tlacidlo({ class: "lcd-vyb__btn", "data-lcd-vyb": p.kluc, "aria-expanded": p.panel ? "false" : null, "aria-controls": p.panel ? id + "-" + p.kluc : null, "aria-describedby": id + "-m-" + p.kluc }, [btnText]);
     let mini = p.video || null;
     if (!mini) {
-      mini = el("img", { class: "lcd-vyb__mini", src: p.foto, alt: "", width: "112", height: "112", decoding: "async" });
+      mini = el("img", { class: "lcd-vyb__mini", src: p.foto, alt: "", width: "152", height: "190", decoding: "async" });
       mini.addEventListener("error", function () { mini.style.visibility = "hidden"; });
     }
     const li = el("li", { class: "lcd-vyb__riadok" + (p.naj ? " lcd-vyb__riadok--naj" : "") + (p.video ? " lcd-vyb__riadok--video" : ""), "data-doplnok": p.kluc }, [

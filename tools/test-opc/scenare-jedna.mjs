@@ -598,7 +598,7 @@ export const SCENARE = {
   },
   S81: {
     len: "sk", // CZ nemá fixtúry košíka so setom (opc-fixtures/sk-set); CZ texty: tools/test-kosik-doplnok.mjs
-    popis: "Ponuka k setu (Michal 1. 11. 2026, variant 1): rohož prvá so štítkom „Najpredávanejšia do kufra“ a podsvietením, druhá vrstva bez „Odporúčame“ so živým videom (úsek od 3,2 s); ťuknutie = príbeh na celú obrazovku (fokus na ×, 2 videá, Esc zavrie a fokus späť), „Pridať druhú vrstvu“ otvorí výber farby, nič sa nepridá; „menej pohybu“ -> len záber + ▶, video sa nesťahuje",
+    popis: "Ponuka k setu (Michal 1. 11. 2026, variant 1): rohož prvá so štítkom „Top do kufra“ a podsvietením, fotky rohože a boxu rovnako veľké ako video, druhá vrstva bez „Odporúčame“ so živým videom (úsek od 3,2 s); ťuknutie = príbeh na celú obrazovku (fokus na ×, 2 videá, Esc zavrie a fokus späť), „Pridať druhú vrstvu“ otvorí výber farby, nič sa nepridá; „menej pohybu“ -> len záber + ▶, video sa nesťahuje",
     async fn(J) {
       const cz = false;
       const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
@@ -607,14 +607,17 @@ export const SCENARE = {
         var o = r.querySelector(".lcd-vyb__odp"), v = r.querySelector("[data-lcd-vyb-video]");
         return { d: r.getAttribute("data-doplnok"), naj: r.classList.contains("lcd-vyb__riadok--naj"), stitok: o ? o.textContent : null,
           stitokVyska: o ? Math.round(o.getBoundingClientRect().height) : 0, foto: !!r.querySelector("img.lcd-vyb__mini"),
+          fotoWH: (function (i) { return i ? [Math.round(i.getBoundingClientRect().width), Math.round(i.getBoundingClientRect().height)] : null; })(r.querySelector("img.lcd-vyb__mini")),
           video: v ? { aria: v.getAttribute("aria-label"), w: Math.round(v.getBoundingClientRect().width), h: Math.round(v.getBoundingClientRect().height) } : null,
           pozadie: getComputedStyle(r).backgroundImage !== "none" }; }); })()`;
       const r = await s.ev(RIADKY);
       over(r.map((x) => x.d).join() === "rohoz,vrstva2,box", "poradie: " + r.map((x) => x.d).join());
-      over(r[0].naj && r[0].pozadie && r[0].stitok === (cz ? "Nejprodávanější do kufru" : "Najpredávanejšia do kufra"), "rohož: " + JSON.stringify(r[0]));
+      over(r[0].naj && r[0].pozadie && r[0].stitok === (cz ? "Top do kufru" : "Top do kufra"), "rohož: " + JSON.stringify(r[0]));
       over(r[0].stitokVyska > 0 && r[0].stitokVyska < 24, "štítok rohože nie je na jeden riadok: " + r[0].stitokVyska + " px");
       over(r[1].stitok === null && !r[1].foto && r[1].video && /video/i.test(r[1].video.aria) && r[1].video.w >= 60 && r[1].video.h > r[1].video.w, "druhá vrstva: " + JSON.stringify(r[1]));
       over(!r[1].naj && !r[2].naj && r[2].stitok === null, "štítok / podsvietenie aj inde: " + JSON.stringify(r.slice(1)));
+      // Michal 1. 11. 2026 23:02 (variant A): fotky rohože a boxu rovnako veľké ako video druhej vrstvy
+      over([r[0], r[2]].every((x) => x.fotoWH && x.fotoWH[0] === r[1].video.w && x.fotoWH[1] === r[1].video.h), "fotky rohože / boxu nie sú ako video: " + JSON.stringify([r[0].fotoWH, r[1].video, r[2].fotoWH]));
       // dlaždica na obrazovke -> video sa samo hrá od úseku s vodou
       await s.ev(`document.querySelector("[data-lcd-vyb-video]").scrollIntoView({ block: "center" })`);
       const V = `(function () { var v = document.querySelector(".lcd-vyb__vid-video"); return { t: v.currentTime, p: v.paused, src: v.currentSrc, muted: v.muted, ls: document.querySelector(".lcd-vyb__vid-lis b").style.width }; })()`;

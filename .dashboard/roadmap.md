@@ -582,6 +582,8 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Michal vybral spôsob 1 (živé video v riadku, ťuknutie = príbeh na celú obrazovku) — 1. 11. 19:08
 - [x] Postavené: rohož prvá so štítkom a podsvietením, „Pridať“, druhá vrstva so živým videom + príbeh (opc/vrstvaVideo.js), test S81, kniha § 10.28
 - [x] Testy SK + CZ celé, náhľad hotového Michalovi, súhlas, nahratie — 9f93d20 naživo SK + CZ 1. 11. ~21:52, kontrola v Michalovom Chrome + Safari/Firefox OK (návrat 6698c22)
-- [ ] Pozrieť video druhej vrstvy na skutočnom iPhone (testovací WebKit na Windows video neprehrá)
+- [x] Pozrieť video druhej vrstvy na skutočnom iPhone — hrá (Michalova snímka z iPhonu 1. 11. 23:02)
+- [x] Michal: ostatné príplatky rovnako veľké ako video -> vybral A (väčšie fotky, boxy celé v obraze), štítok „Top do kufra“, test S81 stráži rozmer, kniha § 10.29
+- [ ] Väčšie fotky: testy SK + CZ, náhľad teraz / nové, Michalov súhlas, prepnutie sha 9f93d20 -> nový
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala
