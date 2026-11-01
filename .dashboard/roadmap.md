@@ -561,3 +561,14 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Michal: skúšobné objednávky s kódom OPC (prevod, karta zrušená, karta zaplatená, dobierka; SK aj CZ), potom prečítať lcdOpcDakujemeZaznam a doladiť popisy a detekciu platby kartou, prípadne zapnúť ZAPLATENE_PODLA_TEXTU (kniha § 10.16, § 10.17)
 - [ ] Michal: schváliť texty mimo náhľadov (stav „čaká“, kamión, vzorky, veta pri QR Shoptetu)
 - [ ] Zlúčenie do main a nasadenie len so súhlasom Michala
+
+## Kontrola pokladne očami zákazníka (1. 11. 2026, vlákno „Skontrolovať pokladňu očami zákazníka“)
+- [x] Živá verzia 9051fd8: SK aj CZ, PC 1366 aj telefón 390 (Chrome) — krajiny, doprava, platby, € a Kč, kontrola polí; nálezy v /mnt/project-files/kontrola-pokladne/nalezy-2026-11-01.md
+- [x] Náhľady 3 opráv (NÁHĽAD vs. TERAZ NAŽIVO), Michal schválil všetky tri
+- [x] Ceny v pokladni „591 €“ (opc/ceny.js), poznámka za odkazom (opc/poznamka.js), krížik pri 2. vrstve v karte pokladne (lcdKosikDoplnok.js navratVrstvy), kniha § 10.27
+- [x] Poistka: otvorená/vyplnená poznámka zaškrtne #add-note (validátor Shoptetu inak ručnú poznámku pri odoslaní vymaže; zachytil S9), testy S3 (žiadne „€591“) a S9 (klik na odkaz)
+- [x] 6692ba9 naživo na SK aj CZ (vlákno nasadenia), main voľný
+- [ ] Sada OPC SK + CZ v prehliadači na novej verzii, push do main, CDN, prepnutie sha SK aj CZ
+- [ ] Finálna kontrola po nasadení v Michalovom prihlásenom Chrome (Remote Control) + WebKit a Firefox (Playwright), SK aj CZ, PC aj telefón
+- [ ] Admin (len so súhlasom): české názvy parametrov v SK košíku, +421 na CZ pokladni, ProveSource vypnúť na /objednavka/
+- [ ] Michal rozhodne: ceny „591 €“ aj na ďakovnej stránke, krížik pri 2. vrstve aj v klasickom košíku

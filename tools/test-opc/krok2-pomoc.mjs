@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
 import { krok1Model } from "../../assets/js/opc/krok1Model.js";
+import { tvarCeny } from "../../assets/js/opc/ceny.js";
 import { over, pauza, Zlyhanie, OPC, FLAG_OPC } from "./pomocnik.mjs";
 import { FIXTURES } from "./podvrh.mjs";
 
@@ -22,12 +23,13 @@ export const ZAKAZNIK = {
   cz: { meno: "Test Testovací", email: "test@example.com", telefon: "600 000 000", ulica: "Testovací", cislo: "1", mesto: "Praha", psc: "110 00" },
 };
 
-/** „Celkom k úhrade“ zo zachyteného súhrnu (fixtures/<web>/suhrn-<platba>.html). */
+/** „Celkom k úhrade“ zo zachyteného súhrnu (fixtures/<web>/suhrn-<platba>.html) tak, ako ho ukazuje pokladňa: server píše
+ *  SK „€13“, pokladňa „13 €“ (opc/ceny.js, Michal 1. 11. 2026); CZ „300 Kč“ bez zmeny. Medzery zjednotené ako v stavOpc. */
 export function celkomZFixture(web, platba, kosik = "vzorkovnik") {
   const dir = web + (kosik === "vzorkovnik" ? "" : "-" + kosik);
   const h = readFileSync(join(FIXTURES, dir, "suhrn-" + platba + ".html"), "utf8");
   const m = /data-testid="recapFullPrice"[^>]*>\s*([^<]+?)\s*</.exec(h);
-  return m ? m[1].replace(/\s+/g, " ") : null;
+  return m ? tvarCeny(m[1]).replace(/\s+/g, " ") : null;
 }
 
 /** Stav modulu na kroku 2 (pre kontroly). */
@@ -47,8 +49,9 @@ export function stavOpc(s) {
       hlaskaOdkaz: hl && !hl.hidden && hl.querySelector("a") ? hl.querySelector("a").getAttribute("href") : null,
       celkom: txt('[data-testid="recapFullPrice"]'), platbaSuhrn: txt('[data-testid="recapPaymentMethod"]'),
       prepocet: !!(box && box.classList.contains("lcd-opc-prepocet")),
-      lista: (document.querySelector(".lcd-opc-lista__celkom") || {}).textContent || null,
-      zbalene: (document.querySelector(".lcd-opc-zbalene__celkom") || {}).textContent || null,
+      // medzery zjednotené ako pri celkom (od 1. 11. 2026 „13 €“ s nezalomiteľnou medzerou, opc/ceny.js)
+      lista: (function (e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; })(document.querySelector(".lcd-opc-lista__celkom")),
+      zbalene: (function (e) { return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; })(document.querySelector(".lcd-opc-zbalene__celkom")),
       udalosti: (window.dataLayer || []).filter(function (x) { return x && /^lcd_opc_/.test(x.event || ""); }).map(function (x) { return x.event; }),
     };
   })()`);

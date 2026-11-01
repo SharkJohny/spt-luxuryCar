@@ -32,6 +32,8 @@ import { lcdBublinaMimoTlacidla, changeDescription } from "../components/cart.js
 import { vymenaBezi } from "../lcdKosikDoplnok.js";
 import { initKosikKarta } from "./kosikKarta.js";
 import { vlozVyberStatu } from "./stat.js";
+import { strazCeny } from "./ceny.js";
+import { zbalPoznamku } from "./poznamka.js";
 
 /** Z čoho na kroku 2 bublina Luxie ustúpi okrem „Objednať“: tlačidlo v lište, polia, odkazy, zaškrtávacie polia a voľby. */
 /** Prvky kroku 2, z ktorých ustúpi bublina Luxie (cart.js lcdBublinaMimoTlacidla `dalsie`) — „Objednať“ len tu, nie v cart.js. */
@@ -140,6 +142,11 @@ export function initKrok2(ctx) {
     });
   } catch (e) {}
   obnovKarty();
+
+  // Michal 1. 11. 2026 (kontrola pokladne, náhľady kontrola-pokladne/nahlady): ceny v tvare „591 €“ (opc/ceny.js) a prázdna
+  // poznámka pre predajcu za odkazom (opc/poznamka.js). Len vzhľad — chyba tu nič nezastaví.
+  try { k2.ceny = strazCeny(document); } catch (e) {}
+  try { k2.poznamka = zbalPoznamku(form, T); } catch (e) {}
 
   // pomocný prázdny formulár pre naše rádiá (mimo #order-form: formuláre sa nesmú vnárať)
   let nic = document.getElementById(V.FORM_NIC);

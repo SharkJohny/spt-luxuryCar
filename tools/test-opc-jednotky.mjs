@@ -1904,6 +1904,81 @@ t("podvrh: košík so stavom — rohož (88 = 595) pridá riadok za €398 s tex
   eq(Array.prototype.map.call(d.querySelectorAll('[data-testid="cartPrice"]'), (e) => e.textContent), ["€796"], "tabulka po zmazaní a 2 ks");
 });
 
+// ---------------------------------------------------------------- Michal 1. 11. 2026: ceny „591 €“ a poznámka za odkazom
+const CE = await import("../assets/js/opc/ceny.js");
+const PZ = await import("../assets/js/opc/poznamka.js");
+t("ceny: „€591“ -> „591 €“ (tisíce, desatinné, záporné), CZ Kč a iné texty bez zmeny", () => {
+  const nb = (x) => x.replace(/\u00a0/g, "_");
+  eq([CE.tvarCeny("€591"), CE.tvarCeny("€1 269"), CE.tvarCeny("€\u00a01\u00a0269,50"), CE.tvarCeny("−€79"), CE.tvarCeny("Dobierka €3 a spolu €738")].map(nb),
+    ["591_€", "1 269_€", "1\u00a0269,50_€".replace(/\u00a0/g, "_"), "−79_€", "Dobierka 3_€ a spolu 738_€"]);
+  eq([CE.tvarCeny("15 545 Kč"), CE.tvarCeny("+147 €"), CE.tvarCeny("ZADARMO"), CE.tvarCeny(""), CE.tvarCeny(null), CE.tvarCeny("€")], ["15 545 Kč", "+147 €", "ZADARMO", "", "", "€"]);
+  eq([V.cisloZCeny(CE.tvarCeny("€1 269,50")), V.cisloZCeny(CE.tvarCeny("€738"))], [1269.5, 738], "naše porovnania súm čítajú aj nový tvar");
+});
+t("ceny: prepis len v pokladni (formulár, súhrn, lišta), nie v poli poznámky ani mimo; po zmene súhrnu hneď znova", async () => {
+  const d = new JSDOM(`<body><header><b id="hl">€5</b></header><form id="order-form"><div id="lcd-opc"><b id="dop">€5</b></div><textarea id="remark">cena €50</textarea>
+    <select><option id="op">€9</option></select></form><div id="checkoutSidebar"><div id="summary-box"><strong data-testid="recapFullPrice">€738</strong></div></div>
+    <div class="lcd-opc-lista"><b class="lcd-opc-lista__celkom">€738</b></div></body>`).window.document;
+  const st = CE.strazCeny(d);
+  const tx = (sel) => d.querySelector(sel).textContent.replace(/\u00a0/g, " ");
+  eq([tx("#dop"), tx('[data-testid="recapFullPrice"]'), tx(".lcd-opc-lista__celkom"), tx("#hl"), d.getElementById("remark").value, tx("#op")], ["5 €", "738 €", "738 €", "€5", "cena €50", "€9"]);
+  // server pošle nový súhrn (innerHTML) a lišta dostane text zo súhrnu -> prepíše sa pred vykreslením
+  d.getElementById("summary-box").innerHTML = '<strong data-testid="recapFullPrice">€741</strong><span data-testid="recapItemPrice">€3</span>';
+  d.querySelector(".lcd-opc-lista__celkom").textContent = "€741";
+  d.querySelector(".lcd-opc-lista__celkom").firstChild.nodeValue = "€742";
+  await cakaj(0);
+  eq([tx('[data-testid="recapFullPrice"]'), tx('[data-testid="recapItemPrice"]'), tx(".lcd-opc-lista__celkom")], ["741 €", "3 €", "742 €"]);
+  st.stop();
+  d.querySelector("#dop").textContent = "€6";
+  await cakaj(0);
+  eq(tx("#dop"), "€6", "po stop() nič");
+});
+const formPozn = (remark = "") => new JSDOM(`<body><form id="order-form"><div class="co-box co-box-additional"><div class="form-group"><input id="add-note" type="checkbox" data-unveil="note" />
+  <label for="add-note">Zadať poznámku pre predajcu</label></div><div id="note" class="js-hidden"><fieldset><div class="form-group"><label for="remark">Vaša poznámka</label>
+  <textarea name="remark" id="remark">${remark}</textarea></div></fieldset></div></div></form></body>`).window.document;
+t("poznámka: prázdna = len odkaz „+ Pridať poznámku pre predajcu“, klik otvorí pole s kurzorom; #remark ostáva vo formulári", () => {
+  const d = formPozn();
+  const p = PZ.zbalPoznamku(d.getElementById("order-form"), TEXTY.sk);
+  const obal = d.querySelector(".co-box-additional"), b = d.getElementById("lcd-opc-pozn");
+  eq([!!p, p.otvorena(), obal.className, b.textContent, b.getAttribute("aria-expanded"), b.getAttribute("aria-controls"), b.type, d.getElementById("add-note").closest(".form-group").classList.contains("lcd-opc-pozn-prepinac")],
+    [true, false, "co-box co-box-additional lcd-opc-pozn-zbalena", "+ Pridať poznámku pre predajcu", "false", "note", "button", true]);
+  b.dispatchEvent(new d.defaultView.MouseEvent("click", { bubbles: true }));
+  eq([p.otvorena(), obal.classList.contains("lcd-opc-pozn-otvorena"), obal.classList.contains("lcd-opc-pozn-zbalena"), b.getAttribute("aria-expanded"), d.activeElement && d.activeElement.id], [true, true, false, "true", "remark"]);
+  const fd = new d.defaultView.FormData(d.getElementById("order-form"));
+  // #add-note zaškrtnutý: inak Shoptet pri odoslaní ručnú poznámku vymaže (validátor maže nezaškrtnuté [data-unveil])
+  eq([fd.has("remark"), fd.has("add-note"), d.getElementById("add-note").checked, d.getElementById("add-note").disabled], [true, false, true, false], "po otvorení zaškrtnutý prepínač, nič navyše sa neodosiela");
+  eq(PZ.zbalPoznamku(d.getElementById("order-form"), TEXTY.sk), null, "druhé volanie nič");
+});
+t("poznámka: s textom (doplnok, obnova údajov, návrat s chybou) otvorená hneď; text vpísaný neskôr ju otvorí; CZ text", async () => {
+  const d = formPozn("model: Volkswagen Passat 2021");
+  eq(PZ.zbalPoznamku(d.getElementById("order-form"), TEXTY.sk).otvorena(), true);
+  const d2 = formPozn();
+  const p2 = PZ.zbalPoznamku(d2.getElementById("order-form"), TEXTY.cz);
+  eq([p2.otvorena(), d2.getElementById("lcd-opc-pozn").textContent], [false, "+ Přidat poznámku pro prodejce"]);
+  d2.getElementById("remark").value = "Prosím zavolať pred doručením";
+  await cakaj(PZ.ZNOVA_MS[0] + 50);
+  eq(p2.otvorena(), true, "neskorý text");
+  // písanie do poľa a odoslanie s textom vloženým skriptom (bez udalosti) zaškrtnú #add-note
+  const d3 = formPozn(), f3 = d3.getElementById("order-form"), r3 = d3.getElementById("remark"), c3 = d3.getElementById("add-note");
+  PZ.zbalPoznamku(f3, TEXTY.sk);
+  eq(c3.checked, false, "prázdna zbalená: prepínač nezaškrtnutý");
+  r3.value = "A"; r3.dispatchEvent(new d3.defaultView.Event("input", { bubbles: true }));
+  eq(c3.checked, true, "písanie");
+  const d4 = formPozn(), f4 = d4.getElementById("order-form"), c4 = d4.getElementById("add-note");
+  PZ.zbalPoznamku(f4, TEXTY.sk);
+  let vOdoslani = null;
+  f4.addEventListener("submit", function (e) { e.preventDefault(); vOdoslani = c4.checked; }); // ako validátor Shoptetu na formulári
+  d4.getElementById("remark").value = "B";
+  f4.dispatchEvent(new d4.defaultView.Event("submit", { bubbles: true, cancelable: true }));
+  eq(vOdoslani, true, "odoslanie s textom: prepínač zaškrtnutý skôr, než ho uvidí validátor");
+  const d5 = formPozn(), f5 = d5.getElementById("order-form"), c5 = d5.getElementById("add-note");
+  PZ.zbalPoznamku(f5, TEXTY.sk);
+  f5.addEventListener("submit", function (e) { e.preventDefault(); });
+  f5.dispatchEvent(new d5.defaultView.Event("submit", { bubbles: true, cancelable: true }));
+  eq(c5.checked, false, "odoslanie bez textu: prepínač ostáva");
+  const bez = new JSDOM("<form id=order-form><textarea id=remark></textarea></form>").window.document;
+  eq(PZ.zbalPoznamku(bez.getElementById("order-form"), TEXTY.sk), null, "bez označenia Shoptetu nič");
+});
+
 await Promise.all(asyncTesty); // asynchrónne testy za prvým čakaním (napr. poistka vzhľadu kroku 2)
 console.log(zle ? `\n${zle} ZLYHALO, ${ok} OK` : `\nVŠETKO OK (${ok} OK)`);
 process.exit(zle ? 1 : 0);

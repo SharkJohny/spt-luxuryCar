@@ -46,6 +46,7 @@ import { JSDOM } from "jsdom";
 import { KOREN } from "./build.mjs";
 import { FIXTURES } from "./zachytene.mjs";
 import { stranka as strankaDakujeme, VARIANTY as VARIANTY_DAKUJEME } from "./dakujeme-fixtures.mjs";
+import { tvarCeny } from "../../assets/js/opc/ceny.js";
 
 // Jedna stránka (opc/kosikKarta.js): ponuka k setu potrebuje stránky produktov (mapa príplatkov, varianty druhej vrstvy,
 // ceny samostatných produktov). Fixtúry testu ponuky v košíku (tools/test-kosik-*.fixture.json, živé formuláre 7. a 10. 10.
@@ -502,7 +503,8 @@ export async function zapniPodvrh(k, moznosti) {
   /** „Celkom k úhrade“, ktoré má server teraz (krok 1 podľa session, s priplatkom) — pre kontroly scenárov. */
   p.celkomServera = () => {
     const m = /data-testid="recapFullPrice">([^<]*)</.exec(sPriplatkom(htmlKrok1()) || "");
-    return m ? m[1].replace(/\s+/g, " ").trim() : null;
+    // na obrazovke „591 €“ (opc/ceny.js, 1. 11. 2026) — suma servera v tom istom tvare
+    return m ? tvarCeny(m[1]).replace(/\s+/g, " ").trim() : null;
   };
   const krok2Cache = new Map();
   function htmlKrok2() {

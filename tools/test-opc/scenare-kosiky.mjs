@@ -75,8 +75,17 @@ export const SCENARE = {
       const s = await J.novaStranka({ kosik: "set", scenar: { step2: "chyba-raz" } });
       await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => uloz(k, AUTO) });
       await vyplnUdaje(s);
-      await s.ev(`(function () { var c = document.getElementById("add-note"); if (c && !c.checked) c.click(); return 1; })()`);
+      // od 1. 11. 2026 je prázdna poznámka zbalená za odkaz „+ Pridať poznámku pre predajcu“ (opc/poznamka.js) — zákazník klikne naň
+      const zbal = await s.ev(`(function () {
+        var o = document.getElementById("lcd-opc-pozn"), r = document.getElementById("remark"), b = r && r.getBoundingClientRect();
+        var v = !!o && o.getBoundingClientRect().height > 0;
+        return { odkaz: v, text: o ? o.textContent.replace(/\\s+/g, " ").trim() : null, aria: o ? o.getAttribute("aria-expanded") : null, pole: !!(b && b.height > 0) };
+      })()`);
+      over(zbal.odkaz && !zbal.pole && zbal.aria === "false" && /Pridať poznámku pre predajcu/.test(zbal.text || ""), "prázdna poznámka nie je zbalená za odkaz: " + JSON.stringify(zbal));
+      await s.klikni("#lcd-opc-pozn", { popis: "+ Pridať poznámku pre predajcu" });
       await s.cakaj(`(function () { var r = document.getElementById("remark"); var b = r && r.getBoundingClientRect(); return !!(b && b.height > 0); })()`, { popis: "pole poznámky" });
+      const otv = await s.ev(`({ kurzor: document.activeElement && document.activeElement.id, aria: document.getElementById("lcd-opc-pozn").getAttribute("aria-expanded"), odkaz: document.getElementById("lcd-opc-pozn").getBoundingClientRect().height > 0 })`);
+      over(otv.kurzor === "remark" && otv.aria === "true" && !otv.odkaz, "po kliku na odkaz: " + JSON.stringify(otv));
       const rucna = "Prosím, zavolajte pred doručením.";
       await s.pis("#remark", rucna);
       await suhlas(s);
@@ -93,7 +102,7 @@ export const SCENARE = {
       const m = overTeloObjednavky(s, z2[1]);
       const remark = (m.get("remark") || [""])[0];
       over(pocet(remark, "model: " + AUTO.model) === 1, "„model: …“ v poznámke " + pocet(remark, "model: ") + "×: " + JSON.stringify(remark));
-      over(remark.includes(rucna), "ručný text z poznámky zmizol: " + JSON.stringify(remark));
+      over(remark.includes(rucna), "ručný text z poznámky zmizol: " + JSON.stringify(remark) + " (1. odoslanie: " + JSON.stringify(prve) + ")");
       return { step2: true, info: "1. poznámka " + JSON.stringify(prve) + " -> 2. " + JSON.stringify(remark) };
     },
   },

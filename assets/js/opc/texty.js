@@ -109,6 +109,8 @@ export const TEXTY = {
     ciastocneOdober: "Set bez doplnku je v košíku, pôvodný set však ostal tiež.",
     ciastocneOdoberte: "Odoberte, prosím, zvýraznený set tlačidlom „Odobrať“.",
     ciastocneZnizte: "Znížte, prosím, počet zvýrazneného setu o 1.",
+    // poznámka pre predajcu zbalená za odkaz (opc/poznamka.js, Michal 1. 11. 2026)
+    pridatPoznamku: "Pridať poznámku pre predajcu",
   },
   cz: {
     doprava: "Doprava",
@@ -182,5 +184,6 @@ export const TEXTY = {
     ciastocneOdober: "Set bez doplňku je v košíku, původní set však zůstal také.",
     ciastocneOdoberte: "Odeberte prosím zvýrazněný set tlačítkem „Odebrat“.",
     ciastocneZnizte: "Snižte prosím počet zvýrazněného setu o 1.",
+    pridatPoznamku: "Přidat poznámku pro prodejce",
   },
 };

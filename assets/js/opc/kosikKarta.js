@@ -437,7 +437,8 @@ export function initKosikKarta(ctx, o) {
     // ponuka vypnutá v data.json (kosik_doplnky: false) / ?lcddoplnok=0 -> ako v košíku: ani ponuka, ani krížiky
     if (!R || ctx.ponukaVypnuta) return { pocet: polozky.length, ponuka: Promise.resolve(polozky.length) };
     // ponuka k setu a krížiky pri doplnkoch: len vzhľad košíka — chyba / pomalá sieť nič nezastaví
-    const ponuka = D.pripravKontexty(polozky, R, { vynechaj: stary }).then(function (v) {
+    // vrstvaSpat: krížik aj pri druhej vrstve (výmena späť na jednovrstvový set, Michal 1. 11. 2026) — len tu, nie v košíku
+    const ponuka = D.pripravKontexty(polozky, R, { vynechaj: stary, vrstvaSpat: true }).then(function (v) {
       if (gen !== generacia) return polozky.length;
       v.ctxs.forEach(function (c) {
         const li = miesta[c.riadok.itemId];

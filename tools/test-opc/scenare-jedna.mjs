@@ -148,7 +148,7 @@ export const SCENARE = {
       over(!st.kroky && !st.zbalene, "kroky / zbalený súhrn je vidno (" + st.kroky + ", " + st.zbalene + ")");
       over(st.ponuka.join(",") === "vrstva2:Vybrať,rohoz:Vybrať,box:Vybrať", "ponuka: " + st.ponuka.join(", "));
       over(st.vstupyVoFormulari === 0, "vstupy karty vo formulári objednávky: " + st.vstupyVoFormulari);
-      over(st.polozky.length === 1 && /^Luxusné autokoberce/.test(st.polozky[0]) && /€269$/.test(st.polozky[0]), "položka: " + st.polozky.join(" / "));
+      over(st.polozky.length === 1 && /^Luxusné autokoberce/.test(st.polozky[0]) && /269\s€$/.test(st.polozky[0]), "položka: " + st.polozky.join(" / "));
       over(step1Xhr(s).length === 1, "Step1Validate XHR " + step1Xhr(s).length + "× (čakal som 1 z košíka)");
       over(!s.p.zaznam.kosikAkcie.length, "úprava košíka bez kliku: " + JSON.stringify(s.p.zaznam.kosikAkcie));
       const nav = s.dokumenty();
@@ -171,7 +171,7 @@ export const SCENARE = {
       const st = await poZmene(s, pred);
       const a = s.p.zaznam.kosikAkcie;
       over(a.length === 1 && a[0].akcia === "setCartItemAmount" && a[0].pole.amount === "2" && a[0].pole.itemId === "6ae27536ae482", "úprava košíka: " + JSON.stringify(a));
-      over(st.polozky.length === 1 && /\| €538$/.test(st.polozky[0]) && st.pocty.join() === "2", "karta po zmene: " + JSON.stringify([st.polozky, st.pocty]));
+      over(st.polozky.length === 1 && /\| 538\s€$/.test(st.polozky[0]) && st.pocty.join() === "2", "karta po zmene: " + JSON.stringify([st.polozky, st.pocty]));
       over(st.meno === z.meno && st.email === z.email, "údaje po zmene košíka: " + JSON.stringify([st.meno, st.email]));
       return { info: "2 ks na mieste, Step1Validate +1, krok 1 +" + st.krok1 };
     },
@@ -294,7 +294,7 @@ export const SCENARE = {
       })()`);
       const a = s.p.zaznam.kosikAkcie.map((x) => x.akcia);
       over(a.join() === "addCartItem,deleteCartItem", "úpravy košíka: " + a.join(", "));
-      over(st.polozky.length === 1 && /\| €398$/.test(st.polozky[0]), "karta po pridaní rohože: " + st.polozky.join(" / "));
+      over(st.polozky.length === 1 && /\| 398\s€$/.test(st.polozky[0]), "karta po pridaní rohože: " + st.polozky.join(" / "));
       over(k.ponuka.join() === "vrstva2,box", "ponuka po pridaní rohože: " + k.ponuka.join(", "));
       over(k.kriziky.join() === "rohoz" && k.krizikVidno, "krížik pri rohoži (vidno bez „Zobraziť viac“): " + JSON.stringify([k.kriziky, k.krizikVidno]));
       over(/^✓ /.test(k.hlaska), "hláška po pridaní: " + k.hlaska);

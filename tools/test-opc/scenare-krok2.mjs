@@ -71,6 +71,9 @@ export const SCENARE = {
       over(s.p.zaznam.ajax.length === 0, "náš kód poslal step2CustomerAjax " + s.p.zaznam.ajax.length + "×");
       over(naPozadi(KROK1) === 1 && naPozadi(KROK2) === 0, "potvrdenie: GET krok 1 " + naPozadi(KROK1) + "×, GET krok 2 " + naPozadi(KROK2) + "× (čakal som 1 a 0)");
       if (s.mobil) over(st.lista === ocak && st.zbalene === ocak, "lišta / zbalený súhrn nesedia so súhrnom: " + st.lista + " / " + st.zbalene);
+      // ceny v tvare „591 €“, nikde „€591“ (Michal 1. 11. 2026, opc/ceny.js)
+      const eur = await s.ev(`(function () { var t = Array.prototype.map.call(document.querySelectorAll("#order-form, #checkoutSidebar, .lcd-opc-lista, #lcd-opc-zbalene"), function (e) { return e.innerText; }).join(" | "); return t.match(/€[ \\u00a0\\u202f]?\\d[\\d ,]*/g) || []; })()`);
+      over(eur.length === 0, "ceny v tvare „€591“: " + JSON.stringify(eur.slice(0, 5)));
       over(st.udalosti.includes("lcd_opc_zmena_platby"), "dataLayer bez lcd_opc_zmena_platby");
       return { info: "Step1Validate " + x[0].telo + ", súhrn " + st.platbaSuhrn + ", celkom " + st.celkom + " (potvrdenie: GET krok 1 1×)" };
     },

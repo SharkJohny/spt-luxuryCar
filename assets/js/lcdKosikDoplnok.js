@@ -136,6 +136,7 @@ const TEXTY = {
     odobraneRohoz: (v) => "Rohož " + v + " je odstránená zo setu.",
     odobraneBox1: "Box je odstránený zo setu.",
     odobraneBox2: "Boxy sú odstránené zo setu.",
+    odobranaVrstva: "Druhá vrstva je odstránená zo setu.",
     chybaOdober: "Doplnok sa nepodarilo odstrániť. Váš košík ostal bez zmeny. Skúste to, prosím, znova.",
     chybaCiastocnaOdober: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Odstráňte, prosím, celý zvýraznený riadok krížikom vpravo hore.",
     chybaCiastocnaOdoberViac: "Set bez doplnku je v košíku, pôvodný set však ostal tiež. Znížte, prosím, počet zvýrazneného riadku o 1 kus.",
@@ -235,6 +236,7 @@ const TEXTY = {
     odobraneRohoz: (v) => "Rohož " + v + " byla odebrána ze setu.",
     odobraneBox1: "Box byl odebrán ze setu.",
     odobraneBox2: "Boxy byly odebrány ze setu.",
+    odobranaVrstva: "Druhá vrstva byla odebrána ze setu.",
     chybaOdober: "Doplněk se nepodařilo odebrat. Váš košík zůstal beze změny. Zkuste to prosím znovu.",
     chybaCiastocnaOdober: "Set bez doplňku je v košíku, původní set však zůstal také. Odeberte prosím celý zvýrazněný řádek křížkem vpravo nahoře.",
     chybaCiastocnaOdoberViac: "Set bez doplňku je v košíku, původní set však zůstal také. Snižte prosím počet zvýrazněného řádku o 1 kus.",
@@ -875,6 +877,50 @@ export function ponukaVrstvy(riadok, volby, mapaZ, mapaC, R) {
   return { odporucana: odporucana, moznosti: moznosti, v1: v1, foto: mapaC.foto || null };
 }
 
+/** Adresa jednovrstvového setu k dvojvrstvovému („…-dragonskin-elite-diamond-line/“ -> „…-dragonskin-diamond-line/“) */
+export function adresaJednovrstvoveho(href) {
+  let cesta;
+  try { cesta = new URL(String(href || ""), "https://x.invalid/").pathname; } catch (e) { return null; }
+  const m = /^(\/luxusne-autokoberce-dragonskin-)elite-((?:diamond|hexa|stripe)-line\/)$/i.exec(cesta);
+  return m ? m[1] + m[2] : null;
+}
+
+/** Hodnoty variantu riadku podľa priceId z kombinácií produktu („71-540-78-543“ -> { 71: "540", 78: "543" }) alebo null */
+export function variantZPriceId(priceId, mapa) {
+  const kom = mapa && mapa.kom;
+  if (!kom) return null;
+  const k = Object.keys(kom).filter(function (x) { return kom[x].id === String(priceId); });
+  if (k.length !== 1) return null;
+  const casti = k[0].split("-"), out = {};
+  if (casti.length % 2) return null;
+  for (let i = 0; i < casti.length; i += 2) out[casti[i]] = casti[i + 1];
+  return out;
+}
+
+/**
+ * Odobratie druhej vrstvy (Michal 1. 11. 2026, kontrola pokladne nález 2: „po pridaní druhej vrstvy sa nedá vrátiť“):
+ * opak ponukaVrstvy — riadok dvojvrstvového setu sa vymení za jednovrstvový set s tou istou farbou 1. vrstvy a VŠETKÝMI
+ * príplatkami (fail-closed: čokoľvek nesedí -> null, krížik sa neukáže).
+ * mapaC = dvojvrstvový produkt riadku, mapaZ = jednovrstvový; volby = príplatky riadku (rozbor mapou mapaC).
+ * -> { priceId (jednovrstvový variant), rozdiel: { s, b } (záporný), lux, v1 }
+ */
+export function navratVrstvy(riadok, volby, mapaC, mapaZ, R) {
+  if (!riadok || !mapaC || !mapaZ || !R || !R.sety) return null;
+  if (R.sety[mapaZ.pid] == null || String(R.sety[mapaZ.pid]) !== String(mapaC.pid)) return null;
+  if (!maDruhuVrstvu(riadok.variant)) return null;
+  const v = variantZPriceId(riadok.priceId, mapaC);
+  if (!v || !v[R.v1] || !v[R.v2] || Object.keys(v).length !== 2 || !mapaZ.kom) return null;
+  const teraz = mapaC.kom[klucKombinacie(v)];
+  const ciel = mapaZ.kom[klucKombinacie({ [R.v1]: v[R.v1] })];
+  if (!teraz || teraz.c == null || !ciel || ciel.x || ciel.c == null || !ciel.id) return null;
+  // príplatky riadku musia mať v jednovrstvovom produkte rovnaké názvy (kontrola textu po výmene ide jeho mapou)
+  const rb = rozoberPriplatky(riadok.sur, mapaZ);
+  if (!rb.ok || !rovnakeVolby(rb.volby, volby)) return null;
+  const rozdiel = rozdielPrechodu(volby, mapaC, mapaZ, teraz.c, ciel.c, R.dph);
+  if (!rozdiel || !(rozdiel.s < 0)) return null;
+  return { priceId: String(ciel.id), rozdiel: rozdiel, lux: luxZVariantu(riadok.variant), v1: v[R.v1] };
+}
+
 /** Poradie kariet v ponuke (Michal 10. 10.: druhá vrstva vždy prvá; potom rohož Classic, box, rohož Premium) */
 export const PORADIE_KARIET = ["vrstva2", "classic", "box"];
 
@@ -1158,6 +1204,7 @@ export async function vymen(c) {
   const sedi = function (r) {
     if (!r || String(r.priceId) !== cielPriceId) return false;
     if (c.ciel && c.ciel.lux && luxZVariantu(r.variant) !== c.ciel.lux) return false;
+    if (c.ciel && c.ciel.bezVrstvy && maDruhuVrstvu(r.variant)) return false; // odobratie druhej vrstvy
     const rb = rozoberPriplatky(r.sur, mapa);
     return rb.ok && rovnakeVolby(rb.volby, ocakavane);
   };
@@ -2015,7 +2062,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   kartaEl.setAttribute("aria-busy", "true");
   stav.classList.remove("lcd-dop__stav--chyba");
   stav.textContent = odober ? T.odoberam : T.pridavam;
-  const hotovo = odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
+  const hotovo = odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.co === "vrstva2" ? T.odobranaVrstva : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
     : doplnok.typ === "vrstva2" ? T.hotovoVrstva(doplnok.nazov)
     : doplnok.typ === "rohoz" ? T.hotovoRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.hotovoBox2 : T.hotovoBox1;
   // druhá vrstva = výmena na iný produkt (dvojvrstvový set): cieľové priceId, Lux farba a mapa cieľového produktu
@@ -2055,7 +2102,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
         try {
           vys = await vymen({
             riadok: ctx.riadok, volby: ctx.volby, mapa: ciel ? ciel.mapa : ctx.mapa, R: R, zmena: zm, rozdiel: rozdiel, doplnok: doplnok,
-            ciel: ciel ? { priceId: String(ciel.priceId), lux: ciel.lux } : null,
+            ciel: ciel ? { priceId: String(ciel.priceId), lux: ciel.lux, bezVrstvy: !!ciel.bezVrstvy } : null,
             zamknute: zl.zamknute, faza: function (f, d) { zapis(Object.assign({ faza: f }, d)); },
           });
         } catch (e) {
@@ -2141,6 +2188,10 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
 export function odrazkaDoplnku(ul, d, volby, mapa, R) {
   if (!ul || !mapa || !mapa.params) return null;
   const norm = function (t) { return cisty(t).replace(/\s*:\s*$/, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); };
+  // druhá vrstva: odrážka „Farba 2. vrstvy: Lux Color 10“ / CZ „Barva 2. vrstvy“ (variant, nie príplatok)
+  if (d.co === "vrstva2") {
+    return Array.prototype.find.call(ul.children, function (x) { const n = x.querySelector(".lcd-rozpis__n"); return !!n && /^(farba|barva)\s*2\.?\s*vrstvy$/.test(norm(n.textContent)); }) || null;
+  }
   const ids = d.co === "rohoz" ? [R.rohoz] : d.kus ? [d.kus === 1 ? R.box1 : R.box2] : [R.boxSolo, R.box1, R.box2];
   for (const id of ids) {
     const p = mapa.params[id];
@@ -2169,7 +2220,7 @@ function vlozOdober(ctx, T, R, pokus) {
   const box = priOdrazke ? ul : el("div", { class: "lcd-dop-odober", "data-item": ctx.riadok.itemId }, [el("span", { class: "lcd-dop-odober__n", text: T.vSeteDoplnky })]);
   // box v košíku: „× Odobrať“ (Michal 10. 10.: samotný krížik pri boxe mýlil), rohož: samotný krížik; v karte pokladne
   // (ctx.miestoOdober) aj box len krížik v krúžku (Michal 1. 11. 2026: „Odobrať zaberá veľa miesta“)
-  const sTextom = function (d) { return d.co === "box" && !ctx.miestoOdober; };
+  const sTextom = function (d) { return (d.co === "box" || d.co === "vrstva2") && !ctx.miestoOdober; };
   ctx.odobrat.forEach(function (d, poradie) {
     const b = priOdrazke
       ? el("button", { type: "button", class: "lcd-dop-x" + (sTextom(d) ? " lcd-dop-x--text" : ""), "data-lcd-dop-odober": d.co, "data-kus": d.kus || null, "data-item": ctx.riadok.itemId, "aria-label": T.odstranit + ": " + d.nazov, title: T.odstranit + ": " + d.nazov }, [
@@ -2180,6 +2231,14 @@ function vlozOdober(ctx, T, R, pokus) {
       ]);
     b.addEventListener("click", function () {
       meraj("lcd_set_doplnok_klik", { lcd_doplnok: d.co, lcd_varianta: "odobrat", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku });
+      if (d.co === "vrstva2") {
+        // druhá vrstva = výmena na jednovrstvový set (iný produkt): cieľové priceId a mapa jednovrstvového, príplatky bez zmeny
+        const sp = d.spat;
+        if (!sp || !sp.mapa) { stav.className = "lcd-dop__stav lcd-dop__stav--chyba"; stav.textContent = T.chybaOdober; return; }
+        spustiVymenu(ctx, { typ: "odober", co: "vrstva2", nazov: d.nazov, kod: "odober_vrstva2", lcdVarianta: d.lux ? luxNazov(d.lux) : null,
+          ciel: { priceId: sp.priceId, lux: null, bezVrstvy: true, href: sp.href, mapa: sp.mapa } }, {}, sp.rozdiel, T, R, stav, box);
+        return;
+      }
       const zm = zmenaOdober(d.co, ctx.volby, R, d.kus, ctx.mapa);
       const rozdiel = zm && rozdielCeny(ctx.volby, zm, ctx.mapa);
       if (!zm || !rozdiel) { stav.className = "lcd-dop__stav lcd-dop__stav--chyba"; stav.textContent = T.chybaOdober; return; }
@@ -2377,9 +2436,32 @@ export async function ponukaDruhejVrstvy(riadok, volby, mapa, R) {
 }
 
 /**
+ * Odobratie druhej vrstvy k riadku (dvojvrstvový set): mapa jednovrstvového produktu (z localStorage, inak stiahnuť jeho
+ * stránku) + navratVrstvy. Nesedí -> raz s čerstvou mapou; stále nie -> null (krížik pri druhej vrstve sa neukáže).
+ */
+export async function odobratieDruhejVrstvy(riadok, volby, mapa, R) {
+  if (!R.sety || !maDruhuVrstvu(riadok.variant)) return null;
+  const jedno = Object.keys(R.sety).find(function (k) { return String(R.sety[k]) === String(mapa.pid); });
+  if (!jedno) return null;
+  const href = adresaJednovrstvoveho(riadok.href);
+  if (!href) return null;
+  let mz = await ziskajMapu(href, R, false);
+  let p = mz && navratVrstvy(riadok, volby, mapa, mz, R);
+  if (!p && mozemObnovit(href, mz)) {
+    mz = await ziskajMapu(href, R, true);
+    p = mz && navratVrstvy(riadok, volby, mapa, mz, R);
+  }
+  if (!p) { oznacSkusenu(href, mz); return null; }
+  p.href = href;
+  p.mapa = mz;
+  return p;
+}
+
+/**
  * Kontexty ponuky k riadkom košíka — spoločné pre košík (spusti) aj jednu stránku pokladne (opc/kosikKarta.js): mapa
  * príplatkov, voľby riadku, čo chýba (rohož, box, druhá vrstva), čo sa dá odobrať, ceny samostatných produktov, auto.
  * o.vynechaj = itemId riadku, ku ktorému sa ponuka nekreslí (po čiastočnej chybe výmeny ho treba najprv opraviť).
+ * o.vrstvaSpat = krížik aj pri druhej vrstve (len karta pokladne, Michal 1. 11. 2026; klasický košík bez zmeny).
  * -> { kandidati: počet setov na posúdenie, ctxs: sety s ponukou alebo doplnkom na odobratie, ponuky: sety, ktorým niečo chýba }
  */
 export async function pripravKontexty(riadky, R, o) {
@@ -2412,11 +2494,14 @@ export async function pripravKontexty(riadky, R, o) {
     const odobrat = doplnkySetu(rozbor.volby, mapa, R, T);
     // druhá vrstva (len jednovrstvový set; stránka dvojvrstvového produktu sa sťahuje až teraz) a ceny samostatných
     // produktov súbežne, každé s limitom: chyba / nestihne -> bez ponuky druhej vrstvy, resp. bez porovnania
-    const [vrstva2, samostatne] = await Promise.all([
+    const [vrstva2, samostatne, spat] = await Promise.all([
       nie ? null : sLimitom(ponukaDruhejVrstvy(riadok, rozbor.volby, mapa, R), 5000),
       ponuka.rohoz || ponuka.box ? sLimitom(ziskajSamostatneCeny(dizajnZAdresy(riadok.href), R), 4000) : null,
+      o && o.vrstvaSpat && maDruhuVrstvu(riadok.variant) ? sLimitom(odobratieDruhejVrstvy(riadok, rozbor.volby, mapa, R), 5000) : null,
     ]);
     ponuka.vrstva2 = vrstva2;
+    // druhá vrstva prvá (v rozpise je „Farba 2. vrstvy“ hneď pod 1. vrstvou)
+    if (spat) odobrat.unshift({ co: "vrstva2", nazov: T.vybVrstva + (spat.lux ? " " + luxNazov(spat.lux) : ""), lux: spat.lux, spat: spat });
     if (!ponuka.rohoz && !ponuka.box && !ponuka.vrstva2 && !odobrat.length) return null;
     // auto riadku (záznam z pridania, inak auto karty so zhodným TYP) — názov rohože a boxu „… pre Skoda Octavia 2021“
     const u = ulozistaAuta();
