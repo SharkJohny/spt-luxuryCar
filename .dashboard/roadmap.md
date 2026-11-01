@@ -578,6 +578,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Náhľady A/B/C (odstraňovanie v riadku bez skákania „Zobraziť viac“, bez „− 1 +“ pri sete, zvýraznená rohož do kufra) — /mnt/project-files/kosik-navrhy/
 - [x] Kolo 2: jemné varianty V1–V3 bez zmeny rozloženia, „Pridať“ namiesto „Vybrať“ (rámiky A/B/C Michal zamietol)
 - [x] Kolo 3: rohož prvá + štítok „Najpredávanejšia do kufra“ + podsvietenie; druhá vrstva so záberom z videa a ▶, po ťuknutí okienko s videom, „8 z 10“ a „Pridať druhú vrstvu“ (náhľad video-vrstva-*.png)
-- [ ] Michal schváli kolo 3 (+ oprava skákania pri odstraňovaní, bez „− 1 +“ pri sete)
+- [x] Kolo 4: tri ďalšie spôsoby videa druhej vrstvy (1 živé video v riadku, 2 rozbalí sa v košíku, 3 príbeh na celú obrazovku) — video-3-sposoby-*.png
+- [ ] Michal vyberie spôsob videa (odporúčam 1) a schváli (+ oprava skákania pri odstraňovaní, bez „− 1 +“ pri sete)
 - [ ] Overiť na čerstvých objednávkach, že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026)
 - [ ] Postaviť vybraný návrh, testy SK + CZ, náhľad pred nasadením
