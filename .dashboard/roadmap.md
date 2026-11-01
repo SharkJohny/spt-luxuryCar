@@ -573,3 +573,9 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Admin (len so súhlasom): české názvy parametrov v SK košíku, CZ „Velokost box Solo“, +421 na CZ pokladni, ProveSource vypnúť na /objednavka/
 - [x] Názov obchodu „Luxury Car Dessign“ je zámer (fakturácia na firmu SS, Michal 1. 11.) — neopravovať
 - [ ] Michal rozhodne: ceny „591 €“ aj na ďakovnej stránke, krížik pri 2. vrstve aj v klasickom košíku
+
+## Krajší košík v pokladni (1. 11. 2026, Michalove pripomienky)
+- [x] Náhľady A/B/C (odstraňovanie v riadku bez skákania „Zobraziť viac“, bez „− 1 +“ pri sete, zvýraznená rohož do kufra) — /mnt/project-files/kosik-navrhy/
+- [ ] Michal vyberie návrh (odporúčam A: zlatý rámik, nie zelený — zelená = Objednať)
+- [ ] Prepočítať „X z 10 zákazníkov“ na čerstvých objednávkach (dnes 43 % z 97, apríl 2026)
+- [ ] Postaviť vybraný návrh, testy SK + CZ, náhľad pred nasadením
