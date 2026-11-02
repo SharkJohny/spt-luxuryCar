@@ -636,8 +636,8 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Oprava CZ na main (a97c0f5), CDN, naživo SK 21:07 + CZ 21:20 (návrat 153f0ec), kontrola SK aj CZ v Michalovom Chrome OK
 - [x] CZ karta: materiál zo Shoptetu a výbava ako CZ konfigurátor (súhrn má SK hodnoty), test „CZ: vlastný materiál…“
 - [x] CZ texty naživo s 8681b1e (SK 21:52, CZ 21:53, návrat a97c0f5)
-- [ ] Kontrola CZ textov v Michalovom Chrome (v CZ košíku leží cudzí kamión 14 170 Kč, čaká sa, čí je)
+- [x] Kontrola CZ textov v Michalovom Chrome (cudzí kamión 14 170 Kč odobratý na Michalov pokyn, kontrola s 593b0c1 OK)
 - [x] Klasický košík / súhrn v pokladni na CZ po česky (cart.js + opc/kamionZobrazenie.js, test-cart-summary-cz)
-- [ ] Klasický košík CZ po česky naživo (ďalší sha) a kontrola v Michalovom Chrome
+- [x] Klasický košík CZ po česky naživo s 593b0c1 (SK 22:37, CZ 22:38, návrat 8681b1e), kontrola v Michalovom Chrome OK
 - [ ] Súhrn CZ konfigurátora (poznámka objednávky) má SK hodnoty materiálu a výbavy — riešiť len s Jánom (export)
-- [ ] Brain (log + mapa modulov)
+- [x] Brain (log + mapa modulov)
