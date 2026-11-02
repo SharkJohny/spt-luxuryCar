@@ -616,7 +616,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Kontrola naživo (Michalov Chrome): stránka vzoriek, košík, panel košíka a pokladňa SK aj CZ bez kódu a „Áno“; 1V aj ?novy=0 vyberú vzorku
 - [x] Testy naživo vzoriek (tools/test-1v/ovladac-vzorky.mjs, scenare-vzorky.mjs) hľadajú kód aj v popise „[D-9]“ a voľbu „chcem“ aj ako farbu; S39 pokladne 1366×610 (kratší CZ súhrn)
 - [ ] ❓ Objednávka a e-mail: Shoptet tam píše „Vzorka Diamond - Čierna prešívaná bronzovou“ (pomlčka je Shoptetu) — overiť pri najbližšej skutočnej objednávke vzoriek (Michal)
-- [ ] ❓ CZ vzorkovník: základná cena produktu 1 Kč (3 vzorky = 298 Kč) — stav pred touto úpravou, rozhodne Michal
+- [x] CZ vzorkovník 2449: základná cena 1,21 Kč (bežná 1 Kč) → 0 Kč ako SK (Michal vo vlákne 2. 11.; admin ~18:54 UTC), 3 vzorky = 297 Kč na stránke aj v košíku; návrat 1,21 / 1 Kč
 
 ## Kamión v pokladni: rekapitulácia a ponuka tapacíru (Michal 2. 11. 2026, 16:55)
 - [x] Príčina: karta „Váš košík“ brala rozpis kamióna zo súhrnu vpravo, ktorý ešte nebol hotový -> len názov a cena
