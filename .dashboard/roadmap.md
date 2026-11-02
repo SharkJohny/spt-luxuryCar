@@ -593,7 +593,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Michal 17:10: „+129 € · ušetríte 101 €“ v jednom riadku — medzera pri Pridať 12 -> 6 px, tlačidlo 88 -> 80 px (PC 1366, telefón 390 aj 360); CZ v Kč „ušetříte …“ celé na 2. riadok
 - [x] Michal schválil náhľad jeden-riadok-*.png 17:47 („áno, páči sa mi to“) -> spojené s kamiónmi 0d4adef a vzorkami c63a8b5, testy SK 75 + 75 OK, CZ 44 + 45 OK (S39 = scenár vzorkovníka, opravený v 01a0fa6), kniha § 10.33
 - [ ] Skutočné videá rohože a boxu (ak ich Michal dodá, stačí vymeniť assets/img/kosik/*-video.*)
-- [ ] Prepnutie na webe po Michalovej vete vo vlákne (spolu s c63a8b5 vzorky a kamiónmi, ak budú hotové)
+- [x] Naživo 153f0ec (ponuka setu + kamión v karte + vzorky): SK 2. 11. 19:57, CZ 20:12, kontrola v Michalovom Chrome SK aj CZ OK (návrat c63a8b5)
 - [ ] Michalova skúšobná objednávka prevodom SK aj CZ s novou ďakovnou stránkou, snímky prejsť; 1820260076 zrušiť v admine (Michal)
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala
