@@ -587,6 +587,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Väčšie fotky: testy SK 146 + CZ 70, náhľad teraz / nové, Michal „Prepni na webe“ — 2f7f81b naživo SK + CZ 2. 11. 7:54, kontrola v Michalovom Chrome + Safari/Firefox OK (návrat 9f93d20)
 - [ ] Fotka rohože na výšku (teraz orezané okraje v dlaždici 76 × 95) — ponúknuté, čaká na Michala
 - [x] Ďakovná stránka SK sa po skúšobnej objednávke 1820260076 neukázala: Shoptet SK píše „Čiastka k úhrade“ a „IBAN“ -> rozpoznané, IBAN po štvoriciach (kniha § 10.30)
-- [ ] Ďakovná stránka: prepnúť po súhlase, nová skúšobná objednávka SK aj CZ (prevod), zrušiť 1820260076 v admine
+- [x] Ďakovná stránka: cdb98f1 naživo SK + CZ 2. 11. 17:46 (návrat 2f7f81b)
+- [ ] Michalova skúšobná objednávka prevodom SK aj CZ s novou ďakovnou stránkou, snímky prejsť; 1820260076 zrušiť v admine (Michal)
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala
