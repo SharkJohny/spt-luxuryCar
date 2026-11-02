@@ -1648,6 +1648,7 @@ Michal 2. 11. ~20:30 (skúšobná objednávka 1820260076, prevod, snímka z PC):
 - **Príčina ✅:** SK IBAN po štvoriciach má 29 znakov = pri 20 px Exo 2 ≈ 324 px (zmerané so skutočným písmom: 19 px 308, 17 px 276, 16 px 259). Na PC (≥ 768) mal stĺpec hodnoty vedľa popisu (180 px) a Kopírovať len ≈ 217 px (pri 1100 px ≈ 205), na telefóne 390 vedľa tlačidla ≈ 197 px -> 2 riadky.
 - **Oprava:** od 768 px popis **nad** hodnotou (ako na telefóne), Kopírovať vpravo -> hodnota má ≈ 409 px pri 1366 a ≈ 396 px pri 1100, písmo ostáva 20 px. Na telefóne riadok IBAN (`.lcd-dak-udaj--iban`, len keď `jeIban`): popis a Kopírovať hore, číslo pod nimi cez celú šírku (≈ 326 px pri 390 a 19 px; pod 390 už 17 px). Ostatné riadky (VS, suma) a CZ účet `2002871802/2010` bez zmeny. Pod 360 px (320) sa IBAN smie zlomiť medzi štvoricami.
 - **Testy:** S53 a Playwright kontrola rozloženia: od 360 px každá hodnota (účet, VS, suma) v 1 riadku, šírky + 375 a 1100. Červené pred opravou (S53 SK: 2 riadky pri 360–1920), po oprave S50–S54 SK 10/10, CZ S51+S53 4/4, `test-opc-dakujeme` 177 OK, Playwright Chromium 1366/390/360 × sk-prevod, cz-prevod, sk-kamion, sk-vzorky OK.
+- **Naživo 2. 11. 2026** ako `a97c0f5` (spolu s opravou kamióna v CZ pokladni z vlákna kamiónov): **SK 21:07:40** (poistka pustila), **CZ 21:20:12** (prvý pokus poistka zamietla ako pri 153f0ec, prešlo po Michalovej vete „Prepni CZ na a97c0f5“ vo vlákne). Titulky SK aj CZ bez prihlásenia načítavajú `assets/v/a97c0f5`. Návrat `153f0ec`.
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 
