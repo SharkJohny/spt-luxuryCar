@@ -713,7 +713,7 @@ export const SCENARE = {
           vsetky: ul ? ul.children.length : 0, zob: z ? z.textContent.trim() + "|" + z.getAttribute("aria-expanded") : null,
           ponuka: k.querySelectorAll(".lcd-vyb").length }; })()`;
       const a = await s.ev(R);
-      over(a.vidno && a.vidno.join(" ; ") === "Vozidlo: DAF (TIR) XF 2022-2025 ; Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11", "zbalené: " + JSON.stringify(a.vidno));
+      over(a.vidno && a.vidno.join(" ; ") === "Vozidlo: DAF XF 2022–2025 ; Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11", "zbalené: " + JSON.stringify(a.vidno));
       over(a.zob === "Zobraziť viac|false" && a.vsetky > 6, "pilulka / počet riadkov: " + JSON.stringify([a.zob, a.vsetky]));
       over(a.ponuka === 0, "ponuka tapacíru pri kamióne s tapacírom: " + a.ponuka);
       await s.klikni(`${KARTA} .lcd-opc-zob`, { popis: "Zobraziť viac" });

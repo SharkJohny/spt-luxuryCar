@@ -66,7 +66,6 @@ export const TEXTY = {
 export function texty(trh) { return TEXTY[trh] || TEXTY.sk; }
 
 const cisty = (t) => String(t == null ? "" : t).normalize("NFC").replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
-const male = (t) => cisty(t).toLowerCase();
 /** „Vyberie sa v konfigurátore“ / „Vybere se v konfigurátoru“ = hodnota, ktorú admin ešte nemá (shoptet.js najdiZastupnuMoznost). */
 const zastupna = (t) => /\bv konfiguratoru$/.test(normalizeOptionText(t));
 const jeKamion = (p) => /\btruck\b|kami[oó]n/i.test((p && p.text) || "") || /kamion/i.test((p && p.href) || "");
@@ -106,6 +105,8 @@ export function hodnotyPriplatkov(sur) {
 const ANO = (t) => /^(ano|áno)\b/i.test(cisty(t));
 const ROVNAKE = (t) => /^(rovnak|stejn)/i.test(cisty(t));
 const bezNasivky = (t) => cisty(t).replace(/^(nášivka|nášivky)\s+/i, "");
+/** „Bez nite“ / „Bez nitě“ = na tom mieste nášivka nie je -> do rozpisu nejde (živá kontrola 2. 11.: „Farba nášiviek na boky: Bez nite“ pri „Len stred“). */
+const sNitou = (t) => (t && !/^bez nit/.test(normalizeOptionText(t)) ? t : "");
 
 /** Skupiny ako parseTruckOrderSummary zo samotných príplatkov riadku (vozidlo v nich nie je; vozidlo = text alebo null). */
 export function skupinyZPriplatkov(sur, jazyk, vozidlo) {
@@ -120,9 +121,9 @@ export function skupinyZPriplatkov(sur, jazyk, vozidlo) {
   pridaj(k, L.edgingColor, v.lemovanie);
   pridaj(k, L.embroideryPlacement, v.nasivky && v.nasivky.replace(/\s*\((bal[ií]k|bal[ií]ček)\)\s*$/i, ""));
   pridaj(k, L.sidePatchType, v.bokyTyp && bezNasivky(v.bokyTyp));
-  pridaj(k, L.sidePatchColor, v.bokyNit);
+  pridaj(k, L.sidePatchColor, sNitou(v.bokyNit));
   pridaj(k, L.centrePatchType, v.stredTyp && bezNasivky(v.stredTyp));
-  pridaj(k, L.centrePatchColor, v.stredNit);
+  pridaj(k, L.centrePatchColor, sNitou(v.stredNit));
   if (k.length) skupiny.push({ heading: X.headings.carpets, items: k });
   if (v.tapacir && ANO(v.tapacir)) {
     const mat = k.length && k[0].label === L.materialColor ? k[0].value : "";
@@ -156,14 +157,17 @@ const DVERE = /^TAPAC[IÍ]R DVE/i;
 
 /**
  * Sedí súhrn konfigurátora s príplatkami riadku? Materiál zo súhrnu musí začínať typom materiálu z riadku a obsahovať jeho
- * farbu (ak ju riadok má). Riadok bez materiálu (nečitateľné príplatky) -> súhrnu sa verí.
+ * farbu (ak ju riadok má). Riadok bez materiálu (nečitateľné príplatky) -> súhrnu sa verí. Porovnáva sa cez
+ * normalizeOptionText (SK = CS): CZ konfigurátor píše do súhrnu „Prémiová syntetická koža – prešívaná“, Shoptet 2452 má
+ * „Prémiová syntetická kůže – prošívaná“ (živá kontrola 2. 11. 2026).
  */
 export function suhrnSedi(skupinySuhrnu, sur, jazyk) {
   const v = hodnotyPriplatkov(sur);
   if (!v.material) return true;
   const m = polozkaSkupiny(skupinySuhrnu, KOBERCE, truckSummaryTexts(jazyk).labels.materialColor);
   if (!m) return false;
-  return male(m).indexOf(male(v.material)) === 0 && (!v.farba || male(m).indexOf(male(v.farba)) > -1);
+  const n = (t) => " " + normalizeOptionText(t) + " ";
+  return n(m).indexOf(n(v.material).trimEnd()) === 0 && (!v.farba || n(m).indexOf(n(v.farba)) > -1);
 }
 
 /** Má riadok tapacír „Rovnaké ako koberce“ bez nášivky na dverách (tak, ako ho pridá ponuka)? */
@@ -200,6 +204,9 @@ export function udajeKamiona(p, o) {
   return { skupiny: skupinyZPriplatkov(p.sur, jazyk, vozidlo), vozidlo: vozidlo, zoSuhrnu: false };
 }
 
+/** Vozidlo pre zákazníka ako v konfigurátore (data.js meno): bez „(TIR)“ / „(dodávka)“, roky s pomlčkou „2022–2025“. Poznámka objednávky ostáva bez zmeny. */
+const vozidloNaZobrazenie = (t) => cisty(t).replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
+
 /**
  * Riadky rozpisu [{ n, h }] zo skupín: vozidlo a koberčeky ako v súhrne (bez „Bez nášivky“), tapacír jedným riadkom
  * „Tapacír dverí: rovnaký ako koberčeky“, alebo po častiach s „Tapacír – …“ (rovnaké popisy ako koberčeky by sa plietli).
@@ -228,7 +235,7 @@ export function riadkyRozpisu(skupiny, jazyk, trh) {
     }
     g.items.forEach(function (i) {
       if (KOBERCE.test(g.heading) && i.value === X.noPatch) return;
-      out.push({ n: i.label, h: i.value });
+      out.push({ n: i.label, h: i.label === L.vehicle ? vozidloNaZobrazenie(i.value) : i.value });
     });
   });
   return out;

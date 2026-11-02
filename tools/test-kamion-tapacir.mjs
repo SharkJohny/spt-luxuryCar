@@ -72,7 +72,7 @@ test("rozpis zo súhrnu konfigurátora (jediný kamión): vozidlo navrchu, prevo
   const u = K.udajeKamiona(riadok(SUR_S), { ss, jazyk: "sk", jediny: true });
   pravda(u.zoSuhrnu, "nepoužil súhrn");
   const r = K.riadkyRozpisu(u.skupiny, "sk", "sk");
-  rovne(r[0], { n: "Vozidlo", h: "DAF (TIR) XF 2022-2025" });
+  rovne(r[0], { n: "Vozidlo", h: "DAF XF 2022–2025" }, "vozidlo ako v konfigurátore (bez „(TIR)“, pomlčka)");
   rovne(r[1], { n: "Typ prevodovky", h: "Automatická prevodovka" });
   rovne(r[r.length - 1], { n: "Tapacír dverí", h: "rovnaký ako koberčeky" });
 });
@@ -158,6 +158,35 @@ test("CZ: rozpis z príplatkov po česky, čalounění jedným riadkom", () => {
   const r = K.riadkyRozpisu(u.skupiny, "cs", "cz");
   rovne(r[0].n, "Typ a barva materiálu");
   rovne(r[r.length - 1], { n: "Čalounění dveří", h: "stejné jako koberečky" });
+});
+
+// živá kontrola 2. 11. 2026 (153f0ec): CZ súhrn konfigurátora má slovenské hodnoty („koža – prešívaná“, „Automatická
+// prevodovka“), príplatky Shoptetu české („kůže – prošívaná“) -> súhrn sa zahodil, chýbalo Vozidlo aj ponuka čalounění.
+const SUR_CZ_ZIVY = "Příplatky: Barva - černá, černé prošití – 11, Niť boky - Bez nitě, Niť dveře - Bez nitě, Niť stred - Bez nitě, Čalounění - Ne, nechci čalounění dveří, Nášivka boky - Bez nášivky, Nášivka stred - Bez nášivky, Lemování - černý základ, černé proužky – 09, Materiál - Prémiová syntetická kůže – prošívaná, Nášivka dveře druh - Bez nášivky, Nášivka dveře - Ne, nechci nášivku na dveřích, Nášivky - Bez nášivek";
+const S_CZ_ZIVY = { znacka: "DAF (TIR)", model: "XF 2022-2025", extras: { prevodovka: "Automatická prevodovka", sedadlo: "Sedadlo spolujazdca odpružené" },
+  selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" }, selectedLemovanie: { code: "09" }, nasivkyPlacement: "none", doorPanelChoice: "nie" };
+
+test("CZ živý: súhrn so slovenskými hodnotami sedí s českými príplatkami -> Vozidlo, TIR bez čalounění", () => {
+  const ss = ulozisko({ truckOrderSummary: buildTruckOrderSummary(S_CZ_ZIVY, "cs"), truckVehicle: "DAF (TIR) XF 2022-2025" });
+  const p = { itemId: "c1", priceId: "99452", q: 1, sur: SUR_CZ_ZIVY, href: "/luxusni-autokoberce-kamiony/", text: "Luxusní autokoberce do kamionů" };
+  const u = K.udajeKamiona(p, { ss, jazyk: "cs", jediny: true });
+  pravda(u.zoSuhrnu, "súhrn sa nepoužil");
+  rovne(u.vozidlo, "DAF (TIR) XF 2022-2025");
+  const r = K.riadkyRozpisu(u.skupiny, "cs", "cz");
+  rovne(r[0], { n: "Vozidlo", h: "DAF XF 2022–2025" });
+  pravda(!r.some((x) => /Bez nášivky|Bez nit/.test(x.h)), JSON.stringify(r));
+  // súhrn inej farby (12) sa ani na CZ nepoužije
+  const iny = Object.assign({}, S_CZ_ZIVY, { selectedColor: { code: "12" } });
+  pravda(!K.udajeKamiona(p, { ss: ulozisko({ truckOrderSummary: buildTruckOrderSummary(iny, "cs") }), jazyk: "cs", jediny: true }).zoSuhrnu, "súhrn s farbou 12");
+});
+
+test("rozpis z príplatkov: „Bez nite / Bez nitě“ sa nezobrazí (nášivka tam nie je)", () => {
+  const sk = "Príplatky: Typ materiálu - Prémiová syntetická koža – jednofarebná, Farba materiálu - hnedá – 3G, Farba lemovania - hnedý základ, béžové pásiky – 13, Rozloženie nášiviek - Len stred, Typ nášiviek na boky - Bez nášivky, Farba nášiviek na boky - Bez nite, Typ nášivky na stred - Nášivka H21, Farba nášivky na stred - Modrá – 3842";
+  const r = K.riadkyRozpisu(K.udajeKamiona(riadok(sk), { ss: ulozisko({}), jazyk: "sk", jediny: true }).skupiny, "sk", "sk");
+  pravda(!r.some((x) => /Bez nit/.test(x.h)), JSON.stringify(r));
+  pravda(r.some((x) => x.h === "Modrá – 3842"), "chýba farba nášivky na stred");
+  const r2 = K.riadkyRozpisu(K.udajeKamiona({ itemId: "c1", sur: SUR_CZ_ZIVY, text: "Luxusní autokoberce do kamionů" }, { ss: ulozisko({}), jazyk: "cs", jediny: true }).skupiny, "cs", "cz");
+  pravda(!r2.some((x) => /Bez nit/.test(x.h)), JSON.stringify(r2));
 });
 
 console.log(`\nSpolu: ${ok} OK, ${zle} zlyhalo`);

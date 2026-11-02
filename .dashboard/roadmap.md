@@ -628,6 +628,8 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Testy: tools/test-kamion-tapacir.mjs (12, SK + CZ), OPC S90/S91 (podvrh: KAMION_PRODUKT, košík „kamionBez“), celá sada SK 146 OK
 - [x] Náhľad PC 1366 + telefón 390 — /mnt/project-files/kamion-pokladna/
 - [x] Michalov súhlas s náhľadom („áno, páči sa mi to“, 2. 11. 17:47)
-- [ ] Celá sada SK + CZ na aktuálnom main, push, CDN (aj assets/img/kosik/tapacir-dveri.jpg), prepnutie spolu s vláknom „Vylepšiť košík v pokladni“, kontrola SK + CZ v Michalovom Chrome
+- [x] Celá sada SK + CZ, push, CDN (aj assets/img/kosik/tapacir-dveri.jpg), naživo s 153f0ec (SK 19:57, CZ 20:12), kontrola SK v Michalovom Chrome OK
 - [x] Kniha OPC § 10.31
-- [ ] Brain (log + mapa modulov), kniha doplniť o nasadenie
+- [x] Kontrola CZ naživo: chýbalo Vozidlo aj ponuka Čalounění (súhrn CZ konfigurátora so SK hodnotami) -> oprava suhrnSedi (normalizeOptionText), bez „Bez nite“, vozidlo „DAF XF 2022–2025“; test „CZ živý“
+- [ ] Oprava CZ na main, CDN, prepnutie SK + CZ (návrat 153f0ec), kontrola CZ v Michalovom Chrome
+- [ ] Brain (log + mapa modulov)
