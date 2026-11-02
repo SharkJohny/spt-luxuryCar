@@ -635,6 +635,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Kontrola CZ naživo: chýbalo Vozidlo aj ponuka Čalounění (súhrn CZ konfigurátora so SK hodnotami) -> oprava suhrnSedi (normalizeOptionText), bez „Bez nite“, vozidlo „DAF XF 2022–2025“; test „CZ živý“
 - [x] Oprava CZ na main (a97c0f5), CDN, naživo SK 21:07 + CZ 21:20 (návrat 153f0ec), kontrola SK aj CZ v Michalovom Chrome OK
 - [x] CZ karta: materiál zo Shoptetu a výbava ako CZ konfigurátor (súhrn má SK hodnoty), test „CZ: vlastný materiál…“
-- [ ] CZ texty naživo (nový sha), kontrola CZ v Michalovom Chrome
+- [x] CZ texty naživo s 8681b1e (SK 21:52, CZ 21:53, návrat a97c0f5)
+- [ ] Kontrola CZ textov v Michalovom Chrome (v CZ košíku leží cudzí kamión 14 170 Kč, čaká sa, čí je)
 - [ ] Súhrn CZ konfigurátora (poznámka objednávky, riadok klasického košíka) má SK hodnoty materiálu a výbavy — riešiť len s Jánom (export)
 - [ ] Brain (log + mapa modulov)
