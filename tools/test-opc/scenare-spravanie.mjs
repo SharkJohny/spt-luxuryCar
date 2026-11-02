@@ -164,7 +164,7 @@ export const SCENARE = {
     },
   },
   S39: {
-    popis: "Lišta „Celkom | Objednať s povinnosťou platby“: telefón — vyplnené, klik v lište = 1× objednávka; PC — karta nad súhrnom vždy, keď tlačidlo nevidno (náhľad E, 31. 10. večer), klik bez údajov = posun na pole (vzorkovník 1366×657: karta, klik = posun na meno; 1280×520: až po zaškrtnutí súhlasu; set: nie, kým je veta pod kartou)",
+    popis: "Lišta „Celkom | Objednať s povinnosťou platby“: telefón — vyplnené, klik v lište = 1× objednávka; PC — karta nad súhrnom vždy, keď tlačidlo nevidno (náhľad E, 31. 10. večer), klik bez údajov = posun na pole (vzorkovník 1366×610: karta, klik = posun na meno; 1280×520: až po zaškrtnutí súhlasu; set: nie, kým je veta pod kartou)",
     async fn(J) {
       if (J.sirka >= 992) {
         // revízia 31. 10. 2026 (N1, kniha § 10.12 (a)): karta „Celkom | Objednať“ na PC svieti len vtedy, keď neskryje
@@ -184,11 +184,13 @@ export const SCENARE = {
         const ZASKRTNI = (ano) => `(function () { var i = document.querySelector("#checkoutSidebar .consents input[type=checkbox][required]"); if (i.checked !== ${ano}) i.click(); return i.checked; })()`;
         const navrch = async (s) => { await s.ev(`window.scrollTo({ top: 0, behavior: "instant" }), 1`); await pauza(600); return s.ev(KARTA); };
         const casti = [];
-        // 1) vzorkovník 1366×657: súhlas nad kartou, veta o tovare na mieru nie je -> karta nad stĺpcom súhrnu, klik = meno
-        const s = await J.novaStranka({ sirka: 1366, vyska: 657 });
+        // 1) vzorkovník 1366×610: súhlas nad kartou, veta o tovare na mieru nie je -> karta nad stĺpcom súhrnu, klik = meno.
+        //    Výška 610 (predtým 657): od c63a8b5 (2. 11. 2026) sú riadky vzoriek kratšie („Vzorek Diamond: Černá prošívaná
+        //    bronzovou“ bez „(D-9) - Ano“), súhrn CZ je nižší a pri 657 je „Objednať“ vidno bez posunu -> karta by sa neoverila
+        const s = await J.novaStranka({ sirka: 1366, vyska: 610 });
         await naKrok2(s);
         const k = await navrch(s);
-        over(!k.tlacidloVidno, "PC vzorkovník 1366×657: „Objednať“ je nad prahom karty (scenár by kartu neoveril): " + JSON.stringify(k));
+        over(!k.tlacidloVidno, "PC vzorkovník 1366×610: „Objednať“ je nad prahom karty (scenár by kartu neoveril): " + JSON.stringify(k));
         over(k.on && k.vid && Math.abs(k.x - k.px) <= 2 && Math.abs(k.w - k.pw) <= 2 && k.dole <= k.vh, "PC: karta „Objednať“ nie je nad stĺpcom súhrnu: " + JSON.stringify(k));
         over(k.suhlas && k.suhlas[1] <= k.vh - 76 && !k.veta, "PC vzorkovník: povinný súhlas nie je nad kartou alebo je tu veta o tovare na mieru: " + JSON.stringify(k));
         over(k.text.indexOf(TLACIDLO[s.web]) > 0, "PC: karta bez textu tlačidla: " + k.text);
@@ -199,7 +201,7 @@ export const SCENARE = {
         await s.ev(`document.getElementById("submit-order").scrollIntoView({ block: "center", behavior: "instant" }), 1`);
         await pauza(500);
         over(!(await s.ev(`document.documentElement.classList.contains("lcd-lista-on")`)), "PC: karta ostala, keď je tlačidlo v paneli vidno");
-        casti.push("vzorkovník 1366×657: karta x" + k.x + " š" + k.w + " = panel, súhlas " + k.suhlas[0] + "–" + k.suhlas[1] + " nad ňou, klik -> meno, pri tlačidle zmizne");
+        casti.push("vzorkovník 1366×610: karta x" + k.x + " š" + k.w + " = panel, súhlas " + k.suhlas[0] + "–" + k.suhlas[1] + " nad ňou, klik -> meno, pri tlačidle zmizne");
         await s.zavri();
         // 2) vzorkovník 1280×520: nezaškrtnutý povinný súhlas je pod kartou — karta aj tak svieti (Michal 31. 10. 2026 večer,
         //    náhľad E: Objednať na PC stále vidno), klik = posun na prvé chýbajúce pole; svieti aj po zaškrtnutí súhlasu

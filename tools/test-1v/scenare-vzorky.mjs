@@ -8,8 +8,9 @@
 //   = súčet z POST (cena živého webu sa NEukazuje), pri 0 vzorkách POST 0 aj po prejdení všetkých krokov bez vzorky.
 //   Navyše (len nový vzhľad, spúšťať cez --krok): vzorky-odober (× v zozname), vzorky-nahlad (objednateľné vzorky =
 //   presne živý widget, náhľad sa nedá vybrať, názvy zo živej stránky).
-/** Text voľby „chcem vzorku“ (SK „Áno +€5“; ovladac-vzorky.mjs ANO) */
-const ANO_TEXT = /^(áno|ano|chcem|chci)\b/i;
+// Voľba „chcem vzorku“ a kód vzorky: VZORKA_JS z ovladac-vzorky.mjs (od 2. 11. 2026 je voľba názov farby a kód vzorky
+// je len v popise parametra „[D-9]“ — v názve ostáva len pri dnešných/starých názvoch).
+import { VZORKA_JS } from "./ovladac-vzorky.mjs";
 const jeNovy = (ovl) => ovl.zdroj.vzorky === "novy";
 /** Cena a košík: nový vzhľad vzorkovníka má vlastné (ovladac-vzorky `novy`), starý = živá stránka (ovladac-cena). */
 const cenaKosik = (ovl) => (jeNovy(ovl) ? ovl.vzorky : ovl.cena);
@@ -37,10 +38,10 @@ export const SCENARE = {
       const cena = await j.overPost(s, post, { ine: v.hodnoty });
       const vPost = Object.keys(post.pole).filter((k) => /^surchargeParameterValueId\[/.test(k) && post.pole[k]);
       j.over(vPost.length === idcka.length, "POST nesie " + vPost.length + " vzoriek, má " + idcka.length + ": " + vPost.map((k) => k + "=" + post.pole[k]).join(" "));
-      // ANO_TEXT: hodnota v POST = voľba „Áno“ (nie „Nechcem“) — overPost porovnáva s value, text je poistka proti zámene
+      // hodnota v POST = voľba „chcem“ (Áno alebo farba, nie „Nechcem“) — overPost porovnáva s value, text je poistka proti zámene
       for (const k of vPost) {
-        const t = await s.t.ev(`(function () { var s = document.querySelector('#product-detail-form select[name="${k}"]'); var o = s && Array.prototype.find.call(s.options, function (o) { return o.value === ${JSON.stringify(post.pole[k])}; }); return o ? o.text.trim() : null; })()`);
-        j.over(ANO_TEXT.test(t || ""), k + " v POST = „" + t + "“, má byť voľba „Áno“");
+        const t = await s.t.ev(`(function () {${VZORKA_JS} var s = document.querySelector('#product-detail-form select[name="${k}"]'); var o = s && Array.prototype.find.call(s.options, function (o) { return o.value === ${JSON.stringify(post.pole[k])}; }); return o ? (lcdTestJeAno(o) ? "ANO:" : "NIE:") + o.text.trim() : null; })()`);
+        j.over(/^ANO:/.test(t || ""), k + " v POST = „" + t + "“, má byť voľba „chcem“ (Áno alebo názov farby), nie „Nechcem“");
       }
       j.over(cena.spolu === 5 * idcka.length, "súčet príplatkov z POST " + cena.spolu + " ≠ 5 € × " + idcka.length);
       j.over(zaloha === cena.spolu, (jeNovy(ovl) ? "„Spolu“ " : "„Vratná záloha spolu“ ") + zaloha + " ≠ súčet z POST " + cena.spolu);
@@ -133,7 +134,7 @@ export const SCENARE = {
       j.over(st.kroky.find((k) => k.seria === "stripe").hotovy === false, "séria Stripe po odobratí jedinej vzorky ostala zelená");
       const ost = {};
       Object.keys(v.hodnoty).forEach((id) => { ost[id] = v.hodnoty[id]; });
-      const s6 = await s.t.ev(`(function () { var s = Array.prototype.find.call(document.querySelectorAll("#product-detail-form select.surcharge-parameter"), function (s) { var n = (s.getAttribute("data-parameter-name") || "").trim(); return n === "S-6" || n.slice(-5) === "(S-6)"; }); return s ? s.getAttribute("data-parameter-id") : null; })()`);
+      const s6 = await s.t.ev(`(function () {${VZORKA_JS} var s = lcdTestSelect("S-6"); return s ? s.getAttribute("data-parameter-id") : null; })()`);
       delete ost[s6];
       const zaloha = await ovl.vzorky.zaloha(s.t);
       await ovl.vzorky.pridajDoKosika(s.t);
@@ -155,10 +156,10 @@ export const SCENARE = {
       if (!jeNovy(ovl)) return { preskoc: "len nový vzhľad" };
       const t = s.t;
       await j.otvor(s, a.url, { novy: a.novy });
-      const r = await t.ev(`(function () {
+      const r = await t.ev(`(function () {${VZORKA_JS}
         function zoznam(sel, atr) { return Array.prototype.map.call(document.querySelectorAll(sel), function (e) { return e.getAttribute(atr); }).sort(); }
         var tip = function (kod) {
-          var s = Array.prototype.find.call(document.querySelectorAll("#product-detail-form select.surcharge-parameter"), function (s) { return (s.getAttribute("data-parameter-name") || "").trim() === kod; });
+          var s = lcdTestSelect(kod);
           var l = s && document.querySelector('label[for="surcharge-parameter-id-' + s.getAttribute("data-parameter-id") + '"] .show-tooltip');
           var x = l ? (l.getAttribute("title") || l.getAttribute("data-original-title") || "") : "";
           var m = /[–—-]\\s*(.+?)\\s*\\[\\s*([A-Z]+-\\d+)\\s*\\]/.exec(x.replace(/\\s+/g, " "));

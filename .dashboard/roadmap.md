@@ -605,9 +605,12 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Zdroj textu „Vzorka Diamond: Čierna prešívaná bronzovou (D-9) - Áno“: názov príplatkového parametra v admine (s kódom) + voľba „Áno“ (SK 637 aj CZ 2449, 45 parametrov, 30 objednateľných)
 - [x] Rozpis v košíku, paneli košíka, pokladni a na ďakovnej stránke (kosikRozpis.js lcdRozpis): „Vzorka Diamond: Čierna prešívaná bronzovou“, „Vzorka druhej vrstvy: Lux Color 10 – čierna“ (CZ „Vzorek druhé vrstvy“) — test-kosik-rozpis
 - [x] Konfigurátor vzoriek (1V aj starý ?novy=0) číta kód aj z popisu parametra „[D-9]“ a voľbu „chcem“ aj ako názov farby — vzorky/test-nazvy-bez-kodu.mjs
-- [ ] Nasadiť (prepnutie sha SK + CZ, spolu s vláknom „Vylepšiť košík v pokladni“ alebo samostatne)
-- [ ] Admin SK + CZ (so súhlasom Michala vo vlákne): zobrazovaný názov „Vzorka Diamond“ / „Vzorka druhej vrstvy“, voľba „Áno“ -> farba; kód ostáva v internom názve a popise parametra — až PO nasadení kódu
-- [ ] Kontrola naživo: košík, pokladňa, ďakovná stránka SK aj CZ; objednávka v admine (Michal)
+- [x] Nasadiť: SK aj CZ na c63a8b5 od 2. 11. 2026 19:12 (Michal „prepni“ vo vlákne; návrat cdb98f1) — obsahuje aj bbe6345 (CZ ceny kamióna kurzom 25)
+- [x] Admin SK + CZ (Michal „ano“ vo vlákne): 30 parametrov SK 637 + 30 CZ 2449 — zobrazovaný názov „Vzorka Diamond“ / „Vzorka druhej vrstvy“ (CZ „Vzorek …“), voľba „Áno“ -> farba; kód ostáva v internom názve a popise; tabuľka starý → nový `/mnt/project-files/vzorky-nazvy/2026-11-02-stare-nove.md`
+- [x] Kontrola naživo (Michalov Chrome): stránka vzoriek, košík, panel košíka a pokladňa SK aj CZ bez kódu a „Áno“; 1V aj ?novy=0 vyberú vzorku
+- [x] Testy naživo vzoriek (tools/test-1v/ovladac-vzorky.mjs, scenare-vzorky.mjs) hľadajú kód aj v popise „[D-9]“ a voľbu „chcem“ aj ako farbu; S39 pokladne 1366×610 (kratší CZ súhrn)
+- [ ] ❓ Objednávka a e-mail: Shoptet tam píše „Vzorka Diamond - Čierna prešívaná bronzovou“ (pomlčka je Shoptetu) — overiť pri najbližšej skutočnej objednávke vzoriek (Michal)
+- [ ] ❓ CZ vzorkovník: základná cena produktu 1 Kč (3 vzorky = 298 Kč) — stav pred touto úpravou, rozhodne Michal
 
 ## Kamión v pokladni: rekapitulácia a ponuka tapacíru (Michal 2. 11. 2026, 16:55)
 - [x] Príčina: karta „Váš košík“ brala rozpis kamióna zo súhrnu vpravo, ktorý ešte nebol hotový -> len názov a cena

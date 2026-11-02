@@ -1618,6 +1618,15 @@ Michal 2. 11. 16:55 (snímka z pokladne s kamiónom 640): „vôbec tu nevidím 
 - Náhľad: `/mnt/project-files/kamion-pokladna/nahlad-kamion-kosik-pc-1366.png`, `…-telefon-390.png`.
 - ❓ Názvy príplatkov CZ 2452 a ich možnosti z naživo do testu nezachytené (mená z testu konfigurátora `scenare-kamion.mjs`); overiť pri kontrole naživo.
 
+### 10.32 Vzorkovník: v košíku a pokladni len „Vzorka Diamond: Čierna prešívaná bronzovou“ (2. 11. 2026)
+Michal 2. 11. (snímka košíka): „tam má byť vzorka druhej vrstvy, Lux Color 10, čierna, hotovo… vzorka Diamond, čierna prešívaná bronzovou, hotovo. A nie, že D9… áno“ — aj v objednávke.
+- **Príčina ✅:** názov príplatkového parametra v admine nesie kód („Vzorka Diamond – Čierna prešívaná bronzovou (D-9)“) a voľba je „Áno“; Shoptet píše „názov - voľba“.
+- **Kód (c63a8b5):** `kosikRozpis.js` (košík, panel košíka, karta pokladne, ďakovná stránka) zahodí „(D-9)“ a všetko za ním, „Vzorka 2. vrstva“ -> „Vzorka druhej vrstvy“ (CZ „Vzorek druhé vrstvy“); iné príplatky bez zmeny. 1V aj starý widget (`?novy=0`) čítajú kód vzorky aj z popisu parametra „[D-9]“ a voľbu „chcem“ aj ako názov farby (`vzorky/test-nazvy-bez-kodu.mjs`, `tools/test-kosik-rozpis.mjs`).
+- **Admin (Michal „ano“ vo vlákne):** SK 637 a CZ 2449 po 30 parametrov — zobrazovaný názov „Vzorka Diamond“ / „Vzorka druhej vrstvy“, voľba „Áno“ -> farba. Kód ostáva v internom názve a popise (výroba). Tabuľka starý → nový a návod na návrat: `/mnt/project-files/vzorky-nazvy/2026-11-02-stare-nove.md`, na PC `claud\WEB\vzorky-nazvy\`.
+- **Naživo 2. 11. 2026 19:12** (Michal „prepni“ vo vlákne): SK aj CZ 2× cdb98f1 -> 2× c63a8b5 (obsahuje bbe6345, CZ ceny kamióna kurzom 25). Kontrola v Michalovom Chrome: vzorkovník, košík, panel, pokladňa SK aj CZ bez kódu a „Áno“. **Návrat: `cdb98f1`.**
+- S39 (CZ súhrn pri 1366) po kratších názvoch na 1366×610 (bez zmeny správania).
+- ❓ Objednávka a e-mail: Shoptet tam píše „Vzorka Diamond - Čierna prešívaná bronzovou“ (pomlčku dáva Shoptet, kódom ju neovplyvníme) — overiť pri najbližšej skutočnej objednávke vzoriek.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

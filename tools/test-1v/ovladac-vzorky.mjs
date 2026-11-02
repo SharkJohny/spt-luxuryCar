@@ -9,15 +9,41 @@
 import { pauza } from "./cdp.mjs";
 import { F, cislo } from "./stary-ui.mjs";
 
-const ANO = "^(áno|ano|chcem)\\b";
 
-/** Select vzorky podľa ID vzorky (data-parameter-name „D-3“ alebo „Vzorka … (D-3)“) -> { id, ano } (id parametra, value „Áno“). */
+/**
+ * JS do stránky (t.ev): select vzorky podľa kódu a jeho voľba „chcem“. Od 2. 11. 2026 (Michal: v objednávke len
+ * „Vzorka Diamond: Čierna prešívaná bronzovou“) má parameter pre zákazníka názov bez kódu („Vzorka Diamond“) a voľba
+ * „chcem“ je názov farby — kód je v popise parametra „… [D-3] do objednávky“. Starý zápis („D-3“, „Vzorka … (D-3)“,
+ * voľba „Áno“) platí ďalej. Rovnaké pravidlo ako konfigurator1v/vzorky-produkt.js kodVzorky / volbaAno.
+ */
+export const VZORKA_JS = `
+  function lcdTestPopis(s) {
+    var l = document.querySelector('label[for="surcharge-parameter-id-' + s.getAttribute("data-parameter-id") + '"]');
+    var tip = l && l.querySelector(".show-tooltip, [data-original-title], [title]");
+    return tip ? (tip.getAttribute("title") || tip.getAttribute("data-original-title") || tip.getAttribute("data-bs-original-title") || "") : "";
+  }
+  function lcdTestKod(s) {
+    var n = (s.getAttribute("data-parameter-name") || "").trim();
+    var m = /^(?:.*\\()?((?:S|H|D|LUX)-\\d+)\\)?$/.exec(n) || /\\[\\s*((?:S|H|D|LUX)-\\d+)\\s*\\]/.exec(lcdTestPopis(s).replace(/\\s+/g, " "));
+    return m ? m[1] : null;
+  }
+  function lcdTestSelect(kod, f) {
+    return Array.prototype.find.call(document.querySelectorAll((f || "#product-detail-form") + " select.surcharge-parameter"), function (s) { return lcdTestKod(s) === kod; }) || null;
+  }
+  function lcdTestCena(o) { var c = Number(o.getAttribute("data-surcharge-final-price")); return isFinite(c) ? c : 0; }
+  function lcdTestJeAno(o) {
+    var t = (o.text || "").trim();
+    return !!o.value && (/^(áno|ano|chcem|chci)\\b/i.test(t) || (!/^(nechcem|nechci|nie|ne)\\b/i.test(t) && lcdTestCena(o) > 0));
+  }
+  function lcdTestAno(s) { return Array.prototype.find.call(s.options, lcdTestJeAno) || null; }
+`;
+
+/** Select vzorky podľa ID vzorky (kód v názve parametra alebo v popise „[D-3]“) -> { id, ano } (id parametra, value „chcem“). */
 export async function selectVzorky(t, idVzorky) {
-  const r = await t.ev(`(function () {
-    var s = Array.prototype.find.call(document.querySelectorAll("${F} select.surcharge-parameter"), function (s) { var n = (s.getAttribute("data-parameter-name") || "").trim(); return n === ${JSON.stringify(idVzorky)} || n.slice(-${idVzorky.length + 2}) === ${JSON.stringify("(" + idVzorky + ")")}; });
+  const r = await t.ev(`(function () {${VZORKA_JS}
+    var s = lcdTestSelect(${JSON.stringify(idVzorky)}, ${JSON.stringify(F)});
     if (!s) return null;
-    var re = new RegExp(${JSON.stringify(ANO)}, "i");
-    var o = Array.prototype.find.call(s.options, function (o) { return o.value && re.test(o.text.trim()); });
+    var o = lcdTestAno(s);
     return { id: s.getAttribute("data-parameter-id"), ano: o ? o.value : null };
   })()`);
   if (!r) throw new Error("vzorka " + idVzorky + " vo formulári nie je (select data-parameter-name)");
@@ -48,7 +74,7 @@ export const stary = {
 
   /** Počet vzoriek s voľbou „Áno / Chcem“ vo formulári. */
   async pocet(t) {
-    return t.ev(`(function () { var re = new RegExp(${JSON.stringify(ANO)}, "i"); return Array.prototype.filter.call(document.querySelectorAll("${F} select.surcharge-parameter"), function (s) { var o = s.options[s.selectedIndex]; return !!(s.value && o && re.test(o.text.trim())); }).length; })()`);
+    return t.ev(`(function () {${VZORKA_JS} return Array.prototype.filter.call(document.querySelectorAll("${F} select.surcharge-parameter"), function (s) { var o = s.options[s.selectedIndex]; return !!(s.value && o && lcdTestJeAno(o)); }).length; })()`);
   },
 
   /** „Vratná záloha spolu“ v rekapitulácii (číslo, € ) alebo NaN. */
