@@ -15244,6 +15244,9 @@ html.lcd-opc body.in-krok-2 #lcd-opc-kosik .lcd-opc-zob{margin:2px 0 6px}
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta .lcd-vyb__farby--box{grid-template-columns:repeat(6,minmax(0,1fr))}
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta .lcd-opc-kk__cena{white-space:normal}
 }
+
+/* kamión v karte košíka (Michal 2. 11. 2026): ponuka „Tapacír dverí“ — krátky popis pod cenou */
+html.lcd-opc body.in-krok-2 .lcd-vyb__popis{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 /* ===== LCD-OPC END ===== */
 
 /* ===== LCD-OPC-DAKUJEME START - generovane tools/vloz-lcd-css.py z _lcdOpcDakujeme.scss (dakovna stranka po objednavke (navrh 4): platba hore, kroky, objednavka, kontakt; len html.lcd-opc-dakujeme), needituj rucne ===== */
