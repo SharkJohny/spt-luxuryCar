@@ -36,10 +36,17 @@
 //   S91 kamión TIR bez tapacíru: ponuka „Tapacír dverí“ +119 € -> pridanie + zmazanie pôvodného riadku bez načítania
 //       stránky (hodnoty ako konfigurátor „Rovnaké ako koberce“), ✓ hláška, ponuka preč, súhrn kamióna s blokom dverí
 //       = súhrn z konfigurátora, poznámka objednávky s ním
+//   S95 (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) prázdny košík (fixtures <web>-prazdny = skutočné HTML
+//       Shoptetu 2. 11.): bez kódu stránka Shoptetu bez zmeny; s kódom nový blok (texty a odkazy z menu webu, telefón a
+//       e-mail zo Shoptetu, vyhľadávanie Shoptetu presunuté), krok 1 sa nesťahuje, bez chyby v dataLayer, nič nepreteká
+//       320–1920 px, písmo ≥ 14 px, žiadne zakázané slová; vypínač data.json „opc“: false -> stránka Shoptetu späť
 import { KOSIK, KROK2, ZAKAZNIK, cakajOpc, vyplnUdaje, suhlas, objednaj, overTeloObjednavky, step1Xhr, over, pauza, OPC } from "./krok2-pomoc.mjs";
 import { klikObjednat } from "./scenare-spravanie.mjs";
 import { KAMION } from "./scenare-kosiky.mjs";
 import { buildTruckOrderSummary } from "../../assets/js/truck-konfigurator/order-summary.mjs";
+import { PRAZDNY_TEXTY } from "../../assets/js/opc/prazdnyKosik.js";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const SCENAR = { jedna: true };
 const KARTA = "#lcd-opc-kosik";
@@ -759,6 +766,94 @@ export const SCENARE = {
       const remark = (m.get("remark") || [""])[0];
       over(remark.includes("[KONFIGURÁCIA KAMIÓNA]") && remark.includes("TAPACÍR DVERÍ") && remark.includes("Rovnaký ako koberčeky – Prémiová syntetická koža"), "poznámka bez bloku dverí: " + JSON.stringify(remark.slice(0, 200)));
       return { step2: true, info: "addCartItem + deleteCartItem, 423 €, " + k.hlaska.slice(2) + " poznámka " + remark.length + " znakov" };
+    },
+  },
+  S95: {
+    popis: "Prázdny košík (Michal 2. 11. 2026): bez kódu Shoptet bez zmeny; s kódom nový blok — texty a odkazy z menu webu, kontakt a vyhľadávanie Shoptetu, krok 1 sa nesťahuje, 320–1920 bez pretečenia, písmo ≥ 14, vypínač data.json vráti Shoptet",
+    async fn(J) {
+      const T = PRAZDNY_TEXTY[J.web];
+      const PR = `(function () {
+        var b = document.getElementById("lcd-opc-prazdny"), vid = function (e) { return !!e && e.getBoundingClientRect().height > 0 && getComputedStyle(e).display !== "none"; };
+        var f = document.getElementById("formSearchFormContent"), t = function (s) { var e = b && b.querySelector(s); return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; };
+        return { stav: window.__lcdOpc ? window.__lcdOpc.stav : null, blok: !!b, trieda: document.documentElement.classList.contains("lcd-opc-prazdny"),
+          shoptetNadpis: vid(document.querySelector(".cart-empty .cart-heading")), shoptetObsah: vid(document.querySelector(".cart-empty .cart-row")),
+          formVBloku: !!(b && f && b.contains(f)), formVidno: vid(f), formAkcia: f ? f.getAttribute("action") : null, formPole: f ? (f.querySelector('input[type="search"]') || {}).name : null,
+          nadpis: t(".lcd-prz-hlava__nadpis"), uvod: t(".lcd-prz-uvod"), pomoc: t(".lcd-prz-pomoc .lcd-prz-karta__nadpis"),
+          odkazy: b ? [].map.call(b.querySelectorAll("a[href]"), function (a) { return a.getAttribute("href"); }) : [],
+          kontakt: b ? [].map.call(b.querySelectorAll(".lcd-prz-kontakt"), function (a) { return a.getAttribute("href") + " " + a.querySelector("b").textContent.trim(); }) : [],
+          obrazky: b ? [].map.call(b.querySelectorAll("img"), function (i) { return i.getAttribute("src"); }).concat([].map.call(b.querySelectorAll(".lcd-prz-vz__vejar i"), function (i) { return (/url\\(["']?([^"')]+)/.exec(i.style.backgroundImage) || [])[1]; })) : [],
+          text: b ? b.innerText : "", chyby: (window.dataLayer || []).filter(function (d) { return d && d.event === "lcd_opc_chyba"; }).length };
+      })()`;
+      const casti = [];
+      // 1) bez kódu: prázdny košík Shoptetu bez zmeny
+      {
+        const s = await J.novaStranka({ kosik: "prazdny", scenar: SCENAR });
+        await s.chod(KOSIK, { popis: "prázdny košík bez kódu" });
+        const a = await s.ev(PR);
+        over(!a.blok && !a.trieda && a.shoptetNadpis && a.shoptetObsah && !a.formVBloku, "bez kódu: " + JSON.stringify({ blok: a.blok, trieda: a.trieda, n: a.shoptetNadpis, o: a.shoptetObsah }));
+        casti.push("bez kódu Shoptet");
+        await s.zavri();
+      }
+      // 2) s kódom: nový blok
+      const s = await J.novaStranka({ kosik: "prazdny", scenar: SCENAR });
+      await s.chod(KOSIK + OPC, { popis: "prázdny košík s kódom" });
+      await s.cakaj(`window.__lcdOpc && window.__lcdOpc.stav === "kosik-prazdny"`, { ms: 10000, popis: "stav kosik-prazdny" });
+      await pauza(800);
+      const a = await s.ev(PR);
+      over(a.blok && a.trieda && !a.shoptetNadpis && !a.shoptetObsah, "blok / Shoptet skrytý: " + JSON.stringify({ blok: a.blok, trieda: a.trieda, n: a.shoptetNadpis, o: a.shoptetObsah }));
+      over(a.nadpis === T.nadpis && a.uvod === T.uvod, "texty: " + JSON.stringify([a.nadpis, a.uvod]));
+      const ocakOdkazy = [T.set.href].concat(T.produkty.map((p) => p.href), [T.vz.href]);
+      ocakOdkazy.forEach((h) => over(a.odkazy.indexOf(h) >= 0, "chýba odkaz " + h + " v " + JSON.stringify(a.odkazy)));
+      const mail = J.web === "cz" ? "info@luxurycardesign.cz" : "info@luxurycardesign.sk";
+      over(JSON.stringify(a.kontakt) === JSON.stringify(["tel:+421903660720 +421 903 660 720", "mailto:info&#64;luxurycardesign." + J.web + " " + mail].map((x) => x.replace("&#64;", "@"))) ||
+        JSON.stringify(a.kontakt) === JSON.stringify(["tel:+421903660720 +421 903 660 720", "mailto:info@luxurycardesign." + J.web + " " + mail]), "kontakt zo Shoptetu: " + JSON.stringify(a.kontakt));
+      over(a.pomoc === (J.web === "cz" ? "Potřebujete pomoc?" : "Potrebujete poradiť?"), "nadpis kontaktu zo Shoptetu: " + a.pomoc);
+      over(a.formVBloku && a.formVidno && a.formAkcia === "/action/ProductSearch/prepareString/" && a.formPole === "string", "vyhľadávanie: " + JSON.stringify([a.formVBloku, a.formVidno, a.formAkcia, a.formPole]));
+      over(a.obrazky.length === 3 + T.produkty.length + 5, "počet obrázkov " + a.obrazky.length);
+      const koren = fileURLToPath(new URL("../../", import.meta.url));
+      a.obrazky.forEach((u) => { const m = /\/assets\/(img\/lcd-home\/[a-z0-9-]+\.jpg)$/.exec(u || ""); over(m && existsSync(koren + "assets/" + m[1]), "obrázok mimo assets/img/lcd-home: " + u); });
+      const zakazane = /ekokož|ekokůž|\bDPH\b|z[aá]loh|IBAN|Luxury Car Dess?ign/i.exec(a.text);
+      over(!zakazane, "zakázané slovo „" + (zakazane && zakazane[0]) + "“");
+      over(a.chyby === 0, "lcd_opc_chyba v dataLayer: " + a.chyby);
+      const krok1 = s.p.zaznam.www.filter((z) => /^\/objednavka\/krok-1\/?$/.test(z.cesta));
+      over(!krok1.length, "krok 1 sa sťahoval: " + krok1.length + "×");
+      casti.push("blok, " + ocakOdkazy.length + " odkazov, kontakt, vyhľadávanie, bez kroku 1");
+      // šírky: nič nepreteká, písmo ≥ 14 px (štítky pod fotkami setu tiež 14), nadpis v 1 riadku od 390
+      const chyby = [];
+      for (const w of [320, 360, 375, 390, 414, 768, 1024, 1100, 1366, 1920]) {
+        await s.k.posli("Emulation.setDeviceMetricsOverride", { width: w, height: w < 768 ? 844 : 900, deviceScaleFactor: 1, mobile: w < 768 });
+        await pauza(150);
+        const r = await s.ev(`(function () {
+          var b = document.getElementById("lcd-opc-prazdny"), W = document.documentElement.clientWidth, zle = [];
+          if (document.documentElement.scrollWidth > W + 1) zle.push("stránka " + document.documentElement.scrollWidth + " > " + W);
+          b.querySelectorAll("*").forEach(function (e) {
+            var r = e.getBoundingClientRect(); if (!r.width) return;
+            if (r.right > W + 0.5 || r.left < -0.5) zle.push((typeof e.className === "string" ? e.className : e.tagName) + " " + Math.round(r.left) + "–" + Math.round(r.right));
+            var vlastny = Array.prototype.some.call(e.childNodes, function (x) { return x.nodeType === 3 && /\\S/.test(x.nodeValue); });
+            if (vlastny && parseFloat(getComputedStyle(e).fontSize) < 14) zle.push("písmo " + getComputedStyle(e).fontSize + ": " + e.textContent.trim().slice(0, 30));
+          });
+          var h = b.querySelector(".lcd-prz-hlava__nadpis");
+          if (W >= 390 && h.getBoundingClientRect().height > parseFloat(getComputedStyle(h).lineHeight) * 1.5) zle.push("nadpis v 2 riadkoch");
+          return zle.slice(0, 5);
+        })()`);
+        if (r.length) chyby.push(w + ": " + r.join(" | "));
+      }
+      over(!chyby.length, "rozloženie:\n      " + chyby.join("\n      "));
+      casti.push("320–1920 OK");
+      await s.zavri();
+      // 3) núdzový vypínač v data.json: blok preč, vyhľadávanie späť na pôvodnom mieste
+      {
+        const v = await J.novaStranka({ kosik: "prazdny", scenar: Object.assign({ dataJson: { opc: false } }, SCENAR) });
+        await v.chod(KOSIK + OPC, { popis: "prázdny košík, opc vypnuté v data.json" });
+        await pauza(500);
+        const c = await v.ev(PR);
+        over(!c.blok && !c.trieda && c.shoptetNadpis && c.shoptetObsah, "vypínač: " + JSON.stringify({ blok: c.blok, trieda: c.trieda, n: c.shoptetNadpis, o: c.shoptetObsah }));
+        const naMieste = await v.ev(`(function () { var f = document.getElementById("formSearchFormContent"); return !!(f && f.closest(".empty-cart-boxes")); })()`);
+        over(naMieste, "vyhľadávanie po vypnutí nie je na pôvodnom mieste");
+        casti.push("vypínač data.json -> Shoptet");
+        await v.zavri();
+      }
+      return { info: casti.join("; ") };
     },
   },
 };

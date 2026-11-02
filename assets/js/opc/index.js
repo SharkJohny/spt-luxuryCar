@@ -13,6 +13,7 @@
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty } from "./kosik.js";
+import { jePrazdny, prazdnyKosik, zrusPrazdny } from "./prazdnyKosik.js";
 import { initSkok, drzHned } from "./skok.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
@@ -141,6 +142,8 @@ export function vzhladKosikaSkoro(doc, search) {
     const trh = PROJEKTY[String(getShoptetContext().projectId || "")];
     if (!trh) return false;
     vzhladKosika(doc, TEXTY[trh]);
+    // prázdny košík: nový vzhľad hneď (pôvodná stránka Shoptetu nepreblikne), opc/prazdnyKosik.js
+    if (jePrazdny(doc)) prazdnyKosik(doc, trh);
     // jedna stránka: košík sa hneď preskočí (opc/kosik.js) — kým beží prechod, obsah košíka nevidno
     if (JEDNA_STRANKA && !bezKarty() && doc.getElementById("continue-order-button")) prechadzam(doc, TEXTY[trh]);
     return true;
@@ -206,6 +209,7 @@ try { if (typeof document !== "undefined" && document.body) drzHned(document, wi
 /** Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka, kroku 2 aj ďakovnej stránky späť. */
 function zrusSkoryVzhlad() {
   try { if (document.documentElement.classList.contains("lcd-opc-kosik")) zrusVzhladKosika(document); } catch (e) {}
+  try { zrusPrazdny(document); } catch (e) {}
   try { zrusPrechadzam(document); } catch (e) {}
   try { if (document.documentElement.classList.contains("lcd-opc-caka")) document.documentElement.classList.remove("lcd-opc", "lcd-opc-caka"); } catch (e) {}
   try { zrusDakujemeSkoro(document); } catch (e) {}

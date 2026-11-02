@@ -14,6 +14,7 @@ import { upravKroky } from "./vzhlad.js";
 import { oznacPreskocenie } from "./analytika.js";
 import { ulozFotky } from "./polozky.js";
 import * as B from "./banka.js";
+import { jePrazdny, prazdnyKosik } from "./prazdnyKosik.js";
 
 export const CESTA_KROK1 = "/objednavka/krok-1/";
 /** Jedna stránka: košík sa práve preskakuje (obsah košíka nevidno, len „Načítavam…“; _lcdOpc.scss). */
@@ -138,6 +139,14 @@ export function initKosik(ctx) {
   const st = { model: null, cas: 0, bezi: false };
   ctx.kosik = st;
   vzhladKosika(document, TEXTY[ctx.trh] || TEXTY.sk);
+  // prázdny košík (Michal 2. 11. 2026): nový vzhľad (opc/prazdnyKosik.js), krok 1 sa nesťahuje (Shoptet by presmeroval
+  // späť na košík a do dataLayer by išla zbytočná chyba „krok1-stranka“)
+  if (jePrazdny(document)) {
+    zrusPrechadzam(document);
+    prazdnyKosik(document, ctx.trh);
+    ctx.stav = "kosik-prazdny";
+    return;
+  }
   // malé náhľady položiek pre súhrn kroku 2 (opc/polozky.js): data-micro-identifier -> URL náhľadu z riadku košíka
   try { ulozFotky(document, window.sessionStorage); } catch (e) {}
 
