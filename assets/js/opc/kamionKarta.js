@@ -18,6 +18,7 @@
 import { parseTruckOrderSummary, addSameDoorPanelsToSummary, truckSummaryTexts } from "../truck-konfigurator/order-summary.mjs";
 import { SELECTY, normalizeOptionText, resolveValue } from "../components/konfigurator1v/kamion/shoptet.js";
 import { jeTir, PRECIARKNUTE_EUR, PRECIARKNUTE_CZK } from "../components/konfigurator1v/kamion/data.js";
+import { TEXTY_CS } from "../components/konfigurator1v/kamion/texty-cs.js";
 import { lcdRozpisEl } from "../functions/kosikRozpis.js";
 import * as D from "../lcdKosikDoplnok.js";
 
@@ -207,11 +208,45 @@ export function udajeKamiona(p, o) {
 /** Vozidlo pre zákazníka ako v konfigurátore (data.js meno): bez „(TIR)“ / „(dodávka)“, roky s pomlčkou „2022–2025“. Poznámka objednávky ostáva bez zmeny. */
 const vozidloNaZobrazenie = (t) => cisty(t).replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
 
+/** CZ: výbava vozidla zo súhrnu („Automatická prevodovka“) ako ju ukazuje CZ konfigurátor („Automatická“) — texty-cs.js polia.*.moznosti. */
+const VYBAVA_CS = (function () {
+  const m = {};
+  (function prejdi(o, hlbka) {
+    if (!o || typeof o !== "object" || hlbka > 6) return;
+    Object.keys(o).forEach(function (k) {
+      const x = o[k];
+      if (k === "polia" && x && typeof x === "object") {
+        Object.keys(x).forEach(function (pole) {
+          const mo = x[pole] && x[pole].moznosti;
+          if (mo && typeof mo === "object") Object.keys(mo).forEach(function (sk) { if (typeof mo[sk] === "string") m[sk] = mo[sk]; });
+        });
+      } else prejdi(x, hlbka + 1);
+    });
+  })(TEXTY_CS, 0);
+  return m;
+})();
+
+/**
+ * Materiál zo súhrnu s typom materiálu z príplatku Shoptetu: CZ súhrn „Prémiová syntetická koža – prešívaná – černá…“ +
+ * príplatok „Prémiová syntetická kůže – prošívaná“ -> „Prémiová syntetická kůže – prošívaná – černá…“. Nesedí -> bez zmeny.
+ */
+function materialNaZobrazenie(hodnota, material) {
+  if (!material) return hodnota;
+  const casti = String(hodnota).split(" – ");
+  const ciel = normalizeOptionText(material);
+  for (let k = 1; k <= casti.length; k++) {
+    if (normalizeOptionText(casti.slice(0, k).join(" – ")) === ciel) return [cisty(material)].concat(casti.slice(k)).join(" – ");
+  }
+  return hodnota;
+}
+
 /**
  * Riadky rozpisu [{ n, h }] zo skupín: vozidlo a koberčeky ako v súhrne (bez „Bez nášivky“), tapacír jedným riadkom
  * „Tapacír dverí: rovnaký ako koberčeky“, alebo po častiach s „Tapacír – …“ (rovnaké popisy ako koberčeky by sa plietli).
  */
-export function riadkyRozpisu(skupiny, jazyk, trh) {
+export function riadkyRozpisu(skupiny, jazyk, trh, sur) {
+  const v = sur ? hodnotyPriplatkov(sur) : {};
+  const material = v.material || null;
   const X = truckSummaryTexts(jazyk === "cs" ? "cs" : "sk");
   const T = texty(trh);
   const L = X.labels;
@@ -228,14 +263,19 @@ export function riadkyRozpisu(skupiny, jazyk, trh) {
       mena[L.doorPatchType] = T.tapNasTyp;
       mena[L.doorPatchColor] = T.tapNasNit;
       g.items.forEach(function (i) {
-        const hod = ROVNAKE(i.value) ? i.value.split(" – ")[0] : i.value;
+        const hod = ROVNAKE(i.value) ? i.value.split(" – ")[0]
+          : i.label === L.materialColor && v.tapMaterial && !ROVNAKE(v.tapMaterial) ? materialNaZobrazenie(i.value, v.tapMaterial) : i.value;
         out.push({ n: mena[i.label] || i.label, h: hod });
       });
       return;
     }
     g.items.forEach(function (i) {
       if (KOBERCE.test(g.heading) && i.value === X.noPatch) return;
-      out.push({ n: i.label, h: i.label === L.vehicle ? vozidloNaZobrazenie(i.value) : i.value });
+      let h = i.value;
+      if (i.label === L.vehicle) h = vozidloNaZobrazenie(h);
+      else if (KOBERCE.test(g.heading) && i.label === L.materialColor) h = materialNaZobrazenie(h, material);
+      else if (jazyk === "cs" && VYBAVA_CS[cisty(h)]) h = VYBAVA_CS[cisty(h)];
+      out.push({ n: i.label, h: h });
     });
   });
   return out;
@@ -244,7 +284,7 @@ export function riadkyRozpisu(skupiny, jazyk, trh) {
 /** Rozpis kamióna do karty (ul.lcd-rozpis ako pri autách) alebo null. */
 export function rozpisKamiona(doc, p, o) {
   const u = udajeKamiona(p, o);
-  const riadky = riadkyRozpisu(u.skupiny, o.jazyk, o.trh);
+  const riadky = riadkyRozpisu(u.skupiny, o.jazyk, o.trh, p.sur);
   if (!riadky.length) return null;
   const ul = lcdRozpisEl(doc, riadky, "lcd-rozpis");
   ul.classList.add("lcd-opc-kk__kamion-rozpis");

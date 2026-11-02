@@ -633,5 +633,8 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Celá sada SK + CZ, push, CDN (aj assets/img/kosik/tapacir-dveri.jpg), naživo s 153f0ec (SK 19:57, CZ 20:12), kontrola SK v Michalovom Chrome OK
 - [x] Kniha OPC § 10.31
 - [x] Kontrola CZ naživo: chýbalo Vozidlo aj ponuka Čalounění (súhrn CZ konfigurátora so SK hodnotami) -> oprava suhrnSedi (normalizeOptionText), bez „Bez nite“, vozidlo „DAF XF 2022–2025“; test „CZ živý“
-- [ ] Oprava CZ na main, CDN, prepnutie SK + CZ (návrat 153f0ec), kontrola CZ v Michalovom Chrome
+- [x] Oprava CZ na main (a97c0f5), CDN, naživo SK 21:07 + CZ 21:20 (návrat 153f0ec), kontrola SK aj CZ v Michalovom Chrome OK
+- [x] CZ karta: materiál zo Shoptetu a výbava ako CZ konfigurátor (súhrn má SK hodnoty), test „CZ: vlastný materiál…“
+- [ ] CZ texty naživo (nový sha), kontrola CZ v Michalovom Chrome
+- [ ] Súhrn CZ konfigurátora (poznámka objednávky, riadok klasického košíka) má SK hodnoty materiálu a výbavy — riešiť len s Jánom (export)
 - [ ] Brain (log + mapa modulov)

@@ -172,12 +172,28 @@ test("CZ živý: súhrn so slovenskými hodnotami sedí s českými príplatkami
   const u = K.udajeKamiona(p, { ss, jazyk: "cs", jediny: true });
   pravda(u.zoSuhrnu, "súhrn sa nepoužil");
   rovne(u.vozidlo, "DAF (TIR) XF 2022-2025");
-  const r = K.riadkyRozpisu(u.skupiny, "cs", "cz");
+  const r = K.riadkyRozpisu(u.skupiny, "cs", "cz", SUR_CZ_ZIVY);
   rovne(r[0], { n: "Vozidlo", h: "DAF XF 2022–2025" });
   pravda(!r.some((x) => /Bez nášivky|Bez nit/.test(x.h)), JSON.stringify(r));
+  // živá kontrola a97c0f5: súhrn má slovenské hodnoty -> v karte po česky (materiál zo Shoptetu, prevodovka a sedadlo ako CZ konfigurátor)
+  rovne(r[1], { n: "Typ převodovky", h: "Automatická" });
+  rovne(r[2], { n: "Typ sedadla spolujezdce", h: "Odpružené" });
+  rovne(r[3], { n: "Typ a barva materiálu", h: "Prémiová syntetická kůže – prošívaná – černá, černé prošití – 11" });
+  pravda(!/koža|prešívan|prevodovka|spolujazdca/.test(JSON.stringify(r)), "slovenské slovo v CZ karte: " + JSON.stringify(r));
+  pravda(/Prémiová syntetická koža – prešívaná/.test(ss.getItem("truckOrderSummary")), "súhrn (poznámka objednávky) sa nemení");
   // súhrn inej farby (12) sa ani na CZ nepoužije
   const iny = Object.assign({}, S_CZ_ZIVY, { selectedColor: { code: "12" } });
   pravda(!K.udajeKamiona(p, { ss: ulozisko({ truckOrderSummary: buildTruckOrderSummary(iny, "cs") }), jazyk: "cs", jediny: true }).zoSuhrnu, "súhrn s farbou 12");
+});
+
+test("CZ: vlastný materiál tapacíru zo súhrnu po česky, výbava ako CZ konfigurátor", () => {
+  const st = Object.assign({}, S_CZ_ZIVY, { extras: { prevodovka: "Manuálna prevodovka", zasuvky: "2 zásuvky (šuplíky)" }, doorPanelChoice: "ano",
+    doorSameAsCarpet: { material: false, lemovanie: true }, doorMaterial: "Prémiová syntetická koža – prešívaná", doorColor: { code: "11" }, doorWantsNasivka: false });
+  const sur = SUR_CZ_ZIVY.replace("Čalounění - Ne, nechci čalounění dveří", "Čalounění - Ano, chci (v konfigurátoru – balíček), Materiál dveře - Prémiová syntetická kůže – prošívaná, Barva dveře - černá, černé prošití – 11, Lemování dveře - Stejné jako koberec");
+  const r = K.riadkyRozpisu(K.udajeKamiona({ itemId: "c1", sur, text: "Luxusní autokoberce do kamionů" }, { ss: ulozisko({ truckOrderSummary: buildTruckOrderSummary(st, "cs") }), jazyk: "cs", jediny: true }).skupiny, "cs", "cz", sur);
+  pravda(r.some((x) => x.h === "Manuální") && r.some((x) => x.h === "2 zásuvky"), JSON.stringify(r));
+  pravda(r.some((x) => /^Čalounění – materiál|materiál/i.test(x.n) && x.h === "Prémiová syntetická kůže – prošívaná – černá, černé prošití – 11"), JSON.stringify(r));
+  pravda(!/koža|prešívan|prevodovka/.test(JSON.stringify(r)), JSON.stringify(r));
 });
 
 test("rozpis z príplatkov: „Bez nite / Bez nitě“ sa nezobrazí (nášivka tam nie je)", () => {
