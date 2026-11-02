@@ -74,8 +74,8 @@ t("adresa: /objednavka/dekujeme/ aj SK /objednavka/dakujeme/ (aj bez lomky); kro
 });
 t("popisy Shoptetu SK aj CZ (s dvojbodkou, bez diakritiky); nadpisy blokov nie sú popis", () => {
   eq(["Zvolená platba", "Zvolená doprava", "Částka k úhradě", "Suma na úhradu", "Bankovní účet", "Bankový účet:", "Variabilný symbol:", "Číslo", "Číslo objednávky",
-    "Platba a doručení", "Obsah objednávky", "Převodem", "20 006 Kč"].map(D.klucPopisu),
-  ["platba", "doprava", "suma", "suma", "ucet", "ucet", "vs", "cislo", "cislo", null, null, null, null]);
+    "Platba a doručení", "Obsah objednávky", "Převodem", "20 006 Kč", "Čiastka k úhrade", "IBAN", "IBAN:", "BIC (SWIFT)"].map(D.klucPopisu),
+  ["platba", "doprava", "suma", "suma", "ucet", "ucet", "vs", "cislo", "cislo", null, null, null, null, "suma", "ucet", "ucet", null]);
 });
 t("spôsob platby podľa názvu Shoptetu (krok 1 SK aj CZ)", () => {
   eq(["Převodem", "Prevodom", "Dobírka", "Dobierkou", "Online platba kartou", "Apple Pay", "Google Pay", "Rýchla platba cez banku", "Hotově na prodejně", ""].map(D.druhPlatby),
@@ -517,6 +517,11 @@ t("prevod SK: preklad, QR obrázok Shoptetu prevzatý (rovnaký src), žiadny vl
   eq([q(b, "h1"), q(b, ".lcd-dak-hero__text"), q(b, ".lcd-dak-platba__stitok"), q(b, ".lcd-dak-platba__navod")],
     ["Ďakujeme za objednávku", "Zostáva zaplatiť prevodom – údaje nájdete nižšie.", "Platba prevodom", "Údaje skopírujte do aplikácie svojej banky."]);
   eq(Array.prototype.map.call(b.querySelectorAll(".lcd-dak-udaj__n"), txt), ["Číslo účtu", "Variabilný symbol", "Suma"]);
+  // skutočná SK stránka (1820260076): účet ako IBAN bez medzier -> ukázať po štvoriciach, kopírovať bez medzier; BIC sa neukazuje
+  const iban = b.querySelector(".lcd-dak-udaj");
+  eq([txt(iban.querySelector(".lcd-dak-udaj__h")), iban.querySelector(".lcd-dak-kopia").getAttribute("data-kopia"), iban.querySelector(".lcd-dak-kopia").getAttribute("aria-label")],
+    ["SK00 1111 2222 3333 4444 5555", "SK0011112222333344445555", "Kopírovať číslo účtu"]);
+  over(!/TESTSKBAXXX/.test(b.textContent), "BIC v bloku");
   const qr = b.querySelector(".lcd-dak-qr img");
   eq(qr && qr.getAttribute("src"), doc.querySelector("#content img.qrcode").getAttribute("src"), "QR = obrázok Shoptetu");
   eq(b.querySelectorAll("svg").length > 0 && !b.querySelector(".lcd-dak-qr svg, .lcd-dak-qr canvas"), true, "žiadny kreslený QR");

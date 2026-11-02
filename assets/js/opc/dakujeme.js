@@ -79,8 +79,9 @@ const POPISY = {
   cislo: /^(cislo|cislo objednavky|objednavka cislo|objednavka c\.?|c\. objednavky)$/,
   doprava: /^(zvolena doprava|doprava|sposob dopravy|zpusob dopravy|zvoleny sposob dopravy|zvoleny zpusob dopravy)$/,
   platba: /^(zvolena platba|platba|sposob platby|zpusob platby|zvoleny sposob platby|zvoleny zpusob platby|sposob uhrady|zpusob uhrady)$/,
-  suma: /^(castka k uhrade|suma k uhrade|suma na uhradu|celkom k uhrade|celkem k uhrade|k uhrade|celkova suma|celkova castka)$/,
-  ucet: /^(bankovni ucet|bankovy ucet|cislo uctu|cislo bankovniho uctu|cislo bankovneho uctu)$/,
+  // ✅ SK Shoptet (objednávka 1820260076, 2. 11. 2026): „Čiastka k úhrade“ a „IBAN“ (+ „BIC (SWIFT)“, ten nepotrebujeme)
+  suma: /^(castka k uhrade|ciastka k uhrade|ciastka na uhradu|suma k uhrade|suma na uhradu|celkom k uhrade|celkem k uhrade|k uhrade|celkova suma|celkova castka|celkova ciastka)$/,
+  ucet: /^(bankovni ucet|bankovy ucet|cislo uctu|cislo bankovniho uctu|cislo bankovneho uctu|iban)$/,
   vs: /^(variabilni symbol|variabilny symbol|vs)$/,
 };
 /** Kľúč popisu (cislo, doprava, platba, suma, ucet, vs) podľa textu „Zvolená platba“, „Variabilný symbol:“… alebo null. */
@@ -415,6 +416,14 @@ export function textPovodneho(doc, koren, vynechaj) {
  * udaje: { trh, cislo, doprava, platba, druh, suma, sumaText, mena, ucet, vs, qr, polozky, ine, stav, neuspech, odkaz, spat }
  * o: { zaplatenePodlaTextu } — len pre testy schváleného vzhľadu „zaplatené“; naživo platí ZAPLATENE_PODLA_TEXTU.
  */
+/** IBAN (SK Shoptet ho vypíše bez medzier: „SK4583…“) — ukáže sa po štvoriciach, kopíruje bez medzier. */
+export function jeIban(ucet) {
+  return /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(String(ucet || "").replace(/\s+/g, "").toUpperCase());
+}
+export function ibanText(ucet) {
+  return String(ucet).replace(/\s+/g, "").toUpperCase().replace(/(.{4})(?=.)/g, "$1 ");
+}
+
 export function citajUdaje(doc, trh, vynechaj, o) {
   const koren = korenPovodneho(doc);
   if (!koren) return { ok: false, dovod: "chýba obsah stránky" };
@@ -465,7 +474,7 @@ export function citajUdaje(doc, trh, vynechaj, o) {
     ok: true,
     udaje: {
       trh, cislo, doprava: pary.doprava ? pary.doprava.h : "", platba, druh, suma, sumaText: cisty(sumaText), mena: menaZTextu(sumaText),
-      ucet: maPrevod ? ucet : null, vs: maPrevod ? vs : null, qr, polozky, ine, stav, neuspech: t.neuspech, odkaz,
+      ucet: maPrevod ? ucet : null, ucetIban: maPrevod && jeIban(ucet), vs: maPrevod ? vs : null, qr, polozky, ine, stav, neuspech: t.neuspech, odkaz,
       spat: spatEl ? spatEl.getAttribute("href") : "/",
     },
   };
@@ -579,7 +588,10 @@ export function postavBlok(doc, u, T) {
       li.appendChild(b);
       ul.appendChild(li);
     };
-    riadok("ucet", T.ucet, u.ucet, u.ucet);
+    // SK Shoptet vypíše účet ako IBAN bez medzier -> po štvoriciach, kopíruje sa bez medzier; popis ostáva „Číslo účtu“
+    // (slovo IBAN v našich textoch nie — Michal 30. 10. 2026: len údaje, ktoré vypíše Shoptet)
+    if (u.ucetIban) riadok("ucet", T.ucet, ibanText(u.ucet), u.ucet.replace(/\s+/g, "").toUpperCase());
+    else riadok("ucet", T.ucet, u.ucet, u.ucet);
     riadok("vs", T.vs, u.vs, u.vs);
     const n = u.suma;
     riadok("suma", T.suma, u.sumaText, Math.abs(n - Math.round(n)) < 0.005 ? String(Math.round(n)) : n.toFixed(2).replace(".", ","), true);

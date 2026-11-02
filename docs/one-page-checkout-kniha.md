@@ -1597,6 +1597,14 @@ Michal (1. 11. 23:02, snímka z iPhonu po nasadení 9f93d20): „Je to super… 
 - **Kontrola naživo** (Michalov Chrome, SK aj CZ, skrytý odkaz): poradie rohož, druhá vrstva, box; štítok na jeden riadok; rohož, video aj box presne 76 × 95; video hrá bez zvuku; „Pridať“ / „Přidat“; konzola bez chýb. Playwright: SK WebKit telefón 8/8, CZ Firefox PC 8/8, ponuka CZ Chromium telefón 5/5, bez kódu klasický košík. Snímky na PC v `claud\WEB\pokladna-2f7f81b\`. Testovací CZ košík vyprázdnený.
 - 🟡 **Orezanie rohože:** fotky sú na šírku, dlaždica na výšku -> z fotky ostane stredných ~60 % šírky. Box (`box-1.jpg`) je celý, rohožou (`rohoz-classic.jpg`) chýba ľavý a pravý okraj; v náhľade to tak bolo a Michal prepnutie odsúhlasil. Ponúknutá fotka rohože na výšku (čaká na Michala).
 
+### 10.30 Ďakovná stránka SK: skutočné popisy „Čiastka k úhrade“ a „IBAN“ (2. 11. 2026)
+Michal 2. 11. ~14:00: skúšobná objednávka **1820260076** (SK, prevod, Expres kurier DPD, €259) cez skrytý odkaz na iPhone, „táto koncová stránka sa mi neukázala nová“ (snímka v `/mnt/project-files/uploads/hearth/`).
+- **Príčina ✅:** prvá skutočná SK ďakovná stránka. Shoptet SK píše „**Čiastka k úhrade**“ (nie odhad „Suma na úhradu“) a účet ako „**IBAN**“ + „**BIC (SWIFT)**“ (nie „Bankový účet“). `citajUdaje` nenašiel sumu ani účet -> podľa návrhu nechal stránku Shoptetu (dôvod „suma“). Číslo, doprava, platba („Prevodom“) a VS sedeli. Zákazníkov bez kódu sa to nedotklo.
+- **Oprava:** `POPISY.suma` + „čiastka k úhrade / na úhradu“, „celková čiastka“; `POPISY.ucet` + „IBAN“. IBAN (`jeIban`) sa ukáže po štvoriciach („SK00 1111 …“), Kopírovať dá hodnotu bez medzier; popis ostáva „Číslo účtu“ (slovo IBAN v našich textoch nie, Michal 30. 10.). BIC sa nepreberá.
+- **Fixtures SK** prepísané na skutočné popisy (aj riadok BIC, IBAN bez medzier); jednotkový test popisov a SK bloku. Červené pred opravou: 70 zlyhaní s dôvodom „suma“ (rovnako ako naživo), po oprave `test-opc-dakujeme` 177 OK, S50–S54 SK aj CZ 10/10, Playwright Chromium 390 / 1366 8/8.
+- Náhľad: `/mnt/project-files/kosik-navrhy/dakujeme-sk-oprava-telefon-390.png` (testovacie údaje).
+- ❓ CZ ďakovná stránka z naživo ešte nevidená (fixtures CZ podľa Michalovej snímky 2820260033 z 30. 10.); pri ďalšej skúšobnej objednávke aj CZ. Prázdne štvorčeky pred „Platba a doručenie“ na stránke Shoptetu (chýbajúca ikonka) neoverené; pri našom bloku sa nezobrazujú.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

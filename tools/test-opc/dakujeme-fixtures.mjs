@@ -66,7 +66,9 @@ const L = {
   },
   sk: {
     heading: "Objednávka odoslaná", cislo: "Číslo", blokPlatba: "Platba a doručenie", doprava: "Zvolená doprava", platba: "Zvolená platba",
-    suma: "Suma na úhradu", ucet: "Bankový účet", vs: "Variabilný symbol", obsah: "Obsah objednávky", rekap: "Rekapituláciu Vám zašleme aj e-mailom.",
+    // ✅ skutočné popisy SK (Michalova skúšobná objednávka 1820260076, 2. 11. 2026): „Čiastka k úhrade“, „IBAN“, „BIC (SWIFT)“
+    // (predtým odhad „Suma na úhradu“ / „Bankový účet“ -> modul nechal stránku Shoptetu)
+    suma: "Čiastka k úhrade", ucet: "IBAN", bic: "BIC (SWIFT)", vs: "Variabilný symbol", obsah: "Obsah objednávky", rekap: "Rekapituláciu Vám zašleme aj e-mailom.",
     dakujeme: "Ďakujeme!", spat: "Späť do obchodu", title: "Ďakujeme za objednávku - Luxury Car Design",
     dopravca: "Expres kurier DPD", prevod: "Prevodom", dobierka: "Dobierkou", karta: "Online platba kartou", apple: "Apple Pay", google: "Google Pay",
     pis: "Rýchla platba cez banku",
@@ -102,12 +104,12 @@ export const VARIANTY = {
   "cz-karta-ok": { web: "cz", platba: "karta-ok", kosik: "auto", cislo: "2820260034", doprava: 150 },
   "cz-karta-nie": { web: "cz", platba: "karta-nie", kosik: "auto", cislo: "2820260035", doprava: 150 },
   "cz-dobierka": { web: "cz", platba: "dobierka", kosik: "auto", cislo: "2820260036", doprava: 200 },
-  "sk-prevod": { web: "sk", platba: "prevod", kosik: "auto", cislo: "1820260047", doprava: 5, ucet: "SK00 1111 2222 3333 4444 5555", qr: true },
+  "sk-prevod": { web: "sk", platba: "prevod", kosik: "auto", cislo: "1820260047", doprava: 5, ucet: "SK0011112222333344445555", qr: true },
   "sk-karta-ok": { web: "sk", platba: "karta-ok", kosik: "auto", cislo: "1820260048", doprava: 5 },
   "sk-karta-nie": { web: "sk", platba: "karta-nie", kosik: "auto", cislo: "1820260049", doprava: 5 },
   "sk-dobierka": { web: "sk", platba: "dobierka", kosik: "auto", cislo: "1820260050", doprava: 8 },
-  "sk-kamion": { web: "sk", platba: "prevod", kosik: "kamion", cislo: "1820260051", doprava: 5, ucet: "SK00 1111 2222 3333 4444 5555" },
-  "sk-vzorky": { web: "sk", platba: "prevod", kosik: "vzorky", cislo: "1820260052", doprava: 5, ucet: "SK00 1111 2222 3333 4444 5555" },
+  "sk-kamion": { web: "sk", platba: "prevod", kosik: "kamion", cislo: "1820260051", doprava: 5, ucet: "SK0011112222333344445555" },
+  "sk-vzorky": { web: "sk", platba: "prevod", kosik: "vzorky", cislo: "1820260052", doprava: 5, ucet: "SK0011112222333344445555" },
   // stavy karty bez jednoznačného výsledku a iné platby
   "cz-karta-pred": { web: "cz", platba: "karta-pred", kosik: "auto", cislo: "2820260037", doprava: 150 },
   "cz-karta-ticho": { web: "cz", platba: "karta-ticho", kosik: "auto", cislo: "2820260038", doprava: 150 },
@@ -134,7 +136,7 @@ export const VARIANTY = {
   "cz-chyba-cislo": { web: "cz", platba: "prevod", kosik: "auto", cislo: "2820260042", doprava: 150, ucet: "2002871802/2010", bez: "cislo" },
   "cz-chyba-platba": { web: "cz", platba: "prevod", kosik: "auto", cislo: "2820260043", doprava: 150, ucet: "2002871802/2010", bez: "platba" },
   "cz-chyba-ucet": { web: "cz", platba: "prevod", kosik: "auto", cislo: "2820260044", doprava: 150, bez: "ucet" },
-  "sk-chyba-suma": { web: "sk", platba: "prevod", kosik: "auto", cislo: "1820260054", doprava: 5, ucet: "SK00 1111 2222 3333 4444 5555", bez: "suma" },
+  "sk-chyba-suma": { web: "sk", platba: "prevod", kosik: "auto", cislo: "1820260054", doprava: 5, ucet: "SK0011112222333344445555", bez: "suma" },
   "cz-neznama-platba": { web: "cz", platba: "prevod", kosik: "auto", cislo: "2820260045", doprava: 150, ucet: "2002871802/2010", nazovPlatby: "Hotově na prodejně" },
   // rýchla platba cez banku (len SK): bankový príkaz čaká na potvrdenie banky (🟡 znenie rekonštrukcia) -> stránka Shoptetu
   "sk-pis-caka-banka": { web: "sk", platba: "pis-text", kosik: "auto", cislo: "1820260090", doprava: 5, navrat: true, textKluc: "cakaBankaText" },
@@ -178,6 +180,8 @@ export function ocakavane(kluc) {
   return {
     web: v.web, stav, stavPodlaTextu, povodna: stav === null && !v.bez && !v.nazovPlatby, cislo: v.cislo, suma, sumaText: cena(v.web, suma), tovar, doprava: v.doprava, dopravaText: cena(v.web, v.doprava),
     dopravca: t.dopravca, platba: platbaNazov, ucet: v.ucet || null, vs: v.ucet ? v.cislo : null, qr: !!v.qr,
+    // IBAN sa ukáže po štvoriciach („SK00 1111 …“), kopíruje sa bez medzier
+    ucetText: v.ucet && /^[A-Z]{2}\d{2}/.test(v.ucet) ? v.ucet.replace(/(.{4})(?=.)/g, "$1 ") : v.ucet || null,
     polozky: pol.map((p) => ({ nazov: p.nazov.charAt(0).toLocaleUpperCase() + p.nazov.slice(1), ks: p.ks, cena: p.cena * p.ks, foto: p.foto })),
     odkazPlatby: /-nie$|-pred$/.test(v.platba) ? "/action/ShoptetPay/pay/?orderCode=" + v.cislo + "&hash=TEST" : null,
     odkazForm: v.tlacidlo ? v.tlacidlo.form : null,
@@ -220,7 +224,7 @@ export function obsah(kluc) {
   r1.push(riadokPopisu(t.doprava, t.dopravca));
   if (v.bez !== "platba") r1.push(riadokPopisu(t.platba, o.platba));
   if (v.bez !== "suma") r1.push(riadokPopisu(t.suma, o.sumaText));
-  if (o.ucet && v.bez !== "ucet") { r2.push(riadokPopisu(t.ucet, o.ucet)); r2.push(riadokPopisu(t.vs, o.vs)); }
+  if (o.ucet && v.bez !== "ucet") { r2.push(riadokPopisu(t.ucet, o.ucet)); if (t.bic) r2.push(riadokPopisu(t.bic, "TESTSKBAXXX")); r2.push(riadokPopisu(t.vs, o.vs)); }
   const qr = v.qr ? `<div class="reca-payment-wrap"><img class="qrcode" src="${QR_TEST}" width="160" height="160" alt="QR platba"></div>` : "";
   const cislo = v.bez === "cislo" ? "" : `<p class="reca-number">${t.cislo} <strong>${v.cislo}</strong></p>`;
   let platbaBlok;
