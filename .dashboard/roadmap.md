@@ -604,7 +604,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Kód: prečiarknuté CZ ceny (kamion/data.js) a záložný CZ cenník Reactu (konfigurator.jsx + .phone.jsx) na kurz 25; test-surcharge-sync CZ
 - [x] CZ admin 2452: základ 4 980 Kč + 10 príplatkov podľa /mnt/project-files/kamiony-ceny-cz/ (Michal 17:02), naživo set DAF 10 590 Kč
 - [x] Prečiarknuté CZ ceny naživo s c63a8b5 (2. 11. 19:12, vlákno vzoriek): 3 500 / 1 750 / 1 750 / 4 480 / 2 230 Kč, SK bez zmeny
-- [ ] Odpovedať Shoptetu, že GA4 je OK (Michal)
+- [x] Odpoveď Shoptetu — Michal 2. 11.: neposielame
 - [ ] Predom existujúca chyba testu: test-cart-summary čaká „2901 – Strieborná“, dáta majú „Strieborná – 2901“ (zastaví yarn truck:test)
 
 ## Vzorkovník: názvy vzoriek bez kódu a „Áno“ (2. 11. 2026)
