@@ -585,9 +585,15 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Pozrieť video druhej vrstvy na skutočnom iPhone — hrá (Michalova snímka z iPhonu 1. 11. 23:02)
 - [x] Michal: ostatné príplatky rovnako veľké ako video -> vybral A (väčšie fotky, boxy celé v obraze), štítok „Top do kufra“, test S81 stráži rozmer, kniha § 10.29
 - [x] Väčšie fotky: testy SK 146 + CZ 70, náhľad teraz / nové, Michal „Prepni na webe“ — 2f7f81b naživo SK + CZ 2. 11. 7:54, kontrola v Michalovom Chrome + Safari/Firefox OK (návrat 9f93d20)
-- [ ] Fotka rohože na výšku (teraz orezané okraje v dlaždici 76 × 95) — ponúknuté, čaká na Michala
+- [x] Fotka rohože na výšku (teraz orezané okraje v dlaždici 76 × 95) — nahradí ju video rohože (2. 11.)
 - [x] Ďakovná stránka SK sa po skúšobnej objednávke 1820260076 neukázala: Shoptet SK píše „Čiastka k úhrade“ a „IBAN“ -> rozpoznané, IBAN po štvoriciach (kniha § 10.30)
 - [x] Ďakovná stránka: cdb98f1 naživo SK + CZ 2. 11. 17:46 (návrat 2f7f81b)
+- [x] Michal 2. 11. 16:52: otvorený výber farby celý v rámiku s odsadením (na PC išiel od kraja po kraj), vzorky v 3 riadkoch (PC 6 v riadku), „Pridať“ a „Pridať k setu“ zelené
+- [x] Rohož a box do kufra ako video z našich fotiek (assets/img/kosik/rohoz-video, box-video; opc/vrstvaVideo.js produktDlazdica), testy test-kosik-doplnok + S81
+- [x] Michal 17:10: „+129 € · ušetríte 101 €“ v jednom riadku — medzera pri Pridať 12 -> 6 px, tlačidlo 88 -> 80 px (PC 1366, telefón 390 aj 360); CZ v Kč „ušetříte …“ celé na 2. riadok
+- [x] Michal schválil náhľad jeden-riadok-*.png 17:47 („áno, páči sa mi to“) -> spojené s kamiónmi 0d4adef a vzorkami c63a8b5, testy SK 75 + 75 OK, CZ 44 + 45 OK (S39 = scenár vzorkovníka, opravený v 01a0fa6), kniha § 10.33
+- [ ] Skutočné videá rohože a boxu (ak ich Michal dodá, stačí vymeniť assets/img/kosik/*-video.*)
+- [ ] Prepnutie na webe po Michalovej vete vo vlákne (spolu s c63a8b5 vzorky a kamiónmi, ak budú hotové)
 - [ ] Michalova skúšobná objednávka prevodom SK aj CZ s novou ďakovnou stránkou, snímky prejsť; 1820260076 zrušiť v admine (Michal)
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala

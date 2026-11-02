@@ -5,7 +5,7 @@
 // Elite Stripe, CZ Diamond, SK box). Druhá vrstva: tools/test-kosik-vrstva.fixture.json (10. 10. 2026, jedno- aj
 // dvojvrstvové stránky SK Diamond, SK Stripe, CZ Diamond vrátane necessaryVariantData). Živé E2E: scratchpad
 // …/ab-harness/kosik-doplnok-e2e.mjs.
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { JSDOM } from "jsdom";
 
 const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://www.luxurycardesign.sk/kosik/" });
@@ -1372,6 +1372,24 @@ await test("pokladňa: rohož prvá so štítkom a podsvietením, „Pridať“,
   pravda(v && v.tagName === "BUTTON" && v.getAttribute("form") === "lcd-test-forma" && /video/i.test(v.getAttribute("aria-label")), "dlaždica s videom");
   const vid = v.querySelector("video");
   rovne([vid.muted, vid.preload, vid.querySelectorAll("source").length, /kosik\/vrstva-video\.jpg$/.test(vid.poster)], [true, "none", 0, true], "video sa nesťahuje vopred");
+});
+// Michal 2. 11. 2026: rohož a box ako video (produktDlazdica) — len ozdoba, nesťahuje sa vopred, celé v slučke
+await test("pokladňa: rohož a box s videom namiesto fotky (ozdoba, nie tlačidlo, nič vopred)", () => {
+  const k = M.kartaVybrat(ctxKarty({ rohoz: true, box: true }), RSK, { forma: "lcd-test-forma" });
+  const r = [...k.querySelectorAll(".lcd-vyb__riadok")];
+  rovne(r.map((x) => !!x.querySelector("img.lcd-vyb__mini")), [false, false, false], "žiadna fotka v páse");
+  [[r[0], "rohoz"], [r[2], "box"]].forEach(([riadok, kluc]) => {
+    const t = riadok.querySelector("[data-lcd-vyb-produkt-video]");
+    pravda(t && t.tagName === "SPAN" && t.getAttribute("data-lcd-vyb-produkt-video") === kluc && t.getAttribute("aria-hidden") === "true"
+      && t.classList.contains("lcd-vyb__vid--produkt") && !riadok.querySelector(".lcd-vyb__pas [data-lcd-vyb-video]"), kluc + ": ozdoba, nie tlačidlo");
+    const vid = t.querySelector("video");
+    rovne([vid.muted, vid.loop, vid.preload, vid.querySelectorAll("source").length, new RegExp("kosik/" + kluc + "-video\\.jpg$").test(vid.poster)],
+      [true, true, "none", 0, true], kluc + ": video sa nesťahuje vopred, poster = prvý záber");
+  });
+  const css = readFileSync(new URL("../assets/css/_lcdOpc.scss", import.meta.url), "utf8");
+  pravda(/\.lcd-vyb__vid--produkt \.lcd-vyb__vid-video\{transform:none\}/.test(css), "video rohože / boxu bez priblíženia (scale 1.3 je len pre druhú vrstvu)");
+  ["rohoz-video", "box-video"].forEach((m) => ["mp4", "webm", "jpg"].forEach((x) =>
+    pravda(existsSync(new URL("../assets/img/kosik/" + m + "." + x, import.meta.url)), "chýba assets/img/kosik/" + m + "." + x)));
 });
 await test("pokladňa: CZ texty štítku, tlačidla a príbehu", () => {
   const src = readFileSync(new URL("../assets/js/lcdKosikDoplnok.js", import.meta.url), "utf8");

@@ -30,7 +30,7 @@ import { obrazokUloziska } from "./functions/ulozisko.js";
 import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
 // auto riadku setu do názvu ponuky („Rohož do kufra pre Skoda Octavia 2021“, Michal 29. 10. 2026) — rovnaký zdroj ako cart.js
 import { autoRiadku, popisAuta, ulozistaAuta, zapisAutoKPolozke } from "./functions/autoPamat.js";
-import { videoDlazdica, otvorPribeh } from "./opc/vrstvaVideo.js";
+import { videoDlazdica, otvorPribeh, produktDlazdica } from "./opc/vrstvaVideo.js";
 
 // ID parametrov podľa projektu (rovnaké ako productPage.js r. 34–48 + overené na živých formulároch 7. 10. 2026)
 // v1 / v2 = parameter variantu „farba 1. / 2. vrstvy“; sety = jednovrstvový set (productId) -> dvojvrstvový set
@@ -2652,7 +2652,8 @@ export function kartaVybrat(ctx, R, o) {
     // telefón: kým je výber otvorený, lišta „Celkom | Objednať“ dole ho neprekrýva (_lcdOpc.scss)
     document.documentElement.classList.toggle("lcd-vyb-otvorene", !!document.querySelector(".lcd-vyb__riadok.je-otvorena"));
   };
-  /** p: { kluc, foto | video (dlaždica z opc/vrstvaVideo.js), meno, stitok, naj, cena, pod, panel | null, klik (bez panela) } */
+  /** p: { kluc, foto | video (dlaždica z opc/vrstvaVideo.js: druhá vrstva = videoDlazdica, rohož a box = produktDlazdica,
+   *  Michal 2. 11. 2026), meno, stitok, naj, cena, pod, usetri (pod = „ušetríte …“), panel | null, klik (bez panela) } */
   const riadok = function (p) {
     const btnText = el("span", { text: T.vybTlacidlo });
     const btn = tlacidlo({ class: "lcd-vyb__btn", "data-lcd-vyb": p.kluc, "aria-expanded": p.panel ? "false" : null, "aria-controls": p.panel ? id + "-" + p.kluc : null, "aria-describedby": id + "-m-" + p.kluc }, [btnText]);
@@ -2666,7 +2667,8 @@ export function kartaVybrat(ctx, R, o) {
         mini,
         el("span", { class: "lcd-vyb__text" }, [
           el("span", { class: "lcd-vyb__meno", id: id + "-m-" + p.kluc }, [el("b", { text: p.meno }), p.stitok ? el("span", { class: "lcd-vyb__odp lcd-vyb__odp--veta", text: p.stitok }) : null]),
-          el("span", { class: "lcd-vyb__cena" }, [el("b", { text: p.cena }), p.pod ? el("span", { text: " · " + p.pod }) : null]),
+          // „ušetríte 101 €“ sa nerozdelí na dva riadky (p.usetri; Michal 2. 11. 2026) — dlhé CZ ceny v Kč ho pošlú celé pod cenu
+          el("span", { class: "lcd-vyb__cena" }, [el("b", { text: p.cena }), p.pod ? el("span", {}, [" · ", p.usetri ? el("span", { class: "lcd-vyb__usetri", text: p.pod }) : p.pod]) : null]),
         ]),
         btn,
       ]),
@@ -2700,8 +2702,8 @@ export function kartaVybrat(ctx, R, o) {
     if (rozdiel && rozdiel.s > 0) {
       const samo = ctx.samostatne ? ctx.samostatne.classic : null;
       riadok({
-        kluc: "rohoz", foto: fotoDoplnku(FOTKY.classic), meno: T.vybRohoz, stitok: T.vybNajRohoz, naj: true,
-        cena: cenaText(rozdiel.s, R, true), pod: usetri(samo, rozdiel.s),
+        kluc: "rohoz", video: produktDlazdica("rohoz").el, meno: T.vybRohoz, stitok: T.vybNajRohoz, naj: true,
+        cena: cenaText(rozdiel.s, R, true), pod: usetri(samo, rozdiel.s), usetri: true,
         klik: function () {
           meraj("lcd_set_doplnok_klik", { lcd_doplnok: "rohoz", lcd_varianta: "classic", lcd_trh: R.trh, lcd_set_sku: ctx.riadok.sku, lcd_miesto: "pokladna" });
           spustiVymenu(ctx, { typ: "rohoz", varianta: "classic", kod: "rohoz_classic", nazov: T.classic }, zm, rozdiel, T, R, stav, k);
@@ -2880,8 +2882,8 @@ export function kartaVybrat(ctx, R, o) {
       const panel = el("div", { class: "lcd-vyb__panel" }, [fsFarba, fsPocet, fsVel, fsVel2, pridat]);
       prekresli();
       riadok({
-        kluc: "box", foto: fotoDoplnku(FOTKY.box1), meno: T.vybBox,
-        cena: (vsetky.length > 1 ? T.od + " " : "") + cenaText(naj.s, R, true), pod: usetri(naj.samo, naj.s), panel: panel,
+        kluc: "box", video: produktDlazdica("box").el, meno: T.vybBox,
+        cena: (vsetky.length > 1 ? T.od + " " : "") + cenaText(naj.s, R, true), pod: usetri(naj.samo, naj.s), usetri: true, panel: panel,
       });
       ctx.zobrazene.push("box");
     }

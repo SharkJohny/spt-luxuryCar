@@ -959,7 +959,8 @@ html.lcd-opc body.in-krok-2 .lcd-vyb__kset{margin:2px 0 4px;font:400 14px/1.35 v
 html.lcd-opc body.in-krok-2 .lcd-vyb__zoznam{margin:0;padding:0;list-style:none}
 html.lcd-opc body.in-krok-2 .lcd-vyb__riadok{margin:0;padding:10px 0;border-top:1px solid #efe9da}
 html.lcd-opc body.in-krok-2 .lcd-vyb__riadok:first-child{border-top:0}
-html.lcd-opc body.in-krok-2 .lcd-vyb__riadok.je-otvorena{margin:4px -8px;padding:10px 8px 12px;border:1px solid #e3c977;border-radius:12px;background:#fdfaf1}
+/* Michal 2. 11. 2026: otvorený výber celý vnútri rámika s odsadením (farby, „Zvolená farba“, „Pridať k setu“ nejdú po okraj) */
+html.lcd-opc body.in-krok-2 .lcd-vyb__riadok.je-otvorena{margin:4px -12px;padding:12px 12px 14px;border:1px solid #e3c977;border-radius:12px;background:#fdfaf1}
 html.lcd-opc body.in-krok-2 .lcd-vyb__riadok.je-otvorena + .lcd-vyb__riadok{border-top:0}
 html.lcd-opc body.in-krok-2 .lcd-vyb__pas{display:grid;grid-template-columns:48px minmax(0,1fr) auto;column-gap:12px;align-items:center}
 html.lcd-opc body.in-krok-2 .lcd-vyb__mini{display:block;width:48px;height:48px;border-radius:8px;object-fit:cover;background:var(--o-piesok)}
@@ -970,9 +971,10 @@ html.lcd-opc body.in-krok-2 .lcd-vyb__odp{display:inline-block;margin-left:6px;p
   vertical-align:2px;font:700 12px/1.3 var(--o-disp);letter-spacing:.06em;text-transform:uppercase;color:#14110c}
 html.lcd-opc body.in-krok-2 .lcd-vyb__cena{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 html.lcd-opc body.in-krok-2 .lcd-vyb__cena b{font:800 15px/1 var(--o-disp);color:var(--o-ink);white-space:nowrap}
-html.lcd-opc body.in-krok-2 .lcd-vyb__btn{display:inline-flex;align-items:center;justify-content:center;min-width:88px;min-height:42px;margin:0;padding:0 16px;border:0;
-  border-radius:999px;background:linear-gradient(180deg,#ecd07a 0%,#c49b31 100%);box-shadow:0 4px 10px rgba(196,155,49,.22),inset 0 1px 0 rgba(255,255,255,.4);
-  font:700 15px/1 var(--o-disp);letter-spacing:.02em;color:#14110c;white-space:nowrap;cursor:pointer}
+/* Michal 2. 11. 2026: „Pridať“ a „Pridať k setu“ zelené (ako Objednať), predtým zlaté */
+html.lcd-opc body.in-krok-2 .lcd-vyb__btn{display:inline-flex;align-items:center;justify-content:center;min-width:80px;min-height:42px;margin:0;padding:0 16px;border:0;
+  border-radius:999px;background:var(--o-zelena);box-shadow:0 4px 10px rgba(46,125,50,.22),inset 0 1px 0 rgba(255,255,255,.25);
+  font:700 15px/1 var(--o-disp);letter-spacing:.02em;color:#fff;white-space:nowrap;cursor:pointer}
 html.lcd-opc body.in-krok-2 .lcd-vyb__btn--zavriet{border:1px solid var(--o-linka);background:#fff;box-shadow:none;color:var(--o-tlm);font-weight:600}
 html.lcd-opc body.in-krok-2 .lcd-vyb__btn:focus-visible,html.lcd-opc body.in-krok-2 .lcd-vyb__pridat:focus-visible,
 html.lcd-opc body.in-krok-2 .lcd-vyb__dalsie:focus-visible{outline:2px solid var(--o-gold-lo);outline-offset:2px}
@@ -1014,8 +1016,8 @@ html.lcd-opc body.in-krok-2 .lcd-vyb__dlazdice--2 .lcd-vyb__dl b{font-size:16px}
 html.lcd-opc body.in-krok-2 .lcd-vyb__dl small{display:block;font:400 12px/1.2 var(--o-body);color:var(--o-tlm);white-space:nowrap}
 html.lcd-opc body.in-krok-2 .lcd-vyb__dl em{display:block;font:800 14px/1.2 var(--o-disp);font-style:normal;color:var(--o-ink)}
 html.lcd-opc body.in-krok-2 .lcd-vyb__pridat{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin:12px 0 0;padding:0 14px;border:0;
-  border-radius:999px;background:linear-gradient(180deg,#ecd07a 0%,#c49b31 100%);box-shadow:0 4px 10px rgba(196,155,49,.25);
-  font:800 16px/1.2 var(--o-disp);letter-spacing:.02em;color:#14110c;text-align:center;cursor:pointer}
+  border-radius:999px;background:var(--o-zelena);box-shadow:0 4px 10px rgba(46,125,50,.25);
+  font:800 16px/1.2 var(--o-disp);letter-spacing:.02em;color:#fff;text-align:center;cursor:pointer}
 html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav{margin:8px 0 0;font:600 15px/1.4 var(--o-body);color:var(--o-tlm)}
 html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav.lcd-dop__stav--chyba{color:var(--o-zle)}
 html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav:empty{display:none}
@@ -1030,7 +1032,8 @@ html.lcd-opc body.in-krok-2 #lcd-doplnok .lcd-vyb__stav:empty{display:none}
 @media (min-width:992px){
   html.lcd-opc body.in-krok-2 .lcd-opc-kk__polozka{grid-template-columns:80px minmax(0,1fr);column-gap:16px}
   html.lcd-opc body.in-krok-2 .lcd-opc-kk__foto{width:80px;height:80px}
-  html.lcd-opc body.in-krok-2 .lcd-vyb__farby{grid-template-columns:repeat(8,minmax(0,1fr))}
+  /* Michal 2. 11. 2026: farby druhej vrstvy na PC v 3 riadkoch (16 farieb = 6 + 6 + 4), nie 8 v rade „na kope“ */
+  html.lcd-opc body.in-krok-2 .lcd-vyb__farby{grid-template-columns:repeat(6,minmax(0,1fr))}
   html.lcd-opc body.in-krok-2 .lcd-vyb__farby--box{grid-template-columns:repeat(9,minmax(0,1fr))}
   html.lcd-opc body.in-krok-2 .lcd-vyb__panel{max-width:560px}
 }
@@ -1053,6 +1056,13 @@ html.lcd-opc body.in-krok-2 .lcd-vyb__vid:focus-visible{outline:2px solid #c49b3
 /* !important: starý globálny „video { border: 5px solid …; border-radius: 25px !important }“ v CSS e-shopu */
 html.lcd-opc .lcd-vyb__vid-video,html.lcd-opc .lcd-vyb-pribeh__video{border:0 !important;border-radius:0 !important}
 html.lcd-opc body.in-krok-2 .lcd-vyb__vid-video{display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.3);transform-origin:45% 58%;pointer-events:none}
+/* Michal 2. 11. 2026: „+129 € · ušetríte 101 €“ v jednom riadku (pod textom bolo neviditeľné) — menšia medzera medzi
+   textom a „Pridať“ (12 -> 6 px) a užšie tlačidlo (88 -> 80 px); medzera pri fotke ostáva. Na PC 1366 chýbalo 6 px, na 360 4 px. */
+html.lcd-opc body.in-krok-2 .lcd-vyb__pas > .lcd-vyb__btn{margin-left:-6px}
+html.lcd-opc body.in-krok-2 .lcd-vyb__usetri{white-space:nowrap}
+/* Michal 2. 11. 2026: rohož a box ako video (opc/vrstvaVideo.js produktDlazdica) — celé v obraze, bez priblíženia; len ozdoba */
+html.lcd-opc body.in-krok-2 .lcd-vyb__vid--produkt{cursor:default}
+html.lcd-opc body.in-krok-2 .lcd-vyb__vid--produkt .lcd-vyb__vid-video{transform:none}
 html.lcd-opc body.in-krok-2 .lcd-vyb__vid-lis{position:absolute;left:6px;right:6px;bottom:6px;height:3px;border-radius:2px;background:rgba(255,255,255,.4);overflow:hidden}
 html.lcd-opc body.in-krok-2 .lcd-vyb__vid-lis b{display:block;width:0;height:100%;border-radius:2px;background:#ecd07a}
 html.lcd-opc body.in-krok-2 .lcd-vyb__vid-play{display:none}
@@ -1102,7 +1112,7 @@ html.lcd-opc .lcd-vyb-pribeh p.lcd-vyb-pribeh__text{margin:0 0 6px;font:600 16px
 html.lcd-opc .lcd-vyb-pribeh p.lcd-vyb-pribeh__pocet{margin:0 0 12px;font:400 14px/1.35 var(--o-body, Arial, sans-serif);color:rgba(255,255,255,.8)}
 html.lcd-opc .lcd-vyb-pribeh__pocet b{color:#ecd07a;font-weight:800}
 html.lcd-opc .lcd-vyb-pribeh__pridat{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;padding:0 16px;border-radius:999px;
-  background:linear-gradient(180deg,#ecd07a 0%,#c49b31 100%);box-shadow:0 4px 10px rgba(196,155,49,.22),inset 0 1px 0 rgba(255,255,255,.4);font:700 16px/1.2 var(--o-disp, Arial, sans-serif);color:#14110c}
+  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%);box-shadow:0 4px 10px rgba(46,125,50,.3),inset 0 1px 0 rgba(255,255,255,.25);font:700 16px/1.2 var(--o-disp, Arial, sans-serif);color:#fff}
 @media (min-width:720px){
   html.lcd-opc .lcd-vyb-pribeh__pozadie{background:rgba(11,10,8,.86)}
   html.lcd-opc .lcd-vyb-pribeh__panel{left:50%;right:auto;top:24px;bottom:24px;width:420px;max-height:820px;margin:auto 0;transform:translateX(-50%);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:0}
@@ -1122,6 +1132,8 @@ html.lcd-opc body.in-krok-2 #lcd-opc-kosik .lcd-opc-zob{margin:2px 0 6px}
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta > h2{margin-bottom:6px}
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta .lcd-opc-kk__nazov{font-size:15px}
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta .lcd-vyb__riadok{padding:6px 0}
+  /* otvorený výber: bez tohto by padding 6px 0 zrušil vnútorné odsadenie rámika a farby by išli po okraj (Michal 2. 11.) */
+  html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta .lcd-vyb__riadok.je-otvorena{padding:12px 12px 14px}
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .lcd-opc-kosikkarta .lcd-vyb__btn{min-height:36px}
   /* menšie zaškrtávacie okná (súhlasy) a právna veta, písmo 15 / 14 px ostáva (mierka písma, Michal) */
   html.lcd-opc.lcd-opc-kosik-vpravo body.in-krok-2 #checkoutSidebar .consents{margin-top:8px}

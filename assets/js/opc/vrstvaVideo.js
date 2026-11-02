@@ -60,11 +60,12 @@ function noveVideo(trieda, poster) {
   return v;
 }
 
-/** Nastaví zdroje (webm, mp4) a načíta. */
-function zdroje(v, meno) {
+/** Nastaví zdroje (webm, mp4) a načíta. priecinok = podpriečinok assets/img/ (predvolene 1v/). */
+function zdroje(v, meno, priecinok) {
+  const cesta = CDN + (priecinok || "1v/") + meno;
   while (v.firstChild) v.removeChild(v.firstChild);
-  v.appendChild(el("source", { src: CDN + "1v/" + meno + ".webm", type: "video/webm" }));
-  v.appendChild(el("source", { src: CDN + "1v/" + meno + ".mp4", type: "video/mp4" }));
+  v.appendChild(el("source", { src: cesta + ".webm", type: "video/webm" }));
+  v.appendChild(el("source", { src: cesta + ".mp4", type: "video/mp4" }));
   v.dataset.meno = meno;
   try { v.load(); } catch (e) { /* starý prehliadač */ }
 }
@@ -138,6 +139,52 @@ export function videoDlazdica(T, o) {
     o.otvor(tl, function () { if (vidno && !staticke && tl.isConnected) spusti(); });
   });
   return { el: tl, video: video, zastav: zastav };
+}
+
+// ------------------------------------------------------------------ rohož a box do kufra
+// Michal 2. 11. 2026: „aj rohož do kufra, aj box do kufra … ako video“ — namiesto fotky krátke slučkové video
+// poskladané z našich fotiek (assets/img/kosik/rohoz-video: Classic -> Premium s pomalým posunom; box-video:
+// 1 box -> 2 boxy -> kufor bez boxu), 288 × 360, bez zvuku, ~100 kB. Len ozdoba ako fotka predtým (nie tlačidlo, ťuknutie
+// nič nerobí), sťahuje sa až keď je riadok z polovice na obrazovke, mimo obrazovky pauza. Šetrenie dát / menej
+// pohybu / zakázané prehrávanie -> ostane záber (poster = prvý záber videa).
+export const PRODUKT_VIDEA = { rohoz: "rohoz-video", box: "box-video" };
+
+/** Dlaždica s videom pre riadok rohože / boxu (kluc = „rohoz“ | „box“). -> { el, video, zastav } */
+export function produktDlazdica(kluc) {
+  const meno = PRODUKT_VIDEA[kluc];
+  const staticke = bezAutoplay();
+  const video = noveVideo("lcd-vyb__vid-video", CDN + "kosik/" + meno + ".jpg");
+  video.loop = true;
+  video.setAttribute("loop", "");
+  video.setAttribute("aria-hidden", "true");
+  const lis = el("b");
+  const t = el("span", { class: "lcd-vyb__vid lcd-vyb__vid--produkt" + (staticke ? " lcd-vyb__vid--staticke" : ""), "aria-hidden": "true", "data-lcd-vyb-produkt-video": kluc }, [
+    video,
+    el("span", { class: "lcd-vyb__vid-lis" }, [lis]),
+  ]);
+  let io = null;
+  const zastav = function () {
+    try { video.pause(); } catch (e) {}
+    if (io) { io.disconnect(); io = null; }
+  };
+  video.addEventListener("timeupdate", function () {
+    if (!t.isConnected) { zastav(); return; }
+    const d = video.duration;
+    if (d > 0) lis.style.width = Math.min(100, (video.currentTime / d) * 100).toFixed(1) + "%";
+  });
+  if (!staticke && "IntersectionObserver" in window) {
+    io = new IntersectionObserver(function (zaznamy) {
+      zaznamy.forEach(function (z) {
+        if (!t.isConnected) { zastav(); return; }
+        if (z.isIntersecting && z.intersectionRatio >= 0.5 && !document.documentElement.classList.contains("lcd-vyb-pribeh")) {
+          if (!video.dataset.meno) zdroje(video, meno, "kosik/");
+          hraj(video, function () { t.classList.add("lcd-vyb__vid--staticke"); });
+        } else { try { video.pause(); } catch (e) {} }
+      });
+    }, { threshold: [0, 0.5] });
+    io.observe(t);
+  } else if (!staticke) t.classList.add("lcd-vyb__vid--staticke");
+  return { el: t, video: video, zastav: zastav };
 }
 
 // ------------------------------------------------------------------ príbeh na celú obrazovku
