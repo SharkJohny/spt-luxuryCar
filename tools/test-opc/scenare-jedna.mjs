@@ -31,8 +31,15 @@
 //   S73 konfigurátor po „Do košíka“ (window.__lcdDoKosika) -> rovno krok 2 bez košíka
 //   S74 bez kódu (?opc=0) -> odkaz na /kosik/ natívne, window.__lcdDoKosika nie je
 //   S75 košík počas preskoku: obsah košíka nevidno celý (opacity 0) — ani − + a fotka (Michal 1. 11. 2026, iPhone)
+//   S90 (Michal 2. 11. 2026) kamión v karte: rekapitulácia ako pri autách — hneď Vozidlo a „Typ a farba materiálu“,
+//       ostatné po „Zobraziť viac“ (aj tapacír); s tapacírom žiadna ponuka
+//   S91 kamión TIR bez tapacíru: ponuka „Tapacír dverí“ +119 € -> pridanie + zmazanie pôvodného riadku bez načítania
+//       stránky (hodnoty ako konfigurátor „Rovnaké ako koberce“), ✓ hláška, ponuka preč, súhrn kamióna s blokom dverí
+//       = súhrn z konfigurátora, poznámka objednávky s ním
 import { KOSIK, KROK2, ZAKAZNIK, cakajOpc, vyplnUdaje, suhlas, objednaj, overTeloObjednavky, step1Xhr, over, pauza, OPC } from "./krok2-pomoc.mjs";
 import { klikObjednat } from "./scenare-spravanie.mjs";
+import { KAMION } from "./scenare-kosiky.mjs";
+import { buildTruckOrderSummary } from "../../assets/js/truck-konfigurator/order-summary.mjs";
 
 const SCENAR = { jedna: true };
 const KARTA = "#lcd-opc-kosik";
@@ -672,6 +679,69 @@ export const SCENARE = {
       await s.k.posli("Emulation.setEmulatedMedia", { features: [] });
       over(st.staticke && st.zdroje === 0 && !st.src && st.play !== "none" && /kosik\/vrstva-video\.jpg$/.test(st.poster), "menej pohybu: " + JSON.stringify(st));
       return { info: "rohož prvá + štítok, video od " + v1.t.toFixed(1) + " s, príbeh 2 videá, Esc, Pridať -> výber farby, menej pohybu bez videa" };
+    },
+  },
+  S90: {
+    len: "sk", // kamión je zachytený len pre SK (fixtures/sk-kamion); CZ texty a mená príplatkov: tools/test-kamion-tapacir.mjs
+    popis: "Kamión v karte košíka (Michal 2. 11. 2026): rekapitulácia ako pri autách — hneď Vozidlo a materiál, ostatné po „Zobraziť viac“; s tapacírom bez ponuky",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "kamion", scenar: SCENAR });
+      await s.chod(KOSIK, { popis: "košík bez kódu (konfigurátor uložil súhrn)" });
+      await s.ev(`(function (d) { Object.keys(d).forEach(function (k) { sessionStorage.setItem(k, d[k]); }); return 1; })(${JSON.stringify({ truckOrderSummary: buildTruckOrderSummary(KAMION, "sk"), truckVehicle: "DAF (TIR) XF 2022-2025" })})`);
+      await naJednuStranku(s, { ponuka: 0 });
+      await pauza(1500); // ponuka by sa načítala zo stránky produktu (tu nesmie prísť)
+      const R = `(function () { var k = document.querySelector("${KARTA}"), vid = function (e) { return e.getBoundingClientRect().height > 0 && getComputedStyle(e).display !== "none"; };
+        var ul = k.querySelector(".lcd-opc-kk__polozka ul.lcd-rozpis"), z = k.querySelector(".lcd-opc-zob");
+        return { vidno: ul ? [].filter.call(ul.children, vid).map(function (l) { return l.textContent.replace(/\\s+/g, " ").trim(); }) : null,
+          vsetky: ul ? ul.children.length : 0, zob: z ? z.textContent.trim() + "|" + z.getAttribute("aria-expanded") : null,
+          ponuka: k.querySelectorAll(".lcd-vyb").length }; })()`;
+      const a = await s.ev(R);
+      over(a.vidno && a.vidno.join(" ; ") === "Vozidlo: DAF (TIR) XF 2022-2025 ; Typ a farba materiálu: Prémiová syntetická koža – prešívaná – čierna, čierne šitie – 11", "zbalené: " + JSON.stringify(a.vidno));
+      over(a.zob === "Zobraziť viac|false" && a.vsetky > 6, "pilulka / počet riadkov: " + JSON.stringify([a.zob, a.vsetky]));
+      over(a.ponuka === 0, "ponuka tapacíru pri kamióne s tapacírom: " + a.ponuka);
+      await s.klikni(`${KARTA} .lcd-opc-zob`, { popis: "Zobraziť viac" });
+      const b = await s.ev(R);
+      over(b.vidno.length === b.vsetky && b.zob === "Zobraziť menej|true", "rozbalené: " + JSON.stringify(b));
+      over(b.vidno.indexOf("Farba lemovania: čierny základ, červené pásiky – 04") > 0 && b.vidno[b.vidno.length - 1] === "Tapacír dverí: rovnaký ako koberčeky", "rozbalené riadky: " + JSON.stringify(b.vidno));
+      return { info: a.vidno.length + " hneď, " + b.vsetky + " po Zobraziť viac, posledný „" + b.vidno[b.vidno.length - 1] + "“" };
+    },
+  },
+  S91: {
+    len: "sk",
+    popis: "Kamión TIR bez tapacíru: ponuka „Tapacír dverí“ +119 € -> výmena riadku bez načítania stránky, ✓ hláška, súhrn a poznámka s blokom dverí ako z konfigurátora",
+    async fn(J) {
+      const bez = Object.assign({}, KAMION, { doorPanelChoice: "nie" });
+      const s = await J.novaStranka({ kosik: "kamionBez", scenar: Object.assign({ kosikStav: true }, SCENAR) });
+      await s.chod(KOSIK, { popis: "košík bez kódu (konfigurátor uložil súhrn)" });
+      await s.ev(`(function (d) { Object.keys(d).forEach(function (k) { sessionStorage.setItem(k, d[k]); }); return 1; })(${JSON.stringify({ truckOrderSummary: buildTruckOrderSummary(bez, "sk"), truckVehicle: "DAF (TIR) XF 2022-2025" })})`);
+      await naJednuStranku(s, { ponuka: 1 });
+      const p = await s.ev(`(function () { var r = document.querySelector('${KARTA} .lcd-vyb__riadok[data-doplnok="tapacir"]');
+        return r ? r.textContent.replace(/\\s+/g, " ").trim() + " | " + document.querySelector("${KARTA} .lcd-vyb__nadpis").textContent : null; })()`);
+      over(p && /Tapacír dverí/.test(p) && /\+119\s€/.test(p) && /ušetríte 60\s€/.test(p) && /Pridať/.test(p) && /Doplňte svoj kamión/.test(p), "ponuka: " + p);
+      await s.pis("#email", ZAKAZNIK.sk.email);
+      const pred = await stopa(s);
+      await s.klikni(`${KARTA} [data-lcd-vyb="tapacir"]`, { popis: "Pridať (tapacír dverí)" });
+      const st = await poZmene(s, pred);
+      const a = s.p.zaznam.kosikAkcie;
+      over(a.map((x) => x.akcia).join() === "addCartItem,deleteCartItem", "úpravy košíka: " + a.map((x) => x.akcia).join(", "));
+      const pole = a[0].pole, ocak = { 352: "1468", 388: "1435", 391: "1441", 394: "1447", 355: "1390", 397: "1711", 400: "1789", 346: "1360", 349: "1465", 376: "91501", 379: "91502" };
+      Object.keys(ocak).forEach((id) => over(pole["surchargeParameterValueId[" + id + "]"] === ocak[id], "príplatok " + id + " = " + pole["surchargeParameterValueId[" + id + "]"] + " (čakal som " + ocak[id] + ")"));
+      over(st.polozky.length === 1 && /\| 423\s€$/.test(st.polozky[0]), "karta po pridaní: " + st.polozky.join(" / "));
+      const k = await s.ev(`(function () { var k = document.querySelector("${KARTA}");
+        return { hlaska: (k.querySelector(".lcd-opc-kk__hlaska") || {}).textContent || "", ponuka: k.querySelectorAll(".lcd-vyb").length, suhrn: sessionStorage.getItem("truckOrderSummary"),
+          riadky: [].map.call(k.querySelectorAll(".lcd-opc-kk__polozka ul.lcd-rozpis > li"), function (l) { return l.textContent.replace(/\\s+/g, " ").trim(); }) }; })()`);
+      over(k.hlaska === "✓ Tapacír dverí je pridaný k Vášmu kamiónu.", "hláška: " + k.hlaska);
+      over(k.ponuka === 0, "ponuka po pridaní ostala");
+      over(k.riadky[k.riadky.length - 1] === "Tapacír dverí: rovnaký ako koberčeky", "rozpis po pridaní: " + JSON.stringify(k.riadky));
+      over(k.suhrn === buildTruckOrderSummary(KAMION, "sk"), "súhrn kamióna po pridaní ≠ súhrn z konfigurátora s tapacírom:\n" + k.suhrn);
+      over(st.email === ZAKAZNIK.sk.email, "e-mail po pridaní: " + st.email);
+      await vyplnUdaje(s);
+      await suhlas(s);
+      const z2 = await objednaj(s);
+      const m = overTeloObjednavky(s, z2[0]);
+      const remark = (m.get("remark") || [""])[0];
+      over(remark.includes("[KONFIGURÁCIA KAMIÓNA]") && remark.includes("TAPACÍR DVERÍ") && remark.includes("Rovnaký ako koberčeky – Prémiová syntetická koža"), "poznámka bez bloku dverí: " + JSON.stringify(remark.slice(0, 200)));
+      return { step2: true, info: "addCartItem + deleteCartItem, 423 €, " + k.hlaska.slice(2) + " poznámka " + remark.length + " znakov" };
     },
   },
 };

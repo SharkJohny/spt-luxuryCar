@@ -158,7 +158,9 @@ export function hnedVidno(r) {
       });
     }
   } else {
-    riadky.forEach(function (x, i) { if (KOBERCE.test(x.nazov)) v.push(i); });
+    // kamión v karte košíka (opc/kamionKarta.js, Michal 2. 11. 2026 „úplne takisto ako … osobné autá“): ul.lcd-rozpis,
+    // hneď Vozidlo a „Typ a farba materiálu“ (tapacír má popis „Tapacír – …“, nepočíta sa)
+    riadky.forEach(function (x, i) { if (KOBERCE.test(x.nazov) || VOZIDLO.test(x.nazov) || MATERIAL.test(x.nazov)) v.push(i); });
   }
   if (!v.length) v = riadky.slice(0, 2).map(function (x, i) { return i; });
   return v.sort(function (a, b) { return a - b; });

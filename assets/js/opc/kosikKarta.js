@@ -15,6 +15,7 @@ import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta } from "../functions/autoPamat.js";
 import * as D from "../lcdKosikDoplnok.js";
 import * as P from "./polozky.js";
+import * as K from "./kamionKarta.js";
 import { KLUC_BEZ_KARTY } from "./kosik.js";
 
 export const KLUC_FORMULARA = "lcdOpcFormular";
@@ -121,8 +122,8 @@ export function nazovPolozky(n, jazyk) {
   return s ? s.charAt(0).toLocaleUpperCase(jazyk || "sk") + s.slice(1) : s;
 }
 
-/** Je to kamión (rozpis kreslí cart.js po skupinách — berie sa hotový zo súhrnu)? */
-const jeKamion = (p) => /\btruck\b|kami[oó]n/i.test(p.text || "") || /kamion/i.test(p.href || "");
+/** Je to kamión (rozpis a ponuku tapacíru kreslí opc/kamionKarta.js)? */
+const jeKamion = K.jeKamion;
 
 /** Rozpis položky ako v košíku: Auto navrchu (autokoberce, rohož, box), farby vrstiev, príplatky. */
 export function rozpisPolozky(doc, p, cz) {
@@ -136,7 +137,7 @@ export function rozpisPolozky(doc, p, cz) {
   return riadky.length ? lcdRozpisEl(doc, riadky, "lcd-rozpis") : null;
 }
 
-/** Kamión: hotový rozpis zo súhrnu (cart.js) podľa kľúča a poradia; bez „Zobraziť viac“ a skrytých tried A1. */
+/** Kamión, záloha (opc/kamionKarta.js nič nezložil): hotový rozpis zo súhrnu (cart.js) podľa kľúča a poradia. */
 function rozpisKamionaZoSuhrnu(box, p, poradie) {
   if (!box) return null;
   const [id, sku] = p.kluc.split("|");
@@ -283,6 +284,7 @@ export function initKosikKarta(ctx, o) {
   };
 
   let polozkyTeraz = [];
+  let pocetKamionov = 0; // rozpis kamióna zo súhrnu konfigurátora len pri jedinom kamióne v košíku
   const otvorene = {}; // rozbalené podrobnosti položiek („Zobraziť viac“) cez prekreslenie po zmene košíka
   let generacia = 0; // prekreslenie po zmene košíka: ponuka zo staršieho kreslenia sa už nepridá
   const zmerane = new Set(); // zobrazenie ponuky sa meria raz za stránku, nie pri každom prekreslení
@@ -335,11 +337,16 @@ export function initKosikKarta(ctx, o) {
     const cislo = p.itemId || "p" + poz;
     const foto = p.foto ? el(doc, "img", { class: "lcd-opc-kk__foto", src: p.foto, alt: "", width: "100", height: "100", decoding: "async" }) : el(doc, "span", { class: "lcd-opc-kk__foto", "aria-hidden": "true" });
     if (p.foto) foto.addEventListener("error", function () { foto.style.visibility = "hidden"; });
-    const rozpis = jeKamion(p) ? rozpisKamionaZoSuhrnu(o.box, p, poradie) : rozpisPolozky(doc, p, cz);
-    // podrobnosti zbalené ako v súhrne (A1, náhľad E): hneď Auto a farby vrstiev, ostatné po „Zobraziť viac“ (kamión celý)
+    // kamión (Michal 2. 11. 2026): rozpis z príplatkov riadku / súhrnu konfigurátora (opc/kamionKarta.js), nie zo súhrnu
+    // vpravo — ten ho v tej chvíli ešte nemal a karta ukázala len názov a cenu
+    const rozpis = jeKamion(p)
+      ? K.rozpisKamiona(doc, p, { ss: ss, jazyk: jazyk, trh: ctx.trh, jediny: pocetKamionov === 1 }) || rozpisKamionaZoSuhrnu(o.box, p, poradie)
+      : rozpisPolozky(doc, p, cz);
+    // podrobnosti zbalené ako v súhrne (A1, náhľad E): hneď Auto a farby vrstiev, ostatné po „Zobraziť viac“; kamión rovnako
+    // (Michal 2. 11. 2026 „úplne takisto ako … osobné autá“): hneď Vozidlo a materiál
     let zob = null;
     const kluc = p.kluc + "#" + poradie;
-    if (rozpis && !jeKamion(p) && P.oznacRiadky(rozpis)) {
+    if (rozpis && P.oznacRiadky(rozpis)) {
       zob = P.vytvorZob(doc);
       zob.setAttribute("form", o.forma);
       rozpis.id = "lcd-opc-kk-rozpis-" + cislo;
@@ -401,6 +408,7 @@ export function initKosikKarta(ctx, o) {
     if (!polozky.length) throw new Error("prazdny");
     const gen = ++generacia;
     polozkyTeraz = polozky;
+    pocetKamionov = polozky.filter(jeKamion).length;
     while (obsah.firstChild) obsah.removeChild(obsah.firstChild);
     H.classList.remove("lcd-vyb-otvorene");
     povodne.forEach(function (d, b) { if (!b.isConnected) povodne.delete(b); });
@@ -424,7 +432,9 @@ export function initKosikKarta(ctx, o) {
     if (stary) {
       const ps = polozky.find(function (x) { return x.itemId === stary; });
       miesta[stary].classList.add("lcd-opc-kk__polozka--zvyrazni");
-      h.text = (/^Set bez dopl/i.test(h.text) ? T.ciastocneOdober : T.ciastocne) + " " + (ps && ps.q > 1 ? T.ciastocneZnizte : T.ciastocneOdoberte);
+      const tk = ps && jeKamion(ps) ? K.texty(ctx.trh) : null; // tapacír kamióna: „pôvodné koberce“, nie „set“
+      h.text = tk ? tk.ciastocne + " " + (ps.q > 1 ? tk.znizte : tk.odoberte)
+        : (/^Set bez dopl/i.test(h.text) ? T.ciastocneOdober : T.ciastocne) + " " + (ps && ps.q > 1 ? T.ciastocneZnizte : T.ciastocneOdoberte);
     }
     if (h) {
       const chyba = h.typ === "chyba";
@@ -438,7 +448,13 @@ export function initKosikKarta(ctx, o) {
     if (!R || ctx.ponukaVypnuta) return { pocet: polozky.length, ponuka: Promise.resolve(polozky.length) };
     // ponuka k setu a krížiky pri doplnkoch: len vzhľad košíka — chyba / pomalá sieť nič nezastaví
     // vrstvaSpat: krížik aj pri druhej vrstve (výmena späť na jednovrstvový set, Michal 1. 11. 2026) — len tu, nie v košíku
-    const ponuka = D.pripravKontexty(polozky, R, { vynechaj: stary, vrstvaSpat: true }).then(function (v) {
+    // kamión TIR bez tapacíru: ponuka „Tapacír dverí“ (opc/kamionKarta.js, Michal 2. 11. 2026); chyba / pomalá sieť nič nezastaví
+    const ponukaKamiona = pocetKamionov === 1 && !stary ? K.ponukaVKarte(polozky, { R: R, ss: ss, jazyk: jazyk, forma: o.forma, doc: doc }).then(function (k) {
+      if (!k || gen !== generacia) return;
+      obsah.appendChild(k);
+      if (zamky) zamkniPrvky(k);
+    }, function () {}) : null;
+    const ponukaSetu = D.pripravKontexty(polozky, R, { vynechaj: stary, vrstvaSpat: true }).then(function (v) {
       if (gen !== generacia) return polozky.length;
       v.ctxs.forEach(function (c) {
         const li = miesta[c.riadok.itemId];
@@ -460,6 +476,7 @@ export function initKosikKarta(ctx, o) {
       });
       return polozky.length;
     }, function () { return polozky.length; });
+    const ponuka = ponukaKamiona ? Promise.all([ponukaSetu, ponukaKamiona]).then(function (x) { return x[0]; }) : ponukaSetu;
     return { pocet: polozky.length, ponuka: ponuka };
   }
 

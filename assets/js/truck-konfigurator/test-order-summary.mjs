@@ -189,3 +189,26 @@ assert.ok(buildTruckOrderSummary({ selectedMaterial: "Vzorovaný velúr", select
   .includes("- Barva lemování: černý základ, vínové proužky – 05"));
 
 console.log("✓ súhrn truck konfigurácie obsahuje všetky výrobné voľby");
+
+// Pokladňa (Michal 2. 11. 2026): pridaný tapacír „Rovnaké ako koberce“ = presne súhrn, aký by zložil konfigurátor
+{
+  const { addSameDoorPanelsToSummary } = await import("./order-summary.mjs");
+  for (const lang of ["sk", "cs"]) {
+    const zaklad = {
+      znacka: "DAF (TIR)", model: "XF 2022-2025", extras: { prevodovka: "Automatická prevodovka" },
+      selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" }, selectedLemovanie: { code: "04" },
+      nasivkyPlacement: "boky+stred", selectedNasivka: { code: "H19" }, selectedNitColor: { code: "2999" },
+      selectedStredNasivka: { code: "H19" }, selectedStredNitColor: { code: "2999" },
+    };
+    const bez = buildTruckOrderSummary({ ...zaklad, doorPanelChoice: "nie" }, lang);
+    const s = buildTruckOrderSummary({ ...zaklad, doorPanelChoice: "ano", doorSameAsCarpet: { material: true, lemovanie: true }, doorWantsNasivka: false }, lang);
+    assert.equal(addSameDoorPanelsToSummary(bez), s, lang);
+    assert.equal(addSameDoorPanelsToSummary(s), s, lang + " už s tapacírom");
+    // bez vozidla (prvá časť chýba) — jazyk sa pozná aj podľa koberčekov
+    const bezVozidla = buildTruckOrderSummary({ ...zaklad, znacka: "", model: "", extras: {}, doorPanelChoice: "nie" }, lang);
+    assert.equal(addSameDoorPanelsToSummary(bezVozidla),
+      buildTruckOrderSummary({ ...zaklad, znacka: "", model: "", extras: {}, doorPanelChoice: "ano", doorSameAsCarpet: { material: true, lemovanie: true }, doorWantsNasivka: false }, lang), lang + " bez vozidla");
+  }
+  assert.equal(addSameDoorPanelsToSummary(""), "");
+  console.log("✓ tapacír „Rovnaké ako koberce“ doplnený do súhrnu = súhrn z konfigurátora");
+}

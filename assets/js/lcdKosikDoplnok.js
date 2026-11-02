@@ -2079,7 +2079,8 @@ function obnovStranku() {
   else location.reload();
 }
 
-async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
+// export: aj ponuka tapacíru kamióna v pokladni (opc/kamionKarta.js) — doplnok.hotovo = vlastný text hlášky po výmene
+export async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   if (zamok) return;
   try { if (smieZacat && !smieZacat()) return; } catch (e) { return; }
   zamok = true;
@@ -2091,7 +2092,7 @@ async function spustiVymenu(ctx, doplnok, zm, rozdiel, T, R, stav, kartaEl) {
   kartaEl.setAttribute("aria-busy", "true");
   stav.classList.remove("lcd-dop__stav--chyba");
   stav.textContent = odober ? T.odoberam : T.pridavam;
-  const hotovo = odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.co === "vrstva2" ? T.odobranaVrstva : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
+  const hotovo = doplnok.hotovo ? doplnok.hotovo : odober ? (doplnok.co === "rohoz" ? T.odobraneRohoz(doplnok.nazov) : doplnok.co === "vrstva2" ? T.odobranaVrstva : doplnok.pocet === 2 ? T.odobraneBox2 : T.odobraneBox1)
     : doplnok.typ === "vrstva2" ? T.hotovoVrstva(doplnok.nazov)
     : doplnok.typ === "rohoz" ? T.hotovoRohoz(doplnok.nazov) : doplnok.pocet === 2 ? T.hotovoBox2 : T.hotovoBox1;
   // druhá vrstva = výmena na iný produkt (dvojvrstvový set): cieľové priceId, Lux farba a mapa cieľového produktu

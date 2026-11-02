@@ -608,3 +608,14 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Nasadiť (prepnutie sha SK + CZ, spolu s vláknom „Vylepšiť košík v pokladni“ alebo samostatne)
 - [ ] Admin SK + CZ (so súhlasom Michala vo vlákne): zobrazovaný názov „Vzorka Diamond“ / „Vzorka druhej vrstvy“, voľba „Áno“ -> farba; kód ostáva v internom názve a popise parametra — až PO nasadení kódu
 - [ ] Kontrola naživo: košík, pokladňa, ďakovná stránka SK aj CZ; objednávka v admine (Michal)
+
+## Kamión v pokladni: rekapitulácia a ponuka tapacíru (Michal 2. 11. 2026, 16:55)
+- [x] Príčina: karta „Váš košík“ brala rozpis kamióna zo súhrnu vpravo, ktorý ešte nebol hotový -> len názov a cena
+- [x] opc/kamionKarta.js: rozpis z príplatkov riadku / súhrnu konfigurátora (len jediný kamión a len keď sedí), ako pri autách: hneď Vozidlo a „Typ a farba materiálu“, ostatné po „Zobraziť viac“
+- [x] Ponuka „Tapacír dverí“ pri TIR bez tapacíru: +119 € (CZ Čalounění +2 980 Kč), hodnoty ako konfigurátor „Rovnaké ako koberce“, výmena riadku cez overený postup ponuky k setu (spustiVymenu), súhrn do poznámky doplnený v rovnakom formáte (addSameDoorPanelsToSummary)
+- [x] Testy: tools/test-kamion-tapacir.mjs (12, SK + CZ), OPC S90/S91 (podvrh: KAMION_PRODUKT, košík „kamionBez“), celá sada SK 146 OK
+- [x] Náhľad PC 1366 + telefón 390 — /mnt/project-files/kamion-pokladna/
+- [x] Michalov súhlas s náhľadom („áno, páči sa mi to“, 2. 11. 17:47)
+- [ ] Celá sada SK + CZ na aktuálnom main, push, CDN (aj assets/img/kosik/tapacir-dveri.jpg), prepnutie spolu s vláknom „Vylepšiť košík v pokladni“, kontrola SK + CZ v Michalovom Chrome
+- [x] Kniha OPC § 10.31
+- [ ] Brain (log + mapa modulov), kniha doplniť o nasadenie

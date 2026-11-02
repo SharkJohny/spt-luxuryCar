@@ -289,6 +289,43 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
   return lines.join("\n");
 }
 
+/** Texty súhrnu pre jazyk ("sk" | "cs") — pokladňa (opc/kamionKarta.js) skladá rozpis z príplatkov s tými istými popismi. */
+export function truckSummaryTexts(language) {
+  return SUMMARY_TEXTS[language] || SUMMARY_TEXTS.sk;
+}
+
+/**
+ * Súhrn kamióna bez tapacíru -> ten istý súhrn s tapacírom „Rovnaké ako koberce“ bez nášivky na dverách, presne ako by ho
+ * zložil buildTruckOrderSummary so stavom doorPanelChoice "ano", doorSameAsCarpet { material, lemovanie }, doorWantsNasivka
+ * false (Michal 2. 11. 2026: ponuka tapacíru v pokladni, opc/kamionKarta.js — formát poznámky pre Jánov export sa nemení).
+ * Súhrn už s tapacírom alebo bez materiálu koberčekov -> bez zmeny.
+ */
+export function addSameDoorPanelsToSummary(summary) {
+  const s = String(summary || "").replace(/\s+$/, "");
+  const cs = /^(SPECIFIKACE VOZIDLA|KOBEREČKY POD SEDAČKY)$/m.test(s);
+  const texts = cs ? SUMMARY_TEXTS.cs : SUMMARY_TEXTS.sk;
+  const lines = s.split(/\r?\n/);
+  if (lines.some((l) => l.trim() === texts.headings.doors)) return s;
+  const start = lines.findIndex((l) => l.trim() === texts.headings.carpets);
+  if (start < 0) return s;
+  let material = null;
+  let edging = "";
+  for (let i = start + 1; i < lines.length && lines[i].trim(); i++) {
+    const l = lines[i].trim();
+    if (l.startsWith(`- ${texts.labels.materialColor}: `)) material = l.slice(texts.labels.materialColor.length + 4);
+    else if (l.startsWith(`- ${texts.labels.edgingColor}: `)) edging = l.slice(texts.labels.edgingColor.length + 4);
+  }
+  if (!material) return s;
+  return [
+    s,
+    "",
+    texts.headings.doors,
+    `- ${texts.labels.materialColor}: ${texts.sameMaterial} – ${material}`,
+    `- ${texts.labels.edgingColor}: ${texts.sameEdging} – ${edging}`,
+    `- ${texts.labels.doorPatches}: ${texts.no}`,
+  ].join("\n");
+}
+
 export function parseTruckOrderSummary(summary) {
   const groups = [];
   let current = null;

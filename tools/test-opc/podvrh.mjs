@@ -64,8 +64,38 @@ export function strankaProduktuPonuky(p, cena) {
     (p.sels || []).map((s) => `<select name="surchargeParameterValueId[${s.id}]" data-parameter-id="${s.id}" data-parameter-name="${s.n}"><option value="">Vyberte príplatok</option>${s.o.map(sur).join("")}</select>`).join("") +
     `</form>` + (kom ? `<script>\n    shoptet.variantsSplit = shoptet.variantsSplit || {};\n    shoptet.variantsSplit.necessaryVariantData = ${kom};\n</script>` : "") + `</body></html>`;
 }
+/**
+ * Kamión SK 640 (karta košíka v pokladni, ponuka „Tapacír dverí“, 2. 11. 2026): stránka produktu s 15 príplatkami v poradí
+ * admina (vozidlo → koberčeky → tapacír). Id a texty zvolených hodnôt zo zachyteného POST 18. 10. 2026
+ * (docs/kamiony-snimky/post-porovnanie.json) a z košíka fixtures/sk-kamion (28. 10.); 🟡 ostatné možnosti a ich id
+ * syntetické. Základ 199 € (423 € v košíku = 199 + 10 + 95 + 119). Na tretom mieste konečná cena príplatku s DPH.
+ */
+export const KAMION_PRODUKT = {
+  pid: "640", priceId: "68383", lang: "sk", cena: 199,
+  sels: [
+    { id: "346", n: "Typ materiálu", o: [["1357", "Prémiová syntetická koža – hladká +€0", "0"], ["1360", "Prémiová syntetická koža – prešívaná +€10", "10"]] },
+    { id: "376", n: "Farba materiálu", o: [["1423", "Vyberie sa v konfigurátore +€0", "0"], ["91501", "čierna, čierne šitie – 11 +€0", "0"]] },
+    { id: "379", n: "Farba lemovania", o: [["1426", "Vyberie sa v konfigurátore +€0", "0"], ["91502", "čierny základ, červené pásiky – 04 +€0", "0"]] },
+    { id: "349", n: "Rozloženie nášiviek", o: [["91503", "Bez nášiviek +€0", "0"], ["1465", "Šofér + spolujazdec + stred (BALÍK) +€95", "95"]] },
+    { id: "403", n: "Typ nášiviek na boky", o: [["91504", "Bez nášivky +€0", "0"], ["1525", "Nášivka H19 +€0", "0"]] },
+    { id: "406", n: "Farba nášiviek na boky", o: [["91505", "Bez nite +€0", "0"], ["1558", "Čierna – 2999 +€0", "0"]] },
+    { id: "409", n: "Typ nášivky na stred", o: [["91506", "Bez nášivky +€0", "0"], ["1645", "Nášivka H19 +€0", "0"]] },
+    { id: "412", n: "Farba nášivky na stred", o: [["91507", "Bez nite +€0", "0"], ["1678", "Čierna – 2999 +€0", "0"]] },
+    { id: "352", n: "Tapacír", o: [["1468", "Áno chcem (v konfigurátore – balík) +€119", "119"], ["91508", "Nie nechcem tapacír dverí +€0", "0"]] },
+    { id: "388", n: "Typ materiálu tapacíru", o: [["1435", "Rovnaký ako koberec +€0", "0"], ["91509", "Prémiová syntetická koža – prešívaná +€0", "0"]] },
+    { id: "391", n: "Farba materiálu tapacíru", o: [["1441", "Rovnaká ako koberec +€0", "0"], ["91510", "Vyberie sa v konfigurátore +€0", "0"]] },
+    { id: "394", n: "Farba lemovania tapacíru", o: [["1447", "Rovnaké ako koberec +€0", "0"], ["91511", "Vyberie sa v konfigurátore +€0", "0"]] },
+    { id: "355", n: "Nášivky na tapacír", o: [["1390", "Nie nechcem nášivku na dverách +€0", "0"], ["91512", "Áno chcem nášivku na dverách +€0", "0"]] },
+    { id: "397", n: "Typ nášivky na tapacír", o: [["1711", "Bez nášivky +€0", "0"], ["91513", "Rovnaká ako koberec +€0", "0"]] },
+    { id: "400", n: "Farba nášiviek na tapacíre", o: [["1789", "Bez nite +€0", "0"], ["91514", "Rovnaká ako koberec +€0", "0"]] },
+  ],
+};
+/** Príplatky kamióna fixtures/sk-kamion s tapacírom -> bez tapacíru (ako syncToShoptet + upratTapacir pri „Nie“). */
+export const KAMION_S_TAPACIROM = "Tapacír - Áno chcem (v konfigurátore – balík), Typ materiálu tapacíru - Rovnaký ako koberec, Farba materiálu tapacíru - Rovnaká ako koberec, Farba lemovania tapacíru - Rovnaké ako koberec, ";
+export const KAMION_BEZ_TAPACIRU = "Tapacír - Nie nechcem tapacír dverí, ";
 const PRODUKTY_PONUKY = {
   sk: {
+    "/luxusne-autokoberce-kamiony/": () => strankaProduktuPonuky(KAMION_PRODUKT, KAMION_PRODUKT.cena),
     "/luxusne-autokoberce-dragonskin-diamond-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/basic-diamond"], 219),
     "/luxusne-autokoberce-dragonskin-elite-diamond-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/elite-diamond"], 351),
     "/luxusne-autokoberce-dragonskin-stripe-line/": () => strankaProduktuPonuky(FIX_VRSTVA["sk/basic-stripe"], 219),
@@ -385,6 +415,15 @@ export function sTromiVzorkami(html) {
 }
 
 /**
+ * Košík „kamionBez“ (ponuka „Tapacír dverí“ v karte košíka, 2. 11. 2026): kamión fixtures/sk-kamion bez tapacíru — príplatky
+ * ako po „Nie, nechcem“ v konfigurátore, cena položky 423 -> 304 €, súčty o 119 € menej. 🟡 syntetické, nezachytené.
+ */
+export function kamionBezTapaciru(html) {
+  return String(html).split(KAMION_S_TAPACIROM).join(KAMION_BEZ_TAPACIRU)
+    .replace(/€423\b/g, "€304").replace(/€428\b/g, "€309").replace(/"value":"423","valueWoVat":"343.9"/g, '"value":"304","valueWoVat":"247.15"');
+}
+
+/**
  * Súhrn pre platbu, ktorú sme nezachytili (set, kamión): zo súhrnu predvolenej platby vymení riadok platby a celkovú sumu
  * podľa kroku 1 (názov a data-billing-price-wv). 🟡 syntetický, štruktúra ako zachytené súhrny SK/CZ.
  */
@@ -430,7 +469,7 @@ export async function zapniPodvrh(k, moznosti) {
   // košík „dve“ = set + 2. položka (sDvomaPolozkami), HTML sa skladá z fixtures/sk-set; „vzorky3“ = vzorkovník webu
   // s 3 vzorkami (sTromiVzorkami)
   const zlozene = new Map();
-  const ZLOZ = { dve: ["-set", sDvomaPolozkami], vzorky3: ["", sTromiVzorkami] };
+  const ZLOZ = { dve: ["-set", sDvomaPolozkami], vzorky3: ["", sTromiVzorkami], kamionBez: ["-kamion", kamionBezTapaciru] };
   p.adresar = () => join(FIXTURES, p.web + (p.stav.kosik === "vzorkovnik" ? "" : ZLOZ[p.stav.kosik] ? ZLOZ[p.stav.kosik][0] : "-" + p.stav.kosik));
   p.subor = (meno) => {
     const h = citaj(join(p.adresar(), meno));
