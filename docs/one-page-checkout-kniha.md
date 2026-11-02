@@ -1592,6 +1592,10 @@ Michal (1. 11. 23:02, snímka z iPhonu po nasadení 9f93d20): „Je to super… 
 - 🟡 **PC s nízkou obrazovkou (1366 × 768):** karta je vyššia o ~80 px, riadok boxu je pri prvom pohľade čiastočne pod pevnou lištou „Celkom / Objednať“ (`.lcd-opc-lista`, `top: 692px`); po posunutí stránky je celý (stránka 1277 px). Na telefóne to tak bolo aj predtým.
 - Variant B (videá „pred / po“, `tools/kosik-videa-doplnkov.sh`, profil v `vrstvaVideo.js`) som zahodil, náhľady ostali v `/mnt/project-files/kosik-navrhy/doplnky-*`.
 - Náhľad teraz / nové: `/mnt/project-files/kosik-navrhy/vacsie-fotky-telefon-390.png`, `vacsie-fotky-pc-1366.png`.
+- **Testy pred nahratím:** SK 146 OK, CZ 70 OK (beh rozdelený, prvý pre časový limit kontajnera zastavený po S22, zvyšok S23+ dobehol), jednotkové 131 OK + 1 známy flake „sync“, doplnok 103 OK. CI 956 (nahratie na CDN) zelené.
+- **Naživo 2. 11. 2026 7:54** (Michal vo vlákne „Prepni na webe.“ ako odpoveď na „vymeň 9f93d20 za 2f7f81b“): SK uložené 7:54:35, CZ 7:54:55, na oboch pred 2× 9f93d20, po 0× stará a 2× 2f7f81b, riadok `lcd-opc-hned` na konci Záhlavia. CDN `luxuryCar.js` / `.css` 200, v JS „Top do kufra“ aj „Top do kufru“. **Návrat: `9f93d20`.**
+- **Kontrola naživo** (Michalov Chrome, SK aj CZ, skrytý odkaz): poradie rohož, druhá vrstva, box; štítok na jeden riadok; rohož, video aj box presne 76 × 95; video hrá bez zvuku; „Pridať“ / „Přidat“; konzola bez chýb. Playwright: SK WebKit telefón 8/8, CZ Firefox PC 8/8, ponuka CZ Chromium telefón 5/5, bez kódu klasický košík. Snímky na PC v `claud\WEB\pokladna-2f7f81b\`. Testovací CZ košík vyprázdnený.
+- 🟡 **Orezanie rohože:** fotky sú na šírku, dlaždica na výšku -> z fotky ostane stredných ~60 % šírky. Box (`box-1.jpg`) je celý, rohožou (`rohoz-classic.jpg`) chýba ľavý a pravý okraj; v náhľade to tak bolo a Michal prepnutie odsúhlasil. Ponúknutá fotka rohože na výšku (čaká na Michala).
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 
