@@ -602,7 +602,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Prázdny košík pre všetkých (bez tajného odkazu, Michal 2. 11. 22:39), vypínač data.json prazdny_kosik, bez prebliknutia; S95 + regresia SK/CZ zelené (kniha § 10.35)
 - [x] Naživo: prázdny košík pre všetkých SK aj CZ s ba697d4 (SK 22:52, CZ 22:53, návrat 593b0c1), overené ako nový zákazník
 - [x] Zvýraznený prázdny košík: 1. dlaždica „Váš košík je zatiaľ prázdny“, 2. set, 3. produkty (Michal 2. 11. 22:58), testy SK/CZ zelené
-- [ ] Naživo: zvýraznený prázdny košík SK aj CZ
+- [x] Naživo: zvýraznený prázdny košík SK aj CZ s 0d12101 (SK 23:06, CZ 23:06, návrat ba697d4), overené ako nový zákazník
 - [ ] Michalova skúšobná objednávka prevodom SK aj CZ s novou ďakovnou stránkou, snímky prejsť; 1820260076 zrušiť v admine (Michal)
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala
