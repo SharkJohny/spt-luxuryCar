@@ -591,3 +591,12 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Michalova skúšobná objednávka prevodom SK aj CZ s novou ďakovnou stránkou, snímky prejsť; 1820260076 zrušiť v admine (Michal)
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala
+
+## DPH pri produktoch a CZ ceny kamióna (2. 11. 2026)
+- [x] Shoptet (tiket 29. 10.) opravil skrytú 23 % DPH pri 601/604/607/613/616/625/640/634: GA4 dostáva plnú cenu (601 = 351 €), SK aj CZ všetky varianty DPH 0 %
+- [x] CZ kamión 2452: základ 5 806,79 Kč = júlový import 4 799 Kč + 21 % DPH -> pravidlo Michala: CZ = € × 25, na celé desiatky
+- [x] Kód: prečiarknuté CZ ceny (kamion/data.js) a záložný CZ cenník Reactu (konfigurator.jsx + .phone.jsx) na kurz 25; test-surcharge-sync CZ
+- [ ] CZ admin 2452: základ 4 980 Kč + 10 príplatkov podľa /mnt/project-files/kamiony-ceny-cz/ — čaká na Michalovu vetu vo vlákne (poistka na PC)
+- [ ] Naživo prečiarknutých CZ cien príde s najbližším prepnutím verzie SK + CZ
+- [ ] Odpovedať Shoptetu, že GA4 je OK (Michal)
+- [ ] Predom existujúca chyba testu: test-cart-summary čaká „2901 – Strieborná“, dáta majú „Strieborná – 2901“ (zastaví yarn truck:test)

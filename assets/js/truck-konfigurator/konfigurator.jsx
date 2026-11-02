@@ -874,30 +874,31 @@ const FALLBACK_PRICES_EUR = {
 
 // CZ ceník pro chvíli, kdy Shoptet ještě nevykreslil příplatkové selecty.
 // Při běžném provozu mají vždy přednost živé částky z DOMu níže.
+// Kurz 25 Kč/€ zaokrúhlený na celé desiatky (Michal 2. 11. 2026), napr. 199 € → 4 980 Kč.
 const FALLBACK_PRICES_CZK = {
-  BASE: 4799,
+  BASE: 4980,
   MATERIAL: {
     "Prémiová syntetická koža – jednofarebná": 0,
-    "Prémiová syntetická koža – prešívaná": 199,
-    "Prémiová syntetická koža – tónovaná": 990,
-    "Mikrosemiš – jednofarebný": 990,
-    "Mikrosemiš – dvojfarebný": 1199,
-    "Vzorovaný velúr": 1399,
+    "Prémiová syntetická koža – prešívaná": 250,
+    "Prémiová syntetická koža – tónovaná": 1000,
+    "Mikrosemiš – jednofarebný": 1000,
+    "Mikrosemiš – dvojfarebný": 1250,
+    "Vzorovaný velúr": 1500,
   },
   NASIVKY: {
     "nechcem": 0,
-    "stred": 1399,
-    "boky": 1399,
-    "boky+stred": 2299,
+    "stred": 1480,
+    "boky": 1480,
+    "boky+stred": 2380,
   },
   NASIVKY_SAMO: {
-    "boky": 1690,
-    "stred": 1690,
+    "boky": 1750,
+    "stred": 1750,
   },
-  TAPACIR_BUNDLE: 2890,
-  TAPACIR_SAMO: 4390,
-  NASIVKA_DVERE: 1190,
-  NASIVKA_DVERE_SAMO: 2190,
+  TAPACIR_BUNDLE: 2980,
+  TAPACIR_SAMO: 4480,
+  NASIVKA_DVERE: 1230,
+  NASIVKA_DVERE_SAMO: 2230,
 };
 
 const FALLBACK_PRICES = CURRENCY === "Kč" ? FALLBACK_PRICES_CZK : FALLBACK_PRICES_EUR;

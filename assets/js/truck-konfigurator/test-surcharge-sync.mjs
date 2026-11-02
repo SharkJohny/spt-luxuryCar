@@ -55,17 +55,17 @@ const SELECTS_CZ = `
   <select data-parameter-id="material" data-parameter-name="Materiál">
     <option value=""></option>
     <option value="plain">Prémiová syntetická kůže – jednobarevná +0 Kč</option>
-    <option value="stitched">Prémiová syntetická kůže – prošívaná +199 Kč</option>
-    <option value="tinted">Prémiová syntetická kůže – tónovaná +990 Kč</option>
-    <option value="micro-one">Mikrosemiš – jednobarevný +990 Kč</option>
-    <option value="micro-two">Mikrosemiš – dvoubarevný +1 199 Kč</option>
+    <option value="stitched">Prémiová syntetická kůže – prošívaná +250 Kč</option>
+    <option value="tinted">Prémiová syntetická kůže – tónovaná +1 000 Kč</option>
+    <option value="micro-one">Mikrosemiš – jednobarevný +1 000 Kč</option>
+    <option value="micro-two">Mikrosemiš – dvoubarevný +1 250 Kč</option>
   </select>
   <select data-parameter-id="embroidery" data-parameter-name="Nášivky">
     <option value=""></option>
     <option value="none">Bez nášivek +0 Kč</option>
-    <option value="center">Jen střed +1 399 Kč</option>
-    <option value="sides">Řidič + spolujezdec +1 399 Kč</option>
-    <option value="all">Řidič + spolujezdec + střed (BALÍČEK) +2 299 Kč</option>
+    <option value="center">Jen střed +1 480 Kč</option>
+    <option value="sides">Řidič + spolujezdec +1 480 Kč</option>
+    <option value="all">Řidič + spolujezdec + střed (BALÍČEK) +2 380 Kč</option>
   </select>
   <select data-parameter-id="343" data-parameter-name="Nášivka boky">
     <option value=""></option><option value="no">Bez nášivky +0 Kč</option><option value="h2">Nášivka H2 +0 Kč</option>
@@ -86,10 +86,10 @@ const SELECTS_CZ = `
     <option value=""></option><option value="same">Stejná jako koberec +0 Kč</option><option value="no">Bez nitě +0 Kč</option><option value="3842">3842 – Modrá +0 Kč</option>
   </select>
   <select data-parameter-id="301" data-parameter-name="Čalounění">
-    <option value=""></option><option value="no">Ne, nechci čalounění dveří +0 Kč</option><option value="yes">Ano, chci (v konfigurátoru – balíček) +2890 Kč</option>
+    <option value=""></option><option value="no">Ne, nechci čalounění dveří +0 Kč</option><option value="yes">Ano, chci (v konfigurátoru – balíček) +2980 Kč</option>
   </select>
   <select data-parameter-id="door-embroidery" data-parameter-name="Nášivka dveře">
-    <option value=""></option><option value="no">Ne, nechci nášivku na dveřích +0 Kč</option><option value="yes">Ano, chci nášivku na dveřích +1190 Kč</option>
+    <option value=""></option><option value="no">Ne, nechci nášivku na dveřích +0 Kč</option><option value="yes">Ano, chci nášivku na dveřích +1230 Kč</option>
   </select>
   <select data-parameter-id="door-material" data-parameter-name="Materiál dveře">
     <option value=""></option><option value="same">Stejný jako koberec +0 Kč</option><option value="custom">Vybere se v konfigurátoru +0 Kč</option>
@@ -375,13 +375,13 @@ for (const sourceName of ["konfigurator.jsx", "konfigurator.phone.jsx"]) {
   expectStartsWith(sameCz, "Niť dveře", "Stejná jako koberec", sourceName);
 
   const czechPrices = readCzechPrices(sourceName, SELECTS_CZ);
-  expectPrice(czechPrices.live.MATERIAL["Prémiová syntetická koža – prešívaná"], 199, "CZ prošívaný materiál z DOMu", sourceName);
-  expectPrice(czechPrices.live.MATERIAL["Mikrosemiš – jednofarebný"], 990, "CZ mikrosemiš z DOMu", sourceName);
-  expectPrice(czechPrices.live.NASIVKY["boky+stred"], 2299, "CZ nášivky z DOMu", sourceName);
-  expectPrice(czechPrices.live.TAPACIR_BUNDLE, 2890, "CZ čalounění z DOMu", sourceName);
-  expectPrice(czechPrices.live.NASIVKA_DVERE, 1190, "CZ nášivka dveří z DOMu", sourceName);
-  expectPrice(czechPrices.fallback.BASE, 4799, "CZ fallback základ", sourceName);
-  expectPrice(czechPrices.fallback.NASIVKY["boky+stred"], 2299, "CZ fallback nášivky", sourceName);
+  expectPrice(czechPrices.live.MATERIAL["Prémiová syntetická koža – prešívaná"], 250, "CZ prošívaný materiál z DOMu", sourceName);
+  expectPrice(czechPrices.live.MATERIAL["Mikrosemiš – jednofarebný"], 1000, "CZ mikrosemiš z DOMu", sourceName);
+  expectPrice(czechPrices.live.NASIVKY["boky+stred"], 2380, "CZ nášivky z DOMu", sourceName);
+  expectPrice(czechPrices.live.TAPACIR_BUNDLE, 2980, "CZ čalounění z DOMu", sourceName);
+  expectPrice(czechPrices.live.NASIVKA_DVERE, 1230, "CZ nášivka dveří z DOMu", sourceName);
+  expectPrice(czechPrices.fallback.BASE, 4980, "CZ fallback základ", sourceName);
+  expectPrice(czechPrices.fallback.NASIVKY["boky+stred"], 2380, "CZ fallback nášivky", sourceName);
 
   console.log(`✓ ${sourceName}: slovenské i české příplatkové parametry a ceny se synchronizují`);
 }
