@@ -116,8 +116,17 @@ export function prazdnyKosik(doc, trh) {
   const T = PRAZDNY_TEXTY[trh] || PRAZDNY_TEXTY.sk;
   const kam = doc.querySelector(".cart-inner.cart-empty");
 
-  // --- hlavná karta: nadpis, veta, set so zľavou, konkrétne produkty, vzorkovník
-  const set = el(doc, "a", { class: "lcd-prz-set", href: T.set.href }, [
+  // --- 1. dlaždica: výrazne „Váš košík je zatiaľ prázdny“ + veta (Michal 2. 11. 22:58: „Viacej by som zvýraznil, že váš
+  // košík je prázdny, spravil by som to ako dlaždicu s tými textami, ako sú tam, plus tomu potom tú dlaždicu … set“)
+  const prazdna = el(doc, "div", { class: "lcd-prz-karta lcd-prz-prazdna" }, [
+    el(doc, "div", { class: "lcd-prz-hlava" }, [
+      el(doc, "span", { class: "lcd-prz-hlava__ikona", "aria-hidden": "true", html: SVG.kosik + '<i class="lcd-prz-hlava__nula">0</i>' }),
+      el(doc, "h2", { id: "lcd-prz-h", class: "lcd-prz-hlava__nadpis", text: T.nadpis }),
+    ]),
+    el(doc, "p", { class: "lcd-prz-uvod", text: T.uvod }),
+  ]);
+  // --- 2. dlaždica: set so zľavou (celá dlaždica je odkaz); 3. dlaždica: konkrétne produkty a vzorkovník
+  const set = el(doc, "a", { class: "lcd-prz-karta lcd-prz-set", href: T.set.href }, [
     el(doc, "span", { class: "lcd-prz-set__diely", "aria-hidden": "true" }, T.set.diely.reduce(function (a, d, i) {
       if (i) a.push(el(doc, "span", { class: "lcd-prz-set__plus", text: "+" }));
       a.push(el(doc, "span", { class: "lcd-prz-set__diel" }, [obr(doc, d[0], 520, 520, "lcd-prz-set__foto"), el(doc, "span", { class: "lcd-prz-set__lbl", text: d[1] })]));
@@ -142,12 +151,6 @@ export function prazdnyKosik(doc, trh) {
     el(doc, "span", { class: "lcd-prz-vz__btn", text: T.vz.btn }),
   ]);
   const hlavna = el(doc, "div", { class: "lcd-prz-karta lcd-prz-hlavna" }, [
-    el(doc, "div", { class: "lcd-prz-hlava" }, [
-      el(doc, "span", { class: "lcd-prz-hlava__ikona", html: SVG.kosik }),
-      el(doc, "h2", { id: "lcd-prz-h", class: "lcd-prz-hlava__nadpis", text: T.nadpis }),
-    ]),
-    el(doc, "p", { class: "lcd-prz-uvod", text: T.uvod }),
-    set,
     el(doc, "h3", { class: "lcd-prz-sek", text: T.produktyNadpis }),
     produkty,
     vz,
@@ -172,7 +175,7 @@ export function prazdnyKosik(doc, trh) {
     bok.appendChild(hl);
   }
 
-  const blok = el(doc, "div", { id: ID_PRAZDNY, class: "lcd-prz lcd-prz--dlazdice", role: "region", "aria-labelledby": "lcd-prz-h" }, [hlavna, bok.childNodes.length ? bok : null]);
+  const blok = el(doc, "div", { id: ID_PRAZDNY, class: "lcd-prz lcd-prz--dlazdice", role: "region", "aria-labelledby": "lcd-prz-h" }, [prazdna, set, hlavna, bok.childNodes.length ? bok : null]);
   kam.insertBefore(blok, kam.firstChild);
   doc.documentElement.classList.add(TRIEDA_PRAZDNY);
   return blok;

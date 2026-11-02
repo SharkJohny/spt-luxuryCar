@@ -826,7 +826,12 @@ export const SCENARE = {
       over(a.chyby === 0, "lcd_opc_chyba v dataLayer: " + a.chyby);
       const krok1 = s.p.zaznam.www.filter((z) => /^\/objednavka\/krok-1\/?$/.test(z.cesta));
       over(!krok1.length, "krok 1 sa sťahoval: " + krok1.length + "×");
-      casti.push("blok, " + ocakOdkazy.length + " odkazov, kontakt, vyhľadávanie, bez kroku 1");
+      // poradie dlaždíc (Michal 2. 11. 22:58): 1. „prázdny“ (nadpis + veta), 2. set so zľavou, 3. produkty, potom kontakt
+      const poradie = await s.ev(`[].map.call(document.getElementById("lcd-opc-prazdny").children, function (e) { return (e.className.match(/lcd-prz-(prazdna|set|hlavna|bok)\\b/) || [])[1] || e.className; }).join(",")`);
+      over(poradie === "prazdna,set,hlavna,bok", "poradie dlaždíc: " + poradie);
+      const vPrazdnej = await s.ev(`(function () { var p = document.querySelector("#lcd-opc-prazdny .lcd-prz-prazdna"); return !!(p && p.querySelector("#lcd-prz-h") && p.querySelector(".lcd-prz-uvod")); })()`);
+      over(vPrazdnej, "nadpis a veta nie sú v 1. dlaždici");
+      casti.push("blok, " + ocakOdkazy.length + " odkazov, kontakt, vyhľadávanie, bez kroku 1, poradie dlaždíc");
       // šírky: nič nepreteká, písmo ≥ 14 px (štítky pod fotkami setu tiež 14), nadpis v 1 riadku od 390
       const chyby = [];
       for (const w of [320, 360, 375, 390, 414, 768, 1024, 1100, 1366, 1920]) {

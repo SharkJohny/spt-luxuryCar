@@ -15286,16 +15286,21 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny img{display:bl
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny svg{display:block}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-karta{min-width:0;margin:0;padding:16px;border:1px solid var(--o-karta);border-radius:14px;
   background:#fff;box-shadow:0 2px 8px rgba(20,15,5,.06)}
-/* nadpis s ikonou košíka (ako „① Váš košík“ v pokladni, ikona namiesto čísla) */
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava{display:flex;align-items:center;gap:12px;margin:0 0 8px}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona{flex:none;display:grid;place-items:center;width:40px;height:40px;
-  border:1.5px solid var(--o-gold);border-radius:50%;background:#fdfaf1;color:var(--o-gold-t)}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona svg{width:22px;height:22px}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h2.lcd-prz-hlava__nadpis{margin:0;padding:0;border:0;background:none;font:700 18px/1.2 var(--o-disp);
-  letter-spacing:.02em;text-transform:uppercase;color:var(--o-ink);text-align:left}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-uvod{margin:0 0 14px;padding:0;color:var(--o-tlm);font:400 16px/1.45 var(--o-body)}
-/* set so zľavou: 3 diely s „+“, text a zelené tlačidlo v zlatom rámiku (ako otvorený výber farby v ponuke setu) */
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set{display:grid;gap:12px;padding:14px;border:1px solid #e3c977;border-radius:12px;background:#fdfaf1}
+/* 1. dlaždica „Váš košík je zatiaľ prázdny“ (Michal 2. 11. 22:58: „Viacej by som zvýraznil, že váš košík je prázdny“):
+   na stred, veľká ikona košíka s „0“, väčší nadpis, zlatý okraj; na PC cez celú šírku nad setom a kontaktom */
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-prazdna{padding:22px 16px 20px;border-color:#e3c977;text-align:center;
+  background:linear-gradient(180deg,#fdfaf1 0%,#fff 70%)}
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava{display:flex;flex-direction:column;align-items:center;gap:12px;margin:0 0 8px}
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona{position:relative;flex:none;display:grid;place-items:center;width:64px;height:64px;
+  border:2px solid var(--o-gold);border-radius:50%;background:#fff;color:var(--o-gold-t)}
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona svg{width:32px;height:32px}
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__nula{position:absolute;top:-4px;right:-6px;min-width:24px;height:24px;padding:0 6px;border:2px solid #fff;
+  border-radius:12px;background:var(--o-gold);color:#fff;font:700 14px/20px var(--o-disp);font-style:normal;text-align:center}
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h2.lcd-prz-hlava__nadpis{margin:0;padding:0;border:0;background:none;font:700 22px/1.2 var(--o-disp);
+  letter-spacing:0;text-transform:none;color:var(--o-ink);text-align:center}
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-uvod{max-width:520px;margin:0 auto;padding:0;color:var(--o-tlm);font:400 16px/1.45 var(--o-body);text-align:center}
+/* 2. dlaždica set so zľavou: 3 diely s „+“, text a zelené tlačidlo, zlatý rámik (ako otvorený výber farby v ponuke setu) */
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set{display:grid;gap:12px;padding:16px;border:1px solid #e3c977;border-radius:14px;background:#fdfaf1}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__diely{display:flex;align-items:flex-start;justify-content:center;gap:6px}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__diel{flex:1 1 0;min-width:0;max-width:112px;display:flex;flex-direction:column;align-items:center;gap:6px}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__foto{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border:1px solid var(--o-karta);
@@ -15309,7 +15314,7 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-btn{d
   border-radius:12px;background:var(--o-zelena);color:#fff;font:700 16px/1.1 var(--o-disp);letter-spacing:.08em;text-transform:uppercase;text-align:center;
   box-shadow:0 6px 16px rgba(46,125,50,.25)}
 /* konkrétne produkty: dlaždice (A) — 2 v riadku na telefóne, 3 na PC */
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h3.lcd-prz-sek{margin:20px 0 10px;padding:0;border:0;background:none;font:700 16px/1.25 var(--o-disp);
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h3.lcd-prz-sek{margin:0 0 12px;padding:0;border:0;background:none;font:700 16px/1.25 var(--o-disp);
   letter-spacing:0;text-transform:none;color:var(--o-ink);text-align:left}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny ul.lcd-prz-produkty{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny ul.lcd-prz-produkty>li{min-width:0;margin:0;padding:0;list-style:none;background:none}
@@ -15366,14 +15371,20 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlada
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set:hover .lcd-prz-btn{filter:brightness(1.06)}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-vz:hover .lcd-prz-vz__btn{background:#fbf3dc}
 }
-/* PC (od 992): hlavná karta vľavo, kontakt a vyhľadávanie vpravo (340 px) ako súhrn v pokladni */
+/* PC (od 992): „prázdny“ cez celú šírku, pod ním set a produkty vľavo, kontakt a vyhľadávanie vpravo (340 px) ako súhrn v pokladni */
 @media (min-width:992px){
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny{grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start;margin:22px auto 48px}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-karta{padding:22px 24px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-prazdna{grid-column:1 / -1;padding:30px 24px 28px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set,html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlavna{grid-column:1}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-bok{grid-column:2;grid-row:2 / span 2}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-bok .lcd-prz-karta{padding:20px}
-  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona{width:44px;height:44px}
-  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h2.lcd-prz-hlava__nadpis{font-size:21px;letter-spacing:.04em}
-  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:22px;padding:16px 18px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava{gap:14px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona{width:76px;height:76px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona svg{width:38px;height:38px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h2.lcd-prz-hlava__nadpis{font-size:30px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-uvod{max-width:700px;font-size:17px}
+  html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:22px;padding:20px 22px}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__diel{flex:none;width:100px}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__k{font-size:20px}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-btn{align-self:flex-start;min-width:280px}
