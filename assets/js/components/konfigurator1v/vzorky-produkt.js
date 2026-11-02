@@ -33,6 +33,32 @@ const LOKALNE = {
 const KOD = /^(?:.*\()?((?:S|H|D|LUX)-\d+)\)?$/;
 /** Voľba „chcem vzorku“ (SK „Áno +€5“, starší text „Chcem – vratná záloha 5 €“); „Nechcem“ nie. */
 const ANO = /^(áno|ano|chcem|chci)\b/i;
+const NIE = /^(nechcem|nechci|nie|ne)\b/i;
+/** Kód v popise parametra „Pridať vzorku Diamond (1. vrstva) – … [D-9] do objednávky…“. */
+const KOD_POPIS = /\[\s*((?:S|H|D|LUX)-\d+)\s*\]/;
+
+/** Popis parametra (tooltip pri názve v živom formulári) alebo "". */
+function popisParametra(form, idParametra) {
+  const lb = form.querySelector('label[for="surcharge-parameter-id-' + idParametra + '"]');
+  const tip = lb && lb.querySelector(".show-tooltip, [data-original-title], [title]");
+  return tip ? tip.getAttribute("title") || tip.getAttribute("data-original-title") || tip.getAttribute("data-bs-original-title") || "" : "";
+}
+
+/**
+ * Kód vzorky pre živý select: z názvu parametra („D-3“ / „… (D-3)“), inak z popisu „[D-3]“. Michal 2. 11. 2026 chce v
+ * objednávke len „Vzorka Diamond: Čierna prešívaná bronzovou“ — názov pre zákazníka je potom bez kódu, kód ostáva v popise.
+ */
+export function kodVzorky(form, select) {
+  const m = KOD.exec((select.getAttribute("data-parameter-name") || "").trim());
+  if (m) return m[1];
+  const p = KOD_POPIS.exec(popisParametra(form, select.getAttribute("data-parameter-id")).replace(/\s+/g, " "));
+  return p ? p[1] : null;
+}
+
+/** Voľba „chcem“ z ctx.moznosti: „Áno“ / „Chcem“, alebo (po úprave adminu) názov farby = jediná voľba okrem „Nechcem“ s cenou. */
+export function volbaAno(moz) {
+  return moz.find((o) => ANO.test(o.text)) || moz.find((o) => !NIE.test(o.text) && o.cena > 0) || null;
+}
 /** Telefón a tablet: lepivá lišta (rovnaká hranica ako cena.js a košík). */
 const MOBIL = "(max-width: 991px)";
 const HORE = 70;
@@ -61,9 +87,7 @@ function tvar(n, slova) {
 
 /** Názov vzorky doslovne zo živej stránky: popis parametra „Pridať vzorku … – <názov> [D-3] do objednávky…“. */
 function nazovZoStranky(form, idParametra, kod) {
-  const lb = form.querySelector('label[for="surcharge-parameter-id-' + idParametra + '"]');
-  const tip = lb && lb.querySelector(".show-tooltip, [data-original-title], [title]");
-  const t = tip ? tip.getAttribute("title") || tip.getAttribute("data-original-title") || tip.getAttribute("data-bs-original-title") || "" : "";
+  const t = popisParametra(form, idParametra);
   const m = /[–—-]\s*(.+?)\s*\[\s*([A-Z]+-\d+)\s*\]/.exec(t.replace(/\s+/g, " "));
   if (m && m[2] === kod && m[1].trim()) return m[1].trim();
   const z = VZORKY_ITEMS[kod];
@@ -90,12 +114,11 @@ export function init(ctx) {
   /** kód -> { kod, id (data-parameter-id), select, ano (value „Áno“), cena, nazov } */
   const vz = {};
   form.querySelectorAll("select.surcharge-parameter[data-parameter-name]").forEach(function (s) {
-    const m = KOD.exec((s.getAttribute("data-parameter-name") || "").trim());
-    const kod = m && m[1];
+    const kod = kodVzorky(form, s);
     const id = s.getAttribute("data-parameter-id");
     if (!kod || !id || vz[kod]) return;
     const moz = ctx.moznosti(id);
-    const ano = moz.find((o) => ANO.test(o.text)) || null;
+    const ano = volbaAno(moz);
     vz[kod] = { kod, id, select: s, ano: ano ? ano.hodnota : null, cena: ano ? ano.cena : 0, nazov: nazovZoStranky(form, id, kod) };
   });
   if (!Object.keys(vz).length) throw new Error("vzorky (príplatky s kódom D-/S-/H-/LUX-) vo formulári nie sú");

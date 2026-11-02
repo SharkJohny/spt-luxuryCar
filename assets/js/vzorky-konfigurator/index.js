@@ -184,8 +184,25 @@ function idForSelect(select) {
     idFromText(select.getAttribute("data-parameter-name")) ||
     idFromText(select.getAttribute("name")) ||
     idFromText((rowOf(select) || {}).textContent) ||
-    optionId(select)
+    optionId(select) ||
+    idFromText(popisSelectu(select))
   );
+}
+/**
+ * Popis parametra (tooltip „Pridať vzorku … [D-9] do objednávky…“). Michal 2. 11. 2026: názov pre zákazníka bez kódu
+ * („Vzorka Diamond“, voľba = farba) — kód ostáva len v popise parametra v admine.
+ */
+function popisSelectu(select) {
+  const id = select.getAttribute("data-parameter-id");
+  const lb = id ? document.querySelector('label[for="surcharge-parameter-id-' + id + '"]') : null;
+  const kde = [lb, rowOf(select)].filter(Boolean);
+  for (const k of kde) {
+    for (const e of [k].concat(Array.from(k.querySelectorAll("[title], [data-original-title], [data-bs-original-title]")))) {
+      const t = e.getAttribute("title") || e.getAttribute("data-original-title") || e.getAttribute("data-bs-original-title");
+      if (t && ID_RE.test(t)) return t;
+    }
+  }
+  return "";
 }
 function optionId(select) {
   for (const o of select.options) {

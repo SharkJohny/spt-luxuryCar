@@ -24,6 +24,14 @@ export function lcdPriplatky(text) {
   return t.split(/,\s*(?=[^,]*(?:\s[-–]\s|:))/).map((s) => s.trim()).filter(Boolean);
 }
 
+/* Vzorkovník (Michal 2. 11. 2026: „vzorka Diamond, čierna prešívaná bronzovou, hotovo“): v rozpise len séria a farba.
+   Shoptet dnes píše „Vzorka Diamond – Čierna prešívaná bronzovou (D-9) - Áno“ (názov parametra s kódom + voľba „Áno“);
+   po úprave adminu „Vzorka Diamond - Čierna prešívaná bronzovou“. Kód „(D-9)“ a všetko za ním (- Áno / - farba znova) preč,
+   „Vzorka 2. vrstva“ slovom. Len riadky „Vzorka/Vzorek …“ s kódom vzorky — iné príplatky bez zmeny. */
+const VZORKA = /^Vzor(?:ka|ek)\b/i;
+const VZORKA_KOD = /\s*\((?:S|H|D|LUX)-\d+\)(?:\s*[-–]\s*.*)?$/;
+const vzorkaNazov = (n) => n.replace(/^Vzorka\s+2\.\s*vrstva$/i, "Vzorka druhej vrstvy").replace(/^Vzorek\s+2\.\s*vrstva$/i, "Vzorek druhé vrstvy");
+
 const velke = (s) => s.charAt(0).toLocaleUpperCase() + s.slice(1);
 /** „Farba kože : Čierna“, „S : 33x32x30 cm“ (texty z adminu) -> bez medzery pred dvojbodkou */
 const hodnota = (s) => s.replace(/\s+:/g, ":").trim();
@@ -48,8 +56,12 @@ export function lcdRozpis({ variant, priplatky, cz }) {
     if (/\bTYP\b/.test(p) || /Vyberie sa v konfigurátore/i.test(p)) continue;
     const i = p.search(SEP);
     if (i > 0) {
-      const n = p.slice(0, i).replace(/\s*:\s*$/, "").trim();
-      const h = hodnota(p.slice(i).replace(SEP, ""));
+      let n = p.slice(0, i).replace(/\s*:\s*$/, "").trim();
+      let h = hodnota(p.slice(i).replace(SEP, ""));
+      if (VZORKA.test(n)) {
+        h = h.replace(VZORKA_KOD, "").trim();
+        n = vzorkaNazov(n);
+      }
       if (h) { out.push({ n: velke(n), h }); continue; }
     }
     out.push({ n: null, h: velke(hodnota(p)) });

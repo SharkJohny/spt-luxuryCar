@@ -600,3 +600,11 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Naživo prečiarknutých CZ cien príde s najbližším prepnutím verzie SK + CZ
 - [ ] Odpovedať Shoptetu, že GA4 je OK (Michal)
 - [ ] Predom existujúca chyba testu: test-cart-summary čaká „2901 – Strieborná“, dáta majú „Strieborná – 2901“ (zastaví yarn truck:test)
+
+## Vzorkovník: názvy vzoriek bez kódu a „Áno“ (2. 11. 2026)
+- [x] Zdroj textu „Vzorka Diamond: Čierna prešívaná bronzovou (D-9) - Áno“: názov príplatkového parametra v admine (s kódom) + voľba „Áno“ (SK 637 aj CZ 2449, 45 parametrov, 30 objednateľných)
+- [x] Rozpis v košíku, paneli košíka, pokladni a na ďakovnej stránke (kosikRozpis.js lcdRozpis): „Vzorka Diamond: Čierna prešívaná bronzovou“, „Vzorka druhej vrstvy: Lux Color 10 – čierna“ (CZ „Vzorek druhé vrstvy“) — test-kosik-rozpis
+- [x] Konfigurátor vzoriek (1V aj starý ?novy=0) číta kód aj z popisu parametra „[D-9]“ a voľbu „chcem“ aj ako názov farby — vzorky/test-nazvy-bez-kodu.mjs
+- [ ] Nasadiť (prepnutie sha SK + CZ, spolu s vláknom „Vylepšiť košík v pokladni“ alebo samostatne)
+- [ ] Admin SK + CZ (so súhlasom Michala vo vlákne): zobrazovaný názov „Vzorka Diamond“ / „Vzorka druhej vrstvy“, voľba „Áno“ -> farba; kód ostáva v internom názve a popise parametra — až PO nasadení kódu
+- [ ] Kontrola naživo: košík, pokladňa, ďakovná stránka SK aj CZ; objednávka v admine (Michal)

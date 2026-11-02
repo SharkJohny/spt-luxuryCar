@@ -64,5 +64,22 @@ over(m["6ac64dd2e3ab0"].p.endsWith("Koberec na dno kufru") && m["6ac64dd2e3ab0"]
 over(m.aa11.p === "", "riadok bez príplatkov");
 over(Object.keys(lcdRozpisZObsahu("", window.DOMParser)).length === 0, "prázdny obsah");
 
+// vzorkovník (Michal 2. 11. 2026): len „Vzorka Diamond: Čierna prešívaná bronzovou“ — bez kódu „(D-9)“ a bez „- Áno“,
+// druhá vrstva „Vzorka druhej vrstvy: Lux Color 10 – čierna“; SK aj CZ, dnešné názvy z adminu aj nové (zobrazovaný názov)
+const VZ_SK = ["Vzorka druhej vrstvy: Lux Color 10 – čierna", "Vzorka Diamond: Čierna prešívaná bronzovou", "Vzorka Hexa: Čierna prešívaná červenou", "Vzorka Stripe: Bledo hnedá"];
+r = lcdRozpis({ cz: false, variant: "", priplatky: "Príplatky: Vzorka 2. vrstva – Lux Color 10 – čierna (LUX-10) - Áno, Vzorka Diamond – Čierna prešívaná bronzovou (D-9) - Áno, Vzorka Hexa – Čierna prešívaná červenou (H-1) - Áno, Vzorka Stripe – Bledo hnedá (S-6) - Áno" });
+over(JSON.stringify(txt(r)) === JSON.stringify(VZ_SK), "vzorky SK dnes: bez kódu a „Áno“, druhá vrstva slovom", txt(r));
+r = lcdRozpis({ cz: true, variant: "", priplatky: "Příplatky: Vzorek 2. vrstva – Lux Color 10 – černá (LUX-10) - Ano, Vzorek Diamond – Černá prošívaná bronzovou (D-9) - Ano" });
+over(JSON.stringify(txt(r)) === JSON.stringify(["Vzorek druhé vrstvy: Lux Color 10 – černá", "Vzorek Diamond: Černá prošívaná bronzovou"]), "vzorky CZ dnes", txt(r));
+// po úprave adminu: zobrazovaný názov „Vzorka Diamond“, hodnota = farba
+r = lcdRozpis({ cz: false, variant: "", priplatky: "Príplatky: Vzorka druhej vrstvy - Lux Color 10 – čierna, Vzorka Diamond - Čierna prešívaná bronzovou, Vzorka Hexa - Čierna prešívaná červenou, Vzorka Stripe - Bledo hnedá" });
+over(JSON.stringify(txt(r)) === JSON.stringify(VZ_SK), "vzorky SK po úprave adminu (zobrazovaný názov)", txt(r));
+// po úprave adminu, keby Shoptet ukázal interný názov s kódom: „… (D-9) - <farba>“ -> farba raz
+r = lcdRozpis({ cz: false, variant: "", priplatky: "Príplatky: Vzorka 2. vrstva – Lux Color 10 – čierna (LUX-10) - Lux Color 10 – čierna, Vzorka Diamond – Čierna prešívaná bronzovou (D-9) - Čierna prešívaná bronzovou, Vzorka Hexa – Čierna prešívaná červenou (H-1) - Čierna prešívaná červenou, Vzorka Stripe – Bledo hnedá (S-6) - Bledo hnedá" });
+over(JSON.stringify(txt(r)) === JSON.stringify(VZ_SK), "vzorky SK po úprave adminu (interný názov s kódom)", txt(r));
+// iné produkty so zátvorkou a „- Áno“ sa nemenia
+r = lcdRozpis({ cz: false, variant: "", priplatky: "Príplatky: Nášivka (logo) - Áno" });
+over(JSON.stringify(txt(r)) === JSON.stringify(["Nášivka (logo): Áno"]), "iný príplatok s „Áno“ ostáva", txt(r));
+
 console.log(zlyhania ? `\n${zlyhania} zlyhaní` : "\nVšetko OK");
 process.exit(zlyhania ? 1 : 0);
