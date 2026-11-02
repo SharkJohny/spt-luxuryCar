@@ -32,7 +32,7 @@ mkdirSync(OUT, { recursive: true });
 const PROFILY = arg("profil", "webkit-390,chromium-1366,firefox-1366").split(",");
 // + matica platieb (31. 10. 2026): rýchla platba cez banku pred bránou a po návrate, Apple Pay / Google Pay po návrate
 const VAR = arg("varianty", "cz-prevod,cz-karta-ok,cz-karta-nie,cz-karta-form,cz-karta-caka,cz-dobierka,sk-prevod,sk-karta-ok,sk-karta-nie,sk-dobierka,sk-kamion,sk-vzorky,sk-pis-pred,sk-pis-nie,sk-pis-caka-banka,sk-apple-nie,cz-google-nie").split(",");
-const SIRKY = [320, 360, 390, 414, 768, 1024, 1280, 1366, 1920];
+const SIRKY = [320, 360, 375, 390, 414, 768, 1024, 1100, 1280, 1366, 1920];
 const ZAKAZANE = /z[aá]loh|21\s*[–-]\s*29|\bdn[ií]\b|dodan|dodán|vyr[aá]b|\bDPH\b|z[aá]ruk|IBAN|na milimet/i;
 const TYP = { ".js": "application/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".woff2": "font/woff2" };
 
@@ -109,6 +109,11 @@ const KONTROLA_ROZLOZENIA = `(() => {
     const fs = parseFloat(getComputedStyle(e).fontSize), c = (e.className || "") + " " + (e.parentNode.className || "");
     const min = /hero__cislo|platba__stitok|osa__bod/.test(c) || e.tagName === "EM" ? 12 : /udaj__n|platba__navod|polozka__cena|lcd-rozpis|kopia|qr__text/.test(c) || e.tagName === "SMALL" ? 14 : 16;
     if (fs < min) zle.push("písmo " + fs + " < " + min + ": " + e.textContent.trim().slice(0, 30));
+  });
+  // účet (aj IBAN 29 znakov), VS a suma v jednom riadku od 360 px (Michal 2. 11. 2026)
+  if (W >= 360) b.querySelectorAll(".lcd-dak-udaj__h").forEach((h) => {
+    const r = h.getBoundingClientRect(), lh = parseFloat(getComputedStyle(h).lineHeight);
+    if (r.height > lh * 1.5) zle.push("2 riadky (" + Math.round(r.height) + " px): " + h.textContent.trim());
   });
   // pečať v páse nesmie zájsť pod logo hlavičky (logo Shoptetu presahuje pod lištu hlavičky)
   const p = b.querySelector(".lcd-dak-pecat").getBoundingClientRect();

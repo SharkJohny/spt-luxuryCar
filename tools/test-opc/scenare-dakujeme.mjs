@@ -147,13 +147,13 @@ export const SCENARE = {
     },
   },
   S53: {
-    popis: "Ďakovná stránka s kódom: nič nepreteká 320–1920 px, písmo text ≥ 16 / poznámky ≥ 14 / štítky ≥ 12 px, zelené hlavné tlačidlo, žiadne zakázané slová",
+    popis: "Ďakovná stránka s kódom: nič nepreteká 320–1920 px, písmo text ≥ 16 / poznámky ≥ 14 / štítky ≥ 12 px, účet/VS/suma v 1 riadku od 360 px, zelené hlavné tlačidlo, žiadne zakázané slová",
     async fn(J) {
       const casti = [];
       for (const kluc of [J.web + "-prevod", J.web + "-karta-nie", J.web + "-dobierka"]) {
         const { s } = await otvor(J, kluc, { kod: true });
         const chyby = [];
-        for (const w of [320, 360, 390, 414, 768, 1024, 1280, 1366, 1920]) {
+        for (const w of [320, 360, 375, 390, 414, 768, 1024, 1100, 1280, 1366, 1920]) {
           await s.k.posli("Emulation.setDeviceMetricsOverride", { width: w, height: w < 768 ? 844 : 900, deviceScaleFactor: 1, mobile: w < 768 });
           await pauza(150);
           const r = await s.ev(`(function () {
@@ -169,6 +169,11 @@ export const SCENARE = {
               var poznamka = /udaj__n|platba__navod|polozka__cena|lcd-rozpis|kopia|qr__text/.test(c) || e.tagName === "SMALL";
               var min = stitok ? 12 : poznamka ? 14 : 16;
               if (fs < min) zle.push("písmo " + fs + " px < " + min + ": " + e.textContent.trim().slice(0, 30));
+            });
+            // účet (aj IBAN 29 znakov), VS a suma v jednom riadku od 360 px (Michal 2. 11. 2026: IBAN „rozkuskovaný“)
+            if (W >= 360) b.querySelectorAll(".lcd-dak-udaj__h").forEach(function (h) {
+              var r = h.getBoundingClientRect(), lh = parseFloat(getComputedStyle(h).lineHeight);
+              if (r.height > lh * 1.5) zle.push("2 riadky (" + Math.round(r.height) + " px): " + h.textContent.trim());
             });
             return zle.slice(0, 6);
           })()`);

@@ -569,8 +569,9 @@ export function postavBlok(doc, u, T) {
   // --- údaje na prevod (účet, VS, suma) s Kopírovať
   const udajeZoznam = () => {
     const ul = el("ul", "lcd-dak-udaje");
-    const riadok = (kluc, nazov, hodnota, kopia, suma) => {
-      const li = el("li", "lcd-dak-udaj" + (suma ? " lcd-dak-udaj--suma" : ""));
+    // trieda: „ lcd-dak-udaj--suma“ (suma tučnejšie), „ lcd-dak-udaj--iban“ (IBAN v jednom riadku, CSS)
+    const riadok = (kluc, nazov, hodnota, kopia, trieda) => {
+      const li = el("li", "lcd-dak-udaj" + (trieda || ""));
       li.appendChild(el("span", "lcd-dak-udaj__n", nazov));
       const h = el("span", "lcd-dak-udaj__h");
       // číslo účtu: zlom až za lomkou („2002871802/<wbr>2010“)
@@ -590,11 +591,12 @@ export function postavBlok(doc, u, T) {
     };
     // SK Shoptet vypíše účet ako IBAN bez medzier -> po štvoriciach, kopíruje sa bez medzier; popis ostáva „Číslo účtu“
     // (slovo IBAN v našich textoch nie — Michal 30. 10. 2026: len údaje, ktoré vypíše Shoptet)
-    if (u.ucetIban) riadok("ucet", T.ucet, ibanText(u.ucet), u.ucet.replace(/\s+/g, "").toUpperCase());
+    // IBAN má 29 znakov -> riadok --iban: na telefóne celý pod popisom v jednom riadku (Michal 2. 11. 2026: „rozkuskovaný“)
+    if (u.ucetIban) riadok("ucet", T.ucet, ibanText(u.ucet), u.ucet.replace(/\s+/g, "").toUpperCase(), " lcd-dak-udaj--iban");
     else riadok("ucet", T.ucet, u.ucet, u.ucet);
     riadok("vs", T.vs, u.vs, u.vs);
     const n = u.suma;
-    riadok("suma", T.suma, u.sumaText, Math.abs(n - Math.round(n)) < 0.005 ? String(Math.round(n)) : n.toFixed(2).replace(".", ","), true);
+    riadok("suma", T.suma, u.sumaText, Math.abs(n - Math.round(n)) < 0.005 ? String(Math.round(n)) : n.toFixed(2).replace(".", ","), " lcd-dak-udaj--suma");
     return ul;
   };
   const qrBlok = () => {

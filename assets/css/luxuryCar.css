@@ -15336,6 +15336,12 @@ html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia{grid-column:2;grid-row:1 / sp
 html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia svg{display:block;width:16px;height:16px;flex:none}
 html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia:focus-visible{outline:2px solid var(--gold-lo);outline-offset:2px}
 html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia.lcd-dak-kopia--hotovo{border-color:var(--ok);background:var(--ok-bg);color:var(--ok-lo)}
+/* IBAN (SK, 29 znakov) v jednom riadku (Michal 2. 11. 2026: „rozkuskovaný“): na telefóne popis a Kopírovať hore,
+   číslo pod nimi cez celú šírku riadku (vedľa tlačidla by sa nezmestilo); od 768 px ako ostatné riadky */
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban{row-gap:6px}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban .lcd-dak-udaj__n{grid-row:1}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban .lcd-dak-kopia{grid-row:1}
+html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban .lcd-dak-udaj__h{grid-column:1 / -1;grid-row:2;letter-spacing:0}
 
 /* QR obrázok, ktorý vykreslil sám Shoptet (vlastný QR nerobíme) */
 html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-qr{display:flex;align-items:center;gap:14px;margin:14px 0 0}
@@ -15454,11 +15460,15 @@ html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-spat{order:5}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__suma{font-size:46px;margin:8px 0}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__navod{font-size:16px}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaje{margin-top:20px;border:1px solid var(--line);border-radius:12px;background:#fdfbf6}
-  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj{grid-template-columns:180px minmax(0,1fr) auto;padding:10px 16px}
+  /* popis nad hodnotou (nie v ľavom stĺpci 180 px): IBAN 20 px (≈ 325 px) sa zmestí do jedného riadku aj pri 1100 px (Michal 2. 11. 2026) */
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj{padding:10px 16px}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj:last-child{border-bottom:0}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__n{font-size:16px}
-  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__h{grid-column:2;font-size:20px}
-  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia{grid-column:3;grid-row:auto}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__h{font-size:20px}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban{row-gap:0}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban .lcd-dak-udaj__n{grid-row:auto}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban .lcd-dak-kopia{grid-row:1 / span 2}
+  html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj--iban .lcd-dak-udaj__h{grid-column:1;grid-row:auto}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka__foto{width:80px;height:80px}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka{grid-template-columns:80px minmax(0,1fr);column-gap:16px}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-polozka--bez-fotky{grid-template-columns:minmax(0,1fr)}
@@ -15504,12 +15514,12 @@ html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-spat{order:5}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa__bod{margin-bottom:0}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-mriezka--kroky>.lcd-dak-kroky .lcd-dak-osa b{padding-top:3px}
 }
-/* užšie telefóny (pod 390, napr. Android 360): číslo účtu v jednom riadku */
+/* užšie telefóny (pod 390, napr. Android 360 a iPhone 375): číslo účtu v jednom riadku (IBAN 17 px ≈ 271 px) */
 @media (max-width:389px){
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-udaj__h{font-size:17px}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kopia{padding:0 12px}
 }
-/* malé telefóny (pod 360): suma a e-mail sa zmestia, účet sa zlomí až za lomkou */
+/* malé telefóny (pod 360): suma a e-mail sa zmestia, účet sa zlomí až za lomkou, IBAN medzi štvoricami */
 @media (max-width:359px){
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-platba__suma{font-size:28px}
   html.lcd-opc-dakujeme #lcd-dakujeme .lcd-dak-kontakt__a{font-size:17px;padding:8px 12px}
