@@ -598,7 +598,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Naživo a97c0f5 (IBAN v jednom riadku + kamión CZ z vlákna kamiónov): SK 2. 11. 21:07:40, CZ 21:20:12 (návrat 153f0ec)
 - [x] Nový prázdny košík: návrh v kóde + náhľad A (dlaždice) / B (riadky), PC 1366 a telefón 390 (`/mnt/project-files/kosik-navrhy/prazdny-kosik-*.png`), S95 SK aj CZ
 - [x] Prázdny košík: Michal 2. 11. 21:25 schválil variant A (dlaždice) „takto ako si ho vymyslel, je super“ (kniha § 10.35)
-- [ ] Naživo: prázdny košík SK aj CZ (prepnutie sha, zladiť s vláknom nášiviek)
+- [x] Naživo: prázdny košík SK aj CZ s 8681b1e (SK 21:52, CZ 21:53, prepínalo vlákno nášiviek; návrat a97c0f5), overené naživo 2. 11. (kniha § 10.35)
 - [ ] Michalova skúšobná objednávka prevodom SK aj CZ s novou ďakovnou stránkou, snímky prejsť; 1820260076 zrušiť v admine (Michal)
 - [ ] Overiť na čerstvých objednávkach (Back Office), že rohož je najpredávanejšia vec do kufra (dnes 43 % vs. box 14 %, 97 obj., apríl 2026; konektor Shoptetu položky neukazuje)
 - [ ] Odstraňovanie bez skákania „Zobraziť viac“ a bez „− 1 +“ pri sete — čaká na Michala
