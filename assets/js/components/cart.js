@@ -1,4 +1,5 @@
 import { parseTruckOrderSummary } from "../truck-konfigurator/order-summary.mjs";
+import { skupinyNaZobrazenie } from "../opc/kamionZobrazenie.js";
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta, lcdAutoHodnota } from "../functions/autoPamat.js";
@@ -196,7 +197,8 @@ export function changeDescription() {
     // konfigurátor), ale v surcharge parametri "Vozidlo: <značka model>".
     const isTruckRow = jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
     if (isTruckRow && truckSummary && truckRowCount === 1) {
-      const groups = parseTruckOrderSummary(truckSummary);
+      // hodnoty na zobrazenie (CZ súhrn konfigurátora má slovenský materiál a výbavu; súhrn v poznámke objednávky sa nemení)
+      const groups = skupinyNaZobrazenie(parseTruckOrderSummary(truckSummary), lcdCz() ? "cs" : "sk", $(this).text());
       if (groups.length) {
         const $summary = $("<div>").addClass("lcd-truck-cart-summary");
         groups.forEach(function (group) {

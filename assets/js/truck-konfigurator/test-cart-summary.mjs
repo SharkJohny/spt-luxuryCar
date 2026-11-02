@@ -56,8 +56,8 @@ assert.deepEqual(groups.map((group) => group.querySelector("h4")?.textContent), 
 assert.match(document.body.textContent, /Typ a farba materiálu/);
 assert.match(document.body.textContent, /Rovnaký ako koberčeky/);
 assert.match(document.body.textContent, /Nášivky na tapacír\s*Nechcem/);
-assert.match(document.body.textContent, /2901 – Strieborná/);
-assert.match(document.body.textContent, /3504 – Tmavohnedá/);
+assert.match(document.body.textContent, /Strieborná – 2901/); // čísla na koniec (25. 10. 2026)
+assert.match(document.body.textContent, /Tmavohnedá – 3504/);
 assert.doesNotMatch(document.body.textContent, /Vyberie sa v konfigurátore/);
 
 console.log("✓ košík vykresľuje truck konfiguráciu v prehľadných skupinách");

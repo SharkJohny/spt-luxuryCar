@@ -15,7 +15,7 @@
     "vzorky:swatches": "node vzorky/build-swatch-assets.mjs",
     "vzorky:test": "node vzorky/test-mount.mjs && node vzorky/test-text.mjs && node vzorky/test-konfigurator.mjs && node vzorky/test-localization.mjs",
     "vzorky:product": "node vzorky/build-product-xml.mjs && xmllint --relaxng docs/shoptet-products-complete-v10.rng vzorky/dist/vzorky-product.xml --noout",
-    "truck:test": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && node assets/js/truck-konfigurator/test-order-summary.mjs && node assets/js/truck-konfigurator/test-cart-summary.mjs && node assets/js/truck-konfigurator/test-surcharge-sync.mjs && node assets/js/truck-konfigurator/test-vehicle-switch.mjs && node assets/js/truck-konfigurator/test-truck-mount.mjs",
+    "truck:test": "node truck/build-truck-images.mjs && node truck/build-truck-brands.mjs && node assets/js/truck-konfigurator/test-order-summary.mjs && node assets/js/truck-konfigurator/test-cart-summary.mjs && node assets/js/truck-konfigurator/test-cart-summary-cz.mjs && node assets/js/truck-konfigurator/test-surcharge-sync.mjs && node assets/js/truck-konfigurator/test-vehicle-switch.mjs && node assets/js/truck-konfigurator/test-truck-mount.mjs",
     "voucher:product": "node voucher/build-voucher-xml.mjs && xmllint --relaxng docs/shoptet-products-complete-v10.rng voucher/dist/voucher-products.xml --noout",
     "voucher:test": "node assets/js/voucher-konfigurator/test-voucher-mount.mjs",
     "kosik:test": "node tools/test-kosik-doplnok.mjs && node tools/test-kosik-auto-hodnotenie.mjs && node tools/test-kosik-rozpis.mjs && node tools/test-auto-pamat.mjs",

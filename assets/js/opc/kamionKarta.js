@@ -18,7 +18,7 @@
 import { parseTruckOrderSummary, addSameDoorPanelsToSummary, truckSummaryTexts } from "../truck-konfigurator/order-summary.mjs";
 import { SELECTY, normalizeOptionText, resolveValue } from "../components/konfigurator1v/kamion/shoptet.js";
 import { jeTir, PRECIARKNUTE_EUR, PRECIARKNUTE_CZK } from "../components/konfigurator1v/kamion/data.js";
-import { TEXTY_CS } from "../components/konfigurator1v/kamion/texty-cs.js";
+import { cisty, hodnotyPriplatkov, ANO, ROVNAKE, KOBERCE, DVERE, skupinyNaZobrazenie } from "./kamionZobrazenie.js";
 import { lcdRozpisEl } from "../functions/kosikRozpis.js";
 import * as D from "../lcdKosikDoplnok.js";
 
@@ -66,45 +66,14 @@ export const TEXTY = {
 };
 export function texty(trh) { return TEXTY[trh] || TEXTY.sk; }
 
-const cisty = (t) => String(t == null ? "" : t).normalize("NFC").replace(/[  ]/g, " ").replace(/\s+/g, " ").trim();
-/** „Vyberie sa v konfigurátore“ / „Vybere se v konfigurátoru“ = hodnota, ktorú admin ešte nemá (shoptet.js najdiZastupnuMoznost). */
-const zastupna = (t) => /\bv konfiguratoru$/.test(normalizeOptionText(t));
 const jeKamion = (p) => /\btruck\b|kami[oó]n/i.test((p && p.text) || "") || /kamion/i.test((p && p.href) || "");
 export { jeKamion };
 
 // ------------------------------------------------------------------ príplatky riadku podľa mien parametrov (bez mapy produktu)
 
-/**
- * Text príplatkov riadku košíka („Príplatky: Typ materiálu - …, Farba materiálu - …“) -> { kľúč SELECTY: hodnota }. Delí sa
- * podľa presných mien parametrov (SK aj CZ), nie podľa čiarky — hodnota „čierna, čierne šitie – 11“ má čiarku vo vnútri.
- */
-export function hodnotyPriplatkov(sur) {
-  const t = cisty(sur).replace(/^p[rř][ií]platky\s*:\s*/i, "");
-  const tn = t.toLowerCase();
-  if (!t || tn.length !== t.length) return {};
-  const najdene = [];
-  Object.keys(SELECTY).forEach(function (k) {
-    let prvy = null;
-    SELECTY[k].forEach(function (meno) {
-      const kluc = meno.toLowerCase() + " - ";
-      let i = tn.indexOf(kluc);
-      while (i >= 0 && !(i === 0 || tn.slice(i - 2, i) === ", ")) i = tn.indexOf(kluc, i + 1);
-      if (i >= 0 && (!prvy || i < prvy.zac)) prvy = { k: k, zac: i, hod: i + kluc.length };
-    });
-    if (prvy) najdene.push(prvy);
-  });
-  najdene.sort(function (a, b) { return a.zac - b.zac; });
-  const out = {};
-  najdene.forEach(function (a, i) {
-    const b = najdene[i + 1];
-    const h = cisty(t.slice(a.hod, b ? b.zac - 2 : t.length));
-    if (h && !zastupna(h)) out[a.k] = h;
-  });
-  return out;
-}
+export { hodnotyPriplatkov, skupinyNaZobrazenie };
 
-const ANO = (t) => /^(ano|áno)\b/i.test(cisty(t));
-const ROVNAKE = (t) => /^(rovnak|stejn)/i.test(cisty(t));
+
 const bezNasivky = (t) => cisty(t).replace(/^(nášivka|nášivky)\s+/i, "");
 /** „Bez nite“ / „Bez nitě“ = na tom mieste nášivka nie je -> do rozpisu nejde (živá kontrola 2. 11.: „Farba nášiviek na boky: Bez nite“ pri „Len stred“). */
 const sNitou = (t) => (t && !/^bez nit/.test(normalizeOptionText(t)) ? t : "");
@@ -153,8 +122,6 @@ const polozkaSkupiny = function (skupiny, re, label) {
   }
   return null;
 };
-const KOBERCE = /^KOBER/i;
-const DVERE = /^TAPAC[IÍ]R DVE/i;
 
 /**
  * Sedí súhrn konfigurátora s príplatkami riadku? Materiál zo súhrnu musí začínať typom materiálu z riadku a obsahovať jeho
@@ -205,48 +172,13 @@ export function udajeKamiona(p, o) {
   return { skupiny: skupinyZPriplatkov(p.sur, jazyk, vozidlo), vozidlo: vozidlo, zoSuhrnu: false };
 }
 
-/** Vozidlo pre zákazníka ako v konfigurátore (data.js meno): bez „(TIR)“ / „(dodávka)“, roky s pomlčkou „2022–2025“. Poznámka objednávky ostáva bez zmeny. */
-const vozidloNaZobrazenie = (t) => cisty(t).replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
-
-/** CZ: výbava vozidla zo súhrnu („Automatická prevodovka“) ako ju ukazuje CZ konfigurátor („Automatická“) — texty-cs.js polia.*.moznosti. */
-const VYBAVA_CS = (function () {
-  const m = {};
-  (function prejdi(o, hlbka) {
-    if (!o || typeof o !== "object" || hlbka > 6) return;
-    Object.keys(o).forEach(function (k) {
-      const x = o[k];
-      if (k === "polia" && x && typeof x === "object") {
-        Object.keys(x).forEach(function (pole) {
-          const mo = x[pole] && x[pole].moznosti;
-          if (mo && typeof mo === "object") Object.keys(mo).forEach(function (sk) { if (typeof mo[sk] === "string") m[sk] = mo[sk]; });
-        });
-      } else prejdi(x, hlbka + 1);
-    });
-  })(TEXTY_CS, 0);
-  return m;
-})();
-
-/**
- * Materiál zo súhrnu s typom materiálu z príplatku Shoptetu: CZ súhrn „Prémiová syntetická koža – prešívaná – černá…“ +
- * príplatok „Prémiová syntetická kůže – prošívaná“ -> „Prémiová syntetická kůže – prošívaná – černá…“. Nesedí -> bez zmeny.
- */
-function materialNaZobrazenie(hodnota, material) {
-  if (!material) return hodnota;
-  const casti = String(hodnota).split(" – ");
-  const ciel = normalizeOptionText(material);
-  for (let k = 1; k <= casti.length; k++) {
-    if (normalizeOptionText(casti.slice(0, k).join(" – ")) === ciel) return [cisty(material)].concat(casti.slice(k)).join(" – ");
-  }
-  return hodnota;
-}
 
 /**
  * Riadky rozpisu [{ n, h }] zo skupín: vozidlo a koberčeky ako v súhrne (bez „Bez nášivky“), tapacír jedným riadkom
  * „Tapacír dverí: rovnaký ako koberčeky“, alebo po častiach s „Tapacír – …“ (rovnaké popisy ako koberčeky by sa plietli).
  */
-export function riadkyRozpisu(skupiny, jazyk, trh, sur) {
-  const v = sur ? hodnotyPriplatkov(sur) : {};
-  const material = v.material || null;
+export function riadkyRozpisu(skupinyZdroj, jazyk, trh, sur) {
+  const skupiny = skupinyNaZobrazenie(skupinyZdroj, jazyk, sur);
   const X = truckSummaryTexts(jazyk === "cs" ? "cs" : "sk");
   const T = texty(trh);
   const L = X.labels;
@@ -263,19 +195,14 @@ export function riadkyRozpisu(skupiny, jazyk, trh, sur) {
       mena[L.doorPatchType] = T.tapNasTyp;
       mena[L.doorPatchColor] = T.tapNasNit;
       g.items.forEach(function (i) {
-        const hod = ROVNAKE(i.value) ? i.value.split(" – ")[0]
-          : i.label === L.materialColor && v.tapMaterial && !ROVNAKE(v.tapMaterial) ? materialNaZobrazenie(i.value, v.tapMaterial) : i.value;
+        const hod = ROVNAKE(i.value) ? i.value.split(" – ")[0] : i.value;
         out.push({ n: mena[i.label] || i.label, h: hod });
       });
       return;
     }
     g.items.forEach(function (i) {
       if (KOBERCE.test(g.heading) && i.value === X.noPatch) return;
-      let h = i.value;
-      if (i.label === L.vehicle) h = vozidloNaZobrazenie(h);
-      else if (KOBERCE.test(g.heading) && i.label === L.materialColor) h = materialNaZobrazenie(h, material);
-      else if (jazyk === "cs" && VYBAVA_CS[cisty(h)]) h = VYBAVA_CS[cisty(h)];
-      out.push({ n: i.label, h: h });
+      out.push({ n: i.label, h: i.value });
     });
   });
   return out;
