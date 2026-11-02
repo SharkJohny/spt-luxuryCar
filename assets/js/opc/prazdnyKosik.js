@@ -1,6 +1,6 @@
 // Prázdny košík v štýle novej pokladne (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký, není tu nič nové vymyslené.“).
-// Len s kódom / flagom OPC (rovnaká brána ako vzhľad košíka, opc/index.js) a len keď Shoptet vykreslil prázdny košík
-// (.cart-inner.cart-empty). Obsah: texty, odkazy a obrázky z hlavného menu webu (lcdHdr-markup.js — set so zľavou,
+// Pre všetkých zákazníkov (od 2. 11. 2026 22:39, opc/index.js PRAZDNY_PRE_VSETKYCH; predtým len s kódom OPC), len keď
+// Shoptet vykreslil prázdny košík (.cart-inner.cart-empty). Vypínač: data.json "prazdny_kosik": false. Obsah: texty, odkazy a obrázky z hlavného menu webu (lcdHdr-markup.js — set so zľavou,
 // konkrétne produkty, do kufra, kamióny, vzorkovník) a veta o 1000 modeloch z titulky (lcdHome-markup.js). Kontakt
 // (telefón, e-mail, nadpis) sa prečíta z kontaktného boxu Shoptetu na tej istej stránke, formulár vyhľadávania Shoptetu sa
 // presunie (nie kópia — jeho skripty ostávajú). Pôvodný obsah Shoptetu ostáva skrytý v DOM; zrusPrazdny ho vráti.

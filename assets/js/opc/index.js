@@ -13,7 +13,7 @@
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty } from "./kosik.js";
-import { jePrazdny, prazdnyKosik, zrusPrazdny } from "./prazdnyKosik.js";
+import { jePrazdny, prazdnyKosik, zrusPrazdny, ID_PRAZDNY } from "./prazdnyKosik.js";
 import { initSkok, drzHned } from "./skok.js";
 import { TEXTY } from "./texty.js";
 import { initKrok2 } from "./krok2.js";
@@ -37,6 +37,21 @@ export const KOD = "31smw9h3gf";
  * ako 30. 10. Vypínač bez nasadenia: data.json "opc_jedna": false (aj settings.opc_jedna).
  */
 export const JEDNA_STRANKA = true;
+
+/**
+ * Nový prázdny košík pre všetkých zákazníkov, nielen cez tajný odkaz (Michal 2. 11. 2026 22:39: „A je to viditeľné len cez
+ * tajný odkaz, lebo ja to tu ešte nevidím.“). Platí aj bez kódu, pri ?opc=0 aj pri "opc": false v data.json — plný košík
+ * a pokladňa ostávajú za tajným odkazom. Vypínač bez nasadenia: data.json "prazdny_kosik": false (aj settings.prazdny_kosik).
+ */
+export const PRAZDNY_PRE_VSETKYCH = true;
+/** Trieda na <html> po vypnutí v data.json: obsah Shoptetu sa ukáže hneď (CSS ho bez kódu skrýva, kým nepríde bundle). */
+export const TRIEDA_PRAZDNY_SHOPTET = "lcd-prz-shoptet";
+
+/** Prázdny košík pre všetkých vypnutý v data.json ("prazdny_kosik": false alebo settings.prazdny_kosik === false)? */
+export function prazdnyVypnuty(setupData) {
+  const s = setupData || {};
+  return !PRAZDNY_PRE_VSETKYCH || s.prazdny_kosik === false || !!(s.settings && s.settings.prazdny_kosik === false);
+}
 
 /** Jedna stránka v tomto prehliadači: OPC zapnuté (rovnaká brána ako initOpc) a nevypnutá v data.json. */
 export function jednaStranka(setupData) {
@@ -137,10 +152,18 @@ function meraj(udalost, data) {
  */
 export function vzhladKosikaSkoro(doc, search) {
   try {
-    if (!zapnuteSAdresou(search)) return false;
+    const opc = zapnuteSAdresou(search);
+    if (!opc && !PRAZDNY_PRE_VSETKYCH) return false;
     if (stranka(doc.body) !== "kosik") return false;
     const trh = PROJEKTY[String(getShoptetContext().projectId || "")];
     if (!trh) return false;
+    if (!opc) {
+      // bez kódu len nový prázdny košík pre všetkých (plný košík ostáva dnešný); vypínač v data.json príde s initOpc
+      if (!jePrazdny(doc)) return false;
+      vzhladKosika(doc, TEXTY[trh]);
+      prazdnyKosik(doc, trh);
+      return true;
+    }
     vzhladKosika(doc, TEXTY[trh]);
     // prázdny košík: nový vzhľad hneď (pôvodná stránka Shoptetu nepreblikne), opc/prazdnyKosik.js
     if (jePrazdny(doc)) prazdnyKosik(doc, trh);
@@ -206,10 +229,14 @@ try { if (typeof document !== "undefined" && document.body) vzhladDakujemeSkoro(
 // obrazovka „Načítavam…“ z hlavičky stránky: až po skorom skrytí košíka a kroku 2 (tie rozhodnú, či ostane)
 try { if (typeof document !== "undefined" && document.body) drzHned(document, window); } catch (e) {}
 
-/** Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka, kroku 2 aj ďakovnej stránky späť. */
-function zrusSkoryVzhlad() {
-  try { if (document.documentElement.classList.contains("lcd-opc-kosik")) zrusVzhladKosika(document); } catch (e) {}
-  try { zrusPrazdny(document); } catch (e) {}
+/**
+ * Vypnuté v data.json alebo v prehliadači: skorý vzhľad košíka, kroku 2 aj ďakovnej stránky späť. nechajPrazdny = nový
+ * prázdny košík pre všetkých ostáva (aj so vzhľadom košíka, ktorý potrebuje jeho CSS).
+ */
+function zrusSkoryVzhlad(nechajPrazdny) {
+  const prazdny = !!nechajPrazdny && !!document.getElementById(ID_PRAZDNY);
+  try { if (!prazdny && document.documentElement.classList.contains("lcd-opc-kosik")) zrusVzhladKosika(document); } catch (e) {}
+  try { if (!prazdny) zrusPrazdny(document); } catch (e) {}
   try { zrusPrechadzam(document); } catch (e) {}
   try { if (document.documentElement.classList.contains("lcd-opc-caka")) document.documentElement.classList.remove("lcd-opc", "lcd-opc-caka"); } catch (e) {}
   try { zrusDakujemeSkoro(document); } catch (e) {}
@@ -218,9 +245,17 @@ function zrusSkoryVzhlad() {
 /** Volá main.js v callbacku data.json (setupData). Bez flagu sa vráti hneď a nič nespraví. */
 export function initOpc(setupData) {
   try {
-    if (vypnuteVDatach(setupData)) { zrusSkoryVzhlad(); return null; }
+    // prázdny košík pre všetkých: len vlastný vypínač v data.json ho vráti na Shoptet (vypínače OPC nie)
+    const bezPrazdneho = prazdnyVypnuty(setupData);
+    if (bezPrazdneho) {
+      try {
+        if (document.getElementById(ID_PRAZDNY)) zrusPrazdny(document);
+        document.documentElement.classList.add(TRIEDA_PRAZDNY_SHOPTET);
+      } catch (e) {}
+    }
+    if (vypnuteVDatach(setupData)) { zrusSkoryVzhlad(!bezPrazdneho); return null; }
     prepinac(window.location.search);
-    if (!jeZapnute()) { zrusSkoryVzhlad(); return null; }
+    if (!jeZapnute()) { zrusSkoryVzhlad(!bezPrazdneho); return null; }
     const kde = stranka();
     // príznak „krok 1 preskočený“ (begin_checkout, opc/analytika.js) platí len pre krok 2 hneď po košíku
     if (kde !== "krok2") zahodPreskocenie();
@@ -235,7 +270,7 @@ export function initOpc(setupData) {
       return w;
     }
     const s = setupData || {};
-    const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj, jednaStranka: jednaStranka(setupData),
+    const ctx = { trh: trh, stranka: kde, stav: "start", chyby: [], meraj: meraj, jednaStranka: jednaStranka(setupData), bezPrazdneho: bezPrazdneho,
       // vypínač ponuky k setu bez nasadenia (ako v košíku): karta košíka v pokladni potom ponuku ani krížiky nekreslí
       ponukaVypnuta: s.kosik_doplnky === false || !!(s.settings && s.settings.kosik_doplnky === false) || /[?&]lcddoplnok=0\b/.test(window.location.search) };
     if (kde === "kosik" && !ctx.jednaStranka) { try { zrusPrechadzam(document); } catch (e) {} }

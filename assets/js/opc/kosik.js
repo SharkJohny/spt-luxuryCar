@@ -143,7 +143,7 @@ export function initKosik(ctx) {
   // späť na košík a do dataLayer by išla zbytočná chyba „krok1-stranka“)
   if (jePrazdny(document)) {
     zrusPrechadzam(document);
-    prazdnyKosik(document, ctx.trh);
+    if (!ctx.bezPrazdneho) prazdnyKosik(document, ctx.trh); // vypínač data.json "prazdny_kosik": false -> Shoptet
     ctx.stav = "kosik-prazdny";
     return;
   }

@@ -37,9 +37,11 @@
 //       stránky (hodnoty ako konfigurátor „Rovnaké ako koberce“), ✓ hláška, ponuka preč, súhrn kamióna s blokom dverí
 //       = súhrn z konfigurátora, poznámka objednávky s ním
 //   S95 (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) prázdny košík (fixtures <web>-prazdny = skutočné HTML
-//       Shoptetu 2. 11.): bez kódu stránka Shoptetu bez zmeny; s kódom nový blok (texty a odkazy z menu webu, telefón a
-//       e-mail zo Shoptetu, vyhľadávanie Shoptetu presunuté), krok 1 sa nesťahuje, bez chyby v dataLayer, nič nepreteká
-//       320–1920 px, písmo ≥ 14 px, žiadne zakázané slová; vypínač data.json „opc“: false -> stránka Shoptetu späť
+//       Shoptetu 2. 11.): od 22:39 pre všetkých — bez kódu aj s ?opc=0 nový blok (initOpc ho nechá, OPC nebeží), s kódom
+//       nový blok (texty a odkazy z menu webu, telefón a e-mail zo Shoptetu, vyhľadávanie Shoptetu presunuté), krok 1 sa
+//       nesťahuje, bez chyby v dataLayer, nič nepreteká 320–1920 px, písmo ≥ 14 px, žiadne zakázané slová; „opc“: false
+//       blok nechá; vypínač data.json „prazdny_kosik“: false -> stránka Shoptetu späť (s kódom aj bez); bez bundla starý
+//       obsah Shoptetu skrytý (nepreblikne) a po 3 s sa ukáže sám
 import { KOSIK, KROK2, ZAKAZNIK, cakajOpc, vyplnUdaje, suhlas, objednaj, overTeloObjednavky, step1Xhr, over, pauza, OPC } from "./krok2-pomoc.mjs";
 import { klikObjednat } from "./scenare-spravanie.mjs";
 import { KAMION } from "./scenare-kosiky.mjs";
@@ -769,11 +771,11 @@ export const SCENARE = {
     },
   },
   S95: {
-    popis: "Prázdny košík (Michal 2. 11. 2026): bez kódu Shoptet bez zmeny; s kódom nový blok — texty a odkazy z menu webu, kontakt a vyhľadávanie Shoptetu, krok 1 sa nesťahuje, 320–1920 bez pretečenia, písmo ≥ 14, vypínač data.json vráti Shoptet",
+    popis: "Prázdny košík (Michal 2. 11. 2026) pre všetkých: bez kódu aj s kódom nový blok — texty a odkazy z menu webu, kontakt a vyhľadávanie Shoptetu, krok 1 sa nesťahuje, 320–1920 bez pretečenia, písmo ≥ 14, opc:false ho nechá, prazdny_kosik:false vráti Shoptet, bez bundla nepreblikne",
     async fn(J) {
       const T = PRAZDNY_TEXTY[J.web];
       const PR = `(function () {
-        var b = document.getElementById("lcd-opc-prazdny"), vid = function (e) { return !!e && e.getBoundingClientRect().height > 0 && getComputedStyle(e).display !== "none"; };
+        var b = document.getElementById("lcd-opc-prazdny"), vid = function (e) { return !!e && e.getBoundingClientRect().height > 0 && getComputedStyle(e).display !== "none" && getComputedStyle(e).visibility !== "hidden"; };
         var f = document.getElementById("formSearchFormContent"), t = function (s) { var e = b && b.querySelector(s); return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; };
         return { stav: window.__lcdOpc ? window.__lcdOpc.stav : null, blok: !!b, trieda: document.documentElement.classList.contains("lcd-opc-prazdny"),
           shoptetNadpis: vid(document.querySelector(".cart-empty .cart-heading")), shoptetObsah: vid(document.querySelector(".cart-empty .cart-row")),
@@ -785,15 +787,22 @@ export const SCENARE = {
           text: b ? b.innerText : "", chyby: (window.dataLayer || []).filter(function (d) { return d && d.event === "lcd_opc_chyba"; }).length };
       })()`;
       const casti = [];
-      // 1) bez kódu: prázdny košík Shoptetu bez zmeny
-      {
-        const s = await J.novaStranka({ kosik: "prazdny", scenar: SCENAR });
-        await s.chod(KOSIK, { popis: "prázdny košík bez kódu" });
+      // 1) bez kódu (aj ?opc=0): nový prázdny košík pre všetkých (Michal 2. 11. 22:39), OPC nebeží, krok 1 sa nesťahuje
+      for (const q of ["", "?opc=0"]) {
+        const s = await J.novaStranka({ kosik: "prazdny", scenar: SCENAR, zabudniOpc: true });
+        await s.chod(KOSIK + q, { popis: "prázdny košík bez kódu " + (q || "") });
+        await pauza(1200); // data.json -> initOpc (bez kódu blok nechá)
         const a = await s.ev(PR);
-        over(!a.blok && !a.trieda && a.shoptetNadpis && a.shoptetObsah && !a.formVBloku, "bez kódu: " + JSON.stringify({ blok: a.blok, trieda: a.trieda, n: a.shoptetNadpis, o: a.shoptetObsah }));
-        casti.push("bez kódu Shoptet");
+        over(a.blok && a.trieda && !a.shoptetNadpis && !a.shoptetObsah && a.formVBloku && a.formVidno && a.stav === null,
+          "bez kódu " + q + ": " + JSON.stringify({ blok: a.blok, trieda: a.trieda, n: a.shoptetNadpis, o: a.shoptetObsah, f: a.formVBloku, stav: a.stav }));
+        over(a.nadpis === T.nadpis && a.chyby === 0, "bez kódu " + q + ": nadpis / chyby " + JSON.stringify([a.nadpis, a.chyby]));
+        const ls = await s.ev(`(function () { try { return localStorage.getItem("lcdOpc"); } catch (e) { return "x"; } })()`);
+        over(ls === null || ls === "0", "bez kódu " + q + ": flag OPC " + ls);
+        const k1 = s.p.zaznam.www.filter((z) => /^\/objednavka\/krok-1\/?$/.test(z.cesta));
+        over(!k1.length, "bez kódu: krok 1 sa sťahoval " + k1.length + "×");
         await s.zavri();
       }
+      casti.push("bez kódu aj ?opc=0 nový blok");
       // 2) s kódom: nový blok
       const s = await J.novaStranka({ kosik: "prazdny", scenar: SCENAR });
       await s.chod(KOSIK + OPC, { popis: "prázdny košík s kódom" });
@@ -841,16 +850,45 @@ export const SCENARE = {
       over(!chyby.length, "rozloženie:\n      " + chyby.join("\n      "));
       casti.push("320–1920 OK");
       await s.zavri();
-      // 3) núdzový vypínač v data.json: blok preč, vyhľadávanie späť na pôvodnom mieste
+      // 3) núdzový vypínač OPC v data.json ("opc": false) prázdny košík pre všetkých nechá
       {
         const v = await J.novaStranka({ kosik: "prazdny", scenar: Object.assign({ dataJson: { opc: false } }, SCENAR) });
         await v.chod(KOSIK + OPC, { popis: "prázdny košík, opc vypnuté v data.json" });
-        await pauza(500);
+        await pauza(800);
         const c = await v.ev(PR);
-        over(!c.blok && !c.trieda && c.shoptetNadpis && c.shoptetObsah, "vypínač: " + JSON.stringify({ blok: c.blok, trieda: c.trieda, n: c.shoptetNadpis, o: c.shoptetObsah }));
+        over(c.blok && c.trieda && !c.shoptetNadpis && !c.shoptetObsah && c.formVBloku, "opc:false: " + JSON.stringify({ blok: c.blok, trieda: c.trieda, n: c.shoptetNadpis, o: c.shoptetObsah }));
+        casti.push("opc:false blok nechá");
+        await v.zavri();
+      }
+      // 4) vlastný vypínač "prazdny_kosik": false (aj v settings): blok preč, obsah Shoptetu viditeľný, vyhľadávanie na pôvodnom mieste
+      // (settings.prazdny_kosik: jednotkový test — podvrh data.json nahrádza settings celé a main.js by spadol skôr)
+      for (const [q, dj] of [["", { prazdny_kosik: false }], [OPC, { prazdny_kosik: false }]]) {
+        const v = await J.novaStranka({ kosik: "prazdny", scenar: Object.assign({ dataJson: dj }, SCENAR), zabudniOpc: true });
+        await v.chod(KOSIK + q, { popis: "prázdny košík, prazdny_kosik vypnutý " + (q ? "s kódom" : "bez kódu") });
+        await pauza(1200);
+        const c = await v.ev(PR);
+        const kde = (q ? "s kódom " : "bez kódu ") + JSON.stringify(dj);
+        over(!c.blok && !c.trieda && c.shoptetNadpis && c.shoptetObsah, "prazdny_kosik:false " + kde + ": " + JSON.stringify({ blok: c.blok, trieda: c.trieda, n: c.shoptetNadpis, o: c.shoptetObsah }));
         const naMieste = await v.ev(`(function () { var f = document.getElementById("formSearchFormContent"); return !!(f && f.closest(".empty-cart-boxes")); })()`);
-        over(naMieste, "vyhľadávanie po vypnutí nie je na pôvodnom mieste");
-        casti.push("vypínač data.json -> Shoptet");
+        over(naMieste, "vyhľadávanie po vypnutí nie je na pôvodnom mieste (" + kde + ")");
+        if (q) over(c.stav === "kosik-prazdny" && c.chyby === 0, "s kódom a vypínačom: stav " + c.stav + ", chyby " + c.chyby);
+        await v.zavri();
+      }
+      casti.push("prazdny_kosik:false -> Shoptet (bez kódu aj s kódom)");
+      // 5) bundle neprišiel: starý obsah Shoptetu sa neukáže hneď (nepreblikne), poistka ho ukáže po 3 s
+      {
+        const v = await J.novaStranka({ kosik: "prazdny", scenar: SCENAR, zabudniOpc: true });
+        await v.k.posli("Network.enable", {});
+        await v.k.posli("Network.setBlockedURLs", { urls: ["*js/luxuryCar.js*"] });
+        await v.k.chod(v.W.base + KOSIK);
+        await v.cakaj(`document.readyState === "complete" && !!document.querySelector(".cart-inner.cart-empty")`, { ms: 30000, popis: "prázdny košík bez bundla: načítanie" });
+        const hneď = await v.ev(PR), cas = await v.ev("Math.round(performance.now())");
+        over(cas < 2800, "bez bundla: stránka sa načítala až po " + cas + " ms (poistka 3 s) — meranie neplatí");
+        await pauza(3500);
+        const potom = await v.ev(PR);
+        over(!hneď.blok && !hneď.shoptetNadpis && !hneď.shoptetObsah, "bez bundla hneď: " + JSON.stringify({ blok: hneď.blok, n: hneď.shoptetNadpis, o: hneď.shoptetObsah }));
+        over(!potom.blok && potom.shoptetNadpis && potom.shoptetObsah, "bez bundla po 3 s: " + JSON.stringify({ blok: potom.blok, n: potom.shoptetNadpis, o: potom.shoptetObsah }));
+        casti.push("bez bundla nepreblikne, po 3 s Shoptet");
         await v.zavri();
       }
       return { info: casti.join("; ") };

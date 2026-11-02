@@ -486,3 +486,10 @@ body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
   body.in-kosik #cart-wrapper .next-step{flex-wrap:wrap}
   body.in-kosik #cart-wrapper .next-step > .lcd-hodn-kosik{order:2;flex:0 0 100%;justify-content:flex-end;margin-top:10px}
 }
+
+/* NOVÝ PRÁZDNY KOŠÍK pre všetkých (Michal 2. 11. 2026 22:39, opc/prazdnyKosik.js, štýl v _lcdOpc.scss): CSS je v hlavičke,
+   bundle až na konci stránky — starý prázdny košík Shoptetu nepreblikne, kým bundle nepostaví nový. Poistka: bez JS sa
+   ukáže sám po 3 s, po vypnutí v data.json "prazdny_kosik": false hneď (html.lcd-prz-shoptet, opc/index.js initOpc). */
+@keyframes lcd-kosik-prz-poistka{to{visibility:visible}}
+html:not(.lcd-opc-prazdny):not(.lcd-prz-shoptet) body.in-kosik .cart-inner.cart-empty > :is(.cart-heading,.cart-row){visibility:hidden;
+  animation:lcd-kosik-prz-poistka 0s linear 3s forwards}

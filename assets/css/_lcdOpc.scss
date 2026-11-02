@@ -1165,12 +1165,13 @@ html.lcd-opc body.in-krok-2 #lcd-opc-kosik .lcd-opc-zob{margin:2px 0 6px}
 html.lcd-opc body.in-krok-2 .lcd-vyb__popis{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 
 /* =====================================================================
-   PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, len s kódom / flagom OPC
-   (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený
+   PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, od 2. 11. 22:39 pre všetkých
+   (aj bez kódu OPC; vypínač data.json "prazdny_kosik": false) (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený
    výber farby), konkrétne produkty (dlaždice A / riadky B), vzorkovník; vpravo kontakt a vyhľadávanie Shoptetu.
    ===================================================================== */
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik .cart-empty > .cart-heading,
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik .cart-empty > .cart-row{display:none !important}
+/* (bez kódu: starý prázdny košík Shoptetu nepreblikne — pravidlo pre všetkých je v _lcdKosik.scss na konci) */
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny{box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:1120px;
   margin:14px 10px 40px;padding:0;color:var(--o-ink);font:400 16px/1.45 var(--o-body);text-align:left}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny *{box-sizing:border-box}

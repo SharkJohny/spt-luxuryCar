@@ -1464,6 +1464,28 @@ t("kosik: vzhľad v štýle pokladne hneď pri načítaní bundla (?opc=KÓD), s
   }
 });
 
+t("prazdny kosik pre vsetkych (Michal 2. 11. 22:39): bez kódu aj ?opc=0 nový blok, plný košík bez kódu bez zmeny; vypínač prazdny_kosik aj v settings", () => {
+  const { vzhladKosikaSkoro, prazdnyVypnuty, PRAZDNY_PRE_VSETKYCH } = B;
+  eq(PRAZDNY_PRE_VSETKYCH, true, "zapnuté pre všetkých");
+  eq([prazdnyVypnuty({}), prazdnyVypnuty(null), prazdnyVypnuty({ prazdny_kosik: false }), prazdnyVypnuty({ settings: { prazdny_kosik: false } }),
+    prazdnyVypnuty({ prazdny_kosik: true }), prazdnyVypnuty({ opc: false })], [false, false, true, true, false, false], "vypínač");
+  const stare = { w: globalThis.window, d: globalThis.document, s: globalThis.sessionStorage, l: globalThis.localStorage };
+  try {
+    for (const web of ["sk", "cz"]) for (const q of ["", "?opc=0", "?opc=1"]) {
+      const w = new JSDOM(fx(web + "-prazdny/kosik.html"), { url: "https://www.luxurycardesign." + web + "/kosik/" + q }).window;
+      w.shoptetData = { projectId: web === "sk" ? 562035 : 581408 };
+      globalThis.window = w; globalThis.document = w.document; globalThis.sessionStorage = w.sessionStorage; globalThis.localStorage = w.localStorage;
+      const kde = web + " " + (q || "(bez parametra)");
+      eq(vzhladKosikaSkoro(w.document, q), true, kde + ": návratová hodnota");
+      const H = w.document.documentElement;
+      eq([!!w.document.getElementById("lcd-opc-prazdny"), H.classList.contains("lcd-opc-kosik"), H.classList.contains("lcd-opc-prazdny"), w.localStorage.length],
+        [true, true, true, 0], kde + ": blok, triedy, bez flagu");
+    }
+  } finally {
+    globalThis.window = stare.w; globalThis.document = stare.d; globalThis.sessionStorage = stare.s; globalThis.localStorage = stare.l;
+  }
+});
+
 // ------------------------------------------------------------------ revízia doladenia 1 (nálezy 6, 8, 9)
 t("polozky: fotka podľa identifikátora AJ kódu varianty — dva sety toho istého produktu v inej farbe majú každý svoju fotku", () => {
   const d = new JSDOM(fx("sk-set/kosik.html")).window.document;

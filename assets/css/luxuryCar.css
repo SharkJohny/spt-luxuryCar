@@ -14091,6 +14091,13 @@ body.in-kosik #cart-wrapper .lcd-hodn-kosik[hidden]{display:none}
   body.in-kosik #cart-wrapper .next-step{flex-wrap:wrap}
   body.in-kosik #cart-wrapper .next-step > .lcd-hodn-kosik{order:2;flex:0 0 100%;justify-content:flex-end;margin-top:10px}
 }
+
+/* NOVÝ PRÁZDNY KOŠÍK pre všetkých (Michal 2. 11. 2026 22:39, opc/prazdnyKosik.js, štýl v _lcdOpc.scss): CSS je v hlavičke,
+   bundle až na konci stránky — starý prázdny košík Shoptetu nepreblikne, kým bundle nepostaví nový. Poistka: bez JS sa
+   ukáže sám po 3 s, po vypnutí v data.json "prazdny_kosik": false hneď (html.lcd-prz-shoptet, opc/index.js initOpc). */
+@keyframes lcd-kosik-prz-poistka{to{visibility:visible}}
+html:not(.lcd-opc-prazdny):not(.lcd-prz-shoptet) body.in-kosik .cart-inner.cart-empty > :is(.cart-heading,.cart-row){visibility:hidden;
+  animation:lcd-kosik-prz-poistka 0s linear 3s forwards}
 /* ===== LCD-KOSIK END ===== */
 
 /* ===== LCD-OPC START - generovane tools/vloz-lcd-css.py z _lcdOpc.scss (one page checkout: sekcia Doprava a platba na kroku 2, zbaleny suhrn, lista; len html.lcd-opc), needituj rucne ===== */
@@ -15261,12 +15268,13 @@ html.lcd-opc body.in-krok-2 #lcd-opc-kosik .lcd-opc-zob{margin:2px 0 6px}
 html.lcd-opc body.in-krok-2 .lcd-vyb__popis{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 
 /* =====================================================================
-   PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, len s kódom / flagom OPC
-   (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený
+   PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, od 2. 11. 22:39 pre všetkých
+   (aj bez kódu OPC; vypínač data.json "prazdny_kosik": false) (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený
    výber farby), konkrétne produkty (dlaždice A / riadky B), vzorkovník; vpravo kontakt a vyhľadávanie Shoptetu.
    ===================================================================== */
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik .cart-empty > .cart-heading,
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik .cart-empty > .cart-row{display:none !important}
+/* (bez kódu: starý prázdny košík Shoptetu nepreblikne — pravidlo pre všetkých je v _lcdKosik.scss na konci) */
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny{box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:1120px;
   margin:14px 10px 40px;padding:0;color:var(--o-ink);font:400 16px/1.45 var(--o-body);text-align:left}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny *{box-sizing:border-box}
