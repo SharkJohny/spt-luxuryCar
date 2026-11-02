@@ -38,7 +38,7 @@
 //       = súhrn z konfigurátora, poznámka objednávky s ním
 //   S95 (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) prázdny košík (fixtures <web>-prazdny = skutočné HTML
 //       Shoptetu 2. 11.): od 22:39 pre všetkých — bez kódu aj s ?opc=0 nový blok (initOpc ho nechá, OPC nebeží), s kódom
-//       nový blok (texty a odkazy z menu webu, telefón a e-mail zo Shoptetu, vyhľadávanie Shoptetu presunuté), krok 1 sa
+//       nový blok (texty a odkazy z menu webu, telefón a e-mail zo Shoptetu, bez vyhľadávania — 23:40), krok 1 sa
 //       nesťahuje, bez chyby v dataLayer, nič nepreteká 320–1920 px, písmo ≥ 14 px, žiadne zakázané slová; „opc“: false
 //       blok nechá; vypínač data.json „prazdny_kosik“: false -> stránka Shoptetu späť (s kódom aj bez); bez bundla starý
 //       obsah Shoptetu skrytý (nepreblikne) a po 3 s sa ukáže sám
@@ -771,7 +771,7 @@ export const SCENARE = {
     },
   },
   S95: {
-    popis: "Prázdny košík (Michal 2. 11. 2026) pre všetkých: bez kódu aj s kódom nový blok — texty a odkazy z menu webu, kontakt a vyhľadávanie Shoptetu, krok 1 sa nesťahuje, 320–1920 bez pretečenia, písmo ≥ 14, opc:false ho nechá, prazdny_kosik:false vráti Shoptet, bez bundla nepreblikne",
+    popis: "Prázdny košík (Michal 2. 11. 2026) pre všetkých: bez kódu aj s kódom nový blok — texty a odkazy z menu webu, kontakt zo Shoptetu, bez vyhľadávania, krok 1 sa nesťahuje, 320–1920 bez pretečenia, písmo ≥ 14, opc:false ho nechá, prazdny_kosik:false vráti Shoptet, bez bundla nepreblikne",
     async fn(J) {
       const T = PRAZDNY_TEXTY[J.web];
       const PR = `(function () {
@@ -779,7 +779,7 @@ export const SCENARE = {
         var f = document.getElementById("formSearchFormContent"), t = function (s) { var e = b && b.querySelector(s); return e ? e.textContent.replace(/\\s+/g, " ").trim() : null; };
         return { stav: window.__lcdOpc ? window.__lcdOpc.stav : null, blok: !!b, trieda: document.documentElement.classList.contains("lcd-opc-prazdny"),
           shoptetNadpis: vid(document.querySelector(".cart-empty .cart-heading")), shoptetObsah: vid(document.querySelector(".cart-empty .cart-row")),
-          formVBloku: !!(b && f && b.contains(f)), formVidno: vid(f), formAkcia: f ? f.getAttribute("action") : null, formPole: f ? (f.querySelector('input[type="search"]') || {}).name : null,
+          formVBloku: !!(b && f && b.contains(f)), formVidno: vid(f), hladajVBloku: !!(b && b.querySelector('form, input[type="search"], .lcd-prz-hladaj')), formAkcia: f ? f.getAttribute("action") : null, formPole: f ? (f.querySelector('input[type="search"]') || {}).name : null,
           nadpis: t(".lcd-prz-hlava__nadpis"), uvod: t(".lcd-prz-uvod"), pomoc: t(".lcd-prz-pomoc .lcd-prz-karta__nadpis"),
           odkazy: b ? [].map.call(b.querySelectorAll("a[href]"), function (a) { return a.getAttribute("href"); }) : [],
           kontakt: b ? [].map.call(b.querySelectorAll(".lcd-prz-kontakt"), function (a) { return a.getAttribute("href") + " " + a.querySelector("b").textContent.trim(); }) : [],
@@ -793,7 +793,7 @@ export const SCENARE = {
         await s.chod(KOSIK + q, { popis: "prázdny košík bez kódu " + (q || "") });
         await pauza(1200); // data.json -> initOpc (bez kódu blok nechá)
         const a = await s.ev(PR);
-        over(a.blok && a.trieda && !a.shoptetNadpis && !a.shoptetObsah && a.formVBloku && a.formVidno && a.stav === null,
+        over(a.blok && a.trieda && !a.shoptetNadpis && !a.shoptetObsah && !a.formVBloku && !a.hladajVBloku && !a.formVidno && a.stav === null,
           "bez kódu " + q + ": " + JSON.stringify({ blok: a.blok, trieda: a.trieda, n: a.shoptetNadpis, o: a.shoptetObsah, f: a.formVBloku, stav: a.stav }));
         over(a.nadpis === T.nadpis && a.chyby === 0, "bez kódu " + q + ": nadpis / chyby " + JSON.stringify([a.nadpis, a.chyby]));
         const ls = await s.ev(`(function () { try { return localStorage.getItem("lcdOpc"); } catch (e) { return "x"; } })()`);
@@ -817,7 +817,8 @@ export const SCENARE = {
       over(JSON.stringify(a.kontakt) === JSON.stringify(["tel:+421903660720 +421 903 660 720", "mailto:info&#64;luxurycardesign." + J.web + " " + mail].map((x) => x.replace("&#64;", "@"))) ||
         JSON.stringify(a.kontakt) === JSON.stringify(["tel:+421903660720 +421 903 660 720", "mailto:info@luxurycardesign." + J.web + " " + mail]), "kontakt zo Shoptetu: " + JSON.stringify(a.kontakt));
       over(a.pomoc === (J.web === "cz" ? "Potřebujete pomoc?" : "Potrebujete poradiť?"), "nadpis kontaktu zo Shoptetu: " + a.pomoc);
-      over(a.formVBloku && a.formVidno && a.formAkcia === "/action/ProductSearch/prepareString/" && a.formPole === "string", "vyhľadávanie: " + JSON.stringify([a.formVBloku, a.formVidno, a.formAkcia, a.formPole]));
+      // vyhľadávanie preč (Michal 2. 11. 23:40: „Áno, daj to odtiaľ preč.“): v bloku nie je, formulár Shoptetu ostáva skrytý na mieste
+      over(!a.formVBloku && !a.hladajVBloku && !a.formVidno && a.formAkcia === "/action/ProductSearch/prepareString/", "vyhľadávanie má byť preč: " + JSON.stringify([a.formVBloku, a.hladajVBloku, a.formVidno, a.formAkcia]));
       over(a.obrazky.length === 3 + T.produkty.length + 5, "počet obrázkov " + a.obrazky.length);
       const koren = fileURLToPath(new URL("../../", import.meta.url));
       a.obrazky.forEach((u) => { const m = /\/assets\/(img\/lcd-home\/[a-z0-9-]+\.jpg)$/.exec(u || ""); over(m && existsSync(koren + "assets/" + m[1]), "obrázok mimo assets/img/lcd-home: " + u); });
@@ -831,7 +832,7 @@ export const SCENARE = {
       over(poradie === "prazdna,set,hlavna,bok", "poradie dlaždíc: " + poradie);
       const vPrazdnej = await s.ev(`(function () { var p = document.querySelector("#lcd-opc-prazdny .lcd-prz-prazdna"); return !!(p && p.querySelector("#lcd-prz-h") && p.querySelector(".lcd-prz-uvod")); })()`);
       over(vPrazdnej, "nadpis a veta nie sú v 1. dlaždici");
-      casti.push("blok, " + ocakOdkazy.length + " odkazov, kontakt, vyhľadávanie, bez kroku 1, poradie dlaždíc");
+      casti.push("blok, " + ocakOdkazy.length + " odkazov, kontakt, bez vyhľadávania, bez kroku 1, poradie dlaždíc");
       // šírky: nič nepreteká, písmo ≥ 14 px (štítky pod fotkami setu tiež 14), nadpis v 1 riadku od 390
       const chyby = [];
       for (const w of [320, 360, 375, 390, 414, 768, 1024, 1100, 1366, 1920]) {
@@ -861,7 +862,7 @@ export const SCENARE = {
         await v.chod(KOSIK + OPC, { popis: "prázdny košík, opc vypnuté v data.json" });
         await pauza(800);
         const c = await v.ev(PR);
-        over(c.blok && c.trieda && !c.shoptetNadpis && !c.shoptetObsah && c.formVBloku, "opc:false: " + JSON.stringify({ blok: c.blok, trieda: c.trieda, n: c.shoptetNadpis, o: c.shoptetObsah }));
+        over(c.blok && c.trieda && !c.shoptetNadpis && !c.shoptetObsah && !c.formVBloku && !c.formVidno, "opc:false: " + JSON.stringify({ blok: c.blok, trieda: c.trieda, n: c.shoptetNadpis, o: c.shoptetObsah }));
         casti.push("opc:false blok nechá");
         await v.zavri();
       }

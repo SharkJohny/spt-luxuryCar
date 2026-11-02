@@ -2,8 +2,8 @@
 // Pre všetkých zákazníkov (od 2. 11. 2026 22:39, opc/index.js PRAZDNY_PRE_VSETKYCH; predtým len s kódom OPC), len keď
 // Shoptet vykreslil prázdny košík (.cart-inner.cart-empty). Vypínač: data.json "prazdny_kosik": false. Obsah: texty, odkazy a obrázky z hlavného menu webu (lcdHdr-markup.js — set so zľavou,
 // konkrétne produkty, do kufra, kamióny, vzorkovník) a veta o 1000 modeloch z titulky (lcdHome-markup.js). Kontakt
-// (telefón, e-mail, nadpis) sa prečíta z kontaktného boxu Shoptetu na tej istej stránke, formulár vyhľadávania Shoptetu sa
-// presunie (nie kópia — jeho skripty ostávajú). Pôvodný obsah Shoptetu ostáva skrytý v DOM; zrusPrazdny ho vráti.
+// (telefón, e-mail, nadpis) sa prečíta z kontaktného boxu Shoptetu na tej istej stránke. Vyhľadávanie Shoptetu v bloku nie je
+// (Michal 2. 11. 2026 23:40: „Áno, daj to odtiaľ preč.“). Pôvodný obsah Shoptetu ostáva skrytý v DOM; zrusPrazdny ho vráti.
 
 const IMG = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/lcd-home/";
 export const ID_PRAZDNY = "lcd-opc-prazdny";
@@ -35,7 +35,6 @@ export const PRAZDNY_TEXTY = {
     pomoc: "Potrebujete poradiť?",
     telefon: "Telefón",
     email: "E-mail",
-    hladaj: "Hľadáte niečo iné?",
   },
   cz: {
     nadpis: "Váš košík je zatím prázdný",
@@ -60,7 +59,6 @@ export const PRAZDNY_TEXTY = {
     pomoc: "Potřebujete pomoc?",
     telefon: "Telefon",
     email: "E-mail",
-    hladaj: "Hledáte něco jiného?",
   },
 };
 
@@ -166,14 +164,6 @@ export function prazdnyKosik(doc, trh) {
       k.mail ? el(doc, "a", { class: "lcd-prz-kontakt", href: k.mailHref }, [el(doc, "span", { class: "lcd-prz-kontakt__ikona", html: SVG.mail }), el(doc, "span", { class: "lcd-prz-kontakt__text" }, [el(doc, "small", { text: T.email }), el(doc, "b", { text: k.mail })])]) : null,
     ]));
   }
-  const form = doc.querySelector(".cart-empty form.search-form");
-  if (form) {
-    const hl = el(doc, "div", { class: "lcd-prz-karta lcd-prz-hladaj" }, [el(doc, "h2", { class: "lcd-prz-karta__nadpis", text: T.hladaj })]);
-    // miesto formulára v pôvodnom obsahu (zrusPrazdny ho tam vráti)
-    form.parentNode.insertBefore(doc.createComment("lcd-opc-prazdny-hladaj"), form);
-    hl.appendChild(form);
-    bok.appendChild(hl);
-  }
 
   const blok = el(doc, "div", { id: ID_PRAZDNY, class: "lcd-prz lcd-prz--dlazdice", role: "region", "aria-labelledby": "lcd-prz-h" }, [prazdna, set, hlavna, bok.childNodes.length ? bok : null]);
   kam.insertBefore(blok, kam.firstChild);
@@ -181,16 +171,9 @@ export function prazdnyKosik(doc, trh) {
   return blok;
 }
 
-/** Späť na prázdny košík Shoptetu (núdzový vypínač): blok preč, vyhľadávanie na pôvodné miesto, trieda preč. */
+/** Späť na prázdny košík Shoptetu (núdzový vypínač): blok a trieda preč (obsah Shoptetu sa nemenil, len bol skrytý). */
 export function zrusPrazdny(doc) {
   const blok = doc.getElementById(ID_PRAZDNY);
   doc.documentElement.classList.remove(TRIEDA_PRAZDNY);
-  if (!blok) return;
-  const form = blok.querySelector("form.search-form");
-  const walker = doc.createTreeWalker(doc.body, 128 /* NodeFilter.SHOW_COMMENT */);
-  let miesto = null;
-  while (walker.nextNode()) { if (walker.currentNode.nodeValue === "lcd-opc-prazdny-hladaj") { miesto = walker.currentNode; break; } }
-  if (form && miesto) miesto.parentNode.insertBefore(form, miesto);
-  if (miesto) miesto.parentNode.removeChild(miesto);
-  blok.parentNode.removeChild(blok);
+  if (blok) blok.parentNode.removeChild(blok);
 }

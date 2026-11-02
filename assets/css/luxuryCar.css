@@ -15270,7 +15270,7 @@ html.lcd-opc body.in-krok-2 .lcd-vyb__popis{display:block;margin-top:2px;font:40
 /* =====================================================================
    PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, od 2. 11. 22:39 pre všetkých
    (aj bez kódu OPC; vypínač data.json "prazdny_kosik": false) (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený
-   výber farby), konkrétne produkty (dlaždice A / riadky B), vzorkovník; vpravo kontakt a vyhľadávanie Shoptetu.
+   výber farby), konkrétne produkty (dlaždice A / riadky B), vzorkovník; vpravo kontakt zo Shoptetu (vyhľadávanie preč od 2. 11. 23:40).
    ===================================================================== */
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik .cart-empty > .cart-heading,
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik .cart-empty > .cart-row{display:none !important}
@@ -15345,7 +15345,7 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-vz__t
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-vz__text span{font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-vz__btn{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 16px;
   border:1.5px solid var(--o-gold);border-radius:999px;background:#fff;color:var(--o-gold-t);font:700 15px/1 var(--o-body)}
-/* bok: kontakt zo Shoptetu a vyhľadávanie Shoptetu (presunutý formulár) */
+/* bok: kontakt zo Shoptetu */
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-bok{display:flex;flex-direction:column;gap:14px;min-width:0}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h2.lcd-prz-karta__nadpis{margin:0 0 12px;padding:0;border:0;background:none;font:700 17px/1.2 var(--o-disp);
   letter-spacing:.06em;text-transform:uppercase;color:var(--o-ink);text-align:left}
@@ -15358,20 +15358,13 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-konta
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-kontakt__text{display:flex;flex-direction:column;min-width:0}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-kontakt__text small{font:400 14px/1.2 var(--o-body);color:var(--o-tlm)}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-kontakt__text b{font:700 17px/1.25 var(--o-disp);color:var(--o-ink);overflow-wrap:anywhere}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hladaj form.search-form{position:relative;margin:0;padding:0}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hladaj fieldset{display:flex;gap:8px;width:100%;min-width:0;margin:0;padding:0;border:0}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hladaj input.search-input{flex:1 1 0;width:0 !important;min-width:0 !important;max-width:none !important;height:48px !important;margin:0;padding:0 14px !important;
-  border:1px solid var(--o-pole) !important;border-radius:10px !important;background:#fff !important;font:400 16px/1.2 var(--o-body) !important;color:var(--o-ink) !important;box-shadow:none !important}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hladaj button[type="submit"]{flex:none;width:auto;height:48px !important;margin:0;padding:0 16px !important;
-  border:1.5px solid var(--o-gold) !important;border-radius:10px !important;background:#fff !important;color:var(--o-gold-t) !important;font:700 15px/1 var(--o-disp) !important;
-  letter-spacing:.06em;text-transform:uppercase;box-shadow:none !important}
 @media (hover:hover){
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-produkt:hover,
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-kontakt:hover{border-color:var(--o-gold);box-shadow:0 4px 14px rgba(20,15,5,.08)}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set:hover .lcd-prz-btn{filter:brightness(1.06)}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-vz:hover .lcd-prz-vz__btn{background:#fbf3dc}
 }
-/* PC (od 992): „prázdny“ cez celú šírku, pod ním set a produkty vľavo, kontakt a vyhľadávanie vpravo (340 px) ako súhrn v pokladni */
+/* PC (od 992): „prázdny“ cez celú šírku, pod ním set a produkty vľavo, kontakt vpravo (340 px) ako súhrn v pokladni */
 @media (min-width:992px){
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny{grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start;margin:22px auto 48px}
   html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-karta{padding:22px 24px}
