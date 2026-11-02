@@ -2,7 +2,7 @@
 // POST do košíka sa zachytí a zruší. Plán: docs/kamiony-1v-plan.md §5 (c), (e). Tvar: scenare-vzorky.mjs.
 // Nový vzhľad (--vyvoj, po vydaní --novy) sa ovláda klikmi na prvky [data-a] v #lcd1v-kamion (ako zákazník);
 // starý vzhľad (React) tieto scenáre preskočí — React pokrýva npm run truck:test a brana / nulova-zmena.
-//   kamion-platne   DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, tapacír ako koberce -> 423 €, POST
+//   kamion-platne   DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999, tapacír ako koberce -> 467 €, POST
 //                   (kroky 5–6 otázky po jednej, Michal 18. 10. 2026 večer: kam -> motív + niť -> Pokračovať -> stred rovnaký)
 //   kamion-dodavka  Fiat Ducato, jednofarebná 10G, lem 09, len stred H21/3546 -> 258 €, bez kroku tapacíru, POST
 //   kamion-neuplne  nič nevybraté -> „Pridať do košíka“ aj lišta: žiadny POST, krok 1 červený
@@ -487,7 +487,7 @@ export const SCENARE = {
       j.over(st.vozidlo === "DAF (TIR) XF106 2017-2021", "truckVehicle " + st.vozidlo);
       // telo POST bajt po bajte = docs/kamiony-snimky/post-porovnanie.json (= React); aj do výsledku (--json)
       j.over(post && post.body === vzorPost("kamion-platne"), "telo POST ≠ post-porovnanie.json react.body: " + (post ? post.body.slice(0, 160) : "žiadny POST"));
-      return { info: "423 € = " + cena.zaklad + " + " + cena.rozpis + " · POST = vzor", post: post ? post.body : null, spolu: cena.spolu };
+      return { info: "467 € = " + cena.zaklad + " + " + cena.rozpis + " · POST = vzor", post: post ? post.body : null, spolu: cena.spolu };
     },
   },
   // 25. 10. 2026 (Michal: „nie vždy to vyskroluje tam, kde má“): posun na začiatok ďalšieho kroku musí prežiť ďalšie

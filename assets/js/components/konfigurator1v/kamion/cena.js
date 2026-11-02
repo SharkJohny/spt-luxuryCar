@@ -2,7 +2,8 @@
 // (ES modul namiesto UMD; logika a čísla bez zmeny). Ceny dáva shoptet.js citajCeny() zo živých selectov Shoptetu.
 // NEpoužíva truck-konfigurator/pricing.js calculatePrice (mŕtvy kód, zlé „+€10“) ani chyby konfigurator.gen.jsx:
 //   Z1 — po prepnutí tapacíru na Nie sa nášivka na dverách (49 €) už nepripočíta (React ju v súhrne nechá),
-//   Z2 — úspora 11 € pri jednej strane nášiviek sa počíta do „Ušetríte“ (React nie; prepínač usporaAjPriJednejStrane).
+//   Z2 — úspora pri jednej strane nášiviek (stred 11 €, šofér + spolujazdec 51 €) sa počíta do „Ušetríte“ (React nie;
+//   prepínač usporaAjPriJednejStrane).
 //
 // vypocitajCenu(stav, data, moznosti) -> { spolu, riadky, usetrene, usetrenePercent, povodneSpolu, tapacirDostupny }
 // ponuka(data, moznosti) -> sumy na kartách (príplatok, prečiarknutá cena, úspora) cez vypocitajCenu, takže karty,

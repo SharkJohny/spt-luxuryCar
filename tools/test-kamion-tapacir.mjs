@@ -129,7 +129,7 @@ const KAMION_CZ = {
     { id: "1", n: "Materiál", o: [["11", "Prémiová syntetická kůže – prošívaná +250 Kč", "250"]] },
     { id: "2", n: "Barva", o: [["21", "černá, černé šití – 11 +0 Kč", "0"], ["22", "Vybere se v konfigurátoru +0 Kč", "0"]] },
     { id: "3", n: "Lemování", o: [["31", "černý základ, červené proužky – 04 +0 Kč", "0"], ["32", "Vybere se v konfigurátoru +0 Kč", "0"]] },
-    { id: "4", n: "Nášivky", o: [["41", "Řidič + spolujezdec + střed (BALÍČEK) +2380 Kč", "2380"], ["42", "Bez nášivek +0 Kč", "0"]] },
+    { id: "4", n: "Nášivky", o: [["41", "Řidič + spolujezdec + střed (BALÍČEK) +3480 Kč", "3480"], ["42", "Bez nášivek +0 Kč", "0"]] },
     { id: "9", n: "Čalounění", o: [["91", "Ano, chci (v konfigurátoru – balíček) +2980 Kč", "2980"], ["92", "Ne, nechci čalounění dveří +0 Kč", "0"]] },
     { id: "10", n: "Materiál dveře", o: [["101", "Stejný jako koberec +0 Kč", "0"]] },
     { id: "11", n: "Barva dveře", o: [["111", "Stejná jako koberec +0 Kč", "0"], ["112", "Vybere se v konfigurátoru +0 Kč", "0"]] },

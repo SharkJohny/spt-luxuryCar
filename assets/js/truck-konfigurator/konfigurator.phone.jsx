@@ -744,11 +744,11 @@ const FALLBACK_PRICES_EUR = {
   NASIVKY: {
     "nechcem": 0,
     "stred": 59,
-    "boky": 59,
-    "boky+stred": 95,
+    "boky": 89,
+    "boky+stred": 139,
   },
   NASIVKY_SAMO: {
-    "boky": 70,
+    "boky": 140,
     "stred": 70,
   },
   TAPACIR_BUNDLE: 119,
@@ -773,11 +773,11 @@ const FALLBACK_PRICES_CZK = {
   NASIVKY: {
     "nechcem": 0,
     "stred": 1480,
-    "boky": 1480,
-    "boky+stred": 2380,
+    "boky": 2230,
+    "boky+stred": 3480,
   },
   NASIVKY_SAMO: {
-    "boky": 1750,
+    "boky": 3500,
     "stred": 1750,
   },
   TAPACIR_BUNDLE: 2980,

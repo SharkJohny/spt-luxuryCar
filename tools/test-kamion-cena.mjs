@@ -52,9 +52,9 @@ over("základ = živý Shoptet (meta price)", data.ceny.zaklad_eur, Number(doc.q
 
 console.log("2) Príklad zo živého webu (DAF XF106 2017-2021, prešívaná 12, lem 04, balík H19 čierna, tapacír ako koberce)");
 const priklad = vypocitajCenu({ typ: "kamion", znacka: "DAF (TIR)", material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: false }, data);
-over("súhrn", sum(priklad), { spolu: 423, usetrene: 105, pct: 20 });
-over("pôvodne spolu", priklad.povodneSpolu, 528);
-over("riadky", priklad.riadky.map((r) => [r.id, r.suma, r.povodna]), [["zaklad", 199, null], ["material", 10, null], ["nasivky", 95, 140], ["tapacir", 119, 179]]);
+over("súhrn", sum(priklad), { spolu: 467, usetrene: 131, pct: 22 });
+over("pôvodne spolu", priklad.povodneSpolu, 598);
+over("riadky", priklad.riadky.map((r) => [r.id, r.suma, r.povodna]), [["zaklad", 199, null], ["material", 10, null], ["nasivky", 139, 210], ["tapacir", 119, 179]]);
 
 console.log("3) Každý materiál (príplatok aj proti živému Shoptetu)");
 for (const m of MATERIALY) {
@@ -64,7 +64,7 @@ for (const m of MATERIALY) {
 }
 
 console.log("4) Každá voľba nášiviek (karta ukazuje úsporu aj pri jednej strane)");
-const nas = { nechcem: [199, 0, 0], stred: [258, 11, 4], boky: [258, 11, 4], "boky+stred": [294, 45, 13] };
+const nas = { nechcem: [199, 0, 0], stred: [258, 11, 4], boky: [288, 51, 15], "boky+stred": [338, 71, 17] };
 const shopNas = { nechcem: "Bez nášiviek", stred: "Len stred", boky: "Šofér + spolujazdec +", "boky+stred": "Šofér + spolujazdec + stred (BALÍK)" };
 for (const [k, [s, u, p]] of Object.entries(nas)) {
   over("nášivky " + k, sum(vypocitajCenu({ nasivky: k }, data)), { spolu: s, usetrene: u, pct: p });
@@ -72,8 +72,8 @@ for (const [k, [s, u, p]] of Object.entries(nas)) {
 }
 console.log("   … a režim ako živý kód (úspora len pri balíku a tapacíri)");
 over("stred bez úspory", sum(vypocitajCenu({ nasivky: "stred" }, data, { usporaAjPriJednejStrane: false })), { spolu: 258, usetrene: 0, pct: 0 });
-over("boky + prešívaná bez úspory (268 €)", sum(vypocitajCenu({ material: PRES, nasivky: "boky" }, data, { usporaAjPriJednejStrane: false })), { spolu: 268, usetrene: 0, pct: 0 });
-over("balík aj v tomto režime", sum(vypocitajCenu({ nasivky: "boky+stred" }, data, { usporaAjPriJednejStrane: false })), { spolu: 294, usetrene: 45, pct: 13 });
+over("boky + prešívaná bez úspory (298 €)", sum(vypocitajCenu({ material: PRES, nasivky: "boky" }, data, { usporaAjPriJednejStrane: false })), { spolu: 298, usetrene: 0, pct: 0 });
+over("balík aj v tomto režime", sum(vypocitajCenu({ nasivky: "boky+stred" }, data, { usporaAjPriJednejStrane: false })), { spolu: 338, usetrene: 71, pct: 17 });
 
 console.log("5) Tapacír dverí");
 const tapBez = vypocitajCenu({ znacka: "Scania (TIR)", tapacir: "ano", nasivkaDvere: false }, data);
@@ -82,11 +82,11 @@ const tapS = vypocitajCenu({ znacka: "Scania (TIR)", tapacir: "ano", nasivkaDver
 over("tapacír s nášivkou na dverách (+49)", tapS.spolu - tapBez.spolu, 49);
 over("  príplatok tapacíru = živý Shoptet", data.ceny.priplatky.tapacir_balik, priplatokZive("tapacir", "Áno chcem"));
 over("  nášivka na dverách = živý Shoptet", data.ceny.priplatky.nasivka_na_dverach, priplatokZive("tapNasivka", "Áno chcem nášivku"));
-over("príklad s nášivkou na dverách", sum(vypocitajCenu({ znacka: "DAF (TIR)", material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: true }, data)), { spolu: 472, usetrene: 145, pct: 24 });
-over("tapacír Nie + zabudnutá nášivka na dverách = bez 49 € (oprava Z1)", sum(vypocitajCenu({ znacka: "DAF (TIR)", material: PRES, nasivky: "boky+stred", tapacir: "nie", nasivkaDvere: true }, data)), { spolu: 304, usetrene: 45, pct: 13 });
+over("príklad s nášivkou na dverách", sum(vypocitajCenu({ znacka: "DAF (TIR)", material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: true }, data)), { spolu: 516, usetrene: 171, pct: 25 });
+over("tapacír Nie + zabudnutá nášivka na dverách = bez 49 € (oprava Z1)", sum(vypocitajCenu({ znacka: "DAF (TIR)", material: PRES, nasivky: "boky+stred", tapacir: "nie", nasivkaDvere: true }, data)), { spolu: 348, usetrene: 71, pct: 17 });
 
 console.log("6) Vozidlo bez tapacíru");
-over("Fiat Ducato: tapacír sa nezaráta", sum(vypocitajCenu({ typ: "dodavka", znacka: "Fiat (dodávka)", material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: true }, data)), { spolu: 304, usetrene: 45, pct: 13 });
+over("Fiat Ducato: tapacír sa nezaráta", sum(vypocitajCenu({ typ: "dodavka", znacka: "Fiat (dodávka)", material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: true }, data)), { spolu: 348, usetrene: 71, pct: 17 });
 over("dodávka bez značky: tapacír sa nezaráta", vypocitajCenu({ typ: "dodavka", tapacir: "ano" }, data).spolu, 199);
 over("tapacirDostupny pre všetky značky", ZNACKY.map((z) => [z.kluc, tapacirDostupny({ znacka: z.kluc }, data)]).every(([k, v]) => v === /\(TIR\)/.test(k)), true);
 
@@ -97,14 +97,14 @@ over("tapacír / dvere = fallback", [data.ceny.priplatky.tapacir_balik, data.cen
 over("prečiarknuté = fallback", [ceny.preciarknute_ceny.nasivky_sofer_spolujazdec, ceny.preciarknute_ceny.nasivky_len_stred, ceny.preciarknute_ceny.nasivky_balik, ceny.preciarknute_ceny.tapacir, ceny.preciarknute_ceny.nasivka_na_dverach], [FB.NASIVKY_SAMO.boky, FB.NASIVKY_SAMO.stred, FB.NASIVKY_SAMO.boky + FB.NASIVKY_SAMO.stred, FB.TAPACIR_SAMO, FB.NASIVKA_DVERE_SAMO]);
 
 console.log("6b) Kamión bez vybranej značky – ako živý kód");
-over("kamión bez značky + tapacír + nášivka na dverách = bez tapacíru", sum(vypocitajCenu({ typ: "kamion", znacka: null, material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: true }, data)), { spolu: 304, usetrene: 45, pct: 13 });
+over("kamión bez značky + tapacír + nášivka na dverách = bez tapacíru", sum(vypocitajCenu({ typ: "kamion", znacka: null, material: PRES, nasivky: "boky+stred", tapacir: "ano", nasivkaDvere: true }, data)), { spolu: 348, usetrene: 71, pct: 17 });
 over("krok tapacíru sa pri kamióne bez značky stále ukáže", tapacirDostupny({ typ: "kamion" }, data), true);
 
 console.log("7b) Karty ponuky (ponuka) = riadky vypocitajCenu = živý Shoptet");
 const po = ponuka(data);
 for (const m of MATERIALY) over("karta materiálu " + m.nazov, po.material[m.nazov], priplatokZive("material", m.nazov));
-over("karta nášiviek – balík", po.nasivky["boky+stred"], { suma: 95, povodna: 140, usetrite: 45 });
-over("karta nášiviek – šofér a spolujazdec", po.nasivky.boky, { suma: 59, povodna: 70, usetrite: 11 });
+over("karta nášiviek – balík", po.nasivky["boky+stred"], { suma: 139, povodna: 210, usetrite: 71 });
+over("karta nášiviek – šofér a spolujazdec", po.nasivky.boky, { suma: 89, povodna: 140, usetrite: 51 });
 over("karta nášiviek – stred", po.nasivky.stred, { suma: 59, povodna: 70, usetrite: 11 });
 over("karta nášiviek – nie", po.nasivky.nechcem, { suma: 0, povodna: null, usetrite: 0 });
 over("karta tapacíru", po.tapacir, { suma: 119, povodna: 179, usetrite: 60 });
@@ -114,7 +114,7 @@ for (const k of ["boky+stred", "boky", "stred"]) {
   over("  karta " + k + " = súhrn", [po.nasivky[k].suma, po.nasivky[k].povodna], [r.suma, r.povodna]);
 }
 const bezUsp = ponuka(data, { usporaAjPriJednejStrane: false });
-over("režim ako živý kód: karta „šofér a spolujazdec“ bez prečiarknutej ceny", bezUsp.nasivky.boky, { suma: 59, povodna: null, usetrite: 0 });
+over("režim ako živý kód: karta „šofér a spolujazdec“ bez prečiarknutej ceny", bezUsp.nasivky.boky, { suma: 89, povodna: null, usetrite: 0 });
 // zmena ceny v Shoptete sa prejaví na karte aj v súhrne naraz
 const s352 = select("tapacir", doc);
 const oAno = Array.prototype.find.call(s352.options, (o) => /Áno chcem/.test(o.textContent));
