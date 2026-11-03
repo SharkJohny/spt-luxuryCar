@@ -203,7 +203,7 @@ export const PRODUKTY = {
   // ---------------------------------------------------------------- vzorkovník (45 príplatkových selectov, 1 vzorka = 1 parameter)
   637: {
     url: SK + "/vzorkovnik-dragonskin---objednavka-vzoriek/", typ: "vzorky", vzor: null, nazov: "Vzorkovník",
-    scenare: ["brana", "nulova-zmena", "platne", "vzorky-0", "vzorky-odober", "vzorky-nahlad", ...POSUN, "posun-bez-animacie", "posun-dvojklik"],
+    scenare: ["brana", "nulova-zmena", "platne", "vzorky-0", "vzorky-odober", "vzorky-nahlad", "vzorky-stvorec", ...POSUN, "posun-bez-animacie", "posun-dvojklik"],
     platne: { priceId: "68380", spolu: 15, odporucana: null, vzorky: ["D-3", "S-2", "LUX-10"] },
     odporucana: false,
     ceny: { platne: 15 },
@@ -251,7 +251,7 @@ export const PRODUKTY_CZ = {
   2439: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-premium-stripe/", typ: "kufor-premium", vzor: "stripe", nazov: "Rohož Premium Stripe (CZ)", scenare: ["brana"], ceny: {} },
   2436: { url: CZ + "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/", typ: "kufor-premium", vzor: "hexa", nazov: "Rohož Premium Hexa (CZ)", scenare: ["brana"], ceny: {} },
   2427: { url: CZ + "/luxusny-boxi-do-kufra/", typ: "boxy", vzor: null, nazov: "Boxy (CZ)", scenare: ["brana"], ceny: {} },
-  2449: { url: CZ + "/vzorkovnik-dragonskin---objednavka-vzorku/", typ: "vzorky", vzor: null, nazov: "Vzorník (CZ)", scenare: ["brana"], ceny: {} },
+  2449: { url: CZ + "/vzorkovnik-dragonskin---objednavka-vzorku/", typ: "vzorky", vzor: null, nazov: "Vzorník (CZ)", scenare: ["brana", "vzorky-stvorec"], ceny: {} },
   2452: { url: CZ + "/luxusni-autokoberce-kamiony/", typ: "kamion", vzor: null, nazov: "Kamiony a dodávky (CZ)", scenare: ["brana", "kamion-cz"], ceny: {} },
 };
 export const PORADIE_CZ = [2403, 2418, 2415, 2406, 2412, 2409, 2424, 2433, 2430, 2421, 2439, 2436, 2427, 2449, 2452];

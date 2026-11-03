@@ -200,4 +200,34 @@ export const SCENARE = {
       return { info: `objednateľné ${noveObj.length} = živý widget, náhľady ${noveNahl.length} = živý widget, názvy zo živej stránky (S-1 „${r.s1}“), klik na náhľad nič nevyberie` };
     },
   },
+
+  /**
+   * Nový vzhľad: veľký náhľad zvolenej vzorky pod dlaždicami je štvorec ako na autokobercoch a boxoch (max 320 × 320,
+   * _lcd1v-kroky.scss), nie široký pás 2 : 1 (Michal 3. 11. 2026). Bez textov a kódov jedného webu -> aj CZ 2449.
+   */
+  "vzorky-stvorec": {
+    typy: ["vzorky"],
+    async fn(s, a, pom, ovl, j) {
+      if (!jeNovy(ovl)) return { preskoc: "len nový vzhľad" };
+      const t = s.t;
+      await j.otvor(s, a.url, { novy: a.novy });
+      const KR = "#product-detail-form .lcd1v-vz-kroky > .lcd1v-vz-krok";
+      const kod = await t.ev(`(function () { var b = document.querySelector('${KR} .lcd1v-vz-dl:not([aria-disabled="true"])'); return b ? b.getAttribute("data-kod") : null; })()`);
+      j.over(!!kod, "žiadna objednateľná dlaždica vzorky");
+      if (!kod) return { info: "bez vzorky" };
+      await ovl.vzorky.otvorKrokVzorky(t, kod);
+      await t.klikni(`${KR} .lcd1v-vz-dl[data-kod="${kod}"]`, { popis: "vzorka " + kod });
+      const NAHLAD = `document.querySelector('${KR} .lcd1v-vz-dl[data-kod="${kod}"]').closest(".lcd1v-vz-krok").querySelector(".lcd1v-nahlad")`;
+      await t.cakaj(`(function () { var n = ${NAHLAD}, i = n && n.querySelector(".lcd1v-nahlad-img"); return !!(n && !n.hidden && i && i.complete && i.naturalWidth > 0); })()`, { ms: 10000, popis: "náhľad " + kod + " s fotkou" });
+      await j.pauza(200);
+      const r = await t.ev(`(function () { var n = ${NAHLAD}, i = n.querySelector(".lcd1v-nahlad-img"), ri = i.getBoundingClientRect(), rn = n.getBoundingClientRect();
+        return { w: ri.width, h: ri.height, kw: rn.width, nm: (n.querySelector(".lcd1v-nahlad-nm") || {}).textContent || "" }; })()`);
+      const px = (x) => Math.round(x * 10) / 10;
+      j.over(Math.abs(r.w - r.h) <= 1, `náhľad ${kod} nie je štvorec: ${px(r.w)} × ${px(r.h)} px`);
+      j.over(r.w >= 200 && r.w <= 321, `náhľad ${kod} má šírku ${px(r.w)} px (štvorec max 320 ako na autokobercoch)`);
+      j.over(Math.abs(r.kw - r.w) <= 1, `karta náhľadu ${px(r.kw)} px je širšia ako fotka ${px(r.w)} px`);
+      j.over(r.nm.includes(kod), `nad fotkou chýba kód ${kod}: „${r.nm}“`);
+      return { info: `${kod}: náhľad ${px(r.w)} × ${px(r.h)} px, „${r.nm.trim()}“` };
+    },
+  },
 };

@@ -219,8 +219,9 @@ body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-tag {
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-vz-npozn {
   margin: 14px 0 0; padding: 0; font: 400 14px/1.5 var(--kr-body); color: var(--kr-mute);
 }
-/* náhľad kliknutej vzorky: nižší pás, nech súhrn neodsunie ďaleko dole (návrh) */
-body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > .lcd1v-nahlad > .lcd1v-nahlad-img { aspect-ratio: 2 / 1; }
+/* náhľad kliknutej vzorky = štvorec ako na autokobercoch a boxoch (_lcd1v-kroky.scss .lcd1v-krok > .lcd1v-nahlad: max
+   320 × 320 px v strede) — žiadne vlastné pravidlá. Michal 3. 11. 2026: náhľad má byť normálny štvorec, nie široký
+   obdĺžnik (predtým pás 2 : 1 = 320 × 160 px); fotky config/<kód>.jpg majú 360 × 360 px */
 
 /* „Pokračujte ďalej“ / „Pokračujte k súhrnu“ (rovnaký vzhľad ako živé .next-step-button v 1V) */
 body.lcd-1v[data-lcd1v-typ="vzorky"] #product-detail-form .lcd1v-vz-krok > button.lcd1v-vz-dalej {
