@@ -1719,6 +1719,14 @@ Po spustení porovnávať `view_cart` → `purchase` (SK 17,6 %, CZ 19,6 %). `be
 5. Po spustení v GA4 sledovať `lcd_opc_chyba`, `lcd_opc_zachrana` a porovnanie s východiskom hore.
 - Naživo od 4. 11. 2026 18:39 UTC: `9f988e2` na SK aj CZ (návrat `50fbd84`), `SPUSTENE = false`. Testy z CDN: 3 prehliadače × SK, CZ × PC, telefón, set aj kamión 24/24, šírky 360–1920 bez pretečenia, 1V 100 OK, zákazník bez kódu bez zmeny.
 
+### 10.37 Skúšobné objednávky (4.–5. 11. 2026)
+
+Produkt `test` (SK id 643, CZ id 2455, `/test-objednavka/`, kód TEST-1, 1 € / 25 Kč, „Doprava zadarmo“, DPH 0 %), kategória Test `customerVisibility: admin-only`: hosť dostane 404, prihlásený admin produkt vidí a objedná. Skrytá kategória (`visible: false`) nefunguje, produkt je potom 404 aj pre admina. Na SK má DPD (id 96) zapnuté „Použiteľné pre zľavu doprava zadarmo“, na CZ bolo zapnuté už predtým; dopravu zadarmo nemá žiadny iný produkt a hranica „zdarma od“ nie je. Na stránke testu je vypnutý konfigurátor (`jeSkusobny` v `productPage.js`). Po spustení všetko zmazať a DPD vrátiť (Michal 4. 11.).
+
+- **1820260078 (SK, Apple Pay, 1 €) ✅:** platba cez novú pokladňu prešla, Shoptet ukázal nadpis „Ďakujeme, Vaša objednávka je zaplatená!“. Nová ďakovná stránka sa neukázala (zámer, stav „zaplatené“ čakal na skutočný text). Teraz `nadpisZaplatene` v `opc/dakujeme.js`: stav „zaplatene“ podľa `.order-summary-heading`, bez tlačidla platby a bez textu o neúspechu alebo čakaní. ❓ CZ znenie nadpisu je odvodené, potvrdí skúšobná platba na CZ. `ZAPLATENE_PODLA_TEXTU` ostáva false (voľné vety z textu stránky).
+- **CZ karta ⛔ → poistka:** karta vybraná, v súhrne „Převodem“, hláška „Objednávka neodešla…“, v GA4 `lcd_opc_chyba_odoslanie_nezhoda`. V Michalovom Chrome sa bez kliku na Objednať nezopakovala. Shoptet prepisuje `#summary-box` odpoveďou `step2CustomerAjax`; keď prepis príde počas zámku alebo inej požiadavky, `overZnova` nebežal a nikto ho neskúsil znova, súhrn ostal starý a každý ďalší klik skončil rovnakou hláškou (S87 to ukázal červeno). `opravSuhrn` v `opc/krok2.js` overuje znova každých 300 ms, kým to ide. 🟡 Príčina je najpravdepodobnejšia, nie dokázaná: potvrdí až skúšobná platba kartou na CZ.
+- **Ceny na ďakovnej stránke:** „764 €“ ako v pokladni (`prepisCeny` nad `#lcd-dakujeme`).
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

@@ -132,8 +132,10 @@ export function initProduct(setupData, texts) {
   // celú stránku) je vzorkovník NORMÁLNY produkt — initProduct musí dobehnúť do
   // konca (odhalenie stĺpca, cena, košík), inak stránka ostane „visieť". Preto
   // negenerátorový page-init necháme bežať (jeho selektory tu aj tak nič netrafia).
-  const isVzorky = isVzorkyConfiguratorPage();
-  if (isVzorky) {
+  // skúšobný produkt test (Michal 4. 11. 2026, vidí ho len prihlásený admin): bežné „Do košíka“ bez konfigurátora; po spustení pokladne zmazať
+  const jeSkusobny = /^\/test-objednavka\/?$/.test(window.location.pathname);
+  const isVzorky = isVzorkyConfiguratorPage() || jeSkusobny;
+  if (isVzorky && !jeSkusobny) {
     mountVzorkyConfigurator();
   }
 
