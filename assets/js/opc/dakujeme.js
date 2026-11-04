@@ -996,7 +996,8 @@ export function initDakujeme(ctx, o) {
       skoryZaznam = null;
       let uloz = null;
       try { uloz = (o && o.uloz) || okno.localStorage; } catch (e) { uloz = null; }
-      ulozZaznam(uloz, {
+      // o.zaznam === false: zákazník bez tajného odkazu, HTML objednávky sa v jeho prehliadači neukladá
+      if (!o || o.zaznam !== false) ulozZaznam(uloz, {
         html, url: okno.location.origin + okno.location.pathname, navrat: jeNavratZBrany(okno.location.search), telo: doc.body ? doc.body.className : "",
         stav: vysledok && vysledok.ok ? vysledok.udaje.stav : null, dovod: vysledok && !vysledok.ok ? vysledok.dovod : null,
       });

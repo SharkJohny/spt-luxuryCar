@@ -12,7 +12,7 @@
 // (/objednavka/dekujeme/, SK aj /objednavka/dakujeme/ — opc/dakujeme.js, návrh 4 z 30. 10. 2026), SK 562035 aj CZ 581408.
 // Celý modul je v try/catch: chyba = dnešný tok (odkaz na /objednavka/krok-1/).
 import { getShoptetContext } from "../functions/shoptetContext.js";
-import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty } from "./kosik.js";
+import { initKosik, vzhladKosika, zrusVzhladKosika, prechadzam, zrusPrechadzam, bezKarty, KOSIK_LIMIT_MS } from "./kosik.js";
 import { jePrazdny, prazdnyKosik, zrusPrazdny, ID_PRAZDNY } from "./prazdnyKosik.js";
 import { initSkok, drzHned } from "./skok.js";
 import { TEXTY } from "./texty.js";
@@ -140,12 +140,26 @@ export function stranka(telo) {
 /** Udalosti, ktoré idú aj priamo do GA4: GTM lcd_opc_* neposiela ďalej (0 záznamov za 14 dní, kniha § 10.36), bez nich nevidno chyby po spustení. */
 const DO_GA4 = /^lcd_opc_(zobrazenie|prechod|odoslanie|chyba|zachrana)$/;
 
+/**
+ * Názov udalosti pre GA4 | null = do GA4 nejde. Typ chyby je v názve (lcd_opc_chyba_krok1_siet): parametre by sa v prehľadoch
+ * GA4 rozlíšili až po registrácii rozmerov. Prázdne pole formulára nie je porucha, do GA4 nejde.
+ */
+export function nazovDoGa4(udalost, data) {
+  if (!DO_GA4.test(udalost)) return null;
+  const d = data || {};
+  if (d.lcd_opc_typ === "pole") return null;
+  const typ = d.lcd_opc_typ || d.lcd_opc_dovod;
+  if (!typ || !/_(chyba|zachrana)$/.test(udalost)) return udalost;
+  return (udalost + "_" + String(typ).toLowerCase().replace(/[^a-z0-9]+/g, "_")).slice(0, 40);
+}
+
 /** dataLayer udalosti lcd_opc_* (kniha § 6.12). */
 export function meraj(udalost, data) {
   try {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(Object.assign({ event: udalost }, data || {}));
-    if (DO_GA4.test(udalost) && typeof window.gtag === "function") window.gtag("event", udalost, Object.assign({ send_to: "GA4" }, data || {}));
+    const nazov = nazovDoGa4(udalost, data);
+    if (nazov && typeof window.gtag === "function") window.gtag("event", nazov, Object.assign({ send_to: "GA4" }, data || {}));
   } catch (e) {}
 }
 
@@ -172,7 +186,11 @@ export function vzhladKosikaSkoro(doc, search) {
     // prázdny košík: nový vzhľad hneď (pôvodná stránka Shoptetu nepreblikne), opc/prazdnyKosik.js
     if (jePrazdny(doc)) prazdnyKosik(doc, trh);
     // jedna stránka: košík sa hneď preskočí (opc/kosik.js) — kým beží prechod, obsah košíka nevidno
-    if (JEDNA_STRANKA && !bezKarty() && doc.getElementById("continue-order-button")) prechadzam(doc, TEXTY[trh]);
+    if (JEDNA_STRANKA && !bezKarty() && doc.getElementById("continue-order-button")) {
+      prechadzam(doc, TEXTY[trh]);
+      // data.json neprišiel (initOpc nebeží): košík sa odkryje ako krok 2 (KROK2_LIMIT_MS), dnešný odkaz „Pokračovať“ funguje
+      (doc.defaultView || window).setTimeout(function () { if (!window.__lcdOpc) zrusPrechadzam(doc); }, KOSIK_LIMIT_MS);
+    }
     return true;
   } catch (e) {
     return false;
@@ -282,7 +300,7 @@ export function initOpc(setupData) {
     try {
       if (kde === "kosik") initKosik(ctx);
       else if (kde === "krok2") initKrok2(ctx);
-      else if (kde === "dakujeme") initDakujeme(ctx);
+      else if (kde === "dakujeme") initDakujeme(ctx, { zaznam: flag() === "1" }); // záznam stránky len s tajným odkazom, nie u zákazníkov
     } catch (e) {
       ctx.stav = "chyba";
       ctx.chyby.push(String((e && e.message) || e));

@@ -98,6 +98,15 @@ export function fetchSLimitom(url, init, limit) {
   });
 }
 
+/** Text odpovede s limitom: fetchSLimitom stráži len hlavičky, zastavený prenos tela by prechod nechal visieť. */
+export function textSLimitom(r, limit) {
+  let casovac = null;
+  const vyprsal = new Promise(function (_, rej) {
+    casovac = setTimeout(function () { rej(new Error("limit-telo")); }, limit || LIMIT_KROK1_MS);
+  });
+  return Promise.race([r.text(), vyprsal]).then(function (t) { clearTimeout(casovac); return t; }, function (e) { clearTimeout(casovac); throw e; });
+}
+
 /** Chyby v messages odpovede Shoptetu: [] / {} / { notices } -> [] (bez chýb); { errors: [...] } -> zoznam; neznámy tvar -> ["?"]. */
 function chybySprav(m) {
   if (m == null) return [];
@@ -202,7 +211,7 @@ export function nacitajKrok1(limit) {
       if (r.chyba) return { ok: false, typ: r.chyba };
       // prázdny košík / vypršaná session: Shoptet presmeruje na /kosik/
       if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, typ: "stranka" };
-      return r.text().then(function (h) { return { ok: true, html: h }; });
+      return textSLimitom(r).then(function (h) { return { ok: true, html: h }; });
     })
     .catch(function () { return { ok: false, typ: "siet" }; });
 }

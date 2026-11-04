@@ -696,20 +696,35 @@ t("analytika: Meta z preskočených stránok (AddToCart z 1. stiahnutia, AddPaym
     eq(sessionStorage.getItem(A.KLUC_META), null, "odložené zmazané aj bez poslania");
     delete window.fbq;
     A.odlozMeta(krok1a);
-    eq(A.posliMeta(krok1b, true), 0, "bez súhlasu fbq nie je");
+    eq(A.posliMeta(krok1b, true, { pokusy: [] }), 0, "bez súhlasu fbq nie je");
     eq(sessionStorage.getItem(A.KLUC_META), null);
+    A.odlozMeta(krok1a);
+    const neskor = [];
+    eq(A.posliMeta(krok1b, true, { pokusy: [1], cakaj: (f) => neskor.push(f) }), 0, "fbq zatiaľ nie je");
+    window.fbq = function () { volania.push([...arguments]); };
+    neskor.forEach((f) => f());
+    eq(volania.slice(-2).map((v) => v[1]), ["AddToCart", "AddPaymentInfo"], "fbq naskočil neskôr (súhlas z predchádzajúcej stránky)");
   } finally { delete window.fbq; sessionStorage.clear(); }
 });
-t("analytika: chyby a záchrana idú aj priamo do GA4 (GTM lcd_opc_* neposiela), klik doplnku a platba len do dataLayer", () => {
+t("analytika: chyby a záchrana idú aj priamo do GA4 s typom v názve (GTM lcd_opc_* neposiela), prázdne pole formulára a platba len do dataLayer", () => {
   const volania = [];
   window.gtag = function () { volania.push([...arguments]); };
   try {
-    B.meraj("lcd_opc_chyba", { lcd_opc_typ: "krok1", lcd_opc_kod: 500 });
+    const pred = window.dataLayer ? window.dataLayer.filter((x) => x.event === "lcd_opc_chyba").length : 0;
+    B.meraj("lcd_opc_chyba", { lcd_opc_typ: "krok1-stranka", lcd_opc_kod: 500 });
+    B.meraj("lcd_opc_zachrana", { lcd_opc_dovod: "nezhoda-nazov" });
+    B.meraj("lcd_opc_zobrazenie", { lcd_opc_trh: "sk" });
+    B.meraj("lcd_opc_chyba", { lcd_opc_typ: "pole", lcd_opc_pole: "email" });
     B.meraj("lcd_opc_platba", { lcd_opc_platba: "5" });
-    eq(volania, [["event", "lcd_opc_chyba", { send_to: "GA4", lcd_opc_typ: "krok1", lcd_opc_kod: 500 }]]);
+    eq(volania.map((v) => v[1]), ["lcd_opc_chyba_krok1_stranka", "lcd_opc_zachrana_nezhoda_nazov", "lcd_opc_zobrazenie"]);
+    eq(volania[0][2], { send_to: "GA4", lcd_opc_typ: "krok1-stranka", lcd_opc_kod: 500 });
+    eq(B.nazovDoGa4("lcd_opc_chyba", { lcd_opc_typ: "x".repeat(60) }).length, 40, "limit GA4 40 znakov");
+    eq(B.nazovDoGa4("lcd_opc_chyba", {}), "lcd_opc_chyba");
+    eq(B.nazovDoGa4("lcd_opc_chyba", { lcd_opc_typ: "pole" }), null);
+    eq(B.nazovDoGa4("lcd_opc_kosik", {}), null);
     delete window.gtag;
     B.meraj("lcd_opc_chyba", {}); // bez gtag ticho len dataLayer
-    eq(window.dataLayer.filter((x) => x.event === "lcd_opc_chyba").length, 2);
+    eq(window.dataLayer.filter((x) => x.event === "lcd_opc_chyba").length - pred, 3);
   } finally { delete window.gtag; }
 });
 t("analytika: view_cart z kroku 1 len pri skoku z webu (stránka košíka sa nenačítala)", () => {

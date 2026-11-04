@@ -31,6 +31,7 @@
 //   S73 konfigurátor po „Do košíka“ (window.__lcdDoKosika) -> rovno krok 2 bez košíka
 //   S74 bez kódu (?opc=0) -> odkaz na /kosik/ natívne, window.__lcdDoKosika nie je
 //   S82 skok z webu meranie nestratí: view_cart, begin_checkout a Meta z preskočených stránok po 1×, po F5 nič
+//   S84 krok 1 presmeruje späť na košík (nedostupná položka): žiadna slučka; S85 data.json neprichádza: košík skrytý max 3 s; S86 zastavené telo kroku 1
 //   S83 nácvik spustenia pre všetkých, len s LCD_OPC_SPUSTENE=1 (bez kódu rovno do pokladne, ?opc=0, vypínač v data.json)
 //   S75 košík počas preskoku: obsah košíka nevidno celý (opacity 0) — ani − + a fotka (Michal 1. 11. 2026, iPhone)
 //   S90 (Michal 2. 11. 2026) kamión v karte: rekapitulácia ako pri autách — hneď Vozidlo a „Typ a farba materiálu“,
@@ -624,6 +625,47 @@ export const SCENARE = {
       casti.push("vypínač dnešný košík");
       await s.zavri();
       return { info: casti.join(" | ") };
+    },
+  },
+  S84: {
+    len: "sk",
+    popis: "Košík s položkou, ktorú Shoptet nepustí do kroku 1 (302 na /kosik/): žiadna slučka, zákazník vidí košík, „Pokračovať“ a hlášku Shoptetu",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ krok1: "kosik" }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK + OPC);
+      await pauza(4000);
+      const n = s.dokumenty().length;
+      await pauza(3000);
+      const st = await s.ev(`({ c: document.documentElement.className, cesta: location.pathname, pokr: !!document.getElementById("continue-order-button"), stav: (window.__lcdOpc || {}).stav })`);
+      over(s.dokumenty().length === n, "stránka sa stále načítava dokola: " + s.dokumenty().join(", ").slice(0, 300));
+      over(st.cesta === KOSIK && st.pokr && !/lcd-opc-(prechadzam|skok|hned)/.test(st.c), "košík nevidno: " + JSON.stringify(st));
+      return { info: n + " načítaní, potom košík" };
+    },
+  },
+  S85: {
+    len: "sk",
+    popis: "data.json neprichádza: plný košík je skrytý najviac 3 s (nie 10 s), potom ho zákazník vidí a môže pokračovať",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ dataJsonMs: 9000 }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK + OPC);
+      await pauza(1500);
+      const a = await s.ev(`document.documentElement.classList.contains("lcd-opc-prechadzam")`);
+      await pauza(2700);
+      const b = await s.ev(`document.documentElement.classList.contains("lcd-opc-prechadzam")`);
+      over(a === true && b === false, "skrytie po 1,5 s / 4,2 s: " + a + " / " + b);
+      return { info: "po 4,2 s košík vidno" };
+    },
+  },
+  S86: {
+    len: "sk",
+    popis: "Prenos kroku 1 sa zastaví uprostred tela odpovede: prechod sa neskončí zamrznutý, zákazník ide ďalej záchrannou cestou",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({}, SCENAR), skript: `(function () { var f = Response.prototype.text; Response.prototype.text = function () { return /objednavka.krok-1/.test(this.url) && !sessionStorage.getItem("lcdTestTelo") && (sessionStorage.setItem("lcdTestTelo", "1"), 1) ? new Promise(function () {}) : f.call(this); }; })();` });
+      await s.k.chod(s.W.base + KOSIK + OPC);
+      await pauza(11000);
+      const st = await s.ev(`({ cesta: location.pathname, c: document.documentElement.className, caka: document.querySelectorAll("[data-lcd-opc-caka]").length })`);
+      over(st.caka === 0 && !/lcd-opc-prechadzam/.test(st.c), "zamrznuté: " + JSON.stringify(st));
+      return { info: st.cesta };
     },
   },
   S80: {

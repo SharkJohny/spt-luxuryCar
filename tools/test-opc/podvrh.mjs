@@ -617,6 +617,7 @@ export async function zapniPodvrh(k, moznosti) {
     }
     if (metoda === "GET" && /^\/objednavka\/krok-1\/?$/.test(cesta)) {
       if (p.scenar.krok1 === "500") { z.odpoved = "500"; return odpovedz(rq, 500, "TEST: chyba servera", "text/plain"); }
+      if (p.scenar.krok1 === "kosik") { z.odpoved = "302-kosik"; return presmeruj(rq, "/kosik/"); } // nedostupná položka: Shoptet vráti košík
       // zaseknutá sieť (revízia R5/R6): fetch na pozadí nikdy neodpovie, stránka (navigácia) áno
       if (p.scenar.krok1 === "visi" && rq.resourceType !== "Document") { z.odpoved = "visi"; return; }
       // pomalá sieť (S44): fetch kroku 1 na pozadí odpovie neskôr, stránka (navigácia) hneď

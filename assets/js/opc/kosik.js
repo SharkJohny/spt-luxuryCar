@@ -8,7 +8,7 @@
 // OPC), bez uloženej predvolená podľa toho istého pravidla ako krok 1 (opc/banka.js); na kroku 2 ju zákazník vidí a môže
 // zmeniť. Zoznam bánk sa sťahuje len vtedy (GET Shoptet Pay, 4 s); keď nejde, ostáva klasický krok 1 (revízia 29. 10.).
 import { krok1Model } from "./krok1Model.js";
-import { posliStep1, fetchSLimitom, LIMIT_KROK1_MS } from "./sync.js";
+import { posliStep1, fetchSLimitom, textSLimitom, LIMIT_KROK1_MS } from "./sync.js";
 import { TEXTY } from "./texty.js";
 import { upravKroky } from "./vzhlad.js";
 import { oznacPreskocenie, odlozMeta } from "./analytika.js";
@@ -20,6 +20,8 @@ export const CESTA_KROK1 = "/objednavka/krok-1/";
 /** Jedna stránka: košík sa práve preskakuje (obsah košíka nevidno, len „Načítavam…“; _lcdOpc.scss). */
 export const PRECHADZAM = "lcd-opc-prechadzam";
 const PRECHADZAM_MAX_MS = 10000;
+/** Bez data.json initOpc nebeží: plný košík sa skrýva najviac takto dlho (rovnako ako krok 2). */
+export const KOSIK_LIMIT_MS = 3000;
 
 /** Karta košíka v pokladni sa v tejto karte prehliadača nenačítala -> košík sa 30 min nepreskakuje (opc/kosikKarta.js). */
 export const KLUC_BEZ_KARTY = "lcdOpcBezKarty";
@@ -102,7 +104,7 @@ export function stiahniModelKrok1() {
       if (r.chyba) return { ok: false, dovod: r.chyba }; // visiaca sieť: klik nesmie čakať donekonečna (R5)
       // prázdny košík / vypršaná session: Shoptet presmeruje na /kosik/ -> nie je čo vybrať
       if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, dovod: "stranka" };
-      return r.text().then(function (h) { odlozMeta(h); return krok1Model(h); });
+      return textSLimitom(r).then(function (h) { odlozMeta(h); return krok1Model(h); });
     })
     .then(function (m) {
       // rýchla platba cez banku v session: zoznam bánk na kód banky pre Step1Validate (len vtedy)
@@ -220,8 +222,11 @@ export function initKosik(ctx) {
       .catch(function (r) {
         ctx.stav = "kosik-zachrana";
         ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: (r && r.typ) || "vynimka", lcd_opc_kod: r && r.kod != null ? r.kod : null, lcd_opc_miesto: "kosik" });
-        if (nahrad) location.replace(povodna);
-        else location.assign(povodna);
+        if (!nahrad) return location.assign(povodna);
+        // preskočenie zlyhalo: košík sa v tejto karte ďalej nepreskakuje. Keď Shoptet krok 1 vráti na /kosik/ (nedostupná
+        // položka), zákazník vidí košík s jeho hláškou a nie nekonečné „Načítavam…“
+        try { window.sessionStorage.setItem(KLUC_BEZ_KARTY, String(Date.now())); } catch (e) {}
+        location.replace(povodna);
       });
   }
 

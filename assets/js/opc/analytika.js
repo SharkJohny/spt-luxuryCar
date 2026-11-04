@@ -183,16 +183,29 @@ export function odlozMeta(html) {
   } catch (e) {}
 }
 
-/** Krok 2: odložené udalosti + z jeho vlastného stiahnutia kroku 1, len keď sa krok 1 preskočil. -> počet poslaných */
-export function posliMeta(htmlKroku1, preskocil) {
+/**
+ * Krok 2: odložené udalosti + z jeho vlastného stiahnutia kroku 1, len keď sa krok 1 preskočil. fbq zapína Shoptet po
+ * načítaní stránky (súhlas s cookies), preto ešte pár pokusov; bez súhlasu sa nikdy neobjaví a nepošle sa nič.
+ * o (testy): { pokusy: [ms…], cakaj: fn }. -> počet poslaných hneď
+ */
+export function posliMeta(htmlKroku1, preskocil, o) {
   const zoznam = spojMeta(citajMeta(), preskocil ? udalostiMeta(htmlKroku1) : []);
   try { sessionStorage.removeItem(KLUC_META); } catch (e) {}
-  if (!preskocil || typeof window.fbq !== "function") return 0;
-  let n = 0;
-  zoznam.forEach(function (u) {
-    try { window.fbq("track", u[0], u[1], u[2]); n++; } catch (e) {}
-  });
-  return n;
+  if (!preskocil || !zoznam.length) return 0;
+  const pokusy = ((o && o.pokusy) || [500, 1500, 3000]).slice();
+  const cakaj = (o && o.cakaj) || setTimeout;
+  function posli() {
+    if (typeof window.fbq !== "function") {
+      if (pokusy.length) cakaj(posli, pokusy.shift());
+      return 0;
+    }
+    let n = 0;
+    zoznam.forEach(function (u) {
+      try { window.fbq("track", u[0], u[1], u[2]); n++; } catch (e) {}
+    });
+    return n;
+  }
+  return posli();
 }
 
 /** Text inline skriptu stránky, ktorý volá danú udalosť (krok 2: add_payment_info) | "". */
