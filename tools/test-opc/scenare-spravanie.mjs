@@ -7,7 +7,7 @@
 //       o tovare na mieru (revízia 31. 10. 2026, N1, kniha § 10.12 (a))
 // Spoločné pre každý klik: posun na PRVÉ zlé pole, červený rám (lcd-opc-chyba-pole), červený text pod poľom, kurzor
 // v poli, pole aj text nad lištou dole; rám zmizne hneď po vpísaní (udalosť input, ešte pred opustením poľa).
-import { ID, ZAKAZNIK, naKrok2, suhlas, objednaj, overTeloObjednavky, stavOpc, step1Xhr, over, pauza } from "./krok2-pomoc.mjs";
+import { ID, ZAKAZNIK, naKrok2, suhlas, cakajOpc, vyplnUdaje, zvolPlatbu, nazovPlatby, objednaj, overTeloObjednavky, stavOpc, step1Xhr, over, pauza } from "./krok2-pomoc.mjs";
 
 const TLACIDLO = { sk: "Objednať s povinnosťou platby", cz: "Objednat s povinností platby" };
 // poradie na stránke (dizajn A, 29. 10.: PSČ pred Mestom ako na obálke — kontrola ide v poradí polí na stránke)
@@ -78,6 +78,27 @@ async function vpis(s, id, text) {
 }
 
 export const SCENARE = {
+  S87: {
+    popis: "Neskorá odpoveď Shoptetu prepíše súhrn na starú platbu aj počas zámku (živý nález 4. 11., CZ karta): súhrn sa sám opraví zo servera, voľba ostane, objednávka odíde",
+    async fn(J) {
+      const s = await J.novaStranka();
+      await naKrok2(s);
+      await vyplnUdaje(s);
+      await suhlas(s);
+      await s.ev(`(window.__lcdTestStary = document.getElementById("summary-box").innerHTML, 1)`);
+      const stary = ID[J.web].prevod, novy = ID[J.web].dobierka;
+      await zvolPlatbu(s, novy);
+      await cakajOpc(s, /^krok2-potvrdene$/, "platba potvrdená");
+      // zámok (beží kontrola pred odoslaním) a do toho prepis súhrnu ako $("#summary-box").html() zo step2CustomerAjax
+      await s.ev(`(function () { var y = window.__lcdOpc.krok2.sync; y.zamkni(true); window.jQuery("#summary-box").html(window.__lcdTestStary); return 1; })()`);
+      await pauza(500);
+      await s.ev(`(window.__lcdOpc.krok2.sync.zamkni(false), 1)`);
+      await s.cakaj(`(function () { var y = window.__lcdOpc.krok2.sync; return y.stav() === "potvrdene" && y.potvrdene().platba === "${novy}"
+        && document.querySelector("#summary-box [data-testid=recapPaymentMethod]").textContent.indexOf(${JSON.stringify(await nazovPlatby(s, stary))}) === -1; })()`, { ms: 5000, popis: "súhrn sa opravil po zámku" });
+      await objednaj(s, { n: 1 });
+      return { step2: true, info: "súhrn opravený zo servera, objednávka 1×" };
+    },
+  },
   S37: {
     popis: "Klik „Objednať“ na prázdnej stránke -> meno; dopĺňanie -> e-mail, telefón, ulica, číslo, PSČ, mesto, súhlas (vždy 1 pole, rám, text, kurzor, nad lištou); potom 1× Step2Validate",
     async fn(J) {

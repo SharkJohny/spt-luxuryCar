@@ -185,7 +185,7 @@ for (const meno of PROFILY) {
         if (st.povodnyViditelny) throw new Error("pôvodný obsah ostal viditeľný");
         const h = await page.evaluate(() => [".lcd-dak-hero__cislo", ".lcd-dak-platba__suma", ".lcd-dak-suhrn__spolu span:last-child"].map((s) => { const e = document.querySelector("#lcd-dakujeme " + s); return e ? e.textContent.replace(/[\s ]+/g, " ").trim() : null; }));
         const n = (x) => String(x).replace(/[\s ]+/g, " ").trim();
-        if (JSON.stringify(h) !== JSON.stringify(["Objednávka č. " + o.cislo, n(o.sumaText), n(o.sumaText)])) throw new Error("hodnoty " + JSON.stringify(h));
+        if (JSON.stringify(h) !== JSON.stringify(["Objednávka č. " + o.cislo, n(o.sumaNaStranke), n(o.sumaNaStranke)])) throw new Error("hodnoty " + JSON.stringify(h));
         // cookie lišta Shoptetu (odmietnuť), aby nezakrývala snímku a klik
         await page.evaluate(() => { const b = Array.prototype.find.call(document.querySelectorAll(".siteCookies button, .siteCookies a"), (e) => e.offsetParent && /^\s*(Odmietnu|Odmítnou)/i.test(e.textContent || "")); if (b) b.click(); });
         await page.waitForTimeout(300);

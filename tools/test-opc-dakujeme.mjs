@@ -185,6 +185,14 @@ t("„Zaplatené“ podľa textu je vypnuté, kým záznam nepotvrdí text Shopt
   eq(D.ZAPLATENE_PODLA_TEXTU, false);
   eq(["cz-karta-ok", "sk-karta-ok", "sk-apple-ok", "cz-karta-ticho"].map((k) => ocakavane(k).povodna), [true, true, true, true]);
 });
+t("zaplatené podľa nadpisu Shoptetu (skúšobná objednávka 1820260078): náš blok bez tlačidla platby, záporný nadpis nie", () => {
+  for (const [kluc, web] of [["sk-apple-zaplatene", "sk"], ["cz-karta-zaplatene", "cz"]]) {
+    const r = D.citajUdaje(prostredie(kluc).doc, web, null);
+    eq(r.ok, true, kluc + " " + r.dovod);
+    eq(r.udaje.stav, "zaplatene", kluc);
+  }
+  eq(["Ďakujeme, Vaša objednávka je zaplatená!", "Vaše objednávka byla zaplacena", "Vaša objednávka nie je zaplatená", "Objednávka čeká na zaplacení", "Ďakujeme za objednávku"].map((t) => D.nadpisZaplatene(t)), [true, true, false, false, false]);
+});
 t("karta: tlačidlo Shoptetu vo <form action> na bránu (bez href) -> neprebehla, naše zelené tlačidlo klikne na pôvodné", () => {
   const { doc } = prostredie("cz-karta-form", { flag: "1" });
   B.initOpc({});
@@ -474,13 +482,13 @@ for (const kluc of NORMALNE) {
     const { b, o, T } = blok(kluc);
     eq(q(b, ".lcd-dak-hero__cislo"), "Objednávka č. " + o.cislo);
     eq(q(b, "h1"), T.nadpis);
-    eq(q(b, ".lcd-dak-platba__suma"), o.sumaText.replace(/ /g, " "), "suma");
+    eq(q(b, ".lcd-dak-platba__suma"), o.sumaNaStranke.replace(/ /g, " "), "suma");
     eq(b.getAttribute("data-lcd-dak-stav"), o.stav);
     eq(b.querySelectorAll(".lcd-dak-osa > li").length, 4, "4 kroky");
     eq(q(b, ".lcd-dak-osa > li:first-child b"), T.krokPrijata);
     eq(b.querySelectorAll(".lcd-dak-osa__text").length, 4);
-    eq(q(b, ".lcd-dak-suhrn__spolu span:last-child"), o.sumaText.replace(/ /g, " "), "celkom");
-    eq(q(b, ".lcd-dak-suhrn li:first-child span:last-child"), o.dopravaText.replace(/ /g, " "), "doprava a platba = celkom − tovar");
+    eq(q(b, ".lcd-dak-suhrn__spolu span:last-child"), o.sumaNaStranke.replace(/ /g, " "), "celkom");
+    eq(q(b, ".lcd-dak-suhrn li:first-child span:last-child"), o.dopravaNaStranke.replace(/ /g, " "), "doprava a platba = celkom − tovar");
     over(q(b, ".lcd-dak-suhrn li:first-child small").includes(o.platba), "názov platby v súhrne");
     eq(b.querySelectorAll(".lcd-dak-polozka").length, o.polozky.length);
     eq(b.querySelectorAll(".lcd-dak-polozka ul.lcd-rozpis").length, o.polozky.length, "rozpis = ul.lcd-rozpis");
@@ -579,7 +587,7 @@ t("dobierka CZ aj SK: platba pri prevzatí, kuriérovi, žiadna záloha nikde", 
   const s = blok("sk-dobierka").b;
   eq([q(s, ".lcd-dak-hero__text"), q(s, ".lcd-dak-platba__stitok"), q(s, ".lcd-dak-platba__titul"), q(s, ".lcd-dak-platba__navod")],
     ["Zaplatíte až pri prevzatí zásielky.", "Dobierka", "Platba pri prevzatí", "Zaplatíte kuriérovi pri prevzatí zásielky."]);
-  eq(q(s, ".lcd-dak-osa > li:nth-child(4) .lcd-dak-osa__text"), "Sumu €767 zaplatíte kuriérovi.");
+  eq(q(s, ".lcd-dak-osa > li:nth-child(4) .lcd-dak-osa__text"), "Sumu 767 € zaplatíte kuriérovi.");
   for (const b of [c, s]) over(!/z[aá]loh/i.test(txt(b)), "záloha v dobierke");
 });
 // ------------------------------------------------------------------ matica platieb (31. 10. 2026, nocny-beh/platby-matica.md)

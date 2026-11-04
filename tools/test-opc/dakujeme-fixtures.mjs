@@ -1,3 +1,4 @@
+import { tvarCeny } from "../../assets/js/opc/ceny.js";
 // REKONŠTRUKCIA ďakovnej stránky Shoptetu (/objednavka/dekujeme/) pre testy opc/dakujeme.js — NIE zachytené HTML.
 // Skutočné HTML nemáme: stránka sa ukáže raz po objednávke a live-read zachytenie (test-opc-zachyt.mjs) objednávku
 // nesmie odoslať. Podklady (30. 10. 2026):
@@ -107,6 +108,9 @@ export const VARIANTY = {
   "sk-prevod": { web: "sk", platba: "prevod", kosik: "auto", cislo: "1820260047", doprava: 5, ucet: "SK0011112222333344445555", qr: true },
   "sk-karta-ok": { web: "sk", platba: "karta-ok", kosik: "auto", cislo: "1820260048", doprava: 5 },
   "sk-karta-nie": { web: "sk", platba: "karta-nie", kosik: "auto", cislo: "1820260049", doprava: 5 },
+  // skutočný nadpis Shoptetu po zaplatení: skúšobná objednávka 1820260078 (Apple Pay, 4. 11. 2026); CZ znenie je odvodené
+  "sk-apple-zaplatene": { web: "sk", platba: "apple-ticho", kosik: "auto", cislo: "1820260078", doprava: 5, nadpis: "Ďakujeme, Vaša objednávka je zaplatená!" },
+  "cz-karta-zaplatene": { web: "cz", platba: "karta-ticho", kosik: "auto", cislo: "2820260078", doprava: 150, nadpis: "Děkujeme, Vaše objednávka je zaplacená!" },
   "sk-dobierka": { web: "sk", platba: "dobierka", kosik: "auto", cislo: "1820260050", doprava: 8 },
   "sk-kamion": { web: "sk", platba: "prevod", kosik: "kamion", cislo: "1820260051", doprava: 5, ucet: "SK0011112222333344445555" },
   "sk-vzorky": { web: "sk", platba: "prevod", kosik: "vzorky", cislo: "1820260052", doprava: 5, ucet: "SK0011112222333344445555" },
@@ -176,9 +180,10 @@ export function ocakavane(kluc) {
   const maTlacidlo = /-nie$|-pred$/.test(v.platba) || !!v.tlacidlo;
   const stavPodlaTextu = v.bez ? null : v.nazovPlatby ? null
     : v.platba === "prevod" ? "prevod" : v.platba === "dobierka" ? "dobierka" : /-ok$/.test(v.platba) ? "zaplatene" : maTlacidlo ? "neprebehla" : null;
-  const stav = stavPodlaTextu === "zaplatene" ? null : stavPodlaTextu;
+  // nadpis Shoptetu po zaplatení (skúšobná objednávka 1820260078) = náš stav zaplatené aj bez textu o platbe
+  const stav = /je zapla[tc]en/.test(v.nadpis || "") ? "zaplatene" : stavPodlaTextu === "zaplatene" ? null : stavPodlaTextu;
   return {
-    web: v.web, stav, stavPodlaTextu, povodna: stav === null && !v.bez && !v.nazovPlatby, cislo: v.cislo, suma, sumaText: cena(v.web, suma), tovar, doprava: v.doprava, dopravaText: cena(v.web, v.doprava),
+    web: v.web, stav, stavPodlaTextu, povodna: stav === null && !v.bez && !v.nazovPlatby, cislo: v.cislo, suma, sumaText: cena(v.web, suma), sumaNaStranke: tvarCeny(cena(v.web, suma)), dopravaNaStranke: tvarCeny(cena(v.web, v.doprava)), tovar, doprava: v.doprava, dopravaText: cena(v.web, v.doprava),
     dopravca: t.dopravca, platba: platbaNazov, ucet: v.ucet || null, vs: v.ucet ? v.cislo : null, qr: !!v.qr,
     // IBAN sa ukáže po štvoriciach („SK00 1111 …“), kopíruje sa bez medzier
     ucetText: v.ucet && /^[A-Z]{2}\d{2}/.test(v.ucet) ? v.ucet.replace(/(.{4})(?=.)/g, "$1 ") : v.ucet || null,

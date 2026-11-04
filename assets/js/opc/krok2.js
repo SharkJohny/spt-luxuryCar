@@ -265,6 +265,17 @@ export function initKrok2(ctx) {
     const rd = k2.sekcia.querySelector('input[name="shippingId"][data-lcd-opc]:checked');
     return !!((rp && rp.value !== p.platba) || (rd && rd.value !== p.doprava));
   }
+  /**
+   * Súhrn na stránke nesedí s potvrdenou voľbou (Shoptet ho prepísal, step2CustomerAjax; živý nález 4. 11. 2026, CZ karta):
+   * overiť zo servera hneď, ako sa dá. Kým beží zámok alebo iná požiadavka, overenie sa skúša znova, inak by súhrn ostal
+   * starý a každý klik na Objednať by skončil hláškou.
+   */
+  let opravaSuhrnu = null;
+  function opravSuhrn() {
+    if (opravaSuhrnu != null || !nezhoda()) return;
+    if (k2.sync.overZnova()) return;
+    opravaSuhrnu = setTimeout(function () { opravaSuhrnu = null; opravSuhrn(); }, 300);
+  }
   /** null | "platba" | "nezhoda" | "kosik" — prečo teraz objednávka nesmie odísť. */
   function blokovane() {
     // zmena košíka (výmena doplnku, počet, prepočet súhrnu po nej) prvá: zákazník čaká na košík, nie na platbu
@@ -346,6 +357,7 @@ export function initKrok2(ctx) {
     ukazCakam(bezi ? T.overujem : T.skontrolujte, !bezi);
     ctx.meraj("lcd_opc_chyba", { lcd_opc_typ: "odoslanie-" + dovod });
     if (bezi) k2.sync.pripravene(ODLOZ_MAX_MS).then(function () { if (cakam.textContent === T.overujem) ukazCakam(T.skontrolujte, true); });
+    else opravSuhrn();
   }
   function odlozOdoslanie(dovod) {
     if (odklad != null) return; // už čakáme
@@ -381,7 +393,7 @@ export function initKrok2(ctx) {
         } catch (e) { tlacidlo.click(); }
         return;
       }
-      if (b === "nezhoda") return zrusOdklad(T.skontrolujte, "nezhoda");
+      if (b === "nezhoda") { zrusOdklad(T.skontrolujte, "nezhoda"); opravSuhrn(); return; }
       ukazCakam(b === "kosik" ? T.cakamKosik : T.cakamPlatbu);
       if (Date.now() - t0 > ODLOZ_MAX_MS) zrusOdklad(T.neodoslane, b, T.neodoslaneOdkaz);
     }, 100);
@@ -700,7 +712,7 @@ export function initKrok2(ctx) {
       const sy = k2.sync;
       if (!sy || !k2.model || sy.stav() === "meni-sa" || sy.stav() === "zachrana") return;
       if (rovnake(volbaZoSuhrnu(k2.model, suhrnInfo(box)), sy.potvrdene())) potvrdenyHtml = box.innerHTML;
-      else sy.overZnova();
+      else opravSuhrn();
     } catch (e) {}
     obnovTlacidlo();
   });

@@ -78,10 +78,10 @@ export const SCENARE = {
       over(st.stav === "dakujeme-prevod" && st.blok && !st.povodnyViditelny && st.povodnyVDom, "stav: " + JSON.stringify(st));
       over(st.triedyHtml.includes("lcd-opc-dakujeme") && !st.triedyHtml.includes("lcd-opc-dakujeme-caka"), "triedy " + st.triedyHtml);
       over((await t(s, ".lcd-dak-hero__cislo")) === "Objednávka č. " + o.cislo, "číslo " + (await t(s, ".lcd-dak-hero__cislo")));
-      over((await t(s, ".lcd-dak-platba__suma")) === n(o.sumaText), "suma " + (await t(s, ".lcd-dak-platba__suma")));
+      over((await t(s, ".lcd-dak-platba__suma")) === n(o.sumaNaStranke), "suma " + (await t(s, ".lcd-dak-platba__suma")));
       const udaje = await s.ev(`Array.prototype.map.call(document.querySelectorAll("#lcd-dakujeme .lcd-dak-udaj"), function (li) {
         return [li.querySelector(".lcd-dak-udaj__h").textContent.replace(/[\\s\\u00a0]+/g, " ").trim(), li.querySelector(".lcd-dak-kopia").getAttribute("data-kopia")]; })`);
-      over(JSON.stringify(udaje) === JSON.stringify([[o.ucetText, o.ucet], [o.vs, o.vs], [n(o.sumaText), String(o.suma)]]), "údaje " + JSON.stringify(udaje));
+      over(JSON.stringify(udaje) === JSON.stringify([[o.ucetText, o.ucet], [o.vs, o.vs], [n(o.sumaNaStranke), String(o.suma)]]), "údaje " + JSON.stringify(udaje));
       over((await s.ev(`!!document.querySelector("#lcd-dakujeme .lcd-dak-qr img")`)) === o.qr, "QR obrázok Shoptetu " + o.qr);
       // Kopírovať skutočným klikom (Clipboard API alebo záloha execCommand)
       await s.odmietniCookies();
@@ -96,7 +96,7 @@ export const SCENARE = {
       await s.chod(CESTY[o.web] + "?opc=0", { popis: "ďakovná ?opc=0" });
       const st0 = await stopa(s);
       over(!st0.globalne && !st0.blok && st0.povodnyViditelny && (st0.flag === null || PRE_VSETKYCH) && !st0.triedyHtml.length, "?opc=0: " + JSON.stringify(st0));
-      return { info: "prevod " + o.cislo + " " + n(o.sumaText) + ", Kopírovať OK, záznam " + z[0].html.length + " znakov, ?opc=0 pôvodná" };
+      return { info: "prevod " + o.cislo + " " + n(o.sumaNaStranke) + ", Kopírovať OK, záznam " + z[0].html.length + " znakov, ?opc=0 pôvodná" };
     },
   },
   S52: {
@@ -130,7 +130,7 @@ export const SCENARE = {
         over(st.stav === "dakujeme-dobierka", "dobierka: " + JSON.stringify(st));
         const text = await t(s, "#lcd-dakujeme");
         over(!/z[aá]loh/i.test(text), "dobierka: záloha v texte");
-        over(text.includes(n(o.sumaText)), "dobierka: suma");
+        over(text.includes(n(o.sumaNaStranke)), "dobierka: suma");
         casti.push("dobierka bez zálohy");
         await s.zavri();
       }

@@ -31,6 +31,7 @@
 
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { cisloZCeny, cenaText } from "./vzhlad.js";
+import { prepisCeny } from "./ceny.js";
 import { TEXTY_DAKUJEME } from "./dakujemeTexty.js";
 
 export const KLUC_ZAZNAMU = "lcdOpcDakujemeZaznam";
@@ -167,6 +168,11 @@ export function druhPlatby(nazov) {
  * skúšobnej objednávky nepotvrdí presný text Shoptetu po zaplatení. Dovtedy pri zaplatenej karte ostane stránka Shoptetu.
  */
 export const ZAPLATENE_PODLA_TEXTU = false;
+
+/** Nadpis Shoptetu po zaplatení (skúšobná objednávka 1820260078, 4. 11. 2026: „Ďakujeme, Vaša objednávka je zaplatená!“). */
+export function nadpisZaplatene(text) {
+  return /\bobjednavka (je|bola|byla) (zaplatena|zaplacena)\b/.test(bezDiakritiky(text));
+}
 
 // Vety o platbe (bez diakritiky). Úspech LEN: podmet PLATBA + sloveso v minulom čase („Platba byla úspěšně přijata“,
 // „Platba prebehla v poriadku“), bez záporu, budúceho času a čakania vo vete. Veta o OBJEDNÁVKE („přijata“, „potvrzena“,
@@ -462,6 +468,7 @@ export function citajUdaje(doc, trh, vynechaj, o) {
   // textu o úspechu alebo čakaní; „zaplatené“ len bez tlačidla, pri jednoznačnom texte a zapnutom ZAPLATENE_PODLA_TEXTU;
   // inak stránka Shoptetu (N1, N2, R1)
   else if (odkaz && !t.uspech && !t.caka) stav = "neprebehla";
+  else if (!kand.length && !t.neuspech && !t.caka && nadpisZaplatene((koren.querySelector(".order-summary-heading") || {}).textContent)) stav = "zaplatene";
   else if (zaplatenePodlaTextu && !kand.length && t.uspech && !t.neuspech && !t.caka) stav = "zaplatene";
   else {
     const tl = odkaz ? "tlačidlo" : !kand.length ? "bez tlačidla" : kand.length > 1 ? kand.length + " tlačidlá platby" : "tlačidlo bez adresy";
@@ -976,6 +983,7 @@ export function initDakujeme(ctx, o) {
     const blok = postavBlok(doc, r.udaje, T);
     const povodne = korenPovodneho(doc);
     povodne.parentNode.insertBefore(blok, povodne);
+    prepisCeny(blok, "#lcd-dakujeme"); // SK „764 €“ ako v pokladni, Shoptet píše „€764“
     povodne.classList.add(TRIEDA_POVODNE);
     H.classList.add(TRIEDA);
     ctx.stav = "dakujeme-" + r.udaje.stav;
