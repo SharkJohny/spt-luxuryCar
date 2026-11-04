@@ -163,3 +163,25 @@ okna, bez vyrovnávacej pamäte, 390 aj 1280, 5 behov na scenár (skripty v scra
   set 0,017 -> 0,017, kamión 0,074 -> 0,074, dva sety 0,118 -> 0,108 (riadok setu pre iné auto už nemá odrážku „Auto: …“ auta
   z karty). S riadkom „Pripravené pre“ bolo kamión 0,089 a dva sety 0,127. Pomôže až formátovanie košíka pred prvým
   vykreslením (nie po data.json).
+
+## 10. Čo ostáva: meranie telefónu 4. 11. 2026 (`50fbd84`, SK)
+iPhone 13 v Chromiu, sieť 1,6 Mb/s + 150 ms, procesor × 4, medián z 3 behov, skript `perf-telefon-ab.mjs` zablokuje vybraný
+skript a zmeria to isté (na webe nič nemení).
+
+| stránka | variant | load s | LCP s | TBT s | prenos kB |
+|---|---|---|---|---|---|
+| titulka | základ | 18,0 | 4,33 | 2,3 | 3 510 |
+| titulka | bez priameho GA (ostane v GTM) | 17,4 | 4,33 | 2,7 | 3 354 |
+| titulka | bez Facebook SDK (nie pixel) | 18,1 | 4,41 | 2,7 | 3 464 |
+| produkt 598 | základ | 17,3 | 3,68 | 2,2 | 3 355 |
+| produkt 598 | bez priameho GA | 16,7 | 3,63 | 2,1 | 3 199 |
+| produkt 598 | bez Facebook SDK | 16,9 | 3,63 | 2,0 | 3 308 |
+| produkt 598 | bez Twitter | 16,7 | 3,64 | 2,2 | 3 246 |
+
+- **Závery:** vypnutie GA, Facebook SDK ani Twitter prvé vykreslenie nezrýchli, každé uberie 2–5 % prenosu a zmena TBT je v šume.
+  Riziko pre meranie a tlačidlá Zdieľať (zamietnuté) za to nestojí. GA počíta `page_view` raz, dvojité načítanie neznamená dvojité dáta.
+- **`content-visibility:auto`** na sekciách titulky pod prvou obrazovkou: LCP aj TBT bez zmeny, nenasadzovať.
+- **Čas procesora na titulke** (× 4): vykresľovanie a štýly 6,2 s, `luxuryCar.js` 1,2 s, jQuery 0,7 s, Google 0,6 s, Facebook 0,1 s.
+- **Čo reálne pomôže:** fotky titulky ako WebP s JPG zálohou (ako obsah 1V, `tools/obrazky-1v-webp.py`): 26 fotiek 2,1 MB → 1,2 MB,
+  bez zmeny vzhľadu. Znamená to úpravu 3 bannerov v admine SK aj CZ. `truck.jpg` je v `#truckBg` roztiahnutý cez `object-fit: cover`
+  (na 390 px efektívne ~1 800 px), `sizes` treba určiť podľa efektívnej šírky, nie podľa šírky rámu.
