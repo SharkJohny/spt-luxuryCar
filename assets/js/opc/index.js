@@ -137,11 +137,15 @@ export function stranka(telo) {
   return null;
 }
 
+/** Udalosti, ktoré idú aj priamo do GA4: GTM lcd_opc_* neposiela ďalej (0 záznamov za 14 dní, kniha § 10.36), bez nich nevidno chyby po spustení. */
+const DO_GA4 = /^lcd_opc_(zobrazenie|prechod|odoslanie|chyba|zachrana)$/;
+
 /** dataLayer udalosti lcd_opc_* (kniha § 6.12). */
-function meraj(udalost, data) {
+export function meraj(udalost, data) {
   try {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(Object.assign({ event: udalost }, data || {}));
+    if (DO_GA4.test(udalost) && typeof window.gtag === "function") window.gtag("event", udalost, Object.assign({ send_to: "GA4" }, data || {}));
   } catch (e) {}
 }
 

@@ -11,11 +11,16 @@
 //     z inline skriptu kroku 2, vymení sa len payment_type. Keď vzor alebo typ chýba: len dataLayer lcd_opc_platba.
 //     Platbu, ktorú session dostala inde (overenie zo servera, prevzatie pri resyncu = iná karta), len zapamätá (zname).
 //   - Fail-closed: čo sa nedá bezpečne prečítať (iný tvar skriptu, 2 výskyty, neplatný JSON), sa neposiela.
-//   - ❓ Meta (fbq InitiateCheckout / AddPaymentInfo, Shoptet FB CAPI): test bez súhlasu s cookies fbq na kroku 1 ani 2
-//     nezachytil -> neriešime naslepo (kniha § 10.6).
+//   - Skok z webu (opc/skok.js): stránka košíka sa nenačíta, chýbal by view_cart -> pošle ho krok 2 z payloadu begin_checkout.
+//   - Meta (živá sonda 4. 11. 2026, kniha § 10.36): Shoptet vkladá fbq("track", …) do HTML podľa poradia načítaní: prvá
+//     stránka po pridaní AddToCart, krok 1 AddPaymentInfo. OPC krok 1 sťahuje na pozadí, skripty v ňom nebežia -> udalosti sa
+//     odložia a pošle ich krok 2 s pôvodným eventID Shoptetu. fbq je na stránke len so súhlasom s cookies, bez neho nič.
 
 export const KLUC_PRESKOCIL = "lcdOpcPreskocilKrok1";
 export const PRESKOCIL_MAX_MS = 60000; // príznak z košíka platí 1 min (krok 2 sa medzitým načíta aj na pomalom telefóne)
+export const KLUC_BEZ_KOSIKA = "lcdOpcBezKosika"; // skok z webu: stránka košíka sa nenačítala
+export const KLUC_META = "lcdOpcMeta"; // udalosti Meta z kroku 1 stiahnutého na pozadí, čakajú na krok 2
+const UDALOSTI_META = /^(AddToCart|InitiateCheckout|AddPaymentInfo)$/;
 
 /** Index konca JSON objektu/poľa od otváracej zátvorky na pozícii i (reťazce s escape) alebo -1. */
 function koniecJson(s, i) {
@@ -69,9 +74,24 @@ export function typPlatby(platba) {
   return String(platba.typ) + "~" + String(platba.nazov);
 }
 
-/** Košík: OPC práve preskakuje krok 1 (volá kosik.js tesne pred prechodom na krok 2). */
-export function oznacPreskocenie(teraz) {
-  try { sessionStorage.setItem(KLUC_PRESKOCIL, String(teraz || Date.now())); } catch (e) {}
+/** Košík a skok z webu: OPC práve preskakuje krok 1 (tesne pred prechodom na krok 2). bezKosika = aj stránku košíka. */
+export function oznacPreskocenie(teraz, bezKosika) {
+  try {
+    sessionStorage.setItem(KLUC_PRESKOCIL, String(teraz || Date.now()));
+    if (bezKosika) sessionStorage.setItem(KLUC_BEZ_KOSIKA, "1");
+    else sessionStorage.removeItem(KLUC_BEZ_KOSIKA);
+  } catch (e) {}
+}
+
+/** Krok 2: prišlo sa skokom z webu, bez stránky košíka? Prečíta sa a hneď zmaže. */
+export function vezmiBezKosika() {
+  try {
+    const v = sessionStorage.getItem(KLUC_BEZ_KOSIKA);
+    sessionStorage.removeItem(KLUC_BEZ_KOSIKA);
+    return v === "1";
+  } catch (e) {
+    return false;
+  }
 }
 
 /** Krok 2: preskočil sa krok 1? Príznak sa prečíta a hneď zmaže (najviac raz); starší ako 1 min neplatí. */
@@ -93,7 +113,11 @@ export function vezmiPreskocenie(teraz) {
  * Späť, …) -> natívny krok 1 poslal begin_checkout sám a krok 2 ho nesmie poslať druhýkrát (volá opc/index.js).
  */
 export function zahodPreskocenie() {
-  try { sessionStorage.removeItem(KLUC_PRESKOCIL); } catch (e) {}
+  try {
+    sessionStorage.removeItem(KLUC_PRESKOCIL);
+    sessionStorage.removeItem(KLUC_BEZ_KOSIKA);
+    sessionStorage.removeItem(KLUC_META);
+  } catch (e) {}
 }
 
 /** window.gtag Shoptetu (inline skript stránky); bez neho nič. -> true = zavolané */
@@ -112,6 +136,63 @@ export function posliBeginCheckout(htmlKroku1, preskocil) {
   if (!preskocil) return false;
   const p = payloadUdalosti(htmlKroku1, "begin_checkout");
   return p ? gtag("event", "begin_checkout", p) : false;
+}
+
+/** view_cart pri skoku z webu (stránka košíka sa nenačítala): rovnaký payload ako begin_checkout, inak by v lieviku chýbal. */
+export function posliViewCart(htmlKroku1, bezKosika) {
+  if (!bezKosika) return false;
+  const p = payloadUdalosti(htmlKroku1, "begin_checkout");
+  return p ? gtag("event", "view_cart", Object.assign({}, p, { content_group: "cart" })) : false;
+}
+
+/** fbq("track", "<meno>", {…}, {"eventID":…}) z HTML stránky -> [[meno, údaje, voľby], …]; čo sa nedá prečítať, vynechá. */
+export function udalostiMeta(html) {
+  const s = String(html || ""), out = [];
+  const re = /fbq\("track",\s*"([A-Za-z]+)",\s*\{/g;
+  let m;
+  while ((m = re.exec(s))) {
+    if (!UDALOSTI_META.test(m[1])) continue;
+    try {
+      const i = m.index + m[0].length - 1, k = koniecJson(s, i);
+      if (k < 0) continue;
+      const v = s.indexOf("{", k + 1), kv = v > -1 && v - k < 5 ? koniecJson(s, v) : -1;
+      if (kv < 0) continue;
+      const volby = JSON.parse(s.slice(v, kv + 1));
+      if (volby.eventID) out.push([m[1], JSON.parse(s.slice(i, k + 1)), volby]);
+    } catch (e) {}
+  }
+  return out;
+}
+
+function citajMeta() {
+  try { return JSON.parse(sessionStorage.getItem(KLUC_META) || "[]"); } catch (e) { return []; }
+}
+
+/** Každá udalosť raz, platí prvé stiahnutie (Shoptet AddToCart vloží len do prvej stránky po pridaní). */
+function spojMeta(a, b) {
+  const out = a.slice();
+  b.forEach(function (u) { if (!out.some(function (x) { return x[0] === u[0]; })) out.push(u); });
+  return out;
+}
+
+/** Krok 1 stiahnutý na pozadí: jeho skripty nebežia, udalosti Meta sa odložia pre krok 2. */
+export function odlozMeta(html) {
+  try {
+    const nove = udalostiMeta(html);
+    if (nove.length) sessionStorage.setItem(KLUC_META, JSON.stringify(spojMeta(citajMeta(), nove)));
+  } catch (e) {}
+}
+
+/** Krok 2: odložené udalosti + z jeho vlastného stiahnutia kroku 1, len keď sa krok 1 preskočil. -> počet poslaných */
+export function posliMeta(htmlKroku1, preskocil) {
+  const zoznam = spojMeta(citajMeta(), preskocil ? udalostiMeta(htmlKroku1) : []);
+  try { sessionStorage.removeItem(KLUC_META); } catch (e) {}
+  if (!preskocil || typeof window.fbq !== "function") return 0;
+  let n = 0;
+  zoznam.forEach(function (u) {
+    try { window.fbq("track", u[0], u[1], u[2]); n++; } catch (e) {}
+  });
+  return n;
 }
 
 /** Text inline skriptu stránky, ktorý volá danú udalosť (krok 2: add_payment_info) | "". */

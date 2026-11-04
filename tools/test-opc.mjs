@@ -82,6 +82,7 @@ async function main() {
   const chybaCdn = new Set(), doplnene = new Set();
   try {
     for (const sirka of a.sirky) for (const m of kroky) {
+      if (SCENARE[m].nacvik && !process.env.LCD_OPC_SPUSTENE) { preskocene++; continue; } // S83: len nácvik spustenia
       if (SCENARE[m].len && SCENARE[m].len !== a.web) {
         if (a.kroky) console.log(`PRESK.  ${String(sirka).padEnd(5)} ${m.padEnd(4)}          len ${SCENARE[m].len.toUpperCase()} (fixtures)`);
         preskocene++;

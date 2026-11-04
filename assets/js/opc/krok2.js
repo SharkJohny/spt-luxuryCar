@@ -87,6 +87,7 @@ export function initKrok2(ctx) {
   ctx.krok2 = k2;
   // krok 1 sa preskočil (príznak z košíka, prečíta sa a zmaže hneď -> begin_checkout najviac raz, aj pri F5)
   const preskocilKrok1 = A.vezmiPreskocenie();
+  const bezKosika = A.vezmiBezKosika();
   if (!form || !box || !tlacidlo) {
     H.classList.remove("lcd-opc", "lcd-opc-caka"); // skorý vzhľad (opc/index.js) späť: dnešný krok 2
     ctx.stav = "krok2-zachrana";
@@ -746,8 +747,12 @@ export function initKrok2(ctx) {
   nacitajKrok1()
     .then(function (r) {
       if (!r.ok) return { ok: false, dovod: "krok1-" + r.typ };
-      // begin_checkout, ktorý by poslal natívny krok 1 (payload z jeho inline skriptu; fail-closed, T9a)
-      try { A.posliBeginCheckout(r.html, preskocilKrok1); } catch (e) {}
+      // merania preskočených stránok (payload z inline skriptu kroku 1; fail-closed, T9a, kniha § 10.36)
+      try {
+        A.posliViewCart(r.html, preskocilKrok1 && bezKosika);
+        A.posliBeginCheckout(r.html, preskocilKrok1);
+        A.posliMeta(r.html, preskocilKrok1);
+      } catch (e) {}
       return krok1Model(r.html);
     })
     .catch(function () { return { ok: false, dovod: "krok1-siet" }; })

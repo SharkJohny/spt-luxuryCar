@@ -3,7 +3,7 @@
 // tools/vloz-lcd-css.py --vystup. Všetko do dočasného priečinka behu, repo ostane nezmenené.
 // esbuild: node_modules/@esbuild/<platforma> (na Windows junction / inštalácia win32-x64), ESBUILD_BINARY_PATH, inak npx.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,10 +50,21 @@ export function pripravBuild({ bezDrop = false } = {}) {
   const prep = ["--bundle", "--format=iife", "--loader:.jsx=jsx", "--minify", "--legal-comments=none", "--log-level=warning"];
   if (!bezDrop) prep.push("--drop:console");
   const casti = {};
-  for (const [vstup, f] of [["assets/js/main.js", "luxuryCar.js"], ["assets/js/truck-konfigurator/cast.jsx", "lcd-truck.js"], ["assets/js/casti/gsap.js", "lcd-gsap.js"],
-    ["assets/js/casti/reels.js", "lcd-reels.js"], ["assets/js/casti/hp.js", "lcd-hp.js"]]) {
-    spusti(e.cmd, [...e.pred, join(KOREN, vstup), ...prep, "--outfile=" + join(tmp, f)], { shell: e.shell, popis: "esbuild " + f, cwd: e.mimoRepa ? tmp : KOREN });
-    casti[f] = readFileSync(join(tmp, f));
+  // LCD_OPC_SPUSTENE=1: nácvik spustenia pre všetkých (kniha § 10.36) — build so SPUSTENE = true, súbor sa hneď vráti
+  const brana = join(KOREN, "assets/js/opc/index.js"), branaText = readFileSync(brana, "utf8");
+  const nacvik = !!process.env.LCD_OPC_SPUSTENE;
+  if (nacvik) {
+    if (!/export const SPUSTENE = false;/.test(branaText)) throw new Error("LCD_OPC_SPUSTENE: v opc/index.js nie je SPUSTENE = false");
+    writeFileSync(brana, branaText.replace("export const SPUSTENE = false;", "export const SPUSTENE = true;"));
+  }
+  try {
+    for (const [vstup, f] of [["assets/js/main.js", "luxuryCar.js"], ["assets/js/truck-konfigurator/cast.jsx", "lcd-truck.js"], ["assets/js/casti/gsap.js", "lcd-gsap.js"],
+      ["assets/js/casti/reels.js", "lcd-reels.js"], ["assets/js/casti/hp.js", "lcd-hp.js"]]) {
+      spusti(e.cmd, [...e.pred, join(KOREN, vstup), ...prep, "--outfile=" + join(tmp, f)], { shell: e.shell, popis: "esbuild " + f, cwd: e.mimoRepa ? tmp : KOREN });
+      casti[f] = readFileSync(join(tmp, f));
+    }
+  } finally {
+    if (nacvik) writeFileSync(brana, branaText);
   }
   const js = casti["luxuryCar.js"];
   delete casti["luxuryCar.js"];

@@ -1669,6 +1669,39 @@ Michal 2. 11. ~20:29 (snímka starého prázdneho košíka Shoptetu cez skrytý 
 - **Bez vyhľadávania (Michal 2. 11. 23:40: „Áno, daj to odtiaľ preč.“):** karta „Hľadáte niečo iné?“ s presunutým formulárom Shoptetu zrušená (JS, texty `hladaj`, CSS `.lcd-prz-hladaj`); formulár Shoptetu ostáva skrytý na pôvodnom mieste, `zrusPrazdny` už nič nepresúva. Vpravo len kontakt. S95 kontroluje, že v bloku nie je formulár ani pole vyhľadávania. Testy SK S95, S1, S60 a CZ S95, S1 (1366 + 390) 10 OK; jednotkové 132 OK (známe časovanie `sync`).
 - **Bez vyhľadávania naživo ✅** `7310eb0` (nad `b8eaf56` s nápisom Ilustračná fotka): SK 00:17:10, CZ 00:17:28 (3. 11.; 0× `b8eaf56`, 2× nová, `lcd-opc-hned` ostal; návrat `b8eaf56`). Kontrola ako nový zákazník (čisté Chromium, PC + iPhone 13, SK aj CZ): bez formulára a poľa vyhľadávania, poradie prazdna/set/hlavna/bok, nápis na fotke kamióna, 7 odkazov 200, obrázky 9/9, bez pretečenia a chýb; Michalov Chrome SK rovnako. Snímky `C:\Users\M\Desktop\claud\WEB\prazdny-kosik\v3-{sk,cz}-{pc,telefon}.png`.
 
+### 10.36 Príprava spustenia pre všetkých (4. 11. 2026)
+
+Michal 4. 11.: „okej pripravuj ale spustime ju az ked budeme mat resetovane limity“. Kód ostáva `SPUSTENE = false`, zapnutie je samostatný krok až na jeho „spusti“.
+
+**Meranie pri preskočených stránkach (živá sonda bez objednávky, `sonda-meranie.mjs`):** Shoptet vkladá `fbq("track", …)` do HTML podľa poradia načítaní: prvá stránka po pridaní `AddToCart`, krok 1 `AddPaymentInfo`, košík pri ďalšej návšteve `InitiateCheckout`. OPC krok 1 sťahuje na pozadí, takže tieto skripty nikdy nebežali a pri skoku z webu chýbal aj `view_cart`.
+- `opc/analytika.js`: `odlozMeta` (krok 1 stiahnutý na pozadí, `sessionStorage.lcdOpcMeta`, každá udalosť raz, platí prvé stiahnutie), `posliMeta` na kroku 2 s pôvodným `eventID` Shoptetu (rovnaký zámok ako `begin_checkout`, po F5 nič), `posliViewCart` len pri skoku z webu (`lcdOpcBezKosika`), payload ako `begin_checkout`, `content_group: "cart"`.
+- `fbq` je na stránke len so súhlasom s cookies (`type="text/plain"`), bez súhlasu sa nič nepošle.
+- `AddToCart` z konfigurátora ide 2× s rôznym pôvodom (JS Shoptetu pri pridaní a inline na prvej stránke), to isté robí dnešný tok.
+
+**Chyby v GA4:** `lcd_opc_*` z dataLayer sa do GA4 nedostali (0 záznamov za 14 dní, GTM ich neposiela), podmienka F5 „bez chyby `lcd_opc_chyba`“ sa nedala merať. `meraj` v `opc/index.js` posiela `lcd_opc_zobrazenie`, `_prechod`, `_odoslanie`, `_chyba` a `_zachrana` aj cez `gtag` (`send_to: "GA4"`). Beží len tam, kde je OPC zapnuté.
+
+**Východisko GA4 za 28 dní do 3. 11. 2026 (používatelia so súhlasom):**
+
+| Udalosť | SK | CZ |
+|---|---|---|
+| add_to_cart | 87 | 53 |
+| view_cart | 91 | 56 |
+| begin_checkout | 37 | 21 |
+| add_shipping_info | 23 | 12 |
+| purchase | 16 (24 udalostí) | 11 (13 udalostí) |
+
+Po spustení porovnávať `view_cart` → `purchase` (SK 17,6 %, CZ 19,6 %). `begin_checkout` po spustení stúpne samo, lebo krok 1 sa preskakuje.
+
+**Nácvik spustenia:** `LCD_OPC_SPUSTENE=1 node tools/test-opc.mjs` zbuildí so `SPUSTENE = true` (súbor `opc/index.js` sa hneď vráti) a do hlavičky dá riadok `admin-html/zahlavie-opc-spustene.html`. S83 (len v nácviku): zákazník bez kódu z košíka aj z webu rovno do pokladne, `?opc=0` a `data.json "opc": false` vrátia dnešný tok a obrazovka „Načítavam…“ nevisí. Scenáre „bez kódu nič“ (S17, S50, S74 a podobné) v nácviku zámerne zlyhajú.
+
+**Postup spustenia (jediná brána, len na Michalovo „spusti“):**
+1. `SPUSTENE = true` v `opc/index.js`, test `S83`, commit, push main, CDN.
+2. SK: HTML kódy sha `<nová>` a na konci Záhlavia nahradiť riadok `zahlavie-opc.html` riadkom `zahlavie-opc-spustene.html` (limit 8 192 znakov). Dôkaz naživo v čistom prehliadači bez kódu.
+3. CZ to isté. Medzi SK a CZ sa dá počkať, sha sa prepína po webe.
+4. Návrat: predchádzajúca sha + pôvodný riadok v Záhlaví. Rýchly vypínač bez nasadenia: `data.json "opc": false`.
+5. Po spustení v GA4 sledovať `lcd_opc_chyba`, `lcd_opc_zachrana` a porovnanie s východiskom hore.
+- Po zapnutí už scenáre „bez kódu“ v `tools/test-opc` platia pre `?opc=0`, treba ich prepísať.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

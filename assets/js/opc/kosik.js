@@ -11,7 +11,7 @@ import { krok1Model } from "./krok1Model.js";
 import { posliStep1, fetchSLimitom, LIMIT_KROK1_MS } from "./sync.js";
 import { TEXTY } from "./texty.js";
 import { upravKroky } from "./vzhlad.js";
-import { oznacPreskocenie } from "./analytika.js";
+import { oznacPreskocenie, odlozMeta } from "./analytika.js";
 import { ulozFotky } from "./polozky.js";
 import * as B from "./banka.js";
 import { jePrazdny, prazdnyKosik } from "./prazdnyKosik.js";
@@ -102,7 +102,7 @@ export function stiahniModelKrok1() {
       if (r.chyba) return { ok: false, dovod: r.chyba }; // visiaca sieť: klik nesmie čakať donekonečna (R5)
       // prázdny košík / vypršaná session: Shoptet presmeruje na /kosik/ -> nie je čo vybrať
       if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, dovod: "stranka" };
-      return r.text().then(function (h) { return krok1Model(h); });
+      return r.text().then(function (h) { odlozMeta(h); return krok1Model(h); });
     })
     .then(function (m) {
       // rýchla platba cez banku v session: zoznam bánk na kód banky pre Step1Validate (len vtedy)

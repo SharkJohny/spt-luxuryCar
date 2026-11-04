@@ -113,7 +113,7 @@ export function initSkok(ctx) {
         clearTimeout(poistka);
         ctx.stav = "web-na-krok2";
         ctx.meraj("lcd_opc_prechod", { lcd_opc_platba: r.platba, lcd_opc_ms: Date.now() - t0, lcd_opc_miesto: "web" });
-        oznacPreskocenie(); // krok 1 sa nenačíta -> begin_checkout pošle krok 2 (opc/analytika.js, T9a)
+        oznacPreskocenie(0, true); // krok 1 ani košík sa nenačítajú -> merania pošle krok 2 (opc/analytika.js, T9a)
         location.assign(r.ciel);
         // prechod zastavený (napr. „Zastaviť“ v Safari) -> po chvíli obrazovka preč a košík sa dá kliknúť znova
         setTimeout(function () { bezi = false; zrusSkok(document); ctx.stav = "web"; }, SKOK_MAX_MS);

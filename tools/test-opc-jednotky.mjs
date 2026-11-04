@@ -674,6 +674,60 @@ t("analytika: príznak preskočeného kroku 1 platí raz a len čerstvý; begin_
     eq(A.posliBeginCheckout(fx("sk/krok1.html"), true), false, "bez gtag");
   } finally { delete window.gtag; sessionStorage.clear(); }
 });
+t("analytika: Meta z preskočených stránok (AddToCart z 1. stiahnutia, AddPaymentInfo), raz, s eventID; bez súhlasu nič", () => {
+  const krok1a = 'fbq("track", "PageView", {}, {"eventID":"e1"}); fbq("track", "AddToCart", {"value":"4.07","contents":[{"id":"a}b"}]}, {"eventID":"e1"});';
+  const krok1b = 'fbq("track", "PageView", {}, {"eventID":"e2"}); fbq("track", "AddPaymentInfo", {"value":"4.07"}, {"eventID":"e2"});';
+  eq(A.udalostiMeta(krok1a), [["AddToCart", { value: "4.07", contents: [{ id: "a}b" }] }, { eventID: "e1" }]], "PageView sa neprenáša");
+  eq(A.udalostiMeta(fx("sk/krok1.html")).map((u) => u[0]), ["AddPaymentInfo"], "skutočný krok 1");
+  eq(A.udalostiMeta('fbq("track", "AddToCart", {"value":1}, nieJson);'), [], "bez eventID sa neposiela");
+  eq(A.udalostiMeta("<html></html>"), []);
+  const volania = [];
+  window.fbq = function () { volania.push([...arguments]); };
+  try {
+    sessionStorage.clear();
+    A.odlozMeta(krok1a);
+    A.odlozMeta(krok1b);
+    eq(A.posliMeta(krok1b, true), 2, "dve udalosti");
+    eq(volania.map((v) => [v[1], v[3].eventID]), [["AddToCart", "e1"], ["AddPaymentInfo", "e2"]], "AddPaymentInfo len raz, s pôvodným eventID");
+    eq(A.posliMeta(krok1b, false), 0, "krok 1 sa nepreskočil (napr. F5) -> nič");
+    eq(volania.length, 2);
+    A.odlozMeta(krok1a);
+    eq(A.posliMeta("", false), 0, "bez preskočenia");
+    eq(sessionStorage.getItem(A.KLUC_META), null, "odložené zmazané aj bez poslania");
+    delete window.fbq;
+    A.odlozMeta(krok1a);
+    eq(A.posliMeta(krok1b, true), 0, "bez súhlasu fbq nie je");
+    eq(sessionStorage.getItem(A.KLUC_META), null);
+  } finally { delete window.fbq; sessionStorage.clear(); }
+});
+t("analytika: chyby a záchrana idú aj priamo do GA4 (GTM lcd_opc_* neposiela), klik doplnku a platba len do dataLayer", () => {
+  const volania = [];
+  window.gtag = function () { volania.push([...arguments]); };
+  try {
+    B.meraj("lcd_opc_chyba", { lcd_opc_typ: "krok1", lcd_opc_kod: 500 });
+    B.meraj("lcd_opc_platba", { lcd_opc_platba: "5" });
+    eq(volania, [["event", "lcd_opc_chyba", { send_to: "GA4", lcd_opc_typ: "krok1", lcd_opc_kod: 500 }]]);
+    delete window.gtag;
+    B.meraj("lcd_opc_chyba", {}); // bez gtag ticho len dataLayer
+    eq(window.dataLayer.filter((x) => x.event === "lcd_opc_chyba").length, 2);
+  } finally { delete window.gtag; }
+});
+t("analytika: view_cart z kroku 1 len pri skoku z webu (stránka košíka sa nenačítala)", () => {
+  const volania = [];
+  window.gtag = function () { volania.push([...arguments]); };
+  try {
+    sessionStorage.clear();
+    A.oznacPreskocenie(1000, true);
+    eq([A.vezmiBezKosika(), A.vezmiBezKosika()], [true, false], "raz");
+    A.oznacPreskocenie(1000);
+    eq(A.vezmiBezKosika(), false, "z košíka");
+    eq(A.posliViewCart(fx("sk/krok1.html"), false), false);
+    eq(A.posliViewCart("<html></html>", true), false, "bez vzoru nič");
+    eq(A.posliViewCart(fx("sk/krok1.html"), true), true);
+    eq(volania.map((v) => v.slice(0, 2).join(" ")), ["event view_cart"]);
+    eq([volania[0][2].content_group, volania[0][2].items.length > 0, volania[0][2].currency], ["cart", true, "EUR"]);
+  } finally { delete window.gtag; sessionStorage.clear(); }
+});
 t("analytika: príznak preskočenia zmaže každá stránka s OPC okrem kroku 2 (napr. natívny krok 1); bez OPC sa nič nemení", () => {
   const telo = document.body.className;
   try {
@@ -681,10 +735,12 @@ t("analytika: príznak preskočenia zmaže každá stránka s OPC okrem kroku 2 
       sessionStorage.clear();
       if (opc) sessionStorage.setItem("lcdOpc", opc);
       sessionStorage.setItem(A.KLUC_PRESKOCIL, String(Date.now()));
+      sessionStorage.setItem(A.KLUC_META, "[]");
       document.body.className = trieda;
       delete window.__lcdOpc;
       B.initOpc({});
       eq(sessionStorage.getItem(A.KLUC_PRESKOCIL) !== null, ostane, trieda + " (lcdOpc=" + opc + ")");
+      eq(sessionStorage.getItem(A.KLUC_META) !== null, ostane, "odložené Meta: " + trieda + " (lcdOpc=" + opc + ")");
     }
   } finally { document.body.className = telo; sessionStorage.clear(); delete window.__lcdOpc; }
 });

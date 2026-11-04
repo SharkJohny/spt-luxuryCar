@@ -30,6 +30,8 @@
 //   S72 z webu, krok 1 na pozadí zlyhá (500) -> /kosik/ ako doteraz (tam záchrana na krok 1)
 //   S73 konfigurátor po „Do košíka“ (window.__lcdDoKosika) -> rovno krok 2 bez košíka
 //   S74 bez kódu (?opc=0) -> odkaz na /kosik/ natívne, window.__lcdDoKosika nie je
+//   S82 skok z webu meranie nestratí: view_cart, begin_checkout a Meta z preskočených stránok po 1×, po F5 nič
+//   S83 nácvik spustenia pre všetkých, len s LCD_OPC_SPUSTENE=1 (bez kódu rovno do pokladne, ?opc=0, vypínač v data.json)
 //   S75 košík počas preskoku: obsah košíka nevidno celý (opacity 0) — ani − + a fotka (Michal 1. 11. 2026, iPhone)
 //   S90 (Michal 2. 11. 2026) kamión v karte: rekapitulácia ako pri autách — hneď Vozidlo a „Typ a farba materiálu“,
 //       ostatné po „Zobraziť viac“ (aj tapacír); s tapacírom žiadna ponuka
@@ -42,6 +44,7 @@
 //       nesťahuje, bez chyby v dataLayer, nič nepreteká 320–1920 px, písmo ≥ 14 px, žiadne zakázané slová; „opc“: false
 //       blok nechá; vypínač data.json „prazdny_kosik“: false -> stránka Shoptetu späť (s kódom aj bez); bez bundla starý
 //       obsah Shoptetu skrytý (nepreblikne) a po 3 s sa ukáže sám
+import { FLAG_OPC } from "./pomocnik.mjs";
 import { KOSIK, KROK2, ZAKAZNIK, cakajOpc, vyplnUdaje, suhlas, objednaj, overTeloObjednavky, step1Xhr, over, pauza, OPC } from "./krok2-pomoc.mjs";
 import { klikObjednat } from "./scenare-spravanie.mjs";
 import { KAMION } from "./scenare-kosiky.mjs";
@@ -550,6 +553,77 @@ export const SCENARE = {
       const d = s.dokumenty().slice(nav);
       over(d.length >= 1 && /GET \/objednavka\/krok-1\//.test(d[0]), "po zlyhaní zmeny krajiny: " + d.join(", "));
       return { info: d.join(", ") };
+    },
+  },
+  S82: {
+    len: "sk",
+    popis: "Jedna stránka z webu: skok meranie nestratí — view_cart, begin_checkout (GA4) a AddPaymentInfo (Meta, s eventID Shoptetu) na kroku 2 po 1×, F5 už nič",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR, skript: `window.fbq = function () { (window.__lcdTestFb = window.__lcdTestFb || []).push([].slice.call(arguments)); };` });
+      const pred = await naWeb(s);
+      await s.klikni("#lcd-test-do-kosika", { popis: "Do košíka" });
+      await poKliku(s, pred);
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 po skoku");
+      const meranie = `(function () { return { ga: [].filter.call(window.dataLayer || [], function (x) { return x && x[0] === "event"; }).map(function (x) { return x[1]; }),
+        fb: (window.__lcdTestFb || []).map(function (x) { return [x[1], !!(x[3] && x[3].eventID)]; }) }; })()`;
+      const m = await s.ev(meranie);
+      const pocet = (u) => m.ga.filter((x) => x === u).length;
+      over(pocet("view_cart") === 1 && pocet("begin_checkout") === 1 && pocet("lcd_opc_zobrazenie") === 1, "GA4 po skoku: " + JSON.stringify(m.ga));
+      over(JSON.stringify(m.fb) === '[["AddPaymentInfo",true]]', "Meta po skoku: " + JSON.stringify(m.fb));
+      await s.chod("/objednavka/krok-2/", { popis: "F5 v pokladni" });
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 po F5");
+      const f5 = await s.ev(meranie);
+      over(!f5.ga.includes("view_cart") && !f5.ga.includes("begin_checkout") && !f5.fb.length, "po F5 sa meranie zopakovalo: " + JSON.stringify(f5));
+      return { info: "GA4 " + m.ga.join(",") + " | Meta " + m.fb.map((x) => x[0]).join(",") };
+    },
+  },
+  S83: {
+    len: "sk",
+    nacvik: true,
+    popis: "Nácvik spustenia (LCD_OPC_SPUSTENE=1): zákazník bez kódu a bez flagu ide z košíka aj z webu rovno do pokladne pod obrazovkou „Načítavam…“; ?opc=0 a vypínač v data.json vrátia dnešný tok bez visiacej obrazovky",
+    async fn(J) {
+      const casti = [];
+      const hned = (s) => s.ev(`({ priBody: window.__lcdTestPriBody ? window.__lcdTestPriBody.c : null, teraz: document.documentElement.className })`);
+      // a) bez flagu: /kosik/ -> rovno krok 2
+      let s = await J.novaStranka({ kosik: "set", bezOpc: true, scenar: Object.assign({ hlavicka: true }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK);
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 bez kódu");
+      let st = await s.ev(`({ cesta: location.pathname, stav: window.__lcdOpc.stav, karta: !!document.querySelector("${KARTA} .lcd-opc-kk__polozka"), flag: ${FLAG_OPC} })`);
+      over(st.cesta === KROK2 && st.stav === "krok2-potvrdene" && st.karta && st.flag === null, "bez flagu: " + JSON.stringify(st));
+      let h = await hned(s);
+      over(/lcd-opc-hned/.test(h.priBody || "") && !/lcd-opc-hned/.test(h.teraz), "bez flagu obrazovka hneď: " + JSON.stringify(h));
+      casti.push("košík -> krok 2");
+      // b) z webu klik na košík -> krok 2, stránka košíka sa nenačíta
+      await s.k.chod(s.W.base + "/lcd-test-web/");
+      await s.cakaj(`!!document.getElementById("lcd-test-do-kosika")`, { popis: "stránka webu" });
+      await cakajOpc(s, /^web$/, "web");
+      const pred = { nav: s.dokumenty().length, step1: step1Xhr(s).length };
+      await s.klikni("#lcd-test-do-kosika", { popis: "Do košíka" });
+      const d = await poKliku(s, pred);
+      over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "z webu: " + d.join(", "));
+      casti.push("web -> krok 2");
+      await s.zavri();
+      // c) ?opc=0: v tomto prehliadači dnešný tok, flag "0", obrazovka sa neukáže ani na ďalšej stránke
+      s = await J.novaStranka({ kosik: "set", bezOpc: true, scenar: Object.assign({ hlavicka: true }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK + "?opc=0");
+      await pauza(1500);
+      await s.k.chod(s.W.base + KOSIK);
+      await pauza(1500);
+      st = await s.ev(`({ cesta: location.pathname, flag: ${FLAG_OPC}, opc: !!window.__lcdOpc, c: document.documentElement.className })`);
+      h = await hned(s);
+      over(st.cesta === KOSIK && st.flag === "0" && !/lcd-opc/.test(h.priBody || "") && !/lcd-opc-hned/.test(st.c), "?opc=0: " + JSON.stringify([st, h]));
+      casti.push("?opc=0 dnešný košík");
+      await s.zavri();
+      // d) núdzový vypínač v data.json: dnešný košík, obrazovka z hlavičky nevisí
+      s = await J.novaStranka({ kosik: "set", bezOpc: true, scenar: Object.assign({ hlavicka: true, dataJson: { opc: false } }, SCENAR) });
+      await s.k.chod(s.W.base + KOSIK);
+      await s.cakaj(`document.readyState === "complete"`, { popis: "košík s vypínačom" });
+      await pauza(2000);
+      st = await s.ev(`({ cesta: location.pathname, c: document.documentElement.className, tlacidlo: !!document.getElementById("continue-order-button") })`);
+      over(st.cesta === KOSIK && st.tlacidlo && !/lcd-opc-(hned|prechadzam|kosik)/.test(st.c), "vypínač: " + JSON.stringify(st));
+      casti.push("vypínač dnešný košík");
+      await s.zavri();
+      return { info: casti.join(" | ") };
     },
   },
   S80: {

@@ -701,7 +701,8 @@ function s42Obsah(m, kosik, T, popis, priplatky) {
     if (r.kamion.length) {
       const hodnoty = String(m.truck).split("\n").map((l) => /^- [^:]+:\s*(.+)$/.exec(l)).filter(Boolean).map((x) => x[1]);
       over(hodnoty.length > 0, kde + ": pri kamióne chýba truckOrderSummary pre poznámku");
-      hodnoty.forEach((h) => slova(h).forEach((w) => over(text.includes(w), kde + ": v detaile chýba „" + w + "“ z poznámky kamióna „" + h + "“")));
+      // „(TIR)“ je len interné označenie: poznámka pre export ho má, karta zámerne nie (a97c0f5, vozidlo ako v konfigurátore)
+      hodnoty.forEach((h) => slova(h).filter((w) => w !== "TIR").forEach((w) => over(text.includes(w), kde + ": v detaile chýba „" + w + "“ z poznámky kamióna „" + h + "“")));
       if (priplatky) s42KamionVsPriplatky(text, priplatky, kde);
     }
     over(!/DPH|Pripraven[ée] pre|ekok|eko-k/i.test(text), kde + ": zakázané slovo v detaile: " + text.slice(0, 160));

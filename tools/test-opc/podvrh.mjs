@@ -451,7 +451,7 @@ function suhrnSynteticky(web, zaklad, krok1, platba) {
  * scenar: { step1: "303"|"500"|"limit"|"neplatne", krok1: "ok"|"500"|"zmenene", dataJson: {…}, csrf: false, dataJsonMs: 0, krok1Ms: 0 }
  */
 /** Riadok OPC zo Záhlavia HTML kódov presne ako v admine (bez komentára). */
-const RIADOK_OPC = readFileSync(new URL("../../admin-html/zahlavie-opc.html", import.meta.url), "utf8").split(String.fromCharCode(10)).map((r) => r.trim()).find((r) => r.startsWith("<script>"));
+const RIADOK_OPC = readFileSync(new URL(process.env.LCD_OPC_SPUSTENE ? "../../admin-html/zahlavie-opc-spustene.html" : "../../admin-html/zahlavie-opc.html", import.meta.url), "utf8").split(String.fromCharCode(10)).map((r) => r.trim()).find((r) => r.startsWith("<script>"));
 export async function zapniPodvrh(k, moznosti) {
   const W = WEBY[moznosti.web];
   const p = {
