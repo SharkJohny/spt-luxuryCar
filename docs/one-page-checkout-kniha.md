@@ -1678,7 +1678,23 @@ Michal 4. 11.: „okej pripravuj ale spustime ju az ked budeme mat resetovane li
 - `fbq` je na stránke len so súhlasom s cookies (`type="text/plain"`), bez súhlasu sa nič nepošle.
 - `AddToCart` z konfigurátora ide 2× s rôznym pôvodom (JS Shoptetu pri pridaní a inline na prvej stránke), to isté robí dnešný tok.
 
-**Chyby v GA4:** `lcd_opc_*` z dataLayer sa do GA4 nedostali (0 záznamov za 14 dní, GTM ich neposiela), podmienka F5 „bez chyby `lcd_opc_chyba`“ sa nedala merať. `meraj` v `opc/index.js` posiela `lcd_opc_zobrazenie`, `_prechod`, `_odoslanie`, `_chyba` a `_zachrana` aj cez `gtag` (`send_to: "GA4"`). Beží len tam, kde je OPC zapnuté.
+**Chyby v GA4:** `lcd_opc_*` z dataLayer sa do GA4 nedostali (0 záznamov za 14 dní, GTM ich neposiela), podmienka F5 „bez chyby `lcd_opc_chyba`“ sa nedala merať. `meraj` v `opc/index.js` posiela `lcd_opc_zobrazenie`, `_prechod`, `_odoslanie`, `_chyba` a `_zachrana` aj cez `gtag` (`send_to: "GA4"`). Typ je v názve udalosti (`lcd_opc_chyba_krok1_siet`, `lcd_opc_zachrana_nezhoda`, najviac 40 znakov), aby ho bolo vidno v GA4 bez registrácie vlastných rozmerov. Prázdne pole formulára (`lcd_opc_typ: "pole"`) nie je porucha a do GA4 nejde. Beží len tam, kde je OPC zapnuté.
+
+**Nezávislá kontrola kódu pred spustením (4. 11. 2026), overené červeným testom a opravené:**
+- **Slučka košík → krok 1 → košík (S84):** keď Shoptet krok 1 vráti na `/kosik/` (nedostupná položka), košík sa preskakoval dokola pod „Načítavam…“. Po zlyhanom preskočení sa zapíše `KLUC_BEZ_KARTY`, takže košík sa v tejto karte 30 minút nepreskakuje a zákazník vidí košík s hláškou Shoptetu.
+- **Zastavený prenos tela odpovede (S86):** limit 4 s platil len po hlavičky, `r.text()` mohol visieť a „Pokračovať“ ostalo zamknuté. `textSLimitom` v `opc/sync.js`.
+- **data.json neprichádza (S85):** plný košík sa skrýval 10 s. Teraz najviac 3 s (`KOSIK_LIMIT_MS`), ako krok 2.
+- **Záznam ďakovnej stránky:** bol určený pre skúšobné objednávky, po spustení by každému zákazníkovi ostalo v localStorage HTML objednávky. Ukladá sa len s flagom „1“ (tajný odkaz).
+- **Meta:** `posliMeta` ešte 3× počká na `fbq` (zapína ho Shoptet po načítaní stránky).
+
+**Overené bez zmeny kódu:**
+- `data.json "opc": false` naživo v skúšobnom prehliadači (podvrhnutý data.json, SK aj CZ): dnešný košík, krok 1, žiadna visiaca obrazovka. Súbor je spoločný pre SK aj CZ, vypnúť len jeden trh sa ním nedá, na to slúži prepnutie sha.
+- Meta: všetky aktívne reklamy s konverziou optimalizujú na `PURCHASE` (SK pixel 523105778965103, CZ 6837354256303776), nafúknutie `AddPaymentInfo` ich neovplyvní.
+- GA4 kľúčové udalosti: `purchase` a `ads_conversion_Formul_r_1` (konverzia Google Ads „Formulár“, 74 za 28 dní). ⚠️ Polovica z nej vzniká odoslaním formulára na kroku 1 (35 z 74), ten sa po spustení neodosiela, takže klesne približne o polovicu. ❓ Michal: skontrolovať v Google Ads, že kampane nestavajú na tejto konverzii (audit 4/2026: primárna je Purchase).
+- Hlavičky aplikácií Facebook a Instagram (len User-Agent, nie skutočná aplikácia): 11/11 OK.
+- Darčeková poukážka je v Shoptete skrytá (404), doplnok kupónov nie je aktívny. Po jej zapnutí treba v pokladni pole na kód, košík sa preskakuje.
+
+**Nedá sa overiť bez Michala:** skúšobné objednávky karta a dobierka (SK), prevod a karta (CZ) a ďakovná stránka CZ naživo (F4, F6). Karta: natívny krok 1 volá `getShoptetPayStatus`, OPC nie (T15, ❓ či to brána potrebuje). Prihlásený zákazník.
 
 **Východisko GA4 za 28 dní do 3. 11. 2026 (používatelia so súhlasom):**
 
@@ -1695,6 +1711,7 @@ Po spustení porovnávať `view_cart` → `purchase` (SK 17,6 %, CZ 19,6 %). `be
 **Nácvik spustenia:** `LCD_OPC_SPUSTENE=1 node tools/test-opc.mjs` zbuildí so `SPUSTENE = true` (súbor `opc/index.js` sa hneď vráti) a do hlavičky dá riadok `admin-html/zahlavie-opc-spustene.html`. S83 (len v nácviku): zákazník bez kódu z košíka aj z webu rovno do pokladne, `?opc=0` a `data.json "opc": false` vrátia dnešný tok a obrazovka „Načítavam…“ nevisí. Scenáre „bez kódu nič“ (S17, S50, S74 a podobné) v nácviku zámerne zlyhajú.
 
 **Postup spustenia (jediná brána, len na Michalovo „spusti“):**
+0. Michal: skúšobné objednávky (karta, dobierka SK; prevod, karta CZ), kontrola konverzie „Formulár“ v Google Ads, rozhodnutie o VOP (body 3.3.4 a 3.3.5 opisujú dva kroky).
 1. `SPUSTENE = true` v `opc/index.js`, test `S83`, commit, push main, CDN.
 2. SK: HTML kódy sha `<nová>` a na konci Záhlavia nahradiť riadok `zahlavie-opc.html` riadkom `zahlavie-opc-spustene.html` (limit 8 192 znakov). Dôkaz naživo v čistom prehliadači bez kódu.
 3. CZ to isté. Medzi SK a CZ sa dá počkať, sha sa prepína po webe.
