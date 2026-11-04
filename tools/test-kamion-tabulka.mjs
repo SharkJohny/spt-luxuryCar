@@ -1,4 +1,4 @@
-// Kamióny z Google tabuľky (listy kamiony a kamionycs v data.json): rovnaký zoznam ako v kóde, nový kamión sa objaví,
+// Kamióny z Google tabuľky (taby kamiony a kamionycs, v data.json ako settings.kamiony a settings.kamionycs): rovnaký zoznam ako v kóde, nový kamión sa objaví,
 // pokazený list web ignoruje a ostane pri zozname z kódu. Poznámka objednávky má formát aj jazyk ako doteraz.
 import { TRUCK_VEHICLES, TRUCK_FIELD_ORDER } from "../assets/js/truck-konfigurator/truck-brands.js";
 import { buildTruckOrderSummary, vozidloCs, vybavaCs, nastavPrekladyKamionov } from "../assets/js/truck-konfigurator/order-summary.mjs";
@@ -29,6 +29,9 @@ function riadky(jazyk) {
   return out;
 }
 const kopia = (x) => JSON.parse(J(x));
+/** Tab tak, ako ho spojí vzorec v settings a pošle skript do data.json. */
+const bunkaSettings = (r) => r.map((x) => x.slice(0, 8).join("\t")).join("\n");
+const data = (sk, cs) => ({ settings: { kamiony: bunkaSettings(sk), kamionycs: bunkaSettings(cs) } });
 
 // 1) dnešné listy = zoznam v kóde, vrátane poradia
 const dnes = nacitajKamiony(riadky("sk"), riadky("cs"));
@@ -74,8 +77,9 @@ const zaloha = { warn: console.warn };
 let varovania = 0;
 console.warn = () => { varovania++; };
 over("bez listov", kamionyZDat({ cars: {} }) === false && D.VOZIDLA === TRUCK_VEHICLES && varovania === 0, "varovaní " + varovania);
-over("pokazený list", kamionyZDat({ kamiony: riadky("sk"), kamionycs: [] }) === false && D.VOZIDLA === TRUCK_VEHICLES && varovania === 1, "varovaní " + varovania);
+over("pokazený list", kamionyZDat({ settings: { kamiony: bunkaSettings(riadky("sk")), kamionycs: "" } }) === false && D.VOZIDLA === TRUCK_VEHICLES && varovania === 1, "varovaní " + varovania);
 over("nič na vstupe", kamionyZDat(null) === false && kamionyZDat(undefined) === false);
+over("chýba český tab", kamionyZDat({ settings: { kamiony: bunkaSettings(riadky("sk")) } }) === false && D.VOZIDLA === TRUCK_VEHICLES && varovania === 2, "varovaní " + varovania);
 console.warn = zaloha.warn;
 
 // 5) nový kamión z tabuľky: je v konfigurátore, na titulke aj v preklade, kódový zoznam sa nemení
@@ -83,7 +87,7 @@ console.warn = zaloha.warn;
   const sk = kopia(riadky("sk")), cs = kopia(riadky("cs"));
   sk.push(["Scania", "TIR", "G 2010-2016 – nízka kabína", "Automatická prevodovka; Robotizovaná prevodovka", "", "", "", "", "", ""]);
   cs.push(["Scania", "TIR", "G 2010-2016 – nízká kabina", "Automatická převodovka; Robotizovaná převodovka", "", "", "", "", "", ""]);
-  over("načítané", kamionyZDat({ kamiony: sk, kamionycs: cs }) === true);
+  over("načítané", kamionyZDat(data(sk, cs)) === true);
   const scania = D.ZNACKY.find((z) => z.kluc === "Scania (TIR)");
   const novy = scania.modely.find((m) => m.nazov === "G 2010-2016 – nízka kabína");
   over("nový model v ZNACKY", novy && J(novy.polia.prevodovka) === J(["Automatická prevodovka", "Robotizovaná prevodovka"]), J(novy));
@@ -99,7 +103,8 @@ console.warn = zaloha.warn;
   const pozn = buildTruckOrderSummary({ znacka: "Scania (TIR)", model: "G 2010-2016 – nízka kabína", extras: { prevodovka: "Robotizovaná prevodovka" }, selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" }, selectedLemovanie: { code: "04" } }, "cs");
   over("CZ poznámka bez zmeny", /Vozidlo: Scania \(TIR\) G 2010-2016 – nízka kabína/.test(pozn) && /Typ převodovky: Robotizovaná prevodovka/.test(pozn), pozn);
   // znovu dnešné listy: stav sa nevrství
-  over("návrat na dnešné listy", kamionyZDat({ kamiony: riadky("sk"), kamionycs: riadky("cs") }) === true && J(D.VOZIDLA) === J(TRUCK_VEHICLES));
+  over("čiarka na konci bunky", kamionyZDat({ settings: { kamiony: bunkaSettings(riadky("sk")) + ",", kamionycs: bunkaSettings(riadky("cs")) + ",," } }) === true && J(D.VOZIDLA) === J(TRUCK_VEHICLES));
+  over("návrat na dnešné listy", kamionyZDat(data(riadky("sk"), riadky("cs"))) === true && J(D.VOZIDLA) === J(TRUCK_VEHICLES));
   over("preklad nového modelu preč", vozidloCs("Scania (TIR) G 2010-2016 – nízka kabína") === "Scania (TIR) G 2010-2016 – nízka kabína");
 }
 

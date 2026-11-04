@@ -1,6 +1,7 @@
-// Zoznam kamiónov z Google tabuľky: listy kamiony (SK) a kamionycs (CZ), ktoré Jánov skript publikuje do data.json ako riadky
-// (setupData.kamiony, setupData.kamionycs). Riadok N je v oboch listoch ten istý kamión. Stĺpce: Značka, Typ (TIR / dodávka),
-// Model a roky, Prevodovka, Sedadlo, Zásuvky, Brzda, Podlaha; viac možností v bunke oddeľuje bodkočiarka.
+// Zoznam kamiónov z Google tabuľky: taby kamiony (SK) a kamionycs (CZ). Vzorec v tabe settings (riadky kamiony, kamionycs) spojí
+// tab do jednej bunky a tá ide do data.json ako setupData.settings.kamiony / kamionycs: riadky oddelené \n, bunky \t.
+// Riadok N je v oboch taboch ten istý kamión. Stĺpce: Značka, Typ (TIR / dodávka), Model a roky, Prevodovka, Sedadlo, Zásuvky,
+// Brzda, Podlaha; viac možností v bunke oddeľuje bodkočiarka.
 // Slovenské texty ostávajú kľúče (poznámka objednávky, príplatky), český list dáva len preklady na CZ.
 // Čokoľvek v liste nesedí -> celý list sa ignoruje a web ide zo zoznamu v kóde (truck-brands.js). Starý React (?novy=0) ide vždy z kódu.
 import { TRUCK_FIELD_ORDER } from "../../../truck-konfigurator/truck-brands.js";
@@ -53,11 +54,14 @@ export function nacitajKamiony(riadkySk, riadkyCs) {
   return { vozidla, modelyCs, vybavaCs };
 }
 
-/** main.js hneď po načítaní data.json. true = web ide z tabuľky, false = zo zoznamu v kóde (listy nie sú alebo nesedia). */
+/** Bunka z data.json -> riadky tabu; skript spája stĺpce settings čiarkou, preto môže byť čiarka na konci. */
+const riadkyTabu = (t) => (typeof t === "string" ? t.replace(/[,\s]+$/, "").split("\n").map((r) => r.split("\t")) : null);
+
+/** main.js hneď po načítaní data.json. true = web ide z tabuľky, false = zo zoznamu v kóde (taby nie sú alebo nesedia). */
 export function kamionyZDat(setupData) {
-  const d = setupData || {};
-  if (d.kamiony === undefined && d.kamionycs === undefined) return false;
-  const v = nacitajKamiony(d.kamiony, d.kamionycs);
+  const s = (setupData && setupData.settings) || {};
+  if (s.kamiony === undefined && s.kamionycs === undefined) return false;
+  const v = nacitajKamiony(riadkyTabu(s.kamiony), riadkyTabu(s.kamionycs));
   if (!v.vozidla) {
     console.warn("[kamiony] tabuľka sa nepoužila: " + v.chyba);
     return false;
