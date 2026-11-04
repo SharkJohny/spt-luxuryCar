@@ -31,6 +31,8 @@ const fnSrc = mainSrc.slice(start, end);
 
 const entry = `
 import { TRUCK_BRANDS, TRUCK_FIELD_ORDER, TRUCK_PRODUCT_URLS, TRUCK_VEHICLES } from "${join(REPO, "assets/js/truck-konfigurator/truck-brands.js").split("\\").join("/")}";
+import { VOZIDLA } from "${join(REPO, "assets/js/components/konfigurator1v/kamion/data.js").split("\\").join("/")}";
+import { vozidloCs, vybavaCs } from "${join(REPO, "assets/js/truck-konfigurator/order-summary.mjs").split("\\").join("/")}";
 ${fnSrc}
 window.__initVehicleKindSwitch = initVehicleKindSwitch;
 window.__TRUCK_BRANDS = TRUCK_BRANDS;

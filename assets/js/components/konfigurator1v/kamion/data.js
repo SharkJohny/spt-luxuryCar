@@ -79,6 +79,9 @@ export const NITE = [["2999","Čierna","#2a2a2a"],["2901","Strieborná","#b0b0b0
 export const POLIA = {"prevodovka":{"label":"Typ prevodovky","placeholder":"Vyberte typ prevodovky..."},"sedadlo":{"label":"Typ sedadla spolujazdca","placeholder":"Vyberte typ sedadla spolujazdca..."},"zasuvky":{"label":"Počet zásuviek (šuplíkov)","placeholder":"Vyberte počet zásuviek (šuplíkov)..."},"brzda":{"label":"Typ parkovacej (ručnej) brzdy","placeholder":"Vyberte typ parkovacej (ručnej) brzdy..."},"podlaha":{"label":"Typ podlahy","placeholder":"Vyberte typ podlahy..."}};
 export const PORADIE_POLI = TRUCK_FIELD_ORDER;
 
+/** Vozidlá, ktoré web práve ponúka: z kódu, alebo z Google tabuľky (kamion/tabulka.js, po načítaní data.json). */
+export let VOZIDLA = TRUCK_VEHICLES;
+
 /** Kamión s tapacírom dverí = „(TIR)“ v kľúči značky (gen.jsx doorUpholsteryAvailable). */
 export const jeTir = (kluc) => /\(TIR\)/i.test(kluc || "");
 
@@ -107,4 +110,10 @@ export function znacky(vozidla) {
     };
   });
 }
-export const ZNACKY = znacky();
+export let ZNACKY = znacky();
+
+/** Vymení ponuku vozidiel. Beží pred postavením konfigurátora aj titulky, všetci čítajú VOZIDLA a ZNACKY až potom. */
+export function nastavVozidla(vozidla) {
+  VOZIDLA = vozidla;
+  ZNACKY = znacky(vozidla);
+}

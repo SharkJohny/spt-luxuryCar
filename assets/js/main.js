@@ -29,13 +29,10 @@ import "./lcdLang.js"; // Prepinac jazyka vo vlajke (ponuka namiesto okamziteho 
 import "./lcdBlog.js"; // Novy blog: zoznam /blog/ a detail clanku (nahlad ?blogv2=1)
 import "./lcdPoukazka.js"; // Darcekova poukazka: stranka podla navrhu (nacita assets/poukazka/*)
 import "./lcdKosikPanel.js"; // Panel kosika (ikona v hlavicke): hlavicka karty, sucet, clona, poloha pod hlavickou
-import { mergeTruckOrderSummaryIntoNote } from "./truck-konfigurator/order-summary.mjs";
-import {
-  TRUCK_BRANDS,
-  TRUCK_FIELD_ORDER,
-  TRUCK_PRODUCT_URLS,
-  TRUCK_VEHICLES,
-} from "./truck-konfigurator/truck-brands.js";
+import { mergeTruckOrderSummaryIntoNote, vozidloCs, vybavaCs } from "./truck-konfigurator/order-summary.mjs";
+import { TRUCK_FIELD_ORDER, TRUCK_PRODUCT_URLS } from "./truck-konfigurator/truck-brands.js";
+import { VOZIDLA } from "./components/konfigurator1v/kamion/data.js";
+import { kamionyZDat } from "./components/konfigurator1v/kamion/tabulka.js";
 
 // PRED všetkým, čo číta auto zo sessionStorage (košík, poznámka objednávky) — functions/autoPamat.js
 initAutoPamat();
@@ -79,6 +76,7 @@ function poBoote(fn) {
 
 $.getJSON(optionData.downloadData, function (data) {
   setupData = data;
+  kamionyZDat(setupData); // PRED konfigurátorom aj titulkou: listy kamiónov z Google tabuľky, inak zoznam z kódu
 
   console.log("setupData:", setupData);
   console.log("setupData.settings:", setupData.settings);
@@ -621,14 +619,14 @@ function initVehicleKindSwitch(container, choiceWrap) {
   const $brand = truckWrap.find(".truck-brands select");
   const $model = truckWrap.find(".truck-models select");
 
-  Object.keys(TRUCK_BRANDS).forEach(function (brand) {
+  Object.keys(VOZIDLA).forEach(function (brand) {
     $("<option>").text(brand).appendTo($brand);
   });
 
   const fillModels = function (brand) {
     $model.find("option:not(.notselect)").remove();
-    (TRUCK_BRANDS[brand] || []).forEach(function (m) {
-      $("<option>").text(m).appendTo($model);
+    Object.keys(VOZIDLA[brand] || {}).forEach(function (m) {
+      $("<option>").text(isCs ? vozidloCs(m) : m).attr("value", m).appendTo($model);
     });
   };
 
@@ -642,7 +640,7 @@ function initVehicleKindSwitch(container, choiceWrap) {
   // takže zákazník vidí kompletnú špecifikáciu vozidla.
   const fillExtras = function (brand, model, savedExtras) {
     clearExtras();
-    const config = TRUCK_VEHICLES[brand] && TRUCK_VEHICLES[brand][model];
+    const config = VOZIDLA[brand] && VOZIDLA[brand][model];
     if (!config) return;
 
     TRUCK_FIELD_ORDER.forEach(function (field) {
@@ -651,7 +649,7 @@ function initVehicleKindSwitch(container, choiceWrap) {
       const $wrap = mkSelect("truck-extra truck-extra--" + field, t.fields[field], field);
       const $select = $wrap.find("select");
       options.forEach(function (option) {
-        $("<option>").text(option).attr("value", option).appendTo($select);
+        $("<option>").text(isCs ? vybavaCs(option) : option).attr("value", option).appendTo($select);
       });
       if (savedExtras && options.indexOf(savedExtras[field]) > -1) {
         $select.val(savedExtras[field]);
@@ -689,10 +687,10 @@ function initVehicleKindSwitch(container, choiceWrap) {
     const savedModel = sessionStorage.getItem("truckModel");
     let savedExtras = {};
     try { savedExtras = JSON.parse(sessionStorage.getItem("truckExtras") || "{}") || {}; } catch (e) { savedExtras = {}; }
-    if (savedBrand && TRUCK_BRANDS[savedBrand]) {
+    if (savedBrand && VOZIDLA[savedBrand]) {
       $brand.val(savedBrand);
       fillModels(savedBrand);
-      if (savedModel && TRUCK_BRANDS[savedBrand].indexOf(savedModel) > -1) {
+      if (savedModel && VOZIDLA[savedBrand][savedModel]) {
         $model.val(savedModel);
         fillExtras(savedBrand, savedModel, savedExtras);
       }

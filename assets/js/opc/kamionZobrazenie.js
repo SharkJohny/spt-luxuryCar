@@ -2,7 +2,7 @@
 // opc/kamionKarta.js aj klasický košík components/cart.js). Len zobrazenie — súhrn v sessionStorage (poznámka objednávky,
 // Jánov export) sa nemení. Živá kontrola 2. 11. 2026: CZ konfigurátor píše do súhrnu slovenské hodnoty („Prémiová syntetická
 // koža – prešívaná“, „Automatická prevodovka“, „Sedadlo spolujazdca odpružené“), Shoptet 2452 má „kůže – prošívaná“.
-import { truckSummaryTexts, vozidloCs } from "../truck-konfigurator/order-summary.mjs";
+import { truckSummaryTexts, vozidloCs, vybavaCs } from "../truck-konfigurator/order-summary.mjs";
 import { SELECTY, normalizeOptionText } from "../components/konfigurator1v/kamion/shoptet.js";
 import { TEXTY_CS } from "../components/konfigurator1v/kamion/texty-cs.js";
 
@@ -45,8 +45,8 @@ export function hodnotyPriplatkov(sur) {
 
 /** Vozidlo pre zákazníka ako v konfigurátore (data.js meno): bez „(TIR)“ / „(dodávka)“, roky s pomlčkou „2022–2025“, na CZ „obytná kabina“. Poznámka objednávky ostáva bez zmeny. */
 export const vozidloNaZobrazenie = (t, jazyk) => {
-  const v = cisty(t).replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
-  return jazyk === "cs" ? vozidloCs(v) : v;
+  const v = jazyk === "cs" ? vozidloCs(cisty(t)) : cisty(t);
+  return v.replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
 };
 
 /** CZ: výbava vozidla zo súhrnu („Automatická prevodovka“) ako ju ukazuje CZ konfigurátor („Automatická“) — texty-cs.js polia.*.moznosti. */
@@ -103,7 +103,7 @@ export function skupinyNaZobrazenie(skupiny, jazyk, sur) {
             const c = String(h).split(" – ");
             if (c.length > 1) h = c[0] + " – " + materialNaZobrazenie(c.slice(1).join(" – "), v.material);
           } else h = materialNaZobrazenie(h, dvere ? tapMaterial : v.material);
-        } else if (cs && VYBAVA_CS[cisty(h)]) h = VYBAVA_CS[cisty(h)];
+        } else if (cs) h = VYBAVA_CS[cisty(h)] || vybavaCs(h);
         return { label: i.label, value: h };
       }),
     };

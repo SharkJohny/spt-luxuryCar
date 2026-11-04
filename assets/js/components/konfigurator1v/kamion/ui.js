@@ -11,7 +11,7 @@ import { cielNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, roznePodSedadlamiAStred, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
 import { nazovFarbyVelky } from "../../../truck-konfigurator/farby-nazvy.mjs";
-import { vozidloCs } from "../../../truck-konfigurator/order-summary.mjs";
+import { vozidloCs, vybavaCs } from "../../../truck-konfigurator/order-summary.mjs";
 
 const NB = " "; // nezalomiteľná medzera „423 €“ (ako artefakt a 1V)
 const P = "k1v-"; // predpona id prvkov (stránka Shoptetu má vlastné id)
@@ -95,7 +95,8 @@ export function vytvorUi(o) {
   const nite = () => NITE.map((n) => nit(n.kod));
   function kratkaHodnota(pole, hodnota) {
     const p = T.kroky.vozidlo.polia[pole];
-    return p && p.moznosti && p.moznosti[hodnota] ? p.moznosti[hodnota] : hodnota;
+    if (p && p.moznosti && p.moznosti[hodnota]) return p.moznosti[hodnota];
+    return cs ? vybavaCs(hodnota) : hodnota; // nová výbava z tabuľky, krátky text ešte nemá
   }
   function detailyVozidla() {
     const m = model();
@@ -419,7 +420,9 @@ export function vytvorUi(o) {
       .replace("+421 903 660 720", '<a href="tel:+421903660720">+421 903 660 720</a>')
       .replace(mail, '<a href="mailto:' + mail + '">' + mail + "</a>");
     // číslo ostane pri slove („7 modelov“ sa nerozdelí na konci riadka); telefón celý drží CSS (white-space: nowrap)
-    html += '<p class="k-pozn">' + esc(t.poznamka).replace(/(\d) /g, "$1 ") + "<br>" + nie + "</p>";
+    const pocet = (typ) => ZNACKY.filter((z) => z.typ === typ).reduce((n, z) => n + z.modely.length, 0);
+    const pozn = fill(t.poznamka, { kamiony: pocet("kamion"), dodavky: pocet("dodavka") });
+    html += '<p class="k-pozn">' + esc(pozn).replace(/(\d) /g, "$1 ") + "<br>" + nie + "</p>";
     return html;
   }
 

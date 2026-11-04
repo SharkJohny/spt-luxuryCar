@@ -98,7 +98,7 @@ export const TEXTY = {
     }
    },
    "jedina_moznost": "{hodnota} – pre tento model je len táto možnosť.",
-   "poznamka": "Šablóny máme pre 28 modelov kamiónov a 7 modelov dodávok.",
+   "poznamka": "Šablóny máme pre {kamiony} modelov kamiónov a {dodavky} modelov dodávok.",
    "zhrnutie": "{znacka} {model} · {detaily}",
    "chyby": {
     "karta": "Prosím, doplňte údaje označené červenou.",

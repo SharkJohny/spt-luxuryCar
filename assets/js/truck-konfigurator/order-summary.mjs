@@ -116,9 +116,44 @@ const THREAD_COLOR_NAMES = {
   },
 };
 
-/** Meno vozidla po česky. Mená modelov sú kľúče (truck-brands.js), preklad je len v texte, rovnaký v CZ konfigurátore aj v košíku. */
+// Výbava vozidla po česky (kľúče = slovenské hodnoty konfigurátora). Tabuľka (kamionycs) môže pridať ďalšie.
+const VYBAVA_CS = {
+  "Automatická prevodovka": "Automatická převodovka",
+  "Manuálna prevodovka": "Manuální převodovka",
+  "Sedadlo spolujazdca CINEMA": "Sedadlo spolujezdce CINEMA",
+  "Sedadlo spolujazdca odpružené": "Sedadlo spolujezdce odpružené",
+  "Sedadlo spolujazdca pevné": "Sedadlo spolujezdce pevné",
+  "Sedadlo spolujazdca pevné (taburet)": "Sedadlo spolujezdce pevné (taburet)",
+  "Sedadlo spolujazdca 1-miestne": "Sedadlo spolujezdce jednomístné",
+  "Sedadlo spolujazdca 2-miestne": "Sedadlo spolujezdce dvoumístné",
+  "Bez sedadla spolujazdca": "Bez sedadla spolujezdce",
+  "Sedadlo spolujazdca odpružené (veľká základňa)": "Sedadlo spolujezdce odpružené (velká základna)",
+  "Sedadlo spolujazdca odpružené (veľká základňa – ako u vodiča)": "Sedadlo spolujezdce odpružené (velká základna – jako u řidiče)",
+  "Sedadlo spolujazdca odpružené + otočné (veľká základňa)": "Sedadlo spolujezdce odpružené + otočné (velká základna)",
+  "Sedadlo spolujazdca odpružené/otočné (veľká základňa)": "Sedadlo spolujezdce odpružené/otočné (velká základna)",
+  "Sedadlo spolujazdca odpružené/otočné/pneumatické (veľká základňa)": "Sedadlo spolujezdce odpružené/otočné/pneumatické (velká základna)",
+  "Elektrická ručná brzda umiestnená na palubnej doske": "Elektrická ruční brzda umístěná na palubní desce",
+  "ADR – pneumatická ručná brzda umiestnená v podlahe vedľa sedadla vodiča": "ADR – pneumatická ruční brzda umístěná v podlaze vedle sedadla řidiče",
+  "Podlaha s tunelom": "Podlaha s tunelem",
+};
+
+let modelyTabulka = {}, vybavaTabulka = {};
+
+/** Preklady z listu kamionycs (kamion/tabulka.js): { slovenský model: český }, { slovenská výbava: česká }. */
+export function nastavPrekladyKamionov(modely, vybava) {
+  modelyTabulka = modely || {};
+  vybavaTabulka = vybava || {};
+}
+
+/** Výbava vozidla po česky; hodnota bez prekladu (rovnaká v oboch jazykoch, napr. „1 zásuvka (šuplík)“) ostáva. */
+export const vybavaCs = (hodnota) => vybavaTabulka[hodnota] || VYBAVA_CS[hodnota] || hodnota;
+
+/** Meno vozidla po česky, aj so značkou pred modelom. Mená modelov sú kľúče (truck-brands.js), preklad je len v texte. */
 export function vozidloCs(text) {
-  return String(text == null ? "" : text)
+  const t = String(text == null ? "" : text);
+  const sk = Object.keys(modelyTabulka).find((m) => t.endsWith(m));
+  if (sk) return t.slice(0, -sk.length) + modelyTabulka[sk];
+  return t
     .replace(/obytná kabína/g, "obytná kabina")
     .replace(/s tunelom/g, "s tunelem")
     .replace(/zadný pohon/g, "zadní pohon");
