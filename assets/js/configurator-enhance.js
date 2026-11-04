@@ -138,7 +138,7 @@ import { lcdCena } from "./functions/livePrice.js";
       // SKIP size wrap (3-vrstvova detekcia)
       if (parWrap.classList.contains("parameter-sizes")) return;
       var h5 = parWrap.querySelector("h5");
-      if (h5 && /^vel[ioe]kos[tť]/i.test((h5.textContent || "").trim())) return;
+      if (h5 && /^ve[lľ][ioe]?kos[tť]/i.test((h5.textContent || "").trim())) return;
       var active = parWrap.querySelector(".button.option-button.active");
       if (!active) return;
       var activeTxt = (active.textContent || "").toLowerCase();
@@ -156,7 +156,7 @@ import { lcdCena } from "./functions/livePrice.js";
     document.querySelectorAll(".box-config .parameter-wrap").forEach(function (parWrap) {
       if (parWrap.classList.contains("parameter-sizes")) return;
       var h5 = parWrap.querySelector("h5");
-      if (h5 && /^vel[ioe]kos[tť]/i.test((h5.textContent || "").trim())) return;
+      if (h5 && /^ve[lľ][ioe]?kos[tť]/i.test((h5.textContent || "").trim())) return;
       var active = parWrap.querySelector(".button.option-button.active");
       if (!active) return;
       var activeTxt = (active.textContent || "").toLowerCase();
@@ -242,7 +242,7 @@ import { lcdCena } from "./functions/livePrice.js";
         wrap.style.order = "2"; // FARBA = krok 2
       } else if (/po[čc]et\s*box/i.test(txt)) {
         wrap.style.order = "1"; // POČET = krok 1
-      } else if (/^vel[ioe]kos[tť]/i.test(txt)) {
+      } else if (/^ve[lľ][ioe]?kos[tť]/i.test(txt)) {
         wrap.style.order = "3"; // VEĽKOSŤ = krok 3
       }
     });

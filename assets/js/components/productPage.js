@@ -810,7 +810,7 @@ function resetBoxConfigDefaults() {
   // bez ohľadu na ID parameter wrapu.
   $(".box-config .parameter-wrap").each(function () {
     const txt = ($(this).find("h5").first().text() || "").toLowerCase().trim();
-    if (/^vel[ioe]kos[tť]/.test(txt)) {
+    if (/^ve[lľ][ioe]?kos[tť]/.test(txt)) {
       $(this).hide();
     }
   });
