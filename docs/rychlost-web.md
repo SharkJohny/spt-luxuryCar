@@ -182,6 +182,9 @@ skript a zmeria to isté (na webe nič nemení).
   Riziko pre meranie a tlačidlá Zdieľať (zamietnuté) za to nestojí. GA počíta `page_view` raz, dvojité načítanie neznamená dvojité dáta.
 - **`content-visibility:auto`** na sekciách titulky pod prvou obrazovkou: LCP aj TBT bez zmeny, nenasadzovať.
 - **Čas procesora na titulke** (× 4): vykresľovanie a štýly 6,2 s, `luxuryCar.js` 1,2 s, jQuery 0,7 s, Google 0,6 s, Facebook 0,1 s.
-- **Čo reálne pomôže:** fotky titulky ako WebP s JPG zálohou (ako obsah 1V, `tools/obrazky-1v-webp.py`): 26 fotiek 2,1 MB → 1,2 MB,
-  bez zmeny vzhľadu. Znamená to úpravu 3 bannerov v admine SK aj CZ. `truck.jpg` je v `#truckBg` roztiahnutý cez `object-fit: cover`
-  (na 390 px efektívne ~1 800 px), `sizes` treba určiť podľa efektívnej šírky, nie podľa šírky rámu.
+- **Fotky titulky ako WebP s JPG zálohou** (ako obsah 1V): vyskúšané na živej titulke v 3 prehliadačoch. Rozloženie bez zmeny, chyby žiadne,
+  ale prínos je malý: prvé načítanie na telefóne 1 436 → 1 356 kB (iPhone, hustota 3) a 1 170 kB (hustota 2), celá stránka po prerolovaní
+  −10 % telefón, −17 % PC. Odhad z veľkosti súborov (2,1 → 1,2 MB) neplatil, lebo telefón s hustým displejom si vyberie väčšie WebP.
+  Výmena 2 bannerov v admine SK aj CZ za to nestojí. Hotová záplata: `Desktop/LCD/web/napady-web-2026-11-04/na-neskor/`.
+  Pozor pri ďalšom skúšaní: `truck.jpg` je v `#truckBg` roztiahnutý cez `object-fit: cover`, `sizes` sa určuje podľa efektívnej šírky.
+- **Záver:** lacná výhra v rýchlosti titulky ostáva len v zmene webových písiem (8 rezov, 436 kB) a tá mení vzhľad.
