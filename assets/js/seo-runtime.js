@@ -26,6 +26,8 @@
 // tento modul skipnúť (kontrola: ak už existuje JSON-LD v head, neinject).
 // ─────────────────────────────────────────────────────────────────────
 
+import { cestyStranky } from "./seo-hreflang.js";
+
 (function seoRuntime() {
   "use strict";
 
@@ -122,7 +124,7 @@
         height: 60,
       },
       description:
-        "Luxusné autokoberce na mieru pre prémiové vozidlá. Šijeme z prémiového Dragon Skin materiálu cez 3D laserové skenovanie pre 2912+ modelov áut.",
+        "Luxusné autokoberce na mieru pre viac ako 1 000 modelov áut, k nim rohož a box do kufra.",
       email: "info@luxurycardesign.sk",
       sameAs: [...orgCommon.sameAs, baseCz],
     });
@@ -178,7 +180,7 @@
         height: 60,
       },
       description:
-        "Luxusní autokoberce na míru pro prémiová vozidla. Šijeme z prémiového Dragon Skin materiálu přes 3D laserové skenování pro 2912+ modelů aut.",
+        "Luxusní autokoberce na míru pro více než 1 000 modelů aut, k nim koberec a box do kufru.",
       email: "info@luxurycardesign.cz",
       areaServed: [
         { "@type": "Country", name: "Czech Republic" },
@@ -229,14 +231,15 @@
 
   // ─────────────────────────────────────────────────
   // Fix #9 — hreflang trio
-  // Path-mapping: aktuálne sa cesta neprekladá medzi sk ↔ cz
-  // (slug-translate je separátny task). Použijeme rovnaký path
-  // na oboch doménach. Kanonická = aktuálna doména.
+  // Páry adries SK ↔ CZ sú v seo-hreflang.js; stránka bez protějšku odkazy
+  // nedostane (odkaz na neexistujúcu adresu Google celý pár zahodí).
   // ─────────────────────────────────────────────────
-  const path = location.pathname + location.search;
-  injectLink("alternate", { hreflang: "sk-SK", href: baseSk + path });
-  injectLink("alternate", { hreflang: "cs-CZ", href: baseCz + path });
-  injectLink("alternate", { hreflang: "x-default", href: baseSk + path });
+  const cesty = cestyStranky(location.pathname, isSk);
+  if (cesty) {
+    injectLink("alternate", { hreflang: "sk-SK", href: baseSk + cesty.sk });
+    injectLink("alternate", { hreflang: "cs-CZ", href: baseCz + cesty.cz });
+    injectLink("alternate", { hreflang: "x-default", href: baseSk + cesty.sk });
+  }
 
   // ─────────────────────────────────────────────────
   // Fix #3 — H1 text replace (sr-only zachované)

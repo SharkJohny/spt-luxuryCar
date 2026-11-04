@@ -1,0 +1,74 @@
+// Jazykové odkazy pre Google (hreflang, seo-runtime.js): ktorá stránka SK patrí ku ktorej CZ.
+// Adresy sú zo sitemap oboch webov (4. 11. 2026), všetky overené naživo: node tools/test-seo-hreflang.mjs --zivy.
+// Stránka mimo zoznamov protějšok nemá a jazykové odkazy nedostane. Nový článok alebo stránku s protějškom pridaj sem;
+// ďalší trh = ďalší stĺpec v PARY.
+
+/** Tá istá adresa na SK aj CZ. */
+const ROVNAKE = [
+  "/",
+  "/autokoberce-do-kamionu/",
+  "/blog/",
+  "/faq/",
+  "/kontakty/",
+  "/luxusne-autokoberce-dragonskin-diamond-line/",
+  "/luxusne-autokoberce-dragonskin-elite-diamond-line/",
+  "/luxusne-autokoberce-dragonskin-elite-hexa-line/",
+  "/luxusne-autokoberce-dragonskin-elite-stripe-line/",
+  "/luxusne-autokoberce-dragonskin-hexa-line/",
+  "/luxusne-autokoberce-dragonskin-stripe-line/",
+  "/luxusny-boxi-do-kufra/",
+  "/luxusny-koberced-do-kufra-dragonskin-klasik-hexa/",
+  "/luxusny-koberced-do-kufra-dragonskin-klasik-stripe/",
+  "/luxusny-koberced-do-kufra-dragonskin-klasik/",
+  "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/",
+  "/luxusny-koberced-do-kufra-dragonskin-premium-stripe/",
+  "/luxusny-koberced-do-kufra-dragonskin-premium/",
+  "/nase-produkty/",
+  "/navod-na-udrzbu/",
+  "/o-nas/",
+  "/rozcestnik/",
+  "/znacka/luxury-car-design/",
+];
+
+/** Tá istá stránka, iná adresa: [SK, CZ]. */
+const PARY = [
+  ["/luxusne-autokoberce-kamiony/", "/luxusni-autokoberce-kamiony/"],
+  ["/vzorkovnik-dragonskin---objednavka-vzoriek/", "/vzorkovnik-dragonskin---objednavka-vzorku/"],
+  ["/galeria/", "/galerie/"],
+  ["/manual-na-instalaciu/", "/manual-na-instalaci/"],
+  ["/manual-na-zaslanie-fotiek/", "/manual-pro-zasilani-fotek/"],
+  ["/obchodne-podmienky/", "/obchodni-podminky/"],
+  ["/odstupenie-od-zmluvy/", "/odstoupeni-od-smlouvy/"],
+  ["/podmienky-ochrany-osobnych-udajov/", "/podminky-ochrany-osobnich-udaju/"],
+  ["/priloha-c-2-reklamacny-formular/", "/reklamacni-formular/"],
+  ["/suhlas-s-marketingom/", "/souhlas-se-zasilanim-newsletteru/"],
+  ["/blog/5-dovodov-preco-kupit-ojazdene-auto-namiesto-noveho/", "/blog/5-duvodu-proc-koupit-ojete-auto-misto-noveho/"],
+  ["/blog/5-veci-ktore-zvysia-predajnu-cenu-ojazdeneho-auta/", "/blog/prodejte-auto-draz-5-kroku-pred-zverejnenim-inzeratu/"],
+  ["/blog/Luxusny-vzhlad/", "/blog/luxusni-vzhled/"],
+  ["/blog/audi-q8-kufor-vs-q7/", "/blog/kufr-audi-q8-proc-je-tak-velky-jako-u-q7/"],
+  ["/blog/auto-bez-volantu-volvo-interier/", "/blog/auto-bez-volantu-jak-volvo-meni-interier-aut/"],
+  ["/blog/autokoberce-bratislava-original-od-dealera-vs-na-mieru/", "/blog/autokoberce-bratislava-original-od-dealera-vs-na-miru/"],
+  ["/blog/autokoberce-na-zimu-treba-ich-menit-ako-pneumatiky/", "/blog/autokoberce-na-zimu-je-potreba-je-menit-jako-pneumatiky/"],
+  ["/blog/blog/", "/blog/elektricka-skoda-teren-autokoberce-na-mieru/"],
+  ["/blog/bmw-x5-xdrive30d-4-zony-opotrebenia-co-predajca-nepovie/", "/blog/4-mista-v-interieru-bmw-x5-o-kterych-vam-prodejce-nerekne/"],
+  ["/blog/box-do-kufra-auta-alebo-kufrova-rohoz-co-kupit-skor/", "/blog/box-do-kufru-auta-nebo-rohoz-do-kufru-co-koupit-driv/"],
+  ["/blog/byd-yuan-plus-autokoberce-ochrana-interieru/", "/blog/byd-yuan-plus-ochrana-interieru-od-prvniho-dne/"],
+  ["/blog/kedy-autokoberce-s-logom-v-luxusnom-aute-posobia-lacno/", "/blog/kdy-autokoberce-s-logem-v-luxusnim-aute-pusobi-lacine/"],
+  ["/blog/mercedes-benz-trieda-v-ochrana-velkoryseho-interieru-2/", "/blog/mercedes-benz-trida-v-ochrana-velkoryseho-interieru/"],
+  ["/blog/myty-o-baterii-jazdeneho-elektromobilu/", "/blog/3-myty-o-baterii-ojeteho-elektromobilu/"],
+  ["/blog/oplati-sa-kupit-nove-auto-skladom-alebo-na-objednavku/", "/blog/vyplati-se-koupit-nove-auto-skladem-nebo-na-objednavku/"],
+  ["/blog/organizer-do-kufra-skladaci-pevny-alebo-sietka/", "/blog/organizer-do-kufru-skladaci-pevny-nebo-sitka/"],
+  ["/blog/vyhody-luxusnych-autokobercov/", "/blog/vyhody-luxusnich-autokobercu/"],
+  ["/blog/xiaomi-yu9-dojazd-1500-km-elektromobil/", "/blog/xiaomi-yu9-dojezd-1-500-km-a-co-to-znamena-pro-vas/"],
+  ["/blog/zanik-autosalonu-v-zeneve-3-myty-o-kupe-auta/", "/blog/zanik-autosalonu-v-zeneve-3-myty-o-koupi-auta/"],
+];
+
+/** Cesta stránky (bez dopytu) -> { sk, cz }; null, keď stránka protějšok nemá. */
+export function cestyStranky(cesta, jeSk) {
+  const c = cesta === "/index.php" ? "/" : cesta;
+  if (ROVNAKE.includes(c)) return { sk: c, cz: c };
+  const par = PARY.find((p) => p[jeSk ? 0 : 1] === c);
+  return par ? { sk: par[0], cz: par[1] } : null;
+}
+
+export const VSETKY_PARY = ROVNAKE.map((c) => [c, c]).concat(PARY);
