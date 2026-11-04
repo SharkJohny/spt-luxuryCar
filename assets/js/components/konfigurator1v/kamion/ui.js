@@ -11,6 +11,7 @@ import { cielNaStred, cielNaVrch, vyskaHlavicky } from "../posun.js";
 import { vypocitajCenu, ponuka as ponukaCien, tapacirDostupny } from "./cena.js";
 import { novyStav, koberecNas as knS, roznePodSedadlamiAStred, najdiZnacku, najdiModel, naStavCeny } from "./stav.js";
 import { nazovFarbyVelky } from "../../../truck-konfigurator/farby-nazvy.mjs";
+import { vozidloCs } from "../../../truck-konfigurator/order-summary.mjs";
 
 const NB = " "; // nezalomiteľná medzera „423 €“ (ako artefakt a 1V)
 const P = "k1v-"; // predpona id prvkov (stránka Shoptetu má vlastné id)
@@ -39,7 +40,7 @@ export function vytvorUi(o) {
   const T = cs ? TEXTY_CS : TEXTY, U0 = T.ui;
   const jz = cs ? "cs" : "sk";
   // mená modelov sú kľúče (truck-brands.js, poznámka objednávky pre Jánov export); na CZ sa len zobrazia po česky
-  const vozTxt = (s) => roky(cs ? String(s).replace(/obytná kabína/g, "obytná kabina").replace(/s tunelom/g, "s tunelem").replace(/zadný pohon/g, "zadní pohon") : s);
+  const vozTxt = (s) => roky(cs ? vozidloCs(s) : s);
   const mail = cs ? "info@luxurycardesign.cz" : "info@luxurycardesign.sk";
   const root = o.root, lst = o.lista;
   const w = o.okno || window;

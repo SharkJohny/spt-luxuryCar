@@ -2,7 +2,7 @@
 // opc/kamionKarta.js aj klasický košík components/cart.js). Len zobrazenie — súhrn v sessionStorage (poznámka objednávky,
 // Jánov export) sa nemení. Živá kontrola 2. 11. 2026: CZ konfigurátor píše do súhrnu slovenské hodnoty („Prémiová syntetická
 // koža – prešívaná“, „Automatická prevodovka“, „Sedadlo spolujazdca odpružené“), Shoptet 2452 má „kůže – prošívaná“.
-import { truckSummaryTexts } from "../truck-konfigurator/order-summary.mjs";
+import { truckSummaryTexts, vozidloCs } from "../truck-konfigurator/order-summary.mjs";
 import { SELECTY, normalizeOptionText } from "../components/konfigurator1v/kamion/shoptet.js";
 import { TEXTY_CS } from "../components/konfigurator1v/kamion/texty-cs.js";
 
@@ -43,8 +43,11 @@ export function hodnotyPriplatkov(sur) {
   return out;
 }
 
-/** Vozidlo pre zákazníka ako v konfigurátore (data.js meno): bez „(TIR)“ / „(dodávka)“, roky s pomlčkou „2022–2025“. Poznámka objednávky ostáva bez zmeny. */
-export const vozidloNaZobrazenie = (t) => cisty(t).replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
+/** Vozidlo pre zákazníka ako v konfigurátore (data.js meno): bez „(TIR)“ / „(dodávka)“, roky s pomlčkou „2022–2025“, na CZ „obytná kabina“. Poznámka objednávky ostáva bez zmeny. */
+export const vozidloNaZobrazenie = (t, jazyk) => {
+  const v = cisty(t).replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
+  return jazyk === "cs" ? vozidloCs(v) : v;
+};
 
 /** CZ: výbava vozidla zo súhrnu („Automatická prevodovka“) ako ju ukazuje CZ konfigurátor („Automatická“) — texty-cs.js polia.*.moznosti. */
 const VYBAVA_CS = (function () {
@@ -94,7 +97,7 @@ export function skupinyNaZobrazenie(skupiny, jazyk, sur) {
       heading: g.heading,
       items: g.items.map(function (i) {
         let h = i.value;
-        if (i.label === L.vehicle) h = vozidloNaZobrazenie(h);
+        if (i.label === L.vehicle) h = vozidloNaZobrazenie(h, jazyk);
         else if (i.label === L.materialColor && (koberce || dvere)) {
           if (dvere && ROVNAKE(h)) {
             const c = String(h).split(" – ");

@@ -186,6 +186,17 @@ test("CZ živý: súhrn so slovenskými hodnotami sedí s českými príplatkami
   pravda(!K.udajeKamiona(p, { ss: ulozisko({ truckOrderSummary: buildTruckOrderSummary(iny, "cs") }), jazyk: "cs", jediny: true }).zoSuhrnu, "súhrn s farbou 12");
 });
 
+test("CZ: vozidlo v karte po česky ako v konfigurátore (obytná kabina, s tunelem, zadní pohon)", () => {
+  const voz = (znacka, model, jazyk) => {
+    const st = Object.assign({}, S_CZ_ZIVY, { znacka, model, extras: {} });
+    const u = K.udajeKamiona({ itemId: "c1", sur: SUR_CZ_ZIVY, text: "Luxusní autokoberce do kamionů" }, { ss: ulozisko({ truckOrderSummary: buildTruckOrderSummary(st, "cs") }), jazyk: "cs", jediny: true });
+    return K.riadkyRozpisu(u.skupiny, jazyk, jazyk === "cs" ? "cz" : "sk", SUR_CZ_ZIVY)[0].h;
+  };
+  rovne(voz("Mercedes-Benz (TIR)", "Actros MP4/MP5/MP6 2021-2025 – obytná kabína (Solostar)", "cs"), "Mercedes-Benz Actros MP4/MP5/MP6 2021–2025 – obytná kabina (Solostar)");
+  rovne(voz("Mercedes-Benz (TIR)", "Actros MP5/MP6 F (s tunelom) 2021-2025", "cs"), "Mercedes-Benz Actros MP5/MP6 F (s tunelem) 2021–2025");
+  rovne(voz("Mercedes-Benz (dodávka)", "Sprinter 2018-2025 (zadný pohon)", "cs"), "Mercedes-Benz Sprinter 2018–2025 (zadní pohon)");
+});
+
 test("CZ: vlastný materiál tapacíru zo súhrnu po česky, výbava ako CZ konfigurátor", () => {
   const st = Object.assign({}, S_CZ_ZIVY, { extras: { prevodovka: "Manuálna prevodovka", zasuvky: "2 zásuvky (šuplíky)" }, doorPanelChoice: "ano",
     doorSameAsCarpet: { material: false, lemovanie: true }, doorMaterial: "Prémiová syntetická koža – prešívaná", doorColor: { code: "11" }, doorWantsNasivka: false });

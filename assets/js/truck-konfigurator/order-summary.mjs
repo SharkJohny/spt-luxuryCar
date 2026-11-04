@@ -116,6 +116,14 @@ const THREAD_COLOR_NAMES = {
   },
 };
 
+/** Meno vozidla po česky. Mená modelov sú kľúče (truck-brands.js), preklad je len v texte, rovnaký v CZ konfigurátore aj v košíku. */
+export function vozidloCs(text) {
+  return String(text == null ? "" : text)
+    .replace(/obytná kabína/g, "obytná kabina")
+    .replace(/s tunelom/g, "s tunelem")
+    .replace(/zadný pohon/g, "zadní pohon");
+}
+
 export function detectTruckSummaryLanguage() {
   if (typeof window === "undefined") return "sk";
   try {
