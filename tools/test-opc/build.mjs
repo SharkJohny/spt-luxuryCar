@@ -52,11 +52,8 @@ export function pripravBuild({ bezDrop = false } = {}) {
   const casti = {};
   // LCD_OPC_SPUSTENE=1: nácvik spustenia pre všetkých (kniha § 10.36) — build so SPUSTENE = true, súbor sa hneď vráti
   const brana = join(KOREN, "assets/js/opc/index.js"), branaText = readFileSync(brana, "utf8");
-  const nacvik = !!process.env.LCD_OPC_SPUSTENE;
-  if (nacvik) {
-    if (!/export const SPUSTENE = false;/.test(branaText)) throw new Error("LCD_OPC_SPUSTENE: v opc/index.js nie je SPUSTENE = false");
-    writeFileSync(brana, branaText.replace("export const SPUSTENE = false;", "export const SPUSTENE = true;"));
-  }
+  const nacvik = !!process.env.LCD_OPC_SPUSTENE && /export const SPUSTENE = false;/.test(branaText); // po spustení už nie je čo meniť
+  if (nacvik) writeFileSync(brana, branaText.replace("export const SPUSTENE = false;", "export const SPUSTENE = true;"));
   try {
     for (const [vstup, f] of [["assets/js/main.js", "luxuryCar.js"], ["assets/js/truck-konfigurator/cast.jsx", "lcd-truck.js"], ["assets/js/casti/gsap.js", "lcd-gsap.js"],
       ["assets/js/casti/reels.js", "lcd-reels.js"], ["assets/js/casti/hp.js", "lcd-hp.js"]]) {

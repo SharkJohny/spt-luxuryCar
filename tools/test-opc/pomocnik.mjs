@@ -1,10 +1,12 @@
 // Pomocník scenárov offline testu one page checkoutu (tools/test-opc.mjs): karta s podvrhom siete a ovládanie stránky.
 import { pauza } from "../test-1v/cdp.mjs";
 import { zapniPodvrh, WEBY } from "./podvrh.mjs";
-import { KOD } from "../../assets/js/opc/index.js";
+import { KOD, SPUSTENE } from "../../assets/js/opc/index.js";
 
 /** Tajný odkaz OPC (assets/js/opc/index.js KOD) — ?opc=1 už nič nezapne. Flag sa ukladá do localStorage (všetky karty). */
 export const OPC = "?opc=" + KOD;
+/** Pokladňa pre všetkých (SPUSTENE alebo nácvik LCD_OPC_SPUSTENE=1): zákazník „bez kódu“ zo scenárov = vypnuté cez ?opc=0, flag „0“. */
+export const PRE_VSETKYCH = SPUSTENE || !!process.env.LCD_OPC_SPUSTENE;
 /** Flag OPC na stránke (výraz pre s.ev): localStorage, inak sessionStorage (náhrada bez localStorage). */
 export const FLAG_OPC = `(function () { var f = null; try { f = localStorage.getItem("lcdOpc"); } catch (e) {} if (f === null) { try { f = sessionStorage.getItem("lcdOpc"); } catch (e) {} } return f; })()`;
 
@@ -26,6 +28,8 @@ export async function vytvorStranku(ch, o) {
   const k = await ch.novaKarta({ sirka: o.sirka, vyska: o.vyska || (mobil ? 844 : 768) }); // vyska: reálne okno notebooku (S41)
   if (o.zabudniOpc) for (const w of Object.values(WEBY)) await k.posli("Storage.clearDataForOrigin", { origin: w.base, storageTypes: "local_storage" });
   const pred = [];
+  // noviZakaznik: bez flagu aj po spustení (S83)
+  if (PRE_VSETKYCH && o.zabudniOpc && !o.noviZakaznik) pred.push(`try { if (location.search.indexOf("opc=${KOD}") === -1 && localStorage.getItem("lcdOpc") === null) localStorage.setItem("lcdOpc", "0"); } catch (e) {}`);
   if (o.applePay) pred.push("window.ApplePaySession = { canMakePayments: function () { return true; }, supportsVersion: function () { return true; } };");
   if (o.skript) pred.push(o.skript);
   if (pred.length) await k.posli("Page.addScriptToEvaluateOnNewDocument", { source: pred.join("\n") });

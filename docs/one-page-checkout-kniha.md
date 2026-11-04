@@ -1708,7 +1708,7 @@ Michal 4. 11.: „okej pripravuj ale spustime ju az ked budeme mat resetovane li
 
 Po spustení porovnávať `view_cart` → `purchase` (SK 17,6 %, CZ 19,6 %). `begin_checkout` po spustení stúpne samo, lebo krok 1 sa preskakuje.
 
-**Nácvik spustenia:** `LCD_OPC_SPUSTENE=1 node tools/test-opc.mjs` zbuildí so `SPUSTENE = true` (súbor `opc/index.js` sa hneď vráti) a do hlavičky dá riadok `admin-html/zahlavie-opc-spustene.html`. S83 (len v nácviku): zákazník bez kódu z košíka aj z webu rovno do pokladne, `?opc=0` a `data.json "opc": false` vrátia dnešný tok a obrazovka „Načítavam…“ nevisí. Scenáre „bez kódu nič“ (S17, S50, S74 a podobné) v nácviku zámerne zlyhajú.
+**Nácvik spustenia:** `LCD_OPC_SPUSTENE=1 node tools/test-opc.mjs` zbuildí so `SPUSTENE = true` (súbor `opc/index.js` sa hneď vráti) a do hlavičky dá riadok `admin-html/zahlavie-opc-spustene.html`. S83 (len v nácviku a po spustení): zákazník bez kódu z košíka aj z webu rovno do pokladne, `?opc=0` a `data.json "opc": false` vrátia dnešný tok a obrazovka „Načítavam…“ nevisí. V nácviku a po spustení je zákazník „bez kódu“ zo scenárov ten s flagom „0“ (`PRE_VSETKYCH` v `tools/test-opc/pomocnik.mjs`), scenáre netreba prepisovať. Výsledok 4. 11. 2026: SK 162 OK, CZ 92 OK, 0 zlyhalo.
 
 **Postup spustenia (jediná brána, len na Michalovo „spusti“):**
 0. Michal: skúšobné objednávky (karta, dobierka SK; prevod, karta CZ), kontrola konverzie „Formulár“ v Google Ads, rozhodnutie o VOP (body 3.3.4 a 3.3.5 opisujú dva kroky).
@@ -1717,7 +1717,7 @@ Po spustení porovnávať `view_cart` → `purchase` (SK 17,6 %, CZ 19,6 %). `be
 3. CZ to isté. Medzi SK a CZ sa dá počkať, sha sa prepína po webe.
 4. Návrat: predchádzajúca sha + pôvodný riadok v Záhlaví. Rýchly vypínač bez nasadenia: `data.json "opc": false`.
 5. Po spustení v GA4 sledovať `lcd_opc_chyba`, `lcd_opc_zachrana` a porovnanie s východiskom hore.
-- Po zapnutí už scenáre „bez kódu“ v `tools/test-opc` platia pre `?opc=0`, treba ich prepísať.
+- Naživo od 4. 11. 2026 18:39 UTC: `9f988e2` na SK aj CZ (návrat `50fbd84`), `SPUSTENE = false`. Testy z CDN: 3 prehliadače × SK, CZ × PC, telefón, set aj kamión 24/24, šírky 360–1920 bez pretečenia, 1V 100 OK, zákazník bez kódu bez zmeny.
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 

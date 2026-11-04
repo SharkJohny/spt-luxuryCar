@@ -11,7 +11,7 @@
 //       hlavné tlačidlo zelené, žiadne zakázané slová
 //   S54 matica platieb (31. 10. 2026, SK 6 / CZ 5): prevod, dobierka; karta, Apple Pay, Google Pay, rýchla platba cez
 //       banku (len SK) pred bránou a po návrate z brány na ?autoredir=off (bez kódu v adrese, flag ostal v prehliadači)
-import { over, pauza, OPC, FLAG_OPC } from "./pomocnik.mjs";
+import { PRE_VSETKYCH, over, pauza, OPC, FLAG_OPC } from "./pomocnik.mjs";
 import { CESTY, NAVRAT, MATICA_PLATIEB, ocakavane } from "./dakujeme-fixtures.mjs";
 
 const ZAKAZANE = "z[aá]loh|21\\s*[–-]\\s*29|\\bdn[ií]\\b|dodan|dodán|vyr[aá]b|\\bDPH\\b|z[aá]ruk|IBAN|na milimet";
@@ -56,7 +56,7 @@ export const SCENARE = {
       for (const [kluc, hladanie] of [[J.web + "-prevod", ""], [J.web + "-karta-nie", "?opc=1"], [J.web + "-dobierka", ""]]) {
         const { s } = await otvor(J, kluc, { hladanie });
         const st = await stopa(s);
-        over(!st.globalne && st.prvky === 0 && !st.triedyHtml.length && st.zaznam === null && st.flag === null,
+        over(!st.globalne && st.prvky === 0 && !st.triedyHtml.length && st.zaznam === null && (st.flag === null || PRE_VSETKYCH),
           kluc + ": modul niečo spravil bez kódu: " + JSON.stringify(st));
         over(st.povodnyViditelny && st.povodnyVDom, kluc + ": pôvodný obsah nie je viditeľný: " + JSON.stringify(st));
         over(s.p.zaznam.podvrhnute.some((x) => /luxuryCar\.js$/.test(x)) && s.p.zaznam.dataJson > 0, kluc + ": bundle alebo data.json sa nenačítal");
@@ -95,7 +95,7 @@ export const SCENARE = {
       // ?opc=0: flag preč, ďakovná stránka zase pôvodná
       await s.chod(CESTY[o.web] + "?opc=0", { popis: "ďakovná ?opc=0" });
       const st0 = await stopa(s);
-      over(!st0.globalne && !st0.blok && st0.povodnyViditelny && st0.flag === null && !st0.triedyHtml.length, "?opc=0: " + JSON.stringify(st0));
+      over(!st0.globalne && !st0.blok && st0.povodnyViditelny && (st0.flag === null || PRE_VSETKYCH) && !st0.triedyHtml.length, "?opc=0: " + JSON.stringify(st0));
       return { info: "prevod " + o.cislo + " " + n(o.sumaText) + ", Kopírovať OK, záznam " + z[0].html.length + " znakov, ?opc=0 pôvodná" };
     },
   },

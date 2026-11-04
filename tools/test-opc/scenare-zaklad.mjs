@@ -1,7 +1,7 @@
 // Scenáre brány a prechodu z košíka (kniha OPC § 7.6): S2, S17, S20. Každý scenár dostane J (tools/test-opc.mjs)
 // a vráti { info } alebo hodí Zlyhanie. Kontroly spoločné pre všetky (nečakané požiadavky, chyby nášho kódu
 // v konzole, žiadny Step2Validate bez scenára) robí spúšťač.
-import { over, pauza, OPC, FLAG_OPC } from "./pomocnik.mjs";
+import { over, pauza, OPC, FLAG_OPC, PRE_VSETKYCH } from "./pomocnik.mjs";
 
 const KOSIK = "/kosik/", KROK1 = "/objednavka/krok-1/", KROK2 = "/objednavka/krok-2/";
 
@@ -130,7 +130,7 @@ export const SCENARE = {
       s.p.reset();
       await s.chod(KOSIK + "?opc=0", { popis: "košík ?opc=0" });
       const fl = await s.ev(`[localStorage.getItem("lcdOpc"), sessionStorage.getItem("lcdOpc")]`);
-      over(fl[0] === null && fl[1] === null, "?opc=0 nezmazal flag (localStorage, sessionStorage = " + JSON.stringify(fl) + ")");
+      over(fl[0] === (PRE_VSETKYCH ? "0" : null) && fl[1] === null, "?opc=0 nezmazal flag (localStorage, sessionStorage = " + JSON.stringify(fl) + ")");
       casti.push("kód -> ďalšia karta zapnutá -> ?opc=0: " + (await dnesnyTok(s, "?opc=0")));
       await s.zavri();
       // c) núdzový vypínač data.json "opc": false má prednosť aj pred kódom

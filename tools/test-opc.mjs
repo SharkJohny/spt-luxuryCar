@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 import { spustiChrome, pauza } from "./test-1v/cdp.mjs";
 import { pripravBuild } from "./test-opc/build.mjs";
 import { vyzadujFixtures } from "./test-opc/zachytene.mjs";
-import { vytvorStranku, Zlyhanie, over, naseChyby } from "./test-opc/pomocnik.mjs";
+import { vytvorStranku, Zlyhanie, over, naseChyby, PRE_VSETKYCH } from "./test-opc/pomocnik.mjs";
 import { SCENARE as ZAKLAD } from "./test-opc/scenare-zaklad.mjs";
 import { SCENARE as KROK2 } from "./test-opc/scenare-krok2.mjs";
 import { SCENARE as KOSIKY } from "./test-opc/scenare-kosiky.mjs";
@@ -82,7 +82,7 @@ async function main() {
   const chybaCdn = new Set(), doplnene = new Set();
   try {
     for (const sirka of a.sirky) for (const m of kroky) {
-      if (SCENARE[m].nacvik && !process.env.LCD_OPC_SPUSTENE) { preskocene++; continue; } // S83: len nácvik spustenia
+      if (SCENARE[m].nacvik && !PRE_VSETKYCH) { preskocene++; continue; } // S83: len nácvik a po spustení
       if (SCENARE[m].len && SCENARE[m].len !== a.web) {
         if (a.kroky) console.log(`PRESK.  ${String(sirka).padEnd(5)} ${m.padEnd(4)}          len ${SCENARE[m].len.toUpperCase()} (fixtures)`);
         preskocene++;
@@ -94,7 +94,7 @@ async function main() {
         web: a.web, sirka, over, pauza,
         novaStranka: async (o = {}) => {
           // flag OPC je v localStorage (tajný odkaz platí pre všetky karty): prvá stránka scenára a o.bezOpc = zákazník bez kódu
-          const s = await vytvorStranku(ch, { web: a.web, sirka: o.sirka || sirka, vyska: o.vyska, build, doplnitCdn: a.doplnitCdn, kosik: o.kosik, scenar: o.scenar, applePay: o.applePay, skript: o.skript, zabudniOpc: !!o.bezOpc || !stranky.length });
+          const s = await vytvorStranku(ch, { web: a.web, sirka: o.sirka || sirka, vyska: o.vyska, build, doplnitCdn: a.doplnitCdn, kosik: o.kosik, scenar: o.scenar, applePay: o.applePay, skript: o.skript, noviZakaznik: o.noviZakaznik, zabudniOpc: !!o.bezOpc || !stranky.length });
           stranky.push(s);
           return s;
         },

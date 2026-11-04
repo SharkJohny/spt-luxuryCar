@@ -586,7 +586,7 @@ export const SCENARE = {
       const casti = [];
       const hned = (s) => s.ev(`({ priBody: window.__lcdTestPriBody ? window.__lcdTestPriBody.c : null, teraz: document.documentElement.className })`);
       // a) bez flagu: /kosik/ -> rovno krok 2
-      let s = await J.novaStranka({ kosik: "set", bezOpc: true, scenar: Object.assign({ hlavicka: true }, SCENAR) });
+      let s = await J.novaStranka({ kosik: "set", bezOpc: true, noviZakaznik: true, scenar: Object.assign({ hlavicka: true }, SCENAR) });
       await s.k.chod(s.W.base + KOSIK);
       await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 bez kódu");
       let st = await s.ev(`({ cesta: location.pathname, stav: window.__lcdOpc.stav, karta: !!document.querySelector("${KARTA} .lcd-opc-kk__polozka"), flag: ${FLAG_OPC} })`);
@@ -605,7 +605,7 @@ export const SCENARE = {
       casti.push("web -> krok 2");
       await s.zavri();
       // c) ?opc=0: v tomto prehliadači dnešný tok, flag "0", obrazovka sa neukáže ani na ďalšej stránke
-      s = await J.novaStranka({ kosik: "set", bezOpc: true, scenar: Object.assign({ hlavicka: true }, SCENAR) });
+      s = await J.novaStranka({ kosik: "set", bezOpc: true, noviZakaznik: true, scenar: Object.assign({ hlavicka: true }, SCENAR) });
       await s.k.chod(s.W.base + KOSIK + "?opc=0");
       await pauza(1500);
       await s.k.chod(s.W.base + KOSIK);
@@ -616,7 +616,7 @@ export const SCENARE = {
       casti.push("?opc=0 dnešný košík");
       await s.zavri();
       // d) núdzový vypínač v data.json: dnešný košík, obrazovka z hlavičky nevisí
-      s = await J.novaStranka({ kosik: "set", bezOpc: true, scenar: Object.assign({ hlavicka: true, dataJson: { opc: false } }, SCENAR) });
+      s = await J.novaStranka({ kosik: "set", bezOpc: true, noviZakaznik: true, scenar: Object.assign({ hlavicka: true, dataJson: { opc: false } }, SCENAR) });
       await s.k.chod(s.W.base + KOSIK);
       await s.cakaj(`document.readyState === "complete"`, { popis: "košík s vypínačom" });
       await pauza(2000);
