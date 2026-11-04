@@ -19,8 +19,14 @@
 export const PREDPONA = "lcd1v-bxp-";
 
 const bezDiakritiky = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-/** Názov farby (kroky.js nazovFarby) -> kľúč mapy: „Čierna / červené šitie“ -> „cierna-cervene-sitie“. */
-export const slugFarby = (s) => bezDiakritiky(s).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+// CZ názvy farieb (2427 a sety) -> tie isté kľúče ako SK; „výnově červena“ je preklep v CZ admine setov.
+const CZ_KLUCE = { "kavove-hneda": "hneda-kava", "vinove-cervena": "vinovo-cervena", "vynove-cervena": "vinovo-cervena" };
+const CZ_SITIE = { cerne: "cierne", bile: "biele" };
+/** Názov farby (kroky.js nazovFarby) -> kľúč mapy: „Čierna / červené šitie“ aj „Černá / červené prošití“ -> „cierna-cervene-sitie“. */
+export const slugFarby = (s) => {
+  const k = bezDiakritiky(s).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return CZ_KLUCE[k] || k.replace(/^cerna-(.+)-prositi$/, (_, sitie) => "cierna-" + (CZ_SITIE[sitie] || sitie) + "-sitie");
+};
 
 // Farby kresby podľa farby boxu (kľúč = slugFarby(nazovFarby(text možnosti).nazov), ako fotky boxprodukt-farba-*;
 // odtiene odčítané z fotiek vzoriek): koža, rúčka, lem/obrys, šitie, (ryha prešívania, inak čierna .42).

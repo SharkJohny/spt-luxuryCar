@@ -28,7 +28,7 @@
 // Ponuka setu s autokobercami (komplet-ponuka.js) je samostatná karta hneď pod touto kartou.
 // Nič natvrdo: ID parametrov, ceny ani hodnoty volieb. Nové prvky bez name. Text H1 sa nemení.
 import { nazovFarby, popisFarby } from "./kroky.js";
-import { definicieKresby, kresba, nastavFarbuKresby } from "./box-kresba.js";
+import { definicieKresby, kresba, nastavFarbuKresby, slugFarby } from "./box-kresba.js";
 import { vyskaHlavicky, plynulo } from "./posun.js";
 
 export const MENO = "boxy-produkt";
@@ -37,9 +37,6 @@ export const MENO = "boxy-produkt";
 const mikro = typeof queueMicrotask === "function" ? (fn) => queueMicrotask(fn) : (fn) => { Promise.resolve().then(fn); };
 
 const KLUCE = ["box1", "box2", "box3"];
-
-const bezDiakritiky = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const slug = (s) => bezDiakritiky(s).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 function el(tag, attrs, deti) {
   const e = document.createElement(tag);
@@ -299,10 +296,10 @@ export function init(ctx) {
       // (box-kresba.js FARBY_KRESBY, kľúč = názov bez diakritiky; bez farby / neznáma = predvolená čierna, béžové šitie)
       if (a) {
         const im = a.querySelector("img");
-        const src = ctx.obrazokVzoru("boxprodukt-farba-" + slug(nazov)) || (im && im.getAttribute("src")) || "";
+        const src = ctx.obrazokVzoru("boxprodukt-farba-" + slugFarby(nazov)) || (im && im.getAttribute("src")) || "";
         // farbu slovami ukazuje riadok „Vybraná farba: …“ hneď nad náhľadom -> štítok náhľadu len rad (bez farby dvakrát)
         nastavText(nahladNm, T.nahlad || nazov);
-        nastavFarbuKresby(velk, slug(nazov));
+        nastavFarbuKresby(velk, slugFarby(nazov));
         if (src && nahladImg.getAttribute("src") !== src) nahladImg.setAttribute("src", src);
         nahladImg.alt = nazov;
         if (nahlad.hidden !== !src) nahlad.hidden = !src;

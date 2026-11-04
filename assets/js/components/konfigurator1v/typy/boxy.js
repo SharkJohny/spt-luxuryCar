@@ -122,6 +122,7 @@ export const TYP = {
     "boxprodukt-farba-cierna-cierne-sitie": { diamond: "boxprodukt-farba-cierna-cierne.jpg" },
     "boxprodukt-farba-cierna-bezove-sitie": { diamond: "boxprodukt-farba-cierna-bezove.jpg" },
     "boxprodukt-farba-cierna-sive-sitie": { diamond: "boxprodukt-farba-cierna-sive.jpg" },
+    "boxprodukt-farba-cierna-sede-sitie": { diamond: "boxprodukt-farba-cierna-sive.jpg" }, // CZ „Šedá“ = SK „Sivá“, tá istá niť
     "boxprodukt-farba-cierna-biele-sitie": { diamond: "boxprodukt-farba-cierna-biele.jpg" },
     "boxprodukt-farba-hneda-kava": { diamond: "boxprodukt-farba-hneda-kava.jpg" },
     "boxprodukt-farba-vinovo-cervena": { diamond: "boxprodukt-farba-vinovo-cervena.jpg" },
