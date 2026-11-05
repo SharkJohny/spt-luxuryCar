@@ -1747,6 +1747,8 @@ Michal: koberčeky 21–29 dní, kamióny **14–18 dní** (mení 14–25 z 19. 
 
 **Oprava 5. 11. 2026:** časová os kamióna je kus 1 obsahu, a ten sa zákazníkovi berie z Popisu v admine (640 SK, 2452 CZ), nie z CDN. Vydanie `ed3875b` ju preto nezmenilo: naživo ostalo 2× 14–25 dní na SK aj CZ, FAQ (kus 2 z CDN) má 14–18. Zápis do Popisu čaká na Michalov súhlas. Odhalil to `tools/test-1v-obsah.mjs --produkt 640`. Text overovať na živej stránke, nie na súbore v CDN.
 
+**Doplnené 5. 11. 2026:** Michal schválil zápis. Popis 640 SK a 2452 CZ prepísaný na 14–18 dní, zmenené len pole `description`, živá stránka 0× 14–25, 2× 14–18.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.
