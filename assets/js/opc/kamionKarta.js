@@ -21,10 +21,10 @@ import { jeTir, PRECIARKNUTE_EUR, PRECIARKNUTE_CZK } from "../components/konfigu
 import { cisty, hodnotyPriplatkov, ANO, ROVNAKE, KOBERCE, DVERE, skupinyNaZobrazenie } from "./kamionZobrazenie.js";
 import { lcdRozpisEl } from "../functions/kosikRozpis.js";
 import * as D from "../lcdKosikDoplnok.js";
+import { produktDlazdica } from "./vrstvaVideo.js";
 
 export const KLUC_SUHRNU = "truckOrderSummary";
 export const KLUC_VOZIDLA = "truckVehicle";
-const FOTO = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/kosik/tapacir-dveri.jpg";
 
 export const TEXTY = {
   sk: {
@@ -39,7 +39,6 @@ export const TEXTY = {
     pod: "za cenu s kobercami",
     meno: "Tapacír dverí",
     popis: "rovnaký ako koberce · šofér aj spolujazdec",
-    alt: "Tapacír dverí kamióna, ilustračná fotka",
     hotovo: "Tapacír dverí je pridaný k Vášmu kamiónu.",
     ciastocne: "Tapacír je pridaný, pôvodné koberce bez neho však ostali v košíku.",
     odoberte: "Odoberte, prosím, zvýraznenú položku tlačidlom „Odobrať“.",
@@ -57,7 +56,6 @@ export const TEXTY = {
     pod: "za cenu s koberečky",
     meno: "Čalounění dveří",
     popis: "stejné jako koberečky · řidič i spolujezdec",
-    alt: "Čalounění dveří kamionu, ilustrační fotka",
     hotovo: "Čalounění dveří je přidané k Vašemu kamionu.",
     ciastocne: "Čalounění je přidané, původní koberečky bez něj však zůstaly v košíku.",
     odoberte: "Odeberte prosím zvýrazněnou položku tlačítkem „Odebrat“.",
@@ -303,13 +301,11 @@ export function kartaTapaciru(doc, c, o) {
   const stav = el(doc, "p", { class: "lcd-dop__stav lcd-vyb__stav", role: "status", "aria-live": "polite" });
   const samo = (R.mena === "CZK" ? PRECIARKNUTE_CZK : PRECIARKNUTE_EUR).tapacir;
   const usetri = samo && samo > c.rozdiel.s + 0.5 ? TV.usetrite + " " + D.cenaText(samo - c.rozdiel.s, R) : null;
-  const mini = el(doc, "img", { class: "lcd-vyb__mini", src: FOTO, alt: T.alt, width: "152", height: "190", decoding: "async" });
-  mini.addEventListener("error", function () { mini.style.visibility = "hidden"; });
   const btn = el(doc, "button", { type: "button", form: o.forma || null, class: "lcd-vyb__btn", "data-lcd-vyb": "tapacir", "aria-describedby": id + "-m" }, [el(doc, "span", { text: TV.vybTlacidlo })]);
   k.appendChild(el(doc, "ul", { class: "lcd-vyb__zoznam" }, [
     el(doc, "li", { class: "lcd-vyb__riadok", "data-doplnok": "tapacir" }, [
       el(doc, "div", { class: "lcd-vyb__pas" }, [
-        mini,
+        produktDlazdica("tapacir").el,
         el(doc, "span", { class: "lcd-vyb__text" }, [
           el(doc, "span", { class: "lcd-vyb__meno", id: id + "-m" }, [el(doc, "b", { text: T.meno })]),
           el(doc, "span", { class: "lcd-vyb__cena" }, [el(doc, "b", { text: D.cenaText(c.rozdiel.s, R, true) }), usetri ? el(doc, "span", { text: " · " + usetri }) : null]),

@@ -774,13 +774,13 @@ export const SCENARE = {
       // Michal 2. 11. 2026: „+129 € · ušetríte 101 €“ v jednom riadku (SK, šírka testu), tlačidlá Pridať zelené
       over(r[0].cenaRiadky === 1 && r[2].cenaRiadky === 1, "cena s „ušetríte“ nie je v jednom riadku: " + JSON.stringify([r[0].cenaRiadky, r[2].cenaRiadky]));
       over(r.every((x) => /rgb\(46, 125, 50\)/.test(x.btnFarba)), "Pridať nie je zelené (--o-zelena ako Objednať): " + r.map((x) => x.btnFarba).join(" ; "));
-      // video rohože a boxu: na obrazovke sa samo hrá v slučke celé (kosik/rohoz-video, kosik/box-video), bez priblíženia
+      // video rohože a boxu: na obrazovke sa samo hrá v slučke celé (kosik/rohoz-dno, kosik/box-poriadok), bez priblíženia
       for (const k of ["rohoz", "box"]) {
         await s.ev(`document.querySelector("[data-lcd-vyb-produkt-video='${k}']").scrollIntoView({ block: "center" })`);
         await s.cakaj(`(function () { var v = document.querySelector("[data-lcd-vyb-produkt-video='${k}'] video"); return v && !v.paused && v.currentTime > 0.3; })()`, { ms: 15000, popis: "video " + k + " sa hrá" });
         const pv = await s.ev(`(function () { var t = document.querySelector("[data-lcd-vyb-produkt-video='${k}']"), v = t.querySelector("video");
           return { src: v.currentSrc, loop: v.loop, muted: v.muted, tr: getComputedStyle(v).transform, tag: t.tagName, aria: t.getAttribute("aria-hidden") }; })()`);
-        over(new RegExp("kosik/" + k + "-video\\.(webm|mp4)$").test(pv.src) && pv.loop && pv.muted && pv.tr === "none" && pv.tag === "SPAN" && pv.aria === "true", "video " + k + ": " + JSON.stringify(pv));
+        over(new RegExp("kosik/" + { rohoz: "rohoz-dno", box: "box-poriadok" }[k] + "\\.(webm|mp4)$").test(pv.src) && pv.loop && pv.muted && pv.tr === "none" && pv.tag === "SPAN" && pv.aria === "true", "video " + k + ": " + JSON.stringify(pv));
       }
       // dlaždica na obrazovke -> video sa samo hrá od úseku s vodou
       await s.ev(`document.querySelector("[data-lcd-vyb-video]").scrollIntoView({ block: "center" })`);
@@ -838,7 +838,7 @@ export const SCENARE = {
         return { k: t.getAttribute("data-lcd-vyb-produkt-video"), staticke: t.classList.contains("lcd-vyb__vid--staticke"), zdroje: v.querySelectorAll("source").length, src: v.currentSrc, poster: v.poster }; })`);
       await s.k.posli("Emulation.setEmulatedMedia", { features: [] });
       over(st.staticke && st.zdroje === 0 && !st.src && st.play !== "none" && /kosik\/vrstva-video\.jpg$/.test(st.poster), "menej pohybu: " + JSON.stringify(st));
-      over(stP.length === 2 && stP.every((x) => x.staticke && x.zdroje === 0 && !x.src && new RegExp("kosik/" + x.k + "-video\\.jpg$").test(x.poster)), "menej pohybu, rohož / box: " + JSON.stringify(stP));
+      over(stP.length === 2 && stP.every((x) => x.staticke && x.zdroje === 0 && !x.src && new RegExp("kosik/" + { rohoz: "rohoz-dno", box: "box-poriadok" }[x.k] + "\\.jpg$").test(x.poster)), "menej pohybu, rohož / box: " + JSON.stringify(stP));
       return { info: "rohož prvá + štítok, video od " + v1.t.toFixed(1) + " s, rohož a box video, cena v 1 riadku, zelené Pridať, príbeh 2 videá, Esc, Pridať -> výber farby, menej pohybu bez videa" };
     },
   },

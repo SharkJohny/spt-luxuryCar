@@ -1383,12 +1383,13 @@ await test("pokladňa: rohož a box s videom namiesto fotky (ozdoba, nie tlačid
     pravda(t && t.tagName === "SPAN" && t.getAttribute("data-lcd-vyb-produkt-video") === kluc && t.getAttribute("aria-hidden") === "true"
       && t.classList.contains("lcd-vyb__vid--produkt") && !riadok.querySelector(".lcd-vyb__pas [data-lcd-vyb-video]"), kluc + ": ozdoba, nie tlačidlo");
     const vid = t.querySelector("video");
-    rovne([vid.muted, vid.loop, vid.preload, vid.querySelectorAll("source").length, new RegExp("kosik/" + kluc + "-video\\.jpg$").test(vid.poster)],
+    rovne([vid.muted, vid.loop, vid.preload, vid.querySelectorAll("source").length, new RegExp("kosik/" + { rohoz: "rohoz-dno", box: "box-poriadok" }[kluc] + "\\.jpg$").test(vid.poster)],
       [true, true, "none", 0, true], kluc + ": video sa nesťahuje vopred, poster = prvý záber");
   });
   const css = readFileSync(new URL("../assets/css/_lcdOpc.scss", import.meta.url), "utf8");
   pravda(/\.lcd-vyb__vid--produkt \.lcd-vyb__vid-video\{transform:none\}/.test(css), "video rohože / boxu bez priblíženia (scale 1.3 je len pre druhú vrstvu)");
-  ["rohoz-video", "box-video"].forEach((m) => ["mp4", "webm", "jpg"].forEach((x) =>
+  pravda(!/lcd-vyb__farby--box\{grid-template-columns:repeat\(9/.test(css), "farby boxu v 2 radoch 5 + 4, nie 9 v jednom (Michal 6. 11. 2026)");
+  ["rohoz-dno", "box-poriadok", "tapacir-dvere"].forEach((m) => ["mp4", "webm", "jpg"].forEach((x) =>
     pravda(existsSync(new URL("../assets/img/kosik/" + m + "." + x, import.meta.url)), "chýba assets/img/kosik/" + m + "." + x)));
 });
 await test("pokladňa: CZ texty štítku, tlačidla a príbehu", () => {

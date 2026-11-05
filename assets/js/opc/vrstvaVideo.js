@@ -143,13 +143,14 @@ export function videoDlazdica(T, o) {
 
 // ------------------------------------------------------------------ rohož a box do kufra
 // Michal 2. 11. 2026: „aj rohož do kufra, aj box do kufra … ako video“ — namiesto fotky krátke slučkové video
-// poskladané z našich fotiek (assets/img/kosik/rohoz-video: Classic -> Premium s pomalým posunom; box-video:
-// 1 box -> 2 boxy -> kufor bez boxu), 288 × 360, bez zvuku, ~100 kB. Len ozdoba ako fotka predtým (nie tlačidlo, ťuknutie
+// poskladané z našich fotiek (tools/kosik-videa.py; Michal 6. 11. 2026: rohoz-dno = kufor bez rohože -> rohož na dno, lebo
+// príplatok je rohož na dno, nie Premium; box-poriadok = veci po podlahe -> veci v boxoch -> zatvorené boxy; tapacir-dvere =
+// dvere v kamióne, bez loga Scania a vikinga), 288 × 360, bez zvuku. Len ozdoba ako fotka predtým (nie tlačidlo, ťuknutie
 // nič nerobí), sťahuje sa až keď je riadok z polovice na obrazovke, mimo obrazovky pauza. Šetrenie dát / menej
 // pohybu / zakázané prehrávanie -> ostane záber (poster = prvý záber videa).
-export const PRODUKT_VIDEA = { rohoz: "rohoz-video", box: "box-video" };
+export const PRODUKT_VIDEA = { rohoz: "rohoz-dno", box: "box-poriadok", tapacir: "tapacir-dvere" };
 
-/** Dlaždica s videom pre riadok rohože / boxu (kluc = „rohoz“ | „box“). -> { el, video, zastav } */
+/** Dlaždica s videom pre riadok rohože, boxu a tapacíru (kluc z PRODUKT_VIDEA). -> { el, video, zastav } */
 export function produktDlazdica(kluc) {
   const meno = PRODUKT_VIDEA[kluc];
   const staticke = bezAutoplay();
