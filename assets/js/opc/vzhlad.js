@@ -80,8 +80,8 @@ export function naMieru(nazvy) {
 }
 
 // Termín doručenia bez dátumov (Michal 29. 10., kniha § 8 otázka 2 = b): „Doručenie do 21–29 dní“ (aj box), kamióny
-// 14–25 dní. Pri vzorkách a poukážke termín nepíšeme (nie sú na mieru, lehotu nepoznáme). -> { od, po } v dňoch | null
-const LEHOTY = { koberce: [21, 29], kamion: [14, 25] };
+// 14–18 dní. Pri vzorkách a poukážke termín nepíšeme (nie sú na mieru, lehotu nepoznáme). -> { od, po } v dňoch | null
+const LEHOTY = { koberce: [21, 29], kamion: [14, 18] };
 export function terminDorucenia(druh) {
   const l = LEHOTY[druh];
   return l ? { od: l[0], po: l[1] } : null;

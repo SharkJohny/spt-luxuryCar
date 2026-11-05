@@ -676,7 +676,7 @@ console.log("20) 1B hlavička a 6A ceny v hlavičkách krokov, súhrn bez karty 
   over("20: súhrn bez „Súhrn objednávky“, nadpisu, vozidla a riadkov", !q(".sh__ey") && !q(".sh__h") && !q(".sh__voz") && !q(".sh__r") && !/Súhrn objednávky|Koberce pre Váš|Koberce do kabíny/.test(tx('[data-k="suhrn"]')), tx('[data-k="suhrn"]'));
   over("20: nič nevybraté -> „Spolu zatiaľ 199 €“, „Zatiaľ nevybraté: …“, „Dokončite výber“, 3 fakty, dopravcovia",
     tx(".k-suhrn__lb") === "Spolu zatiaľ" && tx(".k-suhrn__suma") === "199 €" && /^Zatiaľ nevybraté: vozidlo, materiál, farba, lemovanie, nášivky, tapacír dverí\.$/.test(tx(".sh__chyba-r")) &&
-    tx(".k-kosik") === "Dokončite výber" && J(qa(".sh__fakty li").map((x) => x.textContent)) === J(["Dodanie približne 14–25 dní", "Platba kartou alebo prevodom", "Odpovedáme spravidla do hodiny"]) && tx(".k-alt") === "Máte vo firme viac kamiónov? Napíšte nám", tx('[data-k="suhrn"]'));
+    tx(".k-kosik") === "Dokončite výber" && J(qa(".sh__fakty li").map((x) => x.textContent)) === J(["Dodanie približne 14–18 dní", "Platba kartou alebo prevodom", "Odpovedáme spravidla do hodiny"]) && tx(".k-alt") === "Máte vo firme viac kamiónov? Napíšte nám", tx('[data-k="suhrn"]'));
   zaklad(t, DAF);
   over("20: krok 1 = „DAF XF106 2017–2021 · automatická · 199 €“ (cena za nezalomiteľnou medzerou)", vy("vozidlo") === "DAF XF106 2017–2021 · automatická · 199 €" && / · 199 €$/.test(nbsp("vozidlo")), vy("vozidlo"));
   over("20: krok 2 = „Prémiová syntetická koža, prešívaná · + 10 €“", vy("material") === "Prémiová syntetická koža, prešívaná · + 10 €", vy("material"));

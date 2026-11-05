@@ -470,13 +470,13 @@ t("druh košíka: vzorky, kamión, koberce (zmes = koberce)", () => {
   eq(V.druhKosika(["Vzorkovník Dragonskin – objednávka vzoriek", "luxusné autokoberce do kamiónov DAF"]), "kamion");
   eq(V.druhKosika([]), null);
 });
-t("termín doručenia bez dátumov (Michal 29. 10.): „do 21–29 dní“, kamión 14–25, vzorky a poukážka bez termínu", () => {
+t("termín doručenia bez dátumov (Michal 29. 10.): „do 21–29 dní“, kamión 14–18, vzorky a poukážka bez termínu", () => {
   const k = V.terminDorucenia("koberce");
   eq(k, { od: 21, po: 29 });
   eq(TEXTY.sk.termin(k.od, k.po), "Doručenie do 21–29\u00a0dní");
   eq(TEXTY.cz.termin(k.od, k.po), "Doručení do 21–29\u00a0dnů");
   const c = V.terminDorucenia("kamion");
-  eq([TEXTY.sk.termin(c.od, c.po), TEXTY.cz.termin(c.od, c.po)], ["Doručenie do 14–25\u00a0dní", "Doručení do 14–25\u00a0dnů"]);
+  eq([TEXTY.sk.termin(c.od, c.po), TEXTY.cz.termin(c.od, c.po)], ["Doručenie do 14–18\u00a0dní", "Doručení do 14–18\u00a0dnů"]);
   eq([V.terminDorucenia("vzorky"), V.terminDorucenia(null)], [null, null]);
   const t2 = TEXTY.sk.termin(21, 29) + " " + TEXTY.cz.termin(21, 29);
   eq([/\d+\.\s?\d+\./.test(t2), /medzi|mezi/.test(t2)], [false, false], "bez dátumu");
@@ -1065,10 +1065,10 @@ t("dizajn A: platby zadarmo = dlaždice (nie dobierka, nie rýchla platba), poč
     eq([...el.querySelectorAll(".lcd-opc-karta h2")].map((h) => h.getAttribute("data-lcd-opc-cislo")), ["3", "4"], web);
   }
 });
-t("dizajn A: termín „Doručenie do 14–25 dní“ — lehota sa nezalomí, text celý", () => {
+t("dizajn A: termín „Doručenie do 14–18 dní“ — lehota sa nezalomí, text celý", () => {
   const { el } = sekcia("sk", { termin: V.terminDorucenia("kamion") });
   const t0 = el.querySelector(".lcd-opc-termin");
-  eq([t0.textContent, t0.querySelector(".lcd-opc-termin__lehota").textContent], ["Doručenie do 14–25 dní", "14–25 dní"]);
+  eq([t0.textContent, t0.querySelector(".lcd-opc-termin__lehota").textContent], ["Doručenie do 14–18 dní", "14–18 dní"]);
 });
 t("dizajn A: lišta — text tlačidla na 2 riadky (OBJEDNAŤ + s povinnosťou platby), text celý; „Odosielam…“ bez druhého riadku", () => {
   const { d } = krok2Dom("sk");

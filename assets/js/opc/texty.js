@@ -18,7 +18,7 @@ export const TEXTY = {
     doprava: "Doprava",
     platba: "Platba",
     nacitavam: "Načítavam dopravu a platbu…",
-    // termín bez dátumov (Michal 29. 10.): 21–29 dní, kamióny 14–25; nezalomiteľná medzera pred „dní“
+    // termín bez dátumov (Michal 29. 10.): 21–29 dní, kamióny 14–18; nezalomiteľná medzera pred „dní“
     termin: (od, po) => "Doručenie do " + od + "–" + po + "\u00a0dní",
     prepocitavam: "Prepočítavam…",
     // hláška pri platbách: ktorá platba ostala zvolená (zákazník ju na telefóne nevidí, zoznam je vyššie) + odkaz na krok 1

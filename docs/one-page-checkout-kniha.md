@@ -1741,6 +1741,10 @@ Otvorený bod z § 2 súpisu nápadov potvrdený naživo: `productPage.js` nasta
 
 Michal: „Vykašľať sa na celý export… dôležité je, aby sme mali všetko nastavené po česky… a už export následne spravíme.“ Záplata `13732ce` nasadená bez čakania na Jána: CZ poznámka má český materiál, výbavu aj vozidlo (`MATERIAL_CS`, `vybavaCs`, `vozidloCs` v `order-summary.mjs`), SK poznámka bez zmeny. Export pozná CZ hodnoty až po Jánovej úprave, podklady dostal 4. 11. (`PRE JÁNA – export kamiónov/2026-11-04 CZ hodnoty/`). Back Office číta `[KONFIGURACE KAMIONU]` od `1b469c2` (mega-app). Test `tools/test-kamion-poznamka-cz.mjs` (474 kontrol).
 
+### 10.40 Lehoty a fakty na titulke (5. 11. 2026)
+
+Michal: koberčeky 21–29 dní, kamióny **14–18 dní** (mení 14–25 z 19. 10.). Upravené: `LEHOTY.kamion`, konfigurátor kamióna, časová os a FAQ kamiónov (`p1v-kamiony`), test. Na titulke je „14–18 dní“ v sekcii kamiónov, ostáva. Bannery 178, 191, 117, 120: od 219 € / od 5 664 Kč (overené: Basic Diamond Line 219 € / 5 664 Kč, jeden rad bez príplatkov), umelá koža. Banner sa ukladá cez natívny setter textarea + udalosť `input`, inak sa uloží starý text.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

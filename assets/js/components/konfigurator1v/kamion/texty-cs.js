@@ -733,7 +733,7 @@ export const TEXTY_CS = {
   "spolu": "Celkem",
   "usetrili": "Ušetříte {x} oproti samostatnému nákupu",
   "fakty": [
-   "Dodání přibližně 14–25 dní",
+   "Dodání přibližně 14–18 dní",
    "Platba kartou nebo převodem",
    "Odpovídáme zpravidla do hodiny"
   ],

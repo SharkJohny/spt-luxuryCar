@@ -736,7 +736,7 @@ export const TEXTY = {
   "spolu": "Spolu",
   "usetrili": "Ušetríte {x} oproti samostatnému nákupu",
   "fakty": [
-   "Dodanie približne 14–25 dní",
+   "Dodanie približne 14–18 dní",
    "Platba kartou alebo prevodom",
    "Odpovedáme spravidla do hodiny"
   ],
