@@ -160,13 +160,13 @@ test("CZ: rozpis z príplatkov po česky, čalounění jedným riadkom", () => {
   rovne(r[r.length - 1], { n: "Čalounění dveří", h: "stejné jako koberečky" });
 });
 
-// živá kontrola 2. 11. 2026 (153f0ec): CZ súhrn konfigurátora má slovenské hodnoty („koža – prešívaná“, „Automatická
+// živá kontrola 2. 11. 2026 (153f0ec): CZ súhrn konfigurátora mal slovenské hodnoty („koža – prešívaná“, „Automatická
 // prevodovka“), príplatky Shoptetu české („kůže – prošívaná“) -> súhrn sa zahodil, chýbalo Vozidlo aj ponuka čalounění.
 const SUR_CZ_ZIVY = "Příplatky: Barva - černá, černé prošití – 11, Niť boky - Bez nitě, Niť dveře - Bez nitě, Niť stred - Bez nitě, Čalounění - Ne, nechci čalounění dveří, Nášivka boky - Bez nášivky, Nášivka stred - Bez nášivky, Lemování - černý základ, černé proužky – 09, Materiál - Prémiová syntetická kůže – prošívaná, Nášivka dveře druh - Bez nášivky, Nášivka dveře - Ne, nechci nášivku na dveřích, Nášivky - Bez nášivek";
 const S_CZ_ZIVY = { znacka: "DAF (TIR)", model: "XF 2022-2025", extras: { prevodovka: "Automatická prevodovka", sedadlo: "Sedadlo spolujazdca odpružené" },
   selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" }, selectedLemovanie: { code: "09" }, nasivkyPlacement: "none", doorPanelChoice: "nie" };
 
-test("CZ živý: súhrn so slovenskými hodnotami sedí s českými príplatkami -> Vozidlo, TIR bez čalounění", () => {
+test("CZ živý: súhrn sedí s českými príplatkami -> Vozidlo, TIR bez čalounění", () => {
   const ss = ulozisko({ truckOrderSummary: buildTruckOrderSummary(S_CZ_ZIVY, "cs"), truckVehicle: "DAF (TIR) XF 2022-2025" });
   const p = { itemId: "c1", priceId: "99452", q: 1, sur: SUR_CZ_ZIVY, href: "/luxusni-autokoberce-kamiony/", text: "Luxusní autokoberce do kamionů" };
   const u = K.udajeKamiona(p, { ss, jazyk: "cs", jediny: true });
@@ -180,10 +180,22 @@ test("CZ živý: súhrn so slovenskými hodnotami sedí s českými príplatkami
   rovne(r[2], { n: "Typ sedadla spolujezdce", h: "Odpružené" });
   rovne(r[3], { n: "Typ a barva materiálu", h: "Prémiová syntetická kůže – prošívaná – černá, černé prošití – 11" });
   pravda(!/koža|prešívan|prevodovka|spolujazdca/.test(JSON.stringify(r)), "slovenské slovo v CZ karte: " + JSON.stringify(r));
-  pravda(/Prémiová syntetická koža – prešívaná/.test(ss.getItem("truckOrderSummary")), "súhrn (poznámka objednávky) sa nemení");
+  pravda(/Prémiová syntetická kůže – prošívaná/.test(ss.getItem("truckOrderSummary")), "súhrn (poznámka objednávky) je po česky");
   // súhrn inej farby (12) sa ani na CZ nepoužije
   const iny = Object.assign({}, S_CZ_ZIVY, { selectedColor: { code: "12" } });
   pravda(!K.udajeKamiona(p, { ss: ulozisko({ truckOrderSummary: buildTruckOrderSummary(iny, "cs") }), jazyk: "cs", jediny: true }).zoSuhrnu, "súhrn s farbou 12");
+});
+
+test("CZ: starý súhrn so slovenskými hodnotami (karta otvorená pred prepnutím verzie) sa zobrazí po česky", () => {
+  const stary = ["SPECIFIKACE VOZIDLA", "- Vozidlo: DAF (TIR) XF 2022-2025", "- Typ převodovky: Automatická prevodovka",
+    "- Typ sedadla spolujezdce: Sedadlo spolujazdca odpružené", "", "KOBEREČKY POD SEDAČKY",
+    "- Typ a barva materiálu: Prémiová syntetická koža – prešívaná – černá, černé prošití – 11",
+    "- Barva lemování: černý základ, černé proužky – 09"].join("\n");
+  const u = K.udajeKamiona({ itemId: "c1", sur: SUR_CZ_ZIVY, text: "Luxusní autokoberce do kamionů" }, { ss: ulozisko({ truckOrderSummary: stary }), jazyk: "cs", jediny: true });
+  pravda(u.zoSuhrnu, "starý súhrn sa nepoužil");
+  const r = K.riadkyRozpisu(u.skupiny, "cs", "cz", SUR_CZ_ZIVY);
+  pravda(!/koža|prešívan|prevodovka|spolujazdca/.test(JSON.stringify(r)), JSON.stringify(r));
+  rovne(r[1], { n: "Typ převodovky", h: "Automatická" });
 });
 
 test("CZ: vozidlo v karte po česky ako v konfigurátore (obytná kabina, s tunelem, zadní pohon)", () => {

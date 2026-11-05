@@ -1737,6 +1737,10 @@ Otvorený bod z § 2 súpisu nápadov potvrdený naživo: `productPage.js` nasta
 - **Ostáva:** v objednávke je jedna trojica polí. Kto po pridaní do košíka otvorí ďalší produkt s konfigurátorom, má znova predvolené (rovnako ako predtým).
 - **Test:** S8V (červený pred opravou, zelený po nej), S8 s predvolenými hodnotami bez zmeny.
 
+### 10.39 Kamión na CZ: celá poznámka objednávky po česky (5. 11. 2026)
+
+Michal: „Vykašľať sa na celý export… dôležité je, aby sme mali všetko nastavené po česky… a už export následne spravíme.“ Záplata `13732ce` nasadená bez čakania na Jána: CZ poznámka má český materiál, výbavu aj vozidlo (`MATERIAL_CS`, `vybavaCs`, `vozidloCs` v `order-summary.mjs`), SK poznámka bez zmeny. Export pozná CZ hodnoty až po Jánovej úprave, podklady dostal 4. 11. (`PRE JÁNA – export kamiónov/2026-11-04 CZ hodnoty/`). Back Office číta `[KONFIGURACE KAMIONU]` od `1b469c2` (mega-app). Test `tools/test-kamion-poznamka-cz.mjs` (474 kontrol).
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

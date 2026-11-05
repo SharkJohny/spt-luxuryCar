@@ -1,7 +1,7 @@
 // Kamión 640 / 2452: hodnoty súhrnu konfigurátora a príplatkov riadku košíka na zobrazenie zákazníkovi (karta pokladne
 // opc/kamionKarta.js aj klasický košík components/cart.js). Len zobrazenie — súhrn v sessionStorage (poznámka objednávky,
-// Jánov export) sa nemení. Živá kontrola 2. 11. 2026: CZ konfigurátor píše do súhrnu slovenské hodnoty („Prémiová syntetická
-// koža – prešívaná“, „Automatická prevodovka“, „Sedadlo spolujazdca odpružené“), Shoptet 2452 má „kůže – prošívaná“.
+// Jánov export) sa nemení. Súhrn z karty otvorenej pred českou poznámkou má ešte slovenské hodnoty („Prémiová syntetická
+// koža – prešívaná“, „Automatická prevodovka“), preto sa prijímajú obe sady.
 import { truckSummaryTexts, vozidloCs, vybavaCs } from "../truck-konfigurator/order-summary.mjs";
 import { SELECTY, normalizeOptionText } from "../components/konfigurator1v/kamion/shoptet.js";
 import { TEXTY_CS } from "../components/konfigurator1v/kamion/texty-cs.js";
@@ -49,7 +49,7 @@ export const vozidloNaZobrazenie = (t, jazyk) => {
   return v.replace(/\s*\((TIR|dodávka)\)/gi, "").replace(/(\d{4})\s*-\s*(\d{4})/g, "$1–$2");
 };
 
-/** CZ: výbava vozidla zo súhrnu („Automatická prevodovka“) ako ju ukazuje CZ konfigurátor („Automatická“) — texty-cs.js polia.*.moznosti. */
+/** CZ: výbava vozidla zo súhrnu („Automatická převodovka“, zo staršej karty „Automatická prevodovka“) ako ju ukazuje CZ konfigurátor („Automatická“) — texty-cs.js polia.*.moznosti. */
 const VYBAVA_CS = (function () {
   const m = {};
   (function prejdi(o, hlbka) {
@@ -59,7 +59,7 @@ const VYBAVA_CS = (function () {
       if (k === "polia" && x && typeof x === "object") {
         Object.keys(x).forEach(function (pole) {
           const mo = x[pole] && x[pole].moznosti;
-          if (mo && typeof mo === "object") Object.keys(mo).forEach(function (sk) { if (typeof mo[sk] === "string") m[sk] = mo[sk]; });
+          if (mo && typeof mo === "object") Object.keys(mo).forEach(function (sk) { if (typeof mo[sk] === "string") m[sk] = m[vybavaCs(sk)] = mo[sk]; });
         });
       } else prejdi(x, hlbka + 1);
     });

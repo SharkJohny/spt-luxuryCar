@@ -116,7 +116,18 @@ const THREAD_COLOR_NAMES = {
   },
 };
 
-// Výbava vozidla po česky (kľúče = slovenské hodnoty konfigurátora). Tabuľka (kamionycs) môže pridať ďalšie.
+// Stav konfigurátora drží materiál a výbavu vozidla ako slovenské kľúče (data.js, truck-brands.js, príplatky Shoptetu).
+// Do CZ poznámky objednávky idú tieto texty. Jánov export pozná obe sady: pri pridaní hodnoty ju doplň aj jemu.
+const MATERIAL_CS = {
+  "Prémiová syntetická koža – jednofarebná": "Prémiová syntetická kůže – jednobarevná",
+  "Prémiová syntetická koža – prešívaná": "Prémiová syntetická kůže – prošívaná",
+  "Prémiová syntetická koža – tónovaná": "Prémiová syntetická kůže – tónovaná",
+  "Mikrosemiš – jednofarebný": "Mikrosemiš – jednobarevný",
+  "Mikrosemiš – dvojfarebný": "Mikrosemiš – dvoubarevný",
+  "Vzorovaný velúr": "Vzorovaný velur",
+};
+
+// Výbava vozidla po česky. Tabuľka (kamionycs) môže pridať ďalšie.
 const VYBAVA_CS = {
   "Automatická prevodovka": "Automatická převodovka",
   "Manuálna prevodovka": "Manuální převodovka",
@@ -234,8 +245,9 @@ function addLine(lines, label, value) {
 // červené šitie – 5“); kód ostáva na konci – podľa neho vyrába dodávateľ. Neznámy kód = ako predtým.
 function materialAndColor(material, color, language) {
   const kod = color && typeof color === "object" ? String(color.code || "").trim() : "";
-  if (kod && nazovFarby(kod, language)) return materialFarbaText(material, kod, language);
-  return [material, selectedText(color, true)].filter(Boolean).join(" – ");
+  const nazov = (language === "cs" && MATERIAL_CS[material]) || material;
+  if (kod && nazovFarby(kod, language)) return materialFarbaText(nazov, kod, language);
+  return [nazov, selectedText(color, true)].filter(Boolean).join(" – ");
 }
 
 // Michal 25. 10. 2026: lemovanie „základ + pásiky“ s číslom na konci („čierny základ, bordové pásiky – 05“);
@@ -277,9 +289,11 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
   const centreEmbroidery = hasCentreEmbroidery(s.nasivkyPlacement);
 
   addGroup(lines, texts.headings.vehicle, (group) => {
-    addLine(group, texts.labels.vehicle, [s.znacka, s.model].filter(Boolean).join(" "));
+    const vehicle = [s.znacka, s.model].filter(Boolean).join(" ");
+    addLine(group, texts.labels.vehicle, language === "cs" ? vozidloCs(vehicle) : vehicle);
     Object.keys(texts.extras).forEach((key) => {
-      addLine(group, texts.extras[key], s.extras && s.extras[key]);
+      const value = s.extras && s.extras[key];
+      addLine(group, texts.extras[key], language === "cs" ? vybavaCs(value) : value);
     });
   });
 

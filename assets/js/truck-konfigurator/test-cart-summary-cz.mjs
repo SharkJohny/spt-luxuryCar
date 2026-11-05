@@ -1,6 +1,5 @@
-// CZ košík (klasický /kosik/ aj súhrn v pokladni): súhrn CZ konfigurátora má slovenské hodnoty („Prémiová syntetická koža –
-// prešívaná“, „Automatická prevodovka“, „Sedadlo spolujazdca odpružené“) -> zákazník ich vidí po česky (materiál z príplatku
-// Shoptetu, výbava ako CZ konfigurátor). Súhrn v sessionStorage (poznámka objednávky, Jánov export) sa nemení.
+// CZ košík (klasický /kosik/ aj súhrn v pokladni): zákazník vidí kamión po česky (materiál z príplatku Shoptetu, výbava ako
+// CZ konfigurátor). Súhrn v sessionStorage (poznámka objednávky, Jánov export) sa zobrazením nemení.
 // Živá kontrola vlákna nášiviek 2. 11. 2026 (8681b1e). Príplatky riadku = živý CZ košík 2452.
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";

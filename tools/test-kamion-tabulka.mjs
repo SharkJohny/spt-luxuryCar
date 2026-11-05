@@ -99,9 +99,9 @@ console.warn = zaloha.warn;
   over("zobrazenie v košíku", vozidloNaZobrazenie("Scania (TIR) G 2010-2016 – nízka kabína", "cs") === "Scania G 2010–2016 – nízká kabina", vozidloNaZobrazenie("Scania (TIR) G 2010-2016 – nízka kabína", "cs"));
   const g = skupinyNaZobrazenie([{ heading: "SPECIFIKACE VOZIDLA", items: [{ label: "Typ převodovky", value: "Robotizovaná prevodovka" }] }], "cs", "");
   over("nová výbava v CZ košíku", g[0].items[0].value === "Robotizovaná převodovka", J(g));
-  // poznámka: formát aj slovenské kľúče ako doteraz, kým Ján nepotvrdí export
+  // CZ poznámka po česky aj pri novom kamióne z tabuľky
   const pozn = buildTruckOrderSummary({ znacka: "Scania (TIR)", model: "G 2010-2016 – nízka kabína", extras: { prevodovka: "Robotizovaná prevodovka" }, selectedMaterial: "Prémiová syntetická koža – prešívaná", selectedColor: { code: "11" }, selectedLemovanie: { code: "04" } }, "cs");
-  over("CZ poznámka bez zmeny", /Vozidlo: Scania \(TIR\) G 2010-2016 – nízka kabína/.test(pozn) && /Typ převodovky: Robotizovaná prevodovka/.test(pozn), pozn);
+  over("CZ poznámka po česky", /Vozidlo: Scania \(TIR\) G 2010-2016 – nízká kabina/.test(pozn) && /Typ převodovky: Robotizovaná převodovka/.test(pozn), pozn);
   // znovu dnešné listy: stav sa nevrství
   over("čiarka na konci bunky", kamionyZDat({ settings: { kamiony: bunkaSettings(riadky("sk")) + ",", kamionycs: bunkaSettings(riadky("cs")) + ",," } }) === true && J(D.VOZIDLA) === J(TRUCK_VEHICLES));
   over("návrat na dnešné listy", kamionyZDat(data(riadky("sk"), riadky("cs"))) === true && J(D.VOZIDLA) === J(TRUCK_VEHICLES));
