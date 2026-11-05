@@ -68,6 +68,21 @@ export const SCENARE = {
       return { step2: true, info: "rozpis " + r.length + " riadkov aj po obnove, " + termin + ", varchar1–3 + poznámka „" + remark + "“" };
     },
   },
+  S8V: {
+    len: "sk",
+    popis: "Set: zákazníkov výber volant, miesta, dvere prejde košíkom do tela objednávky (predtým ho každá stránka vrátila na left, pass-5, doors-4)",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set" });
+      await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => uloz(k, { ...AUTO, wheelPosition: "right", seatPosition: "pass-7", doorPosition: "doors-5" }) });
+      await vyplnUdaje(s);
+      await suhlas(s);
+      const z = await objednaj(s);
+      const m = overTeloObjednavky(s, z[0]);
+      const v = ["varchar1", "varchar2", "varchar3"].map((k) => (m.get(k) || [])[0]);
+      over(v.join() === "right,pass-7,doors-5", "varchar1–3 v tele: " + JSON.stringify(v));
+      return { step2: true, info: "varchar1–3 = " + v.join(", ") };
+    },
+  },
   S9: {
     len: "sk",
     popis: "Set + odoslanie 2× (chyba zo servera, potom OK): „model: …“ v poznámke práve raz, ručný text ostáva",

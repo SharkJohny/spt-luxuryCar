@@ -1729,6 +1729,14 @@ Produkt `test` (SK id 643, CZ id 2455, `/test-objednavka/`, kód TEST-1, 1 € /
 - **Naživo 5. 11. 2026 ~00:50 UTC:** `50a8e93` na SK aj CZ (návrat `745915d`), `SPUSTENE = false`. Testy: SK 162, CZ 94, z CDN 24/24, 1V 100 OK, zákazník bez kódu bez zmeny.
 - **SK názvy parametrov (Michal 4. 11.):** pole „shortName“ v `/admin/priplatky-detail/`: 94, 97, 100, 104 `Veľkosť …`, 88 `Rohož do kufra`; interné `name` a `indexName` bez zmeny. Okno boxov muselo najprv prijať „Veľkosť“ (regex `^ve[lľ][ioe]?kos[tť]`, `tools/test-nazov-velkost.mjs`). Po premenovaní 1V 100 OK a pokladňa SK 3× OK, krížiky pri rohoži a boxoch fungujú. Staré → nové: `LCD/web/zalohy-admin/2026-11-05-parametre/`.
 
+### 10.38 Volant, miesta a dvere konečne idú do objednávky (5. 11. 2026)
+
+Otvorený bod z § 2 súpisu nápadov potvrdený naživo: `productPage.js` nastavoval `wheelPosition`, `seatPosition`, `doorPosition` na predvolené na úrovni modulu, teda pri každom načítaní každej stránky, aj v košíku. `cart.js` potom do `varchar1–3` zapísal vždy `left`, `pass-5`, `doors-4`, nech zákazník zvolil čokoľvek. Chyba je stará, je v tom aj starý bundle `luxuryCarOld.js`.
+
+- **Teraz:** pri načítaní sa doplní len chýbajúca hodnota, na predvolené ich vracia až `firstPage` po vytvorení dlaždíc (dlaždice vtedy ukazujú predvolené, `prenos.js` ich potom nastaví klikom). Formát hodnôt sa nemení, výroba dostáva skutočný výber.
+- **Ostáva:** v objednávke je jedna trojica polí. Kto po pridaní do košíka otvorí ďalší produkt s konfigurátorom, má znova predvolené (rovnako ako predtým).
+- **Test:** S8V (červený pred opravou, zelený po nej), S8 s predvolenými hodnotami bez zmeny.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

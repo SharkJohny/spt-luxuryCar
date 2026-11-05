@@ -57,9 +57,13 @@ if (projectId === "581408") {
  * Initializes the product page.
  */
 
-sessionStorage.setItem("wheelPosition", "left");
-sessionStorage.setItem("seatPosition", "pass-5");
-sessionStorage.setItem("doorPosition", "doors-4");
+// Volant, miesta, dvere pre varchar1–3 v objednávke (cart.js). Tento kód beží na každej stránke webu, aj v košíku: tu sa
+// len doplní chýbajúca hodnota, na predvolené ich vracia až vytvorenie dlaždíc v konfigurátore. Predtým sa nulovali
+// tu a do objednávky vždy odišlo left, pass-5, doors-4, nech zákazník zvolil čokoľvek (overené naživo 5. 11. 2026).
+const POLOHY_AUTA = { wheelPosition: "left", seatPosition: "pass-5", doorPosition: "doors-4" };
+Object.keys(POLOHY_AUTA).forEach(function (k) {
+  if (!sessionStorage.getItem(k)) sessionStorage.setItem(k, POLOHY_AUTA[k]);
+});
 
 const standartPrice = Number(
   $(".p-final-price-wrapper .price-standard span").length
@@ -1029,6 +1033,10 @@ function firstPage(texts) {
   $(`<div class='button option-button active' data-value='doors-4'><div class='text'>4</div></div>`).appendTo(doorOption);
   $(`<div class='button option-button' data-value='doors-5'><div class='text'>5</div></div>`).appendTo(doorOption);
   $(`<div class='button option-button' data-value='doors-6'><div class='text'>6</div></div>`).appendTo(doorOption);
+  // dlaždice práve ukazujú predvolené hodnoty -> rovnaké do sessionStorage (prenos.js ich potom nastaví klikom)
+  Object.keys(POLOHY_AUTA).forEach(function (k) {
+    sessionStorage.setItem(k, POLOHY_AUTA[k]);
+  });
 
   $(".can-toggle.wheel-option").on("click", function () {
     if ($(this).find("input").is(":checked")) {
