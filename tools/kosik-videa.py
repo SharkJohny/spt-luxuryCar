@@ -2,6 +2,7 @@
 """Krátke slučkové videá do ponuky v pokladni zo skutočných fotiek LCD (kniha § 10.43).
 
 Výstup: assets/img/kosik/<meno>.mp4, .webm, .jpg (288 × 360, bez zvuku). Fotky sa neupravujú, len sa posúvajú a prelínajú.
+Nahraté súbory sa neprepisujú (production.yml): zmenené video ide pod novým menom. Prvé tri webm sú ešte VP9 profil 1, preto mp4 ide prvé.
 Spustenie z koreňa repa: python tools/kosik-videa.py [meno ...] (bez mena všetky videá)
 """
 import subprocess
@@ -88,7 +89,7 @@ def zakoduj(ram, meno):
     spolocne = ["ffmpeg", "-y", "-v", "error"]
     subprocess.run(spolocne + vstup + ["-an", "-c:v", "libx264", "-preset", "veryslow", "-crf", "30", "-pix_fmt", "yuv420p",
                                        "-movflags", "+faststart", VYSTUP + meno + ".mp4"], input=surove, check=True)
-    subprocess.run(spolocne + vstup + ["-an", "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "52", "-row-mt", "1",
+    subprocess.run(spolocne + vstup + ["-an", "-c:v", "libvpx-vp9", "-pix_fmt", "yuv420p", "-b:v", "0", "-crf", "52", "-row-mt", "1",
                                        VYSTUP + meno + ".webm"], input=surove, check=True)
 
 

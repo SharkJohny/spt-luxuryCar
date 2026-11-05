@@ -21,7 +21,7 @@ import { zahodPreskocenie } from "./analytika.js";
 import { jeDakujeme, dakujemeSkoro, zrusDakujemeSkoro, initDakujeme } from "./dakujeme.js";
 
 /** Pre všetkých bez ?opc= (spustenie po živom teste s Michalom, kniha § 7.8 F5). */
-export const SPUSTENE = false;
+export const SPUSTENE = true;
 export const KLUC_FLAGU = "lcdOpc";
 export const PROJEKTY = { 562035: "sk", 581408: "cz" };
 /**

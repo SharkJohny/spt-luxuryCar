@@ -60,12 +60,13 @@ function noveVideo(trieda, poster) {
   return v;
 }
 
-/** Nastaví zdroje (webm, mp4) a načíta. priecinok = podpriečinok assets/img/ (predvolene 1v/). */
-function zdroje(v, meno, priecinok) {
+/** Nastaví zdroje (webm, mp4) a načíta. priecinok = podpriečinok assets/img/ (predvolene 1v/). mp4Prvy: najprv mp4. */
+function zdroje(v, meno, priecinok, mp4Prvy) {
   const cesta = CDN + (priecinok || "1v/") + meno;
   while (v.firstChild) v.removeChild(v.firstChild);
-  v.appendChild(el("source", { src: cesta + ".webm", type: "video/webm" }));
-  v.appendChild(el("source", { src: cesta + ".mp4", type: "video/mp4" }));
+  const webm = el("source", { src: cesta + ".webm", type: "video/webm" }), mp4 = el("source", { src: cesta + ".mp4", type: "video/mp4" });
+  v.appendChild(mp4Prvy ? mp4 : webm);
+  v.appendChild(mp4Prvy ? webm : mp4);
   v.dataset.meno = meno;
   try { v.load(); } catch (e) { /* starý prehliadač */ }
 }
@@ -178,7 +179,8 @@ export function produktDlazdica(kluc) {
       zaznamy.forEach(function (z) {
         if (!t.isConnected) { zastav(); return; }
         if (z.isIntersecting && z.intersectionRatio >= 0.5 && !document.documentElement.classList.contains("lcd-vyb-pribeh")) {
-          if (!video.dataset.meno) zdroje(video, meno, "kosik/");
+          // najprv mp4: webm týchto videí je VP9 profil 1, ktorý Safari nemusí prehrať bez návratu na mp4 (kontrola 6. 11. 2026)
+          if (!video.dataset.meno) zdroje(video, meno, "kosik/", true);
           hraj(video, function () { t.classList.add("lcd-vyb__vid--staticke"); });
         } else { try { video.pause(); } catch (e) {} }
       });

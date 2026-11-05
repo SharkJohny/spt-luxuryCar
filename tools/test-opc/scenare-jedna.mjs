@@ -779,8 +779,9 @@ export const SCENARE = {
         await s.ev(`document.querySelector("[data-lcd-vyb-produkt-video='${k}']").scrollIntoView({ block: "center" })`);
         await s.cakaj(`(function () { var v = document.querySelector("[data-lcd-vyb-produkt-video='${k}'] video"); return v && !v.paused && v.currentTime > 0.3; })()`, { ms: 15000, popis: "video " + k + " sa hrá" });
         const pv = await s.ev(`(function () { var t = document.querySelector("[data-lcd-vyb-produkt-video='${k}']"), v = t.querySelector("video");
-          return { src: v.currentSrc, loop: v.loop, muted: v.muted, tr: getComputedStyle(v).transform, tag: t.tagName, aria: t.getAttribute("aria-hidden") }; })()`);
+          return { src: v.currentSrc, loop: v.loop, muted: v.muted, tr: getComputedStyle(v).transform, tag: t.tagName, aria: t.getAttribute("aria-hidden"), prvy: v.querySelector("source").type }; })()`);
         over(new RegExp("kosik/" + { rohoz: "rohoz-dno", box: "box-poriadok" }[k] + "\\.(webm|mp4)$").test(pv.src) && pv.loop && pv.muted && pv.tr === "none" && pv.tag === "SPAN" && pv.aria === "true", "video " + k + ": " + JSON.stringify(pv));
+        over(pv.prvy === "video/mp4", "video " + k + ": prvý zdroj musí byť mp4 (iPhone, kontrola 6. 11. 2026): " + pv.prvy);
       }
       // dlaždica na obrazovke -> video sa samo hrá od úseku s vodou
       await s.ev(`document.querySelector("[data-lcd-vyb-video]").scrollIntoView({ block: "center" })`);

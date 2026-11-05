@@ -6,7 +6,7 @@
 // (29. 10. 2026: npx cache …/_npx/e41f203b7505f1fb/node_modules/playwright/index.mjs = 1.64.1, WebKit 27.2, Firefox 157).
 // WebKit na Windows je najbližšie k Safari, nie skutočný iPhone. Zachytený POST do košíka sa ruší; pri --kosik sa pustí
 // do jednorazového kontextu, iné POST na /action/ (napr. FacebookCAPI) test ruší, aby neposielal falošné nákupy do reklám.
-// node tools/test-kamion-prehliadace.mjs --pw <file:///…/playwright/index.mjs> --sha <sha> [--prehliadac webkit] [--produkt 640] [--sirka 390] [--kosik] [--out dir]
+// node tools/test-kamion-prehliadace.mjs --pw <file:///…/playwright/index.mjs> --sha <sha> [--prehliadac webkit] [--produkt 640] [--sirka 390] [--kosik [--opc <kód>|1]] [--out dir]
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 
@@ -15,6 +15,7 @@ const pw = await import(arg("pw"));
 const SHA = arg("sha");
 const OUT = arg("out", tmpdir() + "/lcd-kamion-prehliadace");
 const KOSIK = process.argv.includes("--kosik");
+const OPC = arg("opc"); // pri --kosik: --opc <tajný kód> otvorí pokladňu, --opc 1 bez kódu (po spustení pre všetkých)
 mkdirSync(OUT, { recursive: true });
 const MANIFEST = readFileSync(new URL("../assets/js/components/konfigurator1v/kamion/obrazky.js", import.meta.url), "utf8");
 const KAMION_SUBORY = new Set([...MANIFEST.matchAll(/"(t[0-9a-f]+\.(?:png|jpg))":/g)].map((m) => m[1]));
@@ -48,6 +49,7 @@ const KROKY = [
   ["klik", a_("nas", "boky+stred")], ["obr", "motiv"], ["klik", a_("motiv", "H19", "boky")], ["klik", a_("nit", "2999", "boky")], ["canvas"], ["klik", a_("potvrd", "boky")],
   ["klik", a_("stredRovnaky", "1")], ["klik", a_("tap", "ano")], ["klik", a_("tapRovnake")], ["klik", a_("tapNas", "nie")],
 ];
+if (OPC) KROKY.splice(KROKY.findIndex((k) => k[1] === a_("tap", "ano")), 3, ["klik", a_("tap", "nie")]); // ponuka tapacíru je len pre kamión bez neho
 const pauza = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function beh(B, engine, pid, w, kosik) {
@@ -64,6 +66,7 @@ async function beh(B, engine, pid, w, kosik) {
     const q = route.request();
     if (q.method() !== "POST" || /CustomerCookieConsent/.test(q.url())) return route.continue(); // súhlas (odmietnutý) smie uložiť
     if (/Cart\/addCartItem/i.test(q.url())) { r.posty.push(q.postData() || ""); if (kosik) return route.continue(); }
+    if (OPC && /orderingProcess/i.test(q.url()) && !/Step2Validate/i.test(q.url())) return route.continue(); // pokladňa bez odoslania: Step2Validate sa vždy ruší
     r.zrusene = (r.zrusene || []).concat(q.url().slice(0, 140));
     return route.abort();
   });
@@ -139,6 +142,23 @@ async function beh(B, engine, pid, w, kosik) {
       r.kosikStav = k;
       if (!k.kamion) r.chyby.push("košík: položka kamióna chýba");
       if (k.sw > k.iw + 1) r.pretecenie.push("košík " + JSON.stringify(k));
+      if (OPC) { // pokladňa: karta „Doplňte svoj kamión“ s videom tapacíru (bez odoslania); po spustení stačí hocijaká hodnota
+        await page.goto(new URL("/kosik/" + (OPC === "1" ? "" : "?opc=" + OPC), P.url).href, { waitUntil: "load" });
+        const riadok = page.locator('.lcd-vyb__riadok[data-doplnok="tapacir"]').first();
+        await riadok.waitFor({ state: "visible", timeout: 20000 }).catch(() => r.chyby.push("pokladňa: ponuka tapacíru chýba, " + page.url()));
+        await riadok.scrollIntoViewIfNeeded().catch(() => {});
+        await pauza(4000);
+        const v = await page.evaluate(() => {
+          const x = document.querySelector('.lcd-vyb__riadok[data-doplnok="tapacir"]');
+          if (!x) return null;
+          const d = x.querySelector(".lcd-vyb__vid"), m = x.querySelector("video"), b = d && d.getBoundingClientRect();
+          return { url: location.pathname, dlazdica: b ? Math.round(b.width) + "x" + Math.round(b.height) : null, src: m && (m.currentSrc || m.src).split("/").pop(), stav: m && m.readyState, bezi: m && !m.paused, cas: m && Math.round(m.currentTime * 10) / 10, sw: document.documentElement.scrollWidth, iw: innerWidth };
+        });
+        r.pokladna = v;
+        if (!v || !/^tapacir-dvere\./.test(v.src || "")) r.chyby.push("pokladňa: video tapacíru " + JSON.stringify(v));
+        if (v && v.sw > v.iw + 1) r.pretecenie.push("pokladňa " + JSON.stringify(v));
+        await riadok.locator("xpath=ancestor::*[contains(concat(' ',@class,' '),' lcd-vyb ')][1]").screenshot({ path: OUT + "/tapacir-" + engine + "-" + pid + "-" + w + ".png" }).catch((e) => r.chyby.push("snímka " + e.message.slice(0, 80)));
+      }
     } else {
       // obsah pod konfigurátorom (zákaznícky pohľad): prescrolovať celú stránku, potom rozbité obrázky z našich domén
       const h = await page.evaluate(() => document.documentElement.scrollHeight);

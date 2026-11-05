@@ -69,18 +69,18 @@ if (!process.env.LCD_OPC_FIXTURES) {
 }
 
 // ------------------------------------------------------------------ brána
-t("brána: SPUSTENE je false (bez flagu dnešný tok)", () => eq(B.SPUSTENE, false));
+t("brána: SPUSTENE je true (spustené pre všetkých, Michal 6. 11. 2026; dnešný tok len cez ?opc=0 alebo data.json)", () => eq(B.SPUSTENE, true));
 t("brána: tajný kód = 10 malých písmen/číslic, nie 1 ani 0", () => {
   eq([typeof B.KOD, /^[a-z0-9]{10}$/.test(B.KOD)], ["string", true], "KOD " + JSON.stringify(B.KOD));
 });
 const OPC = "?opc=" + B.KOD; // tajný odkaz (Michal 30. 10. 2026: živý test len preňho)
-t("brána: ?opc=KÓD zapne v prehliadači (localStorage: všetky karty, aj po zatvorení), ?opc=0 vypne; ?opc=1 ani iná hodnota nič", () => {
+t("brána: ?opc=KÓD zapíše „1“ (localStorage: všetky karty, aj po zatvorení), ?opc=0 vypne v prehliadači (flag „0“); ?opc=1 ani iná hodnota nič", () => {
   localStorage.clear(); sessionStorage.clear();
   B.prepinac("");
-  eq(B.jeZapnute(), false, "bez flagu");
+  eq(B.jeZapnute(), true, "bez flagu po spustení zapnuté");
   for (const zla of ["?opc=1", "?opc=true", "?opc=" + B.KOD.toUpperCase(), "?opc=" + B.KOD + "x", "?opc=" + B.KOD.slice(1), "?xopc=" + B.KOD, "?opc="]) {
     B.prepinac(zla);
-    eq([localStorage.getItem("lcdOpc"), sessionStorage.getItem("lcdOpc"), B.jeZapnute()], [null, null, false], zla + " nesmie nič zapnúť");
+    eq([localStorage.getItem("lcdOpc"), sessionStorage.getItem("lcdOpc"), B.jeZapnute()], [null, null, true], zla + " nesmie nič zapísať");
   }
   B.prepinac("?x=2&opc=" + B.KOD + "#a");
   eq([localStorage.getItem("lcdOpc"), sessionStorage.getItem("lcdOpc")], ["1", null], "kód -> localStorage (nie len karta)");
@@ -91,7 +91,8 @@ t("brána: ?opc=KÓD zapne v prehliadači (localStorage: všetky karty, aj po za
   eq([localStorage.getItem("lcdOpc"), B.jeZapnute()], ["1", true], "?opc=1 po kóde");
   sessionStorage.setItem("lcdOpc", "1"); // starý flag karty (?opc=1 prototypu) / náhrada bez localStorage
   B.prepinac("?x=2&opc=0#a");
-  eq([localStorage.getItem("lcdOpc"), sessionStorage.getItem("lcdOpc"), B.jeZapnute()], [null, null, false], "?opc=0 zmaže oboje");
+  eq([localStorage.getItem("lcdOpc"), sessionStorage.getItem("lcdOpc"), B.jeZapnute()], ["0", null, false], "?opc=0 zmaže „1“ a zapíše vypnutie");
+  localStorage.clear();
 });
 t("brána: bez localStorage (súkromný režim, zakázané úložisko) kód zapne aspoň kartu (sessionStorage), ?opc=0 ju vypne", () => {
   const ls = globalThis.localStorage;
@@ -99,11 +100,11 @@ t("brána: bez localStorage (súkromný režim, zakázané úložisko) kód zapn
   const zly = { getItem() { throw new Error("SecurityError"); }, setItem() { throw new Error("QuotaExceededError"); }, removeItem() { throw new Error("SecurityError"); }, clear() {} };
   globalThis.localStorage = zly;
   try {
-    eq(B.jeZapnute(), false, "bez flagu");
+    eq(B.jeZapnute(), true, "bez flagu po spustení zapnuté");
     B.prepinac(OPC);
     eq([sessionStorage.getItem("lcdOpc"), B.jeZapnute()], ["1", true], "kód -> sessionStorage");
     B.prepinac("?opc=0");
-    eq([sessionStorage.getItem("lcdOpc"), B.jeZapnute()], [null, false], "?opc=0");
+    eq([sessionStorage.getItem("lcdOpc"), B.jeZapnute()], ["0", false], "?opc=0 vypne aspoň kartu");
   } finally { globalThis.localStorage = ls; sessionStorage.clear(); }
 });
 t("brána: data.json \"opc\": false aj settings.opc === false", () => {
@@ -755,7 +756,7 @@ t("analytika: view_cart z kroku 1 len pri skoku z webu (stránka košíka sa nen
 t("analytika: príznak preskočenia zmaže každá stránka s OPC okrem kroku 2 (napr. natívny krok 1); bez OPC sa nič nemení", () => {
   const telo = document.body.className;
   try {
-    for (const [trieda, opc, ostane] of [["id--16 in-krok-1", "1", false], ["id--9 in-kosik", "1", false], ["type-product id-598", "1", false], ["id--17 in-krok-2", "1", true], ["id--16 in-krok-1", null, true]]) {
+    for (const [trieda, opc, ostane] of [["id--16 in-krok-1", "1", false], ["id--9 in-kosik", "1", false], ["type-product id-598", "1", false], ["id--17 in-krok-2", "1", true], ["id--16 in-krok-1", "0", true]]) {
       sessionStorage.clear();
       if (opc) sessionStorage.setItem("lcdOpc", opc);
       sessionStorage.setItem(A.KLUC_PRESKOCIL, String(Date.now()));
@@ -1525,6 +1526,7 @@ t("kosik: vzhľad v štýle pokladne hneď pri načítaní bundla (?opc=KÓD), s
   try {
     let w = mk("https://www.luxurycardesign.sk/kosik/");
     pouzi(w);
+    w.localStorage.setItem("lcdOpc", "0"); // po spustení je „bez kódu“ zákazník s vypnutím cez ?opc=0
     const povodne = w.document.documentElement.outerHTML;
     eq(vzhladKosikaSkoro(w.document, ""), false, "bez kódu");
     eq(vzhladKosikaSkoro(w.document, "?opc=1"), false, "?opc=1 (bez kódu)");
@@ -1641,6 +1643,7 @@ t("krok 2: hneď pri načítaní bundla (kód / flag) len html.lcd-opc-caka (for
   try {
     let w = mk("sk", "krok2");
     pouzi(w);
+    w.localStorage.setItem("lcdOpc", "0"); // po spustení je „bez kódu“ zákazník s vypnutím cez ?opc=0
     eq([vzhladKrok2Skoro(w.document, ""), triedy(w)], [false, ""], "bez kódu a bez flagu");
     eq([vzhladKrok2Skoro(w.document, "?opc=1"), triedy(w)], [false, ""], "?opc=1 (bez kódu)");
     w = mk("sk", "kosik");
@@ -1663,8 +1666,8 @@ t("krok 2: hneď pri načítaní bundla (kód / flag) len html.lcd-opc-caka (for
     w = mk("sk", "krok2");
     pouzi(w);
     vzhladKrok2Skoro(w.document, OPC, { limitMs: 60000 });
-    w.localStorage.removeItem("lcdOpc");
-    eq([B.initOpc({}), triedy(w)], [null, ""], "bez flagu pri initOpc");
+    w.localStorage.setItem("lcdOpc", "0");
+    eq([B.initOpc({}), triedy(w)], [null, ""], "vypnuté pri initOpc");
     // poistka: data.json neprišiel (initOpc nebežal) -> po limite dnešný krok 2 (nie skrytý formulár navždy)
     w = mk("sk", "krok2");
     pouzi(w);
@@ -1686,6 +1689,7 @@ t("uspatie: bez kódu (nič, ?opc=1, ?opc=0, iná hodnota) skoré funkcie ani in
       const w = new JSDOM(fx(web + "/" + cesta + ".html"), { url: "https://www.luxurycardesign." + web + (cesta === "kosik" ? "/kosik/" : "/objednavka/krok-2/") + q }).window;
       w.shoptetData = { projectId: web === "sk" ? 562035 : 581408 };
       globalThis.window = w; globalThis.document = w.document; globalThis.sessionStorage = w.sessionStorage; globalThis.localStorage = w.localStorage;
+      w.localStorage.setItem("lcdOpc", "0"); // po spustení je „bez kódu“ zákazník s vypnutím cez ?opc=0
       globalThis.fetch = w.fetch = function (u) { siet.push("fetch " + u); return Promise.reject(new Error("siet")); };
       const open = w.XMLHttpRequest.prototype.open;
       w.XMLHttpRequest.prototype.open = function (m, u) { siet.push("xhr " + u); return open.apply(this, arguments); };
@@ -1693,7 +1697,7 @@ t("uspatie: bez kódu (nič, ?opc=1, ?opc=0, iná hodnota) skoré funkcie ani in
       const pred = w.document.documentElement.outerHTML;
       eq([B.vzhladKosikaSkoro(w.document, q), B.vzhladKrok2Skoro(w.document, q, { limitMs: 1 }), B.initOpc({})], [false, false, null], kde + ": návratové hodnoty");
       eq(w.document.documentElement.outerHTML === pred, true, kde + ": DOM sa zmenil");
-      eq([w.localStorage.length, w.sessionStorage.length, typeof w.__lcdOpc, (w.dataLayer || []).length], [0, 0, "undefined", 0], kde + ": úložiská / globál / dataLayer");
+      eq([w.localStorage.length, w.localStorage.getItem("lcdOpc"), w.sessionStorage.length, typeof w.__lcdOpc, (w.dataLayer || []).length], [1, "0", 0, "undefined", 0], kde + ": úložiská / globál / dataLayer");
     }
     eq(siet, [], "sieť");
   } finally {
