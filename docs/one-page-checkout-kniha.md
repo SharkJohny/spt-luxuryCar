@@ -1761,6 +1761,14 @@ Michal: koberčeky 21–29 dní, kamióny **14–18 dní** (mení 14–25 z 19. 
 
 **Čo oprava nerieši:** ✅ meranie pomalého mobilu (50 kB/s, CPU ×4) pred a po vydaní je rovnaké: s vyrovnávacou pamäťou formulár po 0,5 s a polia po 3,5 s, bez nej 11 s a 28 s. Čas neberie `data.json`, ale samotný bundel na konci stránky. Oprava teda rieši zlyhaný alebo pomalý `data.json`, nie pomalý bundel. Ak bundel na telefóne zákazníka nezbehne vôbec, objednávka príde bez auta aj naďalej. 🟡 Poistka by bolo upozornenie na objednávku bez auta.
 
+### 10.42 Zmena štátu: Nemecko a Fínsko ostanú v pokladni (5. 11. 2026)
+
+Michal: pri zmene štátu sa mení cena dopravy, má to byť vidieť pri každom štáte.
+
+**Nález (živý web, nič neodoslané):** ✅ ceny dopravy SK web: SK 5 €, CZ 15 €, PL 15 €, DE 30 €, FI 35 €. CZ web: SK 150 Kč, PL 500 Kč, DE 750 Kč. Česko a Poľsko v OPC cenu aj sumu ukázali správne. Nemecko a Fínsko hodili zákazníka na starý krok 1 (`lcd_opc_chyba`, `krok1-zvolene`): platia tam len Apple Pay, Google Pay a karta a Shoptet nemá žiadnu zaškrtnutú, takže `krok1Model` skončil bez voľby.
+
+**Oprava:** `krok1Model(html, { doplnitPlatbu: true })` vyberie kartu (`podmetoda` `scheme`), inak prvú povolenú okrem Apple Pay a rýchlej platby. Volá to len `opc/stat.js`, košík a skok z webu sa správajú ako doteraz. Test S97 a jednotka v `test-opc-jednotky.mjs`.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.

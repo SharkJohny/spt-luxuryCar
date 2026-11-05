@@ -56,7 +56,7 @@ export function zmenStat(id, sel, o) {
     .then(function (r) {
       if (r.chyba) throw { typ: "krajina-" + r.chyba };
       if (!r.ok) throw { typ: "krajina-kod", kod: r.status };
-      return stiahniModelKrok1();
+      return stiahniModelKrok1({ doplnitPlatbu: true });
     })
     .then(potvrdKrok1)
     .then(function (r) {

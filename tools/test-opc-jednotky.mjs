@@ -172,6 +172,15 @@ t("krok1Model fail-closed: zmenené HTML, bez platby, prázdne, nezmysel", () =>
   eq(krok1Model(null).ok, false);
 });
 
+t("krok1Model doplnitPlatbu: krajina bez zaškrtnutej platby -> karta, bez voľby ako doteraz „zvolene“ (kniha § 10.42)", () => {
+  const html = fx("sk/krok1.html").replace(/<input\b[^>]*name="billingId"[^>]*>/g, (x) => x.replace(/\s+checked(="checked")?/g, ""));
+  eq(krok1Model(html).dovod, "zvolene");
+  const m = krok1Model(html, { doplnitPlatbu: true });
+  eq(m.ok, true);
+  eq(m.zvolenaPlatba, "103");
+  eq(krok1Model(fx("sk/krok1.html"), { doplnitPlatbu: true }).zvolenaPlatba, "5");
+});
+
 // ------------------------------------------------------------------ Step1Validate
 t("teloStep1: voľby nahradia zaškrtnuté, poradie polí ako formulár, bez CSRF keď je vypnuté", () => {
   const m = krok1Model(fx("sk/krok1.html"));

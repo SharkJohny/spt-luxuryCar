@@ -98,13 +98,13 @@ export function zrusVzhladKosika(doc) {
  * Krok 1 Shoptetu na pozadí: GET s limitom (4 s) -> model (krok1Model), pri rýchlej platbe cez banku v session aj zoznam
  * bánk. Košík (initKosik) aj skok z webu rovno do pokladne (opc/skok.js). -> model | { ok: false, dovod }
  */
-export function stiahniModelKrok1() {
+export function stiahniModelKrok1(moznosti) {
   return fetchSLimitom(CESTA_KROK1, { headers: { Accept: "text/html" } }, LIMIT_KROK1_MS)
     .then(function (r) {
       if (r.chyba) return { ok: false, dovod: r.chyba }; // visiaca sieť: klik nesmie čakať donekonečna (R5)
       // prázdny košík / vypršaná session: Shoptet presmeruje na /kosik/ -> nie je čo vybrať
       if (!r.ok || !/\/objednavka\/krok-1\/?$/.test(new URL(r.url, location.href).pathname)) return { ok: false, dovod: "stranka" };
-      return textSLimitom(r).then(function (h) { odlozMeta(h); return krok1Model(h); });
+      return textSLimitom(r).then(function (h) { odlozMeta(h); return krok1Model(h, moznosti); });
     })
     .then(function (m) {
       // rýchla platba cez banku v session: zoznam bánk na kód banky pre Step1Validate (len vtedy)

@@ -518,8 +518,13 @@ export async function zapniPodvrh(k, moznosti) {
   const sKrajinou = (html) => {
     const k = p.stav.krajina;
     if (!k || html == null) return html;
-    return String(html).replace(/(<select name="deliveryCountryId"[\s\S]*?<\/select>)/, (sel) =>
+    let h = String(html).replace(/(<select name="deliveryCountryId"[\s\S]*?<\/select>)/, (sel) =>
       sel.replace(/ selected="selected"/g, "").replace(new RegExp('(<option value="' + k + '")'), '$1 selected="selected"'));
+    // Nemecko a Fínsko naživo 5. 11. 2026: len Apple Pay, Google Pay a karta, žiadna zaškrtnutá, kým ju Step1Validate neuloží
+    if (["44", "54"].includes(k) && !["103", "106", "109"].includes(String(p.stav.platba))) {
+      h = h.replace(/<input\b[^>]*name="billingId"[^>]*>/g, (x) => x.replace(/\s+checked(="checked")?/g, ""));
+    }
+    return h;
   };
   /** Krok 1 podľa session: po Step1Validate má súhrn kroku 1 „Celkom k úhrade“ so zvolenou dopravou a platbou. */
   function htmlKrok1() {

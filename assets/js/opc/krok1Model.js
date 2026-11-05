@@ -133,7 +133,14 @@ export function krok1Model(html, moznosti) {
       }, spolocne(w, l));
     });
     const zd = doprava.find(function (d) { return d.checked; });
-    const zp = platby.find(function (p) { return p.checked; });
+    let zp = platby.find(function (p) { return p.checked; });
+    // Krajina bez predvolenej platby (Nemecko, Fínsko: len Apple Pay, Google Pay, karta, žiadna zaškrtnutá, kniha § 10.42).
+    // Len pri zmene štátu (opc/stat.js): karta, lebo Apple Pay telefón nemusí vedieť a rýchla platba potrebuje banku.
+    if (!zp && zd && moznosti && moznosti.doplnitPlatbu) {
+      const smie = platby.filter(function (p) { return !zd.relacie.length || zd.relacie.indexOf(p.id) >= 0; });
+      zp = smie.find(function (p) { return p.podmetoda === "scheme"; })
+        || smie.find(function (p) { return p.podmetoda !== "applepay" && p.podmetoda !== "pis"; });
+    }
     if (!doprava.length || !platby.length) return { ok: false, dovod: "volby" };
     if (!zd || !zp) return { ok: false, dovod: "zvolene" };
     const jazykEl = form.querySelector('input[name="language"]');

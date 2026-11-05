@@ -25,6 +25,7 @@
 //   S77 (Michal 1. 11. 2026) „Zmeniť štát“ -> výber krajín z kroku 1 priamo v pokladni; iná krajina -> Step1ChooseDelivery,
 //       Step1Validate, krok 2 nanovo (nie starý krok 1), meno ostane; „Chcem sa registrovať“ nevidno
 //   S78 zmena krajiny zlyhá (500) -> klasický krok 1 ako doteraz
+//   S97 krajina bez predvolenej platby (Nemecko, Fínsko): karta a krok 2, nie starý krok 1 (kniha § 10.42)
 //   S79 2 boxy M + L pridané (košík so stavom): pri boxoch len krížik v krúžku (bez „Odobrať“), krížiky v dvoch riadkoch
 //       sa neprekrývajú (Michal 1. 11., PC)
 //   S72 z webu, krok 1 na pozadí zlyhá (500) -> /kosik/ ako doteraz (tam záchrana na krok 1)
@@ -553,6 +554,24 @@ export const SCENARE = {
       await pauza(800);
       const d = s.dokumenty().slice(nav);
       over(d.length >= 1 && /GET \/objednavka\/krok-1\//.test(d[0]), "po zlyhaní zmeny krajiny: " + d.join(", "));
+      return { info: d.join(", ") };
+    },
+  },
+  S97: {
+    len: "sk",
+    popis: "Jedna stránka: Nemecko bez predvolenej platby (kniha § 10.42) -> karta, krok 2 nanovo, nie starý krok 1",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      await naJednuStranku(s);
+      const nav = s.dokumenty().length;
+      await s.ev(`(function () { var v = document.querySelector("#order-form .lcd-opc-stat__vyber"); v.value = "44"; v.dispatchEvent(new Event("change", { bubbles: true })); return 1; })()`)
+      const koniec = Date.now() + 15000;
+      while (Date.now() < koniec && s.dokumenty().length < nav + 1) await pauza(100);
+      await cakajOpc(s, /^krok2-(potvrdene|zachrana)$/, "krok 2 po zmene krajiny");
+      const d = s.dokumenty().slice(nav);
+      over(d.length === 1 && /GET \/objednavka\/krok-2\//.test(d[0]), "navigácie po zmene krajiny (čakal som len krok 2): " + d.join(", "));
+      const posledny = step1Xhr(s).slice(-1)[0];
+      over(posledny && /billingId=103/.test(posledny.telo), "Step1Validate: " + JSON.stringify(posledny));
       return { info: d.join(", ") };
     },
   },
