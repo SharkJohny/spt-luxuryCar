@@ -54,7 +54,7 @@ export const ZNENIE = {
     "Každé prevedenie je v niekoľkých farbách. Príplatok za materiál platíte raz – za všetky koberce spolu.",
     "Prémiová syntetická koža – jednofarebná", "13 farieb", "Hladký povrch v jednej farbe. Pôsobí čisto a nadčasovo.",
     "Prémiová syntetická koža – prešívaná", "14 farieb", "Prešívaný kosoštvorcový vzor dodá kabíne luxusnejší vzhľad.",
-    "Prémiová syntetická koža – tónovaná", "5 farieb", "Povrch s jemne žíhaným, vintage vzhľadom.",
+    "Prémiová syntetická koža – tónovaná", "7 farieb", "Povrch s jemne žíhaným, vintage vzhľadom.",
     "Mikrosemiš – jednofarebný", "Mäkký, jemný povrch v jednej farbe.",
     "Mikrosemiš – dvojfarebný", "6 farieb", "Mikrosemiš s melírovaným dvojfarebným efektom.", "Vybrať materiál",
   ],

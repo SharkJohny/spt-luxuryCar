@@ -1745,6 +1745,8 @@ Michal: „Vykašľať sa na celý export… dôležité je, aby sme mali všetk
 
 Michal: koberčeky 21–29 dní, kamióny **14–18 dní** (mení 14–25 z 19. 10.). Upravené: `LEHOTY.kamion`, konfigurátor kamióna, časová os a FAQ kamiónov (`p1v-kamiony`), test. Na titulke je „14–18 dní“ v sekcii kamiónov, ostáva. Bannery 178, 191, 117, 120: od 219 € / od 5 664 Kč (overené: Basic Diamond Line 219 € / 5 664 Kč, jeden rad bez príplatkov), umelá koža. Banner sa ukladá cez natívny setter textarea + udalosť `input`, inak sa uloží starý text.
 
+**Oprava 5. 11. 2026:** časová os kamióna je kus 1 obsahu, a ten sa zákazníkovi berie z Popisu v admine (640 SK, 2452 CZ), nie z CDN. Vydanie `ed3875b` ju preto nezmenilo: naživo ostalo 2× 14–25 dní na SK aj CZ, FAQ (kus 2 z CDN) má 14–18. Zápis do Popisu čaká na Michalov súhlas. Odhalil to `tools/test-1v-obsah.mjs --produkt 640`. Text overovať na živej stránke, nie na súbore v CDN.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.
