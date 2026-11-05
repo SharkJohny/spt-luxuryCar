@@ -1757,7 +1757,9 @@ Michal: koberčeky 21–29 dní, kamióny **14–18 dní** (mení 14–25 z 19. 
 
 **Oprava:** `poBoote(addNote)` a `poBoote(pridajPoliaObjednavky)` bežia pred `$.getJSON`. `pridajPoliaObjednavky` je vyňatá z `initCart`, poistka proti dvojitému pridaniu je `#varchar1`. Test: `tools/test-objednavka-polia.mjs` (živý web, nič sa neodosiela, 3 prehliadače × SK, CZ × s a bez `data.json`).
 
-**Čo ostáva:** samotný bundel je synchrónny na konci stránky, takže kým sa nestiahne, formulár je viditeľný a polia ešte nie sú. Okno je kratšie, nie nulové.
+**Naživo:** `1be7f8c` SK aj CZ od 5. 11. 2026, návrat `ed3875b`. Testy: SK 164, CZ 94, jednotky 136, košík 104, auto 21, 1V 75, kamióny 54, nový test 12× OK.
+
+**Čo oprava nerieši:** ✅ meranie pomalého mobilu (50 kB/s, CPU ×4) pred a po vydaní je rovnaké: s vyrovnávacou pamäťou formulár po 0,5 s a polia po 3,5 s, bez nej 11 s a 28 s. Čas neberie `data.json`, ale samotný bundel na konci stránky. Oprava teda rieši zlyhaný alebo pomalý `data.json`, nie pomalý bundel. Ak bundel na telefóne zákazníka nezbehne vôbec, objednávka príde bez auta aj naďalej. 🟡 Poistka by bolo upozornenie na objednávku bez auta.
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 
