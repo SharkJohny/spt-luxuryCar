@@ -218,7 +218,7 @@ export const PRODUKTY = {
     scenare: ["brana", "nulova-zmena", "kamion-platne", "kamion-dodavka", "kamion-neuplne", "kamion-posun", "kamion-posun-vysoke", "kamion-blikanie"],
     platne: null,
     odporucana: false,
-    ceny: { "kamion-platne": 423, "kamion-dodavka": 258 },
+    ceny: { "kamion-platne": 467, "kamion-dodavka": 258 },
     postKluce: "productId priceId language amount + 15 × surchargeParameterValueId[NNN] (346 … 412; ako React syncToShoptet)",
   },
   // CZ 2452 (projekt 581408): ten istý konfigurátor po česky (texty-cs.js, Kč, CZ mená príplatkov); spúšťa sa len --produkt 2452
