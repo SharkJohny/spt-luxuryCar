@@ -1767,7 +1767,7 @@ Michal: pri zmene štátu sa mení cena dopravy, má to byť vidieť pri každom
 
 **Nález (živý web, nič neodoslané):** ✅ ceny dopravy SK web: SK 5 €, CZ 15 €, PL 15 €, DE 30 €, FI 35 €. CZ web: SK 150 Kč, PL 500 Kč, DE 750 Kč. Česko a Poľsko v OPC cenu aj sumu ukázali správne. Nemecko a Fínsko hodili zákazníka na starý krok 1 (`lcd_opc_chyba`, `krok1-zvolene`): platia tam len Apple Pay, Google Pay a karta a Shoptet nemá žiadnu zaškrtnutú, takže `krok1Model` skončil bez voľby.
 
-**Oprava:** `krok1Model(html, { doplnitPlatbu: true })` vyberie kartu (`podmetoda` `scheme`), inak prvú povolenú okrem Apple Pay a rýchlej platby. Volá to len `opc/stat.js`, košík a skok z webu sa správajú ako doteraz. Test S97 a jednotka v `test-opc-jednotky.mjs`.
+**Oprava:** `krok1Model(html, { doplnitPlatbu: true })` vyberie kartu (`podmetoda` `scheme`), inak prvú povolenú okrem Apple Pay a rýchlej platby. Volá to len `opc/stat.js`, košík a skok z webu sa správajú ako doteraz. Test S97 a jednotka v `test-opc-jednotky.mjs`. Naživo `196d675` SK aj CZ od 5. 11. 2026, návrat `1be7f8c`. Testy SK 166, CZ 94, jednotky 137.
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 
