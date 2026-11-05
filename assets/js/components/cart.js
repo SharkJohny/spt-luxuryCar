@@ -40,6 +40,14 @@ export function initCart(texts) {
       $(".messages").hide();
     });
   }
+}
+
+/**
+ * Polia volant, miesta a dvere vo formulári objednávky (varchar1–3). Beží hneď po načítaní bundla, nečaká na data.json
+ * (main.js, kniha § 10.41): pomalý alebo zlyhaný data.json inak nechal objednávku bez nich (1820260079, 1120260090).
+ */
+export function pridajPoliaObjednavky() {
+  if (!$(".co-billing-address").length || document.getElementById("varchar1")) return;
   // Objednávka len s kamiónmi: poloha volantu / sedadiel / dvere osobného auta (1.–3. pole) nemá zmysel – productPage.js
   // ich na každom produkte predvyplní (left, pass-5, doors-4) a v objednávke kamiónu mýlili (Michal 25. 10. 2026)
   const $polozky = $("body.ordering-process .cart-items .cart-item");

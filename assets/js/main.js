@@ -9,7 +9,7 @@ import { stickyPhotos } from "./functions/stickyphotos.js";
 import { errorToCart } from "./functions/errorToCart.js";
 import { initHeader } from "./components/header.js";
 import { initVideoPlayAgain } from "./functions/video-play-again.js";
-import { initCart } from "./components/cart.js";
+import { initCart, pridajPoliaObjednavky } from "./components/cart.js";
 import { initKosikDoplnok } from "./lcdKosikDoplnok.js"; // kosik: rohoz do kufra a box k setu za cenu v sete
 import { validation } from "./functions/validation.js";
 import { initConfiguratorEngine } from "./functions/configuratorEngine.js";
@@ -74,6 +74,11 @@ function poBoote(fn) {
   else lcdPoBooteFronta.push(fn);
 }
 
+// Auto, volant, miesta a dvere do objednávky: hneď, nie až v callbacku data.json (kniha § 10.41). Pomalý alebo zlyhaný
+// súbor inak nechal zákazníka zaplatiť bez nich, objednávky 1820260079 a 1120260090 prišli bez auta.
+poBoote(addNote);
+poBoote(pridajPoliaObjednavky);
+
 $.getJSON(optionData.downloadData, function (data) {
   setupData = data;
   kamionyZDat(setupData); // PRED konfigurátorom aj titulkou: listy kamiónov z Google tabuľky, inak zoznam z kódu
@@ -99,7 +104,6 @@ $.getJSON(optionData.downloadData, function (data) {
   });
   poBoote(lcdVideos);
 
-  addNote();
   validation(texts);
   initConfiguratorEngine();
   initLivePrice();

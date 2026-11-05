@@ -1749,6 +1749,16 @@ Michal: koberčeky 21–29 dní, kamióny **14–18 dní** (mení 14–25 z 19. 
 
 **Doplnené 5. 11. 2026:** Michal schválil zápis. Popis 640 SK a 2452 CZ prepísaný na 14–18 dní, zmenené len pole `description`, živá stránka 0× 14–25, 2× 14–18.
 
+### 10.41 Objednávka bez auta, keď data.json nestihne (5. 11. 2026)
+
+**Príznak:** objednávka 1820260079 (20:05, Google Pay, 626 €) prišla bez `model:` v poznámke a s prázdnymi `varchar1–3`, parametre setu boli celé. Rovnako vyzerá 1120260090 z 11. 10., takže chyba nie je z dnešných vydaní.
+
+**Príčina:** ✅ `addNote()` (poznámka) aj pridanie `varchar1–3` boli v callbacku `$.getJSON(data.json)`. Keď súbor zlyhá alebo ešte nedobehol, formulár je hotový a zákazník vie zaplatiť bez nich. Test s blokovaným `data.json` dal presne rovnaký výsledok. 🟡 Na simulovanom pomalom mobile (50 kB/s, CPU ×4, bez vyrovnávacej pamäte) bol formulár viditeľný po 11 s a polia po 28 s. U tohto zákazníka to dokázať nevieme, záznam z jeho telefónu nemáme. Auto ani Google Pay príčinou nie sú: rovnaký košík na Androide a iPhone prešiel a 9 predošlých objednávok cez Google Pay auto má.
+
+**Oprava:** `poBoote(addNote)` a `poBoote(pridajPoliaObjednavky)` bežia pred `$.getJSON`. `pridajPoliaObjednavky` je vyňatá z `initCart`, poistka proti dvojitému pridaniu je `#varchar1`. Test: `tools/test-objednavka-polia.mjs` (živý web, nič sa neodosiela, 3 prehliadače × SK, CZ × s a bez `data.json`).
+
+**Čo ostáva:** samotný bundel je synchrónny na konci stránky, takže kým sa nestiahne, formulár je viditeľný a polia ešte nie sú. Okno je kratšie, nie nulové.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.
