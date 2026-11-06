@@ -560,7 +560,7 @@ Snímky 390×844 a 1366×768, SK aj CZ, do scratchpadu, potom jedno kolo Michalo
 
 Prepínač funguje ako `?novy=1` pri konfigurátore (`konfigurator1v/index.js` `prepinac`/`jeZapnute`):
 - `?opc=1` zapíše flag karty do sessionStorage (`lcdOpc`), `?opc=0` ho zmaže.
-- Bez flagu rozhoduje konštanta `SPUSTENE` (spočiatku `false`).
+- Bez flagu rozhoduje konštanta `SPUSTENE` (spočiatku `false`, od 6. 11. 2026 `true`, § 10.43).
 - Núdzový vypínač bez nasadenia je `data.json` `"opc": false` (rovnako ako `"kosik_doplnky": false`). Má prednosť pred flagom aj pred `SPUSTENE`.
 
 ### 7.8 Cesta naživo
@@ -1768,6 +1768,30 @@ Michal: pri zmene štátu sa mení cena dopravy, má to byť vidieť pri každom
 **Nález (živý web, nič neodoslané):** ✅ ceny dopravy SK web: SK 5 €, CZ 15 €, PL 15 €, DE 30 €, FI 35 €. CZ web: SK 150 Kč, PL 500 Kč, DE 750 Kč. Česko a Poľsko v OPC cenu aj sumu ukázali správne. Nemecko a Fínsko hodili zákazníka na starý krok 1 (`lcd_opc_chyba`, `krok1-zvolene`): platia tam len Apple Pay, Google Pay a karta a Shoptet nemá žiadnu zaškrtnutú, takže `krok1Model` skončil bez voľby.
 
 **Oprava:** `krok1Model(html, { doplnitPlatbu: true })` vyberie kartu (`podmetoda` `scheme`), inak prvú povolenú okrem Apple Pay a rýchlej platby. Volá to len `opc/stat.js`, košík a skok z webu sa správajú ako doteraz. Test S97 a jednotka v `test-opc-jednotky.mjs`. Naživo `196d675` SK aj CZ od 5. 11. 2026, návrat `1be7f8c`. Testy SK 166, CZ 94, jednotky 137.
+
+### 10.43 Spustenie pre všetkých (6. 11. 2026)
+
+Michal 6. 11. 2026: „Takto to sprav, môžeš to nasadiť pre všetkých ľudí.“ Pokladňa beží pre všetkých zákazníkov SK aj CZ.
+
+**Naživo:** ✅ `7060de1` SK aj CZ od 6. 11. 2026 asi 00:00 UTC (`SPUSTENE = true`, v Záhlaví riadok `admin-html/zahlavie-opc-spustene.html`). **Návrat:** sha `8f800bb` a v Záhlaví späť `if(f!=="1"&&!/[?&]opc=[^0&#]/.test(s))return;` namiesto `if(f==="0")return;`. Rýchly vypínač bez nasadenia: `data.json "opc": false`. `8f800bb` je posledná verzia za tajným kódom, má nové videá aj farby 5 + 4.
+
+**Ponuka v pokladni (Michal po českom teste):**
+- Box: `box-poriadok` = veci rozhádzané po podlahe, uložené v boxoch, zavreté boxy. Koniec sa prelína do začiatku.
+- Rohož: `rohoz-dno` = kufor bez rohože, potom rohož na dno, lebo príplatok je rohož na dno, nie Premium.
+- Tapacír: `tapacir-dvere` v karte kamióna namiesto fotky (Michal: „vyzerá to fakt, že strašne lacno“). Len dvere v kamióne, pomalý posun po jednej fotke. Fotku s logom Scania a fotku s vikingom Michal vyradil, uterák a logo Volvo sú mimo výrezu.
+- Farby boxu: 2 rady 5 + 4 (58 px na PC, 60 px na telefóne), v jednom rade boli maličké.
+- Čalúnenie z košíka berie materiál, farbu aj lemovanie z kobercov, výber nášivky sa v košíku neponúka (doplnok má byť jeden klik; nášivka na dvere je v konfigurátore alebo pri konzultácii).
+- Videá sú poskladané zo skutočných fotiek skriptom `tools/kosik-videa.py`, nie natočené, fotky sa neupravujú.
+
+**Nezávislá kontrola pred zapnutím (3 pohľady + pokus o vyvrátenie, len čítanie kódu):**
+- ⛔ → opravené: webm nových videí boli VP9 profil 1 (`gbrp`), chýbal `-pix_fmt yuv420p`. Safari ich nemusí prehrať a na mp4 sa sám nevráti. V dlaždiciach ponuky ide teraz mp4 prvé (`zdroje(..., true)`), S81 to kontroluje. Skript už kóduje yuv420p, nahraté súbory sa neprepisujú, pri ďalšej zmene ide video pod novým menom.
+- Brána: pre zákazníka bez flagu sa oproti tajnému odkazu líši len záznam ďakovnej stránky (zámer).
+- ❓ Staré diery, nie zo spustenia (rovnako v starej pokladni), ale riziko objednávky bez auta: (1) `truckOrderSummary` sa nemaže, košík s kamiónom aj osobným autom alebo odobratý kamión pošle objednávku bez `model:` a so starým blokom kamióna; (2) košík otvorený v novej karte: kamión bez vozidla v poznámke, volant, miesta a dvere na predvolených hodnotách (`lcdAuto:v1` obnovuje len 5 kľúčov). Oprava: rozhodovať podľa riadkov objednávky a ukladať aj kamión a polohy do `localStorage`, formát poznámky pre Jánov export overiť.
+- ❓ Naostro ešte neprešli cez novú pokladňu: dobierka, SK karta, rýchla platba cez banku, prihlásený zákazník. Doložené: 1820260078 (SK Apple Pay), 2820260038 (CZ Apple Pay), 1820260076 (SK prevod).
+
+**Testy:** SK 168 OK, CZ 94 OK, jednotky 137 (7 testov brány prepísaných na stav po spustení, „bez kódu“ = flag „0“), doplnky 104, zápis auta do objednávky naživo chromium, webkit, firefox × SK, CZ × s a bez data.json OK.
+
+**Dôkaz naživo bez kódu (Playwright, nič neodoslané):** SK aj CZ košík ide rovno na `/objednavka/krok-2/`, karta kamióna s videom tapacíru (SK WebKit PC a telefón, CZ Chromium PC a telefón, dlaždica 76 × 95, bez pretečenia), ponuka setu, SK farby boxu 5 + 4. `?opc=0` vráti starý košík a ostane vypnuté, bez flagu znova pokladňa. `tools/test-kamion-prehliadace.mjs` má nový prepínač `--opc <kód|1>`: zvolí kamión bez tapacíru a otvorí pokladňu, Step2Validate vždy ruší. Výber boxu na CZ som naživo neotvoril (rovnaký kód a CSS ako SK).
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 
