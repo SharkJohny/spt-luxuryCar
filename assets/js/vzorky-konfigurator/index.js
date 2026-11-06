@@ -107,9 +107,8 @@ function formatMoney(value, locale) {
 function localizedLabel(label, lang) {
   if (lang !== "cs") return label;
   const exact = {
-    "Bledo hnedá": "Světle hnědá",
+    "Hnedá": "Hnědá",
     "Hnedá káva": "Hnědá káva",
-    "Sivá": "Šedá",
     "Štandard 29": "Standard 29",
   };
   if (exact[label]) return exact[label];

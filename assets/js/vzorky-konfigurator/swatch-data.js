@@ -145,7 +145,7 @@ export const VZORKY_ITEMS = {
     "orderable": true
   },
   "D-12": {
-    "label": "Bledo hnedá",
+    "label": "Hnedá",
     "img": "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/config/D-12.jpg",
     "series": "diamond",
     "orderable": true
@@ -163,7 +163,7 @@ export const VZORKY_ITEMS = {
     "orderable": true
   },
   "D-15": {
-    "label": "Sivá",
+    "label": "Šedá",
     "img": "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/config/D-15.jpg",
     "series": "diamond",
     "orderable": true
@@ -217,7 +217,7 @@ export const VZORKY_ITEMS = {
     "orderable": true
   },
   "S-6": {
-    "label": "Bledo hnedá",
+    "label": "Hnedá",
     "img": "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/spolocne/config/S-6.jpg",
     "series": "stripe",
     "orderable": true

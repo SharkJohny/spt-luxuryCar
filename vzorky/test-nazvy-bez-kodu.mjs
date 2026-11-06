@@ -40,7 +40,7 @@ const VZORKY = [
   { seria: "Diamond", farba: "Čierna prešívaná bronzovou", kod: "D-9" },
   { seria: "Diamond", farba: "Čierna prešívaná modrou", kod: "D-2" },
   { seria: "Hexa", farba: "Čierna prešívaná červenou", kod: "H-1" },
-  { seria: "Stripe", farba: "Bledo hnedá", kod: "S-6" },
+  { seria: "Stripe", farba: "Hnedá", kod: "S-6" },
   { seria: "2. vrstva", farba: "Lux Color 10 – čierna", kod: "LUX-10" },
 ];
 
