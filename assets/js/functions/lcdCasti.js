@@ -5,7 +5,7 @@
 import { LCD_ZAKLAD } from "./lcdZaklad.js";
 
 // truck = React kamiónov; gsap / reels / hp = titulka (úloha C 25. 10. 2026, vstupy v assets/js/casti/, docs/rychlost-web.md §1)
-const SUBORY = { truck: "js/lcd-truck.js", gsap: "js/lcd-gsap.js", reels: "js/lcd-reels.js", hp: "js/lcd-hp.js" };
+const SUBORY = { truck: "js/lcd-truck.js", gsap: "js/lcd-gsap.js", reels: "js/lcd-reels.js", hp: "js/lcd-hp.js", vclass: "js/lcd-vclass.js" };
 const sluby = {};
 
 const zapisana = (meno) => (window.__lcdCasti && window.__lcdCasti[meno]) || null;

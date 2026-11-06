@@ -39,6 +39,8 @@ export const PRODUKTY_1V = {
     637: { typ: "vzorky", vzor: null, url: "/vzorkovnik-dragonskin---objednavka-vzoriek/", obsah: "vzorky" },
     // kamióny a dodávky: vlastný konfigurátor kamion/ namiesto Reactu (docs/kamiony-1v-plan.md); do vydania len ?novy=vyvoj
     640: { typ: "kamion", vzor: null, url: "/luxusne-autokoberce-kamiony/", obsah: "kamiony" },
+    // Mercedes triedy V: vlastný konfigurátor vclass/, skrytý produkt v kategórii Test (vidí ho len prihlásený admin)
+    646: { typ: "vclass", vzor: null, url: "/autokoberce-mercedes-triedy-v/", obsah: null },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -60,7 +62,7 @@ export const PRODUKTY_1V = {
 };
 
 /** Typy vydané pre ?novy=1 (zákaznícky skúšobný odkaz). Pridáva len vydanie. Integrácia 14. 10. 2026: všetkých 13 SK produktov + vzorkovník. */
-export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", "boxy", "vzorky", "kamion"];
+export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", "boxy", "vzorky", "kamion", "vclass"];
 
 /**
  * kroky  – mená kariet v poradí, v akom ich zákazník vidí a číslujú sa („Krok N z M“, postup). Posledný krok má
@@ -90,6 +92,8 @@ export const TYPY = {
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
   // kamion: celé UI stavia modul kamion/ (6 krokov vo vlastnom koreni); živé kroky 1V na 640 nie sú (React sa nemontuje)
   kamion: { kroky: [], moduly: ["kamion"], obal: null },
+  // vclass: celé UI v časti js/lcd-vclass.js, natívny formulár nesie výber v príplatkoch
+  vclass: { kroky: [], moduly: ["vclass"], obal: null },
 };
 
 /** Texty a obrázky typu (typy/<typ>.js). Základ = jedno (dnešné texty 598); typ prepíše, čo potrebuje. */

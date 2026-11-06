@@ -23,6 +23,7 @@
 /assets/js/lcd-gsap.js
 /assets/js/lcd-reels.js
 /assets/js/lcd-hp.js
+/assets/js/lcd-vclass.js
 /assets/css/luxuryCar.min.css
 
 # Recenzie Google (tools/scrape-google-reviews.mjs): diagnostické snímky a zoznam nedostupných fotiek

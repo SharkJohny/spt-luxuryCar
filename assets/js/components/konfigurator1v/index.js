@@ -33,9 +33,11 @@ import * as prenos from "./prenos.js";
 import * as kompletPonuka from "./komplet-ponuka.js";
 // kamióny a dodávky SK 640: celé UI namiesto Reactu (docs/kamiony-1v-plan.md); pri chybe zlozit() vráti React
 import * as kamion from "./kamion/index.js";
+// Mercedes triedy V SK 646: len brána, konfigurátor je časť js/lcd-vclass.js
+import * as vclass from "./vclass/index.js";
 
 /** Moduly podľa mena (TYPY[typ].moduly v produkty.js); meno, ktoré tu nie je, sa preskočí. */
-const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka, kamion };
+const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka, kamion, vclass };
 
 /** projectId -> produkty zapnuté pre ?novy=1 (odvodené z registra; ponechané pre spätnú kompatibilitu). */
 export const ZOZNAM_1V = zoznamZapnutych();

@@ -107,6 +107,7 @@ const LIMIT_NECINNOSTI_DALEKO = 1500;
 
 /** Kľúč obsahu produktu (register produkty.js -> obsah), inak productId. */
 export function klucObsahu(ctx) {
+  if (ctx && ctx.produkt && ctx.produkt.obsah === null) return ""; // produkt bez obsahu pod konfigurátorom (trieda V)
   return String((ctx && ctx.produkt && ctx.produkt.obsah) || (ctx && ctx.productId) || "");
 }
 

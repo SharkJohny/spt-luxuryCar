@@ -138,7 +138,9 @@ export function initProduct(setupData, texts) {
   // negenerátorový page-init necháme bežať (jeho selektory tu aj tak nič netrafia).
   // skúšobný produkt test (Michal 4. 11. 2026, vidí ho len prihlásený admin): bežné „Do košíka“ bez konfigurátora; po spustení pokladne zmazať
   const jeSkusobny = /^\/test-objednavka\/?$/.test(window.location.pathname);
-  const isVzorky = isVzorkyConfiguratorPage() || jeSkusobny;
+  // Mercedes triedy V: vlastný konfigurátor (konfigurator1v/vclass), bežný konfigurátor osobných áut sa tu nestavia
+  const jeVclass = /^\/autokoberce-mercedes-triedy-v\/?$/.test(window.location.pathname);
+  const isVzorky = isVzorkyConfiguratorPage() || jeSkusobny || jeVclass;
   if (isVzorky && !jeSkusobny) {
     mountVzorkyConfigurator();
   }
