@@ -70,7 +70,8 @@ body.lcd-vclass #lcd-vclass h1{font:800 clamp(28px,3vw,40px)/1.08 var(--lv-disp)
 #lcd-vclass .lv-spolu b{font:800 30px var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-spr{margin:10px 0 0;padding:11px 13px;border-radius:9px;background:#fbf7ea;border:1px solid #e9dcae;color:var(--lv-gt);font-size:15px}
 @media (max-width:991px){
-  #lcd-vclass-nakres{position:static}
+  body.lcd-vclass .p-image-wrapper{display:none!important}
+  #lcd-vclass-nakres{position:static;margin:0 0 9px}
   #lcd-vclass-nakres .lv-pl{flex-direction:row;align-items:center;justify-content:center;gap:10px;width:100%}
   #lcd-vclass-nakres .lv-pred{width:56%}
   #lcd-vclass-nakres .lv-zad{width:40%}

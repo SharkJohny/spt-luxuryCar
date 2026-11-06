@@ -7,6 +7,9 @@ import { SELECTY, VELKOSTI, ROKY, VOLANT, STRED, DVERE, MIESTA, STOLCEK, ZASUVKY
 import { NAHLADY_FARIEB } from "../farby-nahlady-data.js";
 import { CSS } from "./styl.js";
 
+/** Názvy modelov v katalógu áut. */
+const MODELY = { M: "V Class M (compact 4895 mm)", L: "V Class L (long 5140 mm)", XL: "V Class XL (Extra Long 5370 mm)" };
+const MOBIL = "(max-width: 991px)";
 const FARBY_CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/farby/";
 const nahlad = (slug) => (NAHLADY_FARIEB[slug] ? FARBY_CDN + slug + "-" + NAHLADY_FARIEB[slug] + "-w144.jpg" : "");
 const eur = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+$)/g, " ") + " €";
@@ -46,6 +49,9 @@ export function spusti(ctx) {
   document.head.appendChild(styl);
   document.body.classList.add("lcd-vclass");
   stlpec.classList.add("active");
+  // prázdny Popis: Shoptet píše „Popis produktu nie je dostupný“, s vyplneným Popisom sa nič neskrýva
+  const popis = document.querySelector("#description .basic-description");
+  if (popis && /nie je dostupn/i.test(popis.textContent)) { popis.style.display = "none"; spat.push(() => { popis.style.display = ""; }); }
 
   const nakres = document.createElement("div");
   nakres.id = "lcd-vclass-nakres";
@@ -135,12 +141,21 @@ export function spusti(ctx) {
     cta.textContent = h === n ? "Vložte do košíka" : "Dokončite výber";
     cta.classList.toggle("lv-hotovo", h === n);
   }
+  /** Telefón: kresba hneď pod otvoreným krokom, zákazník vidí zmenu bez posúvania. PC: ľavý stĺpec. */
+  function umiestni() {
+    if (!(window.matchMedia && window.matchMedia(MOBIL).matches)) { if (nakres.parentNode !== lavy) lavy.appendChild(nakres); return; }
+    const ot = kor.querySelector(".lv-ot");
+    if (ot) ot.parentNode.insertBefore(nakres, ot.nextSibling);
+    else root.insertBefore(nakres, root.querySelector(".lv-suhrn"));
+  }
   function kroky() {
+    if (kor.contains(nakres)) lavy.appendChild(nakres); // innerHTML nižšie by kresbu zmazal
     kor.innerHTML = KROKY.map((k, i) => {
       const ok = hotovy[k.id]() && i !== S.akt;
       if (i === S.akt) return '<div class="lv-kr lv-ot" data-id="' + k.id + '"><div class="lv-k">Krok ' + (i + 1) + " z " + KROKY.length + '</div><div class="lv-t">' + k.ti + "</div>" + (k.pod ? '<p class="lv-p">' + k.pod + "</p>" : "") + telo[k.id]() + (k.auto ? "" : '<button type="button" class="lv-dalej" data-dalej="1">Pokračovať</button>') + "</div>";
       return '<div class="lv-kr' + (ok ? " lv-ho" : "") + '"><button type="button" class="lv-r" ' + (ok ? 'data-ot="' + i + '"' : "disabled") + '><span class="lv-c-k">' + (ok ? "✓" : i + 1) + "</span><span class=\"lv-r-t\"><b>" + k.nm + "</b><small>" + (ok ? suhrn[k.id]() : k.vy) + "</small></span>" + (ok ? '<span class="lv-z">Zmeniť</span>' : "") + "</button></div>";
     }).join("");
+    umiestni();
     hlavicky();
   }
   function posunNa(prvok) {
@@ -203,11 +218,12 @@ export function spusti(ctx) {
     if (prazdne.length) { console.error("[lcd-1v] vclass: prázdne príplatky", prazdne.length); return; }
     // poznámka objednávky a rozpis v košíku berú auto z tejto karty (main.js toNote, autoPamat.js)
     try {
+      // Model presne ako v katalógu áut (data.json), inak ho main.js pri ďalšej stránke zmaže ako neplatný
       sessionStorage.setItem("Brand", "Mercedes-Benz");
-      sessionStorage.setItem("Model", "Trieda V");
+      sessionStorage.setItem("Model", MODELY[S.velkost]);
       sessionStorage.setItem("Year", S.rok);
-      sessionStorage.setItem("carType", S.velkost);
-      sessionStorage.setItem("model", "Mercedes-Benz Trieda V " + S.rok + " " + S.velkost);
+      sessionStorage.removeItem("carType");
+      sessionStorage.setItem("model", "Mercedes-Benz " + MODELY[S.velkost] + " " + S.rok);
     } catch (e) { /* súkromný režim: príplatky v položke aj tak nesú celý výber */ }
     cta.disabled = true;
     cta.textContent = "Vkladám do košíka…";
@@ -220,7 +236,7 @@ export function spusti(ctx) {
   const naKosik = () => { if (!zruseny) { cta.disabled = false; hlavicky(); } };
   document.addEventListener("ShoptetCartUpdated", naKosik);
   let naResize = 0;
-  const priZmene = () => { clearTimeout(naResize); naResize = setTimeout(prekresli, 200); };
+  const priZmene = () => { clearTimeout(naResize); naResize = setTimeout(() => { umiestni(); prekresli(); }, 200); };
   window.addEventListener("resize", priZmene);
 
   function zrus() {

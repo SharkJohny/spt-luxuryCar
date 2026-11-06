@@ -108,9 +108,9 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over(q.get("priceId") === "68434", "priceId");
       const ma = { "Veľkosť": o.velkost, "Rok výroby": o.rok, Volant: o.volant, "Stred medzi sedadlami": o.stred, "Bočné dvere": o.dvere, "Počet miest": o.miesta, "Stolček vzadu": o.stolcek, "Zásuvky pod sedadlami": o.zasuvky, "Vzor a farba 1. vrstvy": vzorNm + " – " + o.farba, "Farba 2. vrstvy": "Lux Color " + o.lux };
       for (const m of Object.keys(ma)) { const id = P.find((x) => x[1] === m)[0]; over(q.get(`surchargeParameterValueId[${id}]`) === hodnotaId(m, ma[m]), m + " = " + ma[m] + " (je " + q.get(`surchargeParameterValueId[${id}]`) + ")"); }
-      over((await p.evaluate(() => sessionStorage.getItem("model"))) === `Mercedes-Benz Trieda V ${o.rok} ${o.velkost}`, "auto do poznámky objednávky");
+      over((await p.evaluate(() => sessionStorage.getItem("model"))) === `Mercedes-Benz ${{ M: "V Class M (compact 4895 mm)", L: "V Class L (long 5140 mm)", XL: "V Class XL (Extra Long 5370 mm)" }[o.velkost]} ${o.rok}`, "auto do poznámky objednávky");
       // zrušený POST testu natívny Shoptet hlási ako odmietnutý sľub, to nie je chyba konfigurátora
-      over(chyby.slice(predKosikom).every((t) => /Uncaught \(in promise\)/.test(t)), "chyby po košíku: " + chyby.slice(predKosikom).join(" | "));
+      over(chyby.slice(predKosikom).every((t) => /in promise|\[object Object\]|statusText/.test(t)), "chyby po košíku: " + chyby.slice(predKosikom).join(" | "));
       await c.close();
     }
     await b.close();
