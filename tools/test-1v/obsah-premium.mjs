@@ -148,15 +148,14 @@ export async function kontroly(t) {
   if (await t.je("a-ponuka")) {
     const r = await karta("a-ponuka");
     ok(r.n === 1 && /Ku kufru patria aj autokoberce pod sedadlá/.test(r.h3), `a-ponuka: jedna karta setu „${r.h3}“ (${r.n})`);
-    const jedno = t.sestra("jedno");
-    ok(r.odkaz === jedno && r.znacka === "jedno", `a-ponuka: „Zostavte si set s autokobercami“ vedie na jednovrstvové toho istého vzoru (${r.odkaz}, čakám ${jedno})`);
+    ok(r.odkaz === "" && !r.znacka, `a-ponuka: tlačidlo vedie na konfigurátor tejto stránky, nie na iný produkt (${r.odkaz})`);
     ok(r.img, "a-ponuka: fotka sa načítala");
     // Michal 17. 10. 2026: cena v sete bez „+“ („stojí len 239 € namiesto 340 €“, „len za 239 € (samostatne 340 €)“)
     ok(/set-premium=\d/.test(r.cisla) && /cena-od=\d/.test(r.cisla) && !/\+/.test(r.cisla), `a-ponuka: set „len … namiesto / samostatne …“ zo živých dát, bez „+“ (${r.cisla})`);
     if (await t.je("premium-box")) {
       const b = await karta("premium-box");
       ok(b.n === 1 && /Doplňte rohož do kufra o box/.test(b.h3), `premium-box: jedna karta boxu „${b.h3}“ (${b.n})`);
-      ok(b.odkaz === "/luxusny-boxi-do-kufra/" && b.znacka === "boxy", `premium-box: „Pozrite si boxy do kufra“ vedie na box (${b.odkaz})`);
+      ok(b.odkaz === "" && !b.znacka, `premium-box: tlačidlo vedie na konfigurátor tejto stránky, nie na box (${b.odkaz})`);
       ok(b.img, "premium-box: fotka sa načítala");
       ok(/box-sam-s=\d/.test(b.cisla) && /box-set-s=\d/.test(b.cisla), `premium-box: „Samostatne od …“ a „S autokobercami pod sedadlá už od …“ zo živých dát (${b.cisla})`);
       ok(b.vzhlad === r.vzhlad && /^grid · rgb/.test(b.vzhlad), `premium-box: karta vyzerá ako karta setu (display · pozadie · stĺpce · min. výška fotky · odrážka · nadpis: ${b.vzhlad} / set ${r.vzhlad})`);
@@ -267,7 +266,7 @@ export async function kontroly(t) {
       "premium-porovnanie: Premium kryje dno, boky aj chrbty; Classic nekryje boky ani chrbty");
     ok(r.filter === "none", `premium-porovnanie: fotka Classic bez šedého filtra (${r.filter})`);
     const cl = r.dalej.find((a) => /Classic/.test(a.text)), pr = r.dalej.find((a) => /Premium/.test(a.text));
-    ok(cl && String(cl.href).split("#")[0] === KLASIK[id], `premium-porovnanie: „Pozrite si rohož do kufra Classic“ vedie na ${cl && cl.href} (čakám ${KLASIK[id]})`);
+    ok(!cl, `premium-porovnanie: bez tlačidla na Classic (${cl && cl.href})`);
     ok(pr && pr.href === "#product-detail-form" && r.spat, "premium-porovnanie: „Vyberte si Premium“ a výzva vedú na konfigurátor");
   }
 

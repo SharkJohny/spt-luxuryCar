@@ -286,13 +286,9 @@ export async function kontroly(t) {
     const bx = [await text(S("classic-box") + " .ups li", 1), await text(S("classic-box") + " .ups li", 2)];
     ok(bx[0] === L.boxSam + peniaze(oc.boxCena) && bx[1] === L.boxSet + peniaze(oc.boxSetS), `upsell boxu: „${bx[0]}“ / „${bx[1]}“ (čakám od ${peniaze(oc.boxCena)}, v sete od ${peniaze(oc.boxSetS)})`);
     ok((await text(S("b-porovnanie") + " .cmp-col.us .price")) === "od " + peniaze(oc.cena), `porovnanie: naša cena „${await text(S("b-porovnanie") + " .cmp-col.us .price")}“ = od ${peniaze(oc.cena)}`);
-    // odkazy: Premium / jednovrstvové / box toho istého vzoru (a pre 622 dokumentovaný Premium Hexa)
+    // zákazník ostáva na stránke: žiadny odkaz na Premium, jednovrstvové ani box (Michal 6. 11. 2026)
     const odk = await t.ev(`(function () { var o = {}; [].forEach.call(document.querySelectorAll(".p1v-miesto a[data-p1v-odkaz]"), function (a) { var k = a.getAttribute("data-p1v-odkaz"); (o[k] = o[k] || []).push((a.getAttribute("href") || "").split("#")[0]); }); return o; })()`);
-    const vsetky = (k, cesta) => (odk[k] || []).length > 0 && odk[k].every((h) => h === cesta);
-    ok(vsetky("premium", oc.cestaPremium), `odkazy Premium (${(odk.premium || []).length}×) vedú na ${oc.cestaPremium}: ${[...new Set(odk.premium || [])].join(", ")}`);
-    ok(vsetky("jedno", oc.cestaJedno), `odkazy na jednovrstvové (${(odk.jedno || []).length}×) vedú na ${oc.cestaJedno}: ${[...new Set(odk.jedno || [])].join(", ")}`);
-    ok(vsetky("boxy", oc.cestaBoxy), `odkazy na box (${(odk.boxy || []).length}×) vedú na ${oc.cestaBoxy}: ${[...new Set(odk.boxy || [])].join(", ")}`);
-    if (p.id === 622 || p.id === 2430) ok((odk.premium || []).every((h) => h === "/luxusny-koberced-do-kufra-dragonskin-premium-hexa/"), `${p.id}: odkaz Premium → /luxusny-koberced-do-kufra-dragonskin-premium-hexa/`);
+    ok(!Object.keys(odk).length, `bez odkazov na iné produkty (Michal 6. 11. 2026): ${JSON.stringify(odk)}`);
   }
 
   // ------------------------------------------------------------------ 3) výzvy a tlačidlá vedú na konfigurátor

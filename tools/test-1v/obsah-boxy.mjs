@@ -10,7 +10,7 @@
 //   - kresba boxu (box-kresba.js) so šírkou 33/40/54/66 cm a 9 farieb na klik (prefarbia kresby),
 //   - zdroj sekcií okrem FAQ: nič o skladovosti; lehota len „21–29 dní“ v časovej osi — úvod + odznak „spolu 21–29 dní“ (rozhodnutie
 //     Michala 14. 10. 2026: box sa šije ako koberce; odznak a krok „Ručné šitie“ 15. 10. 2026); zakázané slová; žiadna cena natvrdo,
-//   - karty „Doplňte aj rohož do kufra“ (odkazy v tom istom vzore, ceny zo živých stránok, celá karta je odkaz),
+//   - karty „Doplňte aj rohož do kufra“ (ceny zo živých stránok, bez odkazov: zákazník ostáva na stránke, Michal 6. 11. 2026),
 //   - 8 krokov „Osem vecí“, farby (9), časová os (5, so šitím a odznakom), FAQ = živé FAQ z /faq/ doslovne (12, tools/test-1v/obsah-faq.mjs), záver, okno
 //     fotiek, všetky obrázky boxy-* sa načítajú.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -291,7 +291,7 @@ export async function kontroly(t) {
     ok(r.r1.concat(r.r2, r.r3).every((c) => c.stav === "ok" && c.vis === "visible"), "a-ponuka: všetkých 12 buniek dosadených (stav ok) a viditeľných");
     ok(r.vKarte && r.sirka > 240, `a-ponuka: tabuľka sa zmestí do tmavej karty (šírka ${r.sirka} px)`);
     const jedno = o.reg.produkty && sestra(o.reg, "jedno", null);
-    ok(jedno && String(r.href || "").split("#")[0] === jedno.cesta && /#product-detail-form$/.test(r.href || "") && r.text === "Zostavte si set s autokobercami", `a-ponuka: „${r.text}“ vedie na jednovrstvové a ich konfigurátor (${r.href})`);
+    ok(r.href === "#product-detail-form" && r.text === "Vyberte si box", `a-ponuka: „${r.text}“ vedie na konfigurátor tejto stránky, nie na iný produkt (${r.href})`);
   }
 
   // boxy-velkosti: 4 karty, silueta v skutočnom pomere, ceny rovnaké ako v tabuľke, tipy, výzva
@@ -472,7 +472,7 @@ export async function kontroly(t) {
     ok(r1.meno === "Hnedá káva" && /boxy-farba-7\.jpg$/.test(r1.src) && r1.ok && r1.cislo === "07", `c-farby: klik na 7. vzorku → „${r1.meno}“, fotka ${r1.src.split("/").pop()} (načítaná ${r1.ok}, ${r1.cislo})`);
   }
 
-  // boxy-cross: 3 karty, ceny zo živých stránok, celá karta je odkaz
+  // boxy-cross: 3 karty, ceny zo živých stránok, bez odkazov (Michal 6. 11. 2026)
   if (await t.je("boxy-cross")) {
     await posun(t.sekcia("boxy-cross") + " .cross", "center");
     const r = await t.ev(`(async function () {
@@ -484,10 +484,9 @@ export async function kontroly(t) {
         await new Promise(function (r) { setTimeout(r, 250); });
         var im0 = c.querySelector("img"), t1 = Date.now();
         while (im0 && !(im0.complete && im0.naturalWidth > 0) && Date.now() - t1 < 8000) await new Promise(function (r) { setTimeout(r, 150); });
-        var a = c.querySelector("h3 a"), b = c.querySelector(".cr-c b"), i = c.querySelector(".cr-c i"), rc = c.getBoundingClientRect();
-        var bod = document.elementFromPoint(Math.round(rc.left + rc.width / 2), Math.round(Math.min(Math.max(rc.top + rc.height * 0.4, 2), innerHeight - 2)));
-        k.push({ stitok: c.querySelector(".od").textContent.trim(), h3: a ? a.textContent.trim() : null, href: a ? a.getAttribute("href") : null, cena: b ? b.textContent : null, popis: i ? i.textContent : null,
-          cela: !!bod && !!a && bod.closest("a") === a, img: (function () { var im = c.querySelector("img"); return im && im.complete && im.naturalWidth > 0; })(),
+        var b = c.querySelector(".cr-c b"), i = c.querySelector(".cr-c i");
+        k.push({ stitok: c.querySelector(".od").textContent.trim(), odkazov: c.querySelectorAll("a").length, cena: b ? b.textContent : null, popis: i ? i.textContent : null,
+          img: (function () { var im = c.querySelector("img"); return im && im.complete && im.naturalWidth > 0; })(),
           stavy: [].map.call(c.querySelectorAll("[data-p1v-cislo]"), function (x) { return x.getAttribute("data-p1v-stav") + "/" + getComputedStyle(x).visibility; }).join(",") });
       }
       return { k: k, stlpcov: getComputedStyle(s.querySelector(".cross")).gridTemplateColumns.split(" ").length, h2: s.querySelector("h2").textContent.trim() };
@@ -495,14 +494,13 @@ export async function kontroly(t) {
     const reg = o.reg;
     const cesta = (typ) => (sestra(reg, typ, null) || {}).cesta;
     ok(r.h2 === "Doplňte aj rohož do kufra" && r.k.map((c) => c.stitok).join("|") === "Classic|Premium|Autokoberce", `boxy-cross: nadpis „${r.h2}“ a karty ${r.k.map((c) => c.stitok).join(" | ")}`);
-    ok(r.k.map((c) => (c.href || "").split("#")[0]).join(",") === [cesta("kufor-classic"), cesta("kufor-premium"), cesta("jedno")].join(","), `boxy-cross: odkazy kariet ${r.k.map((c) => c.href).join(", ")}`);
+    ok(r.k.every((c) => c.odkazov === 0), "boxy-cross: karty bez odkazov na iné produkty " + JSON.stringify(r.k.map((c) => c.odkazov)));
     // rohože: cena s autokobercami bez „+“ (Michal 17. 10. 2026: „+ X €“ pod cenou vyzerá ako príplatok k nej)
     ok(nbsp(r.k[0].cena) === eur(o.classic) && nbsp(r.k[0].popis) === "s autokobercami pod sedadlá len za " + eur(o.setClassic), `boxy-cross: Classic ${nbsp(r.k[0].cena)}, „${nbsp(r.k[0].popis)}“ = živé stránky (${eur(o.classic)}, len za ${eur(o.setClassic)})`);
     ok(nbsp(r.k[1].cena) === eur(o.premium) && nbsp(r.k[1].popis) === "s autokobercami pod sedadlá len za " + eur(o.setPremium), `boxy-cross: Premium ${nbsp(r.k[1].cena)}, „${nbsp(r.k[1].popis)}“ = živé stránky (${eur(o.premium)}, len za ${eur(o.setPremium)})`);
     ok(nbsp(r.k[2].cena) === "od " + eur(o.jedno) && nbsp(r.k[2].popis) === "box v sete s autokobercami od " + o.set.S, `boxy-cross: Autokoberce „${nbsp(r.k[2].cena)}“, „${nbsp(r.k[2].popis)}“ = živé stránky (od ${eur(o.jedno)}, box v sete od ${o.set.S})`);
     ok(r.k.every((c) => c.stavy.split(",").every((s) => s === "ok/visible")), "boxy-cross: všetky čísla kariet dosadené a viditeľné");
     ok(r.k.every((c) => c.img), "boxy-cross: fotky kariet sa načítali");
-    ok(r.k.every((c) => c.cela), "boxy-cross: klik kamkoľvek na kartu zasiahne jej odkaz (natiahnutý odkaz)");
     ok(r.stlpcov === (t.sirka > 820 ? 3 : 1), `boxy-cross: ${r.stlpcov} stĺpce pri ${t.sirka} px (3 nad 820 px, inak 1)`);
   }
 

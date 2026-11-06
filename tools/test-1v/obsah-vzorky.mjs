@@ -27,7 +27,6 @@ export const zdielane = [];
 export const sekcie = [
   { meno: "c-casova-os", navrh: [{ sel: "main > section.chapter", text: "Ako k Vám vzorky prídu" }] },
   { meno: "vzorky-vratenie", navrh: [{ sel: "section.chapter", text: "Ako dostanete zálohu späť" }, { sel: ".spat", za: "#vratenie" }] },
-  { meno: "a-ponuka", navrh: [{ sel: "section.chapter", text: "Zostavte si autokoberce na mieru" }] },
   { meno: "d-faq", navrh: [{ sel: "#otazky" }] },
 ];
 
@@ -55,12 +54,6 @@ export const ZNENIE = {
     "Vrátenie vzoriek", "Vyplníte formulár na odstúpenie od zmluvy", "Vzorky nám pošlete späť", "Formulár nájdete tu",
     "Vrátenie zálohy", "5 € za každú vrátenú vzorku.", "Na Váš účet", "po obdržaní vzoriek", "Alebo jej hodnotu odpočítame", "z objednávky",
     "Vyberte si vzorky a pozrite si farby naživo.", "Pokračujte vo výbere",
-  ],
-  "a-ponuka": [
-    "Máte vybratú farbu?", "Zostavte si autokoberce pod sedadlá na mieru",
-    "Vzorky sú pre autokoberce pod sedadlá v osobných autách. Vzor, farbu aj rozloženie potom zvolíte v konfigurátore.",
-    "Jednovrstvové zvládnu jar až leto", "Dvojvrstvové majú na prvej prešívanej vrstve odnímateľnú druhú vrstvu Lux",
-    "Šablóny máme pre viac než 1000 modelov osobných áut", "Jednovrstvové", "Dvojvrstvové",
   ],
   // otázky a odpovede FAQ = živé /faq/ (kontrolaFaqZive), tu len nadpis sekcie z návrhu
   "d-faq": [
@@ -124,10 +117,10 @@ export async function kontroly(t) {
   // 1) sekcie na stránke, v poradí (kus 1 pred kusom 2) a viditeľné
   const stav = await t.ev(`(${JSON.stringify(PORADIE)}).map(function(m){var e=document.querySelector('.p1v-miesto [data-lcd-sekcia="'+m+'"]');return e?[m,Math.round(e.getBoundingClientRect().height),getComputedStyle(e).display,Math.round(e.getBoundingClientRect().top+scrollY)]:[m,-1,"",0]})`);
   const chyba = stav.filter((x) => x[1] < 40 || x[2] === "none");
-  ok(!chyba.length, `4 sekcie vzorkovníka na stránke a viditeľné (${sir} px)` + (chyba.length ? ": " + JSON.stringify(chyba) : ""));
+  ok(!chyba.length, `3 sekcie vzorkovníka na stránke a viditeľné (${sir} px)` + (chyba.length ? ": " + JSON.stringify(chyba) : ""));
   if (chyba.length) return out;
   const poradie = stav.map((x) => x[3]);
-  ok(poradie.every((y, i) => !i || y > poradie[i - 1]), "sekcie idú za sebou: časová os, vrátenie, ponuka, FAQ " + JSON.stringify(stav.map((x) => x[0] + "@" + x[3])));
+  ok(poradie.every((y, i) => !i || y > poradie[i - 1]), "sekcie idú za sebou: časová os, vrátenie, FAQ " + JSON.stringify(stav.map((x) => x[0] + "@" + x[3])));
 
   // 2) reveal: po zobrazení sekcie sú všetky jej .rv odhalené (opacity 1)
   for (const m of PORADIE) {
@@ -186,22 +179,8 @@ export async function kontroly(t) {
     ok(strany === "LPLP", "časová os na PC: kroky striedavo vľavo/vpravo od osi (" + strany + ")");
   }
 
-  // 8) ponuka: fotka stiahnutá, rozloženie, dve tlačidlá na produkty toho istého vzoru (Diamond)
-  await naSekciu("a-ponuka", "center");
-  // Michal 25. 10. 2026 (rýchlosť): build obalí fotku do <picture> so zmenšeným WebP (vzorky-autokoberce-diamond-w480.webp…);
-  // stiahnutá je teda tá istá fotka v jednej z veľkostí a naturalWidth je šírka podľa sizes, nie 760 -> overuje sa currentSrc
-  const foto = await t.cakaj(`(function(){var i=document.querySelector(${JSON.stringify(S("a-ponuka") + " .ups .ph img")});return i&&i.complete&&i.naturalWidth>0?[i.naturalWidth,(i.currentSrc||i.getAttribute("src")).split("/").pop(),i.getAttribute("src").split("/").pop()]:false})()`, { ms: 8000, popis: "fotka ponuky" }).catch((e) => [0, e.message]);
-  ok(foto[0] > 0 && /^vzorky-autokoberce-diamond(-w\d+\.webp|\.jpg)$/.test(foto[1]) && foto[2] === "vzorky-autokoberce-diamond.jpg", "ponuka: reálna fotka vzorky-autokoberce-diamond (JPG alebo jeho WebP) stiahnutá " + JSON.stringify(foto));
-  const ups = await t.ev(`(function(){var u=document.querySelector(${JSON.stringify(S("a-ponuka") + " .ups")}),p=u.querySelector(".ph").getBoundingClientRect(),x=u.querySelector(".tx").getBoundingClientRect();var b=[].map.call(u.querySelectorAll(".vz-ups-cta .btn"),function(a){var r=a.getBoundingClientRect();return {t:a.textContent.trim(),h:a.getAttribute("href"),top:Math.round(r.top),l:Math.round(r.left),w:Math.round(r.width),o:a.getAttribute("data-p1v-odkaz"),s:a.getAttribute("data-p1v-stav")}});return {fotoVlavo:p.right<=x.left+2,fotoNad:p.bottom<=x.top+2,b:b,vis:getComputedStyle(u).display}})()`);
-  if (sir >= 821) ok(ups.fotoVlavo, "ponuka: na PC fotka vľavo od textu");
-  else ok(ups.fotoNad, "ponuka: na telefóne fotka nad textom");
-  ok(ups.b.length === 2 && ups.b[0].t === L.tl[0] && ups.b[1].t === L.tl[1], "ponuka: tlačidlá Jednovrstvové a Dvojvrstvové " + JSON.stringify(ups.b.map((x) => x.t)));
-  const jedno = t.sestra("jedno"), dvoj = t.sestra("dvoj");
-  ok(ups.b.length === 2 && ups.b[0].h === jedno && ups.b[1].h === dvoj && ups.b.every((x) => x.s === "ok"),
-    `ponuka: odkazy vedú na jednovrstvové a dvojvrstvové toho istého vzoru (${jedno} / ${dvoj}), dosadené obsah-cisla.js ` + JSON.stringify(ups.b.map((x) => x.h + " " + x.s)));
-  if (sir >= 1100) ok(ups.b.length === 2 && Math.abs(ups.b[0].top - ups.b[1].top) < 2 && ups.b[1].l > ups.b[0].l + ups.b[0].w, "ponuka: tlačidlá na PC vedľa seba " + JSON.stringify(ups.b.map((x) => [x.l, x.top, x.w])));
-  const ramik = await t.ev(`(function(){var a=document.querySelectorAll(${JSON.stringify(S("a-ponuka") + " .vz-ups-cta .btn")});return [getComputedStyle(a[0]).borderTopWidth,getComputedStyle(a[1]).borderTopWidth]})()`);
-  ok(ramik[0] === "0px" && ramik[1] === "1px", "ponuka: zlaté tlačidlo bez rámu, druhé (ghost) s rámom " + JSON.stringify(ramik));
+  // 8) ponuka s odkazmi na autokoberce je preč, zákazník ostáva na objednávke vzoriek (Michal 6. 11. 2026)
+  ok(!(await t.ev(`!!document.querySelector(${JSON.stringify(S("a-ponuka"))})`)), "sekcia ponuky s odkazmi na iné produkty nie je na stránke");
 
   // 9) FAQ: = živé FAQ z /faq/ doslovne (12 otázok, Michal 14. 10. 2026), klik rozbalí odpoveď a druhý klik ju zbalí
   await naSekciu("d-faq");

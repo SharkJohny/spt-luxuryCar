@@ -519,3 +519,13 @@ Predpoklady: kroky 1–4 zo sekcie 7 (veľkosť, brána zrušená v kóde, TinyM
   - JS bez zmeny: `obsah-b.js` hľadá sekciu podľa mena (`oc.sekcia("b-predapo")`), posuvník `lxModulyOziv` nezávisí od poradia; CSS Pred a po je viazané na meno sekcie a koreň `#p1v-<kľúč>-1/-2`, nie na susedov.
   - Dvojvrstvové: `23-b-predapo` ostáva stub (návrh ho nemá, test `obsah-dvoj.mjs` to vyžaduje) — nič sa nepresúvalo.
   - Testy: `obsah-b.mjs`, `obsah-classic.mjs`, `obsah-boxy.mjs` nová kontrola „b-predapo je hneď za a-recenzie“ (susedná sekcia na stránke), `obsah-premium.mjs` `PORADIE` s Pred a po za recenziami; zoznamy `sekcie` v poradí stránky.
+
+## 17. Bez odkazov na iné produkty v obsahu rohoží, boxu a vzorkovníka (6. 11. 2026, Michal)
+
+- Michal schválil to isté, čo v § 14 pri 598 a dvoj: zákazník ostáva na svojej stránke. Set a box ponúka konfigurátor a tabuľka cien, odkaz netreba.
+- **Classic:** preč `.kc-cta` v `23-classic-premium`, tlačidlo v `30-c-kam` a `31-classic-box`. V `36-a-ponuka` tlačidlo „Vyberte si model a farbu“ na `#product-detail-form`.
+- **Premium:** preč odkaz na boxy v `20-b-ocakavat` a „Pozrite si rohož do kufra Classic“ v `22-premium-porovnanie`. V `31-a-ponuka` a `40-premium-box` tlačidlo „Vyberte si model a farbu“ na `#product-detail-form`.
+- **Box:** v `22-a-ponuka` tlačidlo „Vyberte si box“ na `#product-detail-form`. Karty `40-boxy-cross` ostávajú bez odkazov, preto zmizol aj efekt pri prejdení myšou v `_lcd1v-obsah-boxy.scss`.
+- **Vzorkovník:** sekcia `30-a-ponuka` zmazaná, jej dve tlačidlá boli jej jediný zmysel.
+- **Pozor, kde to žije:** kus 1 (sekcie 10–29) je v Popise produktu v admine, kus 2 ide z CDN. Kus 1 sme 6. 11. upravili v Popise 14 produktov (SK 619, 625, 622, 628, 634, 631, 616, CZ 2424, 2433, 2430, 2421, 2439, 2436, 2427) priamo v poli `description` bez TinyMCE, uložené tlačidlom Uložiť, zmenené len tie odkazy. Záloha stránok: `C:/Users/M/Desktop/LCD/web/zalohy-admin/2026-11-06/`.
+- Odkaz „Objednajte si vzorky“ ostáva, je to krok k nákupu rovnakého produktu.
