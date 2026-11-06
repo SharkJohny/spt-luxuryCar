@@ -1,3 +1,4 @@
+import { lupaNaPoziadanie } from "./functions/lupaNaPoziadanie.js"; // velka fotka pre lupu az pri pouziti (6. 11. 2026)
 import { initAutoPamat } from "./functions/autoPamat.js"; // auto zakaznika aj v novej karte kosika a objednavky (9. 10. 2026)
 import { LCD_ZAKLAD } from "./functions/lcdZaklad.js"; // zaklad CDN: priecinok verzie alebo spolocne assets/
 import { nacitajRecenzie, RECENZIE_WV } from "./functions/lcdRecenzieData.js"; // dáta recenzií: spoločný súbor assets/data/, záloha z verzie (29. 10. 2026)
@@ -36,6 +37,7 @@ import { VOZIDLA } from "./components/konfigurator1v/kamion/data.js";
 import { kamionyZDat } from "./components/konfigurator1v/kamion/tabulka.js";
 
 // PRED všetkým, čo číta auto zo sessionStorage (košík, poznámka objednávky) — functions/autoPamat.js
+lupaNaPoziadanie(); // musi bezat pred $(document).ready, Shoptet tam spusta lupu
 initAutoPamat();
 // Cookie lista Shoptetu v style C pre vsetkych (vzhlad dava CSS v <head>): tu len bublina Luxie nad listou a odkaz v pate.
 initCookies1v();

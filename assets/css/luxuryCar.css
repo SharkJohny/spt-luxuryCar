@@ -23431,6 +23431,8 @@ body.lcd-1v :is(#p1v-598-1, .p1v-obsah) .lx-farby-velka {
   border-radius: 14px;
   box-shadow: 0 1px 2px rgba(20, 15, 5, .05), 0 10px 24px -12px rgba(20, 15, 5, .22);
 }
+/* lupa sa spúšťa až pri prejdení myšou (lupaNaPoziadanie.js): anglický text „Loading...“ nad fotkou zákazník nemá vidieť */
+.cloud-zoom-loading { display: none !important; }
 /* ===== LCD-1V-GALERIA END ===== */
 
 /* ===== LCD-1V-COOKIES START - generovane tools/vloz-lcd-css.py z _lcd1v-cookies.scss (cookie lista, okno nastaveni a odkaz v pate v style C; html:root = pre vsetkych), needituj rucne ===== */

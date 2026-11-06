@@ -64,6 +64,7 @@ Prínos skupiny = build bez nej (moduly nahradené prázdnymi exportmi) vs plný
   `konfigurator1v/kamion/obrazky.js`. Používa ho nový konfigurátor (`kamion/data.js`) aj React (`truck/build-truck-images.mjs`).
   `--check` = zoznam sedí so súbormi. Existujúci obrázok sa nikdy neprepisuje (assets/img je spoločné pre všetky verzie).
 
+- **Lupa až na požiadanie (6. 11. 2026, Michal: „urobiť všetko“):** `functions/lupaNaPoziadanie.js` obalí `$.fn.CloudZoom`. Lupa sa spustí s veľkou fotkou `/big/`, ktorú stránka už má, originál `/orig/` sa na telefóne nestiahne nikdy a na PC až pri prejdení myšou. Rám `#wrap` a klik na fotku ostávajú. Tým odpadla výmena 249 fotiek nižšie, tá by zmenšila len tento súbor a vyžadovala by mazanie pôvodných fotiek v admine. Test `tools/test-lupa.mjs` (živá verzia pred zmenou 9 chýb, po nej 0). Nižšie je pôvodný rozbor.
 - **Lupa (fotky /orig/) sa sťahuje bez kliknutia (29. 10. 2026, Michal)** — nie je to náš kód: Shoptet `main-3g.js`
   (`$(document).ready` -> `$(".cloud-zoom").CloudZoom()`) pri štarte urobí `new Image().src = a.p-main-image[data-href]`
   (`/user/shop/orig/<fotka>`) na KAŽDOM produkte, aj na telefóne (lupa sa tam neotvára, `hover: none`), a znova pri
