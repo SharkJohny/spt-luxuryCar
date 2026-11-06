@@ -90,6 +90,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       await p.goto(CIEL, { waitUntil: "domcontentloaded" });
       await p.waitForSelector("#lcd-vclass .lv-kr", { timeout: 25000 });
       await p.waitForTimeout(1200);
+      if (snimky) { const odm = await p.$('button:has-text("Odmietnuť")'); if (odm) await odm.click().catch(() => {}); await p.waitForTimeout(300); }
       if (i === 0) over(!(await p.$(".content-wrap")), "na stránke nesmie byť konfigurátor osobných áut");
       over((await p.evaluate(() => document.documentElement.scrollWidth)) <= sirka, "stránka sa nesmie posúvať do boku");
       if (snimky && i === 0) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-start.png`) });
