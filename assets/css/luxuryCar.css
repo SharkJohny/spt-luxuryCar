@@ -22819,19 +22819,13 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cross{d
   body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cross{grid-template-columns:1fr}
 }
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr{position:relative;display:flex;flex-direction:column;background:var(--paper);
-  border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr:hover{transform:translateY(-3px);border-color:rgba(155,122,36,.5);
-  box-shadow:0 14px 34px rgba(20,15,5,.12)}
+  border:1px solid var(--line);border-radius:18px;overflow:hidden}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr img{width:100%;max-width:none;aspect-ratio:16/10;object-fit:cover;display:block}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-t{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr .od{align-self:flex-start;
   background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));color:#17130a;font-family:var(--disp);font-weight:800;
   font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3{margin:4px 0 0;font-size:clamp(18px,1.5vw,20px)}
-/* odkaz je len v nadpise (TinyMCE nepustí blokové prvky do <a>); ::after ho natiahne na celú kartu */
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3 a{color:inherit;text-decoration:none;-webkit-text-fill-color:currentColor}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3 a:after{content:"";position:absolute;inset:0;z-index:1}
-body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr h3 a:focus-visible{outline:none}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr:has(h3 a:focus-visible){outline:2px solid var(--gold);outline-offset:3px}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr p{margin:0;font-size:clamp(16px,calc(14px + .4vw),17px);line-height:1.5;color:var(--mute)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .cr-c{margin-top:auto;padding-top:10px;display:flex;align-items:baseline;
