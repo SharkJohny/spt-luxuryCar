@@ -42,5 +42,14 @@ for (const web of ["www.luxurycardesign.sk", "www.luxurycardesign.cz"]) {
     web + ": nové meno v data.json (mimo zoznamu) -> záloha z úložiska webu, nie 404 z CDN");
 }
 
+// Opravy ciest (6. 11. 2026): SK fotky biele a sivé šitie boli prehodené, CZ názov „Vínově červená“ má súbor so starým preklepom
+location.hostname = "www.luxurycardesign.sk";
+over(U.obrazokUloziska("config/farba-koze-cierna-farba-sitia-biela.jpg").endsWith("/www.luxurycardesign.sk/config/farba-koze-cierna-farba-sitia-seda.jpg"), "SK biele šitie -> fotka s bielou niťou");
+over(U.obrazokUloziska("config/farba-koze-cierna-farba-sitia-seda.jpg").endsWith("/www.luxurycardesign.sk/config/farba-koze-cierna-farba-sitia-biela.jpg"), "SK sivé šitie -> fotka so sivou niťou");
+location.hostname = "www.luxurycardesign.cz";
+over(U.obrazokUloziska("config/barva-kuze-vinove-cervena.jpg").endsWith("/www.luxurycardesign.cz/config/barva-kuze-vynove-cervena.jpg"), "CZ Vínově červená -> existujúca fotka");
+over(U.obrazokUloziska("config/barva-kuze-vynove-cervena.jpg").endsWith("/www.luxurycardesign.cz/config/barva-kuze-vynove-cervena.jpg"), "CZ starý názov ostáva funkčný");
+over(U.obrazokUloziska("config/barva-kuze-cerna-barva-siti-bila.jpg").endsWith("/www.luxurycardesign.cz/config/barva-kuze-cerna-barva-siti-bila.jpg"), "CZ biele šitie bez zmeny");
+
 console.log(`\n${ok} ok, ${zle} zle`);
 process.exit(zle ? 1 : 0);

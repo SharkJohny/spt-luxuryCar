@@ -16,6 +16,13 @@ import { ULOZISKO_SPOLOCNE, ULOZISKO_WEBY } from "./ulozisko-data.js";
 /** Základ kópií v CDN repa (assets/img/ulozisko/); jediné miesto, kde sa adresa skladá. */
 export const ULOZISKO_CDN = LCD_SPOLOCNY + "img/ulozisko/";
 const ULOZISKO_WEBU = "/user/documents/upload/assets/";
+// Cesta podľa názvu voľby -> skutočný súbor (ulozisko-data.js sa generuje, súbory sa neprepisujú; 6. 11. 2026).
+// SK: fotky čiernej s bielym a sivým šitím sú pod opačnými menami. CZ: „Vínově červená“ má súbor so starým preklepom.
+const SK_BIELE = "config/farba-koze-cierna-farba-sitia-biela.jpg", SK_SIVE = "config/farba-koze-cierna-farba-sitia-seda.jpg";
+const OPRAVY_CIEST = {
+  "www.luxurycardesign.sk": { [SK_BIELE]: SK_SIVE, [SK_SIVE]: SK_BIELE },
+  "www.luxurycardesign.cz": { "config/barva-kuze-vinove-cervena.jpg": "config/barva-kuze-vynove-cervena.jpg" },
+};
 
 // "cesta" = súbor s tým istým menom; "cesta>súbor" = fotka zmenená v admine, nová verzia pod novým menom
 function mapaZoznamu(zoznam) {
@@ -40,8 +47,9 @@ function tentoWeb() {
 export function obrazokUloziska(cesta, verzia) {
   const web = tentoWeb();
   const m = subory()[web];
-  if (ma(m, cesta)) return ULOZISKO_CDN + web + "/" + m[cesta];
-  return ULOZISKO_WEBU + cesta + (verzia ? "?" + verzia : "");
+  const c = ma(OPRAVY_CIEST[web], cesta) ? OPRAVY_CIEST[web][cesta] : cesta;
+  if (ma(m, c)) return ULOZISKO_CDN + web + "/" + m[c];
+  return ULOZISKO_WEBU + c + (verzia ? "?" + verzia : "");
 }
 
 /** Súbor spoločný pre všetky weby (assets/img/ulozisko/spolocne/<cesta>); mimo zoznamu záloha z úložiska webu. */
