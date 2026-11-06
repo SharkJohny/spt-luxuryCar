@@ -353,6 +353,8 @@ export function initKosikKarta(ctx, o) {
       zob.setAttribute("aria-controls", rozpis.id);
       zob.setAttribute("aria-describedby", "lcd-opc-kk-nazov-" + cislo);
     }
+    // Set autokobercov je na mieru jednému autu, dva rovnaké nikto nekupuje (Michal 6. 11. 2026). Kto ich už má dva, počítadlo si nechá.
+    const bezPoctu = p.q === 1 && /autokoberce/i.test(String(p.href || "")) && !jeKamion(p);
     const menej = el(doc, "button", { type: "button", form: o.forma, class: "lcd-opc-kk__krok", "aria-label": T.pocetMenej, disabled: !(p.q > 1), "data-lcd-opc-min": !(p.q > 1) }, [el(doc, "span", { "aria-hidden": "true", text: "−" })]);
     const viac = el(doc, "button", { type: "button", form: o.forma, class: "lcd-opc-kk__krok", "aria-label": T.pocetViac }, [el(doc, "span", { "aria-hidden": "true", text: "+" })]);
     const odobrat = el(doc, "button", { type: "button", form: o.forma, class: "lcd-opc-kk__odobrat", "aria-label": T.odobratAria(nazov), text: T.odobratPolozku });
@@ -367,7 +369,7 @@ export function initKosikKarta(ctx, o) {
       rozpis,
       zob,
       el(doc, "div", { class: "lcd-opc-kk__ovl" }, [
-        el(doc, "span", { class: "lcd-opc-kk__pocet", role: "group", "aria-label": T.pocetNazov }, [menej, el(doc, "output", { form: o.forma, text: String(p.q) }), viac]),
+        bezPoctu ? null : el(doc, "span", { class: "lcd-opc-kk__pocet", role: "group", "aria-label": T.pocetNazov }, [menej, el(doc, "output", { form: o.forma, text: String(p.q) }), viac]),
         odobrat,
       ]),
     ]);

@@ -57,6 +57,7 @@ import { fileURLToPath } from "node:url";
 
 const SCENAR = { jedna: true };
 const KARTA = "#lcd-opc-kosik";
+const PONUKA_DVE = 2; // košík set + rohož: v ponuke chýbajú riadky rohože
 
 /** Košík s kódom -> (preskočený) -> krok 2 s kartou košíka a ponukou. */
 async function naJednuStranku(s, { ponuka = 3 } = {}) {
@@ -180,10 +181,10 @@ export const SCENARE = {
   },
   S61: {
     len: "sk",
-    popis: "Jedna stránka: „+“ pri produkte -> setCartItemAmount 2 -> bez načítania stránky: karta 2 ks, súhrn zo servera, údaje ostanú",
+    popis: "Jedna stránka: „+“ pri rohoži (set počítadlo nemá) -> setCartItemAmount 2 -> bez načítania stránky: karta 2 ks, súhrn zo servera, údaje ostanú",
     async fn(J) {
-      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ kosikStav: true }, SCENAR) });
-      await naJednuStranku(s);
+      const s = await J.novaStranka({ kosik: "dve", scenar: Object.assign({ kosikStav: true }, SCENAR) });
+      await naJednuStranku(s, { ponuka: PONUKA_DVE });
       const z = ZAKAZNIK.sk;
       await s.pis("#billFullName", z.meno);
       await s.pis("#email", z.email);
@@ -192,10 +193,32 @@ export const SCENARE = {
       await s.klikni(`${KARTA} .lcd-opc-kk__krok:not([disabled])`, { popis: "+ pri produkte" });
       const st = await poZmene(s, pred);
       const a = s.p.zaznam.kosikAkcie;
-      over(a.length === 1 && a[0].akcia === "setCartItemAmount" && a[0].pole.amount === "2" && a[0].pole.itemId === "6ae27536ae482", "úprava košíka: " + JSON.stringify(a));
-      over(st.polozky.length === 1 && /\| 538\s€$/.test(st.polozky[0]) && st.pocty.join() === "2", "karta po zmene: " + JSON.stringify([st.polozky, st.pocty]));
+      over(a.length === 1 && a[0].akcia === "setCartItemAmount" && a[0].pole.amount === "2" && a[0].pole.itemId === "test-druha-polozka", "úprava košíka: " + JSON.stringify(a));
+      over(st.polozky.length === 2 && /\| 258\s€$/.test(st.polozky[1]) && st.pocty.join() === "2", "karta po zmene: " + JSON.stringify([st.polozky, st.pocty]));
       over(st.meno === z.meno && st.email === z.email, "údaje po zmene košíka: " + JSON.stringify([st.meno, st.email]));
       return { info: "2 ks na mieste, Step1Validate +1, krok 1 +" + st.krok1 };
+    },
+  },
+  S8P: {
+    len: "sk",
+    popis: "Set v karte košíka bez počítadla „− 1 +“, Odobrať ostáva (Michal 6. 11. 2026); rohož a kamión počítadlo majú, dva rovnaké sety tiež (dajú sa znížiť)",
+    async fn(J) {
+      const pocty = `({ pocet: document.querySelectorAll("${KARTA} .lcd-opc-kk__pocet").length, odobrat: document.querySelectorAll("${KARTA} .lcd-opc-kk__odobrat").length })`;
+      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
+      await naJednuStranku(s);
+      const a = await s.ev(pocty);
+      over(a.pocet === 0 && a.odobrat === 1, "set: " + JSON.stringify(a));
+      const d = await J.novaStranka({ kosik: "dve", scenar: SCENAR });
+      await naJednuStranku(d, { ponuka: PONUKA_DVE });
+      const b = await d.ev(pocty);
+      over(b.pocet === 1 && b.odobrat === 2, "set + rohož: " + JSON.stringify(b));
+      const k = await J.novaStranka({ kosik: "kamion", scenar: SCENAR });
+      await k.chod(KOSIK, { popis: "košík bez kódu (konfigurátor uložil súhrn)" });
+      await k.ev(`(function (d) { Object.keys(d).forEach(function (k) { sessionStorage.setItem(k, d[k]); }); return 1; })(${JSON.stringify({ truckOrderSummary: buildTruckOrderSummary(KAMION, "sk"), truckVehicle: "DAF (TIR) XF 2022-2025" })})`);
+      await naJednuStranku(k, { ponuka: 0 });
+      const c = await k.ev(pocty);
+      over(c.pocet === 1 && c.odobrat === 1, "kamión: " + JSON.stringify(c));
+      return { step2: true, info: "set bez počítadla, rohož a kamión s počítadlom" };
     },
   },
   S62: {
@@ -252,15 +275,15 @@ export const SCENARE = {
     len: "sk",
     popis: "Jedna stránka: počas odosielania objednávky je karta košíka zamknutá — „+“ ani „Vybrať“ nič nepošlú, objednávka s pôvodným košíkom",
     async fn(J) {
-      const s = await J.novaStranka({ kosik: "set", scenar: SCENAR });
-      await naJednuStranku(s);
+      const s = await J.novaStranka({ kosik: "dve", scenar: SCENAR });
+      await naJednuStranku(s, { ponuka: PONUKA_DVE });
       await vyplnUdaje(s);
       await suhlas(s);
       s.p.scenar.krok1Ms = 2500; // kontrola pred odoslaním (GET krok 1 na pozadí) trvá dlhšie
       await klikObjednat(s);
       await s.cakaj(`!!(window.__lcdOpc && window.__lcdOpc.krok2 && window.__lcdOpc.krok2.odosielanie())`, { ms: 5000, popis: "odosielanie beží" });
       const st = await s.ev(`(function () { var k = document.getElementById("lcd-opc-kosik");
-        var plus = k.querySelector(".lcd-opc-kk__krok:not([data-lcd-opc-min])"), vyb = k.querySelector('[data-lcd-vyb="rohoz"]');
+        var plus = k.querySelector(".lcd-opc-kk__krok:not([data-lcd-opc-min])"), vyb = k.querySelector("[data-lcd-vyb]");
         var r = [plus.disabled, vyb.disabled]; plus.disabled = false; vyb.disabled = false; plus.click(); vyb.click(); return r; })()`);
       over(st[0] && st[1], "počas odosielania nie je karta zamknutá (disabled +, Vybrať): " + JSON.stringify(st));
       const z = (await objednaj(s, { klik: false, ms: 12000 }))[0];
@@ -355,8 +378,8 @@ export const SCENARE = {
     len: "sk",
     popis: "Jedna stránka: po zmene košíka iná cena dopravy -> záloha: cez košík znova sem (celé načítanie), meno a e-mail sa vrátia",
     async fn(J) {
-      const s = await J.novaStranka({ kosik: "set", scenar: Object.assign({ kosikStav: true }, SCENAR) });
-      await naJednuStranku(s);
+      const s = await J.novaStranka({ kosik: "dve", scenar: Object.assign({ kosikStav: true }, SCENAR) });
+      await naJednuStranku(s, { ponuka: PONUKA_DVE });
       const z = ZAKAZNIK.sk;
       await s.pis("#billFullName", z.meno);
       await s.pis("#email", z.email);
