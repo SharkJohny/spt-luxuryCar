@@ -1838,6 +1838,14 @@ Michal 6. 11. 2026 na otázku o dvoch starých dierach z § 10.43: „Áno oprav
 
 **Testy:** `tools/test-poznamka-objednavky.mjs` (nový), `tools/test-auto-pamat.mjs`, S8S, S8N, S10N, S10M, S10MN, S12N, košík `mix` a `kamionCz` v podvrhu. `test-kamion-prehliadace --novaKarta` prejde živý web bez odoslania: skutočné pridanie kamióna, nová karta, auto + kamión, ďalšia nová karta, odobratie kamióna. Bloky brány v `test-opc-dakujeme.mjs` a očakávaný text vozidla v `test-kosik-auto-hodnotenie.mjs` boli zastarané už pred touto zmenou (po `7060de1`), opravené.
 
+### 10.45 Set bez počítadla v karte košíka (6. 11. 2026)
+
+- **Michal:** „− 1 +“ pri sete netreba, set je na mieru jednému autu a dva rovnaké nikto nekupuje.
+- **Čo sa zmenilo:** `opc/kosikKarta.js` `bezPoctu`: pri položke s `autokoberce` v adrese, počte 1 a mimo kamióna sa počítadlo nekreslí. Odobrať ostáva. Kto má v košíku dva rovnaké sety, počítadlo si nechá, aby ich vedel znížiť.
+- **Overené pravidlo na živých adresách:** šesť setov SK aj CZ áno, rohože, box a vzorkovník nie, kamión vylúčený cez `jeKamion`.
+- **Testy:** scenár S8P (set, set + rohož, kamión). S61, S64 a S67 idú po novom na košík „dve“ a „+“ pri rohoži. SK 180 OK, CZ 96 OK.
+- **Naživo:** SK aj CZ `9620c4e`, návrat `7ec1ce1`.
+
 ## 11. Živý dôkaz 28./29. 10. 2026
 
 Skutočný web luxurycardesign.sk a .cz, anonymná session, v košíku vzorkovník. **Žiadna objednávka neodišla:** každý Step2Validate prehliadač zachytil a zrušil, poistka pustila len GET, `/action/Cart/*`, Step1Validate, súhlas s cookies a `step2CustomerAjax` Shoptetu. Košík bol na konci prázdny a overený (krok 1 aj krok 2 → `/kosik/`). Údaje zákazníka boli vymyslené alebo emulované lokálne.
