@@ -66,7 +66,10 @@ const VOZIDLO_SKUSKY = "XF106 2017-2021";
 /** Otvorí /kosik/ v karte p, počká na krok 2 pokladne a prečíta, čo by šlo do objednávky. Nič neodosiela. */
 async function vObjednavke(p, P) {
   await p.goto(new URL("/kosik/", P.url).href, { waitUntil: "load" });
-  await p.waitForFunction(() => /krok-2/.test(location.pathname) && !!document.getElementById("order-form") && !!document.getElementById("remark"), null, { timeout: 25000 });
+  const naKroku2 = () => /krok-2/.test(location.pathname) && !!document.getElementById("order-form") && !!document.getElementById("remark");
+  // WebKit občas ostane na bežnom košíku (aj 7060de1, len pri rýchlom opakovanom otvorení): vtedy Pokračovať ako zákazník
+  await p.waitForFunction(naKroku2, null, { timeout: 7000 }).catch(() => p.locator("#continue-order-button").first().click({ timeout: 8000 }).catch(() => {}));
+  await p.waitForFunction(naKroku2, null, { timeout: 25000 });
   await pauza(2500);
   return p.evaluate(() => {
     const f = document.getElementById("order-form");
@@ -243,7 +246,7 @@ async function beh(B, engine, pid, w, kosik) {
       r.kosikStav = k;
       if (!k.kamion) r.chyby.push("košík: položka kamióna chýba");
       if (k.sw > k.iw + 1) r.pretecenie.push("košík " + JSON.stringify(k));
-      if (OPC) { // pokladňa: karta „Doplňte svoj kamión“ s videom tapacíru (bez odoslania); po spustení stačí hocijaká hodnota
+      if (OPC && !NOVA_KARTA) { // pokladňa: karta „Doplňte svoj kamión“ s videom tapacíru (bez odoslania); po spustení stačí hocijaká hodnota
         await page.goto(new URL("/kosik/" + (OPC === "1" ? "" : "?opc=" + OPC), P.url).href, { waitUntil: "load" });
         const riadok = page.locator('.lcd-vyb__riadok[data-doplnok="tapacir"]').first();
         await riadok.waitFor({ state: "visible", timeout: 20000 }).catch(() => r.chyby.push("pokladňa: ponuka tapacíru chýba, " + page.url()));

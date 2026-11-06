@@ -1797,6 +1797,8 @@ Michal 6. 11. 2026: „Takto to sprav, môžeš to nasadiť pre všetkých ľud�
 
 Michal 6. 11. 2026 na otázku o dvoch starých dierach z § 10.43: „Áno oprav.“ Nové pokladne sa to netýkalo, rovnako to robila stará pokladňa.
 
+**Naživo:** ✅ `7ec1ce1` SK aj CZ od 6. 11. 2026 (2× v HTML kódoch na každom webe, overené curlom). **Návrat:** sha `7060de1` v Záhlaví aj Pätičke, nič iné sa v admine nemenilo.
+
 **Čo sa dialo (overené simuláciou skutočného kódu):** `toNote` písal buď blok kamióna, alebo `model: …`, podľa toho, čo ostalo v `sessionStorage`. Súhrn kamióna sa nikde nemazal a do novej karty sa kamión ani volant, miesta a dvere neprenášali.
 
 | Košík | Pred opravou | Po oprave |
@@ -1827,6 +1829,10 @@ Michal 6. 11. 2026 na otázku o dvoch starých dierach z § 10.43: „Áno oprav
 - Dva sety pre dve autá: jeden `model:`. 6 z 812 objednávok so setom malo 2 a viac setov, koľko z nich pre rôzne autá, neviem.
 - Po pridaní prezreté iné auto v tej istej karte ide do poznámky (rozhodnutie 29. 10., `autoRiadku`).
 - ❓ Back Office a CRM pri `model:` aj bloku ukážu len kamión, `model:` ostáva v poznámke (`feed.js`, `api/email.js`). Jánov export zmiešanú objednávku nikdy nedostal, overiť pri prvej.
+
+**Dôkaz naživo bez objednávky (`7ec1ce1` po prepnutí, Chromium a WebKit, SK aj CZ):** skutočné pridanie kamióna uložilo záznam, nová karta poslala blok s vozidlom bez cudzieho modelu, auto + kamión `model:` pred blokom a `right,pass-7,doors-5`, ďalšia nová karta to isté, po odobratí kamióna `model:` bez bloku a čisté úložisko. Firefox rovnaké pred prepnutím cez `--sha`. Plné sady na `7ec1ce1`: SK 178, CZ 96, jednotky 137, doplnky 104, pamäť 48, poznámka 20, ďakovná 182, kamión 474, konfigurátor naživo 75. Pri WebKite sú v `test-kamion-prehliadace` hlásené „Load request cancelled“, to sú požiadavky zrušené prechodom medzi stránkami, nie chyba.
+
+**Postreh mimo tejto opravy:** ❓ WebKit na Windows občas po rýchlom opakovanom otvorení `/kosik/` ostane na bežnom košíku (stav `kosik-pripraveny`), rovnako na `7060de1`. Zákazník vtedy pokračuje tlačidlom Pokračovať, objednávka sa nepoškodí. Pri jednom otvorení ani pri dvoch s odstupom 2,5 s (8 pokusov) nenastalo. Príčina nezistená.
 
 **Testy:** `tools/test-poznamka-objednavky.mjs` (nový), `tools/test-auto-pamat.mjs`, S8S, S8N, S10N, S10M, S10MN, S12N, košík `mix` a `kamionCz` v podvrhu. `test-kamion-prehliadace --novaKarta` prejde živý web bez odoslania: skutočné pridanie kamióna, nová karta, auto + kamión, ďalšia nová karta, odobratie kamióna. Bloky brány v `test-opc-dakujeme.mjs` a očakávaný text vozidla v `test-kosik-auto-hodnotenie.mjs` boli zastarané už pred touto zmenou (po `7060de1`), opravené.
 
