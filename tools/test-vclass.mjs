@@ -42,14 +42,19 @@ if (!/data-parameter-name="Veľkosť"/.test(html) || !/name="productId" value="6
 let ok = 0, zle = 0;
 const over = (c, t) => { if (c) ok++; else { zle++; console.log("  ✗ " + t); } };
 
-async function klik(p, k, v) { await p.click(`#lcd-vclass [data-k="${k}"][data-v="${v}"]`); await p.waitForTimeout(320); }
+async function klik(p, k, v, t = 320) { await p.click(`#lcd-vclass [data-k="${k}"][data-v="${v}"]`); await p.waitForTimeout(t); }
 async function prejdi(p, o) {
-  await klik(p, "velkost", o.velkost);
-  await p.selectOption("#lv-rok", o.rok);
-  await klik(p, "volant", o.volant);
+  // prvý krok: všetky údaje o aute naraz, bez posunu na ďalší krok
+  await klik(p, "velkost", o.velkost, 40);
+  over(!!(await p.$("#lv-rok")), "rok výroby je v prvom kroku");
   await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
-  await klik(p, "stred", o.stred); await klik(p, "dvere", o.dvere); await klik(p, "miesta", o.miesta);
-  await klik(p, "stolcek", o.stolcek); await klik(p, "zasuvky", o.zasuvky); await klik(p, "vzor", o.vzor);
+  over(!!(await p.$("#lcd-vclass .lv-chyba")), "chýbajúce údaje o aute sú označené");
+  await p.selectOption("#lv-rok", o.rok);
+  await klik(p, "volant", o.volant, 40); await klik(p, "miesta", o.miesta, 40); await klik(p, "dvere", o.dvere, 40);
+  await klik(p, "stred", o.stred, 40); await klik(p, "stolcek", o.stolcek, 40); await klik(p, "zasuvky", o.zasuvky, 40);
+  if (o.snimkaAuto) await p.screenshot({ path: o.snimkaAuto, fullPage: true });
+  await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
+  await klik(p, "vzor", o.vzor);
   await klik(p, "farba", o.farba); if (o.snimka) await p.screenshot({ path: o.snimka }); await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
   await klik(p, "farba2", o.lux); await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
 }
@@ -76,6 +81,8 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       if (dist) {
         await c.route(/assets\/v\/[^/]+\/js\/luxuryCar\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "luxuryCar.js")) }));
         await c.route(/assets\/v\/[^/]+\/js\/lcd-vclass\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "lcd-vclass.js")) }));
+        // fotky ešte nemusia byť na CDN
+        await c.route(/assets\/img\/1v\/vclass\//, (r) => { const m = /vclass\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("webp") ? "image/webp" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/vclass/" + m[1], import.meta.url)) }); });
       } else {
         await c.route(/assets\/v\/[^/]+\/js\/(luxuryCar|lcd-[a-z]+)\.js/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
       }
@@ -85,17 +92,20 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       await p.waitForTimeout(1200);
       if (i === 0) over(!(await p.$(".content-wrap")), "na stránke nesmie byť konfigurátor osobných áut");
       over((await p.evaluate(() => document.documentElement.scrollWidth)) <= sirka, "stránka sa nesmie posúvať do boku");
+      if (snimky && i === 0) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-start.png`) });
+      if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-hero", "#lcd-vclass-hero .lh-in", "#lcd-vclass-hero .lh-g", "#lcd-vclass-hero .lh-st", "#lcd-vclass-hero .lh-f", "#lcd-vclass-hero .lh-f picture", "#lcd-vclass-hero .lh-f img"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q.slice(-8) + " x" + Math.round(r.left) + " y" + Math.round(r.top) + " " + Math.round(r.width) + "x" + Math.round(r.height) + " m:" + c.marginTop + "/" + c.marginLeft + " p:" + c.paddingTop + " d:" + c.display + " pos:" + c.position + " ins:" + c.top; }))));
       await p.click("#lcd-vclass .lv-cta"); await p.waitForTimeout(200);
       over(post === null, "nedokončený výber nesmie ísť do košíka");
       over(/Ešte chýba/.test(await p.textContent("#lcd-vclass .lv-spr")), "chýba hláška pri nedokončenom výbere");
-      if (snimky && i === 0) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-start.png`) });
-      await prejdi(p, snimky ? { ...o, snimka: join(snimky, `${nazov}-${sirka}-farba-${o.velkost}.png`) } : o);
+      await prejdi(p, snimky ? { ...o, snimka: join(snimky, `${nazov}-${sirka}-farba-${o.velkost}.png`), snimkaAuto: i === 0 ? join(snimky, `${nazov}-${sirka}-auto.png`) : null } : o);
       const vzorNm = VZORY.find((v) => v.id === o.vzor).nm;
       const cena = await p.evaluate(() => window.__lcdVclass.cenaSpolu());
       over(cena === o.cena, o.velkost + ": cena " + cena);
       over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === String(o.cena) + "€", "súhrn ceny");
       over((await p.textContent("#lcd-vclass .lv-cta")).trim() === "Vložte do košíka", "tlačidlo hotového výberu");
-      over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 10, "všetkých 10 krokov hotových");
+      over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 4, "všetky 4 kroky hotové");
+      over((await p.$$("#lcd-vclass-hero .lh-f img")).length === 5, "5 fotiek hore");
+      over((await p.evaluate(() => { const r = document.getElementById("lcd-vclass-hero").getBoundingClientRect(); return Math.abs(r.left) < 2 && Math.abs(r.width - document.querySelector(".overall-wrapper").getBoundingClientRect().width) < 1; })), "fotky na celú šírku");
       const kres = await p.evaluate(() => [...document.querySelectorAll("#lcd-vclass-nakres canvas")].map((k) => { const d = k.getContext("2d").getImageData(0, 0, k.width, k.height).data; let n = 0; for (let i = 3; i < d.length; i += 40) if (d[i] > 200) n++; return n; }));
       over(kres.length === 2 && kres.every((n) => n > 500), "kresba predku aj zadku " + kres);
       if (snimky) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-${o.velkost}.png`), fullPage: sirka < 500 });

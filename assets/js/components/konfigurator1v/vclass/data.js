@@ -68,16 +68,19 @@ export const FARBY = {
 /** Druhá vrstva: číslo, farba na kresbe (stred vzorky). */
 export const LUX = [["10", "#0f1116"], ["12", "#9e877c"], ["11", "#261719"], ["13", "#240b15"], ["14", "#341516"], ["15", "#2d2e33"], ["16", "#515055"], ["07", "#111519"], ["04", "#66282a"], ["01", "#35302b"], ["08", "#0f181e"], ["06", "#2c233d"], ["03", "#1e191c"], ["05", "#872924"], ["09", "#342422"], ["02", "#141937"]];
 
-/** Kroky v poradí, otázka po jednej. auto = po výbere sa hneď ide ďalej. */
+/** Kroky v poradí. Prvý krok nesie všetky údaje o aute naraz, ako „Vaše auto“ v konfigurátore 1V. auto = po výbere sa hneď ide ďalej. */
 export const KROKY = [
-  { id: "velkost", nm: "Veľkosť auta", ti: "Prosím, vyberte si veľkosť auta", vy: "M, L alebo XL", auto: true },
-  { id: "auto", nm: "Rok výroby a volant", ti: "Prosím, vyberte si rok výroby a pozíciu volantu", vy: "Rok výroby a pozícia volantu" },
-  { id: "stred", nm: "Stred medzi sedadlami", ti: "Prosím, vyberte si, čo je medzi prednými sedadlami", vy: "Tunel, opierka alebo chladnička", auto: true },
-  { id: "dvere", nm: "Bočné dvere", ti: "Prosím, vyberte si počet bočných posuvných dverí", vy: "Jedny alebo dvoje", auto: true },
-  { id: "miesta", nm: "Počet miest", ti: "Prosím, vyberte si počet miest na sedenie", vy: "5 až 8 miest", auto: true },
-  { id: "stolcek", nm: "Stolček", ti: "Prosím, vyberte si, či je medzi sedadlami vzadu stolček", pod: "So stolčekom sú stredné koľajnice širšie, koberec im prispôsobíme.", vy: "So stolčekom alebo bez neho", auto: true },
-  { id: "zasuvky", nm: "Zásuvky", ti: "Prosím, vyberte si, či sú pod sedadlami v 2. a 3. rade zásuvky", vy: "So zásuvkami alebo bez nich", auto: true },
-  { id: "vzor", nm: "Vzor prešívania", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
-  { id: "farba", nm: "Farba 1. vrstvy", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na obrázku hneď uvidíte, ako vám bude ladiť.", vy: "Farba kože a šitia" },
-  { id: "farba2", nm: "Farba 2. vrstvy", ti: "Prosím, vyberte si farbu 2. vrstvy", pod: "Druhá vrstva je na podlahe vpredu, pod nohami šoféra a spolujazdca.", vy: "Lux Color" },
+  { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", vy: "Veľkosť, rok výroby a výbava auta" },
+  { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
+  { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako vám bude ladiť.", vy: "Farba kože a šitia" },
+  { id: "farba2", nm: "Farba 2. vrstvy", kr: "2. vrstva", ti: "Prosím, vyberte si farbu 2. vrstvy", pod: "Druhá vrstva je na podlahe vpredu, pod nohami šoféra a spolujazdca.", vy: "Lux Color" },
+];
+
+/** Fotky hore: súbory assets/img/1v/vclass/vclass-<s>-<šírka>.webp|.jpg a náhľad -th.jpg. Prvá = to auto s kobercami. */
+export const FOTKY = [
+  { s: "auto", w: [1600, 960, 560], alt: "Mercedes triedy V s otvorenými bočnými dverami a autokobercami po celej podlahe" },
+  { s: "sofer", w: [1023, 560], alt: "Autokoberce pod sedadlom šoféra v triede V" },
+  { s: "tunel", w: [1023, 560], alt: "Prešívaný koberec na stredovom tuneli medzi prednými sedadlami" },
+  { s: "rad2", w: [1200, 560], alt: "Autokoberce v druhom rade s voľnými koľajnicami sedadiel" },
+  { s: "detail", w: [1023, 560], alt: "Detail prešívania s logom Luxury Car Design" },
 ];
