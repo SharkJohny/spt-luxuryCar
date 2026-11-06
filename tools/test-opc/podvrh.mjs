@@ -362,12 +362,11 @@ export const DRUHA_POLOZKA = {
   variant: "farba 1.vrstvy: Diamond Farba kože : Čierna / Farba šitia: Čierna", priplatky: "Príplatky: TYP - Combi",
   foto: "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/kosik/rohoz-classic.jpg",
 };
-export function sDvomaPolozkami(html) {
+export function sDvomaPolozkami(html, D = DRUHA_POLOZKA) {
   const dom = new JSDOM(html);
   const d = dom.window.document;
   const prva = d.querySelector('[data-micro="cartItem"]');
   if (!prva) return html;
-  const D = DRUHA_POLOZKA;
   const k = prva.cloneNode(true);
   const stareId = prva.getAttribute("data-micro-identifier") || "";
   k.setAttribute("data-micro-identifier", D.id);
@@ -397,6 +396,32 @@ export function sDvomaPolozkami(html) {
     });
   });
   return /^\s*<!doctype/i.test(html) ? dom.serialize() : d.body.innerHTML;
+}
+
+/**
+ * Košík „mix“ (kniha § 10.44): set autokobercov (fixtures/sk-set) + kamión 640 s kódom, adresou a príplatkami zo zachyteného
+ * košíka sk-kamion. Riadok pribudne aj do dataLayer, lebo podľa neho sa pri načítaní stránky rozhoduje, či kamión v košíku ostal.
+ * 🟡 syntetické, nezachytené zo Shoptetu: takú objednávku web ešte nedostal.
+ */
+const KAMION_POLOZKA = {
+  id: "ab4ccff0-8218-11f1-8cd6-bc2411afdf74", sku: "TEST-TRUCK", priceId: "68383", itemId: "test-kamion-polozka", cena: 423,
+  href: "/luxusne-autokoberce-kamiony/", nazov: "luxusné autokoberce do kamionov", variant: "", priplatky: "",
+  foto: "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/kosik/rohoz-classic.jpg",
+};
+export function sKamionomVKosiku(html) {
+  const dl = '{ "code": "TEST-TRUCK", "guid": "' + KAMION_POLOZKA.id + '", "priceId": 68383, "quantity": 1, "priceWithVat": 423, "name": "luxusn\u00e9 autokoberce do kamionov" },';
+  return sDvomaPolozkami(html, { ...KAMION_POLOZKA, priplatky: KAMION_S_TAPACIROM }).replace(/("cart":\s*\[)/, "$1" + dl);
+}
+
+/**
+ * Košík „kamionCz“ (S12): CZ kamión nie je zachytený, vzorkovník fixtures/cz dostane kód, adresu a názov kamióna 2452 (kód a adresa
+ * ako naživo), ceny ostávajú. Blok kamióna ide do poznámky len s kamiónom v košíku (kniha § 10.44). 🟡 syntetické.
+ */
+export function sKamionomCz(html) {
+  return String(html).split("VZORKY-DRAGONSKIN").join("TRUCK")
+    .split("/vzorkovnik-dragonskin---objednavka-vzorku/").join("/luxusni-autokoberce-kamiony/")
+    .split("Vzorkovník Dragonskin – objednávka vzorků").join("luxusní autokoberce do kamionů")
+    .split("Vzorkovn\\u00edk Dragonskin \\u2013 objedn\\u00e1vka vzork\\u016f").join("luxusn\\u00ed autokoberce do kamion\\u016f");
 }
 
 /**
@@ -470,7 +495,7 @@ export async function zapniPodvrh(k, moznosti) {
   // košík „dve“ = set + 2. položka (sDvomaPolozkami), HTML sa skladá z fixtures/sk-set; „vzorky3“ = vzorkovník webu
   // s 3 vzorkami (sTromiVzorkami)
   const zlozene = new Map();
-  const ZLOZ = { dve: ["-set", sDvomaPolozkami], vzorky3: ["", sTromiVzorkami], kamionBez: ["-kamion", kamionBezTapaciru] };
+  const ZLOZ = { dve: ["-set", sDvomaPolozkami], vzorky3: ["", sTromiVzorkami], kamionBez: ["-kamion", kamionBezTapaciru], mix: ["-set", sKamionomVKosiku], kamionCz: ["", sKamionomCz] };
   p.adresar = () => join(FIXTURES, p.web + (p.stav.kosik === "vzorkovnik" ? "" : ZLOZ[p.stav.kosik] ? ZLOZ[p.stav.kosik][0] : "-" + p.stav.kosik));
   p.subor = (meno) => {
     const h = citaj(join(p.adresar(), meno));

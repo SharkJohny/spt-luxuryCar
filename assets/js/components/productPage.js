@@ -1,3 +1,4 @@
+import { POLOHY_AUTA } from "../functions/autoPamat.js";
 import { showUpsalePopup } from "./UpsalePopup.js";
 import { lcdCena } from "../functions/livePrice.js";
 import { createUpsaleButton, createOptions, createBoxConfig, odlozenyObrazok } from "./creatButtons.js";
@@ -60,7 +61,6 @@ if (projectId === "581408") {
 // Volant, miesta, dvere pre varchar1–3 v objednávke (cart.js). Tento kód beží na každej stránke webu, aj v košíku: tu sa
 // len doplní chýbajúca hodnota, na predvolené ich vracia až vytvorenie dlaždíc v konfigurátore. Predtým sa nulovali
 // tu a do objednávky vždy odišlo left, pass-5, doors-4, nech zákazník zvolil čokoľvek (overené naživo 5. 11. 2026).
-const POLOHY_AUTA = { wheelPosition: "left", seatPosition: "pass-5", doorPosition: "doors-4" };
 Object.keys(POLOHY_AUTA).forEach(function (k) {
   if (!sessionStorage.getItem(k)) sessionStorage.setItem(k, POLOHY_AUTA[k]);
 });

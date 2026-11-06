@@ -20,6 +20,7 @@ import { SELECTY, normalizeOptionText, resolveValue } from "../components/konfig
 import { jeTir, PRECIARKNUTE_EUR, PRECIARKNUTE_CZK } from "../components/konfigurator1v/kamion/data.js";
 import { cisty, hodnotyPriplatkov, ANO, ROVNAKE, KOBERCE, DVERE, skupinyNaZobrazenie } from "./kamionZobrazenie.js";
 import { lcdRozpisEl } from "../functions/kosikRozpis.js";
+import { ulozKamionZKarty, ulozistaAuta } from "../functions/autoPamat.js";
 import * as D from "../lcdKosikDoplnok.js";
 import { produktDlazdica } from "./vrstvaVideo.js";
 
@@ -159,7 +160,7 @@ export function udajeKamiona(p, o) {
   if (skupiny.length && !skupiny.some(function (g) { return DVERE.test(g.heading); }) && maTapacirAkoKoberce(p.sur)) {
     const novy = addSameDoorPanelsToSummary(suhrn);
     if (novy !== suhrn) {
-      try { o.ss.setItem(KLUC_SUHRNU, novy); suhrn = novy; skupiny = parseTruckOrderSummary(novy); } catch (e) {}
+      try { o.ss.setItem(KLUC_SUHRNU, novy); suhrn = novy; skupiny = parseTruckOrderSummary(novy); ulozKamionZKarty(o.ss, ulozistaAuta().ls); } catch (e) {}
     }
   }
   if (skupiny.length) {

@@ -44,7 +44,8 @@ t("neznámy košík (bez dataLayer) -> nič nemazať ani nedopĺňať", () => {
   eq(M.obnovAuto(karta(null), ls, null, true, 2000), null);
   eq(!!ls.getItem("lcdAuto:v1"), true);
 });
-t("staršie ako 14 dní sa nepoužije", () => {
+t("starší záznam ako košík (AUTO_TTL) sa nepoužije; platí dlhšie než cookie košíka pcart (31 dní)", () => {
+  eq(M.AUTO_TTL > 31 * 24 * 3600 * 1000, true);
   const ls = pamat(); M.ulozAutoZKarty(karta(FORD), ls, 0);
   eq(M.obnovAuto(karta(null), ls, KOSIK, true, M.AUTO_TTL + 1), null);
 });
@@ -109,9 +110,9 @@ t("bez záznamu: auto karty (to isté ide do poznámky objednávky), ale len so 
   const ss2 = karta(OCT); ss2.removeItem("model");
   eq(M.autoRiadku(ss2, pamat(), { priceId: "1", sur: "" }, 1), null, "rozpracovaný výber bez „model“ = poznámka bez auta");
 });
-t("v karte je súhrn kamióna: poznámka nesie len kamión (main.js toNote) -> pri osobnom aute nič", () => {
+t("v karte je aj súhrn kamióna: poznámka nesie auto aj kamión (poznamkaObjednavky.js) -> pri osobnom aute auto ostáva", () => {
   const ss = karta(OCT); ss.setItem("truckOrderSummary", "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF 2022-2025");
-  eq(M.autoRiadku(ss, pamat(), { priceId: "1", sur: SUR("Combi") }, 1), null);
+  eq(M.autoRiadku(ss, pamat(), { priceId: "1", sur: SUR("Combi") }, 1), auto(OCT));
 });
 t("Jiné/Iné v TYP aj v karte sa zhodujú; záznam starší ako 14 dní sa nepoužije (ani na zamietnutie)", () => {
   const ss = karta(["Ford", "Focus", "2020", "Jiné, prosím napište do poznámky", "Ford Focus 2020 Jiné, prosím napište do poznámky"]);
@@ -158,5 +159,195 @@ t("popis auta: značka model rok (typ); zástupné texty a „Iné, prosím nap�
   eq(M.popisAuta({ Brand: "Značka", Model: "Model", Year: "Rok výroby", carType: "Typ auta" }), null);
   eq([M.popisAuta(null), M.popisAuta({ Brand: "", Model: "X5" })], [null, null]);
 });
+// ------------------------------------------------------------------ volant, miesta, dvere v novej karte (kniha OPC § 10.44)
+const POLOHY = ["wheelPosition", "seatPosition", "doorPosition"];
+const polohy = (ss, v) => { POLOHY.forEach((k, i) => ss.setItem(k, v[i])); return ss; };
+const hodnoty = (ss) => POLOHY.map((k) => ss.getItem(k));
+const PRAVY = ["right", "pass-7", "doors-5"], PREDVOLENE = ["left", "pass-5", "doors-4"];
+
+t("pridanie do košíka uloží aj volant, miesta a dvere; nová karta ich dostane namiesto predvolených", () => {
+  const ls = pamat();
+  eq(M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set"), true);
+  const ss = polohy(karta(null), PREDVOLENE); // productPage.js doplní predvolené skôr, než beží initAutoPamat
+  eq(M.obnovAuto(ss, ls, KOSIK, true, 2000), "doplnene");
+  eq(hodnoty(ss), PRAVY);
+});
+t("starý záznam bez polôh: nová karta ostane na predvolených, auto sa doplní", () => {
+  const ls = pamat(); ls.setItem("lcdAuto:v1", JSON.stringify({ t: 1000, Brand: FORD[0], Model: FORD[1], Year: FORD[2], carType: FORD[3], model: FORD[4] }));
+  const ss = polohy(karta(null), PREDVOLENE);
+  eq(M.obnovAuto(ss, ls, KOSIK, true, 2000), "doplnene");
+  eq(hodnoty(ss), PREDVOLENE);
+  eq(ss.getItem("model"), FORD[4]);
+});
+t("rovnaké auto v karte, ďalší produkt vrátil polohy na predvolené: objednávka dostane výber z pridania", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  const ss = polohy(karta(FORD), PREDVOLENE);
+  eq(M.obnovAuto(ss, ls, KOSIK, true, 2000), "polohy");
+  eq(hodnoty(ss), PRAVY);
+});
+t("rohož po sete, dlaždice nechané na predvolených: výber zo setu ostáva", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  eq(M.ulozAutoZKarty(polohy(karta(FORD), PREDVOLENE), ls, 2000, "rohoz"), true);
+  const ss = polohy(karta(null), PREDVOLENE);
+  M.obnovAuto(ss, ls, KOSIK, true, 3000);
+  eq(hodnoty(ss), PRAVY);
+});
+t("rohož po sete, zákazník na nej zmení miesta a dvere: platí jeho posledný klik, volant (na rohoži skrytý) zo setu", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), ["right", "pass-5", "doors-4"]), ls, 1000, "set");
+  M.ulozAutoZKarty(polohy(karta(FORD), ["left", "pass-7", "doors-5"]), ls, 2000, "rohoz");
+  const ss = polohy(karta(FORD), ["left", "pass-7", "doors-5"]);
+  M.obnovAuto(ss, ls, KOSIK, true, 3000);
+  eq(hodnoty(ss), ["right", "pass-7", "doors-5"]);
+});
+t("len rohož: miesta a dvere z jej stránky prejdú do novej karty", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), ["left", "pass-7", "doors-5"]), ls, 1000, "rohoz");
+  const ss = polohy(karta(null), PREDVOLENE);
+  eq(M.obnovAuto(ss, ls, KOSIK, true, 2000), "doplnene");
+  eq(hodnoty(ss), ["left", "pass-7", "doors-5"]);
+});
+t("rohož pre iné auto si cudzí výber nezoberie", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  const ine = ["Skoda", "Octavia", "2021", "Combi", "Skoda Octavia 2021 Combi"];
+  M.ulozAutoZKarty(polohy(karta(ine), PREDVOLENE), ls, 2000, "rohoz");
+  const ss = polohy(karta(null), PREDVOLENE);
+  M.obnovAuto(ss, ls, KOSIK, true, 3000);
+  eq([ss.getItem("model"), hodnoty(ss)], [ine[4], PREDVOLENE]);
+});
+t("zákazník set rovnakého auta pridá znova s iným výberom: platí nový", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  M.ulozAutoZKarty(polohy(karta(FORD), ["left", "pass-7", "doors-3"]), ls, 2000, "set");
+  const ss = polohy(karta(null), PREDVOLENE);
+  M.obnovAuto(ss, ls, KOSIK, true, 3000);
+  eq(hodnoty(ss), ["left", "pass-7", "doors-3"]);
+});
+t("iná zmena košíka na stránke produktu (odobratie položky) výber z pridania neprepíše predvolenými", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  eq(M.ulozAutoZKarty(polohy(karta(FORD), PREDVOLENE), ls, 2000), true);
+  const ss = polohy(karta(FORD), PREDVOLENE);
+  eq(M.obnovAuto(ss, ls, KOSIK, true, 3000), "polohy");
+  eq(hodnoty(ss), PRAVY);
+});
+t("iná zmena košíka s iným autom v karte: záznam nového auta bez cudzích polôh", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  const ine = ["Skoda", "Octavia", "2021", "Combi", "Skoda Octavia 2021 Combi"];
+  M.ulozAutoZKarty(polohy(karta(ine), PREDVOLENE), ls, 2000);
+  const ss = polohy(karta(null), PREDVOLENE);
+  M.obnovAuto(ss, ls, KOSIK, true, 3000);
+  eq([ss.getItem("model"), hodnoty(ss)], [ine[4], PREDVOLENE]);
+});
+t("iné auto v karte: polohy sa neprepíšu", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  const ss = polohy(karta(["Skoda", "Octavia", "2021", "Combi", "Skoda Octavia 2021 Combi"]), PREDVOLENE);
+  eq(M.obnovAuto(ss, ls, KOSIK, true, 2000), null);
+  eq(hodnoty(ss), PREDVOLENE);
+});
+t("mimo košíka a objednávky sa polohy neprepisujú (konfigurátor má svoje dlaždice)", () => {
+  const ls = pamat(); M.ulozAutoZKarty(polohy(karta(FORD), PRAVY), ls, 1000, "set");
+  const ss = polohy(karta(FORD), PREDVOLENE);
+  eq(M.obnovAuto(ss, ls, KOSIK, false, 2000), null);
+  eq(hodnoty(ss), PREDVOLENE);
+});
+
+// ------------------------------------------------------------------ kamión v novej karte (kniha OPC § 10.44)
+const SUHRN = "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: DAF (TIR) XF 2022-2025";
+const VOZ = "DAF (TIR) XF 2022-2025";
+const kamKarta = () => { const ss = pamat(); ss.setItem("truckOrderSummary", SUHRN); ss.setItem("truckVehicle", VOZ); return ss; };
+const KOS_KAMION = [{ code: "TEST-TRUCK", name: "luxusné autokoberce do kamionov", priceId: 68383 }];
+const KOS_KAMION_CZ = [{ code: "TRUCK", name: "luxusní autokoberce do kamionů", priceId: 1 }];
+const KOS_AUTO = [{ code: "598/DIA3", name: "luxusné autokoberce Dragonskin Basic DIAMOND LINE", priceId: 63493 }];
+const KOS_MIX = KOS_AUTO.concat(KOS_KAMION);
+
+t("kamión: pridanie uloží súhrn aj vozidlo, nová karta v objednávke ich dostane (SK aj CZ)", () => {
+  [KOS_KAMION, KOS_KAMION_CZ, KOS_MIX].forEach((kos) => {
+    const ls = pamat();
+    eq(M.ulozKamionZKarty(kamKarta(), ls, 1000), true);
+    const ss = pamat();
+    eq(M.obnovKamion(ss, ls, kos, true, 2000), "doplnene");
+    eq([ss.getItem("truckOrderSummary"), ss.getItem("truckVehicle")], [SUHRN, VOZ]);
+  });
+});
+t("kamión: karta bez súhrnu nič neuloží", () => {
+  const ls = pamat();
+  eq(M.ulozKamionZKarty(pamat(), ls, 1000), false);
+  eq(ls.getItem(M.KLUC_KAMION), null);
+});
+t("kamión bez záznamu: karta so súhrnom ho vytvorí (keby udalosť z pridania neprišla)", () => {
+  const ls = pamat(); const ss = kamKarta();
+  eq(M.obnovKamion(ss, ls, KOS_KAMION, true, 2000), null);
+  eq(ss.getItem("truckOrderSummary"), SUHRN);
+  eq(JSON.parse(ls.getItem(M.KLUC_KAMION)).truckOrderSummary, SUHRN);
+});
+t("dve karty: stará karta so súhrnom iného kamióna dostane naposledy pridaný kamión a záznam neprepíše", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 2000); // karta B pridala DAF
+  const stara = pamat(); stara.setItem("truckOrderSummary", "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: VOLVO FH 2021-2025"); stara.setItem("truckVehicle", "VOLVO FH 2021-2025");
+  eq(M.obnovKamion(stara, ls, KOS_KAMION, true, 3000), "doplnene");
+  eq([stara.getItem("truckOrderSummary"), stara.getItem("truckVehicle")], [SUHRN, VOZ]);
+  eq(JSON.parse(ls.getItem(M.KLUC_KAMION)).truckOrderSummary, SUHRN);
+});
+t("karta so zhodným súhrnom a záznamom: nič sa nemení", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  eq(M.obnovKamion(kamKarta(), ls, KOS_KAMION, true, 2000), null);
+});
+t("po pridaní prezretý iný kamión (vozidlo v karte) sa do objednávky nedostane", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const ss = kamKarta(); ss.setItem("truckVehicle", "VOLVO FH 2021-2025");
+  eq(M.obnovKamion(ss, ls, KOS_KAMION, true, 2000), "doplnene");
+  eq(ss.getItem("truckVehicle"), VOZ);
+});
+t("kamión už v košíku nie je: objednávka zahodí súhrn v karte aj záznam", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const ss = kamKarta(); ss.setItem("model", FORD[4]);
+  eq(M.obnovKamion(ss, ls, KOS_AUTO, true, 2000), "zmazane");
+  eq([ss.getItem("truckOrderSummary"), ss.getItem("truckVehicle"), ls.getItem(M.KLUC_KAMION), ss.getItem("model")], [null, null, null, FORD[4]]);
+});
+t("prázdny košík v objednávke zmaže všetko; po dokončenej objednávke je ďalší nákup čistý", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const ss = kamKarta();
+  eq(M.obnovKamion(ss, ls, [], true, 2000), "zmazane");
+  eq([ss.getItem("truckOrderSummary"), ls.getItem(M.KLUC_KAMION)], [null, null]);
+});
+t("prázdny košík mimo objednávky zmaže len záznam, súhrn v karte nechá (môže byť tesne pred pridaním)", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const ss = kamKarta();
+  eq(M.obnovKamion(ss, ls, [], false, 2000), "zmazane");
+  eq([ss.getItem("truckOrderSummary"), ls.getItem(M.KLUC_KAMION)], [SUHRN, null]);
+});
+t("mimo objednávky sa s neprázdnym košíkom nič nemení ani nedopĺňa", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const ss = pamat();
+  eq(M.obnovKamion(ss, ls, KOS_AUTO, false, 2000), null);
+  eq([ss.getItem("truckOrderSummary"), !!ls.getItem(M.KLUC_KAMION)], [null, true]);
+});
+t("neznámy košík (bez dataLayer): nič nemazať ani nedopĺňať", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const ss = kamKarta();
+  eq(M.obnovKamion(ss, ls, null, true, 2000), null);
+  eq([ss.getItem("truckOrderSummary"), !!ls.getItem(M.KLUC_KAMION)], [SUHRN, true]);
+});
+t("záznam kamióna starší ako AUTO_TTL sa nepoužije, poškodený tiež nie", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 0);
+  eq(M.obnovKamion(pamat(), ls, KOS_KAMION, true, M.AUTO_TTL + 1), null);
+  const ls2 = pamat(); ls2.setItem(M.KLUC_KAMION, "{nie json");
+  eq(M.obnovKamion(pamat(), ls2, KOS_KAMION, true, 1), null);
+});
+t("plné úložisko pri pridaní: starý záznam zmizne, novší súhrn karty platí", () => {
+  const ls = pamat(); M.ulozKamionZKarty(kamKarta(), ls, 1000);
+  const plne = { getItem: ls.getItem, removeItem: ls.removeItem, setItem() { throw new Error("QuotaExceededError"); } };
+  const ss = pamat(); ss.setItem("truckOrderSummary", "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: VOLVO FH 2021-2025");
+  eq(M.ulozKamionZKarty(ss, plne, 2000), false);
+  eq(ls.getItem(M.KLUC_KAMION), null);
+  eq(M.obnovKamion(ss, ls, KOS_KAMION, true, 3000), null);
+  eq(ss.getItem("truckOrderSummary"), "ŠPECIFIKÁCIA VOZIDLA\n- Vozidlo: VOLVO FH 2021-2025");
+});
+t("zablokované úložisko: nič nespadne", () => {
+  const zly = { getItem() { throw new Error("x"); }, setItem() { throw new Error("x"); }, removeItem() { throw new Error("x"); } };
+  eq(M.ulozKamionZKarty(zly, zly, 1), false);
+  eq(M.obnovKamion(zly, zly, KOS_KAMION, true, 1), null);
+  eq(M.obnovKamion(null, null, KOS_KAMION, true, 1), null);
+});
+t("jeKamionDL: kód alebo názov z dataLayer", () => {
+  eq([KOS_KAMION[0], KOS_KAMION_CZ[0], KOS_AUTO[0], { code: "616/DIA" }, { name: "Kamiónový koberec" }, null].map(M.jeKamionDL), [true, true, false, false, true, false]);
+});
+
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);
 process.exit(zle ? 1 : 0);

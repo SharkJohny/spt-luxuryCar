@@ -363,9 +363,9 @@ for (const [kluc, dovod] of [["cz-chyba-suma", /suma/], ["cz-chyba-cislo", /čí
 
 // ------------------------------------------------------------------ brána a zapojenie (opc/index.js)
 const KOD = B.KOD;
-t("brána: bez kódu ďakovná stránka BEZ ZMENY — DOM, triedy, globály, záznam, žiadna požiadavka (fetch/XHR)", () => {
+t("brána: vypnuté v prehliadači (flag „0“, po spustení pre všetkých) ďakovná stránka BEZ ZMENY — DOM, triedy, globály, záznam, žiadna požiadavka (fetch/XHR)", () => {
   for (const kluc of ["cz-prevod", "sk-karta-nie", "cz-dobierka"]) {
-    const { w, doc } = prostredie(kluc);
+    const { w, doc } = prostredie(kluc, { flag: "0" });
     let poziadavky = 0;
     w.fetch = globalThis.fetch = () => { poziadavky++; return Promise.reject(new Error("test")); };
     const XO = w.XMLHttpRequest.prototype.open;
@@ -376,12 +376,12 @@ t("brána: bez kódu ďakovná stránka BEZ ZMENY — DOM, triedy, globály, zá
     eq(B.initOpc({}), null, kluc + ": initOpc");
     eq(doc.documentElement.outerHTML, pred, kluc + ": DOM sa zmenil");
     eq([typeof w.__lcdOpc, Object.keys(w).length, w.localStorage.getItem(D.KLUC_ZAZNAMU), w.localStorage.getItem("lcdOpc"), poziadavky],
-      ["undefined", kluceOkna, null, null, 0], kluc + ": stopa");
+      ["undefined", kluceOkna, null, "0", 0], kluc + ": stopa");
   }
 });
-t("brána: ?opc=1 (bez kódu) aj ?opc=0 nič; data.json \"opc\": false nič ani s kódom (skorý vzhľad sa vráti)", () => {
+t("brána: flag „0“ s ?opc=1 aj ?opc=0 nič; data.json \"opc\": false nič ani s kódom (skorý vzhľad sa vráti)", () => {
   for (const hladanie of ["?opc=1", "?opc=0"]) {
-    const { doc, w } = prostredie("cz-prevod", { hladanie });
+    const { doc, w } = prostredie("cz-prevod", { hladanie, flag: "0" });
     const pred = doc.documentElement.outerHTML;
     B.vzhladDakujemeSkoro(doc, w.location.search);
     eq([B.initOpc({}), doc.documentElement.outerHTML === pred, w.localStorage.getItem(D.KLUC_ZAZNAMU)], [null, true, null], hladanie);

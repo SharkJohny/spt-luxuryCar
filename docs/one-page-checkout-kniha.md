@@ -1734,7 +1734,7 @@ Produkt `test` (SK id 643, CZ id 2455, `/test-objednavka/`, kód TEST-1, 1 € /
 Otvorený bod z § 2 súpisu nápadov potvrdený naživo: `productPage.js` nastavoval `wheelPosition`, `seatPosition`, `doorPosition` na predvolené na úrovni modulu, teda pri každom načítaní každej stránky, aj v košíku. `cart.js` potom do `varchar1–3` zapísal vždy `left`, `pass-5`, `doors-4`, nech zákazník zvolil čokoľvek. Chyba je stará, je v tom aj starý bundle `luxuryCarOld.js`.
 
 - **Teraz:** pri načítaní sa doplní len chýbajúca hodnota, na predvolené ich vracia až `firstPage` po vytvorení dlaždíc (dlaždice vtedy ukazujú predvolené, `prenos.js` ich potom nastaví klikom). Formát hodnôt sa nemení, výroba dostáva skutočný výber.
-- **Ostáva:** v objednávke je jedna trojica polí. Kto po pridaní do košíka otvorí ďalší produkt s konfigurátorom, má znova predvolené (rovnako ako predtým).
+- **Ostáva:** v objednávke je jedna trojica polí. Kto po pridaní do košíka otvorí ďalší produkt s konfigurátorom, mal znova predvolené, opravené v § 10.44.
 - **Test:** S8V (červený pred opravou, zelený po nej), S8 s predvolenými hodnotami bez zmeny.
 
 ### 10.39 Kamión na CZ: celá poznámka objednávky po česky (5. 11. 2026)
@@ -1786,12 +1786,49 @@ Michal 6. 11. 2026: „Takto to sprav, môžeš to nasadiť pre všetkých ľud�
 **Nezávislá kontrola pred zapnutím (3 pohľady + pokus o vyvrátenie, len čítanie kódu):**
 - ⛔ → opravené: webm nových videí boli VP9 profil 1 (`gbrp`), chýbal `-pix_fmt yuv420p`. Safari ich nemusí prehrať a na mp4 sa sám nevráti. V dlaždiciach ponuky ide teraz mp4 prvé (`zdroje(..., true)`), S81 to kontroluje. Skript už kóduje yuv420p, nahraté súbory sa neprepisujú, pri ďalšej zmene ide video pod novým menom.
 - Brána: pre zákazníka bez flagu sa oproti tajnému odkazu líši len záznam ďakovnej stránky (zámer).
-- ❓ Staré diery, nie zo spustenia (rovnako v starej pokladni), ale riziko objednávky bez auta: (1) `truckOrderSummary` sa nemaže, košík s kamiónom aj osobným autom alebo odobratý kamión pošle objednávku bez `model:` a so starým blokom kamióna; (2) košík otvorený v novej karte: kamión bez vozidla v poznámke, volant, miesta a dvere na predvolených hodnotách (`lcdAuto:v1` obnovuje len 5 kľúčov). Oprava: rozhodovať podľa riadkov objednávky a ukladať aj kamión a polohy do `localStorage`, formát poznámky pre Jánov export overiť.
+- ✅ Opravené v § 10.44. Staré diery, nie zo spustenia (rovnako v starej pokladni), ale riziko objednávky bez auta: (1) `truckOrderSummary` sa nemaže, košík s kamiónom aj osobným autom alebo odobratý kamión pošle objednávku bez `model:` a so starým blokom kamióna; (2) košík otvorený v novej karte: kamión bez vozidla v poznámke, volant, miesta a dvere na predvolených hodnotách (`lcdAuto:v1` obnovuje len 5 kľúčov). Oprava: rozhodovať podľa riadkov objednávky a ukladať aj kamión a polohy do `localStorage`, formát poznámky pre Jánov export overiť.
 - ❓ Naostro ešte neprešli cez novú pokladňu: dobierka, SK karta, rýchla platba cez banku, prihlásený zákazník. Doložené: 1820260078 (SK Apple Pay), 2820260038 (CZ Apple Pay), 1820260076 (SK prevod).
 
 **Testy:** SK 168 OK, CZ 94 OK, jednotky 137 (7 testov brány prepísaných na stav po spustení, „bez kódu“ = flag „0“), doplnky 104, zápis auta do objednávky naživo chromium, webkit, firefox × SK, CZ × s a bez data.json OK.
 
 **Dôkaz naživo bez kódu (Playwright, nič neodoslané):** SK aj CZ košík ide rovno na `/objednavka/krok-2/`, karta kamióna s videom tapacíru (SK WebKit PC a telefón, CZ Chromium PC a telefón, dlaždica 76 × 95, bez pretečenia), ponuka setu, SK farby boxu 5 + 4. `?opc=0` vráti starý košík a ostane vypnuté, bez flagu znova pokladňa. `tools/test-kamion-prehliadace.mjs` má nový prepínač `--opc <kód|1>`: zvolí kamión bez tapacíru a otvorí pokladňu, Step2Validate vždy ruší. Výber boxu na CZ som naživo neotvoril (rovnaký kód a CSS ako SK).
+
+### 10.44 Objednávka bez vozidla a s predvoleným volantom (6. 11. 2026)
+
+Michal 6. 11. 2026 na otázku o dvoch starých dierach z § 10.43: „Áno oprav.“ Nové pokladne sa to netýkalo, rovnako to robila stará pokladňa.
+
+**Čo sa dialo (overené simuláciou skutočného kódu):** `toNote` písal buď blok kamióna, alebo `model: …`, podľa toho, čo ostalo v `sessionStorage`. Súhrn kamióna sa nikde nemazal a do novej karty sa kamión ani volant, miesta a dvere neprenášali.
+
+| Košík | Pred opravou | Po oprave |
+|---|---|---|
+| auto + kamión, tá istá karta | blok, bez `model:` | `model:`, potom blok, varchar1–3 z auta |
+| auto + kamión, nová karta | `model:`, bez bloku, predvolené polohy | `model:`, potom blok, polohy z pridania |
+| kamión odobratý, ostalo auto (aj ďalší nákup v tej istej karte) | starý blok, bez `model:` | `model:`, žiadny blok |
+| kamión, nová karta | prázdne alebo `model:` cudzieho auta | blok s vozidlom, bez `model:` |
+| auto, nová karta | predvolené left, pass-5, doors-4 | zákazníkov výber |
+| po pridaní setu otvorený ďalší produkt s konfigurátorom (§ 10.38 „Ostáva“) | predvolené | výber z pridania |
+
+**Oprava:**
+- `functions/poznamkaObjednavky.js` (nový): `zlozPoznamku` rozhoduje podľa riadkov rekapitulácie (`data-micro-sku`, `a.main-link`), ako Jánov export („Rozhoduje položka, nie poznámka“). Keď sa riadky nedajú prečítať, platí pôvodné správanie. `model:` ide pred blok, CRM reže poznámku na 300 znakov. Pri kamióne s vzorkovníkom alebo poukážkou sa `model:` nepíše. Košík bez kamióna ostáva ako doteraz, vrátane vzorkovníka s autom v karte.
+- `functions/autoPamat.js`: `lcdAuto:v1` nesie aj volant, miesta a dvere, nový `lcdKamion:v1` (súhrn + vozidlo). Platnosť záznamov `AUTO_TTL` je 35 dní namiesto 14, cookie košíka `pcart` platí 31 dní. `obnovKamion` na košíku a v objednávke zmaže súhrn, keď kamión v košíku nie je (`dataLayer.shoptet.cart`: kód `TEST-TRUCK` / `TRUCK` alebo názov), inak platí záznam: naposledy pridaný kamión má prednosť pred súhrnom karty. Bez platného záznamu sa použije karta. `autoRiadku` už auto pri súhrne kamióna neskrýva, poznámka ho nesie.
+- Do záznamu sa zapisuje pri `ShoptetCartAddCartItem`, nie pri `ShoptetCartUpdated`. Updated chodí aj pri odobratí položky a polohy v karte sú na ďalšom produkte späť na predvolených (`firstPage`).
+- Rohož: volant je skrytý a miesta a dvere sa ukazujú od predvolených (`_lcd1v-kufor.scss`, Michal 23. 10.). Platí to, čo zákazník na rohoži zmenil, inak výber rovnakého auta zo záznamu.
+- `kamionKarta.js`: tapacír doplnený v pokladni zapíše aj záznam.
+- Formát bloku ani poľa varchar1–3 sa nezmenili. `Pravidlá exportu kamiónov.md` § 2 bod 3 s týmto riadkom `model:` počíta.
+
+**Revízia pred nasadením (dve kolá, každý nález skúšali vyvrátiť ďalší agenti):** prvá verzia mala chyby, testy ich nezachytili, opravené pred push:
+- ⛔ rohož ignorovala kliknuté miesta a dvere a starší výber zo setu by ich v objednávke prepísal, predpoklad „na rohoži sú dlaždice na predvolených“ bol zlý;
+- ⛔ `ShoptetCartUpdated` pri odobratí položky zapisoval predvolené polohy;
+- ⛔ stará karta prepisovala novší `lcdKamion:v1` súhrnom iného kamióna;
+- ⛔ záznam platil 14 dní a košík 31, návrat do starého košíka v novej karte by prišiel bez vozidla.
+
+**Známe hranice, zámerne nezmenené:**
+- Dva kamióny v jednom košíku: blok len posledného pridaného, aj keď sa potom odoberie. Dva bloky v poznámke by treba dohodnúť s Jánom. Z 865 objednávok bez storna 0 s dvoma kamiónmi, 4 s kamiónom, 0 kamión + auto (`eshop.db`, 6. 11. 2026).
+- Dva sety pre dve autá: jeden `model:`. 6 z 812 objednávok so setom malo 2 a viac setov, koľko z nich pre rôzne autá, neviem.
+- Po pridaní prezreté iné auto v tej istej karte ide do poznámky (rozhodnutie 29. 10., `autoRiadku`).
+- ❓ Back Office a CRM pri `model:` aj bloku ukážu len kamión, `model:` ostáva v poznámke (`feed.js`, `api/email.js`). Jánov export zmiešanú objednávku nikdy nedostal, overiť pri prvej.
+
+**Testy:** `tools/test-poznamka-objednavky.mjs` (nový), `tools/test-auto-pamat.mjs`, S8S, S8N, S10N, S10M, S10MN, S12N, košík `mix` a `kamionCz` v podvrhu. `test-kamion-prehliadace --novaKarta` prejde živý web bez odoslania: skutočné pridanie kamióna, nová karta, auto + kamión, ďalšia nová karta, odobratie kamióna. Bloky brány v `test-opc-dakujeme.mjs` a očakávaný text vozidla v `test-kosik-auto-hodnotenie.mjs` boli zastarané už pred touto zmenou (po `7060de1`), opravené.
 
 ## 11. Živý dôkaz 28./29. 10. 2026
 

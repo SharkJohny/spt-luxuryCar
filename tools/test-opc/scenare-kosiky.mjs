@@ -22,6 +22,23 @@ export const KAMION = {
 };
 
 const uloz = (s, data) => s.ev(`(function (d) { Object.keys(d).forEach(function (k) { sessionStorage.setItem(k, d[k]); }); return 1; })(${JSON.stringify(data)})`);
+/** Záznamy v localStorage z pridania do košíka v inej karte; táto karta má prázdny sessionStorage ako nová karta. */
+const novaKarta = (s, data) => s.ev(`(function (d) {
+  ["Brand", "Model", "Year", "carType", "model", "truckOrderSummary", "truckVehicle"].forEach(function (k) { sessionStorage.removeItem(k); });
+  Object.keys(d).forEach(function (k) { localStorage.setItem(k, JSON.stringify(d[k])); });
+  return 1;
+})(${JSON.stringify(data)})`);
+const ZAZNAM_AUTA = { t: 0, Brand: "Skoda", Model: "Octavia", Year: "2020", carType: "Combi", model: "Skoda Octavia 2020 Combi", wheelPosition: "right", seatPosition: "pass-7", doorPosition: "doors-5" };
+const VOZIDLO = "DAF (TIR) XF 2022-2025";
+/** Odoslanie a poznámka + varchar1–3 z tela objednávky. */
+async function telo(s) {
+  await vyplnUdaje(s);
+  await suhlas(s);
+  const z = await objednaj(s);
+  const m = overTeloObjednavky(s, z[z.length - 1]);
+  return { remark: (m.get("remark") || [""])[0], varchar: ["varchar1", "varchar2", "varchar3"].map((k) => (m.get(k) || [])[0]) };
+}
+const JEDEN_BLOK = (r) => pocet(r, "[KONFIGURÁCIA KAMIÓNA]") === 1 && pocet(r, "[/KONFIGURÁCIA KAMIÓNA]") === 1;
 const pocet = (text, co) => String(text).split(co).length - 1;
 
 /** Rozpis setu v súhrne (cart.js changeDescription): riadky ul.lcd-rozpis. */
@@ -81,6 +98,78 @@ export const SCENARE = {
       const v = ["varchar1", "varchar2", "varchar3"].map((k) => (m.get(k) || [])[0]);
       over(v.join() === "right,pass-7,doors-5", "varchar1–3 v tele: " + JSON.stringify(v));
       return { step2: true, info: "varchar1–3 = " + v.join(", ") };
+    },
+  },
+  S8S: {
+    len: "sk",
+    popis: "Set, v karte ostal súhrn kamióna z predošlého nákupu alebo odobratého kamióna: v objednávke auto a žiadny blok kamióna, odrážka Auto v súhrne",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set" });
+      await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => uloz(k, { ...AUTO, truckOrderSummary: buildTruckOrderSummary(KAMION, "sk"), truckVehicle: VOZIDLO }) });
+      const r = await rozpis(s);
+      over(r.some((x) => /Auto/.test(x) && /Skoda Octavia 2020/.test(x)), "bez odrážky Auto: " + JSON.stringify(r));
+      const t = await telo(s);
+      over(pocet(t.remark, "model: " + AUTO.model) === 1 && !/KONFIGUR/.test(t.remark), "poznámka: " + JSON.stringify(t.remark));
+      return { step2: true, info: "poznámka „" + t.remark + "“" };
+    },
+  },
+  S8N: {
+    len: "sk",
+    popis: "Set v novej karte: auto aj zákazníkov volant, miesta a dvere z pridania do košíka prejdú do objednávky",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "set" });
+      await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => s.ev("Date.now()").then((n) => novaKarta(k, { "lcdAuto:v1": { ...ZAZNAM_AUTA, t: n } })) });
+      const t = await telo(s);
+      over(t.varchar.join() === "right,pass-7,doors-5", "varchar1–3 v tele: " + JSON.stringify(t.varchar));
+      over(pocet(t.remark, "model: " + AUTO.model) === 1, "poznámka: " + JSON.stringify(t.remark));
+      return { step2: true, info: "varchar1–3 = " + t.varchar.join(", ") + ", poznámka „" + t.remark + "“" };
+    },
+  },
+  S10N: {
+    len: "sk",
+    popis: "Kamión v novej karte: blok s vozidlom z pridania do košíka, rozpis v súhrne, žiadny cudzí model ani varchar1–3, hoci v pamäti ostalo osobné auto",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "kamion" });
+      const zhrnutie = buildTruckOrderSummary(KAMION, "sk");
+      await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => s.ev("Date.now()").then((n) => novaKarta(k, {
+        "lcdKamion:v1": { t: n, truckOrderSummary: zhrnutie, truckVehicle: VOZIDLO }, "lcdAuto:v1": { ...ZAZNAM_AUTA, t: n } })) });
+      const d = await s.ev(`({ kamion: !!document.querySelector("#summary-box .lcd-truck-cart-summary") })`);
+      over(d.kamion, "súhrn bez rozpisu kamióna");
+      const t = await telo(s);
+      over(JEDEN_BLOK(t.remark) && t.remark.includes(VOZIDLO), "poznámka bez bloku kamióna: " + JSON.stringify(t.remark.slice(0, 200)));
+      over(!/model: /.test(t.remark.replace(/- Vozidlo:.*/g, "")), "cudzí model pri kamióne: " + JSON.stringify(t.remark));
+      over(!t.varchar.some(Boolean), "varchar pri kamióne: " + JSON.stringify(t.varchar));
+      return { step2: true, info: "blok " + t.remark.length + " znakov, bez modelu a varchar" };
+    },
+  },
+  S10M: {
+    len: "sk",
+    popis: "Set + kamión v tej istej karte: v objednávke auto aj blok kamióna, volant, miesta a dvere auta",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "mix" });
+      await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => uloz(k, { ...AUTO, wheelPosition: "right", seatPosition: "pass-7", doorPosition: "doors-5", truckOrderSummary: buildTruckOrderSummary(KAMION, "sk"), truckVehicle: VOZIDLO }) });
+      const r = await rozpis(s);
+      over(r.some((x) => /Auto/.test(x) && /Skoda Octavia 2020/.test(x)), "pri sete chýba odrážka Auto: " + JSON.stringify(r));
+      const t = await telo(s);
+      over(pocet(t.remark, "model: " + AUTO.model) === 1 && JEDEN_BLOK(t.remark), "poznámka: " + JSON.stringify(t.remark.slice(0, 200)));
+      over(t.remark.indexOf("model: ") < t.remark.indexOf("[KONFIGURÁCIA"), "model má byť pred blokom: " + JSON.stringify(t.remark.slice(0, 200)));
+      over(t.remark.includes(VOZIDLO), "blok bez vozidla");
+      over(t.varchar.join() === "right,pass-7,doors-5", "varchar1–3 v tele: " + JSON.stringify(t.varchar));
+      return { step2: true, info: "model pred blokom, varchar1–3 = " + t.varchar.join(", ") };
+    },
+  },
+  S10MN: {
+    len: "sk",
+    popis: "Set + kamión v novej karte: auto, blok kamióna aj volant, miesta a dvere z pridania do košíka",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "mix" });
+      const zhrnutie = buildTruckOrderSummary(KAMION, "sk");
+      await naKrok2(s, { query: "&lcddoplnok=0", pred: (k) => s.ev("Date.now()").then((n) => novaKarta(k, {
+        "lcdKamion:v1": { t: n, truckOrderSummary: zhrnutie, truckVehicle: VOZIDLO }, "lcdAuto:v1": { ...ZAZNAM_AUTA, t: n } })) });
+      const t = await telo(s);
+      over(pocet(t.remark, "model: " + AUTO.model) === 1 && JEDEN_BLOK(t.remark) && t.remark.includes(VOZIDLO), "poznámka: " + JSON.stringify(t.remark.slice(0, 200)));
+      over(t.varchar.join() === "right,pass-7,doors-5", "varchar1–3 v tele: " + JSON.stringify(t.varchar));
+      return { step2: true, info: "auto, blok aj polohy z pamäte" };
     },
   },
   S9: {
@@ -148,7 +237,7 @@ export const SCENARE = {
     len: "cz",
     popis: "CZ: 150 Kč, Dobírka 50 Kč, text tlačidla CZ, language=cs, blok [KONFIGURACE KAMIONU] v poznámke",
     async fn(J) {
-      const s = await J.novaStranka();
+      const s = await J.novaStranka({ kosik: "kamionCz" });
       const id = ID.cz;
       await naKrok2(s, { pred: (k) => uloz(k, { truckOrderSummary: buildTruckOrderSummary(KAMION, "cs") }) });
       const d = await s.ev(`(function () {
@@ -174,6 +263,20 @@ export const SCENARE = {
       const remark = (m.get("remark") || [""])[0];
       over(remark.includes("[KONFIGURACE KAMIONU]"), "CZ poznámka bez [KONFIGURACE KAMIONU]: " + JSON.stringify(remark.slice(0, 80)));
       return { step2: true, info: d.doprava + ", " + d.dobirkaNazov + " " + d.dobirka + ", „" + d.tlacidlo + "“, language=cs, celkem " + st.celkom };
+    },
+  },
+  S12N: {
+    len: "cz",
+    popis: "CZ kamión v novej karte: blok [KONFIGURACE KAMIONU] s vozidlom z pridania do košíka, bez cudzieho modelu",
+    async fn(J) {
+      const s = await J.novaStranka({ kosik: "kamionCz" });
+      const zhrnutie = buildTruckOrderSummary(KAMION, "cs");
+      await naKrok2(s, { pred: (k) => s.ev("Date.now()").then((n) => novaKarta(k, {
+        "lcdKamion:v1": { t: n, truckOrderSummary: zhrnutie, truckVehicle: VOZIDLO }, "lcdAuto:v1": { ...ZAZNAM_AUTA, t: n } })) });
+      const t = await telo(s);
+      over(pocet(t.remark, "[KONFIGURACE KAMIONU]") === 1 && t.remark.includes("XF 2022-2025"), "poznámka: " + JSON.stringify(t.remark.slice(0, 200)));
+      over(!/^model: /m.test(t.remark), "cudzí model: " + JSON.stringify(t.remark));
+      return { step2: true, info: "blok " + t.remark.length + " znakov, bez modelu" };
     },
   },
 };

@@ -6,7 +6,10 @@
 // (29. 10. 2026: npx cache …/_npx/e41f203b7505f1fb/node_modules/playwright/index.mjs = 1.64.1, WebKit 27.2, Firefox 157).
 // WebKit na Windows je najbližšie k Safari, nie skutočný iPhone. Zachytený POST do košíka sa ruší; pri --kosik sa pustí
 // do jednorazového kontextu, iné POST na /action/ (napr. FacebookCAPI) test ruší, aby neposielal falošné nákupy do reklám.
-// node tools/test-kamion-prehliadace.mjs --pw <file:///…/playwright/index.mjs> --sha <sha> [--prehliadac webkit] [--produkt 640] [--sirka 390] [--kosik [--opc <kód>|1]] [--out dir]
+// --novaKarta (pri --kosik --opc 1, len šírka 1280, kniha OPC § 10.44): skutočné pridanie kamióna, potom poznámka a varchar1–3 v novej
+// karte, s autom v košíku, v ďalšej novej karte a po odobratí kamióna. Nič sa neodosiela: Step2Validate sa ruší, poznámka sa
+// číta priamym volaním shoptet.custom.postSuccessfulValidation, košík zanikne s kontextom.
+// node tools/test-kamion-prehliadace.mjs --pw <file:///…/playwright/index.mjs> --sha <sha> [--prehliadac webkit] [--produkt 640] [--sirka 390] [--kosik [--opc <kód>|1] [--novaKarta]] [--out dir]
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 
@@ -16,6 +19,7 @@ const SHA = arg("sha");
 const OUT = arg("out", tmpdir() + "/lcd-kamion-prehliadace");
 const KOSIK = process.argv.includes("--kosik");
 const OPC = arg("opc"); // pri --kosik: --opc <tajný kód> otvorí pokladňu, --opc 1 bez kódu (po spustení pre všetkých)
+const NOVA_KARTA = process.argv.includes("--novaKarta");
 mkdirSync(OUT, { recursive: true });
 const MANIFEST = readFileSync(new URL("../assets/js/components/konfigurator1v/kamion/obrazky.js", import.meta.url), "utf8");
 const KAMION_SUBORY = new Set([...MANIFEST.matchAll(/"(t[0-9a-f]+\.(?:png|jpg))":/g)].map((m) => m[1]));
@@ -52,6 +56,100 @@ const KROKY = [
 if (OPC) KROKY.splice(KROKY.findIndex((k) => k[1] === a_("tap", "ano")), 3, ["klik", a_("tap", "nie")]); // ponuka tapacíru je len pre kamión bez neho
 const pauza = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// ------------------------------------------------------------------ --novaKarta
+const AUTO_SKUSKA = { Brand: "BMW", Model: "X5", Year: "2021", carType: "SUV", model: "BMW X5 2021 SUV", wheelPosition: "right", seatPosition: "pass-7", doorPosition: "doors-5" };
+const CESTA_SETU = "/luxusne-autokoberce-dragonskin-diamond-line/"; // rovnaká na SK aj CZ
+const MODEL_RIADOK = "model: " + AUTO_SKUSKA.model;
+const JE_BLOK = /\[KONFIGUR[ÁA](?:CIA KAMIÓNA|CE KAMIONU)\][\s\S]*\[\/KONFIGUR[ÁA](?:CIA KAMIÓNA|CE KAMIONU)\]/;
+const VOZIDLO_SKUSKY = "XF106 2017-2021";
+
+/** Otvorí /kosik/ v karte p, počká na krok 2 pokladne a prečíta, čo by šlo do objednávky. Nič neodosiela. */
+async function vObjednavke(p, P) {
+  await p.goto(new URL("/kosik/", P.url).href, { waitUntil: "load" });
+  await p.waitForFunction(() => /krok-2/.test(location.pathname) && !!document.getElementById("order-form") && !!document.getElementById("remark"), null, { timeout: 25000 });
+  await pauza(2500);
+  return p.evaluate(() => {
+    const f = document.getElementById("order-form");
+    shoptet.custom.postSuccessfulValidation(f);
+    const ls = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+    return { remark: document.getElementById("remark").value, varchar: ["varchar1", "varchar2", "varchar3"].map((n) => (document.querySelector("[name=" + n + "]") || {}).value || ""),
+      suhrn: sessionStorage.getItem("truckOrderSummary"), zaznam: ls("lcdKamion:v1") };
+  });
+}
+
+/** Set do košíka tak, ako ho pridá konfigurátor: údaje v karte, príplatky, potom udalosť Shoptetu. */
+async function pridajSet(p, P) {
+  await p.goto(new URL(CESTA_SETU, P.url).href, { waitUntil: "load" });
+  await pauza(2500);
+  return p.evaluate(async (auto) => {
+    for (const k of Object.keys(auto)) sessionStorage.setItem(k, auto[k]);
+    const f = document.querySelector("form.p-to-cart-block, form[action*='addCartItem'], #product-detail-form");
+    const variant = f.querySelector("select[name^='parameterValueId']");
+    if (variant) { variant.value = [...variant.options].find((o) => o.value).value; variant.dispatchEvent(new Event("change", { bubbles: true })); await new Promise((r) => setTimeout(r, 1500)); }
+    const fd = new FormData(f);
+    f.querySelectorAll("select[name]").forEach((v) => { const o = [...v.options].find((x) => x.value); if (o && !fd.get(v.name)) fd.set(v.name, o.value); });
+    const b = new URLSearchParams();
+    for (const [k, v] of fd) if (k && typeof v === "string") b.append(k, v);
+    b.set("amount", "1");
+    const r = await fetch("/action/Cart/addCartItem/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "XMLHttpRequest", "X-Shoptet-XHR": "Shoptet_Coo7ai" }, body: b.toString(), credentials: "same-origin" });
+    await r.text();
+    // pridanie mimo formulára: udalosti ako Shoptet handleCartPostUpdate
+    document.dispatchEvent(new Event("ShoptetCartAddCartItem"));
+    document.dispatchEvent(new Event("ShoptetCartUpdated"));
+    return r.status;
+  }, AUTO_SKUSKA);
+}
+
+async function odoberKamion(p, P) {
+  await p.goto(new URL("/kosik/?opc=0", P.url).href, { waitUntil: "load" });
+  await pauza(1500);
+  const s = await p.evaluate(async () => {
+    const riadky = window.dataLayer.find((x) => x && x.shoptet).shoptet.cart;
+    const k = riadky.find((x) => /truck/i.test(x.code));
+    const c = (window.shoptet && shoptet.csrf && shoptet.csrf.token) || "";
+    const b = "itemId=" + encodeURIComponent(k.itemId) + "&priceId=" + encodeURIComponent(k.priceId) + "&amount=1" + (c ? "&__csrf__=" + encodeURIComponent(c) : "");
+    const r = await fetch("/action/Cart/deleteCartItem/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8", "X-Requested-With": "XMLHttpRequest", "X-Shoptet-XHR": "Shoptet_Coo7ai" }, body: b, credentials: "same-origin" });
+    await r.text();
+    localStorage.removeItem("lcdOpc");
+    return r.status;
+  });
+  return s;
+}
+
+/** Celá cesta po skutočnom pridaní kamióna v karte page. Každý výpadok ide do r.chyby. */
+async function skuskaNovejKarty(ctx, page, P, r) {
+  const over = (ok, t) => { if (!ok) r.chyby.push(t); };
+  const riadokMimoBloku = (n) => n.replace(JE_BLOK, "");
+  const zaznam = await page.evaluate(() => { try { return JSON.parse(localStorage.getItem("lcdKamion:v1")); } catch (e) { return null; } });
+  over(r.udalost === true, "skutočné pridanie kamióna: udalosť ShoptetCartAddCartItem neprišla alebo neuložila záznam");
+  over(zaznam && zaznam.truckOrderSummary && String(zaznam.truckVehicle || "").includes(VOZIDLO_SKUSKY), "záznam kamióna po skutočnom pridaní: " + JSON.stringify(zaznam).slice(0, 160));
+
+  const k1 = await ctx.newPage();
+  const a = await vObjednavke(k1, P);
+  over(JE_BLOK.test(a.remark) && a.remark.includes(VOZIDLO_SKUSKY), "nová karta, kamión: bez bloku s vozidlom: " + JSON.stringify(a.remark.slice(0, 120)));
+  over(!/^model: /m.test(riadokMimoBloku(a.remark)), "nová karta, kamión: cudzí model: " + JSON.stringify(a.remark.slice(0, 120)));
+  over(!a.varchar.some(Boolean), "nová karta, kamión: varchar " + a.varchar.join());
+  await k1.close();
+
+  const k2 = await ctx.newPage();
+  over((await pridajSet(k2, P)) === 200, "set sa nepridal");
+  const b = await vObjednavke(k2, P);
+  over(b.remark.includes(MODEL_RIADOK) && JE_BLOK.test(b.remark) && b.remark.indexOf(MODEL_RIADOK) < b.remark.search(JE_BLOK), "auto + kamión: poznámka " + JSON.stringify(b.remark.slice(0, 160)));
+  over(b.varchar.join() === "right,pass-7,doors-5", "auto + kamión: varchar " + b.varchar.join());
+  await k2.close();
+
+  const k3 = await ctx.newPage();
+  const c = await vObjednavke(k3, P);
+  over(c.remark.includes(MODEL_RIADOK) && JE_BLOK.test(c.remark) && c.remark.includes(VOZIDLO_SKUSKY), "auto + kamión v novej karte: poznámka " + JSON.stringify(c.remark.slice(0, 160)));
+  over(c.varchar.join() === "right,pass-7,doors-5", "auto + kamión v novej karte: varchar " + c.varchar.join());
+  over((await odoberKamion(k3, P)) === 200, "kamión sa neodobral");
+  const d = await vObjednavke(k3, P);
+  over(d.remark.includes(MODEL_RIADOK) && !JE_BLOK.test(d.remark) && !d.suhrn && !d.zaznam, "kamión odobratý: " + JSON.stringify([d.remark.slice(0, 160), !!d.suhrn, !!d.zaznam]));
+  over(d.varchar.join() === "right,pass-7,doors-5", "kamión odobratý: varchar " + d.varchar.join());
+  await k3.close();
+  r.novaKarta = { kamion: a.remark.length, spolu: b.remark.length, odobraty: d.remark };
+}
+
 async function beh(B, engine, pid, w, kosik) {
   const P = PRODUKTY[pid], o = profil(engine, w), dotyk = o.hasTouch;
   const ctx = await B.newContext({ ...o, locale: P.locale, serviceWorkers: "block" });
@@ -67,6 +165,7 @@ async function beh(B, engine, pid, w, kosik) {
     if (q.method() !== "POST" || /CustomerCookieConsent/.test(q.url())) return route.continue(); // súhlas (odmietnutý) smie uložiť
     if (/Cart\/addCartItem/i.test(q.url())) { r.posty.push(q.postData() || ""); if (kosik) return route.continue(); }
     if (OPC && /orderingProcess/i.test(q.url()) && !/Step2Validate/i.test(q.url())) return route.continue(); // pokladňa bez odoslania: Step2Validate sa vždy ruší
+    if (NOVA_KARTA && /Cart\/deleteCartItem/i.test(q.url())) return route.continue(); // odobratie kamióna v jednorazovom košíku
     r.zrusene = (r.zrusene || []).concat(q.url().slice(0, 140));
     return route.abort();
   });
@@ -122,6 +221,7 @@ async function beh(B, engine, pid, w, kosik) {
     const kos = page.locator("#lcd1v-kamion " + a_("kosik")).first();
     await kos.waitFor({ state: "visible", timeout: 15000 });
     r.faza = "po-kosiku";
+    if (NOVA_KARTA) await page.evaluate(() => document.addEventListener("ShoptetCartAddCartItem", () => setTimeout(() => { sessionStorage.setItem("__lcdTestZaznam", localStorage.getItem("lcdKamion:v1") ? "1" : "0"); }, 0)));
     if (dotyk) await kos.tap(); else await kos.click();
     for (let i = 0; i < 40 && !r.posty.length; i++) await pauza(150);
     if (!r.posty.length) r.chyby.push("POST do košíka neodišiel");
@@ -136,6 +236,7 @@ async function beh(B, engine, pid, w, kosik) {
     if (kosik) {
       await page.waitForLoadState("domcontentloaded").catch(() => {});
       await pauza(1500);
+      if (NOVA_KARTA) r.udalost = await page.evaluate(() => sessionStorage.getItem("__lcdTestZaznam") === "1").catch(() => false);
       if (!/\/kosik\//.test(page.url())) await page.goto(new URL("/kosik/", P.url).href, { waitUntil: "domcontentloaded" });
       await pauza(2500);
       const k = await page.evaluate(() => { const t = document.body.innerText; return { kamion: /kami[oó]n/i.test(t), riadky: document.querySelectorAll(".cart-table tr, .cart-item, [data-micro='cartItem']").length, sw: document.documentElement.scrollWidth, iw: innerWidth }; });
@@ -159,6 +260,7 @@ async function beh(B, engine, pid, w, kosik) {
         if (v && v.sw > v.iw + 1) r.pretecenie.push("pokladňa " + JSON.stringify(v));
         await riadok.locator("xpath=ancestor::*[contains(concat(' ',@class,' '),' lcd-vyb ')][1]").screenshot({ path: OUT + "/tapacir-" + engine + "-" + pid + "-" + w + ".png" }).catch((e) => r.chyby.push("snímka " + e.message.slice(0, 80)));
       }
+      if (NOVA_KARTA && w === 1280) await skuskaNovejKarty(ctx, page, P, r);
     } else {
       // obsah pod konfigurátorom (zákaznícky pohľad): prescrolovať celú stránku, potom rozbité obrázky z našich domén
       const h = await page.evaluate(() => document.documentElement.scrollHeight);

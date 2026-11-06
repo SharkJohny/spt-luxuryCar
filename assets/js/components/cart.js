@@ -3,6 +3,7 @@ import { skupinyNaZobrazenie } from "../opc/kamionZobrazenie.js";
 import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta, lcdAutoHodnota } from "../functions/autoPamat.js";
+import { patriAutu } from "../functions/poznamkaObjednavky.js";
 import { vlozHodnotenie } from "../functions/kosikHodnotenie.js";
 
 export function initCart(texts) {
@@ -91,7 +92,7 @@ function jeKamionovyRiadok(text) {
  */
 function autoPolozky($row, sur) {
   const href = String($row.find("a.main-link").first().attr("href") || "");
-  if (/vzorkovnik|poukaz/i.test(href) || !/autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(href)) return null;
+  if (!patriAutu(href)) return null;
   const u = ulozistaAuta();
   return popisAuta(autoRiadku(u.ss, u.ls, { priceId: $row.find('input[name="priceId"]').first().val() || null, sur: sur }));
 }

@@ -4,7 +4,7 @@
  * Skutočný cart.js (initCart) v jsdom s jQuery na košíku podľa živého HTML Shoptetu (tr.removeable, súhrn .summary-wrapper):
  *   - žiadne „Pripravené pre: … ✓“ / „Připraveno pro“ (Michal 29. 10. po snímkach: „prvoplánové“, zbytočné) — ani pri
  *     položke, ani v súhrne, ani pri kamióne; auto je vecne odrážka „Auto: …“ v rozpise položky (košík aj kroky objednávky);
- *   - LEN auto, ktoré ide do poznámky objednávky (main.js toNote: sessionStorage „model“, pri kamióne truckOrderSummary):
+ *   - LEN auto, ktoré ide do poznámky objednávky (functions/poznamkaObjednavky.js: sessionStorage „model“):
  *     záznam z pridania s iným autom = nič (karta medzitým prezrela iné auto), dve autá = auto len pri riadku karty;
  *     vzorkovník nikdy (ani keď karta auto má); kamión ostáva po starom (vozidlo v bloku špecifikácie);
  *   - hodnotenie: presné čísla z window.LCD_REVIEWS.place (5,0 · 89 recenzií), tvary slov, bez dát skryté;
@@ -119,14 +119,14 @@ const SUHRN_DAF = buildTruckOrderSummary({ znacka: "DAF (TIR)", model: "XF 2022-
 d = stranka(KOSIK(KAMION), { ss: { truckOrderSummary: SUHRN_DAF, truckVehicle: "VOLVO FH 2021-2025" } });
 const dd = [...d.querySelectorAll(".lcd-truck-cart-summary dd")].map(txt);
 const spec = [...d.querySelectorAll(".lcd-truck-cart-summary dt")].map(txt).map((dt, i) => dt + ": " + dd[i]);
-over(spec[0] === "Vozidlo: DAF (TIR) XF 2022-2025" && bezPripravene(d), "kamión so súhrnom: „Vozidlo“ v bloku špecifikácie ako doteraz (aj po prezretí Volva), bez „Pripravené pre“", spec);
+over(spec[0] === "Vozidlo: DAF XF 2022–2025" && bezPripravene(d), "kamión so súhrnom: „Vozidlo“ v bloku špecifikácie ako doteraz (aj po prezretí Volva), bez „Pripravené pre“", spec);
 const ks = d.querySelector(".lcd-truck-cart-summary");
 over(ks && ks.parentNode.matches("span.main-link-surcharges") && !ks.previousElementSibling, "kamión: nad blokom špecifikácie nič navyše");
 d = stranka(KOSIK(KAMION), { ss: { truckVehicle: "VOLVO FH 2021-2025" } });
 const model = [...d.querySelectorAll(".info-wrap ul.model li")].map(txt);
 over(model[0] === "Vozidlo: VOLVO FH 2021-2025" && bezPripravene(d), "kamión bez súhrnu: „Vozidlo: …“ ako pred zmenou, bez „Pripravené pre“", model);
 d = stranka(KOSIK(SET()), { ss: Object.assign({ truckOrderSummary: SUHRN_DAF }, OCT) });
-over(autoRozpis(d).length === 0, "set, ale v karte súhrn kamióna: poznámka nesie len kamión (toNote) -> pri sete nič", autoRozpis(d));
+over(JSON.stringify(autoRozpis(d)) === JSON.stringify(["Auto: Skoda Octavia 2021 Combi"]), "set a v karte aj súhrn kamióna: poznámka nesie auto aj kamión -> pri sete auto", autoRozpis(d));
 
 d = stranka(REKAP(`<div class="cart-item"><div class="cart-item-name"><a href="/luxusne-autokoberce-dragonskin-diamond-line/" class="main-link">luxusné autokoberce
   <span class="main-link-variant">farba 1.vrstvy: Diamond Farba kože : Čierna / Farba šitia: Čierna</span>

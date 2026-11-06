@@ -29,7 +29,8 @@ import "./lcdLang.js"; // Prepinac jazyka vo vlajke (ponuka namiesto okamziteho 
 import "./lcdBlog.js"; // Novy blog: zoznam /blog/ a detail clanku (nahlad ?blogv2=1)
 import "./lcdPoukazka.js"; // Darcekova poukazka: stranka podla navrhu (nacita assets/poukazka/*)
 import "./lcdKosikPanel.js"; // Panel kosika (ikona v hlavicke): hlavicka karty, sucet, clona, poloha pod hlavickou
-import { mergeTruckOrderSummaryIntoNote, vozidloCs, vybavaCs } from "./truck-konfigurator/order-summary.mjs";
+import { vozidloCs, vybavaCs } from "./truck-konfigurator/order-summary.mjs";
+import { zlozPoznamku, riadkyPoznamky } from "./functions/poznamkaObjednavky.js"; // co ide do poznamky objednavky podla riadkov objednavky
 import { TRUCK_FIELD_ORDER, TRUCK_PRODUCT_URLS } from "./truck-konfigurator/truck-brands.js";
 import { VOZIDLA } from "./components/konfigurator1v/kamion/data.js";
 import { kamionyZDat } from "./components/konfigurator1v/kamion/tabulka.js";
@@ -1339,15 +1340,6 @@ function dinamicPictures() {
   changeImage(); // Inicializace při načtení stránky
 }
 
-/** Model je pouzitelny do poznamky, len ked ma vsetky styri casti vyplnene.
- *  Na strankach bez auto-konfiguratora (vzorkovnik, truck) saveModel ulozi
- *  "undefined undefined undefined undefined" — taky zapis do objednavky nepatri. */
-function isUsableSavedModel(savedModel) {
-  const value = String(savedModel || "").trim();
-  if (!value || value === "undefined" || value === "null") return false;
-  return !/\b(undefined|null)\b/.test(value);
-}
-
 function addNote() {
   if ($(".id--17")[0]) {
     console.log("adresa");
@@ -1393,19 +1385,8 @@ function addNote() {
         // zakaznika v takom pripade nechame bez zmeny.
       }
 
-      let note = String($remark.val() || "");
-
-      if (truckSummary) {
-        // postSuccessfulValidation moze prebehnut opakovane. Helper povodny
-        // automaticky blok nahradi, rucnu poznamku zakaznika vsak zachova.
-        note = mergeTruckOrderSummaryIntoNote(note, truckSummary);
-      } else if (isUsableSavedModel(savedModel)) {
-        // Povodny auto-konfigurator: zachovaj zapis modelu pre bezne autokoberce.
-        const modelLine = `model: ${savedModel}`;
-        if (!note.includes(modelLine)) note = note ? `${note}\n\n${modelLine}` : modelLine;
-      }
-
-      $remark.val(note);
+      // postSuccessfulValidation moze prebehnut opakovane, vysledok sa nemeni a rucna poznamka zakaznika ostava
+      $remark.val(zlozPoznamku($remark.val(), { truckSummary, savedModel, riadky: riadkyPoznamky(document) }));
     }
   }
 }

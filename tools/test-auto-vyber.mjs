@@ -43,13 +43,13 @@ const vyrez = (od, po) => {
 };
 const initSrc = vyrez("function initModelSelect", "\n/**\n * Hlavný prepínač");
 const saveSrc = vyrez("function saveModel", "\nfunction initSignpost");
-const noteSrc = vyrez("function isUsableSavedModel", "\n// ───");
+const noteSrc = vyrez("function addNote", "\n// ───");
 const autoVyber = join(REPO, "assets/js/functions/autoVyber.js");
 const p = (f) => JSON.stringify(f.replace(/\\/g, "/"));
 const entry = `
 ${existsSync(autoVyber) ? `import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from ${p(autoVyber)};
 window.__lcd = { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc };` : ""}
-import { mergeTruckOrderSummaryIntoNote } from ${p(join(REPO, "assets/js/truck-konfigurator/order-summary.mjs"))};
+import { zlozPoznamku, riadkyPoznamky } from ${p(join(REPO, "assets/js/functions/poznamkaObjednavky.js"))};
 let setupData = window.__setupData;
 function initVehicleKindSwitch() {}
 ${initSrc}
