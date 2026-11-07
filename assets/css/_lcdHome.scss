@@ -2397,7 +2397,7 @@
 #lcd-home .kont-f.overene .kf textarea:invalid{border-color:#c0392b}
 /* Čierna karta formulára (Michal 7. 11. 2026, rada webára: málo kontrastné, ľudia si to nevšimnú). Len formulár, sekcia
    ostáva svetlá. Popisy biele, polia biele s čiernym textom, nech si ich všimne každý. */
-#lcd-home .kont-f{background:#0d0b08;border-color:#0d0b08;box-shadow:0 22px 44px -26px rgba(13,11,8,.75)}
+#lcd-home .kont-f{background:#383e42;border-color:#383e42;box-shadow:0 22px 44px -26px rgba(30,33,36,.7)} /* antracit RAL 7016 (Michal 7. 11. 2026: „nie úplne taký čierny“) */
 #lcd-home .kont-f .kf-l,#lcd-home .kont-f .kf-auto-h{color:#fff}
 #lcd-home .kont-f .kf-l small,#lcd-home .kont-f .kf-auto-h span{color:#cfc9ba}
 #lcd-home .kont-f .kf input,#lcd-home .kont-f .kf textarea{background:#fff;border-color:#fff;color:#0d0b08}
