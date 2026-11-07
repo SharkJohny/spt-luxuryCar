@@ -335,7 +335,8 @@ export function spusti(ctx) {
       + pole("dvere", "Koľko máte posuvných bočných dverí?", seg("dvere", DVERE, ["Jedny, vpravo", "Dvoje, na oboch stranách"]))
       + pole("stred", "Čo máte medzi prednými sedadlami?", seg("stred", STRED))
       + '<p class="lv-veta">Podlaha znamená, že medzi sedadlami nemáte lakťovú opierku ani chladničku.</p>'
-      + '<div class="lv-2 lv-2st lv-2s">' + pole("stolcek", "Máte v 2. alebo 3. rade stolček?", seg("stolcek", STOLCEK, ["Nie", "Áno"])) + pole("zasuvky", 'Máte pod sedadlami zásuvky (elektrické sedadlá)? <button type="button" class="lv-i" data-info="zasuvky" aria-haspopup="dialog" aria-label="Čo sú zásuvky pod sedadlami">i</button>', seg("zasuvky", ZASUVKY, ["Nie", "Áno"])) + "</div>"
+      + pole("stolcek", "Máte v 2. alebo 3. rade stolček?", seg("stolcek", STOLCEK, ["Nie", "Áno"]))
+      + pole("zasuvky", 'Máte pod sedadlami zásuvky (elektrické sedadlá)? <button type="button" class="lv-i" data-info="zasuvky" aria-haspopup="dialog" aria-label="Čo sú zásuvky pod sedadlami">i</button>', seg("zasuvky", ZASUVKY, ["Nie", "Áno"]))
       + '<p class="lv-veta">Zásuvky sú v podlahe, zapájajú sa do nich sedadlá 2. a 3. radu. Neviete si rady? Zavolajte nám na <a href="tel:' + TELEFON.replace(/\s/g, "") + '">' + TELEFON + "</a>.</p>",
     rozl: () => {
       const sR = SAMOSTATNE.rad[velkostSetu()], cR = cenaRadu(), sK = SAMOSTATNE.rohoz, cK = cenaRohoze();

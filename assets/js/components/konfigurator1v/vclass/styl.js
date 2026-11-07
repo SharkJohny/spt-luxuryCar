@@ -95,7 +95,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-pole.lv-chyba .lv-s1,#lcd-vclass .lv-pole.lv-chyba .lv-sel{border-color:#c0392b;box-shadow:0 0 0 1px #c0392b}
 #lcd-vclass .lv-chyba[data-pole-w]:not(.lv-pole){outline:2px solid #c0392b;outline-offset:4px;border-radius:12px}
 #lcd-vclass .lv-l{display:block;margin:0 0 8px;font:700 16px/1.25 var(--lv-body);color:var(--lv-ink)}
-#lcd-vclass .lv-i{display:inline-grid;place-items:center;width:22px;height:22px;margin:-3px 0 -3px 3px;padding:0;border:1.5px solid #b8912f;border-radius:50%;background:#fff;color:#8a6a1c;font:italic 700 14px/1 Georgia,serif;vertical-align:middle;cursor:pointer;position:relative}
+#lcd-vclass .lv-i{display:inline-grid!important;place-items:center;width:22px!important;height:22px!important;min-width:0!important;min-height:0!important;margin:-3px 0 -3px 4px!important;padding:0!important;border:1.5px solid #b8912f!important;border-radius:50%!important;background:#fff!important;box-shadow:none!important;color:#8a6a1c!important;font:italic 700 14px/1 Georgia,serif!important;vertical-align:middle;cursor:pointer;position:relative;transform:none!important}
 #lcd-vclass .lv-i::after{content:"";position:absolute;inset:-9px}
 #lcd-vclass .lv-pole.lv-chyba .lv-i{border-color:#c0392b;color:#b3261e}
 #lcd-vclass .lv-dl-w.lv-chyba:not([data-pole-w]){outline:2px solid #c0392b;outline-offset:4px;border-radius:12px}
