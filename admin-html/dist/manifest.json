@@ -1655,26 +1655,26 @@
         "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
         "poSpusteni": "produkt 646 -> Popis (description)"
       },
-      "znaky": 25803,
-      "bajty": 26167,
-      "hash": "b2ca5632bb",
+      "znaky": 25851,
+      "bajty": 26221,
+      "hash": "5d81515666",
       "obrazky": 18,
       "webp": 17,
       "sekcie": [
         {
           "subor": "10-vclass-prehliadka.sk.html",
           "sekcia": "vclass-prehliadka",
-          "znaky": 3758
+          "znaky": 3790
         },
         {
           "subor": "12-vclass-verzie.sk.html",
           "sekcia": "vclass-verzie",
-          "znaky": 1718
+          "znaky": 1720
         },
         {
           "subor": "14-vclass-set.sk.html",
           "sekcia": "vclass-set",
-          "znaky": 3066
+          "znaky": 3067
         },
         {
           "subor": "16-vclass-galeria.sk.html",
@@ -1684,7 +1684,7 @@
         {
           "subor": "18-c-casova-os.sk.html",
           "sekcia": "c-casova-os",
-          "znaky": 1227
+          "znaky": 1240
         }
       ]
     },
@@ -1701,9 +1701,9 @@
         "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
         "poSpusteni": "produkt 646 -> Popis (description)"
       },
-      "znaky": 8611,
-      "bajty": 8826,
-      "hash": "2bd96c3054",
+      "znaky": 8643,
+      "bajty": 8858,
+      "hash": "72dcba67cc",
       "obrazky": 1,
       "sekcie": [
         {
@@ -1714,7 +1714,7 @@
         {
           "subor": "40-d-faq.sk.html",
           "sekcia": "d-faq",
-          "znaky": 5207
+          "znaky": 5239
         },
         {
           "subor": "42-vclass-vyzva.sk.html",

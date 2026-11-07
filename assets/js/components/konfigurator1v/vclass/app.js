@@ -203,7 +203,7 @@ export function spusti(ctx) {
         const slabe = S.rozl === "Z" ? (S.rohoz === "ano" ? null : "kufor") : S.rohoz === "ano" ? "zadok" : "cele";
         kresli(pred, { cast: "predok", s: S.stred === STRED[1], vzor, bez2: S.vrstva !== "ano" }, wP, far);
         kresli(zad, { cast: "zadok", v: S.velkost || "XL", d: S.dvere === DVERE[0] ? 1 : 2, s: S.stolcek === STOLCEK[1], z: S.zasuvky === ZASUVKY[1], vzor, slabe }, Math.round(wP * 0.745), far);
-        nakres.querySelector(".lv-pop").textContent = slabe ? "Slabšie časti zatiaľ nie sú vo Vašom výbere." : "Kresba sa mení podľa Vášho výberu, predok je hore.";
+        nakres.querySelector(".lv-pop").textContent = slabe ? "Bledšie časti ste si zatiaľ nevybrali." : "Kresba sa mení podľa Vášho výberu, predok je hore.";
       } catch (e) {
         nakres.hidden = true; // kresba nie je nutná na objednanie
         console.error("[lcd-1v] vclass kresba", e);

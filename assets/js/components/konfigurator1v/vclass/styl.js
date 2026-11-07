@@ -11,7 +11,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 
 #lcd-vclass-hero{position:relative;background:#0d0b08;color:#fff;margin-bottom:0;overflow:hidden;width:var(--lv-vw,100%);margin-left:calc((100% - var(--lv-vw,100%))/2)}
 #lcd-vclass-hero *{box-sizing:border-box}
-#lcd-vclass-hero .lh-in{position:relative;display:grid;grid-template-columns:minmax(0,38fr) minmax(0,62fr);min-height:min(74vh,640px)}
+#lcd-vclass-hero .lh-in{position:relative;display:grid;grid-template-columns:minmax(calc(max(24px,50vw - 640px) + 470px),38fr) minmax(0,62fr);min-height:min(74vh,640px)}
 #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:1;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:clamp(28px,4vw,56px) 0 clamp(28px,4vw,56px) max(24px,calc(50vw - 640px))}
 #lcd-vclass-hero .lh-g{grid-column:2;grid-row:1;position:relative;min-width:0}
 #lcd-vclass-hero .lh-g::before{content:"";position:absolute;inset:0 auto 0 0;width:34%;z-index:1;pointer-events:none;background:linear-gradient(90deg,#0d0b08,rgba(13,11,8,0))}
@@ -26,7 +26,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero .lh-sip-l::after{transform:translate(-35%,-50%) rotate(135deg)}
 #lcd-vclass-hero .lh-sip-p{right:16px}
 #lcd-vclass-hero .lh-ei{font:700 13px var(--lv-disp);letter-spacing:.18em;text-transform:uppercase;color:#e6c877}
-#lcd-vclass-hero h1{display:block!important;margin:0;font:800 clamp(34px,3.6vw,54px)/1.04 var(--lv-disp);text-transform:uppercase;color:#fff;text-align:left}
+#lcd-vclass-hero h1{display:block!important;margin:0;font:800 clamp(34px,3.6vw,48px)/1.04 var(--lv-disp);text-transform:uppercase;color:#fff;text-align:left}
 #lcd-vclass-hero h1 span{display:block;background:var(--lv-zl);-webkit-background-clip:text;background-clip:text;color:transparent}
 #lcd-vclass-hero .lh-p{margin:0;max-width:30em;font:400 18px/1.45 var(--lv-body);color:#d9d4c6}
 #lcd-vclass-hero .lh-c{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;color:#fff}

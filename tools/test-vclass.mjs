@@ -123,7 +123,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await c.route(/assets\/img\/1v\/obsah\/[^/?]*mercedes-v-class[^/?]*/, (r) => { const m = /obsah\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("webp") ? "image/webp" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/obsah/" + m[1], import.meta.url)) }); });
         await c.route(/assets\/v\/[^/]+\/html\/p1v-vclass-\d\.sk\.html/, (r) => { const m = /(p1v-vclass-\d\.sk\.html)/.exec(r.request().url()); r.fulfill({ contentType: "text/html; charset=utf-8", body: readFileSync(new URL("../admin-html/dist/" + m[1], import.meta.url)) }); });
       } else {
-        await c.route(/assets\/v\/[^/]+\/js\/(luxuryCar|lcd-[a-z]+)\.js/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
+        await c.route(/assets\/v\/[^/]+\/(js\/(luxuryCar|lcd-[a-z]+)\.js|html\/p1v-)/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
       }
       await c.route(/action\/Cart\/addCartItem/, (r) => { post = r.request().postData(); r.abort(); });
       await p.goto(CIEL, { waitUntil: "domcontentloaded" });
@@ -165,6 +165,12 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         over((await p.textContent('[data-lv-cena="komplet-L"]')).replace(/\s/g, "") === "1400€", "cena kompletného setu v obsahu");
         over(!!(await p.$("#lcd-vclass-faq-data")), "otázky pre vyhľadávače");
         over(await p.evaluate(() => { const k = document.querySelector('[data-lcd-sekcia="vclass-verzie"] canvas'); return !!k && k.width > 100; }), "kresba verzie auta");
+        // odkazy a otvorenie otázky, ktoré na testovacej stránke nesmú zlyhať
+        await p.click('.p1v-faq-q'); await p.waitForTimeout(600);
+        over(await p.evaluate(() => document.querySelector(".p1v-faq-a").getBoundingClientRect().height > 20), "otázka sa otvorí");
+        await p.click('.p1v-faq-q'); await p.waitForTimeout(300);
+        await p.click('a[data-lv-velkost="' + o.velkost + '"]'); await p.waitForTimeout(1800);
+        over(await p.evaluate(() => { const y = document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top; return y > 40 && y < 200; }), "odkaz Vybrať posunie ku krokom: " + await p.evaluate(() => Math.round(document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top)));
         if (snimky) {
           const H = await p.evaluate(() => document.documentElement.scrollHeight);
           for (let y = 0; y < H; y += 450) { await p.evaluate((v) => window.scrollTo(0, v), y); await p.waitForTimeout(90); }

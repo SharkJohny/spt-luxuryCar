@@ -109,7 +109,7 @@ export const KROKY = [
   { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", vy: "Rok, veľkosť a výbava auta" },
   { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "2. a 3. rad sa dajú objednať len spolu.", vy: "Predné sedadlá alebo aj 2. a 3. rad", auto: true },
   { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
-  { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako Vám bude ladiť.", vy: "Farba kože a šitia" },
+  { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako budú farby spolu ladiť.", vy: "Farba kože a šitia" },
   { id: "druha", nm: "Druhá vrstva", kr: "2. vrstva", ti: "Prajete si aj druhú odnímateľnú vrstvu?", vy: "Áno alebo nie" },
   { id: "rohoz", nm: "Rohož do kufra", kr: "Rohož", ti: "Prosím, vyberte si rohož do kufra", vy: "S rohožou alebo bez nej", auto: true },
   { id: "boxy", nm: "Boxy do kufra", kr: "Boxy", ti: "Prosím, vyberte si boxy do kufra", vy: "Počet, veľkosť a farba" },
@@ -119,10 +119,10 @@ export const KROKY = [
 const M = "autokoberce-mercedes-v-class-";
 export const FOTKY = [
   { s: M + "interier", alt: "Mercedes V Class s otvorenými dverami a autokobercami od predných sedadiel po 3. rad" },
-  { s: M + "sofer", alt: "Autokoberec na mieru pri šoférovi v Mercedes triedy V, pedále a pätná podložka" },
+  { s: M + "sofer", alt: "Autokoberec na mieru pri šoférovi v Mercedese triedy V, pedále a pätná podložka" },
   { s: M + "stred", alt: "Autokoberec medzi prednými sedadlami v Mercedes V Class" },
   { s: M + "druhy-rad", alt: "Autokoberce v 2. rade Mercedes V Class so sedadlom na koľajniciach" },
-  { s: M + "kolajnice", alt: "Výrezy autokoberca okolo koľajníc sedadiel v Mercedes triedy V" },
+  { s: M + "kolajnice", alt: "Výrezy autokoberca okolo koľajníc sedadiel v Mercedese triedy V" },
   { s: "koberec-do-kufra-mercedes-v-class", alt: "Koberec do kufra Mercedes V Class, pohľad od piatych dverí" },
 ];
 export const FOTO_SIRKY = [480, 800, 1200, 1500];
