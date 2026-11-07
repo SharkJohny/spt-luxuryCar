@@ -200,9 +200,9 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       }
       if (i === 0) {
         // Michal 7. 11. 2026: na počítači vršok po okraj, väčší nadpis, vpravo jedno video; telefón bez zmeny
-        const v = await p.evaluate(() => { const t = document.querySelector("#lcd-vclass-hero .lh-tx"); return { f: parseFloat(getComputedStyle(document.querySelector("#lcd-vclass-hero h1")).fontSize), dl: getComputedStyle(document.querySelector("#lcd-vclass-hero .lh-dl")).display, m: t.scrollWidth <= t.clientWidth, g: document.querySelector("#lcd-vclass-hero .lh-g").getBoundingClientRect().right }; });
+        const v = await p.evaluate(() => { const t = document.querySelector("#lcd-vclass-hero .lh-tx"); return { f: parseFloat(getComputedStyle(document.querySelector("#lcd-vclass-hero h1")).fontSize), m: t.scrollWidth <= t.clientWidth, g: document.querySelector("#lcd-vclass-hero .lh-g").getBoundingClientRect().right }; });
         if (mobil) {
-          over(v.dl === "none", "na telefóne sú dĺžky vo vršku skryté: " + JSON.stringify(v));
+          over(!(await p.$("#lcd-vclass-hero .lh-dl")), "vo vršku nie je riadok dĺžok");
         } else {
           over(v.f >= 40, "nadpis vršku je na počítači veľký: " + v.f);
           over(v.m, "text vršku sa zmestí do stĺpca");
@@ -259,7 +259,6 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await p.click('.p1v-faq-q'); await p.waitForTimeout(600);
         over(await p.evaluate(() => document.querySelector(".p1v-faq-a").getBoundingClientRect().height > 20), "otázka sa otvorí");
         await p.click('.p1v-faq-q'); await p.waitForTimeout(300);
-        if (!mobil) { await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(150); await p.click('#lcd-vclass-hero .lh-dl a[data-lv-velkost="' + o.velkost + '"]'); await p.waitForTimeout(1500); over(await p.evaluate(() => document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top < 300), "dĺžka vo vršku posunie ku krokom"); }
         await p.click('[data-lcd-sekcia] a[data-lv-velkost="' + o.velkost + '"]'); await p.waitForTimeout(1800);
         over(await p.evaluate(() => { const y = document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top; return y > 40 && y < 200; }), "odkaz Vybrať posunie ku krokom: " + await p.evaluate(() => Math.round(document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top)));
         if (snimky) {

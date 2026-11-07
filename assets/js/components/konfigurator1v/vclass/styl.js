@@ -43,17 +43,12 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero h1{margin-bottom:clamp(22px,3.4vh,38px);font-size:clamp(36px,4.1vw,112px)!important;line-height:1.1!important;color:var(--lv-ink)}
   #lcd-vclass-hero h1 span{background:linear-gradient(100deg,#8a6a1c,#c49b31 55%,#8a6a1c);-webkit-background-clip:text;background-clip:text;color:transparent}
   #lcd-vclass-hero .lh-p{max-width:34em;margin-bottom:clamp(32px,5vh,60px);font-size:clamp(18px,1.15vw,26px);line-height:1.55;color:var(--lv-text)}
-  #lcd-vclass-hero .lh-dol{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:clamp(22px,3.2vh,36px) 0;border-top:1px solid var(--lv-line);border-bottom:1px solid var(--lv-line)}
+  #lcd-vclass-hero .lh-dol{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:0}
   #lcd-vclass-hero .lh-c{min-width:0;gap:0 10px;color:var(--lv-ink)}
   #lcd-vclass-hero .lh-c small{font-size:clamp(16px,1vw,22px);color:var(--lv-text)}
   #lcd-vclass-hero .lh-c b{font-size:clamp(40px,3.4vw,84px)}
   #lcd-vclass-hero .lh-c span{margin-top:6px;font-size:clamp(15px,.95vw,21px);color:var(--lv-gt)}
   #lcd-vclass-hero .lh-cta{flex:none;align-self:center;padding:clamp(18px,2.4vh,26px) clamp(30px,2.6vw,60px);font-size:clamp(16px,1vw,22px)}
-  #lcd-vclass-hero .lh-dl{display:grid;grid-template-columns:repeat(3,auto);justify-content:space-between;gap:12px;margin-top:clamp(20px,3vh,32px)}
-  #lcd-vclass-hero .lh-dl a{display:flex;align-items:baseline;gap:9px;font:400 clamp(15px,.95vw,21px) var(--lv-body);color:var(--lv-text);text-decoration:none}
-  #lcd-vclass-hero .lh-dl a:hover{color:var(--lv-ink);text-decoration:underline}
-  #lcd-vclass-hero .lh-dl a:focus-visible{outline:3px solid var(--lv-gold);outline-offset:3px}
-  #lcd-vclass-hero .lh-dl b{font:800 clamp(18px,1.25vw,28px) var(--lv-disp);color:var(--lv-gt)}
 }
 @media (min-width:992px) and (max-width:1279px){
   #lcd-vclass-hero .lh-in{grid-template-columns:minmax(0,1fr) 44vw}
@@ -270,7 +265,6 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:2;padding:6px 16px 24px;gap:11px}
   #lcd-vclass-hero .lh-cta{align-self:stretch;text-align:center}
   #lcd-vclass-hero .lh-dol{display:contents}
-  #lcd-vclass-hero .lh-dl{display:none}
   body.lcd-vclass .p-image-wrapper{display:none!important}
   #lcd-vclass-cesta{padding:18px 8px 4px}
   #lcd-vclass-cesta span{font-size:11px;letter-spacing:.02em;white-space:nowrap}
