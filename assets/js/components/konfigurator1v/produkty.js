@@ -40,7 +40,7 @@ export const PRODUKTY_1V = {
     // kamióny a dodávky: vlastný konfigurátor kamion/ namiesto Reactu (docs/kamiony-1v-plan.md); do vydania len ?novy=vyvoj
     640: { typ: "kamion", vzor: null, url: "/luxusne-autokoberce-kamiony/", obsah: "kamiony" },
     // Mercedes triedy V: vlastný konfigurátor vclass/, skrytý produkt v kategórii Test (vidí ho len prihlásený admin)
-    646: { typ: "vclass", vzor: null, url: "/autokoberce-mercedes-triedy-v/", obsah: null },
+    646: { typ: "vclass", vzor: null, url: "/autokoberce-mercedes-v-class/", obsah: "vclass" },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },

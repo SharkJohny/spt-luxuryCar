@@ -8,7 +8,7 @@ export const SELECTY = {
   volant: "Volant",
   stred: "Stred medzi sedadlami",
   dvere: "Bočné dvere",
-  miesta: "Počet miest",
+  sedadla: "Sedadlá v 2. a 3. rade",
   stolcek: "Stolček vzadu",
   zasuvky: "Zásuvky pod sedadlami",
   farba: "Vzor a farba 1. vrstvy",
@@ -21,17 +21,21 @@ export const SELECTY = {
   boxFarba: "Farba boxov do kufra",
 };
 
+/** t = text v rozbaľovacom menu (krátky, vedľa roku výroby sa musí zmestiť aj na telefóne), p = veta pod ním. */
 export const VELKOSTI = [
-  { v: "M", p: "Kompaktná, dĺžka auta asi 4,9 m" },
-  { v: "L", p: "Dlhá, dĺžka auta asi 5,1 m" },
-  { v: "XL", p: "Extra dlhá, dĺžka auta asi 5,4 m" },
+  { v: "M", t: "M, 4,9 m", p: "M je kompaktná verzia, dĺžka auta asi 4,9 m." },
+  { v: "L", t: "L, 5,1 m", p: "L je dlhá verzia, dĺžka auta asi 5,1 m." },
+  { v: "XL", t: "XL, 5,4 m", p: "XL je extra dlhá verzia, dĺžka auta asi 5,4 m." },
 ];
 
 export const ROKY = (() => { const r = []; for (let y = 2026; y >= 2014; y--) r.push(String(y)); return r; })();
 export const VOLANT = ["Vľavo", "Vpravo"];
 export const STRED = ["Stredový tunel", "Lakťová opierka alebo chladnička"];
 export const DVERE = ["Jedny, vpravo", "Dvoje, na oboch stranách"];
-export const MIESTA = ["5", "6", "7", "8"];
+export const SEDADLA = ["2", "3"];
+/** Počet sedadiel v 2. a 3. rade ide do objednávky ako jedna hodnota príplatku (produkt má strop 15 príplatkov). */
+export const sedadlaText = (r2, r3) => r2 + " sedadlá v 2. rade a " + r3 + " sedadlá v 3. rade";
+export const SEDADLA_TEXTY = [].concat(...SEDADLA.map((a) => SEDADLA.map((b) => sedadlaText(a, b))));
 export const STOLCEK = ["Bez stolčeka", "So stolčekom"];
 export const ZASUVKY = ["Bez zásuviek", "So zásuvkami"];
 
@@ -63,7 +67,9 @@ const F = {
   modra: ["farba-koze-modra", "Modrá", "#245fb0", "#cbdcf3"],
   fial: ["farba-koze-fialova", "Fialová", "#5f3a78", "#ddcde8"],
 };
-const zoznam = (vzor, kluce) => kluce.map((k) => ({ slug: vzor + "-" + F[k][0], nm: F[k][1], koza: F[k][2], sit: F[k][3] }));
+/** Odporúčaná Lux v tóne kože, rovnaké pravidlo ako v košíku (odporucanaLux v lcdKosikDoplnok.js): ostatné farby Lux 10. */
+const LUX_K_FARBE = { bezova: "12", kava: "11", hneda: "11", vino: "13", cervena: "13", seda: "16" };
+const zoznam = (vzor, kluce) => kluce.map((k) => ({ slug: vzor + "-" + F[k][0], nm: F[k][1], koza: F[k][2], sit: F[k][3], lux: LUX_K_FARBE[k] || "10" }));
 export const FARBY = {
   diamond: zoznam("diamond", ["cervene", "modre", "cierne", "bezove", "sive", "biele", "zlte", "zelene", "bronzove", "bezova", "kava", "hneda", "vino", "cervena", "seda", "oranz", "modra", "fial"]),
   stripe: zoznam("stripe", ["cervene", "bezove", "cierne", "bezova", "kava", "hneda", "vino", "cervena"]),
@@ -97,22 +103,26 @@ export const BOX_FARBY = [
   { nm: "Béžová", img: "boxprodukt-farba-bezova.jpg" },
 ];
 
-/** Kroky v poradí. Prvý krok nesie všetky údaje o aute naraz, ako „Vaše auto“ v konfigurátore 1V. auto = po výbere sa hneď ide ďalej. */
+/** Kroky v poradí (Michal 7. 11. 2026): auto, rozloženie, vzor, farba, druhá vrstva, rohož, boxy. Cena začína na jednovrstvových
+ *  autokobercoch k predným sedadlám, všetko ostatné sú príplatky. auto = po výbere sa hneď ide ďalej. */
 export const KROKY = [
-  { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", vy: "Veľkosť, rok výroby a výbava auta" },
-  { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
-  { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako vám bude ladiť.", vy: "Farba kože a šitia" },
-  { id: "druha", nm: "Druhá vrstva", kr: "2. vrstva", ti: "Prajete si aj druhú odnímateľnú vrstvu?", pod: "Dáva sa len na podlahu pri predných sedadlách. Do 2. a 3. radu ani do kufra sa nedáva.", vy: "Áno alebo nie" },
+  { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", vy: "Rok, veľkosť a výbava auta" },
   { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "2. a 3. rad sa dajú objednať len spolu.", vy: "Predné sedadlá alebo aj 2. a 3. rad", auto: true },
+  { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
+  { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako Vám bude ladiť.", vy: "Farba kože a šitia" },
+  { id: "druha", nm: "Druhá vrstva", kr: "2. vrstva", ti: "Prajete si aj druhú odnímateľnú vrstvu?", vy: "Áno alebo nie" },
   { id: "rohoz", nm: "Rohož do kufra", kr: "Rohož", ti: "Prosím, vyberte si rohož do kufra", vy: "S rohožou alebo bez nej", auto: true },
   { id: "boxy", nm: "Boxy do kufra", kr: "Boxy", ti: "Prosím, vyberte si boxy do kufra", vy: "Počet, veľkosť a farba" },
 ];
 
-/** Fotky hore: súbory assets/img/1v/vclass/vclass-<s>-<šírka>.webp|.jpg a náhľad -th.jpg. Prvá = to auto s kobercami. */
+/** Fotky hore, súbory assets/img/1v/obsah/<s>.jpg a <s>-w<šírka>.webp (názvy kvôli vyhľadávaniu obrázkov). Prvá = to auto s kobercami. */
+const M = "autokoberce-mercedes-v-class-";
 export const FOTKY = [
-  { s: "auto", w: [1600, 960, 560], alt: "Mercedes triedy V s otvorenými bočnými dverami a autokobercami po celej podlahe" },
-  { s: "sofer", w: [1023, 560], alt: "Autokoberce pod sedadlom šoféra v triede V" },
-  { s: "tunel", w: [1023, 560], alt: "Prešívaný koberec na stredovom tuneli medzi prednými sedadlami" },
-  { s: "rad2", w: [1200, 560], alt: "Autokoberce v druhom rade s voľnými koľajnicami sedadiel" },
-  { s: "detail", w: [1023, 560], alt: "Detail prešívania s logom Luxury Car Design" },
+  { s: M + "interier", alt: "Mercedes V Class s otvorenými dverami a autokobercami od predných sedadiel po 3. rad" },
+  { s: M + "sofer", alt: "Autokoberec na mieru pri šoférovi v Mercedes triedy V, pedále a pätná podložka" },
+  { s: M + "stred", alt: "Autokoberec medzi prednými sedadlami v Mercedes V Class" },
+  { s: M + "druhy-rad", alt: "Autokoberce v 2. rade Mercedes V Class so sedadlom na koľajniciach" },
+  { s: M + "kolajnice", alt: "Výrezy autokoberca okolo koľajníc sedadiel v Mercedes triedy V" },
+  { s: "koberec-do-kufra-mercedes-v-class", alt: "Koberec do kufra Mercedes V Class, pohľad od piatych dverí" },
 ];
+export const FOTO_SIRKY = [480, 800, 1200, 1500];

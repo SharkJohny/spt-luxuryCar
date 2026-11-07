@@ -607,6 +607,50 @@
         ]
       }
     },
+    "p1v-vclass-1": {
+      "koren": "p1v-vclass-1",
+      "lenSk": true,
+      "tinymce": true,
+      "popis": "Obsah pod konfigurátorom triedy V 646, kus 1 = sekcie 10–29. docs/1v-obsah.md",
+      "zlozka": "p1v-vclass",
+      "sekcie": ["10", "29"],
+      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "pravidla": "obsah-1v",
+      "naVsetkychStrankach": false,
+      "skupina": "p1v-vclass",
+      "produkty": [646],
+      "popisSpolu": "Oba kusy sú v Popise produktu 646, aby text videli vyhľadávače.",
+      "sk": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-1.sk.html",
+        "nazov": "1V obsah trieda V kus 1",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
+        "poSpusteni": "produkt 646 -> Popis (description)"
+      },
+      "cz": null
+    },
+    "p1v-vclass-2": {
+      "koren": "p1v-vclass-2",
+      "lenSk": true,
+      "tinymce": true,
+      "popis": "Obsah pod konfigurátorom triedy V 646, kus 2 = sekcie 30–49. docs/1v-obsah.md",
+      "zlozka": "p1v-vclass",
+      "sekcie": ["30", "49"],
+      "obal": { "trieda": "p1v-obsah", "brana": "1v" },
+      "pravidla": "obsah-1v",
+      "naVsetkychStrankach": false,
+      "skupina": "p1v-vclass",
+      "produkty": [646],
+      "popisSpolu": "Oba kusy sú v Popise produktu 646, aby text videli vyhľadávače.",
+      "sk": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-2.sk.html",
+        "nazov": "1V obsah trieda V kus 2",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
+        "poSpusteni": "produkt 646 -> Popis (description)"
+      },
+      "cz": null
+    },
     "p1v-kamiony-1": {
       "koren": "p1v-kamiony-1",
       "tinymce": true,

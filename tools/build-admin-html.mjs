@@ -319,6 +319,9 @@ const ma1v = (...t) => (sekcia, triedy) => t.every((x) => triedy.includes(x));
 const OBRAZKY_1V = [
   // [popis, test(sekcia, triedy predkov), sizes, max CSS px]   namerané (CSS px pri 360 / 390 / 768 / 1024 / 1280 / 1600)
   // deväť vecí, b-ocakavat (598, dvoj, classic, premium, boxy): karusel 279 / 302 / 582; PC 403–435 (tam WebP nie, MEDIA_S2)
+  ["trieda V: prehliadka", ma1v("vp-f"), "(max-width:991px) 92vw, 720px", 760],
+  ["trieda V: set", ma1v("vs-f"), "(max-width:991px) 46vw, 230px", 400],
+  ["trieda V: galéria", ma1v("vg-f"), "(max-width:991px) 46vw, 300px", 400],
   ["deväť vecí", ma1v("s2-media"), "78vw", 600],
   // galéria lx-gal, a-galeria (dvoj, classic, premium, boxy): 221 / 240 / 285 / 285 / 285 / 285
   ["galéria", ma1v("lx-gal-f"), "(max-width:760px) 62vw, 285px", 400],
@@ -833,7 +836,7 @@ for (const [cast, def] of Object.entries(CIELE.casti)) {
   if (!P || !P.kusy) continue;
   const m = /^(p1v-[a-z0-9]+)-(\d+)$/.exec(cast);
   if (!m || def.skupina !== m[1] || def.koren !== cast) globalne.push(`${cast}: časť obsahu 1V musí mať meno p1v-<kľúč>-<n>, "skupina": "p1v-<kľúč>" a "koren" = meno časti`);
-  if (!def.sk || !def.cz) globalne.push(`${cast}: obsah 1V musí mať cieľ pre SK aj CZ`);
+  if (!def.sk || (!def.cz && !def.lenSk)) globalne.push(`${cast}: obsah 1V musí mať cieľ pre SK aj CZ`);
   const sk = m ? m[1] : cast;
   if (!skupinyObsahu.has(sk)) skupinyObsahu.set(sk, { kusy: P.kusy, n: [] });
   if (m) skupinyObsahu.get(sk).n.push(Number(m[2]));

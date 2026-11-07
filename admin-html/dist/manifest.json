@@ -1643,6 +1643,92 @@
       ]
     },
     {
+      "cast": "p1v-vclass-1",
+      "web": "sk",
+      "subor": "p1v-vclass-1.sk.html",
+      "zdroj": "src/p1v-vclass/10…29-*.sk.html",
+      "koren": "#p1v-vclass-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-1.sk.html",
+        "nazov": "1V obsah trieda V kus 1",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
+        "poSpusteni": "produkt 646 -> Popis (description)"
+      },
+      "znaky": 25803,
+      "bajty": 26167,
+      "hash": "b2ca5632bb",
+      "obrazky": 18,
+      "webp": 17,
+      "sekcie": [
+        {
+          "subor": "10-vclass-prehliadka.sk.html",
+          "sekcia": "vclass-prehliadka",
+          "znaky": 3758
+        },
+        {
+          "subor": "12-vclass-verzie.sk.html",
+          "sekcia": "vclass-verzie",
+          "znaky": 1718
+        },
+        {
+          "subor": "14-vclass-set.sk.html",
+          "sekcia": "vclass-set",
+          "znaky": 3066
+        },
+        {
+          "subor": "16-vclass-galeria.sk.html",
+          "sekcia": "vclass-galeria",
+          "znaky": 5656
+        },
+        {
+          "subor": "18-c-casova-os.sk.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1227
+        }
+      ]
+    },
+    {
+      "cast": "p1v-vclass-2",
+      "web": "sk",
+      "subor": "p1v-vclass-2.sk.html",
+      "zdroj": "src/p1v-vclass/30…49-*.sk.html",
+      "koren": "#p1v-vclass-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-2.sk.html",
+        "nazov": "1V obsah trieda V kus 2",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
+        "poSpusteni": "produkt 646 -> Popis (description)"
+      },
+      "znaky": 8611,
+      "bajty": 8826,
+      "hash": "2bd96c3054",
+      "obrazky": 1,
+      "sekcie": [
+        {
+          "subor": "30-a-recenzie.sk.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2046
+        },
+        {
+          "subor": "40-d-faq.sk.html",
+          "sekcia": "d-faq",
+          "znaky": 5207
+        },
+        {
+          "subor": "42-vclass-vyzva.sk.html",
+          "sekcia": "vclass-vyzva",
+          "znaky": 577
+        },
+        {
+          "subor": "43-d-pomocne.sk.html",
+          "sekcia": "d-pomocne",
+          "znaky": 635
+        }
+      ]
+    },
+    {
       "cast": "p1v-kamiony-1",
       "web": "sk",
       "subor": "p1v-kamiony-1.sk.html",

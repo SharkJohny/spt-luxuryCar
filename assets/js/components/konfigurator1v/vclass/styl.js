@@ -29,9 +29,11 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero h1{display:block!important;margin:0;font:800 clamp(34px,3.6vw,54px)/1.04 var(--lv-disp);text-transform:uppercase;color:#fff;text-align:left}
 #lcd-vclass-hero h1 span{display:block;background:var(--lv-zl);-webkit-background-clip:text;background-clip:text;color:transparent}
 #lcd-vclass-hero .lh-p{margin:0;max-width:30em;font:400 18px/1.45 var(--lv-body);color:#d9d4c6}
-#lcd-vclass-hero .lh-c{display:flex;align-items:baseline;gap:8px;color:#fff}
+#lcd-vclass-hero .lh-c{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;color:#fff}
 #lcd-vclass-hero .lh-c small{font:600 16px var(--lv-body);color:#d9d4c6}
 #lcd-vclass-hero .lh-c b{font:800 clamp(30px,3vw,42px)/1 var(--lv-disp)}
+#lcd-vclass-hero .lh-c span{flex:1 0 100%;font:600 16px/1.35 var(--lv-body);color:#e6c877}
+#lcd-vclass-hero .lh-p2{margin:0;max-width:30em;font:400 16px/1.4 var(--lv-body);color:#b9b3a3}
 #lcd-vclass-hero .lh-cta{align-self:flex-start;padding:16px 34px;border:0;border-radius:10px;background:var(--lv-zg);color:#fff;font:800 16px var(--lv-disp);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 30px -14px rgba(47,156,104,.8)}
 #lcd-vclass-hero .lh-t{display:flex;gap:8px;margin-top:10px}
 #lcd-vclass-hero .lh-t button{flex:0 1 72px;min-width:0;padding:0;border:2px solid transparent;border-radius:8px;background:none;cursor:pointer;overflow:hidden;opacity:.6;transition:opacity .2s}
@@ -87,7 +89,19 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-hr{border:0;border-top:2px dashed #e4dfd0;margin:2px 0 16px}
 #lcd-vclass .lv-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
 #lcd-vclass .lv-fix{display:block;padding:12px 14px;border:1px solid var(--lv-line);border-radius:9px;background:var(--lv-sand);font:600 16px var(--lv-body);color:var(--lv-ink)}
-#lcd-vclass .lv-sel{width:100%;height:auto;padding:12px 14px;border:2px solid #d8c9a0;border-radius:10px;background:#fff;font:400 16px var(--lv-body);color:var(--lv-ink)}
+#lcd-vclass .lv-sel{display:block;width:100%;max-width:none;height:52px;margin:0;padding:0 36px 0 14px;border:2px solid var(--lv-gold);border-radius:12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%238f7020' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;font:700 16px var(--lv-body);color:var(--lv-ink);text-overflow:ellipsis;cursor:pointer;-webkit-appearance:none;appearance:none}
+#lcd-vclass .lv-sel.lv-pr{background-color:#fbf5e3;color:var(--lv-gt);box-shadow:0 0 0 3px rgba(196,155,49,.2)}
+#lcd-vclass .lv-veta{margin:-8px 0 16px;font-size:15px;line-height:1.4;color:var(--lv-mute)}
+#lcd-vclass .lv-veta a{color:var(--lv-gt);font-weight:700;white-space:nowrap}
+#lcd-vclass .lv-pozn{margin:0 0 12px;padding:9px 12px;border-radius:9px;background:#fbf7ea;border:1px solid #e9dcae;font-size:15px;line-height:1.4;color:var(--lv-text)}
+#lcd-vclass .lv-dv{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#eef6f1;border:1px solid #bcdcca;font-size:15px;line-height:1.3;color:var(--lv-ink)}
+#lcd-vclass .lv-dv button{flex:none;padding:8px 12px;border:0;border-radius:9px;background:var(--lv-zl);color:#16120a;font:800 13px var(--lv-disp);cursor:pointer}
+#lcd-vclass .lv-odp{position:absolute;left:0;right:0;top:0;z-index:1;padding:2px 0;background:var(--lv-zg);color:#fff;font:700 12px/1.3 var(--lv-disp);font-style:normal}
+#lcd-vclass .lv-rozpis{margin:0 0 10px;padding:9px 12px;list-style:none;border:1px solid var(--lv-line);border-radius:10px;background:var(--lv-sand)}
+#lcd-vclass .lv-rozpis li{display:flex;justify-content:space-between;gap:12px;margin:2px 0;padding:0;font-size:15px;line-height:1.4}
+#lcd-vclass .lv-rozpis b{flex:none;font:700 15px var(--lv-disp);color:var(--lv-ink)}
+#lcd-vclass .lv-dod{margin:10px 0 0;text-align:center;font-size:15px;color:var(--lv-mute)}
+#lcd-vclass .lcd1v-druha{margin:0;padding:0;border:0;background:none;box-shadow:none}
 #lcd-vclass .lv-pi,#lcd-vclass .lv-seg{display:grid;gap:4px;padding:5px;border:2px solid #d8c9a0;border-radius:12px;background:#fff}
 #lcd-vclass .lv-pi{grid-template-columns:1fr 1fr;border-radius:999px}
 #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -117,7 +131,9 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-nie{background:var(--lv-zl);color:#16120a}
 #lcd-vclass .lv-an button[aria-pressed=true]{box-shadow:0 0 0 2px #fff,0 0 0 5px var(--lv-zel)}
 #lcd-vclass .lv-v1,#lcd-vclass .lv-sw{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;border:2px solid var(--lv-line);border-radius:12px;background:#fff;color:var(--lv-ink);font:700 15px/1.25 var(--lv-disp);text-align:center;cursor:pointer;overflow:hidden;transition:border-color .2s}
-#lcd-vclass .lv-foto img{display:block;width:100%;aspect-ratio:1.25;object-fit:cover}
+#lcd-vclass .lv-foto{justify-content:flex-start}
+#lcd-vclass .lv-foto picture{display:block;width:100%}
+#lcd-vclass .lv-foto img{display:block;width:100%;height:auto;aspect-ratio:1.25;object-fit:cover}
 #lcd-vclass .lv-foto span{display:block;padding:8px 6px 10px}
 #lcd-vclass .lv-f{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 #lcd-vclass .lv-sw{font:600 13px/1.15 var(--lv-body);color:var(--lv-text);justify-content:flex-start}
@@ -125,11 +141,14 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-sw span{display:block;padding:4px 3px 6px;min-height:36px}
 #lcd-vclass .lv-v1[aria-pressed=true],#lcd-vclass .lv-sw[aria-pressed=true]{border-color:var(--lv-zel)}
 #lcd-vclass .lv-v1[aria-pressed=true]::after,#lcd-vclass .lv-sw[aria-pressed=true]::after{content:"";position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4'%3E%3Cpath d='M5 12.5l4.6 4.6L19 7.6'/%3E%3C/svg%3E") center/15px no-repeat,var(--lv-zg)}
+#lcd-vclass .lv-sw-odp[aria-pressed=true]::after{top:26px}
+@media (hover:hover){#lcd-vclass .lv-v1:hover,#lcd-vclass .lv-sw:hover{border-color:var(--lv-gold)}#lcd-vclass .lv-v1[aria-pressed=true]:hover,#lcd-vclass .lv-sw[aria-pressed=true]:hover{border-color:var(--lv-zel)}}
 #lcd-vclass button:focus-visible,#lcd-vclass select:focus-visible{outline:3px solid var(--lv-gold);outline-offset:2px}
 #lcd-vclass .lv-dalej,#lcd-vclass .lv-cta{display:block;width:100%;margin-top:14px;padding:16px 18px;border:0;border-radius:10px;background:var(--lv-zg);color:#fff;font:800 16px var(--lv-disp);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 28px -16px rgba(47,156,104,.8)}
 #lcd-vclass .lv-cta:not(.lv-hotovo){background:#e4e0d4;color:var(--lv-mute);box-shadow:none}
 #lcd-vclass .lv-cta:disabled{opacity:.75;cursor:default}
 #lcd-vclass .lv-suhrn{margin-top:14px}
+#lcd-vclass .lv-ot .lv-spr{margin:12px 0 0;border-color:#e3b3ad;background:#fdf4f3;color:#a9342a}
 #lcd-vclass .lv-spolu{display:flex;justify-content:space-between;align-items:baseline;margin:0}
 #lcd-vclass .lv-spolu span{font:700 12px var(--lv-disp);letter-spacing:.1em;text-transform:uppercase;color:var(--lv-ink)}
 #lcd-vclass .lv-spolu b{font:800 30px var(--lv-disp);color:var(--lv-ink)}
@@ -159,6 +178,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-nakres .lv-pl{flex-direction:row;align-items:center;justify-content:center;gap:10px;width:100%}
   #lcd-vclass-nakres .lv-pred{width:56%}
   #lcd-vclass-nakres .lv-zad{width:40%}
+  #lcd-vclass .lv-dalej{display:none}
 }
 @media (max-width:480px){
   #lcd-vclass .lv-ot{padding:16px 13px 18px}
@@ -166,8 +186,86 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
   #lcd-vclass .lv-an{grid-template-columns:minmax(0,1fr)}
   #lcd-vclass .lv-vel .lv-s1 small{font-size:12px}
-  #lcd-vclass .lv-2{grid-template-columns:minmax(0,1fr)}
-  #lcd-vclass .lv-2:has(.lv-fix){grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (prefers-reduced-motion:reduce){#lcd-vclass *,#lcd-vclass-hero *{transition:none!important}}
+
+body.lcd-1v .lcd1v-lista.lv-bez button.lcd1v-lista__kos{display:none}
+body.lcd-1v .lcd1v-lista.lv-bez .lcd1v-lista__c{max-width:none;flex:1 1 auto;flex-direction:row;align-items:baseline;justify-content:space-between}
+
+/* obsah pod konfigurátorom (admin-html/src/p1v-vclass): prehliadka auta, verzie, set, galéria */
+body.lcd-vclass .vp-uvod{max-width:62ch;margin:0 0 22px;font:400 17px/1.55 var(--lv-body);color:var(--lv-text)}
+body.lcd-vclass .vp{margin-top:8px}
+body.lcd-vclass .vp-k{display:grid;gap:12px;margin:0 0 28px}
+body.lcd-vclass .vp-f,body.lcd-vclass .vs-f,body.lcd-vclass .vg-f{margin:0}
+body.lcd-vclass .vp-f img{display:block;width:100%;height:auto;border-radius:14px;aspect-ratio:3/2;object-fit:cover}
+body.lcd-vclass .vp-t h3{margin:0 0 6px;font:800 22px/1.2 var(--lv-disp);color:var(--lv-ink)}
+body.lcd-vclass .vp-t p{margin:0;font:400 17px/1.55 var(--lv-body);color:var(--lv-text)}
+body.lcd-vclass .vp-js{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,8fr);grid-template-rows:auto 1fr;gap:0 clamp(24px,4vw,56px);align-items:start}
+body.lcd-vclass .vp-js .vp-mapa{grid-column:1;grid-row:1/span 2;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border-radius:16px;background:var(--lv-sand)}
+body.lcd-vclass .vp-js .vp-chips{grid-column:2;grid-row:1}
+body.lcd-vclass .vp-js .vp-zoz{grid-column:2;grid-row:2;min-width:0}
+body.lcd-vclass .vp-js .vp-k{display:none;margin:0}
+body.lcd-vclass .vp-js .vp-k.on{display:grid}
+body.lcd-vclass .vp-c{position:relative;width:100%}
+body.lcd-vclass .vp-c2{width:74.5%}
+body.lcd-vclass .vp-c canvas{display:block;width:100%;height:auto}
+body.lcd-vclass .vp-b{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--lv-zl);color:#16120a;font:800 16px var(--lv-disp);cursor:pointer;box-shadow:0 4px 14px rgba(20,15,5,.45);transition:transform .2s}
+body.lcd-vclass .vp-b:hover{transform:scale(1.1)}
+body.lcd-vclass .vp-b[aria-pressed=true]{background:var(--lv-zg);color:#fff;transform:scale(1.15)}
+body.lcd-vclass .vp-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+body.lcd-vclass .vp-chips button{padding:9px 13px;border:2px solid #d8c9a0;border-radius:999px;background:#fff;color:var(--lv-ink);font:700 14px var(--lv-disp);cursor:pointer}
+body.lcd-vclass .vp-chips button[aria-pressed=true]{border-color:transparent;background:var(--lv-zl);color:#16120a}
+body.lcd-vclass .vp-dalej{display:none}
+body.lcd-vclass .vp-js .vp-dalej{display:inline-block;margin-top:14px;padding:11px 16px;border:0;border-radius:10px;background:var(--lv-zl);color:#16120a;font:800 14px var(--lv-disp);cursor:pointer}
+
+body.lcd-vclass .vv{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,4vw,56px);align-items:start;margin-top:8px}
+body.lcd-vclass .vv-kresba{display:flex;gap:16px;align-items:center;padding:16px;border-radius:16px;background:var(--lv-sand)}
+body.lcd-vclass .vv-kresba:empty{display:none}
+body.lcd-vclass .vv-kresba canvas{display:block;flex:0 1 46%;min-width:0;height:auto;max-width:46%}
+body.lcd-vclass .vv-pole{flex:1 1 0;min-width:0;display:grid;gap:12px}
+body.lcd-vclass .vv-r span{display:block;margin:0 0 5px;font:700 12px var(--lv-disp);letter-spacing:.1em;text-transform:uppercase;color:var(--lv-text)}
+body.lcd-vclass .vv-r div{display:flex;flex-wrap:wrap;gap:5px}
+body.lcd-vclass .vv-r button{padding:8px 11px;border:2px solid #d8c9a0;border-radius:9px;background:#fff;color:var(--lv-ink);font:700 14px var(--lv-disp);cursor:pointer}
+body.lcd-vclass .vv-r button[aria-pressed=true]{border-color:transparent;background:var(--lv-zl);color:#16120a}
+body.lcd-vclass .vv-tab{width:100%;margin:0 0 20px;border-collapse:collapse;font:400 16px/1.4 var(--lv-body);color:var(--lv-text)}
+body.lcd-vclass .vv-tab th,body.lcd-vclass .vv-tab td{padding:10px 8px;border-bottom:1px solid var(--lv-line);text-align:left;font-weight:400}
+body.lcd-vclass .vv-tab thead th{font:700 12px var(--lv-disp);letter-spacing:.1em;text-transform:uppercase}
+body.lcd-vclass .vv-tab tbody th{font:800 18px var(--lv-disp);color:var(--lv-ink)}
+body.lcd-vclass .vv-tab a{color:var(--lv-gt);font-weight:700;white-space:nowrap}
+body.lcd-vclass .vv-t h3{margin:0 0 8px;font:800 20px/1.2 var(--lv-disp);color:var(--lv-ink)}
+body.lcd-vclass .vv-zoz{margin:0;padding:0;list-style:none}
+body.lcd-vclass .vv-zoz li{margin:0 0 9px;padding:0;font:400 16px/1.5 var(--lv-body);color:var(--lv-text)}
+body.lcd-vclass .vv-zoz b{color:var(--lv-ink)}
+
+body.lcd-vclass .vs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:8px 0 18px;padding:0;list-style:none}
+body.lcd-vclass .vs-k{display:flex;flex-direction:column;margin:0;padding:0;border:1px solid var(--lv-line);border-radius:14px;background:#fff;overflow:hidden}
+body.lcd-vclass .vs-f img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
+body.lcd-vclass .vs-t{display:flex;flex-direction:column;flex:1 1 auto;gap:4px;padding:12px}
+body.lcd-vclass .vs-t h3{margin:0;font:800 17px/1.2 var(--lv-disp);color:var(--lv-ink)}
+body.lcd-vclass .vs-t p{margin:0;flex:1 1 auto;font:400 15px/1.4 var(--lv-body);color:var(--lv-text)}
+body.lcd-vclass .vs-c{margin-top:4px;font:800 17px var(--lv-disp);color:var(--lv-gt)}
+body.lcd-vclass .vs-sp{margin:0;font:400 17px/1.5 var(--lv-body);color:var(--lv-text)}
+body.lcd-vclass .vs-sp b{color:var(--lv-ink)}
+
+body.lcd-vclass .vg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:8px}
+body.lcd-vclass .vg-f{min-width:0}
+body.lcd-vclass .vg-f button{display:block;width:100%;padding:0;border:0;border-radius:12px;background:none;overflow:hidden;cursor:zoom-in}
+body.lcd-vclass .vg-f img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;transition:transform .35s}
+body.lcd-vclass .vg-f button:hover img{transform:scale(1.04)}
+body.lcd-vclass .vg-f figcaption{margin:5px 0 0;font:400 14px/1.35 var(--lv-body);color:var(--lv-mute)}
+@media (max-width:991px){
+  body.lcd-vclass .vp-js{grid-template-columns:minmax(0,1fr)}
+  body.lcd-vclass .vp-js .vp-mapa{grid-column:1;grid-row:auto;flex-direction:row;justify-content:center;align-items:center;gap:8px;margin:0 0 12px;padding:10px}
+  body.lcd-vclass .vp-c{width:56%}
+  body.lcd-vclass .vp-c2{width:40%}
+  body.lcd-vclass .vp-b{width:30px;height:30px;margin:-15px 0 0 -15px;font-size:14px}
+  body.lcd-vclass .vp-js .vp-chips{grid-column:1;grid-row:auto;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}
+  body.lcd-vclass .vp-js .vp-chips button{flex:none}
+  body.lcd-vclass .vp-js .vp-zoz{grid-column:1;grid-row:auto}
+  body.lcd-vclass .vv{grid-template-columns:minmax(0,1fr)}
+  body.lcd-vclass .vs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body.lcd-vclass .vs-k:first-child{grid-column:1/-1}
+  body.lcd-vclass .vs-k:first-child .vs-f img{aspect-ratio:2/1}
+  body.lcd-vclass .vg{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 `;
