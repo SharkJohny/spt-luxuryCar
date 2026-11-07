@@ -88,6 +88,11 @@ export const ROZ_SET = "Predné sedadlá, 2. a 3. rad";
 /** Cena 2. a 3. radu závisí od veľkosti, preto je veľkosť priamo v hodnote príplatku Rozloženie. */
 export const rozSet = (v) => ROZ_SET + " (" + v + ")";
 export const ROHOZ = ["S rohožou do kufra", "Bez rohože do kufra"];
+/** Michal 7. 11. 2026: dá sa kúpiť aj len jedna časť, potom bez zľavy. Základ produktu (300 €) sú predné sedadlá, preto bez nich vlastné hodnoty príplatkov. */
+export const ROZ_BEZ = "Bez autokobercov, len rohož do kufra";
+export const rozLen = (v) => "Len 2. a 3. rad (" + v + ")";
+export const rozRadRohoz = (v) => "2. a 3. rad s rohožou, bez predných sedadiel (" + v + ")";
+export const ROHOZ_SAM = "Len rohož do kufra";
 export const BOXY = [
   { v: "S", t: "S 33 × 32 × 30 cm", r: "33 × 32 × 30 cm" },
   { v: "M", t: "M 40 × 32 × 30 cm", r: "40 × 32 × 30 cm" },
@@ -114,7 +119,7 @@ export const SAMOSTATNE = { rad: { M: 750, L: 850, XL: 950 }, rohoz: 340, box: {
  *  tlačidlom „Pokračujte ďalej“, po výbere sa neskáče. Cena začína na jednovrstvových autokobercoch k predným sedadlám. */
 export const KROKY = [
   { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", pod: "Pri každej otázke kliknite na možnosť, ktorá platí pre Vaše auto.", vy: "Rok, veľkosť a výbava auta" },
-  { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "Predné sedadlá sú základ. 2. a 3. rad sa dajú objednať len spolu.", vy: "Predné sedadlá, 2. a 3. rad, kufor" },
+  { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "Vyberte si, čo chcete. 2. a 3. rad sa dajú objednať len spolu. Zľavu získate, keď si vyberiete aspoň dve časti.", vy: "Predné sedadlá, 2. a 3. rad, kufor" },
   { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa" },
   { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako budú farby spolu ladiť.", vy: "Farba kože a šitia" },
   { id: "druha", nm: "Druhá vrstva", kr: "2. vrstva", ti: "Prajete si aj druhú odnímateľnú vrstvu?", vy: "Áno alebo nie" },
@@ -124,3 +129,13 @@ export const KROKY = [
 /** Video hore: pokojnejší strih nášho videa z V Class (Michal 7. 11. 2026: najprv auto zvonka, pomalšie, bez záberu z GLE), bez zvuku, dokola.
  *  Súbory assets/img/1v/<meno>-pc|tel.mp4 a .jpg, výrez 4:5 aby bolo vidno celé auto. */
 export const VIDEO = { meno: "mercedes-v-class-film-2", alt: "Video autokobercov v Mercedes V Class XL" };
+
+/** Okienko pri otázke v prvom kroku (ikona i). Fotka zásuviek zatiaľ nie je, preto kresba s vyznačenými výrezmi. */
+export const INFO = {
+  zasuvky: {
+    nm: "Zásuvky pod sedadlami",
+    img: "mercedes-v-class-zasuvky-kresba.jpg",
+    alt: "Kresba podlahy Mercedes V Class s vyznačenými výrezmi na zásuvky",
+    text: "Elektrické sedadlá v 2. a 3. rade sa zapájajú do zásuviek v podlahe. Na kresbe sú červeno vyznačené miesta, kde majú autokoberce výrez na zásuvky.",
+  },
+};

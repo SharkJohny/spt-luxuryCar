@@ -164,15 +164,17 @@ function hex(s){return[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parse
 var CACHE={};
 var PORADIE=[];
 function geo(o,W){var k=[o.cast,o.vzor,o.v,o.d,+!!o.s,+!!o.z,+!!o.bez2,W].join("-");if(CACHE[k])return CACHE[k];if(PORADIE.length>=10)delete CACHE[PORADIE.shift()];PORADIE.push(k);return CACHE[k]=geometria(o,W)}
-/* druhá vrstva zo vzorky: pásiky sú na vzorke vľavo a na koberčeku v tretine pri dverách, ďalej čistá farba, spolujazdec zrkadlovo (Michal 7. 11. 2026) */
+/* druhá vrstva zo vzorky: pásiky sú na vzorke vľavo a na koberčeku v tretine pri dverách, ďalej čistá farba, spolujazdec zrkadlovo (Michal 7. 11. 2026).
+   Výstupok na odloženie nohy aj ďalších cca 5 % koberčeka je čistá farba, pásiky začínajú až za nimi: PAS = kde začínajú. */
+var PAS=1552;
 function vzorkaPx(t,X,Y,kS,v){var rx=X/kS+X0,ry=Y/kS+Y0;if(rx<AX)rx=2*AX-rx;
-  var u=Math.abs(1610-rx)/240,q=(ry-264)/240;if(u>.95){u=(u-.95)%.4;u=.95-(u>.2?.4-u:u)}q=q%2;if(q<0)q+=2;if(q>1)q=2-q;u*=t.w-1;q*=t.h-1;
+  var u=(PAS-rx)/240,q=(ry-264)/240;if(u<0)u=.95-u;if(u>.95){u=(u-.95)%.4;u=.95-(u>.2?.4-u:u)}q=q%2;if(q<0)q+=2;if(q>1)q=2-q;u*=t.w-1;q*=t.h-1;
   var x0=u<0?0:u>t.w-2?t.w-2:u|0,y0=q<0?0:q>t.h-2?t.h-2:q|0,fx=Math.min(1,Math.max(0,u-x0)),fy=Math.min(1,Math.max(0,q-y0)),d=t.d,a=(y0*t.w+x0)*4,b=a+4,c=a+t.w*4,e=c+4,k;
   for(k=0;k<3;k++)v[k]=(d[a+k]*(1-fx)+d[b+k]*fx)*(1-fy)+(d[c+k]*(1-fx)+d[e+k]*fx)*fy}
 export function kresli(cnv,o,W,far,vzorka){
   var g=geo(o,W),w=g.W,h=g.H,n=w*h,B=hex(far[0]),C=hex(far[1]),Kc=hex(far[2]||"#131315"),im=new ImageData(w,h),d=im.data,i,j,
     /* slabe = časť, ktorá nie je vo výbere: "cele", "zadok" (2. a 3. rad) alebo "kufor" */
-    sl=o.slabe,rez=sl?Math.round((cfg(o).S+ZG/2+30)*.75*W/1230):0,f;
+    sl=o.slabe,rez=sl&&sl!=="cele"?Math.round((cfg(o).S+ZG/2+30)*.75*W/1230):0,f;
   var lum=(B[0]*.3+B[1]*.59+B[2]*.11)/255,gk=255*(1.05-.65*lum),bB=[Math.max(B[0],26),Math.max(B[1],26),Math.max(B[2],28)],Kv=[0,0,0],kSk=0;
   rezim(o);kSk=K*w/VB.w;var tx=vzorka&&vzorka.d&&o.cast==="predok"?vzorka:null;
   for(i=0;i<n;i++){j=i*4;var a=g.A[i];

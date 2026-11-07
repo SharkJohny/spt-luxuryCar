@@ -5,7 +5,7 @@
 // Košík: všetky výbery idú do natívnych selectov príplatkov (admin 415–442), ceny rátá Shoptet. Do košíka sa klikne natívne
 // tlačidlo, takže rozpis v košíku aj riadok objednávky fungujú ako pri ostatných produktoch.
 import { kresli } from "./kresba.js";
-import { SELECTY, VELKOSTI, ROKY, VOLANT, STRED, DVERE, SEDADLA, SEDADLA_TEXTY, sedadlaText, STOLCEK, ZASUVKY, VZORY, FARBY, LUX, KROKY, VIDEO, SAMOSTATNE, BEZ_DRUHEJ, ROZ_PREDOK, rozSet, ROHOZ, BOXY, BOX_FARBY } from "./data.js";
+import { SELECTY, VELKOSTI, ROKY, VOLANT, STRED, DVERE, SEDADLA, SEDADLA_TEXTY, sedadlaText, STOLCEK, ZASUVKY, VZORY, FARBY, LUX, KROKY, VIDEO, SAMOSTATNE, BEZ_DRUHEJ, ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM, INFO, BOXY, BOX_FARBY } from "./data.js";
 import { NAHLADY_FARIEB } from "../farby-nahlady-data.js";
 import { CSS } from "./styl.js";
 import { htmlDruha, ozivVideo, otvorOkno, zrusOkno } from "./druha.js";
@@ -48,11 +48,11 @@ export function spusti(ctx) {
   if (!form || !tlacidlo || !stlpec || !lavy || !obal || !(zaklad > 0) || chyba.length) throw new Error("vclass: na stránke chýba " + (chyba.join(", ") || "formulár, tlačidlo alebo cena"));
   // hodnoty v kóde musia byť v admine; chýbajúca hodnota = návrat na natívny formulár, nie tichý zlý výber
   const textyBoxov = BOXY.map((b) => b.t);
-  const kontrola = { rok: ROKY, volant: VOLANT, stred: STRED, dvere: DVERE, sedadla: SEDADLA_TEXTY, stolcek: STOLCEK, zasuvky: ZASUVKY, farba2: LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), rozlozenie: [ROZ_PREDOK].concat(VELKOSTI.map((x) => rozSet(x.v))), rohoz: ROHOZ, box1: textyBoxov, box2: textyBoxov, box3: textyBoxov, boxFarba: BOX_FARBY.map((f) => f.nm) };
+  const kontrola = { rok: ROKY, volant: VOLANT, stred: STRED, dvere: DVERE, sedadla: SEDADLA_TEXTY, stolcek: STOLCEK, zasuvky: ZASUVKY, farba2: LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), rozlozenie: [ROZ_PREDOK, ROZ_BEZ].concat(VELKOSTI.map((x) => rozSet(x.v)), VELKOSTI.map((x) => rozLen(x.v)), VELKOSTI.map((x) => rozRadRohoz(x.v))), rohoz: ROHOZ.concat(ROHOZ_SAM), box1: textyBoxov, box2: textyBoxov, box3: textyBoxov, boxFarba: BOX_FARBY.map((f) => f.nm) };
   Object.keys(FARBY).forEach((v) => FARBY[v].forEach((f) => { if (!moznost(sel.farba, VZORY.find((x) => x.id === v).nm + " – " + f.nm)) throw new Error("vclass: v príplatku chýba " + f.nm); }));
   Object.keys(kontrola).forEach((k) => kontrola[k].forEach((t) => { if (!moznost(sel[k], t)) throw new Error("vclass: v príplatku " + k + " chýba " + t); }));
 
-  const S = { velkost: "", rok: "", volant: "Vľavo", stred: "", dvere: "", rad2: "", rad3: "", stolcek: "", zasuvky: "", vzor: "", farba: "", vrstva: "", farba2: "", rozl: "P", rozlOk: false, rohoz: "nie", boxy: "", box1: "", box2: "", box3: "", boxFarba: "", akt: 0, chybaju: false };
+  const S = { velkost: "", rok: "", volant: "Vľavo", stred: "", dvere: "", rad2: "", rad3: "", stolcek: "", zasuvky: "", vzor: "", farba: "", vrstva: "", farba2: "", predok: "ano", rozl: "P", rozlOk: false, rohoz: "nie", boxy: "", box1: "", box2: "", box3: "", boxFarba: "", akt: 0, chybaju: false };
   const spat = [];
   let zruseny = false;
   // návrat z košíka alebo obnovenie stránky: rozrobený výber ostáva, zákazník nezačína odznova
@@ -61,6 +61,7 @@ export function spusti(ctx) {
     if (o) Object.keys(S).forEach((k) => { if (k !== "chybaju" && typeof o[k] === typeof S[k]) S[k] = o[k]; });
     if (S.vzor && !(FARBY[S.vzor] || []).some((f) => f.nm === S.farba)) S.farba = "";
     // výber uložený pred 7. 11. 2026
+    if (S.predok !== "nie") S.predok = "ano";
     if (S.rozl !== "Z") S.rozl = "P";
     if (S.rohoz !== "ano") S.rohoz = "nie";
     if (S.boxy === "3") { S.boxy = ""; S.box1 = ""; S.box2 = ""; S.box3 = ""; }
@@ -71,13 +72,22 @@ export function spusti(ctx) {
   // ---- ceny: všetko z možností príplatkov v Shoptete
   const prc = (k, text) => { const o = text ? moznost(sel[k], text) : null; return o ? Number(o.getAttribute("data-surcharge-final-price")) || 0 : 0; };
   const textBoxu = (v) => { const b = BOXY.find((x) => x.v === v); return b ? b.t : ""; };
-  /** Cena výberu: začína na jednovrstvových autokobercoch k predným sedadlám, príplatky len za to, čo si zákazník vybral. */
+  /** Čo je vo výbere: predné sedadlá, 2. a 3. rad, rohož do kufra. */
+  const vyb = (v) => ({ p: v.predok !== "nie", r: v.rozl === "Z", k: v.rohoz === "ano" });
+  const maVyber = () => { const x = vyb(S); return x.p || x.r || x.k; };
+  /** Hodnoty príplatkov: jedna časť bez predných sedadiel stojí samostatnú cenu, dve a viac sú so zľavou (Michal 7. 11. 2026). */
+  function textRozlozenia(v) {
+    const x = vyb(v), vel = v.velkost || "M";
+    if (x.p) return x.r ? rozSet(vel) : ROZ_PREDOK;
+    if (x.r) return x.k ? rozRadRohoz(vel) : rozLen(vel);
+    return ROZ_BEZ;
+  }
+  function textRohoze(v) { const x = vyb(v); return x.k ? (x.p || x.r ? ROHOZ[0] : ROHOZ_SAM) : ROHOZ[1]; }
+  /** Cena výberu: základ v Shoptete + príplatky len za to, čo si zákazník vybral. */
   function cena(zmena) {
-    const v = Object.assign({}, S, zmena);
-    let c = zaklad;
-    if (v.rozl === "Z") c += prc("rozlozenie", rozSet(v.velkost || "M"));
-    if (v.vrstva === "ano") c += prc("farba2", "Lux Color " + (v.farba2 || LUX[0][0]));
-    if (v.rohoz === "ano") c += prc("rohoz", ROHOZ[0]);
+    const v = Object.assign({}, S, zmena), x = vyb(v);
+    let c = x.p || x.r || x.k ? zaklad + prc("rozlozenie", textRozlozenia(v)) + prc("rohoz", textRohoze(v)) : 0;
+    if (x.p && v.vrstva === "ano") c += prc("farba2", "Lux Color " + (v.farba2 || LUX[0][0]));
     [1, 2, 3].forEach((i) => { if (Number(v.boxy) >= i && v["box" + i]) c += prc("box" + i, textBoxu(v["box" + i])); });
     return c;
   }
@@ -184,9 +194,9 @@ export function spusti(ctx) {
     const n = Number(S.boxy) || 0;
     return {
       rok: S.rok, volant: S.volant, stred: S.stred, dvere: S.dvere, sedadla: S.rad2 && S.rad3 ? sedadlaText(S.rad2, S.rad3) : "", stolcek: S.stolcek, zasuvky: S.zasuvky, farba: farbaText(),
-      farba2: S.vrstva === "nie" ? BEZ_DRUHEJ : S.vrstva === "ano" && S.farba2 ? "Lux Color " + S.farba2 : "",
-      rozlozenie: S.rozl === "Z" ? (S.velkost ? rozSet(S.velkost) : "") : ROZ_PREDOK,
-      rohoz: S.rohoz === "ano" ? ROHOZ[0] : ROHOZ[1],
+      farba2: S.predok === "nie" || S.vrstva === "nie" ? BEZ_DRUHEJ : S.vrstva === "ano" && S.farba2 ? "Lux Color " + S.farba2 : "",
+      rozlozenie: S.rozl === "Z" && !S.velkost ? "" : textRozlozenia(S),
+      rohoz: textRohoze(S),
       box1: n >= 1 ? textBoxu(S.box1) : "", box2: n >= 2 ? textBoxu(S.box2) : "", box3: "",
       boxFarba: n ? S.boxFarba : "",
     };
@@ -234,14 +244,14 @@ export function spusti(ctx) {
         const sirka = Math.max(280, pred.parentNode.clientWidth || 320);
         const wP = Math.min(760, Math.round(sirka * DPR));
         const f = S.vzor && S.farba ? FARBY[S.vzor].find((x) => x.nm === S.farba) : null;
-        const lux = S.vrstva === "ano" && S.farba2 ? LUX.find((l) => l[0] === S.farba2) : null;
+        const lux = S.predok !== "nie" && S.vrstva === "ano" && S.farba2 ? LUX.find((l) => l[0] === S.farba2) : null;
         const far = [f ? f.koza : "#17161a", f ? f.sit : "#dcc9a2", lux ? lux[1] : "#131315"];
         const vzor = S.vzor || "diamond";
         // cena a kresba hovoria to isté: výrazné je len to, čo je vo výbere
         const slabe = S.rozl === "Z" ? (S.rohoz === "ano" ? null : "kufor") : S.rohoz === "ano" ? "zadok" : "cele";
-        kresli(pred, { cast: "predok", s: S.stred === STRED[1], vzor, bez2: S.vrstva !== "ano" }, wP, far, lux ? vzorkaLux(lux[0]) : null);
+        kresli(pred, { cast: "predok", s: S.stred === STRED[1], vzor, bez2: S.predok === "nie" || S.vrstva !== "ano", slabe: S.predok === "nie" ? "cele" : null }, wP, far, lux ? vzorkaLux(lux[0]) : null);
         kresli(zad, { cast: "zadok", v: S.velkost || "XL", d: S.dvere === DVERE[0] ? 1 : 2, s: S.stolcek === STOLCEK[1], z: S.zasuvky === ZASUVKY[1], vzor, slabe }, Math.round(wP * 0.745), far);
-        nakres.querySelector(".lv-pop").textContent = slabe ? "Bledšie časti ste si zatiaľ nevybrali." : "Kresba sa mení podľa Vášho výberu, predok je hore.";
+        nakres.querySelector(".lv-pop").textContent = slabe || S.predok === "nie" ? "Bledšie časti ste si zatiaľ nevybrali." : "Kresba sa mení podľa Vášho výberu, predok je hore.";
       } catch (e) {
         nakres.hidden = true; // kresba nie je nutná na objednanie
         console.error("[lcd-1v] vclass kresba", e);
@@ -254,16 +264,16 @@ export function spusti(ctx) {
   const pocetBoxov = () => Number(S.boxy) || 0;
   const hotovy = {
     auto: () => POLIA_AUTA.every((k) => !!S[k]), vzor: () => !!S.vzor, farba: () => !!S.farba,
-    druha: () => S.vrstva === "nie" || (S.vrstva === "ano" && !!S.farba2),
-    rozl: () => !!S.rozlOk, // predné sedadlá sú vždy v cene: krok je hotový, keď ho zákazník potvrdí
+    druha: () => S.predok === "nie" || S.vrstva === "nie" || (S.vrstva === "ano" && !!S.farba2),
+    rozl: () => !!S.rozlOk && maVyber(), // krok je hotový, keď ho zákazník potvrdí a niečo si vybral
     boxy: () => S.boxy === "0" || (pocetBoxov() > 0 && !!S.boxFarba && [1, 2].slice(0, pocetBoxov()).every((i) => !!S["box" + i])),
   };
   const suhrn = {
     auto: () => "Trieda V " + S.velkost + ", " + S.rok + ", sedadlá " + S.rad2 + " a " + S.rad3,
     vzor: () => { const v = VZORY.find((x) => x.id === S.vzor); return v ? v.nm : ""; },
     farba: () => S.farba,
-    druha: () => (S.vrstva === "nie" ? BEZ_DRUHEJ : "Lux Color " + S.farba2),
-    rozl: () => ["Predné sedadlá"].concat(S.rozl === "Z" ? ["2. a 3. rad"] : [], S.rohoz === "ano" ? ["rohož do kufra"] : []).join(", "),
+    druha: () => (S.predok === "nie" || S.vrstva === "nie" ? BEZ_DRUHEJ : "Lux Color " + S.farba2),
+    rozl: () => { const x = vyb(S), t = [x.p && "predné sedadlá", x.r && "2. a 3. rad", x.k && "rohož do kufra"].filter(Boolean).join(", "); return t.charAt(0).toUpperCase() + t.slice(1); },
     boxy: () => (S.boxy === "0" ? "Bez boxov" : pocetBoxov() + (pocetBoxov() === 1 ? " box" : " boxy") + ": " + [1, 2].slice(0, pocetBoxov()).map((i) => S["box" + i]).join(", ")),
   };
   const tl = (k, v, vnutro, tr) => '<button type="button" class="' + (tr || "lv-v1") + '" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (String(S[k]) === String(v)) + '">' + vnutro + "</button>";
@@ -280,6 +290,10 @@ export function spusti(ctx) {
   const velkostSetu = () => S.velkost || "M";
   const cenaRadu = () => prc("rozlozenie", rozSet(velkostSetu()));
   const cenaRohoze = () => prc("rohoz", ROHOZ[0]);
+  /** Skutočná cena časti pri aktuálnom výbere: sama je za samostatnú cenu, s ďalšou časťou so zľavou. */
+  const cenaRaduVyber = () => { const x = vyb(S), v = velkostSetu(); return x.p ? cenaRadu() : zaklad + prc("rozlozenie", x.k ? rozRadRohoz(v) : rozLen(v)); };
+  const cenaRohozeVyber = () => { const x = vyb(S); return x.p || x.r ? cenaRohoze() : zaklad + prc("rohoz", ROHOZ_SAM); };
+  const usporaRozlozenia = () => { const x = vyb(S); return (x.r ? SAMOSTATNE.rad[velkostSetu()] - cenaRaduVyber() : 0) + (x.k ? SAMOSTATNE.rohoz - cenaRohozeVyber() : 0); };
   const cenaBoxu = (i, v) => prc("box" + i, textBoxu(v));
   const rUctu = (t, n, h) => '<span class="lcd1v-kb__r lcd1v-kb__r--' + t + '"><span class="lcd1v-kb__rn">' + n + '</span><span class="lcd1v-kb__rh">' + h + "</span></span>";
   const ucet = (samo, vSete, od) => '<span class="lcd1v-kb__ucet">' + (samo > vSete ? rUctu("samo", "Samostatne", (od ? "od " : "") + eur(samo)) + rUctu("zl", "Výhoda v sete", "− " + eur(samo - vSete)) : "") + rUctu("sum", "V sete", (od ? "od " : "") + "+ " + eur(vSete)) + "</span>";
@@ -295,8 +309,12 @@ export function spusti(ctx) {
   }
   const kartaVyber = (k, v, tog) => ' data-k="' + k + '" data-v="' + v + '"' + (tog ? ' data-tog="' + tog + '"' : "") + ' aria-pressed="' + (String(S[k]) === String(v)) + '"';
   function ponukaHtml() {
+    const x = vyb(S), n = [x.p, x.r, x.k].filter(Boolean).length;
     const u = SAMOSTATNE.rad[velkostSetu()] - cenaRadu() + SAMOSTATNE.rohoz - cenaRohoze();
-    return S.rozl === "Z" && S.rohoz === "ano" ? "V sete ušetríte <b>" + eur(u) + "</b>" : "Keď si pridáte 2. a 3. rad aj rohož do kufra, ušetríte <b>" + eur(u) + "</b>";
+    if (!n) return "Prosím, vyberte si aspoň jednu možnosť.";
+    if (n > 1) return "V sete ušetríte <b>" + eur(usporaRozlozenia()) + "</b>";
+    if (x.p) return "Keď si pridáte 2. a 3. rad aj rohož do kufra, ušetríte <b>" + eur(u) + "</b>";
+    return "Samostatne bez zľavy: <b>" + eur(x.r ? cenaRaduVyber() : cenaRohozeVyber()) + "</b>. Zľavu získate, keď si pridáte ďalšiu časť.";
   }
   /** Bez výberu veľkostí najlacnejší box S, po potvrdení v okne presná suma. */
   function ucetBoxov(n) {
@@ -313,16 +331,16 @@ export function spusti(ctx) {
       + '<hr class="lv-hr"><div class="lv-2 lv-2st"><div class="lv-pole"><span class="lv-l">Značka</span><span class="lv-fix">Mercedes-Benz</span></div><div class="lv-pole"><span class="lv-l">Model</span><span class="lv-fix">Trieda V</span></div></div>'
       + '<div class="lv-2 lv-2st lv-2m">' + menu("rok", "Aký je rok výroby?", "Vyberte rok", ROKY.map((r) => [r, r])) + menu("velkost", "Aká je veľkosť auta?", "Vyberte veľkosť", VELKOSTI.map((x) => [x.v, x.t])) + "</div>"
       + '<p class="lv-veta" id="lv-veta">' + vetaVelkosti() + "</p>"
-      + '<div class="lv-2 lv-2st">' + pole("rad2", "Koľko sedadiel máte v 2. rade?", seg("rad2", SEDADLA)) + pole("rad3", "Koľko sedadiel máte v 3. rade?", seg("rad3", SEDADLA)) + "</div>"
-      + pole("dvere", "Aké máte bočné posuvné dvere?", seg("dvere", DVERE, ["Jedny, vpravo", "Dvoje, na oboch stranách"]))
+      + '<div class="lv-2 lv-2st">' + pole("rad2", "Koľko máte sedadiel v 2. rade?", seg("rad2", SEDADLA)) + pole("rad3", "Koľko máte sedadiel v 3. rade?", seg("rad3", SEDADLA)) + "</div>"
+      + pole("dvere", "Koľko máte posuvných bočných dverí?", seg("dvere", DVERE, ["Jedny, vpravo", "Dvoje, na oboch stranách"]))
       + pole("stred", "Čo máte medzi prednými sedadlami?", seg("stred", STRED))
       + '<p class="lv-veta">Podlaha znamená, že medzi sedadlami nemáte lakťovú opierku ani chladničku.</p>'
-      + '<div class="lv-2 lv-2st lv-2s">' + pole("stolcek", "Máte vzadu stolček?", seg("stolcek", STOLCEK, ["Nie", "Áno"])) + pole("zasuvky", "Máte pod sedadlami zásuvky?", seg("zasuvky", ZASUVKY, ["Nie", "Áno"])) + "</div>"
+      + '<div class="lv-2 lv-2st lv-2s">' + pole("stolcek", "Máte v 2. alebo 3. rade stolček?", seg("stolcek", STOLCEK, ["Nie", "Áno"])) + pole("zasuvky", 'Máte pod sedadlami zásuvky (elektrické sedadlá)? <button type="button" class="lv-i" data-info="zasuvky" aria-haspopup="dialog" aria-label="Čo sú zásuvky pod sedadlami">i</button>', seg("zasuvky", ZASUVKY, ["Nie", "Áno"])) + "</div>"
       + '<p class="lv-veta">Zásuvky sú v podlahe, zapájajú sa do nich sedadlá 2. a 3. radu. Neviete si rady? Zavolajte nám na <a href="tel:' + TELEFON.replace(/\s/g, "") + '">' + TELEFON + "</a>.</p>",
     rozl: () => {
       const sR = SAMOSTATNE.rad[velkostSetu()], cR = cenaRadu(), sK = SAMOSTATNE.rohoz, cK = cenaRohoze();
-      return '<div class="lcd1v-kb lv-dl-w" data-lcd1v-kb="vclass"><div class="lcd1v-kb__volby">'
-        + karta({ vzdy: true, nm: "Predné sedadlá", po: "Šofér a spolujazdec", foto: "autokoberce-mercedes-v-class-jednovrstvove-predok", ucet: '<span class="lcd1v-kb__ucet">' + rUctu("sum", "Základ", eur(zaklad)) + "</span>", tl: '<span class="lv-tl lv-tl-v">V cene</span>' })
+      return '<div class="lcd1v-kb lv-dl-w' + (S.chybaju && !maVyber() ? " lv-chyba" : "") + '" data-lcd1v-kb="vclass"><div class="lcd1v-kb__volby">'
+        + karta({ atr: kartaVyber("predok", "ano", "nie"), nm: "Predné sedadlá", po: "Šofér a spolujazdec", foto: "autokoberce-mercedes-v-class-jednovrstvove-predok", ucet: '<span class="lcd1v-kb__ucet">' + rUctu("sum", "Cena", eur(zaklad)) + "</span>", tl: PRIDAT })
         + karta({ atr: kartaVyber("rozl", "Z", "P"), naj: "★ Najvýhodnejšie ★", nm: "2. a 3. rad", po: "Autokoberce až po kufor", foto: "autokoberce-mercedes-v-class-cierne-2-rad-3-rad", pct: percento(sR, cR), ucet: ucet(sR, cR), tl: PRIDAT })
         + karta({ atr: kartaVyber("rohoz", "ano", "nie"), nm: "Rohož do kufra", po: "Od sedadiel po okraj kufra", foto: "koberec-do-kufra-mercedes-v-class-prazdny-kufor", pct: percento(sK, cK), ucet: ucet(sK, cK), tl: PRIDAT })
         + '</div><p class="lv-ponuka">' + ponukaHtml() + "</p></div>";
@@ -330,6 +348,7 @@ export function spusti(ctx) {
     vzor: () => '<div class="lv-g lv-g3 lv-vzorky' + chyb("vzor") + '" data-pole-w="vzor">' + VZORY.map((v) => tl("vzor", v.id, '<img src="' + v.img + '" alt="" loading="lazy" width="350" height="206"><span>' + v.nm + "</span>", "lv-v1 lv-foto")).join("") + "</div>",
     farba: () => '<div class="lv-f' + chyb("farba") + '" data-pole-w="farba">' + (FARBY[S.vzor] || []).map((f) => tl("farba", f.nm, '<img src="' + nahlad(f.slug) + '" alt="" loading="lazy"><span>' + f.nm + "</span>", "lv-sw")).join("") + "</div>",
     druha: () => {
+      if (S.predok === "nie") return '<p class="lv-p">Druhá vrstva sa dáva len k predným sedadlám, tie ste si nevybrali.</p>';
       if (S.vrstva !== "ano") return htmlDruha("+ " + eur(cenaDruhej()), S.vrstva === "nie");
       const f = zvolenaFarba(), odp = f ? f.lux : LUX[0][0];
       const poradie = [odp].concat(LUX.map((l) => l[0]).filter((n) => n !== odp));
@@ -344,7 +363,7 @@ export function spusti(ctx) {
   };
   const kolko = () => KROKY.filter((k) => hotovy[k.id]()).length;
   /** Každý krok končí tlačidlom, len druhá vrstva sa najprv pýta Áno alebo Nie. */
-  const ukazDalej = (k) => k.id !== "druha" || !!S.vrstva;
+  const ukazDalej = (k) => k.id !== "druha" || !!S.vrstva || S.predok === "nie";
   let zrusVideo = null;
   function krokoveTlacidlo(k) {
     return k.id === "boxy" ? "Pokračujte k súhrnu" : "Pokračujte ďalej";
@@ -391,10 +410,11 @@ export function spusti(ctx) {
   }
   /** Rozpis ceny pod krokmi: zákazník vidí, za čo platí. */
   function riadkyRozpisu() {
-    const r = [["Predné sedadlá", eur(zaklad)]];
-    if (S.rozl === "Z") r.push(["2. a 3. rad", "+ " + eur(prc("rozlozenie", rozSet(S.velkost || "M")))]);
-    if (S.vrstva === "ano") r.push(["Druhá vrstva", "+ " + eur(cenaDruhej())]);
-    if (S.rohoz === "ano") r.push(["Rohož do kufra", "+ " + eur(prc("rohoz", ROHOZ[0]))]);
+    const r = [], x = vyb(S);
+    if (x.p) r.push(["Predné sedadlá", eur(zaklad)]);
+    if (x.r) r.push(["2. a 3. rad", (r.length ? "+ " : "") + eur(cenaRaduVyber())]);
+    if (x.p && S.vrstva === "ano") r.push(["Druhá vrstva", "+ " + eur(cenaDruhej())]);
+    if (x.k) r.push(["Rohož do kufra", (r.length ? "+ " : "") + eur(cenaRohozeVyber())]);
     [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) r.push(["Box " + S["box" + i], "+ " + eur(prc("box" + i, textBoxu(S["box" + i])))]); });
     return r;
   }
@@ -402,12 +422,12 @@ export function spusti(ctx) {
   function cenaKroku(id) {
     const r = (s, t) => '<span class="lv-rc">' + (s ? "<s>" + eur(s) + "</s>" : "") + "<b>" + t + "</b></span>";
     if (id === "rozl") {
-      const z = S.rozl === "Z", k = S.rohoz === "ano";
-      const v = zaklad + (z ? cenaRadu() : 0) + (k ? cenaRohoze() : 0), s = zaklad + (z ? SAMOSTATNE.rad[velkostSetu()] : 0) + (k ? SAMOSTATNE.rohoz : 0);
+      const x = vyb(S), sP = x.p ? zaklad : 0;
+      const v = sP + (x.r ? cenaRaduVyber() : 0) + (x.k ? cenaRohozeVyber() : 0), s = sP + (x.r ? SAMOSTATNE.rad[velkostSetu()] : 0) + (x.k ? SAMOSTATNE.rohoz : 0);
       return r(s > v ? s : 0, eur(v));
     }
     if (id === "vzor" || id === "farba") return '<span class="lv-rc lv-rc-0">v cene</span>';
-    if (id === "druha") return S.vrstva === "ano" ? r(0, "+ " + eur(cenaDruhej())) : "";
+    if (id === "druha") return S.vrstva === "ano" && S.predok !== "nie" ? r(0, "+ " + eur(cenaDruhej())) : "";
     if (id === "boxy" && pocetBoxov() > 0) {
       const b = ucetBoxov(pocetBoxov());
       return r(b.samo > b.set ? b.samo : 0, "+ " + eur(b.set));
@@ -416,13 +436,11 @@ export function spusti(ctx) {
   }
   /** Čo zákazník ušetrí oproti samostatným cenám v tom, čo má vo výbere. */
   function uspora() {
-    let u = 0;
-    if (S.rozl === "Z") u += SAMOSTATNE.rad[velkostSetu()] - cenaRadu();
-    if (S.rohoz === "ano") u += SAMOSTATNE.rohoz - cenaRohoze();
+    let u = usporaRozlozenia();
     [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) u += SAMOSTATNE.box[S["box" + i]] - cenaBoxu(i, S["box" + i]); });
     return u;
   }
-  const spravaKroku = (k) => (k.id === "auto" ? "Prosím, doplňte označené údaje o aute." : k.id === "druha" ? (S.vrstva === "ano" ? "Prosím, vyberte si farbu 2. vrstvy." : "Prosím, vyberte si Áno alebo Nie.") : k.id === "boxy" ? "Prosím, dokončite výber boxov." : "Prosím, vyberte si jednu z možností.");
+  const spravaKroku = (k) => (k.id === "auto" ? "Prosím, doplňte označené údaje o aute." : k.id === "rozl" ? "Prosím, vyberte si aspoň jednu možnosť." : k.id === "druha" ? (S.vrstva === "ano" ? "Prosím, vyberte si farbu 2. vrstvy." : "Prosím, vyberte si Áno alebo Nie.") : k.id === "boxy" ? "Prosím, dokončite výber boxov." : "Prosím, vyberte si jednu z možností.");
   /** Kresba až od kroku, kde si zákazník niečo vyberá. Telefón: v otvorenom kroku nad tlačidlom, zákazník vidí zmenu bez posúvania. PC: ľavý stĺpec. */
   function umiestni() {
     nakres.classList.toggle("lv-uvod", S.akt === 0);
@@ -452,6 +470,22 @@ export function spusti(ctx) {
     const hl = 96;
     if (vzdy || r.top < hl || r.top > window.innerHeight * 0.7) window.scrollTo({ top: window.pageYOffset + r.top - hl, behavior: "smooth" });
   }
+  /** Chýbajúci výber: vidno celý krok a v ňom červeno označené pole (Michal 7. 11. 2026). Keď je krok vyšší ako okno, ostáva vidno pole aj tlačidlo. */
+  function ukazCelyKrok() {
+    const ot = kor.querySelector(".lv-ot");
+    if (!ot) return;
+    const hl = 96, vyska = window.innerHeight - hl - (mobil.matches ? 90 : 16);
+    const r = ot.getBoundingClientRect();
+    let zn = kor.querySelectorAll(".lv-ot .lv-chyba");
+    if (!zn.length) zn = kor.querySelectorAll(".lv-ot .lv-spr");
+    let y = r.top - hl;
+    if (r.height > vyska && zn.length && zn[zn.length - 1].getBoundingClientRect().bottom - r.top > vyska) {
+      const a = zn[0].getBoundingClientRect();
+      y = r.bottom - hl - vyska;
+      if (a.top - y < hl) y = a.top - hl - 12;
+    }
+    window.scrollTo({ top: window.pageYOffset + y, behavior: "smooth" });
+  }
   function dalej() {
     const d = KROKY.findIndex((k) => !hotovy[k.id]());
     S.akt = d >= 0 ? d : -1;
@@ -466,6 +500,7 @@ export function spusti(ctx) {
     if (!kor.querySelector(".lv-chyba")) { const m = kor.querySelector(".lv-ot .lv-spr"); if (m) m.parentNode.removeChild(m); }
     const pon = kor.querySelector(".lv-ponuka");
     if (pon) pon.innerHTML = ponukaHtml();
+    if (maVyber()) { const w = kor.querySelector(".lv-dl-w.lv-chyba:not([data-pole-w])"); if (w) { w.classList.remove("lv-chyba"); const m = kor.querySelector(".lv-ot .lv-spr"); if (m) m.parentNode.removeChild(m); } }
     hlavicky();
   }
 
@@ -480,7 +515,7 @@ export function spusti(ctx) {
     spr.hidden = true;
     sync();
     S.chybaju = false;
-    if (k === "vrstva" || k === "boxy") kroky(); else oznac();
+    if (k === "vrstva" || k === "boxy" || k === "predok") kroky(); else oznac();
     prekresli();
     uloz();
     clearTimeout(casovac);
@@ -494,7 +529,32 @@ export function spusti(ctx) {
     if (!k) { const d = KROKY.findIndex((x) => !hotovy[x.id]()); if (d < 0) { doKosika(); return; } S.akt = d; }
     S.chybaju = true;
     kroky();
-    posunNa(kor.querySelector(".lv-chyba") || kor.querySelector(".lv-ot"), true);
+    ukazCelyKrok();
+  }
+  // ---- okienko pri otázke (ikona i): koliesko a prst neposúvajú stránku za ním
+  let infoOkno = null;
+  function zavriInfo() {
+    if (!infoOkno) return;
+    const { o, tl, esc } = infoOkno;
+    infoOkno = null;
+    document.removeEventListener("keydown", esc);
+    if (o.parentNode) o.parentNode.removeChild(o);
+    if (tl && tl.focus) tl.focus();
+  }
+  function ukazInfo(tl) {
+    const t = INFO[tl.getAttribute("data-info")];
+    if (!t) return;
+    zavriInfo();
+    const o = document.createElement("div");
+    o.className = "lv-info";
+    o.innerHTML = '<div class="lv-info-p" role="dialog" aria-modal="true" aria-label="' + t.nm + '"><button type="button" class="lv-info-x" aria-label="Zavrieť">×</button><img src="' + OBS + t.img + '" alt="' + t.alt + '"><b>' + t.nm + "</b><p>" + t.text + '</p><p>Neviete si rady? Zavolajte nám na <a href="tel:' + TELEFON.replace(/\s/g, "") + '">' + TELEFON + "</a>.</p></div>";
+    o.addEventListener("click", (e) => { if (e.target === o || (e.target.closest && e.target.closest(".lv-info-x"))) zavriInfo(); });
+    ["wheel", "touchmove"].forEach((u) => o.addEventListener(u, (e) => e.preventDefault(), { passive: false }));
+    const esc = (e) => { if (e.key === "Escape") zavriInfo(); };
+    document.addEventListener("keydown", esc);
+    document.body.appendChild(o);
+    infoOkno = { o, tl, esc };
+    o.querySelector(".lv-info-x").focus();
   }
   function naKlik(e) {
     const a = e.target.closest && e.target.closest('a[href="#product-detail-form"]');
@@ -521,6 +581,7 @@ export function spusti(ctx) {
       return;
     }
     if (!root.contains(b) && !cesta.contains(b)) return;
+    if (b.hasAttribute("data-info")) { ukazInfo(b); return; }
     if (b.hasAttribute("data-okno")) { otvorOkno(b, () => nastav("vrstva", "ano")); return; }
     if (b.hasAttribute("data-box-n")) { const n = Number(b.getAttribute("data-box-n")); okno.otvor(n, { farba: S.boxFarba, box1: S.box1, box2: S.box2 }, b); return; }
     if (b.hasAttribute("data-k")) {
@@ -551,7 +612,7 @@ export function spusti(ctx) {
     if (ch >= 0) {
       S.akt = ch; S.chybaju = true; kroky();
       spr.hidden = false; spr.textContent = "Ešte chýba: " + KROKY[ch].nm + ".";
-      posunNa(kor.querySelector(".lv-chyba") || kor.querySelector(".lv-ot"));
+      ukazCelyKrok();
       return;
     }
     sync();
@@ -612,6 +673,7 @@ export function spusti(ctx) {
     window.removeEventListener("scroll", planLista);
     if (zrusVideo) zrusVideo();
     zrusOkno();
+    zavriInfo();
     if (zrusObsah) zrusObsah();
     if (ioVideo) ioVideo.disconnect();
     video.pause();

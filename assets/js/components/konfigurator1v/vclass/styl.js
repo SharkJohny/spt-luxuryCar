@@ -95,6 +95,17 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-pole.lv-chyba .lv-s1,#lcd-vclass .lv-pole.lv-chyba .lv-sel{border-color:#c0392b;box-shadow:0 0 0 1px #c0392b}
 #lcd-vclass .lv-chyba[data-pole-w]:not(.lv-pole){outline:2px solid #c0392b;outline-offset:4px;border-radius:12px}
 #lcd-vclass .lv-l{display:block;margin:0 0 8px;font:700 16px/1.25 var(--lv-body);color:var(--lv-ink)}
+#lcd-vclass .lv-i{display:inline-grid;place-items:center;width:22px;height:22px;margin:-3px 0 -3px 3px;padding:0;border:1.5px solid #b8912f;border-radius:50%;background:#fff;color:#8a6a1c;font:italic 700 14px/1 Georgia,serif;vertical-align:middle;cursor:pointer;position:relative}
+#lcd-vclass .lv-i::after{content:"";position:absolute;inset:-9px}
+#lcd-vclass .lv-pole.lv-chyba .lv-i{border-color:#c0392b;color:#b3261e}
+#lcd-vclass .lv-dl-w.lv-chyba:not([data-pole-w]){outline:2px solid #c0392b;outline-offset:4px;border-radius:12px}
+.lv-info{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:16px;background:rgba(13,11,8,.72);overscroll-behavior:contain}
+.lv-info-p{position:relative;width:min(520px,100%);max-height:calc(100vh - 32px);overflow:hidden;padding:18px;border-radius:14px;background:#fff;color:#14110c;font:400 16px/1.4 "Source Sans 3",Arial,sans-serif}
+.lv-info-p img{display:block;width:100%;height:auto;max-height:52vh;object-fit:contain;margin:0 0 12px;border-radius:8px;background:#f5f3ee}
+.lv-info-p b{display:block;margin:0 0 6px;font-size:18px}
+.lv-info-p p{margin:0 0 8px}
+.lv-info-p a{color:#8a6a1c;font-weight:700}
+.lv-info-x{position:absolute;right:8px;top:8px;width:38px;height:38px;padding:0;border:0;border-radius:50%;background:rgba(13,11,8,.75);color:#fff;font:400 24px/1 Arial,sans-serif;cursor:pointer}
 #lcd-vclass .lv-hr{border:0;border-top:2px dashed #e4dfd0;margin:2px 0 16px}
 #lcd-vclass .lv-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;align-items:end}
 #lcd-vclass .lv-fix{display:block;padding:12px 14px;border:1px solid var(--lv-line);border-radius:9px;background:var(--lv-sand);font:600 16px var(--lv-body);color:var(--lv-ink)}
