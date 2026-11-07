@@ -173,14 +173,27 @@ export function vytvorOknoBoxov(o) {
   const naKlavesu = (e) => { if (e.key === "Escape" && obal.classList.contains("showConf")) zatvor(); };
   // pozadie chytá ťuknutia ešte 0,8 s po zatvorení (CSS), vtedy nič nerobí
   const naPozadie = () => { if (obal.classList.contains("showConf")) zatvor(); };
+  /** Stránka má vlastné plynulé posúvanie, preto si okno koliesko aj ťahanie prstom po pozadí vybavuje samo. */
+  const otvorene = () => obal.classList.contains("showConf");
+  const naKoliesko = (e) => {
+    if (!otvorene()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (box.contains(e.target)) box.scrollTop += e.deltaMode === 1 ? e.deltaY * 18 : e.deltaY;
+  };
+  const naTah = (e) => { if (otvorene() && !box.contains(e.target)) e.preventDefault(); };
   box.addEventListener("click", naKlik);
   pozadie.addEventListener("click", naPozadie);
   document.addEventListener("keydown", naKlavesu);
+  window.addEventListener("wheel", naKoliesko, { passive: false, capture: true });
+  window.addEventListener("touchmove", naTah, { passive: false, capture: true });
 
   return {
     otvor,
     zrus() {
       document.removeEventListener("keydown", naKlavesu);
+      window.removeEventListener("wheel", naKoliesko, true);
+      window.removeEventListener("touchmove", naTah, true);
       document.body.classList.remove("lcd1v-bx-otvorene");
       [obal, pozadie].forEach((e) => { if (e.parentNode) e.parentNode.removeChild(e); });
     },

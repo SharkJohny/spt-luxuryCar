@@ -100,6 +100,12 @@ async function prejdi(p, o) {
   if (o.boxy.length) {
     await p.click(`#lcd-vclass [data-box-n="${o.boxy.length}"]`); await p.waitForTimeout(320);
     over(await p.isVisible(".lv-bx-obal .lcd1v-bx__ok"), "boxy sa vyberajú v okne");
+    if (!o.mobil) {
+      const y0 = await p.evaluate(() => window.scrollY);
+      await p.mouse.move(683, 400); await p.mouse.wheel(0, 300); await p.waitForTimeout(150);
+      over((await p.evaluate(() => window.scrollY)) === y0, "koliesko v okne boxov neposúva stránku");
+      await p.evaluate(() => { document.querySelector(".lv-bx-obal .box-config").scrollTop = 0; });
+    }
     await p.click(".lv-bx-obal .lcd1v-bx__ok"); await p.waitForTimeout(150);
     over(await p.isVisible(".lv-bx-obal .lcd-needs-fill .lcd1v-bx__chyba"), "okno pýta chýbajúci výber");
     await p.click(`.lv-bx-obal [data-bx-farba="${o.boxFarba}"]`);
@@ -140,7 +146,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await c.route(/assets\/v\/[^/]+\/js\/lcd-vclass\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "lcd-vclass.js")) }));
         // fotky ešte nemusia byť na CDN
         await c.route(/assets\/img\/1v\/obsah\/[^/?]*mercedes-v-class[^/?]*/, (r) => { const m = /obsah\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("webp") ? "image/webp" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/obsah/" + m[1], import.meta.url)) }); });
-        await c.route(/assets\/img\/1v\/mercedes-v-class-video[^/?]*/, (r) => { const m = /1v\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("mp4") ? "video/mp4" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/" + m[1], import.meta.url)) }); });
+        await c.route(/assets\/img\/1v\/mercedes-v-class-(film|sken)[^/?]*/, (r) => { const m = /1v\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("mp4") ? "video/mp4" : m[1].endsWith("bin") ? "application/octet-stream" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/" + m[1], import.meta.url)) }); });
         await c.route(/assets\/v\/[^/]+\/html\/p1v-vclass-\d\.sk\.html/, (r) => { const m = /(p1v-vclass-\d\.sk\.html)/.exec(r.request().url()); r.fulfill({ contentType: "text/html; charset=utf-8", body: readFileSync(new URL("../admin-html/dist/" + m[1], import.meta.url)) }); });
       } else {
         await c.route(/assets\/v\/[^/]+\/(js\/(luxuryCar|lcd-[a-z]+)\.js|html\/p1v-)/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
@@ -170,12 +176,14 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over(cena === o.cena, o.velkost + ": cena " + cena);
       over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === String(o.cena) + "€", "súhrn ceny");
       over((await p.textContent("#lcd-vclass .lv-cta")).trim() === "Vložte do košíka", "tlačidlo hotového výberu");
+      over(await p.isVisible("#lcd-vclass .lv-cc"), "cenová karta po dokončení výberu");
+      over((await p.textContent("#lcd-vclass .lv-cc b")).replace(/\s/g, "") === String(o.cena) + "€", "naša cena na karte");
       if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-nakres", ".p-image-wrapper", ".p-info-wrapper", ".row.product-top", "#product-detail-form", ".p-detail-inner"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q + " y" + Math.round(r.top + scrollY) + " h" + Math.round(r.height) + " pos:" + c.position + " top:" + c.top + " mt:" + c.marginTop + " tr:" + c.transform.slice(0, 40) + " inl:" + (e.getAttribute("style") || "").slice(0, 90) + " x" + Math.round(r.left) + " w" + Math.round(r.width) + " scr:" + Math.round(scrollY); }))));
       if (sirka > 991) over(await p.evaluate(() => { const n = document.getElementById("lcd-vclass-nakres").getBoundingClientRect(), r = document.querySelector(".row.product-top").getBoundingClientRect(); return n.bottom <= r.bottom + 1 && n.top >= r.top - 1; }), "kresba ostáva v stĺpci, nejde pod pätu");
       over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 6, "všetkých 6 krokov hotových");
       const sucet = await p.evaluate(() => [...document.querySelectorAll("#product-detail-form select.surcharge-parameter")].reduce((s, e) => s + (e.value ? Number(e.options[e.selectedIndex].getAttribute("data-surcharge-final-price")) : 0), Number(document.querySelector('meta[itemprop="price"]').content)));
       over(sucet === o.cena, o.velkost + ": súčet príplatkov Shoptetu " + sucet + " ≠ " + o.cena);
-      over(/mercedes-v-class-video-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");
+      over(/mercedes-v-class-film-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");
       over(!(await p.$("#lcd-vclass-hero .lh-t")), "hore nie je rad malých fotiek");
       if (i === 0) {
         await p.waitForSelector('[data-lcd-sekcia="vclass-prehliadka"] .vp-b', { timeout: 15000 });
@@ -183,8 +191,17 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await p.click('[data-lcd-sekcia="vclass-prehliadka"] .vp-b:nth-of-type(1)').catch(() => {});
         await p.click('[data-lcd-sekcia="vclass-prehliadka"] .vp-chips button:nth-child(5)'); await p.waitForTimeout(120);
         over(/Rohož do kufra/.test(await p.textContent('[data-lcd-sekcia="vclass-prehliadka"] .vp-k.on')), "prehliadka prepne miesto");
+        await p.click('[data-lcd-sekcia="vclass-prehliadka"] [data-vz="stripe"]'); await p.waitForTimeout(250);
+        over(/Stripe Line/.test(await p.textContent('[data-lcd-sekcia="vclass-prehliadka"] .vp-far-n')), "prehliadka mení vzor setu");
         over((await p.textContent('[data-lv-cena="komplet-L"]')).replace(/\s/g, "") === "1400€", "cena kompletného setu v obsahu");
         over(!!(await p.$("#lcd-vclass-faq-data")), "otázky pre vyhľadávače");
+        over(!!(await p.$('[data-lcd-sekcia="vclass-sken"] .vk-3d img')), "modul so skenom má obrázok");
+        over((await p.$$('[data-lcd-sekcia="vclass-sken"] [data-p1v-lb-yt]')).length === 3, "modul so skenom má tri videá");
+        over((await p.$$('[data-lcd-sekcia="vclass-videa"] [data-p1v-lb-yt]')).length === 9, "sekcia videí má všetky videá");
+        over((await p.$$('[data-lcd-sekcia="vclass-galeria"] [data-p1v-lb-foto]')).length === 30, "galéria má 30 fotiek so zväčšením");
+        over((await p.$$('[data-lcd-sekcia="vclass-galeria"] .vl-sip')).length === 2, "galéria má šípky");
+        over(!!(await p.$('[data-lcd-sekcia="vclass-kontakt"] form input[name="email"]')), "kontaktný formulár");
+        over(!!(await p.$('[data-lcd-sekcia="c-vzorky"]')) && !!(await p.$('[data-lcd-sekcia="c-domov"]')), "moduly vzorky a Čo Vám príde domov");
         over(await p.evaluate(() => { const k = document.querySelector('[data-lcd-sekcia="vclass-verzie"] canvas'); return !!k && k.width > 100; }), "kresba verzie auta");
         // odkazy a otvorenie otázky, ktoré na testovacej stránke nesmú zlyhať
         await p.click('.p1v-faq-q'); await p.waitForTimeout(600);

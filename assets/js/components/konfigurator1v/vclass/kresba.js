@@ -115,7 +115,8 @@ function geometria(o,W){
   for(i=0;i<n;i++){if(Z[i]){Dp[i]=hl[Z[i]];Wg[i]=1}}
   var bD=roz(Dp,W,H,6.5*S,3),bW=roz(Wg,W,H,6.5*S,3),bS=roz(Bd,W,H,.28*S,1),bC=roz(Bd,W,H,1.5*S,2);
   var h=new Float32Array(n),Qa=new Float32Array(n),St=new Float32Array(n),Kp=new Float32Array(n),Dn=new Float32Array(n),u,v,fu,fv,kS=K*S,sch=(o.s||ZAD||o.bez2)?0:8*S;
-  var vz=o.vzor||"diamond",sw=13*S,hr=9.5*S,rimA=1*S,stepA=9*S,dishR=9*S,dishA=2.4*S,rollA=1.2*S,creA=1.5*S,qa=2.3*S,pi=Math.PI,tw2=tw*.62;
+  /* vzory podľa vzoriek (Michal 7. 11. 2026): Stripe naležato a hustejší, Hexa pretiahnuté šesťuholníky, šitie dvojité */
+  var vz=o.vzor||"diamond",sw=7*S,hr=5.4*S,dvl=.75*S,rimA=1*S,stepA=9*S,dishR=9*S,dishA=2.4*S,rollA=1.2*S,creA=1.5*S,qa=2.3*S,pi=Math.PI,tw2=tw*.62;
   for(Y=0;Y<H;Y++)for(X=0;X<W;X++){i=Y*W+X;if(!M[i]){h[i]=-1.2*S;continue}
     var dd=dO[i],zl=Z[i],q1=dd<lem?Math.sqrt(Math.max(0,1-(1-dd/lem)*(1-dd/lem))):1;
     var dn=bW[i]>.001?bD[i]/bW[i]:0;Dn[i]=dn;var hh=rimA*q1+dn*stepA;
@@ -126,11 +127,11 @@ function geometria(o,W){
     if(Mk[i]){kp=s3(dC[i]/(.5*S));Kp[i]=kp;hh=hh*(1-kp)+.9*S*kp;var ri=Math.abs(dC[i]-.25*S)/(.9*S);if(ri<1)hh+=.9*S*(1-ri*ri)}
     h[i]=hh;
     if(zl&&vz!=="diamond"){var Xv=dvo[zl]?2*axP-X:X,qv=(1-bS[i])*s3((dd-lem)/(1*S))*(1-kp);
-      if(vz==="stripe"){var fs=Xv/sw;fs-=Math.floor(fs);Qa[i]=qv*Math.sqrt(Math.sin(pi*fs));var ds2=Math.min(fs,1-fs)*sw;St[i]=qv*(1-s3((ds2-tw2*.55)/tw2))*(((Y/per+.5)%1)<.64?1:0)}
-      else{var hq=(Xv*.57735-Y*.33333)/hr,hs=Y*.66667/hr,c1q=hq,c1s=hs,c1t=-hq-hs,rq=Math.round(c1q),rs=Math.round(c1s),rt=Math.round(c1t),eq=Math.abs(rq-c1q),es=Math.abs(rs-c1s),et=Math.abs(rt-c1t);
+      if(vz==="stripe"){var fs=Y/sw;fs-=Math.floor(fs);Qa[i]=qv*Math.sqrt(Math.sin(pi*fs));var ds2=Math.min(fs,1-fs)*sw;St[i]=qv*(1-s3((Math.abs(ds2-dvl)-tw2*.55)/tw2))*(((Xv/per+.5)%1)<.64?1:0)}
+      else{var hA=Y,hB=Xv/1.7,hq=(hA*.57735-hB*.33333)/hr,hs=hB*.66667/hr,c1q=hq,c1s=hs,c1t=-hq-hs,rq=Math.round(c1q),rs=Math.round(c1s),rt=Math.round(c1t),eq=Math.abs(rq-c1q),es=Math.abs(rs-c1s),et=Math.abs(rt-c1t);
         if(eq>es&&eq>et)rq=-rs-rt;else if(es>et)rs=-rq-rt;
-        var hx0=hr*1.73205*(rq+rs/2),hy0=hr*1.5*rs,adx=Math.abs(Xv-hx0),ady=Math.abs(Y-hy0),hd=Math.max(adx,adx*.5+ady*.86603),ha=hr*.86603,eg=ha-hd;
-        Qa[i]=qv*Math.sqrt(Math.max(0,eg/ha));St[i]=qv*(1-s3((eg-tw2*.55)/tw2))*((((Xv+Y)/per+.5)%1)<.64?1:0)}}
+        var hx0=hr*1.73205*(rq+rs/2),hy0=hr*1.5*rs,adx=Math.abs(hA-hx0),ady=Math.abs(hB-hy0),ha=hr*.86603,eg=Math.min(ha-adx,(ha-(adx*.5+ady*.86603))/.714);
+        Qa[i]=qv*Math.sqrt(Math.max(0,Math.min(1,eg/ha)));St[i]=qv*(1-s3((Math.abs(eg-dvl)-tw2*.55)/tw2))*((((Xv+Y)/per+.5)%1)<.64?1:0)}}
     else if(zl){var zq=dvo[zl]||zl,Xq=dvo[zl]?2*axP-X:X,ph=zq*.618,ph2=ph*1.7;if(zl===lSt){Xq=X-axP;ph=0;ph2=0}
       u=m[zq*4]*Xq+m[zq*4+1]*Y+ph;v=m[zq*4+2]*Xq+m[zq*4+3]*Y+ph2;
       fu=u-Math.floor(u);fv=v-Math.floor(v);
@@ -163,9 +164,10 @@ function hex(s){return[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parse
 var CACHE={};
 var PORADIE=[];
 function geo(o,W){var k=[o.cast,o.vzor,o.v,o.d,+!!o.s,+!!o.z,+!!o.bez2,W].join("-");if(CACHE[k])return CACHE[k];if(PORADIE.length>=10)delete CACHE[PORADIE.shift()];PORADIE.push(k);return CACHE[k]=geometria(o,W)}
-/* plocha druhej vrstvy v súradniciach kresby: štvorcový výrez vzorky cez celý koberček, ľavý je zrkadlo pravého */
+/* druhá vrstva zo vzorky: pásiky sú na vzorke vľavo a na koberčeku v tretine pri dverách, ďalej čistá farba, spolujazdec zrkadlovo (Michal 7. 11. 2026) */
 function vzorkaPx(t,X,Y,kS,v){var rx=X/kS+X0,ry=Y/kS+Y0;if(rx<AX)rx=2*AX-rx;
-  var u=(rx-1188)/636*(t.w-1),q=(ry-264)/636*(t.h-1),x0=u<0?0:u>t.w-2?t.w-2:u|0,y0=q<0?0:q>t.h-2?t.h-2:q|0,fx=Math.min(1,Math.max(0,u-x0)),fy=Math.min(1,Math.max(0,q-y0)),d=t.d,a=(y0*t.w+x0)*4,b=a+4,c=a+t.w*4,e=c+4,k;
+  var u=Math.abs(1610-rx)/240,q=(ry-264)/240;if(u>.95){u=(u-.95)%.4;u=.95-(u>.2?.4-u:u)}q=q%2;if(q<0)q+=2;if(q>1)q=2-q;u*=t.w-1;q*=t.h-1;
+  var x0=u<0?0:u>t.w-2?t.w-2:u|0,y0=q<0?0:q>t.h-2?t.h-2:q|0,fx=Math.min(1,Math.max(0,u-x0)),fy=Math.min(1,Math.max(0,q-y0)),d=t.d,a=(y0*t.w+x0)*4,b=a+4,c=a+t.w*4,e=c+4,k;
   for(k=0;k<3;k++)v[k]=(d[a+k]*(1-fx)+d[b+k]*fx)*(1-fy)+(d[c+k]*(1-fx)+d[e+k]*fx)*fy}
 export function kresli(cnv,o,W,far,vzorka){
   var g=geo(o,W),w=g.W,h=g.H,n=w*h,B=hex(far[0]),C=hex(far[1]),Kc=hex(far[2]||"#131315"),im=new ImageData(w,h),d=im.data,i,j,

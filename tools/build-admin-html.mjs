@@ -323,6 +323,7 @@ const OBRAZKY_1V = [
   ["trieda V: set", ma1v("vs-f"), "(max-width:991px) 46vw, 230px", 400],
   ["trieda V: galéria", ma1v("vg-f"), "(max-width:991px) 46vw, 300px", 400],
   ["trieda V: videá", ma1v("vy-f"), "(max-width:640px) 68vw, 290px", 480],
+  ["trieda V: sken", ma1v("vk-3d"), "(max-width:760px) 92vw, 760px", 800],
   ["deväť vecí", ma1v("s2-media"), "78vw", 600],
   // galéria lx-gal, a-galeria (dvoj, classic, premium, boxy): 221 / 240 / 285 / 285 / 285 / 285
   ["galéria", ma1v("lx-gal-f"), "(max-width:760px) 62vw, 285px", 400],

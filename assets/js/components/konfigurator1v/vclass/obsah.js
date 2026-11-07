@@ -1,28 +1,36 @@
 // Obsah pod konfigurátorom triedy V (admin-html/src/p1v-vclass): text a fotky sú v HTML z Popisu produktu, aby ich videli vyhľadávače,
 // tento modul ich len oživí: prehliadka auta s pôdorysom, kresba podľa verzie auta, ceny zo Shoptetu a otázky pre vyhľadávače.
 // Bez neho sa obsah zobrazí celý pod sebou a dá sa čítať.
+import { sken } from "./sken.js";
 import { kresli } from "./kresba.js";
-import { VELKOSTI, LUX, ROHOZ, BOXY, rozSet } from "./data.js";
+import { VELKOSTI, LUX, ROHOZ, BOXY, rozSet, FARBY, VZORY } from "./data.js";
+import { NAHLADY_FARIEB } from "../farby-nahlady-data.js";
 
-const FARBY = ["#17161a", "#dcc9a2", "#131315"];
+const FARBY_CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/farby/";
+const PODLAHA = "#131315";
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
 
 /** Pôdorys s číslami: [číslo, plátno, x %, y %] = miesto na kresbe, poradie ako kapitoly v HTML. */
 const BODY = [[1, 0, 27, 42], [2, 0, 73, 42], [3, 0, 50, 72], [4, 1, 50, 38], [5, 1, 50, 88]];
 
-function nakresli(mapa, plan, sirka) {
+/** Svetlo na pôdoryse (Michal 7. 11. 2026: modul má mať pointu): [plátno, x0, y0, x1, y1] v % plátna, zvyšok kresby ustúpi. */
+const ZONY = [[0, 3, 0, 49, 76], [0, 51, 0, 97, 76], [0, 29, 44, 71, 100], [1, -4, -2, 104, 69], [1, -4, 67, 104, 102]];
+
+function nakresli(mapa, plan, sirka, sada) {
   const w = Math.max(240, Math.min(620, Math.round(sirka * DPR())));
-  kresli(mapa.querySelector(".vp-pred"), { cast: "predok", s: false, vzor: "diamond", bez2: true }, w, FARBY);
-  kresli(mapa.querySelector(".vp-zad"), Object.assign({ cast: "zadok", vzor: "diamond", slabe: null }, plan), Math.round(w * 0.745), FARBY);
+  const far = [sada.f.koza, sada.f.sit, PODLAHA];
+  kresli(mapa.querySelector(".vp-pred"), { cast: "predok", s: false, vzor: sada.vzor, bez2: true }, w, far);
+  kresli(mapa.querySelector(".vp-zad"), Object.assign({ cast: "zadok", vzor: sada.vzor, slabe: null }, plan), Math.round(w * 0.745), far);
 }
 
-function prehliadka(sek, spat) {
+function prehliadka(sek, spat, vyberFarbu) {
   const vp = sek.querySelector(".vp");
   const mapa = sek.querySelector(".vp-mapa");
   const kap = Array.prototype.slice.call(sek.querySelectorAll(".vp-k"));
   if (!vp || !mapa || !kap.length) return;
-  mapa.innerHTML = '<div class="vp-c"><canvas class="vp-pred" role="img" aria-label="Pôdorys predných autokobercov triedy V"></canvas></div><div class="vp-c vp-c2"><canvas class="vp-zad" role="img" aria-label="Pôdorys koberca 2. a 3. radu a kufra"></canvas></div>';
+  mapa.innerHTML = '<div class="vp-c"><canvas class="vp-pred" role="img" aria-label="Pôdorys predných autokobercov triedy V"></canvas></div><div class="vp-c vp-c2"><canvas class="vp-zad" role="img" aria-label="Pôdorys koberca 2. a 3. radu a kufra"></canvas></div><span class="vp-sv" aria-hidden="true"></span>';
   const platna = mapa.querySelectorAll(".vp-c");
+  const sv = mapa.querySelector(".vp-sv");
   const body = BODY.map((b, i) => {
     const t = document.createElement("button");
     t.type = "button";
@@ -42,36 +50,88 @@ function prehliadka(sek, spat) {
   const chips = kap.map((k, i) => {
     const t = document.createElement("button");
     t.type = "button";
-    t.textContent = k.querySelector("h3").textContent;
+    t.innerHTML = "<i>" + (i + 1) + "</i><span></span>";
+    t.querySelector("span").textContent = k.querySelector("h3").textContent;
     t.addEventListener("click", () => na(i, true));
     nav.appendChild(t);
     return t;
   });
   const zoz = sek.querySelector(".vp-zoz");
   zoz.parentNode.insertBefore(nav, zoz);
-  const dalsia = document.createElement("button");
-  dalsia.type = "button";
-  dalsia.className = "vp-dalej";
+  kap.forEach((k, i) => {
+    const c = document.createElement("span");
+    c.className = "vp-cislo";
+    c.textContent = (i + 1) + " / " + kap.length;
+    k.querySelector(".vp-f").appendChild(c);
+  });
+  const pata = document.createElement("div");
+  pata.className = "vp-pata";
+  pata.innerHTML = '<button type="button" class="vp-spat">Späť</button><button type="button" class="vp-dalej"></button>';
+  zoz.appendChild(pata);
+  const spatTl = pata.querySelector(".vp-spat"), dalsia = pata.querySelector(".vp-dalej");
+  spatTl.addEventListener("click", () => na((akt - 1 + kap.length) % kap.length, true));
   dalsia.addEventListener("click", () => na((akt + 1) % kap.length, true));
-  zoz.appendChild(dalsia);
+
+  // farba setu: rovnaké vzory a farby ako v konfigurátore, „Chcem takýto set“ ich prenesie do krokov
+  const sada = { vzor: "diamond", f: FARBY.diamond.find((f) => f.nm === "Čierna, béžové šitie") || FARBY.diamond[0] };
+  const lava = document.createElement("div");
+  lava.className = "vp-lava";
+  vp.insertBefore(lava, mapa);
+  lava.appendChild(mapa);
+  const far = document.createElement("div");
+  far.className = "vp-far";
+  far.innerHTML = '<p class="vp-far-t">Vyskúšajte si, ako by vyzeral Váš set</p><div class="vp-vz" role="group" aria-label="Vzor prešívania">' + VZORY.map((v) => '<button type="button" data-vz="' + v.id + '">' + v.nm + "</button>").join("") + '</div><div class="vp-sw" role="group" aria-label="Farba autokobercov"></div><p class="vp-far-n" aria-live="polite"></p><button type="button" class="vp-chcem">Chcem takýto set</button>';
+  lava.appendChild(far);
+  const swW = far.querySelector(".vp-sw"), meno = far.querySelector(".vp-far-n");
+  const miniatura = (f) => (NAHLADY_FARIEB[f.slug] ? FARBY_CDN + f.slug + "-" + NAHLADY_FARIEB[f.slug] + "-w96.jpg" : "");
+  function vzorky() {
+    swW.innerHTML = FARBY[sada.vzor].map((f, i) => '<button type="button" data-fa="' + i + '" aria-label="' + f.nm + '" title="' + f.nm + '" aria-pressed="' + (f.nm === sada.f.nm) + '"><img src="' + miniatura(f) + '" alt="" loading="lazy" width="44" height="44"></button>').join("");
+    far.querySelectorAll("[data-vz]").forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute("data-vz") === sada.vzor)));
+    meno.textContent = VZORY.find((v) => v.id === sada.vzor).nm + ", " + sada.f.nm;
+  }
+  function naFar(e) {
+    const b = e.target.closest && e.target.closest("button");
+    if (!b) return;
+    if (b.classList.contains("vp-chcem")) { if (vyberFarbu) vyberFarbu(sada.vzor, sada.f.nm); return; }
+    if (b.hasAttribute("data-vz")) {
+      sada.vzor = b.getAttribute("data-vz");
+      sada.f = FARBY[sada.vzor].find((f) => f.nm === sada.f.nm) || FARBY[sada.vzor][0];
+    } else if (b.hasAttribute("data-fa")) sada.f = FARBY[sada.vzor][+b.getAttribute("data-fa")];
+    else return;
+    vzorky();
+    kresba();
+  }
+  far.addEventListener("click", naFar);
+
   let akt = 0;
+  function svetlo() {
+    const z = ZONY[akt], c = platna[z[0]].getBoundingClientRect(), m = mapa.getBoundingClientRect();
+    sv.style.left = c.left - m.left + (c.width * z[1]) / 100 + "px";
+    sv.style.top = c.top - m.top + (c.height * z[2]) / 100 + "px";
+    sv.style.width = (c.width * (z[3] - z[1])) / 100 + "px";
+    sv.style.height = (c.height * (z[4] - z[2])) / 100 + "px";
+  }
   function na(i, klik) {
     akt = i;
     kap.forEach((k, n) => { k.classList.toggle("on", n === i); });
     body.forEach((t, n) => t.setAttribute("aria-pressed", n === i ? "true" : "false"));
-    chips.forEach((t, n) => t.setAttribute("aria-pressed", n === i ? "true" : "false"));
-    dalsia.textContent = "Ďalej: " + kap[(i + 1) % kap.length].querySelector("h3").textContent;
-    if (klik && chips[i].scrollIntoView && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: chips[i].offsetLeft - 16, behavior: "smooth" });
+    chips.forEach((t, n) => { t.setAttribute("aria-pressed", n === i ? "true" : "false"); t.classList.toggle("vp-pred-h", n < i); });
+    const dal = (i + 1) % kap.length;
+    dalsia.textContent = dal ? "Ďalej: " + kap[dal].querySelector("h3").textContent : "Znova od šoféra";
+    spatTl.hidden = i === 0;
+    svetlo();
+    if (klik && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: chips[i].offsetLeft - 16, behavior: "smooth" });
   }
   vp.classList.add("vp-js");
   const plan = { v: "L", d: 2, s: false, z: false };
-  const kresba = () => { try { nakresli(mapa, plan, mapa.clientWidth || 320); } catch (e) { mapa.hidden = true; } };
-  na(0, false);
+  function kresba() { try { nakresli(mapa, plan, mapa.clientWidth || 320, sada); svetlo(); } catch (e) { mapa.hidden = true; } }
+  vzorky();
   kresba();
+  na(0, false);
   let cas = 0;
   const priZmene = () => { clearTimeout(cas); cas = setTimeout(kresba, 200); };
   window.addEventListener("resize", priZmene);
-  spat.push(() => window.removeEventListener("resize", priZmene));
+  spat.push(() => { window.removeEventListener("resize", priZmene); far.removeEventListener("click", naFar); });
 }
 
 function verzie(sek, spat) {
@@ -87,7 +147,7 @@ function verzie(sek, spat) {
   miesto.innerHTML = '<canvas role="img" aria-label="Pôdorys koberca 2. a 3. radu a kufra podľa zvolenej verzie"></canvas><div class="vv-pole">' + P.map((p) => '<div class="vv-r"><span>' + p[1] + "</span><div>" + p[2].map((x) => '<button type="button" data-k="' + p[0] + '" data-v="' + x[0] + '" aria-pressed="' + (st[p[0]] === x[0]) + '">' + x[1] + "</button>").join("") + "</div></div>").join("") + "</div>";
   const pl = miesto.querySelector("canvas");
   const kresba = () => {
-    try { kresli(pl, { cast: "zadok", vzor: "diamond", slabe: null, v: st.v, d: st.d, s: st.s, z: st.z }, Math.min(520, Math.round((miesto.clientWidth || 300) * 0.62 * DPR())), FARBY); } catch (e) { pl.hidden = true; }
+    try { kresli(pl, { cast: "zadok", vzor: "diamond", slabe: null, v: st.v, d: st.d, s: st.s, z: st.z }, Math.min(520, Math.round((miesto.clientWidth || 300) * 0.62 * DPR())), ["#17161a", "#dcc9a2", PODLAHA]); } catch (e) { pl.hidden = true; }
   };
   miesto.addEventListener("click", (e) => {
     const b = e.target.closest && e.target.closest("button[data-k]");
@@ -120,7 +180,85 @@ function faqData(sek, spat) {
   spat.push(() => { if (s.parentNode) s.parentNode.removeChild(s); });
 }
 
-export function ozivObsah({ prc, zaklad, eur }) {
+/** Vodorovný pás so šípkami: galéria a videá (Michal 7. 11. 2026: oveľa viac fotiek a tlačidlá na posúvanie). */
+function pas(w, spat) {
+  if (!w || w.getAttribute("data-lv-pas")) return;
+  w.setAttribute("data-lv-pas", "1");
+  const o = document.createElement("div");
+  o.className = "vl-pas";
+  w.parentNode.insertBefore(o, w);
+  o.appendChild(w);
+  const tl = [-1, 1].map((s) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "vl-sip " + (s < 0 ? "vl-sip-l" : "vl-sip-p");
+    b.setAttribute("aria-label", s < 0 ? "Predošlé" : "Ďalšie");
+    b.addEventListener("click", () => w.scrollBy({ left: s * w.clientWidth * 0.85, behavior: "smooth" }));
+    o.appendChild(b);
+    return b;
+  });
+  const stav = () => { tl[0].disabled = w.scrollLeft < 8; tl[1].disabled = w.scrollLeft > w.scrollWidth - w.clientWidth - 8; };
+  w.addEventListener("scroll", stav, { passive: true });
+  window.addEventListener("resize", stav);
+  stav();
+  spat.push(() => { window.removeEventListener("resize", stav); });
+}
+
+/** Galéria: odkaz na plnú fotku sa berie z obrázka, aby sa všetky fotky zmestili do Popisu produktu. */
+function galeria(sek, spat) {
+  sek.querySelectorAll(".vg-f button").forEach((b) => {
+    const i = b.querySelector("img");
+    if (!i) return;
+    b.setAttribute("data-p1v-lb-foto", i.getAttribute("src"));
+    b.setAttribute("data-p1v-lb-sada", "vclass-galeria");
+    b.setAttribute("data-p1v-lb-popis", i.getAttribute("alt") || "");
+  });
+  pas(sek.querySelector(".vg"), spat);
+}
+
+/** Otázka pred objednávkou: rovnaký formulár Shoptetu ako na titulke (lcdHome.js), meno a správa sú nepovinné, telefón a auto idú do správy. */
+function kontakt(sek) {
+  const m = sek.querySelector(".vt-form");
+  if (!m) return;
+  m.innerHTML = '<form class="vt-f" action="/action/MailForm/SendEmail/" method="post" novalidate><input type="hidden" name="formId" value="1"><input type="hidden" name="consents[]" value="25">'
+    + '<label class="vt-p"><span>Meno a priezvisko <small>nepovinné</small></span><input type="text" name="fullName" autocomplete="name"></label>'
+    + '<label class="vt-p"><span>E-mail</span><input type="email" name="email" autocomplete="email" required><em>Skontrolujte e-mail</em></label>'
+    + '<label class="vt-p"><span>Telefónne číslo</span><input type="tel" class="vt-tel" autocomplete="tel" placeholder="+421 900 000 000" required><em>Doplňte telefónne číslo</em></label>'
+    + '<label class="vt-p vt-s"><span>Vaša otázka <small>nepovinné</small></span><textarea name="message" rows="4" placeholder="Napíšte, s čím Vám môžeme pomôcť, napríklad verzia auta, farba alebo termín."></textarea></label>'
+    + '<span class="vt-hp" aria-hidden="true"><label>Surname<input type="text" name="surname" value="" autocomplete="off" tabindex="-1"></label></span>'
+    + '<div class="vt-a"><button type="submit">Odošlite správu</button><p>Vložením správy súhlasíte s <a href="/podmienky-ochrany-osobnych-udajov/">podmienkami ochrany osobných údajov</a>.</p></div><p class="vt-st" role="status" hidden></p></form>';
+  const f = m.querySelector("form"), stav = f.querySelector(".vt-st"), tel = f.querySelector(".vt-tel"), sprava = f.querySelector("textarea");
+  f.addEventListener("submit", (e) => {
+    f.classList.add("overene");
+    if (!f.checkValidity()) { e.preventDefault(); const p = f.querySelector(":invalid"); if (p) p.focus(); return; }
+    if (!sprava.getAttribute("data-zlozene")) {
+      const mail = f.querySelector('input[name="email"]').value.trim();
+      sprava.value = (sprava.value.trim() || "Prosím, kontaktujte ma.") + "\n\nTelefón: " + tel.value.trim() + "\nE-mail: " + mail + "\nAuto: Mercedes V Class";
+      sprava.setAttribute("data-zlozene", "1");
+    }
+    const meno = f.querySelector('input[name="fullName"]');
+    if (!window.fetch || !window.FormData) { if (!meno.value.trim()) meno.value = tel.value.trim(); return; }
+    e.preventDefault();
+    const tl = f.querySelector('button[type="submit"]'), povodny = tl.textContent;
+    tl.disabled = true;
+    tl.textContent = "Odosielam…";
+    const data = new FormData(f);
+    if (!meno.value.trim()) data.set("fullName", tel.value.trim());
+    fetch(f.action, { method: "POST", body: data, credentials: "same-origin" })
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        f.reset();
+        sprava.removeAttribute("data-zlozene");
+        f.classList.remove("overene");
+        stav.textContent = "Ďakujeme, správa odišla. Ozveme sa Vám spravidla do hodiny.";
+        stav.hidden = false;
+      })
+      .catch(() => { if (!meno.value.trim()) meno.value = tel.value.trim(); f.submit(); })
+      .then(() => { tl.disabled = false; tl.textContent = povodny; });
+  });
+}
+
+export function ozivObsah({ prc, zaklad, eur, vyberFarbu }) {
   const spat = [];
   const hotovo = {};
   const rad = (v) => prc("rozlozenie", rozSet(v));
@@ -130,15 +268,19 @@ export function ozivObsah({ prc, zaklad, eur }) {
   VELKOSTI.forEach((x) => { CENY["komplet-" + x.v] = zaklad + rad(x.v) + druha + rohoz; });
   const sekcia = (m) => document.querySelector('[data-lcd-sekcia="' + m + '"]');
   function skus() {
-    const p = sekcia("vclass-prehliadka"), v = sekcia("vclass-verzie"), f = sekcia("d-faq");
-    if (p && !hotovo.p) { hotovo.p = 1; prehliadka(p, spat); }
+    const p = sekcia("vclass-prehliadka"), v = sekcia("vclass-verzie"), f = sekcia("d-faq"), k = sekcia("vclass-sken"), g = sekcia("vclass-galeria"), y = sekcia("vclass-videa"), t = sekcia("vclass-kontakt");
+    if (p && !hotovo.p) { hotovo.p = 1; prehliadka(p, spat, vyberFarbu); }
     if (v && !hotovo.v) { hotovo.v = 1; verzie(v, spat); }
     if (f && !hotovo.f) { hotovo.f = 1; faqData(f, spat); }
+    if (k && !hotovo.k) { hotovo.k = 1; sken(k, spat); pas(k.querySelector(".vy"), spat); }
+    if (g && !hotovo.g) { hotovo.g = 1; galeria(g, spat); }
+    if (y && !hotovo.y) { hotovo.y = 1; pas(y.querySelector(".vy"), spat); }
+    if (t && !hotovo.t) { hotovo.t = 1; kontakt(t); }
     document.querySelectorAll("[data-lv-cena]").forEach((e) => {
       const c = CENY[e.getAttribute("data-lv-cena")];
       if (c > 0 && !e.textContent) e.textContent = eur(c);
     });
-    if (hotovo.p && hotovo.v && hotovo.f && mo) { mo.disconnect(); mo = null; }
+    if (hotovo.p && hotovo.v && hotovo.f && hotovo.k && hotovo.g && hotovo.y && hotovo.t && mo) { mo.disconnect(); mo = null; }
   }
   let mo = typeof MutationObserver === "function" ? new MutationObserver(skus) : null;
   if (mo) mo.observe(document.body, { childList: true, subtree: true });

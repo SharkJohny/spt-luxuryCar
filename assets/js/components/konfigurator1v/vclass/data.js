@@ -121,5 +121,6 @@ export const KROKY = [
   { id: "boxy", nm: "Boxy do kufra", kr: "Boxy", ti: "Prosím, vyberte si boxy do kufra", pod: "Skladacie boxy z rovnakého materiálu. Veľkosť a farbu zvolíte hneď po výbere.", vy: "Jeden, dva alebo žiadny" },
 ];
 
-/** Video hore: naše video z V Class XL, bez zvuku, dokola. Súbory assets/img/1v/<meno>-pc|tel.mp4 a .jpg. */
-export const VIDEO = { meno: "mercedes-v-class-video", alt: "Video autokobercov v Mercedes V Class XL" };
+/** Video hore: pokojnejší strih nášho videa z V Class (Michal 7. 11. 2026: najprv auto zvonka, pomalšie, bez záberu z GLE), bez zvuku, dokola.
+ *  Súbory assets/img/1v/<meno>-pc|tel.mp4 a .jpg, výrez 4:5 aby bolo vidno celé auto. */
+export const VIDEO = { meno: "mercedes-v-class-film", alt: "Video autokobercov v Mercedes V Class XL" };
