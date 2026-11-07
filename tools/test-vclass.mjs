@@ -252,6 +252,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         over((await p.$$('[data-lcd-sekcia="vclass-galeria"] [data-p1v-lb-foto]')).length === 43, "galéria má 43 fotiek so zväčšením");
         over((await p.$$('[data-lcd-sekcia="vclass-galeria"] .vl-sip')).length === 2, "galéria má šípky");
         over(!!(await p.$('[data-lcd-sekcia="vclass-kontakt"] form input[name="email"]')), "kontaktný formulár");
+        over(/Andrej J\./.test(await p.textContent('[data-lcd-sekcia="vclass-zakaznik"] blockquote')) && !!(await p.$('[data-lcd-sekcia="vclass-zakaznik"] [data-p1v-lb-yt="fQWIIpz9gWc"]')), "skúsenosť zákazníka s videom");
         over(!!(await p.$('[data-lcd-sekcia="c-vzorky"]')) && !!(await p.$('[data-lcd-sekcia="c-domov"]')), "moduly vzorky a Čo Vám príde domov");
         over(await p.evaluate(() => { const k = document.querySelector('[data-lcd-sekcia="vclass-verzie"] canvas'); return !!k && k.width > 100; }), "kresba verzie auta");
         // odkazy a otvorenie otázky, ktoré na testovacej stránke nesmú zlyhať

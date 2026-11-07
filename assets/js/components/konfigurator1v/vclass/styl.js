@@ -538,6 +538,22 @@ body.lcd-vclass .vs-sp b{color:var(--lv-ink)}
 }
 @media (min-width:992px) and (hover:hover){${O} .vv-tab a:hover{background:#176443}}
 /* nadpis v tmavej karte skenu: svetlé zlato (tmavší prechod webu je pre svetlé pozadie, tu by bol 1,9:1) */
+/* Skúsenosť zákazníka (Michal 7. 11. 2026): tmavý pás, vľavo citát, vpravo video. Telefón: pod sebou, video pod textom. */
+${S("vclass-zakaznik")}{background:#0d0b08}
+${S("vclass-zakaznik")} .eyebrow{color:#e6c877}
+${S("vclass-zakaznik")} .wrap>.vzk-t>h2,${S("vclass-zakaznik")} .vzk-t>h2{background:linear-gradient(100deg,#c49b31,#e6c877 50%,#d9b558);-webkit-background-clip:text;background-clip:text;color:transparent}
+${S("vclass-zakaznik")} .vzk{display:grid;gap:26px}
+${S("vclass-zakaznik")} .vzk-q{position:relative;margin:22px 0 0;padding:6px 0 0 26px;border-left:3px solid #c49b31}
+${S("vclass-zakaznik")} .vzk-q p{margin:0;font:700 clamp(22px,2.2vw,30px)/1.35 var(--lv-disp);color:#fff}
+${S("vclass-zakaznik")} .vzk-q footer{margin-top:14px;font:600 17px/1.3 var(--lv-body);color:#e6c877}
+${S("vclass-zakaznik")} .vzk-t .lede{margin-top:22px;color:#d9d4c6}
+${S("vclass-zakaznik")} .vzk-v{width:min(100%,380px);justify-self:center}
+${S("vclass-zakaznik")} .vzk-v img{aspect-ratio:4/5}
+@media (max-width:991px){${O} .endbg{background:#181510 url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/autokoberce-mercedes-v-class-detail-cela-w800.webp") 50% 60%/cover no-repeat}}
+@media (min-width:992px){
+  ${S("vclass-zakaznik")} .vzk{grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:clamp(32px,5vw,80px);align-items:center}
+  ${S("vclass-zakaznik")} .vzk-v{width:100%}
+}
 ${O} .vk-hl>h2{background:linear-gradient(100deg,#c49b31,#e6c877 50%,#d9b558);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media (min-width:992px) and (max-width:1199px){
   ${O} .vt{grid-template-columns:minmax(0,1fr)}

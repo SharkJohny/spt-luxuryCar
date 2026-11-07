@@ -230,7 +230,7 @@ export const KUSY = {
     ["premium-rohoz-v-kufri",1,[480,900],10,0],
     ["premium-classic-v-kufri",0,[480,900],10,0],
   ] },
-  "p1v-vclass-1": { v: "66b049bb86", f: [
+  "p1v-vclass-1": { v: "42597ddebb", f: [
     ["autokoberce-mercedes-v-class-xl-sofer",0,[480,800,1023],0,0],
     ["autokoberce-mercedes-v-class-xl-spolujazdec",0,[480,800,1023],0,0],
     ["autokoberce-mercedes-v-class-xl-stred",0,[480,800,1023],0,0],
@@ -296,5 +296,6 @@ export const KUSY = {
     ["mercedes-v-class-zaber-body-2",0,[480,800],3,0],
     ["mercedes-v-class-zaber-priebeh-2",0,[480,800],3,0],
     ["mercedes-v-class-zaber-hadanka-2",0,[480,800],3,0],
+    ["mercedes-v-class-zakaznik-andrej",0,[480,864],3,0],
   ] },
 };
