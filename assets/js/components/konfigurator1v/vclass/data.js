@@ -131,12 +131,12 @@ export const KROKY = [
  *  Súbory assets/img/1v/<meno>-pc|tel.mp4 a .jpg, výrez 4:5 aby bolo vidno celé auto. */
 export const VIDEO = { meno: "mercedes-v-class-film-3", alt: "Video autokobercov v Mercedes V Class XL" };
 
-/** Okienko pri otázke v prvom kroku (ikona i): skutočná zásuvka zo záberu skenovania (Michal 7. 11. 2026). */
+/** Okienko pri otázke v prvom kroku (ikona i): skutočné fotky podlahy z priečinka plocha/mercedes V class (Michal 7. 11. 2026, video bolo rozmazané). */
 export const INFO = {
   zasuvky: {
     nm: "Zásuvky pod sedadlami",
-    img: "mercedes-v-class-zasuvka-v-podlahe.jpg",
-    alt: "Zásuvky v podlahe Mercedes V Class pod sedadlami, širší záber a detail",
-    text: "Elektrické sedadlá v 2. a 3. rade sa zapájajú do zásuviek v podlahe. Hore sú vidno dve zásuvky v aute, dole jedna zblízka. Autokoberce majú okolo nich výrez.",
+    img: "mercedes-v-class-zasuvka-v-podlahe-2.jpg",
+    alt: "Dve zásuvky v podlahe Mercedes V Class medzi koľajnicami a detail zásuvky so zapojeným káblom sedadla",
+    text: "Elektrické sedadlá v 2. a 3. rade sa zapájajú do zásuviek v podlahe. Hore sú dve zásuvky v podlahe medzi koľajnicami, dole jedna zblízka so zapojeným káblom. Autokoberce majú okolo nich výrez.",
   },
 };
