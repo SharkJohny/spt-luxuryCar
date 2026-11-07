@@ -456,7 +456,7 @@ export function spusti(ctx) {
   function obnovListu() {
     naListu = 0;
     if (zruseny) return;
-    const on = !!mobil.matches && cesta.getBoundingClientRect().top < window.innerHeight * 0.92;
+    const on = !!mobil.matches && cesta.getBoundingClientRect().top < window.innerHeight * 0.55;
     if (on !== listaOn) {
       listaOn = on;
       lista.classList.toggle("on", on);
