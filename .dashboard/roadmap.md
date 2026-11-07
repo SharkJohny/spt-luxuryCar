@@ -647,3 +647,9 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Klasický košík CZ po česky naživo s 593b0c1 (SK 22:37, CZ 22:38, návrat 8681b1e), kontrola v Michalovom Chrome OK
 - [ ] Súhrn CZ konfigurátora (poznámka objednávky) má SK hodnoty materiálu a výbavy — riešiť len s Jánom (export)
 - [x] Brain (log + mapa modulov)
+
+## Čitateľnejší konfigurátor a širšie Pred a po (7. 11. 2026)
+- [x] Širšie „Pred a po“ pri boxe (616, CZ 2427), len PC na šírku: _lcd1v-obsah-boxy.scss
+- [x] Konfigurátor variant A „Piesok a bronz“: premenné --kf-* v _lcd1v-kroky.scss, box 616 a vzorkovník 637
+- [x] Farby z kontrastného auditu (polia, zelené tlačidlá, pokladňa, titulka, menu, nadpisy, kamióny v časti RUČNE)
+- [ ] Vydanie: commit, push, prepnutie verzie SK a CZ (nerobí sa bez pokynu)

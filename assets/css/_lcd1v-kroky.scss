@@ -19,7 +19,15 @@ body.lcd-1v {
   --kr-text: #48412f;
   --kr-mute: #6e6752;
   --kr-line: #d9d4c6;
-  --kr-ram: #d3c49a;
+  --kr-ram: var(--kf-ram); /* polia auta, volant, miesta, dvere */
+  /* vzhľad „Piesok a bronz“ (variant A, schválený 7. 11. 2026): otvorený krok = piesočný panel s tieňom, polia a voľby biele
+     s tmavším bronzovým rámom; len farba, rám, pozadie, tieň. Rám polí má 4,66:1 na bielom poli a 4,24:1 na paneli, panel voči
+     bielej stránke 1,10:1. Používajú ich aj ostatné partialy 1V; kamióny 640 majú vlastné tokeny --k-* (panel ostáva biely, rámy v časti RUČNE _lcd1v-kamiony.scss). */
+  --kf-panel: #f6f4ef;     /* farba otvoreného kroku */
+  --kf-ram: #8f7020;       /* rám polí a volieb */
+  --kf-ram-hover: #5f4a12; /* prejdenie myšou: tmavšie, nie svetlejšie */
+  --kf-krok-ram: #948a70;  /* zatvorené kroky: 3,4:1 na bielej, 3,1:1 na piesku */
+  --kf-delic: #cfc8b6;     /* rám panelu a deliace čiary, len ozdoba */
   --kr-zelena: #2f9c68;
   /* zvolená voľba = zelený rám + zelená fajka (Michal 18. 10. 2026: „orámovalo zeleným pásikom, nech je to kontrastnejšie“);
      platí pre všetky kroky 1V (premenné na body.lcd-1v, preto ich používajú aj ostatné partialy); zlatá ostáva na hover,
@@ -148,7 +156,7 @@ body.lcd-1v #product-detail-form .lcd1v-krok {
   margin: 0 !important;
   padding: 0;
   background: #f7f5ef;
-  border: 1px solid #e2ddd0 !important;
+  border: 1px solid var(--kf-krok-ram) !important;
   border-radius: 14px;
   box-shadow: none !important;
   color: var(--kr-ink);
@@ -162,16 +170,16 @@ body.lcd-1v #product-detail-form .upsale-Banner > .lcd1v-krok {
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) {
   background: #fff;
-  border-color: var(--kr-line) !important;
+  border-color: var(--kf-krok-ram) !important;
   box-shadow: 0 2px 8px rgba(20, 15, 5, 0.06) !important;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.active {
   padding: 0 var(--kr-pad) var(--kr-pad);
-  background: #fff;
-  border-color: var(--kr-line) !important;
+  background: var(--kf-panel);
+  border-color: var(--kf-delic) !important;
   border-top: 3px solid var(--kr-gold) !important;
   border-radius: 16px;
-  box-shadow: 0 24px 56px rgba(20, 15, 5, 0.18) !important;
+  box-shadow: 0 2px 6px rgba(20, 15, 5, 0.06), 0 16px 36px rgba(20, 15, 5, 0.13) !important;
 }
 
 /* zatvorená karta = len hlavička (+ priehľadný živý .order); názov živého kroku nahrádza hlavička */
@@ -267,14 +275,14 @@ body.lcd-1v #product-detail-form .lcd1v-krok.active > .lcd1v-hd {
   margin: 0 calc(-1 * var(--kr-pad)) 22px;
   padding: 28px var(--kr-pad) 0;
 }
-/* šípka: zatvorený krok dole (sivá), otvorený hore (zlatá); hotový zatvorený má namiesto nej „Zmeniť“ */
+/* šípka: zatvorený krok dole, otvorený hore (obe tmavozlaté); hotový zatvorený má namiesto nej „Zmeniť“ */
 body.lcd-1v #product-detail-form .lcd1v-krok > .lcd1v-hd::after {
   content: "";
   flex: none;
   width: 14px;
   height: 9px;
   margin: 0 0 0 auto;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23b3aa90' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 14px 9px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / 14px 9px;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.active > .lcd1v-hd::after {
   margin-top: 6px;
@@ -404,8 +412,9 @@ body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-hotovy:not(.active) .lcd1v-zm
 body.lcd-1v #product-detail-form .lcd1v-krok:not(.active) > .order:hover ~ .lcd1v-hd .lcd1v-zm {
   border-bottom-color: var(--kr-gold-tx);
 }
-body.lcd-1v #product-detail-form .lcd1v-krok:not(.active):not(.lcd1v-hotovy):hover {
-  border-color: #d6cdb4 !important;
+/* :not(.lcd1v-chyba): červený rám chýbajúceho kroku ostáva aj pri prejdení myšou */
+body.lcd-1v #product-detail-form .lcd1v-krok:not(.active):not(.lcd1v-hotovy):not(.lcd1v-chyba):hover {
+  border-color: var(--kf-ram) !important;
   background: #f4f1e8;
 }
 
@@ -419,6 +428,7 @@ body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-chyba {
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.active.lcd1v-chyba {
   --lcd1v-ram-tien: 0 24px 56px -14px rgba(120, 32, 22, 0.26);
+  background: var(--kf-panel); /* otvorený krok ostáva piesočný, červený je len rám */
   border-top-color: var(--kr-cervena) !important;
 }
 body.lcd-1v #product-detail-form .lcd1v-krok.lcd1v-zablesk {
@@ -522,7 +532,7 @@ body.lcd-1v #product-detail-form .lcd1v-krok.active > .next-step-button {
   padding: 0 26px;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  background: linear-gradient(100deg, #1d6b4a, #1f7a52 42%, #1f7350);
   box-shadow: 0 10px 26px rgba(31, 115, 80, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   color: #fff;
   font: 900 14px/22.4px var(--kr-disp);
@@ -575,8 +585,8 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button {
   padding: 0;
   border: 1px solid var(--kr-line);
   border-radius: 12px;
-  background: #eceae5;
-  box-shadow: none;
+  background: #fff; /* biela plocha, aby dlaždica nesplynula s panelom */
+  box-shadow: 0 0 0 2px var(--kf-ram); /* živý rám je priehľadný s !important, preto obrys tieňom (nemení rozmer) */
   overflow: hidden;
   color: var(--kr-tmava);
   text-decoration: none;
@@ -588,6 +598,9 @@ body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-stri
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .lcd1v-vzor-hexa { order: 3; }
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button:hover {
   border-color: var(--kr-gold);
+}
+body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button:not(.active):hover {
+  box-shadow: 0 0 0 2px var(--kf-ram-hover);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-vzor .patterns-wrap > .option-button > img {
   display: block;
@@ -767,7 +780,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .door-Position .option-button.act
   /* prepínače volant / miesta / dvere ostávajú ZLATÉ (Michal 18. 10. 2026 večer: „tieto prvky mali ostať zlaté“);
      zelený rám + fajka platí pre karty a dlaždice voľby, nie pre tieto pilulky */
   background: var(--kr-zlato);
-  box-shadow: 0 4px 12px rgba(140, 105, 25, 0.28);
+  box-shadow: inset 0 0 0 2px var(--kf-ram), 0 4px 12px rgba(140, 105, 25, 0.28); /* rám vo vnútri: najsvetlejší stupeň zlatej má voči bielej len 1,63:1, rozmer ostáva */
   color: #17130a;
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .parameter-cars .option-button::before,
@@ -833,7 +846,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto #model-selector {
   margin: 22px 0 0 !important; /* živé section { margin: 0 !important } */
   padding: 16px 0 0;
   border: 0;
-  border-top: 2px dashed var(--kr-line);
+  border-top: 2px dashed var(--kf-delic);
   background: none;
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto #model-selector .model-selector {
@@ -910,12 +923,12 @@ body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select:hover {
-  border-color: var(--kr-gold);
+  border-color: var(--kf-ram-hover);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select:focus-visible {
-  border-color: var(--kr-gold);
+  border-color: var(--kr-ink);
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(196, 155, 49, 0.3);
+  box-shadow: 0 0 0 3px rgba(196, 155, 49, 0.45);
 }
 body.lcd-1v #product-detail-form .lcd1v-k-auto .lcd1v-pole select option {
   color: var(--kr-ink);
@@ -985,7 +998,7 @@ body.lcd-1v #product-detail-form .lcd1v-k-farba > .options-wrap > .option-button
   aspect-ratio: 1 / 1;
   margin: 0;
   padding: 0;
-  border: 1px solid rgba(20, 15, 5, 0.22);
+  border: 1px solid rgba(20, 15, 5, 0.55);
   border-radius: 12px;
   background: #e9e5da;
   box-shadow: none;

@@ -1,6 +1,12 @@
 // Štýly stránky triedy V. Sú v samostatnej časti, aby ostatné stránky webu nesťahovali ani bajt navyše. Všetko pod body.lcd-vclass.
 // Úvodná časť čierna so zlatým písmom ako hlavička webu, krok „Vaše auto“ rovnaký ako v konfigurátore 1V: zlaté prepínače,
 // zlatý rám selectov, zelené tlačidlo = kam chceme klik, chýbajúci údaj = červený rám.
+
+/** Obsah pod konfigurátorom na počítači: blok LCD-HOME má špecificitu id, tak aj tu musí byť id koreňa. Telefón sa nesmie zmeniť. */
+const O = "body.lcd-vclass.lcd-1v :is(#p1v-vclass-1,#p1v-vclass-2)";
+/** Sekcia podľa mena, aby sa rady pozadí a farieb dali čítať. */
+const S = (...m) => O + " :is(" + m.map((x) => '[data-lcd-sekcia="' + x + '"]').join(",") + ")";
+
 export const CSS = `
 body.lcd-vclass{--lv-ink:#14110c;--lv-line:#d9d4c6;--lv-gold:#c49b31;--lv-gt:#7c5f16;--lv-mute:#6e6752;--lv-text:#3d3728;--lv-sand:#f6f4ef;--lv-zel:#1f7a52;--lv-zg:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350);--lv-zl:linear-gradient(100deg,#8f7020,#e6c877 48%,#c49b31);--lv-disp:"Exo 2",system-ui,sans-serif;--lv-body:"Source Sans 3",system-ui,sans-serif}
 body.lcd-vclass .p-image-wrapper>*:not(#lcd-vclass-nakres){display:none!important}
@@ -467,5 +473,160 @@ body.lcd-vclass .vs-sp b{color:var(--lv-ink)}
   body.lcd-vclass .vs{grid-template-columns:repeat(2,minmax(0,1fr))}
   body.lcd-vclass .vs-k:first-child{grid-column:1/-1}
   body.lcd-vclass .vs-k:first-child .vs-f img{aspect-ratio:2/1}
+}
+
+/* Rozloženie obsahu na počítači (Michal 7. 11. 2026: „text je strašne na sebe“, „prečo to troška nerozťahneš, veď tam je dosť miesta“).
+   --lv-st = šírka stĺpca obsahu, --lv-ok = voľný okraj vedľa stĺpca, --lv-odst = odstup úvodu od obsahu sekcie.
+   Rytmus sekcií je od 992 px, širší stĺpec a väčšie písmo od 1600 px. */
+@media (min-width:992px){
+  ${O}{--lv-st:min(1240px,calc(var(--p1v-sirka,100vw) - 2*var(--pad)));--lv-ok:calc((var(--p1v-sirka,100vw) - var(--lv-st))/2);--lv-odst:clamp(28px,calc(18px + 1vw),44px);--lv-pies:#e9e4d8}
+  ${O} .eyebrow{margin:0 0 10px}
+  ${O} :is(.wrap,.vk-hl)>h2 + .lede{margin-top:16px}
+  ${O} .chapter :is(.wrap,.vk-hl)>.lede{max-width:70ch}
+  ${O} .chapter .wrap>.lede{color:var(--lv-text)}
+  ${O} .chapter .wrap>.lede + *,${O} .chapter .wrap>h2 + :not(.lede){margin-top:var(--lv-odst)}
+  ${O} .vk-hl{margin-bottom:var(--lv-odst)}
+  ${O} .vk-3d{margin-top:0}
+  ${O} .vp-js .vp-t h3{margin:0 0 10px;font-size:26px}
+  ${O} .vv-t h3{margin:0 0 12px}
+  ${O} .vs{margin-bottom:24px}
+  ${O} .vs-t{gap:8px}
+  ${O} .vs-t h3{margin:0}
+  ${O} .vs-t p{font-size:16px}
+  ${O} .k-cta{margin-top:24px}
+  ${O} :is(.vp-fakty li,.vv-zoz li,.vk-f li,.vk-pozn){font-size:17px}
+
+  /* susedné sekcie sa striedajú: biela, piesok, tmavý pás; zlatý nadpis je tmavší, svetlé zlato sa na piesku zle číta */
+  ${O} section.chapter{border-top:0}
+  ${O} .chapter .wrap>h2{background:linear-gradient(100deg,#7c5f16,#9c7b26 55%,#7c5f16);-webkit-background-clip:text;background-clip:text}
+  ${S("vclass-prehliadka", "vclass-set", "c-casova-os", "c-domov", "vclass-kontakt")}{background:var(--lv-pies)}
+  ${S("vclass-verzie", "vclass-sken", "vclass-videa", "a-recenzie", "d-faq")}{background:#fff}
+  ${S("vclass-galeria")}{background:#0d0b08}
+  ${S("vclass-galeria")} .eyebrow{color:#e6c877}
+  ${S("vclass-galeria")} .wrap>h2{background:linear-gradient(100deg,#c49b31,#e6c877 50%,#d9b558);-webkit-background-clip:text;background-clip:text}
+  ${S("vclass-galeria")} .wrap>.lede{color:#d9d4c6}
+
+  /* pásy fotiek a videí: 4 vedľa seba v stĺpci, ďalšie vidno až po okraj obrazovky, šípky nad pásom. Stopa minmax() v dlhom páse nikdy nerastie. */
+  ${S("vclass-galeria", "vclass-videa")} .vl-pas{margin-left:calc(-1*var(--lv-ok));margin-right:calc(-1*var(--lv-ok))}
+  ${S("vclass-galeria", "vclass-videa")} :is(.vg,.vy){padding-left:var(--lv-ok);padding-right:var(--lv-ok);scroll-padding-inline:var(--lv-ok)}
+  ${O} .vg{grid-auto-columns:calc((var(--lv-st) - 36px)/4)}
+  ${S("vclass-videa")} .vy{grid-auto-columns:calc((var(--lv-st) - 48px)/4)}
+  ${S("vclass-galeria", "vclass-videa")} .vl-sip{top:auto;bottom:calc(100% + 10px);margin-top:0}
+  ${S("vclass-galeria", "vclass-videa")} .vl-sip-p{right:var(--lv-ok)}
+  ${S("vclass-galeria", "vclass-videa")} .vl-sip-l{left:auto;right:calc(var(--lv-ok) + 60px)}
+  /* zábery videí majú 480 px, ďalej sa nenaťahujú */
+  ${O} .vk-panel .vy{grid-template-columns:repeat(3,minmax(0,480px));justify-content:center}
+
+  /* výzva: fotka 1800 × 1350 ostrá v polovici pásu, text vedľa nej v stĺpci obsahu. Starý obrázok z HTML je skrytý, zmazať sa dá len v Popise. */
+  ${O} .end{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;min-height:clamp(440px,32vw,700px);padding-left:var(--lv-ok)!important;padding-right:calc(50% + clamp(32px,4vw,90px))!important;text-align:left}
+  ${O} .end h2{margin:0;max-width:none}
+  ${O} .end h2 + .lede{margin:16px 0 0;max-width:none}
+  ${O} .end-cta{justify-content:flex-start;margin-top:var(--lv-odst)}
+  ${O} .endbg{left:50%;z-index:-1;background:#181510 url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/autokoberce-mercedes-v-class-detail-cela-w1200.webp") 50% 60%/cover no-repeat}
+  ${O} .endbg img{display:none}
+
+  /* vzorky v stĺpci obsahu */
+  ${O} .vz .in{box-sizing:border-box;width:var(--lv-st);max-width:none;padding-left:0;padding-right:0}
+  ${O} .vz h2 + p{margin-top:16px}
+  ${O} .vz .row{margin-top:var(--lv-odst)}
+
+  /* verzie: väčšia kresba, Vybrať ako tlačidlá */
+  ${O} .vv-kresba canvas{flex:0 1 56%;max-width:56%}
+  ${O} .vv-tab a{display:inline-block;padding:10px 16px;border-radius:9px;background:var(--lv-zel);color:#fff;font:800 16px/1.2 var(--lv-disp);text-decoration:none;box-shadow:0 8px 16px -10px rgba(31,122,82,.8)}
+  ${O} .vv-tab a:focus-visible{outline:3px solid var(--lv-gold);outline-offset:2px}
+
+  /* kontakt: tri polia v riadku, aby vedľa telefónu neostala diera. Do 1199 px sa zmestia, len keď ide formulár cez celý stĺpec (blok nižšie). */
+  ${O} .vt-f{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (min-width:992px) and (hover:hover){${O} .vv-tab a:hover{background:#176443}}
+@media (min-width:992px) and (max-width:1199px){
+  ${O} .vt{grid-template-columns:minmax(0,1fr)}
+  ${O} .vt-pri{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:1600px){
+  ${O},body.lcd-vclass{--lv-st:min(1760px,84vw)}
+  ${O}{--lv-tx:clamp(20px,calc(20px + (100vw - 1600px)/480),22px)}
+  /* konfigurátor v tom istom stĺpci: stĺpce gridu Shoptetu majú po 20 px okraja */
+  body.lcd-vclass #lcd-vclass-cesta{box-sizing:border-box;width:var(--lv-st);max-width:none;margin-left:calc((100% - var(--lv-st))/2)}
+  body.lcd-vclass .row.product-top{width:calc(var(--lv-st) + 40px);margin-left:calc((100% - var(--lv-st))/2 - 20px);margin-right:0}
+
+  ${O} .wrap{max-width:var(--lv-st)}
+  ${O} section.chapter[data-lcd-sekcia]{padding-top:clamp(84px,5vw,120px)!important;padding-bottom:clamp(84px,5vw,120px)!important}
+  ${O} :is(.chapter h2,.vz h2,.end h2){font-size:clamp(44px,2.8125vw,72px)}
+  ${O} .eyebrow{font-size:clamp(14px,.7vw,18px)}
+  ${O} :is(.lede,.vz p,.vp-t p,.vp-fakty li,.vv-zoz li,.vv-tab,.vs-sp,.vk-f li,.vk-pozn,.rev p,.p1v-faq-q .t,.p1v-faq-a .a,.ba-p,.bal-mail){font-size:var(--lv-tx)}
+  ${O} :is(.btn,.vt-a button,.vp-chcem,.vp-spat,.vp-dalej){font-size:16px}
+  ${O} .vy-f figcaption{font-size:clamp(18px,.8vw,20px)}
+
+  /* prehliadka: pôdorys vedľa seba, inak by bol o polovicu vyšší než fotka. Prehliadač pri sizes z Popisu berie fotku 800 px, nad 920 px by bola rozmazaná. */
+  ${O} .vp-js{grid-template-columns:minmax(0,1fr) min(920px,41.6vw)}
+  ${O} .vp-js .vp-f img{aspect-ratio:3/2}
+  ${O} .vp-js .vp-mapa{flex-direction:row;justify-content:center;align-items:center;gap:12px}
+  ${O} .vp-c{width:52%}
+  ${O} .vp-c2{width:46%}
+  ${O} .vp-js .vp-t h3{font-size:clamp(26px,1.35vw,34px)}
+  ${O} .vp-fakty li{padding:20px 24px}
+  ${O} .vp-fakty b{font-size:24px}
+  ${O} .vp-chips button{font-size:15px}
+  ${O} .vp-js .vp-far{grid-template-columns:minmax(300px,400px) minmax(0,1fr) minmax(220px,280px);padding:22px 26px}
+  ${O} .vp-far-t{font-size:20px}
+  ${O} .vp-far-n{font-size:17px}
+  ${O} .vp-vz button{padding:10px 6px;font-size:15px}
+  ${O} .vp-sw button{width:44px;height:44px}
+  ${O} .vp-chcem{padding:15px 16px}
+  ${O} :is(.vp-spat,.vp-dalej){padding:13px 20px}
+
+  ${O} .vv-kresba{gap:28px;padding:24px}
+  ${O} .vv-r span{font-size:14px}
+  ${O} .vv-r button{padding:10px 14px;font-size:16px}
+  ${O} .vv-t h3{font-size:26px}
+  ${O} .vv-tab thead th{font-size:14px}
+  ${O} .vv-tab tbody th{font-size:22px}
+  ${O} .vv-tab a{padding:12px 20px;font-size:17px}
+
+  ${O} .vs{gap:16px}
+  ${O} .vs-t{padding:18px 18px 20px}
+  ${O} .vs-t h3{font-size:22px}
+  ${O} .vs-t p{font-size:19px}
+  ${O} .vs-c{font-size:21px}
+
+  /* sken: nadpis a úvod sa zmestia, model ostáva v pôvodnej veľkosti, nech nezaberie celú obrazovku */
+  ${O} .vk-hl{max-width:1000px}
+  ${O} .vk-3d{max-width:1240px;margin-left:auto;margin-right:auto}
+  ${O} .vk-f li{padding:20px}
+  ${O} .vk-f b{font-size:26px}
+
+  ${S("c-casova-os")} .tml{max-width:1500px}
+  ${S("c-casova-os")} .tml .c b{font-size:24px}
+  ${S("c-casova-os")} .tml .c p{font-size:var(--lv-tx)}
+  ${S("c-casova-os")} .tml .c .tt{font-size:14px}
+
+  ${S("a-recenzie")} .rev{flex-basis:calc((100% - 60px)/4)}
+  ${S("a-recenzie")} .rev .meta b{font-size:17px}
+  ${S("a-recenzie")} .rev .meta i{font-size:15px}
+  ${S("a-recenzie")} .revhead .sub{font-size:17px}
+
+  ${S("c-domov")} .bal li{grid-template-columns:auto 380px 1fr}
+  ${S("c-domov")} .bal b{font-size:23px}
+
+  /* vzorky 260 px: vejár môže byť väčší, stále ostrý */
+  ${O} .vz{--lv-vej:clamp(170px,10vw,226px)}
+  ${O} .vz h2{max-width:24ch}
+  ${O} .vz p{max-width:56ch}
+  ${O} .vz .note{font-size:14px}
+  ${O} .fan i{width:var(--lv-vej);margin-left:calc(var(--lv-vej)*-.34)}
+  ${O} .fan i:first-child{margin-left:0}
+
+  ${O} .p1v-faq-q .i{font-size:17px}
+
+  ${O} .vt-pri a{padding:20px 24px;font-size:22px}
+  ${O} .vt-p>span{font-size:18px}
+  ${O} .vt-p small{font-size:16px}
+  ${O} :is(.vt-p input,.vt-p textarea){padding:14px 16px;font-size:18px}
+  ${O} .vt-a p{font-size:16px}
+}
+/* výzva: na veľkom monitore polovica pásu presiahne 1200 px, vtedy väčší súbor */
+@media (min-width:2200px),(min-width:992px) and (min-resolution:1.5dppx){
+  ${O} .endbg{background-image:url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/autokoberce-mercedes-v-class-detail-cela-w1800.webp")}
 }
 `;

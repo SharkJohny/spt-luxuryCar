@@ -136,6 +136,40 @@ body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(2) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-pp-2.jpg)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(3) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-pp-3.jpg)}
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"] .lx-leg-r:nth-child(4) .lx-leg-sw{background-image:url(https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/obsah/boxy-pp-4.jpg)}
+/* širšie „Pred a po“ pri boxe do kufra (SK 616, CZ 2427), len počítač na šírku; schválené 7. 11. 2026.
+   Rozhodnutie Michala 6. 11. 2026 (záznam v 2026-11-02-otvorene-napady-web, r. 40, nie jeho doslovné slová): širšia sekcia pri boxe na PC. Fotku brzdí výška okna, nie šírka: pri 1920 × 1080 mala 890 × 544 px,
+   lebo pod ňou boli karty a nad ňou štítky. Karty preto idú vedľa fotky (rovnaké rozloženie ako nízky notebook v LCD-HOME), scéna smie byť
+   širšia než 1240 px a štítky sú preč (úvodná veta hovorí to isté a ostáva v riadku s nadpisom).
+   Výška fotky ~ 84vh − 120 px (hlavička 47–50 px, päta 71 px, odstupy podľa vh). Šírka scény podľa nej, nech nadpis a päta končia s fotkou a kartami.
+   Päta: tlačidlo nesmie vojsť pod okrúhly chat vpravo dole (97 px od okraja okna), preto odsadenie sprava len tam, kde by k nemu došlo.
+   Strop 1610 × 984 px: fotky boxy-pred-cely / boxy-po-cely.jpg majú 1400 × 856, ďalej by boli viac než 1,15-násobok a rozmazané.
+   Telefón, tablet na výšku aj 4 : 3 sa nemenia (min-aspect-ratio), nízky notebook do 740 px má stĺpec už dnes (LCD-HOME). */
+@media(min-width:1024px) and (min-height:741px) and (min-aspect-ratio:3/2){
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu){--lx-legw:clamp(220px,17vw,320px)}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-pin{
+    max-width:min(100%,calc((84vh - 120px) * 1.6355 + 28px + var(--lx-legw) + 2 * var(--pad)),calc(1638px + var(--lx-legw) + 2 * var(--pad)))}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-foot{padding-right:max(0px,calc(50% - 50vw + 125px))}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-hlava-t{
+    display:flex;flex-wrap:wrap;align-items:baseline;column-gap:28px}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-p{margin:0;max-width:none}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-chips{display:none}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-pp-main{--lx-gapmin:28px;
+    --lx-w:min(calc(100cqw - var(--lx-legw) - var(--lx-gapmin)),calc(100cqh * var(--lx-pomer)),1610px)}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-pp-stage{
+    width:100%;height:100%;flex-direction:row;align-items:center;justify-content:center}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-leg{
+    flex:none;display:flex;flex-direction:column;gap:12px;width:var(--lx-legw);min-height:calc(var(--lx-w) / var(--lx-pomer))}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-leg-r{flex:1 1 0;padding:12px 16px}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-leg-sw{display:none}
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-leg-t span{display:block}
+}
+/* vzorka v karte len tam, kde ostane nadpisu aspoň 126 px (najdlhší „PRIEHRADKA“ ~ 105 px); 120 px súbor na 72 px je ostrý */
+@media(min-width:1600px) and (min-height:741px) and (min-aspect-ratio:3/2){
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-leg-sw{display:block}
+}
+@media(min-width:1800px) and (min-height:900px) and (min-aspect-ratio:3/2){
+  body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="b-predapo"]:not(.lx-bez-lepu) .lx-leg-sw{width:72px;height:72px}
+}
 
 /* =============================================================== 40 boxy-cross: „Doplňte kufor o rohož“ */
 body.lcd-1v :is(#p1v-boxy-1,#p1v-boxy-2) [data-lcd-sekcia="boxy-cross"] .lede{margin-top:12px}

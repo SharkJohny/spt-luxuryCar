@@ -21,7 +21,7 @@ body.lcd-1v {
   --c1v-line: #d9d4c6;
   --c1v-disp: "Exo 2", "Segoe UI", Arial, sans-serif;
   --c1v-body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
-  --c1v-zelena: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  --c1v-zelena: linear-gradient(100deg, #1d6b4a, #1f7a52 42%, #1f7350);
   --c1v-lista-h: 71px; /* 10 + 50 + 10 px + linka */
 }
 
@@ -125,7 +125,7 @@ body.lcd-1v #product-detail-form .p-detail-inner-header a.lcd1v-hodn[data-lcd1v-
 body.lcd-1v #product-detail-form a.lcd1v-hodn b {
   font: 700 16px/22px var(--c1v-disp); color: var(--c1v-ink); font-variant-numeric: tabular-nums;
 }
-body.lcd-1v #product-detail-form a.lcd1v-hodn .lcd1v-hodn__st { color: var(--c1v-gold); font-size: 16px; line-height: 22px; letter-spacing: .1em; }
+body.lcd-1v #product-detail-form a.lcd1v-hodn .lcd1v-hodn__st { color: var(--kf-ram); /* hviezdy: 2,60:1 -> 4,66:1 na bielej */ font-size: 16px; line-height: 22px; letter-spacing: .1em; }
 body.lcd-1v #product-detail-form a.lcd1v-hodn i {
   font-style: normal; font-size: 16px; line-height: 22px; color: var(--c1v-lb);
   text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: #cdc4ad; text-underline-offset: 4px;
@@ -243,12 +243,12 @@ body.lcd-1v #product-detail-form .NoteDiv .lcd1v-pozn-nep {
 }
 body.lcd-1v #product-detail-form .NoteDiv textarea#Note {
   display: block; box-sizing: border-box; width: 100%; min-height: 74px; margin: 0; padding: 12px 13px;
-  border: 1px solid var(--c1v-line); border-radius: 12px; background: #f7f5ef; box-shadow: none; outline: none;
+  border: 1px solid var(--kf-ram); border-radius: 12px; background: #f7f5ef; box-shadow: none; outline: none;
   font: 400 16px/1.5 var(--c1v-body); color: var(--c1v-ink); resize: vertical; /* 16 px: iPhone pri ťuknutí nezväčší stránku */
   transition: border-color .2s, background-color .2s, box-shadow .2s;
 }
 body.lcd-1v #product-detail-form .NoteDiv textarea#Note:hover,
-body.lcd-1v #product-detail-form .NoteDiv textarea#Note:focus { border-color: var(--c1v-gold); background: #fff; }
+body.lcd-1v #product-detail-form .NoteDiv textarea#Note:focus { border-color: var(--kf-ram-hover); background: #fff; }
 body.lcd-1v #product-detail-form .NoteDiv textarea#Note:focus { box-shadow: 0 0 0 3px rgba(196, 155, 49, .2); }
 body.lcd-1v #product-detail-form .NoteDiv textarea#Note::placeholder { color: var(--c1v-lb) !important; opacity: 1; }
 body.lcd-1v #product-detail-form .NoteDiv .lcd1v-pozn-hint {

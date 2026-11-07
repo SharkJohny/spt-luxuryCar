@@ -194,3 +194,9 @@ html.lcd-rz-auto:not(.lcd-rz-plne) #lcd-rz[data-lcd-cast=rz] :is(em.rz-auto,.pla
 ul.subcategories.with-image li a .text {
   line-height: 1.25;
 }
+
+/* zoznam produktov: tlačidlo „Detail“ zo šablóny Shoptetu, biela na zlatej mala 2,60:1 -> tmavý text 7,25:1 (kontrast 7. 11. 2026) */
+.p-tools a.btn.btn-primary,
+.p-tools a.btn.btn-primary:hover {
+  color: #14110c;
+}

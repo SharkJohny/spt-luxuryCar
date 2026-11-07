@@ -66,8 +66,10 @@ body.lcd-1v .p1v-miesto :is([data-lcd-kap="1"] + [data-lcd-kap="1"],[data-lcd-ka
       c) reveal .rv: titulka ho skrýva (opacity 0 až do .on). Kým obsah.js neprevezme odhaľovanie (.p1v-rv na obale
          sekcie), je .rv viditeľné — bez JS alebo pri chybe skupiny nič neostane skryté;
       d) text len pre čítačky (TinyMCE: tlačidlo so šípkou musí mať text). */
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.chapter h2,.pinhead h2){color:#8f7020;
-  background:linear-gradient(100deg,#8a6b1c,#c49b31 42%,#e0bd63 60%,#96751f);
+/*       (kontrast 7. 11. 2026: predtým #8a6b1c, #c49b31, #e0bd63, #96751f, najsvetlejší stupeň mal 1,26 až 1,64:1. Lesk ostáva, každý stupeň má
+         aspoň 3:1 aj na najtmavšom podklade #e0d7bf; #96751f = 3,01:1, svetlejší stupeň by na ňom neprešiel.) */
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) :is(.chapter h2,.pinhead h2){color:#7c5f16;
+  background:linear-gradient(100deg,#7c5f16,#8f7020 42%,#96751f 60%,#7c5f16);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /*    b) bez úvodu scén a záveru: titulka (LCD-HOME) má .pinhead .lede 70ch, .setb .lede 54ch, .end .lede 56ch a návrhy ich
          preberajú; 46ch s vyššou špecificitou ich prebíjalo (úvod Deväť vecí/Materiál a záver užšie než v návrhu, jadroChyby T1.3, T3.3) */

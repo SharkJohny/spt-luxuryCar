@@ -307,7 +307,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] .lcd1v-lista button.lcd1v-lista__kos[disabl
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; container: kn-dv / inline-size; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .08); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
 @media (hover: hover) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b:hover { border-color: var(--k-gold); box-shadow: 0 8px 22px rgba(140, 105, 25, .18); }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b:hover { border-color: var(--k-ram-hover); box-shadow: 0 8px 22px rgba(140, 105, 25, .18); }
 }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-foto { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; background: #1d1a14; }
@@ -329,7 +329,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu { position: absolute;
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu--dole { top: auto; bottom: 8px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__tx { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 12px; align-items: start; padding: 13px 14px 14px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__txt { display: block; min-width: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-top: 1px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-top: 1px; border: 2px solid var(--k-gold-lo); border-radius: 50%; background: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rad::after { content: "\2713"; color: #fff; font: 800 14px/1 var(--k-body); opacity: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__nm { display: block; color: var(--k-ink); font: 800 17px/1.2 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po { display: block; margin-top: 3px; color: var(--k-mute); font: 400 14px/1.4 var(--k-body); }
@@ -409,7 +409,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-info { margin: 14px 0 0; 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b { position: relative; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; overflow: hidden; border: 2px solid var(--k-ram); border-radius: 14px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .07); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
 @media (hover: hover) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b:hover { border-color: var(--k-gold); }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b:hover { border-color: var(--k-ram-hover); }
 }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__viz { position: relative; display: block; width: 100%; aspect-ratio: 3 / 2; overflow: hidden; background: #eceae5; }
@@ -425,7 +425,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__mozaika--motiv i { ma
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv { max-width: 380px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv .k-dlazdica__img { padding: 0; object-fit: cover; background: #f0edda; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__cv { display: block; width: 100%; max-width: none; height: 100%; margin: 0; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 2px solid var(--k-gold-lo); border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__r::after { content: "\2713"; color: #fff; font: 800 13px/1 var(--k-body); opacity: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__tx { display: block; padding: 10px 12px 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__nm { display: block; color: var(--k-ink); font: 800 15.5px/1.2 var(--k-disp); }
@@ -518,7 +518,7 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .fb { grid-template
    (★ Najobľúbenejšie, Odporúčame, ponuka v rámiku), tlačidlá „Nie, ďakujem“ a prepínač-pilulku Kamión / Dodávka (.k-segment:
    zvolená = zlatý prechod, tmavé písmo — Michal 18. 10. 2026 v noci, ako volant / miesta / dvere autokobercov 24c9f51).
    Prebíja zlaté pravidlá vyššie (rovnaká špecifickosť, neskôr v súbore) — nový prevod z artefaktu ich teda nevráti. ===== */
-body.lcd-1v[data-lcd1v-typ="kamion"] { --k-zvol: #1f7a52; --k-zvol-grad: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350); --k-zvol-bg: #f2f9f5; --k-zvol-tien: 0 10px 24px rgba(31, 122, 82, .18); }
+body.lcd-1v[data-lcd1v-typ="kamion"] { --k-zvol: #1f7a52; --k-zvol-grad: linear-gradient(100deg, #1d6b4a, #1f7a52 42%, #1f7350); --k-zvol-bg: #f2f9f5; --k-zvol-tien: 0 10px 24px rgba(31, 122, 82, .18); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica.is-on { border-color: var(--k-zvol); background: #fff; box-shadow: 0 0 0 2px var(--k-zvol), var(--k-zvol-tien); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta.is-on:hover, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__b.is-on, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 1px var(--k-zvol), var(--k-zvol-tien); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .lm__b.is-on { border-color: var(--k-zvol); background: var(--k-zvol-bg); box-shadow: 0 0 0 2px var(--k-zvol), var(--k-zvol-tien); }
@@ -602,10 +602,10 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tvfoto > img { position: 
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b { position: relative; display: block; width: 100%; height: auto; min-height: 44px; margin: 0; padding: 14px; border: 2px solid var(--k-ram); border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(20, 15, 5, .07); color: var(--k-ink); font: inherit; letter-spacing: 0; text-align: left; text-transform: none; white-space: normal; cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s; -webkit-appearance: none; appearance: none; }
 @media (hover: hover) {
-  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b:hover { border-color: var(--k-gold); }
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b:hover { border-color: var(--k-ram-hover); }
 }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__b:focus-visible { outline: 3px solid var(--k-gold); outline-offset: 2px; }
-body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__r { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 2px solid #b5a473; border-radius: 50%; background: #fff; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__r { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 2px solid var(--k-gold-lo); border-radius: 50%; background: #fff; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__r::after { content: "\2713"; color: #fff; font: 800 15px/1 var(--k-body); opacity: 0; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__nm { display: block; padding-right: 38px; color: var(--k-ink); font: 800 19px/1.25 var(--k-disp); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-tv__po { display: block; margin-top: 3px; padding-right: 38px; color: var(--k-mute); font: 400 15px/1.4 var(--k-body); }
@@ -737,3 +737,15 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-hot__zm { font-size: 14px
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-ilu, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-dv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-rv__po, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nie small { font-size: 15px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__hd, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-nh__pop, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p, body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-vz p b { font-size: 16px; }
 }
+
+/* kontrast (audit 7. 11. 2026): rám polí a volieb #8f7020 (4,66:1 na bielej), prejdenie tmavšie, tlačidlo bez svetlého stredu, popis zatvoreného kroku,
+   hviezdy, krúžok, rám zvolenej zlatej voľby. Tokeny sú v generovanej časti, preto prepis tu; otvorený krok kamiónu ostáva biely. */
+body.lcd-1v[data-lcd1v-typ="kamion"] { --k-ram: #8f7020; --k-ram-hover: #5f4a12; --k-mute2: #6e6752; --k-zelene: linear-gradient(100deg, #1d6b4a, #1f7a52 42%, #1f7350); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-select:hover { border-color: var(--k-ram-hover); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-select:focus-visible { border-color: var(--k-ink); box-shadow: 0 0 0 3px rgba(196, 155, 49, .45); }
+@media (hover: hover) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta:not(.is-on):hover { border-color: var(--k-ram-hover); }
+}
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__vol { border-color: var(--k-gold-lo); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn__st { color: var(--k-gold-lo); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-segment > button.is-on { box-shadow: inset 0 0 0 2px var(--k-gold-lo), 0 4px 12px rgba(140, 105, 25, .28); }

@@ -32,10 +32,10 @@ body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q{appearance:none;-we
   font:inherit;color:var(--ink);text-align:left;text-transform:none;letter-spacing:normal;min-height:0;height:auto}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .i{flex:0 0 auto;min-width:20px;margin-right:14px;font-family:var(--disp);
-  font-weight:800;font-size:12px;line-height:1.6;letter-spacing:.08em;color:#8f7020;font-variant-numeric:tabular-nums}
+  font-weight:800;font-size:12px;line-height:1.6;letter-spacing:.08em;color:#7c5f16;font-variant-numeric:tabular-nums}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .t{flex:1;min-width:0;font-family:var(--body);font-size:clamp(17px,calc(15.2px + .37vw),18px);
   font-weight:600;line-height:1.6;color:var(--ink);transition:color .2s}
-body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:hover .t{color:var(--gold-lo)}
+body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q:hover .t{color:#7c5f16}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q .p{flex:none;margin-left:auto;font-family:var(--body);font-size:20px;
   line-height:1;color:#7c5f16;transition:transform .25s}
 body.lcd-1v :is(#p1v-598-1,#p1v-598-2,.p1v-obsah) .p1v-faq-q[aria-expanded="true"] .p{transform:rotate(45deg)}

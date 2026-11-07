@@ -9,9 +9,9 @@ html.lcd-opc,html.lcd-opc-kosik{--o-ink:#14110c;--o-mute:#5f574a;--o-line:#e3dcc
   --o-ok:#2e7d32;--o-ok-hi:#3f9a44;--o-ok-lo:#256b29;--o-ok-bg:#f3f9f3;--o-zle:#b3261e;--o-zle-bg:#fdf3f2;
   --o-disp:"Exo 2","Segoe UI",Arial,sans-serif;--o-body:"Source Sans 3","Segoe UI",Arial,sans-serif;
   /* dizajn A (Michal 29. 10. 2026, dizajn/audit.md § 3): piesok, karty, polia 1V, krúžok čísla, chyba poľa, zelená košíka */
-  --o-piesok:#f7f5ef;--o-karta:#e2ddd0;--o-linka:#d9d4c6;--o-pole:#d3c49a;--o-kruh:#cfc8b6;--o-tmava:#3d3728;--o-text:#48412f;
+  --o-piesok:#f7f5ef;--o-karta:#e2ddd0;--o-linka:#d9d4c6;--o-pole:#8f7020;--o-kruh:#cfc8b6;--o-tmava:#3d3728;--o-text:#48412f;
   --o-tlm:#6e6752;--o-gold-t:#7c5f16;--o-chyba:#c0392b;--o-chyba-t:#a9342a;--o-chyba-bg:#fdf4f3;
-  --o-zelena:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%);
+  --o-zelena:linear-gradient(180deg,#2e7d32 0%,#2a7330 55%,#256b29 100%);
   --o-fajka:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 
 /* košík: prechod na krok 2 beží (Step1Validate na pozadí) — viditeľne aj po ťuknutí: stlmené, „Načítavam…“ (opc/kosik.js),
@@ -58,7 +58,7 @@ html.lcd-opc #lcd-opc .radio-wrapper input[type=radio]+label{display:grid;grid-t
 }
 /* rádio: kruh, zvolené = zelený kruh s fajkou */
 html.lcd-opc #lcd-opc .radio-wrapper input[type=radio]+label:before{content:"";position:absolute;left:14px;top:17px;transform:none;box-sizing:border-box;
-  width:22px;height:22px;margin:0;border:2px solid #a39b8c;border-radius:50%;background:#fff}
+  width:22px;height:22px;margin:0;border:2px solid #6e6752;border-radius:50%;background:#fff}
 html.lcd-opc #lcd-opc .radio-wrapper input[type=radio]+label:after{content:none;display:none}
 html.lcd-opc #lcd-opc .radio-wrapper input[type=radio]:checked+label:before{border-color:var(--o-ok);background:var(--o-ok)}
 html.lcd-opc #lcd-opc .radio-wrapper input[type=radio]:checked+label:after{content:"";display:block;position:absolute;left:22px;top:21px;width:6px;height:11px;
@@ -92,7 +92,7 @@ html.lcd-opc #lcd-opc .lcd-opc-odkaz__riadok{display:grid;grid-template-columns:
 }
 @media (min-width:768px){html.lcd-opc #lcd-opc .lcd-opc-odkaz__riadok{grid-template-columns:minmax(0,1fr) 72px auto;grid-template-areas:"info logo akcia"}}
 html.lcd-opc #lcd-opc .lcd-opc-odkaz__riadok:before{content:"";position:absolute;left:14px;top:17px;box-sizing:border-box;width:22px;height:22px;
-  border:2px solid #a39b8c;border-radius:50%;background:#fff}
+  border:2px solid #6e6752;border-radius:50%;background:#fff}
 html.lcd-opc #lcd-opc .lcd-opc-odkaz.active .lcd-opc-odkaz__riadok:before{border:2px solid var(--o-ok);background:var(--o-ok)}
 /* nezvolený riadok-odkaz nie je rádio (revízia): namiesto prázdneho krúžku zlatá šípka — klik otvorí samostatnú stránku */
 html.lcd-opc #lcd-opc .lcd-opc-odkaz:not(.active) .lcd-opc-odkaz__riadok:before{left:20px;top:24px;width:9px;height:9px;border:solid var(--o-gold-lo);
@@ -274,7 +274,7 @@ html.lcd-opc #lcd-opc .lcd-opc-chyba-text{margin:10px 0 0;color:var(--o-chyba-t)
 /* =====================================================================
    DIZAJN A „ako konfigurátor“ (Michal 29. 10. 2026; náčrt dizajn/A-konfigurator, tokeny dizajn/audit.md § 3)
    Piesočné pozadie, biele karty 1–4 s číslom v krúžku (opc/vzhlad.js pripravKarty + vykresliSekciu), hotová karta = zelená
-   fajka (obnovKarty), popis nad poľom, polia 46 px / 2 px #d3c49a / rádius 12 / zlatý fokus, adresa v 2 riadkoch, platby
+   fajka (obnovKarty), popis nad poľom, polia 46 px / 2 px bronzový rám / rádius 12 / tmavý fokus so zlatou žiarou, adresa v 2 riadkoch, platby
    zadarmo ako dlaždice, súhrn = karta so zlatým pruhom a krátkou rekapituláciou (1 riadok na produkt; rozpis konfigurácie
    ostáva v košíku a v zbalenom súhrne navrchu). Len štýl a usporiadanie natívnych prvkov, nič sa neprekrýva ani nekopíruje.
    Všetko pod html.lcd-opc body.in-krok-2 — košík (tiež .lcd-opc-kroky) sa nemení.
@@ -386,7 +386,7 @@ html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .form-control-wrapper{dis
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .form-control{box-sizing:border-box;display:block;float:none;width:100%;max-width:none;height:46px;
   margin:0;padding:0 14px;border:2px solid var(--o-pole);border-radius:12px;background:#fff;box-shadow:none;outline:0;
   font:400 16px/1.25 var(--o-body);color:var(--o-ink);transition:border-color .15s,box-shadow .15s,background-color .15s}
-html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .form-control:focus{border-color:var(--o-gold);box-shadow:0 0 0 3px rgba(196,155,49,.3)}
+html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .form-control:focus{border-color:var(--o-ink);box-shadow:0 0 0 3px rgba(196,155,49,.45)}
 html.lcd-opc body.in-krok-2 #order-form .form-control.js-error-field,html.lcd-opc body.in-krok-2 #order-form .form-control.error-field{border-color:var(--o-chyba);background-color:var(--o-chyba-bg)}
 /* text chyby pod poľom (Shoptet .js-validator-msg aj náš): červený, s krúžkom „!“, aspoň 15 px */
 html.lcd-opc body.in-krok-2 #order-form .js-validator-msg{position:static;display:flex;align-items:flex-start;gap:6px;width:auto;margin:7px 0 0;padding:0;border:0;
@@ -401,7 +401,7 @@ html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input .co
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input .country-flags-inner{border:0;font:600 16px/1.2 var(--o-body);color:var(--o-ink)}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input .shp-flag-label{margin-left:6px;font:600 16px/1.2 var(--o-body);color:var(--o-ink)}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input .form-control{flex:1 1 auto;min-width:0;width:auto;border-left:0;border-radius:0 12px 12px 0}
-html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input:focus-within .country-flags{border-color:var(--o-gold);border-right-color:var(--o-karta)}
+html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input:focus-within .country-flags{border-color:var(--o-ink);border-right-color:var(--o-karta)}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .lcd-opc-chyba-pole .phone-combined-input .country-flags{border-color:var(--o-chyba);border-right-color:var(--o-karta);background-color:var(--o-chyba-bg)}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .lcd-opc-chyba-pole .phone-combined-input{border-radius:12px;box-shadow:0 0 0 6px rgba(192,57,43,.1)}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .lcd-opc-chyba-pole .phone-combined-input .form-control:is(.js-error-field,.error-field){box-shadow:none !important}
@@ -434,9 +434,11 @@ html.lcd-opc body.in-krok-2 #order-form .lcd-opc-stat em.helpNote a{padding:5px 
 /* „Zmeniť štát“ -> výber krajín z kroku 1 priamo tu (opc/stat.js); názov štátu nahradí výber */
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-stat .lcd-opc-stat--vyber > strong{display:none}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-stat .lcd-opc-stat__vyber{display:inline-block;width:auto;min-width:190px;max-width:100%;height:44px;margin:0;
-  padding:0 36px 0 12px;border:1.5px solid var(--o-gold);border-radius:10px;font:600 16px/1.2 var(--o-body);color:var(--o-ink);cursor:pointer;
+  padding:0 36px 0 12px;border:1.5px solid var(--o-gold-lo);border-radius:10px;font:600 16px/1.2 var(--o-body);color:var(--o-ink);cursor:pointer;
   -webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238f7020' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-stat .lcd-opc-stat__vyber:focus-visible{outline:2px solid var(--o-gold-lo);outline-offset:2px}
+/* „?“ pri IČO a DIČ zo šablóny Shoptetu: biela na zlatej mala 2,60:1 */
+html.lcd-opc body.in-krok-2 #order-form .question-tooltip{color:var(--o-ink)}
 /* údaje firmy (IČO, DIČ…) pod riadkom, keď zákazník zaškrtne „Objednávam na firmu“ (Shoptet ich ukáže sám) */
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-adresa-volby > #company-info{flex:1 1 100%;min-width:0}
 html.lcd-opc body.in-krok-2 #order-form .co-billing-address #company-info .form-group{margin:0 0 10px}
@@ -502,7 +504,7 @@ html.lcd-opc body.in-krok-2 .co-box-additional #note label{display:block;width:a
 html.lcd-opc body.in-krok-2 .co-box-additional #note .form-control-wrapper{width:100%;max-width:none}
 html.lcd-opc body.in-krok-2 .co-box-additional #note textarea{box-sizing:border-box;width:100%;max-width:none;min-height:96px;padding:12px 13px;
   border:2px solid var(--o-pole);border-radius:12px;background:#fff;font:400 16px/1.5 var(--o-body);color:var(--o-ink)}
-html.lcd-opc body.in-krok-2 .co-box-additional #note textarea:focus{border-color:var(--o-gold);box-shadow:0 0 0 3px rgba(196,155,49,.3);outline:0}
+html.lcd-opc body.in-krok-2 .co-box-additional #note textarea:focus{border-color:var(--o-ink);box-shadow:0 0 0 3px rgba(196,155,49,.45);outline:0}
 html.lcd-opc body.in-krok-2 .co-box-additional .additional-information{font-size:14px;color:var(--o-tlm)}
 /* poznámka pre predajcu za odkazom „+ Pridať poznámku pre predajcu“ (opc/poznamka.js, Michal 1. 11. 2026): prepínač Shoptetu
    #add-note skrytý, zbalené = len odkaz, otvorené = pole (#remark je vo formulári vždy, odošle sa aj zbalené).
@@ -663,14 +665,14 @@ html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:is([
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents.lcd-opc-chyba-pole input[type=checkbox]+label{border-width:2px;padding:13px 13px 13px 53px}
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:is([required],.required,.js-validate-required)+label::before,
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents.lcd-opc-chyba-pole input[type=checkbox]+label::before{left:13px;top:13px}
-html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:is([required],.required,.js-validate-required)+label{margin-top:14px;border-color:var(--o-gold)}
+html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:is([required],.required,.js-validate-required)+label{margin-top:14px;border-color:var(--o-gold-lo)}
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:is([required],.required,.js-validate-required)+label::after{content:"Povinné";content:"Povinné" / "";display:block;position:absolute;top:-11px;right:12px;bottom:auto;left:auto;
-  width:auto;height:auto;margin:0;padding:1px 9px;border:0;border-radius:999px;transform:none;box-shadow:none;background:var(--o-gold);color:#fff;font:700 12px/18px var(--o-disp);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  width:auto;height:auto;margin:0;padding:1px 9px;border:0;border-radius:999px;transform:none;box-shadow:none;background:var(--o-gold);color:var(--o-ink);font:700 12px/18px var(--o-disp);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
   transition:background-color .15s}
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:checked+label{border-color:var(--o-ok);background:var(--o-ok-bg)}
-html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:checked+label::after{background:var(--o-ok)}
+html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:checked+label::after{background:var(--o-ok);color:#fff}
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents.lcd-opc-chyba-pole input[type=checkbox]+label{border-color:var(--o-chyba);background:var(--o-chyba-bg)}
-html.lcd-opc body.in-krok-2 #checkoutSidebar .consents.lcd-opc-chyba-pole input[type=checkbox]+label::after{background:var(--o-chyba)}
+html.lcd-opc body.in-krok-2 #checkoutSidebar .consents.lcd-opc-chyba-pole input[type=checkbox]+label::after{background:var(--o-chyba);color:#fff}
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents.lcd-opc-chyba-pole .js-validator-msg{margin:6px 0 0 2px}
 /* fokus z klávesnice: obrys okolo celej dlaždice (namiesto obrysu políčka) */
 html.lcd-opc body.in-krok-2 #checkoutSidebar .consents input[type=checkbox]:focus-visible+label{outline:2px solid var(--o-gold-lo);outline-offset:3px}
@@ -817,7 +819,7 @@ html.lcd-opc .lcd-opc-banky__krajina-stitok{display:block;margin:0 0 4px;padding
 html.lcd-opc .lcd-opc-banky__krajina{display:block;box-sizing:border-box;width:100%;max-width:none;height:auto;min-height:48px;margin:0;padding:0 42px 0 14px;
   border:2px solid var(--o-pole);border-radius:12px;color:var(--o-ink);font:400 16px/1.3 var(--o-body);-webkit-appearance:none;appearance:none;
   background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 14px center/18px no-repeat}
-html.lcd-opc .lcd-opc-banky__krajina:focus{border-color:var(--o-gold);outline:0;box-shadow:0 0 0 3px rgba(196,155,49,.25)}
+html.lcd-opc .lcd-opc-banky__krajina:focus{border-color:var(--o-ink);outline:0;box-shadow:0 0 0 3px rgba(196,155,49,.45)}
 html.lcd-opc .lcd-opc-banky__zoznam{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;margin:0 -4px;padding:2px 4px;overflow-y:auto;
   overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 html.lcd-opc .lcd-opc-banky__banka{position:relative;display:flex;align-items:center;gap:12px;flex:none;box-sizing:border-box;min-height:56px;margin:0;
@@ -825,7 +827,7 @@ html.lcd-opc .lcd-opc-banky__banka{position:relative;display:flex;align-items:ce
   transition:border-color .15s,background-color .15s,box-shadow .15s}
 html.lcd-opc .lcd-opc-banky__radio{position:absolute;top:50%;left:50%;width:1px;height:1px;margin:0;padding:0;border:0;opacity:0;pointer-events:none}
 html.lcd-opc .lcd-opc-banky__banka::after{content:"";position:absolute;right:14px;top:50%;box-sizing:border-box;width:24px;height:24px;margin-top:-12px;
-  border:2px solid #a39b8c;border-radius:50%;background:#fff}
+  border:2px solid #6e6752;border-radius:50%;background:#fff}
 html.lcd-opc .lcd-opc-banky__banka::before{content:none;display:none}
 html.lcd-opc .lcd-opc-banky__banka--zvolena{border-color:var(--o-ok);background:var(--o-ok-bg);box-shadow:0 6px 16px rgba(46,125,50,.12)}
 html.lcd-opc .lcd-opc-banky__banka--zvolena::after{border-color:var(--o-ok);background:var(--o-fajka) center/15px no-repeat,var(--o-ok)}
@@ -1112,7 +1114,7 @@ html.lcd-opc .lcd-vyb-pribeh p.lcd-vyb-pribeh__text{margin:0 0 6px;font:600 16px
 html.lcd-opc .lcd-vyb-pribeh p.lcd-vyb-pribeh__pocet{margin:0 0 12px;font:400 14px/1.35 var(--o-body, Arial, sans-serif);color:rgba(255,255,255,.8)}
 html.lcd-opc .lcd-vyb-pribeh__pocet b{color:#ecd07a;font-weight:800}
 html.lcd-opc .lcd-vyb-pribeh__pridat{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;padding:0 16px;border-radius:999px;
-  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%);box-shadow:0 4px 10px rgba(46,125,50,.3),inset 0 1px 0 rgba(255,255,255,.25);font:700 16px/1.2 var(--o-disp, Arial, sans-serif);color:#fff}
+  background:linear-gradient(180deg,#2e7d32 0%,#2a7330 55%,#256b29 100%);box-shadow:0 4px 10px rgba(46,125,50,.3),inset 0 1px 0 rgba(255,255,255,.25);font:700 16px/1.2 var(--o-disp, Arial, sans-serif);color:#fff}
 @media (min-width:720px){
   html.lcd-opc .lcd-vyb-pribeh__pozadie{background:rgba(11,10,8,.86)}
   html.lcd-opc .lcd-vyb-pribeh__panel{left:50%;right:auto;top:24px;bottom:24px;width:420px;max-height:820px;margin:auto 0;transform:translateX(-50%);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:0}
@@ -1192,7 +1194,7 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava
   border:2px solid var(--o-gold);border-radius:50%;background:#fff;color:var(--o-gold-t)}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__ikona svg{width:32px;height:32px}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-hlava__nula{position:absolute;top:-4px;right:-6px;min-width:24px;height:24px;padding:0 6px;border:2px solid #fff;
-  border-radius:12px;background:var(--o-gold);color:#fff;font:700 14px/20px var(--o-disp);font-style:normal;text-align:center}
+  border-radius:12px;background:var(--o-gold);color:var(--o-ink);font:700 14px/20px var(--o-disp);font-style:normal;text-align:center}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny h2.lcd-prz-hlava__nadpis{margin:0;padding:0;border:0;background:none;font:700 22px/1.2 var(--o-disp);
   letter-spacing:0;text-transform:none;color:var(--o-ink);text-align:center}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-uvod{max-width:520px;margin:0 auto;padding:0;color:var(--o-tlm);font:400 16px/1.45 var(--o-body);text-align:center}

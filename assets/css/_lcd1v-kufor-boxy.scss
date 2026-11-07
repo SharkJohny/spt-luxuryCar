@@ -9,7 +9,7 @@ body.lcd-1v .lcd1v-kb,
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config,
 body.lcd-1v .lcd1v-bx-pozadie {
   --kb-ink: #14110c;
-  --kb-line: #d9d4c6;
+  --kb-line: var(--kf-ram); /* karty rohože a boxov (_lcd1v-kroky.scss) */
   --kb-gold: #c49b31;
   --kb-gold-hi: #e6c877;
   --kb-gold-lo: #8f7020;
@@ -58,7 +58,7 @@ body.lcd-1v .lcd1v-kb__info {
   height: 22px;
   margin: 0 0 0 5px;
   padding: 0;
-  border: 1px solid var(--kb-gold);
+  border: 1px solid var(--kf-ram);
   border-radius: 50%;
   background: #fff;
   color: var(--kb-gold-txt);
@@ -68,7 +68,7 @@ body.lcd-1v .lcd1v-kb__info {
 }
 body.lcd-1v .lcd1v-kb__info[aria-expanded="true"] {
   background: var(--kb-gold);
-  color: #fff;
+  color: var(--kb-ink); /* biela na zlatej mala 2,60:1 */
 }
 body.lcd-1v .lcd1v-kb__vysv {
   margin: -6px 0 14px;
@@ -114,15 +114,17 @@ body.lcd-1v .lcd1v-kb__karta {
   transition: border-color .18s, box-shadow .18s;
   -webkit-tap-highlight-color: transparent;
 }
-body.lcd-1v .lcd1v-kb__karta:hover {
-  border-color: #c9b98a;
+@media (hover: hover) {
+  body.lcd-1v .lcd1v-kb__karta:not([aria-pressed="true"]):hover {
+    border-color: var(--kf-ram-hover);
+  }
 }
 body.lcd-1v .lcd1v-kb__karta:focus-visible {
   outline: 2px solid var(--kb-gold);
   outline-offset: 2px;
 }
 body.lcd-1v .lcd1v-kb__karta--naj {
-  border-color: #d6bd76;
+  border-color: var(--kf-ram); /* odporúčaná karta ostáva v zlatej rodine, tmavší odtieň kvôli 3:1 */
 }
 /* zvolená karta: zelený rám (Michal 18. 10. 2026: „orámovalo zeleným pásikom“; --kr-zvol* z _lcd1v-kroky.scss) */
 body.lcd-1v .lcd1v-kb__karta[aria-pressed="true"] {
@@ -318,9 +320,14 @@ body.lcd-1v .lcd1v-kb__r[hidden] + .lcd1v-kb__r[hidden] + .lcd1v-kb__r--sum {
    .lcd1v-kb__karta--naj, .lcd1v-kb__top a .lcd1v-kb__ben — ostáva bez zmeny. */
 /* krémová karta so zlatou žiarou */
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj {
-  border: 2px solid var(--kb-gold);
+  border: 2px solid var(--kf-ram);
   background: #fffaef;
   box-shadow: 0 0 0 4px rgba(196, 155, 49, .18), 0 14px 30px rgba(160, 120, 30, .3);
+}
+@media (hover: hover) {
+  body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj:not([aria-pressed="true"]):hover {
+    border-color: var(--kf-ram-hover);
+  }
 }
 /* zvolená odporúčaná: rám zelený ako pri ostatných kartách, zlatý pás „Najobjednávanejšie“ ostáva (Michal 18. 10. 2026) */
 body.lcd-1v .lcd1v-kb[data-lcd1v-kb] .lcd1v-kb__karta--naj[aria-pressed="true"] {
@@ -524,7 +531,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__x {
   cursor: pointer;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__x:hover {
-  border-color: var(--kb-gold);
+  border-color: var(--kf-ram-hover);
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__x:focus-visible,
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok:focus-visible {
@@ -677,7 +684,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-bu
   transition: border-color .18s, box-shadow .18s;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button:hover {
-  border-color: #c9b98a !important;
+  border-color: var(--kf-ram-hover) !important;
 }
 body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button.active {
   border-color: var(--kr-zvol) !important;
@@ -817,7 +824,7 @@ body.lcd-1v .upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__ok {
   padding: 0 26px;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(100deg, #1d6b4a, #2f9c68 42%, #1f7350);
+  background: linear-gradient(100deg, #1d6b4a, #1f7a52 42%, #1f7350);
   color: #fff;
   font: 900 14px/1.6 var(--kb-disp);
   letter-spacing: .12em;

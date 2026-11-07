@@ -262,7 +262,7 @@ tr.lcd-dop-zvyrazni{outline:2px solid #9b1c1c;outline-offset:-2px}
 .lcd-lista__suma small{font:700 12px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#5f574a}
 .lcd-lista__suma b{font:900 21px/1.15 "Exo 2","Segoe UI",Arial,sans-serif;color:#14110c;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lcd-lista__btn{display:flex;align-items:center;justify-content:center;gap:10px;flex:1 1 auto;min-height:50px;padding:0 16px;border-radius:12px;
-  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%);color:#fff !important;text-decoration:none !important;
+  background:linear-gradient(180deg,#2e7d32 0%,#2a7330 55%,#256b29 100%);color:#fff !important;text-decoration:none !important;
   font:900 14px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 8px 18px rgba(46,125,50,.28)}
 .lcd-lista__btn::after{content:"";width:8px;height:8px;border:solid currentColor;border-width:2px 2px 0 0;transform:rotate(45deg)}
 .lcd-lista__btn:focus-visible{outline:2px solid #1b5e20;outline-offset:3px}
@@ -450,7 +450,7 @@ body.in-kosik #cart-wrapper .price-wrapper .price{color:var(--k-ink) !important;
    o odtieň tmavšie kvôli bielemu textu, kontrast ~5 : 1). Doplnky k setu ostávajú zlaté. */
 body.in-kosik #cart-wrapper .next-step #continue-order-button{display:flex !important;align-items:center;justify-content:center;gap:12px;
   box-sizing:border-box;min-height:54px;padding:14px 20px !important;border:0 !important;border-radius:12px !important;
-  background:linear-gradient(180deg,#3f9a44 0%,#2e7d32 55%,#256b29 100%) !important;color:#fff !important;
+  background:linear-gradient(180deg,#2e7d32 0%,#2a7330 55%,#256b29 100%) !important;color:#fff !important;
   font:normal 900 15px/1.2 var(--k-disp) !important;letter-spacing:.1em !important;text-transform:uppercase !important;text-decoration:none !important;
   box-shadow:0 10px 22px rgba(46,125,50,.30),inset 0 1px 0 rgba(255,255,255,.25) !important;transition:filter .2s}
 body.in-kosik #cart-wrapper .next-step #continue-order-button:hover{filter:brightness(1.05)}

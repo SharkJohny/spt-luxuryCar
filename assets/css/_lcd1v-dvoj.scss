@@ -37,7 +37,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 .lcd1v-f
   margin: 0 0 0 5px;
   padding: 0;
   vertical-align: middle;
-  border: 1px solid var(--kr-gold);
+  border: 1px solid var(--kf-ram);
   border-radius: 50%;
   background: #fff;
   color: var(--kr-gold-tx);
@@ -135,7 +135,7 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .optio
   aspect-ratio: 1 / 1;
   margin: 0;
   padding: 0;
-  border: 1px solid rgba(20, 15, 5, 0.22);
+  border: 1px solid rgba(20, 15, 5, 0.55);
   border-radius: 12px;
   background: #e9e5da;
   box-shadow: none;
@@ -201,10 +201,10 @@ body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .optio
   color: #fff;
   font: 700 9px/1 var(--kr-body);
 }
-/* odporúčaná vzorka: zlatý rámik (kým nie je zvolená) a hviezdička vľavo dole (vpravo hore je fajka zvolenej) */
+/* odporúčaná vzorka: bronzový rámik (kým nie je zvolená) a hviezdička vľavo dole (vpravo hore je fajka zvolenej) */
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana {
-  border-color: var(--kr-gold);
-  box-shadow: 0 0 0 1px var(--kr-gold);
+  border-color: var(--kf-ram);
+  box-shadow: 0 0 0 1px var(--kf-ram);
 }
 body.lcd-1v[data-lcd1v-typ="dvoj"] #product-detail-form .lcd1v-k-farba2 > .options-wrap > .option-button.lcd1v-f2-odporucana.active {
   border-color: #fff;

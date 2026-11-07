@@ -278,7 +278,7 @@
 }
 #lcd-rz .lc-sek:before, #lcd-rz .lc-sek:after {content:"";flex:1;height:1px;background:rgba(155,122,36,.45)
 }
-#lcd-rz .lc-sek span {color:#9b7a24;font-size:12px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;white-space:nowrap
+#lcd-rz .lc-sek span {color:#7c5f16;font-size:12px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;white-space:nowrap
 }
 #lcd-rz .lc-hero {border:1.5px solid #c49b31;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);background:#141210;margin-bottom:12px;display:block
 }
@@ -331,7 +331,7 @@
 }
 #lcd-rz .lc-hr {height:1px;background:rgba(196,155,49,.35);width:78%;margin:0 auto
 }
-#lcd-rz .lc-vars {color:#8a7940;font-size:7.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;margin-top:auto
+#lcd-rz .lc-vars {color:#7c5f16;font-size:7.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;margin-top:auto
 }
 #lcd-rz .lc-truck {border:1.5px solid #c49b31;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.28);display:block
 }
@@ -525,7 +525,7 @@
 }
 #lcd-rz .btn.go {width:100%;justify-content:center;height:56px;padding:0;font-size:14px;letter-spacing:.12em;
   color:#fff!important;position:relative;overflow:hidden;
-  background:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350);
+  background:linear-gradient(100deg,#1d6b4a,#1f7a52 42%,#1f7350);
   box-shadow:0 10px 26px rgba(31,115,80,.34),inset 0 1px 0 rgba(255,255,255,.22)
 }
 #lcd-rz .btn.go:hover {box-shadow:0 16px 36px rgba(31,115,80,.44),inset 0 1px 0 rgba(255,255,255,.26)
@@ -1449,7 +1449,7 @@
 }
 #lcd-rz .cmp-col.us .ic {background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:#17130a
 }
-#lcd-rz .cmp-col.them .ic {background:#e2ddd1;color:#8b8373
+#lcd-rz .cmp-col.them .ic {background:#e2ddd1;color:#5c5644
 }
 #lcd-rz .cmp-vs {position:absolute;left:50%;top:clamp(80px,11vw,150px);transform:translate(-50%,-50%);z-index:3;
   width:clamp(42px,4.6vw,58px);height:clamp(42px,4.6vw,58px);border-radius:50%;
@@ -1555,7 +1555,7 @@
 }
 #lcd-rz .revhead .col {display:flex;flex-direction:column;gap:5px
 }
-#lcd-rz .revhead .stars {color:var(--gold);letter-spacing:3px;font-size:17px;line-height:1
+#lcd-rz .revhead .stars {color:var(--gold-lo);letter-spacing:3px;font-size:17px;line-height:1
 }
 #lcd-rz .revhead .sub {font-size:13px;color:var(--mute)
 }
@@ -1600,7 +1600,7 @@
 #lcd-rz .rev .qm {position:absolute;top:10px;right:20px;font-family:var(--disp);font-weight:800;font-size:66px;
   line-height:1;color:rgba(196,155,49,.15);pointer-events:none
 }
-#lcd-rz .rev .st {color:var(--gold);letter-spacing:2px;font-size:14px;line-height:1
+#lcd-rz .rev .st {color:var(--gold-lo);letter-spacing:2px;font-size:14px;line-height:1
 }
 #lcd-rz .rev p {font-size:14.5px;color:var(--mute);line-height:1.62;flex:1;margin:0
 }
@@ -2195,7 +2195,7 @@
 #lcd-rz .opt .vzory a, #lcd-rz .opt .go a {cursor:pointer
 }
 /* 3. hlavne CTA v karte: zelene so zlatym lemom */
-#lcd-rz .opt .go .btn {background:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350);color:#fff;
+#lcd-rz .opt .go .btn {background:linear-gradient(100deg,#1d6b4a,#1f7a52 42%,#1f7350);color:#fff;
   border:1px solid var(--gold-hi);
   box-shadow:0 10px 26px rgba(31,115,80,.34),inset 0 1px 0 rgba(255,255,255,.22)
 }
@@ -2227,7 +2227,7 @@
 #lcd-rz .lcdrz-konf-slot .lcd-vehicle-switch__tab svg{width:17px;height:17px;flex:none}
 #lcd-rz .lcdrz-konf-slot .lcd-vehicle-switch__tab.is-active{color:#17130a;
   background:linear-gradient(100deg,var(--gold-lo),var(--gold-hi) 48%,var(--gold));
-  box-shadow:0 4px 12px rgba(140,105,25,.28)}
+  box-shadow:inset 0 0 0 2px var(--gold-lo),0 4px 12px rgba(140,105,25,.28)}
 #lcd-rz .lcdrz-konf-slot .modl-selector-wrap{display:flex;flex-direction:column;gap:14px;margin:0;
   background:none !important}
 #lcd-rz .lcdrz-konf-slot .modl-selector-wrap::before,
@@ -2244,12 +2244,12 @@
 #lcd-rz .lcdrz-konf-slot .konf-note{display:block;margin:14px 0 0;text-align:center;
   font-size:13px;color:#6b6450}
 #lcd-rz .lcdrz-konf-slot select{width:100%;height:46px;background:#eceae5;
-  border:1px solid #d9d4c6;border-radius:12px;padding:0 40px 0 14px;
+  border:1px solid #8f7020;border-radius:12px;padding:0 40px 0 14px;
   font-family:var(--body);font-size:14px;color:#4a4433;appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%237c5f16' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center}
 #lcd-rz .lcdrz-konf-slot .btn.choice-Model{display:flex;align-items:center;justify-content:center;
-  width:100%;height:56px;margin:16px 0 0;background:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350);
+  width:100%;height:56px;margin:16px 0 0;background:linear-gradient(100deg,#1d6b4a,#1f7a52 42%,#1f7350);
   color:#fff;border:0;border-radius:12px;font-family:var(--disp);font-weight:800;font-size:14px;
   letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:0 26px;
   box-shadow:0 10px 26px rgba(31,115,80,.34),inset 0 1px 0 rgba(255,255,255,.22)}

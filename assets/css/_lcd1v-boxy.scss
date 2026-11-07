@@ -66,7 +66,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-
 /* sekcie Počet a Veľkosti oddelené tenkou čiarou */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-pocty,
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-velk {
-  margin: 18px 0 0; padding: 18px 0 0; border-top: 1px solid #ece6d6;
+  margin: 18px 0 0; padding: 18px 0 0; border-top: 1px solid var(--kf-delic);
 }
 
 /* ---------------------------------------------------------------- farba: vzorky (spoločná mriežka _lcd1v-kroky.scss)
@@ -106,7 +106,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ksz { display
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks {
   position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-sizing: border-box;
   width: 100%; height: auto; min-width: 0; min-height: 64px; margin: 0; padding: 10px 6px;
-  border: 1px solid var(--kr-line); border-radius: 12px; background: #fff; box-shadow: none; outline: 0;
+  border: 1px solid var(--kf-ram); border-radius: 12px; background: #fff; box-shadow: none; outline: 0;
   color: var(--kr-ink); font: inherit; line-height: normal; text-align: center; text-transform: none; letter-spacing: normal;
   cursor: pointer; transition: border-color .2s, box-shadow .2s; -webkit-tap-highlight-color: transparent;
 }
@@ -124,13 +124,13 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks[aria-press
   font: 800 11px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 3px 9px rgba(20, 15, 5, .3);
 }
 @media (hover: hover) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:not([aria-pressed="true"]):hover { border-color: var(--kr-gold); }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:not([aria-pressed="true"]):hover { border-color: var(--kf-ram-hover); }
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-ks:focus-visible { outline: 3px solid var(--kr-gold); outline-offset: 2px; }
 
 /* ---------------------------------------------------------------- veľkosti s kresbou boxu (návrh B, 18. 10. 2026) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-velk {
-  --bxp-gold: #c49b31; --bxp-line: #d9d4c6; --bxp-zl: #7c5f16;
+  --bxp-gold: #c49b31; --bxp-line: var(--kf-ram); --bxp-zl: #7c5f16;
   /* farba kresby boxu (boxy-produkt.js nastaví podľa vybranej farby; predvolená čierna s béžovým šitím) */
   --bxp-lth: #2a2b30; --bxp-sp: #55585f; --bxp-edge: #0e0f11; --bxp-st: #eae0d0; /* béžové šitie = krémová, nie žltá (box-kresba.js) */
   color: var(--kr-ink); font-family: var(--kr-body); text-align: left;
@@ -147,12 +147,12 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vcards {
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk {
   position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px;
   width: auto; height: auto; min-width: 0; margin: 0; padding: 11px 6px 12px;
-  background: #f7f5ef; border: 1px solid var(--bxp-line); border-radius: 12px; box-shadow: none;
+  background: #fff; border: 1px solid var(--bxp-line); border-radius: 12px; box-shadow: none;
   color: var(--kr-ink); font: inherit; text-align: center; text-transform: none; letter-spacing: normal;
   cursor: pointer; transition: border-color .2s, box-shadow .2s, background-color .2s;
   -webkit-tap-highlight-color: transparent;
 }
-body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-gold); background: #fff; }
+body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--kf-ram-hover); background: #fff; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:focus-visible { outline: 3px solid var(--bxp-gold); outline-offset: 2px; }
 /* zvolená veľkosť: zelený rám + zelená fajka (Michal 18. 10. 2026) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"] {
@@ -166,7 +166,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-press
   font: 800 11px/1 var(--kr-body); box-shadow: 0 0 0 2px #fff, 0 3px 9px rgba(20, 15, 5, .3);
 }
 @media (hover: none) {
-  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-line); background: #f7f5ef; }
+  body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk:hover { border-color: var(--bxp-line); background: #fff; }
   body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-vk[aria-pressed="true"]:hover { border-color: var(--kr-zvol); background: #fff; }
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-sil { display: block; width: 100%; height: auto; overflow: visible; }
@@ -206,7 +206,7 @@ body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-tip b { color
 /* ---------------------------------------------------------------- telefón: „Spolu“ v karte (kópia súhrnu, cena.js) */
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-spolu {
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
-  margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid #ece6d6;
+  margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid var(--kf-delic);
 }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-k-farba > .lcd1v-bxp-spolu[hidden] { display: none !important; }
 body.lcd-1v[data-lcd1v-typ="boxy"] #product-detail-form .lcd1v-bxp-spolu-lb { font: 600 16px/1.3 var(--kr-body); color: var(--kr-text); }
