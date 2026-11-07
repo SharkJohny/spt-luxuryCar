@@ -206,7 +206,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         } else {
           over(v.f >= 40, "nadpis vršku je na počítači veľký: " + v.f);
           over(v.m, "text vršku sa zmestí do stĺpca");
-          over(Math.abs(v.g - sirka) < 20, "zábery idú po okraj obrazovky: " + v.g);
+          over(sirka - v.g > 30 && sirka - v.g < 120, "video je v ráme s okrajom, nie po kraj obrazovky: " + v.g); // Michal 8. 11. 2026
           over(await p.evaluate(() => document.querySelectorAll("#lcd-vclass-hero img").length === 0), "vpravo je len video, žiadne fotky");
         }
       }

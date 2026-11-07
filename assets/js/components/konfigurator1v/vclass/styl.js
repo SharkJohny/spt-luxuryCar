@@ -35,8 +35,9 @@ body.lcd-vclass .p-detail-inner{max-width:none}
    Video sa nenaťahuje nad svoje rozlíšenie, preto najviac 900 px. Nadpis drží pravidlo webu, preto !important. */
 @media (min-width:992px){
   #lcd-vclass-hero{background:var(--lv-sand);color:var(--lv-ink)}
-  #lcd-vclass-hero .lh-in{max-width:none;grid-template-columns:minmax(0,1fr) min(46vw,900px);gap:0;padding:0;align-items:stretch;height:clamp(640px,calc(100vh - 74px),1040px)}
-  #lcd-vclass-hero .lh-g{height:100%;aspect-ratio:auto;border-radius:0}
+  #lcd-vclass-hero .lh-in{max-width:none;grid-template-columns:minmax(0,1fr) min(46vw,880px);gap:0;padding:0;align-items:stretch;height:clamp(640px,calc(100vh - 74px),1040px)}
+  /* video v zaoblenom ráme s okrajom, nie po kraj obrazovky (Michal 8. 11. 2026) */
+  #lcd-vclass-hero .lh-g{align-self:stretch;height:auto;aspect-ratio:auto;margin:clamp(24px,4vh,48px) clamp(24px,3vw,56px) clamp(24px,4vh,48px) 0;border-radius:22px;box-shadow:0 30px 60px -32px rgba(13,11,8,.6)}
   #lcd-vclass-hero .lh-pauza{right:auto;left:14px}
   #lcd-vclass-hero .lh-tx{justify-content:center;gap:0;padding:clamp(56px,7vh,90px) clamp(40px,6vw,150px) clamp(32px,4vh,56px)}
   #lcd-vclass-hero .lh-ei{margin-bottom:clamp(20px,3.2vh,34px);font-size:clamp(13px,.85vw,18px);letter-spacing:.22em;color:var(--lv-gt)}
