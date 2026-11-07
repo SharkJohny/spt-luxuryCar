@@ -128,7 +128,7 @@ export const KROKY = [
 
 /** Video hore: pokojnejší strih nášho videa z V Class (Michal 7. 11. 2026: najprv auto zvonka, pomalšie, bez záberu z GLE), bez zvuku, dokola.
  *  Súbory assets/img/1v/<meno>-pc|tel.mp4 a .jpg, výrez 4:5 aby bolo vidno celé auto. */
-export const VIDEO = { meno: "mercedes-v-class-film-2", alt: "Video autokobercov v Mercedes V Class XL" };
+export const VIDEO = { meno: "mercedes-v-class-film-3", alt: "Video autokobercov v Mercedes V Class XL" };
 
 /** Okienko pri otázke v prvom kroku (ikona i). Fotka zásuviek zatiaľ nie je, preto kresba s vyznačenými výrezmi. */
 export const INFO = {

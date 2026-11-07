@@ -219,7 +219,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 6, "všetkých 6 krokov hotových");
       const sucet = await p.evaluate(() => [...document.querySelectorAll("#product-detail-form select.surcharge-parameter")].reduce((s, e) => s + (e.value ? Number(e.options[e.selectedIndex].getAttribute("data-surcharge-final-price")) : 0), Number(document.querySelector('meta[itemprop="price"]').content)));
       over(sucet === o.cena, o.velkost + ": súčet príplatkov Shoptetu " + sucet + " ≠ " + o.cena);
-      over(/mercedes-v-class-film-2-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");
+      over(/mercedes-v-class-film-3-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");
       over(!(await p.$("#lcd-vclass-hero .lh-t")), "hore nie je rad malých fotiek");
       if (i === 0) {
         await p.waitForSelector('[data-lcd-sekcia="vclass-prehliadka"] .vp-b', { timeout: 15000 });
