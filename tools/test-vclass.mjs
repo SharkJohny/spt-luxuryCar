@@ -199,6 +199,19 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         over(h.c <= 678, "tlačidlo Zostaviť môj set je na telefóne na prvej obrazovke: " + JSON.stringify(h));
       }
       if (i === 0) {
+        // Michal 7. 11. 2026: na počítači vršok po okraj, väčší nadpis, tri zábery; telefón bez zmeny
+        const v = await p.evaluate(() => { const t = document.querySelector("#lcd-vclass-hero .lh-tx"), z = [...document.querySelectorAll("#lcd-vclass-hero .lh-z")]; return { f: parseFloat(getComputedStyle(document.querySelector("#lcd-vclass-hero h1")).fontSize), d: z.map((x) => getComputedStyle(x).display), dl: getComputedStyle(document.querySelector("#lcd-vclass-hero .lh-dl")).display, m: t.scrollWidth <= t.clientWidth, g: document.querySelector("#lcd-vclass-hero .lh-g").getBoundingClientRect().right }; });
+        if (mobil) {
+          over(v.dl === "none" && v.d.every((x) => x === "none"), "na telefóne sú dĺžky a fotky vršku skryté: " + JSON.stringify(v));
+        } else {
+          over(v.f >= 40, "nadpis vršku je na počítači veľký: " + v.f);
+          over(v.m, "text vršku sa zmestí do stĺpca");
+          over(Math.abs(v.g - sirka) < 20, "zábery idú po okraj obrazovky: " + v.g);
+          await p.waitForFunction(() => [...document.querySelectorAll("#lcd-vclass-hero .lh-z")].every((x) => x.complete && x.naturalWidth > 600), null, { timeout: 15000 }).catch(() => {});
+          over(await p.evaluate(() => [...document.querySelectorAll("#lcd-vclass-hero .lh-z")].every((x) => x.naturalWidth > 600)), "ostré fotky vršku sa načítali");
+        }
+      }
+      if (i === 0) {
         over(/od\s*300\s*€/.test((await p.textContent("#lcd-vclass-hero .lh-c")).replace(/\u00a0/g, " ")), "hore cena od 300 €");
         over(/predným sedadlám/.test(await p.textContent("#lcd-vclass-hero .lh-c")), "hore povedané, že cena je za predné sedadlá");
         over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === "300€", "Spolu začína na 300 €");
@@ -246,7 +259,8 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await p.click('.p1v-faq-q'); await p.waitForTimeout(600);
         over(await p.evaluate(() => document.querySelector(".p1v-faq-a").getBoundingClientRect().height > 20), "otázka sa otvorí");
         await p.click('.p1v-faq-q'); await p.waitForTimeout(300);
-        await p.click('a[data-lv-velkost="' + o.velkost + '"]'); await p.waitForTimeout(1800);
+        if (!mobil) { await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(150); await p.click('#lcd-vclass-hero .lh-dl a[data-lv-velkost="' + o.velkost + '"]'); await p.waitForTimeout(1500); over(await p.evaluate(() => document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top < 300), "dĺžka vo vršku posunie ku krokom"); }
+        await p.click('[data-lcd-sekcia] a[data-lv-velkost="' + o.velkost + '"]'); await p.waitForTimeout(1800);
         over(await p.evaluate(() => { const y = document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top; return y > 40 && y < 200; }), "odkaz Vybrať posunie ku krokom: " + await p.evaluate(() => Math.round(document.getElementById("lcd-vclass-cesta").getBoundingClientRect().top)));
         if (snimky) {
           const H = await p.evaluate(() => document.documentElement.scrollHeight);

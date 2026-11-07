@@ -18624,6 +18624,11 @@ html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[item
 @media (max-width: 991px) {
   html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[itemprop="productID"][content="646"])::before { height: calc(90vw + 290px); }
 }
+@media (min-width: 992px) {
+  html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[itemprop="productID"][content="646"])::before {
+    top: -20px; height: clamp(640px, calc(100vh - 74px), 1040px); background: #f6f4ef; box-shadow: 0 0 0 100vmax #f6f4ef;
+  }
+}
 
 /* ---------- hlavička: štítok, názov, hodnotenie, krátky popis ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-detail-inner-header { margin: 0; padding: 0; }
