@@ -30,7 +30,8 @@ export const VELKOSTI = [
 
 export const ROKY = (() => { const r = []; for (let y = 2026; y >= 2014; y--) r.push(String(y)); return r; })();
 export const VOLANT = ["Vľavo", "Vpravo"];
-export const STRED = ["Stredový tunel", "Lakťová opierka alebo chladnička"];
+/** Michal 7. 11. 2026: nie „tunel“, ľudia nevedia, čo to je. Podlaha = medzi sedadlami nič nie je, kresba bez výrezu (s = false). */
+export const STRED = ["Podlaha", "Lakťová opierka alebo chladnička"];
 export const DVERE = ["Jedny, vpravo", "Dvoje, na oboch stranách"];
 export const SEDADLA = ["2", "3"];
 /** Počet sedadiel v 2. a 3. rade ide do objednávky ako jedna hodnota príplatku (produkt má strop 15 príplatkov). */
@@ -39,10 +40,12 @@ export const SEDADLA_TEXTY = [].concat(...SEDADLA.map((a) => SEDADLA.map((b) => 
 export const STOLCEK = ["Bez stolčeka", "So stolčekom"];
 export const ZASUVKY = ["Bez zásuviek", "So zásuvkami"];
 
+/** Čistá vzorka materiálu, rovnaká ako pri výbere vzoru na autokobercoch Basic (Michal 7. 11. 2026). */
+const VZORKY = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/ulozisko/www.luxurycardesign.sk/banners/";
 export const VZORY = [
-  { id: "diamond", nm: "Diamond Line", img: CDN + "dvoj-vzor-diamond.jpg" },
-  { id: "stripe", nm: "Stripe Line", img: CDN + "dvoj-vzor-stripe.jpg" },
-  { id: "hexa", nm: "Hexa Line", img: CDN + "dvoj-vzor-hexa.jpg" },
+  { id: "diamond", nm: "Diamond Line", img: VZORKY + "diamont.jpg" },
+  { id: "stripe", nm: "Stripe Line", img: VZORKY + "stripe-line.jpg" },
+  { id: "hexa", nm: "Hexa Line", img: VZORKY + "hesaline.jpg" },
 ];
 
 /** Farba: slug náhľadu bez vzoru, názov (rovnaký ako v príplatku), farba kože a šitia na kresbe. */
@@ -103,26 +106,20 @@ export const BOX_FARBY = [
   { nm: "Béžová", img: "boxprodukt-farba-bezova.jpg" },
 ];
 
-/** Kroky v poradí (Michal 7. 11. 2026): auto, rozloženie, vzor, farba, druhá vrstva, rohož, boxy. Cena začína na jednovrstvových
- *  autokobercoch k predným sedadlám, všetko ostatné sú príplatky. auto = po výbere sa hneď ide ďalej. */
+/** Riadok „Samostatne“ na dlaždiciach, ponuka ako pri autách (Michal 7. 11. 2026). Predajné ceny sú len v Shoptete, toto je porovnanie:
+ *  rad = cena 2. a 3. radu pred znížením, rohoz = samostatná rohož Premium na webe, box = samostatný box 616 na webe (overené 7. 11. 2026). */
+export const SAMOSTATNE = { rad: { M: 750, L: 850, XL: 950 }, rohoz: 340, box: { S: 197, M: 207, L: 232, XL: 246 } };
+
+/** Kroky v poradí (Michal 7. 11. 2026): predné sedadlá, 2. a 3. rad aj rohož do kufra sú v jednom kroku Rozloženie, každý krok končí
+ *  tlačidlom „Pokračujte ďalej“, po výbere sa neskáče. Cena začína na jednovrstvových autokobercoch k predným sedadlám. */
 export const KROKY = [
-  { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", vy: "Rok, veľkosť a výbava auta" },
-  { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "2. a 3. rad sa dajú objednať len spolu.", vy: "Predné sedadlá alebo aj 2. a 3. rad", auto: true },
-  { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
+  { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", pod: "Pri každej otázke kliknite na možnosť, ktorá platí pre Vaše auto.", vy: "Rok, veľkosť a výbava auta" },
+  { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "Predné sedadlá sú základ. 2. a 3. rad sa dajú objednať len spolu.", vy: "Predné sedadlá, 2. a 3. rad, kufor" },
+  { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa" },
   { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako budú farby spolu ladiť.", vy: "Farba kože a šitia" },
   { id: "druha", nm: "Druhá vrstva", kr: "2. vrstva", ti: "Prajete si aj druhú odnímateľnú vrstvu?", vy: "Áno alebo nie" },
-  { id: "rohoz", nm: "Rohož do kufra", kr: "Rohož", ti: "Prosím, vyberte si rohož do kufra", vy: "S rohožou alebo bez nej", auto: true },
-  { id: "boxy", nm: "Boxy do kufra", kr: "Boxy", ti: "Prosím, vyberte si boxy do kufra", vy: "Počet, veľkosť a farba" },
+  { id: "boxy", nm: "Boxy do kufra", kr: "Boxy", ti: "Prosím, vyberte si boxy do kufra", pod: "Skladacie boxy z rovnakého materiálu. Veľkosť a farbu zvolíte hneď po výbere.", vy: "Jeden, dva alebo žiadny" },
 ];
 
-/** Fotky hore, súbory assets/img/1v/obsah/<s>.jpg a <s>-w<šírka>.webp (názvy kvôli vyhľadávaniu obrázkov). Prvá = to auto s kobercami. */
-const M = "autokoberce-mercedes-v-class-";
-export const FOTKY = [
-  { s: M + "interier", alt: "Mercedes V Class s otvorenými dverami a autokobercami od predných sedadiel po 3. rad" },
-  { s: M + "sofer", alt: "Autokoberec na mieru pri šoférovi v Mercedese triedy V, pedále a pätná podložka" },
-  { s: M + "stred", alt: "Autokoberec medzi prednými sedadlami v Mercedes V Class" },
-  { s: M + "druhy-rad", alt: "Autokoberce v 2. rade Mercedes V Class so sedadlom na koľajniciach" },
-  { s: M + "kolajnice", alt: "Výrezy autokoberca okolo koľajníc sedadiel v Mercedese triedy V" },
-  { s: "koberec-do-kufra-mercedes-v-class", alt: "Koberec do kufra Mercedes V Class, pohľad od piatych dverí" },
-];
-export const FOTO_SIRKY = [480, 800, 1200, 1500];
+/** Video hore: naše video z V Class XL, bez zvuku, dokola. Súbory assets/img/1v/<meno>-pc|tel.mp4 a .jpg. */
+export const VIDEO = { meno: "mercedes-v-class-video", alt: "Video autokobercov v Mercedes V Class XL" };

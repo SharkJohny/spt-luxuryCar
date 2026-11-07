@@ -50,26 +50,35 @@ let ok = 0, zle = 0;
 const over = (c, t) => { if (c) ok++; else { zle++; console.log("  ✗ " + t); } };
 
 async function klik(p, k, v, t = 320) { await p.click(`#lcd-vclass [data-k="${k}"][data-v="${v}"]`); await p.waitForTimeout(t); }
-/** „Pokračujte“: na telefóne je to lišta dole, na PC tlačidlo v kroku. */
-const dalej = async (p, o) => { await p.click(o.mobil ? "#lcd1v-lista .lcd1v-lista__kos" : "#lcd-vclass .lv-dalej"); await p.waitForTimeout(220); };
+/** „Pokračujte“ je na konci každého kroku aj na telefóne. */
+const dalej = async (p) => { await p.click("#lcd-vclass .lv-ot .lv-dalej"); await p.waitForTimeout(220); };
 async function prejdi(p, o) {
   // prvý krok: všetky údaje o aute naraz, rok a veľkosť sú rozbaľovacie menu vedľa seba
   await p.selectOption("#lv-velkost", o.velkost);
   over(!!(await p.$("#lv-rok")), "rok výroby je v prvom kroku");
   over(await p.evaluate(() => { const a = document.getElementById("lv-rok").getBoundingClientRect(), b = document.getElementById("lv-velkost").getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && b.left > a.left; }), "rok a veľkosť sú vedľa seba");
-  await dalej(p, o);
+  await dalej(p);
   over(!!(await p.$("#lcd-vclass .lv-chyba")), "chýbajúce údaje o aute sú označené");
   await p.selectOption("#lv-rok", o.rok);
   await klik(p, "volant", o.volant, 40); await klik(p, "rad2", o.rad2, 40); await klik(p, "rad3", o.rad3, 40); await klik(p, "dvere", o.dvere, 40);
   await klik(p, "stred", o.stred, 40); await klik(p, "stolcek", o.stolcek, 40); await klik(p, "zasuvky", o.zasuvky, 40);
   if (o.snimkaAuto) await p.screenshot({ path: o.snimkaAuto, fullPage: true });
-  await dalej(p, o);
+  over(o.mobil ? !(await p.isVisible("#lcd-vclass-nakres")) : !(await p.isVisible("#lcd-vclass-nakres canvas.lv-pred")), "v prvom kroku sa set nekreslí");
+  await dalej(p);
   if (o.snimka) await p.screenshot({ path: o.snimka + "-rozl.png", fullPage: true });
   over(/len spolu/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že 2. a 3. rad idú len spolu");
-  over(/v cene/.test(await p.textContent("#lcd-vclass .lv-ot")), "predné sedadlá sú v cene");
-  await klik(p, "rozl", o.rozl);
-  await klik(p, "vzor", o.vzor);
-  await klik(p, "farba", o.farba); await dalej(p, o);
+  over(/V cene/.test(await p.textContent("#lcd-vclass .lv-ot")), "predné sedadlá sú v cene");
+  over((await p.$$("#lcd-vclass .lv-ot .lcd1v-kb__karta")).length === 3, "rozloženie má dlaždice predok, 2. a 3. rad, kufor");
+  over(/Samostatne/.test(await p.textContent("#lcd-vclass .lv-ot")) && /Výhoda v sete/.test(await p.textContent("#lcd-vclass .lv-ot")), "dlaždice ukazujú zľavu v sete");
+  over(await p.isVisible("#lcd-vclass-nakres canvas.lv-pred"), "od rozloženia sa ukazuje kresba");
+  if (o.rozl === "Z") await klik(p, "rozl", "Z", 80);
+  if (o.rohoz === "ano") await klik(p, "rohoz", "ano", 80);
+  if (o.snimka) await p.screenshot({ path: o.snimka + "-rozl2.png", fullPage: true });
+  await dalej(p);
+  over(/banners\/diamont\.jpg/.test(await p.innerHTML("#lcd-vclass .lv-ot")), "vzor ukazuje čisté vzorky ako Basic");
+  if (o.snimka) await p.screenshot({ path: o.snimka + "-vzor.png" });
+  await klik(p, "vzor", o.vzor, 80); await dalej(p);
+  await klik(p, "farba", o.farba, 80); await dalej(p);
   over(!!(await p.$("#lcd-vclass .lcd1v-druha__video")), "video v kroku druhej vrstvy");
   over(/nedáva/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že druhá vrstva je len vpredu");
   if (o.okno) {
@@ -83,23 +92,33 @@ async function prejdi(p, o) {
   if (o.lux) {
     over((await p.evaluate(() => window.__lcdVclass.S.farba2)) === o.lux, "odporúčaná farba 2. vrstvy je vopred vybraná: " + await p.evaluate(() => window.__lcdVclass.S.farba2));
     if (o.snimka) await p.screenshot({ path: o.snimka + "-lux.png", fullPage: true });
-    await dalej(p, o);
+    await dalej(p);
   }
-  await klik(p, "rohoz", o.rohoz);
-  await klik(p, "boxy", String(o.boxy.length), o.boxy.length ? 60 : 320);
+  if (o.snimka) await p.screenshot({ path: o.snimka + "-boxy0.png", fullPage: true });
+  await dalej(p);
+  over(!!(await p.$("#lcd-vclass .lv-chyba")), "bez výberu boxov krok neprejde");
   if (o.boxy.length) {
-    for (const [i, v] of o.boxy.entries()) await klik(p, "box" + (i + 1), v, 50);
+    await p.click(`#lcd-vclass [data-box-n="${o.boxy.length}"]`); await p.waitForTimeout(320);
+    over(await p.isVisible(".lv-bx-obal .lcd1v-bx__ok"), "boxy sa vyberajú v okne");
+    await p.click(".lv-bx-obal .lcd1v-bx__ok"); await p.waitForTimeout(150);
+    over(await p.isVisible(".lv-bx-obal .lcd-needs-fill .lcd1v-bx__chyba"), "okno pýta chýbajúci výber");
+    await p.click(`.lv-bx-obal [data-bx-farba="${o.boxFarba}"]`);
+    for (const [i, v] of o.boxy.entries()) await p.click(`.lv-bx-obal [data-bx-box="${i + 1}"] [data-bx-vel="${v}"]`);
+    if (o.snimka) await p.screenshot({ path: o.snimka + "-okno.png" });
+    if (arg("bx")) console.log(JSON.stringify(await p.evaluate(() => { const b = document.querySelector(".lv-bx-obal .lcd1v-bx-velk .option-button"), v = b.querySelector(".lcd1v-bx__vel"), g = b.querySelector("svg"), c = getComputedStyle(b), r = (e) => { const x = e.getBoundingClientRect(); return [Math.round(x.width), Math.round(x.height)]; }; return { b: r(b), v: r(v), g: r(g), d: c.display, h: c.height, mh: c.maxHeight, o: c.overflow, gc: [getComputedStyle(g).height, getComputedStyle(g).display, getComputedStyle(g).maxHeight, g.getAttribute("class")], vc: getComputedStyle(v).display }; })));
+    await p.click(".lv-bx-obal .lcd1v-bx__ok"); await p.waitForTimeout(320);
+    over(!(await p.isVisible(".lv-bx-obal .lcd1v-bx__ok")), "okno sa po potvrdení zavrie");
+    over(await p.getAttribute(`#lcd-vclass [data-box-n="${o.boxy.length}"]`, "aria-pressed") === "true", "dlaždica boxov je označená");
     if (o.snimka) await p.screenshot({ path: o.snimka + "-boxy.png", fullPage: true });
-    await klik(p, "boxFarba", o.boxFarba, 50);
-    await dalej(p, o);
-  }
+  } else await klik(p, "boxy", "0", 80);
+  await dalej(p);
 }
 
 const SCEN = [
   { velkost: "M", rok: "2020", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "3", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "10", okno: true, rozl: "Z", rohoz: "ano", boxy: [], cena: 1300 },
   { velkost: "L", rok: "2024", volant: "Vpravo", stred: STRED[1], dvere: DVERE[0], rad2: "2", rad3: "2", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "stripe", farba: "Béžová", lux: "12", rozl: "P", rohoz: "nie", boxy: [], cena: 450 },
   { velkost: "XL", rok: "2016", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "3", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "hexa", farba: "Čierna, červené šitie", lux: "", rozl: "Z", rohoz: "ano", boxy: ["M", "XL"], boxFarba: "Béžová", cena: 1610 },
-  { velkost: "M", rok: "2019", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Hnedá", lux: "", rozl: "P", rohoz: "ano", boxy: ["S", "S", "L"], boxFarba: "Hnedá káva", cena: 880 },
+  { velkost: "M", rok: "2019", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Hnedá", lux: "", rozl: "P", rohoz: "ano", boxy: ["S", "L"], boxFarba: "Hnedá káva", cena: 780 },
   { velkost: "L", rok: "2022", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[1], vzor: "diamond", farba: "Čierna, modré šitie", lux: "10", rozl: "Z", rohoz: "nie", boxy: [], cena: 1150 },
 ];
 const SIRKY = { chromium: [1366, 390], webkit: [390], firefox: [1366] };
@@ -121,6 +140,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await c.route(/assets\/v\/[^/]+\/js\/lcd-vclass\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "lcd-vclass.js")) }));
         // fotky ešte nemusia byť na CDN
         await c.route(/assets\/img\/1v\/obsah\/[^/?]*mercedes-v-class[^/?]*/, (r) => { const m = /obsah\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("webp") ? "image/webp" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/obsah/" + m[1], import.meta.url)) }); });
+        await c.route(/assets\/img\/1v\/mercedes-v-class-video[^/?]*/, (r) => { const m = /1v\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("mp4") ? "video/mp4" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/" + m[1], import.meta.url)) }); });
         await c.route(/assets\/v\/[^/]+\/html\/p1v-vclass-\d\.sk\.html/, (r) => { const m = /(p1v-vclass-\d\.sk\.html)/.exec(r.request().url()); r.fulfill({ contentType: "text/html; charset=utf-8", body: readFileSync(new URL("../admin-html/dist/" + m[1], import.meta.url)) }); });
       } else {
         await c.route(/assets\/v\/[^/]+\/(js\/(luxuryCar|lcd-[a-z]+)\.js|html\/p1v-)/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
@@ -152,10 +172,11 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over((await p.textContent("#lcd-vclass .lv-cta")).trim() === "Vložte do košíka", "tlačidlo hotového výberu");
       if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-nakres", ".p-image-wrapper", ".p-info-wrapper", ".row.product-top", "#product-detail-form", ".p-detail-inner"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q + " y" + Math.round(r.top + scrollY) + " h" + Math.round(r.height) + " pos:" + c.position + " top:" + c.top + " mt:" + c.marginTop + " tr:" + c.transform.slice(0, 40) + " inl:" + (e.getAttribute("style") || "").slice(0, 90) + " x" + Math.round(r.left) + " w" + Math.round(r.width) + " scr:" + Math.round(scrollY); }))));
       if (sirka > 991) over(await p.evaluate(() => { const n = document.getElementById("lcd-vclass-nakres").getBoundingClientRect(), r = document.querySelector(".row.product-top").getBoundingClientRect(); return n.bottom <= r.bottom + 1 && n.top >= r.top - 1; }), "kresba ostáva v stĺpci, nejde pod pätu");
-      over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 7, "všetkých 7 krokov hotových");
+      over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 6, "všetkých 6 krokov hotových");
       const sucet = await p.evaluate(() => [...document.querySelectorAll("#product-detail-form select.surcharge-parameter")].reduce((s, e) => s + (e.value ? Number(e.options[e.selectedIndex].getAttribute("data-surcharge-final-price")) : 0), Number(document.querySelector('meta[itemprop="price"]').content)));
       over(sucet === o.cena, o.velkost + ": súčet príplatkov Shoptetu " + sucet + " ≠ " + o.cena);
-      over((await p.$$("#lcd-vclass-hero .lh-f img")).length === 6, "6 fotiek hore");
+      over(/mercedes-v-class-video-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");
+      over(!(await p.$("#lcd-vclass-hero .lh-t")), "hore nie je rad malých fotiek");
       if (i === 0) {
         await p.waitForSelector('[data-lcd-sekcia="vclass-prehliadka"] .vp-b', { timeout: 15000 });
         over((await p.$$('[data-lcd-sekcia="vclass-prehliadka"] .vp-b')).length === 5, "pôdorys má 5 miest");

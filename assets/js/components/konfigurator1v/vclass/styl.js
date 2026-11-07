@@ -15,16 +15,6 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:1;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:clamp(28px,4vw,56px) 0 clamp(28px,4vw,56px) max(24px,calc(50vw - 640px))}
 #lcd-vclass-hero .lh-g{grid-column:2;grid-row:1;position:relative;min-width:0}
 #lcd-vclass-hero .lh-g::before{content:"";position:absolute;inset:0 auto 0 0;width:34%;z-index:1;pointer-events:none;background:linear-gradient(90deg,#0d0b08,rgba(13,11,8,0))}
-#lcd-vclass-hero .lh-st{position:absolute;inset:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;outline-offset:-3px}
-#lcd-vclass-hero .lh-st::-webkit-scrollbar{display:none}
-#lcd-vclass-hero .lh-f{flex:0 0 100%;margin:0;scroll-snap-align:start;height:100%}
-#lcd-vclass-hero .lh-f picture{display:block;width:100%;height:100%}
-#lcd-vclass-hero .lh-f img{display:block;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important}
-#lcd-vclass-hero .lh-sip{position:absolute;top:50%;z-index:2;width:44px;height:44px;margin-top:-22px;border:1px solid rgba(230,200,119,.55);border-radius:50%;background:rgba(13,11,8,.62);cursor:pointer;padding:0}
-#lcd-vclass-hero .lh-sip::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:11px;border:solid #e6c877;border-width:0 2px 2px 0;transform:translate(-65%,-50%) rotate(-45deg)}
-#lcd-vclass-hero .lh-sip-l{left:16px}
-#lcd-vclass-hero .lh-sip-l::after{transform:translate(-35%,-50%) rotate(135deg)}
-#lcd-vclass-hero .lh-sip-p{right:16px}
 #lcd-vclass-hero .lh-ei{font:700 13px var(--lv-disp);letter-spacing:.18em;text-transform:uppercase;color:#e6c877}
 #lcd-vclass-hero h1{display:block!important;margin:0;font:800 clamp(34px,3.6vw,48px)/1.04 var(--lv-disp);text-transform:uppercase;color:#fff;text-align:left}
 #lcd-vclass-hero h1 span{display:block;background:var(--lv-zl);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -33,13 +23,11 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero .lh-c small{font:600 16px var(--lv-body);color:#d9d4c6}
 #lcd-vclass-hero .lh-c b{font:800 clamp(30px,3vw,42px)/1 var(--lv-disp)}
 #lcd-vclass-hero .lh-c span{flex:1 0 100%;font:600 16px/1.35 var(--lv-body);color:#e6c877}
-#lcd-vclass-hero .lh-p2{margin:0;max-width:30em;font:400 16px/1.4 var(--lv-body);color:#b9b3a3}
 #lcd-vclass-hero .lh-cta{align-self:flex-start;padding:16px 34px;border:0;border-radius:10px;background:var(--lv-zg);color:#fff;font:800 16px var(--lv-disp);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 30px -14px rgba(47,156,104,.8)}
-#lcd-vclass-hero .lh-t{display:flex;gap:8px;margin-top:10px}
-#lcd-vclass-hero .lh-t button{flex:0 1 72px;min-width:0;padding:0;border:2px solid transparent;border-radius:8px;background:none;cursor:pointer;overflow:hidden;opacity:.6;transition:opacity .2s}
-#lcd-vclass-hero .lh-t img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
-#lcd-vclass-hero .lh-t button[aria-pressed=true]{border-color:#e6c877;opacity:1}
 #lcd-vclass-hero button:focus-visible{outline:3px solid #e6c877;outline-offset:2px}
+#lcd-vclass-hero .lh-v{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-width:none!important;margin:0;object-fit:cover;background:#0d0b08;border:0!important;border-radius:0!important;box-shadow:none!important}
+#lcd-vclass-hero .lh-pauza{position:absolute;right:14px;bottom:14px;z-index:2;width:40px;height:40px;padding:0;border:1px solid rgba(230,200,119,.55);border-radius:50%;background:rgba(13,11,8,.62) linear-gradient(90deg,#e6c877 0 3px,transparent 3px 8px,#e6c877 8px 11px) center/11px 14px no-repeat;cursor:pointer}
+#lcd-vclass-hero .lh-pauza.lh-hraj{background:rgba(13,11,8,.62) conic-gradient(from 60deg at 0 50%,#e6c877 0 60deg,transparent 0) 15px center/13px 16px no-repeat}
 
 #lcd-vclass-cesta{max-width:1280px;margin:0 auto;padding:clamp(22px,3vw,34px) 24px 6px}
 #lcd-vclass-cesta .lv-c-ol{display:flex;list-style:none;margin:0;padding:0;counter-reset:none}
@@ -64,6 +52,10 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-nakres .lv-pred{width:100%}
 #lcd-vclass-nakres .lv-zad{width:74.5%}
 #lcd-vclass-nakres .lv-pop{margin:8px 0 0;text-align:center;font:400 14px var(--lv-body);color:var(--lv-mute)}
+#lcd-vclass-nakres.lv-uvod .lv-n-set,#lcd-vclass-nakres:not(.lv-uvod) .lv-n-f{display:none}
+#lcd-vclass-nakres .lv-n-f{margin:0}
+#lcd-vclass-nakres .lv-n-f img{display:block;width:100%;height:auto;border-radius:10px}
+#lcd-vclass-nakres .lv-n-f figcaption{margin:12px 6px 4px;text-align:center;font:400 16px/1.4 var(--lv-body);color:var(--lv-text)}
 
 #lcd-vclass{font:400 16px/1.45 var(--lv-body);color:var(--lv-text);min-width:0}
 #lcd-vclass *{box-sizing:border-box}
@@ -84,7 +76,8 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 
 #lcd-vclass .lv-pole{margin:0 0 16px;min-width:0;border-radius:12px}
 #lcd-vclass .lv-pole.lv-chyba .lv-l{color:#b3261e}
-#lcd-vclass .lv-pole.lv-chyba .lv-seg,#lcd-vclass .lv-pole.lv-chyba .lv-sel{border-color:#c0392b;box-shadow:0 0 0 1px #c0392b}
+#lcd-vclass .lv-pole.lv-chyba .lv-s1,#lcd-vclass .lv-pole.lv-chyba .lv-sel{border-color:#c0392b;box-shadow:0 0 0 1px #c0392b}
+#lcd-vclass .lv-chyba[data-pole-w]:not(.lv-pole){outline:2px solid #c0392b;outline-offset:4px;border-radius:12px}
 #lcd-vclass .lv-l{display:block;margin:0 0 7px;font:700 12px var(--lv-disp);letter-spacing:.1em;text-transform:uppercase;color:var(--lv-text)}
 #lcd-vclass .lv-hr{border:0;border-top:2px dashed #e4dfd0;margin:2px 0 16px}
 #lcd-vclass .lv-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
@@ -102,18 +95,36 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-rozpis b{flex:none;font:700 15px var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-dod{margin:10px 0 0;text-align:center;font-size:15px;color:var(--lv-mute)}
 #lcd-vclass .lcd1v-druha{margin:0;padding:0;border:0;background:none;box-shadow:none}
-#lcd-vclass .lv-pi,#lcd-vclass .lv-seg{display:grid;gap:4px;padding:5px;border:2px solid #d8c9a0;border-radius:12px;background:#fff}
-#lcd-vclass .lv-pi{grid-template-columns:1fr 1fr;border-radius:999px}
+#lcd-vclass .lv-pi,#lcd-vclass .lv-seg{display:grid;gap:8px}
+#lcd-vclass .lv-pi{grid-template-columns:1fr 1fr}
 #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
-#lcd-vclass .lv-seg3{grid-template-columns:repeat(3,minmax(0,1fr))}
-#lcd-vclass .lv-seg4{grid-template-columns:repeat(4,minmax(0,1fr))}
-#lcd-vclass .lv-s1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:44px;padding:9px 8px;border:0;border-radius:9px;background:none;color:var(--lv-ink);font:700 14px/1.2 var(--lv-disp);text-align:center;cursor:pointer}
-#lcd-vclass .lv-pi .lv-s1{border-radius:999px;letter-spacing:.05em;text-transform:uppercase}
-#lcd-vclass .lv-s1[aria-pressed=true]{background:var(--lv-zl);color:#16120a;box-shadow:0 8px 16px -10px rgba(143,112,32,.9)}
-#lcd-vclass .lv-vel .lv-s1 b{font:800 22px/1 var(--lv-disp)}
-#lcd-vclass .lv-vel .lv-s1 small{font:400 13px/1.2 var(--lv-body);color:var(--lv-mute)}
-#lcd-vclass .lv-vel .lv-s1 em{font:700 14px var(--lv-disp);font-style:normal;color:var(--lv-gt)}
-#lcd-vclass .lv-vel .lv-s1[aria-pressed=true] small,#lcd-vclass .lv-vel .lv-s1[aria-pressed=true] em{color:#16120a}
+/* voľba musí vyzerať ako tlačidlo aj pred kliknutím (Michal 7. 11. 2026: „je to proste len biele“): krémová plocha, zlatý rám, spodná hrana a krúžok */
+#lcd-vclass .lv-s1{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:10px;border:2px solid #d3b969;border-radius:11px;background:linear-gradient(180deg,#fffdf6,#f8efd5);color:var(--lv-ink);font:700 15px/1.2 var(--lv-disp);text-align:left;cursor:pointer;box-shadow:0 3px 0 #e2d2a4,0 7px 12px -8px rgba(143,112,32,.6);transition:transform .12s,box-shadow .12s,border-color .12s}
+#lcd-vclass .lv-s1::before{content:"";flex:none;width:20px;height:20px;box-sizing:border-box;border:2px solid #b8963c;border-radius:50%;background:#fff}
+#lcd-vclass .lv-s1:active{transform:translateY(2px);box-shadow:0 1px 0 #e2d2a4}
+#lcd-vclass .lv-s1[aria-pressed=true]{border-color:#8f7020;background:var(--lv-zl);color:#16120a;box-shadow:0 8px 16px -10px rgba(143,112,32,.9)}
+#lcd-vclass .lv-s1[aria-pressed=true]::before{border-color:#16120a;background:#16120a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e6c877' stroke-width='4'%3E%3Cpath d='M5 13l4.5 4.5L19 7'/%3E%3C/svg%3E") center/13px no-repeat}
+@media (hover:hover){#lcd-vclass .lv-s1:hover{border-color:var(--lv-gold);transform:translateY(-1px)}#lcd-vclass .lv-s1[aria-pressed=true]:hover{border-color:#8f7020;transform:none}}
+
+/* dlaždice s ponukou: vzhľad z _lcd1v-kufor-boxy.scss, navyše zľava na fotke a tlačidlo */
+#lcd-vclass .lv-dl-w{margin:0}
+#lcd-vclass .lv-fotw{position:relative;display:block;width:100%}
+#lcd-vclass .lv-dl .lcd1v-kb__fot picture{display:block;width:100%}
+#lcd-vclass .lv-dl-vzdy{cursor:default}
+#lcd-vclass .lcd1v-kb[data-lcd1v-kb] .lv-dl.lcd1v-kb__karta--naj[aria-pressed=true]::after{top:48px}
+#lcd-vclass .lcd1v-kb[data-lcd1v-kb="vclass-boxy"] .lv-dl.lcd1v-kb__karta--naj[aria-pressed=true]::after{top:66px}
+#lcd-vclass .lv-zlava{position:absolute;left:6px;top:6px;padding:4px 9px;border-radius:999px;background:var(--lv-zg);color:#fff;font:800 13px/1.15 var(--lv-disp);font-style:normal;box-shadow:0 4px 10px -4px rgba(0,0,0,.55)}
+#lcd-vclass .lv-tl{display:block;margin-top:9px;padding:9px 10px;border-radius:9px;background:var(--lv-zl);color:#16120a;font:800 14px/1.2 var(--lv-disp);text-align:center;box-shadow:0 8px 16px -10px rgba(143,112,32,.9)}
+#lcd-vclass .lv-tl-b{display:none}
+#lcd-vclass .lv-dl[aria-pressed=true] .lv-tl{background:#fff;color:var(--lv-text);box-shadow:inset 0 0 0 1px var(--lv-line)}
+#lcd-vclass .lv-dl[aria-pressed=true] .lv-tl-a{display:none}
+#lcd-vclass .lv-dl[aria-pressed=true] .lv-tl-b{display:inline}
+#lcd-vclass .lv-dl .lv-tl.lv-tl-v{background:#eef6f1;color:var(--lv-zel);box-shadow:none}
+#lcd-vclass .lv-ponuka{margin:12px 0 0;padding:11px 13px;border:1px solid #bcdcca;border-radius:10px;background:#eef6f1;color:var(--lv-ink);font-size:16px;line-height:1.35;text-align:center}
+#lcd-vclass .lv-ponuka b{color:var(--lv-zel);font-weight:800;white-space:nowrap}
+#lcd-vclass .lv-us{margin:0;text-align:right;font-size:16px;color:var(--lv-zel)}
+#lcd-vclass .lv-us b{font-weight:800}
+#lcd-vclass .lv-vzorky img{aspect-ratio:350/206}
 
 #lcd-vclass .lv-g{display:grid;gap:10px}
 #lcd-vclass .lv-g2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -162,37 +173,45 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 }
 @media (max-width:991px){
   #lcd-vclass-hero .lh-in{grid-template-columns:minmax(0,1fr);min-height:0}
-  #lcd-vclass-hero .lh-g{grid-column:1;grid-row:1;aspect-ratio:3/2}
+  #lcd-vclass-hero .lh-g{grid-column:1;grid-row:1;aspect-ratio:1/1}
+  #lcd-vclass-hero .lh-p{display:none}
   #lcd-vclass-hero .lh-g::before{inset:auto 0 0 0;width:100%;height:30%;background:linear-gradient(0deg,#0d0b08,rgba(13,11,8,0))}
-  #lcd-vclass-hero .lh-sip{display:none}
   #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:2;padding:6px 16px 24px;gap:11px}
   #lcd-vclass-hero .lh-cta{align-self:stretch;text-align:center}
-  #lcd-vclass-hero .lh-t{order:-1;margin:-34px 0 6px;position:relative;z-index:2}
   body.lcd-vclass .p-image-wrapper{display:none!important}
   #lcd-vclass-cesta{padding:18px 8px 4px}
   #lcd-vclass-cesta span{font-size:11px;letter-spacing:.02em;white-space:nowrap}
   #lcd-vclass-cesta li:not(.lv-teraz) span{display:none}
   #lcd-vclass-cesta i{width:28px;height:28px;font-size:13px}
   #lcd-vclass-cesta li::before{top:13px;left:calc(-50% + 16px);right:calc(50% + 16px)}
-  #lcd-vclass-nakres{position:static;margin:0 0 9px;padding:12px 10px 8px}
+  #lcd-vclass-nakres{position:static;margin:14px 0 0;padding:12px 10px 8px}
+  #lcd-vclass-nakres.lv-uvod{display:none}
   #lcd-vclass-nakres .lv-pl{flex-direction:row;align-items:center;justify-content:center;gap:10px;width:100%}
   #lcd-vclass-nakres .lv-pred{width:56%}
   #lcd-vclass-nakres .lv-zad{width:40%}
-  #lcd-vclass .lv-dalej{display:none}
 }
 @media (max-width:480px){
+  #lcd-vclass .lv-2s{grid-template-columns:minmax(0,1fr)}
   #lcd-vclass .lv-ot{padding:16px 13px 18px}
   #lcd-vclass .lv-f{grid-template-columns:repeat(4,minmax(0,1fr))}
-  #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
   #lcd-vclass .lv-an{grid-template-columns:minmax(0,1fr)}
-  #lcd-vclass .lv-vel .lv-s1 small{font-size:12px}
 }
 @media (prefers-reduced-motion:reduce){#lcd-vclass *,#lcd-vclass-hero *{transition:none!important}}
 
+.lv-bx-obal{display:block;height:0;margin:0!important;padding:0}
+body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .options-wrap .button.option-button{aspect-ratio:auto!important;overflow:visible!important;height:auto!important;min-height:0!important}
 body.lcd-1v .lcd1v-lista.lv-bez button.lcd1v-lista__kos{display:none}
 body.lcd-1v .lcd1v-lista.lv-bez .lcd1v-lista__c{max-width:none;flex:1 1 auto;flex-direction:row;align-items:baseline;justify-content:space-between}
 
 /* obsah pod konfigurátorom (admin-html/src/p1v-vclass): prehliadka auta, verzie, set, galéria */
+body.lcd-vclass .vy{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:900px;margin:0 auto}
+body.lcd-vclass .vy-f{margin:0;min-width:0}
+body.lcd-vclass .vy-f button{position:relative;display:block;width:100%;padding:0;border:0;border-radius:14px;background:#0d0b08;overflow:hidden;cursor:pointer}
+body.lcd-vclass .vy-f img{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover}
+body.lcd-vclass .vy-play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:rgba(13,11,8,.66);box-shadow:inset 0 0 0 2px #e6c877}
+body.lcd-vclass .vy-play::after{content:"";position:absolute;left:25px;top:20px;border-style:solid;border-width:12px 0 12px 19px;border-color:transparent transparent transparent #e6c877}
+body.lcd-vclass .vy-f figcaption{margin:9px 2px 0;font:700 16px/1.3 var(--lv-disp);color:var(--lv-ink);text-align:center}
+@media (max-width:640px){body.lcd-vclass .vy{grid-template-columns:repeat(3,minmax(68%,1fr));overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}body.lcd-vclass .vy-f{scroll-snap-align:center}}
 body.lcd-vclass .vp-uvod{max-width:62ch;margin:0 0 22px;font:400 17px/1.55 var(--lv-body);color:var(--lv-text)}
 body.lcd-vclass .vp{margin-top:8px}
 body.lcd-vclass .vp-k{display:grid;gap:12px;margin:0 0 28px}

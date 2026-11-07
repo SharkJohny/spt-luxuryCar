@@ -1,7 +1,8 @@
 // Kresba koberca triedy V na plátne: výšková mapa (okraje, zošité diely, prešívanie) a svetlo. Tvary sú schválené Michalom
 // 6. 11. 2026 (náhľady v3/navrhy7 a navrhy8). Geometria sa počíta raz na verziu, farba sa len domieša. Kód prenesený z náhľadu,
 // preto hustý: pri zmene tvaru najprv upraviť náhľad.
-// kresli(canvas, { cast: "predok", s: bezTunela, vzor } | { cast: "zadok", v, d, s: stolček, z: zásuvky, vzor }, šírka, [koža, šitie, podlaha])
+// kresli(canvas, { cast: "predok", s: bezTunela, vzor } | { cast: "zadok", v, d, s: stolček, z: zásuvky, vzor }, šírka, [koža, šitie, podlaha], vzorka)
+// vzorka = { w, h, d } pixely vzorky druhej vrstvy: farba aj pásiky sa kreslia zo skutočnej vzorky (Michal 7. 11. 2026), bez nej jednoliata farba.
 import { DIELY, DIELY_BEZ } from "./diely.js";
 
 var K=.2164,X0=115,Y0=110,VB={w:1650*K,h:1040*K},AX=981.5,ZAD=false;
@@ -34,7 +35,8 @@ function zKufor(o){var c=cfg(o),R=c.r,G=ZG,T=c.S+G,E=c.L+G,xr=R[3][1]+65,e0=R[0]
   P.push([xr,T,8],[xr,E-28,22],[1007,E-19,120],[650,E,120],[293,E-19,120],[R[0][0]-15,E-28,22],[R[0][0]-15,e0,14],[R[0][1],e0,14]);
   return poly(P,10)}
 /* koberček: rovný, zrkadlený; XS = hrana schodu pri tuneli od stredu */
-var KOB="M1222 900L1222 386C1222 319 1277 264 1344 264L1443 264C1510 264 1565 319 1565 386L1565 478L1790 478L1790 900Z",XS=240.5,XW=20;
+/* KOBS = šev na jednovrstvových: oblúk podlahy, rovnaké šitie ako medzi dielmi (Michal 7. 11. 2026, červená čiara na fotke) */
+var KOB="M1222 900L1222 386C1222 319 1277 264 1344 264L1443 264C1510 264 1565 319 1565 386L1565 478L1790 478L1790 900Z",KOBS="M1222 900L1222 386C1222 319 1277 264 1344 264L1443 264C1510 264 1565 319 1565 386L1565 478",XS=240.5,XW=20;
 var ZP={hlavnyP:[0,0],obdlP:[.3,-14],klinE:[1.2,10],dielF:[.9,-12],dielG:[1.2,6],hlavnyP2:[0,0],obdlP2:[.3,14],klinE2:[1.2,-10],dielF2:[.9,12],dielG2:[1.2,-6],stred:[.2,0]};
 function s3(t){t=t<0?0:t>1?1:t;return t*t*(3-2*t)}
 function cv(W,H){var c=document.createElement("canvas");c.width=W;c.height=H;return c}
@@ -74,11 +76,14 @@ function geometria(o,W){
   zP.forEach(function(p){x.fill(p);x.stroke(p)});inP.forEach(function(p){x.fill(p,"evenodd")});
   var A=alfa(x,W,H);
   var bw=1.9*S,g=bw/2+.8*S,tw=Math.max(1,.42*S),dash=[1.5*S,.9*S];
+  var kSev=null,Bk=null;if(!ZAD&&o.bez2){var aS=K*S;kSev=new Path2D();kSev.addPath(new Path2D(KOBS),new DOMMatrix([aS,0,0,aS,-X0*aS,-Y0*aS]));kSev.addPath(new Path2D(KOBS),new DOMMatrix([-aS,0,0,aS,(2*AX-X0)*aS,-Y0*aS]))}
   x.clearRect(0,0,W,H);x.lineCap="butt";x.lineWidth=bw;zP.forEach(function(p){x.stroke(p)});
   var Bd=alfa(x,W,H);
+  if(kSev){x.clearRect(0,0,W,H);x.stroke(kSev);Bk=alfa(x,W,H)}
   x.clearRect(0,0,W,H);x.setLineDash(dash);x.lineWidth=2*g+tw;zP.forEach(function(p){x.save();x.clip(p);x.stroke(p);x.restore()});
   x.setLineDash([]);x.globalCompositeOperation="destination-out";x.lineWidth=2*g-tw;zP.forEach(function(p){x.stroke(p)});x.globalCompositeOperation="source-over";
-  var Sv=alfa(x,W,H);
+  var Sv=alfa(x,W,H),Sk=null;
+  if(kSev){x.clearRect(0,0,W,H);x.setLineDash(dash);x.lineWidth=2*g+tw;x.stroke(kSev);x.setLineDash([]);x.globalCompositeOperation="destination-out";x.lineWidth=2*g-tw;x.stroke(kSev);x.globalCompositeOperation="source-over";Sk=alfa(x,W,H)}
   var lem=1.2*S,er=lem+.75*S,vse=zP.concat(inP);
   x.clearRect(0,0,W,H);x.setLineDash(dash);x.lineWidth=2*er+tw;vse.forEach(function(p){x.stroke(p)});
   x.setLineDash([]);x.globalCompositeOperation="destination-out";x.lineWidth=2*er-tw;vse.forEach(function(p){x.stroke(p)});x.globalCompositeOperation="source-over";
@@ -94,6 +99,9 @@ function geometria(o,W){
   for(i=0;i<n;i++)In[i]=(M[i]&&Bd[i]<.35)?1:0;
   var zz=zony(In,W,H),Z=zz.Z,nz=zz.nz,pz=new Int32Array(nz+1);for(i=0;i<n;i++)pz[Z[i]]++;
   for(i=0;i<n;i++)if(Z[i]&&pz[Z[i]]<30*S*S){Z[i]=0;In[i]=0;Bd[i]=1}
+  /* šev podlahy až po zónach: prešívanie cezeň pokračuje, nerozdelí diel; ide len po hlavnom diele, bočné diely neprechádza */
+  if(Bk){var a2=K*S,zh=[];Dl.forEach(function(z){if(/^hlavnyP/.test(z.n))zh.push(Z[Math.round((z.c[1]-Y0)*a2)*W+Math.round((z.c[0]-X0)*a2)])});
+    for(i=0;i<n;i++)if(Z[i]&&zh.indexOf(Z[i])>=0){if(Bk[i]>Bd[i])Bd[i]=Bk[i];if(Sk[i]>Sv[i])Sv[i]=Sk[i]}}
   var dP=edt(In,W,H);for(i=0;i<n;i++)if(dO[i]<1.5*S||Mk[i])Bd[i]=0;var Mb=new Uint8Array(n);for(i=0;i<n;i++)Mb[i]=Bd[i]>.35?0:1;var dS=edt(Mb,W,H);
   var hl=new Float32Array(nz+1),uh=new Float32Array(nz+1),lb={};
   Dl.forEach(function(z){var a=K*S,px=Math.round((z.c[0]-X0)*a),py=Math.round((z.c[1]-Y0)*a),l=Z[py*W+px];if(l){hl[l]=ZP[z.n][0];uh[l]=ZP[z.n][1];lb[z.n]=l}});
@@ -106,7 +114,7 @@ function geometria(o,W){
   var Dp=new Float32Array(n),Wg=new Float32Array(n);
   for(i=0;i<n;i++){if(Z[i]){Dp[i]=hl[Z[i]];Wg[i]=1}}
   var bD=roz(Dp,W,H,6.5*S,3),bW=roz(Wg,W,H,6.5*S,3),bS=roz(Bd,W,H,.28*S,1),bC=roz(Bd,W,H,1.5*S,2);
-  var h=new Float32Array(n),Qa=new Float32Array(n),St=new Float32Array(n),Kp=new Float32Array(n),Dn=new Float32Array(n),u,v,fu,fv,kS=K*S,sch=(o.s||ZAD)?0:8*S;
+  var h=new Float32Array(n),Qa=new Float32Array(n),St=new Float32Array(n),Kp=new Float32Array(n),Dn=new Float32Array(n),u,v,fu,fv,kS=K*S,sch=(o.s||ZAD||o.bez2)?0:8*S;
   var vz=o.vzor||"diamond",sw=13*S,hr=9.5*S,rimA=1*S,stepA=9*S,dishR=9*S,dishA=2.4*S,rollA=1.2*S,creA=1.5*S,qa=2.3*S,pi=Math.PI,tw2=tw*.62;
   for(Y=0;Y<H;Y++)for(X=0;X<W;X++){i=Y*W+X;if(!M[i]){h[i]=-1.2*S;continue}
     var dd=dO[i],zl=Z[i],q1=dd<lem?Math.sqrt(Math.max(0,1-(1-dd/lem)*(1-dd/lem))):1;
@@ -155,15 +163,20 @@ function hex(s){return[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parse
 var CACHE={};
 var PORADIE=[];
 function geo(o,W){var k=[o.cast,o.vzor,o.v,o.d,+!!o.s,+!!o.z,+!!o.bez2,W].join("-");if(CACHE[k])return CACHE[k];if(PORADIE.length>=10)delete CACHE[PORADIE.shift()];PORADIE.push(k);return CACHE[k]=geometria(o,W)}
-export function kresli(cnv,o,W,far){
+/* plocha druhej vrstvy v súradniciach kresby: štvorcový výrez vzorky cez celý koberček, ľavý je zrkadlo pravého */
+function vzorkaPx(t,X,Y,kS,v){var rx=X/kS+X0,ry=Y/kS+Y0;if(rx<AX)rx=2*AX-rx;
+  var u=(rx-1188)/636*(t.w-1),q=(ry-264)/636*(t.h-1),x0=u<0?0:u>t.w-2?t.w-2:u|0,y0=q<0?0:q>t.h-2?t.h-2:q|0,fx=Math.min(1,Math.max(0,u-x0)),fy=Math.min(1,Math.max(0,q-y0)),d=t.d,a=(y0*t.w+x0)*4,b=a+4,c=a+t.w*4,e=c+4,k;
+  for(k=0;k<3;k++)v[k]=(d[a+k]*(1-fx)+d[b+k]*fx)*(1-fy)+(d[c+k]*(1-fx)+d[e+k]*fx)*fy}
+export function kresli(cnv,o,W,far,vzorka){
   var g=geo(o,W),w=g.W,h=g.H,n=w*h,B=hex(far[0]),C=hex(far[1]),Kc=hex(far[2]||"#131315"),im=new ImageData(w,h),d=im.data,i,j,
     /* slabe = časť, ktorá nie je vo výbere: "cele", "zadok" (2. a 3. rad) alebo "kufor" */
     sl=o.slabe,rez=sl?Math.round((cfg(o).S+ZG/2+30)*.75*W/1230):0,f;
-  var lum=(B[0]*.3+B[1]*.59+B[2]*.11)/255,gk=255*(1.05-.65*lum),bB=[Math.max(B[0],26),Math.max(B[1],26),Math.max(B[2],28)];
+  var lum=(B[0]*.3+B[1]*.59+B[2]*.11)/255,gk=255*(1.05-.65*lum),bB=[Math.max(B[0],26),Math.max(B[1],26),Math.max(B[2],28)],Kv=[0,0,0],kSk=0;
+  rezim(o);kSk=K*w/VB.w;var tx=vzorka&&vzorka.d&&o.cast==="predok"?vzorka:null;
   for(i=0;i<n;i++){j=i*4;var a=g.A[i];
     f=1;if(sl){var yy=i/w|0;if(sl==="cele"||(sl==="kufor"&&yy>=rez)||(sl==="zadok"&&yy<rez))f=.13}
     if(a<=0){d[j+3]=g.Sh[i]*130*f;continue}
-    var l=g.L[i],sp=g.G[i]*gk,st=g.St[i],di=.62+.62*g.Df[i],kp=g.Kp[i],r=(bB[0]+(Kc[0]-bB[0])*kp)*l+sp,gg=(bB[1]+(Kc[1]-bB[1])*kp)*l+sp,b=(bB[2]+(Kc[2]-bB[2])*kp)*l+sp;
+    var l=g.L[i],sp=g.G[i]*gk,st=g.St[i],di=.62+.62*g.Df[i],kp=g.Kp[i],Kx=Kc;if(tx&&kp>0){vzorkaPx(tx,i%w,i/w|0,kSk,Kv);Kx=Kv}var r=(bB[0]+(Kx[0]-bB[0])*kp)*l+sp,gg=(bB[1]+(Kx[1]-bB[1])*kp)*l+sp,b=(bB[2]+(Kx[2]-bB[2])*kp)*l+sp;
     r+=(C[0]*di-r)*st;gg+=(C[1]*di-gg)*st;b+=(C[2]*di-b)*st;
     d[j]=r;d[j+1]=gg;d[j+2]=b;d[j+3]=Math.max(a*255,g.Sh[i]*130)*f}
   cnv.width=w;cnv.height=h;cnv.getContext("2d").putImageData(im,0,0)}
