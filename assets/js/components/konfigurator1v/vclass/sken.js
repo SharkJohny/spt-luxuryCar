@@ -1,8 +1,8 @@
 // Modul Skenovanie v popise triedy V (Michal 7. 11. 2026: „použi aj STL z PC ako nejaký modul v popisoch“): skutočný sken V Class XL ako
 // 3D model, ktorý si zákazník otáča prstom alebo myšou. Zdroj: oba STL v Desktop/LCD/skeny aut spojené a zmenšené na ~86 000 plôšok,
-// súbor assets/img/1v/mercedes-v-class-sken.bin (hlavička nv, nt, min xyz, mierka; potom Uint16 polohy a indexy). Stiahne sa až pri
+// súbor assets/img/1v/mercedes-v-class-sken-2.bin (hlavička nv, nt, min xyz, mierka; potom Uint16 polohy a indexy). Stiahne sa až pri
 // priblížení k sekcii. Bez WebGL alebo pri chybe ostáva v stránke obrázok z HTML, preto o tom zákazník nevie.
-const SUBOR = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/mercedes-v-class-sken.bin";
+const SUBOR = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/mercedes-v-class-sken-2.bin";
 const VS = `attribute vec3 p;attribute vec3 n;uniform mat4 M;uniform mat4 V;varying vec3 vn;varying vec3 vp;varying vec3 vw;
 void main(){vec4 w=M*vec4(p,1.);vw=w.xyz;vp=p;vn=mat3(M[0].xyz,M[1].xyz,M[2].xyz)*n;gl_Position=V*w;}`;
 const FS = `precision highp float;varying vec3 vn;varying vec3 vp;varying vec3 vw;uniform float rez;uniform vec3 oko;
@@ -83,7 +83,7 @@ export function pohlad(miesto, model) {
   }
   function kresli() {
     velkost();
-    const a = c.width / c.height, d = 2.75 + 0.9 * Math.abs(Math.sin(yaw)) + (a < 1.2 ? 0.9 : 0); // auto je dlhé: spredu ho treba oddialiť
+    const a = c.width / c.height, d = 2.9 + 1.25 * Math.abs(Math.sin(yaw)) + (a < 1.2 ? 1 : 0); // auto je dlhé: spredu ho treba oddialiť
     const V = nasob(nasob(perspektiva(0.55, a, 0.1, 20), posun(-d)), rotX(pitch));
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.uniformMatrix4fv(u.M, false, rotY(yaw));

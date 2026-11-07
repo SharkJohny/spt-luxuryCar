@@ -81,7 +81,7 @@ function prehliadka(sek, spat, vyberFarbu) {
   const far = document.createElement("div");
   far.className = "vp-far";
   far.innerHTML = '<p class="vp-far-t">Vyskúšajte si, ako by vyzeral Váš set</p><div class="vp-vz" role="group" aria-label="Vzor prešívania">' + VZORY.map((v) => '<button type="button" data-vz="' + v.id + '">' + v.nm + "</button>").join("") + '</div><div class="vp-sw" role="group" aria-label="Farba autokobercov"></div><p class="vp-far-n" aria-live="polite"></p><button type="button" class="vp-chcem">Chcem takýto set</button>';
-  lava.appendChild(far);
+  vp.appendChild(far); // na PC pás pod kresbou aj fotkou, stĺpce sú rovnako vysoké (Michal 7. 11. 2026)
   const swW = far.querySelector(".vp-sw"), meno = far.querySelector(".vp-far-n");
   const miniatura = (f) => (NAHLADY_FARIEB[f.slug] ? FARBY_CDN + f.slug + "-" + NAHLADY_FARIEB[f.slug] + "-w96.jpg" : "");
   function vzorky() {
