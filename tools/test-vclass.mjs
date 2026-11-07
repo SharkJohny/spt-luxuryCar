@@ -40,6 +40,7 @@ function stranka() {
   h = h.replace('name="productId" value="640"', 'name="productId" value="646"').replace('name="priceId" value="68383"', 'name="priceId" value="68434"');
   h = h.replace(/("product":\s*\{\s*"id":\s*)640/, "$1646");
   h = h.replace(/(<meta itemprop="price" content=")[^"]*"/, '$1300.00"');
+  h = h.replace('itemprop="productID" content="640"', 'itemprop="productID" content="646"');
   h = h.replace(/luxusné autokoberce do kamionov(\s*<\/h1>)/, "Autokoberce Mercedes triedy V$1");
   return h;
 }
@@ -218,6 +219,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-nakres", ".p-image-wrapper", ".p-info-wrapper", ".row.product-top", "#product-detail-form", ".p-detail-inner"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q + " y" + Math.round(r.top + scrollY) + " h" + Math.round(r.height) + " pos:" + c.position + " top:" + c.top + " mt:" + c.marginTop + " tr:" + c.transform.slice(0, 40) + " inl:" + (e.getAttribute("style") || "").slice(0, 90) + " x" + Math.round(r.left) + " w" + Math.round(r.width) + " scr:" + Math.round(scrollY); }))));
       if (sirka > 991) over(await p.evaluate(() => { const n = document.getElementById("lcd-vclass-nakres").getBoundingClientRect(), r = document.querySelector(".row.product-top").getBoundingClientRect(); return n.bottom <= r.bottom + 1 && n.top >= r.top - 1; }), "kresba ostáva v stĺpci, nejde pod pätu");
       over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 6, "všetkých 6 krokov hotových");
+      over(await p.evaluate(() => getComputedStyle(document.querySelector(".p-detail-inner > .row.product-top") || document.querySelector(".p-detail-inner > *")).visibility === "visible"), "po spustení je obsah viditeľný");
       const sucet = await p.evaluate(() => [...document.querySelectorAll("#product-detail-form select.surcharge-parameter")].reduce((s, e) => s + (e.value ? Number(e.options[e.selectedIndex].getAttribute("data-surcharge-final-price")) : 0), Number(document.querySelector('meta[itemprop="price"]').content)));
       over(sucet === o.cena, o.velkost + ": súčet príplatkov Shoptetu " + sucet + " ≠ " + o.cena);
       over(/mercedes-v-class-film-3-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");

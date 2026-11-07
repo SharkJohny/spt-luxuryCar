@@ -2395,6 +2395,17 @@
 #lcd-home .kont-f.overene .kf textarea:invalid ~ .kf-e{display:block}
 #lcd-home .kont-f.overene .kf input:invalid,
 #lcd-home .kont-f.overene .kf textarea:invalid{border-color:#c0392b}
+/* Čierna karta formulára (Michal 7. 11. 2026, rada webára: málo kontrastné, ľudia si to nevšimnú). Len formulár, sekcia
+   ostáva svetlá. Popisy biele, polia biele s čiernym textom, nech si ich všimne každý. */
+#lcd-home .kont-f{background:#0d0b08;border-color:#0d0b08;box-shadow:0 22px 44px -26px rgba(13,11,8,.75)}
+#lcd-home .kont-f .kf-l,#lcd-home .kont-f .kf-auto-h{color:#fff}
+#lcd-home .kont-f .kf-l small,#lcd-home .kont-f .kf-auto-h span{color:#cfc9ba}
+#lcd-home .kont-f .kf input,#lcd-home .kont-f .kf textarea{background:#fff;border-color:#fff;color:#0d0b08}
+#lcd-home .kont-f .kf input:focus,#lcd-home .kont-f .kf textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+#lcd-home .kont-f .kf input::placeholder,#lcd-home .kont-f .kf textarea::placeholder{color:#716b5e}
+#lcd-home .kont-f .kf-pod,#lcd-home .kont-f .kf-stav{color:#d9d4c6}
+#lcd-home .kont-f .kf-pod a{color:#e6c877}
+#lcd-home .kont-f .kf-e{color:#ff9d8f}
 /* pasca na roboty — clovek ju nevidi, robot ju vyplni a sprava sa zahodi */
 #lcd-home .kf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 

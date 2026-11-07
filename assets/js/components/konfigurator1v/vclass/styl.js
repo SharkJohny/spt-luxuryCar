@@ -77,18 +77,6 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-rc b{font:800 16px/1.2 var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-rc s{font:600 14px/1.2 var(--lv-body);color:#b3261e}
 #lcd-vclass .lv-rc-0{font:600 14px/1.2 var(--lv-body);color:var(--lv-mute)}
-#lcd-vclass .lv-cc{margin:0 0 14px;border:2px solid var(--lv-gold);border-radius:12px;overflow:hidden;background:#fff}
-#lcd-vclass .lv-cc-h{padding:9px 14px;background:var(--lv-zl);color:#16120a;font:800 15px/1.2 var(--lv-disp);letter-spacing:.06em;text-align:center;text-transform:uppercase}
-#lcd-vclass .lv-cc-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-#lcd-vclass .lv-cc-g>div{display:flex;flex-direction:column;justify-content:flex-end;gap:3px;padding:12px 14px}
-#lcd-vclass .lv-cc-g>div+div{border-left:1px solid var(--lv-line)}
-#lcd-vclass .lv-cc small{font:700 12px/1.2 var(--lv-disp);letter-spacing:.08em;text-transform:uppercase;color:var(--lv-mute)}
-#lcd-vclass .lv-cc s{font:700 22px/1.15 var(--lv-disp);color:#b3261e}
-#lcd-vclass .lv-cc b{font:800 30px/1.1 var(--lv-disp);color:var(--lv-ink)}
-#lcd-vclass .lv-cc-p{padding:9px 14px;background:#eef6f1;color:var(--lv-zel);font:800 16px/1.2 var(--lv-disp);text-align:center}
-#lcd-vclass .lv-cc-1 .lv-cc-g{grid-template-columns:minmax(0,1fr)}
-#lcd-vclass .lv-cc-1 .lv-cc-g>div:first-child,#lcd-vclass .lv-cc-1 .lv-cc-p{display:none}
-#lcd-vclass .lv-cc-1 .lv-cc-g>div+div{border-left:0}
 
 #lcd-vclass .lv-pole{margin:0 0 16px;min-width:0;border-radius:12px}
 #lcd-vclass .lv-pole.lv-chyba .lv-l{color:#b3261e}
@@ -122,7 +110,26 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-rozpis b{flex:none;font:700 15px var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-dod{margin:10px 0 0;text-align:center;font-size:15px;color:var(--lv-mute)}
 #lcd-vclass .lcd1v-druha{margin:0;padding:0;border:0;background:none;box-shadow:none}
-#lcd-vclass .lcd1v-druha__dlazdica.lv-d2-k{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:0;padding:0;margin:0 0 12px;overflow:hidden;border:1px solid #8a6a1c;border-radius:16px;background:radial-gradient(120% 90% at 100% 0,#2c2415,#0d0b08 64%);box-shadow:0 22px 44px -26px rgba(13,11,8,.85);color:#d9d4c6;cursor:pointer}
+#lcd-vclass .lv-cc{position:relative;overflow:hidden;margin:0 0 14px;padding:20px 22px 16px;border:1px solid #8a6a1c;border-radius:16px;background:radial-gradient(130% 110% at 100% 0,#30281a,#0d0b08 62%);box-shadow:0 22px 44px -26px rgba(13,11,8,.85);color:#d9d4c6}
+#lcd-vclass .lv-cc[hidden]{display:none}
+#lcd-vclass .lv-cc-h{display:flex;align-items:center;gap:9px;margin:0 0 14px;font:800 14px/1.2 var(--lv-disp);letter-spacing:.14em;text-transform:uppercase;color:#e6c877}
+#lcd-vclass .lv-cc-h::before{content:"✓";display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:var(--lv-zg);color:#fff;font:800 14px/1 var(--lv-body);letter-spacing:0}
+#lcd-vclass .lv-cc-g{display:flex;align-items:center;justify-content:space-between;gap:16px}
+#lcd-vclass .lv-cc-c{min-width:0}
+#lcd-vclass .lv-cc-c small{display:block;margin:0 0 10px;font:400 15px/1.3 var(--lv-body);color:#b9b3a4}
+#lcd-vclass .lv-cc-c small s{font-weight:700;color:#d9d4c6;text-decoration-color:#d0342f;text-decoration-thickness:2px}
+#lcd-vclass .lv-cc-c span{display:block;margin:0 0 2px;font:700 13px var(--lv-disp);letter-spacing:.08em;text-transform:uppercase;color:#e6c877}
+#lcd-vclass .lv-cc-c b{display:block;font:800 clamp(40px,5vw,52px)/1 var(--lv-disp);color:#fff}
+#lcd-vclass .lv-cc-z{flex:none;display:grid;justify-items:center;gap:7px;text-align:center}
+#lcd-vclass .lv-cc-s{display:grid;place-items:center;width:84px;height:84px;border-radius:50%;background:var(--lv-zl);box-shadow:0 0 0 3px #0d0b08,0 0 0 4px #c49b31;color:#16120a;font:800 23px/1 var(--lv-disp);font-style:normal;transform:rotate(-8deg)}
+#lcd-vclass .lv-cc-p{font:800 15px/1.2 var(--lv-disp);color:#7fd4a6}
+#lcd-vclass .lv-cc-1 .lv-cc-z,#lcd-vclass .lv-cc-1 .lv-cc-c small{display:none}
+#lcd-vclass .lv-cc-l{display:grid;gap:5px;margin:16px 0 0;padding:12px 0 0;border-top:1px solid rgba(230,200,119,.28);list-style:none}
+#lcd-vclass .lv-cc-l li{display:flex;justify-content:space-between;gap:12px;margin:0;padding:0;font:400 15px/1.35 var(--lv-body);color:#d9d4c6}
+#lcd-vclass .lv-cc-l li::before{content:none}
+#lcd-vclass .lv-cc-l b{flex:none;font-weight:700;color:#fff}
+@media (max-width:480px){#lcd-vclass .lv-cc{padding:18px 16px 14px}#lcd-vclass .lv-cc-s{width:72px;height:72px;font-size:20px}}
+#lcd-vclass .lcd1v-druha__dlazdica.lv-d2-k{display:grid!important;grid-template-columns:minmax(0,7fr) minmax(0,8fr)!important;gap:0!important;padding:0!important;margin:0 0 12px;overflow:hidden;border:1px solid #8a6a1c;border-radius:16px;background:radial-gradient(120% 90% at 100% 0,#2c2415,#0d0b08 64%);box-shadow:0 22px 44px -26px rgba(13,11,8,.85);color:#d9d4c6;cursor:pointer}
 #lcd-vclass .lv-d2-v{position:relative;min-height:340px;background:#000;overflow:hidden}
 #lcd-vclass .lv-d2-v video{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-width:none!important;margin:0;object-fit:cover;border:0!important;border-radius:0!important}
 #lcd-vclass .lv-d2-st{position:absolute;left:10px;right:10px;bottom:10px;padding:9px 12px;border-radius:10px;background:rgba(13,11,8,.74);color:#fff;font:600 14px/1.3 var(--lv-body)}

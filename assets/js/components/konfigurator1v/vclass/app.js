@@ -165,7 +165,7 @@ export function spusti(ctx) {
 
   const root = document.createElement("div");
   root.id = "lcd-vclass";
-  root.innerHTML = '<div class="lv-kroky"></div><div class="lv-suhrn"><ul class="lv-rozpis" hidden></ul><div class="lv-cc" hidden><div class="lv-cc-h">Váš set je hotový</div><div class="lv-cc-g"><div><small>Odporúčaná cena</small><s></s></div><div><small>Naša cena</small><b></b></div></div><div class="lv-cc-p"></div></div><div class="lv-spolu"><span>Spolu</span><b class="lv-c2"></b></div><p class="lv-us" hidden>V sete ušetríte <b></b></p><p class="lv-spr" hidden></p><button type="button" class="lv-cta"></button><p class="lv-dod">Šije sa až po objednávke, preto dodanie trvá 21–29 dní.</p></div>';
+  root.innerHTML = '<div class="lv-kroky"></div><div class="lv-suhrn"><ul class="lv-rozpis" hidden></ul><div class="lv-cc" hidden><div class="lv-cc-h">Váš set je hotový</div><div class="lv-cc-g"><div class="lv-cc-c"><small>Odporúčaná cena <s></s></small><span>Naša cena</span><b></b></div><div class="lv-cc-z"><i class="lv-cc-s"></i><span class="lv-cc-p"></span></div></div><ul class="lv-cc-l"></ul></div><div class="lv-spolu"><span>Spolu</span><b class="lv-c2"></b></div><p class="lv-us" hidden>V sete ušetríte <b></b></p><p class="lv-spr" hidden></p><button type="button" class="lv-cta"></button><p class="lv-dod">Šije sa až po objednávke, preto dodanie trvá 21–29 dní.</p></div>';
   stlpec.appendChild(root);
   const kor = root.querySelector(".lv-kroky");
   const spr = root.querySelector(".lv-spr");
@@ -348,7 +348,7 @@ export function spusti(ctx) {
     rozl: () => {
       const sR = SAMOSTATNE.rad[velkostSetu()], cR = cenaRadu(), sK = SAMOSTATNE.rohoz, cK = cenaRohoze();
       return '<div class="lcd1v-kb lv-dl-w' + (S.chybaju && !maVyber() ? " lv-chyba" : "") + '" data-lcd1v-kb="vclass"><div class="lcd1v-kb__volby">'
-        + karta({ atr: kartaVyber("predok", "ano", "nie"), nm: "Predné sedadlá", po: "Šofér a spolujazdec", foto: "autokoberce-mercedes-v-class-jednovrstvove-predok", ucet: '<span class="lcd1v-kb__ucet">' + rUctu("sum", "Cena", eur(zaklad)) + "</span>", tl: PRIDAT })
+        + karta({ atr: kartaVyber("predok", "ano", "nie"), nm: "Predné sedadlá", po: "Šofér a spolujazdec", foto: "autokoberce-mercedes-v-class-jednovrstvove-predok", pct: percento(SAMOSTATNE.predok, zaklad), ucet: '<span class="lcd1v-kb__ucet">' + rUctu("samo", "Odporúčaná cena", eur(SAMOSTATNE.predok)) + rUctu("zl", "Ušetríte", "− " + eur(SAMOSTATNE.predok - zaklad)) + rUctu("sum", "Naša cena", eur(zaklad)) + "</span>", tl: PRIDAT })
         + karta({ atr: kartaVyber("rozl", "Z", "P"), naj: "★ Najvýhodnejšie ★", nm: "2. a 3. rad", po: "Autokoberce až po kufor", foto: "autokoberce-mercedes-v-class-cierne-2-rad-3-rad", pct: percento(sR, cR), ucet: ucet(sR, cR), tl: PRIDAT })
         + karta({ atr: kartaVyber("rohoz", "ano", "nie"), nm: "Rohož do kufra", po: "Od sedadiel po okraj kufra", foto: "koberec-do-kufra-mercedes-v-class-prazdny-kufor", pct: percento(sK, cK), ucet: ucet(sK, cK), tl: PRIDAT })
         + '</div><p class="lv-ponuka">' + ponukaHtml() + "</p></div>";
@@ -401,7 +401,9 @@ export function spusti(ctx) {
     kartaCien.classList.toggle("lv-cc-1", !(u > 0));
     kartaCien.querySelector("s").textContent = eur(spolu + u);
     kartaCien.querySelector("b").textContent = eur(spolu);
-    kartaCien.querySelector(".lv-cc-p").textContent = u > 0 ? "−" + Math.round((u / (spolu + u)) * 100) + " % · Ušetríte " + eur(u) : "";
+    kartaCien.querySelector(".lv-cc-s").textContent = u > 0 ? "−" + Math.round((u / (spolu + u)) * 100) + " %" : "";
+    kartaCien.querySelector(".lv-cc-p").textContent = u > 0 ? "Ušetríte " + eur(u) : "";
+    kartaCien.querySelector(".lv-cc-l").innerHTML = r.map((x) => "<li><span>" + x[0] + "</span><b>" + x[1].replace("+ ", "") + "</b></li>").join("");
     tlacidloListy();
   }
   /** Na telefóne sa zelené tlačidlo v lište ukáže, len keď tlačidlo na konci kroku nie je na obrazovke. Pri Áno a Nie sa nebije so zeleným tlačidlom. */
@@ -430,8 +432,8 @@ export function spusti(ctx) {
   function cenaKroku(id) {
     const r = (s, t) => '<span class="lv-rc">' + (s ? "<s>" + eur(s) + "</s>" : "") + "<b>" + t + "</b></span>";
     if (id === "rozl") {
-      const x = vyb(S), sP = x.p ? zaklad : 0;
-      const v = sP + (x.r ? cenaRaduVyber() : 0) + (x.k ? cenaRohozeVyber() : 0), s = sP + (x.r ? SAMOSTATNE.rad[velkostSetu()] : 0) + (x.k ? SAMOSTATNE.rohoz : 0);
+      const x = vyb(S);
+      const v = (x.p ? zaklad : 0) + (x.r ? cenaRaduVyber() : 0) + (x.k ? cenaRohozeVyber() : 0), s = (x.p ? SAMOSTATNE.predok : 0) + (x.r ? SAMOSTATNE.rad[velkostSetu()] : 0) + (x.k ? SAMOSTATNE.rohoz : 0);
       return r(s > v ? s : 0, eur(v));
     }
     if (id === "vzor" || id === "farba") return '<span class="lv-rc lv-rc-0">v cene</span>';
@@ -444,7 +446,7 @@ export function spusti(ctx) {
   }
   /** Čo zákazník ušetrí oproti samostatným cenám v tom, čo má vo výbere. */
   function uspora() {
-    let u = usporaRozlozenia();
+    let u = usporaRozlozenia() + (vyb(S).p ? SAMOSTATNE.predok - zaklad : 0);
     [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) u += SAMOSTATNE.box[S["box" + i]] - prcBox(pocetBoxov(), i, S["box" + i]); });
     return u;
   }

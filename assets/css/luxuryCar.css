@@ -10242,6 +10242,17 @@ section#model-selector {
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f.overene .kf textarea:invalid ~ .kf-e{display:block}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f.overene .kf input:invalid,
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f.overene .kf textarea:invalid{border-color:#c0392b}
+/* Čierna karta formulára (Michal 7. 11. 2026, rada webára: málo kontrastné, ľudia si to nevšimnú). Len formulár, sekcia
+   ostáva svetlá. Popisy biele, polia biele s čiernym textom, nech si ich všimne každý. */
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f{background:#0d0b08;border-color:#0d0b08;box-shadow:0 22px 44px -26px rgba(13,11,8,.75)}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-l,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-auto-h{color:#fff}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-l small,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-auto-h span{color:#cfc9ba}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf input,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf textarea{background:#fff;border-color:#fff;color:#0d0b08}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf input:focus,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf input::placeholder,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf textarea::placeholder{color:#716b5e}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-pod,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-stav{color:#d9d4c6}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-pod a{color:#e6c877}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-e{color:#ff9d8f}
 /* pasca na roboty — clovek ju nevidi, robot ju vyplni a sprava sa zahodi */
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
@@ -18592,6 +18603,27 @@ body.lcd-1v[data-lcd1v-obsah-caka] #product-detail-form .p-info-wrapper > .faq.c
    na novom mieste) alebo s .active (starý vzhľad, ?novy=0, iné produkty) — vtedy, keď ho kostra aj tak odhaľuje.
    Trblietavá vrstva a jej zmiznutie sa nemenia, vzhľad pred aj po načítaní je rovnaký. */
 body:not(.lcd-1v) .col-xs-12.col-lg-6.p-info-wrapper:not(.active) > * { visibility: hidden; }
+
+/* Trieda V (SK 646, Michal 7. 11. 2026: „ako keby tam bol nejaký základný Shoptet“). Konfigurátor sa spustí až po načítaní
+   dát a vlastnej časti, dovtedy bolo vidno natívnu galériu a kostru. Produkt pozná CSS podľa meta z HTML, preto to platí od
+   prvého snímku: obsah je skrytý a namiesto neho je tmavý pás v miere úvodu (#lcd-vclass-hero, vclass/styl.js).
+   :has() je len na .p-detail-inner, nie na body, kvôli rýchlosti ťuknutia. Poistka: keď sa konfigurátor nespustí,
+   po 8 s sa natívny formulár ukáže a dá sa objednať. Bez :has() ostáva doterajšie správanie. */
+@keyframes lcdv-ukaz { to { visibility: visible; } }
+@keyframes lcdv-skry { to { visibility: hidden; } }
+html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[itemprop="productID"][content="646"]) { position: relative; }
+html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[itemprop="productID"][content="646"]) > * {
+  visibility: hidden; animation: lcdv-ukaz 0s linear 8s forwards;
+}
+html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[itemprop="productID"][content="646"])::before {
+  content: ""; position: absolute; z-index: 2; top: 0; right: 0; left: 0;
+  height: calc(min(76vh, 660px) + 80px); background: #0d0b08;
+  box-shadow: 0 0 0 100vmax #0d0b08; clip-path: inset(0 -100vmax);
+  animation: lcdv-skry 0s linear 8s forwards;
+}
+@media (max-width: 991px) {
+  html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[itemprop="productID"][content="646"])::before { height: calc(90vw + 290px); }
+}
 
 /* ---------- hlavička: štítok, názov, hodnotenie, krátky popis ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-detail-inner-header { margin: 0; padding: 0; }

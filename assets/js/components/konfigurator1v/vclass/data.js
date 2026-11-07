@@ -113,8 +113,8 @@ export const BOX_FARBY = [
 ];
 
 /** Riadok „Samostatne“ na dlaždiciach, ponuka ako pri autách (Michal 7. 11. 2026). Predajné ceny sú len v Shoptete, toto je porovnanie:
- *  rad = cena 2. a 3. radu pred znížením, rohoz = samostatná rohož Premium na webe, box = samostatný box 616 na webe (overené 7. 11. 2026). */
-export const SAMOSTATNE = { rad: { M: 750, L: 850, XL: 950 }, rohoz: 340, box: { S: 197, M: 207, L: 232, XL: 246 } };
+ *  predok = odporúčaná cena predných sedadiel (Michal 7. 11. 2026: aj tam nech je zľava), rad = cena 2. a 3. radu pred znížením, rohoz = samostatná rohož Premium na webe, box = samostatný box 616 na webe (overené 7. 11. 2026). */
+export const SAMOSTATNE = { predok: 390, rad: { M: 750, L: 850, XL: 950 }, rohoz: 340, box: { S: 197, M: 207, L: 232, XL: 246 } };
 
 /** Kroky v poradí (Michal 7. 11. 2026): predné sedadlá, 2. a 3. rad aj rohož do kufra sú v jednom kroku Rozloženie, každý krok končí
  *  tlačidlom „Pokračujte ďalej“, po výbere sa neskáče. Cena začína na jednovrstvových autokobercoch k predným sedadlám. */
