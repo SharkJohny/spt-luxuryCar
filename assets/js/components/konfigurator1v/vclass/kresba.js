@@ -83,7 +83,7 @@ function geometria(o,W){
   x.clearRect(0,0,W,H);x.setLineDash(dash);x.lineWidth=2*er+tw;vse.forEach(function(p){x.stroke(p)});
   x.setLineDash([]);x.globalCompositeOperation="destination-out";x.lineWidth=2*er-tw;vse.forEach(function(p){x.stroke(p)});x.globalCompositeOperation="source-over";
   var Se=alfa(x,W,H);
-  x.clearRect(0,0,W,H);var a0=K*S,pk=new Path2D();pk.addPath(new Path2D(KOB),new DOMMatrix([a0,0,0,a0,-X0*a0,-Y0*a0]));pk.addPath(new Path2D(KOB),new DOMMatrix([-a0,0,0,a0,(2*AX-X0)*a0,-Y0*a0]));if(!ZAD)x.fill(pk);
+  x.clearRect(0,0,W,H);var a0=K*S,pk=new Path2D();pk.addPath(new Path2D(KOB),new DOMMatrix([a0,0,0,a0,-X0*a0,-Y0*a0]));pk.addPath(new Path2D(KOB),new DOMMatrix([-a0,0,0,a0,(2*AX-X0)*a0,-Y0*a0]));if(!ZAD&&!o.bez2)x.fill(pk);
   var Ka=alfa(x,W,H),Mk=new Uint8Array(n);for(i=0;i<n;i++)Mk[i]=Ka[i]>.5?1:0;
   var M=new Uint8Array(n),In=new Uint8Array(n),Ho=new Uint8Array(n);
   for(i=0;i<n;i++){M[i]=A[i]>.5?1:0;Ho[i]=M[i]?0:1}
@@ -154,14 +154,17 @@ function geometria(o,W){
 function hex(s){return[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parseInt(s.slice(5,7),16)]}
 var CACHE={};
 var PORADIE=[];
-function geo(o,W){var k=[o.cast,o.vzor,o.v,o.d,+!!o.s,+!!o.z,W].join("-");if(CACHE[k])return CACHE[k];if(PORADIE.length>=10)delete CACHE[PORADIE.shift()];PORADIE.push(k);return CACHE[k]=geometria(o,W)}
+function geo(o,W){var k=[o.cast,o.vzor,o.v,o.d,+!!o.s,+!!o.z,+!!o.bez2,W].join("-");if(CACHE[k])return CACHE[k];if(PORADIE.length>=10)delete CACHE[PORADIE.shift()];PORADIE.push(k);return CACHE[k]=geometria(o,W)}
 export function kresli(cnv,o,W,far){
-  var g=geo(o,W),w=g.W,h=g.H,n=w*h,B=hex(far[0]),C=hex(far[1]),Kc=hex(far[2]||"#131315"),im=new ImageData(w,h),d=im.data,i,j;
+  var g=geo(o,W),w=g.W,h=g.H,n=w*h,B=hex(far[0]),C=hex(far[1]),Kc=hex(far[2]||"#131315"),im=new ImageData(w,h),d=im.data,i,j,
+    /* slabe = časť, ktorá nie je vo výbere: "cele", "zadok" (2. a 3. rad) alebo "kufor" */
+    sl=o.slabe,rez=sl?Math.round((cfg(o).S+ZG/2+30)*.75*W/1230):0,f;
   var lum=(B[0]*.3+B[1]*.59+B[2]*.11)/255,gk=255*(1.05-.65*lum),bB=[Math.max(B[0],26),Math.max(B[1],26),Math.max(B[2],28)];
   for(i=0;i<n;i++){j=i*4;var a=g.A[i];
-    if(a<=0){d[j+3]=g.Sh[i]*130;continue}
+    f=1;if(sl){var yy=i/w|0;if(sl==="cele"||(sl==="kufor"&&yy>=rez)||(sl==="zadok"&&yy<rez))f=.13}
+    if(a<=0){d[j+3]=g.Sh[i]*130*f;continue}
     var l=g.L[i],sp=g.G[i]*gk,st=g.St[i],di=.62+.62*g.Df[i],kp=g.Kp[i],r=(bB[0]+(Kc[0]-bB[0])*kp)*l+sp,gg=(bB[1]+(Kc[1]-bB[1])*kp)*l+sp,b=(bB[2]+(Kc[2]-bB[2])*kp)*l+sp;
     r+=(C[0]*di-r)*st;gg+=(C[1]*di-gg)*st;b+=(C[2]*di-b)*st;
-    d[j]=r;d[j+1]=gg;d[j+2]=b;d[j+3]=Math.max(a*255,g.Sh[i]*130)}
+    d[j]=r;d[j+1]=gg;d[j+2]=b;d[j+3]=Math.max(a*255,g.Sh[i]*130)*f}
   cnv.width=w;cnv.height=h;cnv.getContext("2d").putImageData(im,0,0)}
 export { cfg as rozmery };

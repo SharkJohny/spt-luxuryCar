@@ -102,7 +102,20 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-vel .lv-s1[aria-pressed=true] small,#lcd-vclass .lv-vel .lv-s1[aria-pressed=true] em{color:#16120a}
 
 #lcd-vclass .lv-g{display:grid;gap:10px}
+#lcd-vclass .lv-g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 #lcd-vclass .lv-g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+#lcd-vclass .lv-v1 em{display:block;margin-top:3px;font:800 18px var(--lv-disp);font-style:normal;color:var(--lv-gt)}
+#lcd-vclass .lv-bezf{padding:14px 10px}
+#lcd-vclass .lv-i{margin:0 0 8px;padding:9px 12px;border-radius:9px;background:#fbf7ea;border:1px solid #e9dcae;font-size:16px;color:var(--lv-text)}
+#lcd-vclass .lv-body{margin:0 0 12px;padding:0;list-style:none}
+#lcd-vclass .lv-body li{position:relative;margin:3px 0;padding-left:22px;font-size:16px}
+#lcd-vclass .lv-body li::before{content:"✓";position:absolute;left:2px;top:0;font-weight:800;color:var(--lv-zel)}
+#lcd-vclass .lv-an{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 16px}
+#lcd-vclass .lv-an button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;padding:11px 10px;border:0;border-radius:10px;font:800 15px/1.2 var(--lv-disp);text-align:center;cursor:pointer}
+#lcd-vclass .lv-an small{font:700 14px var(--lv-disp)}
+#lcd-vclass .lv-ano{background:var(--lv-zg);color:#fff}
+#lcd-vclass .lv-nie{background:var(--lv-zl);color:#16120a}
+#lcd-vclass .lv-an button[aria-pressed=true]{box-shadow:0 0 0 2px #fff,0 0 0 5px var(--lv-zel)}
 #lcd-vclass .lv-v1,#lcd-vclass .lv-sw{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;border:2px solid var(--lv-line);border-radius:12px;background:#fff;color:var(--lv-ink);font:700 15px/1.25 var(--lv-disp);text-align:center;cursor:pointer;overflow:hidden;transition:border-color .2s}
 #lcd-vclass .lv-foto img{display:block;width:100%;aspect-ratio:1.25;object-fit:cover}
 #lcd-vclass .lv-foto span{display:block;padding:8px 6px 10px}
@@ -122,6 +135,12 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-spolu b{font:800 30px var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-spr{margin:10px 0 0;padding:11px 13px;border-radius:9px;background:#fbf7ea;border:1px solid #e9dcae;color:var(--lv-gt);font-size:15px}
 
+/* stĺpce rovnako vysoké, kresba lepí v ľavom; starý posun fotky pri skrolovaní (stickyphotos.js) tu neplatí, po zbalení krokov by kresba ostala pod pätou */
+@media (min-width:992px){
+  body.lcd-vclass .row.product-top{display:flex;flex-wrap:wrap;align-items:stretch}
+  body.lcd-vclass .p-image-wrapper{transform:none!important;float:none}
+  body.lcd-vclass .p-info-wrapper{float:none}
+}
 @media (max-width:991px){
   #lcd-vclass-hero .lh-in{grid-template-columns:minmax(0,1fr);min-height:0}
   #lcd-vclass-hero .lh-g{grid-column:1;grid-row:1;aspect-ratio:3/2}
@@ -132,7 +151,10 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero .lh-t{order:-1;margin:-34px 0 6px;position:relative;z-index:2}
   body.lcd-vclass .p-image-wrapper{display:none!important}
   #lcd-vclass-cesta{padding:18px 8px 4px}
-  #lcd-vclass-cesta span{font-size:11px;letter-spacing:.02em}
+  #lcd-vclass-cesta span{font-size:11px;letter-spacing:.02em;white-space:nowrap}
+  #lcd-vclass-cesta li:not(.lv-teraz) span{display:none}
+  #lcd-vclass-cesta i{width:28px;height:28px;font-size:13px}
+  #lcd-vclass-cesta li::before{top:13px;left:calc(-50% + 16px);right:calc(50% + 16px)}
   #lcd-vclass-nakres{position:static;margin:0 0 9px;padding:12px 10px 8px}
   #lcd-vclass-nakres .lv-pl{flex-direction:row;align-items:center;justify-content:center;gap:10px;width:100%}
   #lcd-vclass-nakres .lv-pred{width:56%}
@@ -142,6 +164,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass .lv-ot{padding:16px 13px 18px}
   #lcd-vclass .lv-f{grid-template-columns:repeat(4,minmax(0,1fr))}
   #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #lcd-vclass .lv-an{grid-template-columns:minmax(0,1fr)}
   #lcd-vclass .lv-vel .lv-s1 small{font-size:12px}
   #lcd-vclass .lv-2{grid-template-columns:minmax(0,1fr)}
   #lcd-vclass .lv-2:has(.lv-fix){grid-template-columns:repeat(2,minmax(0,1fr))}

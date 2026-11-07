@@ -2,9 +2,8 @@
 // Názvy príplatkov aj hodnoty musia sedieť s adminom (príplatky 415–442), app.js overí pri štarte, že všetky existujú.
 const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";
 
-/** Kľúč výberu -> meno selectu príplatku (data-parameter-name). */
+/** Kľúč výberu -> meno selectu príplatku (data-parameter-name). Shoptet dovolí produktu najviac 15 príplatkov, je ich presne 15. */
 export const SELECTY = {
-  velkost: "Veľkosť",
   rok: "Rok výroby",
   volant: "Volant",
   stred: "Stred medzi sedadlami",
@@ -14,6 +13,12 @@ export const SELECTY = {
   zasuvky: "Zásuvky pod sedadlami",
   farba: "Vzor a farba 1. vrstvy",
   farba2: "Farba 2. vrstvy",
+  rozlozenie: "Rozloženie",
+  rohoz: "Rohož do kufra",
+  box1: "Box 1 do kufra",
+  box2: "Box 2 do kufra",
+  box3: "Box 3 do kufra",
+  boxFarba: "Farba boxov do kufra",
 };
 
 export const VELKOSTI = [
@@ -68,12 +73,39 @@ export const FARBY = {
 /** Druhá vrstva: číslo, farba na kresbe (stred vzorky). */
 export const LUX = [["10", "#0f1116"], ["12", "#9e877c"], ["11", "#261719"], ["13", "#240b15"], ["14", "#341516"], ["15", "#2d2e33"], ["16", "#515055"], ["07", "#111519"], ["04", "#66282a"], ["01", "#35302b"], ["08", "#0f181e"], ["06", "#2c233d"], ["03", "#1e191c"], ["05", "#872924"], ["09", "#342422"], ["02", "#141937"]];
 
+export const BEZ_DRUHEJ = "Bez druhej vrstvy";
+export const ROZ_PREDOK = "Len predné sedadlá";
+export const ROZ_SET = "Predné sedadlá, 2. a 3. rad";
+/** Cena 2. a 3. radu závisí od veľkosti, preto je veľkosť priamo v hodnote príplatku Rozloženie. */
+export const rozSet = (v) => ROZ_SET + " (" + v + ")";
+export const ROHOZ = ["S rohožou do kufra", "Bez rohože do kufra"];
+export const BOXY = [
+  { v: "S", t: "S 33 × 32 × 30 cm", r: "33 × 32 × 30 cm" },
+  { v: "M", t: "M 40 × 32 × 30 cm", r: "40 × 32 × 30 cm" },
+  { v: "L", t: "L 54 × 32 × 30 cm", r: "54 × 32 × 30 cm" },
+  { v: "XL", t: "XL 66 × 32 × 30 cm", r: "66 × 32 × 30 cm" },
+];
+export const BOX_FARBY = [
+  { nm: "Čierna, červené šitie", img: "boxprodukt-farba-cierna-cervene.jpg" },
+  { nm: "Čierna, modré šitie", img: "boxprodukt-farba-cierna-modre.jpg" },
+  { nm: "Čierna, čierne šitie", img: "boxprodukt-farba-cierna-cierne.jpg" },
+  { nm: "Čierna, béžové šitie", img: "boxprodukt-farba-cierna-bezove.jpg" },
+  { nm: "Čierna, biele šitie", img: "boxprodukt-farba-cierna-biele.jpg" },
+  { nm: "Čierna, sivé šitie", img: "boxprodukt-farba-cierna-sive.jpg" },
+  { nm: "Hnedá káva", img: "boxprodukt-farba-hneda-kava.jpg" },
+  { nm: "Vínovo červená", img: "boxprodukt-farba-vinovo-cervena.jpg" },
+  { nm: "Béžová", img: "boxprodukt-farba-bezova.jpg" },
+];
+
 /** Kroky v poradí. Prvý krok nesie všetky údaje o aute naraz, ako „Vaše auto“ v konfigurátore 1V. auto = po výbere sa hneď ide ďalej. */
 export const KROKY = [
   { id: "auto", nm: "Vaše auto", kr: "Auto", ti: "Prosím, vyberte si svoje auto", vy: "Veľkosť, rok výroby a výbava auta" },
   { id: "vzor", nm: "Vzor prešívania", kr: "Vzor", ti: "Prosím, vyberte si vzor prešívania", vy: "Diamond, Stripe alebo Hexa", auto: true },
   { id: "farba", nm: "Farba 1. vrstvy", kr: "Farba", ti: "Prosím, vyberte si farbu 1. vrstvy", pod: "Na kresbe hneď uvidíte, ako vám bude ladiť.", vy: "Farba kože a šitia" },
-  { id: "farba2", nm: "Farba 2. vrstvy", kr: "2. vrstva", ti: "Prosím, vyberte si farbu 2. vrstvy", pod: "Druhá vrstva je na podlahe vpredu, pod nohami šoféra a spolujazdca.", vy: "Lux Color" },
+  { id: "druha", nm: "Druhá vrstva", kr: "2. vrstva", ti: "Prajete si aj druhú odnímateľnú vrstvu?", pod: "Dáva sa len na podlahu pri predných sedadlách. Do 2. a 3. radu ani do kufra sa nedáva.", vy: "Áno alebo nie" },
+  { id: "rozl", nm: "Rozloženie", kr: "Rozloženie", ti: "Prosím, vyberte si rozloženie autokobercov", pod: "2. a 3. rad sa dajú objednať len spolu.", vy: "Predné sedadlá alebo aj 2. a 3. rad", auto: true },
+  { id: "rohoz", nm: "Rohož do kufra", kr: "Rohož", ti: "Prosím, vyberte si rohož do kufra", vy: "S rohožou alebo bez nej", auto: true },
+  { id: "boxy", nm: "Boxy do kufra", kr: "Boxy", ti: "Prosím, vyberte si boxy do kufra", vy: "Počet, veľkosť a farba" },
 ];
 
 /** Fotky hore: súbory assets/img/1v/vclass/vclass-<s>-<šírka>.webp|.jpg a náhľad -th.jpg. Prvá = to auto s kobercami. */

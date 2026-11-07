@@ -5,7 +5,7 @@
 //   node tools/test-vclass.mjs --pw <…> --sha <verzia na CDN>
 import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { VELKOSTI, ROKY, VOLANT, STRED, DVERE, MIESTA, STOLCEK, ZASUVKY, VZORY, FARBY, LUX } from "../assets/js/components/konfigurator1v/vclass/data.js";
+import { VELKOSTI, ROKY, VOLANT, STRED, DVERE, MIESTA, STOLCEK, ZASUVKY, VZORY, FARBY, LUX, BEZ_DRUHEJ, ROZ_PREDOK, rozSet, ROHOZ, BOXY, BOX_FARBY } from "../assets/js/components/konfigurator1v/vclass/data.js";
 
 const arg = (m, z) => { const i = process.argv.indexOf("--" + m); return i > -1 ? process.argv[i + 1] : z; };
 const pw = await import(arg("pw"));
@@ -14,16 +14,23 @@ if (snimky) mkdirSync(snimky, { recursive: true });
 const ZIVA = "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/";
 const CIEL = "https://www.luxurycardesign.sk/autokoberce-mercedes-triedy-v/";
 
-// hodnoty ako v admine: ID idú po troch v poradí zakladania
+// hodnoty ako v admine: [id, meno, prvé ID hodnoty (po troch) alebo zoznam ID, texty, ceny, nepovinný]
 const farby = [].concat(...VZORY.map((v) => FARBY[v.id].map((f) => v.nm + " – " + f.nm)));
+const luxId = LUX.map((_, i) => 2533 + i * 3).concat(2635);
+const boxT = BOXY.map((b) => b.t), boxC = [100, 110, 130, 150];
 const P = [
-  [415, "Veľkosť", 2356, VELKOSTI.map((x) => x.v), [0, 100, 200]],
   [418, "Rok výroby", 2365, ROKY], [421, "Volant", 2404, VOLANT], [424, "Stred medzi sedadlami", 2410, STRED], [427, "Bočné dvere", 2416, DVERE],
   [430, "Počet miest", 2422, MIESTA], [433, "Stolček vzadu", 2434, STOLCEK], [436, "Zásuvky pod sedadlami", 2440, ZASUVKY],
-  [439, "Vzor a farba 1. vrstvy", 2446, farby], [442, "Farba 2. vrstvy", 2533, LUX.map((l) => "Lux Color " + l[0])],
+  [439, "Vzor a farba 1. vrstvy", 2446, farby],
+  [442, "Farba 2. vrstvy", luxId, LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), LUX.map(() => 150).concat(0)],
+  [445, "Rozloženie", 2581, [ROZ_PREDOK].concat(VELKOSTI.map((x) => rozSet(x.v))), [0, 600, 700, 800]],
+  [448, "Rohož do kufra", 2593, ROHOZ, [250, 0]],
+  [451, "Box 1 do kufra", 2599, boxT, boxC, true], [454, "Box 2 do kufra", 2611, boxT, boxC, true], [457, "Box 3 do kufra", 2623, boxT, boxC, true],
+  [460, "Farba boxov do kufra", 2638, BOX_FARBY.map((f) => f.nm), null, true],
 ];
-const riadok = ([id, m, od, H, c]) => `<tr class="surcharge-list"><th><label for="surcharge-parameter-id-${id}">${m}</label></th><td><select name="surchargeParameterValueId[${id}]" id="surcharge-parameter-id-${id}" class="parameter-id-${id} surcharge-parameter form-control" data-parameter-id="${id}" data-parameter-name="${m}" required="required"><option value="" data-choose="true" data-index="0">Vyberte príplatok</option>${H.map((t, i) => { const p = c ? c[i] : 0; return `<option value="${od + i * 3}" data-surcharge-final-price="${p}" data-surcharge-additional-price="${p}">${t} +€${p}</option>`; }).join("")}</select></td></tr>`;
-const hodnotaId = (meno, text) => { const p = P.find((x) => x[1] === meno); return String(p[2] + p[3].indexOf(text) * 3); };
+const idHodnoty = (p, i) => (Array.isArray(p[2]) ? p[2][i] : p[2] + i * 3);
+const riadok = (x) => { const [id, m, , H, c, nep] = x; return `<tr class="surcharge-list"><th><label for="surcharge-parameter-id-${id}">${m}</label></th><td><select name="surchargeParameterValueId[${id}]" id="surcharge-parameter-id-${id}" class="parameter-id-${id} surcharge-parameter form-control" data-parameter-id="${id}" data-parameter-name="${m}"${nep ? "" : ' required="required"'}><option value="" data-choose="true" data-index="0">Vyberte príplatok</option>${H.map((t, i) => { const pr = c ? c[i] : 0; return `<option value="${idHodnoty(x, i)}" data-surcharge-final-price="${pr}" data-surcharge-additional-price="${pr}">${t} +€${pr}</option>`; }).join("")}</select></td></tr>`; };
+const hodnotaId = (meno, text) => { const p = P.find((x) => x[1] === meno); return String(idHodnoty(p, p[3].indexOf(text))); };
 
 const zaklad = await (await fetch(ZIVA, { headers: { "User-Agent": "Mozilla/5.0" } })).text();
 function stranka() {
@@ -32,12 +39,12 @@ function stranka() {
   h = h.replace(/<tr class="surcharge-list[\s\S]*?<\/tr>/g, () => { if (prvy) { prvy = false; return P.map(riadok).join(""); } return ""; });
   h = h.replace('name="productId" value="640"', 'name="productId" value="646"').replace('name="priceId" value="68383"', 'name="priceId" value="68434"');
   h = h.replace(/("product":\s*\{\s*"id":\s*)640/, "$1646");
-  h = h.replace(/(<meta itemprop="price" content=")[^"]*"/, '$11300.00"');
+  h = h.replace(/(<meta itemprop="price" content=")[^"]*"/, '$1300.00"');
   h = h.replace(/luxusné autokoberce do kamionov(\s*<\/h1>)/, "Autokoberce Mercedes triedy V$1");
   return h;
 }
 const html = stranka();
-if (!/data-parameter-name="Veľkosť"/.test(html) || !/name="productId" value="646"/.test(html)) throw new Error("prerobenie stránky zlyhalo");
+if (!/data-parameter-name="Rozloženie"/.test(html) || !/name="productId" value="646"/.test(html)) throw new Error("prerobenie stránky zlyhalo");
 
 let ok = 0, zle = 0;
 const over = (c, t) => { if (c) ok++; else { zle++; console.log("  ✗ " + t); } };
@@ -55,14 +62,30 @@ async function prejdi(p, o) {
   if (o.snimkaAuto) await p.screenshot({ path: o.snimkaAuto, fullPage: true });
   await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
   await klik(p, "vzor", o.vzor);
-  await klik(p, "farba", o.farba); if (o.snimka) await p.screenshot({ path: o.snimka }); await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
-  await klik(p, "farba2", o.lux); await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
+  await klik(p, "farba", o.farba); await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
+  if (o.snimka) await p.screenshot({ path: o.snimka + "-druha.png", fullPage: true });
+  over(/nedáva/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že druhá vrstva je len vpredu");
+  await klik(p, "vrstva", o.lux ? "ano" : "nie");
+  if (o.lux) { await klik(p, "farba2", o.lux, 60); await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150); }
+  if (o.snimka) await p.screenshot({ path: o.snimka + "-rozl.png", fullPage: true });
+  over(/len spolu/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že 2. a 3. rad idú len spolu");
+  await klik(p, "rozl", o.rozl);
+  await klik(p, "rohoz", o.rohoz);
+  await klik(p, "boxy", String(o.boxy.length), o.boxy.length ? 60 : 320);
+  if (o.boxy.length) {
+    for (const [i, v] of o.boxy.entries()) await klik(p, "box" + (i + 1), v, 50);
+    if (o.snimka) await p.screenshot({ path: o.snimka + "-boxy.png", fullPage: true });
+    await klik(p, "boxFarba", o.boxFarba, 50);
+    await p.click("#lcd-vclass .lv-dalej"); await p.waitForTimeout(150);
+  }
 }
 
 const SCEN = [
-  { velkost: "M", rok: "2020", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], miesta: "7", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "10", cena: 1300 },
-  { velkost: "L", rok: "2024", volant: "Vpravo", stred: STRED[1], dvere: DVERE[0], miesta: "6", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "stripe", farba: "Béžová", lux: "12", cena: 1400 },
-  { velkost: "XL", rok: "2016", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], miesta: "8", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "hexa", farba: "Čierna, červené šitie", lux: "05", cena: 1500 },
+  { velkost: "M", rok: "2020", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], miesta: "7", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "10", rozl: "Z", rohoz: "ano", boxy: [], cena: 1300 },
+  { velkost: "L", rok: "2024", volant: "Vpravo", stred: STRED[1], dvere: DVERE[0], miesta: "6", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "stripe", farba: "Béžová", lux: "12", rozl: "P", rohoz: "nie", boxy: [], cena: 450 },
+  { velkost: "XL", rok: "2016", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], miesta: "8", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "hexa", farba: "Čierna, červené šitie", lux: "", rozl: "Z", rohoz: "ano", boxy: ["M", "XL"], boxFarba: "Béžová", cena: 1610 },
+  { velkost: "M", rok: "2019", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], miesta: "5", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Hnedá", lux: "", rozl: "P", rohoz: "ano", boxy: ["S", "S", "L"], boxFarba: "Hnedá káva", cena: 880 },
+  { velkost: "L", rok: "2022", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], miesta: "7", stolcek: STOLCEK[0], zasuvky: ZASUVKY[1], vzor: "diamond", farba: "Čierna, modré šitie", lux: "10", rozl: "Z", rohoz: "nie", boxy: [], cena: 1150 },
 ];
 const SIRKY = { chromium: [1366, 390], webkit: [390], firefox: [1366] };
 
@@ -104,10 +127,14 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over(cena === o.cena, o.velkost + ": cena " + cena);
       over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === String(o.cena) + "€", "súhrn ceny");
       over((await p.textContent("#lcd-vclass .lv-cta")).trim() === "Vložte do košíka", "tlačidlo hotového výberu");
-      over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 4, "všetky 4 kroky hotové");
+      if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-nakres", ".p-image-wrapper", ".p-info-wrapper", ".row.product-top", "#product-detail-form", ".p-detail-inner"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q + " y" + Math.round(r.top + scrollY) + " h" + Math.round(r.height) + " pos:" + c.position + " top:" + c.top + " mt:" + c.marginTop + " tr:" + c.transform.slice(0, 40) + " inl:" + (e.getAttribute("style") || "").slice(0, 90) + " x" + Math.round(r.left) + " w" + Math.round(r.width) + " scr:" + Math.round(scrollY); }))));
+      if (sirka > 991) over(await p.evaluate(() => { const n = document.getElementById("lcd-vclass-nakres").getBoundingClientRect(), r = document.querySelector(".row.product-top").getBoundingClientRect(); return n.bottom <= r.bottom + 1 && n.top >= r.top - 1; }), "kresba ostáva v stĺpci, nejde pod pätu");
+      over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 7, "všetkých 7 krokov hotových");
+      const sucet = await p.evaluate(() => [...document.querySelectorAll("#product-detail-form select.surcharge-parameter")].reduce((s, e) => s + (e.value ? Number(e.options[e.selectedIndex].getAttribute("data-surcharge-final-price")) : 0), Number(document.querySelector('meta[itemprop="price"]').content)));
+      over(sucet === o.cena, o.velkost + ": súčet príplatkov Shoptetu " + sucet + " ≠ " + o.cena);
       over((await p.$$("#lcd-vclass-hero .lh-f img")).length === 5, "5 fotiek hore");
       over((await p.evaluate(() => { const r = document.getElementById("lcd-vclass-hero").getBoundingClientRect(); return Math.abs(r.left) < 2 && Math.abs(r.width - document.querySelector(".overall-wrapper").getBoundingClientRect().width) < 1; })), "fotky na celú šírku");
-      const kres = await p.evaluate(() => [...document.querySelectorAll("#lcd-vclass-nakres canvas")].map((k) => { const d = k.getContext("2d").getImageData(0, 0, k.width, k.height).data; let n = 0; for (let i = 3; i < d.length; i += 40) if (d[i] > 200) n++; return n; }));
+      const kres = await p.evaluate(() => [...document.querySelectorAll("#lcd-vclass-nakres canvas")].map((k) => { const d = k.getContext("2d").getImageData(0, 0, k.width, k.height).data; let n = 0; for (let i = 3; i < d.length; i += 40) if (d[i] > 20) n++; return n; }));
       over(kres.length === 2 && kres.every((n) => n > 500), "kresba predku aj zadku " + kres);
       if (snimky) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-${o.velkost}.png`), fullPage: sirka < 500 });
       over(chyby.length === 0, "chyby pred košíkom: " + chyby.join(" | "));
@@ -117,7 +144,10 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       const q = new URLSearchParams(post || "");
       over(q.get("productId") === "646", "productId");
       over(q.get("priceId") === "68434", "priceId");
-      const ma = { "Veľkosť": o.velkost, "Rok výroby": o.rok, Volant: o.volant, "Stred medzi sedadlami": o.stred, "Bočné dvere": o.dvere, "Počet miest": o.miesta, "Stolček vzadu": o.stolcek, "Zásuvky pod sedadlami": o.zasuvky, "Vzor a farba 1. vrstvy": vzorNm + " – " + o.farba, "Farba 2. vrstvy": "Lux Color " + o.lux };
+      const ma = { "Rok výroby": o.rok, Volant: o.volant, "Stred medzi sedadlami": o.stred, "Bočné dvere": o.dvere, "Počet miest": o.miesta, "Stolček vzadu": o.stolcek, "Zásuvky pod sedadlami": o.zasuvky, "Vzor a farba 1. vrstvy": vzorNm + " – " + o.farba, "Farba 2. vrstvy": o.lux ? "Lux Color " + o.lux : BEZ_DRUHEJ, "Rozloženie": o.rozl === "P" ? ROZ_PREDOK : rozSet(o.velkost), "Rohož do kufra": o.rohoz === "ano" ? ROHOZ[0] : ROHOZ[1] };
+      o.boxy.forEach((v, i) => { ma["Box " + (i + 1) + " do kufra"] = BOXY.find((b) => b.v === v).t; });
+      if (o.boxy.length) ma["Farba boxov do kufra"] = o.boxFarba;
+      for (let i = o.boxy.length + 1; i <= 3; i++) over(!q.get(`surchargeParameterValueId[${[451, 454, 457][i - 1]}]`), "nevybraný box " + i + " je prázdny");
       for (const m of Object.keys(ma)) { const id = P.find((x) => x[1] === m)[0]; over(q.get(`surchargeParameterValueId[${id}]`) === hodnotaId(m, ma[m]), m + " = " + ma[m] + " (je " + q.get(`surchargeParameterValueId[${id}]`) + ")"); }
       over((await p.evaluate(() => sessionStorage.getItem("model"))) === `Mercedes-Benz ${{ M: "V Class M (compact 4895 mm)", L: "V Class L (long 5140 mm)", XL: "V Class XL (Extra Long 5370 mm)" }[o.velkost]} ${o.rok}`, "auto do poznámky objednávky");
       // zrušený POST testu natívny Shoptet hlási ako odmietnutý sľub, to nie je chyba konfigurátora
