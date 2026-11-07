@@ -107,9 +107,9 @@ const SIRKY = { chromium: [1366, 390], webkit: [390], firefox: [1366] };
 for (const nazov of arg("prehliadac", "chromium").split(",")) {
   for (const sirka of SIRKY[nazov] || [1366]) {
     console.log("== " + nazov + " " + sirka);
-    const b = await pw[nazov].launch();
+    const b = await pw[nazov].launch({ slowMo: Number(arg("pomaly", 0)) });
     for (const [i, o] of SCEN.slice(0, Number(arg("scen", 99))).entries()) {
-      const c = await b.newContext({ viewport: { width: sirka, height: sirka < 500 ? 844 : 800 } });
+      const c = await b.newContext({ viewport: { width: sirka, height: sirka < 500 ? 844 : 800 }, ...(arg("video") && sirka < 500 ? { recordVideo: { dir: arg("video"), size: { width: 390, height: 844 } } } : {}) });
       const p = await c.newPage();
       const chyby = [];
       p.on("pageerror", (e) => chyby.push(String(e.message).slice(0, 200)));
