@@ -160,6 +160,12 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over((await p.evaluate(() => document.documentElement.scrollWidth)) <= sirka, "stránka sa nesmie posúvať do boku");
       if (snimky && i === 0) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-start.png`) });
       const mobil = sirka < 992;
+      if (i === 0 && mobil) {
+        // Michal 7. 11. 2026: video od kraja po kraj; iPhone s lištami Chromu ukáže cca 678 px, tlačidlo musí byť vidno bez posúvania
+        const h = await p.evaluate(() => { const g = document.querySelector("#lcd-vclass-hero .lh-g").getBoundingClientRect(), c = document.querySelector("#lcd-vclass-hero .lh-cta").getBoundingClientRect(); return { l: g.left, s: g.width, k: document.querySelector(".overall-wrapper").getBoundingClientRect().width, c: c.bottom }; });
+        over(Math.abs(h.l) < 1 && Math.abs(h.s - h.k) < 1, "video na telefóne ide od kraja po kraj: " + JSON.stringify(h));
+        over(h.c <= 678, "tlačidlo Zostaviť môj set je na telefóne na prvej obrazovke: " + JSON.stringify(h));
+      }
       if (i === 0) {
         over(/od\s*300\s*€/.test((await p.textContent("#lcd-vclass-hero .lh-c")).replace(/\u00a0/g, " ")), "hore cena od 300 €");
         over(/predným sedadlám/.test(await p.textContent("#lcd-vclass-hero .lh-c")), "hore povedané, že cena je za predné sedadlá");

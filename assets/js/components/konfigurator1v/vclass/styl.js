@@ -201,8 +201,8 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   body.lcd-vclass .vp-chips button[aria-pressed=true] span{display:block;position:absolute;top:36px;width:max-content;max-width:160px}
   body.lcd-vclass .vp-js .vp-chips{margin-bottom:34px}
   body.lcd-vclass .vp-js .vp-zoz{grid-column:1;grid-row:auto}
- .lh-in{grid-template-columns:minmax(0,1fr);gap:0;padding:0;max-width:none}
-  #lcd-vclass-hero .lh-g{grid-column:1;grid-row:1;height:auto;aspect-ratio:1/1;border-radius:0}
+  #lcd-vclass-hero .lh-in{grid-template-columns:minmax(0,1fr);gap:0;padding:0;max-width:none}
+  #lcd-vclass-hero .lh-g{grid-column:1;grid-row:1;height:auto;aspect-ratio:10/9;border-radius:0}
   #lcd-vclass-hero .lh-p{display:none}
   #lcd-vclass-hero .lh-g::before{inset:auto 0 0 0;width:100%;height:30%;background:linear-gradient(0deg,#0d0b08,rgba(13,11,8,0))}
   #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:2;padding:6px 16px 24px;gap:11px}
