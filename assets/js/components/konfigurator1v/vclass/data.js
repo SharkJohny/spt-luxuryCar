@@ -15,9 +15,10 @@ export const SELECTY = {
   farba2: "Farba 2. vrstvy",
   rozlozenie: "Rozloženie",
   rohoz: "Rohož do kufra",
-  box1: "Box 1 do kufra",
-  box2: "Box 2 do kufra",
-  box3: "Box 3 do kufra",
+  // ceny ako pri autokobercoch: jeden box od 99 €, pri dvoch každý od 89 € (Michal 7. 11. 2026), preto samostatné príplatky
+  box1: "Box do kufra",
+  box2: "Prvý box z dvoch",
+  box3: "Druhý box z dvoch",
   boxFarba: "Farba boxov do kufra",
 };
 

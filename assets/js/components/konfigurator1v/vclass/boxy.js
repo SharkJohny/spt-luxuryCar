@@ -76,6 +76,9 @@ export function vytvorOknoBoxov(o) {
   const pata = el("div", "lcd1v-bx__pata");
   const ok = el("button", "lcd1v-bx__ok", "Potvrďte výber boxov");
   ok.type = "button";
+  const spr = el("p", "lv-bx-spr");
+  spr.hidden = true;
+  pata.appendChild(spr);
   pata.appendChild(ok);
   [hd, pod, cfg, pata, definicieKresby(PREDPONA)].forEach((e) => box.appendChild(e));
   obal.appendChild(box);
@@ -90,7 +93,7 @@ export function vytvorOknoBoxov(o) {
       w.appendChild(el("p", "lcd1v-bx__nadp", NADPIS_VELKOSTI[T.n][i - 1]));
       const m = el("div", "options-wrap");
       BOXY.forEach((b) => {
-        const cena = o.cena(i, b.v);
+        const cena = o.cena(T.n, i, b.v);
         const t = el("button", "button option-button");
         t.type = "button";
         t.setAttribute("data-bx-vel", b.v);
@@ -129,6 +132,18 @@ export function vytvorOknoBoxov(o) {
       if (v) w.classList.remove("lcd-needs-fill");
     });
     if (T.farba) farby.classList.remove("lcd-needs-fill");
+    if (!spr.hidden) {
+      const ch = chyba();
+      spr.hidden = !ch.length;
+      spr.textContent = "Ešte chýba: " + ch.join(", ") + ".";
+    }
+  }
+  /** Čo ešte chýba, slovami: kontrola nad tlačidlom, aby bolo jasné, prečo výber neprešiel. */
+  function chyba() {
+    const c = [];
+    if (!T.farba) c.push("farba boxov");
+    for (let i = 1; i <= T.n; i++) if (!T["box" + i]) c.push(T.n === 1 ? "veľkosť boxu" : "veľkosť " + i + ". boxu");
+    return c;
   }
   function zatvor() {
     obal.classList.remove("showConf");
@@ -144,6 +159,7 @@ export function vytvorOknoBoxov(o) {
     spatNa = tl || null;
     pod.textContent = POD[n];
     farby.classList.remove("lcd-needs-fill");
+    spr.hidden = true;
     postavVelkosti();
     oznac();
     box.scrollTop = 0;
@@ -157,7 +173,12 @@ export function vytvorOknoBoxov(o) {
     velk.querySelectorAll("[data-bx-box]").forEach((w) => {
       if (!T["box" + w.getAttribute("data-bx-box")]) { w.classList.add("lcd-needs-fill"); chyby.push(w); }
     });
-    if (chyby.length) { chyby[0].scrollIntoView({ block: "center", behavior: "smooth" }); return; }
+    if (chyby.length) {
+      spr.hidden = false;
+      spr.textContent = "Ešte chýba: " + chyba().join(", ") + ".";
+      chyby[0].scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
     const v = { n: T.n, box1: T.box1, box2: T.box2, farba: T.farba };
     zatvor();
     o.hotovo(v);

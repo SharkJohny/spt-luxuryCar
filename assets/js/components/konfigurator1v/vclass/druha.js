@@ -5,7 +5,8 @@ import { TYP } from "../typy/jedno.js";
 
 const IMG = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";
 export const T = TYP.texty.druha;
-const VIDEA = [IMG + "druha-video-vapka", IMG + "druha-video-pribeh"];
+/** Vlastný strih: druhá vrstva priamo vo V Class, medzi tým vyberanie a oplachovanie (Michal 7. 11. 2026). */
+const VIDEA = [IMG + "mercedes-v-class-druha-vrstva-film"];
 const POZNAMKA = "Dáva sa len k predným sedadlám. Do 2. a 3. radu ani do kufra sa nedáva.";
 
 const IKONY = {
@@ -21,11 +22,11 @@ export function htmlDruha(priplatok, nieZvolene) {
   const vrstvy = T.vrstvy.map((v) => '<div class="lcd1v-druha__vrstva"><div class="lcd1v-druha__vrstva-hd"><p class="lcd1v-druha__stitok">' + v.stitok + "</p>"
     + (v.viac ? '<button type="button" class="lcd1v-druha__viac" data-okno="1" aria-haspopup="dialog" aria-expanded="false" aria-label="' + T.viac.aria + '"><span class="lcd1v-druha__viac-i" aria-hidden="true">' + T.viac.i + '</span><span class="lcd1v-druha__viac-t">' + T.viac.tl + "</span></button>" : "")
     + '</div><ul class="lcd1v-druha__body">' + v.body.map((b) => '<li class="lcd1v-druha__bod">' + ikona(b.ikona) + '<span class="lcd1v-druha__bod-t">' + b.t + "</span></li>").join("") + "</ul></div>").join("");
-  return '<div class="lcd1v-druha active"><div class="lcd1v-druha__info"><div class="lcd1v-druha__pocet"><span class="lcd1v-druha__pocet-c">' + T.pocet.cislo + '</span><p class="lcd1v-druha__pocet-t">' + T.pocet.text + " <b>" + T.pocet.b + '</b></p></div><div class="lcd1v-druha__vrstvy">' + vrstvy + "</div></div>"
-    + '<p class="lv-pozn">' + POZNAMKA + "</p>"
-    + '<div class="lcd1v-kb lcd1v-druha__volby"><div class="lcd1v-kb__karta lcd1v-kb__karta--naj lcd1v-druha__dlazdica"><span class="lcd1v-kb__top">' + T.naj + '</span><span class="lcd1v-kb__fot lcd1v-druha__fot"><span class="lcd1v-druha__ram"><video class="lcd1v-druha__video" muted playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback aria-label="' + T.ano.alt + '" width="576" height="720"></video></span></span>'
-    + '<span class="lcd1v-kb__tx"><span class="lcd1v-kb__nm">' + T.ano.nm + '</span><span class="lcd1v-kb__po">K predným sedadlám</span><span class="lcd1v-kb__ucet lcd1v-druha__ucet"><span class="lcd1v-kb__r lcd1v-kb__r--sum lcd1v-druha__r-sum"><span class="lcd1v-kb__rn">' + T.cena.priplatok + '</span><span class="lcd1v-kb__rh lcd1v-druha__suma">' + priplatok + "</span></span></span></span>"
+  return '<div class="lcd1v-druha active lv-d2"><div class="lcd1v-druha__dlazdica lv-d2-k"><div class="lv-d2-v"><video class="lcd1v-druha__video" muted playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback aria-label="' + T.ano.alt + '" width="576" height="720"></video><span class="lv-d2-st"><b>' + T.pocet.cislo + "</b>" + T.pocet.text + " " + T.pocet.b + "</span></div>"
+    + '<div class="lv-d2-t"><p class="lv-d2-top">' + T.naj + '</p><p class="lv-d2-nm">' + T.ano.nm + '</p><p class="lv-d2-po">K predným sedadlám</p><div class="lcd1v-druha__vrstvy">' + vrstvy + "</div>"
+    + '<div class="lv-d2-c"><span>' + T.cena.priplatok + "</span><b>" + priplatok + "</b></div>"
     + '<button type="button" class="lcd1v-druha__ano" data-k="vrstva" data-v="ano">' + T.ano.tl + "</button></div></div>"
+    + '<p class="lv-pozn">' + POZNAMKA + "</p>"
     + '<button type="button" class="lcd1v-druha__nie" data-k="vrstva" data-v="nie" aria-pressed="' + !!nieZvolene + '">' + T.nie.nm + "</button></div>";
 }
 
@@ -37,15 +38,14 @@ export function ozivVideo(koren) {
   const mm = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
   const smie = () => { const c = navigator.connection || {}; return !mm("(prefers-reduced-motion: reduce)") && !c.saveData && !/2g|3g/.test(c.effectiveType || ""); };
   const vs = { i: 0, typ: "mp4", vidno: false, src: false, chyba: false };
-  const typ = () => { try { if (!/apple/i.test(navigator.vendor || "") && video.canPlayType('video/webm; codecs="vp9"') === "probably") return "webm"; } catch (e) { /* MP4 */ } return "mp4"; };
-  const nastav = (i) => { vs.i = i; video.poster = VIDEA[i] + "-poster.jpg"; video.src = VIDEA[i] + "." + vs.typ; vs.src = true; };
+  const nastav = (i) => { vs.i = i; video.poster = VIDEA[i] + ".jpg"; video.src = VIDEA[i] + "." + vs.typ; vs.src = true; };
   function obnov() {
     if (vs.chyba) return;
     const hrat = vs.vidno && !document.hidden;
-    if (hrat && !video.poster) video.poster = VIDEA[0] + "-poster.jpg";
+    if (hrat && !video.poster) video.poster = VIDEA[0] + ".jpg";
     if (!smie()) { if (!video.paused) video.pause(); return; }
     if (hrat) {
-      if (!vs.src) { vs.typ = typ(); nastav(0); }
+      if (!vs.src) nastav(0);
       if (video.paused) { const p = video.play(); if (p && p.catch) p.catch(() => { /* úsporný režim: ostane plagát */ }); }
     } else if (!video.paused) video.pause();
   }

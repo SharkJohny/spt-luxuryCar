@@ -72,6 +72,8 @@ export function spusti(ctx) {
   // ---- ceny: všetko z možností príplatkov v Shoptete
   const prc = (k, text) => { const o = text ? moznost(sel[k], text) : null; return o ? Number(o.getAttribute("data-surcharge-final-price")) || 0 : 0; };
   const textBoxu = (v) => { const b = BOXY.find((x) => x.v === v); return b ? b.t : ""; };
+  /** Cena boxu: jeden box má vlastný príplatok, pri dvoch boxoch platia príplatky „z dvoch“. */
+  const prcBox = (n, i, v) => prc(n === 1 ? "box1" : "box" + (i + 1), textBoxu(v));
   /** Čo je vo výbere: predné sedadlá, 2. a 3. rad, rohož do kufra. */
   const vyb = (v) => ({ p: v.predok !== "nie", r: v.rozl === "Z", k: v.rohoz === "ano" });
   const maVyber = () => { const x = vyb(S); return x.p || x.r || x.k; };
@@ -88,7 +90,8 @@ export function spusti(ctx) {
     const v = Object.assign({}, S, zmena), x = vyb(v);
     let c = x.p || x.r || x.k ? zaklad + prc("rozlozenie", textRozlozenia(v)) + prc("rohoz", textRohoze(v)) : 0;
     if (x.p && v.vrstva === "ano") c += prc("farba2", "Lux Color " + (v.farba2 || LUX[0][0]));
-    [1, 2, 3].forEach((i) => { if (Number(v.boxy) >= i && v["box" + i]) c += prc("box" + i, textBoxu(v["box" + i])); });
+    const nb = Number(v.boxy) || 0;
+    [1, 2].slice(0, nb).forEach((i) => { if (v["box" + i]) c += prcBox(nb, i, v["box" + i]); });
     return c;
   }
 
@@ -172,7 +175,7 @@ export function spusti(ctx) {
   const kartaCien = root.querySelector(".lv-cc");
   const spoluRiadok = root.querySelector(".lv-spolu");
   const okno = vytvorOknoBoxov({
-    img: IMG, eur, cena: (i, v) => prc("box" + i, textBoxu(v)),
+    img: IMG, eur, cena: prcBox,
     hotovo: (v) => {
       S.boxy = String(v.n); S.box1 = v.box1; S.box2 = v.box2; S.box3 = ""; S.boxFarba = v.farba;
       spr.hidden = true; S.chybaju = false;
@@ -197,7 +200,7 @@ export function spusti(ctx) {
       farba2: S.predok === "nie" || S.vrstva === "nie" ? BEZ_DRUHEJ : S.vrstva === "ano" && S.farba2 ? "Lux Color " + S.farba2 : "",
       rozlozenie: S.rozl === "Z" && !S.velkost ? "" : textRozlozenia(S),
       rohoz: textRohoze(S),
-      box1: n >= 1 ? textBoxu(S.box1) : "", box2: n >= 2 ? textBoxu(S.box2) : "", box3: "",
+      box1: n === 1 ? textBoxu(S.box1) : "", box2: n === 2 ? textBoxu(S.box1) : "", box3: n === 2 ? textBoxu(S.box2) : "",
       boxFarba: n ? S.boxFarba : "",
     };
   };
@@ -294,9 +297,8 @@ export function spusti(ctx) {
   const cenaRaduVyber = () => { const x = vyb(S), v = velkostSetu(); return x.p ? cenaRadu() : zaklad + prc("rozlozenie", x.k ? rozRadRohoz(v) : rozLen(v)); };
   const cenaRohozeVyber = () => { const x = vyb(S); return x.p || x.r ? cenaRohoze() : zaklad + prc("rohoz", ROHOZ_SAM); };
   const usporaRozlozenia = () => { const x = vyb(S); return (x.r ? SAMOSTATNE.rad[velkostSetu()] - cenaRaduVyber() : 0) + (x.k ? SAMOSTATNE.rohoz - cenaRohozeVyber() : 0); };
-  const cenaBoxu = (i, v) => prc("box" + i, textBoxu(v));
   const rUctu = (t, n, h) => '<span class="lcd1v-kb__r lcd1v-kb__r--' + t + '"><span class="lcd1v-kb__rn">' + n + '</span><span class="lcd1v-kb__rh">' + h + "</span></span>";
-  const ucet = (samo, vSete, od) => '<span class="lcd1v-kb__ucet">' + (samo > vSete ? rUctu("samo", "Samostatne", (od ? "od " : "") + eur(samo)) + rUctu("zl", "Výhoda v sete", "− " + eur(samo - vSete)) : "") + rUctu("sum", "V sete", (od ? "od " : "") + "+ " + eur(vSete)) + "</span>";
+  const ucet = (samo, vSete, od, az) => '<span class="lcd1v-kb__ucet">' + (samo > vSete ? rUctu("samo", "Samostatne", (od ? "od " : "") + eur(samo)) + rUctu("zl", "Výhoda v sete", (az ? "až − " + eur(az) : "− " + eur(samo - vSete))) : "") + rUctu("sum", "V sete", (od ? "od " : "") + eur(vSete)) + "</span>";
   const percento = (samo, vSete) => (samo > vSete ? Math.round(((samo - vSete) / samo) * 100) : 0);
   const PRIDAT = '<span class="lv-tl"><span class="lv-tl-a">Pridať k setu</span><span class="lv-tl-b">Odobrať</span></span>';
   function karta(o) {
@@ -316,15 +318,20 @@ export function spusti(ctx) {
     if (x.p) return "Keď si pridáte 2. a 3. rad aj rohož do kufra, ušetríte <b>" + eur(u) + "</b>";
     return "Samostatne bez zľavy: <b>" + eur(x.r ? cenaRaduVyber() : cenaRohozeVyber()) + "</b>. Zľavu získate, keď si pridáte ďalšiu časť.";
   }
-  /** Bez výberu veľkostí najlacnejší box S, po potvrdení v okne presná suma. */
+  /** Bez výberu veľkostí ako pri autokobercoch: od najnižšej ceny, výhoda až do najvyššej úspory. Po potvrdení v okne presná suma. */
   function ucetBoxov(n) {
     const vybrane = pocetBoxov() === n && [1, 2].slice(0, n).every((i) => !!S["box" + i]);
-    const vel = [1, 2].slice(0, n).map((i) => (vybrane ? S["box" + i] : "S"));
-    return { samo: vel.reduce((s, v) => s + SAMOSTATNE.box[v], 0), set: vel.reduce((s, v, i) => s + cenaBoxu(i + 1, v), 0), od: !vybrane };
+    if (vybrane) {
+      const vel = [1, 2].slice(0, n).map((i) => S["box" + i]);
+      return { samo: vel.reduce((s, v) => s + SAMOSTATNE.box[v], 0), set: vel.reduce((s, v, i) => s + prcBox(n, i + 1, v), 0), od: false };
+    }
+    const set = BOXY.map((b) => [1, 2].slice(0, n).reduce((s, i) => s + prcBox(n, i, b.v), 0));
+    const samo = BOXY.map((b) => SAMOSTATNE.box[b.v] * n);
+    return { samo: Math.min.apply(null, samo), set: Math.min.apply(null, set), az: Math.max.apply(null, samo.map((x, i) => x - set[i])), od: true };
   }
   function kartaBoxov(n, nm, po, foto, naj) {
     const u = ucetBoxov(n);
-    return karta({ atr: ' data-box-n="' + n + '" aria-haspopup="dialog" aria-pressed="' + (pocetBoxov() === n) + '"', nm, po, foto, pct: percento(u.samo, u.set), ucet: ucet(u.samo, u.set, u.od), naj: naj ? "★ Najobjednávanejšie ★" : "", veta: naj ? "Zákazníci si ich vyberajú najčastejšie" : "" });
+    return karta({ atr: ' data-box-n="' + n + '" aria-haspopup="dialog" aria-pressed="' + (pocetBoxov() === n) + '"', nm, po, foto, pct: percento(u.samo, u.set), ucet: ucet(u.samo, u.set, u.od, u.az), naj: naj ? "★ Najobjednávanejšie ★" : "", veta: naj ? "Zákazníci si ich vyberajú najčastejšie" : "" });
   }
   const telo = {
     auto: () => pole("volant", "Na ktorej strane máte volant?", '<div class="lv-pi">' + VOLANT.map((v, i) => tl("volant", v, i ? "Vpravo — UK" : "Vľavo — EU", "lv-s1")).join("") + "</div>")
@@ -416,7 +423,7 @@ export function spusti(ctx) {
     if (x.r) r.push(["2. a 3. rad", (r.length ? "+ " : "") + eur(cenaRaduVyber())]);
     if (x.p && S.vrstva === "ano") r.push(["Druhá vrstva", "+ " + eur(cenaDruhej())]);
     if (x.k) r.push(["Rohož do kufra", (r.length ? "+ " : "") + eur(cenaRohozeVyber())]);
-    [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) r.push(["Box " + S["box" + i], "+ " + eur(prc("box" + i, textBoxu(S["box" + i])))]); });
+    [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) r.push(["Box " + S["box" + i], "+ " + eur(prcBox(pocetBoxov(), i, S["box" + i]))]); });
     return r;
   }
   /** Cena pri zatvorenom kroku vedľa „Zmeniť“: zákazník vidí, za čo platí a koľko ušetril. */
@@ -438,7 +445,7 @@ export function spusti(ctx) {
   /** Čo zákazník ušetrí oproti samostatným cenám v tom, čo má vo výbere. */
   function uspora() {
     let u = usporaRozlozenia();
-    [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) u += SAMOSTATNE.box[S["box" + i]] - cenaBoxu(i, S["box" + i]); });
+    [1, 2].slice(0, pocetBoxov()).forEach((i) => { if (S["box" + i]) u += SAMOSTATNE.box[S["box" + i]] - prcBox(pocetBoxov(), i, S["box" + i]); });
     return u;
   }
   const spravaKroku = (k) => (k.id === "auto" ? "Prosím, doplňte označené údaje o aute." : k.id === "rozl" ? "Prosím, vyberte si aspoň jednu možnosť." : k.id === "druha" ? (S.vrstva === "ano" ? "Prosím, vyberte si farbu 2. vrstvy." : "Prosím, vyberte si Áno alebo Nie.") : k.id === "boxy" ? "Prosím, dokončite výber boxov." : "Prosím, vyberte si jednu z možností.");

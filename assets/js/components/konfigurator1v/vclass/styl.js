@@ -122,6 +122,26 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-rozpis b{flex:none;font:700 15px var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-dod{margin:10px 0 0;text-align:center;font-size:15px;color:var(--lv-mute)}
 #lcd-vclass .lcd1v-druha{margin:0;padding:0;border:0;background:none;box-shadow:none}
+#lcd-vclass .lcd1v-druha__dlazdica.lv-d2-k{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:0;padding:0;margin:0 0 12px;overflow:hidden;border:1px solid #8a6a1c;border-radius:16px;background:radial-gradient(120% 90% at 100% 0,#2c2415,#0d0b08 64%);box-shadow:0 22px 44px -26px rgba(13,11,8,.85);color:#d9d4c6;cursor:pointer}
+#lcd-vclass .lv-d2-v{position:relative;min-height:340px;background:#000;overflow:hidden}
+#lcd-vclass .lv-d2-v video{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-width:none!important;margin:0;object-fit:cover;border:0!important;border-radius:0!important}
+#lcd-vclass .lv-d2-st{position:absolute;left:10px;right:10px;bottom:10px;padding:9px 12px;border-radius:10px;background:rgba(13,11,8,.74);color:#fff;font:600 14px/1.3 var(--lv-body)}
+#lcd-vclass .lv-d2-st b{display:block;font:800 24px/1.1 var(--lv-disp);color:#e6c877}
+#lcd-vclass .lv-d2-t{display:grid;gap:9px;align-content:start;min-width:0;padding:20px 20px 18px}
+#lcd-vclass .lv-d2-top{margin:0;font:800 13px/1.2 var(--lv-disp);letter-spacing:.12em;text-transform:uppercase;color:#e6c877}
+#lcd-vclass .lv-d2-nm{margin:0;font:800 clamp(26px,3vw,34px)/1.05 var(--lv-disp);color:#fff}
+#lcd-vclass .lv-d2-po{margin:-5px 0 3px;font:700 14px/1.2 var(--lv-body);color:#e6c877}
+#lcd-vclass .lv-d2 .lcd1v-druha__vrstvy{display:grid;gap:8px;margin:0;padding:10px 0 0;border-top:1px solid rgba(230,200,119,.28)}
+#lcd-vclass .lv-d2 .lcd1v-druha__stitok{color:#e6c877}
+#lcd-vclass .lv-d2 .lcd1v-druha__bod-t{color:#efeadf}
+#lcd-vclass .lv-d2 .lcd1v-druha__viac,#lcd-vclass .lv-d2 .lcd1v-druha__viac-t,#lcd-vclass .lv-d2 .lcd1v-druha__viac-i{color:#e6c877;border-color:#e6c877}
+#lcd-vclass .lv-d2-c{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 0 2px;border-top:1px solid rgba(230,200,119,.28)}
+#lcd-vclass .lv-d2-c span{font:700 13px var(--lv-disp);letter-spacing:.08em;text-transform:uppercase;color:#d9d4c6}
+#lcd-vclass .lv-d2-c b{font:800 30px/1 var(--lv-disp);color:#fff}
+#lcd-vclass .lv-d2 .lcd1v-druha__ano{width:100%;margin:2px 0 0}
+#lcd-vclass .lv-d2 .lcd1v-druha__nie{width:100%}
+@media (hover:hover){#lcd-vclass .lv-d2-k{transition:border-color .2s,box-shadow .2s}#lcd-vclass .lv-d2-k:hover{border-color:#e6c877;box-shadow:0 26px 50px -24px rgba(13,11,8,.95)}}
+@media (max-width:640px){#lcd-vclass .lcd1v-druha__dlazdica.lv-d2-k{display:block!important;padding:0!important}#lcd-vclass .lv-d2-k .lv-d2-v{min-height:0;width:100%;aspect-ratio:4/5}#lcd-vclass .lv-d2-k .lv-d2-t{padding:16px 16px 16px}}
 #lcd-vclass .lv-pi,#lcd-vclass .lv-seg{display:grid;gap:8px}
 #lcd-vclass .lv-pi{grid-template-columns:1fr 1fr}
 #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -226,6 +246,12 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 @media (prefers-reduced-motion:reduce){#lcd-vclass *,#lcd-vclass-hero *{transition:none!important}}
 
 .lv-bx-obal{display:block;height:0;margin:0!important;padding:0}
+body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd1v-bx__pata{z-index:30!important}
+body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .button.option-button{position:relative;z-index:0!important;transform:none!important}
+body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .parameter-wrap.lcd-needs-fill,body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd-needs-fill{padding:10px;border:2px solid #c0392b;border-radius:12px;background:#fdf0ee}
+body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd-needs-fill .lcd1v-bx__nadp{color:#b3261e}
+body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd-needs-fill .lcd1v-bx__chyba{font-size:16px;font-weight:800;color:#b3261e}
+body.lcd-1v .lv-bx-obal .lv-bx-spr{margin:0 0 8px;padding:8px 12px;border:1px solid #e3a59c;border-radius:9px;background:#fdecea;color:#b3261e;font:700 15px/1.3 var(--lv-body,Arial,sans-serif);text-align:center}
 body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .options-wrap .button.option-button{aspect-ratio:auto!important;overflow:visible!important;height:auto!important;min-height:0!important}
 body.lcd-1v .lcd1v-lista.lv-bez button.lcd1v-lista__kos{display:none}
 body.lcd-1v .lcd1v-lista.lv-bez .lcd1v-lista__c{max-width:none;flex:1 1 auto;flex-direction:row;align-items:baseline;justify-content:space-between}

@@ -17,7 +17,7 @@ const CIEL = "https://www.luxurycardesign.sk/autokoberce-mercedes-v-class/";
 // hodnoty ako v admine: [id, meno, prvé ID hodnoty (po troch) alebo zoznam ID, texty, ceny, nepovinný]
 const farby = [].concat(...VZORY.map((v) => FARBY[v.id].map((f) => v.nm + " – " + f.nm)));
 const luxId = LUX.map((_, i) => 2533 + i * 3).concat(2635);
-const boxT = BOXY.map((b) => b.t), boxC = [100, 110, 130, 150];
+const boxT = BOXY.map((b) => b.t), boxC = [99, 109, 129, 149], boxD = [89, 99, 119, 139];
 const P = [
   [418, "Rok výroby", 2365, ROKY], [421, "Volant", 2404, VOLANT], [424, "Stred medzi sedadlami", 2410, STRED], [427, "Bočné dvere", 2416, DVERE],
   [430, "Sedadlá v 2. a 3. rade", 2422, SEDADLA_TEXTY], [433, "Stolček vzadu", 2434, STOLCEK], [436, "Zásuvky pod sedadlami", 2440, ZASUVKY],
@@ -25,7 +25,7 @@ const P = [
   [442, "Farba 2. vrstvy", luxId, LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), LUX.map(() => 150).concat(0)],
   [445, "Rozloženie", [2581, 2584, 2587, 2590, 9001, 9002, 9003, 9004, 9005, 9006, 9007], [ROZ_PREDOK].concat(VELKOSTI.map((x) => rozSet(x.v)), VELKOSTI.map((x) => rozLen(x.v)), VELKOSTI.map((x) => rozRadRohoz(x.v)), ROZ_BEZ), [0, 600, 700, 800, 450, 550, 650, 300, 400, 500, 0]],
   [448, "Rohož do kufra", [2593, 2596, 9008], ROHOZ.concat(ROHOZ_SAM), [250, 0, 40]],
-  [451, "Box 1 do kufra", 2599, boxT, boxC, true], [454, "Box 2 do kufra", 2611, boxT, boxC, true], [457, "Box 3 do kufra", 2623, boxT, boxC, true],
+  [451, "Box do kufra", 2599, boxT, boxC, true], [454, "Prvý box z dvoch", 2611, boxT, boxD, true], [457, "Druhý box z dvoch", 2623, boxT, boxD, true],
   [460, "Farba boxov do kufra", 2638, BOX_FARBY.map((f) => f.nm), null, true],
 ];
 const idHodnoty = (p, i) => (Array.isArray(p[2]) ? p[2][i] : p[2] + i * 3);
@@ -135,6 +135,7 @@ async function prejdi(p, o) {
     }
     await p.click(".lv-bx-obal .lcd1v-bx__ok"); await p.waitForTimeout(150);
     over(await p.isVisible(".lv-bx-obal .lcd-needs-fill .lcd1v-bx__chyba"), "okno pýta chýbajúci výber");
+    over(/Ešte chýba/.test(await p.textContent(".lv-bx-obal .lv-bx-spr")) && await p.isVisible(".lv-bx-obal .lv-bx-spr"), "okno povie, čo chýba");
     await p.click(`.lv-bx-obal [data-bx-farba="${o.boxFarba}"]`);
     for (const [i, v] of o.boxy.entries()) await p.click(`.lv-bx-obal [data-bx-box="${i + 1}"] [data-bx-vel="${v}"]`);
     if (o.snimka) await p.screenshot({ path: o.snimka + "-okno.png" });
@@ -150,11 +151,11 @@ async function prejdi(p, o) {
 const SCEN = [
   { velkost: "M", rok: "2020", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "3", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "10", okno: true, info: true, rozl: "Z", rohoz: "ano", boxy: [], cena: 1300 },
   { velkost: "L", rok: "2024", volant: "Vpravo", stred: STRED[1], dvere: DVERE[0], rad2: "2", rad3: "2", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "stripe", farba: "Béžová", lux: "12", rozl: "P", rohoz: "nie", boxy: [], cena: 450 },
-  { velkost: "XL", rok: "2016", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "3", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "hexa", farba: "Čierna, červené šitie", lux: "", rozl: "Z", rohoz: "ano", boxy: ["M", "XL"], boxFarba: "Béžová", cena: 1610 },
-  { velkost: "M", rok: "2019", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Hnedá", lux: "", rozl: "P", rohoz: "ano", boxy: ["S", "L"], boxFarba: "Hnedá káva", cena: 780 },
+  { velkost: "XL", rok: "2016", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "3", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "hexa", farba: "Čierna, červené šitie", lux: "", rozl: "Z", rohoz: "ano", boxy: ["M", "XL"], boxFarba: "Béžová", cena: 1588 },
+  { velkost: "M", rok: "2019", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Hnedá", lux: "", rozl: "P", rohoz: "ano", boxy: ["S", "L"], boxFarba: "Hnedá káva", cena: 758 },
   { velkost: "L", rok: "2022", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[1], vzor: "diamond", farba: "Čierna, modré šitie", lux: "10", rozl: "Z", rohoz: "nie", boxy: [], cena: 1150 },
   { velkost: "M", rok: "2021", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "3", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "", predok: "nie", rozl: "Z", rohoz: "nie", boxy: [], cena: 750, roz: rozLen("M"), roh: ROHOZ[1] },
-  { velkost: "L", rok: "2021", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "", predok: "nie", rozl: "P", rohoz: "ano", boxy: [], cena: 340, roz: ROZ_BEZ, roh: ROHOZ_SAM },
+  { velkost: "L", rok: "2021", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "", predok: "nie", rozl: "P", rohoz: "ano", boxy: ["L"], boxFarba: "Hnedá káva", cena: 469, roz: ROZ_BEZ, roh: ROHOZ_SAM },
   { velkost: "XL", rok: "2021", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "3", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "", predok: "nie", rozl: "Z", rohoz: "ano", boxy: [], cena: 1050, roz: rozRadRohoz("XL"), roh: ROHOZ[0] },
 ];
 const SIRKY = { chromium: [1366, 390], webkit: [390], firefox: [1366] };
@@ -176,7 +177,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         await c.route(/assets\/v\/[^/]+\/js\/lcd-vclass\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "lcd-vclass.js")) }));
         // fotky ešte nemusia byť na CDN
         await c.route(/assets\/img\/1v\/obsah\/[^/?]*mercedes-v-class[^/?]*/, (r) => { const m = /obsah\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("webp") ? "image/webp" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/obsah/" + m[1], import.meta.url)) }); });
-        await c.route(/assets\/img\/1v\/mercedes-v-class-(film|sken)[^/?]*/, (r) => { const m = /1v\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("mp4") ? "video/mp4" : m[1].endsWith("bin") ? "application/octet-stream" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/" + m[1], import.meta.url)) }); });
+        await c.route(/assets\/img\/1v\/mercedes-v-class-(film|sken|druha)[^/?]*/, (r) => { const m = /1v\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("mp4") ? "video/mp4" : m[1].endsWith("bin") ? "application/octet-stream" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/" + m[1], import.meta.url)) }); });
         await c.route(/assets\/v\/[^/]+\/html\/p1v-vclass-\d\.sk\.html/, (r) => { const m = /(p1v-vclass-\d\.sk\.html)/.exec(r.request().url()); r.fulfill({ contentType: "text/html; charset=utf-8", body: readFileSync(new URL("../admin-html/dist/" + m[1], import.meta.url)) }); });
       } else {
         await c.route(/assets\/v\/[^/]+\/(js\/(luxuryCar|lcd-[a-z]+)\.js|html\/p1v-)/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
@@ -264,9 +265,10 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over(q.get("productId") === "646", "productId");
       over(q.get("priceId") === "68434", "priceId");
       const ma = { "Rok výroby": o.rok, Volant: o.volant, "Stred medzi sedadlami": o.stred, "Bočné dvere": o.dvere, "Sedadlá v 2. a 3. rade": sedadlaText(o.rad2, o.rad3), "Stolček vzadu": o.stolcek, "Zásuvky pod sedadlami": o.zasuvky, "Vzor a farba 1. vrstvy": vzorNm + " – " + o.farba, "Farba 2. vrstvy": o.lux ? "Lux Color " + o.lux : BEZ_DRUHEJ, "Rozloženie": o.roz || (o.rozl === "P" ? ROZ_PREDOK : rozSet(o.velkost)), "Rohož do kufra": o.roh || (o.rohoz === "ano" ? ROHOZ[0] : ROHOZ[1]) };
-      o.boxy.forEach((v, i) => { ma["Box " + (i + 1) + " do kufra"] = BOXY.find((b) => b.v === v).t; });
+      const menaBoxov = o.boxy.length === 1 ? ["Box do kufra"] : ["Prvý box z dvoch", "Druhý box z dvoch"];
+      o.boxy.forEach((v, i) => { ma[menaBoxov[i]] = BOXY.find((b) => b.v === v).t; });
       if (o.boxy.length) ma["Farba boxov do kufra"] = o.boxFarba;
-      for (let i = o.boxy.length + 1; i <= 3; i++) over(!q.get(`surchargeParameterValueId[${[451, 454, 457][i - 1]}]`), "nevybraný box " + i + " je prázdny");
+      [[451, "Box do kufra"], [454, "Prvý box z dvoch"], [457, "Druhý box z dvoch"]].forEach(([id, m]) => { if (!ma[m]) over(!q.get(`surchargeParameterValueId[${id}]`), "nevybraný box je prázdny: " + m); });
       for (const m of Object.keys(ma)) { const id = P.find((x) => x[1] === m)[0]; over(q.get(`surchargeParameterValueId[${id}]`) === hodnotaId(m, ma[m]), m + " = " + ma[m] + " (je " + q.get(`surchargeParameterValueId[${id}]`) + ")"); }
       over((await p.evaluate(() => sessionStorage.getItem("model"))) === `Mercedes-Benz ${{ M: "V Class M (compact 4895 mm)", L: "V Class L (long 5140 mm)", XL: "V Class XL (Extra Long 5370 mm)" }[o.velkost]} ${o.rok}`, "auto do poznámky objednávky");
       // zrušený POST testu natívny Shoptet hlási ako odmietnutý sľub, to nie je chyba konfigurátora
