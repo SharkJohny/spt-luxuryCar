@@ -206,9 +206,18 @@ function pas(w, spat) {
 
 /** Galéria: odkaz na plnú fotku sa berie z obrázka, aby sa všetky fotky zmestili do Popisu produktu. */
 function galeria(sek, spat) {
-  sek.querySelectorAll(".vg-f button").forEach((b) => {
-    const i = b.querySelector("img");
+  sek.querySelectorAll(".vg-f").forEach((f) => {
+    const i = f.querySelector("img");
     if (!i) return;
+    // tlačidlo nie je v Popise, šetrí to znaky (limit 45 000), bez skriptu je fotka aj tak vidno
+    let b = f.querySelector("button");
+    if (!b) {
+      b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "Zväčšiť fotku");
+      i.parentNode.insertBefore(b, i);
+      b.appendChild(i);
+    }
     b.setAttribute("data-p1v-lb-foto", i.getAttribute("src"));
     b.setAttribute("data-p1v-lb-sada", "vclass-galeria");
     b.setAttribute("data-p1v-lb-popis", i.getAttribute("alt") || "");
