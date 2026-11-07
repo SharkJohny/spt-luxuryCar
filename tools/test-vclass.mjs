@@ -199,16 +199,15 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         over(h.c <= 678, "tlačidlo Zostaviť môj set je na telefóne na prvej obrazovke: " + JSON.stringify(h));
       }
       if (i === 0) {
-        // Michal 7. 11. 2026: na počítači vršok po okraj, väčší nadpis, tri zábery; telefón bez zmeny
-        const v = await p.evaluate(() => { const t = document.querySelector("#lcd-vclass-hero .lh-tx"), z = [...document.querySelectorAll("#lcd-vclass-hero .lh-z")]; return { f: parseFloat(getComputedStyle(document.querySelector("#lcd-vclass-hero h1")).fontSize), d: z.map((x) => getComputedStyle(x).display), dl: getComputedStyle(document.querySelector("#lcd-vclass-hero .lh-dl")).display, m: t.scrollWidth <= t.clientWidth, g: document.querySelector("#lcd-vclass-hero .lh-g").getBoundingClientRect().right }; });
+        // Michal 7. 11. 2026: na počítači vršok po okraj, väčší nadpis, vpravo jedno video; telefón bez zmeny
+        const v = await p.evaluate(() => { const t = document.querySelector("#lcd-vclass-hero .lh-tx"); return { f: parseFloat(getComputedStyle(document.querySelector("#lcd-vclass-hero h1")).fontSize), dl: getComputedStyle(document.querySelector("#lcd-vclass-hero .lh-dl")).display, m: t.scrollWidth <= t.clientWidth, g: document.querySelector("#lcd-vclass-hero .lh-g").getBoundingClientRect().right }; });
         if (mobil) {
-          over(v.dl === "none" && v.d.every((x) => x === "none"), "na telefóne sú dĺžky a fotky vršku skryté: " + JSON.stringify(v));
+          over(v.dl === "none", "na telefóne sú dĺžky vo vršku skryté: " + JSON.stringify(v));
         } else {
           over(v.f >= 40, "nadpis vršku je na počítači veľký: " + v.f);
           over(v.m, "text vršku sa zmestí do stĺpca");
           over(Math.abs(v.g - sirka) < 20, "zábery idú po okraj obrazovky: " + v.g);
-          await p.waitForFunction(() => [...document.querySelectorAll("#lcd-vclass-hero .lh-z")].every((x) => x.complete && x.naturalWidth > 600), null, { timeout: 15000 }).catch(() => {});
-          over(await p.evaluate(() => [...document.querySelectorAll("#lcd-vclass-hero .lh-z")].every((x) => x.naturalWidth > 600)), "ostré fotky vršku sa načítali");
+          over(await p.evaluate(() => document.querySelectorAll("#lcd-vclass-hero img").length === 0), "vpravo je len video, žiadne fotky");
         }
       }
       if (i === 0) {

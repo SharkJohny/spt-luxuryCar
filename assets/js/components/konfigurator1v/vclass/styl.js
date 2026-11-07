@@ -25,18 +25,16 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero .lh-cta{align-self:flex-start;padding:16px 34px;border:0;border-radius:10px;background:var(--lv-zg);color:#fff;font:800 16px var(--lv-disp);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 30px -14px rgba(47,156,104,.8)}
 #lcd-vclass-hero button:focus-visible{outline:3px solid #e6c877;outline-offset:2px}
 /* Vršok na počítači (Michal 7. 11. 2026: splývalo to s hlavičkou, text bol stiesnený, na monitore je miesta dosť).
-   Piesočná strana s textom oddelí vršok od čiernej hlavičky, video a dve ostré fotky idú po okraj obrazovky.
-   Šírka zábery sa nenaťahuje nad ich rozlíšenie, preto najviac 1400 px. Nadpis drží pravidlo webu, preto !important. */
+   Piesočná strana s textom oddelí vršok od čiernej hlavičky, vpravo je len jedno video po okraj obrazovky.
+   Video sa nenaťahuje nad svoje rozlíšenie, preto najviac 900 px. Nadpis drží pravidlo webu, preto !important. */
 @media (min-width:992px){
   #lcd-vclass-hero{background:var(--lv-sand);color:var(--lv-ink)}
-  #lcd-vclass-hero .lh-in{max-width:none;grid-template-columns:minmax(0,1fr) min(58vw,1400px);gap:0;padding:0;align-items:stretch;height:clamp(640px,calc(100vh - 74px),1040px)}
-  #lcd-vclass-hero .lh-g{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:6px;height:100%;aspect-ratio:auto;border-radius:0;background:#0d0b08}
-  #lcd-vclass-hero .lh-v{position:relative;inset:auto}
-  #lcd-vclass-hero .lh-z{display:block;width:100%;height:100%;min-height:0;max-width:none;object-fit:cover}
+  #lcd-vclass-hero .lh-in{max-width:none;grid-template-columns:minmax(0,1fr) min(46vw,900px);gap:0;padding:0;align-items:stretch;height:clamp(640px,calc(100vh - 74px),1040px)}
+  #lcd-vclass-hero .lh-g{height:100%;aspect-ratio:auto;border-radius:0}
   #lcd-vclass-hero .lh-pauza{right:auto;left:14px}
-  #lcd-vclass-hero .lh-tx{justify-content:center;gap:0;padding:clamp(56px,7vh,90px) clamp(32px,3.4vw,90px) clamp(32px,4vh,56px) clamp(32px,4vw,120px)}
+  #lcd-vclass-hero .lh-tx{justify-content:center;gap:0;padding:clamp(56px,7vh,90px) clamp(40px,6vw,150px) clamp(32px,4vh,56px)}
   #lcd-vclass-hero .lh-ei{margin-bottom:clamp(20px,3.2vh,34px);font-size:clamp(13px,.85vw,18px);letter-spacing:.22em;color:var(--lv-gt)}
-  #lcd-vclass-hero h1{margin-bottom:clamp(22px,3.4vh,38px);font-size:clamp(34px,3.1vw,84px)!important;line-height:1.1!important;color:var(--lv-ink)}
+  #lcd-vclass-hero h1{margin-bottom:clamp(22px,3.4vh,38px);font-size:clamp(36px,4.1vw,112px)!important;line-height:1.1!important;color:var(--lv-ink)}
   #lcd-vclass-hero h1 span{background:linear-gradient(100deg,#8a6a1c,#c49b31 55%,#8a6a1c);-webkit-background-clip:text;background-clip:text;color:transparent}
   #lcd-vclass-hero .lh-p{max-width:34em;margin-bottom:clamp(32px,5vh,60px);font-size:clamp(18px,1.15vw,26px);line-height:1.55;color:var(--lv-text)}
   #lcd-vclass-hero .lh-dol{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:clamp(22px,3.2vh,36px) 0;border-top:1px solid var(--lv-line);border-bottom:1px solid var(--lv-line)}
@@ -51,11 +49,8 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero .lh-dl a:focus-visible{outline:3px solid var(--lv-gold);outline-offset:3px}
   #lcd-vclass-hero .lh-dl b{font:800 clamp(18px,1.25vw,28px) var(--lv-disp);color:var(--lv-gt)}
 }
-/* Menší počítač: dva zábery namiesto troch, inak by boli príliš úzke */
 @media (min-width:992px) and (max-width:1279px){
-  #lcd-vclass-hero .lh-in{grid-template-columns:minmax(0,1fr) 48vw}
-  #lcd-vclass-hero .lh-g{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
-  #lcd-vclass-hero .lh-z + .lh-z{display:none}
+  #lcd-vclass-hero .lh-in{grid-template-columns:minmax(0,1fr) 44vw}
   #lcd-vclass-hero h1{font-size:clamp(32px,3.7vw,46px)!important}
   #lcd-vclass-hero .lh-dol{flex-wrap:wrap;gap:16px}
 }
@@ -269,7 +264,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:2;padding:6px 16px 24px;gap:11px}
   #lcd-vclass-hero .lh-cta{align-self:stretch;text-align:center}
   #lcd-vclass-hero .lh-dol{display:contents}
-  #lcd-vclass-hero .lh-dl,#lcd-vclass-hero .lh-z{display:none}
+  #lcd-vclass-hero .lh-dl{display:none}
   body.lcd-vclass .p-image-wrapper{display:none!important}
   #lcd-vclass-cesta{padding:18px 8px 4px}
   #lcd-vclass-cesta span{font-size:11px;letter-spacing:.02em;white-space:nowrap}
