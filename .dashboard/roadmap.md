@@ -664,6 +664,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Revízia: zmena z klávesnice bez odpočtu (Enter / Pokračujte ďalej / odkaz), stála oblasť aria-live, príznak presmerovania aj pri zmene auta
 - [x] Revízia: titulka zapíše príznak presmerovania; roky triedy V po aktuálny rok (ukážu sa len roky z adminu)
 - [x] Okno „Máte Mercedes triedy V?“ namiesto samostatného nápisu pod výberom auta (zákazník už bol na stránke triedy V): Prejsť / Zostať tu, pri načítaní najviac raz za session na produkte; náhľad, čaká na Michala (vetva vclass-okno)
+- [x] Okno „Máte Mercedes triedy V?“ ZRUŠENÉ (Michal 9. 11. 2026: „V-Class v obyčajnom konfigurátore neexistuje“): výber triedy V vždy presmeruje (myšou po 1,5 s, z klávesnice Enter / „Pokračujte ďalej“ / odchod z polí auta), návrat z triedy V na obyčajný produkt výber auta vynuluje. Dlaždice triedy V: „Pridať k setu“ zelené, „Odobrať“ biele, zľava ako zlatá pečať „−18 % zľava“ nad fotkou.
 - [ ] Vydanie: commit, push, prepnutie verzie SK (nerobí sa bez pokynu)
 
 ## Kontrast webu, druhé kolo (8. 11. 2026)

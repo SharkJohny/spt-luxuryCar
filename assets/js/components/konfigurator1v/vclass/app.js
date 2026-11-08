@@ -328,7 +328,7 @@ export function spusti(ctx) {
   const PRIDAT = '<span class="lv-tl"><span class="lv-tl-a">' + t("Pridať k setu") + '</span><span class="lv-tl-b">' + t("Odobrať") + "</span></span>";
   function karta(o) {
     const vnutro = (o.naj ? '<span class="lcd1v-kb__top">' + o.naj + (o.veta ? '<span class="lcd1v-kb__veta">' + o.veta + "</span>" : "") + "</span>" : "")
-      + '<span class="lcd1v-kb__fot"><span class="lv-fotw">' + fotoKarta(o.foto) + (o.pct ? '<i class="lv-zlava">' + t("Zľava") + " −" + o.pct + " %</i>" : "") + "</span></span>"
+      + '<span class="lcd1v-kb__fot"><span class="lv-fotw">' + fotoKarta(o.foto) + (o.pct ? '<i class="lv-zlava"><b>−' + o.pct + ' %</b><small>' + t("zľava") + "</small></i>" : "") + "</span></span>"
       + '<span class="lcd1v-kb__tx"><span class="lcd1v-kb__nm">' + o.nm + '</span><span class="lcd1v-kb__po">' + o.po + "</span>" + (o.ben ? '<span class="lcd1v-kb__ben">' + o.ben + "</span>" : "") + (o.ucet || "") + (o.tl || "") + "</span>";
     const tr = "lcd1v-kb__karta lv-dl" + (o.naj ? " lcd1v-kb__karta--naj" : "") + (o.nie ? " lcd1v-kb__karta--nie" : "");
     if (o.vzdy) return '<div class="' + tr + ' lv-dl-vzdy" role="group" aria-label="' + o.nm + ", " + t("v cene") + '" aria-pressed="true">' + vnutro + "</div>";

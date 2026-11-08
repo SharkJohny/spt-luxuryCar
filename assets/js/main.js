@@ -766,8 +766,8 @@ function initVehicleKindSwitch(container, choiceWrap) {
  * s CZ_SPUSTENE) typ karosérie nepotrebuje — saveModel ju presmeruje skôr, než sa typ kontroluje. Michal 8. 11. 2026: typ
  * karosérie (Long, SUV…) pri V Class mätie. Pole aj so štítkom sa skryje (trieda .lcd-titulka-vclass, _lcdHome.scss:
  * PC a tablet nechajú miesto, telefón ho plynulo zbalí — polia nad ním sa nepohnú) a tlačidlo povie, kam zákazník
- * pôjde. Iné auto = pole aj text tlačidla ako predtým. Len titulka (.in-index); produkt (okno/presmerovanie, po „Zostať tu“
- * typ karosérie treba) a rozcestník sa nemenia.
+ * pôjde. Iné auto = pole aj text tlačidla ako predtým. Len titulka (.in-index); produkt (trieda V vždy presmeruje,
+ * konfigurator1v/vclass-presmerovanie.js) a rozcestník sa nemenia.
  */
 function vclassNaTitulke(choiceWrap) {
   const wrap = choiceWrap && choiceWrap[0];

@@ -43,7 +43,7 @@ export const TEXTY_CZ = new Map([
   ["V sete", "V setu"],
   ["Pridať k setu", "Přidat k setu"],
   ["Odobrať", "Odebrat"],
-  ["Zľava", "Sleva"],
+  ["zľava", "sleva"],
   ["Prosím, vyberte si aspoň jednu možnosť.", "Vyberte si prosím alespoň jednu možnost."],
   ["V sete ušetríte <b>{0}</b>", "V setu ušetříte <b>{0}</b>"],
   ["Keď si pridáte 2. a 3. rad aj rohož do kufra, ušetríte <b>{0}</b>", "Když si přidáte 2. a 3. řadu i rohož do kufru, ušetříte <b>{0}</b>"],

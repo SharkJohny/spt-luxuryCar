@@ -192,13 +192,13 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 
 /* dlaždice s ponukou: vzhľad z _lcd1v-kufor-boxy.scss, navyše zľava na fotke a tlačidlo */
 #lcd-vclass .lv-dl-w{margin:0}
-#lcd-vclass .lv-fotw{position:relative;display:block;width:100%}
+#lcd-vclass .lv-fotw{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
 #lcd-vclass .lv-dl .lcd1v-kb__fot picture{display:block;width:100%}
 #lcd-vclass .lv-dl-vzdy{cursor:default}
 #lcd-vclass .lcd1v-kb[data-lcd1v-kb] .lv-dl.lcd1v-kb__karta--naj[aria-pressed=true]::after{top:48px}
 #lcd-vclass .lcd1v-kb[data-lcd1v-kb="vclass-boxy"] .lv-dl.lcd1v-kb__karta--naj[aria-pressed=true]::after{top:66px}
-#lcd-vclass .lv-zlava{position:absolute;left:6px;top:6px;padding:4px 9px;border-radius:999px;background:var(--lv-zg);color:#fff;font:800 13px/1.15 var(--lv-disp);font-style:normal;box-shadow:0 4px 10px -4px rgba(0,0,0,.55)}
-#lcd-vclass .lv-tl{display:block;margin-top:9px;padding:9px 10px;border-radius:9px;background:var(--lv-zl);color:#16120a;font:800 14px/1.2 var(--lv-disp);text-align:center;box-shadow:0 8px 16px -10px rgba(143,112,32,.9)}
+/* zľava ako zlatá pečať nad fotkou, nie na nej (Michal 9. 11. 2026) */#lcd-vclass .lv-zlava{order:-1;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:var(--lv-zl);color:#16120a;font:800 16px/1 var(--lv-disp);font-style:normal;box-shadow:0 0 0 3px #fff,0 0 0 4px var(--lv-gold),0 8px 16px -8px rgba(80,60,10,.6)}#lcd-vclass .lv-zlava small{display:block;margin-top:3px;font:600 11px/1 var(--lv-body)}
+#lcd-vclass .lv-tl{display:block;margin-top:9px;padding:9px 10px;border-radius:9px;background:var(--lv-zg);color:#fff;font:800 14px/1.2 var(--lv-disp);text-align:center;box-shadow:0 8px 16px -10px rgba(29,107,74,.9)}
 #lcd-vclass .lv-tl-b{display:none}
 #lcd-vclass .lv-dl[aria-pressed=true] .lv-tl{background:#fff;color:var(--lv-text);box-shadow:inset 0 0 0 1px var(--lv-line)}
 #lcd-vclass .lv-dl[aria-pressed=true] .lv-tl-a{display:none}
