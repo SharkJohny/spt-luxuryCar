@@ -1,8 +1,8 @@
 /**
- * Mercedes triedy V W447 (od roku 2014) má na SK webe samostatnú stránku s cenou celého setu (produkt 646,
- * /autokoberce-mercedes-v-class/, konfigurátor components/konfigurator1v/vclass/). Michal 8. 11. 2026: „aby ho to rovno
- * prehodilo do produktu V-class“. Používa konfigurátor autokobercov 1V (konfigurator1v/vclass-presmerovanie.js) a výber
- * auta na titulke (main.js saveModel).
+ * Mercedes triedy V W447 (od roku 2014) má samostatnú stránku s cenou celého setu (SK produkt 646, CZ produkt 2458, na oboch
+ * weboch /autokoberce-mercedes-v-class/, konfigurátor components/konfigurator1v/vclass/). Michal 8. 11. 2026: „aby ho to
+ * rovno prehodilo do produktu V-class“. Používa konfigurátor autokobercov 1V (konfigurator1v/vclass-presmerovanie.js) a výber
+ * auta na titulke (main.js saveModel). Na ktorom webe: webPresmerovania() — SK vždy, CZ až s CZ_SPUSTENE = true.
  *
  * Zhoda podľa katalógu áut (data.json `cars`, značka "Mercedes-Benz"; porovnanie cez lcdNorm, teda bez ohľadu na veľké
  * písmená a medzery):
@@ -11,11 +11,20 @@
  *   "V Class L (long 5140 mm)"        -> W447 dlhá (dĺžka L)       } (starší rok = nezmysel, nič sa nedeje)
  *   "V Class XL (Extra Long 5370 mm)" -> W447 extra dlhá (XL)      }
  * Vito, Viano, EQV, VLE, Metris (a Marco Polo, ktorý v katalógu nie je) ostávajú bez zmeny (rozhodnutie Michala).
- * Rok „Iné, prosím napíšte do poznámky“ nie je číslo -> nič. Len SK (CZ web produkt triedy V nemá).
+ * Rok „Iné, prosím napíšte do poznámky“ nie je číslo -> nič. CZ katalóg (data.json `carscs`) má tie isté mená modelov
+ * a CZ výber auta číta `cars` ako SK, pravidlá sú teda na oboch weboch rovnaké.
  */
 import { lcdNorm } from "./autoVyber.js";
 
-/** Stránka triedy V (SK 646). */
+/**
+ * PREPÍNAČ CZ (luxurycardesign.cz). false = na CZ webe sa NIČ nepresmeruje ani neukáže (konfigurátor autokobercov aj titulka
+ * ako doteraz): CZ produkt triedy V 2458 je zatiaľ skrytý (kategória Test, hosť dostane 404). true = CZ presne ako SK
+ * (české texty, okno „Máte Mercedes třídy V?“). Prepne hlavná session v tom istom vydaní, v ktorom sa CZ produkt zverejní.
+ * Test oboch stavov: node tools/test-vclass-presmerovanie.mjs [--cz-spustene].
+ */
+export const CZ_SPUSTENE = false;
+
+/** Stránka triedy V (SK 646, CZ 2458 — rovnaká adresa na oboch weboch). */
 export const VCLASS_URL = "/autokoberce-mercedes-v-class/";
 export const VCLASS_OD_ROKU = 2014;
 /** sessionStorage: zákazník už bol presmerovaný (konfigurátor po návrate Späť už nepresmeruje sám, len sa opýta oknom). */
@@ -24,6 +33,7 @@ export const KLUC_PRESMEROVANE = "lcdVclassPresmer";
 export const KLUC_VCLASS = "lcdVclass";
 
 const SK_PROJEKT = "562035";
+const CZ_PROJEKT = "581408";
 const ZNACKA = "mercedes-benz";
 /** model (lcdNorm) -> dĺžka na stránke triedy V ("" = nevieme, zákazník ju vyberie tam) */
 const MODELY = {
@@ -100,15 +110,36 @@ export function oznacOkno(produkt) {
   try { sessionStorage.setItem(KLUC_OKNO, JSON.stringify(z)); } catch (e) { /* súkromný režim */ }
 }
 
-/** SK web (projekt 562035 a html lang sk). CZ nikdy. */
-export function jeSkWeb() {
+/** Web stránky: "sk" (projekt 562035 a html lang sk), "cz" (projekt 581408 a html lang cs) alebo null. */
+function webStranky() {
   try {
     const sh = (window.dataLayer && window.dataLayer[0] && window.dataLayer[0].shoptet) || {};
     const lang = String((document.documentElement && document.documentElement.lang) || "").toLowerCase();
-    return String(sh.projectId) === SK_PROJEKT && lang.indexOf("sk") === 0;
-  } catch (e) {
-    return false;
-  }
+    const p = String(sh.projectId);
+    if (p === SK_PROJEKT && lang.indexOf("sk") === 0) return "sk";
+    if (p === CZ_PROJEKT && lang.indexOf("cs") === 0) return "cz";
+  } catch (e) { /* bez dataLayer */ }
+  return null;
+}
+
+/** SK web (projekt 562035 a html lang sk). */
+export function jeSkWeb() {
+  return webStranky() === "sk";
+}
+
+/** CZ web (projekt 581408 a html lang cs) — bez ohľadu na CZ_SPUSTENE. */
+export function jeCzWeb() {
+  return webStranky() === "cz";
+}
+
+/**
+ * Web, na ktorom sa trieda V presmerúva (konfigurátor autokobercov aj titulka): "sk", "cz" alebo null (nič).
+ * SK vždy, CZ len keď spustene (predvolene prepínač CZ_SPUSTENE); parameter je pre test.
+ * @param {boolean} [spustene]
+ */
+export function webPresmerovania(spustene = CZ_SPUSTENE) {
+  const w = webStranky();
+  return w === "cz" && !spustene ? null : w;
 }
 
 /** Sme na stránke triedy V? Tá nikdy nepresmerúva. */

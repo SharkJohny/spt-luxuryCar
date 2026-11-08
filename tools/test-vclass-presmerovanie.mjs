@@ -10,9 +10,16 @@
 // tu; fokus dnu a späť na pole auta, Tab ostáva v okne); pri načítaní s uloženou triedou V najviac raz za session na
 // produkte; po „Zostať tu“ ho ďalšia zmena roka v triede V nevnucuje; z klávesnice ostáva nápis s odkazom.
 //   --snimky <priečinok>: okrem výrezov aj náhľady okna celej obrazovky so zeleným štítkom „NÁHĽAD“ (okno-*.png).
+// CZ web (Michal 8. 11. 2026: presná kópia SK, české texty, rovnaká adresa /autokoberce-mercedes-v-class/): beží len
+// s prepínačom CZ_SPUSTENE = true vo functions/vclassPresmerovanie.js. Test sa riadi tým prepínačom:
+//   - CZ_SPUSTENE = false (bez --cz-spustene): scenár „CZ … bez presmerovania“ (CZ produkt aj titulka ostávajú bez zmeny),
+//   - CZ_SPUSTENE = true alebo --cz-spustene (build s podvrhnutým CZ_SPUSTENE = true, zdroj ostane nezmenený): scenáre
+//     „CZ …“ = české oznámenie, presmerovanie na CZ adresu, okno „Máte Mercedes třídy V?“, titulka. Kým je CZ produkt skrytý,
+//     CZ stránka triedy V vráti hosťovi 404 — overuje sa len adresa (rok, dĺžka), nie obsah stránky.
 //
 //   node tools/test-vclass-presmerovanie.mjs [--pw <file:///…/playwright/index.mjs>] [--dist <priečinok s luxuryCar.js,
 //        lcd-vclass.js (a luxuryCar.css)>] [--sirka 1366,390] [--snimky <priečinok>] [--len <časť mena scenára>]
+//        [--cz-spustene]
 //
 // Bez --dist si zostaví lokálny build ako .github/workflows/production.yml (esbuild main.js -> luxuryCar.js, casti/vclass.js
 // -> lcd-vclass.js) a CSS cez tools/vloz-lcd-css.py --vystup, všetko do dočasného priečinka (repo ostane nezmenené).
@@ -23,8 +30,9 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const KOREN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (m, z) => { const i = process.argv.indexOf("--" + m); return i > -1 ? process.argv[i + 1] : z; };
@@ -33,6 +41,12 @@ const snimky = arg("snimky");
 if (snimky) mkdirSync(snimky, { recursive: true });
 const SIRKY = String(arg("sirka", "1366,390")).split(",").map(Number);
 const LEN = arg("len");
+/** --cz-spustene: build s CZ_SPUSTENE = true (podvrh pri zostavení, zdroj sa nemení) */
+const CZ_PREPINAC = process.argv.includes("--cz-spustene");
+const ZDROJ_PRESMER = join(KOREN, "assets/js/functions/vclassPresmerovanie.js");
+const zdrojCz = (readFileSync(ZDROJ_PRESMER, "utf8").match(/^export const CZ_SPUSTENE = (true|false);/m) || [])[1];
+/** CZ presmerovanie v testovanom builde zapnuté? */
+const CZ_ZAP = CZ_PREPINAC || zdrojCz === "true";
 
 const SK = "https://www.luxurycardesign.sk";
 const CZ = "https://www.luxurycardesign.cz";
@@ -42,6 +56,8 @@ const ADRESA = {
   601: SK + "/luxusne-autokoberce-dragonskin-elite-diamond-line/",
   619: SK + "/luxusny-koberced-do-kufra-dragonskin-klasik/",
   cz2403: CZ + "/luxusne-autokoberce-dragonskin-diamond-line/",
+  cz2406: CZ + "/luxusne-autokoberce-dragonskin-elite-diamond-line/",
+  cz2424: CZ + "/luxusny-koberced-do-kufra-dragonskin-klasik/",
 };
 const MERACE = /google-analytics\.com|googletagmanager\.com|doubleclick\.net|googleadservices\.com|google\.com\/(ccm|pagead)|facebook\.net|facebook\.com\/tr|connect\.facebook|tiktok|hotjar|clarity\.ms|bat\.bing\.com|heureka\.|c\.seznam\.cz|sklik|ecomail\.cz\/.*track|luxia-.*rostiapp\.cz/i;
 const UA_TEL = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
@@ -52,6 +68,15 @@ const OKNO = {
   ide: "Prejsť na konfigurátor triedy V",
   zostat: "Zostať tu",
 };
+// CZ (spisovná čeština, vykanie s veľkým V; Michal 8. 11. 2026)
+const NADPIS_CZ = "Pro Mercedes třídy V máme samostatnou stránku s cenou celé sady.";
+const OKNO_CZ = {
+  nadpis: "Máte Mercedes třídy V?",
+  text: "Pro Mercedes třídy V (W447, od roku 2014) máme samostatný konfigurátor s cenou celé sady a šablonami pro délky M, L i XL.",
+  ide: "Přejít na konfigurátor třídy\u00a0V", // pevná medzera: na telefóne „TŘÍDY V“ spolu na druhom riadku
+  zostat: "Zůstat zde",
+  zavriet: "Zavřít, zůstat zde",
+};
 const j = (x) => JSON.stringify(x);
 
 // ------------------------------------------------------------------ build
@@ -59,10 +84,29 @@ function spusti(cmd, args, popis) {
   const r = spawnSync(cmd, args, { cwd: KOREN, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   if (r.status !== 0) throw new Error(popis + " zlyhal (" + r.status + "):\n" + (r.stderr || "") + (r.stdout || "") + (r.error ? String(r.error) : ""));
 }
-function build() {
+/** esbuild plugin: functions/vclassPresmerovanie.js s CZ_SPUSTENE = true (len v builde testu). */
+const podvrhCz = {
+  name: "cz-spustene",
+  setup(b) {
+    b.onLoad({ filter: /[\\/]functions[\\/]vclassPresmerovanie\.js$/ }, (a) => {
+      const t = readFileSync(a.path, "utf8");
+      const n = t.replace(/^export const CZ_SPUSTENE = false;/m, "export const CZ_SPUSTENE = true;");
+      return { contents: n, loader: "js" };
+    });
+  },
+};
+async function build() {
   const dist = arg("dist");
+  if (dist && CZ_PREPINAC && zdrojCz !== "true") throw new Error("--cz-spustene nejde s --dist (build musí podvrhnúť CZ_SPUSTENE)");
   const tmp = dist || mkdtempSync(join(tmpdir(), "lcd-vclass-pres-"));
-  if (!dist) {
+  if (!dist && CZ_PREPINAC && zdrojCz !== "true") {
+    // rovnaké prepínače ako .github/workflows/production.yml, navyše podvrh CZ_SPUSTENE = true
+    over(zdrojCz === "false", "--cz-spustene: zdroj má prepínač „export const CZ_SPUSTENE = false;“ (" + zdrojCz + ")");
+    const esbuild = createRequire(join(KOREN, "package.json"))("esbuild");
+    const spolu = { bundle: true, format: "iife", minify: true, drop: ["console"], legalComments: "none", logLevel: "warning", absWorkingDir: KOREN, plugins: [podvrhCz], nodePaths: String(process.env.NODE_PATH || "").split(delimiter).filter(Boolean) }; // NODE_PATH ako esbuild CLI
+    await esbuild.build({ ...spolu, entryPoints: ["assets/js/main.js"], outfile: join(tmp, "luxuryCar.js"), loader: { ".jsx": "jsx" } });
+    await esbuild.build({ ...spolu, entryPoints: ["assets/js/casti/vclass.js"], outfile: join(tmp, "lcd-vclass.js") });
+  } else if (!dist) {
     const plat = process.platform + "-" + process.arch;
     const bin = process.env.ESBUILD_BINARY_PATH || join(KOREN, "node_modules", "@esbuild", plat, process.platform === "win32" ? "esbuild.exe" : "bin/esbuild");
     if (!existsSync(bin)) throw new Error("esbuild nenájdený (" + bin + "), použi --dist alebo ESBUILD_BINARY_PATH");
@@ -124,7 +168,9 @@ async function novyKontext(prehliadac, B, sirka, { ulozene } = {}) {
   const page = await ctx.newPage();
   page.on("pageerror", (e) => stav.chyby.push(String(e && e.message || e).slice(0, 160)));
   stav.navigacie = [];
+  stav.odpovede = [];
   page.on("request", (q) => { if (q.isNavigationRequest() && q.frame() === page.mainFrame()) stav.navigacie.push({ cas: Date.now(), url: q.url() }); });
+  page.on("response", (r) => { const q = r.request(); if (q.isNavigationRequest() && q.frame() === page.mainFrame()) stav.odpovede.push({ url: r.url(), status: r.status() }); });
   return { ctx, page, stav, mobil };
 }
 
@@ -223,7 +269,7 @@ const okno = (page) => page.evaluate(() => {
     nadpis: n && d.contains(n) ? n.textContent.trim() : null,
     text: t && d.contains(t) ? t.textContent.replace(/\s+/g, " ").trim() : null,
     ide: ide ? ide.textContent.trim() : null, href: ide ? ide.getAttribute("href") : null,
-    zostat: zostat ? zostat.textContent.trim() : null, x: !!x && !!x.getAttribute("aria-label"),
+    zostat: zostat ? zostat.textContent.trim() : null, x: !!x && !!x.getAttribute("aria-label"), xPopis: x ? x.getAttribute("aria-label") : null,
     fokus: a && d.contains(a) ? (a === ide ? "ide" : a === zostat ? "zostat" : a === x ? "x" : "iny") : (a ? a.tagName + "." + a.className : null),
     pozadie: !!poz && getComputedStyle(poz).visibility === "visible" && Number(getComputedStyle(poz).opacity) > 0.9,
     vObrazovke: r.left >= 0 && r.top >= 0 && r.right <= innerWidth + 0.5 && r.bottom <= innerHeight + 0.5,
@@ -241,11 +287,11 @@ const fokusNaPoliAuta = (page) => page.evaluate((sel) => { const a = document.ac
 /** Hodnoty výberu auta (značka, model, rok) v karte „Vaše auto“. */
 const vybraneAuto = (page) => page.evaluate((sel) => ["brands", "models", "years"].map((k) => { const s = document.querySelector(sel + " .modl-selector-wrap .surcharge-list." + k + " select"); return s && s.selectedIndex > -1 ? s.options[s.selectedIndex].text.trim() : ""; }), AUTO_1V);
 /** Kontrola otvoreného okna: texty, tlačidlá, adresa, prístupnosť, fokus, mierka písma, poloha. */
-function overOkno(o, href, kde, { fokus = "ide" } = {}) {
+function overOkno(o, href, kde, { fokus = "ide", T = OKNO } = {}) {
   if (!over(!!o, kde + ": okno „Máte Mercedes triedy V?“ je otvorené")) return;
   over(o.viditelne && o.pozadie && o.body && o.vObrazovke && o.navrchu, kde + ": okno viditeľné celé v obrazovke, navrchu, so stmaveným pozadím " + j({ v: o.viditelne, p: o.pozadie, b: o.body, vo: o.vObrazovke, n: o.navrchu, ram: o.ram }));
-  over(o.nadpis === OKNO.nadpis && o.text === OKNO.text, kde + ": nadpis a text okna " + j({ n: o.nadpis, t: o.text }));
-  over(o.ide === OKNO.ide && o.zostat === OKNO.zostat && o.x, kde + ": tlačidlá „" + o.ide + "“ / „" + o.zostat + "“ / × s popisom");
+  over(o.nadpis === T.nadpis && o.text === T.text, kde + ": nadpis a text okna " + j({ n: o.nadpis, t: o.text }));
+  over(o.ide === T.ide && o.zostat === T.zostat && o.x && (!T.zavriet || o.xPopis === T.zavriet), kde + ": tlačidlá „" + o.ide + "“ / „" + o.zostat + "“ / × s popisom");
   over(o.href === href, kde + ": „Prejsť“ vedie na " + href + " (" + o.href + ")");
   over(o.role === "dialog" && o.modal === "true", kde + ": role=dialog, aria-modal=true, aria-labelledby/-describedby v okne");
   if (fokus) over(o.fokus === fokus, kde + ": fokus v okne na „" + fokus + "“ (" + o.fokus + ")");
@@ -298,6 +344,18 @@ async function cakajNaVclass(page, stav, t0, ms = 9000) {
     await page.waitForTimeout(100);
   }
   return null;
+}
+/**
+ * Príchod na CZ stránku triedy V: adresa na CZ webe s rokom (a dĺžkou). Kým je CZ produkt skrytý, stránka vráti hosťovi 404
+ * (to je v poriadku, overuje sa len adresa); po zverejnení sa ?rok/?velkost predvyplnia (vclass/app.js).
+ */
+async function prichodCz(page, stav, n, search, kde) {
+  over(!!n && n.url === CZ + VCLASS + search, kde + ": presmerovanie na CZ adresu " + CZ + VCLASS + search + " (" + (n && n.url) + ")");
+  await page.waitForURL((u) => u.pathname === VCLASS, { timeout: 30000 }).catch(() => {});
+  const u = new URL(page.url());
+  over(u.host === "www.luxurycardesign.cz" && u.pathname === VCLASS, kde + ": prehliadač je na CZ stránke triedy V (" + page.url() + ")");
+  const odp = stav.odpovede.filter((x) => new URL(x.url).pathname === VCLASS).pop();
+  if (odp) console.log("    (" + kde + ": CZ stránka triedy V HTTP " + odp.status + (odp.status === 404 ? " — CZ produkt je zatiaľ skrytý, adresa sedí" : "") + ")");
 }
 async function overPrichod(page, ocak, kde) {
   await page.waitForURL((u) => u.pathname === VCLASS, { timeout: 30000 });
@@ -714,6 +772,7 @@ const SCENARE = [
     },
   },
   {
+    cz: "vyp", // CZ_SPUSTENE = false: CZ web bez zmeny
     meno: "CZ: produkt aj titulka bez presmerovania",
     async beh({ page, stav }) {
       const t0 = Date.now();
@@ -733,6 +792,166 @@ const SCENARE = [
       await page.locator(W + " .btn.choice-Model:visible").first().click();
       await page.waitForURL((u) => u.pathname === "/rozcestnik/", { timeout: 20000 }).catch(() => {});
       over(new URL(page.url()).pathname === "/rozcestnik/" && /luxurycardesign\.cz/.test(page.url()), "CZ titulka: V Class -> rozcestník (" + page.url() + ")");
+    },
+  },
+  // ---------------------------------------------------------------- CZ (len s CZ_SPUSTENE = true / --cz-spustene)
+  {
+    cz: "zap",
+    meno: "CZ 2403 výber V Class 2020 -> CZ trieda V ?rok=2020; Späť -> okno po česky, Zůstat zde",
+    async beh({ page, stav }, s) {
+      await otvor(page, ADRESA.cz2403);
+      await cakaj1v(page);
+      const h0 = await oblastHlasu(page);
+      over(h0.pocet === 1 && h0.text === "" && h0.vRegione && h0.skryta, "CZ 2403: stála oblasť aria-live je na stránke pred výberom " + j(h0));
+      await otvorKartuAuta(page);
+      const t0 = Date.now();
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class", rok: "2020" });
+      const o = await oznamenie(page);
+      await page.waitForTimeout(250);
+      const h1 = await oblastHlasu(page);
+      over(h1.pocet === 1 && h1.text === NADPIS_CZ + " Přesměrováváme Vás na ni." && h1.boxBezLive, "CZ 2403: oblasť aria-live po česky " + j(h1));
+      over(o && o.ide && o.vKarte && o.viditelne, "CZ 2403: oznámenie s presmerovaním v karte auta " + j(o));
+      over(o && o.text.indexOf(NADPIS_CZ) === 0 && /Přesměrováváme Vás…/.test(o.text) && o.odkaz === "Přejít hned", "CZ 2403: text oznámenia po česky „" + (o && o.text) + "“");
+      over(o && o.href === VCLASS + "?rok=2020", "CZ 2403: odkaz " + (o && o.href));
+      over(await oknoZavrete(page), "CZ 2403: pri prvom výbere bez okna, presmeruje sám");
+      await snimka(page, "cz-1-presmerovanie-2403-" + s, ".lcd1v-vclass", 150);
+      await overBezChyb(page, "CZ 2403");
+      const n = await cakajNaVclass(page, stav, t0);
+      over(n && n.cas >= 1300 && n.cas <= 4000, "CZ 2403: presmerovanie po ~1,5 s (" + (n ? n.cas + " ms" : "nebolo") + ")");
+      await prichodCz(page, stav, n, "?rok=2020", "CZ 2403");
+      // Späť: produkt s uloženou triedou V -> okno „Máte Mercedes třídy V?“, žiadne ďalšie presmerovanie
+      const t1 = Date.now();
+      await page.goBack({ waitUntil: "domcontentloaded" });
+      await cakaj1v(page);
+      await page.waitForTimeout(400);
+      overOkno(await okno(page), VCLASS + "?rok=2020", "CZ 2403 po Späť", { T: OKNO_CZ });
+      over(!(await oznamenie(page)), "CZ 2403 po Späť: bez samostatného nápisu pod výberom auta");
+      await nahlad(page, "okno-cz-po-spat-2403-" + s);
+      await page.waitForTimeout(2500);
+      over(!preslo(stav, t1 + 500) && new URL(page.url()).pathname !== VCLASS, "CZ 2403 po Späť: bez presmerovania (žiadna slučka)");
+      // „Zůstat zde“: okno preč, fokus na pole auta, voľby ostanú
+      await page.click(".lcd1v-vclass-okno__zostat");
+      await page.waitForTimeout(700);
+      over(await oknoZavrete(page), "CZ 2403 Zůstat zde: okno zavreté");
+      const f = await fokusNaPoliAuta(page);
+      over(!!f, "CZ 2403 Zůstat zde: fokus späť na pole auta (" + f + ")");
+      over(j(await vybraneAuto(page)) === j(["Mercedes-Benz", "V Class", "2020"]) && !(await oznamenie(page)), "CZ 2403 Zůstat zde: voľby auta ostali, bez nápisu " + j(await vybraneAuto(page)));
+      await page.waitForTimeout(1500);
+      over(!preslo(stav, t1 + 500), "CZ 2403 Zůstat zde: bez presmerovania");
+      await overBezChyb(page, "CZ 2403 po Späť");
+    },
+  },
+  {
+    cz: "zap",
+    meno: "CZ 2406 výber V Class L 2018 -> CZ ?rok=2018&velkost=L",
+    async beh({ page, stav }, s) {
+      await otvor(page, ADRESA.cz2406);
+      await cakaj1v(page);
+      await otvorKartuAuta(page);
+      const t0 = Date.now();
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class L (long 5140 mm)", rok: "2018" });
+      const o = await oznamenie(page);
+      over(o && o.ide && o.vKarte && o.text.indexOf(NADPIS_CZ) === 0 && o.href === VCLASS + "?rok=2018&velkost=L", "CZ 2406: oznámenie a odkaz " + j(o));
+      await overBezChyb(page, "CZ 2406");
+      const n = await cakajNaVclass(page, stav, t0);
+      over(n && n.cas >= 1300 && n.cas <= 4000, "CZ 2406: presmerovanie po ~1,5 s " + j(n));
+      await prichodCz(page, stav, n, "?rok=2018&velkost=L", "CZ 2406");
+    },
+  },
+  {
+    cz: "zap",
+    meno: "CZ 2424 rohož klávesnica: oznámenie po česky bez odpočtu, Enter -> CZ trieda V XL",
+    async beh({ page, stav }, s) {
+      await otvor(page, ADRESA.cz2424);
+      await cakaj1v(page);
+      await otvorKartuAuta(page);
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class XL (Extra Long 5370 mm)" }, "zm");
+      const rok = AUTO_1V + " .modl-selector-wrap .years select";
+      await page.focus(rok);
+      const t0 = Date.now();
+      await page.keyboard.press("ArrowDown");
+      await page.waitForTimeout(300);
+      let r = await page.evaluate((x) => document.querySelector(x).value, rok);
+      if (!/^\d{4}$/.test(r)) {
+        console.log("    (" + s + ": šípka hodnotu nezmenila, kláves + change napodobnené)");
+        await page.evaluate((x) => { const e = document.querySelector(x); e.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })); e.selectedIndex = 1; e.dispatchEvent(new Event("change", { bubbles: true })); }, rok);
+        await page.waitForTimeout(300);
+        r = await page.evaluate((x) => document.querySelector(x).value, rok);
+      }
+      const o = await oznamenie(page);
+      over(o && o.podoba === "klavesnica" && o.text === NADPIS_CZ + "Přejdete na ni klávesou Enter nebo tlačítkem Pokračujte dále." + "Přejít na stránku třídy V" && o.odkaz === "Přejít na stránku třídy V" && o.href === VCLASS + "?rok=" + r + "&velkost=XL", "CZ 2424 klávesnica: oznámenie po česky bez odpočtu (" + r + ") " + j(o));
+      const h = await oblastHlasu(page);
+      over(h.pocet === 1 && h.text === NADPIS_CZ + " Přejdete na ni klávesou Enter nebo tlačítkem Pokračujte dále.", "CZ 2424 klávesnica: oblasť aria-live po česky " + j(h));
+      await snimka(page, "cz-4-klavesnica-2424-" + s, ".lcd1v-vclass", 150);
+      await page.waitForTimeout(2200);
+      over(!preslo(stav, t0) && new URL(page.url()).pathname !== VCLASS, "CZ 2424 klávesnica: šípka v roku nepresmerovala");
+      const t1 = Date.now();
+      await page.keyboard.press("Enter");
+      const n = await cakajNaVclass(page, stav, t1, 5000);
+      over(n && n.cas < 1000, "CZ 2424 klávesnica: Enter v poli roku presmeruje hneď " + j(n));
+      await prichodCz(page, stav, n, "?rok=" + r + "&velkost=XL", "CZ 2424 klávesnica");
+    },
+  },
+  {
+    cz: "zap",
+    meno: "CZ 2403 s uloženou triedou V, zákazník už bol na stránke triedy V: okno pri načítaní po česky -> Přejít",
+    ulozene: { Brand: "Mercedes-Benz", Model: "V Class", Year: "2021", lcdVclass: '{"rok":"2021"}' },
+    async beh({ page, stav }, s) {
+      const t0 = Date.now();
+      await otvor(page, ADRESA.cz2403);
+      await cakaj1v(page);
+      await page.waitForTimeout(400);
+      overOkno(await okno(page), VCLASS + "?rok=2021", "CZ 2403 (bol na triede V) pri načítaní", { T: OKNO_CZ });
+      over(!(await oznamenie(page)), "CZ 2403 (bol na triede V): bez samostatného nápisu");
+      const h = await oblastHlasu(page);
+      over(h.pocet === 1 && h.text === "", "CZ 2403 (bol na triede V): okno ohlási čítačka cez dialóg, oblasť prázdna " + j(h));
+      await nahlad(page, "okno-cz-nacitanie-2403-" + s);
+      await page.waitForTimeout(2500);
+      over(!preslo(stav, t0), "CZ 2403 (bol na triede V): nepresmeruje sám");
+      const t1 = Date.now();
+      await page.click(".lcd1v-vclass-okno__ide");
+      const n = await cakajNaVclass(page, stav, t1, 8000);
+      await prichodCz(page, stav, n, "?rok=2021", "CZ 2403 okno Přejít");
+    },
+  },
+  {
+    cz: "zap",
+    meno: "CZ titulka: V Class XL 2021 -> CZ trieda V (bez typu karosérie); Audi -> rozcestník",
+    async beh({ page, stav }) {
+      const W = "#konfSlot .model-selector";
+      const titulka = async () => {
+        await otvor(page, CZ + "/");
+        await page.waitForFunction((w) => { const s = document.querySelector(w + " .modl-selector-wrap .brands select"); return s && s.options.length > 5; }, W, { timeout: 40000 });
+        await page.waitForTimeout(500);
+      };
+      await titulka();
+      await vyberAuto(page, W, { znacka: "Mercedes-Benz", model: "V Class XL (Extra Long 5370 mm)", rok: "2021" });
+      const t0 = Date.now();
+      await page.locator(W + " .btn.choice-Model:visible").first().click();
+      const n = await cakajNaVclass(page, stav, t0);
+      await prichodCz(page, stav, n, "?rok=2021&velkost=XL", "CZ titulka");
+      over(await page.evaluate(() => sessionStorage.getItem("lcdVclassPresmer") === "1"), "CZ titulka: príznak presmerovania zapísaný");
+      await titulka();
+      await vyberAuto(page, W, { znacka: "Audi", model: "A6", rok: "2015" });
+      await page.selectOption(W + " .type-selector select", { index: 1 }, { force: true });
+      await page.locator(W + " .btn.choice-Model:visible").first().click();
+      await page.waitForURL((u) => u.pathname === "/rozcestnik/", { timeout: 20000 }).catch(() => {});
+      over(new URL(page.url()).pathname === "/rozcestnik/" && /luxurycardesign\.cz/.test(page.url()), "CZ titulka: Audi A6 -> rozcestník (" + page.url() + ")");
+    },
+  },
+  {
+    cz: "zap",
+    meno: "CZ 2403 ?novy=0 (starý vzhľad) bez zmeny",
+    async beh({ page, stav }) {
+      const t0 = Date.now();
+      await otvor(page, ADRESA.cz2403 + "?novy=0");
+      await cakajStary(page);
+      over(!(await page.evaluate(() => document.body.classList.contains("lcd-1v"))), "CZ ?novy=0: starý vzhľad (bez body.lcd-1v)");
+      await vyberAuto(page, "#product-detail-form", { znacka: "Mercedes-Benz", model: "V Class", rok: "2020" });
+      await page.waitForTimeout(3000);
+      over(!(await page.$(".lcd1v-vclass")) && (await oknoZavrete(page)), "CZ ?novy=0: bez oznámenia aj okna");
+      over(!preslo(stav, t0 + 100) && new URL(page.url()).pathname !== VCLASS, "CZ ?novy=0: bez presmerovania");
+      await page.evaluate(() => { try { sessionStorage.removeItem("lcd1v"); } catch (e) { /* nič */ } });
     },
   },
   {
@@ -792,13 +1011,42 @@ const SCENARE = [
   console.log((zle ? "ZLE  " : "OK   ") + "zhoda modelov a roky (bez prehliadača)");
 }
 
+// ------------------------------------------------------------------ CZ web a prepínač CZ_SPUSTENE (bez prehliadača)
+{
+  const m = await import("../assets/js/functions/vclassPresmerovanie.js");
+  over(typeof m.CZ_SPUSTENE === "boolean" && String(m.CZ_SPUSTENE) === zdrojCz, "CZ: prepínač „export const CZ_SPUSTENE = …;“ vo functions/vclassPresmerovanie.js (" + m.CZ_SPUSTENE + ")");
+  const fn = typeof m.webPresmerovania === "function" && typeof m.jeCzWeb === "function" && typeof m.jeSkWeb === "function";
+  over(fn, "CZ: funkcie webPresmerovania, jeCzWeb, jeSkWeb");
+  if (fn) {
+    const pw0 = Object.getOwnPropertyDescriptor(globalThis, "window"), pd0 = Object.getOwnPropertyDescriptor(globalThis, "document");
+    /** stránka s projektom Shoptetu a jazykom html (projekt null = bez dataLayer) */
+    const na = (projekt, lang, f) => {
+      Object.defineProperty(globalThis, "window", { configurable: true, value: projekt == null ? {} : { dataLayer: [{ shoptet: { projectId: projekt } }] } });
+      Object.defineProperty(globalThis, "document", { configurable: true, value: { documentElement: { lang } } });
+      try { return f(); } finally {
+        if (pw0) Object.defineProperty(globalThis, "window", pw0); else delete globalThis.window;
+        if (pd0) Object.defineProperty(globalThis, "document", pd0); else delete globalThis.document;
+      }
+    };
+    const vsetko = (projekt, lang) => na(projekt, lang, () => j([m.webPresmerovania(false), m.webPresmerovania(true), m.webPresmerovania(), m.jeSkWeb(), m.jeCzWeb()]));
+    over(vsetko(562035, "sk") === j(["sk", "sk", "sk", true, false]), "CZ: SK web (562035, sk) = sk vždy " + vsetko(562035, "sk"));
+    over(vsetko("562035", "sk-SK") === j(["sk", "sk", "sk", true, false]), "CZ: SK web s projektom ako text a jazykom sk-SK");
+    over(vsetko(581408, "cs") === j([null, "cz", m.CZ_SPUSTENE ? "cz" : null, false, true]), "CZ: CZ web (581408, cs) = cz len so spustene, bez parametra podľa CZ_SPUSTENE " + vsetko(581408, "cs"));
+    over(vsetko(581408, "sk") === j([null, null, null, false, false]) && vsetko(562035, "cs") === j([null, null, null, false, false]), "CZ: projekt a jazyk sa nezhodujú = nič");
+    over(vsetko(704436, "cs") === j([null, null, null, false, false]) && vsetko(null, "cs") === j([null, null, null, false, false]), "CZ: iný projekt alebo bez dataLayer = nič");
+  }
+  console.log((zle ? "ZLE  " : "OK   ") + "CZ web a prepínač (bez prehliadača)");
+}
+
 // ------------------------------------------------------------------ beh
-const B = build();
+const B = await build();
+console.log("CZ presmerovanie: " + (CZ_ZAP ? "ZAPNUTÉ" + (CZ_PREPINAC && zdrojCz !== "true" ? " (--cz-spustene, podvrh v builde)" : " (CZ_SPUSTENE = true v zdroji)") : "vypnuté (CZ_SPUSTENE = " + zdrojCz + ")"));
 console.log("build: " + B.tmp + " (" + (B.js.length / 1024).toFixed(0) + " kB luxuryCar.js, " + (B.vclass.length / 1024).toFixed(0) + " kB lcd-vclass.js)");
 const prehliadac = await pw.chromium.launch({ headless: true });
 async function behSirky(sirka) {
   for (const sc of SCENARE) {
     if (LEN && sc.meno.indexOf(LEN) < 0) continue;
+    if ((sc.cz === "zap" && !CZ_ZAP) || (sc.cz === "vyp" && CZ_ZAP)) continue; // CZ podľa prepínača CZ_SPUSTENE
     const k = await novyKontext(prehliadac, B, sirka, { ulozene: sc.ulozene });
     const b = { sirka, zle: 0 };
     await behScenara.run(b, async () => {

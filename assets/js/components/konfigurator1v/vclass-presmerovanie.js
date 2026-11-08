@@ -1,7 +1,9 @@
-// Mercedes triedy V W447 (od roku 2014) v konfigurátore autokobercov 1V -> samostatná stránka triedy V (SK 646).
+// Mercedes triedy V W447 (od roku 2014) v konfigurátore autokobercov 1V -> samostatná stránka triedy V (SK 646, CZ 2458).
 // Michal 8. 11. 2026: „aby ho to rovno prehodilo do produktu V-class“. Ktoré autá: functions/vclassPresmerovanie.js.
-// Len SK (CZ produkt triedy V nemá), len nový vzhľad (modul typov jedno, dvoj, kufor-classic, kufor-premium v produkty.js;
-// ?novy=0 ho nespustí), stránka triedy V ho nemá a nikdy nepresmerúva. Voľby vo formulári ani košík sa nemenia.
+// SK vždy; CZ (presná kópia SK, české texty TEXTY_CZ, rovnaká adresa) len s CZ_SPUSTENE = true vo
+// functions/vclassPresmerovanie.js — kým je false, CZ zákazník neuvidí nič (CZ produkt je zatiaľ skrytý).
+// Len nový vzhľad (modul typov jedno, dvoj, kufor-classic, kufor-premium v produkty.js; ?novy=0 ho nespustí), stránka
+// triedy V ho nemá a nikdy nepresmerúva. Voľby vo formulári ani košík sa nemenia.
 //
 // Podoby (nápis v otvorenej karte auta pod výberom auta, pri zavretej karte nad krokmi; okno navrchu stránky):
 //  - „ide“: zákazník na tejto stránke VYBERIE auto triedy V myšou alebo prstom (zmena značky, modelu alebo roku, po ktorej
@@ -29,7 +31,7 @@
 // Change od Shoptetu po načítaní (handleBrowserValueRestoration) s tým istým autom nič nespustí: porovnáva sa auto,
 // nie udalosť.
 import { lcdPlatnaHodnota } from "../../functions/autoVyber.js";
-import { vclassAuto, adresaVclass, jeSkWeb, jeStrankaVclass, oznacPresmerovane, uzBolNaVclass, oknoBoloNa, oznacOkno } from "../../functions/vclassPresmerovanie.js";
+import { vclassAuto, adresaVclass, webPresmerovania, jeStrankaVclass, oznacPresmerovane, uzBolNaVclass, oknoBoloNa, oznacOkno } from "../../functions/vclassPresmerovanie.js";
 
 export const MENO = "vclass-presmerovanie";
 /** Čas na prečítanie oznámenia pred presmerovaním (ms). */
@@ -39,7 +41,10 @@ export const KLAVESNICA_MS = 600;
 /** Zatvorené okno: pozadie ešte toľko chytá ťuknutia (dvojťuknutie na „Zostať tu“ neprepadne na stránku pod ním), ms. */
 const DOBEH_OKNA = 400;
 
-const TEXTY = {
+/** Projekt Shoptetu webu (ctx.projectId) — modul beží len na svojom webe. */
+const PROJEKT = { sk: "562035", cz: "581408" };
+
+export const TEXTY_SK = {
   nadpis: "Pre Mercedes triedy V máme samostatnú stránku s cenou celého setu.",
   ide: "Presmerúvame Vás…",
   hned: "Prejsť hneď",
@@ -52,12 +57,26 @@ const TEXTY = {
     zostat: "Zostať tu",
     zavriet: "Zavrieť, zostať tu",
   },
+  hlasIde: "Presmerúvame Vás na ňu.",
+  hlasOdkaz: "Odkaz na ňu je pod výberom auta.",
 };
-/** Text pre čítačku obrazovky podľa podoby nápisu. */
-const HLAS = {
-  ide: TEXTY.nadpis + " Presmerúvame Vás na ňu.",
-  klavesnica: TEXTY.nadpis + " " + TEXTY.klavesnica,
-  odkaz: TEXTY.nadpis + " Odkaz na ňu je pod výberom auta.",
+/** CZ: tie isté podoby po česky (spisovne, vykanie s veľkým V; „Pokračujte dále“ = tlačidlo karty auta na CZ, texty-cz.js). */
+export const TEXTY_CZ = {
+  nadpis: "Pro Mercedes třídy V máme samostatnou stránku s cenou celé sady.",
+  ide: "Přesměrováváme Vás…",
+  hned: "Přejít hned",
+  klavesnica: "Přejdete na ni klávesou Enter nebo tlačítkem Pokračujte dále.",
+  odkaz: "Přejít na stránku třídy V",
+  okno: {
+    nadpis: "Máte Mercedes třídy V?",
+    text: "Pro Mercedes třídy V (W447, od roku 2014) máme samostatný konfigurátor s cenou celé sady a šablonami pro délky M, L i XL.",
+    // pevná medzera: na telefóne sa tlačidlo zalomí „PŘEJÍT NA KONFIGURÁTOR / TŘÍDY V“, nie samotné „V“ na druhom riadku
+    ide: "Přejít na konfigurátor třídy\u00a0V",
+    zostat: "Zůstat zde",
+    zavriet: "Zavřít, zůstat zde",
+  },
+  hlasIde: "Přesměrováváme Vás na ni.",
+  hlasOdkaz: "Odkaz na ni je pod výběrem auta.",
 };
 const SKRYTE = "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0";
 const OTVORENE = "lcd1v-vclass-okno-otvorene"; // trieda na body, kým je okno otvorené (rolovanie stránky a chat ustúpia)
@@ -66,7 +85,15 @@ let zrus = null;
 
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
-  if (ctx.projectId !== "562035" || !jeSkWeb() || jeStrankaVclass()) return;
+  const web = webPresmerovania(); // "sk" | "cz" (len s CZ_SPUSTENE) | null
+  if (!web || String(ctx.projectId) !== PROJEKT[web] || jeStrankaVclass()) return;
+  const TEXTY = web === "cz" ? TEXTY_CZ : TEXTY_SK;
+  /** Text pre čítačku obrazovky podľa podoby nápisu. */
+  const HLAS = {
+    ide: TEXTY.nadpis + " " + TEXTY.hlasIde,
+    klavesnica: TEXTY.nadpis + " " + TEXTY.klavesnica,
+    odkaz: TEXTY.nadpis + " " + TEXTY.hlasOdkaz,
+  };
   const krok = ctx.krok("auto");
   const wrap = krok && krok.querySelector(".modl-selector-wrap");
   const sel = (k) => (wrap ? wrap.querySelector(".surcharge-list." + k + " select") : null);
