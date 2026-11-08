@@ -609,7 +609,6 @@
     },
     "p1v-vclass-1": {
       "koren": "p1v-vclass-1",
-      "lenSk": true,
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom triedy V 646, kus 1 = sekcie 10–29. docs/1v-obsah.md",
       "zlozka": "p1v-vclass",
@@ -619,7 +618,7 @@
       "naVsetkychStrankach": false,
       "skupina": "p1v-vclass",
       "produkty": [646],
-      "popisSpolu": "Oba kusy sú v Popise produktu 646, aby text videli vyhľadávače.",
+      "popisSpolu": "Oba kusy sú v Popise produktu 646 (SK) a 2458 (CZ), aby text videli vyhľadávače.",
       "sk": {
         "typ": "cdn",
         "subor": "html/p1v-vclass-1.sk.html",
@@ -627,11 +626,17 @@
         "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
         "poSpusteni": "produkt 646 -> Popis (description)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-1.cz.html",
+        "nazov": "1V obsah trieda V kus 1 CZ",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 2458 (CZ, skrytý v kategórii Test).",
+        "poSpusteni": "produkt 2458 -> Popis (description)",
+        "produkty": [2458]
+      }
     },
     "p1v-vclass-2": {
       "koren": "p1v-vclass-2",
-      "lenSk": true,
       "tinymce": true,
       "popis": "Obsah pod konfigurátorom triedy V 646, kus 2 = sekcie 30–49. docs/1v-obsah.md",
       "zlozka": "p1v-vclass",
@@ -641,7 +646,7 @@
       "naVsetkychStrankach": false,
       "skupina": "p1v-vclass",
       "produkty": [646],
-      "popisSpolu": "Oba kusy sú v Popise produktu 646, aby text videli vyhľadávače.",
+      "popisSpolu": "Oba kusy sú v Popise produktu 646 (SK) a 2458 (CZ), aby text videli vyhľadávače.",
       "sk": {
         "typ": "cdn",
         "subor": "html/p1v-vclass-2.sk.html",
@@ -649,7 +654,14 @@
         "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
         "poSpusteni": "produkt 646 -> Popis (description)"
       },
-      "cz": null
+      "cz": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-2.cz.html",
+        "nazov": "1V obsah trieda V kus 2 CZ",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 2458 (CZ, skrytý v kategórii Test).",
+        "poSpusteni": "produkt 2458 -> Popis (description)",
+        "produkty": [2458]
+      }
     },
     "p1v-kamiony-1": {
       "koren": "p1v-kamiony-1",

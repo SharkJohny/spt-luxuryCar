@@ -1704,6 +1704,70 @@
       ]
     },
     {
+      "cast": "p1v-vclass-1",
+      "web": "cz",
+      "subor": "p1v-vclass-1.cz.html",
+      "zdroj": "src/p1v-vclass/10…29-*.cz.html",
+      "koren": "#p1v-vclass-1",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-1.cz.html",
+        "nazov": "1V obsah trieda V kus 1 CZ",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 2458 (CZ, skrytý v kategórii Test).",
+        "poSpusteni": "produkt 2458 -> Popis (description)",
+        "produkty": [
+          2458
+        ]
+      },
+      "znaky": 64617,
+      "bajty": 65350,
+      "hash": "314b376a0b",
+      "obrazky": 67,
+      "webp": 66,
+      "sekcie": [
+        {
+          "subor": "10-vclass-prehliadka.cz.html",
+          "sekcia": "vclass-prehliadka",
+          "znaky": 3782
+        },
+        {
+          "subor": "12-vclass-verzie.cz.html",
+          "sekcia": "vclass-verzie",
+          "znaky": 1721
+        },
+        {
+          "subor": "14-vclass-set.cz.html",
+          "sekcia": "vclass-set",
+          "znaky": 3108
+        },
+        {
+          "subor": "15-vclass-sken.cz.html",
+          "sekcia": "vclass-sken",
+          "znaky": 2751
+        },
+        {
+          "subor": "16-vclass-galeria.cz.html",
+          "sekcia": "vclass-galeria",
+          "znaky": 13106
+        },
+        {
+          "subor": "17-vclass-videa.cz.html",
+          "sekcia": "vclass-videa",
+          "znaky": 5293
+        },
+        {
+          "subor": "18-c-casova-os.cz.html",
+          "sekcia": "c-casova-os",
+          "znaky": 1221
+        },
+        {
+          "subor": "19-vclass-zakaznik.cz.html",
+          "sekcia": "vclass-zakaznik",
+          "znaky": 1110
+        }
+      ]
+    },
+    {
       "cast": "p1v-vclass-2",
       "web": "sk",
       "subor": "p1v-vclass-2.sk.html",
@@ -1755,6 +1819,64 @@
           "subor": "44-vclass-kontakt.sk.html",
           "sekcia": "vclass-kontakt",
           "znaky": 542
+        }
+      ]
+    },
+    {
+      "cast": "p1v-vclass-2",
+      "web": "cz",
+      "subor": "p1v-vclass-2.cz.html",
+      "zdroj": "src/p1v-vclass/30…49-*.cz.html",
+      "koren": "#p1v-vclass-2",
+      "ciel": {
+        "typ": "cdn",
+        "subor": "html/p1v-vclass-2.cz.html",
+        "nazov": "1V obsah trieda V kus 2 CZ",
+        "pozicia": "CDN verzie bundle, po zápise Popis produktu 2458 (CZ, skrytý v kategórii Test).",
+        "poSpusteni": "produkt 2458 -> Popis (description)",
+        "produkty": [
+          2458
+        ]
+      },
+      "znaky": 12385,
+      "bajty": 12713,
+      "hash": "266c401e55",
+      "obrazky": 8,
+      "sekcie": [
+        {
+          "subor": "30-a-recenzie.cz.html",
+          "sekcia": "a-recenzie",
+          "znaky": 2025
+        },
+        {
+          "subor": "31-c-domov.cz.html",
+          "sekcia": "c-domov",
+          "znaky": 1912
+        },
+        {
+          "subor": "34-c-vzorky.cz.html",
+          "sekcia": "c-vzorky",
+          "znaky": 1503
+        },
+        {
+          "subor": "40-d-faq.cz.html",
+          "sekcia": "d-faq",
+          "znaky": 5237
+        },
+        {
+          "subor": "42-vclass-vyzva.cz.html",
+          "sekcia": "vclass-vyzva",
+          "znaky": 391
+        },
+        {
+          "subor": "43-d-pomocne.cz.html",
+          "sekcia": "d-pomocne",
+          "znaky": 627
+        },
+        {
+          "subor": "44-vclass-kontakt.cz.html",
+          "sekcia": "vclass-kontakt",
+          "znaky": 541
         }
       ]
     },
