@@ -421,6 +421,11 @@ function kotva(miesto, sekcia, stav) {
       if (d.q.top >= 0) break; // začína v okne — hlbšia kotva netreba
     }
   }
+  // Obsah, ktorý zákazník ešte nevidí, sa neukotvuje (Michal 8. 11. 2026): trieda V má koreň visibility: hidden, kým
+  // nepríde jej štýl (_lcd1v-cena.scss), a konfigurátor nad ním vyrastie až potom — vyrovnanie by okno navrchu posunulo
+  // o rast konfigurátora (pomalý telefón: +1 822 px, tools/test-vclass-fouc.mjs). Iné produkty skrytý koreň nemajú.
+  const kus = el !== miesto && el.closest ? el.closest(".p1v-miesto > [data-lcd-cast]") : null;
+  if (kus && getComputedStyle(kus).visibility === "hidden") return null;
   const k = { el, dole, y: 0, sy: 0 };
   k.y = mieraKotvy(k);
   k.sy = window.pageYOffset;

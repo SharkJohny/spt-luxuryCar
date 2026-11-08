@@ -18767,6 +18767,15 @@ html[lang="sk"] body.type-product:not(.lcd-vclass) .p-detail-inner:has(meta[item
     top: -20px; height: clamp(640px, calc(100vh - 74px), 1040px); background: #f6f4ef; box-shadow: 0 0 0 100vmax #f6f4ef;
   }
 }
+/* Obsah pod konfigurátorom triedy V (Michal 8. 11. 2026: pri načítaní a F5 na pol sekundy holý nadpis, odrážky a fotka cez
+   celú šírku). Korene p1v-vclass-1/2 ukáže obsah.js z hlavného balíka hneď po spustení 1V, ich štýly (#lcd-vclass-css)
+   a body.lcd-vclass však prídu až s časťou js/lcd-vclass.js: namerané 0,3–0,6 s, pri pomalom 4G 3–5 s holého obsahu
+   vysokého 23 000–58 000 px (tools/test-vclass-fouc.mjs). Dovtedy je obsah visibility: hidden — nevykreslí sa, ale
+   miesto a rozloženie ostávajú ako doteraz (obnova polohy pri F5, reveal .rv a oživovanie podľa IntersectionObservera
+   sa nemenia); skrytý prvok sa do CLS nepočíta. Bez !important, aby ho prebila poistka: keď časť do 8 s od zobrazenia
+   obsahu nepríde, obsah sa ukáže aj bez nej (dá sa čítať). Keď časť zlyhá, index.js zloží nový vzhľad a bez body.lcd-1v
+   je koreň znova display:none ako doteraz. Iné produkty tieto korene nemajú. */
+body:not(.lcd-vclass) .p1v-miesto > [data-lcd-cast^="p1v-vclass"] { visibility: hidden; animation: lcdv-ukaz 0s linear 8s forwards; }
 
 /* ---------- hlavička: štítok, názov, hodnotenie, krátky popis ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-detail-inner-header { margin: 0; padding: 0; }
