@@ -293,6 +293,7 @@ body.lcd-1v .lv-bx-obal .lv-bx-spr{margin:0 0 8px;padding:8px 12px;border:1px so
 body.lcd-1v .lv-bx-obal.upsale-Banner.lcd1v-kb .box-config .lcd1v-bx-velk .options-wrap .button.option-button{aspect-ratio:auto!important;overflow:visible!important;height:auto!important;min-height:0!important}
 body.lcd-1v .lcd1v-lista.lv-bez button.lcd1v-lista__kos{display:none}
 body.lcd-1v .lcd1v-lista.lv-bez .lcd1v-lista__c{max-width:none;flex:1 1 auto;flex-direction:row;align-items:baseline;justify-content:space-between}
+body.lcd-vclass.lcd1v-vclass-bez-bubliny:not(#lcd1v-x) iframe[title="Luxia chat"]{visibility:hidden!important}
 
 /* obsah pod konfigurátorom (admin-html/src/p1v-vclass): prehliadka auta, verzie, set, galéria */
 body.lcd-vclass .sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);border:0;white-space:nowrap}

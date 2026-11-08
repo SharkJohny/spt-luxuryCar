@@ -522,13 +522,39 @@ export function spusti(ctx) {
     }
     window.scrollTo({ top: window.pageYOffset + y, behavior: "smooth" });
   }
+  /** Hotový výber (Michal 8. 11. 2026): dole na súhrn, nie hore na zoznam krokov. Na obrazovke je kresba „Váš set“, čierna karta
+   *  „Váš set je hotový“ s cenou a zelené „Vložte do košíka“. PC: kresba je prilepená v ľavom stĺpci, posun len toľko, aby bolo
+   *  vidno kartu aj tlačidlo. Telefón a tablet: kresba je nad kartou (umiestni), hore od nej. Keď sa nezmestí všetko (nízky
+   *  telefón, tablet), kresba ostáva celá a vidno cenu; „Vložte do košíka“ vtedy ponúka lišta dole (tlacidloListy). */
+  function posunNaSuhrn() {
+    const tel = !!mobil.matches;
+    // rezerva hore aj na telefóne: iPhone kreslí stránku aj pod hodiny a zmenšený riadok adresy (Michalova snímka 8. 11.)
+    const hore = 96;
+    // lišta dole: bez tlačidla je nižšia, ale keď „Vložte do košíka“ pod kartou nebude vidno, tlačidlo v nej pribudne (+26 px)
+    const lh = tel ? lista.offsetHeight + (lista.classList.contains("lv-bez") ? 26 : 0) || 72 : 0;
+    const dole = window.innerHeight - lh - (tel ? 10 : 16);
+    const kartaVidno = !kartaCien.hidden;
+    const karta = (kartaVidno ? kartaCien : root.querySelector(".lv-suhrn")).getBoundingClientRect();
+    const ctaDole = cta.getBoundingClientRect().bottom;
+    let y;
+    if (tel && root.contains(nakres)) {
+      const zac = nakres.getBoundingClientRect().top;
+      y = Math.min(Math.max(zac - hore, ctaDole - dole), zac - 8); // tlačidlo, ak sa zmestí aj s celou kresbou
+      const cena = kartaVidno ? kartaCien.querySelector(".lv-cc-g").getBoundingClientRect().bottom : karta.top;
+      y = Math.min(Math.max(y, cena - dole), karta.top - 8); // cena je na obrazovke vždy
+    } else {
+      y = Math.min(Math.max(kor.getBoundingClientRect().top - hore, ctaDole - dole), karta.top - hore);
+    }
+    window.scrollTo({ top: Math.max(0, window.pageYOffset + y), behavior: "smooth" });
+    planLista(); // bublina chatu aj bez posunu (už je na mieste)
+  }
   function dalej() {
     const d = KROKY.findIndex((k) => !hotovy[k.id]());
     S.akt = d >= 0 ? d : -1;
     S.chybaju = false;
     kroky();
-    // po poslednom kroku od vrchu súhrnu, aby zákazník videl celý set naraz (ako posunNaSuhrn pri základných autokobercoch)
-    posunNa(d >= 0 ? kor.querySelector(".lv-ot") : kor, d < 0);
+    if (d >= 0) posunNa(kor.querySelector(".lv-ot"));
+    else posunNaSuhrn();
   }
   function oznac() {
     kor.querySelectorAll("button[data-k]").forEach((b) => b.setAttribute("aria-pressed", String(S[b.getAttribute("data-k")]) === b.getAttribute("data-v") ? "true" : "false"));
@@ -626,7 +652,7 @@ export function spusti(ctx) {
       return;
     }
     if (b.hasAttribute("data-ot")) { clearTimeout(casovac); S.akt = +b.getAttribute("data-ot"); S.chybaju = false; kroky(); posunNa(kor.querySelector(".lv-ot")); return; }
-    if (b.hasAttribute("data-suhrn")) { S.akt = -1; kroky(); posunNa(root.querySelector(".lv-suhrn")); return; }
+    if (b.hasAttribute("data-suhrn")) { S.akt = -1; kroky(); posunNaSuhrn(); return; }
     if (b.hasAttribute("data-dalej")) { poKroku(); return; }
     if (b === cta) doKosika();
   }
@@ -683,7 +709,16 @@ export function spusti(ctx) {
     }
     const f = document.querySelector('iframe[title="Luxia chat"]');
     const c = f && f.getBoundingClientRect();
-    document.body.classList.toggle("lcd1v-bublina", !!(c && c.height > 0 && c.height <= 130));
+    const bublina = !!(c && c.height > 0 && c.height <= 130);
+    document.body.classList.toggle("lcd1v-bublina", bublina);
+    // bublina ustúpi z čiernej karty s cenami a z „Vložte do košíka“ (Michal 8. 11. 2026, telefón), ako v košíku (cart.js);
+    // karta s tlačidlom je jeden súvislý pás, takže pri rolovaní cez ňu bublina nepreblikáva; otvorený chat sa neskrýva
+    let skry = false;
+    if (bublina && !kartaCien.hidden) {
+      const a = kartaCien.getBoundingClientRect(), b = cta.getBoundingClientRect();
+      skry = c.left < Math.max(a.right, b.right) && c.right > Math.min(a.left, b.left) && c.top < Math.max(a.bottom, b.bottom) && c.bottom > a.top;
+    }
+    document.body.classList.toggle("lcd1v-vclass-bez-bubliny", skry);
   }
   const planLista = () => { if (!naListu) naListu = requestAnimationFrame(obnovListu); };
   window.addEventListener("scroll", planLista, { passive: true });
@@ -714,7 +749,7 @@ export function spusti(ctx) {
     if (ioVideo) ioVideo.disconnect();
     video.pause();
     okno.zrus();
-    document.body.classList.remove("lcd1v-lista-on", "lcd1v-bublina");
+    document.body.classList.remove("lcd1v-lista-on", "lcd1v-bublina", "lcd1v-vclass-bez-bubliny");
     if (h1) h1.innerHTML = h1Html;
     if (hlavicka && povodne.rodic) povodne.rodic.insertBefore(hlavicka, povodne.za && povodne.za.parentNode === povodne.rodic ? povodne.za : null);
     [root, nakres, hero, cesta, lista, styl].forEach((x) => { if (x.parentNode) x.parentNode.removeChild(x); });

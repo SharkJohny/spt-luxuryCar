@@ -7,6 +7,7 @@
 //
 //   node tools/test-vclass.mjs --pw <file:///…/playwright/index.mjs> --dist <priečinok s luxuryCar.js a lcd-vclass.js> [--trh cz] [--prehliadac chromium,webkit,firefox] [--snimky <priečinok>]
 //   node tools/test-vclass.mjs --pw <…> --sha <verzia na CDN> [--trh cz] [--bez-podvrhu]
+//   --sirka 360,390,1366: iné šírky okna (inak chromium 1366 + 390, webkit 390, firefox 1366); --scen N: len prvých N výberov
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as DATA_SK from "../assets/js/components/konfigurator1v/vclass/data.js";
@@ -199,11 +200,11 @@ const SCEN = CZ ? SCEN_SK.map((o, i) => Object.assign({}, o, { volant: VOLANT[DA
 const SIRKY = { chromium: [1366, 390], webkit: [390], firefox: [1366] };
 
 for (const nazov of arg("prehliadac", "chromium").split(",")) {
-  for (const sirka of SIRKY[nazov] || [1366]) {
+  for (const sirka of arg("sirka") ? arg("sirka").split(",").map(Number) : SIRKY[nazov] || [1366]) {
     console.log("== " + nazov + " " + sirka);
     const b = await pw[nazov].launch({ slowMo: Number(arg("pomaly", 0)) });
     for (const [i, o] of SCEN.slice(0, Number(arg("scen", 99))).entries()) {
-      const c = await b.newContext({ viewport: { width: sirka, height: sirka < 500 ? 844 : 800 }, ...(arg("video") && sirka < 500 ? { recordVideo: { dir: arg("video"), size: { width: 390, height: 844 } } } : {}) });
+      const c = await b.newContext({ viewport: { width: sirka, height: sirka < 500 ? 844 : sirka < 992 ? 1024 : 800 }, ...(arg("video") && sirka < 500 ? { recordVideo: { dir: arg("video"), size: { width: 390, height: 844 } } } : {}) });
       const p = await c.newPage();
       const chyby = [];
       p.on("pageerror", (e) => chyby.push(String(e.message).slice(0, 200)));
@@ -264,6 +265,33 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over(post === null, "nedokončený výber nesmie ísť do košíka");
       over(X.esteChyba.test(await p.textContent("#lcd-vclass .lv-suhrn .lv-spr")), "chýba hláška pri nedokončenom výbere");
       await prejdi(p, snimky ? { ...o, mobil, snimka: join(snimky, `${nazov}-${sirka}-farba-${o.velkost}.png`), snimkaAuto: i === 0 ? join(snimky, `${nazov}-${sirka}-auto.png`) : null } : { ...o, mobil });
+      // Michal 8. 11. 2026: po dokončení výberu posun dole na súhrn, nie hore na zoznam krokov: kresba „Váš set“, čierna karta
+      // „Váš set je hotový“ s cenou a zelené „Vložte do košíka“ na obrazovke; bublina chatu na telefóne neleží na cenách
+      {
+        await p.waitForTimeout(1300);
+        if (snimky) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-hotovo-${i}.png`) });
+        const po = await p.evaluate(() => {
+          const r = (e) => { if (!e) return null; const x = e.getBoundingClientRect(); return x.height ? [Math.round(x.top), Math.round(x.bottom), Math.round(x.left), Math.round(x.right)] : null; };
+          const q = (s) => document.querySelector(s);
+          const l = q("#lcd1v-lista.on"), lk = l && l.querySelector(".lcd1v-lista__kos");
+          return { v: innerHeight, lista: l ? Math.round(innerHeight - l.getBoundingClientRect().top) : 0, set: r(q("#lcd-vclass-nakres .lv-n-h")), kresba: r(q("#lcd-vclass-nakres .lv-pl")),
+            cc: r(q("#lcd-vclass .lv-cc")), ceny: [r(q("#lcd-vclass .lv-cc-g")), r(q("#lcd-vclass .lv-cc-l"))], cta: r(q("#lcd-vclass .lv-cta")), chat: r(q('iframe[title="Luxia chat"]')),
+            chatSkryty: !!q('iframe[title="Luxia chat"]') && getComputedStyle(q('iframe[title="Luxia chat"]')).visibility === "hidden",
+            listaKos: lk && !lk.hidden && lk.offsetHeight > 0 ? lk.textContent.trim() : "" };
+        });
+        if (arg("ladenie-posun")) console.log("  hotovo " + JSON.stringify(po));
+        const spodok = po.v - po.lista;
+        over(po.cc && po.cc[0] >= 8 && po.ceny[0] && po.ceny[0][1] <= spodok, "po dokončení vidno čiernu kartu s cenou " + JSON.stringify(po));
+        // telefón a PC: zmestí sa všetko aj s tlačidlom; tablet (768 × 1024, veľká kresba): kresba ostáva celá, tlačidlo
+        // „Vložte do košíka“ je pod kartou aspoň takmer celé (spodný okraj môže zakryť lišta), inak ho ponúka lišta dole
+        const ctaVidno = !!po.cta && po.cta[0] >= 0 && po.cta[1] <= spodok;
+        if (!mobil || sirka < 500) over(ctaVidno, "po dokončení vidno tlačidlo Vložte do košíka " + JSON.stringify(po));
+        else over(ctaVidno || po.listaKos === X.vlozte || (!!po.cta && po.cta[0] >= 0 && po.cta[0] <= spodok - 40), "po dokončení vidno Vložte do košíka (pod kartou alebo v lište) " + JSON.stringify(po));
+        over(po.set && po.set[0] >= (mobil ? 8 : 56) && po.kresba && po.kresba[1] <= spodok, "po dokončení vidno kresbu Váš set " + JSON.stringify(po));
+        const prekryva = (a, b) => !!a && !!b && a[0] < b[1] && b[0] < a[1] && a[2] < b[3] && b[2] < a[3];
+        const bub = po.chat && !po.chatSkryty && po.chat[1] - po.chat[0] <= 130 ? po.chat : null;
+        over(!po.ceny.concat([po.cta]).some((c) => prekryva(c, bub)), "bublina chatu neleží na cenách ani na tlačidle " + JSON.stringify(po));
+      }
       const vzorNm = VZORY.find((v) => v.id === o.vzor).nm;
       const cena = await p.evaluate(() => window.__lcdVclass.cenaSpolu());
       over(cena === o.cena, o.velkost + ": cena " + cena);
