@@ -1,7 +1,10 @@
-// Jedna stránka pokladne (opc/kosikKarta.js): Mercedes triedy V (SK 646) v karte „Váš košík“ — rozpis po častiach setu,
-// ponuka „Doplňte svoj set“ a krížiky pri pridaných častiach (Michal 8. 11. 2026, schválený plán kosik-vclass/plan.md).
+// Jedna stránka pokladne (opc/kosikKarta.js): Mercedes triedy V (SK 646, CZ presná kópia) v karte „Váš košík“ — rozpis po
+// častiach setu, ponuka „Doplňte svoj set“ a krížiky pri pridaných častiach (Michal 8. 11. 2026, schválený plán kosik-vclass/plan.md).
+// CZ (Michal 8. 11. 2026 „presná kópia ako na Slovensku“): to isté s údajmi data-cz.js (mená príplatkov a hodnoty z CZ adminu,
+// „Samostatně“ v Kč) a českými textami TEXTY_CZ; trh = projekt webu (functions/vclassProdukt.js), nikdy krížom.
 //
-// LEN riadky produktu 646: D.jeVclass = kód „VCLASS“ + priceId 68434 + SK, a mapa príplatkov musí mať productId 646.
+// LEN riadky produktu triedy V tohto webu: D.jeVclass = kód „VCLASS“ + priceId produktu webu (SK 68434), a mapa príplatkov
+// musí mať jeho productId (SK 646).
 // Iné produkty (sety Basic a Elite, rohože, boxy, vzorkovník, kamióny, poukážka) sem nikdy neprídu a ponuka setov
 // (lcdKosikDoplnok.js pripravKontexty) riadok 646 naopak vynechá.
 //
@@ -26,9 +29,16 @@ import * as D from "../lcdKosikDoplnok.js";
 import { lcdPriplatky, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta } from "../functions/autoPamat.js";
 import { DALSI } from "./polozky.js";
-import { CDN, SELECTY, SAMOSTATNE, VELKOSTI, ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM, BEZ_DRUHEJ, BOXY, BOX_FARBY, luxKFarbe, STOLCEK, ZASUVKY } from "../components/konfigurator1v/vclass/data.js";
+import * as SK_D from "../components/konfigurator1v/vclass/data.js";
+import * as CZ_D from "../components/konfigurator1v/vclass/data-cz.js";
 
+const CDN = SK_D.CDN;
 export const jeVclass = D.jeVclass;
+
+/** Trh webu ("sk" | "cz") podľa projektu Shoptetu; iný web = "sk" (stráž jeVclass ho aj tak nepustí). */
+export function trhVclass() { const v = D.vclassWebu(); return v ? v.trh : "sk"; }
+/** Údaje konfigurátora triedy V pre trh webu (vclass/data.js alebo data-cz.js, rovnaký tvar). */
+const VD = () => (trhVclass() === "cz" ? CZ_D : SK_D);
 
 export const TEXTY = {
   nadpis: "Doplňte svoj set",
@@ -75,6 +85,52 @@ export const TEXTY = {
   nie: "Nie",
 };
 
+/** České texty (rovnaké kľúče ako TEXTY), slovník ako ponuka setov na CZ (lcdKosikDoplnok.js TEXTY.cz). */
+export const TEXTY_CZ = {
+  nadpis: "Doplňte svůj set",
+  pod: "za cenu v setu",
+  kSetu: "K setu: ",
+  predok: "Přední sedadla",
+  rad: "2. a 3. řada",
+  rohoz: "Rohož do kufru",
+  vrstva: "Druhá vrstva",
+  box: "Box do kufru",
+  menoRad: "Autokoberce pro 2. a 3. řadu",
+  menoPredok: "Autokoberce pro přední sedadla",
+  najvyhodnejsie: "Nejvýhodnější",
+  vrstvaPopis: "vpředu, zachytí vodu i bláto",
+  hotovoRad: "2. a 3. řada byla přidána k Vašemu setu.",
+  hotovoPredok: "Přední sedadla byla přidána k Vašemu setu.",
+  hotovoRohoz: "Rohož do kufru byla přidána k Vašemu setu.",
+  hotovoVrstva: (l) => "Druhá vrstva " + l + " byla přidána k Vašemu setu.",
+  hotovoBox1: "Box byl přidán k Vašemu setu.",
+  hotovoBox2: "Boxy byly přidány k Vašemu setu.",
+  odobranyRad: "2. a 3. řada byla odebrána ze setu.",
+  odobranaRohoz: "Rohož do kufru byla odebrána ze setu.",
+  odobranaVrstva: "Druhá vrstva byla odebrána ze setu.",
+  odobranyBox: "Box byl odebrán ze setu.",
+  odobranyBoxKus: (v) => "Box " + v + " byl odebrán ze setu.",
+  nadpisAuto: "Vaše auto",
+  nadpisObjednavate: "Objednáváte",
+  rozpisPredok: "Autokoberce k předním sedadlům",
+  rozpisRad: "Autokoberce do 2. a 3. řady",
+  radVelkost: (v) => "Autokoberce do 2. a 3. řady (velikost " + v + ")",
+  rozpisVrstva: "Druhá vrstva k předním sedadlům",
+  bezDruhej: "Bez druhé vrstvy",
+  farbaBoxov: "Barva boxů",
+  auto: "Auto",
+  dvere: "Boční posuvné dveře",
+  sedadla: "Sedadla",
+  sedadlaHodnota: (r2, r3) => r2 + " ve 2. řadě, " + r3 + " ve 3. řadě",
+  stolcek: "Stolek ve 2. a 3. řadě",
+  stred: "Mezi předními sedadly",
+  zasuvky: "Elektrické zásuvky pod sedadly",
+  ano: "Ano",
+  nie: "Ne",
+};
+/** Texty trhu webu. */
+const TX = () => (trhVclass() === "cz" ? TEXTY_CZ : TEXTY);
+
 // fotky triedy V v dlaždiciach (assets/img/1v/obsah, webp 480 + jpg; druhá vrstva = pedále triedy V, nie červeno-zelená)
 const OBS = CDN + "obsah/";
 export const FOTKY = {
@@ -102,7 +158,7 @@ function el(doc, tag, attrs, deti) {
 }
 
 function meraj(udalost, data) {
-  try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: udalost, lcd_trh: "sk", lcd_miesto: "pokladna" }, data)); } catch (e) {}
+  try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: udalost, lcd_trh: trhVclass(), lcd_miesto: "pokladna" }, data)); } catch (e) {}
 }
 
 // ------------------------------------------------------------------ čisté funkcie (tools/test-kosik-vclass.mjs)
@@ -112,6 +168,7 @@ function meraj(udalost, data) {
  * a veľkosť (len pri 2. a 3. rade) — presne ako konfigurátor (vclass/app.js textRozlozenia, textRohoze).
  */
 export function textyCasti(x, vel) {
+  const { ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM } = VD();
   const roz = x.p ? (x.r ? rozSet(vel) : ROZ_PREDOK) : x.r ? (x.k ? rozRadRohoz(vel) : rozLen(vel)) : ROZ_BEZ;
   const roh = x.k ? (x.p || x.r ? ROHOZ[0] : ROHOZ_SAM) : ROHOZ[1];
   return { roz: roz, roh: roh };
@@ -119,6 +176,7 @@ export function textyCasti(x, vel) {
 
 /** Výber { p, r, k, vel } z textov rozloženia a rohože (len kombinácie, ktoré pošle konfigurátor); iné -> null. */
 export function castiZTextov(roz, roh) {
+  const { VELKOSTI } = VD();
   if (!roz || !roh) return null;
   for (const p of [true, false]) for (const r of [true, false]) for (const k of [true, false]) {
     if (!p && !r && !k) continue;
@@ -148,7 +206,8 @@ export function idHodnoty(mapa, pid, text) {
 
 /** Mapa produktu 646 s príplatkami, ktoré ponuka potrebuje (uložená mapa v localStorage sa inak stiahne znova). */
 export function platnaMapa(m) {
-  return !!(m && String(m.pid) === D.VCLASS.pid && ["rozlozenie", "rohoz", "farba2", "farba"].every(function (k) { return idParametra(m, SELECTY[k]); }));
+  const v = D.vclassWebu(), SELECTY = VD().SELECTY;
+  return !!(m && v && String(m.pid) === v.pid && ["rozlozenie", "rohoz", "farba2", "farba"].every(function (k) { return idParametra(m, SELECTY[k]); }));
 }
 
 /** Farba z hodnoty „Vzor a farba 1. vrstvy“ („Diamond Line – Čierna, červené šitie“ -> „Čierna, červené šitie“). */
@@ -163,6 +222,7 @@ export function farbaKoberca(text) {
  * alebo null (iný produkt, neznámy text, nekonzistentný výber — napr. druhá vrstva bez predných sedadiel).
  */
 export function rozborVclass(sur, mapa) {
+  const { SELECTY, BEZ_DRUHEJ, BOXY } = VD();
   if (!platnaMapa(mapa)) return null;
   const ids = {};
   Object.keys(SELECTY).forEach(function (k) { ids[k] = idParametra(mapa, SELECTY[k]); });
@@ -216,6 +276,7 @@ function zmenaCasti(st, x2, vel, mapa) {
 
 /** Veľkosti boxu parametra: { S: { id, fp, rozmer }, … } (texty z data.js BOXY, cena zo Shoptetu). */
 export function velkostiBoxu(mapa, pid) {
+  const { BOXY } = VD();
   const out = {};
   if (!pid) return out;
   BOXY.forEach(function (b) {
@@ -232,6 +293,7 @@ export function velkostiBoxu(mapa, pid) {
  * -> [{ kluc, zm, rozdiel, samo } | { kluc: "vrstva2", moznosti, odporucana } | { kluc: "box", … }]
  */
 export function ponukyVclass(st, mapa, o) {
+  const { SAMOSTATNE, luxKFarbe, BOX_FARBY, BOXY } = VD();
   o = o || {};
   const out = [];
   const zCasti = function (kluc, x2, vel, samo) {
@@ -301,6 +363,8 @@ export function ponukyVclass(st, mapa, o) {
  * Predné sedadlá nie (celá položka „Odobrať“); časť, po ktorej by v sete nič neostalo, tiež nie.
  */
 export function odobratelne(st, mapa) {
+  const { BEZ_DRUHEJ, BOXY } = VD();
+  const TEXTY = TX();
   const out = [];
   const pridaj = function (cast, nazov, zm, hotovo) {
     const rozdiel = zm && D.rozdielCeny(st.volby, zm, mapa);
@@ -358,27 +422,31 @@ export function autoVclass(p, rok) {
 
 /** „2 sedadlá v 2. rade a 3 sedadlá v 3. rade“ (data.js sedadlaText) -> „2 v 2. rade, 3 v 3. rade“; iný text bez zmeny. */
 function sedadlaKratko(h) {
-  const m = /^(\d+) sedadl\S* v 2\. rade a (\d+) sedadl\S* v 3\. rade$/i.exec(D.cisty(h));
-  return m ? TEXTY.sedadlaHodnota(m[1], m[2]) : h;
+  // SK „2 sedadlá v 2. rade a 3 sedadlá v 3. rade“, CZ „2 sedadla ve 2. řadě a 3 sedadla ve 3. řadě“
+  const m = (trhVclass() === "cz" ? /^(\d+) sedadl\S* ve 2\. řadě a (\d+) sedadl\S* ve 3\. řadě$/i : /^(\d+) sedadl\S* v 2\. rade a (\d+) sedadl\S* v 3\. rade$/i).exec(D.cisty(h));
+  return m ? TX().sedadlaHodnota(m[1], m[2]) : h;
 }
 
 /** Hodnota z dvojice [„Bez …“, „So …“] (data.js STOLCEK, ZASUVKY) -> „Nie“ / „Áno“ ako v konfigurátore; iný text bez zmeny. */
 function anoNie(h, dvojica) {
-  return N(h) === N(dvojica[1]) ? TEXTY.ano : N(h) === N(dvojica[0]) ? TEXTY.nie : h;
+  return N(h) === N(dvojica[1]) ? TX().ano : N(h) === N(dvojica[0]) ? TX().nie : h;
 }
 
 /**
  * Údaje o aute v rozpise po riadku Auto (poradie Michal 8. 11. 2026): kľúč SELECTY, názov v rozpise, úprava hodnoty.
  * „Stred medzi sedadlami“ = medzi prednými sedadlami (konfigurátor: „Čo máte medzi prednými sedadlami?“), dvere sú posuvné.
  */
-const UDAJE_AUTA = [
-  ["volant", SELECTY.volant, null],
-  ["dvere", TEXTY.dvere, null],
-  ["sedadla", TEXTY.sedadla, sedadlaKratko],
-  ["stolcek", TEXTY.stolcek, function (h) { return anoNie(h, STOLCEK); }],
-  ["stred", TEXTY.stred, null],
-  ["zasuvky", TEXTY.zasuvky, function (h) { return anoNie(h, ZASUVKY); }],
-];
+function udajeAuta() {
+  const { SELECTY, STOLCEK, ZASUVKY } = VD(), TEXTY = TX();
+  return [
+    ["volant", SELECTY.volant, null],
+    ["dvere", TEXTY.dvere, null],
+    ["sedadla", TEXTY.sedadla, sedadlaKratko],
+    ["stolcek", TEXTY.stolcek, function (h) { return anoNie(h, STOLCEK); }],
+    ["stred", TEXTY.stred, null],
+    ["zasuvky", TEXTY.zasuvky, function (h) { return anoNie(h, ZASUVKY); }],
+  ];
+}
 
 /**
  * Riadky rozpisu položky 646 [{ n, h, cast?, hned? } | { nadpis, hned }] z textu príplatkov a auta karty (autoKarty) alebo null
@@ -394,6 +462,8 @@ const UDAJE_AUTA = [
  *     a objednané časti). Neznáme príplatky na konci, po „Zobraziť viac“.
  */
 export function riadkyVclass(sur, auto) {
+  const { SELECTY, BEZ_DRUHEJ } = VD();
+  const TEXTY = TX();
   const pol = polozkyTextu(sur);
   const pouzite = new Set();
   const hod = function (k) {
@@ -410,7 +480,7 @@ export function riadkyVclass(sur, auto) {
   const autoR = [];
   if (popis) autoR.push({ n: TEXTY.auto, h: popis, hned: true });
   else if (rok) autoR.push({ n: SELECTY.rok, h: rok, hned: true });
-  UDAJE_AUTA.forEach(function (u) {
+  udajeAuta().forEach(function (u) {
     const h = hod(u[0]);
     if (h) autoR.push({ n: u[1], h: u[2] ? u[2](h) : h });
   });
@@ -471,7 +541,7 @@ export function oznacRiadky(ul) {
 // ------------------------------------------------------------------ ponuka a krížiky
 
 function textyVymeny() {
-  return Object.assign({}, D.textyPonuky("sk"));
+  return Object.assign({}, D.textyPonuky(trhVclass()));
 }
 
 /** Dlaždica s fotkou triedy V (webp 480, záloha jpg) v stĺpci fotky riadku ponuky (.lcd-vyb__mini). */
@@ -490,8 +560,8 @@ let poradie = 0;
  */
 export function kartaVclass(doc, c, o) {
   const R = o.R;
-  const T = TEXTY;
-  const TD = D.textyPonuky("sk");
+  const T = TX();
+  const TD = D.textyPonuky(trhVclass());
   const TV = textyVymeny();
   const id = "lcd-vc-" + ++poradie;
   const forma = o.forma || null;
@@ -749,7 +819,8 @@ const zmerane = new Set(); // zobrazenie ponuky sa meria raz za stránku
  */
 export async function ponukaVKarte(polozky, o) {
   const R = o && o.R;
-  if (!R || R.trh !== "sk") return [];
+  // trieda V len na webe, ktorého je produkt (SK pokladňa = SK texty a SK produkt, CZ = CZ)
+  if (!R || R.trh !== trhVclass() || !D.vclassWebu()) return [];
   const vc = polozky.filter(jeVclass);
   if (!vc.length) return [];
   const maRohoz = polozky.some(function (r) { return /koberced?-do-kufr/i.test(r.href || ""); });
@@ -771,7 +842,7 @@ export async function ponukaVKarte(polozky, o) {
     const ponuky = ponukyVclass(st, mapa, { velAuta: av ? av.vel : null, maRohoz: maRohoz, maBox: maBox });
     // „K setu: …“: v karte hneď pri dvoch riadkoch 646 (aj s cenou, názov je rovnaký); pri inej karte v košíku (zmiešaný
     // košík so setom) ho doplní opc/kosikKarta.js, keď je kariet ponuky viac (revízia 8. 11. 2026)
-    const kSetu = TEXTY.kSetu + D.cisty(p.nazov) + (vc.length > 1 && p.cena ? " · " + p.cena : "");
+    const kSetu = TX().kSetu + D.cisty(p.nazov) + (vc.length > 1 && p.cena ? " · " + p.cena : "");
     const c = { riadok: p, mapa: mapa, st: st, ponuky: ponuky, odobrat: odobratelne(st, mapa), kSetu: vc.length > 1 ? kSetu : null };
     const karta = ponuky.length ? kartaVclass(doc, c, o) : null;
     if (karta) {

@@ -5,7 +5,7 @@ import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta, lcdAutoHodnota } from "../functions/autoPamat.js";
 import { patriAutu } from "../functions/poznamkaObjednavky.js";
 import { vlozHodnotenie } from "../functions/kosikHodnotenie.js";
-import { jeVclass, VCLASS } from "../lcdKosikDoplnok.js";
+import { jeVclass, vclassWebu } from "../lcdKosikDoplnok.js";
 import { riadkyVclass, oznacVclass } from "../opc/vclassKarta.js";
 
 export function initCart(texts) {
@@ -100,13 +100,14 @@ function autoPolozky($row, sur) {
 }
 
 /**
- * Mercedes triedy V (SK 646): riadky rozpisu ako v karte „Váš košík“ pokladne (opc/vclassKarta.js riadkyVclass — najprv
- * auto, potom objednané časti; Michal 8. 11. 2026) alebo null = bežný rozpis. Stráž ako D.jeVclass (kód VCLASS, priceId
- * 68434, len SK); rekapitulácia v krokoch objednávky priceId nemá, tam stačí kód. Len zobrazenie, text príplatkov ostáva.
+ * Mercedes triedy V (SK 646, CZ presná kópia): riadky rozpisu ako v karte „Váš košík“ pokladne (opc/vclassKarta.js riadkyVclass —
+ * najprv auto, potom objednané časti; Michal 8. 11. 2026) alebo null = bežný rozpis. Stráž ako D.jeVclass (kód VCLASS, priceId
+ * produktu TOHTO webu, SK 68434); rekapitulácia v krokoch objednávky priceId nemá, tam stačí kód. Len zobrazenie, text príplatkov ostáva.
  */
 function riadkyTriedyV($row, sur) {
   const priceId = $row.find('input[name="priceId"]').first().val() || null;
-  if (!jeVclass({ sku: $row.attr("data-micro-sku"), priceId: priceId || VCLASS.priceId })) return null;
+  const v = vclassWebu();
+  if (!v || !jeVclass({ sku: $row.attr("data-micro-sku"), priceId: priceId || v.priceId })) return null;
   const href = String($row.find("a.main-link").first().attr("href") || "");
   const u = ulozistaAuta();
   return riadkyVclass(sur, patriAutu(href) ? autoRiadku(u.ss, u.ls, { priceId: priceId, sur: sur }) : null);

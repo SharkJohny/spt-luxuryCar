@@ -25,6 +25,7 @@
 // Meranie: vlastné udalosti v dataLayer (lcd_set_doplnok_zobrazenie / _klik / _pridany / _chyba).
 // Vypnutie bez nasadenia JS: data.json "kosik_doplnky": false (alebo settings.kosik_doplnky). Test bez ponuky: ?lcddoplnok=0
 import { getShoptetContext } from "./functions/shoptetContext.js";
+import { VCLASS_SK, vclassPreProjekt } from "./functions/vclassProdukt.js";
 import { obrazokUloziska } from "./functions/ulozisko.js";
 // kresba boxu ako na produkte 616 a v okne boxov 1V (Michal 23. 10. 2026: veľkosti s kresbou, farba sa mení s voľbou)
 import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
@@ -1024,14 +1025,21 @@ async function ziskajMapu(href, R, cerstva, platna) {
 export function mapaProduktu(href, platna, cerstva) { return ziskajMapu(href, null, !!cerstva, platna); }
 
 /**
- * Riadok košíka je Mercedes triedy V (SK 646)? Podľa kódu produktu (data-micro-sku „VCLASS“) A priceId jeho jediného
- * variantu 68434, len na SK (projekt 562035) — nie podľa názvu ani adresy (Michal 8. 11. 2026: ponuka triedy V nesmie
- * zasiahnuť žiadny iný produkt). Takýto riadok ponuka setov vynechá (nemá roly setu, stránku produktu by sťahovala zbytočne);
- * jeho ponuku a krížiky kreslí opc/vclassKarta.js. Zmena kódu alebo variantu v admine = ponuka triedy V sa potichu neukáže.
+ * Riadok košíka je Mercedes triedy V (SK 646, CZ presná kópia)? Podľa kódu produktu (data-micro-sku „VCLASS“) A priceId jeho
+ * jediného variantu (SK 68434), vždy produkt TOHO webu (functions/vclassProdukt.js: SK projekt 562035 len SK produkt, CZ 581408
+ * len CZ produkt) — nie podľa názvu ani adresy (Michal 8. 11. 2026: ponuka triedy V nesmie zasiahnuť žiadny iný produkt).
+ * Takýto riadok ponuka setov vynechá (nemá roly setu, stránku produktu by sťahovala zbytočne); jeho ponuku a krížiky kreslí
+ * opc/vclassKarta.js. Zmena kódu alebo variantu v admine = ponuka triedy V sa potichu neukáže. VCLASS = SK produkt (pôvodný tvar).
  */
-export const VCLASS = { projekt: "562035", pid: "646", priceId: "68434", kod: "VCLASS" };
+export const VCLASS = { projekt: VCLASS_SK.projekt, pid: VCLASS_SK.pid, priceId: VCLASS_SK.priceId, kod: VCLASS_SK.kod };
+/** Produkt triedy V tohto webu ({ trh, projekt, pid, priceId, kod, url }) alebo null (iný web, CZ ID ešte nie sú známe). */
+export function vclassWebu() {
+  const v = vclassPreProjekt(projekt());
+  return v && v.pid && v.priceId ? v : null;
+}
 export function jeVclass(riadok) {
-  return !!riadok && projekt() === VCLASS.projekt && String(riadok.sku || "") === VCLASS.kod && String(riadok.priceId || "") === VCLASS.priceId;
+  const v = vclassWebu();
+  return !!riadok && !!v && String(riadok.sku || "") === v.kod && String(riadok.priceId || "") === v.priceId;
 }
 
 /** Zabudne mapu produktu v localStorage (kontrola ceny / textu nesedela -> mapa mohla zostarnúť, napr. nová cena v admine). */
