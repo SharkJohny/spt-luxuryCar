@@ -1719,7 +1719,7 @@
 }
 #lcd-home .faq summary::-webkit-details-marker {display:none
 }
-#lcd-home .faq summary:hover .t {color:var(--gold-lo)
+#lcd-home .faq summary:hover .t {color:#7c5f16
 }
 #lcd-home .faq .i {font-family:var(--mono);font-size:11px;font-weight:700;color:#7c5f16;flex:none;letter-spacing:.1em;font-variant-numeric:tabular-nums
 }
@@ -2126,14 +2126,14 @@
 #lcd-home .lx-leg-r{display:flex;align-items:center;gap:10px;padding:12px;min-width:0;
   border:1px solid var(--lx-line);border-radius:12px;transition:background .4s,border-color .4s}
 #lcd-home .lx-leg-no{flex:none;width:16px;font-family:var(--disp);font-weight:800;font-size:15px;
-  color:#7f7866;transition:color .4s}
+  color:#8a8370;transition:color .4s}
 #lcd-home .lx-leg-sw{flex:none;width:44px;height:44px;border-radius:5px;background-size:cover;background-position:center;
   border:1px solid rgba(230,200,119,.3);filter:grayscale(.8) brightness(.6);transition:filter .5s}
 #lcd-home .lx-leg-t{flex:1;min-width:0}
 #lcd-home .lx-leg-t b{display:block;font-family:var(--disp);font-weight:700;text-transform:uppercase;
   font-size:clamp(13px,1.1vw,15.5px);letter-spacing:.03em;line-height:1.25;color:#8f8878;transition:color .4s}
-#lcd-home .lx-leg-t span{display:block;margin-top:3px;font-size:13px;line-height:1.35;color:#7f7866}
-#lcd-home .lx-leg-i{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:#7f7866;white-space:nowrap}
+#lcd-home .lx-leg-t span{display:block;margin-top:3px;font-size:13px;line-height:1.35;color:#8a8370}
+#lcd-home .lx-leg-i{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:#8a8370;white-space:nowrap}
 #lcd-home .lx-leg-ok{position:relative;flex:none;width:24px;height:24px;border-radius:50%;
   border:1.5px solid rgba(230,200,119,.35);transition:background .4s,border-color .4s}
 #lcd-home .lx-leg-ok:after{content:"";position:absolute;left:7.5px;top:4.5px;width:5px;height:9px;
@@ -2406,6 +2406,7 @@
 #lcd-home .kont-f .kf-pod,#lcd-home .kont-f .kf-stav{color:#d9d4c6}
 #lcd-home .kont-f .kf-pod a{color:#e6c877}
 #lcd-home .kont-f .kf-e{color:#ff9d8f}
+#lcd-home .kont-f .kf:has(input[required]) .kf-l:after,#lcd-home .kont-f .kf:has(textarea[required]) .kf-l:after{color:#ff9d8f} /* hviezdička na antracite 5,4:1 */
 /* pasca na roboty — clovek ju nevidi, robot ju vyplni a sprava sa zahodi */
 #lcd-home .kf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 

@@ -8,7 +8,7 @@ const O = "body.lcd-vclass.lcd-1v :is(#p1v-vclass-1,#p1v-vclass-2)";
 const S = (...m) => O + " :is(" + m.map((x) => '[data-lcd-sekcia="' + x + '"]').join(",") + ")";
 
 export const CSS = `
-body.lcd-vclass{--lv-ink:#14110c;--lv-line:#d9d4c6;--lv-gold:#c49b31;--lv-gt:#7c5f16;--lv-mute:#6e6752;--lv-text:#3d3728;--lv-sand:#f6f4ef;--lv-zel:#1f7a52;--lv-zg:linear-gradient(100deg,#1d6b4a,#2f9c68 42%,#1f7350);--lv-zl:linear-gradient(100deg,#8f7020,#e6c877 48%,#c49b31);--lv-disp:"Exo 2",system-ui,sans-serif;--lv-body:"Source Sans 3",system-ui,sans-serif}
+body.lcd-vclass{--lv-ink:#14110c;--lv-line:#d9d4c6;--lv-gold:#c49b31;--lv-gt:#7c5f16;--lv-mute:#6e6752;--lv-text:#3d3728;--lv-sand:#f6f4ef;--lv-zel:#1f7a52;--lv-zg:linear-gradient(100deg,#1d6b4a,#1f7a52 42%,#1f7350);--lv-zl:linear-gradient(100deg,#8f7020,#e6c877 48%,#c49b31);--lv-disp:"Exo 2",system-ui,sans-serif;--lv-body:"Source Sans 3",system-ui,sans-serif}
 body.lcd-vclass .p-image-wrapper>*:not(#lcd-vclass-nakres){display:none!important}
 body.lcd-vclass .p-info-wrapper>*:not(#lcd-vclass){display:none!important}
 body.lcd-vclass .p-info-wrapper{opacity:1!important;visibility:visible!important;display:block!important}
@@ -99,7 +99,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-p{color:var(--lv-mute);margin:-6px 0 12px;font-size:16px}
 #lcd-vclass .lv-r{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;width:100%;text-align:left;background:none;border:0;font:inherit;color:inherit;cursor:default}
 #lcd-vclass .lv-ho .lv-r{cursor:pointer}
-#lcd-vclass .lv-c-k{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:800 13px var(--lv-disp);background:#e4e0d4;color:var(--lv-mute)}
+#lcd-vclass .lv-c-k{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:800 13px var(--lv-disp);background:#e4e0d4;color:#48412f}
 #lcd-vclass .lv-ho .lv-c-k{background:var(--lv-zg);color:#fff}
 #lcd-vclass .lv-r-t b{display:block;font:700 15px/1.25 var(--lv-disp);color:var(--lv-ink)}
 #lcd-vclass .lv-r-t small{display:block;color:var(--lv-mute);font-size:14px;line-height:1.3}
@@ -129,7 +129,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-hr{border:0;border-top:2px dashed #e4dfd0;margin:2px 0 16px}
 #lcd-vclass .lv-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;align-items:end}
 #lcd-vclass .lv-fix{display:block;padding:12px 14px;border:1px solid var(--lv-line);border-radius:9px;background:var(--lv-sand);font:600 16px var(--lv-body);color:var(--lv-ink)}
-#lcd-vclass .lv-sel{display:block;width:100%;max-width:none;height:52px;margin:0;padding:0 36px 0 14px;border:2px solid var(--lv-gold);border-radius:12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%238f7020' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;font:700 16px var(--lv-body);color:var(--lv-ink);text-overflow:ellipsis;cursor:pointer;-webkit-appearance:none;appearance:none}
+#lcd-vclass .lv-sel{display:block;width:100%;max-width:none;height:52px;margin:0;padding:0 36px 0 14px;border:2px solid #8f7020;border-radius:12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%238f7020' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;font:700 16px var(--lv-body);color:var(--lv-ink);text-overflow:ellipsis;cursor:pointer;-webkit-appearance:none;appearance:none}
 #lcd-vclass .lv-sel.lv-pr{background-color:#fbf5e3;color:var(--lv-gt);box-shadow:0 0 0 3px rgba(196,155,49,.2)}
 #lcd-vclass .lv-veta{margin:-8px 0 16px;font-size:15px;line-height:1.4;color:var(--lv-mute)}
 #lcd-vclass .lv-veta a{color:var(--lv-gt);font-weight:700;white-space:nowrap}
@@ -185,12 +185,12 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass .lv-pi{grid-template-columns:1fr 1fr}
 #lcd-vclass .lv-seg2{grid-template-columns:repeat(2,minmax(0,1fr))}
 /* voľba musí vyzerať ako tlačidlo aj pred kliknutím (Michal 7. 11. 2026: „je to proste len biele“): krémová plocha, zlatý rám, spodná hrana a krúžok */
-#lcd-vclass .lv-s1{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:10px;border:2px solid #d3b969;border-radius:11px;background:linear-gradient(180deg,#fffdf6,#f8efd5);color:var(--lv-ink);font:700 15px/1.2 var(--lv-disp);text-align:left;cursor:pointer;box-shadow:0 3px 0 #e2d2a4,0 7px 12px -8px rgba(143,112,32,.6);transition:transform .12s,box-shadow .12s,border-color .12s}
-#lcd-vclass .lv-s1::before{content:"";flex:none;width:20px;height:20px;box-sizing:border-box;border:2px solid #b8963c;border-radius:50%;background:#fff}
+#lcd-vclass .lv-s1{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:10px;border:2px solid #957622;border-radius:11px;background:linear-gradient(180deg,#fffdf6,#f8efd5);color:var(--lv-ink);font:700 15px/1.2 var(--lv-disp);text-align:left;cursor:pointer;box-shadow:0 3px 0 #e2d2a4,0 7px 12px -8px rgba(143,112,32,.6);transition:transform .12s,box-shadow .12s,border-color .12s}
+#lcd-vclass .lv-s1::before{content:"";flex:none;width:20px;height:20px;box-sizing:border-box;border:2px solid #8f7020;border-radius:50%;background:#fff}
 #lcd-vclass .lv-s1:active{transform:translateY(2px);box-shadow:0 1px 0 #e2d2a4}
 #lcd-vclass .lv-s1[aria-pressed=true]{border-color:#8f7020;background:var(--lv-zl);color:#16120a;box-shadow:0 8px 16px -10px rgba(143,112,32,.9)}
 #lcd-vclass .lv-s1[aria-pressed=true]::before{border-color:#16120a;background:#16120a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e6c877' stroke-width='4'%3E%3Cpath d='M5 13l4.5 4.5L19 7'/%3E%3C/svg%3E") center/13px no-repeat}
-@media (hover:hover){#lcd-vclass .lv-s1:hover{border-color:var(--lv-gold);transform:translateY(-1px)}#lcd-vclass .lv-s1[aria-pressed=true]:hover{border-color:#8f7020;transform:none}}
+@media (hover:hover){#lcd-vclass .lv-s1:hover{border-color:#7c5f16;transform:translateY(-1px)}#lcd-vclass .lv-s1[aria-pressed=true]:hover{border-color:#8f7020;transform:none}}
 
 /* dlaždice s ponukou: vzhľad z _lcd1v-kufor-boxy.scss, navyše zľava na fotke a tlačidlo */
 #lcd-vclass .lv-dl-w{margin:0}
@@ -242,7 +242,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 @media (hover:hover){#lcd-vclass .lv-v1:hover,#lcd-vclass .lv-sw:hover{border-color:var(--lv-gold)}#lcd-vclass .lv-v1[aria-pressed=true]:hover,#lcd-vclass .lv-sw[aria-pressed=true]:hover{border-color:var(--lv-zel)}}
 #lcd-vclass button:focus-visible,#lcd-vclass select:focus-visible{outline:3px solid var(--lv-gold);outline-offset:2px}
 #lcd-vclass .lv-dalej,#lcd-vclass .lv-cta{display:block;width:100%;margin-top:14px;padding:16px 18px;border:0;border-radius:10px;background:var(--lv-zg);color:#fff;font:800 16px var(--lv-disp);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 28px -16px rgba(47,156,104,.8)}
-#lcd-vclass .lv-cta:not(.lv-hotovo){background:#e4e0d4;color:var(--lv-mute);box-shadow:none}
+#lcd-vclass .lv-cta:not(.lv-hotovo){background:#e4e0d4;color:#48412f;box-shadow:none}
 #lcd-vclass .lv-cta:disabled{opacity:.75;cursor:default}
 #lcd-vclass .lv-suhrn{margin-top:14px}
 #lcd-vclass .lv-ot .lv-spr{margin:12px 0 0;border-color:#e3b3ad;background:#fdf4f3;color:#a9342a}
@@ -326,7 +326,7 @@ body.lcd-vclass .vt-f{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))
 body.lcd-vclass .vt-p{display:block;margin:0}
 body.lcd-vclass .vt-p>span{display:block;margin:0 0 6px;font:700 15px/1.25 var(--lv-body);color:var(--lv-ink)}
 body.lcd-vclass .vt-p small{font-weight:400;color:var(--lv-mute)}
-body.lcd-vclass .vt-p input,body.lcd-vclass .vt-p textarea{display:block;box-sizing:border-box;width:100%;max-width:none;height:auto;min-height:48px;margin:0;padding:11px 13px;border:1px solid #cfc7b2;border-radius:10px;background:#fff;color:var(--lv-ink);font:400 16px/1.35 var(--lv-body)}
+body.lcd-vclass .vt-p input,body.lcd-vclass .vt-p textarea{display:block;box-sizing:border-box;width:100%;max-width:none;height:auto;min-height:48px;margin:0;padding:11px 13px;border:1px solid #857d6a;border-radius:10px;background:#fff;color:var(--lv-ink);font:400 16px/1.35 var(--lv-body)}
 body.lcd-vclass .vt-p em{display:none;margin-top:4px;font:400 14px var(--lv-body);font-style:normal;color:#b3261e}
 body.lcd-vclass .vt-f.overene .vt-p input:invalid{border-color:#c0392b}
 body.lcd-vclass .vt-f.overene .vt-p input:invalid~em{display:block}

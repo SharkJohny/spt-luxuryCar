@@ -9566,7 +9566,7 @@ section#model-selector {
 }
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .faq summary::-webkit-details-marker {display:none
 }
-:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .faq summary:hover .t {color:var(--gold-lo)
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .faq summary:hover .t {color:#7c5f16
 }
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .faq .i {font-family:var(--mono);font-size:11px;font-weight:700;color:#7c5f16;flex:none;letter-spacing:.1em;font-variant-numeric:tabular-nums
 }
@@ -9973,14 +9973,14 @@ section#model-selector {
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-r{display:flex;align-items:center;gap:10px;padding:12px;min-width:0;
   border:1px solid var(--lx-line);border-radius:12px;transition:background .4s,border-color .4s}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-no{flex:none;width:16px;font-family:var(--disp);font-weight:800;font-size:15px;
-  color:#7f7866;transition:color .4s}
+  color:#8a8370;transition:color .4s}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-sw{flex:none;width:44px;height:44px;border-radius:5px;background-size:cover;background-position:center;
   border:1px solid rgba(230,200,119,.3);filter:grayscale(.8) brightness(.6);transition:filter .5s}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-t{flex:1;min-width:0}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-t b{display:block;font-family:var(--disp);font-weight:700;text-transform:uppercase;
   font-size:clamp(13px,1.1vw,15.5px);letter-spacing:.03em;line-height:1.25;color:#8f8878;transition:color .4s}
-:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-t span{display:block;margin-top:3px;font-size:13px;line-height:1.35;color:#7f7866}
-:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-i{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:#7f7866;white-space:nowrap}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-t span{display:block;margin-top:3px;font-size:13px;line-height:1.35;color:#8a8370}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-i{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:#8a8370;white-space:nowrap}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-ok{position:relative;flex:none;width:24px;height:24px;border-radius:50%;
   border:1.5px solid rgba(230,200,119,.35);transition:background .4s,border-color .4s}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .lx-leg-ok:after{content:"";position:absolute;left:7.5px;top:4.5px;width:5px;height:9px;
@@ -10253,6 +10253,7 @@ section#model-selector {
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-pod,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-stav{color:#d9d4c6}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-pod a{color:#e6c877}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf-e{color:#ff9d8f}
+:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf:has(input[required]) .kf-l:after,:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kont-f .kf:has(textarea[required]) .kf-l:after{color:#ff9d8f} /* hviezdička na antracite 5,4:1 */
 /* pasca na roboty — clovek ju nevidi, robot ju vyplni a sprava sa zahodi */
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) .kf-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
@@ -13619,6 +13620,34 @@ ul.subcategories.with-image li a .text {
 .p-tools a.btn.btn-primary:hover {
   color: #14110c;
 }
+
+/* zoznam produktov: názov produktu zo šablóny Shoptetu (.p .name = var(--color-primary) #c49b31 na bielej 2,60:1, pri prejdení
+   myšou var(--color-primary-hover) #1997e5 3,18:1) -> tmavá zlatá #7c5f16 5,99:1, pri prejdení a fokuse čierna #14110c
+   (kontrast 8. 11. 2026). a.name = o prvok viac než šablóna, poradie súborov nerozhoduje. */
+.p a.name {
+  color: #7c5f16;
+}
+.p a.name:hover,
+.p a.name:focus {
+  color: #14110c;
+}
+
+/* zoradenie nad zoznamom produktov („Odporúčame“ …): aktívne, pri prejdení myšou a fokuse šablóna dáva var(--color-primary)
+   #c49b31 na bielej 2,60:1 -> #7c5f16 5,99:1 (kontrast 8. 11. 2026, rovnaká položka auditu ako názvy produktov) */
+button.listSorting__control--current,
+button.listSorting__control:hover,
+button.listSorting__control:focus-visible {
+  color: #7c5f16;
+}
+
+/* stránka FAQ, otázky [accordion]: štýl vkladá assets/js/components/index.js (accordion) až do <body>, preto body.acordeoncsss.
+   Zlaté „+“ / „-“ a zlatý text otvorenej otázky a pri prejdení myšou #c49b30 na bielej mali 2,60:1 -> tmavá zlatá #7c5f16 5,99:1
+   (kontrast 8. 11. 2026). Zatvorená otázka ostáva #444, takže prejdenie myšou je stále vidieť. */
+body.acordeoncsss .accordion::after,
+body.acordeoncsss .accordion.active,
+body.acordeoncsss .accordion:hover {
+  color: #7c5f16;
+}
 /* ===== LCD-KORENE END ===== */
 
 /* ===== LCD-KOSIK START - generovane tools/vloz-lcd-css.py z _lcdKosik.scss (kosik: ponuka rohoze a boxu k setu, #lcd-doplnok), needituj rucne ===== */
@@ -15331,7 +15360,8 @@ html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__foto{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border:1px solid var(--o-karta);
   border-radius:10px;background:#fff}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__lbl{font:600 14px/1.25 var(--o-body);color:var(--o-text);text-align:center}
-html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__plus{flex:none;align-self:center;margin-top:-22px;font:700 20px/1 var(--o-disp);color:var(--o-gold)}
+/* „+“ medzi dielmi: predtým zlatá #c49b31 na #fdfaf1 2,49:1 -> tmavá zlatá 5,74:1 (kontrast 8. 11. 2026) */
+html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__plus{flex:none;align-self:center;margin-top:-22px;font:700 20px/1 var(--o-disp);color:var(--o-gold-t)}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__text{display:flex;flex-direction:column;gap:4px;min-width:0}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__k{font:700 18px/1.25 var(--o-disp);color:var(--o-ink)}
 html.lcd-opc-kosik.lcd-opc-prazdny body.in-kosik #lcd-opc-prazdny .lcd-prz-set__s{font:400 15px/1.4 var(--o-body);color:var(--o-tlm)}
@@ -24237,7 +24267,10 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .btn i{font-style:normal}
 @keyframes lbSheen{0%{left:-45%}55%{left:120%}100%{left:120%}}
 
-#lcd-blog .zlato{color:#8f7020;background:linear-gradient(100deg,#8a6b1c,#c49b31 42%,#e0bd63 60%,#96751f);
+/* .zlato je len na svetlom podklade (#eceae5, #f6f4ef) a len vo velkom pisme (nadpisy, cisla 01, 02 ... v nadpisoch clanku).
+   Kontrast 8. 11. 2026: predtym #8a6b1c, #c49b31, #e0bd63, #96751f, najsvetlejsi stupen mal na #eceae5 len 1,5:1. Prechod ako na webe
+   (_lcd1v-obsah.scss), kazdy stupen ma na #eceae5 aspon 3:1 (#96751f = 3,59:1). Na tmavom podklade ostava .zlato-svetle. */
+#lcd-blog .zlato{color:#7c5f16;background:linear-gradient(100deg,#7c5f16,#8f7020 42%,#96751f 60%,#7c5f16);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 #lcd-blog .zlato-svetle{color:var(--gold-hi);background:linear-gradient(100deg,#c49b31,#f0d68f 45%,#e6c877 62%,#c49b31);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
@@ -24466,10 +24499,11 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .cl-text p{margin:0 0 1.15em;font-size:inherit;line-height:inherit;color:inherit;font-family:inherit}
 #lcd-blog .cl-text a{color:#7c5f16;text-decoration:underline;text-decoration-color:rgba(196,155,49,.55);
   text-decoration-thickness:1.5px;text-underline-offset:3px;transition:color .2s,text-decoration-color .2s}
-#lcd-blog .cl-text a:hover{color:var(--gold-lo);text-decoration-color:var(--gold)}
+/* prejdenie mysou: tmavsie, nie svetlejsie (predtym #8f7020 na #eceae5 3,88:1 -> #5f4a12 7,06:1; kontrast 8. 11. 2026) */
+#lcd-blog .cl-text a:hover{color:#5f4a12;text-decoration-color:var(--gold)}
 #lcd-blog .cl-text .cl-uvod,#lcd-blog .cl-text .uvod{font-size:clamp(20px,1.9vw,24px);line-height:1.6;color:var(--ink);font-weight:600}
 #lcd-blog .cl-text .cl-uvod:first-letter,#lcd-blog .cl-text .uvod:first-letter{float:left;font-family:var(--disp);font-weight:800;font-size:3.6em;line-height:.82;
-  margin:.06em .14em 0 0;color:var(--gold)}
+  margin:.06em .14em 0 0;color:var(--gold-lo)} /* inicialka (velke pismo): predtym #c49b31 na #eceae5 2,16:1 -> #8f7020 3,88:1 (kontrast 8. 11. 2026) */
 #lcd-blog .cl-text b,#lcd-blog .cl-text strong{color:var(--ink);font-weight:700}
 #lcd-blog .cl-text h2{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;align-items:baseline;
   margin:2.3em 0 .75em;font-size:clamp(23px,2.3vw,31px);line-height:1.2;text-transform:none;letter-spacing:0;
@@ -24555,6 +24589,8 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .cl-faq summary i:after{transform:rotate(90deg)}
 #lcd-blog .cl-faq details[open] summary i{background:linear-gradient(135deg,var(--gold-hi),var(--gold));border-color:transparent;transform:rotate(180deg)}
 #lcd-blog .cl-faq details[open] summary i:after{transform:rotate(0)}
+/* otvorena otazka: ciarka „−“ na zlatom kruzku tmava (predtym #7c5f16 na #c49b31 2,3:1 -> #14110c 7,25:1; kontrast 8. 11. 2026) */
+#lcd-blog .cl-faq details[open] summary i:before,#lcd-blog .cl-faq details[open] summary i:after{background:var(--ink)}
 #lcd-blog .cl-faq .odp{padding:0 2px 22px;animation:lbOdp .45s ease both}
 #lcd-blog .cl-faq .odp p{margin:0 0 .6em}
 @keyframes lbOdp{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -24618,7 +24654,8 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 #lcd-blog .toc ol,#lcd-blog .toc-m ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
 #lcd-blog .toc a{position:relative;display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;padding:9px 10px;border-radius:11px;
   font-size:14.5px;line-height:1.35;color:var(--mute);transition:background .3s,color .3s}
-#lcd-blog .toc a span,#lcd-blog .toc-m a span{font-family:var(--disp);font-weight:800;font-size:12px;color:rgba(124,95,22,.6);padding-top:1px}
+/* cisla 01, 02 ... v obsahu: predtym rgba(124,95,22,.6) = #b09f73 na bielej 2,6:1 -> #7c5f16 5,99:1 (kontrast 8. 11. 2026); aktivna polozka sa lisi podkladom, linkou a textom */
+#lcd-blog .toc a span,#lcd-blog .toc-m a span{font-family:var(--disp);font-weight:800;font-size:12px;color:#7c5f16;padding-top:1px}
 #lcd-blog .toc a em,#lcd-blog .toc-m a em{font-style:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #lcd-blog .toc a:hover{color:var(--ink);background:var(--sand)}
 #lcd-blog .toc a.on{color:var(--ink);background:var(--sand);font-weight:600}
@@ -24694,7 +24731,7 @@ html.lcd-blog-v2 body.in-blog .overall-wrapper{overflow:clip}
 @media(min-width:641px) and (max-width:1000px){#lcd-blog .cl-suvis .mriezka > :nth-child(4){display:block}#lcd-blog .cl-suvis .mriezka > :nth-child(3):last-child{display:none}}
 #lcd-blog .cl-suvis .hl>a{font-family:var(--disp);font-weight:800;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:#7c5f16;
   display:inline-flex;gap:10px;align-items:center}
-#lcd-blog .cl-suvis .hl>a:hover{color:var(--gold-lo)}
+#lcd-blog .cl-suvis .hl>a:hover{color:#5f4a12} /* predtym #8f7020 na #f6f4ef 4,24:1 -> 7,72:1 (kontrast 8. 11. 2026) */
 
 @media(prefers-reduced-motion:reduce){
   #lcd-blog .btn:before,#lcd-blog .bl-hero:after{animation:none;display:none}

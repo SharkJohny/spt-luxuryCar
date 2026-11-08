@@ -200,3 +200,31 @@ ul.subcategories.with-image li a .text {
 .p-tools a.btn.btn-primary:hover {
   color: #14110c;
 }
+
+/* zoznam produktov: názov produktu zo šablóny Shoptetu (.p .name = var(--color-primary) #c49b31 na bielej 2,60:1, pri prejdení
+   myšou var(--color-primary-hover) #1997e5 3,18:1) -> tmavá zlatá #7c5f16 5,99:1, pri prejdení a fokuse čierna #14110c
+   (kontrast 8. 11. 2026). a.name = o prvok viac než šablóna, poradie súborov nerozhoduje. */
+.p a.name {
+  color: #7c5f16;
+}
+.p a.name:hover,
+.p a.name:focus {
+  color: #14110c;
+}
+
+/* zoradenie nad zoznamom produktov („Odporúčame“ …): aktívne, pri prejdení myšou a fokuse šablóna dáva var(--color-primary)
+   #c49b31 na bielej 2,60:1 -> #7c5f16 5,99:1 (kontrast 8. 11. 2026, rovnaká položka auditu ako názvy produktov) */
+button.listSorting__control--current,
+button.listSorting__control:hover,
+button.listSorting__control:focus-visible {
+  color: #7c5f16;
+}
+
+/* stránka FAQ, otázky [accordion]: štýl vkladá assets/js/components/index.js (accordion) až do <body>, preto body.acordeoncsss.
+   Zlaté „+“ / „-“ a zlatý text otvorenej otázky a pri prejdení myšou #c49b30 na bielej mali 2,60:1 -> tmavá zlatá #7c5f16 5,99:1
+   (kontrast 8. 11. 2026). Zatvorená otázka ostáva #444, takže prejdenie myšou je stále vidieť. */
+body.acordeoncsss .accordion::after,
+body.acordeoncsss .accordion.active,
+body.acordeoncsss .accordion:hover {
+  color: #7c5f16;
+}

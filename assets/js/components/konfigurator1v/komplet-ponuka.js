@@ -148,7 +148,7 @@ export function init(ctx) {
   tx.appendChild(vy);
   hd.appendChild(no);
   hd.appendChild(tx);
-  hd.appendChild(el("span", "lcd1v-zm", "Zmeniť"));
+  hd.appendChild(el("span", "lcd1v-zm", ctx.trh === "cz" ? "Změnit" : "Zmeniť"));
   karta.appendChild(hd);
 
   // banner setu C (set-banner.js) — stavia sa, až keď sú čísla (obnovTexty), pri zmene čísel nanovo. Vnútri je skutočné

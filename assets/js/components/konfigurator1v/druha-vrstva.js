@@ -218,7 +218,7 @@ export function init(ctx) {
   tx.appendChild(vy);
   hd.appendChild(no);
   hd.appendChild(tx);
-  hd.appendChild(el("span", "lcd1v-zm", "Zmeniť"));
+  hd.appendChild(el("span", "lcd1v-zm", ctx.trh === "cz" ? "Změnit" : "Zmeniť"));
   karta.appendChild(hd);
   // návrh 1b (24. 10. 2026) / variant B (25. 10. 2026): blok „8 z 10“ + dve vrstvy namiesto podnadpisu (T.pod už jedno.js
   // nemá); viac = tlačidlo „Zistiť viac“ pri druhej vrstve (okienko nižšie)

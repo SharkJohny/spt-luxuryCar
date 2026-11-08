@@ -652,7 +652,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Širšie „Pred a po“ pri boxe (616, CZ 2427), len PC na šírku: _lcd1v-obsah-boxy.scss
 - [x] Konfigurátor variant A „Piesok a bronz“: premenné --kf-* v _lcd1v-kroky.scss, box 616 a vzorkovník 637
 - [x] Farby z kontrastného auditu (polia, zelené tlačidlá, pokladňa, titulka, menu, nadpisy, kamióny v časti RUČNE)
-- [ ] Vydanie: commit, push, prepnutie verzie SK a CZ (nerobí sa bez pokynu)
+- [ ] Vydanie: commit, push, prepnutie verzie SK a CZ po zelených testoch (prepínanie sha po zelených testoch je trvalo schválené)
 ## Mercedes triedy V W447 -> stránka triedy V 646 (8. 11. 2026)
 - [x] Zhoda modelov: Mercedes-Benz „V Class“ (rok 2014+), „V Class M/L/XL (…)“ (rok 2014+); Vito, Viano, EQV, VLE, Metris, W638 bez zmeny (functions/vclassPresmerovanie.js)
 - [x] Konfigurátor 1V (jedno, dvoj, rohože, len SK): oznámenie v karte auta + presmerovanie po 1,5 s, odkaz „Prejsť hneď“ (konfigurator1v/vclass-presmerovanie.js, _lcd1v-kroky.scss)
@@ -664,3 +664,13 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Revízia: zmena z klávesnice bez odpočtu (Enter / Pokračujte ďalej / odkaz), stála oblasť aria-live, príznak presmerovania aj pri zmene auta
 - [x] Revízia: titulka zapíše príznak presmerovania; roky triedy V po aktuálny rok (ukážu sa len roky z adminu)
 - [ ] Vydanie: commit, push, prepnutie verzie SK (nerobí sa bez pokynu)
+
+## Kontrast webu, druhé kolo (8. 11. 2026)
+- [x] Blog: zlatý prechod .zlato (nadpisy, čísla 01, 02 …) len z tmavých stupňov, čísla v obsahu, iniciálka, „−“ otvorenej otázky, odkazy pri prejdení myšou (_lcdBlog.scss, tools/vloz-lcd-blog-css.py)
+- [x] Titulka: otázka FAQ pri prejdení myšou #7c5f16 (_lcdHome.scss)
+- [x] Prázdny košík: „+“ v sete #7c5f16 (_lcdOpc.scss)
+- [x] Zoznam produktov: názov produktu #7c5f16 / pri prejdení #14110c, zoradenie #7c5f16; stránka FAQ: „+“ a otvorená otázka #7c5f16 (_lcdKorene.scss)
+- [x] Trieda V: rám selectov rok a veľkosť #8f7020, neaktívne „Dokončite výber“ #48412f (vclass/styl.js)
+- [x] Trieda V, zvyšok auditu: krúžky čísel krokov .lv-c-k #48412f, prepínače .lv-s1 rám #957622 a krúžok #8f7020, zelené tlačidlá --lv-zg stred #1f7a52 (ako celý web), polia formulára .vt-p #857d6a
+- [x] Po kontrole CZ: hviezdička povinných polí na antracitovom formulári #ff9d8f, podnadpisy „Pred a po“ #8a8370 (_lcdHome.scss), „Změnit“ namiesto „Zmeniť“ na CZ v kartách druhej vrstvy a kompletu (druha-vrstva.js, komplet-ponuka.js)
+- [ ] Vydanie: commit, push, prepnutie verzie SK a CZ po zelených testoch (prepínanie sha po zelených testoch je trvalo schválené)
