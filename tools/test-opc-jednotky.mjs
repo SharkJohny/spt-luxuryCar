@@ -1307,6 +1307,19 @@ t("polozky A1: set 2v — hneď Auto, Farba 1. a Farba 2. vrstvy („Farba 2. vr
   eq(poViac(det), ["Rozloženie kobercov: prvý a druhý rad"], "až po „Zobraziť viac“");
 });
 
+t("polozky A1: trieda V (SK 646, ul.lcd-rozpis[data-lcd-vclass] z cart.js) — hneď Auto a objednané časti podľa data-lcd-vc-hned, údaje o aute po „Zobraziť viac“", () => {
+  const { box, ul } = suhrnSRozpisom([]);
+  ul.setAttribute("data-lcd-vclass", "");
+  ul.innerHTML = [["Auto", "Mercedes-Benz V Class L (long 5140 mm) 2024", 1], ["Volant", "Vľavo"], ["Sedadlá", "2 v 2. rade, 2 v 3. rade"], [null, "Predné sedadlá", 1],
+    [null, "2. a 3. rad", 1], ["Vzor a farba 1. vrstvy", "Diamond Line – Čierna, červené šitie", 1], ["Farba boxov do kufra", "Hnedá káva", 1]]
+    .map(([n, h, hned]) => "<li" + (hned ? " data-lcd-vc-hned" : "") + ">" + (n ? '<span class="lcd-rozpis__n">' + n + ": </span>" : "") + '<span class="lcd-rozpis__h">' + h + "</span></li>").join("");
+  P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });
+  const det = box.querySelector(".lcd-opc-detail");
+  eq(hnedVidno(det), ["Auto: Mercedes-Benz V Class L (long 5140 mm) 2024", "Predné sedadlá", "2. a 3. rad", "Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie", "Farba boxov do kufra: Hnedá káva"], "hneď vidno");
+  eq(poViac(det), ["Volant: Vľavo", "Sedadlá: 2 v 2. rade, 2 v 3. rade"], "až po „Zobraziť viac“");
+  eq(box.querySelector(".lcd-opc-zob").textContent, "Zobraziť viac", "tlačidlo");
+});
+
 t("polozky A1: hneď vidno podľa názvu riadku, nie podľa poradia (Rozloženie navrchu, riadok bez názvu); CZ „Barva 1./2. vrstvy“", () => {
   const { box } = suhrnSRozpisom([["Rozloženie kobercov", "prvý a druhý rad"], ["Auto", "Skoda Octavia 2021 Combi"], ["Farba 1. vrstvy", "Diamond Čierna"]]);
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });

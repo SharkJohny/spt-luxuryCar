@@ -118,9 +118,10 @@ const cisty = (t) => String(t || "").replace(/\s+/g, " ").trim();
 export function riadkyRozpisu(rozpis) {
   if (!rozpis) return { druh: null, riadky: [] };
   if (rozpis.matches("ul.lcd-rozpis")) {
-    return { druh: "rozpis", riadky: Array.prototype.map.call(rozpis.children, function (li) {
+    // Mercedes triedy V (opc/vclassKarta.js oznacVclass, aj z cart.js): čo je vidno hneď, určujú značky data-lcd-vc-hned
+    return { druh: rozpis.hasAttribute("data-lcd-vclass") ? "vclass" : "rozpis", riadky: Array.prototype.map.call(rozpis.children, function (li) {
       const n = li.querySelector(".lcd-rozpis__n");
-      return { els: [li], nazov: n ? cisty(n.textContent).replace(/\s*:$/, "") : "", obal: null };
+      return { els: [li], nazov: n ? cisty(n.textContent).replace(/\s*:$/, "") : "", obal: null, hned: li.hasAttribute("data-lcd-vc-hned") };
     }) };
   }
   const skupiny = rozpis.querySelectorAll(".lcd-truck-cart-summary__group");
@@ -147,7 +148,10 @@ export function riadkyRozpisu(rozpis) {
 export function hnedVidno(r) {
   const riadky = r.riadky;
   let v = [];
-  if (r.druh === "kamion" || r.druh === "info") {
+  if (r.druh === "vclass") {
+    // trieda V: Auto (alebo rok výroby) a objednané časti hneď, údaje o aute po „Zobraziť viac“
+    riadky.forEach(function (x, i) { if (x.hned) v.push(i); });
+  } else if (r.druh === "kamion" || r.druh === "info") {
     riadky.forEach(function (x, i) { if (VOZIDLO.test(x.nazov)) v.push(i); });
     let m = riadky.findIndex(function (x) { return MATERIAL.test(x.nazov); });
     if (m >= 0) v.push(m);

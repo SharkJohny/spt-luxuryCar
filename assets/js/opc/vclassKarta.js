@@ -26,7 +26,7 @@ import * as D from "../lcdKosikDoplnok.js";
 import { lcdPriplatky, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta } from "../functions/autoPamat.js";
 import { DALSI } from "./polozky.js";
-import { CDN, SELECTY, SAMOSTATNE, VELKOSTI, ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM, BEZ_DRUHEJ, BOXY, BOX_FARBY, luxKFarbe } from "../components/konfigurator1v/vclass/data.js";
+import { CDN, SELECTY, SAMOSTATNE, VELKOSTI, ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM, BEZ_DRUHEJ, BOXY, BOX_FARBY, luxKFarbe, STOLCEK, ZASUVKY } from "../components/konfigurator1v/vclass/data.js";
 
 export const jeVclass = D.jeVclass;
 
@@ -54,6 +54,17 @@ export const TEXTY = {
   odobranaVrstva: "Druhá vrstva je odstránená zo setu.",
   odobranyBox: "Box je odstránený zo setu.",
   odobranyBoxKus: (v) => "Box " + v + " je odstránený zo setu.",
+  // rozpis položky (Michal 8. 11. 2026 večer): názvy údajov o aute zrozumiteľne, hodnoty príplatkov v objednávke sa nemenia
+  auto: "Auto",
+  radVelkost: (v) => "2. a 3. rad (veľkosť " + v + ")",
+  dvere: "Bočné posuvné dvere",
+  sedadla: "Sedadlá",
+  sedadlaHodnota: (r2, r3) => r2 + " v 2. rade, " + r3 + " v 3. rade",
+  stolcek: "Stolček v 2. a 3. rade",
+  stred: "Medzi prednými sedadlami",
+  zasuvky: "Elektrické zásuvky pod sedadlami",
+  ano: "Áno",
+  nie: "Nie",
 };
 
 // fotky triedy V v dlaždiciach (assets/img/1v/obsah, webp 480 + jpg; druhá vrstva = pedále triedy V, nie červeno-zelená)
@@ -324,38 +335,76 @@ function polozkyTextu(sur) {
   });
 }
 
+/** Auto karty k riadku košíka (to isté, čo ide do poznámky objednávky; autoPamat.js autoRiadku) alebo null. */
+export function autoKarty(p) {
+  const u = ulozistaAuta();
+  return autoRiadku(u.ss, u.ls, { priceId: p.priceId, sur: p.sur });
+}
+
 /** Auto riadku triedy V (auto v košíku, ak je to Mercedes V Class s rovnakým rokom) -> { auto, vel } alebo null. */
 export function autoVclass(p, rok) {
-  const u = ulozistaAuta();
-  const a = autoRiadku(u.ss, u.ls, { priceId: p.priceId, sur: p.sur });
+  const a = autoKarty(p);
   const vel = velkostZAuta(a, rok);
   return vel ? { auto: a, vel: vel } : null;
 }
 
+/** „2 sedadlá v 2. rade a 3 sedadlá v 3. rade“ (data.js sedadlaText) -> „2 v 2. rade, 3 v 3. rade“; iný text bez zmeny. */
+function sedadlaKratko(h) {
+  const m = /^(\d+) sedadl\S* v 2\. rade a (\d+) sedadl\S* v 3\. rade$/i.exec(D.cisty(h));
+  return m ? TEXTY.sedadlaHodnota(m[1], m[2]) : h;
+}
+
+/** Hodnota z dvojice [„Bez …“, „So …“] (data.js STOLCEK, ZASUVKY) -> „Nie“ / „Áno“ ako v konfigurátore; iný text bez zmeny. */
+function anoNie(h, dvojica) {
+  return N(h) === N(dvojica[1]) ? TEXTY.ano : N(h) === N(dvojica[0]) ? TEXTY.nie : h;
+}
+
 /**
- * Rozpis položky 646 (ul.lcd-rozpis ako pri autách): hneď Auto, časti setu („Predné sedadlá“, „2. a 3. rad: XL“, „Rohož do
- * kufra“), farby vrstiev a boxy; rok, volant, dvere a ostatné po „Zobraziť viac“ (plán § 4: predtým bolo hneď vidno len
- * „Farba 2. vrstvy“). Riadky častí majú data-lcd-vc-cast (krížik). Nie 646 alebo neznámy text -> null (karta použije
- * bežný rozpis).
+ * Údaje o aute v rozpise po riadku Auto (poradie Michal 8. 11. 2026): kľúč SELECTY, názov v rozpise, úprava hodnoty.
+ * „Stred medzi sedadlami“ = medzi prednými sedadlami (konfigurátor: „Čo máte medzi prednými sedadlami?“), dvere sú posuvné.
  */
-export function rozpisVclass(doc, p) {
-  if (!jeVclass(p)) return null;
-  const pol = polozkyTextu(p.sur);
+const UDAJE_AUTA = [
+  ["volant", SELECTY.volant, null],
+  ["dvere", TEXTY.dvere, null],
+  ["sedadla", TEXTY.sedadla, sedadlaKratko],
+  ["stolcek", TEXTY.stolcek, function (h) { return anoNie(h, STOLCEK); }],
+  ["stred", TEXTY.stred, null],
+  ["zasuvky", TEXTY.zasuvky, function (h) { return anoNie(h, ZASUVKY); }],
+];
+
+/**
+ * Riadky rozpisu položky 646 [{ n, h, cast?, hned? }] z textu príplatkov a auta karty (autoKarty) alebo null (neznáme
+ * rozloženie / rohož -> bežný rozpis). LEN zobrazenie: text príplatkov, objednávka ani poznámka sa nemenia.
+ * Michal 8. 11. 2026: „vždy najskôr musia byť informácie o aute, ako prvé, a potom je to, čo si človek objednal, hneď pod tým“.
+ *  1) auto: „Auto: Mercedes-Benz V Class L (…) 2024“ (len auto z košíka s rovnakým rokom; rok sa potom druhýkrát nepíše),
+ *     bez neho „Rok výroby“; potom volant, posuvné dvere, sedadlá, stolček, stred a zásuvky (tie až po „Zobraziť viac“);
+ *  2) objednané časti: predné sedadlá, 2. a 3. rad (veľkosť je v riadku Auto, inak „(veľkosť L)“), rohož, farby vrstiev,
+ *     boxy a ich farba; riadky častí majú cast (krížik ×). hned = vidno aj zbalené (Auto / rok a objednané časti).
+ *  Neznáme príplatky na konci, po „Zobraziť viac“.
+ */
+export function riadkyVclass(sur, auto) {
+  const pol = polozkyTextu(sur);
   const pouzite = new Set();
   const hod = function (k) {
-    const i = pol.findIndex(function (y) { return y.n && N(y.n) === N(SELECTY[k]); });
+    const i = pol.findIndex(function (y, j) { return !pouzite.has(j) && y.n && N(y.n) === N(SELECTY[k]); });
     if (i < 0) return null;
     pouzite.add(i);
     return pol[i].h;
   };
   const s = castiZTextov(hod("rozlozenie"), hod("rohoz"));
   if (!s) return null;
-  const rok = pol.find(function (y) { return y.n && N(y.n) === N(SELECTY.rok); });
-  const av = autoVclass(p, rok ? rok.h : null);
+  const rok = hod("rok");
+  const velAuta = velkostZAuta(auto, rok);
+  const popis = velAuta ? popisAuta(auto) : null;
   const riadky = [];
-  if (av && popisAuta(av.auto)) riadky.push({ n: "Auto", h: popisAuta(av.auto), hned: true });
+  if (popis) riadky.push({ n: TEXTY.auto, h: popis, hned: true });
+  else if (rok) riadky.push({ n: SELECTY.rok, h: rok, hned: true });
+  UDAJE_AUTA.forEach(function (u) {
+    const h = hod(u[0]);
+    if (h) riadky.push({ n: u[1], h: u[2] ? u[2](h) : h });
+  });
   if (s.p) riadky.push({ n: null, h: TEXTY.predok, cast: "predok", hned: true });
-  if (s.r) riadky.push({ n: TEXTY.rad, h: s.vel, cast: "rad", hned: true });
+  if (s.r) riadky.push({ n: null, h: popis && velAuta === s.vel ? TEXTY.rad : TEXTY.radVelkost(s.vel), cast: "rad", hned: true });
   if (s.k) riadky.push({ n: null, h: TEXTY.rohoz, cast: "rohoz", hned: true });
   const f1 = hod("farba");
   if (f1) riadky.push({ n: SELECTY.farba, h: f1, hned: true });
@@ -366,16 +415,31 @@ export function rozpisVclass(doc, p) {
   if (b2) riadky.push({ n: SELECTY.box2, h: b2, cast: "box1", hned: true });
   if (b3) riadky.push({ n: SELECTY.box3, h: b3, cast: "box2", hned: true });
   const bf = hod("boxFarba");
-  if (bf) riadky.push({ n: SELECTY.boxFarba, h: bf });
+  if (bf) riadky.push({ n: SELECTY.boxFarba, h: bf, hned: true });
   pol.forEach(function (y, i) { if (!pouzite.has(i)) riadky.push({ n: y.n, h: y.h }); });
-  const ul = lcdRozpisEl(doc, riadky, "lcd-rozpis");
+  return riadky;
+}
+
+/** Značky rozpisu 646 na ul.lcd-rozpis z riadkov riadkyVclass: data-lcd-vclass, pri riadku časť (krížik) a „vidno hneď“. */
+export function oznacVclass(ul, riadky) {
   ul.setAttribute("data-lcd-vclass", "");
   riadky.forEach(function (r, i) {
     const li = ul.children[i];
+    if (!li) return;
     if (r.cast) li.setAttribute("data-lcd-vc-cast", r.cast);
     if (r.hned) li.setAttribute("data-lcd-vc-hned", "");
   });
   return ul;
+}
+
+/**
+ * Rozpis položky 646 v karte „Váš košík“ (ul.lcd-rozpis ako pri autách, riadky z riadkyVclass). Nie 646 alebo neznámy
+ * text -> null (karta použije bežný rozpis).
+ */
+export function rozpisVclass(doc, p) {
+  if (!jeVclass(p)) return null;
+  const riadky = riadkyVclass(p.sur, autoKarty(p));
+  return riadky ? oznacVclass(lcdRozpisEl(doc, riadky, "lcd-rozpis"), riadky) : null;
 }
 
 /** Riadky po „Zobraziť viac“ (P.DALSI) = všetky bez data-lcd-vc-hned. -> počet skrytých (0 = pilulka netreba). */

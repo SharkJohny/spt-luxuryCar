@@ -5,6 +5,8 @@ import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta, lcdAutoHodnota } from "../functions/autoPamat.js";
 import { patriAutu } from "../functions/poznamkaObjednavky.js";
 import { vlozHodnotenie } from "../functions/kosikHodnotenie.js";
+import { jeVclass, VCLASS } from "../lcdKosikDoplnok.js";
+import { riadkyVclass, oznacVclass } from "../opc/vclassKarta.js";
 
 export function initCart(texts) {
   console.log("Initializing cart with texts:", texts);
@@ -96,6 +98,19 @@ function autoPolozky($row, sur) {
   const u = ulozistaAuta();
   return popisAuta(autoRiadku(u.ss, u.ls, { priceId: $row.find('input[name="priceId"]').first().val() || null, sur: sur }));
 }
+
+/**
+ * Mercedes triedy V (SK 646): riadky rozpisu ako v karte „Váš košík“ pokladne (opc/vclassKarta.js riadkyVclass — najprv
+ * auto, potom objednané časti; Michal 8. 11. 2026) alebo null = bežný rozpis. Stráž ako D.jeVclass (kód VCLASS, priceId
+ * 68434, len SK); rekapitulácia v krokoch objednávky priceId nemá, tam stačí kód. Len zobrazenie, text príplatkov ostáva.
+ */
+function riadkyTriedyV($row, sur) {
+  const priceId = $row.find('input[name="priceId"]').first().val() || null;
+  if (!jeVclass({ sku: $row.attr("data-micro-sku"), priceId: priceId || VCLASS.priceId })) return null;
+  const href = String($row.find("a.main-link").first().attr("href") || "");
+  const u = ulozistaAuta();
+  return riadkyVclass(sur, patriAutu(href) ? autoRiadku(u.ss, u.ls, { priceId: priceId, sur: sur }) : null);
+}
 /* Položka: v košíku riadok tabuľky (tr), v rekapitulácii krokov objednávky div.cart-item v .cart-items (Michal 10. 10.
    2026: v pokladni ostávala farba vrstiev v zlatom názve veľkými písmenami, lebo closest("tr") nič nenašiel). */
 const LCD_POLOZKA = "tr, body.ordering-process .cart-items .cart-item";
@@ -115,8 +130,10 @@ function lcdVlozRozpis(zdroje, riadky) {
   const kotva = a || prvy;
   const stary = kotva.nextElementSibling;
   if (stary && stary.classList.contains("lcd-rozpis")) stary.remove();
-  kotva.after(lcdRozpisEl(document, riadky, "lcd-rozpis"));
+  const ul = lcdRozpisEl(document, riadky, "lcd-rozpis");
+  kotva.after(ul);
   zdroje.forEach((e) => e.classList.add("lcd-rozpis-zdroj"));
+  return ul;
 }
 
 /* Bublina chatu Luxia (76 × 76 vpravo dole) ležala na „Pokračovať“ (Michal, iPhone 9. 10. 2026): kým by ho prekryla,
@@ -185,6 +202,10 @@ export function changeDescription() {
     if (!$variant.length || $variant.data("lcdFormatted")) return;
     var riadky = lcdRozpis({ variant: $variant.text(), priplatky: "", cz: lcdCz() });
     if (!riadky.length) return;
+    // auto navrchu ako pri produktoch s príplatkami a v karte pokladne (rohož do kufra Premium / Klasik; Michal 8. 11. 2026
+    // „vždy najskôr informácie o aute“)
+    var auto = autoPolozky($row, "");
+    if (auto) riadky.unshift({ n: "Auto", h: auto });
     lcdVlozRozpis([$variant[0]], riadky);
     $variant.data("lcdFormatted", true);
   });
@@ -195,6 +216,12 @@ export function changeDescription() {
       // osobné autá: rozpis ako v paneli košíka; kamión ide pôvodnou cestou nižšie (skupiny z truckOrderSummary)
       if (this.classList.contains("lcd-rozpis-zdroj")) return;
       const $variant = $tr.find("span.main-link-variant").first();
+      // Mercedes triedy V (646): auto a potom objednané časti, značky pre zbalený súhrn v pokladni (opc/polozky.js)
+      const vc = riadkyTriedyV($tr, $(this).text());
+      if (vc && vc.length) {
+        oznacVclass(lcdVlozRozpis($variant.length ? [this, $variant[0]] : [this], vc), vc);
+        return;
+      }
       const riadky = lcdRozpis({ variant: $variant.text(), priplatky: $(this).text(), cz: lcdCz() });
       const auto = autoPolozky($tr, $(this).text());
       if (auto && riadky.length) riadky.unshift({ n: "Auto", h: auto });

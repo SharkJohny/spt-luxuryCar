@@ -126,14 +126,57 @@ eq([D.jeVclass({ sku: "VCLASS", priceId: "68434" }), D.jeVclass({ sku: "VCLASS",
 window.dataLayer[0].shoptet.projectId = 581408;
 eq(D.jeVclass({ sku: "VCLASS", priceId: "68434" }), false, "stráž 646: na CZ nie");
 window.dataLayer[0].shoptet.projectId = 562035;
-// rozpis položky: časti setu hneď, ostatné po „Zobraziť viac“
+// rozpis položky (Michal 8. 11. 2026 večer): najprv auto (Auto, volant, dvere, sedadlá, stolček, stred, zásuvky; rok len raz),
+// hneď pod tým objednané časti. Zbalené = Auto a objednané časti, údaje o aute po „Zobraziť viac“.
 {
-  const ul = V.rozpisVclass(document, { sku: "VCLASS", priceId: "68434", sur: surZ(konf({ [ROZL]: rozSet("XL"), [ROH]: ROHOZ[0], [F2]: "Lux Color 10", [SELECTY.box1]: boxT("M"), [SELECTY.boxFarba]: "Béžová" })) });
-  const riadky = [...ul.children].map((li) => (li.hasAttribute("data-lcd-vc-hned") ? "+" : "-") + (li.getAttribute("data-lcd-vc-cast") || "") + ":" + cisto(li.textContent));
-  eq(riadky.slice(0, 7), ["+predok:Predné sedadlá", "+rad:2. a 3. rad: XL", "+rohoz:Rohož do kufra", "+:Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie", "+vrstva2:Farba 2. vrstvy: Lux Color 10", "+box:Box do kufra: M 40 × 32 × 30 cm", "-:Farba boxov do kufra: Béžová"], "rozpis triedy V");
-  over(riadky.slice(7).every((r) => r[0] === "-") && riadky.some((r) => /Rok výroby: 2021/.test(r)), "rok, volant a ostatné po „Zobraziť viac“");
-  over(V.oznacRiadky(ul) === riadky.filter((r) => r[0] === "-").length, "oznacRiadky skryje len riadky bez data-lcd-vc-hned");
+  const sAutom = (a, fn) => {
+    ["Brand", "Model", "Year", "carType", "model"].forEach((k) => sessionStorage.removeItem(k));
+    if (a) Object.keys(a).forEach((k) => sessionStorage.setItem(k, a[k]));
+    try { return fn(); } finally { ["Brand", "Model", "Year", "carType", "model"].forEach((k) => sessionStorage.removeItem(k)); }
+  };
+  const rozpis = (z, a) => sAutom(a, () => V.rozpisVclass(document, { sku: "VCLASS", priceId: "68434", sur: surZ(konf(z)) }));
+  const riadkyUl = (ul) => [...ul.children].map((li) => (li.hasAttribute("data-lcd-vc-hned") ? "+" : "-") + (li.getAttribute("data-lcd-vc-cast") || "") + ":" + cisto(li.textContent));
+  // presne košík zo snímky od Michala (8. 11. 2026): V Class L 2024, celý set s druhou vrstvou a dvoma boxmi
+  const MICHAL = { [SELECTY.rok]: "2024", [SELECTY.sedadla]: "2 sedadlá v 2. rade a 2 sedadlá v 3. rade", [SELECTY.stolcek]: "So stolčekom",
+    [ROZL]: rozSet("L"), [ROH]: ROHOZ[0], [F2]: "Lux Color 11", [SELECTY.box2]: boxT("S"), [SELECTY.box3]: boxT("M"), [SELECTY.boxFarba]: "Hnedá káva" };
+  const AUTA = ["-:Volant: Vľavo", "-:Bočné posuvné dvere: Dvoje, na oboch stranách", "-:Sedadlá: 2 v 2. rade, 2 v 3. rade", "-:Stolček v 2. a 3. rade: Áno",
+    "-:Medzi prednými sedadlami: Podlaha", "-:Elektrické zásuvky pod sedadlami: Nie"];
+  const CASTI = (rad) => ["+predok:Predné sedadlá", "+rad:" + rad, "+rohoz:Rohož do kufra", "+:Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie",
+    "+vrstva2:Farba 2. vrstvy: Lux Color 11", "+box1:Prvý box z dvoch: S 33 × 32 × 30 cm", "+box2:Druhý box z dvoch: M 40 × 32 × 30 cm", "+:Farba boxov do kufra: Hnedá káva"];
+  let ul = rozpis(MICHAL, auto("L", "2024"));
+  eq(riadkyUl(ul), ["+:Auto: Mercedes-Benz V Class L (long 5140 mm) 2024"].concat(AUTA, CASTI("2. a 3. rad")), "rozpis triedy V s autom (snímka od Michala)");
+  over(!riadkyUl(ul).some((r) => /Rok výroby/.test(r)), "rok výroby len raz (v riadku Auto)");
+  over(V.oznacRiadky(ul) === 6 && [...ul.children].filter((li) => li.classList.contains("lcd-opc-dalsi")).every((li) => !li.hasAttribute("data-lcd-vc-hned")), "zbalené: 6 údajov o aute po „Zobraziť viac“");
+  // krížiky pri častiach fungujú ako doteraz (riadok s data-lcd-vc-cast, text vľavo, × vpravo)
+  {
+    const st2 = V.rozborVclass(surZ(konf(MICHAL)), MAPA);
+    const li = document.createElement("li");
+    li.appendChild(ul);
+    const n = st2 ? V.vlozKriziky(li, { riadok: { itemId: "a1", sku: "VCLASS" }, mapa: MAPA, st: st2, odobrat: V.odobratelne(st2, MAPA) }, { R: D.rolePonuky(), forma: null }) : 0;
+    eq([n, [...ul.querySelectorAll(".lcd-dop-x")].map((b) => b.getAttribute("data-lcd-dop-odober"))], [5, ["vclass-rad", "vclass-rohoz", "vclass-vrstva2", "vclass-box1", "vclass-box2"]], "krížiky pri 2. a 3. rade, rohoži, 2. vrstve a oboch boxoch");
+    over(cisto(ul.querySelector('[data-lcd-vc-cast="rad"] .lcd-dop-text').textContent) === "2. a 3. rad", "riadok 2. a 3. rad s krížikom bez „: L“");
+  }
+  // bez auta v košíku: rok výroby ako prvý údaj o aute (vidno aj zbalené), veľkosť pri 2. a 3. rade
+  ul = rozpis(MICHAL, null);
+  eq(riadkyUl(ul), ["+:Rok výroby: 2024"].concat(AUTA, CASTI("2. a 3. rad (veľkosť L)")), "rozpis triedy V bez auta");
+  // auto inej veľkosti než 2. a 3. rad (rovnaký rok): Auto áno, veľkosť radu vypísaná
+  eq(riadkyUl(rozpis(MICHAL, auto("XL", "2024"))).slice(0, 9), ["+:Auto: Mercedes-Benz V Class XL (Extra Long 5370 mm) 2024"].concat(AUTA, ["+predok:Predné sedadlá", "+rad:2. a 3. rad (veľkosť L)"]), "auto XL, rad L: veľkosť radu vypísaná");
+  // auto iného roku: nepatrí k riadku -> bez Auto, rok z riadku
+  eq(riadkyUl(rozpis(MICHAL, auto("L", "2019")))[0], "+:Rok výroby: 2024", "auto iného roku: bez Auto, rok z riadku");
+  // ostatné hodnoty: bez stolčeka, so zásuvkami, opierka alebo chladnička, jedny dvere, volant vpravo, len predné sedadlá, jeden box
+  ul = rozpis({ [SELECTY.volant]: "Vpravo", [SELECTY.stred]: "Lakťová opierka alebo chladnička", [SELECTY.dvere]: "Jedny, vpravo", [SELECTY.zasuvky]: "So zásuvkami",
+    [SELECTY.sedadla]: "3 sedadlá v 2. rade a 3 sedadlá v 3. rade", [ROZL]: ROZ_PREDOK, [ROH]: ROHOZ[1], [SELECTY.box1]: boxT("M"), [SELECTY.boxFarba]: "Béžová", "Iný príplatok": "x" }, auto("XL"));
+  eq(riadkyUl(ul), ["+:Auto: Mercedes-Benz V Class XL (Extra Long 5370 mm) 2021", "-:Volant: Vpravo", "-:Bočné posuvné dvere: Jedny, vpravo", "-:Sedadlá: 3 v 2. rade, 3 v 3. rade",
+    "-:Stolček v 2. a 3. rade: Nie", "-:Medzi prednými sedadlami: Lakťová opierka alebo chladnička", "-:Elektrické zásuvky pod sedadlami: Áno",
+    "+predok:Predné sedadlá", "+:Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie", "+:Farba 2. vrstvy: Bez druhej vrstvy", "+box:Box do kufra: M 40 × 32 × 30 cm",
+    "+:Farba boxov do kufra: Béžová", "-:Iný príplatok: x"], "rozpis triedy V: ostatné hodnoty, neznámy príplatok na konci");
+  // bez predných sedadiel: druhá vrstva („Bez druhej vrstvy“) až po „Zobraziť viac“ ako doteraz
+  eq(riadkyUl(rozpis({ [ROZL]: rozRadRohoz("M"), [ROH]: ROHOZ[0] }, auto("M"))).slice(7), ["+rad:2. a 3. rad", "+rohoz:Rohož do kufra", "+:Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie", "-:Farba 2. vrstvy: Bez druhej vrstvy"], "2. a 3. rad s rohožou, auto M");
+  // neznáma hodnota príplatku o aute: ukáže sa tak, ako je
+  eq(V.riadkyVclass(surZ(konf({ [ROZL]: ROZ_PREDOK, [ROH]: ROHOZ[1], [SELECTY.stolcek]: "Neviem", [SELECTY.sedadla]: "iné" })), null).filter((r) => /Stolček|Sedadlá/.test(r.n)).map((r) => r.n + ": " + r.h),
+    ["Sedadlá: iné", "Stolček v 2. a 3. rade: Neviem"], "neznámu hodnotu nemeniť");
   over(V.rozpisVclass(document, { sku: "DIAMOND", priceId: "68434", sur: surZ(konf({ [ROZL]: ROZ_PREDOK, [ROH]: ROHOZ[1] })) }) === null, "rozpis iného produktu -> null (bežný rozpis)");
+  over(V.riadkyVclass(surZ(konf({ [ROZL]: "Neznáme rozloženie", [ROH]: ROHOZ[1] })), null) === null, "neznáme rozloženie -> null (bežný rozpis)");
 }
 // ponuka setov vynechá 646 a nesťahuje stránku produktu
 {
@@ -198,6 +241,10 @@ const SCEN = [
   { id: "cely-set", volby: { [ROZL]: rozSet("XL"), [ROH]: ROHOZ[0], [F2]: "Lux Color 12", [SELECTY.box2]: boxT("M"), [SELECTY.box3]: boxT("L"), [SELECTY.boxFarba]: "Čierna, červené šitie" }, auto: auto("XL"), cena: 1718,
     ponuky: [], kriziky: ["rad", "rohoz", "vrstva2", "box1", "box2"],
     akcie: [{ x: "box1", cena: 1629, zmena: { [SELECTY.box2]: null, [SELECTY.box3]: null, [SELECTY.box1]: boxT("L") }, hlaska: "✓ Box M je odstránený zo setu.", ponuky: [], kriziky: ["rad", "rohoz", "vrstva2", "box"] }] },
+  // košík zo snímky od Michala (8. 11. 2026): rozpis auto -> objednané časti, náhľad zbalený aj rozbalený
+  { id: "michal-l-2024", volby: { [SELECTY.rok]: "2024", [SELECTY.sedadla]: "2 sedadlá v 2. rade a 2 sedadlá v 3. rade", [SELECTY.stolcek]: "So stolčekom",
+    [ROZL]: rozSet("L"), [ROH]: ROHOZ[0], [F2]: "Lux Color 11", [SELECTY.box2]: boxT("S"), [SELECTY.box3]: boxT("M"), [SELECTY.boxFarba]: "Hnedá káva" },
+    auto: auto("L", "2024"), cena: 1588, snimky: true, ponuky: [], kriziky: ["rad", "rohoz", "vrstva2", "box1", "box2"] },
   { id: "chyba-siet", volby: { [ROZL]: ROZ_PREDOK, [ROH]: ROHOZ[1] }, auto: auto("XL"), cena: 300,
     ponuky: [P_("rad", "+800 €", "ušetríte 150 €"), P_("rohoz", "+250 €"), P_("vrstva2", "+150 €"), P_("box", "od +99 €")], kriziky: [],
     akcie: [{ klik: "rad", zrusAdd: true, chyba: CHYBA_VYMENY, cena: 300, zmena: {} }] },
@@ -422,6 +469,24 @@ function overKartu(s, sc, kontext, polozka646, ocakPonuky, ocakKriziky, cena) {
   over(!ZAKAZANE.test(b.text), kontext + ": bez zakázaných slov (" + (b.text.match(ZAKAZANE) || [""])[0] + ")");
 }
 
+/**
+ * Poradie rozpisu 646 (Michal 8. 11. 2026 večer): najprv auto (Auto alebo Rok výroby, potom údaje o aute po „Zobraziť viac“),
+ * hneď pod tým objednané časti; rok len raz; „2. a 3. rad“ bez „: L“.
+ */
+const AUTO_RIADKY = /^(Auto|Rok výroby|Volant|Bočné posuvné dvere|Sedadlá|Stolček v 2\. a 3\. rade|Medzi prednými sedadlami|Elektrické zásuvky pod sedadlami):/;
+function overPoradie(s, sc, kontext, polozka646) {
+  const li = s.polozky.find((x) => x.item === polozka646);
+  if (!li) return;
+  const r = li.rozpis.map((x) => x.replace(/^~/, ""));
+  const rok = (sc.volby && sc.volby[SELECTY.rok]) || SPOL[SELECTY.rok];
+  over(r[0] === (sc.auto ? "Auto: Mercedes-Benz " + sc.auto.Model + " " + rok : "Rok výroby: " + rok), kontext + ": prvý riadok rozpisu „" + r[0] + "“");
+  over(r.filter((x) => x.indexOf(rok) >= 0).length === 1, kontext + ": rok len raz");
+  const posledneAuto = r.map((x) => AUTO_RIADKY.test(x)).lastIndexOf(true);
+  over(posledneAuto === 6 && r.slice(0, 7).every((x) => AUTO_RIADKY.test(x)), kontext + ": 7 riadkov o aute navrchu, potom časti " + JSON.stringify(r.slice(0, 8)));
+  over(li.rozpis.slice(1, 7).every((x) => x[0] === "~") && li.rozpis.slice(7).every((x) => x[0] !== "~" || /^~Farba 2\. vrstvy: Bez druhej vrstvy$/.test(x)), kontext + ": zbalené = prvý riadok o aute a objednané časti");
+  over(!r.some((x) => /^2\. a 3\. rad: /.test(x)), kontext + ": žiadne „2. a 3. rad: L“");
+}
+
 async function behScenara(b, nazov, sirka, sc) {
   const kontext = `${nazov} ${sirka} ${sc.id}`;
   const stav = { objednavka: 0, zrusAdd: false, zrusene: 0, podvrh: true };
@@ -436,10 +501,21 @@ async function behScenara(b, nazov, sirka, sc) {
     over(k.length === 1 && k[0].sku === "VCLASS" && k[0].priceId === "68434", kontext + ": v košíku je jedna položka 646");
     const id = k[0] && k[0].itemId;
     overKartu(s, sc, kontext, id, sc.ponuky, sc.kriziky, sc.cena);
+    overPoradie(s, sc, kontext, id);
     over(!(await p.$('.lcd-opc-kk__polozka [data-lcd-vc-cast="predok"] .lcd-dop-x')), kontext + ": predné sedadlá nemajú krížik");
     over(!!(await p.$(`.lcd-opc-kk__polozka[data-item="${id}"] .lcd-opc-kk__odobrat`)), kontext + ": položka má Odobrať");
     const sn = snimky && sc.snimky;
-    if (sn) await p.locator("#lcd-opc-kosik").screenshot({ path: join(snimky, `${nazov}-${sirka}-pred.png`) });
+    if (sn) {
+      await p.locator("#lcd-opc-kosik").screenshot({ path: join(snimky, `${nazov}-${sirka}-${sc.id}-zbalene.png`) });
+      // rozbalené („Zobraziť viac“): údaje o aute pod riadkom Auto, nad objednanými časťami
+      const zob = p.locator(`.lcd-opc-kk__polozka[data-item="${id}"] .lcd-opc-zob`);
+      if (await zob.count()) {
+        await zob.click();
+        await p.waitForTimeout(300);
+        await p.locator("#lcd-opc-kosik").screenshot({ path: join(snimky, `${nazov}-${sirka}-${sc.id}-rozbalene.png`) });
+        await zob.click();
+      }
+    }
     let povodny = k[0];
     for (const [i, a] of (sc.akcie || []).entries()) {
       const ka = kontext + " krok " + (i + 1);
@@ -493,7 +569,8 @@ async function behScenara(b, nazov, sirka, sc) {
       else {
         over(r.itemId !== povodny.itemId, ka + ": riadok vymenený (nové itemId), pôvodný zmazaný");
         overKartu(s, sc, ka, r.itemId, a.ponuky, a.kriziky, a.cena);
-        if (a.klik === "rad") over(s.polozky[0].rozpis.includes("2. a 3. rad: XL"), ka + ": odrážka „2. a 3. rad: XL“");
+        if (a.klik === "rad") over(s.polozky[0].rozpis.includes("2. a 3. rad"), ka + ": odrážka „2. a 3. rad“ (veľkosť je v riadku Auto)");
+        overPoradie(s, sc, ka, r.itemId);
       }
       if (sn && a.boxNahlad) {
         // náhľad ako plán (telefón po kliknutí): otvorený výber boxov, 2 boxy M

@@ -674,3 +674,11 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Trieda V, zvyšok auditu: krúžky čísel krokov .lv-c-k #48412f, prepínače .lv-s1 rám #957622 a krúžok #8f7020, zelené tlačidlá --lv-zg stred #1f7a52 (ako celý web), polia formulára .vt-p #857d6a
 - [x] Po kontrole CZ: hviezdička povinných polí na antracitovom formulári #ff9d8f, podnadpisy „Pred a po“ #8a8370 (_lcdHome.scss), „Změnit“ namiesto „Zmeniť“ na CZ v kartách druhej vrstvy a kompletu (druha-vrstva.js, komplet-ponuka.js)
 - [x] Vydanie: 657e72d naživo SK aj CZ 8. 11. 2026 (návrat SK daa471a, CZ 8c26ce9)
+
+## Trieda V: rozpis v košíku — najprv auto, potom objednané časti (8. 11. 2026 večer)
+- [x] Testy najprv (červené): test-kosik-vclass A + B (poradie, rok raz, zbalené), test-kosik-auto-hodnotenie (/kosik/, rekapitulácia, CZ bez zmeny, rohož bez príplatkov), test-opc-jednotky (polozky A1 trieda V)
+- [x] vclassKarta.js riadkyVclass: Auto (rok len raz, bez auta Rok výroby), Volant, Bočné posuvné dvere, Sedadlá „2 v 2. rade, 2 v 3. rade“, Stolček v 2. a 3. rade Áno/Nie, Medzi prednými sedadlami, Elektrické zásuvky pod sedadlami Áno/Nie; potom časti, „2. a 3. rad“ bez „: L“
+- [x] Zbalené: Auto + objednané časti (aj farba boxov), údaje o aute po „Zobraziť viac“
+- [x] cart.js: rovnaký rozpis 646 v /kosik/ a v rekapitulácii krokov; rohož bez príplatkov dostane „Auto:“ navrchu ako v karte pokladne
+- [x] polozky.js hnedVidno: značky data-lcd-vc-hned (súhrn kroku 2)
+- [ ] Vydanie: push, prepnutie verzie SK (nerobí sa bez pokynu)
