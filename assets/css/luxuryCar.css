@@ -9862,6 +9862,17 @@ section#model-selector {
    preto ako od 761 px (231 px, výšku dá sivý náhľad / konfigurátor); po prepnutí na kamióny (2 polia) rezervácia preč,
    inak pod tlačidlom ostal prázdny pás 185–283 px */
 @media(min-width:601px) and (max-width:760px){:is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) #konfSlot.lcdh-konf-slot{min-height:231px !important}}
+/* Titulka, Mercedes triedy V (main.js vclassNaTitulke, Michal 8. 11. 2026): typ karosérie netreba — pole aj so štítkom
+   skryté. PC (4 polia v riadku) a tablet (2 × 2): miesto ostane, nič sa nepohne. Telefón (polia pod sebou): pole sa plynulo
+   zbalí (0,2 s), polia nad ním ostanú na mieste, len tlačidlo sa posunie pod rok; uložená trieda V je skrytá hneď
+   pri vykreslení (prechod pri prvom vykreslení nebeží). Iné auto = pole sa vráti. */
+.in-index .modl-selector-wrap.lcd-titulka-vclass > .surcharge-list.type-selector{visibility:hidden !important}
+@media(max-width:600px){
+  .in-index .modl-selector-wrap > .surcharge-list.type-selector{max-height:120px;
+    transition:max-height .2s ease,opacity .2s ease,margin .2s ease}
+  .in-index .modl-selector-wrap.lcd-titulka-vclass > .surcharge-list.type-selector{max-height:0;margin-bottom:-14px !important;
+    overflow:hidden;opacity:0;transition:max-height .2s ease,opacity .15s ease,margin .2s ease,visibility 0s linear .2s}
+}
 :is(#lcd-home,[data-lcd-cast^=hp],body.lcd-1v [data-lcd-cast^=p1v]) #konfSlot.lcdh-konf-slot.lcd-konf-ok:has(.lcd-truck-wrap:not([hidden])){min-height:0 !important}
 /* ===== HP: tlačidlá pri hodnotení Google (2026-10-02) =====
    „Napísať recenziu" zlaté s hviezdičkou a prebleskom, „Všetky recenzie" tmavé so zlatým okrajom

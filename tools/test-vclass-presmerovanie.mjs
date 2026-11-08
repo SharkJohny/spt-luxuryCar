@@ -11,6 +11,9 @@
 // produkte; po „Zostať tu“ ho ďalšia zmena roka v triede V nevnucuje; z klávesnice ostáva nápis s odkazom.
 // Dĺžky M/L/XL (len W447, Michal 8. 11. 2026): presmerujú pri AKOMKOĽVEK roku aj bez roku — rok do adresy len 2014 až
 // aktuálny, inak ?velkost= bez roku (rok si zákazník vyberie na stránke triedy V); obyčajné „V Class“ len 2014 až aktuálny.
+// Titulka pri triede V (Michal 8. 11. 2026): pole „Typ karosérie“ (aj štítok) skryté, tlačidlo „Prejsť na triedu V“
+// (CZ „Přejít na třídu V“), polia sa nepohnú (PC aj telefón), iné auto = všetko ako predtým; uložená trieda V hneď pri načítaní.
+//   --snimky: aj náhľady titulky titulka-vclass-*.png (štítok „NÁHĽAD“).
 //   --snimky <priečinok>: okrem výrezov aj náhľady okna celej obrazovky so zeleným štítkom „NÁHĽAD“ (okno-*.png).
 // CZ web (Michal 8. 11. 2026: presná kópia SK, české texty, rovnaká adresa /autokoberce-mercedes-v-class/): beží len
 // s prepínačom CZ_SPUSTENE = true vo functions/vclassPresmerovanie.js. Test sa riadi tým prepínačom:
@@ -328,6 +331,99 @@ async function nahlad(page, meno) {
   });
   await page.screenshot({ path: join(snimky, meno + ".png") }).catch((e) => console.log("    (náhľad " + meno + ": " + e.message.split("\n")[0] + ")"));
   await page.evaluate(() => { const s = document.getElementById("__lcdNahlad"); if (s) s.remove(); });
+}
+/** Výber auta na titulke. */
+const W_TIT = "#konfSlot .model-selector";
+async function otvorTitulku(page, web) {
+  await otvor(page, web + "/");
+  await page.waitForFunction((w) => { const s = document.querySelector(w + " .modl-selector-wrap .brands select"); return s && s.options.length > 5; }, W_TIT, { timeout: 40000 });
+}
+/** Titulka: typ karosérie (viditeľný aj so štítkom?), text tlačidla, polohy polí a tlačidla v dokumente. */
+const titulka = (page) => page.evaluate((W) => {
+  const w = document.querySelector(W + " .modl-selector-wrap");
+  const typ = w.querySelector(".surcharge-list.type-selector");
+  const btn = w.querySelector(".btn.choice-Model");
+  const poz = (e) => { const r = e.getBoundingClientRect(); return [Math.round(r.left + scrollX), Math.round(r.top + scrollY)]; };
+  const cs = getComputedStyle(typ);
+  const r = typ.getBoundingClientRect();
+  const sel = typ.querySelector("select");
+  return {
+    typ: cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity) > 0.5 && r.height > 20,
+    vyska: Math.round(r.height),
+    stitok: cs.display !== "none" && cs.visibility !== "hidden" && getComputedStyle(typ, "::before").content !== "none",
+    fokus: (() => { sel.focus(); const f = document.activeElement === sel; sel.blur(); return f; })(),
+    tlacidlo: btn.textContent.trim(),
+    polia: ["brands", "models", "years"].map((k) => poz(w.querySelector(".surcharge-list." + k + " select"))),
+    tlacidloPoz: poz(btn),
+    slot: (() => { const k = document.getElementById("konfSlot"); return k ? Math.round((k.getBoundingClientRect().bottom + scrollY) * 100) / 100 : null; })(),
+    slotMin: (() => { const k = document.getElementById("konfSlot"); return k ? getComputedStyle(k).minHeight + " / " + Math.round(k.getBoundingClientRect().height * 100) / 100 : null; })(),
+    chyba: !!w.querySelector(".errorToCart"),
+  };
+}, W_TIT);
+/** Náhľad titulky: výber auta v strede obrazovky. */
+async function nahladTitulky(page, meno) {
+  if (!snimky) return;
+  await page.evaluate((w) => document.querySelector(w).scrollIntoView({ block: "center", behavior: "instant" }), W_TIT);
+  await page.waitForTimeout(500);
+  await nahlad(page, meno);
+}
+/**
+ * Titulka s triedou V: typ karosérie skrytý, tlačidlo hovorí, kam zákazník pôjde; polia sa nepohnú; iné auto vráti všetko.
+ * T = { web, povodne, vclass, kde }.
+ */
+async function overTitulkuVclass(page, stav, s, T, cele) {
+  const sel = (k) => W_TIT + " .modl-selector-wrap ." + k + " select";
+  const pc = page.viewportSize().width > 1000;
+  await otvorTitulku(page, T.web);
+  const a0 = await titulka(page);
+  over(a0.typ && a0.stitok && a0.tlacidlo === T.povodne, T.kde + ": na začiatku typ karosérie so štítkom a „" + T.povodne + "“ " + j(a0));
+  await vyberAuto(page, W_TIT, { znacka: "Mercedes-Benz", model: "Vito", rok: "2020" });
+  await page.waitForTimeout(450);
+  const a = await titulka(page);
+  over(a.typ && a.tlacidlo === T.povodne, T.kde + ": Vito 2020 = typ karosérie aj „" + T.povodne + "“ " + j(a));
+  await page.selectOption(sel("models"), { label: "V Class" }, { force: true });
+  await page.waitForTimeout(450);
+  const b = await titulka(page);
+  over(!b.typ && !b.stitok && !b.fokus, T.kde + ": V Class 2020 = pole „Typ karosérie“ aj so štítkom skryté, nedá sa naň prejsť " + j({ typ: b.typ, stitok: b.stitok, fokus: b.fokus, vyska: b.vyska }));
+  over(b.tlacidlo === T.vclass, T.kde + ": tlačidlo „" + b.tlacidlo + "“ (čaká sa „" + T.vclass + "“)");
+  over(j(b.polia) === j(a.polia), T.kde + ": značka, model a rok sa nepohli " + j({ pred: a.polia, po: b.polia }));
+  // do 1 px = zaokrúhlenie zlomku pixela (výška obsahu tesne nad rezervou min-height), nie posun rozloženia
+  over(a.slot != null && Math.abs(b.slot - a.slot) < 1, T.kde + ": obsah pod výberom auta sa nepohol (spodok #konfSlot " + a.slot + " -> " + b.slot + "; min-height / výška " + a.slotMin + " -> " + b.slotMin + ")");
+  if (pc) over(j(b.tlacidloPoz) === j(a.tlacidloPoz), T.kde + ": na PC sa nepohlo ani tlačidlo " + j({ pred: a.tlacidloPoz, po: b.tlacidloPoz }));
+  else over(b.vyska <= 1, T.kde + ": na telefóne pole po zbalení nezaberá miesto (" + b.vyska + " px)");
+  await nahladTitulky(page, "titulka-vclass-" + (T.web === CZ ? "cz-" : "") + s);
+  await page.selectOption(sel("models"), { label: "Vito" }, { force: true });
+  await page.waitForTimeout(450);
+  const c = await titulka(page);
+  over(c.typ && c.stitok && c.tlacidlo === T.povodne && j(c.polia) === j(a.polia), T.kde + ": späť na Vito = typ karosérie, „" + T.povodne + "“, polia na mieste " + j(c));
+  if (cele) {
+    // dĺžky M/L/XL pri akomkoľvek roku; obyčajné V Class pred 2014 nie; iná značka nie
+    await page.selectOption(sel("models"), { label: "V Class L (long 5140 mm)" }, { force: true });
+    await page.selectOption(sel("years"), { label: "2010" }, { force: true });
+    await page.waitForTimeout(450);
+    const d = await titulka(page);
+    over(!d.typ && d.tlacidlo === T.vclass, T.kde + ": V Class L 2010 = trieda V (dĺžka pri akomkoľvek roku) " + j({ typ: d.typ, t: d.tlacidlo }));
+    await page.selectOption(sel("models"), { label: "V Class" }, { force: true });
+    await page.waitForTimeout(450);
+    const e = await titulka(page);
+    over(e.typ && e.tlacidlo === T.povodne, T.kde + ": V Class 2010 (staršia generácia) = typ karosérie aj „" + T.povodne + "“ " + j({ typ: e.typ, t: e.tlacidlo }));
+    await vyberAuto(page, W_TIT, { znacka: "Audi", model: "A6", rok: "2015" });
+    await page.waitForTimeout(450);
+    const f = await titulka(page);
+    over(f.typ && f.tlacidlo === T.povodne, T.kde + ": Audi A6 = typ karosérie aj „" + T.povodne + "“");
+  }
+  // uložená trieda V: po načítaní hneď skrytý typ aj nový text (bez prebliknutia: v tom istom kroku ako vykreslenie výberu)
+  await vyberAuto(page, W_TIT, { znacka: "Mercedes-Benz", model: "V Class XL (Extra Long 5370 mm)", rok: "2021" });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await odmietniCookies(page);
+  await page.waitForFunction((w) => { const s = document.querySelector(w + " .modl-selector-wrap .brands select"); return s && s.options.length > 5; }, W_TIT, { timeout: 40000 });
+  const g = await titulka(page);
+  over(!g.typ && g.tlacidlo === T.vclass, T.kde + ": po načítaní s uloženým V Class XL 2021 hneď skrytý typ a „" + T.vclass + "“ " + j({ typ: g.typ, t: g.tlacidlo }));
+  const t0 = Date.now();
+  await page.locator(W_TIT + " .btn.choice-Model:visible").first().click();
+  const n = await cakajNaVclass(page, stav, t0);
+  over(n && n.url === T.web + VCLASS + "?rok=2021&velkost=XL", T.kde + ": klik presmeruje bez typu karosérie (" + (n && n.url) + ")");
+  over(!g.chyba, T.kde + ": bez červeného rámika chýbajúceho poľa");
 }
 /** Navigácie na stránku triedy V od času t. */
 const preslo = (stav, t) => stav.navigacie.some((x) => x.cas > t && new URL(x.url).pathname === VCLASS);
@@ -830,6 +926,12 @@ const SCENARE = [
     },
   },
   {
+    meno: "titulka trieda V: typ karosérie skrytý, tlačidlo „Prejsť na triedu V“, iné auto = ako predtým",
+    async beh({ page, stav }, s) {
+      await overTitulkuVclass(page, stav, s, { web: SK, povodne: "Zvoliť model", vclass: "Prejsť na triedu V", kde: "titulka SK" }, true);
+    },
+  },
+  {
     meno: "stránka triedy V s uloženou triedou V nikdy nepresmeruje",
     ulozene: { Brand: "Mercedes-Benz", Model: "V Class", Year: "2020" },
     async beh({ page, stav }) {
@@ -896,6 +998,9 @@ const SCENARE = [
       await otvor(page, CZ + "/");
       await page.waitForFunction((w) => { const s = document.querySelector(w + " .modl-selector-wrap .brands select"); return s && s.options.length > 5; }, W, { timeout: 40000 });
       await vyberAuto(page, W, { znacka: "Mercedes-Benz", model: "V Class", rok: "2020" });
+      await page.waitForTimeout(450);
+      const tc = await titulka(page);
+      over(tc.typ && tc.tlacidlo === "Zvolit model", "CZ titulka (CZ_SPUSTENE = false): V Class 2020 = typ karoserie aj „Zvolit model“ bez zmeny " + j({ typ: tc.typ, t: tc.tlacidlo }));
       await page.selectOption(W + " .type-selector select", { index: 1 }, { force: true });
       await page.locator(W + " .btn.choice-Model:visible").first().click();
       await page.waitForURL((u) => u.pathname === "/rozcestnik/", { timeout: 20000 }).catch(() => {});
@@ -1064,6 +1169,13 @@ const SCENARE = [
       await page.locator(W + " .btn.choice-Model:visible").first().click();
       await page.waitForURL((u) => u.pathname === "/rozcestnik/", { timeout: 20000 }).catch(() => {});
       over(new URL(page.url()).pathname === "/rozcestnik/" && /luxurycardesign\.cz/.test(page.url()), "CZ titulka: Audi A6 -> rozcestník (" + page.url() + ")");
+    },
+  },
+  {
+    cz: "zap",
+    meno: "CZ titulka trieda V: typ karoserie skrytý, tlačidlo „Přejít na třídu V“",
+    async beh({ page, stav }, s) {
+      await overTitulkuVclass(page, stav, s, { web: CZ, povodne: "Zvolit model", vclass: "Přejít na třídu V", kde: "CZ titulka" }, false);
     },
   },
   {

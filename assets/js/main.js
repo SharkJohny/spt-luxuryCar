@@ -491,6 +491,12 @@ function initModelSelect(texts) {
   choiceWrap.find("select").on("change", function () {
     saveModel(false);
   });
+  // titulka: Mercedes triedy V typ karosérie nepotrebuje (vclassNaTitulke). Hneď tu, v tom istom kroku ako vykreslenie
+  // výberu, aby uložená trieda V nepreblikla s poľom typu.
+  choiceWrap.find("select").on("change", function () {
+    vclassNaTitulke(choiceWrap);
+  });
+  vclassNaTitulke(choiceWrap);
 
   // Návrat cez bfcache (Safari/iOS; Chrome pri Shoptet no-store bfcache zatiaľ nepoužíva): stránka sa ukáže
   // presne ako pri odchode, ale auto mohlo byť medzitým zmenené na inej stránke v tej istej karte.
@@ -514,6 +520,7 @@ function initModelSelect(texts) {
     nastav(choiceWrap.find(".surcharge-list.years select")[0], u.Year);
     nastav(choiceWrap.find(".surcharge-list.type-selector select")[0], u.carType);
     saveModel(false);
+    vclassNaTitulke(choiceWrap);
   });
 
   // Hlavný prepínač osobné vozidlá ↔ kamióny (len homepage). Volané ako
@@ -752,6 +759,28 @@ function initVehicleKindSwitch(container, choiceWrap) {
   try {
     if (sessionStorage.getItem("vehicleKind") === "trucks") setKind("trucks");
   } catch (e) { /* private mode */ }
+}
+
+/**
+ * Titulka: Mercedes triedy V (vclassAuto — „V Class“ 2014 až aktuálny, dĺžky M/L/XL pri akomkoľvek roku; SK, CZ až
+ * s CZ_SPUSTENE) typ karosérie nepotrebuje — saveModel ju presmeruje skôr, než sa typ kontroluje. Michal 8. 11. 2026: typ
+ * karosérie (Long, SUV…) pri V Class mätie. Pole aj so štítkom sa skryje (trieda .lcd-titulka-vclass, _lcdHome.scss:
+ * PC a tablet nechajú miesto, telefón ho plynulo zbalí — polia nad ním sa nepohnú) a tlačidlo povie, kam zákazník
+ * pôjde. Iné auto = pole aj text tlačidla ako predtým. Len titulka (.in-index); produkt (okno/presmerovanie, po „Zostať tu“
+ * typ karosérie treba) a rozcestník sa nemenia.
+ */
+function vclassNaTitulke(choiceWrap) {
+  const wrap = choiceWrap && choiceWrap[0];
+  if (!wrap || !$(".in-index")[0]) return;
+  const web = webPresmerovania();
+  const h = (k) => lcdPlatnaHodnota(wrap.querySelector(".surcharge-list." + k + " select"));
+  const vclass = web ? vclassAuto(h("brands"), h("models"), h("years")) : null;
+  wrap.classList.toggle("lcd-titulka-vclass", !!vclass);
+  const btn = wrap.querySelector(".btn.choice-Model");
+  if (!btn) return;
+  if (!btn.hasAttribute("data-lcd-text")) btn.setAttribute("data-lcd-text", btn.textContent);
+  const text = vclass ? (web === "cz" ? "Přejít na třídu V" : "Prejsť na triedu V") : btn.getAttribute("data-lcd-text");
+  if (btn.textContent !== text) btn.textContent = text;
 }
 
 function saveModel(redirect) {
