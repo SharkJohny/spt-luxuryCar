@@ -24,7 +24,7 @@ import { lcdNorm } from "./autoVyber.js";
  * (české texty, okno „Máte Mercedes třídy V?“). Prepne hlavná session v tom istom vydaní, v ktorom sa CZ produkt zverejní.
  * Test oboch stavov: node tools/test-vclass-presmerovanie.mjs [--cz-spustene].
  */
-export const CZ_SPUSTENE = false;
+export const CZ_SPUSTENE = true;
 
 /** Stránka triedy V (SK 646, CZ 2458 — rovnaká adresa na oboch weboch). */
 export const VCLASS_URL = "/autokoberce-mercedes-v-class/";
