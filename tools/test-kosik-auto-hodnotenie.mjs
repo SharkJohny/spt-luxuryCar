@@ -136,6 +136,8 @@ over(bezPripravene(d) && JSON.stringify(autoRozpis(d)) === JSON.stringify(["Auto
 // ---------------------------------------------------------------- Mercedes triedy V (SK 646, kód VCLASS, priceId 68434)
 // Michal 8. 11. 2026: „vždy najskôr musia byť informácie o aute, ako prvé, a potom je to, čo si človek objednal, hneď pod tým“;
 // rok len raz, „2. a 3. rad“ bez „: L“, stolček / stred / zásuvky zrozumiteľne. Len zobrazenie (príplatky riadku sa nemenia).
+// Variant B (Michal 8. 11. 2026 večer, „nepíše sa, čo to vlastne je“): nadpisy „Vaše auto“ a „Objednávate“ (li.lcd-rozpis__nadpis),
+// časti „Autokoberce k predným sedadlám“, „Autokoberce do 2. a 3. radu“, „Druhá vrstva k predným sedadlám“, „Farba boxov“.
 const VC_VOLBY = { "Rok výroby": "2024", "Volant": "Vľavo", "Stred medzi sedadlami": "Podlaha", "Bočné dvere": "Dvoje, na oboch stranách",
   "Sedadlá v 2. a 3. rade": "2 sedadlá v 2. rade a 2 sedadlá v 3. rade", "Stolček vzadu": "So stolčekom", "Zásuvky pod sedadlami": "Bez zásuviek",
   "Vzor a farba 1. vrstvy": "Diamond Line – Čierna, červené šitie", "Farba 2. vrstvy": "Lux Color 11", "Rozloženie": "Predné sedadlá, 2. a 3. rad (L)",
@@ -145,25 +147,28 @@ const VCLASS = RIADOK({ href: "/autokoberce-mercedes-v-class/", nazov: "Autokobe
 const VC_AUTO = { Brand: "Mercedes-Benz", Model: "V Class L (long 5140 mm)", Year: "2024", model: "Mercedes-Benz V Class L (long 5140 mm) 2024" };
 const VC_AUTA = ["Volant: Vľavo", "Bočné posuvné dvere: Dvoje, na oboch stranách", "Sedadlá: 2 v 2. rade, 2 v 3. rade", "Stolček v 2. a 3. rade: Áno",
   "Medzi prednými sedadlami: Podlaha", "Elektrické zásuvky pod sedadlami: Nie"];
-const VC_CASTI = (rad) => ["Predné sedadlá", rad, "Rohož do kufra", "Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie", "Farba 2. vrstvy: Lux Color 11",
-  "Prvý box z dvoch: S 33 × 32 × 30 cm", "Druhý box z dvoch: M 40 × 32 × 30 cm", "Farba boxov do kufra: Hnedá káva"];
-const VC_ROZPIS = ["Auto: Mercedes-Benz V Class L (long 5140 mm) 2024"].concat(VC_AUTA, VC_CASTI("2. a 3. rad"));
-const rozpisy = (d) => [...d.querySelectorAll("ul.lcd-rozpis")].map((ul) => [...ul.children].map(txt));
+const VC_CASTI = (rad) => ["# Objednávate", "Autokoberce k predným sedadlám", rad, "Rohož do kufra", "Vzor a farba 1. vrstvy: Diamond Line – Čierna, červené šitie",
+  "Druhá vrstva k predným sedadlám: Lux Color 11", "Prvý box z dvoch: S 33 × 32 × 30 cm", "Druhý box z dvoch: M 40 × 32 × 30 cm", "Farba boxov: Hnedá káva"];
+const VC_ROZPIS = ["# Vaše auto", "Auto: Mercedes-Benz V Class L (long 5140 mm) 2024"].concat(VC_AUTA, VC_CASTI("Autokoberce do 2. a 3. radu"));
+const rozpisy = (d) => [...d.querySelectorAll("ul.lcd-rozpis")].map((ul) => [...ul.children].map((li) => (li.classList.contains("lcd-rozpis__nadpis") ? "# " : "") + txt(li)));
 const rovnake = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 d = stranka(KOSIK(VCLASS), { ss: VC_AUTO });
 over(rovnake(rozpisy(d), [VC_ROZPIS]), "košík, trieda V s autom: najprv auto (rok len raz), potom objednané časti", rozpisy(d));
 const ulVc = d.querySelector("tr ul.lcd-rozpis");
-over(ulVc && ulVc.hasAttribute("data-lcd-vclass") && [...ulVc.children].filter((li) => li.hasAttribute("data-lcd-vc-hned")).length === 9,
-  "košík, trieda V: značky pre zbalený súhrn (Auto + 8 objednaných častí hneď)");
+over(ulVc && ulVc.hasAttribute("data-lcd-vclass") && [...ulVc.children].filter((li) => li.hasAttribute("data-lcd-vc-hned")).length === 11,
+  "košík, trieda V: značky pre zbalený súhrn (2 nadpisy, Auto a 8 objednaných častí hneď)");
+over(ulVc && [...ulVc.querySelectorAll(":scope > li.lcd-rozpis__nadpis")].every((li) => !li.querySelector(".lcd-rozpis__n, .lcd-rozpis__h, a, button")),
+  "košík, trieda V: nadpis je len text (bez odrážky s názvom a hodnotou, nie klikateľný)");
 over(d.querySelector("tr span.main-link-surcharges").textContent === VC_SUR, "košík, trieda V: text príplatkov Shoptetu bez zmeny (číta ho ponuka)");
 d = stranka(KOSIK(VCLASS));
-over(rovnake(rozpisy(d), [["Rok výroby: 2024"].concat(VC_AUTA, VC_CASTI("2. a 3. rad (veľkosť L)"))]), "košík, trieda V bez auta: rok výroby prvý, veľkosť pri 2. a 3. rade", rozpisy(d));
+over(rovnake(rozpisy(d), [["# Vaše auto", "Rok výroby: 2024"].concat(VC_AUTA, VC_CASTI("Autokoberce do 2. a 3. radu (veľkosť L)"))]), "košík, trieda V bez auta: rok výroby prvý, veľkosť pri 2. a 3. rade", rozpisy(d));
 d = stranka(REKAP(`<div class="cart-item" data-micro="cartItem" data-micro-sku="VCLASS"><div class="cart-item-name"><a href="/autokoberce-mercedes-v-class/" class="main-link">Autokoberce Mercedes V Class
   <span class="main-link-surcharges">${VC_SUR}</span></a></div></div>`), { ss: VC_AUTO });
 over(rovnake(rozpisy(d), [VC_ROZPIS]), "rekapitulácia v krokoch (bez priceId), trieda V: rovnaké poradie ako v košíku", rozpisy(d));
 d = stranka(KOSIK(VCLASS, "cs"), { ss: VC_AUTO, host: "www.luxurycardesign.cz" });
-over(!d.querySelector("ul.lcd-rozpis[data-lcd-vclass]") && rozpisy(d)[0] && rozpisy(d)[0].includes("Stolček vzadu: So stolčekom"), "CZ (triedu V nemá): bežný rozpis bez zmeny", rozpisy(d));
+over(!d.querySelector("ul.lcd-rozpis[data-lcd-vclass]") && rozpisy(d)[0] && rozpisy(d)[0].includes("Stolček vzadu: So stolčekom") && !d.querySelector(".lcd-rozpis__nadpis"),
+  "CZ (triedu V nemá): bežný rozpis bez zmeny, bez nadpisov", rozpisy(d));
 d = stranka(KOSIK(RIADOK({ href: "/autokoberce-mercedes-v-class/", nazov: "Autokoberce Mercedes V Class", sur: VC_SUR, itemId: "it5", priceId: "68383", sku: "VCLASS" })), { ss: VC_AUTO });
 over(!d.querySelector("ul.lcd-rozpis[data-lcd-vclass]"), "iný priceId než 68434: bežný rozpis");
 

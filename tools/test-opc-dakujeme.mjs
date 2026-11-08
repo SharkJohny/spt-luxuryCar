@@ -342,6 +342,15 @@ t("položka, ktorú už rozpísal cart.js (ul.lcd-rozpis + skryté zdroje): rozp
   const p = D.citajUdaje(doc, "cz", null).udaje.polozky[0];
   eq([p.nazov, p.rozpis], ["Luxusní autokoberce Dragonskin Elite DIAMOND LINE", [{ n: "Auto", h: "Škoda Octavia 2021" }, { n: "Barva 1. vrstvy", h: "X" }]]);
 });
+t("trieda V z cart.js s nadpismi „Vaše auto“ / „Objednávate“ (li.lcd-rozpis__nadpis): ďakovná stránka ich nepreberie ako riadky rozpisu", () => {
+  const { doc } = prostredie("cz-prevod");
+  const bunka = doc.querySelector(".cart-table .p-name");
+  bunka.innerHTML = '<a class="main-link" href="/autokoberce-mercedes-v-class/">Autokoberce Mercedes V Class <span class="main-link-surcharges lcd-rozpis-zdroj">Príplatky: a - b</span></a>' +
+    '<ul class="lcd-rozpis" data-lcd-vclass=""><li class="lcd-rozpis__nadpis" data-lcd-vc-hned="">Vaše auto</li><li data-lcd-vc-hned=""><span class="lcd-rozpis__n">Auto: </span><span class="lcd-rozpis__h">Mercedes-Benz V Class L (long 5140 mm) 2024</span></li>' +
+    '<li class="lcd-rozpis__nadpis" data-lcd-vc-hned="">Objednávate</li><li data-lcd-vc-hned="" data-lcd-vc-cast="rohoz"><span class="lcd-rozpis__h">Rohož do kufra</span></li></ul>';
+  const p = D.citajUdaje(doc, "cz", null).udaje.polozky[0];
+  eq(p.rozpis, [{ n: "Auto", h: "Mercedes-Benz V Class L (long 5140 mm) 2024" }, { n: null, h: "Rohož do kufra" }]);
+});
 t("kamión: hodnota s „ – “ ostane v jednom riadku (Čierna, čierne šitie – 11), ostatné rozpisy presne ako košík", () => {
   const u = D.citajUdaje(prostredie("sk-kamion").doc, "sk", null).udaje;
   eq(u.polozky[0].rozpis.map((x) => x.n + ": " + x.h), [

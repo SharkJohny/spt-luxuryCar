@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { JSDOM } = createRequire(join(ROOT, "package.json"))("jsdom");
-const { lcdRozpis, lcdRozpisZObsahu, lcdVrstvy } = await import(pathToFileURL(join(ROOT, "assets/js/functions/kosikRozpis.js")).href);
+const { lcdRozpis, lcdRozpisZObsahu, lcdVrstvy, lcdRozpisEl } = await import(pathToFileURL(join(ROOT, "assets/js/functions/kosikRozpis.js")).href);
 
 let zlyhania = 0;
 const over = (podm, m, detail) => { if (podm) console.log("✓ " + m); else { zlyhania++; console.error("✗ " + m + (detail !== undefined ? " — " + JSON.stringify(detail) : "")); } };
@@ -80,6 +80,17 @@ over(JSON.stringify(txt(r)) === JSON.stringify(VZ_SK), "vzorky SK po úprave adm
 // iné produkty so zátvorkou a „- Áno“ sa nemenia
 r = lcdRozpis({ cz: false, variant: "", priplatky: "Príplatky: Nášivka (logo) - Áno" });
 over(JSON.stringify(txt(r)) === JSON.stringify(["Nášivka (logo): Áno"]), "iný príplatok s „Áno“ ostáva", txt(r));
+
+// nadpis v rozpise (trieda V, Michal 8. 11. 2026 večer, variant B): { nadpis } -> li.lcd-rozpis__nadpis len s textom (bez názvu a hodnoty);
+// bežné riadky bez zmeny
+{
+  const doc = new JSDOM("<!doctype html><body></body>").window.document;
+  const ul = lcdRozpisEl(doc, [{ nadpis: "Vaše auto" }, { n: "Auto", h: "Mercedes-Benz V Class L (long 5140 mm) 2024" }, { nadpis: "Objednávate" }, { n: null, h: "Rohož do kufra" }], "lcd-rozpis");
+  over(ul.outerHTML === '<ul class="lcd-rozpis"><li class="lcd-rozpis__nadpis">Vaše auto</li><li><span class="lcd-rozpis__n">Auto: </span><span class="lcd-rozpis__h">Mercedes-Benz V Class L (long 5140 mm) 2024</span></li>'
+    + '<li class="lcd-rozpis__nadpis">Objednávate</li><li><span class="lcd-rozpis__h">Rohož do kufra</span></li></ul>', "lcdRozpisEl: nadpis = li.lcd-rozpis__nadpis s textom, riadky ako doteraz", ul.outerHTML);
+  const z = lcdRozpisEl(doc, [{ nadpis: "<b>x</b>" }], "lcd-rozpis");
+  over(z.firstChild.textContent === "<b>x</b>" && !z.querySelector("b"), "lcdRozpisEl: nadpis cez textContent (bez HTML)");
+}
 
 console.log(zlyhania ? `\n${zlyhania} zlyhaní` : "\nVšetko OK");
 process.exit(zlyhania ? 1 : 0);

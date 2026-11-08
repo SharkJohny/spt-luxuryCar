@@ -301,6 +301,12 @@ ul.lcd-rozpis > li{position:relative;display:block;margin:0 !important;padding:0
   color:#6b645a;font:400 14px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;letter-spacing:0;text-transform:none;text-align:left;overflow-wrap:anywhere}
 ul.lcd-rozpis > li::before{content:"";position:absolute;left:1px;top:.6em;width:5px;height:5px;border-radius:50%;background:#c49b31}
 ul.lcd-rozpis .lcd-rozpis__h{color:#14110c;font-weight:600}
+/* nadpis skupiny v rozpise (trieda V, Michal 8. 11. 2026 večer, variant B): „Vaše auto“, „Objednávate“ — malé zlaté veľké písmená
+   ako štítky pokladne, bez odrážky, nie klikateľné; druhý nadpis s odstupom od predchádzajúcej skupiny */
+ul.lcd-rozpis > li.lcd-rozpis__nadpis{padding:0 !important;color:#7c5f16;font:700 12px/1.3 "Exo 2","Segoe UI",Arial,sans-serif;letter-spacing:.12em;
+  text-transform:uppercase}
+ul.lcd-rozpis > li.lcd-rozpis__nadpis::before{content:none}
+ul.lcd-rozpis > li + li.lcd-rozpis__nadpis{margin-top:6px !important}
 .lcd-rozpis-zdroj{display:none !important}
 /* doplnky setu s krížikom (lcdKosikDoplnok.js vlozOdober, Michal 10. 10.: „aby to vedel odstrániť“) —
    pod rozpisom položky; krížik vráti set bez doplnku (rovnaká overená výmena riadku ako pridanie) */

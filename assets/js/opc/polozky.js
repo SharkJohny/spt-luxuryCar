@@ -149,7 +149,7 @@ export function hnedVidno(r) {
   const riadky = r.riadky;
   let v = [];
   if (r.druh === "vclass") {
-    // trieda V: Auto (alebo rok výroby) a objednané časti hneď, údaje o aute po „Zobraziť viac“
+    // trieda V: nadpisy „Vaše auto“ a „Objednávate“, Auto (alebo rok výroby) a objednané časti hneď, údaje o aute po „Zobraziť viac“
     riadky.forEach(function (x, i) { if (x.hned) v.push(i); });
   } else if (r.druh === "kamion" || r.druh === "info") {
     riadky.forEach(function (x, i) { if (VOZIDLO.test(x.nazov)) v.push(i); });

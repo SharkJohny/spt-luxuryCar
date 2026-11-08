@@ -682,3 +682,10 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] cart.js: rovnaký rozpis 646 v /kosik/ a v rekapitulácii krokov; rohož bez príplatkov dostane „Auto:“ navrchu ako v karte pokladne
 - [x] polozky.js hnedVidno: značky data-lcd-vc-hned (súhrn kroku 2)
 - [ ] Vydanie: push, prepnutie verzie SK (nerobí sa bez pokynu)
+
+## Trieda V: rozpis v košíku s nadpismi „Vaše auto“ a „Objednávate“ (variant B, 8. 11. 2026 večer)
+- [x] Testy najprv (červené): test-kosik-vclass A + B (nadpisy, texty častí, zbalené, krížiky, rekapitulácia), test-kosik-auto-hodnotenie (/kosik/, CZ bez nadpisov), test-kosik-rozpis (lcdRozpisEl { nadpis }), test-opc-dakujeme, test-opc-jednotky
+- [x] vclassKarta.js riadkyVclass: nadpis „Vaše auto“ + údaje o aute, nadpis „Objednávate“ + „Autokoberce k predným sedadlám“, „Autokoberce do 2. a 3. radu“, „Druhá vrstva k predným sedadlám“, „Farba boxov“
+- [x] kosikRozpis.js lcdRozpisEl: riadok { nadpis } = li.lcd-rozpis__nadpis; dakujeme.js ho nepreberá
+- [x] CSS _lcdKosik.scss + _lcdOpc.scss: 12 px Exo 2, veľké písmená, #7c5f16, bez odrážky (vloz-lcd-css.py)
+- [ ] Vydanie: push, prepnutie verzie SK (nerobí sa bez pokynu)

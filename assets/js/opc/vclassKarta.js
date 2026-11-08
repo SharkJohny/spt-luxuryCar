@@ -55,8 +55,16 @@ export const TEXTY = {
   odobranyBox: "Box je odstránený zo setu.",
   odobranyBoxKus: (v) => "Box " + v + " je odstránený zo setu.",
   // rozpis položky (Michal 8. 11. 2026 večer): názvy údajov o aute zrozumiteľne, hodnoty príplatkov v objednávke sa nemenia
+  // variant B (Michal 8. 11. 2026 večer, „nepíše sa, čo to vlastne je“): dva nadpisy a objednané časti celým menom
+  nadpisAuto: "Vaše auto",
+  nadpisObjednavate: "Objednávate",
+  rozpisPredok: "Autokoberce k predným sedadlám",
+  rozpisRad: "Autokoberce do 2. a 3. radu",
+  radVelkost: (v) => "Autokoberce do 2. a 3. radu (veľkosť " + v + ")",
+  rozpisVrstva: "Druhá vrstva k predným sedadlám",
+  bezDruhej: "Bez druhej vrstvy",
+  farbaBoxov: "Farba boxov",
   auto: "Auto",
-  radVelkost: (v) => "2. a 3. rad (veľkosť " + v + ")",
   dvere: "Bočné posuvné dvere",
   sedadla: "Sedadlá",
   sedadlaHodnota: (r2, r3) => r2 + " v 2. rade, " + r3 + " v 3. rade",
@@ -373,14 +381,17 @@ const UDAJE_AUTA = [
 ];
 
 /**
- * Riadky rozpisu položky 646 [{ n, h, cast?, hned? }] z textu príplatkov a auta karty (autoKarty) alebo null (neznáme
- * rozloženie / rohož -> bežný rozpis). LEN zobrazenie: text príplatkov, objednávka ani poznámka sa nemenia.
- * Michal 8. 11. 2026: „vždy najskôr musia byť informácie o aute, ako prvé, a potom je to, čo si človek objednal, hneď pod tým“.
- *  1) auto: „Auto: Mercedes-Benz V Class L (…) 2024“ (len auto z košíka s rovnakým rokom; rok sa potom druhýkrát nepíše),
- *     bez neho „Rok výroby“; potom volant, posuvné dvere, sedadlá, stolček, stred a zásuvky (tie až po „Zobraziť viac“);
- *  2) objednané časti: predné sedadlá, 2. a 3. rad (veľkosť je v riadku Auto, inak „(veľkosť L)“), rohož, farby vrstiev,
- *     boxy a ich farba; riadky častí majú cast (krížik ×). hned = vidno aj zbalené (Auto / rok a objednané časti).
- *  Neznáme príplatky na konci, po „Zobraziť viac“.
+ * Riadky rozpisu položky 646 [{ n, h, cast?, hned? } | { nadpis, hned }] z textu príplatkov a auta karty (autoKarty) alebo null
+ * (neznáme rozloženie / rohož -> bežný rozpis). LEN zobrazenie: text príplatkov, objednávka ani poznámka sa nemenia.
+ * Michal 8. 11. 2026: „vždy najskôr musia byť informácie o aute, ako prvé, a potom je to, čo si človek objednal, hneď pod tým“;
+ * večer variant B „dva nadpisy“ („Tu sa nepíše, čo to vlastne je — čo predné sedadlá, čo druhý a tretí rad, čo rohož do kufra“):
+ *  1) nadpis „Vaše auto“: „Auto: Mercedes-Benz V Class L (…) 2024“ (len auto z košíka s rovnakým rokom; rok sa potom druhýkrát
+ *     nepíše), bez neho „Rok výroby“; potom volant, posuvné dvere, sedadlá, stolček, stred a zásuvky (tie až po „Zobraziť viac“;
+ *     bez roku aj auta je hneď vidno prvý z nich, aby nadpis nebol prázdny). Bez údajov o aute nadpis nie je.
+ *  2) nadpis „Objednávate“: „Autokoberce k predným sedadlám“, „Autokoberce do 2. a 3. radu“ (veľkosť je v riadku Auto, inak
+ *     „(veľkosť L)“), „Rohož do kufra“, „Vzor a farba 1. vrstvy“, „Druhá vrstva k predným sedadlám“ (bez nej „Bez druhej
+ *     vrstvy“), boxy a „Farba boxov“; riadky častí majú cast (krížik ×). hned = vidno aj zbalené (nadpisy, Auto / rok
+ *     a objednané časti). Neznáme príplatky na konci, po „Zobraziť viac“.
  */
 export function riadkyVclass(sur, auto) {
   const pol = polozkyTextu(sur);
@@ -396,26 +407,30 @@ export function riadkyVclass(sur, auto) {
   const rok = hod("rok");
   const velAuta = velkostZAuta(auto, rok);
   const popis = velAuta ? popisAuta(auto) : null;
-  const riadky = [];
-  if (popis) riadky.push({ n: TEXTY.auto, h: popis, hned: true });
-  else if (rok) riadky.push({ n: SELECTY.rok, h: rok, hned: true });
+  const autoR = [];
+  if (popis) autoR.push({ n: TEXTY.auto, h: popis, hned: true });
+  else if (rok) autoR.push({ n: SELECTY.rok, h: rok, hned: true });
   UDAJE_AUTA.forEach(function (u) {
     const h = hod(u[0]);
-    if (h) riadky.push({ n: u[1], h: u[2] ? u[2](h) : h });
+    if (h) autoR.push({ n: u[1], h: u[2] ? u[2](h) : h });
   });
-  if (s.p) riadky.push({ n: null, h: TEXTY.predok, cast: "predok", hned: true });
-  if (s.r) riadky.push({ n: null, h: popis && velAuta === s.vel ? TEXTY.rad : TEXTY.radVelkost(s.vel), cast: "rad", hned: true });
+  if (autoR.length) autoR[0].hned = true;
+  const riadky = autoR.length ? [{ nadpis: TEXTY.nadpisAuto, hned: true }].concat(autoR) : [];
+  riadky.push({ nadpis: TEXTY.nadpisObjednavate, hned: true });
+  if (s.p) riadky.push({ n: null, h: TEXTY.rozpisPredok, cast: "predok", hned: true });
+  if (s.r) riadky.push({ n: null, h: popis && velAuta === s.vel ? TEXTY.rozpisRad : TEXTY.radVelkost(s.vel), cast: "rad", hned: true });
   if (s.k) riadky.push({ n: null, h: TEXTY.rohoz, cast: "rohoz", hned: true });
   const f1 = hod("farba");
   if (f1) riadky.push({ n: SELECTY.farba, h: f1, hned: true });
   const f2 = hod("farba2");
-  if (f2) riadky.push({ n: SELECTY.farba2, h: f2, cast: s.p && N(f2) !== N(BEZ_DRUHEJ) ? "vrstva2" : null, hned: s.p });
+  if (f2 && N(f2) === N(BEZ_DRUHEJ)) riadky.push({ n: null, h: TEXTY.bezDruhej, hned: s.p });
+  else if (f2) riadky.push({ n: TEXTY.rozpisVrstva, h: f2, cast: s.p ? "vrstva2" : null, hned: s.p });
   const b1 = hod("box1"), b2 = hod("box2"), b3 = hod("box3");
   if (b1) riadky.push({ n: SELECTY.box1, h: b1, cast: "box", hned: true });
   if (b2) riadky.push({ n: SELECTY.box2, h: b2, cast: "box1", hned: true });
   if (b3) riadky.push({ n: SELECTY.box3, h: b3, cast: "box2", hned: true });
   const bf = hod("boxFarba");
-  if (bf) riadky.push({ n: SELECTY.boxFarba, h: bf, hned: true });
+  if (bf) riadky.push({ n: TEXTY.farbaBoxov, h: bf, hned: true });
   pol.forEach(function (y, i) { if (!pouzite.has(i)) riadky.push({ n: y.n, h: y.h }); });
   return riadky;
 }

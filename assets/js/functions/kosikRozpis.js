@@ -70,12 +70,21 @@ export function lcdRozpis({ variant, priplatky, cz }) {
   return out.length === 1 && zvysok ? [] : out;
 }
 
-/** <ul class="{trieda}"><li><span class="{trieda}__n">Názov: </span><span class="{trieda}__h">hodnota</span></li>… (textContent, bez HTML) */
+/**
+ * <ul class="{trieda}"><li><span class="{trieda}__n">Názov: </span><span class="{trieda}__h">hodnota</span></li>… (textContent, bez HTML).
+ * Riadok { nadpis } = malý nadpis skupiny bez odrážky <li class="{trieda}__nadpis">text</li> (trieda V: „Vaše auto“, „Objednávate“).
+ */
 export function lcdRozpisEl(doc, riadky, trieda) {
   const ul = doc.createElement("ul");
   ul.className = trieda;
   riadky.forEach((x) => {
     const li = doc.createElement("li");
+    if (x.nadpis) {
+      li.className = trieda + "__nadpis";
+      li.textContent = x.nadpis;
+      ul.appendChild(li);
+      return;
+    }
     if (x.n) {
       const n = doc.createElement("span");
       n.className = trieda + "__n";

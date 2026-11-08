@@ -309,9 +309,10 @@ function riadkyTextu(el) {
 const JE_PRIPLATKY = /^P[rř][ií]platky\s*:/i;
 const JE_VARIANT = /^(?:Farba|Barva)\s*\d\.?\s*vrstvy\s*:|^(?:Farba|Barva|Veľkosť|Velikost|Typ|Hodnota)\s*[^:]{0,30}:/i;
 
-/** Riadky rozpisu, ktoré už v bunke vyrobil cart.js (ul.lcd-rozpis) -> [{ n, h }]. */
+/** Riadky rozpisu, ktoré už v bunke vyrobil cart.js (ul.lcd-rozpis) -> [{ n, h }]. Nadpisy triedy V („Vaše auto“, „Objednávate“,
+ *  li.lcd-rozpis__nadpis) nie sú riadky — ďakovná stránka ich vynechá (rozpis ostáva ako doteraz). */
 function rozpisZCartJs(ul) {
-  return Array.prototype.map.call(ul.querySelectorAll(":scope > li"), (li) => {
+  return Array.prototype.map.call(ul.querySelectorAll(":scope > li:not(.lcd-rozpis__nadpis)"), (li) => {
     const n = li.querySelector(".lcd-rozpis__n"), h = li.querySelector(".lcd-rozpis__h");
     return { n: n ? cisty(n.textContent).replace(/\s*:\s*$/, "") || null : null, h: cisty(h ? h.textContent : li.textContent) };
   }).filter((x) => x.h);

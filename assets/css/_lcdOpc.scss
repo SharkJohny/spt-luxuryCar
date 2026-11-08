@@ -910,6 +910,9 @@ html.lcd-opc body.in-krok-2 .lcd-opc-kk__nazov{min-width:0;font:700 16px/1.25 va
 html.lcd-opc body.in-krok-2 .lcd-opc-kk__cena{flex:none;font:800 18px/1.25 var(--o-disp);color:var(--o-ink);white-space:nowrap}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis{margin:6px 0 0 !important}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li{font:400 15px/1.4 var(--o-body);color:var(--o-tlm)}
+/* nadpisy triedy V „Vaše auto“ / „Objednávate“ (vclassKarta.js riadkyVclass): štítok ako v pokladni, nie riadok rozpisu */
+html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta ul.lcd-rozpis > li.lcd-rozpis__nadpis{font:700 12px/1.3 var(--o-disp);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--o-gold-t)}
 html.lcd-opc body.in-krok-2 .lcd-opc-kosikkarta .lcd-opc-kk__kamion{display:block;margin:6px 0 0}
 /* krížik pri pridanom doplnku (rohož: ×, box: × Odobrať) — ako v košíku */
 /* okraj 2 px hore a dole (predtým −5 px): riadok je aspoň taký vysoký ako tlačidlo, dva boxy pod sebou sa neprekrývajú
