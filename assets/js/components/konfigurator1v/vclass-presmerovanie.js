@@ -7,7 +7,8 @@
 //
 // Podoby (nápis v otvorenej karte auta pod výberom auta, pri zavretej karte nad krokmi; okno navrchu stránky):
 //  - „ide“: zákazník na tejto stránke VYBERIE auto triedy V myšou alebo prstom (zmena značky, modelu alebo roku, po ktorej
-//    je vo výbere trieda V od 2014) -> po 1,5 s presmerovanie (odkaz „Prejsť hneď“). Iné auto počas čakania ho zruší.
+//    je vo výbere trieda V: „V Class“ od 2014, dĺžky M/L/XL pri akomkoľvek roku aj ešte bez roku -> adresa bez roku)
+//    -> po 1,5 s presmerovanie (odkaz „Prejsť hneď“). Iné auto počas čakania ho zruší.
 //  - „klavesnica“: tá istá zmena z klávesnice (na Windows mení šípka v zatvorenom selecte hodnotu a posiela change; kláves
 //    na tom istom poli najviac 600 ms pred change). Bez odpočtu, aby zákazník s čítačkou pri prechádzaní rokov neodišiel:
 //    prejde klávesom Enter v poli auta, tlačidlom „Pokračujte ďalej“ karty auta alebo odkazom.

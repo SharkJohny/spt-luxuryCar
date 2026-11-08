@@ -6,12 +6,14 @@
  *
  * Zhoda podľa katalógu áut (data.json `cars`, značka "Mercedes-Benz"; porovnanie cez lcdNorm, teda bez ohľadu na veľké
  * písmená a medzery):
- *   "V Class"                         -> zahŕňa aj starú W638 (1996–2003), preto rozhoduje rok: len 2014 a novší
- *   "V Class M (compact 4895 mm)"     -> W447 kompaktná (dĺžka M)  } dĺžky W447; rok aj tak 2014 a novší
- *   "V Class L (long 5140 mm)"        -> W447 dlhá (dĺžka L)       } (starší rok = nezmysel, nič sa nedeje)
- *   "V Class XL (Extra Long 5370 mm)" -> W447 extra dlhá (XL)      }
+ *   "V Class"                         -> zahŕňa aj staršie generácie (W638, W639), preto rozhoduje rok: len 2014 až
+ *                                        aktuálny; „Iné, prosím napíšte do poznámky“, nevybraný či starší rok -> nič
+ *   "V Class M (compact 4895 mm)"     -> W447 kompaktná (dĺžka M)  } dĺžky existujú len pri W447 (Michal 8. 11. 2026): pri
+ *   "V Class L (long 5140 mm)"        -> W447 dlhá (dĺžka L)       } AKOMKOĽVEK roku aj bez roku je to trieda V; rok pred
+ *   "V Class XL (Extra Long 5370 mm)" -> W447 extra dlhá (XL)      } 2014, budúci či „Iné“ = omyl -> do adresy bez roku
+ *                                                                    (rok si zákazník vyberie na stránke triedy V)
  * Vito, Viano, EQV, VLE, Metris (a Marco Polo, ktorý v katalógu nie je) ostávajú bez zmeny (rozhodnutie Michala).
- * Rok „Iné, prosím napíšte do poznámky“ nie je číslo -> nič. CZ katalóg (data.json `carscs`) má tie isté mená modelov
+ * CZ katalóg (data.json `carscs`) má tie isté mená modelov
  * a CZ výber auta číta `cars` ako SK, pravidlá sú teda na oboch weboch rovnaké.
  */
 import { lcdNorm } from "./autoVyber.js";
@@ -47,26 +49,29 @@ const MODELY = {
 export const VCLASS_MODELY = ["V Class", "V Class M (compact 4895 mm)", "V Class L (long 5140 mm)", "V Class XL (Extra Long 5370 mm)"];
 
 /**
- * Auto triedy V W447 -> { rok: "2020", velkost: "L" | "" }, inak null.
+ * Auto triedy V W447 -> { rok: "2020" | "", velkost: "L" | "" }, inak null. rok "" = len pri dĺžke M/L/XL s rokom mimo
+ * 2014 – aktuálny alebo bez roku; velkost "" = obyčajné „V Class“ (vtedy je rok vždy platný).
  * @param {string|null} znacka  @param {string|null} model  @param {string|null} rok
  */
 export function vclassAuto(znacka, model, rok) {
   if (lcdNorm(znacka) !== ZNACKA) return null;
   const m = lcdNorm(model);
   if (!Object.prototype.hasOwnProperty.call(MODELY, m)) return null;
+  const velkost = MODELY[m];
   const r = String(rok == null ? "" : rok).trim();
-  if (!/^\d{4}$/.test(r)) return null;
-  const n = Number(r);
+  const n = /^\d{4}$/.test(r) ? Number(r) : 0;
   // horná hranica = aktuálny rok, rovnako ako zoznam rokov v konfigurátore (main.js) aj na stránke triedy V (vclass/data.js ROKY)
-  if (n < VCLASS_OD_ROKU || n > new Date().getFullYear()) return null;
-  return { rok: r, velkost: MODELY[m] };
+  const platny = n >= VCLASS_OD_ROKU && n <= new Date().getFullYear();
+  if (velkost) return { rok: platny ? r : "", velkost: velkost }; // dĺžka = vždy W447, zlý alebo chýbajúci rok = bez roku
+  return platny ? { rok: r, velkost: "" } : null;
 }
 
-/** Adresa stránky triedy V s rokom (a dĺžkou, ak ju model hovorí): vclass/app.js ich predvyplní. */
+/** Adresa stránky triedy V s rokom a dĺžkou (len tie, ktoré sú známe): vclass/app.js ich predvyplní. */
 export function adresaVclass(a) {
-  let q = "?rok=" + encodeURIComponent(a.rok);
-  if (a.velkost) q += "&velkost=" + encodeURIComponent(a.velkost);
-  return VCLASS_URL + q;
+  const q = [];
+  if (a.rok) q.push("rok=" + encodeURIComponent(a.rok));
+  if (a.velkost) q.push("velkost=" + encodeURIComponent(a.velkost));
+  return VCLASS_URL + (q.length ? "?" + q.join("&") : "");
 }
 
 /**

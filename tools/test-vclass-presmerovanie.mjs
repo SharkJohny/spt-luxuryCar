@@ -9,6 +9,8 @@
 // bol na stránke triedy V, pri výbere triedy V myšou/prstom dostane okno (Prejsť / Zostať tu; Esc, ×, klik mimo = Zostať
 // tu; fokus dnu a späť na pole auta, Tab ostáva v okne); pri načítaní s uloženou triedou V najviac raz za session na
 // produkte; po „Zostať tu“ ho ďalšia zmena roka v triede V nevnucuje; z klávesnice ostáva nápis s odkazom.
+// Dĺžky M/L/XL (len W447, Michal 8. 11. 2026): presmerujú pri AKOMKOĽVEK roku aj bez roku — rok do adresy len 2014 až
+// aktuálny, inak ?velkost= bez roku (rok si zákazník vyberie na stránke triedy V); obyčajné „V Class“ len 2014 až aktuálny.
 //   --snimky <priečinok>: okrem výrezov aj náhľady okna celej obrazovky so zeleným štítkom „NÁHĽAD“ (okno-*.png).
 // CZ web (Michal 8. 11. 2026: presná kópia SK, české texty, rovnaká adresa /autokoberce-mercedes-v-class/): beží len
 // s prepínačom CZ_SPUSTENE = true vo functions/vclassPresmerovanie.js. Test sa riadi tým prepínačom:
@@ -229,6 +231,20 @@ async function vyberAuto(page, koren, a, poradie = "zmr") {
     r: () => page.selectOption(w + " .years select", { label: a.rok }, { force: true }),
   };
   for (const c of poradie) await krok[c]();
+}
+
+/**
+ * Mercedes-Benz myšou, model z klávesnice (kláves na poli modelu a hneď zmena, ako písanie názvu v zatvorenom selecte):
+ * dĺžky M/L/XL reagujú už pri modeli, myšou by po 1,5 s presmerovali skôr, než test vyberie rok klávesnicou.
+ */
+async function modelKlavesnicou(page, koren, model) {
+  const w = koren + " .modl-selector-wrap";
+  await page.selectOption(w + " .brands select", { label: "Mercedes-Benz" }, { force: true });
+  await page.waitForFunction((x) => document.querySelector(x).options.length > 1, w + " .models select");
+  await page.focus(w + " .models select");
+  await page.keyboard.press("Shift");
+  await page.selectOption(w + " .models select", { label: model }, { force: true });
+  await page.waitForTimeout(300);
 }
 
 const oznamenie = (page) => page.evaluate(() => {
@@ -566,10 +582,12 @@ const SCENARE = [
       await otvor(page, ADRESA[601]);
       await cakaj1v(page);
       await otvorKartuAuta(page);
-      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class L (long 5140 mm)" }, "zm");
+      const t0 = Date.now();
+      await modelKlavesnicou(page, AUTO_1V, "V Class L (long 5140 mm)");
+      const o0 = await oznamenie(page);
+      over(o0 && o0.podoba === "klavesnica" && o0.href === VCLASS + "?velkost=L", "601 klávesnica: model V Class L ešte bez roku = nápis bez odpočtu ?velkost=L " + j(o0));
       const rok = AUTO_1V + " .modl-selector-wrap .years select";
       await page.focus(rok);
-      const t0 = Date.now();
       await page.keyboard.type("2018", { delay: 60 }); // písanie v zatvorenom selecte vyberie rok
       await page.waitForTimeout(400);
       const r = await page.evaluate((x) => document.querySelector(x).value, rok);
@@ -633,16 +651,26 @@ const SCENARE = [
       }
       await page.waitForTimeout(2000);
       over(!stav.navigacie.some((x) => x.cas > t0 && new URL(x.url).pathname === VCLASS) && new URL(page.url()).pathname !== VCLASS, "598: žiadne z týchto áut nepresmerovalo");
-      // trieda V vybraná a hneď zmenená na starší rok: čakanie sa zruší, oznámenie zmizne
-      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class M (compact 4895 mm)", rok: "2016" }, "zrm");
+      // „V Class“ (bez dĺžky) vybraná a hneď zmenená na starší rok: čakanie sa zruší, oznámenie zmizne
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class", rok: "2016" }, "zrm");
       const o = await oznamenie(page);
-      over(o && o.ide && o.href === VCLASS + "?rok=2016&velkost=M", "598: V Class M 2016 oznámenie " + JSON.stringify(o));
+      over(o && o.ide && o.href === VCLASS + "?rok=2016", "598: V Class 2016 oznámenie " + JSON.stringify(o));
       const t1 = Date.now();
       await page.selectOption(AUTO_1V + " .modl-selector-wrap .years select", { label: "2012" }, { force: true });
       await page.waitForTimeout(300);
-      over(!(await oznamenie(page)), "598: zmena roku na 2012 oznámenie zruší");
+      over(!(await oznamenie(page)), "598: V Class, zmena roku na 2012 oznámenie zruší");
       await page.waitForTimeout(2600);
       over(!stav.navigacie.some((x) => x.cas > t1 && new URL(x.url).pathname === VCLASS) && new URL(page.url()).pathname !== VCLASS, "598: zrušené čakanie nepresmerovalo");
+      // dĺžka M vybraná a hneď zmenená na Vito: čakanie sa zruší
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class M (compact 4895 mm)", rok: "2016" }, "zrm");
+      const o2 = await oznamenie(page);
+      over(o2 && o2.ide && o2.href === VCLASS + "?rok=2016&velkost=M", "598: V Class M 2016 oznámenie " + JSON.stringify(o2));
+      const t2 = Date.now();
+      await page.selectOption(AUTO_1V + " .modl-selector-wrap .models select", { label: "Vito" }, { force: true });
+      await page.waitForTimeout(300);
+      over(!(await oznamenie(page)), "598: V Class M -> Vito oznámenie zruší");
+      await page.waitForTimeout(2600);
+      over(!preslo(stav, t2) && new URL(page.url()).pathname !== VCLASS, "598: V Class M -> Vito nepresmerovalo");
       await overBezChyb(page, "598 bez presmerovania");
     },
   },
@@ -719,6 +747,86 @@ const SCENARE = [
       overOkno(await okno(page), VCLASS + "?rok=2021", "598 (bol na triede V) výber myšou");
       await page.click(".lcd1v-vclass-okno__ide");
       await overPrichod(page, { rok: "2021", velkost: "" }, "598 okno Prejsť");
+    },
+  },
+  {
+    meno: "601 V Class L 2010 (rok pred 2014 pri dĺžke = omyl) -> trieda V ?velkost=L bez roku",
+    async beh({ page, stav }, s) {
+      await otvor(page, ADRESA[601]);
+      await cakaj1v(page);
+      await otvorKartuAuta(page);
+      const t0 = Date.now();
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class L (long 5140 mm)", rok: "2010" });
+      const o = await oznamenie(page);
+      over(o && o.ide && o.vKarte && o.text.indexOf(NADPIS) === 0 && o.href === VCLASS + "?velkost=L", "601 L 2010: oznámenie a odkaz bez roku " + j(o));
+      await snimka(page, "1-presmerovanie-L2010-601-" + s, ".lcd1v-vclass", 150);
+      await overBezChyb(page, "601 L 2010");
+      const n = await cakajNaVclass(page, stav, t0);
+      over(n && n.cas >= 1300 && n.cas <= 4000 && new URL(n.url).search === "?velkost=L", "601 L 2010: presmerovanie ?velkost=L " + j(n));
+      await overPrichod(page, { rok: "", velkost: "L" }, "601 L 2010");
+    },
+  },
+  {
+    meno: "598 V Class XL, rok ešte nevybraný (značka a model) -> trieda V ?velkost=XL",
+    async beh({ page, stav }) {
+      await otvor(page, ADRESA[598]);
+      await cakaj1v(page);
+      await otvorKartuAuta(page);
+      const t0 = Date.now();
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class XL (Extra Long 5370 mm)" }, "zm");
+      const o = await oznamenie(page);
+      over(o && o.ide && o.href === VCLASS + "?velkost=XL", "598 XL bez roku: oznámenie hneď po výbere modelu " + j(o));
+      const a0 = await vybraneAuto(page);
+      over(a0[0] === "Mercedes-Benz" && a0[1] === "V Class XL (Extra Long 5370 mm)" && !/^\d{4}$/.test(a0[2]), "598 XL bez roku: rok naozaj nevybraný (placeholder) " + j(a0));
+      await overBezChyb(page, "598 XL bez roku");
+      const n = await cakajNaVclass(page, stav, t0);
+      over(n && new URL(n.url).search === "?velkost=XL", "598 XL bez roku: presmerovanie ?velkost=XL " + j(n));
+      await overPrichod(page, { rok: "", velkost: "XL" }, "598 XL bez roku");
+    },
+  },
+  {
+    meno: "619 s uloženým V Class M 2012 z inej stránky: pri načítaní -> ?velkost=M",
+    ulozene: { Brand: "Mercedes-Benz", Model: "V Class M (compact 4895 mm)", Year: "2012" },
+    async beh({ page, stav }) {
+      const t0 = Date.now();
+      await otvor(page, ADRESA[619]);
+      await cakaj1v(page).catch(() => {});
+      const n = await cakajNaVclass(page, stav, t0, 15000);
+      over(n && new URL(n.url).search === "?velkost=M", "619 uložené M 2012: presmerovanie pri načítaní ?velkost=M " + j(n));
+      await overPrichod(page, { rok: "", velkost: "M" }, "619 uložené M 2012");
+    },
+  },
+  {
+    meno: "stránka triedy V priamo s ?velkost=L bez roku",
+    async beh({ page, stav }) {
+      const t0 = Date.now();
+      await otvor(page, SK + VCLASS + "?velkost=L");
+      await cakajVclass(page);
+      const v = await stavVclass(page);
+      over(v.velkost === "L" && v.selVel === "L" && (v.rok || "") === "" && (v.selRok || "") === "", "trieda V ?velkost=L: dĺžka L predvyplnená, rok prázdny " + j(v));
+      over(v.search === "", "trieda V ?velkost=L: parameter z adresy zmizol (" + v.search + ")");
+      await page.waitForTimeout(2500);
+      over(new URL(page.url()).pathname === VCLASS && stav.navigacie.filter((x) => x.cas >= t0).length === 1, "trieda V ?velkost=L: ostáva na stránke, nepresmerúva");
+      over(stav.chyby.length === 0, "trieda V ?velkost=L: bez chýb stránky " + j(stav.chyby));
+      await page.selectOption("#lv-rok", "2019");
+      await page.waitForTimeout(300);
+      const v2 = await stavVclass(page);
+      over(v2.rok === "2019" && v2.velkost === "L", "trieda V ?velkost=L: rok sa dá vybrať, dĺžka ostáva " + j(v2));
+    },
+  },
+  {
+    meno: "titulka: V Class L 2010 -> trieda V ?velkost=L bez roku",
+    async beh({ page, stav }) {
+      const W = "#konfSlot .model-selector";
+      await otvor(page, SK + "/");
+      await page.waitForFunction((w) => { const s = document.querySelector(w + " .modl-selector-wrap .brands select"); return s && s.options.length > 5; }, W, { timeout: 40000 });
+      await page.waitForTimeout(500);
+      await vyberAuto(page, W, { znacka: "Mercedes-Benz", model: "V Class L (long 5140 mm)", rok: "2010" });
+      const t0 = Date.now();
+      await page.locator(W + " .btn.choice-Model:visible").first().click();
+      const n = await cakajNaVclass(page, stav, t0);
+      over(n && new URL(n.url).search === "?velkost=L", "titulka L 2010: adresa " + (n && n.url));
+      await overPrichod(page, { rok: "", velkost: "L" }, "titulka L 2010");
     },
   },
   {
@@ -860,15 +968,34 @@ const SCENARE = [
   },
   {
     cz: "zap",
+    meno: "CZ 2406 V Class L 2010 (rok pred 2014 pri dĺžke) -> CZ ?velkost=L bez roku",
+    async beh({ page, stav }) {
+      await otvor(page, ADRESA.cz2406);
+      await cakaj1v(page);
+      await otvorKartuAuta(page);
+      const t0 = Date.now();
+      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class L (long 5140 mm)", rok: "2010" });
+      const o = await oznamenie(page);
+      over(o && o.ide && o.text.indexOf(NADPIS_CZ) === 0 && o.href === VCLASS + "?velkost=L", "CZ 2406 L 2010: oznámenie po česky bez roku " + j(o));
+      await overBezChyb(page, "CZ 2406 L 2010");
+      const n = await cakajNaVclass(page, stav, t0);
+      over(n && n.cas >= 1300 && n.cas <= 4000, "CZ 2406 L 2010: presmerovanie po ~1,5 s " + j(n));
+      await prichodCz(page, stav, n, "?velkost=L", "CZ 2406 L 2010");
+    },
+  },
+  {
+    cz: "zap",
     meno: "CZ 2424 rohož klávesnica: oznámenie po česky bez odpočtu, Enter -> CZ trieda V XL",
     async beh({ page, stav }, s) {
       await otvor(page, ADRESA.cz2424);
       await cakaj1v(page);
       await otvorKartuAuta(page);
-      await vyberAuto(page, AUTO_1V, { znacka: "Mercedes-Benz", model: "V Class XL (Extra Long 5370 mm)" }, "zm");
+      const t0 = Date.now();
+      await modelKlavesnicou(page, AUTO_1V, "V Class XL (Extra Long 5370 mm)");
+      const o0 = await oznamenie(page);
+      over(o0 && o0.podoba === "klavesnica" && o0.href === VCLASS + "?velkost=XL" && o0.text.indexOf(NADPIS_CZ) === 0, "CZ 2424 klávesnica: model XL ešte bez roku = nápis po česky ?velkost=XL " + j(o0));
       const rok = AUTO_1V + " .modl-selector-wrap .years select";
       await page.focus(rok);
-      const t0 = Date.now();
       await page.keyboard.press("ArrowDown");
       await page.waitForTimeout(300);
       let r = await page.evaluate((x) => document.querySelector(x).value, rok);
@@ -986,6 +1113,17 @@ const SCENARE = [
   }
   over(vclassAuto("Mercedes-Maybach", "V Class", "2020") === null && vclassAuto("Audi", "A6", "2020") === null, "zhoda: iná značka nie");
   over(adresaVclass({ rok: "2020", velkost: "" }) === VCLASS + "?rok=2020" && adresaVclass({ rok: "2019", velkost: "L" }) === VCLASS + "?rok=2019&velkost=L", "zhoda: adresa");
+  // dĺžky M/L/XL (len W447): akýkoľvek rok aj bez roku; rok do adresy len 2014 – aktuálny
+  for (const [m, v] of [["V Class M (compact 4895 mm)", "M"], ["V Class L (long 5140 mm)", "L"], ["V Class XL (Extra Long 5370 mm)", "XL"]]) {
+    for (const r of ["2010", "2013", "1996", "", null, undefined, "Iné, prosím napíšte do poznámky", "Jiné, prosím napište do poznámky", String(teraz + 1)]) {
+      over(j(vclassAuto("Mercedes-Benz", m, r)) === j({ rok: "", velkost: v }), "zhoda dĺžky: " + m + " rok " + j(r) + " -> bez roku, velkost " + v + " " + j(vclassAuto("Mercedes-Benz", m, r)));
+    }
+    over(j(vclassAuto("Mercedes-Benz", m, "2014")) === j({ rok: "2014", velkost: v }) && j(vclassAuto("Mercedes-Benz", m, " " + teraz + " ")) === j({ rok: String(teraz), velkost: v }), "zhoda dĺžky: " + m + " 2014 a aktuálny rok s rokom");
+  }
+  over(vclassAuto("Mercedes-Benz", "V Class", "") === null && vclassAuto("Mercedes-Benz", "V Class", null) === null, "zhoda: V Class bez roku nie");
+  for (const m of ["Vito", "Viano", "EQV", "VLE", "Metris"]) over(vclassAuto("Mercedes-Benz", m, "") === null && vclassAuto("Mercedes-Benz", m, "2010") === null, "zhoda: " + m + " nikdy (ani bez roku)");
+  over(vclassAuto("Audi", "V Class L (long 5140 mm)", "2010") === null && vclassAuto("", "V Class L (long 5140 mm)", "") === null, "zhoda: dĺžka L pri inej / žiadnej značke nie");
+  over(adresaVclass({ rok: "", velkost: "L" }) === VCLASS + "?velkost=L" && adresaVclass({ rok: "", velkost: "XL" }) === VCLASS + "?velkost=XL", "zhoda: adresa bez roku = len ?velkost=");
   over(ROKY[0] === String(teraz) && ROKY[ROKY.length - 1] === "2014" && ROKY.length === teraz - 2013, "vclass/data.js ROKY " + ROKY[0] + "…" + ROKY[ROKY.length - 1]);
   // okno „Máte Mercedes triedy V?“ najviac raz za session na produkte (sessionStorage, zoznam id produktov)
   const pamat = new Map();
