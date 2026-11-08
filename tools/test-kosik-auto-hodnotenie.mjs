@@ -168,7 +168,31 @@ d = stranka(REKAP(`<div class="cart-item" data-micro="cartItem" data-micro-sku="
 over(rovnake(rozpisy(d), [VC_ROZPIS]), "rekapitulácia v krokoch (bez priceId), trieda V: rovnaké poradie ako v košíku", rozpisy(d));
 d = stranka(KOSIK(VCLASS, "cs"), { ss: VC_AUTO, host: "www.luxurycardesign.cz" });
 over(!d.querySelector("ul.lcd-rozpis[data-lcd-vclass]") && rozpisy(d)[0] && rozpisy(d)[0].includes("Stolček vzadu: So stolčekom") && !d.querySelector(".lcd-rozpis__nadpis"),
-  "CZ (triedu V nemá): bežný rozpis bez zmeny, bez nadpisov", rozpisy(d));
+  "SK produkt (priceId 68434) na CZ webe: bežný rozpis bez zmeny, bez nadpisov", rozpisy(d));
+// CZ 2458 (presná kópia SK 646, Michal 8. 11. 2026): kód VCLASS + priceId 46327 len na CZ webe, české texty rozpisu
+const VC_VOLBY_CZ = { "Rok výroby": "2024", "Volant": "Vlevo", "Střed mezi sedadly": "Podlaha", "Boční dveře": "Dvoje, na obou stranách",
+  "Sedadla ve 2. a 3. řadě": "2 sedadla ve 2. řadě a 2 sedadla ve 3. řadě", "Stolek vzadu": "Se stolkem", "Zásuvky pod sedadly": "Bez zásuvek",
+  "Vzor a barva 1. vrstvy": "Diamond Line – Černá, červené šití", "Barva 2. vrstvy": "Lux Color 11", "Rozložení": "Přední sedadla, 2. a 3. řada (L)",
+  "Rohož do kufru": "S rohoží do kufru", "První box ze dvou": "S 33 × 32 × 30 cm", "Druhý box ze dvou": "M 40 × 32 × 30 cm", "Barva boxů do kufru": "Hnědá káva" };
+const VC_SUR_CZ = "Příplatky: " + Object.keys(VC_VOLBY_CZ).sort((a, b) => a.localeCompare(b, "cs")).map((k) => k + " - " + VC_VOLBY_CZ[k]).join(", ");
+const VCLASS_CZ = RIADOK({ href: "/autokoberce-mercedes-v-class/", nazov: "Autokoberce Mercedes V Class", sur: VC_SUR_CZ, itemId: "it5", priceId: "46327", sku: "VCLASS" });
+const VC_AUTA_CZ = ["Volant: Vlevo", "Boční posuvné dveře: Dvoje, na obou stranách", "Sedadla: 2 ve 2. řadě, 2 ve 3. řadě", "Stolek ve 2. a 3. řadě: Ano",
+  "Mezi předními sedadly: Podlaha", "Elektrické zásuvky pod sedadly: Ne"];
+const VC_CASTI_CZ = (rad) => ["# Objednáváte", "Autokoberce k předním sedadlům", rad, "Rohož do kufru", "Vzor a barva 1. vrstvy: Diamond Line – Černá, červené šití",
+  "Druhá vrstva k předním sedadlům: Lux Color 11", "První box ze dvou: S 33 × 32 × 30 cm", "Druhý box ze dvou: M 40 × 32 × 30 cm", "Barva boxů: Hnědá káva"];
+const VC_ROZPIS_CZ = ["# Vaše auto", "Auto: Mercedes-Benz V Class L (long 5140 mm) 2024"].concat(VC_AUTA_CZ, VC_CASTI_CZ("Autokoberce do 2. a 3. řady"));
+d = stranka(KOSIK(VCLASS_CZ, "cs"), { ss: VC_AUTO, host: "www.luxurycardesign.cz" });
+over(rovnake(rozpisy(d), [VC_ROZPIS_CZ]), "CZ košík, trieda V s autom: „Vaše auto“, potom „Objednáváte“, všetko po česky", rozpisy(d));
+const ulVcCz = d.querySelector("tr ul.lcd-rozpis");
+over(ulVcCz && ulVcCz.hasAttribute("data-lcd-vclass") && [...ulVcCz.children].filter((li) => li.hasAttribute("data-lcd-vc-hned")).length === 11, "CZ košík, trieda V: značky pre zbalený súhrn");
+over(d.querySelector("tr span.main-link-surcharges").textContent === VC_SUR_CZ, "CZ košík, trieda V: text príplatkov Shoptetu bez zmeny");
+d = stranka(KOSIK(VCLASS_CZ, "cs"), { host: "www.luxurycardesign.cz" });
+over(rovnake(rozpisy(d), [["# Vaše auto", "Rok výroby: 2024"].concat(VC_AUTA_CZ, VC_CASTI_CZ("Autokoberce do 2. a 3. řady (velikost L)"))]), "CZ košík, trieda V bez auta: rok výroby, velikost pri 2. a 3. řade", rozpisy(d));
+d = stranka(REKAP(`<div class="cart-item" data-micro="cartItem" data-micro-sku="VCLASS"><div class="cart-item-name"><a href="/autokoberce-mercedes-v-class/" class="main-link">Autokoberce Mercedes V Class
+  <span class="main-link-surcharges">${VC_SUR_CZ}</span></a></div></div>`), { ss: VC_AUTO, host: "www.luxurycardesign.cz" });
+over(rovnake(rozpisy(d), [VC_ROZPIS_CZ]), "CZ rekapitulácia v krokoch (bez priceId), trieda V: rovnaké poradie ako v košíku", rozpisy(d));
+d = stranka(KOSIK(VCLASS_CZ), { ss: VC_AUTO });
+over(!d.querySelector("ul.lcd-rozpis[data-lcd-vclass]") && !d.querySelector(".lcd-rozpis__nadpis"), "CZ produkt (priceId 46327) na SK webe: bežný rozpis, nikdy krížom", rozpisy(d));
 d = stranka(KOSIK(RIADOK({ href: "/autokoberce-mercedes-v-class/", nazov: "Autokoberce Mercedes V Class", sur: VC_SUR, itemId: "it5", priceId: "68383", sku: "VCLASS" })), { ss: VC_AUTO });
 over(!d.querySelector("ul.lcd-rozpis[data-lcd-vclass]"), "iný priceId než 68434: bežný rozpis");
 

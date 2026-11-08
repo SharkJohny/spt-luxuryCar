@@ -1325,6 +1325,26 @@ t("polozky A1: trieda V (SK 646, ul.lcd-rozpis[data-lcd-vclass] z cart.js) — h
   eq(det.querySelectorAll(".lcd-rozpis__nadpis").length, 2, "nadpisy ostali v rozpise (nič sa nekopíruje)");
 });
 
+t("polozky A1: trieda V na CZ (CZ 2458, nadpisy „Vaše auto“ / „Objednáváte“ z cart.js) — hneď nadpisy, Auto a objednané časti, údaje o aute po „Zobrazit více“", () => {
+  const w = new JSDOM(fx("cz/krok2.html"), { url: "https://www.luxurycardesign.cz/objednavka/krok-2/" }).window;
+  const bc = w.document.getElementById("summary-box"), pc = bc.querySelector(".cart-item");
+  const ul = w.document.createElement("ul");
+  ul.className = "lcd-rozpis";
+  ul.setAttribute("data-lcd-vclass", "");
+  ul.innerHTML = [["#", "Vaše auto", 1], ["Auto", "Mercedes-Benz V Class L (long 5140 mm) 2024", 1], ["Volant", "Vlevo"], ["Sedadla", "2 ve 2. řadě, 2 ve 3. řadě"],
+    ["#", "Objednáváte", 1], [null, "Autokoberce k předním sedadlům", 1], [null, "Autokoberce do 2. a 3. řady", 1], ["Vzor a barva 1. vrstvy", "Diamond Line – Černá, červené šití", 1],
+    ["Barva boxů", "Hnědá káva", 1]]
+    .map(([n, h, hned]) => n === "#" ? '<li class="lcd-rozpis__nadpis" data-lcd-vc-hned>' + h + "</li>"
+      : "<li" + (hned ? " data-lcd-vc-hned" : "") + ">" + (n ? '<span class="lcd-rozpis__n">' + n + ": </span>" : "") + '<span class="lcd-rozpis__h">' + h + "</span></li>").join("");
+  pc.querySelector("a.main-link").after(ul);
+  P.rozsirPolozky(bc, TC, { fotky: {}, otvorene: {} });
+  const det = bc.querySelector(".lcd-opc-detail");
+  eq(hnedVidno(det), ["Vaše auto", "Auto: Mercedes-Benz V Class L (long 5140 mm) 2024", "Objednáváte", "Autokoberce k předním sedadlům", "Autokoberce do 2. a 3. řady",
+    "Vzor a barva 1. vrstvy: Diamond Line – Černá, červené šití", "Barva boxů: Hnědá káva"], "CZ hneď vidno (aj oba nadpisy)");
+  eq(poViac(det), ["Volant: Vlevo", "Sedadla: 2 ve 2. řadě, 2 ve 3. řadě"], "CZ až po „Zobrazit více“");
+  eq(bc.querySelector(".lcd-opc-zob").textContent, "Zobrazit více", "CZ tlačidlo");
+});
+
 t("polozky A1: hneď vidno podľa názvu riadku, nie podľa poradia (Rozloženie navrchu, riadok bez názvu); CZ „Barva 1./2. vrstvy“", () => {
   const { box } = suhrnSRozpisom([["Rozloženie kobercov", "prvý a druhý rad"], ["Auto", "Skoda Octavia 2021 Combi"], ["Farba 1. vrstvy", "Diamond Čierna"]]);
   P.rozsirPolozky(box, TS, { fotky: {}, otvorene: {} });

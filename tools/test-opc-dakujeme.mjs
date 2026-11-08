@@ -351,6 +351,18 @@ t("trieda V z cart.js s nadpismi „Vaše auto“ / „Objednávate“ (li.lcd-r
   const p = D.citajUdaje(doc, "cz", null).udaje.polozky[0];
   eq(p.rozpis, [{ n: "Auto", h: "Mercedes-Benz V Class L (long 5140 mm) 2024" }, { n: null, h: "Rohož do kufra" }]);
 });
+t("CZ trieda V (2458) z cart.js s nadpismi „Vaše auto“ / „Objednáváte“: ďakovná stránka ich vynechá, české riadky rozpisu ostanú", () => {
+  const { doc } = prostredie("cz-prevod");
+  const bunka = doc.querySelector(".cart-table .p-name");
+  bunka.innerHTML = '<a class="main-link" href="/autokoberce-mercedes-v-class/">Autokoberce Mercedes V Class <span class="main-link-surcharges lcd-rozpis-zdroj">Příplatky: Rozložení - Pouze přední sedadla</span></a>' +
+    '<ul class="lcd-rozpis" data-lcd-vclass=""><li class="lcd-rozpis__nadpis" data-lcd-vc-hned="">Vaše auto</li><li data-lcd-vc-hned=""><span class="lcd-rozpis__n">Auto: </span><span class="lcd-rozpis__h">Mercedes-Benz V Class L (long 5140 mm) 2024</span></li>' +
+    '<li><span class="lcd-rozpis__n">Stolek ve 2. a 3. řadě: </span><span class="lcd-rozpis__h">Ano</span></li>' +
+    '<li class="lcd-rozpis__nadpis" data-lcd-vc-hned="">Objednáváte</li><li data-lcd-vc-hned="" data-lcd-vc-cast="predok"><span class="lcd-rozpis__h">Autokoberce k předním sedadlům</span></li>' +
+    '<li data-lcd-vc-hned="" data-lcd-vc-cast="rohoz"><span class="lcd-rozpis__h">Rohož do kufru</span></li></ul>';
+  const p = D.citajUdaje(doc, "cz", null).udaje.polozky[0];
+  eq([p.nazov, p.rozpis], ["Autokoberce Mercedes V Class", [{ n: "Auto", h: "Mercedes-Benz V Class L (long 5140 mm) 2024" }, { n: "Stolek ve 2. a 3. řadě", h: "Ano" },
+    { n: null, h: "Autokoberce k předním sedadlům" }, { n: null, h: "Rohož do kufru" }]]);
+});
 t("kamión: hodnota s „ – “ ostane v jednom riadku (Čierna, čierne šitie – 11), ostatné rozpisy presne ako košík", () => {
   const u = D.citajUdaje(prostredie("sk-kamion").doc, "sk", null).udaje;
   eq(u.polozky[0].rozpis.map((x) => x.n + ": " + x.h), [

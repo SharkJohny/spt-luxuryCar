@@ -1,0 +1,242 @@
+{
+ "zdroj": "CZ admin produktu 2458 (Mercedes triedy V), príplatky 355–397 tak, ako ich 8. 11. 2026 založil a overil druhý pomocník (admin + MCP + web prihláseného admina; hosť má 404). skId = príplatok SK 646 so zhodnou úlohou.",
+ "projekt": "581408",
+ "host": "https://www.luxurycardesign.cz",
+ "productId": "2458",
+ "priceId": "46327",
+ "kod": "VCLASS",
+ "url": "/autokoberce-mercedes-v-class/",
+ "zaklad": 7500,
+ "mena": "CZK",
+ "nazov": "Autokoberce Mercedes V Class",
+ "priplatky": [
+  {
+   "id": "355",
+   "skId": "418",
+   "n": "Rok výroby",
+   "req": true,
+   "h": [
+    ["2812", "2026", 0],
+    ["2815", "2025", 0],
+    ["2818", "2024", 0],
+    ["2821", "2023", 0],
+    ["2824", "2022", 0],
+    ["2827", "2021", 0],
+    ["2830", "2020", 0],
+    ["2833", "2019", 0],
+    ["2836", "2018", 0],
+    ["2839", "2017", 0],
+    ["2842", "2016", 0],
+    ["2845", "2015", 0],
+    ["2848", "2014", 0]
+   ]
+  },
+  {
+   "id": "358",
+   "skId": "421",
+   "n": "Volant",
+   "req": true,
+   "h": [
+    ["2851", "Vlevo", 0],
+    ["2854", "Vpravo", 0]
+   ]
+  },
+  {
+   "id": "361",
+   "skId": "424",
+   "n": "Střed mezi sedadly",
+   "req": true,
+   "h": [
+    ["2857", "Podlaha", 0],
+    ["2860", "Loketní opěrka nebo lednička", 0]
+   ]
+  },
+  {
+   "id": "364",
+   "skId": "427",
+   "n": "Boční dveře",
+   "req": true,
+   "h": [
+    ["2863", "Jedny, vpravo", 0],
+    ["2866", "Dvoje, na obou stranách", 0]
+   ]
+  },
+  {
+   "id": "367",
+   "skId": "430",
+   "n": "Sedadla ve 2. a 3. řadě",
+   "req": true,
+   "h": [
+    ["2869", "2 sedadla ve 2. řadě a 2 sedadla ve 3. řadě", 0],
+    ["2872", "2 sedadla ve 2. řadě a 3 sedadla ve 3. řadě", 0],
+    ["2875", "3 sedadla ve 2. řadě a 2 sedadla ve 3. řadě", 0],
+    ["2878", "3 sedadla ve 2. řadě a 3 sedadla ve 3. řadě", 0]
+   ]
+  },
+  {
+   "id": "370",
+   "skId": "433",
+   "n": "Stolek vzadu",
+   "req": true,
+   "h": [
+    ["2881", "Bez stolku", 0],
+    ["2884", "Se stolkem", 0]
+   ]
+  },
+  {
+   "id": "373",
+   "skId": "436",
+   "n": "Zásuvky pod sedadly",
+   "req": true,
+   "h": [
+    ["2887", "Bez zásuvek", 0],
+    ["2890", "Se zásuvkami", 0]
+   ]
+  },
+  {
+   "id": "376",
+   "skId": "439",
+   "n": "Vzor a barva 1. vrstvy",
+   "req": true,
+   "h": [
+    ["2893", "Diamond Line – Černá, červené šití", 0],
+    ["2896", "Diamond Line – Černá, modré šití", 0],
+    ["2899", "Diamond Line – Černá, černé šití", 0],
+    ["2902", "Diamond Line – Černá, béžové šití", 0],
+    ["2905", "Diamond Line – Černá, šedé šití", 0],
+    ["2908", "Diamond Line – Černá, bílé šití", 0],
+    ["2911", "Diamond Line – Černá, žluté šití", 0],
+    ["2914", "Diamond Line – Černá, zelené šití", 0],
+    ["2917", "Diamond Line – Černá, bronzové šití", 0],
+    ["2920", "Diamond Line – Béžová", 0],
+    ["2923", "Diamond Line – Hnědá káva", 0],
+    ["2926", "Diamond Line – Hnědá", 0],
+    ["2929", "Diamond Line – Vínově červená", 0],
+    ["2932", "Diamond Line – Červená", 0],
+    ["2935", "Diamond Line – Šedá", 0],
+    ["2938", "Diamond Line – Oranžová", 0],
+    ["2941", "Diamond Line – Modrá", 0],
+    ["2944", "Diamond Line – Fialová", 0],
+    ["2947", "Stripe Line – Černá, červené šití", 0],
+    ["2950", "Stripe Line – Černá, béžové šití", 0],
+    ["2953", "Stripe Line – Černá, černé šití", 0],
+    ["2956", "Stripe Line – Béžová", 0],
+    ["2959", "Stripe Line – Hnědá káva", 0],
+    ["2962", "Stripe Line – Hnědá", 0],
+    ["2965", "Stripe Line – Vínově červená", 0],
+    ["2968", "Stripe Line – Červená", 0],
+    ["2971", "Hexa Line – Černá, červené šití", 0],
+    ["2974", "Hexa Line – Černá, modré šití", 0],
+    ["2977", "Hexa Line – Černá, černé šití", 0]
+   ]
+  },
+  {
+   "id": "379",
+   "skId": "442",
+   "n": "Barva 2. vrstvy",
+   "req": true,
+   "h": [
+    ["2980", "Lux Color 10", 3750],
+    ["2983", "Lux Color 12", 3750],
+    ["2986", "Lux Color 11", 3750],
+    ["2989", "Lux Color 13", 3750],
+    ["2992", "Lux Color 14", 3750],
+    ["2995", "Lux Color 15", 3750],
+    ["2998", "Lux Color 16", 3750],
+    ["3001", "Lux Color 07", 3750],
+    ["3004", "Lux Color 04", 3750],
+    ["3007", "Lux Color 01", 3750],
+    ["3010", "Lux Color 08", 3750],
+    ["3013", "Lux Color 06", 3750],
+    ["3016", "Lux Color 03", 3750],
+    ["3019", "Lux Color 05", 3750],
+    ["3022", "Lux Color 09", 3750],
+    ["3025", "Lux Color 02", 3750],
+    ["3028", "Bez druhé vrstvy", 0]
+   ]
+  },
+  {
+   "id": "382",
+   "skId": "445",
+   "n": "Rozložení",
+   "req": true,
+   "h": [
+    ["3031", "Pouze přední sedadla", 0],
+    ["3034", "Přední sedadla, 2. a 3. řada (M)", 15000],
+    ["3037", "Přední sedadla, 2. a 3. řada (L)", 17500],
+    ["3040", "Přední sedadla, 2. a 3. řada (XL)", 20000],
+    ["3043", "Pouze 2. a 3. řada (M)", 11250],
+    ["3046", "Pouze 2. a 3. řada (L)", 13750],
+    ["3049", "Pouze 2. a 3. řada (XL)", 16250],
+    ["3052", "2. a 3. řada s rohoží, bez předních sedadel (M)", 7500],
+    ["3055", "2. a 3. řada s rohoží, bez předních sedadel (L)", 10000],
+    ["3058", "2. a 3. řada s rohoží, bez předních sedadel (XL)", 12500],
+    ["3061", "Bez autokoberců, pouze rohož do kufru", 0]
+   ]
+  },
+  {
+   "id": "385",
+   "skId": "448",
+   "n": "Rohož do kufru",
+   "req": true,
+   "h": [
+    ["3064", "S rohoží do kufru", 6250],
+    ["3067", "Bez rohože do kufru", 0],
+    ["3070", "Pouze rohož do kufru", 1000]
+   ]
+  },
+  {
+   "id": "388",
+   "skId": "451",
+   "n": "Box do kufru",
+   "req": false,
+   "h": [
+    ["3073", "S 33 × 32 × 30 cm", 2640],
+    ["3076", "M 40 × 32 × 30 cm", 3079],
+    ["3079", "L 54 × 32 × 30 cm", 3585],
+    ["3082", "XL 66 × 32 × 30 cm", 3899]
+   ]
+  },
+  {
+   "id": "391",
+   "skId": "454",
+   "n": "První box ze dvou",
+   "req": false,
+   "h": [
+    ["3085", "S 33 × 32 × 30 cm", 2299],
+    ["3088", "M 40 × 32 × 30 cm", 2859],
+    ["3091", "L 54 × 32 × 30 cm", 3399],
+    ["3094", "XL 66 × 32 × 30 cm", 3499]
+   ]
+  },
+  {
+   "id": "394",
+   "skId": "457",
+   "n": "Druhý box ze dvou",
+   "req": false,
+   "h": [
+    ["3097", "S 33 × 32 × 30 cm", 2299],
+    ["3100", "M 40 × 32 × 30 cm", 2859],
+    ["3103", "L 54 × 32 × 30 cm", 3399],
+    ["3106", "XL 66 × 32 × 30 cm", 3499]
+   ]
+  },
+  {
+   "id": "397",
+   "skId": "460",
+   "n": "Barva boxů do kufru",
+   "req": false,
+   "h": [
+    ["3109", "Černá, červené šití", 0],
+    ["3112", "Černá, modré šití", 0],
+    ["3115", "Černá, černé šití", 0],
+    ["3118", "Černá, béžové šití", 0],
+    ["3121", "Černá, bílé šití", 0],
+    ["3124", "Černá, šedé šití", 0],
+    ["3127", "Hnědá káva", 0],
+    ["3130", "Vínově červená", 0],
+    ["3133", "Béžová", 0]
+   ]
+  }
+ ]
+}
