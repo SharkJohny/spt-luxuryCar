@@ -15288,6 +15288,10 @@ html.lcd-opc body.in-krok-2 #lcd-opc-kosik .lcd-opc-zob{margin:2px 0 6px}
 /* kamión v karte košíka (Michal 2. 11. 2026): ponuka „Tapacír dverí“ — krátky popis pod cenou */
 html.lcd-opc body.in-krok-2 .lcd-vyb__popis{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 
+/* trieda V (SK 646) v karte košíka (Michal 8. 11. 2026, opc/vclassKarta.js): fotka triedy V v <picture> (webp + jpg) v stĺpci
+   fotky ako rohož a box; rozmery má obrázok .lcd-vyb__mini (76 × 95, na 359 px 64 × 80) */
+html.lcd-opc body.in-krok-2 .lcd-vyb--vclass .lcd-vyb__pic{display:block;line-height:0}
+
 /* =====================================================================
    PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, od 2. 11. 22:39 pre všetkých
    (aj bez kódu OPC; vypínač data.json "prazdny_kosik": false) (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený
@@ -16952,6 +16956,80 @@ body.lcd-1v #product-detail-form .lcd1v-nahlad > .lcd1v-nahlad-img {
   border: 0;
   border-radius: 0;
   object-fit: cover;
+}
+
+/* ---------------------------------------------------------------- Mercedes triedy V -> stránka triedy V (SK 646)
+   Oznámenie z konfigurator1v/vclass-presmerovanie.js (Michal 8. 11. 2026): v otvorenej karte auta pod výberom auta,
+   pri zavretej karte auta nad krokmi (rovnaké poradie ako pás kompatibility). Pri presmerovaní zlatá linka dole
+   ukazuje 1,5 s čakania; odkaz zelený = kam chceme klik. */
+body.lcd-1v .lcd1v-vclass {
+  order: 3;
+  position: relative;
+  overflow: hidden;
+  margin: 14px 0 0;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--kf-ram);
+  border-radius: 12px;
+  background: #fffdf7;
+  font-family: var(--kr-body);
+  text-align: left;
+}
+body.lcd-1v #product-detail-form .lcd1v-k-auto > .lcd1v-vclass {
+  order: 2;
+  margin: 16px 0 0;
+}
+body.lcd-1v .lcd1v-vclass__t {
+  margin: 0;
+  padding: 0;
+  color: var(--kr-ink);
+  font: 700 16px/1.4 var(--kr-body);
+}
+body.lcd-1v .lcd1v-vclass__r {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 6px 0 0;
+  padding: 0;
+  color: var(--kr-text);
+  font: 400 16px/1.5 var(--kr-body);
+}
+body.lcd-1v .lcd1v-vclass__a,
+body.lcd-1v .lcd1v-vclass__a:visited {
+  color: var(--kr-zvol);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+body.lcd-1v .lcd1v-vclass__a:hover,
+body.lcd-1v .lcd1v-vclass__a:focus-visible {
+  color: var(--kr-ink);
+}
+body.lcd-1v .lcd1v-vclass__cas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--kr-zlato);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: lcd1v-vclass-cas 1.5s linear forwards;
+}
+@keyframes lcd1v-vclass-cas {
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v .lcd1v-vclass__cas {
+    animation: none;
+    transform: none;
+  }
+}
+@media (min-width: 768px) {
+  body.lcd-1v .lcd1v-vclass__t,
+  body.lcd-1v .lcd1v-vclass__r {
+    font-size: 17px;
+  }
 }
 
 /* ---------------------------------------------------------------- telefón */

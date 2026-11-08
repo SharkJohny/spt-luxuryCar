@@ -16,6 +16,7 @@ import { autoRiadku, popisAuta, ulozistaAuta } from "../functions/autoPamat.js";
 import * as D from "../lcdKosikDoplnok.js";
 import * as P from "./polozky.js";
 import * as K from "./kamionKarta.js";
+import * as V from "./vclassKarta.js";
 import { KLUC_BEZ_KARTY } from "./kosik.js";
 
 export const KLUC_FORMULARA = "lcdOpcFormular";
@@ -339,14 +340,16 @@ export function initKosikKarta(ctx, o) {
     if (p.foto) foto.addEventListener("error", function () { foto.style.visibility = "hidden"; });
     // kamión (Michal 2. 11. 2026): rozpis z príplatkov riadku / súhrnu konfigurátora (opc/kamionKarta.js), nie zo súhrnu
     // vpravo — ten ho v tej chvíli ešte nemal a karta ukázala len názov a cenu
+    // trieda V (len riadok produktu 646, opc/vclassKarta.js): rozpis po častiach setu, inak null -> bežný rozpis
+    const rozpisV = jeKamion(p) ? null : V.rozpisVclass(doc, p);
     const rozpis = jeKamion(p)
       ? K.rozpisKamiona(doc, p, { ss: ss, jazyk: jazyk, trh: ctx.trh, jediny: pocetKamionov === 1 }) || rozpisKamionaZoSuhrnu(o.box, p, poradie)
-      : rozpisPolozky(doc, p, cz);
+      : rozpisV || rozpisPolozky(doc, p, cz);
     // podrobnosti zbalené ako v súhrne (A1, náhľad E): hneď Auto a farby vrstiev, ostatné po „Zobraziť viac“; kamión rovnako
-    // (Michal 2. 11. 2026 „úplne takisto ako … osobné autá“): hneď Vozidlo a materiál
+    // (Michal 2. 11. 2026 „úplne takisto ako … osobné autá“): hneď Vozidlo a materiál; trieda V: hneď auto, časti setu a farby
     let zob = null;
     const kluc = p.kluc + "#" + poradie;
-    if (rozpis && P.oznacRiadky(rozpis)) {
+    if (rozpis && (rozpisV ? V.oznacRiadky(rozpisV) : P.oznacRiadky(rozpis))) {
       zob = P.vytvorZob(doc);
       zob.setAttribute("form", o.forma);
       rozpis.id = "lcd-opc-kk-rozpis-" + cislo;
@@ -451,34 +454,77 @@ export function initKosikKarta(ctx, o) {
     // ponuka k setu a krížiky pri doplnkoch: len vzhľad košíka — chyba / pomalá sieť nič nezastaví
     // vrstvaSpat: krížik aj pri druhej vrstve (výmena späť na jednovrstvový set, Michal 1. 11. 2026) — len tu, nie v košíku
     // kamión TIR bez tapacíru: ponuka „Tapacír dverí“ (opc/kamionKarta.js, Michal 2. 11. 2026); chyba / pomalá sieť nič nezastaví
+    // Chyba vo vnútri kreslenia ponuky skryje len ponuku, nikdy nie celú kartu košíka: obsluhy sú v try/catch, takže sľub
+    // ponuky nezlyhá a `hotovo` kartu neodstráni (revízia 8. 11. 2026).
     const ponukaKamiona = pocetKamionov === 1 && !stary ? K.ponukaVKarte(polozky, { R: R, ss: ss, jazyk: jazyk, forma: o.forma, doc: doc }).then(function (k) {
-      if (!k || gen !== generacia) return;
-      obsah.appendChild(k);
-      if (zamky) zamkniPrvky(k);
-    }, function () {}) : null;
-    const ponukaSetu = D.pripravKontexty(polozky, R, { vynechaj: stary, vrstvaSpat: true }).then(function (v) {
-      if (gen !== generacia) return polozky.length;
-      v.ctxs.forEach(function (c) {
-        const li = miesta[c.riadok.itemId];
-        if (li && c.odobrat.length) {
-          c.miestoOdober = li;
-          D.vlozKriziky(c, R);
-          odkryKriziky(li);
-          if (zamky) zamkniPrvky(li);
-        }
-      });
-      v.ponuky.forEach(function (c) {
-        const k = D.kartaVybrat(c, R, { forma: o.forma, kSetu: v.ponuky.length > 1 ? TD.kSetu + (c.kSetu || "") : null });
-        if (!k) return;
+      try {
+        if (!k || gen !== generacia) return;
         obsah.appendChild(k);
         if (zamky) zamkniPrvky(k);
-        const nove = c.zobrazene.filter(function (d) { return !zmerane.has(c.riadok.sku + "|" + d); });
-        nove.forEach(function (d) { zmerane.add(c.riadok.sku + "|" + d); });
-        if (nove.length) D.merajZobrazenie(Object.assign({}, c, { zobrazene: nove }), R);
-      });
+      } catch (e) { /* ponuka tapacíru sa neukáže */ }
+    }, function () {}) : null;
+    // Košík s riadkom triedy V (646): karty ponuky (sety aj trieda V) sa vložia naraz po oboch ponukách a pri viac ako jednej
+    // karte má každá „K setu: …“ (revízia 8. 11. 2026: v zmiešanom košíku boli dve rovnaké „Doplňte svoj set“ a box sa dal
+    // pridať k zlému setu). Košík bez 646: karty setu sa vkladajú hneď ako doteraz (štítok len pri viacerých setoch).
+    const maVclass = polozky.some(V.jeVclass);
+    const cakajuce = maVclass ? [] : null;
+    const poradieRiadku = function (itemId) { const i = polozky.findIndex(function (x) { return x.itemId === itemId; }); return i < 0 ? polozky.length : i; };
+    const vlozKartu = function (k, itemId, kSetu) {
+      if (cakajuce) { cakajuce.push({ k: k, poz: poradieRiadku(itemId), kSetu: kSetu }); return; }
+      obsah.appendChild(k);
+      if (zamky) zamkniPrvky(k);
+    };
+    const ponukaSetu = D.pripravKontexty(polozky, R, { vynechaj: stary, vrstvaSpat: true }).then(function (v) {
+      try {
+        if (gen !== generacia) return polozky.length;
+        v.ctxs.forEach(function (c) {
+          const li = miesta[c.riadok.itemId];
+          if (li && c.odobrat.length) {
+            c.miestoOdober = li;
+            D.vlozKriziky(c, R);
+            odkryKriziky(li);
+            if (zamky) zamkniPrvky(li);
+          }
+        });
+        v.ponuky.forEach(function (c) {
+          const k = D.kartaVybrat(c, R, { forma: o.forma, kSetu: !cakajuce && v.ponuky.length > 1 ? TD.kSetu + (c.kSetu || "") : null });
+          if (!k) return;
+          vlozKartu(k, c.riadok.itemId, TD.kSetu + (c.kSetu || ""));
+          const nove = c.zobrazene.filter(function (d) { return !zmerane.has(c.riadok.sku + "|" + d); });
+          nove.forEach(function (d) { zmerane.add(c.riadok.sku + "|" + d); });
+          if (nove.length) D.merajZobrazenie(Object.assign({}, c, { zobrazene: nove }), R);
+        });
+      } catch (e) { /* ponuka setu sa neukáže, karta košíka ostáva */ }
       return polozky.length;
     }, function () { return polozky.length; });
-    const ponuka = ponukaKamiona ? Promise.all([ponukaSetu, ponukaKamiona]).then(function (x) { return x[0]; }) : ponukaSetu;
+    // trieda V (len riadky produktu 646, Michal 8. 11. 2026): krížiky pri pridaných častiach a ponuka „Doplňte svoj set“
+    // (opc/vclassKarta.js); bez riadku 646 sa nič nevolá, chyba / pomalá sieť nič nezastaví
+    const ponukaVclass = maVclass ? V.ponukaVKarte(polozky, { R: R, forma: o.forma, doc: doc, vynechaj: stary }).then(function (vys) {
+      try {
+        if (gen !== generacia) return;
+        vys.forEach(function (x) {
+          const li = miesta[x.riadok.itemId];
+          if (li && x.kriziky(li)) { odkryKriziky(li); if (zamky) zamkniPrvky(li); }
+          if (x.karta) vlozKartu(x.karta, x.riadok.itemId, x.kSetu);
+        });
+      } catch (e) { /* ponuka triedy V sa neukáže, karta košíka ostáva */ }
+    }, function () {}) : null;
+    // obe ponuky hotové: karty v poradí riadkov košíka, pri viacerých kartách každá so svojím setom
+    const kartyVclass = cakajuce ? Promise.all([ponukaSetu, ponukaVclass]).then(function () {
+      try {
+        if (gen !== generacia) return;
+        const viac = cakajuce.length > 1;
+        cakajuce.sort(function (a, b) { return a.poz - b.poz; }).forEach(function (x) {
+          if (viac && x.kSetu && !x.k.querySelector(".lcd-vyb__kset")) {
+            x.k.insertBefore(el(doc, "p", { class: "lcd-vyb__kset", text: x.kSetu }), x.k.querySelector(".lcd-vyb__zoznam"));
+          }
+          obsah.appendChild(x.k);
+          if (zamky) zamkniPrvky(x.k);
+        });
+      } catch (e) { /* karty sa neukážu, karta košíka ostáva */ }
+    }, function () {}) : null;
+    const dalsie = [ponukaKamiona, ponukaVclass, kartyVclass].filter(Boolean);
+    const ponuka = dalsie.length ? Promise.all([ponukaSetu].concat(dalsie)).then(function (x) { return x[0]; }) : ponukaSetu;
     return { pocet: polozky.length, ponuka: ponuka };
   }
 

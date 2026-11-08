@@ -79,15 +79,17 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
  *          „komplet-ponuka“ (komplet-ponuka.js, rohože do kufra a box) = ponuka setu s autokobercami pod sedadlá: karta BEZ
  *          čísla (nie je v kroky) — rohož medzi Autom a Farbou, box hneď pod kartou „Vaše boxy do kufra“ (len 1–2 boxy);
  *          „Áno“ prenesie výber na jednovrstvové (prenos.js zapisVyber -> prijímač „prenos“ na jedno).
+ *          „vclass-presmerovanie“ (vclass-presmerovanie.js, jedno, dvoj, rohože; len SK) = Mercedes triedy V W447 od 2014
+ *          vybraný v karte auta -> oznámenie a presmerovanie na stránku triedy V 646 (Michal 8. 11. 2026).
  *          Poradie modulov boxu NEMENIŤ: boxy-produkt (stráž košíka, capture na window) musí bežať pred komplet-ponuka
  *          (window) a tá pred kroky.js (document).
  * obal   – prvok vo formulári, bez ktorého sa nový vzhľad nezapne (živý konfigurátor sa nepostavil); null = len formulár.
  */
 export const TYPY = {
-  jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "druha-vrstva", "cena", "poznamka", "prenos", "obsah"], obal: ".content-wrap" },
-  dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "poznamka", "prenos", "obsah"], obal: ".content-wrap" },
-  "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
-  "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
+  jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "druha-vrstva", "cena", "poznamka", "prenos", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
+  dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "poznamka", "prenos", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
+  "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
+  "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
   boxy: { kroky: ["farba"], moduly: ["kroky", "boxy-produkt", "komplet-ponuka", "cena", "poznamka", "obsah"], obal: ".content-wrap" },
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
   // kamion: celé UI stavia modul kamion/ (6 krokov vo vlastnom koreni); živé kroky 1V na 640 nie sú (React sa nemontuje)

@@ -48,7 +48,10 @@ export function spusti(ctx) {
   if (!form || !tlacidlo || !stlpec || !lavy || !obal || !(zaklad > 0) || chyba.length) throw new Error("vclass: na stránke chýba " + (chyba.join(", ") || "formulár, tlačidlo alebo cena"));
   // hodnoty v kóde musia byť v admine; chýbajúca hodnota = návrat na natívny formulár, nie tichý zlý výber
   const textyBoxov = BOXY.map((b) => b.t);
-  const kontrola = { rok: ROKY, volant: VOLANT, stred: STRED, dvere: DVERE, sedadla: SEDADLA_TEXTY, stolcek: STOLCEK, zasuvky: ZASUVKY, farba2: LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), rozlozenie: [ROZ_PREDOK, ROZ_BEZ].concat(VELKOSTI.map((x) => rozSet(x.v)), VELKOSTI.map((x) => rozLen(x.v)), VELKOSTI.map((x) => rozRadRohoz(x.v))), rohoz: ROHOZ.concat(ROHOZ_SAM), box1: textyBoxov, box2: textyBoxov, box3: textyBoxov, boxFarba: BOX_FARBY.map((f) => f.nm) };
+  // roky výroby: ROKY idú po aktuálny rok, ukážu sa len tie, ktoré má admin (nový rok sa objaví, až keď ho admin doplní)
+  const roky = ROKY.filter((r) => moznost(sel.rok, r));
+  if (!roky.length) throw new Error("vclass: v príplatku rok nie je žiadny rok výroby");
+  const kontrola = { rok: roky, volant: VOLANT, stred: STRED, dvere: DVERE, sedadla: SEDADLA_TEXTY, stolcek: STOLCEK, zasuvky: ZASUVKY, farba2: LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), rozlozenie: [ROZ_PREDOK, ROZ_BEZ].concat(VELKOSTI.map((x) => rozSet(x.v)), VELKOSTI.map((x) => rozLen(x.v)), VELKOSTI.map((x) => rozRadRohoz(x.v))), rohoz: ROHOZ.concat(ROHOZ_SAM), box1: textyBoxov, box2: textyBoxov, box3: textyBoxov, boxFarba: BOX_FARBY.map((f) => f.nm) };
   Object.keys(FARBY).forEach((v) => FARBY[v].forEach((f) => { if (!moznost(sel.farba, VZORY.find((x) => x.id === v).nm + " – " + f.nm)) throw new Error("vclass: v príplatku chýba " + f.nm); }));
   Object.keys(kontrola).forEach((k) => kontrola[k].forEach((t) => { if (!moznost(sel[k], t)) throw new Error("vclass: v príplatku " + k + " chýba " + t); }));
 
@@ -68,6 +71,21 @@ export function spusti(ctx) {
     if (S.stred && STRED.indexOf(S.stred) < 0) S.stred = "";
   } catch (e) { /* súkromný režim: začína sa odznova */ }
   const uloz = () => { try { sessionStorage.setItem(KLUC_ULOZENIA, JSON.stringify(S)); } catch (e) { /* nič */ } };
+  // príchod z konfigurátora autokobercov alebo z titulky (functions/vclassPresmerovanie.js, ?rok=2020&velkost=L): rok a dĺžka
+  // vopred LEN pri príchode. Hneď sa uložia a z adresy zmiznú, takže po zmene výberu, návrate z košíka (Späť) alebo F5
+  // platí uložený výber, nie znova parametre z adresy.
+  try {
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("rok") || q.has("velkost")) {
+      if (roky.indexOf(q.get("rok")) > -1) S.rok = q.get("rok");
+      if (VELKOSTI.some((x) => x.v === q.get("velkost"))) S.velkost = q.get("velkost");
+      uloz();
+      q.delete("rok");
+      q.delete("velkost");
+      const zvysok = q.toString();
+      window.history.replaceState(window.history.state, "", window.location.pathname + (zvysok ? "?" + zvysok : "") + window.location.hash);
+    }
+  } catch (e) { /* bez parametrov */ }
 
   // ---- ceny: všetko z možností príplatkov v Shoptete
   const prc = (k, text) => { const o = text ? moznost(sel[k], text) : null; return o ? Number(o.getAttribute("data-surcharge-final-price")) || 0 : 0; };
@@ -336,7 +354,7 @@ export function spusti(ctx) {
   const telo = {
     auto: () => pole("volant", "Na ktorej strane máte volant?", '<div class="lv-pi">' + VOLANT.map((v, i) => tl("volant", v, i ? "Vpravo — UK" : "Vľavo — EU", "lv-s1")).join("") + "</div>")
       + '<hr class="lv-hr"><div class="lv-2 lv-2st"><div class="lv-pole"><span class="lv-l">Značka</span><span class="lv-fix">Mercedes-Benz</span></div><div class="lv-pole"><span class="lv-l">Model</span><span class="lv-fix">Trieda V</span></div></div>'
-      + '<div class="lv-2 lv-2st lv-2m">' + menu("rok", "Aký je rok výroby?", "Vyberte rok", ROKY.map((r) => [r, r])) + menu("velkost", "Aká je veľkosť auta?", "Vyberte veľkosť", VELKOSTI.map((x) => [x.v, x.t])) + "</div>"
+      + '<div class="lv-2 lv-2st lv-2m">' + menu("rok", "Aký je rok výroby?", "Vyberte rok", roky.map((r) => [r, r])) + menu("velkost", "Aká je veľkosť auta?", "Vyberte veľkosť", VELKOSTI.map((x) => [x.v, x.t])) + "</div>"
       + '<p class="lv-veta" id="lv-veta">' + vetaVelkosti() + "</p>"
       + '<div class="lv-2 lv-2st">' + pole("rad2", "Koľko máte sedadiel v 2. rade?", seg("rad2", SEDADLA)) + pole("rad3", "Koľko máte sedadiel v 3. rade?", seg("rad3", SEDADLA)) + "</div>"
       + pole("dvere", "Koľko máte posuvných bočných dverí?", seg("dvere", DVERE, ["Jedny, vpravo", "Dvoje, na oboch stranách"]))

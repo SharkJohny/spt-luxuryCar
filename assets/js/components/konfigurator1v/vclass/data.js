@@ -1,6 +1,7 @@
 // Údaje konfigurátora triedy V (SK 646): názvy príplatkov z adminu, kroky, farby. Všetky ceny sú v Shoptete, tu žiadna nie je.
 // Názvy príplatkov aj hodnoty musia sedieť s adminom (príplatky 415–442), app.js overí pri štarte, že všetky existujú.
-const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";
+/** Obrázky triedy V na CDN (aj fotky v ponuke „Doplňte svoj set“ v pokladni, opc/vclassKarta.js). */
+export const CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";
 
 /** Kľúč výberu -> meno selectu príplatku (data-parameter-name). Shoptet dovolí produktu najviac 15 príplatkov, je ich presne 15. */
 export const SELECTY = {
@@ -29,7 +30,8 @@ export const VELKOSTI = [
   { v: "XL", t: "XL, 5,4 m", p: "XL je extra dlhá verzia, dĺžka auta asi 5,4 m." },
 ];
 
-export const ROKY = (() => { const r = []; for (let y = 2026; y >= 2014; y--) r.push(String(y)); return r; })();
+/** Roky výroby od aktuálneho po 2014 (W447). app.js ukáže len tie, ktoré má príplatok „Rok výroby“ v admine (nový rok doplniť tam). */
+export const ROKY = (() => { const r = []; for (let y = new Date().getFullYear(); y >= 2014; y--) r.push(String(y)); return r; })();
 export const VOLANT = ["Vľavo", "Vpravo"];
 /** Michal 7. 11. 2026: nie „tunel“, ľudia nevedia, čo to je. Podlaha = medzi sedadlami nič nie je, kresba bez výrezu (s = false). */
 export const STRED = ["Podlaha", "Lakťová opierka alebo chladnička"];
@@ -79,6 +81,19 @@ export const FARBY = {
   stripe: zoznam("stripe", ["cervene", "bezove", "cierne", "bezova", "kava", "hneda", "vino", "cervena"]),
   hexa: zoznam("hexa", ["cervene", "modre", "cierne"]),
 };
+
+/**
+ * Odporúčaná Lux (FARBY[].lux) k hodnote príplatku „Vzor a farba 1. vrstvy“ („Diamond Line – Hnedá“ -> "11"); neznáma -> null.
+ * Ponuka druhej vrstvy v pokladni (opc/vclassKarta.js) ju má zvolenú vopred, rovnako ako konfigurátor.
+ */
+export function luxKFarbe(text) {
+  const t = String(text || "").replace(/\s+/g, " ").trim();
+  for (const v of VZORY) {
+    const f = t.indexOf(v.nm + " – ") === 0 ? FARBY[v.id].find((x) => v.nm + " – " + x.nm === t) : null;
+    if (f) return f.lux;
+  }
+  return null;
+}
 
 /** Druhá vrstva: číslo, farba na kresbe (stred vzorky). */
 export const LUX = [["10", "#0f1116"], ["12", "#9e877c"], ["11", "#261719"], ["13", "#240b15"], ["14", "#341516"], ["15", "#2d2e33"], ["16", "#515055"], ["07", "#111519"], ["04", "#66282a"], ["01", "#35302b"], ["08", "#0f181e"], ["06", "#2c233d"], ["03", "#1e191c"], ["05", "#872924"], ["09", "#342422"], ["02", "#141937"]];

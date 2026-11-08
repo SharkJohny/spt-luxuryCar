@@ -1166,6 +1166,10 @@ html.lcd-opc body.in-krok-2 #lcd-opc-kosik .lcd-opc-zob{margin:2px 0 6px}
 /* kamión v karte košíka (Michal 2. 11. 2026): ponuka „Tapacír dverí“ — krátky popis pod cenou */
 html.lcd-opc body.in-krok-2 .lcd-vyb__popis{display:block;margin-top:2px;font:400 14px/1.35 var(--o-body);color:var(--o-tlm)}
 
+/* trieda V (SK 646) v karte košíka (Michal 8. 11. 2026, opc/vclassKarta.js): fotka triedy V v <picture> (webp + jpg) v stĺpci
+   fotky ako rohož a box; rozmery má obrázok .lcd-vyb__mini (76 × 95, na 359 px 64 × 80) */
+html.lcd-opc body.in-krok-2 .lcd-vyb--vclass .lcd-vyb__pic{display:block;line-height:0}
+
 /* =====================================================================
    PRÁZDNY KOŠÍK (Michal 2. 11. 2026: „Prázdny košík je stále rovnaký“) — opc/prazdnyKosik.js, od 2. 11. 22:39 pre všetkých
    (aj bez kódu OPC; vypínač data.json "prazdny_kosik": false) (html.lcd-opc-kosik.lcd-opc-prazdny). Biele karty ako v pokladni: nadpis s ikonou košíka, set so zľavou (rámik ako otvorený

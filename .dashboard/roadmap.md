@@ -653,3 +653,14 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Konfigurátor variant A „Piesok a bronz“: premenné --kf-* v _lcd1v-kroky.scss, box 616 a vzorkovník 637
 - [x] Farby z kontrastného auditu (polia, zelené tlačidlá, pokladňa, titulka, menu, nadpisy, kamióny v časti RUČNE)
 - [ ] Vydanie: commit, push, prepnutie verzie SK a CZ (nerobí sa bez pokynu)
+## Mercedes triedy V W447 -> stránka triedy V 646 (8. 11. 2026)
+- [x] Zhoda modelov: Mercedes-Benz „V Class“ (rok 2014+), „V Class M/L/XL (…)“ (rok 2014+); Vito, Viano, EQV, VLE, Metris, W638 bez zmeny (functions/vclassPresmerovanie.js)
+- [x] Konfigurátor 1V (jedno, dvoj, rohože, len SK): oznámenie v karte auta + presmerovanie po 1,5 s, odkaz „Prejsť hneď“ (konfigurator1v/vclass-presmerovanie.js, _lcd1v-kroky.scss)
+- [x] Uložené auto z predošlej stránky: presmeruje raz, po návrate len odkaz (bez slučky); stránka triedy V nepresmerúva
+- [x] Titulka „Zvoliť model“: trieda V rovno na stránku triedy V (main.js saveModel), CZ bez zmeny
+- [x] Stránka triedy V: ?rok= a ?velkost= predvyplnia rok a dĺžku (vclass/app.js)
+- [x] Test tools/test-vclass-presmerovanie.mjs (1366 + 390) a test-konfigurator-1v na 598, 601, 619, 616
+- [x] Revízia: ?rok/?velkost len pri príchode (uloží sa, z adresy zmizne; F5 a Späť = uložený výber)
+- [x] Revízia: zmena z klávesnice bez odpočtu (Enter / Pokračujte ďalej / odkaz), stála oblasť aria-live, príznak presmerovania aj pri zmene auta
+- [x] Revízia: titulka zapíše príznak presmerovania; roky triedy V po aktuálny rok (ukážu sa len roky z adminu)
+- [ ] Vydanie: commit, push, prepnutie verzie SK (nerobí sa bez pokynu)

@@ -21,6 +21,7 @@ import { initAnimMimo } from "./functions/lcdAnimMimo.js"; // nekonečné animá
 import { initContactForm } from "./components/contactForm.js";
 import { initOpc, preskocKosik } from "./opc/index.js"; // one page checkout: kosik -> rovno krok 2 (len po tajnom odkaze ?opc=<KOD>, kniha OPC 28. 10. 2026; bez flagu nic)
 import { LCD_TYP_PLACEHOLDERY, lcdNorm, lcdPlatnaHodnota, lcdVyberMoznost, lcdNajdiKluc } from "./functions/autoVyber.js";
+import { vclassAuto, adresaVclass, jeSkWeb, oznacPresmerovane } from "./functions/vclassPresmerovanie.js"; // titulka: Mercedes triedy V W447 -> stránka triedy V (8. 11. 2026)
 import "./seo-runtime.js"; // SEO Fáza A — runtime inject (JSON-LD, hreflang, H1, etc.)
 import "./configurator-enhance.js"; // Konfigurátor — best-seller badge na možnostiach
 import "./lcdHome.js";
@@ -787,6 +788,14 @@ function saveModel(redirect) {
   if (popis) $(".model-text").text(popis);
 
   if ($(".in-index")[0] && redirect) {
+    // Mercedes triedy V W447 (od 2014, SK): rovno na stránku triedy V s rokom, nie na rozcestník (Michal 8. 11. 2026);
+    // typ karosérie tam netreba. Ktoré modely: functions/vclassPresmerovanie.js
+    const vclass = jeSkWeb() ? vclassAuto(auto.Brand, auto.Model, auto.Year) : null;
+    if (vclass) {
+      oznacPresmerovane(); // titulka -> trieda V -> Basic s tým istým autom: konfigurátor už len ukáže odkaz
+      window.location.href = adresaVclass(vclass);
+      return;
+    }
     if (!kompletne) {
       if (!auto.Brand) $(".surcharge-list.brands.dm-selector").addClass("errorToCart");
       if (!auto.Model) $(".surcharge-list.models.dm-selector").addClass("errorToCart");

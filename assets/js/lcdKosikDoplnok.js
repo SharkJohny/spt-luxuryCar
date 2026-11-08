@@ -1004,15 +1004,34 @@ function raz(kluc, fn) {
   return bezi.get(kluc);
 }
 
-async function ziskajMapu(href, R, cerstva) {
+// platna(m) = vlastná kontrola uloženej mapy (trieda V nemá roly setu, mapaProduktu); bez nej musí byť mapa set (jeSet)
+async function ziskajMapu(href, R, cerstva, platna) {
   const cesta = new URL(href, location.href).pathname;
   const kluc = KLUC_MAPY + projekt() + ":" + cesta;
-  if (!cerstva) { const m = lsCitaj(kluc); if (m && jeSet(m, R)) return m; }
+  if (!cerstva) { const m = lsCitaj(kluc); if (m && (platna ? platna(m) : jeSet(m, R))) return m; }
   return raz(kluc, async function () {
     const m = mapaZFormulara(await stiahniDokument(cesta));
     if (m) lsPis(kluc, m);
     return m;
   });
+}
+
+/**
+ * Mapa príplatkov produktu rovnako ako pri setoch (localStorage 24 h pod tým istým kľúčom, jedno stiahnutie stránky,
+ * zabudniMapu po nesediacej kontrole výmeny), uložená mapa platí, len keď platna(m). Pre triedu V v pokladni
+ * (opc/vclassKarta.js) — produkt 646 nemá roly setu, preto vlastná kontrola. cerstva = stiahnuť stránku znova.
+ */
+export function mapaProduktu(href, platna, cerstva) { return ziskajMapu(href, null, !!cerstva, platna); }
+
+/**
+ * Riadok košíka je Mercedes triedy V (SK 646)? Podľa kódu produktu (data-micro-sku „VCLASS“) A priceId jeho jediného
+ * variantu 68434, len na SK (projekt 562035) — nie podľa názvu ani adresy (Michal 8. 11. 2026: ponuka triedy V nesmie
+ * zasiahnuť žiadny iný produkt). Takýto riadok ponuka setov vynechá (nemá roly setu, stránku produktu by sťahovala zbytočne);
+ * jeho ponuku a krížiky kreslí opc/vclassKarta.js. Zmena kódu alebo variantu v admine = ponuka triedy V sa potichu neukáže.
+ */
+export const VCLASS = { projekt: "562035", pid: "646", priceId: "68434", kod: "VCLASS" };
+export function jeVclass(riadok) {
+  return !!riadok && projekt() === VCLASS.projekt && String(riadok.sku || "") === VCLASS.kod && String(riadok.priceId || "") === VCLASS.priceId;
 }
 
 /** Zabudne mapu produktu v localStorage (kontrola ceny / textu nesedela -> mapa mohla zostarnúť, napr. nová cena v admine). */
@@ -2498,9 +2517,10 @@ export async function pripravKontexty(riadky, R, o) {
   const T = TEXTY[R.trh];
   const maSamostatnuRohoz = riadky.some(function (r) { return /koberced?-do-kufr/i.test(r.href || ""); });
   const maSamostatnyBox = riadky.some(function (r) { return /boxi?-do-kufr/i.test(r.href || ""); });
+  // trieda V (646): vlastná ponuka v pokladni (opc/vclassKarta.js) — tu by len sťahovala stránku produktu a nič neukázala
   let kandidati = riadky.filter(function (r) {
     return r.itemId && r.priceId && r.href && r.maPriplatky && r.sur && r.q >= 1 &&
-      !/\btruck\b|kami[oó]n/i.test(r.text) && !/(boxi?-do-kufr|koberced?-do-kufr|vzorkovnik|poukaz|kamion)/i.test(r.href);
+      !/\btruck\b|kami[oó]n/i.test(r.text) && !/(boxi?-do-kufr|koberced?-do-kufr|vzorkovnik|poukaz|kamion)/i.test(r.href) && !jeVclass(r);
   });
   const vynechaj = o && o.vynechaj;
   if (vynechaj) kandidati = kandidati.filter(function (r) { return r.itemId !== vynechaj; });
