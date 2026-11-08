@@ -563,7 +563,8 @@ async function porovnanie(b, nazov, sirka, sc) {
   if (sc.kosik.includes("646")) {
     over(vcBloky.length === 1, kontext + ": riadok 646 má ponuku triedy V");
     eq(vcBloky[0] ? vcBloky[0].riadky.map((r) => r.d) : null, ["rohoz", "vrstva2", "box"], kontext + ": auto BMW v karte -> 2. a 3. rad sa neponúkne");
-    over(!a.s.bloky.some((x) => a.k.some((r) => r.itemId === x.item && r.sku === "VCLASS")), kontext + ": živá verzia pri 646 nič neponúka (pred)");
+    // od 8. 11. 2026 je živá verzia už s ponukou triedy V (daa471a+), preto len informácia, nie kontrola
+    console.log("   info " + kontext + ": živá verzia pri 646 ponúka " + a.s.bloky.filter((x) => a.k.some((r) => r.itemId === x.item && r.sku === "VCLASS")).length + " blok");
     // revízia 8. 11. 2026: v zmiešanom košíku má každá karta svoj set, v poradí riadkov košíka
     const vsetky = z.s.bloky.filter((x) => x.nadpis === "Doplňte svoj set");
     over(vsetky.length === 2, kontext + ": dve karty „Doplňte svoj set“ (" + vsetky.length + ")");
