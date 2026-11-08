@@ -663,6 +663,7 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] Revízia: ?rok/?velkost len pri príchode (uloží sa, z adresy zmizne; F5 a Späť = uložený výber)
 - [x] Revízia: zmena z klávesnice bez odpočtu (Enter / Pokračujte ďalej / odkaz), stála oblasť aria-live, príznak presmerovania aj pri zmene auta
 - [x] Revízia: titulka zapíše príznak presmerovania; roky triedy V po aktuálny rok (ukážu sa len roky z adminu)
+- [x] Okno „Máte Mercedes triedy V?“ namiesto samostatného nápisu pod výberom auta (zákazník už bol na stránke triedy V): Prejsť / Zostať tu, pri načítaní najviac raz za session na produkte; náhľad, čaká na Michala (vetva vclass-okno)
 - [ ] Vydanie: commit, push, prepnutie verzie SK (nerobí sa bez pokynu)
 
 ## Kontrast webu, druhé kolo (8. 11. 2026)

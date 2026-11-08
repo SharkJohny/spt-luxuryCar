@@ -18,7 +18,7 @@ import { lcdNorm } from "./autoVyber.js";
 /** Stránka triedy V (SK 646). */
 export const VCLASS_URL = "/autokoberce-mercedes-v-class/";
 export const VCLASS_OD_ROKU = 2014;
-/** sessionStorage: zákazník už bol presmerovaný (konfigurátor po návrate Späť už len ukáže odkaz, nezacyklí sa). */
+/** sessionStorage: zákazník už bol presmerovaný (konfigurátor po návrate Späť už nepresmeruje sám, len sa opýta oknom). */
 export const KLUC_PRESMEROVANE = "lcdVclassPresmer";
 /** sessionStorage: rozrobený výber na stránke triedy V (vclass/app.js KLUC_ULOZENIA) = zákazník tam už bol. */
 export const KLUC_VCLASS = "lcdVclass";
@@ -61,7 +61,7 @@ export function adresaVclass(a) {
 
 /**
  * Zapamätá v karte prehliadača, že zákazník už bol poslaný na stránku triedy V (pred každým presmerovaním: konfigurátor aj
- * titulka). Konfigurátor potom pri tom istom aute ukáže len odkaz a nepresmeruje znova (žiadne odrazenie späť).
+ * titulka). Konfigurátor potom nepresmeruje znova sám (žiadne odrazenie späť), len sa opýta oknom „Máte Mercedes triedy V?“.
  */
 export function oznacPresmerovane() {
   try { sessionStorage.setItem(KLUC_PRESMEROVANE, "1"); } catch (e) { /* súkromný režim */ }
@@ -70,6 +70,34 @@ export function oznacPresmerovane() {
 /** Už bol zákazník na stránke triedy V (presmerovaný, alebo tam má rozrobený výber)? */
 export function uzBolNaVclass() {
   try { return !!(sessionStorage.getItem(KLUC_PRESMEROVANE) || sessionStorage.getItem(KLUC_VCLASS)); } catch (e) { return false; }
+}
+
+/**
+ * sessionStorage: id produktov, na ktorých sa už ukázalo okno „Máte Mercedes triedy V?“ (konfigurator1v/vclass-presmerovanie.js).
+ * Pri načítaní stránky s uloženou triedou V sa okno ukáže najviac raz za session na produkte (Michal 8. 11. 2026).
+ */
+export const KLUC_OKNO = "lcdVclassOkno";
+
+function zoznamOkien() {
+  try {
+    const z = JSON.parse(sessionStorage.getItem(KLUC_OKNO) || "[]");
+    return Array.isArray(z) ? z.map(String) : [];
+  } catch (e) {
+    return []; // pokazená hodnota alebo súkromný režim = ešte nebolo
+  }
+}
+
+/** Ukázalo sa už na tomto produkte okno „Máte Mercedes triedy V?“ (v tejto karte prehliadača)? */
+export function oknoBoloNa(produkt) {
+  return zoznamOkien().indexOf(String(produkt)) > -1;
+}
+
+/** Zapamätá, že na produkte sa okno „Máte Mercedes triedy V?“ už ukázalo. */
+export function oznacOkno(produkt) {
+  const z = zoznamOkien();
+  if (z.indexOf(String(produkt)) > -1) return;
+  z.push(String(produkt));
+  try { sessionStorage.setItem(KLUC_OKNO, JSON.stringify(z)); } catch (e) { /* súkromný režim */ }
 }
 
 /** SK web (projekt 562035 a html lang sk). CZ nikdy. */

@@ -80,7 +80,8 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
  *          čísla (nie je v kroky) — rohož medzi Autom a Farbou, box hneď pod kartou „Vaše boxy do kufra“ (len 1–2 boxy);
  *          „Áno“ prenesie výber na jednovrstvové (prenos.js zapisVyber -> prijímač „prenos“ na jedno).
  *          „vclass-presmerovanie“ (vclass-presmerovanie.js, jedno, dvoj, rohože; len SK) = Mercedes triedy V W447 od 2014
- *          vybraný v karte auta -> oznámenie a presmerovanie na stránku triedy V 646 (Michal 8. 11. 2026).
+ *          vybraný v karte auta -> oznámenie a presmerovanie na stránku triedy V 646 (Michal 8. 11. 2026); kto tam už bol,
+ *          dostane namiesto presmerovania okno „Máte Mercedes triedy V?“ (Prejsť / Zostať tu).
  *          Poradie modulov boxu NEMENIŤ: boxy-produkt (stráž košíka, capture na window) musí bežať pred komplet-ponuka
  *          (window) a tá pred kroky.js (document).
  * obal   – prvok vo formulári, bez ktorého sa nový vzhľad nezapne (živý konfigurátor sa nepostavil); null = len formulár.

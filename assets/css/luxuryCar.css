@@ -17071,6 +17071,198 @@ body.lcd-1v .lcd1v-vclass__cas {
   }
 }
 
+/* Okno „Máte Mercedes triedy V?“ (vclass-presmerovanie.js, Michal 8. 11. 2026): zákazník, ktorý už bol na stránke triedy V,
+   dostane namiesto samostatného nápisu otázku v okne. Vzor = okno boxov „Vaše boxy do kufra“ (_lcd1v-kufor-boxy.scss):
+   stmavené pozadie, zlatá linka hore, zaoblenie 20 px, × 44 px, zelené tlačidlo ako „Pokračujte ďalej“; karta krémová.
+   Na telefóne okno v strede (nie spodný panel ako boxy): je krátke a tlačidlá tak nie sú pri spodnej lište Safari, kde
+   boxy potrebovali ťuknúť 2×. V stránke je len kým je otvorené (+ 0,4 s pozadie, ktoré chytí dvojťuknutie). */
+body.lcd-1v .lcd1v-vclass-pozadie {
+  position: fixed;
+  inset: 0;
+  z-index: 2147482000;
+  background: rgba(10, 8, 6, .72);
+  opacity: 0;
+  transition: opacity .2s;
+}
+body.lcd-1v .lcd1v-vclass-pozadie--otvorene {
+  opacity: 1;
+}
+body.lcd-1v .lcd1v-vclass-okno {
+  position: fixed;
+  z-index: 2147482001;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: 0;
+  padding: 20px 22px 18px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--kf-delic);
+  border-top: 3px solid var(--kr-gold);
+  border-radius: 20px;
+  background: #fffdf7;
+  box-shadow: 0 30px 80px rgba(10, 8, 6, .45);
+  color: var(--kr-ink);
+  font-family: var(--kr-body);
+  text-align: left;
+  transform: translate(-50%, -46%);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s, visibility 0s linear .2s;
+}
+body.lcd-1v .lcd1v-vclass-okno--otvorene {
+  transform: translate(-50%, -50%);
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .2s, transform .2s;
+}
+body.lcd-1v.lcd1v-vclass-okno-otvorene {
+  overflow: hidden;
+}
+/* chat Luxia (z-index 2147483000) by ležal na okne — kým je otvorené, ustúpi (ako pri okne boxov) */
+body.lcd-1v.lcd1v-vclass-okno-otvorene iframe[title="Luxia chat"] {
+  visibility: hidden !important;
+}
+body.lcd-1v .lcd1v-vclass-okno__hd {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+body.lcd-1v .lcd1v-vclass-okno__nadpis {
+  margin: 0;
+  padding: 10px 0 0;
+  border: 0;
+  background: none;
+  color: var(--kr-ink);
+  font: 700 19px/1.25 var(--kr-disp);
+  letter-spacing: .02em;
+  text-align: left;
+  text-transform: uppercase;
+}
+body.lcd-1v .lcd1v-vclass-okno__nadpis::before,
+body.lcd-1v .lcd1v-vclass-okno__nadpis::after {
+  content: none;
+}
+body.lcd-1v .lcd1v-vclass-okno__x {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--kf-ram);
+  border-radius: 50%;
+  background: #fff;
+  color: #4a4433;
+  font: 400 22px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+body.lcd-1v .lcd1v-vclass-okno__x:hover {
+  border-color: var(--kf-ram-hover);
+  color: var(--kr-ink);
+}
+body.lcd-1v .lcd1v-vclass-okno__text {
+  margin: 0;
+  padding: 0;
+  color: var(--kr-text);
+  font: 400 16px/1.5 var(--kr-body);
+}
+/* zelené = kam chceme klik (ako „Pokračujte ďalej“); dlhý text sa na telefóne zalomí na 2 riadky, preto min-height */
+body.lcd-1v .lcd1v-vclass-okno__ide,
+body.lcd-1v .lcd1v-vclass-okno__ide:visited {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  margin: 20px 0 0;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #1d6b4a, #1f7a52 42%, #1f7350);
+  box-shadow: 0 10px 26px rgba(31, 115, 80, .34), inset 0 1px 0 rgba(255, 255, 255, .22);
+  color: #fff;
+  font: 900 14px/1.6 var(--kr-disp);
+  letter-spacing: .12em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow .2s, transform .2s;
+}
+body.lcd-1v .lcd1v-vclass-okno__ide:hover {
+  box-shadow: 0 14px 30px rgba(31, 115, 80, .42), inset 0 1px 0 rgba(255, 255, 255, .22);
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+/* „Zostať tu“ nenápadné: bez pozadia a rámu, podčiarknuté, ťuknuteľné 44 px */
+body.lcd-1v .lcd1v-vclass-okno__zostat {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--kr-text);
+  font: 600 16px/1.4 var(--kr-body);
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: underline;
+  text-transform: none;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+body.lcd-1v .lcd1v-vclass-okno__zostat:hover {
+  color: var(--kr-ink);
+}
+body.lcd-1v .lcd1v-vclass-okno__x:focus-visible,
+body.lcd-1v .lcd1v-vclass-okno__ide:focus-visible,
+body.lcd-1v .lcd1v-vclass-okno__zostat:focus-visible {
+  outline: 2px solid var(--kr-gold);
+  outline-offset: 3px;
+}
+@media (min-width: 768px) {
+  body.lcd-1v .lcd1v-vclass-okno {
+    padding: 22px 28px 20px;
+  }
+  body.lcd-1v .lcd1v-vclass-okno__nadpis {
+    font-size: 21px;
+  }
+  body.lcd-1v .lcd1v-vclass-okno__text,
+  body.lcd-1v .lcd1v-vclass-okno__zostat {
+    font-size: 17px;
+  }
+}
+@media (max-width: 374px) {
+  body.lcd-1v .lcd1v-vclass-okno {
+    width: calc(100vw - 24px);
+    padding: 16px 16px 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.lcd-1v .lcd1v-vclass-pozadie,
+  body.lcd-1v .lcd1v-vclass-okno,
+  body.lcd-1v .lcd1v-vclass-okno__ide {
+    transition: none !important;
+  }
+  body.lcd-1v .lcd1v-vclass-okno {
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* ---------------------------------------------------------------- telefón */
 @media (max-width: 720px) {
   body.lcd-1v {
