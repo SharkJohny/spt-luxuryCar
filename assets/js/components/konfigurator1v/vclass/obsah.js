@@ -3,7 +3,7 @@
 // Bez neho sa obsah zobrazí celý pod sebou a dá sa čítať.
 import { sken } from "./sken.js";
 import { kresli } from "./kresba.js";
-import { VELKOSTI, LUX, ROHOZ, BOXY, rozSet, FARBY, VZORY } from "./data.js";
+import { data, t, jeCz } from "./trh.js";
 import { NAHLADY_FARIEB } from "../farby-nahlady-data.js";
 
 const FARBY_CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/farby/";
@@ -24,11 +24,12 @@ function nakresli(mapa, plan, sirka, sada) {
 }
 
 function prehliadka(sek, spat, vyberFarbu) {
+  const { FARBY, VZORY } = data();
   const vp = sek.querySelector(".vp");
   const mapa = sek.querySelector(".vp-mapa");
   const kap = Array.prototype.slice.call(sek.querySelectorAll(".vp-k"));
   if (!vp || !mapa || !kap.length) return;
-  mapa.innerHTML = '<div class="vp-c"><canvas class="vp-pred" role="img" aria-label="Pôdorys predných autokobercov triedy V"></canvas></div><div class="vp-c vp-c2"><canvas class="vp-zad" role="img" aria-label="Pôdorys koberca 2. a 3. radu a kufra"></canvas></div><span class="vp-sv" aria-hidden="true"></span>';
+  mapa.innerHTML = '<div class="vp-c"><canvas class="vp-pred" role="img" aria-label="' + t("Pôdorys predných autokobercov triedy V") + '"></canvas></div><div class="vp-c vp-c2"><canvas class="vp-zad" role="img" aria-label="' + t("Pôdorys koberca 2. a 3. radu a kufra") + '"></canvas></div><span class="vp-sv" aria-hidden="true"></span>';
   const platna = mapa.querySelectorAll(".vp-c");
   const sv = mapa.querySelector(".vp-sv");
   const body = BODY.map((b, i) => {
@@ -46,7 +47,7 @@ function prehliadka(sek, spat, vyberFarbu) {
   const nav = document.createElement("div");
   nav.className = "vp-chips";
   nav.setAttribute("role", "group");
-  nav.setAttribute("aria-label", "Miesta v aute");
+  nav.setAttribute("aria-label", t("Miesta v aute"));
   const chips = kap.map((k, i) => {
     const t = document.createElement("button");
     t.type = "button";
@@ -66,21 +67,21 @@ function prehliadka(sek, spat, vyberFarbu) {
   });
   const pata = document.createElement("div");
   pata.className = "vp-pata";
-  pata.innerHTML = '<button type="button" class="vp-spat">Späť</button><button type="button" class="vp-dalej"></button>';
+  pata.innerHTML = '<button type="button" class="vp-spat">' + t("Späť") + '</button><button type="button" class="vp-dalej"></button>';
   zoz.appendChild(pata);
   const spatTl = pata.querySelector(".vp-spat"), dalsia = pata.querySelector(".vp-dalej");
   spatTl.addEventListener("click", () => na((akt - 1 + kap.length) % kap.length, true));
   dalsia.addEventListener("click", () => na((akt + 1) % kap.length, true));
 
   // farba setu: rovnaké vzory a farby ako v konfigurátore, „Chcem takýto set“ ich prenesie do krokov
-  const sada = { vzor: "diamond", f: FARBY.diamond.find((f) => f.nm === "Čierna, béžové šitie") || FARBY.diamond[0] };
+  const sada = { vzor: "diamond", f: FARBY.diamond.find((f) => (f.sk || f.nm) === "Čierna, béžové šitie") || FARBY.diamond[0] };
   const lava = document.createElement("div");
   lava.className = "vp-lava";
   vp.insertBefore(lava, mapa);
   lava.appendChild(mapa);
   const far = document.createElement("div");
   far.className = "vp-far";
-  far.innerHTML = '<p class="vp-far-t">Vyskúšajte si, ako by vyzeral Váš set</p><div class="vp-vz" role="group" aria-label="Vzor prešívania">' + VZORY.map((v) => '<button type="button" data-vz="' + v.id + '">' + v.nm + "</button>").join("") + '</div><div class="vp-sw" role="group" aria-label="Farba autokobercov"></div><p class="vp-far-n" aria-live="polite"></p><button type="button" class="vp-chcem">Chcem takýto set</button>';
+  far.innerHTML = '<p class="vp-far-t">' + t("Vyskúšajte si, ako by vyzeral Váš set") + '</p><div class="vp-vz" role="group" aria-label="' + t("Vzor prešívania") + '">' + VZORY.map((v) => '<button type="button" data-vz="' + v.id + '">' + v.nm + "</button>").join("") + '</div><div class="vp-sw" role="group" aria-label="' + t("Farba autokobercov") + '"></div><p class="vp-far-n" aria-live="polite"></p><button type="button" class="vp-chcem">' + t("Chcem takýto set") + "</button>";
   vp.appendChild(far); // na PC pás pod kresbou aj fotkou, stĺpce sú rovnako vysoké (Michal 7. 11. 2026)
   const swW = far.querySelector(".vp-sw"), meno = far.querySelector(".vp-far-n");
   const miniatura = (f) => (NAHLADY_FARIEB[f.slug] ? FARBY_CDN + f.slug + "-" + NAHLADY_FARIEB[f.slug] + "-w96.jpg" : "");
@@ -117,7 +118,7 @@ function prehliadka(sek, spat, vyberFarbu) {
     body.forEach((t, n) => t.setAttribute("aria-pressed", n === i ? "true" : "false"));
     chips.forEach((t, n) => { t.setAttribute("aria-pressed", n === i ? "true" : "false"); t.classList.toggle("vp-pred-h", n < i); });
     const dal = (i + 1) % kap.length;
-    dalsia.textContent = dal ? "Ďalej: " + kap[dal].querySelector("h3").textContent : "Znova od šoféra";
+    dalsia.textContent = dal ? t("Ďalej: {0}", kap[dal].querySelector("h3").textContent) : t("Znova od šoféra");
     spatTl.hidden = i === 0;
     svetlo();
     if (klik && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: chips[i].offsetLeft - 16, behavior: "smooth" });
@@ -135,16 +136,17 @@ function prehliadka(sek, spat, vyberFarbu) {
 }
 
 function verzie(sek, spat) {
+  const { VELKOSTI } = data();
   const miesto = sek.querySelector(".vv-kresba");
   if (!miesto) return;
   const st = { v: "L", s: false, z: false, d: 2 };
   const P = [
-    ["v", "Dĺžka", VELKOSTI.map((x) => [x.v, x.v])],
-    ["d", "Bočné dvere", [[1, "Jedny"], [2, "Dvoje"]]],
-    ["s", "Stolček", [[false, "Bez"], [true, "So stolčekom"]]],
-    ["z", "Zásuvky", [[false, "Bez"], [true, "So zásuvkami"]]],
+    ["v", t("Dĺžka"), VELKOSTI.map((x) => [x.v, x.v])],
+    ["d", t("Bočné dvere"), [[1, t("Jedny")], [2, t("Dvoje")]]],
+    ["s", t("Stolček"), [[false, t("Bez")], [true, t("So stolčekom")]]],
+    ["z", t("Zásuvky"), [[false, t("Bez")], [true, t("So zásuvkami")]]],
   ];
-  miesto.innerHTML = '<canvas role="img" aria-label="Pôdorys koberca 2. a 3. radu a kufra podľa zvolenej verzie"></canvas><div class="vv-pole">' + P.map((p) => '<div class="vv-r"><span>' + p[1] + "</span><div>" + p[2].map((x) => '<button type="button" data-k="' + p[0] + '" data-v="' + x[0] + '" aria-pressed="' + (st[p[0]] === x[0]) + '">' + x[1] + "</button>").join("") + "</div></div>").join("") + "</div>";
+  miesto.innerHTML = '<canvas role="img" aria-label="' + t("Pôdorys koberca 2. a 3. radu a kufra podľa zvolenej verzie") + '"></canvas><div class="vv-pole">' + P.map((p) => '<div class="vv-r"><span>' + p[1] + "</span><div>" + p[2].map((x) => '<button type="button" data-k="' + p[0] + '" data-v="' + x[0] + '" aria-pressed="' + (st[p[0]] === x[0]) + '">' + x[1] + "</button>").join("") + "</div></div>").join("") + "</div>";
   const pl = miesto.querySelector("canvas");
   const kresba = () => {
     try { kresli(pl, { cast: "zadok", vzor: "diamond", slabe: null, v: st.v, d: st.d, s: st.s, z: st.z }, Math.min(520, Math.round((miesto.clientWidth || 300) * 0.62 * DPR())), ["#17161a", "#dcc9a2", PODLAHA]); } catch (e) { pl.hidden = true; }
@@ -192,7 +194,7 @@ function pas(w, spat) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "vl-sip " + (s < 0 ? "vl-sip-l" : "vl-sip-p");
-    b.setAttribute("aria-label", s < 0 ? "Predošlé" : "Ďalšie");
+    b.setAttribute("aria-label", s < 0 ? t("Predošlé") : t("Ďalšie"));
     b.addEventListener("click", () => w.scrollBy({ left: s * w.clientWidth * 0.85, behavior: "smooth" }));
     o.appendChild(b);
     return b;
@@ -214,7 +216,7 @@ function galeria(sek, spat) {
     if (!b) {
       b = document.createElement("button");
       b.type = "button";
-      b.setAttribute("aria-label", "Zväčšiť fotku");
+      b.setAttribute("aria-label", t("Zväčšiť fotku"));
       i.parentNode.insertBefore(b, i);
       b.appendChild(i);
     }
@@ -229,20 +231,22 @@ function galeria(sek, spat) {
 function kontakt(sek) {
   const m = sek.querySelector(".vt-form");
   if (!m) return;
-  m.innerHTML = '<form class="vt-f" action="/action/MailForm/SendEmail/" method="post" novalidate><input type="hidden" name="formId" value="1"><input type="hidden" name="consents[]" value="25">'
-    + '<label class="vt-p"><span>Meno a priezvisko <small>nepovinné</small></span><input type="text" name="fullName" autocomplete="name"></label>'
-    + '<label class="vt-p"><span>E-mail</span><input type="email" name="email" autocomplete="email" required><em>Skontrolujte e-mail</em></label>'
-    + '<label class="vt-p"><span>Telefónne číslo</span><input type="tel" class="vt-tel" autocomplete="tel" placeholder="+421 900 000 000" required><em>Doplňte telefónne číslo</em></label>'
-    + '<label class="vt-p vt-s"><span>Vaša otázka <small>nepovinné</small></span><textarea name="message" rows="4" placeholder="Napíšte, s čím Vám môžeme pomôcť, napríklad verzia auta, farba alebo termín."></textarea></label>'
+  // súhlas a stránka ochrany údajov ako formulár na titulke daného webu (admin-html/src/hp-telo-2.<sk|cz>.html): SK 25, CZ 40
+  const cz = jeCz();
+  m.innerHTML = '<form class="vt-f" action="/action/MailForm/SendEmail/" method="post" novalidate><input type="hidden" name="formId" value="1"><input type="hidden" name="consents[]" value="' + (cz ? "40" : "25") + '">'
+    + '<label class="vt-p"><span>' + t("Meno a priezvisko") + " <small>" + t("nepovinné") + '</small></span><input type="text" name="fullName" autocomplete="name"></label>'
+    + '<label class="vt-p"><span>E-mail</span><input type="email" name="email" autocomplete="email" required><em>' + t("Skontrolujte e-mail") + "</em></label>"
+    + '<label class="vt-p"><span>' + t("Telefónne číslo") + '</span><input type="tel" class="vt-tel" autocomplete="tel" placeholder="+421 900 000 000" required><em>' + t("Doplňte telefónne číslo") + "</em></label>"
+    + '<label class="vt-p vt-s"><span>' + t("Vaša otázka") + " <small>" + t("nepovinné") + '</small></span><textarea name="message" rows="4" placeholder="' + t("Napíšte, s čím Vám môžeme pomôcť, napríklad verzia auta, farba alebo termín.") + '"></textarea></label>'
     + '<span class="vt-hp" aria-hidden="true"><label>Surname<input type="text" name="surname" value="" autocomplete="off" tabindex="-1"></label></span>'
-    + '<div class="vt-a"><button type="submit">Odošlite správu</button><p>Vložením správy súhlasíte s <a href="/podmienky-ochrany-osobnych-udajov/">podmienkami ochrany osobných údajov</a>.</p></div><p class="vt-st" role="status" hidden></p></form>';
+    + '<div class="vt-a"><button type="submit">' + t("Odošlite správu") + "</button><p>" + t("Vložením správy súhlasíte s") + ' <a href="' + (cz ? "/podminky-ochrany-osobnich-udaju/" : "/podmienky-ochrany-osobnych-udajov/") + '">' + t("podmienkami ochrany osobných údajov") + '</a>.</p></div><p class="vt-st" role="status" hidden></p></form>';
   const f = m.querySelector("form"), stav = f.querySelector(".vt-st"), tel = f.querySelector(".vt-tel"), sprava = f.querySelector("textarea");
   f.addEventListener("submit", (e) => {
     f.classList.add("overene");
     if (!f.checkValidity()) { e.preventDefault(); const p = f.querySelector(":invalid"); if (p) p.focus(); return; }
     if (!sprava.getAttribute("data-zlozene")) {
       const mail = f.querySelector('input[name="email"]').value.trim();
-      sprava.value = (sprava.value.trim() || "Prosím, kontaktujte ma.") + "\n\nTelefón: " + tel.value.trim() + "\nE-mail: " + mail + "\nAuto: Mercedes V Class";
+      sprava.value = (sprava.value.trim() || t("Prosím, kontaktujte ma.")) + "\n\n" + t("Telefón") + ": " + tel.value.trim() + "\nE-mail: " + mail + "\nAuto: Mercedes V Class";
       sprava.setAttribute("data-zlozene", "1");
     }
     const meno = f.querySelector('input[name="fullName"]');
@@ -250,7 +254,7 @@ function kontakt(sek) {
     e.preventDefault();
     const tl = f.querySelector('button[type="submit"]'), povodny = tl.textContent;
     tl.disabled = true;
-    tl.textContent = "Odosielam…";
+    tl.textContent = t("Odosielam…");
     const data = new FormData(f);
     if (!meno.value.trim()) data.set("fullName", tel.value.trim());
     fetch(f.action, { method: "POST", body: data, credentials: "same-origin" })
@@ -259,7 +263,7 @@ function kontakt(sek) {
         f.reset();
         sprava.removeAttribute("data-zlozene");
         f.classList.remove("overene");
-        stav.textContent = "Ďakujeme, správa odišla. Ozveme sa Vám spravidla do hodiny.";
+        stav.textContent = t("Ďakujeme, správa odišla. Ozveme sa Vám spravidla do hodiny.");
         stav.hidden = false;
       })
       .catch(() => { if (!meno.value.trim()) meno.value = tel.value.trim(); f.submit(); })
@@ -268,6 +272,7 @@ function kontakt(sek) {
 }
 
 export function ozivObsah({ prc, zaklad, eur, vyberFarbu }) {
+  const { VELKOSTI, LUX, ROHOZ, BOXY, rozSet } = data();
   const spat = [];
   const hotovo = {};
   const rad = (v) => prc("rozlozenie", rozSet(v));

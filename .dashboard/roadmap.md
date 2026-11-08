@@ -690,3 +690,15 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [x] kosikRozpis.js lcdRozpisEl: riadok { nadpis } = li.lcd-rozpis__nadpis; dakujeme.js ho nepreberá
 - [x] CSS _lcdKosik.scss + _lcdOpc.scss: 12 px Exo 2, veľké písmená, #7c5f16, bez odrážky (vloz-lcd-css.py)
 - [ ] Vydanie: push, prepnutie verzie SK (nerobí sa bez pokynu)
+
+## Trieda V CZ: presná kópia SK 646 na luxurycardesign.cz (CZ 2458, 8. 11. 2026, vetva vclass-cz)
+- [x] Testy najprv (červené na 6dc79ca): tools/test-vclass-cz.mjs (texty, data-cz = CZ admin, register, poznámka), test-vclass.mjs --trh cz (podvrh CZ stránky kamiónov -> 2458, príplatky z tools/vclass-cz-admin.json)
+- [x] functions/vclassProdukt.js: SK 646 / 68434, CZ 2458 / 46327, CZ_SPUSTENE = false
+- [x] vclass/data-cz.js: mená a hodnoty príplatkov z CZ adminu (108 hodnôt), Samostatně v Kč
+- [x] vclass/trh.js + texty-cz.js: t() (SK bez zmeny), CZ texty app.js, boxy.js, druha.js (texty z registra), obsah.js, sken.js; formulár CZ súhlas 40 a CZ stránka ochrany údajov
+- [x] produkty.js: 581408 -> 2458 typ vclass
+- [x] Poznámka objednávky: CZ ako SK („model: Mercedes-Benz V Class … rok“), overené testom
+- [x] Rozrobené a odovzdané: košík (vclassKarta.js, cart.js, lcdKosikDoplnok.js jeVclass), presmerovanie (vclassPresmerovanie.js, vclass-presmerovanie.js, main.js) — preberajú pomocníci košík a presmerovanie
+- [ ] Obsah pod konfigurátorom CZ (admin-html p1v-vclass *.cz.html, ciele.json cz) — pomocník obsah
+- [ ] Po zverejnení CZ 2458: CZ_SPUSTENE = true, Popis z admin-html/dist/p1v-vclass-*.cz.html, test-vclass.mjs --trh cz --bez-podvrhu
+- [ ] Vydanie: push, prepnutie verzie (nerobí sa bez pokynu)

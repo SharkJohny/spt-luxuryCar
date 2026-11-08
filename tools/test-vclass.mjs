@@ -1,24 +1,49 @@
-// Test konfigurátora triedy V (SK 646). Produkt je pre hosťa 404, preto sa skúša na živej stránke kamiónov prerobenej na 646:
-// rovnaká šablóna, skripty aj CSS, len formulár má 10 selectov príplatkov ako v admine. POST do košíka sa zachytí a zruší.
+// Test konfigurátora triedy V (SK 646, CZ 2458). Produkt je pre hosťa 404, preto sa skúša na živej stránke kamiónov prerobenej na
+// triedu V: rovnaká šablóna, skripty aj CSS, len formulár má 15 selectov príplatkov ako v admine. POST do košíka sa zachytí a zruší.
+// --trh cz: to isté na CZ webe (stránka kamiónov 2452 -> 2458, príplatky a ceny v Kč z tools/vclass-cz-admin.json, české texty).
+// --bez-podvrhu: živá stránka produktu tak, ako je (po zverejnení CZ 2458; pred ním je pre hosťa 404), len skripty z --dist / --sha.
+// Obsah pod konfigurátorom: SK z admin-html/dist, CZ z --obsah <priečinok s p1v-vclass-1.cz.html a -2.cz.html> (inak z
+// admin-html/dist, ak tam je); bez CZ obsahu sa kontroly obsahu na CZ preskočia (vypíše sa to).
 //
-//   node tools/test-vclass.mjs --pw <file:///…/playwright/index.mjs> --dist <priečinok s luxuryCar.js a lcd-vclass.js> [--prehliadac chromium,webkit,firefox] [--snimky <priečinok>]
-//   node tools/test-vclass.mjs --pw <…> --sha <verzia na CDN>
-import { mkdirSync, readFileSync } from "node:fs";
+//   node tools/test-vclass.mjs --pw <file:///…/playwright/index.mjs> --dist <priečinok s luxuryCar.js a lcd-vclass.js> [--trh cz] [--prehliadac chromium,webkit,firefox] [--snimky <priečinok>]
+//   node tools/test-vclass.mjs --pw <…> --sha <verzia na CDN> [--trh cz] [--bez-podvrhu]
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { VELKOSTI, ROKY, VOLANT, STRED, DVERE, SEDADLA_TEXTY, sedadlaText, STOLCEK, ZASUVKY, VZORY, FARBY, LUX, BEZ_DRUHEJ, ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM, BOXY, BOX_FARBY } from "../assets/js/components/konfigurator1v/vclass/data.js";
+import * as DATA_SK from "../assets/js/components/konfigurator1v/vclass/data.js";
+import * as DATA_CZ from "../assets/js/components/konfigurator1v/vclass/data-cz.js";
 
 const arg = (m, z) => { const i = process.argv.indexOf("--" + m); return i > -1 ? process.argv[i + 1] : z; };
+const CZ = arg("trh", "sk") === "cz";
+const BEZ_PODVRHU = process.argv.includes("--bez-podvrhu");
+const { VELKOSTI, ROKY, VOLANT, STRED, DVERE, SEDADLA_TEXTY, sedadlaText, STOLCEK, ZASUVKY, VZORY, FARBY, LUX, BEZ_DRUHEJ, ROZ_PREDOK, ROZ_BEZ, rozSet, rozLen, rozRadRohoz, ROHOZ, ROHOZ_SAM, BOXY, BOX_FARBY, SELECTY } = CZ ? DATA_CZ : DATA_SK;
 const pw = await import(arg("pw"));
 const dist = arg("dist"), sha = arg("sha"), snimky = arg("snimky");
 if (snimky) mkdirSync(snimky, { recursive: true });
-const ZIVA = "https://www.luxurycardesign.sk/luxusne-autokoberce-kamiony/";
-const CIEL = "https://www.luxurycardesign.sk/autokoberce-mercedes-v-class/";
+const WEB = CZ ? "https://www.luxurycardesign.cz" : "https://www.luxurycardesign.sk";
+const ZIVA = WEB + (CZ ? "/luxusni-autokoberce-kamiony/" : "/luxusne-autokoberce-kamiony/");
+const CIEL = WEB + "/autokoberce-mercedes-v-class/";
+const ADMIN_CZ = JSON.parse(readFileSync(new URL("./vclass-cz-admin.json", import.meta.url), "utf8"));
+/** Produkt triedy V webu: id, priceId, základná cena (SK 300 €, CZ 7 500 Kč). */
+const PRODUKT = CZ ? { id: String(ADMIN_CZ.produkt.id), priceId: String(ADMIN_CZ.produkt.priceId), cena: ADMIN_CZ.produkt.cena } : { id: "646", priceId: "68434", cena: 300 };
+/** Texty a ceny, ktoré test hľadá na stránke (SK pôvodné, CZ české). */
+const X = CZ ? {
+  lenSpolu: /jen společně/, dveCasti: /alespoň dvě části/, samostatne: /Samostatně/, vyhoda: /Výhoda v setu/, jednuMoznost: /alespoň jednu možnost/,
+  vSete: /V setu ušetříte/, bezZlavy: /bez slevy/, nedava: /nedává/, esteChyba: /Ještě chybí/, odCena: /od\s*7 500\s*Kč/, predne: /předním sedadlům/,
+  spolu: "7500Kč", mena: "Kč", vlozte: "Vložte do košíku", rohoz: /Rohož do kufru/, komplet: "35000Kč", odmietnut: "Odmítnout", priplatok: (pr) => " +" + pr + " Kč",
+} : {
+  lenSpolu: /len spolu/, dveCasti: /aspoň dve časti/, samostatne: /Samostatne/, vyhoda: /Výhoda v sete/, jednuMoznost: /aspoň jednu možnosť/,
+  vSete: /V sete ušetríte/, bezZlavy: /bez zľavy/, nedava: /nedáva/, esteChyba: /Ešte chýba/, odCena: /od\s*300\s*€/, predne: /predným sedadlám/,
+  spolu: "300€", mena: "€", vlozte: "Vložte do košíka", rohoz: /Rohož do kufra/, komplet: "1400€", odmietnut: "Odmietnuť", priplatok: (pr) => " +€" + pr,
+};
+const SK_NA_CZ = (zoznam) => (CZ ? (nm) => { const f = zoznam.find((x) => x.sk === nm); if (!f) throw new Error("CZ názov k " + nm + " chýba"); return f.nm; } : (nm) => nm);
+const farbaTrhu = SK_NA_CZ([].concat(...Object.values(FARBY)));
+const boxFarbaTrhu = SK_NA_CZ(BOX_FARBY);
 
 // hodnoty ako v admine: [id, meno, prvé ID hodnoty (po troch) alebo zoznam ID, texty, ceny, nepovinný]
 const farby = [].concat(...VZORY.map((v) => FARBY[v.id].map((f) => v.nm + " – " + f.nm)));
 const luxId = LUX.map((_, i) => 2533 + i * 3).concat(2635);
 const boxT = BOXY.map((b) => b.t), boxC = [99, 109, 129, 149], boxD = [89, 99, 119, 139];
-const P = [
+const P_SK = [
   [418, "Rok výroby", 2365, ROKY], [421, "Volant", 2404, VOLANT], [424, "Stred medzi sedadlami", 2410, STRED], [427, "Bočné dvere", 2416, DVERE],
   [430, "Sedadlá v 2. a 3. rade", 2422, SEDADLA_TEXTY], [433, "Stolček vzadu", 2434, STOLCEK], [436, "Zásuvky pod sedadlami", 2440, ZASUVKY],
   [439, "Vzor a farba 1. vrstvy", 2446, farby],
@@ -28,8 +53,11 @@ const P = [
   [451, "Box do kufra", 2599, boxT, boxC, true], [454, "Prvý box z dvoch", 2611, boxT, boxD, true], [457, "Druhý box z dvoch", 2623, boxT, boxD, true],
   [460, "Farba boxov do kufra", 2638, BOX_FARBY.map((f) => f.nm), null, true],
 ];
+// CZ: presne ako CZ admin (ID príplatkov 355–397, ID hodnôt, texty a ceny v Kč)
+const P_CZ = ADMIN_CZ.priplatky.map((p) => [p.id, p.meno, p.hodnoty.map((h) => h[0]), p.hodnoty.map((h) => h[1]), p.hodnoty.map((h) => h[2]), !p.povinny]);
+const P = CZ ? P_CZ : P_SK;
 const idHodnoty = (p, i) => (Array.isArray(p[2]) ? p[2][i] : p[2] + i * 3);
-const riadok = (x) => { const [id, m, , H, c, nep] = x; return `<tr class="surcharge-list"><th><label for="surcharge-parameter-id-${id}">${m}</label></th><td><select name="surchargeParameterValueId[${id}]" id="surcharge-parameter-id-${id}" class="parameter-id-${id} surcharge-parameter form-control" data-parameter-id="${id}" data-parameter-name="${m}"${nep ? "" : ' required="required"'}><option value="" data-choose="true" data-index="0">Vyberte príplatok</option>${H.map((t, i) => { const pr = c ? c[i] : 0; return `<option value="${idHodnoty(x, i)}" data-surcharge-final-price="${pr}" data-surcharge-additional-price="${pr}">${t} +€${pr}</option>`; }).join("")}</select></td></tr>`; };
+const riadok = (x) => { const [id, m, , H, c, nep] = x; return `<tr class="surcharge-list"><th><label for="surcharge-parameter-id-${id}">${m}</label></th><td><select name="surchargeParameterValueId[${id}]" id="surcharge-parameter-id-${id}" class="parameter-id-${id} surcharge-parameter form-control" data-parameter-id="${id}" data-parameter-name="${m}"${nep ? "" : ' required="required"'}><option value="" data-choose="true" data-index="0">${CZ ? "Vyberte příplatek" : "Vyberte príplatok"}</option>${H.map((t, i) => { const pr = c ? c[i] : 0; return `<option value="${idHodnoty(x, i)}" data-surcharge-final-price="${pr}" data-surcharge-additional-price="${pr}">${t}${X.priplatok(pr)}</option>`; }).join("")}</select></td></tr>`; };
 const hodnotaId = (meno, text) => { const p = P.find((x) => x[1] === meno); return String(idHodnoty(p, p[3].indexOf(text))); };
 
 const zaklad = await (await fetch(ZIVA, { headers: { "User-Agent": "Mozilla/5.0" } })).text();
@@ -37,15 +65,20 @@ function stranka() {
   let h = zaklad;
   let prvy = true;
   h = h.replace(/<tr class="surcharge-list[\s\S]*?<\/tr>/g, () => { if (prvy) { prvy = false; return P.map(riadok).join(""); } return ""; });
-  h = h.replace('name="productId" value="640"', 'name="productId" value="646"').replace('name="priceId" value="68383"', 'name="priceId" value="68434"');
-  h = h.replace(/("product":\s*\{\s*"id":\s*)640/, "$1646");
-  h = h.replace(/(<meta itemprop="price" content=")[^"]*"/, '$1300.00"');
-  h = h.replace('itemprop="productID" content="640"', 'itemprop="productID" content="646"');
-  h = h.replace(/luxusné autokoberce do kamionov(\s*<\/h1>)/, "Autokoberce Mercedes triedy V$1");
+  const kamion = CZ ? "2452" : "640";
+  h = h.replace('name="productId" value="' + kamion + '"', 'name="productId" value="' + PRODUKT.id + '"').replace(/name="priceId" value="\d+"/, 'name="priceId" value="' + PRODUKT.priceId + '"');
+  h = h.replace(new RegExp('("product":\\s*\\{\\s*"id":\\s*)' + kamion), "$1" + PRODUKT.id);
+  h = h.replace(/(<meta itemprop="price" content=")[^"]*"/, "$1" + PRODUKT.cena + '.00"');
+  h = h.replace('itemprop="productID" content="' + kamion + '"', 'itemprop="productID" content="' + PRODUKT.id + '"');
+  h = CZ ? h.replace(/luxusní autokoberce do kamionů(\s*<\/h1>)/, "Autokoberce Mercedes V Class$1") : h.replace(/luxusné autokoberce do kamionov(\s*<\/h1>)/, "Autokoberce Mercedes triedy V$1");
   return h;
 }
 const html = stranka();
-if (!/data-parameter-name="Rozloženie"/.test(html) || !/name="productId" value="646"/.test(html)) throw new Error("prerobenie stránky zlyhalo");
+if (!html.includes('data-parameter-name="' + SELECTY.rozlozenie + '"') || !html.includes('name="productId" value="' + PRODUKT.id + '"') || !html.includes('name="priceId" value="' + PRODUKT.priceId + '"')) throw new Error("prerobenie stránky zlyhalo");
+/** Obsah pod konfigurátorom (kusy 1 a 2 Popisu): SK admin-html/dist, CZ --obsah alebo admin-html/dist, ak tam je. */
+const obsahDir = CZ ? arg("obsah", new URL("../admin-html/dist/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")) : new URL("../admin-html/dist/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const OBSAH = existsSync(join(obsahDir, "p1v-vclass-1." + (CZ ? "cz" : "sk") + ".html"));
+if (!OBSAH) console.log("  (obsah pod konfigurátorom " + (CZ ? "CZ" : "SK") + " nie je v " + obsahDir + ", kontroly obsahu sa preskočia)");
 
 let ok = 0, zle = 0;
 const over = (c, t) => { if (c) ok++; else { zle++; console.log("  ✗ " + t); } };
@@ -79,23 +112,23 @@ async function prejdi(p, o) {
   over(o.mobil ? !(await p.isVisible("#lcd-vclass-nakres")) : !(await p.isVisible("#lcd-vclass-nakres canvas.lv-pred")), "v prvom kroku sa set nekreslí");
   await dalej(p);
   if (o.snimka) await p.screenshot({ path: o.snimka + "-rozl.png", fullPage: true });
-  over(/len spolu/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že 2. a 3. rad idú len spolu");
-  over(/aspoň dve časti/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, kedy je zľava");
+  over(X.lenSpolu.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že 2. a 3. rad idú len spolu");
+  over(X.dveCasti.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, kedy je zľava");
   over((await p.$$("#lcd-vclass .lv-ot .lcd1v-kb__karta")).length === 3, "rozloženie má dlaždice predok, 2. a 3. rad, kufor");
-  over(/Samostatne/.test(await p.textContent("#lcd-vclass .lv-ot")) && /Výhoda v sete/.test(await p.textContent("#lcd-vclass .lv-ot")), "dlaždice ukazujú zľavu v sete");
+  over(X.samostatne.test(await p.textContent("#lcd-vclass .lv-ot")) && X.vyhoda.test(await p.textContent("#lcd-vclass .lv-ot")), "dlaždice ukazujú zľavu v sete");
   over(await p.isVisible("#lcd-vclass-nakres canvas.lv-pred"), "od rozloženia sa ukazuje kresba");
   if (o.predok === "nie") {
     await klik(p, "predok", "ano", 120); // odobrať predné sedadlá
     await dalej(p); await p.waitForTimeout(700);
     over(!!(await p.$("#lcd-vclass .lv-dl-w.lv-chyba")), "bez výberu krok Rozloženie neprejde");
-    over(/aspoň jednu možnosť/.test(await p.textContent("#lcd-vclass .lv-ot")), "krok povie, čo chýba");
+    over(X.jednuMoznost.test(await p.textContent("#lcd-vclass .lv-ot")), "krok povie, čo chýba");
   }
   if (o.rozl === "Z") await klik(p, "rozl", "Z", 80);
   if (o.rohoz === "ano") await klik(p, "rohoz", "ano", 80);
   if (o.predok === "nie") {
     const t = await p.textContent("#lcd-vclass .lv-ponuka");
-    if (o.rozl === "Z" && o.rohoz === "ano") over(/V sete ušetríte/.test(t), "dve časti majú zľavu: " + t);
-    else over(/bez zľavy/.test(t), "jedna časť je bez zľavy: " + t);
+    if (o.rozl === "Z" && o.rohoz === "ano") over(X.vSete.test(t), "dve časti majú zľavu: " + t);
+    else over(X.bezZlavy.test(t), "jedna časť je bez zľavy: " + t);
   }
   if (o.snimka) await p.screenshot({ path: o.snimka + "-rozl2.png", fullPage: true });
   await dalej(p);
@@ -107,7 +140,7 @@ async function prejdi(p, o) {
     over(!(await p.$("#lcd-vclass .lcd1v-druha__video")), "bez predných sedadiel sa druhá vrstva preskočí");
   } else {
   over(!!(await p.$("#lcd-vclass .lcd1v-druha__video")), "video v kroku druhej vrstvy");
-  over(/nedáva/.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že druhá vrstva je len vpredu");
+  over(X.nedava.test(await p.textContent("#lcd-vclass .lv-ot")), "povedané, že druhá vrstva je len vpredu");
   if (o.okno) {
     await p.click("#lcd-vclass [data-okno]"); await p.waitForTimeout(150);
     over(await p.isVisible(".lcd1v-druha-okno__panel"), "okienko Zistiť viac sa otvorí");
@@ -136,7 +169,7 @@ async function prejdi(p, o) {
     }
     await p.click(".lv-bx-obal .lcd1v-bx__ok"); await p.waitForTimeout(150);
     over(await p.isVisible(".lv-bx-obal .lcd-needs-fill .lcd1v-bx__chyba"), "okno pýta chýbajúci výber");
-    over(/Ešte chýba/.test(await p.textContent(".lv-bx-obal .lv-bx-spr")) && await p.isVisible(".lv-bx-obal .lv-bx-spr"), "okno povie, čo chýba");
+    over(X.esteChyba.test(await p.textContent(".lv-bx-obal .lv-bx-spr")) && await p.isVisible(".lv-bx-obal .lv-bx-spr"), "okno povie, čo chýba");
     await p.click(`.lv-bx-obal [data-bx-farba="${o.boxFarba}"]`);
     for (const [i, v] of o.boxy.entries()) await p.click(`.lv-bx-obal [data-bx-box="${i + 1}"] [data-bx-vel="${v}"]`);
     if (o.snimka) await p.screenshot({ path: o.snimka + "-okno.png" });
@@ -149,7 +182,7 @@ async function prejdi(p, o) {
   await dalej(p);
 }
 
-const SCEN = [
+const SCEN_SK = [
   { velkost: "M", rok: "2020", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "3", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "10", okno: true, info: true, rozl: "Z", rohoz: "ano", boxy: [], cena: 1300 },
   { velkost: "L", rok: "2024", volant: "Vpravo", stred: STRED[1], dvere: DVERE[0], rad2: "2", rad3: "2", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "stripe", farba: "Béžová", lux: "12", rozl: "P", rohoz: "nie", boxy: [], cena: 450 },
   { velkost: "XL", rok: "2016", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "3", stolcek: STOLCEK[1], zasuvky: ZASUVKY[1], vzor: "hexa", farba: "Čierna, červené šitie", lux: "", rozl: "Z", rohoz: "ano", boxy: ["M", "XL"], boxFarba: "Béžová", cena: 1588 },
@@ -159,6 +192,10 @@ const SCEN = [
   { velkost: "L", rok: "2021", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "2", rad3: "2", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "", predok: "nie", rozl: "P", rohoz: "ano", boxy: ["L"], boxFarba: "Hnedá káva", cena: 469, roz: ROZ_BEZ, roh: ROHOZ_SAM },
   { velkost: "XL", rok: "2021", volant: "Vľavo", stred: STRED[0], dvere: DVERE[1], rad2: "3", rad3: "3", stolcek: STOLCEK[0], zasuvky: ZASUVKY[0], vzor: "diamond", farba: "Čierna, béžové šitie", lux: "", predok: "nie", rozl: "Z", rohoz: "ano", boxy: [], cena: 1050, roz: rozRadRohoz("XL"), roh: ROHOZ[0] },
 ];
+// CZ: tie isté výbery s českými hodnotami, ceny podľa CZ adminu (SK × 25, boxy ako CZ autokoberce: 2 boxy M + XL 2 859 + 3 499 Kč)
+const CENY_CZ = [32500, 11250, 40108, 19448, 28750, 18750, 12085, 26250];
+const SCEN = CZ ? SCEN_SK.map((o, i) => Object.assign({}, o, { volant: VOLANT[DATA_SK.VOLANT.indexOf(o.volant)], farba: farbaTrhu(o.farba), boxFarba: o.boxFarba && boxFarbaTrhu(o.boxFarba), cena: CENY_CZ[i],
+  roz: o.roz && DATA_CZ.cz(o.roz), roh: o.roh && DATA_CZ.cz(o.roh) })) : SCEN_SK;
 const SIRKY = { chromium: [1366, 390], webkit: [390], firefox: [1366] };
 
 for (const nazov of arg("prehliadac", "chromium").split(",")) {
@@ -172,14 +209,14 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       p.on("pageerror", (e) => chyby.push(String(e.message).slice(0, 200)));
       p.on("console", (m) => { if (m.type() === "error" && /vclass|lcd-1v/.test(m.text())) chyby.push(m.text().slice(0, 200)); });
       let post = null;
-      await c.route(CIEL, (r) => r.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: html }));
+      if (!BEZ_PODVRHU) await c.route(CIEL, (r) => r.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: html }));
       if (dist) {
         await c.route(/assets\/v\/[^/]+\/js\/luxuryCar\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "luxuryCar.js")) }));
         await c.route(/assets\/v\/[^/]+\/js\/lcd-vclass\.js/, (r) => r.fulfill({ contentType: "application/javascript", body: readFileSync(join(dist, "lcd-vclass.js")) }));
         // fotky ešte nemusia byť na CDN
         await c.route(/assets\/img\/1v\/obsah\/[^/?]*mercedes-v-class[^/?]*/, (r) => { const m = /obsah\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("webp") ? "image/webp" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/obsah/" + m[1], import.meta.url)) }); });
         await c.route(/assets\/img\/1v\/mercedes-v-class-(film|sken|druha)[^/?]*/, (r) => { const m = /1v\/([^/?]+)$/.exec(new URL(r.request().url()).pathname); r.fulfill({ contentType: m[1].endsWith("mp4") ? "video/mp4" : m[1].endsWith("bin") ? "application/octet-stream" : "image/jpeg", body: readFileSync(new URL("../assets/img/1v/" + m[1], import.meta.url)) }); });
-        await c.route(/assets\/v\/[^/]+\/html\/p1v-vclass-\d\.sk\.html/, (r) => { const m = /(p1v-vclass-\d\.sk\.html)/.exec(r.request().url()); r.fulfill({ contentType: "text/html; charset=utf-8", body: readFileSync(new URL("../admin-html/dist/" + m[1], import.meta.url)) }); });
+        await c.route(/assets\/v\/[^/]+\/html\/p1v-vclass-\d\.(sk|cz)\.html/, (r) => { const m = /(p1v-vclass-\d\.(?:sk|cz)\.html)/.exec(r.request().url()); if (!OBSAH) { r.fulfill({ status: 404, body: "" }); return; } r.fulfill({ contentType: "text/html; charset=utf-8", body: readFileSync(join(obsahDir, m[1])) }); });
       } else {
         await c.route(/assets\/v\/[^/]+\/(js\/(luxuryCar|lcd-[a-z]+)\.js|html\/p1v-)/, (r) => r.continue({ url: r.request().url().replace(/assets\/v\/[^/]+\//, "assets/v/" + sha + "/") }));
       }
@@ -187,7 +224,7 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       await p.goto(CIEL, { waitUntil: "domcontentloaded" });
       await p.waitForSelector("#lcd-vclass .lv-kr", { timeout: 25000 });
       await p.waitForTimeout(1200);
-      { const odm = await p.$('button:has-text("Odmietnuť")'); if (odm) await odm.click().catch(() => {}); await p.waitForTimeout(300); }
+      { const odm = await p.$('button:has-text("' + X.odmietnut + '")'); if (odm) await odm.click().catch(() => {}); await p.waitForTimeout(300); }
       if (i === 0) over(!(await p.$(".content-wrap")), "na stránke nesmie byť konfigurátor osobných áut");
       over((await p.evaluate(() => document.documentElement.scrollWidth)) <= sirka, "stránka sa nesmie posúvať do boku");
       if (snimky && i === 0) await p.screenshot({ path: join(snimky, `${nazov}-${sirka}-start.png`) });
@@ -211,23 +248,29 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
         }
       }
       if (i === 0) {
-        over(/od\s*300\s*€/.test((await p.textContent("#lcd-vclass-hero .lh-c")).replace(/\u00a0/g, " ")), "hore cena od 300 €");
-        over(/predným sedadlám/.test(await p.textContent("#lcd-vclass-hero .lh-c")), "hore povedané, že cena je za predné sedadlá");
-        over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === "300€", "Spolu začína na 300 €");
+        over(X.odCena.test((await p.textContent("#lcd-vclass-hero .lh-c")).replace(/\u00a0/g, " ")), "hore cena od " + X.spolu);
+        over(X.predne.test(await p.textContent("#lcd-vclass-hero .lh-c")), "hore povedané, že cena je za predné sedadlá");
+        over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === X.spolu, "Spolu začína na " + X.spolu);
+        if (CZ) {
+          // CZ: nikde slovenčina (texty konfigurátora, kroky, súhrn, lišta)
+          const txt = await p.evaluate(() => [document.getElementById("lcd-vclass-hero"), document.getElementById("lcd-vclass-cesta"), document.getElementById("lcd-vclass"), document.getElementById("lcd-vclass-nakres")].map((e) => (e ? e.innerText + " " + [...e.querySelectorAll("[aria-label],[alt]")].map((x) => x.getAttribute("aria-label") || x.getAttribute("alt")).join(" ") : "")).join(" "));
+          const sk = (txt.match(/[äôľĺŕ]|\b(?:alebo|ktor\w+|pre|sme|Pokračujte ďalej|Vložte do košíka|Zostaviť|Prešívané|Trieda|Spolu|Zmeniť)\b/g) || []);
+          over(!sk.length, "CZ: bez slovenčiny v konfigurátore: " + [...new Set(sk)].join(", "));
+        }
       }
       if (mobil) { await p.evaluate(() => document.getElementById("lcd-vclass-cesta").scrollIntoView()); await p.waitForTimeout(450); over(await p.isVisible("#lcd1v-lista.on"), "lišta na telefóne sa ukáže pri krokoch"); }
       if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-hero", "#lcd-vclass-hero .lh-in", "#lcd-vclass-hero .lh-g", "#lcd-vclass-hero .lh-st", "#lcd-vclass-hero .lh-f", "#lcd-vclass-hero .lh-f picture", "#lcd-vclass-hero .lh-f img"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q.slice(-8) + " x" + Math.round(r.left) + " y" + Math.round(r.top) + " " + Math.round(r.width) + "x" + Math.round(r.height) + " m:" + c.marginTop + "/" + c.marginLeft + " p:" + c.paddingTop + " d:" + c.display + " pos:" + c.position + " ins:" + c.top; }))));
       await p.click("#lcd-vclass .lv-cta"); await p.waitForTimeout(200);
       over(post === null, "nedokončený výber nesmie ísť do košíka");
-      over(/Ešte chýba/.test(await p.textContent("#lcd-vclass .lv-suhrn .lv-spr")), "chýba hláška pri nedokončenom výbere");
+      over(X.esteChyba.test(await p.textContent("#lcd-vclass .lv-suhrn .lv-spr")), "chýba hláška pri nedokončenom výbere");
       await prejdi(p, snimky ? { ...o, mobil, snimka: join(snimky, `${nazov}-${sirka}-farba-${o.velkost}.png`), snimkaAuto: i === 0 ? join(snimky, `${nazov}-${sirka}-auto.png`) : null } : { ...o, mobil });
       const vzorNm = VZORY.find((v) => v.id === o.vzor).nm;
       const cena = await p.evaluate(() => window.__lcdVclass.cenaSpolu());
       over(cena === o.cena, o.velkost + ": cena " + cena);
-      over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === String(o.cena) + "€", "súhrn ceny");
-      over((await p.textContent("#lcd-vclass .lv-cta")).trim() === "Vložte do košíka", "tlačidlo hotového výberu");
+      over((await p.textContent("#lcd-vclass .lv-c2")).replace(/\s/g, "") === String(o.cena) + X.mena, "súhrn ceny");
+      over((await p.textContent("#lcd-vclass .lv-cta")).trim() === X.vlozte, "tlačidlo hotového výberu");
       over(await p.isVisible("#lcd-vclass .lv-cc"), "cenová karta po dokončení výberu");
-      over((await p.textContent("#lcd-vclass .lv-cc b")).replace(/\s/g, "") === String(o.cena) + "€", "naša cena na karte");
+      over((await p.textContent("#lcd-vclass .lv-cc b")).replace(/\s/g, "") === String(o.cena) + X.mena, "naša cena na karte");
       if (arg("ladenie")) console.log(JSON.stringify(await p.evaluate(() => ["#lcd-vclass-nakres", ".p-image-wrapper", ".p-info-wrapper", ".row.product-top", "#product-detail-form", ".p-detail-inner"].map((q) => { const e = document.querySelector(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return q + " y" + Math.round(r.top + scrollY) + " h" + Math.round(r.height) + " pos:" + c.position + " top:" + c.top + " mt:" + c.marginTop + " tr:" + c.transform.slice(0, 40) + " inl:" + (e.getAttribute("style") || "").slice(0, 90) + " x" + Math.round(r.left) + " w" + Math.round(r.width) + " scr:" + Math.round(scrollY); }))));
       if (sirka > 991) over(await p.evaluate(() => { const n = document.getElementById("lcd-vclass-nakres").getBoundingClientRect(), r = document.querySelector(".row.product-top").getBoundingClientRect(); return n.bottom <= r.bottom + 1 && n.top >= r.top - 1; }), "kresba ostáva v stĺpci, nejde pod pätu");
       over((await p.$$("#lcd-vclass .lv-kr.lv-ho")).length === 6, "všetkých 6 krokov hotových");
@@ -236,15 +279,15 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       over(sucet === o.cena, o.velkost + ": súčet príplatkov Shoptetu " + sucet + " ≠ " + o.cena);
       over(/mercedes-v-class-film-3-(pc|tel)\.jpg/.test(await p.getAttribute("#lcd-vclass-hero video", "poster")), "hore je video z V Class");
       over(!(await p.$("#lcd-vclass-hero .lh-t")), "hore nie je rad malých fotiek");
-      if (i === 0) {
+      if (i === 0 && OBSAH) {
         await p.waitForSelector('[data-lcd-sekcia="vclass-prehliadka"] .vp-b', { timeout: 15000 });
         over((await p.$$('[data-lcd-sekcia="vclass-prehliadka"] .vp-b')).length === 5, "pôdorys má 5 miest");
         await p.click('[data-lcd-sekcia="vclass-prehliadka"] .vp-b:nth-of-type(1)').catch(() => {});
         await p.click('[data-lcd-sekcia="vclass-prehliadka"] .vp-chips button:nth-child(5)'); await p.waitForTimeout(120);
-        over(/Rohož do kufra/.test(await p.textContent('[data-lcd-sekcia="vclass-prehliadka"] .vp-k.on')), "prehliadka prepne miesto");
+        over(X.rohoz.test(await p.textContent('[data-lcd-sekcia="vclass-prehliadka"] .vp-k.on')), "prehliadka prepne miesto");
         await p.click('[data-lcd-sekcia="vclass-prehliadka"] [data-vz="stripe"]'); await p.waitForTimeout(250);
         over(/Stripe Line/.test(await p.textContent('[data-lcd-sekcia="vclass-prehliadka"] .vp-far-n')), "prehliadka mení vzor setu");
-        over((await p.textContent('[data-lv-cena="komplet-L"]')).replace(/\s/g, "") === "1400€", "cena kompletného setu v obsahu");
+        over((await p.textContent('[data-lv-cena="komplet-L"]')).replace(/\s/g, "") === X.komplet, "cena kompletného setu v obsahu");
         over(!!(await p.$("#lcd-vclass-faq-data")), "otázky pre vyhľadávače");
         over(!!(await p.$('[data-lcd-sekcia="vclass-sken"] .vk-3d img')), "modul so skenom má obrázok");
         over((await p.$$('[data-lcd-sekcia="vclass-sken"] [data-p1v-lb-yt]')).length === 3, "modul so skenom má tri videá");
@@ -277,13 +320,14 @@ for (const nazov of arg("prehliadac", "chromium").split(",")) {
       await p.click("#lcd-vclass .lv-cta"); await p.waitForTimeout(500);
       over(!!post, "POST do košíka");
       const q = new URLSearchParams(post || "");
-      over(q.get("productId") === "646", "productId");
-      over(q.get("priceId") === "68434", "priceId");
-      const ma = { "Rok výroby": o.rok, Volant: o.volant, "Stred medzi sedadlami": o.stred, "Bočné dvere": o.dvere, "Sedadlá v 2. a 3. rade": sedadlaText(o.rad2, o.rad3), "Stolček vzadu": o.stolcek, "Zásuvky pod sedadlami": o.zasuvky, "Vzor a farba 1. vrstvy": vzorNm + " – " + o.farba, "Farba 2. vrstvy": o.lux ? "Lux Color " + o.lux : BEZ_DRUHEJ, "Rozloženie": o.roz || (o.rozl === "P" ? ROZ_PREDOK : rozSet(o.velkost)), "Rohož do kufra": o.roh || (o.rohoz === "ano" ? ROHOZ[0] : ROHOZ[1]) };
-      const menaBoxov = o.boxy.length === 1 ? ["Box do kufra"] : ["Prvý box z dvoch", "Druhý box z dvoch"];
+      over(q.get("productId") === PRODUKT.id, "productId");
+      over(q.get("priceId") === PRODUKT.priceId, "priceId");
+      const S_ = SELECTY;
+      const ma = { [S_.rok]: o.rok, [S_.volant]: o.volant, [S_.stred]: o.stred, [S_.dvere]: o.dvere, [S_.sedadla]: sedadlaText(o.rad2, o.rad3), [S_.stolcek]: o.stolcek, [S_.zasuvky]: o.zasuvky, [S_.farba]: vzorNm + " – " + o.farba, [S_.farba2]: o.lux ? "Lux Color " + o.lux : BEZ_DRUHEJ, [S_.rozlozenie]: o.roz || (o.rozl === "P" ? ROZ_PREDOK : rozSet(o.velkost)), [S_.rohoz]: o.roh || (o.rohoz === "ano" ? ROHOZ[0] : ROHOZ[1]) };
+      const menaBoxov = o.boxy.length === 1 ? [S_.box1] : [S_.box2, S_.box3];
       o.boxy.forEach((v, i) => { ma[menaBoxov[i]] = BOXY.find((b) => b.v === v).t; });
-      if (o.boxy.length) ma["Farba boxov do kufra"] = o.boxFarba;
-      [[451, "Box do kufra"], [454, "Prvý box z dvoch"], [457, "Druhý box z dvoch"]].forEach(([id, m]) => { if (!ma[m]) over(!q.get(`surchargeParameterValueId[${id}]`), "nevybraný box je prázdny: " + m); });
+      if (o.boxy.length) ma[S_.boxFarba] = o.boxFarba;
+      [S_.box1, S_.box2, S_.box3].map((m) => [P.find((x) => x[1] === m)[0], m]).forEach(([id, m]) => { if (!ma[m]) over(!q.get(`surchargeParameterValueId[${id}]`), "nevybraný box je prázdny: " + m); });
       for (const m of Object.keys(ma)) { const id = P.find((x) => x[1] === m)[0]; over(q.get(`surchargeParameterValueId[${id}]`) === hodnotaId(m, ma[m]), m + " = " + ma[m] + " (je " + q.get(`surchargeParameterValueId[${id}]`) + ")"); }
       over((await p.evaluate(() => sessionStorage.getItem("model"))) === `Mercedes-Benz ${{ M: "V Class M (compact 4895 mm)", L: "V Class L (long 5140 mm)", XL: "V Class XL (Extra Long 5370 mm)" }[o.velkost]} ${o.rok}`, "auto do poznámky objednávky");
       // zrušený POST testu natívny Shoptet hlási ako odmietnutý sľub, to nie je chyba konfigurátora

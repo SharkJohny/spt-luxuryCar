@@ -2,6 +2,8 @@
 // 3D model, ktorý si zákazník otáča prstom alebo myšou. Zdroj: oba STL v Desktop/LCD/skeny aut spojené a zmenšené na ~86 000 plôšok,
 // súbor assets/img/1v/mercedes-v-class-sken-2.bin (hlavička nv, nt, min xyz, mierka; potom Uint16 polohy a indexy). Stiahne sa až pri
 // priblížení k sekcii. Bez WebGL alebo pri chybe ostáva v stránke obrázok z HTML, preto o tom zákazník nevie.
+import { t } from "./trh.js";
+
 const SUBOR = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/mercedes-v-class-sken-2.bin";
 const VS = `attribute vec3 p;attribute vec3 n;uniform mat4 M;uniform mat4 V;varying vec3 vn;varying vec3 vp;varying vec3 vw;
 void main(){vec4 w=M*vec4(p,1.);vw=w.xyz;vp=p;vn=mat3(M[0].xyz,M[1].xyz,M[2].xyz)*n;gl_Position=V*w;}`;
@@ -53,7 +55,7 @@ export function pohlad(miesto, model) {
   const c = document.createElement("canvas");
   c.className = "vk-gl";
   c.setAttribute("role", "img");
-  c.setAttribute("aria-label", "3D sken podlahy Mercedes V Class XL, potiahnutím ho otočíte");
+  c.setAttribute("aria-label", t("3D sken podlahy Mercedes V Class XL, potiahnutím ho otočíte"));
   const gl = c.getContext("webgl", { antialias: true, alpha: true });
   if (!gl) return null;
   const shader = (t, z) => { const s = gl.createShader(t); gl.shaderSource(s, z); gl.compileShader(s); return s; };
@@ -118,7 +120,7 @@ export function pohlad(miesto, model) {
   c.addEventListener("pointercancel", pusti);
   const hint = document.createElement("span");
   hint.className = "vk-hint";
-  hint.textContent = "Potiahnutím sken otočíte";
+  hint.textContent = t("Potiahnutím sken otočíte");
   miesto.appendChild(c);
   miesto.appendChild(hint);
   miesto.classList.add("vk-zive");

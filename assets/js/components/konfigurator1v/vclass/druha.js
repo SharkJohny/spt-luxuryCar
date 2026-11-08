@@ -2,12 +2,18 @@
 // Rovnaké triedy, texty aj video ako v druha-vrstva.js (_lcd1v-druha.scss, typy/jedno.js). Modul tam je viazaný na prenos na
 // dvojvrstvový produkt, tu sa druhá vrstva vyberá priamo v tomto produkte, preto vlastné, kratšie oživenie.
 import { TYP } from "../typy/jedno.js";
+import { jeCz, t } from "./trh.js";
 
 const IMG = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/1v/";
 export const T = TYP.texty.druha;
+/** CZ texty karty: ctx.produkt.texty.druha z hlavného balíka (produkty.js ich na CZ preloží ako na autokobercoch, texty-cz.js),
+ *  app.js ich odovzdá cez nastavTextyCz. SK = T bez zmeny. */
+let tCz = null;
+export function nastavTextyCz(texty) { tCz = texty || null; }
+const TT = () => (jeCz() && tCz ? tCz : T);
 /** Vlastný strih: druhá vrstva priamo vo V Class, medzi tým vyberanie a oplachovanie (Michal 7. 11. 2026). */
 const VIDEA = [IMG + "mercedes-v-class-druha-vrstva-film"];
-const POZNAMKA = "Dáva sa len k predným sedadlám. Do 2. a 3. radu ani do kufra sa nedáva.";
+const POZNAMKA = () => t("Dáva sa len k predným sedadlám. Do 2. a 3. radu ani do kufra sa nedáva.");
 
 const IKONY = {
   diamant: ["#c49b31", "M6.5 5h7l2.5 3.2L10 15.5 4 8.2z"],
@@ -19,14 +25,15 @@ const ikona = (m) => '<svg class="lcd1v-druha__ikona lcd1v-druha__ikona--' + m +
 
 /** Celá karta otázky. priplatok = text ceny („+ 150 €“), zvolené Nie sa na tlačidle ukáže rámom. */
 export function htmlDruha(priplatok, nieZvolene) {
+  const T = TT();
   const vrstvy = T.vrstvy.map((v) => '<div class="lcd1v-druha__vrstva"><div class="lcd1v-druha__vrstva-hd"><p class="lcd1v-druha__stitok">' + v.stitok + "</p>"
     + (v.viac ? '<button type="button" class="lcd1v-druha__viac" data-okno="1" aria-haspopup="dialog" aria-expanded="false" aria-label="' + T.viac.aria + '"><span class="lcd1v-druha__viac-i" aria-hidden="true">' + T.viac.i + '</span><span class="lcd1v-druha__viac-t">' + T.viac.tl + "</span></button>" : "")
     + '</div><ul class="lcd1v-druha__body">' + v.body.map((b) => '<li class="lcd1v-druha__bod">' + ikona(b.ikona) + '<span class="lcd1v-druha__bod-t">' + b.t + "</span></li>").join("") + "</ul></div>").join("");
   return '<div class="lcd1v-druha active lv-d2"><div class="lcd1v-druha__dlazdica lv-d2-k"><div class="lv-d2-v"><video class="lcd1v-druha__video" muted playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback aria-label="' + T.ano.alt + '" width="576" height="720"></video><span class="lv-d2-st"><b>' + T.pocet.cislo + "</b>" + T.pocet.text + " " + T.pocet.b + "</span></div>"
-    + '<div class="lv-d2-t"><p class="lv-d2-top">' + T.naj + '</p><p class="lv-d2-nm">' + T.ano.nm + '</p><p class="lv-d2-po">K predným sedadlám</p><div class="lcd1v-druha__vrstvy">' + vrstvy + "</div>"
+    + '<div class="lv-d2-t"><p class="lv-d2-top">' + T.naj + '</p><p class="lv-d2-nm">' + T.ano.nm + '</p><p class="lv-d2-po">' + t("K predným sedadlám") + '</p><div class="lcd1v-druha__vrstvy">' + vrstvy + "</div>"
     + '<div class="lv-d2-c"><span>' + T.cena.priplatok + "</span><b>" + priplatok + "</b></div>"
     + '<button type="button" class="lcd1v-druha__ano" data-k="vrstva" data-v="ano">' + T.ano.tl + "</button></div></div>"
-    + '<p class="lv-pozn">' + POZNAMKA + "</p>"
+    + '<p class="lv-pozn">' + POZNAMKA() + "</p>"
     + '<button type="button" class="lcd1v-druha__nie" data-k="vrstva" data-v="nie" aria-pressed="' + !!nieZvolene + '">' + T.nie.nm + "</button></div>";
 }
 
@@ -66,7 +73,7 @@ export function ozivVideo(koren) {
 /** Okienko „Zistiť viac“ (rovnaké triedy a texty ako na základnom produkte). naAno = to isté ako zelené tlačidlo v dlaždici. */
 let okno = null;
 function postav(naAno) {
-  const O = T.okno;
+  const O = TT().okno;
   const k = document.createElement("div");
   k.className = "lcd1v-druha-okno";
   k.hidden = true;

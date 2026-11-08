@@ -58,6 +58,9 @@ export const PRODUKTY_1V = {
     2427: { typ: "boxy", vzor: null, url: "/luxusny-boxi-do-kufra/", obsah: "boxy" },
     2449: { typ: "vzorky", vzor: null, url: "/vzorkovnik-dragonskin---objednavka-vzorku/", obsah: "vzorky" },
     2452: { typ: "kamion", vzor: null, url: "/luxusni-autokoberce-kamiony/", obsah: "kamiony" },
+    // Mercedes triedy V CZ: presná kópia SK 646 (Michal 8. 11. 2026), české texty a príplatky (vclass/data-cz.js, texty-cz.js),
+    // rovnaká adresa; ID = functions/vclassProdukt.js VCLASS_CZ.pid. Zatiaľ v kategórii Test, vidí ho len prihlásený admin.
+    2458: { typ: "vclass", vzor: null, url: "/autokoberce-mercedes-v-class/", obsah: "vclass" },
   },
 };
 
@@ -95,7 +98,7 @@ export const TYPY = {
   vzorky: { kroky: [], moduly: ["vzorky-produkt"], obal: null },
   // kamion: celé UI stavia modul kamion/ (6 krokov vo vlastnom koreni); živé kroky 1V na 640 nie sú (React sa nemontuje)
   kamion: { kroky: [], moduly: ["kamion"], obal: null },
-  // vclass: celé UI v časti js/lcd-vclass.js, natívny formulár nesie výber v príplatkoch
+  // vclass: celé UI v časti js/lcd-vclass.js (SK 646, CZ 2458), natívny formulár nesie výber v príplatkoch
   vclass: { kroky: [], moduly: ["vclass"], obal: null },
 };
 

@@ -2,13 +2,13 @@
 // (kufor-boxy.js, _lcd1v-kufor-boxy.scss), len tam je v okne živý .box-config Shoptetu a tu vlastné prvky, lebo výber ide do príplatkov 451–460.
 // Zákazník klikne 1× box alebo 2× box, v okne vyberie farbu a veľkosti a potvrdí. Zavretie okna krížikom nič nemení.
 import { definicieKresby, kresba, nastavFarbuKresby, slugFarby } from "../box-kresba.js";
-import { BOXY, BOX_FARBY } from "./data.js";
+import { data, t } from "./trh.js";
 
 const PREDPONA = "lv-bxk-";
 /** Rovnako ako v kufor-boxy.js: 1 box L, 2 boxy M a L. */
 const NAJCASTEJSIE = { 1: ["L"], 2: ["M", "L"] };
-const NADPIS_VELKOSTI = { 1: ["Veľkosť boxu"], 2: ["Veľkosť 1. boxu", "Veľkosť 2. boxu"] };
-const POD = { 1: "Vyberte farbu a veľkosť boxu.", 2: "Vyberte farbu a veľkosť oboch boxov." };
+const NADPIS_VELKOSTI = () => ({ 1: [t("Veľkosť boxu")], 2: [t("Veľkosť 1. boxu"), t("Veľkosť 2. boxu")] });
+const POD = () => ({ 1: t("Vyberte farbu a veľkosť boxu."), 2: t("Vyberte farbu a veľkosť oboch boxov.") });
 
 function el(tag, trieda, text) {
   const e = document.createElement(tag);
@@ -22,6 +22,9 @@ function el(tag, trieda, text) {
  *           hotovo: (v: { n: number, box1: string, box2: string, farba: string }) => void }} o
  */
 export function vytvorOknoBoxov(o) {
+  const { BOXY, BOX_FARBY } = data();
+  /** Kresba boxu podľa SK názvu farby (CZ BOX_FARBY nesú sk), slugFarby pozná SK názvy. */
+  const kresbaFarby = (nm) => { const f = BOX_FARBY.find((x) => x.nm === nm); return slugFarby((f && f.sk) || nm); };
   const T = { n: 0, box1: "", box2: "", farba: "" };
   let spatNa = null;
 
@@ -36,18 +39,18 @@ export function vytvorOknoBoxov(o) {
   if (/\biP(hone|ad|od)\b/.test(navigator.userAgent) || (/\bMacintosh\b/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)) box.classList.add("lcd1v-bx--ios");
 
   const hd = el("div", "lcd1v-bx__hd");
-  const nadpis = el("h3", "lcd1v-bx__nadpis", "Vaše boxy do kufra");
+  const nadpis = el("h3", "lcd1v-bx__nadpis", t("Vaše boxy do kufra"));
   nadpis.id = "lv-bx-nadpis";
   const x = el("button", "lcd1v-bx__x", "×");
   x.type = "button";
-  x.setAttribute("aria-label", "Zavrieť");
+  x.setAttribute("aria-label", t("Zavrieť"));
   hd.appendChild(nadpis);
   hd.appendChild(x);
   const pod = el("p", "lcd1v-bx__pod");
 
   const cfg = el("div", "config-wrap");
   const farby = el("div", "parameter-wrap lcd1v-bx-farby");
-  farby.appendChild(el("p", "lcd1v-bx__nadp", "Farba boxov"));
+  farby.appendChild(el("p", "lcd1v-bx__nadp", t("Farba boxov")));
   const farbyW = el("div", "options-wrap");
   BOX_FARBY.forEach((f) => {
     const b = el("button", "button option-button");
@@ -62,10 +65,10 @@ export function vytvorOknoBoxov(o) {
     farbyW.appendChild(b);
   });
   farby.appendChild(farbyW);
-  farby.appendChild(el("p", "lcd1v-bx__chyba", "Vyberte prosím farbu boxov."));
+  farby.appendChild(el("p", "lcd1v-bx__chyba", t("Vyberte prosím farbu boxov.")));
   const popis = el("p", "lcd1v-bx__farba-popis");
   popis.hidden = true;
-  popis.appendChild(el("span", "lcd1v-bx__farba-l", "Vybraná farba: "));
+  popis.appendChild(el("span", "lcd1v-bx__farba-l", t("Vybraná farba:") + " "));
   const popisNm = el("b", "lcd1v-bx__farba-nm");
   popis.appendChild(popisNm);
   farby.appendChild(popis);
@@ -74,7 +77,7 @@ export function vytvorOknoBoxov(o) {
   cfg.appendChild(velk);
 
   const pata = el("div", "lcd1v-bx__pata");
-  const ok = el("button", "lcd1v-bx__ok", "Potvrďte výber boxov");
+  const ok = el("button", "lcd1v-bx__ok", t("Potvrďte výber boxov"));
   ok.type = "button";
   const spr = el("p", "lv-bx-spr");
   spr.hidden = true;
@@ -90,26 +93,26 @@ export function vytvorOknoBoxov(o) {
     for (let i = 1; i <= T.n; i++) {
       const w = el("div", "parameter-wrap lcd1v-bx-velk");
       w.setAttribute("data-bx-box", i);
-      w.appendChild(el("p", "lcd1v-bx__nadp", NADPIS_VELKOSTI[T.n][i - 1]));
+      w.appendChild(el("p", "lcd1v-bx__nadp", NADPIS_VELKOSTI()[T.n][i - 1]));
       const m = el("div", "options-wrap");
       BOXY.forEach((b) => {
         const cena = o.cena(T.n, i, b.v);
-        const t = el("button", "button option-button");
-        t.type = "button";
-        t.setAttribute("data-bx-vel", b.v);
-        t.setAttribute("aria-label", b.v + ", " + b.r + ", + " + o.eur(cena));
+        const tlv = el("button", "button option-button");
+        tlv.type = "button";
+        tlv.setAttribute("data-bx-vel", b.v);
+        tlv.setAttribute("aria-label", b.v + ", " + b.r + ", + " + o.eur(cena));
         const v = el("span", "lcd1v-bx__vel");
         v.setAttribute("aria-hidden", "true");
         v.appendChild(kresba(parseInt(b.r, 10), PREDPONA));
         v.appendChild(el("span", "lcd1v-bx__vl", b.v));
         v.appendChild(el("span", "lcd1v-bx__rozmer", b.r));
         v.appendChild(el("span", "lcd1v-bx__pripl", "+ " + o.eur(cena)));
-        if (NAJCASTEJSIE[T.n][i - 1] === b.v) v.appendChild(el("span", "lcd1v-bx__topv", "Najčastejšie"));
-        t.appendChild(v);
-        m.appendChild(t);
+        if (NAJCASTEJSIE[T.n][i - 1] === b.v) v.appendChild(el("span", "lcd1v-bx__topv", t("Najčastejšie")));
+        tlv.appendChild(v);
+        m.appendChild(tlv);
       });
       w.appendChild(m);
-      w.appendChild(el("p", "lcd1v-bx__chyba", "Vyberte prosím veľkosť boxu."));
+      w.appendChild(el("p", "lcd1v-bx__chyba", t("Vyberte prosím veľkosť boxu.")));
       velk.appendChild(w);
     }
   }
@@ -121,7 +124,7 @@ export function vytvorOknoBoxov(o) {
     });
     popis.hidden = !T.farba;
     popisNm.textContent = T.farba;
-    nastavFarbuKresby(box, T.farba ? slugFarby(T.farba) : null);
+    nastavFarbuKresby(box, T.farba ? kresbaFarby(T.farba) : null);
     velk.querySelectorAll("[data-bx-box]").forEach((w) => {
       const v = T["box" + w.getAttribute("data-bx-box")];
       w.querySelectorAll("[data-bx-vel]").forEach((b) => {
@@ -135,14 +138,14 @@ export function vytvorOknoBoxov(o) {
     if (!spr.hidden) {
       const ch = chyba();
       spr.hidden = !ch.length;
-      spr.textContent = "Ešte chýba: " + ch.join(", ") + ".";
+      spr.textContent = t("Ešte chýba: {0}.", ch.join(", "));
     }
   }
   /** Čo ešte chýba, slovami: kontrola nad tlačidlom, aby bolo jasné, prečo výber neprešiel. */
   function chyba() {
     const c = [];
-    if (!T.farba) c.push("farba boxov");
-    for (let i = 1; i <= T.n; i++) if (!T["box" + i]) c.push(T.n === 1 ? "veľkosť boxu" : "veľkosť " + i + ". boxu");
+    if (!T.farba) c.push(t("farba boxov"));
+    for (let i = 1; i <= T.n; i++) if (!T["box" + i]) c.push(T.n === 1 ? t("veľkosť boxu") : t("veľkosť {0}. boxu", i));
     return c;
   }
   function zatvor() {
@@ -157,7 +160,7 @@ export function vytvorOknoBoxov(o) {
     T.box1 = stav.box1 || "";
     T.box2 = n > 1 ? stav.box2 || "" : "";
     spatNa = tl || null;
-    pod.textContent = POD[n];
+    pod.textContent = POD()[n];
     farby.classList.remove("lcd-needs-fill");
     spr.hidden = true;
     postavVelkosti();
@@ -175,7 +178,7 @@ export function vytvorOknoBoxov(o) {
     });
     if (chyby.length) {
       spr.hidden = false;
-      spr.textContent = "Ešte chýba: " + chyba().join(", ") + ".";
+      spr.textContent = t("Ešte chýba: {0}.", chyba().join(", "));
       chyby[0].scrollIntoView({ block: "center", behavior: "smooth" });
       return;
     }
