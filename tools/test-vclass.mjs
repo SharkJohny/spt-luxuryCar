@@ -28,11 +28,11 @@ const PRODUKT = CZ ? { id: String(ADMIN_CZ.produkt.id), priceId: String(ADMIN_CZ
 /** Texty a ceny, ktoré test hľadá na stránke (SK pôvodné, CZ české). */
 const X = CZ ? {
   lenSpolu: /jen společně/, dveCasti: /alespoň dvě části/, samostatne: /Samostatně/, vyhoda: /Výhoda v setu/, jednuMoznost: /alespoň jednu možnost/,
-  vSete: /V setu ušetříte/, bezZlavy: /bez slevy/, nedava: /nedává/, esteChyba: /Ještě chybí/, odCena: /od\s*7 500\s*Kč/, predne: /předním sedadlům/,
+  vSete: /V setu ušetříte/, bezZlavy: /bez slevy/, nedava: /nedává/, esteChyba: /Ještě chybí/, odCena: /od\s*7 500\s*Kč/, predne: /pod přední sedadla/,
   spolu: "7500Kč", mena: "Kč", vlozte: "Vložte do košíku", rohoz: /Rohož do kufru/, komplet: "35000Kč", odmietnut: "Odmítnout", priplatok: (pr) => " +" + pr + " Kč",
 } : {
   lenSpolu: /len spolu/, dveCasti: /aspoň dve časti/, samostatne: /Samostatne/, vyhoda: /Výhoda v sete/, jednuMoznost: /aspoň jednu možnosť/,
-  vSete: /V sete ušetríte/, bezZlavy: /bez zľavy/, nedava: /nedáva/, esteChyba: /Ešte chýba/, odCena: /od\s*300\s*€/, predne: /predným sedadlám/,
+  vSete: /V sete ušetríte/, bezZlavy: /bez zľavy/, nedava: /nedáva/, esteChyba: /Ešte chýba/, odCena: /od\s*300\s*€/, predne: /pod predné sedadlá/,
   spolu: "300€", mena: "€", vlozte: "Vložte do košíka", rohoz: /Rohož do kufra/, komplet: "1400€", odmietnut: "Odmietnuť", priplatok: (pr) => " +€" + pr,
 };
 const SK_NA_CZ = (zoznam) => (CZ ? (nm) => { const f = zoznam.find((x) => x.sk === nm); if (!f) throw new Error("CZ názov k " + nm + " chýba"); return f.nm; } : (nm) => nm);
@@ -48,8 +48,8 @@ const P_SK = [
   [430, "Sedadlá v 2. a 3. rade", 2422, SEDADLA_TEXTY], [433, "Stolček vzadu", 2434, STOLCEK], [436, "Zásuvky pod sedadlami", 2440, ZASUVKY],
   [439, "Vzor a farba 1. vrstvy", 2446, farby],
   [442, "Farba 2. vrstvy", luxId, LUX.map((l) => "Lux Color " + l[0]).concat(BEZ_DRUHEJ), LUX.map(() => 150).concat(0)],
-  [445, "Rozloženie", [2581, 2584, 2587, 2590, 9001, 9002, 9003, 9004, 9005, 9006, 9007], [ROZ_PREDOK].concat(VELKOSTI.map((x) => rozSet(x.v)), VELKOSTI.map((x) => rozLen(x.v)), VELKOSTI.map((x) => rozRadRohoz(x.v)), ROZ_BEZ), [0, 600, 700, 800, 450, 550, 650, 300, 400, 500, 0]],
-  [448, "Rohož do kufra", [2593, 2596, 9008], ROHOZ.concat(ROHOZ_SAM), [250, 0, 40]],
+  [445, "Rozloženie", [2581, 2584, 2587, 2590, 2665, 2668, 2671, 2674, 2677, 2680, 2683], [ROZ_PREDOK].concat(VELKOSTI.map((x) => rozSet(x.v)), VELKOSTI.map((x) => rozLen(x.v)), VELKOSTI.map((x) => rozRadRohoz(x.v)), ROZ_BEZ), [0, 600, 700, 800, 450, 550, 650, 300, 400, 500, 0]],
+  [448, "Rohož do kufra", [2593, 2596, 2686], ROHOZ.concat(ROHOZ_SAM), [250, 0, 40]],
   [451, "Box do kufra", 2599, boxT, boxC, true], [454, "Prvý box z dvoch", 2611, boxT, boxD, true], [457, "Druhý box z dvoch", 2623, boxT, boxD, true],
   [460, "Farba boxov do kufra", 2638, BOX_FARBY.map((f) => f.nm), null, true],
 ];

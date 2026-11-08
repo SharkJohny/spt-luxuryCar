@@ -7,11 +7,10 @@ export const TEXTY_CZ = new Map([
   ["Mercedes triedy V", "Mercedes třídy V"],
   ["Zastaviť video", "Zastavit video"],
   ["Spustiť video", "Spustit video"],
-  ["Trieda V, W447 od roku 2014", "Třída V, W447 od roku 2014"],
   ["Prešívané autokoberce na mieru pre Mercedes triedy V v dĺžkach M, L a XL, od pedálov až po kufor. Podlahu sme naskenovali, preto sedia okolo každej koľajnice aj zásuvky. Set si poskladáte po častiach a cenu vidíte pri každom kroku.",
     "Prošívané autokoberce na míru pro Mercedes třídy V v délkách M, L a XL, od pedálů až po kufr. Podlahu jsme naskenovali, proto sedí kolem každé kolejnice i zásuvky. Set si poskládáte po částech a cenu vidíte u každého kroku."],
   ["od", "od"],
-  ["jednovrstvové autokoberce k predným sedadlám", "jednovrstvé autokoberce k předním sedadlům"],
+  ["jednovrstvové autokoberce pod predné sedadlá", "jednovrstvé autokoberce pod přední sedadla"],
   ["Zostaviť môj set", "Sestavit můj set"],
   // kresba
   ["Autokoberce pri šoférovi v Mercedes V Class XL", "Autokoberce u řidiče v Mercedesu V Class XL"],

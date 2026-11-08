@@ -20,7 +20,6 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero .lh-in{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(24px,5vw,72px);align-items:center;max-width:1280px;margin:0 auto;padding:clamp(24px,3vw,40px) 24px}
 #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:1;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:0}
 #lcd-vclass-hero .lh-g{grid-column:2;grid-row:1;position:relative;height:min(76vh,660px);aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:#000}
-#lcd-vclass-hero .lh-ei{font:700 13px var(--lv-disp);letter-spacing:.18em;text-transform:uppercase;color:#e6c877}
 #lcd-vclass-hero h1{display:block!important;margin:0;font:800 clamp(34px,4.4vw,60px)/1.04 var(--lv-disp);text-transform:uppercase;color:#fff;text-align:left}
 #lcd-vclass-hero h1 span{display:block;background:var(--lv-zl);-webkit-background-clip:text;background-clip:text;color:transparent}
 #lcd-vclass-hero .lh-p{margin:0;max-width:30em;font:400 18px/1.45 var(--lv-body);color:#d9d4c6}
@@ -40,7 +39,6 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero .lh-g{align-self:stretch;height:auto;aspect-ratio:auto;margin:clamp(24px,4vh,48px) clamp(24px,3vw,56px) clamp(24px,4vh,48px) 0;border-radius:22px;box-shadow:0 30px 60px -32px rgba(13,11,8,.6)}
   #lcd-vclass-hero .lh-pauza{right:auto;left:14px}
   #lcd-vclass-hero .lh-tx{justify-content:center;gap:0;padding:clamp(56px,7vh,90px) clamp(40px,6vw,150px) clamp(32px,4vh,56px)}
-  #lcd-vclass-hero .lh-ei{margin-bottom:clamp(20px,3.2vh,34px);font-size:clamp(13px,.85vw,18px);letter-spacing:.22em;color:var(--lv-gt)}
   #lcd-vclass-hero h1{margin-bottom:clamp(22px,3.4vh,38px);font-size:clamp(36px,4.1vw,112px)!important;line-height:1.1!important;color:var(--lv-ink)}
   #lcd-vclass-hero h1 span{background:linear-gradient(100deg,#8a6a1c,#c49b31 55%,#8a6a1c);-webkit-background-clip:text;background-clip:text;color:transparent}
   #lcd-vclass-hero .lh-p{max-width:34em;margin-bottom:clamp(32px,5vh,60px);font-size:clamp(18px,1.15vw,26px);line-height:1.55;color:var(--lv-text)}
