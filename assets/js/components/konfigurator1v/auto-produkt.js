@@ -7,13 +7,15 @@
 //  - pri načítaní: značka a model predvyplnené (change ako pri výbere zákazníkom -> main.js saveModel uloží auto; rok iného
 //    uloženého auta sa vynuluje), rok
 //    a typ karosérie vyberie zákazník; pod výberom auta nápis „Predvyplnené pre Škoda Kodiaq II…“.
+//  - krok „Vzor prešívania“ je pri načítaní otvorený (dlaždice Diamond / Stripe / Hexa, vzor stránky označený).
 //  - zákazník zmení značku alebo model: výber (farba, rozloženie, kufor, boxy, volant, miesta, dvere) sa prenesie
-//    (prenos.js zapisPrenos) a prejde na hlavný jednovrstvový produkt toho istého vzoru (napr. 613) aj s novým autom
+//    (prenos.js zapisPrenos) a prejde na hlavný jednovrstvový produkt VŽDY Diamond Line (598 / CZ 2403, Michal 9. 11.
+//    2026: „keď niekoho prenášaš z jedného konfigurátora do druhého, prenes ho do Diamond Line vždycky“) aj s novým autom
 //    (auto nesie sessionStorage z main.js). Typ karosérie ani rok nič nepresúvajú (Michal: „sedan na kupé ešte nie“).
 //    Myšou alebo prstom hneď; z klávesnice (šípka v zatvorenom selecte na Windows mení hodnotu) až keď zákazník z polí
 //    auta odíde, aby pri prechádzaní značiek šípkami neodišiel na prvej inej.
-//  - druhá vrstva a iný vzor: ako na hlavnom produkte (druha-vrstva.js -> dvojvrstvový toho istého vzoru s prenosom,
-//    karta vzoru -> hlavný produkt iného vzoru).
+//  - druhá vrstva: druha-vrstva.js -> dvojvrstvový Diamond Line (601 / CZ 2406) s prenosom; dlaždica iného vzoru ->
+//    hlavný jednovrstvový produkt toho vzoru s prenosom. Farba sa v cieli páruje podľa názvu (prenos.js kluceFarby).
 import { lcdPlatnaHodnota, lcdNorm } from "../../functions/autoVyber.js";
 import { najdiProdukt } from "./produkty.js";
 import { zapisPrenos } from "./prenos.js";
@@ -21,6 +23,10 @@ import { zapisPrenos } from "./prenos.js";
 export const MENO = "auto-produkt";
 /** Change do tohto času po klávese na tom istom poli = zmena z klávesnice (ms), ako vclass-presmerovanie.js. */
 export const KLAVESNICA_MS = 600;
+/** Hlavný konfigurátor pre prenos zo stránky auta (zmena auta, druhá vrstva v druha-vrstva.js): vždy Diamond Line. */
+export const CIEL_VZOR = "diamond";
+/** Otvorenie kroku vzoru po tom, čo engine pri načítaní otvorí auto (ms). */
+export const OTVOR_VZOR_MS = 250;
 
 export const TEXTY_SK = {
   nadpis: "Predvyplnené pre {0}",
@@ -90,14 +96,45 @@ export function init(ctx) {
   else krok.appendChild(box);
 
   let odisiel = false;
+  /** Iné auto -> hlavný jednovrstvový konfigurátor, vždy Diamond Line (Michal 9. 11. 2026), s prenosom výberu. */
   function chodNaHlavny() {
     if (odisiel) return;
-    const hl = najdiProdukt(ctx.projectId, "jedno", ctx.produkt.vzor);
+    const hl = najdiProdukt(ctx.projectId, "jedno", CIEL_VZOR);
     if (!hl || hl.id === Number(ctx.productId)) return;
     odisiel = true;
     zapisPrenos(ctx, hl.id);
     window.location.assign(hl.url);
   }
+
+  // Dlaždice vzorov (Michal 9. 11. 2026): iný vzor = hlavný jednovrstvový konfigurátor toho vzoru (živý odkaz dlaždice)
+  // aj s autom a výberom (prenos; farba sa v cieli páruje podľa názvu, iný vzor má iné ID farby).
+  const kVzor = ctx.krok("vzor");
+  const naVzor = function (e) {
+    const a = e.target && e.target.closest && e.target.closest(".patterns-wrap > .option-button");
+    if (!a || a.classList.contains("active") || odisiel) return;
+    const m = /lcd1v-vzor-(diamond|stripe|hexa)/.exec(a.className);
+    const ciel = m ? najdiProdukt(ctx.projectId, "jedno", m[1]) : null;
+    if (ciel && ciel.id !== Number(ctx.productId)) zapisPrenos(ctx, ciel.id);
+  };
+  if (kVzor) kVzor.addEventListener("click", naVzor, true);
+
+  // Krok „Vzor prešívania“ otvorený pri načítaní (Michal 9. 11. 2026: „zákazník nevidí možnosť výberu prešitia“). Živý
+  // engine po načítaní otvorí prvý nevyplnený krok (auto) — keď sa to stane a zákazník ešte nič nerobil, otvorí sa vzor.
+  // „Potvrďte vzor“ potom vedie na auto (predvyplnené).
+  let siahol = false;
+  const naDotyk = function (e) { if (e.isTrusted) siahol = true; };
+  const DOTYK = ["mousedown", "touchstart", "keydown"];
+  DOTYK.forEach((x) => window.addEventListener(x, naDotyk, { capture: true, passive: true }));
+  const elVzor = kVzor && kVzor.closest(".lcd1v-krok");
+  ctx.ked(function () {
+    return elVzor && typeof window.__lcdSetStepOpen === "function" && krok.classList.contains("active") ? true : null;
+  }, function () {
+    setTimeout(function () {
+      if (siahol || odisiel || !elVzor.isConnected || elVzor.classList.contains("active")) return;
+      window.__lcdSetStepOpen(krok, false);
+      window.__lcdSetStepOpen(elVzor, true);
+    }, OTVOR_VZOR_MS);
+  }, { limit: 15000 });
 
   const klavesy = new Map();
   let caka = false; // zmena z klávesnice čaká na odchod z polí auta
@@ -136,6 +173,8 @@ export function init(ctx) {
     if ($) $(s.slice(0, 2)).off("change.lcdAutoProdukt");
     else s.slice(0, 2).forEach((x) => x.removeEventListener("change", naZmenu));
     window.removeEventListener("pageshow", naPageshow);
+    if (kVzor) kVzor.removeEventListener("click", naVzor, true);
+    DOTYK.forEach((x) => window.removeEventListener(x, naDotyk, { capture: true }));
   };
 }
 

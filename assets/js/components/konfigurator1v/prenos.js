@@ -35,6 +35,15 @@ export const PLATNOST_SPAT = 30 * 60 * 1000;
 
 const TRIEDY_AUTA = { volant: "wheel-Position", miesta: "sit-Position", dvere: "door-Position" };
 
+/**
+ * Porovnávací tvar názvu farby bez vzoru: „Stripe Farba kože : čierna / Farba šitia : Béžová“ a „Diamond Farba kože :
+ * Čierna / Farba šitia: Béžová“ -> „farbakozeciernafarbasitiabezova“ (bez diakritiky, malé písmená, len písmená).
+ */
+export function kluceFarby(t) {
+  return String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/\b(elite|diamond|stripe|hexa)\b/g, "").replace(/[^a-z]+/g, "");
+}
+
 export function citajKluc() {
   try {
     const v = JSON.parse(sessionStorage.getItem(KLUC) || "null");
@@ -65,7 +74,12 @@ export function precitajVyber(ctx) {
   const vyber = {};
   if (!f) return vyber;
   const farba = aktivnaVolba(ctx, "farba");
-  if (farba) vyber.farba = farba;
+  if (farba) {
+    vyber.farba = farba;
+    // iný vzor má iné ID tej istej farby (Stripe 676 = Diamond 543) -> príjemca páruje aj podľa názvu (kluceFarby)
+    const o = ctx.moznosti("farba").find((x) => x.hodnota === farba);
+    if (o && o.text) vyber.farbaNazov = o.text;
+  }
   const rozlozenie = aktivnaVolba(ctx, "rozlozenie");
   if (rozlozenie) vyber.rozlozenie = rozlozenie;
   // kufor: len keď je zvolená karta (aj „Nechcem“ = voľba „nie“, ako pošle starý vzhľad)
@@ -124,7 +138,12 @@ export function aplikujVyber(ctx, v) {
     const b = auto.querySelector("." + TRIEDY_AUTA[k] + ' .option-button[data-value="' + cssHodnota(v[k]) + '"]');
     if (b && !b.classList.contains("active")) b.click();
   });
-  // (b) farba 1. vrstvy, (c) rozloženie a kufor
+  // (b) farba 1. vrstvy (iné ID = iný vzor -> tá istá farba podľa názvu), (c) rozloženie a kufor
+  if (!ma("farba", v.farba) && v.farbaNazov) {
+    const kl = kluceFarby(v.farbaNazov);
+    const o = kl ? ctx.moznosti("farba").find((x) => kluceFarby(x.text) === kl) : null;
+    if (o) v = Object.assign({}, v, { farba: o.hodnota });
+  }
   ["farba", "rozlozenie", "kufor"].forEach((k) => { if (ma(k, v[k])) ctx.zapis(k, v[k]); });
   // (d) boxy ako kufor-boxy.js: počet -> farba -> veľkosti -> živé „potvrdiť“ (zatvorí okno); neúplné -> živé „zrušiť“.
   //     Bez farby, ktorú produkt má (box 616 vo farbe, ktorú set nemá — komplet-ponuka.js ju neprenesie, Michal 17. 10.

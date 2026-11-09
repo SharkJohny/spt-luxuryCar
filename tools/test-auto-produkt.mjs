@@ -12,10 +12,14 @@
 //     Škoda Kodiaq II“ pod výberom auta, stránka ostáva.
 //  2. s uloženým iným autom (BMW Rad 3 2003): po načítaní Skoda / Kodiaq II, rok na placeholderi.
 //  3. zmena typu karosérie: stránka ostáva.
-//  4. zmena modelu myšou (Kodiaq): prechod na 613 a kľúč prenosu z 649 na 613; na 613 auto Skoda / Kodiaq.
-//  5. zmena značky myšou (BMW): prechod na 613.
-//  6. zmena značky z klávesnice: kým je fokus v poliach auta, ostáva; Tab preč -> 613.
-//  7. hlavná 613: výber Skoda / Kodiaq II nikam nepresmeruje (2,5 s).
+//  4. zmena modelu myšou (Kodiaq) po výbere farby Béžová: prechod VŽDY na Diamond 598 (Michal 9. 11. 2026), kľúč
+//     prenosu z 649 na 598; na 598 auto Skoda / Kodiaq a farba Béžová (iné ID farby -> párovanie podľa názvu).
+//  5. zmena značky myšou (BMW): prechod na 598.
+//  6. zmena značky z klávesnice: kým je fokus v poliach auta, ostáva; Tab preč -> 598.
+//  7. hlavná 613: výber Skoda / Kodiaq II nikam nepresmeruje (2,5 s), krok vzoru tam pri načítaní otvorený nie je.
+//  8. krok „Vzor prešívania“ je pri načítaní 649 otvorený, auto zatvorené; Stripe označený.
+//  9. dlaždica Hexa: kľúč prenosu z 649 na 610 a prechod na Hexa s autom Skoda / Kodiaq II.
+// 10. druhá vrstva „Áno“: prechod na Elite Diamond 601 s prenosom a farbou Béžová.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -31,6 +35,9 @@ const { chromium } = await import(PW);
 const SK = "https://www.luxurycardesign.sk";
 const URL_613 = SK + "/luxusne-autokoberce-dragonskin-stripe-line/";
 const URL_649 = SK + "/autokoberce-skoda-kodiaq-ii/";
+const CESTA_598 = "/luxusne-autokoberce-dragonskin-diamond-line/";
+const CESTA_610 = "/luxusne-autokoberce-dragonskin-hexa-line/";
+const CESTA_601 = "/luxusne-autokoberce-dragonskin-elite-diamond-line/";
 const BUNDLY = { "luxuryCar.js": "application/javascript", "lcd-vclass.js": "application/javascript", "luxuryCar.css": "text/css" };
 
 let ok = 0, zle = 0;
@@ -67,7 +74,9 @@ const stav = (p) => p.evaluate(() => {
   const box = document.querySelector(".lcd1v-auto-pevne");
   return { cesta: location.pathname, znacka: t(sel("brands")), model: t(sel("models")), rok: t(sel("years")), typ: t(document.querySelector(".modl-selector-wrap .surcharge-list.type-selector select")),
     nadpis: box ? box.innerText.replace(/\s+/g, " ").trim() : null, viditelny: !!box && box.getClientRects().length > 0,
-    brand: sessionStorage.getItem("Brand"), model2: sessionStorage.getItem("Model"), prenos: sessionStorage.getItem("lcd1vPrenos:v1") };
+    brand: sessionStorage.getItem("Brand"), model2: sessionStorage.getItem("Model"), prenos: sessionStorage.getItem("lcd1vPrenos:v1"),
+    farba: (function () { const x = document.querySelector(".content-wrap .parameter-wrap .options-wrap > .option-button.active[data-variant]"); return x ? (x.getAttribute("data-lcd1v-nazov") || x.textContent.replace(/\s+/g, " ").trim()) : ""; })(),
+    vzorOtvoreny: !!document.querySelector(".lcd1v-k-vzor.active"), autoOtvorene: !!document.querySelector(".lcd1v-k-auto.active") };
 });
 async function otvor(p, url) {
   await p.goto(url + "?t=" + Date.now(), { waitUntil: "load", timeout: 60000 });
@@ -82,6 +91,12 @@ const zmen = (p, k, text) => p.evaluate(([k, text]) => {
   o.selected = true; window.jQuery(x).trigger("change"); return true;
 }, [k, text]);
 const j = (o) => JSON.stringify(o);
+/** Farba 1. vrstvy klikom na dlaždicu (programový klik = bez presmerovania na auto). */
+const farba = (p, nazov) => p.evaluate((n) => {
+  const b = [...document.querySelectorAll(".content-wrap .parameter-wrap .options-wrap > .option-button[data-variant]")].find((x) => (x.getAttribute("data-lcd1v-nazov") || x.textContent.replace(/\s+/g, " ").trim()).startsWith(n));
+  if (!b) return false; b.click(); return true;
+}, nazov);
+const prenos = (s) => { try { return JSON.parse(s.prenos || "null"); } catch (e) { return null; } };
 
 const b = await chromium.launch({ executablePath: CHROME });
 for (const sirka of SIRKY) {
@@ -108,19 +123,21 @@ for (const sirka of SIRKY) {
     await c.close(); }
   // 4 model
   { const c = await kontext(b, sirka); const p = await c.newPage(); await otvor(p, URL_649);
+    over(await farba(p, "Béžová"), "4: farba Béžová na 649"); await p.waitForTimeout(600);
     const t0 = Date.now(); over(await zmen(p, "models", "Kodiaq"), "4: model Kodiaq je v zozname");
-    await p.waitForURL((u) => u.pathname === "/luxusne-autokoberce-dragonskin-stripe-line/", { timeout: 8000 }).catch(() => {});
-    await p.waitForTimeout(2500); const s = await stav(p);
-    over(s.cesta === "/luxusne-autokoberce-dragonskin-stripe-line/", "4: zmena modelu -> 613 (" + (Date.now() - t0) + " ms) " + s.cesta);
-    over(s.znacka === "Skoda" && s.model === "Kodiaq", "4: na 613 auto Skoda / Kodiaq " + j(s));
-    let pr = null; try { pr = JSON.parse(s.prenos || "null"); } catch (e) { /* nič */ }
-    over(pr && pr.z === 649 && pr.na === 613, "4: prenos výberu z 649 na 613 " + s.prenos);
+    await p.waitForURL((u) => u.pathname === CESTA_598, { timeout: 8000 }).catch(() => {});
+    await p.waitForTimeout(4500); const s = await stav(p);
+    over(s.cesta === CESTA_598, "4: zmena modelu -> Diamond 598 (" + (Date.now() - t0) + " ms) " + s.cesta);
+    over(s.znacka === "Skoda" && s.model === "Kodiaq", "4: na 598 auto Skoda / Kodiaq " + j(s));
+    const pr = prenos(s);
+    over(pr && pr.z === 649 && pr.na === 598 && /B[eé]žov/i.test((pr.vyber && pr.vyber.farbaNazov) || ""), "4: prenos výberu z 649 na 598 s názvom farby " + s.prenos);
+    over(/^Béžová/.test(s.farba), "4: na 598 farba Béžová (podľa názvu) " + j(s.farba));
     await c.close(); }
   // 5 značka
   { const c = await kontext(b, sirka); const p = await c.newPage(); await otvor(p, URL_649);
     over(await zmen(p, "brands", "BMW"), "5: BMW je v zozname značiek");
-    await p.waitForURL((u) => u.pathname === "/luxusne-autokoberce-dragonskin-stripe-line/", { timeout: 8000 }).catch(() => {});
-    over((await stav(p)).cesta === "/luxusne-autokoberce-dragonskin-stripe-line/", "5: zmena značky -> 613");
+    await p.waitForURL((u) => u.pathname === CESTA_598, { timeout: 8000 }).catch(() => {});
+    over((await stav(p)).cesta === CESTA_598, "5: zmena značky -> 598");
     await c.close(); }
   // 6 klávesnica
   if (sirka >= 768) {
@@ -131,8 +148,8 @@ for (const sirka of SIRKY) {
     await p.waitForTimeout(2000);
     over((await stav(p)).cesta === "/autokoberce-skoda-kodiaq-ii/", "6: zmena z klávesnice, fokus v poli -> ostáva");
     await p.evaluate(() => { const b = document.createElement("button"); b.id = "test-von"; document.body.appendChild(b); b.focus(); });
-    await p.waitForURL((u) => u.pathname === "/luxusne-autokoberce-dragonskin-stripe-line/", { timeout: 8000 }).catch(() => {});
-    over((await stav(p)).cesta === "/luxusne-autokoberce-dragonskin-stripe-line/", "6: odchod z polí auta -> 613");
+    await p.waitForURL((u) => u.pathname === CESTA_598, { timeout: 8000 }).catch(() => {});
+    over((await stav(p)).cesta === CESTA_598, "6: odchod z polí auta -> 598");
     await c.close();
   }
   // 7 hlavná 613 nepresmeruje
@@ -141,6 +158,34 @@ for (const sirka of SIRKY) {
     const s = await stav(p);
     over(s.cesta === "/luxusne-autokoberce-dragonskin-stripe-line/" && s.model === "Kodiaq II", "7: 613 s Kodiaq II ostáva " + j(s));
     over(!s.nadpis, "7: na 613 nápis stránky auta nie je");
+    over(!s.vzorOtvoreny, "7: na 613 krok vzoru pri načítaní zatvorený " + j(s));
+    await c.close(); }
+  // 8 vzor otvorený
+  { const c = await kontext(b, sirka); const p = await c.newPage(); await otvor(p, URL_649); await p.waitForTimeout(1500);
+    const s = await stav(p);
+    over(s.vzorOtvoreny && !s.autoOtvorene, "8: na 649 krok vzoru otvorený, auto zatvorené " + j({ v: s.vzorOtvoreny, a: s.autoOtvorene }));
+    over(await p.evaluate(() => !!document.querySelector(".lcd1v-k-vzor .patterns-wrap > .option-button.active.lcd1v-vzor-stripe")), "8: Stripe označený");
+    await c.close(); }
+  // 9 dlaždica Hexa
+  { const c = await kontext(b, sirka); const p = await c.newPage(); await otvor(p, URL_649); await p.waitForTimeout(1000);
+    await p.click(".lcd1v-k-vzor .patterns-wrap > .option-button.lcd1v-vzor-hexa");
+    await p.waitForURL((u) => u.pathname === CESTA_610, { timeout: 10000 }).catch(() => {});
+    await p.waitForTimeout(3000); const s = await stav(p); const pr = prenos(s);
+    over(s.cesta === CESTA_610, "9: dlaždica Hexa -> 610 " + s.cesta);
+    over(pr && pr.z === 649 && pr.na === 610, "9: prenos z 649 na 610 " + s.prenos);
+    over(s.znacka === "Skoda" && s.model === "Kodiaq II", "9: na 610 auto Skoda / Kodiaq II " + j(s));
+    await c.close(); }
+  // 10 druhá vrstva -> Elite Diamond
+  { const c = await kontext(b, sirka); const p = await c.newPage(); await otvor(p, URL_649);
+    over(await farba(p, "Béžová"), "10: farba Béžová");
+    await p.waitForFunction(() => !!document.querySelector(".lcd1v-druha__dlazdica"), null, { timeout: 8000 }).catch(() => {});
+    const ma = await p.evaluate(() => { const d = document.querySelector(".lcd1v-druha__dlazdica"); if (!d) return false; d.click(); return true; });
+    over(ma, "10: karta druhej vrstvy");
+    await p.waitForURL((u) => u.pathname === CESTA_601, { timeout: 10000 }).catch(() => {});
+    await p.waitForTimeout(4500); const s = await stav(p); const pr = prenos(s);
+    over(s.cesta === CESTA_601, "10: druhá vrstva -> Elite Diamond 601 " + s.cesta);
+    over(pr && pr.z === 649 && pr.na === 601, "10: prenos z 649 na 601 " + s.prenos);
+    over(/^Béžová/.test(s.farba), "10: na 601 farba Béžová " + j(s.farba));
     await c.close(); }
 }
 await b.close();

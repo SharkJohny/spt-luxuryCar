@@ -190,7 +190,8 @@ export function init(ctx) {
   if (!ctx.produkt || ctx.produkt.typ !== "jedno") return;
   // cieľ = dvojvrstvový produkt toho istého vzoru; len keď sa pri aktuálnom flagu otvorí v novom vzhľade (inak by
   // zákazník pristál v starom vzhľade bez prenosu)
-  const ciel = najdiProdukt(ctx.projectId, "dvoj", ctx.produkt.vzor);
+  // stránka auta (auto-produkt.js): prenos vždy do Diamond Line (Michal 9. 11. 2026)
+  const ciel = najdiProdukt(ctx.projectId, "dvoj", ctx.produkt.auto ? "diamond" : ctx.produkt.vzor);
   let flag = null;
   try { flag = sessionStorage.getItem("lcd1v"); } catch (e) { flag = null; }
   if (!ciel || !(flag === "vyvoj" || jeZapnutyTyp("dvoj"))) return;
@@ -520,7 +521,8 @@ export function init(ctx) {
     nie.disabled = true;
     hd.disabled = true;
     if (viac) viac.disabled = true;
-    const riadky = ["vzor", "auto", "farba"].map((m) => {
+    // stránka auta ide do Diamond Line (iný vzor než stránka) -> vzor sa v zhrnutí prenosu neuvádza
+    const riadky = (ctx.produkt.auto ? ["auto", "farba"] : ["vzor", "auto", "farba"]).map((m) => {
       const k = form.querySelector(".lcd1v-k-" + m + " > .lcd1v-hd .lcd1v-vy");
       return k ? k.textContent.replace(/\s+/g, " ").trim() : "";
     }).filter(Boolean);
