@@ -50,7 +50,7 @@ function prehlad() {
 ${dlazdice}
 </ul>
 <div class="lcd-pa__nenasli lcd-pa__nenasli--siroka">
-  <div><b>Nenašli ste svoje auto?</b><p>Autokoberce máme pre viac ako 1 000 modelov áut. Vyberte svoje auto v konfigurátore a hneď uvidíte cenu.</p></div>
+  <div><b>Nenašli ste svoje auto?</b><p>Autokoberce máme pre viac ako 1&nbsp;000 modelov áut. Vyberte svoje auto v konfigurátore a hneď uvidíte cenu.</p></div>
   <a class="lcd-pa__tl" href="${KONFIGURATOR}">Vybrať auto</a>
 </div>
 </div>
@@ -64,7 +64,7 @@ function znacka(z) {
 <p class="lcd-pa__uvod">Vyberte model. Na stránke modelu nájdete fotky z auta nášho zákazníka a konfigurátor s cenou.</p>
 <ul class="lcd-pa__auta">
 ${karty}
-  <li><div class="lcd-pa__nenasli"><b>${esc(z.nenasli)}</b><p>Vyberte ${z.tvar} v konfigurátore, autokoberce máme pre viac ako 1 000 modelov.</p><a class="lcd-pa__tl" href="${KONFIGURATOR}">Vybrať auto</a></div></li>
+  <li><div class="lcd-pa__nenasli"><b>${esc(z.nenasli)}</b><p>Vyberte ${z.tvar} v konfigurátore, autokoberce máme pre viac ako 1&nbsp;000 modelov.</p><a class="lcd-pa__tl" href="${KONFIGURATOR}">Vybrať auto</a></div></li>
 </ul>
 <a class="lcd-pa__spat" href="/autokoberce-podla-auta/">Všetky značky</a>
 </div>
