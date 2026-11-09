@@ -14,6 +14,7 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
   LCD-OPC    <- _lcdOpc.scss        one page checkout na kroku 2 (assets/js/opc/), len html.lcd-opc* (tajny odkaz ?opc=<KOD>)
   LCD-OPC-DAKUJEME <- _lcdOpcDakujeme.scss  dakovna stranka po objednavke v navrhu 4 (assets/js/opc/dakujeme.js), len html.lcd-opc-dakujeme*
   LCD-KONTAKTY <- _lcdKontakty.scss  stranka Kontakty SK 29 (#lcd-kontakt v popise stranky, admin-html/src/kontakty.sk.html)
+  LCD-PODLA-AUTA <- _lcdPodlaAuta.scss  stranky podla auta: kategoria znaciek + znacky (.lcd-pa, admin-html/podla-auta/) a paticka
   LCD-1V-KROKY      <- _lcd1v-kroky.scss       novy konfigurator 1V: kroky 1-3 (vzor, auto, farba)  } vsetko LEN pod body.lcd-1v
   LCD-1V-ROZLOZENIE <- _lcd1v-rozlozenie.scss  novy konfigurator 1V: krok 4 rozlozenie              } (tichy test ?novy=1,
   LCD-1V-KUFOR-BOXY <- _lcd1v-kufor-boxy.scss  novy konfigurator 1V: kroky 5-6 kufor a boxy         }  SK 598; kontrakt
@@ -78,6 +79,8 @@ BLOKY = [
     # nadpisu clanku Shoptetu a medzery nad patickou (len body.in-kontakty s novym obsahom); za kosikom, cookies ostava posledny
     dict(meno="LCD-KONTAKTY", zdroj="_lcdKontakty.scss", home=False, h1=False,
          popis="stranka Kontakty SK 29, #lcd-kontakt; mimo korena len skryty nadpis clanku a paticka na body.in-kontakty"),
+    dict(meno="LCD-PODLA-AUTA", zdroj="_lcdPodlaAuta.scss", home=False, h1=False,
+         popis="stranky podla auta (kategoria /autokoberce-podla-auta/ + znacky, .lcd-pa v Popise) a paticka ul.lcd-pa-pata"),
     # Novy konfigurator jednovrstvovych (navrh v26), tichy test ?novy=1 na SK 598 — kazde pravidlo LEN pod body.lcd-1v
     dict(meno="LCD-1V-KROKY", zdroj="_lcd1v-kroky.scss", home=False, h1=False,
          popis="konfigurator 1V: kroky 1-3 vzor, auto, farba; len body.lcd-1v"),

@@ -1,0 +1,81 @@
+/* =====================================================================
+   PODĽA AUTA — partial pre blok LCD-PODLA-AUTA (vkladá tools/vloz-lcd-css.py)
+   Michal 9. 11. 2026 (kniha Brain napady/2026-11-06-kniha-stranky-podla-auta.md, náhľad schválený „Áno“):
+     - kategória SK „Autokoberce podľa auta“ /autokoberce-podla-auta/ = dlaždice značiek s logom (abecedne)
+     - podkategória značky /autokoberce-<znacka>/ = malé náhľady áut (fotka auta, model, roky, cena) + „Nenašli ste…?“
+     - pätička (banner5): značky s logom, „Všetky značky“, „Nenašli ste svoje auto?“ -> hlavný konfigurátor
+   Obsah stránok je v Popise kategórie (admin-html/podla-auta/*.sk.html z tools/build-podla-auta.mjs), koreň .lcd-pa.
+   Zoznam produktov Shoptetu, triedenie, podkategórie a najpredávanejšie sa na týchto stránkach skryjú (v HTML ostávajú).
+   NOVÁ ZNAČKA = pridať body.in-autokoberce-<znacka> do zoznamov v bodoch 1 a 2 a logo v bode 3 (+ build-podla-auta.mjs).
+   Logá: assets/img/znacky/*.svg (simple-icons, CC0). Farby a písmo ako titulka a 1V.
+   ===================================================================== */
+
+/* 1) stránky „podľa auta“: pieskový podklad, skrytý predvolený výpis kategórie */
+body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz{background:#f6f4ef}
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) :is(.content-wrapper, .content-wrapper-in, #content){background:transparent}
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) :is(.category-top .subcategories, .category-top .products-top-wrapper, #category-header, #filters-wrapper, #productsListHeading, #products, .listingControls, .pagination-wrapper, .category-perex.empty-content > :not(.lcd-pa)){display:none !important}
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) .category-perex{margin:0;padding:0;border:0;background:transparent;max-width:none}
+
+/* 2) nadpis H1 Shoptetu (ostáva pre vyhľadávače) v štýle náhľadu */
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) .category-top{padding-top:28px}
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) h1.category-title{display:flex;align-items:center;gap:16px;margin:0 0 10px;color:#14110c;font:800 34px/1.15 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+
+/* 3) logo značky vedľa H1 (len stránky značiek) */
+:is(body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) h1.category-title::before{content:"";flex:none;width:54px;height:54px;border-radius:50%;background:#fff no-repeat center/32px 32px;border:1px solid #e4ddcd}
+body.in-autokoberce-skoda h1.category-title::before{background-image:url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/skoda.svg")}
+body.in-autokoberce-mercedes-benz h1.category-title::before{background-image:url("https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/mercedes.svg")}
+
+/* 4) obsah z Popisu kategórie */
+.lcd-pa{--pa-ink:#14110c;--pa-siva:#6b6457;--pa-linka:#e4ddcd;--pa-zlata:#c49b31;--pa-zelena:#1f7a52;color:var(--pa-ink);font:400 16px/1.5 "Source Sans 3","Segoe UI",Arial,sans-serif;padding:0 0 56px}
+.lcd-pa *{box-sizing:border-box}
+.lcd-pa .lcd-pa__uvod{font-size:17px;color:#3d372c;max-width:640px;margin:0 0 28px}
+.lcd-pa a{text-decoration:none}
+
+/* dlaždice značiek */
+.lcd-pa .lcd-pa__znacky{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.lcd-pa .lcd-pa__znacka{background:#fff;border:1px solid var(--pa-linka);border-radius:12px;padding:20px 10px 16px;text-align:center;color:var(--pa-ink);display:flex;flex-direction:column;align-items:center;gap:10px;height:100%;transition:border-color .15s}
+.lcd-pa .lcd-pa__znacka:hover, .lcd-pa .lcd-pa__znacka:focus-visible{border-color:var(--pa-zlata)}
+.lcd-pa .lcd-pa__znacka img{width:46px;height:46px}
+.lcd-pa .lcd-pa__znacka b{font:700 15px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase}
+.lcd-pa .lcd-pa__znacka span{font-size:14px;color:var(--pa-siva)}
+
+/* malé náhľady áut */
+.lcd-pa .lcd-pa__auta{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.lcd-pa .lcd-pa__auto{background:#fff;border:1px solid var(--pa-linka);border-radius:12px;padding:12px 12px 14px;color:var(--pa-ink);display:flex;flex-direction:column;gap:4px;height:100%;transition:border-color .15s}
+.lcd-pa .lcd-pa__auto:hover, .lcd-pa .lcd-pa__auto:focus-visible{border-color:var(--pa-zlata)}
+.lcd-pa .lcd-pa__foto{aspect-ratio:16/9;display:grid;place-items:center;background:linear-gradient(180deg,#fbfaf7 0%,#efebe1 100%);border-radius:8px;margin-bottom:6px;overflow:hidden}
+.lcd-pa .lcd-pa__foto img{width:92%;height:auto;max-height:100%;object-fit:contain}
+.lcd-pa .lcd-pa__auto b{font:700 16px/1.25 "Exo 2","Segoe UI",Arial,sans-serif}
+.lcd-pa .lcd-pa__auto span:not(.lcd-pa__foto){font-size:14px;color:var(--pa-siva)}
+.lcd-pa .lcd-pa__auto i{font-style:normal;font-weight:700;font-size:15px;color:var(--pa-zelena);margin-top:2px}
+
+/* „Nenašli ste…?“ */
+.lcd-pa .lcd-pa__nenasli{background:#fff;border:1px dashed #cdbf98;border-radius:12px;padding:16px;display:flex;flex-direction:column;justify-content:center;gap:8px;height:100%}
+.lcd-pa .lcd-pa__nenasli b{font:700 16px/1.25 "Exo 2","Segoe UI",Arial,sans-serif}
+.lcd-pa .lcd-pa__nenasli p{margin:0;font-size:15px;color:#3d372c}
+.lcd-pa .lcd-pa__tl{align-self:flex-start;background:var(--pa-zelena);color:#fff !important;font:700 14px/1 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.03em;padding:12px 16px;border-radius:8px}
+.lcd-pa .lcd-pa__tl:hover, .lcd-pa .lcd-pa__tl:focus-visible{background:#17603f}
+.lcd-pa .lcd-pa__nenasli--siroka{margin-top:28px;flex-direction:row;align-items:center;justify-content:space-between;gap:18px;padding:20px 22px;height:auto}
+.lcd-pa .lcd-pa__nenasli--siroka > div{display:flex;flex-direction:column;gap:4px}
+.lcd-pa .lcd-pa__nenasli--siroka .lcd-pa__tl{align-self:center;flex:none}
+.lcd-pa .lcd-pa__spat{display:inline-block;margin-top:24px;color:var(--pa-ink);font:600 15px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-decoration:underline;text-underline-offset:3px}
+
+@media (max-width: 900px){
+  :is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) h1.category-title{font-size:26px;gap:12px}
+  :is(body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) h1.category-title::before{width:46px;height:46px;background-size:28px 28px}
+  .lcd-pa .lcd-pa__znacky{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lcd-pa .lcd-pa__auta{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lcd-pa .lcd-pa__nenasli--siroka{flex-direction:column;align-items:flex-start}
+  .lcd-pa .lcd-pa__nenasli--siroka .lcd-pa__tl{align-self:flex-start}
+}
+
+/* 5) pätička (banner5 „Produkty“, stĺpec „Podľa auta“): značky s logom v bielom krúžku */
+ul.lcd-pa-pata{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+ul.lcd-pa-pata > li{margin:0;padding:0}
+ul.lcd-pa-pata > li > a{display:inline-flex;align-items:center;gap:10px}
+ul.lcd-pa-pata .lcd-pa-pata__k{width:30px;height:30px;border-radius:50%;background:#fff;display:inline-grid;place-items:center;flex:none}
+ul.lcd-pa-pata .lcd-pa-pata__k img{width:19px;height:19px;display:block}
+p.lcd-pa-pata__vsetky{margin:12px 0 0}
+p.lcd-pa-pata__vsetky a{color:#c49b31 !important;text-decoration:underline;text-underline-offset:3px}
+p.lcd-pa-pata__nenasli{margin:12px 0 0;font-size:14px;line-height:1.4;color:#cfc8b8;text-transform:none;max-width:260px}
+p.lcd-pa-pata__nenasli a{color:#fff !important;font-weight:600;text-decoration:underline;text-transform:none}
