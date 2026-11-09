@@ -15978,7 +15978,7 @@ p.lcd-pa-pata__vsetky a{color:#c49b31 !important;text-decoration:underline;text-
 /* rámik „Nenašli ste svoje auto?“ (Michal 10. 11. 2026: „okrasný rámik, nech to viacej svieti“) = variant B (zlatý prechod
    + žiara) s kosoštvorcom navrchu; kontrast overený na colorcontrast.org: text 11,7:1, tlačidlo 5,3:1 */
 div.lcd-pa-pata__ram{position:relative;margin:22px 0 0;max-width:300px;padding:2px;border-radius:12px;background:linear-gradient(135deg,#f6e19a 0%,#c49b31 35%,#8a6a1c 60%,#f0d47c 100%);box-shadow:0 0 22px rgba(232,196,96,.35)}
-div.lcd-pa-pata__ram::before{content:"C6";position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:0 7px;background:#1b1b1b;color:#e3c46a;font-size:13px;line-height:20px}
+div.lcd-pa-pata__ram::before{content:"\25C6";position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:0 7px;background:#1b1b1b;color:#e3c46a;font-size:13px;line-height:20px}
 div.lcd-pa-pata__ram-in{border-radius:10px;background:radial-gradient(120% 100% at 50% 0%,#2a2416 0%,#17140e 70%);padding:18px}
 div.lcd-pa-pata__ram-in b{display:block;margin:0 0 4px;color:#fff;font:700 17px/1.25 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:none}
 div.lcd-pa-pata__ram-in p{margin:0 0 12px;color:#e6e0d2;font-size:14px;line-height:1.4;text-transform:none}
