@@ -6,6 +6,8 @@
 //   autokoberce-<znacka>.sk.html     Popis kategórie značky (malé náhľady áut + „Nenašli ste…?“)
 //   paticka-podla-auta.sk.html       časť banneru 5 (pätička „Produkty“) od nadpisu „Podľa auta“
 // Štýly: assets/css/_lcdPodlaAuta.scss (blok LCD-PODLA-AUTA). Nová značka = sem do ZNACKY + do CSS (body.in-… a logo).
+// Fotky áut: Kodiaq II = obrázok od Michala; trieda V = tlačová fotka Mercedes-Benz AG 24C0048_004 (media.mercedes-benz.com,
+// podmienky len na novinárske účely — Michal riziko fotiek výrobcov vedome prijal 9. 11. 2026).
 // Nové auto = do auta značky (fotka auta assets/img/1v/auto/<auto>/<meno>-480/-960 .webp + .png, uhol ako Kodiaq II).
 // Ceny „od“ = cena produktu na webe (pri zmene ceny upraviť a znova vložiť Popis).
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -23,7 +25,7 @@ const ZNACKY = [
     kluc: "mercedes-benz", nazov: "Mercedes-Benz", logo: "znacky/mercedes.svg", url: "/autokoberce-mercedes-benz/",
     nenasli: "Nenašli ste svoj Mercedes?", tvar: "ho",
     auta: [
-      { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto", w: 480, h: 226 },
+      { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto", w: 480, h: 237 },
     ],
   },
   {
