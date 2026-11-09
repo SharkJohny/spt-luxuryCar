@@ -12,7 +12,9 @@
 
 /* 1) stránky „podľa auta“: pieskový podklad, skrytý predvolený výpis kategórie */
 body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz{background:#f6f4ef}
-:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) :is(.content-wrapper, .content-wrapper-in, #content){background:transparent}
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) :is(.content-wrapper-in, #content){background:transparent}
+/* na mobile má .overall-wrapper tmavé pozadie témy (tmavá hlavička) -> pieskový podklad priamo pod obsahom */
+:is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) #content-wrapper{background:#f6f4ef}
 :is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) :is(.category-top .subcategories, .category-top .products-top-wrapper, #category-header, #filters-wrapper, #productsListHeading, #products, .listingControls, .pagination-wrapper, .category-perex.empty-content > :not(.lcd-pa)){display:none !important}
 :is(body.in-autokoberce-podla-auta, body.in-autokoberce-skoda, body.in-autokoberce-mercedes-benz) .category-perex{margin:0;padding:0;border:0;background:transparent;max-width:none}
 
