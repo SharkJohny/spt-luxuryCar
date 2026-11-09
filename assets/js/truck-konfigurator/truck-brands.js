@@ -5,10 +5,10 @@
 export const TRUCK_VEHICLES = {
   "Citroën (dodávka)": {
     "Jumper 2007-2014": {},
-    "Jumper 2014-2025": {}
+    "Jumper 2014-2026": {}
   },
   "DAF (TIR)": {
-    "XF 2022-2025": {
+    "XF 2022-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -34,7 +34,7 @@ export const TRUCK_VEHICLES = {
         "Automatická prevodovka"
       ]
     },
-    "XG / XG+ 2022-2025": {
+    "XG / XG+ 2022-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -45,10 +45,10 @@ export const TRUCK_VEHICLES = {
     }
   },
   "Fiat (dodávka)": {
-    "Ducato 2007-2025": {}
+    "Ducato 2007-2026": {}
   },
   "Ford (TIR)": {
-    "F-MAX 2018-2025": {
+    "F-MAX 2018-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
@@ -65,12 +65,12 @@ export const TRUCK_VEHICLES = {
         "Automatická prevodovka"
       ]
     },
-    "Stralis S-Way 2019-2024": {
+    "Stralis S-Way 2019-2023": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
     },
-    "S-Way 2025": {
+    "S-Way 2024-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
@@ -97,7 +97,7 @@ export const TRUCK_VEHICLES = {
         "2 zásuvky (šuplíky)"
       ]
     },
-    "TGX 2021-2025": {
+    "TGX 2021-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -116,7 +116,7 @@ export const TRUCK_VEHICLES = {
         "Sedadlo spolujazdca pevné (taburet)"
       ]
     },
-    "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2025": {
+    "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -125,12 +125,12 @@ export const TRUCK_VEHICLES = {
         "Sedadlo spolujazdca odpružené/otočné/pneumatické (veľká základňa)"
       ]
     },
-    "Actros MP4/MP5/MP6 2021-2025 – obytná kabína (Solostar)": {
+    "Actros MP4/MP5/MP6 2021-2026 – obytná kabína (Solostar)": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
     },
-    "Actros MP5/MP6 F (s tunelom) 2021-2025": {
+    "Actros MP5/MP6 F (s tunelom) 2021-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -141,7 +141,7 @@ export const TRUCK_VEHICLES = {
     }
   },
   "Mercedes-Benz (dodávka)": {
-    "Sprinter 2018-2025 (zadný pohon)": {
+    "Sprinter 2018-2026 (zadný pohon)": {
       "sedadlo": [
         "Sedadlo spolujazdca 1-miestne",
         "Sedadlo spolujazdca 2-miestne"
@@ -150,15 +150,15 @@ export const TRUCK_VEHICLES = {
   },
   "Peugeot (dodávka)": {
     "Boxer 2007-2014": {},
-    "Boxer 2014-2025": {}
+    "Boxer 2014-2026": {}
   },
   "Renault (TIR)": {
-    "T Range (rovná podlaha) 2013-2025": {
+    "T Range (rovná podlaha) 2013-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
     },
-    "T Range (s tunelom) 2013-2025": {
+    "T Range (s tunelom) 2013-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
@@ -202,7 +202,7 @@ export const TRUCK_VEHICLES = {
         "Sedadlo spolujazdca odpružené (veľká základňa – ako u vodiča)"
       ]
     },
-    "R 2017-2025": {
+    "R 2017-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -212,7 +212,7 @@ export const TRUCK_VEHICLES = {
         "Sedadlo spolujazdca odpružené + otočné (veľká základňa)"
       ]
     },
-    "S 2017-2025": {
+    "S 2017-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ],
@@ -235,12 +235,12 @@ export const TRUCK_VEHICLES = {
         "Automatická prevodovka"
       ]
     },
-    "FH5 2022-2024": {
+    "FH5 2022-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ]
     },
-    "FH5 Aero 2025": {
+    "FH5 Aero 2025-2026": {
       "prevodovka": [
         "Automatická prevodovka"
       ]

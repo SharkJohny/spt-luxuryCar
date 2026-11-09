@@ -572,7 +572,7 @@ export const SCENARE = {
       await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
       if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
       await rob(s, j, [
-        ["klik", a_("typ", "dodavka")], ["vyber", "znacka", "Fiat (dodávka)"], ["vyber", "model", "Ducato 2007-2025"], ["dalej", "vozidlo"],
+        ["klik", a_("typ", "dodavka")], ["vyber", "znacka", "Fiat (dodávka)"], ["vyber", "model", "Ducato 2007-2026"], ["dalej", "vozidlo"],
         ["klik", a_("mat", "Prémiová syntetická koža – jednofarebná")], ["dalej", "material"],
         ["klik", a_("farba", "10G")], ["dalej", "farba"],
         ["klik", a_("lem", "09")], ["dalej", "lemovanie"],

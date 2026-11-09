@@ -158,7 +158,7 @@ console.log("1) DAF XF106 2017–2021, prešívaná 12, lem 04, balík H19/2999,
 console.log("2) Fiat (dodávka) Ducato 2007–2025, jednofarebná 10G, lem 09, len stred H21 / 3546");
 {
   const t = await otvor();
-  zaklad(t, { typ: "dodavka", znacka: "Fiat (dodávka)", model: "Ducato 2007-2025", material: "Prémiová syntetická koža – jednofarebná", farba: "10G", lem: "09" });
+  zaklad(t, { typ: "dodavka", znacka: "Fiat (dodávka)", model: "Ducato 2007-2026", material: "Prémiová syntetická koža – jednofarebná", farba: "10G", lem: "09" });
   over("2: krok tapacíru nie je (5 krokov)", t.d.querySelectorAll("#lcd1v-kamion .k-krok").length === 5 && !t.d.querySelector('[data-krok="tapacir"]'));
   nasivky(t, "stred", "H21", "3546");
   sam(t, "nasivky", null, "2"); // dodávka: krok 5 je posledný -> súhrn
@@ -298,7 +298,7 @@ console.log("10) Predvýber vozidla zo session (prepínač na titulke)");
   over("10: neplatný model -> len značka", t2.k.ui.S.znacka === "DAF (TIR)" && t2.k.ui.S.model === null && J(t2.k.ui.S.polia) === "{}");
   const t3 = await otvor({ session: { truckBrand: "Tatra (TIR)", truckModel: "X" } });
   over("10: neznáma značka -> nič", t3.k.ui.S.znacka === null);
-  const t4 = await otvor({ session: { truckBrand: "Fiat (dodávka)", truckModel: "Ducato 2007-2025" } });
+  const t4 = await otvor({ session: { truckBrand: "Fiat (dodávka)", truckModel: "Ducato 2007-2026" } });
   over("10: dodávka -> prepínač Dodávka, bez kroku tapacíru", t4.k.ui.S.typ === "dodavka" && !t4.d.querySelector('[data-krok="tapacir"]'));
   over("10: modul kľúče prepínača nepíše", t4.s.window.sessionStorage.getItem("truckBrand") === "Fiat (dodávka)");
 }
@@ -312,7 +312,7 @@ console.log("11) N1: TIR s tapacírom a vlastnou nášivkou na dverách -> prepn
   t.klik(a("motiv", "H21", "dvere")); nit(t, "2824", "dvere");
   over("11: pred prepnutím 397 „Nášivka H21“, 400 „2824 – Červená“", zvolene(t.d, 397) === "Nášivka H21" && zvolene(t.d, 400) === "2824 – Červená");
   t.klik(a("krok", "vozidlo")); t.klik(a("typ", "dodavka"));
-  t.vyber("znacka", "Fiat (dodávka)"); t.vyber("model", "Ducato 2007-2025"); t.dalej("vozidlo");
+  t.vyber("znacka", "Fiat (dodávka)"); t.vyber("model", "Ducato 2007-2026"); t.dalej("vozidlo");
   await kontrolaKosika(t, "11", { spolu: 209, selecty: { 352: "Nie nechcem tapacír dverí", 355: "Nie nechcem nášivku na dverách", 388: "", 391: "", 394: "", 397: "", 400: "" } });
 }
 
