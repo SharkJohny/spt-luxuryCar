@@ -19,17 +19,36 @@ const VYSTUP = join(KOREN, "admin-html", "podla-auta");
 const IMG = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/";
 const KONFIGURATOR = "/luxusne-autokoberce-dragonskin-diamond-line/"; // hlavný konfigurátor (Michal: vždy Diamond Line)
 
-/** Značky abecedne podľa názvu (sk). nenasli = text karty, tvar = koho/čo („ju“ / „ho“). */
+/**
+ * Značky abecedne podľa názvu (sk). nenasli = text karty, tvar = koho/čo („ju“ / „ho“), kto = komu („pre Vaše Audi“).
+ * pata: true = v pätičke (Michal 10. 11. 2026: 5 najpredávanejších podľa 530 objednávok Back Office — Mercedes 81,
+ * Škoda 70, BMW 62, Volkswagen 55, Audi 40). Značka bez áut = stránka len s kartou „Nenašli ste…?“ (kým nepribudne auto).
+ */
 const ZNACKY = [
   {
-    kluc: "mercedes-benz", nazov: "Mercedes-Benz", logo: "znacky/mercedes.svg", url: "/autokoberce-mercedes-benz/",
+    kluc: "audi", nazov: "Audi", logo: "znacky/audi.svg", url: "/autokoberce-audi/", pata: true,
+    nenasli: "Vyberte svoje Audi v konfigurátore", tvar: "ho", kto: "Audi",
+    auta: [],
+  },
+  {
+    kluc: "bmw", nazov: "BMW", logo: "znacky/bmw.svg", url: "/autokoberce-bmw/", pata: true,
+    nenasli: "Vyberte svoje BMW v konfigurátore", tvar: "ho", kto: "BMW",
+    auta: [],
+  },
+  {
+    kluc: "volkswagen", nazov: "Volkswagen", logo: "znacky/volkswagen.svg", url: "/autokoberce-volkswagen/", pata: true,
+    nenasli: "Vyberte svoj Volkswagen v konfigurátore", tvar: "ho", kto: "Volkswagen",
+    auta: [],
+  },
+  {
+    kluc: "mercedes-benz", nazov: "Mercedes-Benz", logo: "znacky/mercedes.svg", url: "/autokoberce-mercedes-benz/", pata: true,
     nenasli: "Nenašli ste svoj Mercedes?", tvar: "ho",
     auta: [
       { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto", w: 480, h: 237 },
     ],
   },
   {
-    kluc: "skoda", nazov: "Škoda", logo: "znacky/skoda.svg", url: "/autokoberce-skoda/",
+    kluc: "skoda", nazov: "Škoda", logo: "znacky/skoda.svg", url: "/autokoberce-skoda/", pata: true,
     nenasli: "Nenašli ste svoju Škodu?", tvar: "ju",
     auta: [
       { nazov: "Škoda Kodiaq II", roky: "od roku 2024", cena: 230, url: "/autokoberce-skoda-kodiaq-ii/", foto: "1v/auto/skoda-kodiaq-ii/kodiaq-ii-auto", w: 480, h: 226 },
@@ -43,7 +62,7 @@ const cena = (c) => "od " + String(c).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " 
 
 function prehlad() {
   const dlazdice = ZNACKY.map((z) =>
-    `  <li><a class="lcd-pa__znacka" href="${z.url}"><img src="${IMG}${z.logo}" alt="" width="46" height="46" loading="lazy" decoding="async"><b>${esc(z.nazov)}</b><span>${modely(z.auta.length)}</span></a></li>`).join("\n");
+    `  <li><a class="lcd-pa__znacka" href="${z.url}"><img src="${IMG}${z.logo}" alt="" width="46" height="46" loading="lazy" decoding="async"><b>${esc(z.nazov)}</b><span>${z.auta.length ? modely(z.auta.length) : "v konfigurátore"}</span></a></li>`).join("\n");
   return `<div class="lcd-pa lcd-pa--prehlad" data-lcd-cast="podla-auta">
 <p class="lcd-pa__uvod">Vyberte značku. Pri každom aute nájdete fotky od našich zákazníkov a konfigurátor s cenou.</p>
 <ul class="lcd-pa__znacky">
@@ -58,6 +77,18 @@ ${dlazdice}
 }
 
 function znacka(z) {
+  if (!z.auta.length) {
+    // značka bez stránok áut: len široká karta do konfigurátora
+    return `<div class="lcd-pa lcd-pa--znacka" data-lcd-cast="podla-auta-${z.kluc}">
+<p class="lcd-pa__uvod">Luxusné autokoberce na mieru do auta ${esc(z.kto)}. Model, vzor aj farbu si vyberiete v konfigurátore.</p>
+<div class="lcd-pa__nenasli lcd-pa__nenasli--siroka">
+  <div><b>${esc(z.nenasli)}</b><p>Autokoberce máme pre viac ako 1&nbsp;000 modelov áut a cenu uvidíte hneď.</p></div>
+  <a class="lcd-pa__tl" href="${KONFIGURATOR}">Vybrať auto</a>
+</div>
+<a class="lcd-pa__spat" href="/autokoberce-podla-auta/">Všetky značky</a>
+</div>
+`;
+  }
   const karty = z.auta.map((a) =>
     `  <li><a class="lcd-pa__auto" href="${a.url}"><span class="lcd-pa__foto"><picture><source type="image/webp" srcset="${IMG}${a.foto}-480.webp 480w, ${IMG}${a.foto}-960.webp 960w" sizes="(max-width: 900px) 45vw, 220px"><img src="${IMG}${a.foto}-480.png" alt="${esc(a.nazov)}" width="${a.w}" height="${a.h}" loading="lazy" decoding="async"></picture></span><b>${esc(a.nazov)}</b><span>${esc(a.roky)}</span><i>${cena(a.cena)}</i></a></li>`).join("\n");
   return `<div class="lcd-pa lcd-pa--znacka" data-lcd-cast="podla-auta-${z.kluc}">
@@ -72,14 +103,15 @@ ${karty}
 }
 
 function paticka() {
-  const riadky = ZNACKY.map((z) =>
+  const riadky = ZNACKY.filter((z) => z.pata).map((z) =>
     `    <li><a href="${z.url}"><span class="lcd-pa-pata__k"><img src="${IMG}${z.logo}" alt="" width="19" height="19" loading="lazy" decoding="async"></span>${esc(z.nazov)}</a></li>`).join("\n");
+  // rámik „Nenašli ste svoje auto?“ (Michal 10. 11. 2026: „okrasný rámik, nech to viacej svieti“; variant B + kosoštvorec)
   return `<h4 style="margin-top:22px">Podľa auta</h4>
 <ul class="lcd-pa-pata">
 ${riadky}
 </ul>
-<p class="lcd-pa-pata__vsetky"><a href="/autokoberce-podla-auta/">Všetky značky</a></p>
-<p class="lcd-pa-pata__nenasli">Nenašli ste svoje auto? <a href="${KONFIGURATOR}">Vyberte ho v konfigurátore</a></p>`;
+<p class="lcd-pa-pata__vsetky"><a href="/autokoberce-podla-auta/">Zobraziť ostatné značky</a></p>
+<div class="lcd-pa-pata__ram"><div class="lcd-pa-pata__ram-in"><b>Nenašli ste svoje auto?</b><p>Autokoberce máme pre viac ako 1&nbsp;000 modelov. Vyberte svoje auto v konfigurátore.</p><a class="lcd-pa-pata__tl" href="${KONFIGURATOR}">Vybrať auto</a></div></div>`;
 }
 
 mkdirSync(VYSTUP, { recursive: true });
