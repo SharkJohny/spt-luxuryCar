@@ -2,6 +2,7 @@ import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdCena } from "../functions/livePrice.js";
 // brána nového vzhľadu 1V (len čítanie; jadro konfigurator1v/index.js sa nemení) — odlozenyObrazok nižšie
 import { prepinac, jeZapnute, jeProdukt1v } from "./konfigurator1v/index.js";
+import { jeAutoJedno } from "./konfigurator1v/produkty.js";
 // 1V: dlaždice farieb so zmenšeným náhľadom (src ostáva plná fotka) — len pod bránou 1V, pozri obrazokFarby nižšie
 import { obrazokFarby } from "./konfigurator1v/farby-nahlady.js";
 // fotky volieb z kópie úložiska webu v CDN repa (functions/ulozisko.js, tools/config-obrazky.mjs; 29. 10. 2026)
@@ -55,6 +56,8 @@ if ($(".type-product")[0]) {
     oneLayerProducts = productId == 2403 || productId == 2415 || productId == 2418;
     boxsParameterIds = [66, 69, 78, 104];
   }
+  // stránky áut (konfigurator1v/auto-produkt.js): kópia jednovrstvového produktu s pevným autom, stavia sa ako 598/610/613
+  if (jeAutoJedno(projectId, productId)) oneLayerProducts = true;
 }
 /**
  * Utility functions for button creation and management

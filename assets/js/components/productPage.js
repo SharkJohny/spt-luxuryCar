@@ -7,6 +7,7 @@ import { obrazokUloziska, obrazokSpolocny } from "../functions/ulozisko.js";
 // kamióny: montáž Reactu je v truck-konfigurator/mount.js; nový vzhľad 1V (?novy=) rozhoduje budeKamion1v (docs/kamiony-1v-plan.md §1.2)
 import { isTruckConfiguratorPage, mountTruckConfigurator, predpripravTruck } from "../truck-konfigurator/mount.js";
 import { budeKamion1v } from "./konfigurator1v/index.js";
+import { jeAutoJedno } from "./konfigurator1v/produkty.js";
 
 // React kamiónov je samostatná časť (lcd-truck.js): na stránke kamiónov sa začne sťahovať už pri spustení bundla,
 // nie až po data.json (initProduct).
@@ -388,6 +389,8 @@ function priplatky(setupData, texts) {
     order = 4;
   } else if (productId == 2403 || productId == 2415 || productId == 2418) {
     order = 4;
+  } else if (jeAutoJedno(getShoptetContext().projectId, productId)) {
+    order = 4; // stránka auta = kópia jednovrstvového (konfigurator1v/auto-produkt.js)
   }
 
   if ($(".type-detail").length) {

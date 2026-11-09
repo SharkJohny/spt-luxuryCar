@@ -37,9 +37,11 @@ import * as kamion from "./kamion/index.js";
 import * as vclass from "./vclass/index.js";
 // Mercedes triedy V W447 vybraný v konfigurátore autokobercov (SK) -> stránka triedy V 646 (Michal 8. 11. 2026)
 import * as vclassPresmerovanie from "./vclass-presmerovanie.js";
+// stránky áut (Michal 9. 11. 2026): pevné auto, zmena značky/modelu -> hlavný produkt toho istého vzoru
+import * as autoProdukt from "./auto-produkt.js";
 
 /** Moduly podľa mena (TYPY[typ].moduly v produkty.js); meno, ktoré tu nie je, sa preskočí. */
-const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka, kamion, vclass, "vclass-presmerovanie": vclassPresmerovanie };
+const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka, kamion, vclass, "vclass-presmerovanie": vclassPresmerovanie, "auto-produkt": autoProdukt };
 
 /** projectId -> produkty zapnuté pre ?novy=1 (odvodené z registra; ponechané pre spätnú kompatibilitu). */
 export const ZOZNAM_1V = zoznamZapnutych();

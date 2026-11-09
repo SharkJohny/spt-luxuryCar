@@ -41,6 +41,9 @@ export const PRODUKTY_1V = {
     640: { typ: "kamion", vzor: null, url: "/luxusne-autokoberce-kamiony/", obsah: "kamiony" },
     // Mercedes triedy V: vlastný konfigurátor vclass/, skrytý produkt v kategórii Test (vidí ho len prihlásený admin)
     646: { typ: "vclass", vzor: null, url: "/autokoberce-mercedes-v-class/", obsah: "vclass" },
+    // Stránky áut (Michal 9. 11. 2026, auto-produkt.js): kópia jednovrstvového produktu toho istého vzoru s pevným autom.
+    // auto.znacka/model presne ako v katalógu áut (data.json). Zatiaľ skrytý (hosť 404), kým ho Michal neschváli.
+    649: { typ: "jedno", vzor: "stripe", url: "/autokoberce-skoda-kodiaq-ii/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq II", nazov: "Škoda Kodiaq II" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -90,7 +93,7 @@ export const ZAPNUTE_TYPY = ["jedno", "dvoj", "kufor-classic", "kufor-premium", 
  * obal   – prvok vo formulári, bez ktorého sa nový vzhľad nezapne (živý konfigurátor sa nepostavil); null = len formulár.
  */
 export const TYPY = {
-  jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "druha-vrstva", "cena", "poznamka", "prenos", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
+  jedno: { kroky: ["vzor", "auto", "farba", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "rozlozenie", "kufor-boxy", "druha-vrstva", "cena", "poznamka", "prenos", "auto-produkt", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
   dvoj: { kroky: ["vzor", "auto", "farba", "farba2", "rozlozenie", "kufor", "boxy"], moduly: ["kroky", "farba2", "rozlozenie", "kufor-boxy", "cena", "poznamka", "prenos", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
   "kufor-classic": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
   "kufor-premium": { kroky: ["vzor", "auto", "farba"], moduly: ["kroky", "kufor-produkt", "komplet-ponuka", "cena", "poznamka", "vclass-presmerovanie", "obsah"], obal: ".content-wrap" },
@@ -144,6 +147,15 @@ export function produkt1v(kontext) {
   });
 }
 
+/**
+ * Stránka auta (auto-produkt.js, Michal 9. 11. 2026) jednovrstvového typu? Starý kód (creatButtons.js, productPage.js)
+ * pozná jednovrstvové podľa čísel 598/610/613 (CZ 2403/2415/2418); kópia s pevným autom sa musí stavať rovnako.
+ */
+export function jeAutoJedno(projectId, productId) {
+  const z = zaznam(projectId, productId);
+  return !!(z && z.auto && z.typ === "jedno");
+}
+
 /** Je typ vydaný pre ?novy=1? */
 export function jeZapnutyTyp(typ) {
   return ZAPNUTE_TYPY.indexOf(typ) > -1;
@@ -159,7 +171,8 @@ export function najdiProdukt(projectId, typ, vzor) {
   if (!p) return null;
   const v = vzor || "diamond";
   const ids = Object.keys(p);
-  const id = ids.find((i) => p[i].typ === typ && (p[i].vzor === v || p[i].vzor == null)) || null;
+  // stránky áut (auto) nikdy nie sú cieľom: hlavný konfigurátor na ne nepresmeruje (Michal 9. 11. 2026)
+  const id = ids.find((i) => !p[i].auto && p[i].typ === typ && (p[i].vzor === v || p[i].vzor == null)) || null;
   return id ? Object.assign({ id: Number(id) }, p[id]) : null;
 }
 
