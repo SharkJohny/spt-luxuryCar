@@ -106,7 +106,8 @@ function paticka() {
   const riadky = ZNACKY.filter((z) => z.pata).map((z) =>
     `    <li><a href="${z.url}"><span class="lcd-pa-pata__k"><img src="${IMG}${z.logo}" alt="" width="19" height="19" loading="lazy" decoding="async"></span>${esc(z.nazov)}</a></li>`).join("\n");
   // rámik „Nenašli ste svoje auto?“ (Michal 10. 11. 2026: „okrasný rámik, nech to viacej svieti“; variant B + kosoštvorec)
-  return `<h4 style="margin-top:22px">Podľa auta</h4>
+  // nadpis = odkaz na prehľad značiek (Michal 10. 11. 2026: „prvé čo mi napadlo kliknúť na to“); vzhľad ako ostatné nadpisy
+  return `<h4 style="margin-top:22px"><a href="/autokoberce-podla-auta/" style="color:inherit;text-decoration:none">Podľa auta</a></h4>
 <ul class="lcd-pa-pata">
 ${riadky}
 </ul>
