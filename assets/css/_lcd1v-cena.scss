@@ -146,6 +146,12 @@ body.lcd-1v #product-detail-form a.lcd1v-hodn:focus-visible { outline: 2px solid
 /* krátky popis z adminu pod hodnotením: žiadny schválený návrh ho nemá a na telefóne (390 px) ho prekrýva bublina Luxie ->
    pod 1V skrytý (integrácia 14. 10. 2026). Ostáva v DOM (SEO, živý kód), len display:none; bez flagu sa nemení nič. */
 body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description { display: none !important; }
+/* Stránky áut (Michal 10. 11. 2026, SEO): krátky popis s riadkom „Sedí do“ (p.lcd-sedi + microdata Car vnútri Product)
+   sa ukáže pod hodnotením. Obsah je v admine v Krátkom popise produktu; bez .lcd-sedi ostáva skrytý ako doteraz. */
+body.lcd-1v #product-detail-form .p-info-wrapper > .p-short-description:has(.lcd-sedi) { display: block !important; margin: 10px 0 14px; font-size: inherit; }
+p.lcd-sedi { display: flex; gap: 9px; align-items: flex-start; margin: 0; font: 400 15px/1.45 "Exo 2", "Segoe UI", Arial, sans-serif; color: #3d372c; text-transform: none; letter-spacing: 0; }
+p.lcd-sedi::before { content: "\2713"; flex: none; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; background: #c49b31; color: #fff; font: 700 12px/20px Arial, sans-serif; text-align: center; }
+p.lcd-sedi b { font-weight: 700; color: #1b1b1b; }
 
 /* ---------- cena nad krokmi v rámiku (návrh 3 „Nižší rámik“, Michal 15. 10. 2026) ----------
    Dve polovice: vľavo „Odporúčaná cena“ prečiarknutá červenou, vpravo „Naša cena“ (od) X; dole jeden pruh

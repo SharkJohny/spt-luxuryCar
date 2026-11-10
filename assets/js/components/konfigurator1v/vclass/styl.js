@@ -23,6 +23,10 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero h1{display:block!important;margin:0;font:800 clamp(34px,4.4vw,60px)/1.04 var(--lv-disp);text-transform:uppercase;color:#fff;text-align:left}
 #lcd-vclass-hero h1 span{display:block;background:var(--lv-zl);-webkit-background-clip:text;background-clip:text;color:transparent}
 #lcd-vclass-hero .lh-p{margin:0;max-width:30em;font:400 18px/1.45 var(--lv-body);color:#d9d4c6}
+#lcd-vclass-hero .lh-tx>.p-short-description{display:block!important;margin:0;max-width:34em;font-size:inherit}
+#lcd-vclass-hero p.lcd-sedi{font-family:var(--lv-body);color:#d9d4c6}
+#lcd-vclass-hero p.lcd-sedi::before{color:#14110c}
+#lcd-vclass-hero p.lcd-sedi b{color:#fff}
 #lcd-vclass-hero .lh-c{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;color:#fff}
 #lcd-vclass-hero .lh-c small{font:600 16px var(--lv-body);color:#d9d4c6}
 #lcd-vclass-hero .lh-c b{font:800 clamp(30px,3vw,42px)/1 var(--lv-disp)}
@@ -42,6 +46,11 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero h1{margin-bottom:clamp(22px,3.4vh,38px);font-size:clamp(36px,4.1vw,112px)!important;line-height:1.1!important;color:var(--lv-ink)}
   #lcd-vclass-hero h1 span{background:linear-gradient(100deg,#8a6a1c,#c49b31 55%,#8a6a1c);-webkit-background-clip:text;background-clip:text;color:transparent}
   #lcd-vclass-hero .lh-p{max-width:34em;margin-bottom:clamp(32px,5vh,60px);font-size:clamp(18px,1.15vw,26px);line-height:1.55;color:var(--lv-text)}
+  #lcd-vclass-hero .lh-tx>.p-short-description{max-width:none;margin:calc(-1 * clamp(8px,1.6vh,18px)) 0 clamp(20px,3vh,32px)}
+  #lcd-vclass-hero p.lcd-sedi{font-size:clamp(17px,1.1vw,24px);color:var(--lv-text)}
+  #lcd-vclass-hero p.lcd-sedi::before{width:1.25em;height:1.25em;font-size:.75em;line-height:1.25em;margin-top:.2em}
+  #lcd-vclass-hero p.lcd-sedi::before{color:#fff}
+  #lcd-vclass-hero p.lcd-sedi b{color:var(--lv-ink)}
   #lcd-vclass-hero .lh-dol{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:0}
   #lcd-vclass-hero .lh-c{min-width:0;gap:0 10px;color:var(--lv-ink)}
   #lcd-vclass-hero .lh-c small{font-size:clamp(16px,1vw,22px);color:var(--lv-text)}

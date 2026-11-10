@@ -142,6 +142,10 @@ export function spusti(ctx) {
   const h1Html = h1 ? h1.innerHTML : "";
   if (hlavicka) hero.querySelector(".lh-h").appendChild(hlavicka);
   if (h1) h1.innerHTML = 'Autokoberce <span>Mercedes V&nbsp;Class</span>';
+  // riadok „Sedí do“ z Krátkeho popisu (Michal 10. 11. 2026, SEO): pod nadpis do úvodnej časti; hero je vnútri Product, microdata platia
+  const sediKp = document.querySelector("#product-detail-form .p-short-description");
+  const sediPovodne = sediKp && sediKp.querySelector(".lcd-sedi") ? { rodic: sediKp.parentNode, za: sediKp.nextSibling } : null;
+  if (sediPovodne) hero.querySelector(".lh-h").insertAdjacentElement("afterend", sediKp);
   // video hore: naše video z V Class XL, bez zvuku; pri šetrení dát a obmedzení pohybu ostane obrázok
   const video = hero.querySelector(".lh-v");
   const pauzaTl = hero.querySelector(".lh-pauza");
@@ -752,6 +756,7 @@ export function spusti(ctx) {
     document.body.classList.remove("lcd1v-lista-on", "lcd1v-bublina", "lcd1v-vclass-bez-bubliny");
     if (h1) h1.innerHTML = h1Html;
     if (hlavicka && povodne.rodic) povodne.rodic.insertBefore(hlavicka, povodne.za && povodne.za.parentNode === povodne.rodic ? povodne.za : null);
+    if (sediPovodne && sediPovodne.rodic) sediPovodne.rodic.insertBefore(sediKp, sediPovodne.za && sediPovodne.za.parentNode === sediPovodne.rodic ? sediPovodne.za : null);
     [root, nakres, hero, cesta, lista, styl].forEach((x) => { if (x.parentNode) x.parentNode.removeChild(x); });
     document.body.classList.remove("lcd-vclass");
   }
