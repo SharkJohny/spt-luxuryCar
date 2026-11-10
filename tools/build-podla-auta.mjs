@@ -106,13 +106,14 @@ function paticka() {
   const riadky = ZNACKY.filter((z) => z.pata).map((z) =>
     `    <li><a href="${z.url}"><span class="lcd-pa-pata__k"><img src="${IMG}${z.logo}" alt="" width="19" height="19" loading="lazy" decoding="async"></span>${esc(z.nazov)}</a></li>`).join("\n");
   // rámik „Nenašli ste svoje auto?“ (Michal 10. 11. 2026: „okrasný rámik, nech to viacej svieti“; variant B + kosoštvorec)
+  // väčšia medzera nad rámikom (Michal 10. 11.: „Zobraziť ostatné značky je moc blízko… kvôli tomu gradientu“) — 36 px namiesto 22 px z CSS
   // nadpis = odkaz na prehľad značiek (Michal 10. 11. 2026: „prvé čo mi napadlo kliknúť na to“); vzhľad ako ostatné nadpisy
   return `<h4 style="margin-top:22px"><a href="/autokoberce-podla-auta/" style="color:inherit;text-decoration:none">Podľa auta</a></h4>
 <ul class="lcd-pa-pata">
 ${riadky}
 </ul>
 <p class="lcd-pa-pata__vsetky"><a href="/autokoberce-podla-auta/">Zobraziť ostatné značky</a></p>
-<div class="lcd-pa-pata__ram"><div class="lcd-pa-pata__ram-in"><b>Nenašli ste model svojho auta?</b><p>Nevadí, nájdete ho tu. Autokoberce máme pre viac ako 1&nbsp;000 modelov.</p><a class="lcd-pa-pata__tl" href="${KONFIGURATOR}">Nájsť moje auto</a></div></div>`;
+<div class="lcd-pa-pata__ram" style="margin-top:36px"><div class="lcd-pa-pata__ram-in"><b>Nenašli ste model svojho auta?</b><p>Nevadí, nájdete ho tu. Autokoberce máme pre viac ako 1&nbsp;000 modelov.</p><a class="lcd-pa-pata__tl" href="${KONFIGURATOR}">Nájsť moje auto</a></div></div>`;
 }
 
 mkdirSync(VYSTUP, { recursive: true });
