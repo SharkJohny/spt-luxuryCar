@@ -393,6 +393,11 @@ html.lcd-opc body.in-krok-2 #order-form .js-validator-msg{position:static;displa
   background:none;font:600 15px/1.35 var(--o-body);color:var(--o-chyba-t);text-align:left}
 html.lcd-opc body.in-krok-2 #order-form .js-validator-msg::before{content:"!";flex:none;display:grid;place-items:center;width:17px;height:17px;margin-top:1px;
   border-radius:50%;background:var(--o-chyba);color:#fff;font:900 12px/1 var(--o-disp)}
+/* úspech overenia (DIČ / IČ DPH „Ověřeno“, Michal 11. 11. 2026 C20): zelený text a zelený krúžok s fajkou. Shoptet to odlišuje
+   triedou, nie textom (checkout-3g.js validateBillingForm: overené msg-ok, chyba msg-error, „Ověřujeme“ msg-info). Element
+   zo starej správy dostane pri ďalšom overovaní ďalšiu triedu (jQuery addClass) -> s msg-error / msg-info ostáva ako doteraz. */
+html.lcd-opc body.in-krok-2 #order-form .js-validator-msg.msg-ok:not(.msg-error):not(.msg-info){color:var(--o-ok-lo)}
+html.lcd-opc body.in-krok-2 #order-form .js-validator-msg.msg-ok:not(.msg-error):not(.msg-info)::before{content:"";background:var(--o-fajka) center/12px no-repeat,var(--o-ok)}
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .form-group.lcd-opc-chyba-pole > label:not(.whole-width){color:var(--o-chyba-t)}
 /* telefón: predvoľba + číslo ako jedno pole 46 px (predvoľba na piesku), rám a fokus spolu */
 html.lcd-opc body.in-krok-2 #order-form .lcd-opc-karta .phone-combined-input{display:flex;align-items:stretch;width:100%;max-width:none;height:46px}
