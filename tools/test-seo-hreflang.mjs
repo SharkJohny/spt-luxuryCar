@@ -33,7 +33,7 @@ console.log(`Pravidlá OK (${VSETKY_PARY.length} párov, z toho ${stranky[562035
 if (process.argv.includes("--zivy")) {
   const SK = "https://www.luxurycardesign.sk", CZ = "https://www.luxurycardesign.cz";
   // bez protějšku: staré články len na SK, poukážka len na CZ, demo značky CZ (čakajú na admin)
-  const BEZ_PARU = /^\/blog\/(luxusne-autokoberce-pre-dokonalu-ochranu|luxusne-automobily-pre-rok-2023|najnovsie-trendy-v-dizajne-luxusnych-aut)\/$|^\/darkovy-poukaz\/$|^\/znacka\/(?!luxury-car-design\/)/;
+  const BEZ_PARU = /^\/blog\/(luxusne-autokoberce-pre-dokonalu-ochranu|luxusne-automobily-pre-rok-2023|najnovsie-trendy-v-dizajne-luxusnych-aut)\/$|^\/darkovy-poukaz\/$|^\/(luxusne|luxusni)-autokoberce-kamiony-1\/$|^\/kamiony-1\/$|^\/znacka\/(?!luxury-car-design\/)/;
   const stav = async (u) => (await fetch(u, { redirect: "manual", headers: { "user-agent": "Mozilla/5.0" } })).status;
   let zle = 0;
   for (const [s, c] of VSETKY_PARY) {
