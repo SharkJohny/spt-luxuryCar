@@ -17,7 +17,7 @@
 /** projectId -> cesta -> záznam. SK = 562035, CZ = 581408. Cesta malými písmenami, s lomkou na začiatku aj na konci. */
 export const KAMION_STRANKY = {
   562035: {
-    "/luxusne-autokoberce-kamiony-loga/": { skryty: true },
+    "/luxusne-autokoberce-kamiony-1/": { skryty: true },
     // prvá vlna stránok kamiónov (kniha §2.3): modely a roky presne z tabuľky konfigurátora (data.json 11. 11. 2026)
     "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2017-2026", nazov: "Scania R" } },
     "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2021-2026", nazov: "MAN TGX" } },
@@ -44,7 +44,7 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-volvo-fh13/": { kamion: { znacka: "Volvo (TIR)", model: "FH (FH13) 2009-2013", nazov: "Volvo FH13" } },
   },
   581408: {
-    "/luxusni-autokoberce-kamiony-loga/": { skryty: true },
+    "/luxusni-autokoberce-kamiony-1/": { skryty: true },
     // CZ: kľúče vozidiel sú slovenské (poznámka objednávky, Jánov export); na CZ sa model len zobrazí po česky (vozidloCs)
     "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2017-2026", nazov: "Scania R" } },
     "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2021-2026", nazov: "MAN TGX" } },
@@ -76,8 +76,8 @@ export const KAMION_STRANKY = {
  * ňu (menu, dlaždice podkategórií) skryje skryOdkazyKopie, stránka kategórie dostane noindex ako kópia.
  */
 export const SKRYTE_KATEGORIE = {
-  562035: ["/kamiony-s-logami/"],
-  581408: ["/kamiony-s-logy/"],
+  562035: ["/kamiony-1/"],
+  581408: ["/kamiony-1/"],
 };
 
 /** Cesta na porovnanie: bez dopytu a kotvy, malými písmenami, s lomkou na konci. */

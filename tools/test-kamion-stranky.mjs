@@ -64,7 +64,7 @@ console.log("1) Rozpoznanie adresy — produkty.js, stranky.js, seo-hreflang.js"
       }
     }
   }
-  over("SK skrytá adresa na CZ projekte -> nič", P.produkt1v({ projectId: 581408, productId: 9001, pathname: "/luxusne-autokoberce-kamiony-loga/" }) === null);
+  over("SK skrytá adresa na CZ projekte -> nič", P.produkt1v({ projectId: 581408, productId: 9001, pathname: "/luxusne-autokoberce-kamiony-1/" }) === null);
   over("neznáma adresa -> nič", P.produkt1v({ projectId: 562035, productId: 9001, pathname: "/autokoberce-do-kamionu-daf-xf/" }) === null);
   const p640 = P.produkt1v({ projectId: 562035, productId: 640, pathname: "/luxusne-autokoberce-kamiony/" });
   const p2452 = P.produkt1v({ projectId: 581408, productId: 2452, pathname: "/luxusni-autokoberce-kamiony/" });
@@ -72,7 +72,7 @@ console.log("1) Rozpoznanie adresy — produkty.js, stranky.js, seo-hreflang.js"
   over("2452 bez zmeny (id, url, bez skryty/kamion)", p2452 && p2452.id === 2452 && p2452.url === "/luxusni-autokoberce-kamiony/" && !("skryty" in p2452) && !("kamion" in p2452));
   over("640 aj na adrese kópie ostáva 640 (register má prednosť)", P.produkt1v({ projectId: 562035, productId: 640, pathname: "/autokoberce-do-kamionu-scania-r/" }).id === 640);
   over("najdiProdukt kamion -> 640 / 2452 (kópie nikdy)", P.najdiProdukt(562035, "kamion").id === 640 && P.najdiProdukt(581408, "kamion").id === 2452);
-  over("jeKamionCesta: kópie áno, 640 a iné nie", ST.jeKamionCesta("/autokoberce-do-kamionu-man-tgx/") && ST.jeKamionCesta("/luxusni-autokoberce-kamiony-loga") && !ST.jeKamionCesta("/luxusne-autokoberce-kamiony/") && !ST.jeKamionCesta("/"));
+  over("jeKamionCesta: kópie áno, 640 a iné nie", ST.jeKamionCesta("/autokoberce-do-kamionu-man-tgx/") && ST.jeKamionCesta("/luxusni-autokoberce-kamiony-1") && !ST.jeKamionCesta("/luxusne-autokoberce-kamiony/") && !ST.jeKamionCesta("/"));
   const s = stranka();
   const d = s.document;
   const m = ST.nastavNoindex(d);
@@ -89,14 +89,14 @@ console.log("1) Rozpoznanie adresy — produkty.js, stranky.js, seo-hreflang.js"
   try { IX = await nacitajModul("assets/js/components/konfigurator1v/index.js"); }
   finally { G.forEach((k) => { try { if (pred[k]) Object.defineProperty(globalThis, k, pred[k]); else delete globalThis[k]; } catch (e) { /* */ } }); }
   const sk = stranka();
-  over("oznacKopieKamionov: SK podkategória /kamiony-s-logami/ -> noindex", IX.oznacKopieKamionov(sk.document, { hostname: "www.luxurycardesign.sk", pathname: "/kamiony-s-logami/" }) === "noindex" && robots(sk.document) === "noindex, nofollow");
+  over("oznacKopieKamionov: SK podkategória /kamiony-1/ -> noindex", IX.oznacKopieKamionov(sk.document, { hostname: "www.luxurycardesign.sk", pathname: "/kamiony-1/" }) === "noindex" && robots(sk.document) === "noindex, nofollow");
   const cz = stranka();
-  over("oznacKopieKamionov: CZ podkategória /kamiony-s-logy/ -> noindex", IX.oznacKopieKamionov(cz.document, { hostname: "www.luxurycardesign.cz", pathname: "/kamiony-s-logy/" }) === "noindex" && robots(cz.document) === "noindex, nofollow");
+  over("oznacKopieKamionov: CZ podkategória /kamiony-1/ -> noindex", IX.oznacKopieKamionov(cz.document, { hostname: "www.luxurycardesign.cz", pathname: "/kamiony-1/" }) === "noindex" && robots(cz.document) === "noindex, nofollow");
   const ina = stranka();
   const v = IX.oznacKopieKamionov(ina.document, { hostname: "www.luxurycardesign.sk", pathname: "/autokoberce-do-kamionu/" });
   const st = ina.document.getElementById("lcd-kamion-skryte");
   over("oznacKopieKamionov: kategória kamiónov -> bez noindex, štýl skrytia kópie aj podkategórie", v === "skryte-odkazy" && robots(ina.document) === null && !!st &&
-    /luxusne-autokoberce-kamiony-loga/.test(st.textContent) && /luxusni-autokoberce-kamiony-loga/.test(st.textContent) && /kamiony-s-logami/.test(st.textContent) && /kamiony-s-logy/.test(st.textContent) && !/scania-r/.test(st.textContent));
+    /luxusne-autokoberce-kamiony-1/.test(st.textContent) && /luxusni-autokoberce-kamiony-1/.test(st.textContent) && /kamiony-1/.test(st.textContent) && /kamiony-1/.test(st.textContent) && !/scania-r/.test(st.textContent));
   const pevna = stranka();
   over("oznacKopieKamionov: stránka kamióna -> nič (ani noindex, ani štýl)", IX.oznacKopieKamionov(pevna.document, { hostname: "www.luxurycardesign.sk", pathname: "/autokoberce-do-kamionu-scania-r/" }) === "kopia" &&
     robots(pevna.document) === null && !pevna.document.getElementById("lcd-kamion-skryte"));
@@ -150,9 +150,9 @@ console.log("2) stav.js — predvyberPevny, zapisPrenos / nacitajPrenos, obnovSt
 }
 
 // ------------------------------------------------------------------ 3) skrytá kópia s logami (stránka v jsdom)
-console.log("3) Skrytá kópia SK /luxusne-autokoberce-kamiony-loga/ (bez flagu = vydané)");
+console.log("3) Skrytá kópia SK /luxusne-autokoberce-kamiony-1/ (bez flagu = vydané)");
 {
-  const s = await spustiStranku({ url: SK + "/luxusne-autokoberce-kamiony-loga/", uprav: kopia({ loga: true, robotsMeta: true }) });
+  const s = await spustiStranku({ url: SK + "/luxusne-autokoberce-kamiony-1/", uprav: kopia({ loga: true, robotsMeta: true }) });
   const d = s.document;
   over("meta robots = noindex, nofollow", robots(d) === "noindex, nofollow", robots(d));
   over("#lcd1v-kamion postavený, React sa nemontuje", !!d.getElementById("lcd1v-kamion") && !d.getElementById("truck-konfigurator-root"));
@@ -179,7 +179,7 @@ console.log("3) Skrytá kópia SK /luxusne-autokoberce-kamiony-loga/ (bez flagu 
   over("logo H16 ide do selectu Shoptetu (boky)", /H16/.test(zvolene(d, 403)), zvolene(d, 403));
 }
 {
-  const s = await spustiStranku({ url: SK + "/luxusne-autokoberce-kamiony-loga/?novy=0", uprav: kopia({ h1: "Test kópie", loga: true }) });
+  const s = await spustiStranku({ url: SK + "/luxusne-autokoberce-kamiony-1/?novy=0", uprav: kopia({ h1: "Test kópie", loga: true }) });
   const d = s.document;
   over("?novy=0: React aj na kópii (H1 bez slova kamión) a noindex platí aj tak", !!d.querySelector('#truck-konfigurator-root[data-tk-mounted="1"]') && robots(d) === "noindex, nofollow");
 }
@@ -198,7 +198,7 @@ console.log("4) 640 bez zmeny");
     ui.render(); ui.otvorKrok("nasivky"); klik(d, '#lcd1v-kamion [data-a="nas"][data-v="boky"]');
     return Array.from(d.querySelectorAll('#lcd1v-kamion [data-a="motiv"][data-m="boky"]')).map((x) => x.getAttribute("data-v")).join() === "H19,H21";
   })());
-  over("štýl skrytia dlaždíc kópie v zoznamoch je v hlave", !!d.getElementById("lcd-kamion-skryte") && /kamiony-loga/.test(d.getElementById("lcd-kamion-skryte").textContent));
+  over("štýl skrytia dlaždíc kópie v zoznamoch je v hlave", !!d.getElementById("lcd-kamion-skryte") && /kamiony-1/.test(d.getElementById("lcd-kamion-skryte").textContent));
   over("bez chýb [lcd-1v]", lcdChyby(s.chyby).length === 0, lcdChyby(s.chyby).join(" | "));
 }
 
@@ -347,7 +347,7 @@ console.log("7) CZ kópie");
   over("CZ prenos zapísaný", !!p && p.S.znacka === "MAN (TIR)");
 }
 {
-  const s = await spustiStranku({ url: CZ + "/luxusni-autokoberce-kamiony-loga/", uprav: kopia({ id: 2471, h1: "luxusní autokoberce do kamionů s logy", cz: true, loga: true }) });
+  const s = await spustiStranku({ url: CZ + "/luxusni-autokoberce-kamiony-1/", uprav: kopia({ id: 2471, h1: "luxusní autokoberce do kamionů s logy", cz: true, loga: true }) });
   over("CZ skrytá kópia: noindex + konfigurátor", robots(s.document) === "noindex, nofollow" && !!s.document.getElementById("lcd1v-kamion"), lcdChyby(s.chyby).join(" | "));
 }
 
