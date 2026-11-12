@@ -49,13 +49,12 @@ export const PRODUKTY_1V = {
     // Ďalších 5 stránok áut (Michal 12. 11. 2026: jedna stránka = jedna generácia so všetkými karosériami a verziami,
     // karosériu si zákazník vyberie v karte auta). Jednovrstvové = kópia 598 Diamond, dvojvrstvové BMW = kópia 601 Elite
     // Diamond (naše fotky s druhou vrstvou; auto-produkt.js ide pri zmene auta na hlavný dvojvrstvový 601).
-    // TODO ID po vytvorení v admine: "NOVE-<slug>" nahradiť číslom produktu a riadok odkomentovať (dovtedy nič nerobí;
-    // tools/test-auto-produkt.mjs si riadok BMW 5 berie odtiaľto a skúša ho pod skúšobným číslom).
-    // "NOVE-audi-a6-c7": { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c7/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C7" } },
-    // "NOVE-mercedes-gle-v167": { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle-v167/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE" } },
-    // "NOVE-bmw-3-g20": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-3-g20/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
-    // "NOVE-bmw-5-g30": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
-    // "NOVE-bmw-x7-g07": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
+    // Produkty vytvorené v admine 12. 11. 2026 (kópie 598 / 601), zatiaľ skryté, kým Michal neschváli titulné fotky.
+    652: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c7/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C7" } },
+    655: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE" } },
+    658: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
+    661: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
+    664: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },

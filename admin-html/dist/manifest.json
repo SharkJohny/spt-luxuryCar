@@ -1655,16 +1655,16 @@
         "pozicia": "CDN verzie bundle, po zápise Popis produktu 646.",
         "poSpusteni": "produkt 646 -> Popis (description)"
       },
-      "znaky": 64750,
-      "bajty": 65253,
-      "hash": "0a82f4974c",
+      "znaky": 64848,
+      "bajty": 65353,
+      "hash": "0ca4961eeb",
       "obrazky": 67,
       "webp": 66,
       "sekcie": [
         {
           "subor": "10-vclass-prehliadka.sk.html",
           "sekcia": "vclass-prehliadka",
-          "znaky": 3807
+          "znaky": 3905
         },
         {
           "subor": "12-vclass-verzie.sk.html",

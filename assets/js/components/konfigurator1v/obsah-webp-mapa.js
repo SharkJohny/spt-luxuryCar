@@ -230,7 +230,7 @@ export const KUSY = {
     ["premium-rohoz-v-kufri",1,[480,900],10,0],
     ["premium-classic-v-kufri",0,[480,900],10,0],
   ] },
-  "p1v-vclass-1": { v: "a4bf75f5c2", f: [
+  "p1v-vclass-1": { v: "8406fa732d", f: [
     ["autokoberce-mercedes-v-class-xl-sofer",0,[480,800,1023],0,0],
     ["autokoberce-mercedes-v-class-xl-spolujazdec",0,[480,800,1023],0,0],
     ["autokoberce-mercedes-v-class-xl-stred",0,[480,800,1023],0,0],

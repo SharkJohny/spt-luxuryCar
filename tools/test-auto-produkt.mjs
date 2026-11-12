@@ -22,7 +22,7 @@
 // 10. druhá vrstva „Áno“: prechod na Elite Diamond 601 s prenosom a farbou Béžová.
 //
 // Stránka auta na DVOJVRSTVOVOM produkte (Michal 12. 11. 2026, BMW 5 G30/G31 = kópia 601). ID produktu ešte nie je,
-// riadok registra je v produkty.js zakomentovaný („NOVE-bmw-5-g30“): test ho prečíta, dá mu skúšobné číslo DVOJ_ID
+// riadok registra 661 (BMW 5 G30/G31) z produkty.js: test ho prečíta, dá mu skúšobné číslo DVOJ_ID
 // a vloží ho do registra v podávanom luxuryCar.js (len v teste, repo ani dist sa nemenia). Stránka = HTML živej 601
 // pod adresou /autokoberce-bmw-5-g30/ s product.id DVOJ_ID.
 // 11. načítanie: BMW / Rad 5 predvyplnené, nápis „Predvyplnené pre BMW 5 G30/G31“, karta „Farba 2. vrstvy“ je (7 kariet
@@ -55,7 +55,7 @@ const BUNDLY = { "luxuryCar.js": "application/javascript", "lcd-vclass.js": "app
 
 // dvojvrstvová stránka auta: riadok registra z produkty.js (zakomentovaný, kým nie je ID) pod skúšobným číslom
 const DVOJ_ID = 99001;
-const DVOJ_KLUC = "NOVE-bmw-5-g30";
+const DVOJ_KLUC = "661";
 const zdrojProdukty = readFileSync(fileURLToPath(new URL("../assets/js/components/konfigurator1v/produkty.js", import.meta.url)), "utf8");
 const mDvoj = new RegExp('^\\s*(?:\\/\\/\\s*)?"?' + DVOJ_KLUC + '"?\\s*:\\s*(\\{.*\\}),?\\s*$', "m").exec(zdrojProdukty);
 if (!mDvoj) { console.error("produkty.js: riadok " + DVOJ_KLUC + " nenájdený"); process.exit(2); }
