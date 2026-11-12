@@ -38,6 +38,10 @@ const K = await import("../assets/js/opc/kamionKarta.js");
 const D = await import("../assets/js/lcdKosikDoplnok.js");
 const { sTextamiPriplatkov } = await import("../assets/js/truck-konfigurator/farby-nazvy.mjs");
 const OS = await import("../assets/js/truck-konfigurator/order-summary.mjs");
+// 13. 11. 2026: prepínač je naživo ZAPNUTÝ (export af38abe pozná nové popisy). Bloky 1–6 porovnávajú s poznámkou „pred zmenou“,
+// preto bežia vo vypnutom režime; zapnutý režim overuje blok 6 (presne 4 popisy) a test „prepínač: … = true“.
+const PREPINAC_NAZIVO = OS.CZ_POZNAMKA_CALOUNENI;
+OS.nastavCzPoznamkuCalouneni(false);
 const { buildTruckOrderSummary } = OS;
 const { changeDescription } = await import("../assets/js/components/cart.js");
 
@@ -481,12 +485,13 @@ const naNove = (riadok) => {
   return riadok;
 };
 const poznamky = () => Object.fromEntries(Object.entries(STAVY).map(([n, s0]) => [n, { cs: buildTruckOrderSummary(sTextamiPriplatkov(s0, "cs"), "cs"), sk: buildTruckOrderSummary(sTextamiPriplatkov(s0, "sk"), "sk") }]));
-const sPrepinacom = (v, fn) => { OS.nastavCzPoznamkuCalouneni(v); try { return fn(); } finally { OS.nastavCzPoznamkuCalouneni(OS.CZ_POZNAMKA_CALOUNENI); } };
+const sPrepinacom = (v, fn) => { OS.nastavCzPoznamkuCalouneni(v); try { return fn(); } finally { OS.nastavCzPoznamkuCalouneni(false); } };
 
-test("prepínač: CZ_POZNAMKA_CALOUNENI = false (zapne sa až po Jánovom potvrdení)", () => {
-  rovne(OS.CZ_POZNAMKA_CALOUNENI, false);
+test("prepínač: CZ_POZNAMKA_CALOUNENI = true (zapnutý 13. 11. 2026, export af38abe nové popisy pozná)", () => {
+  rovne(PREPINAC_NAZIVO, true);
   rovne(typeof OS.nastavCzPoznamkuCalouneni, "function");
-  rovne(OS.truckSummaryTexts("cs").headings.doors, "TAPACÍR DVEŘÍ");
+  rovne(sPrepinacom(PREPINAC_NAZIVO, () => OS.truckSummaryTexts("cs").headings.doors), "ČALOUNĚNÍ DVEŘÍ");
+  rovne(OS.truckSummaryTexts("cs").headings.doors, "TAPACÍR DVEŘÍ", "test beží vo vypnutom režime");
 });
 
 test("prepínač vypnutý: CZ aj SK poznámka bajt po bajte ako pred zmenou (5 stavov), doplnenie čalounění v pokladni tiež", () => {

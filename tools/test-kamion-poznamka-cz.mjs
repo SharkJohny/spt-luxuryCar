@@ -6,6 +6,8 @@
 // 4 popisy (TAPACÍR DVEŘÍ, Nášivky / Typ nášivky / Barva nášivek na tapacír…) na „čalounění dveří“, SK ostáva rovnaká.
 import { pathToFileURL } from "node:url";
 import { buildTruckOrderSummary, mergeTruckOrderSummaryIntoNote, nastavCzPoznamkuCalouneni, CZ_POZNAMKA_CALOUNENI } from "../assets/js/truck-konfigurator/order-summary.mjs";
+// 13. 11. 2026: naživo zapnuté; porovnanie ide z vypnutého režimu (pôvodné popisy) do zapnutého (4 nové popisy).
+nastavCzPoznamkuCalouneni(false);
 import { ZNACKY, MATERIALY } from "../assets/js/components/konfigurator1v/kamion/data.js";
 import { novyStav, naStavReactu } from "../assets/js/components/konfigurator1v/kamion/stav.js";
 
@@ -48,7 +50,7 @@ function skontroluj(meno, s) {
   const sk = buildTruckOrderSummary(s, "sk");
   nastavCzPoznamkuCalouneni(true);
   let csZap, skZap;
-  try { csZap = buildTruckOrderSummary(s, "cs"); skZap = buildTruckOrderSummary(s, "sk"); } finally { nastavCzPoznamkuCalouneni(CZ_POZNAMKA_CALOUNENI); }
+  try { csZap = buildTruckOrderSummary(s, "cs"); skZap = buildTruckOrderSummary(s, "sk"); } finally { nastavCzPoznamkuCalouneni(false); }
   over(meno + ": prepínač zapnutý mení len 4 popisy CZ", csZap === cs.split("\n").map(naNove).join("\n"), csZap);
   over(meno + ": prepínač zapnutý, SK bez zmeny", skZap === sk, skZap);
   const zmeny = cs.split("\n").filter((r) => naNove(r) !== r).length;
@@ -87,7 +89,7 @@ for (const material of MATERIALY) {
 }
 
 over("počet vozidiel", vozidiel === 61, String(vozidiel));
-over("prepínač CZ_POZNAMKA_CALOUNENI je vypnutý", CZ_POZNAMKA_CALOUNENI === false);
+over("prepínač CZ_POZNAMKA_CALOUNENI je naživo zapnutý (13. 11. 2026)", CZ_POZNAMKA_CALOUNENI === true);
 over("zapnutý prepínač zmenil popisy (4 na každú kombináciu s tapacírom)", sTapacirom > 0 && zmenenychPopisov === 4 * sTapacirom, zmenenychPopisov + " / " + sTapacirom);
 over("počet farieb", farieb === 50, String(farieb));
 console.log(`${ok} OK, ${zle} ZLE (${vozidiel} kombinácií vozidla a výbavy, ${farieb} farieb${exportKamionEN ? ", s exportom" : ", bez exportu"})`);

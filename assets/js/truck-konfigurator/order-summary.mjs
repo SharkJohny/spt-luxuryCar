@@ -92,7 +92,7 @@ const SUMMARY_TEXTS = {
 // CZ_POZNAMKA_CALOUNENI prepne na true (zmenia sa presne tieto 4 popisy, nič iné). Vypnuté = CZ blok bajt po bajte ako
 // doteraz. ČÍTANIE (parseTruckOrderSummary, addSameDoorPanelsToSummary, jeNadpisDveri, klucPopisu) pozná staré aj nové
 // popisy vždy, bez ohľadu na prepínač (súhrn v sessionStorage môže byť zo staršej verzie). SK sa nemení.
-export const CZ_POZNAMKA_CALOUNENI = false;
+export const CZ_POZNAMKA_CALOUNENI = true;
 let czPoznamkaCalouneni = CZ_POZNAMKA_CALOUNENI;
 /** Len pre testy: zapne / vypne nové CZ popisy čalounění v zápise (true / false). Vráti nový stav. */
 export function nastavCzPoznamkuCalouneni(v) {

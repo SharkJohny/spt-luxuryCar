@@ -4,7 +4,12 @@ import {
   detectTruckSummaryLanguage,
   mergeTruckOrderSummaryIntoNote,
   parseTruckOrderSummary,
+  nastavCzPoznamkuCalouneni,
 } from "./order-summary.mjs";
+
+// 13. 11. 2026: CZ prepínač je naživo zapnutý; tieto vzory sú pôvodné popisy (vypnutý režim), zapnutý režim overuje
+// tools/test-kamion-cz-nazvy.mjs a tools/test-kamion-poznamka-cz.mjs.
+nastavCzPoznamkuCalouneni(false);
 
 const summary = buildTruckOrderSummary({
   znacka: "DAF (TIR)",
