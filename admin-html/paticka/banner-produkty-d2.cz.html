@@ -1,0 +1,61 @@
+<style>
+/* Pätička D2 (Michal 12. 11. 2026): Produkty | Podľa auta | Nákladné autá v jednom banneri (3 stĺpce) + Informácie = 4 rovnaké
+   stĺpce; od 1200 px je Kontakt (banner so .soc-wrap) pod logom, na jeho osi a v šírke loga (200 px). Platí SK aj CZ
+   (výber podľa obsahu cez :has, nie podľa čísla banneru). Pod 1200 px: logo hore, stĺpce pod sebou ako dnes. */
+@media (min-width:1200px){
+.footer-rows{position:relative}
+.custom-footer:has(.lcd-pata-d){min-height:470px}
+.custom-footer>div:has(.lcd-pata-d){width:75%}
+.custom-footer>div:has(.lcd-pata-d)~div:not(:has(.soc-wrap)){width:25%}
+.custom-footer>div:has(.lcd-pata-d)~div:has(.soc-wrap){position:absolute;left:20px;top:290px;width:200px!important;max-width:200px;margin:0!important;padding:0!important;text-align:center}
+.custom-footer>div:has(.lcd-pata-d)~div:has(.soc-wrap) h4{text-align:center}
+.custom-footer>div:has(.lcd-pata-d)~div:has(.soc-wrap) ul{margin-left:0;margin-right:0;padding:0;text-align:center}
+.custom-footer>div:has(.lcd-pata-d)~div:has(.soc-wrap) li{text-align:center}
+.custom-footer>div:has(.lcd-pata-d)~div:has(.soc-wrap) .soc-wrap{display:flex;justify-content:center;text-align:center}
+}
+@media (min-width:900px){
+.lcd-pata-d{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 22px;align-items:start;padding-top:10px}
+.lcd-pata-d__s>h4:first-child,.lcd-pata-d__s>.lcd-pa-nakl>h4{margin-top:0!important}
+}
+@media (min-width:900px) and (max-width:1199px){.custom-footer>div:has(.lcd-pata-d){width:100%}.custom-footer>div:has(.lcd-pata-d)~div{width:50%}}
+</style>
+<div class="lcd-pata-d">
+<div class="lcd-pata-d__s">
+<h4>Produkty</h4>
+<ul>
+    <li><a href="/luxusne-autokoberce-dragonskin-diamond-line/">autokoberce jednovrstvé</a></li>
+    <li><a href="/luxusne-autokoberce-dragonskin-elite-diamond-line/">autokoberce dvouvrstvé</a></li>
+    <li><a href="/luxusny-koberced-do-kufra-dragonskin-klasik/">autokoberce do kufru</a></li>
+    <li><a href="/luxusny-koberced-do-kufra-dragonskin-premium/">autokoberce do celého kufru</a></li>
+    <li><a href="/luxusny-boxi-do-kufra/">boxy do kufru</a></li>
+    <li><a href="/luxusni-autokoberce-kamiony/">autokoberce do kamionů a dodávek</a></li>
+</ul>
+</div>
+<div class="lcd-pata-d__s">
+<h4 style="margin-top:22px"><a href="/autokoberce-podle-auta/" style="color:inherit;text-decoration:none">Podle auta</a></h4>
+<ul class="lcd-pa-pata">
+    <li><a href="/autokoberce-audi/"><span class="lcd-pa-pata__k"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/audi.svg" alt="" width="19" height="19" loading="lazy" decoding="async"></span>Audi</a></li>
+    <li><a href="/autokoberce-bmw/"><span class="lcd-pa-pata__k"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/bmw.svg" alt="" width="19" height="19" loading="lazy" decoding="async"></span>BMW</a></li>
+    <li><a href="/autokoberce-mercedes-benz/"><span class="lcd-pa-pata__k"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/mercedes.svg" alt="" width="19" height="19" loading="lazy" decoding="async"></span>Mercedes-Benz</a></li>
+    <li><a href="/autokoberce-skoda/"><span class="lcd-pa-pata__k"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/skoda.svg" alt="" width="19" height="19" loading="lazy" decoding="async"></span>Škoda</a></li>
+    <li><a href="/autokoberce-volkswagen/"><span class="lcd-pa-pata__k"><img src="https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/volkswagen.svg" alt="" width="19" height="19" loading="lazy" decoding="async"></span>Volkswagen</a></li>
+    <li><a class="lcd-pa-pata__hladaj" href="/luxusne-autokoberce-dragonskin-diamond-line/"><span class="lcd-pa-pata__k"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1f7a52" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>Najít moje auto</a></li>
+</ul>
+<p class="lcd-pa-pata__vsetky"><a href="/autokoberce-podle-auta/">Zobrazit ostatní značky</a></p>
+</div>
+<div class="lcd-pata-d__s">
+<div class="lcd-pa-nakl">
+<h4 style="margin-top:22px"><a href="/autokoberce-do-kamionu/" style="color:inherit;text-decoration:none">Nákladní auta – kamiony a dodávky</a></h4>
+<ul class="lcd-pa-pata">
+    <li><a href="/autokoberce-do-kamionu/#kamiony-daf"><span class="lcd-pa-pata__k"><svg width="21" height="14" viewBox="0 0 64 40" fill="none" stroke="#14110c" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg></span>DAF</a></li>
+    <li><a href="/autokoberce-do-kamionu/#kamiony-man"><span class="lcd-pa-pata__k"><svg width="21" height="14" viewBox="0 0 64 40" fill="none" stroke="#14110c" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg></span>MAN</a></li>
+    <li><a href="/autokoberce-do-kamionu/#kamiony-mercedes-benz"><span class="lcd-pa-pata__k"><svg width="21" height="14" viewBox="0 0 64 40" fill="none" stroke="#14110c" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg></span>Mercedes-Benz</a></li>
+    <li><a href="/autokoberce-do-kamionu/#kamiony-renault"><span class="lcd-pa-pata__k"><svg width="21" height="14" viewBox="0 0 64 40" fill="none" stroke="#14110c" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg></span>Renault</a></li>
+    <li><a href="/autokoberce-do-kamionu/#kamiony-scania"><span class="lcd-pa-pata__k"><svg width="21" height="14" viewBox="0 0 64 40" fill="none" stroke="#14110c" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg></span>Scania</a></li>
+    <li><a href="/autokoberce-do-kamionu/#kamiony-volvo"><span class="lcd-pa-pata__k"><svg width="21" height="14" viewBox="0 0 64 40" fill="none" stroke="#14110c" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg></span>Volvo</a></li>
+    <li class="lcd-pa-nakl__hladaj"><a class="lcd-pa-pata__hladaj" href="/luxusni-autokoberce-kamiony/"><span class="lcd-pa-pata__k"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1f7a52" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></span>Najít můj kamion</a></li>
+</ul>
+<p class="lcd-pa-pata__vsetky"><a href="/autokoberce-do-kamionu/">Zobrazit všechny kamiony a dodávky</a></p>
+</div>
+</div>
+</div>
