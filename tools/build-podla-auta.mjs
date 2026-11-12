@@ -106,14 +106,14 @@ const CZ_ZNACKY = {
   volkswagen: { koho: "svého Volkswagenu", kto: "Volkswagen" },
 };
 const CZ_AUTA = {
-  "/autokoberce-audi-a6-c7/": { id: null, cena: 5664 },
-  "/autokoberce-bmw-3-g20-g21/": { id: null, cena: 8799 },
-  "/autokoberce-bmw-5-g30-g31/": { id: null, cena: 8799 },
-  "/autokoberce-bmw-x7-g07/": { id: null, cena: 8799 },
+  "/autokoberce-audi-a6-c7/": { id: 2466, cena: 5664 },
+  "/autokoberce-bmw-3-g20-g21/": { id: 2472, cena: 8799 },
+  "/autokoberce-bmw-5-g30-g31/": { id: 2475, cena: 8799 },
+  "/autokoberce-bmw-x7-g07/": { id: 2478, cena: 8799 },
   "/autokoberce-mercedes-v-class/": { id: 2458, cena: 7500, nazov: "Mercedes-Benz V-Class" },
-  "/autokoberce-mercedes-gle/": { id: null, cena: 5664 },
-  "/autokoberce-skoda-kodiaq-i/": { id: null, cena: 5664 },
-  "/autokoberce-skoda-kodiaq-ii/": { id: null, cena: 5799 },
+  "/autokoberce-mercedes-gle/": { id: 2469, cena: 5664 },
+  "/autokoberce-skoda-kodiaq-i/": { id: 2463, cena: 5664 },
+  "/autokoberce-skoda-kodiaq-ii/": { id: 2460, cena: 5799 },
 };
 
 /** Texty a adresy webu. SK = presne doterajší výstup (zmena SK textu = zmena SK Popisu). */
