@@ -16,6 +16,9 @@
 //    auta odíde, aby pri prechádzaní značiek šípkami neodišiel na prvej inej.
 //  - druhá vrstva: druha-vrstva.js -> dvojvrstvový Diamond Line (601 / CZ 2406) s prenosom; dlaždica iného vzoru ->
 //    hlavný jednovrstvový produkt toho vzoru s prenosom. Farba sa v cieli páruje podľa názvu (prenos.js kluceFarby).
+//  - stránka auta na dvojvrstvovom produkte (Michal 12. 11. 2026: BMW s našimi fotkami s druhou vrstvou = kópia 601):
+//    všetko rovnako, len cieľ je dvojvrstvový — zmena auta -> Elite Diamond Line (601 / CZ 2406), dlaždica vzoru ->
+//    dvojvrstvový produkt toho vzoru (601 / 604 / 607). Typ cieľa = typ stránky (typHlavneho).
 import { lcdPlatnaHodnota, lcdNorm } from "../../functions/autoVyber.js";
 import { najdiProdukt } from "./produkty.js";
 import { zapisPrenos } from "./prenos.js";
@@ -39,10 +42,16 @@ export const TEXTY_CZ = {
 
 let zrus = null;
 
+/** Typ hlavného konfigurátora pre prenos: dvojvrstvová stránka auta -> "dvoj" (601/604/607), inak "jedno". */
+export function typHlavneho(produkt) {
+  return produkt && produkt.typ === "dvoj" ? "dvoj" : "jedno";
+}
+
 /** @param {ReturnType<import("./ctx.js").vytvorCtx>} ctx */
 export function init(ctx) {
   const A = ctx.produkt && ctx.produkt.auto;
   if (!A || !A.znacka || !A.model) return;
+  const TYP = typHlavneho(ctx.produkt);
   const krok = ctx.krok("auto");
   const wrap = krok && krok.querySelector(".modl-selector-wrap");
   const sel = (k) => (wrap ? wrap.querySelector(".surcharge-list." + k + " select") : null);
@@ -96,24 +105,24 @@ export function init(ctx) {
   else krok.appendChild(box);
 
   let odisiel = false;
-  /** Iné auto -> hlavný jednovrstvový konfigurátor, vždy Diamond Line (Michal 9. 11. 2026), s prenosom výberu. */
+  /** Iné auto -> hlavný konfigurátor typu stránky (jedno / dvoj), vždy Diamond Line (Michal 9. 11. 2026), s prenosom výberu. */
   function chodNaHlavny() {
     if (odisiel) return;
-    const hl = najdiProdukt(ctx.projectId, "jedno", CIEL_VZOR);
+    const hl = najdiProdukt(ctx.projectId, TYP, CIEL_VZOR);
     if (!hl || hl.id === Number(ctx.productId)) return;
     odisiel = true;
     zapisPrenos(ctx, hl.id);
     window.location.assign(hl.url);
   }
 
-  // Dlaždice vzorov (Michal 9. 11. 2026): iný vzor = hlavný jednovrstvový konfigurátor toho vzoru (živý odkaz dlaždice)
+  // Dlaždice vzorov (Michal 9. 11. 2026): iný vzor = hlavný konfigurátor toho vzoru a typu stránky (živý odkaz dlaždice)
   // aj s autom a výberom (prenos; farba sa v cieli páruje podľa názvu, iný vzor má iné ID farby).
   const kVzor = ctx.krok("vzor");
   const naVzor = function (e) {
     const a = e.target && e.target.closest && e.target.closest(".patterns-wrap > .option-button");
     if (!a || a.classList.contains("active") || odisiel) return;
     const m = /lcd1v-vzor-(diamond|stripe|hexa)/.exec(a.className);
-    const ciel = m ? najdiProdukt(ctx.projectId, "jedno", m[1]) : null;
+    const ciel = m ? najdiProdukt(ctx.projectId, TYP, m[1]) : null;
     if (ciel && ciel.id !== Number(ctx.productId)) zapisPrenos(ctx, ciel.id);
   };
   if (kVzor) kVzor.addEventListener("click", naVzor, true);

@@ -57,6 +57,27 @@ const ZNACKY = [
   },
 ].sort((a, b) => a.nazov.localeCompare(b.nazov, "sk"));
 
+/**
+ * Pripravené dlaždice ďalších 5 áut (Michal 12. 11. 2026) — ZATIAĽ VYPNUTÉ, nikam sa nevypisujú (odkaz by viedol na 404).
+ * TODO ID po vytvorení v admine: keď produkt v Shoptete existuje (register produkty.js „NOVE-<slug>“ má číslo) a fotka auta
+ * je v repe, riadok presunúť do auta[] svojej značky a znova vložiť Popis kategórie značky aj prehľadu.
+ * Ceny = cena produktu na webe 12. 11. 2026: jednovrstvové Diamond 598 od 219 €, dvojvrstvové Elite Diamond 601 od 351 €.
+ * Audi a GLE: súbory a6-c7-auto / gle-v167-auto v repe ešte nie sú (fotka auta čaká na schválenie).
+ */
+const PRIPRAVENE = { // eslint-disable-line no-unused-vars
+  audi: [
+    { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/audi-a6-c7/a6-c7-auto", w: 480, h: 237 },
+  ],
+  bmw: [
+    { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-3-g20/", foto: "1v/auto/bmw-3-g20/bmw-3-g20-auto", w: 480, h: 202 },
+    { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 351, url: "/autokoberce-bmw-5-g30/", foto: "1v/auto/bmw-5-g30/bmw-5-g30-auto", w: 480, h: 182 },
+    { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/bmw-x7-g07/x7-g07-auto", w: 480, h: 264 },
+  ],
+  "mercedes-benz": [
+    { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle-v167/", foto: "1v/auto/mercedes-gle-v167/gle-v167-auto", w: 480, h: 244 },
+  ],
+};
+
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const cena = (c) => "od " + String(c).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " €";
 
