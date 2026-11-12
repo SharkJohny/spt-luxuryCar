@@ -22,7 +22,7 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2017-2026", nazov: "Scania R" } },
     "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2021-2026", nazov: "MAN TGX" } },
     "/autokoberce-do-kamionu-volvo-fh4/": { kamion: { znacka: "Volvo (TIR)", model: "FH4 2013-2021", nazov: "Volvo FH4" } },
-    "/autokoberce-do-kamionu-mercedes-actros/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026", nazov: "Mercedes-Benz Actros" } },
+    "/autokoberce-do-kamionu-mercedes-actros/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026", nazov: "Mercedes-Benz Actros MP4/MP5/MP6" } },
     // vlna 2 a 3 (kniha Brain napady/2026-11-12-kamiony-vlna-2-3-disk-a-odpov.md §2.1, a3/plan-35-modelov.csv, variant A po
     // generáciách, Michal 12. 11. 2026): znacka + model znak po znaku z tabuľky, nazov = nazov_sk bez „Autokoberce do kamiónu “.
     // Produkty zatiaľ neexistujú — kým adresa v Shoptete nie je, záznam sa nikdy nepoužije (žiadne ID, žiadny fetch).
@@ -49,7 +49,7 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2017-2026", nazov: "Scania R" } },
     "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2021-2026", nazov: "MAN TGX" } },
     "/autokoberce-do-kamionu-volvo-fh4/": { kamion: { znacka: "Volvo (TIR)", model: "FH4 2013-2021", nazov: "Volvo FH4" } },
-    "/autokoberce-do-kamionu-mercedes-actros/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026", nazov: "Mercedes-Benz Actros" } },
+    "/autokoberce-do-kamionu-mercedes-actros/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026", nazov: "Mercedes-Benz Actros MP4/MP5/MP6" } },
     // vlna 2 a 3: tie isté adresy a kľúče ako SK, nazov = nazov_cz bez „Autokoberce do kamionu “ (CZ „s tunelem“)
     "/autokoberce-do-kamionu-daf-xf105/": { kamion: { znacka: "DAF (TIR)", model: "XF105 2006-2012", nazov: "DAF XF105" } },
     "/autokoberce-do-kamionu-daf-xf106/": { kamion: { znacka: "DAF (TIR)", model: "XF106 2017-2021", nazov: "DAF XF106" } },
