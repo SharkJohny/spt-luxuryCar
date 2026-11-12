@@ -36,7 +36,9 @@ const POPISKY = [
   ["Miesto spolujazdca", "Místo spolujezdce"],
   ["Prešívanie Diamond", "Prošívání Diamond"],
   ["Prešívanie Stripe", "Prošívání Stripe"],
+  ["Druhá vrstva zblízka", "Druhá vrstva zblízka"],
   ["2. rad sedadiel", "2. řada sedadel"],
+  ["3. rad sedadiel", "3. řada sedadel"],
   ["Pri prahu dverí", "U prahu dveří"],
   ["2. rad zblízka", "2. řada zblízka"],
   ["Rohož do kufra", "Rohož do kufru"],
@@ -101,6 +103,26 @@ const AUTA = {
     sk: "Pre BMW X7 G07 (od roku 2019) máme hotovú šablónu pre 6 aj 7 miest, aj po modernizácii 2022. Autokoberce sedia na celej podlahe – vpredu, v druhom rade aj v kufri. Na fotkách je X7 nášho zákazníka po modernizácii s prvou prešívanou vrstvou Diamond, druhou vrstvou s pruhmi a rohožou do kufra. Sedia do ročníkov 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
     cz: "Pro BMW X7 G07 (od roku 2019) máme hotovou šablonu pro 6 i 7 míst, i po modernizaci 2022. Autokoberce kryjí celou podlahu – vpředu, ve druhé řadě i v kufru. Na fotkách je X7 našeho zákazníka po modernizaci s první prošívanou vrstvou Diamond, druhou vrstvou s pruhy a rohoží do kufru. Pasují do ročníků 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
     videa: [["Naše autokoberce v BMW X7 G07", "Naše autokoberce v BMW X7 G07"], ["Naše koberce v BMW X7", "Naše koberce v BMW X7"]],
+  },
+  "mercedes-g-class-w463": {
+    zaklad: "dvoj",
+    h: ["Mercedes G-Class s našimi autokobercami", "Mercedes G-Class s našimi autokoberci"],
+    sk: "Pre Mercedes G-Class W463 (2018–2024) máme hotovú šablónu pre všetky verzie vrátane AMG G 63. Autokoberce sedia na celej podlahe – vpredu, v druhom rade aj v kufri. Na fotkách je G-Class nášho zákazníka s prvou prešívanou vrstvou Diamond v čiernej farbe s červeným prešitím a čiernou druhou vrstvou. Sedia do ročníkov 2018, 2019, 2020, 2021, 2022, 2023 aj 2024.",
+    cz: "Pro Mercedes G-Class W463 (2018–2024) máme hotovou šablonu pro všechny verze včetně AMG G 63. Autokoberce kryjí celou podlahu – vpředu, ve druhé řadě i v kufru. Na fotkách je G-Class našeho zákazníka s první prošívanou vrstvou Diamond v černé barvě s červeným prošitím a černou druhou vrstvou. Pasují do ročníků 2018, 2019, 2020, 2021, 2022, 2023 i 2024.",
+  },
+  "mercedes-gls-x167": {
+    zaklad: "dvoj",
+    h: ["Mercedes GLS s našimi autokobercami", "Mercedes GLS s našimi autokoberci"],
+    sk: "Pre Mercedes GLS X167 (od roku 2019) máme hotovú šablónu pre 6 aj 7 miest, pred modernizáciou aj po nej. Autokoberce sedia na celej podlahe – vpredu, v druhom aj treťom rade a v kufri. Na fotkách je 7-miestny GLS nášho zákazníka s prvou prešívanou vrstvou Diamond v tmavohnedej farbe s béžovým prešitím a tmavohnedou druhou vrstvou. Sedia do ročníkov 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+    cz: "Pro Mercedes GLS X167 (od roku 2019) máme hotovou šablonu pro 6 i 7 míst, před modernizací i po ní. Autokoberce kryjí celou podlahu – vpředu, ve druhé i třetí řadě a v kufru. Na fotkách je 7místný GLS našeho zákazníka s první prošívanou vrstvou Diamond v tmavě hnědé barvě s béžovým prošitím a tmavě hnědou druhou vrstvou. Pasují do ročníků 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+    videa: [["Naše autokoberce v Mercedes GLS", "Naše autokoberce v Mercedesu GLS"], ["Naše koberce v Mercedes GLS", "Naše koberce v Mercedesu GLS"]],
+  },
+  "mercedes-eqe": {
+    zaklad: "dvoj",
+    h: ["Mercedes EQE SUV s našimi autokobercami", "Mercedes EQE SUV s našimi autokoberci"],
+    sk: "Pre Mercedes EQE SUV X294 (od roku 2022) máme hotovú šablónu pre všetky verzie vrátane AMG. Autokoberce sedia na celej podlahe – vpredu, v druhom rade aj v kufri. Na fotkách je EQE SUV nášho zákazníka s prvou prešívanou vrstvou Diamond v tmavohnedej farbe s béžovým prešitím, tmavohnedou druhou vrstvou, rohožou do kufra a boxmi do kufra. Sedia do ročníkov 2022, 2023, 2024, 2025 aj 2026.",
+    cz: "Pro Mercedes EQE SUV X294 (od roku 2022) máme hotovou šablonu pro všechny verze včetně AMG. Autokoberce kryjí celou podlahu – vpředu, ve druhé řadě i v kufru. Na fotkách je EQE SUV našeho zákazníka s první prošívanou vrstvou Diamond v tmavě hnědé barvě s béžovým prošitím, tmavě hnědou druhou vrstvou, rohoží do kufru a boxy do kufru. Pasují do ročníků 2022, 2023, 2024, 2025 i 2026.",
+    videa: [["Naše autokoberce v Mercedes EQE SUV", "Naše autokoberce v Mercedesu EQE SUV"], ["Naše koberce v Mercedes EQE SUV", "Naše koberce v Mercedesu EQE SUV"]],
   },
 };
 

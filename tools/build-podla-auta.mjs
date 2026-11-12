@@ -87,6 +87,10 @@ const PRIPRAVENE = { // eslint-disable-line no-unused-vars
   bmw: [
   ],
   "mercedes-benz": [
+    // Mercedes G-Class, GLS a EQE SUV (13. 11. 2026, dvojvrstvové kópie 601, čakajú na číslo produktu a OK titulky)
+    { nazov: "Mercedes-Benz triedy G", roky: "W463, roky 2018–2024", cena: 351, url: "/autokoberce-mercedes-g-class/", foto: "1v/auto/mercedes-g-class-w463/mercedes-g-class-w463-auto-w", w: 480, h: 297 },
+    { nazov: "Mercedes-Benz GLS", roky: "X167 od roku 2019", cena: 351, url: "/autokoberce-mercedes-gls/", foto: "1v/auto/mercedes-gls-x167/mercedes-gls-x167-auto-w", w: 480, h: 246 },
+    { nazov: "Mercedes-Benz EQE SUV", roky: "X294 od roku 2022", cena: 351, url: "/autokoberce-mercedes-eqe-suv/", foto: "1v/auto/mercedes-eqe/mercedes-eqe-auto-w", w: 480, h: 257 },
   ],
 };
 
@@ -112,6 +116,9 @@ const CZ_AUTA = {
   "/autokoberce-bmw-x7-g07/": { id: 2478, cena: 8799 },
   "/autokoberce-mercedes-v-class/": { id: 2458, cena: 7500, nazov: "Mercedes-Benz V-Class" },
   "/autokoberce-mercedes-gle/": { id: 2469, cena: 5664 },
+  "/autokoberce-mercedes-g-class/": { id: null, cena: 8799, nazov: "Mercedes-Benz G-Class" },
+  "/autokoberce-mercedes-gls/": { id: null, cena: 8799 },
+  "/autokoberce-mercedes-eqe-suv/": { id: null, cena: 8799 },
   "/autokoberce-skoda-kodiaq-i/": { id: 2463, cena: 5664 },
   "/autokoberce-skoda-kodiaq-ii/": { id: 2460, cena: 5799 },
 };
