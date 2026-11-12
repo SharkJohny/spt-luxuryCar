@@ -58,10 +58,10 @@ export const PRODUKTY_1V = {
     // Škoda Kodiaq I (1. generácia 2016–2024, Michal 12. 11. 2026): kópia 598 Diamond vytvorená v admine, zatiaľ skrytá.
     // Model „Kodiaq“ = 1. generácia v katalógu áut (data.json cars.Skoda má „Kodiaq“ aj „Kodiaq II“).
     667: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-kodiaq-i/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq", nazov: "Škoda Kodiaq I" } },
-    // Mercedes G-Class W463, GLS X167 a EQE SUV X294 (dvojvrstvové kópie 601 / 2406) — 13. 11. 2026, čaká na číslo produktu
-    // "SK-NOVE-mercedes-g-class-w463": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
-    // "SK-NOVE-mercedes-gls-x167": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
-    // "SK-NOVE-mercedes-eqe": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
+    // Mercedes G-Class W463, GLS X167 a EQE SUV X294 (dvojvrstvové kópie 601 / 2406) — 13. 11. 2026 (SK 724/727/730, CZ 2526/2529/2532)
+    724: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
+    727: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
+    730: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -95,10 +95,10 @@ export const PRODUKTY_1V = {
     2475: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
     2478: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
     2463: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-kodiaq-i/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq", nazov: "Škoda Kodiaq I" } },
-    // Mercedes G-Class W463, GLS X167 a EQE SUV X294 (dvojvrstvové kópie 601 / 2406) — 13. 11. 2026, čaká na číslo produktu
-    // "CZ-NOVE-mercedes-g-class-w463": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
-    // "CZ-NOVE-mercedes-gls-x167": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
-    // "CZ-NOVE-mercedes-eqe": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
+    // Mercedes G-Class W463, GLS X167 a EQE SUV X294 (dvojvrstvové kópie 601 / 2406) — 13. 11. 2026 (SK 724/727/730, CZ 2526/2529/2532)
+    2526: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
+    2529: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
+    2532: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
   },
 };
 
