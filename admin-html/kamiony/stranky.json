@@ -29,9 +29,9 @@
           "kluc": "daf-xf105",
           "subor": "daf-xf105-vlavo",
           "w": 480,
-          "h": 556,
+          "h": 515,
           "w960": 960,
-          "h960": 1113
+          "h960": 1029
         },
         "caka": null,
         "fotky": [
@@ -83,9 +83,9 @@
           "kluc": "daf-xf105",
           "subor": "daf-xf105-vlavo",
           "w": 480,
-          "h": 556,
+          "h": 515,
           "w960": 960,
-          "h960": 1113
+          "h960": 1029
         },
         "caka": null,
         "fotky": [
@@ -139,9 +139,9 @@
           "kluc": "daf-xf106",
           "subor": "daf-xf106-vlavo",
           "w": 480,
-          "h": 555,
+          "h": 412,
           "w960": 960,
-          "h960": 1111
+          "h960": 824
         },
         "caka": null,
         "fotky": [
@@ -199,9 +199,9 @@
           "kluc": "daf-xf106",
           "subor": "daf-xf106-vlavo",
           "w": 480,
-          "h": 555,
+          "h": 412,
           "w960": 960,
-          "h960": 1111
+          "h960": 824
         },
         "caka": null,
         "fotky": [
@@ -258,8 +258,8 @@
         },
         "znacka": "DAF",
         "tahac": {
-          "kluc": "daf-xf106",
-          "subor": "daf-xf106-vlavo",
+          "kluc": "daf-xf106-2013",
+          "subor": "daf-xf106-2013-vlavo",
           "w": 480,
           "h": 555,
           "w960": 960,
@@ -318,8 +318,8 @@
         },
         "znacka": "DAF",
         "tahac": {
-          "kluc": "daf-xf106",
-          "subor": "daf-xf106-vlavo",
+          "kluc": "daf-xf106-2013",
+          "subor": "daf-xf106-2013-vlavo",
           "w": 480,
           "h": 555,
           "w960": 960,
@@ -549,7 +549,14 @@
           "do": 2017
         },
         "znacka": "MAN",
-        "tahac": null,
+        "tahac": {
+          "kluc": "man-tgx-2007",
+          "subor": "man-tgx-2007-vlavo",
+          "w": 480,
+          "h": 509,
+          "w960": 960,
+          "h960": 1018
+        },
         "caka": null,
         "fotky": [
           {
@@ -608,7 +615,14 @@
           "do": 2017
         },
         "znacka": "MAN",
-        "tahac": null,
+        "tahac": {
+          "kluc": "man-tgx-2007",
+          "subor": "man-tgx-2007-vlavo",
+          "w": 480,
+          "h": 509,
+          "w960": 960,
+          "h960": 1018
+        },
         "caka": null,
         "fotky": [
           {
@@ -669,7 +683,14 @@
           "do": 2020
         },
         "znacka": "MAN",
-        "tahac": null,
+        "tahac": {
+          "kluc": "man-tgx-2018",
+          "subor": "man-tgx-2018-vlavo",
+          "w": 480,
+          "h": 509,
+          "w960": 960,
+          "h960": 1018
+        },
         "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
         "fotky": []
       },
@@ -685,7 +706,14 @@
           "do": 2020
         },
         "znacka": "MAN",
-        "tahac": null,
+        "tahac": {
+          "kluc": "man-tgx-2018",
+          "subor": "man-tgx-2018-vlavo",
+          "w": 480,
+          "h": 509,
+          "w960": 960,
+          "h960": 1018
+        },
         "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
         "fotky": []
       }
@@ -2165,7 +2193,14 @@
           "do": 2013
         },
         "znacka": "Volvo",
-        "tahac": null,
+        "tahac": {
+          "kluc": "volvo-fh-2009",
+          "subor": "volvo-fh-2009-vlavo",
+          "w": 480,
+          "h": 440,
+          "w960": 960,
+          "h960": 880
+        },
         "caka": null,
         "fotky": [
           {
@@ -2218,7 +2253,14 @@
           "do": 2013
         },
         "znacka": "Volvo",
-        "tahac": null,
+        "tahac": {
+          "kluc": "volvo-fh-2009",
+          "subor": "volvo-fh-2009-vlavo",
+          "w": 480,
+          "h": 440,
+          "w960": 960,
+          "h960": 880
+        },
         "caka": null,
         "fotky": [
           {
