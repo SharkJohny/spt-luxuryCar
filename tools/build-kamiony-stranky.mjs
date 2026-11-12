@@ -155,7 +155,8 @@ function dlazdica(slug, s) {
   const roky = s.roky.od + "–" + s.roky.do;
   let foto;
   if (s.tahac) {
-    const z = CDN + "tahace/" + s.tahac.kluc;
+    // ťahač predkom doľava pod novým menom <kluc>-vlavo (pole subor), staré <kluc>-480… predkom doprava sa nepoužívajú
+    const z = CDN + "tahace/" + (s.tahac.subor || s.tahac.kluc);
     foto = '<span class="lcd-kam-zoznam__foto"><picture><source type="image/webp" srcset="' + z + "-480.webp 480w, " + z + '-960.webp 960w" sizes="(min-width: 1000px) 230px, (min-width: 640px) 30vw, 45vw"><img src="' + z + '-480.png" alt="" width="' + s.tahac.w + '" height="' + s.tahac.h + '" loading="lazy" decoding="async"></picture></span>';
   } else foto = '<span class="lcd-kam-zoznam__foto lcd-kam-zoznam__foto--bez">' + IKONA + "</span>";
   return '<li><a class="lcd-kam-zoznam__k" href="' + s.url + '">' + foto + "<b>" + esc(s.model) + '</b> <span class="lcd-kam-zoznam__roky">(' + roky + ")</span></a></li>";
@@ -173,10 +174,12 @@ function kategoria(j) {
     '<nav class="lcd-kam-zoznam__znacky" aria-label="' + t.znackyAria + '">' + znacky.map((z) => '<a href="#' + kotva(z) + '">' + esc(z) + "</a>").join("") + "</nav>",
   ];
   for (const z of znacky) {
-    out.push('<section class="lcd-kam-zoznam__znacka" id="' + kotva(z) + '"><h2>' + esc(z) + "</h2>");
+    // <div>, nie <section>: luxuryCar.css má section{padding:0!important;margin:0!important} (na mobile nadpis značky
+    // prilepený na dlaždice nad ním) a na PC section s paddingom 50 px (medzera ~100 px) — Michal 12. 11. večer
+    out.push('<div class="lcd-kam-zoznam__znacka" id="' + kotva(z) + '"><h2>' + esc(z) + "</h2>");
     out.push('<ul class="lcd-kam-zoznam__modely">');
     for (const s of podla(z)) out.push(dlazdica(s, data.stranky[s][j]));
-    out.push("</ul></section>");
+    out.push("</ul></div>");
   }
   out.push('<div class="lcd-kam-zoznam__nenasli"><p><b>' + esc(t.nenasli) + "</b> " + esc(t.nevadi) + '</p><a class="lcd-kam-zoznam__tl" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a></div>");
   out.push("</div>");

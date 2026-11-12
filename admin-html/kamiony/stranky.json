@@ -25,7 +25,14 @@
           "do": 2012
         },
         "znacka": "DAF",
-        "tahac": null,
+        "tahac": {
+          "kluc": "daf-xf105",
+          "subor": "daf-xf105-vlavo",
+          "w": 480,
+          "h": 556,
+          "w960": 960,
+          "h960": 1113
+        },
         "caka": null,
         "fotky": [
           {
@@ -72,7 +79,14 @@
           "do": 2012
         },
         "znacka": "DAF",
-        "tahac": null,
+        "tahac": {
+          "kluc": "daf-xf105",
+          "subor": "daf-xf105-vlavo",
+          "w": 480,
+          "h": 556,
+          "w960": 960,
+          "h960": 1113
+        },
         "caka": null,
         "fotky": [
           {
@@ -121,7 +135,14 @@
           "do": 2021
         },
         "znacka": "DAF",
-        "tahac": null,
+        "tahac": {
+          "kluc": "daf-xf106",
+          "subor": "daf-xf106-vlavo",
+          "w": 480,
+          "h": 555,
+          "w960": 960,
+          "h960": 1111
+        },
         "caka": null,
         "fotky": [
           {
@@ -174,7 +195,14 @@
           "do": 2021
         },
         "znacka": "DAF",
-        "tahac": null,
+        "tahac": {
+          "kluc": "daf-xf106",
+          "subor": "daf-xf106-vlavo",
+          "w": 480,
+          "h": 555,
+          "w960": 960,
+          "h960": 1111
+        },
         "caka": null,
         "fotky": [
           {
@@ -229,7 +257,14 @@
           "do": 2016
         },
         "znacka": "DAF",
-        "tahac": null,
+        "tahac": {
+          "kluc": "daf-xf106",
+          "subor": "daf-xf106-vlavo",
+          "w": 480,
+          "h": 555,
+          "w960": 960,
+          "h960": 1111
+        },
         "caka": null,
         "fotky": [
           {
@@ -282,7 +317,14 @@
           "do": 2016
         },
         "znacka": "DAF",
-        "tahac": null,
+        "tahac": {
+          "kluc": "daf-xf106",
+          "subor": "daf-xf106-vlavo",
+          "w": 480,
+          "h": 555,
+          "w960": 960,
+          "h960": 1111
+        },
         "caka": null,
         "fotky": [
           {
@@ -339,10 +381,11 @@
         "znacka": "DAF",
         "tahac": {
           "kluc": "daf-xg",
+          "subor": "daf-xg-vlavo",
           "w": 480,
-          "h": 376,
+          "h": 473,
           "w960": 960,
-          "h960": 753
+          "h960": 947
         },
         "caka": "čaká na fotky – chýba fotka celej sady kobercov na podlahu – béžová prešívaná ani sivá 3-dielna sada podľa Michala nie sú koberce na podlahu (asi na palubnú dosku), treba nové fotky celej sady, stránku nevytvárať v prvej várke",
         "fotky": []
@@ -361,10 +404,11 @@
         "znacka": "DAF",
         "tahac": {
           "kluc": "daf-xg",
+          "subor": "daf-xg-vlavo",
           "w": 480,
-          "h": 376,
+          "h": 473,
           "w960": 960,
-          "h960": 753
+          "h960": 947
         },
         "caka": "čaká na fotky – chýba fotka celej sady kobercov na podlahu – béžová prešívaná ani sivá 3-dielna sada podľa Michala nie sú koberce na podlahu (asi na palubnú dosku), treba nové fotky celej sady, stránku nevytvárať v prvej várke",
         "fotky": []
@@ -385,10 +429,11 @@
         "znacka": "MAN",
         "tahac": {
           "kluc": "man-tgx-2021",
+          "subor": "man-tgx-2021-vlavo",
           "w": 480,
-          "h": 455,
+          "h": 440,
           "w960": 960,
-          "h960": 910
+          "h960": 879
         },
         "caka": null,
         "fotky": [
@@ -444,10 +489,11 @@
         "znacka": "MAN",
         "tahac": {
           "kluc": "man-tgx-2021",
+          "subor": "man-tgx-2021-vlavo",
           "w": 480,
-          "h": 455,
+          "h": 440,
           "w960": 960,
-          "h960": 910
+          "h960": 879
         },
         "caka": null,
         "fotky": [
@@ -503,13 +549,7 @@
           "do": 2017
         },
         "znacka": "MAN",
-        "tahac": {
-          "kluc": "man-tgx-2007",
-          "w": 480,
-          "h": 510,
-          "w960": 960,
-          "h960": 1019
-        },
+        "tahac": null,
         "caka": null,
         "fotky": [
           {
@@ -568,13 +608,7 @@
           "do": 2017
         },
         "znacka": "MAN",
-        "tahac": {
-          "kluc": "man-tgx-2007",
-          "w": 480,
-          "h": 510,
-          "w960": 960,
-          "h960": 1019
-        },
+        "tahac": null,
         "caka": null,
         "fotky": [
           {
@@ -635,13 +669,7 @@
           "do": 2020
         },
         "znacka": "MAN",
-        "tahac": {
-          "kluc": "man-tgx-2018",
-          "w": 480,
-          "h": 510,
-          "w960": 960,
-          "h960": 1019
-        },
+        "tahac": null,
         "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
         "fotky": []
       },
@@ -657,13 +685,7 @@
           "do": 2020
         },
         "znacka": "MAN",
-        "tahac": {
-          "kluc": "man-tgx-2018",
-          "w": 480,
-          "h": 510,
-          "w960": 960,
-          "h960": 1019
-        },
+        "tahac": null,
         "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
         "fotky": []
       }
@@ -683,10 +705,11 @@
         "znacka": "Mercedes-Benz",
         "tahac": {
           "kluc": "actros-mp4",
+          "subor": "actros-mp4-vlavo",
           "w": 480,
-          "h": 443,
+          "h": 424,
           "w960": 960,
-          "h960": 885
+          "h960": 849
         },
         "caka": null,
         "fotky": [
@@ -754,10 +777,11 @@
         "znacka": "Mercedes-Benz",
         "tahac": {
           "kluc": "actros-mp4",
+          "subor": "actros-mp4-vlavo",
           "w": 480,
-          "h": 443,
+          "h": 424,
           "w960": 960,
-          "h960": 885
+          "h960": 849
         },
         "caka": null,
         "fotky": [
@@ -827,10 +851,11 @@
         "znacka": "Mercedes-Benz",
         "tahac": {
           "kluc": "actros-mp2",
+          "subor": "actros-mp2-vlavo",
           "w": 480,
-          "h": 428,
+          "h": 404,
           "w960": 960,
-          "h960": 856
+          "h960": 809
         },
         "caka": null,
         "fotky": [
@@ -886,10 +911,11 @@
         "znacka": "Mercedes-Benz",
         "tahac": {
           "kluc": "actros-mp2",
+          "subor": "actros-mp2-vlavo",
           "w": 480,
-          "h": 428,
+          "h": 404,
           "w960": 960,
-          "h960": 856
+          "h960": 809
         },
         "caka": null,
         "fotky": [
@@ -945,7 +971,14 @@
           "do": 2026
         },
         "znacka": "Mercedes-Benz",
-        "tahac": null,
+        "tahac": {
+          "kluc": "actros-f",
+          "subor": "actros-f-vlavo",
+          "w": 480,
+          "h": 457,
+          "w960": 960,
+          "h960": 913
+        },
         "caka": null,
         "fotky": [
           {
@@ -998,7 +1031,14 @@
           "do": 2026
         },
         "znacka": "Mercedes-Benz",
-        "tahac": null,
+        "tahac": {
+          "kluc": "actros-f",
+          "subor": "actros-f-vlavo",
+          "w": 480,
+          "h": 457,
+          "w960": 960,
+          "h960": 913
+        },
         "caka": null,
         "fotky": [
           {
@@ -1055,10 +1095,11 @@
         "znacka": "Mercedes-Benz",
         "tahac": {
           "kluc": "actros-mp5",
+          "subor": "actros-mp5-vlavo",
           "w": 480,
-          "h": 443,
+          "h": 424,
           "w960": 960,
-          "h960": 885
+          "h960": 849
         },
         "caka": null,
         "fotky": [
@@ -1126,10 +1167,11 @@
         "znacka": "Mercedes-Benz",
         "tahac": {
           "kluc": "actros-mp5",
+          "subor": "actros-mp5-vlavo",
           "w": 480,
-          "h": 443,
+          "h": 424,
           "w960": 960,
-          "h960": 885
+          "h960": 849
         },
         "caka": null,
         "fotky": [
@@ -1199,10 +1241,11 @@
         "znacka": "Renault",
         "tahac": {
           "kluc": "renault-t",
+          "subor": "renault-t-vlavo",
           "w": 480,
-          "h": 400,
+          "h": 410,
           "w960": 960,
-          "h960": 800
+          "h960": 819
         },
         "caka": null,
         "fotky": [
@@ -1264,10 +1307,11 @@
         "znacka": "Renault",
         "tahac": {
           "kluc": "renault-t",
+          "subor": "renault-t-vlavo",
           "w": 480,
-          "h": 400,
+          "h": 410,
           "w960": 960,
-          "h960": 800
+          "h960": 819
         },
         "caka": null,
         "fotky": [
@@ -1331,10 +1375,11 @@
         "znacka": "Renault",
         "tahac": {
           "kluc": "renault-t",
+          "subor": "renault-t-vlavo",
           "w": 480,
-          "h": 400,
+          "h": 410,
           "w960": 960,
-          "h960": 800
+          "h960": 819
         },
         "caka": null,
         "fotky": [
@@ -1396,10 +1441,11 @@
         "znacka": "Renault",
         "tahac": {
           "kluc": "renault-t",
+          "subor": "renault-t-vlavo",
           "w": 480,
-          "h": 400,
+          "h": 410,
           "w960": 960,
-          "h960": 800
+          "h960": 819
         },
         "caka": null,
         "fotky": [
@@ -1463,10 +1509,11 @@
         "znacka": "Scania",
         "tahac": {
           "kluc": "scania-r-2017",
+          "subor": "scania-r-2017-vlavo",
           "w": 480,
-          "h": 399,
+          "h": 383,
           "w960": 960,
-          "h960": 798
+          "h960": 767
         },
         "caka": null,
         "fotky": [
@@ -1522,10 +1569,11 @@
         "znacka": "Scania",
         "tahac": {
           "kluc": "scania-r-2017",
+          "subor": "scania-r-2017-vlavo",
           "w": 480,
-          "h": 399,
+          "h": 383,
           "w960": 960,
-          "h960": 798
+          "h960": 767
         },
         "caka": null,
         "fotky": [
@@ -1581,7 +1629,14 @@
           "do": 2008
         },
         "znacka": "Scania",
-        "tahac": null,
+        "tahac": {
+          "kluc": "scania-r-pgr",
+          "subor": "scania-r-pgr-vlavo",
+          "w": 480,
+          "h": 419,
+          "w960": 960,
+          "h960": 839
+        },
         "caka": null,
         "fotky": [
           {
@@ -1640,7 +1695,14 @@
           "do": 2008
         },
         "znacka": "Scania",
-        "tahac": null,
+        "tahac": {
+          "kluc": "scania-r-pgr",
+          "subor": "scania-r-pgr-vlavo",
+          "w": 480,
+          "h": 419,
+          "w960": 960,
+          "h960": 839
+        },
         "caka": null,
         "fotky": [
           {
@@ -1701,7 +1763,14 @@
           "do": 2013
         },
         "znacka": "Scania",
-        "tahac": null,
+        "tahac": {
+          "kluc": "scania-r-pgr",
+          "subor": "scania-r-pgr-vlavo",
+          "w": 480,
+          "h": 419,
+          "w960": 960,
+          "h960": 839
+        },
         "caka": null,
         "fotky": [
           {
@@ -1760,7 +1829,14 @@
           "do": 2013
         },
         "znacka": "Scania",
-        "tahac": null,
+        "tahac": {
+          "kluc": "scania-r-pgr",
+          "subor": "scania-r-pgr-vlavo",
+          "w": 480,
+          "h": 419,
+          "w960": 960,
+          "h960": 839
+        },
         "caka": null,
         "fotky": [
           {
@@ -1821,7 +1897,14 @@
           "do": 2016
         },
         "znacka": "Scania",
-        "tahac": null,
+        "tahac": {
+          "kluc": "scania-r-pgr",
+          "subor": "scania-r-pgr-vlavo",
+          "w": 480,
+          "h": 419,
+          "w960": 960,
+          "h960": 839
+        },
         "caka": null,
         "fotky": [
           {
@@ -1880,7 +1963,14 @@
           "do": 2016
         },
         "znacka": "Scania",
-        "tahac": null,
+        "tahac": {
+          "kluc": "scania-r-pgr",
+          "subor": "scania-r-pgr-vlavo",
+          "w": 480,
+          "h": 419,
+          "w960": 960,
+          "h960": 839
+        },
         "caka": null,
         "fotky": [
           {
@@ -1943,10 +2033,11 @@
         "znacka": "Scania",
         "tahac": {
           "kluc": "scania-s-2017",
+          "subor": "scania-s-2017-vlavo",
           "w": 480,
-          "h": 395,
+          "h": 381,
           "w960": 960,
-          "h960": 790
+          "h960": 762
         },
         "caka": null,
         "fotky": [
@@ -2008,10 +2099,11 @@
         "znacka": "Scania",
         "tahac": {
           "kluc": "scania-s-2017",
+          "subor": "scania-s-2017-vlavo",
           "w": 480,
-          "h": 395,
+          "h": 381,
           "w960": 960,
-          "h960": 790
+          "h960": 762
         },
         "caka": null,
         "fotky": [
@@ -2181,7 +2273,14 @@
           "do": 2021
         },
         "znacka": "Volvo",
-        "tahac": null,
+        "tahac": {
+          "kluc": "volvo-fh4",
+          "subor": "volvo-fh4-vlavo",
+          "w": 480,
+          "h": 497,
+          "w960": 960,
+          "h960": 993
+        },
         "caka": null,
         "fotky": [
           {
@@ -2240,7 +2339,14 @@
           "do": 2021
         },
         "znacka": "Volvo",
-        "tahac": null,
+        "tahac": {
+          "kluc": "volvo-fh4",
+          "subor": "volvo-fh4-vlavo",
+          "w": 480,
+          "h": 497,
+          "w960": 960,
+          "h960": 993
+        },
         "caka": null,
         "fotky": [
           {
