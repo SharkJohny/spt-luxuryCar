@@ -29,7 +29,9 @@ const ZNACKY = [
   {
     kluc: "audi", nazov: "Audi", logo: "znacky/audi.svg", url: "/autokoberce-audi/", pata: true,
     koho: "svojho Audi", kto: "Audi",
-    auta: [],
+    auta: [
+      { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/audi-a6-c7/audi-a6-c7-auto-w2", w: 480, h: 246 },
+    ],
   },
   {
     kluc: "bmw", nazov: "BMW", logo: "znacky/bmw.svg", url: "/autokoberce-bmw/", pata: true,
@@ -72,7 +74,6 @@ const ZNACKY = [
  */
 const PRIPRAVENE = { // eslint-disable-line no-unused-vars
   audi: [
-    { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/audi-a6-c7/a6-c7-auto", w: 480, h: 237 },
   ],
   bmw: [
   ],
