@@ -27,6 +27,9 @@
 // --check: všetky výstupy = to, čo by build zapísal (bajt po bajte); 40 Popisov, každý ≤ 45 000 znakov; sekcie mimo
 // galérie, obaly aj celý kus 2 bajt po bajte rovnaké s dist; dist od posledného buildu nezmenený (manifest); každý
 // obrázok z kamion-stranky/ existuje v assets/img/1v/kamion-stranky/; bez <h1>, <script>, on…=, logo značky, počtu modelov.
+// Čakajúca stránka (stranky.json "caka": dôvod, 12. 11. večer – napr. DAF XG bez fotky celej sady): Popis sa nestavia,
+// v kategórii ani v pätičke nie je (prvá várka vytvárania v admine ju vynechá); jej starý Popis v admin-html/kamiony/
+// nesmie ostať (--check zlyhá).
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -84,6 +87,8 @@ for (const j of JAZYKY) for (const n of [1, 2]) {
 }
 const CDN = data.cdn;
 const slugy = Object.keys(data.stranky).sort();
+const cakajuce = slugy.filter((s) => JAZYKY.some((j) => data.stranky[s][j].caka));
+const hotove = slugy.filter((s) => !cakajuce.includes(s));
 
 /** Sekcia galérie stránky z galérie 640 / 2452: nadpis, úvod, fotky; nadpis sekcie (eyebrow) a tlačidlo ostávajú. */
 function galeria(distSek, s, slug) {
@@ -158,7 +163,7 @@ function dlazdica(slug, s) {
 
 function kategoria(j) {
   const t = T[j];
-  const podla = (z) => slugy.filter((s) => data.stranky[s][j].znacka === z)
+  const podla = (z) => hotove.filter((s) => data.stranky[s][j].znacka === z)
     .sort((a, b) => data.stranky[b][j].roky.od - data.stranky[a][j].roky.od || data.stranky[a][j].model.localeCompare(data.stranky[b][j].model, "sk"));
   const znacky = ZNACKY.filter((z) => podla(z).length);
   const out = [
@@ -188,7 +193,7 @@ const STYL_PATA = [
 function paticka(j) {
   const t = T[j];
   const kat = data.web[j].kategoria;
-  const znacky = ZNACKY.filter((z) => slugy.some((s) => data.stranky[s][j].znacka === z));
+  const znacky = ZNACKY.filter((z) => hotove.some((s) => data.stranky[s][j].znacka === z));
   return [
     "<style>\n" + STYL_PATA + "\n</style>",
     '<div class="lcd-kam-zoznam lcd-kam-zoznam--pata">',
@@ -203,7 +208,7 @@ function paticka(j) {
 
 // ---------------------------------------------------------------------------------------------------------------
 const subory = new Map(); // meno -> obsah
-for (const slug of slugy) for (const j of JAZYKY) {
+for (const slug of hotove) for (const j of JAZYKY) {
   try { subory.set(slug + "." + j + ".html", popisStranky(slug, j)); } catch (e) { chyba(slug + "." + j, e.message); }
 }
 for (const j of JAZYKY) {
@@ -221,7 +226,11 @@ subory.set("manifest.json", JSON.stringify(manifest, null, 2) + "\n");
 // ---- kontroly (build aj --check) ----
 const obrazky = new Set();
 const popisov = [...subory.keys()].filter((m) => /^[a-z0-9-]+\.(sk|cz)\.html$/.test(m) && !/^(kategoria|paticka)-/.test(m));
-if (popisov.length !== slugy.length * 2) chyba("admin-html/kamiony", "Popisov " + popisov.length + " (má byť " + slugy.length * 2 + ")");
+if (popisov.length !== hotove.length * 2) chyba("admin-html/kamiony", "Popisov " + popisov.length + " (má byť " + hotove.length * 2 + ")");
+for (const slug of cakajuce) for (const j of JAZYKY) {
+  if (existsSync(join(VYSTUP, slug + "." + j + ".html"))) chyba(slug + "." + j + ".html", "stránka čaká (" + data.stranky[slug][j].caka + "), starý Popis treba odložiť mimo admin-html/kamiony/");
+  if (JAZYKY.some((x) => data.stranky[slug][x].fotky.length)) chyba(slug, "čakajúca stránka má fotky");
+}
 if (slugy.length !== 20) chyba("stranky.json", "stránok " + slugy.length + " (má byť 20)");
 for (const m of popisov) {
   const t = subory.get(m);
@@ -274,7 +283,8 @@ for (const [m, t] of subory) {
       if (!sel.split(",").every((x) => x.trim().startsWith(".lcd-kam-zoznam"))) chyba(m, "štýl mimo .lcd-kam-zoznam: " + sel);
     }
     if (m.startsWith("kategoria-")) {
-      for (const s of slugy) if (!t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "chýba odkaz na " + data.stranky[s][j].url);
+      for (const s of hotove) if (!t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "chýba odkaz na " + data.stranky[s][j].url);
+      for (const s of cakajuce) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na čakajúcu stránku " + data.stranky[s][j].url);
       if (!t.includes(T[j].nenasli) || !t.includes(T[j].nevadi)) chyba(m, "chýba „" + T[j].nenasli + " " + T[j].nevadi + "“");
     } else if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "pätička bez odkazu na kategóriu");
   }
@@ -301,6 +311,7 @@ if (CHECK) {
 }
 
 const dlzky = popisov.map((m) => subory.get(m).length);
+if (cakajuce.length) console.log("čakajú (bez Popisu, mimo kategórie a pätičky): " + cakajuce.join(", "));
 console.log("Popisy: " + popisov.length + " súborov, " + Math.min(...dlzky) + "–" + Math.max(...dlzky) + " znakov (limit " + LIMIT + "); kategória " + JAZYKY.map((j) => subory.get("kategoria-autokoberce-do-kamionu." + j + ".html").length).join(" / ") + " zn., pätička " + JAZYKY.map((j) => subory.get("paticka-kamiony." + j + ".html").length).join(" / ") + " zn.");
 console.log(infoObr + (chybajuce.length && !CHECK ? " (pridá úloha štvorcov, --check ich vyžaduje)" : ""));
 if (chyby.length) { console.log("CHYBY (" + chyby.length + "):\n" + chyby.join("\n")); process.exit(1); }

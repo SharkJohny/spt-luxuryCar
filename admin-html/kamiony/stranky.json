@@ -26,6 +26,7 @@
         },
         "znacka": "DAF",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -53,12 +54,6 @@
           },
           {
             "n": "05",
-            "alt": "Autokoberce do kamiónu DAF XF105 – sivé prešívané koberce, detail prešívania",
-            "popis": "Sivé prešívané koberce, detail prešívania",
-            "typ": "studio"
-          },
-          {
-            "n": "06",
             "alt": "Autokoberce do kamiónu DAF XF105 – hnedý prešívaný tapacír dverí",
             "popis": "Hnedý prešívaný tapacír dverí",
             "typ": "studio"
@@ -78,6 +73,7 @@
         },
         "znacka": "DAF",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -105,12 +101,6 @@
           },
           {
             "n": "05",
-            "alt": "Autokoberce do kamionu DAF XF105 – šedé prošívané koberce, detail prošití",
-            "popis": "Šedé prošívané koberce, detail prošití",
-            "typ": "studio"
-          },
-          {
-            "n": "06",
             "alt": "Autokoberce do kamionu DAF XF105 – hnědé prošívané čalounění dveří",
             "popis": "Hnědé prošívané čalounění dveří",
             "typ": "studio"
@@ -132,6 +122,7 @@
         },
         "znacka": "DAF",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -153,32 +144,20 @@
           },
           {
             "n": "04",
-            "alt": "Autokoberce do kamiónu DAF XF106 – čierny prešívaný stredový diel",
-            "popis": "Čierny prešívaný stredový diel",
-            "typ": "studio"
-          },
-          {
-            "n": "05",
             "alt": "Autokoberce do kamiónu DAF XF106 – zelený prešívaný stredový diel",
             "popis": "Zelený prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "05",
             "alt": "Autokoberce do kamiónu DAF XF106 – modrý prešívaný stredový diel",
             "popis": "Modrý prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "06",
             "alt": "Autokoberce do kamiónu DAF XF106 – sivý prešívaný stredový diel",
             "popis": "Sivý prešívaný stredový diel",
-            "typ": "studio"
-          },
-          {
-            "n": "08",
-            "alt": "Autokoberce do kamiónu DAF XF106 – bordový prešívaný stredový diel",
-            "popis": "Bordový prešívaný stredový diel",
             "typ": "studio"
           }
         ]
@@ -196,6 +175,7 @@
         },
         "znacka": "DAF",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -217,32 +197,20 @@
           },
           {
             "n": "04",
-            "alt": "Autokoberce do kamionu DAF XF106 – černý prošívaný středový díl",
-            "popis": "Černý prošívaný středový díl",
-            "typ": "studio"
-          },
-          {
-            "n": "05",
             "alt": "Autokoberce do kamionu DAF XF106 – zelený prošívaný středový díl",
             "popis": "Zelený prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "05",
             "alt": "Autokoberce do kamionu DAF XF106 – modrý prošívaný středový díl",
             "popis": "Modrý prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "06",
             "alt": "Autokoberce do kamionu DAF XF106 – šedý prošívaný středový díl",
             "popis": "Šedý prošívaný středový díl",
-            "typ": "studio"
-          },
-          {
-            "n": "08",
-            "alt": "Autokoberce do kamionu DAF XF106 – vínový prošívaný středový díl",
-            "popis": "Vínový prošívaný středový díl",
             "typ": "studio"
           }
         ]
@@ -262,6 +230,7 @@
         },
         "znacka": "DAF",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -289,18 +258,12 @@
           },
           {
             "n": "05",
-            "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – hnedý prešívaný stredový diel",
-            "popis": "Hnedý prešívaný stredový diel",
-            "typ": "studio"
-          },
-          {
-            "n": "06",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – tmavomodrý prešívaný stredový diel",
             "popis": "Tmavomodrý prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "06",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – čierny prešívaný stredový diel",
             "popis": "Čierny prešívaný stredový diel",
             "typ": "studio"
@@ -320,6 +283,7 @@
         },
         "znacka": "DAF",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -347,18 +311,12 @@
           },
           {
             "n": "05",
-            "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – hnědý prošívaný středový díl",
-            "popis": "Hnědý prošívaný středový díl",
-            "typ": "studio"
-          },
-          {
-            "n": "06",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – tmavě modrý prošívaný středový díl",
             "popis": "Tmavě modrý prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "06",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – černý prošívaný středový díl",
             "popis": "Černý prošívaný středový díl",
             "typ": "studio"
@@ -372,7 +330,7 @@
         "url": "/autokoberce-do-kamionu-daf-xg/",
         "metaTitle": "Autokoberce do kamiónu DAF XG/XG+ (2022–2026) na mieru | Luxury Car Design",
         "popisNadpis": "DAF XG a XG+ s našimi autokobercami",
-        "popisUvod": "Pre DAF XG aj XG+ máme hotovú šablónu autokobercov pre sedadlo spolujazdca CINEMA aj odpružené. Na fotkách sú koberce v kabíne aj na svetlom pozadí. Sedia do ročníkov 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre DAF XG aj XG+ máme hotovú šablónu autokobercov pre sedadlo spolujazdca CINEMA aj odpružené. Sedia do ročníkov 2022, 2023, 2024, 2025 aj 2026.",
         "model": "DAF XG a XG+",
         "roky": {
           "od": 2022,
@@ -386,57 +344,15 @@
           "w960": 960,
           "h960": 753
         },
-        "fotky": [
-          {
-            "n": "01",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce, tri diely",
-            "popis": "Sivé vzorované koberce, tri diely",
-            "typ": "studio"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce v kabíne",
-            "popis": "Sivé vzorované koberce v kabíne",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce, pohľad zhora",
-            "popis": "Sivé vzorované koberce, pohľad zhora",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce pri stĺpiku sedadla",
-            "popis": "Sivé vzorované koberce pri stĺpiku sedadla",
-            "typ": "kabina"
-          },
-          {
-            "n": "05",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce pri dverách a sedadle",
-            "popis": "Sivé vzorované koberce pri dverách a sedadle",
-            "typ": "kabina"
-          },
-          {
-            "n": "06",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – béžové prešívané koberce, celý set",
-            "popis": "Béžové prešívané koberce, celý set",
-            "typ": "studio"
-          },
-          {
-            "n": "07",
-            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce, detail lemovania",
-            "popis": "Sivé vzorované koberce, detail lemovania",
-            "typ": "studio"
-          }
-        ]
+        "caka": "čaká na fotky – chýba fotka celej sady kobercov na podlahu – béžová prešívaná ani sivá 3-dielna sada podľa Michala nie sú koberce na podlahu (asi na palubnú dosku), treba nové fotky celej sady, stránku nevytvárať v prvej várke",
+        "fotky": []
       },
       "cz": {
         "nazov": "Autokoberce do kamionu DAF XG a XG+",
         "url": "/autokoberce-do-kamionu-daf-xg/",
         "metaTitle": "Autokoberce do kamionu DAF XG/XG+ (2022–2026) na míru | Luxury Car Design",
         "popisNadpis": "DAF XG a XG+ s našimi autokoberci",
-        "popisUvod": "Pro DAF XG i XG+ máme hotovou šablonu autokoberců pro sedadlo spolujezdce CINEMA i odpružené. Na fotkách jsou koberce v kabině i na světlém pozadí. Pasují do ročníků 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro DAF XG i XG+ máme hotovou šablonu autokoberců pro sedadlo spolujezdce CINEMA i odpružené. Pasují do ročníků 2022, 2023, 2024, 2025 i 2026.",
         "model": "DAF XG a XG+",
         "roky": {
           "od": 2022,
@@ -450,50 +366,8 @@
           "w960": 960,
           "h960": 753
         },
-        "fotky": [
-          {
-            "n": "01",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce, tři díly",
-            "popis": "Šedé vzorované koberce, tři díly",
-            "typ": "studio"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce v kabině",
-            "popis": "Šedé vzorované koberce v kabině",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce, pohled shora",
-            "popis": "Šedé vzorované koberce, pohled shora",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce u sloupku sedadla",
-            "popis": "Šedé vzorované koberce u sloupku sedadla",
-            "typ": "kabina"
-          },
-          {
-            "n": "05",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce u dveří a sedadla",
-            "popis": "Šedé vzorované koberce u dveří a sedadla",
-            "typ": "kabina"
-          },
-          {
-            "n": "06",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – béžové prošívané koberce, celý set",
-            "popis": "Béžové prošívané koberce, celý set",
-            "typ": "studio"
-          },
-          {
-            "n": "07",
-            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce, detail lemování",
-            "popis": "Šedé vzorované koberce, detail lemování",
-            "typ": "studio"
-          }
-        ]
+        "caka": "čaká na fotky – chýba fotka celej sady kobercov na podlahu – béžová prešívaná ani sivá 3-dielna sada podľa Michala nie sú koberce na podlahu (asi na palubnú dosku), treba nové fotky celej sady, stránku nevytvárať v prvej várke",
+        "fotky": []
       }
     },
     "man-tgx": {
@@ -516,6 +390,7 @@
           "w960": 960,
           "h960": 910
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -525,36 +400,30 @@
           },
           {
             "n": "02",
-            "alt": "Autokoberce do kamiónu MAN TGX – čierne prešívané koberce v kabíne",
-            "popis": "Čierne prešívané koberce v kabíne",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamiónu MAN TGX – béžové prešívané koberce medzi sedadlami",
-            "popis": "Béžové prešívané koberce medzi sedadlami",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
-            "alt": "Autokoberce do kamiónu MAN TGX – modré prešívané koberce pod palubnou doskou",
-            "popis": "Modré prešívané koberce pod palubnou doskou",
-            "typ": "kabina"
-          },
-          {
-            "n": "05",
             "alt": "Autokoberce do kamiónu MAN TGX – svetlé hladké koberce, celý set",
             "popis": "Svetlé hladké koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "03",
             "alt": "Autokoberce do kamiónu MAN TGX – čierne hladké koberce, celý set",
             "popis": "Čierne hladké koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "04",
+            "alt": "Autokoberce do kamiónu MAN TGX – béžové prešívané koberce medzi sedadlami",
+            "popis": "Béžové prešívané koberce medzi sedadlami",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu MAN TGX – modré prešívané koberce pod palubnou doskou",
+            "popis": "Modré prešívané koberce pod palubnou doskou",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
             "alt": "Autokoberce do kamiónu MAN TGX – červený prešívaný tapacír dverí",
             "popis": "Červený prešívaný tapacír dverí",
             "typ": "studio"
@@ -580,6 +449,7 @@
           "w960": 960,
           "h960": 910
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -589,36 +459,30 @@
           },
           {
             "n": "02",
-            "alt": "Autokoberce do kamionu MAN TGX – černé prošívané koberce v kabině",
-            "popis": "Černé prošívané koberce v kabině",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamionu MAN TGX – béžové prošívané koberce mezi sedadly",
-            "popis": "Béžové prošívané koberce mezi sedadly",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
-            "alt": "Autokoberce do kamionu MAN TGX – modré prošívané koberce pod palubní deskou",
-            "popis": "Modré prošívané koberce pod palubní deskou",
-            "typ": "kabina"
-          },
-          {
-            "n": "05",
             "alt": "Autokoberce do kamionu MAN TGX – světlé hladké koberce, celý set",
             "popis": "Světlé hladké koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "03",
             "alt": "Autokoberce do kamionu MAN TGX – černé hladké koberce, celý set",
             "popis": "Černé hladké koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "04",
+            "alt": "Autokoberce do kamionu MAN TGX – béžové prošívané koberce mezi sedadly",
+            "popis": "Béžové prošívané koberce mezi sedadly",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu MAN TGX – modré prošívané koberce pod palubní deskou",
+            "popis": "Modré prošívané koberce pod palubní deskou",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
             "alt": "Autokoberce do kamionu MAN TGX – červené prošívané čalounění dveří",
             "popis": "Červené prošívané čalounění dveří",
             "typ": "studio"
@@ -646,6 +510,7 @@
           "w960": 960,
           "h960": 1019
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -710,6 +575,7 @@
           "w960": 960,
           "h960": 1019
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -762,7 +628,7 @@
         "url": "/autokoberce-do-kamionu-man-tgx-2018/",
         "metaTitle": "Autokoberce do kamiónu MAN TGX (2018–2020) na mieru | Luxury Car Design",
         "popisNadpis": "MAN TGX 2018–2020 s našimi autokobercami",
-        "popisUvod": "Pre MAN TGX tesne pred novou generáciou máme hotovú šablónu autokobercov pre automatickú aj manuálnu prevodovku a kabínu s jednou aj s dvoma zásuvkami. Na fotkách sú koberce položené v kabíne. Sedia do ročníkov 2018, 2019 aj 2020.",
+        "popisUvod": "Pre MAN TGX tesne pred novou generáciou máme hotovú šablónu autokobercov pre automatickú aj manuálnu prevodovku a kabínu s jednou aj s dvoma zásuvkami. Sedia do ročníkov 2018, 2019 aj 2020.",
         "model": "MAN TGX",
         "roky": {
           "od": 2018,
@@ -776,57 +642,15 @@
           "w960": 960,
           "h960": 1019
         },
-        "fotky": [
-          {
-            "n": "01",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce v celej kabíne",
-            "popis": "Béžové prešívané koberce v celej kabíne",
-            "typ": "kabina"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pod palubnou doskou",
-            "popis": "Béžové prešívané koberce pod palubnou doskou",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri radiacej páke",
-            "popis": "Béžové prešívané koberce pri radiacej páke",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri odkladacej skrinke",
-            "popis": "Béžové prešívané koberce pri odkladacej skrinke",
-            "typ": "kabina"
-          },
-          {
-            "n": "05",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri stĺpiku sedadla",
-            "popis": "Béžové prešívané koberce pri stĺpiku sedadla",
-            "typ": "kabina"
-          },
-          {
-            "n": "06",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce, detail prešívania",
-            "popis": "Béžové prešívané koberce, detail prešívania",
-            "typ": "kabina"
-          },
-          {
-            "n": "07",
-            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri sedadle",
-            "popis": "Béžové prešívané koberce pri sedadle",
-            "typ": "kabina"
-          }
-        ]
+        "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
+        "fotky": []
       },
       "cz": {
         "nazov": "Autokoberce do kamionu MAN TGX 2018–2020",
         "url": "/autokoberce-do-kamionu-man-tgx-2018/",
         "metaTitle": "Autokoberce do kamionu MAN TGX (2018–2020) na míru | Luxury Car Design",
         "popisNadpis": "MAN TGX 2018–2020 s našimi autokoberci",
-        "popisUvod": "Pro MAN TGX těsně před novou generací máme hotovou šablonu autokoberců pro automatickou i manuální převodovku a kabinu s jednou i se dvěma zásuvkami. Na fotkách jsou koberce položené v kabině. Pasují do ročníků 2018, 2019 i 2020.",
+        "popisUvod": "Pro MAN TGX těsně před novou generací máme hotovou šablonu autokoberců pro automatickou i manuální převodovku a kabinu s jednou i se dvěma zásuvkami. Pasují do ročníků 2018, 2019 i 2020.",
         "model": "MAN TGX",
         "roky": {
           "od": 2018,
@@ -840,50 +664,8 @@
           "w960": 960,
           "h960": 1019
         },
-        "fotky": [
-          {
-            "n": "01",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce v celé kabině",
-            "popis": "Béžové prošívané koberce v celé kabině",
-            "typ": "kabina"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce pod palubní deskou",
-            "popis": "Béžové prošívané koberce pod palubní deskou",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u řadicí páky",
-            "popis": "Béžové prošívané koberce u řadicí páky",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u odkládací schránky",
-            "popis": "Béžové prošívané koberce u odkládací schránky",
-            "typ": "kabina"
-          },
-          {
-            "n": "05",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u sloupku sedadla",
-            "popis": "Béžové prošívané koberce u sloupku sedadla",
-            "typ": "kabina"
-          },
-          {
-            "n": "06",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce, detail prošití",
-            "popis": "Béžové prošívané koberce, detail prošití",
-            "typ": "kabina"
-          },
-          {
-            "n": "07",
-            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u sedadla",
-            "popis": "Béžové prošívané koberce u sedadla",
-            "typ": "kabina"
-          }
-        ]
+        "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
+        "fotky": []
       }
     },
     "mercedes-actros": {
@@ -892,7 +674,7 @@
         "url": "/autokoberce-do-kamionu-mercedes-actros/",
         "metaTitle": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 (2011–2026) na mieru | Luxury Car Design",
         "popisNadpis": "Mercedes-Benz Actros MP4/MP5/MP6 s našimi autokobercami",
-        "popisUvod": "Pre Mercedes-Benz Actros MP4, MP5 a MP6 s rovnou podlahou máme hotovú šablónu autokobercov pre pevné aj odpružené sedadlo spolujazdca. Prvá fotka je od nášho zákazníka, na ďalších sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre Mercedes-Benz Actros MP4, MP5 a MP6 s rovnou podlahou máme hotovú šablónu autokobercov pre pevné aj odpružené sedadlo spolujazdca. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, jedna fotka je od nášho zákazníka. Sedia do ročníkov 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
         "model": "Mercedes-Benz Actros MP4/MP5/MP6",
         "roky": {
           "od": 2011,
@@ -906,12 +688,13 @@
           "w960": 960,
           "h960": 885
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – sivé prešívané koberce pri dverách, fotka od zákazníka",
-            "popis": "Sivé prešívané koberce pri dverách",
-            "typ": "zakaznik"
+            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – čierne prešívané koberce, celý set",
+            "popis": "Čierne prešívané koberce, celý set",
+            "typ": "studio"
           },
           {
             "n": "02",
@@ -921,39 +704,39 @@
           },
           {
             "n": "03",
-            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – čierne prešívané koberce, celý set",
-            "popis": "Čierne prešívané koberce, celý set",
-            "typ": "studio"
-          },
-          {
-            "n": "04",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – červené prešívané koberce, celý set",
             "popis": "Červené prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "04",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – tmavomodré prešívané koberce, celý set",
             "popis": "Tmavomodré prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "05",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – béžové prešívané koberce, celý set",
             "popis": "Béžové prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "06",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – sivé prešívané koberce, celý set",
             "popis": "Sivé prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "08",
+            "n": "07",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – svetlohnedé prešívané koberce, celý set",
             "popis": "Svetlohnedé prešívané koberce, celý set",
             "typ": "studio"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – sivé prešívané koberce pri dverách, fotka od zákazníka",
+            "popis": "Sivé prešívané koberce pri dverách",
+            "typ": "zakaznik"
           }
         ]
       },
@@ -962,7 +745,7 @@
         "url": "/autokoberce-do-kamionu-mercedes-actros/",
         "metaTitle": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 (2011–2026) na míru | Luxury Car Design",
         "popisNadpis": "Mercedes-Benz Actros MP4/MP5/MP6 s našimi autokoberci",
-        "popisUvod": "Pro Mercedes-Benz Actros MP4, MP5 a MP6 s rovnou podlahou máme hotovou šablonu autokoberců pro pevné i odpružené sedadlo spolujezdce. První fotka je od našeho zákazníka, na dalších jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro Mercedes-Benz Actros MP4, MP5 a MP6 s rovnou podlahou máme hotovou šablonu autokoberců pro pevné i odpružené sedadlo spolujezdce. Na fotkách jsou koberce v různých barvách na světlém pozadí, jedna fotka je od našeho zákazníka. Pasují do ročníků 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
         "model": "Mercedes-Benz Actros MP4/MP5/MP6",
         "roky": {
           "od": 2011,
@@ -976,12 +759,13 @@
           "w960": 960,
           "h960": 885
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – šedé prošívané koberce u dveří, fotka od zákazníka",
-            "popis": "Šedé prošívané koberce u dveří",
-            "typ": "zakaznik"
+            "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – černé prošívané koberce, celý set",
+            "popis": "Černé prošívané koberce, celý set",
+            "typ": "studio"
           },
           {
             "n": "02",
@@ -991,39 +775,39 @@
           },
           {
             "n": "03",
-            "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – černé prošívané koberce, celý set",
-            "popis": "Černé prošívané koberce, celý set",
-            "typ": "studio"
-          },
-          {
-            "n": "04",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – červené prošívané koberce, celý set",
             "popis": "Červené prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "04",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – tmavě modré prošívané koberce, celý set",
             "popis": "Tmavě modré prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "05",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – béžové prošívané koberce, celý set",
             "popis": "Béžové prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "06",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – šedé prošívané koberce, celý set",
             "popis": "Šedé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "08",
+            "n": "07",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – světle hnědé prošívané koberce, celý set",
             "popis": "Světle hnědé prošívané koberce, celý set",
             "typ": "studio"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – šedé prošívané koberce u dveří, fotka od zákazníka",
+            "popis": "Šedé prošívané koberce u dveří",
+            "typ": "zakaznik"
           }
         ]
       }
@@ -1048,6 +832,7 @@
           "w960": 960,
           "h960": 856
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1106,6 +891,7 @@
           "w960": 960,
           "h960": 856
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1152,7 +938,7 @@
         "url": "/autokoberce-do-kamionu-mercedes-actros-f/",
         "metaTitle": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom (2021–2026) na mieru | Luxury Car Design",
         "popisNadpis": "Mercedes-Benz Actros F s tunelom s našimi autokobercami",
-        "popisUvod": "Pre Mercedes-Benz Actros F s tunelom máme hotovú šablónu autokobercov pre MP5 aj MP6, s pevným aj odpruženým sedadlom spolujazdca. Prvé fotky sú od našich zákazníkov, na ďalších sú koberce na svetlom pozadí. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre Mercedes-Benz Actros F s tunelom máme hotovú šablónu autokobercov pre MP5 aj MP6, s pevným aj odpruženým sedadlom spolujazdca. Na fotkách sú koberce na svetlom pozadí, niekoľko fotiek je od našich zákazníkov. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
         "model": "Mercedes-Benz Actros F s tunelom",
         "roky": {
           "od": 2021,
@@ -1160,42 +946,43 @@
         },
         "znacka": "Mercedes-Benz",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
+            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom – sivé prešívané koberce, celý set",
+            "popis": "Sivé prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
             "alt": "Autokoberce do kamiónu Mercedes Actros F s tunelom – sivé prešívané koberce v kabíne s palubnou doskou, fotka od zákazníka",
             "popis": "Sivé prešívané koberce v kabíne s palubnou doskou",
             "typ": "zakaznik"
           },
           {
-            "n": "02",
+            "n": "03",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom – sivé prešívané koberce pri sedadle šoféra, fotka od zákazníka",
             "popis": "Sivé prešívané koberce pri sedadle šoféra",
             "typ": "zakaznik"
           },
           {
-            "n": "03",
+            "n": "04",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom – sivé prešívané koberce medzi sedadlami, fotka od zákazníka",
             "popis": "Sivé prešívané koberce medzi sedadlami",
             "typ": "zakaznik"
           },
           {
-            "n": "04",
+            "n": "05",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom – sivé prešívané koberce, pohľad zhora, fotka od zákazníka",
             "popis": "Sivé prešívané koberce, pohľad zhora",
             "typ": "zakaznik"
           },
           {
-            "n": "05",
+            "n": "06",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom – sivé prešívané koberce pri sedadle spolujazdca, fotka od zákazníka",
             "popis": "Sivé prešívané koberce pri sedadle spolujazdca",
             "typ": "zakaznik"
-          },
-          {
-            "n": "06",
-            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros F s tunelom – sivé prešívané koberce, celý set",
-            "popis": "Sivé prešívané koberce, celý set",
-            "typ": "studio"
           }
         ]
       },
@@ -1204,7 +991,7 @@
         "url": "/autokoberce-do-kamionu-mercedes-actros-f/",
         "metaTitle": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem (2021–2026) na míru | Luxury Car Design",
         "popisNadpis": "Mercedes-Benz Actros F s tunelem s našimi autokoberci",
-        "popisUvod": "Pro Mercedes-Benz Actros F s tunelem máme hotovou šablonu autokoberců pro MP5 i MP6, s pevným i odpruženým sedadlem spolujezdce. První fotky jsou od našich zákazníků, na dalších jsou koberce na světlém pozadí. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro Mercedes-Benz Actros F s tunelem máme hotovou šablonu autokoberců pro MP5 i MP6, s pevným i odpruženým sedadlem spolujezdce. Na fotkách jsou koberce na světlém pozadí, několik fotek je od našich zákazníků. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
         "model": "Mercedes-Benz Actros F s tunelem",
         "roky": {
           "od": 2021,
@@ -1212,42 +999,43 @@
         },
         "znacka": "Mercedes-Benz",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
+            "alt": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem – šedé prošívané koberce, celý set",
+            "popis": "Šedé prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
             "alt": "Autokoberce do kamionu Mercedes Actros F s tunelem – šedé prošívané koberce v kabině s palubní deskou, fotka od zákazníka",
             "popis": "Šedé prošívané koberce v kabině s palubní deskou",
             "typ": "zakaznik"
           },
           {
-            "n": "02",
+            "n": "03",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem – šedé prošívané koberce u sedadla řidiče, fotka od zákazníka",
             "popis": "Šedé prošívané koberce u sedadla řidiče",
             "typ": "zakaznik"
           },
           {
-            "n": "03",
+            "n": "04",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem – šedé prošívané koberce mezi sedadly, fotka od zákazníka",
             "popis": "Šedé prošívané koberce mezi sedadly",
             "typ": "zakaznik"
           },
           {
-            "n": "04",
+            "n": "05",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem – šedé prošívané koberce, pohled shora, fotka od zákazníka",
             "popis": "Šedé prošívané koberce, pohled shora",
             "typ": "zakaznik"
           },
           {
-            "n": "05",
+            "n": "06",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem – šedé prošívané koberce u sedadla spolujezdce, fotka od zákazníka",
             "popis": "Šedé prošívané koberce u sedadla spolujezdce",
             "typ": "zakaznik"
-          },
-          {
-            "n": "06",
-            "alt": "Autokoberce do kamionu Mercedes-Benz Actros F s tunelem – šedé prošívané koberce, celý set",
-            "popis": "Šedé prošívané koberce, celý set",
-            "typ": "studio"
           }
         ]
       }
@@ -1258,7 +1046,7 @@
         "url": "/autokoberce-do-kamionu-mercedes-actros-solostar/",
         "metaTitle": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar (2021–2026) na mieru | Luxury Car Design",
         "popisNadpis": "Mercedes-Benz Actros Solostar s našimi autokobercami",
-        "popisUvod": "Pre Mercedes-Benz Actros MP4, MP5 a MP6 s obytnou kabínou Solostar máme hotovú šablónu autokobercov pod šoféra, spolujazdca aj do stredu kabíny. Prvé fotky sú od našich zákazníkov, na ďalších sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre Mercedes-Benz Actros MP4, MP5 a MP6 s obytnou kabínou Solostar máme hotovú šablónu autokobercov pod šoféra, spolujazdca aj do stredu kabíny. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, dve fotky sú od našich zákazníkov. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
         "model": "Mercedes-Benz Actros Solostar",
         "roky": {
           "od": 2021,
@@ -1272,54 +1060,55 @@
           "w960": 960,
           "h960": 885
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamiónu Mercedes Actros Solostar – krémové prešívané koberce s modrým lemom v celej kabíne, fotka od zákazníka",
-            "popis": "Krémové prešívané koberce s modrým lemom v celej kabíne",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – krémové prešívané koberce pri dverách, fotka od zákazníka",
-            "popis": "Krémové prešívané koberce pri dverách",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – krémové prešívané koberce pri sedadle, fotka od zákazníka",
-            "popis": "Krémové prešívané koberce pri sedadle",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "04",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – hnedé prešívané koberce, celý set",
             "popis": "Hnedé prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "02",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – čierne prešívané koberce, celý set",
             "popis": "Čierne prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "03",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – červené prešívané koberce, celý set",
             "popis": "Červené prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "04",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – modré prešívané koberce, celý set",
             "popis": "Modré prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "08",
+            "n": "05",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – bordové prešívané koberce, celý set",
             "popis": "Bordové prešívané koberce, celý set",
             "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – zelené prešívané koberce, celý set",
+            "popis": "Zelené prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – krémové prešívané koberce pri dverách, fotka od zákazníka",
+            "popis": "Krémové prešívané koberce pri dverách",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – krémové prešívané koberce pri sedadle, fotka od zákazníka",
+            "popis": "Krémové prešívané koberce pri sedadle",
+            "typ": "zakaznik"
           }
         ]
       },
@@ -1328,7 +1117,7 @@
         "url": "/autokoberce-do-kamionu-mercedes-actros-solostar/",
         "metaTitle": "Autokoberce do kamionu Mercedes-Benz Actros Solostar (2021–2026) na míru | Luxury Car Design",
         "popisNadpis": "Mercedes-Benz Actros Solostar s našimi autokoberci",
-        "popisUvod": "Pro Mercedes-Benz Actros MP4, MP5 a MP6 s obytnou kabinou Solostar máme hotovou šablonu autokoberců pod řidiče, spolujezdce i do středu kabiny. První fotky jsou od našich zákazníků, na dalších jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro Mercedes-Benz Actros MP4, MP5 a MP6 s obytnou kabinou Solostar máme hotovou šablonu autokoberců pod řidiče, spolujezdce i do středu kabiny. Na fotkách jsou koberce v různých barvách na světlém pozadí, dvě fotky jsou od našich zákazníků. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
         "model": "Mercedes-Benz Actros Solostar",
         "roky": {
           "od": 2021,
@@ -1342,54 +1131,55 @@
           "w960": 960,
           "h960": 885
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamionu Mercedes Actros Solostar – krémové prošívané koberce s modrým lemem v celé kabině, fotka od zákazníka",
-            "popis": "Krémové prošívané koberce s modrým lemem v celé kabině",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – krémové prošívané koberce u dveří, fotka od zákazníka",
-            "popis": "Krémové prošívané koberce u dveří",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – krémové prošívané koberce u sedadla, fotka od zákazníka",
-            "popis": "Krémové prošívané koberce u sedadla",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "04",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – hnědé prošívané koberce, celý set",
             "popis": "Hnědé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "02",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – černé prošívané koberce, celý set",
             "popis": "Černé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "03",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – červené prošívané koberce, celý set",
             "popis": "Červené prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "04",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – modré prošívané koberce, celý set",
             "popis": "Modré prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "08",
+            "n": "05",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – vínové prošívané koberce, celý set",
             "popis": "Vínové prošívané koberce, celý set",
             "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – zelené prošívané koberce, celý set",
+            "popis": "Zelené prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – krémové prošívané koberce u dveří, fotka od zákazníka",
+            "popis": "Krémové prošívané koberce u dveří",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – krémové prošívané koberce u sedadla, fotka od zákazníka",
+            "popis": "Krémové prošívané koberce u sedadla",
+            "typ": "zakaznik"
           }
         ]
       }
@@ -1400,7 +1190,7 @@
         "url": "/autokoberce-do-kamionu-renault-t/",
         "metaTitle": "Autokoberce do kamiónu Renault T s rovnou podlahou (2013–2026) na mieru | Luxury Car Design",
         "popisNadpis": "Renault T s rovnou podlahou s našimi autokobercami",
-        "popisUvod": "Pre Renault T s rovnou podlahou máme hotovú šablónu autokobercov pod šoféra, spolujazdca aj do stredu kabíny. Prvé fotky sú od našich zákazníkov, na ďalších sú koberce položené v kabíne. Sedia do ročníkov 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre Renault T s rovnou podlahou máme hotovú šablónu autokobercov pod šoféra, spolujazdca aj do stredu kabíny. Na fotkách sú koberce v kabíne aj na svetlom pozadí, štyri fotky sú od našich zákazníkov. Sedia do ročníkov 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
         "model": "Renault T s rovnou podlahou",
         "roky": {
           "od": 2013,
@@ -1414,23 +1204,24 @@
           "w960": 960,
           "h960": 800
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
+            "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – čierne prešívané koberce, celý set",
+            "popis": "Čierne prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
             "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivé prešívané koberce pri schodíku, fotka od zákazníka",
             "popis": "Sivé prešívané koberce pri schodíku",
             "typ": "zakaznik"
           },
           {
-            "n": "02",
+            "n": "03",
             "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivé prešívané koberce pod volantom, fotka od zákazníka",
             "popis": "Sivé prešívané koberce pod volantom",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivé prešívané koberce, detail prešívania, fotka od zákazníka",
-            "popis": "Sivé prešívané koberce, detail prešívania",
             "typ": "zakaznik"
           },
           {
@@ -1441,12 +1232,18 @@
           },
           {
             "n": "05",
+            "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivé prešívané koberce pri stĺpiku sedadla, fotka od zákazníka",
+            "popis": "Sivé prešívané koberce pri stĺpiku sedadla",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
             "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivé prešívané koberce v celej kabíne",
             "popis": "Sivé prešívané koberce v celej kabíne",
             "typ": "kabina"
           },
           {
-            "n": "06",
+            "n": "07",
             "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivý prešívaný tapacír dverí v kabíne",
             "popis": "Sivý prešívaný tapacír dverí v kabíne",
             "typ": "kabina"
@@ -1458,7 +1255,7 @@
         "url": "/autokoberce-do-kamionu-renault-t/",
         "metaTitle": "Autokoberce do kamionu Renault T s rovnou podlahou (2013–2026) na míru | Luxury Car Design",
         "popisNadpis": "Renault T s rovnou podlahou s našimi autokoberci",
-        "popisUvod": "Pro Renault T s rovnou podlahou máme hotovou šablonu autokoberců pod řidiče, spolujezdce i do středu kabiny. První fotky jsou od našich zákazníků, na dalších jsou koberce položené v kabině. Pasují do ročníků 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro Renault T s rovnou podlahou máme hotovou šablonu autokoberců pod řidiče, spolujezdce i do středu kabiny. Na fotkách jsou koberce v kabině i na světlém pozadí, čtyři fotky jsou od našich zákazníků. Pasují do ročníků 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
         "model": "Renault T s rovnou podlahou",
         "roky": {
           "od": 2013,
@@ -1472,23 +1269,24 @@
           "w960": 960,
           "h960": 800
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
+            "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – černé prošívané koberce, celý set",
+            "popis": "Černé prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
             "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané koberce u schůdku, fotka od zákazníka",
             "popis": "Šedé prošívané koberce u schůdku",
             "typ": "zakaznik"
           },
           {
-            "n": "02",
+            "n": "03",
             "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané koberce pod volantem, fotka od zákazníka",
             "popis": "Šedé prošívané koberce pod volantem",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané koberce, detail prošití, fotka od zákazníka",
-            "popis": "Šedé prošívané koberce, detail prošití",
             "typ": "zakaznik"
           },
           {
@@ -1499,12 +1297,18 @@
           },
           {
             "n": "05",
+            "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané koberce u sloupku sedadla, fotka od zákazníka",
+            "popis": "Šedé prošívané koberce u sloupku sedadla",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
             "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané koberce v celé kabině",
             "popis": "Šedé prošívané koberce v celé kabině",
             "typ": "kabina"
           },
           {
-            "n": "06",
+            "n": "07",
             "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané čalounění dveří v kabině",
             "popis": "Šedé prošívané čalounění dveří v kabině",
             "typ": "kabina"
@@ -1518,7 +1322,7 @@
         "url": "/autokoberce-do-kamionu-renault-t-s-tunelom/",
         "metaTitle": "Autokoberce do kamiónu Renault T s tunelom (2013–2026) na mieru | Luxury Car Design",
         "popisNadpis": "Renault T s tunelom s našimi autokobercami",
-        "popisUvod": "Pre Renault T s tunelom máme hotovú šablónu autokobercov pod šoféra, spolujazdca aj do stredu kabíny. Prvé fotky sú od našich zákazníkov, na ďalších sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre Renault T s tunelom máme hotovú šablónu autokobercov pod šoféra, spolujazdca aj do stredu kabíny. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, jedna fotka je od nášho zákazníka. Sedia do ročníkov 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
         "model": "Renault T s tunelom",
         "roky": {
           "od": 2013,
@@ -1532,54 +1336,49 @@
           "w960": 960,
           "h960": 800
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamiónu Renault T s tunelom – čierne prešívané koberce pri tuneli a sedadle, fotka od zákazníka",
-            "popis": "Čierne prešívané koberce pri tuneli a sedadle",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamiónu Renault T s tunelom – čierne prešívané koberce pri dverách, fotka od zákazníka",
-            "popis": "Čierne prešívané koberce pri dverách",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "03",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – svetlohnedé prešívané koberce, celý set",
             "popis": "Svetlohnedé prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "02",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – modré prešívané koberce, celý set",
             "popis": "Modré prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "03",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – červené prešívané koberce, celý set",
             "popis": "Červené prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "04",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – tmavosivé prešívané koberce, celý set",
             "popis": "Tmavosivé prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "05",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – zelené prešívané koberce, celý set",
             "popis": "Zelené prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "08",
+            "n": "06",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – čierne prešívané koberce, celý set",
             "popis": "Čierne prešívané koberce, celý set",
             "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamiónu Renault T s tunelom – čierne prešívané koberce pri tuneli a sedadle, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri tuneli a sedadle",
+            "typ": "zakaznik"
           }
         ]
       },
@@ -1588,7 +1387,7 @@
         "url": "/autokoberce-do-kamionu-renault-t-s-tunelom/",
         "metaTitle": "Autokoberce do kamionu Renault T s tunelem (2013–2026) na míru | Luxury Car Design",
         "popisNadpis": "Renault T s tunelem s našimi autokoberci",
-        "popisUvod": "Pro Renault T s tunelem máme hotovou šablonu autokoberců pod řidiče, spolujezdce i do středu kabiny. První fotky jsou od našich zákazníků, na dalších jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro Renault T s tunelem máme hotovou šablonu autokoberců pod řidiče, spolujezdce i do středu kabiny. Na fotkách jsou koberce v různých barvách na světlém pozadí, jedna fotka je od našeho zákazníka. Pasují do ročníků 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
         "model": "Renault T s tunelem",
         "roky": {
           "od": 2013,
@@ -1602,54 +1401,49 @@
           "w960": 960,
           "h960": 800
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamionu Renault T s tunelem – černé prošívané koberce u tunelu a sedadla, fotka od zákazníka",
-            "popis": "Černé prošívané koberce u tunelu a sedadla",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "02",
-            "alt": "Autokoberce do kamionu Renault T s tunelem – černé prošívané koberce u dveří, fotka od zákazníka",
-            "popis": "Černé prošívané koberce u dveří",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "03",
             "alt": "Autokoberce do kamionu Renault T s tunelem – světle hnědé prošívané koberce, celý set",
             "popis": "Světle hnědé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "02",
             "alt": "Autokoberce do kamionu Renault T s tunelem – modré prošívané koberce, celý set",
             "popis": "Modré prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "03",
             "alt": "Autokoberce do kamionu Renault T s tunelem – červené prošívané koberce, celý set",
             "popis": "Červené prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "04",
             "alt": "Autokoberce do kamionu Renault T s tunelem – tmavě šedé prošívané koberce, celý set",
             "popis": "Tmavě šedé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "07",
+            "n": "05",
             "alt": "Autokoberce do kamionu Renault T s tunelem – zelené prošívané koberce, celý set",
             "popis": "Zelené prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "08",
+            "n": "06",
             "alt": "Autokoberce do kamionu Renault T s tunelem – černé prošívané koberce, celý set",
             "popis": "Černé prošívané koberce, celý set",
             "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamionu Renault T s tunelem – černé prošívané koberce u tunelu a sedadla, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u tunelu a sedadla",
+            "typ": "zakaznik"
           }
         ]
       }
@@ -1674,6 +1468,7 @@
           "w960": 960,
           "h960": 798
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1695,20 +1490,20 @@
           },
           {
             "n": "04",
-            "alt": "Autokoberce do kamiónu Scania R – modré prešívané koberce pre šoféra a spolujazdca",
-            "popis": "Modré prešívané koberce pre šoféra a spolujazdca",
-            "typ": "studio"
-          },
-          {
-            "n": "05",
             "alt": "Autokoberce do kamiónu Scania R – čierne prešívané koberce, celý set",
             "popis": "Čierne prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "05",
             "alt": "Autokoberce do kamiónu Scania R – červené prešívané koberce, celý set",
             "popis": "Červené prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu Scania R – modré prešívané koberce pre šoféra a spolujazdca",
+            "popis": "Modré prešívané koberce pre šoféra a spolujazdca",
             "typ": "studio"
           }
         ]
@@ -1732,6 +1527,7 @@
           "w960": 960,
           "h960": 798
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1753,20 +1549,20 @@
           },
           {
             "n": "04",
-            "alt": "Autokoberce do kamionu Scania R – modré prošívané koberce pro řidiče a spolujezdce",
-            "popis": "Modré prošívané koberce pro řidiče a spolujezdce",
-            "typ": "studio"
-          },
-          {
-            "n": "05",
             "alt": "Autokoberce do kamionu Scania R – černé prošívané koberce, celý set",
             "popis": "Černé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "05",
             "alt": "Autokoberce do kamionu Scania R – červené prošívané koberce, celý set",
             "popis": "Červené prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu Scania R – modré prošívané koberce pro řidiče a spolujezdce",
+            "popis": "Modré prošívané koberce pro řidiče a spolujezdce",
             "typ": "studio"
           }
         ]
@@ -1786,6 +1582,7 @@
         },
         "znacka": "Scania",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1844,6 +1641,7 @@
         },
         "znacka": "Scania",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1904,6 +1702,7 @@
         },
         "znacka": "Scania",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -1962,6 +1761,7 @@
         },
         "znacka": "Scania",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2022,6 +1822,7 @@
         },
         "znacka": "Scania",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2080,6 +1881,7 @@
         },
         "znacka": "Scania",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2146,6 +1948,7 @@
           "w960": 960,
           "h960": 790
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2210,6 +2013,7 @@
           "w960": 960,
           "h960": 790
         },
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2270,6 +2074,7 @@
         },
         "znacka": "Volvo",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2279,27 +2084,27 @@
           },
           {
             "n": "02",
-            "alt": "Autokoberce do kamiónu Volvo FH13 – čierne prešívané koberce v kabíne",
-            "popis": "Čierne prešívané koberce v kabíne",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamiónu Volvo FH13 – čierne prešívané koberce pri sedadle",
-            "popis": "Čierne prešívané koberce pri sedadle",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
             "alt": "Autokoberce do kamiónu Volvo FH13 – červené prešívané koberce, celý set",
             "popis": "Červené prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "03",
             "alt": "Autokoberce do kamiónu Volvo FH13 – hladké koberce, béžový stred a hnedé diely pre šoféra a spolujazdca",
             "popis": "Hladké koberce, béžový stred a hnedé diely pre šoféra a spolujazdca",
             "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu Volvo FH13 – čierne prešívané koberce v kabíne",
+            "popis": "Čierne prešívané koberce v kabíne",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu Volvo FH13 – čierne prešívané koberce pri sedadle",
+            "popis": "Čierne prešívané koberce pri sedadle",
+            "typ": "kabina"
           },
           {
             "n": "06",
@@ -2322,6 +2127,7 @@
         },
         "znacka": "Volvo",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
@@ -2331,27 +2137,27 @@
           },
           {
             "n": "02",
-            "alt": "Autokoberce do kamionu Volvo FH13 – černé prošívané koberce v kabině",
-            "popis": "Černé prošívané koberce v kabině",
-            "typ": "kabina"
-          },
-          {
-            "n": "03",
-            "alt": "Autokoberce do kamionu Volvo FH13 – černé prošívané koberce u sedadla",
-            "popis": "Černé prošívané koberce u sedadla",
-            "typ": "kabina"
-          },
-          {
-            "n": "04",
             "alt": "Autokoberce do kamionu Volvo FH13 – červené prošívané koberce, celý set",
             "popis": "Červené prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "03",
             "alt": "Autokoberce do kamionu Volvo FH13 – hladké koberce, béžový střed a hnědé díly pro řidiče a spolujezdce",
             "popis": "Hladké koberce, béžový střed a hnědé díly pro řidiče a spolujezdce",
             "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamionu Volvo FH13 – černé prošívané koberce v kabině",
+            "popis": "Černé prošívané koberce v kabině",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu Volvo FH13 – černé prošívané koberce u sedadla",
+            "popis": "Černé prošívané koberce u sedadla",
+            "typ": "kabina"
           },
           {
             "n": "06",
@@ -2368,7 +2174,7 @@
         "url": "/autokoberce-do-kamionu-volvo-fh4/",
         "metaTitle": "Autokoberce do kamiónu Volvo FH4 (2013–2021) na mieru | Luxury Car Design",
         "popisNadpis": "Volvo FH4 s našimi autokobercami",
-        "popisUvod": "Pre Volvo FH štvrtej generácie máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Prvá fotka je od nášho zákazníka, na ďalších sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 aj 2021.",
+        "popisUvod": "Pre Volvo FH štvrtej generácie máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, jedna fotka je od nášho zákazníka. Sedia do ročníkov 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 aj 2021.",
         "model": "Volvo FH4",
         "roky": {
           "od": 2013,
@@ -2376,54 +2182,49 @@
         },
         "znacka": "Volvo",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamiónu Volvo FH4 – béžové prešívané koberce pri sedadle, fotka od zákazníka",
-            "popis": "Béžové prešívané koberce pri sedadle",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "02",
             "alt": "Autokoberce do kamiónu Volvo FH4 – hnedé prešívané koberce, celý set",
             "popis": "Hnedé prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "03",
+            "n": "02",
             "alt": "Autokoberce do kamiónu Volvo FH4 – červené prešívané koberce, celý set",
             "popis": "Červené prešívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "03",
             "alt": "Autokoberce do kamiónu Volvo FH4 – modré prešívané koberce, celý set",
             "popis": "Modré prešívané koberce, celý set",
             "typ": "studio"
           },
           {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu Volvo FH4 – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
             "n": "05",
-            "alt": "Autokoberce do kamiónu Volvo FH4 – béžový prešívaný stredový diel",
-            "popis": "Béžový prešívaný stredový diel",
+            "alt": "Autokoberce do kamiónu Volvo FH4 – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
             "typ": "studio"
           },
           {
             "n": "06",
-            "alt": "Autokoberce do kamiónu Volvo FH4 – sivý prešívaný stredový diel",
-            "popis": "Sivý prešívaný stredový diel",
+            "alt": "Autokoberce do kamiónu Volvo FH4 – hnedé hladké koberce, celý set",
+            "popis": "Hnedé hladké koberce, celý set",
             "typ": "studio"
           },
           {
             "n": "07",
-            "alt": "Autokoberce do kamiónu Volvo FH4 – hnedý prešívaný stredový diel",
-            "popis": "Hnedý prešívaný stredový diel",
-            "typ": "studio"
-          },
-          {
-            "n": "08",
-            "alt": "Autokoberce do kamiónu Volvo FH4 – čierny prešívaný stredový diel",
-            "popis": "Čierny prešívaný stredový diel",
-            "typ": "studio"
+            "alt": "Autokoberce do kamiónu Volvo FH4 – béžové prešívané koberce pri sedadle, fotka od zákazníka",
+            "popis": "Béžové prešívané koberce pri sedadle",
+            "typ": "zakaznik"
           }
         ]
       },
@@ -2432,7 +2233,7 @@
         "url": "/autokoberce-do-kamionu-volvo-fh4/",
         "metaTitle": "Autokoberce do kamionu Volvo FH4 (2013–2021) na míru | Luxury Car Design",
         "popisNadpis": "Volvo FH4 s našimi autokoberci",
-        "popisUvod": "Pro Volvo FH čtvrté generace máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. První fotka je od našeho zákazníka, na dalších jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 i 2021.",
+        "popisUvod": "Pro Volvo FH čtvrté generace máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. Na fotkách jsou koberce v různých barvách na světlém pozadí, jedna fotka je od našeho zákazníka. Pasují do ročníků 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 i 2021.",
         "model": "Volvo FH4",
         "roky": {
           "od": 2013,
@@ -2440,54 +2241,49 @@
         },
         "znacka": "Volvo",
         "tahac": null,
+        "caka": null,
         "fotky": [
           {
             "n": "01",
-            "alt": "Autokoberce do kamionu Volvo FH4 – béžové prošívané koberce u sedadla, fotka od zákazníka",
-            "popis": "Béžové prošívané koberce u sedadla",
-            "typ": "zakaznik"
-          },
-          {
-            "n": "02",
             "alt": "Autokoberce do kamionu Volvo FH4 – hnědé prošívané koberce, celý set",
             "popis": "Hnědé prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "03",
+            "n": "02",
             "alt": "Autokoberce do kamionu Volvo FH4 – červené prošívané koberce, celý set",
             "popis": "Červené prošívané koberce, celý set",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "03",
             "alt": "Autokoberce do kamionu Volvo FH4 – modré prošívané koberce, celý set",
             "popis": "Modré prošívané koberce, celý set",
             "typ": "studio"
           },
           {
+            "n": "04",
+            "alt": "Autokoberce do kamionu Volvo FH4 – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
             "n": "05",
-            "alt": "Autokoberce do kamionu Volvo FH4 – béžový prošívaný středový díl",
-            "popis": "Béžový prošívaný středový díl",
+            "alt": "Autokoberce do kamionu Volvo FH4 – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
             "typ": "studio"
           },
           {
             "n": "06",
-            "alt": "Autokoberce do kamionu Volvo FH4 – šedý prošívaný středový díl",
-            "popis": "Šedý prošívaný středový díl",
+            "alt": "Autokoberce do kamionu Volvo FH4 – hnědé hladké koberce, celý set",
+            "popis": "Hnědé hladké koberce, celý set",
             "typ": "studio"
           },
           {
             "n": "07",
-            "alt": "Autokoberce do kamionu Volvo FH4 – hnědý prošívaný středový díl",
-            "popis": "Hnědý prošívaný středový díl",
-            "typ": "studio"
-          },
-          {
-            "n": "08",
-            "alt": "Autokoberce do kamionu Volvo FH4 – černý prošívaný středový díl",
-            "popis": "Černý prošívaný středový díl",
-            "typ": "studio"
+            "alt": "Autokoberce do kamionu Volvo FH4 – béžové prošívané koberce u sedadla, fotka od zákazníka",
+            "popis": "Béžové prošívané koberce u sedadla",
+            "typ": "zakaznik"
           }
         ]
       }
