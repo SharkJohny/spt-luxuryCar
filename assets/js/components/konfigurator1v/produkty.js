@@ -55,6 +55,9 @@ export const PRODUKTY_1V = {
     658: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
     661: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
     664: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
+    // Škoda Kodiaq I (1. generácia 2016–2024, Michal 12. 11. 2026): kópia 598 Diamond vytvorená v admine, zatiaľ skrytá.
+    // Model „Kodiaq“ = 1. generácia v katalógu áut (data.json cars.Skoda má „Kodiaq“ aj „Kodiaq II“).
+    667: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-kodiaq-i/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq", nazov: "Škoda Kodiaq I" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
