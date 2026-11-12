@@ -152,7 +152,7 @@ export function nastavNoindex(doc) {
 }
 
 /**
- * Zoznamy produktov (kategória, vyhľadávanie, „podobné produkty“): dlaždica, ktorá odkazuje na skrytú kópiu, sa skryje
+ * Zoznamy produktov (kategória, vyhľadávanie, našepkávač, „podobné produkty“): dlaždica, ktorá odkazuje na skrytú kópiu, sa skryje
  * štýlom (aj dlaždice, ktoré Shoptet dokreslí neskôr). Poistka k nastaveniam v admine. Vráti <style> alebo null.
  */
 export function skryOdkazyKopie(doc) {
@@ -162,7 +162,8 @@ export function skryOdkazyKopie(doc) {
     const sel = [];
     skryteCesty().forEach((c) => {
       const a = 'a[href*="' + c + '"]';
-      sel.push(".product:has(" + a + ")", "li:has(> " + a + ")");
+      // našepkávač vyhľadávania: kategória je <a class="search-whisperer-document"> priamo v div-e (nie v li), 13. 11. 2026
+      sel.push(".product:has(" + a + ")", "li:has(> " + a + ")", "a.search-whisperer-document" + a.slice(1));
     });
     const st = d.createElement("style");
     st.id = "lcd-kamion-skryte";
