@@ -87,6 +87,53 @@ const SUMMARY_TEXTS = {
   },
 };
 
+// CZ „tapacír“ -> „čalounění dveří“ (Michal 12. 11. 2026, kniha Brain napady/2026-11-12-kamiony-vlna-2-3-disk-a-odpov.md
+// §2.2). Popisy riadkov CZ poznámky číta Jánov export pre výrobu, preto sa ZÁPIS mení až po Jánovom potvrdení: vtedy sa
+// CZ_POZNAMKA_CALOUNENI prepne na true (zmenia sa presne tieto 4 popisy, nič iné). Vypnuté = CZ blok bajt po bajte ako
+// doteraz. ČÍTANIE (parseTruckOrderSummary, addSameDoorPanelsToSummary, jeNadpisDveri, klucPopisu) pozná staré aj nové
+// popisy vždy, bez ohľadu na prepínač (súhrn v sessionStorage môže byť zo staršej verzie). SK sa nemení.
+export const CZ_POZNAMKA_CALOUNENI = false;
+let czPoznamkaCalouneni = CZ_POZNAMKA_CALOUNENI;
+/** Len pre testy: zapne / vypne nové CZ popisy čalounění v zápise (true / false). Vráti nový stav. */
+export function nastavCzPoznamkuCalouneni(v) {
+  czPoznamkaCalouneni = !!v;
+  return czPoznamkaCalouneni;
+}
+const CZ_CALOUNENI_TEXTS = {
+  ...SUMMARY_TEXTS.cs,
+  headings: { ...SUMMARY_TEXTS.cs.headings, doors: "ČALOUNĚNÍ DVEŘÍ" },
+  labels: {
+    ...SUMMARY_TEXTS.cs.labels,
+    doorPatches: "Nášivky na čalounění dveří",
+    doorPatchType: "Typ nášivky na čalounění dveří",
+    doorPatchColor: "Barva nášivek na čalounění dveří",
+  },
+};
+/** Texty zápisu pre jazyk podľa prepínača. */
+function summaryTexts(language) {
+  if (language === "cs" && czPoznamkaCalouneni) return CZ_CALOUNENI_TEXTS;
+  return SUMMARY_TEXTS[language] || SUMMARY_TEXTS.sk;
+}
+/** Všetky sady popisov na čítanie (SK, CZ dnes, CZ čalounění) — nezávisle od prepínača. */
+const READ_TEXTS = [SUMMARY_TEXTS.sk, SUMMARY_TEXTS.cs, CZ_CALOUNENI_TEXTS];
+
+/** Je riadok nadpis časti tapacíru dverí v ktorejkoľvek sade („TAPACÍR DVERÍ“, „TAPACÍR DVEŘÍ“, „ČALOUNĚNÍ DVEŘÍ“)? */
+export function jeNadpisDveri(heading) {
+  const h = String(heading || "").trim();
+  return READ_TEXTS.some((t) => t.headings.doors === h);
+}
+
+/** Kľúč popisu súhrnu (labels.* alebo extras.*) pre text popisu v ktorejkoľvek sade, inak null
+ *  („Nášivky na tapacír“ aj „Nášivky na čalounění dveří“ -> "doorPatches"). */
+export function klucPopisu(label) {
+  const l = String(label || "").trim();
+  for (const t of READ_TEXTS) {
+    for (const k of Object.keys(t.labels)) if (t.labels[k] === l) return k;
+    for (const k of Object.keys(t.extras)) if (t.extras[k] === l) return k;
+  }
+  return null;
+}
+
 const THREAD_COLOR_NAMES = {
   sk: {
     "2999": "Čierna",
@@ -280,7 +327,7 @@ function addGroup(lines, heading, entries) {
  */
 export function buildTruckOrderSummary(state, language = detectTruckSummaryLanguage()) {
   const s = state || {};
-  const texts = SUMMARY_TEXTS[language] || SUMMARY_TEXTS.sk;
+  const texts = summaryTexts(language);
   const lines = [];
   const carpetMaterial = materialAndColor(s.selectedMaterial, s.selectedColor, language);
   const carpetEdging = edgingText(s.selectedLemovanie, language);
@@ -348,7 +395,7 @@ export function buildTruckOrderSummary(state, language = detectTruckSummaryLangu
 
 /** Texty súhrnu pre jazyk ("sk" | "cs") — pokladňa (opc/kamionKarta.js) skladá rozpis z príplatkov s tými istými popismi. */
 export function truckSummaryTexts(language) {
-  return SUMMARY_TEXTS[language] || SUMMARY_TEXTS.sk;
+  return summaryTexts(language);
 }
 
 /**
@@ -360,9 +407,10 @@ export function truckSummaryTexts(language) {
 export function addSameDoorPanelsToSummary(summary) {
   const s = String(summary || "").replace(/\s+$/, "");
   const cs = /^(SPECIFIKACE VOZIDLA|KOBEREČKY POD SEDAČKY)$/m.test(s);
-  const texts = cs ? SUMMARY_TEXTS.cs : SUMMARY_TEXTS.sk;
+  const texts = cs ? summaryTexts("cs") : SUMMARY_TEXTS.sk;
   const lines = s.split(/\r?\n/);
-  if (lines.some((l) => l.trim() === texts.headings.doors)) return s;
+  // časť tapacíru už je (aj so starým alebo novým CZ nadpisom „TAPACÍR DVEŘÍ“ / „ČALOUNĚNÍ DVEŘÍ“) -> bez zmeny
+  if (lines.some((l) => jeNadpisDveri(l))) return s;
   const start = lines.findIndex((l) => l.trim() === texts.headings.carpets);
   if (start < 0) return s;
   let material = null;
@@ -387,14 +435,12 @@ export function parseTruckOrderSummary(summary) {
   const groups = [];
   let current = null;
   const language = /^SPECIFIKACE VOZIDLA\b/m.test(String(summary || "")) ? "cs" : "sk";
-  const colorLabels = new Set([
-    SUMMARY_TEXTS.sk.labels.centrePatchColor,
-    SUMMARY_TEXTS.sk.labels.sidePatchColor,
-    SUMMARY_TEXTS.sk.labels.doorPatchColor,
-    SUMMARY_TEXTS.cs.labels.centrePatchColor,
-    SUMMARY_TEXTS.cs.labels.sidePatchColor,
-    SUMMARY_TEXTS.cs.labels.doorPatchColor,
-  ]);
+  // popisy farby nite vo všetkých sadách (SK, CZ dnes, CZ čalounění) — bez ohľadu na prepínač zápisu
+  const colorLabels = new Set(READ_TEXTS.flatMap((t) => [
+    t.labels.centrePatchColor,
+    t.labels.sidePatchColor,
+    t.labels.doorPatchColor,
+  ]));
 
   String(summary || "").split(/\r?\n/).forEach((rawLine) => {
     const line = rawLine.trim();

@@ -12,7 +12,9 @@ export const zastupna = (t) => /\bv konfiguratoru$/.test(normalizeOptionText(t))
 export const ANO = (t) => /^(ano|áno)\b/i.test(cisty(t));
 export const ROVNAKE = (t) => /^(rovnak|stejn)/i.test(cisty(t));
 export const KOBERCE = /^KOBER/i;
-export const DVERE = /^TAPAC[IÍ]R DVE/i;
+/** Nadpis časti tapacíru dverí: SK „TAPACÍR DVERÍ“, CZ dnes „TAPACÍR DVEŘÍ“, CZ po Jánovom potvrdení „ČALOUNĚNÍ DVEŘÍ“
+ *  (order-summary.mjs CZ_POZNAMKA_CALOUNENI) — čítanie pozná všetky bez ohľadu na prepínač. */
+export const DVERE = /^(TAPAC[IÍ]R|[ČC]ALOUN[ĚE]N[ÍI]) DVE/i;
 
 /**
  * Text príplatkov riadku košíka („Príplatky: Typ materiálu - …, Farba materiálu - …“) -> { kľúč SELECTY: hodnota }. Delí sa

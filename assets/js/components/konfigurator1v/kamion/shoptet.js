@@ -13,9 +13,13 @@ import { PRECIARKNUTE_EUR, PRECIARKNUTE_CZK, NASIVKY_ZALOHA, MATERIALY } from ".
 /** Selecty príplatkov 640 / 2452 podľa data-parameter-name (SK aj CZ meno; ID sa medzi obchodmi líšia). Všetky sú nutné.
  *  Prvé meno = SK 640 (poradie kľúčov = poradie príplatkov SK 640 v admine). CZ 2452 má dnes krátke mená (Materiál, Barva,
  *  Lemování, Nášivky, Nášivka boky, Niť boky, … Niť dveře; overené 25. 10. aj 11. 11. 2026) a v admine sa premenuje na české
- *  mená zhodné so SK (Typ materiálu, Barva materiálu, Barva lemování, Rozložení nášivek, … Barva nášivek na tapacíru) —
- *  kamiony/plan-2026-11-11/c21/POSTUP-ADMIN-CZ.md. Staré aj nové CZ mená tu musia ostať naraz (prechod bez výpadku); nové
- *  meno pridávaj len také, ktoré pozná aj React resolveValue (konfigurator.jsx + .phone.jsx) — tools/test-kamion-cz-nazvy.mjs. */
+ *  mená zhodné so SK (Typ materiálu, Barva materiálu, Barva lemování, Rozložení nášivek, …) a 7 príplatkov dverí na
+ *  „… čalounění dveří“ (Michal 12. 11. 2026: Čalounění dveří, Typ materiálu čalounění dveří, … Barva nášivek na čalounění
+ *  dveří) — kamiony/plan-2026-11-11/c21/POSTUP-ADMIN-CZ.md. Staré, medzikrokové („… tapacíru“, 11. 11.) aj nové CZ mená tu
+ *  musia ostať naraz (prechod bez výpadku, každý medzikrok premenovania funguje — tools/test-kamion-cz-nazvy.mjs).
+ *  React (?novy=0, konfigurator*.gen.jsx) názvy „… čalounění dveří“ NEPOZNÁ (test 12. 11. 2026: nespadne, ale 7 selectov
+ *  dverí nevyplní a povinný „Čalounění dveří“ ostane prázdny -> košík nepustí): po premenovaní CZ sa ?novy=0 na CZ
+ *  nepoužíva; návrat na React = najprv premenovať príplatky späť. Nový konfigurátor ich pozná cez ALIAS_NAZVOV nižšie. */
 export const SELECTY = {
   material: ["Typ materiálu", "Typ materiálu koberečků", "Materiál"],
   farba: ["Farba materiálu", "Barva materiálu", "Barva"],
@@ -25,14 +29,36 @@ export const SELECTY = {
   bokyNit: ["Farba nášiviek na boky", "Barva nášivek na boky", "Niť boky"],
   stredTyp: ["Typ nášivky na stred", "Typ nášivky na střed", "Nášivka stred"],
   stredNit: ["Farba nášivky na stred", "Barva nášivky na střed", "Niť stred"],
-  tapacir: ["Tapacír", "Čalounění"],
-  tapMaterial: ["Typ materiálu tapacíru", "Materiál dveře"],
-  tapFarba: ["Farba materiálu tapacíru", "Barva materiálu tapacíru", "Barva dveře"],
-  tapLem: ["Farba lemovania tapacíru", "Barva lemování tapacíru", "Lemování dveře"],
-  tapNasivka: ["Nášivky na tapacír", "Nášivka dveře"],
-  tapNasTyp: ["Typ nášivky na tapacír", "Nášivka dveře druh"],
-  tapNasNit: ["Farba nášiviek na tapacíre", "Barva nášivek na tapacíru", "Niť dveře"],
+  tapacir: ["Tapacír", "Čalounění", "Čalounění dveří"],
+  tapMaterial: ["Typ materiálu tapacíru", "Materiál dveře", "Typ materiálu čalounění dveří"],
+  tapFarba: ["Farba materiálu tapacíru", "Barva materiálu tapacíru", "Barva dveře", "Barva materiálu čalounění dveří"],
+  tapLem: ["Farba lemovania tapacíru", "Barva lemování tapacíru", "Lemování dveře", "Barva lemování čalounění dveří"],
+  tapNasivka: ["Nášivky na tapacír", "Nášivka dveře", "Nášivky na čalounění dveří"],
+  tapNasTyp: ["Typ nášivky na tapacír", "Nášivka dveře druh", "Typ nášivky na čalounění dveří"],
+  tapNasNit: ["Farba nášiviek na tapacíre", "Barva nášivek na tapacíru", "Niť dveře", "Barva nášivek na čalounění dveří"],
 };
+
+/**
+ * Nové CZ názvy príplatkov čalounění dveří (Michal 12. 11. 2026, kniha Brain napady/2026-11-12-kamiony-vlna-2-3-disk-a-odpov.md
+ * §2.2) -> dnešný CZ názov, ktorý pozná resolveValue. Vetvy resolveValue sú doslovná kópia Reactu a nové mená sa do nich
+ * NEPRIDÁVAJÚ — preklad ide pred volaním (prelozNazov: syncToShoptet, upratTapacir, opc/kamionKarta.js ponukaTapaciru).
+ * Kľúč = nový názov malými písmenami, porovnanie PRESNÉ (všetkých 7 názvov obsahuje „čalounění“, „obsahuje“ by ich pomiešal).
+ */
+export const ALIAS_NAZVOV = {
+  "čalounění dveří": "čalounění",
+  "typ materiálu čalounění dveří": "materiál dveře",
+  "barva materiálu čalounění dveří": "barva dveře",
+  "barva lemování čalounění dveří": "lemování dveře",
+  "nášivky na čalounění dveří": "nášivka dveře",
+  "typ nášivky na čalounění dveří": "nášivka dveře druh",
+  "barva nášivek na čalounění dveří": "niť dveře",
+};
+
+/** Názov príplatku pre resolveValue: nový CZ názov zo zoznamu ALIAS_NAZVOV -> dnešný CZ názov, inak bez zmeny. */
+export function prelozNazov(meno) {
+  const k = String(meno == null ? "" : meno).normalize("NFC").trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(ALIAS_NAZVOV, k) ? ALIAS_NAZVOV[k] : meno;
+}
 
 const dokument = (d) => d || (typeof document !== "undefined" ? document : null);
 const menoSelectu = (s) => String(s.getAttribute("data-parameter-name") || "").trim();
@@ -208,7 +234,7 @@ export function upratTapacir(state, doc) {
     if (!s || s.required || !s.value) return;
     const realne = Array.prototype.filter.call(s.querySelectorAll("option"), (o) => o.getAttribute("value"));
     if (realne.length === 1) return;
-    if (resolveValue(menoSelectu(s), state) !== null) return;
+    if (resolveValue(prelozNazov(menoSelectu(s)), state) !== null) return;
     s.value = "";
     s.dispatchEvent(new d.defaultView.Event("change", { bubbles: true }));
     n++;
@@ -493,7 +519,8 @@ export function syncToShoptet(state) {
       return;
     }
 
-    const value = resolveValue(name, state);
+    // jediná odchýlka od Reactu: nový CZ názov čalounění dveří -> dnešný (ALIAS_NAZVOV), vetvy resolveValue sú bez zmeny
+    const value = resolveValue(prelozNazov(name), state);
     if (value === null) return;
     // hodnota, ktorú admin ešte nemá (napr. nová farba) -> „Vyberie sa v konfigurátore“, nech košík neodmietne povinný príplatok
     const option = findMatchingOption(sel, value) || najdiZastupnuMoznost(sel);

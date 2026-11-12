@@ -351,5 +351,51 @@ console.log("7) CZ kópie");
   over("CZ skrytá kópia: noindex + konfigurátor", robots(s.document) === "noindex, nofollow" && !!s.document.getElementById("lcd1v-kamion"), lcdChyby(s.chyby).join(" | "));
 }
 
+// ------------------------------------------------------------------ 8) všetky stránky kamiónov (vlny 1–3) SK aj CZ
+// Kniha Brain napady/2026-11-12-kamiony-vlna-2-3-disk-a-odpov.md §2.1–2.2: pre každú adresu predvyplnenie značky a modelu,
+// selecty a nápis „Predvyplnené pre …“ / „Předvyplněno pro …“. Produkty vlny 2–3 ešte neexistujú — test beží na fixture.
+console.log("8) Všetky stránky kamiónov SK aj CZ — predvyplnenie a nápis");
+{
+  const ST = await nacitajModul("assets/js/components/konfigurator1v/kamion/stranky.js");
+  const pevne = (proj) => Object.keys(ST.KAMION_STRANKY[proj]).filter((c) => ST.KAMION_STRANKY[proj][c].kamion);
+  over("20 stránok kamiónov na SK aj CZ, tie isté adresy", pevne(562035).length === 20 && pevne(581408).length === 20 &&
+    pevne(562035).slice().sort().join() === pevne(581408).slice().sort().join(), pevne(562035).length + " / " + pevne(581408).length);
+  // CSV plánu (mimo repa): ak je na disku, adresy, modely a názvy vĺn 2–3 sa musia zhodovať (vlna 1 má názvy z 11. 11.)
+  const CSV = "C:/Users/M/Desktop/kamiony/plan-2026-11-11/a3/plan-35-modelov.csv";
+  const { existsSync, readFileSync } = await import("node:fs");
+  if (existsSync(CSV)) {
+    const riadky = readFileSync(CSV, "utf8").replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
+    const hl = riadky[0].split(";");
+    const rozdel = (l) => { const o = []; let c = "", q = false; for (const ch of l) { if (ch === '"') { q = !q; continue; } if (ch === ";" && !q) { o.push(c); c = ""; continue; } c += ch; } o.push(c); return o; };
+    const zaz = riadky.slice(1).map((l) => { const v = rozdel(l); const o = {}; hl.forEach((k, i) => { o[k] = v[i]; }); return o; }).filter((r) => ["1", "2", "3"].includes(r.vlna));
+    const chyby = [];
+    for (const r of zaz) {
+      for (const [proj, pred] of [[562035, /^Autokoberce do kamiónu /], [581408, /^Autokoberce do kamionu /]]) {
+        const z = ST.KAMION_STRANKY[proj][r.slug];
+        if (!z || !z.kamion) { chyby.push(proj + " chýba " + r.slug); continue; }
+        if (z.kamion.znacka !== r.znacka + " (TIR)" || z.kamion.model !== r.model_tabulka) chyby.push(proj + " " + r.slug + " vozidlo " + z.kamion.znacka + " / " + z.kamion.model);
+        const naz = (proj === 562035 ? r.nazov_sk : r.nazov_cz).replace(pred, "");
+        if (r.vlna !== "1" && z.kamion.nazov !== naz) chyby.push(proj + " " + r.slug + " názov „" + z.kamion.nazov + "“ ≠ „" + naz + "“");
+      }
+    }
+    over("zhoda s a3/plan-35-modelov.csv (" + zaz.length + " riadkov vĺn 1–3: adresa, značka, model; názov pri vlne 2–3)", zaz.length === 20 && chyby.length === 0, chyby.join(" | "));
+  } else console.log("  (CSV plánu nie je na disku — zhoda s plánom preskočená)");
+  for (const [proj, web, cz] of [[562035, SK, false], [581408, CZ, true]]) {
+    let n = 0;
+    for (const cesta of pevne(proj)) {
+      const k = ST.KAMION_STRANKY[proj][cesta].kamion;
+      const s = await spustiStranku({ url: web + cesta, uprav: kopia({ id: 9700 + ++n, h1: "Autokoberce do kamiónu " + k.nazov, cz }), cakaj: 120 });
+      const d = s.document, ui = s.kamion && s.kamion.ui;
+      const zs = d.querySelector('#lcd1v-kamion select[data-p="znacka"]'), ms = d.querySelector('#lcd1v-kamion select[data-p="model"]');
+      const pv = d.querySelector('#lcd1v-kamion [data-krok="vozidlo"] .k-pevne');
+      const napis = cz ? "Předvyplněno pro " + k.nazov : "Predvyplnené pre " + k.nazov;
+      over((cz ? "CZ " : "SK ") + cesta + ": " + k.znacka + " / " + k.model + " predvyplnené, nápis „" + napis + "“",
+        !!ui && ui.S.znacka === k.znacka && ui.S.model === k.model && !!zs && zs.value === k.znacka && !!ms && ms.value === k.model &&
+        ui.U.otvoreny === "vozidlo" && !!pv && pv.textContent.indexOf(napis) > -1 && lcdChyby(s.chyby).length === 0 && !/^Autokoberce/i.test(k.nazov),
+        JSON.stringify({ S: ui && [ui.S.znacka, ui.S.model], sel: [zs && zs.value, ms && ms.value], napis: pv && pv.textContent.slice(0, 80), chyby: lcdChyby(s.chyby).slice(0, 2) }));
+    }
+  }
+}
+
 console.log(`\n${ok} OK, ${zle} ZLE`);
 process.exit(zle ? 1 : 0);

@@ -2,8 +2,10 @@
 // a všetky materiály s každou farbou. SK poznámka sa nemení. Hodnoty v stave konfigurátora ostávajú slovenské kľúče.
 // Referenčný export pre výrobu nie je v repe. S LCD_EXPORT_KAMION=<cesta k export-kamion-en.mjs> test overí, že CZ poznámka
 // dá rovnaký anglický výstup ako SK a že v ňom nie je „??“. Bez premennej sa táto časť preskočí.
+// Prepínač CZ_POZNAMKA_CALOUNENI (kniha 12. 11. 2026 §2.2): pri každej kombinácii zapnutý prepínač zmení v CZ poznámke len
+// 4 popisy (TAPACÍR DVEŘÍ, Nášivky / Typ nášivky / Barva nášivek na tapacír…) na „čalounění dveří“, SK ostáva rovnaká.
 import { pathToFileURL } from "node:url";
-import { buildTruckOrderSummary, mergeTruckOrderSummaryIntoNote } from "../assets/js/truck-konfigurator/order-summary.mjs";
+import { buildTruckOrderSummary, mergeTruckOrderSummaryIntoNote, nastavCzPoznamkuCalouneni, CZ_POZNAMKA_CALOUNENI } from "../assets/js/truck-konfigurator/order-summary.mjs";
 import { ZNACKY, MATERIALY } from "../assets/js/components/konfigurator1v/kamion/data.js";
 import { novyStav, naStavReactu } from "../assets/js/components/konfigurator1v/kamion/stav.js";
 
@@ -32,9 +34,28 @@ function stav(znacka, model, polia, material, farba) {
   return naStavReactu(S, ZNACKY);
 }
 
+const STARE_POPISY = ["TAPACÍR DVEŘÍ", "Nášivky na tapacír", "Typ nášivky na tapacír", "Barva nášivek na tapacíru"];
+const NOVE_POPISY = ["ČALOUNĚNÍ DVEŘÍ", "Nášivky na čalounění dveří", "Typ nášivky na čalounění dveří", "Barva nášivek na čalounění dveří"];
+const naNove = (r) => {
+  if (r === STARE_POPISY[0]) return NOVE_POPISY[0];
+  for (let k = 1; k < 4; k++) if (r.startsWith("- " + STARE_POPISY[k] + ": ")) return "- " + NOVE_POPISY[k] + r.slice(2 + STARE_POPISY[k].length);
+  return r;
+};
+let zmenenychPopisov = 0, sTapacirom = 0;
+
 function skontroluj(meno, s) {
   const cs = buildTruckOrderSummary(s, "cs");
   const sk = buildTruckOrderSummary(s, "sk");
+  nastavCzPoznamkuCalouneni(true);
+  let csZap, skZap;
+  try { csZap = buildTruckOrderSummary(s, "cs"); skZap = buildTruckOrderSummary(s, "sk"); } finally { nastavCzPoznamkuCalouneni(CZ_POZNAMKA_CALOUNENI); }
+  over(meno + ": prepínač zapnutý mení len 4 popisy CZ", csZap === cs.split("\n").map(naNove).join("\n"), csZap);
+  over(meno + ": prepínač zapnutý, SK bez zmeny", skZap === sk, skZap);
+  const zmeny = cs.split("\n").filter((r) => naNove(r) !== r).length;
+  // s tapacírom (len kamión TIR) a nášivkou na dverách sú v CZ poznámke práve 4 také popisy, dodávka bez tapacíru 0
+  over(meno + ": počet zmenených popisov", zmeny === (cs.includes("\nTAPACÍR DVEŘÍ\n") ? 4 : 0), String(zmeny));
+  zmenenychPopisov += zmeny;
+  if (zmeny) sTapacirom++;
   over(meno + ": CZ bez slovenčiny", !SLOVENSKE.test(cs), cs);
   if (s.selectedMaterial) over(meno + ": SK má pôvodný materiál", sk.includes(s.selectedMaterial), sk);
   Object.values(s.extras).forEach((v) => over(meno + ": SK má pôvodnú výbavu", sk.includes(v), sk));
@@ -66,6 +87,8 @@ for (const material of MATERIALY) {
 }
 
 over("počet vozidiel", vozidiel === 61, String(vozidiel));
+over("prepínač CZ_POZNAMKA_CALOUNENI je vypnutý", CZ_POZNAMKA_CALOUNENI === false);
+over("zapnutý prepínač zmenil popisy (4 na každú kombináciu s tapacírom)", sTapacirom > 0 && zmenenychPopisov === 4 * sTapacirom, zmenenychPopisov + " / " + sTapacirom);
 over("počet farieb", farieb === 50, String(farieb));
 console.log(`${ok} OK, ${zle} ZLE (${vozidiel} kombinácií vozidla a výbavy, ${farieb} farieb${exportKamionEN ? ", s exportom" : ", bez exportu"})`);
 if (zle) process.exit(1);

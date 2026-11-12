@@ -15,8 +15,8 @@
 //    by poslal konfigurátor (kamion/shoptet.js resolveValue). Cena z príplatkov stránky produktu (nič natvrdo). Po výmene
 //    sa do súhrnu doplní časť TAPACÍR DVERÍ v rovnakom tvare ako z konfigurátora (order-summary.mjs addSameDoorPanelsToSummary)
 //    — formát poznámky pre Jánov export sa nemení. Pri akejkoľvek neistote sa ponuka neukáže (fail-closed).
-import { parseTruckOrderSummary, addSameDoorPanelsToSummary, truckSummaryTexts } from "../truck-konfigurator/order-summary.mjs";
-import { SELECTY, normalizeOptionText, resolveValue } from "../components/konfigurator1v/kamion/shoptet.js";
+import { parseTruckOrderSummary, addSameDoorPanelsToSummary, truckSummaryTexts, klucPopisu } from "../truck-konfigurator/order-summary.mjs";
+import { SELECTY, normalizeOptionText, resolveValue, prelozNazov } from "../components/konfigurator1v/kamion/shoptet.js";
 import { jeTir, PRECIARKNUTE_EUR, PRECIARKNUTE_CZK } from "../components/konfigurator1v/kamion/data.js";
 import { cisty, hodnotyPriplatkov, ANO, ROVNAKE, KOBERCE, DVERE, skupinyNaZobrazenie } from "./kamionZobrazenie.js";
 import { lcdRozpisEl } from "../functions/kosikRozpis.js";
@@ -180,22 +180,18 @@ export function riadkyRozpisu(skupinyZdroj, jazyk, trh, sur) {
   const skupiny = skupinyNaZobrazenie(skupinyZdroj, jazyk, sur);
   const X = truckSummaryTexts(jazyk === "cs" ? "cs" : "sk");
   const T = texty(trh);
-  const L = X.labels;
   const out = [];
   skupiny.forEach(function (g) {
     if (DVERE.test(g.heading)) {
-      const h = function (label) { const x = g.items.find(function (i) { return i.label === label; }); return x ? x.value : ""; };
-      const rovnake = ROVNAKE(h(L.materialColor)) && ROVNAKE(h(L.edgingColor)) && h(L.doorPatches) !== X.yes;
+      // popis podľa kľúča (klucPopisu): súhrn môže mať CZ „Nášivky na tapacír“ aj „Nášivky na čalounění dveří“
+      // (order-summary.mjs CZ_POZNAMKA_CALOUNENI) — rozpis je rovnaký s oboma
+      const h = function (kluc) { const x = g.items.find(function (i) { return klucPopisu(i.label) === kluc; }); return x ? x.value : ""; };
+      const rovnake = ROVNAKE(h("materialColor")) && ROVNAKE(h("edgingColor")) && h("doorPatches") !== X.yes;
       if (rovnake) { out.push({ n: T.tapacir, h: T.akoKoberce }); return; }
-      const mena = {};
-      mena[L.materialColor] = T.tapMaterial;
-      mena[L.edgingColor] = T.tapLem;
-      mena[L.doorPatches] = T.tapNasivka;
-      mena[L.doorPatchType] = T.tapNasTyp;
-      mena[L.doorPatchColor] = T.tapNasNit;
+      const mena = { materialColor: T.tapMaterial, edgingColor: T.tapLem, doorPatches: T.tapNasivka, doorPatchType: T.tapNasTyp, doorPatchColor: T.tapNasNit };
       g.items.forEach(function (i) {
         const hod = ROVNAKE(i.value) ? i.value.split(" – ")[0] : i.value;
-        out.push({ n: mena[i.label] || i.label, h: hod });
+        out.push({ n: mena[klucPopisu(i.label)] || i.label, h: hod });
       });
       return;
     }
@@ -255,7 +251,7 @@ export function ponukaTapaciru(p, mapa) {
   for (const k of KLUCE_TAPACIRU) {
     const id = idParametra(mapa, k);
     if (!id) { if (k === "tapacir") return null; continue; }
-    const oid = najdiMoznost(mapa.params[id], resolveValue(mapa.params[id].n, STAV_TAPACIR));
+    const oid = najdiMoznost(mapa.params[id], resolveValue(prelozNazov(mapa.params[id].n), STAV_TAPACIR));
     if (!oid) return null;
     zmena[id] = oid;
   }
