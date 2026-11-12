@@ -183,6 +183,16 @@ export function povoleneMotivy(doc) {
   return out;
 }
 
+/** Zúži motívy na `povolene` (poradie `povolene`); nič nepridáva, takže prázdny prienik = prázdne pole (nikdy iné logo). */
+export function obmedzMotivy(motivy, povolene) {
+  const out = {};
+  ["boky", "stred", "dvere"].forEach((k) => {
+    const mam = (motivy && motivy[k]) || [];
+    out[k] = (povolene || []).filter((kod) => mam.indexOf(kod) > -1);
+  });
+  return out;
+}
+
 /** Súčet ceny podľa Shoptetu: základ + príplatky zvolených možností všetkých selectov príplatkov formulára. */
 export function sucetShoptetu(doc) {
   const d = dokument(doc);

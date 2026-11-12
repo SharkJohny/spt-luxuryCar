@@ -1,0 +1,188 @@
+{
+  "popis": "Odtlačky vstupov tools/build-kamiony-stranky.mjs (--check porovná s aktuálnymi). Nemeniť ručne.",
+  "dist": {
+    "p1v-kamiony-1.sk.html": "aa445e7a0830cf26",
+    "p1v-kamiony-2.sk.html": "910d76af9d7f90c0",
+    "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
+    "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
+  },
+  "stranky_json": "2fa847fc8da7d295",
+  "subory": {
+    "daf-xf105.sk.html": {
+      "znaky": 20365,
+      "sha": "eb8ebc8bb8312585"
+    },
+    "daf-xf105.cz.html": {
+      "znaky": 20301,
+      "sha": "c514a9c89cf2dce3"
+    },
+    "daf-xf106.sk.html": {
+      "znaky": 21835,
+      "sha": "bcccdc044698b244"
+    },
+    "daf-xf106.cz.html": {
+      "znaky": 21750,
+      "sha": "00b6c1aa76b7410d"
+    },
+    "daf-xf106-2013.sk.html": {
+      "znaky": 21318,
+      "sha": "0984aa732c5a069f"
+    },
+    "daf-xf106-2013.cz.html": {
+      "znaky": 21244,
+      "sha": "7235a52f05368fea"
+    },
+    "daf-xg.sk.html": {
+      "znaky": 21115,
+      "sha": "cd2cf373ffe3309a"
+    },
+    "daf-xg.cz.html": {
+      "znaky": 21033,
+      "sha": "9fda166480443c79"
+    },
+    "man-tgx.sk.html": {
+      "znaky": 21091,
+      "sha": "6792711b5e88c8ae"
+    },
+    "man-tgx.cz.html": {
+      "znaky": 21017,
+      "sha": "a471c6d75d4dcbf0"
+    },
+    "man-tgx-2007.sk.html": {
+      "znaky": 21393,
+      "sha": "77cf96ce8190b9e6"
+    },
+    "man-tgx-2007.cz.html": {
+      "znaky": 21332,
+      "sha": "9b5b93feb3f43f84"
+    },
+    "man-tgx-2018.sk.html": {
+      "znaky": 21502,
+      "sha": "2a41c642fd2fdbd9"
+    },
+    "man-tgx-2018.cz.html": {
+      "znaky": 21400,
+      "sha": "e51906a19a42db1d"
+    },
+    "mercedes-actros.sk.html": {
+      "znaky": 22504,
+      "sha": "12de55753cee204e"
+    },
+    "mercedes-actros.cz.html": {
+      "znaky": 22441,
+      "sha": "68142f115c2678d7"
+    },
+    "mercedes-actros-2003.sk.html": {
+      "znaky": 20947,
+      "sha": "26187899440cd53f"
+    },
+    "mercedes-actros-2003.cz.html": {
+      "znaky": 20885,
+      "sha": "46bef2f23fc7b857"
+    },
+    "mercedes-actros-f.sk.html": {
+      "znaky": 21064,
+      "sha": "7e3b2e9d0030af1f"
+    },
+    "mercedes-actros-f.cz.html": {
+      "znaky": 20985,
+      "sha": "e381bc15770cf732"
+    },
+    "mercedes-actros-solostar.sk.html": {
+      "znaky": 22884,
+      "sha": "fb11f79e0773f991"
+    },
+    "mercedes-actros-solostar.cz.html": {
+      "znaky": 22803,
+      "sha": "3ce7f2b5e725aca9"
+    },
+    "renault-t.sk.html": {
+      "znaky": 20732,
+      "sha": "af129b626c46e542"
+    },
+    "renault-t.cz.html": {
+      "znaky": 20657,
+      "sha": "675fefab0fd72bc0"
+    },
+    "renault-t-s-tunelom.sk.html": {
+      "znaky": 22566,
+      "sha": "2acd1cacacd8f1b7"
+    },
+    "renault-t-s-tunelom.cz.html": {
+      "znaky": 22491,
+      "sha": "869a7b6be7c451ea"
+    },
+    "scania-r.sk.html": {
+      "znaky": 20434,
+      "sha": "355d8c72d474fb24"
+    },
+    "scania-r.cz.html": {
+      "znaky": 20373,
+      "sha": "63b8fd1bb97d3a3f"
+    },
+    "scania-r-2004.sk.html": {
+      "znaky": 21462,
+      "sha": "dc9132214444d0df"
+    },
+    "scania-r-2004.cz.html": {
+      "znaky": 21404,
+      "sha": "fef8e65403fcedce"
+    },
+    "scania-r-2009.sk.html": {
+      "znaky": 21526,
+      "sha": "e9e083053221d2d0"
+    },
+    "scania-r-2009.cz.html": {
+      "znaky": 21469,
+      "sha": "5aebc7aa92169179"
+    },
+    "scania-r-2014.sk.html": {
+      "znaky": 21395,
+      "sha": "75a235ffbe95f957"
+    },
+    "scania-r-2014.cz.html": {
+      "znaky": 21339,
+      "sha": "e2223f7138c7381e"
+    },
+    "scania-s.sk.html": {
+      "znaky": 21137,
+      "sha": "a165737bb56c1caa"
+    },
+    "scania-s.cz.html": {
+      "znaky": 21078,
+      "sha": "e97bab760210f4ad"
+    },
+    "volvo-fh13.sk.html": {
+      "znaky": 20508,
+      "sha": "8b2b76883cc95ab5"
+    },
+    "volvo-fh13.cz.html": {
+      "znaky": 20440,
+      "sha": "dc11119a296f0109"
+    },
+    "volvo-fh4.sk.html": {
+      "znaky": 21908,
+      "sha": "734731ffc450014e"
+    },
+    "volvo-fh4.cz.html": {
+      "znaky": 21831,
+      "sha": "323eccdbb5db92c8"
+    },
+    "kategoria-autokoberce-do-kamionu.sk.html": {
+      "znaky": 18948,
+      "sha": "7253757a229278f6"
+    },
+    "paticka-kamiony.sk.html": {
+      "znaky": 1014,
+      "sha": "ca7e752e0581dcc1"
+    },
+    "kategoria-autokoberce-do-kamionu.cz.html": {
+      "znaky": 18949,
+      "sha": "93ca8742737598a6"
+    },
+    "paticka-kamiony.cz.html": {
+      "znaky": 1014,
+      "sha": "4b7fad44fad0a778"
+    }
+  }
+}

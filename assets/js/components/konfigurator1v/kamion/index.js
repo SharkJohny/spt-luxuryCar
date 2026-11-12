@@ -27,11 +27,11 @@
 import { mountTruckConfigurator } from "../../../truck-konfigurator/mount.js";
 import { persistTruckOrderSummary } from "../../../truck-konfigurator/order-summary.mjs";
 import { sTextamiPriplatkov } from "../../../truck-konfigurator/farby-nazvy.mjs";
-import { chybajuce, citajCeny, povoleneMotivy, syncToShoptet, upratTapacir, sucetShoptetu, povinneBezHodnoty, klikniKosik } from "./shoptet.js";
+import { chybajuce, citajCeny, povoleneMotivy, obmedzMotivy, syncToShoptet, upratTapacir, sucetShoptetu, povinneBezHodnoty, klikniKosik } from "./shoptet.js";
 import { naStavReactu, naStavCeny, predvyber, predvyberPevny, zapisPrenos, nacitajPrenos, obnovStav, inyKamion } from "./stav.js";
 import { TRUCK_PRODUCT_URLS } from "../../../truck-konfigurator/truck-brands.js";
 import { vypocitajCenu } from "./cena.js";
-import { ZNACKY, MATERIALY } from "./data.js";
+import { ZNACKY, MATERIALY, NASIVKY_VEREJNE } from "./data.js";
 import { TEXTY } from "./texty.js";
 import { vytvorUi } from "./ui.js";
 
@@ -56,10 +56,11 @@ export function init(ctx) {
   const vShoptete = Object.keys(ceny.priplatky.material).sort().join("|");
   const vKonfiguratore = MATERIALY.filter((m) => TEXTY.kroky.material.volby.some((v) => v.shoptet === m.nazov)).map((m) => m.nazov).sort().join("|");
   if (vShoptete !== vKonfiguratore) throw new Error("kamion: materiály v Shoptete (" + vShoptete + ") ≠ konfigurátor (" + vKonfiguratore + ")");
-  const motivy = povoleneMotivy(document);
-  const data = { ceny, vozidla: { znacky: ZNACKY } };
   // stránka kamióna s pevným modelom (KAMION_STRANKY) / prenesený výber na hlavnom produkte
   const pevny = (ctx && ctx.produkt && ctx.produkt.kamion) || null;
+  // verejná stránka kamióna ponúkne len H19 a H21 (bez log značiek); 640 / 2452 a skrytá kópia ostávajú podľa selectov
+  const motivy = pevny ? obmedzMotivy(povoleneMotivy(document), NASIVKY_VEREJNE) : povoleneMotivy(document);
+  const data = { ceny, vozidla: { znacky: ZNACKY } };
   const pv = pevny ? predvyberPevny(pevny) : null;
   const preneseny = pevny ? null : nacitajPrenos();
   const obnova = preneseny ? obnovStav(preneseny, { motivy }) : null;
