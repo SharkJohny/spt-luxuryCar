@@ -78,6 +78,19 @@ export const PRODUKTY_1V = {
     // Mercedes triedy V CZ: presná kópia SK 646 (Michal 8. 11. 2026), české texty a príplatky (vclass/data-cz.js, texty-cz.js),
     // rovnaká adresa; ID = functions/vclassProdukt.js VCLASS_CZ.pid. Zatiaľ v kategórii Test, vidí ho len prihlásený admin.
     2458: { typ: "vclass", vzor: null, url: "/autokoberce-mercedes-v-class/", obsah: "vclass" },
+    // Stránky áut CZ (Michal 12. 11. 2026: „oba weby majú byť úplne totožne rovnaké“): kópia CZ základného produktu s pevným
+    // autom a tou istou adresou ako SK (ako trieda V 2458). Kodiaq II = kópia 2418 Stripe, ostatné jednovrstvové = kópia 2403
+    // Diamond, BMW = kópia 2406 Elite Diamond (auto-produkt.js ide pri zmene auta na 2403 / 2406, dlaždice vzorov na
+    // 2415/2418 a 2409/2412). auto.znacka/model ako SK: CZ výber auta číta ten istý katalóg `cars` (main.js setupData.cars).
+    // Popis = admin-html/auto/p1v-<slug>-1.cz.html (tools/build-auta-cz.mjs). Kým produkt v CZ admine nie je, riadok je
+    // vypnutý: po vytvorení „CZ-NOVE-…“ nahradiť číslom produktu, odkomentovať a to isté číslo do CZ_AUTA v build-podla-auta.mjs.
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-skoda-kodiaq-ii": { typ: "jedno", vzor: "stripe", url: "/autokoberce-skoda-kodiaq-ii/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq II", nazov: "Škoda Kodiaq II" } },
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-audi-a6-c7": { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c7/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C7" } },
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-mercedes-gle-v167": { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE" } },
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-bmw-3-g20": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-bmw-5-g30": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-bmw-x7-g07": { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
+    // TODO ID CZ po vytvorení v admine: "CZ-NOVE-skoda-kodiaq-i": { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-kodiaq-i/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq", nazov: "Škoda Kodiaq I" } },
   },
 };
 
