@@ -34,7 +34,12 @@ const ZNACKY = [
   {
     kluc: "bmw", nazov: "BMW", logo: "znacky/bmw.svg", url: "/autokoberce-bmw/", pata: true,
     koho: "svojho BMW", kto: "BMW",
-    auta: [],
+    // stránky áut zverejnené 12. 11. 2026 (dvojvrstvové kópie 601), autá z hlavných fotiek Witamats (Michal 12. 11.)
+    auta: [
+      { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-3-g20-g21/", foto: "1v/auto/bmw-3-g20/bmw-3-g20-auto-w", w: 480, h: 204 },
+      { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 351, url: "/autokoberce-bmw-5-g30-g31/", foto: "1v/auto/bmw-5-g30/bmw-5-g30-auto-w", w: 480, h: 228 },
+      { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/bmw-x7-g07/bmw-x7-g07-auto-w", w: 480, h: 260 },
+    ],
   },
   {
     kluc: "volkswagen", nazov: "Volkswagen", logo: "znacky/volkswagen.svg", url: "/autokoberce-volkswagen/", pata: true,
@@ -46,6 +51,7 @@ const ZNACKY = [
     koho: "svojho Mercedesu",
     auta: [
       { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto", w: 480, h: 237 },
+      { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle/", foto: "1v/auto/mercedes-gle-v167/mercedes-gle-v167-auto-w", w: 480, h: 259 },
     ],
   },
   {
@@ -69,12 +75,8 @@ const PRIPRAVENE = { // eslint-disable-line no-unused-vars
     { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/audi-a6-c7/a6-c7-auto", w: 480, h: 237 },
   ],
   bmw: [
-    { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-3-g20/", foto: "1v/auto/bmw-3-g20/bmw-3-g20-auto", w: 480, h: 202 },
-    { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 351, url: "/autokoberce-bmw-5-g30/", foto: "1v/auto/bmw-5-g30/bmw-5-g30-auto", w: 480, h: 182 },
-    { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/bmw-x7-g07/x7-g07-auto", w: 480, h: 264 },
   ],
   "mercedes-benz": [
-    { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle-v167/", foto: "1v/auto/mercedes-gle-v167/gle-v167-auto", w: 480, h: 244 },
   ],
 };
 
