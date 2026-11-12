@@ -95,6 +95,10 @@ export const TEXTY_CS = {
     }
    },
    "jedina_moznost": "{hodnota} – pro tento model je jen tato možnost.",
+   "pevne": {
+    "nadpis": "Předvyplněno pro {0}",
+    "text": "Máte jiný kamion? Změňte značku nebo model a přeneseme Vás do konfigurátoru pro všechny kamiony i s tím, co jste už vybrali."
+   },
    "poznamka": "Šablony máme pro {kamiony} modelů kamionů a {dodavky} modelů dodávek.",
    "zhrnutie": "{znacka} {model} · {detaily}",
    "chyby": {
@@ -511,12 +515,104 @@ export const TEXTY_CS = {
     "label": "Motiv",
     "volby": [
      {
+      "kod": "H1",
+      "meno": "Scania – logo"
+     },
+     {
+      "kod": "H2",
+      "meno": "Scania – nápis"
+     },
+     {
+      "kod": "H3",
+      "meno": "Scania – V8"
+     },
+     {
+      "kod": "H4",
+      "meno": "Scania – orel"
+     },
+     {
+      "kod": "H5",
+      "meno": "Scania – Vabis"
+     },
+     {
+      "kod": "H6",
+      "meno": "DAF – nápis daf"
+     },
+     {
+      "kod": "H7",
+      "meno": "DAF – nápis"
+     },
+     {
+      "kod": "H8",
+      "meno": "DAF – logo"
+     },
+     {
+      "kod": "H9",
+      "meno": "Mercedes – Actros"
+     },
+     {
+      "kod": "H10",
+      "meno": "Mercedes – věnec"
+     },
+     {
+      "kod": "H11",
+      "meno": "Mercedes – logo"
+     },
+     {
+      "kod": "H12",
+      "meno": "MAN – lev"
+     },
+     {
+      "kod": "H15",
+      "meno": "MAN – TGX"
+     },
+     {
+      "kod": "H16",
+      "meno": "Volvo – viking"
+     },
+     {
+      "kod": "H17",
+      "meno": "Volvo – nápis"
+     },
+     {
+      "kod": "H18",
+      "meno": "Volvo – logo"
+     },
+     {
       "kod": "H19",
       "meno": "Kamion"
      },
      {
       "kod": "H21",
       "meno": "Trucker"
+     },
+     {
+      "kod": "H23",
+      "meno": "Scania – štít"
+     },
+     {
+      "kod": "H24",
+      "meno": "Renault – nápis"
+     },
+     {
+      "kod": "H25",
+      "meno": "Renault – logo"
+     },
+     {
+      "kod": "H26",
+      "meno": "Iveco – S-Way"
+     },
+     {
+      "kod": "N1",
+      "meno": "Ford – logo"
+     },
+     {
+      "kod": "N2",
+      "meno": "Iveco – nápis"
+     },
+     {
+      "kod": "N33",
+      "meno": "Renault – celé logo"
      }
     ]
    },

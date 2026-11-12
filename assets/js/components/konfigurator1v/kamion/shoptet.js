@@ -11,7 +11,11 @@ import { povoleneNasivkyVsade } from "../../../truck-konfigurator/pricing.js";
 import { PRECIARKNUTE_EUR, PRECIARKNUTE_CZK, NASIVKY_ZALOHA, MATERIALY } from "./data.js";
 
 /** Selecty príplatkov 640 / 2452 podľa data-parameter-name (SK aj CZ meno; ID sa medzi obchodmi líšia). Všetky sú nutné.
- *  CZ 2452 má krátke mená (Materiál, Barva, Lemování, Nášivky, Nášivka boky, Niť boky, … Niť dveře; overené 25. 10. 2026). */
+ *  Prvé meno = SK 640 (poradie kľúčov = poradie príplatkov SK 640 v admine). CZ 2452 má dnes krátke mená (Materiál, Barva,
+ *  Lemování, Nášivky, Nášivka boky, Niť boky, … Niť dveře; overené 25. 10. aj 11. 11. 2026) a v admine sa premenuje na české
+ *  mená zhodné so SK (Typ materiálu, Barva materiálu, Barva lemování, Rozložení nášivek, … Barva nášivek na tapacíru) —
+ *  kamiony/plan-2026-11-11/c21/POSTUP-ADMIN-CZ.md. Staré aj nové CZ mená tu musia ostať naraz (prechod bez výpadku); nové
+ *  meno pridávaj len také, ktoré pozná aj React resolveValue (konfigurator.jsx + .phone.jsx) — tools/test-kamion-cz-nazvy.mjs. */
 export const SELECTY = {
   material: ["Typ materiálu", "Typ materiálu koberečků", "Materiál"],
   farba: ["Farba materiálu", "Barva materiálu", "Barva"],

@@ -2,7 +2,7 @@
 // finalConfiguration (konfigurator.gen.jsx), ktorý berie syncToShoptet (shoptet.js) aj buildTruckOrderSummary
 // (order-summary.mjs). Adaptér je JEDINÝ nový kus medzi novým UI a košíkom (docs/kamiony-1v-plan.md §2.3).
 // Pri importe sa nič nespúšťa.
-import { LEMOVANIE, NITE, ZNACKY, PORADIE_POLI, jeTir } from "./data.js";
+import { LEMOVANIE, NITE, ZNACKY, MATERIALY, PORADIE_POLI, jeTir } from "./data.js";
 
 /** Nový prázdny stav (artefakt app.js ř. 11–17). */
 export function novyStav() {
@@ -127,4 +127,131 @@ export function predvyber(ulozisko, znacky) {
   } catch (e) {
     return null;
   }
+}
+
+// ------------------------------------------------------------------ stránky kamiónov s pevným modelom (kniha 11. 11. 2026 §2.1)
+
+/**
+ * Predvýber stránky kamióna s pevným modelom (kamion/stranky.js { znacka, model }): má prednosť pred sessionStorage
+ * truckBrand / truckModel. Model, ktorý v ponuke nie je (tabuľka sa zmenila), sa zahodí — predvyplní sa len značka.
+ * Uložená výbava (truckExtras) sa prevezme len pri tom istom modeli. Neznáma značka -> null (stránka ako hlavný produkt).
+ */
+export function predvyberPevny(pevny, ulozisko, znacky) {
+  try {
+    const z = pevny && najdiZnacku(pevny.znacka, znacky);
+    if (!z) return null;
+    const model = (pevny.model && z.modely.find((x) => x.nazov === pevny.model)) || null;
+    const polia = {};
+    if (model) {
+      Object.assign(polia, model.auto_vybrane);
+      const st = ulozisko || (typeof sessionStorage !== "undefined" ? sessionStorage : null);
+      let ulozene = {};
+      try {
+        if (st && st.getItem("truckBrand") === z.kluc && st.getItem("truckModel") === model.nazov) ulozene = JSON.parse(st.getItem("truckExtras") || "{}") || {};
+      } catch (e) { ulozene = {}; }
+      Object.keys(model.polia).forEach((p) => { if (model.polia[p].indexOf(ulozene[p]) > -1) polia[p] = ulozene[p]; });
+    }
+    return { znacka: z.kluc, typ: z.typ, model: model ? model.nazov : null, polia };
+  } catch (e) {
+    return null;
+  }
+}
+
+/** Kľúč prenosu výberu zo stránky kamióna na hlavný produkt (sessionStorage) a jeho platnosť. */
+export const PRENOS_KLUC = "lcd1vKamionPrenos";
+export const PRENOS_VERZIA = 1;
+export const PRENOS_MS = 10 * 60 * 1000;
+
+/** Serializovateľná kópia stavu S (bez odkazov na objekty UI). */
+export function serializujStav(S) {
+  const z = novyStav();
+  const out = {};
+  Object.keys(z).forEach((k) => { if (S && S[k] !== undefined) out[k] = S[k]; });
+  return JSON.parse(JSON.stringify(out));
+}
+
+/**
+ * Pred odchodom zo stránky kamióna na hlavný produkt: vozidlo do existujúcich kľúčov (truckBrand, truckModel, truckExtras —
+ * číta ich predvyber() aj starý React) a celý výber do lcd1vKamionPrenos = { v: 1, cas, S }. true = zapísané.
+ */
+export function zapisPrenos(S, ulozisko, teraz) {
+  try {
+    const st = ulozisko || sessionStorage;
+    if (S.znacka) st.setItem("truckBrand", S.znacka); else st.removeItem("truckBrand");
+    if (S.model) st.setItem("truckModel", S.model); else st.removeItem("truckModel");
+    st.setItem("truckExtras", JSON.stringify(S.polia || {}));
+    st.setItem(PRENOS_KLUC, JSON.stringify({ v: PRENOS_VERZIA, cas: teraz == null ? Date.now() : teraz, S: serializujStav(S) }));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/** Hlavný produkt pri init: prenesený výber (mladší než 10 minút, verzia 1) alebo null. Kľúč sa vždy zmaže. */
+export function nacitajPrenos(ulozisko, teraz) {
+  let st = null;
+  try { st = ulozisko || (typeof sessionStorage !== "undefined" ? sessionStorage : null); } catch (e) { st = null; }
+  if (!st) return null;
+  let x = null;
+  try { x = JSON.parse(st.getItem(PRENOS_KLUC) || "null"); } catch (e) { x = null; }
+  try { st.removeItem(PRENOS_KLUC); } catch (e) { /* nič */ }
+  const t = teraz == null ? Date.now() : teraz;
+  if (!x || typeof x !== "object" || x.v !== PRENOS_VERZIA || !x.S || typeof x.S !== "object") return null;
+  if (!(typeof x.cas === "number" && t - x.cas >= 0 && t - x.cas < PRENOS_MS)) return null;
+  return x.S;
+}
+
+/**
+ * Prenesený výber -> platný stav S (novyStav + to, čo na tejto stránke existuje). Neplatné časti sa zahodia ako
+ * predvyber(): neznáma značka / model / výbava, materiál, farba, lemovanie, motív, ktorý stránka neponúka (motivy =
+ * shoptet.js povoleneMotivy), niť; tapacír len pri kamióne „(TIR)“.
+ */
+export function obnovStav(x, o) {
+  const opt = o || {};
+  const S = novyStav();
+  if (!x || typeof x !== "object") return S;
+  const motivy = opt.motivy || {};
+  const vMotivoch = (miesto, kod) => (kod && (motivy[miesto] || []).indexOf(kod) > -1 ? kod : null);
+  const nitOk = (kod) => (kod && NITE.some((n) => n.kod === kod) ? kod : null);
+  const mat = (nazov) => MATERIALY.filter((m) => m.nazov === nazov)[0] || null;
+  const farbaOk = (nazov, kod) => { const m = mat(nazov); return m && kod && m.farby.some((f) => f.kod === kod) ? kod : null; };
+  const lemOk = (kod) => (kod && LEMOVANIE.some((l) => l.kod === kod) ? kod : null);
+  const bool = (v, pred) => (v === true || v === false ? v : pred);
+
+  if (x.typ === "kamion" || x.typ === "dodavka") S.typ = x.typ;
+  const z = x.znacka ? najdiZnacku(x.znacka, opt.znacky) : null;
+  if (z) {
+    S.znacka = z.kluc; S.typ = z.typ;
+    const m = x.model ? z.modely.find((y) => y.nazov === x.model) : null;
+    if (m) {
+      S.model = m.nazov;
+      S.polia = Object.assign({}, m.auto_vybrane);
+      const p0 = x.polia && typeof x.polia === "object" ? x.polia : {};
+      Object.keys(m.polia).forEach((p) => { if (m.polia[p].indexOf(p0[p]) > -1) S.polia[p] = p0[p]; });
+    }
+  }
+  if (mat(x.material)) { S.material = x.material; S.farba = farbaOk(x.material, x.farba); }
+  S.lem = lemOk(x.lem);
+  if (["nechcem", "boky", "stred", "boky+stred"].indexOf(x.nas) > -1) S.nas = x.nas;
+  const b = x.nasBoky || {}, s = x.nasStred || {};
+  S.nasBoky = { motiv: vMotivoch("boky", b.motiv), nit: nitOk(b.nit) };
+  S.nasStred = { motiv: vMotivoch("stred", s.motiv), nit: nitOk(s.nit) };
+  S.stredRovnaky = bool(x.stredRovnaky, true);
+  if (jeTir(S.znacka) && (x.tap === "ano" || x.tap === "nie")) {
+    S.tap = x.tap;
+    S.tapRovnaky = bool(x.tapRovnaky, true);
+    if (mat(x.tapMat)) { S.tapMat = x.tapMat; S.tapFarba = farbaOk(x.tapMat, x.tapFarba); }
+    S.tapLem = lemOk(x.tapLem);
+    S.tapNas = bool(x.tapNas, null);
+    S.tapNasRovnaka = bool(x.tapNasRovnaka, true);
+    S.tapNasMotiv = vMotivoch("dvere", x.tapNasMotiv);
+    S.tapNasNit = nitOk(x.tapNasNit);
+  }
+  return S;
+}
+
+/** Vozidlo stavu (typ, značka, model) sa líši od predvoľby stránky kamióna? (zmena = prenos na hlavný produkt) */
+export function inyKamion(S, pv) {
+  if (!S || !pv) return false;
+  return S.typ !== pv.typ || (S.znacka || null) !== (pv.znacka || null) || (S.model || null) !== (pv.model || null);
 }

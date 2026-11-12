@@ -16,11 +16,20 @@
 //      medzitým nezmenil (N3), persistTruckOrderSummary (poznámka objednávky ako React — až tesne pred klikom, N2) a klik
 //      na natívne tlačidlo; potom ~3 s „odosiela sa“ (tlačidlá vypnuté, N4), kým nepríde ShoptetCartUpdated.
 // zlozit(): všetko vlastné preč, hlavička a H1 späť, poslucháči preč, mountTruckConfigurator() -> zákazník dostane React.
+//
+// Kópie podľa adresy (kamion/stranky.js, kniha Brain napady/2026-11-11-kamiony-vsetky-ulohy.md §2.1):
+//   - skrytá kópia s logami (ctx.produkt.skryty): vzhľad aj H1 ako 640, motívy zo selectov (v admine zapnuté logá);
+//   - stránka kamióna s pevným modelom (ctx.produkt.kamion): značka + model predvyplnené (prednosť pred sessionStorage),
+//     H1 = názov produktu, riadok „Sedí do“ z Krátkeho popisu pod hodnotením, nápis pod výberom vozidla; zmena typu,
+//     značky alebo modelu -> prenos výberu (stav.js zapisPrenos) a hlavný produkt TRUCK_PRODUCT_URLS (z klávesnice až po
+//     opustení polí vozidla, ako auto-produkt.js);
+//   - hlavný produkt (640 / 2452 aj skrytá kópia): prenesený výber mladší než 10 minút sa obnoví (stav.js nacitajPrenos).
 import { mountTruckConfigurator } from "../../../truck-konfigurator/mount.js";
 import { persistTruckOrderSummary } from "../../../truck-konfigurator/order-summary.mjs";
 import { sTextamiPriplatkov } from "../../../truck-konfigurator/farby-nazvy.mjs";
 import { chybajuce, citajCeny, povoleneMotivy, syncToShoptet, upratTapacir, sucetShoptetu, povinneBezHodnoty, klikniKosik } from "./shoptet.js";
-import { naStavReactu, naStavCeny, predvyber } from "./stav.js";
+import { naStavReactu, naStavCeny, predvyber, predvyberPevny, zapisPrenos, nacitajPrenos, obnovStav, inyKamion } from "./stav.js";
+import { TRUCK_PRODUCT_URLS } from "../../../truck-konfigurator/truck-brands.js";
 import { vypocitajCenu } from "./cena.js";
 import { ZNACKY, MATERIALY } from "./data.js";
 import { TEXTY } from "./texty.js";
@@ -31,6 +40,10 @@ export const MENO = "kamion";
 const MOBIL = "(max-width: 991px)";
 /** CZ 2452 (luxurycardesign.cz): české texty a ceny v Kč; poznámka objednávky má CZ značky (order-summary.mjs). */
 const jazykStranky = () => (/\.cz$/i.test(location.hostname) ? "cs" : "sk");
+/** Zmena vozidla do tohto času po klávese na poli značky / modelu = zmena z klávesnice (ms), ako auto-produkt.js. */
+export const KLAVESNICA_MS = 600;
+/** Odchod z polí vozidla po zmene z klávesnice: kontrola o chvíľu (klik myšou na „Pokračujte“ dobehne), ako auto-produkt.js. */
+const ODCHOD_MS = 300;
 
 let aktivny = null; // { zrus } — jeden konfigurátor na stránke
 
@@ -45,6 +58,11 @@ export function init(ctx) {
   if (vShoptete !== vKonfiguratore) throw new Error("kamion: materiály v Shoptete (" + vShoptete + ") ≠ konfigurátor (" + vKonfiguratore + ")");
   const motivy = povoleneMotivy(document);
   const data = { ceny, vozidla: { znacky: ZNACKY } };
+  // stránka kamióna s pevným modelom (KAMION_STRANKY) / prenesený výber na hlavnom produkte
+  const pevny = (ctx && ctx.produkt && ctx.produkt.kamion) || null;
+  const pv = pevny ? predvyberPevny(pevny) : null;
+  const preneseny = pevny ? null : nacitajPrenos();
+  const obnova = preneseny ? obnovStav(preneseny, { motivy }) : null;
   const stlpec = document.querySelector(".col-xs-12.col-lg-6.p-info-wrapper") || document.querySelector(".p-info-wrapper");
   const hlavicka = document.querySelector(".p-detail-inner-header");
   const h1 = hlavicka && hlavicka.querySelector("h1");
@@ -56,8 +74,12 @@ export function init(ctx) {
     stlpecAktivny: stlpec.classList.contains("active"),
     truckTrieda: document.body.classList.contains("is-truck-konfigurator"),
   };
+  // riadok „Sedí do“ z Krátkeho popisu (stránky kamiónov, SEO; vzor a6a9510 pri autách): pod hodnotenie v hlavičke
+  const sediKp = stlpec.querySelector(":scope > .p-short-description");
+  const sedi = sediKp && sediKp.querySelector(".lcd-sedi") ? { el: sediKp, rodic: sediKp.parentNode, za: sediKp.nextSibling } : null;
   const spat = []; // kroky návratu (poslucháči, observery, časovače)
   let zruseny = false, casovac = 0, ui = null, api = null;
+  let pevnyZmena = null; // stránka kamióna: kontrola zmeny vozidla (sledujPevny)
 
   // ------------------------------------------------------------------ návrat (poistka) — funguje aj pri rozostavanom UI
   function zrus() {
@@ -70,6 +92,7 @@ export function init(ctx) {
       const za = povodne.hlavickaZa && povodne.hlavickaZa.parentNode === povodne.hlavickaRodic ? povodne.hlavickaZa : null;
       povodne.hlavickaRodic.insertBefore(hlavicka, za);
     }
+    if (sedi && sedi.rodic) sedi.rodic.insertBefore(sedi.el, sedi.za && sedi.za.parentNode === sedi.rodic ? sedi.za : null);
     if (h1) { h1.innerHTML = povodne.h1Html; h1.className = povodne.h1Trieda; }
     if (obal.parentNode) obal.parentNode.removeChild(obal);
     if (lista.parentNode) lista.parentNode.removeChild(lista);
@@ -109,7 +132,9 @@ export function init(ctx) {
   function naZmenu(S) {
     clearTimeout(casovac);
     if (ui) ui.odosiela(false);
-    return sync(S);
+    const stav = sync(S);
+    if (pevnyZmena) pevnyZmena(S);
+    return stav;
   }
   function doKosika(S) {
     const stav = sync(S);
@@ -133,7 +158,8 @@ export function init(ctx) {
   }
 
   try {
-    ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: predvyber(), naZmenu, doKosika, jazyk: jazykStranky(),
+    ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: pv || predvyber(), naZmenu, doKosika, jazyk: jazykStranky(),
+      obnov: obnova, pevne: pevny && pv ? { nazov: pevny.nazov || pv.znacka } : null, h1Produktu: !!pevny,
       priChybe: function (e) {
         console.error("[lcd-1v] kamion: chyba po štarte — návrat na React", e);
         if (!zruseny) ctx.zlozit();
@@ -141,6 +167,14 @@ export function init(ctx) {
     });
     spat.push(() => ui.zrus());
     sync(ui.S); // jediné možnosti „Vyberie sa v konfigurátore“ + „Nie nechcem …“ hneď (ako React pri mounte)
+    if (sedi) {
+      const hodn = root.querySelector(".k-hodn");
+      if (hodn && hodn.parentNode) hodn.parentNode.insertBefore(sedi.el, hodn.nextSibling);
+      else root.insertBefore(sedi.el, root.firstChild);
+      sedi.el.classList.add("k-sedi");
+      spat.push(() => sedi.el.classList.remove("k-sedi"));
+    }
+    if (pv) spat.push(sledujPevny(root, ui, pv, function () { return zruseny; }));
 
     // hodnotenie z Google (ako 1V cena.js); kým dáta neprídu, riadok je skrytý
     ctx.ked(function () {
@@ -212,6 +246,51 @@ export function init(ctx) {
     zrus();
     aktivny = null;
     throw e;
+  }
+
+  /**
+   * Stránka kamióna s pevným modelom: zmena typu, značky alebo modelu (myšou / prstom hneď, z klávesnice po opustení polí
+   * vozidla) -> výber do sessionStorage (zapisPrenos) a hlavný produkt. Vráti funkciu, ktorá poslucháčov odoberie.
+   */
+  function sledujPevny(koren, u, predvolba, jeZruseny) {
+    let odisiel = false, caka = false, klaves = 0;
+    const jePoleVozidla = (el) => !!(el && el.matches && el.matches('select[data-a="sel"][data-p="znacka"], select[data-a="sel"][data-p="model"]'));
+    function chod() {
+      if (odisiel || jeZruseny()) return;
+      caka = false;
+      if (!inyKamion(u.S, predvolba)) return;
+      odisiel = true;
+      zapisPrenos(u.S);
+      window.location.assign(TRUCK_PRODUCT_URLS[jazykStranky() === "cs" ? "cs" : "sk"]);
+    }
+    pevnyZmena = function (S) {
+      if (odisiel || !inyKamion(S, predvolba)) { caka = false; return; }
+      if (Date.now() - klaves <= KLAVESNICA_MS) { caka = true; return; } // šípky v zatvorenom zozname (Windows) menia hodnotu
+      chod();
+    };
+    const naKlaves = function (e) { if (jePoleVozidla(e.target)) klaves = Date.now(); };
+    const naOdchod = function (e) {
+      if (!caka || !jePoleVozidla(e.target) || jePoleVozidla(e.relatedTarget)) return;
+      setTimeout(function () {
+        if (!caka || odisiel || jePoleVozidla(document.activeElement)) return;
+        chod();
+      }, ODCHOD_MS);
+    };
+    // Späť z bfcache na stránku kamióna: vozidlo stránky znova (zákazník tu už zmenil vozidlo a odišiel)
+    const naPageshow = function (e) {
+      if (!e.persisted) return;
+      odisiel = false; caka = false;
+      setTimeout(function () { if (!jeZruseny() && inyKamion(u.S, predvolba)) u.nastavVozidlo(predvolba); }, 0);
+    };
+    koren.addEventListener("keydown", naKlaves, true);
+    koren.addEventListener("focusout", naOdchod, true);
+    window.addEventListener("pageshow", naPageshow);
+    return function () {
+      pevnyZmena = null;
+      koren.removeEventListener("keydown", naKlaves, true);
+      koren.removeEventListener("focusout", naOdchod, true);
+      window.removeEventListener("pageshow", naPageshow);
+    };
   }
 
   api = { ui, sync: () => sync(ui.S), zrus };

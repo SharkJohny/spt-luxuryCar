@@ -119,8 +119,12 @@ const LCD_POLOZKA = "tr, body.ordering-process .cart-items .cart-item";
 const lcdCz = () => /^cs/i.test(document.documentElement.lang || "") || /\.cz$/i.test(location.hostname);
 const lcdVrstva = (n) => (lcdCz() ? "Barva " : "Farba ") + n + ". vrstvy: ";
 /* príplatky „názov - hodnota, názov - hodnota“: deliť len na čiarke, za ktorou ide ďalší „názov - “ alebo „názov:“
-   (hodnota „prvý, druhý a tretí rad“ má čiarku vo vnútri) */
-const lcdDelPriplatky = (t) => String(t).split(/,\s*(?=[^,]*(?:\s[-–]\s|:))/);
+   (hodnota „prvý, druhý a tretí rad“ má čiarku vo vnútri). Shoptet oddeľuje názov spojovníkom „ - “; pomlčka „ – “ je
+   súčasť hodnoty („černý základ, červené proužky – 04“, „čierna, čierne šitie – 11“) — na nej sa nedelí (12. 11. 2026,
+   tools/test-kamion-cz-nazvy.mjs: záložný zoznam kamióna rozdelil lemovanie na dve odrážky). */
+const lcdDelPriplatky = (t) => String(t).split(/,\s*(?=[^,]*(?:\s-\s|:))/);
+/* zástupná hodnota informačného príplatku kamióna (údaj je len v poznámke objednávky): SK aj CZ */
+const lcdZastupnaKamion = /Vyberie sa v konfigurátore|Vybere se v konfigurátoru/i;
 
 /* Rozpis položky (Michal 9. 10. 2026: košík ako náhľad v hlavičke): farby vrstiev a príplatky po riadkoch
    (functions/kosikRozpis.js — rovnaké delenie ako panel košíka), auto zo sessionStorage navrch. Zoznam ide hneď ZA odkaz
@@ -269,7 +273,7 @@ export function changeDescription() {
         }
         // Placeholder hodnoty informačných parametrov trucku sú pre
         // zákazníka bezvýznamné — skry ich.
-        if (isTruckRow && /Vyberie sa v konfigurátore/i.test(item)) return;
+        if (isTruckRow && lcdZastupnaKamion.test(item)) return;
         newText += "<li>" + item + "</li>";
       });
       newText += "</ul>";
@@ -291,7 +295,7 @@ export function changeDescription() {
       // hodnota zo surcharge textu, ak by storage chýbala.
       let ssVehicle = null;
       try { ssVehicle = sessionStorage.getItem("truckVehicle"); } catch (e) { /* private mode */ }
-      if (truckVehicle && /Vyberie sa v konfigurátore/i.test(truckVehicle)) truckVehicle = null;
+      if (truckVehicle && lcdZastupnaKamion.test(truckVehicle)) truckVehicle = null;
       addLine("Vozidlo", ssVehicle || truckVehicle);
     } else {
       addLine("Značka", getBrand);

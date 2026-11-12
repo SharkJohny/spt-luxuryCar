@@ -7,6 +7,12 @@
 const ROVNAKE = [
   "/",
   "/autokoberce-do-kamionu/",
+  // stránky kamiónov pre Google, prvá vlna (kniha 11. 11. 2026 §2.3; konfigurator1v/kamion/stranky.js): rovnaký slug SK aj CZ.
+  // Naživo až po vytvorení OBOCH kópií v admine (dovtedy --zivy hlási 404). Skrytá kópia s logami tu nie je (noindex).
+  "/autokoberce-do-kamionu-man-tgx/",
+  "/autokoberce-do-kamionu-mercedes-actros/",
+  "/autokoberce-do-kamionu-scania-r/",
+  "/autokoberce-do-kamionu-volvo-fh4/",
   "/blog/",
   "/faq/",
   "/kontakty/",

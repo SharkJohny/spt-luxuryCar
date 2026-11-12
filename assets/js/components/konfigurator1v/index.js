@@ -39,6 +39,8 @@ import * as vclass from "./vclass/index.js";
 import * as vclassPresmerovanie from "./vclass-presmerovanie.js";
 // stránky áut (Michal 9. 11. 2026): pevné auto, zmena značky/modelu -> hlavný produkt toho istého vzoru
 import * as autoProdukt from "./auto-produkt.js";
+// kópie kamiónov podľa adresy (kniha 11. 11. 2026 §2.1): noindex skrytej kópie s logami, jej dlaždice v zoznamoch skryté
+import { kamionStranka, jeSkrytaKategoria, projektPodlaDomeny, nastavNoindex, skryOdkazyKopie } from "./kamion/stranky.js";
 
 /** Moduly podľa mena (TYPY[typ].moduly v produkty.js); meno, ktoré tu nie je, sa preskočí. */
 const MODULY = { kroky, farba2, rozlozenie, "kufor-boxy": kuforBoxy, "kufor-produkt": kuforProdukt, "boxy-produkt": boxyProdukt, "vzorky-produkt": vzorkyProdukt, cena, poznamka, "druha-vrstva": druhaVrstva, prenos, "komplet-ponuka": kompletPonuka, kamion, vclass, "vclass-presmerovanie": vclassPresmerovanie, "auto-produkt": autoProdukt };
@@ -106,6 +108,29 @@ function predstiahniObsah() {
   } catch (e) { /* nič: obsah sa stiahne ako doteraz v obsah.init */ }
 }
 predstiahniObsah();
+
+/**
+ * Skrytý konfigurátor kamiónov s logami (kniha 11. 11. 2026 §2.1, Michal: jeden odkaz pre overených zákazníkov): hneď pri
+ * spustení bundla — nezávisle od ?novy= a od toho, či sa konfigurátor postaví — <meta name="robots" content="noindex,
+ * nofollow"> (záloha k nastaveniam v admine) — aj na jej vlastnej podkategórii (stranky.js SKRYTE_KATEGORIE). Na ostatných
+ * stránkach sa dlaždice a položky menu odkazujúce na skrytú kópiu alebo jej podkategóriu skryjú (kategória, vyhľadávanie,
+ * menu). Nikdy nevyhodí chybu.
+ */
+export function oznacKopieKamionov(doc, loc) {
+  try {
+    const d = doc || document, l = loc || window.location;
+    let proj = null;
+    try { proj = getShoptetContext().projectId; } catch (e) { proj = null; }
+    const pr = proj || projektPodlaDomeny(l.hostname);
+    const s = kamionStranka(pr, l.pathname);
+    if ((s && s.skryty) || jeSkrytaKategoria(pr, l.pathname)) { nastavNoindex(d); return "noindex"; }
+    if (!s) skryOdkazyKopie(d);
+    return s ? "kopia" : "skryte-odkazy";
+  } catch (e) {
+    return null;
+  }
+}
+oznacKopieKamionov();
 // ---- koniec brány
 
 /** Volá main.js po postavení živého konfigurátora (initProduct … initConfiguratorEngine, initLivePrice). */

@@ -6,6 +6,8 @@
 // ostatné stránky webu ho nesťahujú. Stránka kamiónov ho začne sťahovať hneď pri spustení bundla (predpripravTruck),
 // paralelne s data.json; vykreslí sa po namontovaní ako predtým.
 import { nacitajCast } from "../functions/lcdCasti.js";
+// kópie kamiónov podľa adresy (skrytý konfigurátor s logami, stránky kamiónov; kniha 11. 11. 2026 §2.1) — poistka React aj na nich
+import { jeKamionCesta } from "../components/konfigurator1v/kamion/stranky.js";
 
 /** Na produktovej stránke kamiónov (bez nového vzhľadu 1V) spustí sťahovanie React časti vopred; inde nerobí nič. */
 export function predpripravTruck(bude1v) {
@@ -90,6 +92,8 @@ export function isTruckConfiguratorPage() {
     // Michal 2026-09-01 premenoval produkt z "truck" na "kamiony" — H1 uz
     // slovo truck neobsahuje a konfigurator prestal nabiehat. Berieme oboje.
     if (/autokoberce-(truck|kamiony)(\/|$)/i.test(cesta)) return true;
+    // kópie 640 / 2452 (KAMION_STRANKY): skrytá s logami a stránky kamiónov — React sa namontuje aj tam, keď 1V zlyhá
+    if (jeKamionCesta(cesta)) return true;
     const h1 = document.querySelector("h1");
     const nadpis = h1 ? h1.textContent || "" : "";
     if (/\btruck\b/i.test(nadpis)) return true;

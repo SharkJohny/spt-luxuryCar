@@ -18,6 +18,8 @@ import * as boxy from "./typy/boxy.js";
 import * as vzorky from "./typy/vzorky.js";
 import * as kamion from "./typy/kamion.js";
 import { prelozTextyCz } from "./texty-cz.js";
+// kópie kamiónov podľa adresy (skrytý konfigurátor s logami, stránky kamiónov pre Google; kniha 11. 11. 2026 §2.1)
+import { kamionStranka } from "./kamion/stranky.js";
 
 /** SK = 562035, CZ = 581408. ID produktov sa medzi obchodmi líšia, nikdy ich nezamieňať. url = cesta na webe. */
 export const PRODUKTY_1V = {
@@ -128,11 +130,29 @@ export function zaznam(projectId, productId) {
 }
 
 /**
+ * Kópia kamiónov podľa adresy (kamion/stranky.js KAMION_STRANKY): záznam ako 640 / 2452 (typ kamion, obsah kamiony,
+ * url = cesta) rozšírený o skryty / kamion, alebo null. ID = productId stránky (kópia ho dostane v admine).
+ */
+export function zaznamKopie(projectId, productId, pathname) {
+  const s = kamionStranka(projectId, pathname);
+  if (!s) return null;
+  const id = Number(productId);
+  return Object.assign({ id: id > 0 ? id : null, typ: "kamion", vzor: null, url: String(pathname).split("?")[0].split("#")[0], obsah: "kamiony" }, s);
+}
+
+/** Cesta stránky pre rozpoznanie kópie (kontext.pathname v testoch, inak location.pathname). */
+function cestaStranky(kontext) {
+  if (kontext && typeof kontext.pathname === "string") return kontext.pathname;
+  try { return typeof location !== "undefined" ? location.pathname : ""; } catch (e) { return ""; }
+}
+
+/**
  * Produkt pre ctx: { id, typ, vzor, url, obsah, kroky, moduly, obal, texty, obrazky } alebo null (nie je v registri).
  * texty a obrazky = zlúčené jedno + typ (typy/<typ>.js), kroky/moduly/obal z TYPY.
+ * Produkt mimo registra: kópia kamiónov podľa adresy (zaznamKopie) — skrytá kópia s logami a stránky kamiónov.
  */
 export function produkt1v(kontext) {
-  const z = kontext ? zaznam(kontext.projectId, kontext.productId) : null;
+  const z = kontext ? zaznam(kontext.projectId, kontext.productId) || zaznamKopie(kontext.projectId, kontext.productId, cestaStranky(kontext)) : null;
   const t = z && TYPY[z.typ];
   if (!t) return null;
   const zdroj = TYPY_ZDROJ[z.typ] || {};

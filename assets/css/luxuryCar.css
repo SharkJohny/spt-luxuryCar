@@ -22679,6 +22679,23 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-select:focus-visible { bor
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-rkarta__vol { border-color: var(--k-gold-lo); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-hodn__st { color: var(--k-gold-lo); }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-segment > button.is-on { box-shadow: inset 0 0 0 2px var(--k-gold-lo), 0 4px 12px rgba(140, 105, 25, .28); }
+
+/* Stránky kamiónov s pevným modelom (kamion/stranky.js, kniha 11. 11. 2026 §2.1): „Predvyplnené pre Scania R“ pod výberom
+   vozidla ako stránky áut (_lcd1v-kroky.scss .lcd1v-auto-pevne): zelený pás vľavo = vybrané za zákazníka. */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pevne { margin: 16px 0 0; padding: 12px 16px 14px; border: 1px solid var(--k-krem-ram); border-left: 4px solid var(--k-zelena); border-radius: 12px; background: #f4faf6; font-family: var(--k-body); text-align: left; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pevne__t { margin: 0; padding: 0; color: var(--k-ink); font: 700 16px/1.4 var(--k-body); }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-pevne__r { margin: 4px 0 0; padding: 0; color: var(--k-text); font: 400 15px/1.5 var(--k-body); }
+/* riadok „Sedí do“ z Krátkeho popisu (p.lcd-sedi, štýl _lcd1v-cena.scss) presunutý pod hodnotenie v hlavičke kamióna */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .p-short-description.k-sedi { display: block !important; margin: 14px 0 0; padding: 0; font-size: inherit; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sedi > :not(.lcd-sedi) { display: none !important; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-sedi p.lcd-sedi { font-size: 16px; color: var(--k-text); }
+/* mriežka motívov s logami značiek (skrytá kópia, 20+ dlaždíc): na telefóne 3 v rade, inak 4; názov na 2 riadky bez delenia slov */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdice--motiv .k-dlazdica__nm { overflow-wrap: normal; word-break: normal; hyphens: none; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--vela .k-dlazdica__nm { padding-left: 3px; padding-right: 3px; letter-spacing: .02em; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-dlazdica__nm .k-nz { white-space: nowrap; }
+@media (max-width: 480px) {
+  body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .kn-karta .k-dlazdice--motiv.k-dlazdice--vela { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+}
 /* ===== LCD-1V-KAMIONY END ===== */
 
 /* ===== LCD-1V-OBSAH-DVOJ START - generovane tools/vloz-lcd-css.py z _lcd1v-obsah-dvoj.scss (obsah 1V dvojvrstvove 601/604/607; len body.lcd-1v), needituj rucne ===== */

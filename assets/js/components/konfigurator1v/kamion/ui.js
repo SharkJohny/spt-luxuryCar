@@ -29,10 +29,16 @@ const roky = (s) => String(s).replace(/(\d{4})-(\d{4})/g, "$1–$2");
 const fill = (t, o) => String(t).replace(/\{(\w+)\}/g, (m, k) => (o[k] != null ? o[k] : m));
 const mala = (s) => { s = String(s); return s.length > 1 && s[1] === s[1].toLowerCase() ? s[0].toLowerCase() + s.slice(1) : s; };
 const tvar = (n, slova) => (n === 1 ? slova[0] : n >= 2 && n <= 4 ? slova[1] : slova[2]);
+/** Názov motívu v dlaždici: slovo so spojovníkom („S-Way“) sa nezalomí za spojovníkom (k-nz = white-space: nowrap). */
+const nedelitelne = (s) => esc(s).replace(/(\S+-\S+)/g, '<span class="k-nz">$1</span>');
 
 /**
  * @param {{ root: HTMLElement, hlavicka: HTMLElement|null, lista: HTMLElement, ceny: object, motivy: {boky:string[],stred:string[],dvere:string[]},
- *   predvyber?: object|null, naZmenu: (S) => void, doKosika: (S) => boolean, priChybe?: (e) => void, okno?: Window }} o
+ *   predvyber?: object|null, naZmenu: (S) => void, doKosika: (S) => boolean, priChybe?: (e) => void, okno?: Window,
+ *   obnov?: object|null, pevne?: { nazov: string }|null, h1Produktu?: boolean }} o
+ *   obnov      = celý výber prenesený zo stránky kamióna (stav.js obnovStav, už overený) — kroky, ktoré sú hotové, sa zatvoria;
+ *   pevne      = stránka kamióna s pevným modelom: pod výberom vozidla nápis „Predvyplnené pre {nazov}“ (kniha 11. 11. 2026);
+ *   h1Produktu = H1 ostáva názov produktu z adminu (stránka kamióna pre Google), neprepíše sa textom artefaktu.
  */
 export function vytvorUi(o) {
   const cs = o.jazyk === "cs";
@@ -56,6 +62,7 @@ export function vytvorUi(o) {
     S.model = o.predvyber.model;
     S.polia = Object.assign({}, o.predvyber.polia || {});
   }
+  if (o.obnov) Object.assign(S, o.obnov); // prenesený výber zo stránky kamióna (stav.js obnovStav)
   const $ = (sel) => root.querySelector(sel);
 
   // ------------------------------------------------------------------ prístup k dátam (artefakt ř. 38–130)
@@ -225,7 +232,8 @@ export function vytvorUi(o) {
     hodn.addEventListener("click", naHodnotenie);
     if (h1) {
       h1.classList.add("k-h1");
-      h1.innerHTML = esc(h.h1[0]) + " <em>" + esc(h.h1[1]) + "</em>";
+      // stránka kamióna (o.h1Produktu): H1 = jedinečný názov produktu pre Google, text artefaktu ho neprepíše
+      if (!o.h1Produktu) h1.innerHTML = esc(h.h1[0]) + " <em>" + esc(h.h1[1]) + "</em>";
       hl.insertBefore(typ, h1);
       h1.parentNode.insertBefore(hodn, h1.nextSibling);
       root.appendChild(hl);
@@ -415,6 +423,10 @@ export function vytvorUi(o) {
       });
     }
     html += "</div></div>";
+    // stránka kamióna s pevným modelom: nápis pod výberom vozidla (zmena -> prenos na hlavný konfigurátor, kamion/index.js)
+    if (o.pevne && t.pevne) {
+      html += '<div class="k-pevne"><p class="k-pevne__t">' + esc(fill(t.pevne.nadpis, { 0: o.pevne.nazov })) + '</p><p class="k-pevne__r">' + esc(t.pevne.text) + "</p></div>";
+    }
     html += koniecKroku("vozidlo", posledny);
     const nie = esc(T.hlavicka.kompatibilita.nie_je_v_zozname)
       .replace("+421 903 660 720", '<a href="tel:+421903660720">+421 903 660 720</a>')
@@ -584,10 +596,11 @@ export function vytvorUi(o) {
 
   function dlazdiceMotivov(miesto, vybraty, prefix) {
     const zoz = motivy(miesto);
-    return '<div class="k-dlazdice k-dlazdice--motiv" style="--k-dl-n:' + Math.max(1, Math.min(4, zoz.length)) + '" role="group" aria-label="' + attr(U0.motiv_aria) + '">' + zoz.map((m) => {
+    // 5 a viac motívov (skrytá kópia s logami značiek): na telefóne 3 v rade (k-dlazdice--vela, _lcd1v-kamiony.scss)
+    return '<div class="k-dlazdice k-dlazdice--motiv' + (zoz.length > 4 ? " k-dlazdice--vela" : "") + '" style="--k-dl-n:' + Math.max(1, Math.min(4, zoz.length)) + '" role="group" aria-label="' + attr(U0.motiv_aria) + '">' + zoz.map((m) => {
       const on = vybraty === m.kod;
       return '<button type="button" class="k-dlazdica' + (on ? " is-on" : "") + '" data-a="motiv" data-m="' + prefix + '" data-v="' + m.kod + '" data-f="mot:' + prefix + m.kod + '" aria-pressed="' + on + '">' +
-        '<img class="k-dlazdica__img" src="' + attr(m.full) + '" alt="' + attr(fill(U0.motiv_alt, { x: m.meno })) + '" loading="lazy"><span class="k-dlazdica__nm">' + esc(m.meno) + "<small>" + m.kod + "</small></span></button>";
+        '<img class="k-dlazdica__img" src="' + attr(m.full) + '" alt="' + attr(fill(U0.motiv_alt, { x: m.meno })) + '" loading="lazy"><span class="k-dlazdica__nm">' + nedelitelne(m.meno) + "<small>" + m.kod + "</small></span></button>";
     }).join("") + "</div>";
   }
   /** Farby nite (3B, Michal 22. 10. 2026): paleta všetkých 11 farieb, 4 v rade — krúžok vo farbe nite, pod ním meno a kód
@@ -1489,6 +1502,32 @@ export function vytvorUi(o) {
     renderLista();
   }
 
+  /** Prenesený výber (o.obnov): podotázky krokov 5 a 6, ktoré má výber vyplnené, sú zodpovedané; otvorí sa prvý nehotový krok. */
+  function obnovOtazky() {
+    const bokyOk = !!(S.nasBoky.motiv && S.nasBoky.nit), stredOk = !!(S.nasStred.motiv && S.nasStred.nit);
+    U.n5 = {
+      boky: bokyOk,
+      stredOdp: S.nas === "boky+stred" && bokyOk,
+      stred: stredOk && (S.nas === "stred" || (S.nas === "boky+stred" && !S.stredRovnaky)),
+    };
+    if (S.tap === "ano") {
+      U.n6 = {
+        matOdp: true,
+        mat: !S.tapRovnaky && !!(S.tapMat && S.tapFarba && farba(S.tapMat, S.tapFarba) && S.tapLem),
+        nasOdp: S.tapNas === true && !!koberecNas(),
+        nas: S.tapNas === true && !!(S.tapNasMotiv && S.tapNasNit),
+      };
+    }
+    U.otvoreny = kroky().filter((k) => !hotovy(k))[0] || null;
+  }
+  if (o.obnov) obnovOtazky();
+
+  /** Vozidlo späť na predvoľbu stránky (návrat Späť z bfcache na stránku kamióna s pevným modelom). */
+  function nastavVozidlo(v) {
+    if (!v) return;
+    zmena(() => { S.typ = v.typ || S.typ; S.znacka = v.znacka || null; S.model = v.model || null; S.polia = Object.assign({}, v.polia || {}); });
+  }
+
   const hodn = renderHlavicka();
   render();
   return {
@@ -1496,6 +1535,7 @@ export function vytvorUi(o) {
     U,
     render,
     otvorKrok,
+    nastavVozidlo,
     kosik,
     odosiela,
     hotovo: vsetkoHotove,
