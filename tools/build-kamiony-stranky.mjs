@@ -116,6 +116,9 @@ const hotove = slugy.filter((s) => !cakajuce.includes(s));
 // iný obsah), zvýš verziu slugu – odkazy dostanú ?v=N a CDN aj prehliadač stiahnu nový obrázok.
 // 13. 11. 2026: DAF XF105 +2 celé sety, DAF XF106 2013 +1 celý set (Codex, foto/davka6-daf.csv).
 const VERZIA_GALERIE = { "daf-xf105": 2, "daf-xf106-2013": 2 };
+// Zmena LEN okna jednej fotky (iný výrez veľkej fotky, štvorec -m.jpg rovnaký): pole fotky "oknoVerzia": N v stranky.json
+// (a3/web/skripty/orezy.json "galeria_verzia") -> data-p1v-lb-foto = …-galeria-NN-vN.jpg, nový súbor s novým menom.
+// Pôvodný …-galeria-NN.jpg v repe ostáva (staré adresy). 13. 11. 2026 večer: 6 fotiek, kde orez štvorca schováva neporiadok.
 
 /** Sekcia galérie stránky z galérie 640 / 2452: nadpis, úvod, fotky; nadpis sekcie (eyebrow) a tlačidlo ostávajú. */
 function galeria(distSek, s, slug) {
@@ -125,7 +128,9 @@ function galeria(distSek, s, slug) {
   const fotky = s.fotky.map((f) => {
     // meno súboru = adresa stránky (kamión: autokoberce-do-kamionu-<slug>-…, dodávka: autokoberce-do-dodavky-<slug>-…) alebo "fotkyMeno"
     const zaklad = CDN + slug + "/" + (s.fotkyMeno || s.url.replace(/^\/|\/$/g, "")) + "-galeria-" + f.n;
-    return '<figure class="kg-k"><button type="button" class="kg-f" data-p1v-lb-foto="' + zaklad + ".jpg" + v + '" data-p1v-lb-sada="kamiony-' + slug + '"><img src="' + zaklad + "-m.jpg" + v + '" alt="' + esc(f.alt) + '" loading="lazy" width="800" height="800"><span class="sr-only">' + zv + esc(f.popis) + "</span></button><figcaption>" + esc(f.popis) + "</figcaption></figure>";
+    // okno galérie s novým výrezom (stranky.json "oknoVerzia", 13. 11. 2026 večer) = nové meno …-galeria-NN-vN.jpg, -m.jpg ostáva
+    const okno = zaklad + (f.oknoVerzia ? "-v" + f.oknoVerzia : "") + ".jpg";
+    return '<figure class="kg-k"><button type="button" class="kg-f" data-p1v-lb-foto="' + okno + v + '" data-p1v-lb-sada="kamiony-' + slug + '"><img src="' + zaklad + "-m.jpg" + v + '" alt="' + esc(f.alt) + '" loading="lazy" width="800" height="800"><span class="sr-only">' + zv + esc(f.popis) + "</span></button><figcaption>" + esc(f.popis) + "</figcaption></figure>";
   });
   let n = 0;
   const out = distSek
@@ -415,6 +420,10 @@ for (const m of popisov) {
     const alt = (f.match(/ alt="([^"]*)"/) || [])[1];
     if (alt !== esc(s.fotky[i].alt)) chyba(m, "fotka " + (i + 1) + ": alt ≠ stranky.json");
     if (!f.includes('data-p1v-lb-sada="kamiony-' + slug + '"')) chyba(m, "fotka " + (i + 1) + ": sada okna");
+    const ov = s.fotky[i].oknoVerzia;
+    if (ov !== undefined && !(Number.isInteger(ov) && ov >= 2)) chyba(m, "fotka " + (i + 1) + ": oknoVerzia musí byť celé číslo ≥ 2: " + ov);
+    const lb = (f.match(/ data-p1v-lb-foto="([^"?]+)/) || [])[1] || "";
+    if (!lb.endsWith("-galeria-" + s.fotky[i].n + (ov ? "-v" + ov : "") + ".jpg")) chyba(m, "fotka " + (i + 1) + ": okno " + lb.slice(CDN.length) + " nesedí s oknoVerzia");
   });
   if (!g || !g.text.includes('<h2 class="rv">' + esc(s.popisNadpis) + "</h2>")) chyba(m, "galéria: nadpis ≠ popisNadpis");
   if (!g || !g.text.includes('<p class="lede rv">' + esc(s.popisUvod) + "</p>")) chyba(m, "galéria: úvod ≠ popisUvod");

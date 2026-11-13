@@ -128,6 +128,7 @@ export const CAKAJUCE = [
   "/autokoberce-do-kamionu-daf-xf/",
   "/autokoberce-do-kamionu-ford-f-max/",
   "/autokoberce-do-kamionu-iveco-stralis-hi-way/",
+  "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/",
   "/autokoberce-do-kamionu-volvo-fh5/",
   "/autokoberce-do-kamionu-volvo-fh5-aero/",
   "/autokoberce-do-dodavky-citroen-jumper-2006/",

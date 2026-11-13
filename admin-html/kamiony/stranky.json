@@ -819,7 +819,8 @@
             "n": "03",
             "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce v celej kabíne",
             "popis": "Béžové prešívané koberce v celej kabíne",
-            "typ": "kabina"
+            "typ": "kabina",
+            "oknoVerzia": 2
           },
           {
             "n": "04",
@@ -885,7 +886,8 @@
             "n": "03",
             "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce v celé kabině",
             "popis": "Béžové prošívané koberce v celé kabině",
-            "typ": "kabina"
+            "typ": "kabina",
+            "oknoVerzia": 2
           },
           {
             "n": "04",
@@ -983,7 +985,8 @@
             "n": "08",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros MP4/MP5/MP6 – sivé prešívané koberce pri dverách, fotka od zákazníka",
             "popis": "Sivé prešívané koberce pri dverách",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           }
         ]
       },
@@ -1055,7 +1058,8 @@
             "n": "08",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros MP4/MP5/MP6 – šedé prošívané koberce u dveří, fotka od zákazníka",
             "popis": "Šedé prošívané koberce u dveří",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           }
         ]
       }
@@ -1367,7 +1371,8 @@
             "n": "07",
             "alt": "Autokoberce do kamiónu Mercedes-Benz Actros Solostar – krémové prešívané koberce pri dverách, fotka od zákazníka",
             "popis": "Krémové prešívané koberce pri dverách",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           },
           {
             "n": "08",
@@ -1439,7 +1444,8 @@
             "n": "07",
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – krémové prošívané koberce u dveří, fotka od zákazníka",
             "popis": "Krémové prošívané koberce u dveří",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           },
           {
             "n": "08",
@@ -1507,7 +1513,8 @@
             "n": "06",
             "alt": "Autokoberce do kamiónu Renault T s rovnou podlahou – sivé prešívané koberce v celej kabíne",
             "popis": "Sivé prešívané koberce v celej kabíne",
-            "typ": "kabina"
+            "typ": "kabina",
+            "oknoVerzia": 2
           },
           {
             "n": "07",
@@ -1573,7 +1580,8 @@
             "n": "06",
             "alt": "Autokoberce do kamionu Renault T s rovnou podlahou – šedé prošívané koberce v celé kabině",
             "popis": "Šedé prošívané koberce v celé kabině",
-            "typ": "kabina"
+            "typ": "kabina",
+            "oknoVerzia": 2
           },
           {
             "n": "07",
@@ -1647,7 +1655,8 @@
             "n": "07",
             "alt": "Autokoberce do kamiónu Renault T s tunelom – čierne prešívané koberce pri tuneli a sedadle, fotka od zákazníka",
             "popis": "Čierne prešívané koberce pri tuneli a sedadle",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           }
         ]
       },
@@ -1713,7 +1722,8 @@
             "n": "07",
             "alt": "Autokoberce do kamionu Renault T s tunelem – černé prošívané koberce u tunelu a sedadla, fotka od zákazníka",
             "popis": "Černé prošívané koberce u tunelu a sedadla",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           }
         ]
       }
@@ -2427,7 +2437,8 @@
             "n": "05",
             "alt": "Autokoberce do kamiónu Volvo FH13 – čierne prešívané koberce pri sedadle",
             "popis": "Čierne prešívané koberce pri sedadle",
-            "typ": "kabina"
+            "typ": "kabina",
+            "oknoVerzia": 2
           },
           {
             "n": "06",
@@ -2487,7 +2498,8 @@
             "n": "05",
             "alt": "Autokoberce do kamionu Volvo FH13 – černé prošívané koberce u sedadla",
             "popis": "Černé prošívané koberce u sedadla",
-            "typ": "kabina"
+            "typ": "kabina",
+            "oknoVerzia": 2
           },
           {
             "n": "06",
@@ -2561,7 +2573,8 @@
             "n": "07",
             "alt": "Autokoberce do kamiónu Volvo FH4 – béžové prešívané koberce pri sedadle, fotka od zákazníka",
             "popis": "Béžové prešívané koberce pri sedadle",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           }
         ]
       },
@@ -2627,7 +2640,8 @@
             "n": "07",
             "alt": "Autokoberce do kamionu Volvo FH4 – béžové prošívané koberce u sedadla, fotka od zákazníka",
             "popis": "Béžové prošívané koberce u sedadla",
-            "typ": "zakaznik"
+            "typ": "zakaznik",
+            "oknoVerzia": 2
           }
         ]
       }

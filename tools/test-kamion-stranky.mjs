@@ -378,7 +378,7 @@ console.log("8) Všetky stránky kamiónov a dodávok SK aj CZ — predvyplnenie
   const ST = await nacitajModul("assets/js/components/konfigurator1v/kamion/stranky.js");
   const pevne = (proj) => Object.keys(ST.KAMION_STRANKY[proj]).filter((c) => ST.KAMION_STRANKY[proj][c].kamion);
   const jeDodavka = (c) => c.indexOf("/autokoberce-do-dodavky-") === 0;
-  over("31 stránok (25 kamiónov, 6 dodávok) na SK aj CZ, tie isté adresy", pevne(562035).length === 31 && pevne(581408).length === 31 &&
+  over("32 stránok (26 kamiónov, 6 dodávok) na SK aj CZ, tie isté adresy", pevne(562035).length === 32 && pevne(581408).length === 32 &&
     pevne(562035).filter(jeDodavka).length === 6 && pevne(562035).slice().sort().join() === pevne(581408).slice().sort().join(), pevne(562035).length + " / " + pevne(581408).length);
   over("SK aj CZ majú pri každej adrese ten istý kľúč značky a modelu (slovenský, aj Sprinter „zadný pohon“)", pevne(562035).every((c) => {
     const a = ST.KAMION_STRANKY[562035][c].kamion, b = ST.KAMION_STRANKY[581408][c].kamion;
@@ -403,7 +403,7 @@ console.log("8) Všetky stránky kamiónov a dodávok SK aj CZ — predvyplnenie
       }
     }
     over("zhoda s a3/plan-35-modelov.csv (" + zaz.length + " riadkov vĺn 1–3: adresa, značka, model; názov pri vlne 2–3)", zaz.length === 20 && chyby.length === 0, chyby.join(" | "));
-    // vlna 4 a 5 (13. 11. 2026): 11 z 15 riadkov plánu je v KAMION_STRANKY — adresa, značka s typom (TIR / dodávka) a model
+    // vlna 4 a 5 (13. 11. 2026): 12 z 15 riadkov plánu je v KAMION_STRANKY (večer + IVECO s obytnou kabínou) — adresa, značka s typom (TIR / dodávka) a model
     // znak po znaku; názov nápisu „Predvyplnené pre …“ je zo zadania (Sprinter bez „so zadným pohonom“), neporovnáva sa
     const vsetky = riadky.slice(1).map((l) => { const v = rozdel(l); const o = {}; hl.forEach((k, i) => { o[k] = v[i]; }); return o; });
     const nove = vsetky.filter((x) => ["4", "5"].includes(x.vlna) && ST.KAMION_STRANKY[562035][x.slug]);
@@ -414,7 +414,7 @@ console.log("8) Všetky stránky kamiónov a dodávok SK aj CZ — predvyplnenie
       if (z.kamion.znacka !== x.znacka + " (" + x.typ + ")" || z.kamion.model !== x.model_tabulka) chyby45.push(proj + " " + x.slug + " vozidlo " + z.kamion.znacka + " / " + z.kamion.model);
       if (jeDodavka(x.slug) !== (x.typ === "dodávka")) chyby45.push(proj + " " + x.slug + " typ " + x.typ);
     }
-    over("zhoda s plánom pri vlne 4 a 5 (" + nove.length + " riadkov: adresa, značka s typom, model)", nove.length === 11 && chyby45.length === 0, chyby45.join(" | "));
+    over("zhoda s plánom pri vlne 4 a 5 (" + nove.length + " riadkov: adresa, značka s typom, model)", nove.length === 12 && chyby45.length === 0, chyby45.join(" | "));
   } else console.log("  (CSV plánu nie je na disku — zhoda s plánom preskočená)");
   for (const [proj, web, cz] of [[562035, SK, false], [581408, CZ, true]]) {
     let n = 0;

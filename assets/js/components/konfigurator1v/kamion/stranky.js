@@ -45,13 +45,14 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-scania-r-2009/": { kamion: { znacka: "Scania (TIR)", model: "R 2009-2013", nazov: "Scania R 2009–2013" } },
     "/autokoberce-do-kamionu-scania-r-2014/": { kamion: { znacka: "Scania (TIR)", model: "R 2014-2016", nazov: "Scania R 2014–2016" } },
     "/autokoberce-do-kamionu-volvo-fh13/": { kamion: { znacka: "Volvo (TIR)", model: "FH (FH13) 2009-2013", nazov: "Volvo FH13" } },
-    // vlna 4 a 5 (13. 11. 2026, a3/plan-35-modelov.csv): 5 kamiónov a 6 dodávok. Značka a model znak po znaku z tabuľky
+    // vlna 4 a 5 (13. 11. 2026, a3/plan-35-modelov.csv): 6 kamiónov (večer + IVECO s obytnou kabínou) a 6 dodávok. Značka a model znak po znaku z tabuľky
     // (data.json settings.kamiony; kľúč značky = „<Značka> (<Typ>)“, kamion/tabulka.js). Produkty zatiaľ neexistujú — kým adresa
     // v Shoptete nie je, záznam sa nikdy nepoužije. Dodávky majú adresu /autokoberce-do-dodavky-…/ (bez „kamion“): košík
     // a objednávka ich spoznajú podľa functions/kamionPolozka.js (kód so slovom TRUCK, adresa, názov „Autokoberce do dodávky“).
     "/autokoberce-do-kamionu-daf-xf/": { kamion: { znacka: "DAF (TIR)", model: "XF 2021-2026", nazov: "DAF XF" } },
     "/autokoberce-do-kamionu-ford-f-max/": { kamion: { znacka: "Ford (TIR)", model: "F-MAX 2018-2026", nazov: "Ford F-MAX" } },
     "/autokoberce-do-kamionu-iveco-stralis-hi-way/": { kamion: { znacka: "IVECO (TIR)", model: "Stralis Hi-Way 2011-2019", nazov: "IVECO Stralis Hi-Way" } },
+    "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/": { kamion: { znacka: "IVECO (TIR)", model: "Stralis Hi-Way 2011-2019 – obytná kabína", nazov: "IVECO Stralis Hi-Way s obytnou kabínou" } },
     "/autokoberce-do-kamionu-volvo-fh5/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 2022-2026", nazov: "Volvo FH5" } },
     "/autokoberce-do-kamionu-volvo-fh5-aero/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 Aero 2025-2026", nazov: "Volvo FH5 Aero" } },
     "/autokoberce-do-dodavky-citroen-jumper-2006/": { kamion: { znacka: "Citroën (dodávka)", model: "Jumper 2006-2014", nazov: "Citroën Jumper 2006–2014" } },
@@ -85,7 +86,7 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-scania-r-2009/": { kamion: { znacka: "Scania (TIR)", model: "R 2009-2013", nazov: "Scania R 2009–2013" } },
     "/autokoberce-do-kamionu-scania-r-2014/": { kamion: { znacka: "Scania (TIR)", model: "R 2014-2016", nazov: "Scania R 2014–2016" } },
     "/autokoberce-do-kamionu-volvo-fh13/": { kamion: { znacka: "Volvo (TIR)", model: "FH (FH13) 2009-2013", nazov: "Volvo FH13" } },
-    // vlna 4 a 5 (13. 11. 2026, a3/plan-35-modelov.csv): 5 kamiónov a 6 dodávok. Značka a model znak po znaku z tabuľky
+    // vlna 4 a 5 (13. 11. 2026, a3/plan-35-modelov.csv): 6 kamiónov (večer + IVECO s obytnou kabínou) a 6 dodávok. Značka a model znak po znaku z tabuľky
     // (data.json settings.kamiony; kľúč značky = „<Značka> (<Typ>)“, kamion/tabulka.js). Produkty zatiaľ neexistujú — kým adresa
     // v Shoptete nie je, záznam sa nikdy nepoužije. Dodávky majú adresu /autokoberce-do-dodavky-…/ (bez „kamion“): košík
     // a objednávka ich spoznajú podľa functions/kamionPolozka.js (kód so slovom TRUCK, adresa, názov „Autokoberce do dodávky“).
@@ -93,6 +94,7 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-daf-xf/": { kamion: { znacka: "DAF (TIR)", model: "XF 2021-2026", nazov: "DAF XF" } },
     "/autokoberce-do-kamionu-ford-f-max/": { kamion: { znacka: "Ford (TIR)", model: "F-MAX 2018-2026", nazov: "Ford F-MAX" } },
     "/autokoberce-do-kamionu-iveco-stralis-hi-way/": { kamion: { znacka: "IVECO (TIR)", model: "Stralis Hi-Way 2011-2019", nazov: "IVECO Stralis Hi-Way" } },
+    "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/": { kamion: { znacka: "IVECO (TIR)", model: "Stralis Hi-Way 2011-2019 – obytná kabína", nazov: "IVECO Stralis Hi-Way s obytnou kabinou" } },
     "/autokoberce-do-kamionu-volvo-fh5/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 2022-2026", nazov: "Volvo FH5" } },
     "/autokoberce-do-kamionu-volvo-fh5-aero/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 Aero 2025-2026", nazov: "Volvo FH5 Aero" } },
     "/autokoberce-do-dodavky-citroen-jumper-2006/": { kamion: { znacka: "Citroën (dodávka)", model: "Jumper 2006-2014", nazov: "Citroën Jumper 2006–2014" } },

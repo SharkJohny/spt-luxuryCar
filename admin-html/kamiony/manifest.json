@@ -6,7 +6,7 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "0f0c8ca6618c8e4d",
+  "stranky_json": "862f8d2c4fe1f1bd",
   "subory": {
     "daf-xf105.sk.html": {
       "znaky": 21144,
@@ -57,20 +57,20 @@
       "sha": "9b5b93feb3f43f84"
     },
     "man-tgx-2018.sk.html": {
-      "znaky": 21544,
-      "sha": "e0917f7c271baad6"
+      "znaky": 21547,
+      "sha": "a1f86b5b13c48dc1"
     },
     "man-tgx-2018.cz.html": {
-      "znaky": 21456,
-      "sha": "2f4920aa8bab86c0"
+      "znaky": 21459,
+      "sha": "bda09c91375e3cc8"
     },
     "mercedes-actros.sk.html": {
-      "znaky": 22505,
-      "sha": "149c68635ce59da8"
+      "znaky": 22508,
+      "sha": "efddbb0740a6c1cd"
     },
     "mercedes-actros.cz.html": {
-      "znaky": 22441,
-      "sha": "1390c26f844aa444"
+      "znaky": 22444,
+      "sha": "385b63a9868abae4"
     },
     "mercedes-actros-2003.sk.html": {
       "znaky": 20965,
@@ -89,28 +89,28 @@
       "sha": "d6fa91a10ddc5a90"
     },
     "mercedes-actros-solostar.sk.html": {
-      "znaky": 22805,
-      "sha": "78c1fe5353539c85"
+      "znaky": 22808,
+      "sha": "fd268e321fded89c"
     },
     "mercedes-actros-solostar.cz.html": {
-      "znaky": 22726,
-      "sha": "fb65bfcf387d278c"
+      "znaky": 22729,
+      "sha": "b7f138e6ce1328da"
     },
     "renault-t.sk.html": {
-      "znaky": 21507,
-      "sha": "bc37fd5f57525140"
+      "znaky": 21510,
+      "sha": "fee1537cf8e6b94a"
     },
     "renault-t.cz.html": {
-      "znaky": 21430,
-      "sha": "67e866bff40529c1"
+      "znaky": 21433,
+      "sha": "938b693102337c67"
     },
     "renault-t-s-tunelom.sk.html": {
-      "znaky": 21738,
-      "sha": "88ba061d111ca486"
+      "znaky": 21741,
+      "sha": "9e732d8d89dd4705"
     },
     "renault-t-s-tunelom.cz.html": {
-      "znaky": 21677,
-      "sha": "e340a5e42a3212b7"
+      "znaky": 21680,
+      "sha": "47084b28ff13af21"
     },
     "scania-r.sk.html": {
       "znaky": 20440,
@@ -153,20 +153,20 @@
       "sha": "fa635469275d63af"
     },
     "volvo-fh13.sk.html": {
-      "znaky": 20508,
-      "sha": "d6aa5efcb61140c0"
+      "znaky": 20511,
+      "sha": "c5a02d1222c109cf"
     },
     "volvo-fh13.cz.html": {
-      "znaky": 20440,
-      "sha": "ffc8b5e5637ca4a5"
+      "znaky": 20443,
+      "sha": "3f87dff466cc9e39"
     },
     "volvo-fh4.sk.html": {
-      "znaky": 21264,
-      "sha": "d72b989d793311e5"
+      "znaky": 21267,
+      "sha": "2870c5b4ff0b3319"
     },
     "volvo-fh4.cz.html": {
-      "znaky": 21198,
-      "sha": "386d554b98526c99"
+      "znaky": 21201,
+      "sha": "9437ade2ed71d4e4"
     },
     "kategoria-autokoberce-do-kamionu.sk.html": {
       "znaky": 3923,
