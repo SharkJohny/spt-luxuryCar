@@ -35,7 +35,7 @@ const nedelitelne = (s) => esc(s).replace(/(\S+-\S+)/g, '<span class="k-nz">$1</
 /**
  * @param {{ root: HTMLElement, hlavicka: HTMLElement|null, lista: HTMLElement, ceny: object, motivy: {boky:string[],stred:string[],dvere:string[]},
  *   predvyber?: object|null, naZmenu: (S) => void, doKosika: (S) => boolean, priChybe?: (e) => void, okno?: Window,
- *   obnov?: object|null, pevne?: { nazov: string }|null, h1Produktu?: boolean }} o
+ *   obnov?: object|null, pevne?: { nazov: string, dodavka?: boolean }|null, h1Produktu?: boolean }} o
  *   obnov      = celý výber prenesený zo stránky kamióna (stav.js obnovStav, už overený) — kroky, ktoré sú hotové, sa zatvoria;
  *   pevne      = stránka kamióna s pevným modelom: pod výberom vozidla nápis „Predvyplnené pre {nazov}“ (kniha 11. 11. 2026);
  *   h1Produktu = H1 ostáva názov produktu z adminu (stránka kamióna pre Google), neprepíše sa textom artefaktu.
@@ -425,7 +425,7 @@ export function vytvorUi(o) {
     html += "</div></div>";
     // stránka kamióna s pevným modelom: nápis pod výberom vozidla (zmena -> prenos na hlavný konfigurátor, kamion/index.js)
     if (o.pevne && t.pevne) {
-      html += '<div class="k-pevne"><p class="k-pevne__t">' + esc(fill(t.pevne.nadpis, { 0: o.pevne.nazov })) + '</p><p class="k-pevne__r">' + esc(t.pevne.text) + "</p></div>";
+      html += '<div class="k-pevne"><p class="k-pevne__t">' + esc(fill(t.pevne.nadpis, { 0: o.pevne.nazov })) + '</p><p class="k-pevne__r">' + esc((o.pevne.dodavka && t.pevne.textDodavka) || t.pevne.text) + "</p></div>";
     }
     html += koniecKroku("vozidlo", posledny);
     const nie = esc(T.hlavicka.kompatibilita.nie_je_v_zozname)

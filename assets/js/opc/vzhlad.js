@@ -7,6 +7,7 @@
 import { suhrnInfo, volbaZoSuhrnu } from "./sync.js";
 import { krok1Model } from "./krok1Model.js";
 import { vycistiKopiu } from "./polozky.js";
+import { jeKamionText } from "../functions/kamionPolozka.js";
 
 export const CESTA_KROK1 = "/objednavka/krok-1/";
 export const FORM_NIC = "lcd-opc-nic";
@@ -52,13 +53,13 @@ export function zoradPlatby(platby) {
     .map(function (x) { return x.p; });
 }
 
-/** Druh košíka podľa názvov položiek: "koberce" (aj rohož a box) | "kamion" | "vzorky" (aj poukážka) | null. */
+/** Druh košíka podľa názvov položiek: "koberce" (aj rohož a box) | "kamion" (aj dodávka) | "vzorky" (aj poukážka) | null. */
 export function druhKosika(nazvy) {
   let koberce = false, kamion = false, ine = false;
   (nazvy || []).forEach(function (n) {
     const t = String(n || "");
     if (/vzorkovn[ií]k|poukáž|poukaz/i.test(t)) ine = true;
-    else if (/\btruck\b|kami[oó]n/i.test(t)) kamion = true;
+    else if (jeKamionText(t)) kamion = true;
     else if (t.trim()) koberce = true;
   });
   return koberce ? "koberce" : kamion ? "kamion" : ine ? "vzorky" : null;

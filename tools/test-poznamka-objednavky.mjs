@@ -91,11 +91,17 @@ t("rozpoznanie kamióna: kód alebo adresa, text len keď nie je ani jedno", () 
   eq(jeKamionRiadok({ sku: "598/DIA3", href: "/luxusne-autokoberce/", text: "Auto: Hummer Truck 2020" }), false);
   eq(jeKamionRiadok({ sku: "", href: "", text: "luxusné autokoberce do kamionov" }), true);
   eq(jeKamionRiadok({ sku: "", href: "", text: "Set do auta" }), false);
+  // stránky dodávok (13. 11. 2026): adresa /autokoberce-do-dodavky-…/ bez „kamion“, kód TRUCK-…, názov „Autokoberce do dodávky …“
+  eq([{ sku: "TRUCK-FIAT-DUCATO", href: "/autokoberce-do-dodavky-fiat-ducato/", text: "" }, { sku: "", href: "/autokoberce-do-dodavky-fiat-ducato/", text: "" },
+    { sku: "TRUCK-FIAT-DUCATO", href: "", text: "" }, { sku: "", href: "", text: "Autokoberce do dodávky Fiat Ducato" }].map(jeKamionRiadok), [true, true, true, true]);
 });
 t("patriAutu: autokoberce, rohož, box áno; kamión, vzorkovník, poukážka, iné nie", () => {
   eq([SET, ROHOZ, BOX].map((r) => patriAutu(r.href)), [true, true, true]);
   eq([KAMION, KAMION_CZ, VZORKY, POUKAZ].map((r) => patriAutu(r.href)), [false, false, false, false]);
   eq(patriAutu(""), false);
+  // dodávka má v adrese „autokoberce“, ale auto k nej nepatrí (odrážka „Auto: …“, riadok „model: …“ v poznámke)
+  eq(["/autokoberce-do-dodavky-fiat-ducato/", "/autokoberce-do-dodavky-mercedes-sprinter/"].map(patriAutu), [false, false]);
+  eq(["/autokoberce-skoda-kodiaq-ii/", "/autokoberce-mercedes-v-class/"].map(patriAutu), [true, true]);
 });
 t("riadky z rekapitulácie objednávky (rovnaké značky ako živý krok 2)", () => {
   const h = (sku, href) => `<div class="cart-item" data-micro="cartItem" data-micro-sku="${sku}"><a href="${href}" class="main-link">názov</a></div>`;

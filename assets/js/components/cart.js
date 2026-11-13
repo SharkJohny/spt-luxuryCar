@@ -4,6 +4,7 @@ import { getShoptetContext } from "../functions/shoptetContext.js";
 import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { autoRiadku, popisAuta, ulozistaAuta, lcdAutoHodnota } from "../functions/autoPamat.js";
 import { patriAutu } from "../functions/poznamkaObjednavky.js";
+import { jeKamionPolozka } from "../functions/kamionPolozka.js";
 import { vlozHodnotenie } from "../functions/kosikHodnotenie.js";
 import { jeVclass, vclassWebu } from "../lcdKosikDoplnok.js";
 import { riadkyVclass, oznacVclass } from "../opc/vclassKarta.js";
@@ -54,7 +55,7 @@ export function pridajPoliaObjednavky() {
   // Objednávka len s kamiónmi: poloha volantu / sedadiel / dvere osobného auta (1.–3. pole) nemá zmysel – productPage.js
   // ich na každom produkte predvyplní (left, pass-5, doors-4) a v objednávke kamiónu mýlili (Michal 25. 10. 2026)
   const $polozky = $("body.ordering-process .cart-items .cart-item");
-  if ($polozky.length && $polozky.toArray().every((el) => jeKamionovyRiadok($(el).text()))) return;
+  if ($polozky.length && $polozky.toArray().every((el) => jeKamionovyRiadok(el))) return;
   const wheelPosition = sessionStorage.getItem("wheelPosition");
   const seatPosition = sessionStorage.getItem("seatPosition");
   const doorPosition = sessionStorage.getItem("doorPosition");
@@ -81,10 +82,14 @@ export function pridajPoliaObjednavky() {
  * Povodne stacilo slovo "truck" v texte riadku. Michal 2026-09-01 produkt
  * premenoval (SK "luxusne autokoberce do kamionov", CZ "do kamionu"), slovo
  * truck zmizlo a kosik prestal riadok formatovat. Berieme obe pomenovania.
+ *
+ * 13. 11. 2026 (stránky dodávok /autokoberce-do-dodavky-…/, názov „Autokoberce do dodávky …“): riadok = prvok položky
+ * (tr košíka / .cart-item rekapitulácie); k textu pribudol kód produktu (data-micro-sku so slovom TRUCK) a adresa
+ * odkazu — spoločné pravidlo functions/kamionPolozka.js. Pre riadky osobných áut sa nič nemení.
  */
-function jeKamionovyRiadok(text) {
-  const t = String(text || "");
-  return /\btruck\b/i.test(t) || /kami[oó]n/i.test(t);
+function jeKamionovyRiadok(riadok) {
+  const $r = $(riadok);
+  return jeKamionPolozka({ sku: $r.attr("data-micro-sku"), href: $r.find("a.main-link").first().attr("href"), text: $r.text() });
 }
 
 /**
@@ -195,7 +200,7 @@ export function changeDescription() {
     // Storage môže byť v súkromnom režime nedostupné; použije sa pôvodný výpis.
   }
   const truckRowCount = $("span.main-link-surcharges").filter(function () {
-    return jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
+    return jeKamionovyRiadok($(this).closest(LCD_POLOZKA));
   }).length;
 
   // Fallback pre samostatne produkty BEZ surcharges (Premium/Klasik kufrove rohoze):
@@ -217,7 +222,7 @@ export function changeDescription() {
 
   $("span.main-link-surcharges").each(function () {
     const $tr = $(this).closest(LCD_POLOZKA);
-    if (!jeKamionovyRiadok($tr.text())) {
+    if (!jeKamionovyRiadok($tr)) {
       // osobné autá: rozpis ako v paneli košíka; kamión ide pôvodnou cestou nižšie (skupiny z truckOrderSummary)
       if (this.classList.contains("lcd-rozpis-zdroj")) return;
       const $variant = $tr.find("span.main-link-variant").first();
@@ -236,7 +241,7 @@ export function changeDescription() {
     const text = lcdDelPriplatky($(this).text());
     // Truck produkt: vozidlo NIE je v sessionStorage (tú plní autokoberce
     // konfigurátor), ale v surcharge parametri "Vozidlo: <značka model>".
-    const isTruckRow = jeKamionovyRiadok($(this).closest(LCD_POLOZKA).text());
+    const isTruckRow = jeKamionovyRiadok($(this).closest(LCD_POLOZKA));
     if (isTruckRow && truckSummary && truckRowCount === 1) {
       // hodnoty na zobrazenie (CZ súhrn konfigurátora má slovenský materiál a výbavu; súhrn v poznámke objednávky sa nemení)
       const groups = skupinyNaZobrazenie(parseTruckOrderSummary(truckSummary), lcdCz() ? "cs" : "sk", $(this).text());

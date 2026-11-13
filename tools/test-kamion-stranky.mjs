@@ -44,6 +44,7 @@ console.log("1) Rozpoznanie adresy — produkty.js, stranky.js, seo-hreflang.js"
   const ST = await nacitajModul("assets/js/components/konfigurator1v/kamion/stranky.js");
   const HL = await nacitajModul("assets/js/seo-hreflang.js");
   const TB = await nacitajModul("assets/js/truck-konfigurator/truck-brands.js");
+  const KP = await nacitajModul("assets/js/functions/kamionPolozka.js");
   for (const proj of [562035, 581408]) {
     for (const cesta of Object.keys(ST.KAMION_STRANKY[proj])) {
       const p = P.produkt1v({ projectId: proj, productId: 9001, language: proj === 581408 ? "cs" : "sk", pathname: cesta });
@@ -57,24 +58,32 @@ console.log("1) Rozpoznanie adresy — produkty.js, stranky.js, seo-hreflang.js"
         const m = TB.TRUCK_VEHICLES[zaz.kamion.znacka];
         over(proj + " " + cesta + ": model " + zaz.kamion.model + " je v zálohe vozidiel", !!(m && m[zaz.kamion.model]));
         const h = HL.cestyStranky(cesta, proj === 562035);
-        // DAF XG ešte nie je v admine (čaká na fotky celej sady) → v seo-hreflang.js zatiaľ bez páru (13. 11. 2026, --zivy 404)
-        if (cesta === "/autokoberce-do-kamionu-daf-xg/") over(proj + " " + cesta + ": čakajúca stránka zatiaľ bez hreflang páru", h === null);
+        // stránka ešte nie je v admine (DAF XG čaká na fotky celej sady, vlna 4 a 5 na vytvorenie) → v seo-hreflang.js je
+        // v zozname CAKAJUCE a pár zatiaľ nemá (13. 11. 2026, --zivy 404)
+        if (HL.CAKAJUCE.includes(cesta)) over(proj + " " + cesta + ": čakajúca stránka zatiaľ bez hreflang páru", h === null);
         else over(proj + " " + cesta + ": hreflang pár SK = CZ", !!h && h.sk === cesta && h.cz === cesta);
-        over(proj + " " + cesta + ": adresa obsahuje „kamion“ (detektory košíka)", /kamion/.test(cesta));
+        // kamión: „kamion“ v adrese; dodávka: /autokoberce-do-dodavky-<model>/ — oboje spozná functions/kamionPolozka.js
+        const dodavka = /\(dodávka\)$/.test(zaz.kamion.znacka);
+        over(proj + " " + cesta + ": adresu spoznajú detektory košíka (" + (dodavka ? "dodávka" : "kamión") + ")",
+          KP.jeKamionAdresa(cesta) && (dodavka ? /^\/autokoberce-do-dodavky-[a-z0-9-]+\/$/.test(cesta) && !/kamion/.test(cesta) : /^\/autokoberce-do-kamionu-[a-z0-9-]+\/$/.test(cesta)));
       } else {
         over(proj + " " + cesta + ": skrytá kópia bez hreflang páru", HL.cestyStranky(cesta, proj === 562035) === null);
       }
     }
   }
   over("SK skrytá adresa na CZ projekte -> nič", P.produkt1v({ projectId: 581408, productId: 9001, pathname: "/luxusne-autokoberce-kamiony-1/" }) === null);
-  over("neznáma adresa -> nič", P.produkt1v({ projectId: 562035, productId: 9001, pathname: "/autokoberce-do-kamionu-daf-xf/" }) === null);
+  over("neznáma adresa -> nič", P.produkt1v({ projectId: 562035, productId: 9001, pathname: "/autokoberce-do-kamionu-tatra-phoenix/" }) === null &&
+    P.produkt1v({ projectId: 562035, productId: 9001, pathname: "/autokoberce-do-dodavky-renault-master/" }) === null);
+  over("kategórie (kamióny, značka, dodávky) nie sú kópia konfigurátora", ["/autokoberce-do-kamionu/", "/autokoberce-do-kamionu-ford/", "/autokoberce-do-dodavky/"].every((c) =>
+    P.produkt1v({ projectId: 562035, productId: 9001, pathname: c }) === null && P.produkt1v({ projectId: 581408, productId: 9001, pathname: c }) === null && !ST.jeKamionCesta(c)));
   const p640 = P.produkt1v({ projectId: 562035, productId: 640, pathname: "/luxusne-autokoberce-kamiony/" });
   const p2452 = P.produkt1v({ projectId: 581408, productId: 2452, pathname: "/luxusni-autokoberce-kamiony/" });
   over("640 bez zmeny (id, url, bez skryty/kamion)", p640 && p640.id === 640 && p640.url === "/luxusne-autokoberce-kamiony/" && !("skryty" in p640) && !("kamion" in p640));
   over("2452 bez zmeny (id, url, bez skryty/kamion)", p2452 && p2452.id === 2452 && p2452.url === "/luxusni-autokoberce-kamiony/" && !("skryty" in p2452) && !("kamion" in p2452));
   over("640 aj na adrese kópie ostáva 640 (register má prednosť)", P.produkt1v({ projectId: 562035, productId: 640, pathname: "/autokoberce-do-kamionu-scania-r/" }).id === 640);
   over("najdiProdukt kamion -> 640 / 2452 (kópie nikdy)", P.najdiProdukt(562035, "kamion").id === 640 && P.najdiProdukt(581408, "kamion").id === 2452);
-  over("jeKamionCesta: kópie áno, 640 a iné nie", ST.jeKamionCesta("/autokoberce-do-kamionu-man-tgx/") && ST.jeKamionCesta("/luxusni-autokoberce-kamiony-1") && !ST.jeKamionCesta("/luxusne-autokoberce-kamiony/") && !ST.jeKamionCesta("/"));
+  over("jeKamionCesta: kópie áno (aj stránka dodávky), 640 a iné nie", ST.jeKamionCesta("/autokoberce-do-kamionu-man-tgx/") && ST.jeKamionCesta("/luxusni-autokoberce-kamiony-1") && ST.jeKamionCesta("/autokoberce-do-dodavky-fiat-ducato/") &&
+    !ST.jeKamionCesta("/luxusne-autokoberce-kamiony/") && !ST.jeKamionCesta("/"));
   const s = stranka();
   const d = s.document;
   const m = ST.nastavNoindex(d);
@@ -361,15 +370,20 @@ console.log("7) CZ kópie");
   over("CZ skrytá kópia: noindex + konfigurátor", robots(s.document) === "noindex, nofollow" && !!s.document.getElementById("lcd1v-kamion"), lcdChyby(s.chyby).join(" | "));
 }
 
-// ------------------------------------------------------------------ 8) všetky stránky kamiónov (vlny 1–3) SK aj CZ
+// ------------------------------------------------------------------ 8) všetky stránky kamiónov a dodávok (vlny 1–5) SK aj CZ
 // Kniha Brain napady/2026-11-12-kamiony-vlna-2-3-disk-a-odpov.md §2.1–2.2: pre každú adresu predvyplnenie značky a modelu,
 // selecty a nápis „Predvyplnené pre …“ / „Předvyplněno pro …“. Produkty vlny 2–3 ešte neexistujú — test beží na fixture.
-console.log("8) Všetky stránky kamiónov SK aj CZ — predvyplnenie a nápis");
+console.log("8) Všetky stránky kamiónov a dodávok SK aj CZ — predvyplnenie a nápis");
 {
   const ST = await nacitajModul("assets/js/components/konfigurator1v/kamion/stranky.js");
   const pevne = (proj) => Object.keys(ST.KAMION_STRANKY[proj]).filter((c) => ST.KAMION_STRANKY[proj][c].kamion);
-  over("20 stránok kamiónov na SK aj CZ, tie isté adresy", pevne(562035).length === 20 && pevne(581408).length === 20 &&
-    pevne(562035).slice().sort().join() === pevne(581408).slice().sort().join(), pevne(562035).length + " / " + pevne(581408).length);
+  const jeDodavka = (c) => c.indexOf("/autokoberce-do-dodavky-") === 0;
+  over("31 stránok (25 kamiónov, 6 dodávok) na SK aj CZ, tie isté adresy", pevne(562035).length === 31 && pevne(581408).length === 31 &&
+    pevne(562035).filter(jeDodavka).length === 6 && pevne(562035).slice().sort().join() === pevne(581408).slice().sort().join(), pevne(562035).length + " / " + pevne(581408).length);
+  over("SK aj CZ majú pri každej adrese ten istý kľúč značky a modelu (slovenský, aj Sprinter „zadný pohon“)", pevne(562035).every((c) => {
+    const a = ST.KAMION_STRANKY[562035][c].kamion, b = ST.KAMION_STRANKY[581408][c].kamion;
+    return a.znacka === b.znacka && a.model === b.model && jeDodavka(c) === /\(dodávka\)$/.test(a.znacka);
+  }));
   // CSV plánu (mimo repa): ak je na disku, adresy, modely a názvy vĺn 2–3 sa musia zhodovať (vlna 1 má názvy z 11. 11.)
   const CSV = "C:/Users/M/Desktop/kamiony/plan-2026-11-11/a3/plan-35-modelov.csv";
   const { existsSync, readFileSync } = await import("node:fs");
@@ -389,19 +403,32 @@ console.log("8) Všetky stránky kamiónov SK aj CZ — predvyplnenie a nápis")
       }
     }
     over("zhoda s a3/plan-35-modelov.csv (" + zaz.length + " riadkov vĺn 1–3: adresa, značka, model; názov pri vlne 2–3)", zaz.length === 20 && chyby.length === 0, chyby.join(" | "));
+    // vlna 4 a 5 (13. 11. 2026): 11 z 15 riadkov plánu je v KAMION_STRANKY — adresa, značka s typom (TIR / dodávka) a model
+    // znak po znaku; názov nápisu „Predvyplnené pre …“ je zo zadania (Sprinter bez „so zadným pohonom“), neporovnáva sa
+    const vsetky = riadky.slice(1).map((l) => { const v = rozdel(l); const o = {}; hl.forEach((k, i) => { o[k] = v[i]; }); return o; });
+    const nove = vsetky.filter((x) => ["4", "5"].includes(x.vlna) && ST.KAMION_STRANKY[562035][x.slug]);
+    const chyby45 = [];
+    for (const x of nove) for (const proj of [562035, 581408]) {
+      const z = ST.KAMION_STRANKY[proj][x.slug];
+      if (!z || !z.kamion) { chyby45.push(proj + " chýba " + x.slug); continue; }
+      if (z.kamion.znacka !== x.znacka + " (" + x.typ + ")" || z.kamion.model !== x.model_tabulka) chyby45.push(proj + " " + x.slug + " vozidlo " + z.kamion.znacka + " / " + z.kamion.model);
+      if (jeDodavka(x.slug) !== (x.typ === "dodávka")) chyby45.push(proj + " " + x.slug + " typ " + x.typ);
+    }
+    over("zhoda s plánom pri vlne 4 a 5 (" + nove.length + " riadkov: adresa, značka s typom, model)", nove.length === 11 && chyby45.length === 0, chyby45.join(" | "));
   } else console.log("  (CSV plánu nie je na disku — zhoda s plánom preskočená)");
   for (const [proj, web, cz] of [[562035, SK, false], [581408, CZ, true]]) {
     let n = 0;
     for (const cesta of pevne(proj)) {
       const k = ST.KAMION_STRANKY[proj][cesta].kamion;
-      const s = await spustiStranku({ url: web + cesta, uprav: kopia({ id: 9700 + ++n, h1: "Autokoberce do kamiónu " + k.nazov, cz }), cakaj: 120 });
+      const s = await spustiStranku({ url: web + cesta, uprav: kopia({ id: 9700 + ++n, h1: (jeDodavka(cesta) ? "Autokoberce do dodávky " : "Autokoberce do kamiónu ") + k.nazov, cz }), cakaj: 120 });
       const d = s.document, ui = s.kamion && s.kamion.ui;
       const zs = d.querySelector('#lcd1v-kamion select[data-p="znacka"]'), ms = d.querySelector('#lcd1v-kamion select[data-p="model"]');
       const pv = d.querySelector('#lcd1v-kamion [data-krok="vozidlo"] .k-pevne');
       const napis = cz ? "Předvyplněno pro " + k.nazov : "Predvyplnené pre " + k.nazov;
       over((cz ? "CZ " : "SK ") + cesta + ": " + k.znacka + " / " + k.model + " predvyplnené, nápis „" + napis + "“",
         !!ui && ui.S.znacka === k.znacka && ui.S.model === k.model && !!zs && zs.value === k.znacka && !!ms && ms.value === k.model &&
-        ui.U.otvoreny === "vozidlo" && !!pv && pv.textContent.indexOf(napis) > -1 && lcdChyby(s.chyby).length === 0 && !/^Autokoberce/i.test(k.nazov),
+        ui.U.otvoreny === "vozidlo" && !!pv && pv.textContent.indexOf(napis) > -1 && lcdChyby(s.chyby).length === 0 && !/^Autokoberce/i.test(k.nazov) &&
+        ui.S.typ === (jeDodavka(cesta) ? "dodavka" : "kamion") && !!d.querySelector('#lcd1v-kamion [data-krok="tapacir"]') === !jeDodavka(cesta),
         JSON.stringify({ S: ui && [ui.S.znacka, ui.S.model], sel: [zs && zs.value, ms && ms.value], napis: pv && pv.textContent.slice(0, 80), chyby: lcdChyby(s.chyby).slice(0, 2) }));
     }
   }

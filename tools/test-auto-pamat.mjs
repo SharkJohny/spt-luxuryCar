@@ -347,6 +347,9 @@ t("zablokované úložisko: nič nespadne", () => {
 });
 t("jeKamionDL: kód alebo názov z dataLayer", () => {
   eq([KOS_KAMION[0], KOS_KAMION_CZ[0], KOS_AUTO[0], { code: "616/DIA" }, { name: "Kamiónový koberec" }, null].map(M.jeKamionDL), [true, true, false, false, true, false]);
+  // stránky dodávok (13. 11. 2026, functions/kamionPolozka.js): kód so slovom TRUCK alebo názov „Autokoberce do dodávky …“
+  eq([{ code: "TRUCK-FIAT-DUCATO", name: "Autokoberce do dodávky Fiat Ducato" }, { code: "", name: "Autokoberce do dodávky Peugeot Boxer 2006–2014" }, { code: "TRUCK-SCANIA-R", name: "" },
+    { code: "649/STR", name: "Autokoberce Škoda Kodiaq II" }, { code: "VCLASS", name: "Autokoberce Mercedes triedy V" }].map(M.jeKamionDL), [true, true, true, false, false]);
 });
 
 console.log(`\n${zle ? "ZLYHALO " + zle : "VŠETKO OK"} (${ok} OK)`);

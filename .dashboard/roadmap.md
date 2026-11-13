@@ -703,3 +703,16 @@ Plán: `/Users/sharkjohny/.claude/plans/misty-singing-muffin.md`.
 - [ ] Obsah pod konfigurátorom CZ (admin-html p1v-vclass *.cz.html, ciele.json cz) — pomocník obsah
 - [ ] Po zverejnení CZ 2458: CZ_SPUSTENE = true, Popis z admin-html/dist/p1v-vclass-*.cz.html, test-vclass.mjs --trh cz --bez-podvrhu
 - [ ] Vydanie: push, prepnutie verzie (nerobí sa bez pokynu)
+
+## Kamióny vlna 4 a 5: 5 kamiónov a 6 dodávok — kód pripravený (13. 11. 2026, bez commitu)
+- [x] kamion/stranky.js: 11 adries SK aj CZ (DAF XF, Ford F-MAX, IVECO Stralis Hi-Way, Volvo FH5, FH5 Aero; dodávky Citroën Jumper ×2, Peugeot Boxer ×2, Fiat Ducato, Mercedes-Benz Sprinter) — značka a model overené v živom data.json, CZ používa slovenský kľúč modelu
+- [x] functions/kamionPolozka.js: jedno pravidlo pre kamión / dodávku (kód so slovom TRUCK, adresa „kamion“ alebo /autokoberce-do-dodavky-, názov „Autokoberce do dodávky“) — cart.js, autoPamat.js, poznamkaObjednavky.js, opc/kamionKarta.js, opc/krok2.js, opc/vzhlad.js, opc/dakujeme.js, lcdKosikDoplnok.js
+- [x] seo-hreflang.js: zoznam CAKAJUCE (stránky, ktoré ešte nie sú v admine); po vytvorení SK aj CZ kópie presunúť adresu do ROVNAKE
+- [x] tools/build-kamiony-stranky.mjs: značky Ford a IVECO, jedna kategória /autokoberce-do-dodavky/, dlaždica „Dodávky“ v prehľade, pätička, kategorie-znaciek.json; všetko podľa stranky.json, --priecinok na skúšku mimo repa, voliteľné pole fotkyMeno; admin-html/kamiony/ bez zmeny
+- [x] Testy: tools/test-kamion-detekcia.mjs (25), tools/test-kamion-stranky-build.mjs (44), test-kamion-stranky.mjs (485), test-kamion-kosik.mjs (530), npm run kamion:test, truck:test, kosik:test zelené
+- [ ] Texty a fotky nových stránok -> a3/export-stranky-json.mjs (vlny 4 a 5, slug bez predpony aj pri dodávkach) -> node tools/build-kamiony-stranky.mjs
+- [ ] Logá assets/img/znacky/ford.svg a iveco.svg (dovtedy dlaždica značky s obrysom ťahača)
+- [ ] Rozhodnúť text nápisu „Máte iný kamión? …“ na stránkach dodávok (kamion/texty.js pevne.text)
+- [ ] Admin: produkty (kód TRUCK-…, názov „Autokoberce do dodávky …“), kategórie Ford, IVECO a dodávky; potom adresy z CAKAJUCE do ROVNAKE
+- [ ] Overiť export pre výrobu, Back Office a CRM na objednávke dodávky zo stránky dodávky (názov bez slova „kamión“)
+- [ ] Vydanie: commit, push, prepnutie verzie (nerobí sa bez pokynu)

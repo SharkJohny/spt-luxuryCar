@@ -33,6 +33,7 @@ import { lcdRozpis, lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { cisloZCeny, cenaText } from "./vzhlad.js";
 import { prepisCeny } from "./ceny.js";
 import { TEXTY_DAKUJEME } from "./dakujemeTexty.js";
+import { jeKamionText, jeKamionNazov } from "../functions/kamionPolozka.js";
 
 export const KLUC_ZAZNAMU = "lcdOpcDakujemeZaznam";
 export const MAX_ZAZNAMOV = 5;
@@ -360,7 +361,7 @@ export function citajPolozky(koren, vynechaj, cz) {
       // kamión: hodnoty z konfigurátora majú vo vnútri „ – “ („Čierna, čierne šitie – 11“) a lcdRozpis by ich rozdelil
       // ako nový príplatok. Oddeľovač Shoptetu je „ - “ (spojovník), preto sa pomlčka v hodnote dočasne chráni. Len pri
       // kamióne — košík kamión rozpisuje inak (truckOrderSummary), pri ostatných ostáva presne rozpis košíka.
-      const kamion = /kami[oó]n|\btruck\b/i.test(nazov);
+      const kamion = jeKamionText(nazov); // aj „Autokoberce do dodávky …“ (functions/kamionPolozka.js)
       const CHRANENA = "\u2060\u2013\u2060"; // pomlčka medzi „spojkami slov“ (nie \s) -> lcdRozpis ju nedelí
       if (kamion) priplatky = priplatky.replace(/\s\u2013\s/g, CHRANENA);
       rozpis = lcdRozpis({ variant, priplatky, cz: !!cz });
@@ -384,7 +385,7 @@ export function citajPolozky(koren, vynechaj, cz) {
 /** Druh objednávky pre text kroku „Príprava a doručenie“: kamion | vzorky | auto. */
 export function druhObjednavky(polozky) {
   const n = (polozky || []).map((p) => bezDiakritiky(p.nazov));
-  if (n.some((x) => /kamion|truck/.test(x))) return "kamion";
+  if (n.some((x) => /kamion|truck/.test(x) || jeKamionNazov(x))) return "kamion"; // aj „autokoberce do dodavky …“
   if (n.length && n.every((x) => /vzork/.test(x))) return "vzorky";
   return "auto";
 }

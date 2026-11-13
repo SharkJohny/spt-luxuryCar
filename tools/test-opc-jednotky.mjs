@@ -475,6 +475,8 @@ t("druh košíka: vzorky, kamión, koberce (zmes = koberce)", () => {
   eq(V.druhKosika(["Vzorkovník Dragonskin – objednávka vzoriek"]), "vzorky");
   eq(V.druhKosika(["luxusné autokoberce do kamiónov DAF"]), "kamion");
   eq(V.druhKosika(["Luxusní autokoberce do kamionu MAN"]), "kamion");
+  eq(V.druhKosika(["Autokoberce do dodávky Fiat Ducato"]), "kamion"); // stránky dodávok (13. 11. 2026): doručenie ako kamióny
+  eq(V.druhKosika(["Autokoberce do dodávky Fiat Ducato", "luxusné autokoberce Dragonskin Basic DIAMOND LINE"]), "koberce");
   eq(V.druhKosika(["luxusné autokoberce Dragonskin Basic DIAMOND LINE"]), "koberce");
   eq(V.druhKosika(["luxusné autokoberce do kamiónov DAF", "luxusné autokoberce Dragonskin Basic DIAMOND LINE"]), "koberce");
   eq(V.druhKosika(["Vzorkovník Dragonskin – objednávka vzoriek", "luxusné autokoberce do kamiónov DAF"]), "kamion");
@@ -631,6 +633,7 @@ t("tovar na mieru (riadok o odstúpení): sety, rohože a kamióny áno, samotn�
   eq(V.naMieru(["Rohož do kufra Premium"]), true);
   eq(V.naMieru(["luxusné autokoberce do kamiónov DAF"]), true);
   eq(V.naMieru(["Luxusní autokoberce do kamionu MAN"]), true);
+  eq(V.naMieru(["Autokoberce do dodávky Fiat Ducato"]), true);
   eq(V.naMieru(["Box do kufra"]), false);
   eq(V.naMieru(["Box do kufra", "Vzorkovník Dragonskin – objednávka vzoriek"]), false);
   eq(V.naMieru(["Darčeková poukážka"]), false);

@@ -34,6 +34,7 @@ import { initKosikKarta } from "./kosikKarta.js";
 import { vlozVyberStatu } from "./stat.js";
 import { strazCeny } from "./ceny.js";
 import { zbalPoznamku } from "./poznamka.js";
+import { jeKamionText } from "../functions/kamionPolozka.js";
 
 /** Z čoho na kroku 2 bublina Luxie ustúpi okrem „Objednať“: tlačidlo v lište, polia, odkazy, zaškrtávacie polia a voľby. */
 /** Prvky kroku 2, z ktorých ustúpi bublina Luxie (cart.js lcdBublinaMimoTlacidla `dalsie`) — „Objednať“ len tu, nie v cart.js. */
@@ -217,7 +218,7 @@ export function initKrok2(ctx) {
     const i = suhrnInfo(box);
     if (!i) return null;
     const nazvy = i.polozky.map(function (p) { return p.nazov || p.text; });
-    const kamiony = i.polozky.length > 0 && i.polozky.every(function (p) { return /\btruck\b|kami[oó]n/i.test(p.text); });
+    const kamiony = i.polozky.length > 0 && i.polozky.every(function (p) { return jeKamionText(p.text); });
     return JSON.stringify([TERMIN_DORUCENIA ? V.druhKosika(nazvy) : null, VETA_NA_MIERU ? V.naMieru(nazvy) : null, kamiony]);
   }
 

@@ -7,7 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const { cestyStranky, VSETKY_PARY } = await import(pathToFileURL(join(ROOT, "assets/js/seo-hreflang.js")).href);
+const { cestyStranky, VSETKY_PARY, CAKAJUCE } = await import(pathToFileURL(join(ROOT, "assets/js/seo-hreflang.js")).href);
 
 assert.deepEqual(cestyStranky("/", true), { sk: "/", cz: "/" });
 assert.deepEqual(cestyStranky("/index.php", false), { sk: "/", cz: "/" });
@@ -17,21 +17,29 @@ assert.equal(cestyStranky("/luxusni-autokoberce-kamiony/", true), null, "CZ adre
 assert.equal(cestyStranky("/kosik/", true), null, "košík nemá jazykové odkazy");
 assert.equal(cestyStranky("/blog/najnovsie-trendy-v-dizajne-luxusnych-aut/", true), null, "článok len na SK");
 for (const c of [0, 1]) assert.equal(new Set(VSETKY_PARY.map((p) => p[c])).size, VSETKY_PARY.length, "duplicitná adresa v zozname");
-// stránky kamiónov (konfigurator1v/kamion/stranky.js, vlny 1–3): každá s pevným modelom má pár SK = CZ, skrytá kópia nie;
-// SK aj CZ majú tie isté adresy stránok kamiónov
+// stránky kamiónov a dodávok (konfigurator1v/kamion/stranky.js, vlny 1–5): každá s pevným modelom má pár SK = CZ, skrytá
+// kópia nie; SK aj CZ majú tie isté adresy stránok
 const { KAMION_STRANKY } = await import(pathToFileURL(join(ROOT, "assets/js/components/konfigurator1v/kamion/stranky.js")).href);
-// stránka ešte nie je v admine (DAF XG čaká na fotky celej sady) → v seo-hreflang.js zatiaľ bez páru (inak --zivy 404)
-const CAKAJU = new Set(["/autokoberce-do-kamionu-daf-xg/"]);
+// stránka ešte nie je v admine (DAF XG čaká na fotky celej sady, vlna 4 a 5 na vytvorenie) → v seo-hreflang.js je v zozname
+// CAKAJUCE a pár zatiaľ nemá (inak --zivy 404); po vytvorení SK aj CZ kópie sa adresa presunie do ROVNAKE
+const CAKAJU = new Set(CAKAJUCE);
+assert.equal(CAKAJU.size, CAKAJUCE.length, "duplicitná adresa v zozname CAKAJUCE");
+for (const c of CAKAJUCE) {
+  assert.match(c, /^\/[a-z0-9-]+\/$/, "CAKAJUCE: tvar adresy " + c);
+  assert.ok(!VSETKY_PARY.some((p) => p[0] === c || p[1] === c), "adresa je v CAKAJUCE aj v zozname párov: " + c);
+}
 const stranky = { 562035: [], 581408: [] };
+const cakajuStranky = { 562035: [], 581408: [] };
 for (const proj of [562035, 581408]) {
   for (const [c, z] of Object.entries(KAMION_STRANKY[proj])) {
-    if (z.kamion && CAKAJU.has(c)) assert.equal(cestyStranky(c, proj === 562035), null, "čakajúca stránka nemá mať pár, kým nie je naživo: " + c);
+    if (z.kamion && CAKAJU.has(c)) { cakajuStranky[proj].push(c); assert.equal(cestyStranky(c, proj === 562035), null, "čakajúca stránka nemá mať pár, kým nie je naživo: " + c); }
     else if (z.kamion) { stranky[proj].push(c); assert.deepEqual(cestyStranky(c, proj === 562035), { sk: c, cz: c }, "stránka kamióna bez páru: " + c); }
     else assert.equal(cestyStranky(c, proj === 562035), null, "skrytá kópia nesmie mať jazykový pár: " + c);
   }
 }
 assert.deepEqual(stranky[562035].slice().sort(), stranky[581408].slice().sort(), "stránky kamiónov SK a CZ sa líšia");
-console.log(`Pravidlá OK (${VSETKY_PARY.length} párov, z toho ${stranky[562035].length} stránok kamiónov)`);
+assert.deepEqual(cakajuStranky[562035].slice().sort(), cakajuStranky[581408].slice().sort(), "čakajúce stránky kamiónov SK a CZ sa líšia");
+console.log(`Pravidlá OK (${VSETKY_PARY.length} párov, z toho ${stranky[562035].length} stránok kamiónov a dodávok; čaká ${cakajuStranky[562035].length} stránok, v zozname CAKAJUCE ${CAKAJUCE.length} adries)`);
 
 if (process.argv.includes("--zivy")) {
   const SK = "https://www.luxurycardesign.sk", CZ = "https://www.luxurycardesign.cz";

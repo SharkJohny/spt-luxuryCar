@@ -120,7 +120,7 @@ async function kontrolaKosika(t, meno, ocak = {}) {
   const cakane = ["amount", "language", "priceId", "productId"].concat(ID.map((id) => "surchargeParameterValueId[" + id + "]")).sort();
   over(meno + ": kľúče FormData = Shoptet (bez polí nového UI)", J(kluce) === J(cakane), J(kluce));
   const pid = posledny && posledny.data.find((x) => x[0] === "productId");
-  over(meno + ": productId 640", pid && pid[1] === "640");
+  over(meno + ": productId " + (ocak.pid || "640"), pid && pid[1] === String(ocak.pid || "640"));
   const suhrn = s.window.sessionStorage.getItem("truckOrderSummary");
   over(meno + ": poznámka = buildTruckOrderSummary(naStavReactu(S))", suhrn === OS.buildTruckOrderSummary(stav, "sk"), "\n" + suhrn);
   const zlucene = OS.mergeTruckOrderSummaryIntoNote("", suhrn);
@@ -904,6 +904,49 @@ console.log("26) Obrázky sa pri prekreslení nevymieňajú (Michal 28. 10. 2026
   const css = readFileSync(new URL("../assets/css/_lcd1v-kamiony.scss", import.meta.url), "utf8");
   over("26: pod fotkou materiálu a motívu nie je čierny podklad (#0b0a07 by pri načítaní blikol)",
     !/\.k-rkarta__foto \{[^}]*#0b0a07/.test(css) && !/\.k-dlazdica__img \{[^}]*#0b0a07/.test(css));
+}
+
+// ------------------------------------------------------------------ stránky dodávok a nových značiek (vlna 4 a 5, 13. 11. 2026)
+// Kópia 640 na adrese /autokoberce-do-dodavky-…/ alebo /autokoberce-do-kamionu-<nová značka>-…/ (kamion/stranky.js): vozidlo je
+// predvyplnené, zvyšok ide ako na 640 — tie isté selecty, FormData, súhrn do poznámky; dodávka bez kroku tapacíru.
+// Po pridaní do košíka autoPamat.js uloží súhrn natrvalo aj na adrese dodávky (adresa nemá „kamion“).
+{
+  const AP = await nacitajModul("assets/js/functions/autoPamat.js");
+  const KP = await nacitajModul("assets/js/functions/kamionPolozka.js");
+  const kopia = (id, h1) => (h) => h.replace('"product":{"id":640}', '"product":{"id":' + id + "}").replace('name="productId" value="640"', 'name="productId" value="' + id + '"').replace(/<h1>[\s\S]*?<\/h1>/, "<h1>" + h1 + "</h1>");
+  const SKW = "https://www.luxurycardesign.sk";
+  const STRANKY = [
+    { n: "27", cesta: "/autokoberce-do-dodavky-fiat-ducato/", id: 9801, h1: "Autokoberce do dodávky Fiat Ducato", znacka: "Fiat (dodávka)", model: "Ducato 2006-2026", typ: "dodavka", kod: "TRUCK-FIAT-DUCATO" },
+    { n: "28", cesta: "/autokoberce-do-dodavky-mercedes-sprinter/", id: 9802, h1: "Autokoberce do dodávky Mercedes-Benz Sprinter so zadným pohonom", znacka: "Mercedes-Benz (dodávka)", model: "Sprinter 2018-2026 (zadný pohon)", typ: "dodavka", kod: "TRUCK-MERCEDES-SPRINTER" },
+    { n: "29", cesta: "/autokoberce-do-kamionu-ford-f-max/", id: 9803, h1: "Autokoberce do kamiónu Ford F-MAX", znacka: "Ford (TIR)", model: "F-MAX 2018-2026", typ: "kamion", kod: "TRUCK-FORD-F-MAX" },
+  ];
+  for (const x of STRANKY) {
+    console.log(x.n + ") Stránka " + x.cesta + ": predvyplnené vozidlo -> košík ako na 640");
+    const t = await otvor({ url: SKW + x.cesta + "?novy=vyvoj", uprav: kopia(x.id, x.h1) });
+    const S = t.k.ui.S;
+    over(x.n + ": predvyplnené " + x.znacka + " / " + x.model + " (typ " + x.typ + ")", S.znacka === x.znacka && S.model === x.model && S.typ === x.typ, J([S.typ, S.znacka, S.model]));
+    over(x.n + ": krok tapacíru " + (x.typ === "kamion" ? "je" : "nie je"), !!t.d.querySelector('#lcd1v-kamion [data-krok="tapacir"]') === (x.typ === "kamion"));
+    // výbava modelu: polia s viacerými možnosťami = prvá možnosť (ako zákazník), potom kroky 2–4
+    const m = DT.ZNACKY.find((z) => z.kluc === x.znacka).modely.find((y) => y.nazov === x.model);
+    Object.keys(m.polia).forEach((p) => { if (m.polia[p].length > 1) t.vyber(p, m.polia[p][0]); });
+    t.dalej("vozidlo");
+    t.klik(a("mat", "Prémiová syntetická koža – jednofarebná")); t.dalej("material");
+    t.klik(a("farba", "10G")); t.dalej("farba");
+    t.klik(a("lem", "09")); t.dalej("lemovanie");
+    nasivky(t, "stred", "H21", "3546");
+    if (x.typ === "kamion") t.klik(a("tap", "nie"));
+    over(x.n + ": žiadny prenos na hlavný produkt (vozidlo sa nemenilo)", t.s.window.sessionStorage.getItem("lcd1vKamionPrenos") === null);
+    await kontrolaKosika(t, x.n, { pid: x.id, selecty: { 349: "Len stred", 409: "Nášivka H21", 352: "Nie nechcem tapacír dverí" }, poznamkaObsahuje: ["- Vozidlo: " + x.znacka + " " + x.model] });
+    // pridanie do košíka: adresa stránky patrí kamiónu / dodávke -> súhrn a vozidlo idú do trvalého záznamu (nová karta, objednávka)
+    const w = t.s.window;
+    over(x.n + ": adresu stránky spozná kamionPolozka.js", KP.jeKamionAdresa(w.location.pathname), w.location.pathname);
+    const ulozene = KP.jeKamionAdresa(w.location.pathname) && AP.ulozKamionZKarty(w.sessionStorage, w.localStorage);
+    const z = JSON.parse(w.localStorage.getItem(AP.KLUC_KAMION) || "null");
+    over(x.n + ": trvalý záznam kamióna má súhrn aj vozidlo", ulozene === true && !!z && z.truckOrderSummary === w.sessionStorage.getItem("truckOrderSummary") && z.truckVehicle === x.znacka + " " + x.model, J(z && z.truckVehicle));
+    // košík v dataLayer (kód so slovom TRUCK, názov = H1): obnovKamion súhrn nezmaže; bez tejto položky ho v objednávke zmaže
+    over(x.n + ": dataLayer položka (" + x.kod + ") je kamión -> súhrn v objednávke ostáva", AP.jeKamionDL({ code: x.kod, name: x.h1 }) && AP.jeKamionDL({ code: "", name: x.h1 }) &&
+      AP.obnovKamion(w.sessionStorage, w.localStorage, [{ code: x.kod, name: x.h1 }], true) !== "zmazane" && !!w.sessionStorage.getItem("truckOrderSummary"));
+  }
 }
 
 console.log(`\n${ok} OK, ${zle} ZLE`);

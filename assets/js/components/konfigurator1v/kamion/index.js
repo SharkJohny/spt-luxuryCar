@@ -31,7 +31,7 @@ import { chybajuce, citajCeny, povoleneMotivy, obmedzMotivy, syncToShoptet, upra
 import { naStavReactu, naStavCeny, predvyber, predvyberPevny, zapisPrenos, nacitajPrenos, obnovStav, inyKamion } from "./stav.js";
 import { TRUCK_PRODUCT_URLS } from "../../../truck-konfigurator/truck-brands.js";
 import { vypocitajCenu } from "./cena.js";
-import { ZNACKY, MATERIALY, NASIVKY_VEREJNE } from "./data.js";
+import { ZNACKY, MATERIALY, NASIVKY_VEREJNE, jeTir } from "./data.js";
 import { TEXTY } from "./texty.js";
 import { vytvorUi } from "./ui.js";
 
@@ -160,7 +160,7 @@ export function init(ctx) {
 
   try {
     ui = vytvorUi({ root, hlavicka, lista, ceny, motivy, predvyber: pv || predvyber(), naZmenu, doKosika, jazyk: jazykStranky(),
-      obnov: obnova, pevne: pevny && pv ? { nazov: pevny.nazov || pv.znacka } : null, h1Produktu: !!pevny,
+      obnov: obnova, pevne: pevny && pv ? { nazov: pevny.nazov || pv.znacka, dodavka: !jeTir(pv.znacka) } : null, h1Produktu: !!pevny,
       priChybe: function (e) {
         console.error("[lcd-1v] kamion: chyba po štarte — návrat na React", e);
         if (!zruseny) ctx.zlozit();

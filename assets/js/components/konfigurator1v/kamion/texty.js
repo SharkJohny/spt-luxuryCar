@@ -100,7 +100,8 @@ export const TEXTY = {
    "jedina_moznost": "{hodnota} – pre tento model je len táto možnosť.",
    "pevne": {
     "nadpis": "Predvyplnené pre {0}",
-    "text": "Máte iný kamión? Zmeňte značku alebo model a prenesieme Vás do konfigurátora pre všetky kamióny aj s tým, čo ste už vybrali."
+    "text": "Máte iný kamión? Zmeňte značku alebo model a prenesieme Vás do konfigurátora pre všetky kamióny aj s tým, čo ste už vybrali.",
+    "textDodavka": "Máte inú dodávku? Zmeňte značku alebo model a prenesieme Vás do konfigurátora pre všetky dodávky a kamióny aj s tým, čo ste už vybrali."
    },
    "poznamka": "Šablóny máme pre {kamiony} modelov kamiónov a {dodavky} modelov dodávok.",
    "zhrnutie": "{znacka} {model} · {detaily}",

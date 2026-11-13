@@ -24,7 +24,7 @@ const ROVNAKE = [
   // Kým nie sú naživo OBE kópie, --zivy hlási pri nich 404 (očakávané).
   "/autokoberce-do-kamionu-daf-xf105/",
   "/autokoberce-do-kamionu-daf-xf106/",
-  // "/autokoberce-do-kamionu-daf-xg/" – vrátiť, keď bude stránka DAF XG (čaká na fotky celej sady); dovtedy 404 SK aj CZ
+  // "/autokoberce-do-kamionu-daf-xg/" – čaká na fotky celej sady, dovtedy 404 SK aj CZ: je v zozname CAKAJUCE nižšie
   "/autokoberce-do-kamionu-man-tgx-2018/",
   "/autokoberce-do-kamionu-mercedes-actros-solostar/",
   "/autokoberce-do-kamionu-scania-s/",
@@ -112,6 +112,30 @@ const PARY = [
   ["/blog/vyhody-luxusnych-autokobercov/", "/blog/vyhody-luxusnich-autokobercu/"],
   ["/blog/xiaomi-yu9-dojazd-1500-km-elektromobil/", "/blog/xiaomi-yu9-dojezd-1-500-km-a-co-to-znamena-pro-vas/"],
   ["/blog/zanik-autosalonu-v-zeneve-3-myty-o-kupe-auta/", "/blog/zanik-autosalonu-v-zeneve-3-myty-o-koupi-auta/"],
+];
+
+/**
+ * Adresy s rovnakým slugom SK aj CZ, ktoré v admine ešte NIE SÚ (jazykový odkaz na 404 by bol chyba, --zivy by padol).
+ * Keď sú naživo OBE kópie (SK aj CZ), presuň adresu odtiaľto do ROVNAKE — inde netreba meniť nič (testy
+ * tools/test-seo-hreflang.mjs a tools/test-kamion-stranky.mjs čítajú tento zoznam).
+ */
+export const CAKAJUCE = [
+  "/autokoberce-do-kamionu-daf-xg/", // čaká na fotky celej sady
+  // vlna 4 a 5 (13. 11. 2026, konfigurator1v/kamion/stranky.js): 5 kamiónov, 6 dodávok a ich kategórie (build-kamiony-stranky.mjs)
+  "/autokoberce-do-kamionu-ford/",
+  "/autokoberce-do-kamionu-iveco/",
+  "/autokoberce-do-dodavky/",
+  "/autokoberce-do-kamionu-daf-xf/",
+  "/autokoberce-do-kamionu-ford-f-max/",
+  "/autokoberce-do-kamionu-iveco-stralis-hi-way/",
+  "/autokoberce-do-kamionu-volvo-fh5/",
+  "/autokoberce-do-kamionu-volvo-fh5-aero/",
+  "/autokoberce-do-dodavky-citroen-jumper-2006/",
+  "/autokoberce-do-dodavky-citroen-jumper/",
+  "/autokoberce-do-dodavky-peugeot-boxer-2006/",
+  "/autokoberce-do-dodavky-peugeot-boxer/",
+  "/autokoberce-do-dodavky-fiat-ducato/",
+  "/autokoberce-do-dodavky-mercedes-sprinter/",
 ];
 
 /** Cesta stránky (bez dopytu) -> { sk, cz }; null, keď stránka protějšok nemá. */

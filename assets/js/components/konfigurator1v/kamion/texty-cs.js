@@ -97,7 +97,8 @@ export const TEXTY_CS = {
    "jedina_moznost": "{hodnota} – pro tento model je jen tato možnost.",
    "pevne": {
     "nadpis": "Předvyplněno pro {0}",
-    "text": "Máte jiný kamion? Změňte značku nebo model a přeneseme Vás do konfigurátoru pro všechny kamiony i s tím, co jste už vybrali."
+    "text": "Máte jiný kamion? Změňte značku nebo model a přeneseme Vás do konfigurátoru pro všechny kamiony i s tím, co jste už vybrali.",
+    "textDodavka": "Máte jinou dodávku? Změňte značku nebo model a přeneseme Vás do konfigurátoru pro všechny dodávky a kamiony i s tím, co jste už vybrali."
    },
    "poznamka": "Šablony máme pro {kamiony} modelů kamionů a {dodavky} modelů dodávek.",
    "zhrnutie": "{znacka} {model} · {detaily}",

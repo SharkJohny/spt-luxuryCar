@@ -19,6 +19,8 @@
  * Do záznamu idú len pri pridaní (ShoptetCartAddCartItem), lebo ShoptetCartUpdated chodí aj pri odobratí položky a na ďalšom
  * produkte sú polohy v karte späť na predvolených (productPage.js firstPage). Záznam je to, čo zákazník naozaj pridal.
  */
+import { jeKamionKod, jeKamionNazov, jeKamionAdresa } from "./kamionPolozka.js";
+
 const KLUC = "lcdAuto:v1";
 const POLIA = ["Brand", "Model", "Year", "carType", "model"];
 /** Predvolené polohy aj kľúče v sessionStorage (productPage.js ich doplní a na konfigurátore vracia). */
@@ -108,9 +110,10 @@ export function obnovAuto(ss, ls, kosik, naObjednavke, teraz = Date.now()) {
   } catch (e) { return null; }
 }
 
-/** Položka dataLayer je kamión? Kód SK TEST-TRUCK, CZ TRUCK, názov „…do kamionov“ / „…do kamionů“ (dataLayer nemá adresu). */
+/** Položka dataLayer je kamión / dodávka? Kód SK TEST-TRUCK, CZ TRUCK, kópie TRUCK-…, názov „…do kamionov“ / „…do kamionů“ /
+ *  „Autokoberce do dodávky …“ (dataLayer nemá adresu; pravidlo functions/kamionPolozka.js). */
 export function jeKamionDL(x) {
-  return !!x && (/\btruck\b/i.test(x.code || "") || /kami[oó]n/i.test(x.name || ""));
+  return !!x && (jeKamionKod(x.code) || jeKamionNazov(x.name));
 }
 
 /** Pri pridaní do košíka: súhrn a vozidlo kamióna z karty uložiť trvalo. Do poznámky ide súhrn, vozidlo inde v objednávke nie je. */
@@ -163,7 +166,7 @@ export function initAutoPamat() {
   const konfiguratorAuta = function () { return !!document.querySelector(".surcharge-list.brands.dm-selector select"); };
   // Shoptet handleCartPostUpdate: najprv udalosť akcie (ShoptetCartAddCartItem), hneď za ňou ShoptetCartUpdated
   document.addEventListener("ShoptetCartAddCartItem", function () {
-    if (/kamion/i.test(location.pathname)) ulozKamionZKarty(u.ss, u.ls); // súhrn píše konfigurátor kamióna tesne pred pridaním
+    if (jeKamionAdresa(location.pathname)) ulozKamionZKarty(u.ss, u.ls); // súhrn píše konfigurátor kamióna tesne pred pridaním (aj stránky dodávok)
     else if (konfiguratorAuta()) ulozAutoZKarty(u.ss, u.ls, Date.now(), /autokoberce/i.test(location.pathname) ? "set" : "rohoz");
   });
   // uložiť pri zmene košíka, len na stránke s konfigurátorom osobných áut (nie výmena doplnku v košíku, nie kamión)

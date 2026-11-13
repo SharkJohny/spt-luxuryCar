@@ -6,13 +6,16 @@
 //                           (v admine zapnuté logá), po štarte bundla <meta name="robots" content="noindex, nofollow">;
 //                           jeden spoločný odkaz pre overených zákazníkov (Michal 11. 11. 2026).
 //   kamion: { znacka, model, nazov }
-//                           stránka kamióna pre Google (A3) s pevným modelom (ako stránky áut, auto-produkt.js):
-//                           znacka = kľúč zo zoznamu vozidiel („Scania (TIR)“), model = presný názov z tabuľky (data.json,
-//                           „R 2017-2026“), nazov = text nápisu „Predvyplnené pre …“. H1 = názov produktu z adminu.
+//                           stránka kamióna alebo dodávky pre Google (A3) s pevným modelom (ako stránky áut, auto-produkt.js):
+//                           znacka = kľúč zo zoznamu vozidiel („Scania (TIR)“, „Fiat (dodávka)“), model = presný názov
+//                           z tabuľky (data.json, „R 2017-2026“), nazov = text nápisu „Predvyplnené pre …“. H1 = názov
+//                           produktu z adminu.
 //
-// Pravidlo pre admin (detektory košíka a objednávky sa nemenia): názov kópie obsahuje „kamión“ / „kamion“, adresa obsahuje
-// „kamion“, kód produktu obsahuje samostatné slovo TRUCK (TRUCK-LOGA, TRUCK-SCANIA-R …). Rovnaký slug SK aj CZ pri
-// stránkach kamiónov (seo-hreflang.js ich páruje); skrytá kópia má na CZ vlastnú adresu a jazykový pár nemá.
+// Pravidlo pre admin (detektory košíka a objednávky = functions/kamionPolozka.js): kód produktu obsahuje samostatné slovo
+// TRUCK (TRUCK-LOGA, TRUCK-SCANIA-R, TRUCK-FIAT-DUCATO …); stránka kamióna má v názve „kamión“ / „kamion“ a v adrese
+// „kamion“; stránka dodávky má názov „Autokoberce do dodávky …“ a adresu /autokoberce-do-dodavky-<model>/ (13. 11. 2026).
+// Rovnaký slug SK aj CZ pri stránkach kamiónov a dodávok (seo-hreflang.js ich páruje); skrytá kópia má na CZ vlastnú
+// adresu a jazykový pár nemá.
 
 /** projectId -> cesta -> záznam. SK = 562035, CZ = 581408. Cesta malými písmenami, s lomkou na začiatku aj na konci. */
 export const KAMION_STRANKY = {
@@ -42,6 +45,21 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-scania-r-2009/": { kamion: { znacka: "Scania (TIR)", model: "R 2009-2013", nazov: "Scania R 2009–2013" } },
     "/autokoberce-do-kamionu-scania-r-2014/": { kamion: { znacka: "Scania (TIR)", model: "R 2014-2016", nazov: "Scania R 2014–2016" } },
     "/autokoberce-do-kamionu-volvo-fh13/": { kamion: { znacka: "Volvo (TIR)", model: "FH (FH13) 2009-2013", nazov: "Volvo FH13" } },
+    // vlna 4 a 5 (13. 11. 2026, a3/plan-35-modelov.csv): 5 kamiónov a 6 dodávok. Značka a model znak po znaku z tabuľky
+    // (data.json settings.kamiony; kľúč značky = „<Značka> (<Typ>)“, kamion/tabulka.js). Produkty zatiaľ neexistujú — kým adresa
+    // v Shoptete nie je, záznam sa nikdy nepoužije. Dodávky majú adresu /autokoberce-do-dodavky-…/ (bez „kamion“): košík
+    // a objednávka ich spoznajú podľa functions/kamionPolozka.js (kód so slovom TRUCK, adresa, názov „Autokoberce do dodávky“).
+    "/autokoberce-do-kamionu-daf-xf/": { kamion: { znacka: "DAF (TIR)", model: "XF 2021-2026", nazov: "DAF XF" } },
+    "/autokoberce-do-kamionu-ford-f-max/": { kamion: { znacka: "Ford (TIR)", model: "F-MAX 2018-2026", nazov: "Ford F-MAX" } },
+    "/autokoberce-do-kamionu-iveco-stralis-hi-way/": { kamion: { znacka: "IVECO (TIR)", model: "Stralis Hi-Way 2011-2019", nazov: "IVECO Stralis Hi-Way" } },
+    "/autokoberce-do-kamionu-volvo-fh5/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 2022-2026", nazov: "Volvo FH5" } },
+    "/autokoberce-do-kamionu-volvo-fh5-aero/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 Aero 2025-2026", nazov: "Volvo FH5 Aero" } },
+    "/autokoberce-do-dodavky-citroen-jumper-2006/": { kamion: { znacka: "Citroën (dodávka)", model: "Jumper 2006-2014", nazov: "Citroën Jumper 2006–2014" } },
+    "/autokoberce-do-dodavky-citroen-jumper/": { kamion: { znacka: "Citroën (dodávka)", model: "Jumper 2014-2026", nazov: "Citroën Jumper" } },
+    "/autokoberce-do-dodavky-peugeot-boxer-2006/": { kamion: { znacka: "Peugeot (dodávka)", model: "Boxer 2006-2014", nazov: "Peugeot Boxer 2006–2014" } },
+    "/autokoberce-do-dodavky-peugeot-boxer/": { kamion: { znacka: "Peugeot (dodávka)", model: "Boxer 2014-2026", nazov: "Peugeot Boxer" } },
+    "/autokoberce-do-dodavky-fiat-ducato/": { kamion: { znacka: "Fiat (dodávka)", model: "Ducato 2006-2026", nazov: "Fiat Ducato" } },
+    "/autokoberce-do-dodavky-mercedes-sprinter/": { kamion: { znacka: "Mercedes-Benz (dodávka)", model: "Sprinter 2018-2026 (zadný pohon)", nazov: "Mercedes-Benz Sprinter" } },
   },
   581408: {
     "/luxusni-autokoberce-kamiony-1/": { skryty: true },
@@ -67,6 +85,22 @@ export const KAMION_STRANKY = {
     "/autokoberce-do-kamionu-scania-r-2009/": { kamion: { znacka: "Scania (TIR)", model: "R 2009-2013", nazov: "Scania R 2009–2013" } },
     "/autokoberce-do-kamionu-scania-r-2014/": { kamion: { znacka: "Scania (TIR)", model: "R 2014-2016", nazov: "Scania R 2014–2016" } },
     "/autokoberce-do-kamionu-volvo-fh13/": { kamion: { znacka: "Volvo (TIR)", model: "FH (FH13) 2009-2013", nazov: "Volvo FH13" } },
+    // vlna 4 a 5 (13. 11. 2026, a3/plan-35-modelov.csv): 5 kamiónov a 6 dodávok. Značka a model znak po znaku z tabuľky
+    // (data.json settings.kamiony; kľúč značky = „<Značka> (<Typ>)“, kamion/tabulka.js). Produkty zatiaľ neexistujú — kým adresa
+    // v Shoptete nie je, záznam sa nikdy nepoužije. Dodávky majú adresu /autokoberce-do-dodavky-…/ (bez „kamion“): košík
+    // a objednávka ich spoznajú podľa functions/kamionPolozka.js (kód so slovom TRUCK, adresa, názov „Autokoberce do dodávky“).
+    // CZ: model je slovenský kľúč tabuľky („zadný pohon“); česky („zadní pohon“) ho ukáže vozidloCs z listu kamionycs.
+    "/autokoberce-do-kamionu-daf-xf/": { kamion: { znacka: "DAF (TIR)", model: "XF 2021-2026", nazov: "DAF XF" } },
+    "/autokoberce-do-kamionu-ford-f-max/": { kamion: { znacka: "Ford (TIR)", model: "F-MAX 2018-2026", nazov: "Ford F-MAX" } },
+    "/autokoberce-do-kamionu-iveco-stralis-hi-way/": { kamion: { znacka: "IVECO (TIR)", model: "Stralis Hi-Way 2011-2019", nazov: "IVECO Stralis Hi-Way" } },
+    "/autokoberce-do-kamionu-volvo-fh5/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 2022-2026", nazov: "Volvo FH5" } },
+    "/autokoberce-do-kamionu-volvo-fh5-aero/": { kamion: { znacka: "Volvo (TIR)", model: "FH5 Aero 2025-2026", nazov: "Volvo FH5 Aero" } },
+    "/autokoberce-do-dodavky-citroen-jumper-2006/": { kamion: { znacka: "Citroën (dodávka)", model: "Jumper 2006-2014", nazov: "Citroën Jumper 2006–2014" } },
+    "/autokoberce-do-dodavky-citroen-jumper/": { kamion: { znacka: "Citroën (dodávka)", model: "Jumper 2014-2026", nazov: "Citroën Jumper" } },
+    "/autokoberce-do-dodavky-peugeot-boxer-2006/": { kamion: { znacka: "Peugeot (dodávka)", model: "Boxer 2006-2014", nazov: "Peugeot Boxer 2006–2014" } },
+    "/autokoberce-do-dodavky-peugeot-boxer/": { kamion: { znacka: "Peugeot (dodávka)", model: "Boxer 2014-2026", nazov: "Peugeot Boxer" } },
+    "/autokoberce-do-dodavky-fiat-ducato/": { kamion: { znacka: "Fiat (dodávka)", model: "Ducato 2006-2026", nazov: "Fiat Ducato" } },
+    "/autokoberce-do-dodavky-mercedes-sprinter/": { kamion: { znacka: "Mercedes-Benz (dodávka)", model: "Sprinter 2018-2026 (zadný pohon)", nazov: "Mercedes-Benz Sprinter" } },
   },
 };
 

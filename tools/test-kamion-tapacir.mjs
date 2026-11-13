@@ -47,6 +47,9 @@ const S_BEZ = Object.assign({}, STAV, { doorPanelChoice: "nie" });
 test("je kamión: názov / adresa produktu; set autokobercov nie", () => {
   pravda(K.jeKamion(riadok(SUR_S)));
   pravda(K.jeKamion({ text: "", href: "/luxusne-autokoberce-kamiony/" }));
+  // stránky dodávok (13. 11. 2026): názov, adresa alebo kód (functions/kamionPolozka.js)
+  pravda(K.jeKamion({ text: "Autokoberce do dodávky Fiat Ducato", href: "" }) && K.jeKamion({ text: "", href: "/autokoberce-do-dodavky-fiat-ducato/" }) && K.jeKamion({ text: "", href: "", sku: "TRUCK-FIAT-DUCATO" }));
+  pravda(!K.jeKamion({ text: "Autokoberce Škoda Kodiaq II", href: "/autokoberce-skoda-kodiaq-ii/", sku: "649/STR" }));
   pravda(!K.jeKamion({ text: "Luxusné autokoberce Dragonskin Diamond Line", href: "/luxusne-autokoberce-dragonskin-diamond-line/" }));
 });
 

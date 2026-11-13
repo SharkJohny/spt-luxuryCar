@@ -12,6 +12,7 @@
  * Keď sa riadky nedajú prečítať, platí pôvodné správanie: blok má prednosť, inak „model: …“.
  */
 import { mergeTruckOrderSummaryIntoNote } from "../truck-konfigurator/order-summary.mjs";
+import { jeKamionKod, jeKamionAdresa, jeKamionText } from "./kamionPolozka.js";
 
 /** Model je použiteľný, len keď má všetky časti. Na stránkach bez konfigurátora auta saveModel uloží „undefined undefined…“. */
 function pouzitelnyModel(savedModel) {
@@ -20,17 +21,19 @@ function pouzitelnyModel(savedModel) {
   return !/\b(undefined|null)\b/.test(value);
 }
 
-/** Riadok objednávky { sku, href, text } je kamión? Kód a adresa sú presné, text („Auto: …“ môže obsahovať čokoľvek) len záloha. */
+/** Riadok objednávky { sku, href, text } je kamión / dodávka? Kód a adresa sú presné, text („Auto: …“ môže obsahovať čokoľvek)
+ *  len záloha. Pravidlo (TRUCK v kóde, „kamion“ / „autokoberce-do-dodavky“ v adrese) je vo functions/kamionPolozka.js. */
 export function jeKamionRiadok(r) {
   if (!r) return false;
-  if (r.sku || r.href) return /\btruck\b/i.test(r.sku || "") || /kamion/i.test(r.href || "");
-  return /\btruck\b|kami[oó]n/i.test(r.text || "");
+  if (r.sku || r.href) return jeKamionKod(r.sku) || jeKamionAdresa(r.href);
+  return jeKamionText(r.text);
 }
 
-/** Patrí k položke s touto adresou auto? Autokoberce, rohož do kufra a box; vzorkovník, poukážka ani kamión nie (aj cart.js autoPolozky). */
+/** Patrí k položke s touto adresou auto? Autokoberce, rohož do kufra a box; vzorkovník, poukážka, kamión ani dodávka
+ *  (/autokoberce-do-dodavky-…/ má v adrese „autokoberce“) nie (aj cart.js autoPolozky). */
 export function patriAutu(href) {
   const h = String(href || "");
-  return !/vzorkovnik|poukaz|kamion/i.test(h) && /autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(h);
+  return !/vzorkovnik|poukaz/i.test(h) && !jeKamionAdresa(h) && /autokoberce|koberced?-do-kufr|boxi?-do-kufr/i.test(h);
 }
 
 /** Riadky rekapitulácie objednávky [{ sku, href, text }]; null = nevieme (vtedy pôvodné správanie). Stará pokladňa aj OPC majú rovnaké značky. */

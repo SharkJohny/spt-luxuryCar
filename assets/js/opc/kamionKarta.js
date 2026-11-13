@@ -21,6 +21,7 @@ import { jeTir, PRECIARKNUTE_EUR, PRECIARKNUTE_CZK } from "../components/konfigu
 import { cisty, hodnotyPriplatkov, ANO, ROVNAKE, KOBERCE, DVERE, skupinyNaZobrazenie } from "./kamionZobrazenie.js";
 import { lcdRozpisEl } from "../functions/kosikRozpis.js";
 import { ulozKamionZKarty, ulozistaAuta } from "../functions/autoPamat.js";
+import { jeKamionPolozka } from "../functions/kamionPolozka.js";
 import * as D from "../lcdKosikDoplnok.js";
 import { produktDlazdica } from "./vrstvaVideo.js";
 
@@ -65,7 +66,9 @@ export const TEXTY = {
 };
 export function texty(trh) { return TEXTY[trh] || TEXTY.sk; }
 
-const jeKamion = (p) => /\btruck\b|kami[oó]n/i.test((p && p.text) || "") || /kamion/i.test((p && p.href) || "");
+// kamión / dodávka podľa textu riadku, adresy alebo kódu produktu (spoločné pravidlo functions/kamionPolozka.js; stránky
+// dodávok /autokoberce-do-dodavky-…/ nemajú „kamion“ v názve ani v adrese, 13. 11. 2026)
+const jeKamion = (p) => jeKamionPolozka(p);
 export { jeKamion };
 
 // ------------------------------------------------------------------ príplatky riadku podľa mien parametrov (bez mapy produktu)

@@ -27,6 +27,7 @@
 import { getShoptetContext } from "./functions/shoptetContext.js";
 import { VCLASS_SK, vclassPreProjekt } from "./functions/vclassProdukt.js";
 import { obrazokUloziska } from "./functions/ulozisko.js";
+import { jeKamionPolozka } from "./functions/kamionPolozka.js";
 // kresba boxu ako na produkte 616 a v okne boxov 1V (Michal 23. 10. 2026: veľkosti s kresbou, farba sa mení s voľbou)
 import { definicieKresby, kresba, nastavFarbuKresby } from "./components/konfigurator1v/box-kresba.js";
 // auto riadku setu do názvu ponuky („Rohož do kufra pre Skoda Octavia 2021“, Michal 29. 10. 2026) — rovnaký zdroj ako cart.js
@@ -2528,7 +2529,7 @@ export async function pripravKontexty(riadky, R, o) {
   // trieda V (646): vlastná ponuka v pokladni (opc/vclassKarta.js) — tu by len sťahovala stránku produktu a nič neukázala
   let kandidati = riadky.filter(function (r) {
     return r.itemId && r.priceId && r.href && r.maPriplatky && r.sur && r.q >= 1 &&
-      !/\btruck\b|kami[oó]n/i.test(r.text) && !/(boxi?-do-kufr|koberced?-do-kufr|vzorkovnik|poukaz|kamion)/i.test(r.href) && !jeVclass(r);
+      !jeKamionPolozka(r) && !/(boxi?-do-kufr|koberced?-do-kufr|vzorkovnik|poukaz)/i.test(r.href) && !jeVclass(r); // kamión ani dodávka (kamionPolozka.js)
   });
   const vynechaj = o && o.vynechaj;
   if (vynechaj) kandidati = kandidati.filter(function (r) { return r.itemId !== vynechaj; });
