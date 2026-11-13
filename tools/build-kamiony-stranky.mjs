@@ -138,10 +138,8 @@ const TK = {
   sk: {
     prehlad: "Vyberte značku kamiónu. Pri každom modeli nájdete fotky kobercov a konfigurátor s cenou.",
     znacka: "Vyberte model. Na stránke modelu nájdete fotky kobercov a konfigurátor s cenou.",
-    ctaEyebrow: "Kamióny a dodávky",
     ctaNadpis: "Nenašli ste svoj kamión / dodávku?",
-    ctaText: "Nevadí. V konfigurátore vyberiete značku aj model a cenu uvidíte hneď.",
-    ctaTl: "Nájsť môj kamión / dodávku",
+    ctaTl: "Vyhľadať",
     vsetky: "Všetky značky kamiónov",
     nazov: (z) => "Autokoberce do kamiónu " + z,
     meta: (z, m) => "Autokoberce do kamiónu " + z + " na mieru: " + m + ". Fotky kobercov a konfigurátor s cenou. Od 199 €.",
@@ -149,10 +147,8 @@ const TK = {
   cz: {
     prehlad: "Vyberte značku kamionu. U každého modelu najdete fotky koberců a konfigurátor s cenou.",
     znacka: "Vyberte model. Na stránce modelu najdete fotky koberců a konfigurátor s cenou.",
-    ctaEyebrow: "Kamiony a dodávky",
     ctaNadpis: "Nenašli jste svůj kamion / dodávku?",
-    ctaText: "Nevadí. V konfigurátoru vyberete značku i model a cenu uvidíte hned.",
-    ctaTl: "Najít můj kamion / dodávku",
+    ctaTl: "Vyhledat",
     vsetky: "Všechny značky kamionů",
     nazov: (z) => "Autokoberce do kamionu " + z,
     meta: (z, m) => "Autokoberce do kamionu " + z + " na míru: " + m + ". Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
@@ -173,15 +169,14 @@ function stylStranky(slug, z) {
   ];
   if (z) r.push(b + ' h1.category-title::before{content:"";flex:none;width:54px;height:54px;border-radius:50%;background:#fff url("' + logo(z) + '") no-repeat center/32px 32px;border:1px solid #e4ddcd}');
   r.push(b + " .lcd-pa--kamiony .lcd-pa__foto{aspect-ratio:5/4}");
-  // rámik „Nenašli ste svoj kamión / dodávku?“ — návrh A (Michal 13. 11. 2026): tmavý, zlatý okraj, zelené tlačidlo
+  // rámik „Nenašli ste svoj kamión / dodávku?“ — návrh A (Michal 13. 11. 2026): tmavý, zlatý okraj, zelené tlačidlo;
+  // len nadpis + „Vyhľadať“ (Michal: „veľa textu… jasne, stručne, nech to prečíta a klikne“)
   const c = b + " .lcd-kam-cta";
   r.push(c + '{display:flex;align-items:center;gap:22px;margin:30px 0 0;padding:26px 28px;border-radius:16px;background:radial-gradient(120% 160% at 0% 0%,rgba(212,170,64,.28),rgba(212,170,64,0) 55%),#14110c;box-shadow:inset 0 0 0 1px #c49b31,0 20px 40px -24px rgba(20,15,5,.75);font-family:"Source Sans 3","Segoe UI",Arial,sans-serif}');
   r.push(c + "__ikony{display:flex;align-items:flex-end;gap:8px;flex:none;color:#e2bd55}");
   r.push(c + "__ikony svg{width:58px;height:auto;display:block}");
   r.push(c + "__text{flex:1 1 auto;min-width:0}");
-  r.push(c + '__eyebrow{display:block;margin:0 0 6px;color:#e2bd55;font:700 12px/1 "Exo 2","Segoe UI",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase}');
   r.push(c + '__nadpis{display:block;color:#fff;font:800 23px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.01em}');
-  r.push(c + "__text p{margin:8px 0 0;color:#d9d0be;font-size:17px;line-height:1.45}");
   r.push(c + '__tl{flex:none;display:inline-flex;align-items:center;gap:10px;background:#1f7a52;color:#fff !important;font:700 15px/1 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:16px 24px;border-radius:10px;text-decoration:none !important}');
   r.push(c + '__tl::after{content:"→";font-size:18px}');
   r.push(c + "__tl:hover," + c + "__tl:focus-visible{background:#17603f}");
@@ -199,7 +194,7 @@ const IKONA_DODAVKA = '<svg viewBox="0 0 64 40" fill="none" stroke="currentColor
 /** Rámik „Nenašli ste svoj kamión / dodávku?“ (návrh A) -> hlavný konfigurátor 640 / 2452 (kamióny aj dodávky). */
 function ramik(j) {
   const k = TK[j];
-  return '<div class="lcd-kam-cta"><div class="lcd-kam-cta__ikony">' + IKONA_KAMION + IKONA_DODAVKA + '</div><div class="lcd-kam-cta__text"><span class="lcd-kam-cta__eyebrow">' + esc(k.ctaEyebrow) + '</span><b class="lcd-kam-cta__nadpis">' + esc(k.ctaNadpis) + "</b><p>" + esc(k.ctaText) + '</p></div><a class="lcd-kam-cta__tl" href="' + data.web[j].konfigurator + '">' + esc(k.ctaTl) + "</a></div>";
+  return '<div class="lcd-kam-cta"><div class="lcd-kam-cta__ikony">' + IKONA_KAMION + IKONA_DODAVKA + '</div><div class="lcd-kam-cta__text"><b class="lcd-kam-cta__nadpis">' + esc(k.ctaNadpis) + '</b></div><a class="lcd-kam-cta__tl" href="' + data.web[j].konfigurator + '">' + esc(k.ctaTl) + "</a></div>";
 }
 
 function dlazdica(slug, s, j) {
