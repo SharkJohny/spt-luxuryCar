@@ -6,7 +6,7 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "0631dfb61f1000b7",
+  "stranky_json": "842f7a2456ae992e",
   "subory": {
     "daf-xf105.sk.html": {
       "znaky": 21144,
@@ -33,12 +33,12 @@
       "sha": "4b1ad137510e9999"
     },
     "man-tgx.sk.html": {
-      "znaky": 20365,
-      "sha": "606edf144d5233e3"
+      "znaky": 20371,
+      "sha": "b99e48155b006799"
     },
     "man-tgx.cz.html": {
-      "znaky": 20294,
-      "sha": "157cc088fed08cd5"
+      "znaky": 20300,
+      "sha": "3a123d4f40d46e9c"
     },
     "man-tgx-2007.sk.html": {
       "znaky": 21393,
@@ -65,12 +65,12 @@
       "sha": "1390c26f844aa444"
     },
     "mercedes-actros-2003.sk.html": {
-      "znaky": 20947,
-      "sha": "26187899440cd53f"
+      "znaky": 20965,
+      "sha": "ef36f938d0e1ea8e"
     },
     "mercedes-actros-2003.cz.html": {
-      "znaky": 20885,
-      "sha": "46bef2f23fc7b857"
+      "znaky": 20903,
+      "sha": "be8be6be08cb3001"
     },
     "mercedes-actros-f.sk.html": {
       "znaky": 21069,
@@ -105,12 +105,12 @@
       "sha": "e340a5e42a3212b7"
     },
     "scania-r.sk.html": {
-      "znaky": 20434,
-      "sha": "e32c95d8c5e9543e"
+      "znaky": 20440,
+      "sha": "7e353885b19a3bd4"
     },
     "scania-r.cz.html": {
-      "znaky": 20373,
-      "sha": "e5704ef59593dcfc"
+      "znaky": 20379,
+      "sha": "cee36df0937c236c"
     },
     "scania-r-2004.sk.html": {
       "znaky": 21462,
@@ -137,12 +137,12 @@
       "sha": "e2223f7138c7381e"
     },
     "scania-s.sk.html": {
-      "znaky": 21137,
-      "sha": "a165737bb56c1caa"
+      "znaky": 21143,
+      "sha": "6863fcbfafcffc95"
     },
     "scania-s.cz.html": {
-      "znaky": 21078,
-      "sha": "e97bab760210f4ad"
+      "znaky": 21084,
+      "sha": "fa635469275d63af"
     },
     "volvo-fh13.sk.html": {
       "znaky": 20508,
@@ -170,11 +170,11 @@
     },
     "kategoria-autokoberce-do-kamionu-man.sk.html": {
       "znaky": 5118,
-      "sha": "b7093d3f4e2d77b0"
+      "sha": "82e381acbbfbd3ca"
     },
     "kategoria-autokoberce-do-kamionu-mercedes-benz.sk.html": {
       "znaky": 6149,
-      "sha": "0ac9d51161830c62"
+      "sha": "897e9c9062c0583e"
     },
     "kategoria-autokoberce-do-kamionu-renault.sk.html": {
       "znaky": 4406,
@@ -182,7 +182,7 @@
     },
     "kategoria-autokoberce-do-kamionu-scania.sk.html": {
       "znaky": 6764,
-      "sha": "181091df08d2ae9e"
+      "sha": "3bdfad434d5e8870"
     },
     "kategoria-autokoberce-do-kamionu-volvo.sk.html": {
       "znaky": 4373,
@@ -202,11 +202,11 @@
     },
     "kategoria-autokoberce-do-kamionu-man.cz.html": {
       "znaky": 5142,
-      "sha": "cebb96c6f9f57f0a"
+      "sha": "91637c52a03ecb7a"
     },
     "kategoria-autokoberce-do-kamionu-mercedes-benz.cz.html": {
       "znaky": 6181,
-      "sha": "4be4758b23fafa5f"
+      "sha": "7b0779bbd63211d0"
     },
     "kategoria-autokoberce-do-kamionu-renault.cz.html": {
       "znaky": 4422,
@@ -214,7 +214,7 @@
     },
     "kategoria-autokoberce-do-kamionu-scania.cz.html": {
       "znaky": 6804,
-      "sha": "6b921ad37ea8e232"
+      "sha": "babf2d5ad7688389"
     },
     "kategoria-autokoberce-do-kamionu-volvo.cz.html": {
       "znaky": 4389,
@@ -226,7 +226,7 @@
     },
     "kategorie-znaciek.json": {
       "znaky": 5593,
-      "sha": "1fcf553c44ee8f38"
+      "sha": "e488455cb7be2875"
     }
   }
 }
