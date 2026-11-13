@@ -574,6 +574,46 @@ export const SCENARE = {
       }
     },
   },
+  // 13. 11. 2026 (Michal, PC ~2000×1180, skrytá kópia s logami /luxusne-autokoberce-kamiony-1/): „v kroku, kde som vyberal
+  // nášivky na boky … pod sedadlo šoféra a spolujazdca, ma to vyskrolovalo až na obrázky“ (galéria pod konfigurátorom).
+  // Kópia má 25 motívov (logá) → karta nášiviek je oveľa vyššia ako na 640. Po každom ťuknutí v kroku 5 nesmie byť
+  // v okne nič pod konfigurátorom.
+  "kamion-posun-loga": {
+    typy: ["kamion"],
+    async fn(s, a, pom, ovl, j) {
+      if (s.k.sirka < 768) return { preskoc: "len PC (vysoké okno)" };
+      await s.k.posli("Emulation.setDeviceMetricsOverride", { width: 1984, height: 1100, deviceScaleFactor: 1, mobile: false });
+      try {
+        await j.otvor(s, a.url, { novy: a.novy, kontrola1v: zapnuty(a) });
+        if (!(await jeNovy(s))) return { preskoc: "starý vzhľad (React) — pokrýva npm run truck:test" };
+        await rob(s, j, [["vyber", "znacka", "DAF (TIR)"], ["vyber", "model", "XF106 2017-2021"], ["dalej", "vozidlo"]]);
+        await overZaciatok(s, j, "material");
+        await rob(s, j, [["klik", a_("mat", "Prémiová syntetická koža – prešívaná")], ["dalej", "material"]]);
+        await overZaciatok(s, j, "farba");
+        await rob(s, j, [["klik", a_("farba", "11")], ["dalej", "farba"]]);
+        await overZaciatok(s, j, "lemovanie");
+        await rob(s, j, [["klik", a_("lem", "04")], ["dalej", "lemovanie"]]);
+        await overZaciatok(s, j, "nasivky");
+        const motivy = await s.t.ev(`Array.prototype.map.call(document.querySelectorAll('#lcd1v-kamion [data-a="motiv"]'), function (b) { return b.getAttribute("data-v") + "@" + b.getAttribute("data-m"); })`);
+        const zaznam = [];
+        await rob(s, j, [["klik", a_("nas", "boky")], ["klik", a_("motiv", "H16", "boky")], ["klik", a_("nit", "2999", "boky")]]);
+        // ako zákazník: zroluje dole k „Pokračovať“ pod dlhým zoznamom log, klikne a touchpad ešte dobieha (koliesko po 0,6 s)
+        const pred = await s.t.ev(`(function () { var b = document.querySelector('#lcd1v-kamion [data-a="potvrd"][data-m="boky"], #lcd1v-kamion [data-a="potvrd"][data-v="boky"]'); var r = b.getBoundingClientRect(); window.scrollTo({ top: Math.round(scrollY + r.bottom - innerHeight + 40), behavior: "instant" }); return Math.round(scrollY); })()`);
+        const okamih = await s.t.ev(`new Promise(function (ok) { var b = document.querySelector('#lcd1v-kamion [data-a="potvrd"][data-m="boky"], #lcd1v-kamion [data-a="potvrd"][data-v="boky"]'); b.click();
+          requestAnimationFrame(function () { var R = document.getElementById("lcd1v-kamion"); ok({ y: Math.round(scrollY), rootBottom: Math.round(R.getBoundingClientRect().bottom), vh: innerHeight }); });
+          setTimeout(function () { window.dispatchEvent(new WheelEvent("wheel", { deltaY: 30, bubbles: true })); }, 600); })`);
+        zaznam.push("pred kliknutím scrollY " + pred + ", hneď po kliknutí spodok " + okamih.rootBottom + "/" + okamih.vh);
+        j.over(bezPopisov(okamih), "hneď po „Pokračovať“ vidno galériu pod konfigurátorom (spodok " + okamih.rootBottom + " px, okno " + okamih.vh + " px)");
+        await j.pauza(2500);
+        const po = await s.t.ev(OTVORENY);
+        zaznam.push("po 2,5 s (koliesko zrušilo posun) spodok " + po.rootBottom + "/" + po.vh);
+        j.over(bezPopisov(po), "po „Pokračovať“ a dobehu touchpadu vidno galériu pod konfigurátorom (spodok " + po.rootBottom + " px, okno " + po.vh + " px)");
+        return { info: "1984×1100 kópia s logami: " + zaznam.join(" · ") };
+      } finally {
+        await s.k.posli("Emulation.setDeviceMetricsOverride", { width: s.k.sirka, height: s.k.vyska, deviceScaleFactor: 1, mobile: !!s.k.mobil });
+      }
+    },
+  },
   "kamion-dodavka": {
     typy: ["kamion"],
     async fn(s, a, pom, ovl, j) {

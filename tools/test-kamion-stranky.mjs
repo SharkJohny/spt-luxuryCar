@@ -57,7 +57,9 @@ console.log("1) Rozpoznanie adresy — produkty.js, stranky.js, seo-hreflang.js"
         const m = TB.TRUCK_VEHICLES[zaz.kamion.znacka];
         over(proj + " " + cesta + ": model " + zaz.kamion.model + " je v zálohe vozidiel", !!(m && m[zaz.kamion.model]));
         const h = HL.cestyStranky(cesta, proj === 562035);
-        over(proj + " " + cesta + ": hreflang pár SK = CZ", !!h && h.sk === cesta && h.cz === cesta);
+        // DAF XG ešte nie je v admine (čaká na fotky celej sady) → v seo-hreflang.js zatiaľ bez páru (13. 11. 2026, --zivy 404)
+        if (cesta === "/autokoberce-do-kamionu-daf-xg/") over(proj + " " + cesta + ": čakajúca stránka zatiaľ bez hreflang páru", h === null);
+        else over(proj + " " + cesta + ": hreflang pár SK = CZ", !!h && h.sk === cesta && h.cz === cesta);
         over(proj + " " + cesta + ": adresa obsahuje „kamion“ (detektory košíka)", /kamion/.test(cesta));
       } else {
         over(proj + " " + cesta + ": skrytá kópia bez hreflang páru", HL.cestyStranky(cesta, proj === 562035) === null);

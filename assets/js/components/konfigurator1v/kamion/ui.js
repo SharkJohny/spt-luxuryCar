@@ -1164,6 +1164,12 @@ export function vytvorUi(o) {
   function posunNa(najdi, ciel) {
     const moj = ++posunBeh, t0 = Date.now();
     let zruseny = false, prst = null, posledneY = null, stoji = 0, korekcie = 0, poPohybe = 0;
+    // 13. 11. 2026 (Michal, PC, kópia s logami: „po logu, farbe nite a Pokračovať ma to vyskrolovalo až na obrázky“):
+    // zákazník zroluje dole k „Pokračovať“ pod dlhým zoznamom motívov, karta sa po kliku zbalí o ~1 500 px a stránka ostane
+    // stáť → v okne je galéria pod konfigurátorom; plynulý posun sa zruší dobehom touchpadu (koliesko po 0,5 s) a zákazník
+    // ostane dole. Preto hneď (ešte pred vykreslením, nedá sa zrušiť) skok tak, aby spodok konfigurátora bol pri spodku okna.
+    const hned = nadSpodkom(w.pageYOffset);
+    if (hned != null && w.pageYOffset - hned >= 2) { try { w.scrollTo({ top: hned, behavior: "instant" }); } catch (e) { w.scrollTo(0, hned); } }
     const ruka = (e) => {
       if (e.type === "wheel") { if (Date.now() - t0 > 500) zruseny = true; return; }
       if (e.type === "keydown") { if (!/^(Enter| |Tab|Shift)$/.test(e.key)) zruseny = true; return; }
