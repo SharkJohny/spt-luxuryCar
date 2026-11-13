@@ -408,7 +408,7 @@
         "url": "/autokoberce-do-kamionu-daf-xg/",
         "metaTitle": "Autokoberce do kamiónu DAF XG/XG+ (2021–2026) na mieru | Luxury Car Design",
         "popisNadpis": "DAF XG a XG+ s našimi autokobercami",
-        "popisUvod": "Pre DAF XG aj XG+ máme hotovú šablónu autokobercov pre sedadlo spolujazdca CINEMA aj odpružené. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "popisUvod": "Pre DAF XG aj XG+ máme hotovú šablónu autokobercov pre sedadlo spolujazdca CINEMA aj odpružené. Na fotkách sú koberce v kabíne aj na svetlom pozadí. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
         "model": "DAF XG a XG+",
         "roky": {
           "od": 2021,
@@ -423,15 +423,52 @@
           "w960": 960,
           "h960": 947
         },
-        "caka": "čaká na fotky – chýba fotka celej sady kobercov na podlahu – béžová prešívaná ani sivá 3-dielna sada podľa Michala nie sú koberce na podlahu (asi na palubnú dosku), treba nové fotky celej sady, stránku nevytvárať v prvej várke",
-        "fotky": []
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu DAF XG a XG+ – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce v kabíne",
+            "popis": "Sivé vzorované koberce v kabíne",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce pri sedadle šoféra",
+            "popis": "Sivé vzorované koberce pri sedadle šoféra",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce pri dverách a sedadle",
+            "popis": "Sivé vzorované koberce pri dverách a sedadle",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce, pohľad zhora",
+            "popis": "Sivé vzorované koberce, pohľad zhora",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu DAF XG a XG+ – sivé vzorované koberce pod sedadlom",
+            "popis": "Sivé vzorované koberce pod sedadlom",
+            "typ": "kabina"
+          }
+        ]
       },
       "cz": {
         "nazov": "Autokoberce do kamionu DAF XG a XG+",
         "url": "/autokoberce-do-kamionu-daf-xg/",
         "metaTitle": "Autokoberce do kamionu DAF XG/XG+ (2021–2026) na míru | Luxury Car Design",
         "popisNadpis": "DAF XG a XG+ s našimi autokoberci",
-        "popisUvod": "Pro DAF XG i XG+ máme hotovou šablonu autokoberců pro sedadlo spolujezdce CINEMA i odpružené. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "popisUvod": "Pro DAF XG i XG+ máme hotovou šablonu autokoberců pro sedadlo spolujezdce CINEMA i odpružené. Na fotkách jsou koberce v kabině i na světlém pozadí. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
         "model": "DAF XG a XG+",
         "roky": {
           "od": 2021,
@@ -446,8 +483,45 @@
           "w960": 960,
           "h960": 947
         },
-        "caka": "čaká na fotky – chýba fotka celej sady kobercov na podlahu – béžová prešívaná ani sivá 3-dielna sada podľa Michala nie sú koberce na podlahu (asi na palubnú dosku), treba nové fotky celej sady, stránku nevytvárať v prvej várke",
-        "fotky": []
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu DAF XG a XG+ – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce v kabině",
+            "popis": "Šedé vzorované koberce v kabině",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce u sedadla řidiče",
+            "popis": "Šedé vzorované koberce u sedadla řidiče",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce u dveří a sedadla",
+            "popis": "Šedé vzorované koberce u dveří a sedadla",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce, pohled shora",
+            "popis": "Šedé vzorované koberce, pohled shora",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce pod sedadlem",
+            "popis": "Šedé vzorované koberce pod sedadlem",
+            "typ": "kabina"
+          }
+        ]
       }
     },
     "man-tgx": {

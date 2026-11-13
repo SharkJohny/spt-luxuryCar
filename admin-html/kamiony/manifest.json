@@ -6,7 +6,7 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "842f7a2456ae992e",
+  "stranky_json": "0f0c8ca6618c8e4d",
   "subory": {
     "daf-xf105.sk.html": {
       "znaky": 21144,
@@ -31,6 +31,14 @@
     "daf-xf106-2013.cz.html": {
       "znaky": 21387,
       "sha": "4b1ad137510e9999"
+    },
+    "daf-xg.sk.html": {
+      "znaky": 20377,
+      "sha": "fed9c2c9e7e3566a"
+    },
+    "daf-xg.cz.html": {
+      "znaky": 20301,
+      "sha": "541beb8dd0bcc520"
     },
     "man-tgx.sk.html": {
       "znaky": 20371,
@@ -165,8 +173,8 @@
       "sha": "e722ab7b96e6b69d"
     },
     "kategoria-autokoberce-do-kamionu-daf.sk.html": {
-      "znaky": 5155,
-      "sha": "7ba4d7bb78f0b298"
+      "znaky": 5931,
+      "sha": "bf408b138ba0c0f0"
     },
     "kategoria-autokoberce-do-kamionu-man.sk.html": {
       "znaky": 5118,
@@ -197,8 +205,8 @@
       "sha": "156d286036fe0a9a"
     },
     "kategoria-autokoberce-do-kamionu-daf.cz.html": {
-      "znaky": 5179,
-      "sha": "ad2dc6cdcceac4df"
+      "znaky": 5963,
+      "sha": "ff618dc38488d824"
     },
     "kategoria-autokoberce-do-kamionu-man.cz.html": {
       "znaky": 5142,
@@ -225,8 +233,8 @@
       "sha": "92e255410246da57"
     },
     "kategorie-znaciek.json": {
-      "znaky": 5593,
-      "sha": "e488455cb7be2875"
+      "znaky": 5645,
+      "sha": "2c29c64f914a516a"
     }
   }
 }
