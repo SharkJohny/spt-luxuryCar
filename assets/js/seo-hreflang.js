@@ -76,6 +76,19 @@ const ROVNAKE = [
   "/o-nas/",
   "/rozcestnik/",
   "/znacka/luxury-car-design/",
+  // stránky áut 14. 11. 2026 naživo SK aj CZ (10 generácií, SK 742–769 / CZ 2553–2580) + značky Dodge a Toyota
+  "/autokoberce-skoda-superb-iii/",
+  "/autokoberce-skoda-octavia-ii/",
+  "/autokoberce-skoda-octavia-iii/",
+  "/autokoberce-skoda-karoq/",
+  "/autokoberce-volkswagen-touareg-iii/",
+  "/autokoberce-volkswagen-passat-b8/",
+  "/autokoberce-audi-q7-4m/",
+  "/autokoberce-audi-q8/",
+  "/autokoberce-dodge-challenger/",
+  "/autokoberce-toyota-rav4-v/",
+  "/autokoberce-dodge/",
+  "/autokoberce-toyota/",
 ];
 
 /** Tá istá stránka, iná adresa: [SK, CZ]. */
@@ -137,19 +150,6 @@ export const CAKAJUCE = [
   "/autokoberce-do-dodavky-peugeot-boxer/",
   "/autokoberce-do-dodavky-fiat-ducato/",
   "/autokoberce-do-dodavky-mercedes-sprinter/",
-  // stránky áut 13. 11. 2026 (10 generácií, SK aj CZ rovnaký slug) + značky Dodge a Toyota — skryté do zverejnenia
-  "/autokoberce-skoda-superb-iii/",
-  "/autokoberce-skoda-octavia-ii/",
-  "/autokoberce-skoda-octavia-iii/",
-  "/autokoberce-skoda-karoq/",
-  "/autokoberce-volkswagen-touareg-iii/",
-  "/autokoberce-volkswagen-passat-b8/",
-  "/autokoberce-audi-q7-4m/",
-  "/autokoberce-audi-q8/",
-  "/autokoberce-dodge-challenger/",
-  "/autokoberce-toyota-rav4-v/",
-  "/autokoberce-dodge/",
-  "/autokoberce-toyota/",
 ];
 
 /** Cesta stránky (bez dopytu) -> { sk, cz }; null, keď stránka protějšok nemá. */
