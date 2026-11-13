@@ -15962,6 +15962,20 @@ body.in-autokoberce-volkswagen h1.category-title::before{background-image:url("h
 .lcd-pa .lcd-pa__nenasli--siroka{margin-top:28px;flex-direction:row;align-items:center;justify-content:space-between;gap:18px;padding:20px 22px;height:auto}
 .lcd-pa .lcd-pa__nenasli--siroka > div{display:flex;flex-direction:column;gap:4px}
 .lcd-pa .lcd-pa__nenasli--siroka .lcd-pa__tl{align-self:center;flex:none}
+/* „Iný model?“ — návrh B (Michal 13. 11. 2026): tmavá dlaždica v mriežke, zlatý okraj, ikona auta s „+“, krátky nadpis, veľké zelené tlačidlo;
+   celá dlaždica je odkaz do hlavného konfigurátora. Široká verzia (prehľad, značka bez modelov) = rovnaký štýl v riadku. */
+.lcd-pa .lcd-pa__iny{height:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px 14px;border-radius:12px;text-align:center;text-decoration:none !important;background:radial-gradient(120% 120% at 0% 0%,rgba(212,170,64,.25),rgba(212,170,64,0) 60%),#14110c;box-shadow:inset 0 0 0 1px var(--pa-zlata),0 14px 30px -20px rgba(20,15,5,.8);transition:transform .15s ease}
+.lcd-pa .lcd-pa__iny:hover, .lcd-pa .lcd-pa__iny:focus-visible{transform:translateY(-2px)}
+.lcd-pa .lcd-pa__iny-ik{position:relative;display:block;color:#e2bd55;line-height:0}
+.lcd-pa .lcd-pa__iny-ik svg{width:78px;height:auto;display:block}
+.lcd-pa .lcd-pa__iny-ik i{position:absolute;right:-12px;top:-10px;width:24px;height:24px;border-radius:50%;background:var(--pa-zelena);color:#fff;font:700 18px/24px Arial,sans-serif;font-style:normal;text-align:center}
+.lcd-pa .lcd-pa__iny b{color:#fff;font:800 18px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.01em}
+.lcd-pa .lcd-pa__iny-tl{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;background:var(--pa-zelena);color:#fff;font:700 15px/1 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:15px 10px;border-radius:10px;box-shadow:0 8px 18px -8px rgba(31,122,82,.7)}
+.lcd-pa .lcd-pa__iny-tl::after{content:"→";font-size:18px}
+.lcd-pa .lcd-pa__iny:hover .lcd-pa__iny-tl, .lcd-pa .lcd-pa__iny:focus-visible .lcd-pa__iny-tl{background:#17603f}
+.lcd-pa .lcd-pa__iny--siroka{margin-top:28px;flex-direction:row;justify-content:flex-start;gap:22px;padding:22px 26px;text-align:left;height:auto}
+.lcd-pa .lcd-pa__iny--siroka b{flex:1 1 auto;font-size:21px}
+.lcd-pa .lcd-pa__iny--siroka .lcd-pa__iny-tl{width:auto;flex:none;padding:16px 26px}
 .lcd-pa .lcd-pa__spat{display:inline-block;margin-top:24px;color:var(--pa-ink);font:600 15px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-decoration:underline;text-underline-offset:3px}
 
 @media (max-width: 900px){
@@ -15971,6 +15985,9 @@ body.in-autokoberce-volkswagen h1.category-title::before{background-image:url("h
   .lcd-pa .lcd-pa__auta{grid-template-columns:repeat(2,minmax(0,1fr))}
   .lcd-pa .lcd-pa__nenasli--siroka{flex-direction:column;align-items:flex-start}
   .lcd-pa .lcd-pa__nenasli--siroka .lcd-pa__tl{align-self:flex-start}
+  .lcd-pa .lcd-pa__iny--siroka{flex-direction:column;align-items:stretch;text-align:center;gap:14px;padding:20px 18px}
+  .lcd-pa .lcd-pa__iny--siroka .lcd-pa__iny-ik{align-self:center}
+  .lcd-pa .lcd-pa__iny--siroka .lcd-pa__iny-tl{width:100%}
 }
 
 /* 5) pätička (banner5 „Produkty“, stĺpec „Podľa auta“): značky s logom v bielom krúžku */

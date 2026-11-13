@@ -129,6 +129,8 @@ const WEB = {
     uvodPrehlad: "Vyberte značku. Pri každom aute nájdete fotky od našich zákazníkov a konfigurátor s cenou.",
     nenasliAuto: "<b>Nenašli ste model svojho auta?</b><p>Nevadí, nájdete ho tu. Autokoberce máme pre viac ako 1&nbsp;000 modelov áut a cenu uvidíte hneď.</p>",
     najst: "Nájsť moje auto",
+    inyModel: "Iný model?", nenasliSiroka: "Nenašli ste svoje auto?", vyhladat: "Vyhľadať",
+    modelBezNadpis: (koho) => `Model ${koho} nájdete tu`,
     uvodBez: (kto) => `Luxusné autokoberce na mieru do auta ${kto}. Model, vzor aj farbu si vyberiete v konfigurátore.`,
     modelBez: (koho) => `<b>Model ${koho} nájdete tu</b><p>Autokoberce máme pre viac ako 1&nbsp;000 modelov áut a cenu uvidíte hneď.</p>`,
     vsetky: "Všetky značky",
@@ -142,6 +144,8 @@ const WEB = {
     uvodPrehlad: "Vyberte značku. U každého auta najdete fotky od našich zákazníků a konfigurátor s cenou.",
     nenasliAuto: "<b>Nenašli jste model svého auta?</b><p>Nevadí, najdete ho tady. Autokoberce máme pro více než 1&nbsp;000 modelů aut a cenu uvidíte hned.</p>",
     najst: "Najít moje auto",
+    inyModel: "Jiný model?", nenasliSiroka: "Nenašli jste své auto?", vyhladat: "Vyhledat",
+    modelBezNadpis: (koho) => `Model ${koho} najdete tady`,
     uvodBez: (kto) => `Luxusní autokoberce na míru do auta ${kto}. Model, vzor i barvu si vyberete v konfigurátoru.`,
     modelBez: (koho) => `<b>Model ${koho} najdete tady</b><p>Autokoberce máme pro více než 1&nbsp;000 modelů aut a cenu uvidíte hned.</p>`,
     vsetky: "Všechny značky",
@@ -151,6 +155,10 @@ const WEB = {
     cena: (c) => "od " + String(c).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Kč",
   },
 };
+
+// „Iný model?“ (návrh B, Michal 13. 11. 2026): zlatá ikona auta so zeleným „+“, celá dlaždica je odkaz do konfigurátora
+const IKONA_AUTO = '<svg viewBox="0 0 72 34" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 24v-5l7-2 9-8h22l10 8 12 2 4 3v4h-6"/><path d="M15 26H4"/><path d="M58 26H25"/><circle cx="20" cy="26" r="5"/><circle cx="54" cy="26" r="5"/><path d="M24 9l-4 8h31l-9-8z"/></svg>';
+const iny = (nadpis, tl, siroka) => `<a class="lcd-pa__iny${siroka ? " lcd-pa__iny--siroka" : ""}" href="${KONFIGURATOR}"><span class="lcd-pa__iny-ik">${IKONA_AUTO}<i>+</i></span><b>${nadpis}</b><span class="lcd-pa__iny-tl">${tl}</span></a>`;
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const upozornenia = [];
@@ -179,10 +187,7 @@ function prehlad(web) {
 <ul class="lcd-pa__znacky">
 ${dlazdice}
 </ul>
-<div class="lcd-pa__nenasli lcd-pa__nenasli--siroka">
-  <div>${T.nenasliAuto}</div>
-  <a class="lcd-pa__tl" href="${KONFIGURATOR}">${T.najst}</a>
-</div>
+${iny(T.nenasliSiroka, T.vyhladat, true)}
 </div>
 `;
 }
@@ -193,10 +198,7 @@ function znacka(z, web) {
     // značka bez stránok áut: len široká karta do konfigurátora
     return `<div class="lcd-pa lcd-pa--znacka" data-lcd-cast="podla-auta-${z.kluc}">
 <p class="lcd-pa__uvod">${T.uvodBez(esc(z.kto))}</p>
-<div class="lcd-pa__nenasli lcd-pa__nenasli--siroka">
-  <div>${T.modelBez(esc(z.koho))}</div>
-  <a class="lcd-pa__tl" href="${KONFIGURATOR}">${T.najst}</a>
-</div>
+${iny(T.modelBezNadpis(esc(z.koho)), T.vyhladat, true)}
 <a class="lcd-pa__spat" href="${T.prehladUrl}">${T.vsetky}</a>
 </div>
 `;
@@ -207,7 +209,7 @@ function znacka(z, web) {
 <p class="lcd-pa__uvod">${T.uvodZnacka}</p>
 <ul class="lcd-pa__auta">
 ${karty}
-  <li><div class="lcd-pa__nenasli">${T.nenasliZnacka(esc(z.koho))}<a class="lcd-pa__tl" href="${KONFIGURATOR}">${T.najst}</a></div></li>
+  <li>${iny(T.inyModel, T.vyhladat, false)}</li>
 </ul>
 <a class="lcd-pa__spat" href="${T.prehladUrl}">${T.vsetky}</a>
 </div>
