@@ -20,10 +20,13 @@ for (const c of [0, 1]) assert.equal(new Set(VSETKY_PARY.map((p) => p[c])).size,
 // stránky kamiónov (konfigurator1v/kamion/stranky.js, vlny 1–3): každá s pevným modelom má pár SK = CZ, skrytá kópia nie;
 // SK aj CZ majú tie isté adresy stránok kamiónov
 const { KAMION_STRANKY } = await import(pathToFileURL(join(ROOT, "assets/js/components/konfigurator1v/kamion/stranky.js")).href);
+// stránka ešte nie je v admine (DAF XG čaká na fotky celej sady) → v seo-hreflang.js zatiaľ bez páru (inak --zivy 404)
+const CAKAJU = new Set(["/autokoberce-do-kamionu-daf-xg/"]);
 const stranky = { 562035: [], 581408: [] };
 for (const proj of [562035, 581408]) {
   for (const [c, z] of Object.entries(KAMION_STRANKY[proj])) {
-    if (z.kamion) { stranky[proj].push(c); assert.deepEqual(cestyStranky(c, proj === 562035), { sk: c, cz: c }, "stránka kamióna bez páru: " + c); }
+    if (z.kamion && CAKAJU.has(c)) assert.equal(cestyStranky(c, proj === 562035), null, "čakajúca stránka nemá mať pár, kým nie je naživo: " + c);
+    else if (z.kamion) { stranky[proj].push(c); assert.deepEqual(cestyStranky(c, proj === 562035), { sk: c, cz: c }, "stránka kamióna bez páru: " + c); }
     else assert.equal(cestyStranky(c, proj === 562035), null, "skrytá kópia nesmie mať jazykový pár: " + c);
   }
 }
