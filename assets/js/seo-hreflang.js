@@ -80,6 +80,7 @@ const ROVNAKE = [
 
 /** Tá istá stránka, iná adresa: [SK, CZ]. */
 const PARY = [
+  ["/darcekova-poukazka/", "/darkovy-poukaz/"],
   ["/luxusne-autokoberce-kamiony/", "/luxusni-autokoberce-kamiony/"],
   ["/vzorkovnik-dragonskin---objednavka-vzoriek/", "/vzorkovnik-dragonskin---objednavka-vzorku/"],
   ["/galeria/", "/galerie/"],
