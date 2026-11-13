@@ -6,15 +6,15 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "358a25843542ef76",
+  "stranky_json": "0631dfb61f1000b7",
   "subory": {
     "daf-xf105.sk.html": {
-      "znaky": 19603,
-      "sha": "299dbb51dcbe3cc1"
+      "znaky": 21144,
+      "sha": "4114b9faaece141d"
     },
     "daf-xf105.cz.html": {
-      "znaky": 19548,
-      "sha": "85e48d909d4230fe"
+      "znaky": 21086,
+      "sha": "07b03e00392262a7"
     },
     "daf-xf106.sk.html": {
       "znaky": 20374,
@@ -25,12 +25,12 @@
       "sha": "c846614e8db63485"
     },
     "daf-xf106-2013.sk.html": {
-      "znaky": 20557,
-      "sha": "e77fcdfb4844d0f9"
+      "znaky": 21458,
+      "sha": "299522687d32d03e"
     },
     "daf-xf106-2013.cz.html": {
-      "znaky": 20486,
-      "sha": "93fd8428fbf70361"
+      "znaky": 21387,
+      "sha": "4b1ad137510e9999"
     },
     "man-tgx.sk.html": {
       "znaky": 20365,

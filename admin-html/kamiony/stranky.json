@@ -43,24 +43,36 @@
           },
           {
             "n": "02",
+            "alt": "Autokoberce do kamiónu DAF XF105 – červené prešívané koberce, celý set",
+            "popis": "Červené prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu DAF XF105 – čierne prešívané koberce, celý set",
+            "popis": "Čierne prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
             "alt": "Autokoberce do kamiónu DAF XF105 – zelený prešívaný stredový diel",
             "popis": "Zelený prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "03",
+            "n": "05",
             "alt": "Autokoberce do kamiónu DAF XF105 – hnedý prešívaný stredový diel",
             "popis": "Hnedý prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "06",
             "alt": "Autokoberce do kamiónu DAF XF105 – tmavosivý prešívaný stredový diel",
             "popis": "Tmavosivý prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "07",
             "alt": "Autokoberce do kamiónu DAF XF105 – hnedý prešívaný tapacír dverí",
             "popis": "Hnedý prešívaný tapacír dverí",
             "typ": "studio"
@@ -97,24 +109,36 @@
           },
           {
             "n": "02",
+            "alt": "Autokoberce do kamionu DAF XF105 – červené prošívané koberce, celý set",
+            "popis": "Červené prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu DAF XF105 – černé prošívané koberce, celý set",
+            "popis": "Černé prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
             "alt": "Autokoberce do kamionu DAF XF105 – zelený prošívaný středový díl",
             "popis": "Zelený prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "03",
+            "n": "05",
             "alt": "Autokoberce do kamionu DAF XF105 – hnědý prošívaný středový díl",
             "popis": "Hnědý prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "06",
             "alt": "Autokoberce do kamionu DAF XF105 – tmavě šedý prošívaný středový díl",
             "popis": "Tmavě šedý prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "07",
             "alt": "Autokoberce do kamionu DAF XF105 – hnědé prošívané čalounění dveří",
             "popis": "Hnědé prošívané čalounění dveří",
             "typ": "studio"
@@ -275,30 +299,36 @@
           },
           {
             "n": "02",
+            "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – hnedé prešívané koberce pre manuálnu prevodovku, celý set",
+            "popis": "Hnedé prešívané koberce pre manuálnu prevodovku, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – červený prešívaný stredový diel",
             "popis": "Červený prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "03",
+            "n": "04",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – modrý prešívaný stredový diel",
             "popis": "Modrý prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "05",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – béžový prešívaný stredový diel",
             "popis": "Béžový prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "06",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – tmavomodrý prešívaný stredový diel",
             "popis": "Tmavomodrý prešívaný stredový diel",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "07",
             "alt": "Autokoberce do kamiónu DAF XF106 2013–2016 – čierny prešívaný stredový diel",
             "popis": "Čierny prešívaný stredový diel",
             "typ": "studio"
@@ -335,30 +365,36 @@
           },
           {
             "n": "02",
+            "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – hnědé prošívané koberce pro manuální převodovku, celý set",
+            "popis": "Hnědé prošívané koberce pro manuální převodovku, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – červený prošívaný středový díl",
             "popis": "Červený prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "03",
+            "n": "04",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – modrý prošívaný středový díl",
             "popis": "Modrý prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "04",
+            "n": "05",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – béžový prošívaný středový díl",
             "popis": "Béžový prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "05",
+            "n": "06",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – tmavě modrý prošívaný středový díl",
             "popis": "Tmavě modrý prošívaný středový díl",
             "typ": "studio"
           },
           {
-            "n": "06",
+            "n": "07",
             "alt": "Autokoberce do kamionu DAF XF106 2013–2016 – černý prošívaný středový díl",
             "popis": "Černý prošívaný středový díl",
             "typ": "studio"

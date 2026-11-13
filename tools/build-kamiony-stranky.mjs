@@ -92,13 +92,19 @@ const slugy = Object.keys(data.stranky).sort();
 const cakajuce = slugy.filter((s) => JAZYKY.some((j) => data.stranky[s][j].caka));
 const hotove = slugy.filter((s) => !cakajuce.includes(s));
 
+// CDN drží obrázky rok (Cache-Control max-age=31536000): keď sa galéria stránky prečísluje (rovnaké meno -galeria-NN,
+// iný obsah), zvýš verziu slugu – odkazy dostanú ?v=N a CDN aj prehliadač stiahnu nový obrázok.
+// 13. 11. 2026: DAF XF105 +2 celé sety, DAF XF106 2013 +1 celý set (Codex, foto/davka6-daf.csv).
+const VERZIA_GALERIE = { "daf-xf105": 2, "daf-xf106-2013": 2 };
+
 /** Sekcia galérie stránky z galérie 640 / 2452: nadpis, úvod, fotky; nadpis sekcie (eyebrow) a tlačidlo ostávajú. */
 function galeria(distSek, s, slug) {
   const zv = (distSek.match(/<span class="sr-only">([^<:]+: )/) || [])[1];
   if (!zv) throw new Error("dist galéria: nenašiel som text „Zväčšiť fotku: “");
+  const v = VERZIA_GALERIE[slug] ? "?v=" + VERZIA_GALERIE[slug] : "";
   const fotky = s.fotky.map((f) => {
     const zaklad = CDN + slug + "/autokoberce-do-kamionu-" + slug + "-galeria-" + f.n;
-    return '<figure class="kg-k"><button type="button" class="kg-f" data-p1v-lb-foto="' + zaklad + '.jpg" data-p1v-lb-sada="kamiony-' + slug + '"><img src="' + zaklad + '-m.jpg" alt="' + esc(f.alt) + '" loading="lazy" width="800" height="800"><span class="sr-only">' + zv + esc(f.popis) + "</span></button><figcaption>" + esc(f.popis) + "</figcaption></figure>";
+    return '<figure class="kg-k"><button type="button" class="kg-f" data-p1v-lb-foto="' + zaklad + ".jpg" + v + '" data-p1v-lb-sada="kamiony-' + slug + '"><img src="' + zaklad + "-m.jpg" + v + '" alt="' + esc(f.alt) + '" loading="lazy" width="800" height="800"><span class="sr-only">' + zv + esc(f.popis) + "</span></button><figcaption>" + esc(f.popis) + "</figcaption></figure>";
   });
   let n = 0;
   const out = distSek
@@ -335,7 +341,7 @@ for (const [m, t] of subory) {
   }
   const ids = [...t.matchAll(/\sid="([^"]+)"/g)].map((x) => x[1]);
   if (new Set(ids).size !== ids.length) chyba(m, "duplicitné id");
-  for (const u of t.match(/https:\/\/cdn\.myshoptet\.com\/[^"\s,]+/g) || []) if (u.startsWith(CDN)) obrazky.add(u.slice(CDN.length));
+  for (const u of t.match(/https:\/\/cdn\.myshoptet\.com\/[^"\s,]+/g) || []) if (u.startsWith(CDN)) obrazky.add(u.slice(CDN.length).replace(/\?.*$/, ""));
   if (/^(kategoria|paticka)-/.test(m)) {
     if (m.startsWith("paticka-") && /\/znacky\/|logo/i.test(t)) chyba(m, "logo značky v návrhu pätičky");
     if (/\d+\s*(model|kamió|kamio|typ|značk|znač)/i.test(t.replace(/<style>[\s\S]*?<\/style>/, ""))) chyba(m, "počet modelov v texte");
