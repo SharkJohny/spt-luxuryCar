@@ -146,6 +146,7 @@ const TK = {
     znacka: "Vyberte model. Na stránke modelu nájdete fotky kobercov a konfigurátor s cenou.",
     ctaNadpis: "Nenašli ste svoj kamión / dodávku?",
     ctaTl: "Vyhľadať",
+    inyModel: "Iný model?",
     vsetky: "Všetky značky kamiónov",
     nazov: (z) => "Autokoberce do kamiónu " + z,
     meta: (z, m) => "Autokoberce do kamiónu " + z + " na mieru: " + m + ". Fotky kobercov a konfigurátor s cenou. Od 199 €.",
@@ -155,6 +156,7 @@ const TK = {
     znacka: "Vyberte model. Na stránce modelu najdete fotky koberců a konfigurátor s cenou.",
     ctaNadpis: "Nenašli jste svůj kamion / dodávku?",
     ctaTl: "Vyhledat",
+    inyModel: "Jiný model?",
     vsetky: "Všechny značky kamionů",
     nazov: (z) => "Autokoberce do kamionu " + z,
     meta: (z, m) => "Autokoberce do kamionu " + z + " na míru: " + m + ". Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
@@ -178,19 +180,9 @@ function stylStranky(slug, z) {
   // celý ťahač aj s kolesami (Michal 13. 11. 2026: „chýba kus kolesa“): <picture> vyplní rámik, obrázok sa zmestí celý
   r.push(b + " .lcd-pa--kamiony .lcd-pa__foto picture{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;overflow:hidden}");
   r.push(b + " .lcd-pa--kamiony .lcd-pa__foto img{width:auto;height:auto;max-width:92%;max-height:92%;object-fit:contain}");
-  // rámik „Nenašli ste svoj kamión / dodávku?“ — návrh A (Michal 13. 11. 2026): tmavý, zlatý okraj, zelené tlačidlo;
-  // len nadpis + „Vyhľadať“ (Michal: „veľa textu… jasne, stručne, nech to prečíta a klikne“)
-  const c = b + " .lcd-kam-cta";
-  r.push(c + '{display:flex;align-items:center;gap:22px;margin:30px 0 0;padding:26px 28px;border-radius:16px;background:radial-gradient(120% 160% at 0% 0%,rgba(212,170,64,.28),rgba(212,170,64,0) 55%),#14110c;box-shadow:inset 0 0 0 1px #c49b31,0 20px 40px -24px rgba(20,15,5,.75);font-family:"Source Sans 3","Segoe UI",Arial,sans-serif}');
-  r.push(c + "__ikony{display:flex;align-items:flex-end;gap:8px;flex:none;color:#e2bd55}");
-  r.push(c + "__ikony svg{width:58px;height:auto;display:block}");
-  r.push(c + "__text{flex:1 1 auto;min-width:0}");
-  r.push(c + '__nadpis{display:block;color:#fff;font:800 23px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.01em}');
-  r.push(c + '__tl{flex:none;display:inline-flex;align-items:center;gap:10px;background:#1f7a52;color:#fff !important;font:700 15px/1 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:16px 24px;border-radius:10px;text-decoration:none !important}');
-  r.push(c + '__tl::after{content:"→";font-size:18px}');
-  r.push(c + "__tl:hover," + c + "__tl:focus-visible{background:#17603f}");
-  r.push("@media (max-width: 900px){" + b + " h1.category-title{font-size:26px;gap:12px}" + (z ? b + " h1.category-title::before{width:46px;height:46px;background-size:28px 28px}" : "") +
-    b + " .lcd-kam-cta{flex-direction:column;align-items:flex-start;gap:14px;padding:22px 20px}" + b + " .lcd-kam-cta__nadpis{font-size:20px}" + b + " .lcd-kam-cta__tl{width:100%;justify-content:center}}");
+  // „Nenašli ste…“ = návrh B (Michal 13. 11. 2026 večer, rovnako ako pri autách): štýl .lcd-pa__iny* je v _lcdPodlaAuta.scss
+  // (main 239cc4bb, naživo od b522069), tu len kamión v ikone. Návrh A (.lcd-kam-cta) sa už nepoužíva.
+  r.push("@media (max-width: 900px){" + b + " h1.category-title{font-size:26px;gap:12px}" + (z ? b + " h1.category-title::before{width:46px;height:46px;background-size:28px 28px}" : "") + "}");
   return "<style>\n" + r.join("\n") + "\n</style>";
 }
 
@@ -200,10 +192,11 @@ const IKONA = '<svg viewBox="0 0 64 40" width="64" height="40" fill="none" strok
 const IKONA_KAMION = '<svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 7h30v23H3z"/><path d="M33 14h14l10 10v6H33z"/><path d="M38 17h7l6 6H38z"/><circle cx="13" cy="32" r="4.2" fill="currentColor" stroke="none"/><circle cx="46" cy="32" r="4.2" fill="currentColor" stroke="none"/></svg>';
 const IKONA_DODAVKA = '<svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 9h36l10 11h10v10H4z"/><path d="M40 9v11h10"/><path d="M24 9v21"/><circle cx="16" cy="32" r="4.2" fill="currentColor" stroke="none"/><circle cx="49" cy="32" r="4.2" fill="currentColor" stroke="none"/></svg>';
 
-/** Rámik „Nenašli ste svoj kamión / dodávku?“ (návrh A) -> hlavný konfigurátor 640 / 2452 (kamióny aj dodávky). */
-function ramik(j) {
-  const k = TK[j];
-  return '<div class="lcd-kam-cta"><div class="lcd-kam-cta__ikony">' + IKONA_KAMION + IKONA_DODAVKA + '</div><div class="lcd-kam-cta__text"><b class="lcd-kam-cta__nadpis">' + esc(k.ctaNadpis) + '</b></div><a class="lcd-kam-cta__tl" href="' + data.web[j].konfigurator + '">' + esc(k.ctaTl) + "</a></div>";
+/** „Nenašli ste…“ — návrh B: dlaždica „Iný model?“ v mriežke, alebo široký pás (siroka) -> konfigurátor 640 / 2452.
+ *  Markup = iny() v tools/build-podla-auta.mjs (main 239cc4bb), ikona kamióna namiesto auta. */
+function iny(j, nadpis, siroka) {
+  return '<a class="lcd-pa__iny' + (siroka ? " lcd-pa__iny--siroka" : "") + '" href="' + data.web[j].konfigurator + '"><span class="lcd-pa__iny-ik">' + IKONA_KAMION +
+    "<i>+</i></span><b>" + esc(nadpis) + '</b><span class="lcd-pa__iny-tl">' + esc(TK[j].ctaTl) + "</span></a>";
 }
 
 function dlazdica(slug, s, j) {
@@ -230,7 +223,7 @@ function kategoria(j) {
     '<ul class="lcd-pa__znacky">',
     ...znackyJazyka(j).map((z) => '  <li><a class="lcd-pa__znacka" href="' + znackaUrl(z) + '"><img src="' + logo(z) + '" alt="" width="46" height="46" loading="lazy" decoding="async"><b>' + esc(z) + "</b></a></li>"),
     "</ul>",
-    ramik(j),
+    iny(j, k.ctaNadpis, true),
     "</div>",
   ].join("\n") + "\n";
 }
@@ -244,8 +237,8 @@ function kategoriaZnacky(j, z) {
     '<p class="lcd-pa__uvod">' + esc(k.znacka) + "</p>",
     '<ul class="lcd-pa__auta">',
     ...modelyZnacky(z, j).map((s) => dlazdica(s, data.stranky[s][j], j)),
+    "  <li>" + iny(j, k.inyModel, false) + "</li>",
     "</ul>",
-    ramik(j),
     '<a class="lcd-pa__spat" href="' + data.web[j].kategoria + '">' + esc(k.vsetky) + "</a>",
     "</div>",
   ].join("\n") + "\n";
@@ -361,7 +354,7 @@ for (const [m, t] of subory) {
     }
     if (m === "kategoria-autokoberce-do-kamionu." + j + ".html") {
       for (const z of znackyJazyka(j)) if (!t.includes('href="' + znackaUrl(z) + '"')) chyba(m, "chýba odkaz na značku " + znackaUrl(z));
-      if (!t.includes(esc(TK[j].ctaNadpis))) chyba(m, "chýba rámik „" + TK[j].ctaNadpis + "“");
+      if (!t.includes('class="lcd-pa__iny lcd-pa__iny--siroka"') || !t.includes(esc(TK[j].ctaNadpis))) chyba(m, "chýba široký pás „" + TK[j].ctaNadpis + "“ (návrh B)");
     } else if (m.startsWith("kategoria-")) {
       const z = znackyJazyka(j).find((x) => m === "kategoria-" + znackaSlug(x) + "." + j + ".html");
       if (!z) { chyba(m, "neznáma značka"); continue; }
@@ -369,7 +362,7 @@ for (const [m, t] of subory) {
       for (const s of hotove.filter((x) => !modelyZnacky(z, j).includes(x))) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na inú značku " + data.stranky[s][j].url);
       if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "bez odkazu Všetky značky");
       for (const s of cakajuce) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na čakajúcu stránku " + data.stranky[s][j].url);
-      if (!t.includes(esc(TK[j].ctaNadpis))) chyba(m, "chýba rámik „" + TK[j].ctaNadpis + "“");
+      if (!t.includes('<li><a class="lcd-pa__iny" href="' + data.web[j].konfigurator + '"') || !t.includes(esc(TK[j].inyModel))) chyba(m, "chýba dlaždica „" + TK[j].inyModel + "“ (návrh B)");
     } else if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "pätička bez odkazu na kategóriu");
   }
 }
