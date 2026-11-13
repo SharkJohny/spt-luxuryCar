@@ -24,7 +24,7 @@ const ROVNAKE = [
   // Kým nie sú naživo OBE kópie, --zivy hlási pri nich 404 (očakávané).
   "/autokoberce-do-kamionu-daf-xf105/",
   "/autokoberce-do-kamionu-daf-xf106/",
-  "/autokoberce-do-kamionu-daf-xg/",
+  // "/autokoberce-do-kamionu-daf-xg/" – vrátiť, keď bude stránka DAF XG (čaká na fotky celej sady); dovtedy 404 SK aj CZ
   "/autokoberce-do-kamionu-man-tgx-2018/",
   "/autokoberce-do-kamionu-mercedes-actros-solostar/",
   "/autokoberce-do-kamionu-scania-s/",
