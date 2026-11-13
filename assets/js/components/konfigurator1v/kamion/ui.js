@@ -1170,6 +1170,13 @@ export function vytvorUi(o) {
     // ostane dole. Preto hneď (ešte pred vykreslením, nedá sa zrušiť) skok tak, aby spodok konfigurátora bol pri spodku okna.
     const hned = nadSpodkom(w.pageYOffset);
     if (hned != null && w.pageYOffset - hned >= 2) { try { w.scrollTo({ top: hned, behavior: "instant" }); } catch (e) { w.scrollTo(0, hned); } }
+    // ešte 1,2 s po kliku (dobeh touchpadu / kolieska, aj keď zruší plynulý posun) stránka nejde pod spodok konfigurátora
+    (function strazSpodku() {
+      if (moj !== posunBeh || Date.now() - t0 > 1200) return;
+      const m = nadSpodkom(w.pageYOffset);
+      if (m != null && w.pageYOffset - m >= 2) { try { w.scrollTo({ top: m, behavior: "instant" }); } catch (e) { w.scrollTo(0, m); } }
+      setTimeout(strazSpodku, 50);
+    })();
     const ruka = (e) => {
       if (e.type === "wheel") { if (Date.now() - t0 > 500) zruseny = true; return; }
       if (e.type === "keydown") { if (!/^(Enter| |Tab|Shift)$/.test(e.key)) zruseny = true; return; }
