@@ -2280,12 +2280,12 @@
         },
         "znacka": "Volvo",
         "tahac": {
-          "kluc": "volvo-fh-2009",
-          "subor": "volvo-fh-2009-vlavo",
+          "kluc": "volvo-fh-2009-studio",
+          "subor": "volvo-fh-2009-studio-vlavo",
           "w": 480,
-          "h": 440,
+          "h": 348,
           "w960": 960,
-          "h960": 880
+          "h960": 696
         },
         "caka": null,
         "fotky": [
@@ -2340,12 +2340,12 @@
         },
         "znacka": "Volvo",
         "tahac": {
-          "kluc": "volvo-fh-2009",
-          "subor": "volvo-fh-2009-vlavo",
+          "kluc": "volvo-fh-2009-studio",
+          "subor": "volvo-fh-2009-studio-vlavo",
           "w": 480,
-          "h": 440,
+          "h": 348,
           "w960": 960,
-          "h960": 880
+          "h960": 696
         },
         "caka": null,
         "fotky": [
