@@ -138,8 +138,10 @@ const TK = {
   sk: {
     prehlad: "Vyberte značku kamiónu. Pri každom modeli nájdete fotky kobercov a konfigurátor s cenou.",
     znacka: "Vyberte model. Na stránke modelu nájdete fotky kobercov a konfigurátor s cenou.",
-    nenasliZ: (z) => "Nenašli ste svoj kamión " + z + "?",
-    nenasliText: "Nevadí, nájdete ho tu. V konfigurátore vyberiete značku aj model a cenu uvidíte hneď.",
+    ctaEyebrow: "Kamióny a dodávky",
+    ctaNadpis: "Nenašli ste svoj kamión / dodávku?",
+    ctaText: "Nevadí. V konfigurátore vyberiete značku aj model a cenu uvidíte hneď.",
+    ctaTl: "Nájsť môj kamión / dodávku",
     vsetky: "Všetky značky kamiónov",
     nazov: (z) => "Autokoberce do kamiónu " + z,
     meta: (z, m) => "Autokoberce do kamiónu " + z + " na mieru: " + m + ". Fotky kobercov a konfigurátor s cenou. Od 199 €.",
@@ -147,8 +149,10 @@ const TK = {
   cz: {
     prehlad: "Vyberte značku kamionu. U každého modelu najdete fotky koberců a konfigurátor s cenou.",
     znacka: "Vyberte model. Na stránce modelu najdete fotky koberců a konfigurátor s cenou.",
-    nenasliZ: (z) => "Nenašli jste svůj kamion " + z + "?",
-    nenasliText: "Nevadí, najdete ho tady. V konfigurátoru vyberete značku i model a cenu uvidíte hned.",
+    ctaEyebrow: "Kamiony a dodávky",
+    ctaNadpis: "Nenašli jste svůj kamion / dodávku?",
+    ctaText: "Nevadí. V konfigurátoru vyberete značku i model a cenu uvidíte hned.",
+    ctaTl: "Najít můj kamion / dodávku",
     vsetky: "Všechny značky kamionů",
     nazov: (z) => "Autokoberce do kamionu " + z,
     meta: (z, m) => "Autokoberce do kamionu " + z + " na míru: " + m + ". Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
@@ -169,12 +173,34 @@ function stylStranky(slug, z) {
   ];
   if (z) r.push(b + ' h1.category-title::before{content:"";flex:none;width:54px;height:54px;border-radius:50%;background:#fff url("' + logo(z) + '") no-repeat center/32px 32px;border:1px solid #e4ddcd}');
   r.push(b + " .lcd-pa--kamiony .lcd-pa__foto{aspect-ratio:5/4}");
-  r.push("@media (max-width: 900px){" + b + " h1.category-title{font-size:26px;gap:12px}" + (z ? b + " h1.category-title::before{width:46px;height:46px;background-size:28px 28px}" : "") + "}");
+  // rámik „Nenašli ste svoj kamión / dodávku?“ — návrh A (Michal 13. 11. 2026): tmavý, zlatý okraj, zelené tlačidlo
+  const c = b + " .lcd-kam-cta";
+  r.push(c + '{display:flex;align-items:center;gap:22px;margin:30px 0 0;padding:26px 28px;border-radius:16px;background:radial-gradient(120% 160% at 0% 0%,rgba(212,170,64,.28),rgba(212,170,64,0) 55%),#14110c;box-shadow:inset 0 0 0 1px #c49b31,0 20px 40px -24px rgba(20,15,5,.75);font-family:"Source Sans 3","Segoe UI",Arial,sans-serif}');
+  r.push(c + "__ikony{display:flex;align-items:flex-end;gap:8px;flex:none;color:#e2bd55}");
+  r.push(c + "__ikony svg{width:58px;height:auto;display:block}");
+  r.push(c + "__text{flex:1 1 auto;min-width:0}");
+  r.push(c + '__eyebrow{display:block;margin:0 0 6px;color:#e2bd55;font:700 12px/1 "Exo 2","Segoe UI",Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase}');
+  r.push(c + '__nadpis{display:block;color:#fff;font:800 23px/1.2 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.01em}');
+  r.push(c + "__text p{margin:8px 0 0;color:#d9d0be;font-size:17px;line-height:1.45}");
+  r.push(c + '__tl{flex:none;display:inline-flex;align-items:center;gap:10px;background:#1f7a52;color:#fff !important;font:700 15px/1 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:16px 24px;border-radius:10px;text-decoration:none !important}');
+  r.push(c + '__tl::after{content:"→";font-size:18px}');
+  r.push(c + "__tl:hover," + c + "__tl:focus-visible{background:#17603f}");
+  r.push("@media (max-width: 900px){" + b + " h1.category-title{font-size:26px;gap:12px}" + (z ? b + " h1.category-title::before{width:46px;height:46px;background-size:28px 28px}" : "") +
+    b + " .lcd-kam-cta{flex-direction:column;align-items:flex-start;gap:14px;padding:22px 20px}" + b + " .lcd-kam-cta__nadpis{font-size:20px}" + b + " .lcd-kam-cta__tl{width:100%;justify-content:center}}");
   return "<style>\n" + r.join("\n") + "\n</style>";
 }
 
 // jednoduchý obrys ťahača (žiadna značka) pre stránky bez fotky ťahača výrobcu
 const IKONA = '<svg viewBox="0 0 64 40" width="64" height="40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><path d="M33 17h7l6 6H33z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg>';
+
+const IKONA_KAMION = '<svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 7h30v23H3z"/><path d="M33 14h14l10 10v6H33z"/><path d="M38 17h7l6 6H38z"/><circle cx="13" cy="32" r="4.2" fill="currentColor" stroke="none"/><circle cx="46" cy="32" r="4.2" fill="currentColor" stroke="none"/></svg>';
+const IKONA_DODAVKA = '<svg viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 9h36l10 11h10v10H4z"/><path d="M40 9v11h10"/><path d="M24 9v21"/><circle cx="16" cy="32" r="4.2" fill="currentColor" stroke="none"/><circle cx="49" cy="32" r="4.2" fill="currentColor" stroke="none"/></svg>';
+
+/** Rámik „Nenašli ste svoj kamión / dodávku?“ (návrh A) -> hlavný konfigurátor 640 / 2452 (kamióny aj dodávky). */
+function ramik(j) {
+  const k = TK[j];
+  return '<div class="lcd-kam-cta"><div class="lcd-kam-cta__ikony">' + IKONA_KAMION + IKONA_DODAVKA + '</div><div class="lcd-kam-cta__text"><span class="lcd-kam-cta__eyebrow">' + esc(k.ctaEyebrow) + '</span><b class="lcd-kam-cta__nadpis">' + esc(k.ctaNadpis) + "</b><p>" + esc(k.ctaText) + '</p></div><a class="lcd-kam-cta__tl" href="' + data.web[j].konfigurator + '">' + esc(k.ctaTl) + "</a></div>";
+}
 
 function dlazdica(slug, s, j) {
   let foto;
@@ -200,10 +226,7 @@ function kategoria(j) {
     '<ul class="lcd-pa__znacky">',
     ...znackyJazyka(j).map((z) => '  <li><a class="lcd-pa__znacka" href="' + znackaUrl(z) + '"><img src="' + logo(z) + '" alt="" width="46" height="46" loading="lazy" decoding="async"><b>' + esc(z) + "</b></a></li>"),
     "</ul>",
-    '<div class="lcd-pa__nenasli lcd-pa__nenasli--siroka">',
-    "  <div><b>" + esc(t.nenasli) + "</b><p>" + esc(k.nenasliText) + "</p></div>",
-    '  <a class="lcd-pa__tl" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a>",
-    "</div>",
+    ramik(j),
     "</div>",
   ].join("\n") + "\n";
 }
@@ -217,8 +240,8 @@ function kategoriaZnacky(j, z) {
     '<p class="lcd-pa__uvod">' + esc(k.znacka) + "</p>",
     '<ul class="lcd-pa__auta">',
     ...modelyZnacky(z, j).map((s) => dlazdica(s, data.stranky[s][j], j)),
-    '  <li><div class="lcd-pa__nenasli"><b>' + esc(k.nenasliZ(z)) + "</b><p>" + esc(k.nenasliText) + '</p><a class="lcd-pa__tl" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a></div></li>",
     "</ul>",
+    ramik(j),
     '<a class="lcd-pa__spat" href="' + data.web[j].kategoria + '">' + esc(k.vsetky) + "</a>",
     "</div>",
   ].join("\n") + "\n";
@@ -334,7 +357,7 @@ for (const [m, t] of subory) {
     }
     if (m === "kategoria-autokoberce-do-kamionu." + j + ".html") {
       for (const z of znackyJazyka(j)) if (!t.includes('href="' + znackaUrl(z) + '"')) chyba(m, "chýba odkaz na značku " + znackaUrl(z));
-      if (!t.includes(T[j].nenasli)) chyba(m, "chýba „" + T[j].nenasli + "“");
+      if (!t.includes(esc(TK[j].ctaNadpis))) chyba(m, "chýba rámik „" + TK[j].ctaNadpis + "“");
     } else if (m.startsWith("kategoria-")) {
       const z = znackyJazyka(j).find((x) => m === "kategoria-" + znackaSlug(x) + "." + j + ".html");
       if (!z) { chyba(m, "neznáma značka"); continue; }
@@ -342,7 +365,7 @@ for (const [m, t] of subory) {
       for (const s of hotove.filter((x) => !modelyZnacky(z, j).includes(x))) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na inú značku " + data.stranky[s][j].url);
       if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "bez odkazu Všetky značky");
       for (const s of cakajuce) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na čakajúcu stránku " + data.stranky[s][j].url);
-      if (!t.includes(T[j].nevadi)) chyba(m, "chýba „" + T[j].nevadi + "“");
+      if (!t.includes(esc(TK[j].ctaNadpis))) chyba(m, "chýba rámik „" + TK[j].ctaNadpis + "“");
     } else if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "pätička bez odkazu na kategóriu");
   }
 }
