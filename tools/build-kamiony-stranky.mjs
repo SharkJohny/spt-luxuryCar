@@ -67,6 +67,8 @@ const T = {
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const hash = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
+/** Rozdelí zoznam selektorov podľa čiarok mimo zátvoriek (:is(a,b) ostane celé). */
+const splitHore = (s) => { const out = []; let h = 0, z = 0; for (let i = 0; i < s.length; i++) { const c = s[i]; if (c === "(") h++; else if (c === ")") h--; else if (c === "," && !h) { out.push(s.slice(z, i)); z = i + 1; } } out.push(s.slice(z)); return out; };
 const kotva = (znacka) => "kamiony-" + znacka.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const chyby = [];
 const chyba = (subor, s) => chyby.push(subor + ": " + s);
@@ -119,71 +121,107 @@ function popisStranky(slug, j) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-const STYL_KAT = [
-  ".lcd-kam-zoznam--kat{--kz-ink:#14110c;--kz-siva:#6b6457;--kz-linka:#e4ddcd;--kz-zlata:#c49b31;--kz-zelena:#1f7a52;--kz-piesok:#f6f4ef;margin:6px 0 30px;color:var(--kz-ink);font-size:16px;line-height:1.5}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__uvod{margin:0 0 14px;max-width:64ch;font-size:17px;color:var(--kz-siva)}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__znacky{display:flex;flex-wrap:wrap;gap:8px;margin:0}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__znacky a{display:inline-block;padding:7px 15px;border:1px solid var(--kz-linka);border-radius:999px;background:#fff;color:var(--kz-ink);font-size:15px;font-weight:700;text-decoration:none}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__znacky a:hover{border-color:var(--kz-zlata)}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__znacka{margin:28px 0 0;scroll-margin-top:96px}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__znacka h2{margin:0 0 12px;padding:0 0 8px;border-bottom:2px solid var(--kz-zlata);color:var(--kz-ink);font-size:22px;line-height:1.2}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__modely{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}",
-  "@media(min-width:640px){.lcd-kam-zoznam--kat .lcd-kam-zoznam__modely{grid-template-columns:repeat(3,minmax(0,1fr))}}",
-  "@media(min-width:1000px){.lcd-kam-zoznam--kat .lcd-kam-zoznam__modely{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__modely li{margin:0;padding:0;list-style:none}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__modely li::before{content:none;display:none}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__k{display:flex;flex-direction:column;height:100%;padding:10px 10px 12px;border:1px solid var(--kz-linka);border-radius:12px;background:#fff;color:var(--kz-ink);text-decoration:none;transition:border-color .2s,box-shadow .2s}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__k:hover{border-color:var(--kz-zlata);box-shadow:0 8px 20px -14px rgba(20,15,5,.45)}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__k:focus-visible{outline:2px solid var(--kz-zlata);outline-offset:2px}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__foto{display:flex;align-items:flex-end;justify-content:center;aspect-ratio:5/4;margin:0 0 8px;overflow:hidden;border-radius:8px;background:var(--kz-piesok)}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__foto picture{display:contents}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__foto img{display:block;width:100%;height:100%;object-fit:contain}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__foto--bez{align-items:center;color:#b3a78c}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__foto--bez svg{width:46%;height:auto}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__k b{font-size:16px;line-height:1.3}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__roky{color:var(--kz-siva);font-size:15px}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__nenasli{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:32px 0 0;padding:18px 20px;border:2px solid var(--kz-zlata);border-radius:14px;background:#fffdf7}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__nenasli p{margin:0;font-size:17px}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__tl{display:inline-block;padding:12px 22px;border-radius:10px;background:var(--kz-zelena);color:#fff;font-size:16px;font-weight:700;text-decoration:none}",
-  ".lcd-kam-zoznam--kat .lcd-kam-zoznam__tl:hover{color:#fff;filter:brightness(1.08)}",
-].join("\n");
+// Kategória ako pri osobných autách (Michal 13. 11. 2026: „keď kliknem na zobraziť všetky… zobrazia sa jednotlivé značky,
+// do nich budem vedieť klikať a zobrazia sa dané kamióny“ + predvolený výpis produktov Shoptetu preč):
+//   /autokoberce-do-kamionu/           = dlaždice značiek s logom (ako /autokoberce-podla-auta/) + „Nenašli ste…?“
+//   /autokoberce-do-kamionu-<znacka>/  = podkategória značky: dlaždice modelov (ťahač, roky, cena) ako /autokoberce-<znacka>/
+// Vzhľad = triedy .lcd-pa z luxuryCar.css (_lcdPodlaAuta.scss, naživo SK aj CZ). <style> v Popise platí len pre stránku
+// (body.in-<slug>): piesok, skrytý výpis Shoptetu, H1, logo pri H1 — bez prepnutia verzie.
+const ZNACKY_CDN = "https://cdn.myshoptet.com/usr/shoptet.jankucera.work/user/documents/eshopy/luxuryCar/assets/img/znacky/";
+const ZNACKA_LOGO = { DAF: "daf", MAN: "man", "Mercedes-Benz": "mercedes", Renault: "renault", Scania: "scania", Volvo: "volvo" };
+const logo = (z) => ZNACKY_CDN + ZNACKA_LOGO[z] + ".svg";
+const znackaSlug = (z) => "autokoberce-do-kamionu-" + z.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const znackaUrl = (z) => "/" + znackaSlug(z) + "/";
+// cena = 640 / 2452 (všetky stránky sú ich kópie, 13. 11. 2026 SK 199.00, CZ 4980.00); pri zmene ceny upraviť
+const CENA = { sk: "od 199 €", cz: "od 4&nbsp;980 Kč" };
+const TK = {
+  sk: {
+    prehlad: "Vyberte značku kamiónu. Pri každom modeli nájdete fotky kobercov a konfigurátor s cenou.",
+    znacka: "Vyberte model. Na stránke modelu nájdete fotky kobercov a konfigurátor s cenou.",
+    nenasliZ: (z) => "Nenašli ste svoj kamión " + z + "?",
+    nenasliText: "Nevadí, nájdete ho tu. V konfigurátore vyberiete značku aj model a cenu uvidíte hneď.",
+    vsetky: "Všetky značky kamiónov",
+    nazov: (z) => "Autokoberce do kamiónu " + z,
+    meta: (z, m) => "Autokoberce do kamiónu " + z + " na mieru: " + m + ". Fotky kobercov a konfigurátor s cenou. Od 199 €.",
+  },
+  cz: {
+    prehlad: "Vyberte značku kamionu. U každého modelu najdete fotky koberců a konfigurátor s cenou.",
+    znacka: "Vyberte model. Na stránce modelu najdete fotky koberců a konfigurátor s cenou.",
+    nenasliZ: (z) => "Nenašli jste svůj kamion " + z + "?",
+    nenasliText: "Nevadí, najdete ho tady. V konfigurátoru vyberete značku i model a cenu uvidíte hned.",
+    vsetky: "Všechny značky kamionů",
+    nazov: (z) => "Autokoberce do kamionu " + z,
+    meta: (z, m) => "Autokoberce do kamionu " + z + " na míru: " + m + ". Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
+  },
+};
+
+/** CSS len pre jednu stránku kategórie (body.in-<slug>), rovnaké pravidlá ako _lcdPodlaAuta.scss body 1–3. */
+function stylStranky(slug, z) {
+  const b = "body.in-" + slug;
+  const r = [
+    b + "{background:#f6f4ef}",
+    b + " :is(.content-wrapper-in,#content){background:transparent}",
+    b + " #content-wrapper{background:#f6f4ef}",
+    b + " :is(.category-top .subcategories,.category-top .products-top-wrapper,#category-header,#filters-wrapper,#productsListHeading,#products,.listingControls,.pagination-wrapper,.category-perex.empty-content > :not(.lcd-pa)){display:none !important}",
+    b + " .category-perex{margin:0;padding:0;border:0;background:transparent;max-width:none}",
+    b + " .category-top{padding-top:28px}",
+    b + ' h1.category-title{display:flex;align-items:center;gap:16px;margin:0 0 10px;color:#14110c;font:800 34px/1.15 "Exo 2","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}',
+  ];
+  if (z) r.push(b + ' h1.category-title::before{content:"";flex:none;width:54px;height:54px;border-radius:50%;background:#fff url("' + logo(z) + '") no-repeat center/32px 32px;border:1px solid #e4ddcd}');
+  r.push(b + " .lcd-pa--kamiony .lcd-pa__foto{aspect-ratio:5/4}");
+  r.push("@media (max-width: 900px){" + b + " h1.category-title{font-size:26px;gap:12px}" + (z ? b + " h1.category-title::before{width:46px;height:46px;background-size:28px 28px}" : "") + "}");
+  return "<style>\n" + r.join("\n") + "\n</style>";
+}
 
 // jednoduchý obrys ťahača (žiadna značka) pre stránky bez fotky ťahača výrobcu
 const IKONA = '<svg viewBox="0 0 64 40" width="64" height="40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h22v24H6z"/><path d="M28 14h14l9 9v7H28z"/><path d="M33 17h7l6 6H33z"/><circle cx="15" cy="32" r="4" fill="#fff"/><circle cx="43" cy="32" r="4" fill="#fff"/></svg>';
 
-function dlazdica(slug, s) {
-  const roky = s.roky.od + "–" + s.roky.do;
+function dlazdica(slug, s, j) {
   let foto;
   if (s.tahac) {
     // ťahač predkom doľava pod novým menom <kluc>-vlavo (pole subor), staré <kluc>-480… predkom doprava sa nepoužívajú
     const z = CDN + "tahace/" + (s.tahac.subor || s.tahac.kluc);
-    foto = '<span class="lcd-kam-zoznam__foto"><picture><source type="image/webp" srcset="' + z + "-480.webp 480w, " + z + '-960.webp 960w" sizes="(min-width: 1000px) 230px, (min-width: 640px) 30vw, 45vw"><img src="' + z + '-480.png" alt="" width="' + s.tahac.w + '" height="' + s.tahac.h + '" loading="lazy" decoding="async"></picture></span>';
-  } else foto = '<span class="lcd-kam-zoznam__foto lcd-kam-zoznam__foto--bez">' + IKONA + "</span>";
-  return '<li><a class="lcd-kam-zoznam__k" href="' + s.url + '">' + foto + "<b>" + esc(s.model) + '</b> <span class="lcd-kam-zoznam__roky">(' + roky + ")</span></a></li>";
+    foto = '<span class="lcd-pa__foto"><picture><source type="image/webp" srcset="' + z + "-480.webp 480w, " + z + '-960.webp 960w" sizes="(max-width: 900px) 45vw, 220px"><img src="' + z + '-480.png" alt="" width="' + s.tahac.w + '" height="' + s.tahac.h + '" loading="lazy" decoding="async"></picture></span>';
+  } else foto = '<span class="lcd-pa__foto">' + IKONA + "</span>";
+  return '  <li><a class="lcd-pa__auto" href="' + s.url + '">' + foto + "<b>" + esc(s.model) + "</b><span>" + s.roky.od + "–" + s.roky.do + "</span><i>" + CENA[j] + "</i></a></li>";
 }
 
+const modelyZnacky = (z, j) => hotove.filter((s) => data.stranky[s][j].znacka === z)
+  .sort((a, b) => data.stranky[b][j].roky.od - data.stranky[a][j].roky.od || data.stranky[a][j].model.localeCompare(data.stranky[b][j].model, "sk"));
+const znackyJazyka = (j) => ZNACKY.filter((z) => modelyZnacky(z, j).length);
+
+/** /autokoberce-do-kamionu/: dlaždice značiek s logom + široký rámik „Nenašli ste svoj kamión?“. */
 function kategoria(j) {
-  const t = T[j];
-  const podla = (z) => hotove.filter((s) => data.stranky[s][j].znacka === z)
-    .sort((a, b) => data.stranky[b][j].roky.od - data.stranky[a][j].roky.od || data.stranky[a][j].model.localeCompare(data.stranky[b][j].model, "sk"));
-  const znacky = ZNACKY.filter((z) => podla(z).length);
-  const out = [
-    "<style>\n" + STYL_KAT + "\n</style>",
-    '<div class="lcd-kam-zoznam lcd-kam-zoznam--kat" data-lcd-cast="kamiony-zoznam">',
-    '<p class="lcd-kam-zoznam__uvod">' + esc(t.uvod) + "</p>",
-    '<nav class="lcd-kam-zoznam__znacky" aria-label="' + t.znackyAria + '">' + znacky.map((z) => '<a href="#' + kotva(z) + '">' + esc(z) + "</a>").join("") + "</nav>",
-  ];
-  for (const z of znacky) {
-    // <div>, nie <section>: luxuryCar.css má section{padding:0!important;margin:0!important} (na mobile nadpis značky
-    // prilepený na dlaždice nad ním) a na PC section s paddingom 50 px (medzera ~100 px) — Michal 12. 11. večer
-    out.push('<div class="lcd-kam-zoznam__znacka" id="' + kotva(z) + '"><h2>' + esc(z) + "</h2>");
-    out.push('<ul class="lcd-kam-zoznam__modely">');
-    for (const s of podla(z)) out.push(dlazdica(s, data.stranky[s][j]));
-    out.push("</ul></div>");
-  }
-  out.push('<div class="lcd-kam-zoznam__nenasli"><p><b>' + esc(t.nenasli) + "</b> " + esc(t.nevadi) + '</p><a class="lcd-kam-zoznam__tl" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a></div>");
-  out.push("</div>");
-  return out.join("\n") + "\n";
+  const t = T[j], k = TK[j];
+  return [
+    stylStranky("autokoberce-do-kamionu", null),
+    '<div class="lcd-pa lcd-pa--prehlad lcd-pa--kamiony" data-lcd-cast="kamiony-zoznam">',
+    '<p class="lcd-pa__uvod">' + esc(k.prehlad) + "</p>",
+    '<ul class="lcd-pa__znacky">',
+    ...znackyJazyka(j).map((z) => '  <li><a class="lcd-pa__znacka" href="' + znackaUrl(z) + '"><img src="' + logo(z) + '" alt="" width="46" height="46" loading="lazy" decoding="async"><b>' + esc(z) + "</b></a></li>"),
+    "</ul>",
+    '<div class="lcd-pa__nenasli lcd-pa__nenasli--siroka">',
+    "  <div><b>" + esc(t.nenasli) + "</b><p>" + esc(k.nenasliText) + "</p></div>",
+    '  <a class="lcd-pa__tl" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a>",
+    "</div>",
+    "</div>",
+  ].join("\n") + "\n";
+}
+
+/** /autokoberce-do-kamionu-<znacka>/: dlaždice modelov + rámik „Nenašli ste svoj kamión <značka>?“ + Všetky značky. */
+function kategoriaZnacky(j, z) {
+  const t = T[j], k = TK[j];
+  return [
+    stylStranky(znackaSlug(z), z),
+    '<div class="lcd-pa lcd-pa--znacka lcd-pa--kamiony" data-lcd-cast="kamiony-' + ZNACKA_LOGO[z] + '">',
+    '<p class="lcd-pa__uvod">' + esc(k.znacka) + "</p>",
+    '<ul class="lcd-pa__auta">',
+    ...modelyZnacky(z, j).map((s) => dlazdica(s, data.stranky[s][j], j)),
+    '  <li><div class="lcd-pa__nenasli"><b>' + esc(k.nenasliZ(z)) + "</b><p>" + esc(k.nenasliText) + '</p><a class="lcd-pa__tl" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a></div></li>",
+    "</ul>",
+    '<a class="lcd-pa__spat" href="' + data.web[j].kategoria + '">' + esc(k.vsetky) + "</a>",
+    "</div>",
+  ].join("\n") + "\n";
 }
 
 const STYL_PATA = [
@@ -202,7 +240,7 @@ function paticka(j) {
     '<div class="lcd-kam-zoznam lcd-kam-zoznam--pata">',
     '<h4 style="margin-top:22px"><a href="' + kat + '" style="color:inherit;text-decoration:none">' + esc(t.pata) + "</a></h4>",
     '<ul class="lcd-kam-zoznam__pata">',
-    ...znacky.map((z) => '<li><a href="' + kat + "#" + kotva(z) + '">' + esc(z) + "</a></li>"),
+    ...znacky.map((z) => '<li><a href="' + znackaUrl(z) + '">' + esc(z) + "</a></li>"),
     '<li><a class="lcd-kam-zoznam__hladaj" href="' + data.web[j].konfigurator + '">' + esc(t.najst) + "</a></li>",
     "</ul>",
     "</div>",
@@ -216,8 +254,15 @@ for (const slug of hotove) for (const j of JAZYKY) {
 }
 for (const j of JAZYKY) {
   subory.set("kategoria-autokoberce-do-kamionu." + j + ".html", kategoria(j));
+  for (const z of znackyJazyka(j)) subory.set("kategoria-" + znackaSlug(z) + "." + j + ".html", kategoriaZnacky(j, z));
   subory.set("paticka-kamiony." + j + ".html", paticka(j));
 }
+// podklad pre admin (MCP category_create / category_update): názov, adresa, meta a súbor Popisu každej podkategórie
+subory.set("kategorie-znaciek.json", JSON.stringify(Object.fromEntries(JAZYKY.map((j) => [j, znackyJazyka(j).map((z) => ({
+  znacka: z, nazov: TK[j].nazov(z), indexName: znackaSlug(z), url: znackaUrl(z),
+  metaTagDescription: TK[j].meta(z, modelyZnacky(z, j).map((s) => data.stranky[s][j].model + " (" + data.stranky[s][j].roky.od + "–" + data.stranky[s][j].roky.do + ")").join(", ")),
+  popis: "kategoria-" + znackaSlug(z) + "." + j + ".html",
+}))])), null, 2) + "\n");
 const manifest = {
   popis: "Odtlačky vstupov tools/build-kamiony-stranky.mjs (--check porovná s aktuálnymi). Nemeniť ručne.",
   dist: Object.fromEntries(JAZYKY.flatMap((j) => [1, 2].map((n) => ["p1v-kamiony-" + n + "." + j + ".html", hash(dist[j + n])]))),
@@ -274,7 +319,7 @@ for (const [m, t] of subory) {
   if (new Set(ids).size !== ids.length) chyba(m, "duplicitné id");
   for (const u of t.match(/https:\/\/cdn\.myshoptet\.com\/[^"\s,]+/g) || []) if (u.startsWith(CDN)) obrazky.add(u.slice(CDN.length));
   if (/^(kategoria|paticka)-/.test(m)) {
-    if (/\/znacky\/|logo/i.test(t)) chyba(m, "logo značky");
+    if (m.startsWith("paticka-") && /\/znacky\/|logo/i.test(t)) chyba(m, "logo značky v návrhu pätičky");
     if (/\d+\s*(model|kamió|kamio|typ|značk|znač)/i.test(t.replace(/<style>[\s\S]*?<\/style>/, ""))) chyba(m, "počet modelov v texte");
     if (/kamiony-1\//.test(t)) chyba(m, "odkaz na skrytý konfigurátor");
     const j = m.match(/\.(sk|cz)\.html$/)[1];
@@ -283,12 +328,21 @@ for (const [m, t] of subory) {
     const css = (t.match(/<style>([\s\S]*?)<\/style>/) || [, ""])[1];
     for (const pr of css.split("\n").filter((r) => r.trim())) {
       const sel = pr.replace(/^@media[^{]*\{/, "").split("{")[0];
-      if (!sel.split(",").every((x) => x.trim().startsWith(".lcd-kam-zoznam"))) chyba(m, "štýl mimo .lcd-kam-zoznam: " + sel);
+      const telo = m.startsWith("kategoria-") ? "body.in-" + m.replace(/^kategoria-/, "").replace(/\.(sk|cz)\.html$/, "") : null;
+      const ok = (x) => x.trim().startsWith(".lcd-kam-zoznam") || (telo && x.trim().startsWith(telo) && /^(\s|$)/.test(x.trim().slice(telo.length)));
+      if (!splitHore(sel).every(ok)) chyba(m, "štýl mimo .lcd-kam-zoznam / " + (telo || "") + ": " + sel);
     }
-    if (m.startsWith("kategoria-")) {
-      for (const s of hotove) if (!t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "chýba odkaz na " + data.stranky[s][j].url);
+    if (m === "kategoria-autokoberce-do-kamionu." + j + ".html") {
+      for (const z of znackyJazyka(j)) if (!t.includes('href="' + znackaUrl(z) + '"')) chyba(m, "chýba odkaz na značku " + znackaUrl(z));
+      if (!t.includes(T[j].nenasli)) chyba(m, "chýba „" + T[j].nenasli + "“");
+    } else if (m.startsWith("kategoria-")) {
+      const z = znackyJazyka(j).find((x) => m === "kategoria-" + znackaSlug(x) + "." + j + ".html");
+      if (!z) { chyba(m, "neznáma značka"); continue; }
+      for (const s of modelyZnacky(z, j)) if (!t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "chýba odkaz na " + data.stranky[s][j].url);
+      for (const s of hotove.filter((x) => !modelyZnacky(z, j).includes(x))) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na inú značku " + data.stranky[s][j].url);
+      if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "bez odkazu Všetky značky");
       for (const s of cakajuce) if (t.includes('href="' + data.stranky[s][j].url + '"')) chyba(m, "odkaz na čakajúcu stránku " + data.stranky[s][j].url);
-      if (!t.includes(T[j].nenasli) || !t.includes(T[j].nevadi)) chyba(m, "chýba „" + T[j].nenasli + " " + T[j].nevadi + "“");
+      if (!t.includes(T[j].nevadi)) chyba(m, "chýba „" + T[j].nevadi + "“");
     } else if (!t.includes('href="' + data.web[j].kategoria + '"')) chyba(m, "pätička bez odkazu na kategóriu");
   }
 }
