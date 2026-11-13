@@ -58,7 +58,7 @@ const ZNACKY = [
     kluc: "mercedes-benz", nazov: "Mercedes-Benz", logo: "znacky/mercedes.svg", url: "/autokoberce-mercedes-benz/", pata: true,
     koho: "svojho Mercedesu",
     auta: [
-      { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto", w: 480, h: 237 },
+      { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto-l", w: 480, h: 237 },
       { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle/", foto: "1v/auto/mercedes-gle-v167/mercedes-gle-v167-auto-w", w: 480, h: 259 },
       { nazov: "Mercedes-Benz triedy G", roky: "W463, roky 2018–2024", cena: 351, url: "/autokoberce-mercedes-g-class/", foto: "1v/auto/mercedes-g-class-w463/mercedes-g-class-w463-auto-w", w: 480, h: 297 },
       { nazov: "Mercedes-Benz GLS", roky: "X167 od roku 2019", cena: 351, url: "/autokoberce-mercedes-gls/", foto: "1v/auto/mercedes-gls-x167/mercedes-gls-x167-auto-w", w: 480, h: 246 },
@@ -72,7 +72,7 @@ const ZNACKY = [
       // Kodiaq I (produkt 667, kópia 598, 12. 11. 2026): auto = tlačová fotka Škoda Auto (Kodiaq Scout, IAA 2017), uhol ako autá Witamats.
       // Produkt je zatiaľ skrytý (hosť 404) — Popis značky Škoda vkladať až po zverejnení 667.
       { nazov: "Škoda Kodiaq I", roky: "roky 2016–2024", cena: 219, url: "/autokoberce-skoda-kodiaq-i/", foto: "1v/auto/skoda-kodiaq-i/skoda-kodiaq-i-auto-w2", w: 480, h: 259 },
-      { nazov: "Škoda Kodiaq II", roky: "od roku 2024", cena: 230, url: "/autokoberce-skoda-kodiaq-ii/", foto: "1v/auto/skoda-kodiaq-ii/kodiaq-ii-auto", w: 480, h: 226 },
+      { nazov: "Škoda Kodiaq II", roky: "od roku 2024", cena: 230, url: "/autokoberce-skoda-kodiaq-ii/", foto: "1v/auto/skoda-kodiaq-ii/kodiaq-ii-auto-l", w: 480, h: 226 },
     ],
   },
 ].sort((a, b) => a.nazov.localeCompare(b.nazov, "sk"));
