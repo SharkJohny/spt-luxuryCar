@@ -216,7 +216,7 @@ const truck = {
 };
 const van = {
   brand: "Fiat (dodávka)",
-  model: "Ducato 2007-2026",
+  model: "Ducato 2006-2026",
   prefill: {},
   expectsDoorUpholstery: false,
 };

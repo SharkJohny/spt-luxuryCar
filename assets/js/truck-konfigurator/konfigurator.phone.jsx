@@ -20,11 +20,11 @@ const { useState, useMemo } = React;
 const CONFIG = {
   // Abecedne, TIR pred dodávkou pri rovnakej značke
   "Citroën (dodávka)": {
-    "Jumper 2007-2014": {},
+    "Jumper 2006-2014": {},
     "Jumper 2014-2026": {},
   },
   "DAF (TIR)": {
-    "XF 2022-2026": {
+    "XF 2021-2026": {
       prevodovka: ["Automatická prevodovka"],
       sedadlo: ["Sedadlo spolujazdca CINEMA", "Sedadlo spolujazdca odpružené"],
     },
@@ -37,13 +37,13 @@ const CONFIG = {
     "XF106 2017-2021": {
       prevodovka: ["Automatická prevodovka"],
     },
-    "XG / XG+ 2022-2026": {
+    "XG / XG+ 2021-2026": {
       prevodovka: ["Automatická prevodovka"],
       sedadlo: ["Sedadlo spolujazdca CINEMA", "Sedadlo spolujazdca odpružené"],
     },
   },
   "Fiat (dodávka)": {
-    "Ducato 2007-2026": {},
+    "Ducato 2006-2026": {},
   },
   "Ford (TIR)": {
     "F-MAX 2018-2026": {
@@ -73,7 +73,7 @@ const CONFIG = {
       prevodovka: ["Automatická prevodovka", "Manuálna prevodovka"],
       zasuvky: ["1 zásuvka (šuplík)", "2 zásuvky (šuplíky)"],
     },
-    "TGX 2021-2026": {
+    "TGX 2020-2026": {
       prevodovka: ["Automatická prevodovka"],
       brzda: [
         "Elektrická ručná brzda umiestnená na palubnej doske",
@@ -82,7 +82,7 @@ const CONFIG = {
     },
   },
   "Mercedes-Benz (TIR)": {
-    "Actros MP2/MP3 (rovná podlaha) 2003-2008": {
+    "Actros MP2/MP3 (rovná podlaha) 2003-2011": {
       prevodovka: ["Automatická prevodovka"],
       sedadlo: ["Sedadlo spolujazdca pevné (taburet)"],
     },
@@ -113,7 +113,7 @@ const CONFIG = {
     },
   },
   "Peugeot (dodávka)": {
-    "Boxer 2007-2014": {},
+    "Boxer 2006-2014": {},
     "Boxer 2014-2026": {},
   },
   "Renault (TIR)": {
@@ -149,7 +149,7 @@ const CONFIG = {
         "Sedadlo spolujazdca odpružené (veľká základňa – ako u vodiča)",
       ],
     },
-    "R 2017-2026": {
+    "R 2016-2026": {
       prevodovka: ["Automatická prevodovka"],
       sedadlo: [
         "Sedadlo spolujazdca pevné (taburet)",
@@ -157,7 +157,7 @@ const CONFIG = {
         "Sedadlo spolujazdca odpružené + otočné (veľká základňa)",
       ],
     },
-    "S 2017-2026": {
+    "S 2016-2026": {
       prevodovka: ["Automatická prevodovka"],
       sedadlo: [
         "Sedadlo spolujazdca pevné (taburet)",

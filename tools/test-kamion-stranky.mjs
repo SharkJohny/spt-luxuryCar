@@ -111,16 +111,24 @@ console.log("2) stav.js — predvyberPevny, zapisPrenos / nacitajPrenos, obnovSt
   const pamat = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), m }; };
   const st = pamat();
   st.setItem("truckBrand", "DAF (TIR)"); st.setItem("truckModel", "XF106 2017-2021");
-  const pv = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 2017-2026" }, st);
-  over("pevný model má prednosť pred truckBrand / truckModel", pv && pv.znacka === "Scania (TIR)" && pv.model === "R 2017-2026" && pv.typ === "kamion");
+  const pv = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 2016-2026" }, st);
+  over("pevný model má prednosť pred truckBrand / truckModel", pv && pv.znacka === "Scania (TIR)" && pv.model === "R 2016-2026" && pv.typ === "kamion");
   over("výbava iného kamióna sa neprevezme", pv && !pv.polia.sedadlo);
   const st2 = pamat();
-  st2.setItem("truckBrand", "Scania (TIR)"); st2.setItem("truckModel", "R 2017-2026"); st2.setItem("truckExtras", JSON.stringify({ sedadlo: "Sedadlo spolujazdca pevné (taburet)", nic: "x" }));
-  const pv2 = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 2017-2026" }, st2);
+  st2.setItem("truckBrand", "Scania (TIR)"); st2.setItem("truckModel", "R 2016-2026"); st2.setItem("truckExtras", JSON.stringify({ sedadlo: "Sedadlo spolujazdca pevné (taburet)", nic: "x" }));
+  const pv2 = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 2016-2026" }, st2);
   over("výbava toho istého modelu sa prevezme (platná)", pv2 && pv2.polia.sedadlo === "Sedadlo spolujazdca pevné (taburet)" && !("nic" in pv2.polia));
   const zly = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 1999-2000" }, pamat());
   over("neplatný model -> len značka", zly && zly.znacka === "Scania (TIR)" && zly.model === null);
   over("neznáma značka -> null", ST.predvyberPevny({ znacka: "Tatra (TIR)", model: "x" }, pamat()) === null);
+  // premenovanie rokov 13. 11. 2026: tabuľka (data.json) môže mať ešte starý názov -> stránka nájde model cez aliasy
+  const starTab = [{ kluc: "Scania (TIR)", typ: "kamion", modely: [{ nazov: "R 2017-2026", polia: {}, auto_vybrane: {} }] }];
+  const pvA = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 2016-2026", aliasy: ["R 2017-2026"] }, pamat(), starTab);
+  over("alias: starý názov v tabuľke -> model nájdený, predvoľba nesie názov z tabuľky", pvA && pvA.model === "R 2017-2026");
+  const pvN = ST.predvyberPevny({ znacka: "Scania (TIR)", model: "R 2016-2026", aliasy: ["R 2017-2026"] }, pamat());
+  over("alias: nový názov v tabuľke má prednosť", pvN && pvN.model === "R 2016-2026");
+  const zpOld = (ST.inyKamion && pvA) ? ST.inyKamion({ typ: "kamion", znacka: "Scania (TIR)", model: "R 2017-2026" }, pvA) : true;
+  over("alias: rovnaký model zo starej tabuľky nie je zmena vozidla", zpOld === false);
 
   const S = ST.novyStav();
   Object.assign(S, { znacka: "Volvo (TIR)", model: "FH4 2013-2021", polia: { prevodovka: "Automatická prevodovka" }, material: "Prémiová syntetická koža – prešívaná", farba: "10", lem: "08",
@@ -145,10 +153,10 @@ console.log("2) stav.js — predvyberPevny, zapisPrenos / nacitajPrenos, obnovSt
   over("obnovStav: motív, ktorý stránka neponúka, a neznáma niť -> nič", O.nasStred.motiv === null && O.nasStred.nit === null);
   const O2 = ST.obnovStav({ znacka: "Volvo (TIR)", model: "FH9", material: "Prémiová syntetická koža – prešívaná", farba: "10G", lem: "99", nas: "vsade", nasBoky: { motiv: "H5" } }, { motivy });
   over("obnovStav: neplatný model, farba iného materiálu, lemovanie, voľba nášiviek -> zahodené", O2.znacka === "Volvo (TIR)" && O2.model === null && O2.farba === null && O2.lem === null && O2.nas === null && O2.nasBoky.motiv === null);
-  const O3 = ST.obnovStav({ typ: "dodavka", znacka: "Fiat (dodávka)", model: "Ducato 2007-2026", tap: "ano", tapNas: true }, { motivy });
+  const O3 = ST.obnovStav({ typ: "dodavka", znacka: "Fiat (dodávka)", model: "Ducato 2006-2026", tap: "ano", tapNas: true }, { motivy });
   over("obnovStav: dodávka bez tapacíru", O3.typ === "dodavka" && O3.znacka === "Fiat (dodávka)" && O3.tap === null && O3.tapNas === null);
-  over("inyKamion: zmena značky / modelu / typu", ST.inyKamion({ typ: "kamion", znacka: "MAN (TIR)", model: null }, pv) && ST.inyKamion({ typ: "kamion", znacka: "Scania (TIR)", model: "S 2017-2026" }, pv) &&
-    !ST.inyKamion({ typ: "kamion", znacka: "Scania (TIR)", model: "R 2017-2026" }, pv));
+  over("inyKamion: zmena značky / modelu / typu", ST.inyKamion({ typ: "kamion", znacka: "MAN (TIR)", model: null }, pv) && ST.inyKamion({ typ: "kamion", znacka: "Scania (TIR)", model: "S 2016-2026" }, pv) &&
+    !ST.inyKamion({ typ: "kamion", znacka: "Scania (TIR)", model: "R 2016-2026" }, pv));
 }
 
 // ------------------------------------------------------------------ 3) skrytá kópia s logami (stránka v jsdom)
@@ -212,8 +220,8 @@ const UPRAV_SCANIA = kopia({ id: 9650, h1: "Autokoberce do kamiónu Scania R", s
   const s = await spustiStranku({ url: URL_SCANIA, uprav: UPRAV_SCANIA, session: { truckBrand: "DAF (TIR)", truckModel: "XF106 2017-2021" } });
   const d = s.document, ui = s.kamion && s.kamion.ui;
   over("#lcd1v-kamion postavený, bez chýb", !!ui && lcdChyby(s.chyby).length === 0, lcdChyby(s.chyby).join(" | "));
-  over("značka + model predvyplnené (prednosť pred truckBrand)", ui.S.znacka === "Scania (TIR)" && ui.S.model === "R 2017-2026");
-  over("selecty značky a modelu ukazujú Scania R", d.querySelector('#lcd1v-kamion select[data-p="znacka"]').value === "Scania (TIR)" && d.querySelector('#lcd1v-kamion select[data-p="model"]').value === "R 2017-2026");
+  over("značka + model predvyplnené (prednosť pred truckBrand)", ui.S.znacka === "Scania (TIR)" && ui.S.model === "R 2016-2026");
+  over("selecty značky a modelu ukazujú Scania R", d.querySelector('#lcd1v-kamion select[data-p="znacka"]').value === "Scania (TIR)" && d.querySelector('#lcd1v-kamion select[data-p="model"]').value === "R 2016-2026");
   over("krok Vozidlo otvorený", ui.U.otvoreny === "vozidlo");
   const pv = d.querySelector('#lcd1v-kamion [data-krok="vozidlo"] .k-pevne');
   over("nápis „Predvyplnené pre Scania R“ + text o prenose", !!pv && /Predvyplnené pre Scania R/.test(pv.textContent) && /prenesieme Vás do konfigurátora pre všetky kamióny/.test(pv.textContent), pv && pv.textContent);
@@ -260,10 +268,10 @@ const UPRAV_SCANIA = kopia({ id: 9650, h1: "Autokoberce do kamiónu Scania R", s
   const d = s.document, w = s.window;
   let m = d.querySelector('#lcd1v-kamion select[data-p="model"]');
   m.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-  m.value = "S 2017-2026";
+  m.value = "S 2016-2026";
   m.dispatchEvent(new w.Event("change", { bubbles: true }));
   await pauza(30);
-  over("šípka v zozname modelu -> ešte bez prenosu", w.sessionStorage.getItem("lcd1vKamionPrenos") === null && s.kamion.ui.S.model === "S 2017-2026");
+  over("šípka v zozname modelu -> ešte bez prenosu", w.sessionStorage.getItem("lcd1vKamionPrenos") === null && s.kamion.ui.S.model === "S 2016-2026");
   m = d.querySelector('#lcd1v-kamion select[data-p="model"]');
   const z = d.querySelector('#lcd1v-kamion select[data-p="znacka"]');
   m.dispatchEvent(new w.FocusEvent("focusout", { bubbles: true, relatedTarget: z }));
@@ -272,13 +280,13 @@ const UPRAV_SCANIA = kopia({ id: 9650, h1: "Autokoberce do kamiónu Scania R", s
   z.dispatchEvent(new w.FocusEvent("focusout", { bubbles: true, relatedTarget: null }));
   await pauza(400);
   const p = JSON.parse(w.sessionStorage.getItem("lcd1vKamionPrenos") || "null");
-  over("odchod z polí vozidla -> prenos (model S)", !!p && p.S.model === "S 2017-2026");
+  over("odchod z polí vozidla -> prenos (model S)", !!p && p.S.model === "S 2016-2026");
 }
 {
   console.log("5e) Z klávesnice tam a späť na ten istý model -> bez prenosu");
   const s = await spustiStranku({ url: URL_SCANIA, uprav: UPRAV_SCANIA });
   const d = s.document, w = s.window;
-  for (const v of ["S 2017-2026", "R 2017-2026"]) {
+  for (const v of ["S 2016-2026", "R 2016-2026"]) {
     const m = d.querySelector('#lcd1v-kamion select[data-p="model"]');
     m.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
     m.value = v;
@@ -287,7 +295,7 @@ const UPRAV_SCANIA = kopia({ id: 9650, h1: "Autokoberce do kamiónu Scania R", s
   }
   d.querySelector('#lcd1v-kamion select[data-p="model"]').dispatchEvent(new w.FocusEvent("focusout", { bubbles: true, relatedTarget: null }));
   await pauza(400);
-  over("späť na R 2017-2026 -> bez prenosu", w.sessionStorage.getItem("lcd1vKamionPrenos") === null && s.kamion.ui.S.model === "R 2017-2026");
+  over("späť na R 2016-2026 -> bez prenosu", w.sessionStorage.getItem("lcd1vKamionPrenos") === null && s.kamion.ui.S.model === "R 2016-2026");
 }
 {
   console.log("5f) Model, ktorý v ponuke nie je (tabuľka sa zmenila) -> len značka");
@@ -337,7 +345,7 @@ console.log("7) CZ kópie");
 {
   const s = await spustiStranku({ url: CZ + "/autokoberce-do-kamionu-scania-r/", uprav: kopia({ id: 2470, h1: "Autokoberce do kamionu Scania R", cz: true, sedi: SEDI }) });
   const d = s.document, ui = s.kamion && s.kamion.ui;
-  over("CZ stránka kamióna: typ kamion, Scania R predvyplnená", !!ui && ui.S.znacka === "Scania (TIR)" && ui.S.model === "R 2017-2026", lcdChyby(s.chyby).join(" | "));
+  over("CZ stránka kamióna: typ kamion, Scania R predvyplnená", !!ui && ui.S.znacka === "Scania (TIR)" && ui.S.model === "R 2016-2026", lcdChyby(s.chyby).join(" | "));
   const pv = d.querySelector("#lcd1v-kamion .k-pevne");
   over("CZ nápis „Předvyplněno pro Scania R“", !!pv && /Předvyplněno pro Scania R/.test(pv.textContent) && /přeneseme Vás do konfigurátoru pro všechny kamiony/.test(pv.textContent), pv && pv.textContent);
   over("CZ H1 = názov produktu", H1(d) === "Autokoberce do kamionu Scania R", H1(d));
@@ -410,7 +418,7 @@ console.log("9) Motívy nášiviek — stránka kamióna len H19 a H21, skrytá 
   over("obmedzMotivy: poradie povolených, nič navyše, prázdny prienik = []", o.boky.join() === "H19,H21" && o.stred.join() === "H19" && o.dvere.length === 0 && !SH.obmedzMotivy({}, ["H19"]).boky.length);
 
   const motivyNa = async (d, ui, kluc, nas) => {
-    Object.assign(ui.S, { znacka: "Scania (TIR)", model: "R 2017-2026", polia: { prevodovka: "Automatická prevodovka", sedadlo: "Sedadlo spolujazdca pevné (taburet)" }, material: "Prémiová syntetická koža – prešívaná", farba: "10", lem: "08", nas: null });
+    Object.assign(ui.S, { znacka: "Scania (TIR)", model: "R 2016-2026", polia: { prevodovka: "Automatická prevodovka", sedadlo: "Sedadlo spolujazdca pevné (taburet)" }, material: "Prémiová syntetická koža – prešívaná", farba: "10", lem: "08", nas: null });
     ui.U.znova = {}; ui.render(); ui.otvorKrok("nasivky"); klik(d, '#lcd1v-kamion [data-a="nas"][data-v="' + nas + '"]');
     await pauza(50);
     return Array.from(d.querySelectorAll('#lcd1v-kamion [data-a="motiv"][data-m="' + kluc + '"]')).map((x) => x.getAttribute("data-v"));
@@ -435,7 +443,7 @@ console.log("9) Motívy nášiviek — stránka kamióna len H19 a H21, skrytá 
   {
     const s = await spustiStranku({ url: SK + "/autokoberce-do-kamionu-scania-r/", uprav: kopia({ id: 9661, h1: "Autokoberce do kamiónu Scania R", loga: true }), cakaj: 120 });
     const d = s.document, ui = s.kamion && s.kamion.ui;
-    Object.assign(ui.S, { znacka: "Scania (TIR)", model: "R 2017-2026", polia: { prevodovka: "Automatická prevodovka", sedadlo: "Sedadlo spolujazdca pevné (taburet)" }, material: "Prémiová syntetická koža – prešívaná", farba: "10", lem: "08", nas: "nechcem", tap: "ano", tapNas: true, tapNasRovnaka: false, tapRovnaky: true, tapMat: "Prémiová syntetická koža – prešívaná", tapFarba: "10", tapLem: "08" });
+    Object.assign(ui.S, { znacka: "Scania (TIR)", model: "R 2016-2026", polia: { prevodovka: "Automatická prevodovka", sedadlo: "Sedadlo spolujazdca pevné (taburet)" }, material: "Prémiová syntetická koža – prešívaná", farba: "10", lem: "08", nas: "nechcem", tap: "ano", tapNas: true, tapNasRovnaka: false, tapRovnaky: true, tapMat: "Prémiová syntetická koža – prešívaná", tapFarba: "10", tapLem: "08" });
     ui.U.znova = { tapacir: "dvere" }; ui.U.n6 = { matOdp: true, mat: true, nasOdp: true, nas: false }; ui.render(); ui.otvorKrok("tapacir"); await pauza(50);
     const dvere = Array.from(d.querySelectorAll('#lcd1v-kamion [data-a="motiv"][data-m="dvere"]')).map((x) => x.getAttribute("data-v"));
     over("SK stránka kamióna: dvere len H19, H21", dvere.join() === "H19,H21", dvere.join() || "mriežka dverí sa nezobrazila");

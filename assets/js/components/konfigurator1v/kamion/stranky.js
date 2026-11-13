@@ -19,8 +19,8 @@ export const KAMION_STRANKY = {
   562035: {
     "/luxusne-autokoberce-kamiony-1/": { skryty: true },
     // prvá vlna stránok kamiónov (kniha §2.3): modely a roky presne z tabuľky konfigurátora (data.json 11. 11. 2026)
-    "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2017-2026", nazov: "Scania R" } },
-    "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2021-2026", nazov: "MAN TGX" } },
+    "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2016-2026", aliasy: ["R 2017-2026"], nazov: "Scania R" } },
+    "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2020-2026", aliasy: ["TGX 2021-2026"], nazov: "MAN TGX" } },
     "/autokoberce-do-kamionu-volvo-fh4/": { kamion: { znacka: "Volvo (TIR)", model: "FH4 2013-2021", nazov: "Volvo FH4" } },
     "/autokoberce-do-kamionu-mercedes-actros/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026", nazov: "Mercedes-Benz Actros MP4/MP5/MP6" } },
     // vlna 2 a 3 (kniha Brain napady/2026-11-12-kamiony-vlna-2-3-disk-a-odpov.md §2.1, a3/plan-35-modelov.csv, variant A po
@@ -28,13 +28,13 @@ export const KAMION_STRANKY = {
     // Produkty zatiaľ neexistujú — kým adresa v Shoptete nie je, záznam sa nikdy nepoužije (žiadne ID, žiadny fetch).
     "/autokoberce-do-kamionu-daf-xf105/": { kamion: { znacka: "DAF (TIR)", model: "XF105 2006-2012", nazov: "DAF XF105" } },
     "/autokoberce-do-kamionu-daf-xf106/": { kamion: { znacka: "DAF (TIR)", model: "XF106 2017-2021", nazov: "DAF XF106" } },
-    "/autokoberce-do-kamionu-daf-xg/": { kamion: { znacka: "DAF (TIR)", model: "XG / XG+ 2022-2026", nazov: "DAF XG a XG+" } },
+    "/autokoberce-do-kamionu-daf-xg/": { kamion: { znacka: "DAF (TIR)", model: "XG / XG+ 2021-2026", aliasy: ["XG / XG+ 2022-2026"], nazov: "DAF XG a XG+" } },
     "/autokoberce-do-kamionu-man-tgx-2018/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2018-2020", nazov: "MAN TGX 2018–2020" } },
     "/autokoberce-do-kamionu-mercedes-actros-solostar/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 2021-2026 – obytná kabína (Solostar)", nazov: "Mercedes-Benz Actros Solostar" } },
-    "/autokoberce-do-kamionu-scania-s/": { kamion: { znacka: "Scania (TIR)", model: "S 2017-2026", nazov: "Scania S" } },
+    "/autokoberce-do-kamionu-scania-s/": { kamion: { znacka: "Scania (TIR)", model: "S 2016-2026", aliasy: ["S 2017-2026"], nazov: "Scania S" } },
     "/autokoberce-do-kamionu-daf-xf106-2013/": { kamion: { znacka: "DAF (TIR)", model: "XF106 2013-2016", nazov: "DAF XF106 2013–2016" } },
     "/autokoberce-do-kamionu-man-tgx-2007/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2007-2017", nazov: "MAN TGX 2007–2017" } },
-    "/autokoberce-do-kamionu-mercedes-actros-2003/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP2/MP3 (rovná podlaha) 2003-2008", nazov: "Mercedes-Benz Actros MP2/MP3" } },
+    "/autokoberce-do-kamionu-mercedes-actros-2003/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP2/MP3 (rovná podlaha) 2003-2011", aliasy: ["Actros MP2/MP3 (rovná podlaha) 2003-2008"], nazov: "Mercedes-Benz Actros MP2/MP3" } },
     "/autokoberce-do-kamionu-mercedes-actros-f/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP5/MP6 F (s tunelom) 2021-2026", nazov: "Mercedes-Benz Actros F s tunelom" } },
     "/autokoberce-do-kamionu-renault-t/": { kamion: { znacka: "Renault (TIR)", model: "T Range (rovná podlaha) 2013-2026", nazov: "Renault T s rovnou podlahou" } },
     "/autokoberce-do-kamionu-renault-t-s-tunelom/": { kamion: { znacka: "Renault (TIR)", model: "T Range (s tunelom) 2013-2026", nazov: "Renault T s tunelom" } },
@@ -46,20 +46,20 @@ export const KAMION_STRANKY = {
   581408: {
     "/luxusni-autokoberce-kamiony-1/": { skryty: true },
     // CZ: kľúče vozidiel sú slovenské (poznámka objednávky, Jánov export); na CZ sa model len zobrazí po česky (vozidloCs)
-    "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2017-2026", nazov: "Scania R" } },
-    "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2021-2026", nazov: "MAN TGX" } },
+    "/autokoberce-do-kamionu-scania-r/": { kamion: { znacka: "Scania (TIR)", model: "R 2016-2026", aliasy: ["R 2017-2026"], nazov: "Scania R" } },
+    "/autokoberce-do-kamionu-man-tgx/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2020-2026", aliasy: ["TGX 2021-2026"], nazov: "MAN TGX" } },
     "/autokoberce-do-kamionu-volvo-fh4/": { kamion: { znacka: "Volvo (TIR)", model: "FH4 2013-2021", nazov: "Volvo FH4" } },
     "/autokoberce-do-kamionu-mercedes-actros/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 (rovná podlaha) 2011-2026", nazov: "Mercedes-Benz Actros MP4/MP5/MP6" } },
     // vlna 2 a 3: tie isté adresy a kľúče ako SK, nazov = nazov_cz bez „Autokoberce do kamionu “ (CZ „s tunelem“)
     "/autokoberce-do-kamionu-daf-xf105/": { kamion: { znacka: "DAF (TIR)", model: "XF105 2006-2012", nazov: "DAF XF105" } },
     "/autokoberce-do-kamionu-daf-xf106/": { kamion: { znacka: "DAF (TIR)", model: "XF106 2017-2021", nazov: "DAF XF106" } },
-    "/autokoberce-do-kamionu-daf-xg/": { kamion: { znacka: "DAF (TIR)", model: "XG / XG+ 2022-2026", nazov: "DAF XG a XG+" } },
+    "/autokoberce-do-kamionu-daf-xg/": { kamion: { znacka: "DAF (TIR)", model: "XG / XG+ 2021-2026", aliasy: ["XG / XG+ 2022-2026"], nazov: "DAF XG a XG+" } },
     "/autokoberce-do-kamionu-man-tgx-2018/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2018-2020", nazov: "MAN TGX 2018–2020" } },
     "/autokoberce-do-kamionu-mercedes-actros-solostar/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP4/MP5/MP6 2021-2026 – obytná kabína (Solostar)", nazov: "Mercedes-Benz Actros Solostar" } },
-    "/autokoberce-do-kamionu-scania-s/": { kamion: { znacka: "Scania (TIR)", model: "S 2017-2026", nazov: "Scania S" } },
+    "/autokoberce-do-kamionu-scania-s/": { kamion: { znacka: "Scania (TIR)", model: "S 2016-2026", aliasy: ["S 2017-2026"], nazov: "Scania S" } },
     "/autokoberce-do-kamionu-daf-xf106-2013/": { kamion: { znacka: "DAF (TIR)", model: "XF106 2013-2016", nazov: "DAF XF106 2013–2016" } },
     "/autokoberce-do-kamionu-man-tgx-2007/": { kamion: { znacka: "MAN (TIR)", model: "TGX 2007-2017", nazov: "MAN TGX 2007–2017" } },
-    "/autokoberce-do-kamionu-mercedes-actros-2003/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP2/MP3 (rovná podlaha) 2003-2008", nazov: "Mercedes-Benz Actros MP2/MP3" } },
+    "/autokoberce-do-kamionu-mercedes-actros-2003/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP2/MP3 (rovná podlaha) 2003-2011", aliasy: ["Actros MP2/MP3 (rovná podlaha) 2003-2008"], nazov: "Mercedes-Benz Actros MP2/MP3" } },
     "/autokoberce-do-kamionu-mercedes-actros-f/": { kamion: { znacka: "Mercedes-Benz (TIR)", model: "Actros MP5/MP6 F (s tunelom) 2021-2026", nazov: "Mercedes-Benz Actros F s tunelem" } },
     "/autokoberce-do-kamionu-renault-t/": { kamion: { znacka: "Renault (TIR)", model: "T Range (rovná podlaha) 2013-2026", nazov: "Renault T s rovnou podlahou" } },
     "/autokoberce-do-kamionu-renault-t-s-tunelom/": { kamion: { znacka: "Renault (TIR)", model: "T Range (s tunelom) 2013-2026", nazov: "Renault T s tunelem" } },

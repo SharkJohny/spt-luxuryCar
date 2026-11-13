@@ -140,7 +140,10 @@ export function predvyberPevny(pevny, ulozisko, znacky) {
   try {
     const z = pevny && najdiZnacku(pevny.znacka, znacky);
     if (!z) return null;
-    const model = (pevny.model && z.modely.find((x) => x.nazov === pevny.model)) || null;
+    // pevny.aliasy = staré názvy toho istého modelu (premenovanie rokov v tabuľke, 13. 11. 2026): stránka nájde model,
+    // nech je v data.json nový aj starý názov; predvolba nesie názov z ponuky, takže inyKamion porovnáva správne
+    const mena = [pevny.model].concat(pevny.aliasy || []).filter(Boolean);
+    const model = mena.map((m) => z.modely.find((x) => x.nazov === m)).find(Boolean) || null;
     const polia = {};
     if (model) {
       Object.assign(polia, model.auto_vybrane);
