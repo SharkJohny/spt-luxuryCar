@@ -175,6 +175,9 @@ function stylStranky(slug, z) {
   ];
   if (z) r.push(b + ' h1.category-title::before{content:"";flex:none;width:54px;height:54px;border-radius:50%;background:#fff url("' + logo(z) + '") no-repeat center/32px 32px;border:1px solid #e4ddcd}');
   r.push(b + " .lcd-pa--kamiony .lcd-pa__foto{aspect-ratio:5/4}");
+  // celý ťahač aj s kolesami (Michal 13. 11. 2026: „chýba kus kolesa“): <picture> vyplní rámik, obrázok sa zmestí celý
+  r.push(b + " .lcd-pa--kamiony .lcd-pa__foto picture{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;overflow:hidden}");
+  r.push(b + " .lcd-pa--kamiony .lcd-pa__foto img{width:auto;height:auto;max-width:92%;max-height:92%;object-fit:contain}");
   // rámik „Nenašli ste svoj kamión / dodávku?“ — návrh A (Michal 13. 11. 2026): tmavý, zlatý okraj, zelené tlačidlo;
   // len nadpis + „Vyhľadať“ (Michal: „veľa textu… jasne, stručne, nech to prečíta a klikne“)
   const c = b + " .lcd-kam-cta";
