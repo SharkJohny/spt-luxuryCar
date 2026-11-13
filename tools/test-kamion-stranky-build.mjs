@@ -2,7 +2,8 @@
 // Test generátora stránok kamiónov a dodávok (tools/build-kamiony-stranky.mjs) na KÓPII vstupu mimo repa (13. 11. 2026,
 // vlna 4 a 5): admin-html/kamiony/ v repe sa nemení.
 //   1) kópia stranky.json bez zmeny -> všetky výstupy bajt po bajte ako v repe (generátor nič nepridá, kým stránka nie je v dátach)
-//   2) + vymyslené stránky (kamión Ford a IVECO, dodávka Fiat bez fotky vozidla, dodávka Mercedes-Benz s fotkou, čakajúca
+//   2) základ = len 20 stránok prvej várky (PRVA_VARKA z generátora, 13. 11. 2026 noc: v repe je už aj vlna 4 a 5)
+//      + vymyslené stránky (kamión Ford a IVECO, dodávka Fiat bez fotky vozidla, dodávka Mercedes-Benz s fotkou, čakajúca
 //      dodávka Citroën) -> nové Popisy, podkategórie značiek Ford a IVECO, jedna kategória dodávok, dlaždica „Dodávky“
 //      v prehľade, odkaz v pätičke, riadok v kategorie-znaciek.json; staré Popisy a podkategórie starých značiek bez zmeny
 //   3) zlá adresa (nesedí so slugom) -> exit 1
@@ -44,13 +45,25 @@ try {
   over("tie isté súbory ako v repe (" + repoSubory.length + ")", s1.join() === repoSubory.join(), "navyše: " + s1.filter((f) => !repoSubory.includes(f)).join() + " | chýba: " + repoSubory.filter((f) => !s1.includes(f)).join());
   const ine1 = repoSubory.filter((f) => existsSync(join(d1, f)) && citaj(d1, f) !== citaj(REPO, f));
   over("všetky výstupy bajt po bajte ako v repe", ine1.length === 0, ine1.join());
-  over("žiadna kategória dodávok ani nová značka", !s1.some((f) => /dodavky|-ford\.|-iveco\./.test(f)));
+  // kategória dodávok a podkategórie Ford / IVECO vzniknú práve vtedy, keď je v dátach hotová stránka (13. 11. 2026 noc: vlna 4 a 5)
+  const d1data = JSON.parse(vstup).stranky, hot = Object.values(d1data).filter((x) => !x.sk.caka);
+  const maDod = hot.some((x) => x.sk.url.startsWith("/autokoberce-do-dodavky-")), maFord = hot.some((x) => x.sk.znacka === "Ford"), maIveco = hot.some((x) => x.sk.znacka === "IVECO");
+  over("kategória dodávok / Ford / IVECO len pri hotovej stránke (" + [maDod, maFord, maIveco].join("/") + ")",
+    s1.some((f) => /^kategoria-autokoberce-do-dodavky\./.test(f)) === maDod && s1.some((f) => /-ford\./.test(f)) === maFord && s1.some((f) => /-iveco\./.test(f)) === maIveco);
   const c1 = spusti(d1, "--check");
   over("--check na kópii skončí 0", c1.kod === 0, c1.vystup.slice(-400));
 
   // ---------------------------------------------------------------- 2) vymyslené stránky
   console.log("2) Vymyslené stránky: Ford, IVECO, dve dodávky a čakajúca dodávka");
+  // základ: len 20 stránok prvej várky (zoznam PRVA_VARKA z generátora), výstupy základu = porovnávací stav
+  const PRVA = (readFileSync(GEN, "utf8").match(/const PRVA_VARKA = \[([^\]]+)\]/) || [, ""])[1].match(/"[a-z0-9-]+"/g).map((x) => x.slice(1, -1));
+  over("generátor má PRVA_VARKA s 20 stránkami", PRVA.length === 20, PRVA.join());
   const data = JSON.parse(vstup);
+  for (const k of Object.keys(data.stranky)) if (!PRVA.includes(k)) delete data.stranky[k];
+  const d0 = novy(JSON.stringify(data, null, 2) + "\n");
+  const r0 = spusti(d0);
+  over("základ (prvá várka) build skončí 0", r0.kod === 0, r0.vystup.slice(-400));
+  const zakladSubory = subory(d0);
   const vzor = data.stranky["scania-r"], tahac = data.stranky["mercedes-actros"].sk.tahac;
   const stranka = (slug, typ, znacka, model, od, po, o = {}) => {
     const z = {};
@@ -83,16 +96,16 @@ try {
   const cakane = [];
   for (const j of ["sk", "cz"]) cakane.push("ford-f-max." + j + ".html", "iveco-stralis-hi-way." + j + ".html", "fiat-ducato." + j + ".html", "mercedes-sprinter." + j + ".html",
     "kategoria-autokoberce-do-kamionu-ford." + j + ".html", "kategoria-autokoberce-do-kamionu-iveco." + j + ".html", "kategoria-autokoberce-do-dodavky." + j + ".html");
-  const nove = s2.filter((f) => !repoSubory.includes(f));
+  const nove = s2.filter((f) => !zakladSubory.includes(f));
   over("nové súbory = 4 Popisy, 2 značky a kategória dodávok × SK a CZ (" + cakane.length + ")", nove.join() === cakane.slice().sort().join(), nove.join());
   over("čakajúca dodávka nemá Popis", !s2.some((f) => /^citroen-jumper\./.test(f)));
-  const zmenene = repoSubory.filter((f) => citaj(d2, f) !== citaj(REPO, f));
+  const zmenene = zakladSubory.filter((f) => citaj(d2, f) !== citaj(d0, f));
   const smuZmenit = ["kategoria-autokoberce-do-kamionu.cz.html", "kategoria-autokoberce-do-kamionu.sk.html", "kategorie-znaciek.json", "manifest.json", "paticka-kamiony.cz.html", "paticka-kamiony.sk.html"];
   over("zo starých súborov sa zmenil len prehľad, pätička, kategorie-znaciek.json a manifest", zmenene.join() === smuZmenit.join(), zmenene.join());
 
   for (const j of ["sk", "cz"]) {
     const J = j.toUpperCase() + " ";
-    const prehlad = citaj(d2, "kategoria-autokoberce-do-kamionu." + j + ".html"), stary = citaj(REPO, "kategoria-autokoberce-do-kamionu." + j + ".html");
+    const prehlad = citaj(d2, "kategoria-autokoberce-do-kamionu." + j + ".html"), stary = citaj(d0, "kategoria-autokoberce-do-kamionu." + j + ".html");
     over(J + "prehľad: dlaždice Ford, IVECO a Dodávky pribudli, staré značky ostali", ["ford", "iveco"].every((z) => prehlad.includes('href="/autokoberce-do-kamionu-' + z + '/"')) && prehlad.includes('href="/autokoberce-do-dodavky/"') &&
       (stary.match(/<li><a class="lcd-pa__znacka" href="[^"]+"/g) || []).every((x) => prehlad.includes(x)) && pocet(prehlad, '<a class="lcd-pa__znacka" ') === pocet(stary, '<a class="lcd-pa__znacka" ') + 3);
     // mriežka značiek: každá dlaždica = obrázok loga alebo obrys v .lcd-pa__znacka-ik, potom <b>
@@ -112,7 +125,7 @@ try {
     const ford = citaj(d2, "kategoria-autokoberce-do-kamionu-ford." + j + ".html");
     over(J + "Ford: 1 dlaždica bez fotky (obrys ťahača), H1 s logom", pocet(ford, '<a class="lcd-pa__auto" ') === 1 && /<span class="lcd-pa__foto"><svg /.test(ford) && /h1\.category-title::before/.test(ford) && /znacky\/ford\.svg/.test(ford) && ford.includes('href="/autokoberce-do-kamionu-ford-f-max/"'));
     const mb = citaj(d2, "kategoria-autokoberce-do-kamionu-mercedes-benz." + j + ".html");
-    over(J + "Mercedes-Benz (kamióny): bez Sprintera, bajt po bajte ako v repe", !/sprinter/i.test(mb) && mb === citaj(REPO, "kategoria-autokoberce-do-kamionu-mercedes-benz." + j + ".html"));
+    over(J + "Mercedes-Benz (kamióny): bez Sprintera, bajt po bajte ako v základe", !/sprinter/i.test(mb) && mb === citaj(d0, "kategoria-autokoberce-do-kamionu-mercedes-benz." + j + ".html"));
 
     const fiat = citaj(d2, "fiat-ducato." + j + ".html");
     over(J + "Popis dodávky: fotky z <cdn>fiat-ducato/autokoberce-do-dodavky-fiat-ducato-galeria-NN", /kamion-stranky\/fiat-ducato\/autokoberce-do-dodavky-fiat-ducato-galeria-01\.jpg"/.test(fiat) && !/autokoberce-do-kamionu-fiat-ducato/.test(fiat) && fiat.includes('data-p1v-lb-sada="kamiony-fiat-ducato"'));
@@ -123,7 +136,7 @@ try {
     const pata = citaj(d2, "paticka-kamiony." + j + ".html");
     over(J + "pätička: Ford, IVECO a Dodávky pred „Nájsť môj kamión“", /autokoberce-do-kamionu-ford\/[\s\S]*autokoberce-do-kamionu-iveco\/[\s\S]*autokoberce-do-kamionu-volvo\/[\s\S]*href="\/autokoberce-do-dodavky\/"[\s\S]*lcd-kam-zoznam__hladaj/.test(pata));
   }
-  const kz = JSON.parse(citaj(d2, "kategorie-znaciek.json")), kzRepo = JSON.parse(citaj(REPO, "kategorie-znaciek.json"));
+  const kz = JSON.parse(citaj(d2, "kategorie-znaciek.json")), kzRepo = JSON.parse(citaj(d0, "kategorie-znaciek.json"));
   for (const j of ["sk", "cz"]) {
     over(j.toUpperCase() + " kategorie-znaciek.json: staré značky bez zmeny, pribudli Ford, IVECO a dodávky",
       kzRepo[j].every((x) => JSON.stringify(kz[j].find((y) => y.url === x.url)) === JSON.stringify(x)) && kz[j].length === kzRepo[j].length + 3 &&
@@ -149,7 +162,12 @@ try {
   const malo = JSON.parse(vstup);
   delete malo.stranky["scania-r"];
   const r5 = spusti(novy(JSON.stringify(malo, null, 2) + "\n"));
-  over("chýba stránka prvej várky -> exit 1", r5.kod === 1 && /má byť aspoň 20/.test(r5.vystup), r5.vystup.slice(-300));
+  over("chýba stránka prvej várky -> exit 1", r5.kod === 1 && /chýba stránka prvej várky: scania-r/.test(r5.vystup), r5.vystup.slice(-300));
+  // 13. 11. 2026 noc: stará stránka nesmie čakať (je naživo) — aj keď je v JSON všetkých 32 stránok
+  const caka = JSON.parse(vstup);
+  for (const j of ["sk", "cz"]) { caka.stranky["volvo-fh4"][j].caka = "skúška"; caka.stranky["volvo-fh4"][j].fotky = []; }
+  const r7 = spusti(novy(JSON.stringify(caka, null, 2) + "\n"));
+  over("stránka prvej várky s „caka“ -> exit 1", r7.kod === 1 && /stránka prvej várky čaká[^\n]*volvo-fh4/.test(r7.vystup), r7.vystup.slice(-300));
 
   // ---------------------------------------------------------------- 4) repo bez zmeny
   console.log("4) Repo");

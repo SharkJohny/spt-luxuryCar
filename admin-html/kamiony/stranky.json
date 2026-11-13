@@ -12,6 +12,396 @@
     }
   },
   "stranky": {
+    "citroen-jumper": {
+      "sk": {
+        "nazov": "Autokoberce do dodávky Citroën Jumper",
+        "url": "/autokoberce-do-dodavky-citroen-jumper/",
+        "metaTitle": "Autokoberce do dodávky Citroën Jumper (2014–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Citroën Jumper s našimi autokobercami",
+        "popisUvod": "Pre novší Citroën Jumper máme hotovú šablónu autokobercov do dodávky. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, štyri fotky sú od našich zákazníkov. Sedia do ročníkov 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "Citroën Jumper",
+        "roky": {
+          "od": 2014,
+          "do": 2026
+        },
+        "znacka": "Citroën",
+        "tahac": {
+          "kluc": "citroen-jumper",
+          "subor": "citroen-jumper-vlavo",
+          "w": 480,
+          "h": 270,
+          "w960": 960,
+          "h960": 539
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Citroën Jumper – tmavosivé hladké koberce, celý set",
+            "popis": "Tmavosivé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Citroën Jumper – čierne prešívané koberce pri dverách a sedadle, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri dverách a sedadle",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Citroën Jumper – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Citroën Jumper – čierne prešívané koberce pri sedadle šoféra, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri sedadle šoféra",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Citroën Jumper – čierne prešívané koberce v kabíne, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce v kabíne",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Citroën Jumper – čierne hladké koberce, celý set",
+            "popis": "Čierne hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Citroën Jumper – čierny prešívaný diel na schodíku, fotka od zákazníka",
+            "popis": "Čierny prešívaný diel na schodíku",
+            "typ": "zakaznik"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do dodávky Citroën Jumper",
+        "url": "/autokoberce-do-dodavky-citroen-jumper/",
+        "metaTitle": "Autokoberce do dodávky Citroën Jumper (2014–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Citroën Jumper s našimi autokoberci",
+        "popisUvod": "Pro novější Citroën Jumper máme hotovou šablonu autokoberců do dodávky. Na fotkách jsou koberce v různých barvách na světlém pozadí, čtyři fotky jsou od našich zákazníků. Pasují do ročníků 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "model": "Citroën Jumper",
+        "roky": {
+          "od": 2014,
+          "do": 2026
+        },
+        "znacka": "Citroën",
+        "tahac": {
+          "kluc": "citroen-jumper",
+          "subor": "citroen-jumper-vlavo",
+          "w": 480,
+          "h": 270,
+          "w960": 960,
+          "h960": 539
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Citroën Jumper – tmavě šedé hladké koberce, celý set",
+            "popis": "Tmavě šedé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Citroën Jumper – černé prošívané koberce u dveří a sedadla, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u dveří a sedadla",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Citroën Jumper – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Citroën Jumper – černé prošívané koberce u sedadla řidiče, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u sedadla řidiče",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Citroën Jumper – černé prošívané koberce v kabině, fotka od zákazníka",
+            "popis": "Černé prošívané koberce v kabině",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Citroën Jumper – černé hladké koberce, celý set",
+            "popis": "Černé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Citroën Jumper – černý prošívaný díl na schůdku, fotka od zákazníka",
+            "popis": "Černý prošívaný díl na schůdku",
+            "typ": "zakaznik"
+          }
+        ]
+      }
+    },
+    "citroen-jumper-2006": {
+      "sk": {
+        "nazov": "Autokoberce do dodávky Citroën Jumper 2006–2014",
+        "url": "/autokoberce-do-dodavky-citroen-jumper-2006/",
+        "metaTitle": "Autokoberce do dodávky Citroën Jumper (2006–2014) na mieru | Luxury Car Design",
+        "popisNadpis": "Citroën Jumper 2006–2014 s našimi autokobercami",
+        "popisUvod": "Pre starší Citroën Jumper máme hotovú šablónu autokobercov do dodávky. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, štyri fotky sú od našich zákazníkov. Sedia do ročníkov 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 aj 2014.",
+        "model": "Citroën Jumper",
+        "roky": {
+          "od": 2006,
+          "do": 2014
+        },
+        "znacka": "Citroën",
+        "tahac": {
+          "kluc": "citroen-jumper-2006",
+          "subor": "citroen-jumper-2006-vlavo",
+          "w": 480,
+          "h": 274,
+          "w960": 960,
+          "h960": 547
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – čierne prešívané koberce pri sedadle šoféra, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri sedadle šoféra",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – čierne prešívané koberce pri schodíku, pohľad zhora, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri schodíku, pohľad zhora",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – čierne prešívané koberce v kabíne, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce v kabíne",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – tmavosivé hladké koberce, celý set",
+            "popis": "Tmavosivé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – čierne prešívané koberce pri schodíku, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri schodíku",
+            "typ": "zakaznik"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do dodávky Citroën Jumper 2006–2014",
+        "url": "/autokoberce-do-dodavky-citroen-jumper-2006/",
+        "metaTitle": "Autokoberce do dodávky Citroën Jumper (2006–2014) na míru | Luxury Car Design",
+        "popisNadpis": "Citroën Jumper 2006–2014 s našimi autokoberci",
+        "popisUvod": "Pro starší Citroën Jumper máme hotovou šablonu autokoberců do dodávky. Na fotkách jsou koberce v různých barvách na světlém pozadí, čtyři fotky jsou od našich zákazníků. Pasují do ročníků 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 i 2014.",
+        "model": "Citroën Jumper",
+        "roky": {
+          "od": 2006,
+          "do": 2014
+        },
+        "znacka": "Citroën",
+        "tahac": {
+          "kluc": "citroen-jumper-2006",
+          "subor": "citroen-jumper-2006-vlavo",
+          "w": 480,
+          "h": 274,
+          "w960": 960,
+          "h960": 547
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – černé prošívané koberce u sedadla řidiče, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u sedadla řidiče",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – černé prošívané koberce u schůdku, pohled shora, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u schůdku, pohled shora",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – černé prošívané koberce v kabině, fotka od zákazníka",
+            "popis": "Černé prošívané koberce v kabině",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – tmavě šedé hladké koberce, celý set",
+            "popis": "Tmavě šedé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Citroën Jumper 2006–2014 – černé prošívané koberce u schůdku, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u schůdku",
+            "typ": "zakaznik"
+          }
+        ]
+      }
+    },
+    "daf-xf": {
+      "sk": {
+        "nazov": "Autokoberce do kamiónu DAF XF",
+        "url": "/autokoberce-do-kamionu-daf-xf/",
+        "metaTitle": "Autokoberce do kamiónu DAF XF (2021–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "DAF XF s našimi autokobercami",
+        "popisUvod": "Pre DAF XF máme hotovú šablónu autokobercov pre sedadlo spolujazdca CINEMA aj odpružené. Na fotkách sú koberce v kabíne DAF XG, ktorá má rovnakú podlahu, aj na svetlom pozadí. Sedia do ročníkov 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "DAF XF",
+        "roky": {
+          "od": 2021,
+          "do": 2026
+        },
+        "znacka": "DAF",
+        "tahac": {
+          "kluc": "daf-xf-2021",
+          "subor": "daf-xf-2021-vlavo",
+          "w": 480,
+          "h": 355,
+          "w960": 960,
+          "h960": 709
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu DAF XF – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamiónu DAF XF – sivé vzorované koberce pri sedadle",
+            "popis": "Sivé vzorované koberce pri sedadle",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu DAF XF – sivé vzorované koberce pod sedadlom",
+            "popis": "Sivé vzorované koberce pod sedadlom",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu DAF XF – sivé vzorované koberce, pohľad zhora",
+            "popis": "Sivé vzorované koberce, pohľad zhora",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu DAF XF – sivé vzorované koberce v kabíne",
+            "popis": "Sivé vzorované koberce v kabíne",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu DAF XF – sivé vzorované koberce pri dverách a sedadle",
+            "popis": "Sivé vzorované koberce pri dverách a sedadle",
+            "typ": "kabina"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do kamionu DAF XF",
+        "url": "/autokoberce-do-kamionu-daf-xf/",
+        "metaTitle": "Autokoberce do kamionu DAF XF (2021–2026) na míru | Luxury Car Design",
+        "popisNadpis": "DAF XF s našimi autokoberci",
+        "popisUvod": "Pro DAF XF máme hotovou šablonu autokoberců pro sedadlo spolujezdce CINEMA i odpružené. Na fotkách jsou koberce v kabině DAF XG, která má stejnou podlahu, i na světlém pozadí. Pasují do ročníků 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "model": "DAF XF",
+        "roky": {
+          "od": 2021,
+          "do": 2026
+        },
+        "znacka": "DAF",
+        "tahac": {
+          "kluc": "daf-xf-2021",
+          "subor": "daf-xf-2021-vlavo",
+          "w": 480,
+          "h": 355,
+          "w960": 960,
+          "h960": 709
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu DAF XF – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamionu DAF XF – šedé vzorované koberce u sedadla",
+            "popis": "Šedé vzorované koberce u sedadla",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu DAF XF – šedé vzorované koberce pod sedadlem",
+            "popis": "Šedé vzorované koberce pod sedadlem",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamionu DAF XF – šedé vzorované koberce, pohled shora",
+            "popis": "Šedé vzorované koberce, pohled shora",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu DAF XF – šedé vzorované koberce v kabině",
+            "popis": "Šedé vzorované koberce v kabině",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu DAF XF – šedé vzorované koberce u dveří a sedadla",
+            "popis": "Šedé vzorované koberce u dveří a sedadla",
+            "typ": "kabina"
+          }
+        ]
+      }
+    },
     "daf-xf105": {
       "sk": {
         "nazov": "Autokoberce do kamiónu DAF XF105",
@@ -520,6 +910,334 @@
             "alt": "Autokoberce do kamionu DAF XG a XG+ – šedé vzorované koberce pod sedadlem",
             "popis": "Šedé vzorované koberce pod sedadlem",
             "typ": "kabina"
+          }
+        ]
+      }
+    },
+    "fiat-ducato": {
+      "sk": {
+        "nazov": "Autokoberce do dodávky Fiat Ducato",
+        "url": "/autokoberce-do-dodavky-fiat-ducato/",
+        "metaTitle": "Autokoberce do dodávky Fiat Ducato (2006–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Fiat Ducato s našimi autokobercami",
+        "popisUvod": "Pre Fiat Ducato máme hotovú šablónu autokobercov do dodávky. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, štyri fotky sú od našich zákazníkov. Sedia do ročníkov 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "Fiat Ducato",
+        "roky": {
+          "od": 2006,
+          "do": 2026
+        },
+        "znacka": "Fiat",
+        "tahac": {
+          "kluc": "fiat-ducato",
+          "subor": "fiat-ducato-vlavo",
+          "w": 480,
+          "h": 248,
+          "w960": 960,
+          "h960": 496
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Fiat Ducato – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Fiat Ducato – čierne prešívané koberce v kabíne, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce v kabíne",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Fiat Ducato – čierne prešívané koberce pri dverách a sedadle, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri dverách a sedadle",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Fiat Ducato – tmavosivé hladké koberce, celý set",
+            "popis": "Tmavosivé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Fiat Ducato – čierne prešívané koberce pri sedadle šoféra, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri sedadle šoféra",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Fiat Ducato – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Fiat Ducato – čierne prešívané koberce pri schodíku, pohľad zhora, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri schodíku, pohľad zhora",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do dodávky Fiat Ducato – čierne hladké koberce, celý set",
+            "popis": "Čierne hladké koberce, celý set",
+            "typ": "studio"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do dodávky Fiat Ducato",
+        "url": "/autokoberce-do-dodavky-fiat-ducato/",
+        "metaTitle": "Autokoberce do dodávky Fiat Ducato (2006–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Fiat Ducato s našimi autokoberci",
+        "popisUvod": "Pro Fiat Ducato máme hotovou šablonu autokoberců do dodávky. Na fotkách jsou koberce v různých barvách na světlém pozadí, čtyři fotky jsou od našich zákazníků. Pasují do ročníků 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "model": "Fiat Ducato",
+        "roky": {
+          "od": 2006,
+          "do": 2026
+        },
+        "znacka": "Fiat",
+        "tahac": {
+          "kluc": "fiat-ducato",
+          "subor": "fiat-ducato-vlavo",
+          "w": 480,
+          "h": 248,
+          "w960": 960,
+          "h960": 496
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Fiat Ducato – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Fiat Ducato – černé prošívané koberce v kabině, fotka od zákazníka",
+            "popis": "Černé prošívané koberce v kabině",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Fiat Ducato – černé prošívané koberce u dveří a sedadla, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u dveří a sedadla",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Fiat Ducato – tmavě šedé hladké koberce, celý set",
+            "popis": "Tmavě šedé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Fiat Ducato – černé prošívané koberce u sedadla řidiče, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u sedadla řidiče",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Fiat Ducato – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Fiat Ducato – černé prošívané koberce u schůdku, pohled shora, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u schůdku, pohled shora",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do dodávky Fiat Ducato – černé hladké koberce, celý set",
+            "popis": "Černé hladké koberce, celý set",
+            "typ": "studio"
+          }
+        ]
+      }
+    },
+    "ford-f-max": {
+      "sk": {
+        "nazov": "Autokoberce do kamiónu Ford F-MAX",
+        "url": "/autokoberce-do-kamionu-ford-f-max/",
+        "metaTitle": "Autokoberce do kamiónu Ford F-MAX (2018–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Ford F-MAX s našimi autokobercami",
+        "popisUvod": "Pre Ford F-MAX máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Na fotkách sú koberce položené v kabíne. Sedia do ročníkov 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "Ford F-MAX",
+        "roky": {
+          "od": 2018,
+          "do": 2026
+        },
+        "znacka": "Ford",
+        "tahac": {
+          "kluc": "ford-f-max",
+          "subor": "ford-f-max-vlavo",
+          "w": 480,
+          "h": 395,
+          "w960": 960,
+          "h960": 790
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu Ford F-MAX – modré prešívané koberce pri dverách",
+            "popis": "Modré prešívané koberce pri dverách",
+            "typ": "kabina"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamiónu Ford F-MAX – modré prešívané koberce pod sedadlom",
+            "popis": "Modré prešívané koberce pod sedadlom",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu Ford F-MAX – modré prešívané koberce pri sedadle",
+            "popis": "Modré prešívané koberce pri sedadle",
+            "typ": "kabina"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do kamionu Ford F-MAX",
+        "url": "/autokoberce-do-kamionu-ford-f-max/",
+        "metaTitle": "Autokoberce do kamionu Ford F-MAX (2018–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Ford F-MAX s našimi autokoberci",
+        "popisUvod": "Pro Ford F-MAX máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. Na fotkách jsou koberce položené v kabině. Pasují do ročníků 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "model": "Ford F-MAX",
+        "roky": {
+          "od": 2018,
+          "do": 2026
+        },
+        "znacka": "Ford",
+        "tahac": {
+          "kluc": "ford-f-max",
+          "subor": "ford-f-max-vlavo",
+          "w": 480,
+          "h": 395,
+          "w960": 960,
+          "h960": 790
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu Ford F-MAX – modré prošívané koberce u dveří",
+            "popis": "Modré prošívané koberce u dveří",
+            "typ": "kabina"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamionu Ford F-MAX – modré prošívané koberce pod sedadlem",
+            "popis": "Modré prošívané koberce pod sedadlem",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu Ford F-MAX – modré prošívané koberce u sedadla",
+            "popis": "Modré prošívané koberce u sedadla",
+            "typ": "kabina"
+          }
+        ]
+      }
+    },
+    "iveco-stralis-hi-way": {
+      "sk": {
+        "nazov": "Autokoberce do kamiónu IVECO Stralis Hi-Way",
+        "url": "/autokoberce-do-kamionu-iveco-stralis-hi-way/",
+        "metaTitle": "Autokoberce do kamiónu IVECO Stralis Hi-Way (2011–2019) na mieru | Luxury Car Design",
+        "popisNadpis": "IVECO Stralis Hi-Way s našimi autokobercami",
+        "popisUvod": "Pre IVECO Stralis Hi-Way máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Na fotke je celá sada na svetlom pozadí. Sedia do ročníkov 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 aj 2019.",
+        "model": "IVECO Stralis Hi-Way",
+        "roky": {
+          "od": 2011,
+          "do": 2019
+        },
+        "znacka": "IVECO",
+        "tahac": null,
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu IVECO Stralis Hi-Way – tmavosivé prešívané koberce, celý set",
+            "popis": "Tmavosivé prešívané koberce, celý set",
+            "typ": "studio"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do kamionu IVECO Stralis Hi-Way",
+        "url": "/autokoberce-do-kamionu-iveco-stralis-hi-way/",
+        "metaTitle": "Autokoberce do kamionu IVECO Stralis Hi-Way (2011–2019) na míru | Luxury Car Design",
+        "popisNadpis": "IVECO Stralis Hi-Way s našimi autokoberci",
+        "popisUvod": "Pro IVECO Stralis Hi-Way máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. Na fotce je celá sada na světlém pozadí. Pasují do ročníků 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 i 2019.",
+        "model": "IVECO Stralis Hi-Way",
+        "roky": {
+          "od": 2011,
+          "do": 2019
+        },
+        "znacka": "IVECO",
+        "tahac": null,
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu IVECO Stralis Hi-Way – tmavě šedé prošívané koberce, celý set",
+            "popis": "Tmavě šedé prošívané koberce, celý set",
+            "typ": "studio"
+          }
+        ]
+      }
+    },
+    "iveco-stralis-hi-way-obytna-kabina": {
+      "sk": {
+        "nazov": "Autokoberce do kamiónu IVECO Stralis Hi-Way s obytnou kabínou",
+        "url": "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/",
+        "metaTitle": "Autokoberce do kamiónu IVECO Stralis Hi-Way s obytnou kabínou (2011–2019) na mieru | Luxury Car Design",
+        "popisNadpis": "Obytná kabína IVECO Stralis Hi-Way s našimi autokobercami",
+        "popisUvod": "Pre IVECO Stralis Hi-Way s obytnou kabínou máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Na fotke je celá sada na svetlom pozadí. Sedia do ročníkov 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 aj 2019.",
+        "model": "IVECO Stralis Hi-Way s obytnou kabínou",
+        "roky": {
+          "od": 2011,
+          "do": 2019
+        },
+        "znacka": "IVECO",
+        "tahac": null,
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu IVECO Stralis Hi-Way s obytnou kabínou – tmavosivé prešívané koberce, celý set",
+            "popis": "Tmavosivé prešívané koberce, celý set",
+            "typ": "studio"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do kamionu IVECO Stralis Hi-Way s obytnou kabinou",
+        "url": "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/",
+        "metaTitle": "Autokoberce do kamionu IVECO Stralis Hi-Way s obytnou kabinou (2011–2019) na míru | Luxury Car Design",
+        "popisNadpis": "Obytná kabina IVECO Stralis Hi-Way s našimi autokoberci",
+        "popisUvod": "Pro IVECO Stralis Hi-Way s obytnou kabinou máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. Na fotce je celá sada na světlém pozadí. Pasují do ročníků 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 i 2019.",
+        "model": "IVECO Stralis Hi-Way s obytnou kabinou",
+        "roky": {
+          "od": 2011,
+          "do": 2019
+        },
+        "znacka": "IVECO",
+        "tahac": null,
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu IVECO Stralis Hi-Way s obytnou kabinou – tmavě šedé prošívané koberce, celý set",
+            "popis": "Tmavě šedé prošívané koberce, celý set",
+            "typ": "studio"
           }
         ]
       }
@@ -1452,6 +2170,396 @@
             "alt": "Autokoberce do kamionu Mercedes-Benz Actros Solostar – krémové prošívané koberce u sedadla, fotka od zákazníka",
             "popis": "Krémové prošívané koberce u sedadla",
             "typ": "zakaznik"
+          }
+        ]
+      }
+    },
+    "mercedes-sprinter": {
+      "sk": {
+        "nazov": "Autokoberce do dodávky Mercedes-Benz Sprinter",
+        "url": "/autokoberce-do-dodavky-mercedes-sprinter/",
+        "metaTitle": "Autokoberce do dodávky Mercedes-Benz Sprinter (2018–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Mercedes-Benz Sprinter s našimi autokobercami",
+        "popisUvod": "Pre Mercedes-Benz Sprinter so zadným pohonom máme hotovú šablónu autokobercov pre jednomiestne aj dvojmiestne sedadlo spolujazdca. Na fotkách sú koberce položené v kabíne. Sedia do ročníkov 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "Mercedes-Benz Sprinter",
+        "roky": {
+          "od": 2018,
+          "do": 2026
+        },
+        "znacka": "Mercedes-Benz",
+        "tahac": {
+          "kluc": "mercedes-sprinter",
+          "subor": "mercedes-sprinter-vlavo",
+          "w": 480,
+          "h": 339,
+          "w960": 960,
+          "h960": 678
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – bordové prešívané koberce pri sedadle šoféra",
+            "popis": "Bordové prešívané koberce pri sedadle šoféra",
+            "typ": "kabina"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – bordové prešívané koberce pri sedadle spolujazdca",
+            "popis": "Bordové prešívané koberce pri sedadle spolujazdca",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – bordové prešívané koberce medzi sedadlami",
+            "popis": "Bordové prešívané koberce medzi sedadlami",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – bordové prešívané koberce pod volantom",
+            "popis": "Bordové prešívané koberce pod volantom",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – bordové prešívané koberce pri dverách",
+            "popis": "Bordové prešívané koberce pri dverách",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – bordové prešívané koberce v celej kabíne",
+            "popis": "Bordové prešívané koberce v celej kabíne",
+            "typ": "kabina"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do dodávky Mercedes-Benz Sprinter",
+        "url": "/autokoberce-do-dodavky-mercedes-sprinter/",
+        "metaTitle": "Autokoberce do dodávky Mercedes-Benz Sprinter (2018–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Mercedes-Benz Sprinter s našimi autokoberci",
+        "popisUvod": "Pro Mercedes-Benz Sprinter se zadním pohonem máme hotovou šablonu autokoberců pro jednomístné i dvoumístné sedadlo spolujezdce. Na fotkách jsou koberce položené v kabině. Pasují do ročníků 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "model": "Mercedes-Benz Sprinter",
+        "roky": {
+          "od": 2018,
+          "do": 2026
+        },
+        "znacka": "Mercedes-Benz",
+        "tahac": {
+          "kluc": "mercedes-sprinter",
+          "subor": "mercedes-sprinter-vlavo",
+          "w": 480,
+          "h": 339,
+          "w960": 960,
+          "h960": 678
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – vínové prošívané koberce u sedadla řidiče",
+            "popis": "Vínové prošívané koberce u sedadla řidiče",
+            "typ": "kabina"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – vínové prošívané koberce u sedadla spolujezdce",
+            "popis": "Vínové prošívané koberce u sedadla spolujezdce",
+            "typ": "kabina"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – vínové prošívané koberce mezi sedadly",
+            "popis": "Vínové prošívané koberce mezi sedadly",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – vínové prošívané koberce pod volantem",
+            "popis": "Vínové prošívané koberce pod volantem",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – vínové prošívané koberce u dveří",
+            "popis": "Vínové prošívané koberce u dveří",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Mercedes-Benz Sprinter – vínové prošívané koberce v celé kabině",
+            "popis": "Vínové prošívané koberce v celé kabině",
+            "typ": "kabina"
+          }
+        ]
+      }
+    },
+    "peugeot-boxer": {
+      "sk": {
+        "nazov": "Autokoberce do dodávky Peugeot Boxer",
+        "url": "/autokoberce-do-dodavky-peugeot-boxer/",
+        "metaTitle": "Autokoberce do dodávky Peugeot Boxer (2014–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Peugeot Boxer s našimi autokobercami",
+        "popisUvod": "Pre novší Peugeot Boxer máme hotovú šablónu autokobercov do dodávky. Na fotkách sú koberce v rôznych farbách na svetlom pozadí, štyri fotky sú od našich zákazníkov. Sedia do ročníkov 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "Peugeot Boxer",
+        "roky": {
+          "od": 2014,
+          "do": 2026
+        },
+        "znacka": "Peugeot",
+        "tahac": {
+          "kluc": "peugeot-boxer",
+          "subor": "peugeot-boxer-vlavo",
+          "w": 480,
+          "h": 331,
+          "w960": 960,
+          "h960": 661
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – čierne hladké koberce, celý set",
+            "popis": "Čierne hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – čierne prešívané koberce v kabíne, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce v kabíne",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – čierne prešívané koberce pri schodíku, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri schodíku",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – tmavosivé hladké koberce, celý set",
+            "popis": "Tmavosivé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – čierne prešívané koberce pri schodíku, pohľad zhora, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri schodíku, pohľad zhora",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – čierny prešívaný diel na schodíku, fotka od zákazníka",
+            "popis": "Čierny prešívaný diel na schodíku",
+            "typ": "zakaznik"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do dodávky Peugeot Boxer",
+        "url": "/autokoberce-do-dodavky-peugeot-boxer/",
+        "metaTitle": "Autokoberce do dodávky Peugeot Boxer (2014–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Peugeot Boxer s našimi autokoberci",
+        "popisUvod": "Pro novější Peugeot Boxer máme hotovou šablonu autokoberců do dodávky. Na fotkách jsou koberce v různých barvách na světlém pozadí, čtyři fotky jsou od našich zákazníků. Pasují do ročníků 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 i 2026.",
+        "model": "Peugeot Boxer",
+        "roky": {
+          "od": 2014,
+          "do": 2026
+        },
+        "znacka": "Peugeot",
+        "tahac": {
+          "kluc": "peugeot-boxer",
+          "subor": "peugeot-boxer-vlavo",
+          "w": 480,
+          "h": 331,
+          "w960": 960,
+          "h960": 661
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – černé hladké koberce, celý set",
+            "popis": "Černé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – černé prošívané koberce v kabině, fotka od zákazníka",
+            "popis": "Černé prošívané koberce v kabině",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – černé prošívané koberce u schůdku, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u schůdku",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – tmavě šedé hladké koberce, celý set",
+            "popis": "Tmavě šedé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – černé prošívané koberce u schůdku, pohled shora, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u schůdku, pohled shora",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Peugeot Boxer – černý prošívaný díl na schůdku, fotka od zákazníka",
+            "popis": "Černý prošívaný díl na schůdku",
+            "typ": "zakaznik"
+          }
+        ]
+      }
+    },
+    "peugeot-boxer-2006": {
+      "sk": {
+        "nazov": "Autokoberce do dodávky Peugeot Boxer 2006–2014",
+        "url": "/autokoberce-do-dodavky-peugeot-boxer-2006/",
+        "metaTitle": "Autokoberce do dodávky Peugeot Boxer (2006–2014) na mieru | Luxury Car Design",
+        "popisNadpis": "Peugeot Boxer 2006–2014 s našimi autokobercami",
+        "popisUvod": "Pre starší Peugeot Boxer máme hotovú šablónu autokobercov do dodávky. Prvé fotky sú od našich zákazníkov, na ďalších sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 aj 2014.",
+        "model": "Peugeot Boxer",
+        "roky": {
+          "od": 2006,
+          "do": 2014
+        },
+        "znacka": "Peugeot",
+        "tahac": {
+          "kluc": "peugeot-boxer-2006",
+          "subor": "peugeot-boxer-2006-vlavo",
+          "w": 480,
+          "h": 367,
+          "w960": 960,
+          "h960": 735
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – čierne prešívané koberce v kabíne, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce v kabíne",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – čierny prešívaný diel na schodíku, fotka od zákazníka",
+            "popis": "Čierny prešívaný diel na schodíku",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – čierne prešívané koberce pri dverách a sedadle, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri dverách a sedadle",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – čierne prešívané koberce pri schodíku, fotka od zákazníka",
+            "popis": "Čierne prešívané koberce pri schodíku",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – čierne hladké koberce, celý set",
+            "popis": "Čierne hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
+            "typ": "studio"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do dodávky Peugeot Boxer 2006–2014",
+        "url": "/autokoberce-do-dodavky-peugeot-boxer-2006/",
+        "metaTitle": "Autokoberce do dodávky Peugeot Boxer (2006–2014) na míru | Luxury Car Design",
+        "popisNadpis": "Peugeot Boxer 2006–2014 s našimi autokoberci",
+        "popisUvod": "Pro starší Peugeot Boxer máme hotovou šablonu autokoberců do dodávky. První fotky jsou od našich zákazníků, na dalších jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 i 2014.",
+        "model": "Peugeot Boxer",
+        "roky": {
+          "od": 2006,
+          "do": 2014
+        },
+        "znacka": "Peugeot",
+        "tahac": {
+          "kluc": "peugeot-boxer-2006",
+          "subor": "peugeot-boxer-2006-vlavo",
+          "w": 480,
+          "h": 367,
+          "w960": 960,
+          "h960": 735
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – černé prošívané koberce v kabině, fotka od zákazníka",
+            "popis": "Černé prošívané koberce v kabině",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – černý prošívaný díl na schůdku, fotka od zákazníka",
+            "popis": "Černý prošívaný díl na schůdku",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – černé prošívané koberce u dveří a sedadla, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u dveří a sedadla",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – černé prošívané koberce u schůdku, fotka od zákazníka",
+            "popis": "Černé prošívané koberce u schůdku",
+            "typ": "zakaznik"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – černé hladké koberce, celý set",
+            "popis": "Černé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do dodávky Peugeot Boxer 2006–2014 – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
+            "typ": "studio"
           }
         ]
       }
@@ -2642,6 +3750,298 @@
             "popis": "Béžové prošívané koberce u sedadla",
             "typ": "zakaznik",
             "oknoVerzia": 2
+          }
+        ]
+      }
+    },
+    "volvo-fh5": {
+      "sk": {
+        "nazov": "Autokoberce do kamiónu Volvo FH5",
+        "url": "/autokoberce-do-kamionu-volvo-fh5/",
+        "metaTitle": "Autokoberce do kamiónu Volvo FH5 (2022–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Volvo FH5 s našimi autokobercami",
+        "popisUvod": "Pre Volvo FH5 máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Na fotkách sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2022, 2023, 2024, 2025 aj 2026.",
+        "model": "Volvo FH5",
+        "roky": {
+          "od": 2022,
+          "do": 2026
+        },
+        "znacka": "Volvo",
+        "tahac": {
+          "kluc": "volvo-fh5",
+          "subor": "volvo-fh5-vlavo",
+          "w": 480,
+          "h": 466,
+          "w960": 960,
+          "h960": 931
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – čierne hladké koberce s červeným lemom, celý set",
+            "popis": "Čierne hladké koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – čierne hladké koberce, celý set",
+            "popis": "Čierne hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – čierny hladký stredový diel s červeným lemom",
+            "popis": "Čierny hladký stredový diel s červeným lemom",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – tmavosivé hladké koberce, celý set",
+            "popis": "Tmavosivé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – béžový prešívaný stredový diel",
+            "popis": "Béžový prešívaný stredový diel",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – zelený prešívaný stredový diel",
+            "popis": "Zelený prešívaný stredový diel",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – tmavomodrý prešívaný stredový diel",
+            "popis": "Tmavomodrý prešívaný stredový diel",
+            "typ": "studio"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamiónu Volvo FH5 – hnedý hladký stredový diel",
+            "popis": "Hnedý hladký stredový diel",
+            "typ": "studio"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do kamionu Volvo FH5",
+        "url": "/autokoberce-do-kamionu-volvo-fh5/",
+        "metaTitle": "Autokoberce do kamionu Volvo FH5 (2022–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Volvo FH5 s našimi autokoberci",
+        "popisUvod": "Pro Volvo FH5 máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. Na fotkách jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2022, 2023, 2024, 2025 i 2026.",
+        "model": "Volvo FH5",
+        "roky": {
+          "od": 2022,
+          "do": 2026
+        },
+        "znacka": "Volvo",
+        "tahac": {
+          "kluc": "volvo-fh5",
+          "subor": "volvo-fh5-vlavo",
+          "w": 480,
+          "h": 466,
+          "w960": 960,
+          "h960": 931
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu Volvo FH5 – černé hladké koberce s červeným lemem, celý set",
+            "popis": "Černé hladké koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamionu Volvo FH5 – černé hladké koberce, celý set",
+            "popis": "Černé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu Volvo FH5 – černý hladký středový díl s červeným lemem",
+            "popis": "Černý hladký středový díl s červeným lemem",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamionu Volvo FH5 – tmavě šedé hladké koberce, celý set",
+            "popis": "Tmavě šedé hladké koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu Volvo FH5 – béžový prošívaný středový díl",
+            "popis": "Béžový prošívaný středový díl",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu Volvo FH5 – zelený prošívaný středový díl",
+            "popis": "Zelený prošívaný středový díl",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamionu Volvo FH5 – tmavě modrý prošívaný středový díl",
+            "popis": "Tmavě modrý prošívaný středový díl",
+            "typ": "studio"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamionu Volvo FH5 – hnědý hladký středový díl",
+            "popis": "Hnědý hladký středový díl",
+            "typ": "studio"
+          }
+        ]
+      }
+    },
+    "volvo-fh5-aero": {
+      "sk": {
+        "nazov": "Autokoberce do kamiónu Volvo FH5 Aero",
+        "url": "/autokoberce-do-kamionu-volvo-fh5-aero/",
+        "metaTitle": "Autokoberce do kamiónu Volvo FH5 Aero (2025–2026) na mieru | Luxury Car Design",
+        "popisNadpis": "Volvo FH5 Aero s našimi autokobercami",
+        "popisUvod": "Pre Volvo FH5 Aero máme hotovú šablónu autokobercov pre verziu s automatickou prevodovkou. Na fotkách sú koberce v rôznych farbách na svetlom pozadí. Sedia do ročníkov 2025 aj 2026.",
+        "model": "Volvo FH5 Aero",
+        "roky": {
+          "od": 2025,
+          "do": 2026
+        },
+        "znacka": "Volvo",
+        "tahac": {
+          "kluc": "volvo-fh-aero",
+          "subor": "volvo-fh-aero-vlavo",
+          "w": 480,
+          "h": 461,
+          "w960": 960,
+          "h960": 921
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – tmavohnedé prešívané koberce s červeným lemom, celý set",
+            "popis": "Tmavohnedé prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – tmavohnedý prešívaný stredový diel s červeným lemom",
+            "popis": "Tmavohnedý prešívaný stredový diel s červeným lemom",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – béžové prešívané koberce, celý set",
+            "popis": "Béžové prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – béžový prešívaný stredový diel",
+            "popis": "Béžový prešívaný stredový diel",
+            "typ": "studio"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – tmavomodrý prešívaný stredový diel s červeným lemom",
+            "popis": "Tmavomodrý prešívaný stredový diel s červeným lemom",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – hnedý prešívaný stredový diel",
+            "popis": "Hnedý prešívaný stredový diel",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – sivý hladký stredový diel",
+            "popis": "Sivý hladký stredový diel",
+            "typ": "studio"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamiónu Volvo FH5 Aero – sivý prešívaný stredový diel",
+            "popis": "Sivý prešívaný stredový diel",
+            "typ": "studio"
+          }
+        ]
+      },
+      "cz": {
+        "nazov": "Autokoberce do kamionu Volvo FH5 Aero",
+        "url": "/autokoberce-do-kamionu-volvo-fh5-aero/",
+        "metaTitle": "Autokoberce do kamionu Volvo FH5 Aero (2025–2026) na míru | Luxury Car Design",
+        "popisNadpis": "Volvo FH5 Aero s našimi autokoberci",
+        "popisUvod": "Pro Volvo FH5 Aero máme hotovou šablonu autokoberců pro verzi s automatickou převodovkou. Na fotkách jsou koberce v různých barvách na světlém pozadí. Pasují do ročníků 2025 i 2026.",
+        "model": "Volvo FH5 Aero",
+        "roky": {
+          "od": 2025,
+          "do": 2026
+        },
+        "znacka": "Volvo",
+        "tahac": {
+          "kluc": "volvo-fh-aero",
+          "subor": "volvo-fh-aero-vlavo",
+          "w": 480,
+          "h": 461,
+          "w960": 960,
+          "h960": 921
+        },
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – tmavě hnědé prošívané koberce s červeným lemem, celý set",
+            "popis": "Tmavě hnědé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – tmavě hnědý prošívaný středový díl s červeným lemem",
+            "popis": "Tmavě hnědý prošívaný středový díl s červeným lemem",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – béžové prošívané koberce, celý set",
+            "popis": "Béžové prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – béžový prošívaný středový díl",
+            "popis": "Béžový prošívaný středový díl",
+            "typ": "studio"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – tmavě modrý prošívaný středový díl s červeným lemem",
+            "popis": "Tmavě modrý prošívaný středový díl s červeným lemem",
+            "typ": "studio"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – hnědý prošívaný středový díl",
+            "popis": "Hnědý prošívaný středový díl",
+            "typ": "studio"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – šedý hladký středový díl",
+            "popis": "Šedý hladký středový díl",
+            "typ": "studio"
+          },
+          {
+            "n": "08",
+            "alt": "Autokoberce do kamionu Volvo FH5 Aero – šedý prošívaný středový díl",
+            "popis": "Šedý prošívaný středový díl",
+            "typ": "studio"
           }
         ]
       }

@@ -5,8 +5,24 @@
       "nazov": "Autokoberce do kamiónu DAF",
       "indexName": "autokoberce-do-kamionu-daf",
       "url": "/autokoberce-do-kamionu-daf/",
-      "metaTagDescription": "Autokoberce do kamiónu DAF na mieru: DAF XG a XG+ (2021–2026), DAF XF106 (2017–2021), DAF XF106 (2013–2016), DAF XF105 (2006–2012). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
+      "metaTagDescription": "Autokoberce do kamiónu DAF na mieru: DAF XF (2021–2026), DAF XG a XG+ (2021–2026), DAF XF106 (2017–2021), DAF XF106 (2013–2016), DAF XF105 (2006–2012). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
       "popis": "kategoria-autokoberce-do-kamionu-daf.sk.html"
+    },
+    {
+      "znacka": "Ford",
+      "nazov": "Autokoberce do kamiónu Ford",
+      "indexName": "autokoberce-do-kamionu-ford",
+      "url": "/autokoberce-do-kamionu-ford/",
+      "metaTagDescription": "Autokoberce do kamiónu Ford na mieru: Ford F-MAX (2018–2026). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
+      "popis": "kategoria-autokoberce-do-kamionu-ford.sk.html"
+    },
+    {
+      "znacka": "IVECO",
+      "nazov": "Autokoberce do kamiónu IVECO",
+      "indexName": "autokoberce-do-kamionu-iveco",
+      "url": "/autokoberce-do-kamionu-iveco/",
+      "metaTagDescription": "Autokoberce do kamiónu IVECO na mieru: IVECO Stralis Hi-Way (2011–2019), IVECO Stralis Hi-Way s obytnou kabínou (2011–2019). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
+      "popis": "kategoria-autokoberce-do-kamionu-iveco.sk.html"
     },
     {
       "znacka": "MAN",
@@ -45,8 +61,17 @@
       "nazov": "Autokoberce do kamiónu Volvo",
       "indexName": "autokoberce-do-kamionu-volvo",
       "url": "/autokoberce-do-kamionu-volvo/",
-      "metaTagDescription": "Autokoberce do kamiónu Volvo na mieru: Volvo FH4 (2013–2021), Volvo FH13 (2009–2013). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
+      "metaTagDescription": "Autokoberce do kamiónu Volvo na mieru: Volvo FH5 Aero (2025–2026), Volvo FH5 (2022–2026), Volvo FH4 (2013–2021), Volvo FH13 (2009–2013). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
       "popis": "kategoria-autokoberce-do-kamionu-volvo.sk.html"
+    },
+    {
+      "znacka": "Dodávky",
+      "typ": "dodavky",
+      "nazov": "Autokoberce do dodávky",
+      "indexName": "autokoberce-do-dodavky",
+      "url": "/autokoberce-do-dodavky/",
+      "metaTagDescription": "Autokoberce do dodávky na mieru: Citroën Jumper (2014–2026), Citroën Jumper (2006–2014), Fiat Ducato (2006–2026), Mercedes-Benz Sprinter (2018–2026), Peugeot Boxer (2014–2026), Peugeot Boxer (2006–2014). Fotky kobercov a konfigurátor s cenou. Od 199 €.",
+      "popis": "kategoria-autokoberce-do-dodavky.sk.html"
     }
   ],
   "cz": [
@@ -55,8 +80,24 @@
       "nazov": "Autokoberce do kamionu DAF",
       "indexName": "autokoberce-do-kamionu-daf",
       "url": "/autokoberce-do-kamionu-daf/",
-      "metaTagDescription": "Autokoberce do kamionu DAF na míru: DAF XG a XG+ (2021–2026), DAF XF106 (2017–2021), DAF XF106 (2013–2016), DAF XF105 (2006–2012). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
+      "metaTagDescription": "Autokoberce do kamionu DAF na míru: DAF XF (2021–2026), DAF XG a XG+ (2021–2026), DAF XF106 (2017–2021), DAF XF106 (2013–2016), DAF XF105 (2006–2012). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
       "popis": "kategoria-autokoberce-do-kamionu-daf.cz.html"
+    },
+    {
+      "znacka": "Ford",
+      "nazov": "Autokoberce do kamionu Ford",
+      "indexName": "autokoberce-do-kamionu-ford",
+      "url": "/autokoberce-do-kamionu-ford/",
+      "metaTagDescription": "Autokoberce do kamionu Ford na míru: Ford F-MAX (2018–2026). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
+      "popis": "kategoria-autokoberce-do-kamionu-ford.cz.html"
+    },
+    {
+      "znacka": "IVECO",
+      "nazov": "Autokoberce do kamionu IVECO",
+      "indexName": "autokoberce-do-kamionu-iveco",
+      "url": "/autokoberce-do-kamionu-iveco/",
+      "metaTagDescription": "Autokoberce do kamionu IVECO na míru: IVECO Stralis Hi-Way (2011–2019), IVECO Stralis Hi-Way s obytnou kabinou (2011–2019). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
+      "popis": "kategoria-autokoberce-do-kamionu-iveco.cz.html"
     },
     {
       "znacka": "MAN",
@@ -95,8 +136,17 @@
       "nazov": "Autokoberce do kamionu Volvo",
       "indexName": "autokoberce-do-kamionu-volvo",
       "url": "/autokoberce-do-kamionu-volvo/",
-      "metaTagDescription": "Autokoberce do kamionu Volvo na míru: Volvo FH4 (2013–2021), Volvo FH13 (2009–2013). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
+      "metaTagDescription": "Autokoberce do kamionu Volvo na míru: Volvo FH5 Aero (2025–2026), Volvo FH5 (2022–2026), Volvo FH4 (2013–2021), Volvo FH13 (2009–2013). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
       "popis": "kategoria-autokoberce-do-kamionu-volvo.cz.html"
+    },
+    {
+      "znacka": "Dodávky",
+      "typ": "dodavky",
+      "nazov": "Autokoberce do dodávky",
+      "indexName": "autokoberce-do-dodavky",
+      "url": "/autokoberce-do-dodavky/",
+      "metaTagDescription": "Autokoberce do dodávky na míru: Citroën Jumper (2014–2026), Citroën Jumper (2006–2014), Fiat Ducato (2006–2026), Mercedes-Benz Sprinter (2018–2026), Peugeot Boxer (2014–2026), Peugeot Boxer (2006–2014). Fotky koberců a konfigurátor s cenou. Od 4 980 Kč.",
+      "popis": "kategoria-autokoberce-do-dodavky.cz.html"
     }
   ]
 }

@@ -6,8 +6,32 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "862f8d2c4fe1f1bd",
+  "stranky_json": "74d599b4c4cc856f",
   "subory": {
+    "citroen-jumper.sk.html": {
+      "znaky": 21589,
+      "sha": "893bc760b59fc568"
+    },
+    "citroen-jumper.cz.html": {
+      "znaky": 21498,
+      "sha": "c737b1a17fb57b10"
+    },
+    "citroen-jumper-2006.sk.html": {
+      "znaky": 21857,
+      "sha": "77c904b327ac4fc4"
+    },
+    "citroen-jumper-2006.cz.html": {
+      "znaky": 21767,
+      "sha": "fec93a3b174f2c46"
+    },
+    "daf-xf.sk.html": {
+      "znaky": 20341,
+      "sha": "bfce225cb5d6e9dd"
+    },
+    "daf-xf.cz.html": {
+      "znaky": 20266,
+      "sha": "92049ee7ddd66ffa"
+    },
     "daf-xf105.sk.html": {
       "znaky": 21144,
       "sha": "4114b9faaece141d"
@@ -39,6 +63,38 @@
     "daf-xg.cz.html": {
       "znaky": 20301,
       "sha": "541beb8dd0bcc520"
+    },
+    "fiat-ducato.sk.html": {
+      "znaky": 22306,
+      "sha": "9cfa49eab6c14ad6"
+    },
+    "fiat-ducato.cz.html": {
+      "znaky": 22210,
+      "sha": "68659d87ccfe0cfa"
+    },
+    "ford-f-max.sk.html": {
+      "znaky": 18200,
+      "sha": "eab72829a21bb952"
+    },
+    "ford-f-max.cz.html": {
+      "znaky": 18126,
+      "sha": "c300d38565f953fb"
+    },
+    "iveco-stralis-hi-way.sk.html": {
+      "znaky": 16783,
+      "sha": "f495dbb76105c58b"
+    },
+    "iveco-stralis-hi-way.cz.html": {
+      "znaky": 16728,
+      "sha": "3479d264b29ce88c"
+    },
+    "iveco-stralis-hi-way-obytna-kabina.sk.html": {
+      "znaky": 16903,
+      "sha": "71a79adf8f572ff1"
+    },
+    "iveco-stralis-hi-way-obytna-kabina.cz.html": {
+      "znaky": 16848,
+      "sha": "e6f9b04fde1d4bd7"
     },
     "man-tgx.sk.html": {
       "znaky": 20371,
@@ -95,6 +151,30 @@
     "mercedes-actros-solostar.cz.html": {
       "znaky": 22729,
       "sha": "b7f138e6ce1328da"
+    },
+    "mercedes-sprinter.sk.html": {
+      "znaky": 20902,
+      "sha": "485f5c3491063600"
+    },
+    "mercedes-sprinter.cz.html": {
+      "znaky": 20790,
+      "sha": "c2e15af138950f9a"
+    },
+    "peugeot-boxer.sk.html": {
+      "znaky": 21542,
+      "sha": "1699ad9c07d998b3"
+    },
+    "peugeot-boxer.cz.html": {
+      "znaky": 21451,
+      "sha": "b90733cd8a91a8bc"
+    },
+    "peugeot-boxer-2006.sk.html": {
+      "znaky": 21758,
+      "sha": "0920c5801cccc92f"
+    },
+    "peugeot-boxer-2006.cz.html": {
+      "znaky": 21660,
+      "sha": "7782e403d237d282"
     },
     "renault-t.sk.html": {
       "znaky": 21510,
@@ -168,13 +248,37 @@
       "znaky": 21201,
       "sha": "9437ade2ed71d4e4"
     },
+    "volvo-fh5.sk.html": {
+      "znaky": 21882,
+      "sha": "19812570814dc38d"
+    },
+    "volvo-fh5.cz.html": {
+      "znaky": 21808,
+      "sha": "7509fe89e9c3bace"
+    },
+    "volvo-fh5-aero.sk.html": {
+      "znaky": 22192,
+      "sha": "2455efb8fd4692fb"
+    },
+    "volvo-fh5-aero.cz.html": {
+      "znaky": 22127,
+      "sha": "bc2cee2e0ea06868"
+    },
     "kategoria-autokoberce-do-kamionu.sk.html": {
-      "znaky": 3923,
-      "sha": "e722ab7b96e6b69d"
+      "znaky": 5206,
+      "sha": "b75c608c051c9e0d"
     },
     "kategoria-autokoberce-do-kamionu-daf.sk.html": {
-      "znaky": 5931,
-      "sha": "bf408b138ba0c0f0"
+      "znaky": 6716,
+      "sha": "ecf4ae28de71dc46"
+    },
+    "kategoria-autokoberce-do-kamionu-ford.sk.html": {
+      "znaky": 3543,
+      "sha": "6ced80a277db9f00"
+    },
+    "kategoria-autokoberce-do-kamionu-iveco.sk.html": {
+      "znaky": 3822,
+      "sha": "663bbbeb22528031"
     },
     "kategoria-autokoberce-do-kamionu-man.sk.html": {
       "znaky": 5118,
@@ -193,20 +297,32 @@
       "sha": "3bdfad434d5e8870"
     },
     "kategoria-autokoberce-do-kamionu-volvo.sk.html": {
-      "znaky": 4373,
-      "sha": "fb2210823eb563ba"
+      "znaky": 5965,
+      "sha": "30b5dc5e8cc4d9b8"
+    },
+    "kategoria-autokoberce-do-dodavky.sk.html": {
+      "znaky": 7172,
+      "sha": "20aed36df7f96f96"
     },
     "paticka-kamiony.sk.html": {
-      "znaky": 966,
-      "sha": "cab473ee07b1b17f"
+      "znaky": 1140,
+      "sha": "f78d186ed791b39e"
     },
     "kategoria-autokoberce-do-kamionu.cz.html": {
-      "znaky": 3922,
-      "sha": "156d286036fe0a9a"
+      "znaky": 5205,
+      "sha": "22d72bf919f11af9"
     },
     "kategoria-autokoberce-do-kamionu-daf.cz.html": {
-      "znaky": 5963,
-      "sha": "ff618dc38488d824"
+      "znaky": 6756,
+      "sha": "88f6212021e143dd"
+    },
+    "kategoria-autokoberce-do-kamionu-ford.cz.html": {
+      "znaky": 3551,
+      "sha": "69bf8ec11a795378"
+    },
+    "kategoria-autokoberce-do-kamionu-iveco.cz.html": {
+      "znaky": 3838,
+      "sha": "17123d66c360485c"
     },
     "kategoria-autokoberce-do-kamionu-man.cz.html": {
       "znaky": 5142,
@@ -225,16 +341,20 @@
       "sha": "babf2d5ad7688389"
     },
     "kategoria-autokoberce-do-kamionu-volvo.cz.html": {
-      "znaky": 4389,
-      "sha": "6fbb5ea5b078a304"
+      "znaky": 5997,
+      "sha": "2b8d134935f47e0d"
+    },
+    "kategoria-autokoberce-do-dodavky.cz.html": {
+      "znaky": 7220,
+      "sha": "510d70e4fda2e881"
     },
     "paticka-kamiony.cz.html": {
-      "znaky": 966,
-      "sha": "92e255410246da57"
+      "znaky": 1140,
+      "sha": "a6db9998f5e63cd0"
     },
     "kategorie-znaciek.json": {
-      "znaky": 5645,
-      "sha": "2c29c64f914a516a"
+      "znaky": 8528,
+      "sha": "7676daf010cfa501"
     }
   }
 }

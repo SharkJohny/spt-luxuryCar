@@ -24,7 +24,7 @@
 //                                     v kategórii), „Nájsť môj kamión“ -> 640 / 2452.
 //   manifest.json                     odtlačky dist kusov a stranky.json, z ktorých súbory vznikli.
 //
-// Vlna 4 a 5 (13. 11. 2026) — všetko riadi stranky.json, v kóde nie je zoznam stránok ani ich počet:
+// Vlna 4 a 5 (13. 11. 2026) — všetko riadi stranky.json, v kóde nie je zoznam stránok ani ich počet (výnimka: poistka PRVA_VARKA = mená 20 stránok vĺn 1–3):
 //   kľúč stránky = slug bez predpony; "url" = /autokoberce-do-kamionu-<slug>/ (kamión) alebo /autokoberce-do-dodavky-<slug>/
 //   (dodávka). Typ stránky sa berie z adresy. Fotky galérie: <cdn><slug>/<adresa bez lomiek>-galeria-NN.jpg a -m.jpg
 //   (kamióny ako doteraz autokoberce-do-kamionu-<slug>-galeria-NN, dodávky autokoberce-do-dodavky-<slug>-galeria-NN).
@@ -62,7 +62,12 @@ const CHECK = process.argv.includes("--check");
 const JAZYKY = ["sk", "cz"];
 const ZNACKY = ["DAF", "Ford", "IVECO", "MAN", "Mercedes-Benz", "Renault", "Scania", "Volvo"]; // abecedne (kniha 2.4 bod 6); značka bez hotovej stránky sa nezobrazí
 const ZNACKY_SUBORY = join(KOREN, "assets", "img", "znacky"); // logá značiek v repe (CDN = ten istý priečinok)
-const PRVA_VARKA = 20; // stránky vĺn 1–3 (vrátane čakajúcej DAF XG) — menej = poškodený stranky.json
+// Poistka proti poškodenému stranky.json: 20 stránok prvej várky (vlny 1–3, naživo v admine SK aj CZ od 12.–13. 11. 2026)
+// musí byť v JSON každá menom a hotová (nie "caka"). Predtým len počet „aspoň 20“ – s 32 stránkami (vlna 4 a 5) by už
+// nezachytil chýbajúcu starú stránku. Ostatné stránky (vlna 4 a 5 a ďalšie) sa riadia len dátami, ako doteraz.
+const PRVA_VARKA = ["daf-xf105", "daf-xf106", "daf-xf106-2013", "daf-xg", "man-tgx", "man-tgx-2007", "man-tgx-2018",
+  "mercedes-actros", "mercedes-actros-2003", "mercedes-actros-f", "mercedes-actros-solostar", "renault-t", "renault-t-s-tunelom",
+  "scania-r", "scania-r-2004", "scania-r-2009", "scania-r-2014", "scania-s", "volvo-fh13", "volvo-fh4"];
 
 const T = {
   sk: {
@@ -381,7 +386,10 @@ for (const slug of cakajuce) for (const j of JAZYKY) {
   if (existsSync(join(VYSTUP, slug + "." + j + ".html"))) chyba(slug + "." + j + ".html", "stránka čaká (" + data.stranky[slug][j].caka + "), starý Popis treba odložiť mimo admin-html/kamiony/");
   if (JAZYKY.some((x) => data.stranky[slug][x].fotky.length)) chyba(slug, "čakajúca stránka má fotky");
 }
-if (slugy.length < PRVA_VARKA) chyba("stranky.json", "stránok " + slugy.length + " (má byť aspoň " + PRVA_VARKA + ")");
+for (const s of PRVA_VARKA) {
+  if (!slugy.includes(s)) chyba("stranky.json", "chýba stránka prvej várky: " + s + " (stránok " + slugy.length + ", prvá várka " + PRVA_VARKA.length + ")");
+  else if (cakajuce.includes(s)) chyba("stranky.json", "stránka prvej várky čaká (je naživo v admine): " + s);
+}
 // adresa stránky = /autokoberce-do-kamionu-<slug>/ alebo /autokoberce-do-dodavky-<slug>/, SK aj CZ rovnaká (typ, galéria, hreflang)
 for (const slug of slugy) {
   const u = JAZYKY.map((j) => data.stranky[slug][j].url);
