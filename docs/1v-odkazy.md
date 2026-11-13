@@ -32,6 +32,8 @@ Odkaz = adresa + `?novy=1`. Flag platí v celej karte prehliadača (prechod medz
 
 Všade: cena v novom vzhľade v tvare „230 €“ (nie „€230“); krátky popis pod hodnotením je pod novým vzhľadom skrytý (ostáva v kóde stránky); pri farbe sa hlavná fotka nemení; v košíku presne tá cena, ktorú stránka ukáže.
 
+**Stránky kamiónov (naživo od 13. 11. 2026, session kamióny):** 19 stránok SK + 19 CZ, každá je kópia 640 / 2452 s predvyplneným kamiónom; adresy `/autokoberce-do-kamionu-<model>/`, kategória `/autokoberce-do-kamionu/` (SK aj CZ). Zoznam ID a adries: `Desktop/kamiony/plan-2026-11-11/a3/admin/vytvorene.json`; register v kóde `assets/js/components/konfigurator1v/kamion/stranky.js` (`KAMION_STRANKY`). Skrytý konfigurátor s logami značiek: SK 733 `/luxusne-autokoberce-kamiony-1/`, CZ 2544 `/luxusni-autokoberce-kamiony-1/` (len cez odkaz, mimo Google aj vyhľadávania na webe). Kontrola: `npm run kamion:test`, `node tools/test-konfigurator-1v.mjs --produkt 2452 --krok kamion-cz`.
+
 ---
 
 ## Admin kroky (Michal)
