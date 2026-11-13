@@ -6,7 +6,7 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "fe26041f1d4086aa",
+  "stranky_json": "3d0842aefde68a97",
   "subory": {
     "daf-xf105.sk.html": {
       "znaky": 19603,
@@ -47,6 +47,14 @@
     "man-tgx-2007.cz.html": {
       "znaky": 21332,
       "sha": "9b5b93feb3f43f84"
+    },
+    "man-tgx-2018.sk.html": {
+      "znaky": 21544,
+      "sha": "e0917f7c271baad6"
+    },
+    "man-tgx-2018.cz.html": {
+      "znaky": 21456,
+      "sha": "2f4920aa8bab86c0"
     },
     "mercedes-actros.sk.html": {
       "znaky": 22505,
@@ -153,16 +161,16 @@
       "sha": "386d554b98526c99"
     },
     "kategoria-autokoberce-do-kamionu.sk.html": {
-      "znaky": 20176,
-      "sha": "8e3511881a41e9af"
+      "znaky": 21025,
+      "sha": "ae41ff8af09b9cbd"
     },
     "paticka-kamiony.sk.html": {
       "znaky": 1014,
       "sha": "ca7e752e0581dcc1"
     },
     "kategoria-autokoberce-do-kamionu.cz.html": {
-      "znaky": 20177,
-      "sha": "38355663a65a1e27"
+      "znaky": 21026,
+      "sha": "414f4d3879228127"
     },
     "paticka-kamiony.cz.html": {
       "znaky": 1014,

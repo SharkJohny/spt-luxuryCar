@@ -676,7 +676,7 @@
         "url": "/autokoberce-do-kamionu-man-tgx-2018/",
         "metaTitle": "Autokoberce do kamiónu MAN TGX (2018–2020) na mieru | Luxury Car Design",
         "popisNadpis": "MAN TGX 2018–2020 s našimi autokobercami",
-        "popisUvod": "Pre MAN TGX tesne pred novou generáciou máme hotovú šablónu autokobercov pre automatickú aj manuálnu prevodovku a kabínu s jednou aj s dvoma zásuvkami. Sedia do ročníkov 2018, 2019 aj 2020.",
+        "popisUvod": "Pre MAN TGX tesne pred novou generáciou máme hotovú šablónu autokobercov pre automatickú aj manuálnu prevodovku a kabínu s jednou aj s dvoma zásuvkami. Na fotkách sú koberce v kabíne aj na svetlom pozadí. Sedia do ročníkov 2018, 2019 aj 2020.",
         "model": "MAN TGX",
         "roky": {
           "od": 2018,
@@ -691,15 +691,58 @@
           "w960": 960,
           "h960": 1018
         },
-        "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
-        "fotky": []
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – čierne prešívané koberce s červeným lemom, celý set",
+            "popis": "Čierne prešívané koberce s červeným lemom, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – tmavomodré prešívané koberce, celý set",
+            "popis": "Tmavomodré prešívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce v celej kabíne",
+            "popis": "Béžové prešívané koberce v celej kabíne",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pod palubnou doskou",
+            "popis": "Béžové prešívané koberce pod palubnou doskou",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri radiacej páke",
+            "popis": "Béžové prešívané koberce pri radiacej páke",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri odkladacej skrinke",
+            "popis": "Béžové prešívané koberce pri odkladacej skrinke",
+            "typ": "kabina"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamiónu MAN TGX 2018–2020 – béžové prešívané koberce pri stĺpiku sedadla",
+            "popis": "Béžové prešívané koberce pri stĺpiku sedadla",
+            "typ": "kabina"
+          }
+        ]
       },
       "cz": {
         "nazov": "Autokoberce do kamionu MAN TGX 2018–2020",
         "url": "/autokoberce-do-kamionu-man-tgx-2018/",
         "metaTitle": "Autokoberce do kamionu MAN TGX (2018–2020) na míru | Luxury Car Design",
         "popisNadpis": "MAN TGX 2018–2020 s našimi autokoberci",
-        "popisUvod": "Pro MAN TGX těsně před novou generací máme hotovou šablonu autokoberců pro automatickou i manuální převodovku a kabinu s jednou i se dvěma zásuvkami. Pasují do ročníků 2018, 2019 i 2020.",
+        "popisUvod": "Pro MAN TGX těsně před novou generací máme hotovou šablonu autokoberců pro automatickou i manuální převodovku a kabinu s jednou i se dvěma zásuvkami. Na fotkách jsou koberce v kabině i na světlém pozadí. Pasují do ročníků 2018, 2019 i 2020.",
         "model": "MAN TGX",
         "roky": {
           "od": 2018,
@@ -714,8 +757,51 @@
           "w960": 960,
           "h960": 1018
         },
-        "caka": "čaká na fotky – hlavná fotka (celý set) čaká na odstránenie štítkov Kram Truck Codexom (limit, zoznam foto/davka5-hlavne-sety.csv): MAN TGX 2018–2020 – 1 zásuvka automatická prevodovka 05.jpg",
-        "fotky": []
+        "caka": null,
+        "fotky": [
+          {
+            "n": "01",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – černé prošívané koberce s červeným lemem, celý set",
+            "popis": "Černé prošívané koberce s červeným lemem, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "02",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – tmavě modré prošívané koberce, celý set",
+            "popis": "Tmavě modré prošívané koberce, celý set",
+            "typ": "studio"
+          },
+          {
+            "n": "03",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce v celé kabině",
+            "popis": "Béžové prošívané koberce v celé kabině",
+            "typ": "kabina"
+          },
+          {
+            "n": "04",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce pod palubní deskou",
+            "popis": "Béžové prošívané koberce pod palubní deskou",
+            "typ": "kabina"
+          },
+          {
+            "n": "05",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u řadicí páky",
+            "popis": "Béžové prošívané koberce u řadicí páky",
+            "typ": "kabina"
+          },
+          {
+            "n": "06",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u odkládací schránky",
+            "popis": "Béžové prošívané koberce u odkládací schránky",
+            "typ": "kabina"
+          },
+          {
+            "n": "07",
+            "alt": "Autokoberce do kamionu MAN TGX 2018–2020 – béžové prošívané koberce u sloupku sedadla",
+            "popis": "Béžové prošívané koberce u sloupku sedadla",
+            "typ": "kabina"
+          }
+        ]
       }
     },
     "mercedes-actros": {
