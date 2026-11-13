@@ -89,6 +89,22 @@ const ROVNAKE = [
   "/autokoberce-toyota-rav4-v/",
   "/autokoberce-dodge/",
   "/autokoberce-toyota/",
+  // vlna 4 a 5 (kamióny, dodávky, kategórie Ford, IVECO, Dodávky) – naživo SK aj CZ od 14. 11. 2026
+  "/autokoberce-do-kamionu-ford/",
+  "/autokoberce-do-kamionu-iveco/",
+  "/autokoberce-do-dodavky/",
+  "/autokoberce-do-kamionu-daf-xf/",
+  "/autokoberce-do-kamionu-ford-f-max/",
+  "/autokoberce-do-kamionu-iveco-stralis-hi-way/",
+  "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/",
+  "/autokoberce-do-kamionu-volvo-fh5/",
+  "/autokoberce-do-kamionu-volvo-fh5-aero/",
+  "/autokoberce-do-dodavky-citroen-jumper-2006/",
+  "/autokoberce-do-dodavky-citroen-jumper/",
+  "/autokoberce-do-dodavky-peugeot-boxer-2006/",
+  "/autokoberce-do-dodavky-peugeot-boxer/",
+  "/autokoberce-do-dodavky-fiat-ducato/",
+  "/autokoberce-do-dodavky-mercedes-sprinter/",
 ];
 
 /** Tá istá stránka, iná adresa: [SK, CZ]. */
@@ -134,22 +150,7 @@ const PARY = [
  * tools/test-seo-hreflang.mjs a tools/test-kamion-stranky.mjs čítajú tento zoznam).
  */
 export const CAKAJUCE = [
-  // vlna 4 a 5 (13. 11. 2026, konfigurator1v/kamion/stranky.js): 5 kamiónov, 6 dodávok a ich kategórie (build-kamiony-stranky.mjs)
-  "/autokoberce-do-kamionu-ford/",
-  "/autokoberce-do-kamionu-iveco/",
-  "/autokoberce-do-dodavky/",
-  "/autokoberce-do-kamionu-daf-xf/",
-  "/autokoberce-do-kamionu-ford-f-max/",
-  "/autokoberce-do-kamionu-iveco-stralis-hi-way/",
-  "/autokoberce-do-kamionu-iveco-stralis-hi-way-obytna-kabina/",
-  "/autokoberce-do-kamionu-volvo-fh5/",
-  "/autokoberce-do-kamionu-volvo-fh5-aero/",
-  "/autokoberce-do-dodavky-citroen-jumper-2006/",
-  "/autokoberce-do-dodavky-citroen-jumper/",
-  "/autokoberce-do-dodavky-peugeot-boxer-2006/",
-  "/autokoberce-do-dodavky-peugeot-boxer/",
-  "/autokoberce-do-dodavky-fiat-ducato/",
-  "/autokoberce-do-dodavky-mercedes-sprinter/",
+  // prázdne: vlna 4 a 5 naživo SK aj CZ od 14. 11. 2026 (presun do ROVNAKE)
 ];
 
 /** Cesta stránky (bez dopytu) -> { sk, cz }; null, keď stránka protějšok nemá. */
