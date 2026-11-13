@@ -38,6 +38,9 @@ const ZNACKY = [
     koho: "svojho Audi", kto: "Audi",
     auta: [
       { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/audi-a6-c7/audi-a6-c7-auto-w2", w: 480, h: 246 },
+      // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
+      { nazov: "Audi Q7 4M", roky: "od roku 2015", cena: 219, url: "/autokoberce-audi-q7-4m/", foto: "1v/auto/audi-q7-4m/audi-q7-4m-auto-w", w: 480, h: 254 },
+      { nazov: "Audi Q8", roky: "od roku 2018", cena: 219, url: "/autokoberce-audi-q8/", foto: "1v/auto/audi-q8/audi-q8-auto-w", w: 480, h: 208 },
     ],
   },
   {
@@ -53,7 +56,11 @@ const ZNACKY = [
   {
     kluc: "volkswagen", nazov: "Volkswagen", logo: "znacky/volkswagen.svg", url: "/autokoberce-volkswagen/", pata: true,
     koho: "svojho Volkswagenu", kto: "Volkswagen",
-    auta: [],
+    auta: [
+      // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
+      { nazov: "Volkswagen Touareg III", roky: "od roku 2018", cena: 219, url: "/autokoberce-volkswagen-touareg-iii/", foto: "1v/auto/volkswagen-touareg-iii/volkswagen-touareg-iii-auto-w", w: 480, h: 205 },
+      { nazov: "Volkswagen Passat B8", roky: "roky 2014–2023", cena: 219, url: "/autokoberce-volkswagen-passat-b8/", foto: "1v/auto/volkswagen-passat-b8/volkswagen-passat-b8-auto-w", w: 480, h: 176 },
+    ],
   },
   {
     kluc: "mercedes-benz", nazov: "Mercedes-Benz", logo: "znacky/mercedes.svg", url: "/autokoberce-mercedes-benz/", pata: true,
@@ -74,6 +81,27 @@ const ZNACKY = [
       // Produkt je zatiaľ skrytý (hosť 404) — Popis značky Škoda vkladať až po zverejnení 667.
       { nazov: "Škoda Kodiaq I", roky: "roky 2016–2024", cena: 219, url: "/autokoberce-skoda-kodiaq-i/", foto: "1v/auto/skoda-kodiaq-i/skoda-kodiaq-i-auto-w2", w: 480, h: 259 },
       { nazov: "Škoda Kodiaq II", roky: "od roku 2024", cena: 230, url: "/autokoberce-skoda-kodiaq-ii/", foto: "1v/auto/skoda-kodiaq-ii/kodiaq-ii-auto-w", w: 480, h: 258 },
+      // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
+      { nazov: "Škoda Superb III", roky: "roky 2015–2023", cena: 219, url: "/autokoberce-skoda-superb-iii/", foto: "1v/auto/skoda-superb-iii/skoda-superb-iii-auto-w", w: 480, h: 194 },
+      { nazov: "Škoda Octavia II", roky: "roky 2004–2013", cena: 219, url: "/autokoberce-skoda-octavia-ii/", foto: "1v/auto/skoda-octavia-ii/skoda-octavia-ii-auto-w", w: 480, h: 260 },
+      { nazov: "Škoda Octavia III", roky: "roky 2013–2020", cena: 219, url: "/autokoberce-skoda-octavia-iii/", foto: "1v/auto/skoda-octavia-iii/skoda-octavia-iii-auto-w", w: 480, h: 225 },
+      { nazov: "Škoda Karoq", roky: "od roku 2017", cena: 219, url: "/autokoberce-skoda-karoq/", foto: "1v/auto/skoda-karoq/skoda-karoq-auto-w", w: 480, h: 230 },
+    ],
+  },
+  {
+    kluc: "dodge", nazov: "Dodge", logo: "znacky/dodge.svg", url: "/autokoberce-dodge/", pata: false,
+    koho: "svojho Dodge", kto: "Dodge",
+    auta: [
+      // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
+      { nazov: "Dodge Challenger", roky: "roky 2008–2023", cena: 219, url: "/autokoberce-dodge-challenger/", foto: "1v/auto/dodge-challenger/dodge-challenger-auto-w", w: 480, h: 215 },
+    ],
+  },
+  {
+    kluc: "toyota", nazov: "Toyota", logo: "znacky/toyota.svg", url: "/autokoberce-toyota/", pata: false,
+    koho: "svojej Toyoty", kto: "Toyota",
+    auta: [
+      // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
+      { nazov: "Toyota RAV4 V", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-toyota-rav4-v/", foto: "1v/auto/toyota-rav4-v/toyota-rav4-v-auto-w", w: 480, h: 263 },
     ],
   },
 ].sort((a, b) => a.nazov.localeCompare(b.nazov, "sk"));
@@ -108,6 +136,8 @@ const CZ_ZNACKY = {
   "mercedes-benz": { koho: "svého Mercedesu", kto: "Mercedes-Benz" },
   skoda: { koho: "své Škody", kto: "Škoda" },
   volkswagen: { koho: "svého Volkswagenu", kto: "Volkswagen" },
+  dodge: { koho: "svého Dodge", kto: "Dodge" },
+  toyota: { koho: "své Toyoty", kto: "Toyota" },
 };
 const CZ_AUTA = {
   "/autokoberce-audi-a6-c7/": { id: 2466, cena: 5664 },
@@ -121,6 +151,16 @@ const CZ_AUTA = {
   "/autokoberce-mercedes-eqe-suv/": { id: 2532, cena: 8799 },
   "/autokoberce-skoda-kodiaq-i/": { id: 2463, cena: 5664 },
   "/autokoberce-skoda-kodiaq-ii/": { id: 2460, cena: 5799 },
+  "/autokoberce-skoda-superb-iii/": { id: 2553, cena: 5664 },
+  "/autokoberce-skoda-octavia-ii/": { id: 2556, cena: 5664 },
+  "/autokoberce-skoda-octavia-iii/": { id: 2559, cena: 5664 },
+  "/autokoberce-skoda-karoq/": { id: 2562, cena: 5664 },
+  "/autokoberce-volkswagen-touareg-iii/": { id: 2565, cena: 5664 },
+  "/autokoberce-volkswagen-passat-b8/": { id: 2568, cena: 5664 },
+  "/autokoberce-audi-q7-4m/": { id: 2571, cena: 5664 },
+  "/autokoberce-audi-q8/": { id: 2574, cena: 5664 },
+  "/autokoberce-dodge-challenger/": { id: 2577, cena: 5664 },
+  "/autokoberce-toyota-rav4-v/": { id: 2580, cena: 5664 },
 };
 
 /** Texty a adresy webu. SK = presne doterajší výstup (zmena SK textu = zmena SK Popisu). */
@@ -135,7 +175,7 @@ const WEB = {
     uvodBez: (kto) => `Luxusné autokoberce na mieru do auta ${kto}. Model, vzor aj farbu si vyberiete v konfigurátore.`,
     modelBez: (koho) => `<b>Model ${koho} nájdete tu</b><p>Autokoberce máme pre viac ako 1&nbsp;000 modelov áut a cenu uvidíte hneď.</p>`,
     vsetky: "Všetky značky",
-    uvodZnacka: "Vyberte model. Na stránke modelu nájdete fotky z auta nášho zákazníka a konfigurátor s cenou.",
+    uvodZnacka: "Vyberte model. Na stránke modelu nájdete fotky, ročníky a konfigurátor s cenou.",
     nenasliZnacka: (koho) => `<b>Nenašli ste model ${koho}?</b><p>Nevadí, nájdete ho tu. Autokoberce máme pre viac ako 1&nbsp;000 modelov.</p>`,
     pata: "Podľa auta", pataVsetky: "Zobraziť ostatné značky",
     cena: (c) => "od " + String(c).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " €",
@@ -150,7 +190,7 @@ const WEB = {
     uvodBez: (kto) => `Luxusní autokoberce na míru do auta ${kto}. Model, vzor i barvu si vyberete v konfigurátoru.`,
     modelBez: (koho) => `<b>Model ${koho} najdete tady</b><p>Autokoberce máme pro více než 1&nbsp;000 modelů aut a cenu uvidíte hned.</p>`,
     vsetky: "Všechny značky",
-    uvodZnacka: "Vyberte model. Na stránce modelu najdete fotky z auta našeho zákazníka a konfigurátor s cenou.",
+    uvodZnacka: "Vyberte model. Na stránce modelu najdete fotky, ročníky a konfigurátor s cenou.",
     nenasliZnacka: (koho) => `<b>Nenašli jste model ${koho}?</b><p>Nevadí, najdete ho tady. Autokoberce máme pro více než 1&nbsp;000 modelů.</p>`,
     pata: "Podle auta", pataVsetky: "Zobrazit ostatní značky",
     cena: (c) => "od " + String(c).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Kč",

@@ -62,6 +62,18 @@ export const PRODUKTY_1V = {
     724: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
     727: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
     730: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
+    // 13. 11. 2026: 10 generácií podľa objednávok „ako Witamats“ (kópie 598 / CZ 2403, titulka = vzorový koberec + tlačová fotka auta).
+    // model = katalóg áut: Passat Variant je v katalógu „Passat Estate“ a RAV4 má 3 modely (Hybrid / Non-Hybrid / Plug-in) — predvyplnený je Passat a RAV4 (Hybrid).
+    742: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-superb-iii/", obsah: "598", auto: { znacka: "Skoda", model: "Superb", nazov: "Škoda Superb III" } },
+    745: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-octavia-ii/", obsah: "598", auto: { znacka: "Skoda", model: "Octavia", nazov: "Škoda Octavia II" } },
+    748: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-octavia-iii/", obsah: "598", auto: { znacka: "Skoda", model: "Octavia", nazov: "Škoda Octavia III" } },
+    751: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-karoq/", obsah: "598", auto: { znacka: "Skoda", model: "Karoq", nazov: "Škoda Karoq" } },
+    754: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-touareg-iii/", obsah: "598", auto: { znacka: "Volkswagen", model: "Touareg", nazov: "Volkswagen Touareg III" } },
+    757: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-passat-b8/", obsah: "598", auto: { znacka: "Volkswagen", model: "Passat", nazov: "Volkswagen Passat B8" } },
+    760: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q7-4m/", obsah: "598", auto: { znacka: "Audi", model: "Q7", nazov: "Audi Q7 4M" } },
+    763: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q8/", obsah: "598", auto: { znacka: "Audi", model: "Q8", nazov: "Audi Q8" } },
+    766: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-challenger/", obsah: "598", auto: { znacka: "Dodge", model: "Challenger", nazov: "Dodge Challenger" } },
+    769: { typ: "jedno", vzor: "diamond", url: "/autokoberce-toyota-rav4-v/", obsah: "598", auto: { znacka: "Toyota", model: "RAV4 (Hybrid)", nazov: "Toyota RAV4 V" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -99,6 +111,18 @@ export const PRODUKTY_1V = {
     2526: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
     2529: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
     2532: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
+    // 13. 11. 2026: 10 generácií podľa objednávok „ako Witamats“ (kópie 598 / CZ 2403, titulka = vzorový koberec + tlačová fotka auta).
+    // model = katalóg áut: Passat Variant je v katalógu „Passat Estate“ a RAV4 má 3 modely (Hybrid / Non-Hybrid / Plug-in) — predvyplnený je Passat a RAV4 (Hybrid).
+    2553: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-superb-iii/", obsah: "598", auto: { znacka: "Skoda", model: "Superb", nazov: "Škoda Superb III" } },
+    2556: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-octavia-ii/", obsah: "598", auto: { znacka: "Skoda", model: "Octavia", nazov: "Škoda Octavia II" } },
+    2559: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-octavia-iii/", obsah: "598", auto: { znacka: "Skoda", model: "Octavia", nazov: "Škoda Octavia III" } },
+    2562: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-karoq/", obsah: "598", auto: { znacka: "Skoda", model: "Karoq", nazov: "Škoda Karoq" } },
+    2565: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-touareg-iii/", obsah: "598", auto: { znacka: "Volkswagen", model: "Touareg", nazov: "Volkswagen Touareg III" } },
+    2568: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-passat-b8/", obsah: "598", auto: { znacka: "Volkswagen", model: "Passat", nazov: "Volkswagen Passat B8" } },
+    2571: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q7-4m/", obsah: "598", auto: { znacka: "Audi", model: "Q7", nazov: "Audi Q7 4M" } },
+    2574: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q8/", obsah: "598", auto: { znacka: "Audi", model: "Q8", nazov: "Audi Q8" } },
+    2577: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-challenger/", obsah: "598", auto: { znacka: "Dodge", model: "Challenger", nazov: "Dodge Challenger" } },
+    2580: { typ: "jedno", vzor: "diamond", url: "/autokoberce-toyota-rav4-v/", obsah: "598", auto: { znacka: "Toyota", model: "RAV4 (Hybrid)", nazov: "Toyota RAV4 V" } },
   },
 };
 
