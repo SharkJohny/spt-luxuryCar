@@ -344,12 +344,20 @@ export const SCENARE = {
       j.over(tx.kosik && tx.krok && !tx.eur, "CZ texty / mena: " + JSON.stringify(tx));
       await snimka(s, a, "kamion-cz-prehlad");
       const { post, st, cena } = await doKosika(s, a, j, "kamion-cz");
-      const ocak = { "Materiál": "Prémiová syntetická kůže – prošívaná", "Nášivky": "Řidič + spolujezdec + střed (BALÍČEK)", "Nášivka boky": "Nášivka H19",
-        "Niť boky": "Černá – 2999", "Nášivka stred": "Nášivka H19", "Niť stred": "Černá – 2999", "Čalounění": "Ano, chci (v konfigurátoru – balíček)",
-        "Materiál dveře": "Stejný jako koberec", "Barva dveře": "Stejná jako koberec", "Lemování dveře": "Stejné jako koberec",
-        "Nášivka dveře": "Ne, nechci nášivku na dveřích", "Nášivka dveře druh": "Bez nášivky", "Niť dveře": "Bez nitě" };
-      Object.entries(ocak).forEach(([m, t]) => j.over(st.nm[m] === t, m + " „" + st.nm[m] + "“ ≠ „" + t + "“"));
-      j.over(/– 11$/.test(st.nm["Barva"] || "") && /– 04$/.test(st.nm["Lemování"] || ""), "Barva / Lemování: " + st.nm["Barva"] + " | " + st.nm["Lemování"]);
+      // 13. 11. 2026: CZ príplatky premenované v admine 2452 (c21/POSTUP-ADMIN-CZ.md) – kľúč = nový „Název k zobrazení“,
+      // starý názov ostáva ako záloha (návrat podľa zálohy). Hodnoty sa nemenili.
+      const ocak = [["Typ materiálu", "Materiál", "Prémiová syntetická kůže – prošívaná"],
+        ["Rozložení nášivek", "Nášivky", "Řidič + spolujezdec + střed (BALÍČEK)"],
+        ["Typ nášivek na boky", "Nášivka boky", "Nášivka H19"], ["Barva nášivek na boky", "Niť boky", "Černá – 2999"],
+        ["Typ nášivky na střed", "Nášivka stred", "Nášivka H19"], ["Barva nášivky na střed", "Niť stred", "Černá – 2999"],
+        ["Čalounění dveří", "Čalounění", "Ano, chci (v konfigurátoru – balíček)"],
+        ["Typ materiálu čalounění dveří", "Materiál dveře", "Stejný jako koberec"], ["Barva materiálu čalounění dveří", "Barva dveře", "Stejná jako koberec"],
+        ["Barva lemování čalounění dveří", "Lemování dveře", "Stejné jako koberec"],
+        ["Nášivky na čalounění dveří", "Nášivka dveře", "Ne, nechci nášivku na dveřích"],
+        ["Typ nášivky na čalounění dveří", "Nášivka dveře druh", "Bez nášivky"], ["Barva nášivek na čalounění dveří", "Niť dveře", "Bez nitě"]];
+      const nm = (novy, stary) => (st.nm[novy] !== undefined ? st.nm[novy] : st.nm[stary]);
+      ocak.forEach(([n, o, t]) => j.over(nm(n, o) === t, n + " / " + o + " „" + nm(n, o) + "“ ≠ „" + t + "“"));
+      j.over(/– 11$/.test(nm("Barva materiálu", "Barva") || "") && /– 04$/.test(nm("Barva lemování", "Lemování") || ""), "Barva / Lemování: " + nm("Barva materiálu", "Barva") + " | " + nm("Barva lemování", "Lemování"));
       j.over(/^\[KONFIGURACE KAMIONU\]|SPECIFIKACE VOZIDLA/.test(st.poznamka || "") && !/ŠPECIFIKÁCIA/.test(st.poznamka || ""), "poznámka nie je po česky: " + (st.poznamka || "").slice(0, 80));
       return { info: kc(st.spolu) + " = " + cena.zaklad + " + " + cena.rozpis + " · CZ texty · 15 selectov podľa CZ mien", post: post ? post.body : null, spolu: cena.spolu, nm: st.nm, poznamka: st.poznamka };
     },
