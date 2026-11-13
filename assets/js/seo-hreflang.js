@@ -24,7 +24,7 @@ const ROVNAKE = [
   // Kým nie sú naživo OBE kópie, --zivy hlási pri nich 404 (očakávané).
   "/autokoberce-do-kamionu-daf-xf105/",
   "/autokoberce-do-kamionu-daf-xf106/",
-  // "/autokoberce-do-kamionu-daf-xg/" – čaká na fotky celej sady, dovtedy 404 SK aj CZ: je v zozname CAKAJUCE nižšie
+  "/autokoberce-do-kamionu-daf-xg/", // naživo SK 739 + CZ 2550 od 13. 11. 2026
   "/autokoberce-do-kamionu-man-tgx-2018/",
   "/autokoberce-do-kamionu-mercedes-actros-solostar/",
   "/autokoberce-do-kamionu-scania-s/",
@@ -120,7 +120,6 @@ const PARY = [
  * tools/test-seo-hreflang.mjs a tools/test-kamion-stranky.mjs čítajú tento zoznam).
  */
 export const CAKAJUCE = [
-  "/autokoberce-do-kamionu-daf-xg/", // čaká na fotky celej sady
   // vlna 4 a 5 (13. 11. 2026, konfigurator1v/kamion/stranky.js): 5 kamiónov, 6 dodávok a ich kategórie (build-kamiony-stranky.mjs)
   "/autokoberce-do-kamionu-ford/",
   "/autokoberce-do-kamionu-iveco/",
