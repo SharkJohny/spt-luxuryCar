@@ -58,7 +58,7 @@ const ZNACKY = [
       { nazov: "BMW X6 E71", roky: "roky 2008–2014", cena: 219, url: "/autokoberce-bmw-x6-e71/", foto: "1v/auto/bmw-x6-e71/bmw-x6-e71-auto-w", w: 480, h: 215 },
       { nazov: "BMW X5 F15", roky: "roky 2013–2018", cena: 219, url: "/autokoberce-bmw-x5-f15/", foto: "1v/auto/bmw-x5-f15/bmw-x5-f15-auto-w", w: 480, h: 244 },
       { nazov: "BMW X5 G05", roky: "roky 2018–2026", cena: 219, url: "/autokoberce-bmw-x5-g05/", foto: "1v/auto/bmw-x5-g05/bmw-x5-g05-auto-w", w: 480, h: 269 },
-      { nazov: "BMW XM", roky: "G09 od roku 2023", cena: 219, url: "/autokoberce-bmw-xm/", foto: "1v/auto/bmw-xm/bmw-xm-auto-v2-w", w: 480, h: 235 },
+      { nazov: "BMW XM", roky: "G09 od roku 2023", cena: 219, url: "/autokoberce-bmw-xm/", foto: "1v/auto/bmw-xm/bmw-xm-auto-v3-w", w: 480, h: 214 },
     ],
   },
   {
