@@ -48,9 +48,9 @@ const ZNACKY = [
     koho: "svojho BMW", kto: "BMW",
     // stránky áut zverejnené 12. 11. 2026 (dvojvrstvové kópie 601), autá z hlavných fotiek Witamats (Michal 12. 11.)
     auta: [
-      { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-3-g20-g21/", foto: "1v/auto/bmw-3-g20/bmw-3-g20-auto-w", w: 480, h: 204 },
-      { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 351, url: "/autokoberce-bmw-5-g30-g31/", foto: "1v/auto/bmw-5-g30/bmw-5-g30-auto-w", w: 480, h: 228 },
-      { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 351, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/bmw-x7-g07/bmw-x7-g07-auto-w", w: 480, h: 260 },
+      { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 219, url: "/autokoberce-bmw-3-g20-g21/", foto: "1v/auto/bmw-3-g20/bmw-3-g20-auto-w", w: 480, h: 204 },
+      { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 219, url: "/autokoberce-bmw-5-g30-g31/", foto: "1v/auto/bmw-5-g30/bmw-5-g30-auto-w", w: 480, h: 228 },
+      { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 219, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/bmw-x7-g07/bmw-x7-g07-auto-w", w: 480, h: 260 },
     ],
   },
   {
@@ -68,9 +68,9 @@ const ZNACKY = [
     auta: [
       { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto-w", w: 480, h: 291 },
       { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle/", foto: "1v/auto/mercedes-gle-v167/mercedes-gle-v167-auto-w", w: 480, h: 259 },
-      { nazov: "Mercedes-Benz triedy G", roky: "W463, roky 2018–2024", cena: 351, url: "/autokoberce-mercedes-g-class/", foto: "1v/auto/mercedes-g-class-w463/mercedes-g-class-w463-auto-w", w: 480, h: 297 },
-      { nazov: "Mercedes-Benz GLS", roky: "X167 od roku 2019", cena: 351, url: "/autokoberce-mercedes-gls/", foto: "1v/auto/mercedes-gls-x167/mercedes-gls-x167-auto-w", w: 480, h: 246 },
-      { nazov: "Mercedes-Benz EQE SUV", roky: "X294 od roku 2022", cena: 351, url: "/autokoberce-mercedes-eqe-suv/", foto: "1v/auto/mercedes-eqe/mercedes-eqe-auto-w", w: 480, h: 257 },
+      { nazov: "Mercedes-Benz triedy G", roky: "W463, roky 2018–2024", cena: 219, url: "/autokoberce-mercedes-g-class/", foto: "1v/auto/mercedes-g-class-w463/mercedes-g-class-w463-auto-w", w: 480, h: 297 },
+      { nazov: "Mercedes-Benz GLS", roky: "X167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gls/", foto: "1v/auto/mercedes-gls-x167/mercedes-gls-x167-auto-w", w: 480, h: 246 },
+      { nazov: "Mercedes-Benz EQE SUV", roky: "X294 od roku 2022", cena: 219, url: "/autokoberce-mercedes-eqe-suv/", foto: "1v/auto/mercedes-eqe/mercedes-eqe-auto-w", w: 480, h: 257 },
     ],
   },
   {
@@ -141,14 +141,14 @@ const CZ_ZNACKY = {
 };
 const CZ_AUTA = {
   "/autokoberce-audi-a6-c7/": { id: 2466, cena: 5664 },
-  "/autokoberce-bmw-3-g20-g21/": { id: 2472, cena: 8799 },
-  "/autokoberce-bmw-5-g30-g31/": { id: 2475, cena: 8799 },
-  "/autokoberce-bmw-x7-g07/": { id: 2478, cena: 8799 },
+  "/autokoberce-bmw-3-g20-g21/": { id: 2619, cena: 5664 },
+  "/autokoberce-bmw-5-g30-g31/": { id: 2622, cena: 5664 },
+  "/autokoberce-bmw-x7-g07/": { id: 2625, cena: 5664 },
   "/autokoberce-mercedes-v-class/": { id: 2458, cena: 7500, nazov: "Mercedes-Benz V-Class" },
   "/autokoberce-mercedes-gle/": { id: 2469, cena: 5664 },
-  "/autokoberce-mercedes-g-class/": { id: 2526, cena: 8799, nazov: "Mercedes-Benz G-Class" },
-  "/autokoberce-mercedes-gls/": { id: 2529, cena: 8799 },
-  "/autokoberce-mercedes-eqe-suv/": { id: 2532, cena: 8799 },
+  "/autokoberce-mercedes-g-class/": { id: 2628, cena: 5664, nazov: "Mercedes-Benz G-Class" },
+  "/autokoberce-mercedes-gls/": { id: 2631, cena: 5664 },
+  "/autokoberce-mercedes-eqe-suv/": { id: 2634, cena: 5664 },
   "/autokoberce-skoda-kodiaq-i/": { id: 2463, cena: 5664 },
   "/autokoberce-skoda-kodiaq-ii/": { id: 2460, cena: 5799 },
   "/autokoberce-skoda-superb-iii/": { id: 2553, cena: 5664 },

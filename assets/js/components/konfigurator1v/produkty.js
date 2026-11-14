@@ -53,15 +53,22 @@ export const PRODUKTY_1V = {
     652: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c7/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C7" } },
     655: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE" } },
     658: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
+    808: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "598", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
     661: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
+    811: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "598", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
     664: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
+    814: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "598", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
     // Škoda Kodiaq I (1. generácia 2016–2024, Michal 12. 11. 2026): kópia 598 Diamond vytvorená v admine, zatiaľ skrytá.
     // Model „Kodiaq“ = 1. generácia v katalógu áut (data.json cars.Skoda má „Kodiaq“ aj „Kodiaq II“).
     667: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-kodiaq-i/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq", nazov: "Škoda Kodiaq I" } },
     // Mercedes G-Class W463, GLS X167 a EQE SUV X294 (dvojvrstvové kópie 601 / 2406) — 13. 11. 2026 (SK 724/727/730, CZ 2526/2529/2532)
+    // 14. 11. 2026 (Michal): všetky stránky áut jednovrstvové -> nové kópie 598 / 2403 (SK 808–823, CZ 2619–2634), staré dvojvrstvové skryté
     724: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
+    817: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
     727: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
+    820: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
     730: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
+    823: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
     // 13. 11. 2026: 10 generácií podľa objednávok „ako Witamats“ (kópie 598 / CZ 2403, titulka = vzorový koberec + tlačová fotka auta).
     // model = katalóg áut: Passat Variant je v katalógu „Passat Estate“ a RAV4 má 3 modely (Hybrid / Non-Hybrid / Plug-in) — predvyplnený je Passat a RAV4 (Hybrid).
     742: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-superb-iii/", obsah: "598", auto: { znacka: "Skoda", model: "Superb", nazov: "Škoda Superb III" } },
@@ -104,13 +111,20 @@ export const PRODUKTY_1V = {
     2466: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c7/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C7" } },
     2469: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE" } },
     2472: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
+    2619: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-3-g20-g21/", obsah: "598", auto: { znacka: "BMW", model: "Rad 3", nazov: "BMW 3 G20/G21" } },
     2475: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "dvoj", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
+    2622: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-5-g30-g31/", obsah: "598", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 G30/G31" } },
     2478: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "dvoj", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
+    2625: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x7-g07/", obsah: "598", auto: { znacka: "BMW", model: "X7", nazov: "BMW X7 G07" } },
     2463: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-kodiaq-i/", obsah: "598", auto: { znacka: "Skoda", model: "Kodiaq", nazov: "Škoda Kodiaq I" } },
     // Mercedes G-Class W463, GLS X167 a EQE SUV X294 (dvojvrstvové kópie 601 / 2406) — 13. 11. 2026 (SK 724/727/730, CZ 2526/2529/2532)
+    // 14. 11. 2026 (Michal): všetky stránky áut jednovrstvové -> nové kópie 598 / 2403 (SK 808–823, CZ 2619–2634), staré dvojvrstvové skryté
     2526: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
+    2628: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-g-class/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "G-Class", nazov: "Mercedes G-Class" } },
     2529: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
+    2631: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gls/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLS", nazov: "Mercedes GLS" } },
     2532: { typ: "dvoj", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "dvoj", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
+    2634: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-eqe-suv/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "EQE SUV", nazov: "Mercedes EQE SUV" } },
     // 13. 11. 2026: 10 generácií podľa objednávok „ako Witamats“ (kópie 598 / CZ 2403, titulka = vzorový koberec + tlačová fotka auta).
     // model = katalóg áut: Passat Variant je v katalógu „Passat Estate“ a RAV4 má 3 modely (Hybrid / Non-Hybrid / Plug-in) — predvyplnený je Passat a RAV4 (Hybrid).
     2553: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-superb-iii/", obsah: "598", auto: { znacka: "Skoda", model: "Superb", nazov: "Škoda Superb III" } },
