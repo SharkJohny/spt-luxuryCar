@@ -78,11 +78,11 @@ export const TEXTY_CS = {
      }
     },
     "zasuvky": {
-     "label": "Počet zásuvek",
-     "placeholder": "Vyberte počet zásuvek",
+     "label": "Počet šuplíků",
+     "placeholder": "Vyberte počet šuplíků",
      "moznosti": {
-      "1 zásuvka (šuplík)": "1 zásuvka",
-      "2 zásuvky (šuplíky)": "2 zásuvky"
+      "1 zásuvka (šuplík)": "1 šuplík",
+      "2 zásuvky (šuplíky)": "2 šuplíky"
      }
     },
     "brzda": {
