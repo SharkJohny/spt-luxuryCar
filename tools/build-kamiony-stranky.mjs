@@ -126,8 +126,49 @@ const VERZIA_GALERIE = { "daf-xf105": 2, "daf-xf106-2013": 2, "volvo-fh5": 2 };
 // (a3/web/skripty/orezy.json "galeria_verzia") -> data-p1v-lb-foto = …-galeria-NN-vN.jpg, nový súbor s novým menom.
 // Pôvodný …-galeria-NN.jpg v repe ostáva (staré adresy). 13. 11. 2026 večer: 6 fotiek, kde orez štvorca schováva neporiadok.
 
+// Videá modelu z nášho YouTube (Michal 14. 11. 2026: „videá toho konkrétneho modelu“) = riadok „Videá“ v sekcii galérie
+// pod fotkami (ostatné sekcie ostávajú = dist). Klik = video v okne (data-p1v-lb-yt, obsluhuje obsah-d.js ako fotky).
+// Náhľad: assets/img/1v/kamion-stranky/<slug>/videa/<id>-480.jpg|webp, -800.webp (vertikálny náhľad YouTube oar2).
+const VIDEA = {
+  "volvo-fh5": [
+    { id: "BoymwaPP6bc", sk: "Z gumených rohoží na luxusné koberce", cz: "Z gumových rohoží na luxusní koberce" },
+    { id: "RlX75meQgJ4", sk: "Moment pravdy: koberce v kabíne", cz: "Okamžik pravdy: koberce v kabině" },
+    { id: "bD0oYCvM1kI", sk: "Martin a jeho Volvo FH", cz: "Martin a jeho Volvo FH" },
+    { id: "uGlSk2L5AAQ", sk: "Príjemnejšie cestovanie v kamióne", cz: "Příjemnější cestování v kamionu" },
+    { id: "cQ-9qGSfiHk", sk: "Pohodlie domova v kabíne", cz: "Pohodlí domova v kabině" },
+  ],
+};
+const VIDEA_TEXT = {
+  sk: { nadpis: "Videá z kabíny", uvod: "Montáž a skúsenosti vodiča – krátke videá z nášho YouTube kanála.", hrat: "Prehrať video" },
+  cz: { nadpis: "Videa z kabiny", uvod: "Montáž a zkušenosti řidiče – krátká videa z našeho YouTube kanálu.", hrat: "Přehrát video" },
+};
+/** Riadok videí pod fotkami galérie (prázdny reťazec, keď stránka videá nemá). */
+function videaHtml(slug, j) {
+  const v = VIDEA[slug];
+  if (!v || !v.length) return "";
+  const t = VIDEA_TEXT[j];
+  const sel = '[data-lcd-sekcia="kamiony-galeria"] ';
+  const st = "<style>" + sel + ".kv-h{margin:34px 0 4px;font-size:22px;line-height:1.25}" + sel + ".kv-u{margin:0 0 14px}" +
+    sel + ".kv{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(190px,calc((100% - 64px)/5));gap:16px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding-bottom:4px}" +
+    sel + ".kv::-webkit-scrollbar{display:none}" + sel + ".kv-f{margin:0;min-width:0;scroll-snap-align:start}" +
+    sel + ".kv-f button{position:relative;display:block;width:100%;padding:0;border:0;border-radius:14px;background:#0d0b08;overflow:hidden;cursor:pointer}" +
+    sel + ".kv-f img{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover}" +
+    sel + ".kv-play{position:absolute;left:12px;bottom:12px;width:52px;height:52px;border-radius:50%;background:rgba(13,11,8,.72);box-shadow:inset 0 0 0 2px #e6c877}" +
+    sel + '.kv-play::after{content:"";position:absolute;left:20px;top:15px;border-style:solid;border-width:11px 0 11px 17px;border-color:transparent transparent transparent #e6c877}' +
+    sel + ".kv-f figcaption{margin:9px 2px 0;font-weight:700;font-size:16px;line-height:1.3;text-align:left}" +
+    "@media (max-width:640px){" + sel + ".kv{grid-auto-columns:62%}}</style>";
+  const cdn = CDN + slug + "/videa/";
+  const karty = v.map((x) => {
+    const p = esc(x[j]);
+    return '<figure class="kv-f"><button type="button" data-p1v-lb-yt="' + x.id + '" data-p1v-lb-popis="' + p + '" data-p1v-lb-sada="kamiony-videa-' + slug + '"><picture><source type="image/webp" srcset="' +
+      cdn + x.id + "-480.webp 480w, " + cdn + x.id + '-800.webp 800w" sizes="(max-width:640px) 62vw, 220px"><img src="' + cdn + x.id + '-480.jpg" alt="' + p +
+      '" loading="lazy" width="480" height="853"></picture><span class="kv-play" aria-hidden="true"><!-- --></span><span class="sr-only">' + t.hrat + "</span></button><figcaption>" + p + "</figcaption></figure>";
+  });
+  return st + '\n<h3 class="kv-h rv">' + t.nadpis + '</h3>\n<p class="kv-u rv">' + t.uvod + '</p>\n<div class="kv rv">\n' + karty.join("\n") + "\n</div>\n";
+}
+
 /** Sekcia galérie stránky z galérie 640 / 2452: nadpis, úvod, fotky; nadpis sekcie (eyebrow) a tlačidlo ostávajú. */
-function galeria(distSek, s, slug) {
+function galeria(distSek, s, slug, j) {
   const zv = (distSek.match(/<span class="sr-only">([^<:]+: )/) || [])[1];
   if (!zv) throw new Error("dist galéria: nenašiel som text „Zväčšiť fotku: “");
   const v = VERZIA_GALERIE[slug] ? "?v=" + VERZIA_GALERIE[slug] : "";
@@ -142,7 +183,7 @@ function galeria(distSek, s, slug) {
   const out = distSek
     .replace(/(<h2 class="rv">)[^<]*(<\/h2>)/, (m, a, b) => (n++, a + esc(s.popisNadpis) + b))
     .replace(/(<p class="lede rv">)[^<]*(<\/p>)/, (m, a, b) => (n++, a + esc(s.popisUvod) + b))
-    .replace(/(<div class="kg rv">\n)[\s\S]*?(<\/div>\n<div class="k-cta)/, (m, a, b) => (n++, a + fotky.join("\n") + "\n" + b));
+    .replace(/(<div class="kg rv">\n)[\s\S]*?(<\/div>\n)(<div class="k-cta)/, (m, a, b, c) => (n++, a + fotky.join("\n") + "\n" + b + videaHtml(slug, j) + c));
   if (n !== 3) throw new Error("dist galéria: nadpis, úvod alebo mriežka fotiek sa nenašli (" + n + "/3)");
   return out;
 }
@@ -154,7 +195,7 @@ function popisStranky(slug, j) {
   const k1 = dist[j + 1];
   const g = sekcie(k1).find((x) => x.meno === "kamiony-galeria");
   if (!g) throw new Error("dist p1v-kamiony-1." + j + ": chýba sekcia kamiony-galeria");
-  const novy = k1.slice(0, g.od) + galeria(g.text, s, slug) + k1.slice(g.do);
+  const novy = k1.slice(0, g.od) + galeria(g.text, s, slug, j) + k1.slice(g.do);
   return novy.replace(/\s*$/, "\n") + dist[j + 2].replace(/\s*$/, "\n");
 }
 
