@@ -416,12 +416,12 @@
         },
         "znacka": "DAF",
         "tahac": {
-          "kluc": "daf-xf105-zlty",
-          "subor": "daf-xf105-zlty-vlavo",
+          "kluc": "daf-xf105-narovnany",
+          "subor": "daf-xf105-narovnany-vlavo",
           "w": 480,
-          "h": 457,
+          "h": 515,
           "w960": 960,
-          "h960": 915
+          "h960": 1029
         },
         "caka": null,
         "fotky": [
@@ -482,12 +482,12 @@
         },
         "znacka": "DAF",
         "tahac": {
-          "kluc": "daf-xf105-zlty",
-          "subor": "daf-xf105-zlty-vlavo",
+          "kluc": "daf-xf105-narovnany",
+          "subor": "daf-xf105-narovnany-vlavo",
           "w": 480,
-          "h": 457,
+          "h": 515,
           "w960": 960,
-          "h960": 915
+          "h960": 1029
         },
         "caka": null,
         "fotky": [
@@ -672,12 +672,12 @@
         },
         "znacka": "DAF",
         "tahac": {
-          "kluc": "daf-xf106-2013-oranzovy",
-          "subor": "daf-xf106-2013-oranzovy-vlavo",
+          "kluc": "daf-xf106-2013-oranzovy2",
+          "subor": "daf-xf106-2013-oranzovy2-vlavo",
           "w": 480,
-          "h": 414,
+          "h": 555,
           "w960": 960,
-          "h960": 827
+          "h960": 1111
         },
         "caka": null,
         "fotky": [
@@ -738,12 +738,12 @@
         },
         "znacka": "DAF",
         "tahac": {
-          "kluc": "daf-xf106-2013-oranzovy",
-          "subor": "daf-xf106-2013-oranzovy-vlavo",
+          "kluc": "daf-xf106-2013-oranzovy2",
+          "subor": "daf-xf106-2013-oranzovy2-vlavo",
           "w": 480,
-          "h": 414,
+          "h": 555,
           "w960": 960,
-          "h960": 827
+          "h960": 1111
         },
         "caka": null,
         "fotky": [

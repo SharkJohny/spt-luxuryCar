@@ -6,7 +6,7 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "03f370d1b4cae240",
+  "stranky_json": "bfd9b6a9e7e23f1b",
   "subory": {
     "citroen-jumper.sk.html": {
       "znaky": 24067,
@@ -269,8 +269,8 @@
       "sha": "b75c608c051c9e0d"
     },
     "kategoria-autokoberce-do-kamionu-daf.sk.html": {
-      "znaky": 6716,
-      "sha": "ecf4ae28de71dc46"
+      "znaky": 6734,
+      "sha": "07d3d138bf696e4d"
     },
     "kategoria-autokoberce-do-kamionu-ford.sk.html": {
       "znaky": 3543,
@@ -313,8 +313,8 @@
       "sha": "22d72bf919f11af9"
     },
     "kategoria-autokoberce-do-kamionu-daf.cz.html": {
-      "znaky": 6756,
-      "sha": "88f6212021e143dd"
+      "znaky": 6774,
+      "sha": "d212019d144cd5be"
     },
     "kategoria-autokoberce-do-kamionu-ford.cz.html": {
       "znaky": 3551,
