@@ -120,7 +120,8 @@ const hotove = slugy.filter((s) => !cakajuce.includes(s));
 // CDN drží obrázky rok (Cache-Control max-age=31536000): keď sa galéria stránky prečísluje (rovnaké meno -galeria-NN,
 // iný obsah), zvýš verziu slugu – odkazy dostanú ?v=N a CDN aj prehliadač stiahnu nový obrázok.
 // 13. 11. 2026: DAF XF105 +2 celé sety, DAF XF106 2013 +1 celý set (Codex, foto/davka6-daf.csv).
-const VERZIA_GALERIE = { "daf-xf105": 2, "daf-xf106-2013": 2 };
+// 14. 11. 2026: Volvo FH5 02–08 = vlastné profi fotky z kabíny FH5 (RojikCreator) namiesto fotiek FH4 od dodávateľa.
+const VERZIA_GALERIE = { "daf-xf105": 2, "daf-xf106-2013": 2, "volvo-fh5": 2 };
 // Zmena LEN okna jednej fotky (iný výrez veľkej fotky, štvorec -m.jpg rovnaký): pole fotky "oknoVerzia": N v stranky.json
 // (a3/web/skripty/orezy.json "galeria_verzia") -> data-p1v-lb-foto = …-galeria-NN-vN.jpg, nový súbor s novým menom.
 // Pôvodný …-galeria-NN.jpg v repe ostáva (staré adresy). 13. 11. 2026 večer: 6 fotiek, kde orez štvorca schováva neporiadok.

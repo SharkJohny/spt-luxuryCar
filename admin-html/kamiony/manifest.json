@@ -6,7 +6,7 @@
     "p1v-kamiony-1.cz.html": "c342b83f4a0329c8",
     "p1v-kamiony-2.cz.html": "0cd9da42960737c5"
   },
-  "stranky_json": "74d599b4c4cc856f",
+  "stranky_json": "03f370d1b4cae240",
   "subory": {
     "citroen-jumper.sk.html": {
       "znaky": 21589,
@@ -249,20 +249,20 @@
       "sha": "9437ade2ed71d4e4"
     },
     "volvo-fh5.sk.html": {
-      "znaky": 21882,
-      "sha": "19812570814dc38d"
+      "znaky": 22353,
+      "sha": "425f5d81eadf419e"
     },
     "volvo-fh5.cz.html": {
-      "znaky": 21808,
-      "sha": "7509fe89e9c3bace"
+      "znaky": 22244,
+      "sha": "ed12b35aca8dd3d3"
     },
     "volvo-fh5-aero.sk.html": {
-      "znaky": 22192,
-      "sha": "2455efb8fd4692fb"
+      "znaky": 22273,
+      "sha": "4c987534f69d0dff"
     },
     "volvo-fh5-aero.cz.html": {
-      "znaky": 22127,
-      "sha": "bc2cee2e0ea06868"
+      "znaky": 22209,
+      "sha": "07578faa3a09a047"
     },
     "kategoria-autokoberce-do-kamionu.sk.html": {
       "znaky": 5206,
