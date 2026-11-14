@@ -94,6 +94,17 @@ export const PRODUKTY_1V = {
     853: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c8/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C8" } },
     // 14. 11. 2026: BMW XM G09 s fotkami zákazníka (AI úprava)
     856: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-xm/", obsah: "598", auto: { znacka: "BMW", model: "XM", nazov: "BMW XM" } },
+    // 14. 11. 2026 večer: autá 21–30 (kópie 598 / 2403), titulka = vzorový koberec + fotka auta
+    859: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-superb-ii/", obsah: "598", auto: { znacka: "Skoda", model: "Superb", nazov: "Škoda Superb II" } },
+    862: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-passat-b6/", obsah: "598", auto: { znacka: "Volkswagen", model: "Passat", nazov: "Volkswagen Passat B6" } },
+    865: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-passat-b7/", obsah: "598", auto: { znacka: "Volkswagen", model: "Passat", nazov: "Volkswagen Passat B7" } },
+    868: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x5-e70/", obsah: "598", auto: { znacka: "BMW", model: "X5", nazov: "BMW X5 E70" } },
+    871: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q7-4l/", obsah: "598", auto: { znacka: "Audi", model: "Q7", nazov: "Audi Q7 4L" } },
+    874: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a4-b9/", obsah: "598", auto: { znacka: "Audi", model: "A4", nazov: "Audi A4 B9" } },
+    877: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-glc-x254/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLC", nazov: "Mercedes GLC X254" } },
+    880: { typ: "jedno", vzor: "diamond", url: "/autokoberce-ford-ranger-t6/", obsah: "598", auto: { znacka: "Ford", model: "Ranger", nazov: "Ford Ranger T6" } },
+    883: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-e-w213/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "E", nazov: "Mercedes triedy E W213" } },
+    886: { typ: "jedno", vzor: "diamond", url: "/autokoberce-kia-sorento-iv/", obsah: "598", auto: { znacka: "Kia", model: "Sorento (Hybrid)", nazov: "Kia Sorento IV" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -163,6 +174,17 @@ export const PRODUKTY_1V = {
     2664: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c8/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C8" } },
     // 14. 11. 2026: BMW XM G09 s fotkami zákazníka (AI úprava)
     2667: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-xm/", obsah: "598", auto: { znacka: "BMW", model: "XM", nazov: "BMW XM" } },
+    // 14. 11. 2026 večer: autá 21–30 (kópie 598 / 2403), titulka = vzorový koberec + fotka auta
+    2670: { typ: "jedno", vzor: "diamond", url: "/autokoberce-skoda-superb-ii/", obsah: "598", auto: { znacka: "Skoda", model: "Superb", nazov: "Škoda Superb II" } },
+    2673: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-passat-b6/", obsah: "598", auto: { znacka: "Volkswagen", model: "Passat", nazov: "Volkswagen Passat B6" } },
+    2676: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-passat-b7/", obsah: "598", auto: { znacka: "Volkswagen", model: "Passat", nazov: "Volkswagen Passat B7" } },
+    2679: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x5-e70/", obsah: "598", auto: { znacka: "BMW", model: "X5", nazov: "BMW X5 E70" } },
+    2682: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q7-4l/", obsah: "598", auto: { znacka: "Audi", model: "Q7", nazov: "Audi Q7 4L" } },
+    2685: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a4-b9/", obsah: "598", auto: { znacka: "Audi", model: "A4", nazov: "Audi A4 B9" } },
+    2688: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-glc-x254/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLC", nazov: "Mercedes GLC X254" } },
+    2691: { typ: "jedno", vzor: "diamond", url: "/autokoberce-ford-ranger-t6/", obsah: "598", auto: { znacka: "Ford", model: "Ranger", nazov: "Ford Ranger T6" } },
+    2694: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-e-w213/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "E", nazov: "Mercedes třídy E W213" } },
+    2697: { typ: "jedno", vzor: "diamond", url: "/autokoberce-kia-sorento-iv/", obsah: "598", auto: { znacka: "Kia", model: "Sorento (Hybrid)", nazov: "Kia Sorento IV" } },
   },
 };
 
