@@ -9,260 +9,260 @@
   "stranky_json": "03f370d1b4cae240",
   "subory": {
     "citroen-jumper.sk.html": {
-      "znaky": 21589,
-      "sha": "893bc760b59fc568"
+      "znaky": 24067,
+      "sha": "153918f148315a9b"
     },
     "citroen-jumper.cz.html": {
-      "znaky": 21498,
-      "sha": "c737b1a17fb57b10"
+      "znaky": 23965,
+      "sha": "7243ccfed8d4f83d"
     },
     "citroen-jumper-2006.sk.html": {
-      "znaky": 21857,
-      "sha": "77c904b327ac4fc4"
+      "znaky": 24324,
+      "sha": "4f33fb482823ca78"
     },
     "citroen-jumper-2006.cz.html": {
-      "znaky": 21767,
-      "sha": "fec93a3b174f2c46"
+      "znaky": 24225,
+      "sha": "3e86105d3f9f27c9"
     },
     "daf-xf.sk.html": {
-      "znaky": 20341,
-      "sha": "bfce225cb5d6e9dd"
+      "znaky": 22569,
+      "sha": "07b03200b56563c6"
     },
     "daf-xf.cz.html": {
-      "znaky": 20266,
-      "sha": "92049ee7ddd66ffa"
+      "znaky": 22495,
+      "sha": "f84e7a0ece846027"
     },
     "daf-xf105.sk.html": {
-      "znaky": 21144,
-      "sha": "4114b9faaece141d"
+      "znaky": 23557,
+      "sha": "988ad3fa4eb703c0"
     },
     "daf-xf105.cz.html": {
-      "znaky": 21086,
-      "sha": "07b03e00392262a7"
+      "znaky": 23512,
+      "sha": "77f0741d66e9e2d6"
     },
     "daf-xf106.sk.html": {
-      "znaky": 20374,
-      "sha": "3dd3019a516d7123"
+      "znaky": 22552,
+      "sha": "e22f8f1591e4cb55"
     },
     "daf-xf106.cz.html": {
-      "znaky": 20301,
-      "sha": "c846614e8db63485"
+      "znaky": 22480,
+      "sha": "823334913559b24d"
     },
     "daf-xf106-2013.sk.html": {
-      "znaky": 21458,
-      "sha": "299522687d32d03e"
+      "znaky": 23882,
+      "sha": "a3642bdc67483ac9"
     },
     "daf-xf106-2013.cz.html": {
-      "znaky": 21387,
-      "sha": "4b1ad137510e9999"
+      "znaky": 23816,
+      "sha": "ced029685e58548c"
     },
     "daf-xg.sk.html": {
-      "znaky": 20377,
-      "sha": "fed9c2c9e7e3566a"
+      "znaky": 22619,
+      "sha": "d73dbfd1e68522d6"
     },
     "daf-xg.cz.html": {
-      "znaky": 20301,
-      "sha": "541beb8dd0bcc520"
+      "znaky": 22544,
+      "sha": "6ae896b29c0fd9cd"
     },
     "fiat-ducato.sk.html": {
-      "znaky": 22306,
-      "sha": "9cfa49eab6c14ad6"
+      "znaky": 25096,
+      "sha": "c862fd1fbd225dfc"
     },
     "fiat-ducato.cz.html": {
-      "znaky": 22210,
-      "sha": "68659d87ccfe0cfa"
+      "znaky": 24989,
+      "sha": "7977702aee657f1e"
     },
     "ford-f-max.sk.html": {
-      "znaky": 18200,
-      "sha": "eab72829a21bb952"
+      "znaky": 19624,
+      "sha": "39a322984044d7fb"
     },
     "ford-f-max.cz.html": {
-      "znaky": 18126,
-      "sha": "c300d38565f953fb"
+      "znaky": 19545,
+      "sha": "46972339ded368ac"
     },
     "iveco-stralis-hi-way.sk.html": {
-      "znaky": 16783,
-      "sha": "f495dbb76105c58b"
+      "znaky": 17683,
+      "sha": "8ff336d7003b8efd"
     },
     "iveco-stralis-hi-way.cz.html": {
-      "znaky": 16728,
-      "sha": "3479d264b29ce88c"
+      "znaky": 17633,
+      "sha": "88d532d7c5890a29"
     },
     "iveco-stralis-hi-way-obytna-kabina.sk.html": {
-      "znaky": 16903,
-      "sha": "71a79adf8f572ff1"
+      "znaky": 17789,
+      "sha": "08b4ba2d8acbe709"
     },
     "iveco-stralis-hi-way-obytna-kabina.cz.html": {
-      "znaky": 16848,
-      "sha": "e6f9b04fde1d4bd7"
+      "znaky": 17739,
+      "sha": "85d7de9be5a0adea"
     },
     "man-tgx.sk.html": {
-      "znaky": 20371,
-      "sha": "b99e48155b006799"
+      "znaky": 22587,
+      "sha": "5caeda20d687f414"
     },
     "man-tgx.cz.html": {
-      "znaky": 20300,
-      "sha": "3a123d4f40d46e9c"
+      "znaky": 22523,
+      "sha": "8b63a3212d7a58c1"
     },
     "man-tgx-2007.sk.html": {
-      "znaky": 21393,
-      "sha": "77cf96ce8190b9e6"
+      "znaky": 23827,
+      "sha": "b2d213c2807ef64c"
     },
     "man-tgx-2007.cz.html": {
-      "znaky": 21332,
-      "sha": "9b5b93feb3f43f84"
+      "znaky": 23779,
+      "sha": "bc497de7d2e8fd22"
     },
     "man-tgx-2018.sk.html": {
-      "znaky": 21547,
-      "sha": "a1f86b5b13c48dc1"
+      "znaky": 24104,
+      "sha": "15f3f0ff0d9ba97c"
     },
     "man-tgx-2018.cz.html": {
-      "znaky": 21459,
-      "sha": "bda09c91375e3cc8"
+      "znaky": 24011,
+      "sha": "09b61007b9cb9a91"
     },
     "mercedes-actros.sk.html": {
-      "znaky": 22508,
-      "sha": "efddbb0740a6c1cd"
+      "znaky": 25175,
+      "sha": "f36164e06c1a9c71"
     },
     "mercedes-actros.cz.html": {
-      "znaky": 22444,
-      "sha": "385b63a9868abae4"
+      "znaky": 25122,
+      "sha": "3e1e1e359d382b91"
     },
     "mercedes-actros-2003.sk.html": {
-      "znaky": 20965,
-      "sha": "ef36f938d0e1ea8e"
+      "znaky": 23121,
+      "sha": "bcea4e52857fef78"
     },
     "mercedes-actros-2003.cz.html": {
-      "znaky": 20903,
-      "sha": "be8be6be08cb3001"
+      "znaky": 23068,
+      "sha": "b6f138656ff87e71"
     },
     "mercedes-actros-f.sk.html": {
-      "znaky": 21069,
-      "sha": "e944cba01f77465c"
+      "znaky": 23287,
+      "sha": "0f114e6a8faec503"
     },
     "mercedes-actros-f.cz.html": {
-      "znaky": 20985,
-      "sha": "d6fa91a10ddc5a90"
+      "znaky": 23200,
+      "sha": "edd86d212d0ec727"
     },
     "mercedes-actros-solostar.sk.html": {
-      "znaky": 22808,
-      "sha": "fd268e321fded89c"
+      "znaky": 25401,
+      "sha": "1c65a46b9dc08aae"
     },
     "mercedes-actros-solostar.cz.html": {
-      "znaky": 22729,
-      "sha": "b7f138e6ce1328da"
+      "znaky": 25323,
+      "sha": "3084a173951e3126"
     },
     "mercedes-sprinter.sk.html": {
-      "znaky": 20902,
-      "sha": "485f5c3491063600"
+      "znaky": 23134,
+      "sha": "f583d85eb4ae4154"
     },
     "mercedes-sprinter.cz.html": {
-      "znaky": 20790,
-      "sha": "c2e15af138950f9a"
+      "znaky": 22999,
+      "sha": "ddf2e396c775b8ce"
     },
     "peugeot-boxer.sk.html": {
-      "znaky": 21542,
-      "sha": "1699ad9c07d998b3"
+      "znaky": 24025,
+      "sha": "cf02cc04e94dd2a3"
     },
     "peugeot-boxer.cz.html": {
-      "znaky": 21451,
-      "sha": "b90733cd8a91a8bc"
+      "znaky": 23923,
+      "sha": "f3d22c4bfb5e0047"
     },
     "peugeot-boxer-2006.sk.html": {
-      "znaky": 21758,
-      "sha": "0920c5801cccc92f"
+      "znaky": 24196,
+      "sha": "748d6999975b315a"
     },
     "peugeot-boxer-2006.cz.html": {
-      "znaky": 21660,
-      "sha": "7782e403d237d282"
+      "znaky": 24083,
+      "sha": "5c417703217e52dc"
     },
     "renault-t.sk.html": {
-      "znaky": 21510,
-      "sha": "fee1537cf8e6b94a"
+      "znaky": 23986,
+      "sha": "66222dcf0499ae67"
     },
     "renault-t.cz.html": {
-      "znaky": 21433,
-      "sha": "938b693102337c67"
+      "znaky": 23910,
+      "sha": "4db34ebfe55ccb7d"
     },
     "renault-t-s-tunelom.sk.html": {
-      "znaky": 21741,
-      "sha": "9e732d8d89dd4705"
+      "znaky": 24153,
+      "sha": "732979ee8733e6e9"
     },
     "renault-t-s-tunelom.cz.html": {
-      "znaky": 21680,
-      "sha": "47084b28ff13af21"
+      "znaky": 24103,
+      "sha": "c184092eb1d8abf6"
     },
     "scania-r.sk.html": {
-      "znaky": 20440,
-      "sha": "7e353885b19a3bd4"
+      "znaky": 22660,
+      "sha": "9d6bad3a3c217e9e"
     },
     "scania-r.cz.html": {
-      "znaky": 20379,
-      "sha": "cee36df0937c236c"
+      "znaky": 22610,
+      "sha": "a84b30b7e64933f5"
     },
     "scania-r-2004.sk.html": {
-      "znaky": 21462,
-      "sha": "dc9132214444d0df"
+      "znaky": 23945,
+      "sha": "3827a7abc48c00f0"
     },
     "scania-r-2004.cz.html": {
-      "znaky": 21404,
-      "sha": "fef8e65403fcedce"
+      "znaky": 23900,
+      "sha": "c8f3193cdab014ea"
     },
     "scania-r-2009.sk.html": {
-      "znaky": 21526,
-      "sha": "e9e083053221d2d0"
+      "znaky": 24049,
+      "sha": "eac8c844b2184194"
     },
     "scania-r-2009.cz.html": {
-      "znaky": 21469,
-      "sha": "5aebc7aa92169179"
+      "znaky": 24007,
+      "sha": "66c9c8ccd549e1f5"
     },
     "scania-r-2014.sk.html": {
-      "znaky": 21395,
-      "sha": "75a235ffbe95f957"
+      "znaky": 23830,
+      "sha": "3333ca5c121c83f4"
     },
     "scania-r-2014.cz.html": {
-      "znaky": 21339,
-      "sha": "e2223f7138c7381e"
+      "znaky": 23789,
+      "sha": "304646e7fb197a79"
     },
     "scania-s.sk.html": {
-      "znaky": 21143,
-      "sha": "6863fcbfafcffc95"
+      "znaky": 23605,
+      "sha": "428f73b909050e9e"
     },
     "scania-s.cz.html": {
-      "znaky": 21084,
-      "sha": "fa635469275d63af"
+      "znaky": 23559,
+      "sha": "4f2a687bf40252cc"
     },
     "volvo-fh13.sk.html": {
-      "znaky": 20511,
-      "sha": "c5a02d1222c109cf"
+      "znaky": 22752,
+      "sha": "7dc54fc67ffdad61"
     },
     "volvo-fh13.cz.html": {
-      "znaky": 20443,
-      "sha": "3f87dff466cc9e39"
+      "znaky": 22689,
+      "sha": "ac26e03064c1e001"
     },
     "volvo-fh4.sk.html": {
-      "znaky": 21267,
-      "sha": "2870c5b4ff0b3319"
+      "znaky": 23739,
+      "sha": "bb48fb648e60ed28"
     },
     "volvo-fh4.cz.html": {
-      "znaky": 21201,
-      "sha": "9437ade2ed71d4e4"
+      "znaky": 23682,
+      "sha": "8bd9d1bd6bfc203a"
     },
     "volvo-fh5.sk.html": {
-      "znaky": 28865,
-      "sha": "12a1751d42b84678"
+      "znaky": 31941,
+      "sha": "89d87abd0054abc4"
     },
     "volvo-fh5.cz.html": {
-      "znaky": 28751,
-      "sha": "e896cd450936d15e"
+      "znaky": 31810,
+      "sha": "2c88d71c2945c167"
     },
     "volvo-fh5-aero.sk.html": {
-      "znaky": 22273,
-      "sha": "4c987534f69d0dff"
+      "znaky": 24999,
+      "sha": "6cbe800de24e009d"
     },
     "volvo-fh5-aero.cz.html": {
-      "znaky": 22209,
-      "sha": "07578faa3a09a047"
+      "znaky": 24946,
+      "sha": "2880edbb97bad570"
     },
     "kategoria-autokoberce-do-kamionu.sk.html": {
       "znaky": 5206,

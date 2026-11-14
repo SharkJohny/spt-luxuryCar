@@ -128,11 +128,14 @@ try {
     over(J + "Mercedes-Benz (kamióny): bez Sprintera, bajt po bajte ako v základe", !/sprinter/i.test(mb) && mb === citaj(d0, "kategoria-autokoberce-do-kamionu-mercedes-benz." + j + ".html"));
 
     const fiat = citaj(d2, "fiat-ducato." + j + ".html");
-    over(J + "Popis dodávky: fotky z <cdn>fiat-ducato/autokoberce-do-dodavky-fiat-ducato-galeria-NN", /kamion-stranky\/fiat-ducato\/autokoberce-do-dodavky-fiat-ducato-galeria-01\.jpg"/.test(fiat) && !/autokoberce-do-kamionu-fiat-ducato/.test(fiat) && fiat.includes('data-p1v-lb-sada="kamiony-fiat-ducato"'));
+    // 14. 11. 2026: galéria = bežiaci pás a-galeria ako pri osobných autách, fotky pásu <cdn><slug>/pas/<meno>-pas-NN.jpg
+    over(J + "Popis dodávky: pás z <cdn>fiat-ducato/pas/autokoberce-do-dodavky-fiat-ducato-pas-NN", /kamion-stranky\/fiat-ducato\/pas\/autokoberce-do-dodavky-fiat-ducato-pas-01\.jpg"/.test(fiat) && !/autokoberce-do-kamionu-fiat-ducato/.test(fiat));
+    over(J + "Popis dodávky: pás a-galeria s kópiami, bez mriežky kamiony-galeria a bez sekcie videí", /<section data-lcd-sekcia="a-galeria" id="p1v-galeria" class="lx lx-tma lx-gal">/.test(fiat) &&
+      pocet(fiat, '<figure class="lx-gal-k">') === pocet(fiat, '<figure class="lx-gal-k lx-klon" aria-hidden="true">') && pocet(fiat, '<figure class="lx-gal-k">') > 0 && !/kamiony-galeria|kamiony-videa|class="kg/.test(fiat));
     const spr = citaj(d2, "mercedes-sprinter." + j + ".html");
-    over(J + "Popis s poľom fotkyMeno: fotky z <cdn>mercedes-sprinter/autokoberce-do-kamionu-mercedes-sprinter-galeria-NN", /kamion-stranky\/mercedes-sprinter\/autokoberce-do-kamionu-mercedes-sprinter-galeria-01-m\.jpg"/.test(spr) && !/autokoberce-do-dodavky-mercedes-sprinter-galeria/.test(spr));
+    over(J + "Popis s poľom fotkyMeno: pás z <cdn>mercedes-sprinter/pas/autokoberce-do-kamionu-mercedes-sprinter-pas-NN", /kamion-stranky\/mercedes-sprinter\/pas\/autokoberce-do-kamionu-mercedes-sprinter-pas-01\.jpg"/.test(spr) && !/autokoberce-do-dodavky-mercedes-sprinter-pas/.test(spr));
     const fmax = citaj(d2, "ford-f-max." + j + ".html");
-    over(J + "Popis kamióna novej značky: fotky z <cdn>ford-f-max/autokoberce-do-kamionu-ford-f-max-galeria-NN", /kamion-stranky\/ford-f-max\/autokoberce-do-kamionu-ford-f-max-galeria-01\.jpg"/.test(fmax));
+    over(J + "Popis kamióna novej značky: pás z <cdn>ford-f-max/pas/autokoberce-do-kamionu-ford-f-max-pas-NN", /kamion-stranky\/ford-f-max\/pas\/autokoberce-do-kamionu-ford-f-max-pas-01\.jpg"/.test(fmax));
     const pata = citaj(d2, "paticka-kamiony." + j + ".html");
     over(J + "pätička: Ford, IVECO a Dodávky pred „Nájsť môj kamión“", /autokoberce-do-kamionu-ford\/[\s\S]*autokoberce-do-kamionu-iveco\/[\s\S]*autokoberce-do-kamionu-volvo\/[\s\S]*href="\/autokoberce-do-dodavky\/"[\s\S]*lcd-kam-zoznam__hladaj/.test(pata));
   }
@@ -174,6 +177,14 @@ try {
   const rc = spawnSync(process.execPath, [GEN, "--check"], { cwd: KOREN, encoding: "utf8" });
   over("--check v repe skončí 0 (admin-html/kamiony/ sedí so stranky.json)", rc.status === 0, String(rc.stdout || "").slice(-400));
   over("test repo nezmenil (stranky.json ako na začiatku)", citaj(REPO, "stranky.json") === vstup);
+  // stránka s videami (VIDEA v generátore, 14. 11. 2026 len volvo-fh5): sekcia kamiony-videa hneď za pásom, štýl len na ňu
+  for (const j of ["sk", "cz"]) {
+    const fh5 = citaj(REPO, "volvo-fh5." + j + ".html");
+    const sek = [...fh5.matchAll(/<section\b[^>]*\bdata-lcd-sekcia="([^"]+)"/g)].map((x) => x[1]);
+    over(j.toUpperCase() + " volvo-fh5: a-galeria, hneď za ňou kamiony-videa (5 videí), štýl videí len pod [data-lcd-sekcia=\"kamiony-videa\"]",
+      sek[0] === "a-galeria" && sek[1] === "kamiony-videa" && pocet(fh5, '<figure class="kv-f">') === 5 && !/\[data-lcd-sekcia="kamiony-galeria"\]/.test(fh5) &&
+      /<\/section>\n<section class="chapter" data-lcd-sekcia="kamiony-videa" data-lcd-kap="1"><div class="wrap">\n<style>\[data-lcd-sekcia="kamiony-videa"\] /.test(fh5), sek.slice(0, 3).join());
+  }
 } finally {
   if (process.argv.includes("--nechaj")) console.log("dočasné priečinky (zmaž ručne):\n" + docasne.join("\n"));
   else for (const d of docasne) { try { rmSync(d, { recursive: true, force: true }); } catch (e) { /* nič */ } }
