@@ -81,6 +81,17 @@ export const PRODUKTY_1V = {
     763: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q8/", obsah: "598", auto: { znacka: "Audi", model: "Q8", nazov: "Audi Q8" } },
     766: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-challenger/", obsah: "598", auto: { znacka: "Dodge", model: "Challenger", nazov: "Dodge Challenger" } },
     769: { typ: "jedno", vzor: "diamond", url: "/autokoberce-toyota-rav4-v/", obsah: "598", auto: { znacka: "Toyota", model: "RAV4 (Hybrid)", nazov: "Toyota RAV4 V" } },
+    // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598 / 2403, jednovrstvové)
+    826: { typ: "jedno", vzor: "diamond", url: "/autokoberce-hyundai-tucson-iv/", obsah: "598", auto: { znacka: "Hyundai", model: "Tucson", nazov: "Hyundai Tucson IV" } },
+    829: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volvo-xc90-ii/", obsah: "598", auto: { znacka: "Volvo", model: "XC90", nazov: "Volvo XC90 II" } },
+    832: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x6-e71/", obsah: "598", auto: { znacka: "BMW", model: "X6", nazov: "BMW X6 E71" } },
+    835: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-e-tron/", obsah: "598", auto: { znacka: "Audi", model: "e-tron", nazov: "Audi e-tron / Q8 e-tron" } },
+    838: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle-w166/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE W166" } },
+    841: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x5-f15/", obsah: "598", auto: { znacka: "BMW", model: "X5", nazov: "BMW X5 F15" } },
+    844: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x5-g05/", obsah: "598", auto: { znacka: "BMW", model: "X5", nazov: "BMW X5 G05" } },
+    847: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-s-w222/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "S Class", nazov: "Mercedes triedy S W222" } },
+    850: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-durango/", obsah: "598", auto: { znacka: "Dodge", model: "Durango GT (3 sedadlá v 2.rade sedadiel)", nazov: "Dodge Durango" } },
+    853: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c8/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C8" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -137,6 +148,17 @@ export const PRODUKTY_1V = {
     2574: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q8/", obsah: "598", auto: { znacka: "Audi", model: "Q8", nazov: "Audi Q8" } },
     2577: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-challenger/", obsah: "598", auto: { znacka: "Dodge", model: "Challenger", nazov: "Dodge Challenger" } },
     2580: { typ: "jedno", vzor: "diamond", url: "/autokoberce-toyota-rav4-v/", obsah: "598", auto: { znacka: "Toyota", model: "RAV4 (Hybrid)", nazov: "Toyota RAV4 V" } },
+    // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598 / 2403, jednovrstvové)
+    2637: { typ: "jedno", vzor: "diamond", url: "/autokoberce-hyundai-tucson-iv/", obsah: "598", auto: { znacka: "Hyundai", model: "Tucson", nazov: "Hyundai Tucson IV" } },
+    2640: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volvo-xc90-ii/", obsah: "598", auto: { znacka: "Volvo", model: "XC90", nazov: "Volvo XC90 II" } },
+    2643: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x6-e71/", obsah: "598", auto: { znacka: "BMW", model: "X6", nazov: "BMW X6 E71" } },
+    2646: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-e-tron/", obsah: "598", auto: { znacka: "Audi", model: "e-tron", nazov: "Audi e-tron / Q8 e-tron" } },
+    2649: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-gle-w166/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "GLE", nazov: "Mercedes GLE W166" } },
+    2652: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x5-f15/", obsah: "598", auto: { znacka: "BMW", model: "X5", nazov: "BMW X5 F15" } },
+    2655: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-x5-g05/", obsah: "598", auto: { znacka: "BMW", model: "X5", nazov: "BMW X5 G05" } },
+    2658: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-s-w222/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "S Class", nazov: "Mercedes třídy S W222" } },
+    2661: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-durango/", obsah: "598", auto: { znacka: "Dodge", model: "Durango GT (3 sedadla v 2.řade sedadel)", nazov: "Dodge Durango" } },
+    2664: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c8/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C8" } },
   },
 };
 
