@@ -105,6 +105,16 @@ export const PRODUKTY_1V = {
     880: { typ: "jedno", vzor: "diamond", url: "/autokoberce-ford-ranger-t6/", obsah: "598", auto: { znacka: "Ford", model: "Ranger", nazov: "Ford Ranger T6" } },
     883: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-e-w213/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "E", nazov: "Mercedes triedy E W213" } },
     886: { typ: "jedno", vzor: "diamond", url: "/autokoberce-kia-sorento-iv/", obsah: "598", auto: { znacka: "Kia", model: "Sorento (Hybrid)", nazov: "Kia Sorento IV" } },
+    // 14. 11. 2026 noc: autá 31–39 (kópie 598 / 2403)
+    889: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q5-fy/", obsah: "598", auto: { znacka: "Audi", model: "Q5", nazov: "Audi Q5 FY" } },
+    892: { typ: "jedno", vzor: "diamond", url: "/autokoberce-ford-mondeo-mk5/", obsah: "598", auto: { znacka: "Ford", model: "Mondeo", nazov: "Ford Mondeo Mk5" } },
+    895: { typ: "jedno", vzor: "diamond", url: "/autokoberce-cupra-formentor/", obsah: "598", auto: { znacka: "Cupra", model: "Formentor mHEV", nazov: "Cupra Formentor" } },
+    898: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mitsubishi-outlander-iii/", obsah: "598", auto: { znacka: "Mitsubishi", model: "Outlander", nazov: "Mitsubishi Outlander III" } },
+    901: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-s-w221/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "S Class", nazov: "Mercedes triedy S W221" } },
+    904: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-tiguan-i/", obsah: "598", auto: { znacka: "Volkswagen", model: "Tiguan", nazov: "Volkswagen Tiguan I" } },
+    907: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-tiguan-iii/", obsah: "598", auto: { znacka: "Volkswagen", model: "Tiguan", nazov: "Volkswagen Tiguan III" } },
+    910: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-5-f10-f11/", obsah: "598", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 F10/F11" } },
+    913: { typ: "jedno", vzor: "diamond", url: "/autokoberce-kia-sportage-ql/", obsah: "598", auto: { znacka: "Kia", model: "Sportage", nazov: "Kia Sportage QL" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -185,6 +195,16 @@ export const PRODUKTY_1V = {
     2691: { typ: "jedno", vzor: "diamond", url: "/autokoberce-ford-ranger-t6/", obsah: "598", auto: { znacka: "Ford", model: "Ranger", nazov: "Ford Ranger T6" } },
     2694: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-e-w213/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "E", nazov: "Mercedes třídy E W213" } },
     2697: { typ: "jedno", vzor: "diamond", url: "/autokoberce-kia-sorento-iv/", obsah: "598", auto: { znacka: "Kia", model: "Sorento (Hybrid)", nazov: "Kia Sorento IV" } },
+    // 14. 11. 2026 noc: autá 31–39 (kópie 598 / 2403)
+    2700: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-q5-fy/", obsah: "598", auto: { znacka: "Audi", model: "Q5", nazov: "Audi Q5 FY" } },
+    2703: { typ: "jedno", vzor: "diamond", url: "/autokoberce-ford-mondeo-mk5/", obsah: "598", auto: { znacka: "Ford", model: "Mondeo", nazov: "Ford Mondeo Mk5" } },
+    2706: { typ: "jedno", vzor: "diamond", url: "/autokoberce-cupra-formentor/", obsah: "598", auto: { znacka: "Cupra", model: "Formentor mHEV", nazov: "Cupra Formentor" } },
+    2709: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mitsubishi-outlander-iii/", obsah: "598", auto: { znacka: "Mitsubishi", model: "Outlander", nazov: "Mitsubishi Outlander III" } },
+    2712: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-s-w221/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "S Class", nazov: "Mercedes třídy S W221" } },
+    2715: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-tiguan-i/", obsah: "598", auto: { znacka: "Volkswagen", model: "Tiguan", nazov: "Volkswagen Tiguan I" } },
+    2718: { typ: "jedno", vzor: "diamond", url: "/autokoberce-volkswagen-tiguan-iii/", obsah: "598", auto: { znacka: "Volkswagen", model: "Tiguan", nazov: "Volkswagen Tiguan III" } },
+    2721: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-5-f10-f11/", obsah: "598", auto: { znacka: "BMW", model: "Rad 5", nazov: "BMW 5 F10/F11" } },
+    2724: { typ: "jedno", vzor: "diamond", url: "/autokoberce-kia-sportage-ql/", obsah: "598", auto: { znacka: "Kia", model: "Sportage", nazov: "Kia Sportage QL" } },
   },
 };
 

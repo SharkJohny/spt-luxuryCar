@@ -116,6 +116,18 @@ const ROVNAKE = [
   "/autokoberce-kia-sorento-iv/",
   "/autokoberce-ford/",
   "/autokoberce-kia/",
+  // 14. 11. 2026 noc: autá 31–39 a značky Cupra, Mitsubishi
+  "/autokoberce-audi-q5-fy/",
+  "/autokoberce-ford-mondeo-mk5/",
+  "/autokoberce-cupra-formentor/",
+  "/autokoberce-mitsubishi-outlander-iii/",
+  "/autokoberce-mercedes-s-w221/",
+  "/autokoberce-volkswagen-tiguan-i/",
+  "/autokoberce-volkswagen-tiguan-iii/",
+  "/autokoberce-bmw-5-f10-f11/",
+  "/autokoberce-kia-sportage-ql/",
+  "/autokoberce-cupra/",
+  "/autokoberce-mitsubishi/",
   // vlna 4 a 5 (kamióny, dodávky, kategórie Ford, IVECO, Dodávky) – naživo SK aj CZ od 14. 11. 2026
   "/autokoberce-do-kamionu-ford/",
   "/autokoberce-do-kamionu-iveco/",
