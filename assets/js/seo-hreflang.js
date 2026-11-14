@@ -102,6 +102,7 @@ const ROVNAKE = [
   "/autokoberce-audi-a6-c8/",
   "/autokoberce-hyundai/",
   "/autokoberce-volvo/",
+  "/autokoberce-bmw-xm/",
   // vlna 4 a 5 (kamióny, dodávky, kategórie Ford, IVECO, Dodávky) – naživo SK aj CZ od 14. 11. 2026
   "/autokoberce-do-kamionu-ford/",
   "/autokoberce-do-kamionu-iveco/",

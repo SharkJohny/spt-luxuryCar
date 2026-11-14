@@ -92,6 +92,8 @@ export const PRODUKTY_1V = {
     847: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-s-w222/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "S Class", nazov: "Mercedes triedy S W222" } },
     850: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-durango/", obsah: "598", auto: { znacka: "Dodge", model: "Durango GT (3 sedadlá v 2.rade sedadiel)", nazov: "Dodge Durango" } },
     853: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c8/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C8" } },
+    // 14. 11. 2026: BMW XM G09 s fotkami zákazníka (AI úprava)
+    856: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-xm/", obsah: "598", auto: { znacka: "BMW", model: "XM", nazov: "BMW XM" } },
   },
   581408: {
     2403: { typ: "jedno", vzor: "diamond", url: "/luxusne-autokoberce-dragonskin-diamond-line/", obsah: "598" },
@@ -159,6 +161,8 @@ export const PRODUKTY_1V = {
     2658: { typ: "jedno", vzor: "diamond", url: "/autokoberce-mercedes-s-w222/", obsah: "598", auto: { znacka: "Mercedes-Benz", model: "S Class", nazov: "Mercedes třídy S W222" } },
     2661: { typ: "jedno", vzor: "diamond", url: "/autokoberce-dodge-durango/", obsah: "598", auto: { znacka: "Dodge", model: "Durango GT (3 sedadla v 2.řade sedadel)", nazov: "Dodge Durango" } },
     2664: { typ: "jedno", vzor: "diamond", url: "/autokoberce-audi-a6-c8/", obsah: "598", auto: { znacka: "Audi", model: "A6", nazov: "Audi A6 C8" } },
+    // 14. 11. 2026: BMW XM G09 s fotkami zákazníka (AI úprava)
+    2667: { typ: "jedno", vzor: "diamond", url: "/autokoberce-bmw-xm/", obsah: "598", auto: { znacka: "BMW", model: "XM", nazov: "BMW XM" } },
   },
 };
 
