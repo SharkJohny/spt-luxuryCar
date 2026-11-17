@@ -20,6 +20,8 @@
 //  - telefón (do 991 px): lepivá lišta dole s tou istou cenou a tlačidlom (ctx.doKosika()), keď je konfigurátor mimo
 //    obrazovky. Bublina chatu Luxia sa nad lištu zdvihne (nikdy ju neprekryje a nie je ňou prekrytá); bezpečná zóna
 //    iPhonu (env(safe-area-inset-bottom)) je v CSS. Lepkavá lišta Shoptetu (#js-plugin-header) je pod 1V skrytá.
+import { zdrazenie, buducaCena, datum } from "../../functions/lcdOznam.js";
+
 export const MENO = "cena";
 
 const TEXTY = {
@@ -217,7 +219,27 @@ export function init(ctx) {
   teraz.appendChild(od);
   teraz.appendChild(suma);
   fig.appendChild(teraz);
+  // zvýšenie cien (#lcd-oznam v HTML kódoch SK, 17. 11. 2026): stred „Od 1. 12. 2026 / od 239 €“ = dnešná × (1 + %),
+  // nadol na …9; pruh dole „Do 30. 11. ušetríte ešte ďalších 20 €“. Bez oznamu (CZ, po dátume) sa nič nepridá.
+  const zdr = zdrazenie();
+  let bud = null, budOd = null, budSuma = null, zdrW = null, zdrT = null, zdrUs = null;
+  if (zdr) {
+    karta.classList.add("lcd1v-cena--zdr");
+    bud = el("div", "lcd1v-cena__bud");
+    bud.appendChild(el("div", "lcd1v-cena__stitok lcd1v-cena__stitok--bud", "Od " + datum(zdr.od, true)));
+    const budV = el("div", "lcd1v-cena__v");
+    budOd = el("i", "lcd1v-cena__od", T.od + " ");
+    budSuma = el("b", "lcd1v-cena__bsuma");
+    budV.appendChild(budOd);
+    budV.appendChild(budSuma);
+    bud.appendChild(budV);
+  }
   stl.appendChild(bolo);
+  if (bud) {
+    stl.appendChild(bud);
+    const st = fig.querySelector(".lcd1v-cena__stitok--nasa");
+    if (st) st.textContent = T.nasa + " dnes";
+  }
   stl.appendChild(fig);
   // pruh dole: „−39 % · Ušetríte 141 €“ (bez odporúčanej ceny celý skrytý)
   const pozn = el("p", "lcd1v-cena__pozn");
@@ -231,6 +253,14 @@ export function init(ctx) {
   pozn.appendChild(zlava);
   pozn.appendChild(bod);
   pozn.appendChild(usetrite);
+  if (zdr) {
+    zdrW = el("span", "lcd1v-cena__zdr");
+    zdrT = document.createTextNode("");
+    zdrUs = el("b", "lcd1v-cena__zdr-us");
+    zdrW.appendChild(zdrT);
+    zdrW.appendChild(zdrUs);
+    pozn.appendChild(zdrW);
+  }
   karta.appendChild(stl);
   karta.appendChild(pozn);
   // za krátky popis (oba order 1 v stĺpci -> rozhoduje poradie v DOM): názov, hodnotenie, popis, cena, kroky
@@ -356,6 +386,25 @@ export function init(ctx) {
     bolo.hidden = !maOdp;
     nastav(us, maOdp ? ctx.formatCena(Math.round((nOdp - nTeraz) * 100) / 100) : "");
     pozn.hidden = !maOdp;
+    if (zdr) {
+      const zakl = Number(odTyp) > 0 && Number(odTyp) > (nTeraz || 0) ? Number(odTyp) : nTeraz;
+      const nBud = buducaCena(zakl, zdr.pct);
+      const ok = nBud > zakl;
+      bud.hidden = !ok;
+      karta.classList.toggle("lcd1v-cena--zdr", ok);
+      nastav(budSuma, ok ? ctx.formatCena(nBud) : "");
+      budOd.hidden = hotovo;
+      // „−39 % · Do 30. 11. ušetríte ešte ďalších 20 €“ (bez odporúčanej ceny „Do 30. 11. ušetríte 20 €“)
+      usetrite.hidden = ok;
+      if (ok) {
+        const t = "Do " + datum(zdr.posledny, false) + " ušetríte " + (maOdp ? "ešte ďalších " : "");
+        if (zdrT.nodeValue !== t) zdrT.nodeValue = t;
+        nastav(zdrUs, ctx.formatCena(nBud - zakl));
+      }
+      zdrW.hidden = !ok;
+      bod.hidden = !(nZlava > 0 && maOdp);
+      pozn.hidden = !(maOdp || ok);
+    }
 
     od.hidden = hotovo;
     const stitok = hotovo ? T.vlozte : T.dokoncite;

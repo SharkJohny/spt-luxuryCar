@@ -19046,6 +19046,16 @@ body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn {
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zlava,
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us { font: inherit; color: inherit; white-space: nowrap; }
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us-w { white-space: nowrap; }
+/* zvýšenie cien (17. 11. 2026, #lcd-oznam v HTML kódoch SK): stredný stĺpec „Od 1. 12. 2026 / od 239 €“ + text v pruhu */
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bud {
+  display: flex; flex-direction: column; align-items: center; flex: 1 1 0; min-width: 0; margin: 0; padding: 12px 8px 11px;
+  border-right: 1px solid #e6e0d0;
+}
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bsuma {
+  font: 700 20px/1 var(--c1v-disp); color: #6d6658; font-variant-numeric: tabular-nums;
+}
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zdr { white-space: normal; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zdr-us { font: inherit; color: inherit; white-space: nowrap; }
 
 /* ---------- „Spolu“ + tlačidlo košíka (živé tlačidlo, preštýlované) ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .lcd1v-suhrn {
@@ -19191,11 +19201,21 @@ body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos:focus-visible { outline: 2px so
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bolo,
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__fig { padding: 14px 10px; }
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__odp { font-size: 20px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bud { padding: 14px 10px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bsuma { font-size: 24px; }
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma { font-size: 38px; }
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn { padding: 9px 14px 10px; }
 }
 @media (max-width: 380px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 24px; }
+}
+/* tri stĺpce na telefóne: menšie štítky, nech sa „ODPORÚČANÁ CENA“ zmestí na tretinu šírky */
+@media (max-width: 600px) {
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__stitok { font-size: 11px; letter-spacing: .05em; }
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__bolo,
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__bud,
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__fig { padding-left: 4px; padding-right: 4px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__suma { font-size: 30px; }
 }
 @media (max-width: 340px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 22px; }
@@ -24264,6 +24284,58 @@ html:root #cboxLoadedContent :is(.pisModal__actions .btn, .pisModal__bankItem):f
   html:root #cboxLoadedContent .pisModal__actions .pisModal__actions__confirm { flex: 1 1 auto; }
 }
 /* ===== LCD-PLATBA-BANKA END ===== */
+
+/* ===== LCD-OZNAM START - generovane tools/vloz-lcd-css.py z _lcdOznam.scss (oznam o zvyseni cien hore na produktovych strankach (#lcd-oznam, len ked je v HTML kodoch)), needituj rucne ===== */
+/* =====================================================================================================
+   OZNAM O ZVÝŠENÍ CIEN — partial pre blok LCD-OZNAM (vkladá tools/vloz-lcd-css.py)
+   Michal 17. 11. 2026: nenápadný krémový pás hore na produktových stránkach SK, pevný aj pri rolovaní;
+   keď sa text nezmestí na šírku, beží dookola. Obsah: Shoptet SK → HTML kódy → Zápätie (#lcd-oznam),
+   oživenie assets/js/functions/lcdOznam.js. Bez JS ostáva prvok skrytý (atribút hidden).
+   ===================================================================================================== */
+#lcd-oznam[hidden] { display: none !important; }
+#lcd-oznam.lcd-oznam {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-sizing: border-box; margin: 0; padding: 0;
+  background: #f6f0e2; border-bottom: 1px solid #c9a646; color: #1a1a1a;
+  font: 400 16px/22px "Source Sans 3", sans-serif; text-align: left;
+}
+/* hlavička LCD nuluje odsadenie obalu s !important (_lcdNativeHdr.scss) -> vyššia špecificita + !important */
+html.lcd-oznam-on.lcd-oznam-on .overall-wrapper { padding-top: var(--lcd-oznam-h, 40px) !important; }
+#lcd-oznam .lcd-oznam__in {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  max-width: 1320px; margin: 0 auto; padding: 8px 16px; box-sizing: border-box;
+}
+#lcd-oznam .lcd-oznam__in::before {
+  content: ""; flex: none; width: 20px; height: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8852b' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+#lcd-oznam .lcd-oznam__pas { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+#lcd-oznam .lcd-oznam__draha { display: flex; }
+#lcd-oznam .lcd-oznam__t { flex: none; margin: 0; padding: 0; white-space: nowrap; font: inherit; color: inherit; }
+#lcd-oznam .lcd-oznam__t b { font-weight: 700; }
+/* bežiaci pás: dve rovnaké kópie za sebou, posun o polovicu = plynulé opakovanie */
+#lcd-oznam.lcd-oznam--bezi .lcd-oznam__pas {
+  flex: 1 1 auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+}
+#lcd-oznam.lcd-oznam--bezi .lcd-oznam__draha { width: max-content; animation: lcd-oznam-bez var(--lcd-oznam-t, 20s) linear infinite; }
+#lcd-oznam.lcd-oznam--bezi .lcd-oznam__t { padding-right: 56px; }
+#lcd-oznam.lcd-oznam--bezi:hover .lcd-oznam__draha { animation-play-state: paused; }
+@keyframes lcd-oznam-bez { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+#lcd-oznam .lcd-oznam__cip {
+  flex: none; padding: 2px 11px; border-radius: 999px; background: #1a1a1a; color: #e9cf7a;
+  font: 600 14px/20px "Source Sans 3", sans-serif; white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  #lcd-oznam .lcd-oznam__t { white-space: normal; }
+}
+@media (max-width: 600px) {
+  #lcd-oznam.lcd-oznam { font-size: 15px; line-height: 21px; }
+  #lcd-oznam .lcd-oznam__in { gap: 10px; padding: 8px 12px; }
+  #lcd-oznam .lcd-oznam__in::before { width: 18px; height: 18px; }
+  #lcd-oznam .lcd-oznam__cip { font-size: 13px; padding: 2px 10px; }
+}
+/* ===== LCD-OZNAM END ===== */
 
 /* ===== Cena vs. tlacidlo do kosika (2026-09-25) =====
    .add-to-cart je od 768 px vytiahnute o 75 px hore vedla ceny. Stlpec je

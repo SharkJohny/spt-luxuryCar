@@ -31,7 +31,8 @@ Bloky (poradie v luxuryCar.css ostava, kde uz su; novy blok sa prida za predosly
                                                (pri zluceni s obsahom 598 musia ostat ZA spolocnymi blokmi obsahu)
   LCD-1V-GALERIA    <- _lcd1v-galeria.scss     ramik fotiek 1V: vlasova linka namiesto hrubeho zlateho ramu (len body.lcd-1v)
   LCD-1V-COOKIES    <- _lcd1v-cookies.scss     cookie lista + okno nastaveni v style C + odkaz v pate (pod html:root = PRE VSETKYCH)
-  LCD-PLATBA-BANKA  <- _lcdPlatbaBanka.scss    okno vyberu banky Shoptet Pay na kroku 1 (kotva .pisModal__*, PRE VSETKYCH, posledny blok)
+  LCD-PLATBA-BANKA  <- _lcdPlatbaBanka.scss    okno vyberu banky Shoptet Pay na kroku 1 (kotva .pisModal__*, PRE VSETKYCH)
+  LCD-OZNAM         <- _lcdOznam.scss          oznam o zvyseni cien na produktoch SK (#lcd-oznam z HTML kodov, posledny blok)
 LCD-BLOG ma vlastny nastroj (tools/vloz-lcd-blog-css.py), tento ho nemeni.
 
 Pri vkladani sa meni LEN prelud pravidiel (selektory), deklaracie a komentare ostavaju bajt po bajte:
@@ -147,6 +148,10 @@ BLOKY = [
     # a necitatelne kvoli #cboxLoadedContent{background:black} v luxuryCar.scss) — PRE VSETKYCH, kotva .pisModal__*
     dict(meno="LCD-PLATBA-BANKA", zdroj="_lcdPlatbaBanka.scss", home=False, h1=False,
          popis="okno vyberu banky Shoptet Pay (PRE VSETKYCH)"),
+    # Oznam o zvyseni cien na produktovych strankach SK (Michal 17. 11. 2026): #lcd-oznam z HTML kodov (Zapatie SK),
+    # oziveny assets/js/functions/lcdOznam.js; bez neho (CZ) sa nic neukaze
+    dict(meno="LCD-OZNAM", zdroj="_lcdOznam.scss", home=False, h1=False,
+         popis="oznam o zvyseni cien hore na produktovych strankach (#lcd-oznam, len ked je v HTML kodoch)"),
 ]
 
 

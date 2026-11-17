@@ -1,3 +1,4 @@
+import { initOznam } from "./functions/lcdOznam.js"; // oznam o zvyseni cien hore na produktoch SK (obsah v HTML kodoch, 17. 11. 2026)
 import { lupaNaPoziadanie } from "./functions/lupaNaPoziadanie.js"; // velka fotka pre lupu az pri pouziti (6. 11. 2026)
 import { initAutoPamat } from "./functions/autoPamat.js"; // auto zakaznika aj v novej karte kosika a objednavky (9. 10. 2026)
 import { LCD_ZAKLAD } from "./functions/lcdZaklad.js"; // zaklad CDN: priecinok verzie alebo spolocne assets/
@@ -44,6 +45,9 @@ initAutoPamat();
 initCookies1v();
 // Nekonečné animácie (lesk tlačidiel, pás galérie) mimo obrazovky nežerú procesor slabých telefónov — functions/lcdAnimMimo.js
 initAnimMimo();
+// Oznam o zvýšení cien (#lcd-oznam zo Zápätia SK) — pás hore, bežiaci text; bez prvku nič — functions/lcdOznam.js
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initOznam);
+else initOznam();
 
 let setupData;
 

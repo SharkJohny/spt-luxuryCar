@@ -201,6 +201,16 @@ body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn {
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zlava,
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us { font: inherit; color: inherit; white-space: nowrap; }
 body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__us-w { white-space: nowrap; }
+/* zvýšenie cien (17. 11. 2026, #lcd-oznam v HTML kódoch SK): stredný stĺpec „Od 1. 12. 2026 / od 239 €“ + text v pruhu */
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bud {
+  display: flex; flex-direction: column; align-items: center; flex: 1 1 0; min-width: 0; margin: 0; padding: 12px 8px 11px;
+  border-right: 1px solid #e6e0d0;
+}
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bsuma {
+  font: 700 20px/1 var(--c1v-disp); color: #6d6658; font-variant-numeric: tabular-nums;
+}
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zdr { white-space: normal; }
+body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__zdr-us { font: inherit; color: inherit; white-space: nowrap; }
 
 /* ---------- „Spolu“ + tlačidlo košíka (živé tlačidlo, preštýlované) ---------- */
 body.lcd-1v #product-detail-form .p-info-wrapper > .lcd1v-suhrn {
@@ -346,11 +356,21 @@ body.lcd-1v .lcd1v-lista button.lcd1v-lista__kos:focus-visible { outline: 2px so
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bolo,
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__fig { padding: 14px 10px; }
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__odp { font-size: 20px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bud { padding: 14px 10px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__bsuma { font-size: 24px; }
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__suma { font-size: 38px; }
   body.lcd-1v #product-detail-form .lcd1v-cena .lcd1v-cena__pozn { padding: 9px 14px 10px; }
 }
 @media (max-width: 380px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 24px; }
+}
+/* tri stĺpce na telefóne: menšie štítky, nech sa „ODPORÚČANÁ CENA“ zmestí na tretinu šírky */
+@media (max-width: 600px) {
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__stitok { font-size: 11px; letter-spacing: .05em; }
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__bolo,
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__bud,
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__fig { padding-left: 4px; padding-right: 4px; }
+  body.lcd-1v #product-detail-form .lcd1v-cena--zdr .lcd1v-cena__suma { font-size: 30px; }
 }
 @media (max-width: 340px) {
   body.lcd-1v #product-detail-form .p-detail-inner-header h1 { font-size: 22px; }
