@@ -31,6 +31,7 @@ body.lcd-vclass .p-detail-inner{max-width:none}
 #lcd-vclass-hero .lh-c small{font:600 16px var(--lv-body);color:#d9d4c6}
 #lcd-vclass-hero .lh-c b{font:800 clamp(30px,3vw,42px)/1 var(--lv-disp)}
 #lcd-vclass-hero .lh-c span{flex:1 0 100%;font:600 16px/1.35 var(--lv-body);color:#e6c877}
+#lcd-vclass-hero .lh-c .lh-zdr{flex:1 0 100%;margin-top:6px;font:600 15px/1.35 var(--lv-body);font-style:normal;color:#1f7a3f}
 #lcd-vclass-hero .lh-cta{align-self:flex-start;padding:16px 34px;border:0;border-radius:10px;background:var(--lv-zg);color:#fff;font:800 16px var(--lv-disp);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;box-shadow:0 14px 30px -14px rgba(47,156,104,.8)}
 #lcd-vclass-hero button:focus-visible{outline:3px solid #e6c877;outline-offset:2px}
 /* Vršok na počítači (Michal 7. 11. 2026: splývalo to s hlavičkou, text bol stiesnený, na monitore je miesta dosť).

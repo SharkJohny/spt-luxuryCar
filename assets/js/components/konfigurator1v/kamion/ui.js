@@ -4,6 +4,7 @@
 // Všetky tlačidlá type="button", žiadne name (koreň je vo <form>). Ceny len z cena.js (živé ceny Shoptetu).
 // Do košíka nič nepíše: zmenu výberu a „Pridať do košíka“ odovzdá cez naZmenu / doKosika (index.js -> shoptet.js).
 import { TEXTY } from "./texty.js";
+import { zdrazenie, buducaCena, datum } from "../../../functions/lcdOznam.js"; // nový cenník SK (#lcd-oznam, 17. 11. 2026)
 import { TEXTY_CS } from "./texty-cs.js";
 import { MATERIALY, LEMOVANIE, NASIVKY, NITE, POLIA, PORADIE_POLI, ZNACKY, FOTKA_DVERI_SUBOR, FOTKY_DVERI, FOTKA_KABINY_NASIVKY } from "./data.js";
 import { OBRAZKY_1V } from "../ctx.js";
@@ -248,9 +249,17 @@ export function vytvorUi(o) {
     const zvysok = doc.createElement("div");
     zvysok.className = "k-info-telo";
     // 1B (Michal 22. 10. 2026): bez úvodnej vety a čipov „V základnej cene“ — čo je v cene, povedia dve vety s ✓ v cenovom boxe
+    // nový cenník SK (#lcd-oznam v HTML kódoch, 17. 11. 2026): stĺpec „Od 30. 11. 2026 / od 209 €“ + pruh „Do 29. 11. ušetríte …“; CZ ho nemá
+    const zdr = zdrazenie();
+    const zakl = Number(D.ceny.zaklad_eur);
+    const nBud = zdr ? buducaCena(zakl, zdr.pct) : NaN;
+    const zOk = !!zdr && nBud > zakl;
     zvysok.innerHTML =
-      '<div class="k-cena"><div class="k-cena__stl"><div class="k-cena__fig"><div class="k-cena__stitok">' + esc(h.cena_popis.stitok) +
+      '<div class="k-cena' + (zOk ? " k-cena--zdr" : "") + '"><div class="k-cena__stl">' +
+      (zOk ? '<div class="k-cena__fig k-cena__bud"><div class="k-cena__stitok">Od ' + datum(zdr.od, true) + '</div><div class="k-cena__teraz"><i class="k-cena__od">' + esc(h.cena_popis.od) + ' </i><b class="k-cena__bsuma">' + eur(nBud) + "</b></div></div>" : "") +
+      '<div class="k-cena__fig"><div class="k-cena__stitok">' + esc(h.cena_popis.stitok) + (zOk ? " dnes" : "") +
       '</div><div class="k-cena__teraz"><i class="k-cena__od">' + esc(h.cena_popis.od) + ' </i><b class="k-cena__suma">' + eur(D.ceny.zaklad_eur) + "</b></div></div></div>" +
+      (zOk ? '<p class="k-cena__zdr">Do ' + datum(zdr.posledny, false) + " ušetríte " + eur(nBud - zakl) + "</p>" : "") +
       '<ul class="k-cena__vc">' + h.cena_popis.v_cene.map((x) => '<li class="k-cena__vr">' + esc(x) + "</li>").join("") + "</ul></div>" +
       '<div data-k="kompat"></div><div data-k="postup"></div><div class="k-kroky" data-k="kroky"></div><div data-k="suhrn"></div>';
     root.appendChild(zvysok);

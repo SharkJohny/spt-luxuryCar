@@ -22013,6 +22013,10 @@ body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__teraz { flex: 1 0 au
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__teraz { align-items: baseline; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__od { margin: 0 2px 0 0; font: 600 13.5px/1 var(--k-body); font-style: normal; color: var(--k-mute); white-space: pre; }
 body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__suma { font: 900 32px/1 var(--k-disp); letter-spacing: -.005em; color: var(--k-ink); font-variant-numeric: tabular-nums; }
+/* nový cenník SK (17. 11. 2026): stĺpec „Od 30. 11. 2026“ vľavo + pruh pod cenou */
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__bud { border-right: 1px solid #e6e0d0; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__bsuma { font: 700 22px/1 var(--k-disp); color: #6d6658; font-variant-numeric: tabular-nums; }
+body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__zdr { margin: 0; padding: 8px 12px 9px; background: #f7f5ef; border-top: 1px solid #ece6d6; font: 700 15px/20px var(--k-disp); color: #1f7a3f; }
 @media (min-width: 901px) {
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__fig { padding: 14px 10px; }
   body.lcd-1v[data-lcd1v-typ="kamion"] #lcd1v-kamion .k-cena__suma { font-size: 38px; }

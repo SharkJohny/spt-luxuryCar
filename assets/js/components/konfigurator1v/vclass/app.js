@@ -6,6 +6,7 @@
 // Košík: všetky výbery idú do natívnych selectov príplatkov (admin 415–442), ceny rátá Shoptet. Do košíka sa klikne natívne
 // tlačidlo, takže rozpis v košíku aj riadok objednávky fungujú ako pri ostatných produktoch.
 import { kresli } from "./kresba.js";
+import { zdrazenie, buducaCena, datum } from "../../../functions/lcdOznam.js"; // nový cenník SK (#lcd-oznam, 17. 11. 2026)
 import { nastavTrh, data, t, cenaText } from "./trh.js";
 import { NAHLADY_FARIEB } from "../farby-nahlady-data.js";
 import { CSS } from "./styl.js";
@@ -135,7 +136,11 @@ export function spusti(ctx) {
   hero.id = "lcd-vclass-hero";
   hero.setAttribute("role", "region");
   hero.setAttribute("aria-label", t("Mercedes triedy V"));
-  hero.innerHTML = '<div class="lh-in"><div class="lh-g"><video class="lh-v" muted loop playsinline webkit-playsinline disablepictureinpicture disableremoteplayback preload="none" aria-label="' + VIDEO.alt + '"></video><button type="button" class="lh-pauza" aria-label="' + t("Zastaviť video") + '" hidden></button></div><div class="lh-tx"><div class="lh-h"></div><p class="lh-p">' + t("Prešívané autokoberce na mieru pre Mercedes triedy V v dĺžkach M, L a XL, od pedálov až po kufor. Podlahu sme naskenovali, preto sedia okolo každej koľajnice aj zásuvky. Set si poskladáte po častiach a cenu vidíte pri každom kroku.") + '</p><div class="lh-dol"><div class="lh-c"><small>' + t("od") + '</small><b>' + eur(zaklad) + '</b><span>' + t("jednovrstvové autokoberce pod predné sedadlá") + '</span></div><button type="button" class="lh-cta">' + t("Zostaviť môj set") + '</button></div></div></div>';
+  // nový cenník SK (#lcd-oznam v HTML kódoch, 17. 11. 2026): pod cenou „Od 30. 11. 2026 od 329 €“; CZ ho nemá
+  const zdr = zdrazenie();
+  const nBud = zdr ? buducaCena(zaklad, zdr.pct) : NaN;
+  const hZdr = zdr && nBud > zaklad ? '<em class="lh-zdr">Od ' + datum(zdr.od, true) + " od " + eur(nBud) + " · do " + datum(zdr.posledny, false) + " ešte za " + eur(zaklad) + "</em>" : "";
+  hero.innerHTML = '<div class="lh-in"><div class="lh-g"><video class="lh-v" muted loop playsinline webkit-playsinline disablepictureinpicture disableremoteplayback preload="none" aria-label="' + VIDEO.alt + '"></video><button type="button" class="lh-pauza" aria-label="' + t("Zastaviť video") + '" hidden></button></div><div class="lh-tx"><div class="lh-h"></div><p class="lh-p">' + t("Prešívané autokoberce na mieru pre Mercedes triedy V v dĺžkach M, L a XL, od pedálov až po kufor. Podlahu sme naskenovali, preto sedia okolo každej koľajnice aj zásuvky. Set si poskladáte po častiach a cenu vidíte pri každom kroku.") + '</p><div class="lh-dol"><div class="lh-c"><small>' + t("od") + '</small><b>' + eur(zaklad) + '</b><span>' + t("jednovrstvové autokoberce pod predné sedadlá") + '</span>' + hZdr + '</div><button type="button" class="lh-cta">' + t("Zostaviť môj set") + '</button></div></div></div>';
   obal.insertBefore(hero, obal.firstChild);
   const povodne = { rodic: hlavicka && hlavicka.parentNode, za: hlavicka && hlavicka.nextSibling };
   const h1 = hlavicka && hlavicka.querySelector("h1");
