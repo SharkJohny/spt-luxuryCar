@@ -48,6 +48,8 @@ export function zostava(od, teraz) {
 export function initOznam() {
   const body = document.body;
   if (!body || !body.classList.contains("type-detail")) return;
+  // vzorkovník a darčeková poukážka: ich ceny sa nemenia -> bez oznamu (Michal 17. 11. 2026)
+  if (/^\/(vzorkovnik|darcekova-poukazka)/.test(location.pathname)) return;
   const e = document.getElementById("lcd-oznam");
   const cfg = zdrazenie();
   if (!e || !cfg) return;
