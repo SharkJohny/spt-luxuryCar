@@ -9,7 +9,8 @@ const S = (...m) => O + " :is(" + m.map((x) => '[data-lcd-sekcia="' + x + '"]').
 
 export const CSS = `
 body.lcd-vclass{--lv-ink:#14110c;--lv-line:#d9d4c6;--lv-gold:#c49b31;--lv-gt:#7c5f16;--lv-mute:#6e6752;--lv-text:#3d3728;--lv-sand:#f6f4ef;--lv-zel:#1f7a52;--lv-zg:linear-gradient(100deg,#1d6b4a,#1f7a52 42%,#1f7350);--lv-zl:linear-gradient(100deg,#8f7020,#e6c877 48%,#c49b31);--lv-disp:"Exo 2",system-ui,sans-serif;--lv-body:"Source Sans 3",system-ui,sans-serif}
-body.lcd-vclass .p-image-wrapper>*:not(#lcd-vclass-nakres){display:none!important}
+body.lcd-vclass:not(.lcd-vclass-uvod) .p-image-wrapper>*:not(#lcd-vclass-nakres){display:none!important}
+body.lcd-vclass.lcd-vclass-uvod #lcd-vclass-nakres{display:none!important}
 body.lcd-vclass .p-info-wrapper>*:not(#lcd-vclass){display:none!important}
 body.lcd-vclass .p-info-wrapper{opacity:1!important;visibility:visible!important;display:block!important}
 body.lcd-vclass .p-detail-inner-header{display:block;margin:0;padding:0;width:auto;background:none;border:0}
@@ -274,7 +275,8 @@ body.lcd-vclass .p-detail-inner{max-width:none}
   #lcd-vclass-hero .lh-tx{grid-column:1;grid-row:2;padding:6px 16px 24px;gap:11px}
   #lcd-vclass-hero .lh-cta{align-self:stretch;text-align:center}
   #lcd-vclass-hero .lh-dol{display:contents}
-  body.lcd-vclass .p-image-wrapper{display:none!important}
+  body.lcd-vclass:not(.lcd-vclass-uvod) .p-image-wrapper{display:none!important}
+  body.lcd-vclass.lcd-vclass-uvod .p-image-wrapper{margin:16px 0 4px}
   #lcd-vclass-cesta{padding:18px 8px 4px}
   #lcd-vclass-cesta span{font-size:11px;letter-spacing:.02em;white-space:nowrap}
   #lcd-vclass-cesta li:not(.lv-teraz) span{display:none}

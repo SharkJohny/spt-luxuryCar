@@ -489,6 +489,8 @@ export function spusti(ctx) {
   /** Kresba až od kroku, kde si zákazník niečo vyberá. Telefón: v otvorenom kroku nad tlačidlom, zákazník vidí zmenu bez posúvania. PC: ľavý stĺpec. */
   function umiestni() {
     nakres.classList.toggle("lv-uvod", S.akt === 0);
+    // prvý krok: namiesto jednej fotky galéria fotiek produktu zo Shoptetu (preklikávanie, lupa; Michal 22. 11. 2026)
+    document.body.classList.toggle("lcd-vclass-uvod", S.akt === 0);
     if (!(window.matchMedia && window.matchMedia(MOBIL).matches)) { if (nakres.parentNode !== lavy) lavy.appendChild(nakres); return; }
     const ot = kor.querySelector(".lv-ot");
     const d = ot && ot.querySelector(".lv-dalej");
@@ -763,7 +765,7 @@ export function spusti(ctx) {
     if (hlavicka && povodne.rodic) povodne.rodic.insertBefore(hlavicka, povodne.za && povodne.za.parentNode === povodne.rodic ? povodne.za : null);
     if (sediPovodne && sediPovodne.rodic) sediPovodne.rodic.insertBefore(sediKp, sediPovodne.za && sediPovodne.za.parentNode === sediPovodne.rodic ? sediPovodne.za : null);
     [root, nakres, hero, cesta, lista, styl].forEach((x) => { if (x.parentNode) x.parentNode.removeChild(x); });
-    document.body.classList.remove("lcd-vclass");
+    document.body.classList.remove("lcd-vclass", "lcd-vclass-uvod");
   }
 
   const prvy = KROKY.findIndex((k) => !hotovy[k.id]());
