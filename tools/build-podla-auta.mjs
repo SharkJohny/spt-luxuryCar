@@ -15,6 +15,7 @@
 // Fotky áut (od 13. 11. 2026 všetky biele, predkom DOĽAVA, nezrkadlené — Michal): trieda V = tlačová fotka Mercedes-Benz AG
 // 23C0247_1202 (media.mercedes-benz.com), Kodiaq II = Škoda Storyboard 61_Skoda_Kodiaq_iV (vystrihnuté rembg isnet-general-use);
 // podmienky tlačových fotiek len na novinárske účely — Michal riziko fotiek výrobcov vedome prijal 9. 11. 2026.
+// Od 28. 11. 2026 karty áut = biele autá z nových titulok (Michal: „to isté aj s fotkami do kategórií“), assets/img/1v/auto/titulky-1128/<auto>-480/-960.
 // Nové auto = do auta značky (fotka auta assets/img/1v/auto/<auto>/<meno>-480/-960 .webp + .png, biele, predok doľava).
 // Ceny „od“ = cena produktu na webe (pri zmene ceny upraviť a znova vložiť Popis).
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -37,18 +38,18 @@ const ZNACKY = [
     kluc: "audi", nazov: "Audi", logo: "znacky/audi.svg", url: "/autokoberce-audi/", pata: true,
     koho: "svojho Audi", kto: "Audi",
     auta: [
-      { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/audi-a6-c7/audi-a6-c7-auto-w2", w: 480, h: 246 },
+      { nazov: "Audi A6 C7", roky: "roky 2011–2018", cena: 219, url: "/autokoberce-audi-a6-c7/", foto: "1v/auto/titulky-1128/audi-a6-c7", w: 480, h: 239 },
       // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
-      { nazov: "Audi Q7 4M", roky: "od roku 2015", cena: 219, url: "/autokoberce-audi-q7-4m/", foto: "1v/auto/audi-q7-4m/audi-q7-4m-auto-w", w: 480, h: 254 },
-      { nazov: "Audi Q8", roky: "od roku 2018", cena: 219, url: "/autokoberce-audi-q8/", foto: "1v/auto/audi-q8/audi-q8-auto-w", w: 480, h: 208 },
+      { nazov: "Audi Q7 4M", roky: "od roku 2015", cena: 219, url: "/autokoberce-audi-q7-4m/", foto: "1v/auto/titulky-1128/audi-q7-4m", w: 480, h: 271 },
+      { nazov: "Audi Q8", roky: "od roku 2018", cena: 219, url: "/autokoberce-audi-q8/", foto: "1v/auto/titulky-1128/audi-q8", w: 480, h: 219 },
       // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Audi e-tron / Q8 e-tron", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-audi-e-tron/", foto: "1v/auto/audi-e-tron/audi-e-tron-auto-w", w: 480, h: 214 },
-      { nazov: "Audi A6 C8", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-audi-a6-c8/", foto: "1v/auto/audi-a6-c8/audi-a6-c8-auto-w", w: 480, h: 208 },
+      { nazov: "Audi e-tron / Q8 e-tron", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-audi-e-tron/", foto: "1v/auto/titulky-1128/audi-e-tron", w: 480, h: 232 },
+      { nazov: "Audi A6 C8", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-audi-a6-c8/", foto: "1v/auto/titulky-1128/audi-a6-c8", w: 480, h: 213 },
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Audi Q7 4L", roky: "roky 2006–2015", cena: 219, url: "/autokoberce-audi-q7-4l/", foto: "1v/auto/audi-q7-4l/audi-q7-4l-auto-w", w: 480, h: 279 },
-      { nazov: "Audi A4 B9", roky: "roky 2015–2024", cena: 219, url: "/autokoberce-audi-a4-b9/", foto: "1v/auto/audi-a4-b9/audi-a4-b9-auto-w", w: 480, h: 221 },
+      { nazov: "Audi Q7 4L", roky: "roky 2006–2015", cena: 219, url: "/autokoberce-audi-q7-4l/", foto: "1v/auto/titulky-1128/audi-q7-4l", w: 480, h: 284 },
+      { nazov: "Audi A4 B9", roky: "roky 2015–2024", cena: 219, url: "/autokoberce-audi-a4-b9/", foto: "1v/auto/titulky-1128/audi-a4-b9", w: 480, h: 223 },
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Audi Q5 FY", roky: "roky 2017–2024", cena: 219, url: "/autokoberce-audi-q5-fy/", foto: "1v/auto/audi-q5-fy/audi-q5-fy-auto-w", w: 480, h: 266 },
+      { nazov: "Audi Q5 FY", roky: "roky 2017–2024", cena: 219, url: "/autokoberce-audi-q5-fy/", foto: "1v/auto/titulky-1128/audi-q5-fy", w: 480, h: 266 },
     ],
   },
   {
@@ -56,18 +57,18 @@ const ZNACKY = [
     koho: "svojho BMW", kto: "BMW",
     // stránky áut zverejnené 12. 11. 2026 (dvojvrstvové kópie 601), autá z hlavných fotiek Witamats (Michal 12. 11.)
     auta: [
-      { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 219, url: "/autokoberce-bmw-3-g20-g21/", foto: "1v/auto/bmw-3-g20/bmw-3-g20-auto-w", w: 480, h: 204 },
-      { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 219, url: "/autokoberce-bmw-5-g30-g31/", foto: "1v/auto/bmw-5-g30/bmw-5-g30-auto-w", w: 480, h: 228 },
-      { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 219, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/bmw-x7-g07/bmw-x7-g07-auto-w", w: 480, h: 260 },
+      { nazov: "BMW 3 G20/G21", roky: "od roku 2019", cena: 219, url: "/autokoberce-bmw-3-g20-g21/", foto: "1v/auto/titulky-1128/bmw-3-g20-g21", w: 480, h: 206 },
+      { nazov: "BMW 5 G30/G31", roky: "roky 2017–2023", cena: 219, url: "/autokoberce-bmw-5-g30-g31/", foto: "1v/auto/titulky-1128/bmw-5-g30-g31", w: 480, h: 229 },
+      { nazov: "BMW X7 G07", roky: "od roku 2019", cena: 219, url: "/autokoberce-bmw-x7-g07/", foto: "1v/auto/titulky-1128/bmw-x7-g07", w: 480, h: 259 },
       // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "BMW X6 E71", roky: "roky 2008–2014", cena: 219, url: "/autokoberce-bmw-x6-e71/", foto: "1v/auto/bmw-x6-e71/bmw-x6-e71-auto-w", w: 480, h: 215 },
-      { nazov: "BMW X5 F15", roky: "roky 2013–2018", cena: 219, url: "/autokoberce-bmw-x5-f15/", foto: "1v/auto/bmw-x5-f15/bmw-x5-f15-auto-w", w: 480, h: 244 },
-      { nazov: "BMW X5 G05", roky: "roky 2018–2026", cena: 219, url: "/autokoberce-bmw-x5-g05/", foto: "1v/auto/bmw-x5-g05/bmw-x5-g05-auto-w", w: 480, h: 269 },
-      { nazov: "BMW XM", roky: "G09 od roku 2023", cena: 219, url: "/autokoberce-bmw-xm/", foto: "1v/auto/bmw-xm/bmw-xm-auto-v3-w", w: 480, h: 214 },
+      { nazov: "BMW X6 E71", roky: "roky 2008–2014", cena: 219, url: "/autokoberce-bmw-x6-e71/", foto: "1v/auto/titulky-1128/bmw-x6-e71", w: 480, h: 231 },
+      { nazov: "BMW X5 F15", roky: "roky 2013–2018", cena: 219, url: "/autokoberce-bmw-x5-f15/", foto: "1v/auto/titulky-1128/bmw-x5-f15", w: 480, h: 246 },
+      { nazov: "BMW X5 G05", roky: "roky 2018–2026", cena: 219, url: "/autokoberce-bmw-x5-g05/", foto: "1v/auto/titulky-1128/bmw-x5-g05", w: 480, h: 272 },
+      { nazov: "BMW XM", roky: "G09 od roku 2023", cena: 219, url: "/autokoberce-bmw-xm/", foto: "1v/auto/titulky-1128/bmw-xm", w: 480, h: 212 },
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "BMW X5 E70", roky: "roky 2006–2013", cena: 219, url: "/autokoberce-bmw-x5-e70/", foto: "1v/auto/bmw-x5-e70/bmw-x5-e70-auto-w", w: 480, h: 226 },
+      { nazov: "BMW X5 E70", roky: "roky 2006–2013", cena: 219, url: "/autokoberce-bmw-x5-e70/", foto: "1v/auto/titulky-1128/bmw-x5-e70", w: 480, h: 227 },
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "BMW 5 F10/F11", roky: "roky 2010–2017", cena: 219, url: "/autokoberce-bmw-5-f10-f11/", foto: "1v/auto/bmw-5-f10-f11/bmw-5-f10-f11-auto-w", w: 480, h: 231 },
+      { nazov: "BMW 5 F10/F11", roky: "roky 2010–2017", cena: 219, url: "/autokoberce-bmw-5-f10-f11/", foto: "1v/auto/titulky-1128/bmw-5-f10-f11", w: 480, h: 243 },
     ],
   },
   {
@@ -75,33 +76,33 @@ const ZNACKY = [
     koho: "svojho Volkswagenu", kto: "Volkswagen",
     auta: [
       // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
-      { nazov: "Volkswagen Touareg III", roky: "od roku 2018", cena: 219, url: "/autokoberce-volkswagen-touareg-iii/", foto: "1v/auto/volkswagen-touareg-iii/volkswagen-touareg-iii-auto-w", w: 480, h: 205 },
-      { nazov: "Volkswagen Passat B8", roky: "roky 2014–2023", cena: 219, url: "/autokoberce-volkswagen-passat-b8/", foto: "1v/auto/volkswagen-passat-b8/volkswagen-passat-b8-auto-w", w: 480, h: 176 },
+      { nazov: "Volkswagen Touareg III", roky: "od roku 2018", cena: 219, url: "/autokoberce-volkswagen-touareg-iii/", foto: "1v/auto/titulky-1128/volkswagen-touareg-iii", w: 480, h: 268 },
+      { nazov: "Volkswagen Passat B8", roky: "roky 2014–2023", cena: 219, url: "/autokoberce-volkswagen-passat-b8/", foto: "1v/auto/titulky-1128/volkswagen-passat-b8", w: 480, h: 200 },
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Volkswagen Passat B6", roky: "roky 2005–2010", cena: 219, url: "/autokoberce-volkswagen-passat-b6/", foto: "1v/auto/volkswagen-passat-b6/volkswagen-passat-b6-auto-w", w: 480, h: 246 },
-      { nazov: "Volkswagen Passat B7", roky: "roky 2010–2015", cena: 219, url: "/autokoberce-volkswagen-passat-b7/", foto: "1v/auto/volkswagen-passat-b7/volkswagen-passat-b7-auto-w", w: 480, h: 264 },
+      { nazov: "Volkswagen Passat B6", roky: "roky 2005–2010", cena: 219, url: "/autokoberce-volkswagen-passat-b6/", foto: "1v/auto/titulky-1128/volkswagen-passat-b6", w: 480, h: 237 },
+      { nazov: "Volkswagen Passat B7", roky: "roky 2010–2015", cena: 219, url: "/autokoberce-volkswagen-passat-b7/", foto: "1v/auto/titulky-1128/volkswagen-passat-b7", w: 480, h: 259 },
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Volkswagen Tiguan I", roky: "roky 2007–2016", cena: 219, url: "/autokoberce-volkswagen-tiguan-i/", foto: "1v/auto/volkswagen-tiguan-i/volkswagen-tiguan-i-auto-w", w: 480, h: 279 },
-      { nazov: "Volkswagen Tiguan III", roky: "od roku 2024", cena: 219, url: "/autokoberce-volkswagen-tiguan-iii/", foto: "1v/auto/volkswagen-tiguan-iii/volkswagen-tiguan-iii-auto-w", w: 480, h: 259 },
+      { nazov: "Volkswagen Tiguan I", roky: "roky 2007–2016", cena: 219, url: "/autokoberce-volkswagen-tiguan-i/", foto: "1v/auto/titulky-1128/volkswagen-tiguan-i", w: 480, h: 280 },
+      { nazov: "Volkswagen Tiguan III", roky: "od roku 2024", cena: 219, url: "/autokoberce-volkswagen-tiguan-iii/", foto: "1v/auto/titulky-1128/volkswagen-tiguan-iii", w: 480, h: 276 },
     ],
   },
   {
     kluc: "mercedes-benz", nazov: "Mercedes-Benz", logo: "znacky/mercedes.svg", url: "/autokoberce-mercedes-benz/", pata: true,
     koho: "svojho Mercedesu",
     auta: [
-      { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/mercedes-v-class/v-class-auto-w", w: 480, h: 291 },
-      { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle/", foto: "1v/auto/mercedes-gle-v167/mercedes-gle-v167-auto-w", w: 480, h: 259 },
-      { nazov: "Mercedes-Benz triedy G", roky: "W463, roky 2018–2024", cena: 219, url: "/autokoberce-mercedes-g-class/", foto: "1v/auto/mercedes-g-class-w463/mercedes-g-class-w463-auto-w", w: 480, h: 297 },
-      { nazov: "Mercedes-Benz GLS", roky: "X167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gls/", foto: "1v/auto/mercedes-gls-x167/mercedes-gls-x167-auto-w", w: 480, h: 246 },
-      { nazov: "Mercedes-Benz EQE SUV", roky: "X294 od roku 2022", cena: 219, url: "/autokoberce-mercedes-eqe-suv/", foto: "1v/auto/mercedes-eqe/mercedes-eqe-auto-w", w: 480, h: 257 },
+      { nazov: "Mercedes-Benz triedy V", roky: "W447 od roku 2014", cena: 300, url: "/autokoberce-mercedes-v-class/", foto: "1v/auto/titulky-1128/mercedes-v-class", w: 480, h: 238 },
+      { nazov: "Mercedes-Benz GLE", roky: "V167 a Coupé C167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gle/", foto: "1v/auto/titulky-1128/mercedes-gle", w: 480, h: 257 },
+      { nazov: "Mercedes-Benz triedy G", roky: "W463, roky 2018–2024", cena: 219, url: "/autokoberce-mercedes-g-class/", foto: "1v/auto/titulky-1128/mercedes-g-class", w: 480, h: 295 },
+      { nazov: "Mercedes-Benz GLS", roky: "X167 od roku 2019", cena: 219, url: "/autokoberce-mercedes-gls/", foto: "1v/auto/titulky-1128/mercedes-gls", w: 480, h: 252 },
+      { nazov: "Mercedes-Benz EQE SUV", roky: "X294 od roku 2022", cena: 219, url: "/autokoberce-mercedes-eqe-suv/", foto: "1v/auto/titulky-1128/mercedes-eqe-suv", w: 480, h: 256 },
       // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Mercedes-Benz GLE W166", roky: "roky 2015–2019", cena: 219, url: "/autokoberce-mercedes-gle-w166/", foto: "1v/auto/mercedes-gle-w166/mercedes-gle-w166-auto-w", w: 480, h: 277 },
-      { nazov: "Mercedes-Benz triedy S W222", roky: "roky 2013–2020", cena: 219, url: "/autokoberce-mercedes-s-w222/", foto: "1v/auto/mercedes-s-w222/mercedes-s-w222-auto-w", w: 480, h: 214 },
+      { nazov: "Mercedes-Benz GLE W166", roky: "roky 2015–2019", cena: 219, url: "/autokoberce-mercedes-gle-w166/", foto: "1v/auto/titulky-1128/mercedes-gle-w166", w: 480, h: 291 },
+      { nazov: "Mercedes-Benz triedy S W222", roky: "roky 2013–2020", cena: 219, url: "/autokoberce-mercedes-s-w222/", foto: "1v/auto/titulky-1128/mercedes-s-w222", w: 480, h: 229 },
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Mercedes-Benz GLC X254", roky: "od roku 2022", cena: 219, url: "/autokoberce-mercedes-glc-x254/", foto: "1v/auto/mercedes-glc-x254/mercedes-glc-x254-auto-w", w: 480, h: 211 },
-      { nazov: "Mercedes-Benz triedy E W213", roky: "roky 2016–2023", cena: 219, url: "/autokoberce-mercedes-e-w213/", foto: "1v/auto/mercedes-e-w213/mercedes-e-w213-auto-w", w: 480, h: 201 },
+      { nazov: "Mercedes-Benz GLC X254", roky: "od roku 2022", cena: 219, url: "/autokoberce-mercedes-glc-x254/", foto: "1v/auto/titulky-1128/mercedes-glc-x254", w: 480, h: 244 },
+      { nazov: "Mercedes-Benz triedy E W213", roky: "roky 2016–2023", cena: 219, url: "/autokoberce-mercedes-e-w213/", foto: "1v/auto/titulky-1128/mercedes-e-w213", w: 480, h: 211 },
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Mercedes-Benz triedy S W221", roky: "roky 2005–2013", cena: 219, url: "/autokoberce-mercedes-s-w221/", foto: "1v/auto/mercedes-s-w221/mercedes-s-w221-auto-w", w: 480, h: 222 },
+      { nazov: "Mercedes-Benz triedy S W221", roky: "roky 2005–2013", cena: 219, url: "/autokoberce-mercedes-s-w221/", foto: "1v/auto/titulky-1128/mercedes-s-w221", w: 480, h: 216 },
     ],
   },
   {
@@ -110,15 +111,15 @@ const ZNACKY = [
     auta: [
       // Kodiaq I (produkt 667, kópia 598, 12. 11. 2026): auto = tlačová fotka Škoda Auto (Kodiaq Scout, IAA 2017), uhol ako autá Witamats.
       // Produkt je zatiaľ skrytý (hosť 404) — Popis značky Škoda vkladať až po zverejnení 667.
-      { nazov: "Škoda Kodiaq I", roky: "roky 2016–2024", cena: 219, url: "/autokoberce-skoda-kodiaq-i/", foto: "1v/auto/skoda-kodiaq-i/skoda-kodiaq-i-auto-w2", w: 480, h: 259 },
-      { nazov: "Škoda Kodiaq II", roky: "od roku 2024", cena: 230, url: "/autokoberce-skoda-kodiaq-ii/", foto: "1v/auto/skoda-kodiaq-ii/kodiaq-ii-auto-w", w: 480, h: 258 },
+      { nazov: "Škoda Kodiaq I", roky: "roky 2016–2024", cena: 219, url: "/autokoberce-skoda-kodiaq-i/", foto: "1v/auto/titulky-1128/skoda-kodiaq-i", w: 480, h: 258 },
+      { nazov: "Škoda Kodiaq II", roky: "od roku 2024", cena: 230, url: "/autokoberce-skoda-kodiaq-ii/", foto: "1v/auto/titulky-1128/skoda-kodiaq-ii", w: 480, h: 227 },
       // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
-      { nazov: "Škoda Superb III", roky: "roky 2015–2023", cena: 219, url: "/autokoberce-skoda-superb-iii/", foto: "1v/auto/skoda-superb-iii/skoda-superb-iii-auto-w", w: 480, h: 194 },
-      { nazov: "Škoda Octavia II", roky: "roky 2004–2013", cena: 219, url: "/autokoberce-skoda-octavia-ii/", foto: "1v/auto/skoda-octavia-ii/skoda-octavia-ii-auto-w", w: 480, h: 260 },
-      { nazov: "Škoda Octavia III", roky: "roky 2013–2020", cena: 219, url: "/autokoberce-skoda-octavia-iii/", foto: "1v/auto/skoda-octavia-iii/skoda-octavia-iii-auto-w", w: 480, h: 225 },
-      { nazov: "Škoda Karoq", roky: "od roku 2017", cena: 219, url: "/autokoberce-skoda-karoq/", foto: "1v/auto/skoda-karoq/skoda-karoq-auto-w", w: 480, h: 230 },
+      { nazov: "Škoda Superb III", roky: "roky 2015–2023", cena: 219, url: "/autokoberce-skoda-superb-iii/", foto: "1v/auto/titulky-1128/skoda-superb-iii", w: 480, h: 187 },
+      { nazov: "Škoda Octavia II", roky: "roky 2004–2013", cena: 219, url: "/autokoberce-skoda-octavia-ii/", foto: "1v/auto/titulky-1128/skoda-octavia-ii", w: 480, h: 257 },
+      { nazov: "Škoda Octavia III", roky: "roky 2013–2020", cena: 219, url: "/autokoberce-skoda-octavia-iii/", foto: "1v/auto/titulky-1128/skoda-octavia-iii", w: 480, h: 220 },
+      { nazov: "Škoda Karoq", roky: "od roku 2017", cena: 219, url: "/autokoberce-skoda-karoq/", foto: "1v/auto/titulky-1128/skoda-karoq", w: 480, h: 242 },
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Škoda Superb II", roky: "roky 2008–2015", cena: 219, url: "/autokoberce-skoda-superb-ii/", foto: "1v/auto/skoda-superb-ii/skoda-superb-ii-auto-w", w: 480, h: 183 },
+      { nazov: "Škoda Superb II", roky: "roky 2008–2015", cena: 219, url: "/autokoberce-skoda-superb-ii/", foto: "1v/auto/titulky-1128/skoda-superb-ii", w: 480, h: 206 },
     ],
   },
   {
@@ -126,9 +127,9 @@ const ZNACKY = [
     koho: "svojho Dodge", kto: "Dodge",
     auta: [
       // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
-      { nazov: "Dodge Challenger", roky: "roky 2008–2023", cena: 219, url: "/autokoberce-dodge-challenger/", foto: "1v/auto/dodge-challenger/dodge-challenger-auto-w", w: 480, h: 215 },
+      { nazov: "Dodge Challenger", roky: "roky 2008–2023", cena: 219, url: "/autokoberce-dodge-challenger/", foto: "1v/auto/titulky-1128/dodge-challenger", w: 480, h: 217 },
       // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Dodge Durango", roky: "od roku 2011", cena: 219, url: "/autokoberce-dodge-durango/", foto: "1v/auto/dodge-durango/dodge-durango-auto-w", w: 480, h: 224 },
+      { nazov: "Dodge Durango", roky: "od roku 2011", cena: 219, url: "/autokoberce-dodge-durango/", foto: "1v/auto/titulky-1128/dodge-durango", w: 480, h: 234 },
     ],
   },
   {
@@ -136,7 +137,7 @@ const ZNACKY = [
     koho: "svojej Toyoty", kto: "Toyota",
     auta: [
       // 13. 11. 2026: generácie podľa objednávok „ako Witamats“ (kópie 598), titulka = vzorový koberec + tlačová fotka auta
-      { nazov: "Toyota RAV4 V", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-toyota-rav4-v/", foto: "1v/auto/toyota-rav4-v/toyota-rav4-v-auto-w", w: 480, h: 263 },
+      { nazov: "Toyota RAV4 V", roky: "roky 2018–2025", cena: 219, url: "/autokoberce-toyota-rav4-v/", foto: "1v/auto/titulky-1128/toyota-rav4-v", w: 480, h: 275 },
     ],
   },
   {
@@ -144,7 +145,7 @@ const ZNACKY = [
     koho: "svojho Hyundaia", kto: "Hyundai",
     auta: [
       // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Hyundai Tucson IV", roky: "roky 2020–2026", cena: 219, url: "/autokoberce-hyundai-tucson-iv/", foto: "1v/auto/hyundai-tucson-iv/hyundai-tucson-iv-auto-w", w: 480, h: 202 },
+      { nazov: "Hyundai Tucson IV", roky: "roky 2020–2026", cena: 219, url: "/autokoberce-hyundai-tucson-iv/", foto: "1v/auto/titulky-1128/hyundai-tucson-iv", w: 480, h: 228 },
     ],
   },
   {
@@ -152,7 +153,7 @@ const ZNACKY = [
     koho: "svojho Volva", kto: "Volvo",
     auta: [
       // 14. 11. 2026: autá 11–20 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Volvo XC90 II", roky: "od roku 2015", cena: 219, url: "/autokoberce-volvo-xc90-ii/", foto: "1v/auto/volvo-xc90-ii/volvo-xc90-ii-auto-w", w: 480, h: 235 },
+      { nazov: "Volvo XC90 II", roky: "od roku 2015", cena: 219, url: "/autokoberce-volvo-xc90-ii/", foto: "1v/auto/titulky-1128/volvo-xc90-ii", w: 480, h: 237 },
     ],
   },
   {
@@ -160,9 +161,9 @@ const ZNACKY = [
     koho: "svojho Fordu", kto: "Ford",
     auta: [
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Ford Ranger T6", roky: "roky 2011–2022", cena: 219, url: "/autokoberce-ford-ranger-t6/", foto: "1v/auto/ford-ranger-t6/ford-ranger-t6-auto-w", w: 480, h: 273 },
+      { nazov: "Ford Ranger T6", roky: "roky 2011–2022", cena: 219, url: "/autokoberce-ford-ranger-t6/", foto: "1v/auto/titulky-1128/ford-ranger-t6", w: 480, h: 291 },
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Ford Mondeo Mk5", roky: "roky 2014–2022", cena: 219, url: "/autokoberce-ford-mondeo-mk5/", foto: "1v/auto/ford-mondeo-mk5/ford-mondeo-mk5-auto-w", w: 480, h: 223 },
+      { nazov: "Ford Mondeo Mk5", roky: "roky 2014–2022", cena: 219, url: "/autokoberce-ford-mondeo-mk5/", foto: "1v/auto/titulky-1128/ford-mondeo-mk5", w: 480, h: 219 },
     ],
   },
   {
@@ -170,9 +171,9 @@ const ZNACKY = [
     koho: "svojej Kie", kto: "Kia",
     auta: [
       // 14. 11. 2026 večer: autá 21–30 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Kia Sorento IV", roky: "od roku 2020", cena: 219, url: "/autokoberce-kia-sorento-iv/", foto: "1v/auto/kia-sorento-iv/kia-sorento-iv-auto-w", w: 480, h: 276 },
+      { nazov: "Kia Sorento IV", roky: "od roku 2020", cena: 219, url: "/autokoberce-kia-sorento-iv/", foto: "1v/auto/titulky-1128/kia-sorento-iv", w: 480, h: 271 },
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Kia Sportage QL", roky: "roky 2015–2021", cena: 219, url: "/autokoberce-kia-sportage-ql/", foto: "1v/auto/kia-sportage-ql/kia-sportage-ql-auto-w", w: 480, h: 241 },
+      { nazov: "Kia Sportage QL", roky: "roky 2015–2021", cena: 219, url: "/autokoberce-kia-sportage-ql/", foto: "1v/auto/titulky-1128/kia-sportage-ql", w: 480, h: 263 },
     ],
   },
   {
@@ -180,7 +181,7 @@ const ZNACKY = [
     koho: "svojej Cupry", kto: "Cupra",
     auta: [
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Cupra Formentor", roky: "od roku 2020", cena: 219, url: "/autokoberce-cupra-formentor/", foto: "1v/auto/cupra-formentor/cupra-formentor-auto-w", w: 480, h: 277 },
+      { nazov: "Cupra Formentor", roky: "od roku 2020", cena: 219, url: "/autokoberce-cupra-formentor/", foto: "1v/auto/titulky-1128/cupra-formentor", w: 480, h: 266 },
     ],
   },
   {
@@ -188,7 +189,7 @@ const ZNACKY = [
     koho: "svojho Mitsubishi", kto: "Mitsubishi",
     auta: [
       // 14. 11. 2026 večer: autá 31–39 zo zoznamu najpredávanejších generácií (kópie 598), titulka = vzorový koberec + fotka auta
-      { nazov: "Mitsubishi Outlander III", roky: "roky 2012–2021", cena: 219, url: "/autokoberce-mitsubishi-outlander-iii/", foto: "1v/auto/mitsubishi-outlander-iii/mitsubishi-outlander-iii-auto-w", w: 480, h: 283 },
+      { nazov: "Mitsubishi Outlander III", roky: "roky 2012–2021", cena: 219, url: "/autokoberce-mitsubishi-outlander-iii/", foto: "1v/auto/titulky-1128/mitsubishi-outlander-iii", w: 480, h: 293 },
     ],
   },
 ].sort((a, b) => a.nazov.localeCompare(b.nazov, "sk"));
